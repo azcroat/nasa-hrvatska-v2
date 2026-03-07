@@ -5,7 +5,7 @@ import { TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, A
 export function TenseFlipScreen({ goBack, award }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("⏳ Present → Past","Convert prezent to perfekt and negative")}
       <div className="c" style={{marginBottom:12,padding:"10px 14px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 See the present tense, then tap to reveal the past (perfekt) and negative past forms.</div>
       {shMemo("tf",TENSEFLIP,10).map(function(t,ti){return (
@@ -26,7 +26,7 @@ export function TenseFlipScreen({ goBack, award }) {
 export function RiddlesScreen({ goBack, award }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🧩 Što je to?","Read the clues in Croatian, guess the answer!")}
       {shMemo("rid",RIDDLES,8).map(function(r,ri){return (
         <div key={ri} className="c" style={{marginBottom:14,padding:"14px 16px"}}>
@@ -47,7 +47,7 @@ export function RiddlesScreen({ goBack, award }) {
 export function LogicQuizScreen({ goBack, award }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🧠 Think in Croatian","Pick the answers that make sense")}
       <div className="c" style={{marginBottom:12,padding:"10px 14px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 Read the Croatian situation and pick ALL correct answers. Some questions have 2 right answers!</div>
       {shMemo("lq",LOGICQUIZ).map(function(lq,li){var allOpts=lq.right.concat(lq.wrong).sort(function(){return Math.random()-0.5});return (
@@ -70,7 +70,7 @@ export function LogicQuizScreen({ goBack, award }) {
 export function OrdinalsScreen({ goBack, award }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🏢 Ordinal Numbers","prvi, drugi, treći... + locative (na ___om katu)")}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6,marginBottom:20}}>
         {ORDINALS.map(function(o,i){return (
@@ -103,7 +103,7 @@ export function OrdinalsScreen({ goBack, award }) {
 export function RelativePronounsScreen({ goBack, award }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🔗 Koji, Koja, Koje","Relative pronouns — which/that/who")}
       <div className="c" style={{marginBottom:16,padding:"12px",fontSize:12,background:"rgba(14,116,144,.06)"}}>{RELPRON.intro}</div>
       <div style={{overflowX:"auto",marginBottom:20}}>
@@ -140,7 +140,7 @@ export function RelativePronounsScreen({ goBack, award }) {
 export function EmotionGenderScreen({ goBack, award }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("😀 How Are You Feeling?","Pick the right gender form for emotions")}
       <div className="c" style={{marginBottom:12,padding:"10px 14px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 Croatian adjectives change based on gender. 👨 = masculine ending, 👩 = feminine ending. Tap the correct form!</div>
       {EMOGENDER.map(function(eg,ei){return (
@@ -165,7 +165,7 @@ export function EmotionGenderScreen({ goBack, award }) {
 export function OppositesScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("↔️ Opposites","Learn adjective pairs with animals")}
       {shMemo("ao",ADJOPPOSITES).map(function(p,i){return (
         <div key={i} className="c" style={{marginBottom:10,padding:"10px 14px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
@@ -187,7 +187,7 @@ export function OppositesScreen({ goBack }) {
 export function CityLocativeScreen({ goBack, award }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🏙️ Where Do You Live?","City & country names in locative case")}
       <div className="c" style={{marginBottom:12,padding:"10px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 "Gdje živiš?" uses the locative case. Zagreb → u Zagrebu, Hrvatska → u Hrvatskoj.</div>
       <h3 className="sh">🏙️ Gradovi (Cities)</h3>
@@ -227,7 +227,7 @@ export function CityLocativeScreen({ goBack, award }) {
 export function AccusativeDrillScreen({ goBack, award }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🍽️ Accusative Case","How nouns change after Voliš li / Nosiš li / Jedeš li")}
       <div className="c" style={{marginBottom:12,padding:"10px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 Feminine nouns ending in -a change to -u in accusative. Masculine/neuter nouns usually stay the same.</div>
       <h3 className="sh">🍔 Hrana (Food)</h3>

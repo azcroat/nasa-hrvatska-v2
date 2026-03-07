@@ -9,7 +9,7 @@ export default function GrammarScreen({
   if (!gl) return null;
   return (
     <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {gp==="learn"&&<React.Fragment>
         {H("📐 "+gl.title)}
         <div className="c" style={{marginBottom:16}}>

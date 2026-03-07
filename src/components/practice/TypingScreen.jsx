@@ -18,7 +18,7 @@ export default function TypingScreen({ goBack, award }) {
   if (tyI >= tyPool.length) {
     return (
       <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-        <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+        
         {H("⌨️ Typing Practice","Type Croatian words with special characters")}
         <div style={{textAlign:"center"}}>
           <div style={{fontSize:64}}>{tyS >= tyPool.length * 0.8 ? "🏆" : "📚"}</div>
@@ -33,7 +33,7 @@ export default function TypingScreen({ goBack, award }) {
 
   return (
     <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("⌨️ Typing Practice","Type Croatian words with special characters")}
       <Bar v={tyI + 1} mx={tyPool.length} />
       <div className="c" style={{textAlign:"center",marginTop:16}}>

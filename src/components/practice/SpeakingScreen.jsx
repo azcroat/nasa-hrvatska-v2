@@ -6,7 +6,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
 
   return (
     <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🎤 Pronunciation Practice")}
       <Bar v={sx + 1} mx={si.length} color="#4d7c0f" h={6} />
       <div className="c" style={{textAlign:"center",marginTop:16}}>

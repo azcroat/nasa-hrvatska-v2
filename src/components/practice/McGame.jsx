@@ -9,7 +9,7 @@ export default function McGame({
   if (!mcQ[mcI]) return null;
   return (
     <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🎯 Multiple Choice")}
       <Bar v={mcI+1} mx={mcQ.length} h={6} color="#f59e0b" />
       <div className="c" style={{marginTop:16}}>

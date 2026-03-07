@@ -6,7 +6,7 @@ export default function LearnPath({ st, setScr, goBack }) {
   LEARN_PATH.forEach(lv=>lv.items.forEach(it=>{tt++;if(it.ck(st))td++;}));
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("📈 My Learning Path","Structured progression from Day 1 to fluency")}
       <div className="c" style={{marginBottom:20,textAlign:"center"}}>
         <div style={{fontSize:32,fontWeight:800,color:"#0e7490"}}>{Math.round(td/tt*100)}%</div>

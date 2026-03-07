@@ -15,7 +15,7 @@ export default function PrepDrill({ goBack, award }) {
   if (ppI >= total) {
     return (
       <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-        <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+        
         {H("📍 Preposition Drills","Fill in the correct preposition")}
         <div style={{textAlign:"center"}}>
           <div style={{fontSize:64}}>{ppS >= total * 0.8 ? "🏆" : "📚"}</div>
@@ -30,7 +30,7 @@ export default function PrepDrill({ goBack, award }) {
 
   return (
     <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("📍 Preposition Drills","Fill in the correct preposition")}
       <div style={{display:"flex",justifyContent:"space-between"}}>
         <span>{ppI + 1} / {total}</span>

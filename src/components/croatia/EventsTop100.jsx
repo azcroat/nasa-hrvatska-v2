@@ -6,7 +6,7 @@ export function EventsCalendar({ goBack }) {
   const [evM, sEvM] = useState(new Date().getMonth()+1||1);
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("📅 Croatian Events & Holidays","Traditional celebrations throughout the year")}
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:20}}>
         {[1,2,3,4,5,6,7,8,9,10,11,12].map(function(m){return (
@@ -33,7 +33,7 @@ export function Top100Screen({ goBack }) {
   const [t1k, sT1k] = useState(null);
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("💯 Top 100 Words","Essential words for real-world situations")}
       {!t1k?<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
         {Object.keys(TOP100).map(function(k){return (

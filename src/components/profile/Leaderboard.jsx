@@ -13,7 +13,7 @@ export default function Leaderboard({
 }) {
   return (
     <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🏆 Family Leaderboard","Compete with your family!")}
       <div style={{display:"flex",gap:6,marginBottom:16}}>
         {["main","create","join"].map(t => (

@@ -4,7 +4,7 @@ import { H, ALPHA, speak } from '../../data.jsx';
 export default function AlphabetScreen({ goBack }) {
   return (
     <div style={{maxWidth:600,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🔤 Croatian Alphabet","30 letters — perfectly phonetic!")}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
         {ALPHA.map((l,i)=>(

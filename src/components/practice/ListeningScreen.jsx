@@ -22,7 +22,7 @@ export default function ListeningScreen({
   );
   return (
     <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🎧 Listening Comprehension","Listen, then pick what you heard")}
       <Bar v={lsI+1} mx={total} h={6} />
       <div className="c" style={{marginTop:16,textAlign:"center"}}>

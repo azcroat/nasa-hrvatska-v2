@@ -6,7 +6,7 @@ export default function KingsScreen({ goBack, award, setSt }) {
   const [kgTab, sKgTab] = useState("timeline");
   return (
     <div style={{maxWidth:640,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("👑 "+KINGS.title, KINGS.subtitle)}
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:20}}>
         {["timeline","dukes","kings","cities","vocab"].map(function(t){return (

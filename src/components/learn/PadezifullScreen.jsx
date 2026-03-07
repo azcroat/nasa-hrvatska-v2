@@ -24,7 +24,7 @@ export default function PadezifullScreen({ goBack, award }) {
 
   return (
     <div style={{maxWidth:680,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("📚 " + PADEZI_FULL.title, PADEZI_FULL.subtitle)}
       <div style={{display:"flex",gap:6,marginBottom:16}}>
         {["sing","plur","quiz"].map(t => (

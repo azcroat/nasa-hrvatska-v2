@@ -4,7 +4,7 @@ import { Bar, lXP, nXP } from '../../data.jsx';
 export default function ProfileScreen({ name, level, st, au, goBack, doOut }) {
   return (
     <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       <div style={{textAlign:"center",marginBottom:32}}>
         <div style={{width:80,height:80,borderRadius:"50%",background:"linear-gradient(135deg,#0e7490,#164e63)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px",fontSize:36,color:"#fff",fontWeight:800}}>
           {name.charAt(0).toUpperCase()}
