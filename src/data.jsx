@@ -9,7 +9,7 @@ const{useState,useEffect,useCallback,useRef}=React;
 // ═══════════════════════════════════════════════════════════
 // ═══ FIREBASE CONFIG ═══
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyC_mzFMAxDcraqkYMwS_g_PETnJLhFJKiw",
+  apiKey: "AIzaSyCD4ul4KCILkufNMk5qCr-C5JiN9D7ogn0",
   authDomain: "ucimohrvatski-488f9.firebaseapp.com",
   projectId: "ucimohrvatski-488f9",
   storageBucket: "ucimohrvatski-488f9.firebasestorage.app",
