@@ -1,0 +1,17 @@
+{
+  "name": "Naša Hrvatska — Our Croatia",
+  "short_name": "Naša Hrvatska",
+  "description": "Interactive Croatian language learning with vocabulary, grammar, games, and cultural immersion",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fffbeb",
+  "theme_color": "#0e7490",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛵</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

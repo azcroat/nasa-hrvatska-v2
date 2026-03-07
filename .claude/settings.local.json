@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(curl:*)",
+      "Bash(npx kill-port:*)",
+      "Bash(node:*)",
+      "Bash(start:*)",
+      "Bash(npx react-codemod@latest:*)",
+      "Bash(npx react-codemod:*)",
+      "Bash(npx jscodeshift:*)",
+      "Bash(mv:*)"
+    ]
+  }
+}
