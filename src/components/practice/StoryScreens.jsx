@@ -8,7 +8,7 @@ export default function StoryScreens({ goBack, award, sCurEx }) {
 
   if (!stSt) {
     return (
-      <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+      <div className="scr-wrap">
         
         {H("📖 Mini Stories","Interactive stories where YOU choose what happens")}
         {STORIES.map((s, i) => (
@@ -33,7 +33,7 @@ export default function StoryScreens({ goBack, award, sCurEx }) {
   const scene = stSt.scenes[stSc];
 
   return (
-    <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       <button
         className="b bg"
         style={{marginBottom:16,fontSize:13}}

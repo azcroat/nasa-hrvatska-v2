@@ -11,7 +11,7 @@ export default function ListeningScreen({
   const total = lsQ.length;
   const correct = q.en;
   if (lsI >= total) return (
-    <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       <div style={{textAlign:"center"}}>
         <div style={{fontSize:64}}>{lsS>=total*0.7?"🏆":"👍"}</div>
         <h2 style={{fontFamily:"'Playfair Display',serif",color:"#164e63"}}>Listening Complete!</h2>
@@ -21,7 +21,7 @@ export default function ListeningScreen({
     </div>
   );
   return (
-    <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🎧 Listening Comprehension","Listen, then pick what you heard")}
       <Bar v={lsI+1} mx={total} h={6} />

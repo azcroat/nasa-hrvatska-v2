@@ -13,7 +13,7 @@ export default function Unjumble({ goBack, award }) {
 
   if (!q) {
     return (
-      <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+      <div className="scr-wrap">
         
         {H("🧩 Word Order","Arrange words to form correct Croatian sentences")}
         <div style={{textAlign:"center",padding:40}}>
@@ -28,7 +28,7 @@ export default function Unjumble({ goBack, award }) {
   const isCorrect = ujIn.replace(/[.?!]/g,"").trim().toLowerCase() === q.correct.replace(/[.?!]/g,"").trim().toLowerCase();
 
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🧩 Word Order","Arrange words to form correct Croatian sentences")}
       <Bar v={ujI + 1} mx={total} h={6} />

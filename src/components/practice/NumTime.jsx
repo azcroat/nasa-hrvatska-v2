@@ -16,7 +16,7 @@ export default function NumTime({ goBack, award }) {
 
   if (!ntQ[ntI]) {
     return (
-      <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+      <div className="scr-wrap">
         
         {H("🔢 Numbers & Time","Practice numbers, time, and currency in Croatian")}
         <div style={{textAlign:"center"}}>
@@ -35,7 +35,7 @@ export default function NumTime({ goBack, award }) {
   const ci = ntO.indexOf(q.a);
 
   return (
-    <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🔢 Numbers & Time","Practice numbers, time, and currency in Croatian")}
       <React.Fragment>

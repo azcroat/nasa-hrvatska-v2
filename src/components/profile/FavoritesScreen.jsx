@@ -3,7 +3,7 @@ import { H, speak } from '../../data.jsx';
 
 export default function FavoritesScreen({ favs, toggleFav, setScr, goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("⭐ My Favorites","Saved words, phrases & screens")}
       {favs.length===0

@@ -5,7 +5,7 @@ import { REGIONS, ROLEPLAY, RECIPES } from '../../data.jsx';
 export function RegionScreen({ regionKey, goBack }) {
   const r = REGIONS[regionKey];
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H(r.title, r.sub)}
       {r.sections.map(function(s,i){return (
@@ -24,7 +24,7 @@ export function RoleplayScreen({ goBack }) {
   const [rpShow, setRpShow] = useState(false);
   const r = ROLEPLAY[rpIdx];
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🎭 Conversation Role-Play","Practice real-life dialogues")}
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:16}}>
@@ -66,7 +66,7 @@ export function RecipesScreen({ goBack }) {
   const r = RECIPES[rcIdx];
   const scale = rcServ / r.servings;
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🍳 Croatian Recipes","Cook & learn vocabulary")}
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:16}}>

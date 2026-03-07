@@ -3,7 +3,7 @@ import { H, IDIOMS, speak } from '../../data.jsx';
 
 export default function IdiomsScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🗣️ Idioms & Slang","Speak like a real Croatian!")}
       {IDIOMS.map((idm,i)=>(

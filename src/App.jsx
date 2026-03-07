@@ -326,8 +326,7 @@ function markExerciseDone(exerciseId){
       {scr==="welcome" && <WelcomeScreen name={name} au={au} st={st} setScr={setScr} setName={setName} sPq={sPq} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} />}
       {scr==="placement" && <PlacementTest pq={pq} pi={pi} ps={ps} pa={pa} px={px} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} setScr={setScr} setSt={setSt} />}
       {// ═══ DASHBOARD ═══
-      scr==="dashboard"&&<div
-        style={{maxWidth:640,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+      scr==="dashboard"&&<div className="dash">
         {// ═══ TAB: HOME ═══
         tab==="home"&&<HomeTab
           name={name} level={level} st={st}

@@ -14,7 +14,7 @@ export default function PrepDrill({ goBack, award }) {
 
   if (ppI >= total) {
     return (
-      <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+      <div className="scr-wrap">
         
         {H("📍 Preposition Drills","Fill in the correct preposition")}
         <div style={{textAlign:"center"}}>
@@ -29,7 +29,7 @@ export default function PrepDrill({ goBack, award }) {
   const q = ppQ[ppI];
 
   return (
-    <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("📍 Preposition Drills","Fill in the correct preposition")}
       <div style={{display:"flex",justifyContent:"space-between"}}>

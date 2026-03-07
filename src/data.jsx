@@ -2730,6 +2730,26 @@ input[type=text],input[type=password],input[type=email],textarea{width:100%;padd
 input:focus,textarea:focus{border-color:#0e7490;box-shadow:0 0 0 3px rgba(14,116,144,.15)}
 .sh{font-size:15px;font-weight:800;color:#164e63;margin-bottom:12px;margin-top:20px;padding-bottom:6px;border-bottom:2px solid rgba(14,116,144,.08)}
 .rt{font-size:17px;line-height:2;color:#44403c}.rt .w{cursor:pointer;border-radius:4px;padding:1px 3px;transition:all .2s}.rt .w:hover{background:rgba(14,116,144,.15)}
+.nav-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.97);border-top:1px solid rgba(0,0,0,.08);border-bottom:none;display:flex;justify-content:space-around;padding:6px 0;padding-bottom:max(6px,env(safe-area-inset-bottom));z-index:9000;backdrop-filter:blur(10px)}
+.nav-btn{background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 8px;min-width:60px;transition:opacity .2s}
+.nav-btn .nav-icon{font-size:22px}.nav-btn .nav-label{font-size:10px;font-weight:600;color:#78716c}
+.nav-btn.active .nav-label{font-weight:800;color:#0e7490}
+.dash{max-width:640px;margin:0 auto;padding:24px 16px 80px;position:relative;z-index:1}
+.scr-wrap{max-width:620px;margin:0 auto;padding:24px 16px 80px;position:relative;z-index:1}
+@media(min-width:768px){
+  .nav-bar{bottom:auto;top:0;border-top:none;border-bottom:1px solid rgba(0,0,0,.08);padding:0 32px;justify-content:center;gap:8px}
+  .nav-btn{flex-direction:row;gap:8px;padding:16px 20px;min-width:auto;border-radius:10px;min-height:56px}
+  .nav-btn .nav-icon{font-size:20px}.nav-btn .nav-label{font-size:14px;font-weight:600}
+  .nav-btn.active{background:rgba(14,116,144,.1)}.nav-btn.active .nav-label{color:#0e7490;font-weight:700}
+  .dash{max-width:900px;padding:88px 32px 40px}
+  .scr-wrap{max-width:900px;padding:88px 32px 40px}
+  .c{border-radius:18px}.tc{border-radius:18px}
+  .b{font-size:16px}
+}
+@media(min-width:1100px){
+  .dash{max-width:1100px;padding:88px 48px 40px}
+  .scr-wrap{max-width:1100px;padding:88px 48px 40px}
+}
 `;
 const BG_LIGHT={minHeight:"100vh",background:"linear-gradient(170deg,#e0f2fe 0%,#f0f9ff 12%,#fffbeb 35%,#fef3c7 55%,#fed7aa 78%,#fdba74 100%)",color:"#1c1917",fontFamily:"'Outfit',sans-serif",position:"relative",overflowX:"hidden"};
 const BG_DARK={minHeight:"100vh",background:"linear-gradient(170deg,#0f172a 0%,#1e293b 30%,#1a1a2e 60%,#16213e 100%)",color:"#e2e8f0",fontFamily:"'Outfit',sans-serif",position:"relative",overflowX:"hidden"};

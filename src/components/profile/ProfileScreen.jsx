@@ -3,7 +3,7 @@ import { Bar, lXP, nXP } from '../../data.jsx';
 
 export default function ProfileScreen({ name, level, st, au, goBack, doOut }) {
   return (
-    <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       <div style={{textAlign:"center",marginBottom:32}}>
         <div style={{width:80,height:80,borderRadius:"50%",background:"linear-gradient(135deg,#0e7490,#164e63)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px",fontSize:36,color:"#fff",fontWeight:800}}>

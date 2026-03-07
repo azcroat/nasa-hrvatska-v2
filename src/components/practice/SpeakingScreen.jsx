@@ -5,7 +5,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   if (!sw) return null;
 
   return (
-    <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🎤 Pronunciation Practice")}
       <Bar v={sx + 1} mx={si.length} color="#4d7c0f" h={6} />

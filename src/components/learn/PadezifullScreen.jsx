@@ -23,7 +23,7 @@ export default function PadezifullScreen({ goBack, award }) {
   const genderBorder = g => g === "f" ? "#dc2626" : g === "n" ? "#16a34a" : "#0e7490";
 
   return (
-    <div style={{maxWidth:680,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("📚 " + PADEZI_FULL.title, PADEZI_FULL.subtitle)}
       <div style={{display:"flex",gap:6,marginBottom:16}}>
