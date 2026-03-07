@@ -31,10 +31,10 @@ export default function LoginScreen({
           <label style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>EMAIL ADDRESS</label>
           <input type="email" placeholder={isR?"Enter your email address":"Email address"} value={em} onChange={e=>{setEm(e.target.value);setAe("")}} autoComplete="email" inputMode="email" autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{marginBottom:14}} />
           <label style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>PASSWORD</label>
-          <input type={sp?"text":"password"} placeholder={isR?"Create password (6+ characters)":"Enter your password"} value={pw} onChange={e=>{setPw(e.target.value);setAe("")}} onKeyDown={e=>{if(e.key==="Enter"&&!isR)doLog()}} autoComplete={isR?"new-password":"current-password"} style={{marginBottom:isR?14:8}} />
+          <input type={sp?"text":"password"} placeholder={isR?"Create password (6+ characters)":"Enter your password"} value={pw} onChange={e=>{setPw(e.target.value);setAe("")}} onKeyDown={e=>{if(e.key==="Enter"&&!isR)doLog()}} autoComplete={isR?"new-password":"current-password"} autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{marginBottom:isR?14:8}} />
           {isR && <React.Fragment>
             <label style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>CONFIRM PASSWORD</label>
-            <input type="password" placeholder="Confirm your password" value={pc} onChange={e=>{setPc(e.target.value);setAe("")}} autoComplete="new-password" style={{marginBottom:14}} />
+            <input type="password" placeholder="Confirm your password" value={pc} onChange={e=>{setPc(e.target.value);setAe("")}} autoComplete="new-password" autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{marginBottom:14}} />
             <label style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>SECURITY QUESTION</label>
             <select value={sq} onChange={e=>{setSq(e.target.value);setAe("")}} style={{width:"100%",padding:"14px 18px",border:"2px solid rgba(14,116,144,.12)",borderRadius:14,background:"rgba(255,255,255,.65)",color:sq?"#1c1917":"#a8a29e",fontSize:16,fontWeight:600,outline:"none",fontFamily:"'Outfit',sans-serif",marginBottom:14,cursor:"pointer",WebkitAppearance:"none"}}>
               <option value="" disabled>Select a security question...</option>

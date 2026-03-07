@@ -131,7 +131,7 @@ function App(){
       if(_fbReady&&_fbAuth){
         _fbAuth.onAuthStateChanged(function(user){
           if(user){var dn=user.displayName||user.email;var k=user.email;
-            var a=gA();a[k]={d:dn,e:k};sA(a);
+            var a=gA();var ex=a[k]||{};ex.d=dn;ex.e=k;a[k]=ex;sA(a);
             fbLoadProgress(k).then(function(fp){if(fp)sP(k,fp);
               setAu({u:k,d:dn,e:k});sS({u:k});touchSession();updateStreak();
               fbLoadUserFamily(k).then(function(f){if(f)setFamData(f)});
@@ -198,22 +198,33 @@ function App(){
   async function doLog(){
     setAe("");if(!em.trim()||!isValidEmail(em.trim())){setAe("Please enter a valid email address.");return}if(!pw){setAe("Please enter your password.");return}setAl(true);
     try{
-    initFirebase();const k=em.trim().toLowerCase();
+    initFirebase();const k=em.trim().toLowerCase();var fbResult=null;
     // Try Firebase first
-    if(_fbReady){var fb=await fbLogin(k,pw);
-      if(fb.ok){var fbProgress=await fbLoadProgress(k);var fdn=fb.user.displayName||k;
-        var fa=gA();if(!fa[k])fa[k]={d:fdn,e:k};sA(fa);if(fbProgress)sP(k,fbProgress);
-        setAu({u:k,d:fdn,e:k});sS({u:k});
-        var fp=fbProgress||gP(k);if(fp){setName(fp.name||fdn);setSt(fp.st||ds);setScr((fp.cp||(fp.st&&(fp.st.xp>0||fp.st.lc>0)))?"dashboard":"welcome")}else setName(fdn);
-        setAs("app");setEm("");setPw("");fbLoadUserFamily(k).then(function(f){if(f)setFamData(f)});setAl(false);return;}
-      // Only hard-stop on rate limiting — everything else falls through to local account
-      if(fb.err&&fb.err.indexOf("Too many attempts")>=0){setAe(fb.err);setAl(false);return}}
-    // Local account fallback — handles local-only accounts and Firebase outages
-    var la=gA();if(!la[k]){setAe("No account found with this email. Please check your email or create a new account.");setAl(false);return}
-    var lh=await hp(pw);if(la[k].p!==lh){setAe("Incorrect password. Try again or use Forgot Password.");setAl(false);return}
-    setAu({u:k,d:la[k].d,e:k});sS({u:k});var lp=gP(k);
-    if(lp){setName(lp.name||la[k].d);setSt(lp.st||ds);setScr((lp.cp||(lp.st&&(lp.st.xp>0||lp.st.lc>0)))?"dashboard":"welcome")}else setName(la[k].d);
-    setAs("app");setEm("");setPw("");}catch(e){setAe("Login failed. Please try again.")}setAl(false)
+    if(_fbReady){try{fbResult=await fbLogin(k,pw);}catch(e){fbResult=null;}}
+    if(fbResult&&fbResult.ok){
+      // Firebase success — log in and sync local hash for future offline use
+      var fbProgress=await fbLoadProgress(k);var fdn=fbResult.user.displayName||k;
+      var fa=gA();var fex=fa[k]||{};fex.d=fdn;fex.e=k;
+      try{fex.p=await hp(pw);}catch(e){}  // sync hash — critical so local fallback always works
+      fa[k]=fex;sA(fa);if(fbProgress)sP(k,fbProgress);
+      setAu({u:k,d:fdn,e:k});sS({u:k});
+      var fp=fbProgress||gP(k);if(fp){setName(fp.name||fdn);setSt(fp.st||ds);setScr((fp.cp||(fp.st&&(fp.st.xp>0||fp.st.lc>0)))?"dashboard":"welcome")}else setName(fdn);
+      setAs("app");setEm("");setPw("");fbLoadUserFamily(k).then(function(f){if(f)setFamData(f)});setAl(false);return;}
+    // Hard-stop only on rate limiting
+    if(fbResult&&fbResult.err&&fbResult.err.indexOf("Too many attempts")>=0){setAe(fbResult.err);setAl(false);return;}
+    // Local account fallback
+    var la=gA();
+    if(!la[k]){setAe("No account found with this email. Please check your email or create a new account.");setAl(false);return;}
+    if(la[k].p){
+      var lh=await hp(pw);
+      if(la[k].p===lh){
+        setAu({u:k,d:la[k].d,e:k});sS({u:k});var lp=gP(k);
+        if(lp){setName(lp.name||la[k].d);setSt(lp.st||ds);setScr((lp.cp||(lp.st&&(lp.st.xp>0||lp.st.lc>0)))?"dashboard":"welcome")}else setName(la[k].d);
+        setAs("app");setEm("");setPw("");setAl(false);return;}}
+    // Both paths failed — show the most helpful error
+    if(fbResult&&fbResult.err){setAe(fbResult.err);}
+    else{setAe("Incorrect password. Try again or use Forgot Password.");}
+    }catch(e){setAe("Login failed. Please try again.")}setAl(false)
   }
   function doOut(){fbLogout();cS();setAu(null);setSt(ds);setScr("welcome");setName("");setFamData(null);setFamMembers([]);setAs("login")}
   const doTr=async()=>{
