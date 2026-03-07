@@ -26,7 +26,7 @@ export default function CroatiaTab({
             <div style={{fontSize:15,fontWeight:900,marginBottom:3}}>AI Conversation Partner</div>
             <div style={{fontSize:12,opacity:.85,lineHeight:1.5}}>Practice real Croatian conversations · Get personalised grammar feedback</div>
             <div style={{marginTop:8,display:"flex",gap:6,flexWrap:"wrap"}}>
-              {["8 scenarios","All levels","Free"].map(t=>(
+              {["50 scenarios","All levels","Free"].map(t=>(
                 <span key={t} style={{background:"rgba(255,255,255,.15)",borderRadius:20,padding:"2px 8px",fontSize:10,fontWeight:700}}>{t}</span>
               ))}
             </div>
