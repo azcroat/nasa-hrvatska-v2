@@ -325,27 +325,35 @@ export function CityOfDayScreen({ goBack }) {
         })}
       </div>
 
-      {/* Overview */}
+      {/* Overview — introduction only */}
       {tab==="overview" && (
         <div>
           <div style={{marginBottom:16,padding:"16px",background:city.color+"0e",borderRadius:14,borderLeft:"4px solid "+city.color,fontSize:14,lineHeight:1.8,color:"#1c1917"}}>
             {city.intro}
           </div>
-          <div style={{marginBottom:16,padding:"16px",background:"white",borderRadius:14,border:"1px solid rgba(0,0,0,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.05)",fontSize:14,lineHeight:1.8,color:"#44403c"}}>
-            {city.history}
+          <div style={{marginBottom:16,padding:"14px 16px",background:"white",borderRadius:14,border:"1px solid rgba(0,0,0,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.05)"}}>
+            <div style={{fontSize:11,fontWeight:800,color:"#78716c",marginBottom:8,letterSpacing:"0.06em",textTransform:"uppercase"}}>At a glance</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
+              <span style={{background:city.color+"18",color:city.color,fontSize:12,fontWeight:700,padding:"5px 12px",borderRadius:20}}>📍 {city.region}</span>
+              <span style={{background:"rgba(14,116,144,.1)",color:"#0e7490",fontSize:12,fontWeight:700,padding:"5px 12px",borderRadius:20}}>📚 {city.vocab.length} vocabulary words</span>
+              <span style={{background:"rgba(245,158,11,.1)",color:"#b45309",fontSize:12,fontWeight:700,padding:"5px 12px",borderRadius:20}}>🏛️ {city.facts.length} historical facts</span>
+            </div>
           </div>
-          <div style={{padding:"14px 16px",background:"linear-gradient(135deg,#fef3c7,#fde68a)",borderRadius:14,borderLeft:"4px solid #f59e0b"}}>
-            <div style={{fontSize:11,fontWeight:800,color:"#92400e",marginBottom:6,letterSpacing:"0.06em"}}>DID YOU KNOW?</div>
-            <div style={{fontSize:13,color:"#78350f",lineHeight:1.7}}>{city.didYouKnow}</div>
+          <div style={{padding:"14px 16px",background:"linear-gradient(135deg,#f0f9ff,#e0f2fe)",borderRadius:14,borderLeft:"4px solid "+city.color}}>
+            <div style={{fontSize:11,fontWeight:800,color:city.color,marginBottom:6,letterSpacing:"0.06em",textTransform:"uppercase"}}>Local saying</div>
+            <div style={{fontSize:14,fontStyle:"italic",color:"#1c1917",lineHeight:1.6}}>"{city.tagline}"</div>
           </div>
         </div>
       )}
 
-      {/* History */}
+      {/* History — narrative + numbered facts, all in one place */}
       {tab==="history" && (
         <div>
-          <div style={{marginBottom:12,padding:"10px 14px",background:city.color+"0e",borderRadius:10,fontSize:12,color:city.color,fontWeight:700}}>
-            Key historical facts about {city.name}
+          <div style={{marginBottom:16,padding:"16px",background:"white",borderRadius:14,border:"1px solid rgba(0,0,0,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.05)",fontSize:14,lineHeight:1.8,color:"#44403c"}}>
+            {city.history}
+          </div>
+          <div style={{marginBottom:12,fontSize:13,fontWeight:800,color:"#164e63"}}>
+            🏛️ Key Historical Facts
           </div>
           {city.facts.map(function(f,fi){return (
             <div key={fi} style={{display:"flex",alignItems:"flex-start",gap:12,marginBottom:10,padding:"12px 14px",background:"white",borderRadius:12,border:"1px solid rgba(0,0,0,.06)",boxShadow:"0 1px 3px rgba(0,0,0,.04)"}}>
@@ -358,7 +366,7 @@ export function CityOfDayScreen({ goBack }) {
         </div>
       )}
 
-      {/* Vocabulary */}
+      {/* Vocabulary — tap to hear */}
       {tab==="vocab" && (
         <div>
           <div style={{marginBottom:12,padding:"10px 14px",background:city.color+"0e",borderRadius:10,fontSize:12,color:city.color,fontWeight:700}}>
@@ -380,23 +388,36 @@ export function CityOfDayScreen({ goBack }) {
         </div>
       )}
 
-      {/* Fast Facts */}
+      {/* Fast Facts — city snapshot card + did you know, nothing repeated from other tabs */}
       {tab==="facts" && (
         <div>
-          <div style={{marginBottom:16,padding:"14px 16px",background:city.color,borderRadius:14,color:"white",textAlign:"center"}}>
-            <div style={{fontSize:32,marginBottom:6}}>{city.icon}</div>
-            <div style={{fontSize:18,fontWeight:900}}>{city.name}</div>
-            <div style={{fontSize:12,opacity:.8,marginTop:4}}>{city.region} · Croatia</div>
-          </div>
-          {city.facts.map(function(f,fi){return (
-            <div key={fi} style={{display:"flex",gap:10,marginBottom:10,padding:"12px 14px",background:"white",borderRadius:12,border:"1px solid rgba(0,0,0,.06)",boxShadow:"0 1px 3px rgba(0,0,0,.04)"}}>
-              <span style={{fontSize:16,flexShrink:0}}>⚡</span>
-              <div style={{fontSize:13,color:"#1c1917",lineHeight:1.6}}>{f}</div>
+          <div style={{marginBottom:16,borderRadius:16,overflow:"hidden",boxShadow:"0 4px 16px rgba(0,0,0,.12)"}}>
+            <div style={{background:"linear-gradient(145deg,"+city.color+"dd,"+city.color+")",padding:"24px 20px",textAlign:"center"}}>
+              <div style={{fontSize:40,marginBottom:8}}>{city.icon}</div>
+              <div style={{fontSize:22,fontWeight:900,color:"white",lineHeight:1.2}}>{city.name}</div>
+              <div style={{fontSize:12,color:"rgba(255,255,255,.75)",marginTop:4,fontWeight:600}}>{city.region} · Croatia</div>
+              <div style={{marginTop:10,display:"inline-block",background:"rgba(255,255,255,.18)",borderRadius:20,padding:"4px 14px",fontSize:12,fontWeight:700,color:"white",fontStyle:"italic"}}>
+                "{city.tagline}"
+              </div>
             </div>
-          );})}
-          <div style={{marginTop:8,padding:"12px 14px",background:"linear-gradient(135deg,#fef3c7,#fde68a)",borderRadius:12,borderLeft:"4px solid #f59e0b"}}>
-            <div style={{fontSize:11,fontWeight:800,color:"#92400e",marginBottom:4,letterSpacing:"0.06em"}}>DID YOU KNOW?</div>
-            <div style={{fontSize:13,color:"#78350f",lineHeight:1.6}}>{city.didYouKnow}</div>
+            <div style={{background:"rgba(0,0,0,.55)",padding:"12px 20px",display:"flex",justifyContent:"space-around"}}>
+              <div style={{textAlign:"center"}}>
+                <div style={{fontSize:18,fontWeight:900,color:"white"}}>{city.facts.length}</div>
+                <div style={{fontSize:10,color:"rgba(255,255,255,.65)",fontWeight:600}}>HISTORY FACTS</div>
+              </div>
+              <div style={{textAlign:"center"}}>
+                <div style={{fontSize:18,fontWeight:900,color:"white"}}>{city.vocab.length}</div>
+                <div style={{fontSize:10,color:"rgba(255,255,255,.65)",fontWeight:600}}>VOCAB WORDS</div>
+              </div>
+              <div style={{textAlign:"center"}}>
+                <div style={{fontSize:18,fontWeight:900,color:"white"}}>{CROATIAN_CITIES.length}</div>
+                <div style={{fontSize:10,color:"rgba(255,255,255,.65)",fontWeight:600}}>CITIES TO EXPLORE</div>
+              </div>
+            </div>
+          </div>
+          <div style={{padding:"16px",background:"linear-gradient(135deg,#fef3c7,#fde68a)",borderRadius:14,borderLeft:"4px solid #f59e0b"}}>
+            <div style={{fontSize:11,fontWeight:800,color:"#92400e",marginBottom:6,letterSpacing:"0.06em",textTransform:"uppercase"}}>Did You Know?</div>
+            <div style={{fontSize:13,color:"#78350f",lineHeight:1.7}}>{city.didYouKnow}</div>
           </div>
         </div>
       )}
