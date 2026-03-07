@@ -21,14 +21,18 @@ export default function HomeTab({
   const xpNeeded = nXP(level) - lXP(level);
   const xpPct = Math.min(Math.round((xpCur / xpNeeded) * 100), 100);
 
-  const [dcOpts] = useState(() => {
-    const opts = [dc.challenge.a, ...(dc.challenge.al || [])];
+  // Shuffle each challenge's opts once (random per session, not seeded)
+  const [allOpts] = useState(() => dc.challenges.map(ch => {
+    const opts = [...(ch.opts || [ch.a])];
     for (let i = opts.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [opts[i], opts[j]] = [opts[j], opts[i]];
     }
     return opts;
-  });
+  }));
+
+  const doneCount = dchlA.filter(Boolean).length;
+  const allDone = doneCount === 3;
 
   const greetingByTime = () => {
     const h = new Date().getHours();
@@ -97,42 +101,96 @@ export default function HomeTab({
         ))}
       </div>
 
-      {/* ── DAILY CHALLENGE ── */}
+      {/* ── DAILY CHALLENGES ── */}
       <div style={{background:"#fff",border:"1.5px solid #e0e7ff",borderRadius:20,padding:"20px",marginBottom:20,
         boxShadow:"0 4px 20px rgba(124,58,237,.07)"}}>
-        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+        {/* Header */}
+        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16}}>
           <div style={{width:8,height:8,borderRadius:"50%",background:"#7c3aed"}}/>
-          <span style={{fontSize:11,fontWeight:800,color:"#7c3aed",letterSpacing:".08em",textTransform:"uppercase"}}>Daily Challenge</span>
-          {dchlA && <span style={{marginLeft:"auto",fontSize:11,fontWeight:700,color:"#16a34a",background:"#f0fdf4",padding:"2px 8px",borderRadius:20,border:"1px solid #bbf7d0"}}>✓ Completed</span>}
+          <span style={{fontSize:11,fontWeight:800,color:"#7c3aed",letterSpacing:".08em",textTransform:"uppercase"}}>Daily Challenges</span>
+          <div style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:6}}>
+            {[0,1,2].map(i => (
+              <div key={i} style={{width:10,height:10,borderRadius:"50%",
+                background:dchlA[i] ? "#16a34a" : "#e2e8f0",
+                border:`1.5px solid ${dchlA[i] ? "#16a34a" : "#cbd5e1"}`,
+                transition:"background .2s"}}/>
+            ))}
+            <span style={{fontSize:11,fontWeight:700,color:allDone?"#16a34a":"#94a3b8",marginLeft:2}}>
+              {doneCount}/3
+            </span>
+          </div>
         </div>
-        {!dchlA ? (
-          <React.Fragment>
-            <div style={{fontSize:16,fontWeight:700,color:"#1e293b",marginBottom:16,lineHeight:1.4}}>{dc.challenge.q}</div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-              {dcOpts.map((o, oi) => (
-                <button key={oi}
-                  style={{padding:"10px 12px",border:"1.5px solid #e2e8f0",borderRadius:12,background:"#f8fafc",
-                    fontSize:13,fontWeight:600,cursor:"pointer",textAlign:"left",transition:"all .15s",
-                    fontFamily:"'Outfit',sans-serif",color:"#1e293b",lineHeight:1.3}}
-                  onMouseOver={e=>{e.currentTarget.style.borderColor="#7c3aed";e.currentTarget.style.background="#faf5ff"}}
-                  onMouseOut={e=>{e.currentTarget.style.borderColor="#e2e8f0";e.currentTarget.style.background="#f8fafc"}}
-                  onClick={() => {
-                    sDchlSl(oi); sDchlA(true);
-                    localStorage.setItem("dcDay", dc.dateKey);
-                    if (o === dc.challenge.a) award(10);
-                  }}>
-                  {o}
-                </button>
-              ))}
+
+        {allDone ? (
+          <div style={{textAlign:"center",padding:"16px 0"}}>
+            <div style={{fontSize:42,marginBottom:8}}>
+              {dchlA.filter((a,i) => a && allOpts[i][dchlSl[i]] === dc.challenges[i].a).length >= 2 ? "🏆" : "🎯"}
             </div>
-          </React.Fragment>
+            <div style={{fontSize:16,fontWeight:800,color:"#1e293b",marginBottom:4}}>
+              {dc.challenges.filter((ch,i) => allOpts[i][dchlSl[i]] === ch.a).length} / 3 correct
+              {' '}· +{dc.challenges.filter((ch,i) => allOpts[i][dchlSl[i]] === ch.a).length * 10} XP earned
+            </div>
+            <div style={{fontSize:12,color:"#64748b"}}>New challenges at midnight</div>
+          </div>
         ) : (
-          <div style={{textAlign:"center",padding:"12px 0"}}>
-            <div style={{fontSize:36,marginBottom:8}}>🎯</div>
-            <div style={{fontSize:15,fontWeight:700,color:"#1e293b",marginBottom:4}}>
-              {dchlSl !== -1 && dcOpts[dchlSl] === dc.challenge.a ? "Correct! +10 XP" : `Answer: ${dc.challenge.a}`}
-            </div>
-            <div style={{fontSize:12,color:"#64748b"}}>New challenge at midnight</div>
+          <div style={{display:"flex",flexDirection:"column",gap:16}}>
+            {dc.challenges.map((ch, ci) => {
+              const answered = dchlA[ci];
+              const selIdx = dchlSl[ci];
+              const opts = allOpts[ci];
+              const correct = opts[selIdx] === ch.a;
+              return (
+                <div key={ci} style={{
+                  borderRadius:14,
+                  border:`1.5px solid ${answered ? (correct ? "#bbf7d0" : "#fecaca") : "#e2e8f0"}`,
+                  background:answered ? (correct ? "#f0fdf4" : "#fff5f5") : "#f8fafc",
+                  padding:"14px",transition:"all .2s",
+                  opacity: answered ? 1 : 1,
+                }}>
+                  <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10}}>
+                    <span style={{width:20,height:20,borderRadius:"50%",background:answered?(correct?"#16a34a":"#dc2626"):"#7c3aed",
+                      color:"white",fontSize:10,fontWeight:900,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      {answered ? (correct ? "✓" : "✗") : ci + 1}
+                    </span>
+                    <span style={{fontSize:13,fontWeight:700,color:"#1e293b",lineHeight:1.4}}>{ch.q}</span>
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+                    {opts.map((o, oi) => {
+                      let bg = "#fff", border = "#e2e8f0", color = "#1e293b";
+                      if (answered) {
+                        if (o === ch.a) { bg="#dcfce7"; border="#86efac"; color="#166534"; }
+                        else if (oi === selIdx) { bg="#fee2e2"; border="#fca5a5"; color="#991b1b"; }
+                        else { bg="#f1f5f9"; color="#94a3b8"; }
+                      }
+                      return (
+                        <button key={oi}
+                          disabled={answered}
+                          style={{padding:"9px 10px",border:`1.5px solid ${border}`,borderRadius:10,background:bg,
+                            fontSize:12,fontWeight:600,cursor:answered?"default":"pointer",textAlign:"left",
+                            fontFamily:"'Outfit',sans-serif",color,lineHeight:1.3,transition:"all .15s",
+                            opacity:answered&&o!==ch.a&&oi!==selIdx?0.55:1}}
+                          onMouseOver={e=>{if(!answered){e.currentTarget.style.borderColor="#7c3aed";e.currentTarget.style.background="#faf5ff"}}}
+                          onMouseOut={e=>{if(!answered){e.currentTarget.style.borderColor="#e2e8f0";e.currentTarget.style.background="#fff"}}}
+                          onClick={() => {
+                            const newA = [...dchlA]; newA[ci] = true; sDchlA(newA);
+                            const newSl = [...dchlSl]; newSl[ci] = oi; sDchlSl(newSl);
+                            localStorage.setItem("dcDay3", JSON.stringify({day:dc.dateKey,answered:newA,selected:newSl}));
+                            if (o === ch.a) award(10);
+                          }}>
+                          {o}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {answered && (
+                    <div style={{marginTop:8,fontSize:11,fontWeight:700,
+                      color:correct?"#166534":"#991b1b"}}>
+                      {correct ? "✅ Correct! +10 XP" : `❌ Correct answer: ${ch.a}`}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

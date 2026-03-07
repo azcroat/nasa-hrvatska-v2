@@ -1505,10 +1505,16 @@ function getDailyChallenge(){
       }
     }
   }
-  // Combine pools and pick one using the seeded RNG
+  // Combine pools and pick THREE distinct challenges using the seeded RNG
   var pool=hard.concat(vocabQs);
-  var challenge=pool[ri(pool.length)];
-  return{dateKey:dateKey,challenge:challenge};
+  var challenges=[];var usedIdx=new Set();
+  for(var attempt=0;attempt<pool.length*3&&challenges.length<3;attempt++){
+    var idx=ri(pool.length);
+    if(!usedIdx.has(idx)){usedIdx.add(idx);challenges.push(pool[idx]);}
+  }
+  // Fallback: fill if pool too small
+  while(challenges.length<3)challenges.push(pool[ri(pool.length)]);
+  return{dateKey:dateKey,challenges:challenges};
 }
 // ═══ PADEŽI JEDNINA & MNOŽINA (SINGULAR & PLURAL CASES) ═══
 const PADEZI_FULL = {
