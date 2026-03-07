@@ -233,6 +233,8 @@ export default function AIConversation({ goBack, setScr, sCurEx }) {
   const [messages, setMessages] = useState([]); // [{role:"user"|"assistant"|"hint", content:string}]
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [chatError, setChatError] = useState(""); // visible error shown in chat area
+  const [sendError, setSendError] = useState(""); // inline error on a specific send attempt
   const [evaluation, setEvaluation] = useState(null);
   const [evalError, setEvalError] = useState("");
   const messagesEndRef = useRef(null);
@@ -240,20 +242,48 @@ export default function AIConversation({ goBack, setScr, sCurEx }) {
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading]);
 
+  // ── Core AI caller ─────────────────────────────────────────────────────────
   async function callAI(msgs, systemPrompt, mode = "chat") {
-    const res = await fetch("/.netlify/functions/ai-chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: msgs, systemPrompt, mode })
-    });
-    const data = await res.json();
-    if (!res.ok || data.error) throw new Error(data.error || "AI unavailable");
+    let res, data;
+    try {
+      res = await fetch("/.netlify/functions/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: msgs, systemPrompt, mode }),
+      });
+    } catch(netErr) {
+      throw new Error("Network error — check your internet connection and try again. (" + netErr.message + ")");
+    }
+
+    // Parse JSON safely — the response should always be JSON now
+    try {
+      data = await res.json();
+    } catch(parseErr) {
+      throw new Error("Unexpected server response (status " + res.status + "). Please try again.");
+    }
+
+    if (!res.ok || data.error) {
+      const msg = data.error || ("Server error " + res.status);
+      // Surface a clear message for the missing API key case
+      if (msg.includes("AI_KEY_MISSING") || msg.includes("GEMINI_API_KEY")) {
+        throw new Error("setup_error:The AI service is not yet configured. The GEMINI_API_KEY needs to be added to the Netlify environment variables.");
+      }
+      throw new Error(msg);
+    }
+
+    if (!data.text || !data.text.trim()) {
+      throw new Error("The AI returned an empty response. Please try again.");
+    }
+
     return data.text;
   }
 
+  // ── Start conversation ─────────────────────────────────────────────────────
   async function startConversation() {
     if (!scenario) return;
     setPhase("chat");
+    setChatError("");
+    setMessages([]);
     setLoading(true);
     try {
       const opener = await callAI(
@@ -262,14 +292,21 @@ export default function AIConversation({ goBack, setScr, sCurEx }) {
       );
       setMessages([{ role: "assistant", content: opener }]);
     } catch(e) {
-      setMessages([{ role: "assistant", content: "Hm, nema veze... (Connection error — please try again.)" }]);
+      const msg = e.message || "";
+      if (msg.startsWith("setup_error:")) {
+        setChatError(msg.slice(12)); // strip prefix, show clean message
+      } else {
+        setChatError(msg);
+      }
     }
     setLoading(false);
     setTimeout(() => inputRef.current?.focus(), 200);
   }
 
+  // ── Send a message ──────────────────────────────────────────────────────────
   async function sendMessage() {
     if (!input.trim() || loading) return;
+    setSendError("");
     const userMsg = { role: "user", content: input.trim() };
     const next = [...messages, userMsg];
     setMessages(next);
@@ -279,11 +316,29 @@ export default function AIConversation({ goBack, setScr, sCurEx }) {
       const reply = await callAI(next, buildConvoPrompt(scenario, level));
       setMessages(prev => [...prev, { role: "assistant", content: reply }]);
     } catch(e) {
-      setMessages(prev => [...prev, { role: "assistant", content: "(Mreža — pokušaj ponovo / Network error — try again)" }]);
+      setSendError(e.message || "Send failed — please try again.");
     }
     setLoading(false);
   }
 
+  // ── Retry opener (called from error state in chat) ──────────────────────────
+  async function retryOpener() {
+    setChatError("");
+    setMessages([]);
+    setLoading(true);
+    try {
+      const opener = await callAI(
+        [{ role: "user", content: "Pozdrav! Možemo li početi?" }],
+        buildConvoPrompt(scenario, level)
+      );
+      setMessages([{ role: "assistant", content: opener }]);
+    } catch(e) {
+      setChatError(e.message.startsWith("setup_error:") ? e.message.slice(12) : e.message);
+    }
+    setLoading(false);
+  }
+
+  // ── Hint ───────────────────────────────────────────────────────────────────
   async function requestHint() {
     if (loading) return;
     setLoading(true);
@@ -296,18 +351,19 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
       );
       setMessages(prev => [...prev, { role: "hint", content: hint }]);
     } catch(e) {
-      setMessages(prev => [...prev, { role: "hint", content: "Hint unavailable — try writing anything, even imperfectly!" }]);
+      setMessages(prev => [...prev, { role: "hint", content: "💡 Hint unavailable right now — try writing anything, even imperfectly! Making mistakes is how you learn." }]);
     }
     setLoading(false);
   }
 
+  // ── End & Evaluate ─────────────────────────────────────────────────────────
   async function endAndEvaluate() {
     const userMsgs = messages.filter(m => m.role === "user");
     if (userMsgs.length < 2) { alert("Have at least 2 exchanges before evaluating!"); return; }
     setPhase("evaluating");
     const convoText = messages
       .filter(m => m.role !== "hint")
-      .map(m => `${m.role === "user" ? "LEARNER" : "AI ("+scenario.aiName+")"}: ${m.content}`)
+      .map(m => `${m.role === "user" ? "LEARNER" : "AI (" + scenario.aiName + ")"}: ${m.content}`)
       .join("\n\n");
     try {
       const raw = await callAI(
@@ -315,17 +371,22 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
         buildEvalPrompt(scenario, level),
         "evaluate"
       );
-      const match = raw.match(/\{[\s\S]*\}/);
-      if (!match) throw new Error("Could not parse evaluation");
+      // Extract JSON — strip any markdown code fences Gemini may add
+      const clean = raw.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```\s*$/i, "").trim();
+      const match = clean.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error("Could not parse evaluation JSON. Raw: " + raw.slice(0, 200));
       setEvaluation(JSON.parse(match[0]));
       setPhase("result");
     } catch(e) {
-      setEvalError("Evaluation failed: " + e.message);
+      setEvalError(e.message || "Evaluation failed");
       setPhase("result");
     }
   }
 
-  function resetAll() { setPhase("setup"); setMessages([]); setEvaluation(null); setEvalError(""); setScenario(null); }
+  function resetAll() {
+    setPhase("setup"); setMessages([]); setEvaluation(null);
+    setEvalError(""); setScenario(null); setChatError(""); setSendError("");
+  }
 
   const userCount = messages.filter(m => m.role === "user").length;
 
@@ -584,7 +645,6 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
   }
 
   // ── CHAT ───────────────────────────────────────────────────────────────────
-  // Full-screen overlay so the chat input stays pinned above everything
   return (
     <div style={{position:"fixed",inset:0,zIndex:9100,background:"#f8fafc",
       display:"flex",flexDirection:"column",fontFamily:"'Outfit',sans-serif"}}>
@@ -595,11 +655,7 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
         boxShadow:"0 1px 4px rgba(0,0,0,.06)"}}>
         <button onClick={goBack}
           style={{background:"none",border:"none",fontSize:22,cursor:"pointer",padding:"4px 6px",
-            color:"#64748b",lineHeight:1,borderRadius:8,transition:"background .15s"}}
-          onMouseOver={e=>e.currentTarget.style.background="#f1f5f9"}
-          onMouseOut={e=>e.currentTarget.style.background="none"}>
-          ←
-        </button>
+            color:"#64748b",lineHeight:1,borderRadius:8}}>←</button>
         <div style={{width:38,height:38,borderRadius:"50%",flexShrink:0,
           background:`linear-gradient(135deg,${scenario.color},${scenario.color}bb)`,
           display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>
@@ -609,14 +665,14 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
           <div style={{fontSize:14,fontWeight:800,color:"#0f172a",lineHeight:1.2}}>{scenario.aiName}</div>
           <div style={{fontSize:11,color:"#64748b"}}>{scenario.title} · Level {level}</div>
         </div>
-        <button onClick={endAndEvaluate} disabled={loading || userCount < 2}
+        <button onClick={endAndEvaluate} disabled={loading || userCount < 2 || !!chatError}
           style={{padding:"7px 13px",borderRadius:10,border:"1.5px solid",fontWeight:700,fontSize:12,
-            cursor:userCount < 2 ? "not-allowed" : "pointer",fontFamily:"'Outfit',sans-serif",
-            transition:"all .15s",whiteSpace:"nowrap",
-            borderColor:userCount >= 2 ? "#0e7490" : "#e2e8f0",
-            background:userCount >= 2 ? "#f0f9ff" : "#f8fafc",
-            color:userCount >= 2 ? "#0e7490" : "#cbd5e1",
-            opacity: loading ? 0.5 : 1}}>
+            cursor:(userCount >= 2 && !chatError && !loading) ? "pointer" : "not-allowed",
+            fontFamily:"'Outfit',sans-serif",transition:"all .15s",whiteSpace:"nowrap",
+            borderColor:(userCount >= 2 && !chatError) ? "#0e7490" : "#e2e8f0",
+            background:(userCount >= 2 && !chatError) ? "#f0f9ff" : "#f8fafc",
+            color:(userCount >= 2 && !chatError) ? "#0e7490" : "#cbd5e1",
+            opacity:loading ? 0.5 : 1}}>
           End & Evaluate
         </button>
       </div>
@@ -630,6 +686,30 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
             {scenario.hr} · {level}
           </span>
         </div>
+
+        {/* ── Error state: connection failed on opener ── */}
+        {chatError && messages.length === 0 && !loading && (
+          <div style={{background:"#fef2f2",border:"1.5px solid #fecaca",borderRadius:16,padding:"20px",margin:"8px 0",textAlign:"center"}}>
+            <div style={{fontSize:32,marginBottom:10}}>⚠️</div>
+            <div style={{fontSize:14,fontWeight:800,color:"#991b1b",marginBottom:8}}>Could not connect to AI</div>
+            <div style={{fontSize:13,color:"#7f1d1d",lineHeight:1.65,marginBottom:16,textAlign:"left",
+              background:"white",borderRadius:10,padding:"12px 14px",border:"1px solid #fecaca"}}>
+              {chatError}
+            </div>
+            <div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap"}}>
+              <button onClick={retryOpener}
+                style={{padding:"10px 20px",borderRadius:12,border:"none",background:"#0e7490",
+                  color:"white",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
+                Try Again
+              </button>
+              <button onClick={resetAll}
+                style={{padding:"10px 20px",borderRadius:12,border:"1.5px solid #e2e8f0",background:"white",
+                  color:"#64748b",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
+                Back to Scenarios
+              </button>
+            </div>
+          </div>
+        )}
 
         {messages.map((m, i) => {
           if (m.role === "hint") return (
@@ -663,6 +743,23 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
           );
         })}
 
+        {/* ── Inline send error (mid-conversation failure) ── */}
+        {sendError && !loading && (
+          <div style={{background:"#fef2f2",border:"1.5px solid #fecaca",borderRadius:12,padding:"12px 14px",
+            fontSize:12,color:"#991b1b",lineHeight:1.6,display:"flex",gap:10,alignItems:"flex-start"}}>
+            <span style={{flexShrink:0}}>⚠️</span>
+            <div>
+              <strong>Send failed:</strong> {sendError}
+              <button onClick={() => { setSendError(""); sendMessage(); }}
+                style={{display:"block",marginTop:6,padding:"4px 12px",borderRadius:8,border:"none",
+                  background:"#dc2626",color:"white",fontSize:11,fontWeight:700,cursor:"pointer",
+                  fontFamily:"'Outfit',sans-serif"}}>
+                Retry last message
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Typing indicator */}
         {loading && (
           <div style={{display:"flex",gap:8,alignItems:"flex-end"}}>
@@ -684,39 +781,46 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
         <div ref={messagesEndRef}/>
       </div>
 
-      {/* Input bar */}
+      {/* Input bar — disabled when connection error */}
       <div style={{background:"white",borderTop:"1px solid #e2e8f0",padding:"10px 14px 14px",flexShrink:0,
         paddingBottom:`max(14px,env(safe-area-inset-bottom))`}}>
-        <div style={{display:"flex",gap:8,marginBottom:8}}>
-          <input ref={inputRef}
-            type="text" value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-            placeholder="Piši na hrvatskom…"
-            disabled={loading}
-            style={{flex:1,padding:"11px 14px",fontSize:15,borderRadius:12,
-              border:"1.5px solid #e2e8f0",background:"#f8fafc",outline:"none",
-              fontFamily:"'Outfit',sans-serif",transition:"border-color .2s",
-              color:"#1e293b"}} />
-          <button onClick={sendMessage} disabled={loading || !input.trim()}
-            style={{width:44,height:44,borderRadius:12,border:"none",flexShrink:0,fontSize:18,
-              cursor:input.trim() && !loading ? "pointer" : "not-allowed",transition:"all .15s",
-              background:input.trim() && !loading ? "linear-gradient(135deg,#0e7490,#0c4a6e)" : "#e2e8f0",
-              color:input.trim() && !loading ? "white" : "#94a3b8"}}>
-            ➤
-          </button>
-        </div>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <button onClick={requestHint} disabled={loading || messages.length === 0}
-            style={{background:"none",border:"none",fontSize:12,color:"#64748b",cursor:"pointer",
-              fontFamily:"'Outfit',sans-serif",fontWeight:600,padding:"2px 0",opacity:loading?0.4:1}}>
-            💡 Need a hint?
-          </button>
-          <span style={{fontSize:11,color:"#94a3b8",fontWeight:500}}>
-            {userCount} {userCount === 1 ? "exchange" : "exchanges"}
-            {userCount < 2 && " · needs 2 to evaluate"}
-          </span>
-        </div>
+        {chatError && messages.length === 0 ? (
+          <div style={{textAlign:"center",fontSize:12,color:"#94a3b8",padding:"8px 0"}}>
+            Resolve the error above to start chatting
+          </div>
+        ) : (
+          <>
+            <div style={{display:"flex",gap:8,marginBottom:8}}>
+              <input ref={inputRef}
+                type="text" value={input}
+                onChange={e => { setInput(e.target.value); if (sendError) setSendError(""); }}
+                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
+                placeholder="Piši na hrvatskom…"
+                disabled={loading || (chatError && messages.length === 0)}
+                style={{flex:1,padding:"11px 14px",fontSize:15,borderRadius:12,
+                  border:`1.5px solid ${sendError ? "#fca5a5" : "#e2e8f0"}`,background:"#f8fafc",outline:"none",
+                  fontFamily:"'Outfit',sans-serif",transition:"border-color .2s",color:"#1e293b"}} />
+              <button onClick={sendMessage} disabled={loading || !input.trim()}
+                style={{width:44,height:44,borderRadius:12,border:"none",flexShrink:0,fontSize:18,
+                  cursor:input.trim() && !loading ? "pointer" : "not-allowed",transition:"all .15s",
+                  background:input.trim() && !loading ? "linear-gradient(135deg,#0e7490,#0c4a6e)" : "#e2e8f0",
+                  color:input.trim() && !loading ? "white" : "#94a3b8"}}>
+                ➤
+              </button>
+            </div>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <button onClick={requestHint} disabled={loading || messages.length === 0}
+                style={{background:"none",border:"none",fontSize:12,color:"#64748b",cursor:"pointer",
+                  fontFamily:"'Outfit',sans-serif",fontWeight:600,padding:"2px 0",opacity:loading?0.4:1}}>
+                💡 Need a hint?
+              </button>
+              <span style={{fontSize:11,color:"#94a3b8",fontWeight:500}}>
+                {userCount} {userCount === 1 ? "exchange" : "exchanges"}
+                {userCount < 2 && " · needs 2 to evaluate"}
+              </span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
