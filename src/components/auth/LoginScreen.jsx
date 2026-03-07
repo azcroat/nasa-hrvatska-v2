@@ -29,7 +29,7 @@ export default function LoginScreen({
             <input type="text" placeholder="Your name" value={dn} onChange={e=>{setDn(e.target.value);setAe("")}} style={{marginBottom:14}} />
           </React.Fragment>}
           <label style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>EMAIL ADDRESS</label>
-          <input type="email" placeholder={isR?"Enter your email address":"Email address"} value={em} onChange={e=>{setEm(e.target.value);setAe("")}} autoComplete="email" inputMode="email" style={{marginBottom:14}} />
+          <input type="email" placeholder={isR?"Enter your email address":"Email address"} value={em} onChange={e=>{setEm(e.target.value);setAe("")}} autoComplete="email" inputMode="email" autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{marginBottom:14}} />
           <label style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>PASSWORD</label>
           <input type={sp?"text":"password"} placeholder={isR?"Create password (6+ characters)":"Enter your password"} value={pw} onChange={e=>{setPw(e.target.value);setAe("")}} onKeyDown={e=>{if(e.key==="Enter"&&!isR)doLog()}} autoComplete={isR?"new-password":"current-password"} style={{marginBottom:isR?14:8}} />
           {isR && <React.Fragment>
