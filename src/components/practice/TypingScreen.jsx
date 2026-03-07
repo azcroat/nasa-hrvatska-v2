@@ -17,7 +17,7 @@ export default function TypingScreen({ goBack, award }) {
 
   if (tyI >= tyPool.length) {
     return (
-      <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+      <div className="scr-wrap">
         
         {H("⌨️ Typing Practice","Type Croatian words with special characters")}
         <div style={{textAlign:"center"}}>
@@ -32,7 +32,7 @@ export default function TypingScreen({ goBack, award }) {
   const isCorrect = tyIn.trim().toLowerCase() === tyW[0].toLowerCase();
 
   return (
-    <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("⌨️ Typing Practice","Type Croatian words with special characters")}
       <Bar v={tyI + 1} mx={tyPool.length} />

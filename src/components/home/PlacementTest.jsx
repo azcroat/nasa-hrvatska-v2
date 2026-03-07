@@ -3,7 +3,7 @@ import { H, Bar } from '../../data.jsx';
 export default function PlacementTest({ pq, pi, ps, pa, px, sPi, sPs, sPa, sPx, setScr, setSt }) {
   if (!pq.length) return null;
   return (
-    <div style={{maxWidth:560,margin:"0 auto",padding:"40px 24px",position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       {H("Question " + (pi + 1) + " of " + pq.length)}
       <Bar v={pi + 1} mx={pq.length} h={6} />
       <div className="c" style={{marginTop:20}}>

@@ -16,7 +16,7 @@ export default function McResult({ mcQ, mcS, setScr, goBack, award, sMcQ, sMcI, 
   }
 
   return (
-    <div style={{maxWidth:560,margin:"0 auto",padding:"40px 24px",paddingBottom:80,textAlign:"center",position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       <div style={{fontSize:64}}>
         {mcS === mcQ.length ? "🌟" : "🎉"}
       </div>

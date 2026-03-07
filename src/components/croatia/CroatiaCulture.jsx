@@ -4,7 +4,7 @@ import { TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE
 
 export function TextingScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("📱 Texting & Slang","How Croatian kids actually text")}
       {TEXTING.map(function(t,i){return (
@@ -22,7 +22,7 @@ export function TextingScreen({ goBack }) {
 
 export function FriendsScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🤝 Making Friends","Real phrases kids use")}
       {FRIENDS.map(function(f,i){return (
@@ -37,7 +37,7 @@ export function FriendsScreen({ goBack }) {
 
 export function FoodOrderScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🍕 Ordering Food","Bakery, fast food, ice cream, restaurants")}
       {[FOODORDER.bakery,FOODORDER.fastfood,FOODORDER.icecream].map(function(sec,si){return (
@@ -74,7 +74,7 @@ export function FoodOrderScreen({ goBack }) {
 
 export function TransportScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🚌 Getting Around","Bus, tram, taxi phrases")}
       {TRANSPORT.map(function(t,i){return (
@@ -89,7 +89,7 @@ export function TransportScreen({ goBack }) {
 
 export function EmergencyScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🚨 Emergency Phrases","Medical, police, urgent")}
       <div className="c" style={{marginBottom:16,borderLeft:"4px solid #dc2626",background:"#fef2f2",textAlign:"center"}}>
@@ -124,7 +124,7 @@ export function EmergencyScreen({ goBack }) {
 
 export function FootballScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("⚽ Football & Water Polo","Croatia's biggest sports")}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
@@ -155,7 +155,7 @@ export function FootballScreen({ goBack }) {
 
 export function PopCultureScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🎵 Croatian Pop Culture","Music, TV & artists your friends know")}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
@@ -176,7 +176,7 @@ export function PopCultureScreen({ goBack }) {
 
 export function PracticalScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("💼 Practical Life in Croatia","Documents, customs, culture")}
       <div className="c" style={{marginBottom:12,borderLeft:"4px solid #dc2626"}}>
@@ -213,7 +213,7 @@ export function PracticalScreen({ goBack }) {
 
 export function SchoolScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🏫 School Survival Kit","Everything for Croatian school")}
       <div className="c" style={{marginBottom:16,borderLeft:"4px solid #dc2626",background:"#fef2f2"}}>
@@ -255,7 +255,7 @@ export function SchoolScreen({ goBack }) {
 
 export function GroceryScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🛒 Grocery Shopping","Stores, brands & essential vocab")}
       <h3 className="sh">🏪 Supermarket Chains</h3>
@@ -298,7 +298,7 @@ export function GroceryScreen({ goBack }) {
 
 export function HistoryScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🇭🇷 "+HISTORY.title,HISTORY.subtitle)}
       <div className="c" style={{marginBottom:20,borderLeft:"4px solid #dc2626",background:"linear-gradient(135deg,#fef2f2,#fee2e2)"}}>

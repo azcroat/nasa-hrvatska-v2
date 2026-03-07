@@ -138,7 +138,7 @@ export default function HNLScreen({ goBack }) {
   const [tab, setTab] = useState("standings");
 
   return (
-    <div style={{maxWidth:640,margin:"0 auto",padding:"16px 16px 80px",position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
 
       {/* Header */}

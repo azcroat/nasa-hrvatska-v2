@@ -6,7 +6,7 @@ export default function CrMap({ goBack }) {
   const [mapCat, setMapCat] = useState("all");
   const [mapSel, setMapSel] = useState(null);
   return (
-    <div style={{maxWidth:680,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🗺️ Interactive Map","Explore Croatia & get directions")}
       <div style={{borderRadius:14,overflow:"hidden",marginBottom:16,border:"2px solid rgba(14,116,144,.12)"}}>

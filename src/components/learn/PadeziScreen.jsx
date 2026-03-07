@@ -17,7 +17,7 @@ export default function PadeziScreen({ goBack, award, setSt }) {
   }
 
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("📚 Padeži — 7 Croatian Cases","Master noun endings for every situation")}
       <div style={{display:"flex",gap:8,marginBottom:20}}>

@@ -8,7 +8,7 @@ export default function GrammarScreen({
 }) {
   if (!gl) return null;
   return (
-    <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {gp==="learn"&&<React.Fragment>
         {H("📐 "+gl.title)}

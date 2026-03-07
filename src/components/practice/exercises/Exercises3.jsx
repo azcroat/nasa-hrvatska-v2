@@ -4,7 +4,7 @@ import { COLORAGREE, POSSESS, QWORDS, NEGATION, SIBIL, RESTCONV, PROFGENDER, COM
 
 export function ColorAgreementScreen({ goBack, award }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🎨 Color + Gender Agreement","Colors change endings by noun gender — singular AND plural")}
       <div style={{overflowX:"auto",marginBottom:20}}>
@@ -54,7 +54,7 @@ export function ColorAgreementScreen({ goBack, award }) {
 
 export function PossessivesScreen({ goBack, award }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("👤 Possessive Pronouns","moj/moja/moje — changes by noun gender")}
       <div style={{overflowX:"auto",marginBottom:20}}>
@@ -91,7 +91,7 @@ export function PossessivesScreen({ goBack, award }) {
 
 export function QuestionWordsScreen({ goBack, award }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("❓ Question Words","Tko? Što? Gdje? Kad? Koliko? Kako? Zašto?")}
       <div className="c" style={{marginBottom:16,padding:"12px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 Croatian has specific question words for each type of information. Gender matters for 'what kind of' — Kakav (m), Kakva (f), Kakvo (n).</div>
@@ -114,7 +114,7 @@ export function QuestionWordsScreen({ goBack, award }) {
 
 export function NegationScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("❌ Positive ↔ Negative","Radim → Ne radim • Imam → Nemam")}
       <div className="c" style={{marginBottom:12,padding:"10px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 Most verbs: add NE before the verb. Exception: imam → nemam, znam → ne znam.</div>
@@ -133,7 +133,7 @@ export function NegationScreen({ goBack }) {
 
 export function SibilarizationScreen({ goBack, award }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🔄 Sibilarizacija","k→c, g→z, h→s before -i")}
       <div className="c" style={{marginBottom:16,padding:"12px",background:"rgba(245,158,11,.06)",fontSize:13}}>{SIBIL.intro}</div>
@@ -165,7 +165,7 @@ export function SibilarizationScreen({ goBack, award }) {
 
 export function RestaurantScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🍽️ At the Restaurant","Practice ordering food in Croatian")}
       <div className="c" style={{marginBottom:16,padding:"12px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 Tap any line to hear it spoken. Practice the waiter-customer dialogue until it feels natural.</div>
@@ -187,7 +187,7 @@ export function RestaurantScreen({ goBack }) {
 
 export function ProfessionGenderScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("👨‍⚖️👩‍⚖️ Profession Pairs","Every job has a masculine AND feminine form")}
       {shMemo("pg",PROFGENDER).map(function(p,i){return (
@@ -203,7 +203,7 @@ export function ProfessionGenderScreen({ goBack }) {
 
 export function ComparativesScreen({ goBack, award }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("📈 Lijep, Ljepši, Najljepši","Adjective → Comparative → Superlative")}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:0,marginBottom:20}}>
@@ -234,7 +234,7 @@ export function ComparativesScreen({ goBack, award }) {
 
 export function FutureTenseScreen({ goBack, award }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🚀 Future Tense","ću, ćeš, će, ćemo, ćete, će + infinitive")}
       <div className="c" style={{marginBottom:16,padding:"12px",background:"rgba(14,116,144,.06)",fontSize:13}}>{FUTURE.intro}</div>

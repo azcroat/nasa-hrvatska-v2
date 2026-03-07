@@ -12,7 +12,7 @@ export default function Leaderboard({
   famTab, setFamTab,
 }) {
   return (
-    <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🏆 Family Leaderboard","Compete with your family!")}
       <div style={{display:"flex",gap:6,marginBottom:16}}>

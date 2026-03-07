@@ -4,7 +4,7 @@ import { ASPECT, FALSEFR, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUI
 
 export function AspectScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🔄 Verb Aspect","Perfective vs Imperfective")}
       {ASPECT.pairs.map(function(p,i){return (
@@ -22,7 +22,7 @@ export function AspectScreen({ goBack }) {
 
 export function FalseFriendsScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("⚠️ False Friends","Croatian words that trick English speakers")}
       {FALSEFR.map(function(f,i){return (
@@ -43,7 +43,7 @@ export function DeclensionScreen({ goBack }) {
   const [dcNoun, sDcNoun] = useState(0);
   const n = DECL.nouns[dcNoun];
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("📝 Noun Declension Trainer","All 7 cases for key nouns")}
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:16}}>
@@ -69,7 +69,7 @@ export function DeclensionScreen({ goBack }) {
 
 export function BrzaliceScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("😝 Brzalice","Croatian Tongue Twisters")}
       {shMemo("bz",BRZALICE).map(function(b,i){return (
@@ -85,7 +85,7 @@ export function BrzaliceScreen({ goBack }) {
 
 export function DialectsScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🗺️ Regional Dialects","Štokavski, Kajkavski, Čakavski")}
       {DIALECTS.info.map(function(d,i){return (
@@ -117,7 +117,7 @@ export function DialectsScreen({ goBack }) {
 
 export function DiminutivesScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🐣 Umanjenice","Diminutives — making things small & cute")}
       {DIMWORDS.map(function(d,i){return (
@@ -136,7 +136,7 @@ export function DiminutivesScreen({ goBack }) {
 
 export function WordFormScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🧩 Word Formation","How prefixes build Croatian vocabulary")}
       {WORDFORM.bases.map(function(b,bi){return (
@@ -157,7 +157,7 @@ export function WordFormScreen({ goBack }) {
 
 export function ColorQuirkScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🎨 Color Quirks","Colors mean different things in Croatian!")}
       {COLORQUIRK.map(function(q,i){return (

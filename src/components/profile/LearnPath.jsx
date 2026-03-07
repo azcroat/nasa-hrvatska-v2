@@ -5,7 +5,7 @@ export default function LearnPath({ st, setScr, goBack }) {
   var td=0, tt=0;
   LEARN_PATH.forEach(lv=>lv.items.forEach(it=>{tt++;if(it.ck(st))td++;}));
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("📈 My Learning Path","Structured progression from Day 1 to fluency")}
       <div className="c" style={{marginBottom:20,textAlign:"center"}}>

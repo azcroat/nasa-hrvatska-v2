@@ -29,7 +29,7 @@ export default function BojeGame({ goBack, award }) {
   }
 
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🎨 " + BOJE.title,"Color adjectives change to match noun gender")}
       <div style={{display:"flex",gap:8,marginBottom:20}}>

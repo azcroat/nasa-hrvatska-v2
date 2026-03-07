@@ -5,7 +5,7 @@ import { KINGS } from '../../data.jsx';
 export default function KingsScreen({ goBack, award, setSt }) {
   const [kgTab, sKgTab] = useState("timeline");
   return (
-    <div style={{maxWidth:640,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("👑 "+KINGS.title, KINGS.subtitle)}
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:20}}>

@@ -3,7 +3,7 @@ import { H, Bar, srMark } from '../../data.jsx';
 
 export default function Flashcards({ fcPool, fcI, fcFlip, fcKnow, sFcFlip, sFcI, sFcKnow, goBack, award }) {
   if (!fcPool[fcI]) return (
-    <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       <div style={{textAlign:"center",padding:40}}>
         <div style={{fontSize:64}}>🌟</div>
         <h3>Done! Known: {fcKnow}/{fcPool.length}</h3>
@@ -12,7 +12,7 @@ export default function Flashcards({ fcPool, fcI, fcFlip, fcKnow, sFcFlip, sFcI,
     </div>
   );
   return (
-    <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🃏 Flashcards","Tap card to flip. Swipe through words.")}
       <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>

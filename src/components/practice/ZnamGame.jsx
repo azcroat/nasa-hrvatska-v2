@@ -17,7 +17,7 @@ export default function ZnamGame({ goBack, award }) {
   }
 
   return (
-    <div style={{maxWidth:600,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🇭🇷 " + ZNAM.title,"Translate English to Croatian")}
 

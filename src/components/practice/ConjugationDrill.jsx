@@ -25,7 +25,7 @@ export default function ConjugationDrill({ goBack, award, setSt }) {
   }
 
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🔄 Verb Conjugation Drill","Present, past & future tense")}
 

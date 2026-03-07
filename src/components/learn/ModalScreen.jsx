@@ -16,7 +16,7 @@ export default function ModalScreen({ goBack, award, setSt }) {
   }
 
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🔮 Modalni Glagoli","Modal Verbs — željeti · htjeti · morati · trebati · moći · smjeti")}
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:20}}>

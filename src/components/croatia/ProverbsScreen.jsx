@@ -3,7 +3,7 @@ import { H, PROVERBS, speak } from '../../data.jsx';
 
 export default function ProverbsScreen({ goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("🌟 Hrvatske Poslovice","Croatian Proverbs — Tap to hear")}
       {PROVERBS.map((p,i)=>(

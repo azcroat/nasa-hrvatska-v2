@@ -3,7 +3,7 @@ import { H, READ } from '../../data.jsx';
 
 export default function ReadingList({ setScr, sRp, sRph, sRqi, sRsc, sRa, sRsl, sHw, sCurEx, goBack }) {
   return (
-    <div style={{maxWidth:600,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("📖 Reading Passages")}
       {Object.entries(READ).map(([level,passages])=>(

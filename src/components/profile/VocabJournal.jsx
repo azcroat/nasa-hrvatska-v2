@@ -3,7 +3,7 @@ import { H, speak } from '../../data.jsx';
 
 export default function VocabJournal({ jWords, setJWords, jIn, setJIn, jEn, setJEn, goBack }) {
   return (
-    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {H("📓 My Vocabulary Journal","Save words you discover in real life")}
       <div className="c" style={{marginBottom:16,padding:16}}>

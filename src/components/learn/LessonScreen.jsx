@@ -7,7 +7,7 @@ export default function LessonScreen({
   goBack, award, setSt,
 }) {
   return (
-    <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+    <div className="scr-wrap">
       
       {lp==="learn"&&<React.Fragment>
         {H((icons[lt]||"📚")+" "+lt)}
