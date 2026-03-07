@@ -1,5 +1,5 @@
 import React from 'react';
-import { H, MEDIA } from '../../data.jsx';
+import { H, MEDIA, getCityOfDay } from '../../data.jsx';
 
 const LEVEL_COLORS = {A1:'#16a34a',A2:'#65a30d',B1:'#ca8a04',B2:'#b45309',C1:'#0e7490',C2:'#7c3aed'};
 const CAT_LABELS = {tv:"📺 TV & News",music:"🎵 Music & Radio",sport:"⚽ Sports",film:"🎬 Film & Series",podcast:"🎙️ Podcasts",culture:"🌍 Culture & Press"};
@@ -10,6 +10,7 @@ export default function CroatiaTab({
   setMapCat, setMapSel,
 }) {
   const cats = ["tv","music","film","sport","podcast","culture"];
+  const city = getCityOfDay();
 
   return (
     <React.Fragment>
@@ -54,10 +55,15 @@ export default function CroatiaTab({
       </div>
 
       <h3 className="sh">🇭🇷 History & Regions</h3>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
         {[
           [()=>{sHIdx(0);setScr("history");},"🇭🇷","Domovinski Rat","Homeland War"],
           [()=>{sKgTab("timeline");setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval kingdom"],
+          [()=>setScr("region_zagreb"),"🏛️","Zagreb","Capital city"],
+          [()=>setScr("region_split"),"🌊","Split","Rome on the Adriatic"],
+          [()=>setScr("region_mostar"),"🌉","Mostar","The bridge reborn"],
+          [()=>setScr("region_tomislavgrad"),"👑","Tomislavgrad","Where Croatia was born"],
+          [()=>setScr("region_knin"),"🏰","Knin","Liberated Aug 5, 1995"],
           [()=>setScr("region_labin"),"⛵","Labin & Rabac","Our new home!"],
           [()=>setScr("region_bibinje"),"🏖️","Bibinje & Zadar","Dalmatian gateway"],
           [()=>setScr("region_hercegovina"),"⚔️","Hrvati Hercegovine","Our heritage"],
@@ -69,6 +75,22 @@ export default function CroatiaTab({
             <div><div style={{fontSize:13,fontWeight:700}}>{title}</div><div style={{fontSize:11,color:"#78716c"}}>{sub}</div></div>
           </div>
         ))}
+      </div>
+
+      {/* City of the Day */}
+      <div style={{marginBottom:20,borderRadius:16,overflow:"hidden",cursor:"pointer",boxShadow:"0 4px 16px rgba(0,0,0,.1)"}} onClick={()=>setScr("cityofday")}>
+        <div style={{background:"linear-gradient(135deg,"+city.color+"dd,"+city.color+")",padding:"14px 16px",display:"flex",alignItems:"center",gap:14}}>
+          <div style={{fontSize:36,flexShrink:0}}>{city.icon}</div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:10,fontWeight:800,color:"rgba(255,255,255,.75)",letterSpacing:"0.08em",marginBottom:3}}>🗓️ CITY OF THE DAY</div>
+            <div style={{fontSize:17,fontWeight:900,color:"white",lineHeight:1.2}}>{city.name}</div>
+            <div style={{fontSize:11,color:"rgba(255,255,255,.75)",marginTop:2}}>{city.region} &nbsp;·&nbsp; <span style={{fontStyle:"italic"}}>"{city.tagline}"</span></div>
+          </div>
+          <div style={{fontSize:20,opacity:.7,color:"white"}}>→</div>
+        </div>
+        <div style={{background:"rgba(0,0,0,.55)",padding:"7px 16px",fontSize:11,color:"rgba(255,255,255,.65)"}}>
+          New city every day · {city.facts.length} facts · {city.vocab.length} words to learn
+        </div>
       </div>
 
       <h3 className="sh">🛒 Shopping & Food</h3>

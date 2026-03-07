@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { H, speak } from '../../data.jsx';
-import { REGIONS, ROLEPLAY, RECIPES } from '../../data.jsx';
+import { REGIONS, ROLEPLAY, RECIPES, CROATIAN_CITIES, getCityOfDay } from '../../data.jsx';
 
 export function RegionScreen({ regionKey, goBack }) {
   const [tab, setTab] = useState("overview");
@@ -278,6 +278,128 @@ export function RecipesScreen({ goBack }) {
           <div style={{fontSize:14,lineHeight:1.6}}>{s}{" 🔊"}</div>
         </div>
       );})}
+    </div>
+  );
+}
+
+export function CityOfDayScreen({ goBack }) {
+  const [tab, setTab] = useState("overview");
+  const city = getCityOfDay();
+  const tomorrow = (function(){var d=new Date();d.setDate(d.getDate()+1);return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});})();
+  const tabs = [{id:"overview",label:"Overview",icon:"📖"},{id:"history",label:"History",icon:"🏛️"},{id:"vocab",label:"Vocabulary",icon:"💬"},{id:"facts",label:"Fast Facts",icon:"⚡"}];
+
+  return (
+    <div className="scr-wrap">
+      {/* Hero */}
+      <div style={{marginBottom:20,borderRadius:20,overflow:"hidden",boxShadow:"0 8px 32px rgba(0,0,0,.15)"}}>
+        <div style={{background:"linear-gradient(145deg,"+city.color+"dd,"+city.color+")",padding:"28px 20px 20px",position:"relative"}}>
+          <div style={{position:"absolute",top:16,right:16,background:"rgba(0,0,0,.25)",borderRadius:20,padding:"4px 10px",fontSize:10,fontWeight:800,color:"white",letterSpacing:"0.06em"}}>
+            CITY OF THE DAY
+          </div>
+          <div style={{fontSize:48,marginBottom:8}}>{city.icon}</div>
+          <div style={{fontSize:26,fontWeight:900,color:"white",letterSpacing:"-.02em",lineHeight:1.15}}>{city.name}</div>
+          <div style={{fontSize:13,color:"rgba(255,255,255,.75)",marginTop:4,fontWeight:600}}>{city.region} · Croatia</div>
+          <div style={{marginTop:10,display:"inline-block",background:"rgba(255,255,255,.18)",borderRadius:20,padding:"5px 12px",fontSize:12,fontWeight:700,color:"white",fontStyle:"italic"}}>
+            "{city.tagline}"
+          </div>
+        </div>
+        <div style={{background:"rgba(0,0,0,.6)",padding:"10px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div style={{fontSize:11,color:"rgba(255,255,255,.7)"}}>🔄 New city tomorrow — {tomorrow}</div>
+          <div style={{fontSize:11,color:"rgba(255,255,255,.5)",fontWeight:600}}>{CROATIAN_CITIES.length} cities in rotation</div>
+        </div>
+      </div>
+
+      {/* Tab bar */}
+      <div style={{display:"flex",gap:0,marginBottom:20,borderBottom:"2px solid #f1f5f9"}}>
+        {tabs.map(function(t){
+          var active=tab===t.id;
+          return (
+            <button key={t.id} onClick={function(){setTab(t.id)}}
+              style={{flex:1,padding:"10px 6px",border:"none",borderBottom:active?"2.5px solid "+city.color:"2.5px solid transparent",
+                background:"transparent",fontSize:11,fontWeight:active?800:500,
+                color:active?city.color:"#78716c",cursor:"pointer",transition:"all .18s",
+                marginBottom:"-2px",whiteSpace:"nowrap"}}>
+              {t.icon} {t.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Overview */}
+      {tab==="overview" && (
+        <div>
+          <div style={{marginBottom:16,padding:"16px",background:city.color+"0e",borderRadius:14,borderLeft:"4px solid "+city.color,fontSize:14,lineHeight:1.8,color:"#1c1917"}}>
+            {city.intro}
+          </div>
+          <div style={{marginBottom:16,padding:"16px",background:"white",borderRadius:14,border:"1px solid rgba(0,0,0,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.05)",fontSize:14,lineHeight:1.8,color:"#44403c"}}>
+            {city.history}
+          </div>
+          <div style={{padding:"14px 16px",background:"linear-gradient(135deg,#fef3c7,#fde68a)",borderRadius:14,borderLeft:"4px solid #f59e0b"}}>
+            <div style={{fontSize:11,fontWeight:800,color:"#92400e",marginBottom:6,letterSpacing:"0.06em"}}>DID YOU KNOW?</div>
+            <div style={{fontSize:13,color:"#78350f",lineHeight:1.7}}>{city.didYouKnow}</div>
+          </div>
+        </div>
+      )}
+
+      {/* History */}
+      {tab==="history" && (
+        <div>
+          <div style={{marginBottom:12,padding:"10px 14px",background:city.color+"0e",borderRadius:10,fontSize:12,color:city.color,fontWeight:700}}>
+            Key historical facts about {city.name}
+          </div>
+          {city.facts.map(function(f,fi){return (
+            <div key={fi} style={{display:"flex",alignItems:"flex-start",gap:12,marginBottom:10,padding:"12px 14px",background:"white",borderRadius:12,border:"1px solid rgba(0,0,0,.06)",boxShadow:"0 1px 3px rgba(0,0,0,.04)"}}>
+              <div style={{width:26,height:26,borderRadius:"50%",background:city.color,color:"white",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:800,flexShrink:0}}>
+                {fi+1}
+              </div>
+              <div style={{fontSize:13,color:"#1c1917",lineHeight:1.6,flex:1}}>{f}</div>
+            </div>
+          );})}
+        </div>
+      )}
+
+      {/* Vocabulary */}
+      {tab==="vocab" && (
+        <div>
+          <div style={{marginBottom:12,padding:"10px 14px",background:city.color+"0e",borderRadius:10,fontSize:12,color:city.color,fontWeight:700}}>
+            Words and phrases connected to {city.name} — tap to hear
+          </div>
+          {city.vocab.map(function(v,vi){return (
+            <div key={vi} style={{marginBottom:10,background:"white",borderRadius:14,border:"1px solid rgba(0,0,0,.06)",overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,.05)",cursor:"pointer"}}
+              onClick={function(){speak(v.hr)}}>
+              <div style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px"}}>
+                <div style={{width:4,alignSelf:"stretch",background:city.color,borderRadius:2,flexShrink:0}} />
+                <div style={{flex:1}}>
+                  <div style={{fontSize:17,fontWeight:800,color:city.color,marginBottom:3}}>{v.hr} <span style={{fontSize:14,opacity:.5}}>🔊</span></div>
+                  <div style={{fontSize:13,color:"#44403c",fontWeight:600,marginBottom:4}}>{v.en}</div>
+                  {v.note && <div style={{fontSize:12,color:"#78716c",lineHeight:1.5}}>{v.note}</div>}
+                </div>
+              </div>
+            </div>
+          );})}
+        </div>
+      )}
+
+      {/* Fast Facts */}
+      {tab==="facts" && (
+        <div>
+          <div style={{marginBottom:16,padding:"14px 16px",background:city.color,borderRadius:14,color:"white",textAlign:"center"}}>
+            <div style={{fontSize:32,marginBottom:6}}>{city.icon}</div>
+            <div style={{fontSize:18,fontWeight:900}}>{city.name}</div>
+            <div style={{fontSize:12,opacity:.8,marginTop:4}}>{city.region} · Croatia</div>
+          </div>
+          {city.facts.map(function(f,fi){return (
+            <div key={fi} style={{display:"flex",gap:10,marginBottom:10,padding:"12px 14px",background:"white",borderRadius:12,border:"1px solid rgba(0,0,0,.06)",boxShadow:"0 1px 3px rgba(0,0,0,.04)"}}>
+              <span style={{fontSize:16,flexShrink:0}}>⚡</span>
+              <div style={{fontSize:13,color:"#1c1917",lineHeight:1.6}}>{f}</div>
+            </div>
+          );})}
+          <div style={{marginTop:8,padding:"12px 14px",background:"linear-gradient(135deg,#fef3c7,#fde68a)",borderRadius:12,borderLeft:"4px solid #f59e0b"}}>
+            <div style={{fontSize:11,fontWeight:800,color:"#92400e",marginBottom:4,letterSpacing:"0.06em"}}>DID YOU KNOW?</div>
+            <div style={{fontSize:13,color:"#78350f",lineHeight:1.6}}>{city.didYouKnow}</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
