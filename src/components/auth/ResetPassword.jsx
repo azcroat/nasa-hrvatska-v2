@@ -43,13 +43,13 @@ export default function ResetPassword({
           {rpStep===3 && <React.Fragment>
             <div style={{fontSize:14,color:"#16a34a",fontWeight:600,marginBottom:16}}>✅ Identity verified! Set your new password.</div>
             <label style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>NEW PASSWORD</label>
-            <input type="password" placeholder="New password (6+ characters)" value={rpPw} onChange={e=>{setRpPw(e.target.value);setAe("")}} autoComplete="new-password" style={{marginBottom:14}} />
+            <input type="password" placeholder="New password (6+ characters)" value={rpPw} onChange={e=>{setRpPw(e.target.value);setAe("")}} autoComplete="new-password" autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{marginBottom:14}} />
             <label style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>CONFIRM NEW PASSWORD</label>
-            <input type="password" placeholder="Confirm new password" value={rpPc} onChange={e=>{setRpPc(e.target.value);setAe("")}} autoComplete="new-password" onKeyDown={e=>{if(e.key==="Enter")doReset()}} style={{marginBottom:16}} />
+            <input type="password" placeholder="Confirm new password" value={rpPc} onChange={e=>{setRpPc(e.target.value);setAe("")}} autoComplete="new-password" autoCapitalize="none" autoCorrect="off" spellCheck="false" onKeyDown={e=>{if(e.key==="Enter")doReset()}} style={{marginBottom:16}} />
             <button className="b bp" style={{width:"100%",padding:"14px 24px"}} onClick={doReset}>Reset Password</button>
           </React.Fragment>}
           <div style={{textAlign:"center",marginTop:20,fontSize:14,color:"#78716c"}}>
-            <span style={{color:"#0e7490",cursor:"pointer",fontWeight:700}} onClick={()=>{setAs("login");setAe("");setRpStep(1);setRpEm("");setRpSa("");setRpPw("");setRpPc("");setRpQ("")}}>← Back to Sign In</span>
+            <span style={{color:"#0e7490",cursor:"pointer",fontWeight:700}} onClick={()=>{setAs("login");setAe("");setRpStep(1);setRpEm("");setRpSa("");setRpPw("");setRpPc("");setRpQ("");localStorage.removeItem("_rpSaHash");localStorage.removeItem("_rpEmail")}}>← Back to Sign In</span>
           </div>
         </div>
       </div>

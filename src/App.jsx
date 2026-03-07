@@ -150,10 +150,13 @@ function App(){
     setAe("");if(!em.trim()||!isValidEmail(em.trim())){setAe("Please enter a valid email address.");return}if(!pw||pw.length<6){setAe("Password must be at least 6 characters.");return}if(pw!==pc){setAe("Passwords do not match.");return}if(!dn.trim()){setAe("Please enter your display name.");return}
     if(!sq.trim()){setAe("Please select a security question.");return}if(!sa.trim()||sa.trim().length<2){setAe("Please enter a security answer (2+ characters).");return}
     setAl(true);try{initFirebase();const k=em.trim().toLowerCase();
+    // Block re-registration of existing local account
+    var existingAccts=gA();if(existingAccts[k]){setAe("An account with this email already exists. Please sign in instead.");setAl(false);return}
     if(_fbReady){var fb=await fbRegister(k,pw,dn.trim());
-    if(!fb.ok&&(fb.err.indexOf("already")>=0||fb.err.indexOf("email-already")>=0)){setAe("An account with this email already exists. Please sign in instead.");setAl(false);return}
-    if(!fb.ok&&(fb.err.indexOf("weak-password")>=0)){setAe("Password is too weak. Use at least 6 characters.");setAl(false);return}
-    if(!fb.ok&&(fb.err.indexOf("invalid-email")>=0)){setAe("Please enter a valid email address.");setAl(false);return}
+    // fb.err is already friendly-fied — match against friendly message substrings
+    if(!fb.ok&&fb.err.indexOf("already")>=0){setAe("An account with this email already exists. Please sign in instead.");setAl(false);return}
+    if(!fb.ok&&(fb.err.indexOf("least 6")>=0||fb.err.indexOf("weak")>=0)){setAe("Password is too weak. Use at least 6 characters.");setAl(false);return}
+    if(!fb.ok&&fb.err.indexOf("valid email")>=0){setAe("Please enter a valid email address.");setAl(false);return}
     // Other Firebase errors (network, etc.) — fall through and create local account anyway
     if(fb.ok){try{var id=k.replace(/[.#$/\[\]]/g,"_");await _fbDb.collection("users").doc(id).set({sq:sq.trim(),sa:(await hp(sa.trim().toLowerCase()))},{merge:true})}catch(e){}}}
     const a=gA();const h=await hp(pw);const sah=await hp(sa.trim().toLowerCase());a[k]={p:h,d:dn.trim(),e:k,sq:sq.trim(),sa:sah,created:Date.now()};sA(a);
@@ -220,10 +223,11 @@ function App(){
       if(la[k].p===lh){
         setAu({u:k,d:la[k].d,e:k});sS({u:k});var lp=gP(k);
         if(lp){setName(lp.name||la[k].d);setSt(lp.st||ds);setScr((lp.cp||(lp.st&&(lp.st.xp>0||lp.st.lc>0)))?"dashboard":"welcome")}else setName(la[k].d);
-        setAs("app");setEm("");setPw("");setAl(false);return;}}
-    // Both paths failed — show the most helpful error
-    if(fbResult&&fbResult.err){setAe(fbResult.err);}
-    else{setAe("Incorrect password. Try again or use Forgot Password.");}
+        setAs("app");setEm("");setPw("");setAl(false);return;}
+      // Account exists but password wrong — always this message, never Firebase's "no account found"
+      setAe("Incorrect password. Try again or use Forgot Password.");setAl(false);return;}
+    // Account record exists but has no password hash — guide to reset
+    setAe("Please use 'Forgot Password' to restore access to your account.");
     }catch(e){setAe("Login failed. Please try again.")}setAl(false)
   }
   function doOut(){fbLogout();cS();setAu(null);setSt(ds);setScr("welcome");setName("");setFamData(null);setFamMembers([]);setAs("login")}
