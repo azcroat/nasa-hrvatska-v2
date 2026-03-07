@@ -1,85 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import { H, MEDIA, getCityOfDay } from '../../data.jsx';
-
-function HymnaPlayer() {
-  const [playing, setPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [current, setCurrent] = useState(0);
-  const [loaded, setLoaded] = useState(false);
-  const [error, setError] = useState(false);
-  const ref = useRef(null);
-
-  function toggle(e) {
-    e.stopPropagation();
-    const a = ref.current;
-    if (!a) return;
-    if (playing) { a.pause(); setPlaying(false); }
-    else { a.play().then(() => setPlaying(true)).catch(() => {}); }
-  }
-
-  function seek(e) {
-    e.stopPropagation();
-    const a = ref.current;
-    if (!a || !a.duration) return;
-    const r = e.currentTarget.getBoundingClientRect();
-    a.currentTime = ((e.clientX - r.left) / r.width) * a.duration;
-  }
-
-  function fmt(s) {
-    return Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
-  }
-
-  return (
-    <div onClick={e => e.stopPropagation()} style={{marginTop:12}}>
-      <audio
-        ref={ref}
-        src="/audio/bojna-cavoglave.m4a"
-        preload="metadata"
-        onLoadedMetadata={() => { if (ref.current) { setDuration(ref.current.duration); setLoaded(true); } }}
-        onTimeUpdate={() => { const a = ref.current; if (a) { setCurrent(a.currentTime); setProgress(a.duration ? (a.currentTime / a.duration) * 100 : 0); } }}
-        onEnded={() => { setPlaying(false); setProgress(0); setCurrent(0); if (ref.current) ref.current.currentTime = 0; }}
-        onPlay={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
-        onError={() => { setError(true); setLoaded(false); }}
-      />
-      {error && (
-        <div style={{fontSize:12,color:"#b91c1c",background:"rgba(185,28,28,.06)",borderRadius:10,padding:"8px 12px",marginBottom:10}}>
-          ⚠️ Audio file not found. Place <code>bojna-cavoglave.m4a</code> in <code>public/audio/</code>.
-        </div>
-      )}
-      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:12}}>
-        <div>
-          <div style={{fontSize:13,fontWeight:900,color:"#b91c1c"}}>Bojna Čavoglave</div>
-          <div style={{fontSize:11,color:"#78716c",marginTop:2}}>Marko Perković Thompson · 1991</div>
-        </div>
-      </div>
-      <div style={{display:"flex",alignItems:"center",gap:12}}>
-        <button
-          onClick={toggle}
-          style={{width:46,height:46,borderRadius:"50%",background:"linear-gradient(135deg,#dc2626,#991b1b)",border:"none",color:"white",fontSize:19,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,boxShadow:"0 4px 12px rgba(185,28,28,.35)",transition:"transform .1s"}}
-          onMouseDown={e => { e.stopPropagation(); e.currentTarget.style.transform="scale(.93)"; }}
-          onMouseUp={e => { e.stopPropagation(); e.currentTarget.style.transform="scale(1)"; }}>
-          {playing ? "⏸" : "▶"}
-        </button>
-        <div style={{flex:1}}>
-          <div
-            onClick={seek}
-            style={{height:5,background:"rgba(0,0,0,.1)",borderRadius:5,cursor:"pointer",position:"relative"}}>
-            <div style={{position:"absolute",top:0,left:0,height:"100%",width:progress+"%",background:"linear-gradient(90deg,#dc2626,#b91c1c)",borderRadius:5,transition:"width .15s linear"}} />
-          </div>
-          <div style={{display:"flex",justifyContent:"space-between",marginTop:5,fontSize:10,color:"#78716c",fontWeight:600}}>
-            <span>{fmt(current)}</span>
-            <span>{loaded ? fmt(duration) : "loading..."}</span>
-          </div>
-        </div>
-      </div>
-      <div style={{marginTop:10,fontSize:11,color:"#78716c",fontStyle:"italic",lineHeight:1.5}}>
-        "Za dom — spremni" · The battle hymn of the Homeland War
-      </div>
-    </div>
-  );
-}
 
 const LEVEL_COLORS = {A1:'#16a34a',A2:'#65a30d',B1:'#ca8a04',B2:'#b45309',C1:'#0e7490',C2:'#7c3aed'};
 const CAT_LABELS = {tv:"📺 TV & News",music:"🎵 Music & Radio",sport:"⚽ Sports",film:"🎬 Film & Series",podcast:"🎙️ Podcasts",culture:"🌍 Culture & Press"};
@@ -136,19 +56,8 @@ export default function CroatiaTab({
 
       <h3 className="sh">🇭🇷 History & Regions</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
-        {/* Domovinski Rat — full-width tile with embedded hymn player */}
-        <div className="tc" style={{gridColumn:"1/-1",padding:"14px",display:"flex",flexDirection:"column"}} onClick={()=>{sHIdx(0);setScr("history");}}>
-          <div style={{display:"flex",alignItems:"center",gap:10}}>
-            <div style={{fontSize:28}}>🇭🇷</div>
-            <div style={{flex:1}}>
-              <div style={{fontSize:13,fontWeight:700}}>Domovinski Rat</div>
-              <div style={{fontSize:11,color:"#78716c"}}>Homeland War</div>
-            </div>
-            <div style={{fontSize:11,color:"#0e7490",fontWeight:600,opacity:.7}}>tap to explore →</div>
-          </div>
-          <HymnaPlayer />
-        </div>
         {[
+          [()=>{sHIdx(0);setScr("history");},"🇭🇷","Domovinski Rat","Homeland War"],
           [()=>{sKgTab("timeline");setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval kingdom"],
           [()=>setScr("region_zagreb"),"🏛️","Zagreb","Capital city"],
           [()=>setScr("region_split"),"🌊","Split","Rome on the Adriatic"],

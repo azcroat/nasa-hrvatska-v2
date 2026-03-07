@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, speak } from '../../data.jsx';
 import { TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, SCHOOL, GROCERY, HISTORY, BASKETBALL, GYM } from '../../data.jsx';
 
@@ -296,6 +296,84 @@ export function GroceryScreen({ goBack }) {
   );
 }
 
+function HimnaPlayer() {
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [current, setCurrent] = useState(0);
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
+  const ref = useRef(null);
+
+  function toggle() {
+    const a = ref.current;
+    if (!a) return;
+    if (playing) { a.pause(); }
+    else { a.play().catch(() => {}); }
+  }
+
+  function seek(e) {
+    const a = ref.current;
+    if (!a || !a.duration) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    a.currentTime = ((e.clientX - r.left) / r.width) * a.duration;
+  }
+
+  function fmt(s) {
+    return Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+  }
+
+  return (
+    <div className="c" style={{marginTop:24,borderLeft:"4px solid #dc2626",background:"linear-gradient(135deg,#fef2f2,#fee2e2)",padding:"20px"}}>
+      <audio
+        ref={ref}
+        src="/audio/bojna-cavoglave.m4a"
+        preload="metadata"
+        onLoadedMetadata={() => { if (ref.current) { setDuration(ref.current.duration); setLoaded(true); } }}
+        onTimeUpdate={() => { const a = ref.current; if (a) { setCurrent(a.currentTime); setProgress(a.duration ? (a.currentTime / a.duration) * 100 : 0); } }}
+        onEnded={() => { setPlaying(false); setProgress(0); setCurrent(0); if (ref.current) ref.current.currentTime = 0; }}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        onError={() => { setError(true); setLoaded(false); }}
+      />
+      <div style={{fontSize:11,fontWeight:900,color:"#991b1b",letterSpacing:"0.07em",marginBottom:10,textTransform:"uppercase"}}>
+        🎵 The Sound of the Homeland War
+      </div>
+      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:14}}>
+        <div>
+          <div style={{fontSize:17,fontWeight:900,color:"#7f1d1d",fontFamily:"'Playfair Display',serif"}}>Bojna Čavoglave</div>
+          <div style={{fontSize:12,color:"#b91c1c",fontWeight:600,marginTop:3}}>Marko Perković Thompson · 1991</div>
+        </div>
+      </div>
+      <div style={{fontSize:12,color:"#44403c",lineHeight:1.7,marginBottom:16}}>
+        Written by Thompson while defending his village of Čavoglave near Knin, recorded on a cassette tape and passed hand-to-hand among soldiers and civilians. It became the battle hymn of the Homeland War — sung in trenches, at funerals, and at the liberation of Knin on August 5, 1995.
+      </div>
+      {error ? (
+        <div style={{fontSize:12,color:"#991b1b",fontStyle:"italic"}}>⚠️ Audio unavailable.</div>
+      ) : (
+        <div style={{display:"flex",alignItems:"center",gap:14}}>
+          <button
+            onClick={toggle}
+            style={{width:50,height:50,borderRadius:"50%",background:"linear-gradient(135deg,#dc2626,#991b1b)",border:"none",color:"white",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,boxShadow:"0 4px 16px rgba(185,28,28,.4)"}}>
+            {playing ? "⏸" : "▶"}
+          </button>
+          <div style={{flex:1}}>
+            <div
+              onClick={seek}
+              style={{height:6,background:"rgba(185,28,28,.2)",borderRadius:6,cursor:"pointer",position:"relative",marginBottom:6}}>
+              <div style={{position:"absolute",top:0,left:0,height:"100%",width:progress+"%",background:"linear-gradient(90deg,#dc2626,#991b1b)",borderRadius:6,transition:"width .15s linear"}} />
+            </div>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#991b1b",fontWeight:700}}>
+              <span>{fmt(current)}</span>
+              <span>{loaded ? fmt(duration) : "loading…"}</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function HistoryScreen({ goBack }) {
   return (
     <div className="scr-wrap">
@@ -348,6 +426,7 @@ export function HistoryScreen({ goBack }) {
         <div style={{fontSize:24,fontWeight:800,color:"#991b1b",fontFamily:"'Playfair Display',serif",fontStyle:"italic",marginBottom:8}}>{HISTORY.quote}</div>
         <div style={{fontSize:20,fontWeight:700,color:"#b91c1c",fontFamily:"'Playfair Display',serif",fontStyle:"italic"}}>{HISTORY.quote2}</div>
       </div>
+      <HimnaPlayer />
     </div>
   );
 }
