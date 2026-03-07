@@ -265,8 +265,8 @@ export default function AIConversation({ goBack, setScr, sCurEx }) {
     if (!res.ok || data.error) {
       const msg = data.error || ("Server error " + res.status);
       // Surface a clear message for the missing API key case
-      if (msg.includes("AI_KEY_MISSING") || msg.includes("GEMINI_API_KEY")) {
-        throw new Error("setup_error:The AI service is not yet configured. The GEMINI_API_KEY needs to be added to the Netlify environment variables.");
+      if (msg.includes("AI_KEY_MISSING") || msg.includes("ANTHROPIC_API_KEY") || msg.includes("GEMINI_API_KEY")) {
+        throw new Error("setup_error:The AI service is not yet configured. The ANTHROPIC_API_KEY needs to be set in Netlify environment variables.");
       }
       throw new Error(msg);
     }
