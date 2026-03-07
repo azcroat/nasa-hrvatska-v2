@@ -16,6 +16,7 @@ function getActionLabel(m, cat) {
     if (cat === 'tv') return ['Watch Live ↗', true];
     if (cat === 'music') return ['Listen Live ↗', true];
   }
+  if (m.video) return ['Watch ↗', false];
   const labels = {tv:'Read ↗', music:'Listen ↗', film:'Watch ↗', sport:'Visit ↗', podcast:'Listen ↗', culture:'Read ↗'};
   return [labels[cat] || 'Open ↗', false];
 }
