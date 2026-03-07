@@ -327,7 +327,7 @@ function HimnaPlayer() {
     <div className="c" style={{marginTop:24,borderLeft:"4px solid #dc2626",background:"linear-gradient(135deg,#fef2f2,#fee2e2)",padding:"20px"}}>
       <audio
         ref={ref}
-        src="/audio/bojna-cavoglave.m4a"
+        src="/audio/bojna-cavoglave-v2.m4a"
         preload="metadata"
         onLoadedMetadata={() => { if (ref.current) { setDuration(ref.current.duration); setLoaded(true); } }}
         onTimeUpdate={() => { const a = ref.current; if (a) { setCurrent(a.currentTime); setProgress(a.duration ? (a.currentTime / a.duration) * 100 : 0); } }}
