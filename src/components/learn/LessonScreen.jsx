@@ -8,7 +8,7 @@ export default function LessonScreen({
 }) {
   return (
     <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {lp==="learn"&&<React.Fragment>
         {H((icons[lt]||"📚")+" "+lt)}
         {li.map((w,i)=>(

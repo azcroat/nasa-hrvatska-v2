@@ -14,7 +14,7 @@ export default function Unjumble({ goBack, award }) {
   if (!q) {
     return (
       <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-        <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+        
         {H("🧩 Word Order","Arrange words to form correct Croatian sentences")}
         <div style={{textAlign:"center",padding:40}}>
           <div style={{fontSize:64}}>🌟</div>
@@ -29,7 +29,7 @@ export default function Unjumble({ goBack, award }) {
 
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🧩 Word Order","Arrange words to form correct Croatian sentences")}
       <Bar v={ujI + 1} mx={total} h={6} />
       <div className="c" style={{marginTop:16}}>

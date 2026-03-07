@@ -5,7 +5,7 @@ import { ASPECT, FALSEFR, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUI
 export function AspectScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🔄 Verb Aspect","Perfective vs Imperfective")}
       {ASPECT.pairs.map(function(p,i){return (
         <div key={i} className="c" style={{marginBottom:10}}>
@@ -23,7 +23,7 @@ export function AspectScreen({ goBack }) {
 export function FalseFriendsScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("⚠️ False Friends","Croatian words that trick English speakers")}
       {FALSEFR.map(function(f,i){return (
         <div key={i} className="c" style={{marginBottom:10,cursor:"pointer"}} onClick={function(){speak(f.hr)}}>
@@ -44,7 +44,7 @@ export function DeclensionScreen({ goBack }) {
   const n = DECL.nouns[dcNoun];
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("📝 Noun Declension Trainer","All 7 cases for key nouns")}
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:16}}>
         {DECL.nouns.map(function(noun,i){return (
@@ -70,7 +70,7 @@ export function DeclensionScreen({ goBack }) {
 export function BrzaliceScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("😝 Brzalice","Croatian Tongue Twisters")}
       {shMemo("bz",BRZALICE).map(function(b,i){return (
         <div key={i} className="c" style={{marginBottom:12}}>
@@ -86,7 +86,7 @@ export function BrzaliceScreen({ goBack }) {
 export function DialectsScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🗺️ Regional Dialects","Štokavski, Kajkavski, Čakavski")}
       {DIALECTS.info.map(function(d,i){return (
         <div key={i} className="c" style={{marginBottom:12,borderLeft:"4px solid "+["#0e7490","#7c3aed","#dc2626"][i]}}>
@@ -118,7 +118,7 @@ export function DialectsScreen({ goBack }) {
 export function DiminutivesScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🐣 Umanjenice","Diminutives — making things small & cute")}
       {DIMWORDS.map(function(d,i){return (
         <div key={i} className="c" style={{marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer"}} onClick={function(){speak(d.dim)}}>
@@ -137,7 +137,7 @@ export function DiminutivesScreen({ goBack }) {
 export function WordFormScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🧩 Word Formation","How prefixes build Croatian vocabulary")}
       {WORDFORM.bases.map(function(b,bi){return (
         <div key={bi} className="c" style={{marginBottom:16}}>
@@ -158,7 +158,7 @@ export function WordFormScreen({ goBack }) {
 export function ColorQuirkScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🎨 Color Quirks","Colors mean different things in Croatian!")}
       {COLORQUIRK.map(function(q,i){return (
         <div key={i} className="c" style={{marginBottom:10,cursor:"pointer"}} onClick={function(){speak(q.hr)}}>

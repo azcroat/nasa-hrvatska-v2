@@ -7,7 +7,7 @@ export default function CrMap({ goBack }) {
   const [mapSel, setMapSel] = useState(null);
   return (
     <div style={{maxWidth:680,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🗺️ Interactive Map","Explore Croatia & get directions")}
       <div style={{borderRadius:14,overflow:"hidden",marginBottom:16,border:"2px solid rgba(14,116,144,.12)"}}>
         <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d2800000!2d16.0!3d44.5!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2shr"

@@ -5,7 +5,7 @@ import { TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE
 export function TextingScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("📱 Texting & Slang","How Croatian kids actually text")}
       {TEXTING.map(function(t,i){return (
         <div key={i} className="c" style={{marginBottom:8,cursor:"pointer"}} onClick={function(){speak(t.slang)}}>
@@ -23,7 +23,7 @@ export function TextingScreen({ goBack }) {
 export function FriendsScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🤝 Making Friends","Real phrases kids use")}
       {FRIENDS.map(function(f,i){return (
         <div key={i} className="c" style={{marginBottom:8,cursor:"pointer"}} onClick={function(){speak(f.hr)}}>
@@ -38,7 +38,7 @@ export function FriendsScreen({ goBack }) {
 export function FoodOrderScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🍕 Ordering Food","Bakery, fast food, ice cream, restaurants")}
       {[FOODORDER.bakery,FOODORDER.fastfood,FOODORDER.icecream].map(function(sec,si){return (
         <div key={si} className="c" style={{marginBottom:16}}>
@@ -75,7 +75,7 @@ export function FoodOrderScreen({ goBack }) {
 export function TransportScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🚌 Getting Around","Bus, tram, taxi phrases")}
       {TRANSPORT.map(function(t,i){return (
         <div key={i} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px",cursor:"pointer"}} onClick={function(){speak(t.hr)}}>
@@ -90,7 +90,7 @@ export function TransportScreen({ goBack }) {
 export function EmergencyScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🚨 Emergency Phrases","Medical, police, urgent")}
       <div className="c" style={{marginBottom:16,borderLeft:"4px solid #dc2626",background:"#fef2f2",textAlign:"center"}}>
         <div style={{fontSize:48,fontWeight:800,color:"#dc2626"}}>112</div>
@@ -125,7 +125,7 @@ export function EmergencyScreen({ goBack }) {
 export function FootballScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("⚽ Football & Water Polo","Croatia's biggest sports")}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
         {FOOTBALL.vocab.map(function(w,i){return (
@@ -156,7 +156,7 @@ export function FootballScreen({ goBack }) {
 export function PopCultureScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🎵 Croatian Pop Culture","Music, TV & artists your friends know")}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
         {POPCULTURE.map(function(p,i){return (
@@ -177,7 +177,7 @@ export function PopCultureScreen({ goBack }) {
 export function PracticalScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("💼 Practical Life in Croatia","Documents, customs, culture")}
       <div className="c" style={{marginBottom:12,borderLeft:"4px solid #dc2626"}}>
         <div style={{fontSize:15,fontWeight:800,color:"#dc2626"}}>{PRACTICAL.oib.title}</div>
@@ -214,7 +214,7 @@ export function PracticalScreen({ goBack }) {
 export function SchoolScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🏫 School Survival Kit","Everything for Croatian school")}
       <div className="c" style={{marginBottom:16,borderLeft:"4px solid #dc2626",background:"#fef2f2"}}>
         <div style={{fontSize:15,fontWeight:800,color:"#dc2626"}}>{SCHOOL.grading.title}</div>
@@ -256,7 +256,7 @@ export function SchoolScreen({ goBack }) {
 export function GroceryScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🛒 Grocery Shopping","Stores, brands & essential vocab")}
       <h3 className="sh">🏪 Supermarket Chains</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:20}}>
@@ -299,7 +299,7 @@ export function GroceryScreen({ goBack }) {
 export function HistoryScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🇭🇷 "+HISTORY.title,HISTORY.subtitle)}
       <div className="c" style={{marginBottom:20,borderLeft:"4px solid #dc2626",background:"linear-gradient(135deg,#fef2f2,#fee2e2)"}}>
         <div style={{fontSize:14,lineHeight:1.8,color:"#1c1917"}}>{HISTORY.intro}</div>

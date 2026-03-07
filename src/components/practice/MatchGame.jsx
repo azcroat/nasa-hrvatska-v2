@@ -4,7 +4,7 @@ import { H } from '../../data.jsx';
 export default function MatchGame({ mp, mm, msl, gph, gsc, sMm, sMsl, sGsc, sGph, goBack, award }) {
   return (
     <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🃏 Match Pairs")}
       {gph === "play" && (
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>

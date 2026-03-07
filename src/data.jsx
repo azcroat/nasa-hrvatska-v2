@@ -585,7 +585,7 @@ const MEDIA = [
   {name:"CMC Radio",desc:"24/7 Croatian hits • all genres",web:"https://m.youtube.com/results?search_query=CMC+radio+croatia+live+stream",icon:"\ud83c\udfa7",color:"#9333ea",cat:"music"},
   {name:"Hrvatska Glazba",desc:"Croatian music mix on YouTube",web:"https://m.youtube.com/results?search_query=hrvatska+glazba+mix+2024",icon:"\ud83c\udfb5",color:"#db2777",cat:"music"},
   {name:"Thompson",desc:"Croatian patriotic music",web:"https://m.youtube.com/results?search_query=thompson+croatian+music+live",icon:"\ud83c\udded\ud83c\uddf7",color:"#b91c1c",cat:"music"},
-  {name:"Football & Water Polo",desc:"Croatian football vocab, clubs & water polo",web:"",icon:"\u26bd",color:"#16a34a",cat:"sport",scr:"football"},
+  {name:"HNL & Croatian Football",desc:"Standings, clubs, Vatreni, vocab & water polo",web:"",icon:"\u26bd",color:"#003da5",cat:"sport",scr:"football"},
   {name:"Croatian Basketball",desc:"HKS, ABA Liga, Premijer Liga & club highlights",web:"https://www.hks-cbf.hr/",icon:"\ud83c\udfc0",color:"#f97316",cat:"sport"},
   {name:"Basketball Legends",desc:"Dra\u017een, Kuko\u010d, Ra\u0111a, Bogdanovi\u0107, Zubac, \u0160ari\u0107",web:"https://m.youtube.com/results?search_query=croatian+basketball+legends+highlights+drazen+kukoc",icon:"\ud83c\udfc6",color:"#ea580c",cat:"sport"},
   {name:"Club Highlights",desc:"KK Split, Zadar, Cibona, Cedevita",web:"https://m.youtube.com/results?search_query=KK+Split+Zadar+Cibona+basketball+highlights",icon:"\ud83c\udfc0",color:"#1e40af",cat:"sport"},

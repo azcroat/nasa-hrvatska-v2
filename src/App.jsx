@@ -29,7 +29,8 @@ import ListeningScreen from "./components/practice/ListeningScreen.jsx";
 import McGame from "./components/practice/McGame.jsx";
 import IdiomsScreen from "./components/croatia/IdiomsScreen.jsx";
 // Croatia screens
-import { TextingScreen, FriendsScreen, FoodOrderScreen, TransportScreen, EmergencyScreen, FootballScreen, PopCultureScreen, PracticalScreen, SchoolScreen, GroceryScreen, HistoryScreen as CroatiaHistoryScreen } from "./components/croatia/CroatiaCulture.jsx";
+import { TextingScreen, FriendsScreen, FoodOrderScreen, TransportScreen, EmergencyScreen, PopCultureScreen, PracticalScreen, SchoolScreen, GroceryScreen, HistoryScreen as CroatiaHistoryScreen } from "./components/croatia/CroatiaCulture.jsx";
+import HNLScreen from "./components/croatia/HNLScreen.jsx";
 import { RegionScreen, RoleplayScreen, RecipesScreen } from "./components/croatia/RegionScreens.jsx";
 import { EventsCalendar, Top100Screen } from "./components/croatia/EventsTop100.jsx";
 import KingsScreen from "./components/croatia/KingsScreen.jsx";
@@ -108,8 +109,8 @@ function App(){
   const[famData,setFamData]=useState(null);const[famMembers,setFamMembers]=useState([]);const[famLoading,setFamLoading]=useState(false);
   const[famName,setFamName]=useState("");const[famCode,setFamCode]=useState("");const[famErr,setFamErr]=useState("");const[famTab,setFamTab]=useState("main");
   const[tab,_setTab]=useState("home");
-  const tabStack=useRef(["home"]);
-  const setTab=useCallback(function(t){_setTab(t);tabStack.current.push(t)},[]);
+  const TAB_PATHS={home:"/",learn:"/learn",practice:"/practice",croatia:"/croatia",profile:"/profile"};
+  const setTab=useCallback(function(t){_setTab(t);navigate(TAB_PATHS[t]||"/");},[navigate]);
   const[tnVerb,setTnVerb]=useState(0);const[tnTense,setTnTense]=useState("present");const[tnGender,setTnGender]=useState("m");const[tnMode,setTnMode]=useState("learn");const[tnQ,setTnQ]=useState([]);const[tnI,setTnI]=useState(0);const[tnS,setTnS]=useState(0);const[tnA,setTnA]=useState(false);const[tnSl,setTnSl]=useState(-1);const[tnO,setTnO]=useState([]);
   const[mapCat,setMapCat]=useState("all");const[mapSel,setMapSel]=useState(null);
   const[rpIdx,setRpIdx]=useState(0);const[rpLine,setRpLine]=useState(0);const[rpShow,setRpShow]=useState(false);
@@ -228,10 +229,13 @@ function markExerciseDone(exerciseId){
   }catch(e){}
 }
   // ═══ BROWSER BACK BUTTON SUPPORT (React Router) ═══
-  // When the URL changes due to browser back/forward, sync scr state to the URL
+  // When the URL changes due to browser back/forward, sync scr and tab state to the URL
   useEffect(function(){
     if(as!=="app")return;
-    var s=location.pathname==="/"?"dashboard":location.pathname.slice(1);
+    var p=location.pathname;
+    var tabByPath={"/learn":"learn","/practice":"practice","/croatia":"croatia","/profile":"profile"};
+    if(tabByPath[p]){_setScr("dashboard");_setTab(tabByPath[p]);return;}
+    var s=p==="/"?"dashboard":p.slice(1);
     if(s!==scr&&s!=="welcome"&&s!=="placement"){
       _setScr(s);
       if(curEx){markExerciseDone(curEx);sCurEx("")}
@@ -246,8 +250,7 @@ function markExerciseDone(exerciseId){
   function goBack(){
     if(curEx)markExerciseDone(curEx);
     sCurEx("");
-    var idx=window.history.state&&window.history.state.idx;
-    if(typeof idx==="number"&&idx>0){navigate(-1)}else{_setScr("dashboard");navigate("/")}
+    navigate(-1);
   }
   const level=lvl(st.xp);
   const topics=Object.keys(V[st.diff==="beginner"?"greetings"in V?0:0:0]||V);
@@ -1748,7 +1751,7 @@ function markExerciseDone(exerciseId){
           </div>
         );})}
       </div>}
-      {scr==="football"&&<FootballScreen goBack={goBack} />}
+      {scr==="football"&&<HNLScreen goBack={goBack} />}
       {scr==="football_OLD"&&<div
         style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
         <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>

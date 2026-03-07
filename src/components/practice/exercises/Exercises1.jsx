@@ -7,7 +7,7 @@ export function ReflexiveScreen({ goBack, award }) {
   const q = REFLEXIVE.quiz[qi];
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🧲 "+REFLEXIVE.title,"SE verbs — essential for daily Croatian")}
       <div className="c" style={{marginBottom:16,padding:"12px 16px",background:"rgba(14,116,144,.06)"}}>
         <div style={{fontSize:13,color:"#164e63"}}>{REFLEXIVE.intro}</div>
@@ -51,7 +51,7 @@ export function ReflexiveScreen({ goBack, award }) {
 export function FillStoryScreen({ goBack, award }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("📝 Story Builder","Read and fill the blanks")}
       {FILL_STORIES.map(function(story,si){return (
         <div key={si} className="c" style={{marginBottom:20}}>
@@ -79,7 +79,7 @@ export function FillStoryScreen({ goBack, award }) {
 export function ConvMatchScreen({ goBack, award }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("💬 Conversation Match","Pick the right response")}
       {CONVMATCH.map(function(conv,ci){return (
         <div key={ci} className="c" style={{marginBottom:20}}>
@@ -102,7 +102,7 @@ export function ConvMatchScreen({ goBack, award }) {
 export function ScenesScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🖼️ Describe the Scene","Answer questions about everyday situations")}
       {SCENES.map(function(scene,si){return (
         <div key={si} className="c" style={{marginBottom:16}}>
@@ -123,7 +123,7 @@ export function ScenesScreen({ goBack }) {
 export function PronounsScreen({ goBack, award }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🎯 Pronoun Cases","How ja/ti/on/ona change with prepositions")}
       <div className="c" style={{marginBottom:16,padding:"12px",fontSize:12,background:"rgba(14,116,144,.06)"}}>{PRONOUNCASE.intro}</div>
       <div style={{overflowX:"auto",marginBottom:20}}>
@@ -161,7 +161,7 @@ export function PronounsScreen({ goBack, award }) {
 export function GenderDrillScreen({ goBack, award }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("♂️♀️ Gender, Plurals & Adjectives","Master noun genders and endings")}
       <h3 className="sh">📦 Sort by Gender — tap a word, then tap M / F / N</h3>
       {(function(){var words=GENDERDRILL.sort.slice().sort(function(){return Math.random()-0.5}).slice(0,12);return (
@@ -203,7 +203,7 @@ export function GenderDrillScreen({ goBack, award }) {
 export function SentenceBuilderScreen({ goBack, award }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🏗️ Build the Sentence","Translate English to Croatian")}
       <div className="c" style={{marginBottom:12,padding:"10px 14px",background:"rgba(14,116,144,.06)",fontSize:12,color:"#164e63"}}>🇬🇧 Read the English sentence, then pick the correct Croatian translation.</div>
       {shMemo("sb",SENTBUILD,15).map(function(s,i){return (
@@ -224,7 +224,7 @@ export function SentenceBuilderScreen({ goBack, award }) {
 export function VerbDrillScreen({ goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("💪 20 Essential Verbs","Full present tense conjugation")}
       <div className="c" style={{marginBottom:12,padding:"10px 14px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 Tap any form to hear it. Learn all 6 persons for each verb.</div>
       {shMemo("vd",VERBDRILL).map(function(v,vi){return (

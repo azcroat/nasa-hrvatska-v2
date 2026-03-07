@@ -9,7 +9,11 @@
       "Bash(npx react-codemod@latest:*)",
       "Bash(npx react-codemod:*)",
       "Bash(npx jscodeshift:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(netlify:*)",
+      "Bash(npm install:*)",
+      "Bash(git:*)",
+      "Bash(rm:*)"
     ]
   }
 }

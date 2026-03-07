@@ -13,7 +13,7 @@ export default function Flashcards({ fcPool, fcI, fcFlip, fcKnow, sFcFlip, sFcI,
   );
   return (
     <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🃏 Flashcards","Tap card to flip. Swipe through words.")}
       <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>
         <div style={{fontSize:14,fontWeight:700}}>{fcI+1} / {fcPool.length}</div>

@@ -4,7 +4,7 @@ import { H, speak } from '../../data.jsx';
 export default function VocabJournal({ jWords, setJWords, jIn, setJIn, jEn, setJEn, goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("📓 My Vocabulary Journal","Save words you discover in real life")}
       <div className="c" style={{marginBottom:16,padding:16}}>
         <div style={{display:"flex",gap:8,marginBottom:8}}>

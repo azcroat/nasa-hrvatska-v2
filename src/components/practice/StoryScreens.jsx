@@ -9,9 +9,7 @@ export default function StoryScreens({ goBack, award, sCurEx }) {
   if (!stSt) {
     return (
       <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-        <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>
-          ← Back
-        </button>
+        
         {H("📖 Mini Stories","Interactive stories where YOU choose what happens")}
         {STORIES.map((s, i) => (
           <div

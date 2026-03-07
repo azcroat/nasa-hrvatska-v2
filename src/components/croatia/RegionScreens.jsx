@@ -6,7 +6,7 @@ export function RegionScreen({ regionKey, goBack }) {
   const r = REGIONS[regionKey];
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H(r.title, r.sub)}
       {r.sections.map(function(s,i){return (
         <div key={i} className="c" style={{marginBottom:12}}>
@@ -25,7 +25,7 @@ export function RoleplayScreen({ goBack }) {
   const r = ROLEPLAY[rpIdx];
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🎭 Conversation Role-Play","Practice real-life dialogues")}
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:16}}>
         {ROLEPLAY.map(function(rp,i){return (
@@ -67,7 +67,7 @@ export function RecipesScreen({ goBack }) {
   const scale = rcServ / r.servings;
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("🍳 Croatian Recipes","Cook & learn vocabulary")}
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:16}}>
         {RECIPES.map(function(rec,i){return (

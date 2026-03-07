@@ -4,7 +4,7 @@ import { H, speak } from '../../data.jsx';
 export default function FavoritesScreen({ favs, toggleFav, setScr, goBack }) {
   return (
     <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      
       {H("⭐ My Favorites","Saved words, phrases & screens")}
       {favs.length===0
         ? <div className="c" style={{textAlign:"center",padding:"32px"}}>
