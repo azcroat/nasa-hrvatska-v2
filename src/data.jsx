@@ -1157,7 +1157,13 @@ const PROVERBS = [
   {hr:"Majka je prvi učitelj.",en:"A mother is the first teacher."},
   {hr:"Život nas uči svakim danom.",en:"Life teaches us every day."},
   {hr:"Naša snaga je u vjeri i ljubavi.",en:"Our strength is in faith and love."}];
-function getProverbOfDay(){var d=Math.floor(Date.now()/86400000)%PROVERBS.length;return PROVERBS[d]}
+function getProverbOfDay(){
+  var n=new Date();
+  var dk=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+  // Seed with date + a salt so proverb and fact never land on the same index
+  var h=5381;var s='prov:'+dk;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;h=h>>>0;
+  return PROVERBS[h%PROVERBS.length];
+}
 // ═══ LISTENING COMPREHENSION ═══
 const LISTEN = [
   {hr:"Dobar dan, kako ste?",en:"Good day, how are you?",opts:["Good day, how are you?","Good night, where are you?","Hello, who are you?","Good morning, how old are you?"]},
@@ -2548,7 +2554,13 @@ const HIST_FACTS = [
   {hr:"Hrvatska ima 20 županija i Grad Zagreb.",en:"Croatia has 20 counties and the City of Zagreb."},
   {hr:"Sjeti se Vukovara. Sjeti se tko smo. Sjeti se zašto smo tu.",en:"Remember Vukovar. Remember who we are. Remember why we're here."},
   {hr:"Naša Hrvatska — jer biti Hrvat nije samo znati jezik, nego živjeti srcem.",en:"Our Croatia — because being Croatian isn't just knowing the language, it's living with heart."}];
-function getHistFact(){var day=Math.floor(Date.now()/86400000);return HIST_FACTS[day%HIST_FACTS.length]}
+function getHistFact(){
+  var n=new Date();
+  var dk=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+  // Different salt from proverb so the two never share the same pick
+  var h=5381;var s='fact:'+dk;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;h=h>>>0;
+  return HIST_FACTS[h%HIST_FACTS.length];
+}
 // ═══ LEARNING PATH ═══
 const LEARN_PATH = [
   {level:1,title:"Survivor",desc:"First 48 hours",items:[
