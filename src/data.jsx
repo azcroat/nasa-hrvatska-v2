@@ -1,19 +1,29 @@
 // Naša Hrvatska — Data & Utility Functions
 import React from 'react';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
+import 'firebase/compat/firestore';
 
 const{useState,useEffect,useCallback,useRef}=React;
 // ═══════════════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════════════
 // ═══ FIREBASE CONFIG ═══
-const FIREBASE_CONFIG = window.FIREBASE_CONFIG || null;
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyC_mzFMAxDcraqkYMwS_g_PETnJLhFJKiw",
+  authDomain: "ucimohrvatski-488f9.firebaseapp.com",
+  projectId: "ucimohrvatski-488f9",
+  storageBucket: "ucimohrvatski-488f9.firebasestorage.app",
+  messagingSenderId: "771047750994",
+  appId: "1:771047750994:web:c1e38e1e27a78b0e6fd7eb"
+};
 let _fb=null,_fbAuth=null,_fbDb=null,_fbReady=false;
 function initFirebase(){
-  if(_fbReady||!FIREBASE_CONFIG||!window.firebase)return false;
+  if(_fbReady)return false;
   try{if(!firebase.apps.length)firebase.initializeApp(FIREBASE_CONFIG);
   _fb=firebase;_fbAuth=firebase.auth();_fbDb=firebase.firestore();_fbReady=true;
   _fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});return true}catch(e){console.warn("Firebase init failed:",e);return false}
 }
-// Auto-init at module load — CDN scripts are sync in <head> so firebase is available now
+// Auto-init — Firebase is bundled from npm, always available immediately
 initFirebase();
 // ═══ AUTH & STORAGE — Firebase + localStorage fallback ═══
 async function hp(p){const e=new TextEncoder();const d=e.encode(p+"ucimo2024");const h=await crypto.subtle.digest("SHA-256",d);return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,"0")).join("")}
