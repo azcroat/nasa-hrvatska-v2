@@ -1361,42 +1361,120 @@ const COLORQUIRK = [
 ];
 // ═══ DAILY CHALLENGE ═══
 function getDailyChallenge(){
-  var day=Math.floor(Date.now()/86400000);
-  var types=["translate","conjugate","case","vocab"];
-  var type=types[day%types.length];
-  var challenges={
-    translate:[
-      {q:"Translate: \u0027I want to learn Croatian.\u0027",a:"Želim učiti hrvatski.",opts:["Želim učiti hrvatski.","Moram učiti hrvatski.","Mogu učiti hrvatski.","Učim hrvatski."]},
-      {q:"Translate: \u0027Where is the pharmacy?\u0027",a:"Gdje je ljekarna?",opts:["Gdje je ljekarna?","Gdje je bolnica?","Gdje je pošta?","Što je ljekarna?"]},
-      {q:"Translate: \u0027I like Croatia.\u0027",a:"Sviđa mi se Hrvatska.",opts:["Sviđa mi se Hrvatska.","Volim Hrvatsku.","Idem u Hrvatsku.","Iz Hrvatske sam."]},
-      {q:"Translate: \u0027Can you help me?\u0027",a:"Možete li mi pomoći?",opts:["Možete li mi pomoći?","Trebam pomoć.","Gdje je pomoć?","Moramo pomoći."]},
-      {q:"Translate: \u0027My children speak Croatian.\u0027",a:"Moja djeca govore hrvatski.",opts:["Moja djeca govore hrvatski.","Moja djeca uče hrvatski.","Moji djeca govori hrvatski.","Moja djeca znaju hrvatski."]}
-    ],
-    conjugate:[
-      {q:"Conjugate: ja + pisati (present)",a:"pišem",opts:["pišem","pisam","pišim","pisem"]},
-      {q:"Conjugate: oni + ići (present)",a:"idu",opts:["idu","iću","idem","idaju"]},
-      {q:"Conjugate: mi + voljeti (present)",a:"volimo",opts:["volimo","volimu","volemo","voljemo"]},
-      {q:"Conjugate: ona + jesti (past)",a:"jela je",opts:["jela je","jeo je","jelo je","jeli je"]},
-      {q:"Conjugate: ja + čitati (future)",a:"čitat ću",opts:["čitat ću","čitam ću","čitati ću","čitaću"]}
-    ],
-    case_q:[
-      {q:"Put \u0027knjiga\u0027 in Accusative:",a:"knjigu",opts:["knjigu","knjige","knjizi","knjigo"]},
-      {q:"Put \u0027grad\u0027 in Locative (u ___):",a:"gradu",opts:["gradu","grada","grade","gradom"]},
-      {q:"Put \u0027prijatelj\u0027 in Instrumental (s ___):",a:"prijateljem",opts:["prijateljem","prijatelja","prijatelju","prijatelje"]},
-      {q:"Put \u0027žena\u0027 in Dative:",a:"ženi",opts:["ženi","ženu","žene","ženom"]},
-      {q:"Put \u0027more\u0027 in Genitive:",a:"mora",opts:["mora","moru","morom","more"]}
-    ],
-    vocab:[
-      {q:"What is \u0027butterfly\u0027 in Croatian?",a:"leptir",opts:["leptir","pčela","ptica","zmija"]},
-      {q:"What is \u0027lavanda\u0027?",a:"Lavender",opts:["Lavender","Lava","Lake","Lamp"]},
-      {q:"\u0027Razglednica\u0027 means?",a:"Postcard",opts:["Postcard","View","Glass","Postbox"]},
-      {q:"\u0027Šuma\u0027 means?",a:"Forest",opts:["Forest","Sugar","Shower","Mountain"]},
-      {q:"\u0027Zmija\u0027 means?",a:"Snake",opts:["Snake","Frog","Fish","Worm"]}
-    ]
-  };
-  var pool=type==="case"?challenges.case_q:challenges[type];
-  var idx=day%pool.length;
-  return{type:type,challenge:pool[idx]};
+  // Local date key — resets at midnight user's local time
+  var now=new Date();
+  var dateKey=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  // Seeded PRNG (LCG) — fully deterministic per date, different every day
+  function hashStr(s){var h=5381;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return h>>>0}
+  var _seed=hashStr(dateKey);
+  function rand(){_seed=(_seed*1664525+1013904223)>>>0;return _seed/4294967296}
+  function ri(n){return Math.floor(rand()*n)}
+  function shuf(arr){var a=arr.slice();for(var i=a.length-1;i>0;i--){var j=ri(i+1);var t=a[i];a[i]=a[j];a[j]=t}return a}
+  // Large hardcoded grammar/culture/translation pool (50+ questions)
+  var hard=[
+    {q:"Translate: 'I want to learn Croatian.'",a:"Želim učiti hrvatski.",opts:["Želim učiti hrvatski.","Moram učiti hrvatski.","Mogu učiti hrvatski.","Učim hrvatski."]},
+    {q:"Translate: 'Where is the pharmacy?'",a:"Gdje je ljekarna?",opts:["Gdje je ljekarna?","Gdje je bolnica?","Gdje je pošta?","Što je ljekarna?"]},
+    {q:"Translate: 'I like Croatia.'",a:"Sviđa mi se Hrvatska.",opts:["Sviđa mi se Hrvatska.","Volim Hrvatsku.","Idem u Hrvatsku.","Iz Hrvatske sam."]},
+    {q:"Translate: 'Can you help me?'",a:"Možete li mi pomoći?",opts:["Možete li mi pomoći?","Trebam pomoć.","Gdje je pomoć?","Moramo pomoći."]},
+    {q:"Translate: 'My children speak Croatian.'",a:"Moja djeca govore hrvatski.",opts:["Moja djeca govore hrvatski.","Moja djeca uče hrvatski.","Moji djeca govori hrvatski.","Moja djeca znaju hrvatski."]},
+    {q:"Translate: 'Good morning!'",a:"Dobro jutro!",opts:["Dobro jutro!","Dobar dan!","Dobra večer!","Laku noć!"]},
+    {q:"Translate: 'How much does this cost?'",a:"Koliko ovo košta?",opts:["Koliko ovo košta?","Gdje to kupiti?","Što ovo znači?","Kada to dolazi?"]},
+    {q:"Translate: 'I am from America.'",a:"Ja sam iz Amerike.",opts:["Ja sam iz Amerike.","Ja idem u Ameriku.","Ja živim u Americi.","Ja volim Ameriku."]},
+    {q:"Translate: 'Do you speak English?'",a:"Govorite li engleski?",opts:["Govorite li engleski?","Znate li engleski?","Učite li engleski?","Razumijete li engleski?"]},
+    {q:"Translate: 'I don't understand.'",a:"Ne razumijem.",opts:["Ne razumijem.","Ne znam.","Ne mogu.","Ne slušam."]},
+    {q:"Translate: 'The sea is beautiful.'",a:"More je lijepo.",opts:["More je lijepo.","Nebo je lijepo.","Grad je lijep.","Sunce je lijepo."]},
+    {q:"Translate: 'We are going to Dubrovnik.'",a:"Idemo u Dubrovnik.",opts:["Idemo u Dubrovnik.","Smo u Dubrovniku.","Dolazimo iz Dubrovnika.","Volimo Dubrovnik."]},
+    {q:"Translate: 'I am hungry.'",a:"Gladan/Gladna sam.",opts:["Gladan/Gladna sam.","Žedan/Žedna sam.","Umoran/Umorna sam.","Sretan/Sretna sam."]},
+    {q:"Translate: 'The train leaves at eight.'",a:"Vlak odlazi u osam.",opts:["Vlak odlazi u osam.","Vlak dolazi u osam.","Bus odlazi u osam.","Vlak staje u osam."]},
+    {q:"Translate: 'I love you.'",a:"Volim te.",opts:["Volim te.","Sviđaš mi se.","Trebam te.","Poznajem te."]},
+    {q:"Translate: 'See you tomorrow!'",a:"Vidimo se sutra!",opts:["Vidimo se sutra!","Do sutra!","Sutra dolazim.","Sutra idemo."]},
+    {q:"Translate: 'The coffee is hot.'",a:"Kava je vruća.",opts:["Kava je vruća.","Kava je hladna.","Kava je dobra.","Kava je slatka."]},
+    {q:"Translate: 'Happy birthday!'",a:"Sretan rođendan!",opts:["Sretan rođendan!","Sretan Božić!","Sretna Nova godina!","Čestitam!"]},
+    {q:"Conjugate: ja + pisati (present)",a:"pišem",opts:["pišem","pisam","pišim","pisem"]},
+    {q:"Conjugate: oni + ići (present)",a:"idu",opts:["idu","iću","idem","idaju"]},
+    {q:"Conjugate: mi + voljeti (present)",a:"volimo",opts:["volimo","volimu","volemo","voljemo"]},
+    {q:"Conjugate: ona + jesti (past)",a:"jela je",opts:["jela je","jeo je","jelo je","jeli je"]},
+    {q:"Conjugate: ja + čitati (future)",a:"čitat ću",opts:["čitat ću","čitam ću","čitati ću","čitaću"]},
+    {q:"Conjugate: ti + gledati (present)",a:"gledaš",opts:["gledaš","gledate","gleda","gledamo"]},
+    {q:"Conjugate: vi + raditi (present)",a:"radite",opts:["radite","radimo","rade","radiste"]},
+    {q:"Conjugate: on + htjeti (present)",a:"hoće",opts:["hoće","hoći","hoćem","hoćeš"]},
+    {q:"Conjugate: ja + moći (present)",a:"mogu",opts:["mogu","moći","možem","mognjem"]},
+    {q:"Conjugate: mi + znati (present)",a:"znamo",opts:["znamo","znademo","znate","znaju"]},
+    {q:"Conjugate: ona + doći (past)",a:"došla je",opts:["došla je","došao je","došlo je","dolazi"]},
+    {q:"Conjugate: ja + biti (present)",a:"jesam / sam",opts:["jesam / sam","jeste","jest","smo"]},
+    {q:"Put 'knjiga' in Accusative:",a:"knjigu",opts:["knjigu","knjige","knjizi","knjigo"]},
+    {q:"Put 'grad' in Locative (u ___):",a:"gradu",opts:["gradu","grada","grade","gradom"]},
+    {q:"Put 'prijatelj' in Instrumental (s ___):",a:"prijateljem",opts:["prijateljem","prijatelja","prijatelju","prijatelje"]},
+    {q:"Put 'žena' in Dative:",a:"ženi",opts:["ženi","ženu","žene","ženom"]},
+    {q:"Put 'more' in Genitive:",a:"mora",opts:["mora","moru","morom","more"]},
+    {q:"Put 'kuća' in Accusative:",a:"kuću",opts:["kuću","kuće","kući","kućom"]},
+    {q:"Put 'auto' in Locative (u ___):",a:"autu",opts:["autu","auta","autom","autima"]},
+    {q:"Put 'dijete' in Genitive:",a:"djeteta",opts:["djeteta","djetetu","dijete","djetetom"]},
+    {q:"Put 'sin' in Dative:",a:"sinu",opts:["sinu","sina","sinom","sini"]},
+    {q:"Put 'ruka' in Instrumental (s ___):",a:"rukom",opts:["rukom","ruku","ruke","ruci"]},
+    {q:"'Nemam' means:",a:"I don't have",opts:["I don't have","I'm not","I can't","I don't want"]},
+    {q:"'Trebam' means:",a:"I need",opts:["I need","I have","I want","I must"]},
+    {q:"'Mogu' means:",a:"I can",opts:["I can","I want","I go","I know"]},
+    {q:"'Idem kući' means:",a:"I'm going home",opts:["I'm going home","I'm at home","I came home","My house"]},
+    {q:"'Kako si?' means:",a:"How are you? (informal)",opts:["How are you? (informal)","What is your name?","Where are you?","Who are you?"]},
+    {q:"'Odakle si?' means:",a:"Where are you from?",opts:["Where are you from?","Where are you going?","Where do you live?","Where were you?"]},
+    {q:"What gender is 'more' (sea)?",a:"Neuter",opts:["Neuter","Masculine","Feminine","Both"]},
+    {q:"What gender is 'prijatelj' (male friend)?",a:"Masculine",opts:["Masculine","Feminine","Neuter","Variable"]},
+    {q:"What gender is 'knjiga' (book)?",a:"Feminine",opts:["Feminine","Masculine","Neuter","Variable"]},
+    {q:"What gender is 'selo' (village)?",a:"Neuter",opts:["Neuter","Masculine","Feminine","Variable"]},
+    {q:"Croatian has how many grammatical cases?",a:"7",opts:["7","6","5","8"]},
+    {q:"Which pronoun means 'we'?",a:"mi",opts:["mi","vi","oni","ono"]},
+    {q:"Which pronoun means 'they' (mixed/masc)?",a:"oni",opts:["oni","one","ona","ono"]},
+    {q:"'Doviđenja' means:",a:"Goodbye",opts:["Goodbye","Hello","Thank you","Please"]},
+    {q:"'Hvala' means:",a:"Thank you",opts:["Thank you","Please","Sorry","Welcome"]},
+    {q:"'Molim' means:",a:"Please / You're welcome",opts:["Please / You're welcome","Thank you","Sorry","Excuse me"]},
+    {q:"'Oprosti' means:",a:"Sorry (informal)",opts:["Sorry (informal)","Thank you","Please","Goodbye"]},
+    {q:"The Croatian word for 'island' is:",a:"otok",opts:["otok","rijeka","jezero","more"]},
+    {q:"'Lijepa naša' is the Croatian:",a:"National anthem",opts:["National anthem","National dish","Currency","Flag design"]},
+    {q:"Which case follows the preposition 'u' (location)?",a:"Locative",opts:["Locative","Accusative","Genitive","Dative"]},
+    {q:"Which case follows the preposition 'u' (movement)?",a:"Accusative",opts:["Accusative","Locative","Genitive","Instrumental"]},
+    {q:"The aspect 'svršeni' (perfective) expresses:",a:"Completed action",opts:["Completed action","Ongoing action","Habitual action","Future wish"]},
+    {q:"'Što' means:",a:"What",opts:["What","Who","Where","When"]},
+    {q:"'Tko' means:",a:"Who",opts:["Who","What","Where","Which"]},
+    {q:"'Kada' means:",a:"When",opts:["When","Where","Why","How"]},
+    {q:"'Zašto' means:",a:"Why",opts:["Why","When","How","Where"]},
+    {q:"'Koliko' means:",a:"How many / How much",opts:["How many / How much","How long","How far","How often"]},
+    {q:"The diminutive suffix '-ica' makes a word:",a:"Smaller / more endearing",opts:["Smaller / more endearing","Larger","Plural","Negative"]},
+    {q:"'Baka' means:",a:"Grandmother",opts:["Grandmother","Grandfather","Aunt","Mother"]},
+    {q:"'Djed' means:",a:"Grandfather",opts:["Grandfather","Grandmother","Uncle","Father"]},
+    {q:"Capital city of Croatia:",a:"Zagreb",opts:["Zagreb","Split","Rijeka","Osijek"]},
+    {q:"The Adriatic coast of Croatia is in which region?",a:"Dalmatia & Istria",opts:["Dalmatia & Istria","Slavonia","Zagorje","Baranja"]},
+    {q:"Croatian currency is:",a:"Euro (EUR)",opts:["Euro (EUR)","Kuna","Dinar","Kruna"]},
+  ];
+  // Generate vocab questions dynamically from vocabulary data V (seeded per day)
+  var allWords=[];
+  Object.keys(V).forEach(function(cat){V[cat].forEach(function(w){if(w[0]&&w[1])allWords.push(w)})});
+  var vocabQs=[];
+  if(allWords.length>10){
+    var used=new Set();
+    for(var attempt=0;attempt<30&&vocabQs.length<30;attempt++){
+      var vi=ri(allWords.length);
+      if(used.has(vi))continue;
+      used.add(vi);
+      var word=allWords[vi];
+      var wrongs=[];var wAttempts=0;var wUsed=new Set([vi]);
+      while(wrongs.length<3&&wAttempts<120){
+        var wi=ri(allWords.length);wAttempts++;
+        if(!wUsed.has(wi)&&allWords[wi][1]!==word[1]){wUsed.add(wi);wrongs.push(allWords[wi])}
+      }
+      if(wrongs.length<3)continue;
+      var dir=rand()<0.5;
+      if(dir){
+        vocabQs.push({q:"What does '"+word[0]+"' mean?",a:word[1],opts:shuf([word[1],wrongs[0][1],wrongs[1][1],wrongs[2][1]])});
+      } else {
+        vocabQs.push({q:"How do you say '"+word[1]+"' in Croatian?",a:word[0],opts:shuf([word[0],wrongs[0][0],wrongs[1][0],wrongs[2][0]])});
+      }
+    }
+  }
+  // Combine pools and pick one using the seeded RNG
+  var pool=hard.concat(vocabQs);
+  var challenge=pool[ri(pool.length)];
+  return{dateKey:dateKey,challenge:challenge};
 }
 // ═══ PADEŽI JEDNINA & MNOŽINA (SINGULAR & PLURAL CASES) ═══
 const PADEZI_FULL = {

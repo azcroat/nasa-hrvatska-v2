@@ -101,7 +101,7 @@ function App(){
   const[dcNoun,sDcNoun]=useState(0);const[dcMode,sDcMode]=useState("learn");const[dcI,sDcI]=useState(0);const[dcS,sDcS]=useState(0);const[dcA,sDcA]=useState(false);const[dcSl,sDcSl]=useState(-1);const[dcO,sDcO]=useState([]);const[dcQ,sDcQ]=useState([]);
   const[tyW,sTyW]=useState(null);const[tyIn,sTyIn]=useState("");const[tyI,sTyI]=useState(0);const[tyS,sTyS]=useState(0);const[tyA,sTyA]=useState(false);const[tyPool,sTyPool]=useState([]);
   const[curEx,sCurEx]=useState("");
-  const[dchlA,sDchlA]=useState(function(){var d=localStorage.getItem("dcDay");return d===String(Math.floor(Date.now()/86400000))}());const[dchlSl,sDchlSl]=useState(-1);
+  const[dchlA,sDchlA]=useState(function(){var n=new Date();var k=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');return localStorage.getItem("dcDay")===k}());const[dchlSl,sDchlSl]=useState(-1);
   const[pfTab,sPfTab]=useState("sing");const[pfGender,sPfGender]=useState("f");const[pfMode,sPfMode]=useState("learn");
   const[pfQ,sPfQ]=useState([]);const[pfI,sPfI]=useState(0);const[pfS,sPfS]=useState(0);const[pfA,sPfA]=useState(false);const[pfSl,sPfSl]=useState(-1);const[pfO,sPfO]=useState([]);const[pfCase,sPfCase]=useState("");const[pfCaseA,sPfCaseA]=useState(false);const[pfCaseSl,sPfCaseSl]=useState(-1);
   const[famData,setFamData]=useState(null);const[famMembers,setFamMembers]=useState([]);const[famLoading,setFamLoading]=useState(false);

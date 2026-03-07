@@ -125,7 +125,7 @@ export default function HomeTab({
                   if (!dchlA) {
                     sDchlSl(oi);
                     sDchlA(true);
-                    localStorage.setItem("dcDay", String(Math.floor(Date.now()/86400000)));
+                    localStorage.setItem("dcDay", dc.dateKey);
                     if (o === dc.challenge.a) award(10);
                   }
                 }}>
