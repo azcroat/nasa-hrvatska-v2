@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Bar, V, LEARN_PATH, getStreak, getProverbOfDay, getHistFact, getDailyChallenge, lXP, nXP, speak } from '../../data.jsx';
 
 export default function HomeTab({
@@ -14,170 +14,276 @@ export default function HomeTab({
 }) {
   const dc = getDailyChallenge();
   const ws = getWeekStats();
+  const streak = getStreak();
+  const proverb = getProverbOfDay();
+  const fact = getHistFact();
+  const xpCur = st.xp - lXP(level);
+  const xpNeeded = nXP(level) - lXP(level);
+  const xpPct = Math.min(Math.round((xpCur / xpNeeded) * 100), 100);
+
+  const [dcOpts] = useState(() => {
+    const opts = [dc.challenge.a, ...(dc.challenge.al || [])];
+    for (let i = opts.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [opts[i], opts[j]] = [opts[j], opts[i]];
+    }
+    return opts;
+  });
+
+  const greetingByTime = () => {
+    const h = new Date().getHours();
+    if (h < 12) return "Dobro jutro";
+    if (h < 18) return "Dobar dan";
+    return "Dobra večer";
+  };
+
+  const completedItems = (() => {
+    let d = 0, t = 0;
+    LEARN_PATH.forEach(lv => lv.items.forEach(it => { t++; if (it.ck(st)) d++; }));
+    return { d, t, pct: Math.round(d / t * 100) };
+  })();
 
   return (
     <React.Fragment>
-      <div style={{textAlign:"center",marginBottom:16}}>
-        <div style={{fontSize:40,marginBottom:4}}>⛵</div>
-        <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:24,color:"#164e63",fontWeight:800}}>
-          {"Dobro došli, "}{name||"!"}
-        </h2>
-        <p style={{color:"#78716c",fontSize:14}}>
-          {"Level "}{level}{" • "}{st.xp}{" XP"}
-        </p>
-      </div>
-      <Bar v={st.xp-lXP(level)} mx={nXP(level)-lXP(level)} />
-      <p style={{fontSize:12,color:"#a8a29e",textAlign:"center",marginTop:4,marginBottom:16}}>
-        {nXP(level)-st.xp}{" XP to Level "}{level+1}
-      </p>
-      <div className="c" style={{marginTop:16,padding:"16px 18px",borderLeft:"4px solid #0e7490",background:"linear-gradient(135deg,rgba(14,116,144,.04),rgba(14,116,144,.08))"}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-          <div style={{fontSize:14,fontWeight:800,color:"#164e63"}}>💬 Quick Translate</div>
-          <button
-            style={{background:"none",border:"1px solid rgba(14,116,144,.2)",borderRadius:10,padding:"8px 14px",fontSize:11,fontWeight:700,color:"#0e7490",cursor:"pointer"}}
-            onClick={() => sTDir(tDir==="en-hr"?"hr-en":"en-hr")}>
-            {tDir==="en-hr"?"EN → HR":"HR → EN"}
-          </button>
+
+      {/* ── HERO CARD ── */}
+      <div style={{
+        background: "linear-gradient(145deg,#0c4a6e 0%,#0e7490 55%,#0369a1 100%)",
+        borderRadius: 24, padding: "24px 22px", marginBottom: 20,
+        position: "relative", overflow: "hidden", color: "white",
+        boxShadow: "0 8px 32px rgba(14,116,144,.3)"
+      }}>
+        {/* decorative glows */}
+        <div style={{position:"absolute",top:-40,right:-40,width:160,height:160,background:"rgba(255,255,255,.05)",borderRadius:"50%",pointerEvents:"none"}}/>
+        <div style={{position:"absolute",bottom:-20,left:-20,width:100,height:100,background:"rgba(255,255,255,.04)",borderRadius:"50%",pointerEvents:"none"}}/>
+
+        <div style={{position:"relative"}}>
+          <div style={{fontSize:12,fontWeight:600,opacity:.7,marginBottom:2,letterSpacing:".04em",textTransform:"uppercase"}}>
+            {greetingByTime()},
+          </div>
+          <div style={{fontSize:26,fontWeight:900,fontFamily:"'Playfair Display',serif",marginBottom:18,letterSpacing:"-.02em",lineHeight:1.1}}>
+            {name || "Učenik"} 👋
+          </div>
+
+          {/* Level + XP bar */}
+          <div style={{background:"rgba(255,255,255,.12)",borderRadius:14,padding:"12px 16px",backdropFilter:"blur(10px)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+              <span style={{fontSize:13,fontWeight:800,opacity:.95}}>Level {level}</span>
+              <span style={{fontSize:12,opacity:.7,fontWeight:500}}>{st.xp.toLocaleString()} XP · {xpPct}%</span>
+            </div>
+            <div style={{background:"rgba(0,0,0,.25)",borderRadius:8,height:8,overflow:"hidden"}}>
+              <div style={{height:"100%",background:"linear-gradient(90deg,#7dd3fc,#e0f2fe)",borderRadius:8,
+                width:xpPct+"%",transition:"width .7s cubic-bezier(.4,0,.2,1)"}}/>
+            </div>
+            <div style={{fontSize:11,marginTop:7,opacity:.6,fontWeight:500}}>
+              {(nXP(level) - st.xp).toLocaleString()} XP to Level {level + 1}
+            </div>
+          </div>
         </div>
-        <div style={{display:"flex",gap:8}}>
-          <input
-            type="text"
-            value={tIn}
-            onChange={e => sTIn(e.target.value)}
-            onKeyDown={e => { if (e.key==="Enter") doTr(); }}
-            placeholder={tDir==="en-hr"?"Type English...":"Unesite hrvatski..."}
-            style={{flex:1,fontSize:15,padding:"12px 14px"}} />
-          <button className="b bp" style={{fontSize:14,padding:"10px 18px",whiteSpace:"nowrap"}} onClick={doTr} disabled={tL}>
-            {tL?"⏳":"🔍"}
-          </button>
-        </div>
-        {tOut&&<div
-          style={{marginTop:10,padding:"12px 14px",background:"rgba(255,255,255,.7)",borderRadius:12,fontSize:16,fontWeight:700,color:"#164e63",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}
-          onClick={() => speak(tDir==="en-hr"?tOut:tIn)}>
-          <span>{tOut}</span>
-          <span style={{fontSize:13,color:"#0e7490"}}>🔊</span>
-        </div>}
       </div>
-      <div className="c" style={{marginBottom:16,padding:"14px 16px",background:"linear-gradient(135deg,rgba(14,116,144,.04),rgba(14,116,144,.08))",borderLeft:"4px solid #0e7490"}}>
-        <div style={{fontSize:12,fontWeight:800,color:"#0e7490",marginBottom:8}}>📊 WEEKLY PROGRESS</div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:8}}>
-          {[{v:ws.lessons,l:"Lessons",i:"📚"},{v:ws.grammar,l:"Grammar",i:"📝"},{v:ws.streak,l:"Streak",i:"🔥"},{v:ws.strong,l:"Mastered",i:"💪"}].map((s,i) => (
-            <div key={i} style={{textAlign:"center"}}>
-              <div style={{fontSize:16}}>{s.i}</div>
-              <div style={{fontSize:18,fontWeight:800}}>{s.v}</div>
-              <div style={{fontSize:10,color:"#78716c"}}>{s.l}</div>
+
+      {/* ── STATS ROW ── */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
+        {[
+          {icon:"🔥",value:streak.count,label:"Day Streak",color:"#f59e0b",bg:"#fffbeb",border:"#fde68a"},
+          {icon:"⭐",value:st.xp.toLocaleString(),label:"Total XP",color:"#0e7490",bg:"#f0f9ff",border:"#bae6fd"},
+          {icon:"📚",value:st.lc,label:"Lessons Done",color:"#7c3aed",bg:"#f5f3ff",border:"#ddd6fe"},
+        ].map((s,i) => (
+          <div key={i} style={{background:s.bg,border:`1.5px solid ${s.border}`,borderRadius:16,padding:"14px 10px",textAlign:"center"}}>
+            <div style={{fontSize:22,marginBottom:4}}>{s.icon}</div>
+            <div style={{fontSize:20,fontWeight:900,color:s.color,lineHeight:1,fontVariantNumeric:"tabular-nums"}}>{s.value}</div>
+            <div style={{fontSize:9,color:"#94a3b8",fontWeight:700,marginTop:4,textTransform:"uppercase",letterSpacing:".06em"}}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── DAILY CHALLENGE ── */}
+      <div style={{background:"#fff",border:"1.5px solid #e0e7ff",borderRadius:20,padding:"20px",marginBottom:20,
+        boxShadow:"0 4px 20px rgba(124,58,237,.07)"}}>
+        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+          <div style={{width:8,height:8,borderRadius:"50%",background:"#7c3aed"}}/>
+          <span style={{fontSize:11,fontWeight:800,color:"#7c3aed",letterSpacing:".08em",textTransform:"uppercase"}}>Daily Challenge</span>
+          {dchlA && <span style={{marginLeft:"auto",fontSize:11,fontWeight:700,color:"#16a34a",background:"#f0fdf4",padding:"2px 8px",borderRadius:20,border:"1px solid #bbf7d0"}}>✓ Completed</span>}
+        </div>
+        {!dchlA ? (
+          <React.Fragment>
+            <div style={{fontSize:16,fontWeight:700,color:"#1e293b",marginBottom:16,lineHeight:1.4}}>{dc.challenge.q}</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+              {dcOpts.map((o, oi) => (
+                <button key={oi}
+                  style={{padding:"10px 12px",border:"1.5px solid #e2e8f0",borderRadius:12,background:"#f8fafc",
+                    fontSize:13,fontWeight:600,cursor:"pointer",textAlign:"left",transition:"all .15s",
+                    fontFamily:"'Outfit',sans-serif",color:"#1e293b",lineHeight:1.3}}
+                  onMouseOver={e=>{e.currentTarget.style.borderColor="#7c3aed";e.currentTarget.style.background="#faf5ff"}}
+                  onMouseOut={e=>{e.currentTarget.style.borderColor="#e2e8f0";e.currentTarget.style.background="#f8fafc"}}
+                  onClick={() => {
+                    sDchlSl(oi); sDchlA(true);
+                    localStorage.setItem("dcDay", dc.dateKey);
+                    if (o === dc.challenge.a) award(10);
+                  }}>
+                  {o}
+                </button>
+              ))}
+            </div>
+          </React.Fragment>
+        ) : (
+          <div style={{textAlign:"center",padding:"12px 0"}}>
+            <div style={{fontSize:36,marginBottom:8}}>🎯</div>
+            <div style={{fontSize:15,fontWeight:700,color:"#1e293b",marginBottom:4}}>
+              {dchlSl !== -1 && dcOpts[dchlSl] === dc.challenge.a ? "Correct! +10 XP" : `Answer: ${dc.challenge.a}`}
+            </div>
+            <div style={{fontSize:12,color:"#64748b"}}>New challenge at midnight</div>
+          </div>
+        )}
+      </div>
+
+      {/* ── WEEKLY PROGRESS ── */}
+      <div style={{background:"#fff",border:"1.5px solid #e2e8f0",borderRadius:20,padding:"18px",marginBottom:20,
+        boxShadow:"0 2px 8px rgba(0,0,0,.05)"}}>
+        <div style={{fontSize:11,fontWeight:800,color:"#94a3b8",letterSpacing:".08em",textTransform:"uppercase",marginBottom:14}}>
+          This Week
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:8,textAlign:"center"}}>
+          {[
+            {v:ws.lessons,l:"Lessons",i:"📖"},
+            {v:ws.grammar,l:"Grammar",i:"✏️"},
+            {v:streak.count,l:"Streak",i:"🔥"},
+            {v:ws.strong,l:"Mastered",i:"💪"}
+          ].map((s,i) => (
+            <div key={i} style={{padding:"10px 4px",background:"#f8fafc",borderRadius:12}}>
+              <div style={{fontSize:16,marginBottom:4}}>{s.i}</div>
+              <div style={{fontSize:18,fontWeight:900,color:"#1e293b",lineHeight:1}}>{s.v}</div>
+              <div style={{fontSize:9,color:"#94a3b8",fontWeight:700,marginTop:3,textTransform:"uppercase",letterSpacing:".04em"}}>{s.l}</div>
             </div>
           ))}
         </div>
-        {ws.weak>0&&<div style={{fontSize:12,color:"#b45309",marginTop:8}}>
-          {"⚠️ "}{ws.weak}{" words need review"}
-        </div>}
+        {ws.weak > 0 && (
+          <div style={{fontSize:12,color:"#d97706",marginTop:12,padding:"8px 12px",background:"#fffbeb",borderRadius:10,fontWeight:600,border:"1px solid #fde68a"}}>
+            ⚠️ {ws.weak} words need review — practice them in Weak Words
+          </div>
+        )}
       </div>
-      <div className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px",marginBottom:16}} onClick={() => setScr("learnpath")}>
-        <div style={{fontSize:36}}>📈</div>
+
+      {/* ── QUICK TRANSLATE ── */}
+      <div style={{background:"#fff",border:"1.5px solid #e2e8f0",borderRadius:20,padding:"18px",marginBottom:20,
+        boxShadow:"0 2px 8px rgba(0,0,0,.05)"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+          <span style={{fontSize:11,fontWeight:800,color:"#94a3b8",letterSpacing:".08em",textTransform:"uppercase"}}>
+            Quick Translate
+          </span>
+          <button
+            style={{background:"none",border:"1.5px solid #e2e8f0",borderRadius:10,padding:"5px 12px",fontSize:11,
+              fontWeight:700,color:"#0e7490",cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}
+            onClick={() => sTDir(tDir==="en-hr"?"hr-en":"en-hr")}>
+            {tDir==="en-hr"?"EN → HR ⇄":"HR → EN ⇄"}
+          </button>
+        </div>
+        <div style={{display:"flex",gap:8}}>
+          <input type="text" value={tIn} onChange={e=>sTIn(e.target.value)}
+            onKeyDown={e=>{if(e.key==="Enter")doTr()}}
+            placeholder={tDir==="en-hr"?"Type English…":"Unesite hrvatski…"}
+            style={{flex:1,fontSize:14,padding:"11px 14px"}} />
+          <button className="b bp" style={{fontSize:14,padding:"11px 18px",whiteSpace:"nowrap"}} onClick={doTr} disabled={tL}>
+            {tL ? "⏳" : "Go"}
+          </button>
+        </div>
+        {tOut && (
+          <div style={{marginTop:10,padding:"12px 16px",background:"#f0f9ff",borderRadius:12,border:"1.5px solid #bae6fd",
+            fontSize:16,fontWeight:700,color:"#0c4a6e",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}
+            onClick={() => speak(tDir==="en-hr"?tOut:tIn)}>
+            <span>{tOut}</span>
+            <span style={{fontSize:18}}>🔊</span>
+          </div>
+        )}
+      </div>
+
+      {/* ── LEARNING PATH ── */}
+      <div className="tc" style={{display:"flex",alignItems:"center",gap:16,padding:"18px",marginBottom:20}}
+        onClick={() => setScr("learnpath")}>
+        <div style={{width:52,height:52,borderRadius:16,background:"linear-gradient(135deg,#f0fdf4,#dcfce7)",
+          display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,flexShrink:0}}>📈</div>
         <div style={{flex:1}}>
-          <div style={{fontSize:16,fontWeight:800,color:"#164e63"}}>My Learning Path</div>
-          <div style={{fontSize:12,color:"#78716c"}}>
-            {(function(){var d=0,t=0;LEARN_PATH.forEach(function(lv){lv.items.forEach(function(it){t++;if(it.ck(st))d++;})});return d+"/"+t+" • "+Math.round(d/t*100)+"%"})()}
+          <div style={{fontSize:15,fontWeight:800,color:"#0f172a",marginBottom:3}}>My Learning Path</div>
+          <div style={{marginBottom:6}}>
+            <Bar v={completedItems.d} mx={completedItems.t} color="#16a34a" h={6} />
+          </div>
+          <div style={{fontSize:12,color:"#64748b"}}>
+            {completedItems.d}/{completedItems.t} milestones · {completedItems.pct}% complete
           </div>
         </div>
-        <div style={{fontSize:24}}>→</div>
+        <div style={{fontSize:18,color:"#cbd5e1"}}>›</div>
       </div>
-      <div style={{display:"flex",gap:12,marginBottom:16}}>
-        <div className="c" style={{flex:1,textAlign:"center",padding:"12px"}}>
-          <div style={{fontSize:28}}>🔥</div>
-          <div style={{fontSize:20,fontWeight:800}}>{getStreak().count}</div>
-          <div style={{fontSize:11,color:"#78716c"}}>Day Streak</div>
+
+      {/* ── PROVERB OF THE DAY ── */}
+      <div style={{background:"linear-gradient(135deg,#fefce8,#fef9c3)",border:"1.5px solid #fde047",borderRadius:20,
+        padding:"18px",marginBottom:16,cursor:"pointer",boxShadow:"0 2px 8px rgba(234,179,8,.1)"}}
+        onClick={() => speak(proverb.hr)}>
+        <div style={{fontSize:11,fontWeight:800,color:"#a16207",letterSpacing:".08em",textTransform:"uppercase",marginBottom:8}}>
+          🌟 Poslovica dana
         </div>
-        <div className="c" style={{flex:1,textAlign:"center",padding:"12px"}}>
-          <div style={{fontSize:28}}>⭐</div>
-          <div style={{fontSize:20,fontWeight:800}}>{st.xp}</div>
-          <div style={{fontSize:11,color:"#78716c"}}>Total XP</div>
+        <div style={{fontSize:15,fontWeight:700,color:"#78350f",fontStyle:"italic",marginBottom:6,lineHeight:1.5,fontFamily:"'Playfair Display',serif"}}>
+          "{proverb.hr}"
         </div>
-        <div className="c" style={{flex:1,textAlign:"center",padding:"12px"}}>
-          <div style={{fontSize:28}}>📚</div>
-          <div style={{fontSize:20,fontWeight:800}}>{st.lc}</div>
-          <div style={{fontSize:11,color:"#78716c"}}>Lessons</div>
+        <div style={{fontSize:13,color:"#92400e",fontWeight:500}}>{proverb.en}</div>
+        <div style={{fontSize:11,color:"#a16207",marginTop:6,opacity:.7}}>Tap to hear pronunciation 🔊</div>
+      </div>
+
+      {/* ── HISTORICAL FACT ── */}
+      <div style={{background:"linear-gradient(135deg,#faf5ff,#ede9fe)",border:"1.5px solid #c4b5fd",borderRadius:20,
+        padding:"18px",marginBottom:20,cursor:"pointer",boxShadow:"0 2px 8px rgba(124,58,237,.08)"}}
+        onClick={() => speak(fact.hr)}>
+        <div style={{fontSize:11,fontWeight:800,color:"#6d28d9",letterSpacing:".08em",textTransform:"uppercase",marginBottom:8}}>
+          🏛️ Povijesna činjenica
         </div>
+        <div style={{fontSize:15,fontWeight:700,color:"#3b0764",fontStyle:"italic",marginBottom:6,lineHeight:1.5,fontFamily:"'Playfair Display',serif"}}>
+          "{fact.hr}"
+        </div>
+        <div style={{fontSize:13,color:"#5b21b6",fontWeight:500}}>{fact.en}</div>
+        <div style={{fontSize:11,color:"#6d28d9",marginTop:6,opacity:.7}}>Tap to hear pronunciation 🔊</div>
       </div>
-      <div className="c" style={{marginBottom:16,borderLeft:"4px solid #f59e0b",background:"linear-gradient(135deg,#fffbeb,#fef3c7)",cursor:"pointer"}} onClick={() => speak(getProverbOfDay().hr)}>
-        <div style={{fontSize:12,fontWeight:800,color:"#b45309",marginBottom:6}}>🌟 POSLOVICA DANA</div>
-        <div style={{fontSize:15,fontWeight:700,color:"#92400e",fontStyle:"italic"}}>{getProverbOfDay().hr}{" 🔊"}</div>
-        <div style={{fontSize:13,color:"#78716c",marginTop:4}}>{getProverbOfDay().en}</div>
-      </div>
-      <div className="c" style={{marginBottom:16,borderLeft:"4px solid #7c3aed",background:"linear-gradient(135deg,#f5f3ff,#ede9fe)",cursor:"pointer"}} onClick={() => speak(getHistFact().hr)}>
-        <div style={{fontSize:12,fontWeight:800,color:"#7c3aed",marginBottom:6}}>🏛️ POVIJESNA ČINJENICA DANA</div>
-        <div style={{fontSize:15,fontWeight:700,color:"#581c87",fontStyle:"italic"}}>{getHistFact().hr}{" 🔊"}</div>
-        <div style={{fontSize:13,color:"#78716c",marginTop:4}}>{getHistFact().en}</div>
-      </div>
-      <div className="c" style={{marginBottom:16,borderLeft:"4px solid #7c3aed",background:"linear-gradient(135deg,#f5f3ff,#ede9fe)"}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+
+      {/* ── QUICK START ── */}
+      <div className="sh">Quick Start</div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:8}}>
+        <div className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}}
+          onClick={() => setTab("learn")}>
+          <div style={{width:44,height:44,borderRadius:14,background:"#f0f9ff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>📚</div>
           <div>
-            <div style={{fontSize:12,fontWeight:800,color:"#7c3aed",marginBottom:4}}>🎯 DAILY CHALLENGE</div>
-            <div style={{fontSize:15,fontWeight:700,color:"#1c1917"}}>{dc.challenge.q}</div>
-          </div>
-          {!dchlA?<div style={{display:"flex",flexDirection:"column",gap:4}}>
-            {dc.challenge.opts.map((o, oi) => (
-              <button
-                key={oi}
-                style={{padding:"6px 12px",border:"1px solid "+(dchlA?(o===dc.challenge.a?"#16a34a":dchlSl===oi?"#dc2626":"#e7e5e4"):"#d6d3d1"),borderRadius:10,background:dchlA?(o===dc.challenge.a?"#dcfce7":dchlSl===oi?"#fee2e2":"white"):"white",fontSize:12,fontWeight:600,cursor:"pointer",textAlign:"left"}}
-                onClick={() => {
-                  if (!dchlA) {
-                    sDchlSl(oi);
-                    sDchlA(true);
-                    localStorage.setItem("dcDay", dc.dateKey);
-                    if (o === dc.challenge.a) award(10);
-                  }
-                }}>
-                {o}
-              </button>
-            ))}
-          </div>:
-          <div style={{textAlign:"center",padding:"8px"}}>
-            <div style={{fontSize:24}}>✅</div>
-            <div style={{fontSize:12,color:"#7c3aed",fontWeight:700}}>Answered! New challenge tomorrow.</div>
-          </div>}
-        </div>
-      </div>
-      <h3 className="sh" style={{marginTop:8}}>⚡ Quick Start</h3>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-        <div className="tc" style={{display:"flex",alignItems:"center",gap:10,padding:"14px"}} onClick={() => setTab("learn")}>
-          <div style={{fontSize:28}}>📚</div>
-          <div>
-            <div style={{fontSize:14,fontWeight:700}}>Continue Learning</div>
-            <div style={{fontSize:11,color:"#78716c"}}>{allCats.length+" categories"}</div>
+            <div style={{fontSize:14,fontWeight:800,color:"#0f172a"}}>Continue Learning</div>
+            <div style={{fontSize:11,color:"#64748b",marginTop:1}}>{allCats.length} active categories</div>
           </div>
         </div>
-        <div className="tc" style={{display:"flex",alignItems:"center",gap:10,padding:"14px"}} onClick={() => {
-          const pool = allCats.flatMap(cc => V[cc]);
-          const items = sh(pool).slice(0,10);
-          sMcQ(items.map(w => { const wr=sh(pool.filter(p=>p[1]!==w[1])).slice(0,3).map(p=>p[1]); return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]}; }));
-          sMcI(0); sMcS(0); sMcA(false); sMcSl(-1); setScr("mcgame");
-        }}>
-          <div style={{fontSize:28}}>🎮</div>
+        <div className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}}
+          onClick={() => {
+            const pool = allCats.flatMap(cc => V[cc]);
+            const items = sh(pool).slice(0,10);
+            sMcQ(items.map(w => { const wr=sh(pool.filter(p=>p[1]!==w[1])).slice(0,3).map(p=>p[1]); return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]}; }));
+            sMcI(0); sMcS(0); sMcA(false); sMcSl(-1); setScr("mcgame");
+          }}>
+          <div style={{width:44,height:44,borderRadius:14,background:"#fff7ed",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>🎯</div>
           <div>
-            <div style={{fontSize:14,fontWeight:700}}>Quick Quiz</div>
-            <div style={{fontSize:11,color:"#78716c"}}>Random 10 words</div>
+            <div style={{fontSize:14,fontWeight:800,color:"#0f172a"}}>Quick Quiz</div>
+            <div style={{fontSize:11,color:"#64748b",marginTop:1}}>10 random words</div>
           </div>
         </div>
-        <div className="tc" style={{display:"flex",alignItems:"center",gap:10,padding:"14px"}} onClick={() => {
-          const pool = allCats.flatMap(cc => V[cc]);
-          sFcPool(sh(pool).slice(0,20)); sFcI(0); sFcFlip(false); sFcKnow(0); setScr("flashcards");
-        }}>
-          <div style={{fontSize:28}}>🃏</div>
+        <div className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}}
+          onClick={() => { const pool=allCats.flatMap(cc=>V[cc]); sFcPool(sh(pool).slice(0,20)); sFcI(0); sFcFlip(false); sFcKnow(0); setScr("flashcards"); }}>
+          <div style={{width:44,height:44,borderRadius:14,background:"#f5f3ff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>🃏</div>
           <div>
-            <div style={{fontSize:14,fontWeight:700}}>Flashcards</div>
-            <div style={{fontSize:11,color:"#78716c"}}>20 random words</div>
+            <div style={{fontSize:14,fontWeight:800,color:"#0f172a"}}>Flashcards</div>
+            <div style={{fontSize:11,color:"#64748b",marginTop:1}}>20 random words</div>
           </div>
         </div>
-        <div className="tc" style={{display:"flex",alignItems:"center",gap:10,padding:"14px"}} onClick={() => setTab("croatia")}>
-          <div style={{fontSize:28}}>🇭🇷</div>
+        <div className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}}
+          onClick={() => setTab("croatia")}>
+          <div style={{width:44,height:44,borderRadius:14,background:"#fff1f2",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>🇭🇷</div>
           <div>
-            <div style={{fontSize:14,fontWeight:700}}>Life in Croatia</div>
-            <div style={{fontSize:11,color:"#78716c"}}>School, food, sports</div>
+            <div style={{fontSize:14,fontWeight:800,color:"#0f172a"}}>Life in Croatia</div>
+            <div style={{fontSize:11,color:"#64748b",marginTop:1}}>School, food, sports</div>
           </div>
         </div>
       </div>
+
     </React.Fragment>
   );
 }

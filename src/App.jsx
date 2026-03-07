@@ -341,37 +341,40 @@ function markExerciseDone(exerciseId){
           sMcQ={sMcQ} sMcI={sMcI} sMcS={sMcS} sMcA={sMcA} sMcSl={sMcSl}
           sFcPool={sFcPool} sFcI={sFcI} sFcFlip={sFcFlip} sFcKnow={sFcKnow}
         />}
-        <div style={{position:"relative",marginBottom:16}}>
-          <input
-            type="text"
-            value={srchQ}
-            onChange={function(e){setSrchQ(e.target.value);doSearch(e.target.value);setSrchOpen(true)}}
-            onFocus={function(){if(srchQ)setSrchOpen(true)}}
-            placeholder="🔍 Search words, phrases, screens..."
-            style={{width:"100%",padding:"12px 16px",fontSize:15,borderRadius:14,border:"2px solid rgba(14,116,144,.15)",background:"rgba(255,255,255,.7)"}} />
+        <div style={{position:"relative",marginBottom:20}}>
+          <div style={{position:"relative"}}>
+            <span style={{position:"absolute",left:14,top:"50%",transform:"translateY(-50%)",fontSize:16,pointerEvents:"none",opacity:.4}}>🔍</span>
+            <input
+              type="text"
+              value={srchQ}
+              onChange={function(e){setSrchQ(e.target.value);doSearch(e.target.value);setSrchOpen(true)}}
+              onFocus={function(){if(srchQ)setSrchOpen(true)}}
+              placeholder="Search words, phrases, screens…"
+              style={{width:"100%",padding:"12px 16px 12px 44px",fontSize:14,borderRadius:14,border:"1.5px solid #e2e8f0",background:"#fff",boxShadow:"0 1px 3px rgba(0,0,0,.05)"}} />
+          </div>
           {srchOpen&&srchR.length>0&&<div
-            style={{position:"absolute",top:"100%",left:0,right:0,background:"white",borderRadius:14,boxShadow:"0 8px 32px rgba(0,0,0,.12)",zIndex:100,maxHeight:300,overflow:"auto",marginTop:4,border:"1px solid #e7e5e4"}}>
+            style={{position:"absolute",top:"calc(100% + 6px)",left:0,right:0,background:"white",borderRadius:16,
+              boxShadow:"0 12px 40px rgba(0,0,0,.14)",zIndex:100,maxHeight:320,overflow:"auto",
+              border:"1.5px solid #e2e8f0"}}>
             {srchR.map(function(r,i){return (
               <div
                 key={i}
-                style={{padding:"10px 14px",borderBottom:"1px solid #f3f4f6",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}
+                style={{padding:"11px 16px",borderBottom:"1px solid #f8fafc",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",transition:"background .1s"}}
+                onMouseOver={function(e){e.currentTarget.style.background="#f8fafc"}}
+                onMouseOut={function(e){e.currentTarget.style.background="white"}}
                 onClick={function(){setSrchOpen(false);setSrchQ("");setScr(r.go)}}>
                 <div>
-                  <div style={{fontSize:14,fontWeight:700,color:"#164e63"}}>
-                    {r.hr}
-                  </div>
-                  <div style={{fontSize:12,color:"#78716c"}}>
-                    {r.en}
-                  </div>
+                  <div style={{fontSize:14,fontWeight:700,color:"#0f172a"}}>{r.hr}</div>
+                  <div style={{fontSize:12,color:"#64748b",marginTop:1}}>{r.en}</div>
                 </div>
-                <span
-                  style={{fontSize:10,padding:"2px 8px",background:r.type==="vocab"?"#dbeafe":r.type==="screen"?"#dcfce7":"#fef3c7",borderRadius:10}}>
+                <span style={{fontSize:10,padding:"3px 9px",borderRadius:20,fontWeight:700,
+                  background:r.type==="vocab"?"#dbeafe":r.type==="screen"?"#dcfce7":"#fef9c3",
+                  color:r.type==="vocab"?"#1d4ed8":r.type==="screen"?"#166534":"#a16207"}}>
                   {r.type}
                 </span>
               </div>
             );})}
-            <div
-              style={{padding:"8px",textAlign:"center",fontSize:12,color:"#78716c",cursor:"pointer"}}
+            <div style={{padding:"10px",textAlign:"center",fontSize:12,color:"#94a3b8",cursor:"pointer",borderTop:"1px solid #f1f5f9"}}
               onClick={function(){setSrchOpen(false)}}>
               Close
             </div>
