@@ -32,7 +32,7 @@ import IdiomsScreen from "./components/croatia/IdiomsScreen.jsx";
 // Croatia screens
 import { TextingScreen, FriendsScreen, FoodOrderScreen, TransportScreen, EmergencyScreen, PopCultureScreen, PracticalScreen, SchoolScreen, GroceryScreen, HistoryScreen as CroatiaHistoryScreen, BasketballScreen, GymScreen } from "./components/croatia/CroatiaCulture.jsx";
 import HNLScreen from "./components/croatia/HNLScreen.jsx";
-import { RegionScreen, RoleplayScreen, RecipesScreen } from "./components/croatia/RegionScreens.jsx";
+import { RegionScreen, RoleplayScreen, RecipesScreen, CityOfDayScreen } from "./components/croatia/RegionScreens.jsx";
 import { EventsCalendar, Top100Screen } from "./components/croatia/EventsTop100.jsx";
 import KingsScreen from "./components/croatia/KingsScreen.jsx";
 import CrMap from "./components/croatia/CrMap.jsx";
@@ -287,7 +287,9 @@ function markExerciseDone(exerciseId){
       convmatch:"practice",scenes:"practice",storyselect:"practice",story:"practice",
       proverbs:"practice",idioms:"practice",
       region_labin:"croatia",region_bibinje:"croatia",region_hercegovina:"croatia",
-      region_vukovar:"croatia",region_vinkovci:"croatia",immersion:"croatia",aiconvo:"croatia",crmap:"croatia",
+      region_vukovar:"croatia",region_vinkovci:"croatia",region_zagreb:"croatia",
+      region_split:"croatia",region_mostar:"croatia",region_tomislavgrad:"croatia",region_knin:"croatia",
+      cityofday:"croatia",immersion:"croatia",aiconvo:"croatia",crmap:"croatia",
       history:"croatia",kings:"croatia",grocery:"croatia",recipes:"croatia",roleplay:"croatia",
       texting:"croatia",friends:"croatia",foodorder:"croatia",transport:"croatia",emergency:"croatia",
       football:"croatia",popculture:"croatia",practical:"croatia",school:"croatia",basketball:"croatia",gym:"croatia",
@@ -2039,6 +2041,12 @@ function markExerciseDone(exerciseId){
         );})}
       </div>}
       {scr==="region_vukovar"&&<RegionScreen regionKey="vukovar" goBack={goBack} />}
+      {scr==="region_zagreb"&&<RegionScreen regionKey="zagreb" goBack={goBack} />}
+      {scr==="region_split"&&<RegionScreen regionKey="split" goBack={goBack} />}
+      {scr==="region_mostar"&&<RegionScreen regionKey="mostar" goBack={goBack} />}
+      {scr==="region_tomislavgrad"&&<RegionScreen regionKey="tomislavgrad" goBack={goBack} />}
+      {scr==="region_knin"&&<RegionScreen regionKey="knin" goBack={goBack} />}
+      {scr==="cityofday"&&<CityOfDayScreen goBack={goBack} />}
       {scr==="region_vukovar_OLD"&&<div
         style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
         <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>
