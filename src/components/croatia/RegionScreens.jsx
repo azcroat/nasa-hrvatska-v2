@@ -392,22 +392,9 @@ export function CityOfDayScreen({ goBack }) {
       {tab==="facts" && (
         <div>
           <div style={{fontSize:15,fontWeight:800,color:"#164e63",marginBottom:14}}>💡 Did You Know?</div>
-          {[city.didYouKnow, ...city.facts].map(function(fact, i){
-            const colors = [
-              {bg:"linear-gradient(135deg,#fef3c7,#fde68a)",border:"#f59e0b",text:"#78350f"},
-              {bg:"linear-gradient(135deg,#f0f9ff,#e0f2fe)",border:city.color,text:"#1c1917"},
-              {bg:"linear-gradient(135deg,#f0fdf4,#dcfce7)",border:"#16a34a",text:"#14532d"},
-              {bg:"linear-gradient(135deg,#fdf4ff,#f3e8ff)",border:"#7c3aed",text:"#3b0764"},
-              {bg:"linear-gradient(135deg,#fff7ed,#fed7aa)",border:"#ea580c",text:"#431407"},
-              {bg:"linear-gradient(135deg,#fef2f2,#fee2e2)",border:"#dc2626",text:"#450a0a"},
-            ];
-            const c = colors[i % colors.length];
-            return (
-              <div key={i} style={{padding:"14px 16px",background:c.bg,borderRadius:14,borderLeft:"4px solid "+c.border,marginBottom:10}}>
-                <div style={{fontSize:13,color:c.text,lineHeight:1.7}}>{fact}</div>
-              </div>
-            );
-          })}
+          <div style={{padding:"16px",background:"linear-gradient(135deg,#fef3c7,#fde68a)",borderRadius:14,borderLeft:"4px solid #f59e0b"}}>
+            <div style={{fontSize:13,color:"#78350f",lineHeight:1.7}}>{city.didYouKnow}</div>
+          </div>
         </div>
       )}
     </div>
