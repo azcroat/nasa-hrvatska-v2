@@ -77,6 +77,7 @@ export default function LearnTab({
           ["🗺️","Dialects","dialects"],
           ["⚠️","False Friends","falsefr"],
           ["🎨","Color Quirks","colorquirk"],
+          ["🪞","Svoj vs Moj","svojmoj"],
         ].map(([icon, label, screen]) => (
           <div key={screen} className="tc" style={{textAlign:"center",padding:"12px 8px"}} onClick={() => setScr(screen)}>
             <div style={{fontSize:24}}>{icon}</div>

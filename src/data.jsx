@@ -2588,15 +2588,282 @@ const REFLEXIVE = {
     {inf:"koncentrirati se",en:"to concentrate",forms:{ja:"koncentriram se",ti:"koncentriraš se",on:"koncentrira se",mi:"koncentriramo se",vi:"koncentrirate se",oni:"koncentriraju se"},past:{m:"koncentrirao sam se",f:"koncentrirala sam se"}},
     {inf:"probuditi se",en:"to wake up",forms:{ja:"probudim se",ti:"probudiš se",on:"probudi se",mi:"probudimo se",vi:"probudite se",oni:"probude se"},past:{m:"probudio sam se",f:"probudila sam se"}}
   ],
+  rules:[
+    {rule:"SE never opens a sentence",icon:"🚫",bad:"Se tuširam svaki dan.",good:"Tuširam se svaki dan.",note:"SE is a clitic — it must attach after the first stressed word or phrase."},
+    {rule:"Present tense: SE follows the verb",icon:"✅",bad:"Ja se vraćam kući.",good:"Vraćam se kući.",note:"The subject pronoun (ja/ti/on) is usually dropped. SE attaches right after the verb."},
+    {rule:"Past tense: auxiliary comes before SE",icon:"📌",bad:"Tuširali se su.",good:"Tuširali su se.",note:"Clitics stack in order: [aux] [se] — never swap them. 'Sam/si/je/smo/ste/su' always beats SE."},
+    {rule:"Future tense: SE follows ću/ćeš/će...",icon:"🔮",bad:"Se tuširaću.",good:"Tuširat ću se.",note:"In future, the ću-form comes second, SE comes after: 'Tuširat ću se', 'Obući ćeš se'."},
+    {rule:"Negative: NE attaches to the verb",icon:"❌",bad:"Ne se mogu koncentrirati.",good:"Ne mogu se koncentrirati.",note:"NE fuses with the verb. SE stays in its normal position after the conjugated verb."},
+    {rule:"Questions work the same way",icon:"❓",bad:"Se jesi umorio?",good:"Jesi li se umorio?",note:"LI follows the auxiliary. SE stays after the auxiliary: 'Jesi li se tuširao?'"}
+  ],
+  tenseExamples:[
+    {verb:"tuširati se",en:"to shower",
+      present:{hr:"Tuširam se svako jutro.",en:"I shower every morning."},
+      past:{hr:"Tuširao sam se prije treninga.",en:"I showered before training."},
+      future:{hr:"Tuširat ću se poslije.",en:"I will shower afterwards."},
+      negative:{hr:"Ne tuširam se hladnom vodom.",en:"I don't shower in cold water."}},
+    {verb:"obući se",en:"to get dressed",
+      present:{hr:"Obučem se za deset minuta.",en:"I get dressed in ten minutes."},
+      past:{hr:"Obukla se i otišla.",en:"She got dressed and left."},
+      future:{hr:"Obući ćeš se toplo.",en:"You will dress warmly."},
+      negative:{hr:"Nije se još obukao.",en:"He hasn't gotten dressed yet."}},
+    {verb:"vratiti se",en:"to return",
+      present:{hr:"Vraćamo se kući u pet.",en:"We return home at five."},
+      past:{hr:"Vratio sam se kasno.",en:"I returned late."},
+      future:{hr:"Vratit će se sutra.",en:"He will return tomorrow."},
+      negative:{hr:"Nismo se još vratili.",en:"We haven't returned yet."}},
+    {verb:"probuditi se",en:"to wake up",
+      present:{hr:"Probudim se u sedam.",en:"I wake up at seven."},
+      past:{hr:"Probudila se rano.",en:"She woke up early."},
+      future:{hr:"Probudit ćemo se zajedno.",en:"We will wake up together."},
+      negative:{hr:"Nije se probudio na alarm.",en:"He didn't wake up to the alarm."}},
+    {verb:"koncentrirati se",en:"to concentrate",
+      present:{hr:"Ne mogu se koncentrirati.",en:"I can't concentrate."},
+      past:{hr:"Koncentrirali su se na zadatak.",en:"They concentrated on the task."},
+      future:{hr:"Koncentrirat ćeš se bolje.",en:"You will concentrate better."},
+      negative:{hr:"Djeca se ne mogu koncentrirati.",en:"Children can't concentrate."}}
+  ],
   quiz:[
     {q:"I woke up at seven.",a:"Probudio sam se u sedam.",opts:["Probudio sam se u sedam.","Probudim sam se u sedam.","Se probudio sam u sedam."]},
     {q:"She got dressed quickly.",a:"Brzo se obukla.",opts:["Brzo se obukla.","Brzo obukla se.","Se brzo obukla."]},
     {q:"We returned home.",a:"Vratili smo se kući.",opts:["Vratili smo se kući.","Se vratili smo kući.","Vratili se smo kući."]},
     {q:"He shaved this morning.",a:"Obrijao se jutros.",opts:["Obrijao se jutros.","Se obrijao jutros.","Jutros obrijao se."]},
     {q:"I can't concentrate.",a:"Ne mogu se koncentrirati.",opts:["Ne mogu se koncentrirati.","Ne se mogu koncentrirati.","Se ne mogu koncentrirati."]},
-    {q:"They showered after the gym.",a:"Tuširali su se nakon teretane.",opts:["Tuširali su se nakon teretane.","Se tuširali su nakon teretane.","Tuširali se su nakon teretane."]},
+    {q:"They showered after the gym.",a:"Tuširali su se nakon teretane.",opts:["Tuširali su se nakon teretane.","Se tuširali su nakon teretane.","Tuširali ce su nakon teretane."]},
     {q:"She combs her hair every morning.",a:"Počešlja se svako jutro.",opts:["Počešlja se svako jutro.","Se počešlja svako jutro.","Počešlja svako jutro se."]},
-    {q:"I put on new shoes.",a:"Obula sam se u nove cipele.",opts:["Obula sam se u nove cipele.","Se obula sam u nove cipele.","Obula se sam u nove cipele."]}
+    {q:"Will you get dressed now? (ti)",a:"Obući ćeš se sada?",opts:["Obući ćeš se sada?","Se obući ćeš sada?","Obući se ćeš sada?"]},
+    {q:"We will return soon.",a:"Vratit ćemo se uskoro.",opts:["Vratit ćemo se uskoro.","Se vratit ćemo uskoro.","Vratit se ćemo uskoro."]},
+    {q:"Did you shower? (ti)",a:"Jesi li se tuširao?",opts:["Jesi li se tuširao?","Se jesi li tuširao?","Jesi se li tuširao?"]}
+  ]
+};
+// ═══ SVOJ vs MOJ ═══
+const SVOJMOJ = {
+  title:"Svoj vs Moj",
+  intro:"In Croatian, 'svoj' (reflexive possessive) always refers back to the subject of the sentence. Using 'moj/tvoj/njegov' when 'svoj' is correct sounds unnatural — native speakers notice immediately.",
+  rule:"Use SVOJ when the possessor IS the subject of the sentence. Use MOJ/TVOJ/NJEGOV when referring to someone ELSE's item.",
+  pairs:[
+    {wrong:"Uzeo je njegov kaput.",right:"Uzeo je svoj kaput.",note:"Subject 'he' took HIS OWN coat → svoj. 'Njegov' would mean he took someone else's coat."},
+    {wrong:"Ona voli njezin pas.",right:"Ona voli svojeg psa.",note:"She loves HER OWN dog → svojeg. 'Njezin' implies the dog belongs to someone else."},
+    {wrong:"Idemo u naš stan.",right:"Idemo u svoj stan.",note:"We are going to OUR OWN apartment → svoj. 'Naš' could work too but 'svoj' is more natural."},
+    {wrong:"Zaboravila sam moj ključ.",right:"Zaboravila sam svoj ključ.",note:"I forgot MY OWN key → svoj. 'Moj' here is technically wrong in standard Croatian."},
+    {wrong:"Kupit će tvoj auto.",right:"Kupit će svoj auto.",note:"He will buy HIS OWN car → svoj. 'Tvoj' means he's buying YOUR car."},
+    {wrong:"Pišeš li tvoj zadatak?",right:"Pišeš li svoj zadatak?",note:"Are you writing YOUR OWN homework? → svoj. 'Tvoj' is redundant when you're the subject."}
+  ],
+  forms:[
+    {case:"Nominative",m:"svoj",f:"svoja",n:"svoje",pl:"svoji/svoje"},
+    {case:"Genitive",m:"svojeg/svog",f:"svoje",n:"svojeg/svog",pl:"svojih"},
+    {case:"Dative",m:"svojem/svom",f:"svojoj",n:"svojem/svom",pl:"svojim"},
+    {case:"Accusative (animate)",m:"svojeg/svog",f:"svoju",n:"svoje",pl:"svoje/svoja"},
+    {case:"Instrumental",m:"svojim",f:"svojom",n:"svojim",pl:"svojim"},
+    {case:"Locative",m:"svojem/svom",f:"svojoj",n:"svojem/svom",pl:"svojim"}
+  ],
+  exceptions:[
+    {text:"When the subject IS 'ja' and the sentence is simple present, both 'moj' and 'svoj' sound natural: 'Imam moj/svoj bicikl.'",icon:"💡"},
+    {text:"In questions where the subject is unclear, 'moj/tvoj' may be used for clarity: 'Je li to tvoj ili njegov?'",icon:"💡"},
+    {text:"After prepositions in set phrases: 'u svojoj koži' (in one's skin), 'biti svoj čovjek' (to be one's own person).",icon:"📌"}
+  ],
+  quiz:[
+    {q:"She forgot _____ keys. (her own)",a:"svoje",opts:["njezine","svoje","moje"],note:"Subject 'she' → svoje"},
+    {q:"He is washing _____ car. (his own)",a:"svoj",opts:["njegov","tvoj","svoj"],note:"Subject 'he' → svoj"},
+    {q:"We love _____ city. (our own)",a:"svoj",opts:["naš","njihov","svoj"],note:"Subject 'we' → svoj"},
+    {q:"Are you doing _____ homework? (your own)",a:"svoj",opts:["tvoj","njegov","svoj"],note:"Subject 'you' → svoj"},
+    {q:"They packed _____ bags. (their own)",a:"svoje",opts:["njihove","naše","svoje"],note:"Subject 'they' → svoje"},
+    {q:"I left _____ phone at home. (my own)",a:"svoj",opts:["moj","tvoj","svoj"],note:"Subject 'I' → svoj"}
+  ]
+};
+// ═══ BASKETBALL PRACTICE ═══
+const BASKETBALL = {
+  title:"Na košarkaškom treningu",
+  subtitle:"At Basketball Practice",
+  intro:"These are the real phrases a Croatian basketball coach uses on the court. Master these and you'll understand every drill, every play call, every correction.",
+  sections:[
+    {title:"Osnove treninga",en:"Training Basics",icon:"📋",phrases:[
+      {hr:"Zagrijavamo se!",en:"We're warming up!",note:"Start of every practice"},
+      {hr:"Na linije!",en:"To the lines!",note:"Go to the baseline/lines"},
+      {hr:"Trčite krug!",en:"Run a lap!",note:"Run around the court"},
+      {hr:"Istezanje!",en:"Stretching!",note:"Time to stretch"},
+      {hr:"Slobodna baca!",en:"Free throws!",note:"Free throw practice"},
+      {hr:"Dribling!",en:"Dribbling!",note:"Dribbling drill"},
+      {hr:"Šut na koš!",en:"Shoot at the basket!",note:"Shooting drill"},
+      {hr:"Skok lopte!",en:"Jump ball!",note:"Tip-off / rebounding"},
+      {hr:"Pauza! Svi ovdje!",en:"Break! Everyone here!",note:"Huddle up"},
+      {hr:"Idemo!",en:"Let's go!",note:"Let's go / move it"}
+    ]},
+    {title:"Pozicije i igrači",en:"Positions & Players",icon:"🏀",phrases:[
+      {hr:"plej (razigravač)",en:"point guard (PG)"},
+      {hr:"bek (bačker/šuter)",en:"shooting guard (SG)"},
+      {hr:"mali krilni igrač",en:"small forward (SF)"},
+      {hr:"krilni centar",en:"power forward (PF)"},
+      {hr:"centar",en:"center (C)"},
+      {hr:"starter",en:"starter"},
+      {hr:"zamjena / rezerva",en:"substitute / bench player"},
+      {hr:"kapetan",en:"captain"},
+      {hr:"napadač",en:"forward"},
+      {hr:"branič",en:"defender"}
+    ]},
+    {title:"Napadačke naredbe",en:"Offensive Commands",icon:"⚡",phrases:[
+      {hr:"Napad!",en:"Offense!",note:"Switch to attack"},
+      {hr:"Probij!",en:"Drive to the basket!",note:"Drive in"},
+      {hr:"Dodaj!",en:"Pass it!",note:"Pass the ball"},
+      {hr:"Šutaj!",en:"Shoot!",note:"Take the shot"},
+      {hr:"Postavi blok!",en:"Set a screen!",note:"Pick / screen"},
+      {hr:"Izlazi na loptu!",en:"Come to the ball!",note:"Move toward the ball"},
+      {hr:"Otvori se!",en:"Get open! / Space out!",note:"Find open space"},
+      {hr:"Trokica!",en:"Three-pointer!",note:"Shoot from three"},
+      {hr:"Polagan napad!",en:"Slow the offense!",note:"Slow it down"},
+      {hr:"Brzi napad! Kontra!",en:"Fast break! Counter!",note:"Transition offense"}
+    ]},
+    {title:"Obrambene naredbe",en:"Defensive Commands",icon:"🛡️",phrases:[
+      {hr:"Obrana!",en:"Defense!",note:"Switch to defense"},
+      {hr:"Prati svog igrača!",en:"Mark your man!",note:"Man-to-man marking"},
+      {hr:"Zona obrana!",en:"Zone defense!",note:"Switch to zone"},
+      {hr:"Pritisak!",en:"Press!",note:"Full-court press"},
+      {hr:"Blokiraj šut!",en:"Block the shot!",note:"Contest the shot"},
+      {hr:"Uzmi skok!",en:"Get the rebound!",note:"Grab the board"},
+      {hr:"Kradi loptu!",en:"Steal the ball!",note:"Go for the steal"},
+      {hr:"Prati ruke!",en:"Watch the hands!",note:"Contest passing lanes"},
+      {hr:"Fauliraš!",en:"You're fouling!",note:"You're committing a foul"},
+      {hr:"Komunicirajte!",en:"Communicate!",note:"Talk on defense"}
+    ]},
+    {title:"Pohvale i ispravci",en:"Praise & Corrections",icon:"🗣️",phrases:[
+      {hr:"Odlično! Bravo!",en:"Excellent! Well done!"},
+      {hr:"Tako je! To je to!",en:"That's it! That's the one!"},
+      {hr:"Još jednom!",en:"One more time!"},
+      {hr:"Fokusiraj se!",en:"Focus!"},
+      {hr:"Ne žuri!",en:"Don't rush!"},
+      {hr:"Glava gore!",en:"Head up!",note:"Keep your head up when dribbling"},
+      {hr:"Slušaj me!",en:"Listen to me!"},
+      {hr:"Pogrešno! Ovako!",en:"Wrong! Like this!"},
+      {hr:"Budi agresivniji!",en:"Be more aggressive!"},
+      {hr:"Vjerujem u tebe!",en:"I believe in you!"}
+    ]},
+    {title:"Utakmica",en:"Game Situations",icon:"🏆",phrases:[
+      {hr:"Igramo za pobjedu!",en:"We play to win!"},
+      {hr:"Tajm-aut!",en:"Time out!"},
+      {hr:"Izmjena!",en:"Substitution!"},
+      {hr:"Izlazi! Ulazi!",en:"Come out! Go in!",note:"Sub off/on"},
+      {hr:"Vodimo! Gubimo!",en:"We're winning! We're losing!"},
+      {hr:"Još dvije minute!",en:"Two minutes left!"},
+      {hr:"Faul! Osobna greška!",en:"Foul! Personal foul!"},
+      {hr:"Koš vrijedi!",en:"Basket counts!"},
+      {hr:"Kraj utakmice!",en:"End of game!"},
+      {hr:"Pobijedili smo!",en:"We won!"}
+    ]},
+    {title:"Ključni košarkaški pojmovi",en:"Key Basketball Terms",icon:"📖",phrases:[
+      {hr:"koš",en:"basket / shot made"},
+      {hr:"lopta",en:"ball"},
+      {hr:"teren / parket",en:"court"},
+      {hr:"koš (obruč)",en:"hoop / rim"},
+      {hr:"asistencija",en:"assist"},
+      {hr:"skok (ofenzivni/defenzivni)",en:"rebound (offensive/defensive)"},
+      {hr:"trica / trojka",en:"three-pointer"},
+      {hr:"slobodno bacanje",en:"free throw"},
+      {hr:"dodavanje",en:"passing"},
+      {hr:"pogreška / prekršaj",en:"turnover / violation"},
+      {hr:"poluvrijeme",en:"halftime"},
+      {hr:"produžetak",en:"overtime"},
+      {hr:"rezultat",en:"score"},
+      {hr:"dvorana",en:"gym / hall"}
+    ]}
+  ]
+};
+// ═══ AT THE GYM ═══
+const GYM = {
+  title:"U teretani",
+  subtitle:"At the Gym",
+  intro:"Essential Croatian vocabulary for the gym — from equipment names to trainer instructions and tracking your workout.",
+  sections:[
+    {title:"Oprema",en:"Equipment",icon:"🏋️",phrases:[
+      {hr:"bučica",en:"dumbbell"},
+      {hr:"bučice (par)",en:"dumbbells (a pair)"},
+      {hr:"šipka",en:"barbell"},
+      {hr:"uteg",en:"weight plate"},
+      {hr:"čučanj stalak",en:"squat rack"},
+      {hr:"klupaica",en:"bench"},
+      {hr:"kabel stroj",en:"cable machine"},
+      {hr:"sprava",en:"machine"},
+      {hr:"traka za trčanje",en:"treadmill"},
+      {hr:"bicikl ergometar",en:"stationary bike"},
+      {hr:"eliptičar",en:"elliptical"},
+      {hr:"konop za preskakanje",en:"jump rope"},
+      {hr:"vučna traka / band",en:"resistance band"},
+      {hr:"lopta za vježbanje",en:"exercise ball / Swiss ball"},
+      {hr:"stalak za bučice",en:"dumbbell rack"}
+    ]},
+    {title:"Vježbe",en:"Exercises",icon:"💪",phrases:[
+      {hr:"čučanj",en:"squat"},
+      {hr:"mrtvo dizanje",en:"deadlift"},
+      {hr:"potisak s klupe",en:"bench press"},
+      {hr:"veslanje",en:"rowing"},
+      {hr:"zgib",en:"pull-up"},
+      {hr:"dip",en:"dip"},
+      {hr:"iskorak",en:"lunge"},
+      {hr:"plank",en:"plank"},
+      {hr:"skleka",en:"push-up"},
+      {hr:"biceps pregib",en:"bicep curl"},
+      {hr:"triceps ekstenzija",en:"tricep extension"},
+      {hr:"potisak iznad glave",en:"overhead press"},
+      {hr:"bočni odručivanje",en:"lateral raise"},
+      {hr:"pretklon s utegom",en:"Romanian deadlift"},
+      {hr:"trbušnjak",en:"crunch / sit-up"}
+    ]},
+    {title:"Dijelovi tijela",en:"Body Parts",icon:"🫀",phrases:[
+      {hr:"prsa",en:"chest"},
+      {hr:"leđa",en:"back"},
+      {hr:"ramena",en:"shoulders"},
+      {hr:"biceps",en:"biceps"},
+      {hr:"triceps",en:"triceps"},
+      {hr:"prednjača / quad",en:"quadriceps"},
+      {hr:"stražnjača",en:"glutes / butt"},
+      {hr:"hamstringi",en:"hamstrings"},
+      {hr:"telad / listovi",en:"calves"},
+      {hr:"trbuh",en:"abs / stomach"},
+      {hr:"core",en:"core"},
+      {hr:"podlaktica",en:"forearm"},
+      {hr:"trapez",en:"traps"},
+      {hr:"latissimus / lats",en:"lats (latissimus dorsi)"}
+    ]},
+    {title:"Trening fraze",en:"Training Phrases",icon:"📊",phrases:[
+      {hr:"serija",en:"set"},
+      {hr:"ponavljanje",en:"repetition / rep"},
+      {hr:"pauza / odmor",en:"rest / break"},
+      {hr:"zagrijavanje",en:"warm-up"},
+      {hr:"hlađenje",en:"cool-down"},
+      {hr:"maksimalna težina",en:"max weight / 1RM"},
+      {hr:"lagano / srednje / teško",en:"light / medium / heavy"},
+      {hr:"Koliko serija?",en:"How many sets?"},
+      {hr:"Koliko ponavljanja?",en:"How many reps?"},
+      {hr:"Koliko kilograma?",en:"How many kilograms?"},
+      {hr:"Povećaj težinu!",en:"Increase the weight!"},
+      {hr:"Smanji težinu!",en:"Lower the weight!"},
+      {hr:"Radi sporije!",en:"Go slower!"},
+      {hr:"Drži leđa ravno!",en:"Keep your back straight!"},
+      {hr:"Dublje! Niže!",en:"Deeper! Lower!"}
+    ]},
+    {title:"Trener i savjeti",en:"Trainer & Advice",icon:"🗣️",phrases:[
+      {hr:"Mogu li koristiti ovu spravu?",en:"Can I use this machine?"},
+      {hr:"Možete li mi pomoći?",en:"Can you help me?"},
+      {hr:"Pokaži mi kako se radi.",en:"Show me how it's done."},
+      {hr:"Koliko trebam odmarati?",en:"How long should I rest?"},
+      {hr:"Boli me _____.",en:"My _____ hurts."},
+      {hr:"Trebam osigurač.",en:"I need a spotter."},
+      {hr:"Jesi li slobodan?",en:"Are you free? / Is this taken?"},
+      {hr:"Oslobodi spravu.",en:"Free up the machine."},
+      {hr:"Vrati utege na mjesto.",en:"Put the weights back."},
+      {hr:"Odlično! Još jedna serija!",en:"Great! One more set!"}
+    ]},
+    {title:"Fitness ciljevi",en:"Fitness Goals",icon:"🎯",phrases:[
+      {hr:"Želim izgubiti kilograme.",en:"I want to lose weight."},
+      {hr:"Želim dobiti mišiće.",en:"I want to build muscle."},
+      {hr:"Trebam više snage.",en:"I need more strength."},
+      {hr:"Radim na kardiu.",en:"I'm working on cardio."},
+      {hr:"Idem u teretanu svaki dan.",en:"I go to the gym every day."},
+      {hr:"Danas treniram noge.",en:"Today I'm training legs."},
+      {hr:"Proteinski šejk",en:"Protein shake"},
+      {hr:"Oporavljam se.",en:"I'm recovering."},
+      {hr:"Dobio/la sam ozljedu.",en:"I got injured."},
+      {hr:"Odmor dan",en:"Rest day"}
+    ]}
   ]
 };
 // ═══ SCENE DESCRIPTION EXERCISES ═══
@@ -3252,7 +3519,7 @@ class ErrorBoundary extends React.Component{
   }
 }
 
-export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, CSS, BG_LIGHT, BG_DARK };
+export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, CSS, BG_LIGHT, BG_DARK };
 export { _fbReady, _fbAuth, _fbDb };
 export { W, H, Bar, Spk };
 export { initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, loadVoices, getBestVoice, stopAudio, speakAzure, speakGoogle, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, shMemo, shuffleArr, buildSearchIndex };

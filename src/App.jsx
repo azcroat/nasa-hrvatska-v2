@@ -30,14 +30,14 @@ import ListeningScreen from "./components/practice/ListeningScreen.jsx";
 import McGame from "./components/practice/McGame.jsx";
 import IdiomsScreen from "./components/croatia/IdiomsScreen.jsx";
 // Croatia screens
-import { TextingScreen, FriendsScreen, FoodOrderScreen, TransportScreen, EmergencyScreen, PopCultureScreen, PracticalScreen, SchoolScreen, GroceryScreen, HistoryScreen as CroatiaHistoryScreen } from "./components/croatia/CroatiaCulture.jsx";
+import { TextingScreen, FriendsScreen, FoodOrderScreen, TransportScreen, EmergencyScreen, PopCultureScreen, PracticalScreen, SchoolScreen, GroceryScreen, HistoryScreen as CroatiaHistoryScreen, BasketballScreen, GymScreen } from "./components/croatia/CroatiaCulture.jsx";
 import HNLScreen from "./components/croatia/HNLScreen.jsx";
 import { RegionScreen, RoleplayScreen, RecipesScreen } from "./components/croatia/RegionScreens.jsx";
 import { EventsCalendar, Top100Screen } from "./components/croatia/EventsTop100.jsx";
 import KingsScreen from "./components/croatia/KingsScreen.jsx";
 import CrMap from "./components/croatia/CrMap.jsx";
 // Grammar reference screens
-import { AspectScreen, FalseFriendsScreen, DeclensionScreen, BrzaliceScreen, DialectsScreen, DiminutivesScreen, WordFormScreen, ColorQuirkScreen } from "./components/learn/GrammarRef.jsx";
+import { AspectScreen, FalseFriendsScreen, DeclensionScreen, BrzaliceScreen, DialectsScreen, DiminutivesScreen, WordFormScreen, ColorQuirkScreen, SvojMojScreen } from "./components/learn/GrammarRef.jsx";
 // Learn screens
 import ModalScreen from "./components/learn/ModalScreen.jsx";
 import PadeziScreen from "./components/learn/PadeziScreen.jsx";
@@ -275,7 +275,7 @@ function markExerciseDone(exerciseId){
     var screenTab={
       lesson:"learn",grammar:"learn",padezi:"learn",padezifull:"learn",modal:"learn",tenses:"learn",
       alphabet:"learn",reading:"learn",read:"learn",readinglist:"learn",readlist:"learn",aspect:"learn",falsefr:"learn",
-      declension:"learn",brzalice:"learn",dialects:"learn",diminutives:"learn",wordform:"learn",colorquirk:"learn",
+      declension:"learn",brzalice:"learn",dialects:"learn",diminutives:"learn",wordform:"learn",colorquirk:"learn",svojmoj:"learn",
       mcgame:"practice",mcresult:"practice",flashcards:"practice",match:"practice",typing:"practice",
       listening:"practice",speaking:"practice",znam:"practice",boje:"practice",conj:"practice",conjdrill:"practice",
       unjumble:"practice",prepdrill:"practice",numtime:"practice",wordsprint:"practice",
@@ -285,12 +285,12 @@ function markExerciseDone(exerciseId){
       verbdrill:"practice",tenseflip:"practice",riddles:"practice",logicquiz:"practice",pronouns:"practice",
       genderdrill:"practice",sentbuild:"practice",reflexive:"practice",fillstory:"practice",
       convmatch:"practice",scenes:"practice",storyselect:"practice",story:"practice",
-      proverbs:"practice",idioms:"practice",brzalice:"practice",
+      proverbs:"practice",idioms:"practice",
       region_labin:"croatia",region_bibinje:"croatia",region_hercegovina:"croatia",
       region_vukovar:"croatia",region_vinkovci:"croatia",immersion:"croatia",aiconvo:"croatia",crmap:"croatia",
       history:"croatia",kings:"croatia",grocery:"croatia",recipes:"croatia",roleplay:"croatia",
       texting:"croatia",friends:"croatia",foodorder:"croatia",transport:"croatia",emergency:"croatia",
-      football:"croatia",popculture:"croatia",practical:"croatia",school:"croatia",
+      football:"croatia",popculture:"croatia",practical:"croatia",school:"croatia",basketball:"croatia",gym:"croatia",
       top100:"croatia",events:"croatia",
       badges:"profile",leaderboard:"profile",vocabjournal:"profile",favorites:"profile",learnpath:"profile",
     };
@@ -1889,6 +1889,8 @@ function markExerciseDone(exerciseId){
         </div>
       </div>}
       {scr==="popculture"&&<PopCultureScreen goBack={goBack} />}
+      {scr==="basketball"&&<BasketballScreen goBack={goBack} />}
+      {scr==="gym"&&<GymScreen goBack={goBack} />}
       {scr==="popculture_OLD"&&<div
         style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
         <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>
@@ -2632,6 +2634,7 @@ function markExerciseDone(exerciseId){
       </div>}
       {// ═══ COLOR QUIRKS ═══
       scr==="colorquirk"&&<ColorQuirkScreen goBack={goBack} />}
+      {scr==="svojmoj"&&<SvojMojScreen goBack={goBack} award={award} />}
       {scr==="colorquirk_OLD"&&<div
         style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
         <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>
