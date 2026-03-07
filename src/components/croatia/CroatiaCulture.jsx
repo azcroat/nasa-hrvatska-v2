@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { H, speak } from '../../data.jsx';
-import { TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, SCHOOL, GROCERY, HISTORY } from '../../data.jsx';
+import { TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, SCHOOL, GROCERY, HISTORY, BASKETBALL, GYM } from '../../data.jsx';
 
 export function TextingScreen({ goBack }) {
   return (
@@ -347,6 +347,105 @@ export function HistoryScreen({ goBack }) {
       <div className="c" style={{marginTop:24,textAlign:"center",borderLeft:"4px solid #dc2626",background:"linear-gradient(135deg,#fef2f2,#fee2e2)"}}>
         <div style={{fontSize:24,fontWeight:800,color:"#991b1b",fontFamily:"'Playfair Display',serif",fontStyle:"italic",marginBottom:8}}>{HISTORY.quote}</div>
         <div style={{fontSize:20,fontWeight:700,color:"#b91c1c",fontFamily:"'Playfair Display',serif",fontStyle:"italic"}}>{HISTORY.quote2}</div>
+      </div>
+    </div>
+  );
+}
+
+export function BasketballScreen({ goBack }) {
+  const [activeSection, setActiveSection] = useState(0);
+  const section = BASKETBALL.sections[activeSection];
+  const SECTION_COLORS = ["#f97316","#ea580c","#0e7490","#7c3aed","#16a34a","#ca8a04","#164e63"];
+
+  return (
+    <div className="scr-wrap">
+      {H("🏀 "+BASKETBALL.title, BASKETBALL.subtitle)}
+      <div style={{marginBottom:16,padding:"14px 16px",background:"linear-gradient(135deg,#ea580c,#f97316)",borderRadius:14,color:"white"}}>
+        <div style={{fontSize:13,lineHeight:1.7,opacity:.95}}>{BASKETBALL.intro}</div>
+      </div>
+
+      {/* Section pills */}
+      <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:8,marginBottom:16}}>
+        {BASKETBALL.sections.map(function(s,si){return (
+          <button key={si} onClick={function(){setActiveSection(si)}}
+            style={{flex:"0 0 auto",padding:"7px 12px",borderRadius:20,border:"none",fontSize:11,fontWeight:700,cursor:"pointer",
+              background:activeSection===si?SECTION_COLORS[si]:"#f1f5f9",
+              color:activeSection===si?"white":"#44403c",transition:"all .2s",whiteSpace:"nowrap"}}>
+            {s.icon} {s.title}
+          </button>
+        );})}
+      </div>
+
+      {/* Section header */}
+      <div style={{marginBottom:12,padding:"10px 14px",background:SECTION_COLORS[activeSection]+"15",borderRadius:12,borderLeft:"3px solid "+SECTION_COLORS[activeSection]}}>
+        <div style={{fontSize:13,fontWeight:800,color:SECTION_COLORS[activeSection]}}>{section.icon} {section.title}</div>
+        <div style={{fontSize:11,color:"#78716c",marginTop:2}}>{section.en}</div>
+      </div>
+
+      {/* Phrases */}
+      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+        {section.phrases.map(function(p,pi){
+          const hasNote = p.note || p.en;
+          const isJustVocab = !p.note && p.en && !p.en.startsWith("to ");
+          return (
+            <div key={pi} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:"white",borderRadius:12,border:"1px solid rgba(0,0,0,.06)",boxShadow:"0 1px 3px rgba(0,0,0,.04)",cursor:"pointer"}}
+              onClick={function(){speak(p.hr)}}>
+              <div style={{flex:1}}>
+                <div style={{fontSize:14,fontWeight:800,color:SECTION_COLORS[activeSection]}}>{p.hr}</div>
+                <div style={{fontSize:12,color:"#44403c",marginTop:2}}>{p.en}</div>
+                {p.note && <div style={{fontSize:11,color:"#78716c",marginTop:3,fontStyle:"italic"}}>{p.note}</div>}
+              </div>
+              <div style={{fontSize:18,opacity:.5}}>🔊</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export function GymScreen({ goBack }) {
+  const [activeSection, setActiveSection] = useState(0);
+  const section = GYM.sections[activeSection];
+  const SECTION_COLORS = ["#7c3aed","#0e7490","#dc2626","#16a34a","#ca8a04","#f97316"];
+
+  return (
+    <div className="scr-wrap">
+      {H("🏋️ "+GYM.title, GYM.subtitle)}
+      <div style={{marginBottom:16,padding:"14px 16px",background:"linear-gradient(135deg,#1e1b4b,#4c1d95)",borderRadius:14,color:"white"}}>
+        <div style={{fontSize:13,lineHeight:1.7,opacity:.95}}>{GYM.intro}</div>
+      </div>
+
+      {/* Section pills */}
+      <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:8,marginBottom:16}}>
+        {GYM.sections.map(function(s,si){return (
+          <button key={si} onClick={function(){setActiveSection(si)}}
+            style={{flex:"0 0 auto",padding:"7px 12px",borderRadius:20,border:"none",fontSize:11,fontWeight:700,cursor:"pointer",
+              background:activeSection===si?SECTION_COLORS[si]:"#f1f5f9",
+              color:activeSection===si?"white":"#44403c",transition:"all .2s",whiteSpace:"nowrap"}}>
+            {s.icon} {s.title}
+          </button>
+        );})}
+      </div>
+
+      {/* Section header */}
+      <div style={{marginBottom:12,padding:"10px 14px",background:SECTION_COLORS[activeSection]+"15",borderRadius:12,borderLeft:"3px solid "+SECTION_COLORS[activeSection]}}>
+        <div style={{fontSize:13,fontWeight:800,color:SECTION_COLORS[activeSection]}}>{section.icon} {section.title}</div>
+        <div style={{fontSize:11,color:"#78716c",marginTop:2}}>{section.en}</div>
+      </div>
+
+      {/* Phrases */}
+      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+        {section.phrases.map(function(p,pi){return (
+          <div key={pi} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:"white",borderRadius:12,border:"1px solid rgba(0,0,0,.06)",boxShadow:"0 1px 3px rgba(0,0,0,.04)",cursor:"pointer"}}
+            onClick={function(){speak(p.hr)}}>
+            <div style={{flex:1}}>
+              <div style={{fontSize:14,fontWeight:800,color:SECTION_COLORS[activeSection]}}>{p.hr}</div>
+              <div style={{fontSize:12,color:"#44403c",marginTop:2}}>{p.en}</div>
+            </div>
+            <div style={{fontSize:18,opacity:.5}}>🔊</div>
+          </div>
+        );})}
       </div>
     </div>
   );
