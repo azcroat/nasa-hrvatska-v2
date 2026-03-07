@@ -297,7 +297,7 @@ function markExerciseDone(exerciseId){
       texting:"croatia",friends:"croatia",foodorder:"croatia",transport:"croatia",emergency:"croatia",
       football:"croatia",popculture:"croatia",practical:"croatia",school:"croatia",basketball:"croatia",gym:"croatia",
       top100:"croatia",events:"croatia",
-      badges:"profile",leaderboard:"profile",vocabjournal:"profile",favorites:"profile",learnpath:"profile",
+      badges:"profile",leaderboard:"profile",journal:"profile",favorites:"profile",learnpath:"profile",
     };
     function onPopState(e){
       var p=window.location.pathname;
