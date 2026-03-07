@@ -10,6 +10,7 @@ import PlacementTest from "./components/home/PlacementTest.jsx";
 import LearnTab from "./components/learn/LearnTab.jsx";
 import CroatiaTab from "./components/croatia/CroatiaTab.jsx";
 import ImmersionHub from "./components/croatia/ImmersionHub.jsx";
+import AIConversation from "./components/croatia/AIConversation.jsx";
 import ProfileTab from "./components/profile/ProfileTab.jsx";
 import HomeTab from "./components/home/HomeTab.jsx";
 import PracticeTab from "./components/practice/PracticeTab.jsx";
@@ -286,7 +287,7 @@ function markExerciseDone(exerciseId){
       convmatch:"practice",scenes:"practice",storyselect:"practice",story:"practice",
       proverbs:"practice",idioms:"practice",brzalice:"practice",
       region_labin:"croatia",region_bibinje:"croatia",region_hercegovina:"croatia",
-      region_vukovar:"croatia",region_vinkovci:"croatia",immersion:"croatia",crmap:"croatia",
+      region_vukovar:"croatia",region_vinkovci:"croatia",immersion:"croatia",aiconvo:"croatia",crmap:"croatia",
       history:"croatia",kings:"croatia",grocery:"croatia",recipes:"croatia",roleplay:"croatia",
       texting:"croatia",friends:"croatia",foodorder:"croatia",transport:"croatia",emergency:"croatia",
       football:"croatia",popculture:"croatia",practical:"croatia",school:"croatia",
@@ -1825,7 +1826,8 @@ function markExerciseDone(exerciseId){
         );})}
       </div>}
       {scr==="football"&&<HNLScreen goBack={goBack} />}
-      {scr==="immersion"&&<ImmersionHub goBack={goBack} />}
+      {scr==="immersion"&&<ImmersionHub goBack={goBack} setScr={setScr} />}
+      {scr==="aiconvo"&&<AIConversation goBack={goBack} setScr={setScr} sCurEx={sCurEx} />}
       {scr==="football_OLD"&&<div
         style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
         <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>
