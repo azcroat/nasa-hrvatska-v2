@@ -388,7 +388,7 @@ export function CityOfDayScreen({ goBack }) {
         </div>
       )}
 
-      {/* Fast Facts — city snapshot card + did you know, nothing repeated from other tabs */}
+      {/* Fast Facts — city snapshot card + multiple Did You Know highlights */}
       {tab==="facts" && (
         <div>
           <div style={{marginBottom:16,borderRadius:16,overflow:"hidden",boxShadow:"0 4px 16px rgba(0,0,0,.12)"}}>
@@ -400,25 +400,27 @@ export function CityOfDayScreen({ goBack }) {
                 "{city.tagline}"
               </div>
             </div>
-            <div style={{background:"rgba(0,0,0,.55)",padding:"12px 20px",display:"flex",justifyContent:"space-around"}}>
-              <div style={{textAlign:"center"}}>
-                <div style={{fontSize:18,fontWeight:900,color:"white"}}>{city.facts.length}</div>
-                <div style={{fontSize:10,color:"rgba(255,255,255,.65)",fontWeight:600}}>HISTORY FACTS</div>
-              </div>
-              <div style={{textAlign:"center"}}>
-                <div style={{fontSize:18,fontWeight:900,color:"white"}}>{city.vocab.length}</div>
-                <div style={{fontSize:10,color:"rgba(255,255,255,.65)",fontWeight:600}}>VOCAB WORDS</div>
-              </div>
-              <div style={{textAlign:"center"}}>
-                <div style={{fontSize:18,fontWeight:900,color:"white"}}>{CROATIAN_CITIES.length}</div>
-                <div style={{fontSize:10,color:"rgba(255,255,255,.65)",fontWeight:600}}>CITIES TO EXPLORE</div>
-              </div>
-            </div>
           </div>
-          <div style={{padding:"16px",background:"linear-gradient(135deg,#fef3c7,#fde68a)",borderRadius:14,borderLeft:"4px solid #f59e0b"}}>
-            <div style={{fontSize:11,fontWeight:800,color:"#92400e",marginBottom:6,letterSpacing:"0.06em",textTransform:"uppercase"}}>Did You Know?</div>
-            <div style={{fontSize:13,color:"#78350f",lineHeight:1.7}}>{city.didYouKnow}</div>
-          </div>
+          <div style={{fontSize:13,fontWeight:800,color:"#164e63",marginBottom:12}}>💡 Did You Know?</div>
+          {[city.didYouKnow, ...city.facts].map(function(fact, i){
+            const colors = [
+              {bg:"linear-gradient(135deg,#fef3c7,#fde68a)",border:"#f59e0b",text:"#78350f",label:"#92400e"},
+              {bg:"linear-gradient(135deg,#f0f9ff,#e0f2fe)",border:city.color,text:"#1c1917",label:city.color},
+              {bg:"linear-gradient(135deg,#f0fdf4,#dcfce7)",border:"#16a34a",text:"#14532d",label:"#166534"},
+              {bg:"linear-gradient(135deg,#fdf4ff,#f3e8ff)",border:"#7c3aed",text:"#3b0764",label:"#6d28d9"},
+              {bg:"linear-gradient(135deg,#fff7ed,#fed7aa)",border:"#ea580c",text:"#431407",label:"#c2410c"},
+              {bg:"linear-gradient(135deg,#fef2f2,#fee2e2)",border:"#dc2626",text:"#450a0a",label:"#b91c1c"},
+            ];
+            const c = colors[i % colors.length];
+            return (
+              <div key={i} style={{padding:"14px 16px",background:c.bg,borderRadius:14,borderLeft:"4px solid "+c.border,marginBottom:10}}>
+                <div style={{fontSize:10,fontWeight:800,color:c.label,marginBottom:5,letterSpacing:"0.06em",textTransform:"uppercase"}}>
+                  {i === 0 ? "✨ Unique Fact" : "🏛️ Did You Know?"}
+                </div>
+                <div style={{fontSize:13,color:c.text,lineHeight:1.7}}>{fact}</div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
