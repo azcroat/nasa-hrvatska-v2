@@ -11,8 +11,10 @@ function initFirebase(){
   if(_fbReady||!FIREBASE_CONFIG||!window.firebase)return false;
   try{if(!firebase.apps.length)firebase.initializeApp(FIREBASE_CONFIG);
   _fb=firebase;_fbAuth=firebase.auth();_fbDb=firebase.firestore();_fbReady=true;
-  _fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);return true}catch(e){console.warn("Firebase init failed:",e);return false}
+  _fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});return true}catch(e){console.warn("Firebase init failed:",e);return false}
 }
+// Auto-init at module load — CDN scripts are sync in <head> so firebase is available now
+initFirebase();
 // ═══ AUTH & STORAGE — Firebase + localStorage fallback ═══
 async function hp(p){const e=new TextEncoder();const d=e.encode(p+"ucimo2024");const h=await crypto.subtle.digest("SHA-256",d);return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,"0")).join("")}
 function gA(){try{return JSON.parse(localStorage.getItem("uA")||"{}")}catch{return{}}}
