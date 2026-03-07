@@ -7,6 +7,7 @@ function HymnaPlayer() {
   const [duration, setDuration] = useState(0);
   const [current, setCurrent] = useState(0);
   const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
   const ref = useRef(null);
 
   function toggle(e) {
@@ -38,7 +39,15 @@ function HymnaPlayer() {
         onLoadedMetadata={() => { if (ref.current) { setDuration(ref.current.duration); setLoaded(true); } }}
         onTimeUpdate={() => { const a = ref.current; if (a) { setCurrent(a.currentTime); setProgress(a.duration ? (a.currentTime / a.duration) * 100 : 0); } }}
         onEnded={() => { setPlaying(false); setProgress(0); setCurrent(0); if (ref.current) ref.current.currentTime = 0; }}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        onError={() => { setError(true); setLoaded(false); }}
       />
+      {error && (
+        <div style={{fontSize:12,color:"#b91c1c",background:"rgba(185,28,28,.06)",borderRadius:10,padding:"8px 12px",marginBottom:10}}>
+          ⚠️ Audio file not found. Place <code>bojna-cavoglave.m4a</code> in <code>public/audio/</code>.
+        </div>
+      )}
       <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:12}}>
         <div>
           <div style={{fontSize:13,fontWeight:900,color:"#b91c1c"}}>Bojna Čavoglave</div>
