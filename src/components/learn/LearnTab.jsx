@@ -63,6 +63,22 @@ export default function LearnTab({
           <div style={{fontSize:13,fontWeight:700,marginTop:4}}>Grammar Intro</div>
         </div>
       </div>
+      <h3 className="sh" style={{marginTop:16}}>🌏 Vocabulary Themes</h3>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:24}}>
+        {[
+          ["🌍","Countries","countries"],
+          ["💼","Professions","professions"],
+          ["🌤️","Weather","weather"],
+          ["👗","Clothing","clothes"],
+          ["👤","Appearance","bodydesc"],
+          ["🔤","Pronunciation","phonology"],
+        ].map(([icon,label,screen])=>(
+          <div key={screen} className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={()=>setScr(screen)}>
+            <div style={{fontSize:24}}>{icon}</div>
+            <div style={{fontSize:11,fontWeight:700,marginTop:4}}>{label}</div>
+          </div>
+        ))}
+      </div>
       <h3 className="sh">📖 Reading</h3>
       <div className="tc" style={{padding:"14px"}} onClick={() => setScr("readlist")}>
         <div style={{fontSize:14,fontWeight:700}}>📖 Reading Passages</div>
