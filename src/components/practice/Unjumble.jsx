@@ -1,0 +1,89 @@
+import React, { useState } from 'react';
+import { H, Bar, sh, UNJUMBLE } from '../../data.jsx';
+
+export default function Unjumble({ goBack, award }) {
+  const [ujQ] = useState(() => sh(UNJUMBLE).slice(0, 10));
+  const [ujI, sUjI] = useState(0);
+  const [ujS, sUjS] = useState(0);
+  const [ujIn, sUjIn] = useState("");
+  const [ujA, sUjA] = useState(false);
+
+  const total = ujQ.length;
+  const q = ujQ[ujI];
+
+  if (!q) {
+    return (
+      <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+        <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+        {H("🧩 Word Order","Arrange words to form correct Croatian sentences")}
+        <div style={{textAlign:"center",padding:40}}>
+          <div style={{fontSize:64}}>🌟</div>
+          <p>Score: {ujS}/{ujQ.length}</p>
+          <button className="b bp" onClick={goBack}>Continue →</button>
+        </div>
+      </div>
+    );
+  }
+
+  const isCorrect = ujIn.replace(/[.?!]/g,"").trim().toLowerCase() === q.correct.replace(/[.?!]/g,"").trim().toLowerCase();
+
+  return (
+    <div style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      {H("🧩 Word Order","Arrange words to form correct Croatian sentences")}
+      <Bar v={ujI + 1} mx={total} h={6} />
+      <div className="c" style={{marginTop:16}}>
+        <div style={{fontSize:13,color:"#78716c",marginBottom:8}}>Translate to Croatian:</div>
+        <div style={{fontSize:18,fontWeight:700,color:"#164e63",marginBottom:16}}>"{q.en}"</div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:16}}>
+          {sh(q.words).map((w, wi) => (
+            <button
+              key={wi}
+              style={{padding:"8px 16px",borderRadius:10,border:"2px solid #0e7490",background:"rgba(14,116,144,.06)",cursor:"pointer",fontWeight:600,fontSize:15}}
+              onClick={() => sUjIn(prev => (prev ? prev + " " : "") + w)}>
+              {w}
+            </button>
+          ))}
+        </div>
+        <div
+          style={{minHeight:50,padding:"14px 18px",border:"2px solid " + (ujA ? (isCorrect ? "#16a34a" : "#dc2626") : "rgba(14,116,144,.12)"),borderRadius:14,background:"rgba(255,255,255,.65)",fontSize:16,fontWeight:600}}>
+          {ujIn || "← Tap words to build sentence"}
+        </div>
+        <div style={{display:"flex",gap:8,marginTop:12}}>
+          <button className="b bg" style={{fontSize:13}} onClick={() => sUjIn("")}>🗑 Clear</button>
+          {!ujA && (
+            <button
+              className="b bp"
+              onClick={() => {
+                sUjA(true);
+                if (isCorrect) sUjS(s => s + 1);
+              }}>
+              Check ✅
+            </button>
+          )}
+        </div>
+        {ujA && (
+          <div style={{marginTop:12,padding:"12px 16px",borderRadius:10,background:isCorrect?"rgba(22,163,74,.08)":"rgba(220,38,38,.08)",fontSize:14}}>
+            {isCorrect
+              ? <span style={{color:"#16a34a",fontWeight:700}}>✅ Correct!</span>
+              : <span style={{color:"#dc2626"}}>❌ Correct answer: <b>{q.correct}</b></span>}
+          </div>
+        )}
+        {ujA && (
+          <button
+            className="b bp"
+            style={{width:"100%",marginTop:12}}
+            onClick={() => {
+              if (ujI < total - 1) {
+                sUjI(i => i + 1); sUjIn(""); sUjA(false);
+              } else {
+                award(ujS * 3 + 10); goBack();
+              }
+            }}>
+            {ujI < total - 1 ? "Next →" : "Finish!"}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,62 @@
+import React from 'react';
+import { H, Bar, Spk, srMark, sh, shuffleArr, V } from '../../data.jsx';
+
+export default function LessonScreen({
+  lt, li, lx, ls, lp, la, lsl, qi, icons,
+  sLi, sLx, sLs, sLp, sLa, sLsl, sQi,
+  goBack, award, setSt,
+}) {
+  return (
+    <div style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
+      <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>← Back</button>
+      {lp==="learn"&&<React.Fragment>
+        {H((icons[lt]||"📚")+" "+lt)}
+        {li.map((w,i)=>(
+          <div key={i} className="c" style={{marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center",padding:"16px 20px"}}>
+            <div style={{display:"flex",alignItems:"center",gap:12}}>
+              <Spk text={w[0]} />
+              <div>
+                <div style={{fontSize:18,fontWeight:700}}>{w[0]}</div>
+                <div style={{fontSize:12,color:"#78716c"}}>/{w[2]}/</div>
+              </div>
+            </div>
+            <div style={{color:"#44403c"}}>{w[1]}</div>
+          </div>
+        ))}
+        <button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{
+          const qPool=sh(li).slice(0,Math.min(li.length,15));
+          const q=qPool.map(w=>{const wr=sh(li.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]);const o=sh([w[1],...wr]);return{...w,opts:o,ci:o.indexOf(w[1])};});
+          sQi(q);sLx(0);sLp("quiz");sLa(false);sLsl(-1);
+        }}>Quiz Me! →</button>
+      </React.Fragment>}
+      {lp==="quiz"&&qi[lx]&&<React.Fragment>
+        <Bar v={lx+1} mx={qi.length} h={6} />
+        <div className="c" style={{marginTop:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:20}}>
+            <Spk text={qi[lx][0]} />
+            <p style={{fontSize:24,fontWeight:800}}>{qi[lx][0]}</p>
+          </div>
+          {qi[lx].opts.map((o,i)=>(
+            <button key={i} className={"ob "+(la?(i===qi[lx].ci?"ok":lsl===i?"no":""):"")}
+              onClick={()=>{if(!la){sLsl(i);sLa(true);var ok=i===qi[lx].ci;if(ok)sLs(s=>s+1);srMark(qi[lx][0],ok);}}}>
+              {o}
+            </button>
+          ))}
+          {la&&<button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{
+            if(lx<qi.length-1){sLx(i=>i+1);sLa(false);sLsl(-1);}
+            else{const p=ls/qi.length;award(Math.round(p*30)+5);setSt(s=>({...s,lc:s.lc+1,pf:p===1?s.pf+1:s.pf,rs:[...s.rs,p],ct:[...new Set([...s.ct,lt])]}));sLp("result");}
+          }}>{lx<qi.length-1?"Next →":"Results"}</button>}
+        </div>
+      </React.Fragment>}
+      {lp==="result"&&<div style={{textAlign:"center",paddingTop:40}}>
+        <div style={{fontSize:64}}>{ls===qi.length?"🌟":"🎉"}</div>
+        <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:28,color:"#164e63"}}>{ls===qi.length?"Perfect!":"Great Job!"}</h2>
+        <p style={{color:"#78716c",marginTop:8}}>{ls}/{qi.length}</p>
+        <div style={{display:"flex",gap:12,justifyContent:"center",marginTop:32}}>
+          <button className="b bg" onClick={()=>{sLi(shuffleArr(V[lt]));sLx(0);sLs(0);sLp("learn");sLa(false);}}>Retry</button>
+          <button className="b bp" onClick={goBack}>Continue →</button>
+        </div>
+      </div>}
+    </div>
+  );
+}
