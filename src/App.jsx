@@ -64,7 +64,8 @@ import Leaderboard from "./components/profile/Leaderboard.jsx";
 
 const BG = BG_LIGHT;
 
-function pushUrl(path){try{if(window.location.pathname!==path)window.history.pushState(null,"",path)}catch(e){}}
+var _appNavDepth=0;
+function pushUrl(path){try{if(window.location.pathname!==path){_appNavDepth++;window.history.pushState({_ad:_appNavDepth},"",path)}}catch(e){}}
 
 function App(){
   const[as,setAs]=useState("loading"); // auth screen
@@ -265,14 +266,43 @@ function markExerciseDone(exerciseId){
   }catch(e){}
 }
   // ═══ BROWSER BACK BUTTON SUPPORT (popstate) ═══
-  // Listen for browser back/forward and sync app state to the URL
   useEffect(function(){
+    // Mark baseline so we can detect when back would exit the app
+    window.history.replaceState({_ad:0},"",window.location.pathname);
     var tabByPath={"/":"home","/learn":"learn","/practice":"practice","/croatia":"croatia","/profile":"profile"};
-    function onPopState(){
+    // Maps every screen name to its parent tab so nav bar stays in sync
+    var screenTab={
+      lesson:"learn",grammar:"learn",padezi:"learn",padezifull:"learn",modal:"learn",tenses:"learn",
+      alphabet:"learn",reading:"learn",read:"learn",readinglist:"learn",readlist:"learn",aspect:"learn",falsefr:"learn",
+      declension:"learn",brzalice:"learn",dialects:"learn",diminutives:"learn",wordform:"learn",colorquirk:"learn",
+      mcgame:"practice",mcresult:"practice",flashcards:"practice",match:"practice",typing:"practice",
+      listening:"practice",speaking:"practice",znam:"practice",boje:"practice",conj:"practice",conjdrill:"practice",
+      unjumble:"practice",prepdrill:"practice",numtime:"practice",wordsprint:"practice",
+      profgender:"practice",comparatives:"practice",future:"practice",sibil:"practice",restaurant:"practice",
+      qwords:"practice",negation:"practice",possess:"practice",coloragree:"practice",opposites:"practice",
+      cityloc:"practice",akudrill:"practice",ordinals:"practice",relpron:"practice",emogender:"practice",
+      verbdrill:"practice",tenseflip:"practice",riddles:"practice",logicquiz:"practice",pronouns:"practice",
+      genderdrill:"practice",sentbuild:"practice",reflexive:"practice",fillstory:"practice",
+      convmatch:"practice",scenes:"practice",storyselect:"practice",story:"practice",
+      proverbs:"practice",idioms:"practice",brzalice:"practice",
+      region_labin:"croatia",region_bibinje:"croatia",region_hercegovina:"croatia",
+      region_vukovar:"croatia",region_vinkovci:"croatia",immersion:"croatia",crmap:"croatia",
+      history:"croatia",kings:"croatia",grocery:"croatia",recipes:"croatia",roleplay:"croatia",
+      texting:"croatia",friends:"croatia",foodorder:"croatia",transport:"croatia",emergency:"croatia",
+      football:"croatia",popculture:"croatia",practical:"croatia",school:"croatia",
+      top100:"croatia",events:"croatia",
+      badges:"profile",leaderboard:"profile",vocabjournal:"profile",favorites:"profile",learnpath:"profile",
+    };
+    function onPopState(e){
       var p=window.location.pathname;
+      // Tab-root paths → restore dashboard + correct tab
       if(tabByPath[p]!==undefined){_setScr("dashboard");_setTab(tabByPath[p]);return;}
       var s=p.slice(1);
-      if(s&&s!=="welcome"&&s!=="placement"){_setScr(s);}
+      // Unknown or auth paths → safe fallback to home dashboard
+      if(!s||s==="welcome"||s==="placement"){_setScr("dashboard");_setTab("home");window.history.replaceState({_ad:0},"","/");return;}
+      // Restore screen + sync nav tab
+      _setScr(s);
+      if(screenTab[s])_setTab(screenTab[s]);
     }
     window.addEventListener("popstate",onPopState);
     return function(){window.removeEventListener("popstate",onPopState)};
@@ -286,7 +316,12 @@ function markExerciseDone(exerciseId){
   function goBack(){
     if(curEx)markExerciseDone(curEx);
     sCurEx("");
-    window.history.back();
+    // Only use browser back if we have an in-app history entry to return to.
+    // history.state._ad === 0 means we're at the app baseline — going back
+    // would exit the SPA entirely. Instead, fall back to the home dashboard.
+    var depth=(window.history.state&&window.history.state._ad)||0;
+    if(depth>0){window.history.back();}
+    else{_setScr("dashboard");_setTab("home");window.history.replaceState({_ad:0},"","/");}
   }
   const level=lvl(st.xp);
   const topics=Object.keys(V[st.diff==="beginner"?"greetings"in V?0:0:0]||V);
