@@ -38,6 +38,8 @@ import KingsScreen from "./components/croatia/KingsScreen.jsx";
 import CrMap from "./components/croatia/CrMap.jsx";
 // Grammar reference screens
 import { AspectScreen, FalseFriendsScreen, DeclensionScreen, BrzaliceScreen, DialectsScreen, DiminutivesScreen, WordFormScreen, ColorQuirkScreen, SvojMojScreen } from "./components/learn/GrammarRef.jsx";
+// Vocabulary theme screens
+import { CountriesScreen, ProfessionsScreen, WeatherScreen, ClothesScreen, BodyDescScreen, PhonologyScreen } from "./components/learn/VocabScreens.jsx";
 // Learn screens
 import ModalScreen from "./components/learn/ModalScreen.jsx";
 import PadeziScreen from "./components/learn/PadeziScreen.jsx";
@@ -276,6 +278,7 @@ function markExerciseDone(exerciseId){
       lesson:"learn",grammar:"learn",padezi:"learn",padezifull:"learn",modal:"learn",tenses:"learn",
       alphabet:"learn",reading:"learn",read:"learn",readinglist:"learn",readlist:"learn",aspect:"learn",falsefr:"learn",
       declension:"learn",brzalice:"learn",dialects:"learn",diminutives:"learn",wordform:"learn",colorquirk:"learn",svojmoj:"learn",
+      countries:"learn",professions:"learn",weather:"learn",clothes:"learn",bodydesc:"learn",phonology:"learn",
       mcgame:"practice",mcresult:"practice",flashcards:"practice",match:"practice",typing:"practice",
       listening:"practice",speaking:"practice",znam:"practice",boje:"practice",conj:"practice",conjdrill:"practice",
       unjumble:"practice",prepdrill:"practice",numtime:"practice",wordsprint:"practice",
@@ -2643,6 +2646,12 @@ function markExerciseDone(exerciseId){
       {// ═══ COLOR QUIRKS ═══
       scr==="colorquirk"&&<ColorQuirkScreen goBack={goBack} />}
       {scr==="svojmoj"&&<SvojMojScreen goBack={goBack} award={award} />}
+      {scr==="countries"&&<CountriesScreen goBack={goBack} />}
+      {scr==="professions"&&<ProfessionsScreen goBack={goBack} />}
+      {scr==="weather"&&<WeatherScreen goBack={goBack} />}
+      {scr==="clothes"&&<ClothesScreen goBack={goBack} />}
+      {scr==="bodydesc"&&<BodyDescScreen goBack={goBack} />}
+      {scr==="phonology"&&<PhonologyScreen goBack={goBack} />}
       {scr==="colorquirk_OLD"&&<div
         style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
         <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>
