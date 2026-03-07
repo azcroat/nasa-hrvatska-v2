@@ -388,34 +388,22 @@ export function CityOfDayScreen({ goBack }) {
         </div>
       )}
 
-      {/* Fast Facts — city snapshot card + multiple Did You Know highlights */}
+      {/* Fast Facts — single Did You Know heading + colour-coded fact cards */}
       {tab==="facts" && (
         <div>
-          <div style={{marginBottom:16,borderRadius:16,overflow:"hidden",boxShadow:"0 4px 16px rgba(0,0,0,.12)"}}>
-            <div style={{background:"linear-gradient(145deg,"+city.color+"dd,"+city.color+")",padding:"24px 20px",textAlign:"center"}}>
-              <div style={{fontSize:40,marginBottom:8}}>{city.icon}</div>
-              <div style={{fontSize:22,fontWeight:900,color:"white",lineHeight:1.2}}>{city.name}</div>
-              <div style={{fontSize:12,color:"rgba(255,255,255,.75)",marginTop:4,fontWeight:600}}>{city.region} · Croatia</div>
-              <div style={{marginTop:10,display:"inline-block",background:"rgba(255,255,255,.18)",borderRadius:20,padding:"4px 14px",fontSize:12,fontWeight:700,color:"white",fontStyle:"italic"}}>
-                "{city.tagline}"
-              </div>
-            </div>
-          </div>
+          <div style={{fontSize:15,fontWeight:800,color:"#164e63",marginBottom:14}}>💡 Did You Know?</div>
           {[city.didYouKnow, ...city.facts].map(function(fact, i){
             const colors = [
-              {bg:"linear-gradient(135deg,#fef3c7,#fde68a)",border:"#f59e0b",text:"#78350f",label:"#92400e"},
-              {bg:"linear-gradient(135deg,#f0f9ff,#e0f2fe)",border:city.color,text:"#1c1917",label:city.color},
-              {bg:"linear-gradient(135deg,#f0fdf4,#dcfce7)",border:"#16a34a",text:"#14532d",label:"#166534"},
-              {bg:"linear-gradient(135deg,#fdf4ff,#f3e8ff)",border:"#7c3aed",text:"#3b0764",label:"#6d28d9"},
-              {bg:"linear-gradient(135deg,#fff7ed,#fed7aa)",border:"#ea580c",text:"#431407",label:"#c2410c"},
-              {bg:"linear-gradient(135deg,#fef2f2,#fee2e2)",border:"#dc2626",text:"#450a0a",label:"#b91c1c"},
+              {bg:"linear-gradient(135deg,#fef3c7,#fde68a)",border:"#f59e0b",text:"#78350f"},
+              {bg:"linear-gradient(135deg,#f0f9ff,#e0f2fe)",border:city.color,text:"#1c1917"},
+              {bg:"linear-gradient(135deg,#f0fdf4,#dcfce7)",border:"#16a34a",text:"#14532d"},
+              {bg:"linear-gradient(135deg,#fdf4ff,#f3e8ff)",border:"#7c3aed",text:"#3b0764"},
+              {bg:"linear-gradient(135deg,#fff7ed,#fed7aa)",border:"#ea580c",text:"#431407"},
+              {bg:"linear-gradient(135deg,#fef2f2,#fee2e2)",border:"#dc2626",text:"#450a0a"},
             ];
             const c = colors[i % colors.length];
             return (
               <div key={i} style={{padding:"14px 16px",background:c.bg,borderRadius:14,borderLeft:"4px solid "+c.border,marginBottom:10}}>
-                <div style={{fontSize:10,fontWeight:800,color:c.label,marginBottom:5,letterSpacing:"0.06em",textTransform:"uppercase"}}>
-                  {i === 0 ? "✨ Unique Fact" : "🏛️ Did You Know?"}
-                </div>
                 <div style={{fontSize:13,color:c.text,lineHeight:1.7}}>{fact}</div>
               </div>
             );
