@@ -193,7 +193,14 @@ function App(){
       if(rpPw!==rpPc){setAe("Passwords do not match.");return}
       var k=localStorage.getItem("_rpEmail");
       var a=gA();if(a[k]){a[k].p=await hp(rpPw);sA(a)}
-      if(_fbReady&&_fbAuth){try{await _fbAuth.sendPasswordResetEmail(k)}catch(e){}}
+      if(_fbReady&&_fbAuth){
+        try{
+          // Try to create Firebase account for users who only had local accounts
+          await _fbAuth.createUserWithEmailAndPassword(k,rpPw);
+        }catch(e){
+          // Account already exists in Firebase — send password reset email instead
+          try{await _fbAuth.sendPasswordResetEmail(k)}catch(e2){}
+        }}
       localStorage.removeItem("_rpSaHash");localStorage.removeItem("_rpEmail");
       setAe("");setRpEm("");setRpSa("");setRpPw("");setRpPc("");setRpStep(1);setRpQ("");
       setAs("login");setTimeout(function(){setAe("\u2705 Password reset! Sign in with your new password.")},100)}
