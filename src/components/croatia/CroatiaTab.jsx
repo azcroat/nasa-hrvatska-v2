@@ -31,7 +31,7 @@ function HymnaPlayer() {
   }
 
   return (
-    <div onClick={e => e.stopPropagation()} style={{marginTop:14,paddingTop:14,borderTop:"2px solid rgba(185,28,28,.15)"}}>
+    <div onClick={e => e.stopPropagation()} style={{marginTop:12}}>
       <audio
         ref={ref}
         src="/audio/bojna-cavoglave.m4a"
@@ -53,7 +53,6 @@ function HymnaPlayer() {
           <div style={{fontSize:13,fontWeight:900,color:"#b91c1c"}}>Bojna Čavoglave</div>
           <div style={{fontSize:11,color:"#78716c",marginTop:2}}>Marko Perković Thompson · 1991</div>
         </div>
-        <span style={{fontSize:10,fontWeight:800,color:"#b91c1c",background:"rgba(185,28,28,.08)",border:"1px solid rgba(185,28,28,.2)",borderRadius:12,padding:"3px 9px",flexShrink:0}}>🇭🇷 Himna</span>
       </div>
       <div style={{display:"flex",alignItems:"center",gap:12}}>
         <button
