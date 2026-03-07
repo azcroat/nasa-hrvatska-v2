@@ -56,6 +56,7 @@ import ConjugationDrill from "./components/practice/ConjugationDrill.jsx";
 import ZnamGame from "./components/practice/ZnamGame.jsx";
 import BojeGame from "./components/practice/BojeGame.jsx";
 import MatchGame from "./components/practice/MatchGame.jsx";
+import WordSprint from "./components/practice/WordSprint.jsx";
 import SpeakingScreen from "./components/practice/SpeakingScreen.jsx";
 // Profile screens
 import Leaderboard from "./components/profile/Leaderboard.jsx";
@@ -289,7 +290,7 @@ function markExerciseDone(exerciseId){
   const level=lvl(st.xp);
   const topics=Object.keys(V[st.diff==="beginner"?"greetings"in V?0:0:0]||V);
   const allCats=Object.keys(V);
-  const icons={greetings:"👋",numbers:"🔢",family:"👨‍👩‍👧‍👦",food:"🍕",animals:"🐾",body:"🦴",colors:"🎨",home:"🏠",clothing:"👔",weather:"☀️",places:"📍",transport:"🚗",verbs:"💬",adjectives:"📏",time:"📅",months:"🗓️",directions:"🧭",emotions:"💭",professions:"💼",restaurant:"🍽️",shopping:"🛍️",travel:"✈️",health:"🏥",questions:"❓",conjunctions:"🔗",culture:"🏛️"};
+  const icons={greetings:"👋",numbers:"🔢",family:"👨‍👩‍👧‍👦",food:"🍕",animals:"🐾",body:"🦴","body & face":"🦴",colors:"🎨",home:"🏠","home & rooms":"🏠",clothing:"👔",weather:"☀️","weather & seasons":"☀️",places:"📍",transport:"🚗",verbs:"💬",adjectives:"📏",time:"📅","time & calendar":"📅",months:"🗓️",directions:"🧭",emotions:"💭",professions:"💼",restaurant:"🍽️",shopping:"🛍️",travel:"✈️",health:"🏥",questions:"❓",conjunctions:"🔗",culture:"🏛️","daily routine":"🌅","in the classroom":"📖","commands at home":"🏡","fairy tales":"📜",hobbies:"🎯",zagreb:"🏙️",opposites:"🔄",comparatives:"📊",fruits:"🍎",vegetables:"🥦",sports:"⚽",holidays:"🎄",personality:"😊"};
   // ═══ AUTH SCREENS ═══
   if(as==="loading")return (
     <div
@@ -5272,6 +5273,8 @@ function markExerciseDone(exerciseId){
       </div>}
       {// ═══ MATCH GAME ═══
       scr==="match"&&<MatchGame mp={mp} mm={mm} msl={msl} gph={gph} gsc={gsc} sMm={sMm} sMsl={sMsl} sGsc={sGsc} sGph={sGph} goBack={goBack} award={award} />}
+      {// ═══ WORD SPRINT ═══
+      scr==="wordsprint"&&<WordSprint sh={sh} allCats={allCats} award={award} goBack={goBack} />}
       {scr==="match_OLD"&&<div
         style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
         <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>
