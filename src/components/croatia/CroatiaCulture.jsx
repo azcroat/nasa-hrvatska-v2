@@ -360,8 +360,10 @@ function HimnaPlayer() {
           <div style={{flex:1}}>
             <div
               onClick={seek}
-              style={{height:6,background:"rgba(185,28,28,.2)",borderRadius:6,cursor:"pointer",position:"relative",marginBottom:6}}>
-              <div style={{position:"absolute",top:0,left:0,height:"100%",width:progress+"%",background:"linear-gradient(90deg,#dc2626,#991b1b)",borderRadius:6,transition:"width .15s linear"}} />
+              style={{padding:"8px 0",cursor:"pointer",position:"relative",marginBottom:2}}>
+              <div style={{height:6,background:"rgba(185,28,28,.2)",borderRadius:6,position:"relative"}}>
+                <div style={{position:"absolute",top:0,left:0,height:"100%",width:progress+"%",background:"linear-gradient(90deg,#dc2626,#991b1b)",borderRadius:6,transition:"width .15s linear"}} />
+              </div>
             </div>
             <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#991b1b",fontWeight:700}}>
               <span>{fmt(current)}</span>
