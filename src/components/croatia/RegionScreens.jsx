@@ -397,21 +397,13 @@ export function CityOfDayScreen({ goBack }) {
         var half = Math.ceil(city.facts.length / 2);
         var fastFacts = city.facts.slice(half);
         var allFacts = [city.didYouKnow].concat(fastFacts);
-        var colors = [
-          {bg:"linear-gradient(135deg,#fef3c7,#fde68a)",border:"#f59e0b",text:"#78350f"},
-          {bg:"linear-gradient(135deg,#f0f9ff,#e0f2fe)",border:city.color,text:"#1c1917"},
-          {bg:"linear-gradient(135deg,#f0fdf4,#dcfce7)",border:"#16a34a",text:"#14532d"},
-          {bg:"linear-gradient(135deg,#fdf4ff,#f3e8ff)",border:"#7c3aed",text:"#3b0764"},
-          {bg:"linear-gradient(135deg,#fff7ed,#fed7aa)",border:"#ea580c",text:"#431407"},
-        ];
         return (
           <div>
             <div style={{fontSize:15,fontWeight:800,color:"#164e63",marginBottom:14}}>💡 Did You Know?</div>
             {allFacts.map(function(fact, i){
-              var c = colors[i % colors.length];
               return (
-                <div key={i} style={{padding:"14px 16px",background:c.bg,borderRadius:14,borderLeft:"4px solid "+c.border,marginBottom:10}}>
-                  <div style={{fontSize:13,color:c.text,lineHeight:1.7}}>{fact}</div>
+                <div key={i} style={{marginBottom:10,padding:"14px 16px",background:"white",borderRadius:14,border:"1px solid rgba(0,0,0,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.05)"}}>
+                  <div style={{fontSize:13,color:"#1c1917",lineHeight:1.7}}>{fact}</div>
                 </div>
               );
             })}
