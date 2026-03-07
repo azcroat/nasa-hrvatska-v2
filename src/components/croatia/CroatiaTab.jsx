@@ -1,101 +1,79 @@
 import React from 'react';
 import { H, MEDIA } from '../../data.jsx';
 
+const LEVEL_COLORS = {A1:'#16a34a',A2:'#65a30d',B1:'#ca8a04',B2:'#b45309',C1:'#0e7490',C2:'#7c3aed'};
+const CAT_LABELS = {tv:"📺 TV & News",music:"🎵 Music & Radio",sport:"⚽ Sports",film:"🎬 Film & Series",podcast:"🎙️ Podcasts",culture:"🌍 Culture & Press"};
+
 export default function CroatiaTab({
   setScr, sHIdx, sKgTab, sCurEx,
   setRcIdx, setRcServ, setRpIdx, setRpLine, setRpShow,
   setMapCat, setMapSel,
 }) {
-  const cats = ["tv", "music", "sport", "film", "culture"];
-  const labels = { tv: "📺 TV & News", music: "🎵 Music & Radio", sport: "⚽ Sports", film: "🎬 Film & Culture", culture: "⭐ Pop Culture" };
+  const cats = ["tv","music","film","sport","podcast","culture"];
 
   return (
     <React.Fragment>
       {H("🇭🇷 Life in Croatia", "Culture, history, daily life")}
+
+      {/* Immersion Hub Hero Banner */}
+      <div
+        style={{marginBottom:20,padding:"18px 20px",background:"linear-gradient(135deg,#164e63,#0e7490)",borderRadius:18,cursor:"pointer",color:"white",boxShadow:"0 6px 24px rgba(14,116,144,.3)"}}
+        onClick={() => setScr("immersion")}>
+        <div style={{display:"flex",alignItems:"center",gap:14}}>
+          <div style={{fontSize:40,flexShrink:0}}>🌊</div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:16,fontWeight:900,marginBottom:4}}>Immersion Hub</div>
+            <div style={{fontSize:12,opacity:.85,lineHeight:1.5}}>Your curated path from first words to native fluency — media, schedules, tips & resources organized by level</div>
+            <div style={{marginTop:10,display:"flex",gap:6,flexWrap:"wrap"}}>
+              {["A1","A2","B1","B2","C1","C2"].map(l=>(
+                <span key={l} style={{background:"rgba(255,255,255,.15)",borderRadius:20,padding:"2px 8px",fontSize:10,fontWeight:800}}>{l}</span>
+              ))}
+            </div>
+          </div>
+          <div style={{fontSize:20,opacity:.7}}>→</div>
+        </div>
+      </div>
+
       <h3 className="sh">🇭🇷 History & Regions</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
-        <div className="tc" style={{display:"flex",alignItems:"center",gap:10,padding:"14px"}} onClick={() => { sHIdx(0); setScr("history"); }}>
-          <div style={{fontSize:28}}>🇭🇷</div>
-          <div>
-            <div style={{fontSize:13,fontWeight:700}}>Domovinski Rat</div>
-            <div style={{fontSize:11,color:"#78716c"}}>Homeland War</div>
-          </div>
-        </div>
-        <div className="tc" style={{display:"flex",alignItems:"center",gap:10,padding:"14px"}} onClick={() => { sKgTab("timeline"); setScr("kings"); sCurEx("kings"); }}>
-          <div style={{fontSize:28}}>👑</div>
-          <div>
-            <div style={{fontSize:13,fontWeight:700}}>Croatian Kings</div>
-            <div style={{fontSize:11,color:"#78716c"}}>Medieval kingdom</div>
-          </div>
-        </div>
-        <div className="tc" style={{display:"flex",alignItems:"center",gap:10,padding:"14px"}} onClick={() => setScr("region_labin")}>
-          <div style={{fontSize:28}}>⛵</div>
-          <div>
-            <div style={{fontSize:13,fontWeight:700}}>Labin & Rabac</div>
-            <div style={{fontSize:11,color:"#78716c"}}>Our new home!</div>
-          </div>
-        </div>
-        <div className="tc" style={{display:"flex",alignItems:"center",gap:10,padding:"14px"}} onClick={() => setScr("region_bibinje")}>
-          <div style={{fontSize:28}}>🏖️</div>
-          <div>
-            <div style={{fontSize:13,fontWeight:700}}>Bibinje & Zadar</div>
-            <div style={{fontSize:11,color:"#78716c"}}>Dalmatian gateway</div>
-          </div>
-        </div>
-        <div className="tc" style={{display:"flex",alignItems:"center",gap:10,padding:"14px"}} onClick={() => setScr("region_hercegovina")}>
-          <div style={{fontSize:28}}>⚔️</div>
-          <div>
-            <div style={{fontSize:13,fontWeight:700}}>Hrvati Hercegovine</div>
-            <div style={{fontSize:11,color:"#78716c"}}>Our heritage</div>
-          </div>
-        </div>
-        <div className="tc" style={{display:"flex",alignItems:"center",gap:10,padding:"14px"}} onClick={() => setScr("region_vukovar")}>
-          <div style={{fontSize:28}}>🕯️</div>
-          <div>
-            <div style={{fontSize:13,fontWeight:700}}>Vukovar</div>
-            <div style={{fontSize:11,color:"#78716c"}}>Hero city — deep dive</div>
-          </div>
-        </div>
-        <div className="tc" style={{display:"flex",alignItems:"center",gap:10,padding:"14px"}} onClick={() => setScr("region_vinkovci")}>
-          <div style={{fontSize:28}}>🏛️</div>
-          <div>
-            <div style={{fontSize:13,fontWeight:700}}>Vinkovci</div>
-            <div style={{fontSize:11,color:"#78716c"}}>8,300 years of history</div>
-          </div>
-        </div>
-      </div>
-      <h3 className="sh">🛒 Shopping & Food</h3>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
-        <div className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => setScr("grocery")}>
-          <div style={{fontSize:28}}>🛒</div>
-          <div style={{fontSize:12,fontWeight:700,marginTop:4}}>Grocery</div>
-        </div>
-        <div className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => { setRcIdx(0); setRcServ(4); setScr("recipes"); }}>
-          <div style={{fontSize:28}}>🍳</div>
-          <div style={{fontSize:12,fontWeight:700,marginTop:4}}>Recipes</div>
-        </div>
-        <div className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => { setRpIdx(0); setRpLine(0); setRpShow(false); setScr("roleplay"); }}>
-          <div style={{fontSize:28}}>🎭</div>
-          <div style={{fontSize:12,fontWeight:700,marginTop:4}}>Role-Play</div>
-        </div>
-      </div>
-      <h3 className="sh">🏫 Daily Life</h3>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
         {[
-          ["🏫", "School Kit", "school"],
-          ["📱", "Texting", "texting"],
-          ["🤝", "Make Friends", "friends"],
-          ["🍕", "Order Food", "foodorder"],
-          ["🚌", "Transport", "transport"],
-          ["🚨", "Emergency", "emergency"],
-          ["💼", "Practical Life", "practical"],
-        ].map(([icon, label, screen]) => (
-          <div key={screen} className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => setScr(screen)}>
+          [()=>{sHIdx(0);setScr("history");},"🇭🇷","Domovinski Rat","Homeland War"],
+          [()=>{sKgTab("timeline");setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval kingdom"],
+          [()=>setScr("region_labin"),"⛵","Labin & Rabac","Our new home!"],
+          [()=>setScr("region_bibinje"),"🏖️","Bibinje & Zadar","Dalmatian gateway"],
+          [()=>setScr("region_hercegovina"),"⚔️","Hrvati Hercegovine","Our heritage"],
+          [()=>setScr("region_vukovar"),"🕯️","Vukovar","Hero city — deep dive"],
+          [()=>setScr("region_vinkovci"),"🏛️","Vinkovci","8,300 years of history"],
+        ].map(([fn,icon,title,sub],i)=>(
+          <div key={i} className="tc" style={{display:"flex",alignItems:"center",gap:10,padding:"14px"}} onClick={fn}>
             <div style={{fontSize:28}}>{icon}</div>
-            <div style={{fontSize:12,fontWeight:700,marginTop:4}}>{label}</div>
+            <div><div style={{fontSize:13,fontWeight:700}}>{title}</div><div style={{fontSize:11,color:"#78716c"}}>{sub}</div></div>
           </div>
         ))}
       </div>
+
+      <h3 className="sh">🛒 Shopping & Food</h3>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
+        <div className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => setScr("grocery")}>
+          <div style={{fontSize:28}}>🛒</div><div style={{fontSize:12,fontWeight:700,marginTop:4}}>Grocery</div>
+        </div>
+        <div className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => { setRcIdx(0); setRcServ(4); setScr("recipes"); }}>
+          <div style={{fontSize:28}}>🍳</div><div style={{fontSize:12,fontWeight:700,marginTop:4}}>Recipes</div>
+        </div>
+        <div className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => { setRpIdx(0); setRpLine(0); setRpShow(false); setScr("roleplay"); }}>
+          <div style={{fontSize:28}}>🎭</div><div style={{fontSize:12,fontWeight:700,marginTop:4}}>Role-Play</div>
+        </div>
+      </div>
+
+      <h3 className="sh">🏫 Daily Life</h3>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
+        {[["🏫","School Kit","school"],["📱","Texting","texting"],["🤝","Make Friends","friends"],["🍕","Order Food","foodorder"],["🚌","Transport","transport"],["🚨","Emergency","emergency"],["💼","Practical Life","practical"]].map(([icon,label,screen])=>(
+          <div key={screen} className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => setScr(screen)}>
+            <div style={{fontSize:28}}>{icon}</div><div style={{fontSize:12,fontWeight:700,marginTop:4}}>{label}</div>
+          </div>
+        ))}
+      </div>
+
       <div className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px",marginBottom:20}} onClick={() => { setMapCat("all"); setMapSel(null); setScr("crmap"); }}>
         <div style={{fontSize:36}}>🗺️</div>
         <div>
@@ -103,43 +81,50 @@ export default function CroatiaTab({
           <div style={{fontSize:12,color:"#78716c"}}>Explore Croatia — cities, parks, beaches, islands</div>
         </div>
       </div>
-      <h3 className="sh">📺 Media & TV</h3>
-      <div style={{padding:"10px 14px",background:"rgba(14,116,144,.06)",borderRadius:12,marginBottom:12,fontSize:12,color:"#164e63"}}>
-        💡 Tip: HRT streams play free in your browser. On mobile, if you see an app download banner, just tap X or Skip to watch directly.
+
+      <h3 className="sh">📺 Media & Immersion</h3>
+      <div style={{padding:"12px 14px",background:"linear-gradient(135deg,rgba(14,116,144,.06),rgba(14,116,144,.1))",borderRadius:12,marginBottom:16,borderLeft:"3px solid #0e7490"}}>
+        <div style={{fontSize:12,fontWeight:800,color:"#164e63",marginBottom:4}}>💡 How to Use Media for Language Acquisition</div>
+        <div style={{fontSize:12,color:"#44403c",lineHeight:1.6}}>
+          Each resource below shows a <strong>level badge</strong> (A1–C2) and a tip explaining exactly why it helps.
+          Tap <strong>Immersion Hub ↑</strong> above for a full structured path, daily schedule, and advanced tips.
+        </div>
       </div>
-      <div>
-        {cats.map(cat => {
-          const items = MEDIA.filter(m => m.cat === cat);
-          if (!items.length) return null;
-          return (
-            <div key={cat} style={{marginBottom:20}}>
-              <div style={{fontSize:14,fontWeight:800,color:"#164e63",marginBottom:10,paddingBottom:6,borderBottom:"2px solid rgba(14,116,144,.1)"}}>
-                {labels[cat]}
-              </div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                {items.map((m, i) => (
-                  <div
-                    key={i}
-                    style={{display:"flex",alignItems:"center",gap:10,padding:"12px",background:"white",borderRadius:12,border:"1px solid rgba(0,0,0,.06)",boxShadow:"0 1px 3px rgba(0,0,0,.04)",cursor:"pointer"}}
-                    onClick={() => { if (m.scr) { setScr(m.scr); } else { window.open(m.web, "_blank", "noopener,noreferrer"); } }}>
-                    <div style={{width:36,height:36,borderRadius:10,background:m.color+"15",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>
+
+      {cats.map(cat => {
+        const items = MEDIA.filter(m => m.cat === cat);
+        if (!items.length) return null;
+        return (
+          <div key={cat} style={{marginBottom:24}}>
+            <div style={{fontSize:14,fontWeight:800,color:"#164e63",marginBottom:10,paddingBottom:6,borderBottom:"2px solid rgba(14,116,144,.1)"}}>
+              {CAT_LABELS[cat]}
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {items.map((m, i) => {
+                const lc = LEVEL_COLORS[m.level] || '#78716c';
+                return (
+                  <div key={i} style={{display:"flex",gap:12,padding:"14px",background:"white",borderRadius:14,border:"1px solid rgba(0,0,0,.06)",boxShadow:"0 1px 3px rgba(0,0,0,.04)",cursor:"pointer",alignItems:"flex-start"}}
+                    onClick={() => { if (m.scr) { setScr(m.scr); } else if (m.web) { window.open(m.web, "_blank", "noopener,noreferrer"); } }}>
+                    <div style={{width:44,height:44,borderRadius:12,background:m.color+"15",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>
                       {m.icon}
                     </div>
-                    <div style={{minWidth:0,flex:1,overflow:"hidden"}}>
-                      <div style={{fontSize:12,fontWeight:700,color:m.color,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
-                        {m.name}
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:3,flexWrap:"wrap"}}>
+                        <span style={{fontSize:13,fontWeight:800,color:m.color}}>{m.name}</span>
+                        {m.level && <span style={{background:`${lc}20`,color:lc,fontSize:10,fontWeight:800,padding:"2px 7px",borderRadius:20,border:`1px solid ${lc}40`}}>{m.level}</span>}
                       </div>
-                      <div style={{fontSize:10,color:"#78716c",lineHeight:1.3,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
-                        {m.desc}
-                      </div>
+                      <div style={{fontSize:11,color:"#78716c",marginBottom:6}}>{m.desc}</div>
+                      {m.tip && <div style={{fontSize:11,color:"#44403c",background:"rgba(14,116,144,.04)",borderRadius:8,padding:"6px 10px",lineHeight:1.5,borderLeft:"2px solid rgba(14,116,144,.2)"}}>
+                        {m.tip}
+                      </div>}
                     </div>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
-          );
-        })}
-      </div>
+          </div>
+        );
+      })}
     </React.Fragment>
   );
 }
