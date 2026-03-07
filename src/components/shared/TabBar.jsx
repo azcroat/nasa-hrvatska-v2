@@ -14,7 +14,7 @@ export default function TabBar({ tab, setTab, setScr }) {
           key={t.id}
           className={"nav-btn" + (tab===t.id?" active":"")}
           onClick={() => { setTab(t.id); setScr("dashboard"); }}
-          style={{opacity:tab===t.id?1:0.55}}>
+          >
           <span className="nav-icon">{t.icon}</span>
           <span className="nav-label">{t.label}</span>
         </button>
