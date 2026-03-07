@@ -73,7 +73,8 @@ function friendlyError(msg){
   if(msg.includes("wrong-password")||msg.includes("invalid-credential"))return"Incorrect password. Try again or reset it.";
   if(msg.includes("too-many-requests"))return"Too many attempts. Please wait a few minutes.";
   if(msg.includes("network-request-failed"))return"No internet connection. Check your WiFi.";
-  if(msg.includes("permission"))return"Connection issue. Your account was created — try signing in!";
+  if(msg.includes("unauthorized-domain"))return"Authentication blocked. Please try again or contact support.";
+  if(msg.includes("permission-denied")||msg.includes("permission"))return"Connection issue. Your account was created — try signing in!";
   return msg.replace(/Firebase:\s*/i,"").replace(/\([^)]+\)\.?/,"").trim()||"Something went wrong."
 }
 // ═══ FAMILY GROUP SYSTEM ═══
