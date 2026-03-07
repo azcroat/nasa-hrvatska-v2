@@ -32,6 +32,7 @@ import IdiomsScreen from "./components/croatia/IdiomsScreen.jsx";
 // Croatia screens
 import { TextingScreen, FriendsScreen, FoodOrderScreen, TransportScreen, EmergencyScreen, PopCultureScreen, PracticalScreen, SchoolScreen, GroceryScreen, HistoryScreen as CroatiaHistoryScreen, BasketballScreen, GymScreen } from "./components/croatia/CroatiaCulture.jsx";
 import HNLScreen from "./components/croatia/HNLScreen.jsx";
+import CroatiaAthletes from "./components/croatia/CroatiaAthletes.jsx";
 import { RegionScreen, RoleplayScreen, RecipesScreen, CityOfDayScreen } from "./components/croatia/RegionScreens.jsx";
 import { EventsCalendar, Top100Screen } from "./components/croatia/EventsTop100.jsx";
 import KingsScreen from "./components/croatia/KingsScreen.jsx";
@@ -296,7 +297,7 @@ function markExerciseDone(exerciseId){
       history:"croatia",kings:"croatia",grocery:"croatia",recipes:"croatia",roleplay:"croatia",
       texting:"croatia",friends:"croatia",foodorder:"croatia",transport:"croatia",emergency:"croatia",
       football:"croatia",popculture:"croatia",practical:"croatia",school:"croatia",basketball:"croatia",gym:"croatia",
-      top100:"croatia",events:"croatia",
+      top100:"croatia",events:"croatia",croatiaathletes:"croatia",
       badges:"profile",leaderboard:"profile",journal:"profile",favorites:"profile",learnpath:"profile",
     };
     function onPopState(e){
@@ -1831,6 +1832,7 @@ function markExerciseDone(exerciseId){
         );})}
       </div>}
       {scr==="football"&&<HNLScreen goBack={goBack} />}
+      {scr==="croatiaathletes"&&<CroatiaAthletes goBack={goBack} />}
       {scr==="immersion"&&<ImmersionHub goBack={goBack} setScr={setScr} />}
       {scr==="aiconvo"&&<AIConversation goBack={goBack} setScr={setScr} sCurEx={sCurEx} />}
       {scr==="football_OLD"&&<div
