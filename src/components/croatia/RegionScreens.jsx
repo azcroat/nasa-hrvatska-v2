@@ -401,7 +401,6 @@ export function CityOfDayScreen({ goBack }) {
               </div>
             </div>
           </div>
-          <div style={{fontSize:13,fontWeight:800,color:"#164e63",marginBottom:12}}>💡 Did You Know?</div>
           {[city.didYouKnow, ...city.facts].map(function(fact, i){
             const colors = [
               {bg:"linear-gradient(135deg,#fef3c7,#fde68a)",border:"#f59e0b",text:"#78350f",label:"#92400e"},
