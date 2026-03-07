@@ -138,7 +138,7 @@ function App(){
               var p=fp||gP(k);if(p){setName(p.name||dn);setSt(p.st||ds);setScr((p.cp||(p.st&&(p.st.xp>0||p.st.lc>0)))?"dashboard":"welcome")}else setName(dn);
               setAs("app")})
           }else{cS();setAs("login")}})
-      }else{cS();setAs("login")}}}else setAs("login")
+      }else{setAs("login")}}}else setAs("login")
   },[]);
   useEffect(()=>{if(au&&as==="app"){sP(au.u,{name,st,cp:scr!=="welcome"&&scr!=="placement"});touchSession()}},[st,scr,name,au,as]);
   useEffect(()=>{if(as!=="app")return;const iv=setInterval(()=>{if(isSessionExpired()){cS();setAu(null);setSt(ds);setScr("welcome");setName("");setAs("login")}},5*60*1000);return()=>clearInterval(iv)},[as]);
@@ -147,8 +147,12 @@ function App(){
     setAe("");if(!em.trim()||!isValidEmail(em.trim())){setAe("Please enter a valid email address.");return}if(!pw||pw.length<6){setAe("Password must be at least 6 characters.");return}if(pw!==pc){setAe("Passwords do not match.");return}if(!dn.trim()){setAe("Please enter your display name.");return}
     if(!sq.trim()){setAe("Please select a security question.");return}if(!sa.trim()||sa.trim().length<2){setAe("Please enter a security answer (2+ characters).");return}
     setAl(true);try{initFirebase();const k=em.trim().toLowerCase();
-    if(_fbReady){var fb=await fbRegister(k,pw,dn.trim());if(!fb.ok&&fb.err.indexOf("already")>=0){setAe("An account with this email already exists.");setAl(false);return}if(!fb.ok){var rmsg=fb.err;if(rmsg.indexOf("weak-password")>=0)rmsg="Password is too weak. Use at least 6 characters.";else if(rmsg.indexOf("network")>=0)rmsg="Network error. Check your connection.";setAe(rmsg);setAl(false);return}
-    try{var id=k.replace(/[.#$/\[\]]/g,"_");await _fbDb.collection("users").doc(id).set({sq:sq.trim(),sa:(await hp(sa.trim().toLowerCase()))},{merge:true})}catch(e){}}
+    if(_fbReady){var fb=await fbRegister(k,pw,dn.trim());
+    if(!fb.ok&&(fb.err.indexOf("already")>=0||fb.err.indexOf("email-already")>=0)){setAe("An account with this email already exists. Please sign in instead.");setAl(false);return}
+    if(!fb.ok&&(fb.err.indexOf("weak-password")>=0)){setAe("Password is too weak. Use at least 6 characters.");setAl(false);return}
+    if(!fb.ok&&(fb.err.indexOf("invalid-email")>=0)){setAe("Please enter a valid email address.");setAl(false);return}
+    // Other Firebase errors (network, etc.) — fall through and create local account anyway
+    if(fb.ok){try{var id=k.replace(/[.#$/\[\]]/g,"_");await _fbDb.collection("users").doc(id).set({sq:sq.trim(),sa:(await hp(sa.trim().toLowerCase()))},{merge:true})}catch(e){}}}
     const a=gA();const h=await hp(pw);const sah=await hp(sa.trim().toLowerCase());a[k]={p:h,d:dn.trim(),e:k,sq:sq.trim(),sa:sah,created:Date.now()};sA(a);
     setAu({u:k,d:dn.trim(),e:k});sS({u:k});setName(dn.trim());setSt(ds);setScr("welcome");setAs("app");setEm("");setPw("");setPc("");setDn("");setSq("");setSa("")}catch(e){setAe("Registration failed. Please try again.")}setAl(false)
   }
@@ -196,7 +200,7 @@ function App(){
       setAu({u:k,d:dn,e:k});sS({u:k});
       var p=fbProgress||gP(k);if(p){setName(p.name||dn);setSt(p.st||ds);setScr((p.cp||(p.st&&(p.st.xp>0||p.st.lc>0)))?"dashboard":"welcome")}else setName(dn);
       setAs("app");setEm("");setPw("");fbLoadUserFamily(k).then(function(f){if(f)setFamData(f)});setAl(false);return}else{var msg=fb.err;if(msg.indexOf("wrong-password")>=0||msg.indexOf("invalid-credential")>=0)msg="Incorrect password. Try again or use Forgot Password.";else if(msg.indexOf("user-not-found")>=0)msg="No account found with this email.";else if(msg.indexOf("too-many-requests")>=0)msg="Too many attempts. Please wait a moment.";else if(msg.indexOf("network")>=0)msg="Network error. Check your connection.";setAe(msg);setAl(false);return}}
-    var a=gA();if(!a[k]){setAe("No account found with this email.");setAl(false);return}
+    var a=gA();if(!a[k]){setAe("Unable to connect to the server. Please check your internet connection and try again.");setAl(false);return}
     var h=await hp(pw);if(a[k].p!==h){setAe("Incorrect password.");setAl(false);return}
     setAu({u:k,d:a[k].d,e:k});sS({u:k});var p=gP(k);if(p){setName(p.name||a[k].d);setSt(p.st||ds);setScr((p.cp||(p.st&&(p.st.xp>0||p.st.lc>0)))?"dashboard":"welcome")}else setName(a[k].d);
     setAs("app");setEm("");setPw("")}catch(e){setAe("Login failed. Please try again.")}setAl(false)
