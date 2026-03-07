@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { H, MEDIA, getCityOfDay } from '../../data.jsx';
 
 const LEVEL_COLORS = {A1:'#16a34a',A2:'#65a30d',B1:'#ca8a04',B2:'#b45309',C1:'#0e7490',C2:'#7c3aed'};
@@ -21,7 +21,87 @@ function getActionLabel(m, cat) {
   return [labels[cat] || 'Open ↗', false];
 }
 
-function MediaCard({ m, cat, onOpen }) {
+function RadioPlayer({ src, color, streamId, activeStream, setActiveStream }) {
+  const isActive = activeStream === streamId;
+  const [playing, setPlaying] = useState(false);
+  const [buffering, setBuffering] = useState(false);
+  const [error, setError] = useState(false);
+  const ref = useRef(null);
+  const mounted = useRef(false);
+
+  useEffect(() => {
+    if (!mounted.current) { mounted.current = true; return; }
+    if (!isActive && ref.current) {
+      ref.current.pause();
+      ref.current.removeAttribute('src');
+      ref.current.load();
+      setPlaying(false);
+      setBuffering(false);
+    }
+  }, [isActive]);
+
+  function toggle() {
+    const a = ref.current;
+    if (!a) return;
+    if (playing || buffering) {
+      a.pause();
+      a.removeAttribute('src');
+      a.load();
+      setPlaying(false);
+      setBuffering(false);
+      setActiveStream(null);
+    } else {
+      setError(false);
+      setBuffering(true);
+      setActiveStream(streamId);
+      a.src = src;
+      a.play().catch(() => { setError(true); setBuffering(false); setActiveStream(null); });
+    }
+  }
+
+  return (
+    <div style={{display:'flex',alignItems:'center',gap:10,flex:1}}>
+      <audio
+        ref={ref}
+        preload="none"
+        onPlaying={() => { setPlaying(true); setBuffering(false); }}
+        onPause={() => setPlaying(false)}
+        onWaiting={() => setBuffering(true)}
+        onError={() => { setError(true); setBuffering(false); setPlaying(false); setActiveStream(null); }}
+      />
+      <button
+        onClick={toggle}
+        style={{
+          width:40,height:40,borderRadius:'50%',
+          background:(playing||buffering) ? color : `${color}18`,
+          border:`2px solid ${color}50`,
+          color:(playing||buffering) ? 'white' : color,
+          fontSize:16,cursor:'pointer',
+          display:'flex',alignItems:'center',justifyContent:'center',
+          flexShrink:0,transition:'all .15s',
+          boxShadow:(playing||buffering) ? `0 4px 14px ${color}50` : 'none',
+        }}>
+        {buffering ? <span style={{fontSize:12,fontWeight:900}}>…</span> : playing ? '⏸' : '▶'}
+      </button>
+      <div style={{flex:1,minWidth:0}}>
+        {error
+          ? <span style={{fontSize:11,color:'#dc2626',fontWeight:700}}>Stream unavailable — tap to retry</span>
+          : playing
+            ? <div style={{display:'flex',alignItems:'center',gap:5}}>
+                <span style={{width:7,height:7,borderRadius:'50%',background:'#dc2626',display:'inline-block',flexShrink:0,boxShadow:'0 0 6px #dc2626'}}/>
+                <span style={{fontSize:11,fontWeight:900,color:'#dc2626',letterSpacing:'0.05em'}}>LIVE</span>
+                <span style={{fontSize:11,color:'#6b7280',marginLeft:2}}>Streaming now</span>
+              </div>
+            : buffering
+              ? <span style={{fontSize:11,color:'#6b7280'}}>Connecting to stream…</span>
+              : <span style={{fontSize:11,color:'#6b7280'}}>Tap ▶ to stream live</span>
+        }
+      </div>
+    </div>
+  );
+}
+
+function MediaCard({ m, cat, onOpen, activeStream, setActiveStream }) {
   const [tipOpen, setTipOpen] = useState(false);
   const lc = LEVEL_COLORS[m.level] || '#78716c';
   const isExternal = !!m.web;
@@ -32,6 +112,7 @@ function MediaCard({ m, cat, onOpen }) {
   const [actionLabel, isLive] = getActionLabel(m, cat);
   const btnBg = isLive ? 'linear-gradient(135deg,#dc2626,#b91c1c)' : isInternal ? '#0e7490' : m.color;
   const btnShadow = isLive ? '0 3px 10px rgba(220,38,38,.35)' : `0 2px 6px ${m.color}35`;
+  const streamId = m.stream ? m.name : null;
 
   return (
     <div style={{background:'white',borderRadius:16,border:'1px solid rgba(0,0,0,.07)',boxShadow:'0 2px 8px rgba(0,0,0,.04)',overflow:'hidden',marginBottom:10}}>
@@ -46,9 +127,10 @@ function MediaCard({ m, cat, onOpen }) {
             {m.level && <span style={{background:`${lc}18`,color:lc,fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:20,border:`1px solid ${lc}35`,letterSpacing:'0.04em'}}>{m.level}</span>}
             {isHRTI && <span style={{background:'rgba(220,38,38,.08)',color:'#dc2626',fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)',letterSpacing:'0.04em'}}>HRT+</span>}
             {isInternal && <span style={{background:'rgba(14,116,144,.08)',color:'#0e7490',fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:20,border:'1px solid rgba(14,116,144,.2)',letterSpacing:'0.04em'}}>IN APP</span>}
+            {m.stream && <span style={{background:'rgba(220,38,38,.08)',color:'#dc2626',fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)',letterSpacing:'0.04em'}}>LIVE</span>}
           </div>
           <div style={{fontSize:11.5,color:'#6b7280',lineHeight:1.5}}>{m.desc}</div>
-          {domain && !isHRTI && (
+          {domain && !isHRTI && !m.stream && (
             <div style={{display:'flex',alignItems:'center',gap:3,marginTop:5,fontSize:10,color:'#a8a29e'}}>
               <span>🌐</span><span>{domain}</span>
             </div>
@@ -63,14 +145,23 @@ function MediaCard({ m, cat, onOpen }) {
 
       {/* Action footer */}
       <div style={{display:'flex',alignItems:'center',gap:8,padding:'10px 14px',borderTop:'1px solid rgba(0,0,0,.05)',background:'rgba(0,0,0,.015)'}}>
-        {hasAction && (
-          <button
-            onClick={onOpen}
-            style={{display:'flex',alignItems:'center',gap:5,padding:'8px 14px',background:btnBg,color:'white',border:'none',borderRadius:10,fontSize:11,fontWeight:800,cursor:'pointer',letterSpacing:'0.02em',boxShadow:btnShadow,flexShrink:0}}>
-            {isLive && <span style={{width:6,height:6,borderRadius:'50%',background:'white',display:'inline-block',opacity:.9,flexShrink:0}}/>}
-            {actionLabel}
-          </button>
-        )}
+        {m.stream
+          ? <RadioPlayer
+              src={m.stream}
+              color={m.color}
+              streamId={streamId}
+              activeStream={activeStream}
+              setActiveStream={setActiveStream}
+            />
+          : hasAction && (
+            <button
+              onClick={onOpen}
+              style={{display:'flex',alignItems:'center',gap:5,padding:'8px 14px',background:btnBg,color:'white',border:'none',borderRadius:10,fontSize:11,fontWeight:800,cursor:'pointer',letterSpacing:'0.02em',boxShadow:btnShadow,flexShrink:0}}>
+              {isLive && <span style={{width:6,height:6,borderRadius:'50%',background:'white',display:'inline-block',opacity:.9,flexShrink:0}}/>}
+              {actionLabel}
+            </button>
+          )
+        }
         {m.tip && (
           <button
             onClick={() => setTipOpen(o => !o)}
@@ -99,6 +190,7 @@ export default function CroatiaTab({
 }) {
   const cats = ["tv","music","film","sport","podcast","culture"];
   const city = getCityOfDay();
+  const [activeStream, setActiveStream] = useState(null);
 
   return (
     <React.Fragment>
@@ -215,11 +307,12 @@ export default function CroatiaTab({
       <div style={{padding:'12px 14px',background:'linear-gradient(135deg,rgba(14,116,144,.06),rgba(14,116,144,.1))',borderRadius:12,marginBottom:20,borderLeft:'3px solid #0e7490'}}>
         <div style={{fontSize:12,fontWeight:800,color:'#164e63',marginBottom:5}}>📱 How it works</div>
         <div style={{fontSize:12,color:'#44403c',lineHeight:1.7}}>
-          Tap <strong>Watch Live</strong> or <strong>Listen Live</strong> to open in your browser — your saved passwords fill in automatically.
-          {' '}<span style={{background:'rgba(220,38,38,.08)',color:'#dc2626',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)'}}>HRT+</span>{' '}
+          Radio stations with a{' '}
+          <span style={{background:'rgba(220,38,38,.08)',color:'#dc2626',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)'}}>LIVE</span>{' '}
+          badge stream directly inside the app — tap ▶ to start. TV and other media open in your browser.{' '}
+          <span style={{background:'rgba(220,38,38,.08)',color:'#dc2626',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)'}}>HRT+</span>{' '}
           requires an HRT subscription.{' '}
-          <span style={{background:'rgba(14,116,144,.08)',color:'#0e7490',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(14,116,144,.2)'}}>IN APP</span>{' '}
-          opens inside the app. Tap <strong>💡 Tip</strong> on any card for a language-learning tip.
+          Tap <strong>💡 Tip</strong> on any card for a language-learning tip.
         </div>
       </div>
 
@@ -247,6 +340,8 @@ export default function CroatiaTab({
                   if (m.scr) setScr(m.scr);
                   else if (m.web) window.open(m.web, '_blank', 'noopener,noreferrer');
                 }}
+                activeStream={activeStream}
+                setActiveStream={setActiveStream}
               />
             ))}
           </div>
