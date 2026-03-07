@@ -346,25 +346,29 @@ export function CityOfDayScreen({ goBack }) {
         </div>
       )}
 
-      {/* History — narrative + numbered facts, all in one place */}
-      {tab==="history" && (
-        <div>
-          <div style={{marginBottom:16,padding:"16px",background:"white",borderRadius:14,border:"1px solid rgba(0,0,0,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.05)",fontSize:14,lineHeight:1.8,color:"#44403c"}}>
-            {city.history}
-          </div>
-          <div style={{marginBottom:12,fontSize:13,fontWeight:800,color:"#164e63"}}>
-            🏛️ Key Historical Facts
-          </div>
-          {city.facts.map(function(f,fi){return (
-            <div key={fi} style={{display:"flex",alignItems:"flex-start",gap:12,marginBottom:10,padding:"12px 14px",background:"white",borderRadius:12,border:"1px solid rgba(0,0,0,.06)",boxShadow:"0 1px 3px rgba(0,0,0,.04)"}}>
-              <div style={{width:26,height:26,borderRadius:"50%",background:city.color,color:"white",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:800,flexShrink:0}}>
-                {fi+1}
-              </div>
-              <div style={{fontSize:13,color:"#1c1917",lineHeight:1.6,flex:1}}>{f}</div>
+      {/* History — narrative + first half of facts */}
+      {tab==="history" && (function(){
+        var half = Math.ceil(city.facts.length / 2);
+        var histFacts = city.facts.slice(0, half);
+        return (
+          <div>
+            <div style={{marginBottom:16,padding:"16px",background:"white",borderRadius:14,border:"1px solid rgba(0,0,0,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.05)",fontSize:14,lineHeight:1.8,color:"#44403c"}}>
+              {city.history}
             </div>
-          );})}
-        </div>
-      )}
+            <div style={{marginBottom:12,fontSize:13,fontWeight:800,color:"#164e63"}}>
+              🏛️ Key Historical Facts
+            </div>
+            {histFacts.map(function(f,fi){return (
+              <div key={fi} style={{display:"flex",alignItems:"flex-start",gap:12,marginBottom:10,padding:"12px 14px",background:"white",borderRadius:12,border:"1px solid rgba(0,0,0,.06)",boxShadow:"0 1px 3px rgba(0,0,0,.04)"}}>
+                <div style={{width:26,height:26,borderRadius:"50%",background:city.color,color:"white",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:800,flexShrink:0}}>
+                  {fi+1}
+                </div>
+                <div style={{fontSize:13,color:"#1c1917",lineHeight:1.6,flex:1}}>{f}</div>
+              </div>
+            );})}
+          </div>
+        );
+      })()}
 
       {/* Vocabulary — tap to hear */}
       {tab==="vocab" && (
@@ -388,15 +392,32 @@ export function CityOfDayScreen({ goBack }) {
         </div>
       )}
 
-      {/* Fast Facts — single Did You Know heading + colour-coded fact cards */}
-      {tab==="facts" && (
-        <div>
-          <div style={{fontSize:15,fontWeight:800,color:"#164e63",marginBottom:14}}>💡 Did You Know?</div>
-          <div style={{padding:"16px",background:"linear-gradient(135deg,#fef3c7,#fde68a)",borderRadius:14,borderLeft:"4px solid #f59e0b"}}>
-            <div style={{fontSize:13,color:"#78350f",lineHeight:1.7}}>{city.didYouKnow}</div>
+      {/* Fast Facts — didYouKnow + second half of facts */}
+      {tab==="facts" && (function(){
+        var half = Math.ceil(city.facts.length / 2);
+        var fastFacts = city.facts.slice(half);
+        var allFacts = [city.didYouKnow].concat(fastFacts);
+        var colors = [
+          {bg:"linear-gradient(135deg,#fef3c7,#fde68a)",border:"#f59e0b",text:"#78350f"},
+          {bg:"linear-gradient(135deg,#f0f9ff,#e0f2fe)",border:city.color,text:"#1c1917"},
+          {bg:"linear-gradient(135deg,#f0fdf4,#dcfce7)",border:"#16a34a",text:"#14532d"},
+          {bg:"linear-gradient(135deg,#fdf4ff,#f3e8ff)",border:"#7c3aed",text:"#3b0764"},
+          {bg:"linear-gradient(135deg,#fff7ed,#fed7aa)",border:"#ea580c",text:"#431407"},
+        ];
+        return (
+          <div>
+            <div style={{fontSize:15,fontWeight:800,color:"#164e63",marginBottom:14}}>💡 Did You Know?</div>
+            {allFacts.map(function(fact, i){
+              var c = colors[i % colors.length];
+              return (
+                <div key={i} style={{padding:"14px 16px",background:c.bg,borderRadius:14,borderLeft:"4px solid "+c.border,marginBottom:10}}>
+                  <div style={{fontSize:13,color:c.text,lineHeight:1.7}}>{fact}</div>
+                </div>
+              );
+            })}
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
