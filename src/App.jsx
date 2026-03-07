@@ -9,6 +9,7 @@ import WelcomeScreen from "./components/home/WelcomeScreen.jsx";
 import PlacementTest from "./components/home/PlacementTest.jsx";
 import LearnTab from "./components/learn/LearnTab.jsx";
 import CroatiaTab from "./components/croatia/CroatiaTab.jsx";
+import ImmersionHub from "./components/croatia/ImmersionHub.jsx";
 import ProfileTab from "./components/profile/ProfileTab.jsx";
 import HomeTab from "./components/home/HomeTab.jsx";
 import PracticeTab from "./components/practice/PracticeTab.jsx";
@@ -1786,6 +1787,7 @@ function markExerciseDone(exerciseId){
         );})}
       </div>}
       {scr==="football"&&<HNLScreen goBack={goBack} />}
+      {scr==="immersion"&&<ImmersionHub goBack={goBack} />}
       {scr==="football_OLD"&&<div
         style={{maxWidth:620,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
         <button className="b bg" style={{marginBottom:16,fontSize:13}} onClick={goBack}>
