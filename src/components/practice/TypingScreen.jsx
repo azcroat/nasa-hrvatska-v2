@@ -39,7 +39,6 @@ export default function TypingScreen({ goBack, award }) {
       <div className="c" style={{textAlign:"center",marginTop:16}}>
         <div style={{fontSize:13,color:"#78716c"}}>Type this word in Croatian:</div>
         <div style={{fontSize:24,fontWeight:800,color:"#164e63",marginTop:8}}>{tyW[1]}</div>
-        <div style={{fontSize:13,color:"#78716c",marginTop:4}}>({tyW[0]})</div>
       </div>
       <input
         type="text"
