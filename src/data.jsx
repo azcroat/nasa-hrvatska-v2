@@ -13,8 +13,8 @@ const FIREBASE_CONFIG = {
   authDomain: "ucimohrvatski-488f9.firebaseapp.com",
   projectId: "ucimohrvatski-488f9",
   storageBucket: "ucimohrvatski-488f9.firebasestorage.app",
-  messagingSenderId: "771047750994",
-  appId: "1:771047750994:web:c1e38e1e27a78b0e6fd7eb"
+  messagingSenderId: "675614569794",
+  appId: "1:675614569794:web:d19f7defeac55b0b4b04db"
 };
 let _fb=null,_fbAuth=null,_fbDb=null,_fbReady=false;
 function initFirebase(){
