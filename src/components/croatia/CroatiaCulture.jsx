@@ -1,6 +1,6 @@
 import React from 'react';
 import { H, speak } from '../../data.jsx';
-import { TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, SCHOOL, GROCERY } from '../../data.jsx';
+import { TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, SCHOOL, GROCERY, HISTORY } from '../../data.jsx';
 
 export function TextingScreen({ goBack }) {
   return (
