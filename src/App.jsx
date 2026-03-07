@@ -209,7 +209,7 @@ function App(){
   const doTr=async()=>{
     const t=tIn.trim();if(!t)return;sTL(true);sTOut("");
     const[s,g]=tDir==="en-hr"?["en","hr"]:["hr","en"];
-    try{const r=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(t)}&langpair=${s}|${g}`);const d=await r.json();if(d.responseStatus===200&&d.responseData?.translatedText)sTOut(d.responseData.translatedText);else sTOut("Translation failed. Try again.")}catch(e){sTOut("Network error.")}sTL(false)
+    try{const r=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(t)}&langpair=${s}|${g}`);const d=await r.json();if(d.responseStatus===200&&d.responseData?.translatedText)sTOut(d.responseData.translatedText);else if(d.responseStatus===429||String(d.responseDetails||"").toLowerCase().includes("limit"))sTOut("Daily translation limit reached. Try again tomorrow or visit translate.google.com");else sTOut("Translation unavailable. Try translate.google.com")}catch(e){sTOut("Network error — check your connection.")}sTL(false)
   };
 // ═══ ANTI-GAMING: XP COOLDOWN SYSTEM ═══
 function canEarnXP(exerciseId){
@@ -244,7 +244,7 @@ function markExerciseDone(exerciseId){
     return function(){window.removeEventListener("popstate",onPopState)};
   },[]);// eslint-disable-line
   const award=useCallback((amt)=>{
-    if(curEx&&!canEarnXP(curEx)){return}
+    if(curEx&&!canEarnXP(curEx)){setXpA(0);setShowXP(true);setTimeout(()=>setShowXP(false),2000);return}
     setXpA(amt);setShowXP(true);
     setSt(s=>{const n={...s,xp:s.xp+amt};const nb=BADGES.filter(b=>!s.badges.includes(b.id)&&b.r(n));if(nb.length){n.badges=[...s.badges,...nb.map(b=>b.id)];setTimeout(()=>{setNB(nb[0]);setSB(true);setTimeout(()=>setSB(false),3000)},600)}return n});
     setTimeout(()=>setShowXP(false),1500)
@@ -252,7 +252,7 @@ function markExerciseDone(exerciseId){
   function goBack(){
     if(curEx)markExerciseDone(curEx);
     sCurEx("");
-    navigate(-1);
+    window.history.back();
   }
   const level=lvl(st.xp);
   const topics=Object.keys(V[st.diff==="beginner"?"greetings"in V?0:0:0]||V);
