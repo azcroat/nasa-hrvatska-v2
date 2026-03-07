@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import { _fbReady, _fbAuth, _fbDb, W, H, Bar, Spk, V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, CSS, BG_LIGHT, BG_DARK, initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, loadVoices, getBestVoice, stopAudio, speakAzure, speakGoogle, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, shMemo, shuffleArr, buildSearchIndex } from "./data.jsx";
 import LoginScreen from "./components/auth/LoginScreen.jsx";
 import ResetPassword from "./components/auth/ResetPassword.jsx";
@@ -63,9 +62,9 @@ import Leaderboard from "./components/profile/Leaderboard.jsx";
 
 const BG = BG_LIGHT;
 
+function pushUrl(path){try{if(window.location.pathname!==path)window.history.pushState(null,"",path)}catch(e){}}
+
 function App(){
-  const navigate=useNavigate();
-  const location=useLocation();
   const[as,setAs]=useState("loading"); // auth screen
   const[au,setAu]=useState(null); // auth user
   const[em,setEm]=useState("");const[pw,setPw]=useState("");const[pc,setPc]=useState("");const[dn,setDn]=useState("");
@@ -76,9 +75,8 @@ function App(){
   const setScr=useCallback(function(s){
     _setScr(s);
     if(s==="welcome"||s==="placement")return;
-    const path=s==="dashboard"?"/":`/${s}`;
-    navigate(path);
-  },[navigate]);
+    pushUrl(s==="dashboard"?"/":`/${s}`);
+  },[]);
   const[name,setName]=useState("");
   const[st,setSt]=useState(ds);
   const[pi,sPi]=useState(0);const[ps,sPs]=useState(0);const[pa,sPa]=useState(false);const[px,sPx]=useState(-1);const[pq,sPq]=useState([]);
@@ -110,7 +108,7 @@ function App(){
   const[famName,setFamName]=useState("");const[famCode,setFamCode]=useState("");const[famErr,setFamErr]=useState("");const[famTab,setFamTab]=useState("main");
   const[tab,_setTab]=useState("home");
   const TAB_PATHS={home:"/",learn:"/learn",practice:"/practice",croatia:"/croatia",profile:"/profile"};
-  const setTab=useCallback(function(t){_setTab(t);navigate(TAB_PATHS[t]||"/");},[navigate]);
+  const setTab=useCallback(function(t){_setTab(t);pushUrl(TAB_PATHS[t]||"/");},[]);
   const[tnVerb,setTnVerb]=useState(0);const[tnTense,setTnTense]=useState("present");const[tnGender,setTnGender]=useState("m");const[tnMode,setTnMode]=useState("learn");const[tnQ,setTnQ]=useState([]);const[tnI,setTnI]=useState(0);const[tnS,setTnS]=useState(0);const[tnA,setTnA]=useState(false);const[tnSl,setTnSl]=useState(-1);const[tnO,setTnO]=useState([]);
   const[mapCat,setMapCat]=useState("all");const[mapSel,setMapSel]=useState(null);
   const[rpIdx,setRpIdx]=useState(0);const[rpLine,setRpLine]=useState(0);const[rpShow,setRpShow]=useState(false);
@@ -228,19 +226,19 @@ function markExerciseDone(exerciseId){
     localStorage.setItem("xpCooldown",JSON.stringify(clean));
   }catch(e){}
 }
-  // ═══ BROWSER BACK BUTTON SUPPORT (React Router) ═══
-  // When the URL changes due to browser back/forward, sync scr and tab state to the URL
+  // ═══ BROWSER BACK BUTTON SUPPORT (popstate) ═══
+  // Listen for browser back/forward and sync app state to the URL
   useEffect(function(){
-    if(as!=="app")return;
-    var p=location.pathname;
-    var tabByPath={"/learn":"learn","/practice":"practice","/croatia":"croatia","/profile":"profile"};
-    if(tabByPath[p]){_setScr("dashboard");_setTab(tabByPath[p]);return;}
-    var s=p==="/"?"dashboard":p.slice(1);
-    if(s!==scr&&s!=="welcome"&&s!=="placement"){
-      _setScr(s);
-      if(curEx){markExerciseDone(curEx);sCurEx("")}
+    var tabByPath={"/":"home","/learn":"learn","/practice":"practice","/croatia":"croatia","/profile":"profile"};
+    function onPopState(){
+      var p=window.location.pathname;
+      if(tabByPath[p]!==undefined){_setScr("dashboard");_setTab(tabByPath[p]);return;}
+      var s=p.slice(1);
+      if(s&&s!=="welcome"&&s!=="placement"){_setScr(s);}
     }
-  },[location.pathname]);// eslint-disable-line
+    window.addEventListener("popstate",onPopState);
+    return function(){window.removeEventListener("popstate",onPopState)};
+  },[]);// eslint-disable-line
   const award=useCallback((amt)=>{
     if(curEx&&!canEarnXP(curEx)){return}
     setXpA(amt);setShowXP(true);
