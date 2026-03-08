@@ -191,6 +191,8 @@ export default function CroatiaTab({
   const cats = ["tv","music","film","sport","podcast","culture"];
   const city = getCityOfDay();
   const [activeStream, setActiveStream] = useState(null);
+  const [openCats, setOpenCats] = useState({});
+  function toggleCat(cat) { setOpenCats(prev => ({...prev, [cat]: !prev[cat]})); }
 
   return (
     <React.Fragment>
@@ -355,28 +357,38 @@ export default function CroatiaTab({
         const parts = CAT_LABELS[cat].split(' ');
         const catEmoji = parts[0];
         const catTitle = parts.slice(1).join(' ');
+        const isOpen = !!openCats[cat];
         return (
-          <div key={cat} style={{marginBottom:28}}>
-            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
-              <span style={{fontSize:18}}>{catEmoji}</span>
-              <div>
-                <div style={{fontSize:14,fontWeight:800,color:'#1c1917'}}>{catTitle}</div>
-                <div style={{height:2,width:36,background:'linear-gradient(90deg,#0e7490,transparent)',borderRadius:2,marginTop:2}}/>
+          <div key={cat} style={{marginBottom:8}}>
+            <button
+              onClick={() => toggleCat(cat)}
+              style={{width:'100%',display:'flex',alignItems:'center',gap:12,padding:'13px 16px',background:'var(--card)',border:'1px solid var(--card-b)',borderRadius: isOpen ? '16px 16px 0 0' : 16,cursor:'pointer',textAlign:'left',transition:'border-radius .2s'}}>
+              <div style={{width:40,height:40,borderRadius:11,background:'rgba(14,116,144,.1)',border:'1px solid rgba(14,116,144,.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,flexShrink:0}}>
+                {catEmoji}
               </div>
-            </div>
-            {items.map((m, i) => (
-              <MediaCard
-                key={i}
-                m={m}
-                cat={cat}
-                onOpen={() => {
-                  if (m.scr) setScr(m.scr);
-                  else if (m.web) window.open(m.web, '_blank', 'noopener,noreferrer');
-                }}
-                activeStream={activeStream}
-                setActiveStream={setActiveStream}
-              />
-            ))}
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:14,fontWeight:700,color:'var(--heading)'}}>{catTitle}</div>
+                <div style={{fontSize:11,color:'var(--subtext)',marginTop:1}}>{items.length} {items.length === 1 ? 'resource' : 'resources'}</div>
+              </div>
+              <div style={{fontSize:18,color:'var(--subtext)',opacity:.5,transition:'transform .2s',transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',flexShrink:0}}>⌄</div>
+            </button>
+            {isOpen && (
+              <div style={{border:'1px solid var(--card-b)',borderTop:'none',borderRadius:'0 0 16px 16px',overflow:'hidden',marginBottom:8}}>
+                {items.map((m, i) => (
+                  <MediaCard
+                    key={i}
+                    m={m}
+                    cat={cat}
+                    onOpen={() => {
+                      if (m.scr) setScr(m.scr);
+                      else if (m.web) window.open(m.web, '_blank', 'noopener,noreferrer');
+                    }}
+                    activeStream={activeStream}
+                    setActiveStream={setActiveStream}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         );
       })}
