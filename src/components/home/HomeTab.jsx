@@ -67,27 +67,43 @@ export default function HomeTab({
       <div style={{
         background: "linear-gradient(160deg,#0f172a 0%,#0c4a6e 50%,#0369a1 100%)",
         borderRadius: 0,
-        padding: "24px 20px 20px",
+        padding: "0 0 20px",
         marginBottom: 0,
         position: "relative",
         overflow: "hidden",
         color: "white",
       }}>
-        {/* Croatian šahovnica (checkerboard) — top-right decorative */}
-        <svg style={{position:"absolute",top:0,right:0,width:90,height:90,opacity:.07,pointerEvents:"none"}} viewBox="0 0 60 60">
-          {[0,1,2,3,4].map(r=>[0,1,2,3,4].map(c=>(r+c)%2===0&&
-            <rect key={`${r}${c}`} x={c*12} y={r*12} width={12} height={12} fill="white"/>
-          ))}
-        </svg>
-        {/* Croatian pletar knotwork ring — bottom-left decorative */}
-        <svg style={{position:"absolute",bottom:-30,left:-30,width:130,height:130,opacity:.06,pointerEvents:"none"}} viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="40" fill="none" stroke="white" strokeWidth="6"/>
-          <circle cx="50" cy="50" r="30" fill="none" stroke="white" strokeWidth="3" strokeDasharray="8 5"/>
-          <circle cx="50" cy="50" r="20" fill="none" stroke="white" strokeWidth="2"/>
+        {/* Croatian flag stripe — top bar */}
+        <div style={{display:"flex",height:5,width:"100%"}}>
+          <div style={{flex:1,background:"#D4002D"}}/>
+          <div style={{flex:1,background:"#FFFFFF"}}/>
+          <div style={{flex:1,background:"#003DA5"}}/>
+        </div>
+
+        <div style={{padding:"20px 20px 0"}}>
+
+        {/* Šahovnica (Croatian checkerboard grb) — top-right, prominent */}
+        <svg style={{position:"absolute",top:5,right:0,width:150,height:150,opacity:.22,pointerEvents:"none",transform:"rotate(8deg) translate(20px,-10px)"}} viewBox="0 0 60 60">
+          {[0,1,2,3,4].map(r=>[0,1,2,3,4].map(c=>(
+            <rect key={`${r}${c}`} x={c*12} y={r*12} width={12} height={12}
+              fill={(r+c)%2===0 ? "#FFFFFF" : "#D4002D"}/>
+          )))}
         </svg>
 
-        {/* Top row: avatar + greeting */}
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
+        {/* Pletar interlace ring — bottom-left, prominent */}
+        <svg style={{position:"absolute",bottom:-20,left:-20,width:160,height:160,opacity:.18,pointerEvents:"none"}} viewBox="0 0 120 120">
+          {/* Outer interlace ring — three woven bands */}
+          <circle cx="60" cy="60" r="50" fill="none" stroke="white" strokeWidth="9"/>
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#D4002D" strokeWidth="5" strokeDasharray="18 14" strokeDashoffset="0"/>
+          <circle cx="60" cy="60" r="50" fill="none" stroke="white" strokeWidth="2" strokeDasharray="18 14" strokeDashoffset="9"/>
+          <circle cx="60" cy="60" r="36" fill="none" stroke="white" strokeWidth="6"/>
+          <circle cx="60" cy="60" r="36" fill="none" stroke="#D4002D" strokeWidth="3" strokeDasharray="12 10" strokeDashoffset="0"/>
+          <circle cx="60" cy="60" r="22" fill="none" stroke="white" strokeWidth="4"/>
+          <circle cx="60" cy="60" r="22" fill="none" stroke="#D4002D" strokeWidth="2" strokeDasharray="8 7"/>
+        </svg>
+
+        {/* Top row: avatar + site brand */}
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
           <div style={{
             width:48,height:48,borderRadius:"50%",
             background:"rgba(255,255,255,.15)",
@@ -98,11 +114,25 @@ export default function HomeTab({
           }}>
             {nameInitial}
           </div>
-          <div style={{
-            fontSize:12,fontWeight:600,color:"rgba(255,255,255,.7)",
-            letterSpacing:".04em",textAlign:"right",
-          }}>
-            {greetingByTime()} 👋
+          <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:3}}>
+            <div style={{
+              display:"flex",alignItems:"center",gap:5,
+              background:"rgba(212,0,45,.25)",
+              border:"1px solid rgba(212,0,45,.5)",
+              borderRadius:20,padding:"4px 10px",
+            }}>
+              {/* Mini šahovnica icon */}
+              <svg width="14" height="14" viewBox="0 0 10 10" style={{flexShrink:0}}>
+                {[0,1].map(r=>[0,1].map(c=>(
+                  <rect key={`${r}${c}`} x={c*5} y={r*5} width={5} height={5}
+                    fill={(r+c)%2===0 ? "#fff" : "#D4002D"} opacity="1"/>
+                )))}
+              </svg>
+              <span style={{fontSize:10,fontWeight:800,color:"white",letterSpacing:".06em",textTransform:"uppercase"}}>Naša Hrvatska</span>
+            </div>
+            <div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,.6)",letterSpacing:".03em"}}>
+              {greetingByTime()} 👋
+            </div>
           </div>
         </div>
 
@@ -177,6 +207,7 @@ export default function HomeTab({
             </div>
           ))}
         </div>
+        </div>{/* end padding wrapper */}
       </div>
 
       {/* ── CONTINUE LEARNING ── */}
