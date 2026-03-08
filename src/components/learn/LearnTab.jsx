@@ -20,7 +20,7 @@ export default function LearnTab({
           }}>
             <div style={{fontSize:24}}>{icons[t] || "📚"}</div>
             <div style={{fontSize:12,fontWeight:700,marginTop:4,textTransform:"capitalize"}}>{t}</div>
-            <div style={{fontSize:10,color:"#a8a29e"}}>{V[t].length} words</div>
+            <div style={{fontSize:10,color:"var(--subtext)"}}>{V[t].length} words</div>
           </div>
         ))}
       </div>
@@ -43,11 +43,11 @@ export default function LearnTab({
           <div style={{fontSize:13,fontWeight:700,marginTop:4}}>Declension</div>
         </div>
         <div className="tc" style={{textAlign:"center",padding:"14px"}} onClick={() => { sAsMode("learn"); setScr("aspect"); }}>
-          <div style={{fontSize:28}}>🔄</div>
+          <div style={{fontSize:28}}>↔️</div>
           <div style={{fontSize:13,fontWeight:700,marginTop:4}}>Verb Aspect</div>
         </div>
         <div className="tc" style={{textAlign:"center",padding:"14px"}} onClick={() => { sCjMode("menu"); setScr("conjdrill"); sCurEx("conjdrill"); }}>
-          <div style={{fontSize:28}}>🔄</div>
+          <div style={{fontSize:28}}>🔀</div>
           <div style={{fontSize:13,fontWeight:700,marginTop:4}}>Conjugation</div>
         </div>
         <div className="tc" style={{textAlign:"center",padding:"14px"}} onClick={() => { sM7("menu"); setScr("modal"); }}>

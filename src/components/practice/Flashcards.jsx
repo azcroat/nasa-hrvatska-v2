@@ -20,13 +20,22 @@ export default function Flashcards({ fcPool, fcI, fcFlip, fcKnow, sFcFlip, sFcI,
         <div style={{fontSize:14,fontWeight:700,color:"#16a34a"}}>✅ Know: {fcKnow}</div>
       </div>
       <Bar v={fcI+1} mx={fcPool.length} h={6} color="#f59e0b" />
-      <div onClick={()=>sFcFlip(f=>!f)}
-        style={{minHeight:200,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:fcFlip?"linear-gradient(135deg,#dcfce7,#bbf7d0)":"linear-gradient(135deg,#dbeafe,#bfdbfe)",borderRadius:14,marginTop:20,cursor:"pointer",padding:32,transition:"all .3s"}}>
-        <div style={{fontSize:fcFlip?18:32,fontWeight:800,color:fcFlip?"#16a34a":"#1e40af",fontFamily:"'Playfair Display',serif",textAlign:"center"}}>
-          {fcFlip?fcPool[fcI][1]:fcPool[fcI][0]}
+      <div className="fc-scene">
+        <div className={`fc-card${fcFlip?" flipped":""}`} onClick={()=>sFcFlip(f=>!f)}>
+          <div className="fc-face fc-front">
+            <div style={{fontSize:32,fontWeight:800,color:"#1e40af",fontFamily:"'Playfair Display',serif",textAlign:"center",lineHeight:1.3}}>
+              {fcPool[fcI][0]}
+            </div>
+            {fcPool[fcI][2]&&<div style={{fontSize:14,color:"#6b7280",marginTop:8}}>/{fcPool[fcI][2]}/</div>}
+            <div style={{fontSize:12,color:"#9ca3af",marginTop:12}}>tap to see English</div>
+          </div>
+          <div className="fc-face fc-back">
+            <div style={{fontSize:22,fontWeight:800,color:"#16a34a",fontFamily:"'Playfair Display',serif",textAlign:"center",lineHeight:1.3}}>
+              {fcPool[fcI][1]}
+            </div>
+            <div style={{fontSize:12,color:"#9ca3af",marginTop:12}}>tap to flip back</div>
+          </div>
         </div>
-        {fcPool[fcI][2]&&!fcFlip&&<div style={{fontSize:14,color:"#6b7280",marginTop:8}}>/{fcPool[fcI][2]}/</div>}
-        <div style={{fontSize:12,color:"#9ca3af",marginTop:12}}>{fcFlip?"(tap to flip back)":"(tap to see English)"}</div>
       </div>
       {fcFlip&&<div style={{display:"flex",gap:12,marginTop:20,justifyContent:"center"}}>
         <button className="b bd" style={{flex:1,fontSize:15}} onClick={()=>{
