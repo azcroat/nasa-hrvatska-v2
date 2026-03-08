@@ -27,7 +27,7 @@ export function ColorAgreementScreen({ goBack, award }) {
           <div style={{display:"flex",gap:4}}>
             {q.opts.map(function(o,oi){return (
               <button key={oi} style={{padding:"8px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:11,cursor:"pointer"}}
-                onClick={function(e){e.target.style.background=o===q.color?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.color?"#16a34a":"#dc2626";if(o===q.color){award(3);speak(q.noun+" je "+q.color);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}}>
+                onClick={function(e){e.target.style.background=o===q.color?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.color?"#16a34a":"#dc2626";if(o===q.color){award(3);speak(q.noun+" je "+q.color);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
                 {o}
               </button>
             );})}
@@ -41,7 +41,7 @@ export function ColorAgreementScreen({ goBack, award }) {
           <div style={{display:"flex",gap:4}}>
             {q.opts.map(function(o,oi){return (
               <button key={oi} style={{padding:"8px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:11,cursor:"pointer"}}
-                onClick={function(e){e.target.style.background=o===q.color?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.color?"#16a34a":"#dc2626";if(o===q.color){award(3);speak(q.noun+" su "+q.color);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}}>
+                onClick={function(e){e.target.style.background=o===q.color?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.color?"#16a34a":"#dc2626";if(o===q.color){award(3);speak(q.noun+" su "+q.color);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
                 {o}
               </button>
             );})}
@@ -78,7 +78,7 @@ export function PossessivesScreen({ goBack, award }) {
           <div style={{display:"flex",gap:4}}>
             {q.opts.map(function(o,oi){return (
               <button key={oi} style={{padding:"8px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:11,cursor:"pointer"}}
-                onClick={function(e){e.target.style.background=o===q.a?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.a?"#16a34a":"#dc2626";if(o===q.a){award(3);speak("Ovo je "+q.a+" "+q.noun);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}}>
+                onClick={function(e){e.target.style.background=o===q.a?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.a?"#16a34a":"#dc2626";if(o===q.a){award(3);speak("Ovo je "+q.a+" "+q.noun);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
                 {o}
               </button>
             );})}
@@ -101,7 +101,7 @@ export function QuestionWordsScreen({ goBack, award }) {
           <div style={{display:"flex",gap:6}}>
             {q.opts.map(function(o,oi){return (
               <button key={oi} style={{padding:"6px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,fontWeight:600,cursor:"pointer"}}
-                onClick={function(e){e.target.style.background=o===q.a?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.a?"#16a34a":"#dc2626";if(o===q.a){award(3);speak(q.q.replace("_____",q.a));e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}}>
+                onClick={function(e){e.target.style.background=o===q.a?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.a?"#16a34a":"#dc2626";if(o===q.a){award(3);speak(q.q.replace("_____",q.a));}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
                 {o}
               </button>
             );})}
@@ -152,7 +152,7 @@ export function SibilarizationScreen({ goBack, award }) {
           <div style={{display:"flex",gap:6}}>
             {q.opts.map(function(o,oi){return (
               <button key={oi} style={{padding:"6px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,fontWeight:600,cursor:"pointer"}}
-                onClick={function(e){e.target.style.background=o===q.a?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.a?"#16a34a":"#dc2626";if(o===q.a){award(3);speak(q.q.replace("_____",q.a).split("(")[0]);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}}>
+                onClick={function(e){e.target.style.background=o===q.a?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.a?"#16a34a":"#dc2626";if(o===q.a){award(3);speak(q.q.replace("_____",q.a).split("(")[0]);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
                 {o}
               </button>
             );})}
@@ -252,7 +252,7 @@ export function FutureTenseScreen({ goBack, award }) {
           <div style={{display:"flex",gap:6}}>
             {q.opts.map(function(o,oi){return (
               <button key={oi} style={{padding:"6px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,fontWeight:600,cursor:"pointer"}}
-                onClick={function(e){e.target.style.background=o===q.a?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.a?"#16a34a":"#dc2626";if(o===q.a){award(3);speak(q.q.replace("_____",q.a).split("(")[0]);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}}>
+                onClick={function(e){e.target.style.background=o===q.a?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.a?"#16a34a":"#dc2626";if(o===q.a){award(3);speak(q.q.replace("_____",q.a).split("(")[0]);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
                 {o}
               </button>
             );})}
