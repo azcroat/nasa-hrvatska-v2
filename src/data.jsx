@@ -169,7 +169,7 @@ function getBestVoice(){if(!_voicesLoaded)loadVoices();const v=_voices;const hr=
 function stopAudio(){if(_currentAudio){try{_currentAudio.pause();_currentAudio.currentTime=0}catch(e){}_currentAudio=null}if(window.speechSynthesis)window.speechSynthesis.cancel()}
 async function speakAzure(text,slow){
   try{
-    const r=await fetch("/.netlify/functions/tts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:text,slow:!!slow})});
+    const r=await fetch("/api/tts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:text,slow:!!slow})});
     if(!r.ok)return false;
     const blob=await r.blob();const url=URL.createObjectURL(blob);
     stopAudio();const a=new Audio(url);a.volume=1.0;_currentAudio=a;
