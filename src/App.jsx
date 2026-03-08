@@ -487,7 +487,7 @@ function markExerciseDone(exerciseId){
           dchlA={dchlA} sDchlA={sDchlA} dchlSl={dchlSl} sDchlSl={sDchlSl}
           getWeekStats={getWeekStats}
           award={award}
-          setTab={setTab} setScr={setScr}
+          setTab={setTab} setScr={setScr} sCurEx={sCurEx}
           allCats={allCats} sh={sh}
           sMcQ={sMcQ} sMcI={sMcI} sMcS={sMcS} sMcA={sMcA} sMcSl={sMcSl}
           sFcPool={sFcPool} sFcI={sFcI} sFcFlip={sFcFlip} sFcKnow={sFcKnow}
