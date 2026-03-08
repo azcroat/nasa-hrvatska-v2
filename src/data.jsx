@@ -202,8 +202,8 @@ function speakSlow(text){
 function speakEN(text){if(!text||!window.speechSynthesis)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=0.9;window.speechSynthesis.speak(u)}
 function sh(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
 function lvl(x){const t=[0,50,150,300,500,800,1200,1800,2500,3500];for(let i=t.length-1;i>=0;i--)if(x>=t[i])return i+1;return 1}
-function lXP(l){return[0,0,50,150,300,500,800,1200,1800,2500,3500][l]||3500}
-function nXP(l){return[0,50,150,300,500,800,1200,1800,2500,3500,5000][l]||5000}
+function lXP(l){return[0,0,50,150,300,500,800,1200,1800,2500,3500][l]??3500}
+function nXP(l){return[0,50,150,300,500,800,1200,1800,2500,3500,5000][l]??5000}
 // ═══════════════════════════════════════
 // ═══════════════════════════════════════
 const V = {
