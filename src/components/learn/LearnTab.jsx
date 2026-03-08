@@ -1,11 +1,12 @@
 import React from 'react';
-import { H, V } from '../../data.jsx';
+import { H, V, GRAM } from '../../data.jsx';
 
 export default function LearnTab({
   allCats, icons, setScr, sCurEx,
   sh, sLt, sLi, sLx, sLs, sLp, sLa, sLsl,
   setTnVerb, setTnTense, setTnGender, setTnMode,
   sCzMode, sPfTab, sPfGender, sPfMode, sDcMode, sAsMode, sCjMode, sM7, sBjMode,
+  sGl, sGp, sGx, sGs, sGa, sGsl,
 }) {
   return (
     <React.Fragment>
@@ -58,7 +59,7 @@ export default function LearnTab({
           <div style={{fontSize:28}}>🎨</div>
           <div style={{fontSize:13,fontWeight:700,marginTop:4}}>Colors & Gender</div>
         </button>
-        <button className="tc" style={{textAlign:"center",padding:"14px"}} onClick={() => { setScr("grammar"); sCurEx("grammar"); }}>
+        <button className="tc" style={{textAlign:"center",padding:"14px"}} onClick={() => { sGl(GRAM.beginner[0]); sGp("learn"); sGx(0); sGs(0); sGa(false); sGsl(-1); setScr("grammar"); sCurEx("grammar"); }}>
           <div style={{fontSize:28}}>📜</div>
           <div style={{fontSize:13,fontWeight:700,marginTop:4}}>Grammar Intro</div>
         </button>

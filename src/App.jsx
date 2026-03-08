@@ -499,6 +499,7 @@ function markExerciseDone(exerciseId){
           setTnVerb={setTnVerb} setTnTense={setTnTense} setTnGender={setTnGender} setTnMode={setTnMode}
           sCzMode={sCzMode} sPfTab={sPfTab} sPfGender={sPfGender} sPfMode={sPfMode}
           sDcMode={sDcMode} sAsMode={sAsMode} sCjMode={sCjMode} sM7={sM7} sBjMode={sBjMode}
+          sGl={sGl} sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
         />}
         {// ═══ TAB: PRACTICE ═══
         tab==="practice"&&<PracticeTab

@@ -64,6 +64,19 @@ test.describe('Learn tab', () => {
       await page.getByText('Tenses & Gender').click();
       await expect(page.getByText(/Tenses & Gender/i).first()).toBeVisible({ timeout: 5_000 });
     });
+
+    test('clicking Grammar Intro opens grammar screen with content (not blank)', async ({ page }) => {
+      await page.getByText('Grammar Intro').click();
+      // GrammarScreen should show the first lesson title and a Practice button — not a blank page
+      await expect(page.getByText(/Noun Genders|Verb Biti|Negation/i)).toBeVisible({ timeout: 5_000 });
+    });
+
+    test('clicking Declension opens declension trainer without error', async ({ page }) => {
+      await page.getByText('Declension').click();
+      // DeclensionScreen should show the heading and case names
+      await expect(page.getByText(/Noun Declension/i)).toBeVisible({ timeout: 5_000 });
+      await expect(page.getByText('Nominativ')).toBeVisible({ timeout: 3_000 });
+    });
   });
 
   test.describe('Reference section', () => {
