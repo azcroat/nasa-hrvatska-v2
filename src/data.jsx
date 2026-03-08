@@ -1,8 +1,8 @@
 // Naša Hrvatska — Data & Utility Functions
 import React from 'react';
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
+import { initializeApp, getApps } from 'firebase/app';
+import { getAuth, setPersistence, browserLocalPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile } from 'firebase/auth';
+import { getFirestore, doc as fsDoc, getDoc, setDoc, collection, getDocs } from 'firebase/firestore';
 
 const{useState,useEffect,useCallback,useRef}=React;
 // ═══════════════════════════════════════════════════════════
@@ -16,12 +16,14 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "675614569794",
   appId: "1:675614569794:web:d19f7defeac55b0b4b04db"
 };
-let _fb=null,_fbAuth=null,_fbDb=null,_fbReady=false;
+let _fbAuth=null,_fbDb=null,_fbReady=false;
 function initFirebase(){
   if(_fbReady)return false;
-  try{if(!firebase.apps.length)firebase.initializeApp(FIREBASE_CONFIG);
-  _fb=firebase;_fbAuth=firebase.auth();_fbDb=firebase.firestore();_fbReady=true;
-  _fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});return true}catch(e){console.warn("Firebase init failed:",e);return false}
+  try{
+    const app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);
+    _fbAuth=getAuth(app);_fbDb=getFirestore(app);_fbReady=true;
+    setPersistence(_fbAuth,browserLocalPersistence).catch(()=>{});return true
+  }catch(e){console.warn("Firebase init failed:",e);return false}
 }
 // Auto-init — Firebase is bundled from npm, always available immediately
 initFirebase();
@@ -40,29 +42,29 @@ function isValidEmail(e){return/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)}
 // ═══ FIREBASE SYNC FUNCTIONS ═══
 async function fbSaveProgress(uid,data){
   if(!_fbReady||!_fbDb)return;
-  try{var id=uid.replace(/[.#$/\[\]]/g,"_");await _fbDb.collection("users").doc(id).set({progress:JSON.stringify(data),updated:Date.now()},{merge:true})}catch(e){console.warn("FB save error:",e)}
+  try{var id=uid.replace(/[.#$/\[\]]/g,"_");await setDoc(fsDoc(_fbDb,"users",id),{progress:JSON.stringify(data),updated:Date.now()},{merge:true})}catch(e){console.warn("FB save error:",e)}
 }
 async function fbLoadProgress(uid){
   if(!_fbReady||!_fbDb)return null;
-  try{var id=uid.replace(/[.#$/\[\]]/g,"_");var doc=await _fbDb.collection("users").doc(id).get();
-  if(doc.exists&&doc.data().progress){return JSON.parse(doc.data().progress)}return null}catch(e){console.warn("FB load error:",e);return null}
+  try{var id=uid.replace(/[.#$/\[\]]/g,"_");var snap=await getDoc(fsDoc(_fbDb,"users",id));
+  if(snap.exists()&&snap.data().progress){return JSON.parse(snap.data().progress)}return null}catch(e){console.warn("FB load error:",e);return null}
 }
 async function fbRegister(email,password,displayName){
   if(!_fbReady||!_fbAuth)return{ok:false,err:"Firebase not configured. Account created locally only."};
-  try{var cred=await _fbAuth.createUserWithEmailAndPassword(email,password);
-  try{await cred.user.updateProfile({displayName:displayName})}catch(pe){console.warn("Profile update failed:",pe)}
+  try{var cred=await createUserWithEmailAndPassword(_fbAuth,email,password);
+  try{await updateProfile(cred.user,{displayName:displayName})}catch(pe){console.warn("Profile update failed:",pe)}
   try{var id=email.replace(/[.#$/\[\]]/g,"_");
-  await _fbDb.collection("users").doc(id).set({displayName:displayName,email:email,created:Date.now()},{merge:true})}catch(fe){console.warn("Firestore profile write failed:",fe)}
+  await setDoc(fsDoc(_fbDb,"users",id),{displayName:displayName,email:email,created:Date.now()},{merge:true})}catch(fe){console.warn("Firestore profile write failed:",fe)}
   return{ok:true,user:cred.user}}catch(e){return{ok:false,err:friendlyError(e.message)}}
 }
 async function fbLogin(email,password){
   if(!_fbReady||!_fbAuth)return{ok:false,err:"Firebase not configured."};
-  try{var cred=await _fbAuth.signInWithEmailAndPassword(email,password);return{ok:true,user:cred.user}}catch(e){return{ok:false,err:friendlyError(e.message)}}
+  try{var cred=await signInWithEmailAndPassword(_fbAuth,email,password);return{ok:true,user:cred.user}}catch(e){return{ok:false,err:friendlyError(e.message)}}
 }
-async function fbLogout(){if(_fbReady&&_fbAuth)try{await _fbAuth.signOut()}catch(e){}}
+async function fbLogout(){if(_fbReady&&_fbAuth)try{await fbSignOut(_fbAuth)}catch(e){}}
 async function fbResetPassword(email){
   if(!_fbReady||!_fbAuth)return{ok:false,err:"Firebase not configured."};
-  try{await _fbAuth.sendPasswordResetEmail(email);return{ok:true}}catch(e){return{ok:false,err:friendlyError(e.message)}}
+  try{await sendPasswordResetEmail(_fbAuth,email);return{ok:true}}catch(e){return{ok:false,err:friendlyError(e.message)}}
 }
 function friendlyError(msg){
   if(!msg)return"Something went wrong. Please try again.";
@@ -84,68 +86,76 @@ function saveLocalFamily(f){localStorage.setItem("uFamily",JSON.stringify(f))}
 async function fbCreateFamily(familyName,creatorEmail,creatorName){
   if(!_fbReady||!_fbDb)return{ok:false,err:"Firebase not configured."};
   try{var code=generateFamilyCode();
-  try{var existing=await _fbDb.collection("families").doc(code).get();
-  if(existing.exists)code=generateFamilyCode()}catch(e){}
-  try{await _fbDb.collection("families").doc(code).set({name:familyName,code:code,created:Date.now(),members:[{email:creatorEmail,name:creatorName,role:"admin",joined:Date.now()}]})}catch(fe){console.warn("Family write failed:",fe);return{ok:false,err:"Could not create family. Check Firebase permissions."}}
+  try{var existing=await getDoc(fsDoc(_fbDb,"families",code));
+  if(existing.exists())code=generateFamilyCode()}catch(e){}
+  try{await setDoc(fsDoc(_fbDb,"families",code),{name:familyName,code:code,created:Date.now(),members:[{email:creatorEmail,name:creatorName,role:"admin",joined:Date.now()}]})}catch(fe){console.warn("Family write failed:",fe);return{ok:false,err:"Could not create family. Check Firebase permissions."}}
   try{var id=creatorEmail.replace(/[.#$/\[\]]/g,"_");
-  await _fbDb.collection("users").doc(id).set({familyCode:code},{merge:true})}catch(ue){console.warn("User family link failed:",ue)}
+  await setDoc(fsDoc(_fbDb,"users",id),{familyCode:code},{merge:true})}catch(ue){console.warn("User family link failed:",ue)}
   var fam={name:familyName,code:code,role:"admin"};saveLocalFamily(fam);
   return{ok:true,code:code,family:fam}}catch(e){return{ok:false,err:friendlyError(e.message)}}
 }
 async function fbJoinFamily(code,email,name){
   if(!_fbReady||!_fbDb)return{ok:false,err:"Firebase not configured."};
-  try{var doc=await _fbDb.collection("families").doc(code.toUpperCase()).get();
-  if(!doc.exists)return{ok:false,err:"Family code not found. Check and try again."};
-  var data=doc.data();var members=data.members||[];
+  try{var famSnap=await getDoc(fsDoc(_fbDb,"families",code.toUpperCase()));
+  if(!famSnap.exists())return{ok:false,err:"Family code not found. Check and try again."};
+  var data=famSnap.data();var members=data.members||[];
   if(members.some(function(m){return m.email===email}))return{ok:false,err:"You are already in this family!"};
   members.push({email:email,name:name,role:"member",joined:Date.now()});
-  await _fbDb.collection("families").doc(code.toUpperCase()).set({members:members},{merge:true});
+  await setDoc(fsDoc(_fbDb,"families",code.toUpperCase()),{members:members},{merge:true});
   var id=email.replace(/[.#$/\[\]]/g,"_");
-  await _fbDb.collection("users").doc(id).set({familyCode:code.toUpperCase()},{merge:true});
+  await setDoc(fsDoc(_fbDb,"users",id),{familyCode:code.toUpperCase()},{merge:true});
   var fam={name:data.name,code:code.toUpperCase(),role:"member"};saveLocalFamily(fam);
   return{ok:true,family:fam}}catch(e){return{ok:false,err:friendlyError(e.message)}}
 }
 async function fbGetFamilyMembers(code){
   if(!_fbReady||!_fbDb)return[];
-  try{var doc=await _fbDb.collection("families").doc(code).get();
-  if(!doc.exists)return[];
-  var data=doc.data();var members=data.members||[];
+  try{var famSnap2=await getDoc(fsDoc(_fbDb,"families",code));
+  if(!famSnap2.exists())return[];
+  var data=famSnap2.data();var members=data.members||[];
   var results=[];
   for(var i=0;i<members.length;i++){var m=members[i];
     var id=m.email.replace(/[.#$/\[\]]/g,"_");
-    try{var userDoc=await _fbDb.collection("users").doc(id).get();
-    var p=userDoc.exists&&userDoc.data().progress?JSON.parse(userDoc.data().progress):null;
+    try{var userSnap=await getDoc(fsDoc(_fbDb,"users",id));
+    var p=userSnap.exists()&&userSnap.data().progress?JSON.parse(userSnap.data().progress):null;
     results.push({name:m.name,email:m.email,role:m.role,xp:p&&p.st?p.st.xp:0,lc:p&&p.st?p.st.lc:0,joined:m.joined})}catch(e){results.push({name:m.name,email:m.email,role:m.role,xp:0,lc:0,joined:m.joined})}}
   return results.sort(function(a,b){return b.xp-a.xp})}catch(e){return[]}
 }
 async function fbLeaveFamily(code,email){
   if(!_fbReady||!_fbDb)return{ok:false};
-  try{var doc=await _fbDb.collection("families").doc(code).get();
-  if(!doc.exists)return{ok:false};
-  var data=doc.data();var members=(data.members||[]).filter(function(m){return m.email!==email});
-  await _fbDb.collection("families").doc(code).set({members:members},{merge:true});
+  try{var leaveSnap=await getDoc(fsDoc(_fbDb,"families",code));
+  if(!leaveSnap.exists())return{ok:false};
+  var data=leaveSnap.data();var members=(data.members||[]).filter(function(m){return m.email!==email});
+  await setDoc(fsDoc(_fbDb,"families",code),{members:members},{merge:true});
   var id=email.replace(/[.#$/\[\]]/g,"_");
-  await _fbDb.collection("users").doc(id).set({familyCode:null},{merge:true});
+  await setDoc(fsDoc(_fbDb,"users",id),{familyCode:null},{merge:true});
   localStorage.removeItem("uFamily");
   return{ok:true}}catch(e){return{ok:false}}
 }
 async function fbLoadUserFamily(email){
   if(!_fbReady||!_fbDb)return null;
   try{var id=email.replace(/[.#$/\[\]]/g,"_");
-  var doc=await _fbDb.collection("users").doc(id).get();
-  if(!doc.exists||!doc.data().familyCode)return null;
-  var code=doc.data().familyCode;
-  var famDoc=await _fbDb.collection("families").doc(code).get();
-  if(!famDoc.exists)return null;
-  var data=famDoc.data();var member=data.members.find(function(m){return m.email===email});
+  var userSnap2=await getDoc(fsDoc(_fbDb,"users",id));
+  if(!userSnap2.exists()||!userSnap2.data().familyCode)return null;
+  var code=userSnap2.data().familyCode;
+  var famDoc2=await getDoc(fsDoc(_fbDb,"families",code));
+  if(!famDoc2.exists())return null;
+  var data=famDoc2.data();var member=data.members.find(function(m){return m.email===email});
   var fam={name:data.name,code:code,role:member?member.role:"member"};saveLocalFamily(fam);
   return fam}catch(e){return null}
 }
+// Wrapper: auth state changes — used by App.jsx instead of onAuthStateChanged directly
+function fbOnAuthStateChanged(cb){if(!_fbReady||!_fbAuth)return()=>{};return onAuthStateChanged(_fbAuth,cb)}
+// Wrapper: save security Q&A to Firestore (used during registration)
+async function fbSetUserSecurity(email,sq,sa){if(!_fbReady||!_fbDb)return;try{var id=email.replace(/[.#$/\[\]]/g,"_");await setDoc(fsDoc(_fbDb,"users",id),{sq,sa},{merge:true})}catch(e){}}
+// Wrapper: load security Q from Firestore (used during password reset)
+async function fbGetUserSecurity(email){if(!_fbReady||!_fbDb)return null;try{var id=email.replace(/[.#$/\[\]]/g,"_");var snap=await getDoc(fsDoc(_fbDb,"users",id));if(!snap.exists())return null;var d=snap.data();return d.sq?{sq:d.sq,sa:d.sa}:null}catch(e){return null}}
+// Wrapper: create Firebase account without display name (used during password reset)
+async function fbCreateAccount(email,password){if(!_fbReady||!_fbAuth)return{ok:false};try{await createUserWithEmailAndPassword(_fbAuth,email,password);return{ok:true}}catch(e){return{ok:false}}}
 async function fbGetLeaderboard(){
   if(!_fbReady||!_fbDb)return[];
-  try{var snap=await _fbDb.collection("users").get();var users=[];
-  snap.forEach(function(doc){var d=doc.data();var p=d.progress?JSON.parse(d.progress):null;
-  users.push({name:d.displayName||doc.id,xp:p&&p.st?p.st.xp:0,lc:p&&p.st?p.st.lc:0})});
+  try{var snap=await getDocs(collection(_fbDb,"users"));var users=[];
+  snap.forEach(function(docSnap){var d=docSnap.data();var p=d.progress?JSON.parse(d.progress):null;
+  users.push({name:d.displayName||docSnap.id,xp:p&&p.st?p.st.xp:0,lc:p&&p.st?p.st.lc:0})});
   return users.sort(function(a,b){return b.xp-a.xp})}catch(e){return[]}
 }
 // ═══ Audio Engine — Native Croatian Pronunciation ═══
@@ -4596,6 +4606,6 @@ const PHONOLOGY = {
 };
 
 export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, CROATIAN_CITIES, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, CSS, BG_LIGHT, BG_DARK };
-export { _fbReady, _fbAuth, _fbDb };
+export { _fbReady };
 export { W, H, Bar, Spk };
-export { initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, loadVoices, getBestVoice, stopAudio, speakAzure, speakGoogle, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex };
+export { initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakGoogle, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex };
