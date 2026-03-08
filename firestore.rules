@@ -1,0 +1,58 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helper functions ──────────────────────────────────────────────────
+    // The app uses email (with special chars replaced by _) as the document ID
+    function emailToId(email) {
+      return email.replace('.', '_').replace('#', '_').replace('$', '_')
+                  .replace('[', '_').replace(']', '_').replace('/', '_');
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && (
+        request.auth.uid == userId ||
+        emailToId(request.auth.token.email) == userId
+      );
+    }
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // ─── User documents ────────────────────────────────────────────────────
+    // Users can read/write only their own document.
+    // All authenticated users can read for leaderboard purposes.
+    // NOTE: For stricter privacy, move leaderboard data to a separate
+    // /leaderboard collection with only public fields (name, xp, lc).
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if false;
+    }
+
+    // ─── Family groups ─────────────────────────────────────────────────────
+    match /families/{familyCode} {
+      // Any authenticated user can read (needed to validate join codes)
+      allow read: if isAuthenticated();
+
+      // Any authenticated user can create a family
+      allow create: if isAuthenticated()
+        && request.resource.data.keys().hasAll(['name', 'code', 'created', 'members'])
+        && request.resource.data.members.size() == 1;
+
+      // Members can update (join/leave). Limit document size to prevent abuse.
+      allow update: if isAuthenticated()
+        && request.resource.data.keys().hasAll(['name', 'code', 'created', 'members'])
+        && request.resource.data.members.size() <= 50;
+
+      allow delete: if false;
+    }
+
+    // ─── Deny everything else ─────────────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

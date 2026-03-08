@@ -3856,6 +3856,11 @@ const CSS=`
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+/* Skip-to-content for keyboard/screen reader navigation */
+.skip-link{position:absolute;top:-100%;left:0;padding:12px 20px;background:#0e7490;color:#fff;font-weight:700;font-size:15px;z-index:9999;border-radius:0 0 8px 0;text-decoration:none}
+.skip-link:focus{top:0}
+/* Visible focus ring for keyboard navigation */
+:focus-visible{outline:3px solid #0e7490;outline-offset:3px}
 @keyframes rise{0%{opacity:0;transform:translateY(14px)}100%{opacity:1;transform:translateY(0)}}
 @keyframes slideUp{0%{opacity:0;transform:translateY(24px)}100%{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{0%{opacity:0}100%{opacity:1}}
