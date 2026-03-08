@@ -35,28 +35,24 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=nasa-hrvatska-v2 --branch=master
+          command: pages deploy dist --project-name=nasa-hrvatske-v2 --branch=master
 
-      - name: Re-add custom domain to force DNS recreation
+      - name: Create DNS record for nasahrvatska.com
         if: github.event_name == 'push'
         run: |
-          echo "=== Removing domain ==="
-          curl -s -X DELETE \
-            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/nasa-hrvatska-v2/domains/nasahrvatska.com" \
-            -H "Authorization: Bearer $API_TOKEN" | jq '.success, .errors'
+          ZONE_ID="9f2ba0e8d16ebd53bd23d989fd03bd90"
 
-          sleep 3
+          echo "=== Deleting existing root domain records ==="
+          for ID in $(curl -s "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=nasahrvatska.com&per_page=100" \
+            -H "Authorization: Bearer $API_TOKEN" | jq -r '.result[].id // empty'); do
+            curl -s -X DELETE "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$ID" \
+              -H "Authorization: Bearer $API_TOKEN" | jq '.success'
+          done
 
-          echo "=== Re-adding domain ==="
-          curl -s -X POST \
-            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/nasa-hrvatska-v2/domains" \
+          echo "=== Creating CNAME record ==="
+          curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
             -H "Authorization: Bearer $API_TOKEN" \
             -H "Content-Type: application/json" \
-            --data '{"name":"nasahrvatska.com"}' | jq '.success, .errors, .result'
-
-          sleep 10
-          echo "=== DNS check ==="
-          nslookup nasahrvatska.com 1.1.1.1
+            --data '{"type":"CNAME","name":"nasahrvatska.com","content":"nasa-hrvatska-v2.pages.dev","ttl":1,"proxied":true}' | jq '.success, .errors, .result.name, .result.content'
         env:
           API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
