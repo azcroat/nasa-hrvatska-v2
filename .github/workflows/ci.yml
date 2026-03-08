@@ -35,7 +35,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=nasa-hrvatske-v2 --branch=master
+          command: pages deploy dist --project-name=nasa-hrvatska-v2 --branch=master
 
       - name: Create DNS record for nasahrvatska.com
         if: github.event_name == 'push'
