@@ -65,84 +65,111 @@ export default function HomeTab({
 
       {/* ── HERO ── */}
       <div style={{
-        background: "linear-gradient(160deg,#0f172a 0%,#0c4a6e 50%,#0369a1 100%)",
+        background: "linear-gradient(150deg,#0a1628 0%,#0c3d6b 45%,#0a5a8a 100%)",
         borderRadius: 0,
-        padding: "0 0 20px",
+        padding: "0 0 0",
         marginBottom: 0,
         position: "relative",
         overflow: "hidden",
         color: "white",
       }}>
-        {/* Croatian flag stripe — top bar */}
-        <div style={{display:"flex",height:5,width:"100%"}}>
+        {/* Croatian flag tricolor stripe — top */}
+        <div style={{display:"flex",height:6,width:"100%",boxShadow:"0 2px 8px rgba(0,0,0,.4)"}}>
           <div style={{flex:1,background:"#D4002D"}}/>
-          <div style={{flex:1,background:"#FFFFFF"}}/>
+          <div style={{flex:1,background:"#F5F5F5"}}/>
           <div style={{flex:1,background:"#003DA5"}}/>
         </div>
 
-        <div style={{padding:"20px 20px 0"}}>
-
-        {/* Šahovnica (Croatian checkerboard grb) — top-right, prominent */}
-        <svg style={{position:"absolute",top:5,right:0,width:150,height:150,opacity:.22,pointerEvents:"none",transform:"rotate(8deg) translate(20px,-10px)"}} viewBox="0 0 60 60">
+        {/* ── Šahovnica grb — top right, large, proper Croatian red/white ── */}
+        <svg
+          style={{position:"absolute",top:6,right:-8,width:170,height:170,opacity:.28,pointerEvents:"none",filter:"drop-shadow(0 4px 16px rgba(0,0,0,.5))"}}
+          viewBox="0 0 60 60"
+        >
+          {/* Full 5×5 šahovnica — white top-left (standard grb orientation) */}
           {[0,1,2,3,4].map(r=>[0,1,2,3,4].map(c=>(
-            <rect key={`${r}${c}`} x={c*12} y={r*12} width={12} height={12}
-              fill={(r+c)%2===0 ? "#FFFFFF" : "#D4002D"}/>
+            <rect key={`${r}-${c}`} x={c*12} y={r*12} width={12} height={12}
+              fill={(r+c)%2===0 ? "#FFFFFF" : "#CC1024"}/>
           )))}
+          {/* Thin border around the grb */}
+          <rect x={0} y={0} width={60} height={60} fill="none" stroke="rgba(255,255,255,.4)" strokeWidth="1.5"/>
         </svg>
 
-        {/* Pletar interlace ring — bottom-left, prominent */}
-        <svg style={{position:"absolute",bottom:-20,left:-20,width:160,height:160,opacity:.18,pointerEvents:"none"}} viewBox="0 0 120 120">
-          {/* Outer interlace ring — three woven bands */}
-          <circle cx="60" cy="60" r="50" fill="none" stroke="white" strokeWidth="9"/>
-          <circle cx="60" cy="60" r="50" fill="none" stroke="#D4002D" strokeWidth="5" strokeDasharray="18 14" strokeDashoffset="0"/>
-          <circle cx="60" cy="60" r="50" fill="none" stroke="white" strokeWidth="2" strokeDasharray="18 14" strokeDashoffset="9"/>
-          <circle cx="60" cy="60" r="36" fill="none" stroke="white" strokeWidth="6"/>
-          <circle cx="60" cy="60" r="36" fill="none" stroke="#D4002D" strokeWidth="3" strokeDasharray="12 10" strokeDashoffset="0"/>
-          <circle cx="60" cy="60" r="22" fill="none" stroke="white" strokeWidth="4"/>
-          <circle cx="60" cy="60" r="22" fill="none" stroke="#D4002D" strokeWidth="2" strokeDasharray="8 7"/>
+        {/* ── Croatian Pletar (three-ribbon interlace frieze) — bottom strip ── */}
+        {/* Pletar = three parallel ribbons that weave over/under in a repeating band.
+            Rendered as a horizontal frieze using layered sine-wave paths with
+            over-under masking to create the woven braid effect. */}
+        <svg
+          style={{position:"absolute",bottom:0,left:0,width:"100%",height:40,opacity:.32,pointerEvents:"none"}}
+          viewBox="0 0 400 40"
+          preserveAspectRatio="none"
+        >
+          <defs>
+            {/* Mask to cut ribbon A where ribbon B passes over */}
+            <mask id="mA">
+              <rect width="400" height="40" fill="white"/>
+              {/* cut-outs where B crosses over A */}
+              {[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(i=>(
+                <ellipse key={i} cx={i*26+6} cy={20} rx={5} ry={7} fill="black"/>
+              ))}
+            </mask>
+            <mask id="mB">
+              <rect width="400" height="40" fill="white"/>
+              {[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(i=>(
+                <ellipse key={i} cx={i*26+19} cy={20} rx={5} ry={7} fill="black"/>
+              ))}
+            </mask>
+          </defs>
+          {/* Ribbon C — bottom layer (dark navy, continuous) */}
+          <path d="M-10,20 Q3,6 16,20 Q29,34 42,20 Q55,6 68,20 Q81,34 94,20 Q107,6 120,20 Q133,34 146,20 Q159,6 172,20 Q185,34 198,20 Q211,6 224,20 Q237,34 250,20 Q263,6 276,20 Q289,34 302,20 Q315,6 328,20 Q341,34 354,20 Q367,6 380,20 Q393,34 410,20"
+            fill="none" stroke="rgba(255,255,255,.35)" strokeWidth="7" strokeLinecap="round"/>
+          {/* Ribbon A — mid layer (white), masked where B crosses over */}
+          <path d="M-10,13 Q3,27 16,13 Q29,-1 42,13 Q55,27 68,13 Q81,-1 94,13 Q107,27 120,13 Q133,-1 146,13 Q159,27 172,13 Q185,-1 198,13 Q211,27 224,13 Q237,-1 250,13 Q263,27 276,13 Q289,-1 302,13 Q315,27 328,13 Q341,-1 354,13 Q367,27 380,13 Q393,-1 410,13"
+            fill="none" stroke="white" strokeWidth="6" strokeLinecap="round" mask="url(#mA)"/>
+          {/* Ribbon B — top layer (red), masked where A crosses over */}
+          <path d="M-10,27 Q3,13 16,27 Q29,41 42,27 Q55,13 68,27 Q81,41 94,27 Q107,13 120,27 Q133,41 146,27 Q159,13 172,27 Q185,41 198,27 Q211,13 224,27 Q237,41 250,27 Q263,13 276,27 Q289,41 302,27 Q315,13 328,27 Q341,41 354,27 Q367,13 380,27 Q393,41 410,27"
+            fill="none" stroke="#CC1024" strokeWidth="6" strokeLinecap="round" mask="url(#mB)"/>
         </svg>
 
-        {/* Top row: avatar + site brand */}
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
-          <div style={{
-            width:48,height:48,borderRadius:"50%",
-            background:"rgba(255,255,255,.15)",
-            border:"2px solid rgba(255,255,255,.35)",
-            display:"flex",alignItems:"center",justifyContent:"center",
-            fontSize:20,fontWeight:900,flexShrink:0,
-            boxShadow:"0 4px 16px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.2)",
-          }}>
-            {nameInitial}
-          </div>
-          <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:3}}>
+        <div style={{padding:"18px 20px 44px"}}>
+
+        {/* Top row: brand label + greeting */}
+        <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:18}}>
+          {/* Site brand with mini šahovnica */}
+          <div style={{display:"flex",alignItems:"center",gap:7}}>
             <div style={{
-              display:"flex",alignItems:"center",gap:5,
-              background:"rgba(212,0,45,.25)",
-              border:"1px solid rgba(212,0,45,.5)",
-              borderRadius:20,padding:"4px 10px",
+              width:44,height:44,borderRadius:10,overflow:"hidden",
+              border:"2px solid rgba(255,255,255,.3)",
+              boxShadow:"0 4px 16px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.2)",
+              flexShrink:0,
             }}>
-              {/* Mini šahovnica icon */}
-              <svg width="14" height="14" viewBox="0 0 10 10" style={{flexShrink:0}}>
-                {[0,1].map(r=>[0,1].map(c=>(
-                  <rect key={`${r}${c}`} x={c*5} y={r*5} width={5} height={5}
-                    fill={(r+c)%2===0 ? "#fff" : "#D4002D"} opacity="1"/>
+              {/* 3×3 mini šahovnica avatar tile */}
+              <svg width="44" height="44" viewBox="0 0 3 3">
+                {[0,1,2].map(r=>[0,1,2].map(c=>(
+                  <rect key={`${r}-${c}`} x={c} y={r} width={1} height={1}
+                    fill={(r+c)%2===0 ? "#FFFFFF" : "#CC1024"}/>
                 )))}
               </svg>
-              <span style={{fontSize:10,fontWeight:800,color:"white",letterSpacing:".06em",textTransform:"uppercase"}}>Naša Hrvatska</span>
             </div>
-            <div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,.6)",letterSpacing:".03em"}}>
-              {greetingByTime()} 👋
+            <div>
+              <div style={{fontSize:15,fontWeight:900,letterSpacing:".02em",lineHeight:1,color:"white",fontFamily:"'Playfair Display',serif"}}>Naša Hrvatska</div>
+              <div style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,.55)",letterSpacing:".08em",textTransform:"uppercase",marginTop:2}}>Learn Croatian</div>
             </div>
+          </div>
+          <div style={{
+            fontSize:11,fontWeight:600,color:"rgba(255,255,255,.6)",
+            letterSpacing:".03em",marginTop:4,
+          }}>
+            {greetingByTime()} 👋
           </div>
         </div>
 
-        {/* Large name */}
+        {/* User name */}
         <div style={{
-          fontSize:28,fontWeight:900,
+          fontSize:30,fontWeight:900,
           fontFamily:"'Playfair Display',serif",
           letterSpacing:"-.02em",lineHeight:1.1,
-          marginBottom:10,
-          textShadow:"0 2px 16px rgba(0,0,0,.3)",
+          marginBottom:12,
+          textShadow:"0 2px 20px rgba(0,0,0,.4)",
         }}>
           {name || "Učenik"}
         </div>
