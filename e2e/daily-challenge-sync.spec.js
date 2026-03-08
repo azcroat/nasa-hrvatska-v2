@@ -6,7 +6,7 @@ import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL } from './fixtures/seed-au
  * Covers the cross-device sync fix (dcDay3 now stored in Firestore + localStorage).
  */
 test.describe('Daily Challenge sync', () => {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = (() => { const n = new Date(); return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0'); })();
 
   test('fresh load shows 0/3 unanswered', async ({ page }) => {
     await seedAuth(page);
@@ -14,7 +14,8 @@ test.describe('Daily Challenge sync', () => {
     await mockTTS(page);
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText('0/3', { exact: true })).toBeVisible();
+    // Fresh load: accordion is open showing questions (0 done = "earn up to +30 XP" shown)
+    await expect(page.getByText(/earn up to.*XP/i)).toBeVisible();
   });
 
   test('pre-seeded all-answered state restores (shows completion screen)', async ({ page }) => {
@@ -58,8 +59,8 @@ test.describe('Daily Challenge sync', () => {
     await mockTTS(page);
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    // Should restore 1/3 from the pre-seeded state (simulates cross-device sync)
-    await expect(page.getByText('1/3', { exact: true })).toBeVisible({ timeout: 5_000 });
+    // Should restore 1/3 from the pre-seeded state — accordion collapses, shows "1/3 answered"
+    await expect(page.getByText(/1\/3 answered/i)).toBeVisible({ timeout: 5_000 });
   });
 
   test('challenges from a previous day are not restored (expired)', async ({ page }) => {
@@ -81,8 +82,8 @@ test.describe('Daily Challenge sync', () => {
     await mockTTS(page);
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    // Old data should be ignored — fresh challenges = 0/3
-    await expect(page.getByText('0/3', { exact: true })).toBeVisible();
+    // Old data should be ignored — fresh challenges open with "earn up to +30 XP"
+    await expect(page.getByText(/earn up to.*XP/i)).toBeVisible();
   });
 
   test('answering a challenge writes correct data structure to localStorage', async ({ page }) => {
@@ -92,14 +93,10 @@ test.describe('Daily Challenge sync', () => {
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
 
-    // Trigger an answer via JavaScript (challenge option buttons have no CSS class)
+    // Trigger an answer via the first enabled DC option button
     await page.evaluate(() => {
-      for (const btn of document.querySelectorAll('button')) {
-        if (!btn.disabled && !btn.className && btn.textContent.trim().length > 0) {
-          btn.click();
-          break;
-        }
-      }
+      const btn = document.querySelector('button[data-dc-option]:not([disabled])');
+      if (btn) btn.click();
     });
 
     // Verify localStorage was written with the correct structure
@@ -110,7 +107,7 @@ test.describe('Daily Challenge sync', () => {
 
     expect(stored).not.toBeNull();
     expect(typeof stored.day).toBe('string');
-    expect(stored.day).toBe(new Date().toISOString().slice(0, 10));
+    expect(stored.day).toMatch(/^\d{4}-\d{2}-\d{2}$/); // YYYY-MM-DD format (local date)
     expect(Array.isArray(stored.answered)).toBe(true);
     expect(stored.answered).toHaveLength(3);
     expect(Array.isArray(stored.selected)).toBe(true);

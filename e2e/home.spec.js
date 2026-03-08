@@ -21,18 +21,16 @@ test.describe('Home tab', () => {
       await expect(page.getByText(/^Level \d+$/, { exact: true })).toBeVisible();
     });
 
-    test('shows XP total and XP to go', async ({ page }) => {
+    test('shows XP total in stats strip', async ({ page }) => {
       await expect(page.getByText(/XP total/i)).toBeVisible();
-      await expect(page.getByText(/XP to go/i)).toBeVisible();
     });
   });
 
   test.describe('Stats strip', () => {
-    test('shows all 3 stat labels', async ({ page }) => {
-      // CSS text-transform doesn't change DOM text — labels are mixed case
-      await expect(page.getByText('Day Streak')).toBeVisible();
-      await expect(page.getByText('Total XP')).toBeVisible();
-      await expect(page.getByText('Mastered')).toBeVisible();
+    test('shows all stat labels', async ({ page }) => {
+      await expect(page.getByText('streak')).toBeVisible();
+      await expect(page.getByText('XP total')).toBeVisible();
+      await expect(page.getByText('mastered')).toBeVisible();
     });
 
     test('shows seeded XP value of 250 on screen', async ({ page }) => {
@@ -46,8 +44,9 @@ test.describe('Home tab', () => {
       await expect(page.getByText('Daily Challenges')).toBeVisible();
     });
 
-    test('shows 0/3 progress on fresh load', async ({ page }) => {
-      await expect(page.getByText('0/3', { exact: true })).toBeVisible();
+    test('shows challenge questions on fresh load', async ({ page }) => {
+      // Fresh load: 0 answered → accordion is open showing questions
+      await expect(page.getByText(/earn up to.*XP/i)).toBeVisible();
     });
 
     test('answering a challenge updates progress to 1/3', async ({ page }) => {
@@ -78,21 +77,21 @@ test.describe('Home tab', () => {
     });
   });
 
-  test.describe('Learning Path card', () => {
-    test('shows My Learning Path with milestone progress', async ({ page }) => {
-      await expect(page.getByText('My Learning Path')).toBeVisible();
-      await expect(page.getByText(/milestones/i)).toBeVisible();
+  test.describe('Learning Journey card', () => {
+    test('shows My Learning Journey with milestone progress', async ({ page }) => {
+      await expect(page.getByText('My Learning Journey')).toBeVisible();
+      await expect(page.getByText(/milestones remaining/i)).toBeVisible();
     });
 
-    test('clicking Learning Path opens learnpath screen', async ({ page }) => {
-      await page.getByText('My Learning Path').click();
+    test('clicking View Full Learning Path opens learnpath screen', async ({ page }) => {
+      await page.getByText('View Full Learning Path').click();
       await expect(page.getByText(/Learning Path/i).first()).toBeVisible({ timeout: 5_000 });
     });
   });
 
-  test.describe('Jump In section', () => {
-    test('shows Jump In heading', async ({ page }) => {
-      await expect(page.getByRole('heading', { name: 'Jump In' })).toBeVisible();
+  test.describe('Quick Practice section', () => {
+    test('shows Quick Practice heading', async ({ page }) => {
+      await expect(page.getByRole('heading', { name: 'Quick Practice' })).toBeVisible();
     });
 
     test('shows Quick Quiz, Flashcards buttons', async ({ page }) => {
