@@ -139,13 +139,14 @@ test.describe('Home tab', () => {
       await page.getByPlaceholder(/Type English/i).fill('Good day');
       // Use exact: true to avoid matching challenge answer buttons containing "go"
       await page.getByRole('button', { name: 'Go', exact: true }).click();
-      await expect(page.getByText('Dobar dan')).toBeVisible({ timeout: 5_000 });
+      // Scope to the translate output button which contains a speaker icon
+      await expect(page.locator('button').filter({ hasText: 'Dobar dan' }).filter({ hasText: '🔊' })).toBeVisible({ timeout: 5_000 });
     });
 
     test('submits translation via Enter key', async ({ page }) => {
       await page.getByPlaceholder(/Type English/i).fill('Good day');
       await page.keyboard.press('Enter');
-      await expect(page.getByText('Dobar dan')).toBeVisible({ timeout: 5_000 });
+      await expect(page.locator('button').filter({ hasText: 'Dobar dan' }).filter({ hasText: '🔊' })).toBeVisible({ timeout: 5_000 });
     });
   });
 });

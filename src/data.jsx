@@ -1402,10 +1402,14 @@ const COLORQUIRK = [
   {hr:"zlatna ribica",en:"goldfish",lit:"golden little fish",note:"Uses diminutive ribica"}
 ];
 // ═══ DAILY CHALLENGE ═══
+var _dcCache=null;
 function getDailyChallenge(){
-  // Local date key — resets at midnight user's local time
+  // Return cached result if same day — prevents non-determinism from multiple calls
   var now=new Date();
-  var dateKey=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  var _dk=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  if(_dcCache&&_dcCache.dateKey===_dk)return _dcCache;
+
+  var dateKey=_dk;
   // Seeded PRNG (LCG) — fully deterministic per date, different every day
   function hashStr(s){var h=5381;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return h>>>0}
   var _seed=hashStr(dateKey);
@@ -1524,7 +1528,8 @@ function getDailyChallenge(){
   }
   // Fallback: fill if pool too small
   while(challenges.length<3)challenges.push(pool[ri(pool.length)]);
-  return{dateKey:dateKey,challenges:challenges};
+  _dcCache={dateKey:dateKey,challenges:challenges};
+  return _dcCache;
 }
 // ═══ PADEŽI JEDNINA & MNOŽINA (SINGULAR & PLURAL CASES) ═══
 const PADEZI_FULL = {
