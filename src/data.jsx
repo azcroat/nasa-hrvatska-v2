@@ -1513,8 +1513,10 @@ function getDailyChallenge(){
       }
     }
   }
+  // Shuffle opts for hard items using seeded RNG (correct answer is always first in hard pool — fix that)
+  var hardShuffled=hard.map(function(item){return{q:item.q,a:item.a,opts:shuf(item.opts.slice())};});
   // Combine pools and pick THREE distinct challenges using the seeded RNG
-  var pool=hard.concat(vocabQs);
+  var pool=hardShuffled.concat(vocabQs);
   var challenges=[];var usedIdx=new Set();
   for(var attempt=0;attempt<pool.length*3&&challenges.length<3;attempt++){
     var idx=ri(pool.length);

@@ -24,36 +24,30 @@ export default function PracticeTab({
     sMcQ(items.map(w => { const wr=sh(p.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]); return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]}; }));
     sMcI(0); sMcS(0); sMcA(false); sMcSl(-1); setScr("mcgame"); sCurEx("mcgame");
   }
-
   function startFlashcards() {
     const p = pool();
     sFcPool(sh(p).slice(0,20)); sFcI(0); sFcFlip(false); sFcKnow(0); setScr("flashcards"); sCurEx("flashcards");
   }
-
   function startMatch() {
     const p = pool();
     const sel = sh(p).slice(0,6);
     sMp(sh(sel.map((w,i)=>({id:"h"+i,t:w[0],p:i,tp:"hr"})).concat(sel.map((w,i)=>({id:"e"+i,t:w[1],p:i,tp:"en"})))));
     sMsl([]); sMm([]); sGsc(0); sGph("play"); setScr("match"); sCurEx("match");
   }
-
   function startTyping() {
     const p = pool();
     const items = sh(p).slice(0,10);
     sTyPool(items); sTyI(0); sTyS(0); sTyIn(""); sTyA(false); sTyW(items[0]); setScr("typing"); sCurEx("typing");
   }
-
   function startListening() {
     const q = sh(LISTEN).slice(0,8);
     sLsQ(q); sLsI(0); sLsS(0); sLsA(false); sLsSl(-1); sLsO(sh(q[0].opts)); setScr("listening"); sCurEx("listening");
   }
-
   function startSpeaking() {
     const p = pool();
     const items = sh(p).slice(0,6);
     sSi(items); sSx(0); sSw(items[0]); sSr(null); sSsc(0); setScr("speaking"); sCurEx("speaking");
   }
-
   function startWeakWords() {
     const d = getSR();
     const p = pool();
@@ -65,121 +59,157 @@ export default function PracticeTab({
     sMcQ(items); sMcI(0); sMcS(0); sMcA(false); sMcSl(-1); setScr("mcgame"); sCurEx("mcgame");
   }
 
-  const exercises = [
-    ["🇭🇷","Translate","znam"],
-    ["🧩","Word Order","unjumble"],
-    ["📍","Prepositions","prepdrill"],
-    ["🔢","Numbers","numtime"],
-    ["👨‍⚖️","M/F Jobs","profgender"],
-    ["📈","Compare","comparatives"],
-    ["🚀","Future","future"],
-    ["🔄","k→c/g→z","sibil"],
-    ["🍽️","Restaurant","restaurant"],
-    ["❓","Questions","qwords"],
-    ["❌","Negation","negation"],
-    ["👤","My/Your","possess"],
-    ["🎨","Colors+","coloragree"],
-    ["↔️","Opposites","opposites"],
-    ["🏙️","Cities","cityloc"],
-    ["🍽️","Accusative","akudrill"],
-    ["🏢","Ordinals","ordinals"],
-    ["🔗","Koji/Koja","relpron"],
-    ["😀","Emotions","emogender"],
-    ["💪","20 Verbs","verbdrill"],
-    ["⏳","Tense Flip","tenseflip"],
-    ["🧩","Riddles","riddles"],
-    ["🧠","Think HR","logicquiz"],
-    ["🎯","Pronouns","pronouns"],
-    ["♂️♀️","Gender","genderdrill"],
-    ["🏗️","Sentences","sentbuild"],
-    ["🧲","SE Verbs","reflexive"],
-    ["📝","Story Fill","fillstory"],
-    ["💬","Conversations","convmatch"],
-    ["🖼️","Describe","scenes"],
-    ["📖","Stories","storyselect"],
-    ["😝","Tongue Twisters","brzalice"],
+  const specialInit = {
+    znam:      () => { sZnMode("menu"); setScr("znam"); sCurEx("znam"); },
+    unjumble:  () => { const q=sh(UNJUMBLE).slice(0,10); sUjQ(q); sUjI(0); sUjS(0); sUjIn(""); sUjA(false); setScr("unjumble"); sCurEx("unjumble"); },
+    prepdrill: () => { const q=sh(PREPDRILL); sPpQ(q); sPpI(0); sPpS(0); sPpA(false); sPpSl(-1); setScr("prepdrill"); sCurEx("prepdrill"); },
+    numtime:   () => { const q=sh([...NUMTIME.numbers,...NUMTIME.time]).slice(0,10); sNtQ(q); sNtI(0); sNtS(0); sNtA(false); sNtSl(-1); sNtO(sh([q[0].a].concat(q[0].al))); setScr("numtime"); sCurEx("numtime"); },
+  };
+  const go = screen => specialInit[screen] || (() => { setScr(screen); sCurEx(screen); });
+
+  // ── Exercise categories ─────────────────────────────────────────────────
+  const grammarDrills = [
+    ["🧩","Word Order",    "unjumble",   "Put words in the right order"],
+    ["📍","Prepositions",  "prepdrill",  "u, na, od, do — which one?"],
+    ["❓","Questions",     "qwords",     "Tko, Što, Gdje, Zašto..."],
+    ["❌","Negation",      "negation",   "Ne, nije, nisam..."],
+    ["♂️♀️","Gender",     "genderdrill","Masculine, feminine, neuter"],
+    ["👨‍⚖️","M/F Jobs",  "profgender", "Učitelj vs učiteljica"],
+    ["📈","Compare",       "comparatives","Bigger, faster, better"],
+    ["🚀","Future Tense",  "future",     "ću, ćeš, će..."],
+    ["🔄","Sibilization",  "sibil",      "k→c, g→z sound changes"],
+    ["🎨","Color Agreement","coloragree","Colors match noun gender"],
+    ["🍽️","Accusative",  "akudrill",   "Direct objects change form"],
+    ["🔗","Koji/Koja",     "relpron",    "Relative pronouns"],
+    ["🧲","SE Verbs",      "reflexive",  "Reflexive verbs with se/si"],
+    ["🏗️","Build Sentences","sentbuild", "Arrange the building blocks"],
   ];
 
-  // exercises with custom init (not just setScr)
-  const specialInit = {
-    znam: () => { sZnMode("menu"); setScr("znam"); sCurEx("znam"); },
-    unjumble: () => { const q=sh(UNJUMBLE).slice(0,10); sUjQ(q); sUjI(0); sUjS(0); sUjIn(""); sUjA(false); setScr("unjumble"); sCurEx("unjumble"); },
-    prepdrill: () => { const q=sh(PREPDRILL); sPpQ(q); sPpI(0); sPpS(0); sPpA(false); sPpSl(-1); setScr("prepdrill"); sCurEx("prepdrill"); },
-    numtime: () => { const q=sh([...NUMTIME.numbers,...NUMTIME.time]).slice(0,10); sNtQ(q); sNtI(0); sNtS(0); sNtA(false); sNtSl(-1); sNtO(sh([q[0].a].concat(q[0].al))); setScr("numtime"); sCurEx("numtime"); },
-  };
+  const vocabularyDrills = [
+    ["🇭🇷","Translate",   "znam",      "English ↔ Croatian"],
+    ["👤","My/Your",       "possess",   "Moj, tvoj, njegov, njezin"],
+    ["↔️","Opposites",     "opposites", "Hot/cold, big/small..."],
+    ["🏢","Ordinals",      "ordinals",  "First, second, third..."],
+    ["😀","Emotions",      "emogender", "Sretan, sretna — feel it"],
+    ["💪","20 Core Verbs", "verbdrill", "The most-used Croatian verbs"],
+    ["🎯","Pronouns",      "pronouns",  "Ja, ti, on, ona, mi..."],
+    ["🏙️","City Locations","cityloc",  "Where is it in Croatia?"],
+  ];
+
+  const practicalCroatian = [
+    ["🍽️","Restaurant",  "restaurant", "Order food like a local"],
+    ["🔢","Numbers & Time","numtime",   "Tell time, count anything"],
+    ["💬","Conversations","convmatch",  "Match real-world dialogues"],
+    ["🖼️","Describe",    "scenes",     "Describe what you see"],
+    ["⏳","Tense Flip",   "tenseflip",  "Switch tense on the fly"],
+  ];
+
+  const readingFun = [
+    ["📝","Story Fill",  "fillstory",  "Fill in the blanks"],
+    ["📖","Stories",     "storyselect","Read short Croatian tales"],
+    ["🧩","Riddles",     "riddles",    "Can you guess the answer?"],
+    ["🧠","Think Croatian","logicquiz","Logic puzzles in Croatian"],
+    ["😝","Tongue Twisters","brzalice","Brzalice — dare yourself"],
+  ];
+
+  function ExGroup({ items }) {
+    return (
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:24}}>
+        {items.map(([icon, label, screen, desc]) => (
+          <button key={screen} className="tc"
+            style={{display:"flex",alignItems:"center",gap:12,padding:"14px",textAlign:"left"}}
+            onClick={go(screen)}>
+            <div style={{width:40,height:40,borderRadius:12,background:"var(--bg)",border:"1px solid var(--card-b)",
+              display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>
+              {icon}
+            </div>
+            <div style={{minWidth:0}}>
+              <div style={{fontSize:12,fontWeight:800,color:"var(--heading)",lineHeight:1.2}}>{label}</div>
+              <div style={{fontSize:10,color:"var(--subtext)",marginTop:2,lineHeight:1.3}}>{desc}</div>
+            </div>
+          </button>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <React.Fragment>
       {H("🎮 Practice", "Games, exercises & review")}
+
+      {/* ── QUICK GAMES ── */}
       <h3 className="sh">⚡ Quick Games</h3>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
-        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={startQuiz}>
-          <div style={{fontSize:28}}>🎯</div>
-          <div style={{fontSize:12,fontWeight:700,marginTop:4}}>Quiz</div>
-        </button>
-        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={startFlashcards}>
-          <div style={{fontSize:28}}>🃏</div>
-          <div style={{fontSize:12,fontWeight:700,marginTop:4}}>Flashcards</div>
-        </button>
-        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={startMatch}>
-          <div style={{fontSize:28}}>🔗</div>
-          <div style={{fontSize:12,fontWeight:700,marginTop:4}}>Match Pairs</div>
-        </button>
-        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={startTyping}>
-          <div style={{fontSize:28}}>⌨️</div>
-          <div style={{fontSize:12,fontWeight:700,marginTop:4}}>Typing</div>
-        </button>
-        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={startListening}>
-          <div style={{fontSize:28}}>🎧</div>
-          <div style={{fontSize:12,fontWeight:700,marginTop:4}}>Listening</div>
-        </button>
-        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={startSpeaking}>
-          <div style={{fontSize:28}}>🎤</div>
-          <div style={{fontSize:12,fontWeight:700,marginTop:4}}>Pronunciation</div>
-        </button>
-        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => { setScr("wordsprint"); sCurEx("wordsprint"); }}>
-          <div style={{fontSize:28}}>⚡</div>
-          <div style={{fontSize:12,fontWeight:700,marginTop:4}}>Word Sprint</div>
-        </button>
-      </div>
-      <h3 className="sh">✏️ Exercises</h3>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
-        {exercises.map(([icon, label, screen]) => (
-          <button
-            key={screen}
-            className="tc"
-            style={{textAlign:"center",padding:"14px 8px"}}
-            onClick={specialInit[screen] || (() => { setScr(screen); sCurEx(screen); })}>
+      <p style={{fontSize:12,color:"var(--subtext)",marginTop:-6,marginBottom:12,fontWeight:500}}>Tap any game to start instantly</p>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:24}}>
+        {[
+          [startQuiz,       "🎯","Quiz",         "#fff7ed","#fed7aa"],
+          [startFlashcards, "🃏","Flashcards",   "#f5f3ff","#ddd6fe"],
+          [startMatch,      "🔗","Match Pairs",  "#f0fdf4","#bbf7d0"],
+          [startTyping,     "⌨️","Typing",       "#fef9c3","#fde047"],
+          [startListening,  "🎧","Listening",    "#fff1f2","#fecaca"],
+          [startSpeaking,   "🎤","Pronunciation","#f0f9ff","#bae6fd"],
+          [() => { setScr("wordsprint"); sCurEx("wordsprint"); },"⚡","Word Sprint","#fffbeb","#fde68a"],
+        ].map(([fn, icon, label, bg, border], i) => (
+          <button key={i} className="tc"
+            style={{textAlign:"center",padding:"14px 8px",background:bg,border:`1.5px solid ${border}`}}
+            onClick={fn}>
             <div style={{fontSize:28}}>{icon}</div>
-            <div style={{fontSize:12,fontWeight:700,marginTop:4}}>{label}</div>
+            <div style={{fontSize:11,fontWeight:800,marginTop:5,color:"var(--heading)"}}>{label}</div>
           </button>
         ))}
       </div>
+
+      {/* ── GRAMMAR DRILLS ── */}
+      <h3 className="sh">📝 Grammar Drills</h3>
+      <p style={{fontSize:12,color:"var(--subtext)",marginTop:-6,marginBottom:12,fontWeight:500}}>Master Croatian structure step by step</p>
+      <ExGroup items={grammarDrills} />
+
+      {/* ── VOCABULARY ── */}
+      <h3 className="sh">🔤 Vocabulary</h3>
+      <p style={{fontSize:12,color:"var(--subtext)",marginTop:-6,marginBottom:12,fontWeight:500}}>Build and reinforce your word bank</p>
+      <ExGroup items={vocabularyDrills} />
+
+      {/* ── PRACTICAL CROATIAN ── */}
+      <h3 className="sh">🌍 Practical Croatian</h3>
+      <p style={{fontSize:12,color:"var(--subtext)",marginTop:-6,marginBottom:12,fontWeight:500}}>Real situations, real language</p>
+      <ExGroup items={practicalCroatian} />
+
+      {/* ── READING & FUN ── */}
+      <h3 className="sh">📖 Reading & Fun</h3>
+      <p style={{fontSize:12,color:"var(--subtext)",marginTop:-6,marginBottom:12,fontWeight:500}}>Stories, riddles, and challenges</p>
+      <ExGroup items={readingFun} />
+
+      {/* ── REVIEW ── */}
       <h3 className="sh">🧠 Review</h3>
+      <p style={{fontSize:12,color:"var(--subtext)",marginTop:-6,marginBottom:12,fontWeight:500}}>Focus on what needs more practice</p>
       {weakMsg && (
-        <div style={{background:"#fffbeb",border:"1.5px solid #fde68a",borderRadius:12,padding:"12px 16px",marginBottom:12,fontSize:13,fontWeight:600,color:"#92400e",display:"flex",alignItems:"center",gap:8}}>
+        <div style={{background:"#fffbeb",border:"1.5px solid #fde68a",borderRadius:12,padding:"12px 16px",marginBottom:12,
+          fontSize:13,fontWeight:600,color:"#92400e",display:"flex",alignItems:"center",gap:8}}>
           <span>💡</span>
-          <span>{weakMsg}</span>
-          <button onClick={()=>setWeakMsg("")} style={{marginLeft:"auto",background:"none",border:"none",cursor:"pointer",fontSize:16,color:"#92400e",lineHeight:1}}>×</button>
+          <span style={{flex:1}}>{weakMsg}</span>
+          <button onClick={() => setWeakMsg("")} style={{background:"none",border:"none",cursor:"pointer",fontSize:16,color:"#92400e",lineHeight:1}}>×</button>
         </div>
       )}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-        <button className="tc" style={{textAlign:"center",padding:"14px"}} onClick={()=>{setWeakMsg("");startWeakWords();}}>
-          <div style={{fontSize:28}}>🧠</div>
-          <div style={{fontSize:13,fontWeight:700,marginTop:4}}>Weak Words</div>
-        </button>
-        <button className="tc" style={{textAlign:"center",padding:"14px"}} onClick={() => { setScr("proverbs"); sCurEx("proverbs"); }}>
-          <div style={{fontSize:28}}>🌟</div>
-          <div style={{fontSize:13,fontWeight:700,marginTop:4}}>All Proverbs</div>
-        </button>
-        <button className="tc" style={{textAlign:"center",padding:"14px"}} onClick={() => { setScr("idioms"); sCurEx("idioms"); }}>
-          <div style={{fontSize:28}}>🗣️</div>
-          <div style={{fontSize:13,fontWeight:700,marginTop:4}}>Idioms & Slang</div>
-        </button>
-        <button className="tc" style={{textAlign:"center",padding:"14px"}} onClick={() => { sEvM(new Date().getMonth()+1); setScr("events"); sCurEx("events"); }}>
-          <div style={{fontSize:28}}>📅</div>
-          <div style={{fontSize:13,fontWeight:700,marginTop:4}}>Croatian Events</div>
-        </button>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:8}}>
+        {[
+          [() => { setWeakMsg(""); startWeakWords(); }, "🧠","Weak Words",    "Words you've struggled with"],
+          [() => { setScr("proverbs"); sCurEx("proverbs"); }, "🌟","Proverbs","Croatian wisdom & sayings"],
+          [() => { setScr("idioms"); sCurEx("idioms"); },     "🗣️","Idioms & Slang","Phrases locals actually use"],
+          [() => { sEvM(new Date().getMonth()+1); setScr("events"); sCurEx("events"); },"📅","Croatian Events","Festivals & holidays"],
+        ].map(([fn,icon,label,desc],i) => (
+          <button key={i} className="tc"
+            style={{display:"flex",alignItems:"center",gap:12,padding:"14px",textAlign:"left"}}
+            onClick={fn}>
+            <div style={{width:40,height:40,borderRadius:12,background:"var(--bg)",border:"1px solid var(--card-b)",
+              display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>
+              {icon}
+            </div>
+            <div style={{minWidth:0}}>
+              <div style={{fontSize:12,fontWeight:800,color:"var(--heading)",lineHeight:1.2}}>{label}</div>
+              <div style={{fontSize:10,color:"var(--subtext)",marginTop:2,lineHeight:1.3}}>{desc}</div>
+            </div>
+          </button>
+        ))}
       </div>
     </React.Fragment>
   );

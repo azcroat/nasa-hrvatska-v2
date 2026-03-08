@@ -27,7 +27,7 @@ test.describe('Practice tab', () => {
     });
 
     test('shows Exercises section', async ({ page }) => {
-      await expect(page.getByText('✏️ Exercises')).toBeVisible();
+      await expect(page.getByText('📝 Grammar Drills')).toBeVisible();
     });
 
     test('shows Review section with Weak Words', async ({ page }) => {
@@ -81,8 +81,9 @@ test.describe('Practice tab', () => {
 
   test.describe('Match Pairs', () => {
     test('launches match pairs game', async ({ page }) => {
-      await page.getByText('Match Pairs').click();
-      await expect(page.getByText(/Match|Score/i)).toBeVisible({ timeout: 5_000 });
+      await page.getByText('Match Pairs').first().click();
+      // After navigation the PracticeTab is gone; MatchGame renders an h2 heading
+      await expect(page.getByRole('heading', { name: /Match Pairs/i })).toBeVisible({ timeout: 5_000 });
     });
   });
 
