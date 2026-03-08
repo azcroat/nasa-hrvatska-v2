@@ -16,7 +16,8 @@ test.describe('Learn tab', () => {
 
   test.describe('Vocabulary section', () => {
     test('renders vocabulary section heading with category count', async ({ page }) => {
-      await expect(page.getByText(/📚 Vocabulary \(\d+ categories\)/)).toBeVisible();
+      await expect(page.getByText('📚 Vocabulary')).toBeVisible();
+      await expect(page.getByText(/categories · tap/i)).toBeVisible();
     });
 
     test('shows multiple vocabulary categories', async ({ page }) => {

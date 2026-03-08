@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Bar, V, LEARN_PATH, getStreak, getProverbOfDay, getHistFact, getDailyChallenge, lXP, nXP, speak, getSR } from '../../data.jsx';
 
 export default function HomeTab({
@@ -21,14 +21,8 @@ export default function HomeTab({
   const xpNeeded = nXP(level) - lXP(level);
   const xpPct = Math.min(Math.round((xpCur / xpNeeded) * 100), 100);
 
-  const [allOpts] = useState(() => dc.challenges.map(ch => {
-    const opts = [...(ch.opts || [ch.a])];
-    for (let i = opts.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [opts[i], opts[j]] = [opts[j], opts[i]];
-    }
-    return opts;
-  }));
+  // opts are already seeded-shuffled per day by getDailyChallenge — no random re-shuffle needed
+  const allOpts = dc.challenges.map(ch => ch.opts || [ch.a]);
 
   const doneCount = dchlA.filter(Boolean).length;
   const allDone = doneCount === 3;
@@ -82,11 +76,12 @@ export default function HomeTab({
       </div>
 
       {/* ── STATS STRIP ── */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:20}}>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:20}}>
         {[
-          {icon:"🔥",value:streak.count,label:"Day Streak",color:"#f59e0b",bg:"#fffbeb",border:"#fde68a"},
-          {icon:"⭐",value:st.xp.toLocaleString(),label:"Total XP",color:"#0e7490",bg:"#f0f9ff",border:"#bae6fd"},
-          {icon:"💪",value:ws.strong,label:"Mastered",color:"#7c3aed",bg:"#f5f3ff",border:"#ddd6fe"},
+          {icon:"🔥",value:streak.count,         label:"Day Streak",color:"#f59e0b",bg:"#fffbeb",border:"#fde68a"},
+          {icon:"⭐",value:st.xp.toLocaleString(),label:"Total XP",  color:"#0e7490",bg:"#f0f9ff",border:"#bae6fd"},
+          {icon:"📚",value:st.lc,                label:"Lessons",   color:"#16a34a",bg:"#f0fdf4",border:"#bbf7d0"},
+          {icon:"💪",value:ws.strong,            label:"Mastered",  color:"#7c3aed",bg:"#f5f3ff",border:"#ddd6fe"},
         ].map((s,i) => (
           <div key={i} style={{background:s.bg,border:`1.5px solid ${s.border}`,borderRadius:14,padding:"12px 8px",textAlign:"center"}}>
             <div style={{fontSize:20,marginBottom:3}}>{s.icon}</div>
@@ -116,11 +111,11 @@ export default function HomeTab({
         {allDone ? (
           <div style={{textAlign:"center",padding:"12px 0"}}>
             <div style={{fontSize:38,marginBottom:6}}>
-              {dchlA.filter((a,i) => a && allOpts[i][dchlSl[i]] === dc.challenges[i].a).length >= 2 ? "🏆" : "🎯"}
+              {dchlA.filter((a,i) => a && dchlSl[i] === dc.challenges[i].a).length >= 2 ? "🏆" : "🎯"}
             </div>
             <div style={{fontSize:15,fontWeight:800,color:"#1e293b",marginBottom:3}}>
-              {dc.challenges.filter((ch,i) => allOpts[i][dchlSl[i]] === ch.a).length}/3 correct
-              {' '}· +{dc.challenges.filter((ch,i) => allOpts[i][dchlSl[i]] === ch.a).length * 10} XP earned
+              {dc.challenges.filter((ch,i) => dchlSl[i] === ch.a).length}/3 correct
+              {' '}· +{dc.challenges.filter((ch,i) => dchlSl[i] === ch.a).length * 10} XP earned
             </div>
             <div style={{fontSize:12,color:"var(--subtext)"}}>New challenges at midnight</div>
           </div>
@@ -128,9 +123,9 @@ export default function HomeTab({
           <div style={{display:"flex",flexDirection:"column",gap:14}}>
             {dc.challenges.map((ch, ci) => {
               const answered = dchlA[ci];
-              const selIdx = dchlSl[ci];
+              const selVal = dchlSl[ci];
               const opts = allOpts[ci];
-              const correct = opts[selIdx] === ch.a;
+              const correct = selVal === ch.a;
               return (
                 <div key={ci} style={{
                   borderRadius:12,
@@ -150,7 +145,7 @@ export default function HomeTab({
                       let bg = "#fff", border = "#e2e8f0", color = "#1e293b";
                       if (answered) {
                         if (o === ch.a) { bg="#dcfce7"; border="#86efac"; color="#166534"; }
-                        else if (oi === selIdx) { bg="#fee2e2"; border="#fca5a5"; color="#991b1b"; }
+                        else if (o === selVal) { bg="#fee2e2"; border="#fca5a5"; color="#991b1b"; }
                         else { bg="#f1f5f9"; color="#94a3b8"; }
                       }
                       return (
@@ -159,10 +154,10 @@ export default function HomeTab({
                           style={{padding:"9px 10px",border:`1.5px solid ${border}`,borderRadius:10,background:bg,
                             fontSize:12,fontWeight:600,cursor:answered?"default":"pointer",textAlign:"left",
                             fontFamily:"'Outfit',sans-serif",color,lineHeight:1.3,transition:"all .15s",
-                            opacity:answered&&o!==ch.a&&oi!==selIdx?0.5:1}}
+                            opacity:answered&&o!==ch.a&&o!==selVal?0.5:1}}
                           onClick={() => {
                             const newA = [...dchlA]; newA[ci] = true; sDchlA(newA);
-                            const newSl = [...dchlSl]; newSl[ci] = oi; sDchlSl(newSl);
+                            const newSl = [...dchlSl]; newSl[ci] = o; sDchlSl(newSl);
                             localStorage.setItem("dcDay3", JSON.stringify({day:dc.dateKey,answered:newA,selected:newSl}));
                             if (o === ch.a) award(10);
                           }}>
@@ -201,6 +196,7 @@ export default function HomeTab({
 
       {/* ── JUMP IN ── */}
       <h3 className="sh">Jump In</h3>
+      <p style={{fontSize:12,color:"var(--subtext)",marginTop:-6,marginBottom:12,fontWeight:500}}>Pick up where you left off</p>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
         <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"14px"}}
           onClick={() => setTab("learn")}>
@@ -243,6 +239,7 @@ export default function HomeTab({
 
       {/* ── PROVERB OF THE DAY ── */}
       <h3 className="sh">Today's Croatian</h3>
+      <p style={{fontSize:12,color:"var(--subtext)",marginTop:-6,marginBottom:12,fontWeight:500}}>Tap any phrase to hear it spoken aloud</p>
       <button style={{width:"100%",background:"linear-gradient(135deg,#fefce8,#fef9c3)",border:"1.5px solid #fde047",borderRadius:18,
         padding:"16px",marginBottom:10,cursor:"pointer",textAlign:"left",boxShadow:"0 2px 8px rgba(234,179,8,.1)",fontFamily:"'Outfit',sans-serif"}}
         onClick={() => speak(proverb.hr)}>
