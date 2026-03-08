@@ -710,7 +710,7 @@ function markExerciseDone(exerciseId){
       {// ═══ MATCH GAME ═══
       scr==="match"&&<MatchGame mp={mp} mm={mm} msl={msl} gph={gph} gsc={gsc} sMm={sMm} sMsl={sMsl} sGsc={sGsc} sGph={sGph} goBack={goBack} award={award} />}
       {// ═══ WORD SPRINT ═══
-      scr==="wordsprint"&&<WordSprint sh={sh} allCats={allCats} award={award} goBack={goBack} />}
+      scr==="wordsprint"&&<WordSprint sh={sh} award={award} goBack={goBack} />}
       {// ═══ SPEAKING / PRONUNCIATION ═══
       scr==="speaking"&&<SpeakingScreen sw={sw} si={si} sx={sx} sr={sr} ssc={ssc} sSr={sSr} sSx={sSx} sSw={sSw} sSsc={sSsc} goBack={goBack} award={award} setSt={setSt} />}
       {// ═══ VOCABULARY LESSON ═══
