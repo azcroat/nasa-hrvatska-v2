@@ -29,10 +29,9 @@ jobs:
         env:
           VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
 
-      - name: Deploy to Cloudflare Pages
-        if: github.event_name == 'push'
-        uses: cloudflare/wrangler-action@v3
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=nasa-hrvatska-v2 --branch=master
+          name: dist
+          path: dist/
+          retention-days: 7
