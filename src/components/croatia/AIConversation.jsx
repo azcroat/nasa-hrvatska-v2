@@ -246,7 +246,7 @@ export default function AIConversation({ goBack, setScr, sCurEx }) {
   async function callAI(msgs, systemPrompt, mode = "chat") {
     let res, data;
     try {
-      res = await fetch("/.netlify/functions/ai-chat", {
+      res = await fetch("/api/ai-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: msgs, systemPrompt, mode }),

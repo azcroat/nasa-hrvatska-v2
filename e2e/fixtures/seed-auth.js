@@ -64,15 +64,15 @@ export async function mockTranslate(page, translatedText = 'Dobar dan') {
 }
 
 /**
- * Mock the Netlify TTS function to avoid real Azure calls in tests.
+ * Mock the Cloudflare Pages Functions for TTS and AI chat to avoid real API calls in tests.
  */
 export async function mockTTS(page) {
-  await page.route('**/.netlify/functions/tts', route => route.fulfill({
+  await page.route('**/api/tts', route => route.fulfill({
     status: 200,
     contentType: 'audio/mpeg',
     body: Buffer.from([]),
   }));
-  await page.route('**/.netlify/functions/ai-chat', route => route.fulfill({
+  await page.route('**/api/ai-chat', route => route.fulfill({
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify({ text: 'Zdravo! Kako si?' }),
