@@ -27,6 +27,7 @@ export default defineConfig({
       workbox: {
         skipWaiting: true,
         clientsClaim: true,
+        cacheId: 'nasa-hrvatska-v3',
         globPatterns: ['**/*.{js,css,html,svg,ico}'],
         runtimeCaching: [
           {
