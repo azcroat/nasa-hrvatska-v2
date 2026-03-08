@@ -132,46 +132,46 @@ export default function HomeTab({
 
         <div style={{padding:"18px 20px 44px"}}>
 
-        {/* Top row: brand label + greeting */}
-        <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:18}}>
-          {/* Site brand with mini šahovnica */}
-          <div style={{display:"flex",alignItems:"center",gap:7}}>
-            <div style={{
-              width:44,height:44,borderRadius:10,overflow:"hidden",
-              border:"2px solid rgba(255,255,255,.3)",
-              boxShadow:"0 4px 16px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.2)",
-              flexShrink:0,
-            }}>
-              {/* 3×3 mini šahovnica avatar tile */}
-              <svg width="44" height="44" viewBox="0 0 3 3">
-                {[0,1,2].map(r=>[0,1,2].map(c=>(
-                  <rect key={`${r}-${c}`} x={c} y={r} width={1} height={1}
-                    fill={(r+c)%2===0 ? "#FFFFFF" : "#CC1024"}/>
-                )))}
-              </svg>
-            </div>
-            <div>
-              <div style={{fontSize:15,fontWeight:900,letterSpacing:".02em",lineHeight:1,color:"white",fontFamily:"'Playfair Display',serif"}}>Naša Hrvatska</div>
-              <div style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,.55)",letterSpacing:".08em",textTransform:"uppercase",marginTop:2}}>Learn Croatian</div>
-            </div>
-          </div>
+        {/* Top row: brand label */}
+        <div style={{display:"flex",alignItems:"center",gap:7,marginBottom:20}}>
           <div style={{
-            fontSize:11,fontWeight:600,color:"rgba(255,255,255,.6)",
-            letterSpacing:".03em",marginTop:4,
+            width:44,height:44,borderRadius:10,overflow:"hidden",
+            border:"2px solid rgba(255,255,255,.3)",
+            boxShadow:"0 4px 16px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.2)",
+            flexShrink:0,
           }}>
-            {greetingByTime()} 👋
+            <svg width="44" height="44" viewBox="0 0 3 3">
+              {[0,1,2].map(r=>[0,1,2].map(c=>(
+                <rect key={`${r}-${c}`} x={c} y={r} width={1} height={1}
+                  fill={(r+c)%2===0 ? "#FFFFFF" : "#CC1024"}/>
+              )))}
+            </svg>
+          </div>
+          <div>
+            <div style={{fontSize:15,fontWeight:900,letterSpacing:".02em",lineHeight:1,color:"white",fontFamily:"'Playfair Display',serif"}}>Naša Hrvatska</div>
+            <div style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,.55)",letterSpacing:".08em",textTransform:"uppercase",marginTop:2}}>Learn Croatian</div>
           </div>
         </div>
 
-        {/* User name */}
-        <div style={{
-          fontSize:30,fontWeight:900,
-          fontFamily:"'Playfair Display',serif",
-          letterSpacing:"-.02em",lineHeight:1.1,
-          marginBottom:12,
-          textShadow:"0 2px 20px rgba(0,0,0,.4)",
-        }}>
-          {name || "Učenik"}
+        {/* Greeting — centred, large, prominent */}
+        <div style={{textAlign:"center",marginBottom:6}}>
+          <div style={{
+            fontSize:13,fontWeight:700,
+            color:"rgba(255,255,255,.65)",
+            letterSpacing:".12em",
+            textTransform:"uppercase",
+            marginBottom:4,
+          }}>
+            {greetingByTime()}
+          </div>
+          <div style={{
+            fontSize:32,fontWeight:900,
+            fontFamily:"'Playfair Display',serif",
+            letterSpacing:"-.01em",lineHeight:1.1,
+            textShadow:"0 2px 24px rgba(0,0,0,.5)",
+          }}>
+            {name || "Učenik"} 👋
+          </div>
         </div>
 
         {/* Level badge pill */}
