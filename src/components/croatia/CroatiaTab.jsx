@@ -235,25 +235,31 @@ export default function CroatiaTab({
       </button>
 
       <h3 className="sh">🇭🇷 History & Regions</h3>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
+      <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:20}}>
         {[
-          [()=>{sHIdx(0);setScr("history");},"🇭🇷","Domovinski Rat","Homeland War"],
-          [()=>{sKgTab("timeline");setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval kingdom"],
-          [()=>setScr("region_zagreb"),"🏛️","Zagreb","Capital city"],
-          [()=>setScr("region_split"),"🌊","Split","Rome on the Adriatic"],
-          [()=>setScr("region_mostar"),"🌉","Mostar","The bridge reborn"],
-          [()=>setScr("region_tomislavgrad"),"👑","Tomislavgrad","Where Croatia was born"],
-          [()=>setScr("region_knin"),"🏰","Knin","Liberated Aug 5, 1995"],
-          [()=>setScr("region_labin"),"⛵","Labin & Rabac","Our new home!"],
-          [()=>setScr("region_bibinje"),"🏖️","Bibinje & Zadar","Dalmatian gateway"],
-          [()=>setScr("region_hercegovina"),"⚔️","Hrvati Hercegovine","Our heritage"],
-          [()=>setScr("region_vukovar"),"🕯️","Vukovar","Hero city"],
-          [()=>setScr("region_vinkovci"),"🏛️","Vinkovci","8,300 years"],
-        ].map(([fn,icon,title,sub],i)=>(
-          <button key={i} className="tc" style={{textAlign:"center",padding:"14px 8px",minHeight:80,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:4}} onClick={fn}>
-            <div style={{fontSize:28}}>{icon}</div>
-            <div style={{fontSize:12,fontWeight:700,lineHeight:1.2}}>{title}</div>
-            <div style={{fontSize:10,color:"var(--subtext)",lineHeight:1.2}}>{sub}</div>
+          [()=>{sHIdx(0);setScr("history");},"🇭🇷","Domovinski Rat","Croatia's 1991–1995 Homeland War","#dc2626"],
+          [()=>{sKgTab("timeline");setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval dynasty & royal timeline","#b45309"],
+          [()=>setScr("region_zagreb"),"🏛️","Zagreb","Croatia's vibrant capital city","#0e7490"],
+          [()=>setScr("region_split"),"🌊","Split","Rome on the Adriatic coast","#0284c7"],
+          [()=>setScr("region_mostar"),"🌉","Mostar","The bridge reborn — our city","#7c3aed"],
+          [()=>setScr("region_tomislavgrad"),"👑","Tomislavgrad","Where the Croatian kingdom was born","#b45309"],
+          [()=>setScr("region_knin"),"🏰","Knin","Liberated August 5, 1995","#dc2626"],
+          [()=>setScr("region_labin"),"⛵","Labin & Rabac","Our new home in Istria","#0e7490"],
+          [()=>setScr("region_bibinje"),"🏖️","Bibinje & Zadar","Dalmatian gateway to the sea","#0284c7"],
+          [()=>setScr("region_hercegovina"),"⚔️","Hrvati Hercegovine","Our Croatian heritage in Herzegovina","#b45309"],
+          [()=>setScr("region_vukovar"),"🕯️","Vukovar","Hero city — a deep dive","#dc2626"],
+          [()=>setScr("region_vinkovci"),"🏛️","Vinkovci","8,300 years of continuous history","#78716c"],
+        ].map(([fn,icon,title,sub,color],i)=>(
+          <button key={i} className="tc" onClick={fn}
+            style={{display:"flex",alignItems:"center",gap:14,padding:"13px 16px",textAlign:"left",borderLeft:`3px solid ${color}`}}>
+            <div style={{width:44,height:44,borderRadius:13,background:`${color}15`,border:`1px solid ${color}25`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>
+              {icon}
+            </div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:14,fontWeight:700,color:"var(--heading)",marginBottom:2}}>{title}</div>
+              <div style={{fontSize:11,color:"var(--subtext)",lineHeight:1.4}}>{sub}</div>
+            </div>
+            <div style={{fontSize:16,color:"var(--subtext)",flexShrink:0,opacity:.5}}>›</div>
           </button>
         ))}
       </div>
@@ -275,23 +281,49 @@ export default function CroatiaTab({
       </button>
 
       <h3 className="sh">🛒 Shopping & Food</h3>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
-        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => setScr("grocery")}>
-          <div style={{fontSize:28}}>🛒</div><div style={{fontSize:12,fontWeight:700,marginTop:4}}>Grocery</div>
-        </button>
-        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => { setRcIdx(0); setRcServ(4); setScr("recipes"); }}>
-          <div style={{fontSize:28}}>🍳</div><div style={{fontSize:12,fontWeight:700,marginTop:4}}>Recipes</div>
-        </button>
-        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => { setRpIdx(0); setRpLine(0); setRpShow(false); setScr("roleplay"); }}>
-          <div style={{fontSize:28}}>🎭</div><div style={{fontSize:12,fontWeight:700,marginTop:4}}>Role-Play</div>
-        </button>
+      <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:20}}>
+        {[
+          [()=>setScr("grocery"),"🛒","Grocery Shopping","Supermarket vocabulary & phrases","#16a34a"],
+          [()=>{setRcIdx(0);setRcServ(4);setScr("recipes");},"🍳","Croatian Recipes","Cook traditional dishes in Croatian","#b45309"],
+          [()=>{setRpIdx(0);setRpLine(0);setRpShow(false);setScr("roleplay");},"🎭","Role-Play Scenarios","Practice real-life Croatian conversations","#7c3aed"],
+        ].map(([fn,icon,title,sub,color],i)=>(
+          <button key={i} className="tc" onClick={fn}
+            style={{display:"flex",alignItems:"center",gap:14,padding:"13px 16px",textAlign:"left",borderLeft:`3px solid ${color}`}}>
+            <div style={{width:44,height:44,borderRadius:13,background:`${color}15`,border:`1px solid ${color}25`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>
+              {icon}
+            </div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:14,fontWeight:700,color:"var(--heading)",marginBottom:2}}>{title}</div>
+              <div style={{fontSize:11,color:"var(--subtext)",lineHeight:1.4}}>{sub}</div>
+            </div>
+            <div style={{fontSize:16,color:"var(--subtext)",flexShrink:0,opacity:.5}}>›</div>
+          </button>
+        ))}
       </div>
 
       <h3 className="sh">🏫 Daily Life</h3>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
-        {[["🏫","School Kit","school"],["📱","Texting","texting"],["🤝","Make Friends","friends"],["🍕","Order Food","foodorder"],["🚌","Transport","transport"],["🚨","Emergency","emergency"],["💼","Practical Life","practical"],["🏀","At Basketball","basketball"],["🏋️","At the Gym","gym"]].map(([icon,label,screen])=>(
-          <button key={screen} className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => setScr(screen)}>
-            <div style={{fontSize:28}}>{icon}</div><div style={{fontSize:12,fontWeight:700,marginTop:4}}>{label}</div>
+      <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:20}}>
+        {[
+          ["🏫","School Kit","school","Vocabulary for parents & students","#0e7490"],
+          ["📱","Texting & Slang","texting","How Croatians actually text","#7c3aed"],
+          ["🤝","Making Friends","friends","Meeting people, small talk & social life","#16a34a"],
+          ["🍕","Ordering Food","foodorder","Restaurants, cafés, and takeaway","#b45309"],
+          ["🚌","Transport","transport","Buses, trams, taxis & getting around","#0284c7"],
+          ["🚨","Emergency","emergency","Essential phrases when it matters most","#dc2626"],
+          ["💼","Practical Life","practical","Banks, post office, doctors & admin","#78716c"],
+          ["🏀","At Basketball","basketball","Croatian basketball culture & terms","#b45309"],
+          ["🏋️","At the Gym","gym","Fitness vocabulary & gym phrases","#16a34a"],
+        ].map(([icon,title,screen,sub,color])=>(
+          <button key={screen} className="tc" onClick={()=>setScr(screen)}
+            style={{display:"flex",alignItems:"center",gap:14,padding:"13px 16px",textAlign:"left",borderLeft:`3px solid ${color}`}}>
+            <div style={{width:44,height:44,borderRadius:13,background:`${color}15`,border:`1px solid ${color}25`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>
+              {icon}
+            </div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:14,fontWeight:700,color:"var(--heading)",marginBottom:2}}>{title}</div>
+              <div style={{fontSize:11,color:"var(--subtext)",lineHeight:1.4}}>{sub}</div>
+            </div>
+            <div style={{fontSize:16,color:"var(--subtext)",flexShrink:0,opacity:.5}}>›</div>
           </button>
         ))}
       </div>
