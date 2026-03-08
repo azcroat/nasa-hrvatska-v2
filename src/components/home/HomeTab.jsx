@@ -46,6 +46,23 @@ export default function HomeTab({
     return { d, t, pct: Math.round(d / t * 100) };
   })();
 
+  // Find next incomplete lesson to review
+  const nextLesson = (() => {
+    for (const lv of LEARN_PATH) {
+      for (const it of lv.items) {
+        if (!it.ck(st) && it.go !== "dashboard" && it.go !== "mcgame") return it;
+      }
+    }
+    return null;
+  })();
+
+  function goToLesson(item) {
+    if (!item) { setScr("learnpath"); return; }
+    if (item.go === "lesson") { setTab("learn"); return; }
+    if (item.go === "grammar") { setTab("learn"); return; }
+    setScr(item.go);
+  }
+
   return (
     <React.Fragment>
 
@@ -183,13 +200,17 @@ export default function HomeTab({
         )}
       </div>
 
-      {ws.weak > 0 && (
-        <button onClick={() => setScr("learnpath")}
+      {(ws.weak > 0 || nextLesson) && (
+        <button onClick={() => goToLesson(nextLesson)}
           style={{width:"100%",marginBottom:16,padding:"13px 16px",background:"linear-gradient(135deg,#fffbeb,#fef3c7)",border:"2px solid #f59e0b",borderRadius:14,cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif",display:"flex",alignItems:"center",gap:12,boxShadow:"0 2px 8px rgba(245,158,11,.15)"}}>
           <div style={{width:38,height:38,borderRadius:11,background:"#f59e0b",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>📖</div>
           <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:13,fontWeight:800,color:"#92400e"}}>Time for a review lesson</div>
-            <div style={{fontSize:11,color:"#b45309",marginTop:1}}>Some areas need practice — tap to continue your learning path</div>
+            <div style={{fontSize:13,fontWeight:800,color:"#92400e"}}>
+              {nextLesson ? `Next lesson: ${nextLesson.name}` : "Review your weak areas"}
+            </div>
+            <div style={{fontSize:11,color:"#b45309",marginTop:1}}>
+              {nextLesson ? "Tap to open this lesson now" : "Some words need more practice — tap to review"}
+            </div>
           </div>
           <div style={{fontSize:16,color:"#f59e0b",fontWeight:700,flexShrink:0}}>→</div>
         </button>
