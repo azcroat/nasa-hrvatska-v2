@@ -416,7 +416,7 @@ function markExerciseDone(exerciseId){
       {scr==="welcome" && <WelcomeScreen name={name} au={au} st={st} setScr={setScr} setName={setName} sPq={sPq} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} />}
       {scr==="placement" && <PlacementTest pq={pq} pi={pi} ps={ps} pa={pa} px={px} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} setScr={setScr} setSt={setSt} />}
       {// ═══ DASHBOARD ═══
-      scr==="dashboard"&&<div className="dash">
+      scr==="dashboard"&&<div className="dash" id="main-content" role="main">
         {// ═══ TAB: HOME ═══
         tab==="home"&&<HomeTab
           name={name} level={level} st={st}
@@ -430,17 +430,27 @@ function markExerciseDone(exerciseId){
           sFcPool={sFcPool} sFcI={sFcI} sFcFlip={sFcFlip} sFcKnow={sFcKnow}
         />}
         <div style={{position:"relative",marginBottom:20}}>
-          <div style={{position:"relative"}}>
-            <span style={{position:"absolute",left:14,top:"50%",transform:"translateY(-50%)",fontSize:16,pointerEvents:"none",opacity:.4}}>🔍</span>
+          <div style={{position:"relative"}} role="search">
+            <span style={{position:"absolute",left:14,top:"50%",transform:"translateY(-50%)",fontSize:16,pointerEvents:"none",opacity:.4}} aria-hidden="true">🔍</span>
             <input
-              type="text"
+              type="search"
+              id="app-search"
               value={srchQ}
               onChange={function(e){setSrchQ(e.target.value);doSearch(e.target.value);setSrchOpen(true)}}
               onFocus={function(){if(srchQ)setSrchOpen(true)}}
+              onKeyDown={function(e){if(e.key==="Escape"){setSrchOpen(false);setSrchQ("")}}}
               placeholder="Search words, phrases, screens…"
+              aria-label="Search vocabulary, phrases, and screens"
+              aria-expanded={srchOpen&&srchR.length>0}
+              aria-controls="search-results"
+              aria-autocomplete="list"
+              autoComplete="off"
               style={{width:"100%",padding:"12px 16px 12px 44px",fontSize:14,borderRadius:14,border:"1.5px solid #e2e8f0",background:"#fff",boxShadow:"0 1px 3px rgba(0,0,0,.05)"}} />
           </div>
           {srchOpen&&srchR.length>0&&<div
+            id="search-results"
+            role="listbox"
+            aria-label="Search results"
             style={{position:"absolute",top:"calc(100% + 6px)",left:0,right:0,background:"white",borderRadius:16,
               boxShadow:"0 12px 40px rgba(0,0,0,.14)",zIndex:100,maxHeight:320,overflow:"auto",
               border:"1.5px solid #e2e8f0"}}>

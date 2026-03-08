@@ -4,6 +4,29 @@
   functions = "netlify/functions"
   edge_functions = "netlify/edge-functions"
 
+# ─── Security headers (applied to all routes first) ───────────────────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Content Security Policy
+    # script-src: only self (Vite bundles everything) + Plausible analytics
+    # style-src: unsafe-inline required for React's inline style={} props
+    # connect-src: Firebase Auth/Firestore + Azure TTS proxy + translation APIs
+    # media-src: blob: for Web Audio + Google TTS fallback
+    # worker-src: blob: for workbox service worker
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://plausible.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://nasahrvatska.com; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://*.firebaseio.com https://www.googleapis.com https://api.mymemory.translated.net https://translate.google.com https://*.sentry.io https://plausible.io; media-src 'self' blob: https://translate.google.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
+    # Prevent clickjacking
+    X-Frame-Options = "DENY"
+    # Prevent MIME sniffing
+    X-Content-Type-Options = "nosniff"
+    # Force HTTPS
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+    # Control referrer info
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # Limit browser features
+    Permissions-Policy = "camera=(), microphone=(self), geolocation=(), payment=()"
+
+# ─── Caching ──────────────────────────────────────────────────────────────────
 [[headers]]
   for = "/index.html"
   [headers.values]
@@ -34,6 +57,7 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# ─── SPA fallback ─────────────────────────────────────────────────────────────
 [[redirects]]
   from = "/*"
   to = "/index.html"

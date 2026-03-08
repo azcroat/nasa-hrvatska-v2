@@ -8,17 +8,19 @@ const TABS = [
 
 export default function TabBar({ tab, setTab, setScr }) {
   return (
-    <div className="nav-bar">
+    <nav className="nav-bar" role="navigation" aria-label="Main navigation">
       {TABS.map(t => (
         <button
           key={t.id}
           className={"nav-btn" + (tab===t.id?" active":"")}
           onClick={() => { setTab(t.id); setScr("dashboard"); }}
-          >
-          <span className="nav-icon">{t.icon}</span>
+          aria-current={tab===t.id ? "page" : undefined}
+          aria-label={t.label}
+        >
+          <span className="nav-icon" aria-hidden="true">{t.icon}</span>
           <span className="nav-label">{t.label}</span>
         </button>
       ))}
-    </div>
+    </nav>
   );
 }
