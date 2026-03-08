@@ -73,10 +73,18 @@ export default function HomeTab({
         overflow: "hidden",
         color: "white",
       }}>
-        {/* Decorative circles */}
-        <div style={{position:"absolute",top:-60,right:-40,width:200,height:200,background:"rgba(255,255,255,.04)",borderRadius:"50%",pointerEvents:"none"}}/>
-        <div style={{position:"absolute",bottom:-80,left:-50,width:180,height:180,background:"rgba(56,189,248,.07)",borderRadius:"50%",pointerEvents:"none"}}/>
-        <div style={{position:"absolute",top:10,right:80,width:80,height:80,background:"rgba(125,211,252,.04)",borderRadius:"50%",pointerEvents:"none"}}/>
+        {/* Croatian šahovnica (checkerboard) — top-right decorative */}
+        <svg style={{position:"absolute",top:0,right:0,width:90,height:90,opacity:.07,pointerEvents:"none"}} viewBox="0 0 60 60">
+          {[0,1,2,3,4].map(r=>[0,1,2,3,4].map(c=>(r+c)%2===0&&
+            <rect key={`${r}${c}`} x={c*12} y={r*12} width={12} height={12} fill="white"/>
+          ))}
+        </svg>
+        {/* Croatian pletar knotwork ring — bottom-left decorative */}
+        <svg style={{position:"absolute",bottom:-30,left:-30,width:130,height:130,opacity:.06,pointerEvents:"none"}} viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="40" fill="none" stroke="white" strokeWidth="6"/>
+          <circle cx="50" cy="50" r="30" fill="none" stroke="white" strokeWidth="3" strokeDasharray="8 5"/>
+          <circle cx="50" cy="50" r="20" fill="none" stroke="white" strokeWidth="2"/>
+        </svg>
 
         {/* Top row: avatar + greeting */}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
