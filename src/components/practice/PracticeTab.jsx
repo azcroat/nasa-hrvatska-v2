@@ -113,47 +113,47 @@ export default function PracticeTab({
       {H("🎮 Practice", "Games, exercises & review")}
       <h3 className="sh">⚡ Quick Games</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
-        <div className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={startQuiz}>
+        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={startQuiz}>
           <div style={{fontSize:28}}>🎯</div>
           <div style={{fontSize:12,fontWeight:700,marginTop:4}}>Quiz</div>
-        </div>
-        <div className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={startFlashcards}>
+        </button>
+        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={startFlashcards}>
           <div style={{fontSize:28}}>🃏</div>
           <div style={{fontSize:12,fontWeight:700,marginTop:4}}>Flashcards</div>
-        </div>
-        <div className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={startMatch}>
+        </button>
+        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={startMatch}>
           <div style={{fontSize:28}}>🔗</div>
           <div style={{fontSize:12,fontWeight:700,marginTop:4}}>Match Pairs</div>
-        </div>
-        <div className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={startTyping}>
+        </button>
+        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={startTyping}>
           <div style={{fontSize:28}}>⌨️</div>
           <div style={{fontSize:12,fontWeight:700,marginTop:4}}>Typing</div>
-        </div>
-        <div className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={startListening}>
+        </button>
+        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={startListening}>
           <div style={{fontSize:28}}>🎧</div>
           <div style={{fontSize:12,fontWeight:700,marginTop:4}}>Listening</div>
-        </div>
-        <div className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={startSpeaking}>
+        </button>
+        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={startSpeaking}>
           <div style={{fontSize:28}}>🎤</div>
           <div style={{fontSize:12,fontWeight:700,marginTop:4}}>Pronunciation</div>
-        </div>
-        <div className="tc" style={{textAlign:"center",padding:"14px 8px",gridColumn:"span 3",background:"linear-gradient(135deg,rgba(14,116,144,.06),rgba(14,116,144,.12))",borderLeft:"3px solid #0e7490"}} onClick={() => { setScr("wordsprint"); sCurEx("wordsprint"); }}>
+        </button>
+        <button className="tc" style={{textAlign:"center",padding:"14px 8px",gridColumn:"span 3",background:"linear-gradient(135deg,rgba(14,116,144,.06),rgba(14,116,144,.12))",borderLeft:"3px solid #0e7490"}} onClick={() => { setScr("wordsprint"); sCurEx("wordsprint"); }}>
           <div style={{fontSize:28}}>⚡</div>
           <div style={{fontSize:13,fontWeight:800,marginTop:4,color:"#0e7490"}}>Word Sprint</div>
-          <div style={{fontSize:10,color:"#78716c",marginTop:2}}>30 sec speed challenge</div>
-        </div>
+          <div style={{fontSize:10,color:"var(--subtext)",marginTop:2}}>30 sec speed challenge</div>
+        </button>
       </div>
       <h3 className="sh">✏️ Exercises</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
         {exercises.map(([icon, label, screen]) => (
-          <div
+          <button
             key={screen}
             className="tc"
             style={{textAlign:"center",padding:"14px 8px"}}
             onClick={specialInit[screen] || (() => { setScr(screen); sCurEx(screen); })}>
             <div style={{fontSize:28}}>{icon}</div>
             <div style={{fontSize:12,fontWeight:700,marginTop:4}}>{label}</div>
-          </div>
+          </button>
         ))}
       </div>
       <h3 className="sh">🧠 Review</h3>
@@ -165,22 +165,22 @@ export default function PracticeTab({
         </div>
       )}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-        <div className="tc" style={{textAlign:"center",padding:"14px"}} onClick={()=>{setWeakMsg("");startWeakWords();}}>
+        <button className="tc" style={{textAlign:"center",padding:"14px"}} onClick={()=>{setWeakMsg("");startWeakWords();}}>
           <div style={{fontSize:28}}>🧠</div>
           <div style={{fontSize:13,fontWeight:700,marginTop:4}}>Weak Words</div>
-        </div>
-        <div className="tc" style={{textAlign:"center",padding:"14px"}} onClick={() => { setScr("proverbs"); sCurEx("proverbs"); }}>
+        </button>
+        <button className="tc" style={{textAlign:"center",padding:"14px"}} onClick={() => { setScr("proverbs"); sCurEx("proverbs"); }}>
           <div style={{fontSize:28}}>🌟</div>
           <div style={{fontSize:13,fontWeight:700,marginTop:4}}>All Proverbs</div>
-        </div>
-        <div className="tc" style={{textAlign:"center",padding:"14px"}} onClick={() => { setScr("idioms"); sCurEx("idioms"); }}>
+        </button>
+        <button className="tc" style={{textAlign:"center",padding:"14px"}} onClick={() => { setScr("idioms"); sCurEx("idioms"); }}>
           <div style={{fontSize:28}}>🗣️</div>
           <div style={{fontSize:13,fontWeight:700,marginTop:4}}>Idioms & Slang</div>
-        </div>
-        <div className="tc" style={{textAlign:"center",padding:"14px"}} onClick={() => { sEvM(new Date().getMonth()+1); setScr("events"); sCurEx("events"); }}>
+        </button>
+        <button className="tc" style={{textAlign:"center",padding:"14px"}} onClick={() => { sEvM(new Date().getMonth()+1); setScr("events"); sCurEx("events"); }}>
           <div style={{fontSize:28}}>📅</div>
           <div style={{fontSize:13,fontWeight:700,marginTop:4}}>Croatian Events</div>
-        </div>
+        </button>
       </div>
     </React.Fragment>
   );

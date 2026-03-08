@@ -77,7 +77,13 @@ export default function LoginScreen({
           <button className="b bp" style={{width:"100%",fontSize:16,padding:"14px 24px",marginTop:4}} onClick={isR?doReg:doLog} disabled={al}>
             {al?"Loading...":isR?"Create Account":"Sign In"}
           </button>
-          <div style={{textAlign:"center",marginTop:20,fontSize:14,color:"#78716c"}}>
+          <div style={{textAlign:"center",marginTop:12,fontSize:11,color:"#94a3b8"}}>
+            By continuing you agree to our{" "}
+            <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{color:"#0e7490",textDecoration:"underline"}}>Privacy Policy</a>
+            {" & "}
+            <a href="/terms" target="_blank" rel="noopener noreferrer" style={{color:"#0e7490",textDecoration:"underline"}}>Terms of Use</a>
+          </div>
+          <div style={{textAlign:"center",marginTop:12,fontSize:14,color:"#78716c"}}>
             {isR?"Have an account? ":"No account? "}
             <span style={{color:"#0e7490",cursor:"pointer",fontWeight:700}} onClick={()=>{setAs(isR?"login":"register");setAe("");setEm("");setPw("");setPc("");setDn("");setSq("");setSa("")}}>
               {isR?"Sign in":"Create one"}

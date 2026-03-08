@@ -18,6 +18,9 @@ export default function McGame({
           <p style={{fontSize:24,fontWeight:800,fontFamily:"'Playfair Display',serif"}}>{mcQ[mcI].hr}</p>
         </div>
         <p style={{fontSize:14,color:"#78716c",marginBottom:16}}>What does this mean?</p>
+        <div aria-live="polite" aria-atomic="true" className="sr-only">
+          {mcA && (mcQ[mcI].opts[mcSl]===mcQ[mcI].correct ? "Correct! " : `Incorrect. The answer is ${mcQ[mcI].correct}. `) + `Score: ${mcS} of ${mcQ.length}.`}
+        </div>
         {mcQ[mcI].opts.map((o,i)=>(
           <button key={i} className={"ob "+(mcA?(o===mcQ[mcI].correct?"ok":mcSl===i?"no":""):"")}
             onClick={()=>{if(!mcA){sMcSl(i);sMcA(true);const ok=o===mcQ[mcI].correct;if(ok)sMcS(s=>s+1);if(mcQ[mcI].hr)srMark(mcQ[mcI].hr,ok);}}}>

@@ -31,6 +31,7 @@ const Flashcards = lazy(() => import("./components/practice/Flashcards.jsx"));
 const ListeningScreen = lazy(() => import("./components/practice/ListeningScreen.jsx"));
 const McGame = lazy(() => import("./components/practice/McGame.jsx"));
 const IdiomsScreen = lazy(() => import("./components/croatia/IdiomsScreen.jsx"));
+const PrivacyScreen = lazy(() => import("./components/shared/PrivacyScreen.jsx"));
 const TextingScreen = lazy(() => import("./components/croatia/CroatiaCulture.jsx").then(m => ({default: m.TextingScreen})));
 const FriendsScreen = lazy(() => import("./components/croatia/CroatiaCulture.jsx").then(m => ({default: m.FriendsScreen})));
 const FoodOrderScreen = lazy(() => import("./components/croatia/CroatiaCulture.jsx").then(m => ({default: m.FoodOrderScreen})));
@@ -540,6 +541,7 @@ function markExerciseDone(exerciseId){
       scr==="unjumble"&&<Unjumble goBack={goBack} award={award} />}
       {// ═══ IDIOMS & SLANG ═══
       scr==="idioms"&&<IdiomsScreen goBack={goBack} />}
+      {scr==="privacy"&&<PrivacyScreen goBack={goBack} />}
       {// ═══ FLASHCARDS ═══
       scr==="flashcards"&&<Flashcards
         fcPool={fcPool} fcI={fcI} fcFlip={fcFlip} fcKnow={fcKnow}

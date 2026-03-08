@@ -165,12 +165,11 @@ export default function HomeTab({
                       return (
                         <button key={oi}
                           disabled={answered}
+                          className="dc-opt"
                           style={{padding:"9px 10px",border:`1.5px solid ${border}`,borderRadius:10,background:bg,
                             fontSize:12,fontWeight:600,cursor:answered?"default":"pointer",textAlign:"left",
                             fontFamily:"'Outfit',sans-serif",color,lineHeight:1.3,transition:"all .15s",
                             opacity:answered&&o!==ch.a&&oi!==selIdx?0.55:1}}
-                          onMouseOver={e=>{if(!answered){e.currentTarget.style.borderColor="#7c3aed";e.currentTarget.style.background="#faf5ff"}}}
-                          onMouseOut={e=>{if(!answered){e.currentTarget.style.borderColor="#e2e8f0";e.currentTarget.style.background="#fff"}}}
                           onClick={() => {
                             const newA = [...dchlA]; newA[ci] = true; sDchlA(newA);
                             const newSl = [...dchlSl]; newSl[ci] = oi; sDchlSl(newSl);
@@ -256,7 +255,7 @@ export default function HomeTab({
       </div>
 
       {/* ── LEARNING PATH ── */}
-      <div className="tc" style={{display:"flex",alignItems:"center",gap:16,padding:"18px",marginBottom:20}}
+      <button className="tc" style={{display:"flex",alignItems:"center",gap:16,padding:"18px",marginBottom:20}}
         onClick={() => setScr("learnpath")}>
         <div style={{width:52,height:52,borderRadius:16,background:"linear-gradient(135deg,#f0fdf4,#dcfce7)",
           display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,flexShrink:0}}>📈</div>
@@ -270,7 +269,7 @@ export default function HomeTab({
           </div>
         </div>
         <div style={{fontSize:18,color:"#cbd5e1"}}>›</div>
-      </div>
+      </button>
 
       {/* ── PROVERB OF THE DAY ── */}
       <div style={{background:"linear-gradient(135deg,#fefce8,#fef9c3)",border:"1.5px solid #fde047",borderRadius:20,
@@ -303,15 +302,15 @@ export default function HomeTab({
       {/* ── QUICK START ── */}
       <div className="sh">Quick Start</div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:8}}>
-        <div className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}}
+        <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}}
           onClick={() => setTab("learn")}>
           <div style={{width:44,height:44,borderRadius:14,background:"#f0f9ff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>📚</div>
           <div>
             <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>Continue Learning</div>
             <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>{allCats.length} active categories</div>
           </div>
-        </div>
-        <div className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}}
+        </button>
+        <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}}
           onClick={() => {
             const pool = allCats.flatMap(cc => V[cc]);
             const items = sh(pool).slice(0,10);
@@ -323,23 +322,23 @@ export default function HomeTab({
             <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>Quick Quiz</div>
             <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>10 random words</div>
           </div>
-        </div>
-        <div className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}}
+        </button>
+        <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}}
           onClick={() => { const pool=allCats.flatMap(cc=>V[cc]); sFcPool(sh(pool).slice(0,20)); sFcI(0); sFcFlip(false); sFcKnow(0); setScr("flashcards"); }}>
           <div style={{width:44,height:44,borderRadius:14,background:"#f5f3ff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>🃏</div>
           <div>
             <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>Flashcards</div>
             <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>20 random words</div>
           </div>
-        </div>
-        <div className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}}
+        </button>
+        <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}}
           onClick={() => setTab("croatia")}>
           <div style={{width:44,height:44,borderRadius:14,background:"#fff1f2",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>🇭🇷</div>
           <div>
             <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>Life in Croatia</div>
             <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>School, food, sports</div>
           </div>
-        </div>
+        </button>
       </div>
 
     </React.Fragment>
