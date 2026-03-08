@@ -5,7 +5,7 @@ import * as Sentry from '@sentry/react';
 import App from './App.jsx';
 
 // ─── Sentry error telemetry ────────────────────────────────────────────────
-// Set VITE_SENTRY_DSN in Netlify environment variables.
+// Set VITE_SENTRY_DSN in Cloudflare Pages environment variables.
 // The app works fully without it — telemetry is opt-in via env var.
 if (import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init({
