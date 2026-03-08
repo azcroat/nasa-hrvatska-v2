@@ -159,9 +159,6 @@ async function fbGetLeaderboard(){
   return users.sort(function(a,b){return b.xp-a.xp})}catch(e){return[]}
 }
 // ═══ Audio Engine — Native Croatian Pronunciation ═══
-// Azure key moved to Netlify Function (server-side)
-const AZURE_KEY = null;
-// const AZURE_REGION = "westeurope"; // Now in Netlify env vars
 let _au=false;let _voices=[];let _voicesLoaded=false;let _audioCache={};let _currentAudio=null;
 const _iOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 function uA(){if(_au)return;_au=true;try{const c=new(window.AudioContext||window.webkitAudioContext)();const b=c.createBuffer(1,1,22050);const s=c.createBufferSource();s.buffer=b;s.connect(c.destination);s.start(0);c.resume()}catch(e){}}
@@ -3849,9 +3846,10 @@ const CONVMATCH = [
     {q:"Kada se vraćaš s posla?",a:"Obično kad završim sve za taj dan.",wrong:"Volim sir na kruhu."}
   ]}
 ];
-function buildSearchIndex(){var idx=[];Object.keys(V).forEach(function(cat){V[cat].forEach(function(w){idx.push({hr:w[0],en:w[1],type:"vocab",go:"lesson"})})});
+var _searchIdx=null;
+function buildSearchIndex(){if(_searchIdx)return _searchIdx;var idx=[];Object.keys(V).forEach(function(cat){V[cat].forEach(function(w){idx.push({hr:w[0],en:w[1],type:"vocab",go:"lesson"})})});
 [{n:"School Kit",s:"school"},{n:"Texting",s:"texting"},{n:"Friends",s:"friends"},{n:"Food",s:"foodorder"},{n:"Transport",s:"transport"},{n:"Emergency",s:"emergency"},{n:"Football",s:"football"},{n:"Pop Culture",s:"popculture"},{n:"Practical Life",s:"practical"},{n:"Grocery",s:"grocery"},{n:"Recipes",s:"recipes"},{n:"Role-Play",s:"roleplay"},{n:"Map",s:"crmap"},{n:"Grammar",s:"grammar"},{n:"Cases",s:"padezi"},{n:"Padeži Master",s:"padezifull"},{n:"Aspect",s:"aspect"},{n:"Conjugation",s:"conjdrill"},{n:"Modal Verbs",s:"modal"},{n:"Declension",s:"declension"},{n:"Tenses Gender",s:"tenses"},{n:"Colors Gender",s:"boje"},{n:"Alphabet",s:"alphabet"},{n:"False Friends",s:"falsefr"},{n:"Dialects",s:"dialects"},{n:"Diminutives",s:"diminutives"},{n:"Word Formation",s:"wordform"},{n:"Tongue Twisters",s:"brzalice"},{n:"Flashcards",s:"flashcards"},{n:"Typing",s:"typing"},{n:"Idioms",s:"idioms"},{n:"Proverbs",s:"proverbs"},{n:"Leaderboard",s:"leaderboard"},{n:"Badges",s:"badges"},{n:"Domovinski Rat",s:"history"},{n:"Kings",s:"kings"},{n:"Labin Rabac",s:"region_labin"},{n:"Bibinje Zadar",s:"region_bibinje"},{n:"Hercegovina",s:"region_hercegovina"},{n:"Vukovar",s:"region_vukovar"},{n:"Vinkovci",s:"region_vinkovci"},{n:"Learning Path",s:"learnpath"},{n:"Favorites",s:"favorites"},{n:"Journal",s:"journal"}].forEach(function(x){idx.push({hr:x.n,en:x.n,type:"screen",go:x.s})});
-GROCERY.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"grocery"})});SCHOOL.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"school"})});TRANSPORT.forEach(function(t){idx.push({hr:t.hr,en:t.en,type:"phrase",go:"transport"})});EMERGENCY.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"emergency"})});return idx}
+GROCERY.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"grocery"})});SCHOOL.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"school"})});TRANSPORT.forEach(function(t){idx.push({hr:t.hr,en:t.en,type:"phrase",go:"transport"})});EMERGENCY.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"emergency"})});_searchIdx=idx;return idx}
 // ═══ CSS THEME ═══
 const CSS=`
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700&display=swap');

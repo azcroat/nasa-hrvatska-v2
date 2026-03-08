@@ -114,6 +114,10 @@ const Leaderboard = lazy(() => import("./components/profile/Leaderboard.jsx"));
 
 const BG = BG_LIGHT;
 
+// Module-level constants — defined once, not recreated on every render
+const DS={xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,al:0,mv:0,hi:0,rs:[],ct:[],badges:[]};
+const ICONS={greetings:"👋",numbers:"🔢",family:"👨‍👩‍👧‍👦",food:"🍕",animals:"🐾",body:"🦴","body & face":"🦴",colors:"🎨",home:"🏠","home & rooms":"🏠",clothing:"👔",weather:"☀️","weather & seasons":"☀️",places:"📍",transport:"🚗",verbs:"💬",adjectives:"📏",time:"📅","time & calendar":"📅",months:"🗓️",directions:"🧭",emotions:"💭",professions:"💼",restaurant:"🍽️",shopping:"🛍️",travel:"✈️",health:"🏥",questions:"❓",conjunctions:"🔗",culture:"🏛️","daily routine":"🌅","in the classroom":"📖","commands at home":"🏡","fairy tales":"📜",hobbies:"🎯",zagreb:"🏙️",opposites:"🔄",comparatives:"📊",fruits:"🍎",vegetables:"🥦",sports:"⚽",holidays:"🎄",personality:"😊"};
+
 var _appNavDepth=0;
 function pushUrl(path){try{if(window.location.pathname!==path){_appNavDepth++;window.history.pushState({_ad:_appNavDepth},"",path)}}catch(e){}}
 
@@ -123,7 +127,7 @@ function App(){
   const[em,setEm]=useState("");const[pw,setPw]=useState("");const[pc,setPc]=useState("");const[dn,setDn]=useState("");
   const[sq,setSq]=useState("");const[sa,setSa]=useState("");const[rpEm,setRpEm]=useState("");const[rpSa,setRpSa]=useState("");const[rpPw,setRpPw]=useState("");const[rpPc,setRpPc]=useState("");const[rpStep,setRpStep]=useState(1);const[rpQ,setRpQ]=useState("");
   const[ae,setAe]=useState("");const[al,setAl]=useState(false);const[sp,setSp2]=useState(false);
-  const ds={xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,al:0,mv:0,hi:0,rs:[],ct:[],badges:[]};
+  const ds=DS;
   const[scr,_setScr]=useState("welcome");
   const setScr=useCallback(function(s){
     _setScr(s);
@@ -361,7 +365,7 @@ function markExerciseDone(exerciseId){
     setXpA(amt);setShowXP(true);
     setSt(s=>{const n={...s,xp:s.xp+amt};const nb=BADGES.filter(b=>!s.badges.includes(b.id)&&b.r(n));if(nb.length){n.badges=[...s.badges,...nb.map(b=>b.id)];setTimeout(()=>{setNB(nb[0]);setSB(true);setTimeout(()=>setSB(false),3000)},600)}return n});
     setTimeout(()=>setShowXP(false),1500)
-  },[]);
+  },[curEx]);
   function goBack(){
     if(curEx)markExerciseDone(curEx);
     sCurEx("");
@@ -373,9 +377,8 @@ function markExerciseDone(exerciseId){
     else{_setScr("dashboard");_setTab("home");window.history.replaceState({_ad:0},"","/");}
   }
   const level=lvl(st.xp);
-  const topics=Object.keys(V[st.diff==="beginner"?"greetings"in V?0:0:0]||V);
   const allCats=Object.keys(V);
-  const icons={greetings:"👋",numbers:"🔢",family:"👨‍👩‍👧‍👦",food:"🍕",animals:"🐾",body:"🦴","body & face":"🦴",colors:"🎨",home:"🏠","home & rooms":"🏠",clothing:"👔",weather:"☀️","weather & seasons":"☀️",places:"📍",transport:"🚗",verbs:"💬",adjectives:"📏",time:"📅","time & calendar":"📅",months:"🗓️",directions:"🧭",emotions:"💭",professions:"💼",restaurant:"🍽️",shopping:"🛍️",travel:"✈️",health:"🏥",questions:"❓",conjunctions:"🔗",culture:"🏛️","daily routine":"🌅","in the classroom":"📖","commands at home":"🏡","fairy tales":"📜",hobbies:"🎯",zagreb:"🏙️",opposites:"🔄",comparatives:"📊",fruits:"🍎",vegetables:"🥦",sports:"⚽",holidays:"🎄",personality:"😊"};
+  const icons=ICONS;
   // ═══ AUTH SCREENS ═══
   if(as==="loading")return (
     <div
@@ -537,70 +540,6 @@ function markExerciseDone(exerciseId){
       />}
       {// ═══ STORY SELECT ═══
       scr==="storyselect"&&<StoryScreens goBack={goBack} award={award} sCurEx={sCurEx} />}
-      {// ═══ STORY PLAY ═══
-      scr==="story_OLD"&&stSt&&<div
-        style={{maxWidth:560,margin:"0 auto",padding:"24px 16px",paddingBottom:80,position:"relative",zIndex:1}}>
-        <button
-          className="b bg"
-          style={{marginBottom:16,fontSize:13}}
-          onClick={function(){setScr("storyselect")}}>
-          ← Back
-        </button>
-        {H("\ud83d\udcd6 "+stSt.title,stSt.tEn)}
-        {(function(){var scene=stSt.scenes[stSc];if(!scene)return (
-          <div style={{textAlign:"center"}}>
-            <div style={{fontSize:64}}>
-              🌟
-            </div>
-            <h3>
-              Story complete!
-            </h3>
-            <button
-              className="b bp"
-              style={{marginTop:16}}
-              onClick={function(){award(15);setScr("storyselect");if(e&&e.target){var _p=e.target.closest?e.target.closest("div"):e.target.parentNode;if(_p)_p.style.pointerEvents="none"}}}>
-              Back to Stories
-            </button>
-          </div>
-        );
-          return (
-            <React.Fragment>
-              <Bar v={stSc+1} mx={stSt.scenes.length} h={6} />
-              <div className="c" style={{marginTop:16}}>
-                <div
-                  style={{fontSize:16,fontWeight:700,lineHeight:1.7,color:"#1c1917",cursor:"pointer"}}
-                  onClick={function(){speak(scene.text)}}>
-                  {scene.text}
-                  {" \ud83d\udd0a"}
-                </div>
-                <div
-                  style={{fontSize:14,color:"#78716c",fontStyle:"italic",marginTop:8,lineHeight:1.6}}>
-                  {scene.en}
-                </div>
-              </div>
-              {scene.choices.length>0?<div style={{marginTop:16}}>
-                <div style={{fontSize:13,fontWeight:700,color:"#0e7490",marginBottom:8}}>
-                  Što radiš? — What do you do?
-                </div>
-                {scene.choices.map(function(ch,ci){return (
-                  <button
-                    key={ci}
-                    className="ob"
-                    style={{borderColor:"#0e7490"}}
-                    onClick={function(){sStSc(ch.next)}}>
-                    {ch.text}
-                  </button>
-                );})}
-              </div>:
-              <button
-                className="b bp"
-                style={{width:"100%",marginTop:20}}
-                onClick={function(){award(15);setScr("storyselect");if(e&&e.target){var _p=e.target.closest?e.target.closest("div"):e.target.parentNode;if(_p)_p.style.pointerEvents="none"}}}>
-                ✅ Story Complete!
-              </button>}
-            </React.Fragment>
-          );})()}
-      </div>}
       {// ═══ NUMBER & TIME DRILLS ═══
       scr==="numtime"&&<NumTime goBack={goBack} award={award} />}
       {// ═══ ALL PROVERBS ═══

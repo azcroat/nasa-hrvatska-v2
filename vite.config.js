@@ -54,7 +54,7 @@ export default defineConfig({
           }
         ],
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/netlify/, /^\/_/]
+        navigateFallbackDenylist: [/^\/\.netlify/, /^\/netlify/, /^\/_/]
       }
     })
   ],
