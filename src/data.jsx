@@ -3938,6 +3938,13 @@ input::placeholder,textarea::placeholder{color:#94a3b8;font-weight:400}
 @media(prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
+/* === SEMANTIC BUTTON RESET — allows <button className="tc"> ===*/
+button.tc{font-family:'Outfit',sans-serif;width:100%;cursor:pointer;display:block}
+/* === SCREEN-READER ONLY === */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* === DAILY CHALLENGE OPTIONS === */
+.dc-opt:not(:disabled):hover{border-color:#7c3aed!important;background:#faf5ff!important}
+.dark .dc-opt:not(:disabled):hover{background:rgba(124,58,237,.15)!important}
 /* === SEARCH RESULTS DROPDOWN === */
 .sr-item{padding:11px 16px;border-bottom:1px solid var(--card-b);cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background .1s}
 .sr-item:hover,.sr-item:active{background:var(--ob-hbg)}

@@ -64,9 +64,11 @@ class ErrorBoundary extends React.Component {
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <ErrorBoundary>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </ErrorBoundary>
+  <React.StrictMode>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </ErrorBoundary>
+  </React.StrictMode>
 );

@@ -22,29 +22,32 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
         ))}
       </div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:24}}>
-        <div className="tc" style={{textAlign:"center",padding:"16px"}} onClick={() => setScr("badges")}>
+        <button className="tc" style={{textAlign:"center",padding:"16px"}} onClick={() => setScr("badges")}>
           <div style={{fontSize:32}}>🏆</div>
           <div style={{fontSize:14,fontWeight:700,marginTop:4}}>Badges & Awards</div>
-        </div>
-        <div className="tc" style={{textAlign:"center",padding:"16px"}} onClick={() => setScr("leaderboard")}>
+        </button>
+        <button className="tc" style={{textAlign:"center",padding:"16px"}} onClick={() => setScr("leaderboard")}>
           <div style={{fontSize:32}}>👨‍👩‍👧‍👦</div>
           <div style={{fontSize:14,fontWeight:700,marginTop:4}}>Family Leaderboard</div>
-        </div>
+        </button>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:24}}>
-        <div className="tc" style={{textAlign:"center",padding:"16px"}} onClick={() => setScr("favorites")}>
+        <button className="tc" style={{textAlign:"center",padding:"16px"}} onClick={() => setScr("favorites")}>
           <div style={{fontSize:32}}>⭐</div>
           <div style={{fontSize:14,fontWeight:700,marginTop:4}}>Favorites ({favs.length})</div>
-        </div>
-        <div className="tc" style={{textAlign:"center",padding:"16px"}} onClick={() => setScr("journal")}>
+        </button>
+        <button className="tc" style={{textAlign:"center",padding:"16px"}} onClick={() => setScr("journal")}>
           <div style={{fontSize:32}}>📓</div>
           <div style={{fontSize:14,fontWeight:700,marginTop:4}}>My Vocabulary</div>
-        </div>
-        <div className="tc" style={{textAlign:"center",padding:"16px"}} onClick={() => { const nv = !darkMode; setDarkMode(nv); localStorage.setItem("darkMode", nv.toString()); }}>
+        </button>
+        <button className="tc" style={{textAlign:"center",padding:"16px"}} onClick={() => { const nv = !darkMode; setDarkMode(nv); localStorage.setItem("darkMode", nv.toString()); }}>
           <div style={{fontSize:32}}>{darkMode ? "☀️" : "🌙"}</div>
           <div style={{fontSize:14,fontWeight:700,marginTop:4}}>{darkMode ? "Light Mode" : "Dark Mode"}</div>
-        </div>
+        </button>
       </div>
+      <button className="tc" style={{width:"100%",textAlign:"center",padding:"14px",marginBottom:8}} onClick={() => setScr("privacy")}>
+        <div style={{fontSize:13,color:"var(--subtext)",fontWeight:600}}>Privacy Policy & Terms</div>
+      </button>
       {confirmOut ? (
         <div style={{border:"2px solid rgba(194,65,12,.2)",borderRadius:14,padding:"16px",marginTop:16,background:"rgba(194,65,12,.04)"}}>
           <p style={{fontSize:14,fontWeight:700,color:"#c2410c",textAlign:"center",marginBottom:12}}>Sign out of Naša Hrvatska?</p>
