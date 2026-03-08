@@ -722,7 +722,7 @@ function markExerciseDone(exerciseId){
       />}
       {// ═══ GRAMMAR ═══
       scr==="grammar"&&<GrammarScreen
-        gl={gl} gp={gp} gx={gx} gs={gs} ga={ga} gsl={gsl}
+        gl={gl||GRAM.beginner[0]} gp={gp} gx={gx} gs={gs} ga={ga} gsl={gsl}
         sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
         goBack={goBack} award={award} setSt={setSt}
       />}
