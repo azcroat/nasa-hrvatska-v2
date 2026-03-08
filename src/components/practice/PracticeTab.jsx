@@ -137,10 +137,9 @@ export default function PracticeTab({
           <div style={{fontSize:28}}>🎤</div>
           <div style={{fontSize:12,fontWeight:700,marginTop:4}}>Pronunciation</div>
         </button>
-        <button className="tc" style={{textAlign:"center",padding:"14px 8px",gridColumn:"span 3",background:"linear-gradient(135deg,rgba(14,116,144,.06),rgba(14,116,144,.12))",borderLeft:"3px solid #0e7490"}} onClick={() => { setScr("wordsprint"); sCurEx("wordsprint"); }}>
+        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => { setScr("wordsprint"); sCurEx("wordsprint"); }}>
           <div style={{fontSize:28}}>⚡</div>
-          <div style={{fontSize:13,fontWeight:800,marginTop:4,color:"#0e7490"}}>Word Sprint</div>
-          <div style={{fontSize:10,color:"var(--subtext)",marginTop:2}}>30 sec speed challenge</div>
+          <div style={{fontSize:12,fontWeight:700,marginTop:4}}>Word Sprint</div>
         </button>
       </div>
       <h3 className="sh">✏️ Exercises</h3>
