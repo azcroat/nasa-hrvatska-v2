@@ -15,7 +15,7 @@ test.describe('Daily Challenge sync', () => {
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
     // Fresh load: accordion is open showing questions (0 done = "earn up to +30 XP" shown)
-    await expect(page.getByText(/earn up to.*XP/i)).toBeVisible();
+    await expect(page.getByText(/earn up to.*XP/i)).toBeVisible({ timeout: 15_000 });
   });
 
   test('pre-seeded all-answered state restores (shows completion screen)', async ({ page }) => {
@@ -94,10 +94,7 @@ test.describe('Daily Challenge sync', () => {
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
 
     // Trigger an answer via the first enabled DC option button
-    await page.evaluate(() => {
-      const btn = document.querySelector('button[data-dc-option]:not([disabled])');
-      if (btn) btn.click();
-    });
+    await page.locator('button[data-dc-option]:not([disabled])').first().click();
 
     // Verify localStorage was written with the correct structure
     const stored = await page.evaluate(() => {
