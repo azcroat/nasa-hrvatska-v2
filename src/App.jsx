@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
-import { _fbReady, _fbAuth, _fbDb, W, H, Bar, Spk, V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, CSS, BG_LIGHT, BG_DARK, initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, loadVoices, getBestVoice, stopAudio, speakAzure, speakGoogle, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, shMemo, shuffleArr, buildSearchIndex } from "./data.jsx";
+import { _fbReady, W, H, Bar, Spk, V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, CSS, BG_LIGHT, BG_DARK, initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakGoogle, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, shMemo, shuffleArr, buildSearchIndex } from "./data.jsx";
 // Always-needed: auth + core UI (eager)
 import LoginScreen from "./components/auth/LoginScreen.jsx";
 import ResetPassword from "./components/auth/ResetPassword.jsx";
@@ -181,8 +181,8 @@ function App(){
   const[showXP,setShowXP]=useState(false);const[xpA,setXpA]=useState(0);const[nB,setNB]=useState(null);const[sB,setSB]=useState(false);
   useEffect(()=>{initFirebase();
     const s=gS();if(s&&s.u){if(isSessionExpired()){cS();setAs("login");setTimeout(function(){setAe("\u2705 Your session expired. Your account is safe \u2014 just sign in again.")},200);return}const a=gA();if(a[s.u]){const p=gP(s.u);setAu({u:s.u,d:a[s.u].d,e:a[s.u].e||s.u});touchSession();updateStreak();var lf=getLocalFamily();if(lf)setFamData(lf);if(p){setName(p.name||a[s.u].d);setSt(p.st||ds);setScr((p.cp||(p.st&&(p.st.xp>0||p.st.lc>0)))?"dashboard":"welcome")}else setName(a[s.u].d);setAs("app");fbLoadProgress(s.u).then(function(fp){if(!fp)return;var lp=gP(s.u);var fpXP=(fp.st&&fp.st.xp)||0;var lpXP=(lp&&lp.st&&lp.st.xp)||0;if(fpXP>=lpXP){sP(s.u,fp);setSt(fp.st||ds);if(fp.name)setName(fp.name);if(fp.sr)saveSR(fp.sr);if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}}});}else{
-      if(_fbReady&&_fbAuth){
-        _fbAuth.onAuthStateChanged(function(user){
+      if(_fbReady){
+        fbOnAuthStateChanged(function(user){
           if(user){var dn=user.displayName||user.email;var k=user.email;
             var a=gA();var ex=a[k]||{};ex.d=dn;ex.e=k;a[k]=ex;sA(a);
             fbLoadProgress(k).then(function(fp){if(fp)sP(k,fp);
@@ -211,7 +211,7 @@ function App(){
     if(!fb.ok&&(fb.err.indexOf("least 6")>=0||fb.err.indexOf("weak")>=0)){setAe("Password is too weak. Use at least 6 characters.");setAl(false);return}
     if(!fb.ok&&fb.err.indexOf("valid email")>=0){setAe("Please enter a valid email address.");setAl(false);return}
     // Other Firebase errors (network, etc.) — fall through and create local account anyway
-    if(fb.ok){try{var id=k.replace(/[.#$/\[\]]/g,"_");await _fbDb.collection("users").doc(id).set({sq:sq.trim(),sa:(await hp(sa.trim().toLowerCase()))},{merge:true})}catch(e){}}}
+    if(fb.ok){try{await fbSetUserSecurity(k,sq.trim(),await hp(sa.trim().toLowerCase()))}catch(e){}}}
     const a=gA();const h=await hp(pw);const sah=await hp(sa.trim().toLowerCase());a[k]={p:h,d:dn.trim(),e:k,sq:sq.trim(),sa:sah,created:Date.now()};sA(a);
     setAu({u:k,d:dn.trim(),e:k});sS({u:k});setName(dn.trim());setSt(ds);setScr("welcome");setAs("app");setEm("");setPw("");setPc("");setDn("");setSq("");setSa("")}catch(e){setAe("Registration failed. Please try again.")}setAl(false)
   }
@@ -221,10 +221,10 @@ function App(){
       if(!rpEm.trim()||!isValidEmail(rpEm.trim())){setAe("Please enter your email address.");return}
       var k=rpEm.trim().toLowerCase();var sqFound="";var saFound="";
       var a=gA();if(a[k]&&a[k].sq){sqFound=a[k].sq;saFound=a[k].sa}
-      if(!sqFound&&_fbReady&&_fbDb){
-        try{var id=k.replace(/[.#$/\[\]]/g,"_");var doc=await _fbDb.collection("users").doc(id).get();
-        if(doc.exists&&doc.data().sq){sqFound=doc.data().sq;saFound=doc.data().sa}
-        else if(doc.exists&&!doc.data().sq){
+      if(!sqFound&&_fbReady){
+        try{var sec=await fbGetUserSecurity(k);
+        if(sec&&sec.sq){sqFound=sec.sq;saFound=sec.sa}
+        else if(sec&&!sec.sq){
           var fb=await fbResetPassword(k);
           if(fb.ok){setAs("login");setTimeout(function(){setAe("\u2705 Password reset email sent! Check your inbox.")},100);return}
           else{setAe(fb.err);return}}
@@ -246,14 +246,10 @@ function App(){
       if(rpPw!==rpPc){setAe("Passwords do not match.");return}
       var k=localStorage.getItem("_rpEmail");
       var a=gA();if(a[k]){a[k].p=await hp(rpPw);sA(a)}
-      if(_fbReady&&_fbAuth){
-        try{
-          // Try to create Firebase account for users who only had local accounts
-          await _fbAuth.createUserWithEmailAndPassword(k,rpPw);
-        }catch(e){
-          // Account already exists in Firebase — send password reset email instead
-          try{await _fbAuth.sendPasswordResetEmail(k)}catch(e2){}
-        }}
+      if(_fbReady){
+        const acct=await fbCreateAccount(k,rpPw);
+        if(!acct.ok){try{await fbResetPassword(k)}catch(e2){}}
+      }
       localStorage.removeItem("_rpSaHash");localStorage.removeItem("_rpEmail");
       setAe("");setRpEm("");setRpSa("");setRpPw("");setRpPc("");setRpStep(1);setRpQ("");
       setAs("login");setTimeout(function(){setAe("\u2705 Password reset! Sign in with your new password.")},100)}
