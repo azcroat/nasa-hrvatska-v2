@@ -3,3 +3,6 @@ dist/
 .env
 .netlify/
 *.log
+playwright-report/
+test-results/
+.claude/
