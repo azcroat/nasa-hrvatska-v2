@@ -240,8 +240,8 @@ export default function CroatiaTab({
       <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:20}}>
         {[
           [()=>{sHIdx(0);setScr("history");},"🇭🇷","Domovinski Rat","Croatia's 1991–1995 Homeland War","#dc2626"],
-          [()=>{sKgTab("timeline");setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval dynasty & royal timeline","#b45309"],
           [()=>setScr("region_vukovar"),"🕯️","Vukovar","Hero city — a deep dive","#dc2626"],
+          [()=>{sKgTab("timeline");setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval dynasty & royal timeline","#b45309"],
           [()=>setScr("region_zagreb"),"🏛️","Zagreb","Croatia's vibrant capital city","#0e7490"],
           [()=>setScr("region_split"),"🌊","Split","Rome on the Adriatic coast","#0284c7"],
           [()=>setScr("region_mostar"),"🌉","Mostar","The bridge reborn — our city","#7c3aed"],
