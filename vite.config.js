@@ -27,9 +27,20 @@ export default defineConfig({
       workbox: {
         skipWaiting: true,
         clientsClaim: true,
-        cacheId: 'nasa-hrvatska-v4',
-        globPatterns: ['**/*.{js,css,html,svg,ico}'],
+        cacheId: 'nasa-hrvatska-v5',
+        // Only precache JS/CSS/images — never HTML (so deployments show instantly)
+        globPatterns: ['**/*.{js,css,svg,ico,png,webp,woff2}'],
         runtimeCaching: [
+          {
+            // HTML navigation: always fetch fresh from network (3s timeout), fall back to cache offline
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'html-cache',
+              networkTimeoutSeconds: 3,
+              cacheableResponse: { statuses: [0, 200] }
+            }
+          },
           {
             urlPattern: /\/audio\/.*\.(mp3|ogg|wav)$/i,
             handler: 'CacheFirst',
@@ -57,9 +68,7 @@ export default defineConfig({
             urlPattern: /^https:\/\/firestore\.googleapis\.com\/.*/i,
             handler: 'NetworkOnly'
           }
-        ],
-        navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/\.netlify/, /^\/netlify/, /^\/_/]
+        ]
       }
     })
   ],
