@@ -6,6 +6,14 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
-    minify: 'esbuild'
+    minify: 'esbuild',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-firebase': ['firebase/compat/app', 'firebase/compat/auth', 'firebase/compat/firestore'],
+        }
+      }
+    }
   }
 });
