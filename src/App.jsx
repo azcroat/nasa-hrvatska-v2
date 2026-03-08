@@ -415,18 +415,6 @@ function markExerciseDone(exerciseId){
       {scr==="placement" && <PlacementTest pq={pq} pi={pi} ps={ps} pa={pa} px={px} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} setScr={setScr} setSt={setSt} />}
       {// ═══ DASHBOARD ═══
       scr==="dashboard"&&<div className="dash" id="main-content" role="main">
-        {// ═══ TAB: HOME ═══
-        tab==="home"&&<HomeTab
-          name={name} level={level} st={st}
-          tDir={tDir} sTDir={sTDir} tIn={tIn} sTIn={sTIn} tOut={tOut} tL={tL} doTr={doTr}
-          dchlA={dchlA} sDchlA={sDchlA} dchlSl={dchlSl} sDchlSl={sDchlSl}
-          getWeekStats={getWeekStats}
-          award={award}
-          setTab={setTab} setScr={setScr}
-          allCats={allCats} sh={sh}
-          sMcQ={sMcQ} sMcI={sMcI} sMcS={sMcS} sMcA={sMcA} sMcSl={sMcSl}
-          sFcPool={sFcPool} sFcI={sFcI} sFcFlip={sFcFlip} sFcKnow={sFcKnow}
-        />}
         <div style={{position:"relative",marginBottom:20}}>
           <div style={{position:"relative"}} role="search">
             <span style={{position:"absolute",left:14,top:"50%",transform:"translateY(-50%)",fontSize:16,pointerEvents:"none",opacity:.4}} aria-hidden="true">🔍</span>
@@ -439,29 +427,36 @@ function markExerciseDone(exerciseId){
               onKeyDown={function(e){if(e.key==="Escape"){setSrchOpen(false);setSrchQ("")}}}
               placeholder="Search words, phrases, screens…"
               aria-label="Search vocabulary, phrases, and screens"
-              aria-expanded={srchOpen&&srchR.length>0}
+              aria-expanded={srchOpen&&srchQ.length>0}
               aria-controls="search-results"
               aria-autocomplete="list"
               autoComplete="off"
-              style={{width:"100%",padding:"12px 16px 12px 44px",fontSize:14,borderRadius:14,border:"1.5px solid #e2e8f0",background:"#fff",boxShadow:"0 1px 3px rgba(0,0,0,.05)"}} />
+              style={{width:"100%",padding:"12px 16px 12px 44px",fontSize:14,borderRadius:14,boxShadow:"0 1px 3px rgba(0,0,0,.05)"}} />
           </div>
+          {srchOpen&&srchQ&&srchR.length===0&&(
+            <div style={{position:"absolute",top:"calc(100% + 6px)",left:0,right:0,background:"var(--card)",borderRadius:16,
+              boxShadow:"0 12px 40px rgba(0,0,0,.14)",zIndex:100,border:"1.5px solid var(--card-b)",
+              padding:"20px 16px",textAlign:"center"}}>
+              <div style={{fontSize:32,marginBottom:8}}>🔍</div>
+              <div style={{fontSize:14,color:"var(--subtext)",fontWeight:600}}>No results for "{srchQ}"</div>
+            </div>
+          )}
           {srchOpen&&srchR.length>0&&<div
             id="search-results"
             role="listbox"
             aria-label="Search results"
-            style={{position:"absolute",top:"calc(100% + 6px)",left:0,right:0,background:"white",borderRadius:16,
+            style={{position:"absolute",top:"calc(100% + 6px)",left:0,right:0,background:"var(--card)",borderRadius:16,
               boxShadow:"0 12px 40px rgba(0,0,0,.14)",zIndex:100,maxHeight:320,overflow:"auto",
-              border:"1.5px solid #e2e8f0"}}>
+              border:"1.5px solid var(--card-b)"}}>
             {srchR.map(function(r,i){return (
               <div
                 key={i}
-                style={{padding:"11px 16px",borderBottom:"1px solid #f8fafc",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",transition:"background .1s"}}
-                onMouseOver={function(e){e.currentTarget.style.background="#f8fafc"}}
-                onMouseOut={function(e){e.currentTarget.style.background="white"}}
+                className="sr-item"
+                role="option"
                 onClick={function(){setSrchOpen(false);setSrchQ("");setScr(r.go)}}>
                 <div>
-                  <div style={{fontSize:14,fontWeight:700,color:"#0f172a"}}>{r.hr}</div>
-                  <div style={{fontSize:12,color:"#64748b",marginTop:1}}>{r.en}</div>
+                  <div style={{fontSize:14,fontWeight:700,color:"var(--heading)"}}>{r.hr}</div>
+                  <div style={{fontSize:12,color:"var(--subtext)",marginTop:1}}>{r.en}</div>
                 </div>
                 <span style={{fontSize:10,padding:"3px 9px",borderRadius:20,fontWeight:700,
                   background:r.type==="vocab"?"#dbeafe":r.type==="screen"?"#dcfce7":"#fef9c3",
@@ -470,12 +465,23 @@ function markExerciseDone(exerciseId){
                 </span>
               </div>
             );})}
-            <div style={{padding:"10px",textAlign:"center",fontSize:12,color:"#94a3b8",cursor:"pointer",borderTop:"1px solid #f1f5f9"}}
-              onClick={function(){setSrchOpen(false)}}>
+            <div className="sr-close" onClick={function(){setSrchOpen(false)}}>
               Close
             </div>
           </div>}
         </div>
+        {// ═══ TAB: HOME ═══
+        tab==="home"&&<HomeTab
+          name={name} level={level} st={st}
+          tDir={tDir} sTDir={sTDir} tIn={tIn} sTIn={sTIn} tOut={tOut} tL={tL} doTr={doTr}
+          dchlA={dchlA} sDchlA={sDchlA} dchlSl={dchlSl} sDchlSl={sDchlSl}
+          getWeekStats={getWeekStats}
+          award={award}
+          setTab={setTab} setScr={setScr}
+          allCats={allCats} sh={sh}
+          sMcQ={sMcQ} sMcI={sMcI} sMcS={sMcS} sMcA={sMcA} sMcSl={sMcSl}
+          sFcPool={sFcPool} sFcI={sFcI} sFcFlip={sFcFlip} sFcKnow={sFcKnow}
+        />}
         {// ═══ TAB: LEARN ═══
         tab==="learn"&&<LearnTab
           allCats={allCats} icons={icons} setScr={setScr} sCurEx={sCurEx}

@@ -102,7 +102,7 @@ export default function HomeTab({
       </div>
 
       {/* ── DAILY CHALLENGES ── */}
-      <div style={{background:"#fff",border:"1.5px solid #e0e7ff",borderRadius:20,padding:"20px",marginBottom:20,
+      <div style={{background:"var(--card)",border:"1.5px solid #e0e7ff",borderRadius:20,padding:"20px",marginBottom:20,
         boxShadow:"0 4px 20px rgba(124,58,237,.07)"}}>
         {/* Header */}
         <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16}}>
@@ -130,7 +130,7 @@ export default function HomeTab({
               {dc.challenges.filter((ch,i) => allOpts[i][dchlSl[i]] === ch.a).length} / 3 correct
               {' '}· +{dc.challenges.filter((ch,i) => allOpts[i][dchlSl[i]] === ch.a).length * 10} XP earned
             </div>
-            <div style={{fontSize:12,color:"#64748b"}}>New challenges at midnight</div>
+            <div style={{fontSize:12,color:"var(--subtext)"}}>New challenges at midnight</div>
           </div>
         ) : (
           <div style={{display:"flex",flexDirection:"column",gap:16}}>
@@ -195,11 +195,11 @@ export default function HomeTab({
         )}
       </div>
 
-      {/* ── WEEKLY PROGRESS ── */}
-      <div style={{background:"#fff",border:"1.5px solid #e2e8f0",borderRadius:20,padding:"18px",marginBottom:20,
+      {/* ── PROGRESS ── */}
+      <div style={{background:"var(--card)",border:"1.5px solid var(--card-b)",borderRadius:20,padding:"18px",marginBottom:20,
         boxShadow:"0 2px 8px rgba(0,0,0,.05)"}}>
-        <div style={{fontSize:11,fontWeight:800,color:"#94a3b8",letterSpacing:".08em",textTransform:"uppercase",marginBottom:14}}>
-          This Week
+        <div style={{fontSize:11,fontWeight:800,color:"var(--sh-c)",letterSpacing:".08em",textTransform:"uppercase",marginBottom:14}}>
+          Progress
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:8,textAlign:"center"}}>
           {[
@@ -208,10 +208,10 @@ export default function HomeTab({
             {v:streak.count,l:"Streak",i:"🔥"},
             {v:ws.strong,l:"Mastered",i:"💪"}
           ].map((s,i) => (
-            <div key={i} style={{padding:"10px 4px",background:"#f8fafc",borderRadius:12}}>
+            <div key={i} style={{padding:"10px 4px",background:"var(--bar-bg)",borderRadius:12}}>
               <div style={{fontSize:16,marginBottom:4}}>{s.i}</div>
-              <div style={{fontSize:18,fontWeight:900,color:"#1e293b",lineHeight:1}}>{s.v}</div>
-              <div style={{fontSize:9,color:"#94a3b8",fontWeight:700,marginTop:3,textTransform:"uppercase",letterSpacing:".04em"}}>{s.l}</div>
+              <div style={{fontSize:18,fontWeight:900,color:"var(--heading)",lineHeight:1}}>{s.v}</div>
+              <div style={{fontSize:9,color:"var(--sh-c)",fontWeight:700,marginTop:3,textTransform:"uppercase",letterSpacing:".04em"}}>{s.l}</div>
             </div>
           ))}
         </div>
@@ -223,14 +223,14 @@ export default function HomeTab({
       </div>
 
       {/* ── QUICK TRANSLATE ── */}
-      <div style={{background:"#fff",border:"1.5px solid #e2e8f0",borderRadius:20,padding:"18px",marginBottom:20,
+      <div style={{background:"var(--card)",border:"1.5px solid var(--card-b)",borderRadius:20,padding:"18px",marginBottom:20,
         boxShadow:"0 2px 8px rgba(0,0,0,.05)"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-          <span style={{fontSize:11,fontWeight:800,color:"#94a3b8",letterSpacing:".08em",textTransform:"uppercase"}}>
+          <span style={{fontSize:11,fontWeight:800,color:"var(--sh-c)",letterSpacing:".08em",textTransform:"uppercase"}}>
             Quick Translate
           </span>
           <button
-            style={{background:"none",border:"1.5px solid #e2e8f0",borderRadius:10,padding:"5px 12px",fontSize:11,
+            style={{background:"none",border:"1.5px solid var(--card-b)",borderRadius:10,padding:"5px 12px",fontSize:11,
               fontWeight:700,color:"#0e7490",cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}
             onClick={() => sTDir(tDir==="en-hr"?"hr-en":"en-hr")}>
             {tDir==="en-hr"?"EN → HR ⇄":"HR → EN ⇄"}
@@ -261,11 +261,11 @@ export default function HomeTab({
         <div style={{width:52,height:52,borderRadius:16,background:"linear-gradient(135deg,#f0fdf4,#dcfce7)",
           display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,flexShrink:0}}>📈</div>
         <div style={{flex:1}}>
-          <div style={{fontSize:15,fontWeight:800,color:"#0f172a",marginBottom:3}}>My Learning Path</div>
+          <div style={{fontSize:15,fontWeight:800,color:"var(--heading)",marginBottom:3}}>My Learning Path</div>
           <div style={{marginBottom:6}}>
             <Bar v={completedItems.d} mx={completedItems.t} color="#16a34a" h={6} />
           </div>
-          <div style={{fontSize:12,color:"#64748b"}}>
+          <div style={{fontSize:12,color:"var(--subtext)"}}>
             {completedItems.d}/{completedItems.t} milestones · {completedItems.pct}% complete
           </div>
         </div>
@@ -307,8 +307,8 @@ export default function HomeTab({
           onClick={() => setTab("learn")}>
           <div style={{width:44,height:44,borderRadius:14,background:"#f0f9ff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>📚</div>
           <div>
-            <div style={{fontSize:14,fontWeight:800,color:"#0f172a"}}>Continue Learning</div>
-            <div style={{fontSize:11,color:"#64748b",marginTop:1}}>{allCats.length} active categories</div>
+            <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>Continue Learning</div>
+            <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>{allCats.length} active categories</div>
           </div>
         </div>
         <div className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}}
@@ -320,24 +320,24 @@ export default function HomeTab({
           }}>
           <div style={{width:44,height:44,borderRadius:14,background:"#fff7ed",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>🎯</div>
           <div>
-            <div style={{fontSize:14,fontWeight:800,color:"#0f172a"}}>Quick Quiz</div>
-            <div style={{fontSize:11,color:"#64748b",marginTop:1}}>10 random words</div>
+            <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>Quick Quiz</div>
+            <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>10 random words</div>
           </div>
         </div>
         <div className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}}
           onClick={() => { const pool=allCats.flatMap(cc=>V[cc]); sFcPool(sh(pool).slice(0,20)); sFcI(0); sFcFlip(false); sFcKnow(0); setScr("flashcards"); }}>
           <div style={{width:44,height:44,borderRadius:14,background:"#f5f3ff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>🃏</div>
           <div>
-            <div style={{fontSize:14,fontWeight:800,color:"#0f172a"}}>Flashcards</div>
-            <div style={{fontSize:11,color:"#64748b",marginTop:1}}>20 random words</div>
+            <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>Flashcards</div>
+            <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>20 random words</div>
           </div>
         </div>
         <div className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}}
           onClick={() => setTab("croatia")}>
           <div style={{width:44,height:44,borderRadius:14,background:"#fff1f2",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>🇭🇷</div>
           <div>
-            <div style={{fontSize:14,fontWeight:800,color:"#0f172a"}}>Life in Croatia</div>
-            <div style={{fontSize:11,color:"#64748b",marginTop:1}}>School, food, sports</div>
+            <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>Life in Croatia</div>
+            <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>School, food, sports</div>
           </div>
         </div>
       </div>

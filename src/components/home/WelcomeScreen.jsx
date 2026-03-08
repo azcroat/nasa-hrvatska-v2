@@ -19,9 +19,9 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"100vh",padding:24,position:"relative",zIndex:1}}>
       <div style={{textAlign:"center",maxWidth:480,animation:"rise .6s"}}>
         <div style={{fontSize:72,marginBottom:16,animation:"boat 4s ease-in-out infinite"}}>⛵</div>
-        <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:42,color:"#164e63",fontWeight:900,marginBottom:8}}>Naša Hrvatska</h1>
-        <p style={{color:"#78716c",fontSize:18,marginBottom:36}}>Let's Learn Croatian Together</p>
-        <p style={{color:"#44403c",fontSize:16,marginBottom:24}}>
+        <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:42,color:"var(--heading)",fontWeight:900,marginBottom:8}}>Naša Hrvatska</h1>
+        <p style={{color:"var(--subtext)",fontSize:18,marginBottom:36}}>Let's Learn Croatian Together</p>
+        <p style={{color:"var(--rt-c)",fontSize:16,marginBottom:24}}>
           {"Welcome, "}
           <span style={{color:"#0e7490",fontWeight:700}}>{name || au?.d}</span>
           !
@@ -36,7 +36,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
             </button>
           )}
         </div>
-        <p style={{color:"#a8a29e",fontSize:13,marginTop:20}}>Quick placement test to find your level</p>
+        <p style={{color:"var(--subtext)",fontSize:13,marginTop:20}}>Quick placement test to find your level</p>
       </div>
     </div>
   );
