@@ -21,7 +21,6 @@ export default function HomeTab({
   const xpNeeded = nXP(level) - lXP(level);
   const xpPct = Math.min(Math.round((xpCur / xpNeeded) * 100), 100);
 
-  // Shuffle each challenge's opts once (random per session, not seeded)
   const [allOpts] = useState(() => dc.challenges.map(ch => {
     const opts = [...(ch.opts || [ch.a])];
     for (let i = opts.length - 1; i > 0; i--) {
@@ -50,90 +49,83 @@ export default function HomeTab({
   return (
     <React.Fragment>
 
-      {/* ── HERO CARD ── */}
+      {/* ── HERO ── */}
       <div style={{
         background: "linear-gradient(145deg,#0c4a6e 0%,#0e7490 55%,#0369a1 100%)",
-        borderRadius: 24, padding: "24px 22px", marginBottom: 20,
+        borderRadius: 24, padding: "22px 20px", marginBottom: 16,
         position: "relative", overflow: "hidden", color: "white",
         boxShadow: "0 8px 32px rgba(14,116,144,.3)"
       }}>
-        {/* decorative glows */}
         <div style={{position:"absolute",top:-40,right:-40,width:160,height:160,background:"rgba(255,255,255,.05)",borderRadius:"50%",pointerEvents:"none"}}/>
-        <div style={{position:"absolute",bottom:-20,left:-20,width:100,height:100,background:"rgba(255,255,255,.04)",borderRadius:"50%",pointerEvents:"none"}}/>
-
         <div style={{position:"relative"}}>
-          <div style={{fontSize:12,fontWeight:600,opacity:.7,marginBottom:2,letterSpacing:".04em",textTransform:"uppercase"}}>
-            {greetingByTime()},
+          <div style={{fontSize:11,fontWeight:600,opacity:.65,marginBottom:2,letterSpacing:".05em",textTransform:"uppercase"}}>
+            {greetingByTime()}
           </div>
-          <div style={{fontSize:26,fontWeight:900,fontFamily:"'Playfair Display',serif",marginBottom:18,letterSpacing:"-.02em",lineHeight:1.1}}>
+          <div style={{fontSize:24,fontWeight:900,fontFamily:"'Playfair Display',serif",marginBottom:16,letterSpacing:"-.01em",lineHeight:1.1}}>
             {name || "Učenik"} 👋
           </div>
-
-          {/* Level + XP bar */}
-          <div style={{background:"rgba(255,255,255,.12)",borderRadius:14,padding:"12px 16px",backdropFilter:"blur(10px)"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-              <span style={{fontSize:13,fontWeight:800,opacity:.95}}>Level {level}</span>
-              <span style={{fontSize:12,opacity:.7,fontWeight:500}}>{st.xp.toLocaleString()} XP · {xpPct}%</span>
+          <div style={{background:"rgba(255,255,255,.12)",borderRadius:14,padding:"11px 14px",backdropFilter:"blur(10px)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:7}}>
+              <span style={{fontSize:12,fontWeight:800}}>Level {level}</span>
+              <span style={{fontSize:11,opacity:.65,fontWeight:500}}>{xpPct}% to Level {level + 1}</span>
             </div>
-            <div style={{background:"rgba(0,0,0,.25)",borderRadius:8,height:8,overflow:"hidden"}}>
+            <div style={{background:"rgba(0,0,0,.25)",borderRadius:8,height:7,overflow:"hidden"}}>
               <div style={{height:"100%",background:"linear-gradient(90deg,#7dd3fc,#e0f2fe)",borderRadius:8,
                 width:xpPct+"%",transition:"width .7s cubic-bezier(.4,0,.2,1)"}}/>
             </div>
-            <div style={{fontSize:11,marginTop:7,opacity:.6,fontWeight:500}}>
-              {(nXP(level) - st.xp).toLocaleString()} XP to Level {level + 1}
+            <div style={{display:"flex",justifyContent:"space-between",marginTop:6}}>
+              <span style={{fontSize:10,opacity:.55}}>{st.xp.toLocaleString()} XP total</span>
+              <span style={{fontSize:10,opacity:.55}}>{(nXP(level) - st.xp).toLocaleString()} XP to go</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── STATS ROW ── */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
+      {/* ── STATS STRIP ── */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:20}}>
         {[
           {icon:"🔥",value:streak.count,label:"Day Streak",color:"#f59e0b",bg:"#fffbeb",border:"#fde68a"},
           {icon:"⭐",value:st.xp.toLocaleString(),label:"Total XP",color:"#0e7490",bg:"#f0f9ff",border:"#bae6fd"},
-          {icon:"📚",value:st.lc,label:"Lessons Done",color:"#7c3aed",bg:"#f5f3ff",border:"#ddd6fe"},
+          {icon:"💪",value:ws.strong,label:"Mastered",color:"#7c3aed",bg:"#f5f3ff",border:"#ddd6fe"},
         ].map((s,i) => (
-          <div key={i} style={{background:s.bg,border:`1.5px solid ${s.border}`,borderRadius:16,padding:"14px 10px",textAlign:"center"}}>
-            <div style={{fontSize:22,marginBottom:4}}>{s.icon}</div>
-            <div style={{fontSize:20,fontWeight:900,color:s.color,lineHeight:1,fontVariantNumeric:"tabular-nums"}}>{s.value}</div>
-            <div style={{fontSize:9,color:"#94a3b8",fontWeight:700,marginTop:4,textTransform:"uppercase",letterSpacing:".06em"}}>{s.label}</div>
+          <div key={i} style={{background:s.bg,border:`1.5px solid ${s.border}`,borderRadius:14,padding:"12px 8px",textAlign:"center"}}>
+            <div style={{fontSize:20,marginBottom:3}}>{s.icon}</div>
+            <div style={{fontSize:18,fontWeight:900,color:s.color,lineHeight:1,fontVariantNumeric:"tabular-nums"}}>{s.value}</div>
+            <div style={{fontSize:9,color:"#94a3b8",fontWeight:700,marginTop:3,textTransform:"uppercase",letterSpacing:".06em"}}>{s.label}</div>
           </div>
         ))}
       </div>
 
       {/* ── DAILY CHALLENGES ── */}
-      <div style={{background:"var(--card)",border:"1.5px solid #e0e7ff",borderRadius:20,padding:"20px",marginBottom:20,
+      <div style={{background:"var(--card)",border:"1.5px solid #e0e7ff",borderRadius:20,padding:"18px 18px 16px",marginBottom:16,
         boxShadow:"0 4px 20px rgba(124,58,237,.07)"}}>
-        {/* Header */}
-        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16}}>
-          <div style={{width:8,height:8,borderRadius:"50%",background:"#7c3aed"}}/>
+        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+          <div style={{width:8,height:8,borderRadius:"50%",background:"#7c3aed",flexShrink:0}}/>
           <span style={{fontSize:11,fontWeight:800,color:"#7c3aed",letterSpacing:".08em",textTransform:"uppercase"}}>Daily Challenges</span>
-          <div style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:6}}>
+          <div style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:5}}>
             {[0,1,2].map(i => (
-              <div key={i} style={{width:10,height:10,borderRadius:"50%",
+              <div key={i} style={{width:9,height:9,borderRadius:"50%",
                 background:dchlA[i] ? "#16a34a" : "#e2e8f0",
                 border:`1.5px solid ${dchlA[i] ? "#16a34a" : "#cbd5e1"}`,
                 transition:"background .2s"}}/>
             ))}
-            <span style={{fontSize:11,fontWeight:700,color:allDone?"#16a34a":"#94a3b8",marginLeft:2}}>
-              {doneCount}/3
-            </span>
+            <span style={{fontSize:11,fontWeight:700,color:allDone?"#16a34a":"#94a3b8",marginLeft:2}}>{doneCount}/3</span>
           </div>
         </div>
 
         {allDone ? (
-          <div style={{textAlign:"center",padding:"16px 0"}}>
-            <div style={{fontSize:42,marginBottom:8}}>
+          <div style={{textAlign:"center",padding:"12px 0"}}>
+            <div style={{fontSize:38,marginBottom:6}}>
               {dchlA.filter((a,i) => a && allOpts[i][dchlSl[i]] === dc.challenges[i].a).length >= 2 ? "🏆" : "🎯"}
             </div>
-            <div style={{fontSize:16,fontWeight:800,color:"#1e293b",marginBottom:4}}>
-              {dc.challenges.filter((ch,i) => allOpts[i][dchlSl[i]] === ch.a).length} / 3 correct
+            <div style={{fontSize:15,fontWeight:800,color:"#1e293b",marginBottom:3}}>
+              {dc.challenges.filter((ch,i) => allOpts[i][dchlSl[i]] === ch.a).length}/3 correct
               {' '}· +{dc.challenges.filter((ch,i) => allOpts[i][dchlSl[i]] === ch.a).length * 10} XP earned
             </div>
             <div style={{fontSize:12,color:"var(--subtext)"}}>New challenges at midnight</div>
           </div>
         ) : (
-          <div style={{display:"flex",flexDirection:"column",gap:16}}>
+          <div style={{display:"flex",flexDirection:"column",gap:14}}>
             {dc.challenges.map((ch, ci) => {
               const answered = dchlA[ci];
               const selIdx = dchlSl[ci];
@@ -141,13 +133,12 @@ export default function HomeTab({
               const correct = opts[selIdx] === ch.a;
               return (
                 <div key={ci} style={{
-                  borderRadius:14,
+                  borderRadius:12,
                   border:`1.5px solid ${answered ? (correct ? "#bbf7d0" : "#fecaca") : "#e2e8f0"}`,
                   background:answered ? (correct ? "#f0fdf4" : "#fff5f5") : "#f8fafc",
-                  padding:"14px",transition:"all .2s",
-                  opacity: answered ? 1 : 1,
+                  padding:"12px",transition:"all .2s",
                 }}>
-                  <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10}}>
+                  <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:9}}>
                     <span style={{width:20,height:20,borderRadius:"50%",background:answered?(correct?"#16a34a":"#dc2626"):"#7c3aed",
                       color:"white",fontSize:10,fontWeight:900,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
                       {answered ? (correct ? "✓" : "✗") : ci + 1}
@@ -165,11 +156,10 @@ export default function HomeTab({
                       return (
                         <button key={oi}
                           disabled={answered}
-                          className="dc-opt"
                           style={{padding:"9px 10px",border:`1.5px solid ${border}`,borderRadius:10,background:bg,
                             fontSize:12,fontWeight:600,cursor:answered?"default":"pointer",textAlign:"left",
                             fontFamily:"'Outfit',sans-serif",color,lineHeight:1.3,transition:"all .15s",
-                            opacity:answered&&o!==ch.a&&oi!==selIdx?0.55:1}}
+                            opacity:answered&&o!==ch.a&&oi!==selIdx?0.5:1}}
                           onClick={() => {
                             const newA = [...dchlA]; newA[ci] = true; sDchlA(newA);
                             const newSl = [...dchlSl]; newSl[ci] = oi; sDchlSl(newSl);
@@ -182,8 +172,7 @@ export default function HomeTab({
                     })}
                   </div>
                   {answered && (
-                    <div style={{marginTop:8,fontSize:11,fontWeight:700,
-                      color:correct?"#166534":"#991b1b"}}>
+                    <div style={{marginTop:7,fontSize:11,fontWeight:700,color:correct?"#166534":"#991b1b"}}>
                       {correct ? "✅ Correct! +10 XP" : `❌ Correct answer: ${ch.a}`}
                     </div>
                   )}
@@ -194,40 +183,109 @@ export default function HomeTab({
         )}
       </div>
 
-      {/* ── PROGRESS ── */}
-      <div style={{background:"var(--card)",border:"1.5px solid var(--card-b)",borderRadius:20,padding:"18px",marginBottom:20,
-        boxShadow:"0 2px 8px rgba(0,0,0,.05)"}}>
-        <div style={{fontSize:11,fontWeight:800,color:"var(--sh-c)",letterSpacing:".08em",textTransform:"uppercase",marginBottom:14}}>
-          Progress
+      {ws.weak > 0 && (
+        <div style={{fontSize:12,color:"#d97706",marginBottom:16,padding:"10px 14px",background:"#fffbeb",borderRadius:12,fontWeight:600,border:"1px solid #fde68a",display:"flex",alignItems:"center",gap:8}}>
+          <span>⚠️</span>
+          <span>{ws.weak} words need review</span>
+          <button onClick={()=>setTab("practice")} style={{marginLeft:"auto",background:"#f59e0b",border:"none",borderRadius:8,padding:"4px 10px",fontSize:11,fontWeight:700,color:"white",cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>Review →</button>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:8,textAlign:"center"}}>
-          {[
-            {v:ws.lessons,l:"Lessons",i:"📖"},
-            {v:ws.grammar,l:"Grammar",i:"✏️"},
-            {v:streak.count,l:"Streak",i:"🔥"},
-            {v:ws.strong,l:"Mastered",i:"💪"}
-          ].map((s,i) => (
-            <div key={i} style={{padding:"10px 4px",background:"var(--bar-bg)",borderRadius:12}}>
-              <div style={{fontSize:16,marginBottom:4}}>{s.i}</div>
-              <div style={{fontSize:18,fontWeight:900,color:"var(--heading)",lineHeight:1}}>{s.v}</div>
-              <div style={{fontSize:9,color:"var(--sh-c)",fontWeight:700,marginTop:3,textTransform:"uppercase",letterSpacing:".04em"}}>{s.l}</div>
-            </div>
-          ))}
-        </div>
-        {ws.weak > 0 && (
-          <div style={{fontSize:12,color:"#d97706",marginTop:12,padding:"8px 12px",background:"#fffbeb",borderRadius:10,fontWeight:600,border:"1px solid #fde68a"}}>
-            ⚠️ {ws.weak} words need review — practice them in Weak Words
+      )}
+
+      {/* ── CONTINUE LEARNING ── */}
+      <button className="tc" style={{display:"flex",alignItems:"center",gap:14,padding:"16px",marginBottom:16,borderLeft:"3px solid #16a34a"}}
+        onClick={() => setScr("learnpath")}>
+        <div style={{width:48,height:48,borderRadius:14,background:"linear-gradient(135deg,#f0fdf4,#dcfce7)",border:"1px solid #bbf7d0",
+          display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,flexShrink:0}}>📈</div>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:14,fontWeight:800,color:"var(--heading)",marginBottom:4}}>My Learning Path</div>
+          <Bar v={completedItems.d} mx={completedItems.t} color="#16a34a" h={6} />
+          <div style={{fontSize:11,color:"var(--subtext)",marginTop:4}}>
+            {completedItems.d}/{completedItems.t} milestones · {completedItems.pct}% complete
           </div>
-        )}
+        </div>
+        <div style={{fontSize:18,color:"#16a34a",flexShrink:0,opacity:.6}}>›</div>
+      </button>
+
+      {/* ── JUMP IN ── */}
+      <h3 className="sh">Jump In</h3>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
+        <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"14px"}}
+          onClick={() => setTab("learn")}>
+          <div style={{width:42,height:42,borderRadius:13,background:"#f0f9ff",border:"1px solid #bae6fd",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>📚</div>
+          <div style={{minWidth:0}}>
+            <div style={{fontSize:13,fontWeight:800,color:"var(--heading)"}}>Learn</div>
+            <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>{allCats.length} categories</div>
+          </div>
+        </button>
+        <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"14px"}}
+          onClick={() => {
+            const pool = allCats.flatMap(cc => V[cc]);
+            const items = sh(pool).slice(0,10);
+            sMcQ(items.map(w => { const wr=sh(pool.filter(p=>p[1]!==w[1])).slice(0,3).map(p=>p[1]); return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]}; }));
+            sMcI(0); sMcS(0); sMcA(false); sMcSl(-1); setScr("mcgame");
+          }}>
+          <div style={{width:42,height:42,borderRadius:13,background:"#fff7ed",border:"1px solid #fed7aa",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>🎯</div>
+          <div style={{minWidth:0}}>
+            <div style={{fontSize:13,fontWeight:800,color:"var(--heading)"}}>Quick Quiz</div>
+            <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>10 random words</div>
+          </div>
+        </button>
+        <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"14px"}}
+          onClick={() => { const pool=allCats.flatMap(cc=>V[cc]); sFcPool(sh(pool).slice(0,20)); sFcI(0); sFcFlip(false); sFcKnow(0); setScr("flashcards"); }}>
+          <div style={{width:42,height:42,borderRadius:13,background:"#f5f3ff",border:"1px solid #ddd6fe",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>🃏</div>
+          <div style={{minWidth:0}}>
+            <div style={{fontSize:13,fontWeight:800,color:"var(--heading)"}}>Flashcards</div>
+            <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>20 random words</div>
+          </div>
+        </button>
+        <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"14px"}}
+          onClick={() => setTab("practice")}>
+          <div style={{width:42,height:42,borderRadius:13,background:"#fef9c3",border:"1px solid #fde047",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>🎮</div>
+          <div style={{minWidth:0}}>
+            <div style={{fontSize:13,fontWeight:800,color:"var(--heading)"}}>Practice</div>
+            <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>Games & exercises</div>
+          </div>
+        </button>
       </div>
 
+      {/* ── PROVERB OF THE DAY ── */}
+      <h3 className="sh">Today's Croatian</h3>
+      <button style={{width:"100%",background:"linear-gradient(135deg,#fefce8,#fef9c3)",border:"1.5px solid #fde047",borderRadius:18,
+        padding:"16px",marginBottom:10,cursor:"pointer",textAlign:"left",boxShadow:"0 2px 8px rgba(234,179,8,.1)",fontFamily:"'Outfit',sans-serif"}}
+        onClick={() => speak(proverb.hr)}>
+        <div style={{fontSize:11,fontWeight:800,color:"#a16207",letterSpacing:".08em",textTransform:"uppercase",marginBottom:7}}>
+          🌟 Poslovica dana · Proverb of the Day
+        </div>
+        <div style={{fontSize:15,fontWeight:700,color:"#78350f",fontStyle:"italic",marginBottom:5,lineHeight:1.5,fontFamily:"'Playfair Display',serif"}}>
+          "{proverb.hr}"
+        </div>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <span style={{fontSize:12,color:"#92400e",fontWeight:500}}>{proverb.en}</span>
+          <span style={{fontSize:11,color:"#a16207",opacity:.7}}>🔊 Tap to hear</span>
+        </div>
+      </button>
+
+      {/* ── HISTORICAL FACT ── */}
+      <button style={{width:"100%",background:"linear-gradient(135deg,#faf5ff,#ede9fe)",border:"1.5px solid #c4b5fd",borderRadius:18,
+        padding:"16px",marginBottom:20,cursor:"pointer",textAlign:"left",boxShadow:"0 2px 8px rgba(124,58,237,.08)",fontFamily:"'Outfit',sans-serif"}}
+        onClick={() => speak(fact.hr)}>
+        <div style={{fontSize:11,fontWeight:800,color:"#6d28d9",letterSpacing:".08em",textTransform:"uppercase",marginBottom:7}}>
+          🏛️ Povijesna činjenica · Historical Fact
+        </div>
+        <div style={{fontSize:15,fontWeight:700,color:"#3b0764",fontStyle:"italic",marginBottom:5,lineHeight:1.5,fontFamily:"'Playfair Display',serif"}}>
+          "{fact.hr}"
+        </div>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <span style={{fontSize:12,color:"#5b21b6",fontWeight:500}}>{fact.en}</span>
+          <span style={{fontSize:11,color:"#6d28d9",opacity:.7}}>🔊 Tap to hear</span>
+        </div>
+      </button>
+
       {/* ── QUICK TRANSLATE ── */}
-      <div style={{background:"var(--card)",border:"1.5px solid var(--card-b)",borderRadius:20,padding:"18px",marginBottom:20,
+      <h3 className="sh">Quick Translate</h3>
+      <div style={{background:"var(--card)",border:"1.5px solid var(--card-b)",borderRadius:18,padding:"16px",marginBottom:24,
         boxShadow:"0 2px 8px rgba(0,0,0,.05)"}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-          <span style={{fontSize:11,fontWeight:800,color:"var(--sh-c)",letterSpacing:".08em",textTransform:"uppercase"}}>
-            Quick Translate
-          </span>
+        <div style={{display:"flex",justifyContent:"flex-end",marginBottom:10}}>
           <button
             style={{background:"none",border:"1.5px solid var(--card-b)",borderRadius:10,padding:"5px 12px",fontSize:11,
               fontWeight:700,color:"#0e7490",cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}
@@ -245,100 +303,13 @@ export default function HomeTab({
           </button>
         </div>
         {tOut && (
-          <div style={{marginTop:10,padding:"12px 16px",background:"#f0f9ff",borderRadius:12,border:"1.5px solid #bae6fd",
-            fontSize:16,fontWeight:700,color:"#0c4a6e",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}
+          <button style={{width:"100%",marginTop:10,padding:"12px 16px",background:"#f0f9ff",borderRadius:12,border:"1.5px solid #bae6fd",
+            fontSize:16,fontWeight:700,color:"#0c4a6e",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif",display:"flex",justifyContent:"space-between",alignItems:"center"}}
             onClick={() => speak(tDir==="en-hr"?tOut:tIn)}>
             <span>{tOut}</span>
             <span style={{fontSize:18}}>🔊</span>
-          </div>
+          </button>
         )}
-      </div>
-
-      {/* ── LEARNING PATH ── */}
-      <button className="tc" style={{display:"flex",alignItems:"center",gap:16,padding:"18px",marginBottom:20}}
-        onClick={() => setScr("learnpath")}>
-        <div style={{width:52,height:52,borderRadius:16,background:"linear-gradient(135deg,#f0fdf4,#dcfce7)",
-          display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,flexShrink:0}}>📈</div>
-        <div style={{flex:1}}>
-          <div style={{fontSize:15,fontWeight:800,color:"var(--heading)",marginBottom:3}}>My Learning Path</div>
-          <div style={{marginBottom:6}}>
-            <Bar v={completedItems.d} mx={completedItems.t} color="#16a34a" h={6} />
-          </div>
-          <div style={{fontSize:12,color:"var(--subtext)"}}>
-            {completedItems.d}/{completedItems.t} milestones · {completedItems.pct}% complete
-          </div>
-        </div>
-        <div style={{fontSize:18,color:"#cbd5e1"}}>›</div>
-      </button>
-
-      {/* ── PROVERB OF THE DAY ── */}
-      <div style={{background:"linear-gradient(135deg,#fefce8,#fef9c3)",border:"1.5px solid #fde047",borderRadius:20,
-        padding:"18px",marginBottom:16,cursor:"pointer",boxShadow:"0 2px 8px rgba(234,179,8,.1)"}}
-        onClick={() => speak(proverb.hr)}>
-        <div style={{fontSize:11,fontWeight:800,color:"#a16207",letterSpacing:".08em",textTransform:"uppercase",marginBottom:8}}>
-          🌟 Poslovica dana
-        </div>
-        <div style={{fontSize:15,fontWeight:700,color:"#78350f",fontStyle:"italic",marginBottom:6,lineHeight:1.5,fontFamily:"'Playfair Display',serif"}}>
-          "{proverb.hr}"
-        </div>
-        <div style={{fontSize:13,color:"#92400e",fontWeight:500}}>{proverb.en}</div>
-        <div style={{fontSize:11,color:"#a16207",marginTop:6,opacity:.7}}>Tap to hear pronunciation 🔊</div>
-      </div>
-
-      {/* ── HISTORICAL FACT ── */}
-      <div style={{background:"linear-gradient(135deg,#faf5ff,#ede9fe)",border:"1.5px solid #c4b5fd",borderRadius:20,
-        padding:"18px",marginBottom:20,cursor:"pointer",boxShadow:"0 2px 8px rgba(124,58,237,.08)"}}
-        onClick={() => speak(fact.hr)}>
-        <div style={{fontSize:11,fontWeight:800,color:"#6d28d9",letterSpacing:".08em",textTransform:"uppercase",marginBottom:8}}>
-          🏛️ Povijesna činjenica
-        </div>
-        <div style={{fontSize:15,fontWeight:700,color:"#3b0764",fontStyle:"italic",marginBottom:6,lineHeight:1.5,fontFamily:"'Playfair Display',serif"}}>
-          "{fact.hr}"
-        </div>
-        <div style={{fontSize:13,color:"#5b21b6",fontWeight:500}}>{fact.en}</div>
-        <div style={{fontSize:11,color:"#6d28d9",marginTop:6,opacity:.7}}>Tap to hear pronunciation 🔊</div>
-      </div>
-
-      {/* ── QUICK START ── */}
-      <div className="sh">Quick Start</div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:8}}>
-        <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}}
-          onClick={() => setTab("learn")}>
-          <div style={{width:44,height:44,borderRadius:14,background:"#f0f9ff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>📚</div>
-          <div>
-            <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>Continue Learning</div>
-            <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>{allCats.length} active categories</div>
-          </div>
-        </button>
-        <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}}
-          onClick={() => {
-            const pool = allCats.flatMap(cc => V[cc]);
-            const items = sh(pool).slice(0,10);
-            sMcQ(items.map(w => { const wr=sh(pool.filter(p=>p[1]!==w[1])).slice(0,3).map(p=>p[1]); return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]}; }));
-            sMcI(0); sMcS(0); sMcA(false); sMcSl(-1); setScr("mcgame");
-          }}>
-          <div style={{width:44,height:44,borderRadius:14,background:"#fff7ed",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>🎯</div>
-          <div>
-            <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>Quick Quiz</div>
-            <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>10 random words</div>
-          </div>
-        </button>
-        <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}}
-          onClick={() => { const pool=allCats.flatMap(cc=>V[cc]); sFcPool(sh(pool).slice(0,20)); sFcI(0); sFcFlip(false); sFcKnow(0); setScr("flashcards"); }}>
-          <div style={{width:44,height:44,borderRadius:14,background:"#f5f3ff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>🃏</div>
-          <div>
-            <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>Flashcards</div>
-            <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>20 random words</div>
-          </div>
-        </button>
-        <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}}
-          onClick={() => setTab("croatia")}>
-          <div style={{width:44,height:44,borderRadius:14,background:"#fff1f2",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>🇭🇷</div>
-          <div>
-            <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>Life in Croatia</div>
-            <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>School, food, sports</div>
-          </div>
-        </button>
       </div>
 
     </React.Fragment>
