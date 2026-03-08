@@ -247,12 +247,13 @@ export default function CroatiaTab({
           [()=>setScr("region_labin"),"⛵","Labin & Rabac","Our new home!"],
           [()=>setScr("region_bibinje"),"🏖️","Bibinje & Zadar","Dalmatian gateway"],
           [()=>setScr("region_hercegovina"),"⚔️","Hrvati Hercegovine","Our heritage"],
-          [()=>setScr("region_vukovar"),"🕯️","Vukovar","Hero city — deep dive"],
-          [()=>setScr("region_vinkovci"),"🏛️","Vinkovci","8,300 years of history"],
+          [()=>setScr("region_vukovar"),"🕯️","Vukovar","Hero city"],
+          [()=>setScr("region_vinkovci"),"🏛️","Vinkovci","8,300 years"],
         ].map(([fn,icon,title,sub],i)=>(
-          <button key={i} className="tc" style={{display:"flex",alignItems:"center",gap:10,padding:"14px"}} onClick={fn}>
+          <button key={i} className="tc" style={{textAlign:"center",padding:"14px 8px",minHeight:80,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:4}} onClick={fn}>
             <div style={{fontSize:28}}>{icon}</div>
-            <div><div style={{fontSize:13,fontWeight:700}}>{title}</div><div style={{fontSize:11,color:"var(--subtext)"}}>{sub}</div></div>
+            <div style={{fontSize:12,fontWeight:700,lineHeight:1.2}}>{title}</div>
+            <div style={{fontSize:10,color:"var(--subtext)",lineHeight:1.2}}>{sub}</div>
           </button>
         ))}
       </div>
