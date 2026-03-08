@@ -14,7 +14,7 @@ export function ColorAgreementScreen({ goBack, award }) {
             {COLORAGREE.colors.map(function(c2,ci){return (
               <tr key={ci} style={{background:ci%2?"#f0fdfa":"white"}}>
                 <td style={{padding:"4px",fontWeight:700,color:"#164e63"}}>{c2.en}</td>
-                {[c2.m,c2.f,c2.n,c2.mpl,c2.fpl,c2.npl].map(function(v,vi){return (<td key={vi} style={{padding:"4px",cursor:"pointer"}} onClick={function(){speak(v)}}>{v}</td>);})}
+                {[c2.m,c2.f,c2.n,c2.mpl,c2.fpl,c2.npl].map(function(v,vi){return (<td key={vi} style={{padding:"4px",cursor:"pointer"}} role="button" tabIndex={0} onClick={function(){speak(v)}} onKeyDown={function(e){if(e.key==="Enter"||e.key===" ")speak(v)}}>{v}</td>);})}
               </tr>
             );})}
           </tbody>
@@ -64,7 +64,7 @@ export function PossessivesScreen({ goBack, award }) {
             {POSSESS.table.map(function(r,ri){return (
               <tr key={ri} style={{background:ri%2?"#f0fdfa":"white"}}>
                 <td style={{padding:"6px",fontWeight:800,color:"#0e7490"}}>{r.person}</td>
-                {[r.m,r.f,r.n,r.en].map(function(v,vi){return (<td key={vi} style={{padding:"6px",cursor:"pointer"}} onClick={function(){speak(v)}}>{v}</td>);})}
+                {[r.m,r.f,r.n,r.en].map(function(v,vi){return (<td key={vi} style={{padding:"6px",cursor:"pointer"}} role="button" tabIndex={0} onClick={function(){speak(v)}} onKeyDown={function(e){if(e.key==="Enter"||e.key===" ")speak(v)}}>{v}</td>);})}
               </tr>
             );})}
           </tbody>
@@ -121,8 +121,8 @@ export function NegationScreen({ goBack }) {
       {shMemo("ng",NEGATION).map(function(n,ni){return (
         <div key={ni} className="c" style={{marginBottom:8,padding:"10px 14px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div style={{flex:1}}>
-            <div style={{fontSize:13,fontWeight:700,color:"#16a34a",cursor:"pointer",marginBottom:2}} onClick={function(){speak(n.pos)}}>{"✅ "}{n.pos}</div>
-            <div style={{fontSize:13,fontWeight:700,color:"#dc2626",cursor:"pointer"}} onClick={function(){speak(n.neg)}}>{"❌ "}{n.neg}</div>
+            <button style={{background:"none",border:"none",cursor:"pointer",textAlign:"left",padding:0,fontFamily:"'Outfit',sans-serif",fontSize:13,fontWeight:700,color:"#16a34a",marginBottom:2,display:"block"}} onClick={function(){speak(n.pos)}}>{"✅ "}{n.pos}</button>
+            <button style={{background:"none",border:"none",cursor:"pointer",textAlign:"left",padding:0,fontFamily:"'Outfit',sans-serif",fontSize:13,fontWeight:700,color:"#dc2626",display:"block"}} onClick={function(){speak(n.neg)}}>{"❌ "}{n.neg}</button>
           </div>
           <div style={{fontSize:11,color:"#78716c",maxWidth:140,textAlign:"right"}}>{n.en}</div>
         </div>
@@ -139,10 +139,10 @@ export function SibilarizationScreen({ goBack, award }) {
       <div className="c" style={{marginBottom:16,padding:"12px",background:"rgba(245,158,11,.06)",fontSize:13}}>{SIBIL.intro}</div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:20}}>
         {SIBIL.examples.map(function(ex,i){return (
-          <div key={i} className="c" style={{padding:"8px 12px",textAlign:"center",cursor:"pointer"}} onClick={function(){speak(ex.lok)}}>
-            <div style={{fontSize:13,fontWeight:700,color:"#164e63"}}>{ex.nom}{" → "}{ex.lok}</div>
+          <button key={i} className="c" style={{padding:"8px 12px",textAlign:"center"}} onClick={function(){speak(ex.lok)}}>
+            <div style={{fontSize:13,fontWeight:700,color:"var(--heading)"}}>{ex.nom}{" → "}{ex.lok}</div>
             <div style={{fontSize:11,color:"#b45309"}}>{ex.rule}</div>
-          </div>
+          </button>
         );})}
       </div>
       <h3 className="sh">🎯 Fill the Blank</h3>
@@ -173,10 +173,10 @@ export function RestaurantScreen({ goBack }) {
         <div key={ri} style={{marginBottom:12}}>
           <div style={{display:"flex",gap:8,marginBottom:4}}>
             <div style={{fontSize:11,fontWeight:800,color:"white",background:"#0e7490",padding:"2px 8px",borderRadius:10}}>K</div>
-            <div style={{flex:1,padding:"8px 12px",background:"#f0fdfa",borderRadius:"4px 12px 12px 12px",fontSize:13,cursor:"pointer"}} onClick={function(){speak(r.waiter)}}>{r.waiter}</div>
+            <button style={{flex:1,padding:"8px 12px",background:"#f0fdfa",borderRadius:"4px 12px 12px 12px",fontSize:13,border:"none",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif"}} onClick={function(){speak(r.waiter)}}>{r.waiter}</button>
           </div>
           <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
-            <div style={{flex:1,padding:"8px 12px",background:"#eff6ff",borderRadius:"12px 4px 12px 12px",fontSize:13,textAlign:"right",cursor:"pointer"}} onClick={function(){speak(r.you)}}>{r.you}</div>
+            <button style={{flex:1,padding:"8px 12px",background:"#eff6ff",borderRadius:"12px 4px 12px 12px",fontSize:13,textAlign:"right",border:"none",cursor:"pointer",fontFamily:"'Outfit',sans-serif"}} onClick={function(){speak(r.you)}}>{r.you}</button>
             <div style={{fontSize:11,fontWeight:800,color:"white",background:"#1e40af",padding:"2px 8px",borderRadius:10}}>Ti</div>
           </div>
         </div>
@@ -192,9 +192,9 @@ export function ProfessionGenderScreen({ goBack }) {
       {H("👨‍⚖️👩‍⚖️ Profession Pairs","Every job has a masculine AND feminine form")}
       {shMemo("pg",PROFGENDER).map(function(p,i){return (
         <div key={i} className="c" style={{marginBottom:6,padding:"10px 14px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div style={{flex:1,textAlign:"center",cursor:"pointer"}} onClick={function(){speak(p.m)}}><div style={{fontSize:14,fontWeight:700,color:"#1e40af"}}>{"👨 "}{p.m}</div></div>
-          <div style={{fontSize:11,color:"#78716c",padding:"0 8px"}}>{p.en}</div>
-          <div style={{flex:1,textAlign:"center",cursor:"pointer"}} onClick={function(){speak(p.f)}}><div style={{fontSize:14,fontWeight:700,color:"#db2777"}}>{"👩 "}{p.f}</div></div>
+          <button style={{flex:1,textAlign:"center",background:"none",border:"none",cursor:"pointer",fontFamily:"'Outfit',sans-serif",padding:0}} onClick={function(){speak(p.m)}}><div style={{fontSize:14,fontWeight:700,color:"#1e40af"}}>{"👨 "}{p.m}</div></button>
+          <div style={{fontSize:11,color:"var(--subtext)",padding:"0 8px"}}>{p.en}</div>
+          <button style={{flex:1,textAlign:"center",background:"none",border:"none",cursor:"pointer",fontFamily:"'Outfit',sans-serif",padding:0}} onClick={function(){speak(p.f)}}><div style={{fontSize:14,fontWeight:700,color:"#db2777"}}>{"👩 "}{p.f}</div></button>
         </div>
       );})}
     </div>
@@ -211,9 +211,9 @@ export function ComparativesScreen({ goBack, award }) {
         <div style={{padding:"6px",background:"#b45309",color:"white",fontWeight:700,fontSize:12,textAlign:"center"}}>Comparative</div>
         <div style={{padding:"6px",background:"#7c3aed",color:"white",fontWeight:700,fontSize:12,textAlign:"center"}}>Superlative</div>
         {COMPARE.map(function(cm){return [
-          <div key={cm.base+"b"} style={{padding:"6px",borderBottom:"1px solid #e7e5e4",fontSize:12,cursor:"pointer"}} onClick={function(){speak(cm.base)}}>{cm.base}{" ("}{cm.en})</div>,
-          <div key={cm.base+"c"} style={{padding:"6px",borderBottom:"1px solid #e7e5e4",fontSize:12,fontWeight:700,color:"#b45309",cursor:"pointer"}} onClick={function(){speak(cm.comp)}}>{cm.comp}</div>,
-          <div key={cm.base+"s"} style={{padding:"6px",borderBottom:"1px solid #e7e5e4",fontSize:12,fontWeight:700,color:"#7c3aed",cursor:"pointer"}} onClick={function(){speak(cm.super)}}>{cm.super}</div>
+          <button key={cm.base+"b"} style={{padding:"6px",fontSize:12,background:"none",border:"none",borderBottom:"1px solid #e7e5e4",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif"}} onClick={function(){speak(cm.base)}}>{cm.base}{" ("}{cm.en})</button>,
+          <button key={cm.base+"c"} style={{padding:"6px",fontSize:12,fontWeight:700,color:"#b45309",background:"none",border:"none",borderBottom:"1px solid #e7e5e4",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif"}} onClick={function(){speak(cm.comp)}}>{cm.comp}</button>,
+          <button key={cm.base+"s"} style={{padding:"6px",fontSize:12,fontWeight:700,color:"#7c3aed",background:"none",border:"none",borderBottom:"1px solid #e7e5e4",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif"}} onClick={function(){speak(cm.super)}}>{cm.super}</button>
         ];}).flat()}
       </div>
       <h3 className="sh">🎯 Pick the right form</h3>
@@ -240,9 +240,9 @@ export function FutureTenseScreen({ goBack, award }) {
       <div className="c" style={{marginBottom:16,padding:"12px",background:"rgba(14,116,144,.06)",fontSize:13}}>{FUTURE.intro}</div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:20}}>
         {["ja ću","ti ćeš","on/ona će","mi ćemo","vi ćete","oni/one će"].map(function(f,i){return (
-          <div key={i} className="c" style={{textAlign:"center",padding:"8px",cursor:"pointer"}} onClick={function(){speak(f)}}>
+          <button key={i} className="c" style={{textAlign:"center",padding:"8px"}} onClick={function(){speak(f)}}>
             <div style={{fontSize:14,fontWeight:800,color:"#0e7490"}}>{f}</div>
-          </div>
+          </button>
         );})}
       </div>
       <h3 className="sh">🎯 Fill the Blank</h3>

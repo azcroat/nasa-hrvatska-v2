@@ -10,7 +10,7 @@ export function TenseFlipScreen({ goBack, award }) {
       <div className="c" style={{marginBottom:12,padding:"10px 14px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 See the present tense, then tap to reveal the past (perfekt) and negative past forms.</div>
       {shMemo("tf",TENSEFLIP,10).map(function(t,ti){return (
         <div key={ti} className="c" style={{marginBottom:10,padding:"10px 14px"}}>
-          <div style={{fontSize:14,fontWeight:700,color:"#164e63",marginBottom:8,cursor:"pointer"}} onClick={function(){speak(t.prez)}}>{"🔵 "}{t.prez}</div>
+          <button style={{fontSize:14,fontWeight:700,color:"var(--heading)",marginBottom:8,background:"none",border:"none",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif",padding:0}} onClick={function(){speak(t.prez)}}>{"🔵 "}{t.prez}</button>
           <div style={{display:"flex",gap:8}}>
             <button style={{flex:1,padding:"8px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,cursor:"pointer",textAlign:"left"}}
               onClick={function(e){e.target.textContent="✅ "+t.perf;e.target.style.background="#dcfce7";e.target.style.borderColor="#16a34a";speak(t.perf);award(3);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>🔵 Perfekt?</button>
@@ -30,7 +30,7 @@ export function RiddlesScreen({ goBack, award }) {
       {H("🧩 Što je to?","Read the clues in Croatian, guess the answer!")}
       {shMemo("rid",RIDDLES,8).map(function(r,ri){return (
         <div key={ri} className="c" style={{marginBottom:14,padding:"14px 16px"}}>
-          <div style={{fontSize:14,fontStyle:"italic",color:"#44403c",marginBottom:10,lineHeight:1.5,cursor:"pointer"}} onClick={function(){speak(r.clue)}}>🔊 "{r.clue}"</div>
+          <button style={{fontSize:14,fontStyle:"italic",color:"#44403c",marginBottom:10,lineHeight:1.5,background:"none",border:"none",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif",padding:0}} onClick={function(){speak(r.clue)}}>🔊 "{r.clue}"</button>
           <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
             {r.opts.map(function(o,oi){return (
               <button key={oi} style={{padding:"8px 16px",border:"2px solid #d6d3d1",borderRadius:12,background:"white",fontSize:13,fontWeight:600,cursor:"pointer"}}
@@ -52,7 +52,7 @@ export function LogicQuizScreen({ goBack, award }) {
       <div className="c" style={{marginBottom:12,padding:"10px 14px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 Read the Croatian situation and pick ALL correct answers. Some questions have 2 right answers!</div>
       {shMemo("lq",LOGICQUIZ).map(function(lq,li){var allOpts=lq.right.concat(lq.wrong).sort(function(){return Math.random()-0.5});return (
         <div key={li} className="c" style={{marginBottom:12,padding:"12px 14px"}}>
-          <div style={{fontSize:14,fontWeight:700,color:"#164e63",marginBottom:8,cursor:"pointer"}} onClick={function(){speak(lq.q)}}>{"🔊 "}{lq.q}</div>
+          <button style={{fontSize:14,fontWeight:700,color:"var(--heading)",marginBottom:8,background:"none",border:"none",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif",padding:0}} onClick={function(){speak(lq.q)}}>{"🔊 "}{lq.q}</button>
           <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
             {allOpts.map(function(o,oi){var isRight=lq.right.indexOf(o)>=0;return (
               <button key={oi} style={{padding:"8px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,fontWeight:600,cursor:"pointer"}}

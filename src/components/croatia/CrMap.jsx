@@ -22,7 +22,7 @@ export default function CrMap({ goBack }) {
       {MAPPLACES.places.filter(function(p){return mapCat==="all"||p.cat===mapCat}).map(function(p,i){
         var catInfo=MAPPLACES.categories.find(function(c){return c.id===p.cat});
         return (
-          <div key={i} className="c" style={{marginBottom:8,padding:"12px 14px",borderLeft:"4px solid "+(catInfo?catInfo.color:"#e7e5e4"),cursor:"pointer"}} onClick={function(){setMapSel(mapSel===i?null:i)}}>
+          <button key={i} className="c" style={{marginBottom:8,padding:"12px 14px",borderLeft:"4px solid "+(catInfo?catInfo.color:"#e7e5e4")}} onClick={function(){setMapSel(mapSel===i?null:i)}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
                 <div style={{fontSize:15,fontWeight:700,color:"#164e63"}}>{p.name}</div>
@@ -31,14 +31,14 @@ export default function CrMap({ goBack }) {
               <div style={{fontSize:11,padding:"3px 8px",background:catInfo?catInfo.color+"18":"#f3f4f6",borderRadius:10,color:catInfo?catInfo.color:"#78716c",fontWeight:600}}>{catInfo?catInfo.label.split(" ")[1]:""}</div>
             </div>
             {mapSel===i&&<div style={{display:"flex",gap:8,marginTop:12,paddingTop:12,borderTop:"1px solid #f3f4f6"}}>
-              <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px",background:"linear-gradient(135deg,#0e7490,#164e63)",color:"white",borderRadius:12,fontWeight:700,fontSize:13,cursor:"pointer"}}
-                onClick={function(){window.open("https://www.google.com/maps/dir/?api=1&destination="+p.lat+","+p.lng+"&travelmode=driving","_blank","noopener,noreferrer")}}>🚧 Driving</div>
-              <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px",background:"linear-gradient(135deg,#f59e0b,#d97706)",color:"white",borderRadius:12,fontWeight:700,fontSize:13,cursor:"pointer"}}
-                onClick={function(){window.open("https://www.google.com/maps/search/?api=1&query="+p.lat+","+p.lng,"_blank","noopener,noreferrer")}}>🗺️ Map</div>
-              <div style={{display:"flex",alignItems:"center",justifyContent:"center",padding:"10px 14px",background:"#16a34a",color:"white",borderRadius:12,fontWeight:700,fontSize:13,cursor:"pointer"}}
-                onClick={function(){window.open("https://www.google.com/maps/dir/?api=1&destination="+p.lat+","+p.lng+"&travelmode=walking","_blank","noopener,noreferrer")}}>🚶</div>
+              <button style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px",background:"linear-gradient(135deg,#0e7490,#164e63)",color:"white",borderRadius:12,fontWeight:700,fontSize:13,cursor:"pointer",border:"none",fontFamily:"'Outfit',sans-serif"}}
+                onClick={function(){window.open("https://www.google.com/maps/dir/?api=1&destination="+p.lat+","+p.lng+"&travelmode=driving","_blank","noopener,noreferrer")}}>🚧 Driving</button>
+              <button style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px",background:"linear-gradient(135deg,#f59e0b,#d97706)",color:"white",borderRadius:12,fontWeight:700,fontSize:13,cursor:"pointer",border:"none",fontFamily:"'Outfit',sans-serif"}}
+                onClick={function(){window.open("https://www.google.com/maps/search/?api=1&query="+p.lat+","+p.lng,"_blank","noopener,noreferrer")}}>🗺️ Map</button>
+              <button style={{display:"flex",alignItems:"center",justifyContent:"center",padding:"10px 14px",background:"#16a34a",color:"white",borderRadius:12,fontWeight:700,fontSize:13,cursor:"pointer",border:"none",fontFamily:"'Outfit',sans-serif"}}
+                onClick={function(){window.open("https://www.google.com/maps/dir/?api=1&destination="+p.lat+","+p.lng+"&travelmode=walking","_blank","noopener,noreferrer")}}>🚶</button>
             </div>}
-          </div>
+          </button>
         );})}
     </div>
   );

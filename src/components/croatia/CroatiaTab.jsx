@@ -197,8 +197,8 @@ export default function CroatiaTab({
       {H("🇭🇷 Life in Croatia", "Culture, history, daily life")}
 
       {/* AI Conversation Partner */}
-      <div
-        style={{marginBottom:12,padding:"16px 20px",background:"linear-gradient(135deg,#1e1b4b,#3730a3)",borderRadius:18,cursor:"pointer",color:"white",boxShadow:"0 6px 24px rgba(55,48,163,.25)"}}
+      <button
+        style={{marginBottom:12,padding:"16px 20px",background:"linear-gradient(135deg,#1e1b4b,#3730a3)",borderRadius:18,color:"white",boxShadow:"0 6px 24px rgba(55,48,163,.25)",width:"100%",border:"none",cursor:"pointer",textAlign:"left"}}
         onClick={() => setScr("aiconvo")}>
         <div style={{display:"flex",alignItems:"center",gap:14}}>
           <div style={{fontSize:38,flexShrink:0}}>🤖</div>
@@ -213,11 +213,11 @@ export default function CroatiaTab({
           </div>
           <div style={{fontSize:20,opacity:.7}}>→</div>
         </div>
-      </div>
+      </button>
 
       {/* Immersion Hub Hero Banner */}
-      <div
-        style={{marginBottom:20,padding:"18px 20px",background:"linear-gradient(135deg,#164e63,#0e7490)",borderRadius:18,cursor:"pointer",color:"white",boxShadow:"0 6px 24px rgba(14,116,144,.3)"}}
+      <button
+        style={{marginBottom:20,padding:"18px 20px",background:"linear-gradient(135deg,#164e63,#0e7490)",borderRadius:18,color:"white",boxShadow:"0 6px 24px rgba(14,116,144,.3)",width:"100%",border:"none",cursor:"pointer",textAlign:"left"}}
         onClick={() => setScr("immersion")}>
         <div style={{display:"flex",alignItems:"center",gap:14}}>
           <div style={{fontSize:40,flexShrink:0}}>🌊</div>
@@ -232,7 +232,7 @@ export default function CroatiaTab({
           </div>
           <div style={{fontSize:20,opacity:.7}}>→</div>
         </div>
-      </div>
+      </button>
 
       <h3 className="sh">🇭🇷 History & Regions</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
@@ -250,15 +250,15 @@ export default function CroatiaTab({
           [()=>setScr("region_vukovar"),"🕯️","Vukovar","Hero city — deep dive"],
           [()=>setScr("region_vinkovci"),"🏛️","Vinkovci","8,300 years of history"],
         ].map(([fn,icon,title,sub],i)=>(
-          <div key={i} className="tc" style={{display:"flex",alignItems:"center",gap:10,padding:"14px"}} onClick={fn}>
+          <button key={i} className="tc" style={{display:"flex",alignItems:"center",gap:10,padding:"14px"}} onClick={fn}>
             <div style={{fontSize:28}}>{icon}</div>
-            <div><div style={{fontSize:13,fontWeight:700}}>{title}</div><div style={{fontSize:11,color:"#78716c"}}>{sub}</div></div>
-          </div>
+            <div><div style={{fontSize:13,fontWeight:700}}>{title}</div><div style={{fontSize:11,color:"var(--subtext)"}}>{sub}</div></div>
+          </button>
         ))}
       </div>
 
       {/* City of the Day */}
-      <div style={{marginBottom:20,borderRadius:16,overflow:"hidden",cursor:"pointer",boxShadow:"0 4px 16px rgba(0,0,0,.1)"}} onClick={()=>setScr("cityofday")}>
+      <button style={{marginBottom:20,borderRadius:16,overflow:"hidden",boxShadow:"0 4px 16px rgba(0,0,0,.1)",width:"100%",border:"none",cursor:"pointer",padding:0,textAlign:"left"}} onClick={()=>setScr("cityofday")}>
         <div style={{background:"linear-gradient(135deg,"+city.color+"dd,"+city.color+")",padding:"14px 16px",display:"flex",alignItems:"center",gap:14}}>
           <div style={{fontSize:36,flexShrink:0}}>{city.icon}</div>
           <div style={{flex:1,minWidth:0}}>
@@ -271,37 +271,37 @@ export default function CroatiaTab({
         <div style={{background:"rgba(0,0,0,.55)",padding:"7px 16px",fontSize:11,color:"rgba(255,255,255,.65)"}}>
           New city every day · {city.facts.length} facts · {city.vocab.length} words to learn
         </div>
-      </div>
+      </button>
 
       <h3 className="sh">🛒 Shopping & Food</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
-        <div className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => setScr("grocery")}>
+        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => setScr("grocery")}>
           <div style={{fontSize:28}}>🛒</div><div style={{fontSize:12,fontWeight:700,marginTop:4}}>Grocery</div>
-        </div>
-        <div className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => { setRcIdx(0); setRcServ(4); setScr("recipes"); }}>
+        </button>
+        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => { setRcIdx(0); setRcServ(4); setScr("recipes"); }}>
           <div style={{fontSize:28}}>🍳</div><div style={{fontSize:12,fontWeight:700,marginTop:4}}>Recipes</div>
-        </div>
-        <div className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => { setRpIdx(0); setRpLine(0); setRpShow(false); setScr("roleplay"); }}>
+        </button>
+        <button className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => { setRpIdx(0); setRpLine(0); setRpShow(false); setScr("roleplay"); }}>
           <div style={{fontSize:28}}>🎭</div><div style={{fontSize:12,fontWeight:700,marginTop:4}}>Role-Play</div>
-        </div>
+        </button>
       </div>
 
       <h3 className="sh">🏫 Daily Life</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
         {[["🏫","School Kit","school"],["📱","Texting","texting"],["🤝","Make Friends","friends"],["🍕","Order Food","foodorder"],["🚌","Transport","transport"],["🚨","Emergency","emergency"],["💼","Practical Life","practical"],["🏀","At Basketball","basketball"],["🏋️","At the Gym","gym"]].map(([icon,label,screen])=>(
-          <div key={screen} className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => setScr(screen)}>
+          <button key={screen} className="tc" style={{textAlign:"center",padding:"14px 8px"}} onClick={() => setScr(screen)}>
             <div style={{fontSize:28}}>{icon}</div><div style={{fontSize:12,fontWeight:700,marginTop:4}}>{label}</div>
-          </div>
+          </button>
         ))}
       </div>
 
-      <div className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px",marginBottom:20}} onClick={() => { setMapCat("all"); setMapSel(null); setScr("crmap"); }}>
+      <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px",marginBottom:20}} onClick={() => { setMapCat("all"); setMapSel(null); setScr("crmap"); }}>
         <div style={{fontSize:36}}>🗺️</div>
         <div>
-          <div style={{fontSize:16,fontWeight:800,color:"#164e63"}}>Interactive Map & Directions</div>
-          <div style={{fontSize:12,color:"#78716c"}}>Explore Croatia — cities, parks, beaches, islands</div>
+          <div style={{fontSize:16,fontWeight:800,color:"var(--heading)"}}>Interactive Map & Directions</div>
+          <div style={{fontSize:12,color:"var(--subtext)"}}>Explore Croatia — cities, parks, beaches, islands</div>
         </div>
-      </div>
+      </button>
 
       <h3 className="sh">📺 Media & Immersion</h3>
       <div style={{padding:'12px 14px',background:'linear-gradient(135deg,rgba(14,116,144,.06),rgba(14,116,144,.1))',borderRadius:12,marginBottom:20,borderLeft:'3px solid #0e7490'}}>

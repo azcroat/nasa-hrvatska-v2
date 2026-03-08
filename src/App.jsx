@@ -182,8 +182,9 @@ function App(){
   const[hIdx,sHIdx]=useState(0);
   const[evM,sEvM]=useState(new Date().getMonth()+1);
   const[showXP,setShowXP]=useState(false);const[xpA,setXpA]=useState(0);const[nB,setNB]=useState(null);const[sB,setSB]=useState(false);
+  const _initialPath=useRef(window.location.pathname);
   useEffect(()=>{initFirebase();
-    const s=gS();if(s&&s.u){if(isSessionExpired()){cS();setAs("login");setTimeout(function(){setAe("\u2705 Your session expired. Your account is safe \u2014 just sign in again.")},200);return}const a=gA();if(a[s.u]){const p=gP(s.u);setAu({u:s.u,d:a[s.u].d,e:a[s.u].e||s.u});touchSession();updateStreak();var lf=getLocalFamily();if(lf)setFamData(lf);if(p){setName(p.name||a[s.u].d);setSt(p.st||ds);setScr((p.cp||(p.st&&(p.st.xp>0||p.st.lc>0)))?"dashboard":"welcome")}else setName(a[s.u].d);setAs("app");fbLoadProgress(s.u).then(function(fp){if(!fp)return;var lp=gP(s.u);var fpXP=(fp.st&&fp.st.xp)||0;var lpXP=(lp&&lp.st&&lp.st.xp)||0;if(fpXP>=lpXP){sP(s.u,fp);setSt(fp.st||ds);if(fp.name)setName(fp.name);if(fp.sr)saveSR(fp.sr);if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}}});}else{
+    const s=gS();if(s&&s.u){if(isSessionExpired()){cS();setAs("login");setTimeout(function(){setAe("\u2705 Your session expired. Your account is safe \u2014 just sign in again.")},200);return}const a=gA();if(a[s.u]){const p=gP(s.u);setAu({u:s.u,d:a[s.u].d,e:a[s.u].e||s.u});touchSession();updateStreak();var lf=getLocalFamily();if(lf)setFamData(lf);if(p){setName(p.name||a[s.u].d);setSt(p.st||ds);_goPostAuth(p.cp||(p.st&&(p.st.xp>0||p.st.lc>0)))}else setName(a[s.u].d);setAs("app");fbLoadProgress(s.u).then(function(fp){if(!fp)return;var lp=gP(s.u);var fpXP=(fp.st&&fp.st.xp)||0;var lpXP=(lp&&lp.st&&lp.st.xp)||0;if(fpXP>=lpXP){sP(s.u,fp);setSt(fp.st||ds);if(fp.name)setName(fp.name);if(fp.sr)saveSR(fp.sr);if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}}});}else{
       if(_fbReady){
         fbOnAuthStateChanged(function(user){
           if(user){var dn=user.displayName||user.email;var k=user.email;
@@ -191,7 +192,7 @@ function App(){
             fbLoadProgress(k).then(function(fp){if(fp)sP(k,fp);
               setAu({u:k,d:dn,e:k});sS({u:k});touchSession();updateStreak();
               fbLoadUserFamily(k).then(function(f){if(f)setFamData(f)});
-              var p=fp||gP(k);if(p){setName(p.name||dn);setSt(p.st||ds);setScr((p.cp||(p.st&&(p.st.xp>0||p.st.lc>0)))?"dashboard":"welcome");if(p.sr)saveSR(p.sr);if(p.streak)localStorage.setItem("uStreak",JSON.stringify(p.streak));if(p.favs){localStorage.setItem("uFavs",JSON.stringify(p.favs));setFavs(p.favs);}if(p.journal){localStorage.setItem("uJournal",JSON.stringify(p.journal));setJWords(p.journal);}}else setName(dn);
+              var p=fp||gP(k);if(p){setName(p.name||dn);setSt(p.st||ds);_goPostAuth(p.cp||(p.st&&(p.st.xp>0||p.st.lc>0)));if(p.sr)saveSR(p.sr);if(p.streak)localStorage.setItem("uStreak",JSON.stringify(p.streak));if(p.favs){localStorage.setItem("uFavs",JSON.stringify(p.favs));setFavs(p.favs);}if(p.journal){localStorage.setItem("uJournal",JSON.stringify(p.journal));setJWords(p.journal);}}else setName(dn);
               setAs("app")})
           }else{
             // Firebase has no user — only clear session if there is no local account to fall back to
@@ -270,7 +271,7 @@ function App(){
       try{fex.p=await hp(pw);}catch(e){}  // sync hash — critical so local fallback always works
       fa[k]=fex;sA(fa);if(fbProgress)sP(k,fbProgress);
       setAu({u:k,d:fdn,e:k});sS({u:k});
-      var fp=fbProgress||gP(k);if(fp){setName(fp.name||fdn);setSt(fp.st||ds);setScr((fp.cp||(fp.st&&(fp.st.xp>0||fp.st.lc>0)))?"dashboard":"welcome");if(fp.sr)saveSR(fp.sr);if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}}else setName(fdn);
+      var fp=fbProgress||gP(k);if(fp){setName(fp.name||fdn);setSt(fp.st||ds);_goPostAuth(fp.cp||(fp.st&&(fp.st.xp>0||fp.st.lc>0)));if(fp.sr)saveSR(fp.sr);if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}}else setName(fdn);
       setAs("app");setEm("");setPw("");fbLoadUserFamily(k).then(function(f){if(f)setFamData(f)});setAl(false);return;}
     // Hard-stop only on rate limiting
     if(fbResult&&fbResult.err&&fbResult.err.indexOf("Too many attempts")>=0){setAe(fbResult.err);setAl(false);return;}
@@ -281,7 +282,7 @@ function App(){
       var lh=await hp(pw);
       if(la[k].p===lh){
         setAu({u:k,d:la[k].d,e:k});sS({u:k});var lp=gP(k);
-        if(lp){setName(lp.name||la[k].d);setSt(lp.st||ds);setScr((lp.cp||(lp.st&&(lp.st.xp>0||lp.st.lc>0)))?"dashboard":"welcome")}else setName(la[k].d);
+        if(lp){setName(lp.name||la[k].d);setSt(lp.st||ds);_goPostAuth(lp.cp||(lp.st&&(lp.st.xp>0||lp.st.lc>0)))}else setName(la[k].d);
         setAs("app");setEm("");setPw("");setAl(false);return;}
       // Account exists but password wrong — always this message, never Firebase's "no account found"
       setAe("Incorrect password. Try again or use Forgot Password.");setAl(false);return;}
@@ -365,6 +366,14 @@ function markExerciseDone(exerciseId){
     setSt(s=>{const n={...s,xp:s.xp+amt};const nb=BADGES.filter(b=>!s.badges.includes(b.id)&&b.r(n));if(nb.length){n.badges=[...s.badges,...nb.map(b=>b.id)];setTimeout(()=>{setNB(nb[0]);setSB(true);setTimeout(()=>setSB(false),3000)},600)}return n});
     setTimeout(()=>setShowXP(false),1500)
   },[curEx]);
+  function _goPostAuth(hasProgress){
+    if(!hasProgress){setScr("welcome");return}
+    const ip=_initialPath.current;
+    _initialPath.current='/';
+    const tabByPath={'/learn':'learn','/practice':'practice','/croatia':'croatia','/profile':'profile'};
+    if(tabByPath[ip]){_setTab(tabByPath[ip]);_setScr("dashboard");return}
+    setScr("dashboard");
+  }
   function goBack(){
     if(curEx)markExerciseDone(curEx);
     sCurEx("");

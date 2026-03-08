@@ -51,10 +51,10 @@ export function ReflexiveScreen({ goBack, award }) {
                     <div style={{fontSize:10,fontWeight:700,color:"#dc2626",marginBottom:3}}>✗ WRONG</div>
                     <div style={{fontStyle:"italic",color:"#7f1d1d"}}>{r.bad}</div>
                   </div>
-                  <div style={{flex:1,minWidth:140,padding:"8px 12px",background:"#dcfce7",borderRadius:10,fontSize:12,cursor:"pointer"}} onClick={function(){speak(r.good)}}>
+                  <button style={{flex:1,minWidth:140,padding:"8px 12px",background:"#dcfce7",borderRadius:10,fontSize:12,border:"none",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif"}} onClick={function(){speak(r.good)}}>
                     <div style={{fontSize:10,fontWeight:700,color:"#16a34a",marginBottom:3}}>✓ CORRECT 🔊</div>
                     <div style={{fontWeight:700,color:"#14532d"}}>{r.good}</div>
-                  </div>
+                  </button>
                 </div>
                 <div style={{fontSize:11,color:"#78716c",lineHeight:1.5}}>{r.note}</div>
               </div>

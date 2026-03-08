@@ -3940,6 +3940,7 @@ input::placeholder,textarea::placeholder{color:#94a3b8;font-weight:400}
 }
 /* === SEMANTIC BUTTON RESET — allows <button className="tc"> ===*/
 button.tc{font-family:'Outfit',sans-serif;width:100%;cursor:pointer;display:block}
+button.c{font-family:'Outfit',sans-serif;width:100%;cursor:pointer;display:block;text-align:left}
 /* === SCREEN-READER ONLY === */
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 /* === DAILY CHALLENGE OPTIONS === */

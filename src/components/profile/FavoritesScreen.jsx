@@ -13,10 +13,10 @@ export default function FavoritesScreen({ favs, toggleFav, setScr, goBack }) {
           </div>
         : favs.map((f,i)=>(
           <div key={i} className="c" style={{marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px"}}>
-            <div style={{cursor:"pointer",flex:1}} onClick={()=>{if(f.go)setScr(f.go);}}>
-              <div style={{fontSize:15,fontWeight:700,color:"#164e63"}}>{f.hr}</div>
-              <div style={{fontSize:13,color:"#78716c"}}>{f.en}</div>
-            </div>
+            <button style={{background:"none",border:"none",cursor:"pointer",textAlign:"left",padding:0,flex:1,fontFamily:"'Outfit',sans-serif"}} onClick={()=>{if(f.go)setScr(f.go);}}>
+              <div style={{fontSize:15,fontWeight:700,color:"var(--heading)"}}>{f.hr}</div>
+              <div style={{fontSize:13,color:"var(--subtext)"}}>{f.en}</div>
+            </button>
             <div style={{display:"flex",gap:8}}>
               {f.hr&&<button style={{background:"none",border:"none",fontSize:16,cursor:"pointer"}} onClick={()=>speak(f.hr)}>🔊</button>}
               <button style={{background:"none",border:"none",fontSize:16,cursor:"pointer",color:"#dc2626"}} onClick={()=>toggleFav(f)}>✖</button>
