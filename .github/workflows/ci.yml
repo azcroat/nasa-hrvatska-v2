@@ -37,11 +37,21 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=nasa-hrvatska-v2 --branch=master
 
-      - name: Re-register custom domain to fix DNS
+      - name: Retry custom domain verification via Pages API
         if: github.event_name == 'push'
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages domain add nasa-hrvatska-v2 nasahrvatska.com
-        continue-on-error: true
+        run: |
+          echo "=== Checking Pages custom domains ==="
+          curl -s "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/nasa-hrvatska-v2/domains" \
+            -H "Authorization: Bearer $API_TOKEN" | jq '.'
+
+          echo "=== Retrying domain verification ==="
+          curl -s -X PATCH "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/nasa-hrvatska-v2/domains/nasahrvatska.com" \
+            -H "Authorization: Bearer $API_TOKEN" \
+            -H "Content-Type: application/json" | jq '.'
+
+          echo "=== DNS check ==="
+          sleep 5
+          nslookup nasahrvatska.com 1.1.1.1
+        env:
+          API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
