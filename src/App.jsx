@@ -184,7 +184,7 @@ function App(){
   const[showXP,setShowXP]=useState(false);const[xpA,setXpA]=useState(0);const[nB,setNB]=useState(null);const[sB,setSB]=useState(false);
   const _initialPath=useRef(window.location.pathname);
   useEffect(()=>{initFirebase();
-    const s=gS();if(s&&s.u){if(isSessionExpired()){cS();setAs("login");setTimeout(function(){setAe("\u2705 Your session expired. Your account is safe \u2014 just sign in again.")},200);return}const a=gA();if(a[s.u]){const p=gP(s.u);setAu({u:s.u,d:a[s.u].d,e:a[s.u].e||s.u});touchSession();updateStreak();var lf=getLocalFamily();if(lf)setFamData(lf);if(p){setName(p.name||a[s.u].d);setSt(p.st||ds);_goPostAuth(p.cp||(p.st&&(p.st.xp>0||p.st.lc>0)))}else setName(a[s.u].d);setAs("app");fbLoadProgress(s.u).then(function(fp){if(!fp)return;var lp=gP(s.u);var fpXP=(fp.st&&fp.st.xp)||0;var lpXP=(lp&&lp.st&&lp.st.xp)||0;if(fpXP>=lpXP){sP(s.u,fp);setSt(fp.st||ds);if(fp.name)setName(fp.name);if(fp.sr)saveSR(fp.sr);if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}}});}else{
+    const s=gS();if(s&&s.u){if(isSessionExpired()){cS();setAs("login");setTimeout(function(){setAe("\u2705 Your session expired. Your account is safe \u2014 just sign in again.")},200);return}const a=gA();if(a[s.u]){const p=gP(s.u);setAu({u:s.u,d:a[s.u].d,e:a[s.u].e||s.u});touchSession();updateStreak();var lf=getLocalFamily();if(lf)setFamData(lf);if(p){setName(p.name||a[s.u].d);setSt(p.st||ds);_goPostAuth(p.cp||(p.st&&(p.st.xp>0||p.st.lc>0)))}else setName(a[s.u].d);setAs("app");fbLoadProgress(s.u).then(function(fp){if(!fp)return;var lp=gP(s.u);var fpXP=(fp.st&&fp.st.xp)||0;var lpXP=(lp&&lp.st&&lp.st.xp)||0;if(fpXP>=lpXP){sP(s.u,fp);setSt(fp.st||ds);if(fp.name)setName(fp.name);if(fp.sr)saveSR(fp.sr);if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}var _dcT=new Date().toISOString().slice(0,10);if(fp.dc&&fp.dc.day===_dcT){sDchlA(fp.dc.answered||[false,false,false]);sDchlSl(fp.dc.selected||[-1,-1,-1]);localStorage.setItem("dcDay3",JSON.stringify(fp.dc));}}});}else{
       if(_fbReady){
         fbOnAuthStateChanged(function(user){
           if(user){var dn=user.displayName||user.email;var k=user.email;
@@ -192,7 +192,7 @@ function App(){
             fbLoadProgress(k).then(function(fp){if(fp)sP(k,fp);
               setAu({u:k,d:dn,e:k});sS({u:k});touchSession();updateStreak();
               fbLoadUserFamily(k).then(function(f){if(f)setFamData(f)});
-              var p=fp||gP(k);if(p){setName(p.name||dn);setSt(p.st||ds);_goPostAuth(p.cp||(p.st&&(p.st.xp>0||p.st.lc>0)));if(p.sr)saveSR(p.sr);if(p.streak)localStorage.setItem("uStreak",JSON.stringify(p.streak));if(p.favs){localStorage.setItem("uFavs",JSON.stringify(p.favs));setFavs(p.favs);}if(p.journal){localStorage.setItem("uJournal",JSON.stringify(p.journal));setJWords(p.journal);}}else setName(dn);
+              var p=fp||gP(k);if(p){setName(p.name||dn);setSt(p.st||ds);_goPostAuth(p.cp||(p.st&&(p.st.xp>0||p.st.lc>0)));if(p.sr)saveSR(p.sr);if(p.streak)localStorage.setItem("uStreak",JSON.stringify(p.streak));if(p.favs){localStorage.setItem("uFavs",JSON.stringify(p.favs));setFavs(p.favs);}if(p.journal){localStorage.setItem("uJournal",JSON.stringify(p.journal));setJWords(p.journal);}var _dcT2=new Date().toISOString().slice(0,10);if(p.dc&&p.dc.day===_dcT2){sDchlA(p.dc.answered||[false,false,false]);sDchlSl(p.dc.selected||[-1,-1,-1]);localStorage.setItem("dcDay3",JSON.stringify(p.dc));}}else setName(dn);
               setAs("app")})
           }else{
             // Firebase has no user — only clear session if there is no local account to fall back to
@@ -200,7 +200,7 @@ function App(){
             if(_s&&_s.u&&_a[_s.u]){setAs("login")}else{cS();setAs("login")}}})
       }else{setAs("login")}}}else setAs("login")
   },[]);
-  useEffect(()=>{if(au&&as==="app"){sP(au.u,{name,st,cp:scr!=="welcome"&&scr!=="placement",sr:getSR(),streak:getStreak(),favs,journal:jWords});touchSession()}},[st,scr,name,au,as,jWords,favs]);
+  useEffect(()=>{if(au&&as==="app"){var _dcDay=new Date().toISOString().slice(0,10);sP(au.u,{name,st,cp:scr!=="welcome"&&scr!=="placement",sr:getSR(),streak:getStreak(),favs,journal:jWords,dc:{day:_dcDay,answered:dchlA,selected:dchlSl}});touchSession()}},[st,scr,name,au,as,jWords,favs,dchlA,dchlSl]);
   useEffect(()=>{if(as!=="app")return;const iv=setInterval(()=>{if(isSessionExpired()){cS();setAu(null);setSt(ds);setScr("welcome");setName("");setAs("login")}},5*60*1000);return()=>clearInterval(iv)},[as]);
   useEffect(()=>{if(as!=="app")return;const h=()=>touchSession();window.addEventListener("click",h);window.addEventListener("touchstart",h);window.addEventListener("keydown",h);return()=>{window.removeEventListener("click",h);window.removeEventListener("touchstart",h);window.removeEventListener("keydown",h)}},[as]);
   async function doReg(){
@@ -271,7 +271,7 @@ function App(){
       try{fex.p=await hp(pw);}catch(e){}  // sync hash — critical so local fallback always works
       fa[k]=fex;sA(fa);if(fbProgress)sP(k,fbProgress);
       setAu({u:k,d:fdn,e:k});sS({u:k});
-      var fp=fbProgress||gP(k);if(fp){setName(fp.name||fdn);setSt(fp.st||ds);_goPostAuth(fp.cp||(fp.st&&(fp.st.xp>0||fp.st.lc>0)));if(fp.sr)saveSR(fp.sr);if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}}else setName(fdn);
+      var fp=fbProgress||gP(k);if(fp){setName(fp.name||fdn);setSt(fp.st||ds);_goPostAuth(fp.cp||(fp.st&&(fp.st.xp>0||fp.st.lc>0)));if(fp.sr)saveSR(fp.sr);if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}var _dcT3=new Date().toISOString().slice(0,10);if(fp.dc&&fp.dc.day===_dcT3){sDchlA(fp.dc.answered||[false,false,false]);sDchlSl(fp.dc.selected||[-1,-1,-1]);localStorage.setItem("dcDay3",JSON.stringify(fp.dc));}}else setName(fdn);
       setAs("app");setEm("");setPw("");fbLoadUserFamily(k).then(function(f){if(f)setFamData(f)});setAl(false);return;}
     // Hard-stop only on rate limiting
     if(fbResult&&fbResult.err&&fbResult.err.indexOf("Too many attempts")>=0){setAe(fbResult.err);setAl(false);return;}
