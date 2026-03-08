@@ -63,6 +63,15 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+// ─── Service Worker auto-reload ────────────────────────────────────────────
+// When a new SW takes over (after deploy), reload immediately so users
+// always see the latest version without any manual steps.
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    window.location.reload();
+  });
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
