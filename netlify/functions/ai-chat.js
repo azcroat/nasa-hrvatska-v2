@@ -7,7 +7,7 @@ const MODEL = "claude-haiku-4-5-20251001"; // Fast, cost-effective, excellent fo
 
 const CORS_HEADERS = {
   "Content-Type": "application/json",
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://nasahrvatska.com",
   "Access-Control-Allow-Headers": "Content-Type",
   "Cache-Control": "no-cache",
 };
@@ -18,6 +18,13 @@ function err(status, message) { return { statusCode: status, headers: CORS_HEADE
 exports.handler = async function(event) {
   if (event.httpMethod === "OPTIONS") return { statusCode: 204, headers: CORS_HEADERS, body: "" };
   if (event.httpMethod !== "POST") return err(405, "Method not allowed — use POST");
+
+  // Origin check — only allow requests from our own domains
+  const origin = event.headers.origin || event.headers.referer || "";
+  const allowed = ["nasahrvatska.com", "nasahrvatska.netlify.app", "localhost"];
+  if (!allowed.some(d => origin.includes(d))) {
+    return err(403, "Forbidden");
+  }
 
   if (!ANTHROPIC_KEY) {
     return err(500, "AI_KEY_MISSING: The ANTHROPIC_API_KEY environment variable is not set in Netlify. Go to Site Settings → Environment Variables and add it.");
