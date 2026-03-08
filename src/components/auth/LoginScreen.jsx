@@ -1,7 +1,20 @@
 import React from 'react';
-import { W, CSS, BG_LIGHT, gA } from '../../data.jsx';
+import { CSS, BG_LIGHT, gA } from '../../data.jsx';
 
 const BG = BG_LIGHT;
+
+function pwStrength(pw) {
+  if (!pw) return 0;
+  let s = 0;
+  if (pw.length >= 8) s++;
+  if (pw.length >= 12) s++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) s++;
+  if (/[0-9]/.test(pw)) s++;
+  if (/[^A-Za-z0-9]/.test(pw)) s++;
+  return Math.min(s, 4);
+}
+const PW_LABELS = ["", "Weak", "Fair", "Good", "Strong"];
+const PW_COLORS = ["", "#ef4444", "#f97316", "#eab308", "#16a34a"];
 
 export default function LoginScreen({
   as, ae, al, em, pw, pc, dn, sp, sq, sa,
@@ -10,10 +23,10 @@ export default function LoginScreen({
   doLog, doReg,
 }) {
   const isR = as === "register";
+  const strength = isR ? pwStrength(pw) : 0;
   return (
     <div style={{...BG,display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
       <style>{CSS}</style>
-      <W />
       <div style={{width:"100%",maxWidth:420,animation:"rise .5s",position:"relative",zIndex:1}}>
         <div style={{textAlign:"center",marginBottom:32}}>
           <div style={{fontSize:56,marginBottom:12,animation:"boat 4s ease-in-out infinite"}}>⛵</div>
@@ -31,7 +44,18 @@ export default function LoginScreen({
           <label style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>EMAIL ADDRESS</label>
           <input type="email" placeholder={isR?"Enter your email address":"Email address"} value={em} onChange={e=>{setEm(e.target.value);setAe("")}} autoComplete="email" inputMode="email" autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{marginBottom:14}} />
           <label style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>PASSWORD</label>
-          <input type={sp?"text":"password"} placeholder={isR?"Create password (6+ characters)":"Enter your password"} value={pw} onChange={e=>{setPw(e.target.value);setAe("")}} onKeyDown={e=>{if(e.key==="Enter"&&!isR)doLog()}} autoComplete={isR?"new-password":"current-password"} autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{marginBottom:isR?14:8}} />
+          <input type={sp?"text":"password"} placeholder={isR?"Create password (6+ characters)":"Enter your password"} value={pw} onChange={e=>{setPw(e.target.value);setAe("")}} onKeyDown={e=>{if(e.key==="Enter"&&!isR)doLog()}} autoComplete={isR?"new-password":"current-password"} autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{marginBottom:isR?8:8}} />
+          {isR && pw && (
+            <div style={{marginBottom:14}}>
+              <div style={{display:"flex",gap:4,marginBottom:4}}>
+                {[1,2,3,4].map(i => (
+                  <div key={i} style={{flex:1,height:4,borderRadius:4,background:i<=strength?PW_COLORS[strength]:"#e2e8f0",transition:"background .2s"}} />
+                ))}
+              </div>
+              <div style={{fontSize:11,fontWeight:700,color:PW_COLORS[strength]}}>{PW_LABELS[strength]}</div>
+            </div>
+          )}
+          {isR && !pw && <div style={{marginBottom:14}} />}
           {isR && <React.Fragment>
             <label style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>CONFIRM PASSWORD</label>
             <input type="password" placeholder="Confirm your password" value={pc} onChange={e=>{setPc(e.target.value);setAe("")}} autoComplete="new-password" autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{marginBottom:14}} />

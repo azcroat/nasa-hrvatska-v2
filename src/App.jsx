@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
-import { _fbReady, W, H, Bar, Spk, V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, CSS, BG_LIGHT, BG_DARK, initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakGoogle, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, shMemo, shuffleArr, buildSearchIndex } from "./data.jsx";
+import { _fbReady, H, Bar, Spk, V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, CSS, BG_LIGHT, BG_DARK, initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakGoogle, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, shMemo, shuffleArr, buildSearchIndex } from "./data.jsx";
 // Always-needed: auth + core UI (eager)
 import LoginScreen from "./components/auth/LoginScreen.jsx";
 import ResetPassword from "./components/auth/ResetPassword.jsx";
@@ -111,8 +111,6 @@ const MatchGame = lazy(() => import("./components/practice/MatchGame.jsx"));
 const WordSprint = lazy(() => import("./components/practice/WordSprint.jsx"));
 const SpeakingScreen = lazy(() => import("./components/practice/SpeakingScreen.jsx"));
 const Leaderboard = lazy(() => import("./components/profile/Leaderboard.jsx"));
-
-const BG = BG_LIGHT;
 
 // Module-level constants — defined once, not recreated on every render
 const DS={xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,al:0,mv:0,hi:0,rs:[],ct:[],badges:[]};
@@ -382,7 +380,8 @@ function markExerciseDone(exerciseId){
   // ═══ AUTH SCREENS ═══
   if(as==="loading")return (
     <div
-      style={{...BG,display:"flex",alignItems:"center",justifyContent:"center"}}>
+      className={darkMode?"dark":""}
+      style={{...(darkMode?BG_DARK:BG_LIGHT),display:"flex",alignItems:"center",justifyContent:"center"}}>
       <style>
         {CSS}
       </style>
@@ -390,7 +389,7 @@ function markExerciseDone(exerciseId){
         <div style={{fontSize:64,animation:"boat 3s ease-in-out infinite"}}>
           ⛵
         </div>
-        <p style={{color:"#78716c",marginTop:16,fontWeight:600}}>
+        <p style={{color:"var(--subtext)",marginTop:16,fontWeight:600}}>
           Loading...
         </p>
       </div>
@@ -405,12 +404,11 @@ function markExerciseDone(exerciseId){
   }
     // ═══ MAIN APP RENDER ═══
   return (
-    <div style={darkMode?Object.assign({},BG_DARK):BG_LIGHT}>
+    <div className={darkMode?"dark":""} style={darkMode?BG_DARK:BG_LIGHT}>
       <style>
         {CSS}
       </style>
-      <W />
-      <Suspense fallback={<div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"50vh"}}><div style={{textAlign:"center"}}><div style={{fontSize:40,animation:"boat 2s ease-in-out infinite"}}>⛵</div><p style={{color:"#78716c",marginTop:8,fontSize:14,fontWeight:600}}>Loading...</p></div></div>}>
+      <Suspense fallback={<div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"50vh"}}><div style={{textAlign:"center"}}><div style={{fontSize:40,animation:"boat 2s ease-in-out infinite"}}>⛵</div><p style={{color:"var(--subtext)",marginTop:8,fontSize:14,fontWeight:600}}>Loading...</p></div></div>}>
       <XPPopup showXP={showXP} xpA={xpA} />
       <BadgeToast show={sB} badge={nB} />
       {scr==="welcome" && <WelcomeScreen name={name} au={au} st={st} setScr={setScr} setName={setName} sPq={sPq} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} />}
