@@ -48,9 +48,9 @@ export default function PadeziScreen({ goBack, award, setSt }) {
               </div>
               <div style={{fontSize:13,color:"#78716c",marginBottom:4}}>{c.en} — {c.use}</div>
               {c.exs.map((e, ei) => (
-                <div key={ei} style={{fontSize:14,padding:"4px 0",cursor:"pointer"}} onClick={() => speak(e)}>
+                <button key={ei} style={{fontSize:14,padding:"4px 0",background:"none",border:"none",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif"}} onClick={() => speak(e)}>
                   🔊 {e}
-                </div>
+                </button>
               ))}
               <div style={{fontSize:12,color:"#b45309",marginTop:6,fontStyle:"italic"}}>💡 {c.tip}</div>
             </div>

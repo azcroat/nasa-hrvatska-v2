@@ -161,15 +161,15 @@ export default function HNLScreen({ goBack }) {
       {/* Live Data Links */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:16}}>
         {LIVE_LINKS.map(l=>(
-          <div key={l.label} className="tc"
-            style={{display:"flex",alignItems:"center",gap:10,padding:"12px 14px",cursor:"pointer",borderLeft:"3px solid "+l.color}}
+          <button key={l.label} className="tc"
+            style={{display:"flex",alignItems:"center",gap:10,padding:"12px 14px",borderLeft:"3px solid "+l.color}}
             onClick={()=>window.open(l.url,"_blank","noopener,noreferrer")}>
             <div style={{fontSize:22,flexShrink:0}}>{l.icon}</div>
             <div>
               <div style={{fontSize:13,fontWeight:700,color:l.color}}>{l.label} ↗</div>
-              <div style={{fontSize:11,color:"#78716c"}}>{l.sub}</div>
+              <div style={{fontSize:11,color:"var(--subtext)"}}>{l.sub}</div>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 
@@ -256,7 +256,7 @@ export default function HNLScreen({ goBack }) {
         ))}
         <div style={{background:"rgba(14,116,144,.06)",borderRadius:12,padding:"10px 14px",marginTop:4,fontSize:12,color:"#164e63",display:"flex",gap:8,alignItems:"center"}}>
           <span style={{fontSize:16}}>📊</span>
-          <span>Live top scorer stats on <span style={{fontWeight:700,cursor:"pointer",textDecoration:"underline"}} onClick={()=>window.open("https://www.sofascore.com/football/croatia/hnl","_blank","noopener,noreferrer")}>Sofascore ↗</span></span>
+          <span>Live top scorer stats on <button style={{fontWeight:700,textDecoration:"underline",background:"none",border:"none",cursor:"pointer",padding:0,fontFamily:"'Outfit',sans-serif",fontSize:"inherit",color:"inherit"}} onClick={()=>window.open("https://www.sofascore.com/football/croatia/hnl","_blank","noopener,noreferrer")}>Sofascore ↗</button></span>
         </div>
 
         {/* Fixtures */}
@@ -268,12 +268,12 @@ export default function HNLScreen({ goBack }) {
             {label:"HNL Match Videos",icon:"▶️",url:"https://hnl.hr",color:"#003da5"},
             {label:"Full Season Results",icon:"📋",url:"https://www.flashscore.com/football/croatia/hnl/results/",color:"#0e7490"},
           ].map(l=>(
-            <div key={l.label} className="tc"
-              style={{padding:"14px",textAlign:"center",cursor:"pointer",borderTop:"3px solid "+l.color}}
+            <button key={l.label} className="tc"
+              style={{padding:"14px",textAlign:"center",borderTop:"3px solid "+l.color}}
               onClick={()=>window.open(l.url,"_blank","noopener,noreferrer")}>
               <div style={{fontSize:26,marginBottom:6}}>{l.icon}</div>
               <div style={{fontSize:12,fontWeight:700,color:l.color}}>{l.label} ↗</div>
-            </div>
+            </button>
           ))}
         </div>
       </>}
@@ -351,10 +351,10 @@ export default function HNLScreen({ goBack }) {
         <h3 className="sh" style={{marginBottom:10}}>⚽ Football Vocabulary</h3>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:20}}>
           {[...FOOTBALL.vocab,...VOCAB_EXTRA].map((w,i)=>(
-            <div key={i} className="c" style={{padding:"10px 12px",cursor:"pointer"}} onClick={()=>speak(w[0])}>
+            <button key={i} className="c" style={{padding:"10px 12px"}} onClick={()=>speak(w[0])}>
               <div style={{fontSize:13,fontWeight:700,color:"#003da5"}}>{w[0]} 🔊</div>
-              <div style={{fontSize:11,color:"#78716c",marginTop:2}}>{w[1]}</div>
-            </div>
+              <div style={{fontSize:11,color:"var(--subtext)",marginTop:2}}>{w[1]}</div>
+            </button>
           ))}
         </div>
 
@@ -369,16 +369,16 @@ export default function HNLScreen({ goBack }) {
           ["Promašaj!", "A miss!", "reaction"],
           ["Živi bili pa vidjeli!", "May we live to see it! (ironic)", "when things go wrong"],
         ].map((p,i)=>(
-          <div key={i} className="c" style={{marginBottom:8,cursor:"pointer",display:"flex",alignItems:"center",gap:12,padding:"10px 14px"}}
+          <button key={i} className="c" style={{marginBottom:8,display:"flex",alignItems:"center",gap:12,padding:"10px 14px"}}
             onClick={()=>speak(p[0])}>
             <div style={{flex:1}}>
-              <div style={{fontSize:14,fontWeight:700,color:"#164e63"}}>{p[0]} 🔊</div>
+              <div style={{fontSize:14,fontWeight:700,color:"var(--heading)"}}>{p[0]} 🔊</div>
               <div style={{fontSize:13,color:"#0e7490"}}>{p[1]}</div>
             </div>
             <div style={{fontSize:10,background:"rgba(14,116,144,.1)",color:"#0e7490",padding:"3px 8px",borderRadius:20,fontWeight:600,whiteSpace:"nowrap"}}>
               {p[2]}
             </div>
-          </div>
+          </button>
         ))}
 
         <h3 className="sh" style={{margin:"20px 0 10px"}}>🤽 Water Polo</h3>
@@ -387,10 +387,10 @@ export default function HNLScreen({ goBack }) {
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
           {FOOTBALL.waterPolo.map((w,i)=>(
-            <div key={i} className="c" style={{padding:"10px 12px",cursor:"pointer"}} onClick={()=>speak(w[0])}>
+            <button key={i} className="c" style={{padding:"10px 12px"}} onClick={()=>speak(w[0])}>
               <div style={{fontSize:13,fontWeight:700,color:"#0e7490"}}>{w[0]} 🔊</div>
-              <div style={{fontSize:11,color:"#78716c",marginTop:2}}>{w[1]}</div>
-            </div>
+              <div style={{fontSize:11,color:"var(--subtext)",marginTop:2}}>{w[1]}</div>
+            </button>
           ))}
         </div>
       </>}

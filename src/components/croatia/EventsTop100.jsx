@@ -18,7 +18,7 @@ export function EventsCalendar({ goBack }) {
       {EVENTS.filter(function(e){return e.month===evM||e.month===0}).map(function(e,i){return (
         <div key={i} className="c" style={{marginBottom:12,borderLeft:"4px solid #0e7490"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-            <div style={{fontSize:16,fontWeight:800,color:"#164e63",cursor:"pointer",fontFamily:"'Playfair Display',serif"}} onClick={function(){speak(e.name)}}>{e.name}{" 🔊"}</div>
+            <button style={{fontSize:16,fontWeight:800,color:"var(--heading)",fontFamily:"'Playfair Display',serif",background:"none",border:"none",cursor:"pointer",padding:0,textAlign:"left"}} onClick={function(){speak(e.name)}}>{e.name}{" 🔊"}</button>
             {e.day>0&&<div style={{fontSize:12,color:"#b45309",fontWeight:700}}>{e.day}{". "}{["","siječnja","veljače","ožujka","travnja","svibnja","lipanja","srpnja","kolovoza","rujna","listopada","studenog","prosinca"][evM]}</div>}
           </div>
           <div style={{fontSize:13,color:"#0e7490",fontWeight:600,marginBottom:6}}>{e.en}</div>
@@ -37,10 +37,10 @@ export function Top100Screen({ goBack }) {
       {H("💯 Top 100 Words","Essential words for real-world situations")}
       {!t1k?<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
         {Object.keys(TOP100).map(function(k){return (
-          <div key={k} className="tc" style={{textAlign:"center"}} onClick={function(){sT1k(k)}}>
+          <button key={k} className="tc" style={{textAlign:"center"}} onClick={function(){sT1k(k)}}>
             <div style={{fontSize:28}}>{k.includes("Airport")?"✈️":k.includes("Restaurant")?"🍽️":k.includes("Doctor")?"🏥":k.includes("Beach")?"🏖️":k.includes("Market")?"🛒":k.includes("Meeting")?"🤝":k.includes("Emergency")?"🚨":"📋"}</div>
             <div style={{fontSize:13,fontWeight:700,marginTop:6}}>{k}</div>
-          </div>
+          </button>
         );})}
       </div>:
       <React.Fragment>
@@ -48,10 +48,10 @@ export function Top100Screen({ goBack }) {
         <h3 style={{fontSize:16,fontWeight:800,color:"#164e63",marginBottom:16}}>{t1k}</h3>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
           {TOP100[t1k].map(function(w,i){return (
-            <div key={i} className="c" style={{padding:"10px 14px",cursor:"pointer"}} onClick={function(){speak(w[0])}}>
+            <button key={i} className="c" style={{padding:"10px 14px"}} onClick={function(){speak(w[0])}}>
               <div style={{fontSize:14,fontWeight:700,color:"#0e7490"}}>{w[0]}{" 🔊"}</div>
-              <div style={{fontSize:12,color:"#78716c"}}>{w[1]}</div>
-            </div>
+              <div style={{fontSize:12,color:"var(--subtext)"}}>{w[1]}</div>
+            </button>
           );})}
         </div>
       </React.Fragment>}

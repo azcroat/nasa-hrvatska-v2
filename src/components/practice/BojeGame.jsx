@@ -60,7 +60,7 @@ export default function BojeGame({ goBack, award }) {
           <div style={{fontSize:13,fontWeight:700,color:"#0e7490",marginBottom:10}}>All Colors — Tap to hear:</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:20}}>
             {BOJE.colors.map((c, i) => (
-              <div key={i} className="c" style={{padding:"12px 14px",cursor:"pointer"}} onClick={() => speak(c.f)}>
+              <button key={i} className="c" style={{padding:"12px 14px"}} onClick={() => speak(c.f)}>
                 <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
                   <div style={{width:24,height:24,borderRadius:10,background:c.hex,border:c.en === "white" ? "2px solid #d6d3d1" : "none"}} />
                   <span style={{fontSize:15,fontWeight:700}}>{c.en}</span>
@@ -70,7 +70,7 @@ export default function BojeGame({ goBack, award }) {
                   <span style={{color:"#2563eb"}}>{c.n}</span>
                   <span style={{color:"#16a34a"}}>{c.m}</span>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
           <button className="b bp" style={{width:"100%"}} onClick={() => { sBjMode("quiz"); startQuiz(); }}>

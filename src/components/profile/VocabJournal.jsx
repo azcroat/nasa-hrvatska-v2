@@ -20,10 +20,10 @@ export default function VocabJournal({ jWords, setJWords, jIn, setJIn, jEn, setJ
       <div style={{fontSize:14,fontWeight:700,color:"#78716c",marginBottom:8}}>{jWords.length} words saved</div>
       {jWords.map((w,i)=>(
         <div key={i} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px"}}>
-          <div style={{cursor:"pointer"}} onClick={()=>speak(w.hr)}>
-            <div style={{fontSize:15,fontWeight:700,color:"#164e63"}}>{w.hr} 🔊</div>
-            <div style={{fontSize:13,color:"#78716c"}}>{w.en}</div>
-          </div>
+          <button style={{background:"none",border:"none",cursor:"pointer",textAlign:"left",padding:0,fontFamily:"'Outfit',sans-serif"}} onClick={()=>speak(w.hr)}>
+            <div style={{fontSize:15,fontWeight:700,color:"var(--heading)"}}>{w.hr} 🔊</div>
+            <div style={{fontSize:13,color:"var(--subtext)"}}>{w.en}</div>
+          </button>
           <button style={{background:"none",border:"none",fontSize:16,cursor:"pointer",color:"#dc2626",padding:4}}
             onClick={()=>{const nw=jWords.filter((_,j)=>j!==i);setJWords(nw);localStorage.setItem("uJournal",JSON.stringify(nw));}}>
             ✖

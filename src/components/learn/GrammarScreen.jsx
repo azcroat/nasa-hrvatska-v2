@@ -16,10 +16,10 @@ export default function GrammarScreen({
           <p style={{fontSize:15,color:"#44403c",lineHeight:1.7}}>{gl.desc}</p>
         </div>
         {gl.exs.map((e,i)=>(
-          <div key={i} className="c" style={{marginBottom:8,display:"flex",justifyContent:"space-between",padding:"14px 20px",cursor:"pointer"}} onClick={()=>speak(e[0])}>
+          <button key={i} className="c" style={{marginBottom:8,display:"flex",justifyContent:"space-between",padding:"14px 20px"}} onClick={()=>speak(e[0])}>
             <span style={{fontWeight:700}}>{e[0]}</span>
-            <span style={{color:"#78716c"}}>{e[1]}</span>
-          </div>
+            <span style={{color:"var(--subtext)"}}>{e[1]}</span>
+          </button>
         ))}
         <button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{sGp("ex");sGx(0);sGa(false);sGsl(-1);}}>Practice →</button>
       </React.Fragment>}
