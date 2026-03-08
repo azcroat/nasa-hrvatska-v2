@@ -189,8 +189,10 @@ export default function HomeTab({
           const pool = allCats.flatMap(cc => V[cc]);
           const weak = Object.entries(d).filter(e=>e[1].w>0).sort((a,b)=>(b[1].w/(b[1].r+1))-(a[1].w/(a[1].r+1)));
           const weakWords = weak.slice(0,15).map(e=>pool.find(w=>w[0]===e[0])).filter(Boolean);
-          if (weakWords.length < 3) { setTab("practice"); return; }
-          const items = weakWords.map(w => { const wr=sh(pool.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]); return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]}; });
+          // Pad with random words if fewer than 3 weak words so quiz still works
+          const base = weakWords.length > 0 ? weakWords : sh(pool).slice(0,5);
+          const padded = base.length < 3 ? base.concat(sh(pool.filter(w=>!base.find(b=>b[0]===w[0]))).slice(0, 5 - base.length)) : base;
+          const items = padded.map(w => { const wr=sh(pool.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]); return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]}; });
           sMcQ(items); sMcI(0); sMcS(0); sMcA(false); sMcSl(-1); setScr("mcgame"); sCurEx("mcgame");
         }}
           style={{width:"100%",marginBottom:16,padding:"13px 16px",background:"linear-gradient(135deg,#fffbeb,#fef3c7)",border:"2px solid #f59e0b",borderRadius:14,cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif",display:"flex",alignItems:"center",gap:12,boxShadow:"0 2px 8px rgba(245,158,11,.15)"}}>
