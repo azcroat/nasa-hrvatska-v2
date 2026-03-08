@@ -241,6 +241,7 @@ export default function CroatiaTab({
         {[
           [()=>{sHIdx(0);setScr("history");},"🇭🇷","Domovinski Rat","Croatia's 1991–1995 Homeland War","#dc2626"],
           [()=>{sKgTab("timeline");setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval dynasty & royal timeline","#b45309"],
+          [()=>setScr("region_vukovar"),"🕯️","Vukovar","Hero city — a deep dive","#dc2626"],
           [()=>setScr("region_zagreb"),"🏛️","Zagreb","Croatia's vibrant capital city","#0e7490"],
           [()=>setScr("region_split"),"🌊","Split","Rome on the Adriatic coast","#0284c7"],
           [()=>setScr("region_mostar"),"🌉","Mostar","The bridge reborn — our city","#7c3aed"],
@@ -249,7 +250,6 @@ export default function CroatiaTab({
           [()=>setScr("region_labin"),"⛵","Labin & Rabac","Our new home in Istria","#0e7490"],
           [()=>setScr("region_bibinje"),"🏖️","Bibinje & Zadar","Dalmatian gateway to the sea","#0284c7"],
           [()=>setScr("region_hercegovina"),"⚔️","Hrvati Hercegovine","Our Croatian heritage in Herzegovina","#b45309"],
-          [()=>setScr("region_vukovar"),"🕯️","Vukovar","Hero city — a deep dive","#dc2626"],
           [()=>setScr("region_vinkovci"),"🏛️","Vinkovci","8,300 years of continuous history","#78716c"],
         ].map(([fn,icon,title,sub,color],i)=>(
           <button key={i} className="tc" onClick={fn}
