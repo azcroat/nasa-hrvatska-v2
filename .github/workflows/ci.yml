@@ -37,20 +37,25 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=nasa-hrvatska-v2 --branch=master
 
-      - name: Retry custom domain verification via Pages API
+      - name: Re-add custom domain to force DNS recreation
         if: github.event_name == 'push'
         run: |
-          echo "=== Checking Pages custom domains ==="
-          curl -s "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/nasa-hrvatska-v2/domains" \
-            -H "Authorization: Bearer $API_TOKEN" | jq '.'
+          echo "=== Removing domain ==="
+          curl -s -X DELETE \
+            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/nasa-hrvatska-v2/domains/nasahrvatska.com" \
+            -H "Authorization: Bearer $API_TOKEN" | jq '.success, .errors'
 
-          echo "=== Retrying domain verification ==="
-          curl -s -X PATCH "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/nasa-hrvatska-v2/domains/nasahrvatska.com" \
+          sleep 3
+
+          echo "=== Re-adding domain ==="
+          curl -s -X POST \
+            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/nasa-hrvatska-v2/domains" \
             -H "Authorization: Bearer $API_TOKEN" \
-            -H "Content-Type: application/json" | jq '.'
+            -H "Content-Type: application/json" \
+            --data '{"name":"nasahrvatska.com"}' | jq '.success, .errors, .result'
 
+          sleep 10
           echo "=== DNS check ==="
-          sleep 5
           nslookup nasahrvatska.com 1.1.1.1
         env:
           API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
