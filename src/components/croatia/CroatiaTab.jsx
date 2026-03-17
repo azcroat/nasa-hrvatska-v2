@@ -410,10 +410,6 @@ export default function CroatiaTab({
       </button>
 
       {/* ── SPOTIFY PLAYLISTS ── */}
-      <CrSection title="Croatian Playlists on Spotify" icon="🎵" count="14 playlists" defaultOpen={false}>
-        <SpotifyPlaylists />
-      </CrSection>
-
       <h3 className="sh">📺 Media & Immersion</h3>
       <div style={{padding:'12px 14px',background:'linear-gradient(135deg,rgba(14,116,144,.06),rgba(14,116,144,.1))',borderRadius:12,marginBottom:20,borderLeft:'3px solid #0e7490'}}>
         <div style={{fontSize:12,fontWeight:800,color:'#164e63',marginBottom:5}}>📱 How it works</div>
@@ -449,7 +445,10 @@ export default function CroatiaTab({
               </div>
               <div style={{flex:1,minWidth:0}}>
                 <div style={{fontSize:14,fontWeight:700,color:'var(--heading)'}}>{catTitle}</div>
-                <div style={{fontSize:11,color:'var(--subtext)',marginTop:1}}>{items.length} {items.length === 1 ? 'resource' : 'resources'}</div>
+                <div style={{fontSize:11,color:'var(--subtext)',marginTop:1}}>
+                  {items.length} {items.length === 1 ? 'resource' : 'resources'}
+                  {cat==='music' && <span style={{marginLeft:6,background:'rgba(30,215,96,.12)',color:'#15803d',fontSize:9,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(30,215,96,.25)'}}>+ 14 Spotify playlists</span>}
+                </div>
               </div>
               <div style={{fontSize:18,color:'var(--subtext)',opacity:.5,transition:'transform .2s',transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',flexShrink:0}}>⌄</div>
             </button>
@@ -468,6 +467,18 @@ export default function CroatiaTab({
                     setActiveStream={setActiveStream}
                   />
                 ))}
+                {cat === 'music' && (
+                  <div style={{padding:'16px 14px 20px',borderTop:'2px solid rgba(30,215,96,.2)',background:'linear-gradient(180deg,rgba(30,215,96,.03) 0%,transparent 100%)'}}>
+                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>
+                      <div style={{width:28,height:28,borderRadius:8,background:'#1ed760',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>🎵</div>
+                      <div>
+                        <div style={{fontSize:12,fontWeight:800,color:'var(--heading)'}}>Croatian Playlists on Spotify</div>
+                        <div style={{fontSize:10,color:'var(--subtext)'}}>14 curated playlists · tap to expand</div>
+                      </div>
+                    </div>
+                    <SpotifyPlaylists />
+                  </div>
+                )}
               </div>
             )}
           </div>
