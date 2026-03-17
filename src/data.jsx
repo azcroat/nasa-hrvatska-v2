@@ -2595,6 +2595,18 @@ const GROCERY = {
   vocab:[["mlijeko","milk"],["kruh","bread"],["jaja","eggs"],["sir","cheese"],["maslac","butter"],["jogurt","yogurt"],["brašno","flour"],["ulje","oil"],["sol","salt"],["papar","pepper"],["šećer","sugar"],["riža","rice"],["tjestenina","pasta"],["piletina","chicken"],["svinjetina","pork"],["govedina","beef"],["riba","fish"],["voće","fruit"],["povrće","vegetables"],["voda","water"],["sok","juice"],["pivo","beer"],["vino","wine"],["vrećica","bag"],["blagajna","checkout"],["popust","discount"],["račun","receipt"],["deka","100g (ordering unit)"]],
   phrases:[["Dajte mi 20 deka kulena.","Give me 200g of kulen."],["Imate li vrećicu?","Do you have a bag?"],["Gdje je mlijeko?","Where is the milk?"],["Koliko košta?","How much does it cost?"],["Mogu li platiti karticom?","Can I pay by card?"],["Jeste li član?","Are you a member? (loyalty card)"],["Na akciji je.","It's on sale."],["Dva za jedan.","Two for one."]]
 };
+// ═══ LEARNING PATH: wire specialized content into V for lesson+quiz support ═══
+V["Order Food"]=[].concat(
+  FOODORDER.bakery.items,
+  FOODORDER.fastfood.items,
+  FOODORDER.icecream.items,
+  FOODORDER.restaurant.phrases
+);
+V["Getting Around"]=TRANSPORT.map(function(t){return[t.hr,t.en];});
+V["School Kit"]=[].concat(SCHOOL.classroom,SCHOOL.phrases);
+V["Making Friends"]=FRIENDS.map(function(f){return[f.hr,f.en];});
+V["Grocery Shopping"]=[].concat(GROCERY.vocab,GROCERY.phrases);
+V["Alphabet"]=ALPHA.map(function(a){return[a[0],a[1]+" — "+a[2]+" ("+a[3]+")"];});
 // ═══ CROATIAN RECIPES ═══
 const RECIPES = [
   {name:"Palačinke",en:"Croatian Crepes",time:20,servings:4,
@@ -3044,9 +3056,9 @@ function getHistFact(){
 // ═══ LEARNING PATH ═══
 const LEARN_PATH = [
   {level:1,title:"Survivor",desc:"First 48 hours",items:[
-    {id:"lp1",name:"Basic Greetings",ck:function(s){return s.lc>=1},go:"lesson",topic:"greetings"},{id:"lp2",name:"Numbers",ck:function(s){return s.lc>=2},go:"lesson",topic:"numbers"},{id:"lp3",name:"Emergency Phrases",ck:function(s){return s.lc>=3},go:"lesson",topic:"Emergency"},{id:"lp4",name:"Order Food",ck:function(s){return s.lc>=4},go:"foodorder"},{id:"lp5",name:"Get Around",ck:function(s){return s.lc>=4},go:"transport"}]},
+    {id:"lp1",name:"Basic Greetings",ck:function(s){return s.lc>=1},go:"lesson",topic:"greetings"},{id:"lp2",name:"Numbers",ck:function(s){return s.lc>=2},go:"lesson",topic:"numbers"},{id:"lp3",name:"Emergency Phrases",ck:function(s){return s.lc>=3},go:"lesson",topic:"Emergency"},{id:"lp4",name:"Order Food",ck:function(s){return s.lc>=4},go:"lesson",topic:"Order Food"},{id:"lp5",name:"Get Around",ck:function(s){return s.lc>=4},go:"lesson",topic:"Getting Around"}]},
   {level:2,title:"Settler",desc:"First week",items:[
-    {id:"lp6",name:"Family Words",ck:function(s){return s.lc>=5},go:"lesson",topic:"family"},{id:"lp7",name:"School Kit",ck:function(s){return s.lc>=6},go:"school"},{id:"lp8",name:"Making Friends",ck:function(s){return s.lc>=6},go:"friends"},{id:"lp9",name:"Grocery Shopping",ck:function(s){return s.lc>=7},go:"grocery"},{id:"lp10",name:"Alphabet",ck:function(s){return s.lc>=7},go:"alphabet"},{id:"lp11",name:"First Quiz",ck:function(s){return s.xp>=50},go:"mcgame"}]},
+    {id:"lp6",name:"Family Words",ck:function(s){return s.lc>=5},go:"lesson",topic:"family"},{id:"lp7",name:"School Kit",ck:function(s){return s.lc>=6},go:"lesson",topic:"School Kit"},{id:"lp8",name:"Making Friends",ck:function(s){return s.lc>=6},go:"lesson",topic:"Making Friends"},{id:"lp9",name:"Grocery Shopping",ck:function(s){return s.lc>=7},go:"lesson",topic:"Grocery Shopping"},{id:"lp10",name:"Alphabet",ck:function(s){return s.lc>=7},go:"lesson",topic:"Alphabet"},{id:"lp11",name:"First Quiz",ck:function(s){return s.xp>=50},go:"mcgame"}]},
   {level:3,title:"Communicator",desc:"First month",items:[
     {id:"lp12",name:"Grammar Intro",ck:function(s){return s.gc>=1},go:"grammar"},{id:"lp13",name:"Texting/Slang",ck:function(s){return s.lc>=10},go:"texting"},{id:"lp14",name:"Role-Play",ck:function(s){return s.lc>=10},go:"roleplay"},{id:"lp15",name:"Read a Story",ck:function(s){return s.lc>=12},go:"readlist"},{id:"lp16",name:"Conjugation",ck:function(s){return s.gc>=2},go:"conjdrill"},{id:"lp17",name:"Listening",ck:function(s){return s.lc>=12},go:"listening"},{id:"lp18",name:"Tenses & Gender",ck:function(s){return s.gc>=3},go:"tenses"},{id:"lp34",name:"Vi ili ti?",ck:function(s){return s.gc>=3},go:"formalregister"},{id:"lp35",name:"Tech & Digital",ck:function(s){return s.lc>=12},go:"techvoc"}]},
   {level:4,title:"Explorer",desc:"Months 2-3",items:[
