@@ -44,6 +44,7 @@ export async function onRequestPost(context) {
     const ssml = slow
       ? `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}"><prosody rate="slow">${safeText}</prosody></voice></speak>`
       : `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}">${safeText}</voice></speak>`;
+    const testSsml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US"><voice name="en-US-JennyNeural">test</voice></speak>`;
 
     const response = await fetch(
       `https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`,
@@ -64,7 +65,11 @@ export async function onRequestPost(context) {
         `https://${AZURE_REGION}.api.cognitive.microsoft.com/sts/v1.0/issueToken`,
         { method: "POST", headers: { "Ocp-Apim-Subscription-Key": AZURE_KEY, "Content-Length": "0" } }
       ).then(r => r.status).catch(() => "net_err");
-      return new Response(`tts=${response.status} region=${AZURE_REGION} key_valid=${tokenStatus} key_prefix=${AZURE_KEY.substring(0,6)}: ${azureErr}`, { status: 500 });
+      const enTest = await fetch(
+        `https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`,
+        { method: "POST", headers: { "Ocp-Apim-Subscription-Key": AZURE_KEY, "Content-Type": "application/ssml+xml", "X-Microsoft-OutputFormat": "audio-16khz-128kbitrate-mono-mp3" }, body: testSsml }
+      ).then(r => r.status).catch(() => "net_err");
+      return new Response(`tts=${response.status} en_test=${enTest} region=${AZURE_REGION} key_valid=${tokenStatus} key_prefix=${AZURE_KEY.substring(0,6)}: ${azureErr}`, { status: 500 });
     }
 
     const buffer = await response.arrayBuffer();
