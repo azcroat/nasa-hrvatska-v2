@@ -2,20 +2,8 @@
 // Keeps the Azure key server-side, never exposed to the browser
 
 export async function onRequestGet(context) {
-  const { env } = context;
-  const AZURE_KEY = env.AZURE_TTS_KEY;
-  const AZURE_REGION = env.AZURE_TTS_REGION || "westeurope";
-  if (!AZURE_KEY) return new Response("NO KEY SET", { status: 200 });
-  try {
-    const r = await fetch(
-      `https://${AZURE_REGION}.api.cognitive.microsoft.com/sts/v1.0/issueToken`,
-      { method: "POST", headers: { "Ocp-Apim-Subscription-Key": AZURE_KEY, "Content-Length": "0" } }
-    );
-    const body = await r.text().catch(() => "");
-    return new Response(`key_status=${r.status} region=${AZURE_REGION} key_prefix=${AZURE_KEY.substring(0,6)}`, { status: 200 });
-  } catch(e) {
-    return new Response("key_test_error: " + e.message, { status: 200 });
-  }
+  // Diagnostic endpoint (GET /api/tts)
+  return new Response("TTS proxy running", { status: 200 });
 }
 
 export async function onRequestPost(context) {
@@ -44,14 +32,23 @@ export async function onRequestPost(context) {
     const ssml = slow
       ? `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}"><prosody rate="slow">${safeText}</prosody></voice></speak>`
       : `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}">${safeText}</voice></speak>`;
-    const testSsml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US"><voice name="en-US-JennyNeural">test</voice></speak>`;
+
+    // Exchange key for Bearer token (required for newer Azure AI multi-service resources)
+    const tokenRes = await fetch(
+      `https://${AZURE_REGION}.api.cognitive.microsoft.com/sts/v1.0/issueToken`,
+      { method: "POST", headers: { "Ocp-Apim-Subscription-Key": AZURE_KEY, "Content-Length": "0" } }
+    );
+    if (!tokenRes.ok) {
+      return new Response("Token error " + tokenRes.status, { status: 500 });
+    }
+    const token = await tokenRes.text();
 
     const response = await fetch(
       `https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`,
       {
         method: "POST",
         headers: {
-          "Ocp-Apim-Subscription-Key": AZURE_KEY,
+          "Authorization": "Bearer " + token,
           "Content-Type": "application/ssml+xml",
           "X-Microsoft-OutputFormat": "audio-16khz-128kbitrate-mono-mp3",
         },
@@ -61,15 +58,7 @@ export async function onRequestPost(context) {
 
     if (!response.ok) {
       const azureErr = await response.text().catch(() => "");
-      const tokenStatus = await fetch(
-        `https://${AZURE_REGION}.api.cognitive.microsoft.com/sts/v1.0/issueToken`,
-        { method: "POST", headers: { "Ocp-Apim-Subscription-Key": AZURE_KEY, "Content-Length": "0" } }
-      ).then(r => r.status).catch(() => "net_err");
-      const enTest = await fetch(
-        `https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`,
-        { method: "POST", headers: { "Ocp-Apim-Subscription-Key": AZURE_KEY, "Content-Type": "application/ssml+xml", "X-Microsoft-OutputFormat": "audio-16khz-128kbitrate-mono-mp3" }, body: testSsml }
-      ).then(r => r.status).catch(() => "net_err");
-      return new Response(`tts=${response.status} en_test=${enTest} region=${AZURE_REGION} key_valid=${tokenStatus} key_prefix=${AZURE_KEY.substring(0,6)}: ${azureErr}`, { status: 500 });
+      return new Response("Azure TTS error " + response.status + ": " + azureErr, { status: 500 });
     }
 
     const buffer = await response.arrayBuffer();
@@ -81,6 +70,6 @@ export async function onRequestPost(context) {
       },
     });
   } catch (e) {
-    return new Response("TTS proxy error", { status: 500 });
+    return new Response("TTS proxy error: " + e.message, { status: 500 });
   }
 }
