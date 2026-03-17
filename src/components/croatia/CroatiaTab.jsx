@@ -252,10 +252,6 @@ function SpotifyPlaylists() {
   ];
   return (
     <div>
-      <div style={{ fontSize:11.5, color:'var(--subtext)', lineHeight:1.7, padding:'10px 14px', background:'linear-gradient(135deg,rgba(30,215,96,.06),rgba(30,215,96,.1))', borderRadius:12, marginBottom:16, borderLeft:'3px solid #1ed760' }}>
-        <span style={{ fontWeight:800, color:'#15803d' }}>🎵 How it works</span><br />
-        Tap any playlist to open it inline. <strong>30-sec previews</strong> play without an account — <strong>full tracks</strong> play if you're logged into Spotify in your browser or the app.
-      </div>
       {groups.map(({ label, key }) => (
         <div key={key}>
           <div style={{ fontSize:10, fontWeight:800, color:'var(--subtext)', letterSpacing:'.12em', textTransform:'uppercase', marginBottom:8, marginTop: key==='icons' ? 0 : 14 }}>{label}</div>
@@ -427,7 +423,12 @@ export default function CroatiaTab({
           badge stream directly inside the app — tap ▶ to start. TV and other media open in your browser.{' '}
           <span style={{background:'rgba(220,38,38,.08)',color:'#dc2626',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)'}}>HRT+</span>{' '}
           requires an HRT subscription.{' '}
-          Tap <strong>💡 Tip</strong> on any card for a language-learning tip.
+          Tap <strong>💡 Tip</strong> on any card for a language-learning tip.{' '}
+          Spotify playlists expand inline — a free{' '}
+          <span style={{background:'rgba(30,215,96,.10)',color:'#15803d',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(30,215,96,.25)'}}>SPOTIFY</span>{' '}
+          account unlocks full tracks;{' '}
+          <span style={{background:'rgba(100,116,139,.08)',color:'#475569',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(100,116,139,.2)'}}>30 SEC</span>{' '}
+          previews play without login.
         </div>
       </div>
 
