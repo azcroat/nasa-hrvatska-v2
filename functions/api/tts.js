@@ -60,7 +60,11 @@ export async function onRequestPost(context) {
 
     if (!response.ok) {
       const azureErr = await response.text().catch(() => "");
-      return new Response("Azure TTS error " + response.status + " region=" + AZURE_REGION + ": " + azureErr, { status: response.status });
+      const tokenStatus = await fetch(
+        `https://${AZURE_REGION}.api.cognitive.microsoft.com/sts/v1.0/issueToken`,
+        { method: "POST", headers: { "Ocp-Apim-Subscription-Key": AZURE_KEY, "Content-Length": "0" } }
+      ).then(r => r.status).catch(() => "net_err");
+      return new Response(`tts=${response.status} region=${AZURE_REGION} key_valid=${tokenStatus} key_prefix=${AZURE_KEY.substring(0,6)}: ${azureErr}`, { status: 500 });
     }
 
     const buffer = await response.arrayBuffer();
