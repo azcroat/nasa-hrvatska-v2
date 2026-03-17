@@ -183,6 +183,91 @@ function MediaCard({ m, cat, onOpen, activeStream, setActiveStream }) {
   );
 }
 
+const SPOTIFY_PLAYLISTS = {
+  icons: [
+    { id:'37i9dQZF1DZ06evO2GzzZj', name:'This Is Oliver Dragojević', desc:'The soul of Dalmatia — all the classics', icon:'🎤', color:'#0369a1', tag:'Legend' },
+    { id:'37i9dQZF1DZ06evO3UANd2', name:'This Is Prljavo Kazalište', desc:"Croatia's greatest rock band — essential listening", icon:'🎸', color:'#dc2626', tag:'Rock' },
+    { id:'5OPhthDiArDJMPQfTKIYCn', name:'Thompson', desc:'Patriotic Croatian rock — Marin Čavić', icon:'🇭🇷', color:'#b91c1c', tag:'Patriotic' },
+    { id:'37i9dQZF1EIUUk1h0TA16K', name:'Crvena Jabuka Mix', desc:'Timeless Croatian pop-rock from the 80s & 90s', icon:'🍎', color:'#e11d48', tag:'Pop/Rock' },
+    { id:'5pFl9Ll0hBYydQPEVkMJsQ', name:'Magazin', desc:"Croatia's beloved pop group — hits spanning 4 decades", icon:'💫', color:'#9333ea', tag:'Pop' },
+    { id:'37i9dQZF1E4zd1TBgRl9w6', name:'Klapa', desc:'UNESCO-listed Dalmatian choral tradition', icon:'🎶', color:'#0891b2', tag:'Traditional' },
+  ],
+  genres: [
+    { id:'1iqFmUPFuPpBVgvrWccMVW', name:'Croatian Music 2025', desc:'The freshest Croatian tracks right now', icon:'⚡', color:'#059669', tag:'New Music' },
+    { id:'1iFnviT7aGiPqpCpNT2hYy', name:'Croatian Hip Hop', desc:'The best of the hrvatski rap scene', icon:'🎤', color:'#6d28d9', tag:'Rap' },
+    { id:'2J4UX2zKunR9uRkaAYLbgs', name:'Ljetni Hitovi', desc:"Croatia's biggest summer bangers", icon:'☀️', color:'#d97706', tag:'Summer' },
+    { id:'0SFU1J9KaRmtPT5T1Ou6KN', name:'Ultra Europe 2025', desc:"The sound of Split's legendary festival", icon:'🎉', color:'#7c3aed', tag:'Festival' },
+  ],
+  regions: [
+    { id:'72YvCUCAsq0K5WD114It0J', name:'Sound of Tamburica', desc:'Folk tamburica from Slavonia & Baranja', icon:'🎻', color:'#b45309', tag:'Slavonia' },
+    { id:'68hJgqwSmwChNNFsVtgEwo', name:'Dalmatinske Pjesme', desc:'Songs of the Adriatic coast', icon:'⚓', color:'#0284c7', tag:'Dalmatia' },
+    { id:'37i9dQZF1E4vN6zhBCeoxe', name:'Istra Radio', desc:'The sound of Istrian music & culture', icon:'🫒', color:'#16a34a', tag:'Istria' },
+    { id:'37i9dQZF1E4uGl0I2ksRYZ', name:'Dubrovnik Radio', desc:'Music from the Pearl of the Adriatic', icon:'🌊', color:'#0e7490', tag:'Dubrovnik' },
+  ],
+};
+
+function SpotifyCard({ pl, openId, setOpenId }) {
+  const isOpen = openId === pl.id;
+  return (
+    <div style={{ borderRadius:14, overflow:'hidden', border:'1px solid var(--card-b)', marginBottom:8, background:'var(--card)' }}>
+      <button
+        onClick={() => setOpenId(isOpen ? null : pl.id)}
+        style={{ width:'100%', display:'flex', alignItems:'center', gap:12, padding:'12px 14px', background:'none', border:'none', cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif" }}
+      >
+        <div style={{ width:42, height:42, borderRadius:11, background:pl.color+'18', border:`1px solid ${pl.color}30`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0 }}>
+          {pl.icon}
+        </div>
+        <div style={{ flex:1, minWidth:0 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:3, flexWrap:'wrap' }}>
+            <span style={{ fontSize:13, fontWeight:800, color:'var(--heading)' }}>{pl.name}</span>
+            <span style={{ background:pl.color+'18', color:pl.color, fontSize:9, fontWeight:800, padding:'2px 7px', borderRadius:20, border:`1px solid ${pl.color}30`, letterSpacing:'0.04em', flexShrink:0 }}>{pl.tag}</span>
+          </div>
+          <div style={{ fontSize:11, color:'var(--subtext)', lineHeight:1.4 }}>{pl.desc}</div>
+        </div>
+        <div style={{ fontSize:18, color:'var(--subtext)', opacity:.5, transition:'transform .2s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink:0 }}>⌄</div>
+      </button>
+      {isOpen && (
+        <div style={{ borderTop:'1px solid var(--card-b)' }}>
+          <iframe
+            src={`https://open.spotify.com/embed/playlist/${pl.id}?utm_source=generator`}
+            width="100%"
+            height="352"
+            frameBorder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"
+            style={{ display:'block' }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SpotifyPlaylists() {
+  const [openId, setOpenId] = useState(null);
+  const groups = [
+    { label:'🎤 Croatian Icons', key:'icons' },
+    { label:'🎧 Genres & Moods', key:'genres' },
+    { label:'🗺️ By Region', key:'regions' },
+  ];
+  return (
+    <div>
+      <div style={{ fontSize:11.5, color:'var(--subtext)', lineHeight:1.7, padding:'10px 14px', background:'linear-gradient(135deg,rgba(30,215,96,.06),rgba(30,215,96,.1))', borderRadius:12, marginBottom:16, borderLeft:'3px solid #1ed760' }}>
+        <span style={{ fontWeight:800, color:'#15803d' }}>🎵 How it works</span><br />
+        Tap any playlist to open it inline. <strong>30-sec previews</strong> play without an account — <strong>full tracks</strong> play if you're logged into Spotify in your browser or the app.
+      </div>
+      {groups.map(({ label, key }) => (
+        <div key={key}>
+          <div style={{ fontSize:10, fontWeight:800, color:'var(--subtext)', letterSpacing:'.12em', textTransform:'uppercase', marginBottom:8, marginTop: key==='icons' ? 0 : 14 }}>{label}</div>
+          {SPOTIFY_PLAYLISTS[key].map(pl => (
+            <SpotifyCard key={pl.id} pl={pl} openId={openId} setOpenId={setOpenId} />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function CrSection({ title, icon, count, defaultOpen = false, children }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
@@ -327,6 +412,11 @@ export default function CroatiaTab({
           <div style={{fontSize:12,color:"var(--subtext)"}}>Explore Croatia — cities, parks, beaches, islands</div>
         </div>
       </button>
+
+      {/* ── SPOTIFY PLAYLISTS ── */}
+      <CrSection title="Croatian Playlists on Spotify" icon="🎵" count="14 playlists" defaultOpen={false}>
+        <SpotifyPlaylists />
+      </CrSection>
 
       <h3 className="sh">📺 Media & Immersion</h3>
       <div style={{padding:'12px 14px',background:'linear-gradient(135deg,rgba(14,116,144,.06),rgba(14,116,144,.1))',borderRadius:12,marginBottom:20,borderLeft:'3px solid #0e7490'}}>
