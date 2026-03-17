@@ -42,7 +42,11 @@ function isValidEmail(e){return/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)}
 // ═══ FIREBASE SYNC FUNCTIONS ═══
 async function fbSaveProgress(uid,data){
   if(!_fbReady||!_fbDb)return;
-  try{var id=uid.replace(/[.#$/\[\]]/g,"_");await setDoc(fsDoc(_fbDb,"users",id),{progress:JSON.stringify(data),updated:Date.now()},{merge:true})}catch(e){console.warn("FB save error:",e)}
+  var id=uid.replace(/[.#$/\[\]]/g,"_");var payload={progress:JSON.stringify(data),updated:Date.now()};
+  try{await setDoc(fsDoc(_fbDb,"users",id),payload,{merge:true})}catch(e){
+    console.warn("FB save error (retrying in 3s):",e);
+    setTimeout(async function(){try{await setDoc(fsDoc(_fbDb,"users",id),payload,{merge:true})}catch(e2){console.warn("FB save retry failed:",e2)}},3000);
+  }
 }
 async function fbLoadProgress(uid){
   if(!_fbReady||!_fbDb)return null;
