@@ -83,6 +83,21 @@ export default function PracticeTab({
     const items = weakWords.map(w => { const wr=sh(p.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]); return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]}; });
     sMcQ(items); sMcI(0); sMcS(0); sMcA(false); sMcSl(-1); setScr("mcgame"); sCurEx("mcgame");
   }
+  function startReview() {
+    setScr("review"); sCurEx("review");
+  }
+  function startWriting() {
+    setScr("writing"); sCurEx("writing");
+  }
+  function startPitchAccent() {
+    setScr("pitchaccent"); sCurEx("pitchaccent");
+  }
+  function startShadowing() {
+    setScr("shadowing"); sCurEx("shadowing");
+  }
+  function startAspectDrill() {
+    setScr("aspectdrill"); sCurEx("aspectdrill");
+  }
 
   const specialInit = {
     znam:      () => { sZnMode("menu"); setScr("znam"); sCurEx("znam"); },
@@ -222,6 +237,8 @@ export default function PracticeTab({
           [startListening,  "🎧","Listening",    "#fff1f2","#fecaca"],
           [startSpeaking,   "🎤","Pronunciation","#f0f9ff","#bae6fd"],
           [() => { setScr("wordsprint"); sCurEx("wordsprint"); },"⚡","Word Sprint","#fffbeb","#fde68a"],
+          [startReview,"🔁","SRS Review","#f5f3ff","#ddd6fe"],
+          [startWriting,"✍️","Free Writing","#fdf4ff","#e9d5ff"],
         ].map(([fn,icon,label,bg,border], i) => (
           <button key={i} className="tc"
             style={{ textAlign:"center", padding:"14px 8px", background:bg, border:`1.5px solid ${border}` }}
@@ -261,6 +278,32 @@ export default function PracticeTab({
         <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>Deep dives and cultural immersion</p>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
           {reviewItems.map(([fn,icon,label,desc], i) => (
+            <button key={i} className="tc"
+              style={{ display:"flex", alignItems:"center", gap:12, padding:"14px", textAlign:"left" }}
+              onClick={fn}>
+              <div style={{ width:40, height:40, borderRadius:12, background:"var(--bar-bg)", border:"1px solid var(--card-b)",
+                display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0 }}>
+                {icon}
+              </div>
+              <div style={{ minWidth:0 }}>
+                <div style={{ fontSize:12, fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{label}</div>
+                <div style={{ fontSize:10, color:"var(--subtext)", marginTop:2, lineHeight:1.3 }}>{desc}</div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Native Speaker Skills" icon="🌟" count="5 tools" defaultOpen={true}>
+        <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>Advanced tools to reach native-level fluency</p>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+          {[
+            [startPitchAccent, "🎵", "Pitch Accent", "Master Croatian tonal stress"],
+            [startShadowing,   "🗣️", "Shadowing",    "Native-speed listen & repeat"],
+            [startReview,      "🔁", "SRS Review",   "Smart spaced repetition"],
+            [startWriting,     "✍️", "Free Writing",  "Write & get AI feedback"],
+            [startAspectDrill, "🔄", "Aspect Drill",  "Imperfective vs perfective"],
+          ].map(([fn,icon,label,desc], i) => (
             <button key={i} className="tc"
               style={{ display:"flex", alignItems:"center", gap:12, padding:"14px", textAlign:"left" }}
               onClick={fn}>

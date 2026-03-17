@@ -4901,7 +4901,97 @@ const BUREAUCRATIC = {
   ],
 };
 
-export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, CROATIAN_CITIES, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, CSS, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC };
+// ─── PITCH ACCENT DATA ────────────────────────────────────────────────────
+const PITCH_ACCENT = [
+  {hr:"vino",en:"wine",type:"kratkosilazni",mark:"vìno",tip:"Short falling on first syllable — pitch drops, short vowel"},
+  {hr:"žena",en:"woman",type:"kratkosilazni",mark:"žèna",tip:"Short falling — very common pattern"},
+  {hr:"ruka",en:"hand/arm",type:"kratkosilazni",mark:"rùka",tip:"Short falling on first syllable"},
+  {hr:"voda",en:"water",type:"kratkosilazni",mark:"vòda",tip:"Short falling — listen for the drop"},
+  {hr:"glava",en:"head",type:"kratkouzlazni",mark:"gláva",tip:"Short rising on first syllable — pitch rises, short vowel"},
+  {hr:"noga",en:"leg/foot",type:"kratkouzlazni",mark:"nóga",tip:"Short rising — pitch lifts on first syllable"},
+  {hr:"kuća",en:"house",type:"dugouzlazni",mark:"kúća",tip:"Long rising — pitch rises, longer vowel duration"},
+  {hr:"more",en:"sea",type:"kratkouzlazni",mark:"mòre",tip:"Short rising on single syllable"},
+  {hr:"rijeka",en:"river",type:"dugosilazni",mark:"rijêka",tip:"Long falling on first syllable — pitch drops, long vowel"},
+  {hr:"zvijezda",en:"star",type:"dugouzlazni",mark:"zvijézda",tip:"Long rising on first syllable"},
+  {hr:"prijatelj",en:"friend",type:"kratkosilazni",mark:"prijàtelj",tip:"Short falling on second syllable — common in longer words"},
+  {hr:"zemlja",en:"earth/land",type:"kratkosilazni",mark:"zèmlja",tip:"Short falling on first syllable"},
+  {hr:"srce",en:"heart",type:"kratkosilazni",mark:"sȑce",tip:"Short falling — one syllable with short vowel"},
+  {hr:"grad",en:"city",type:"dugosilazni",mark:"grȃd",tip:"Long falling on single syllable"},
+  {hr:"brat",en:"brother",type:"kratkosilazni",mark:"brȁt",tip:"Short falling — single syllable"},
+  {hr:"majka",en:"mother",type:"kratkosilazni",mark:"mȁjka",tip:"Short falling on first syllable"},
+  {hr:"koža",en:"skin/leather",type:"kratkosilazni",mark:"kȍža",tip:"Short falling"},
+  {hr:"jezik",en:"language/tongue",type:"kratkosilazni",mark:"jèzik",tip:"Short falling — key vocabulary word"},
+  {hr:"učiti",en:"to learn",type:"dugouzlazni",mark:"učíti",tip:"Long rising on second syllable — verbs often shift accent"},
+  {hr:"grad",en:"city/town",type:"dugosilazni",mark:"grȃd",tip:"Long falling — city names often use this pattern"},
+];
+
+// ─── SHADOWING SENTENCES ──────────────────────────────────────────────────
+const SHADOWING = [
+  {hr:"Dobro jutro! Kako ste?",en:"Good morning! How are you?",tip:"Formal greeting — ste is formal/plural"},
+  {hr:"Gdje je najbliža ljekarna?",en:"Where is the nearest pharmacy?",tip:"Asking directions — gdje = where"},
+  {hr:"Molim vas, možete li mi pomoći?",en:"Please, can you help me?",tip:"Polite request — molim vas = please (formal)"},
+  {hr:"Koliko košta taj kruh?",en:"How much does that bread cost?",tip:"Shopping — koliko košta = how much does it cost"},
+  {hr:"Trebam kartu za Split.",en:"I need a ticket for Split.",tip:"Travel vocabulary — trebam = I need"},
+  {hr:"Nisam razumio. Možete li ponoviti?",en:"I didn't understand. Can you repeat?",tip:"Clarification — essential phrase for learners"},
+  {hr:"Volim Hrvatsku i njezin jezik.",en:"I love Croatia and its language.",tip:"Possessive — njezin = its/her (for feminine noun)"},
+  {hr:"Ona svaki dan uči hrvatski.",en:"She studies Croatian every day.",tip:"Daily routine — svaki dan = every day"},
+  {hr:"Djeca se igraju na plaži.",en:"Children are playing on the beach.",tip:"Reflexive verb — igrati se = to play"},
+  {hr:"Jesi li već večerao?",en:"Have you had dinner yet?",tip:"Perfect tense question — jesi li = have you"},
+  {hr:"Sutra ćemo ići u kino.",en:"Tomorrow we will go to the cinema.",tip:"Future tense — ćemo ići = we will go"},
+  {hr:"Ova kava je jako dobra.",en:"This coffee is very good.",tip:"Gender agreement — ova (fem.) kava (fem.)"},
+  {hr:"Mogu li platiti karticom?",en:"Can I pay by card?",tip:"Instrumental case — karticom = by card"},
+  {hr:"Rezervirao sam stol za dvoje.",en:"I reserved a table for two.",tip:"Past tense — rezervirao sam = I reserved"},
+  {hr:"Ne razumijem, govorite li engleski?",en:"I don't understand, do you speak English?",tip:"Essential learner phrase"},
+  {hr:"Kako se kaže 'hello' na hrvatskom?",en:"How do you say 'hello' in Croatian?",tip:"Asking for translation"},
+  {hr:"Imam rezervaciju na ime Smith.",en:"I have a reservation under the name Smith.",tip:"Hotel/restaurant vocabulary"},
+  {hr:"Koja je razlika između tih dvaju vina?",en:"What is the difference between those two wines?",tip:"Genitive plural — dvaju = of two (genitive dual)"},
+];
+
+// ─── EXPANDED ASPECT PAIRS ────────────────────────────────────────────────
+const ASPECT_PAIRS = [
+  {impf:"pisati",pf:"napisati",en:"to write",rule:"na- prefix marks completion",ctx:"Svaki dan pišem pisma. / Napisao sam pismo majci."},
+  {impf:"čitati",pf:"pročitati",en:"to read",rule:"pro- prefix for completing a read",ctx:"Volim čitati romane. / Pročitao sam cijelu knjigu."},
+  {impf:"jesti",pf:"pojesti",en:"to eat",rule:"po- prefix marks eating completely",ctx:"Jedemo svaki dan u 12. / Pojeo sam cijeli tanjur."},
+  {impf:"piti",pf:"popiti",en:"to drink",rule:"po- prefix marks drinking up",ctx:"Pijem kavu ujutro. / Popio sam cijelu čašu."},
+  {impf:"gledati",pf:"pogledati",en:"to watch/look",rule:"po- prefix for a single glance or viewing",ctx:"Svaki večer gledam vijesti. / Pogledao sam taj film."},
+  {impf:"učiti",pf:"naučiti",en:"to learn/study",rule:"na- prefix marks mastery achieved",ctx:"Učim hrvatski godinama. / Naučio sam tu pjesmu."},
+  {impf:"govoriti",pf:"reći",en:"to speak/say",rule:"Different root: reći for one-time saying",ctx:"Govori engleski jako dobro. / Rekao je da dolazi."},
+  {impf:"raditi",pf:"napraviti",en:"to do/make",rule:"na- + praviti for completing a task",ctx:"Radim svaki dan od 9 do 17. / Napravio sam kolač."},
+  {impf:"kupovati",pf:"kupiti",en:"to buy",rule:"-ovati→-iti suffix change for completion",ctx:"Kupujem namirnice svaki tjedan. / Kupio sam novi auto."},
+  {impf:"davati",pf:"dati",en:"to give",rule:"davati = habitual giving; dati = single act",ctx:"Uvijek daje novac za darove. / Dao sam mu ključeve."},
+  {impf:"uzimati",pf:"uzeti",en:"to take",rule:"uzimati = repeated; uzeti = one completed act",ctx:"Uzimam lijekove svaki dan. / Uzeo je moju olovku."},
+  {impf:"dolaziti",pf:"doći",en:"to come/arrive",rule:"Different root: doći marks completed arrival",ctx:"Dolazi u ured svaki petak. / Došao je kasno večeras."},
+  {impf:"odlaziti",pf:"otići",en:"to leave/go away",rule:"Different root: otići marks completed departure",ctx:"Odlazi rano svaki dan. / Otišao je bez pozdrava."},
+  {impf:"otvarati",pf:"otvoriti",en:"to open",rule:"-ati→-iti suffix change",ctx:"Dućan otvara u 8 ujutro. / Otvorio je prozor."},
+  {impf:"zatvarati",pf:"zatvoriti",en:"to close",rule:"Same pattern as otvarati/otvoriti",ctx:"Restoran zatvara u 23h. / Zatvorio je knjigu."},
+  {impf:"tražiti",pf:"naći / pronaći",en:"to look for / find",rule:"Finding is the completed result of searching",ctx:"Tražim posao već godinu dana. / Našao je izgubljeni ključ."},
+  {impf:"pomagati",pf:"pomoći",en:"to help",rule:"Different root: pomoći for one act of helping",ctx:"Uvijek pomaže kolegama. / Pomogao mi je s prtljagom."},
+  {impf:"sjećati se",pf:"sjetiti se",en:"to remember",rule:"-ati→-iti for sudden recollection",ctx:"Sjećam se djetinjstva. / Sjetio sam se njegova imena."},
+  {impf:"zaboravljati",pf:"zaboraviti",en:"to forget",rule:"-jati→-iti for moment of forgetting",ctx:"Zaboravlja ključeve svaki dan. / Zaboravio je naš dogovor."},
+  {impf:"plaćati",pf:"platiti",en:"to pay",rule:"-ati→-iti for completing payment",ctx:"Plaćam kartom kad mogu. / Platio sam račun gotovinom."},
+  {impf:"vraćati",pf:"vratiti",en:"to return",rule:"-ati→-iti suffix change",ctx:"Uvijek vraćam knjige na vrijeme. / Vratio je novac odmah."},
+  {impf:"počinjati",pf:"početi",en:"to begin/start",rule:"Different root: početi for the moment of starting",ctx:"Nastava počinje uvijek točno. / Počeo je kišiti iznenada."},
+  {impf:"završavati",pf:"završiti",en:"to finish/end",rule:"-avati→-iti for completing",ctx:"Film završava sretno. / Završio sam domaću zadaću."},
+  {impf:"pričati",pf:"ispričati",en:"to tell/narrate",rule:"is- prefix for completing a narration",ctx:"Priča mi o putovanju. / Ispričao mi je cijelu priču."},
+  {impf:"slušati",pf:"poslušati",en:"to listen",rule:"po- prefix for completing a listen",ctx:"Slušam glazbu svaki dan. / Poslušao sam njegovu savjet."},
+];
+
+// ─── SPACED REPETITION: GET DUE REVIEWS ──────────────────────────────────
+function getDueReviews() {
+  const INTERVALS = [0, 1, 3, 7, 14, 30]; // days per bucket level 0-5
+  const sr = getSR();
+  const now = Date.now();
+  const due = [];
+  for (const [word, data] of Object.entries(sr)) {
+    const b = data.b || 0;
+    const intervalMs = INTERVALS[Math.min(b, 5)] * 86400000;
+    const nextDue = (data.t || 0) + intervalMs;
+    if (now >= nextDue) due.push(word);
+  }
+  return due; // array of Croatian word strings that are due for review
+}
+
+export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, CROATIAN_CITIES, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, CSS, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS };
 export { _fbReady };
 export { H, Bar, Spk };
-export { initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakGoogle, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex };
+export { initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakGoogle, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex, getDueReviews };
