@@ -233,10 +233,21 @@ function SpotifyCard({ pl, openId, setOpenId }) {
             width="100%"
             height="352"
             frameBorder="0"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture; storage-access"
             loading="lazy"
             style={{ display:'block' }}
           />
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 14px', background:'rgba(30,215,96,.05)', borderTop:'1px solid rgba(30,215,96,.12)' }}>
+            <span style={{ fontSize:11, color:'var(--subtext)' }}>Not loading? Open directly in Spotify.</span>
+            <a
+              href={`https://open.spotify.com/playlist/${pl.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display:'flex', alignItems:'center', gap:5, padding:'6px 12px', background:'#1ed760', borderRadius:20, fontSize:11, fontWeight:800, color:'#000', textDecoration:'none', flexShrink:0 }}
+            >
+              <span>Open in Spotify ↗</span>
+            </a>
+          </div>
         </div>
       )}
     </div>
