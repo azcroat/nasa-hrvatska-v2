@@ -172,9 +172,9 @@ async function speakAzure(text,slow){
   const a=new Audio();a.volume=1.0;_currentAudio=a;
   try{
     const r=await fetch("/api/tts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:text,slow:!!slow})});
-    if(!r.ok){console.error("[TTS] Azure HTTP "+r.status+" — verify AZURE_TTS_KEY in Cloudflare Pages env vars");return false;}
+    if(!r.ok){const rb=await r.text().catch(()=>"");console.error("[TTS] Azure HTTP "+r.status+" body:"+rb+" — check AZURE_TTS_KEY + AZURE_TTS_REGION in Cloudflare env vars");return false;}
     const blob=await r.blob();const url=URL.createObjectURL(blob);
-    a.src=url;
+    a.src=url;a.load();
     await a.play();return true;
   }catch(e){console.error("[TTS] Azure error:",e);return false}
 }
