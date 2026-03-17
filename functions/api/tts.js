@@ -51,6 +51,7 @@ export async function onRequestPost(context) {
           "Authorization": "Bearer " + token,
           "Content-Type": "application/ssml+xml",
           "X-Microsoft-OutputFormat": "audio-16khz-128kbitrate-mono-mp3",
+          "User-Agent": "NasaHrvatska/1.0",
         },
         body: ssml,
       }
