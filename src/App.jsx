@@ -138,7 +138,7 @@ function App(){
   const[as,setAs]=useState("loading"); // auth screen
   const[au,setAu]=useState(null); // auth user
   const[em,setEm]=useState("");const[pw,setPw]=useState("");const[pc,setPc]=useState("");const[dn,setDn]=useState("");
-  const[sq,setSq]=useState("");const[sa,setSa]=useState("");const[rpEm,setRpEm]=useState("");const[rpSa,setRpSa]=useState("");const[rpPw,setRpPw]=useState("");const[rpPc,setRpPc]=useState("");const[rpStep,setRpStep]=useState(1);const[rpQ,setRpQ]=useState("");
+  const[sq,setSq]=useState("");const[sa,setSa]=useState("");const[rpEm,setRpEm]=useState("");const[rpSa,setRpSa]=useState("");const[rpPw,setRpPw]=useState("");const[rpPc,setRpPc]=useState("");const[rpStep,setRpStep]=useState(1);const[rpQ,setRpQ]=useState("");const[_rpSaHash,_setRpSaHash]=useState("");const[_rpStoredEmail,_setRpStoredEmail]=useState("");
   const[ae,setAe]=useState("");const[al,setAl]=useState(false);const[sp,setSp2]=useState(false);
   const ds=DS;
   const[scr,_setScr]=useState("welcome");
@@ -262,24 +262,23 @@ function App(){
         if(_fbReady){var fb2=await fbResetPassword(k);
           if(fb2.ok){setAs("login");setTimeout(function(){setAe("\u2705 Password reset email sent! Check your inbox.")},100);return}}
         setAe("No account found with this email.");return}
-      localStorage.setItem("_rpSaHash",saFound);localStorage.setItem("_rpEmail",k);
+      _setRpSaHash(saFound);_setRpStoredEmail(k);
       setRpQ(sqFound);setRpStep(2)}
     else if(rpStep===2){
       if(!rpSa.trim()){setAe("Please enter your security answer.");return}
       var sah=await hp(rpSa.trim().toLowerCase());
-      var stored=localStorage.getItem("_rpSaHash");
-      if(sah!==stored){setAe("Incorrect security answer. Please try again.");return}
+      if(sah!==_rpSaHash){setAe("Incorrect security answer. Please try again.");return}
       setRpStep(3)}
     else if(rpStep===3){
       if(!rpPw||rpPw.length<6){setAe("New password must be at least 6 characters.");return}
       if(rpPw!==rpPc){setAe("Passwords do not match.");return}
-      var k=localStorage.getItem("_rpEmail");
+      var k=_rpStoredEmail;
       var a=gA();if(a[k]){a[k].p=await hp(rpPw);sA(a)}
       if(_fbReady){
         const acct=await fbCreateAccount(k,rpPw);
         if(!acct.ok){try{await fbResetPassword(k)}catch(e2){}}
       }
-      localStorage.removeItem("_rpSaHash");localStorage.removeItem("_rpEmail");
+      _setRpSaHash("");_setRpStoredEmail("");
       setAe("");setRpEm("");setRpSa("");setRpPw("");setRpPc("");setRpStep(1);setRpQ("");
       setAs("login");setTimeout(function(){setAe("\u2705 Password reset! Sign in with your new password.")},100)}
   }
