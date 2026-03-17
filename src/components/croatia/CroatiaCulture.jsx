@@ -6,7 +6,7 @@ export function TextingScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("📱 Texting & Slang","How Croatian kids actually text")}
+      {H("📱 Texting & Slang","How Croatian kids actually text",goBack)}
       {TEXTING.map(function(t,i){return (
         <button key={i} className="c" style={{marginBottom:8}} onClick={function(){speak(t.slang)}}>
           <div style={{display:"flex",justifyContent:"space-between"}}>
@@ -24,7 +24,7 @@ export function FriendsScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("🤝 Making Friends","Real phrases kids use")}
+      {H("🤝 Making Friends","Real phrases kids use",goBack)}
       {FRIENDS.map(function(f,i){return (
         <button key={i} className="c" style={{marginBottom:8}} onClick={function(){speak(f.hr)}}>
           <div style={{fontSize:15,fontWeight:700,color:"var(--heading)"}}>{f.hr}{" 🔊"}</div>
@@ -39,7 +39,7 @@ export function FoodOrderScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("🍕 Ordering Food","Bakery, fast food, ice cream, restaurants")}
+      {H("🍕 Ordering Food","Bakery, fast food, ice cream, restaurants",goBack)}
       {[FOODORDER.bakery,FOODORDER.fastfood,FOODORDER.icecream].map(function(sec,si){return (
         <div key={si} className="c" style={{marginBottom:16}}>
           <div style={{fontSize:15,fontWeight:800,color:"#b45309",marginBottom:10}}>{sec.title}</div>
@@ -76,7 +76,7 @@ export function TransportScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("🚌 Getting Around","Bus, tram, taxi phrases")}
+      {H("🚌 Getting Around","Bus, tram, taxi phrases",goBack)}
       {TRANSPORT.map(function(t,i){return (
         <button key={i} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px"}} onClick={function(){speak(t.hr)}}>
           <span style={{fontWeight:700,fontSize:14}}>{t.hr}{" 🔊"}</span>
@@ -91,7 +91,7 @@ export function EmergencyScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("🚨 Emergency Phrases","Medical, police, urgent")}
+      {H("🚨 Emergency Phrases","Medical, police, urgent",goBack)}
       <div className="c" style={{marginBottom:16,borderLeft:"4px solid #dc2626",background:"#fef2f2",textAlign:"center"}}>
         <div style={{fontSize:48,fontWeight:800,color:"#dc2626"}}>112</div>
         <div style={{fontSize:14,fontWeight:700}}>{EMERGENCY.number}</div>
@@ -126,7 +126,7 @@ export function FootballScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("⚽ Football & Water Polo","Croatia's biggest sports")}
+      {H("⚽ Football & Water Polo","Croatia's biggest sports",goBack)}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
         {FOOTBALL.vocab.map(function(w,i){return (
           <button key={i} className="c" style={{padding:"8px 12px"}} onClick={function(){speak(w[0])}}>
@@ -157,7 +157,7 @@ export function PopCultureScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("🎵 Croatian Pop Culture","Music, TV & artists your friends know")}
+      {H("🎵 Croatian Pop Culture","Music, TV & artists your friends know",goBack)}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
         {POPCULTURE.map(function(p,i){return (
           <button key={i} className="tc" style={{display:"flex",alignItems:"center",gap:10,padding:"12px 14px"}}
@@ -178,7 +178,7 @@ export function PracticalScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("💼 Practical Life in Croatia","Documents, customs, culture")}
+      {H("💼 Practical Life in Croatia","Documents, customs, culture",goBack)}
       <div className="c" style={{marginBottom:12,borderLeft:"4px solid #dc2626"}}>
         <div style={{fontSize:15,fontWeight:800,color:"#dc2626"}}>{PRACTICAL.oib.title}</div>
         <div style={{fontSize:13,marginTop:4}}>{PRACTICAL.oib.desc}</div>
@@ -215,7 +215,7 @@ export function SchoolScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("🏫 School Survival Kit","Everything for Croatian school")}
+      {H("🏫 School Survival Kit","Everything for Croatian school",goBack)}
       <div className="c" style={{marginBottom:16,borderLeft:"4px solid #dc2626",background:"#fef2f2"}}>
         <div style={{fontSize:15,fontWeight:800,color:"#dc2626"}}>{SCHOOL.grading.title}</div>
         <div style={{fontSize:14,marginTop:4}}>{SCHOOL.grading.desc}</div>
@@ -257,7 +257,7 @@ export function GroceryScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("🛒 Grocery Shopping","Stores, brands & essential vocab")}
+      {H("🛒 Grocery Shopping","Stores, brands & essential vocab",goBack)}
       <h3 className="sh">🏪 Supermarket Chains</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:20}}>
         {GROCERY.stores.map(function(s,i){return (
@@ -383,7 +383,7 @@ export function HistoryScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("🇭🇷 "+HISTORY.title,HISTORY.subtitle)}
+      {H("🇭🇷 "+HISTORY.title,HISTORY.subtitle,goBack)}
       <div className="c" style={{marginBottom:20,borderLeft:"4px solid #dc2626",background:"linear-gradient(135deg,#fef2f2,#fee2e2)"}}>
         <div style={{fontSize:14,lineHeight:1.8,color:"#1c1917"}}>{HISTORY.intro}</div>
       </div>
@@ -588,22 +588,28 @@ function SportScreen({ data, accent, heroGradient, heroIcon }) {
 
 export function BasketballScreen({ goBack }) {
   return (
-    <SportScreen
-      data={BASKETBALL}
-      accent="#ea580c"
-      heroGradient="linear-gradient(145deg,#9a3412,#ea580c)"
-      heroIcon="🏀"
-    />
+    <div>
+      {goBack&&<button onClick={goBack} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",cursor:"pointer",fontSize:13,fontWeight:700,color:"#78716c",padding:"12px 16px 0",fontFamily:"'Outfit',sans-serif"}}>‹ Back</button>}
+      <SportScreen
+        data={BASKETBALL}
+        accent="#ea580c"
+        heroGradient="linear-gradient(145deg,#9a3412,#ea580c)"
+        heroIcon="🏀"
+      />
+    </div>
   );
 }
 
 export function GymScreen({ goBack }) {
   return (
-    <SportScreen
-      data={GYM}
-      accent="#4f46e5"
-      heroGradient="linear-gradient(145deg,#1e1b4b,#4f46e5)"
-      heroIcon="🏋️"
-    />
+    <div>
+      {goBack&&<button onClick={goBack} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",cursor:"pointer",fontSize:13,fontWeight:700,color:"#78716c",padding:"12px 16px 0",fontFamily:"'Outfit',sans-serif"}}>‹ Back</button>}
+      <SportScreen
+        data={GYM}
+        accent="#4f46e5"
+        heroGradient="linear-gradient(145deg,#1e1b4b,#4f46e5)"
+        heroIcon="🏋️"
+      />
+    </div>
   );
 }

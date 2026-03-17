@@ -73,7 +73,8 @@ export default function LearnTab({
   const sc = STAGE_COLORS[((currentStage?.level || 1) - 1) % STAGE_COLORS.length];
 
   function launchVocab(t) {
-    const items = sh(V[t]);
+    const items = sh(V[t] || []);
+    if (!items.length) return;
     sLt(t); sLi(items); sLx(0); sLs(0); sLp("learn"); sLa(false); sLsl(-1);
     setScr("lesson"); sCurEx("vocab_" + t);
   }

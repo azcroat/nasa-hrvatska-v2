@@ -3997,7 +3997,8 @@ button.c{font-family:'Outfit',sans-serif;width:100%;cursor:pointer;display:block
 const BG_LIGHT={minHeight:"100vh",background:"#f1f5f9",color:"#1c1917",fontFamily:"'Outfit',sans-serif",position:"relative",overflowX:"hidden"};
 const BG_DARK={minHeight:"100vh",background:"linear-gradient(170deg,#0f172a 0%,#1e293b 30%,#1a1a2e 60%,#16213e 100%)",color:"#e2e8f0",fontFamily:"'Outfit',sans-serif",position:"relative",overflowX:"hidden"};
 const BG=BG_LIGHT;
-const H=(t,s)=><div style={{marginBottom:20,paddingBottom:16,borderBottom:"1px solid rgba(0,0,0,.06)"}}>
+const H=(t,s,back)=><div style={{marginBottom:20,paddingBottom:16,borderBottom:"1px solid rgba(0,0,0,.06)"}}>
+  {back&&<button onClick={back} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",cursor:"pointer",fontSize:13,fontWeight:700,color:"var(--subtext)",marginBottom:8,padding:"4px 0",fontFamily:"'Outfit',sans-serif"}}>‹ Back</button>}
   <h2
     style={{fontFamily:"'Playfair Display',serif",fontSize:24,color:"var(--heading)",fontWeight:800,letterSpacing:"-.02em",lineHeight:1.2}}>
     {t}

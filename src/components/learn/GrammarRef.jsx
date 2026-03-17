@@ -6,7 +6,7 @@ export function AspectScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("🔄 Verb Aspect","Perfective vs Imperfective")}
+      {H("🔄 Verb Aspect","Perfective vs Imperfective",goBack)}
       {ASPECT.pairs.map(function(p,i){return (
         <div key={i} className="c" style={{marginBottom:10}}>
           <div style={{display:"flex",justifyContent:"space-between"}}>
@@ -24,7 +24,7 @@ export function FalseFriendsScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("⚠️ False Friends","Croatian words that trick English speakers")}
+      {H("⚠️ False Friends","Croatian words that trick English speakers",goBack)}
       {FALSEFR.map(function(f,i){return (
         <button key={i} className="c" style={{marginBottom:10}} onClick={function(){speak(f.hr)}}>
           <div style={{display:"flex",justifyContent:"space-between"}}>
@@ -45,7 +45,7 @@ export function DeclensionScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("📝 Noun Declension Trainer","All 7 cases for key nouns")}
+      {H("📝 Noun Declension Trainer","All 7 cases for key nouns",goBack)}
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:16}}>
         {DECL.nouns.map(function(noun,i){return (
           <button key={i} className={"b "+(dcNoun===i?"bp":"bg")} style={{fontSize:13}} onClick={function(){sDcNoun(i)}}>
@@ -71,7 +71,7 @@ export function BrzaliceScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("😝 Brzalice","Croatian Tongue Twisters")}
+      {H("😝 Brzalice","Croatian Tongue Twisters",goBack)}
       {shMemo("bz",BRZALICE).map(function(b,i){return (
         <div key={i} className="c" style={{marginBottom:12}}>
           <button style={{fontSize:16,fontWeight:700,color:"var(--heading)",background:"none",border:"none",cursor:"pointer",fontFamily:"'Outfit',sans-serif",padding:0,textAlign:"left"}} onClick={function(){speak(b.hr)}}>{b.hr}{" 🔊"}</button>
@@ -87,7 +87,7 @@ export function DialectsScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("🗺️ Regional Dialects","Štokavski, Kajkavski, Čakavski")}
+      {H("🗺️ Regional Dialects","Štokavski, Kajkavski, Čakavski",goBack)}
       {DIALECTS.info.map(function(d,i){return (
         <div key={i} className="c" style={{marginBottom:12,borderLeft:"4px solid "+["#0e7490","#7c3aed","#dc2626"][i]}}>
           <div style={{fontSize:16,fontWeight:800}}>{d.name}</div>
@@ -119,7 +119,7 @@ export function DiminutivesScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("🐣 Umanjenice","Diminutives — making things small & cute")}
+      {H("🐣 Umanjenice","Diminutives — making things small & cute",goBack)}
       {DIMWORDS.map(function(d,i){return (
         <button key={i} className="c" style={{marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}} onClick={function(){speak(d.dim)}}>
           <div>
@@ -138,7 +138,7 @@ export function WordFormScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("🧩 Word Formation","How prefixes build Croatian vocabulary")}
+      {H("🧩 Word Formation","How prefixes build Croatian vocabulary",goBack)}
       {WORDFORM.bases.map(function(b,bi){return (
         <div key={bi} className="c" style={{marginBottom:16}}>
           <div style={{fontSize:16,fontWeight:800,color:"#164e63",marginBottom:10}}>{"Base: "}{b.verb}{" ("}{b.en})</div>
@@ -159,7 +159,7 @@ export function ColorQuirkScreen({ goBack }) {
   return (
     <div className="scr-wrap">
 
-      {H("🎨 Color Quirks","Colors mean different things in Croatian!")}
+      {H("🎨 Color Quirks","Colors mean different things in Croatian!",goBack)}
       {COLORQUIRK.map(function(q,i){return (
         <button key={i} className="c" style={{marginBottom:10}} onClick={function(){speak(q.hr)}}>
           <div style={{fontSize:16,fontWeight:700,color:"var(--heading)"}}>{q.hr}{" 🔊"}</div>
@@ -182,7 +182,7 @@ export function SvojMojScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H("🪞 "+SVOJMOJ.title,"Reflexive possessive — the native-speaker tell")}
+      {H("🪞 "+SVOJMOJ.title,"Reflexive possessive — the native-speaker tell",goBack)}
 
       <div style={{marginBottom:16,padding:"14px 16px",background:"rgba(124,58,237,.06)",borderRadius:12,borderLeft:"3px solid #7c3aed"}}>
         <div style={{fontSize:13,color:"#4c1d95",lineHeight:1.7}}>{SVOJMOJ.intro}</div>

@@ -23,11 +23,11 @@ export default function LessonScreen({
             <div style={{color:"#44403c"}}>{w[1]}</div>
           </div>
         ))}
-        <button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{
+        {li.length>=4&&<button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{
           const qPool=sh(li).slice(0,Math.min(li.length,15));
           const q=qPool.map(w=>{const wr=sh(li.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]);const o=sh([w[1],...wr]);return{...w,opts:o,ci:o.indexOf(w[1])};});
           sQi(q);sLx(0);sLp("quiz");sLa(false);sLsl(-1);
-        }}>Quiz Me! →</button>
+        }}>Quiz Me! →</button>}
       </React.Fragment>}
       {lp==="quiz"&&qi[lx]&&<React.Fragment>
         <Bar v={lx+1} mx={qi.length} h={6} />
