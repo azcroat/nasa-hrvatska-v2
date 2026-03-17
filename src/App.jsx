@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
-import { _fbReady, H, Bar, Spk, V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, CSS, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakGoogle, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, getDueReviews, shMemo, shuffleArr, buildSearchIndex } from "./data.jsx";
+import { _fbReady, H, Bar, Spk, V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, getDueReviews, shMemo, shuffleArr, buildSearchIndex } from "./data.jsx";
 // Always-needed: auth + core UI (eager)
 import LoginScreen from "./components/auth/LoginScreen.jsx";
 import ResetPassword from "./components/auth/ResetPassword.jsx";
@@ -133,6 +133,14 @@ const ICONS={greetings:"👋",numbers:"🔢",family:"👨‍👩‍👧‍👦",
 
 var _appNavDepth=0;
 function pushUrl(path){try{if(window.location.pathname!==path){_appNavDepth++;window.history.pushState({_ad:_appNavDepth},"",path)}}catch(e){}}
+// XP cooldown helpers — pure localStorage functions, defined outside component
+// so they never cause stale-closure issues in useCallback
+function canEarnXP(exerciseId){
+  try{var cd=JSON.parse(localStorage.getItem("xpCooldown")||"{}");return cd[exerciseId]!==new Date().toISOString().slice(0,10)}catch{return true}
+}
+function markExerciseDone(exerciseId){
+  try{var cd=JSON.parse(localStorage.getItem("xpCooldown")||"{}");var today=new Date().toISOString().slice(0,10);cd[exerciseId]=today;var clean={};for(var k in cd){if(cd[k]===today)clean[k]=cd[k]}localStorage.setItem("xpCooldown",JSON.stringify(clean))}catch(e){}
+}
 
 function App(){
   const[as,setAs]=useState("loading"); // auth screen
@@ -322,25 +330,6 @@ function App(){
     const[s,g]=tDir==="en-hr"?["en","hr"]:["hr","en"];
     try{const r=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(t)}&langpair=${s}|${g}`);const d=await r.json();if(d.responseStatus===200&&d.responseData?.translatedText)sTOut(d.responseData.translatedText);else if(d.responseStatus===429||String(d.responseDetails||"").toLowerCase().includes("limit"))sTOut("Daily translation limit reached. Try again tomorrow or visit translate.google.com");else sTOut("Translation unavailable. Try translate.google.com")}catch(e){sTOut("Network error — check your connection.")}sTL(false)
   };
-// ═══ ANTI-GAMING: XP COOLDOWN SYSTEM ═══
-function canEarnXP(exerciseId){
-  try{
-    var cd=JSON.parse(localStorage.getItem("xpCooldown")||"{}");
-    var today=new Date().toISOString().slice(0,10);
-    if(cd[exerciseId]===today)return false;
-    return true;
-  }catch(e){return true}
-}
-function markExerciseDone(exerciseId){
-  try{
-    var cd=JSON.parse(localStorage.getItem("xpCooldown")||"{}");
-    var today=new Date().toISOString().slice(0,10);
-    cd[exerciseId]=today;
-    var clean={};
-    for(var k in cd){if(cd[k]===today)clean[k]=cd[k]}
-    localStorage.setItem("xpCooldown",JSON.stringify(clean));
-  }catch(e){}
-}
   // ═══ BROWSER BACK BUTTON SUPPORT (popstate) ═══
   useEffect(function(){
     // Mark baseline so we can detect when back would exit the app
@@ -438,9 +427,6 @@ function markExerciseDone(exerciseId){
     <div
       className={darkMode?"dark":""}
       style={{...(darkMode?BG_DARK:BG_LIGHT),display:"flex",alignItems:"center",justifyContent:"center"}}>
-      <style>
-        {CSS}
-      </style>
       <div style={{textAlign:"center",animation:"rise .6s"}}>
         <div style={{fontSize:64,animation:"boat 3s ease-in-out infinite"}}>
           ⛵
@@ -463,12 +449,9 @@ function markExerciseDone(exerciseId){
   function doSidebarSearch(){if(srchQ.trim()){doSearch(srchQ);setSrchOpen(true);}}
   return (
     <div className={darkMode?"dark":""} style={darkMode?BG_DARK:BG_LIGHT}>
-      <style>
-        {CSS}
-      </style>
-      <Suspense fallback={<div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"50vh"}}><div style={{textAlign:"center"}}><div style={{fontSize:40,animation:"boat 2s ease-in-out infinite"}}>⛵</div><p style={{color:"var(--subtext)",marginTop:8,fontSize:14,fontWeight:600}}>Loading...</p></div></div>}>
       {as==="app"&&scr!=="welcome"&&scr!=="placement"&&<Sidebar tab={tab} setTab={setTab} setScr={setScr} name={name} level={level} st={st} darkMode={darkMode} setDarkMode={setDarkMode} badges={badges} srchQ={srchQ} setSrchQ={setSrchQ} onSearch={doSidebarSearch} />}
       <div className="app-content">
+      <Suspense fallback={<div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"50vh"}}><div style={{textAlign:"center"}}><div style={{fontSize:40,animation:"boat 2s ease-in-out infinite"}}>⛵</div><p style={{color:"var(--subtext)",marginTop:8,fontSize:14,fontWeight:600}}>Loading...</p></div></div>}>
       <XPPopup showXP={showXP} xpA={xpA} />
       <BadgeToast show={sB} badge={nB} />
       {showCelebration&&<CelebrationModal xp={celebXP} onClose={()=>setShowCelebration(false)} />}
@@ -513,7 +496,7 @@ function markExerciseDone(exerciseId){
               border:"1.5px solid var(--card-b)"}}>
             {srchR.map(function(r,i){return (
               <div
-                key={i}
+                key={r.hr+":"+r.type+":"+i}
                 className="sr-item"
                 role="option"
                 onClick={function(){setSrchOpen(false);setSrchQ("");setScr(r.go)}}>
@@ -823,8 +806,8 @@ function markExerciseDone(exerciseId){
       />}
       {scr==="certificate"&&<CertificateScreen name={name} level={level} st={st} goBack={goBack} />}
       {(as==="app"&&scr!=="welcome"&&scr!=="placement") && <TabBar tab={tab} setTab={setTab} setScr={setScr} badges={badges} />}
-      </div>
       </Suspense>
+      </div>
     </div>
   );
 }

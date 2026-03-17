@@ -1,5 +1,5 @@
 import React from 'react';
-import { CSS, BG_LIGHT } from '../../data.jsx';
+import { BG_LIGHT } from '../../data.jsx';
 
 const BG = BG_LIGHT;
 
@@ -10,7 +10,6 @@ export default function ResetPassword({
 }) {
   return (
     <div style={{...BG,display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
-      <style>{CSS}</style>
       <div style={{width:"100%",maxWidth:420,animation:"rise .5s",position:"relative",zIndex:1}}>
         <div style={{textAlign:"center",marginBottom:28}}>
           <div style={{fontSize:48,marginBottom:8}}>🔐</div>
