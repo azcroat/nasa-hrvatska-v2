@@ -77,6 +77,7 @@ export async function onRequestPost(context) {
       headers: {
         "Content-Type": "audio/mpeg",
         "Cache-Control": "public, max-age=86400",
+        "X-TTS-Region": usedRegion,
       },
     });
   } catch (e) {
