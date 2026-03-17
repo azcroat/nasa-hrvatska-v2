@@ -168,13 +168,15 @@ if(window.speechSynthesis){loadVoices();window.speechSynthesis.onvoiceschanged=l
 function getBestVoice(){if(!_voicesLoaded)loadVoices();const v=_voices;const hr=v.filter(x=>x.lang.startsWith("hr"));if(hr.length>0)return hr.find(x=>!x.localService)||hr[0];const bs=v.filter(x=>x.lang.startsWith("bs"));if(bs.length>0)return bs[0];const sr=v.filter(x=>x.lang.startsWith("sr"));if(sr.length>0)return sr[0];return null}
 function stopAudio(){if(_currentAudio){try{_currentAudio.pause();_currentAudio.currentTime=0}catch(e){}_currentAudio=null}if(window.speechSynthesis)window.speechSynthesis.cancel()}
 async function speakAzure(text,slow){
+  stopAudio();
+  const a=new Audio();a.volume=1.0;_currentAudio=a;
   try{
     const r=await fetch("/api/tts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:text,slow:!!slow})});
-    if(!r.ok)return false;
+    if(!r.ok){console.error("[TTS] Azure HTTP "+r.status+" — verify AZURE_TTS_KEY in Cloudflare Pages env vars");return false;}
     const blob=await r.blob();const url=URL.createObjectURL(blob);
-    stopAudio();const a=new Audio(url);a.volume=1.0;_currentAudio=a;
+    a.src=url;
     await a.play();return true;
-  }catch(e){return false}
+  }catch(e){console.error("[TTS] Azure error:",e);return false}
 }
 function speakGoogle(text,onFail){
   stopAudio();
@@ -257,6 +259,8 @@ const TOP100 = {
   "Meeting People": [["Bok","Hello"],["Kako se zoveš?","What\'s your name?"],["Zovem se...","My name is..."],["Drago mi je","Nice to meet you"],["Odakle si?","Where are you from?"],["Iz Hrvatske sam","I\'m from Croatia"],["Govorite li engleski?","Do you speak English?"],["Učim hrvatski","I\'m learning Croatian"],["Koliko imaš godina?","How old are you?"],["Što radiš?","What do you do?"],["Oženjen/Udana","Married"],["Slobodan","Single"],["Imaš li djecu?","Do you have kids?"],["Gdje živiš?","Where do you live?"],["Sviđaš mi se","I like you"],["Možemo li se naći?","Can we meet?"],["Telefon","Phone"],["Broj","Number"],["Prijatelj","Friend"],["Obitelj","Family"]],
   "Emergency": [["Pomoć!","Help!"],["Hitna pomoć","Emergency"],["Policija","Police"],["Vatrogasci","Fire dept"],["Požar","Fire"],["Nesreća","Accident"],["Bolestan sam","I\'m sick"],["Izgubio sam se","I\'m lost"],["Ukrali su mi","I\'ve been robbed"],["Zovite policiju","Call police"],["Trebam liječnika","I need a doctor"],["Gdje je bolnica?","Where\'s the hospital?"],["Opasno","Dangerous"],["Bol","Pain"],["Krv","Blood"],["Slomljen","Broken"],["Alergija","Allergy"],["Zadnji čas","Last minute"],["Ne mogu disati","I can\'t breathe"],["Vrtoglavica","Dizziness"]]
 };
+// Make all TOP100 situational topics available as quizzable vocabulary
+Object.keys(TOP100).forEach(function(k){V[k]=TOP100[k];});
 // ═══ CROATIAN HISTORY — DOMOVINSKI RAT ═══
 const HISTORY = {
   title: "Domovinski Rat — Homeland War",
@@ -3040,7 +3044,7 @@ function getHistFact(){
 // ═══ LEARNING PATH ═══
 const LEARN_PATH = [
   {level:1,title:"Survivor",desc:"First 48 hours",items:[
-    {id:"lp1",name:"Basic Greetings",ck:function(s){return s.lc>=1},go:"lesson",topic:"greetings"},{id:"lp2",name:"Numbers",ck:function(s){return s.lc>=2},go:"lesson",topic:"numbers"},{id:"lp3",name:"Emergency Phrases",ck:function(s){return s.lc>=3},go:"emergency"},{id:"lp4",name:"Order Food",ck:function(s){return s.lc>=4},go:"foodorder"},{id:"lp5",name:"Get Around",ck:function(s){return s.lc>=4},go:"transport"}]},
+    {id:"lp1",name:"Basic Greetings",ck:function(s){return s.lc>=1},go:"lesson",topic:"greetings"},{id:"lp2",name:"Numbers",ck:function(s){return s.lc>=2},go:"lesson",topic:"numbers"},{id:"lp3",name:"Emergency Phrases",ck:function(s){return s.lc>=3},go:"lesson",topic:"Emergency"},{id:"lp4",name:"Order Food",ck:function(s){return s.lc>=4},go:"foodorder"},{id:"lp5",name:"Get Around",ck:function(s){return s.lc>=4},go:"transport"}]},
   {level:2,title:"Settler",desc:"First week",items:[
     {id:"lp6",name:"Family Words",ck:function(s){return s.lc>=5},go:"lesson",topic:"family"},{id:"lp7",name:"School Kit",ck:function(s){return s.lc>=6},go:"school"},{id:"lp8",name:"Making Friends",ck:function(s){return s.lc>=6},go:"friends"},{id:"lp9",name:"Grocery Shopping",ck:function(s){return s.lc>=7},go:"grocery"},{id:"lp10",name:"Alphabet",ck:function(s){return s.lc>=7},go:"alphabet"},{id:"lp11",name:"First Quiz",ck:function(s){return s.xp>=50},go:"mcgame"}]},
   {level:3,title:"Communicator",desc:"First month",items:[
