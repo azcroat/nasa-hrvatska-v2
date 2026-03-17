@@ -15,7 +15,7 @@ const PROMPTS = [
 ];
 
 export default function WritingScreen({ goBack, award }) {
-  const [promptIdx] = useState(() => Math.floor(Math.random() * PROMPTS.length));
+  const [promptIdx, setPromptIdx] = useState(() => Math.floor(Math.random() * PROMPTS.length));
   const [text, setText] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -53,7 +53,10 @@ export default function WritingScreen({ goBack, award }) {
     setText("");
     setResult(null);
     setError("");
-    window.location.reload();
+    setPromptIdx(function(cur) {
+      var next = Math.floor(Math.random() * (PROMPTS.length - 1));
+      return next >= cur ? next + 1 : next;
+    });
   }
 
   return (

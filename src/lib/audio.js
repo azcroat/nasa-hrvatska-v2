@@ -22,14 +22,6 @@ export async function speakAzure(text,slow){
     await a.play();return true;
   }catch(e){console.error("[TTS] Azure error:",e);return false}
 }
-export function speakGoogle(text,onFail){
-  stopAudio();
-  if(text.length>200){const sentences=text.match(/[^.!?]+[.!?]+/g)||[text];let i=0;function playNext(){if(i>=sentences.length)return;const s=sentences[i].trim();if(!s){i++;playNext();return}const url="https://translate.google.com/translate_tts?ie=UTF-8&tl=hr&client=tw-ob&q="+encodeURIComponent(s);const a=new Audio(url);a.volume=1.0;_currentAudio=a;a.onended=()=>{i++;playNext()};a.onerror=()=>{if(onFail)onFail(text)};a.play().catch(()=>{if(onFail)onFail(text)})}playNext();return}
-  const url="https://translate.google.com/translate_tts?ie=UTF-8&tl=hr&client=tw-ob&q="+encodeURIComponent(text);
-  const a=new Audio(url);a.volume=1.0;_currentAudio=a;
-  a.onerror=()=>{if(onFail)onFail(text)};
-  const p=a.play();if(p)p.catch(()=>{if(onFail)onFail(text)})
-}
 export function speakSynth(text,rate){
   if(!window.speechSynthesis)return;
   stopAudio();

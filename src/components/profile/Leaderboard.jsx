@@ -57,7 +57,7 @@ export default function Leaderboard({
               {famErr && <div style={{color:"#dc2626",fontSize:13,marginBottom:12}}>{famErr}</div>}
               {famMembers.length > 0 ? famMembers.map((u, i) => (
                 <div
-                  key={i}
+                  key={u.email}
                   className="c"
                   style={{display:"flex",alignItems:"center",gap:14,marginBottom:10,borderLeft:i === 0 ? "4px solid #f59e0b" : i === 1 ? "4px solid #9ca3af" : "4px solid #d97706"}}>
                   <div style={{width:44,height:44,borderRadius:"50%",background:i === 0 ? "linear-gradient(135deg,#f59e0b,#d97706)" : i === 1 ? "linear-gradient(135deg,#9ca3af,#6b7280)" : "linear-gradient(135deg,#d97706,#92400e)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:800,fontSize:20}}>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { CSS, BG_LIGHT, gA } from '../../data.jsx';
+import { BG_LIGHT, gA } from '../../data.jsx';
 
 const BG = BG_LIGHT;
 
@@ -26,7 +26,6 @@ export default function LoginScreen({
   const strength = isR ? pwStrength(pw) : 0;
   return (
     <div style={{...BG,display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
-      <style>{CSS}</style>
       <div style={{width:"100%",maxWidth:420,animation:"rise .5s",position:"relative",zIndex:1}}>
         <div style={{textAlign:"center",marginBottom:32}}>
           <div style={{fontSize:56,marginBottom:12,animation:"boat 4s ease-in-out infinite"}}>⛵</div>

@@ -115,16 +115,21 @@ export async function fbJoinFamily(code,email,name){
 }
 export async function fbGetFamilyMembers(code){
   if(!_fbReady||!_fbDb)return[];
-  try{var famSnap2=await getDoc(fsDoc(_fbDb,"families",code));
-  if(!famSnap2.exists())return[];
-  var data=famSnap2.data();var members=data.members||[];
-  var results=[];
-  for(var i=0;i<members.length;i++){var m=members[i];
-    var id=m.email.replace(/[.#$/\[\]]/g,"_");
-    try{var userSnap=await getDoc(fsDoc(_fbDb,"users",id));
-    var p=userSnap.exists()&&userSnap.data().progress?JSON.parse(userSnap.data().progress):null;
-    results.push({name:m.name,email:m.email,role:m.role,xp:p&&p.st?p.st.xp:0,lc:p&&p.st?p.st.lc:0,joined:m.joined})}catch(e){results.push({name:m.name,email:m.email,role:m.role,xp:0,lc:0,joined:m.joined})}}
-  return results.sort(function(a,b){return b.xp-a.xp})}catch(e){return[]}
+  try{
+    var famSnap2=await getDoc(fsDoc(_fbDb,"families",code));
+    if(!famSnap2.exists())return[];
+    var data=famSnap2.data();var members=data.members||[];
+    // Parallel reads — all user progress docs fetched simultaneously
+    var results=await Promise.all(members.map(async function(m){
+      try{
+        var id=m.email.replace(/[.#$/\[\]]/g,"_");
+        var userSnap=await getDoc(fsDoc(_fbDb,"users",id));
+        var p=userSnap.exists()&&userSnap.data().progress?JSON.parse(userSnap.data().progress):null;
+        return{name:m.name,email:m.email,role:m.role,xp:p&&p.st?p.st.xp:0,lc:p&&p.st?p.st.lc:0,joined:m.joined};
+      }catch(e){return{name:m.name,email:m.email,role:m.role,xp:0,lc:0,joined:m.joined}}
+    }));
+    return results.sort(function(a,b){return b.xp-a.xp});
+  }catch(e){return[]}
 }
 export async function fbLeaveFamily(code,email){
   if(!_fbReady||!_fbDb)return{ok:false};

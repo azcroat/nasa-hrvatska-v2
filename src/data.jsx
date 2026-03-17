@@ -3,7 +3,7 @@
 // Audio engine: src/lib/audio.js
 import React from 'react';
 import { _fbReady, initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount } from './lib/firebase.js';
-import { loadVoices, getBestVoice, stopAudio, speakAzure, speakGoogle, speakSynth, speak, speakSlow, speakEN } from './lib/audio.js';
+import { loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN } from './lib/audio.js';
 function sh(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
 function lvl(x){const t=[0,50,150,300,500,800,1200,1800,2500,3500];for(let i=t.length-1;i>=0;i--)if(x>=t[i])return i+1;return 1}
 function lXP(l){return[0,0,50,150,300,500,800,1200,1800,2500,3500][l]??3500}
@@ -3680,127 +3680,8 @@ var _searchIdx=null;
 function buildSearchIndex(){if(_searchIdx)return _searchIdx;var idx=[];Object.keys(V).forEach(function(cat){V[cat].forEach(function(w){idx.push({hr:w[0],en:w[1],type:"vocab",go:"lesson"})})});
 [{n:"School Kit",s:"school"},{n:"Texting",s:"texting"},{n:"Friends",s:"friends"},{n:"Food",s:"foodorder"},{n:"Transport",s:"transport"},{n:"Emergency",s:"emergency"},{n:"Football",s:"football"},{n:"Pop Culture",s:"popculture"},{n:"Practical Life",s:"practical"},{n:"Grocery",s:"grocery"},{n:"Recipes",s:"recipes"},{n:"Role-Play",s:"roleplay"},{n:"Map",s:"crmap"},{n:"Grammar",s:"grammar"},{n:"Cases",s:"padezi"},{n:"Padeži Master",s:"padezifull"},{n:"Aspect",s:"aspect"},{n:"Conjugation",s:"conjdrill"},{n:"Modal Verbs",s:"modal"},{n:"Declension",s:"declension"},{n:"Tenses Gender",s:"tenses"},{n:"Colors Gender",s:"boje"},{n:"Alphabet",s:"alphabet"},{n:"False Friends",s:"falsefr"},{n:"Dialects",s:"dialects"},{n:"Diminutives",s:"diminutives"},{n:"Word Formation",s:"wordform"},{n:"Tongue Twisters",s:"brzalice"},{n:"Flashcards",s:"flashcards"},{n:"Typing",s:"typing"},{n:"Idioms",s:"idioms"},{n:"Proverbs",s:"proverbs"},{n:"Leaderboard",s:"leaderboard"},{n:"Badges",s:"badges"},{n:"Domovinski Rat",s:"history"},{n:"Kings",s:"kings"},{n:"Labin Rabac",s:"region_labin"},{n:"Bibinje Zadar",s:"region_bibinje"},{n:"Hercegovina",s:"region_hercegovina"},{n:"Vukovar",s:"region_vukovar"},{n:"Vinkovci",s:"region_vinkovci"},{n:"Learning Path",s:"learnpath"},{n:"Favorites",s:"favorites"},{n:"Journal",s:"journal"},{n:"Conditional Mood",s:"conditional"},{n:"Vi ili ti? Formal",s:"formalregister"},{n:"Impersonal",s:"impersonal"},{n:"Tech & Digital",s:"techvoc"},{n:"Admin Life",s:"bureaucratic"}].forEach(function(x){idx.push({hr:x.n,en:x.n,type:"screen",go:x.s})});
 GROCERY.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"grocery"})});SCHOOL.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"school"})});TRANSPORT.forEach(function(t){idx.push({hr:t.hr,en:t.en,type:"phrase",go:"transport"})});EMERGENCY.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"emergency"})});_searchIdx=idx;return idx}
-// ═══ CSS THEME ═══
-const CSS=`
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-:root{--card:#fff;--card-b:rgba(0,0,0,.07);--inp-bg:#fff;--inp-c:#1c1917;--inp-b:#e2e8f0;--ob-bg:#fff;--ob-c:#1c1917;--ob-b:#e2e8f0;--ob-hbg:#f0f9ff;--nav-bg:rgba(255,255,255,.96);--nav-b:rgba(0,0,0,.06);--nav-lbl:#94a3b8;--ghost-bg:#fff;--ghost-c:#475569;--ghost-b:#e2e8f0;--heading:#0f172a;--subtext:#64748b;--sh-c:#94a3b8;--rt-c:#374151;--bar-bg:rgba(0,0,0,.08)}
-.dark{--card:#1e293b;--card-b:rgba(255,255,255,.08);--inp-bg:#0f172a;--inp-c:#e2e8f0;--inp-b:#334155;--ob-bg:#1e293b;--ob-c:#e2e8f0;--ob-b:#334155;--ob-hbg:rgba(14,116,144,.2);--nav-bg:rgba(15,23,42,.96);--nav-b:rgba(255,255,255,.08);--nav-lbl:#64748b;--ghost-bg:#1e293b;--ghost-c:#94a3b8;--ghost-b:#334155;--heading:#e2e8f0;--subtext:#94a3b8;--sh-c:#64748b;--rt-c:#cbd5e1;--bar-bg:rgba(255,255,255,.1)}
-/* Skip-to-content for keyboard/screen reader navigation */
-.skip-link{position:absolute;top:-100%;left:0;padding:12px 20px;background:#0e7490;color:#fff;font-weight:700;font-size:15px;z-index:9999;border-radius:0 0 8px 0;text-decoration:none}
-.skip-link:focus{top:0}
-/* Visible focus ring for keyboard navigation */
-:focus-visible{outline:3px solid #0e7490;outline-offset:3px}
-@keyframes rise{0%{opacity:0;transform:translateY(14px)}100%{opacity:1;transform:translateY(0)}}
-@keyframes slideUp{0%{opacity:0;transform:translateY(24px)}100%{opacity:1;transform:translateY(0)}}
-@keyframes fadeIn{0%{opacity:0}100%{opacity:1}}
-@keyframes pop{0%{transform:translate(-50%,-50%) scale(.5);opacity:0}60%{transform:translate(-50%,-50%) scale(1.04)}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
-@keyframes boat{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-8px) rotate(1.5deg)}}
-@keyframes wave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-@keyframes confetti{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(60px) rotate(360deg);opacity:0}}
-@keyframes streakPop{0%{transform:scale(1)}50%{transform:scale(1.18)}100%{transform:scale(1)}}
-/* === CARDS === */
-.c{background:var(--card);border:1px solid var(--card-b);border-radius:18px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04)}
-.c:hover{box-shadow:0 4px 24px rgba(14,116,144,.1),0 1px 3px rgba(0,0,0,.06);transition:box-shadow .2s}
-.tc{background:var(--card);border:1px solid var(--card-b);border-radius:18px;padding:16px;cursor:pointer;transition:transform .18s,box-shadow .18s,border-color .18s;box-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04)}
-.tc:hover{border-color:rgba(14,116,144,.22);transform:translateY(-2px);box-shadow:0 8px 32px rgba(14,116,144,.13),0 1px 3px rgba(0,0,0,.06)}
-.tc:active{transform:translateY(0) scale(.98);box-shadow:0 1px 3px rgba(0,0,0,.06)}
-/* === BUTTONS === */
-.b{padding:12px 22px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s,filter .15s;font-family:'Outfit',sans-serif;letter-spacing:.01em;line-height:1}
-.b:hover{transform:translateY(-1px);filter:brightness(1.06)}
-.b:active{transform:translateY(0);filter:brightness(.97)}
-.b:focus-visible{outline:3px solid rgba(14,116,144,.45);outline-offset:3px}
-.bp{background:linear-gradient(135deg,#0e7490,#164e63);color:#fff;box-shadow:0 3px 12px rgba(14,116,144,.28)}
-.bp:hover{box-shadow:0 6px 20px rgba(14,116,144,.36)}
-.bs{background:linear-gradient(135deg,#16a34a,#166534);color:#fff;box-shadow:0 3px 12px rgba(22,163,74,.24)}
-.bw{background:linear-gradient(135deg,#d97706,#b45309);color:#fff;box-shadow:0 3px 12px rgba(180,83,9,.24)}
-.bv{background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;box-shadow:0 3px 12px rgba(124,58,237,.24)}
-.bd{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;box-shadow:0 3px 12px rgba(220,38,38,.24)}
-.bg{background:var(--ghost-bg);color:var(--ghost-c);border:1.5px solid var(--ghost-b);box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.bg:hover{background:var(--ob-hbg);border-color:#0e7490;color:#0e7490}
-/* === INPUTS === */
-input[type=text],input[type=password],input[type=email],input[type=search],textarea{width:100%;padding:13px 16px;border:1.5px solid var(--inp-b);border-radius:12px;background:var(--inp-bg);color:var(--inp-c);font-size:15px;font-weight:500;outline:none;font-family:'Outfit',sans-serif;transition:border-color .2s,box-shadow .2s}
-input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
-input:focus,textarea:focus{border-color:#0e7490;box-shadow:0 0 0 3px rgba(14,116,144,.1)}
-input::placeholder,textarea::placeholder{color:#94a3b8;font-weight:400}
-/* === QUIZ OPTIONS === */
-.ob{width:100%;padding:14px 18px;border:1.5px solid var(--ob-b);border-radius:12px;background:var(--ob-bg);color:var(--ob-c);font-size:15px;font-weight:600;cursor:pointer;transition:all .18s;font-family:'Outfit',sans-serif;text-align:left;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-.ob:hover{border-color:#0e7490;background:var(--ob-hbg);transform:translateX(2px)}
-.ob:active{transform:translateX(0) scale(.98)}
-.ob.ok{border-color:#16a34a;background:#f0fdf4;color:#15803d}
-.ob.no{border-color:#dc2626;background:#fef2f2;color:#b91c1c}
-/* === TYPOGRAPHY === */
-.sh{font-size:11px;font-weight:800;color:var(--sh-c);margin-bottom:10px;margin-top:24px;letter-spacing:.1em;text-transform:uppercase;padding-bottom:0;border-bottom:none}
-/* === READING TEXT === */
-.rt{font-size:17px;line-height:2;color:var(--rt-c)}
-.rt .w{cursor:pointer;border-radius:4px;padding:1px 4px;transition:all .15s}
-.rt .w:hover{background:rgba(14,116,144,.12);color:#0e7490}
-/* === NAV BAR (mobile-first) === */
-.nav-bar{position:fixed;bottom:0;left:0;right:0;background:var(--nav-bg);border-top:1px solid var(--nav-b);display:flex;justify-content:space-around;align-items:center;padding:4px 0;padding-bottom:max(4px,env(safe-area-inset-bottom));z-index:9000;backdrop-filter:saturate(160%) blur(24px)}
-.nav-btn{background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;padding:6px 10px;min-width:58px;border-radius:14px;transition:background .15s}
-.nav-btn:active{background:rgba(14,116,144,.08)}
-.nav-btn .nav-icon{font-size:21px;display:block;transition:transform .2s}
-.nav-btn .nav-label{font-size:10px;font-weight:600;color:var(--nav-lbl);transition:color .15s}
-.nav-btn.active .nav-icon{transform:scale(1.08)}
-.nav-btn.active .nav-label{font-weight:800;color:#0e7490}
-/* === LAYOUT === */
-.dash{max-width:640px;margin:0 auto;padding:20px 16px 84px;position:relative;z-index:1;animation:slideUp .3s ease}
-.scr-wrap{max-width:640px;margin:0 auto;padding:20px 16px 84px;position:relative;z-index:1;animation:slideUp .25s ease}
-/* === SIDEBAR === */
-.sidebar{display:none;position:fixed;top:0;left:0;bottom:0;width:260px;background:var(--nav-bg);border-right:1px solid var(--nav-b);z-index:9000;flex-direction:column;overflow-y:auto;backdrop-filter:saturate(160%) blur(24px);scrollbar-width:thin}
-.sb-btn{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:12px;border:none;background:none;cursor:pointer;transition:background .15s;font-family:'Outfit',sans-serif;color:var(--heading);font-size:14px;font-weight:600;margin-bottom:2px;text-align:left}
-.sb-btn:hover{background:var(--bar-bg)}
-.sb-btn.active{background:rgba(14,116,144,.12);color:#0e7490;font-weight:700}
-.sb-badge{background:#e11d48;color:#fff;font-size:10px;font-weight:800;min-width:18px;height:18px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;padding:0 5px;line-height:1}
-/* === CEFR BADGES === */
-.cefr{font-size:9px;font-weight:800;border-radius:5px;padding:2px 6px;letter-spacing:.05em;text-transform:uppercase;flex-shrink:0}
-.cefr-a1{color:#16a34a;background:#f0fdf4}.cefr-a2{color:#059669;background:#ecfdf5}
-.cefr-b1{color:#d97706;background:#fffbeb}.cefr-b2{color:#7c3aed;background:#f5f3ff}.cefr-c1{color:#dc2626;background:#fef2f2}
-/* === CELEBRATION OVERLAY === */
-@keyframes confettiDrop{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
-@keyframes celebPop{0%{transform:translate(-50%,-50%) scale(.6);opacity:0}70%{transform:translate(-50%,-50%) scale(1.05)}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
-/* === ONBOARDING TOOLTIP === */
-@keyframes tooltipIn{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
-/* === DESKTOP (≥768px) === */
-@media(min-width:768px){
-  .nav-bar{display:none}
-  .sidebar{display:flex}
-  .app-content{margin-left:260px}
-  .dash{max-width:860px;margin:0 auto;padding:32px 32px 48px}
-  .scr-wrap{max-width:860px;margin:0 auto;padding:32px 32px 48px}
-  .c{border-radius:20px}.tc{border-radius:20px}
-}
-@media(min-width:1200px){
-  .dash{max-width:1100px;padding:32px 48px 48px}
-  .scr-wrap{max-width:1100px;padding:32px 48px 48px}
-}
-@media(prefers-reduced-motion:reduce){
-  *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
-}
-/* === SEMANTIC BUTTON RESET — allows <button className="tc"> ===*/
-button.tc{font-family:'Outfit',sans-serif;width:100%;cursor:pointer;display:block}
-button.c{font-family:'Outfit',sans-serif;width:100%;cursor:pointer;display:block;text-align:left}
-/* === SCREEN-READER ONLY === */
-.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-/* === DAILY CHALLENGE OPTIONS === */
-.dc-opt:not(:disabled):hover{border-color:#7c3aed!important;background:#faf5ff!important}
-.dark .dc-opt:not(:disabled):hover{background:rgba(124,58,237,.15)!important}
-/* === SEARCH RESULTS DROPDOWN === */
-.sr-item{padding:11px 16px;border-bottom:1px solid var(--card-b);cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background .1s}
-.sr-item:hover,.sr-item:active{background:var(--ob-hbg)}
-.sr-close{padding:10px;text-align:center;font-size:12px;color:var(--subtext);cursor:pointer;border-top:1px solid var(--card-b)}
-.sr-close:hover{color:#0e7490}
-/* === FLASHCARD 3D FLIP === */
-@keyframes fcFlip{0%{transform:rotateY(90deg);opacity:.5}100%{transform:rotateY(0deg);opacity:1}}
-.fc-scene{perspective:1000px;width:100%;height:220px;margin-top:20px}
-.fc-card{width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1);cursor:pointer;position:relative}
-.fc-card.flipped{transform:rotateY(180deg)}
-.fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
-.fc-front{background:linear-gradient(135deg,#dbeafe,#bfdbfe)}
-.fc-back{background:linear-gradient(135deg,#dcfce7,#bbf7d0);transform:rotateY(180deg)}
-`;
+// ═══ THEME OBJECTS (background/color tokens for inline root styles) ═══
+// Global CSS classes are in src/index.css (imported in main.jsx)
 const BG_LIGHT={minHeight:"100vh",background:"#f1f5f9",color:"#1c1917",fontFamily:"'Outfit',sans-serif",position:"relative",overflowX:"hidden"};
 const BG_DARK={minHeight:"100vh",background:"linear-gradient(170deg,#0f172a 0%,#1e293b 30%,#1a1a2e 60%,#16213e 100%)",color:"#e2e8f0",fontFamily:"'Outfit',sans-serif",position:"relative",overflowX:"hidden"};
 const BG=BG_LIGHT;
@@ -4815,7 +4696,7 @@ function getDueReviews() {
   return due; // array of Croatian word strings that are due for review
 }
 
-export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, CROATIAN_CITIES, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, CSS, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS };
+export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, CROATIAN_CITIES, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS };
 export { _fbReady };
 export { H, Bar, Spk };
-export { initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakGoogle, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex, getDueReviews };
+export { initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex, getDueReviews };
