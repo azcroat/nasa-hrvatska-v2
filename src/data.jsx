@@ -2449,9 +2449,14 @@ const CROATIAN_CITIES = [
 ];
 function getCityOfDay(){
   var n=new Date();
-  var dk=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
-  var h=5381;var s='city:'+dk;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;h=h>>>0;
-  return CROATIAN_CITIES[h%CROATIAN_CITIES.length];
+  var year=n.getFullYear();
+  var dayOfYear=Math.floor((n-new Date(year,0,1))/86400000);
+  // Fisher-Yates shuffle seeded by year — every city appears once before any repeats
+  var idx=CROATIAN_CITIES.map(function(_,i){return i});
+  var seed=(year*2654435761)>>>0;
+  function rng(){seed=((seed*1664525+1013904223)>>>0);return seed/4294967296}
+  for(var i=idx.length-1;i>0;i--){var j=Math.floor(rng()*(i+1));var t=idx[i];idx[i]=idx[j];idx[j]=t}
+  return CROATIAN_CITIES[idx[dayOfYear%idx.length]];
 }
 // ═══ TENSE & GENDER CONJUGATION SYSTEM ═══
 const TENSES = {
