@@ -47,7 +47,7 @@ async function fbSaveProgress(uid,data){
 async function fbLoadProgress(uid){
   if(!_fbReady||!_fbDb)return null;
   try{var id=uid.replace(/[.#$/\[\]]/g,"_");var snap=await getDoc(fsDoc(_fbDb,"users",id));
-  if(snap.exists()&&snap.data().progress){return JSON.parse(snap.data().progress)}return null}catch(e){console.warn("FB load error:",e);return null}
+  if(snap.exists()&&snap.data().progress){var p=JSON.parse(snap.data().progress);if(snap.data().updated)p._fbUpdated=snap.data().updated;return p}return null}catch(e){console.warn("FB load error:",e);return null}
 }
 async function fbRegister(email,password,displayName){
   if(!_fbReady||!_fbAuth)return{ok:false,err:"Firebase not configured. Account created locally only."};
