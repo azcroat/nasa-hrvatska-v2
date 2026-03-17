@@ -9,12 +9,12 @@ const{useState,useEffect,useCallback,useRef}=React;
 // ═══════════════════════════════════════════════════════════
 // ═══ FIREBASE CONFIG ═══
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyCD4ul4KCILkufNMk5qCr-C5JiN9D7ogn0",
-  authDomain: "ucimohrvatski-488f9.firebaseapp.com",
-  projectId: "ucimohrvatski-488f9",
-  storageBucket: "ucimohrvatski-488f9.firebasestorage.app",
-  messagingSenderId: "675614569794",
-  appId: "1:675614569794:web:d19f7defeac55b0b4b04db"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCD4ul4KCILkufNMk5qCr-C5JiN9D7ogn0",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "ucimohrvatski-488f9.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "ucimohrvatski-488f9",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "ucimohrvatski-488f9.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "675614569794",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:675614569794:web:d19f7defeac55b0b4b04db"
 };
 let _fbAuth=null,_fbDb=null,_fbReady=false;
 function initFirebase(){
@@ -29,8 +29,10 @@ function initFirebase(){
 initFirebase();
 // ═══ AUTH & STORAGE — Firebase + localStorage fallback ═══
 async function hp(p){const e=new TextEncoder();const d=e.encode(p+"ucimo2024");const h=await crypto.subtle.digest("SHA-256",d);return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,"0")).join("")}
-function gA(){try{return JSON.parse(localStorage.getItem("uA")||"{}")}catch{return{}}}
-function sA(a){localStorage.setItem("uA",JSON.stringify(a))}
+function gA(){try{var accts=JSON.parse(localStorage.getItem("uA")||"{}");// Re-hydrate hashes from sessionStorage for this session
+Object.keys(accts).forEach(function(k){var h=sessionStorage.getItem("uAp_"+k);if(h)accts[k].p=h;});return accts}catch{return{}}}
+function sA(a){// Strip password hashes from localStorage — store them in sessionStorage only
+var safe={};Object.keys(a).forEach(function(k){var copy=Object.assign({},a[k]);if(copy.p){sessionStorage.setItem("uAp_"+k,copy.p);delete copy.p;}safe[k]=copy;});localStorage.setItem("uA",JSON.stringify(safe));}
 function gP(u){try{return JSON.parse(localStorage.getItem("uP_"+u))}catch{return null}}
 function sP(u,p){localStorage.setItem("uP_"+u,JSON.stringify(p));fbSaveProgress(u,p)}
 function gS(){try{return JSON.parse(localStorage.getItem("uS"))}catch{return null}}
