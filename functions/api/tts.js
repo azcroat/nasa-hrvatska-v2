@@ -23,8 +23,10 @@ export async function onRequestPost(context) {
     }
 
     const voice = slow ? "hr-HR-SreckoNeural" : "hr-HR-GabrijelaNeural";
-    const rate = slow ? "-30%" : "+0%";
-    const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}"><prosody rate="${rate}">${text.replace(/[<>&"']/g, '')}</prosody></voice></speak>`;
+    const safeText = text.replace(/[<>&"']/g, '');
+    const ssml = slow
+      ? `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}"><prosody rate="slow">${safeText}</prosody></voice></speak>`
+      : `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}">${safeText}</voice></speak>`;
 
     const response = await fetch(
       `https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`,
@@ -41,7 +43,7 @@ export async function onRequestPost(context) {
 
     if (!response.ok) {
       const azureErr = await response.text().catch(() => "");
-      return new Response("Azure TTS error " + response.status + ": " + azureErr, { status: response.status });
+      return new Response("Azure TTS error " + response.status + " region=" + AZURE_REGION + ": " + azureErr, { status: response.status });
     }
 
     const buffer = await response.arrayBuffer();
