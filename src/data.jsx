@@ -245,7 +245,7 @@ const V = {
   "vegetables":[["mrkva","carrot"],["krumpir","potato"],["rajčica","tomato"],["krastavac","cucumber"],["luk","onion"],["češnjak","garlic"],["paprika","bell pepper"],["tikvica","zucchini"],["brokula","broccoli"],["cvjetača","cauliflower"],["špinat","spinach"],["salata","lettuce"],["gljiva","mushroom"],["grah","beans"],["grašak","peas"],["kukuruz","corn"],["bundeva","pumpkin"],["kupus","cabbage"],["celer","celery"],["repa","beet"],["artičoka","artichoke"],["patlidžan","eggplant"],["poriluk","leek"],["šparoga","asparagus"],["baškotin","chard / Swiss chard"]],
   "sports":[["nogomet","football / soccer"],["košarka","basketball"],["odbojka","volleyball"],["tenis","tennis"],["plivanje","swimming"],["atletika","athletics / track and field"],["rukomet","handball"],["biciklizam","cycling"],["trčanje","running"],["veslanje","rowing"],["jedrenje","sailing"],["ronjenje","diving"],["gimnastika","gymnastics"],["vaterpolo","water polo"],["stolni tenis","table tennis"],["badminton","badminton"],["skijanje","skiing"],["golf","golf"],["boks","boxing"],["ragbi","rugby"],["hokej","hockey"],["borilačke vještine","martial arts"],["jahanje","horseback riding"],["streličarstvo","archery"],["dizanje utega","weightlifting"]],
   "holidays":[["Božić","Christmas"],["Uskrs","Easter"],["Nova godina","New Year"],["Badnjak","Christmas Eve"],["Silvestar","New Year's Eve"],["Valentinovo","Valentine's Day"],["Majčin dan","Mother's Day"],["Očev dan","Father's Day"],["Dan neovisnosti","Independence Day (June 25)"],["Dan domovine","Homeland Thanksgiving Day"],["Martinje","St. Martin's Day"],["Poklade","Carnival / Mardi Gras"],["uskrsna jaja","Easter eggs"],["jaslice","nativity scene"],["adventski vijenac","Advent wreath"],["jelka","Christmas tree"],["vjenčanje","wedding"],["krštenje","baptism"],["krizma","confirmation"],["proslava","celebration"],["blagdan","public holiday"],["godišnjica","anniversary"],["imendan","name day"],["Sv. Nikola","St. Nicholas (Dec 6)"],["Tijelovo","Corpus Christi"]],
-  "personality":[["ljubazan","kind / friendly (m)"],["ljubazna","kind / friendly (f)"],["hrabar","brave (m)"],["hrabra","brave (f)"],["sramežljiv","shy (m)"],["sramežljiva","shy (f)"],["smiješan","funny (m)"],["smiješna","funny (f)"],["pošten","honest (m)"],["poštena","honest (f)"],["strpljiv","patient (m)"],["strpljiva","patient (f)"],["tvrdoglav","stubborn (m)"],["tvrdoglava","stubborn (f)"],["velikodušan","generous (m)"],["marljiv","hardworking (m)"],["lijen","lazy (m)"],["znatiželjан","curious (m)"],["opušten","relaxed (m)"],["siguran u sebe","self-confident"],["skroman","humble (m)"],["otvoren","open / outgoing (m)"],["intuitivan","intuitive (m)"],["odlučan","decisive (m)"],["nesebičan","unselfish (m)"]]
+  "personality":[["ljubazan","kind / friendly (m)"],["ljubazna","kind / friendly (f)"],["hrabar","brave (m)"],["hrabra","brave (f)"],["sramežljiv","shy (m)"],["sramežljiva","shy (f)"],["smiješan","funny (m)"],["smiješna","funny (f)"],["pošten","honest (m)"],["poštena","honest (f)"],["strpljiv","patient (m)"],["strpljiva","patient (f)"],["tvrdoglav","stubborn (m)"],["tvrdoglava","stubborn (f)"],["velikodušan","generous (m)"],["marljiv","hardworking (m)"],["lijen","lazy (m)"],["znatiželjan","curious (m)"],["opušten","relaxed (m)"],["siguran u sebe","self-confident"],["skroman","humble (m)"],["otvoren","open / outgoing (m)"],["intuitivan","intuitive (m)"],["odlučan","decisive (m)"],["nesebičan","unselfish (m)"]]
 };
 // ═══ TOP 100 WORDS BY SITUATION ═══
 const TOP100 = {
@@ -1205,7 +1205,7 @@ const STORIES = [
       {text:"Koliko koštaju jagode?",next:3},{text:"Dajte mi kilu trešanja.",next:3}]},
     {text:"Prodava\u010d sira ka\u017ee: \u0027Probajte na\u0161 doma\u0107i sir! Iz Like je.\u0027",en:"The cheese seller says: \u0027Try our homemade cheese! It\u0027s from Lika.\u0027",choices:[
       {text:"Da, molim! Koliko košta?",next:3},{text:"Hvala, samo gledam.",next:3}]},
-    {text:"Kupio si sve \u0161to ti treba. Vre\u0107ica je puna. Ka\u017ee\u0161: \u0027Hvala i doviđenja!\u0027 Prodavačica odgovara: \u0027Dovidenja, vidimo se!\u0027",en:"You bought everything you need. Your bag is full. You say: \u0027Thanks and goodbye!\u0027 The seller replies: \u0027Goodbye, see you!\u0027",choices:[]}
+    {text:"Kupio si sve \u0161to ti treba. Vre\u0107ica je puna. Ka\u017ee\u0161: \u0027Hvala i doviđenja!\u0027 Prodavačica odgovara: \u0027Doviđenja, vidimo se!\u0027",en:"You bought everything you need. Your bag is full. You say: \u0027Thanks and goodbye!\u0027 The seller replies: \u0027Goodbye, see you!\u0027",choices:[]}
   ]},
   {title:"Izgubljen u Splitu",tEn:"Lost in Split",scenes:[
     {text:"Hoda\u0161 Splitom ali ne zna\u0161 gdje si. Vidi\u0161 prolaznika i policajca.",en:"You\u0027re walking through Split but don\u0027t know where you are. You see a passerby and a police officer.",choices:[
@@ -1329,7 +1329,7 @@ const BRZALICE = [
   {hr:"Griže griže griz grize.",en:"Bite bite, a bite bites.",focus:"ž/z sounds"},
   {hr:"Šešir mi se sašio za šest šestina.",en:"My hat was sewn for six sixths.",focus:"š sound"},
   {hr:"Jure juri, juri Jure.",en:"Jure rushes, rushes Jure.",focus:"j/u rhythm"},
-  {hr:"Cvrstčić cvrst cvrke cvrk.",en:"A strong little cricket chirps chirp.",focus:"consonant clusters"}
+  {hr:"Čvrstčić čvrst cvrče cvrk.",en:"A strong little cricket chirps chirp.",focus:"consonant clusters"}
 ];
 // ═══ REGIONAL DIALECTS ═══
 const DIALECTS = {
@@ -1397,7 +1397,7 @@ const COLORQUIRK = [
   {hr:"crni humor",en:"dark humor",lit:"black humor",note:"Same as English here"},
   {hr:"zelena salata",en:"lettuce",lit:"green salad",note:"The vegetable itself, not a mixed salad"},
   {hr:"bijeli luk",en:"garlic",lit:"white onion/garlic",note:"Distinguished from regular luk (onion)"},
-  {hr:"plavi čovijek",en:"a shy/timid person",lit:"blue person",note:"Describing someone who blushes easily"},
+  {hr:"plavi čovjek",en:"a shy/timid person",lit:"blue person",note:"Describing someone who blushes easily"},
   {hr:"crna kronika",en:"crime news",lit:"black chronicle",note:"The crime/accident section of newspapers"},
   {hr:"zlatna ribica",en:"goldfish",lit:"golden little fish",note:"Uses diminutive ribica"}
 ];
@@ -1624,7 +1624,7 @@ const SCHOOL = {
   classroom:[["udžbenik","textbook"],["bilježnica","notebook"],["olovka","pencil"],["gumica","eraser"],["ruksak","backpack"],["raspored","schedule"],["ocjena","grade"],["zadatak","assignment"],["domaća zadaća","homework"],["ispit","exam"],["sat","class/period"],["odmor","break/recess"],["učionica","classroom"],["ploča","blackboard"],["računalo","computer"],["učitelj/učiteljica","teacher (m/f)"],["ravnatelj","principal"],["razred","grade/class"],["svjedočba","report card"],["izostanak","absence"]],
   subjects:[["matematika","math"],["hrvatski jezik","Croatian"],["engleski jezik","English"],["biologija","biology"],["kemija","chemistry"],["fizika","physics"],["povijest","history"],["geografija","geography"],["glazbeni","music"],["likovni","art"],["tjelesni","PE/gym"],["informatika","IT"],["vjeronauk","religion"]],
   phrases:[["Mogu li ići na WC?","Can I go to the bathroom?"],["Oprostite, ne razumijem.","Sorry, I don't understand."],["Možete li ponoviti?","Can you repeat?"],["Kako se to kaže na hrvatskom?","How do you say that in Croatian?"],["Imam pitanje.","I have a question."],["Koji sat imamo sljedeći?","What class next?"],["Kada je odmor?","When is break?"],["Možete li mi pomoći?","Can you help me?"]],
-  formal:"Always use 'Vi' (formal) with teachers. Say 'Dobar dan' entering, 'Dovidenja' leaving. Stand when teacher enters."
+  formal:"Always use 'Vi' (formal) with teachers. Say 'Dobar dan' entering, 'Doviđenja' leaving. Stand when teacher enters."
 };
 const TEXTING = [{slang:"di si?",means:"Where are you?",ctx:"Most common greeting"},{slang:"ej / ej bok",means:"Hey",ctx:"Casual opener"},{slang:"ajde",means:"Come on / Let's go",ctx:"Used constantly"},{slang:"ajmo",means:"Let's go (group)",ctx:"Inviting friends"},{slang:"nmvz",means:"Nema veze = No worries",ctx:"Text abbreviation"},{slang:"nzm",means:"Ne znam = IDK",ctx:"Text abbreviation"},{slang:"ful",means:"Very/Really",ctx:"'Ful je dobro'"},{slang:"kul",means:"Cool",ctx:"Borrowed from English"},{slang:"stv?",means:"Stvarno? = Really?",ctx:"Surprise"},{slang:"ekipa",means:"The crew/squad",ctx:"Friend group"},{slang:"ma daj",means:"Oh come on",ctx:"Disbelief"},{slang:"sve pet",means:"All good",ctx:"Everything's fine"},{slang:"čujemo se",means:"Talk soon",ctx:"Phone/text goodbye"},{slang:"vidimo se",means:"See you",ctx:"In-person goodbye"},{slang:"pošalji lokaciju",means:"Send location",ctx:"Meeting up"}];
 const FRIENDS = [{hr:"Ej, ja sam [name]. Ti?",en:"Hey, I'm [name]. You?"},{hr:"Koji razred si?",en:"What grade are you in?"},{hr:"Imaš li Instagram?",en:"Do you have Instagram?"},{hr:"Igrate li basket?",en:"Do you play basketball?"},{hr:"Hoćeš sjesti s nama?",en:"Want to sit with us?"},{hr:"Idemo van na odmoru?",en:"Going outside for break?"},{hr:"Došao sam iz Amerike.",en:"I came from America."},{hr:"Još učim hrvatski, oprosti.",en:"Still learning Croatian, sorry."},{hr:"Možeš li mi pomoći?",en:"Can you help me with this?"},{hr:"Hoćemo na sladoled?",en:"Want ice cream?"},{hr:"Koji ti je najdraži predmet?",en:"Favorite subject?"},{hr:"Ideš li na trening?",en:"Going to practice?"},{hr:"Dodaj me na Insta.",en:"Add me on Insta."}];
@@ -2588,7 +2588,7 @@ const MAPPLACES = {
 const GROCERY = {
   stores:[{name:"Konzum",desc:"Largest Croatian chain. Everywhere.",color:"#dc2626"},{name:"Lidl",desc:"German discount chain. Great prices.",color:"#003da5"},{name:"Spar",desc:"Austrian chain. Mid-range quality.",color:"#16a34a"},{name:"Plodine",desc:"Croatian-owned. Regional favorite.",color:"#f59e0b"},{name:"Kaufland",desc:"Large hypermarkets.",color:"#dc2626"},{name:"Tommy",desc:"Dalmatian chain. Great local products.",color:"#0e7490"}],
   brands:[["Dukat","Dairy — milk, yogurt, cheese"],["Podravka","Soups, sauces, Vegeta seasoning"],["Kraš","Chocolate, Baška cookies, Napolitanke"],["Vindija","Dairy & juice brand"],["Jamnica","Mineral water — most popular"],["Cedevita","Vitamin drink powder — iconic"],["Franck","Coffee brand — every Croatian drinks it"],["Zvijezda","Oils, mayo, ketchup"],["Gavrilović","Salami, kulen, meat products"],["PIK Vrbovec","Processed meats"],["Ledo","Ice cream & frozen food"],["Koestlin","Cookies & crackers"],["Jana","Premium water brand"],["Dorina","Chocolate bars (by Kraš)"]],
-  vocab:[["mlijeko","milk"],["kruh","bread"],["jaja","eggs"],["sir","cheese"],["maslac","butter"],["jogurt","yogurt"],["brdašno","flour"],["ulje","oil"],["sol","salt"],["papar","pepper"],["šećer","sugar"],["riža","rice"],["tjestenina","pasta"],["piletina","chicken"],["svinjetina","pork"],["govedina","beef"],["riba","fish"],["voće","fruit"],["povrće","vegetables"],["voda","water"],["sok","juice"],["pivo","beer"],["vino","wine"],["vrećica","bag"],["blagajna","checkout"],["popust","discount"],["račun","receipt"],["deka","100g (ordering unit)"]],
+  vocab:[["mlijeko","milk"],["kruh","bread"],["jaja","eggs"],["sir","cheese"],["maslac","butter"],["jogurt","yogurt"],["brašno","flour"],["ulje","oil"],["sol","salt"],["papar","pepper"],["šećer","sugar"],["riža","rice"],["tjestenina","pasta"],["piletina","chicken"],["svinjetina","pork"],["govedina","beef"],["riba","fish"],["voće","fruit"],["povrće","vegetables"],["voda","water"],["sok","juice"],["pivo","beer"],["vino","wine"],["vrećica","bag"],["blagajna","checkout"],["popust","discount"],["račun","receipt"],["deka","100g (ordering unit)"]],
   phrases:[["Dajte mi 20 deka kulena.","Give me 200g of kulen."],["Imate li vrećicu?","Do you have a bag?"],["Gdje je mlijeko?","Where is the milk?"],["Koliko košta?","How much does it cost?"],["Mogu li platiti karticom?","Can I pay by card?"],["Jeste li član?","Are you a member? (loyalty card)"],["Na akciji je.","It's on sale."],["Dva za jedan.","Two for one."]]
 };
 // ═══ CROATIAN RECIPES ═══
@@ -2631,7 +2631,7 @@ const ROLEPLAY = [
       {speaker:"Doktor",text:"Jeste li alergični na nešto?",en:"Are you allergic to anything?"},
       {speaker:"Ti",text:"Ne, nisam alergičan/alergična.",en:"No, I'm not allergic. (m/f)",you:true},
       {speaker:"Doktor",text:"Prepisat ću vam antibiotik. Idite u ljekarnu.",en:"I'll prescribe antibiotics. Go to the pharmacy."},
-      {speaker:"Ti",text:"Hvala, doktore. Dovidenja.",en:"Thank you, doctor. Goodbye.",you:true}]},
+      {speaker:"Ti",text:"Hvala, doktore. Doviđenja.",en:"Thank you, doctor. Goodbye.",you:true}]},
   {title:"U Banci",en:"At the Bank",
     lines:[
       {speaker:"Ti",text:"Dobar dan. Želim otvoriti račun.",en:"Good day. I want to open an account.",you:true},
@@ -2654,7 +2654,7 @@ const ROLEPLAY = [
   {title:"Roditeljski Sastanak",en:"Parent-Teacher Conference",
     lines:[
       {speaker:"Ti",text:"Dobar dan. Ja sam mama/tata od [ime].",en:"Good day. I'm [name]'s mom/dad.",you:true},
-      {speaker:"Učiteljica",text:"Dobar dan! Sjjednite.",en:"Good day! Have a seat."},
+      {speaker:"Učiteljica",text:"Dobar dan! Sjednite.",en:"Good day! Have a seat."},
       {speaker:"Ti",text:"Kako napreduje moje dijete?",en:"How is my child progressing?",you:true},
       {speaker:"Učiteljica",text:"Vrlo dobro! Marljivo radi.",en:"Very well! Works diligently."},
       {speaker:"Ti",text:"Ima li problema s jezikom?",en:"Any problems with the language?",you:true},
@@ -2780,7 +2780,7 @@ const HIST_FACTS = [
   {hr:"Marija Jurić Zagorka bila je prva hrvatska novinarka.",en:"Marija Jurić Zagorka was Croatia's first female journalist."},
   {hr:"Opatija je bila ljetovalište austrougarske aristokracije.",en:"Opatija was the summer resort of Austro-Hungarian aristocracy."},
   {hr:"'Kad je bilo tako, bilo je tako' — čuva istinu naše prošlosti.",en:"'When it was so, it was so' — preserving the truth of our past."},
-  {hr:"Labinjonska Cakavica zaštićena je kao nematerijalno kulturno dobro 2019.",en:"Labinjonska Cakavica was protected as intangible cultural heritage in 2019."},
+  {hr:"Labinjonska Čakavica zaštićena je kao nematerijalno kulturno dobro 2019.",en:"Labinjonska Čakavica was protected as intangible cultural heritage in 2019."},
   {hr:"Giuseppina Martinuzzi iz Labina bila je prva istarska socijalna aktivistica.",en:"Giuseppina Martinuzzi from Labin was Istria's first social activist."},
   {hr:"Stipan Sorić bio je narodni junak iz Bibinja u borbi protiv Turaka.",en:"Stipan Sorić was a folk hero from Bibinje in the fight against the Turks."},
   {hr:"Bibinje ima pet katoličkih crkava u malom mjestu.",en:"Bibinje has five Catholic churches in a small town."},
@@ -2797,7 +2797,7 @@ const HIST_FACTS = [
   {hr:"Washingtonski sporazum 1994. zaustavio je sukob Hrvata i Bošnjaka.",en:"The Washington Agreement 1994 ended the Croat-Bosniak conflict."},
   {hr:"35 franjevačkih samostana u BiH postojalo je prije Turaka.",en:"35 Franciscan monasteries in BiH existed before the Ottomans."},
   {hr:"Baby Lasagna predstavljao je Hrvatsku na Eurosongu.",en:"Baby Lasagna represented Croatia at Eurovision."},
-  {hr:"Oliver Dragojevic poznat je kao 'glas Dalmacije'.",en:"Oliver Dragojević is known as 'the voice of Dalmatia'."},
+  {hr:"Oliver Dragojević poznat je kao 'glas Dalmacije'.",en:"Oliver Dragojević is known as 'the voice of Dalmatia'."},
   {hr:"Agatha Christie spominje Vinkovce u 'Umorstvu u Orient Expressu'.",en:"Agatha Christie mentions Vinkovci in 'Murder on the Orient Express'."},
   {hr:"Steve Gaunt, Englez, došao je u Vinkovce 1991. i ostao zauvijek.",en:"Steve Gaunt, an Englishman, came to Vinkovci in 1991 and stayed forever."},
   {hr:"Sopot kultura kod Vinkovaca datira iz 5480.-3790. pr. Kr.",en:"Sopot culture near Vinkovci dates to 5480-3790 BC."},
@@ -3040,15 +3040,15 @@ function getHistFact(){
 // ═══ LEARNING PATH ═══
 const LEARN_PATH = [
   {level:1,title:"Survivor",desc:"First 48 hours",items:[
-    {id:"lp1",name:"Basic Greetings",ck:function(s){return s.lc>=1},go:"lesson"},{id:"lp2",name:"Numbers",ck:function(s){return s.lc>=2},go:"lesson"},{id:"lp3",name:"Emergency Phrases",ck:function(s){return s.lc>=3},go:"emergency"},{id:"lp4",name:"Order Food",ck:function(s){return s.lc>=4},go:"foodorder"},{id:"lp5",name:"Get Around",ck:function(s){return s.lc>=4},go:"transport"}]},
+    {id:"lp1",name:"Basic Greetings",ck:function(s){return s.lc>=1},go:"lesson",topic:"greetings"},{id:"lp2",name:"Numbers",ck:function(s){return s.lc>=2},go:"lesson",topic:"numbers"},{id:"lp3",name:"Emergency Phrases",ck:function(s){return s.lc>=3},go:"emergency"},{id:"lp4",name:"Order Food",ck:function(s){return s.lc>=4},go:"foodorder"},{id:"lp5",name:"Get Around",ck:function(s){return s.lc>=4},go:"transport"}]},
   {level:2,title:"Settler",desc:"First week",items:[
-    {id:"lp6",name:"Family Words",ck:function(s){return s.lc>=5},go:"lesson"},{id:"lp7",name:"School Kit",ck:function(s){return s.lc>=6},go:"school"},{id:"lp8",name:"Making Friends",ck:function(s){return s.lc>=6},go:"friends"},{id:"lp9",name:"Grocery Shopping",ck:function(s){return s.lc>=7},go:"grocery"},{id:"lp10",name:"Alphabet",ck:function(s){return s.lc>=7},go:"alphabet"},{id:"lp11",name:"First Quiz",ck:function(s){return s.xp>=50},go:"mcgame"}]},
+    {id:"lp6",name:"Family Words",ck:function(s){return s.lc>=5},go:"lesson",topic:"family"},{id:"lp7",name:"School Kit",ck:function(s){return s.lc>=6},go:"school"},{id:"lp8",name:"Making Friends",ck:function(s){return s.lc>=6},go:"friends"},{id:"lp9",name:"Grocery Shopping",ck:function(s){return s.lc>=7},go:"grocery"},{id:"lp10",name:"Alphabet",ck:function(s){return s.lc>=7},go:"alphabet"},{id:"lp11",name:"First Quiz",ck:function(s){return s.xp>=50},go:"mcgame"}]},
   {level:3,title:"Communicator",desc:"First month",items:[
-    {id:"lp12",name:"Grammar Intro",ck:function(s){return s.gc>=1},go:"grammar"},{id:"lp13",name:"Texting/Slang",ck:function(s){return s.lc>=10},go:"texting"},{id:"lp14",name:"Role-Play",ck:function(s){return s.lc>=10},go:"roleplay"},{id:"lp15",name:"Read a Story",ck:function(s){return s.lc>=12},go:"readlist"},{id:"lp16",name:"Conjugation",ck:function(s){return s.gc>=2},go:"conjdrill"},{id:"lp17",name:"Listening",ck:function(s){return s.lc>=12},go:"listening"},{id:"lp18",name:"Tenses & Gender",ck:function(s){return s.gc>=3},go:"tenses"}]},
+    {id:"lp12",name:"Grammar Intro",ck:function(s){return s.gc>=1},go:"grammar"},{id:"lp13",name:"Texting/Slang",ck:function(s){return s.lc>=10},go:"texting"},{id:"lp14",name:"Role-Play",ck:function(s){return s.lc>=10},go:"roleplay"},{id:"lp15",name:"Read a Story",ck:function(s){return s.lc>=12},go:"readlist"},{id:"lp16",name:"Conjugation",ck:function(s){return s.gc>=2},go:"conjdrill"},{id:"lp17",name:"Listening",ck:function(s){return s.lc>=12},go:"listening"},{id:"lp18",name:"Tenses & Gender",ck:function(s){return s.gc>=3},go:"tenses"},{id:"lp34",name:"Vi ili ti?",ck:function(s){return s.gc>=3},go:"formalregister"},{id:"lp35",name:"Tech & Digital",ck:function(s){return s.lc>=12},go:"techvoc"}]},
   {level:4,title:"Explorer",desc:"Months 2-3",items:[
-    {id:"lp19",name:"7 Cases",ck:function(s){return s.gc>=4},go:"padezi"},{id:"lp20",name:"Padeži Master",ck:function(s){return s.gc>=5},go:"padezifull"},{id:"lp21",name:"Verb Aspect",ck:function(s){return s.gc>=5},go:"aspect"},{id:"lp22",name:"Modal Verbs",ck:function(s){return s.gc>=6},go:"modal"},{id:"lp23",name:"Declension",ck:function(s){return s.gc>=6},go:"declension"},{id:"lp24",name:"False Friends",ck:function(s){return s.lc>=20},go:"falsefr"},{id:"lp25",name:"Dialects",ck:function(s){return s.lc>=20},go:"dialects"}]},
+    {id:"lp19",name:"7 Cases",ck:function(s){return s.gc>=4},go:"padezi"},{id:"lp20",name:"Padeži Master",ck:function(s){return s.gc>=5},go:"padezifull"},{id:"lp21",name:"Verb Aspect",ck:function(s){return s.gc>=5},go:"aspect"},{id:"lp22",name:"Modal Verbs",ck:function(s){return s.gc>=6},go:"modal"},{id:"lp23",name:"Declension",ck:function(s){return s.gc>=6},go:"declension"},{id:"lp24",name:"False Friends",ck:function(s){return s.lc>=20},go:"falsefr"},{id:"lp25",name:"Dialects",ck:function(s){return s.lc>=20},go:"dialects"},{id:"lp36",name:"Conditional Mood",ck:function(s){return s.gc>=5},go:"conditional"},{id:"lp37",name:"Impersonal",ck:function(s){return s.gc>=6},go:"impersonal"}]},
   {level:5,title:"Hrvat",desc:"Months 4-6",items:[
-    {id:"lp26",name:"Idioms",ck:function(s){return s.lc>=25},go:"idioms"},{id:"lp27",name:"Tongue Twisters",ck:function(s){return s.lc>=25},go:"brzalice"},{id:"lp28",name:"Word Formation",ck:function(s){return s.lc>=25},go:"wordform"},{id:"lp29",name:"Diminutives",ck:function(s){return s.lc>=28},go:"diminutives"},{id:"lp30",name:"Advanced Reading",ck:function(s){return s.lc>=30},go:"readlist"},{id:"lp31",name:"Domovinski Rat",ck:function(s){return s.lc>=30},go:"history"},{id:"lp32",name:"Cook Croatian!",ck:function(s){return s.lc>=30},go:"recipes"},{id:"lp33",name:"200 XP!",ck:function(s){return s.xp>=200},go:"dashboard"}]}
+    {id:"lp26",name:"Idioms",ck:function(s){return s.lc>=25},go:"idioms"},{id:"lp27",name:"Tongue Twisters",ck:function(s){return s.lc>=25},go:"brzalice"},{id:"lp28",name:"Word Formation",ck:function(s){return s.lc>=25},go:"wordform"},{id:"lp29",name:"Diminutives",ck:function(s){return s.lc>=28},go:"diminutives"},{id:"lp30",name:"Advanced Reading",ck:function(s){return s.lc>=30},go:"readlist"},{id:"lp31",name:"Domovinski Rat",ck:function(s){return s.lc>=30},go:"history"},{id:"lp32",name:"Cook Croatian!",ck:function(s){return s.lc>=30},go:"recipes"},{id:"lp33",name:"200 XP!",ck:function(s){return s.xp>=200},go:"dashboard"},{id:"lp38",name:"Admin Life",ck:function(s){return s.lc>=28},go:"bureaucratic"}]}
 ];
 // ═══ REFLEXIVE VERBS ═══
 const REFLEXIVE = {
@@ -3105,7 +3105,7 @@ const REFLEXIVE = {
     {q:"We returned home.",a:"Vratili smo se kući.",opts:["Vratili smo se kući.","Se vratili smo kući.","Vratili se smo kući."]},
     {q:"He shaved this morning.",a:"Obrijao se jutros.",opts:["Obrijao se jutros.","Se obrijao jutros.","Jutros obrijao se."]},
     {q:"I can't concentrate.",a:"Ne mogu se koncentrirati.",opts:["Ne mogu se koncentrirati.","Ne se mogu koncentrirati.","Se ne mogu koncentrirati."]},
-    {q:"They showered after the gym.",a:"Tuširali su se nakon teretane.",opts:["Tuširali su se nakon teretane.","Se tuširali su nakon teretane.","Tuširali ce su nakon teretane."]},
+    {q:"They showered after the gym.",a:"Tuširali su se nakon teretane.",opts:["Tuširali su se nakon teretane.","Se tuširali su nakon teretane.","Tuširali će su nakon teretane."]},
     {q:"She combs her hair every morning.",a:"Počešlja se svako jutro.",opts:["Počešlja se svako jutro.","Se počešlja svako jutro.","Počešlja svako jutro se."]},
     {q:"Will you get dressed now? (ti)",a:"Obući ćeš se sada?",opts:["Obući ćeš se sada?","Se obući ćeš sada?","Obući se ćeš sada?"]},
     {q:"We will return soon.",a:"Vratit ćemo se uskoro.",opts:["Vratit ćemo se uskoro.","Se vratit ćemo uskoro.","Vratit se ćemo uskoro."]},
@@ -3855,7 +3855,7 @@ const CONVMATCH = [
 ];
 var _searchIdx=null;
 function buildSearchIndex(){if(_searchIdx)return _searchIdx;var idx=[];Object.keys(V).forEach(function(cat){V[cat].forEach(function(w){idx.push({hr:w[0],en:w[1],type:"vocab",go:"lesson"})})});
-[{n:"School Kit",s:"school"},{n:"Texting",s:"texting"},{n:"Friends",s:"friends"},{n:"Food",s:"foodorder"},{n:"Transport",s:"transport"},{n:"Emergency",s:"emergency"},{n:"Football",s:"football"},{n:"Pop Culture",s:"popculture"},{n:"Practical Life",s:"practical"},{n:"Grocery",s:"grocery"},{n:"Recipes",s:"recipes"},{n:"Role-Play",s:"roleplay"},{n:"Map",s:"crmap"},{n:"Grammar",s:"grammar"},{n:"Cases",s:"padezi"},{n:"Padeži Master",s:"padezifull"},{n:"Aspect",s:"aspect"},{n:"Conjugation",s:"conjdrill"},{n:"Modal Verbs",s:"modal"},{n:"Declension",s:"declension"},{n:"Tenses Gender",s:"tenses"},{n:"Colors Gender",s:"boje"},{n:"Alphabet",s:"alphabet"},{n:"False Friends",s:"falsefr"},{n:"Dialects",s:"dialects"},{n:"Diminutives",s:"diminutives"},{n:"Word Formation",s:"wordform"},{n:"Tongue Twisters",s:"brzalice"},{n:"Flashcards",s:"flashcards"},{n:"Typing",s:"typing"},{n:"Idioms",s:"idioms"},{n:"Proverbs",s:"proverbs"},{n:"Leaderboard",s:"leaderboard"},{n:"Badges",s:"badges"},{n:"Domovinski Rat",s:"history"},{n:"Kings",s:"kings"},{n:"Labin Rabac",s:"region_labin"},{n:"Bibinje Zadar",s:"region_bibinje"},{n:"Hercegovina",s:"region_hercegovina"},{n:"Vukovar",s:"region_vukovar"},{n:"Vinkovci",s:"region_vinkovci"},{n:"Learning Path",s:"learnpath"},{n:"Favorites",s:"favorites"},{n:"Journal",s:"journal"}].forEach(function(x){idx.push({hr:x.n,en:x.n,type:"screen",go:x.s})});
+[{n:"School Kit",s:"school"},{n:"Texting",s:"texting"},{n:"Friends",s:"friends"},{n:"Food",s:"foodorder"},{n:"Transport",s:"transport"},{n:"Emergency",s:"emergency"},{n:"Football",s:"football"},{n:"Pop Culture",s:"popculture"},{n:"Practical Life",s:"practical"},{n:"Grocery",s:"grocery"},{n:"Recipes",s:"recipes"},{n:"Role-Play",s:"roleplay"},{n:"Map",s:"crmap"},{n:"Grammar",s:"grammar"},{n:"Cases",s:"padezi"},{n:"Padeži Master",s:"padezifull"},{n:"Aspect",s:"aspect"},{n:"Conjugation",s:"conjdrill"},{n:"Modal Verbs",s:"modal"},{n:"Declension",s:"declension"},{n:"Tenses Gender",s:"tenses"},{n:"Colors Gender",s:"boje"},{n:"Alphabet",s:"alphabet"},{n:"False Friends",s:"falsefr"},{n:"Dialects",s:"dialects"},{n:"Diminutives",s:"diminutives"},{n:"Word Formation",s:"wordform"},{n:"Tongue Twisters",s:"brzalice"},{n:"Flashcards",s:"flashcards"},{n:"Typing",s:"typing"},{n:"Idioms",s:"idioms"},{n:"Proverbs",s:"proverbs"},{n:"Leaderboard",s:"leaderboard"},{n:"Badges",s:"badges"},{n:"Domovinski Rat",s:"history"},{n:"Kings",s:"kings"},{n:"Labin Rabac",s:"region_labin"},{n:"Bibinje Zadar",s:"region_bibinje"},{n:"Hercegovina",s:"region_hercegovina"},{n:"Vukovar",s:"region_vukovar"},{n:"Vinkovci",s:"region_vinkovci"},{n:"Learning Path",s:"learnpath"},{n:"Favorites",s:"favorites"},{n:"Journal",s:"journal"},{n:"Conditional Mood",s:"conditional"},{n:"Vi ili ti? Formal",s:"formalregister"},{n:"Impersonal",s:"impersonal"},{n:"Tech & Digital",s:"techvoc"},{n:"Admin Life",s:"bureaucratic"}].forEach(function(x){idx.push({hr:x.n,en:x.n,type:"screen",go:x.s})});
 GROCERY.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"grocery"})});SCHOOL.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"school"})});TRANSPORT.forEach(function(t){idx.push({hr:t.hr,en:t.en,type:"phrase",go:"transport"})});EMERGENCY.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"emergency"})});_searchIdx=idx;return idx}
 // ═══ CSS THEME ═══
 const CSS=`
@@ -3925,22 +3925,33 @@ input::placeholder,textarea::placeholder{color:#94a3b8;font-weight:400}
 /* === LAYOUT === */
 .dash{max-width:640px;margin:0 auto;padding:20px 16px 84px;position:relative;z-index:1;animation:slideUp .3s ease}
 .scr-wrap{max-width:640px;margin:0 auto;padding:20px 16px 84px;position:relative;z-index:1;animation:slideUp .25s ease}
+/* === SIDEBAR === */
+.sidebar{display:none;position:fixed;top:0;left:0;bottom:0;width:260px;background:var(--nav-bg);border-right:1px solid var(--nav-b);z-index:9000;flex-direction:column;overflow-y:auto;backdrop-filter:saturate(160%) blur(24px);scrollbar-width:thin}
+.sb-btn{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:12px;border:none;background:none;cursor:pointer;transition:background .15s;font-family:'Outfit',sans-serif;color:var(--heading);font-size:14px;font-weight:600;margin-bottom:2px;text-align:left}
+.sb-btn:hover{background:var(--bar-bg)}
+.sb-btn.active{background:rgba(14,116,144,.12);color:#0e7490;font-weight:700}
+.sb-badge{background:#e11d48;color:#fff;font-size:10px;font-weight:800;min-width:18px;height:18px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;padding:0 5px;line-height:1}
+/* === CEFR BADGES === */
+.cefr{font-size:9px;font-weight:800;border-radius:5px;padding:2px 6px;letter-spacing:.05em;text-transform:uppercase;flex-shrink:0}
+.cefr-a1{color:#16a34a;background:#f0fdf4}.cefr-a2{color:#059669;background:#ecfdf5}
+.cefr-b1{color:#d97706;background:#fffbeb}.cefr-b2{color:#7c3aed;background:#f5f3ff}.cefr-c1{color:#dc2626;background:#fef2f2}
+/* === CELEBRATION OVERLAY === */
+@keyframes confettiDrop{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+@keyframes celebPop{0%{transform:translate(-50%,-50%) scale(.6);opacity:0}70%{transform:translate(-50%,-50%) scale(1.05)}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+/* === ONBOARDING TOOLTIP === */
+@keyframes tooltipIn{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
 /* === DESKTOP (≥768px) === */
 @media(min-width:768px){
-  .nav-bar{bottom:auto;top:0;border-top:none;border-bottom:1px solid var(--nav-b);padding:0 32px;justify-content:center;gap:2px;height:60px}
-  .nav-btn{flex-direction:row;gap:7px;padding:8px 16px;min-width:auto;border-radius:10px;height:40px}
-  .nav-btn .nav-icon{font-size:17px}
-  .nav-btn .nav-label{font-size:13px;font-weight:600;color:var(--nav-lbl)}
-  .nav-btn.active{background:rgba(14,116,144,.09)}
-  .nav-btn.active .nav-icon{transform:none}
-  .nav-btn.active .nav-label{color:#0e7490;font-weight:700}
-  .dash{max-width:920px;padding:76px 32px 48px}
-  .scr-wrap{max-width:920px;padding:76px 32px 48px}
+  .nav-bar{display:none}
+  .sidebar{display:flex}
+  .app-content{margin-left:260px}
+  .dash{max-width:860px;margin:0 auto;padding:32px 32px 48px}
+  .scr-wrap{max-width:860px;margin:0 auto;padding:32px 32px 48px}
   .c{border-radius:20px}.tc{border-radius:20px}
 }
 @media(min-width:1200px){
-  .dash{max-width:1160px;padding:76px 48px 48px}
-  .scr-wrap{max-width:1160px;padding:76px 48px 48px}
+  .dash{max-width:1100px;padding:32px 48px 48px}
+  .scr-wrap{max-width:1100px;padding:32px 48px 48px}
 }
 @media(prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
@@ -4641,7 +4652,256 @@ const PHONOLOGY = {
   ],
 };
 
-export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, CROATIAN_CITIES, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, CSS, BG_LIGHT, BG_DARK };
+// ═══ CONDITIONAL MOOD ═══
+const CONDITIONAL = {
+  title:"Kondicionalni — Would/Could/Should",
+  intro:"The conditional expresses what would happen. Formed with: bih/bi/bi/bismo/biste/bi + infinitive. It is also the polite way to ask for things — far more natural than the present tense.",
+  forms:[
+    {pro:"ja",form:"bih",en:"I would"},
+    {pro:"ti",form:"bi",en:"you would"},
+    {pro:"on/ona/ono",form:"bi",en:"he/she/it would"},
+    {pro:"mi",form:"bismo",en:"we would"},
+    {pro:"vi / Vi",form:"biste",en:"you (pl./formal) would"},
+    {pro:"oni/one/ona",form:"bi",en:"they would"},
+  ],
+  examples:[
+    {hr:"Volio bih kavu.",en:"I would like a coffee. (m)",note:"Use volio (m) or voljela (f) — must match speaker's gender"},
+    {hr:"Voljela bih kavu.",en:"I would like a coffee. (f)",note:"Feminine form — most polite way to order in Croatian"},
+    {hr:"Mogao bih pomoći.",en:"I could help. (m)",note:"Mogao/mogla bih = I could — very natural for offers"},
+    {hr:"Što biste željeli?",en:"What would you like? (formal)",note:"Standard server/shop question — you'll hear this constantly"},
+    {hr:"Trebao bih.",en:"I should / would need to. (m)",note:"Trebao/trebala bih = I should — expressing necessity politely"},
+    {hr:"Htio bih razgovarati s upraviteljem.",en:"I would like to speak with the manager.",note:"Htio/htjela bih = I would like — for formal requests"},
+    {hr:"Da imam novca, kupio bih auto.",en:"If I had money, I would buy a car.",note:"da + present = if... + conditional = classic if-then structure"},
+    {hr:"Gdje biste preporučili restoran?",en:"Where would you recommend a restaurant?",note:"Great tourist/newcomer phrase"},
+    {hr:"Mogli bismo ići zajedno.",en:"We could go together.",note:"Mogli bismo = we could — suggesting plans"},
+    {hr:"Ona bi došla, ali ne može.",en:"She would come, but she can't.",note:"ali = but — conceding with a conditional"},
+  ],
+  ifThen:[
+    {hr:"Da znam, rekao bih.",en:"If I knew, I would say."},
+    {hr:"Da sam u Zagrebu, vidio bih te.",en:"If I were in Zagreb, I would see you."},
+    {hr:"Da imaš vremena, mogli bismo popiti kavu.",en:"If you had time, we could have coffee."},
+    {hr:"Da nije kiše, otišli bismo na plažu.",en:"If it weren't raining, we would go to the beach."},
+  ],
+  polite:[
+    {situation:"Ordering food/drink",hr:"Volio/voljela bih...",en:"I would like..."},
+    {situation:"Making a request",hr:"Mogli biste...?",en:"Could you...?"},
+    {situation:"Asking for help",hr:"Trebala bih pomoć.",en:"I would need help."},
+    {situation:"Making a suggestion",hr:"Mogli bismo...",en:"We could..."},
+    {situation:"Expressing preference",hr:"Radije bih...",en:"I would rather..."},
+    {situation:"Polite disagreement",hr:"Ja bih rekao/rekla drugačije.",en:"I would say it differently."},
+  ],
+  quiz:[
+    {q:"'I would like coffee' (female speaker) — correct Croatian:",a:"Voljela bih kavu.",opts:["Volio bih kavu.","Voljela bih kavu.","Bi htjela kavu.","Bih voljela kavu."]},
+    {q:"Which conditional form goes with 'mi' (we)?",a:"bismo",opts:["bi","bih","bismo","biste"]},
+    {q:"'Could you help me?' (one person, formal):",a:"Mogli biste mi pomoći?",opts:["Mogli bismo mi pomoći?","Mogli biste mi pomoći?","Mogao bi pomoći?","Bih mogao pomoći?"]},
+    {q:"Complete: 'Da imam auto, ___ odvesti te.'",a:"mogao bih",opts:["bih mogao","mogao bih","bi mogao","mogu bih"]},
+    {q:"'We would go to the sea':",a:"Otišli bismo na more.",opts:["Otišli bih na more.","Otišli biste na more.","Otišli bismo na more.","Bi otišli na more."]},
+    {q:"Where does bih/bi/bismo/biste usually sit in the sentence?",a:"After the first content word/phrase",opts:["At the very start","At the very end","After the first content word/phrase","Directly before the infinitive"]},
+  ],
+};
+
+// ═══ FORMAL vs INFORMAL REGISTER ═══
+const FORMAL_REGISTER = {
+  title:"Vi ili ti? — Formal vs. Informal",
+  intro:"Croatian has two ways to address someone: 'ti' (informal) and 'Vi' (formal, always capital V). Getting this wrong is one of the most noticeable foreigner errors in Croatia.",
+  rules:[
+    {icon:"👋",rule:"Use ti with:",examples:["Friends and peers your age","Children","Family members","Close colleagues (after being invited)","Casual acquaintances in social settings"]},
+    {icon:"🤝",rule:"Use Vi with:",examples:["Strangers (until they offer 'možemo na ti?')","Elders and authority figures","Doctors, lawyers, officials","Shopkeepers, waiters, service staff","Teachers (student side)","All written formal communication"]},
+    {icon:"💡",rule:"The switch ritual:",examples:["When someone wants informality: 'Možemo na ti.' (We can use ti.)","Never switch to ti first unless clearly social/same age","If in doubt: use Vi. Nobody is ever offended by too much respect."]},
+  ],
+  comparison:[
+    {situation:"Greeting a friend",ti:"Hej, kako si?",vi:"Dobar dan, kako ste?"},
+    {situation:"Asking name",ti:"Kako se zoveš?",vi:"Kako se zovete?"},
+    {situation:"Asking where from",ti:"Odakle si?",vi:"Odakle ste?"},
+    {situation:"Asking for something",ti:"Možeš mi pomoći?",vi:"Možete li mi pomoći?"},
+    {situation:"Saying thank you",ti:"Hvala ti!",vi:"Hvala Vam!"},
+    {situation:"Doctor's office",ti:"—",vi:"Dobar dan, doktore. Boli me glava."},
+    {situation:"Ordering food",ti:"—",vi:"Što biste preporučili?"},
+    {situation:"At the municipality",ti:"—",vi:"Trebam ovjeriti ovaj dokument."},
+    {situation:"Email opener",ti:"Hej [name]!",vi:"Poštovani/Poštovana,"},
+    {situation:"Email closer",ti:"Vidimo se!",vi:"S poštovanjem,"},
+  ],
+  verbForms:[
+    {pronoun:"ti",biti:"si",imati:"imaš",ići:"ideš",moći:"možeš",htjeti:"hoćeš",govoriti:"govoriš"},
+    {pronoun:"Vi",biti:"ste",imati:"imate",ići:"idete",moći:"možete",htjeti:"hoćete",govoriti:"govorite"},
+  ],
+  emailPhrases:[
+    {label:"Formal opener (to man)",hr:"Poštovani gospodine [name],",en:"Dear Mr. [name],"},
+    {label:"Formal opener (to woman)",hr:"Poštovana gospođo [name],",en:"Dear Mrs./Ms. [name],"},
+    {label:"Formal opener (unknown)",hr:"Poštovani/Poštovana,",en:"Dear Sir/Madam,"},
+    {label:"Opening line",hr:"Pišem Vam u vezi...",en:"I am writing to you regarding..."},
+    {label:"Requesting info",hr:"Molim Vas da mi pošaljete...",en:"Please send me..."},
+    {label:"Thank you (formal)",hr:"Zahvaljujem Vam na...",en:"Thank you for..."},
+    {label:"Formal closer",hr:"S poštovanjem,",en:"With respect, / Yours sincerely,"},
+    {label:"Warm closer",hr:"Lijep pozdrav,",en:"Best regards,"},
+  ],
+  quiz:[
+    {q:"You meet someone's grandmother for the first time. You use:",a:"Vi",opts:["ti","Vi","Either is fine","Depends on her age"]},
+    {q:"'How are you?' to your classmate:",a:"Kako si?",opts:["Kako ste?","Kako si?","Kako Vi ste?","Kako je?"]},
+    {q:"A waiter approaches your table. You say:",a:"Što biste preporučili?",opts:["Što preporučaš?","Što biste preporučili?","Možeš mi donijeti?","Daj mi jelovnik."]},
+    {q:"Your neighbor offers 'možemo na ti?' This means:",a:"They want to use informal address",opts:["They want to be formal","They want to use informal address","They are annoyed","They want to leave"]},
+    {q:"Formal email closer in Croatian:",a:"S poštovanjem,",opts:["Ciao!","Vidimo se!","S poštovanjem,","Tvoj/Tvoja,"]},
+    {q:"'Can you (formal, singular) help me?':",a:"Možete li mi pomoći?",opts:["Možeš mi pomoći?","Možete li mi pomoći?","Vi možeš pomoći?","Hoćete mi pomoću?"]},
+  ],
+};
+
+// ═══ IMPERSONAL CONSTRUCTIONS ═══
+const IMPERSONAL = {
+  title:"Bezlične konstrukcije — Impersonal Expressions",
+  intro:"Impersonal constructions use verbs in the 3rd person singular with NO named subject. They appear on signs, in instructions, and everyday conversation — but are rarely taught to learners.",
+  constructions:[
+    {hr:"Treba mi",en:"I need (lit. 'it is needed to me')",note:"'Treba mi kava' = I need a coffee. Very natural in Croatian.",example:"Treba mi doktor."},
+    {hr:"Može se",en:"One can / It is possible",note:"On signs and instructions. 'Može se parkirati' = Parking allowed.",example:"Ovdje se može plivati."},
+    {hr:"Ne smije se",en:"One must not / Not allowed",note:"Most common on signs. Negation of smjeti (to be permitted).",example:"Ne smije se pušiti."},
+    {hr:"Prodaje se",en:"For sale",note:"Reflexive passive — very common in property/item ads.",example:"Prodaje se stan."},
+    {hr:"Iznajmljuje se",en:"For rent",note:"Reflexive passive on rental signs everywhere in Croatia.",example:"Iznajmljuje se soba."},
+    {hr:"Kaže se",en:"They say / One says",note:"Reporting common speech without saying who said it.",example:"Kaže se da će kiša."},
+    {hr:"Govori se",en:"It is said / People say",note:"Slightly more formal than kaže se.",example:"Govori se da je dobar restoran."},
+    {hr:"Zna se",en:"It is known / Everyone knows",note:"Used for established or obvious facts.",example:"Zna se da je Hrvatska lijepa."},
+    {hr:"Vidi se",en:"One can see / It is visible",note:"Literally 'it is seen'.",example:"Vidi se da si umoran."},
+    {hr:"Čuje se",en:"One can hear / It is audible",note:"Literally 'it is heard'.",example:"Čuje se muzika."},
+    {hr:"Ide se",en:"One goes / People go",note:"'Kamo se ide?' = Where does one go?",example:"Ide se na more."},
+    {hr:"Jede se",en:"One eats / It is eaten",note:"Describing food culture.",example:"Ovdje se jede dobro."},
+  ],
+  signs:[
+    {sign:"ULAZ",en:"Entrance"},
+    {sign:"IZLAZ",en:"Exit"},
+    {sign:"PRODAJE SE",en:"For Sale"},
+    {sign:"IZNAJMLJUJE SE",en:"For Rent"},
+    {sign:"ZABRANJENO PUŠENJE",en:"No Smoking"},
+    {sign:"NE SMIJE SE FOTOGRAFIRATI",en:"No Photography"},
+    {sign:"ZABRANJEN PROLAZ",en:"No Entry"},
+    {sign:"RADI SE",en:"Under Construction"},
+    {sign:"SLOBODNO MJESTO",en:"Vacancy / Free Seat"},
+    {sign:"ZATVORENO ZA RENOVACIJU",en:"Closed for Renovation"},
+  ],
+  quiz:[
+    {q:"'Prodaje se' on a sign means:",a:"For sale",opts:["For rent","No entry","For sale","Under construction"]},
+    {q:"'Ne smije se pušiti' means:",a:"No smoking",opts:["Smoking allowed","No smoking","Smoking area","Please smoke outside"]},
+    {q:"'Treba mi' is used to say:",a:"I need",opts:["I want","I have","I need","I like"]},
+    {q:"Complete: '___ da će kiša.' (They say it will rain.)",a:"Kaže se",opts:["Se kaže","Kaže se","Govori mi","Zna se"]},
+    {q:"'Iznajmljuje se soba' means:",a:"Room for rent",opts:["Room for sale","Room available for free","Room for rent","Room occupied"]},
+    {q:"Correct: 'Swimming is allowed here':",a:"Ovdje se može plivati.",opts:["Ovdje može plivati se.","Ovdje plivati može.","Ovdje se može plivati.","Plivati ovdje se može."]},
+  ],
+};
+
+// ═══ TECHNOLOGY VOCABULARY ═══
+const TECH_VOC = {
+  title:"Tehnologija i Internet — Tech & Digital Life",
+  intro:"Technology words you'll use every day. Many are borrowed from English but pronounced the Croatian way.",
+  categories:[
+    {name:"Devices — Uređaji",icon:"📱",words:[
+      {hr:"računalo",en:"computer"},{hr:"laptop / prijenosno računalo",en:"laptop"},
+      {hr:"mobitel / pametni telefon",en:"mobile phone"},{hr:"tablet",en:"tablet"},
+      {hr:"ekran / zaslon",en:"screen"},{hr:"tipkovnica",en:"keyboard"},
+      {hr:"miš",en:"mouse"},{hr:"pisač",en:"printer"},
+      {hr:"punjač",en:"charger"},{hr:"baterija",en:"battery"},
+      {hr:"slušalice",en:"headphones"},{hr:"zvučnik",en:"speaker"},
+    ]},
+    {name:"Internet & Accounts",icon:"🌐",words:[
+      {hr:"internet / mreža",en:"internet / network"},{hr:"wifi / bežični internet",en:"wifi"},
+      {hr:"lozinka",en:"password"},{hr:"korisničko ime",en:"username"},
+      {hr:"e-mail / elektronička pošta",en:"email"},{hr:"poruka",en:"message"},
+      {hr:"obavijest",en:"notification"},{hr:"aplikacija / app",en:"app"},
+      {hr:"pretraživač",en:"browser / search engine"},{hr:"web stranica",en:"website"},
+      {hr:"pohrana / oblak",en:"storage / cloud"},{hr:"veza",en:"link / connection"},
+    ]},
+    {name:"Actions — Radnje",icon:"🖱️",words:[
+      {hr:"prijaviti se",en:"to log in"},{hr:"odjaviti se",en:"to log out"},
+      {hr:"registrirati se",en:"to sign up"},{hr:"instalirati",en:"to install"},
+      {hr:"ažurirati",en:"to update"},{hr:"preuzeti",en:"to download"},
+      {hr:"učitati / poslati",en:"to upload"},{hr:"dijeliti",en:"to share"},
+      {hr:"kopirati",en:"to copy"},{hr:"zalijepiti",en:"to paste"},
+      {hr:"pretražiti",en:"to search"},{hr:"kliknuti",en:"to click"},
+      {hr:"brisati / obrisati",en:"to delete"},{hr:"spremiti",en:"to save"},
+    ]},
+    {name:"Social Media",icon:"📲",words:[
+      {hr:"društvene mreže",en:"social media"},{hr:"objaviti",en:"to post"},
+      {hr:"pratiti",en:"to follow"},{hr:"sviđa mi se / lajkati",en:"to like (formal/slang)"},
+      {hr:"komentirati",en:"to comment"},{hr:"grupni razgovor",en:"group chat"},
+      {hr:"video poziv",en:"video call"},{hr:"profil",en:"profile"},
+      {hr:"priča / story",en:"story (social media)"},{hr:"selfi",en:"selfie"},
+    ]},
+  ],
+  phrases:[
+    {hr:"Lozinka mi ne radi.",en:"My password isn't working."},
+    {hr:"Možete li mi spojiti na wifi?",en:"Can you connect me to the wifi?"},
+    {hr:"Kako se piše lozinka?",en:"How do you spell the password?"},
+    {hr:"Trebam napuniti mobitel.",en:"I need to charge my phone."},
+    {hr:"Može li se ovdje koristiti wifi?",en:"Can wifi be used here?"},
+    {hr:"Pošalji mi poruku.",en:"Send me a message."},
+    {hr:"Baterija mi je skoro prazna.",en:"My battery is almost dead."},
+    {hr:"Instalirao sam novu aplikaciju.",en:"I installed a new app."},
+    {hr:"Uključi/Isključi zvuk.",en:"Turn sound on/off."},
+    {hr:"Zaboravio sam lozinku.",en:"I forgot my password."},
+  ],
+  quiz:[
+    {q:"'Lozinka' means:",a:"Password",opts:["Username","Password","Email","Profile"]},
+    {q:"'Prijaviti se' means:",a:"To log in",opts:["To register","To log out","To log in","To delete"]},
+    {q:"'Obavijest' on your phone means:",a:"Notification",opts:["Battery","Message","Notification","Update"]},
+    {q:"'Pretraživač' is:",a:"Browser / Search engine",opts:["Social media","Browser / Search engine","Username","Download"]},
+    {q:"'Dijeliti' on a social media button means:",a:"Share",opts:["Like","Follow","Comment","Share"]},
+    {q:"'Baterija mi je prazna' means:",a:"My battery is dead",opts:["My phone is lost","The wifi is down","My battery is dead","I need to log in"]},
+  ],
+};
+
+// ═══ BUREAUCRATIC / ADMINISTRATIVE LANGUAGE ═══
+const BUREAUCRATIC = {
+  title:"Birokratski Jezik — Administrative Life",
+  intro:"Moving to Croatia means navigating government offices, rental agreements, and official documents. These are the terms you need from day one.",
+  categories:[
+    {name:"Identity Documents — Dokumenti",icon:"🪪",words:[
+      {hr:"osobna iskaznica",en:"ID card"},{hr:"putovnica",en:"passport"},
+      {hr:"OIB",en:"personal ID number (like SSN / NI)"},{hr:"domovnica",en:"citizenship certificate"},
+      {hr:"rodni list",en:"birth certificate"},{hr:"vjenčani list",en:"marriage certificate"},
+      {hr:"javni bilježnik / ovjera",en:"notary public / notarization"},
+    ]},
+    {name:"Residence & Registration",icon:"🏠",words:[
+      {hr:"prijava boravišta",en:"residence registration"},{hr:"dozvola boravka",en:"residence permit"},
+      {hr:"radna dozvola",en:"work permit"},{hr:"općina",en:"municipality"},
+      {hr:"MUP",en:"Ministry of Interior (police/admin office)"},{hr:"policijska postaja",en:"police station"},
+      {hr:"matični ured",en:"registry office"},{hr:"šalter",en:"service counter"},
+    ]},
+    {name:"Healthcare — Zdravstvo",icon:"🏥",words:[
+      {hr:"zdravstvena iskaznica",en:"health insurance card"},{hr:"HZZO",en:"Croatian Health Insurance Fund"},
+      {hr:"liječnik opće prakse",en:"GP / general practitioner"},{hr:"specijalista",en:"specialist"},
+      {hr:"recept",en:"prescription"},{hr:"bolovanje / doznaka",en:"sick leave certificate"},
+      {hr:"hitna pomoć",en:"emergency / ambulance"},
+    ]},
+    {name:"Renting & Utilities — Stanovanje",icon:"🔑",words:[
+      {hr:"stanarina / najamnina",en:"rent"},{hr:"depozit",en:"deposit"},
+      {hr:"vlasnik / iznajmljivač",en:"owner / landlord"},{hr:"stanar / najmoprimac",en:"tenant"},
+      {hr:"ugovor o najmu",en:"rental contract"},{hr:"komunalije",en:"utilities"},
+      {hr:"struja",en:"electricity"},{hr:"plin",en:"gas"},
+      {hr:"voda / vodovod",en:"water supply"},{hr:"račun",en:"bill / invoice"},
+      {hr:"uplata",en:"payment"},{hr:"odvoz smeća",en:"garbage collection"},
+    ]},
+  ],
+  phrases:[
+    {hr:"Trebam prijaviti boravište.",en:"I need to register my residence."},
+    {hr:"Gdje je najbliža općina?",en:"Where is the nearest municipality?"},
+    {hr:"Popunite ovaj obrazac, molim.",en:"Please fill out this form."},
+    {hr:"Treba li ovjera?",en:"Does this need to be notarized?"},
+    {hr:"Kada ću dobiti potvrdu?",en:"When will I receive the confirmation?"},
+    {hr:"Kolika je stanarina?",en:"How much is the rent?"},
+    {hr:"Jesu li komunalije uključene?",en:"Are utilities included?"},
+    {hr:"Trebam novi recept.",en:"I need a new prescription."},
+    {hr:"Kako se prijavim za HZZO?",en:"How do I register for health insurance?"},
+    {hr:"Ovaj dokument treba prevesti.",en:"This document needs to be translated."},
+    {hr:"Mogu li dobiti potvrdu?",en:"Can I get a receipt/confirmation?"},
+    {hr:"Imam li sve potrebne dokumente?",en:"Do I have all the required documents?"},
+  ],
+  quiz:[
+    {q:"'OIB' is:",a:"Personal ID number (like SSN)",opts:["Passport","ID card","Personal ID number (like SSN)","Work permit"]},
+    {q:"'Prijava boravišta' means:",a:"Residence registration",opts:["Work permit","Residence registration","Birth certificate","Health card"]},
+    {q:"Where do you register your residence in Croatia?",a:"Općina / MUP",opts:["HZZO","Carinska uprava","Općina / MUP","Porezna uprava"]},
+    {q:"'Komunalije' refers to:",a:"Utilities (electricity, water, gas)",opts:["Government fees","Utilities (electricity, water, gas)","Health insurance","Rent"]},
+    {q:"'Stanarina' means:",a:"Rent",opts:["Deposit","Utility bill","Rent","Contract"]},
+    {q:"'Javni bilježnik' is a:",a:"Notary public",opts:["Lawyer","Judge","Notary public","Police officer"]},
+  ],
+};
+
+export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, CROATIAN_CITIES, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, CSS, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC };
 export { _fbReady };
 export { H, Bar, Spk };
 export { initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakGoogle, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex };

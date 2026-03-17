@@ -10,6 +10,7 @@ export default function HomeTab({
   allCats, sh,
   sMcQ, sMcI, sMcS, sMcA, sMcSl,
   sFcPool, sFcI, sFcFlip, sFcKnow,
+  launchPathItem,
 }) {
   const dc = getDailyChallenge();
   const ws = getWeekStats();
@@ -279,7 +280,7 @@ export default function HomeTab({
 
         {/* Start Now button */}
         <button
-          onClick={() => { if (pathData.nextItem) { setScr(pathData.nextItem.go); sCurEx(pathData.nextItem.go); } else setScr("learnpath"); }}
+          onClick={() => { if (pathData.nextItem) { launchPathItem(pathData.nextItem); } else setScr("learnpath"); }}
           style={{
             width:"100%",height:52,
             background:"white",
@@ -492,245 +493,47 @@ export default function HomeTab({
         )}
       </div>
 
-      {/* ── MY LEARNING JOURNEY ── */}
+      {/* ── PROGRESS SNAPSHOT ── */}
       <div style={{
         background:"var(--card)",
         border:`1.5px solid ${activePalette.border}`,
-        borderRadius:22,
-        padding:"20px 20px 18px",
+        borderRadius:18,padding:"14px 18px",
         marginBottom:16,
-        boxShadow:`0 8px 40px ${activePalette.border}44, 0 2px 8px rgba(0,0,0,.05)`,
+        display:"flex",alignItems:"center",gap:16,
+        boxShadow:`0 4px 16px ${activePalette.border}33`,
       }}>
-        {/* Header */}
-        <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:18}}>
-          <div>
-            <div style={{fontSize:10,fontWeight:800,letterSpacing:".1em",textTransform:"uppercase",color:"var(--subtext)",marginBottom:3}}>
-              Progress
-            </div>
-            <div style={{fontSize:18,fontWeight:900,color:"var(--heading)",fontFamily:"'Playfair Display',serif",lineHeight:1.1}}>
-              My Learning Journey
-            </div>
-          </div>
-          <div style={{
-            background: activePalette.grad,
-            color:"white",borderRadius:20,
-            padding:"6px 12px",
-            fontSize:13,fontWeight:900,
-            fontVariantNumeric:"tabular-nums",
-            boxShadow:`0 4px 12px ${activePalette.border}66`,
-            flexShrink:0,marginTop:2,
-          }}>
-            {pathData.pct}%
-          </div>
-        </div>
-
-        {/* Road map nodes */}
-        <div style={{display:"flex",alignItems:"center",marginBottom:18,paddingBottom:4,overflowX:"auto",msOverflowStyle:"none",scrollbarWidth:"none"}}>
-          {LEARN_PATH.map((lv, i) => {
-            const lvDone = lv.items.filter(it => it.ck(st)).length;
-            const isActive = lv.level === pathData.activeLv.level;
-            const isComplete = lvDone === lv.items.length;
-            const pal = LEVEL_PALETTE[i % LEVEL_PALETTE.length];
-            return (
-              <React.Fragment key={lv.level}>
-                {i > 0 && (
-                  <div style={{
-                    flex:1,height:3,minWidth:12,
-                    background: isComplete || (LEARN_PATH[i-1].items.filter(it=>it.ck(st)).length === LEARN_PATH[i-1].items.length)
-                      ? pal.border
-                      : "#e2e8f0",
-                    borderRadius:2,
-                    backgroundImage: (!isComplete && !(LEARN_PATH[i-1].items.filter(it=>it.ck(st)).length === LEARN_PATH[i-1].items.length))
-                      ? "repeating-linear-gradient(90deg,#e2e8f0 0,#e2e8f0 6px,transparent 6px,transparent 12px)"
-                      : "none",
-                    flexShrink:1,
-                  }}/>
-                )}
-                <div style={{
-                  display:"flex",flexDirection:"column",alignItems:"center",gap:4,flexShrink:0,
-                }}>
-                  <div style={{
-                    width: isActive ? 44 : 36,
-                    height: isActive ? 44 : 36,
-                    borderRadius:"50%",
-                    background: isComplete ? pal.grad : isActive ? pal.grad : "#f1f5f9",
-                    border: isActive ? `3px solid white` : isComplete ? "none" : `2px solid #e2e8f0`,
-                    display:"flex",alignItems:"center",justifyContent:"center",
-                    fontSize: isActive ? 16 : 13,
-                    color: isComplete || isActive ? "white" : "#94a3b8",
-                    fontWeight:900,
-                    boxShadow: isActive
-                      ? `0 0 0 4px ${pal.border}66, 0 4px 16px ${pal.border}88`
-                      : isComplete
-                      ? `0 4px 12px ${pal.border}55`
-                      : "none",
-                    transition:"all .3s",
-                    animation: isActive ? "pulse 2.5s ease-in-out infinite" : "none",
-                    position:"relative",
-                  }}>
-                    {isComplete ? "✓" : isActive ? lv.level : "🔒"}
-                  </div>
-                  <div style={{
-                    fontSize:9,fontWeight:700,
-                    color: isActive ? activePalette.text : isComplete ? pal.text : "#94a3b8",
-                    letterSpacing:".04em",
-                    textTransform:"uppercase",
-                    maxWidth:52,textAlign:"center",lineHeight:1.2,
-                  }}>
-                    {lv.title}
-                  </div>
-                </div>
-              </React.Fragment>
-            );
-          })}
-        </div>
-
-        {/* Active level card */}
         <div style={{
-          background:`linear-gradient(145deg,${activePalette.light},#f8fafc)`,
-          border:`1.5px solid ${activePalette.border}`,
-          borderRadius:16,padding:"16px",marginBottom:14,
+          width:56,height:56,borderRadius:14,flexShrink:0,
+          background:activePalette.grad,
+          display:"flex",alignItems:"center",justifyContent:"center",
+          color:"white",fontWeight:900,fontSize:17,
+          boxShadow:`0 4px 14px ${activePalette.border}55`,
         }}>
-          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
-            <div style={{
-              background:activePalette.grad,color:"white",
-              borderRadius:10,padding:"4px 10px",
-              fontSize:10,fontWeight:800,flexShrink:0,
-              boxShadow:`0 2px 8px ${activePalette.border}66`,
-            }}>
-              L{pathData.activeLv.level}
-            </div>
-            <div style={{flex:1,minWidth:0}}>
-              <div style={{fontSize:15,fontWeight:900,color:"var(--heading)",lineHeight:1}}>
-                {pathData.activeLv.title}
-              </div>
-              <div style={{fontSize:11,color:"var(--subtext)",marginTop:2}}>{pathData.activeLv.desc}</div>
-            </div>
-            <div style={{fontSize:13,fontWeight:800,color:activePalette.text,flexShrink:0}}>
-              {pathData.activeLvDone}/{pathData.activeLv.items.length}
-            </div>
+          {pathData.pct}%
+        </div>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:10,fontWeight:800,color:"var(--subtext)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:2}}>Overall Progress</div>
+          <div style={{fontSize:15,fontWeight:900,color:"var(--heading)"}}>
+            {pathData.activeLv.title}
+            <span style={{fontSize:11,fontWeight:600,color:"var(--subtext)",marginLeft:6}}>Stage {pathData.activeLv.level}</span>
           </div>
-
-          <Bar v={pathData.activeLvDone} mx={pathData.activeLv.items.length} color={activePalette.text} h={6} />
-          <div style={{fontSize:10,color:"var(--subtext)",marginTop:5,marginBottom:12,fontWeight:500}}>
-            {pathData.activeLv.items.length - pathData.activeLvDone} milestone{pathData.activeLv.items.length - pathData.activeLvDone !== 1 ? "s" : ""} remaining in this level
+          <div style={{height:5,background:"var(--bar-bg)",borderRadius:3,overflow:"hidden",marginTop:6}}>
+            <div style={{height:"100%",width:pathData.pct+"%",background:activePalette.grad,borderRadius:3,transition:"width .6s ease"}}/>
           </div>
-
-          {/* Milestone chips */}
-          <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-            {pathData.activeLv.items.map((it) => {
-              const done = it.ck(st);
-              const isNext = !done && pathData.nextItem && it.id === pathData.nextItem.id;
-              if (done) return (
-                <span key={it.id} style={{
-                  borderRadius:20,padding:"5px 11px",
-                  fontSize:11,fontWeight:600,
-                  background:"#dcfce7",border:"1.5px solid #86efac",color:"#166534",
-                }}>
-                  ✓ {it.name}
-                </span>
-              );
-              if (isNext) return (
-                <button key={it.id}
-                  onClick={() => { setScr(it.go); sCurEx(it.go); }}
-                  style={{
-                    borderRadius:20,padding:"5px 13px",
-                    fontSize:11,fontWeight:800,
-                    background:activePalette.grad,
-                    border:"none",color:"white",cursor:"pointer",
-                    boxShadow:`0 3px 12px ${activePalette.border}88`,
-                    fontFamily:"'Outfit',sans-serif",
-                  }}>
-                  ▶ {it.name}
-                </button>
-              );
-              return (
-                <span key={it.id} style={{
-                  borderRadius:20,padding:"5px 11px",
-                  fontSize:11,fontWeight:600,
-                  background:"#f1f5f9",border:"1.5px solid #e2e8f0",color:"#94a3b8",
-                }}>
-                  {it.name}
-                </span>
-              );
-            })}
+          <div style={{fontSize:10,color:"var(--subtext)",marginTop:4,fontWeight:500}}>
+            {pathData.totalDone} of {pathData.totalItems} milestones complete
           </div>
         </div>
-
-        {/* CTA */}
         <button
           onClick={() => setScr("learnpath")}
           style={{
-            width:"100%",padding:"15px",borderRadius:14,
-            background:activePalette.grad,
-            color:"white",fontSize:14,fontWeight:800,
-            border:"none",cursor:"pointer",
-            boxShadow:`0 6px 20px ${activePalette.border}66`,
-            fontFamily:"'Outfit',sans-serif",
-            letterSpacing:".02em",
-            display:"flex",alignItems:"center",justifyContent:"center",gap:8,
-            transition:"transform .15s, box-shadow .15s",
+            fontSize:11,fontWeight:800,
+            background:"none",border:`1.5px solid ${activePalette.border}`,
+            borderRadius:10,padding:"8px 12px",cursor:"pointer",
+            fontFamily:"'Outfit',sans-serif",flexShrink:0,
+            whiteSpace:"nowrap",color:activePalette.text,
           }}>
-          <span>View Full Learning Path</span>
-          <span style={{fontSize:18,lineHeight:1}}>→</span>
-        </button>
-      </div>
-
-      {/* ── QUICK PRACTICE ── */}
-      <h3 className="sh">Quick Practice</h3>
-      <p style={{fontSize:12,color:"var(--subtext)",marginTop:-6,marginBottom:12,fontWeight:500}}>
-        Jump straight into a drill
-      </p>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:24}}>
-        <button className="tc"
-          style={{
-            display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
-            gap:8,padding:"18px 12px",minHeight:90,
-          }}
-          onClick={() => {
-            const pool = allCats.flatMap(cc => V[cc]);
-            const items = sh(pool).slice(0,10);
-            sMcQ(items.map(w => {
-              const wr=sh(pool.filter(p=>p[1]!==w[1])).slice(0,3).map(p=>p[1]);
-              return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]};
-            }));
-            sMcI(0); sMcS(0); sMcA(false); sMcSl(-1); setScr("mcgame");
-          }}>
-          <div style={{
-            width:46,height:46,borderRadius:14,
-            background:"linear-gradient(135deg,#fff7ed,#ffedd5)",
-            border:"1.5px solid #fed7aa",
-            display:"flex",alignItems:"center",justifyContent:"center",
-            fontSize:22,flexShrink:0,
-            boxShadow:"0 4px 12px rgba(251,146,60,.15)",
-          }}>🎯</div>
-          <div style={{textAlign:"center"}}>
-            <div style={{fontSize:13,fontWeight:800,color:"var(--heading)"}}>Quick Quiz</div>
-            <div style={{fontSize:10,color:"var(--subtext)",marginTop:2}}>10 random words</div>
-          </div>
-        </button>
-
-        <button className="tc"
-          style={{
-            display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
-            gap:8,padding:"18px 12px",minHeight:90,
-          }}
-          onClick={() => {
-            const pool=allCats.flatMap(cc=>V[cc]);
-            sFcPool(sh(pool).slice(0,20)); sFcI(0); sFcFlip(false); sFcKnow(0); setScr("flashcards");
-          }}>
-          <div style={{
-            width:46,height:46,borderRadius:14,
-            background:"linear-gradient(135deg,#faf5ff,#f5f3ff)",
-            border:"1.5px solid #ddd6fe",
-            display:"flex",alignItems:"center",justifyContent:"center",
-            fontSize:22,flexShrink:0,
-            boxShadow:"0 4px 12px rgba(124,58,237,.12)",
-          }}>🃏</div>
-          <div style={{textAlign:"center"}}>
-            <div style={{fontSize:13,fontWeight:800,color:"var(--heading)"}}>Flashcards</div>
-            <div style={{fontSize:10,color:"var(--subtext)",marginTop:2}}>20 random words</div>
-          </div>
+          Full Path →
         </button>
       </div>
 

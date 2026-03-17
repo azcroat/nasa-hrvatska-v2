@@ -183,6 +183,31 @@ function MediaCard({ m, cat, onOpen, activeStream, setActiveStream }) {
   );
 }
 
+function CrSection({ title, icon, count, defaultOpen = false, children }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div style={{ marginBottom:8 }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          display:'flex', alignItems:'center', gap:10, width:'100%',
+          padding:'13px 16px', borderRadius:14,
+          background:'var(--card)', border:'1px solid var(--card-b)',
+          cursor:'pointer', fontFamily:"'Outfit',sans-serif",
+          boxShadow:'0 1px 3px rgba(0,0,0,.06)',
+          marginBottom: open ? 10 : 0,
+        }}
+      >
+        <span style={{ fontSize:18 }}>{icon}</span>
+        <span style={{ flex:1, fontSize:14, fontWeight:800, color:'var(--heading)', textAlign:'left' }}>{title}</span>
+        <span style={{ fontSize:11, color:'var(--subtext)', fontWeight:600, background:'var(--bar-bg)', borderRadius:8, padding:'2px 8px' }}>{count}</span>
+        <span style={{ fontSize:11, color:'var(--subtext)', opacity:.5, marginLeft:4 }}>{open ? '▲' : '▼'}</span>
+      </button>
+      {open && <div style={{ marginBottom:16 }}>{children}</div>}
+    </div>
+  );
+}
+
 export default function CroatiaTab({
   setScr, sHIdx, sKgTab, sCurEx,
   setRcIdx, setRcServ, setRpIdx, setRpLine, setRpShow,
@@ -198,76 +223,29 @@ export default function CroatiaTab({
     <React.Fragment>
       {H("🇭🇷 Life in Croatia", "Culture, history, daily life")}
 
-      {/* AI Conversation Partner */}
-      <button
-        style={{marginBottom:12,padding:"16px 20px",background:"linear-gradient(135deg,#1e1b4b,#3730a3)",borderRadius:18,color:"white",boxShadow:"0 6px 24px rgba(55,48,163,.25)",width:"100%",border:"none",cursor:"pointer",textAlign:"left"}}
-        onClick={() => setScr("aiconvo")}>
-        <div style={{display:"flex",alignItems:"center",gap:14}}>
-          <div style={{fontSize:38,flexShrink:0}}>🤖</div>
-          <div style={{flex:1}}>
-            <div style={{fontSize:15,fontWeight:900,marginBottom:3}}>AI Conversation Partner</div>
-            <div style={{fontSize:12,opacity:.85,lineHeight:1.5}}>Practice real Croatian conversations · Get personalised grammar feedback</div>
-            <div style={{marginTop:8,display:"flex",gap:6,flexWrap:"wrap"}}>
-              {["50 scenarios","All levels","Free"].map(t=>(
-                <span key={t} style={{background:"rgba(255,255,255,.15)",borderRadius:20,padding:"2px 8px",fontSize:10,fontWeight:700}}>{t}</span>
-              ))}
-            </div>
-          </div>
-          <div style={{fontSize:20,opacity:.7}}>→</div>
+      {/* ── IMMERSION FEATURE ── */}
+      <div style={{ borderRadius:20, overflow:'hidden', marginBottom:16, boxShadow:'0 4px 20px rgba(0,0,0,.10)', border:'1px solid var(--card-b)' }}>
+        <div style={{ background:'linear-gradient(135deg,#1e1b4b,#3730a3)', padding:'18px 20px', color:'#fff' }}>
+          <div style={{ fontSize:10, fontWeight:700, opacity:.7, letterSpacing:'.12em', textTransform:'uppercase', marginBottom:4 }}>IMMERSION</div>
+          <div style={{ fontSize:18, fontWeight:900, marginBottom:4 }}>Level up your Croatian</div>
+          <div style={{ fontSize:12, opacity:.8, lineHeight:1.5 }}>AI conversation practice + curated media from A1 to C2</div>
         </div>
-      </button>
-
-      {/* Immersion Hub Hero Banner */}
-      <button
-        style={{marginBottom:20,padding:"18px 20px",background:"linear-gradient(135deg,#164e63,#0e7490)",borderRadius:18,color:"white",boxShadow:"0 6px 24px rgba(14,116,144,.3)",width:"100%",border:"none",cursor:"pointer",textAlign:"left"}}
-        onClick={() => setScr("immersion")}>
-        <div style={{display:"flex",alignItems:"center",gap:14}}>
-          <div style={{fontSize:40,flexShrink:0}}>🌊</div>
-          <div style={{flex:1}}>
-            <div style={{fontSize:16,fontWeight:900,marginBottom:4}}>Immersion Hub</div>
-            <div style={{fontSize:12,opacity:.85,lineHeight:1.5}}>Your curated path from first words to native fluency — media, schedules, tips & resources organized by level</div>
-            <div style={{marginTop:10,display:"flex",gap:6,flexWrap:"wrap"}}>
-              {["A1","A2","B1","B2","C1","C2"].map(l=>(
-                <span key={l} style={{background:"rgba(255,255,255,.15)",borderRadius:20,padding:"2px 8px",fontSize:10,fontWeight:800}}>{l}</span>
-              ))}
-            </div>
-          </div>
-          <div style={{fontSize:20,opacity:.7}}>→</div>
-        </div>
-      </button>
-
-      <h3 className="sh">🇭🇷 History & Regions</h3>
-      <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:20}}>
-        {[
-          [()=>{sHIdx(0);setScr("history");},"🇭🇷","Domovinski Rat","Croatia's 1991–1995 Homeland War","#dc2626"],
-          [()=>setScr("region_vukovar"),"🕯️","Vukovar","Hero city — a deep dive","#dc2626"],
-          [()=>{sKgTab("timeline");setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval dynasty & royal timeline","#b45309"],
-          [()=>setScr("region_zagreb"),"🏛️","Zagreb","Croatia's vibrant capital city","#0e7490"],
-          [()=>setScr("region_split"),"🌊","Split","Rome on the Adriatic coast","#0284c7"],
-          [()=>setScr("region_mostar"),"🌉","Mostar","The bridge reborn — our city","#7c3aed"],
-          [()=>setScr("region_tomislavgrad"),"👑","Tomislavgrad","Where the Croatian kingdom was born","#b45309"],
-          [()=>setScr("region_knin"),"🏰","Knin","Liberated August 5, 1995","#dc2626"],
-          [()=>setScr("region_labin"),"⛵","Labin & Rabac","Our new home in Istria","#0e7490"],
-          [()=>setScr("region_bibinje"),"🏖️","Bibinje & Zadar","Dalmatian gateway to the sea","#0284c7"],
-          [()=>setScr("region_hercegovina"),"⚔️","Hrvati Hercegovine","Our Croatian heritage in Herzegovina","#b45309"],
-          [()=>setScr("region_vinkovci"),"🏛️","Vinkovci","8,300 years of continuous history","#78716c"],
-        ].map(([fn,icon,title,sub,color],i)=>(
-          <button key={i} className="tc" onClick={fn}
-            style={{display:"flex",alignItems:"center",gap:14,padding:"13px 16px",textAlign:"left",borderLeft:`3px solid ${color}`}}>
-            <div style={{width:44,height:44,borderRadius:13,background:`${color}15`,border:`1px solid ${color}25`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>
-              {icon}
-            </div>
-            <div style={{flex:1,minWidth:0}}>
-              <div style={{fontSize:14,fontWeight:700,color:"var(--heading)",marginBottom:2}}>{title}</div>
-              <div style={{fontSize:11,color:"var(--subtext)",lineHeight:1.4}}>{sub}</div>
-            </div>
-            <div style={{fontSize:16,color:"var(--subtext)",flexShrink:0,opacity:.5}}>›</div>
+        <div style={{ background:'var(--card)', padding:'14px 16px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+          <button onClick={() => setScr("aiconvo")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #c7d2fe', background:'linear-gradient(135deg,#eef2ff,#e0e7ff)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+            <div style={{ fontSize:26, marginBottom:6 }}>🤖</div>
+            <div style={{ fontSize:13, fontWeight:800, color:'#3730a3' }}>AI Conversations</div>
+            <div style={{ fontSize:10, color:'#6366f1', marginTop:2 }}>50 scenarios · all levels</div>
           </button>
-        ))}
+          <button onClick={() => setScr("immersion")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #bae6fd', background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+            <div style={{ fontSize:26, marginBottom:6 }}>🌊</div>
+            <div style={{ fontSize:13, fontWeight:800, color:'#0369a1' }}>Immersion Hub</div>
+            <div style={{ fontSize:10, color:'#0284c7', marginTop:2 }}>A1 → C2 pathway</div>
+          </button>
+        </div>
       </div>
 
-      {/* City of the Day */}
-      <button style={{marginBottom:20,borderRadius:16,overflow:"hidden",boxShadow:"0 4px 16px rgba(0,0,0,.1)",width:"100%",border:"none",cursor:"pointer",padding:0,textAlign:"left"}} onClick={()=>setScr("cityofday")}>
+      {/* ── CITY OF THE DAY ── */}
+      <button style={{marginBottom:16,borderRadius:16,overflow:"hidden",boxShadow:"0 4px 16px rgba(0,0,0,.1)",width:"100%",border:"none",cursor:"pointer",padding:0,textAlign:"left"}} onClick={()=>setScr("cityofday")}>
         <div style={{background:"linear-gradient(135deg,"+city.color+"dd,"+city.color+")",padding:"14px 16px",display:"flex",alignItems:"center",gap:14}}>
           <div style={{fontSize:36,flexShrink:0}}>{city.icon}</div>
           <div style={{flex:1,minWidth:0}}>
@@ -282,53 +260,65 @@ export default function CroatiaTab({
         </div>
       </button>
 
-      <h3 className="sh">🛒 Shopping & Food</h3>
-      <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:20}}>
-        {[
-          [()=>setScr("grocery"),"🛒","Grocery Shopping","Supermarket vocabulary & phrases","#16a34a"],
-          [()=>{setRcIdx(0);setRcServ(4);setScr("recipes");},"🍳","Croatian Recipes","Cook traditional dishes in Croatian","#b45309"],
-          [()=>{setRpIdx(0);setRpLine(0);setRpShow(false);setScr("roleplay");},"🎭","Role-Play Scenarios","Practice real-life Croatian conversations","#7c3aed"],
-        ].map(([fn,icon,title,sub,color],i)=>(
-          <button key={i} className="tc" onClick={fn}
-            style={{display:"flex",alignItems:"center",gap:14,padding:"13px 16px",textAlign:"left",borderLeft:`3px solid ${color}`}}>
-            <div style={{width:44,height:44,borderRadius:13,background:`${color}15`,border:`1px solid ${color}25`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>
-              {icon}
-            </div>
-            <div style={{flex:1,minWidth:0}}>
-              <div style={{fontSize:14,fontWeight:700,color:"var(--heading)",marginBottom:2}}>{title}</div>
-              <div style={{fontSize:11,color:"var(--subtext)",lineHeight:1.4}}>{sub}</div>
-            </div>
-            <div style={{fontSize:16,color:"var(--subtext)",flexShrink:0,opacity:.5}}>›</div>
-          </button>
-        ))}
-      </div>
+      {/* ── HISTORY & REGIONS ── */}
+      <CrSection title="History & Regions" icon="🇭🇷" count="12 entries" defaultOpen={false}>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {[
+            [()=>{sHIdx(0);setScr("history");},"🇭🇷","Domovinski Rat","Croatia's 1991–1995 Homeland War","#dc2626"],
+            [()=>setScr("region_vukovar"),"🕯️","Vukovar","Hero city — a deep dive","#dc2626"],
+            [()=>{sKgTab("timeline");setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval dynasty & royal timeline","#b45309"],
+            [()=>setScr("region_zagreb"),"🏛️","Zagreb","Croatia's vibrant capital city","#0e7490"],
+            [()=>setScr("region_split"),"🌊","Split","Rome on the Adriatic coast","#0284c7"],
+            [()=>setScr("region_mostar"),"🌉","Mostar","The bridge reborn — our city","#7c3aed"],
+            [()=>setScr("region_tomislavgrad"),"👑","Tomislavgrad","Where the Croatian kingdom was born","#b45309"],
+            [()=>setScr("region_knin"),"🏰","Knin","Liberated August 5, 1995","#dc2626"],
+            [()=>setScr("region_labin"),"⛵","Labin & Rabac","Our new home in Istria","#0e7490"],
+            [()=>setScr("region_bibinje"),"🏖️","Bibinje & Zadar","Dalmatian gateway to the sea","#0284c7"],
+            [()=>setScr("region_hercegovina"),"⚔️","Hrvati Hercegovine","Our Croatian heritage in Herzegovina","#b45309"],
+            [()=>setScr("region_vinkovci"),"🏛️","Vinkovci","8,300 years of continuous history","#78716c"],
+          ].map(([fn,icon,title,sub,color],i)=>(
+            <button key={i} className="tc" onClick={fn}
+              style={{display:"flex",alignItems:"center",gap:14,padding:"13px 16px",textAlign:"left",borderLeft:`3px solid ${color}`}}>
+              <div style={{width:44,height:44,borderRadius:13,background:`${color}15`,border:`1px solid ${color}25`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>{icon}</div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:14,fontWeight:700,color:"var(--heading)",marginBottom:2}}>{title}</div>
+                <div style={{fontSize:11,color:"var(--subtext)",lineHeight:1.4}}>{sub}</div>
+              </div>
+              <div style={{fontSize:16,color:"var(--subtext)",flexShrink:0,opacity:.5}}>›</div>
+            </button>
+          ))}
+        </div>
+      </CrSection>
 
-      <h3 className="sh">🏫 Daily Life</h3>
-      <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:20}}>
-        {[
-          ["🏫","School Kit","school","Vocabulary for parents & students","#0e7490"],
-          ["📱","Texting & Slang","texting","How Croatians actually text","#7c3aed"],
-          ["🤝","Making Friends","friends","Meeting people, small talk & social life","#16a34a"],
-          ["🍕","Ordering Food","foodorder","Restaurants, cafés, and takeaway","#b45309"],
-          ["🚌","Transport","transport","Buses, trams, taxis & getting around","#0284c7"],
-          ["🚨","Emergency","emergency","Essential phrases when it matters most","#dc2626"],
-          ["💼","Practical Life","practical","Banks, post office, doctors & admin","#78716c"],
-          ["🏀","At Basketball","basketball","Croatian basketball culture & terms","#b45309"],
-          ["🏋️","At the Gym","gym","Fitness vocabulary & gym phrases","#16a34a"],
-        ].map(([icon,title,screen,sub,color])=>(
-          <button key={screen} className="tc" onClick={()=>setScr(screen)}
-            style={{display:"flex",alignItems:"center",gap:14,padding:"13px 16px",textAlign:"left",borderLeft:`3px solid ${color}`}}>
-            <div style={{width:44,height:44,borderRadius:13,background:`${color}15`,border:`1px solid ${color}25`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>
-              {icon}
-            </div>
-            <div style={{flex:1,minWidth:0}}>
-              <div style={{fontSize:14,fontWeight:700,color:"var(--heading)",marginBottom:2}}>{title}</div>
-              <div style={{fontSize:11,color:"var(--subtext)",lineHeight:1.4}}>{sub}</div>
-            </div>
-            <div style={{fontSize:16,color:"var(--subtext)",flexShrink:0,opacity:.5}}>›</div>
-          </button>
-        ))}
-      </div>
+      {/* ── CROATIAN LIFE ── */}
+      <CrSection title="Croatian Life" icon="🏘️" count="12 topics" defaultOpen={false}>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {[
+            [()=>setScr("grocery"),"🛒","Grocery Shopping","Supermarket vocabulary & phrases","#16a34a"],
+            [()=>{setRcIdx(0);setRcServ(4);setScr("recipes");},"🍳","Croatian Recipes","Cook traditional dishes in Croatian","#b45309"],
+            [()=>{setRpIdx(0);setRpLine(0);setRpShow(false);setScr("roleplay");},"🎭","Role-Play Scenarios","Practice real-life conversations","#7c3aed"],
+            [()=>setScr("school"),"🏫","School Kit","Vocabulary for parents & students","#0e7490"],
+            [()=>setScr("texting"),"📱","Texting & Slang","How Croatians actually text","#7c3aed"],
+            [()=>setScr("friends"),"🤝","Making Friends","Meeting people & social life","#16a34a"],
+            [()=>setScr("foodorder"),"🍕","Ordering Food","Restaurants, cafés, and takeaway","#b45309"],
+            [()=>setScr("transport"),"🚌","Transport","Buses, trams, taxis & getting around","#0284c7"],
+            [()=>setScr("emergency"),"🚨","Emergency","Essential phrases when it matters most","#dc2626"],
+            [()=>setScr("practical"),"💼","Practical Life","Banks, post office, doctors & admin","#78716c"],
+            [()=>setScr("basketball"),"🏀","At Basketball","Croatian basketball culture & terms","#b45309"],
+            [()=>setScr("gym"),"🏋️","At the Gym","Fitness vocabulary & gym phrases","#16a34a"],
+          ].map(([fn,icon,title,sub,color],i)=>(
+            <button key={i} className="tc" onClick={fn}
+              style={{display:"flex",alignItems:"center",gap:14,padding:"13px 16px",textAlign:"left",borderLeft:`3px solid ${color}`}}>
+              <div style={{width:44,height:44,borderRadius:13,background:`${color}15`,border:`1px solid ${color}25`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>{icon}</div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:14,fontWeight:700,color:"var(--heading)",marginBottom:2}}>{title}</div>
+                <div style={{fontSize:11,color:"var(--subtext)",lineHeight:1.4}}>{sub}</div>
+              </div>
+              <div style={{fontSize:16,color:"var(--subtext)",flexShrink:0,opacity:.5}}>›</div>
+            </button>
+          ))}
+        </div>
+      </CrSection>
 
       <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px",marginBottom:20}} onClick={() => { setMapCat("all"); setMapSel(null); setScr("crmap"); }}>
         <div style={{fontSize:36}}>🗺️</div>
