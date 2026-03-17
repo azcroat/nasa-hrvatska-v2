@@ -1,5 +1,5 @@
 import React from 'react';
-import { H, Bar, Spk, srMark, sh, shuffleArr, V } from '../../data.jsx';
+import { H, Bar, Spk, speak, srMark, sh, shuffleArr, V } from '../../data.jsx';
 
 export default function LessonScreen({
   lt, li, lx, ls, lp, la, lsl, qi, icons,
@@ -12,9 +12,9 @@ export default function LessonScreen({
       {lp==="learn"&&<React.Fragment>
         {H((icons[lt]||"📚")+" "+lt)}
         {li.map((w,i)=>(
-          <div key={i} className="c" style={{marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center",padding:"16px 20px"}}>
+          <div key={i} className="c" onClick={()=>speak(w[0])} style={{marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center",padding:"16px 20px",cursor:"pointer"}}>
             <div style={{display:"flex",alignItems:"center",gap:12}}>
-              <Spk text={w[0]} />
+              <span style={{fontSize:20}}>🔊</span>
               <div>
                 <div style={{fontSize:18,fontWeight:700}}>{w[0]}</div>
                 {w[2]&&<div style={{fontSize:12,color:"#78716c"}}>/{w[2]}/</div>}
@@ -32,9 +32,9 @@ export default function LessonScreen({
       {lp==="quiz"&&qi[lx]&&<React.Fragment>
         <Bar v={lx+1} mx={qi.length} h={6} />
         <div className="c" style={{marginTop:16}}>
-          <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:20}}>
-            <Spk text={qi[lx][0]} />
-            <p style={{fontSize:24,fontWeight:800}}>{qi[lx][0]}</p>
+          <div onClick={()=>speak(qi[lx][0])} style={{display:"flex",alignItems:"center",gap:12,marginBottom:20,cursor:"pointer"}}>
+            <span style={{fontSize:22}}>🔊</span>
+            <p style={{fontSize:24,fontWeight:800,margin:0}}>{qi[lx][0]}</p>
           </div>
           {qi[lx].opts.map((o,i)=>(
             <button key={i} className={"ob "+(la?(i===qi[lx].ci?"ok":lsl===i?"no":""):"")}

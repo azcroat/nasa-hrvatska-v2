@@ -193,7 +193,7 @@ function speakSynth(text,rate){
 }
 function speak(text){
   if(!text)return;
-  speakAzure(text,false).then(ok=>{if(!ok)speakGoogle(text,t=>speakSynth(t,0.9))}).catch(()=>speakGoogle(text,t=>speakSynth(t,0.9)));
+  speakAzure(text,false).then(ok=>{if(!ok)speakSynth(text,0.9)}).catch(()=>speakSynth(text,0.9));
 }
 function speakSlow(text){
   if(!text)return;
