@@ -1,6 +1,23 @@
 // Cloudflare Pages Function — Azure TTS Proxy
 // Keeps the Azure key server-side, never exposed to the browser
 
+export async function onRequestGet(context) {
+  const { env } = context;
+  const AZURE_KEY = env.AZURE_TTS_KEY;
+  const AZURE_REGION = env.AZURE_TTS_REGION || "westeurope";
+  if (!AZURE_KEY) return new Response("NO KEY SET", { status: 200 });
+  try {
+    const r = await fetch(
+      `https://${AZURE_REGION}.api.cognitive.microsoft.com/sts/v1.0/issueToken`,
+      { method: "POST", headers: { "Ocp-Apim-Subscription-Key": AZURE_KEY, "Content-Length": "0" } }
+    );
+    const body = await r.text().catch(() => "");
+    return new Response(`key_status=${r.status} region=${AZURE_REGION} key_prefix=${AZURE_KEY.substring(0,6)}`, { status: 200 });
+  } catch(e) {
+    return new Response("key_test_error: " + e.message, { status: 200 });
+  }
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
   const AZURE_KEY = env.AZURE_TTS_KEY;
