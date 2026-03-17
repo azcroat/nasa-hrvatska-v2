@@ -40,7 +40,8 @@ export async function onRequestPost(context) {
     );
 
     if (!response.ok) {
-      return new Response("Azure TTS error", { status: response.status });
+      const azureErr = await response.text().catch(() => "");
+      return new Response("Azure TTS error " + response.status + ": " + azureErr, { status: response.status });
     }
 
     const buffer = await response.arrayBuffer();
