@@ -1,15 +1,10 @@
 // Cloudflare Pages Function — Azure TTS Proxy
 // Keeps the Azure key server-side, never exposed to the browser
 
-export async function onRequestGet(context) {
-  // Diagnostic endpoint (GET /api/tts)
-  return new Response("TTS proxy running", { status: 200 });
-}
-
 export async function onRequestPost(context) {
   const { request, env } = context;
   const AZURE_KEY = env.AZURE_TTS_KEY;
-  const AZURE_REGION = env.AZURE_TTS_REGION || "westeurope";
+  const PRIMARY_REGION = env.AZURE_TTS_REGION || "eastus";
 
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
   const allowed = ["nasahrvatska.com", "pages.dev", "localhost"];
@@ -33,20 +28,19 @@ export async function onRequestPost(context) {
       ? `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}"><prosody rate="slow">${safeText}</prosody></voice></speak>`
       : `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}">${safeText}</voice></speak>`;
 
-    // Try regions in order — if AZURE_TTS_REGION is set use it first, then try common fallbacks
-    const regionsToTry = [AZURE_REGION];
-    if (AZURE_REGION === "westeurope") regionsToTry.push("eastus", "eastus2", "northeurope", "westus2");
+    // Try primary region first, then common fallbacks
+    const regions = [PRIMARY_REGION, "eastus", "eastus2", "westeurope", "northeurope", "westus2"]
+      .filter((r, i, a) => a.indexOf(r) === i); // dedupe
 
-    let response = null;
-    let usedRegion = AZURE_REGION;
-    for (const region of regionsToTry) {
+    for (const region of regions) {
       const tokenRes = await fetch(
         `https://${region}.api.cognitive.microsoft.com/sts/v1.0/issueToken`,
         { method: "POST", headers: { "Ocp-Apim-Subscription-Key": AZURE_KEY, "Content-Length": "0" } }
       );
       if (!tokenRes.ok) continue;
       const token = await tokenRes.text();
-      const r = await fetch(
+
+      const response = await fetch(
         `https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`,
         {
           method: "POST",
@@ -59,28 +53,23 @@ export async function onRequestPost(context) {
           body: ssml,
         }
       );
-      if (r.ok || r.status !== 400) { response = r; usedRegion = region; break; }
-    }
-    if (!response) response = await fetch(
-      `https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`,
-      { method: "POST", headers: { "Ocp-Apim-Subscription-Key": AZURE_KEY, "Content-Type": "application/ssml+xml", "X-Microsoft-OutputFormat": "audio-16khz-128kbitrate-mono-mp3", "User-Agent": "NasaHrvatska/1.0" }, body: ssml }
-    );
 
-    if (!response.ok) {
-      const azureErr = await response.text().catch(() => "");
-      return new Response("Azure TTS error " + response.status + " region=" + usedRegion + ": " + azureErr, { status: 500 });
+      if (response.ok) {
+        const buffer = await response.arrayBuffer();
+        return new Response(buffer, {
+          status: 200,
+          headers: {
+            "Content-Type": "audio/mpeg",
+            "Cache-Control": "public, max-age=86400",
+          },
+        });
+      }
+      // 400 = wrong region or voice issue — try next; other errors = stop
+      if (response.status !== 400) break;
     }
 
-    const buffer = await response.arrayBuffer();
-    return new Response(buffer, {
-      status: 200,
-      headers: {
-        "Content-Type": "audio/mpeg",
-        "Cache-Control": "public, max-age=86400",
-        "X-TTS-Region": usedRegion,
-      },
-    });
+    return new Response("Azure TTS unavailable", { status: 503 });
   } catch (e) {
-    return new Response("TTS proxy error: " + e.message, { status: 500 });
+    return new Response("TTS proxy error", { status: 500 });
   }
 }
