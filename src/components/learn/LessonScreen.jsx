@@ -17,7 +17,7 @@ export default function LessonScreen({
               <Spk text={w[0]} />
               <div>
                 <div style={{fontSize:18,fontWeight:700}}>{w[0]}</div>
-                <div style={{fontSize:12,color:"#78716c"}}>/{w[2]}/</div>
+                {w[2]&&<div style={{fontSize:12,color:"#78716c"}}>/{w[2]}/</div>}
               </div>
             </div>
             <div style={{color:"#44403c"}}>{w[1]}</div>

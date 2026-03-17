@@ -177,11 +177,11 @@ async function speakAzure(text,slow){
   }catch(e){return false}
 }
 function speakGoogle(text,onFail){
-  const cacheKey=text.substring(0,80);
   stopAudio();
   if(text.length>200){const sentences=text.match(/[^.!?]+[.!?]+/g)||[text];let i=0;function playNext(){if(i>=sentences.length)return;const s=sentences[i].trim();if(!s){i++;playNext();return}const url="https://translate.google.com/translate_tts?ie=UTF-8&tl=hr&client=tw-ob&q="+encodeURIComponent(s);const a=new Audio(url);a.volume=1.0;_currentAudio=a;a.onended=()=>{i++;playNext()};a.onerror=()=>{if(onFail)onFail(text)};a.play().catch(()=>{if(onFail)onFail(text)})}playNext();return}
   const url="https://translate.google.com/translate_tts?ie=UTF-8&tl=hr&client=tw-ob&q="+encodeURIComponent(text);
   const a=new Audio(url);a.volume=1.0;_currentAudio=a;
+  a.onerror=()=>{if(onFail)onFail(text)};
   const p=a.play();if(p)p.catch(()=>{if(onFail)onFail(text)})
 }
 function speakSynth(text,rate){
@@ -193,11 +193,11 @@ function speakSynth(text,rate){
 }
 function speak(text){
   if(!text)return;
-  speakAzure(text,false).then(ok=>{if(!ok)speakGoogle(text,t=>speakSynth(t,0.9))});
+  speakAzure(text,false).then(ok=>{if(!ok)speakGoogle(text,t=>speakSynth(t,0.9))}).catch(()=>speakGoogle(text,t=>speakSynth(t,0.9)));
 }
 function speakSlow(text){
   if(!text)return;
-  speakAzure(text,true).then(ok=>{if(!ok)speakSynth(text,0.6)});
+  speakAzure(text,true).then(ok=>{if(!ok)speakSynth(text,0.6)}).catch(()=>speakSynth(text,0.6));
 }
 function speakEN(text){if(!text||!window.speechSynthesis)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=0.9;window.speechSynthesis.speak(u)}
 function sh(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
