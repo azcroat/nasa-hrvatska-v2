@@ -67,11 +67,19 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
           </div>
         </button>
         <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}} onClick={() => setScr("leaderboard")}>
-          <div style={{width:44,height:44,borderRadius:13,background:"linear-gradient(135deg,#f0fdf4,#dcfce7)",border:"1px solid #bbf7d0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>👨‍👩‍👧‍👦</div>
+          <div style={{width:44,height:44,borderRadius:13,background:"linear-gradient(135deg,#f0fdf4,#dcfce7)",border:"1px solid #bbf7d0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>🏅</div>
           <div style={{textAlign:"left",minWidth:0}}>
-            <div style={{fontSize:13,fontWeight:800,color:"var(--heading)"}}>Family</div>
-            <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>Leaderboard</div>
+            <div style={{fontSize:13,fontWeight:800,color:"var(--heading)"}}>Leaderboard</div>
+            <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>View rankings</div>
           </div>
+        </button>
+        <button className="tc" style={{gridColumn:"1/-1",display:"flex",alignItems:"center",gap:14,padding:"16px"}} onClick={() => setScr("certificate")}>
+          <div style={{width:44,height:44,borderRadius:13,background:"linear-gradient(135deg,#f0f9ff,#bae6fd)",border:"1px solid #7dd3fc",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>📜</div>
+          <div style={{flex:1,textAlign:"left"}}>
+            <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>My Certificate</div>
+            <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>Download your progress certificate</div>
+          </div>
+          <div style={{fontSize:20,color:"var(--subtext)",opacity:.35}}>›</div>
         </button>
       </div>
 

@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
-import { _fbReady, H, Bar, Spk, V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, CSS, BG_LIGHT, BG_DARK, initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakGoogle, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, shMemo, shuffleArr, buildSearchIndex } from "./data.jsx";
+import { _fbReady, H, Bar, Spk, V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, CSS, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakGoogle, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, shMemo, shuffleArr, buildSearchIndex } from "./data.jsx";
 // Always-needed: auth + core UI (eager)
 import LoginScreen from "./components/auth/LoginScreen.jsx";
 import ResetPassword from "./components/auth/ResetPassword.jsx";
 import XPPopup from "./components/shared/XPPopup.jsx";
 import BadgeToast from "./components/shared/BadgeToast.jsx";
 import TabBar from "./components/shared/TabBar.jsx";
+import Sidebar from "./components/shared/Sidebar.jsx";
+import CelebrationModal from "./components/shared/CelebrationModal.jsx";
+import OnboardingTour from "./components/shared/OnboardingTour.jsx";
 import WelcomeScreen from "./components/home/WelcomeScreen.jsx";
 import PlacementTest from "./components/home/PlacementTest.jsx";
 // Tabs + screens — lazy-loaded on first use
@@ -63,6 +66,11 @@ const DiminutivesScreen = lazy(() => import("./components/learn/GrammarRef.jsx")
 const WordFormScreen = lazy(() => import("./components/learn/GrammarRef.jsx").then(m => ({default: m.WordFormScreen})));
 const ColorQuirkScreen = lazy(() => import("./components/learn/GrammarRef.jsx").then(m => ({default: m.ColorQuirkScreen})));
 const SvojMojScreen = lazy(() => import("./components/learn/GrammarRef.jsx").then(m => ({default: m.SvojMojScreen})));
+const ConditionalScreen = lazy(() => import("./components/learn/NewLessons.jsx").then(m => ({default: m.ConditionalScreen})));
+const FormalRegisterScreen = lazy(() => import("./components/learn/NewLessons.jsx").then(m => ({default: m.FormalRegisterScreen})));
+const ImpersonalScreen = lazy(() => import("./components/learn/NewLessons.jsx").then(m => ({default: m.ImpersonalScreen})));
+const TechVocScreen = lazy(() => import("./components/learn/NewLessons.jsx").then(m => ({default: m.TechVocScreen})));
+const BureaucraticScreen = lazy(() => import("./components/learn/NewLessons.jsx").then(m => ({default: m.BureaucraticScreen})));
 const CountriesScreen = lazy(() => import("./components/learn/VocabScreens.jsx").then(m => ({default: m.CountriesScreen})));
 const ProfessionsScreen = lazy(() => import("./components/learn/VocabScreens.jsx").then(m => ({default: m.ProfessionsScreen})));
 const WeatherScreen = lazy(() => import("./components/learn/VocabScreens.jsx").then(m => ({default: m.WeatherScreen})));
@@ -112,6 +120,7 @@ const MatchGame = lazy(() => import("./components/practice/MatchGame.jsx"));
 const WordSprint = lazy(() => import("./components/practice/WordSprint.jsx"));
 const SpeakingScreen = lazy(() => import("./components/practice/SpeakingScreen.jsx"));
 const Leaderboard = lazy(() => import("./components/profile/Leaderboard.jsx"));
+const CertificateScreen = lazy(() => import("./components/profile/CertificateScreen.jsx"));
 
 // Module-level constants — defined once, not recreated on every render
 const DS={xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,al:0,mv:0,hi:0,rs:[],ct:[],badges:[]};
@@ -173,6 +182,9 @@ function App(){
   const[darkMode,setDarkMode]=useState(function(){return localStorage.getItem("darkMode")==="true"});
   const[favs,setFavs]=useState(function(){try{return JSON.parse(localStorage.getItem("uFavs")||"[]")}catch{return[]}});
   const[srchQ,setSrchQ]=useState("");const[srchR,setSrchR]=useState([]);const[srchOpen,setSrchOpen]=useState(false);
+  const[onboarded,setOnboarded]=useState(function(){return localStorage.getItem("onboarded")==="true"});
+  const[showCelebration,setShowCelebration]=useState(false);const[celebXP,setCelebXP]=useState(0);
+  const[comebackBonus,setComebackBonus]=useState(false);
   var toggleFav=function(item){var key=item.hr||item.name;var exists=favs.some(function(f){return(f.hr||f.name)===key});var nf=exists?favs.filter(function(f){return(f.hr||f.name)!==key}):[{hr:item.hr,en:item.en,type:item.type||"custom",go:item.go}].concat(favs);setFavs(nf);localStorage.setItem("uFavs",JSON.stringify(nf))};
   var isFav=function(key){return favs.some(function(f){return(f.hr||f.name)===key})};
   var doSearch=function(q){if(!q.trim()){setSrchR([]);return}var idx=buildSearchIndex();var lq=q.toLowerCase();setSrchR(idx.filter(function(i){return(i.hr&&i.hr.toLowerCase().indexOf(lq)>=0)||(i.en&&i.en.toLowerCase().indexOf(lq)>=0)}).slice(0,15))};
@@ -184,7 +196,7 @@ function App(){
   const[showXP,setShowXP]=useState(false);const[xpA,setXpA]=useState(0);const[nB,setNB]=useState(null);const[sB,setSB]=useState(false);
   const _initialPath=useRef(window.location.pathname);
   useEffect(()=>{initFirebase();
-    const s=gS();if(s&&s.u){if(isSessionExpired()){cS();setAs("login");setTimeout(function(){setAe("\u2705 Your session expired. Your account is safe \u2014 just sign in again.")},200);return}const a=gA();if(a[s.u]){const p=gP(s.u);setAu({u:s.u,d:a[s.u].d,e:a[s.u].e||s.u});touchSession();updateStreak();var lf=getLocalFamily();if(lf)setFamData(lf);if(p){setName(p.name||a[s.u].d);setSt(p.st||ds);_goPostAuth(p.cp||(p.st&&(p.st.xp>0||p.st.lc>0)))}else setName(a[s.u].d);setAs("app");fbLoadProgress(s.u).then(function(fp){if(!fp)return;var lp=gP(s.u);var fpXP=(fp.st&&fp.st.xp)||0;var lpXP=(lp&&lp.st&&lp.st.xp)||0;if(fpXP>=lpXP){sP(s.u,fp);setSt(fp.st||ds);if(fp.name)setName(fp.name);if(fp.sr)saveSR(fp.sr);if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}var _n1=new Date();var _dcT=_n1.getFullYear()+'-'+String(_n1.getMonth()+1).padStart(2,'0')+'-'+String(_n1.getDate()).padStart(2,'0');if(fp.dc&&fp.dc.day===_dcT){sDchlA(fp.dc.answered||[false,false,false]);sDchlSl(Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""]);localStorage.setItem("dcDay3",JSON.stringify({day:_dcT,answered:fp.dc.answered||[false,false,false],selected:Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""]}))};}});}else{
+    const s=gS();if(s&&s.u){if(isSessionExpired()){cS();setAs("login");setTimeout(function(){setAe("\u2705 Your session expired. Your account is safe \u2014 just sign in again.")},200);return}const a=gA();if(a[s.u]){const p=gP(s.u);setAu({u:s.u,d:a[s.u].d,e:a[s.u].e||s.u});touchSession();updateStreak();var lf=getLocalFamily();if(lf)setFamData(lf);if(p){setName(p.name||a[s.u].d);setSt(p.st||ds);_goPostAuth(p.cp||(p.st&&(p.st.xp>0||p.st.lc>0)))}else setName(a[s.u].d);setAs("app");fbLoadProgress(s.u).then(function(fp){if(!fp)return;var lp=gP(s.u);var fpXP=(fp.st&&fp.st.xp)||0;var lpXP=(lp&&lp.st&&lp.st.xp)||0;if(fpXP>=lpXP){sP(s.u,fp);setSt(fp.st||ds);if(fp.name)setName(fp.name);if(fp.sr)saveSR(fp.sr);if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}var _n1=new Date();var _dcT=_n1.getFullYear()+'-'+String(_n1.getMonth()+1).padStart(2,'0')+'-'+String(_n1.getDate()).padStart(2,'0');if(fp.dc&&fp.dc.day===_dcT){sDchlA(fp.dc.answered||[false,false,false]);sDchlSl(Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""]);localStorage.setItem("dcDay3",JSON.stringify({day:_dcT,answered:fp.dc.answered||[false,false,false],selected:Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""]}))}if(fp.cooldown){var _t=new Date().toISOString().slice(0,10);var _cd={};try{_cd=JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch(e){}for(var _ck in fp.cooldown){if(fp.cooldown[_ck]===_t)_cd[_ck]=fp.cooldown[_ck];}localStorage.setItem("xpCooldown",JSON.stringify(_cd));};}});}else{
       if(_fbReady){
         fbOnAuthStateChanged(function(user){
           if(user){var dn=user.displayName||user.email;var k=user.email;
@@ -192,7 +204,7 @@ function App(){
             fbLoadProgress(k).then(function(fp){if(fp)sP(k,fp);
               setAu({u:k,d:dn,e:k});sS({u:k});touchSession();updateStreak();
               fbLoadUserFamily(k).then(function(f){if(f)setFamData(f)});
-              var p=fp||gP(k);if(p){setName(p.name||dn);setSt(p.st||ds);_goPostAuth(p.cp||(p.st&&(p.st.xp>0||p.st.lc>0)));if(p.sr)saveSR(p.sr);if(p.streak)localStorage.setItem("uStreak",JSON.stringify(p.streak));if(p.favs){localStorage.setItem("uFavs",JSON.stringify(p.favs));setFavs(p.favs);}if(p.journal){localStorage.setItem("uJournal",JSON.stringify(p.journal));setJWords(p.journal);}var _n2=new Date();var _dcT2=_n2.getFullYear()+'-'+String(_n2.getMonth()+1).padStart(2,'0')+'-'+String(_n2.getDate()).padStart(2,'0');if(p.dc&&p.dc.day===_dcT2){sDchlA(p.dc.answered||[false,false,false]);sDchlSl(Array.isArray(p.dc.selected)&&typeof p.dc.selected[0]==="string"?p.dc.selected:["","",""]);localStorage.setItem("dcDay3",JSON.stringify({day:_dcT2,answered:p.dc.answered||[false,false,false],selected:Array.isArray(p.dc.selected)&&typeof p.dc.selected[0]==="string"?p.dc.selected:["","",""]}))};}else setName(dn);
+              var p=fp||gP(k);if(p){setName(p.name||dn);setSt(p.st||ds);_goPostAuth(p.cp||(p.st&&(p.st.xp>0||p.st.lc>0)));if(p.sr)saveSR(p.sr);if(p.streak)localStorage.setItem("uStreak",JSON.stringify(p.streak));if(p.favs){localStorage.setItem("uFavs",JSON.stringify(p.favs));setFavs(p.favs);}if(p.journal){localStorage.setItem("uJournal",JSON.stringify(p.journal));setJWords(p.journal);}var _n2=new Date();var _dcT2=_n2.getFullYear()+'-'+String(_n2.getMonth()+1).padStart(2,'0')+'-'+String(_n2.getDate()).padStart(2,'0');if(p.dc&&p.dc.day===_dcT2){sDchlA(p.dc.answered||[false,false,false]);sDchlSl(Array.isArray(p.dc.selected)&&typeof p.dc.selected[0]==="string"?p.dc.selected:["","",""]);localStorage.setItem("dcDay3",JSON.stringify({day:_dcT2,answered:p.dc.answered||[false,false,false],selected:Array.isArray(p.dc.selected)&&typeof p.dc.selected[0]==="string"?p.dc.selected:["","",""]}))}if(p.cooldown){var _t2=new Date().toISOString().slice(0,10);var _cd2={};try{_cd2=JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch(e){}for(var _ck2 in p.cooldown){if(p.cooldown[_ck2]===_t2)_cd2[_ck2]=p.cooldown[_ck2];}localStorage.setItem("xpCooldown",JSON.stringify(_cd2));};}else setName(dn);
               setAs("app")})
           }else{
             // Firebase has no user — only clear session if there is no local account to fall back to
@@ -200,7 +212,13 @@ function App(){
             if(_s&&_s.u&&_a[_s.u]){setAs("login")}else{cS();setAs("login")}}})
       }else{setAs("login")}}}else setAs("login")
   },[]);
-  useEffect(()=>{if(au&&as==="app"){var _nd=new Date();var _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');sP(au.u,{name,st,cp:scr!=="welcome"&&scr!=="placement",sr:getSR(),streak:getStreak(),favs,journal:jWords,dc:{day:_dcDay,answered:dchlA,selected:dchlSl}});touchSession()}},[st,scr,name,au,as,jWords,favs,dchlA,dchlSl]);
+  useEffect(()=>{
+    if(as!=="app")return;
+    var lastSeen=localStorage.getItem("lastSeen");var now=Date.now();
+    if(lastSeen&&st.xp>0){var diff=now-parseInt(lastSeen,10);if(diff>86400000&&diff<7*86400000){setComebackBonus(true);setTimeout(()=>setComebackBonus(false),4000);}}
+    localStorage.setItem("lastSeen",String(now));
+  },[as]);// eslint-disable-line
+  useEffect(()=>{if(au&&as==="app"){var _nd=new Date();var _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');sP(au.u,{name,st,cp:scr!=="welcome"&&scr!=="placement",sr:getSR(),streak:getStreak(),favs,journal:jWords,dc:{day:_dcDay,answered:dchlA,selected:dchlSl},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()});touchSession()}},[st,scr,name,au,as,jWords,favs,dchlA,dchlSl]);
   useEffect(()=>{if(as!=="app")return;const iv=setInterval(()=>{if(isSessionExpired()){cS();setAu(null);setSt(ds);setScr("welcome");setName("");setAs("login")}},5*60*1000);return()=>clearInterval(iv)},[as]);
   useEffect(()=>{if(as!=="app")return;const h=()=>touchSession();window.addEventListener("click",h);window.addEventListener("touchstart",h);window.addEventListener("keydown",h);return()=>{window.removeEventListener("click",h);window.removeEventListener("touchstart",h);window.removeEventListener("keydown",h)}},[as]);
   async function doReg(){
@@ -271,7 +289,7 @@ function App(){
       try{fex.p=await hp(pw);}catch(e){}  // sync hash — critical so local fallback always works
       fa[k]=fex;sA(fa);if(fbProgress)sP(k,fbProgress);
       setAu({u:k,d:fdn,e:k});sS({u:k});
-      var fp=fbProgress||gP(k);if(fp){setName(fp.name||fdn);setSt(fp.st||ds);_goPostAuth(fp.cp||(fp.st&&(fp.st.xp>0||fp.st.lc>0)));if(fp.sr)saveSR(fp.sr);if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}var _n3=new Date();var _dcT3=_n3.getFullYear()+'-'+String(_n3.getMonth()+1).padStart(2,'0')+'-'+String(_n3.getDate()).padStart(2,'0');if(fp.dc&&fp.dc.day===_dcT3){sDchlA(fp.dc.answered||[false,false,false]);sDchlSl(Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""]);localStorage.setItem("dcDay3",JSON.stringify({day:_dcT3,answered:fp.dc.answered||[false,false,false],selected:Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""]}))};}else setName(fdn);
+      var fp=fbProgress||gP(k);if(fp){setName(fp.name||fdn);setSt(fp.st||ds);_goPostAuth(fp.cp||(fp.st&&(fp.st.xp>0||fp.st.lc>0)));if(fp.sr)saveSR(fp.sr);if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}var _n3=new Date();var _dcT3=_n3.getFullYear()+'-'+String(_n3.getMonth()+1).padStart(2,'0')+'-'+String(_n3.getDate()).padStart(2,'0');if(fp.dc&&fp.dc.day===_dcT3){sDchlA(fp.dc.answered||[false,false,false]);sDchlSl(Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""]);localStorage.setItem("dcDay3",JSON.stringify({day:_dcT3,answered:fp.dc.answered||[false,false,false],selected:Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""]}))}if(fp.cooldown){var _t3=new Date().toISOString().slice(0,10);var _cd3={};try{_cd3=JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch(e){}for(var _ck3 in fp.cooldown){if(fp.cooldown[_ck3]===_t3)_cd3[_ck3]=fp.cooldown[_ck3];}localStorage.setItem("xpCooldown",JSON.stringify(_cd3));};}else setName(fdn);
       setAs("app");setEm("");setPw("");fbLoadUserFamily(k).then(function(f){if(f)setFamData(f)});setAl(false);return;}
     // Hard-stop only on rate limiting
     if(fbResult&&fbResult.err&&fbResult.err.indexOf("Too many attempts")>=0){setAe(fbResult.err);setAl(false);return;}
@@ -283,7 +301,9 @@ function App(){
       if(la[k].p===lh){
         setAu({u:k,d:la[k].d,e:k});sS({u:k});var lp=gP(k);
         if(lp){setName(lp.name||la[k].d);setSt(lp.st||ds);_goPostAuth(lp.cp||(lp.st&&(lp.st.xp>0||lp.st.lc>0)))}else setName(la[k].d);
-        setAs("app");setEm("");setPw("");setAl(false);return;}
+        setAs("app");setEm("");setPw("");
+        fbLoadProgress(k).then(function(fp4){if(!fp4)return;var lp4=gP(k);var fpXP4=(fp4.st&&fp4.st.xp)||0;var lpXP4=(lp4&&lp4.st&&lp4.st.xp)||0;if(fp4.sr)saveSR(fp4.sr);if(fp4.streak)localStorage.setItem("uStreak",JSON.stringify(fp4.streak));if(fpXP4>lpXP4){sP(k,fp4);setSt(fp4.st||ds);if(fp4.name)setName(fp4.name);if(fp4.favs){localStorage.setItem("uFavs",JSON.stringify(fp4.favs));setFavs(fp4.favs);}if(fp4.journal){localStorage.setItem("uJournal",JSON.stringify(fp4.journal));setJWords(fp4.journal);}}if(fp4.cooldown){var _t4=new Date().toISOString().slice(0,10);var _cd4={};try{_cd4=JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch(e){}for(var _ck4 in fp4.cooldown){if(fp4.cooldown[_ck4]===_t4)_cd4[_ck4]=fp4.cooldown[_ck4];}localStorage.setItem("xpCooldown",JSON.stringify(_cd4));}});
+        setAl(false);return;}
       // Account exists but password wrong — always this message, never Firebase's "no account found"
       setAe("Incorrect password. Try again or use Forgot Password.");setAl(false);return;}
     // Account record exists but has no password hash — guide to reset
@@ -360,11 +380,12 @@ function markExerciseDone(exerciseId){
     window.addEventListener("popstate",onPopState);
     return function(){window.removeEventListener("popstate",onPopState)};
   },[]);// eslint-disable-line
-  const award=useCallback((amt)=>{
+  const award=useCallback((amt,celebrate)=>{
     if(curEx&&!canEarnXP(curEx)){setXpA(0);setShowXP(true);setTimeout(()=>setShowXP(false),2000);return}
     setXpA(amt);setShowXP(true);
     setSt(s=>{const n={...s,xp:s.xp+amt};const nb=BADGES.filter(b=>!s.badges.includes(b.id)&&b.r(n));if(nb.length){n.badges=[...s.badges,...nb.map(b=>b.id)];setTimeout(()=>{setNB(nb[0]);setSB(true);setTimeout(()=>setSB(false),3000)},600)}return n});
-    setTimeout(()=>setShowXP(false),1500)
+    setTimeout(()=>setShowXP(false),1500);
+    if(celebrate&&amt>0){setCelebXP(amt);setTimeout(()=>setShowCelebration(true),400)}
   },[curEx]);
   function _goPostAuth(hasProgress){
     if(!hasProgress){setScr("welcome");return}
@@ -387,6 +408,24 @@ function markExerciseDone(exerciseId){
   const level=lvl(st.xp);
   const allCats=Object.keys(V);
   const icons=ICONS;
+  function launchPathItem(item){
+    if(!item)return;
+    if(item.go==="lesson"&&item.topic){
+      const items=sh(V[item.topic]);
+      sLt(item.topic);sLi(items);sLx(0);sLs(0);sLp("learn");sLa(false);sLsl(-1);
+      setScr("lesson");sCurEx("vocab_"+item.topic);
+    }else if(item.go==="grammar"){
+      sGl(GRAM.beginner[0]);sGp("learn");sGx(0);sGs(0);sGa(false);sGsl(-1);
+      setScr("grammar");sCurEx("grammar");
+    }else if(item.go==="mcgame"){
+      const pool=allCats.flatMap(t=>V[t]);
+      const qs=sh(pool).slice(0,10).map(w=>{const wr=sh(pool.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]);return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]};});
+      sMcQ(qs);sMcI(0);sMcS(0);sMcA(false);sMcSl(-1);
+      setScr("mcgame");sCurEx("mcgame");
+    }else{
+      setScr(item.go);sCurEx(item.go);
+    }
+  }
   // ═══ AUTH SCREENS ═══
   if(as==="loading")return (
     <div
@@ -413,14 +452,21 @@ function markExerciseDone(exerciseId){
     return <ResetPassword ae={ae} rpEm={rpEm} rpSa={rpSa} rpPw={rpPw} rpPc={rpPc} rpStep={rpStep} rpQ={rpQ} setAs={setAs} setAe={setAe} setRpEm={setRpEm} setRpSa={setRpSa} setRpPw={setRpPw} setRpPc={setRpPc} setRpStep={setRpStep} setRpQ={setRpQ} doReset={doReset} />;
   }
     // ═══ MAIN APP RENDER ═══
+  const badges={home:dchlA.filter(v=>!v).length,learn:0,practice:0,croatia:0,profile:0};
+  function doSidebarSearch(){if(srchQ.trim()){doSearch(srchQ);setSrchOpen(true);}}
   return (
     <div className={darkMode?"dark":""} style={darkMode?BG_DARK:BG_LIGHT}>
       <style>
         {CSS}
       </style>
       <Suspense fallback={<div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"50vh"}}><div style={{textAlign:"center"}}><div style={{fontSize:40,animation:"boat 2s ease-in-out infinite"}}>⛵</div><p style={{color:"var(--subtext)",marginTop:8,fontSize:14,fontWeight:600}}>Loading...</p></div></div>}>
+      {as==="app"&&scr!=="welcome"&&scr!=="placement"&&<Sidebar tab={tab} setTab={setTab} setScr={setScr} name={name} level={level} st={st} darkMode={darkMode} setDarkMode={setDarkMode} badges={badges} srchQ={srchQ} setSrchQ={setSrchQ} onSearch={doSidebarSearch} />}
+      <div className="app-content">
       <XPPopup showXP={showXP} xpA={xpA} />
       <BadgeToast show={sB} badge={nB} />
+      {showCelebration&&<CelebrationModal xp={celebXP} onClose={()=>setShowCelebration(false)} />}
+      {!onboarded&&as==="app"&&scr!=="welcome"&&scr!=="placement"&&<OnboardingTour onDone={()=>setOnboarded(true)} />}
+      {comebackBonus&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#f59e0b,#d97706)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.2)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease"}}>🔥 Welcome back! Keep your streak alive!</div>}
       {scr==="welcome" && <WelcomeScreen name={name} au={au} st={st} setScr={setScr} setName={setName} sPq={sPq} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} />}
       {scr==="placement" && <PlacementTest pq={pq} pi={pi} ps={ps} pa={pa} px={px} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} setScr={setScr} setSt={setSt} />}
       {// ═══ DASHBOARD ═══
@@ -491,15 +537,17 @@ function markExerciseDone(exerciseId){
           allCats={allCats} sh={sh}
           sMcQ={sMcQ} sMcI={sMcI} sMcS={sMcS} sMcA={sMcA} sMcSl={sMcSl}
           sFcPool={sFcPool} sFcI={sFcI} sFcFlip={sFcFlip} sFcKnow={sFcKnow}
+          launchPathItem={launchPathItem}
         />}
         {// ═══ TAB: LEARN ═══
         tab==="learn"&&<LearnTab
-          allCats={allCats} icons={icons} setScr={setScr} sCurEx={sCurEx}
+          allCats={allCats} icons={icons} setScr={setScr} sCurEx={sCurEx} st={st}
           sh={sh} sLt={sLt} sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl}
           setTnVerb={setTnVerb} setTnTense={setTnTense} setTnGender={setTnGender} setTnMode={setTnMode}
           sCzMode={sCzMode} sPfTab={sPfTab} sPfGender={sPfGender} sPfMode={sPfMode}
           sDcMode={sDcMode} sAsMode={sAsMode} sCjMode={sCjMode} sM7={sM7} sBjMode={sBjMode}
           sGl={sGl} sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
+          launchPathItem={launchPathItem}
         />}
         {// ═══ TAB: PRACTICE ═══
         tab==="practice"&&<PracticeTab
@@ -619,6 +667,16 @@ function markExerciseDone(exerciseId){
       {// ═══ COLOR QUIRKS ═══
       scr==="colorquirk"&&<ColorQuirkScreen goBack={goBack} />}
       {scr==="svojmoj"&&<SvojMojScreen goBack={goBack} award={award} />}
+      {// ═══ CONDITIONAL MOOD ═══
+      scr==="conditional"&&<ConditionalScreen goBack={goBack} award={award} />}
+      {// ═══ FORMAL vs INFORMAL REGISTER ═══
+      scr==="formalregister"&&<FormalRegisterScreen goBack={goBack} award={award} />}
+      {// ═══ IMPERSONAL CONSTRUCTIONS ═══
+      scr==="impersonal"&&<ImpersonalScreen goBack={goBack} award={award} />}
+      {// ═══ TECHNOLOGY VOCABULARY ═══
+      scr==="techvoc"&&<TechVocScreen goBack={goBack} award={award} />}
+      {// ═══ BUREAUCRATIC / ADMINISTRATIVE ═══
+      scr==="bureaucratic"&&<BureaucraticScreen goBack={goBack} award={award} />}
       {scr==="countries"&&<CountriesScreen goBack={goBack} />}
       {scr==="professions"&&<ProfessionsScreen goBack={goBack} />}
       {scr==="weather"&&<WeatherScreen goBack={goBack} />}
@@ -746,7 +804,9 @@ function markExerciseDone(exerciseId){
         name={name} level={level} st={st} au={au}
         goBack={goBack} doOut={doOut}
       />}
-      {(as==="app"&&scr!=="welcome"&&scr!=="placement") && <TabBar tab={tab} setTab={setTab} setScr={setScr} />}
+      {scr==="certificate"&&<CertificateScreen name={name} level={level} st={st} goBack={goBack} />}
+      {(as==="app"&&scr!=="welcome"&&scr!=="placement") && <TabBar tab={tab} setTab={setTab} setScr={setScr} badges={badges} />}
+      </div>
       </Suspense>
     </div>
   );

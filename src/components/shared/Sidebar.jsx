@@ -1,0 +1,188 @@
+import React, { useState } from 'react';
+import { lXP, nXP, getStreak } from '../../data.jsx';
+
+const TABS = [
+  { id:"home",     icon:"🏠", label:"Home" },
+  { id:"learn",    icon:"🗺️", label:"Path" },
+  { id:"practice", icon:"🎮", label:"Practice" },
+  { id:"croatia",  icon:"🇭🇷", label:"Croatia" },
+  { id:"profile",  icon:"👤", label:"Profile" },
+];
+
+const WEEKLY_OPTIONS = [
+  { xp:50,  label:"Light",   desc:"50 XP / week" },
+  { xp:150, label:"Regular", desc:"150 XP / week" },
+  { xp:300, label:"Serious", desc:"300 XP / week" },
+  { xp:600, label:"Intense", desc:"600 XP / week" },
+];
+
+function getWeeklyGoal() { return parseInt(localStorage.getItem('wkGoal') || '0'); }
+function saveWeeklyGoal(v) { localStorage.setItem('wkGoal', String(v)); }
+
+function getWeeklyXP(currentXP) {
+  try {
+    const now = new Date();
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - (now.getDay() === 0 ? 6 : now.getDay() - 1));
+    monday.setHours(0,0,0,0);
+    const weekKey = monday.toISOString().split('T')[0];
+    const stored = JSON.parse(localStorage.getItem('wkXP') || '{"key":"","base":0}');
+    if (stored.key !== weekKey) {
+      localStorage.setItem('wkXP', JSON.stringify({ key: weekKey, base: currentXP }));
+      return 0;
+    }
+    return Math.max(0, currentXP - stored.base);
+  } catch { return 0; }
+}
+
+export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode, setDarkMode, badges, srchQ, setSrchQ, onSearch }) {
+  const [goalOpen, setGoalOpen] = useState(false);
+  const [goal, setGoalState] = useState(getWeeklyGoal());
+
+  const streak = getStreak();
+  const xpCur = st.xp - lXP(level);
+  const xpNeeded = nXP(level) - lXP(level);
+  const xpPct = Math.min(Math.round((xpCur / xpNeeded) * 100), 100);
+  const weeklyXP = getWeeklyXP(st.xp);
+  const weeklyGoal = goal;
+  const weeklyPct = weeklyGoal > 0 ? Math.min(Math.round((weeklyXP / weeklyGoal) * 100), 100) : 0;
+
+  const nameInitial = (name || 'U')[0].toUpperCase();
+  const LEVEL_PALETTE = [
+    '#b45309','#059669','#1d4ed8','#6d28d9','#dc2626',
+  ];
+  const levelColor = LEVEL_PALETTE[(level - 1) % LEVEL_PALETTE.length];
+
+  function handleGoalPick(xp) {
+    setGoalState(xp);
+    saveWeeklyGoal(xp);
+    setGoalOpen(false);
+  }
+
+  const isDark = darkMode;
+
+  return (
+    <aside className="sidebar" aria-label="Sidebar navigation">
+      {/* Brand */}
+      <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid var(--nav-b)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 9, overflow: 'hidden', flexShrink: 0, border: '2px solid rgba(0,0,0,.1)' }}>
+            <svg width="36" height="36" viewBox="0 0 3 3">
+              {[0,1,2].map(r=>[0,1,2].map(c=>(
+                <rect key={`${r}-${c}`} x={c} y={r} width={1} height={1} fill={(r+c)%2===0?'#FFFFFF':'#CC1024'} />
+              )))}
+            </svg>
+          </div>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 900, fontFamily: "'Playfair Display',serif", color: 'var(--heading)', lineHeight: 1 }}>Naša Hrvatska</div>
+            <div style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 600, marginTop: 2, letterSpacing: '.06em', textTransform: 'uppercase' }}>Learn Croatian</div>
+          </div>
+        </div>
+      </div>
+
+      {/* User card */}
+      <div style={{ padding: '14px 16px 12px', borderBottom: '1px solid var(--nav-b)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+          <div style={{ width: 38, height: 38, borderRadius: 10, background: `linear-gradient(135deg,${levelColor}cc,${levelColor})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 900, color: 'white', flexShrink: 0 }}>
+            {nameInitial}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name || 'Learner'}</div>
+            <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 1 }}>Level {level} · {st.xp.toLocaleString()} XP</div>
+          </div>
+        </div>
+        {/* XP progress bar */}
+        <div style={{ marginBottom: 4 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+            <span style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 600 }}>Level {level + 1}</span>
+            <span style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 600 }}>{xpPct}%</span>
+          </div>
+          <div style={{ height: 6, background: 'var(--bar-bg)', borderRadius: 4, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: xpPct + '%', background: `linear-gradient(90deg,${levelColor},${levelColor}99)`, borderRadius: 4, transition: 'width .6s ease' }} />
+          </div>
+        </div>
+        {/* Streak + stat row */}
+        <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+          {[
+            { icon: '🔥', val: streak.count, label: 'streak' },
+            { icon: '📚', val: st.lc, label: 'lessons' },
+          ].map((s, i) => (
+            <div key={i} style={{ flex: 1, padding: '6px 8px', background: 'var(--bar-bg)', borderRadius: 8, textAlign: 'center' }}>
+              <div style={{ fontSize: 11, fontWeight: 900, color: 'var(--heading)' }}>{s.icon} {s.val}</div>
+              <div style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 600 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Weekly Goal */}
+      <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--nav-b)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+          <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--subtext)', letterSpacing: '.06em', textTransform: 'uppercase' }}>Weekly Goal</span>
+          <button onClick={() => setGoalOpen(o => !o)} style={{ fontSize: 10, fontWeight: 700, color: '#0e7490', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif", padding: 0 }}>
+            {goalOpen ? 'Done' : 'Set'}
+          </button>
+        </div>
+        {goalOpen ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {WEEKLY_OPTIONS.map(o => (
+              <button key={o.xp} onClick={() => handleGoalPick(o.xp)}
+                style={{ padding: '7px 10px', borderRadius: 9, border: `1.5px solid ${goal === o.xp ? '#0e7490' : 'var(--inp-b)'}`, background: goal === o.xp ? 'rgba(14,116,144,.1)' : 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif", display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--heading)' }}>{o.label}</span>
+                <span style={{ fontSize: 11, color: 'var(--subtext)' }}>{o.desc}</span>
+              </button>
+            ))}
+          </div>
+        ) : weeklyGoal > 0 ? (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+              <span style={{ fontSize: 11, color: 'var(--heading)', fontWeight: 700 }}>{weeklyXP} / {weeklyGoal} XP</span>
+              <span style={{ fontSize: 11, color: weeklyPct >= 100 ? '#16a34a' : '#0e7490', fontWeight: 700 }}>{weeklyPct}%</span>
+            </div>
+            <div style={{ height: 6, background: 'var(--bar-bg)', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: weeklyPct + '%', background: weeklyPct >= 100 ? 'linear-gradient(90deg,#16a34a,#22c55e)' : 'linear-gradient(90deg,#0e7490,#38bdf8)', borderRadius: 4, transition: 'width .5s ease' }} />
+            </div>
+            {weeklyPct >= 100 && <div style={{ fontSize: 10, color: '#16a34a', fontWeight: 700, marginTop: 4 }}>🏆 Goal reached!</div>}
+          </div>
+        ) : (
+          <div style={{ fontSize: 11, color: 'var(--subtext)', fontStyle: 'italic' }}>Tap Set to choose a weekly target</div>
+        )}
+      </div>
+
+      {/* Search */}
+      <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--nav-b)' }}>
+        <div style={{ position: 'relative' }}>
+          <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 13, opacity: .4, pointerEvents: 'none' }}>🔍</span>
+          <input type="search" value={srchQ} onChange={e => setSrchQ(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') onSearch(); }}
+            placeholder="Search lessons…"
+            style={{ paddingLeft: 32, fontSize: 13, padding: '9px 12px 9px 32px', borderRadius: 10 }}
+          />
+        </div>
+      </div>
+
+      {/* Nav items */}
+      <nav style={{ padding: '8px 12px', flex: 1 }}>
+        {TABS.map(t => (
+          <button key={t.id} className={'sb-btn' + (tab === t.id ? ' active' : '')}
+            onClick={() => { setTab(t.id); setScr('dashboard'); }}
+            aria-current={tab === t.id ? 'page' : undefined}>
+            <span style={{ fontSize: 18 }}>{t.icon}</span>
+            <span style={{ flex: 1 }}>{t.label}</span>
+            {badges && badges[t.id] > 0 && (
+              <span className="sb-badge">{badges[t.id]}</span>
+            )}
+          </button>
+        ))}
+      </nav>
+
+      {/* Bottom: dark mode toggle */}
+      <div style={{ padding: '12px 16px', borderTop: '1px solid var(--nav-b)' }}>
+        <button onClick={() => setDarkMode(d => !d)}
+          style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 10px', borderRadius: 10, border: 'none', background: 'var(--bar-bg)', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }}>
+          <span style={{ fontSize: 16 }}>{darkMode ? '☀️' : '🌙'}</span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--subtext)' }}>{darkMode ? 'Light mode' : 'Dark mode'}</span>
+        </button>
+      </div>
+    </aside>
+  );
+}
