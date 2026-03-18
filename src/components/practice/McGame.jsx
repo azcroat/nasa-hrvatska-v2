@@ -83,6 +83,7 @@ export default function McGame({ questions, onComplete, goBack, award }) {
   const [bestStreak, setBestStreak] = useState(0);
   const [burst, setBurst] = useState(-1);
   const firstOptionRef = useRef(null);
+  const resultFired = useRef(false);
 
   useEffect(() => {
     if (firstOptionRef.current) firstOptionRef.current.focus();
@@ -369,6 +370,8 @@ export default function McGame({ questions, onComplete, goBack, award }) {
               setAnswered(false);
               setSelected(-1);
             } else {
+              if (resultFired.current) return;
+              resultFired.current = true;
               award(
                 score * XP_PER_CORRECT + XP_COMPLETION_BONUS,
                 true
