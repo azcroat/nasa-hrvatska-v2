@@ -4,6 +4,11 @@ import AppContext from "./context/AppContext.jsx";
 import ScreenErrorBoundary from "./components/shared/ScreenErrorBoundary.jsx";
 import { usePreferences } from "./hooks/usePreferences.js";
 import { useSearch } from "./hooks/useSearch.js";
+import { useAuth } from "./hooks/useAuth.js";
+import { useFamily } from "./hooks/useFamily.js";
+import { useJournal } from "./hooks/useJournal.js";
+import { useDaily } from "./hooks/useDaily.js";
+import { useTranslator } from "./hooks/useTranslator.js";
 // Always-needed: auth + core UI (eager)
 import LoginScreen from "./components/auth/LoginScreen.jsx";
 import ResetPassword from "./components/auth/ResetPassword.jsx";
@@ -149,11 +154,6 @@ function markExerciseDone(exerciseId){
 }
 
 function App(){
-  const[authScreen,setAuthScreen]=useState("loading"); // auth screen
-  const[authUser,setAuthUser]=useState(null); // auth user
-  const[authEmail,setAuthEmail]=useState("");const[pw,setPw]=useState("");const[pc,setPc]=useState("");const[displayName,setDisplayName]=useState("");
-  const[sq,setSq]=useState("");const[sa,setSa]=useState("");const[rpEm,setRpEm]=useState("");const[rpSa,setRpSa]=useState("");const[rpPw,setRpPw]=useState("");const[rpPc,setRpPc]=useState("");const[rpStep,setRpStep]=useState(1);const[rpQ,setRpQ]=useState("");const[_rpSaHash,_setRpSaHash]=useState("");const[_rpStoredEmail,_setRpStoredEmail]=useState("");
-  const[authError,setAuthError]=useState("");const[authLoading,setAuthLoading]=useState(false);const[sp,setSp2]=useState(false);
   const ds=DS;
   const[currentScreen,_setCurrentScreen]=useState("welcome");
   const setScr=useCallback(function(s){
@@ -185,11 +185,10 @@ function App(){
   const[dcNoun,sDcNoun]=useState(0);const[dcMode,sDcMode]=useState("learn");const[dcI,sDcI]=useState(0);const[dcS,sDcS]=useState(0);const[dcA,sDcA]=useState(false);const[dcSl,sDcSl]=useState(-1);const[dcO,sDcO]=useState([]);const[dcQ,sDcQ]=useState([]);
   const[tyW,sTyW]=useState(null);const[tyIn,sTyIn]=useState("");const[tyI,sTyI]=useState(0);const[tyS,sTyS]=useState(0);const[tyA,sTyA]=useState(false);const[tyPool,sTyPool]=useState([]);
   const[curEx,sCurEx]=useState("");
-  const[dchlA,sDchlA]=useState(function(){var n=new Date();var k=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');var saved=localStorage.getItem("dcDay3");if(saved){try{var p=JSON.parse(saved);if(p.day===k)return p.answered;}catch(e){}}return[false,false,false];}());const[dchlSl,sDchlSl]=useState(function(){var n=new Date();var k=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');var saved=localStorage.getItem("dcDay3");if(saved){try{var p=JSON.parse(saved);if(p.day===k&&Array.isArray(p.selected)&&typeof p.selected[0]==="string")return p.selected;}catch(e){}}return["","",""];}());
+  const { dchlA, sDchlA, dchlSl, sDchlSl } = useDaily();
   const[pfTab,sPfTab]=useState("sing");const[pfGender,sPfGender]=useState("f");const[pfMode,sPfMode]=useState("learn");
   const[pfQ,sPfQ]=useState([]);const[pfI,sPfI]=useState(0);const[pfS,sPfS]=useState(0);const[pfA,sPfA]=useState(false);const[pfSl,sPfSl]=useState(-1);const[pfO,sPfO]=useState([]);const[pfCase,sPfCase]=useState("");const[pfCaseA,sPfCaseA]=useState(false);const[pfCaseSl,sPfCaseSl]=useState(-1);
-  const[famData,setFamData]=useState(null);const[famMembers,setFamMembers]=useState([]);const[famLoading,setFamLoading]=useState(false);
-  const[famName,setFamName]=useState("");const[famCode,setFamCode]=useState("");const[famErr,setFamErr]=useState("");const[famTab,setFamTab]=useState("main");
+  const { famData, setFamData, famMembers, setFamMembers, famLoading, setFamLoading, famName, setFamName, famCode, setFamCode, famErr, setFamErr, famTab, setFamTab } = useFamily();
   const[tab,_setTab]=useState("home");
   const TAB_PATHS={home:"/",learn:"/learn",practice:"/practice",croatia:"/croatia",profile:"/profile"};
   const setTab=useCallback(function(t){_setTab(t);pushUrl(TAB_PATHS[t]||"/");},[]);
@@ -197,7 +196,7 @@ function App(){
   const[mapCat,setMapCat]=useState("all");const[mapSel,setMapSel]=useState(null);
   const[rpIdx,setRpIdx]=useState(0);const[rpLine,setRpLine]=useState(0);const[rpShow,setRpShow]=useState(false);
   const[rcIdx,setRcIdx]=useState(0);const[rcServ,setRcServ]=useState(4);const[rcTimer,setRcTimer]=useState(null);const[rcTimerVal,setRcTimerVal]=useState(0);
-  const[jWords,setJWords]=useState(function(){try{return JSON.parse(localStorage.getItem("uJournal")||"[]")}catch{return[]}});const[jIn,setJIn]=useState("");const[jEn,setJEn]=useState("");
+  const { jWords, setJWords, jIn, setJIn, jEn, setJEn } = useJournal();
   const{darkMode,setDarkMode,favs,setFavs,toggleFav,isFav}=usePreferences();
   const{srchQ,setSrchQ,srchR,srchOpen,setSrchOpen,doSearch}=useSearch();
   const[onboarded,setOnboarded]=useState(function(){return localStorage.getItem("onboarded")==="true"});
@@ -218,30 +217,13 @@ function App(){
     if(fp.dc&&fp.dc.day===_arDay){var _arAns=fp.dc.answered||[false,false,false];var _arSel=Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""];sDchlA(_arAns);sDchlSl(_arSel);localStorage.setItem("dcDay3",JSON.stringify({day:_arDay,answered:_arAns,selected:_arSel}));}
     if(fp.cooldown){var _arT=new Date().toISOString().slice(0,10);var _arCd={};try{_arCd=JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch(e){}for(var _arCk in fp.cooldown){if(fp.cooldown[_arCk]===_arT)_arCd[_arCk]=fp.cooldown[_arCk];}localStorage.setItem("xpCooldown",JSON.stringify(_arCd));}
   },[setFavs,setJWords]);
-  const[tDir,sTDir]=useState("en-hr");const[tIn,sTIn]=useState("");const[tOut,sTOut]=useState("");const[tL,sTL]=useState(false);
+  const { tDir, setTDir: sTDir, tIn, setTIn: sTIn, tOut, tL, doTr } = useTranslator();
   const[t1k,sT1k]=useState(null);
   const[hIdx,sHIdx]=useState(0);
   const[evM,sEvM]=useState(new Date().getMonth()+1);
   const[showXP,setShowXP]=useState(false);const[xpA,setXpA]=useState(0);const[nB,setNB]=useState(null);const[sB,setSB]=useState(false);
   const _initialPath=useRef(window.location.pathname);
   const[_syncReady,_setSyncReady]=useState(false);
-  useEffect(()=>{initFirebase();
-    const s=gS();if(s&&s.u){if(isSessionExpired()){cS();setAuthScreen("login");setTimeout(function(){setAuthError("\u2705 Your session expired. Your account is safe \u2014 just sign in again.")},200);return}const a=gA();if(a[s.u]){const p=gP(s.u);setAuthUser({u:s.u,d:a[s.u].d,e:a[s.u].e||s.u});touchSession();updateStreak();var lf=getLocalFamily();if(lf)setFamData(lf);if(p){setName(p.name||a[s.u].d);setStats(p.stats||ds);_goPostAuth(p.cp||(p.stats&&(p.stats.xp>0||p.stats.lc>0)))}else setName(a[s.u].d);setAuthScreen("app");var _fbT1=setTimeout(function(){_setSyncReady(true)},5000);fbLoadProgress(s.u).then(function(fp){clearTimeout(_fbT1);if(fp){var lp=gP(s.u);var fpTs=fp._fbUpdated||fp.savedAt||0;var lpTs=(lp&&lp.savedAt)||0;var fpXP=(fp.stats&&fp.stats.xp)||0;var lpXP=(lp&&lp.stats&&lp.stats.xp)||0;if(fpTs>lpTs||(!fpTs&&!lpTs&&fpXP>=lpXP)){sP(s.u,fp);setStats(fp.stats||ds);if(fp.name)setName(fp.name);applyRemoteProgress(fp);}_setSyncReady(true)}});}else{
-      if(_fbReady){
-        fbOnAuthStateChanged(function(user){
-          if(user){var displayName=user.displayName||user.email;var k=user.email;
-            var a=gA();var ex=a[k]||{};ex.d=displayName;ex.e=k;a[k]=ex;sA(a);
-            fbLoadProgress(k).then(function(fp){if(fp)sP(k,fp);
-              setAuthUser({u:k,d:displayName,e:k});sS({u:k});touchSession();updateStreak();
-              fbLoadUserFamily(k).then(function(f){if(f)setFamData(f)});
-              var p=fp||gP(k);if(p){setName(p.name||displayName);setStats(p.stats||ds);_goPostAuth(p.cp||(p.stats&&(p.stats.xp>0||p.stats.lc>0)));applyRemoteProgress(p);;}else setName(displayName);
-              _setSyncReady(true);setAuthScreen("app")})
-          }else{
-            // Firebase has no user — only clear session if there is no local account to fall back to
-            var _s=gS();var _a=gA();
-            if(_s&&_s.u&&_a[_s.u]){setAuthScreen("login")}else{cS();setAuthScreen("login")}}})
-      }else{setAuthScreen("login")}}}else setAuthScreen("login")
-  },[]);
   useEffect(()=>{
     if(authScreen!=="app")return;
     var lastSeen=localStorage.getItem("lastSeen");var now=Date.now();
@@ -252,100 +234,40 @@ function App(){
   useEffect(()=>{if(authScreen!=="app")return;const iv=setInterval(()=>{if(isSessionExpired()){cS();setAuthUser(null);setStats(ds);setScr("welcome");setName("");setAuthScreen("login")}},5*60*1000);return()=>clearInterval(iv)},[authScreen]);
   useEffect(()=>{if(authScreen!=="app")return;const h=()=>touchSession();window.addEventListener("click",h);window.addEventListener("touchstart",h);window.addEventListener("keydown",h);return()=>{window.removeEventListener("click",h);window.removeEventListener("touchstart",h);window.removeEventListener("keydown",h)}},[authScreen]);
   useEffect(()=>{if(authScreen!=="app"||!authUser)return;function onVisible(){if(document.visibilityState!=="visible")return;fbLoadProgress(authUser.u).then(function(fp){if(!fp)return;var lp=gP(authUser.u);var fpTs=fp._fbUpdated||fp.savedAt||0;var lpTs=(lp&&lp.savedAt)||0;if(fpTs>lpTs){sP(authUser.u,fp);setStats(fp.stats||ds);if(fp.name)setName(fp.name);applyRemoteProgress(fp);}})}document.addEventListener("visibilitychange",onVisible);return()=>document.removeEventListener("visibilitychange",onVisible)},[authScreen,authUser]);
-  async function doReg(){
-    setAuthError("");if(!authEmail.trim()||!isValidEmail(authEmail.trim())){setAuthError("Please enter a valid email address.");return}if(!pw||pw.length<6){setAuthError("Password must be at least 6 characters.");return}if(pw!==pc){setAuthError("Passwords do not match.");return}if(!displayName.trim()){setAuthError("Please enter your display name.");return}
-    if(!sq.trim()){setAuthError("Please select a security question.");return}if(!sa.trim()||sa.trim().length<2){setAuthError("Please enter a security answer (2+ characters).");return}
-    setAuthLoading(true);try{initFirebase();const k=authEmail.trim().toLowerCase();
-    // Block re-registration of existing local account
-    var existingAccts=gA();if(existingAccts[k]){setAuthError("An account with this email already exists. Please sign in instead.");setAuthLoading(false);return}
-    if(_fbReady){var fb=await fbRegister(k,pw,displayName.trim());
-    // fb.err is already friendly-fied — match against friendly message substrings
-    if(!fb.ok&&fb.err.indexOf("already")>=0){setAuthError("An account with this email already exists. Please sign in instead.");setAuthLoading(false);return}
-    if(!fb.ok&&(fb.err.indexOf("least 6")>=0||fb.err.indexOf("weak")>=0)){setAuthError("Password is too weak. Use at least 6 characters.");setAuthLoading(false);return}
-    if(!fb.ok&&fb.err.indexOf("valid email")>=0){setAuthError("Please enter a valid email address.");setAuthLoading(false);return}
-    // Other Firebase errors (network, etc.) — fall through and create local account anyway
-    if(fb.ok){try{await fbSetUserSecurity(k,sq.trim(),await hp(sa.trim().toLowerCase()))}catch(e){}}}
-    const a=gA();const h=await hp(pw);const sah=await hp(sa.trim().toLowerCase());a[k]={p:h,d:displayName.trim(),e:k,sq:sq.trim(),sa:sah,created:Date.now()};sA(a);
-    setAuthUser({u:k,d:displayName.trim(),e:k});sS({u:k});setName(displayName.trim());setStats(ds);setScr("welcome");setAuthScreen("app");setAuthEmail("");setPw("");setPc("");setDisplayName("");setSq("");setSa("")}catch(e){setAuthError("Registration failed. Please try again.")}setAuthLoading(false)
-  }
-  async function doReset(){
-    setAuthError("");initFirebase();
-    if(rpStep===1){
-      if(!rpEm.trim()||!isValidEmail(rpEm.trim())){setAuthError("Please enter your email address.");return}
-      var k=rpEm.trim().toLowerCase();var sqFound="";var saFound="";
-      var a=gA();if(a[k]&&a[k].sq){sqFound=a[k].sq;saFound=a[k].sa}
-      if(!sqFound&&_fbReady){
-        try{var sec=await fbGetUserSecurity(k);
-        if(sec&&sec.sq){sqFound=sec.sq;saFound=sec.sa}
-        else if(sec&&!sec.sq){
-          var fb=await fbResetPassword(k);
-          if(fb.ok){setAuthScreen("login");setTimeout(function(){setAuthError("\u2705 Password reset email sent! Check your inbox.")},100);return}
-          else{setAuthError(fb.err);return}}
-        }catch(e){}}
-      if(!sqFound){
-        if(_fbReady){var fb2=await fbResetPassword(k);
-          if(fb2.ok){setAuthScreen("login");setTimeout(function(){setAuthError("\u2705 Password reset email sent! Check your inbox.")},100);return}}
-        setAuthError("No account found with this email.");return}
-      _setRpSaHash(saFound);_setRpStoredEmail(k);
-      setRpQ(sqFound);setRpStep(2)}
-    else if(rpStep===2){
-      if(!rpSa.trim()){setAuthError("Please enter your security answer.");return}
-      var sah=await hp(rpSa.trim().toLowerCase());
-      if(sah!==_rpSaHash){setAuthError("Incorrect security answer. Please try again.");return}
-      setRpStep(3)}
-    else if(rpStep===3){
-      if(!rpPw||rpPw.length<6){setAuthError("New password must be at least 6 characters.");return}
-      if(rpPw!==rpPc){setAuthError("Passwords do not match.");return}
-      var k=_rpStoredEmail;
-      var a=gA();if(a[k]){a[k].p=await hp(rpPw);sA(a)}
-      if(_fbReady){
-        const acct=await fbCreateAccount(k,rpPw);
-        if(!acct.ok){try{await fbResetPassword(k)}catch(e2){}}
+  // ── useAuth — session restore + all auth handlers ────────────────────────
+  // Callbacks defined before the hook so they're available when the hook
+  // initialises. applyRemoteProgress is defined earlier in this function.
+  const {
+    authScreen, setAuthScreen,
+    authUser,
+    authEmail, setAuthEmail,
+    pw, setPw, pc, setPc,
+    displayName, setDisplayName,
+    sq, setSq, sa, setSa, sp, setSp2,
+    rpEm, setRpEm, rpSa, setRpSa, rpPw, setRpPw, rpPc, setRpPc,
+    rpStep, setRpStep, rpQ, setRpQ,
+    authError, setAuthError,
+    authLoading,
+    doReg, doLog, doOut, doReset,
+  } = useAuth({
+    onSignedIn({ user, progress, isNew, isHydrate }) {
+      if (isHydrate) {
+        if (progress) { setStats(progress.stats || ds); if (progress.name) setName(progress.name); }
+        return;
       }
-      _setRpSaHash("");_setRpStoredEmail("");
-      setAuthError("");setRpEm("");setRpSa("");setRpPw("");setRpPc("");setRpStep(1);setRpQ("");
-      setAuthScreen("login");setTimeout(function(){setAuthError("\u2705 Password reset! Sign in with your new password.")},100)}
-  }
-  async function doLog(){
-    setAuthError("");if(!authEmail.trim()||!isValidEmail(authEmail.trim())){setAuthError("Please enter a valid email address.");return}if(!pw){setAuthError("Please enter your password.");return}setAuthLoading(true);
-    try{
-    initFirebase();const k=authEmail.trim().toLowerCase();var fbResult=null;
-    // Try Firebase first
-    if(_fbReady){try{fbResult=await fbLogin(k,pw);}catch(e){fbResult=null;}}
-    if(fbResult&&fbResult.ok){
-      // Firebase success — log in and sync local hash for future offline use
-      var fbProgress=await fbLoadProgress(k);var fdn=fbResult.user.displayName||k;
-      var fa=gA();var fex=fa[k]||{};fex.d=fdn;fex.e=k;
-      try{fex.p=await hp(pw);}catch(e){}  // sync hash — critical so local fallback always works
-      fa[k]=fex;sA(fa);if(fbProgress)sP(k,fbProgress);
-      setAuthUser({u:k,d:fdn,e:k});sS({u:k});
-      var fp=fbProgress||gP(k);if(fp){setName(fp.name||fdn);setStats(fp.stats||ds);_goPostAuth(fp.cp||(fp.stats&&(fp.stats.xp>0||fp.stats.lc>0)));if(fp.sr)saveSR(fp.sr);if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}var _n3=new Date();var _dcT3=_n3.getFullYear()+'-'+String(_n3.getMonth()+1).padStart(2,'0')+'-'+String(_n3.getDate()).padStart(2,'0');if(fp.dc&&fp.dc.day===_dcT3){sDchlA(fp.dc.answered||[false,false,false]);sDchlSl(Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""]);localStorage.setItem("dcDay3",JSON.stringify({day:_dcT3,answered:fp.dc.answered||[false,false,false],selected:Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""]}))}if(fp.cooldown){var _t3=new Date().toISOString().slice(0,10);var _cd3={};try{_cd3=JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch(e){}for(var _ck3 in fp.cooldown){if(fp.cooldown[_ck3]===_t3)_cd3[_ck3]=fp.cooldown[_ck3];}localStorage.setItem("xpCooldown",JSON.stringify(_cd3));};}else setName(fdn);
-      setAuthScreen("app");setAuthEmail("");setPw("");fbLoadUserFamily(k).then(function(f){if(f)setFamData(f)});setAuthLoading(false);return;}
-    // Hard-stop only on rate limiting
-    if(fbResult&&fbResult.err&&fbResult.err.indexOf("Too many attempts")>=0){setAuthError(fbResult.err);setAuthLoading(false);return;}
-    // Local account fallback
-    var la=gA();
-    if(!la[k]){setAuthError("No account found with this email. Please check your email or create a new account.");setAuthLoading(false);return;}
-    if(la[k].p){
-      var lh=await hp(pw);
-      if(la[k].p===lh){
-        setAuthUser({u:k,d:la[k].d,e:k});sS({u:k});var lp=gP(k);
-        if(lp){setName(lp.name||la[k].d);setStats(lp.stats||ds);_goPostAuth(lp.cp||(lp.stats&&(lp.stats.xp>0||lp.stats.lc>0)))}else setName(la[k].d);
-        setAuthScreen("app");setAuthEmail("");setPw("");
-        fbLoadProgress(k).then(function(fp4){if(!fp4)return;var lp4=gP(k);var fpTs4=fp4._fbUpdated||fp4.savedAt||0;var lpTs4=(lp4&&lp4.savedAt)||0;var fpXP4=(fp4.stats&&fp4.stats.xp)||0;var lpXP4=(lp4&&lp4.stats&&lp4.stats.xp)||0;if(fp4.sr)saveSR(fp4.sr);if(fp4.streak)localStorage.setItem("uStreak",JSON.stringify(fp4.streak));if(fpTs4>lpTs4||(!fpTs4&&!lpTs4&&fpXP4>lpXP4)){sP(k,fp4);setStats(fp4.stats||ds);if(fp4.name)setName(fp4.name);if(fp4.onboarded){localStorage.setItem("onboarded","true");setOnboarded(true);}if(fp4.favs){localStorage.setItem("uFavs",JSON.stringify(fp4.favs));setFavs(fp4.favs);}if(fp4.journal){localStorage.setItem("uJournal",JSON.stringify(fp4.journal));setJWords(fp4.journal);}var _n4=new Date();var _dcT4=_n4.getFullYear()+'-'+String(_n4.getMonth()+1).padStart(2,'0')+'-'+String(_n4.getDate()).padStart(2,'0');if(fp4.dc&&fp4.dc.day===_dcT4){sDchlA(fp4.dc.answered||[false,false,false]);sDchlSl(Array.isArray(fp4.dc.selected)&&typeof fp4.dc.selected[0]==="string"?fp4.dc.selected:["","",""]);localStorage.setItem("dcDay3",JSON.stringify({day:_dcT4,answered:fp4.dc.answered||[false,false,false],selected:Array.isArray(fp4.dc.selected)&&typeof fp4.dc.selected[0]==="string"?fp4.dc.selected:["","",""]}))}if(fp4.cooldown){var _t4=new Date().toISOString().slice(0,10);var _cd4={};try{_cd4=JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch(e){}for(var _ck4 in fp4.cooldown){if(fp4.cooldown[_ck4]===_t4)_cd4[_ck4]=fp4.cooldown[_ck4];}localStorage.setItem("xpCooldown",JSON.stringify(_cd4));}}});
-        setAuthLoading(false);return;}
-      // Account exists but password wrong — always this message, never Firebase's "no account found"
-      setAuthError("Incorrect password. Try again or use Forgot Password.");setAuthLoading(false);return;}
-    // Account record exists but has no password hash — guide to reset
-    setAuthError("Please use 'Forgot Password' to restore access to your account.");
-    }catch(e){setAuthError("Login failed. Please try again.")}setAuthLoading(false)
-  }
-  function doOut(){fbLogout();cS();setAuthUser(null);setStats(ds);setScr("welcome");setName("");setFamData(null);setFamMembers([]);setAuthScreen("login")}
-  const doTr=async()=>{
-    const t=tIn.trim();if(!t)return;sTL(true);sTOut("");
-    const[s,g]=tDir==="en-hr"?["en","hr"]:["hr","en"];
-    try{const r=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(t)}&langpair=${s}|${g}`);const d=await r.json();if(d.responseStatus===200&&d.responseData?.translatedText)sTOut(d.responseData.translatedText);else if(d.responseStatus===429||String(d.responseDetails||"").toLowerCase().includes("limit"))sTOut("Daily translation limit reached. Try again tomorrow or visit translate.google.com");else sTOut("Translation unavailable. Try translate.google.com")}catch(e){sTOut("Network error — check your connection.")}sTL(false)
-  };
+      if (progress) {
+        setName(progress.name || user.d);
+        setStats(progress.stats || ds);
+        if (!isNew) _goPostAuth(progress.cp || (progress.stats && (progress.stats.xp > 0 || progress.stats.lc > 0)));
+      } else { setName(user.d); }
+      if (isNew) setScr('welcome');
+    },
+    onSignedOut() { setStats(ds); setScr('welcome'); setName(''); setFamData(null); setFamMembers([]); },
+    applyRemoteProgress,
+    setFamData,
+    setSyncReady: _setSyncReady,
+    ds,
+  });
   // ═══ BROWSER BACK BUTTON SUPPORT (popstate) ═══
   useEffect(function(){
     // Mark baseline so we can detect when back would exit the app
