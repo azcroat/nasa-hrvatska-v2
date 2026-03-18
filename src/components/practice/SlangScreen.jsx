@@ -1,330 +1,644 @@
 /**
- * SlangScreen — Croatian Slang & Expressions
- *
- * An honest, educational guide to informal Croatian including
- * colloquial slang, exclamations, and the culturally significant
- * art of Croatian swearing. Gated behind an adult content acknowledgement.
+ * SlangScreen — Croatian Slang, Psovanje & Street Language
+ * Comprehensive guide sourced from Croatian social media, forums,
+ * regional dialect resources, and Gen Z usage patterns.
  */
 import React, { useState } from 'react';
 import { speak } from '../../data.jsx';
 
-// ── Content ──────────────────────────────────────────────────────────────────
+// ─── DATA ─────────────────────────────────────────────────────────────────────
 
 const SECTIONS = [
+
+  // ─── 1. THE CLASSICS ────────────────────────────────────────────────────────
   {
-    id: 'classics',
-    icon: '🔥',
-    title: 'The Classics',
-    subtitle: 'The essential Croatian expletives — artfully constructed',
+    id: 'classics', icon: '🔥', title: 'The Classics',
+    subtitle: 'The essential Croatian expletives — an artform built on one root verb',
     color: '#dc2626', light: '#fff1f2', border: '#fca5a5',
     entries: [
-      {
-        hr: 'Jebem ti mater',
-        en: 'I f*** your mother',
-        ph: 'YEH-bem tee MAH-tehr',
-        level: '🌶🌶🌶',
-        note: 'The foundational Croatian curse. Everything else builds from this construction. "Jebem" = I f***, "ti" = your, "mater" = mother (archaic accusative of "majka"). Versatile — can express rage, awe, or even affection depending on tone.',
+      { hr: 'Jebem ti mater', en: 'I f*** your mother', ph: 'YEH-bem tee MAH-tehr', level: '🌶🌶🌶',
+        note: 'The foundational Croatian curse. Everything builds from this. "Jebem" = I f***, "ti" = your, "mater" = mother (archaic accusative). Versatile — expresses rage, awe, or deep affection depending on tone.',
         variants: [
-          { hr: 'Jebem ti mater po rebru', en: 'I f*** your mother by the rib — extra elaboration for emphasis' },
-          { hr: 'Jebem mu mater', en: 'I f*** his/its mother — third person, used when raging at a situation' },
-          { hr: 'Jebo te bog', en: 'May God f*** you — invokes the divine for maximum impact' },
-        ],
-      },
-      {
-        hr: 'Jebote',
-        en: 'F*** me / Holy sh** / Wow',
-        ph: 'YEH-boh-teh',
-        level: '🌶🌶',
-        note: 'Short for "jebo te" (may [someone] f*** you). Functionally equivalent to "Jesus Christ!" or "Holy sh**!" in English. Used constantly for surprise, frustration, amazement, or disbelief. Frequency of use: very high.',
+          { hr: 'Jebem ti mater po rebru', en: '...your mother by the rib — adding body parts for emphasis' },
+          { hr: 'Jebem mu mater', en: 'Third person — used when raging at a situation, not a person' },
+          { hr: 'Jebo te Bog', en: 'May God f*** you — invoking the divine for maximum impact' },
+          { hr: 'Jebo ti pas mater', en: 'May a dog f*** your mother — multi-species escalation' },
+          { hr: 'Jebo ti konj mater', en: 'May a horse f*** your mother — equine variant' },
+          { hr: 'Jebem ti sve po spisku', en: 'F***ing everything on your list — when listing family feels like too much effort' },
+          { hr: 'Jebem ti krv mlade rode', en: 'F***ing your blood of a young stork — peak Croatian poetic creativity' },
+          { hr: 'Jebem ti juhu od Isusovih kostiju', en: 'F***ing your soup made of Jesus\' bones — considered a masterpiece of the form' },
+        ]},
+      { hr: 'Jebote', en: 'Holy sh** / F*** me / Wow', ph: 'YEH-boh-teh', level: '🌶🌶',
+        note: 'Short for "jebo te." Functionally equivalent to "Jesus Christ!" — used for surprise, frustration, amazement. Very high frequency. Almost neutral in casual Zagreb speech.',
         variants: [
-          { hr: 'Jebote pa to je nevjerojatno', en: 'Holy sh**, that\'s unbelievable' },
           { hr: 'Ma jebote...', en: 'Oh for f***\'s sake...' },
-        ],
-      },
-      {
-        hr: 'Jebi ga',
-        en: 'F*** it / Forget it / Whatever',
-        ph: 'YEH-bee gah',
-        level: '🌶🌶',
-        note: '"Jeb" = f***, "i" = imperative suffix, "ga" = it/him. Closest English equivalent is "f*** it" but used far more casually. You\'ll hear this constantly — it\'s almost a verbal comma.',
+          { hr: 'Jebote pa to je nevjerojatno', en: 'Holy sh**, that\'s unbelievable' },
+        ]},
+      { hr: 'Jebi ga', en: 'F*** it / Whatever / Oh well', ph: 'YEH-bee gah', level: '🌶🌶',
+        note: '"Jebi ga" is used like a verbal comma among Croatians. Almost neutral in context — expressing resignation, acceptance, or mild frustration. You\'ll hear it multiple times in any casual conversation.',
         variants: [
+          { hr: 'A jebi ga', en: 'Ah, forget it / What can you do — the Croatian shrug' },
           { hr: 'Jebi ga, bit će bolje', en: 'F*** it, it\'ll get better' },
-          { hr: 'A jebi ga', en: 'Ah, forget it / What can you do' },
-        ],
-      },
-      {
-        hr: 'Boli me kurac',
-        en: 'I couldn\'t give less of a sh**',
-        ph: 'BOH-lee meh KOO-rahts',
-        level: '🌶🌶🌶',
-        note: 'Literally "my d*** hurts" but means "I don\'t care at all." Grammatically: "boli" (hurts) + "me" (me) + "kurac" (d***). A masterpiece of Croatian indifference. Shortened to "bome kurac" in casual speech.',
+        ]},
+      { hr: 'Boli me kurac', en: 'I couldn\'t care less', ph: 'BOH-lee meh KOO-rahts', level: '🌶🌶🌶',
+        note: 'Literally "my d*** hurts." Grammatically pristine — boli (hurts) + me (me) + kurac. Means complete indifference. The full "I don\'t care" ladder: "Nije me briga" → "Boli me briga" → "Boli me kurac."',
         variants: [
-          { hr: 'Boli me briga', en: 'Polite version: "I couldn\'t care less" (same structure, family-friendly)' },
-          { hr: 'Boli ga kurac za nas', en: 'He doesn\'t give a damn about us' },
-        ],
-      },
-      {
-        hr: 'Idi u pizdu materinu',
-        en: 'Go f*** yourself (literal: go into your mother\'s...)',
-        ph: 'EE-dee oo PEEZ-doo mah-TEH-ree-noo',
-        level: '🌶🌶🌶',
-        note: 'The Croatian nuclear option. A profound dismissal. "Idi" = go, "u" = into, "pizdu" = (vulgar), "materinu" = mother\'s (possessive). Reserve for situations that have gone completely off the rails.',
+          { hr: 'Pun mi je kurac svega', en: 'I\'m fed up with everything — "my d*** is full"' },
+          { hr: 'Koji kurac radiš?!', en: 'What the f*** are you doing?!' },
+          { hr: 'U kurac!', en: 'F*** that! / No f***ing way!' },
+          { hr: 'Kurac od ovce', en: 'A sheep\'s d*** = completely useless / worthless' },
+          { hr: 'Ni kurac', en: 'Absolutely nothing / Not a damn thing' },
+          { hr: 'Pičkin dim', en: 'P*ssy smoke = nothing / don\'t believe the hype' },
+        ]},
+      { hr: 'Idi u pizdu materinu', en: 'The Croatian nuclear option', ph: 'EE-dee oo PEEZ-doo mah-TEH-ree-noo', level: '🌶🌶🌶',
+        note: 'The maximum escalation. "Idi" = go, "u pizdu" = into the c***, "materinu" = of your mother. Reserve for absolute final breaks. Three versions for increasing intensity.',
         variants: [
-          { hr: 'Idi u tri pičke materine', en: 'Go into your mother\'s three... — triple emphasis version' },
-        ],
-      },
-      {
-        hr: 'Picka mu materina',
-        en: 'Son of a b**** / Motherf***er',
-        ph: 'PEECH-kah moo mah-TEH-ree-nah',
-        level: '🌶🌶🌶',
-        note: 'Used exactly like "son of a b****" or "motherf***er" in English — for shock, anger, amazement. Can also be said with admiration: "Picka mu materina, on je dobar" = "Holy sh**, he\'s good."',
-        variants: [],
-      },
+          { hr: 'Idi u tri pičke materine', en: 'The triple version — for when once isn\'t enough' },
+          { hr: 'Idi u pičku strininu', en: 'Aunt variant — the unexpected family member escalation' },
+        ]},
+      { hr: 'Odjebi', en: 'F*** off', ph: 'OD-yeh-bee', level: '🌶🌶',
+        note: 'Clean, direct dismissal. "Odjebi odmah" = F*** off right now. Less elaborate than the mater constructions but efficient. Often paired with "bre" for extra emphasis.',
+        variants: [
+          { hr: 'Jebi se', en: 'Go f*** yourself — direct' },
+          { hr: 'Nabijem te na kurac', en: 'I\'ll stick you on a d*** — threat-level insult' },
+        ]},
+      { hr: 'Šupak', en: 'A**hole', ph: 'SHOO-pahk', level: '🌶🌶',
+        note: 'From "šupljina" (hole). The Croatian all-purpose "a**hole." Widely used, cross-generational. "Šupčić" is the affectionate diminutive between friends. "Kakav šupak!" = What an a**hole!',
+        variants: [
+          { hr: 'Kurvin sine', en: 'Son of a b**** — literally "son of a wh***"' },
+          { hr: 'Đubre', en: 'Garbage / Piece of trash — "Ti si đubre"' },
+          { hr: 'Glupi majmune', en: 'You stupid monkey' },
+        ]},
     ],
   },
+
+  // ─── 2. EVERYDAY EXPRESSIONS ────────────────────────────────────────────────
   {
-    id: 'exclamations',
-    icon: '😤',
-    title: 'Everyday Exclamations',
-    subtitle: 'Mild to medium — usable around most adults',
+    id: 'everyday', icon: '😤', title: 'Svaki Dan',
+    subtitle: 'Mild-to-medium — usable around most adults',
     color: '#d97706', light: '#fffbeb', border: '#fde68a',
     entries: [
-      {
-        hr: 'Sranje',
-        en: 'Sh** / Crap',
-        ph: 'SRAH-nyeh',
-        level: '🌶',
-        note: 'The all-purpose "sh**." Use for minor disasters, frustrations, or surprises. Widely used across all age groups. Plural "sranja" = "a bunch of crap/nonsense."',
+      { hr: 'Sranje', en: 'Sh** / Crap', ph: 'SRAH-nyeh', level: '🌶',
+        note: 'All-purpose "sh**." Minor disasters, frustrations, surprises. Cross-generational. "Sranja" = a bunch of crap. "Ne seri" = stop talking sh**.',
         variants: [
           { hr: 'Kakvo sranje', en: 'What a mess / What a load of crap' },
-          { hr: 'Ne seri', en: 'Stop talking sh** / Don\'t bullsh** me' },
-        ],
-      },
-      {
-        hr: 'Govno',
-        en: 'Sh** (literal feces)',
-        ph: 'GOV-noh',
-        level: '🌶',
-        note: 'The literal word for sh**. Used exactly like in English — as a noun ("that\'s sh**") or as an exclamation. "Govnar" = a sh***y person / someone worthless.',
+          { hr: 'Ne seri', en: 'Don\'t bullsh** me / Stop talking crap' },
+          { hr: 'Napravio si sranje', en: 'You made a mess / You screwed up' },
+        ]},
+      { hr: 'Sjebano', en: 'F***ed up', ph: 'SYEH-bah-noh', level: '🌶🌶',
+        note: 'Past participle of "sjebati." For situations, things, people, or yourself. "Sve je sjebano" = Everything is f***ed. One of the most versatile Croatian adjectives.',
         variants: [
-          { hr: 'To je čisto govno', en: 'That\'s pure sh**' },
-          { hr: 'Govnar jedan', en: 'You little sh**' },
-        ],
-      },
-      {
-        hr: 'Majku mu',
-        en: 'Damn it / F*** (mild)',
-        ph: 'MY-koo moo',
-        level: '🌶',
-        note: 'Shortened version of the full mater curse. "Majku mu" = "his mother" (accusative) — implied "f*** his mother." Widely used as a mild expletive, equivalent to "damn it."',
+          { hr: 'Totalno sam sjebo', en: 'I totally screwed up' },
+          { hr: 'Zajebao sam', en: 'I messed it up / I f***ed that up' },
+          { hr: 'Zajebavaš me', en: 'You\'re messing with me / You\'re kidding me' },
+        ]},
+      { hr: 'Govno', en: 'Sh** (literal)', ph: 'GOV-noh', level: '🌶',
+        note: 'The literal word for sh**. "Govnar" = a sh***y person. Used as noun and exclamation. "Govno jedno" = piece of sh**.',
         variants: [
-          { hr: 'Majku ti', en: 'Your mother — directed at someone' },
-          { hr: 'Majku mu svoju', en: 'Damn it all — reflexive intensified version' },
-        ],
-      },
-      {
-        hr: 'Kurčina',
-        en: 'Big d*** / Big shot (ironic)',
-        ph: 'KOOR-chee-nah',
-        level: '🌶🌶',
-        note: 'Augmentative of "kurac." Used ironically for someone who acts important. "Ma koji kurčina" = "who does he think he is?" Also used in compound expressions for emphasis.',
+          { hr: 'Govno jedno', en: 'Piece of sh** — direct insult' },
+          { hr: 'Jedi govna', en: 'Eat sh** — extreme dismissal' },
+          { hr: 'Govnar', en: 'A sh***y/worthless person' },
+        ]},
+      { hr: 'Majku mu / Majku ti', en: 'Damn it / F*** (mild)', ph: 'MY-koo moo / MY-koo tee', level: '🌶',
+        note: 'Shortened mater curse — "his/your mother" (accusative implied). Widely used as a mild expletive, equivalent to "damn it." Totally normal in conversation.',
         variants: [
-          { hr: 'Ma koji kurac', en: 'What the hell / What kind of nonsense' },
-          { hr: 'Ni kurac', en: 'Absolutely nothing / Not a damn thing' },
-        ],
-      },
-      {
-        hr: 'Crkni',
-        en: 'Drop dead',
-        ph: 'TSRK-nee',
-        level: '🌶🌶',
-        note: 'From "crknuti" (to die like an animal). "Crkni" is the imperative — "drop dead / go die." Used between friends can be affectionate teasing. Context is everything.',
+          { hr: 'Majko moja', en: 'Oh my God / Oh my mother — surprise/disbelief' },
+          { hr: 'Jao', en: 'Oh no / Ouch — very mild exclamation' },
+          { hr: 'Ajme', en: 'Oh my / Oh dear — surprise or pain' },
+        ]},
+      { hr: 'Popizdio je', en: 'He lost his mind / He flipped out', ph: 'poh-peez-DEE-oh', level: '🌶🌶🌶',
+        note: '"Popizditi" = to go insane with rage or excitement. Can be positive ("we all went crazy with excitement") or negative ("he completely lost it"). Very expressive verb.',
         variants: [
-          { hr: 'Crkni mi', en: 'Oh, come on / Give me a break (softened)' },
-        ],
-      },
+          { hr: 'Popizdio od sreće', en: 'Went crazy with happiness' },
+          { hr: 'Pizdjen sam danas', en: 'I\'m in a sh** mood today' },
+          { hr: 'Pizdarija', en: 'A total f***-up / complete mess' },
+        ]},
+      { hr: 'Crkni', en: 'Drop dead', ph: 'TSRK-nee', level: '🌶🌶',
+        note: 'From "crknuti" (to die like an animal). "Crkni" is imperative. Between friends it\'s often affectionate teasing. "Crknuo sam od smijeha" = I died laughing.',
+        variants: [
+          { hr: 'Crknuo sam od smijeha', en: 'I died laughing — common positive use' },
+          { hr: 'Dabog da ti se noge osušile', en: 'May your legs dry out — old-school hex curse' },
+          { hr: 'Vrag ti kosti glodao', en: 'May the Devil gnaw your bones — classical hex' },
+        ]},
+      { hr: 'Frka', en: 'Panic / Stress / Chaos', ph: 'FER-kah', level: '✅',
+        note: 'Zagreb-heavy. "Totalna frka" = total panic. "Nema frke" = no stress, relax. One of the most used Zagreb colloquialisms.',
+        variants: [
+          { hr: 'Nema frke', en: 'No stress / It\'s fine / Relax' },
+          { hr: 'Totalna frka', en: 'Complete chaos / Total panic' },
+        ]},
+      { hr: 'Katastrofa', en: 'Disaster / Total mess', ph: 'kah-tah-STROH-fah', level: '✅',
+        note: 'Used as hyperbolic exclamation. "Kakva katastrofa!" = What a disaster! Perfectly valid both for real disasters and minor inconveniences (Croatians love dramatic hyperbole).',
+        variants: [
+          { hr: 'Kakva katastrofa', en: 'What a disaster! (mild or major)' },
+          { hr: 'Bruka', en: 'Embarrassment / Shame — "kakva bruka" = how embarrassing' },
+        ]},
     ],
   },
+
+  // ─── 3. STREET SLANG ────────────────────────────────────────────────────────
   {
-    id: 'slang',
-    icon: '😎',
-    title: 'Street Slang',
-    subtitle: 'Everyday informal expressions — sound like a local',
+    id: 'slang', icon: '😎', title: 'Ulični Sleng',
+    subtitle: 'Sound like a local — general everyday slang',
     color: '#7c3aed', light: '#faf5ff', border: '#ddd6fe',
     entries: [
-      {
-        hr: 'Kužiš?',
-        en: 'You get it? / You know what I mean?',
-        ph: 'KOO-zhish',
-        level: '✅',
-        note: 'From "kužiti" (to understand/sniff out). Used constantly at the end of sentences like "you know?" Equivalent to Italian "capisce?" Mandatory in any authentic Croatian conversation.',
+      { hr: 'Zakon!', en: 'Awesome! / Brilliant! / The law', ph: 'ZAH-kon', level: '✅',
+        note: 'Literally "the law." The most universally positive Croatian exclamation. "Ovaj film je zakon!" = This film is awesome. Usable at any age, any context.',
         variants: [
+          { hr: 'Brutala!', en: 'Brutal (positive!) / Amazing — "To je brutala" = That\'s amazing' },
+          { hr: 'Top!', en: 'Top notch / Excellent — "To je top"' },
+          { hr: 'Oriđiđi', en: 'Original / The real deal — "On je oriđiđi" = He\'s genuine' },
+        ]},
+      { hr: 'Kužiš?', en: 'You get it? / You know what I mean?', ph: 'KOO-zhish', level: '✅',
+        note: 'From "kužiti" (to understand/sniff out). Mandatory at the end of sentences like "you know?" Used constantly. The Croatian capisce.',
+        variants: [
+          { hr: 'Kontam', en: 'I get it / I understand — from "kontati"' },
           { hr: 'Skontaj', en: 'Figure it out / Get it through your head' },
           { hr: 'Skužio sam', en: 'I figured it out / I got it' },
-        ],
-      },
-      {
-        hr: 'Fora',
-        en: 'Joke / Cool thing / The point',
-        ph: 'FOH-rah',
-        level: '✅',
-        note: 'Borrowed from Italian "fuori" (outside). Means joke, a cool trick, or "the point of something." "Koja fora" = "what a cool/funny thing." "To je fora" = "that\'s the joke" or "that\'s the cool thing."',
+        ]},
+      { hr: 'Fora', en: 'Joke / Cool / The point', ph: 'FOH-rah', level: '✅',
+        note: 'Borrowed from Italian "fuori." "Koja fora" = What a cool/funny thing. "To je fora" = That\'s the joke OR that\'s the cool thing. "Nema fore" = not cool / no joke.',
         variants: [
           { hr: 'Koja fora!', en: 'That\'s hilarious! / What a trick!' },
           { hr: 'Nema fore', en: 'No joke / Seriously / That\'s not cool' },
-        ],
-      },
-      {
-        hr: 'Baja / Brate',
-        en: 'Bro / Dude / Man',
-        ph: 'BAH-yah / BRAH-teh',
-        level: '✅',
-        note: '"Brat" = brother, "brate" is the vocative case (direct address). "Baja" is more slang, regional (Dalmatia especially). Both are used like "bro" — to address friends, to express disbelief, to soften a statement.',
+          { hr: 'Fora lik', en: 'Cool guy' },
+        ]},
+      { hr: 'Brate / Buraz', en: 'Bro / Dude / Man', ph: 'BRAH-teh / BOO-rahz', level: '✅',
+        note: '"Brat" = brother, "brate" = vocative (direct address). "Buraz" = more Zagreb slang. Both used like "bro." Tone determines everything — can express disbelief, affection, or urgency.',
         variants: [
-          { hr: 'Jesi li normalan, brate', en: 'Are you normal, bro? (Are you out of your mind?)' },
-          { hr: 'Ma baja, ne mogu', en: 'Dude, I can\'t even' },
-        ],
-      },
-      {
-        hr: 'Ful / Fuliran',
-        en: 'Super / Totally / Really',
-        ph: 'FOOL / foo-LEE-rahn',
-        level: '✅',
-        note: 'From English "full." "Ful" intensifies adjectives. "To je ful dobro" = "that\'s really good." "Fuliran" = fully into something / cool. Common in Zagreb youth speech.',
+          { hr: 'Brate moj, ne mogu', en: 'Bro, I just can\'t even' },
+          { hr: 'Ma buraz, jesi normalan?', en: 'Dude, are you normal?' },
+          { hr: 'Stari / Stara', en: 'Old man / Old lady — also means Dad/Mum in slang' },
+        ]},
+      { hr: 'Faca', en: 'A big deal / Someone important', ph: 'FAH-tsah', level: '✅',
+        note: 'From Italian "faccia" (face). "On je faca" = He\'s someone important / He\'s a big deal. Also used admiringly: "Jebote, faca si!" = Holy sh**, you\'re a legend!',
+        variants: [
+          { hr: 'Jebote, faca si!', en: 'Holy sh**, you\'re a legend! (huge compliment)' },
+          { hr: 'Šmeker', en: 'Smooth operator / Charmer — someone with game' },
+          { hr: 'Frajer', en: 'Cool confident guy — "Kakav frajer!"' },
+        ]},
+      { hr: 'Ful / Baš', en: 'Super / Really / Very', ph: 'FOOL / BAHSH', level: '✅',
+        note: '"Ful" from English "full." "Baš" is the milder universal intensifier. "Ful sam umoran" = I\'m totally tired. "Baš lijepo" = Really nice.',
         variants: [
           { hr: 'Ful dobro', en: 'Really good / Super good' },
-          { hr: 'On je ful frajer', en: 'He\'s a total cool guy' },
-        ],
-      },
-      {
-        hr: 'Frajer / Frajera',
-        en: 'Cool guy / Cool girl',
-        ph: 'FRY-er / FRY-eh-rah',
-        level: '✅',
-        note: 'From German "Freier." Used for a cool, attractive, stylish person. Can be used sarcastically — "koji frajer" (what a "cool" guy) = what a jerk.',
+          { hr: 'Fakat', en: 'For real / Seriously — from Turkish; "fakat je lud" = he\'s genuinely crazy' },
+          { hr: 'Ziher', en: 'For sure / Definitely — from German "sicher"; Zagreb-heavy' },
+        ]},
+      { hr: 'Ma daj!', en: 'Come on! / No way! / Are you serious?', ph: 'mah DIE', level: '✅',
+        note: '"Ma" (filler/softener) + "daj" (give/come on). Tone determines meaning completely: disbelief, mild frustration, encouragement. One of the most-used phrases in Croatian.',
         variants: [
-          { hr: 'Prava frajera', en: 'A real cool girl' },
-          { hr: 'Koji frajer misli da je', en: 'Who does he think he is (ironic)' },
-        ],
-      },
-      {
-        hr: 'Bezveze',
-        en: 'Pointless / For nothing / Lame',
-        ph: 'bez-VEH-zeh',
-        level: '✅',
-        note: '"Bez" = without, "veze" = connection/reason. Used for anything pointless, lame, or for no reason. "Radim bezveze" = I\'m doing nothing useful. One of the most used words in Croatian casual speech.',
-        variants: [
-          { hr: 'To je bezveze', en: 'That\'s pointless / That\'s lame' },
-          { hr: 'Bezveznjak', en: 'A lame person / a loser' },
-        ],
-      },
-      {
-        hr: 'Ma daj!',
-        en: 'Come on! / No way! / Are you serious?',
-        ph: 'mah DIE',
-        level: '✅',
-        note: '"Ma" = well/but (filler) + "daj" = give/come on. Used to express disbelief, mild frustration, or encouragement. Tone determines meaning entirely. One of the most useful phrases in Croatian.',
-        variants: [
-          { hr: 'Ma daj, nije moguće', en: 'No way, that\'s not possible' },
+          { hr: 'Ma daj, nije moguće', en: 'No way, that\'s impossible' },
           { hr: 'Daj već jednom', en: 'Come on already / Just do it' },
-        ],
-      },
-      {
-        hr: 'Lud / Luda',
-        en: 'Crazy / Wild / Insane',
-        ph: 'LOOD / LOO-dah',
-        level: '✅',
-        note: 'The Croatian "crazy." "Lud" = crazy (masc), "luda" = crazy (fem). Used for people, situations, and as a compliment for something amazing. "To je ludo" = that\'s insane/amazing.',
+          { hr: 'Kako da ne', en: 'Of course... NOT — sarcastic' },
+        ]},
+      { hr: 'Bezveze / Bez veze', en: 'Pointless / Lame / For nothing', ph: 'bez-VEH-zeh', level: '✅',
+        note: '"Bez veze" = without connection/reason. One of the most used words in Croatian casual speech. Everything bad or pointless is "bezveze."',
         variants: [
-          { hr: 'Jesi li lud?', en: 'Are you crazy?' },
-          { hr: 'Ludi vikend', en: 'A wild/crazy weekend' },
-          { hr: 'Ludnica', en: 'Madhouse / total chaos' },
-        ],
-      },
-      {
-        hr: 'Kaj ima? / Šta ima?',
-        en: 'What\'s up? / What\'s going on?',
-        ph: 'KAI EE-mah / SHTAH EE-mah',
-        level: '✅',
-        note: '"Kaj" = what (Zagreb/northern dialect), "šta" = what (standard). "Ima" = there is. The standard greeting among friends. "Kaj ima novo?" = "What\'s new?" Respond with "ništa" (nothing) or "sve po starom" (same as usual).',
+          { hr: 'Nema veze', en: 'No worries / Doesn\'t matter / It\'s fine' },
+          { hr: 'Dosadnjak', en: 'Boring person — the person at the party who kills vibes' },
+          { hr: 'Lapim', en: 'I\'m bored to death — "lapiti" = to be extremely bored' },
+        ]},
+      { hr: 'Brijati', en: 'To think / to be into / to date', ph: 'BREE-yah-tee', level: '✅',
+        note: 'One of the most multi-functional Croatian verbs. "Brijem da neće doći" = I don\'t think he\'ll come. "Brijam na njega" = I\'m into him. "Brijemo se zajedno" = We\'re dating.',
         variants: [
-          { hr: 'Sve ok?', en: 'All good?' },
-          { hr: 'Sve po starom', en: 'Same as usual / Nothing new' },
-        ],
-      },
+          { hr: 'Furati', en: 'To wear / to drive / to date / to rock — "Furaj to!" = Rock it!' },
+          { hr: 'Bariti', en: 'To flirt / hit on someone — "Bari je od prvog dana"' },
+          { hr: 'Skompati se', en: 'To click with someone / become friends instantly' },
+        ]},
+      { hr: 'Pomalo', en: 'Easy / Take it slow / Gradually', ph: 'poh-MAH-loh', level: '✅',
+        note: 'The coastal philosophy of life in one word. Not just "slowly" but an entire attitude — don\'t rush, enjoy the moment, it\'ll happen. The Dalmatian response to any urgency.',
+        variants: [
+          { hr: 'Sve pet', en: 'Everything\'s great — literally "all five (out of five)"' },
+          { hr: 'To je to!', en: 'That\'s it! / That\'s the one! — approval' },
+          { hr: 'Ajde / Ajmo', en: 'Come on / Let\'s go — "Ajmo!" = let\'s do this' },
+        ]},
+      { hr: 'Muljati', en: 'To lie / to deceive / to hustle', ph: 'MOO-lyah-tee', level: '✅',
+        note: '"Ne muljaj" = Don\'t lie to me / stop hustling me. "Muljator" = a hustler/con artist. Heavy use in Zagreb.',
+        variants: [
+          { hr: 'Ne muljaj', en: 'Don\'t lie to me / Stop bullsh***ing' },
+          { hr: 'Fejkati', en: 'To fake — direct from English; "fejka me" = he\'s faking me out' },
+          { hr: 'Nacrtan se', en: 'He just showed up out of nowhere — "odjednom se nacrtao"' },
+        ]},
+      { hr: 'Biti u banani', en: 'To be in trouble / to have a problem', ph: 'BOO-tee oo bah-NAH-nee', level: '✅',
+        note: 'Literally "to be in a banana." "U banani smo" = We\'re in trouble. One of many Croatian idioms using random nouns to describe bad situations.',
+        variants: [
+          { hr: 'U banani smo', en: 'We\'re in trouble / We\'re in a jam' },
+          { hr: 'Pošorati se', en: 'To get into a fight (Zagreb) — "pošorali su se" = they fought' },
+          { hr: 'Brukati se', en: 'To embarrass yourself — "nemoj se brukati"' },
+        ]},
     ],
   },
+
+  // ─── 4. PEOPLE & ADDRESSES ──────────────────────────────────────────────────
   {
-    id: 'art',
-    icon: '🎨',
-    title: 'The Art of the Curse',
-    subtitle: 'Cultural masterclass — construction and creativity',
+    id: 'people', icon: '👥', title: 'Ljudi i Adrese',
+    subtitle: 'How Croatians address and describe each other',
     color: '#0e7490', light: '#f0f9ff', border: '#7dd3fc',
     entries: [
-      {
-        hr: 'The "Jeb-" Construction',
-        en: 'How Croatian swears are built',
-        ph: '—',
-        level: '📚',
-        note: 'The root "jeb-" (from "jebati," to f***) is uniquely productive in Croatian. Unlike English where "f***" is roughly fixed, Croatian speakers add prefixes, suffixes, and case endings to create infinite variations. "Zajebati" = to mess up/screw over. "Izjebati" = to f*** up completely. "Pojebati" = to f*** (completed action). "Nadjebati" = to out-f*** / to dominate.',
+      { hr: 'Lik / Tip', en: 'Guy / Dude', ph: 'LEEK / TEEP', level: '✅',
+        note: '"Lik" for any male person. "Što je to za lik?" = What kind of guy is that? "Likuša" for female. Very common — the Croatian equivalent of "dude/bloke."',
         variants: [
-          { hr: 'Zajebao si', en: 'You screwed up / You messed that up' },
-          { hr: 'Izjebano', en: 'Completely f***ed up (situation)' },
-          { hr: 'Pojebali su ga', en: 'They screwed him over' },
-        ],
-      },
-      {
-        hr: 'Curse Intensity Scale',
-        en: 'Knowing when and how hard to hit',
-        ph: '—',
-        level: '📚',
-        note: 'Croatian swearing has levels. Light: "sranje," "govno," "majku mu." Medium: "jebote," "jebi ga." Heavy: "jebem ti mater." Nuclear: full constructions with "mater" + relatives. Reading the room is critical — among close friends these are terms of affection; with strangers they escalate fast.',
+          { hr: 'Klinac / Klinka', en: 'Kid / Young person — "mali klinac" = little kid' },
+          { hr: 'Cura', en: 'Girl / Girlfriend — standard informal' },
+          { hr: 'Dečko', en: 'Boy / Boyfriend — standard informal' },
+        ]},
+      { hr: 'Ekipa', en: 'Squad / Crew / Friend group', ph: 'EH-kee-pah', level: '✅',
+        note: '"Idemo s ekipom" = We\'re going with the crew. The primary word for your friend group. "Cijela ekipa" = the whole gang.',
         variants: [
-          { hr: 'Između prijatelja', en: 'Among friends — almost all phrases are acceptable, tone = love' },
-          { hr: 'U javnosti', en: 'In public — stick to "sranje" and "jebote" maximum' },
-        ],
-      },
-      {
-        hr: 'Nije me briga / Briga me',
-        en: 'I don\'t care (the polite ladder)',
-        ph: 'NEE-yeh meh BREE-gah / BREE-gah meh',
-        level: '📚',
-        note: 'Croatian has a beautiful ladder of "I don\'t care" expressions from polite to nuclear. "Nije me briga" (polite), "boli me briga" (stronger), "boli me kurac" (explicit). Same meaning, increasing intensity. Master all three.',
+          { hr: 'Banda', en: 'Gang / Crew — can imply more trouble than ekipa' },
+          { hr: 'Mala / Mali', en: 'Little one / Girl/Guy — affectionate for someone younger' },
+          { hr: 'Šef', en: 'Boss — also used to address strangers respectfully' },
+        ]},
+      { hr: 'Šupak / Debil', en: 'A**hole / Moron (insults)', ph: 'SHOO-pahk / DEH-beel', level: '🌶🌶',
+        note: 'The Croatian standard insult pair. "Šupak" = a**hole, "debil" = moron. Both universal across Croatia. Can be affectionate between close friends.',
         variants: [
-          { hr: 'Nije me briga', en: 'I don\'t care (neutral/polite)' },
-          { hr: 'Boli me briga', en: 'I really don\'t care (mild expletive)' },
-          { hr: 'Boli me kurac', en: 'I absolutely do not give a damn (explicit)' },
-        ],
-      },
-      {
-        hr: 'Affectionate Swearing',
-        en: 'When curses mean the opposite',
-        ph: '—',
-        level: '📚',
-        note: 'Perhaps the most important concept: in Croatian culture, swearing at someone can be an expression of deep affection. "Jebem ti mater" said with a smile while hugging someone = "you absolute legend, I love you." The same words, different tone, completely opposite meaning. Context and tone are everything.',
+          { hr: 'Mamlaz', en: 'Idiot / Knucklehead — "koji mamlaz!"' },
+          { hr: 'Levat', en: 'Idiot (Zagreb-specific) — "kakav levat!"' },
+          { hr: 'Kreten', en: 'Cretin / Moron — cross-regional' },
+          { hr: 'Tukac', en: 'Idiot (Dalmatian) — "kakav tukac!"' },
+          { hr: 'Jazavac', en: 'Social outcast — literally "badger"' },
+        ]},
+      { hr: 'Mačka / Riba', en: 'Hot woman (cat / fish)', ph: 'MACH-kah / REE-bah', level: '🌶',
+        note: 'Both used for attractive women. "Mačka" (cat) is slightly more respectful. "Riba" (fish) is more objectifying. "Kakva mačka!" = What a babe! Context matters.',
         variants: [
-          { hr: 'Jebote, faca si!', en: 'F*** me, you\'re a legend! (huge compliment)' },
-          { hr: 'Picka mu materina, uspio si', en: 'Holy sh**, you did it! (said in awe/pride)' },
-        ],
-      },
+          { hr: 'Čista 10', en: 'A perfect ten — "ona je čista 10"' },
+          { hr: 'Snack', en: 'Attractive person — English loanword used natively by Gen Z' },
+          { hr: 'Sladak / Slatka', en: 'Sweet / Cute' },
+        ]},
+      { hr: 'Cinkaroš', en: 'Snitch / Whistleblower', ph: 'tseen-kah-ROSH', level: '🌶',
+        note: '"Ne budi cinkaroš" = Don\'t be a snitch. "Cinkati" = to snitch. Universal rule across all Croatian social groups.',
+        variants: [
+          { hr: 'Ne budi cinkaroš', en: 'Don\'t be a snitch' },
+          { hr: 'Džaba-džabist', en: 'Freeloader — someone who never pays for anything' },
+          { hr: 'Palamudit', en: 'Show-off / Acting smart — Dalmatian' },
+        ]},
+      { hr: 'Pizdjen/a', en: 'In a foul mood', ph: 'PEEZ-dyen', level: '🌶🌶',
+        note: '"Pizdjena sam danas" = I\'m in a sh** mood today. Describes that particular feeling when everything is irritating you. Extremely common, especially after bad sleep.',
+        variants: [
+          { hr: 'Ljut ko pas', en: 'Angry as a dog — furious' },
+          { hr: 'Idan/Idna', en: 'Angry / Furious — Dalmatian; "totalno sam idan"' },
+          { hr: 'Grinta', en: 'Nagging / Complaining — "što toliko grintaš?"' },
+        ]},
     ],
   },
+
+  // ─── 5. DALMATIAN ───────────────────────────────────────────────────────────
+  {
+    id: 'dalmatian', icon: '☀️', title: 'Dalmatinski',
+    subtitle: 'Split, Dalmatia & coast — a world of its own',
+    color: '#0369a1', light: '#f0f9ff', border: '#93c5fd',
+    entries: [
+      { hr: 'Fjaka', en: 'The art of doing nothing', ph: 'FYAH-kah', level: '⚓',
+        note: 'The defining Dalmatian concept. Not just laziness — fjaka is a meditative, philosophical state of not doing anything and being completely at peace with that. The coast\'s answer to hustle culture.',
+        variants: [
+          { hr: 'Tramak', en: 'Reluctance to do tasks — related to fjaka; refusing unnecessary effort' },
+          { hr: 'Pomalo', en: 'Easy / Take it slow — the coastal philosophy in one word' },
+          { hr: 'Guštati', en: 'To enjoy / savor — "guštam u ovom" = I\'m really savoring this' },
+        ]},
+      { hr: 'Ćakula', en: 'Chat / Gossip / Small talk', ph: 'CHAH-koo-lah', level: '⚓',
+        note: '"Idemo na ćakulu" = Let\'s have a chat. The art of sitting and talking with no agenda. Essential coastal social activity.',
+        variants: [
+          { hr: 'Bufun / Bufunat', en: 'Jokester / To clown around — someone always fooling' },
+          { hr: 'Burdil', en: 'Madness / Total chaos — "kakav burdil!"' },
+          { hr: 'Brontulat', en: 'Complaining / talking nonsense constantly' },
+        ]},
+      { hr: 'Šoldi', en: 'Money (Dalmatian)', ph: 'SHOL-dee', level: '⚓',
+        note: 'From Italian "soldi." The Dalmatian word for money. Zagreb says "lova" or "kinta" — Dalmatia says "šoldi." Also "mukte" = free/for nothing.',
+        variants: [
+          { hr: 'Mukte', en: 'Free / For nothing — "dobio sam mukte" = I got it for free' },
+          { hr: 'Spiza', en: 'Groceries / Food shopping — "idem po spizu"' },
+          { hr: 'Piaca / Pijaca', en: 'Market — from Italian "piazza"; the social hub' },
+        ]},
+      { hr: 'Pegulan', en: 'Unlucky person', ph: 'peh-GOO-lahn', level: '⚓',
+        note: '"Ima pegulu" = He\'s got bad luck. "Pegulan" = chronically unlucky person. Dalmatian-specific. The person who always somehow ends up in the worst situation.',
+        variants: [
+          { hr: 'Dišpeta / Iz dišpeta', en: 'Spite / Out of spite — "napravio to iz dišpeta"' },
+          { hr: 'Priša', en: 'Pressure / Rushing — "nemoj mi praviti prišu" = don\'t rush me' },
+          { hr: 'A nec!', en: 'No way! / No chance! — strong Dalmatian refusal' },
+        ]},
+      { hr: 'Makina', en: 'Car (Dalmatian)', ph: 'MAH-kee-nah', level: '⚓',
+        note: 'From Italian "macchina." Zagreb says "kola" or "auto" — Dalmatia says "makina." Part of a rich Italian vocabulary layer across all of coastal life.',
+        variants: [
+          { hr: 'Šjor', en: 'Mister / Gentleman — from Italian "signore"; respectful address' },
+          { hr: 'Barba', en: 'Uncle / Old man — respectful informal address for older men' },
+          { hr: 'Cukarin', en: 'Sweetie / Sugar — term of endearment; from Italian "zucchero"' },
+        ]},
+      { hr: 'Retaj / Redikul', en: 'Fool / Laughingstock (Dalmatian insults)', ph: 'REH-tai / REH-dee-kool', level: '🌶',
+        note: '"Redikul" from Italian "ridicolo" = ridiculous. "Retaj" = a fool, dropout, someone who dropped out of the normal social order. Distinctly Dalmatian insults that don\'t translate elsewhere.',
+        variants: [
+          { hr: 'Tukac', en: 'Idiot — the standard Dalmatian go-to insult' },
+          { hr: 'Greza / Grezulja', en: 'Ugly / rough — "totalna grezulja" = completely rough/unattractive' },
+          { hr: 'Štraca', en: 'Rag / promiscuous woman — Dalmatian derogatory; from Italian "straccio"' },
+        ]},
+      { hr: 'Picigin', en: 'The sport of Split', ph: 'PEE-tsee-geen', level: '⚓',
+        note: 'Traditional Split ball game played in very shallow sea water — players keep a ball in the air with acrobatic kicks and dives. Icon of Split beach culture. Knowing this word = instant local respect.',
+        variants: [
+          { hr: 'Mol / Mul', en: 'Pier / Marina — "skočiti s mola" = jump from the pier (rite of passage)' },
+          { hr: 'Badić', en: 'Swimsuit — the essential summer vocabulary' },
+          { hr: 'Šugaman', en: 'Towel — cannot go to the beach without your šugaman' },
+        ]},
+    ],
+  },
+
+  // ─── 6. ZAGREB / KAJKAVIAN ──────────────────────────────────────────────────
+  {
+    id: 'zagreb', icon: '🏙️', title: 'Zagrebački',
+    subtitle: 'Capital city slang — where German meets Slavic',
+    color: '#16a34a', light: '#f0fdf4', border: '#86efac',
+    entries: [
+      { hr: 'Kaj', en: 'What (Kajkavian)', ph: 'KAI', level: '🏙️',
+        note: 'The defining Zagreb word. "Kaj" replaces "što/šta" (standard Croatian). "Kaj ima?" = What\'s up? The single fastest way to identify a Zagrebčan.',
+        variants: [
+          { hr: 'Kaj ima?', en: 'What\'s up? — the Zagreb greeting' },
+          { hr: 'Doma', en: 'At home — used in both Zagreb and Dalmatia' },
+          { hr: 'Tekma', en: 'Match / Game — "gledamo tekmu" = we\'re watching the match' },
+        ]},
+      { hr: 'Cugati / Cuga', en: 'To drink (booze) / A drinking session', ph: 'TSOO-gah-tee / TSOO-gah', level: '🍺',
+        note: 'Zagreb-heavy. "Idemo cugati" = Let\'s go drinking. "Hoćemo li na cugu?" = Shall we go for drinks? The equivalent of going for pints.',
+        variants: [
+          { hr: 'Birc', en: 'Bar / Pub — from German "Wirtshaus"; the Zagreb local bar' },
+          { hr: 'Viksa', en: 'Holiday home / weekend house — short for "vikendica"' },
+          { hr: 'Špica', en: 'The main scene — being seen on Tkalčićeva; Zagreb\'s social stage' },
+        ]},
+      { hr: 'Murja', en: 'The Police', ph: 'MOOR-yah', level: '🏙️',
+        note: '"Dolazi murja!" = The cops are coming! Zagreb street slang for police. Not used in Dalmatia (they say "policija" or regional variants).',
+        variants: [
+          { hr: 'Šora', en: 'A fight (Zagreb) — "bila je šora" = there was a fight' },
+          { hr: 'Nogoš', en: 'Football — short for "nogomet"; used casually' },
+          { hr: 'Trac', en: 'Tram — short for "tramvaj"; the Zagreb lifeline' },
+        ]},
+      { hr: 'Frajla', en: 'Miss / Young lady', ph: 'FRAY-lah', level: '🏙️',
+        note: 'From German "Fräulein." The Zagreb German influence — Zagreb was heavily influenced by Austro-Hungarian culture. Slightly old-fashioned now but still heard.',
+        variants: [
+          { hr: 'Ziher', en: 'For sure / Definitely — from German "sicher"' },
+          { hr: 'Šljiva mi je', en: 'I\'m cold — literally "my plum is cold"; uniquely Zagreb' },
+          { hr: 'Šora', en: 'Fight — from German "Schar" (crowd/brawl)' },
+        ]},
+    ],
+  },
+
+  // ─── 7. ŠATROVAČKI ──────────────────────────────────────────────────────────
+  {
+    id: 'satrovski', icon: '🔄', title: 'Šatrovački',
+    subtitle: 'Syllable-reversal street language — the Croatian secret code',
+    color: '#9333ea', light: '#faf5ff', border: '#d8b4fe',
+    entries: [
+      { hr: 'What is Šatrovački?', en: 'Croatia\'s street code — syllables swapped', ph: '—', level: '📚',
+        note: 'Šatrovački is a form of slang where words are split and syllables reversed, sometimes with vowel changes. Originated in criminal and underground culture, now common among youth. "Vopi" instead of "pivo," "ćešho" instead of "hoćeš." Once you learn the pattern you can invent any word.',
+        variants: [
+          { hr: 'Vopi', en: '"Pivo" (beer) reversed — the most famous example' },
+          { hr: 'Ćešho', en: '"Hoćeš" (do you want) reversed' },
+        ]},
+      { hr: 'Vopi', en: 'Beer (pivo reversed)', ph: 'VOH-pee', level: '🔄',
+        note: 'The most famous šatrovački word. "Pivo" → split at consonant → "pi-vo" → swap → "vo-pi" = "vopi." Ask for a "vopi" at a Zagreb bar and locals will love you.',
+        variants: [
+          { hr: 'Zika', en: '"Muzika" (music) — reversed and shortened' },
+          { hr: 'Mado', en: '"Doma" (home) reversed' },
+          { hr: 'Trasu', en: '"Sutra" (tomorrow) reversed' },
+        ]},
+      { hr: 'Vutra', en: 'Weed / Grass (trava reversed)', ph: 'VOO-trah', level: '🔄',
+        note: '"Trava" (grass/weed) → reversed → "vutra." Šatrovački was originally used to discuss illegal activity without being understood. This is the classic example.',
+        variants: [
+          { hr: 'Voplo', en: '"Lopov" (thief) reversed' },
+          { hr: 'Garaci', en: '"Cigara" (cigarette) reversed' },
+          { hr: 'Brodo', en: '"Dobro" (good) reversed' },
+        ]},
+      { hr: 'Žišku', en: 'You get it? (kužiš reversed)', ph: 'ZHISH-koo', level: '🔄',
+        note: '"Kužiš" reversed = "žišku." A meta-šatrovački phrase — asking if they understand the slang system in the slang system itself.',
+        variants: [
+          { hr: 'Zipa', en: '"Pazi" (watch out / careful) reversed' },
+          { hr: 'Đido', en: '"Dođi" (come here) reversed' },
+          { hr: 'Lahva', en: '"Hvala" (thank you) reversed — say this and watch faces light up' },
+        ]},
+    ],
+  },
+
+  // ─── 8. GEN Z / INTERNET ────────────────────────────────────────────────────
+  {
+    id: 'genz', icon: '📱', title: 'Gen Z & Internet',
+    subtitle: 'How Croatian youth actually talk online and IRL in 2025',
+    color: '#db2777', light: '#fdf2f8', border: '#f9a8d4',
+    entries: [
+      { hr: 'Mid', en: 'Mediocre / Nothing special', ph: 'MID', level: '📱',
+        note: 'English Gen Z loanword fully adopted. "To je mid" = That\'s mid / mediocre. The ultimate lukewarm review. "Taj film je mid" = That film was mid. Used constantly by Croatian youth.',
+        variants: [
+          { hr: 'Bussin', en: 'Excellent / Hits different — "to je bussin"' },
+          { hr: 'No cap', en: 'No lie / For real — "no cap, fakat je lud" = no lie, he\'s genuinely crazy' },
+          { hr: 'Bet', en: 'Bet / For sure — "bet, ajmo" = bet, let\'s go' },
+        ]},
+      { hr: 'Rizz', en: 'Game / Charisma / Charm', ph: 'REEZ', level: '📱',
+        note: '"Ima rizz" = He has game/charisma. Used exactly as in English Gen Z. "Nema rizz" = He\'s got no game. A fundamental quality assessment word for Croatian Gen Z.',
+        variants: [
+          { hr: 'Aura', en: '"Ima auru" = He has aura / presence / an energy about him' },
+          { hr: 'Drip', en: '"Kakav drip" = What style/drip — referring to fashion/style' },
+          { hr: 'Slay', en: '"Slayala si" = You slayed / nailed it' },
+        ]},
+      { hr: 'Delulu', en: 'Delusional', ph: 'deh-LOO-loo', level: '📱',
+        note: '"Ona je totalno delulu" = She\'s completely delusional. Croatian Gen Z adopted this exactly from English TikTok. Shortened from "delusional" — describes someone completely disconnected from reality.',
+        variants: [
+          { hr: 'Cringe', en: '"To je cringe" = That\'s cringe — used directly' },
+          { hr: 'Sus', en: '"Malo je sus" = A bit suspicious (Among Us origin)' },
+          { hr: 'Red flag', en: '"Totalni red flag" = Total red flag' },
+        ]},
+      { hr: 'Ghostati', en: 'To ghost someone', ph: 'GHOST-ah-tee', level: '📱',
+        note: '"Ghostao me" = He ghosted me. Croatian Gen Z adapted English "ghost" with Croatian verb endings. "Ghostanje" = ghosting as a noun. A fundamental part of modern Croatian dating vocabulary.',
+        variants: [
+          { hr: 'Hypeati', en: 'To hype up — "nemoj me hypeati" = don\'t get me hyped up' },
+          { hr: 'Cancelati', en: 'To cancel someone — "cancelali su ga" = they cancelled him' },
+          { hr: 'Shipati', en: 'To ship (as a couple) — "shipam ih" = I ship them' },
+        ]},
+      { hr: 'Hejtat', en: 'To hate on / low-key hate', ph: 'HEY-taht', level: '📱',
+        note: 'From English "hate." "Što hejtaš?" = Why are you hating? "Hejteri će hejtat" = Haters gonna hate. Complete Croatian conjugation fully established.',
+        variants: [
+          { hr: 'Fomo', en: 'Fear of missing out — used directly: "imam fomo"' },
+          { hr: 'Simp', en: '"Ne budi simp" = Don\'t be a simp' },
+          { hr: 'Bestie', en: '"Ti si moj bestie" = You\'re my bestie' },
+        ]},
+      { hr: 'Vibes', en: 'Vibes / The feel / Energy', ph: 'VYBS', level: '📱',
+        note: '"Kakvi vibes" = What vibes. "Ne štima mi vibe" = The vibe doesn\'t feel right. Used directly from English but with Croatian sentence structure around it.',
+        variants: [
+          { hr: 'Lit', en: '"Večeras je bilo lit" = Tonight was lit' },
+          { hr: 'GOAT', en: '"On je goat" = He\'s the greatest of all time' },
+          { hr: 'Skibidi', en: 'Nonsense / chaotic — the Skibidi meme penetrated Croatian youth speech deeply' },
+        ]},
+    ],
+  },
+
+  // ─── 9. DRUNK & HUNGOVER ────────────────────────────────────────────────────
+  {
+    id: 'pijani', icon: '🍺', title: 'Pijani & Mamurani',
+    subtitle: 'Drunk, hungover, broke — the essential survival vocabulary',
+    color: '#b45309', light: '#fffbeb', border: '#fcd34d',
+    entries: [
+      { hr: 'Nakresan / Srušen', en: 'Drunk / Wrecked', ph: 'nah-KREH-sahn / SROO-shen', level: '🍺',
+        note: '"Nakresan" = drunk (like tiles knocked crooked). "Srušen" = demolished/wrecked — very drunk. The Croatian drunk scale: "u zuju" (tipsy) → "nakresan" → "nacugan" → "srušen."',
+        variants: [
+          { hr: 'U zuju', en: 'Tipsy — the pleasant early stage; "već sam u zuju"' },
+          { hr: 'Nacugan', en: 'Wasted — past participle of "nacugati se"' },
+          { hr: 'Naroljan', en: 'Completely wasted — past participle of "naroljati se"' },
+        ]},
+      { hr: 'Pijan ko smuk', en: 'Drunk as a snake', ph: 'PEE-yahn koh SMOOK', level: '🍺',
+        note: 'Classic Croatian drunk simile. "Smuk" = a type of snake. Also "pijan ko majka" (drunk as a mother — a confusing but beloved comparison) and "pijan ko pička" (the explicit version).',
+        variants: [
+          { hr: 'Pijan ko majka', en: 'Drunk as a mother — colorful hyperbole' },
+          { hr: 'Pijan ko pička', en: 'Completely hammered — explicit intensifier' },
+          { hr: 'Idemo se nacugati', en: 'Let\'s go get wasted — the invitation' },
+        ]},
+      { hr: 'Mamuran', en: 'Hungover', ph: 'mah-MOO-rahn', level: '🍺',
+        note: 'The inevitable morning after. "Totalno sam mamuran" = I\'m totally hungover. "Mamurluk" = the hangover as a noun. "Krepao od mamurluka" = dying from the hangover.',
+        variants: [
+          { hr: 'Mamurluk', en: 'A hangover (noun) — "imam grozan mamurluk"' },
+          { hr: 'Krepavam od mamurluka', en: 'I\'m dying of a hangover — for dramatic effect' },
+          { hr: 'Mrtav od mamurluka', en: 'Dead from a hangover — the nuclear version' },
+        ]},
+      { hr: 'Švorc', en: 'Broke / No money', ph: 'SHVORTS', level: '💸',
+        note: 'The standard "I\'m broke." "Totalno sam švorc" = I\'m completely broke. "Na nuli" (at zero) and "bez love/kinte" are alternatives by intensity.',
+        variants: [
+          { hr: 'Na nuli', en: 'At zero / flat broke' },
+          { hr: 'Nema kinte', en: 'No money — "kinta" from Zagreb slang' },
+          { hr: 'Lova / Pare / Šoldi', en: 'Money — Zagreb: lova/kinta; Dalmatia: šoldi; standard: pare' },
+        ]},
+      { hr: 'Čaga / Žurka', en: 'Dance party / Party', ph: 'CHAH-gah / ZHOOR-kah', level: '🎉',
+        note: '"Žurka" = party (pan-Croatian). "Čaga" = more specifically a dance party. "Festin" = feast/party (Dalmatian, from Italian "festino"). "Idemo na čagu" = Let\'s go dance.',
+        variants: [
+          { hr: 'Festin', en: 'Feast / Party (Dalmatian) — from Italian; grand celebration' },
+          { hr: 'Noćni izlazak', en: 'Night out — "idemo na noćni"' },
+          { hr: 'Đuskati / Čagati', en: 'To dance — "idemo đuskati" = let\'s dance' },
+        ]},
+    ],
+  },
+
+  // ─── 10. FOOTBALL ───────────────────────────────────────────────────────────
+  {
+    id: 'football', icon: '⚽', title: 'Nogomet',
+    subtitle: 'Football culture — where half the country\'s passion lives',
+    color: '#dc2626', light: '#fff1f2', border: '#fecaca',
+    entries: [
+      { hr: 'Vatreni', en: 'The Fiery Ones — Croatia national team', ph: 'vah-TREH-nee', level: '⚽',
+        note: 'The nickname for the Croatian national football team. "Idemo Vatreni!" = Let\'s go Fiery Ones! In 2018 they reached the World Cup final. "Idemo Hrvatska!" is the standard chant.',
+        variants: [
+          { hr: 'Idemo Hrvatska!', en: 'Let\'s go Croatia! — the national chant' },
+          { hr: 'Šahovnica', en: 'Checkerboard — the Croatian coat of arms; synonym for national identity in football' },
+          { hr: 'Lijepa naša', en: 'Our beautiful (one) — Croatian anthem, chanted at matches' },
+        ]},
+      { hr: 'Vječni derbi', en: 'The Eternal Derby', ph: 'VYE-chnee DEHR-bee', level: '⚽',
+        note: 'Dinamo Zagreb vs Hajduk Split — the most intense domestic rivalry. "Vječni" = eternal. This match has occasionally stopped the country. Not to be discussed casually when you don\'t know which side someone\'s on.',
+        variants: [
+          { hr: 'Plavi', en: 'The Blues — Dinamo Zagreb nickname; "ajmo plavi!"' },
+          { hr: 'Bijeli', en: 'The Whites — Hajduk Split nickname' },
+          { hr: 'Modri', en: 'The Dark Blues — alternative Dinamo nickname' },
+        ]},
+      { hr: 'Bad Blue Boys (BBB)', en: 'Dinamo Zagreb ultra group', ph: 'BAD BLOO BOYSS', level: '⚽',
+        note: 'The BBB — founded 17 March 1986, named after the Sean Penn film. Among the most passionate fan groups in European football. "Ajmo plavi" is their chant. Not to be confused with Torcida.',
+        variants: [
+          { hr: 'Torcida', en: 'Hajduk Split ultras — founded 1950; oldest organized supporters group in Europe' },
+          { hr: 'Tovari', en: 'Donkeys — BBB insult for Torcida (donkey is Torcida\'s animal symbol)' },
+          { hr: 'Živi bili!', en: 'May you live forever! — traditional Croatian toast; also chanted at matches' },
+        ]},
+      { hr: 'Ajmo! / Idemo! / Naprijed!', en: 'Come on! / Let\'s go! / Forward!', ph: 'AY-mo / EE-demo / NAH-pryehd', level: '⚽',
+        note: 'The three essential football encouragement chants. "Ajmo!" when they need to try harder. "Idemo!" when they\'re on the attack. "Naprijed!" when they\'re defending a lead.',
+        variants: [
+          { hr: 'Gol!', en: 'Goal! — said with as much lung capacity as possible' },
+          { hr: 'Pobjeda!', en: 'Victory! — chanted after winning' },
+          { hr: 'Tekma', en: 'Match / Game — "gledamo tekmu" = we\'re watching the match' },
+        ]},
+    ],
+  },
+
+  // ─── 11. REGIONAL COMPARISON ────────────────────────────────────────────────
+  {
+    id: 'regional', icon: '🗺️', title: 'Zagreb vs Split',
+    subtitle: 'The same thing — completely different word. A field guide.',
+    color: '#065f46', light: '#ecfdf5', border: '#6ee7b7',
+    entries: [
+      { hr: 'Kaj / Ča / Što', en: '"What" — three dialects, one Croatia', ph: 'KAI / CHAH / SHTOH', level: '🗺️',
+        note: 'Croatia has three dialects: Kajkavian (Zagreb/north) uses "kaj," Čakavian (coast/islands) uses "ča," Štokavian (standard/east) uses "što/šta." Meeting someone new? Their "what" tells you where they\'re from.',
+        variants: [
+          { hr: 'Kaj ima? (Zagreb)', en: 'What\'s up? — Zagreb' },
+          { hr: 'Ča ima? (Dalmatia)', en: 'What\'s up? — coastal/island' },
+          { hr: 'Šta ima? (standard)', en: 'What\'s up? — everywhere else' },
+        ]},
+      { hr: 'Lova vs Šoldi', en: 'Money — Zagreb vs Dalmatia', ph: 'LOH-vah vs SHOL-dee', level: '🗺️',
+        note: '"Lova" or "kinta" in Zagreb. "Šoldi" (from Italian "soldi") in Dalmatia. Same word, different cultural DNA — Zagreb\'s German/Slavic heritage vs Dalmatia\'s Italian/Mediterranean heritage.',
+        variants: [
+          { hr: 'Kola (Zagreb) vs Makina (Split)', en: 'Car — German vs Italian loanword' },
+          { hr: 'Birc (Zagreb) vs Konoba (Dalmatia)', en: 'Bar — "birc" from German; "konoba" = traditional tavern' },
+          { hr: 'Baka (Zagreb) vs Nona (Dalmatia)', en: 'Grandma — the most emotional regional difference' },
+        ]},
+      { hr: 'Baka / Dida vs Nona / Nono', en: 'Grandparents — Zagreb vs Coast', ph: 'BAH-kah / DEE-dah vs NOH-nah / NOH-noh', level: '🗺️',
+        note: 'Possibly the single most emotionally charged regional difference. Zagreb grandchildren say "baka" and "dida/djed." Coastal grandchildren say "nona" and "nono/nonić." Both from Italian "nonna/nonno" for coast, Slavic for Zagreb.',
+        variants: [
+          { hr: 'Nona / Nonić', en: 'Grandma / Grandpa — coastal/Dalmatian' },
+          { hr: 'Baka / Dida', en: 'Grandma / Grandpa — Zagreb and inland' },
+          { hr: 'Naša kuhinja vs naša kužina', en: 'Our kitchen — Zagreb standard vs Dalmatian Italian loanword' },
+        ]},
+      { hr: 'Generacijski jaz', en: 'The generation gap in words', ph: '—', level: '📚',
+        note: 'Grandparents use German/Italian/Austro-Hungarian loanwords from their era: "frajla," "šuster" (cobbler), "cajger" (clock hand). Grandkids use English/Internet loanwords: "ghostati," "mid," "rizz." Same family, completely different linguistic universes.',
+        variants: [
+          { hr: 'Šuster (grandpa)', en: 'Cobbler / Shoemaker — from German "Schuster"; grandkids wouldn\'t know this' },
+          { hr: 'Ghostati (grandkid)', en: 'To ghost — grandparents have no word for this concept' },
+          { hr: 'Frajla (grandpa) vs Snack (grandkid)', en: 'How each generation describes an attractive woman' },
+        ]},
+    ],
+  },
+
+  // ─── 12. THE ART OF THE CURSE ───────────────────────────────────────────────
+  {
+    id: 'art', icon: '🎨', title: 'Psovanje kao Umjetnost',
+    subtitle: 'The grammar, culture, and mastery of Croatian swearing',
+    color: '#1a1a2e', light: '#f1f5f9', border: '#94a3b8',
+    entries: [
+      { hr: 'The Jeb- Construction', en: 'How Croatian builds infinite curses from one root', ph: '—', level: '📚',
+        note: 'The root "jeb-" (from "jebati") is uniquely productive. Unlike English "f***" which is roughly fixed, Croatian adds prefixes and suffixes creating distinct meanings: "Zajebati" = to mess up. "Izjebati" = to completely f*** up. "Pojebati" = completed f***-up. "Nadjebati" = to outdo/dominate. "Sjebati" = to ruin. "Ujebati" = to trick/con.',
+        variants: [
+          { hr: 'Zajebao si', en: 'You screwed up / You messed that up (za- = imperfective)' },
+          { hr: 'Pojebali su ga', en: 'They completely did him over (po- = completed action)' },
+          { hr: 'Nadjebao sam ga', en: 'I dominated/outdid him (nad- = over/above)' },
+          { hr: 'Ujebali su me', en: 'They conned/tricked me (u- = into)' },
+        ]},
+      { hr: 'The Mater Elaboration Scale', en: 'From mild to nuclear — know your level', ph: '—', level: '📚',
+        note: 'Croatian mater curses have levels. Each addition escalates intensity. Basic: "majku mu." Medium: "jebem ti mater." Elaborated: "+po rebru" or "+pa back." Creative: "+mlade rode/juhu od Isusovih kostiju." Nuclear: full family list. Never deploy nuclear in unfamiliar company.',
+        variants: [
+          { hr: 'Između prijatelja', en: 'Among close friends — almost everything is acceptable, tone = love' },
+          { hr: 'S neznancima', en: 'With strangers — maximum "jebote" or "jebi ga"; nothing mater-related' },
+          { hr: 'Na poslu', en: 'At work — "sranje" and "govno" only; anything else = HR incident' },
+        ]},
+      { hr: 'Affectionate Swearing', en: 'When curses mean the exact opposite', ph: '—', level: '📚',
+        note: 'The most important concept: Croatian swearing is deeply social and tone-dependent. "Jebem ti mater" said with a smile while hugging someone = "you absolute legend." "Picka mu materina, uspio si" = "holy sh** you actually did it" (pure pride). Same words — completely opposite meanings. This is the artform.',
+        variants: [
+          { hr: 'Jebote, faca si!', en: 'Holy sh**, you\'re a legend! — said with genuine admiration' },
+          { hr: 'Picka mu materina, uspio si!', en: 'Holy sh**, he/you did it! — overwhelming pride' },
+          { hr: 'Jebo te, pa to je nevjerojatno', en: 'F*** you (= you amazing person), that\'s incredible' },
+        ]},
+      { hr: 'The I Don\'t Care Ladder', en: 'Five levels of not caring — exactly calibrated', ph: '—', level: '📚',
+        note: 'Croatian has a beautifully precise indifference vocabulary. Use the wrong level and you\'ll either understate or shock. Learn all five rungs of the ladder.',
+        variants: [
+          { hr: 'Nije me briga', en: '1. Polite — I don\'t care (neutral, professional context fine)' },
+          { hr: 'Baš me briga', en: '2. Mild — I really don\'t care (casual, slight edge)' },
+          { hr: 'Boli me briga', en: '3. Medium — I genuinely couldn\'t care less (mild expletive)' },
+          { hr: 'Boli me kurac', en: '4. Strong — I absolutely do not give a damn (explicit)' },
+          { hr: 'Pun mi je kurac svega', en: '5. Nuclear — I\'m completely fed up with everything (explicit + exhausted)' },
+        ]},
+    ],
+  },
+
 ];
 
-// ── Component ─────────────────────────────────────────────────────────────────
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function SlangScreen({ goBack, award }) {
-  const [gated, setGated] = useState(true);
+  const [gated, setGated]   = useState(true);
   const [activeSection, setActiveSection] = useState('classics');
   const [expanded, setExpanded] = useState(null);
   const [xpAwarded, setXpAwarded] = useState(false);
+  const [searchQ, setSearchQ] = useState('');
+  const [searching, setSearching] = useState(false);
 
   function handleUnlock() {
     setGated(false);
     if (award && !xpAwarded) { award(15); setXpAwarded(true); }
   }
 
+  // ── Gate ──────────────────────────────────────────────────────────────────
   if (gated) {
     return (
       <div className="scr-wrap" style={{ paddingBottom: 100 }}>
@@ -334,49 +648,165 @@ export default function SlangScreen({ goBack, award }) {
           borderRadius: 24, color: '#fff', marginBottom: 20,
         }}>
           <div style={{ fontSize: 64, marginBottom: 16 }}>🤬</div>
-          <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 26, marginBottom: 12, color: '#fff' }}>
-            Psovanje kao umjetnost
+          <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 26, marginBottom: 8, color: '#fff' }}>
+            Psovanje kao Umjetnost
           </h2>
-          <p style={{ fontSize: 14, opacity: .8, lineHeight: 1.7, marginBottom: 8 }}>
-            <em>Swearing as an artform</em>
-          </p>
-          <p style={{ fontSize: 13, opacity: .7, lineHeight: 1.6, marginBottom: 24, maxWidth: 320, margin: '0 auto 24px' }}>
-            This module covers authentic Croatian slang, colloquial expressions,
-            and culturally significant swear words with full context and pronunciation.
-            Content is intended for adult learners of the Croatian language.
-          </p>
+          <p style={{ fontSize: 14, opacity: .75, marginBottom: 20 }}><em>Swearing as an artform</em></p>
           <div style={{
             background: 'rgba(255,255,255,.08)', borderRadius: 14,
-            padding: '14px 20px', marginBottom: 28, fontSize: 13,
-            lineHeight: 1.6, opacity: .85, textAlign: 'left',
+            padding: '16px 20px', marginBottom: 28, fontSize: 13,
+            lineHeight: 1.7, textAlign: 'left',
           }}>
-            <div style={{ fontWeight: 800, marginBottom: 6 }}>📚 What you'll learn:</div>
-            <div>• Classic Croatian expletives and their grammatical structure</div>
-            <div>• When, how, and with whom each expression is appropriate</div>
-            <div>• Everyday slang that makes you sound like a local</div>
-            <div>• The cultural art of affectionate swearing</div>
+            <div style={{ fontWeight: 900, marginBottom: 8 }}>📚 12 sections — 150+ entries:</div>
+            <div>🔥 The Classics — jeb- construction mastery</div>
+            <div>😤 Everyday Exclamations</div>
+            <div>😎 Street Slang — sound like a local</div>
+            <div>👥 People & Addresses</div>
+            <div>☀️ Dalmatian / Split dialect</div>
+            <div>🏙️ Zagreb / Kajkavian slang</div>
+            <div>🔄 Šatrovački — Croatian secret syllable code</div>
+            <div>📱 Gen Z & Internet language 2025</div>
+            <div>🍺 Drunk, Hungover & Broke vocabulary</div>
+            <div>⚽ Football culture language</div>
+            <div>🗺️ Zagreb vs Split — regional comparison</div>
+            <div>🎨 The Art of the Curse — grammar masterclass</div>
           </div>
-          <button
-            onClick={handleUnlock}
-            style={{
-              padding: '16px 40px', borderRadius: 16, border: 'none', cursor: 'pointer',
-              background: 'linear-gradient(135deg,#dc2626,#b91c1c)',
-              color: '#fff', fontSize: 16, fontWeight: 900,
-              fontFamily: "'Outfit',sans-serif",
-              boxShadow: '0 8px 32px rgba(220,38,38,.4)',
-            }}>
+          <button onClick={handleUnlock} style={{
+            padding: '16px 40px', borderRadius: 16, border: 'none', cursor: 'pointer',
+            background: 'linear-gradient(135deg,#dc2626,#b91c1c)',
+            color: '#fff', fontSize: 16, fontWeight: 900,
+            fontFamily: "'Outfit',sans-serif",
+            boxShadow: '0 8px 32px rgba(220,38,38,.4)',
+          }}>
             I'm an adult — Let's learn 🔥
           </button>
-          <div style={{ marginTop: 16, fontSize: 11, opacity: .5 }}>+15 XP for accessing this module</div>
+          <div style={{ marginTop: 14, fontSize: 11, opacity: .5 }}>+15 XP for unlocking this module</div>
         </div>
-        <button onClick={goBack} style={{ width: '100%', padding: 14, background: 'none', border: '1.5px solid var(--card-b)', borderRadius: 14, color: 'var(--subtext)', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }}>
-          ← Back
-        </button>
+        <button onClick={goBack} style={{
+          width: '100%', padding: 14, background: 'none',
+          border: '1.5px solid var(--card-b)', borderRadius: 14,
+          color: 'var(--subtext)', fontSize: 14, fontWeight: 700,
+          cursor: 'pointer', fontFamily: "'Outfit',sans-serif",
+        }}>← Back</button>
       </div>
     );
   }
 
-  const section = SECTIONS.find(s => s.id === activeSection);
+  // ── Search mode ───────────────────────────────────────────────────────────
+  const q = searchQ.toLowerCase().trim();
+  const searchResults = q.length >= 2 ? SECTIONS.flatMap(s =>
+    s.entries
+      .filter(e =>
+        e.hr.toLowerCase().includes(q) ||
+        e.en.toLowerCase().includes(q) ||
+        e.note.toLowerCase().includes(q) ||
+        e.variants.some(v => v.hr.toLowerCase().includes(q) || v.en.toLowerCase().includes(q))
+      )
+      .map(e => ({ ...e, sectionColor: s.color, sectionLight: s.light, sectionBorder: s.border, sectionIcon: s.icon, sectionTitle: s.title }))
+  ) : [];
+
+  const section = SECTIONS.find(s => s.id === activeSection) || SECTIONS[0];
+
+  function EntryCard({ entry, color, light, border, keyId }) {
+    const isOpen = expanded === keyId;
+    return (
+      <div style={{
+        background: 'var(--card)',
+        border: `1.5px solid ${isOpen ? color : 'var(--card-b)'}`,
+        borderRadius: 16, marginBottom: 10, overflow: 'hidden',
+        boxShadow: isOpen ? `0 4px 20px ${color}22` : '0 1px 4px rgba(0,0,0,.06)',
+        transition: 'border-color .2s',
+      }}>
+        <button
+          onClick={() => setExpanded(isOpen ? null : keyId)}
+          style={{
+            width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+            padding: '14px 16px', background: 'none', border: 'none',
+            cursor: 'pointer', textAlign: 'left', fontFamily: "'Outfit',sans-serif",
+          }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+            background: light, border: `1.5px solid ${border}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18,
+          }}>
+            {entry.level}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 15, fontWeight: 900, color: 'var(--heading)', fontFamily: "'Playfair Display',serif", lineHeight: 1.2 }}>
+              {entry.hr}
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 2, fontWeight: 600 }}>
+              {entry.en}
+            </div>
+          </div>
+          {entry.ph !== '—' && (
+            <button
+              onClick={e => { e.stopPropagation(); speak(entry.hr, 'hr'); }}
+              aria-label={`Hear ${entry.hr}`}
+              style={{
+                width: 36, height: 36, borderRadius: 10, border: 'none',
+                background: `linear-gradient(135deg,${color},${color}cc)`,
+                color: '#fff', fontSize: 16, cursor: 'pointer', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>🔊</button>
+          )}
+          <div style={{ fontSize: 14, color: 'var(--subtext)', opacity: .4, flexShrink: 0 }}>
+            {isOpen ? '▲' : '▼'}
+          </div>
+        </button>
+
+        {isOpen && (
+          <div style={{ padding: '0 16px 16px', borderTop: `1px solid ${border}` }}>
+            {entry.ph !== '—' && (
+              <div style={{
+                background: light, borderRadius: 10, padding: '8px 12px',
+                marginTop: 12, marginBottom: 12,
+                fontSize: 13, color: color, fontWeight: 700, fontFamily: 'monospace',
+              }}>
+                🗣 /{entry.ph}/
+              </div>
+            )}
+            <div style={{
+              fontSize: 13, color: 'var(--text)', lineHeight: 1.7,
+              background: 'var(--bar-bg)', borderRadius: 10, padding: '12px 14px',
+              marginBottom: entry.variants.length ? 12 : 0,
+            }}>
+              {entry.note}
+            </div>
+            {entry.variants.length > 0 && (
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8 }}>
+                  Variations & Examples
+                </div>
+                {entry.variants.map((v, vi) => (
+                  <div key={vi} style={{
+                    display: 'flex', alignItems: 'flex-start', gap: 10,
+                    padding: '8px 10px', borderRadius: 10,
+                    background: light, border: `1px solid ${border}`,
+                    marginBottom: vi < entry.variants.length - 1 ? 6 : 0,
+                  }}>
+                    <button
+                      onClick={() => speak(v.hr, 'hr')}
+                      aria-label={`Hear ${v.hr}`}
+                      style={{
+                        width: 28, height: 28, borderRadius: 8, border: 'none',
+                        background: color, color: '#fff', fontSize: 12,
+                        cursor: 'pointer', flexShrink: 0,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>🔊</button>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: color, fontFamily: "'Playfair Display',serif" }}>{v.hr}</div>
+                      <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2, fontWeight: 500 }}>{v.en}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="scr-wrap" style={{ paddingBottom: 100 }}>
@@ -384,193 +814,105 @@ export default function SlangScreen({ goBack, award }) {
       {/* Header */}
       <div style={{
         background: 'linear-gradient(135deg,#1a1a2e,#0f3460)',
-        borderRadius: 20, padding: '20px', marginBottom: 16, color: '#fff', textAlign: 'center',
+        borderRadius: 20, padding: '18px 20px', marginBottom: 14,
+        color: '#fff',
       }}>
-        <div style={{ fontSize: 36, marginBottom: 8 }}>🤬</div>
-        <div style={{ fontSize: 20, fontWeight: 900, fontFamily: "'Playfair Display',serif" }}>
-          Croatian Slang & Expressions
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ fontSize: 36 }}>🤬</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 18, fontWeight: 900, fontFamily: "'Playfair Display',serif" }}>Slang & Psovanje</div>
+            <div style={{ fontSize: 11, opacity: .65, marginTop: 2 }}>12 sections · 150+ expressions · all with pronunciation</div>
+          </div>
         </div>
-        <div style={{ fontSize: 12, opacity: .7, marginTop: 4 }}>
-          Tap any entry to expand pronunciation, usage notes, and variations
+        {/* Search */}
+        <div style={{ marginTop: 14, position: 'relative' }}>
+          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', opacity: .5, fontSize: 14 }}>🔍</span>
+          <input
+            type="search"
+            placeholder="Search any word or phrase…"
+            value={searchQ}
+            onChange={e => { setSearchQ(e.target.value); setSearching(e.target.value.length >= 2); }}
+            onFocus={() => setSearching(searchQ.length >= 2)}
+            onBlur={() => setTimeout(() => setSearching(false), 200)}
+            style={{
+              width: '100%', padding: '10px 12px 10px 36px', borderRadius: 12,
+              border: '1.5px solid rgba(255,255,255,.2)',
+              background: 'rgba(255,255,255,.1)', color: '#fff',
+              fontSize: 13, fontFamily: "'Outfit',sans-serif",
+              outline: 'none', boxSizing: 'border-box',
+            }}
+          />
         </div>
       </div>
+
+      {/* Search results */}
+      {searching && searchQ.length >= 2 && (
+        <div style={{ marginBottom: 14 }}>
+          {searchResults.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '20px', color: 'var(--subtext)', fontSize: 13 }}>
+              No matches for "{searchQ}"
+            </div>
+          ) : (
+            searchResults.map((e, i) => (
+              <EntryCard key={i} entry={e} color={e.sectionColor} light={e.sectionLight} border={e.sectionBorder} keyId={`s${i}`} />
+            ))
+          )}
+        </div>
+      )}
 
       {/* Section tabs */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
-        {SECTIONS.map(s => (
-          <button
-            key={s.id}
-            onClick={() => { setActiveSection(s.id); setExpanded(null); }}
-            style={{
-              flexShrink: 0, padding: '8px 14px', borderRadius: 20,
-              border: `1.5px solid ${activeSection === s.id ? s.color : 'var(--card-b)'}`,
-              background: activeSection === s.id ? s.light : 'var(--card)',
-              color: activeSection === s.id ? s.color : 'var(--subtext)',
-              fontSize: 12, fontWeight: 800, cursor: 'pointer',
-              fontFamily: "'Outfit',sans-serif",
-              transition: 'all .2s',
-            }}>
-            {s.icon} {s.title}
-          </button>
-        ))}
-      </div>
-
-      {/* Section subtitle */}
-      <div style={{
-        background: section.light, border: `1.5px solid ${section.border}`,
-        borderRadius: 12, padding: '10px 14px', marginBottom: 14,
-        fontSize: 12, color: section.color, fontWeight: 700,
-      }}>
-        {section.subtitle}
-      </div>
-
-      {/* Entries */}
-      {section.entries.map((entry, i) => {
-        const isOpen = expanded === i;
-        return (
-          <div
-            key={i}
-            style={{
-              background: 'var(--card)', border: `1.5px solid ${isOpen ? section.color : 'var(--card-b)'}`,
-              borderRadius: 16, marginBottom: 10, overflow: 'hidden',
-              transition: 'border-color .2s',
-              boxShadow: isOpen ? `0 4px 20px ${section.color}22` : '0 1px 4px rgba(0,0,0,.06)',
-            }}>
-
-            {/* Entry header — always visible */}
-            <button
-              onClick={() => setExpanded(isOpen ? null : i)}
-              style={{
-                width: '100%', display: 'flex', alignItems: 'center', gap: 12,
-                padding: '14px 16px', background: 'none', border: 'none',
-                cursor: 'pointer', textAlign: 'left', fontFamily: "'Outfit',sans-serif",
-              }}>
-              <div style={{
-                width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-                background: `${section.light}`,
-                border: `1.5px solid ${section.border}`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 18,
-              }}>
-                {entry.level}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{
-                  fontSize: 16, fontWeight: 900, color: 'var(--heading)',
-                  fontFamily: "'Playfair Display',serif", lineHeight: 1.2,
+      {!searching && (
+        <>
+          <div style={{ display: 'flex', gap: 7, marginBottom: 12, overflowX: 'auto', paddingBottom: 4 }}>
+            {SECTIONS.map(s => (
+              <button
+                key={s.id}
+                onClick={() => { setActiveSection(s.id); setExpanded(null); }}
+                style={{
+                  flexShrink: 0, padding: '7px 12px', borderRadius: 20,
+                  border: `1.5px solid ${activeSection === s.id ? s.color : 'var(--card-b)'}`,
+                  background: activeSection === s.id ? s.light : 'var(--card)',
+                  color: activeSection === s.id ? s.color : 'var(--subtext)',
+                  fontSize: 12, fontWeight: 800, cursor: 'pointer',
+                  fontFamily: "'Outfit',sans-serif", transition: 'all .2s',
                 }}>
-                  {entry.hr}
-                </div>
-                <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 2, fontWeight: 600 }}>
-                  {entry.en}
-                </div>
-              </div>
-              {entry.ph !== '—' && (
-                <button
-                  onClick={e => { e.stopPropagation(); speak(entry.hr, 'hr'); }}
-                  aria-label={`Hear ${entry.hr}`}
-                  style={{
-                    width: 36, height: 36, borderRadius: 10, border: 'none',
-                    background: `linear-gradient(135deg,${section.color},${section.color}cc)`,
-                    color: '#fff', fontSize: 16, cursor: 'pointer', flexShrink: 0,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                  🔊
-                </button>
-              )}
-              <div style={{ fontSize: 14, color: 'var(--subtext)', opacity: .4, flexShrink: 0 }}>
-                {isOpen ? '▲' : '▼'}
-              </div>
-            </button>
-
-            {/* Expanded details */}
-            {isOpen && (
-              <div style={{ padding: '0 16px 16px', borderTop: `1px solid ${section.border}` }}>
-
-                {/* Phonetic */}
-                {entry.ph !== '—' && (
-                  <div style={{
-                    background: section.light, borderRadius: 10,
-                    padding: '8px 12px', marginTop: 12, marginBottom: 12,
-                    fontSize: 13, color: section.color, fontWeight: 700,
-                    fontFamily: 'monospace',
-                  }}>
-                    🗣 /{entry.ph}/
-                  </div>
-                )}
-
-                {/* Cultural note */}
-                <div style={{
-                  fontSize: 13, color: 'var(--text)', lineHeight: 1.7,
-                  background: 'var(--bar-bg)', borderRadius: 10, padding: '12px 14px',
-                  marginBottom: entry.variants.length ? 12 : 0,
-                }}>
-                  {entry.note}
-                </div>
-
-                {/* Variants */}
-                {entry.variants.length > 0 && (
-                  <div>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8 }}>
-                      Variations & Examples
-                    </div>
-                    {entry.variants.map((v, vi) => (
-                      <div key={vi} style={{
-                        display: 'flex', alignItems: 'flex-start', gap: 10,
-                        padding: '8px 10px', borderRadius: 10,
-                        background: section.light, border: `1px solid ${section.border}`,
-                        marginBottom: vi < entry.variants.length - 1 ? 6 : 0,
-                      }}>
-                        <button
-                          onClick={() => speak(v.hr, 'hr')}
-                          aria-label={`Hear ${v.hr}`}
-                          style={{
-                            width: 28, height: 28, borderRadius: 8, border: 'none',
-                            background: section.color, color: '#fff', fontSize: 12,
-                            cursor: 'pointer', flexShrink: 0,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          }}>
-                          🔊
-                        </button>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 13, fontWeight: 800, color: section.color, fontFamily: "'Playfair Display',serif" }}>
-                            {v.hr}
-                          </div>
-                          <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2, fontWeight: 500 }}>
-                            {v.en}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+                {s.icon} {s.title}
+              </button>
+            ))}
           </div>
-        );
-      })}
 
-      {/* Cultural footnote */}
-      <div style={{
-        background: 'linear-gradient(135deg,#1a1a2e,#0f3460)',
-        borderRadius: 16, padding: '16px 20px', marginTop: 8, marginBottom: 16,
-        color: '#fff', fontSize: 12, lineHeight: 1.7, opacity: .9,
-      }}>
-        <div style={{ fontWeight: 900, fontSize: 14, marginBottom: 6 }}>🇭🇷 Cultural Note</div>
-        Croatian swearing is a deeply social, highly contextual artform. The same phrase can be a
-        declaration of love between close friends and a serious insult between strangers. Tone,
-        relationship, and setting determine meaning entirely. When in doubt, listen first — you'll
-        quickly learn the rhythm of when these words express warmth versus hostility.
-      </div>
+          <div style={{
+            background: section.light, border: `1.5px solid ${section.border}`,
+            borderRadius: 12, padding: '9px 14px', marginBottom: 14,
+            fontSize: 12, color: section.color, fontWeight: 700,
+          }}>
+            {section.subtitle}
+          </div>
+
+          {section.entries.map((entry, i) => (
+            <EntryCard key={i} entry={entry} color={section.color} light={section.light} border={section.border} keyId={i} />
+          ))}
+        </>
+      )}
+
+      {/* Footer note */}
+      {!searching && (
+        <div style={{
+          background: 'linear-gradient(135deg,#1a1a2e,#0f3460)',
+          borderRadius: 16, padding: '16px 20px', marginTop: 8, marginBottom: 16,
+          color: '#fff', fontSize: 12, lineHeight: 1.7,
+        }}>
+          <div style={{ fontWeight: 900, fontSize: 13, marginBottom: 6 }}>🇭🇷 Cultural Note</div>
+          Croatian swearing is deeply social and tone-dependent. The same phrase can be a declaration of love between friends or a serious insult between strangers. Tone, relationship, and setting determine meaning entirely. When in doubt, listen first.
+        </div>
+      )}
 
       <button onClick={goBack} style={{
         width: '100%', padding: 14, background: 'none',
         border: '1.5px solid var(--card-b)', borderRadius: 14,
         color: 'var(--subtext)', fontSize: 14, fontWeight: 700,
         cursor: 'pointer', fontFamily: "'Outfit',sans-serif",
-      }}>
-        ← Back to Practice
-      </button>
+      }}>← Back to Practice</button>
     </div>
   );
 }
