@@ -37,7 +37,7 @@ export function gS(){try{return JSON.parse(localStorage.getItem("uS"))}catch{ret
 export function sS(s){localStorage.setItem("uS",JSON.stringify({...s,lastActive:Date.now()}))}
 export function cS(){localStorage.removeItem("uS")}
 export function touchSession(){const s=gS();if(s)localStorage.setItem("uS",JSON.stringify({...s,lastActive:Date.now()}))}
-export function isSessionExpired(){const s=gS();if(!s||!s.lastActive)return true;return(Date.now()-s.lastActive)>7*24*60*60*1000}
+export function isSessionExpired(){const s=gS();if(!s||!s.lastActive)return true;return(Date.now()-s.lastActive)>30*60*1000}
 export function isValidEmail(e){return/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)}
 
 // ═══ FIREBASE SYNC ═══
@@ -45,6 +45,9 @@ export async function fbSaveProgress(uid,data){
   if(!_fbReady||!_fbDb)return{ok:true};
   const id=uid.replace(/[.#$/\[\]]/g,"_");
   const incoming={progress:JSON.stringify(data),updated:Date.now(),xp:(data.stats&&data.stats.xp)||0};
+  // Write public leaderboard projection alongside the private progress doc
+  const lbEntry={name:data.name||"",xp:(data.stats&&data.stats.xp)||0,lc:(data.stats&&data.stats.lc)||0,updated:incoming.updated};
+  try{setDoc(fsDoc(_fbDb,"leaderboard",id),lbEntry,{merge:true}).catch(function(){});}catch(e){}
   try{
     await runTransaction(_fbDb,async function(tx){
       const ref=fsDoc(_fbDb,"users",id);
@@ -134,7 +137,7 @@ export async function fbCreateFamily(familyName,creatorEmail,creatorName){
   try{let code=generateFamilyCode();
   try{const existing=await getDoc(fsDoc(_fbDb,"families",code));
   if(existing.exists())code=generateFamilyCode()}catch(e){}
-  try{await setDoc(fsDoc(_fbDb,"families",code),{name:familyName,code:code,created:Date.now(),members:[{email:creatorEmail,name:creatorName,role:"admin",joined:Date.now()}]})}catch(fe){console.warn("Family write failed:",fe);return{ok:false,err:"Could not create family. Check Firebase permissions."}}
+  try{await setDoc(fsDoc(_fbDb,"families",code),{name:familyName,code:code,created:Date.now(),members:[{email:creatorEmail,name:creatorName,role:"admin",joined:Date.now()}],memberEmails:[creatorEmail]})}catch(fe){console.warn("Family write failed:",fe);return{ok:false,err:"Could not create family. Check Firebase permissions."}}
   try{const id=creatorEmail.replace(/[.#$/\[\]]/g,"_");
   await setDoc(fsDoc(_fbDb,"users",id),{familyCode:code},{merge:true})}catch(ue){console.warn("User family link failed:",ue)}
   const fam={name:familyName,code:code,role:"admin"};saveLocalFamily(fam);
@@ -144,10 +147,11 @@ export async function fbJoinFamily(code,email,name){
   if(!_fbReady||!_fbDb)return{ok:false,err:"Firebase not configured."};
   try{const famSnap=await getDoc(fsDoc(_fbDb,"families",code.toUpperCase()));
   if(!famSnap.exists())return{ok:false,err:"Family code not found. Check and try again."};
-  const data=famSnap.data();const members=data.members||[];
+  const data=famSnap.data();const members=data.members||[];const memberEmails=data.memberEmails||[];
   if(members.some(function(m){return m.email===email}))return{ok:false,err:"You are already in this family!"};
   const updatedMembers=[...members,{email:email,name:name,role:"member",joined:Date.now()}];
-  await setDoc(fsDoc(_fbDb,"families",code.toUpperCase()),{members:updatedMembers},{merge:true});
+  const updatedEmails=[...new Set([...memberEmails,email])];
+  await setDoc(fsDoc(_fbDb,"families",code.toUpperCase()),{members:updatedMembers,memberEmails:updatedEmails},{merge:true});
   const id=email.replace(/[.#$/\[\]]/g,"_");
   await setDoc(fsDoc(_fbDb,"users",id),{familyCode:code.toUpperCase()},{merge:true});
   const fam={name:data.name,code:code.toUpperCase(),role:"member"};saveLocalFamily(fam);
@@ -159,13 +163,13 @@ export async function fbGetFamilyMembers(code){
     const famSnap2=await getDoc(fsDoc(_fbDb,"families",code));
     if(!famSnap2.exists())return[];
     const data=famSnap2.data();const members=data.members||[];
-    // Parallel reads — all user progress docs fetched simultaneously
+    // Parallel reads — read from /leaderboard (public) not /users (private)
     const results=await Promise.all(members.map(async function(m){
       try{
         const id=m.email.replace(/[.#$/\[\]]/g,"_");
-        const userSnap=await getDoc(fsDoc(_fbDb,"users",id));
-        const p=userSnap.exists()&&userSnap.data().progress?JSON.parse(userSnap.data().progress):null;
-        return{name:m.name,email:m.email,role:m.role,xp:p&&p.stats?p.stats.xp:0,lc:p&&p.stats?p.stats.lc:0,joined:m.joined};
+        const lbSnap=await getDoc(fsDoc(_fbDb,"leaderboard",id));
+        const lb=lbSnap.exists()?lbSnap.data():null;
+        return{name:m.name,email:m.email,role:m.role,xp:lb?lb.xp:0,lc:lb?lb.lc:0,joined:m.joined};
       }catch(e){return{name:m.name,email:m.email,role:m.role,xp:0,lc:0,joined:m.joined}}
     }));
     return results.sort(function(a,b){return b.xp-a.xp});
@@ -176,7 +180,8 @@ export async function fbLeaveFamily(code,email){
   try{const leaveSnap=await getDoc(fsDoc(_fbDb,"families",code));
   if(!leaveSnap.exists())return{ok:false};
   const data=leaveSnap.data();const members=(data.members||[]).filter(function(m){return m.email!==email});
-  await setDoc(fsDoc(_fbDb,"families",code),{members:members},{merge:true});
+  const memberEmails=(data.memberEmails||[]).filter(function(e){return e!==email});
+  await setDoc(fsDoc(_fbDb,"families",code),{members:members,memberEmails:memberEmails},{merge:true});
   const id=email.replace(/[.#$/\[\]]/g,"_");
   await setDoc(fsDoc(_fbDb,"users",id),{familyCode:null},{merge:true});
   localStorage.removeItem("uFamily");
@@ -201,10 +206,11 @@ export async function fbCreateAccount(email,password){if(!_fbReady||!_fbAuth)ret
 export async function fbGetLeaderboard(){
   if(!_fbReady||!_fbDb)return[];
   try{
-    const q=query(collection(_fbDb,"users"),orderBy("xp","desc"),limit(50));
+    // Read from /leaderboard (public projection) — never from /users (private)
+    const q=query(collection(_fbDb,"leaderboard"),orderBy("xp","desc"),limit(50));
     const snap=await getDocs(q);const users=[];
-    snap.forEach(function(docSnap){const d=docSnap.data();const p=d.progress?JSON.parse(d.progress):null;
-    users.push({name:d.displayName||docSnap.id,xp:p&&p.stats?p.stats.xp:0,lc:p&&p.stats?p.stats.lc:0})});
+    snap.forEach(function(docSnap){const d=docSnap.data();
+    users.push({name:d.name||docSnap.id,xp:d.xp||0,lc:d.lc||0})});
     return users.sort(function(a,b){return b.xp-a.xp})
   }catch(e){return[]}
 }
