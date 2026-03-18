@@ -27,7 +27,7 @@ export async function onRequestPost(ctx) {
         <div style="font-size:26px;font-weight:900">Your Weekly Progress 🇭🇷</div>
       </div>
       <div style="padding:32px 40px">
-        <p style="font-size:16px;color:#374151">Bok <strong>${name}</strong>! Here's what you achieved this week:</p>
+        <p style="font-size:16px;color:#374151">Bog <strong>${name}</strong>! Here's what you achieved this week:</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0">
           ${[
             ['⭐', 'Total XP', xp?.toLocaleString() || '—'],
