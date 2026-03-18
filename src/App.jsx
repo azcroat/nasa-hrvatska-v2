@@ -153,15 +153,15 @@ const DS={xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,authLoading:0
 const ALL_CATS=Object.keys(V);
 const ICONS={greetings:"👋",numbers:"🔢",family:"👨‍👩‍👧‍👦",food:"🍕",animals:"🐾",body:"🦴","body & face":"🦴",colors:"🎨",home:"🏠","home & rooms":"🏠",clothing:"👔",weather:"☀️","weather & seasons":"☀️",places:"📍",transport:"🚗",verbs:"💬",adjectives:"📏",time:"📅","time & calendar":"📅",months:"🗓️",directions:"🧭",emotions:"💭",professions:"💼",restaurant:"🍽️",shopping:"🛍️",travel:"✈️",health:"🏥",questions:"❓",conjunctions:"🔗",culture:"🏛️","daily routine":"🌅","in the classroom":"📖","commands at home":"🏡","fairy tales":"📜",hobbies:"🎯",zagreb:"🏙️",opposites:"🔄",comparatives:"📊",fruits:"🍎",vegetables:"🥦",sports:"⚽",holidays:"🎄",personality:"😊"};
 
-var _appNavDepth=0;
+let _appNavDepth=0;
 function pushUrl(path){try{if(window.location.pathname!==path){_appNavDepth++;window.history.pushState({_ad:_appNavDepth},"",path)}}catch(e){}}
 // XP cooldown helpers — pure localStorage functions, defined outside component
 // so they never cause stale-closure issues in useCallback
 function canEarnXP(exerciseId){
-  try{var cd=JSON.parse(localStorage.getItem("xpCooldown")||"{}");return cd[exerciseId]!==new Date().toISOString().slice(0,10)}catch{return true}
+  try{const cd=JSON.parse(localStorage.getItem("xpCooldown")||"{}");return cd[exerciseId]!==new Date().toISOString().slice(0,10)}catch{return true}
 }
 function markExerciseDone(exerciseId){
-  try{var cd=JSON.parse(localStorage.getItem("xpCooldown")||"{}");var today=new Date().toISOString().slice(0,10);cd[exerciseId]=today;var clean={};for(var k in cd){if(cd[k]===today)clean[k]=cd[k]}localStorage.setItem("xpCooldown",JSON.stringify(clean))}catch(e){}
+  try{const cd=JSON.parse(localStorage.getItem("xpCooldown")||"{}");const today=new Date().toISOString().slice(0,10);cd[exerciseId]=today;const clean={};for(const k in cd){if(cd[k]===today)clean[k]=cd[k]}localStorage.setItem("xpCooldown",JSON.stringify(clean))}catch(e){}
 }
 
 function App(){
@@ -215,7 +215,7 @@ function App(){
   const[comebackBonus,setComebackBonus]=useState(false);
   // toggleFav, isFav → usePreferences hook | doSearch → useSearch hook
   // Fix 3: stable reference — prevents HomeTab useMemo from re-running every render
-  const getWeekStats=useCallback(function(){var sr=getSR();var weak=Object.values(sr).filter(function(v){return v.w>v.r}).length;var strong=Object.values(sr).filter(function(v){return v.r>v.w}).length;return{lessons:stats.lc,grammar:stats.gc,streak:getStreak().count,weak:weak,strong:strong}},[stats]);
+  const getWeekStats=useCallback(function(){const sr=getSR();const weak=Object.values(sr).filter(function(v){return v.w>v.r}).length;const strong=Object.values(sr).filter(function(v){return v.r>v.w}).length;return{lessons:stats.lc,grammar:stats.gc,streak:getStreak().count,weak:weak,strong:strong}},[stats]);
   // Fix 2: single helper replaces 4 copy-pasted data-hydration blocks across auth flows
   const applyRemoteProgress=useCallback(function(fp){
     if(!fp)return;
@@ -224,9 +224,9 @@ function App(){
     if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));
     if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}
     if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}
-    var _arDay=new Date().toISOString().slice(0,10);
-    if(fp.dc&&fp.dc.day===_arDay){var _arAns=fp.dc.answered||[false,false,false];var _arSel=Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""];sDchlA(_arAns);sDchlSl(_arSel);localStorage.setItem("dcDay3",JSON.stringify({day:_arDay,answered:_arAns,selected:_arSel}));}
-    if(fp.cooldown){var _arT=new Date().toISOString().slice(0,10);var _arCd={};try{_arCd=JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch(e){}for(var _arCk in fp.cooldown){if(fp.cooldown[_arCk]===_arT)_arCd[_arCk]=fp.cooldown[_arCk];}localStorage.setItem("xpCooldown",JSON.stringify(_arCd));}
+    const _arDay=new Date().toISOString().slice(0,10);
+    if(fp.dc&&fp.dc.day===_arDay){const _arAns=fp.dc.answered||[false,false,false];const _arSel=Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""];sDchlA(_arAns);sDchlSl(_arSel);localStorage.setItem("dcDay3",JSON.stringify({day:_arDay,answered:_arAns,selected:_arSel}));}
+    if(fp.cooldown){const _arT=new Date().toISOString().slice(0,10);let _arCd={};try{_arCd=JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch(e){}for(const _arCk in fp.cooldown){if(fp.cooldown[_arCk]===_arT)_arCd[_arCk]=fp.cooldown[_arCk];}localStorage.setItem("xpCooldown",JSON.stringify(_arCd));}
   },[setFavs,setJWords]);
   const { tDir, setTDir: sTDir, tIn, setTIn: sTIn, tOut, tL, doTr } = useTranslator();
   const[t1k,sT1k]=useState(null);
@@ -272,22 +272,22 @@ function App(){
   });
   useEffect(()=>{
     if(authScreen!=="app")return;
-    var lastSeen=localStorage.getItem("lastSeen");var now=Date.now();
-    if(lastSeen&&stats.xp>0){var diff=now-parseInt(lastSeen,10);if(diff>86400000&&diff<7*86400000){setComebackBonus(true);setTimeout(()=>setComebackBonus(false),4000);}}
+    const lastSeen=localStorage.getItem("lastSeen");const now=Date.now();
+    if(lastSeen&&stats.xp>0){const diff=now-parseInt(lastSeen,10);if(diff>86400000&&diff<7*86400000){setComebackBonus(true);setTimeout(()=>setComebackBonus(false),4000);}}
     localStorage.setItem("lastSeen",String(now));
   },[authScreen]);// eslint-disable-line
-  useEffect(()=>{if(!authUser||authScreen!=="app")return;var _nd=new Date();var _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');var _saveData={name,stats,cp:currentScreen!=="welcome"&&currentScreen!=="placement",onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),favs,journal:jWords,dc:{day:_dcDay,answered:dchlA,selected:dchlSl},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};localStorage.setItem("uP_"+authUser.u,JSON.stringify(_saveData));touchSession();if(_syncReady)fbSaveProgress(authUser.u,_saveData);},[stats,currentScreen,name,authUser,authScreen,jWords,favs,dchlA,dchlSl,_syncReady]);
+  useEffect(()=>{if(!authUser||authScreen!=="app")return;const _nd=new Date();const _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');const _saveData={name,stats,cp:currentScreen!=="welcome"&&currentScreen!=="placement",onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),favs,journal:jWords,dc:{day:_dcDay,answered:dchlA,selected:dchlSl},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};localStorage.setItem("uP_"+authUser.u,JSON.stringify(_saveData));touchSession();if(_syncReady)fbSaveProgress(authUser.u,_saveData);},[stats,currentScreen,name,authUser,authScreen,jWords,favs,dchlA,dchlSl,_syncReady]);
   useEffect(()=>{if(authScreen!=="app")return;const iv=setInterval(()=>{if(isSessionExpired()){doOut();}},5*60*1000);return()=>clearInterval(iv)},[authScreen]);// eslint-disable-line
   useEffect(()=>{if(authScreen!=="app")return;const h=()=>touchSession();window.addEventListener("click",h);window.addEventListener("touchstart",h);window.addEventListener("keydown",h);return()=>{window.removeEventListener("click",h);window.removeEventListener("touchstart",h);window.removeEventListener("keydown",h)}},[authScreen]);
   useEffect(()=>{if(!_syncReady||authScreen!=="app"||!authUser)return;if(!localStorage.getItem("fbBackupConfirmed")){setShowBackupBanner(true);}},[_syncReady,authScreen,authUser]);
-  useEffect(()=>{if(authScreen!=="app"||!authUser)return;function onVisible(){if(document.visibilityState!=="visible")return;fbLoadProgress(authUser.u).then(function(fp){if(!fp)return;var lp=gP(authUser.u);var fpTs=fp._fbUpdated||fp.savedAt||0;var lpTs=(lp&&lp.savedAt)||0;if(fpTs>lpTs){sP(authUser.u,fp);setStats({...ds,...(fp.stats||{})});if(fp.name)setName(fp.name);applyRemoteProgress(fp);}}).catch(function(){/* network error — keep local state */})}document.addEventListener("visibilitychange",onVisible);return()=>document.removeEventListener("visibilitychange",onVisible)},[authScreen,authUser]);
+  useEffect(()=>{if(authScreen!=="app"||!authUser)return;function onVisible(){if(document.visibilityState!=="visible")return;fbLoadProgress(authUser.u).then(function(fp){if(!fp)return;const lp=gP(authUser.u);const fpTs=fp._fbUpdated||fp.savedAt||0;const lpTs=(lp&&lp.savedAt)||0;if(fpTs>lpTs){sP(authUser.u,fp);setStats({...ds,...(fp.stats||{})});if(fp.name)setName(fp.name);applyRemoteProgress(fp);}}).catch(function(){/* network error — keep local state */})}document.addEventListener("visibilitychange",onVisible);return()=>document.removeEventListener("visibilitychange",onVisible)},[authScreen,authUser]);
   // ═══ BROWSER BACK BUTTON SUPPORT (popstate) ═══
   useEffect(function(){
     // Mark baseline so we can detect when back would exit the app
     window.history.replaceState({_ad:0},"",window.location.pathname);
-    var tabByPath={"/":"home","/learn":"learn","/practice":"practice","/croatia":"croatia","/profile":"profile"};
+    const tabByPath={"/":"home","/learn":"learn","/practice":"practice","/croatia":"croatia","/profile":"profile"};
     // Maps every screen name to its parent tab so nav bar stays in sync
-    var screenTab={
+    const screenTab={
       lesson:"learn",grammar:"learn",padezi:"learn",padezifull:"learn",modal:"learn",tenses:"learn",
       alphabet:"learn",reading:"learn",read:"learn",readinglist:"learn",readlist:"learn",aspect:"learn",falsefr:"learn",
       declension:"learn",brzalice:"learn",dialects:"learn",diminutives:"learn",wordform:"learn",colorquirk:"learn",svojmoj:"learn",
@@ -317,10 +317,10 @@ function App(){
       badges:"profile",leaderboard:"profile",journal:"profile",favorites:"profile",learnpath:"profile",
     };
     function onPopState(e){
-      var p=window.location.pathname;
+      const p=window.location.pathname;
       // Tab-root paths → restore dashboard + correct tab
       if(tabByPath[p]!==undefined){_setCurrentScreen("dashboard");_setTab(tabByPath[p]);return;}
-      var s=p.slice(1);
+      const s=p.slice(1);
       // Unknown or auth paths → safe fallback to home dashboard
       if(!s||s==="welcome"||s==="placement"){_setCurrentScreen("dashboard");_setTab("home");window.history.replaceState({_ad:0},"","/");return;}
       // Restore screen + sync nav tab
@@ -329,7 +329,7 @@ function App(){
     }
     window.addEventListener("popstate",onPopState);
     return function(){window.removeEventListener("popstate",onPopState)};
-  },[]);// eslint-disable-line
+  },[]); 
   const award=useCallback((amt,celebrate)=>{
     if(curEx&&!canEarnXP(curEx)){setXpA(0);setShowXP(true);setTimeout(()=>setShowXP(false),2000);return}
     if(curEx)markExerciseDone(curEx); // lock immediately so double-clicks/replays can't re-award
@@ -346,14 +346,14 @@ function App(){
     if(tabByPath[ip]){_setTab(tabByPath[ip]);_setCurrentScreen("dashboard");return}
     setScr("dashboard");
   }
-  const doSyncNow=useCallback(async function(){if(!authUser)return false;var _nd=new Date();var _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');var _data={name,stats,cp:true,onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),favs,journal:jWords,dc:{day:_dcDay,answered:dchlA,selected:dchlSl},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};localStorage.setItem("uP_"+authUser.u,JSON.stringify(_data));var result=await fbSaveProgress(authUser.u,_data).catch(function(){return{ok:false}});return result&&result.ok!==false;},[authUser,name,stats,favs,jWords,dchlA,dchlSl]);
+  const doSyncNow=useCallback(async function(){if(!authUser)return false;const _nd=new Date();const _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');const _data={name,stats,cp:true,onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),favs,journal:jWords,dc:{day:_dcDay,answered:dchlA,selected:dchlSl},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};localStorage.setItem("uP_"+authUser.u,JSON.stringify(_data));const result=await fbSaveProgress(authUser.u,_data).catch(function(){return{ok:false}});return result&&result.ok!==false;},[authUser,name,stats,favs,jWords,dchlA,dchlSl]);
   function goBack(){
     if(curEx)markExerciseDone(curEx);
     sCurEx("");
     // Only use browser back if we have an in-app history entry to return to.
     // history.state._ad === 0 means we're at the app baseline — going back
     // would exit the SPA entirely. Instead, fall back to the home dashboard.
-    var depth=(window.history.state&&window.history.state._ad)||0;
+    const depth=(window.history.state&&window.history.state._ad)||0;
     if(depth>0){window.history.back();}
     else{_setCurrentScreen("dashboard");_setTab("home");window.history.replaceState({_ad:0},"","/");}
   }
@@ -436,7 +436,7 @@ function App(){
           <div style={{fontSize:11,opacity:.75,fontWeight:700,whiteSpace:"nowrap"}}>✓ Cloud sync active</div>
         </div>
       </div>}
-      {currentScreen==="welcome" && <WelcomeScreen name={name} authUser={authUser} st={stats} setScr={setScr} setName={setName} sPq={sPq} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} />}
+      {currentScreen==="welcome" && <WelcomeScreen name={name} au={authUser} st={stats} setScr={setScr} setName={setName} sPq={sPq} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} />}
       {currentScreen==="placement" && <PlacementTest pq={pq} pi={pi} ps={ps} pa={pa} px={px} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} setScr={setScr} setSt={setStats} />}
       {// ═══ DASHBOARD ═══
       currentScreen==="dashboard"&&<div className="dash" id="main-content" role="main">

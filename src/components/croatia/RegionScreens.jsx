@@ -265,7 +265,7 @@ export function RecipesScreen({ goBack }) {
         </div>
       </div>
       <h3 className="sh">🥚 Ingredients (scaled)</h3>
-      {r.ing.map(function(ig,i){var amt=ig[0];var num=parseFloat(amt);var unit=amt.replace(/[0-9./]+/g,"").trim();var scaled=!isNaN(num)?Math.round(num*scale*10)/10+unit:amt;return (
+      {r.ing.map(function(ig,i){const amt=ig[0];const num=parseFloat(amt);const unit=amt.replace(/[0-9./]+/g,"").trim();const scaled=!isNaN(num)?Math.round(num*scale*10)/10+unit:amt;return (
         <div key={i} style={{padding:"6px 0",fontSize:14,borderBottom:"1px solid #f3f4f6",display:"flex",gap:8,cursor:"pointer"}} onClick={function(){speak(ig[1].split("(")[0])}}>
           <span style={{fontWeight:800,color:"#0e7490",minWidth:60}}>{scaled}</span>
           <span>{ig[1]}{" 🔊"}</span>
@@ -285,7 +285,7 @@ export function RecipesScreen({ goBack }) {
 export function CityOfDayScreen({ goBack }) {
   const [tab, setTab] = useState("overview");
   const city = getCityOfDay();
-  const tomorrow = (function(){var d=new Date();d.setDate(d.getDate()+1);return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});})();
+  const tomorrow = (function(){const d=new Date();d.setDate(d.getDate()+1);return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});})();
   const tabs = [{id:"overview",label:"Overview",icon:"📖"},{id:"history",label:"History",icon:"🏛️"},{id:"vocab",label:"Vocabulary",icon:"💬"},{id:"facts",label:"Fast Facts",icon:"⚡"}];
 
   return (
@@ -312,7 +312,7 @@ export function CityOfDayScreen({ goBack }) {
       {/* Tab bar */}
       <div style={{display:"flex",gap:0,marginBottom:20,borderBottom:"2px solid #f1f5f9"}}>
         {tabs.map(function(t){
-          var active=tab===t.id;
+          const active=tab===t.id;
           return (
             <button key={t.id} onClick={function(){setTab(t.id)}}
               style={{flex:1,padding:"10px 6px",border:"none",borderBottom:active?"2.5px solid "+city.color:"2.5px solid transparent",
@@ -348,8 +348,8 @@ export function CityOfDayScreen({ goBack }) {
 
       {/* History — narrative + first half of facts */}
       {tab==="history" && (function(){
-        var half = Math.ceil(city.facts.length / 2);
-        var histFacts = city.facts.slice(0, half);
+        const half = Math.ceil(city.facts.length / 2);
+        const histFacts = city.facts.slice(0, half);
         return (
           <div>
             <div style={{marginBottom:16,padding:"16px",background:"white",borderRadius:14,border:"1px solid rgba(0,0,0,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.05)",fontSize:14,lineHeight:1.8,color:"#44403c"}}>
@@ -394,9 +394,9 @@ export function CityOfDayScreen({ goBack }) {
 
       {/* Fast Facts — didYouKnow + second half of facts */}
       {tab==="facts" && (function(){
-        var half = Math.ceil(city.facts.length / 2);
-        var fastFacts = city.facts.slice(half);
-        var allFacts = [city.didYouKnow].concat(fastFacts);
+        const half = Math.ceil(city.facts.length / 2);
+        const fastFacts = city.facts.slice(half);
+        const allFacts = [city.didYouKnow].concat(fastFacts);
         return (
           <div>
             <div style={{fontSize:15,fontWeight:800,color:"#164e63",marginBottom:14}}>💡 Did You Know?</div>

@@ -665,12 +665,11 @@ export default function HomeTab({
         <div style={{display:"flex",justifyContent:"flex-end",marginBottom:12}}>
           <button
             style={{
-              background:"none",
+              background:"#f0f9ff",
               border:"1.5px solid #bae6fd",
               borderRadius:10,padding:"6px 14px",
               fontSize:12,fontWeight:700,color:"#0e7490",
               cursor:"pointer",fontFamily:"'Outfit',sans-serif",
-              background:"#f0f9ff",
               transition:"background .15s",
             }}
             onClick={() => sTDir(tDir==="en-hr"?"hr-en":"en-hr")}>

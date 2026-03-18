@@ -50,11 +50,11 @@ export function LogicQuizScreen({ goBack, award }) {
       
       {H("🧠 Think in Croatian","Pick the answers that make sense")}
       <div className="c" style={{marginBottom:12,padding:"10px 14px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 Read the Croatian situation and pick ALL correct answers. Some questions have 2 right answers!</div>
-      {shMemo("lq",LOGICQUIZ).map(function(lq,li){var allOpts=lq.right.concat(lq.wrong).sort(function(){return Math.random()-0.5});return (
+      {shMemo("lq",LOGICQUIZ).map(function(lq,li){const allOpts=lq.right.concat(lq.wrong).sort(function(){return Math.random()-0.5});return (
         <div key={li} className="c" style={{marginBottom:12,padding:"12px 14px"}}>
           <button style={{fontSize:14,fontWeight:700,color:"var(--heading)",marginBottom:8,background:"none",border:"none",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif",padding:0}} onClick={function(){speak(lq.q)}}>{"🔊 "}{lq.q}</button>
           <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-            {allOpts.map(function(o,oi){var isRight=lq.right.indexOf(o)>=0;return (
+            {allOpts.map(function(o,oi){const isRight=lq.right.indexOf(o)>=0;return (
               <button key={oi} style={{padding:"8px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,fontWeight:600,cursor:"pointer"}}
                 onClick={function(e){e.target.style.background=isRight?"#dcfce7":"#fee2e2";e.target.style.borderColor=isRight?"#16a34a":"#dc2626";if(isRight){award(3);speak(o);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
                 {o}
@@ -110,7 +110,7 @@ export function RelativePronounsScreen({ goBack, award }) {
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
           <thead><tr>{["","NOM","GEN","DAT","AKU","LOK"].map(function(h,i){return (<th key={i} style={{padding:"6px",background:"#0e7490",color:"white",fontWeight:700}}>{h}</th>);})}</tr></thead>
           <tbody>
-            {["m","f","n"].map(function(g,gi){var r=RELPRON.table[g];return (
+            {["m","f","n"].map(function(g,gi){const r=RELPRON.table[g];return (
               <tr key={gi} style={{background:gi%2?"#f0fdfa":"white"}}>
                 <td style={{padding:"6px",fontWeight:800,color:"#0e7490"}}>{g==="m"?"♂ M":g==="f"?"♀ F":"⚧ N"}</td>
                 {[r.nom,r.gen,r.dat,r.aku,r.lok].map(function(v,vi){return (<td key={vi} style={{padding:"6px",cursor:"pointer"}} onClick={function(){speak(v)}}>{v}</td>);})}
@@ -146,7 +146,7 @@ export function EmotionGenderScreen({ goBack, award }) {
       {EMOGENDER.map(function(eg,ei){return (
         <div key={ei} className="c" style={{marginBottom:16}}>
           <div style={{fontSize:16,fontWeight:800,color:"#164e63",marginBottom:10}}>{eg.subj}{" ("}{eg.gender==="m"?"👨":"👩"})</div>
-          {eg.pairs.map(function(p,pi){var correct=eg.gender==="m"?p.m:p.f;var wrong=eg.gender==="m"?p.f:p.m;return (
+          {eg.pairs.map(function(p,pi){const correct=eg.gender==="m"?p.m:p.f;const wrong=eg.gender==="m"?p.f:p.m;return (
             <div key={pi} style={{display:"flex",gap:8,marginBottom:6}}>
               {[correct,wrong].sort(function(){return Math.random()-0.5}).map(function(o,oi){return (
                 <button key={oi} style={{flex:1,padding:"8px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:13,fontWeight:600,cursor:"pointer"}}
@@ -209,7 +209,7 @@ export function CityLocativeScreen({ goBack, award }) {
         );})}
       </div>
       <h3 className="sh">🎯 Quick Quiz</h3>
-      {shMemo("cl",CITYLOC.cities,8).map(function(c2,i){var wrong=CITYLOC.cities[(i+3)%CITYLOC.cities.length].lok;return (
+      {shMemo("cl",CITYLOC.cities,8).map(function(c2,i){const wrong=CITYLOC.cities[(i+3)%CITYLOC.cities.length].lok;return (
         <div key={i} className="c" style={{marginBottom:6,padding:"8px 12px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div style={{fontSize:13}}>{c2.nom}{" → u _____"}</div>
           <div style={{display:"flex",gap:4}}>

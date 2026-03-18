@@ -601,7 +601,7 @@ const KINGS = {
 };
 // ═══ DAILY STREAK ═══
 function getStreak(){try{return JSON.parse(localStorage.getItem("uStreak")||'{"count":0,"last":""}');} catch{return{count:0,last:""}}}
-function updateStreak(){var s=getStreak();var today=new Date().toISOString().slice(0,10);if(s.last===today)return s;var yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);if(s.last===yesterday){s.count++;s.last=today}else if(s.last!==today){s.count=1;s.last=today}localStorage.setItem("uStreak",JSON.stringify(s));return s}
+function updateStreak(){const s=getStreak();const today=new Date().toISOString().slice(0,10);if(s.last===today)return s;const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);if(s.last===yesterday){s.count++;s.last=today}else if(s.last!==today){s.count=1;s.last=today}localStorage.setItem("uStreak",JSON.stringify(s));return s}
 // ═══ CROATIAN PROVERBS ═══
 const PROVERBS = [
   {hr:"Tko rano rani, dvije sreće grabi.",en:"The early bird catches two fortunes."},
@@ -972,10 +972,10 @@ const PROVERBS = [
   {hr:"Život nas uči svakim danom.",en:"Life teaches us every day."},
   {hr:"Naša snaga je u vjeri i ljubavi.",en:"Our strength is in faith and love."}];
 function getProverbOfDay(){
-  var n=new Date();
-  var dk=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+  const n=new Date();
+  const dk=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
   // Seed with date + a salt so proverb and fact never land on the same index
-  var h=5381;var s='prov:'+dk;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;h=h>>>0;
+  let h=5381;const s='prov:'+dk;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;h=h>>>0;
   return PROVERBS[h%PROVERBS.length];
 }
 // ═══ LISTENING COMPREHENSION ═══
@@ -1208,22 +1208,22 @@ const COLORQUIRK = [
   {hr:"zlatna ribica",en:"goldfish",lit:"golden little fish",note:"Uses diminutive ribica"}
 ];
 // ═══ DAILY CHALLENGE ═══
-var _dcCache=null;
+let _dcCache=null;
 function getDailyChallenge(){
   // Return cached result if same day — prevents non-determinism from multiple calls
-  var now=new Date();
-  var _dk=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  const now=new Date();
+  const _dk=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
   if(_dcCache&&_dcCache.dateKey===_dk)return _dcCache;
 
-  var dateKey=_dk;
+  const dateKey=_dk;
   // Seeded PRNG (LCG) — fully deterministic per date, different every day
-  function hashStr(s){var h=5381;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return h>>>0}
-  var _seed=hashStr(dateKey);
+  function hashStr(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return h>>>0}
+  let _seed=hashStr(dateKey);
   function rand(){_seed=(_seed*1664525+1013904223)>>>0;return _seed/4294967296}
   function ri(n){return Math.floor(rand()*n)}
-  function shuf(arr){var a=arr.slice();for(var i=a.length-1;i>0;i--){var j=ri(i+1);var t=a[i];a[i]=a[j];a[j]=t}return a}
+  function shuf(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=ri(i+1);const t=a[i];a[i]=a[j];a[j]=t}return a}
   // Large hardcoded grammar/culture/translation pool (50+ questions)
-  var hard=[
+  const hard=[
     {q:"Translate: 'I want to learn Croatian.'",a:"Želim učiti hrvatski.",opts:["Želim učiti hrvatski.","Moram učiti hrvatski.","Mogu učiti hrvatski.","Učim hrvatski."]},
     {q:"Translate: 'Where is the pharmacy?'",a:"Gdje je ljekarna?",opts:["Gdje je ljekarna?","Gdje je bolnica?","Gdje je pošta?","Što je ljekarna?"]},
     {q:"Translate: 'I like Croatia.'",a:"Sviđa mi se Hrvatska.",opts:["Sviđa mi se Hrvatska.","Volim Hrvatsku.","Idem u Hrvatsku.","Iz Hrvatske sam."]},
@@ -1299,23 +1299,23 @@ function getDailyChallenge(){
     {q:"Croatian currency is:",a:"Euro (EUR)",opts:["Euro (EUR)","Kuna","Dinar","Kruna"]},
   ];
   // Generate vocab questions dynamically from vocabulary data V (seeded per day)
-  var allWords=[];
+  const allWords=[];
   Object.keys(V).forEach(function(cat){V[cat].forEach(function(w){if(w[0]&&w[1])allWords.push(w)})});
-  var vocabQs=[];
+  const vocabQs=[];
   if(allWords.length>10){
-    var used=new Set();
-    for(var attempt=0;attempt<30&&vocabQs.length<30;attempt++){
-      var vi=ri(allWords.length);
+    const used=new Set();
+    for(let attempt=0;attempt<30&&vocabQs.length<30;attempt++){
+      const vi=ri(allWords.length);
       if(used.has(vi))continue;
       used.add(vi);
-      var word=allWords[vi];
-      var wrongs=[];var wAttempts=0;var wUsed=new Set([vi]);
+      const word=allWords[vi];
+      const wrongs=[];let wAttempts=0;const wUsed=new Set([vi]);
       while(wrongs.length<3&&wAttempts<120){
-        var wi=ri(allWords.length);wAttempts++;
+        const wi=ri(allWords.length);wAttempts++;
         if(!wUsed.has(wi)&&allWords[wi][1]!==word[1]){wUsed.add(wi);wrongs.push(allWords[wi])}
       }
       if(wrongs.length<3)continue;
-      var dir=rand()<0.5;
+      const dir=rand()<0.5;
       if(dir){
         vocabQs.push({q:"What does '"+word[0]+"' mean?",a:word[1],opts:shuf([word[1],wrongs[0][1],wrongs[1][1],wrongs[2][1]])});
       } else {
@@ -1324,12 +1324,12 @@ function getDailyChallenge(){
     }
   }
   // Shuffle opts for hard items using seeded RNG (correct answer is always first in hard pool — fix that)
-  var hardShuffled=hard.map(function(item){return{q:item.q,a:item.a,opts:shuf(item.opts.slice())};});
+  const hardShuffled=hard.map(function(item){return{q:item.q,a:item.a,opts:shuf(item.opts.slice())};});
   // Combine pools and pick THREE distinct challenges using the seeded RNG
-  var pool=hardShuffled.concat(vocabQs);
-  var challenges=[];var usedIdx=new Set();
-  for(var attempt=0;attempt<pool.length*3&&challenges.length<3;attempt++){
-    var idx=ri(pool.length);
+  const pool=hardShuffled.concat(vocabQs);
+  const challenges=[];const usedIdx=new Set();
+  for(let tries=0;tries<pool.length*3&&challenges.length<3;tries++){
+    const idx=ri(pool.length);
     if(!usedIdx.has(idx)){usedIdx.add(idx);challenges.push(pool[idx]);}
   }
   // Fallback: fill if pool too small
@@ -2250,14 +2250,14 @@ const CROATIAN_CITIES = [
     didYouKnow:"The mongooses introduced to Mljet in 1910 to control snakes are now so established that the island has a significant mongoose population — you will almost certainly see one. They are charming, fast, and entirely comfortable around humans."},
 ];
 function getCityOfDay(){
-  var n=new Date();
-  var year=n.getFullYear();
-  var dayOfYear=Math.floor((n-new Date(year,0,1))/86400000);
+  const n=new Date();
+  const year=n.getFullYear();
+  const dayOfYear=Math.floor((n-new Date(year,0,1))/86400000);
   // Fisher-Yates shuffle seeded by year — every city appears once before any repeats
-  var idx=CROATIAN_CITIES.map(function(_,i){return i});
-  var seed=(year*2654435761)>>>0;
+  const idx=CROATIAN_CITIES.map(function(_,i){return i});
+  let seed=(year*2654435761)>>>0;
   function rng(){seed=((seed*1664525+1013904223)>>>0);return seed/4294967296}
-  for(var i=idx.length-1;i>0;i--){var j=Math.floor(rng()*(i+1));var t=idx[i];idx[i]=idx[j];idx[j]=t}
+  for(let i=idx.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));const t=idx[i];idx[i]=idx[j];idx[j]=t}
   return CROATIAN_CITIES[idx[dayOfYear%idx.length]];
 }
 // ═══ TENSE & GENDER CONJUGATION SYSTEM ═══
@@ -2854,10 +2854,10 @@ const HIST_FACTS = [
   {hr:"Sjeti se Vukovara. Sjeti se tko smo. Sjeti se zašto smo tu.",en:"Remember Vukovar. Remember who we are. Remember why we're here."},
   {hr:"Naša Hrvatska — jer biti Hrvat nije samo znati jezik, nego živjeti srcem.",en:"Our Croatia — because being Croatian isn't just knowing the language, it's living with heart."}];
 function getHistFact(){
-  var n=new Date();
-  var dk=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+  const n=new Date();
+  const dk=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
   // Different salt from proverb so the two never share the same pick
-  var h=5381;var s='fact:'+dk;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;h=h>>>0;
+  let h=5381;const s='fact:'+dk;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;h=h>>>0;
   return HIST_FACTS[h%HIST_FACTS.length];
 }
 // ═══ LEARNING PATH ═══
@@ -3224,9 +3224,9 @@ const FILL_STORIES = [
     {text:"Ptica _____ pjeva ujutro.",blank:"uvijek",opts:["uvijek","vozi","kuha"],en:"The bird always sings in the morning."}
   ]}];
 // ═══ SHUFFLE HELPER ═══
-var _shCache={};
+const _shCache={};
 function shMemo(key,arr,n){if(!_shCache[key])_shCache[key]=shuffleArr(arr);return n?_shCache[key].slice(0,n):_shCache[key]}
-function shuffleArr(arr){var a=arr.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function shuffleArr(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t}return a}
 // ═══ PRONOUN CASES ═══
 const PRONOUNCASE = {
   intro:"Croatian pronouns change form depending on the preposition. Learn the patterns!",
@@ -3676,8 +3676,8 @@ const CONVMATCH = [
     {q:"Kada se vraćaš s posla?",a:"Obično kad završim sve za taj dan.",wrong:"Volim sir na kruhu."}
   ]}
 ];
-var _searchIdx=null;
-function buildSearchIndex(){if(_searchIdx)return _searchIdx;var idx=[];Object.keys(V).forEach(function(cat){V[cat].forEach(function(w){idx.push({hr:w[0],en:w[1],type:"vocab",go:"lesson"})})});
+let _searchIdx=null;
+function buildSearchIndex(){if(_searchIdx)return _searchIdx;const idx=[];Object.keys(V).forEach(function(cat){V[cat].forEach(function(w){idx.push({hr:w[0],en:w[1],type:"vocab",go:"lesson"})})});
 [{n:"School Kit",s:"school"},{n:"Texting",s:"texting"},{n:"Friends",s:"friends"},{n:"Food",s:"foodorder"},{n:"Transport",s:"transport"},{n:"Emergency",s:"emergency"},{n:"Football",s:"football"},{n:"Pop Culture",s:"popculture"},{n:"Practical Life",s:"practical"},{n:"Grocery",s:"grocery"},{n:"Recipes",s:"recipes"},{n:"Role-Play",s:"roleplay"},{n:"Map",s:"crmap"},{n:"Grammar",s:"grammar"},{n:"Cases",s:"padezi"},{n:"Padeži Master",s:"padezifull"},{n:"Aspect",s:"aspect"},{n:"Conjugation",s:"conjdrill"},{n:"Modal Verbs",s:"modal"},{n:"Declension",s:"declension"},{n:"Tenses Gender",s:"tenses"},{n:"Colors Gender",s:"boje"},{n:"Alphabet",s:"alphabet"},{n:"False Friends",s:"falsefr"},{n:"Dialects",s:"dialects"},{n:"Diminutives",s:"diminutives"},{n:"Word Formation",s:"wordform"},{n:"Tongue Twisters",s:"brzalice"},{n:"Flashcards",s:"flashcards"},{n:"Typing",s:"typing"},{n:"Idioms",s:"idioms"},{n:"Proverbs",s:"proverbs"},{n:"Leaderboard",s:"leaderboard"},{n:"Badges",s:"badges"},{n:"Domovinski Rat",s:"history"},{n:"Kings",s:"kings"},{n:"Labin Rabac",s:"region_labin"},{n:"Bibinje Zadar",s:"region_bibinje"},{n:"Hercegovina",s:"region_hercegovina"},{n:"Vukovar",s:"region_vukovar"},{n:"Vinkovci",s:"region_vinkovci"},{n:"Learning Path",s:"learnpath"},{n:"Favorites",s:"favorites"},{n:"Journal",s:"journal"},{n:"Conditional Mood",s:"conditional"},{n:"Vi ili ti? Formal",s:"formalregister"},{n:"Impersonal",s:"impersonal"},{n:"Tech & Digital",s:"techvoc"},{n:"Admin Life",s:"bureaucratic"}].forEach(function(x){idx.push({hr:x.n,en:x.n,type:"screen",go:x.s})});
 GROCERY.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"grocery"})});SCHOOL.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"school"})});TRANSPORT.forEach(function(t){idx.push({hr:t.hr,en:t.en,type:"phrase",go:"transport"})});EMERGENCY.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"emergency"})});_searchIdx=idx;return idx}
 // ═══ THEME OBJECTS (background/color tokens for inline root styles) ═══

@@ -883,7 +883,7 @@ export default function SlangScreen({ goBack, award }) {
           </div>
           {entry.ph !== '—' && (
             <button
-              onClick={e => { e.stopPropagation(); speak(entry.hr, 'hr'); }}
+              onClick={e => { e.stopPropagation(); speak(entry.hr); }}
               aria-label={`Hear ${entry.hr}`}
               style={{
                 width: 36, height: 36, borderRadius: 10, border: 'none',
@@ -928,7 +928,7 @@ export default function SlangScreen({ goBack, award }) {
                     marginBottom: vi < entry.variants.length - 1 ? 6 : 0,
                   }}>
                     <button
-                      onClick={() => speak(v.hr, 'hr')}
+                      onClick={() => speak(v.hr)}
                       aria-label={`Hear ${v.hr}`}
                       style={{
                         width: 28, height: 28, borderRadius: 8, border: 'none',

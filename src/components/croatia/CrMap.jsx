@@ -20,7 +20,7 @@ export default function CrMap({ goBack }) {
         );})}
       </div>
       {MAPPLACES.places.filter(function(p){return mapCat==="all"||p.cat===mapCat}).map(function(p,i){
-        var catInfo=MAPPLACES.categories.find(function(c){return c.id===p.cat});
+        const catInfo=MAPPLACES.categories.find(function(c){return c.id===p.cat});
         return (
           <button key={i} className="c" style={{marginBottom:8,padding:"12px 14px",borderLeft:"4px solid "+(catInfo?catInfo.color:"#e7e5e4")}} onClick={function(){setMapSel(mapSel===i?null:i)}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>

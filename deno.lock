@@ -11,12 +11,20 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
+        "npm:@playwright/test@^1.58.2",
+        "npm:@sentry/react@^10.42.0",
+        "npm:@testing-library/jest-dom@^6.9.1",
+        "npm:@testing-library/react@^16.3.2",
         "npm:@vitejs/plugin-react@^4.3.4",
-        "npm:firebase@^9.23.0",
+        "npm:firebase@^12.10.0",
+        "npm:jsdom@^28.1.0",
         "npm:react-dom@^18.3.1",
         "npm:react-router-dom@^6.28.0",
         "npm:react@^18.3.1",
-        "npm:vite@6"
+        "npm:sharp@~0.34.5",
+        "npm:vite-plugin-pwa@~0.19.8",
+        "npm:vite@6",
+        "npm:vitest@^4.0.18"
       ]
     }
   }

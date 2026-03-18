@@ -29,8 +29,8 @@ initFirebase();
 
 // ═══ LOCAL AUTH & STORAGE ═══
 export async function hp(p){const e=new TextEncoder();const d=e.encode(p+"ucimo2024");const h=await crypto.subtle.digest("SHA-256",d);return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,"0")).join("")}
-export function gA(){try{var accts=JSON.parse(localStorage.getItem("uA")||"{}");Object.keys(accts).forEach(function(k){var h=sessionStorage.getItem("uAp_"+k);if(h)accts[k].p=h;});return accts}catch{return{}}}
-export function sA(a){var safe={};Object.keys(a).forEach(function(k){var copy=Object.assign({},a[k]);if(copy.p){sessionStorage.setItem("uAp_"+k,copy.p);delete copy.p;}safe[k]=copy;});localStorage.setItem("uA",JSON.stringify(safe));}
+export function gA(){try{const accts=JSON.parse(localStorage.getItem("uA")||"{}");Object.keys(accts).forEach(function(k){const h=sessionStorage.getItem("uAp_"+k);if(h)accts[k].p=h;});return accts}catch{return{}}}
+export function sA(a){const safe={};Object.keys(a).forEach(function(k){const copy=Object.assign({},a[k]);if(copy.p){sessionStorage.setItem("uAp_"+k,copy.p);delete copy.p;}safe[k]=copy;});localStorage.setItem("uA",JSON.stringify(safe));}
 export function gP(u){try{return JSON.parse(localStorage.getItem("uP_"+u))}catch{return null}}
 export function sP(u,p){localStorage.setItem("uP_"+u,JSON.stringify(p));fbSaveProgress(u,p)}
 export function gS(){try{return JSON.parse(localStorage.getItem("uS"))}catch{return null}}
@@ -43,16 +43,16 @@ export function isValidEmail(e){return/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)}
 // ═══ FIREBASE SYNC ═══
 export async function fbSaveProgress(uid,data){
   if(!_fbReady||!_fbDb)return{ok:true};
-  var id=uid.replace(/[.#$/\[\]]/g,"_");
-  var incoming={progress:JSON.stringify(data),updated:Date.now(),xp:(data.stats&&data.stats.xp)||0};
+  const id=uid.replace(/[.#$/\[\]]/g,"_");
+  const incoming={progress:JSON.stringify(data),updated:Date.now(),xp:(data.stats&&data.stats.xp)||0};
   try{
     await runTransaction(_fbDb,async function(tx){
-      var ref=fsDoc(_fbDb,"users",id);
-      var snap=await tx.get(ref);
+      const ref=fsDoc(_fbDb,"users",id);
+      const snap=await tx.get(ref);
       // Conflict resolution: only overwrite if our data is fresher or remote has no timestamp
       if(snap.exists()){
-        var remote=snap.data();
-        var remoteTs=remote.updated||0;
+        const remote=snap.data();
+        const remoteTs=remote.updated||0;
         if(remoteTs>incoming.updated){
           // Remote is newer — skip this write to avoid stomping concurrent update
           return;
@@ -66,9 +66,9 @@ export async function fbSaveProgress(uid,data){
     // Graceful fallback: try a simple setDoc if transaction fails
     // Re-check timestamp before writing to avoid overwriting newer remote data
     try{
-      var fallbackSnap=await getDoc(fsDoc(_fbDb,"users",id)).catch(()=>null);
+      const fallbackSnap=await getDoc(fsDoc(_fbDb,"users",id)).catch(()=>null);
       if(fallbackSnap&&fallbackSnap.exists()){
-        var fbRemoteTs=(fallbackSnap.data().updated)||0;
+        const fbRemoteTs=(fallbackSnap.data().updated)||0;
         if(fbRemoteTs>incoming.updated){return{ok:true};} // remote is newer — skip
       }
       await setDoc(fsDoc(_fbDb,"users",id),incoming,{merge:true});
@@ -81,20 +81,20 @@ export async function fbSaveProgress(uid,data){
 }
 export async function fbLoadProgress(uid){
   if(!_fbReady||!_fbDb)return null;
-  try{var id=uid.replace(/[.#$/\[\]]/g,"_");var snap=await getDoc(fsDoc(_fbDb,"users",id));
-  if(snap.exists()&&snap.data().progress){var p=JSON.parse(snap.data().progress);if(snap.data().updated)p._fbUpdated=snap.data().updated;return p}return null}catch(e){console.warn("FB load error:",e);return null}
+  try{const id=uid.replace(/[.#$/\[\]]/g,"_");const snap=await getDoc(fsDoc(_fbDb,"users",id));
+  if(snap.exists()&&snap.data().progress){const p=JSON.parse(snap.data().progress);if(snap.data().updated)p._fbUpdated=snap.data().updated;return p}return null}catch(e){console.warn("FB load error:",e);return null}
 }
 export async function fbRegister(email,password,displayName){
   if(!_fbReady||!_fbAuth)return{ok:false,err:"Firebase not configured. Account created locally only."};
-  try{var cred=await createUserWithEmailAndPassword(_fbAuth,email,password);
+  try{const cred=await createUserWithEmailAndPassword(_fbAuth,email,password);
   try{await updateProfile(cred.user,{displayName:displayName})}catch(pe){console.warn("Profile update failed:",pe)}
-  try{var id=email.replace(/[.#$/\[\]]/g,"_");
+  try{const id=email.replace(/[.#$/\[\]]/g,"_");
   await setDoc(fsDoc(_fbDb,"users",id),{displayName:displayName,email:email,created:Date.now()},{merge:true})}catch(fe){console.warn("Firestore profile write failed:",fe)}
   return{ok:true,user:cred.user}}catch(e){return{ok:false,err:friendlyError(e.message)}}
 }
 export async function fbLogin(email,password){
   if(!_fbReady||!_fbAuth)return{ok:false,err:"Firebase not configured."};
-  try{var cred=await signInWithEmailAndPassword(_fbAuth,email,password);return{ok:true,user:cred.user}}catch(e){return{ok:false,err:friendlyError(e.message)}}
+  try{const cred=await signInWithEmailAndPassword(_fbAuth,email,password);return{ok:true,user:cred.user}}catch(e){return{ok:false,err:friendlyError(e.message)}}
 }
 export async function fbLogout(){if(_fbReady&&_fbAuth)try{await fbSignOut(_fbAuth)}catch(e){}}
 export async function fbResetPassword(email){
@@ -126,45 +126,45 @@ export function friendlyError(msg){
 }
 
 // ═══ FAMILY GROUP SYSTEM ═══
-export function generateFamilyCode(){var chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";var arr=new Uint8Array(6);crypto.getRandomValues(arr);return Array.from(arr).map(function(b){return chars[b%chars.length]}).join("")}
+export function generateFamilyCode(){const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";const arr=new Uint8Array(6);crypto.getRandomValues(arr);return Array.from(arr).map(function(b){return chars[b%chars.length]}).join("")}
 export function getLocalFamily(){try{return JSON.parse(localStorage.getItem("uFamily")||"null")}catch{return null}}
 export function saveLocalFamily(f){localStorage.setItem("uFamily",JSON.stringify(f))}
 export async function fbCreateFamily(familyName,creatorEmail,creatorName){
   if(!_fbReady||!_fbDb)return{ok:false,err:"Firebase not configured."};
-  try{var code=generateFamilyCode();
-  try{var existing=await getDoc(fsDoc(_fbDb,"families",code));
+  try{let code=generateFamilyCode();
+  try{const existing=await getDoc(fsDoc(_fbDb,"families",code));
   if(existing.exists())code=generateFamilyCode()}catch(e){}
   try{await setDoc(fsDoc(_fbDb,"families",code),{name:familyName,code:code,created:Date.now(),members:[{email:creatorEmail,name:creatorName,role:"admin",joined:Date.now()}]})}catch(fe){console.warn("Family write failed:",fe);return{ok:false,err:"Could not create family. Check Firebase permissions."}}
-  try{var id=creatorEmail.replace(/[.#$/\[\]]/g,"_");
+  try{const id=creatorEmail.replace(/[.#$/\[\]]/g,"_");
   await setDoc(fsDoc(_fbDb,"users",id),{familyCode:code},{merge:true})}catch(ue){console.warn("User family link failed:",ue)}
-  var fam={name:familyName,code:code,role:"admin"};saveLocalFamily(fam);
+  const fam={name:familyName,code:code,role:"admin"};saveLocalFamily(fam);
   return{ok:true,code:code,family:fam}}catch(e){return{ok:false,err:friendlyError(e.message)}}
 }
 export async function fbJoinFamily(code,email,name){
   if(!_fbReady||!_fbDb)return{ok:false,err:"Firebase not configured."};
-  try{var famSnap=await getDoc(fsDoc(_fbDb,"families",code.toUpperCase()));
+  try{const famSnap=await getDoc(fsDoc(_fbDb,"families",code.toUpperCase()));
   if(!famSnap.exists())return{ok:false,err:"Family code not found. Check and try again."};
-  var data=famSnap.data();var members=data.members||[];
+  const data=famSnap.data();const members=data.members||[];
   if(members.some(function(m){return m.email===email}))return{ok:false,err:"You are already in this family!"};
-  var updatedMembers=[...members,{email:email,name:name,role:"member",joined:Date.now()}];
+  const updatedMembers=[...members,{email:email,name:name,role:"member",joined:Date.now()}];
   await setDoc(fsDoc(_fbDb,"families",code.toUpperCase()),{members:updatedMembers},{merge:true});
-  var id=email.replace(/[.#$/\[\]]/g,"_");
+  const id=email.replace(/[.#$/\[\]]/g,"_");
   await setDoc(fsDoc(_fbDb,"users",id),{familyCode:code.toUpperCase()},{merge:true});
-  var fam={name:data.name,code:code.toUpperCase(),role:"member"};saveLocalFamily(fam);
+  const fam={name:data.name,code:code.toUpperCase(),role:"member"};saveLocalFamily(fam);
   return{ok:true,family:fam}}catch(e){return{ok:false,err:friendlyError(e.message)}}
 }
 export async function fbGetFamilyMembers(code){
   if(!_fbReady||!_fbDb)return[];
   try{
-    var famSnap2=await getDoc(fsDoc(_fbDb,"families",code));
+    const famSnap2=await getDoc(fsDoc(_fbDb,"families",code));
     if(!famSnap2.exists())return[];
-    var data=famSnap2.data();var members=data.members||[];
+    const data=famSnap2.data();const members=data.members||[];
     // Parallel reads — all user progress docs fetched simultaneously
-    var results=await Promise.all(members.map(async function(m){
+    const results=await Promise.all(members.map(async function(m){
       try{
-        var id=m.email.replace(/[.#$/\[\]]/g,"_");
-        var userSnap=await getDoc(fsDoc(_fbDb,"users",id));
-        var p=userSnap.exists()&&userSnap.data().progress?JSON.parse(userSnap.data().progress):null;
+        const id=m.email.replace(/[.#$/\[\]]/g,"_");
+        const userSnap=await getDoc(fsDoc(_fbDb,"users",id));
+        const p=userSnap.exists()&&userSnap.data().progress?JSON.parse(userSnap.data().progress):null;
         return{name:m.name,email:m.email,role:m.role,xp:p&&p.stats?p.stats.xp:0,lc:p&&p.stats?p.stats.lc:0,joined:m.joined};
       }catch(e){return{name:m.name,email:m.email,role:m.role,xp:0,lc:0,joined:m.joined}}
     }));
@@ -173,37 +173,37 @@ export async function fbGetFamilyMembers(code){
 }
 export async function fbLeaveFamily(code,email){
   if(!_fbReady||!_fbDb)return{ok:false};
-  try{var leaveSnap=await getDoc(fsDoc(_fbDb,"families",code));
+  try{const leaveSnap=await getDoc(fsDoc(_fbDb,"families",code));
   if(!leaveSnap.exists())return{ok:false};
-  var data=leaveSnap.data();var members=(data.members||[]).filter(function(m){return m.email!==email});
+  const data=leaveSnap.data();const members=(data.members||[]).filter(function(m){return m.email!==email});
   await setDoc(fsDoc(_fbDb,"families",code),{members:members},{merge:true});
-  var id=email.replace(/[.#$/\[\]]/g,"_");
+  const id=email.replace(/[.#$/\[\]]/g,"_");
   await setDoc(fsDoc(_fbDb,"users",id),{familyCode:null},{merge:true});
   localStorage.removeItem("uFamily");
   return{ok:true}}catch(e){return{ok:false}}
 }
 export async function fbLoadUserFamily(email){
   if(!_fbReady||!_fbDb)return null;
-  try{var id=email.replace(/[.#$/\[\]]/g,"_");
-  var userSnap2=await getDoc(fsDoc(_fbDb,"users",id));
+  try{const id=email.replace(/[.#$/\[\]]/g,"_");
+  const userSnap2=await getDoc(fsDoc(_fbDb,"users",id));
   if(!userSnap2.exists()||!userSnap2.data().familyCode)return null;
-  var code=userSnap2.data().familyCode;
-  var famDoc2=await getDoc(fsDoc(_fbDb,"families",code));
+  const code=userSnap2.data().familyCode;
+  const famDoc2=await getDoc(fsDoc(_fbDb,"families",code));
   if(!famDoc2.exists())return null;
-  var data=famDoc2.data();var member=data.members.find(function(m){return m.email===email});
-  var fam={name:data.name,code:code,role:member?member.role:"member"};saveLocalFamily(fam);
+  const data=famDoc2.data();const member=data.members.find(function(m){return m.email===email});
+  const fam={name:data.name,code:code,role:member?member.role:"member"};saveLocalFamily(fam);
   return fam}catch(e){return null}
 }
 export function fbOnAuthStateChanged(cb){if(!_fbReady||!_fbAuth)return()=>{};return onAuthStateChanged(_fbAuth,cb)}
-export async function fbSetUserSecurity(email,sq,sa){if(!_fbReady||!_fbDb)return;try{var id=email.replace(/[.#$/\[\]]/g,"_");await setDoc(fsDoc(_fbDb,"users",id),{sq,sa},{merge:true})}catch(e){}}
-export async function fbGetUserSecurity(email){if(!_fbReady||!_fbDb)return null;try{var id=email.replace(/[.#$/\[\]]/g,"_");var snap=await getDoc(fsDoc(_fbDb,"users",id));if(!snap.exists())return null;var d=snap.data();return d.sq?{sq:d.sq,sa:d.sa}:null}catch(e){return null}}
+export async function fbSetUserSecurity(email,sq,sa){if(!_fbReady||!_fbDb)return;try{const id=email.replace(/[.#$/\[\]]/g,"_");await setDoc(fsDoc(_fbDb,"users",id),{sq,sa},{merge:true})}catch(e){}}
+export async function fbGetUserSecurity(email){if(!_fbReady||!_fbDb)return null;try{const id=email.replace(/[.#$/\[\]]/g,"_");const snap=await getDoc(fsDoc(_fbDb,"users",id));if(!snap.exists())return null;const d=snap.data();return d.sq?{sq:d.sq,sa:d.sa}:null}catch(e){return null}}
 export async function fbCreateAccount(email,password){if(!_fbReady||!_fbAuth)return{ok:false};try{await createUserWithEmailAndPassword(_fbAuth,email,password);return{ok:true}}catch(e){return{ok:false}}}
 export async function fbGetLeaderboard(){
   if(!_fbReady||!_fbDb)return[];
   try{
-    var q=query(collection(_fbDb,"users"),orderBy("xp","desc"),limit(50));
-    var snap=await getDocs(q);var users=[];
-    snap.forEach(function(docSnap){var d=docSnap.data();var p=d.progress?JSON.parse(d.progress):null;
+    const q=query(collection(_fbDb,"users"),orderBy("xp","desc"),limit(50));
+    const snap=await getDocs(q);const users=[];
+    snap.forEach(function(docSnap){const d=docSnap.data();const p=d.progress?JSON.parse(d.progress):null;
     users.push({name:d.displayName||docSnap.id,xp:p&&p.stats?p.stats.xp:0,lc:p&&p.stats?p.stats.lc:0})});
     return users.sort(function(a,b){return b.xp-a.xp})
   }catch(e){return[]}
