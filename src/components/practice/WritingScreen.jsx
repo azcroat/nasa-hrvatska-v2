@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { H } from '../../data.jsx';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
 
 const PROMPTS = [
   {en:"Describe your morning routine",hr:"Opiši svoju jutarnju rutinu"},
@@ -15,6 +16,7 @@ const PROMPTS = [
 ];
 
 export default function WritingScreen({ goBack, award }) {
+  const isOnline = useOnlineStatus();
   const [promptIdx, setPromptIdx] = useState(() => Math.floor(Math.random() * PROMPTS.length));
   const [text, setText] = useState("");
   const [result, setResult] = useState(null);
@@ -95,8 +97,8 @@ export default function WritingScreen({ goBack, award }) {
           className="b bp"
           style={{width:"100%",marginTop:12}}
           onClick={checkWithAI}
-          disabled={loading}>
-          {loading ? "🤔 Checking..." : "🤖 Check with AI"}
+          disabled={loading || !isOnline}>
+          {!isOnline ? "📶 Offline — AI check unavailable" : loading ? "🤔 Checking..." : "🤖 Check with AI"}
         </button>
       </div>
       {result && (
