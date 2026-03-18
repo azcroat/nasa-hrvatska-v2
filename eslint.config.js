@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
+import security from 'eslint-plugin-security';
 import globals from 'globals';
 
 export default [
@@ -11,6 +12,21 @@ export default [
 
   // Base JS rules
   js.configs.recommended,
+
+  // Security rules — applied everywhere (src + Cloudflare functions)
+  {
+    files: ['src/**/*.{js,jsx}', 'functions/**/*.js'],
+    plugins: { security },
+    rules: {
+      // Catches: regex injection, unsafe eval, object injection via bracket notation,
+      // non-literal require, non-literal fs paths, buffer constructor misuse
+      ...security.configs.recommended.rules,
+      // Downgrade noisy object-injection warnings — too many false positives
+      // in data.jsx array lookups. Real injection risks are still caught.
+      'security/detect-object-injection': 'warn',
+      'security/detect-non-literal-regexp': 'warn',
+    },
+  },
 
   // React + hooks rules for all source files
   {
