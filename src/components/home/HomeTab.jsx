@@ -17,6 +17,7 @@ export default function HomeTab({
   setTab, setScr, sCurEx,
   allCats, sh,
   launchPathItem,
+  syncReady, onSyncNow, authUser,
 }) {
   const dc = useMemo(getDailyChallenge, []);
   const ws = useMemo(getWeekStats, [st]);
@@ -295,6 +296,47 @@ export default function HomeTab({
           <span>Start Now</span>
         </button>
       </div>
+
+      {/* ── CLOUD SYNC STATUS ── */}
+      {(() => {
+        const lastSaved = authUser && authUser.u ? (() => {
+          try { const p = JSON.parse(localStorage.getItem('uP_' + authUser.u) || 'null'); return p && p.savedAt ? new Date(p.savedAt) : null; } catch { return null; }
+        })() : null;
+        return (
+          <div style={{
+            background: syncReady ? "linear-gradient(135deg,#f0fdf4,#dcfce7)" : "linear-gradient(135deg,#f8fafc,#f1f5f9)",
+            border: `1.5px solid ${syncReady ? "#86efac" : "#cbd5e1"}`,
+            borderRadius: 16, padding: "12px 16px", marginBottom: 16,
+            display: "flex", alignItems: "center", gap: 12,
+          }}>
+            <div style={{
+              width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+              background: syncReady ? "linear-gradient(135deg,#16a34a,#15803d)" : "linear-gradient(135deg,#94a3b8,#64748b)",
+              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18,
+            }}>
+              {syncReady ? "☁️" : "⏳"}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: syncReady ? "#15803d" : "#64748b", lineHeight: 1.2 }}>
+                {syncReady ? "✓ Progress backed up to cloud" : "Connecting to cloud…"}
+              </div>
+              <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2, fontWeight: 500 }}>
+                {lastSaved ? `Last saved: ${lastSaved.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})} · ${lastSaved.toLocaleDateString()}` : syncReady ? "Saving now…" : "Please wait"}
+              </div>
+            </div>
+            {syncReady && onSyncNow && (
+              <button onClick={onSyncNow} style={{
+                padding: "7px 12px", borderRadius: 9, border: "none", cursor: "pointer",
+                background: "linear-gradient(135deg,#16a34a,#15803d)",
+                color: "#fff", fontSize: 11, fontWeight: 800,
+                fontFamily: "'Outfit',sans-serif", flexShrink: 0,
+              }}>
+                Sync Now
+              </button>
+            )}
+          </div>
+        );
+      })()}
 
       {/* ── DAILY CHALLENGES ── */}
       <div style={{

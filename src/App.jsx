@@ -344,6 +344,7 @@ function App(){
     if(tabByPath[ip]){_setTab(tabByPath[ip]);_setCurrentScreen("dashboard");return}
     setScr("dashboard");
   }
+  const doSyncNow=useCallback(function(){if(!authUser)return;var _nd=new Date();var _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');sP(authUser.u,{name,stats,cp:true,onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),favs,journal:jWords,dc:{day:_dcDay,answered:dchlA,selected:dchlSl},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()});},[authUser,name,stats,favs,jWords,dchlA,dchlSl]);
   function goBack(){
     if(curEx)markExerciseDone(curEx);
     sCurEx("");
@@ -502,6 +503,7 @@ function App(){
           setTab={setTab} setScr={setScr} sCurEx={sCurEx}
           allCats={allCats} sh={sh}
           launchPathItem={launchPathItem}
+          syncReady={_syncReady} onSyncNow={doSyncNow} authUser={authUser}
         /></ScreenErrorBoundary>}
         {// ═══ TAB: LEARN ═══
         tab==="learn"&&<ScreenErrorBoundary name="LearnTab"><LearnTab
@@ -535,9 +537,10 @@ function App(){
         /></ScreenErrorBoundary>}
         {// ═══ TAB: PROFILE ═══
         tab==="profile"&&<ScreenErrorBoundary name="ProfileTab"><ProfileTab
-          name={name} authUser={authUser} level={level} st={stats} favs={favs}
+          name={name} au={authUser} level={level} st={stats} favs={favs}
           darkMode={darkMode} setDarkMode={setDarkMode}
           setScr={setScr} doOut={doOut}
+          syncReady={_syncReady} onSyncNow={doSyncNow}
         /></ScreenErrorBoundary>}
       </div>}
       {// ═══ MODAL VERBS ═══
