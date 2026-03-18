@@ -633,9 +633,79 @@ export default function SlangScreen({ goBack, award }) {
   const [searchQ, setSearchQ] = useState('');
   const [searching, setSearching] = useState(false);
 
+  // ── Section XP tracking ────────────────────────────────────────────────────
+  const [visitedSections, setVisitedSections] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('slangVisited') || '[]'); } catch { return []; }
+  });
+
+  // ── Quiz state ─────────────────────────────────────────────────────────────
+  const [quizMode, setQuizMode] = useState(false);
+  const [quizQuestions, setQuizQuestions] = useState([]);
+  const [quizIdx, setQuizIdx] = useState(0);
+  const [quizSelected, setQuizSelected] = useState(null);
+  const [quizScore, setQuizScore] = useState(0);
+  const [quizDone, setQuizDone] = useState(false);
+  const [quizXpGiven, setQuizXpGiven] = useState(false);
+
   function handleUnlock() {
     setGated(false);
     if (award && !xpAwarded) { award(15); setXpAwarded(true); }
+  }
+
+  function switchSection(id) {
+    setActiveSection(id);
+    setExpanded(null);
+    setQuizMode(false);
+    if (!visitedSections.includes(id)) {
+      const next = [...visitedSections, id];
+      setVisitedSections(next);
+      localStorage.setItem('slangVisited', JSON.stringify(next));
+      if (award) award(5);
+    }
+  }
+
+  function startQuiz(sec) {
+    const allEntries = SECTIONS.flatMap(s => s.entries);
+    const pool = sec.entries
+      .filter(e => e.en && e.en.length < 60 && e.ph !== '—')
+      .sort(() => Math.random() - 0.5)
+      .slice(0, Math.min(6, sec.entries.length));
+    if (pool.length < 2) return;
+    const qs = pool.map(entry => {
+      const wrong = allEntries
+        .filter(e => e !== entry && e.en && e.en.length < 60)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3);
+      const opts = [...wrong.map(e => e.en), entry.en].sort(() => Math.random() - 0.5);
+      return { hr: entry.hr, correct: entry.en, opts };
+    });
+    setQuizQuestions(qs);
+    setQuizIdx(0);
+    setQuizSelected(null);
+    setQuizScore(0);
+    setQuizDone(false);
+    setQuizXpGiven(false);
+    setQuizMode(true);
+  }
+
+  function handleQuizAnswer(opt) {
+    if (quizSelected !== null) return;
+    setQuizSelected(opt);
+    const correct = opt === quizQuestions[quizIdx].correct;
+    if (correct) setQuizScore(s => s + 1);
+    setTimeout(() => {
+      if (quizIdx + 1 >= quizQuestions.length) {
+        setQuizDone(true);
+      } else {
+        setQuizIdx(i => i + 1);
+        setQuizSelected(null);
+      }
+    }, 1100);
+  }
+
+  function finishQuiz() {
+    const xp = quizScore * 3;
+    if (award && !quizXpGiven && xp > 0) { award(xp); setQuizXpGiven(true); }
   }
 
   // ── Gate ──────────────────────────────────────────────────────────────────
@@ -867,7 +937,7 @@ export default function SlangScreen({ goBack, award }) {
             {SECTIONS.map(s => (
               <button
                 key={s.id}
-                onClick={() => { setActiveSection(s.id); setExpanded(null); }}
+                onClick={() => switchSection(s.id)}
                 style={{
                   flexShrink: 0, padding: '7px 12px', borderRadius: 20,
                   border: `1.5px solid ${activeSection === s.id ? s.color : 'var(--card-b)'}`,
@@ -875,36 +945,185 @@ export default function SlangScreen({ goBack, award }) {
                   color: activeSection === s.id ? s.color : 'var(--subtext)',
                   fontSize: 12, fontWeight: 800, cursor: 'pointer',
                   fontFamily: "'Outfit',sans-serif", transition: 'all .2s',
+                  position: 'relative',
                 }}>
                 {s.icon} {s.title}
+                {visitedSections.includes(s.id) && <span style={{ position: 'absolute', top: -4, right: -4, width: 8, height: 8, borderRadius: '50%', background: '#16a34a', border: '1.5px solid var(--card)' }} />}
               </button>
             ))}
           </div>
 
+          {/* Section header with subtitle + Quick Quiz button */}
           <div style={{
             background: section.light, border: `1.5px solid ${section.border}`,
             borderRadius: 12, padding: '9px 14px', marginBottom: 14,
-            fontSize: 12, color: section.color, fontWeight: 700,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
           }}>
-            {section.subtitle}
+            <div style={{ fontSize: 12, color: section.color, fontWeight: 700, flex: 1 }}>
+              {section.subtitle}
+            </div>
+            {!quizMode && (
+              <button
+                onClick={() => startQuiz(section)}
+                style={{
+                  padding: '5px 11px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                  background: section.color, color: '#fff',
+                  fontSize: 11, fontWeight: 800, flexShrink: 0,
+                  fontFamily: "'Outfit',sans-serif",
+                }}>
+                🎯 Quiz
+              </button>
+            )}
+            {quizMode && (
+              <button
+                onClick={() => setQuizMode(false)}
+                style={{
+                  padding: '5px 11px', borderRadius: 10, border: `1px solid ${section.border}`,
+                  cursor: 'pointer', background: 'var(--card)', color: section.color,
+                  fontSize: 11, fontWeight: 800, flexShrink: 0,
+                  fontFamily: "'Outfit',sans-serif",
+                }}>
+                ✕ Exit Quiz
+              </button>
+            )}
           </div>
 
-          {section.entries.map((entry, i) => (
+          {/* ── QUIZ MODE ─────────────────────────────────────────────────── */}
+          {quizMode && !quizDone && quizQuestions.length > 0 && (
+            <div style={{
+              background: 'var(--card)', border: `2px solid ${section.color}`,
+              borderRadius: 20, padding: '20px', marginBottom: 14,
+              boxShadow: `0 4px 24px ${section.color}22`,
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '.06em' }}>
+                  Question {quizIdx + 1} of {quizQuestions.length}
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 900, color: section.color }}>
+                  {quizScore} / {quizIdx} ✓
+                </div>
+              </div>
+              {/* Progress bar */}
+              <div style={{ height: 4, background: 'var(--bar-bg)', borderRadius: 4, marginBottom: 20 }}>
+                <div style={{ height: '100%', width: `${((quizIdx) / quizQuestions.length) * 100}%`, background: section.color, borderRadius: 4, transition: 'width .3s' }} />
+              </div>
+              {/* Question */}
+              <div style={{
+                textAlign: 'center', padding: '20px 16px',
+                background: `linear-gradient(135deg,${section.light},var(--card))`,
+                borderRadius: 14, marginBottom: 16, border: `1px solid ${section.border}`,
+              }}>
+                <div style={{ fontSize: 11, color: 'var(--subtext)', fontWeight: 700, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '.06em' }}>
+                  What does this mean?
+                </div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: section.color, fontFamily: "'Playfair Display',serif", lineHeight: 1.3 }}>
+                  {quizQuestions[quizIdx].hr}
+                </div>
+                <button onClick={() => { if (window.speechSynthesis) { const u = new SpeechSynthesisUtterance(quizQuestions[quizIdx].hr); u.lang = 'hr-HR'; window.speechSynthesis.speak(u); }}} style={{ marginTop: 10, padding: '4px 12px', borderRadius: 8, border: 'none', background: section.color, color: '#fff', fontSize: 12, cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }}>
+                  🔊 Hear it
+                </button>
+              </div>
+              {/* Options */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {quizQuestions[quizIdx].opts.map((opt, oi) => {
+                  const isCorrect = opt === quizQuestions[quizIdx].correct;
+                  const isSelected = quizSelected === opt;
+                  let bg = 'var(--card)'; let borderC = 'var(--card-b)'; let txtC = 'var(--text)';
+                  if (quizSelected !== null) {
+                    if (isCorrect) { bg = '#dcfce7'; borderC = '#16a34a'; txtC = '#15803d'; }
+                    else if (isSelected) { bg = '#fee2e2'; borderC = '#dc2626'; txtC = '#dc2626'; }
+                  }
+                  return (
+                    <button key={oi} onClick={() => handleQuizAnswer(opt)} disabled={quizSelected !== null} style={{
+                      width: '100%', padding: '12px 14px', borderRadius: 12,
+                      border: `1.5px solid ${borderC}`, background: bg, color: txtC,
+                      fontSize: 13, fontWeight: 700, cursor: quizSelected ? 'default' : 'pointer',
+                      fontFamily: "'Outfit',sans-serif", textAlign: 'left', transition: 'all .2s',
+                    }}>
+                      {quizSelected !== null && isCorrect ? '✓ ' : quizSelected !== null && isSelected ? '✗ ' : ''}{opt}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ── QUIZ DONE ─────────────────────────────────────────────────── */}
+          {quizMode && quizDone && (
+            <div style={{
+              background: 'var(--card)', border: `2px solid ${section.color}`,
+              borderRadius: 20, padding: '28px 20px', marginBottom: 14, textAlign: 'center',
+              boxShadow: `0 4px 24px ${section.color}22`,
+            }}>
+              <div style={{ fontSize: 52, marginBottom: 12 }}>
+                {quizScore >= quizQuestions.length * 0.8 ? '🏆' : quizScore >= quizQuestions.length * 0.5 ? '💪' : '📚'}
+              </div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: section.color, fontFamily: "'Playfair Display',serif", marginBottom: 6 }}>
+                {quizScore} / {quizQuestions.length} correct
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--subtext)', marginBottom: 20 }}>
+                {quizScore >= quizQuestions.length * 0.8 ? 'Odlično! You\'re a natural!' : quizScore >= quizQuestions.length * 0.5 ? 'Dobro! Keep practicing.' : 'Keep studying — you\'ll get there!'}
+              </div>
+              <div style={{
+                background: section.light, border: `1px solid ${section.border}`,
+                borderRadius: 12, padding: '10px 16px', marginBottom: 20,
+                fontSize: 13, fontWeight: 800, color: section.color,
+              }}>
+                +{quizScore * 3} XP earned
+              </div>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button onClick={() => { finishQuiz(); startQuiz(section); }} style={{
+                  flex: 1, padding: '12px', borderRadius: 12, border: 'none',
+                  background: section.color, color: '#fff', fontSize: 13, fontWeight: 800,
+                  cursor: 'pointer', fontFamily: "'Outfit',sans-serif",
+                }}>Try Again</button>
+                <button onClick={() => { finishQuiz(); setQuizMode(false); }} style={{
+                  flex: 1, padding: '12px', borderRadius: 12,
+                  border: `1.5px solid ${section.border}`, background: 'var(--card)',
+                  color: section.color, fontSize: 13, fontWeight: 800,
+                  cursor: 'pointer', fontFamily: "'Outfit',sans-serif",
+                }}>Done</button>
+              </div>
+            </div>
+          )}
+
+          {/* ── ENTRIES (hidden during quiz) ─────────────────────────────── */}
+          {!quizMode && section.entries.map((entry, i) => (
             <EntryCard key={i} entry={entry} color={section.color} light={section.light} border={section.border} keyId={i} />
           ))}
         </>
       )}
 
-      {/* Footer note */}
+      {/* Progress + Footer note */}
       {!searching && (
-        <div style={{
-          background: 'linear-gradient(135deg,#1a1a2e,#0f3460)',
-          borderRadius: 16, padding: '16px 20px', marginTop: 8, marginBottom: 16,
-          color: '#fff', fontSize: 12, lineHeight: 1.7,
-        }}>
-          <div style={{ fontWeight: 900, fontSize: 13, marginBottom: 6 }}>🇭🇷 Cultural Note</div>
-          Croatian swearing is deeply social and tone-dependent. The same phrase can be a declaration of love between friends or a serious insult between strangers. Tone, relationship, and setting determine meaning entirely. When in doubt, listen first.
-        </div>
+        <>
+          <div style={{
+            background: 'var(--card)', border: '1.5px solid var(--card-b)',
+            borderRadius: 16, padding: '14px 16px', marginTop: 8, marginBottom: 10,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          }}>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--heading)' }}>📊 Your Progress</div>
+              <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2 }}>
+                {visitedSections.length} of {SECTIONS.length} sections explored · +5 XP each
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 18, fontWeight: 900, color: '#16a34a' }}>{visitedSections.length}/{SECTIONS.length}</div>
+              <div style={{ height: 4, width: 72, background: 'var(--bar-bg)', borderRadius: 4, marginTop: 4 }}>
+                <div style={{ height: '100%', width: `${(visitedSections.length / SECTIONS.length) * 100}%`, background: '#16a34a', borderRadius: 4, transition: 'width .5s' }} />
+              </div>
+            </div>
+          </div>
+          <div style={{
+            background: 'linear-gradient(135deg,#1a1a2e,#0f3460)',
+            borderRadius: 16, padding: '16px 20px', marginBottom: 16,
+            color: '#fff', fontSize: 12, lineHeight: 1.7,
+          }}>
+            <div style={{ fontWeight: 900, fontSize: 13, marginBottom: 6 }}>🇭🇷 Cultural Note</div>
+            Croatian swearing is deeply social and tone-dependent. The same phrase can be a declaration of love between friends or a serious insult between strangers. Tone, relationship, and setting determine meaning entirely. When in doubt, listen first.
+          </div>
+        </>
       )}
 
       <button onClick={goBack} style={{
