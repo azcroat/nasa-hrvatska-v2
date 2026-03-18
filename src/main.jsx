@@ -32,10 +32,10 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, errorMsg: '' };
   }
-  static getDerivedStateFromError() {
-    return { hasError: true };
+  static getDerivedStateFromError(error) {
+    return { hasError: true, errorMsg: error && error.message ? error.message : String(error) };
   }
   componentDidCatch(error, info) {
     console.error('App crash:', error, info);
@@ -47,10 +47,15 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div role="alert" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#fef3c7,#fff7ed)', padding: 24, textAlign: 'center' }}>
-          <div>
+          <div style={{ maxWidth: 400, width: '100%' }}>
             <div style={{ fontSize: 64, marginBottom: 16 }} aria-hidden="true">⚠️</div>
             <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 24, color: '#164e63', marginBottom: 8 }}>Something went wrong</h2>
-            <p style={{ color: '#78716c', marginBottom: 20, fontSize: 14 }}>The app hit an unexpected error. Your progress is saved.</p>
+            <p style={{ color: '#78716c', marginBottom: 12, fontSize: 14 }}>The app hit an unexpected error. Your progress is saved.</p>
+            {this.state.errorMsg && (
+              <p style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 8, padding: '8px 12px', fontSize: 12, color: '#991b1b', marginBottom: 16, wordBreak: 'break-all', textAlign: 'left' }}>
+                {this.state.errorMsg}
+              </p>
+            )}
             <button
               onClick={() => window.location.reload()}
               style={{ padding: '12px 32px', background: 'linear-gradient(135deg,#0e7490,#164e63)', color: 'white', border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
