@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { H, Bar, Spk, srMark } from '../../data.jsx';
 
 const XP_PER_CORRECT = 3;
@@ -9,9 +9,27 @@ export default function McGame({ questions, onComplete, goBack, award }) {
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [selected, setSelected] = useState(-1);
+  const firstOptionRef = useRef(null);
+
+  // Move focus to first option when a new question loads
+  useEffect(() => {
+    if (firstOptionRef.current) firstOptionRef.current.focus();
+  }, [idx]);
 
   const q = questions[idx];
   if (!q) return null;
+
+  function handleOptionKey(e, i) {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      const next = e.currentTarget.parentElement.children[Math.min(i + 1, q.opts.length - 1)];
+      if (next) next.focus();
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      const prev = e.currentTarget.parentElement.children[Math.max(i - 1, 0)];
+      if (prev) prev.focus();
+    }
+  }
 
   return (
     <div className="scr-wrap">
@@ -27,7 +45,12 @@ export default function McGame({ questions, onComplete, goBack, award }) {
           {answered && (q.opts[selected]===q.correct ? "Correct! " : `Incorrect. The answer is ${q.correct}. `) + `Score: ${score} of ${questions.length}.`}
         </div>
         {q.opts.map((o,i)=>(
-          <button key={i} className={"ob "+(answered?(o===q.correct?"ok":selected===i?"no":""):"")}
+          <button
+            key={i}
+            ref={i===0?firstOptionRef:null}
+            className={"ob "+(answered?(o===q.correct?"ok":selected===i?"no":""):"")}
+            aria-pressed={answered && selected===i}
+            onKeyDown={e=>handleOptionKey(e,i)}
             onClick={()=>{if(!answered){setSelected(i);setAnswered(true);const ok=o===q.correct;if(ok)setScore(s=>s+1);if(q.hr)srMark(q.hr,ok);}}}>
             {o}
           </button>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Bar, V, LEARN_PATH, getStreak, getProverbOfDay, getHistFact, getDailyChallenge, lXP, nXP, speak, getSR } from '../../data.jsx';
 
 const LEVEL_PALETTE = [
@@ -18,11 +18,11 @@ export default function HomeTab({
   allCats, sh,
   launchPathItem,
 }) {
-  const dc = getDailyChallenge();
-  const ws = getWeekStats();
-  const streak = getStreak();
-  const proverb = getProverbOfDay();
-  const fact = getHistFact();
+  const dc = useMemo(getDailyChallenge, []);
+  const ws = useMemo(getWeekStats, [st]);
+  const streak = useMemo(getStreak, []);
+  const proverb = useMemo(getProverbOfDay, []);
+  const fact = useMemo(getHistFact, []);
   const xpCur = st.xp - lXP(level);
   const xpNeeded = nXP(level) - lXP(level);
   const xpPct = Math.min(Math.round((xpCur / xpNeeded) * 100), 100);
@@ -40,7 +40,7 @@ export default function HomeTab({
     return "Dobra večer";
   };
 
-  const pathData = (() => {
+  const pathData = useMemo(() => {
     let totalDone = 0, totalItems = 0;
     let activeLv = null, activeLvDone = 0, nextItem = null;
     for (const lv of LEARN_PATH) {
@@ -54,7 +54,7 @@ export default function HomeTab({
     }
     if (!activeLv) { activeLv = LEARN_PATH[LEARN_PATH.length - 1]; activeLvDone = activeLv.items.length; }
     return { totalDone, totalItems, pct: Math.round(totalDone / totalItems * 100), activeLv, activeLvDone, nextItem };
-  })();
+  }, [st]);
 
   const activePalette = LEVEL_PALETTE[(pathData.activeLv.level - 1) % LEVEL_PALETTE.length];
   const nameInitial = (name || "U")[0].toUpperCase();

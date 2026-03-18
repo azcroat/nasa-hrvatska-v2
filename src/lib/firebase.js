@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, setPersistence, browserLocalPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile } from 'firebase/auth';
-import { getFirestore, doc as fsDoc, getDoc, setDoc, collection, getDocs, query, limit, orderBy } from 'firebase/firestore';
+import { getFirestore, doc as fsDoc, getDoc, setDoc, collection, getDocs, query, limit, orderBy, runTransaction } from 'firebase/firestore';
 
 const FIREBASE_CONFIG = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -42,11 +42,35 @@ export function isValidEmail(e){return/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)}
 
 // ═══ FIREBASE SYNC ═══
 export async function fbSaveProgress(uid,data){
-  if(!_fbReady||!_fbDb)return;
-  var id=uid.replace(/[.#$/\[\]]/g,"_");var payload={progress:JSON.stringify(data),updated:Date.now()};
-  try{await setDoc(fsDoc(_fbDb,"users",id),payload,{merge:true})}catch(e){
-    console.warn("FB save error (retrying in 3s):",e);
-    setTimeout(async function(){try{await setDoc(fsDoc(_fbDb,"users",id),payload,{merge:true})}catch(e2){console.warn("FB save retry failed:",e2)}},3000);
+  if(!_fbReady||!_fbDb)return{ok:true};
+  var id=uid.replace(/[.#$/\[\]]/g,"_");
+  var incoming={progress:JSON.stringify(data),updated:Date.now(),xp:(data.st&&data.st.xp)||0};
+  try{
+    await runTransaction(_fbDb,async function(tx){
+      var ref=fsDoc(_fbDb,"users",id);
+      var snap=await tx.get(ref);
+      // Conflict resolution: only overwrite if our data is fresher or remote has no timestamp
+      if(snap.exists()){
+        var remote=snap.data();
+        var remoteTs=remote.updated||0;
+        if(remoteTs>incoming.updated){
+          // Remote is newer — skip this write to avoid stomping concurrent update
+          return;
+        }
+      }
+      tx.set(ref,incoming,{merge:true});
+    });
+    return{ok:true};
+  }catch(e){
+    console.warn("FB save error:",e);
+    // Graceful fallback: try a simple setDoc if transaction fails
+    try{
+      await setDoc(fsDoc(_fbDb,"users",id),incoming,{merge:true});
+      return{ok:true};
+    }catch(e2){
+      console.warn("FB save fallback failed:",e2);
+      return{ok:false,err:"Progress could not be saved. Check your connection."};
+    }
   }
 }
 export async function fbLoadProgress(uid){
