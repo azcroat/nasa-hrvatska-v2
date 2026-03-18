@@ -5,8 +5,12 @@ service cloud.firestore {
     // ─── Helper functions ──────────────────────────────────────────────────
     // The app uses email (with special chars replaced by _) as the document ID
     function emailToId(email) {
-      return email.replace('.', '_').replace('#', '_').replace('$', '_')
-                  .replace('[', '_').replace(']', '_').replace('/', '_');
+      // Chain 6 replaces to handle up to 6 dots in local-part (covers all real-world emails).
+      // Firestore Rules don't support regex global replace, so we chain calls.
+      return email.replace('.','_').replace('.','_').replace('.','_')
+                  .replace('.','_').replace('.','_').replace('.','_')
+                  .replace('#','_').replace('$','_')
+                  .replace('[','_').replace(']','_').replace('/','_');
     }
 
     function isOwner(userId) {
