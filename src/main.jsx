@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import * as Sentry from '@sentry/react';
+import posthog from 'posthog-js';
 import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 import './index.css';
 import App from './App.jsx';
@@ -26,6 +27,21 @@ if (import.meta.env.VITE_SENTRY_DSN) {
       }
       return event;
     },
+  });
+}
+
+// ─── PostHog product analytics ─────────────────────────────────────────────
+// Set VITE_POSTHOG_KEY in Cloudflare Pages env vars. Free up to 1M events/mo.
+// Opt-in via env var — app works fully without it.
+if (import.meta.env.VITE_POSTHOG_KEY && import.meta.env.PROD) {
+  posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
+    api_host: 'https://us.i.posthog.com',
+    person_profiles: 'identified_only',
+    capture_pageview: true,
+    capture_pageleave: true,
+    autocapture: false,       // manual events only — no accidental PII
+    disable_session_recording: true,
+    persistence: 'localStorage+cookie',
   });
 }
 

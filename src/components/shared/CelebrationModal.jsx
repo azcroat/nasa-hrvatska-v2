@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import confetti from 'canvas-confetti';
 
 // ── Sound synthesis ──────────────────────────────────────────────────────────
 function playSuccessSound() {
@@ -61,6 +62,15 @@ export default function CelebrationModal({ xp, onClose }) {
 
   useEffect(() => {
     playSuccessSound();
+
+    // canvas-confetti burst — performant canvas-based particles
+    const end = Date.now() + 1800;
+    const frame = () => {
+      confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#0e7490','#f59e0b','#e11d48','#10b981'] });
+      confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#3b82f6','#8b5cf6','#f97316','#facc15'] });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
 
     // Count up XP
     const target = xp || 0;

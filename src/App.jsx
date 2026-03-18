@@ -9,6 +9,7 @@ import { useFamily } from "./hooks/useFamily.js";
 import { useJournal } from "./hooks/useJournal.js";
 import { useDaily } from "./hooks/useDaily.js";
 import { useTranslator } from "./hooks/useTranslator.js";
+import { useNotifications } from "./hooks/useNotifications.js";
 // Always-needed: auth + core UI (eager)
 import LoginScreen from "./components/auth/LoginScreen.jsx";
 import ResetPassword from "./components/auth/ResetPassword.jsx";
@@ -165,6 +166,7 @@ function markExerciseDone(exerciseId){
 }
 
 function App(){
+  useNotifications();
   const ds=DS;
   const[currentScreen,_setCurrentScreen]=useState("welcome");
   const setScr=useCallback(function(s){
@@ -653,10 +655,7 @@ function App(){
       {// ═══ CONVERSATION ROLE-PLAY ═══
       currentScreen==="roleplay"&&<RoleplayScreen goBack={goBack} />}
       {// ═══ VOCABULARY JOURNAL ═══
-      currentScreen==="journal"&&<VocabJournal
-        jWords={jWords} setJWords={setJWords} jIn={jIn} setJIn={setJIn}
-        jEn={jEn} setJEn={setJEn} goBack={goBack}
-      />}
+      currentScreen==="journal"&&<VocabJournal goBack={goBack} />}
       {// ═══ LEARNING PATH ═══
       currentScreen==="learnpath"&&<LearnPath st={stats} setScr={setScr} goBack={goBack} />}
       {// ═══ FAVORITES ═══

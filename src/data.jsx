@@ -401,7 +401,26 @@ const CONJ = {
 // ═══ SPACED REPETITION ═══
 function getSR(){try{return JSON.parse(localStorage.getItem("uSR")||"{}")}catch{return{}}}
 function saveSR(d){localStorage.setItem("uSR",JSON.stringify(d))}
-function srMark(word,correct){const d=getSR();if(!d[word])d[word]={r:0,w:0,b:0};if(correct){d[word].r++;d[word].b=Math.min(d[word].b+1,5)}else{d[word].w++;d[word].b=Math.max(d[word].b-2,0)}d[word].t=Date.now();saveSR(d)}
+// SM-2 spaced repetition — tracks ease factor + interval per word
+// correct=true → quality 4 (good recall), false → quality 1 (forgot)
+function srMark(word,correct){
+  const d=getSR();
+  if(!d[word])d[word]={r:0,w:0,rep:0,ef:2.5,iv:1,b:0};
+  const card=d[word];
+  const q=correct?4:1;
+  if(q<3){card.rep=0;card.iv=1;}
+  else{
+    if(card.rep===0)card.iv=1;
+    else if(card.rep===1)card.iv=6;
+    else card.iv=Math.round((card.iv||1)*(card.ef||2.5));
+    card.rep=(card.rep||0)+1;
+  }
+  card.ef=Math.max(1.3,(card.ef||2.5)+0.1-(5-q)*(0.08+(5-q)*0.02));
+  if(correct)card.r=(card.r||0)+1;else card.w=(card.w||0)+1;
+  card.b=Math.min(Math.max((card.b||0)+(correct?1:-2),0),5);
+  card.t=Date.now();
+  saveSR(d);
+}
 // ═══ HRT & CROATIAN MEDIA ═══
 const MEDIA = [
   // ─── TV & NEWS ───────────────────────────────────────────────────────────────
@@ -4683,14 +4702,14 @@ const ASPECT_PAIRS = [
 
 // ─── SPACED REPETITION: GET DUE REVIEWS ──────────────────────────────────
 function getDueReviews() {
-  const INTERVALS = [0, 1, 3, 7, 14, 30]; // days per bucket level 0-5
+  const FALLBACK = [0, 1, 3, 7, 14, 30]; // legacy bucket fallback
   const sr = getSR();
   const now = Date.now();
   const due = [];
   for (const [word, data] of Object.entries(sr)) {
-    const b = data.b || 0;
-    const intervalMs = INTERVALS[Math.min(b, 5)] * 86400000;
-    const nextDue = (data.t || 0) + intervalMs;
+    // Use SM-2 interval if available, fall back to bucket intervals for old records
+    const intervalDays = data.iv != null ? data.iv : FALLBACK[Math.min(data.b || 0, 5)];
+    const nextDue = (data.t || 0) + intervalDays * 86400000;
     if (now >= nextDue) due.push(word);
   }
   return due; // array of Croatian word strings that are due for review

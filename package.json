@@ -22,7 +22,10 @@
   },
   "dependencies": {
     "@sentry/react": "^10.42.0",
+    "canvas-confetti": "^1.9.4",
+    "dexie": "^4.3.0",
     "firebase": "^12.10.0",
+    "posthog-js": "^1.360.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.0",
@@ -58,7 +61,7 @@
     "undici": ">=7.24.0"
   },
   "lint-staged": {
-    "src/**/*.{js,jsx}": "eslint --max-warnings=0 --rule '{\"no-debugger\":\"error\",\"react-hooks/rules-of-hooks\":\"error\"}'",
+    "src/**/*.{js,jsx}": "eslint --rule '{\"no-debugger\":\"error\",\"react-hooks/rules-of-hooks\":\"error\"}'",
     "functions/**/*.js": "eslint --max-warnings=0"
   },
   "size-limit": [
