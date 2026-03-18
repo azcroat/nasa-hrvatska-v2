@@ -17,8 +17,8 @@ export default function TensesScreen({ goBack, award }) {
     const qs = [];
     TENSES.verbs.forEach((v, vi) => {
       ["present","past","future"].forEach(t => {
-        const pidx = Math.floor(Math.random() * 6);
-        const gnd = Math.random() > 0.5 ? "m" : "f";
+        const pidx = Math.floor(Math.random() * 6); // NOSONAR - Math.random() is acceptable for quiz/game shuffling
+        const gnd = Math.random() > 0.5 ? "m" : "f"; // NOSONAR - Math.random() is acceptable for quiz/game shuffling
         const forms = t === "present" ? v.present : t === "past" ? (gnd === "m" ? v.pastM : v.pastF) : (gnd === "m" ? v.futureM : v.futureF);
         const correct = forms[pidx];
         const person = TENSES.persons[pidx];

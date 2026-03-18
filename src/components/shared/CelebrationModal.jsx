@@ -18,7 +18,7 @@ function playSuccessSound() {
       osc.start(ctx.currentTime + i * 0.12);
       osc.stop(ctx.currentTime + i * 0.12 + 0.45);
     });
-  } catch (e) {}
+  } catch (e) {} // NOSONAR - intentional empty catch, optional browser API or safe fallback
 }
 
 // ── Confetti particle generator ───────────────────────────────────────────────
@@ -32,13 +32,13 @@ function makeParticles(n = 80) {
   return Array.from({ length: n }, (_, i) => ({
     id: i,
     color: COLORS[i % COLORS.length],
-    left: Math.random() * 100,
-    delay: Math.random() * 1.4,
-    duration: 2.0 + Math.random() * 1.6,
-    size: 5 + Math.random() * 10,
-    shape: SHAPES[Math.floor(Math.random() * SHAPES.length)],
-    rotSpeed: (Math.random() > 0.5 ? 1 : -1) * (360 + Math.random() * 720),
-    drift: (Math.random() - 0.5) * 80,
+    left: Math.random() * 100, // NOSONAR - Math.random() is acceptable for quiz/game shuffling
+    delay: Math.random() * 1.4, // NOSONAR - Math.random() is acceptable for quiz/game shuffling
+    duration: 2.0 + Math.random() * 1.6, // NOSONAR - Math.random() is acceptable for quiz/game shuffling
+    size: 5 + Math.random() * 10, // NOSONAR - Math.random() is acceptable for quiz/game shuffling
+    shape: SHAPES[Math.floor(Math.random() * SHAPES.length)], // NOSONAR - Math.random() is acceptable for quiz/game shuffling
+    rotSpeed: (Math.random() > 0.5 ? 1 : -1) * (360 + Math.random() * 720), // NOSONAR - Math.random() is acceptable for quiz/game shuffling
+    drift: (Math.random() - 0.5) * 80, // NOSONAR - Math.random() is acceptable for quiz/game shuffling
   }));
 }
 
@@ -47,9 +47,9 @@ function makeStars(n = 12) {
   return Array.from({ length: n }, (_, i) => ({
     id: i,
     angle: (i / n) * 360,
-    dist: 80 + Math.random() * 60,
-    size: 8 + Math.random() * 16,
-    delay: Math.random() * 0.4,
+    dist: 80 + Math.random() * 60, // NOSONAR - Math.random() is acceptable for quiz/game shuffling
+    size: 8 + Math.random() * 16, // NOSONAR - Math.random() is acceptable for quiz/game shuffling
+    delay: Math.random() * 0.4, // NOSONAR - Math.random() is acceptable for quiz/game shuffling
     color: ['#f59e0b', '#fcd34d', '#fbbf24', '#facc15'][i % 4],
   }));
 }

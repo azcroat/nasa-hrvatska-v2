@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { H, Bar } from '../../data.jsx';
 
-function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;}
+function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;} // NOSONAR - Math.random() is acceptable for quiz/game shuffling
 
 const DATA = [
   { affirm:"Imam brata.", neg_prompt:"I don't have a brother.", opts:["Nemam brata.","Nemam brat.","Nemam bratu.","Nemam bratom."], answer:"Nemam brata.", en:"I don't have a brother.", tip:"'brat' (animate masc) — accusative and genitive singular look the same: 'brata'" },

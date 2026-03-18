@@ -22,8 +22,8 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
     if (dueWords.length === 0) return [];
     return dueWords.slice(0, 20).map(w => {
       const wrong = pool.filter(x => x[1] !== w[1]);
-      const distractors = wrong.sort(() => Math.random() - 0.5).slice(0, 3).map(x => x[1]);
-      const opts = [w[1], ...distractors].sort(() => Math.random() - 0.5);
+      const distractors = wrong.sort(() => Math.random() - 0.5).slice(0, 3).map(x => x[1]); // NOSONAR - Math.random() is acceptable for quiz/game shuffling
+      const opts = [w[1], ...distractors].sort(() => Math.random() - 0.5); // NOSONAR - Math.random() is acceptable for quiz/game shuffling
       return { word: w, opts, correct: w[1] };
     });
   }, [dueWords, pool]);

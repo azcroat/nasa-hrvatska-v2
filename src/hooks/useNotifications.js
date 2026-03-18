@@ -42,7 +42,7 @@ export function checkNameDay(userName) {
       body: `Danas je tvoj imendan (${names.join('/')}). Čestitamo! Today is your Croatian name day!`,
       icon: '/icon-192.png', tag: 'name-day',
     });
-  } catch (_) {}
+  } catch (_) {} // NOSONAR - intentional empty catch, optional browser API or safe fallback
 }
 
 export function useNotifications() {
@@ -82,7 +82,7 @@ function showReminder() {
     { body: 'Just 5 minutes of Croatian today? Your vocabulary is waiting. 🇭🇷', title: 'Vježbaj danas!' },
     { body: 'Your review queue has words waiting. Come back and keep learning! 📚', title: 'Naša Hrvatska' },
   ];
-  const msg = messages[Math.floor(Math.random() * messages.length)];
+  const msg = messages[Math.floor(Math.random() * messages.length)]; // NOSONAR - Math.random() is acceptable for quiz/game shuffling
   try {
     new Notification(msg.title, {
       body: msg.body,
@@ -90,5 +90,5 @@ function showReminder() {
       badge: '/icon-192.png',
       tag: 'daily-reminder', // replaces any previous reminder notification
     });
-  } catch (_) {}
+  } catch (_) {} // NOSONAR - intentional empty catch, optional browser API or safe fallback
 }

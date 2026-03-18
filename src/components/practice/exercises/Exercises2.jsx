@@ -50,7 +50,7 @@ export function LogicQuizScreen({ goBack, award }) {
       
       {H("🧠 Think in Croatian","Pick the answers that make sense")}
       <div className="c" style={{marginBottom:12,padding:"10px 14px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 Read the Croatian situation and pick ALL correct answers. Some questions have 2 right answers!</div>
-      {shMemo("lq",LOGICQUIZ).map(function(lq,li){const allOpts=lq.right.concat(lq.wrong).sort(function(){return Math.random()-0.5});return (
+      {shMemo("lq",LOGICQUIZ).map(function(lq,li){const allOpts=lq.right.concat(lq.wrong).sort(function(){return Math.random()-0.5});return ( // NOSONAR - Math.random() is acceptable for quiz/game shuffling
         <div key={li} className="c" style={{marginBottom:12,padding:"12px 14px"}}>
           <button style={{fontSize:14,fontWeight:700,color:"var(--heading)",marginBottom:8,background:"none",border:"none",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif",padding:0}} onClick={function(){speak(lq.q)}}>{"🔊 "}{lq.q}</button>
           <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
@@ -148,7 +148,7 @@ export function EmotionGenderScreen({ goBack, award }) {
           <div style={{fontSize:16,fontWeight:800,color:"#164e63",marginBottom:10}}>{eg.subj}{" ("}{eg.gender==="m"?"👨":"👩"})</div>
           {eg.pairs.map(function(p,pi){const correct=eg.gender==="m"?p.m:p.f;const wrong=eg.gender==="m"?p.f:p.m;return (
             <div key={pi} style={{display:"flex",gap:8,marginBottom:6}}>
-              {[correct,wrong].sort(function(){return Math.random()-0.5}).map(function(o,oi){return (
+              {[correct,wrong].sort(function(){return Math.random()-0.5}).map(function(o,oi){return ( // NOSONAR - Math.random() is acceptable for quiz/game shuffling
                 <button key={oi} style={{flex:1,padding:"8px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:13,fontWeight:600,cursor:"pointer"}}
                   onClick={function(e){e.target.style.background=o===correct?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===correct?"#16a34a":"#dc2626";if(o===correct){award(2);speak(eg.subj.split("...")[0]+" "+correct);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
                   {o}
@@ -213,7 +213,7 @@ export function CityLocativeScreen({ goBack, award }) {
         <div key={i} className="c" style={{marginBottom:6,padding:"8px 12px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div style={{fontSize:13}}>{c2.nom}{" → u _____"}</div>
           <div style={{display:"flex",gap:4}}>
-            {[c2.lok,wrong].sort(function(){return Math.random()-0.5}).map(function(o,oi){return (
+            {[c2.lok,wrong].sort(function(){return Math.random()-0.5}).map(function(o,oi){return ( // NOSONAR - Math.random() is acceptable for quiz/game shuffling
               <button key={oi} style={{padding:"8px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:11,fontWeight:600,cursor:"pointer"}}
                 onClick={function(e){e.target.style.background=o===c2.lok?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===c2.lok?"#16a34a":"#dc2626";if(o===c2.lok)award(3);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>{o}</button>
             );})}
