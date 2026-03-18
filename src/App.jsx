@@ -133,6 +133,16 @@ const ShadowingScreen = lazy(() => import("./components/practice/ShadowingScreen
 const ReviewScreen = lazy(() => import("./components/practice/ReviewScreen.jsx"));
 const WritingScreen = lazy(() => import("./components/practice/WritingScreen.jsx"));
 const AspectDrillScreen = lazy(() => import("./components/practice/AspectDrillScreen.jsx"));
+const CliticDrill = lazy(() => import("./components/practice/CliticDrill.jsx"));
+const NumbersCasesDrill = lazy(() => import("./components/practice/NumbersCasesDrill.jsx"));
+const ImperativeDrill = lazy(() => import("./components/practice/ImperativeDrill.jsx"));
+const NegationGenDrill = lazy(() => import("./components/practice/NegationGenDrill.jsx"));
+const CollocationsGame = lazy(() => import("./components/practice/CollocationsGame.jsx"));
+const WordFamilies = lazy(() => import("./components/practice/WordFamilies.jsx"));
+const DictationScreen = lazy(() => import("./components/practice/DictationScreen.jsx"));
+const PronunciationContrast = lazy(() => import("./components/practice/PronunciationContrast.jsx"));
+const DialogueSim = lazy(() => import("./components/practice/DialogueSim.jsx"));
+const CefrTest = lazy(() => import("./components/practice/CefrTest.jsx"));
 const Leaderboard = lazy(() => import("./components/profile/Leaderboard.jsx"));
 const CertificateScreen = lazy(() => import("./components/profile/CertificateScreen.jsx"));
 
@@ -290,6 +300,9 @@ function App(){
       convmatch:"practice",scenes:"practice",storyselect:"practice",story:"practice",
       proverbs:"practice",idioms:"practice",
       pitchaccent:"practice",shadowing:"practice",review:"practice",writing:"practice",aspectdrill:"practice",
+      clitic:"practice",numcases:"practice",imperative:"practice",neggen:"practice",
+      collocations:"practice",wordfamilies:"practice",dictation:"practice",
+      proncontrast:"practice",dialogue:"practice",cefrtest:"practice",
       region_labin:"croatia",region_bibinje:"croatia",region_hercegovina:"croatia",
       region_vukovar:"croatia",region_vinkovci:"croatia",region_zagreb:"croatia",
       region_split:"croatia",region_mostar:"croatia",region_tomislavgrad:"croatia",region_knin:"croatia",
@@ -705,6 +718,16 @@ function App(){
       currentScreen==="writing"&&<WritingScreen goBack={goBack} award={award} />}
       {// ═══ VERB ASPECT DRILL ═══
       currentScreen==="aspectdrill"&&<AspectDrillScreen goBack={goBack} award={award} ASPECT_PAIRS={ASPECT_PAIRS} />}
+      {currentScreen==="clitic"&&<CliticDrill goBack={goBack} award={award} />}
+      {currentScreen==="numcases"&&<NumbersCasesDrill goBack={goBack} award={award} />}
+      {currentScreen==="imperative"&&<ImperativeDrill goBack={goBack} award={award} />}
+      {currentScreen==="neggen"&&<NegationGenDrill goBack={goBack} award={award} />}
+      {currentScreen==="collocations"&&<CollocationsGame goBack={goBack} award={award} />}
+      {currentScreen==="wordfamilies"&&<WordFamilies goBack={goBack} award={award} />}
+      {currentScreen==="dictation"&&<DictationScreen goBack={goBack} award={award} />}
+      {currentScreen==="proncontrast"&&<PronunciationContrast goBack={goBack} award={award} />}
+      {currentScreen==="dialogue"&&<DialogueSim goBack={goBack} award={award} />}
+      {currentScreen==="cefrtest"&&<CefrTest goBack={goBack} award={award} />}
       {// ═══ VOCABULARY LESSON ═══
       currentScreen==="lesson"&&<LessonScreen
         lt={lt} li={li} lx={lx} ls={ls} lp={lp} la={la} lsl={lsl} qi={qi} icons={icons}
