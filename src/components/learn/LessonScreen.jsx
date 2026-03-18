@@ -39,7 +39,7 @@ export default function LessonScreen({
           </div>
           {qi[lx].opts.map((o,i)=>(
             <button key={i} className={"ob "+(la?(i===qi[lx].ci?"ok":lsl===i?"no":""):"")}
-              onClick={()=>{if(!la){sLsl(i);sLa(true);var ok=i===qi[lx].ci;if(ok)sLs(s=>s+1);srMark(qi[lx][0],ok);}}}>
+              onClick={()=>{if(!la){sLsl(i);sLa(true);const ok=i===qi[lx].ci;if(ok)sLs(s=>s+1);srMark(qi[lx][0],ok);}}}>
               {o}
             </button>
           ))}

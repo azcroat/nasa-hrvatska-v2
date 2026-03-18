@@ -122,7 +122,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         } else { setAuthScreen('login'); }
       }
     } else { setAuthScreen('login'); }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);  
 
   // ── Register ─────────────────────────────────────────────────────────────
   async function doReg() {

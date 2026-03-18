@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    // Target modern browsers (Cloudflare Pages / PWA)
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+
+    // Check existing JS files without converting them to TypeScript.
+    // This catches type mismatches, undefined variables, and bad property
+    // access while letting us migrate incrementally.
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+
+    // JSX support
+    "jsx": "react-jsx",
+
+    // Strict mode: off for initial adoption — too many red lines on
+    // legacy code. Enable these one by one as files are cleaned up.
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+
+    // Catch the class of bug that burned us: accessing undefined props
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    // Vite types: import.meta.env, import.meta.hot, etc.
+    "types": ["vite/client"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "scripts", "src/tests/**/*"]
+}

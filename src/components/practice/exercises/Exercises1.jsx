@@ -177,7 +177,7 @@ export function FillStoryScreen({ goBack, award }) {
               <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                 {s.opts.map(function(o,oi){return (
                   <button key={oi} style={{padding:"6px 12px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,fontWeight:600,cursor:"pointer"}}
-                    onClick={function(e){var btns=e.target.parentNode.children;for(var i=0;i<btns.length;i++){btns[i].style.background="white";btns[i].style.borderColor="#d6d3d1"}e.target.style.background=o===s.blank?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===s.blank?"#16a34a":"#dc2626";if(o===s.blank)award(3);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
+                    onClick={function(e){const btns=e.target.parentNode.children;for(let i=0;i<btns.length;i++){btns[i].style.background="white";btns[i].style.borderColor="#d6d3d1"}e.target.style.background=o===s.blank?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===s.blank?"#16a34a":"#dc2626";if(o===s.blank)award(3);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
                     {o}
                   </button>
                 );})}
@@ -279,11 +279,11 @@ export function GenderDrillScreen({ goBack, award }) {
       
       {H("♂️♀️ Gender, Plurals & Adjectives","Master noun genders and endings")}
       <h3 className="sh">📦 Sort by Gender — tap a word, then tap M / F / N</h3>
-      {(function(){var words=GENDERDRILL.sort.slice().sort(function(){return Math.random()-0.5}).slice(0,12);return (
+      {(function(){const words=GENDERDRILL.sort.slice().sort(function(){return Math.random()-0.5}).slice(0,12);return (
         <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:20}}>
           {words.map(function(w,i){return (
             <button key={i} style={{padding:"8px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:13,fontWeight:600,cursor:"pointer"}}
-              onClick={function(e){var correct=w.g==="m"?"#dbeafe":w.g==="f"?"#fce7f3":"#dcfce7";e.target.style.background=correct;e.target.style.borderColor=w.g==="m"?"#1e40af":w.g==="f"?"#db2777":"#16a34a";e.target.innerHTML=w.word+" ("+(w.g==="m"?"♂ M":w.g==="f"?"♀ F":"⚧ N")+")";award(2);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
+              onClick={function(e){const correct=w.g==="m"?"#dbeafe":w.g==="f"?"#fce7f3":"#dcfce7";e.target.style.background=correct;e.target.style.borderColor=w.g==="m"?"#1e40af":w.g==="f"?"#db2777":"#16a34a";e.target.innerHTML=w.word+" ("+(w.g==="m"?"♂ M":w.g==="f"?"♀ F":"⚧ N")+")";award(2);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
               {w.word}
             </button>
           );})}

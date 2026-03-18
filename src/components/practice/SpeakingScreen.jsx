@@ -4,10 +4,12 @@ import { H, Bar, Spk, speakSlow } from '../../data.jsx';
 const SRSupported = typeof window !== 'undefined' && !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
 export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSsc, goBack, award, setSt }) {
-  if (!sw) return null;
+  // Hooks must be called unconditionally — before any early return
   const [listening, setListening] = useState(false);
   const [recResult, setRecResult] = useState(null);
   const recRef = useRef(null);
+
+  if (!sw) return null;
 
   function startMic() {
     if (!SRSupported) return;

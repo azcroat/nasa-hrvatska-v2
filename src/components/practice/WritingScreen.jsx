@@ -54,7 +54,7 @@ export default function WritingScreen({ goBack, award }) {
     setResult(null);
     setError("");
     setPromptIdx(function(cur) {
-      var next = Math.floor(Math.random() * (PROMPTS.length - 1));
+      const next = Math.floor(Math.random() * (PROMPTS.length - 1));
       return next >= cur ? next + 1 : next;
     });
   }

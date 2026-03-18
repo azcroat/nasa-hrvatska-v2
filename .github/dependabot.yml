@@ -1,0 +1,54 @@
+version: 2
+updates:
+  # npm dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Zagreb"
+    open-pull-requests-limit: 8
+    # Auto-group minor/patch updates to avoid PR noise
+    groups:
+      eslint-toolchain:
+        patterns:
+          - "eslint*"
+          - "@eslint*"
+          - "globals"
+        update-types:
+          - "minor"
+          - "patch"
+      vite-toolchain:
+        patterns:
+          - "vite*"
+          - "@vitejs*"
+          - "vite-plugin-pwa"
+        update-types:
+          - "minor"
+          - "patch"
+      testing:
+        patterns:
+          - "vitest*"
+          - "@testing-library*"
+          - "@playwright*"
+          - "jsdom"
+        update-types:
+          - "minor"
+          - "patch"
+      typescript:
+        patterns:
+          - "typescript"
+          - "@types/*"
+        update-types:
+          - "minor"
+          - "patch"
+    # Always flag security updates individually — never group them
+    ignore: []
+
+  # GitHub Actions — monthly sweep is enough
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
