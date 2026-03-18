@@ -71,6 +71,7 @@ export default function HomeTab({
         position: "relative",
         overflow: "hidden",
         color: "white",
+        borderRadius: "22px 22px 0 0",
         borderBottom: "1px solid rgba(200,152,10,0.35)",
         boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
       }}>
