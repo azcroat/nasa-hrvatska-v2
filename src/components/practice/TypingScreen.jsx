@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { H, Bar, V, sh } from '../../data.jsx';
 
 export default function TypingScreen({ goBack, award }) {
-  const [[tyPool, firstWord]] = useState(() => {
+  const [tyPoolData] = useState(() => {
     const allWords = Object.values(V).flat();
     const items = sh(allWords).slice(0, 10);
     return [items, items[0]];
   });
+  const [tyPool, firstWord] = tyPoolData;
   const [tyI, sTyI] = useState(0);
   const [tyS, sTyS] = useState(0);
   const [tyIn, sTyIn] = useState("");
