@@ -113,7 +113,7 @@ export function friendlyError(msg){
   if(msg.includes("too-many-requests"))return"Too many attempts. Please wait a few minutes.";
   if(msg.includes("network-request-failed"))return"No internet connection. Check your WiFi.";
   if(msg.includes("unauthorized-domain"))return"Authentication blocked. Please try again or contact support.";
-  if(msg.includes("permission-denied")||msg.includes("permission"))return"Connection issue. Your account was created — try signing in!";
+  if(msg.includes("permission-denied")||msg.includes("permission"))return"Permission error — please try again or contact support.";
   if(msg.includes("user-disabled"))return"This account has been disabled. Contact support.";
   if(msg.includes("account-exists-with-different-credential"))return"An account already exists with this email using a different sign-in method.";
   if(msg.includes("requires-recent-login"))return"Please sign out and sign in again to complete this action.";

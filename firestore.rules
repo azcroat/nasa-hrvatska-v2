@@ -62,10 +62,12 @@ service cloud.firestore {
         && request.resource.data.memberEmails.size() == 1
         && request.auth.token.email in request.resource.data.memberEmails;
 
-      // Only existing members can update (join/leave/rename).
+      // Existing members can update (leave/rename). New users can join by adding their own email.
       // memberEmails flat list enables O(1) membership check without map iteration.
+      // Join case: user is not yet in memberEmails but IS adding their email to the new list.
       allow update: if isAuthenticated()
-        && isFamilyMember(resource.data.memberEmails)
+        && (isFamilyMember(resource.data.memberEmails)
+            || request.auth.token.email in request.resource.data.memberEmails)
         && request.resource.data.keys().hasAll(['name', 'code', 'created', 'members', 'memberEmails'])
         && request.resource.data.members.size() <= 50
         && request.resource.data.memberEmails.size() <= 50
