@@ -102,10 +102,52 @@ jobs:
           curl -s -u "${{ secrets.SONAR_TOKEN }}:" "https://sonarcloud.io/api/issues/search?componentKeys=AzCroat_nasa-hrvatska-v2&types=BUG&statuses=OPEN&ps=50" > /tmp/bugs.json
           echo "=== OPEN BUGS ===" && cat /tmp/bugs.json | node -e "const d=require('/dev/stdin');if(d.total===0){console.log('0 bugs!')}else{d.issues.forEach(i=>console.log(i.severity,i.rule,i.component.split('/').pop()+':'+i.line,'-',i.message.slice(0,80)))}" 2>/dev/null || cat /tmp/bugs.json | python3 -c "import sys,json;d=json.load(sys.stdin);[print(i['severity'],i['rule'],i['component'].split('/')[-1]+':'+str(i.get('line','?')),'-',i['message'][:80]) for i in d.get('issues',[])] or print('0 bugs')"
 
+  e2e:
+    name: E2E Tests (Cross-Browser)
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Build for E2E (with placeholder Firebase config)
+        run: npm run build
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY || 'placeholder' }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN || 'placeholder.firebaseapp.com' }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID || 'placeholder' }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET || 'placeholder.appspot.com' }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID || '000000000000' }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID || '1:000000000000:web:placeholder' }}
+          VITE_SENTRY_DSN: ""
+
+      - name: Run E2E tests (Chrome + Firefox + WebKit)
+        run: npx playwright test --project="Desktop Chrome" --project="Desktop Firefox" --project="Desktop Safari (WebKit)" --project="Mobile Safari (iPhone 14)"
+        env:
+          CI: true
+
+      - name: Upload E2E report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-report
+          path: playwright-report/
+          retention-days: 7
+
   build-deploy:
     name: Build & Deploy
     runs-on: ubuntu-latest
-    needs: [quality, test]
+    needs: [quality, test, e2e]
     steps:
       - uses: actions/checkout@v4
 
