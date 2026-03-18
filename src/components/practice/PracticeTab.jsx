@@ -302,7 +302,7 @@ export default function PracticeTab({
         </div>
       </Section>
 
-      <Section title="Native Speaker Skills" icon="🌟" count="5 tools" defaultOpen={true}>
+      <Section title="Native Speaker Skills" icon="🌟" count="5 tools" defaultOpen={false}>
         <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>Advanced tools to reach native-level fluency</p>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
           {[
@@ -346,7 +346,7 @@ export default function PracticeTab({
         ]} />
       </Section>
 
-      <Section title="🧪 Fluency Lab" icon="🧪" count="3 advanced tools" defaultOpen={true}>
+      <Section title="🧪 Fluency Lab" icon="🧪" count="3 advanced tools" defaultOpen={false}>
         <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>
           The gap between B1 and C1 — close it here
         </p>
