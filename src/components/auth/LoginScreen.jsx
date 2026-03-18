@@ -1,5 +1,5 @@
 import React from 'react';
-import { BG_LIGHT, gA } from '../../data.jsx';
+import { BG_LIGHT } from '../../data.jsx';
 
 const BG = BG_LIGHT;
 
@@ -17,9 +17,9 @@ const PW_LABELS = ["", "Weak", "Fair", "Good", "Strong"];
 const PW_COLORS = ["", "#ef4444", "#f97316", "#eab308", "#16a34a"];
 
 export default function LoginScreen({
-  authScreen, authError, authLoading, authEmail, pw, pc, displayName, sp, sq, sa,
-  setAuthScreen, setAuthError, setAuthEmail, setPw, setPc, setDisplayName, setSp2, setSq, setSa,
-  setRpEm, setRpSa, setRpPw, setRpPc, setRpStep, setRpQ,
+  authScreen, authError, authLoading, authEmail, pw, pc, displayName, sp,
+  setAuthScreen, setAuthError, setAuthEmail, setPw, setPc, setDisplayName, setSp2,
+  setRpEm,
   doLog, doReg,
 }) {
   const isR = authScreen === "register";
@@ -31,7 +31,7 @@ export default function LoginScreen({
           <div style={{fontSize:56,marginBottom:12,animation:"boat 4s ease-in-out infinite"}}>⛵</div>
           <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:36,color:"#164e63",fontWeight:800}}>Naša Hrvatska</h1>
           <p style={{color:"#78716c",fontSize:16}}>
-            {isR ? "Create your account" : Object.keys(gA()).length > 0 ? "Welcome back! Sign in to continue" : "Sign in to continue"}
+            {isR ? "Create your account" : "Sign in to continue"}
           </p>
         </div>
         <div className="c" style={{padding:28}}>
@@ -57,21 +57,10 @@ export default function LoginScreen({
           {isR && !pw && <div style={{marginBottom:14}} />}
           {isR && <React.Fragment>
             <label style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>CONFIRM PASSWORD</label>
-            <input type="password" placeholder="Confirm your password" value={pc} onChange={e=>{setPc(e.target.value);setAuthError("")}} autoComplete="new-password" autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{marginBottom:14}} />
-            <label style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>SECURITY QUESTION</label>
-            <select value={sq} onChange={e=>{setSq(e.target.value);setAuthError("")}} style={{width:"100%",padding:"14px 18px",border:"2px solid rgba(14,116,144,.12)",borderRadius:14,background:"rgba(255,255,255,.65)",color:sq?"#1c1917":"#a8a29e",fontSize:16,fontWeight:600,outline:"none",fontFamily:"'Outfit',sans-serif",marginBottom:14,cursor:"pointer",WebkitAppearance:"none"}}>
-              <option value="" disabled>Select a security question...</option>
-              <option value="What city were you born in?">What city were you born in?</option>
-              <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
-              <option value="What was the name of your first pet?">What was the name of your first pet?</option>
-              <option value="What is your favorite Croatian city?">What is your favorite Croatian city?</option>
-              <option value="What street did you grow up on?">What street did you grow up on?</option>
-            </select>
-            <label style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>SECURITY ANSWER</label>
-            <input type="text" placeholder="Your answer (used if you forget your password)" value={sa} onChange={e=>{setSa(e.target.value);setAuthError("")}} autoComplete="off" style={{marginBottom:16}} />
+            <input type="password" placeholder="Confirm your password" value={pc} onChange={e=>{setPc(e.target.value);setAuthError("")}} autoComplete="new-password" autoCapitalize="none" autoCorrect="off" spellCheck="false" onKeyDown={e=>{if(e.key==="Enter")doReg()}} style={{marginBottom:16}} />
           </React.Fragment>}
           {!isR && <div style={{textAlign:"right",marginBottom:12}}>
-            <span style={{fontSize:13,color:"#0e7490",cursor:"pointer",fontWeight:600}} onClick={()=>{setAuthScreen("reset");setAuthError("");setRpEm(authEmail||"");setRpSa("");setRpPw("");setRpPc("");setRpStep(1);setRpQ("")}}>Forgot password?</span>
+            <span style={{fontSize:13,color:"#0e7490",cursor:"pointer",fontWeight:600}} onClick={()=>{setAuthScreen("reset");setAuthError("");setRpEm(authEmail||"")}}>Forgot password?</span>
           </div>}
           <button className="b bp" style={{width:"100%",fontSize:16,padding:"14px 24px",marginTop:4}} onClick={isR?doReg:doLog} disabled={authLoading}>
             {authLoading?"Loading...":isR?"Create Account":"Sign In"}
@@ -84,7 +73,7 @@ export default function LoginScreen({
           </div>
           <div style={{textAlign:"center",marginTop:12,fontSize:14,color:"#78716c"}}>
             {isR?"Have an account? ":"No account? "}
-            <span style={{color:"#0e7490",cursor:"pointer",fontWeight:700}} onClick={()=>{setAuthScreen(isR?"login":"register");setAuthError("");setAuthEmail("");setPw("");setPc("");setDisplayName("");setSq("");setSa("")}}>
+            <span style={{color:"#0e7490",cursor:"pointer",fontWeight:700}} onClick={()=>{setAuthScreen(isR?"login":"register");setAuthError("");setAuthEmail("");setPw("");setPc("");setDisplayName("")}}>
               {isR?"Sign in":"Create one"}
             </span>
           </div>

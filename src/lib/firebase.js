@@ -27,10 +27,7 @@ export function initFirebase(){
 // Auto-init on module load
 initFirebase();
 
-// ═══ LOCAL AUTH & STORAGE ═══
-export async function hp(p){const e=new TextEncoder();const d=e.encode(p+"ucimo2024");const h=await crypto.subtle.digest("SHA-256",d);return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,"0")).join("")}
-export function gA(){try{const accts=JSON.parse(localStorage.getItem("uA")||"{}");Object.keys(accts).forEach(function(k){const h=sessionStorage.getItem("uAp_"+k);if(h)accts[k].p=h;});return accts}catch{return{}}}
-export function sA(a){const safe={};Object.keys(a).forEach(function(k){const copy=Object.assign({},a[k]);if(copy.p){sessionStorage.setItem("uAp_"+k,copy.p);delete copy.p;}safe[k]=copy;});localStorage.setItem("uA",JSON.stringify(safe));}
+// ═══ LOCAL PROGRESS & SESSION STORAGE ═══
 export function gP(u){try{return JSON.parse(localStorage.getItem("uP_"+u))}catch{return null}}
 export function sP(u,p){localStorage.setItem("uP_"+u,JSON.stringify(p));fbSaveProgress(u,p)}
 export function gS(){try{return JSON.parse(localStorage.getItem("uS"))}catch{return null}}
@@ -109,8 +106,7 @@ export function friendlyError(msg){
   if(msg.includes("email-already-in-use"))return"This email already has an account. Try signing in instead!";
   if(msg.includes("weak-password"))return"Password must be at least 6 characters.";
   if(msg.includes("invalid-email"))return"Please enter a valid email address.";
-  if(msg.includes("user-not-found"))return"No account found with this email. Try creating one!";
-  if(msg.includes("wrong-password")||msg.includes("invalid-credential"))return"Incorrect password. Try again or reset it.";
+  if(msg.includes("user-not-found")||msg.includes("wrong-password")||msg.includes("invalid-credential"))return"Invalid email or password.";
   if(msg.includes("too-many-requests"))return"Too many attempts. Please wait a few minutes.";
   if(msg.includes("network-request-failed"))return"No internet connection. Check your WiFi.";
   if(msg.includes("unauthorized-domain"))return"Authentication blocked. Please try again or contact support.";
@@ -200,9 +196,6 @@ export async function fbLoadUserFamily(email){
   return fam}catch(e){return null}
 }
 export function fbOnAuthStateChanged(cb){if(!_fbReady||!_fbAuth)return()=>{};return onAuthStateChanged(_fbAuth,cb)}
-export async function fbSetUserSecurity(email,sq,sa){if(!_fbReady||!_fbDb)return;try{const id=email.replace(/[.#$/\[\]]/g,"_");await setDoc(fsDoc(_fbDb,"users",id),{sq,sa},{merge:true})}catch(e){}}
-export async function fbGetUserSecurity(email){if(!_fbReady||!_fbDb)return null;try{const id=email.replace(/[.#$/\[\]]/g,"_");const snap=await getDoc(fsDoc(_fbDb,"users",id));if(!snap.exists())return null;const d=snap.data();return d.sq?{sq:d.sq,sa:d.sa}:null}catch(e){return null}}
-export async function fbCreateAccount(email,password){if(!_fbReady||!_fbAuth)return{ok:false};try{await createUserWithEmailAndPassword(_fbAuth,email,password);return{ok:true}}catch(e){return{ok:false}}}
 export async function fbGetLeaderboard(){
   if(!_fbReady||!_fbDb)return[];
   try{
