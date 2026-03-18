@@ -241,6 +241,7 @@ function App(){
   const[evM,sEvM]=useState(new Date().getMonth()+1);
   const[showXP,setShowXP]=useState(false);const[xpA,setXpA]=useState(0);const[nB,setNB]=useState(null);const[sB,setSB]=useState(false);
   const _initialPath=useRef(window.location.pathname);
+  const _unloadRef=useRef({});
   const[_syncReady,_setSyncReady]=useState(false);
   const[showBackupBanner,setShowBackupBanner]=useState(false);
   // ── useAuth — must be declared BEFORE the useEffects that reference
@@ -276,6 +277,8 @@ function App(){
     setSyncReady: _setSyncReady,
     ds,
   });
+  // Keep _unloadRef current on every render so beforeunload always flushes latest state
+  _unloadRef.current={authUser,stats,name,authScreen};
   useEffect(()=>{
     if(authScreen!=="app")return;
     const lastSeen=localStorage.getItem("lastSeen");const now=Date.now();
@@ -298,7 +301,19 @@ function App(){
   // Lesson components only call setStats — they never write to localStorage or Firebase.
   // This effect fires immediately (no debounce) so progress is persisted even if the
   // user closes the browser right after finishing a lesson.
-  useEffect(()=>{if(!authUser||authScreen!=="app"||stats.lc===0)return;doSyncNow();},[stats.lc,stats.ct?.length]);// eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(()=>{if(!authUser||authScreen!=="app"||stats.lc===0)return;doSyncNow();},[stats.lc,stats.ct?.length,stats.gc]);// eslint-disable-line react-hooks/exhaustive-deps
+  // Synchronous localStorage flush on browser close / tab kill.
+  // Firebase is async so this is the only way to guarantee no data loss on close.
+  useEffect(()=>{
+    const onUnload=()=>{
+      const{authUser:u,stats:st,name:nm,authScreen:as}=_unloadRef.current;
+      if(!u||as!=="app")return;
+      const _nd=new Date();const _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');
+      try{const _d={name:nm,stats:st,cp:true,onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),dc:{day:_dcDay},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};localStorage.setItem("uP_"+u.u,JSON.stringify(_d));}catch(_){}
+    };
+    window.addEventListener("beforeunload",onUnload);
+    return()=>window.removeEventListener("beforeunload",onUnload);
+  },[]);// eslint-disable-line react-hooks/exhaustive-deps
   // ═══ BROWSER BACK BUTTON SUPPORT (popstate) ═══
   useEffect(function(){
     // Mark baseline so we can detect when back would exit the app
