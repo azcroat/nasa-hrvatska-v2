@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { H, Bar, V } from '../../data.jsx';
+import { rnd } from '../../lib/random.js';
 
 const ROUND_TIME = 30;
 const QUESTIONS_PER_ROUND = 15;
@@ -12,7 +13,7 @@ function buildPool(cats, sh) {
 function makeQuestion(word, allWords, sh) {
   const wrong = sh(allWords.filter(w => w.en !== word.en)).slice(0, 3);
   if (wrong.length < 3) return null;
-  const dir = Math.random() < 0.5;
+  const dir = rnd() < 0.5;
   if (dir) {
     return { prompt: word.hr, answer: word.en, opts: sh([word.en, wrong[0].en, wrong[1].en, wrong[2].en]), word };
   } else {

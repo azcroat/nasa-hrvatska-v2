@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { rnd } from '../../lib/random.js';
 
 /**
  * CroatianCross — pre-Romanesque Croatian medieval cross (starohrvatski križ)
@@ -7,7 +8,7 @@ import { useMemo } from 'react';
  * Usage: <CroatianCross size={148} />
  */
 export default function CroatianCross({ size = 148, style = {}, className = '' }) {
-  const id = useMemo(() => 'mc' + Math.random().toString(36).slice(2, 7), []);
+  const id = useMemo(() => 'mc' + rnd().toString(36).slice(2, 7), []);
 
   // Arms span: 82–118 (36px wide), full 200×200 viewBox
   // Inner rails at 91 and 109 create two ribbon channels per arm

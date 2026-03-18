@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { H, speak, shMemo } from '../../../data.jsx';
 import { REFLEXIVE, FILL_STORIES, CONVMATCH, SCENES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS } from '../../../data.jsx';
+import { rnd } from '../../../lib/random.js';
 
 export function ReflexiveScreen({ goBack, award }) {
   const [tab, setTab] = useState("rules");
-  const [qIdx] = useState(()=>Math.floor(Math.random()*REFLEXIVE.quiz.length));
+  const [qIdx] = useState(()=>Math.floor(rnd()*REFLEXIVE.quiz.length));
   const [answers, setAnswers] = useState({});
   const tabs = [{id:"rules",label:"SE Rules"},{id:"tenses",label:"All Tenses"},{id:"verbs",label:"Verbs"},{id:"quiz",label:"Quiz"}];
   const TENSE_COLORS = {present:"#0e7490",past:"#7c3aed",future:"#16a34a",negative:"#dc2626"};
@@ -202,7 +203,7 @@ export function ConvMatchScreen({ goBack, award }) {
           {conv.pairs.map(function(p,pi){return (
             <div key={pi} style={{marginBottom:12,paddingBottom:12,borderBottom:pi<conv.pairs.length-1?"1px solid #f3f4f6":"none"}}>
               <div style={{fontSize:13,fontWeight:700,color:"#164e63",marginBottom:6,cursor:"pointer"}} onClick={function(){speak(p.q)}}>{"🗣️ "}{p.q}</div>
-              {[p.a,p.wrong].sort(function(){return Math.random()-0.5}).map(function(o,oi){return (
+              {[p.a,p.wrong].sort(function(){return rnd()-0.5}).map(function(o,oi){return (
                 <button key={oi} style={{display:"block",width:"100%",padding:"8px 12px",marginBottom:4,border:"2px solid #e7e5e4",borderRadius:10,background:"white",fontSize:12,textAlign:"left",cursor:"pointer"}}
                   onClick={function(e){e.target.style.background=o===p.a?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===p.a?"#16a34a":"#dc2626";if(o===p.a){award(5);speak(p.a);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>{o}</button>
               );})}
@@ -276,7 +277,7 @@ export function PronounsScreen({ goBack, award }) {
 export function GenderDrillScreen({ goBack, award }) {
   const [revealedGenders, setRevealedGenders] = useState({});
   const [revealedPlurals, setRevealedPlurals] = useState({});
-  const words = React.useMemo(() => GENDERDRILL.sort.slice().sort(function(){return Math.random()-0.5}).slice(0,12), []);
+  const words = React.useMemo(() => GENDERDRILL.sort.slice().sort(function(){return rnd()-0.5}).slice(0,12), []);
   return (
     <div className="scr-wrap">
 

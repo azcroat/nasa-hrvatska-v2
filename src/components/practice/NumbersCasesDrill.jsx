@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { H, Bar } from '../../data.jsx';
 
-function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;}
+import { rnd } from '../../lib/random.js';
+function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;}
 
 const DATA = [
   { q:"___ auto (2)", opts:["dva auta","dva auto","dva auti","dva automobila"], answer:"dva auta", en:"2 cars", tip:"2/3/4 + Genitive singular: 'auto' → 'auta'" },
