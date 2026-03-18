@@ -1,22 +1,16 @@
 /**
  * useAuth — owns all authentication state and the session lifecycle.
  *
- * Extracted from App.jsx. Includes session restore on mount, Firebase
- * auth-state listener, and all sign-in / register / reset / sign-out
- * handlers. App.jsx receives callbacks for app-level side-effects
- * (navigation, stats hydration, family loading).
- *
- * Pattern: callbacks are stored in a ref so the one-time mount effect
- * always uses the latest implementations without listing them as deps.
+ * Pure Firebase Auth via onAuthStateChanged as single source of truth.
+ * No local account fallback, no security Q&A, no password hashing.
  */
 import { useState, useEffect, useRef } from 'react';
 import {
-  _fbReady, hp, gA, sA, gP, sP, gS, sS, cS,
-  touchSession, updateStreak, isSessionExpired, isValidEmail,
+  gP, sP, gS, sS, cS,
+  touchSession, updateStreak, isValidEmail,
   fbLogin, fbRegister, fbLogout, fbResetPassword,
-  fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount,
   fbLoadProgress, fbLoadUserFamily, fbOnAuthStateChanged,
-  initFirebase, saveSR, getLocalFamily,
+  initFirebase, getLocalFamily,
 } from '../data.jsx';
 
 /**
@@ -33,6 +27,9 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
   const cb = useRef({ onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady });
   cb.current = { onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady };
 
+  // Ref set to true just before fbRegister so the auth listener knows it's a new account
+  const isNewReg = useRef(false);
+
   // ── Auth flow state ──────────────────────────────────────────────────────
   const [authScreen, setAuthScreen] = useState('loading');
   const [authUser, setAuthUser] = useState(null);
@@ -40,89 +37,104 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
   const [pw, setPw] = useState('');
   const [pc, setPc] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [sq, setSq] = useState('');       // security question
-  const [sa, setSa] = useState('');       // security answer
   const [sp, setSp2] = useState(false);   // show-password toggle
 
-  // ── Reset-password multi-step flow ───────────────────────────────────────
+  // ── Reset-password flow ──────────────────────────────────────────────────
   const [rpEm, setRpEm] = useState('');
-  const [rpSa, setRpSa] = useState('');
-  const [rpPw, setRpPw] = useState('');
-  const [rpPc, setRpPc] = useState('');
-  const [rpStep, setRpStep] = useState(1);
-  const [rpQ, setRpQ] = useState('');
-  const [_rpSaHash, _setRpSaHash] = useState('');
-  const [_rpStoredEmail, _setRpStoredEmail] = useState('');
 
   // ── Error / loading ──────────────────────────────────────────────────────
   const [authError, setAuthError] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
 
-  // ── Session restore (runs once on mount) ─────────────────────────────────
+  // ── Firebase auth listener (runs once on mount) ──────────────────────────
   useEffect(() => {
     initFirebase();
+
+    // Restore any cached local data while Firebase confirms auth
     const s = gS();
     if (s && s.u) {
-      if (isSessionExpired()) {
-        cS(); setAuthScreen('login');
-        setTimeout(() => setAuthError('✅ Your session expired. Your account is safe — just sign in again.'), 200);
-        return;
-      }
-      const a = gA();
-      if (a[s.u]) {
-        const p = gP(s.u);
-        const user = { u: s.u, d: a[s.u].d, e: a[s.u].e || s.u };
+      const cached = gP(s.u);
+      if (cached) {
+        const user = { u: s.u, d: s.d || s.u, e: s.u };
         setAuthUser(user);
         touchSession(); updateStreak();
-        const lf = getLocalFamily(); if (lf) cb.current.setFamData(lf);
-        cb.current.onSignedIn({ user, progress: p });
+        const lf = getLocalFamily();
+        if (lf) cb.current.setFamData(lf);
+        cb.current.onSignedIn({ user, progress: cached });
         setAuthScreen('app');
-        let _syncReadyFired = false;
-        function _fireSyncReady() { if (!_syncReadyFired) { _syncReadyFired = true; cb.current.setSyncReady(true); } }
-        const t = setTimeout(_fireSyncReady, 5000);
-        fbLoadProgress(s.u).then(fp => {
-          clearTimeout(t);
-          if (fp) {
-            const lp = gP(s.u);
-            const fpTs = fp._fbUpdated || fp.savedAt || 0;
-            const lpTs = (lp && lp.savedAt) || 0;
-            const fpXP = (fp.stats && fp.stats.xp) || 0;
-            const lpXP = (lp && lp.stats && lp.stats.xp) || 0;
-            if (fpTs > lpTs || (!fpTs && !lpTs && fpXP >= lpXP)) {
-              sP(s.u, fp);
-              cb.current.onSignedIn({ user, progress: fp, isHydrate: true });
-              cb.current.applyRemoteProgress(fp);
-            }
-          }
-          _fireSyncReady();
-        }).catch(() => _fireSyncReady());
-      } else {
-        if (_fbReady) {
-          fbOnAuthStateChanged(fbUser => {
-            if (fbUser) {
-              const dn = fbUser.displayName || fbUser.email;
-              const k = fbUser.email;
-              const aMap = gA(); const ex = aMap[k] || {}; ex.d = dn; ex.e = k; aMap[k] = ex; sA(aMap);
-              fbLoadProgress(k).then(fp => {
-                if (fp) sP(k, fp);
-                const user = { u: k, d: dn, e: k };
-                setAuthUser(user); sS({ u: k }); touchSession(); updateStreak();
-                fbLoadUserFamily(k).then(f => { if (f) cb.current.setFamData(f); });
-                const p = fp || gP(k);
-                cb.current.onSignedIn({ user, progress: p });
-                if (p) cb.current.applyRemoteProgress(p);
-                cb.current.setSyncReady(true); setAuthScreen('app');
-              });
-            } else {
-              const _s = gS(); const _a = gA();
-              if (_s && _s.u && _a[_s.u]) setAuthScreen('login');
-              else { cS(); setAuthScreen('login'); }
-            }
-          });
-        } else { setAuthScreen('login'); }
       }
-    } else { setAuthScreen('login'); }
-  }, []);  
+    }
+
+    const unsub = fbOnAuthStateChanged(function(fbUser) {
+      if (!fbUser) {
+        // Not signed in — clear any stale session
+        cS();
+        setAuthUser(null);
+        setAuthScreen('login');
+        return;
+      }
+
+      const k = fbUser.email || fbUser.uid;
+      const dn = fbUser.displayName || k;
+      const user = { u: k, d: dn, e: k };
+      const isNew = isNewReg.current;
+      isNewReg.current = false;
+
+      setAuthUser(user);
+      sS({ u: k, d: dn });
+      touchSession(); updateStreak();
+
+      if (isNew) {
+        // Brand new account — no remote progress exists yet
+        cb.current.onSignedIn({ user, progress: null, isNew: true });
+        cb.current.setSyncReady(true);
+        setAuthScreen('app');
+        return;
+      }
+
+      // Returning user — load remote progress, merge with local
+      const localP = gP(k);
+      if (localP && authScreen !== 'app') {
+        cb.current.onSignedIn({ user, progress: localP });
+        setAuthScreen('app');
+      }
+
+      fbLoadUserFamily(k).then(function(f) { if (f) cb.current.setFamData(f); });
+
+      let syncReadyFired = false;
+      function fireSyncReady() { if (!syncReadyFired) { syncReadyFired = true; cb.current.setSyncReady(true); } }
+      const t = setTimeout(fireSyncReady, 5000);
+
+      fbLoadProgress(k).then(function(fp) {
+        clearTimeout(t);
+        if (fp) {
+          const lp = gP(k);
+          const fpTs = fp._fbUpdated || fp.savedAt || 0;
+          const lpTs = (lp && lp.savedAt) || 0;
+          const fpXP = (fp.stats && fp.stats.xp) || 0;
+          const lpXP = (lp && lp.stats && lp.stats.xp) || 0;
+          if (fpTs > lpTs || (!fpTs && !lpTs && fpXP >= lpXP)) {
+            sP(k, fp);
+            cb.current.onSignedIn({ user, progress: fp, isHydrate: true });
+            cb.current.applyRemoteProgress(fp);
+          }
+        }
+        if (authScreen !== 'app') {
+          cb.current.onSignedIn({ user, progress: fp || localP });
+          setAuthScreen('app');
+        }
+        fireSyncReady();
+      }).catch(function() {
+        if (authScreen !== 'app') {
+          cb.current.onSignedIn({ user, progress: localP });
+          setAuthScreen('app');
+        }
+        fireSyncReady();
+      });
+    });
+
+    return unsub;
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Register ─────────────────────────────────────────────────────────────
   async function doReg() {
@@ -131,31 +143,23 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
     if (!pw || pw.length < 6) { setAuthError('Password must be at least 6 characters.'); return; }
     if (pw !== pc) { setAuthError('Passwords do not match.'); return; }
     if (!displayName.trim()) { setAuthError('Please enter your display name.'); return; }
-    if (!sq.trim()) { setAuthError('Please select a security question.'); return; }
-    if (!sa.trim() || sa.trim().length < 2) { setAuthError('Please enter a security answer (2+ characters).'); return; }
     setAuthLoading(true);
     try {
-      initFirebase();
       const k = authEmail.trim().toLowerCase();
-      const existing = gA();
-      if (existing[k]) { setAuthError('An account with this email already exists. Please sign in instead.'); setAuthLoading(false); return; }
-      if (_fbReady) {
-        const fb = await fbRegister(k, pw, displayName.trim());
-        if (!fb.ok && fb.err.indexOf('already') >= 0) { setAuthError('An account with this email already exists. Please sign in instead.'); setAuthLoading(false); return; }
-        if (!fb.ok && (fb.err.indexOf('least 6') >= 0 || fb.err.indexOf('weak') >= 0)) { setAuthError('Password is too weak. Use at least 6 characters.'); setAuthLoading(false); return; }
-        if (!fb.ok && fb.err.indexOf('valid email') >= 0) { setAuthError('Please enter a valid email address.'); setAuthLoading(false); return; }
-        if (fb.ok) { try { await fbSetUserSecurity(k, sq.trim(), await hp(sa.trim().toLowerCase())); } catch (e) {} }
+      isNewReg.current = true;
+      const fb = await fbRegister(k, pw, displayName.trim());
+      if (!fb.ok) {
+        isNewReg.current = false;
+        setAuthError(fb.err || 'Registration failed. Please try again.');
+        setAuthLoading(false);
+        return;
       }
-      const a = gA(); const h = await hp(pw); const sah = await hp(sa.trim().toLowerCase());
-      a[k] = { p: h, d: displayName.trim(), e: k, sq: sq.trim(), sa: sah, created: Date.now() };
-      sA(a);
-      const user = { u: k, d: displayName.trim(), e: k };
-      setAuthUser(user); sS({ u: k });
-      setAuthEmail(''); setPw(''); setPc(''); setDisplayName(''); setSq(''); setSa('');
-      cb.current.onSignedIn({ user, progress: null, isNew: true });
-      setAuthScreen('app');
-      cb.current.setSyncReady(true);
-    } catch (e) { setAuthError('Registration failed. Please try again.'); }
+      // Auth listener will fire and handle the rest
+      setAuthEmail(''); setPw(''); setPc(''); setDisplayName('');
+    } catch (e) {
+      isNewReg.current = false;
+      setAuthError('Registration failed. Please try again.');
+    }
     setAuthLoading(false);
   }
 
@@ -166,118 +170,36 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
     if (!pw) { setAuthError('Please enter your password.'); return; }
     setAuthLoading(true);
     try {
-      initFirebase();
       const k = authEmail.trim().toLowerCase();
-      let fbResult = null;
-      if (_fbReady) { try { fbResult = await fbLogin(k, pw); } catch (e) { fbResult = null; } }
-
-      // Firebase success path
-      if (fbResult && fbResult.ok) {
-        const fbProgress = await fbLoadProgress(k);
-        const fdn = fbResult.user.displayName || k;
-        const fa = gA(); const fex = fa[k] || {}; fex.d = fdn; fex.e = k;
-        try { fex.p = await hp(pw); } catch (e) {}
-        fa[k] = fex; sA(fa); if (fbProgress) sP(k, fbProgress);
-        const user = { u: k, d: fdn, e: k };
-        setAuthUser(user); sS({ u: k }); touchSession(); updateStreak();
-        const progress = fbProgress || gP(k);
-        cb.current.onSignedIn({ user, progress });
-        cb.current.applyRemoteProgress(progress);
+      const result = await fbLogin(k, pw);
+      if (result.ok) {
+        // Auth listener will fire and handle session + progress loading
         setAuthEmail(''); setPw('');
-        fbLoadUserFamily(k).then(f => { if (f) cb.current.setFamData(f); });
-        setAuthScreen('app');
-        cb.current.setSyncReady(true);
-        setAuthLoading(false); return;
+      } else {
+        setAuthError(result.err || 'Sign in failed. Please try again.');
       }
-
-      // Rate limit hard-stop
-      if (fbResult && fbResult.err && fbResult.err.indexOf('Too many attempts') >= 0) {
-        setAuthError(fbResult.err); setAuthLoading(false); return;
-      }
-
-      // Local account fallback
-      const la = gA();
-      if (!la[k]) { setAuthError('No account found with this email. Please check your email or create a new account.'); setAuthLoading(false); return; }
-      if (la[k].p) {
-        const lh = await hp(pw);
-        if (la[k].p === lh) {
-          const user = { u: k, d: la[k].d, e: k };
-          setAuthUser(user); sS({ u: k }); touchSession(); updateStreak();
-          const lp = gP(k);
-          cb.current.onSignedIn({ user, progress: lp });
-          setAuthEmail(''); setPw('');
-          setAuthScreen('app');
-          // Background Firebase sync after offline login — load remote first,
-          // then mark sync ready so subsequent saves go to Firebase
-          fbLoadProgress(k).then(fp => {
-            if (fp) {
-              const stored = gP(k);
-              const fpTs = fp._fbUpdated || fp.savedAt || 0;
-              const lpTs = (stored && stored.savedAt) || 0;
-              const fpXP = (fp.stats && fp.stats.xp) || 0;
-              const lpXP = (stored && stored.stats && stored.stats.xp) || 0;
-              if (fp.sr) saveSR(fp.sr);
-              if (fpTs > lpTs || (!fpTs && !lpTs && fpXP > lpXP)) {
-                sP(k, fp);
-                cb.current.onSignedIn({ user, progress: fp, isHydrate: true });
-                cb.current.applyRemoteProgress(fp);
-              }
-            }
-            cb.current.setSyncReady(true);
-          }).catch(() => {
-            // Network error — keep local progress, still mark ready so saves go to Firebase when possible
-            cb.current.setSyncReady(true);
-          });
-          setAuthLoading(false); return;
-        }
-        setAuthError('Incorrect password. Try again or use Forgot Password.'); setAuthLoading(false); return;
-      }
-      setAuthError("Please use 'Forgot Password' to restore access to your account.");
-    } catch (e) { setAuthError('Login failed. Please try again.'); }
+    } catch (e) {
+      setAuthError('Sign in failed. Please try again.');
+    }
     setAuthLoading(false);
   }
 
   // ── Reset password ────────────────────────────────────────────────────────
   async function doReset() {
-    setAuthError(''); initFirebase();
-    if (rpStep === 1) {
-      if (!rpEm.trim() || !isValidEmail(rpEm.trim())) { setAuthError('Please enter your email address.'); return; }
-      const k = rpEm.trim().toLowerCase(); let sqFound = ''; let saFound = '';
-      const a = gA(); if (a[k] && a[k].sq) { sqFound = a[k].sq; saFound = a[k].sa; }
-      if (!sqFound && _fbReady) {
-        try {
-          const sec = await fbGetUserSecurity(k);
-          if (sec && sec.sq) { sqFound = sec.sq; saFound = sec.sa; }
-          else if (sec && !sec.sq) {
-            const fb = await fbResetPassword(k);
-            if (fb.ok) { setAuthScreen('login'); setTimeout(() => setAuthError('✅ Password reset email sent! Check your inbox.'), 100); return; }
-            else { setAuthError(fb.err); return; }
-          }
-        } catch (e) {}
-      }
-      if (!sqFound) {
-        if (_fbReady) {
-          const fb2 = await fbResetPassword(k);
-          if (fb2.ok) { setAuthScreen('login'); setTimeout(() => setAuthError('✅ Password reset email sent! Check your inbox.'), 100); return; }
-        }
-        setAuthError('No account found with this email.'); return;
-      }
-      _setRpSaHash(saFound); _setRpStoredEmail(k); setRpQ(sqFound); setRpStep(2);
-    } else if (rpStep === 2) {
-      if (!rpSa.trim()) { setAuthError('Please enter your security answer.'); return; }
-      const sah = await hp(rpSa.trim().toLowerCase());
-      if (sah !== _rpSaHash) { setAuthError('Incorrect security answer. Please try again.'); return; }
-      setRpStep(3);
-    } else if (rpStep === 3) {
-      if (!rpPw || rpPw.length < 6) { setAuthError('New password must be at least 6 characters.'); return; }
-      if (rpPw !== rpPc) { setAuthError('Passwords do not match.'); return; }
-      const k = _rpStoredEmail;
-      const a = gA(); if (a[k]) { a[k].p = await hp(rpPw); sA(a); }
-      if (_fbReady) { const acct = await fbCreateAccount(k, rpPw); if (!acct.ok) { try { await fbResetPassword(k); } catch (e) {} } }
-      _setRpSaHash(''); _setRpStoredEmail('');
-      setAuthError(''); setRpEm(''); setRpSa(''); setRpPw(''); setRpPc(''); setRpStep(1); setRpQ('');
-      setAuthScreen('login'); setTimeout(() => setAuthError('✅ Password reset! Sign in with your new password.'), 100);
+    setAuthError('');
+    if (!rpEm.trim() || !isValidEmail(rpEm.trim())) { setAuthError('Please enter your email address.'); return; }
+    setAuthLoading(true);
+    try {
+      // Always send the reset email and show generic success (prevents email enumeration)
+      await fbResetPassword(rpEm.trim().toLowerCase());
+      setRpEm('');
+      setAuthScreen('login');
+      setTimeout(function() { setAuthError('✅ If an account exists for that email, a reset link has been sent.'); }, 100);
+    } catch (e) {
+      setAuthScreen('login');
+      setTimeout(function() { setAuthError('✅ If an account exists for that email, a reset link has been sent.'); }, 100);
     }
+    setAuthLoading(false);
   }
 
   // ── Sign out ──────────────────────────────────────────────────────────────
@@ -292,9 +214,8 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
     authEmail, setAuthEmail,
     pw, setPw, pc, setPc,
     displayName, setDisplayName,
-    sq, setSq, sa, setSa, sp, setSp2,
-    rpEm, setRpEm, rpSa, setRpSa, rpPw, setRpPw, rpPc, setRpPc,
-    rpStep, setRpStep, rpQ, setRpQ,
+    sp, setSp2,
+    rpEm, setRpEm,
     authError, setAuthError,
     authLoading,
     doReg, doLog, doOut, doReset,
