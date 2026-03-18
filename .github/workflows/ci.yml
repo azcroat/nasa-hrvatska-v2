@@ -56,7 +56,6 @@ jobs:
     name: SonarCloud Audit
     runs-on: ubuntu-latest
     needs: test
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -67,6 +66,12 @@ jobs:
         with:
           name: coverage
           path: coverage/
+
+      - name: Disable Automatic Analysis (enable CI-based scan with coverage)
+        run: |
+          curl -s -X POST "https://sonarcloud.io/api/autoscan/activation" \
+            -H "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
+            -d "enable=false&projectKey=AzCroat_nasa-hrvatska-v2" || true
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
