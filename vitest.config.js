@@ -9,5 +9,11 @@ export default defineConfig({
     globals: true,
     include: ['src/**/*.test.{js,jsx,ts,tsx}'],
     exclude: ['e2e/**', 'node_modules/**'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      include: ['src/**/*.{js,jsx}'],
+      exclude: ['src/tests/**', 'dist/**'],
+    },
   },
 });
