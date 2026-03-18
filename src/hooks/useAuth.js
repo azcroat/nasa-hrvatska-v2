@@ -35,8 +35,15 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
   // Set to true just before fbRegister so the auth listener treats the next user as a new account
   const isNewReg = useRef(false);
 
+  // Track authScreen in a ref so the auth listener (mounted once) can read the current value.
+  // Used to detect re-login after logout: if authScreen was 'login', _goPostAuth must fire
+  // even when earlyRestored=true from a prior session.
+  const authScreenRef = useRef('loading');
+
   // ── Auth flow state ──────────────────────────────────────────────────────
-  const [authScreen, setAuthScreen] = useState('loading');
+  const [authScreen, _setAuthScreen] = useState('loading');
+  // Wrap setAuthScreen so authScreenRef always mirrors the latest value
+  function setAuthScreen(s) { authScreenRef.current = s; _setAuthScreen(s); }
   const [authUser, setAuthUser] = useState(null);
   const [authEmail, setAuthEmail] = useState('');
   const [pw, setPw] = useState('');
@@ -131,7 +138,8 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       // setAuthScreen('app') is called unconditionally so re-login after logout
       // (earlyRestored=true in closure) always transitions to the app screen.
       const t = setTimeout(function() {
-        if (!earlyRestored) {
+        const needsNavTimeout = !earlyRestored || authScreenRef.current === 'login' || authScreenRef.current === 'register';
+        if (needsNavTimeout) {
           earlyRestored = true;
           cb.current.onSignedIn({ user, progress: localP });
         }
@@ -157,9 +165,12 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
           }
         }
 
-        // onSignedIn only when not yet shown — avoids double _goPostAuth navigation.
-        // setAuthScreen('app') is unconditional so re-login always reaches the app.
-        if (!earlyRestored) {
+        // Call onSignedIn (which triggers _goPostAuth navigation) if:
+        //  a) earlyRestored is false — first time showing the app on this load, OR
+        //  b) we came from 'login'/'register' screen — re-login after logout needs navigation
+        //     even when earlyRestored=true from a prior session in this page load.
+        const needsNav = !earlyRestored || authScreenRef.current === 'login' || authScreenRef.current === 'register';
+        if (needsNav) {
           earlyRestored = true;
           cb.current.onSignedIn({ user, progress: fp || localP });
         }
@@ -169,7 +180,8 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       }).catch(function() {
         clearTimeout(t);
         // Network error — show app with local data (or empty stats for fresh device)
-        if (!earlyRestored) {
+        const needsNavCatch = !earlyRestored || authScreenRef.current === 'login' || authScreenRef.current === 'register';
+        if (needsNavCatch) {
           earlyRestored = true;
           cb.current.onSignedIn({ user, progress: localP });
         }
