@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { H, Bar, Spk } from '../../data.jsx';
+import { H, Bar, Spk, sh } from '../../data.jsx';
 import { rnd } from '../../lib/random.js';
 
 export default function AspectDrillScreen({ goBack, award, ASPECT_PAIRS }) {
   const items = useMemo(() => {
     if (!ASPECT_PAIRS) return [];
-    return [...ASPECT_PAIRS].sort(() => rnd() - 0.5).slice(0, 15);
+    return sh(ASPECT_PAIRS).slice(0, 15);
   }, [ASPECT_PAIRS]);
 
   const [idx, setIdx] = useState(0);
@@ -63,7 +63,7 @@ export default function AspectDrillScreen({ goBack, award, ASPECT_PAIRS }) {
         explain: `${item.pf} = completed. ${item.rule}.`
       };
 
-  const opts = [q.correct, q.wrong].sort(() => rnd() - 0.5);
+  const opts = sh([q.correct, q.wrong]);
 
   return (
     <div className="scr-wrap">

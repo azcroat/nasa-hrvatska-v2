@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { H, speak } from '../../data.jsx';
+import { H, speak, sh } from '../../data.jsx';
 import { REGIONS, ROLEPLAY, RECIPES, CROATIAN_CITIES, getCityOfDay } from '../../data.jsx';
-import { rnd } from '../../lib/random.js';
 
 export function RegionScreen({ regionKey, goBack }) {
   const [tab, setTab] = useState("overview");
@@ -159,7 +158,7 @@ export function RegionScreen({ regionKey, goBack }) {
               <div style={{background:`linear-gradient(135deg,${bgLight},${accentColor}18)`,borderRadius:16,padding:"20px",marginBottom:20}}>
                 <div style={{fontSize:15,fontWeight:800,lineHeight:1.5,color:"#1c1917"}}>{r.quiz[quizI].q}</div>
               </div>
-              {[r.quiz[quizI].a, ...r.quiz[quizI].al].sort(() => 0.5 - rnd()).map(function(opt,i){
+              {sh([r.quiz[quizI].a, ...r.quiz[quizI].al]).map(function(opt,i){
                 const chosen = quizSel === opt;
                 const correct = opt === r.quiz[quizI].a;
                 const revealed = quizSel !== null;
