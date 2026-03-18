@@ -44,7 +44,7 @@ export function isValidEmail(e){return/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)}
 export async function fbSaveProgress(uid,data){
   if(!_fbReady||!_fbDb)return{ok:true};
   var id=uid.replace(/[.#$/\[\]]/g,"_");
-  var incoming={progress:JSON.stringify(data),updated:Date.now(),xp:(data.st&&data.st.xp)||0};
+  var incoming={progress:JSON.stringify(data),updated:Date.now(),xp:(data.stats&&data.stats.xp)||0};
   try{
     await runTransaction(_fbDb,async function(tx){
       var ref=fsDoc(_fbDb,"users",id);
@@ -159,7 +159,7 @@ export async function fbGetFamilyMembers(code){
         var id=m.email.replace(/[.#$/\[\]]/g,"_");
         var userSnap=await getDoc(fsDoc(_fbDb,"users",id));
         var p=userSnap.exists()&&userSnap.data().progress?JSON.parse(userSnap.data().progress):null;
-        return{name:m.name,email:m.email,role:m.role,xp:p&&p.st?p.st.xp:0,lc:p&&p.st?p.st.lc:0,joined:m.joined};
+        return{name:m.name,email:m.email,role:m.role,xp:p&&p.stats?p.stats.xp:0,lc:p&&p.stats?p.stats.lc:0,joined:m.joined};
       }catch(e){return{name:m.name,email:m.email,role:m.role,xp:0,lc:0,joined:m.joined}}
     }));
     return results.sort(function(a,b){return b.xp-a.xp});
@@ -198,7 +198,7 @@ export async function fbGetLeaderboard(){
     var q=query(collection(_fbDb,"users"),orderBy("xp","desc"),limit(50));
     var snap=await getDocs(q);var users=[];
     snap.forEach(function(docSnap){var d=docSnap.data();var p=d.progress?JSON.parse(d.progress):null;
-    users.push({name:d.displayName||docSnap.id,xp:p&&p.st?p.st.xp:0,lc:p&&p.st?p.st.lc:0})});
+    users.push({name:d.displayName||docSnap.id,xp:p&&p.stats?p.stats.xp:0,lc:p&&p.stats?p.stats.lc:0})});
     return users.sort(function(a,b){return b.xp-a.xp})
   }catch(e){return[]}
 }
