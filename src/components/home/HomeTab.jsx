@@ -84,8 +84,8 @@ export default function HomeTab({
 
         {/* ── Historic Croatian Grb — heater shield + crown of 5 šahovnica ── */}
         <svg
-          style={{position:"absolute",top:6,right:8,width:148,height:185,opacity:.70,pointerEvents:"none",filter:"drop-shadow(0 6px 24px rgba(0,0,0,.75))"}}
-          viewBox="0 0 110 138"
+          style={{position:"absolute",top:6,right:8,width:148,height:148,opacity:.70,pointerEvents:"none",filter:"drop-shadow(0 6px 24px rgba(0,0,0,.75))"}}
+          viewBox="0 0 110 110"
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
@@ -99,34 +99,6 @@ export default function HomeTab({
               <path d="M8,32 L102,32 L102,95 Q102,133 55,137 Q8,133 8,95 Z"/>
             </clipPath>
           </defs>
-
-          {/* ── Crown: 5 mini šahovnica shields ── */}
-          {[0,1,2,3,4].map(i => {
-            const x = 3 + i*21, y = 1, w = 19, h = 25;
-            const cx = x+w/2;
-            const sp = `M${x},${y} L${x+w},${y} L${x+w},${y+h*.62} Q${x+w},${y+h} ${cx},${y+h} Q${x},${y+h} ${x},${y+h*.62} Z`;
-            const ip = `M${x+1.2},${y+1.2} L${x+w-1.2},${y+1.2} L${x+w-1.2},${y+h*.62} Q${x+w-1.2},${y+h-1.5} ${cx},${y+h-1.5} Q${x+1.2},${y+h-1.5} ${x+1.2},${y+h*.62} Z`;
-            const cw = (w-2.4)/5, ch = (h-2.7)/5;
-            return (
-              <g key={i}>
-                <path d={sp} fill="url(#hGold)"/>
-                {[0,1,2,3,4].flatMap(r=>[0,1,2,3,4].map(c=>(
-                  <rect key={`${r}-${c}`}
-                    x={x+1.2+c*cw} y={y+1.2+r*ch}
-                    width={cw+.3} height={ch+.3}
-                    fill={(r+c)%2===0?'#F8F6F2':'#D40030'}
-                    clipPath={`url(#hCC${i})`}
-                  />
-                )))}
-                <path d={ip} fill="none" stroke="rgba(0,0,0,.15)" strokeWidth=".5"/>
-                <path d={sp} fill="none" stroke="url(#hGold)" strokeWidth="1.2"/>
-              </g>
-            );
-          })}
-
-          {/* ── Gold divider bar ── */}
-          <rect x={5} y={27} width={100} height={7} fill="url(#hGold)" rx="1"/>
-          <rect x={5} y={27} width={100} height={2.5} fill="rgba(255,240,160,.5)" rx="1"/>
 
           {/* ── Main shield drop shadow ── */}
           <path d="M8,32 L102,32 L102,95 Q102,133 55,137 Q8,133 8,95 Z"
