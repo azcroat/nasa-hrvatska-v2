@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Bar, V, LEARN_PATH, getStreak, getStreakFreezes, spendFreeze, getProverbOfDay, getHistFact, getDailyChallenge, lXP, nXP, speak, getSR } from '../../data.jsx';
 import CroatianGrb from '../shared/CroatianGrb.jsx';
-import CroatianCross from '../shared/CroatianCross.jsx';
 
 const LEVEL_PALETTE = [
   { grad: "linear-gradient(135deg,#92400e,#b45309)", light: "#fef3c7", text: "#92400e", border: "#fcd34d" },
@@ -87,22 +86,16 @@ export default function HomeTab({
           pointerEvents:"none",
         }}/>
 
-        {/* ── Medieval Croatian cross — top right ── */}
-        <div style={{position:"absolute",top:8,right:8,pointerEvents:"none",opacity:.72}}>
-          <CroatianCross size={152} />
-        </div>
+        <div style={{padding:"22px 24px 44px"}}>
 
-
-        <div style={{padding:"18px 20px 44px"}}>
-
-        {/* Top row: brand label */}
-        <div style={{display:"flex",alignItems:"center",gap:7,marginBottom:20}}>
-          <div style={{flexShrink:0,filter:"drop-shadow(0 3px 8px rgba(0,0,0,.5))"}}>
-            <CroatianGrb size={44} />
+        {/* Top row: brand — grb + logotype */}
+        <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:24}}>
+          <div style={{flexShrink:0,filter:"drop-shadow(0 4px 14px rgba(0,0,0,.6))"}}>
+            <CroatianGrb size={64} />
           </div>
           <div>
-            <div style={{fontSize:15,fontWeight:900,letterSpacing:".02em",lineHeight:1,color:"white",fontFamily:"'Playfair Display',serif"}}>Naša Hrvatska</div>
-            <div style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,.55)",letterSpacing:".08em",textTransform:"uppercase",marginTop:2}}>Learn Croatian</div>
+            <div style={{fontSize:22,fontWeight:900,letterSpacing:".01em",lineHeight:1,color:"white",fontFamily:"'Playfair Display',serif",textShadow:"0 2px 12px rgba(0,0,0,.5)"}}>Naša Hrvatska</div>
+            <div style={{fontSize:12,fontWeight:700,color:"rgba(200,152,10,0.90)",letterSpacing:".12em",textTransform:"uppercase",marginTop:5}}>Learn Croatian</div>
           </div>
         </div>
 
