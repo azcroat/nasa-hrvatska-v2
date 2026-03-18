@@ -1,8 +1,24 @@
 import React, { useState } from 'react';
 import { getStreak, getSR } from '../../data.jsx';
 
-export default function ProfileTab({ name, au, level, st, favs, darkMode, setDarkMode, setScr, doOut }) {
+export default function ProfileTab({ name, au, level, st, favs, darkMode, setDarkMode, setScr, doOut, syncReady, onSyncNow }) {
   const [confirmOut, setConfirmOut] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [syncDone, setSyncDone] = useState(false);
+
+  const lastSaved = au && au.u ? (() => {
+    try {
+      const p = JSON.parse(localStorage.getItem('uP_' + au.u) || 'null');
+      return p && p.savedAt ? new Date(p.savedAt) : null;
+    } catch { return null; }
+  })() : null;
+
+  function handleSyncNow() {
+    setSyncing(true); setSyncDone(false);
+    if (onSyncNow) onSyncNow();
+    setTimeout(() => { setSyncing(false); setSyncDone(true); }, 2000);
+    setTimeout(() => setSyncDone(false), 5000);
+  }
   const streak = getStreak();
   const sr = getSR();
   const mastered = Object.values(sr).filter(v => v.r > v.w && v.r >= 2).length;
@@ -43,6 +59,40 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
         </h2>
         <div style={{fontSize:13,opacity:.7,marginBottom:2,fontWeight:600}}>Level {level} Learner</div>
         {au?.e && <div style={{fontSize:12,opacity:.5,marginTop:2}}>{au.e}</div>}
+      </div>
+
+      {/* ── CLOUD SYNC STATUS ── */}
+      <div style={{
+        background: syncReady ? "linear-gradient(135deg,#f0fdf4,#dcfce7)" : "linear-gradient(135deg,#f8fafc,#f1f5f9)",
+        border: `1.5px solid ${syncReady ? "#86efac" : "#cbd5e1"}`,
+        borderRadius: 16, padding: "14px 16px", marginBottom: 16,
+        display: "flex", alignItems: "center", gap: 12,
+      }}>
+        <div style={{
+          width: 42, height: 42, borderRadius: 12, flexShrink: 0,
+          background: syncReady ? "linear-gradient(135deg,#16a34a,#15803d)" : "linear-gradient(135deg,#94a3b8,#64748b)",
+          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20,
+        }}>
+          {syncing ? "⏳" : syncDone ? "✅" : syncReady ? "☁️" : "📵"}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: syncReady ? "#15803d" : "#64748b" }}>
+            {syncing ? "Saving to cloud…" : syncDone ? "Saved!" : syncReady ? "Cloud backup active" : "Connecting…"}
+          </div>
+          <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2, fontWeight: 500 }}>
+            {lastSaved ? `Last saved: ${lastSaved.toLocaleString()}` : "No local save found"}
+          </div>
+        </div>
+        {syncReady && (
+          <button onClick={handleSyncNow} disabled={syncing} style={{
+            padding: "8px 14px", borderRadius: 10, border: "none", cursor: syncing ? "default" : "pointer",
+            background: syncing ? "#e2e8f0" : "linear-gradient(135deg,#16a34a,#15803d)",
+            color: syncing ? "#94a3b8" : "#fff", fontSize: 12, fontWeight: 800,
+            fontFamily: "'Outfit',sans-serif", flexShrink: 0,
+          }}>
+            {syncing ? "…" : "Sync Now"}
+          </button>
+        )}
       </div>
 
       {/* ── STATS GRID ── */}
