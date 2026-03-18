@@ -29,12 +29,21 @@ export function speakSynth(text,rate){
   const best=getBestVoice();if(best)u.voice=best;
   window.speechSynthesis.speak(u);
 }
+// Preprocess text before TTS: replace " / " with ", ili, " so multi-form
+// entries (e.g. "Brate / Buraz" or "Nakresan / Srušen") are spoken naturally
+// with Croatian "or" between each variant rather than rambling through the slash.
+function prepTTS(text){
+  if(!text)return text;
+  return text.replace(/\s*\/\s*/g,', ili, ');
+}
 export function speak(text){
   if(!text)return;
-  speakAzure(text,false).then(ok=>{if(!ok)speakSynth(text,0.9)}).catch(()=>speakSynth(text,0.9));
+  const t=prepTTS(text);
+  speakAzure(t,false).then(ok=>{if(!ok)speakSynth(t,0.9)}).catch(()=>speakSynth(t,0.9));
 }
 export function speakSlow(text){
   if(!text)return;
-  speakAzure(text,true).then(ok=>{if(!ok)speakSynth(text,0.6)}).catch(()=>speakSynth(text,0.6));
+  const t=prepTTS(text);
+  speakAzure(t,true).then(ok=>{if(!ok)speakSynth(t,0.6)}).catch(()=>speakSynth(t,0.6));
 }
 export function speakEN(text){if(!text||!window.speechSynthesis)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=0.9;window.speechSynthesis.speak(u)}
