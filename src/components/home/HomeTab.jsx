@@ -221,7 +221,7 @@ export default function HomeTab({
           color:"white",lineHeight:1.2,marginBottom:4,
           textShadow:"0 2px 8px rgba(0,0,0,.2)",
         }}>
-          {(!syncReady && st.lc === 0 && st.xp === 0)
+          {!syncReady
             ? <span style={{opacity:.6,fontStyle:"italic"}}>Syncing progress…</span>
             : (pathData.nextItem?.name || "Learning Path Complete")}
         </div>
@@ -243,7 +243,7 @@ export default function HomeTab({
 
         {/* Start Now button */}
         <button
-          onClick={() => { if (!syncReady && st.lc === 0 && st.xp === 0) return; if (pathData.nextItem) { launchPathItem(pathData.nextItem); } else setScr("learnpath"); }}
+          onClick={() => { if (!syncReady) return; if (pathData.nextItem) { launchPathItem(pathData.nextItem); } else setScr("learnpath"); }}
           style={{
             width:"100%",height:52,
             background:"white",
@@ -255,10 +255,10 @@ export default function HomeTab({
             boxShadow:"0 4px 20px rgba(0,0,0,.25)",
             display:"flex",alignItems:"center",justifyContent:"center",gap:8,
             transition:"transform .15s, box-shadow .15s",
-            opacity:(!syncReady && st.lc === 0 && st.xp === 0) ? 0.6 : 1,
+            opacity: !syncReady ? 0.6 : 1,
           }}>
-          <span style={{fontSize:18}}>{(!syncReady && st.lc === 0 && st.xp === 0) ? "⏳" : "▶"}</span>
-          <span>{(!syncReady && st.lc === 0 && st.xp === 0) ? "Syncing…" : "Start Now"}</span>
+          <span style={{fontSize:18}}>{!syncReady ? "⏳" : "▶"}</span>
+          <span>{!syncReady ? "Syncing…" : "Start Now"}</span>
         </button>
       </div>
 
