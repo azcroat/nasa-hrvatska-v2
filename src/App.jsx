@@ -134,6 +134,7 @@ const ReviewScreen = lazy(() => import("./components/practice/ReviewScreen.jsx")
 const WritingScreen = lazy(() => import("./components/practice/WritingScreen.jsx"));
 const AspectDrillScreen = lazy(() => import("./components/practice/AspectDrillScreen.jsx"));
 const CliticDrill = lazy(() => import("./components/practice/CliticDrill.jsx"));
+const SlangScreen = lazy(() => import("./components/practice/SlangScreen.jsx"));
 const NumbersCasesDrill = lazy(() => import("./components/practice/NumbersCasesDrill.jsx"));
 const ImperativeDrill = lazy(() => import("./components/practice/ImperativeDrill.jsx"));
 const NegationGenDrill = lazy(() => import("./components/practice/NegationGenDrill.jsx"));
@@ -304,7 +305,7 @@ function App(){
       pitchaccent:"practice",shadowing:"practice",review:"practice",writing:"practice",aspectdrill:"practice",
       clitic:"practice",numcases:"practice",imperative:"practice",neggen:"practice",
       collocations:"practice",wordfamilies:"practice",dictation:"practice",
-      proncontrast:"practice",dialogue:"practice",cefrtest:"practice",
+      proncontrast:"practice",dialogue:"practice",cefrtest:"practice",slang:"practice",
       region_labin:"croatia",region_bibinje:"croatia",region_hercegovina:"croatia",
       region_vukovar:"croatia",region_vinkovci:"croatia",region_zagreb:"croatia",
       region_split:"croatia",region_mostar:"croatia",region_tomislavgrad:"croatia",region_knin:"croatia",
@@ -747,6 +748,7 @@ function App(){
       {currentScreen==="proncontrast"&&<PronunciationContrast goBack={goBack} award={award} />}
       {currentScreen==="dialogue"&&<DialogueSim goBack={goBack} award={award} />}
       {currentScreen==="cefrtest"&&<CefrTest goBack={goBack} award={award} />}
+      {currentScreen==="slang"&&<SlangScreen goBack={goBack} award={award} />}
       {// ═══ VOCABULARY LESSON ═══
       currentScreen==="lesson"&&<LessonScreen
         lt={lt} li={li} lx={lx} ls={ls} lp={lp} la={la} lsl={lsl} qi={qi} icons={icons}
