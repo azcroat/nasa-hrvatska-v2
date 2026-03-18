@@ -294,6 +294,10 @@ function App(){
   useEffect(()=>{if(authScreen!=="app")return;const h=()=>touchSession();window.addEventListener("click",h);window.addEventListener("touchstart",h);window.addEventListener("keydown",h);return()=>{window.removeEventListener("click",h);window.removeEventListener("touchstart",h);window.removeEventListener("keydown",h)}},[authScreen]);
   useEffect(()=>{if(!_syncReady||authScreen!=="app"||!authUser)return;if(!localStorage.getItem("fbBackupConfirmed")){setShowBackupBanner(true);}},[_syncReady,authScreen,authUser]);
   useEffect(()=>{if(authScreen!=="app"||!authUser)return;function fetchIfNewer(){fbLoadProgress(authUser.u).then(function(fp){if(!fp)return;const lp=gP(authUser.u);const fpTs=fp._fbUpdated||fp.savedAt||0;const lpTs=(lp&&lp.savedAt)||0;if(fpTs>lpTs){sP(authUser.u,fp);setStats({...ds,...(fp.stats||{})});if(fp.name)setName(fp.name);applyRemoteProgress(fp);}}).catch(function(){/* network error — keep local state */})}function onVisible(){if(document.visibilityState==="visible")fetchIfNewer();}function onFocus(){fetchIfNewer();}document.addEventListener("visibilitychange",onVisible);window.addEventListener("focus",onFocus);const pollId=setInterval(function(){if(document.visibilityState==="visible")fetchIfNewer();},180000);return()=>{document.removeEventListener("visibilitychange",onVisible);window.removeEventListener("focus",onFocus);clearInterval(pollId);}},[authScreen,authUser]);
+  // Auto-save to Firebase 2s after lesson completion (stats.lc or stats.ct length changes).
+  // Lesson components only call setStats — they do NOT save to Firebase themselves.
+  // Without this, cross-device sync never sees lesson progress until the user manually syncs.
+  useEffect(()=>{if(!authUser||authScreen!=="app"||stats.lc===0)return;const t=setTimeout(doSyncNow,2000);return()=>clearTimeout(t);},[stats.lc,stats.ct?.length]);// eslint-disable-line react-hooks/exhaustive-deps
   // ═══ BROWSER BACK BUTTON SUPPORT (popstate) ═══
   useEffect(function(){
     // Mark baseline so we can detect when back would exit the app

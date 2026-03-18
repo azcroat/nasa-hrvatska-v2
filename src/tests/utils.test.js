@@ -30,7 +30,7 @@ vi.mock('firebase/firestore', () => ({
 
 import {
   isValidEmail, sh, lvl, lXP, nXP, shuffleArr, buildSearchIndex,
-  generateFamilyCode, friendlyError, hp,
+  generateFamilyCode, friendlyError,
   getSR, saveSR, srMark, getStreak, updateStreak,
   getProverbOfDay, getDailyChallenge, shMemo,
 } from '../data.jsx';
@@ -148,11 +148,12 @@ describe('friendlyError', () => {
     expect(friendlyError('')).toBe('Something went wrong. Please try again.');
   });
   it('handles email-already-in-use', () => expect(friendlyError('email-already-in-use')).toMatch(/already has an account/i));
-  it('handles wrong-password and invalid-credential', () => {
-    expect(friendlyError('wrong-password')).toMatch(/incorrect password/i);
-    expect(friendlyError('invalid-credential')).toMatch(/incorrect password/i);
+  it('handles wrong-password, invalid-credential, and user-not-found with same generic message (anti-enumeration)', () => {
+    // All three map to the same message to prevent email enumeration attacks
+    expect(friendlyError('wrong-password')).toBe('Invalid email or password.');
+    expect(friendlyError('invalid-credential')).toBe('Invalid email or password.');
+    expect(friendlyError('user-not-found')).toBe('Invalid email or password.');
   });
-  it('handles user-not-found', () => expect(friendlyError('user-not-found')).toMatch(/no account found/i));
   it('handles network-request-failed', () => expect(friendlyError('network-request-failed')).toMatch(/no internet/i));
   it('handles too-many-requests', () => expect(friendlyError('too-many-requests')).toMatch(/too many attempts/i));
   it('handles user-disabled', () => expect(friendlyError('user-disabled')).toMatch(/disabled/i));
@@ -183,23 +184,7 @@ describe('buildSearchIndex', () => {
   });
 });
 
-// ── hp (SHA-256 hashing) ─────────────────────────────────────────────────────
-describe('hp (SHA-256 password hash)', () => {
-  it('returns a 64-char hex string', async () => {
-    const h = await hp('testpassword');
-    expect(h).toMatch(/^[a-f0-9]{64}$/);
-  });
-  it('is deterministic — same input → same hash', async () => {
-    expect(await hp('hello')).toBe(await hp('hello'));
-  });
-  it('different inputs → different hashes', async () => {
-    expect(await hp('abc')).not.toBe(await hp('abd'));
-  });
-  it('handles empty string', async () => {
-    const h = await hp('');
-    expect(h).toHaveLength(64);
-  });
-});
+// hp (SHA-256 hashing) removed — local password hashing removed in security migration
 
 // ── SRS: getSR / saveSR / srMark ─────────────────────────────────────────────
 describe('SRS (spaced repetition)', () => {

@@ -3,6 +3,12 @@
  *
  * Pure Firebase Auth via onAuthStateChanged as single source of truth.
  * No local account fallback, no security Q&A, no password hashing.
+ *
+ * Cross-device sync strategy:
+ *  - Returning device (has local cache): shows app immediately with cached stats,
+ *    then applies Firebase data via isHydrate when it arrives.
+ *  - Fresh device (no local cache): holds at 'loading' until Firebase responds,
+ *    so the hero banner never shows stale/empty stats.
  */
 import { useState, useEffect, useRef } from 'react';
 import {
@@ -20,14 +26,13 @@ import {
  * @param {function} opts.applyRemoteProgress — (progress) => void
  * @param {function} opts.setFamData   — (fam|null) => void
  * @param {function} opts.setSyncReady — (bool) => void
- * @param {object}   opts.ds           — default stats shape
  */
-export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady, ds }) {
+export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady }) {
   // Keep callbacks in a ref so the one-time mount effect never goes stale
   const cb = useRef({ onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady });
   cb.current = { onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady };
 
-  // Ref set to true just before fbRegister so the auth listener knows it's a new account
+  // Set to true just before fbRegister so the auth listener treats the next user as a new account
   const isNewReg = useRef(false);
 
   // ── Auth flow state ──────────────────────────────────────────────────────
@@ -37,7 +42,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
   const [pw, setPw] = useState('');
   const [pc, setPc] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [sp, setSp2] = useState(false);   // show-password toggle
+  const [sp, setSp2] = useState(false);
 
   // ── Reset-password flow ──────────────────────────────────────────────────
   const [rpEm, setRpEm] = useState('');
@@ -50,11 +55,15 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
   useEffect(() => {
     initFirebase();
 
-    // Restore any cached local data while Firebase confirms auth
+    // ── Early restore: show app immediately if we have a cached local session ──
+    // This prevents the loading spinner on returning devices.
+    // The auth listener will overwrite with Firebase data when it arrives.
     const s = gS();
+    let earlyRestored = false;
     if (s && s.u) {
       const cached = gP(s.u);
       if (cached) {
+        earlyRestored = true;
         const user = { u: s.u, d: s.d || s.u, e: s.u };
         setAuthUser(user);
         touchSession(); updateStreak();
@@ -67,7 +76,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
 
     const unsub = fbOnAuthStateChanged(function(fbUser) {
       if (!fbUser) {
-        // Not signed in — clear any stale session
+        // Not signed in — clear stale session and go to login
         cS();
         setAuthUser(null);
         setAuthScreen('login');
@@ -84,17 +93,25 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       sS({ u: k, d: dn });
       touchSession(); updateStreak();
 
+      // ── New registration: no remote progress yet ──
       if (isNew) {
-        // Brand new account — no remote progress exists yet
         cb.current.onSignedIn({ user, progress: null, isNew: true });
         cb.current.setSyncReady(true);
         setAuthScreen('app');
         return;
       }
 
-      // Returning user — load remote progress, merge with local
+      // ── Returning user: if early restore already showed the app, skip the
+      //    non-hydrate onSignedIn call (avoids double navigation via _goPostAuth).
+      //    Firebase data arrives via the isHydrate path below.
+      // ── Fresh device: early restore did nothing, so wait for Firebase before
+      //    showing the app — this prevents the hero from flashing "Basic Greetings".
       const localP = gP(k);
-      if (localP && authScreen !== 'app') {
+
+      if (!earlyRestored && localP) {
+        // Local data exists but wasn't used for early restore (e.g., key mismatch).
+        // Show app now and let Firebase update via isHydrate.
+        earlyRestored = true;
         cb.current.onSignedIn({ user, progress: localP });
         setAuthScreen('app');
       }
@@ -102,30 +119,51 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       fbLoadUserFamily(k).then(function(f) { if (f) cb.current.setFamData(f); });
 
       let syncReadyFired = false;
-      function fireSyncReady() { if (!syncReadyFired) { syncReadyFired = true; cb.current.setSyncReady(true); } }
-      const t = setTimeout(fireSyncReady, 5000);
+      function fireSyncReady() {
+        if (!syncReadyFired) { syncReadyFired = true; cb.current.setSyncReady(true); }
+      }
+      // Safety net: mark sync ready after 6s even if Firebase is slow
+      const t = setTimeout(function() {
+        if (!earlyRestored) {
+          // Fresh device, Firebase is very slow — show app with whatever we have
+          earlyRestored = true;
+          cb.current.onSignedIn({ user, progress: localP });
+          setAuthScreen('app');
+        }
+        fireSyncReady();
+      }, 6000);
 
       fbLoadProgress(k).then(function(fp) {
         clearTimeout(t);
+
         if (fp) {
           const lp = gP(k);
           const fpTs = fp._fbUpdated || fp.savedAt || 0;
           const lpTs = (lp && lp.savedAt) || 0;
           const fpXP = (fp.stats && fp.stats.xp) || 0;
           const lpXP = (lp && lp.stats && lp.stats.xp) || 0;
-          if (fpTs > lpTs || (!fpTs && !lpTs && fpXP >= lpXP)) {
+          const remoteIsNewer = fpTs > lpTs || (!fpTs && !lpTs && fpXP >= lpXP);
+
+          if (remoteIsNewer) {
             sP(k, fp);
             cb.current.onSignedIn({ user, progress: fp, isHydrate: true });
             cb.current.applyRemoteProgress(fp);
           }
         }
-        if (authScreen !== 'app') {
+
+        // Fresh device: now we have Firebase data (or confirmed none) — show app
+        if (!earlyRestored) {
+          earlyRestored = true;
           cb.current.onSignedIn({ user, progress: fp || localP });
           setAuthScreen('app');
         }
+
         fireSyncReady();
       }).catch(function() {
-        if (authScreen !== 'app') {
+        clearTimeout(t);
+        // Network error — show app with local data (or empty stats for fresh device)
+        if (!earlyRestored) {
+          earlyRestored = true;
           cb.current.onSignedIn({ user, progress: localP });
           setAuthScreen('app');
         }
@@ -154,7 +192,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         setAuthLoading(false);
         return;
       }
-      // Auth listener will fire and handle the rest
+      // Auth listener fires and handles the rest
       setAuthEmail(''); setPw(''); setPc(''); setDisplayName('');
     } catch (e) {
       isNewReg.current = false;
@@ -173,7 +211,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       const k = authEmail.trim().toLowerCase();
       const result = await fbLogin(k, pw);
       if (result.ok) {
-        // Auth listener will fire and handle session + progress loading
+        // Auth listener fires and handles session + progress loading
         setAuthEmail(''); setPw('');
       } else {
         setAuthError(result.err || 'Sign in failed. Please try again.');
@@ -190,15 +228,13 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
     if (!rpEm.trim() || !isValidEmail(rpEm.trim())) { setAuthError('Please enter your email address.'); return; }
     setAuthLoading(true);
     try {
-      // Always send the reset email and show generic success (prevents email enumeration)
       await fbResetPassword(rpEm.trim().toLowerCase());
-      setRpEm('');
-      setAuthScreen('login');
-      setTimeout(function() { setAuthError('✅ If an account exists for that email, a reset link has been sent.'); }, 100);
     } catch (e) {
-      setAuthScreen('login');
-      setTimeout(function() { setAuthError('✅ If an account exists for that email, a reset link has been sent.'); }, 100);
+      // Intentionally swallow — always show generic message (prevents email enumeration)
     }
+    setRpEm('');
+    setAuthScreen('login');
+    setTimeout(function() { setAuthError('✅ If an account exists for that email, a reset link has been sent.'); }, 100);
     setAuthLoading(false);
   }
 
