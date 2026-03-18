@@ -4,10 +4,9 @@
  * regional dialect resources, and Gen Z usage patterns.
  */
 import React, { useState } from 'react';
-import { speakSynth } from '../../data.jsx';
-
-// Azure TTS censors explicit Croatian words — use browser synth directly for this module
-function speak(text) { speakSynth(text, 0.9); }
+import { speak } from '../../data.jsx';
+// Azure TTS is used with IPA phoneme encoding server-side (functions/api/tts.js)
+// to deliver native-quality hr-HR-GabrijelaNeural / SreckoNeural pronunciation.
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 

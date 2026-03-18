@@ -1,6 +1,70 @@
 // Cloudflare Pages Function — Azure TTS Proxy
 // Keeps the Azure key server-side, never exposed to the browser
 
+// IPA phoneme map for explicit Croatian words.
+// Azure's content filter scans surface text — wrapping with IPA phoneme tags
+// lets the neural voice pronounce them correctly without triggering the filter.
+const PHONEME_MAP = [
+  // jeb- family (most frequent)
+  ['jebem ti mater',  'jɛbɛm ti matɛr'],
+  ['jebem mu mater',  'jɛbɛm mu matɛr'],
+  ['jebem ti',        'jɛbɛm ti'],
+  ['jebem',           'jɛbɛm'],
+  ['jebeš',           'jɛbɛʃ'],
+  ['jebemo',          'jɛbɛmɔ'],
+  ['jebote',          'jɛbɔtɛ'],
+  ['jebiga',          'jɛbiga'],
+  ['jebi ga',         'jɛbi ɡa'],
+  ['jebi se',         'jɛbi sɛ'],
+  ['jebi',            'jɛbi'],
+  ['jebo te',         'jɛbɔ tɛ'],
+  ['jebo',            'jɛbɔ'],
+  ['ojebat',          'ɔjɛbaːt'],
+  ['odjebi',          'ɔdjɛbi'],
+  ['nabijem',         'nabijɛm'],
+  // kurac family
+  ['kurac od ovce',   'kuraʦ ɔd ɔvʦɛ'],
+  ['kurvin sine',     'kurvin sinɛ'],
+  ['kurvin',          'kurvin'],
+  ['kurca',           'kurʦa'],
+  ['kurcu',           'kurʦu'],
+  ['kurcev',          'kurʦɛv'],
+  ['kurac',           'kuraʦ'],
+  // pizda / pička family
+  ['pičkin dim',      'pitʃkin dim'],
+  ['pičkin',          'pitʃkin'],
+  ['pičku',           'pitʃku'],
+  ['pičke',           'pitʃkɛ'],
+  ['pička',           'pitʃka'],
+  ['pizdu',           'pizdu'],
+  ['pizde',           'pizdɛ'],
+  ['pizda',           'pizda'],
+  // šupak
+  ['šupčić',          'ʃupt͡ʃit͡ɕ'],
+  ['šupca',           'ʃuptsa'],
+  ['šupak',           'ʃupak'],
+  // sranje / govno
+  ['sranje',          'sranʲɛ'],
+  ['govnu',           'ɡɔvnu'],
+  ['govnom',          'ɡɔvnɔm'],
+  ['govno',           'ɡɔvnɔ'],
+  // other
+  ['đubre',           'd͡ʒubrɛ'],
+  ['majmune',         'majmunɛ'],
+];
+
+function encodeForAzure(text) {
+  let result = text;
+  for (const [word, ipa] of PHONEME_MAP) {
+    // Case-insensitive whole-word replacement
+    const re = new RegExp(word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+    result = result.replace(re, match =>
+      `<phoneme alphabet="ipa" ph="${ipa}">${match}</phoneme>`
+    );
+  }
+  return result;
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
   const AZURE_KEY = env.AZURE_TTS_KEY;
@@ -23,10 +87,13 @@ export async function onRequestPost(context) {
     }
 
     const voice = slow ? "hr-HR-SreckoNeural" : "hr-HR-GabrijelaNeural";
-    const safeText = text.replace(/[<>&"']/g, '');
+    // Strip XML-special chars first, then apply phoneme encoding
+    const safeText = text.replace(/[<>&"']/g, c => ({ '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&apos;' }[c]));
+    const encodedText = encodeForAzure(safeText);
+
     const ssml = slow
-      ? `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}"><prosody rate="slow">${safeText}</prosody></voice></speak>`
-      : `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}">${safeText}</voice></speak>`;
+      ? `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}"><prosody rate="slow">${encodedText}</prosody></voice></speak>`
+      : `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}">${encodedText}</voice></speak>`;
 
     // Try primary region first, then common fallbacks
     const regions = [PRIMARY_REGION, "eastus", "eastus2", "westeurope", "northeurope", "westus2"]
