@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Bar, V, LEARN_PATH, getStreak, getStreakFreezes, spendFreeze, getProverbOfDay, getHistFact, getDailyChallenge, lXP, nXP, speak, getSR } from '../../data.jsx';
+import CroatianGrb from '../shared/CroatianGrb.jsx';
 
 const LEVEL_PALETTE = [
   { grad: "linear-gradient(135deg,#92400e,#b45309)", light: "#fef3c7", text: "#92400e", border: "#fcd34d" },
@@ -81,54 +82,98 @@ export default function HomeTab({
           <div style={{flex:1,background:"#003DA5"}}/>
         </div>
 
-        {/* ── Šahovnica grb — top right, large, proper Croatian red/white ── */}
-        <svg
-          style={{position:"absolute",top:6,right:-8,width:170,height:170,opacity:.28,pointerEvents:"none",filter:"drop-shadow(0 4px 16px rgba(0,0,0,.5))"}}
-          viewBox="0 0 60 60"
-        >
-          {/* Full 5×5 šahovnica — white top-left (standard grb orientation) */}
-          {[0,1,2,3,4].map(r=>[0,1,2,3,4].map(c=>(
-            <rect key={`${r}-${c}`} x={c*12} y={r*12} width={12} height={12}
-              fill={(r+c)%2===0 ? "#FFFFFF" : "#CC1024"}/>
-          )))}
-          {/* Thin border around the grb */}
-          <rect x={0} y={0} width={60} height={60} fill="none" stroke="rgba(255,255,255,.4)" strokeWidth="1.5"/>
-        </svg>
+        {/* ── Grb Hrvatske — proper heraldic coat of arms, top right ── */}
+        <div style={{position:"absolute",top:10,right:10,pointerEvents:"none",opacity:.72,filter:"drop-shadow(0 6px 20px rgba(0,0,0,.7))"}}>
+          <CroatianGrb size={148} />
+        </div>
 
-        {/* ── Croatian Pletar (three-ribbon interlace frieze) — bottom strip ── */}
-        {/* Pletar = three parallel ribbons that weave over/under in a repeating band.
-            Rendered as a horizontal frieze using layered sine-wave paths with
-            over-under masking to create the woven braid effect. */}
+        {/* ── Croatian Pletar — traditional three-strand stone interlace frieze ── */}
+        {/*
+          The pletar (pleter) is a 9th–11th century Croatian pre-Romanesque
+          interlace ornament carved in stone churches across Dalmatia & Slavonia.
+          Three ribbon strands weave over and under each other in a continuous
+          repeating braid. Rendered as thick stroked sine waves with layered
+          shadow+colour and mask-based over/under crossings.
+          Colors: Croatian red · parchment white · royal blue
+        */}
         <svg
-          style={{position:"absolute",bottom:0,left:0,width:"100%",height:40,opacity:.32,pointerEvents:"none"}}
-          viewBox="0 0 400 40"
+          style={{position:"absolute",bottom:0,left:0,width:"100%",height:54,opacity:.60,pointerEvents:"none"}}
+          viewBox="0 0 400 54"
           preserveAspectRatio="none"
+          xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
-            {/* Mask to cut ribbon A where ribbon B passes over */}
-            <mask id="mA">
-              <rect width="400" height="40" fill="white"/>
-              {/* cut-outs where B crosses over A */}
-              {[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(i=>(
-                <ellipse key={i} cx={i*26+6} cy={20} rx={5} ry={7} fill="black"/>
+            {/*
+              Three sine-wave strands, period P=40px:
+                Strand R (red):   y = 27 + 14·sin(2πx/40)          phase 0
+                Strand W (white): y = 27 + 14·sin(2πx/40 – 2π/3)   phase –P/3
+                Strand B (blue):  y = 27 + 14·sin(2πx/40 – 4π/3)   phase –2P/3
+
+              Crossings R∩W at x ≈  6.7, 26.7, 46.7, … (every 20px, offset 6.7)
+              Crossings W∩B at x ≈ 20,   40,   60,   … (every 20px, offset 20)
+              Crossings R∩B at x ≈ 13.3, 33.3, 53.3, … (every 20px, offset 13.3)
+
+              Over/under order (clockwise braid): R over W, W over B, B over R
+              → Cut R where B crosses over it (every 20px, offset ≈13)
+              → Cut W where R crosses over it (every 20px, offset ≈7)
+              → Cut B where W crosses over it (every 20px, offset ≈20)
+            */}
+            {/* Mask for Strand W — hide where R passes over W */}
+            <mask id="htMW">
+              <rect width="400" height="54" fill="white"/>
+              {Array.from({length:21},(_,i)=>(
+                <ellipse key={i} cx={i*20+6.7} cy={27} rx={6} ry={11} fill="black"/>
               ))}
             </mask>
-            <mask id="mB">
-              <rect width="400" height="40" fill="white"/>
-              {[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(i=>(
-                <ellipse key={i} cx={i*26+19} cy={20} rx={5} ry={7} fill="black"/>
+            {/* Mask for Strand B — hide where W passes over B */}
+            <mask id="htMB">
+              <rect width="400" height="54" fill="white"/>
+              {Array.from({length:21},(_,i)=>(
+                <ellipse key={i} cx={i*20+20} cy={27} rx={6} ry={11} fill="black"/>
+              ))}
+            </mask>
+            {/* Mask for Strand R — hide where B passes over R */}
+            <mask id="htMR">
+              <rect width="400" height="54" fill="white"/>
+              {Array.from({length:21},(_,i)=>(
+                <ellipse key={i} cx={i*20+13.3} cy={27} rx={6} ry={11} fill="black"/>
               ))}
             </mask>
           </defs>
-          {/* Ribbon C — bottom layer (dark navy, continuous) */}
-          <path d="M-10,20 Q3,6 16,20 Q29,34 42,20 Q55,6 68,20 Q81,34 94,20 Q107,6 120,20 Q133,34 146,20 Q159,6 172,20 Q185,34 198,20 Q211,6 224,20 Q237,34 250,20 Q263,6 276,20 Q289,34 302,20 Q315,6 328,20 Q341,34 354,20 Q367,6 380,20 Q393,34 410,20"
-            fill="none" stroke="rgba(255,255,255,.35)" strokeWidth="7" strokeLinecap="round"/>
-          {/* Ribbon A — mid layer (white), masked where B crosses over */}
-          <path d="M-10,13 Q3,27 16,13 Q29,-1 42,13 Q55,27 68,13 Q81,-1 94,13 Q107,27 120,13 Q133,-1 146,13 Q159,27 172,13 Q185,-1 198,13 Q211,27 224,13 Q237,-1 250,13 Q263,27 276,13 Q289,-1 302,13 Q315,27 328,13 Q341,-1 354,13 Q367,27 380,13 Q393,-1 410,13"
-            fill="none" stroke="white" strokeWidth="6" strokeLinecap="round" mask="url(#mA)"/>
-          {/* Ribbon B — top layer (red), masked where A crosses over */}
-          <path d="M-10,27 Q3,13 16,27 Q29,41 42,27 Q55,13 68,27 Q81,41 94,27 Q107,13 120,27 Q133,41 146,27 Q159,13 172,27 Q185,41 198,27 Q211,13 224,27 Q237,41 250,27 Q263,13 276,27 Q289,41 302,27 Q315,13 328,27 Q341,41 354,27 Q367,13 380,27 Q393,41 410,27"
-            fill="none" stroke="#CC1024" strokeWidth="6" strokeLinecap="round" mask="url(#mB)"/>
+
+          {/* ── Bottom fade gradient overlay (blends into hero) ── */}
+          <defs>
+            <linearGradient id="htFade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(10,22,40,0)"/>
+              <stop offset="100%" stopColor="rgba(10,22,40,0.55)"/>
+            </linearGradient>
+          </defs>
+
+          {/* ── Layer 0: single dark shadow pass for all three strands (depth) ── */}
+          {/* R shadow */}
+          <path d="M-10,27 Q-5,13 0,27 Q5,41 10,27 Q15,13 20,27 Q25,41 30,27 Q35,13 40,27 Q45,41 50,27 Q55,13 60,27 Q65,41 70,27 Q75,13 80,27 Q85,41 90,27 Q95,13 100,27 Q105,41 110,27 Q115,13 120,27 Q125,41 130,27 Q135,13 140,27 Q145,41 150,27 Q155,13 160,27 Q165,41 170,27 Q175,13 180,27 Q185,41 190,27 Q195,13 200,27 Q205,41 210,27 Q215,13 220,27 Q225,41 230,27 Q235,13 240,27 Q245,41 250,27 Q255,13 260,27 Q265,41 270,27 Q275,13 280,27 Q285,41 290,27 Q295,13 300,27 Q305,41 310,27 Q315,13 320,27 Q325,41 330,27 Q335,13 340,27 Q345,41 350,27 Q355,13 360,27 Q365,41 370,27 Q375,13 380,27 Q385,41 390,27 Q395,13 410,27"
+            fill="none" stroke="rgba(0,0,0,0.55)" strokeWidth="13" strokeLinecap="round"/>
+          {/* W shadow */}
+          <path d="M-23.3,27 Q-18.3,13 -13.3,27 Q-8.3,41 -3.3,27 Q1.7,13 6.7,27 Q11.7,41 16.7,27 Q21.7,13 26.7,27 Q31.7,41 36.7,27 Q41.7,13 46.7,27 Q51.7,41 56.7,27 Q61.7,13 66.7,27 Q71.7,41 76.7,27 Q81.7,13 86.7,27 Q91.7,41 96.7,27 Q101.7,13 106.7,27 Q111.7,41 116.7,27 Q121.7,13 126.7,27 Q131.7,41 136.7,27 Q141.7,13 146.7,27 Q151.7,41 156.7,27 Q161.7,13 166.7,27 Q171.7,41 176.7,27 Q181.7,13 186.7,27 Q191.7,41 196.7,27 Q201.7,13 206.7,27 Q211.7,41 216.7,27 Q221.7,13 226.7,27 Q231.7,41 236.7,27 Q241.7,13 246.7,27 Q251.7,41 256.7,27 Q261.7,13 266.7,27 Q271.7,41 276.7,27 Q281.7,13 286.7,27 Q291.7,41 296.7,27 Q301.7,13 306.7,27 Q311.7,41 316.7,27 Q321.7,13 326.7,27 Q331.7,41 336.7,27 Q341.7,13 346.7,27 Q351.7,41 356.7,27 Q361.7,13 366.7,27 Q371.7,41 376.7,27 Q381.7,13 386.7,27 Q391.7,41 396.7,27 Q401.7,13 416.7,27"
+            fill="none" stroke="rgba(0,0,0,0.55)" strokeWidth="13" strokeLinecap="round"/>
+          {/* B shadow */}
+          <path d="M-16.7,27 Q-11.7,13 -6.7,27 Q-1.7,41 3.3,27 Q8.3,13 13.3,27 Q18.3,41 23.3,27 Q28.3,13 33.3,27 Q38.3,41 43.3,27 Q48.3,13 53.3,27 Q58.3,41 63.3,27 Q68.3,13 73.3,27 Q78.3,41 83.3,27 Q88.3,13 93.3,27 Q98.3,41 103.3,27 Q108.3,13 113.3,27 Q118.3,41 123.3,27 Q128.3,13 133.3,27 Q138.3,41 143.3,27 Q148.3,13 153.3,27 Q158.3,41 163.3,27 Q168.3,13 173.3,27 Q178.3,41 183.3,27 Q188.3,13 193.3,27 Q198.3,41 203.3,27 Q208.3,13 213.3,27 Q218.3,41 223.3,27 Q228.3,13 233.3,27 Q238.3,41 243.3,27 Q248.3,13 253.3,27 Q258.3,41 263.3,27 Q268.3,13 273.3,27 Q278.3,41 283.3,27 Q288.3,13 293.3,27 Q298.3,41 303.3,27 Q308.3,13 313.3,27 Q318.3,41 323.3,27 Q328.3,13 333.3,27 Q338.3,41 343.3,27 Q348.3,13 353.3,27 Q358.3,41 363.3,27 Q368.3,13 373.3,27 Q378.3,41 383.3,27 Q388.3,13 393.3,27 Q398.3,41 403.3,27 Q408.3,13 423.3,27"
+            fill="none" stroke="rgba(0,0,0,0.55)" strokeWidth="13" strokeLinecap="round"/>
+
+          {/* ── Layer 1: Strand R (red) — masked where B crosses over ── */}
+          <path d="M-10,27 Q-5,13 0,27 Q5,41 10,27 Q15,13 20,27 Q25,41 30,27 Q35,13 40,27 Q45,41 50,27 Q55,13 60,27 Q65,41 70,27 Q75,13 80,27 Q85,41 90,27 Q95,13 100,27 Q105,41 110,27 Q115,13 120,27 Q125,41 130,27 Q135,13 140,27 Q145,41 150,27 Q155,13 160,27 Q165,41 170,27 Q175,13 180,27 Q185,41 190,27 Q195,13 200,27 Q205,41 210,27 Q215,13 220,27 Q225,41 230,27 Q235,13 240,27 Q245,41 250,27 Q255,13 260,27 Q265,41 270,27 Q275,13 280,27 Q285,41 290,27 Q295,13 300,27 Q305,41 310,27 Q315,13 320,27 Q325,41 330,27 Q335,13 340,27 Q345,41 350,27 Q355,13 360,27 Q365,41 370,27 Q375,13 380,27 Q385,41 390,27 Q395,13 410,27"
+            fill="none" stroke="#D40030" strokeWidth="9" strokeLinecap="round" mask="url(#htMR)"/>
+
+          {/* ── Layer 2: Strand W (parchment white) — masked where R crosses over ── */}
+          <path d="M-23.3,27 Q-18.3,13 -13.3,27 Q-8.3,41 -3.3,27 Q1.7,13 6.7,27 Q11.7,41 16.7,27 Q21.7,13 26.7,27 Q31.7,41 36.7,27 Q41.7,13 46.7,27 Q51.7,41 56.7,27 Q61.7,13 66.7,27 Q71.7,41 76.7,27 Q81.7,13 86.7,27 Q91.7,41 96.7,27 Q101.7,13 106.7,27 Q111.7,41 116.7,27 Q121.7,13 126.7,27 Q131.7,41 136.7,27 Q141.7,13 146.7,27 Q151.7,41 156.7,27 Q161.7,13 166.7,27 Q171.7,41 176.7,27 Q181.7,13 186.7,27 Q191.7,41 196.7,27 Q201.7,13 206.7,27 Q211.7,41 216.7,27 Q221.7,13 226.7,27 Q231.7,41 236.7,27 Q241.7,13 246.7,27 Q251.7,41 256.7,27 Q261.7,13 266.7,27 Q271.7,41 276.7,27 Q281.7,13 286.7,27 Q291.7,41 296.7,27 Q301.7,13 306.7,27 Q311.7,41 316.7,27 Q321.7,13 326.7,27 Q331.7,41 336.7,27 Q341.7,13 346.7,27 Q351.7,41 356.7,27 Q361.7,13 366.7,27 Q371.7,41 376.7,27 Q381.7,13 386.7,27 Q391.7,41 396.7,27 Q401.7,13 416.7,27"
+            fill="none" stroke="#F0E8D0" strokeWidth="9" strokeLinecap="round" mask="url(#htMW)"/>
+
+          {/* ── Layer 3: Strand B (blue) — masked where W crosses over ── */}
+          <path d="M-16.7,27 Q-11.7,13 -6.7,27 Q-1.7,41 3.3,27 Q8.3,13 13.3,27 Q18.3,41 23.3,27 Q28.3,13 33.3,27 Q38.3,41 43.3,27 Q48.3,13 53.3,27 Q58.3,41 63.3,27 Q68.3,13 73.3,27 Q78.3,41 83.3,27 Q88.3,13 93.3,27 Q98.3,41 103.3,27 Q108.3,13 113.3,27 Q118.3,41 123.3,27 Q128.3,13 133.3,27 Q138.3,41 143.3,27 Q148.3,13 153.3,27 Q158.3,41 163.3,27 Q168.3,13 173.3,27 Q178.3,41 183.3,27 Q188.3,13 193.3,27 Q198.3,41 203.3,27 Q208.3,13 213.3,27 Q218.3,41 223.3,27 Q228.3,13 233.3,27 Q238.3,41 243.3,27 Q248.3,13 253.3,27 Q258.3,41 263.3,27 Q268.3,13 273.3,27 Q278.3,41 283.3,27 Q288.3,13 293.3,27 Q298.3,41 303.3,27 Q308.3,13 313.3,27 Q318.3,41 323.3,27 Q328.3,13 333.3,27 Q338.3,41 343.3,27 Q348.3,13 353.3,27 Q358.3,41 363.3,27 Q368.3,13 373.3,27 Q378.3,41 383.3,27 Q388.3,13 393.3,27 Q398.3,41 403.3,27 Q408.3,13 423.3,27"
+            fill="none" stroke="#003DA5" strokeWidth="9" strokeLinecap="round" mask="url(#htMB)"/>
+
+          {/* ── Fade overlay ── */}
+          <rect width="400" height="54" fill="url(#htFade)"/>
         </svg>
 
         <div style={{padding:"18px 20px 44px"}}>

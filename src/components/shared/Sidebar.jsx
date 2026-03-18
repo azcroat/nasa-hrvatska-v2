@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { lXP, nXP, getStreak } from '../../data.jsx';
+import CroatianGrb from './CroatianGrb.jsx';
 
 const TABS = [
   { id:"home",     icon:"🏠", label:"Home" },
@@ -66,12 +67,8 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
       {/* Brand */}
       <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid var(--nav-b)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 9, overflow: 'hidden', flexShrink: 0, border: '2px solid rgba(0,0,0,.1)' }}>
-            <svg width="36" height="36" viewBox="0 0 3 3">
-              {[0,1,2].map(r=>[0,1,2].map(c=>(
-                <rect key={`${r}-${c}`} x={c} y={r} width={1} height={1} fill={(r+c)%2===0?'#FFFFFF':'#CC1024'} />
-              )))}
-            </svg>
+          <div style={{ width: 36, height: 44, flexShrink: 0, filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.18))' }}>
+            <CroatianGrb size={36} />
           </div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 900, fontFamily: "'Playfair Display',serif", color: 'var(--heading)', lineHeight: 1 }}>Naša Hrvatska</div>
