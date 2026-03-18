@@ -35,9 +35,16 @@ export default function Leaderboard({
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                   <div>
                     <div style={{fontSize:16,fontWeight:800,color:"#92400e"}}>👨‍👩‍👧‍👦 {famData.name}</div>
-                    <div style={{fontSize:12,color:"#78716c"}}>
-                      Code: <span style={{fontWeight:800,color:"#0e7490",letterSpacing:2,fontSize:14}}>{famData.code}</span> — Share this with family!
+                    <div style={{fontSize:12,color:"#78716c",marginBottom:6}}>
+                      Code: <span style={{fontWeight:800,color:"#0e7490",letterSpacing:2,fontSize:14}}>{famData.code}</span>
                     </div>
+                    <button onClick={async()=>{
+                      const link=`https://nasahrvatska.com/?join=${famData.code}`;
+                      if(navigator.share){try{await navigator.share({title:'Join my family on Naša Hrvatska 🇭🇷',text:'Click to join and learn Croatian together!',url:link});}catch(_){}}
+                      else{await navigator.clipboard.writeText(link);alert('Invite link copied!');}
+                    }} style={{background:'linear-gradient(135deg,#0e7490,#164e63)',color:'#fff',border:'none',borderRadius:10,padding:'6px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+                      🔗 Share Invite Link
+                    </button>
                   </div>
                   <div style={{fontSize:11,padding:"3px 8px",background:famData.role === "admin" ? "#dbeafe" : "#e7e5e4",borderRadius:12,color:famData.role === "admin" ? "#1e40af" : "#78716c",fontWeight:600}}>
                     {famData.role}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from "react";
-import { _fbReady, H, Bar, Spk, V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, getDueReviews, shMemo, shuffleArr, buildSearchIndex } from "./data.jsx";
+import { _fbReady, H, Bar, Spk, V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getProverbOfDay, getDailyChallenge, getHistFact, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, getDueReviews, shMemo, shuffleArr, buildSearchIndex } from "./data.jsx";
 import AppContext from "./context/AppContext.jsx";
 import ScreenErrorBoundary from "./components/shared/ScreenErrorBoundary.jsx";
 import { usePreferences } from "./hooks/usePreferences.js";
@@ -9,7 +9,7 @@ import { useFamily } from "./hooks/useFamily.js";
 import { useJournal } from "./hooks/useJournal.js";
 import { useDaily } from "./hooks/useDaily.js";
 import { useTranslator } from "./hooks/useTranslator.js";
-import { useNotifications } from "./hooks/useNotifications.js";
+import { useNotifications, checkNameDay } from "./hooks/useNotifications.js";
 // Always-needed: auth + core UI (eager)
 import LoginScreen from "./components/auth/LoginScreen.jsx";
 import ResetPassword from "./components/auth/ResetPassword.jsx";
@@ -18,6 +18,7 @@ import BadgeToast from "./components/shared/BadgeToast.jsx";
 import TabBar from "./components/shared/TabBar.jsx";
 import Sidebar from "./components/shared/Sidebar.jsx";
 import CelebrationModal from "./components/shared/CelebrationModal.jsx";
+import StreakMilestoneModal from "./components/shared/StreakMilestoneModal.jsx";
 import OnboardingTour from "./components/shared/OnboardingTour.jsx";
 import WelcomeScreen from "./components/home/WelcomeScreen.jsx";
 import PlacementTest from "./components/home/PlacementTest.jsx";
@@ -26,6 +27,7 @@ const HomeTab = lazy(() => import("./components/home/HomeTab.jsx"));
 const LearnTab = lazy(() => import("./components/learn/LearnTab.jsx"));
 const CroatiaTab = lazy(() => import("./components/croatia/CroatiaTab.jsx"));
 const ImmersionHub = lazy(() => import("./components/croatia/ImmersionHub.jsx"));
+const LyricsScreen = lazy(() => import("./components/croatia/LyricsScreen.jsx"));
 const AIConversation = lazy(() => import("./components/croatia/AIConversation.jsx"));
 const ProfileTab = lazy(() => import("./components/profile/ProfileTab.jsx"));
 const PracticeTab = lazy(() => import("./components/practice/PracticeTab.jsx"));
@@ -215,6 +217,8 @@ function App(){
   const[onboarded,setOnboarded]=useState(function(){return localStorage.getItem("onboarded")==="true"});
   const[showCelebration,setShowCelebration]=useState(false);const[celebXP,setCelebXP]=useState(0);
   const[comebackBonus,setComebackBonus]=useState(false);
+  const[streakMilestone,setStreakMilestone]=useState(null); // number (7/30/50/100/365) or null
+  const[pendingJoinCode,setPendingJoinCode]=useState(()=>{try{return new URLSearchParams(window.location.search).get('join')||null;}catch{return null;}});
   // toggleFav, isFav → usePreferences hook | doSearch → useSearch hook
   // Fix 3: stable reference — prevents HomeTab useMemo from re-running every render
   const getWeekStats=useCallback(function(){const sr=getSR();const weak=Object.values(sr).filter(function(v){return v.w>v.r}).length;const strong=Object.values(sr).filter(function(v){return v.r>v.w}).length;return{lessons:stats.lc,grammar:stats.gc,streak:getStreak().count,weak:weak,strong:strong}},[stats]);
@@ -277,6 +281,13 @@ function App(){
     const lastSeen=localStorage.getItem("lastSeen");const now=Date.now();
     if(lastSeen&&stats.xp>0){const diff=now-parseInt(lastSeen,10);if(diff>86400000&&diff<7*86400000){setComebackBonus(true);setTimeout(()=>setComebackBonus(false),4000);}}
     localStorage.setItem("lastSeen",String(now));
+    if(pendingJoinCode){
+      try{const u=new URL(window.location.href);u.searchParams.delete('join');window.history.replaceState({},'',u.pathname);}catch(_){}
+      setFamCode(pendingJoinCode);setFamTab("join");
+      setTimeout(()=>setScr("leaderboard"),600);
+      setPendingJoinCode(null);
+    }
+    checkNameDay(name);
   },[authScreen]);// eslint-disable-line
   useEffect(()=>{if(!authUser||authScreen!=="app")return;const _nd=new Date();const _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');const _saveData={name,stats,cp:currentScreen!=="welcome"&&currentScreen!=="placement",onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),favs,journal:jWords,dc:{day:_dcDay,answered:dchlA,selected:dchlSl},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};localStorage.setItem("uP_"+authUser.u,JSON.stringify(_saveData));touchSession();if(_syncReady)fbSaveProgress(authUser.u,_saveData);},[stats,currentScreen,name,authUser,authScreen,jWords,favs,dchlA,dchlSl,_syncReady]);
   useEffect(()=>{if(authScreen!=="app")return;const iv=setInterval(()=>{if(isSessionExpired()){doOut();}},5*60*1000);return()=>clearInterval(iv)},[authScreen]);// eslint-disable-line
@@ -334,11 +345,14 @@ function App(){
   },[]); 
   const award=useCallback((amt,celebrate)=>{
     if(curEx&&!canEarnXP(curEx)){setXpA(0);setShowXP(true);setTimeout(()=>setShowXP(false),2000);return}
-    if(curEx)markExerciseDone(curEx); // lock immediately so double-clicks/replays can't re-award
+    if(curEx)markExerciseDone(curEx);
     setXpA(amt);setShowXP(true);
     setStats(s=>{const n={...s,xp:s.xp+amt};const nb=BADGES.filter(b=>!s.badges.includes(b.id)&&b.r(n));if(nb.length){n.badges=[...s.badges,...nb.map(b=>b.id)];setTimeout(()=>{setNB(nb[0]);setSB(true);setTimeout(()=>setSB(false),3000)},600)}return n});
     setTimeout(()=>setShowXP(false),1500);
     if(celebrate&&amt>0){setCelebXP(amt);setTimeout(()=>setShowCelebration(true),400)}
+    const sr=updateStreak();
+    if(sr.milestone)setTimeout(()=>setStreakMilestone(sr.milestone),800);
+    earnFreeze();
   },[curEx]);
   function _goPostAuth(hasProgress){
     if(!hasProgress){setScr("welcome");return}
@@ -422,6 +436,7 @@ function App(){
       <XPPopup showXP={showXP} xpA={xpA} />
       <BadgeToast show={sB} badge={nB} />
       {showCelebration&&<CelebrationModal xp={celebXP} onClose={onCloseCelebration} />}
+      {streakMilestone&&<StreakMilestoneModal days={streakMilestone} onClose={()=>setStreakMilestone(null)} />}
       {!onboarded&&authScreen==="app"&&currentScreen!=="welcome"&&currentScreen!=="placement"&&<OnboardingTour onDone={()=>setOnboarded(true)} />}
       {comebackBonus&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#f59e0b,#d97706)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.2)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease"}}>🔥 Welcome back! Keep your streak alive!</div>}
       {showBackupBanner&&<div role="status" aria-live="polite" style={{position:"fixed",bottom:90,left:"50%",transform:"translateX(-50%)",zIndex:9600,width:"calc(100% - 32px)",maxWidth:420,background:"linear-gradient(135deg,#0e7490,#164e63)",color:"#fff",borderRadius:20,padding:"18px 20px 18px 20px",boxShadow:"0 8px 40px rgba(14,116,144,.45)",animation:"slideUp .4s cubic-bezier(.34,1.56,.64,1)"}}>
@@ -589,6 +604,7 @@ function App(){
       {currentScreen==="football"&&<HNLScreen goBack={goBack} />}
       {currentScreen==="croatiaathletes"&&<CroatiaAthletes goBack={goBack} />}
       {currentScreen==="immersion"&&<ImmersionHub goBack={goBack} setScr={setScr} />}
+      {currentScreen==="lyrics"&&<LyricsScreen goBack={goBack} award={award} />}
       {currentScreen==="aiconvo"&&<AIConversation goBack={goBack} setScr={setScr} sCurEx={sCurEx} />}
       {currentScreen==="popculture"&&<PopCultureScreen goBack={goBack} />}
       {currentScreen==="basketball"&&<BasketballScreen goBack={goBack} />}
