@@ -82,54 +82,10 @@ export default function HomeTab({
           <div style={{flex:1,background:"#003DA5"}}/>
         </div>
 
-        {/* ── Historic Croatian Grb — heater shield + crown of 5 šahovnica ── */}
-        <svg
-          style={{position:"absolute",top:6,right:8,width:148,height:148,opacity:.70,pointerEvents:"none",filter:"drop-shadow(0 6px 24px rgba(0,0,0,.75))"}}
-          viewBox="0 0 110 110"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <linearGradient id="hGold" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"   stopColor="#FFE070"/>
-              <stop offset="50%"  stopColor="#C8980A"/>
-              <stop offset="100%" stopColor="#7A5800"/>
-            </linearGradient>
-            {/* Clip main shield inner area */}
-            <clipPath id="hSC">
-              <path d="M8,32 L102,32 L102,95 Q102,133 55,137 Q8,133 8,95 Z"/>
-            </clipPath>
-          </defs>
-
-          {/* ── Main shield drop shadow ── */}
-          <path d="M8,32 L102,32 L102,95 Q102,133 55,137 Q8,133 8,95 Z"
-            fill="rgba(0,0,0,.4)" transform="translate(3,5)"/>
-
-          {/* ── Main shield gold border ── */}
-          <path d="M5,32 L105,32 L105,96 Q105,136 55,138 Q5,136 5,96 Z"
-            fill="url(#hGold)"/>
-
-          {/* ── Main shield white backing ── */}
-          <path d="M8,32 L102,32 L102,95 Q102,133 55,137 Q8,133 8,95 Z"
-            fill="#F8F6F2"/>
-
-          {/* ── 5×5 šahovnica clipped to shield — white top-left ── */}
-          <g clipPath="url(#hSC)">
-            {[0,1,2,3,4].flatMap(r=>[0,1,2,3,4].map(c=>(
-              <rect key={`${r}-${c}`}
-                x={8+c*18.8} y={32+r*21}
-                width={18.8+.4} height={21+.4}
-                fill={(r+c)%2===0?'#F8F6F2':'#D40030'}
-              />
-            )))}
-          </g>
-
-          {/* ── Shield gold outline ── */}
-          <path d="M5,32 L105,32 L105,96 Q105,136 55,138 Q5,136 5,96 Z"
-            fill="none" stroke="url(#hGold)" strokeWidth="2.5"/>
-          {/* Inner highlight */}
-          <path d="M8,32 L102,32 L102,95 Q102,133 55,137 Q8,133 8,95 Z"
-            fill="none" stroke="rgba(255,240,120,.35)" strokeWidth="1"/>
-        </svg>
+        {/* ── Grb Hrvatske — top right ── */}
+        <div style={{position:"absolute",top:10,right:10,pointerEvents:"none",opacity:.70,filter:"drop-shadow(0 6px 24px rgba(0,0,0,.75))"}}>
+          <CroatianGrb size={148} />
+        </div>
 
 
         <div style={{padding:"18px 20px 44px"}}>
