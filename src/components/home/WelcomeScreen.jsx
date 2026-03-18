@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { sh, PLACE } from '../../data.jsx';
+import CroatianGrb from '../shared/CroatianGrb.jsx';
 
 const GOALS = [
   { id: 'heritage', icon: '🇭🇷', label: 'My heritage & roots', sub: 'Connect with where I came from' },
@@ -41,11 +42,9 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
   if (step === 0) return (
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100vh', padding:24, position:'relative', zIndex:1 }}>
       <div style={{ textAlign:'center', maxWidth:460, animation:'rise .6s' }}>
-        {/* Flag stripe */}
-        <div style={{ display:'flex', justifyContent:'center', gap:0, marginBottom:28, borderRadius:4, overflow:'hidden', width:72, margin:'0 auto 28px' }}>
-          <div style={{ height:8, flex:1, background:'#D4002D' }} />
-          <div style={{ height:8, flex:1, background:'#F5F5F5' }} />
-          <div style={{ height:8, flex:1, background:'#003DA5' }} />
+        {/* Coat of arms — centred, prominent */}
+        <div style={{ display:'flex', justifyContent:'center', marginBottom:20 }}>
+          <CroatianGrb size={130} style={{ filter:'drop-shadow(0 6px 20px rgba(0,0,0,0.25))' }} />
         </div>
         <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:40, color:'var(--heading)', fontWeight:900, marginBottom:8, lineHeight:1.15 }}>
           Naša Hrvatska
