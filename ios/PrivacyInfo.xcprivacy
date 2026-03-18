@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Apple Privacy Manifest — required for all apps submitted to App Store (iOS 17+)
+  Place this file inside your Xcode project (add it to the app target).
+
+  Naša Hrvatska accesses the following privacy-relevant APIs:
+  - NSPrivacyAccessedAPICategoryUserDefaults  : localStorage / sessionStorage (progress, session, family data)
+  - NSPrivacyAccessedAPICategoryDiskSpace     : Firebase SDK internal cache, Dexie/IndexedDB offline cache
+-->
+<plist version="1.0">
+<dict>
+  <key>NSPrivacyAccessedAPITypes</key>
+  <array>
+
+    <!-- localStorage / sessionStorage — stores learning progress, user session, family group -->
+    <dict>
+      <key>NSPrivacyAccessedAPIType</key>
+      <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+      <key>NSPrivacyAccessedAPITypeReasons</key>
+      <array>
+        <string>CA92.1</string>
+      </array>
+    </dict>
+
+    <!-- Dexie / IndexedDB offline cache, Firebase SDK internal storage -->
+    <dict>
+      <key>NSPrivacyAccessedAPIType</key>
+      <string>NSPrivacyAccessedAPICategoryDiskSpace</string>
+      <key>NSPrivacyAccessedAPITypeReasons</key>
+      <array>
+        <string>85F4.1</string>
+      </array>
+    </dict>
+
+  </array>
+
+  <!-- No tracking — Plausible Analytics is cookie-free and does not use device identifiers -->
+  <key>NSPrivacyTracking</key>
+  <false/>
+
+  <!-- No third-party SDKs that require privacy nutrition labels beyond the above -->
+  <key>NSPrivacyTrackingDomains</key>
+  <array/>
+
+  <key>NSPrivacyCollectedDataTypes</key>
+  <array>
+
+    <!-- Email address — used for Firebase Authentication account creation only -->
+    <dict>
+      <key>NSPrivacyCollectedDataType</key>
+      <string>NSPrivacyCollectedDataTypeEmailAddress</string>
+      <key>NSPrivacyCollectedDataTypeLinked</key>
+      <true/>
+      <key>NSPrivacyCollectedDataTypeTracking</key>
+      <false/>
+      <key>NSPrivacyCollectedDataTypePurposes</key>
+      <array>
+        <string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+      </array>
+    </dict>
+
+    <!-- Display name — user-chosen name shown on leaderboard -->
+    <dict>
+      <key>NSPrivacyCollectedDataType</key>
+      <string>NSPrivacyCollectedDataTypeName</string>
+      <key>NSPrivacyCollectedDataTypeLinked</key>
+      <true/>
+      <key>NSPrivacyCollectedDataTypeTracking</key>
+      <false/>
+      <key>NSPrivacyCollectedDataTypePurposes</key>
+      <array>
+        <string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+      </array>
+    </dict>
+
+    <!-- Learning progress (XP, lesson completions) — stored in Firebase Firestore -->
+    <dict>
+      <key>NSPrivacyCollectedDataType</key>
+      <string>NSPrivacyCollectedDataTypeOtherUserContent</string>
+      <key>NSPrivacyCollectedDataTypeLinked</key>
+      <true/>
+      <key>NSPrivacyCollectedDataTypeTracking</key>
+      <false/>
+      <key>NSPrivacyCollectedDataTypePurposes</key>
+      <array>
+        <string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+      </array>
+    </dict>
+
+  </array>
+</dict>
+</plist>
