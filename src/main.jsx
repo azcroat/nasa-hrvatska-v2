@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import * as Sentry from '@sentry/react';
+import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 import './index.css';
 import App from './App.jsx';
 
@@ -27,6 +28,24 @@ if (import.meta.env.VITE_SENTRY_DSN) {
     },
   });
 }
+
+// ─── Web Vitals → Sentry ───────────────────────────────────────────────────
+// Reports Core Web Vitals as Sentry performance measurements.
+// Fires once per page load; no PII is collected.
+function reportWebVitals(metric) {
+  if (!import.meta.env.VITE_SENTRY_DSN) return;
+  Sentry.addBreadcrumb({
+    category: 'web-vitals',
+    message: metric.name,
+    data: { value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value), rating: metric.rating },
+    level: metric.rating === 'poor' ? 'warning' : 'info',
+  });
+}
+onCLS(reportWebVitals);
+onFCP(reportWebVitals);
+onINP(reportWebVitals);
+onLCP(reportWebVitals);
+onTTFB(reportWebVitals);
 
 // ─── Error Boundary ────────────────────────────────────────────────────────
 class ErrorBoundary extends React.Component {

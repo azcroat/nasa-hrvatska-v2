@@ -71,6 +71,14 @@ jobs:
           VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
 
+      - name: Bundle size check
+        run: npm run size
+
+      - name: Lighthouse CI
+        run: npx lhci autorun
+        env:
+          LHCI_BUILD_CONTEXT__CURRENT_HASH: ${{ github.sha }}
+
       - name: Deploy to Cloudflare Pages
         if: github.event_name == 'push'
         uses: cloudflare/wrangler-action@v3
