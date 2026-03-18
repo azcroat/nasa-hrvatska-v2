@@ -36,7 +36,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   }
 
   function stopMic() {
-    if (recRef.current) { try { recRef.current.stop(); } catch(e){} } // NOSONAR - intentional empty catch, optional browser API or safe fallback
+    if (recRef.current) { try { recRef.current.stop(); } catch(e){} }
     setListening(false);
   }
 

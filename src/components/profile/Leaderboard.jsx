@@ -40,7 +40,7 @@ export default function Leaderboard({
                     </div>
                     <button onClick={async()=>{
                       const link=`https://nasahrvatska.com/?join=${famData.code}`;
-                      if(navigator.share){try{await navigator.share({title:'Join my family on Naša Hrvatska 🇭🇷',text:'Click to join and learn Croatian together!',url:link});}catch(_){}} // NOSONAR - intentional empty catch, optional browser API or safe fallback
+                      if(navigator.share){try{await navigator.share({title:'Join my family on Naša Hrvatska 🇭🇷',text:'Click to join and learn Croatian together!',url:link});}catch(_){}}
                       else{await navigator.clipboard.writeText(link);alert('Invite link copied!');}
                     }} style={{background:'linear-gradient(135deg,#0e7490,#164e63)',color:'#fff',border:'none',borderRadius:10,padding:'6px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
                       🔗 Share Invite Link

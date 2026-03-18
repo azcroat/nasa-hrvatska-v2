@@ -5,12 +5,12 @@
 
 let _au=false;let _voices=[];let _voicesLoaded=false;const _audioCache={};let _currentAudio=null;
 const _iOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
-function uA(){if(_au)return;_au=true;try{const c=new(window.AudioContext||window.webkitAudioContext)();const b=c.createBuffer(1,1,22050);const s=c.createBufferSource();s.buffer=b;s.connect(c.destination);s.start(0);c.resume()}catch(e){}} // NOSONAR - intentional empty catch, optional browser API or safe fallback
+function uA(){if(_au)return;_au=true;try{const c=new(window.AudioContext||window.webkitAudioContext)();const b=c.createBuffer(1,1,22050);const s=c.createBufferSource();s.buffer=b;s.connect(c.destination);s.start(0);c.resume()}catch(e){}}
 ["touchstart","click"].forEach(e=>{document.addEventListener(e,function h(){uA();document.removeEventListener(e,h)},{passive:true,once:true})});
 export function loadVoices(){if(window.speechSynthesis){_voices=window.speechSynthesis.getVoices();_voicesLoaded=_voices.length>0}}
 if(window.speechSynthesis){loadVoices();window.speechSynthesis.onvoiceschanged=loadVoices}
 export function getBestVoice(){if(!_voicesLoaded)loadVoices();const v=_voices;const hr=v.filter(x=>x.lang.startsWith("hr"));if(hr.length>0)return hr.find(x=>!x.localService)||hr[0];const bs=v.filter(x=>x.lang.startsWith("bs"));if(bs.length>0)return bs[0];const sr=v.filter(x=>x.lang.startsWith("sr"));if(sr.length>0)return sr[0];return null}
-export function stopAudio(){if(_currentAudio){try{_currentAudio.pause();_currentAudio.currentTime=0}catch(e){}_currentAudio=null}if(window.speechSynthesis)window.speechSynthesis.cancel()} // NOSONAR - intentional empty catch, optional browser API or safe fallback
+export function stopAudio(){if(_currentAudio){try{_currentAudio.pause();_currentAudio.currentTime=0}catch(e){}_currentAudio=null}if(window.speechSynthesis)window.speechSynthesis.cancel()}
 export async function speakAzure(text,slow){
   stopAudio();
   const a=new Audio();a.volume=1.0;_currentAudio=a;

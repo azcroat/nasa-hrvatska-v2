@@ -47,7 +47,7 @@ export async function fbSaveProgress(uid,data){
   const incoming={progress:JSON.stringify(data),updated:Date.now(),xp:(data.stats&&data.stats.xp)||0};
   // Write public leaderboard projection alongside the private progress doc
   const lbEntry={name:data.name||"",xp:(data.stats&&data.stats.xp)||0,lc:(data.stats&&data.stats.lc)||0,updated:incoming.updated};
-  try{setDoc(fsDoc(_fbDb,"leaderboard",id),lbEntry,{merge:true}).catch(function(){});}catch(e){} // NOSONAR - intentional empty catch, optional browser API or safe fallback
+  try{setDoc(fsDoc(_fbDb,"leaderboard",id),lbEntry,{merge:true}).catch(function(){});}catch(e){}
   try{
     await runTransaction(_fbDb,async function(tx){
       const ref=fsDoc(_fbDb,"users",id);
@@ -99,7 +99,7 @@ export async function fbLogin(email,password){
   if(!_fbReady||!_fbAuth)return{ok:false,err:"Firebase not configured."};
   try{const cred=await signInWithEmailAndPassword(_fbAuth,email,password);return{ok:true,user:cred.user}}catch(e){return{ok:false,err:friendlyError(e.message)}}
 }
-export async function fbLogout(){if(_fbReady&&_fbAuth)try{await fbSignOut(_fbAuth)}catch(e){}} // NOSONAR - intentional empty catch, optional browser API or safe fallback
+export async function fbLogout(){if(_fbReady&&_fbAuth)try{await fbSignOut(_fbAuth)}catch(e){}}
 export async function fbResetPassword(email){
   if(!_fbReady||!_fbAuth)return{ok:false,err:"Firebase not configured."};
   try{await sendPasswordResetEmail(_fbAuth,email);return{ok:true}}catch(e){return{ok:false,err:friendlyError(e.message)}}
@@ -135,7 +135,7 @@ export async function fbCreateFamily(familyName,creatorEmail,creatorName){
   if(!_fbReady||!_fbDb)return{ok:false,err:"Firebase not configured."};
   try{let code=generateFamilyCode();
   try{const existing=await getDoc(fsDoc(_fbDb,"families",code));
-  if(existing.exists())code=generateFamilyCode()}catch(e){} // NOSONAR - intentional empty catch, optional browser API or safe fallback
+  if(existing.exists())code=generateFamilyCode()}catch(e){}
   try{await setDoc(fsDoc(_fbDb,"families",code),{name:familyName,code:code,created:Date.now(),members:[{email:creatorEmail,name:creatorName,role:"admin",joined:Date.now()}],memberEmails:[creatorEmail]})}catch(fe){console.warn("Family write failed:",fe);return{ok:false,err:"Could not create family. Check Firebase permissions."}}
   try{const id=creatorEmail.replace(/[.#$/\[\]]/g,"_");
   await setDoc(fsDoc(_fbDb,"users",id),{familyCode:code},{merge:true})}catch(ue){console.warn("User family link failed:",ue)}
