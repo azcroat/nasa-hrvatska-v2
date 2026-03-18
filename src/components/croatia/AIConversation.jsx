@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { speak } from '../../data.jsx';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
 
 // ── Scenarios ───────────────────────────────────────────────────────────────
 const SCENARIOS = [
@@ -227,6 +228,7 @@ Rules: max 4 mistakes, 2-3 focus areas, score honestly. If fewer than 3 user mes
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function AIConversation({ goBack, setScr, sCurEx }) {
+  const isOnline = useOnlineStatus();
   const [phase, setPhase] = useState("setup"); // setup | chat | evaluating | result
   const [scenario, setScenario] = useState(null);
   const [level, setLevel] = useState("B1");
@@ -489,9 +491,14 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
         })}
       </div>
 
+      {!isOnline && (
+        <div style={{background:"#fef3c7",border:"1px solid #f59e0b",borderRadius:12,padding:"12px 16px",marginBottom:12,fontSize:13,color:"#92400e",fontWeight:600,display:"flex",gap:10,alignItems:"center"}}>
+          <span>📶</span><span>You're offline — AI conversation requires an internet connection.</span>
+        </div>
+      )}
       <button className="b bp" style={{width:"100%",fontSize:16,padding:"15px",borderRadius:14}}
-        onClick={startConversation} disabled={!scenario}>
-        {scenario ? `Start — ${scenario.title} (${level})` : "Select a scenario above"}
+        onClick={startConversation} disabled={!scenario || !isOnline}>
+        {!isOnline ? "Connect to the internet to start" : scenario ? `Start — ${scenario.title} (${level})` : "Select a scenario above"}
       </button>
       <div style={{fontSize:11,color:"#94a3b8",textAlign:"center",marginTop:10}}>
         Powered by Google Gemini · Free tier · No data stored
@@ -795,12 +802,12 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
                 type="text" value={input}
                 onChange={e => { setInput(e.target.value); if (sendError) setSendError(""); }}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-                placeholder="Piši na hrvatskom…"
-                disabled={loading || (chatError && messages.length === 0)}
+                placeholder={isOnline ? "Piši na hrvatskom…" : "Offline — reconnect to continue…"}
+                disabled={loading || !isOnline || (chatError && messages.length === 0)}
                 style={{flex:1,padding:"11px 14px",fontSize:15,borderRadius:12,
                   border:`1.5px solid ${sendError ? "#fca5a5" : "#e2e8f0"}`,background:"#f8fafc",outline:"none",
                   fontFamily:"'Outfit',sans-serif",transition:"border-color .2s",color:"#1e293b"}} />
-              <button onClick={sendMessage} disabled={loading || !input.trim()}
+              <button onClick={sendMessage} disabled={loading || !input.trim() || !isOnline}
                 style={{width:44,height:44,borderRadius:12,border:"none",flexShrink:0,fontSize:18,
                   cursor:input.trim() && !loading ? "pointer" : "not-allowed",transition:"all .15s",
                   background:input.trim() && !loading ? "linear-gradient(135deg,#0e7490,#0c4a6e)" : "#e2e8f0",

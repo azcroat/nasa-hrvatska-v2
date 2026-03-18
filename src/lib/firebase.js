@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, setPersistence, browserLocalPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile } from 'firebase/auth';
-import { getFirestore, doc as fsDoc, getDoc, setDoc, collection, getDocs, query, limit, orderBy, runTransaction } from 'firebase/firestore';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc as fsDoc, getDoc, setDoc, collection, getDocs, query, limit, orderBy, runTransaction } from 'firebase/firestore';
 
 const FIREBASE_CONFIG = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -20,7 +20,9 @@ export function initFirebase(){
   if(_fbReady)return false;
   try{
     const app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);
-    _fbAuth=getAuth(app);_fbDb=getFirestore(app);_fbReady=true;
+    _fbAuth=getAuth(app);
+    _fbDb=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})});
+    _fbReady=true;
     setPersistence(_fbAuth,browserLocalPersistence).catch(()=>{});return true
   }catch(e){console.warn("Firebase init failed:",e);return false}
 }
