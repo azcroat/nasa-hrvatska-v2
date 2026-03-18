@@ -156,6 +156,10 @@ export default function PracticeTab({
     ["🔗","Koji/Koja",     "relpron",     "Relative pronouns"],
     ["🧲","SE Verbs",      "reflexive",   "Reflexive verbs with se/si"],
     ["🏗️","Build Sentences","sentbuild",  "Arrange the building blocks"],
+    ["🔗","Clitic Drill",    "clitic",     "The #1 hardest rule in Croatian"],
+    ["🔢","Numbers+Cases",   "numcases",   "1/2-4/5+ — never wrong again"],
+    ["⚡","Imperative",      "imperative", "Commands — essential production"],
+    ["❌","Negation+Genitive","neggen",    "Negate correctly — case shifts!"],
   ];
 
   const vocabularyDrills = [
@@ -167,6 +171,8 @@ export default function PracticeTab({
     ["💪","20 Core Verbs",  "verbdrill",  "The most-used Croatian verbs"],
     ["🎯","Pronouns",       "pronouns",   "Ja, ti, on, ona, mi..."],
     ["🏙️","City Locations","cityloc",    "Where is it in Croatia?"],
+    ["🔀","Collocations",   "collocations",  "Which words belong together"],
+    ["🌱","Word Families",  "wordfamilies",  "One root, a hundred words"],
   ];
 
   const practicalCroatian = [
@@ -299,6 +305,33 @@ export default function PracticeTab({
             [startReview,      "🔁", "SRS Review",   "Smart spaced repetition"],
             [startWriting,     "✍️", "Free Writing",  "Write & get AI feedback"],
             [startAspectDrill, "🔄", "Aspect Drill",  "Imperfective vs perfective"],
+          ].map(([fn,icon,label,desc], i) => (
+            <button key={i} className="tc"
+              style={{ display:"flex", alignItems:"center", gap:12, padding:"14px", textAlign:"left" }}
+              onClick={fn}>
+              <div style={{ width:40, height:40, borderRadius:12, background:"var(--bar-bg)", border:"1px solid var(--card-b)",
+                display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0 }}>
+                {icon}
+              </div>
+              <div style={{ minWidth:0 }}>
+                <div style={{ fontSize:12, fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{label}</div>
+                <div style={{ fontSize:10, color:"var(--subtext)", marginTop:2, lineHeight:1.3 }}>{desc}</div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="🧪 Fluency Lab" icon="🧪" count="3 advanced tools" defaultOpen={true}>
+        <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>
+          The gap between B1 and C1 — close it here
+        </p>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+          {[
+            [() => { setScr("dialogue"); sCurEx("dialogue"); },   "💬", "Dialogue Sim",    "Real turn-based conversations"],
+            [() => { setScr("dictation"); sCurEx("dictation"); }, "🎧", "Dictation",        "Listen and type Croatian"],
+            [() => { setScr("proncontrast"); sCurEx("proncontrast"); }, "🔤", "Sound Contrast", "č/ć, š/ž, đ/dž mastery"],
+            [() => { setScr("cefrtest"); sCurEx("cefrtest"); },   "🎓", "CEFR Test",        "A1→B2 proficiency check"],
           ].map(([fn,icon,label,desc], i) => (
             <button key={i} className="tc"
               style={{ display:"flex", alignItems:"center", gap:12, padding:"14px", textAlign:"left" }}
