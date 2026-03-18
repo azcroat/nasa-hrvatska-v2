@@ -1,80 +1,65 @@
+import { useMemo } from 'react';
+
 /**
- * CroatianGrb — Croatian coat of arms (šahovnica)
- *
- * Heater shield shape, 5×5 checkerboard white-first (standard grb orientation),
- * Croatian red (#D40030) and white, gold border, drop shadow.
- *
+ * CroatianGrb — Croatian šahovnica shield
+ * Heater shield, 5×5 checkerboard, white top-left, red/white, gold border.
  * Usage: <CroatianGrb size={120} />
- * Height is auto-proportioned (size = width).
  */
 export default function CroatianGrb({ size = 120, style = {}, className = '' }) {
-  // viewBox: 100 wide × 118 tall (heater shield proportions)
-  const VW = 100, VH = 118;
+  // Unique ID per instance so clipPath never clashes when used multiple times
+  const id = useMemo(() => 'g' + Math.random().toString(36).slice(2, 7), []);
 
-  // Shield paths (all coordinates within viewBox)
-  // Outer gold border
-  const outer = "M2,2 L98,2 L98,76 Q98,116 50,118 Q2,116 2,76 Z";
-  // Inner white field (inset 3px)
-  const inner = "M5,2 L95,2 L95,75 Q95,113 50,115 Q5,113 5,75 Z";
+  // viewBox 100×124 — shield fully inside with 4px padding all round
+  // Shield outer: x=4–96, y=4–120 (bottom curves to point at y=120)
+  const shield = `M4,4 L96,4 L96,78 Q96,120 50,122 Q4,120 4,78 Z`;
+  const inner  = `M7,4 L93,4 L93,77 Q93,117 50,119 Q7,117 7,77 Z`;
 
-  // Checkerboard: 5 columns × 5 rows, clipped to inner shield
-  // x: 5–95 (90px wide), y: 2–115 (113px tall)
-  const cW = 90 / 5;   // 18
-  const cH = 113 / 5;  // 22.6
-
-  const height = Math.round(size * VH / VW);
+  const cW = 86 / 5;   // cell width  (x: 7–93 = 86px)
+  const cH = 115 / 5;  // cell height (y: 4–119 = 115px)
 
   return (
     <svg
-      viewBox={`0 0 ${VW} ${VH}`}
+      viewBox="0 0 100 124"
       width={size}
-      height={height}
-      style={{ display: 'block', ...style }}
+      height={Math.round(size * 124 / 100)}
+      style={{ display: 'block', overflow: 'visible', ...style }}
       className={className}
       xmlns="http://www.w3.org/2000/svg"
-      aria-label="Grb Hrvatske — Croatian coat of arms"
+      aria-label="Grb Hrvatske"
       role="img"
     >
       <defs>
-        <clipPath id="grb-clip">
+        <clipPath id={`${id}c`}>
           <path d={inner} />
         </clipPath>
-        <linearGradient id="grb-gold" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={`${id}g`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%"   stopColor="#FFE070" />
           <stop offset="50%"  stopColor="#C8980A" />
           <stop offset="100%" stopColor="#7A5800" />
         </linearGradient>
       </defs>
 
-      {/* Drop shadow */}
-      <path d={outer} fill="rgba(0,0,0,0.35)" transform="translate(3,5)" />
-
       {/* Gold border */}
-      <path d={outer} fill="url(#grb-gold)" />
+      <path d={shield} fill={`url(#${id}g)`} />
 
-      {/* White field */}
-      <path d={inner} fill="#F8F6F2" />
-
-      {/* 5×5 šahovnica clipped to shield — white top-left */}
-      <g clipPath="url(#grb-clip)">
+      {/* 5×5 šahovnica clipped to inner shield — white top-left */}
+      <g clipPath={`url(#${id}c)`}>
         {[0,1,2,3,4].flatMap(r =>
           [0,1,2,3,4].map(c => (
             <rect
               key={`${r}-${c}`}
-              x={5 + c * cW}
-              y={2 + r * cH}
-              width={cW + 0.4}
-              height={cH + 0.4}
+              x={7 + c * cW}
+              y={4 + r * cH}
+              width={cW + 0.5}
+              height={cH + 0.5}
               fill={(r + c) % 2 === 0 ? '#F8F6F2' : '#D40030'}
             />
           ))
         )}
       </g>
 
-      {/* Gold outline */}
-      <path d={outer} fill="none" stroke="url(#grb-gold)" strokeWidth="2" />
-      {/* Inner highlight */}
-      <path d={inner} fill="none" stroke="rgba(255,240,120,0.4)" strokeWidth="1" />
+      {/* Gold outline on top */}
+      <path d={shield} fill="none" stroke={`url(#${id}g)`} strokeWidth="2" />
     </svg>
   );
 }
