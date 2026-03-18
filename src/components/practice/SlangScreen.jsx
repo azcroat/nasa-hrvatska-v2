@@ -4,8 +4,7 @@
  * regional dialect resources, and Gen Z usage patterns.
  */
 import React, { useState } from 'react';
-import { speak } from '../../data.jsx';
-import { rnd } from '../../lib/random.js';
+import { speak, sh } from '../../data.jsx';
 // Azure TTS is used with IPA phoneme encoding server-side (functions/api/tts.js)
 // to deliver native-quality hr-HR-GabrijelaNeural / SreckoNeural pronunciation.
 
@@ -739,17 +738,15 @@ export default function SlangScreen({ goBack, award }) {
 
   function startQuiz(sec) {
     const allEntries = SECTIONS.flatMap(s => s.entries);
-    const pool = sec.entries
-      .filter(e => e.en && e.en.length < 60 && e.ph !== '—')
-      .sort(() => rnd() - 0.5)
+    const pool = sh(sec.entries
+      .filter(e => e.en && e.en.length < 60 && e.ph !== '—'))
       .slice(0, Math.min(6, sec.entries.length));
     if (pool.length < 2) return;
     const qs = pool.map(entry => {
-      const wrong = allEntries
-        .filter(e => e !== entry && e.en && e.en.length < 60)
-        .sort(() => rnd() - 0.5)
+      const wrong = sh(allEntries
+        .filter(e => e !== entry && e.en && e.en.length < 60))
         .slice(0, 3);
-      const opts = [...wrong.map(e => e.en), entry.en].sort(() => rnd() - 0.5);
+      const opts = sh([...wrong.map(e => e.en), entry.en]);
       return { hr: entry.hr, correct: entry.en, opts };
     });
     setQuizQuestions(qs);

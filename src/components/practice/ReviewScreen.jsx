@@ -1,8 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { H, Bar, Spk, srMark, getDueReviews } from '../../data.jsx';
+import { H, Bar, Spk, srMark, getDueReviews, sh } from '../../data.jsx';
 import { useHaptic } from '../../hooks/useHaptic.js';
 import { markPracticed } from '../../hooks/useNotifications.js';
-import { rnd } from '../../lib/random.js';
 
 export default function ReviewScreen({ goBack, award, allCats, V }) {
   const haptic = useHaptic();
@@ -23,8 +22,8 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
     if (dueWords.length === 0) return [];
     return dueWords.slice(0, 20).map(w => {
       const wrong = pool.filter(x => x[1] !== w[1]);
-      const distractors = wrong.sort(() => rnd() - 0.5).slice(0, 3).map(x => x[1]);
-      const opts = [w[1], ...distractors].sort(() => rnd() - 0.5);
+      const distractors = sh(wrong).slice(0, 3).map(x => x[1]);
+      const opts = sh([w[1], ...distractors]);
       return { word: w, opts, correct: w[1] };
     });
   }, [dueWords, pool]);
