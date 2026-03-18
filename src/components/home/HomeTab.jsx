@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Bar, V, LEARN_PATH, getStreak, getStreakFreezes, spendFreeze, getProverbOfDay, getHistFact, getDailyChallenge, lXP, nXP, speak, getSR } from '../../data.jsx';
 import CroatianGrb from '../shared/CroatianGrb.jsx';
+import CroatianCross from '../shared/CroatianCross.jsx';
 
 const LEVEL_PALETTE = [
   { grad: "linear-gradient(135deg,#92400e,#b45309)", light: "#fef3c7", text: "#92400e", border: "#fcd34d" },
@@ -86,9 +87,9 @@ export default function HomeTab({
           pointerEvents:"none",
         }}/>
 
-        {/* ── Grb Hrvatske — top right ── */}
-        <div style={{position:"absolute",top:10,right:10,pointerEvents:"none",opacity:.70,filter:"drop-shadow(0 6px 24px rgba(0,0,0,.75))"}}>
-          <CroatianGrb size={148} />
+        {/* ── Medieval Croatian cross — top right ── */}
+        <div style={{position:"absolute",top:8,right:8,pointerEvents:"none",opacity:.72}}>
+          <CroatianCross size={152} />
         </div>
 
 
