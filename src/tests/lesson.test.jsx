@@ -44,7 +44,7 @@ import LessonScreen from '../components/learn/LessonScreen.jsx';
 
 // ── Test data ─────────────────────────────────────────────────────────────────
 const SAMPLE_WORDS = [
-  ['Bok', 'Hey / Hi', 'bok'],
+  ['Bog', 'Hello / Hi', 'bog'],
   ['Dobar dan', 'Good day', 'DOH-bar dan'],
   ['Hvala', 'Thank you', 'HVA-la'],
   ['Molim', 'Please / You\'re welcome', 'MOH-lim'],
@@ -106,7 +106,7 @@ describe('LessonScreen — learn phase', () => {
 
   it('shows all vocabulary words', () => {
     renderLesson();
-    expect(screen.getByText('Bok')).toBeTruthy();
+    expect(screen.getByText('Bog')).toBeTruthy();
     expect(screen.getByText('Dobar dan')).toBeTruthy();
     expect(screen.getByText('Hvala')).toBeTruthy();
   });
@@ -133,7 +133,7 @@ describe('LessonScreen — quiz phase', () => {
 
   it('shows the Croatian word being tested', () => {
     renderQuiz();
-    expect(screen.getByText('Bok')).toBeTruthy();
+    expect(screen.getByText('Bog')).toBeTruthy();
   });
 
   it('shows all 4 answer options', () => {

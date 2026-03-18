@@ -4,7 +4,7 @@ const TABS = [
   { id: "home",     emoji: "🏠", label: "Home" },
   { id: "learn",    emoji: "🗺️",  label: "Path" },
   { id: "practice", emoji: "🎮", label: "Practice" },
-  { id: "croatia",  emoji: "🇭🇷", label: "Croatia" },
+  { id: "croatia",  emoji: "🇭🇷", label: "Life in Croatia" },
   { id: "profile",  emoji: "👤", label: "Me" },
 ];
 
