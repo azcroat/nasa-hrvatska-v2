@@ -234,19 +234,9 @@ function App(){
   const[showXP,setShowXP]=useState(false);const[xpA,setXpA]=useState(0);const[nB,setNB]=useState(null);const[sB,setSB]=useState(false);
   const _initialPath=useRef(window.location.pathname);
   const[_syncReady,_setSyncReady]=useState(false);
-  useEffect(()=>{
-    if(authScreen!=="app")return;
-    var lastSeen=localStorage.getItem("lastSeen");var now=Date.now();
-    if(lastSeen&&stats.xp>0){var diff=now-parseInt(lastSeen,10);if(diff>86400000&&diff<7*86400000){setComebackBonus(true);setTimeout(()=>setComebackBonus(false),4000);}}
-    localStorage.setItem("lastSeen",String(now));
-  },[authScreen]);// eslint-disable-line
-  useEffect(()=>{if(!_syncReady||!authUser||authScreen!=="app")return;var _nd=new Date();var _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');sP(authUser.u,{name,stats,cp:currentScreen!=="welcome"&&currentScreen!=="placement",onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),favs,journal:jWords,dc:{day:_dcDay,answered:dchlA,selected:dchlSl},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()});touchSession()},[stats,currentScreen,name,authUser,authScreen,jWords,favs,dchlA,dchlSl,_syncReady]);
-  useEffect(()=>{if(authScreen!=="app")return;const iv=setInterval(()=>{if(isSessionExpired()){cS();setAuthUser(null);setStats(ds);setScr("welcome");setName("");setAuthScreen("login")}},5*60*1000);return()=>clearInterval(iv)},[authScreen]);
-  useEffect(()=>{if(authScreen!=="app")return;const h=()=>touchSession();window.addEventListener("click",h);window.addEventListener("touchstart",h);window.addEventListener("keydown",h);return()=>{window.removeEventListener("click",h);window.removeEventListener("touchstart",h);window.removeEventListener("keydown",h)}},[authScreen]);
-  useEffect(()=>{if(authScreen!=="app"||!authUser)return;function onVisible(){if(document.visibilityState!=="visible")return;fbLoadProgress(authUser.u).then(function(fp){if(!fp)return;var lp=gP(authUser.u);var fpTs=fp._fbUpdated||fp.savedAt||0;var lpTs=(lp&&lp.savedAt)||0;if(fpTs>lpTs){sP(authUser.u,fp);setStats(fp.stats||ds);if(fp.name)setName(fp.name);applyRemoteProgress(fp);}})}document.addEventListener("visibilitychange",onVisible);return()=>document.removeEventListener("visibilitychange",onVisible)},[authScreen,authUser]);
-  // ── useAuth — session restore + all auth handlers ────────────────────────
-  // Callbacks defined before the hook so they're available when the hook
-  // initialises. applyRemoteProgress is defined earlier in this function.
+  // ── useAuth — must be declared BEFORE the useEffects that reference
+  // authScreen/authUser in their dependency arrays, to avoid TDZ errors
+  // in the minified production bundle.
   const {
     authScreen, setAuthScreen,
     authUser,
@@ -278,6 +268,16 @@ function App(){
     setSyncReady: _setSyncReady,
     ds,
   });
+  useEffect(()=>{
+    if(authScreen!=="app")return;
+    var lastSeen=localStorage.getItem("lastSeen");var now=Date.now();
+    if(lastSeen&&stats.xp>0){var diff=now-parseInt(lastSeen,10);if(diff>86400000&&diff<7*86400000){setComebackBonus(true);setTimeout(()=>setComebackBonus(false),4000);}}
+    localStorage.setItem("lastSeen",String(now));
+  },[authScreen]);// eslint-disable-line
+  useEffect(()=>{if(!_syncReady||!authUser||authScreen!=="app")return;var _nd=new Date();var _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');sP(authUser.u,{name,stats,cp:currentScreen!=="welcome"&&currentScreen!=="placement",onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),favs,journal:jWords,dc:{day:_dcDay,answered:dchlA,selected:dchlSl},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()});touchSession()},[stats,currentScreen,name,authUser,authScreen,jWords,favs,dchlA,dchlSl,_syncReady]);
+  useEffect(()=>{if(authScreen!=="app")return;const iv=setInterval(()=>{if(isSessionExpired()){doOut();}},5*60*1000);return()=>clearInterval(iv)},[authScreen]);// eslint-disable-line
+  useEffect(()=>{if(authScreen!=="app")return;const h=()=>touchSession();window.addEventListener("click",h);window.addEventListener("touchstart",h);window.addEventListener("keydown",h);return()=>{window.removeEventListener("click",h);window.removeEventListener("touchstart",h);window.removeEventListener("keydown",h)}},[authScreen]);
+  useEffect(()=>{if(authScreen!=="app"||!authUser)return;function onVisible(){if(document.visibilityState!=="visible")return;fbLoadProgress(authUser.u).then(function(fp){if(!fp)return;var lp=gP(authUser.u);var fpTs=fp._fbUpdated||fp.savedAt||0;var lpTs=(lp&&lp.savedAt)||0;if(fpTs>lpTs){sP(authUser.u,fp);setStats(fp.stats||ds);if(fp.name)setName(fp.name);applyRemoteProgress(fp);}})}document.addEventListener("visibilitychange",onVisible);return()=>document.removeEventListener("visibilitychange",onVisible)},[authScreen,authUser]);
   // ═══ BROWSER BACK BUTTON SUPPORT (popstate) ═══
   useEffect(function(){
     // Mark baseline so we can detect when back would exit the app
