@@ -74,7 +74,7 @@ export default defineConfig({
   ],
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    sourcemap: 'hidden',
     minify: 'esbuild',
     chunkSizeWarningLimit: 600, // chunk-data (vocabulary/lesson data) is inherently ~537 KB
     rollupOptions: {
