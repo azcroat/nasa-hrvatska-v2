@@ -4,11 +4,45 @@
 
 import { useEffect } from 'react';
 
+// Croatian name days (imendan) — month-day → [names]
+const NAME_DAYS = {
+  '01-01':['Ana','Ivan'],'01-07':['Stjepan'],'01-17':['Anton'],'01-20':['Sebastijan'],
+  '02-03':['Blaž'],'02-05':['Agata'],'02-14':['Valentin'],'02-22':['Petar'],
+  '03-08':['Ivana'],'03-17':['Patricija'],'03-19':['Josip'],'03-25':['Marija'],
+  '04-04':['Isidor'],'04-23':['Juraj'],'04-24':['Fide'],'04-29':['Katarina'],
+  '05-03':['Filip','Jakov'],'05-12':['Pankracij'],'05-15':['Sofija'],'05-25':['Grgur'],
+  '06-13':['Antun'],'06-24':['Ivan'],'06-29':['Petar','Pavao'],
+  '07-04':['Elizabeta'],'07-12':['Ivan'],'07-25':['Jakov'],'07-26':['Ana','Joakim'],
+  '08-10':['Lovro'],'08-15':['Marija'],'08-24':['Bartol'],'08-28':['Augustin'],
+  '09-08':['Marija'],'09-21':['Matej'],'09-29':['Mihael','Rafael','Gabrijel'],
+  '10-04':['Franjo'],'10-15':['Terezija'],'10-28':['Šimun','Juda'],
+  '11-01':['Svi sveti'],'11-03':['Hubert'],'11-11':['Martin'],'11-25':['Katarina'],
+  '12-06':['Nikola'],'12-13':['Lucija'],'12-25':['Božić — Isus'],'12-26':['Stjepan'],
+};
+
 const LAST_PRACTICE_KEY = 'nh_last_practice';
 const REMINDER_DISMISSED_KEY = 'nh_reminder_dismissed_today';
 
 export function markPracticed() {
   localStorage.setItem(LAST_PRACTICE_KEY, Date.now().toString());
+}
+
+export function checkNameDay(userName) {
+  if (!userName || !('Notification' in window) || Notification.permission !== 'granted') return;
+  const today = new Date();
+  const key = String(today.getMonth() + 1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+  const names = NAME_DAYS[key] || [];
+  const firstName = userName.split(' ')[0];
+  if (!names.some(n => n.toLowerCase() === firstName.toLowerCase())) return;
+  const dismissed = localStorage.getItem('nh_nameday_dismissed');
+  if (dismissed === today.toDateString()) return;
+  localStorage.setItem('nh_nameday_dismissed', today.toDateString());
+  try {
+    new Notification(`Sretan imendan, ${firstName}! 🎉`, {
+      body: `Danas je tvoj imendan (${names.join('/')}). Čestitamo! Today is your Croatian name day!`,
+      icon: '/icon-192.png', tag: 'name-day',
+    });
+  } catch (_) {}
 }
 
 export function useNotifications() {

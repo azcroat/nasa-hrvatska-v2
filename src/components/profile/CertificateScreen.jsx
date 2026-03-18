@@ -19,11 +19,46 @@ export default function CertificateScreen({ name, level, st, goBack }) {
   }
 
   async function handleShare() {
-    const text = `I've reached Level ${level} (${cefrLabel} — ${levelLabel}) in Croatian with ${st.xp.toLocaleString()} XP on Naša Hrvatska! 🇭🇷`;
+    // Try to share a canvas-generated achievement image first
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 800; canvas.height = 420;
+      const ctx = canvas.getContext('2d');
+      // Background gradient
+      const grad = ctx.createLinearGradient(0, 0, 800, 420);
+      grad.addColorStop(0, '#0a1628'); grad.addColorStop(1, '#0e7490');
+      ctx.fillStyle = grad; ctx.fillRect(0, 0, 800, 420);
+      // Croatian flag stripe
+      ctx.fillStyle = '#D4002D'; ctx.fillRect(0, 0, 267, 8);
+      ctx.fillStyle = '#F5F5F5'; ctx.fillRect(267, 0, 266, 8);
+      ctx.fillStyle = '#003DA5'; ctx.fillRect(533, 0, 267, 8);
+      // App name
+      ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = 'bold 18px sans-serif';
+      ctx.fillText('NAŠA HRVATSKA', 60, 70);
+      // Big name
+      ctx.fillStyle = '#ffffff'; ctx.font = 'bold 52px serif';
+      ctx.fillText(name || 'Learner', 60, 150);
+      // Level badge
+      ctx.fillStyle = '#f59e0b'; ctx.font = 'bold 22px sans-serif';
+      ctx.fillText(`Level ${level} · ${cefrLabel} · ${levelLabel}`, 60, 200);
+      // Stats
+      ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = '18px sans-serif';
+      ctx.fillText(`⭐ ${st.xp.toLocaleString()} XP   📚 ${st.lc} lessons   🔥 ${streak.count}-day streak`, 60, 260);
+      // Date
+      ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '14px sans-serif';
+      ctx.fillText(today + ' · nasahrvatska.com', 60, 390);
+      // Share image if Web Share supports files, else fall back to text
+      const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+      const file = new File([blob], 'nasa-hrvatska-certificate.png', { type: 'image/png' });
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ title: 'My Croatian Progress', files: [file] });
+        return;
+      }
+    } catch (_) {}
+    // Fallback: text share
+    const text = `I've reached Level ${level} (${cefrLabel} — ${levelLabel}) in Croatian with ${st.xp.toLocaleString()} XP on Naša Hrvatska! 🇭🇷 nasahrvatska.com`;
     if (navigator.share) {
-      try {
-        await navigator.share({ title: 'My Croatian Progress — Naša Hrvatska', text, url: 'https://nasahrvatska.com' });
-      } catch (_) {}
+      try { await navigator.share({ title: 'My Croatian Progress', text, url: 'https://nasahrvatska.com' }); } catch (_) {}
     } else {
       await navigator.clipboard.writeText(text);
       alert('Copied to clipboard!');

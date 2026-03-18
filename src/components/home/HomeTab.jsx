@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Bar, V, LEARN_PATH, getStreak, getProverbOfDay, getHistFact, getDailyChallenge, lXP, nXP, speak, getSR } from '../../data.jsx';
+import { Bar, V, LEARN_PATH, getStreak, getStreakFreezes, spendFreeze, getProverbOfDay, getHistFact, getDailyChallenge, lXP, nXP, speak, getSR } from '../../data.jsx';
 
 const LEVEL_PALETTE = [
   { grad: "linear-gradient(135deg,#92400e,#b45309)", light: "#fef3c7", text: "#92400e", border: "#fcd34d" },
@@ -22,6 +22,7 @@ export default function HomeTab({
   const dc = useMemo(getDailyChallenge, []);
   const ws = useMemo(getWeekStats, [st]);
   const streak = useMemo(getStreak, []);
+  const [freezes, setFreezes] = useState(getStreakFreezes);
   const proverb = useMemo(getProverbOfDay, []);
   const fact = useMemo(getHistFact, []);
   const xpCur = st.xp - lXP(level);
@@ -233,6 +234,21 @@ export default function HomeTab({
               <span style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,.65)"}}>{s.label}</span>
             </div>
           ))}
+        </div>
+
+        {/* Streak freeze */}
+        <div style={{marginTop:10,display:'flex',alignItems:'center',gap:8}}>
+          {freezes>0?(
+            <div style={{display:'flex',alignItems:'center',gap:6,background:'rgba(255,255,255,.15)',borderRadius:20,padding:'5px 12px'}}>
+              <span style={{fontSize:14}}>🛡️</span>
+              <span style={{fontSize:12,color:'white',fontWeight:700}}>{freezes} streak freeze{freezes>1?'s':''}</span>
+            </div>
+          ):(
+            <button onClick={()=>{if(st.xp>=200){spendFreeze();setFreezes(f=>f+1);alert('Streak freeze earned! Your streak is now protected for one missed day.');} else alert('You need 200 XP to earn a streak freeze.');}}
+              style={{background:'rgba(255,255,255,.15)',border:'1px dashed rgba(255,255,255,.4)',borderRadius:20,padding:'5px 12px',fontSize:12,color:'white',fontWeight:700,cursor:'pointer'}}>
+              🛡️ Earn Streak Freeze (200 XP)
+            </button>
+          )}
         </div>
         </div>{/* end padding wrapper */}
       </div>

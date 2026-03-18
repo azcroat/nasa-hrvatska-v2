@@ -620,7 +620,20 @@ const KINGS = {
 };
 // ═══ DAILY STREAK ═══
 function getStreak(){try{return JSON.parse(localStorage.getItem("uStreak")||'{"count":0,"last":""}');} catch{return{count:0,last:""}}}
-function updateStreak(){const s=getStreak();const today=new Date().toISOString().slice(0,10);if(s.last===today)return s;const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);if(s.last===yesterday){s.count++;s.last=today}else if(s.last!==today){s.count=1;s.last=today}localStorage.setItem("uStreak",JSON.stringify(s));return s}
+function getStreakFreezes(){try{return parseInt(localStorage.getItem('uFreeze')||'0',10);}catch{return 0}}
+function earnFreeze(){const f=getStreakFreezes();localStorage.setItem('uFreeze',String(Math.min(f+1,5)));}
+function spendFreeze(){const f=getStreakFreezes();if(f<=0)return false;localStorage.setItem('uFreeze',String(f-1));return true;}
+const STREAK_MILESTONES=[7,30,50,100,365];
+function updateStreak(){
+  const s=getStreak();const today=new Date().toISOString().slice(0,10);
+  if(s.last===today)return{...s,milestone:null};
+  const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);
+  let milestone=null;
+  if(s.last===yesterday){s.count++;s.last=today;if(STREAK_MILESTONES.includes(s.count))milestone=s.count;}
+  else if(s.last!==today){if(spendFreeze()){s.last=today;s.frozeOn=today;}else{s.count=1;s.last=today;}}
+  localStorage.setItem("uStreak",JSON.stringify(s));
+  return{...s,milestone};
+}
 // ═══ CROATIAN PROVERBS ═══
 const PROVERBS = [
   {hr:"Tko rano rani, dvije sreće grabi.",en:"The early bird catches two fortunes."},
@@ -4718,4 +4731,4 @@ function getDueReviews() {
 export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, CROATIAN_CITIES, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS };
 export { _fbReady };
 export { H, Bar, Spk };
-export { initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex, getDueReviews };
+export { initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex, getDueReviews };
