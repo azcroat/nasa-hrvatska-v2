@@ -1,0 +1,14 @@
+{
+  "extends": ["web-recommended"],
+  "hints": {
+    "compat-api/css": "off",
+    "compat-api/html": "off",
+    "http-cache": "off",
+    "no-http-redirects": "off",
+    "validate-set-cookie-header": "off",
+    "x-content-type-options": "off",
+    "strict-transport-security": "off"
+  },
+  "parsers": ["html", "javascript", "manifest"],
+  "formatters": ["summary"]
+}

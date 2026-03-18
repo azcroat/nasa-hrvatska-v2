@@ -1,0 +1,253 @@
+name: Play Store Readiness Audit
+
+on:
+  push:
+    branches: [main, master]
+  schedule:
+    # Weekly Monday 8am UTC — catch regressions before any store submission
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+jobs:
+  lighthouse-pwa:
+    name: Lighthouse PWA Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (with placeholder Firebase config)
+        run: npm run build
+        env:
+          VITE_FIREBASE_API_KEY: placeholder
+          VITE_FIREBASE_AUTH_DOMAIN: placeholder.firebaseapp.com
+          VITE_FIREBASE_PROJECT_ID: placeholder
+          VITE_FIREBASE_STORAGE_BUCKET: placeholder.appspot.com
+          VITE_FIREBASE_MESSAGING_SENDER_ID: "000000000000"
+          VITE_FIREBASE_APP_ID: 1:000000000000:web:placeholder
+          VITE_SENTRY_DSN: ""
+
+      - name: Run Lighthouse PWA audit
+        run: npx lhci autorun
+        env:
+          LHCI_BUILD_CONTEXT__CURRENT_HASH: ${{ github.sha }}
+
+      - name: Upload Lighthouse report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-report
+          path: .lighthouseci/
+          retention-days: 14
+
+      - name: Parse and display PWA scores
+        if: always()
+        run: |
+          REPORT=$(ls .lighthouseci/*.json 2>/dev/null | head -1)
+          if [ -n "$REPORT" ]; then
+            node -e "
+              const r = require('$REPORT');
+              const cats = r.categories;
+              const pwa = cats.pwa ? Math.round(cats.pwa.score * 100) : 'N/A';
+              const perf = Math.round(cats.performance.score * 100);
+              const a11y = Math.round(cats.accessibility.score * 100);
+              const bp = Math.round(cats['best-practices'].score * 100);
+              const seo = Math.round(cats.seo.score * 100);
+              console.log('');
+              console.log('╔══════════════════════════════════╗');
+              console.log('║   LIGHTHOUSE SCORES              ║');
+              console.log('╠══════════════════════════════════╣');
+              console.log(\`║  PWA          : \${String(pwa).padEnd(4)} (need ≥80)  ║\`);
+              console.log(\`║  Performance  : \${String(perf).padEnd(4)} (need ≥75)  ║\`);
+              console.log(\`║  Accessibility: \${String(a11y).padEnd(4)} (need ≥90)  ║\`);
+              console.log(\`║  Best Practice: \${String(bp).padEnd(4)} (need ≥90)  ║\`);
+              console.log(\`║  SEO          : \${String(seo).padEnd(4)} (need ≥85)  ║\`);
+              console.log('╚══════════════════════════════════╝');
+              const pwaAudits = r.audits;
+              const checks = [
+                ['installable-manifest', 'Installable manifest'],
+                ['service-worker',       'Service worker registered'],
+                ['maskable-icon',        'Maskable icon (adaptive)'],
+                ['apple-touch-icon',     'Apple touch icon'],
+                ['splash-screen',        'Splash screen configured'],
+                ['themed-omnibox',       'Theme color set'],
+                ['viewport',             'Viewport meta tag'],
+                ['content-width',        'Content width fits viewport'],
+              ];
+              console.log('');
+              console.log('PWA Installability Checks:');
+              checks.forEach(([id, label]) => {
+                const audit = pwaAudits[id];
+                const score = audit ? audit.score : null;
+                const icon = score === 1 ? '✅' : score === 0 ? '❌' : '⚠️';
+                console.log(\`  \${icon} \${label}\`);
+              });
+            " 2>/dev/null || echo "Could not parse Lighthouse JSON report"
+          fi
+
+  webhint:
+    name: Webhint Quality Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_FIREBASE_API_KEY: placeholder
+          VITE_FIREBASE_AUTH_DOMAIN: placeholder.firebaseapp.com
+          VITE_FIREBASE_PROJECT_ID: placeholder
+          VITE_FIREBASE_STORAGE_BUCKET: placeholder.appspot.com
+          VITE_FIREBASE_MESSAGING_SENDER_ID: "000000000000"
+          VITE_FIREBASE_APP_ID: 1:000000000000:web:placeholder
+          VITE_SENTRY_DSN: ""
+
+      - name: Run webhint on manifest and built assets
+        run: |
+          npx --yes hint@latest dist/manifest.webmanifest || true
+        continue-on-error: true
+
+      - name: Validate Web App Manifest structure
+        run: |
+          node -e "
+            const fs = require('fs');
+            const files = fs.readdirSync('dist');
+            const mf = files.find(f => f.includes('manifest'));
+            if (!mf) { console.log('❌ No manifest found in dist/'); process.exit(1); }
+            const m = JSON.parse(fs.readFileSync('dist/' + mf, 'utf8'));
+            const required = ['name','short_name','start_url','display','icons','background_color','theme_color'];
+            const recommended = ['description','id','scope','lang','categories','screenshots'];
+            let pass = true;
+            console.log('Manifest: dist/' + mf);
+            console.log('');
+            console.log('Required fields:');
+            required.forEach(k => {
+              const ok = m[k] !== undefined;
+              console.log('  ' + (ok ? '✅' : '❌') + ' ' + k + (ok ? '' : ' — MISSING'));
+              if (!ok) pass = false;
+            });
+            console.log('');
+            console.log('Recommended for Play Store:');
+            recommended.forEach(k => {
+              const ok = m[k] !== undefined;
+              console.log('  ' + (ok ? '✅' : '⚠️') + ' ' + k + (ok ? '' : ' — add for better store listing'));
+            });
+            const icons = m.icons || [];
+            const has192 = icons.some(i => i.sizes && i.sizes.includes('192'));
+            const has512 = icons.some(i => i.sizes && i.sizes.includes('512'));
+            const hasMaskable = icons.some(i => i.purpose && i.purpose.includes('maskable'));
+            console.log('');
+            console.log('Icon requirements:');
+            console.log('  ' + (has192 ? '✅' : '❌') + ' 192x192 icon');
+            console.log('  ' + (has512 ? '✅' : '❌') + ' 512x512 icon');
+            console.log('  ' + (hasMaskable ? '✅' : '❌') + ' Maskable icon (adaptive icon for Android)');
+            if (!pass) process.exit(1);
+          "
+
+  store-checklist:
+    name: Play Store Checklist Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run store readiness checklist
+        run: |
+          echo "╔══════════════════════════════════════════════════════════╗"
+          echo "║         GOOGLE PLAY STORE READINESS CHECKLIST           ║"
+          echo "╚══════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "▸ Technical Requirements (auto-verified)"
+          echo ""
+
+          # Check manifest exists
+          [ -f "vite.config.js" ] && grep -q "manifest" vite.config.js \
+            && echo "  ✅ Web App Manifest configured" \
+            || echo "  ❌ Web App Manifest MISSING"
+
+          # Check service worker (workbox)
+          grep -q "VitePWA" vite.config.js \
+            && echo "  ✅ Service Worker (Workbox via vite-plugin-pwa)" \
+            || echo "  ❌ Service Worker MISSING"
+
+          # Check icons
+          [ -f "public/icon-192.png" ] && echo "  ✅ 192x192 icon" || echo "  ❌ 192x192 icon MISSING"
+          [ -f "public/icon-512.png" ] && echo "  ✅ 512x512 icon" || echo "  ❌ 512x512 icon MISSING"
+          [ -f "public/apple-touch-icon.png" ] && echo "  ✅ Apple touch icon" || echo "  ❌ Apple touch icon MISSING"
+
+          # Check assetlinks
+          [ -f "public/.well-known/assetlinks.json" ] \
+            && grep -q "REPLACE_WITH" public/.well-known/assetlinks.json \
+            && echo "  ⚠️  assetlinks.json exists but SHA-256 fingerprint not yet set (REQUIRED for TWA)" \
+            || ([ -f "public/.well-known/assetlinks.json" ] \
+                && echo "  ✅ assetlinks.json configured" \
+                || echo "  ❌ assetlinks.json MISSING (blocking for TWA)")
+
+          # Check privacy policy
+          find src -name "Privacy*" -o -name "privacy*" 2>/dev/null | grep -q . \
+            && echo "  ✅ Privacy policy component exists" \
+            || echo "  ❌ Privacy policy MISSING (required by Play Store)"
+
+          # Check HTTPS via CSP header
+          [ -f "public/_headers" ] && grep -q "https" public/_headers \
+            && echo "  ✅ HTTPS security headers configured" \
+            || echo "  ⚠️  Verify HTTPS is enforced"
+
+          # Check screenshots
+          [ -d "public/screenshots" ] \
+            && echo "  ✅ Screenshots directory exists" \
+            || echo "  ⚠️  Screenshots missing — add to public/screenshots/ for better Play Store listing"
+
+          echo ""
+          echo "▸ Manual Steps Required Before Submission"
+          echo ""
+          echo "  □ 1. Generate TWA (Trusted Web Activity) APK"
+          echo "        → Use PWABuilder: https://www.pwabuilder.com"
+          echo "        → Enter: https://nasahrvatska.com"
+          echo "        → Download the Android package"
+          echo ""
+          echo "  □ 2. Set assetlinks.json SHA-256 fingerprint"
+          echo "        → In Play Console > App Integrity > get SHA-256"
+          echo "        → Update public/.well-known/assetlinks.json"
+          echo "        → Redeploy so https://nasahrvatska.com/.well-known/assetlinks.json is live"
+          echo ""
+          echo "  □ 3. Add store screenshots to public/screenshots/"
+          echo "        → Mobile: 390×844px (portrait)"
+          echo "        → Tablet: 1280×720px (landscape)"
+          echo "        → Minimum 2, recommended 4-8"
+          echo ""
+          echo "  □ 4. Create Google Play Console account (\$25 one-time fee)"
+          echo "        → https://play.google.com/console"
+          echo ""
+          echo "  □ 5. Fill in Play Store listing"
+          echo "        → App name: Naša Hrvatska — Our Croatia"
+          echo "        → Category: Education"
+          echo "        → Privacy policy URL: https://nasahrvatska.com/privacy"
+          echo "        → Content rating: complete questionnaire (likely 'Everyone')"
+          echo ""
+          echo "  □ 6. Target API level 34+ (Android 14)"
+          echo "        → PWABuilder / Bubblewrap handles this automatically"
+          echo ""
+          echo "▸ Recommended before submission"
+          echo ""
+          echo "  □ Lighthouse PWA score ≥ 80 (see Lighthouse PWA Audit job above)"
+          echo "  □ Accessibility score ≥ 90"
+          echo "  □ Test offline mode: airplane mode → app still shows cached content"
+          echo "  □ Test install flow on Android Chrome: 3-dot menu → Add to Home Screen"
+          echo "  □ Verify theme_color (#0e7490) matches your branding"
+          echo ""
+          echo "══════════════════════════════════════════════════════════"
