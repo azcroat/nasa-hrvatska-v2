@@ -4,7 +4,8 @@
 import React from 'react';
 import { _fbReady, initFirebase, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged } from './lib/firebase.js';
 import { loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN } from './lib/audio.js';
-function sh(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+import { rnd } from './lib/random.js';
+function sh(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
 function lvl(x){const t=[0,50,150,300,500,800,1200,1800,2500,3500];for(let i=t.length-1;i>=0;i--)if(x>=t[i])return i+1;return 1}
 function lXP(l){return[0,0,50,150,300,500,800,1200,1800,2500,3500][l]??3500}
 function nXP(l){return[0,50,150,300,500,800,1200,1800,2500,3500,5000][l]??5000}
@@ -3259,7 +3260,7 @@ const FILL_STORIES = [
 // ═══ SHUFFLE HELPER ═══
 const _shCache={};
 function shMemo(key,arr,n){if(!_shCache[key])_shCache[key]=shuffleArr(arr);return n?_shCache[key].slice(0,n):_shCache[key]}
-function shuffleArr(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t}return a}
+function shuffleArr(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));const t=a[i];a[i]=a[j];a[j]=t}return a}
 // ═══ PRONOUN CASES ═══
 const PRONOUNCASE = {
   intro:"Croatian pronouns change form depending on the preposition. Learn the patterns!",

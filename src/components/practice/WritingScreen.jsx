@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { H } from '../../data.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
+import { rnd } from '../../lib/random.js';
 
 const PROMPTS = [
   {en:"Describe your morning routine",hr:"Opiši svoju jutarnju rutinu"},
@@ -17,7 +18,7 @@ const PROMPTS = [
 
 export default function WritingScreen({ goBack, award }) {
   const isOnline = useOnlineStatus();
-  const [promptIdx, setPromptIdx] = useState(() => Math.floor(Math.random() * PROMPTS.length));
+  const [promptIdx, setPromptIdx] = useState(() => Math.floor(rnd() * PROMPTS.length));
   const [text, setText] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -56,7 +57,7 @@ export default function WritingScreen({ goBack, award }) {
     setResult(null);
     setError("");
     setPromptIdx(function(cur) {
-      const next = Math.floor(Math.random() * (PROMPTS.length - 1));
+      const next = Math.floor(rnd() * (PROMPTS.length - 1));
       return next >= cur ? next + 1 : next;
     });
   }

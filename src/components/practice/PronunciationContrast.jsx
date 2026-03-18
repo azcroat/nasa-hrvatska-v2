@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { H, Bar } from '../../data.jsx';
 
-function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;}
+import { rnd } from '../../lib/random.js';
+function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;}
 
 const DATA = [
   { q:"'To read' in Croatian:", opts:["čitati","ćitati","šitati","žitati"], answer:"čitati", en:"čitati = to read", tip:"Č is harder (like 'ch' in 'church'). 'Čitati' — the č makes a hard ch sound" },

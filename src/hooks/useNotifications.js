@@ -3,6 +3,7 @@
 // A daily reminder fires when the user opens the app and hasn't practiced today.
 
 import { useEffect } from 'react';
+import { rnd } from '../lib/random.js';
 
 // Croatian name days (imendan) — month-day → [names]
 const NAME_DAYS = {
@@ -82,7 +83,7 @@ function showReminder() {
     { body: 'Just 5 minutes of Croatian today? Your vocabulary is waiting. 🇭🇷', title: 'Vježbaj danas!' },
     { body: 'Your review queue has words waiting. Come back and keep learning! 📚', title: 'Naša Hrvatska' },
   ];
-  const msg = messages[Math.floor(Math.random() * messages.length)];
+  const msg = messages[Math.floor(rnd() * messages.length)];
   try {
     new Notification(msg.title, {
       body: msg.body,

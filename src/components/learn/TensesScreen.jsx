@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { H, Bar, speak, sh, TENSES } from '../../data.jsx';
+import { rnd } from '../../lib/random.js';
 
 export default function TensesScreen({ goBack, award }) {
   const [tnMode, setTnMode] = useState("learn");
@@ -17,8 +18,8 @@ export default function TensesScreen({ goBack, award }) {
     const qs = [];
     TENSES.verbs.forEach((v, vi) => {
       ["present","past","future"].forEach(t => {
-        const pidx = Math.floor(Math.random() * 6);
-        const gnd = Math.random() > 0.5 ? "m" : "f";
+        const pidx = Math.floor(rnd() * 6);
+        const gnd = rnd() > 0.5 ? "m" : "f";
         const forms = t === "present" ? v.present : t === "past" ? (gnd === "m" ? v.pastM : v.pastF) : (gnd === "m" ? v.futureM : v.futureF);
         const correct = forms[pidx];
         const person = TENSES.persons[pidx];
