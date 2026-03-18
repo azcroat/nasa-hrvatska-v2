@@ -322,40 +322,25 @@ export default function PracticeTab({
         </div>
       </Section>
 
-      {/* ── SLANG & EXPRESSIONS ── */}
-      <button
-        className="tc"
-        style={{
-          width: '100%', display: 'flex', alignItems: 'center', gap: 14,
-          padding: '18px', marginBottom: 8, textAlign: 'left',
-          background: 'linear-gradient(135deg,#1a1a2e,#0f3460)',
-          border: '2px solid #374151', borderRadius: 16,
-        }}
-        onClick={() => { setScr('slang'); sCurEx('slang'); }}>
-        <div style={{
-          width: 52, height: 52, borderRadius: 14, flexShrink: 0,
-          background: 'linear-gradient(135deg,#dc2626,#b91c1c)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 26, boxShadow: '0 4px 16px rgba(220,38,38,.4)',
-        }}>
-          🤬
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', marginBottom: 3 }}>
-            Slang & Psovanje
+      <Section title="Slang & Expressions" icon="🤬" count="12 modules · 150+ phrases" defaultOpen={false}>
+        <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>Authentic slang, psovanje & street language with cultural context</p>
+        <button className="tc"
+          style={{ width:"100%", display:"flex", alignItems:"center", gap:12, padding:"14px", textAlign:"left" }}
+          onClick={() => { setScr('slang'); sCurEx('slang'); }}>
+          <div style={{ width:40, height:40, borderRadius:12, background:"#fff1f2", border:"1px solid #fca5a5",
+            display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0 }}>
+            🤬
           </div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,.6)', lineHeight: 1.4, fontWeight: 500 }}>
-            Authentic Croatian slang, expressions & the artform of swearing — with cultural context
+          <div style={{ flex:1, minWidth:0 }}>
+            <div style={{ fontSize:12, fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>Slang & Psovanje</div>
+            <div style={{ fontSize:10, color:"var(--subtext)", marginTop:2, lineHeight:1.3 }}>Sound like a local — jeb- classics, dialects, Gen Z & more</div>
           </div>
-        </div>
-        <div style={{
-          background: 'rgba(220,38,38,.3)', border: '1px solid rgba(220,38,38,.5)',
-          borderRadius: 8, padding: '4px 10px', fontSize: 10, fontWeight: 800,
-          color: '#fca5a5', whiteSpace: 'nowrap', flexShrink: 0,
-        }}>
-          18+ 🔥
-        </div>
-      </button>
+          <div style={{ background:"#fff1f2", border:"1px solid #fca5a5", borderRadius:8, padding:"3px 8px",
+            fontSize:10, fontWeight:800, color:"#dc2626", whiteSpace:"nowrap", flexShrink:0 }}>
+            18+ 🔥
+          </div>
+        </button>
+      </Section>
 
       <Section title="🧪 Fluency Lab" icon="🧪" count="3 advanced tools" defaultOpen={true}>
         <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>
