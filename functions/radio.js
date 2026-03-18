@@ -32,7 +32,7 @@ export async function onRequest(context) {
       status: 200,
       headers: {
         'Content-Type': upstream.headers.get('Content-Type') || 'audio/mpeg',
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': 'https://nasahrvatska.com',
         'Cache-Control': 'no-store, no-cache',
       },
     });
