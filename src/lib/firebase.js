@@ -64,7 +64,13 @@ export async function fbSaveProgress(uid,data){
   }catch(e){
     console.warn("FB save error:",e);
     // Graceful fallback: try a simple setDoc if transaction fails
+    // Re-check timestamp before writing to avoid overwriting newer remote data
     try{
+      var fallbackSnap=await getDoc(fsDoc(_fbDb,"users",id)).catch(()=>null);
+      if(fallbackSnap&&fallbackSnap.exists()){
+        var fbRemoteTs=(fallbackSnap.data().updated)||0;
+        if(fbRemoteTs>incoming.updated){return{ok:true};} // remote is newer — skip
+      }
       await setDoc(fsDoc(_fbDb,"users",id),incoming,{merge:true});
       return{ok:true};
     }catch(e2){

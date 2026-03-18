@@ -77,7 +77,9 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         const lf = getLocalFamily(); if (lf) cb.current.setFamData(lf);
         cb.current.onSignedIn({ user, progress: p });
         setAuthScreen('app');
-        const t = setTimeout(() => cb.current.setSyncReady(true), 5000);
+        let _syncReadyFired = false;
+        function _fireSyncReady() { if (!_syncReadyFired) { _syncReadyFired = true; cb.current.setSyncReady(true); } }
+        const t = setTimeout(_fireSyncReady, 5000);
         fbLoadProgress(s.u).then(fp => {
           clearTimeout(t);
           if (fp) {
@@ -92,8 +94,8 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
               cb.current.applyRemoteProgress(fp);
             }
           }
-          cb.current.setSyncReady(true);
-        });
+          _fireSyncReady();
+        }).catch(() => _fireSyncReady());
       } else {
         if (_fbReady) {
           fbOnAuthStateChanged(fbUser => {
@@ -216,7 +218,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
               cb.current.onSignedIn({ user, progress: fp, isHydrate: true });
               cb.current.applyRemoteProgress(fp);
             }
-          });
+          }).catch(() => { /* network error — keep local progress */ });
           setAuthLoading(false); return;
         }
         setAuthError('Incorrect password. Try again or use Forgot Password.'); setAuthLoading(false); return;
