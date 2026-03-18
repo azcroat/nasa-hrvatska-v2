@@ -234,6 +234,7 @@ function App(){
   const[showXP,setShowXP]=useState(false);const[xpA,setXpA]=useState(0);const[nB,setNB]=useState(null);const[sB,setSB]=useState(false);
   const _initialPath=useRef(window.location.pathname);
   const[_syncReady,_setSyncReady]=useState(false);
+  const[showBackupBanner,setShowBackupBanner]=useState(false);
   // ── useAuth — must be declared BEFORE the useEffects that reference
   // authScreen/authUser in their dependency arrays, to avoid TDZ errors
   // in the minified production bundle.
@@ -277,6 +278,7 @@ function App(){
   useEffect(()=>{if(!_syncReady||!authUser||authScreen!=="app")return;var _nd=new Date();var _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');sP(authUser.u,{name,stats,cp:currentScreen!=="welcome"&&currentScreen!=="placement",onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),favs,journal:jWords,dc:{day:_dcDay,answered:dchlA,selected:dchlSl},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()});touchSession()},[stats,currentScreen,name,authUser,authScreen,jWords,favs,dchlA,dchlSl,_syncReady]);
   useEffect(()=>{if(authScreen!=="app")return;const iv=setInterval(()=>{if(isSessionExpired()){doOut();}},5*60*1000);return()=>clearInterval(iv)},[authScreen]);// eslint-disable-line
   useEffect(()=>{if(authScreen!=="app")return;const h=()=>touchSession();window.addEventListener("click",h);window.addEventListener("touchstart",h);window.addEventListener("keydown",h);return()=>{window.removeEventListener("click",h);window.removeEventListener("touchstart",h);window.removeEventListener("keydown",h)}},[authScreen]);
+  useEffect(()=>{if(!_syncReady||authScreen!=="app"||!authUser)return;if(!localStorage.getItem("fbBackupConfirmed")){setShowBackupBanner(true);}},[_syncReady,authScreen,authUser]);
   useEffect(()=>{if(authScreen!=="app"||!authUser)return;function onVisible(){if(document.visibilityState!=="visible")return;fbLoadProgress(authUser.u).then(function(fp){if(!fp)return;var lp=gP(authUser.u);var fpTs=fp._fbUpdated||fp.savedAt||0;var lpTs=(lp&&lp.savedAt)||0;if(fpTs>lpTs){sP(authUser.u,fp);setStats(fp.stats||ds);if(fp.name)setName(fp.name);applyRemoteProgress(fp);}})}document.addEventListener("visibilitychange",onVisible);return()=>document.removeEventListener("visibilitychange",onVisible)},[authScreen,authUser]);
   // ═══ BROWSER BACK BUTTON SUPPORT (popstate) ═══
   useEffect(function(){
@@ -417,6 +419,20 @@ function App(){
       {showCelebration&&<CelebrationModal xp={celebXP} onClose={onCloseCelebration} />}
       {!onboarded&&authScreen==="app"&&currentScreen!=="welcome"&&currentScreen!=="placement"&&<OnboardingTour onDone={()=>setOnboarded(true)} />}
       {comebackBonus&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#f59e0b,#d97706)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.2)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease"}}>🔥 Welcome back! Keep your streak alive!</div>}
+      {showBackupBanner&&<div role="status" aria-live="polite" style={{position:"fixed",bottom:90,left:"50%",transform:"translateX(-50%)",zIndex:9600,width:"calc(100% - 32px)",maxWidth:420,background:"linear-gradient(135deg,#0e7490,#164e63)",color:"#fff",borderRadius:20,padding:"18px 20px 18px 20px",boxShadow:"0 8px 40px rgba(14,116,144,.45)",animation:"slideUp .4s cubic-bezier(.34,1.56,.64,1)"}}>
+        <div style={{display:"flex",alignItems:"flex-start",gap:14}}>
+          <div style={{fontSize:36,flexShrink:0,lineHeight:1}}>🛡️</div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:16,fontWeight:900,marginBottom:4,lineHeight:1.2}}>Your progress is now protected!</div>
+            <div style={{fontSize:13,opacity:.88,lineHeight:1.5,fontWeight:500}}>Everything you learn is now automatically backed up to the cloud. You will never lose your progress again — on any device, any browser, ever.</div>
+          </div>
+          <button onClick={()=>{localStorage.setItem("fbBackupConfirmed","true");setShowBackupBanner(false);}} aria-label="Dismiss" style={{background:"rgba(255,255,255,.2)",border:"none",color:"#fff",borderRadius:10,width:32,height:32,fontSize:18,cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",lineHeight:1}}>✕</button>
+        </div>
+        <div style={{marginTop:12,display:"flex",alignItems:"center",gap:8}}>
+          <div style={{flex:1,height:3,borderRadius:3,background:"rgba(255,255,255,.2)",overflow:"hidden"}}><div style={{height:"100%",width:"100%",background:"rgba(255,255,255,.7)",borderRadius:3,animation:"pulse 2s ease-in-out infinite"}}/></div>
+          <div style={{fontSize:11,opacity:.75,fontWeight:700,whiteSpace:"nowrap"}}>✓ Cloud sync active</div>
+        </div>
+      </div>}
       {currentScreen==="welcome" && <WelcomeScreen name={name} authUser={authUser} st={stats} setScr={setScr} setName={setName} sPq={sPq} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} />}
       {currentScreen==="placement" && <PlacementTest pq={pq} pi={pi} ps={ps} pa={pa} px={px} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} setScr={setScr} setStats={setStats} />}
       {// ═══ DASHBOARD ═══
