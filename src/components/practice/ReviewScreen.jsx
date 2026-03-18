@@ -1,8 +1,11 @@
-import React, { useState, useMemo } from 'react';
-import { H, Bar, Spk, srMark, getDueReviews, getSR } from '../../data.jsx';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { H, Bar, Spk, srMark, getDueReviews } from '../../data.jsx';
+import { useHaptic } from '../../hooks/useHaptic.js';
+import { markPracticed } from '../../hooks/useNotifications.js';
 
 export default function ReviewScreen({ goBack, award, allCats, V }) {
-  const pool = useMemo(() => allCats.flatMap(t => V[t]), [allCats]);
+  const haptic = useHaptic();
+  const pool = useMemo(() => allCats.flatMap(t => V[t]), [allCats]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const dueWords = useMemo(() => {
     const due = getDueReviews();
@@ -25,6 +28,36 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
     });
   }, [dueWords, pool]);
 
+  // Use a ref to hold current values so the keyboard handler never goes stale
+  const stateRef = useRef({});
+  stateRef.current = { answered, idx, questions, score };
+
+  // Keyboard shortcuts: 1-4 to pick answer, Space/Enter to advance
+  // Hooks must be unconditional — placed before all early returns
+  useEffect(() => {
+    function handleKey(e) {
+      const { answered: ans, idx: i, questions: qs } = stateRef.current;
+      if (e.key === ' ' || e.key === 'Enter') {
+        if (ans) {
+          if (i < qs.length - 1) { setIdx(n => n + 1); setAnswered(false); setSelected(-1); }
+          else setDone(true);
+        }
+      }
+      if (['1','2','3','4'].includes(e.key)) {
+        const qi = parseInt(e.key, 10) - 1;
+        const q = qs[i];
+        if (!ans && q && q.opts[qi] !== undefined) {
+          setSelected(qi); setAnswered(true);
+          const ok = q.opts[qi] === q.correct;
+          if (ok) { setScore(s => s + 1); haptic.correct(); } else haptic.wrong();
+          srMark(q.word[0], ok);
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [haptic]); // haptic is stable; stateRef.current is read inside, no stale closure
+
   if (dueWords.length === 0) {
     return (
       <div className="scr-wrap">
@@ -34,12 +67,12 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
           <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:24,color:"#164e63",marginTop:12}}>All caught up!</h2>
           <p style={{color:"#78716c",marginTop:8,lineHeight:1.6}}>
             No reviews due right now.<br/>
-            Words you've practiced will appear here when it's time to review them.
+            Words you&apos;ve practiced will appear here when it&apos;s time to review them.
           </p>
           <div style={{background:"#f0fdf4",border:"1.5px solid #bbf7d0",borderRadius:14,padding:"16px",marginTop:24,textAlign:"left"}}>
             <p style={{fontWeight:700,fontSize:13,color:"#166534",marginBottom:6}}>💡 How spaced repetition works:</p>
             <p style={{fontSize:13,color:"#374151",lineHeight:1.6}}>
-              Words you practice are scheduled for review at increasing intervals: 1 day → 3 days → 7 days → 14 days → 30 days. Come back tomorrow to review today's words!
+              Words you practice are scheduled for review at increasing intervals: 1 day → 3 days → 7 days → 14 days → 30 days. Come back tomorrow to review today&apos;s words!
             </p>
           </div>
           <button className="b bp" style={{marginTop:24}} onClick={goBack}>Go Back</button>
@@ -58,7 +91,7 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
           <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:28,color:"#164e63",marginTop:8}}>Review Complete!</h2>
           <p style={{color:"#78716c",marginTop:8}}>{score}/{questions.length} correct</p>
           <p style={{fontSize:13,color:"#64748b",marginTop:8}}>Your spaced repetition intervals have been updated</p>
-          <button className="b bp" style={{marginTop:24}} onClick={()=>{award(score*5+5);goBack();}}>Continue</button>
+          <button className="b bp" style={{marginTop:24}} onClick={()=>{markPracticed();haptic.award();award(score*5+5);goBack();}}>Continue</button>
         </div>
       </div>
     );
@@ -70,7 +103,7 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
   return (
     <div className="scr-wrap">
       {H("🔁 Review Due")}
-      <p style={{fontSize:12,color:"#78716c",marginBottom:8,fontWeight:500}}>{dueWords.length} words due for review</p>
+      <p style={{fontSize:12,color:"#78716c",marginBottom:8,fontWeight:500}}>{dueWords.length} words due · <span style={{opacity:.6}}>keys 1-4 to answer, Space to continue</span></p>
       <Bar v={idx+1} mx={questions.length} color="#7c3aed" h={6} />
       <div className="c" style={{marginTop:16,padding:"20px"}}>
         <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:20}}>
@@ -85,27 +118,22 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
             else if (i === selected) cls += " no";
           }
           return (
-            <button key={i} className={cls} onClick={() => {
+            <button key={opt} className={cls} onClick={() => {
               if (answered) return;
               setSelected(i);
               setAnswered(true);
               const ok = opt === q.correct;
-              if (ok) setScore(s => s + 1);
+              if (ok) { setScore(s => s + 1); haptic.correct(); } else haptic.wrong();
               srMark(q.word[0], ok);
             }}>
-              {opt}
+              <span style={{opacity:.4,fontSize:11,marginRight:6}}>{i+1}</span>{opt}
             </button>
           );
         })}
         {answered && (
           <button className="b bp" style={{width:"100%",marginTop:16}} onClick={() => {
-            if (idx < questions.length - 1) {
-              setIdx(i => i + 1);
-              setAnswered(false);
-              setSelected(-1);
-            } else {
-              setDone(true);
-            }
+            if (idx < questions.length - 1) { setIdx(i => i + 1); setAnswered(false); setSelected(-1); }
+            else setDone(true);
           }}>
             {idx < questions.length - 1 ? "Next →" : "Results"}
           </button>

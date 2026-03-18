@@ -18,6 +18,18 @@ export default function CertificateScreen({ name, level, st, goBack }) {
     window.print();
   }
 
+  async function handleShare() {
+    const text = `I've reached Level ${level} (${cefrLabel} — ${levelLabel}) in Croatian with ${st.xp.toLocaleString()} XP on Naša Hrvatska! 🇭🇷`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'My Croatian Progress — Naša Hrvatska', text, url: 'https://nasahrvatska.com' });
+      } catch (_) {}
+    } else {
+      await navigator.clipboard.writeText(text);
+      alert('Copied to clipboard!');
+    }
+  }
+
   return (
     <div className="scr-wrap">
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
@@ -27,6 +39,11 @@ export default function CertificateScreen({ name, level, st, goBack }) {
           color: 'var(--heading)', fontFamily: "'Outfit',sans-serif",
         }}>← Back</button>
         <h2 style={{ fontSize: 18, fontWeight: 900, color: 'var(--heading)', flex: 1 }}>Progress Certificate</h2>
+        <button onClick={handleShare} style={{
+          background: 'linear-gradient(135deg,#7c3aed,#4f46e5)',
+          color: '#fff', border: 'none', borderRadius: 12, padding: '10px 18px',
+          fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Outfit',sans-serif", marginRight: 8,
+        }}>🔗 Share</button>
         <button onClick={handlePrint} style={{
           background: 'linear-gradient(135deg,#0e7490,#164e63)',
           color: '#fff', border: 'none', borderRadius: 12, padding: '10px 18px',

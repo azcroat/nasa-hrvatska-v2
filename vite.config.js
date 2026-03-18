@@ -83,6 +83,8 @@ export default defineConfig({
           if (id.includes('node_modules/firebase')) return 'vendor-firebase';
           if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) return 'vendor-react';
           if (id.includes('node_modules/@sentry')) return 'vendor-sentry';
+          if (id.includes('node_modules/posthog-js')) return 'vendor-posthog';
+          if (id.includes('node_modules/dexie')) return 'vendor-dexie';
           // data.jsx is 570 KB of vocabulary/lesson data — isolate it so other chunks stay small
           if (id.includes('src/data')) return 'chunk-data';
           // Split learn into sub-chunks to keep each below 500 KB
