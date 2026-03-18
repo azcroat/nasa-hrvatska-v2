@@ -28,11 +28,9 @@ function Section({ title, icon, count, defaultOpen = false, children }) {
 
 export default function PracticeTab({
   allCats, sh, setScr, sCurEx,
-  sMcQ, sMcI, sMcS, sMcA, sMcSl,
-  sFcPool, sFcI, sFcFlip, sFcKnow,
+  onLaunchQuiz, onLaunchFlash, onLaunchListen,
   sMp, sMsl, sMm, sGsc, sGph,
   sTyPool, sTyI, sTyS, sTyIn, sTyA, sTyW,
-  sLsQ, sLsI, sLsS, sLsA, sLsSl, sLsO,
   sSi, sSx, sSw, sSr, sSsc,
   sZnMode,
   sUjQ, sUjI, sUjS, sUjIn, sUjA,
@@ -45,13 +43,12 @@ export default function PracticeTab({
 
   function startQuiz() {
     const p = pool();
-    const items = sh(p).slice(0,10);
-    sMcQ(items.map(w => { const wr=sh(p.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]); return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]}; }));
-    sMcI(0); sMcS(0); sMcA(false); sMcSl(-1); setScr("mcgame"); sCurEx("mcgame");
+    const items = sh(p).slice(0,10).map(w => { const wr=sh(p.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]); return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]}; });
+    onLaunchQuiz(items);
   }
   function startFlashcards() {
     const p = pool();
-    sFcPool(sh(p).slice(0,20)); sFcI(0); sFcFlip(false); sFcKnow(0); setScr("flashcards"); sCurEx("flashcards");
+    onLaunchFlash(sh(p).slice(0,20));
   }
   function startMatch() {
     const p = pool();
@@ -65,8 +62,7 @@ export default function PracticeTab({
     sTyPool(items); sTyI(0); sTyS(0); sTyIn(""); sTyA(false); sTyW(items[0]); setScr("typing"); sCurEx("typing");
   }
   function startListening() {
-    const q = sh(LISTEN).slice(0,8);
-    sLsQ(q); sLsI(0); sLsS(0); sLsA(false); sLsSl(-1); sLsO(sh(q[0].opts)); setScr("listening"); sCurEx("listening");
+    onLaunchListen(sh(LISTEN).slice(0,8));
   }
   function startSpeaking() {
     const p = pool();
@@ -81,7 +77,7 @@ export default function PracticeTab({
     const weakWords = weak.slice(0,15).map(e=>p.find(w=>w[0]===e[0])).filter(Boolean);
     if (weakWords.length < 3) { setWeakMsg("Not enough weak words yet — keep practicing!"); return; }
     const items = weakWords.map(w => { const wr=sh(p.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]); return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]}; });
-    sMcQ(items); sMcI(0); sMcS(0); sMcA(false); sMcSl(-1); setScr("mcgame"); sCurEx("mcgame");
+    onLaunchQuiz(items);
   }
   function startReview() {
     setScr("review"); sCurEx("review");
