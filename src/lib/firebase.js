@@ -3,7 +3,7 @@
 // Extracted from data.jsx as part of Sprint 1 architectural split
 // ═══════════════════════════════════════════════════════════
 import { initializeApp, getApps } from 'firebase/app';
-import { getAuth, setPersistence, browserLocalPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile } from 'firebase/auth';
+import { getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile } from 'firebase/auth';
 import { getFirestore, doc as fsDoc, getDoc, setDoc, collection, getDocs, query, limit, orderBy, runTransaction } from 'firebase/firestore';
 
 const FIREBASE_CONFIG = {
@@ -21,7 +21,10 @@ export function initFirebase(){
   try{
     const app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);
     _fbAuth=getAuth(app);_fbDb=getFirestore(app);_fbReady=true;
-    setPersistence(_fbAuth,browserLocalPersistence).catch(()=>{});return true
+    // Persistence fallback chain: local (IndexedDB) → session (sessionStorage) → silent fail (in-memory).
+    // Privacy browsers (DuckDuckGo, Firefox strict, Safari ITP, Chrome incognito) block IndexedDB.
+    // browserSessionPersistence uses sessionStorage which is always available.
+    setPersistence(_fbAuth,browserLocalPersistence).catch(()=>setPersistence(_fbAuth,browserSessionPersistence)).catch(()=>{});return true
   }catch(e){console.warn("Firebase init failed:",e);return false}
 }
 // Auto-init on module load
