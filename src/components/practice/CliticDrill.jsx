@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { H, Bar } from '../../data.jsx';
 
-function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;} // NOSONAR - Math.random() is acceptable for quiz/game shuffling
+function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;}
 
 const DATA = [
   { sentence:"Dao ___ ga je.", opts:["mu ga je","ga mu je","je ga mu","mu je ga"], answer:"mu ga je", en:"He gave it to him.", tip:"Clitic order: dative (mu) → accusative (ga) → auxiliary (je)" },

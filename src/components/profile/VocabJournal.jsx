@@ -18,7 +18,7 @@ async function migrateFromLocalStorage() {
       await db.journal.bulkAdd(words.map(w => ({ hr: w.hr, en: w.en, date: w.date || Date.now() })));
     }
     localStorage.removeItem('uJournal');
-  } catch (_) {} // NOSONAR - intentional empty catch, optional browser API or safe fallback
+  } catch (_) {}
 }
 
 export default function VocabJournal({ goBack }) {

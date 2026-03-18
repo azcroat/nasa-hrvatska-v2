@@ -4,7 +4,7 @@
 export function useHaptic() {
   function buzz(pattern) {
     if ('vibrate' in navigator) {
-      try { navigator.vibrate(pattern); } catch (_) {} // NOSONAR - intentional empty catch, optional browser API or safe fallback
+      try { navigator.vibrate(pattern); } catch (_) {}
     }
   }
   return {

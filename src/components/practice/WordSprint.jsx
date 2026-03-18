@@ -12,7 +12,7 @@ function buildPool(cats, sh) {
 function makeQuestion(word, allWords, sh) {
   const wrong = sh(allWords.filter(w => w.en !== word.en)).slice(0, 3);
   if (wrong.length < 3) return null;
-  const dir = Math.random() < 0.5; // NOSONAR - Math.random() is acceptable for quiz/game shuffling
+  const dir = Math.random() < 0.5;
   if (dir) {
     return { prompt: word.hr, answer: word.en, opts: sh([word.en, wrong[0].en, wrong[1].en, wrong[2].en]), word };
   } else {

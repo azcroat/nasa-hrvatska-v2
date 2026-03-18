@@ -54,11 +54,11 @@ export default function CertificateScreen({ name, level, st, goBack }) {
         await navigator.share({ title: 'My Croatian Progress', files: [file] });
         return;
       }
-    } catch (_) {} // NOSONAR - intentional empty catch, optional browser API or safe fallback
+    } catch (_) {}
     // Fallback: text share
     const text = `I've reached Level ${level} (${cefrLabel} — ${levelLabel}) in Croatian with ${st.xp.toLocaleString()} XP on Naša Hrvatska! 🇭🇷 nasahrvatska.com`;
     if (navigator.share) {
-      try { await navigator.share({ title: 'My Croatian Progress', text, url: 'https://nasahrvatska.com' }); } catch (_) {} // NOSONAR - intentional empty catch, optional browser API or safe fallback
+      try { await navigator.share({ title: 'My Croatian Progress', text, url: 'https://nasahrvatska.com' }); } catch (_) {}
     } else {
       await navigator.clipboard.writeText(text);
       alert('Copied to clipboard!');
