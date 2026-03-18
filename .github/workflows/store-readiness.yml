@@ -251,3 +251,97 @@ jobs:
           echo "  □ Verify theme_color (#0e7490) matches your branding"
           echo ""
           echo "══════════════════════════════════════════════════════════"
+
+          echo ""
+          echo "╔══════════════════════════════════════════════════════════╗"
+          echo "║         APPLE APP STORE READINESS CHECKLIST             ║"
+          echo "╚══════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "▸ Technical Requirements (auto-verified)"
+          echo ""
+
+          # apple-touch-icon
+          [ -f "public/apple-touch-icon.png" ] \
+            && echo "  ✅ apple-touch-icon.png (home screen icon)" \
+            || echo "  ❌ apple-touch-icon.png MISSING"
+
+          # 1024x1024 App Store Connect icon
+          [ -f "public/icon-1024.png" ] \
+            && echo "  ✅ icon-1024.png (App Store Connect — 1024×1024)" \
+            || echo "  ❌ icon-1024.png MISSING — required for App Store submission"
+
+          # iOS splash screens
+          SPLASH_COUNT=$(ls public/splash/*.png 2>/dev/null | wc -l)
+          [ "$SPLASH_COUNT" -ge 6 ] \
+            && echo "  ✅ iOS splash screens ($SPLASH_COUNT device sizes)" \
+            || echo "  ⚠️  iOS splash screens: only $SPLASH_COUNT found (run npm run prebuild)"
+
+          # iOS meta tags
+          grep -q "apple-mobile-web-app-capable" index.html \
+            && echo "  ✅ apple-mobile-web-app-capable meta tag" \
+            || echo "  ❌ apple-mobile-web-app-capable MISSING"
+
+          grep -q "apple-touch-startup-image" index.html \
+            && echo "  ✅ apple-touch-startup-image launch links" \
+            || echo "  ❌ apple-touch-startup-image links MISSING"
+
+          # PrivacyInfo.xcprivacy
+          [ -f "ios/PrivacyInfo.xcprivacy" ] \
+            && echo "  ✅ PrivacyInfo.xcprivacy (iOS 17+ required)" \
+            || echo "  ❌ PrivacyInfo.xcprivacy MISSING — required for iOS 17+"
+
+          # Privacy policy
+          find src -name "Privacy*" -o -name "privacy*" 2>/dev/null | grep -q . \
+            && echo "  ✅ Privacy policy component exists" \
+            || echo "  ❌ Privacy policy MISSING (required by App Store)"
+
+          echo ""
+          echo "  ⚠️  KEY DIFFERENCE FROM GOOGLE PLAY:"
+          echo "  Apple does NOT support TWA. The app must be wrapped"
+          echo "  in a native iOS container (WKWebView)."
+          echo ""
+          echo "▸ Manual Steps Required Before Submission"
+          echo ""
+          echo "  □ 1. Generate iOS package via PWABuilder (free, no Mac required for this step)"
+          echo "        → Go to: https://www.pwabuilder.com"
+          echo "        → Enter: https://nasahrvatska.com"
+          echo "        → Click 'Start' → 'iOS' tab → 'Store Package'"
+          echo "        → Download the Xcode project zip"
+          echo ""
+          echo "  □ 2. Open project in Xcode (Mac required)"
+          echo "        → Install Xcode from Mac App Store (free)"
+          echo "        → Open the downloaded .xcodeproj"
+          echo "        → Copy ios/PrivacyInfo.xcprivacy into the Xcode project"
+          echo "        → Copy public/icon-1024.png as the App Store icon"
+          echo ""
+          echo "  □ 3. Apple Developer account (\$99/year)"
+          echo "        → https://developer.apple.com/programs/"
+          echo "        → Required to sign and submit to App Store"
+          echo ""
+          echo "  □ 4. Sign the app in Xcode"
+          echo "        → Xcode → Signing & Capabilities → set your Team"
+          echo "        → Bundle ID: com.nasahrvatska.app"
+          echo ""
+          echo "  □ 5. Submit via App Store Connect"
+          echo "        → https://appstoreconnect.apple.com"
+          echo "        → App name: Naša Hrvatska — Our Croatia"
+          echo "        → Category: Education"
+          echo "        → Privacy policy URL: https://nasahrvatska.com/privacy"
+          echo "        → Support URL: https://nasahrvatska.com"
+          echo "        → Content rating: 4+ (no objectionable content)"
+          echo ""
+          echo "  □ 6. App Review (7-14 days)"
+          echo "        → Apple reviews all apps manually"
+          echo "        → Common rejection: 'app is just a website' — ensure the"
+          echo "          PWABuilder package adds enough native chrome to satisfy reviewers"
+          echo ""
+          echo "▸ Recommended before submission"
+          echo ""
+          echo "  □ Test on physical iPhone (Safari → Share → Add to Home Screen)"
+          echo "  □ Verify splash screens appear on device launch"
+          echo "  □ Verify status bar style (black-translucent) looks correct"
+          echo "  □ Verify safe area insets work on notch/Dynamic Island devices"
+          echo "  □ Test offline mode (airplane mode → cached content shows)"
+          echo "  □ Accessibility score ≥ 90 (Apple cares about this in review)"
+          echo ""
+          echo "══════════════════════════════════════════════════════════"
