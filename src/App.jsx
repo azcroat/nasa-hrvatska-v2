@@ -437,7 +437,7 @@ function App(){
         </div>
       </div>}
       {currentScreen==="welcome" && <WelcomeScreen name={name} authUser={authUser} st={stats} setScr={setScr} setName={setName} sPq={sPq} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} />}
-      {currentScreen==="placement" && <PlacementTest pq={pq} pi={pi} ps={ps} pa={pa} px={px} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} setScr={setScr} setStats={setStats} />}
+      {currentScreen==="placement" && <PlacementTest pq={pq} pi={pi} ps={ps} pa={pa} px={px} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} setScr={setScr} setSt={setStats} />}
       {// ═══ DASHBOARD ═══
       currentScreen==="dashboard"&&<div className="dash" id="main-content" role="main">
         <div style={{position:"relative",marginBottom:20}}>
@@ -546,7 +546,7 @@ function App(){
         /></ScreenErrorBoundary>}
       </div>}
       {// ═══ MODAL VERBS ═══
-      currentScreen==="modal"&&<ModalScreen goBack={goBack} award={award} setStats={setStats} />}
+      currentScreen==="modal"&&<ModalScreen goBack={goBack} award={award} setSt={setStats} />}
       {// ═══ HISTORY ═══
       currentScreen==="history"&&<CroatiaHistoryScreen goBack={goBack} />}
       {// ═══ EVENTS CALENDAR ═══
@@ -559,7 +559,7 @@ function App(){
       />}
       {currentScreen==="mcresult"&&<McResult questions={mcResultQ} score={mcResultScore} setScr={setScr} goBack={goBack} onNewGame={launchMcGame} />}
       {// ═══ CROATIAN CASES ═══
-      currentScreen==="padezi"&&<PadeziScreen goBack={goBack} award={award} setStats={setStats} />}
+      currentScreen==="padezi"&&<PadeziScreen goBack={goBack} award={award} setSt={setStats} />}
       {// ═══ UNJUMBLE / WORD ORDER ═══
       currentScreen==="unjumble"&&<Unjumble goBack={goBack} award={award} />}
       {// ═══ IDIOMS & SLANG ═══
@@ -716,9 +716,9 @@ function App(){
       {// ═══ FUTURE TENSE ═══
       currentScreen==="future"&&<FutureTenseScreen goBack={goBack} award={award} />}
       {// ═══ CROATIAN KINGS ═══
-      currentScreen==="kings"&&<KingsScreen goBack={goBack} award={award} setStats={setStats} />}
+      currentScreen==="kings"&&<KingsScreen goBack={goBack} award={award} setSt={setStats} />}
       {// ═══ CONJUGATION DRILL ═══
-      currentScreen==="conjdrill"&&<ConjugationDrill goBack={goBack} award={award} setStats={setStats} />}
+      currentScreen==="conjdrill"&&<ConjugationDrill goBack={goBack} award={award} setSt={setStats} />}
       {// ═══ ZNAM - NE ZNAM ═══
       currentScreen==="znam"&&<ZnamGame goBack={goBack} award={award} />}
       {// ═══ COLORS & GENDER ═══
@@ -728,7 +728,7 @@ function App(){
       {// ═══ WORD SPRINT ═══
       currentScreen==="wordsprint"&&<WordSprint sh={sh} award={award} goBack={goBack} />}
       {// ═══ SPEAKING / PRONUNCIATION ═══
-      currentScreen==="speaking"&&<SpeakingScreen sw={sw} si={si} sx={sx} sr={sr} ssc={ssc} sSr={sSr} sSx={sSx} sSw={sSw} sSsc={sSsc} goBack={goBack} award={award} setStats={setStats} />}
+      currentScreen==="speaking"&&<SpeakingScreen sw={sw} si={si} sx={sx} sr={sr} ssc={ssc} sSr={sSr} sSx={sSx} sSw={sSw} sSsc={sSsc} goBack={goBack} award={award} setSt={setStats} />}
       {// ═══ PITCH ACCENT ═══
       currentScreen==="pitchaccent"&&<PitchAccentScreen goBack={goBack} award={award} PITCH_ACCENT={PITCH_ACCENT} />}
       {// ═══ SHADOWING ═══
@@ -773,7 +773,7 @@ function App(){
       currentScreen==="reading"&&<ReadingScreen
         rp={rp} rph={rph} rqi={rqi} rsc={rsc} ra={ra} rsl={rsl} hw={hw}
         sRph={sRph} sRqi={sRqi} sRsc={sRsc} sRa={sRa} sRsl={sRsl} sHw={sHw}
-        goBack={goBack} setScr={setScr} award={award} setStats={setStats}
+        goBack={goBack} setScr={setScr} award={award} setSt={setStats}
       />}
       {// ═══ BADGES ═══
       currentScreen==="badges"&&<BadgesScreen badges={stats.badges} goBack={goBack} />}
