@@ -101,7 +101,13 @@ export default function PracticeTab({
     prepdrill: () => { const q=sh(PREPDRILL); sPpQ(q); sPpI(0); sPpS(0); sPpA(false); sPpSl(-1); setScr("prepdrill"); sCurEx("prepdrill"); },
     numtime:   () => { const q=sh([...NUMTIME.numbers,...NUMTIME.time]).slice(0,10); sNtQ(q); sNtI(0); sNtS(0); sNtA(false); sNtSl(-1); sNtO(sh([q[0].a].concat(q[0].al))); setScr("numtime"); sCurEx("numtime"); },
   };
-  const go = screen => specialInit[screen] || (() => { setScr(screen); sCurEx(screen); });
+  const go = screen => {
+    if (screen.startsWith('slang:')) {
+      const section = screen.slice(6);
+      return () => { localStorage.setItem('slangInitSection', section); setScr('slang'); sCurEx('slang'); };
+    }
+    return specialInit[screen] || (() => { setScr(screen); sCurEx(screen); });
+  };
 
   // ── SMART RECOMMENDATIONS ─────────────────────────────────────────────
   const sr = getSR();
@@ -324,22 +330,20 @@ export default function PracticeTab({
 
       <Section title="Slang & Expressions" icon="🤬" count="12 modules · 150+ phrases" defaultOpen={false}>
         <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>Authentic slang, psovanje & street language with cultural context</p>
-        <button className="tc"
-          style={{ width:"100%", display:"flex", alignItems:"center", gap:12, padding:"14px", textAlign:"left" }}
-          onClick={() => { setScr('slang'); sCurEx('slang'); }}>
-          <div style={{ width:40, height:40, borderRadius:12, background:"#fff1f2", border:"1px solid #fca5a5",
-            display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0 }}>
-            🤬
-          </div>
-          <div style={{ flex:1, minWidth:0 }}>
-            <div style={{ fontSize:12, fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>Slang & Psovanje</div>
-            <div style={{ fontSize:10, color:"var(--subtext)", marginTop:2, lineHeight:1.3 }}>Sound like a local — jeb- classics, dialects, Gen Z & more</div>
-          </div>
-          <div style={{ background:"#fff1f2", border:"1px solid #fca5a5", borderRadius:8, padding:"3px 8px",
-            fontSize:10, fontWeight:800, color:"#dc2626", whiteSpace:"nowrap", flexShrink:0 }}>
-            18+ 🔥
-          </div>
-        </button>
+        <ExRow items={[
+          ['🔥', 'The Classics',      'slang:classics',   'Foundation expletives — built on one root verb'],
+          ['😤', 'Svaki Dan',          'slang:everyday',   'Mild-to-medium — usable around most adults'],
+          ['😎', 'Ulični Sleng',       'slang:slang',      'General everyday slang — sound like a local'],
+          ['👥', 'Ljudi i Adrese',     'slang:people',     'How Croatians address each other'],
+          ['☀️', 'Dalmatinski',       'slang:dalmatian',  'Split, Dalmatia & coast dialect'],
+          ['🏙️', 'Zagrebački',       'slang:zagreb',     'Capital city slang — German meets Slavic'],
+          ['🔄', 'Šatrovački',        'slang:satrovski',  'Croatian pig latin — reverse syllable slang'],
+          ['📱', 'Gen Z & Internet',   'slang:genz',       'Digital generation slang & memes'],
+          ['🍺', 'Pijani & Mamurani', 'slang:pijani',     'Drinking culture & hangover vocabulary'],
+          ['⚽', 'Nogomet',            'slang:football',   'Football supporter slang'],
+          ['🗺️', 'Zagreb vs Split',  'slang:regional',   'Regional rivalries & dialect wars'],
+          ['🎨', 'Psovanje kao Kunst', 'slang:art',        'Swearing elevated to an art form'],
+        ]} />
       </Section>
 
       <Section title="🧪 Fluency Lab" icon="🧪" count="3 advanced tools" defaultOpen={true}>

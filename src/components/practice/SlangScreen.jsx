@@ -629,7 +629,11 @@ const SECTIONS = [
 
 export default function SlangScreen({ goBack, award }) {
   const [gated, setGated]   = useState(true);
-  const [activeSection, setActiveSection] = useState('classics');
+  const [activeSection, setActiveSection] = useState(() => {
+    const init = localStorage.getItem('slangInitSection');
+    if (init) { localStorage.removeItem('slangInitSection'); return init; }
+    return 'classics';
+  });
   const [expanded, setExpanded] = useState(null);
   const [xpAwarded, setXpAwarded] = useState(false);
   const [searchQ, setSearchQ] = useState('');
