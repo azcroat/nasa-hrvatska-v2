@@ -1,0 +1,81 @@
+name: Production Smoke Tests
+
+on:
+  schedule:
+    # Every 6 hours — catches outages, bad deploys, CDN issues
+    - cron: '0 */6 * * *'
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    name: Smoke (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [Chrome, Firefox, 'WebKit (Safari)', 'Mobile Chrome', 'Mobile Safari']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Run smoke tests (${{ matrix.browser }})
+        run: |
+          npx playwright test \
+            --config=playwright.smoke.config.js \
+            --project="${{ matrix.browser }}"
+        timeout-minutes: 10
+
+      - name: Upload smoke test report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-report-${{ matrix.browser }}
+          path: playwright-smoke-report/
+          retention-days: 7
+
+  alert-on-failure:
+    name: Alert on Smoke Failure
+    runs-on: ubuntu-latest
+    needs: smoke
+    if: failure() && github.event_name == 'schedule'
+    steps:
+      - name: Create GitHub issue for smoke failure
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `🚨 Production smoke tests failed — ${new Date().toISOString().slice(0,16)} UTC`;
+            const body = `## Production is potentially down or broken\n\n` +
+              `Smoke tests failed on scheduled run at ${new Date().toISOString()}.\n\n` +
+              `**Check immediately:**\n` +
+              `- https://nasahrvatska.com — does the site load?\n` +
+              `- [GitHub Actions run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})\n\n` +
+              `This issue was auto-created by the production smoke test workflow.`;
+            // Check if an open smoke-failure issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'smoke-failure',
+            });
+            if (issues.data.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['smoke-failure', 'bug', 'priority: critical'],
+              });
+            }
