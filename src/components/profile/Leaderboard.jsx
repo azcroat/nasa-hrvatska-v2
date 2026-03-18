@@ -2,7 +2,7 @@ import React from 'react';
 import { H, fbGetFamilyMembers, fbCreateFamily, fbJoinFamily, fbLeaveFamily } from '../../data.jsx';
 
 export default function Leaderboard({
-  goBack, au, name,
+  goBack, authUser: au, name,
   famData, setFamData,
   famMembers, setFamMembers,
   famLoading, setFamLoading,
