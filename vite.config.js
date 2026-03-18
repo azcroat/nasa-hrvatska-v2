@@ -43,10 +43,10 @@ export default defineConfig({
           },
           {
             urlPattern: /\/audio\/.*\.(mp3|ogg|wav)$/i,
-            handler: 'CacheFirst',
+            handler: 'StaleWhileRevalidate',
             options: {
               cacheName: 'audio-cache',
-              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 90 },
+              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 },
               rangeRequests: true,
               cacheableResponse: { statuses: [0, 200, 206] }
             }
@@ -74,13 +74,18 @@ export default defineConfig({
   ],
   build: {
     outDir: 'dist',
-    sourcemap: false,
+    sourcemap: true,
     minify: 'esbuild',
     rollupOptions: {
       output: {
         manualChunks(id) {
           if (id.includes('node_modules/firebase')) return 'vendor-firebase';
           if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) return 'vendor-react';
+          if (id.includes('node_modules/@sentry')) return 'vendor-sentry';
+          if (id.includes('src/components/learn')) return 'chunk-learn';
+          if (id.includes('src/components/practice')) return 'chunk-practice';
+          if (id.includes('src/components/croatia')) return 'chunk-croatia';
+          if (id.includes('src/components/profile')) return 'chunk-profile';
         }
       }
     }

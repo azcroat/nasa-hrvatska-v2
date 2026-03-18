@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { H, Bar, Spk, srMark } from '../../data.jsx';
 
+const XP_PER_CORRECT = 3;
+const XP_COMPLETION_BONUS = 5;
+
 export default function McGame({ questions, onComplete, goBack, award }) {
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
@@ -31,7 +34,7 @@ export default function McGame({ questions, onComplete, goBack, award }) {
         ))}
         {answered&&<button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{
           if(idx<questions.length-1){setIdx(i=>i+1);setAnswered(false);setSelected(-1);}
-          else{award(score*3+5);onComplete(questions,score);}
+          else{award(score*XP_PER_CORRECT+XP_COMPLETION_BONUS);onComplete(questions,score);}
         }}>{idx<questions.length-1?"Next →":"Results"}</button>}
         <p style={{textAlign:"center",color:"#78716c",marginTop:12,fontSize:13}}>Score: {score}/{questions.length}</p>
       </div>

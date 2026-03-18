@@ -25,6 +25,9 @@ export default function CelebrationModal({ xp, onClose }) {
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Lesson complete"
       onClick={onClose}
       style={{
         position: 'fixed', inset: 0, zIndex: 99999,

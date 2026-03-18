@@ -4,15 +4,15 @@
 // ═══════════════════════════════════════════════════════════
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, setPersistence, browserLocalPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile } from 'firebase/auth';
-import { getFirestore, doc as fsDoc, getDoc, setDoc, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, doc as fsDoc, getDoc, setDoc, collection, getDocs, query, limit, orderBy } from 'firebase/firestore';
 
 const FIREBASE_CONFIG = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCD4ul4KCILkufNMk5qCr-C5JiN9D7ogn0",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "ucimohrvatski-488f9.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "ucimohrvatski-488f9",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "ucimohrvatski-488f9.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "675614569794",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:675614569794:web:d19f7defeac55b0b4b04db"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 export let _fbReady = false;
 let _fbAuth = null, _fbDb = null;
@@ -82,11 +82,21 @@ export function friendlyError(msg){
   if(msg.includes("network-request-failed"))return"No internet connection. Check your WiFi.";
   if(msg.includes("unauthorized-domain"))return"Authentication blocked. Please try again or contact support.";
   if(msg.includes("permission-denied")||msg.includes("permission"))return"Connection issue. Your account was created — try signing in!";
+  if(msg.includes("user-disabled"))return"This account has been disabled. Contact support.";
+  if(msg.includes("account-exists-with-different-credential"))return"An account already exists with this email using a different sign-in method.";
+  if(msg.includes("requires-recent-login"))return"Please sign out and sign in again to complete this action.";
+  if(msg.includes("popup-closed-by-user"))return"Sign-in was cancelled. Please try again.";
+  if(msg.includes("internal-error"))return"A server error occurred. Please try again.";
+  if(msg.includes("quota-exceeded"))return"Service temporarily unavailable. Please try again later.";
+  if(msg.includes("app-not-authorized"))return"App not authorized. Please contact support.";
+  if(msg.includes("expired-action-code"))return"This link has expired. Please request a new one.";
+  if(msg.includes("invalid-action-code"))return"This link is invalid or has already been used.";
+  if(msg.includes("missing-email"))return"Please enter your email address.";
   return msg.replace(/Firebase:\s*/i,"").replace(/\([^)]+\)\.?/,"").trim()||"Something went wrong."
 }
 
 // ═══ FAMILY GROUP SYSTEM ═══
-export function generateFamilyCode(){var c="";var chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";for(var i=0;i<6;i++)c+=chars[Math.floor(Math.random()*chars.length)];return c}
+export function generateFamilyCode(){var chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";var arr=new Uint8Array(6);crypto.getRandomValues(arr);return Array.from(arr).map(function(b){return chars[b%chars.length]}).join("")}
 export function getLocalFamily(){try{return JSON.parse(localStorage.getItem("uFamily")||"null")}catch{return null}}
 export function saveLocalFamily(f){localStorage.setItem("uFamily",JSON.stringify(f))}
 export async function fbCreateFamily(familyName,creatorEmail,creatorName){
@@ -106,8 +116,8 @@ export async function fbJoinFamily(code,email,name){
   if(!famSnap.exists())return{ok:false,err:"Family code not found. Check and try again."};
   var data=famSnap.data();var members=data.members||[];
   if(members.some(function(m){return m.email===email}))return{ok:false,err:"You are already in this family!"};
-  members.push({email:email,name:name,role:"member",joined:Date.now()});
-  await setDoc(fsDoc(_fbDb,"families",code.toUpperCase()),{members:members},{merge:true});
+  var updatedMembers=[...members,{email:email,name:name,role:"member",joined:Date.now()}];
+  await setDoc(fsDoc(_fbDb,"families",code.toUpperCase()),{members:updatedMembers},{merge:true});
   var id=email.replace(/[.#$/\[\]]/g,"_");
   await setDoc(fsDoc(_fbDb,"users",id),{familyCode:code.toUpperCase()},{merge:true});
   var fam={name:data.name,code:code.toUpperCase(),role:"member"};saveLocalFamily(fam);
@@ -160,8 +170,11 @@ export async function fbGetUserSecurity(email){if(!_fbReady||!_fbDb)return null;
 export async function fbCreateAccount(email,password){if(!_fbReady||!_fbAuth)return{ok:false};try{await createUserWithEmailAndPassword(_fbAuth,email,password);return{ok:true}}catch(e){return{ok:false}}}
 export async function fbGetLeaderboard(){
   if(!_fbReady||!_fbDb)return[];
-  try{var snap=await getDocs(collection(_fbDb,"users"));var users=[];
-  snap.forEach(function(docSnap){var d=docSnap.data();var p=d.progress?JSON.parse(d.progress):null;
-  users.push({name:d.displayName||docSnap.id,xp:p&&p.st?p.st.xp:0,lc:p&&p.st?p.st.lc:0})});
-  return users.sort(function(a,b){return b.xp-a.xp})}catch(e){return[]}
+  try{
+    var q=query(collection(_fbDb,"users"),orderBy("xp","desc"),limit(50));
+    var snap=await getDocs(q);var users=[];
+    snap.forEach(function(docSnap){var d=docSnap.data();var p=d.progress?JSON.parse(d.progress):null;
+    users.push({name:d.displayName||docSnap.id,xp:p&&p.st?p.st.xp:0,lc:p&&p.st?p.st.lc:0})});
+    return users.sort(function(a,b){return b.xp-a.xp})
+  }catch(e){return[]}
 }

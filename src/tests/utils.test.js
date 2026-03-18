@@ -23,9 +23,12 @@ vi.mock('firebase/firestore', () => ({
   setDoc: vi.fn(),
   collection: vi.fn(),
   getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
-import { isValidEmail, sh, lvl, lXP, nXP, shuffleArr, buildSearchIndex, generateFamilyCode } from '../data.jsx';
+import { isValidEmail, sh, lvl, lXP, nXP, shuffleArr, buildSearchIndex, generateFamilyCode, friendlyError } from '../data.jsx';
 
 describe('isValidEmail', () => {
   it('accepts valid emails', () => {
@@ -105,6 +108,39 @@ describe('generateFamilyCode', () => {
   it('generates unique codes', () => {
     const codes = new Set(Array.from({ length: 50 }, () => generateFamilyCode()));
     expect(codes.size).toBeGreaterThan(40);
+  });
+});
+
+describe('friendlyError', () => {
+  it('returns fallback for empty/null input', () => {
+    expect(friendlyError(null)).toBe('Something went wrong. Please try again.');
+    expect(friendlyError('')).toBe('Something went wrong. Please try again.');
+  });
+  it('handles email-already-in-use', () => {
+    expect(friendlyError('email-already-in-use')).toMatch(/already has an account/i);
+  });
+  it('handles wrong-password and invalid-credential', () => {
+    expect(friendlyError('wrong-password')).toMatch(/incorrect password/i);
+    expect(friendlyError('invalid-credential')).toMatch(/incorrect password/i);
+  });
+  it('handles user-not-found', () => {
+    expect(friendlyError('user-not-found')).toMatch(/no account found/i);
+  });
+  it('handles network-request-failed', () => {
+    expect(friendlyError('network-request-failed')).toMatch(/no internet/i);
+  });
+  it('handles too-many-requests', () => {
+    expect(friendlyError('too-many-requests')).toMatch(/too many attempts/i);
+  });
+  it('handles user-disabled', () => {
+    expect(friendlyError('user-disabled')).toMatch(/disabled/i);
+  });
+  it('handles expired-action-code', () => {
+    expect(friendlyError('expired-action-code')).toMatch(/expired/i);
+  });
+  it('strips Firebase: prefix from unknown errors', () => {
+    const msg = friendlyError('Firebase: Some error (auth/unknown).');
+    expect(msg).not.toMatch(/^Firebase:/i);
   });
 });
 

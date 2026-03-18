@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
 import { _fbReady, H, Bar, Spk, V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, initFirebase, hp, gA, sA, gP, sP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbSetUserSecurity, fbGetUserSecurity, fbCreateAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getProverbOfDay, getDailyChallenge, getHistFact, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, getDueReviews, shMemo, shuffleArr, buildSearchIndex } from "./data.jsx";
 import AppContext from "./context/AppContext.jsx";
+import ScreenErrorBoundary from "./components/shared/ScreenErrorBoundary.jsx";
 // Always-needed: auth + core UI (eager)
 import LoginScreen from "./components/auth/LoginScreen.jsx";
 import ResetPassword from "./components/auth/ResetPassword.jsx";
@@ -402,7 +403,7 @@ function App(){
     if(depth>0){window.history.back();}
     else{_setCurrentScreen("dashboard");_setTab("home");window.history.replaceState({_ad:0},"","/");}
   }
-  const level=lvl(st.xp);
+  const level=useMemo(()=>lvl(st.xp),[st.xp]);
   const allCats=Object.keys(V);
   const icons=ICONS;
   // ═══ SCREEN LAUNCH FUNCTIONS (S1-3) ═══
@@ -451,7 +452,8 @@ function App(){
     return <ResetPassword authError={authError} rpEm={rpEm} rpSa={rpSa} rpPw={rpPw} rpPc={rpPc} rpStep={rpStep} rpQ={rpQ} setAuthScreen={setAuthScreen} setAuthError={setAuthError} setRpEm={setRpEm} setRpSa={setRpSa} setRpPw={setRpPw} setRpPc={setRpPc} setRpStep={setRpStep} setRpQ={setRpQ} doReset={doReset} />;
   }
     // ═══ MAIN APP RENDER ═══
-  const badges={home:dchlA.filter(v=>!v).length,learn:0,practice:0,croatia:0,profile:0};
+  const badges=useMemo(()=>({home:dchlA.filter(v=>!v).length,learn:0,practice:0,croatia:0,profile:0}),[dchlA]);
+  const onCloseCelebration=useCallback(()=>setShowCelebration(false),[]);
   function doSidebarSearch(){if(srchQ.trim()){doSearch(srchQ);setSrchOpen(true);}}
   const ctxValue={authScreen,au,name,setName,doOut,st,setSt,level,award,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx};
   return (
@@ -462,7 +464,7 @@ function App(){
       <Suspense fallback={<div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"50vh"}}><div style={{textAlign:"center"}}><div style={{fontSize:40,animation:"boat 2s ease-in-out infinite"}}>⛵</div><p style={{color:"var(--subtext)",marginTop:8,fontSize:14,fontWeight:600}}>Loading...</p></div></div>}>
       <XPPopup showXP={showXP} xpA={xpA} />
       <BadgeToast show={sB} badge={nB} />
-      {showCelebration&&<CelebrationModal xp={celebXP} onClose={()=>setShowCelebration(false)} />}
+      {showCelebration&&<CelebrationModal xp={celebXP} onClose={onCloseCelebration} />}
       {!onboarded&&authScreen==="app"&&currentScreen!=="welcome"&&currentScreen!=="placement"&&<OnboardingTour onDone={()=>setOnboarded(true)} />}
       {comebackBonus&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#f59e0b,#d97706)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.2)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease"}}>🔥 Welcome back! Keep your streak alive!</div>}
       {currentScreen==="welcome" && <WelcomeScreen name={name} au={au} st={st} setScr={setScr} setName={setName} sPq={sPq} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} />}
@@ -525,7 +527,7 @@ function App(){
           </div>}
         </div>
         {// ═══ TAB: HOME ═══
-        tab==="home"&&<HomeTab
+        tab==="home"&&<ScreenErrorBoundary name="HomeTab"><HomeTab
           name={name} level={level} st={st}
           tDir={tDir} sTDir={sTDir} tIn={tIn} sTIn={sTIn} tOut={tOut} tL={tL} doTr={doTr}
           dchlA={dchlA} sDchlA={sDchlA} dchlSl={dchlSl} sDchlSl={sDchlSl}
@@ -534,9 +536,9 @@ function App(){
           setTab={setTab} setScr={setScr} sCurEx={sCurEx}
           allCats={allCats} sh={sh}
           launchPathItem={launchPathItem}
-        />}
+        /></ScreenErrorBoundary>}
         {// ═══ TAB: LEARN ═══
-        tab==="learn"&&<LearnTab
+        tab==="learn"&&<ScreenErrorBoundary name="LearnTab"><LearnTab
           allCats={allCats} icons={icons} setScr={setScr} sCurEx={sCurEx} st={st}
           sh={sh} sLt={sLt} sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl}
           setTnVerb={setTnVerb} setTnTense={setTnTense} setTnGender={setTnGender} setTnMode={setTnMode}
@@ -544,9 +546,9 @@ function App(){
           sDcMode={sDcMode} sAsMode={sAsMode} sCjMode={sCjMode} sM7={sM7} sBjMode={sBjMode}
           sGl={sGl} sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
           launchPathItem={launchPathItem}
-        />}
+        /></ScreenErrorBoundary>}
         {// ═══ TAB: PRACTICE ═══
-        tab==="practice"&&<PracticeTab
+        tab==="practice"&&<ScreenErrorBoundary name="PracticeTab"><PracticeTab
           allCats={allCats} sh={sh} setScr={setScr} sCurEx={sCurEx}
           onLaunchQuiz={launchMcGame} onLaunchFlash={launchFlashcards} onLaunchListen={launchListening}
           sMp={sMp} sMsl={sMsl} sMm={sMm} sGsc={sGsc} sGph={sGph}
@@ -557,20 +559,20 @@ function App(){
           sPpQ={sPpQ} sPpI={sPpI} sPpS={sPpS} sPpA={sPpA} sPpSl={sPpSl}
           sNtQ={sNtQ} sNtI={sNtI} sNtS={sNtS} sNtA={sNtA} sNtSl={sNtSl} sNtO={sNtO}
           sEvM={sEvM}
-        />}
+        /></ScreenErrorBoundary>}
         {// ═══ TAB: CROATIA ═══
-        tab==="croatia"&&<CroatiaTab
+        tab==="croatia"&&<ScreenErrorBoundary name="CroatiaTab"><CroatiaTab
           setScr={setScr} sHIdx={sHIdx} sKgTab={sKgTab} sCurEx={sCurEx}
           setRcIdx={setRcIdx} setRcServ={setRcServ}
           setRpIdx={setRpIdx} setRpLine={setRpLine} setRpShow={setRpShow}
           setMapCat={setMapCat} setMapSel={setMapSel}
-        />}
+        /></ScreenErrorBoundary>}
         {// ═══ TAB: PROFILE ═══
-        tab==="profile"&&<ProfileTab
+        tab==="profile"&&<ScreenErrorBoundary name="ProfileTab"><ProfileTab
           name={name} au={au} level={level} st={st} favs={favs}
           darkMode={darkMode} setDarkMode={setDarkMode}
           setScr={setScr} doOut={doOut}
-        />}
+        /></ScreenErrorBoundary>}
       </div>}
       {// ═══ MODAL VERBS ═══
       currentScreen==="modal"&&<ModalScreen goBack={goBack} award={award} setSt={setSt} />}

@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { H, Bar, srMark } from '../../data.jsx';
 
+const XP_PER_KNOWN = 2;
+const XP_COMPLETION_BONUS = 5;
+
 export default function Flashcards({ pool, goBack, award }) {
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -41,15 +44,15 @@ export default function Flashcards({ pool, goBack, award }) {
         </div>
       </div>
       {flipped&&<div style={{display:"flex",gap:12,marginTop:20,justifyContent:"center"}}>
-        <button className="b bd" style={{flex:1,fontSize:15}} onClick={()=>{
+        <button aria-label="Mark word for further study" className="b bd" style={{flex:1,fontSize:15}} onClick={()=>{
           srMark(pool[idx][0],false);setFlipped(false);
           if(idx<pool.length-1)setIdx(i=>i+1);
-          else{award(known*2+5);goBack();}
+          else{award(known*XP_PER_KNOWN+XP_COMPLETION_BONUS);goBack();}
         }}>❌ Study Again</button>
-        <button className="b bs" style={{flex:1,fontSize:15}} onClick={()=>{
+        <button aria-label="Mark word as known" className="b bs" style={{flex:1,fontSize:15}} onClick={()=>{
           srMark(pool[idx][0],true);setKnown(k=>k+1);setFlipped(false);
           if(idx<pool.length-1)setIdx(i=>i+1);
-          else{award(known*2+5);goBack();}
+          else{award(known*XP_PER_KNOWN+XP_COMPLETION_BONUS);goBack();}
         }}>✅ I Know It</button>
       </div>}
     </div>
