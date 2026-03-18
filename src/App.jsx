@@ -133,6 +133,8 @@ const CertificateScreen = lazy(() => import("./components/profile/CertificateScr
 
 // Module-level constants — defined once, not recreated on every render
 const DS={xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,authLoading:0,mv:0,hi:0,rs:[],ct:[],badges:[]};
+// Fix 4: computed once at module level — Object.keys(V) is deterministic and expensive to repeat
+const ALL_CATS=Object.keys(V);
 const ICONS={greetings:"👋",numbers:"🔢",family:"👨‍👩‍👧‍👦",food:"🍕",animals:"🐾",body:"🦴","body & face":"🦴",colors:"🎨",home:"🏠","home & rooms":"🏠",clothing:"👔",weather:"☀️","weather & seasons":"☀️",places:"📍",transport:"🚗",verbs:"💬",adjectives:"📏",time:"📅","time & calendar":"📅",months:"🗓️",directions:"🧭",emotions:"💭",professions:"💼",restaurant:"🍽️",shopping:"🛍️",travel:"✈️",health:"🏥",questions:"❓",conjunctions:"🔗",culture:"🏛️","daily routine":"🌅","in the classroom":"📖","commands at home":"🏡","fairy tales":"📜",hobbies:"🎯",zagreb:"🏙️",opposites:"🔄",comparatives:"📊",fruits:"🍎",vegetables:"🥦",sports:"⚽",holidays:"🎄",personality:"😊"};
 
 var _appNavDepth=0;
@@ -202,7 +204,20 @@ function App(){
   const[showCelebration,setShowCelebration]=useState(false);const[celebXP,setCelebXP]=useState(0);
   const[comebackBonus,setComebackBonus]=useState(false);
   // toggleFav, isFav → usePreferences hook | doSearch → useSearch hook
-  var getWeekStats=function(){var sr=getSR();var weak=Object.values(sr).filter(function(v){return v.w>v.r}).length;var strong=Object.values(sr).filter(function(v){return v.r>v.w}).length;return{lessons:stats.lc,grammar:stats.gc,streak:getStreak().count,weak:weak,strong:strong}};
+  // Fix 3: stable reference — prevents HomeTab useMemo from re-running every render
+  const getWeekStats=useCallback(function(){var sr=getSR();var weak=Object.values(sr).filter(function(v){return v.w>v.r}).length;var strong=Object.values(sr).filter(function(v){return v.r>v.w}).length;return{lessons:stats.lc,grammar:stats.gc,streak:getStreak().count,weak:weak,strong:strong}},[stats]);
+  // Fix 2: single helper replaces 4 copy-pasted data-hydration blocks across auth flows
+  const applyRemoteProgress=useCallback(function(fp){
+    if(!fp)return;
+    if(fp.onboarded){localStorage.setItem("onboarded","true");setOnboarded(true);}
+    if(fp.sr)saveSR(fp.sr);
+    if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));
+    if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}
+    if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}
+    var _arDay=new Date().toISOString().slice(0,10);
+    if(fp.dc&&fp.dc.day===_arDay){var _arAns=fp.dc.answered||[false,false,false];var _arSel=Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""];sDchlA(_arAns);sDchlSl(_arSel);localStorage.setItem("dcDay3",JSON.stringify({day:_arDay,answered:_arAns,selected:_arSel}));}
+    if(fp.cooldown){var _arT=new Date().toISOString().slice(0,10);var _arCd={};try{_arCd=JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch(e){}for(var _arCk in fp.cooldown){if(fp.cooldown[_arCk]===_arT)_arCd[_arCk]=fp.cooldown[_arCk];}localStorage.setItem("xpCooldown",JSON.stringify(_arCd));}
+  },[setFavs,setJWords]);
   const[tDir,sTDir]=useState("en-hr");const[tIn,sTIn]=useState("");const[tOut,sTOut]=useState("");const[tL,sTL]=useState(false);
   const[t1k,sT1k]=useState(null);
   const[hIdx,sHIdx]=useState(0);
@@ -211,7 +226,7 @@ function App(){
   const _initialPath=useRef(window.location.pathname);
   const[_syncReady,_setSyncReady]=useState(false);
   useEffect(()=>{initFirebase();
-    const s=gS();if(s&&s.u){if(isSessionExpired()){cS();setAuthScreen("login");setTimeout(function(){setAuthError("\u2705 Your session expired. Your account is safe \u2014 just sign in again.")},200);return}const a=gA();if(a[s.u]){const p=gP(s.u);setAuthUser({u:s.u,d:a[s.u].d,e:a[s.u].e||s.u});touchSession();updateStreak();var lf=getLocalFamily();if(lf)setFamData(lf);if(p){setName(p.name||a[s.u].d);setStats(p.stats||ds);_goPostAuth(p.cp||(p.stats&&(p.stats.xp>0||p.stats.lc>0)))}else setName(a[s.u].d);setAuthScreen("app");var _fbT1=setTimeout(function(){_setSyncReady(true)},5000);fbLoadProgress(s.u).then(function(fp){clearTimeout(_fbT1);if(fp){var lp=gP(s.u);var fpTs=fp._fbUpdated||fp.savedAt||0;var lpTs=(lp&&lp.savedAt)||0;var fpXP=(fp.stats&&fp.stats.xp)||0;var lpXP=(lp&&lp.stats&&lp.stats.xp)||0;if(fpTs>lpTs||(!fpTs&&!lpTs&&fpXP>=lpXP)){sP(s.u,fp);setStats(fp.stats||ds);if(fp.name)setName(fp.name);if(fp.onboarded){localStorage.setItem("onboarded","true");setOnboarded(true);}if(fp.sr)saveSR(fp.sr);if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}var _n1=new Date();var _dcT=_n1.getFullYear()+'-'+String(_n1.getMonth()+1).padStart(2,'0')+'-'+String(_n1.getDate()).padStart(2,'0');if(fp.dc&&fp.dc.day===_dcT){sDchlA(fp.dc.answered||[false,false,false]);sDchlSl(Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""]);localStorage.setItem("dcDay3",JSON.stringify({day:_dcT,answered:fp.dc.answered||[false,false,false],selected:Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""]}))}if(fp.cooldown){var _t=new Date().toISOString().slice(0,10);var _cd={};try{_cd=JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch(e){}for(var _ck in fp.cooldown){if(fp.cooldown[_ck]===_t)_cd[_ck]=fp.cooldown[_ck];}localStorage.setItem("xpCooldown",JSON.stringify(_cd));}}}_setSyncReady(true)});}else{
+    const s=gS();if(s&&s.u){if(isSessionExpired()){cS();setAuthScreen("login");setTimeout(function(){setAuthError("\u2705 Your session expired. Your account is safe \u2014 just sign in again.")},200);return}const a=gA();if(a[s.u]){const p=gP(s.u);setAuthUser({u:s.u,d:a[s.u].d,e:a[s.u].e||s.u});touchSession();updateStreak();var lf=getLocalFamily();if(lf)setFamData(lf);if(p){setName(p.name||a[s.u].d);setStats(p.stats||ds);_goPostAuth(p.cp||(p.stats&&(p.stats.xp>0||p.stats.lc>0)))}else setName(a[s.u].d);setAuthScreen("app");var _fbT1=setTimeout(function(){_setSyncReady(true)},5000);fbLoadProgress(s.u).then(function(fp){clearTimeout(_fbT1);if(fp){var lp=gP(s.u);var fpTs=fp._fbUpdated||fp.savedAt||0;var lpTs=(lp&&lp.savedAt)||0;var fpXP=(fp.stats&&fp.stats.xp)||0;var lpXP=(lp&&lp.stats&&lp.stats.xp)||0;if(fpTs>lpTs||(!fpTs&&!lpTs&&fpXP>=lpXP)){sP(s.u,fp);setStats(fp.stats||ds);if(fp.name)setName(fp.name);applyRemoteProgress(fp);}_setSyncReady(true)}});}else{
       if(_fbReady){
         fbOnAuthStateChanged(function(user){
           if(user){var displayName=user.displayName||user.email;var k=user.email;
@@ -219,7 +234,7 @@ function App(){
             fbLoadProgress(k).then(function(fp){if(fp)sP(k,fp);
               setAuthUser({u:k,d:displayName,e:k});sS({u:k});touchSession();updateStreak();
               fbLoadUserFamily(k).then(function(f){if(f)setFamData(f)});
-              var p=fp||gP(k);if(p){setName(p.name||displayName);setStats(p.stats||ds);_goPostAuth(p.cp||(p.stats&&(p.stats.xp>0||p.stats.lc>0)));if(p.onboarded){localStorage.setItem("onboarded","true");setOnboarded(true);}if(p.sr)saveSR(p.sr);if(p.streak)localStorage.setItem("uStreak",JSON.stringify(p.streak));if(p.favs){localStorage.setItem("uFavs",JSON.stringify(p.favs));setFavs(p.favs);}if(p.journal){localStorage.setItem("uJournal",JSON.stringify(p.journal));setJWords(p.journal);}var _n2=new Date();var _dcT2=_n2.getFullYear()+'-'+String(_n2.getMonth()+1).padStart(2,'0')+'-'+String(_n2.getDate()).padStart(2,'0');if(p.dc&&p.dc.day===_dcT2){sDchlA(p.dc.answered||[false,false,false]);sDchlSl(Array.isArray(p.dc.selected)&&typeof p.dc.selected[0]==="string"?p.dc.selected:["","",""]);localStorage.setItem("dcDay3",JSON.stringify({day:_dcT2,answered:p.dc.answered||[false,false,false],selected:Array.isArray(p.dc.selected)&&typeof p.dc.selected[0]==="string"?p.dc.selected:["","",""]}))}if(p.cooldown){var _t2=new Date().toISOString().slice(0,10);var _cd2={};try{_cd2=JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch(e){}for(var _ck2 in p.cooldown){if(p.cooldown[_ck2]===_t2)_cd2[_ck2]=p.cooldown[_ck2];}localStorage.setItem("xpCooldown",JSON.stringify(_cd2));};}else setName(displayName);
+              var p=fp||gP(k);if(p){setName(p.name||displayName);setStats(p.stats||ds);_goPostAuth(p.cp||(p.stats&&(p.stats.xp>0||p.stats.lc>0)));applyRemoteProgress(p);;}else setName(displayName);
               _setSyncReady(true);setAuthScreen("app")})
           }else{
             // Firebase has no user — only clear session if there is no local account to fall back to
@@ -236,7 +251,7 @@ function App(){
   useEffect(()=>{if(!_syncReady||!authUser||authScreen!=="app")return;var _nd=new Date();var _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');sP(authUser.u,{name,stats,cp:currentScreen!=="welcome"&&currentScreen!=="placement",onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),favs,journal:jWords,dc:{day:_dcDay,answered:dchlA,selected:dchlSl},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()});touchSession()},[stats,currentScreen,name,authUser,authScreen,jWords,favs,dchlA,dchlSl,_syncReady]);
   useEffect(()=>{if(authScreen!=="app")return;const iv=setInterval(()=>{if(isSessionExpired()){cS();setAuthUser(null);setStats(ds);setScr("welcome");setName("");setAuthScreen("login")}},5*60*1000);return()=>clearInterval(iv)},[authScreen]);
   useEffect(()=>{if(authScreen!=="app")return;const h=()=>touchSession();window.addEventListener("click",h);window.addEventListener("touchstart",h);window.addEventListener("keydown",h);return()=>{window.removeEventListener("click",h);window.removeEventListener("touchstart",h);window.removeEventListener("keydown",h)}},[authScreen]);
-  useEffect(()=>{if(authScreen!=="app"||!authUser)return;function onVisible(){if(document.visibilityState!=="visible")return;fbLoadProgress(authUser.u).then(function(fp){if(!fp)return;var lp=gP(authUser.u);var fpTs=fp._fbUpdated||fp.savedAt||0;var lpTs=(lp&&lp.savedAt)||0;if(fpTs>lpTs){sP(authUser.u,fp);setStats(fp.stats||ds);if(fp.name)setName(fp.name);if(fp.onboarded){localStorage.setItem("onboarded","true");setOnboarded(true);}if(fp.sr)saveSR(fp.sr);if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}var _vnd=new Date();var _vdcT=_vnd.getFullYear()+'-'+String(_vnd.getMonth()+1).padStart(2,'0')+'-'+String(_vnd.getDate()).padStart(2,'0');if(fp.dc&&fp.dc.day===_vdcT){sDchlA(fp.dc.answered||[false,false,false]);sDchlSl(Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""]);localStorage.setItem("dcDay3",JSON.stringify({day:_vdcT,answered:fp.dc.answered||[false,false,false],selected:Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""]}))}if(fp.cooldown){var _vt=new Date().toISOString().slice(0,10);var _vcd={};try{_vcd=JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch(e){}for(var _vck in fp.cooldown){if(fp.cooldown[_vck]===_vt)_vcd[_vck]=fp.cooldown[_vck];}localStorage.setItem("xpCooldown",JSON.stringify(_vcd));}}})}document.addEventListener("visibilitychange",onVisible);return()=>document.removeEventListener("visibilitychange",onVisible)},[authScreen,authUser]);
+  useEffect(()=>{if(authScreen!=="app"||!authUser)return;function onVisible(){if(document.visibilityState!=="visible")return;fbLoadProgress(authUser.u).then(function(fp){if(!fp)return;var lp=gP(authUser.u);var fpTs=fp._fbUpdated||fp.savedAt||0;var lpTs=(lp&&lp.savedAt)||0;if(fpTs>lpTs){sP(authUser.u,fp);setStats(fp.stats||ds);if(fp.name)setName(fp.name);applyRemoteProgress(fp);}})}document.addEventListener("visibilitychange",onVisible);return()=>document.removeEventListener("visibilitychange",onVisible)},[authScreen,authUser]);
   async function doReg(){
     setAuthError("");if(!authEmail.trim()||!isValidEmail(authEmail.trim())){setAuthError("Please enter a valid email address.");return}if(!pw||pw.length<6){setAuthError("Password must be at least 6 characters.");return}if(pw!==pc){setAuthError("Passwords do not match.");return}if(!displayName.trim()){setAuthError("Please enter your display name.");return}
     if(!sq.trim()){setAuthError("Please select a security question.");return}if(!sa.trim()||sa.trim().length<2){setAuthError("Please enter a security answer (2+ characters).");return}
@@ -403,7 +418,10 @@ function App(){
     else{_setCurrentScreen("dashboard");_setTab("home");window.history.replaceState({_ad:0},"","/");}
   }
   const level=useMemo(()=>lvl(stats.xp),[stats.xp]);
-  const allCats=Object.keys(V);
+  // Fix 1: these hooks must live above all early returns (Rules of Hooks)
+  const badges=useMemo(()=>({home:dchlA.filter(v=>!v).length,learn:0,practice:0,croatia:0,profile:0}),[dchlA]);
+  const onCloseCelebration=useCallback(()=>setShowCelebration(false),[]);
+  const allCats=ALL_CATS;
   const icons=ICONS;
   // ═══ SCREEN LAUNCH FUNCTIONS (S1-3) ═══
   function launchMcGame(questions){setMcInitQ(questions);sCurEx("mcgame");setScr("mcgame");}
@@ -451,8 +469,6 @@ function App(){
     return <ResetPassword authError={authError} rpEm={rpEm} rpSa={rpSa} rpPw={rpPw} rpPc={rpPc} rpStep={rpStep} rpQ={rpQ} setAuthScreen={setAuthScreen} setAuthError={setAuthError} setRpEm={setRpEm} setRpSa={setRpSa} setRpPw={setRpPw} setRpPc={setRpPc} setRpStep={setRpStep} setRpQ={setRpQ} doReset={doReset} />;
   }
     // ═══ MAIN APP RENDER ═══
-  const badges=useMemo(()=>({home:dchlA.filter(v=>!v).length,learn:0,practice:0,croatia:0,profile:0}),[dchlA]);
-  const onCloseCelebration=useCallback(()=>setShowCelebration(false),[]);
   function doSidebarSearch(){if(srchQ.trim()){doSearch(srchQ);setSrchOpen(true);}}
   const ctxValue={authScreen,authUser,name,setName,doOut,stats,setStats,level,award,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx};
   return (
