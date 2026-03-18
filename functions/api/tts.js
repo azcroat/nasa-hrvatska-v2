@@ -1,82 +1,104 @@
-// Cloudflare Pages Function — Azure TTS Proxy
-// Keeps the Azure key server-side, never exposed to the browser
+// Cloudflare Pages Function — TTS Proxy
+// ElevenLabs (primary, no content filtering, native Croatian quality)
+// Azure (fallback)
 
-// IPA phoneme map for explicit Croatian words.
-// Azure's content filter scans surface text — wrapping with IPA phoneme tags
-// lets the neural voice pronounce them correctly without triggering the filter.
-const PHONEME_MAP = [
-  // jeb- family (most frequent)
-  ['jebem ti mater',  'jɛbɛm ti matɛr'],
-  ['jebem mu mater',  'jɛbɛm mu matɛr'],
-  ['jebem ti',        'jɛbɛm ti'],
-  ['jebem',           'jɛbɛm'],
-  ['jebeš',           'jɛbɛʃ'],
-  ['jebemo',          'jɛbɛmɔ'],
-  ['jebote',          'jɛbɔtɛ'],
-  ['jebiga',          'jɛbiga'],
-  ['jebi ga',         'jɛbi ɡa'],
-  ['jebi se',         'jɛbi sɛ'],
-  ['jebi',            'jɛbi'],
-  ['jebo te',         'jɛbɔ tɛ'],
-  ['jebo',            'jɛbɔ'],
-  ['ojebat',          'ɔjɛbaːt'],
-  ['odjebi',          'ɔdjɛbi'],
-  ['nabijem',         'nabijɛm'],
-  // kurac family
-  ['kurac od ovce',   'kuraʦ ɔd ɔvʦɛ'],
-  ['kurvin sine',     'kurvin sinɛ'],
-  ['kurvin',          'kurvin'],
-  ['kurca',           'kurʦa'],
-  ['kurcu',           'kurʦu'],
-  ['kurcev',          'kurʦɛv'],
-  ['kurac',           'kuraʦ'],
-  // pizda / pička family
-  ['pičkin dim',      'pitʃkin dim'],
-  ['pičkin',          'pitʃkin'],
-  ['pičku',           'pitʃku'],
-  ['pičke',           'pitʃkɛ'],
-  ['pička',           'pitʃka'],
-  ['pizdu',           'pizdu'],
-  ['pizde',           'pizdɛ'],
-  ['pizda',           'pizda'],
-  // šupak
-  ['šupčić',          'ʃupt͡ʃit͡ɕ'],
-  ['šupca',           'ʃuptsa'],
-  ['šupak',           'ʃupak'],
-  // sranje / govno
-  ['sranje',          'sranʲɛ'],
-  ['govnu',           'ɡɔvnu'],
-  ['govnom',          'ɡɔvnɔm'],
-  ['govno',           'ɡɔvnɔ'],
-  // other
-  ['đubre',           'd͡ʒubrɛ'],
-  ['majmune',         'majmunɛ'],
-];
+// ── ElevenLabs ────────────────────────────────────────────────────────────────
+// eleven_multilingual_v2 handles Croatian natively with no content filtering.
+// Voice: "Charlotte" — clear, neutral European female voice.
+// Override voice by setting ELEVENLABS_VOICE_ID env var in Cloudflare.
+const EL_DEFAULT_VOICE = "XB0fDUnXU5powFXDhCwa"; // Charlotte
 
-function encodeForAzure(text) {
-  let result = text;
-  for (const [word, ipa] of PHONEME_MAP) {
-    // Case-insensitive whole-word replacement
-    const re = new RegExp(word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-    result = result.replace(re, match =>
-      `<phoneme alphabet="ipa" ph="${ipa}">${match}</phoneme>`
-    );
-  }
-  return result;
+async function tryElevenLabs(text, slow, apiKey, voiceId) {
+  const body = {
+    text,
+    model_id: "eleven_multilingual_v2",
+    voice_settings: {
+      stability: slow ? 0.80 : 0.45,
+      similarity_boost: 0.80,
+      style: 0.0,
+      use_speaker_boost: true,
+    },
+  };
+
+  const res = await fetch(
+    `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+    {
+      method: "POST",
+      headers: {
+        "xi-api-key": apiKey,
+        "Content-Type": "application/json",
+        Accept: "audio/mpeg",
+      },
+      body: JSON.stringify(body),
+    }
+  );
+
+  if (!res.ok) return null;
+  return res.arrayBuffer();
 }
 
+// ── Azure (fallback) ──────────────────────────────────────────────────────────
+// IPA phoneme map kept for reference — Azure hr-HR does NOT support IPA
+// so these tags are stripped out. Azure remains as a network fallback only.
+async function tryAzure(text, slow, azureKey, primaryRegion) {
+  const voice = slow ? "hr-HR-SreckoNeural" : "hr-HR-GabrijelaNeural";
+  const safeText = text.replace(
+    /[<>&"']/g,
+    (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&apos;" }[c])
+  );
+
+  const ssml = slow
+    ? `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}"><prosody rate="slow">${safeText}</prosody></voice></speak>`
+    : `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}">${safeText}</voice></speak>`;
+
+  const regions = [primaryRegion, "eastus", "eastus2", "westeurope", "northeurope", "westus2"].filter(
+    (r, i, a) => a.indexOf(r) === i
+  );
+
+  for (const region of regions) {
+    const tokenRes = await fetch(
+      `https://${region}.api.cognitive.microsoft.com/sts/v1.0/issueToken`,
+      { method: "POST", headers: { "Ocp-Apim-Subscription-Key": azureKey, "Content-Length": "0" } }
+    );
+    if (!tokenRes.ok) continue;
+    const token = await tokenRes.text();
+
+    const response = await fetch(
+      `https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/ssml+xml",
+          "X-Microsoft-OutputFormat": "audio-16khz-128kbitrate-mono-mp3",
+          "User-Agent": "NasaHrvatska/1.0",
+        },
+        body: ssml,
+      }
+    );
+
+    if (response.ok) return response.arrayBuffer();
+    if (response.status !== 400) break;
+  }
+  return null;
+}
+
+// ── Handler ───────────────────────────────────────────────────────────────────
 export async function onRequestPost(context) {
   const { request, env } = context;
-  const AZURE_KEY = env.AZURE_TTS_KEY;
-  const PRIMARY_REGION = env.AZURE_TTS_REGION || "eastus";
 
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
   const allowed = ["nasahrvatska.com", "pages.dev", "localhost"];
-  if (!allowed.some(d => origin.includes(d))) {
+  if (!allowed.some((d) => origin.includes(d))) {
     return new Response("Forbidden", { status: 403 });
   }
 
-  if (!AZURE_KEY) {
+  const ELEVENLABS_KEY = env.ELEVENLABS_API_KEY;
+  const AZURE_KEY = env.AZURE_TTS_KEY;
+  const PRIMARY_REGION = env.AZURE_TTS_REGION || "eastus";
+  const VOICE_ID = env.ELEVENLABS_VOICE_ID || EL_DEFAULT_VOICE;
+
+  if (!ELEVENLABS_KEY && !AZURE_KEY) {
     return new Response("TTS not configured", { status: 500 });
   }
 
@@ -86,56 +108,37 @@ export async function onRequestPost(context) {
       return new Response("Invalid text", { status: 400 });
     }
 
-    const voice = slow ? "hr-HR-SreckoNeural" : "hr-HR-GabrijelaNeural";
-    // Strip XML-special chars first, then apply phoneme encoding
-    const safeText = text.replace(/[<>&"']/g, c => ({ '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&apos;' }[c]));
-    const encodedText = encodeForAzure(safeText);
+    let buffer = null;
 
-    const ssml = slow
-      ? `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}"><prosody rate="slow">${encodedText}</prosody></voice></speak>`
-      : `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}">${encodedText}</voice></speak>`;
-
-    // Try primary region first, then common fallbacks
-    const regions = [PRIMARY_REGION, "eastus", "eastus2", "westeurope", "northeurope", "westus2"]
-      .filter((r, i, a) => a.indexOf(r) === i); // dedupe
-
-    for (const region of regions) {
-      const tokenRes = await fetch(
-        `https://${region}.api.cognitive.microsoft.com/sts/v1.0/issueToken`,
-        { method: "POST", headers: { "Ocp-Apim-Subscription-Key": AZURE_KEY, "Content-Length": "0" } }
-      );
-      if (!tokenRes.ok) continue;
-      const token = await tokenRes.text();
-
-      const response = await fetch(
-        `https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`,
-        {
-          method: "POST",
-          headers: {
-            "Authorization": "Bearer " + token,
-            "Content-Type": "application/ssml+xml",
-            "X-Microsoft-OutputFormat": "audio-16khz-128kbitrate-mono-mp3",
-            "User-Agent": "NasaHrvatska/1.0",
-          },
-          body: ssml,
-        }
-      );
-
-      if (response.ok) {
-        const buffer = await response.arrayBuffer();
-        return new Response(buffer, {
-          status: 200,
-          headers: {
-            "Content-Type": "audio/mpeg",
-            "Cache-Control": "public, max-age=86400",
-          },
-        });
+    // 1. Try ElevenLabs (best quality, no content filtering)
+    if (ELEVENLABS_KEY) {
+      try {
+        buffer = await tryElevenLabs(text, !!slow, ELEVENLABS_KEY, VOICE_ID);
+      } catch (e) {
+        // network error — fall through to Azure
       }
-      // 400 = wrong region or voice issue — try next; other errors = stop
-      if (response.status !== 400) break;
     }
 
-    return new Response("Azure TTS unavailable", { status: 503 });
+    // 2. Fall back to Azure
+    if (!buffer && AZURE_KEY) {
+      try {
+        buffer = await tryAzure(text, !!slow, AZURE_KEY, PRIMARY_REGION);
+      } catch (e) {
+        // fall through
+      }
+    }
+
+    if (buffer) {
+      return new Response(buffer, {
+        status: 200,
+        headers: {
+          "Content-Type": "audio/mpeg",
+          "Cache-Control": "public, max-age=86400",
+        },
+      });
+    }
+
+    return new Response("TTS unavailable", { status: 503 });
   } catch (e) {
     return new Response("TTS proxy error", { status: 500 });
   }
