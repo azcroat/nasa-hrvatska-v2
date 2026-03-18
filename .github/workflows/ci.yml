@@ -81,15 +81,8 @@ jobs:
 
       - name: Fetch current bugs from SonarCloud
         run: |
-          curl -s -u "${{ secrets.SONAR_TOKEN }}:" \
-            "https://sonarcloud.io/api/issues/search?componentKeys=AzCroat_nasa-hrvatska-v2&types=BUG&statuses=OPEN&ps=50" \
-            | python3 -c "
-import sys, json
-d = json.load(sys.stdin)
-print('=== OPEN BUGS (' + str(d.get('total',0)) + ' total) ===')
-for i in d.get('issues',[]):
-  print(i.get('severity','?'), i.get('rule','?'), i.get('component','?').split('/')[-1] + ':' + str(i.get('line','?')), '-', i.get('message','?')[:80])
-"
+          curl -s -u "${{ secrets.SONAR_TOKEN }}:" "https://sonarcloud.io/api/issues/search?componentKeys=AzCroat_nasa-hrvatska-v2&types=BUG&statuses=OPEN&ps=50" > /tmp/bugs.json
+          echo "=== OPEN BUGS ===" && cat /tmp/bugs.json | node -e "const d=require('/dev/stdin');if(d.total===0){console.log('0 bugs!')}else{d.issues.forEach(i=>console.log(i.severity,i.rule,i.component.split('/').pop()+':'+i.line,'-',i.message.slice(0,80)))}" 2>/dev/null || cat /tmp/bugs.json | python3 -c "import sys,json;d=json.load(sys.stdin);[print(i['severity'],i['rule'],i['component'].split('/')[-1]+':'+str(i.get('line','?')),'-',i['message'][:80]) for i in d.get('issues',[])] or print('0 bugs')"
 
   build-deploy:
     name: Build & Deploy
