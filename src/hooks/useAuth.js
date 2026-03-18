@@ -89,6 +89,11 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       const isNew = isNewReg.current;
       isNewReg.current = false;
 
+      // Reset sync gate so hero always shows "Syncing…" while Firebase loads.
+      // Without this, _syncReady stays true from a previous session and the hero
+      // shows a lesson based on stale/empty stats immediately after re-login.
+      cb.current.setSyncReady(false);
+
       setAuthUser(user);
       sS({ u: k, d: dn });
       touchSession(); updateStreak();
@@ -122,14 +127,15 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       function fireSyncReady() {
         if (!syncReadyFired) { syncReadyFired = true; cb.current.setSyncReady(true); }
       }
-      // Safety net: mark sync ready after 6s even if Firebase is slow
+      // Safety net: mark sync ready after 6s even if Firebase is slow.
+      // setAuthScreen('app') is called unconditionally so re-login after logout
+      // (earlyRestored=true in closure) always transitions to the app screen.
       const t = setTimeout(function() {
         if (!earlyRestored) {
-          // Fresh device, Firebase is very slow — show app with whatever we have
           earlyRestored = true;
           cb.current.onSignedIn({ user, progress: localP });
-          setAuthScreen('app');
         }
+        setAuthScreen('app');
         fireSyncReady();
       }, 6000);
 
@@ -151,12 +157,13 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
           }
         }
 
-        // Fresh device: now we have Firebase data (or confirmed none) — show app
+        // onSignedIn only when not yet shown — avoids double _goPostAuth navigation.
+        // setAuthScreen('app') is unconditional so re-login always reaches the app.
         if (!earlyRestored) {
           earlyRestored = true;
           cb.current.onSignedIn({ user, progress: fp || localP });
-          setAuthScreen('app');
         }
+        setAuthScreen('app');
 
         fireSyncReady();
       }).catch(function() {
@@ -165,8 +172,8 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         if (!earlyRestored) {
           earlyRestored = true;
           cb.current.onSignedIn({ user, progress: localP });
-          setAuthScreen('app');
         }
+        setAuthScreen('app');
         fireSyncReady();
       });
     });
