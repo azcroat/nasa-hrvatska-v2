@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { H, Bar, sh, NUMTIME } from '../../data.jsx';
 
 export default function NumTime({ goBack, award }) {
-  const [[ntQ, firstOpts]] = useState(() => {
+  const [ntQData] = useState(() => {
     const q = sh([...NUMTIME.numbers, ...NUMTIME.time]).slice(0, 10);
     return [q, sh([q[0].a].concat(q[0].al))];
   });
+  const [ntQ, firstOpts] = ntQData;
   const [ntI, sNtI] = useState(0);
   const [ntS, sNtS] = useState(0);
   const [ntA, sNtA] = useState(false);
