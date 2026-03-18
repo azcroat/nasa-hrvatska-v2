@@ -31,8 +31,8 @@ export default function ListeningScreen({ questions, goBack, award }) {
       <Bar v={idx+1} mx={total} h={6} />
       <div className="c" style={{marginTop:16,textAlign:"center"}}>
         <div style={{fontSize:14,color:"#78716c",marginBottom:12}}>Listen carefully, then choose what the sentence means:</div>
-        <button className="b bp" style={{fontSize:16,padding:"14px 32px"}} onClick={()=>speak(q.hr)}>🔊 Play Sentence</button>
-        <button className="b bg" style={{fontSize:13,marginLeft:8,padding:"14px 16px"}} onClick={()=>speakSlow(q.hr)}>🐢 Slow</button>
+        <button aria-label="Play sentence audio" className="b bp" style={{fontSize:16,padding:"14px 32px"}} onClick={()=>speak(q.hr)}>🔊 Play Sentence</button>
+        <button aria-label="Play sentence slowly" className="b bg" style={{fontSize:13,marginLeft:8,padding:"14px 16px"}} onClick={()=>speakSlow(q.hr)}>🐢 Slow</button>
       </div>
       <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:16}}>
         {options.map((o,oi)=>(
