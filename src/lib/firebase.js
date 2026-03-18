@@ -131,27 +131,27 @@ export function friendlyError(msg){
 export function generateFamilyCode(){const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";const arr=new Uint8Array(6);crypto.getRandomValues(arr);return Array.from(arr).map(function(b){return chars[b%chars.length]}).join("")}
 export function getLocalFamily(){try{return JSON.parse(localStorage.getItem("uFamily")||"null")}catch{return null}}
 export function saveLocalFamily(f){localStorage.setItem("uFamily",JSON.stringify(f))}
-export async function fbCreateFamily(familyName,creatorEmail,creatorName){
+export async function fbCreateFamily(familyName,creatorUid,creatorEmail,creatorName){
   if(!_fbReady||!_fbDb)return{ok:false,err:"Firebase not configured."};
   try{let code=generateFamilyCode();
   try{const existing=await getDoc(fsDoc(_fbDb,"families",code));
   if(existing.exists())code=generateFamilyCode()}catch(e){}
-  try{await setDoc(fsDoc(_fbDb,"families",code),{name:familyName,code:code,created:Date.now(),members:[{email:creatorEmail,name:creatorName,role:"admin",joined:Date.now()}],memberEmails:[creatorEmail]})}catch(fe){console.warn("Family write failed:",fe);return{ok:false,err:"Could not create family. Check Firebase permissions."}}
-  try{const id=creatorEmail.replace(/[.#$/\[\]]/g,"_");
+  try{await setDoc(fsDoc(_fbDb,"families",code),{name:familyName,code:code,created:Date.now(),members:[{uid:creatorUid,email:creatorEmail,name:creatorName,role:"admin",joined:Date.now()}],memberEmails:[creatorEmail]})}catch(fe){console.warn("Family write failed:",fe);return{ok:false,err:"Could not create family. Check Firebase permissions."}}
+  try{const id=creatorUid.replace(/[.#$/\[\]]/g,"_");
   await setDoc(fsDoc(_fbDb,"users",id),{familyCode:code},{merge:true})}catch(ue){console.warn("User family link failed:",ue)}
   const fam={name:familyName,code:code,role:"admin"};saveLocalFamily(fam);
   return{ok:true,code:code,family:fam}}catch(e){return{ok:false,err:friendlyError(e.message)}}
 }
-export async function fbJoinFamily(code,email,name){
+export async function fbJoinFamily(code,uid,email,name){
   if(!_fbReady||!_fbDb)return{ok:false,err:"Firebase not configured."};
   try{const famSnap=await getDoc(fsDoc(_fbDb,"families",code.toUpperCase()));
   if(!famSnap.exists())return{ok:false,err:"Family code not found. Check and try again."};
   const data=famSnap.data();const members=data.members||[];const memberEmails=data.memberEmails||[];
-  if(members.some(function(m){return m.email===email}))return{ok:false,err:"You are already in this family!"};
-  const updatedMembers=[...members,{email:email,name:name,role:"member",joined:Date.now()}];
+  if(members.some(function(m){return m.email===email||m.uid===uid}))return{ok:false,err:"You are already in this family!"};
+  const updatedMembers=[...members,{uid:uid,email:email,name:name,role:"member",joined:Date.now()}];
   const updatedEmails=[...new Set([...memberEmails,email])];
   await setDoc(fsDoc(_fbDb,"families",code.toUpperCase()),{members:updatedMembers,memberEmails:updatedEmails},{merge:true});
-  const id=email.replace(/[.#$/\[\]]/g,"_");
+  const id=uid.replace(/[.#$/\[\]]/g,"_");
   await setDoc(fsDoc(_fbDb,"users",id),{familyCode:code.toUpperCase()},{merge:true});
   const fam={name:data.name,code:code.toUpperCase(),role:"member"};saveLocalFamily(fam);
   return{ok:true,family:fam}}catch(e){return{ok:false,err:friendlyError(e.message)}}
@@ -163,9 +163,10 @@ export async function fbGetFamilyMembers(code){
     if(!famSnap2.exists())return[];
     const data=famSnap2.data();const members=data.members||[];
     // Parallel reads — read from /leaderboard (public) not /users (private)
+    // Use uid as the leaderboard key (matches fbSaveProgress), fall back to email-based id
     const results=await Promise.all(members.map(async function(m){
       try{
-        const id=m.email.replace(/[.#$/\[\]]/g,"_");
+        const id=(m.uid||m.email).replace(/[.#$/\[\]]/g,"_");
         const lbSnap=await getDoc(fsDoc(_fbDb,"leaderboard",id));
         const lb=lbSnap.exists()?lbSnap.data():null;
         return{name:m.name,email:m.email,role:m.role,xp:lb?lb.xp:0,lc:lb?lb.lc:0,joined:m.joined};
