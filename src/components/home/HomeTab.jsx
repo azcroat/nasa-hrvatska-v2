@@ -82,10 +82,23 @@ export default function HomeTab({
           <div style={{flex:1,background:"#003DA5"}}/>
         </div>
 
-        {/* ── Grb Hrvatske — proper heraldic coat of arms, top right ── */}
-        <div style={{position:"absolute",top:10,right:10,pointerEvents:"none",opacity:.72,filter:"drop-shadow(0 6px 20px rgba(0,0,0,.7))"}}>
-          <CroatianGrb size={148} />
-        </div>
+        {/* ── Šahovnica grb — 5×5 checkerboard, white top-left, top right ── */}
+        <svg
+          style={{position:"absolute",top:10,right:10,width:160,height:160,opacity:.55,pointerEvents:"none",filter:"drop-shadow(0 6px 24px rgba(0,0,0,.7))"}}
+          viewBox="0 0 62 62"
+        >
+          {/* Gold border frame */}
+          <rect x={0} y={0} width={62} height={62} fill="#C9A020" rx={2}/>
+          {/* Inner white border */}
+          <rect x={2} y={2} width={58} height={58} fill="#F8F6F2" rx={1}/>
+          {/* 5×5 šahovnica — white top-left (standard grb orientation) */}
+          {[0,1,2,3,4].map(r=>[0,1,2,3,4].map(c=>(
+            <rect key={`${r}-${c}`} x={2+c*11.6} y={2+r*11.6} width={11.6} height={11.6}
+              fill={(r+c)%2===0 ? "#F8F6F2" : "#D40030"}/>
+          )))}
+          {/* Gold outer glow border */}
+          <rect x={0.5} y={0.5} width={61} height={61} fill="none" stroke="#FFD060" strokeWidth="1" rx={2} opacity={0.7}/>
+        </svg>
 
 
         <div style={{padding:"18px 20px 44px"}}>
