@@ -28,7 +28,7 @@ if (!csvPath) {
 
 // ── HTML email ───────────────────────────────────────────────────────────────
 function buildEmail(name) {
-  const greeting = name ? `Bok ${name},` : 'Bok,';
+  const greeting = name ? `Bog ${name},` : 'Bog,';
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
