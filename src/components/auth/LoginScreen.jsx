@@ -1,5 +1,6 @@
 import React from 'react';
 import { BG_LIGHT } from '../../data.jsx';
+import CroatianGrb from '../shared/CroatianGrb.jsx';
 
 const BG = BG_LIGHT;
 
@@ -28,7 +29,7 @@ export default function LoginScreen({
     <div style={{...BG,display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
       <div style={{width:"100%",maxWidth:420,animation:"rise .5s",position:"relative",zIndex:1}}>
         <div style={{textAlign:"center",marginBottom:32}}>
-          <div style={{fontSize:56,marginBottom:12,animation:"boat 4s ease-in-out infinite"}}>⛵</div>
+          <div style={{marginBottom:12,display:"flex",justifyContent:"center"}}><CroatianGrb size={80} /></div>
           <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:36,color:"#164e63",fontWeight:800}}>Naša Hrvatska</h1>
           <p style={{color:"#78716c",fontSize:16}}>
             {isR ? "Create your account" : "Sign in to continue"}
