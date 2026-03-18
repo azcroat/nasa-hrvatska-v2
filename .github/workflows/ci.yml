@@ -79,6 +79,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+      - name: Fetch current bugs from SonarCloud
+        run: |
+          curl -s -u "${{ secrets.SONAR_TOKEN }}:" \
+            "https://sonarcloud.io/api/issues/search?componentKeys=AzCroat_nasa-hrvatska-v2&types=BUG&statuses=OPEN&ps=50" \
+            | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+print('=== OPEN BUGS (' + str(d.get('total',0)) + ' total) ===')
+for i in d.get('issues',[]):
+  print(i.get('severity','?'), i.get('rule','?'), i.get('component','?').split('/')[-1] + ':' + str(i.get('line','?')), '-', i.get('message','?')[:80])
+"
+
   build-deploy:
     name: Build & Deploy
     runs-on: ubuntu-latest
