@@ -754,13 +754,13 @@ function App(){
       currentScreen==="lesson"&&<LessonScreen
         lt={lt} li={li} lx={lx} ls={ls} lp={lp} la={la} lsl={lsl} qi={qi} icons={icons}
         sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl} sQi={sQi}
-        goBack={goBack} award={award} setStats={setStats}
+        goBack={goBack} award={award} setSt={setStats}
       />}
       {// ═══ GRAMMAR ═══
       currentScreen==="grammar"&&<GrammarScreen
         gl={gl||GRAM.beginner[0]} gp={gp} gx={gx} gs={gs} ga={ga} gsl={gsl}
         sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
-        goBack={goBack} award={award} setStats={setStats}
+        goBack={goBack} award={award} setSt={setStats}
       />}
       {// ═══ ALPHABET ═══
       currentScreen==="alphabet"&&<AlphabetScreen goBack={goBack} />}
