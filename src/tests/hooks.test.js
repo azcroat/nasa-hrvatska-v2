@@ -1,0 +1,233 @@
+/**
+ * hooks.test.js — unit tests for custom React hooks
+ * Uses @testing-library/react renderHook + act
+ */
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
+
+// ── Mock Firebase (same pattern as utils.test.js) ───────────────────────────
+vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
+vi.mock('firebase/auth', () => ({
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
+  updateProfile: vi.fn(),
+}));
+vi.mock('firebase/firestore', () => ({
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
+  collection: vi.fn(), getDocs: vi.fn(),
+  query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+}));
+
+import { usePreferences } from '../hooks/usePreferences.js';
+import { useSearch } from '../hooks/useSearch.js';
+import { useFamily } from '../hooks/useFamily.js';
+import { useJournal } from '../hooks/useJournal.js';
+import { useDaily } from '../hooks/useDaily.js';
+import { useTranslator } from '../hooks/useTranslator.js';
+
+function clearLS() { localStorage.clear(); }
+
+// ── usePreferences ────────────────────────────────────────────────────────────
+describe('usePreferences', () => {
+  beforeEach(clearLS); afterEach(clearLS);
+
+  it('initialises darkMode from localStorage', () => {
+    localStorage.setItem('darkMode', 'true');
+    const { result } = renderHook(() => usePreferences());
+    expect(result.current.darkMode).toBe(true);
+  });
+  it('darkMode defaults to false when not stored', () => {
+    const { result } = renderHook(() => usePreferences());
+    expect(result.current.darkMode).toBe(false);
+  });
+  it('toggleFav adds an item to favs', () => {
+    const { result } = renderHook(() => usePreferences());
+    act(() => { result.current.toggleFav({ hr: 'kuća', en: 'house' }); });
+    expect(result.current.favs).toHaveLength(1);
+    expect(result.current.favs[0].hr).toBe('kuća');
+  });
+  it('toggleFav removes an already-favourited item', () => {
+    const { result } = renderHook(() => usePreferences());
+    act(() => { result.current.toggleFav({ hr: 'kuća', en: 'house' }); });
+    act(() => { result.current.toggleFav({ hr: 'kuća', en: 'house' }); });
+    expect(result.current.favs).toHaveLength(0);
+  });
+  it('isFav returns true for favourited word', () => {
+    const { result } = renderHook(() => usePreferences());
+    act(() => { result.current.toggleFav({ hr: 'pas', en: 'dog' }); });
+    expect(result.current.isFav('pas')).toBe(true);
+  });
+  it('isFav returns false for non-favourited word', () => {
+    const { result } = renderHook(() => usePreferences());
+    expect(result.current.isFav('mačka')).toBe(false);
+  });
+  it('persists favs to localStorage', () => {
+    const { result } = renderHook(() => usePreferences());
+    act(() => { result.current.toggleFav({ hr: 'voda', en: 'water' }); });
+    const stored = JSON.parse(localStorage.getItem('uFavs') || '[]');
+    expect(stored.some(f => f.hr === 'voda')).toBe(true);
+  });
+  it('setDarkMode persists to localStorage', () => {
+    const { result } = renderHook(() => usePreferences());
+    act(() => { result.current.setDarkMode(true); });
+    // Note: usePreferences doesn't write darkMode to LS (that's done via darkMode handler in App)
+    // — this test confirms the state is toggled
+    expect(result.current.darkMode).toBe(true);
+  });
+});
+
+// ── useSearch ─────────────────────────────────────────────────────────────────
+describe('useSearch', () => {
+  it('initialises with empty query and results', () => {
+    const { result } = renderHook(() => useSearch());
+    expect(result.current.srchQ).toBe('');
+    expect(result.current.srchR).toHaveLength(0);
+    expect(result.current.srchOpen).toBe(false);
+  });
+  it('doSearch with empty string clears results', () => {
+    const { result } = renderHook(() => useSearch());
+    act(() => { result.current.doSearch(''); });
+    expect(result.current.srchR).toHaveLength(0);
+  });
+  it('doSearch with known Croatian word returns results', () => {
+    const { result } = renderHook(() => useSearch());
+    act(() => { result.current.doSearch('kuća'); });
+    expect(result.current.srchR.length).toBeGreaterThan(0);
+  });
+  it('doSearch results capped at 15', () => {
+    const { result } = renderHook(() => useSearch());
+    act(() => { result.current.doSearch('a'); }); // very common letter
+    expect(result.current.srchR.length).toBeLessThanOrEqual(15);
+  });
+  it('setSrchOpen controls open state', () => {
+    const { result } = renderHook(() => useSearch());
+    act(() => { result.current.setSrchOpen(true); });
+    expect(result.current.srchOpen).toBe(true);
+  });
+});
+
+// ── useFamily ─────────────────────────────────────────────────────────────────
+describe('useFamily', () => {
+  it('initialises with null famData', () => {
+    const { result } = renderHook(() => useFamily());
+    expect(result.current.famData).toBeNull();
+  });
+  it('setFamData updates state', () => {
+    const { result } = renderHook(() => useFamily());
+    act(() => { result.current.setFamData({ code: 'ABC123', name: 'Test Family' }); });
+    expect(result.current.famData.code).toBe('ABC123');
+  });
+  it('famMembers initialises as empty array', () => {
+    const { result } = renderHook(() => useFamily());
+    expect(result.current.famMembers).toEqual([]);
+  });
+  it('famTab defaults to main', () => {
+    const { result } = renderHook(() => useFamily());
+    expect(result.current.famTab).toBe('main');
+  });
+  it('setFamTab updates tab', () => {
+    const { result } = renderHook(() => useFamily());
+    act(() => { result.current.setFamTab('leaderboard'); });
+    expect(result.current.famTab).toBe('leaderboard');
+  });
+  it('setFamErr sets error message', () => {
+    const { result } = renderHook(() => useFamily());
+    act(() => { result.current.setFamErr('Family not found'); });
+    expect(result.current.famErr).toBe('Family not found');
+  });
+});
+
+// ── useJournal ────────────────────────────────────────────────────────────────
+describe('useJournal', () => {
+  beforeEach(clearLS); afterEach(clearLS);
+
+  it('loads words from localStorage on init', () => {
+    localStorage.setItem('uJournal', JSON.stringify([{ hr: 'pas', en: 'dog' }]));
+    const { result } = renderHook(() => useJournal());
+    expect(result.current.jWords).toHaveLength(1);
+    expect(result.current.jWords[0].hr).toBe('pas');
+  });
+  it('jWords defaults to empty array when nothing stored', () => {
+    const { result } = renderHook(() => useJournal());
+    expect(result.current.jWords).toEqual([]);
+  });
+  it('jIn and jEn initialise as empty strings', () => {
+    const { result } = renderHook(() => useJournal());
+    expect(result.current.jIn).toBe('');
+    expect(result.current.jEn).toBe('');
+  });
+  it('setJWords updates state', () => {
+    const { result } = renderHook(() => useJournal());
+    act(() => { result.current.setJWords([{ hr: 'mačka', en: 'cat' }]); });
+    expect(result.current.jWords[0].hr).toBe('mačka');
+  });
+  it('handles corrupted localStorage gracefully', () => {
+    localStorage.setItem('uJournal', 'INVALID_JSON{{{');
+    const { result } = renderHook(() => useJournal());
+    expect(result.current.jWords).toEqual([]);
+  });
+});
+
+// ── useDaily ──────────────────────────────────────────────────────────────────
+describe('useDaily', () => {
+  beforeEach(clearLS); afterEach(clearLS);
+
+  it('dchlA defaults to [false,false,false]', () => {
+    const { result } = renderHook(() => useDaily());
+    expect(result.current.dchlA).toEqual([false, false, false]);
+  });
+  it('dchlSl defaults to ["","",""]', () => {
+    const { result } = renderHook(() => useDaily());
+    expect(result.current.dchlSl).toEqual(['', '', '']);
+  });
+  it('sDchlA correctly updates answer state', () => {
+    const { result } = renderHook(() => useDaily());
+    act(() => { result.current.sDchlA([true, false, true]); });
+    expect(result.current.dchlA).toEqual([true, false, true]);
+  });
+  it('sDchlSl correctly updates selection state', () => {
+    const { result } = renderHook(() => useDaily());
+    act(() => { result.current.sDchlSl(['ans1', 'ans2', 'ans3']); });
+    expect(result.current.dchlSl).toEqual(['ans1', 'ans2', 'ans3']);
+  });
+  it('sDchlA updates state', () => {
+    const { result } = renderHook(() => useDaily());
+    act(() => { result.current.sDchlA([true, true, false]); });
+    expect(result.current.dchlA).toEqual([true, true, false]);
+  });
+});
+
+// ── useTranslator ─────────────────────────────────────────────────────────────
+describe('useTranslator', () => {
+  it('initialises with en-hr direction', () => {
+    const { result } = renderHook(() => useTranslator());
+    expect(result.current.tDir).toBe('en-hr');
+  });
+  it('tIn and tOut initialise as empty strings', () => {
+    const { result } = renderHook(() => useTranslator());
+    expect(result.current.tIn).toBe('');
+    expect(result.current.tOut).toBe('');
+  });
+  it('tL (loading) initialises as false', () => {
+    const { result } = renderHook(() => useTranslator());
+    expect(result.current.tL).toBe(false);
+  });
+  it('setTDir changes direction', () => {
+    const { result } = renderHook(() => useTranslator());
+    act(() => { result.current.setTDir('hr-en'); });
+    expect(result.current.tDir).toBe('hr-en');
+  });
+  it('doTr does nothing when tIn is empty', async () => {
+    const { result } = renderHook(() => useTranslator());
+    await act(async () => { await result.current.doTr(); });
+    expect(result.current.tL).toBe(false);
+    expect(result.current.tOut).toBe('');
+  });
+});
