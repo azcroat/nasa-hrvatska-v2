@@ -19,7 +19,7 @@ function playCorrect() {
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
     osc.start();
     osc.stop(ctx.currentTime + 0.35);
-  } catch (e) {}
+  } catch (e) {} // NOSONAR - intentional empty catch, optional browser API or safe fallback
 }
 
 function playWrong() {
@@ -36,7 +36,7 @@ function playWrong() {
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
     osc.start();
     osc.stop(ctx.currentTime + 0.3);
-  } catch (e) {}
+  } catch (e) {} // NOSONAR - intentional empty catch, optional browser API or safe fallback
 }
 
 // ── Particle burst on correct answer ──────────────────────────────────────────

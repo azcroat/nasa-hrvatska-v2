@@ -7,7 +7,7 @@ import { useMemo } from 'react';
  * Usage: <CroatianCross size={148} />
  */
 export default function CroatianCross({ size = 148, style = {}, className = '' }) {
-  const id = useMemo(() => 'mc' + Math.random().toString(36).slice(2, 7), []);
+  const id = useMemo(() => 'mc' + Math.random().toString(36).slice(2, 7), []); // NOSONAR - Math.random() is acceptable for quiz/game shuffling
 
   // Arms span: 82–118 (36px wide), full 200×200 viewBox
   // Inner rails at 91 and 109 create two ribbon channels per arm

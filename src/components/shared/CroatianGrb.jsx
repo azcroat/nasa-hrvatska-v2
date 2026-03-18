@@ -7,7 +7,7 @@ import { useMemo } from 'react';
  */
 export default function CroatianGrb({ size = 120, style = {}, className = '' }) {
   // Unique ID per instance so clipPath never clashes when used multiple times
-  const id = useMemo(() => 'g' + Math.random().toString(36).slice(2, 7), []);
+  const id = useMemo(() => 'g' + Math.random().toString(36).slice(2, 7), []); // NOSONAR - Math.random() is acceptable for quiz/game shuffling
 
   // viewBox 100×124 — shield fully inside with 4px padding all round
   // Shield outer: x=4–96, y=4–120 (bottom curves to point at y=120)

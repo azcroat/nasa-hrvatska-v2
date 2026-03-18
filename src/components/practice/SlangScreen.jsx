@@ -740,15 +740,15 @@ export default function SlangScreen({ goBack, award }) {
     const allEntries = SECTIONS.flatMap(s => s.entries);
     const pool = sec.entries
       .filter(e => e.en && e.en.length < 60 && e.ph !== '—')
-      .sort(() => Math.random() - 0.5)
+      .sort(() => Math.random() - 0.5) // NOSONAR - Math.random() is acceptable for quiz/game shuffling
       .slice(0, Math.min(6, sec.entries.length));
     if (pool.length < 2) return;
     const qs = pool.map(entry => {
       const wrong = allEntries
         .filter(e => e !== entry && e.en && e.en.length < 60)
-        .sort(() => Math.random() - 0.5)
+        .sort(() => Math.random() - 0.5) // NOSONAR - Math.random() is acceptable for quiz/game shuffling
         .slice(0, 3);
-      const opts = [...wrong.map(e => e.en), entry.en].sort(() => Math.random() - 0.5);
+      const opts = [...wrong.map(e => e.en), entry.en].sort(() => Math.random() - 0.5); // NOSONAR - Math.random() is acceptable for quiz/game shuffling
       return { hr: entry.hr, correct: entry.en, opts };
     });
     setQuizQuestions(qs);

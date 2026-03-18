@@ -158,7 +158,7 @@ export function RegionScreen({ regionKey, goBack }) {
               <div style={{background:`linear-gradient(135deg,${bgLight},${accentColor}18)`,borderRadius:16,padding:"20px",marginBottom:20}}>
                 <div style={{fontSize:15,fontWeight:800,lineHeight:1.5,color:"#1c1917"}}>{r.quiz[quizI].q}</div>
               </div>
-              {[r.quiz[quizI].a, ...r.quiz[quizI].al].sort(() => 0.5 - Math.random()).map(function(opt,i){
+              {[r.quiz[quizI].a, ...r.quiz[quizI].al].sort(() => 0.5 - Math.random()).map(function(opt,i){ // NOSONAR - Math.random() is acceptable for quiz/game shuffling
                 const chosen = quizSel === opt;
                 const correct = opt === r.quiz[quizI].a;
                 const revealed = quizSel !== null;

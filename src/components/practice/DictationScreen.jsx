@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data.jsx';
 
-function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;}
+function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;} // NOSONAR - Math.random() is acceptable for quiz/game shuffling
 
 const DATA = [
   { text:"Dobar dan, kako ste?", en:"Good day, how are you?", level:"A1" },

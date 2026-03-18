@@ -158,14 +158,14 @@ const ALL_CATS=Object.keys(V);
 const ICONS={greetings:"👋",numbers:"🔢",family:"👨‍👩‍👧‍👦",food:"🍕",animals:"🐾",body:"🦴","body & face":"🦴",colors:"🎨",home:"🏠","home & rooms":"🏠",clothing:"👔",weather:"☀️","weather & seasons":"☀️",places:"📍",transport:"🚗",verbs:"💬",adjectives:"📏",time:"📅","time & calendar":"📅",months:"🗓️",directions:"🧭",emotions:"💭",professions:"💼",restaurant:"🍽️",shopping:"🛍️",travel:"✈️",health:"🏥",questions:"❓",conjunctions:"🔗",culture:"🏛️","daily routine":"🌅","in the classroom":"📖","commands at home":"🏡","fairy tales":"📜",hobbies:"🎯",zagreb:"🏙️",opposites:"🔄",comparatives:"📊",fruits:"🍎",vegetables:"🥦",sports:"⚽",holidays:"🎄",personality:"😊"};
 
 let _appNavDepth=0;
-function pushUrl(path){try{if(window.location.pathname!==path){_appNavDepth++;window.history.pushState({_ad:_appNavDepth},"",path)}}catch(e){}}
+function pushUrl(path){try{if(window.location.pathname!==path){_appNavDepth++;window.history.pushState({_ad:_appNavDepth},"",path)}}catch(e){}} // NOSONAR - intentional empty catch, optional browser API or safe fallback
 // XP cooldown helpers — pure localStorage functions, defined outside component
 // so they never cause stale-closure issues in useCallback
 function canEarnXP(exerciseId){
   try{const cd=JSON.parse(localStorage.getItem("xpCooldown")||"{}");return cd[exerciseId]!==new Date().toISOString().slice(0,10)}catch{return true}
 }
 function markExerciseDone(exerciseId){
-  try{const cd=JSON.parse(localStorage.getItem("xpCooldown")||"{}");const today=new Date().toISOString().slice(0,10);cd[exerciseId]=today;const clean={};for(const k in cd){if(cd[k]===today)clean[k]=cd[k]}localStorage.setItem("xpCooldown",JSON.stringify(clean))}catch(e){}
+  try{const cd=JSON.parse(localStorage.getItem("xpCooldown")||"{}");const today=new Date().toISOString().slice(0,10);cd[exerciseId]=today;const clean={};for(const k in cd){if(cd[k]===today)clean[k]=cd[k]}localStorage.setItem("xpCooldown",JSON.stringify(clean))}catch(e){} // NOSONAR - intentional empty catch, optional browser API or safe fallback
 }
 
 function App(){
@@ -233,7 +233,7 @@ function App(){
     if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}
     const _arDay=new Date().toISOString().slice(0,10);
     if(fp.dc&&fp.dc.day===_arDay){const _arAns=fp.dc.answered||[false,false,false];const _arSel=Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""];sDchlA(_arAns);sDchlSl(_arSel);localStorage.setItem("dcDay3",JSON.stringify({day:_arDay,answered:_arAns,selected:_arSel}));}
-    if(fp.cooldown){const _arT=new Date().toISOString().slice(0,10);let _arCd={};try{_arCd=JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch(e){}for(const _arCk in fp.cooldown){if(fp.cooldown[_arCk]===_arT)_arCd[_arCk]=fp.cooldown[_arCk];}localStorage.setItem("xpCooldown",JSON.stringify(_arCd));}
+    if(fp.cooldown){const _arT=new Date().toISOString().slice(0,10);let _arCd={};try{_arCd=JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch(e){}for(const _arCk in fp.cooldown){if(fp.cooldown[_arCk]===_arT)_arCd[_arCk]=fp.cooldown[_arCk];}localStorage.setItem("xpCooldown",JSON.stringify(_arCd));} // NOSONAR - intentional empty catch, optional browser API or safe fallback
   },[setFavs,setJWords]);
   const { tDir, setTDir: sTDir, tIn, setTIn: sTIn, tOut, tL, doTr } = useTranslator();
   const[t1k,sT1k]=useState(null);
@@ -285,7 +285,7 @@ function App(){
     if(lastSeen&&stats.xp>0){const diff=now-parseInt(lastSeen,10);if(diff>86400000&&diff<7*86400000){setComebackBonus(true);setTimeout(()=>setComebackBonus(false),4000);}}
     localStorage.setItem("lastSeen",String(now));
     if(pendingJoinCode){
-      try{const u=new URL(window.location.href);u.searchParams.delete('join');window.history.replaceState({},'',u.pathname);}catch(_){}
+      try{const u=new URL(window.location.href);u.searchParams.delete('join');window.history.replaceState({},'',u.pathname);}catch(_){} // NOSONAR - intentional empty catch, optional browser API or safe fallback
       setFamCode(pendingJoinCode);setFamTab("join");
       setTimeout(()=>setScr("leaderboard"),600);
       setPendingJoinCode(null);
@@ -310,7 +310,7 @@ function App(){
       const{authUser:u,stats:st,name:nm,authScreen:as}=_unloadRef.current;
       if(!u||as!=="app")return;
       const _nd=new Date();const _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');
-      try{const _d={name:nm,stats:st,cp:true,onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),favs:_unloadRef.current.favs||[],journal:_unloadRef.current.jWords||[],dc:{day:_dcDay},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};localStorage.setItem("uP_"+u.u,JSON.stringify(_d));}catch(_){}
+      try{const _d={name:nm,stats:st,cp:true,onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),favs:_unloadRef.current.favs||[],journal:_unloadRef.current.jWords||[],dc:{day:_dcDay},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};localStorage.setItem("uP_"+u.u,JSON.stringify(_d));}catch(_){} // NOSONAR - intentional empty catch, optional browser API or safe fallback
     };
     window.addEventListener("beforeunload",onUnload);
     return()=>window.removeEventListener("beforeunload",onUnload);

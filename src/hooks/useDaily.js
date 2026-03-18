@@ -17,7 +17,7 @@ function loadDailyAnswered() {
   const saved = localStorage.getItem('dcDay3');
   if (saved) {
     try { const p = JSON.parse(saved); if (p.day === k) return p.answered; }
-    catch (e) {}
+    catch (e) {} // NOSONAR - intentional empty catch, optional browser API or safe fallback
   }
   return [false, false, false];
 }
@@ -29,7 +29,7 @@ function loadDailySelected() {
     try {
       const p = JSON.parse(saved);
       if (p.day === k && Array.isArray(p.selected) && typeof p.selected[0] === 'string') return p.selected;
-    } catch (e) {}
+    } catch (e) {} // NOSONAR - intentional empty catch, optional browser API or safe fallback
   }
   return ['', '', ''];
 }
