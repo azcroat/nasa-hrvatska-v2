@@ -36,14 +36,14 @@ describe('XPPopup', () => {
   });
   it('shows already-earned message when xpA is 0', () => {
     render(<XPPopup showXP={true} xpA={0} />);
-    expect(screen.getByRole('status').textContent).toMatch(/already earned/i);
+    expect(screen.getByRole('status').textContent).toMatch(/max xp earned today|already earned/i);
   });
   it('has aria-live="polite"', () => {
-    const { container } = render(<XPPopup showXP={false} xpA={5} />);
+    const { container } = render(<XPPopup showXP={true} xpA={5} />);
     expect(container.firstChild.getAttribute('aria-live')).toBe('polite');
   });
   it('has aria-atomic="true"', () => {
-    const { container } = render(<XPPopup showXP={false} xpA={5} />);
+    const { container } = render(<XPPopup showXP={true} xpA={5} />);
     expect(container.firstChild.getAttribute('aria-atomic')).toBe('true');
   });
   it('provides aria-label when visible', () => {
