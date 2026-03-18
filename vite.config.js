@@ -61,7 +61,7 @@ export default defineConfig({
             }
           },
           {
-            urlPattern: /^https:\/\/.*\.firebaseio\.com\/.*/i,
+            urlPattern: /^https:\/\/[a-z0-9-]+\.firebaseio\.com\/.*/i,
             handler: 'NetworkOnly'
           },
           {
