@@ -322,6 +322,41 @@ export default function PracticeTab({
         </div>
       </Section>
 
+      {/* ── SLANG & EXPRESSIONS ── */}
+      <button
+        className="tc"
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', gap: 14,
+          padding: '18px', marginBottom: 8, textAlign: 'left',
+          background: 'linear-gradient(135deg,#1a1a2e,#0f3460)',
+          border: '2px solid #374151', borderRadius: 16,
+        }}
+        onClick={() => { setScr('slang'); sCurEx('slang'); }}>
+        <div style={{
+          width: 52, height: 52, borderRadius: 14, flexShrink: 0,
+          background: 'linear-gradient(135deg,#dc2626,#b91c1c)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 26, boxShadow: '0 4px 16px rgba(220,38,38,.4)',
+        }}>
+          🤬
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', marginBottom: 3 }}>
+            Slang & Psovanje
+          </div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,.6)', lineHeight: 1.4, fontWeight: 500 }}>
+            Authentic Croatian slang, expressions & the artform of swearing — with cultural context
+          </div>
+        </div>
+        <div style={{
+          background: 'rgba(220,38,38,.3)', border: '1px solid rgba(220,38,38,.5)',
+          borderRadius: 8, padding: '4px 10px', fontSize: 10, fontWeight: 800,
+          color: '#fca5a5', whiteSpace: 'nowrap', flexShrink: 0,
+        }}>
+          18+ 🔥
+        </div>
+      </button>
+
       <Section title="🧪 Fluency Lab" icon="🧪" count="3 advanced tools" defaultOpen={true}>
         <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>
           The gap between B1 and C1 — close it here
