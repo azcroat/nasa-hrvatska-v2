@@ -8,8 +8,6 @@ export default function HomeTab({
   getWeekStats, award,
   setTab, setScr, sCurEx,
   allCats, sh,
-  sMcQ, sMcI, sMcS, sMcA, sMcSl,
-  sFcPool, sFcI, sFcFlip, sFcKnow,
   launchPathItem,
 }) {
   const dc = getDailyChallenge();
