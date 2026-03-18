@@ -67,20 +67,24 @@ export default function HomeTab({
 
       {/* ── HERO ── */}
       <div style={{
-        background: "linear-gradient(150deg,#0a1628 0%,#0c3d6b 45%,#0a5a8a 100%)",
-        borderRadius: 0,
-        padding: "0 0 0",
-        marginBottom: 0,
+        background: "linear-gradient(160deg,#060e1e 0%,#0a2348 40%,#0c3868 100%)",
         position: "relative",
         overflow: "hidden",
         color: "white",
+        borderBottom: "1px solid rgba(200,152,10,0.35)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
       }}>
-        {/* Croatian flag tricolor stripe — top */}
-        <div style={{display:"flex",height:6,width:"100%",boxShadow:"0 2px 8px rgba(0,0,0,.4)"}}>
-          <div style={{flex:1,background:"#D4002D"}}/>
-          <div style={{flex:1,background:"#F5F5F5"}}/>
-          <div style={{flex:1,background:"#003DA5"}}/>
-        </div>
+        {/* Gold accent line — top */}
+        <div style={{
+          height: 3,
+          background: "linear-gradient(90deg, transparent 0%, #C8980A 20%, #FFE070 50%, #C8980A 80%, transparent 100%)",
+        }}/>
+        {/* Subtle radial glow behind content */}
+        <div style={{
+          position:"absolute",top:0,left:0,right:0,bottom:0,
+          background:"radial-gradient(ellipse 70% 60% at 30% 40%, rgba(14,116,144,0.18) 0%, transparent 70%)",
+          pointerEvents:"none",
+        }}/>
 
         {/* ── Grb Hrvatske — top right ── */}
         <div style={{position:"absolute",top:10,right:10,pointerEvents:"none",opacity:.70,filter:"drop-shadow(0 6px 24px rgba(0,0,0,.75))"}}>
