@@ -332,6 +332,7 @@ function App(){
   },[]);// eslint-disable-line
   const award=useCallback((amt,celebrate)=>{
     if(curEx&&!canEarnXP(curEx)){setXpA(0);setShowXP(true);setTimeout(()=>setShowXP(false),2000);return}
+    if(curEx)markExerciseDone(curEx); // lock immediately so double-clicks/replays can't re-award
     setXpA(amt);setShowXP(true);
     setStats(s=>{const n={...s,xp:s.xp+amt};const nb=BADGES.filter(b=>!s.badges.includes(b.id)&&b.r(n));if(nb.length){n.badges=[...s.badges,...nb.map(b=>b.id)];setTimeout(()=>{setNB(nb[0]);setSB(true);setTimeout(()=>setSB(false),3000)},600)}return n});
     setTimeout(()=>setShowXP(false),1500);

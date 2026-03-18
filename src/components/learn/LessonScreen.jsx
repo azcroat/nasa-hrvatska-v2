@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { H, Bar, Spk, speak, srMark, sh, shuffleArr, V } from '../../data.jsx';
 
 export default function LessonScreen({
@@ -6,6 +6,7 @@ export default function LessonScreen({
   sLi, sLx, sLs, sLp, sLa, sLsl, sQi,
   goBack, award, setSt,
 }) {
+  const resultFired = useRef(false);
   return (
     <div className="scr-wrap">
       
@@ -44,7 +45,7 @@ export default function LessonScreen({
           ))}
           {la&&<button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{
             if(lx<qi.length-1){sLx(i=>i+1);sLa(false);sLsl(-1);}
-            else{const p=ls/qi.length;award(Math.round(p*30)+5);setSt(s=>({...s,lc:s.lc+1,pf:p===1?s.pf+1:s.pf,rs:[...s.rs,p],ct:[...new Set([...s.ct,lt])]}));sLp("result");}
+            else{if(resultFired.current)return;resultFired.current=true;const p=ls/qi.length;award(Math.round(p*30)+5);setSt(s=>({...s,lc:s.lc+1,pf:p===1?s.pf+1:s.pf,rs:[...s.rs,p],ct:[...new Set([...s.ct,lt])]}));sLp("result");}
           }}>{lx<qi.length-1?"Next →":"Results"}</button>}
         </div>
       </React.Fragment>}
