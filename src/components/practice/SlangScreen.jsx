@@ -4,7 +4,10 @@
  * regional dialect resources, and Gen Z usage patterns.
  */
 import React, { useState } from 'react';
-import { speak } from '../../data.jsx';
+import { speakSynth } from '../../data.jsx';
+
+// Azure TTS censors explicit Croatian words — use browser synth directly for this module
+function speak(text) { speakSynth(text, 0.9); }
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 
@@ -1019,7 +1022,7 @@ export default function SlangScreen({ goBack, award }) {
                 <div style={{ fontSize: 22, fontWeight: 900, color: section.color, fontFamily: "'Playfair Display',serif", lineHeight: 1.3 }}>
                   {quizQuestions[quizIdx].hr}
                 </div>
-                <button onClick={() => { if (window.speechSynthesis) { const u = new SpeechSynthesisUtterance(quizQuestions[quizIdx].hr); u.lang = 'hr-HR'; window.speechSynthesis.speak(u); }}} style={{ marginTop: 10, padding: '4px 12px', borderRadius: 8, border: 'none', background: section.color, color: '#fff', fontSize: 12, cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }}>
+                <button onClick={() => speak(quizQuestions[quizIdx].hr)} style={{ marginTop: 10, padding: '4px 12px', borderRadius: 8, border: 'none', background: section.color, color: '#fff', fontSize: 12, cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }}>
                   🔊 Hear it
                 </button>
               </div>
