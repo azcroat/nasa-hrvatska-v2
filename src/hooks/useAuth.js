@@ -154,6 +154,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       setAuthEmail(''); setPw(''); setPc(''); setDisplayName(''); setSq(''); setSa('');
       cb.current.onSignedIn({ user, progress: null, isNew: true });
       setAuthScreen('app');
+      cb.current.setSyncReady(true);
     } catch (e) { setAuthError('Registration failed. Please try again.'); }
     setAuthLoading(false);
   }
@@ -184,7 +185,9 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         cb.current.applyRemoteProgress(progress);
         setAuthEmail(''); setPw('');
         fbLoadUserFamily(k).then(f => { if (f) cb.current.setFamData(f); });
-        setAuthScreen('app'); setAuthLoading(false); return;
+        setAuthScreen('app');
+        cb.current.setSyncReady(true);
+        setAuthLoading(false); return;
       }
 
       // Rate limit hard-stop
@@ -204,21 +207,27 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
           cb.current.onSignedIn({ user, progress: lp });
           setAuthEmail(''); setPw('');
           setAuthScreen('app');
-          // Background Firebase sync after offline login
+          // Background Firebase sync after offline login — load remote first,
+          // then mark sync ready so subsequent saves go to Firebase
           fbLoadProgress(k).then(fp => {
-            if (!fp) return;
-            const stored = gP(k);
-            const fpTs = fp._fbUpdated || fp.savedAt || 0;
-            const lpTs = (stored && stored.savedAt) || 0;
-            const fpXP = (fp.stats && fp.stats.xp) || 0;
-            const lpXP = (stored && stored.stats && stored.stats.xp) || 0;
-            if (fp.sr) saveSR(fp.sr);
-            if (fpTs > lpTs || (!fpTs && !lpTs && fpXP > lpXP)) {
-              sP(k, fp);
-              cb.current.onSignedIn({ user, progress: fp, isHydrate: true });
-              cb.current.applyRemoteProgress(fp);
+            if (fp) {
+              const stored = gP(k);
+              const fpTs = fp._fbUpdated || fp.savedAt || 0;
+              const lpTs = (stored && stored.savedAt) || 0;
+              const fpXP = (fp.stats && fp.stats.xp) || 0;
+              const lpXP = (stored && stored.stats && stored.stats.xp) || 0;
+              if (fp.sr) saveSR(fp.sr);
+              if (fpTs > lpTs || (!fpTs && !lpTs && fpXP > lpXP)) {
+                sP(k, fp);
+                cb.current.onSignedIn({ user, progress: fp, isHydrate: true });
+                cb.current.applyRemoteProgress(fp);
+              }
             }
-          }).catch(() => { /* network error — keep local progress */ });
+            cb.current.setSyncReady(true);
+          }).catch(() => {
+            // Network error — keep local progress, still mark ready so saves go to Firebase when possible
+            cb.current.setSyncReady(true);
+          });
           setAuthLoading(false); return;
         }
         setAuthError('Incorrect password. Try again or use Forgot Password.'); setAuthLoading(false); return;
