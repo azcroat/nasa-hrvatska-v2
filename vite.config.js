@@ -76,12 +76,19 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
     minify: 'esbuild',
+    chunkSizeWarningLimit: 600, // chunk-data (vocabulary/lesson data) is inherently ~537 KB
     rollupOptions: {
       output: {
         manualChunks(id) {
           if (id.includes('node_modules/firebase')) return 'vendor-firebase';
           if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) return 'vendor-react';
           if (id.includes('node_modules/@sentry')) return 'vendor-sentry';
+          // data.jsx is 570 KB of vocabulary/lesson data — isolate it so other chunks stay small
+          if (id.includes('src/data')) return 'chunk-data';
+          // Split learn into sub-chunks to keep each below 500 KB
+          if (id.includes('src/components/learn/GrammarRef')) return 'chunk-learn-grammar';
+          if (id.includes('src/components/learn/NewLessons')) return 'chunk-learn-new';
+          if (id.includes('src/components/learn/VocabScreens')) return 'chunk-learn-vocab';
           if (id.includes('src/components/learn')) return 'chunk-learn';
           if (id.includes('src/components/practice')) return 'chunk-practice';
           if (id.includes('src/components/croatia')) return 'chunk-croatia';

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, srMark } from '../../data.jsx';
 
 const XP_PER_KNOWN = 2;
@@ -8,6 +8,18 @@ export default function Flashcards({ pool, goBack, award }) {
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [known, setKnown] = useState(0);
+  const cardRef = useRef(null);
+  const knowBtnRef = useRef(null);
+
+  // When buttons appear (card flipped), focus "I Know It" so keyboard users can act
+  useEffect(() => {
+    if (flipped && knowBtnRef.current) knowBtnRef.current.focus();
+  }, [flipped]);
+
+  // When a new card loads, return focus to the card
+  useEffect(() => {
+    if (!flipped && cardRef.current) cardRef.current.focus();
+  }, [idx]);
 
   if (!pool[idx]) return (
     <div className="scr-wrap">
@@ -27,7 +39,15 @@ export default function Flashcards({ pool, goBack, award }) {
       </div>
       <Bar v={idx+1} mx={pool.length} h={6} color="#f59e0b" />
       <div className="fc-scene">
-        <div className={`fc-card${flipped?" flipped":""}`} onClick={()=>setFlipped(f=>!f)}>
+        <div
+          ref={cardRef}
+          className={`fc-card${flipped?" flipped":""}`}
+          onClick={()=>setFlipped(f=>!f)}
+          onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setFlipped(f=>!f);}}}
+          role="button"
+          tabIndex={0}
+          aria-label={flipped ? `${pool[idx][1]} — tap to flip back` : `${pool[idx][0]} — tap to see English`}
+        >
           <div className="fc-face fc-front">
             <div style={{fontSize:32,fontWeight:800,color:"#1e40af",fontFamily:"'Playfair Display',serif",textAlign:"center",lineHeight:1.3}}>
               {pool[idx][0]}
@@ -49,7 +69,7 @@ export default function Flashcards({ pool, goBack, award }) {
           if(idx<pool.length-1)setIdx(i=>i+1);
           else{award(known*XP_PER_KNOWN+XP_COMPLETION_BONUS);goBack();}
         }}>❌ Study Again</button>
-        <button aria-label="Mark word as known" className="b bs" style={{flex:1,fontSize:15}} onClick={()=>{
+        <button ref={knowBtnRef} aria-label="Mark word as known" className="b bs" style={{flex:1,fontSize:15}} onClick={()=>{
           srMark(pool[idx][0],true);setKnown(k=>k+1);setFlipped(false);
           if(idx<pool.length-1)setIdx(i=>i+1);
           else{award(known*XP_PER_KNOWN+XP_COMPLETION_BONUS);goBack();}
