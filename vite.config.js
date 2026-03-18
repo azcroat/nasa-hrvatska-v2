@@ -13,15 +13,37 @@ export default defineConfig({
         name: 'Naša Hrvatska — Our Croatia',
         short_name: 'Naša Hrvatska',
         description: 'Interactive Croatian language learning with vocabulary, grammar, games, and cultural immersion',
+        id: '/',
         start_url: '/',
+        scope: '/',
         display: 'standalone',
         background_color: '#fffbeb',
         theme_color: '#0e7490',
         orientation: 'any',
+        lang: 'en',
+        dir: 'ltr',
+        categories: ['education', 'lifestyle'],
+        iarc_rating_id: '',
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
           { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml' }
+        ],
+        screenshots: [
+          {
+            src: 'screenshots/home-desktop.png',
+            sizes: '1280x720',
+            type: 'image/png',
+            form_factor: 'wide',
+            label: 'Home screen on desktop'
+          },
+          {
+            src: 'screenshots/home-mobile.png',
+            sizes: '390x844',
+            type: 'image/png',
+            form_factor: 'narrow',
+            label: 'Home screen on mobile'
+          }
         ]
       },
       workbox: {

@@ -19,6 +19,8 @@
     "lint:fix": "eslint src functions --fix",
     "typecheck": "tsc --noEmit",
     "size": "size-limit",
+    "audit:pwa": "npx lhci autorun",
+    "audit:store": "node -e \"console.log('Run: gh workflow run store-readiness.yml')\"",
     "prepare": "husky"
   },
   "dependencies": {
