@@ -16,7 +16,7 @@ const SCENARIOS = [
         opts:["S mlijekom, hvala.","Ja hoću s mlijekom.","Mlijeko da.","Sa mlijekom."],
         answer:0, tip:"'S mlijekom' (with milk) is correct. Note: 's' before consonants, 'sa' before consonant clusters." },
       { speaker:"Konobar", line:"Izvolite. Trebate li još nešto?", en:"Here you go. Do you need anything else?",
-        opts:["Molim vas, možete li donijeti i čašu vode?","Ja trebam voda.","Daj vodu.","Ne, bok."],
+        opts:["Molim vas, možete li donijeti i čašu vode?","Ja trebam voda.","Daj vodu.","Ne, bog."],
         answer:0, tip:"Polite request with 'možete li donijeti' — could you bring. Always use 'molim vas' in formal settings." },
       { speaker:"Konobar", line:"Naravno! Još nešto?", en:"Of course! Anything else?",
         opts:["Ne, hvala, to je sve.","Ništa ne.","Nema.","Ne hvala."],
@@ -41,7 +41,7 @@ const SCENARIOS = [
         opts:["Odlično, hvala puno!","Dobro.","Ok.","Hvala."],
         answer:0, tip:"'Odlično' (excellent) + 'hvala puno' (thank you very much) is warm and natural." },
       { speaker:"Prolaznik", line:"Nema na čemu! Sretno!", en:"Don't mention it! Good luck!",
-        opts:["Hvala, i vama!","Ok.","Bok.","Hvala."],
+        opts:["Hvala, i vama!","Ok.","Bog.","Hvala."],
         answer:0, tip:"'I vama' (to you too) is the standard response to a kind wish — don't just say 'hvala'." },
     ]
   },
@@ -94,7 +94,7 @@ const SCENARIOS = [
     title:"👋 Meeting Someone New",
     subtitle:"Introduce yourself at a social event",
     turns:[
-      { speaker:"Stranger", line:"Bok! Jesi li ti novi u gradu?", en:"Hi! Are you new to the city?",
+      { speaker:"Stranger", line:"Bog! Jesi li ti novi u gradu?", en:"Hi! Are you new to the city?",
         opts:["Da, tek sam se doselio/doselila. Ja sam [ime].","Da, ja sam novi.","Da.","Novi sam."],
         answer:0, tip:"'Tek sam se doselio' (I just moved here) + introducing yourself is the natural full response." },
       { speaker:"Stranger", line:"Drago mi je! Ja sam Marko. Otkud si?", en:"Nice to meet you! I'm Marko. Where are you from?",

@@ -12,7 +12,7 @@ const LEVELS = {
     emoji:"🌱",
     desc:"Basic greetings, numbers, and survival phrases",
     questions:[
-      { q:"What does 'hvala' mean?", opts:["Thank you","Hello","Goodbye","Please"], answer:0, tip:"'Hvala' = thank you. 'Molim' = please/you're welcome. 'Bok' = hello/bye." },
+      { q:"What does 'hvala' mean?", opts:["Thank you","Hello","Goodbye","Please"], answer:0, tip:"'Hvala' = thank you. 'Molim' = please/you're welcome. 'Bog' = hello/bye." },
       { q:"How do you say 'I am from England'?", opts:["Ja sam iz Engleske.","Ja sam Engleska.","Iz Engleske ja.","Sam Engleska ja."], answer:0, tip:"'Ja sam iz + country in genitive' — Engleske is the genitive of Engleska." },
       { q:"What does 'Gdje je WC?' mean?", opts:["Where is the toilet?","What time is it?","How much does it cost?","Where are you from?"], answer:0, tip:"'Gdje' = where, 'je' = is. 'Gdje je...?' = Where is...?" },
       { q:"'Dog' in Croatian:", opts:["pas","mačka","ptica","riba"], answer:0, tip:"pas = dog, mačka = cat, ptica = bird, riba = fish" },
