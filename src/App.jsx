@@ -22,6 +22,7 @@ import StreakMilestoneModal from "./components/shared/StreakMilestoneModal.jsx";
 import OnboardingTour from "./components/shared/OnboardingTour.jsx";
 import OfflineBanner from "./components/shared/OfflineBanner.jsx";
 import WelcomeScreen from "./components/home/WelcomeScreen.jsx";
+import CroatianGrb from "./components/shared/CroatianGrb.jsx";
 import PlacementTest from "./components/home/PlacementTest.jsx";
 // Reload once on stale-chunk errors (happens after deploy when old index.html
 // tries to load chunk files that no longer exist at their old hashed paths).
@@ -443,10 +444,10 @@ function App(){
       className={darkMode?"dark":""}
       style={{...(darkMode?BG_DARK:BG_LIGHT),display:"flex",alignItems:"center",justifyContent:"center"}}>
       <div style={{textAlign:"center",animation:"rise .6s"}}>
-        <div style={{fontSize:64,animation:"boat 3s ease-in-out infinite"}}>
-          ⛵
+        <div style={{display:"flex",justifyContent:"center",marginBottom:16,animation:"pulse 2s ease-in-out infinite"}}>
+          <CroatianGrb size={80} />
         </div>
-        <p style={{color:"var(--subtext)",marginTop:16,fontWeight:600}}>
+        <p style={{color:"var(--subtext)",marginTop:4,fontWeight:600}}>
           Loading...
         </p>
       </div>
