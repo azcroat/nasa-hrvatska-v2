@@ -148,13 +148,6 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         if (f) {
           saveLocalFamily(f);
           cb.current.setFamData(f);
-          // Backfill: write this user's current XP into the family memberXP map.
-          // Handles the case where children joined the family before memberXP was added,
-          // or where fbSaveProgress fired before fbLoadUserFamily completed on a fresh device.
-          const localProgress = gP(k);
-          if (localProgress && localProgress.stats && localProgress.stats.xp > 0) {
-            fbSaveProgress(k, localProgress).catch(function() {});
-          }
         }
       });
 
@@ -207,6 +200,20 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         setAuthScreen('app');
 
         fireSyncReady();
+
+        // ── Family XP backfill ───────────────────────────────────────────────
+        // Fires AFTER progress is loaded so gP(k) is guaranteed to have real data.
+        // fbLoadUserFamily runs concurrently and is much faster (2 getDoc calls, no
+        // retry), so getLocalFamily() will have the family code by this point.
+        // This fixes children who show 0 XP because fbSaveProgress previously fired
+        // before localStorage had family data (race condition on fresh devices).
+        (function() {
+          const famData = getLocalFamily();
+          const latestProgress = fp || gP(k);
+          if (famData && famData.code && latestProgress && latestProgress.stats && latestProgress.stats.xp > 0) {
+            fbSaveProgress(k, latestProgress).catch(function() {});
+          }
+        })();
 
         // ── Real-time cross-device sync ──────────────────────────────────────
         // Start a Firestore onSnapshot listener. Any time another device saves
