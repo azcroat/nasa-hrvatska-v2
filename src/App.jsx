@@ -149,6 +149,7 @@ const PitchAccentScreen = lazyWithReload(() => import("./components/practice/Pit
 const ShadowingScreen = lazyWithReload(() => import("./components/practice/ShadowingScreen.jsx"));
 const ReviewScreen = lazyWithReload(() => import("./components/practice/ReviewScreen.jsx"));
 const WritingScreen = lazyWithReload(() => import("./components/practice/WritingScreen.jsx"));
+const ListeningPath = lazyWithReload(() => import("./components/practice/ListeningPath.jsx"));
 const AspectDrillScreen = lazyWithReload(() => import("./components/practice/AspectDrillScreen.jsx"));
 const CliticDrill = lazyWithReload(() => import("./components/practice/CliticDrill.jsx"));
 const SlangScreen = lazyWithReload(() => import("./components/practice/SlangScreen.jsx"));
@@ -788,6 +789,8 @@ function App(){
       currentScreen==="review"&&<ReviewScreen goBack={goBack} award={award} allCats={allCats} V={V} />}
       {// ═══ FREE WRITING + AI CORRECTION ═══
       currentScreen==="writing"&&<WritingScreen goBack={goBack} award={award} />}
+      {// ═══ LISTENING PATH ═══
+      currentScreen==="listeningpath"&&<ListeningPath goBack={goBack} />}
       {// ═══ VERB ASPECT DRILL ═══
       currentScreen==="aspectdrill"&&<AspectDrillScreen goBack={goBack} award={award} ASPECT_PAIRS={ASPECT_PAIRS} />}
       {currentScreen==="clitic"&&<CliticDrill goBack={goBack} award={award} />}

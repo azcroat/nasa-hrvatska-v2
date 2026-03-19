@@ -190,7 +190,9 @@ const GRAM = {
   ],
   advanced: [
     {title:"All Seven Cases",desc:"Nominativ (who?), Genitiv (whose?), Dativ (to whom?), Akuzativ (what?), Vokativ (hey!), Lokativ (where?), Instrumental (with what?).",exs:[["žena: žena,žene,ženi,ženu,ženo,ženi,ženom","all 7 cases"]],qs:[{q:"Dativ answers?",o:["Where?","To whom?","What?"],c:1},{q:"How many cases?",o:["5","6","7"],c:2}]},
-    {title:"Conditional Mood",desc:"bih/bi/bismo/biste + past participle. Wishes, polite requests.",exs:[["Ja bih jeo.","I would eat."],["Željela bih kavu.","I\'d like coffee."]],qs:[{q:"\'I would go\' = Ja ___ išao.",o:["bi","bih","bismo"],c:1}]}
+    {title:"Conditional Mood",desc:"bih/bi/bismo/biste + past participle. Wishes, polite requests.",exs:[["Ja bih jeo.","I would eat."],["Željela bih kavu.","I\'d like coffee."]],qs:[{q:"\'I would go\' = Ja ___ išao.",o:["bi","bih","bismo"],c:1}]},
+    {title:"Subjunctive: da + Verb",desc:"Croatian uses 'da + present tense' instead of a true subjunctive. Use it after verbs of wanting, needing, fearing, and impersonal expressions like 'važno je'.",exs:[["Hoću da idem.","I want to go."],["Važno je da govoriš.","It's important that you speak."],["Treba da jedemo.","We need to eat."]],qs:[{q:"'I want to go' in Croatian uses:",o:["da + infinitive","da + present tense","da + past tense"],c:1},{q:"'It is important that she knows' =",o:["Važno je da zna.","Važno je znati.","Važno je ona znala."],c:0}]},
+    {title:"Clitic Pronouns (me/te/ga/je)",desc:"Short unstressed pronouns. Accusative: me, te, ga/je, nas, vas, ih. Dative: mi, ti, mu/joj, nam, vam, im. Sentence order: [auxiliary] [se] [dative] [accusative].",exs:[["Vidim te.","I see you."],["Daj mi to.","Give me that."],["Rekao sam mu.","I told him."],["Dala joj ga je.","She gave it to her."]],qs:[{q:"Dative clitic of 'on' (he) is:",o:["ga","mu","se"],c:1},{q:"Correct clitic order after auxiliary:",o:["[acc] [dat] [se]","[se] [dat] [acc]","[dat] [acc] [se]"],c:1}]}
   ]
 };
 // ═══ PLACEMENT TEST ═══
@@ -1367,6 +1369,33 @@ function getDailyChallenge(){
   }
   // Fallback: fill if pool too small
   while(challenges.length<3)challenges.push(pool[ri(pool.length)]);
+  // SRS weak-word integration: replace last challenge with a due-review question if any words are due
+  try {
+    const dueWords=getDueReviews();
+    if(dueWords.length>0){
+      let srsQ=null;
+      const vCats=Object.values(V);
+      for(let di=0;di<dueWords.length&&!srsQ;di++){
+        const dueWord=dueWords[di];
+        for(let ci=0;ci<vCats.length&&!srsQ;ci++){
+          const found=vCats[ci].find(function(pair){return pair[0]===dueWord;});
+          if(found){
+            const wrongs=[];let wA=0;
+            while(wrongs.length<3&&wA<200){
+              const rc=vCats[ri(vCats.length)];wA++;
+              if(!rc||!rc.length)continue;
+              const rp=rc[ri(rc.length)];
+              if(rp&&rp[1]&&rp[1]!==found[1]&&!wrongs.some(function(w){return w===rp[1];}))wrongs.push(rp[1]);
+            }
+            if(wrongs.length===3){
+              srsQ={q:"🔁 Review: What does '"+found[0]+"' mean?",a:found[1],opts:shuf([found[1],wrongs[0],wrongs[1],wrongs[2]]),isSRS:true};
+            }
+          }
+        }
+      }
+      if(srsQ)challenges[2]=srsQ;
+    }
+  } catch(_){}
   _dcCache={dateKey:dateKey,challenges:challenges};
   return _dcCache;
 }
@@ -2903,9 +2932,9 @@ const LEARN_PATH = [
   {level:3,title:"Communicator",desc:"First month",items:[
     {id:"lp12",name:"Grammar Intro",ck:function(s){return s.gc>=1},go:"grammar"},{id:"lp13",name:"Texting/Slang",ck:function(s){return s.lc>=10},go:"texting"},{id:"lp14",name:"Role-Play",ck:function(s){return s.lc>=10},go:"roleplay"},{id:"lp15",name:"Read a Story",ck:function(s){return s.lc>=12},go:"readlist"},{id:"lp16",name:"Conjugation",ck:function(s){return s.gc>=2},go:"conjdrill"},{id:"lp17",name:"Listening",ck:function(s){return s.lc>=12},go:"listening"},{id:"lp18",name:"Tenses & Gender",ck:function(s){return s.gc>=3},go:"tenses"},{id:"lp34",name:"Vi ili ti?",ck:function(s){return s.gc>=3},go:"formalregister"},{id:"lp35",name:"Tech & Digital",ck:function(s){return s.lc>=12},go:"techvoc"}]},
   {level:4,title:"Explorer",desc:"Months 2-3",items:[
-    {id:"lp19",name:"7 Cases",ck:function(s){return s.gc>=4},go:"padezi"},{id:"lp20",name:"Padeži Master",ck:function(s){return s.gc>=5},go:"padezifull"},{id:"lp21",name:"Verb Aspect",ck:function(s){return s.gc>=5},go:"aspect"},{id:"lp22",name:"Modal Verbs",ck:function(s){return s.gc>=6},go:"modal"},{id:"lp23",name:"Declension",ck:function(s){return s.gc>=6},go:"declension"},{id:"lp24",name:"False Friends",ck:function(s){return s.lc>=20},go:"falsefr"},{id:"lp25",name:"Dialects",ck:function(s){return s.lc>=20},go:"dialects"},{id:"lp36",name:"Conditional Mood",ck:function(s){return s.gc>=5},go:"conditional"},{id:"lp37",name:"Impersonal",ck:function(s){return s.gc>=6},go:"impersonal"}]},
+    {id:"lp19",name:"7 Cases",ck:function(s){return s.gc>=4},go:"padezi"},{id:"lp20",name:"Padeži Master",ck:function(s){return s.gc>=5},go:"padezifull"},{id:"lp21",name:"Verb Aspect",ck:function(s){return s.gc>=5},go:"aspect"},{id:"lp22",name:"Modal Verbs",ck:function(s){return s.gc>=6},go:"modal"},{id:"lp23",name:"Declension",ck:function(s){return s.gc>=6},go:"declension"},{id:"lp24",name:"False Friends",ck:function(s){return s.lc>=20},go:"falsefr"},{id:"lp25",name:"Dialects",ck:function(s){return s.lc>=20},go:"dialects"},{id:"lp36",name:"Conditional Mood",ck:function(s){return s.gc>=5},go:"conditional"},{id:"lp37",name:"Impersonal",ck:function(s){return s.gc>=6},go:"impersonal"},{id:"lp39",name:"Clitic Pronouns",ck:function(s){return s.gc>=6},go:"clitic"}]},
   {level:5,title:"Hrvat",desc:"Months 4-6",items:[
-    {id:"lp26",name:"Idioms",ck:function(s){return s.lc>=25},go:"idioms"},{id:"lp27",name:"Tongue Twisters",ck:function(s){return s.lc>=25},go:"brzalice"},{id:"lp28",name:"Word Formation",ck:function(s){return s.lc>=25},go:"wordform"},{id:"lp29",name:"Diminutives",ck:function(s){return s.lc>=28},go:"diminutives"},{id:"lp30",name:"Advanced Reading",ck:function(s){return s.lc>=30},go:"readlist"},{id:"lp31",name:"Domovinski Rat",ck:function(s){return s.lc>=30},go:"history"},{id:"lp32",name:"Cook Croatian!",ck:function(s){return s.lc>=30},go:"recipes"},{id:"lp33",name:"200 XP!",ck:function(s){return s.xp>=200},go:"dashboard"},{id:"lp38",name:"Admin Life",ck:function(s){return s.lc>=28},go:"bureaucratic"}]}
+    {id:"lp26",name:"Idioms",ck:function(s){return s.lc>=25},go:"idioms"},{id:"lp27",name:"Tongue Twisters",ck:function(s){return s.lc>=25},go:"brzalice"},{id:"lp28",name:"Word Formation",ck:function(s){return s.lc>=25},go:"wordform"},{id:"lp29",name:"Diminutives",ck:function(s){return s.lc>=28},go:"diminutives"},{id:"lp30",name:"Advanced Reading",ck:function(s){return s.lc>=30},go:"readlist"},{id:"lp31",name:"Domovinski Rat",ck:function(s){return s.lc>=30},go:"history"},{id:"lp32",name:"Cook Croatian!",ck:function(s){return s.lc>=30},go:"recipes"},{id:"lp33",name:"200 XP!",ck:function(s){return s.xp>=200},go:"dashboard"},{id:"lp38",name:"Admin Life",ck:function(s){return s.lc>=28},go:"bureaucratic"},{id:"lp40",name:"Subjunctive (da + Verb)",ck:function(s){return s.gc>=6},go:"grammar"},{id:"lp41",name:"Listening Path",ck:function(s){return s.lc>=25},go:"listeningpath"}]}
 ];
 // ═══ REFLEXIVE VERBS ═══
 const REFLEXIVE = {
