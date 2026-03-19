@@ -9,6 +9,10 @@ on:
   # A push-triggered run fires before Cloudflare deploys the new build (~2-3 min),
   # so it would always test the previous deployment and produce false failures.
 
+permissions:
+  issues: write
+  contents: read
+
 jobs:
   smoke:
     name: Smoke (${{ matrix.browser }})
