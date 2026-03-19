@@ -134,9 +134,11 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       function fireSyncReady() {
         if (!syncReadyFired) { syncReadyFired = true; cb.current.setSyncReady(true); }
       }
-      // Safety net: mark sync ready after 6s even if Firebase is slow.
-      // setAuthScreen('app') is called unconditionally so re-login after logout
-      // (earlyRestored=true in closure) always transitions to the app screen.
+      // Safety net: mark sync ready even if Firebase is slow.
+      // Fresh devices (no local cache) get a longer window so retries in fbLoadProgress
+      // have time to complete before the fallback fires with null progress.
+      // Returning devices already show cached data so 6s is fine.
+      const freshDevice = !earlyRestored && !localP;
       const t = setTimeout(function() {
         const needsNavTimeout = !earlyRestored || authScreenRef.current === 'login' || authScreenRef.current === 'register';
         if (needsNavTimeout) {
@@ -145,7 +147,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         }
         setAuthScreen('app');
         fireSyncReady();
-      }, 6000);
+      }, freshDevice ? 14000 : 6000);
 
       fbLoadProgress(k).then(function(fp) {
         clearTimeout(t);
