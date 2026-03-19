@@ -84,7 +84,19 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       }
     }
 
+    // Safety net: if Firebase never calls onAuthStateChanged (blocked SDK, network
+    // failure, init error), drop to the login screen after 8 seconds so the user
+    // is never stuck on an infinite loading spinner.
+    let authFired = false;
+    const authFallbackTimer = setTimeout(function() {
+      if (!authFired && !earlyRestored) {
+        setAuthScreen('login');
+      }
+    }, 8000);
+
     const unsub = fbOnAuthStateChanged(function(fbUser) {
+      authFired = true;
+      clearTimeout(authFallbackTimer);
       if (!fbUser) {
         // Not signed in — clear stale session and go to login
         cS();
@@ -236,7 +248,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       });
     });
 
-    return function() { unsub(); if (watchRef.current) { watchRef.current(); watchRef.current = null; } };
+    return function() { clearTimeout(authFallbackTimer); unsub(); if (watchRef.current) { watchRef.current(); watchRef.current = null; } };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Register ─────────────────────────────────────────────────────────────
