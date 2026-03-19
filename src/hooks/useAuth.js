@@ -288,8 +288,11 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       const k = authEmail.trim().toLowerCase();
       const result = await fbLogin(k, pw);
       if (result.ok) {
-        // Auth listener fires and handles session + progress loading
+        // Credentials confirmed — switch to loading screen immediately so the
+        // user sees progress rather than the login form snapping back idle
+        // while the auth listener + fbLoadProgress run in the background.
         setAuthEmail(''); setPw('');
+        setAuthScreen('loading');
       } else {
         setAuthError(result.err || 'Sign in failed. Please try again.');
       }
