@@ -84,8 +84,18 @@ export async function fbSaveProgress(uid,data){
 }
 export async function fbLoadProgress(uid){
   if(!_fbReady||!_fbDb)return null;
-  try{const id=uid.replace(/[.#$/\[\]]/g,"_");const snap=await getDoc(fsDoc(_fbDb,"users",id));
-  if(snap.exists()&&snap.data().progress){const p=JSON.parse(snap.data().progress);if(snap.data().updated)p._fbUpdated=snap.data().updated;return p}return null}catch(e){console.warn("FB load error:",e);return null}
+  const id=uid.replace(/[.#$/\[\]]/g,"_");
+  for(let attempt=0;attempt<3;attempt++){
+    try{
+      const snap=await getDoc(fsDoc(_fbDb,"users",id));
+      if(snap.exists()&&snap.data().progress){const p=JSON.parse(snap.data().progress);if(snap.data().updated)p._fbUpdated=snap.data().updated;return p}
+      return null; // doc exists but no progress field, or doc missing — no retry needed
+    }catch(e){
+      console.warn(`fbLoadProgress attempt ${attempt+1}/3 failed:`,e);
+      if(attempt<2)await new Promise(r=>setTimeout(r,2000));
+    }
+  }
+  return null;
 }
 export async function fbRegister(email,password,displayName){
   if(!_fbReady||!_fbAuth)return{ok:false,err:"Firebase not configured. Account created locally only."};
