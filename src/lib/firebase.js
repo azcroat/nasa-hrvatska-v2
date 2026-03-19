@@ -50,7 +50,7 @@ export async function fbSaveProgress(uid,data){
   const incoming={progress:JSON.stringify(data),updated:Date.now(),xp:(data.stats&&data.stats.xp)||0};
   // Write public leaderboard projection alongside the private progress doc
   const lbEntry={name:data.name||"",xp:(data.stats&&data.stats.xp)||0,lc:(data.stats&&data.stats.lc)||0,updated:incoming.updated};
-  try{setDoc(fsDoc(_fbDb,"leaderboard",id),lbEntry,{merge:true}).catch(function(){});}catch(e){}
+  try{setDoc(fsDoc(_fbDb,"leaderboard",id),lbEntry,{merge:true}).catch(function(e){console.warn("Leaderboard write failed:",e)});}catch(e){console.warn("Leaderboard write error:",e);}
   try{
     await runTransaction(_fbDb,async function(tx){
       const ref=fsDoc(_fbDb,"users",id);

@@ -30,7 +30,7 @@ export async function onRequestPost(context) {
 
   let body;
   try { body = await request.json(); }
-  catch (e) { return err(400, "Invalid JSON in request body"); }
+  catch { return err(400, "Invalid JSON in request body"); }
 
   const { messages, systemPrompt, mode } = body;
   if (!messages || !Array.isArray(messages) || !systemPrompt) {
@@ -61,7 +61,7 @@ export async function onRequestPost(context) {
 
   const payload = {
     model: MODEL,
-    max_tokens: mode === "evaluate" ? 1600 : 400,
+    max_tokens: mode === "evaluate" || mode === "writeeval" ? 1600 : (mode === "correct" || mode === "translate") ? 200 : 400,
     system: systemPrompt,
     messages: anthropicMsgs,
   };

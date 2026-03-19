@@ -18,6 +18,7 @@ async function tryElevenLabs(text, slow, apiKey, voiceId) {
       style: 0.0,
       use_speaker_boost: true,
     },
+    speed: slow ? 0.80 : 0.90,
   };
 
   const res = await fetch(
@@ -44,6 +45,7 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
   const voice = slow ? "hr-HR-SreckoNeural" : "hr-HR-GabrijelaNeural";
   const safeText = text.replace(
     /[<>&"']/g,
+    // eslint-disable-next-line security/detect-object-injection
     (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&apos;" }[c])
   );
 
@@ -114,7 +116,7 @@ export async function onRequestPost(context) {
     if (ELEVENLABS_KEY) {
       try {
         buffer = await tryElevenLabs(text, !!slow, ELEVENLABS_KEY, VOICE_ID);
-      } catch (e) {
+      } catch {
         // network error — fall through to Azure
       }
     }
@@ -123,7 +125,7 @@ export async function onRequestPost(context) {
     if (!buffer && AZURE_KEY) {
       try {
         buffer = await tryAzure(text, !!slow, AZURE_KEY, PRIMARY_REGION);
-      } catch (e) {
+      } catch {
         // fall through
       }
     }
@@ -139,7 +141,7 @@ export async function onRequestPost(context) {
     }
 
     return new Response("TTS unavailable", { status: 503 });
-  } catch (e) {
+  } catch {
     return new Response("TTS proxy error", { status: 500 });
   }
 }
