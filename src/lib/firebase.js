@@ -160,7 +160,13 @@ export async function fbJoinFamily(code,uid,email,name){
   try{const famSnap=await getDoc(fsDoc(_fbDb,"families",code.toUpperCase()));
   if(!famSnap.exists())return{ok:false,err:"Family code not found. Check and try again."};
   const data=famSnap.data();const members=data.members||[];const memberEmails=data.memberEmails||[];
-  if(members.some(function(m){return m.email===email||m.uid===uid}))return{ok:false,err:"You are already in this family!"};
+  if(members.some(function(m){return m.email===email||m.uid===uid})){
+    // Already a member — restore local family state and return success instead of erroring
+    const existing=members.find(function(m){return m.email===email||m.uid===uid});
+    const fam={name:data.name,code:code.toUpperCase(),role:existing?existing.role:"member"};
+    saveLocalFamily(fam);
+    return{ok:true,family:fam};
+  }
   const updatedMembers=[...members,{uid:uid,email:email,name:name,role:"member",joined:Date.now()}];
   const updatedEmails=[...new Set([...memberEmails,email])];
   await setDoc(fsDoc(_fbDb,"families",code.toUpperCase()),{members:updatedMembers,memberEmails:updatedEmails},{merge:true});

@@ -3,9 +3,10 @@
  * Extracted from App.jsx. All family-related state lives here.
  */
 import { useState } from 'react';
+import { getLocalFamily } from '../data.jsx';
 
 export function useFamily() {
-  const [famData, setFamData] = useState(null);
+  const [famData, setFamData] = useState(() => getLocalFamily());
   const [famMembers, setFamMembers] = useState([]);
   const [famLoading, setFamLoading] = useState(false);
   const [famName, setFamName] = useState('');
