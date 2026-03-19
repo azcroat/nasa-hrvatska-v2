@@ -43,6 +43,7 @@ const ImmersionHub = lazyWithReload(() => import("./components/croatia/Immersion
 const LyricsScreen = lazyWithReload(() => import("./components/croatia/LyricsScreen.jsx"));
 const AIConversation = lazyWithReload(() => import("./components/croatia/AIConversation.jsx"));
 const ProfileTab = lazyWithReload(() => import("./components/profile/ProfileTab.jsx"));
+const ContactScreen = lazyWithReload(() => import("./components/profile/ContactScreen.jsx"));
 const PracticeTab = lazyWithReload(() => import("./components/practice/PracticeTab.jsx"));
 const LessonScreen = lazyWithReload(() => import("./components/learn/LessonScreen.jsx"));
 const GrammarScreen = lazyWithReload(() => import("./components/learn/GrammarScreen.jsx"));
@@ -360,7 +361,7 @@ function App(){
       texting:"croatia",friends:"croatia",foodorder:"croatia",transport:"croatia",emergency:"croatia",
       football:"croatia",popculture:"croatia",practical:"croatia",school:"croatia",basketball:"croatia",gym:"croatia",
       top100:"croatia",events:"croatia",croatiaathletes:"croatia",
-      badges:"profile",leaderboard:"profile",journal:"profile",favorites:"profile",learnpath:"profile",
+      badges:"profile",leaderboard:"profile",journal:"profile",favorites:"profile",learnpath:"profile",contact:"profile",
     };
     function onPopState(e){
       const p=window.location.pathname;
@@ -625,6 +626,8 @@ function App(){
       currentScreen==="numtime"&&<NumTime goBack={goBack} award={award} />}
       {// ═══ ALL PROVERBS ═══
       currentScreen==="proverbs"&&<ProverbsScreen goBack={goBack} />}
+      {// ═══ CONTACT / SUPPORT ═══
+      currentScreen==="contact"&&<ContactScreen goBack={goBack} authUser={authUser} name={name} level={level} stats={stats} />}
       {// ═══ LEADERBOARD ═══
       currentScreen==="leaderboard"&&<Leaderboard goBack={goBack} authUser={authUser} name={name} stats={stats} famData={famData} setFamData={setFamData} famMembers={famMembers} setFamMembers={setFamMembers} famLoading={famLoading} setFamLoading={setFamLoading} famName={famName} setFamName={setFamName} famCode={famCode} setFamCode={setFamCode} famErr={famErr} setFamErr={setFamErr} famTab={famTab} setFamTab={setFamTab} />}
       {// ═══ SCHOOL KIT ═══
