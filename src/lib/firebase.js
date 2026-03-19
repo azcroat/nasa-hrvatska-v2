@@ -214,6 +214,11 @@ export async function fbGetFamilyMembers(code){
         // Fallback: read from /leaderboard (for members who haven't saved progress with new code)
         const lbSnap=await getDoc(fsDoc(_fbDb,"leaderboard",id));
         const lb=lbSnap.exists()?lbSnap.data():null;
+        // Self-heal: write leaderboard data back into memberXP so the next Refresh
+        // uses the fast single-doc path and this member never shows 0 XP again.
+        if(lb&&(lb.xp||0)>0){
+          updateDoc(fsDoc(_fbDb,"families",code),{["memberXP."+id]:{xp:lb.xp||0,lc:lb.lc||0,name:lb.name||m.name,updated:Date.now()}}).catch(function(){});
+        }
         return{name:m.name,email:m.email,role:m.role,xp:lb?lb.xp:0,lc:lb?lb.lc:0,joined:m.joined};
       }catch(e){return{name:m.name,email:m.email,role:m.role,xp:0,lc:0,joined:m.joined}}
     }));
