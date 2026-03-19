@@ -18,8 +18,21 @@ export default function Leaderboard({
       didAutoLoad.current = true;
       setFamLoading(true);
       fbGetFamilyMembers(famData.code)
-        .then(m => { setFamMembers(m); setFamLoading(false); })
-        .catch(() => { setFamLoading(false); setFamErr("Could not load leaderboard. Check your connection and tap Refresh."); });
+        .then(m => {
+          setFamMembers(m);
+          setFamLoading(false);
+          // Cache for offline fallback
+          try { localStorage.setItem("famCache_" + famData.code, JSON.stringify(m)); } catch {}
+        })
+        .catch(() => {
+          setFamLoading(false);
+          // Try offline cache before showing error
+          try {
+            const cached = JSON.parse(localStorage.getItem("famCache_" + famData.code) || "null");
+            if (cached && cached.length > 0) { setFamMembers(cached); setFamErr("⚠️ Showing cached results — offline"); return; }
+          } catch {}
+          setFamErr("Could not load leaderboard. Check your connection and tap Refresh.");
+        });
     }
   }, [famData, famTab]); // eslint-disable-line
 
@@ -76,8 +89,13 @@ export default function Leaderboard({
                 className="b bp"
                 style={{width:"100%",marginBottom:16,fontSize:14}}
                 onClick={() => {
-                  setFamLoading(true);
-                  fbGetFamilyMembers(famData.code).then(m => { setFamMembers(m); setFamLoading(false); });
+                  setFamLoading(true); setFamErr("");
+                  fbGetFamilyMembers(famData.code)
+                    .then(m => {
+                      setFamMembers(m); setFamLoading(false);
+                      try { localStorage.setItem("famCache_" + famData.code, JSON.stringify(m)); } catch {}
+                    })
+                    .catch(() => { setFamLoading(false); setFamErr("Could not refresh. Check your connection."); });
                 }}
                 disabled={famLoading}>
                 {famLoading ? "Loading..." : "🔄 Refresh Leaderboard"}

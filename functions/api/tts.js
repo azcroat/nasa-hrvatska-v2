@@ -21,21 +21,27 @@ async function tryElevenLabs(text, slow, apiKey, voiceId) {
     speed: slow ? 0.70 : 0.80,
   };
 
-  const res = await fetch(
-    `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
-    {
-      method: "POST",
-      headers: {
-        "xi-api-key": apiKey,
-        "Content-Type": "application/json",
-        Accept: "audio/mpeg",
-      },
-      body: JSON.stringify(body),
-    }
-  );
-
-  if (!res.ok) return null;
-  return res.arrayBuffer();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    const res = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+      {
+        method: "POST",
+        headers: {
+          "xi-api-key": apiKey,
+          "Content-Type": "application/json",
+          Accept: "audio/mpeg",
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      }
+    );
+    if (!res.ok) return null;
+    return res.arrayBuffer();
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 // ── Azure (fallback) ──────────────────────────────────────────────────────────
@@ -58,29 +64,38 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
   );
 
   for (const region of regions) {
-    const tokenRes = await fetch(
-      `https://${region}.api.cognitive.microsoft.com/sts/v1.0/issueToken`,
-      { method: "POST", headers: { "Ocp-Apim-Subscription-Key": azureKey, "Content-Length": "0" } }
-    );
-    if (!tokenRes.ok) continue;
-    const token = await tokenRes.text();
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    try {
+      const tokenRes = await fetch(
+        `https://${region}.api.cognitive.microsoft.com/sts/v1.0/issueToken`,
+        { method: "POST", headers: { "Ocp-Apim-Subscription-Key": azureKey, "Content-Length": "0" }, signal: controller.signal }
+      );
+      if (!tokenRes.ok) continue;
+      const token = await tokenRes.text();
 
-    const response = await fetch(
-      `https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: "Bearer " + token,
-          "Content-Type": "application/ssml+xml",
-          "X-Microsoft-OutputFormat": "audio-16khz-128kbitrate-mono-mp3",
-          "User-Agent": "NasaHrvatska/1.0",
-        },
-        body: ssml,
-      }
-    );
+      const response = await fetch(
+        `https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/ssml+xml",
+            "X-Microsoft-OutputFormat": "audio-16khz-128kbitrate-mono-mp3",
+            "User-Agent": "NasaHrvatska/1.0",
+          },
+          body: ssml,
+          signal: controller.signal,
+        }
+      );
 
-    if (response.ok) return response.arrayBuffer();
-    if (response.status !== 400) break;
+      if (response.ok) return response.arrayBuffer();
+      if (response.status !== 400) break;
+    } catch {
+      // Timeout or network error — try next region
+    } finally {
+      clearTimeout(timeout);
+    }
   }
   return null;
 }
@@ -90,7 +105,8 @@ export async function onRequestPost(context) {
   const { request, env } = context;
 
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
-  const allowed = ["nasahrvatska.com", "pages.dev", "localhost"];
+  const isDev = env.ENVIRONMENT !== "production";
+  const allowed = isDev ? ["nasahrvatska.com", "pages.dev", "localhost"] : ["nasahrvatska.com", "pages.dev"];
   if (!allowed.some((d) => origin.includes(d))) {
     return new Response("Forbidden", { status: 403 });
   }

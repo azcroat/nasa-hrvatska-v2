@@ -379,6 +379,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   const messagesEndRef = useRef(null);
   const inputRef       = useRef(null);
   const writeTextRef   = useRef(null);
+  const isMountedRef   = useRef(true);
+  useEffect(() => { return () => { isMountedRef.current = false; }; }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -502,7 +504,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
         "correct"
       );
       const result = parseJSON(raw);
-      if (result && result.corrected) {
+      if (result && result.corrected && isMountedRef.current) {
         setCorrections(prev => ({ ...prev, [msgIndex]: result }));
       }
     } catch {
@@ -520,6 +522,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       setTooltip({ word: clean, loading: false, ...cached, saved: savedWords.has(clean) });
       return;
     }
+    // Evict cache when it exceeds 150 entries to prevent unbounded memory growth
+    if (Object.keys(translationCacheRef.current).length >= 150) translationCacheRef.current = {};
     setTooltip({ word: clean, loading: true, translation: null, note: null, saved: savedWords.has(clean) });
     try {
       const raw = await callAI(
