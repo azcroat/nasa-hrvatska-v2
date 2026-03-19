@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile } from 'firebase/auth';
-import { getFirestore, doc as fsDoc, getDoc, setDoc, collection, getDocs, query, limit, orderBy, runTransaction } from 'firebase/firestore';
+import { getFirestore, doc as fsDoc, getDoc, setDoc, collection, getDocs, query, limit, orderBy, runTransaction, onSnapshot } from 'firebase/firestore';
 
 const FIREBASE_CONFIG = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -33,6 +33,9 @@ initFirebase();
 // ═══ LOCAL PROGRESS & SESSION STORAGE ═══
 export function gP(u){try{return JSON.parse(localStorage.getItem("uP_"+u))}catch{return null}}
 export function sP(u,p){localStorage.setItem("uP_"+u,JSON.stringify(p));fbSaveProgress(u,p)}
+// lP — local-only cache, no Firestore write. Use when hydrating from Firebase to avoid
+// a circular write (read → sP → write back → onSnapshot → read again).
+export function lP(u,p){localStorage.setItem("uP_"+u,JSON.stringify(p))}
 export function gS(){try{return JSON.parse(localStorage.getItem("uS"))}catch{return null}}
 export function sS(s){localStorage.setItem("uS",JSON.stringify({...s,lastActive:Date.now()}))}
 export function cS(){localStorage.removeItem("uS")}
@@ -210,6 +213,22 @@ export async function fbLoadUserFamily(email){
   return fam}catch(e){return null}
 }
 export function fbOnAuthStateChanged(cb){if(!_fbReady||!_fbAuth)return()=>{};return onAuthStateChanged(_fbAuth,cb)}
+// Real-time listener — fires immediately with current data, then on every remote change.
+// Returns an unsubscribe function. Use lP() inside the callback to cache locally
+// without triggering a circular Firestore write.
+export function fbWatchProgress(uid,callback){
+  if(!_fbReady||!_fbDb)return()=>{};
+  const id=uid.replace(/[.#$/\[\]]/g,"_");
+  return onSnapshot(
+    fsDoc(_fbDb,"users",id),
+    function(snap){
+      if(!snap.exists()||!snap.data().progress)return;
+      try{const p=JSON.parse(snap.data().progress);p._fbUpdated=snap.data().updated||0;callback(p,p._fbUpdated);}
+      catch(e){console.warn("fbWatchProgress parse error:",e);}
+    },
+    function(err){console.warn("fbWatchProgress error:",err);}
+  );
+}
 export async function fbGetLeaderboard(){
   if(!_fbReady||!_fbDb)return[];
   try{

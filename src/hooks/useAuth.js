@@ -12,10 +12,10 @@
  */
 import { useState, useEffect, useRef } from 'react';
 import {
-  gP, sP, gS, sS, cS,
+  gP, sP, lP, gS, sS, cS,
   touchSession, updateStreak, isValidEmail,
   fbLogin, fbRegister, fbLogout, fbResetPassword,
-  fbLoadProgress, fbLoadUserFamily, fbOnAuthStateChanged,
+  fbLoadProgress, fbWatchProgress, fbLoadUserFamily, fbOnAuthStateChanged,
   initFirebase, getLocalFamily,
 } from '../data.jsx';
 
@@ -31,6 +31,9 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
   // Keep callbacks in a ref so the one-time mount effect never goes stale
   const cb = useRef({ onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady });
   cb.current = { onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady };
+
+  // Holds the Firestore onSnapshot unsubscribe fn — cleaned up on sign-out / unmount
+  const watchRef = useRef(null);
 
   // Set to true just before fbRegister so the auth listener treats the next user as a new account
   const isNewReg = useRef(false);
@@ -85,6 +88,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       if (!fbUser) {
         // Not signed in — clear stale session and go to login
         cS();
+        if (watchRef.current) { watchRef.current(); watchRef.current = null; }
         setAuthUser(null);
         setAuthScreen('login');
         return;
@@ -161,7 +165,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
           const remoteIsNewer = fpTs > lpTs || (!fpTs && !lpTs && fpXP >= lpXP);
 
           if (remoteIsNewer) {
-            sP(k, fp);
+            lP(k, fp); // cache locally — lP skips the Firestore write to avoid snapshot loop
             cb.current.onSignedIn({ user, progress: fp, isHydrate: true });
             cb.current.applyRemoteProgress(fp);
           }
@@ -179,6 +183,22 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         setAuthScreen('app');
 
         fireSyncReady();
+
+        // ── Real-time cross-device sync ──────────────────────────────────────
+        // Start a Firestore onSnapshot listener. Any time another device saves
+        // progress, this fires and immediately applies the update here — no
+        // re-login required. We skip the initial event (same data we just loaded)
+        // by comparing remote vs local timestamps.
+        if (watchRef.current) watchRef.current(); // stop any prior watcher
+        watchRef.current = fbWatchProgress(k, function(remoteFp, remoteTs) {
+          const lc = gP(k);
+          const localTs = (lc && lc._fbUpdated) || 0;
+          if (remoteTs > localTs) {
+            lP(k, remoteFp);
+            cb.current.onSignedIn({ user, progress: remoteFp, isHydrate: true });
+            cb.current.applyRemoteProgress(remoteFp);
+          }
+        });
       }).catch(function() {
         clearTimeout(t);
         // Network error — show app with local data (or empty stats for fresh device)
@@ -189,10 +209,22 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         }
         setAuthScreen('app');
         fireSyncReady();
+        // Start watcher even after a load error — Firestore may recover and
+        // the snapshot will deliver the user's data when connectivity returns.
+        if (watchRef.current) watchRef.current();
+        watchRef.current = fbWatchProgress(k, function(remoteFp, remoteTs) {
+          const lc = gP(k);
+          const localTs = (lc && lc._fbUpdated) || 0;
+          if (remoteTs > localTs) {
+            lP(k, remoteFp);
+            cb.current.onSignedIn({ user, progress: remoteFp, isHydrate: true });
+            cb.current.applyRemoteProgress(remoteFp);
+          }
+        });
       });
     });
 
-    return unsub;
+    return function() { unsub(); if (watchRef.current) { watchRef.current(); watchRef.current = null; } };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Register ─────────────────────────────────────────────────────────────
@@ -261,6 +293,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
 
   // ── Sign out ──────────────────────────────────────────────────────────────
   function doOut() {
+    if (watchRef.current) { watchRef.current(); watchRef.current = null; }
     fbLogout(); cS(); setAuthUser(null); setAuthScreen('login');
     cb.current.onSignedOut();
   }

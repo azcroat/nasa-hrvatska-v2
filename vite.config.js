@@ -8,7 +8,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
-      includeAssets: ['icon.svg', 'icon-192.png', 'icon-512.png', 'icon-1024.png', 'apple-touch-icon.png', 'splash/*.png'],
+      includeAssets: ['icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'],
       manifest: {
         name: 'Naša Hrvatska — Our Croatia',
         short_name: 'Naša Hrvatska',
