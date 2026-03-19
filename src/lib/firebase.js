@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile } from 'firebase/auth';
-import { getFirestore, doc as fsDoc, getDoc, setDoc, updateDoc, collection, getDocs, query, limit, orderBy, runTransaction, onSnapshot } from 'firebase/firestore';
+import { getFirestore, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, collection, getDocs, query, limit, orderBy, runTransaction, onSnapshot } from 'firebase/firestore';
 
 const FIREBASE_CONFIG = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -213,8 +213,10 @@ export async function fbLeaveFamily(code,email){
   if(!leaveSnap.exists())return{ok:false};
   const data=leaveSnap.data();const members=(data.members||[]).filter(function(m){return m.email!==email});
   const memberEmails=(data.memberEmails||[]).filter(function(e){return e!==email});
-  await setDoc(fsDoc(_fbDb,"families",code),{members:members,memberEmails:memberEmails},{merge:true});
   const id=email.replace(/[.#$/\[\]]/g,"_");
+  await setDoc(fsDoc(_fbDb,"families",code),{members:members,memberEmails:memberEmails},{merge:true});
+  // Delete memberXP entry so ghost data doesn't accumulate in the family doc
+  updateDoc(fsDoc(_fbDb,"families",code),{["memberXP."+id]:deleteField()}).catch(function(){});
   await setDoc(fsDoc(_fbDb,"users",id),{familyCode:null},{merge:true});
   localStorage.removeItem("uFamily");
   return{ok:true}}catch(e){return{ok:false}}

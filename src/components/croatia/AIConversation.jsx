@@ -400,12 +400,20 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   async function callAI(msgs, systemPrompt, mode = "chat") {
     let res, data;
     try {
-      res = await fetch("/api/ai-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: msgs, systemPrompt, mode }),
-      });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
+      try {
+        res = await fetch("/api/ai-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: msgs, systemPrompt, mode }),
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
     } catch (netErr) {
+      if (netErr.name === "AbortError") throw new Error("Request timed out — the AI took too long to respond. Please try again.");
       throw new Error("Network error — check your connection. (" + netErr.message + ")");
     }
     try {
@@ -1262,6 +1270,7 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
   // ════════════════════════════════════════════════════════════════════════════
   // CONVERSATION — CHAT
   // ════════════════════════════════════════════════════════════════════════════
+  if (!scenario) { setPhase("setup"); return null; }
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 9100, background: "#f8fafc",
       display: "flex", flexDirection: "column", fontFamily: "'Outfit',sans-serif" }}>

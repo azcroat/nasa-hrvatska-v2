@@ -17,7 +17,9 @@ export default function Leaderboard({
     if (famData && !didAutoLoad.current && famTab === "main") {
       didAutoLoad.current = true;
       setFamLoading(true);
-      fbGetFamilyMembers(famData.code).then(m => { setFamMembers(m); setFamLoading(false); });
+      fbGetFamilyMembers(famData.code)
+        .then(m => { setFamMembers(m); setFamLoading(false); })
+        .catch(() => { setFamLoading(false); setFamErr("Could not load leaderboard. Check your connection and tap Refresh."); });
     }
   }, [famData, famTab]); // eslint-disable-line
 
@@ -60,7 +62,7 @@ export default function Leaderboard({
                     <button onClick={async()=>{
                       const link=`https://nasahrvatska.com/?join=${famData.code}`;
                       if(navigator.share){try{await navigator.share({title:'Join my family on Naša Hrvatska 🇭🇷',text:'Click to join and learn Croatian together!',url:link});}catch(_){}}
-                      else{await navigator.clipboard.writeText(link);alert('Invite link copied!');}
+                      else{await navigator.clipboard.writeText(link);setFamErr("✅ Invite link copied!");setTimeout(()=>setFamErr(""),3000);}
                     }} style={{background:'linear-gradient(135deg,#0e7490,#164e63)',color:'#fff',border:'none',borderRadius:10,padding:'6px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
                       🔗 Share Invite Link
                     </button>
@@ -107,7 +109,10 @@ export default function Leaderboard({
                 style={{marginTop:20,width:"100%",padding:"12px",border:"2px solid rgba(220,38,38,.15)",borderRadius:14,background:"rgba(220,38,38,.03)",color:"#dc2626",fontSize:13,fontWeight:600,cursor:"pointer"}}
                 onClick={() => {
                   if (confirm("Leave this family group? You can rejoin with the code later.")) {
-                    fbLeaveFamily(famData.code, au.e).then(() => { setFamData(null); setFamMembers([]); localStorage.removeItem("uFamily"); });
+                    fbLeaveFamily(famData.code, au.e).then(r => {
+                      if (r.ok) { setFamData(null); setFamMembers([]); localStorage.removeItem("uFamily"); }
+                      else setFamErr("Could not leave family. Check your connection and try again.");
+                    });
                   }
                 }}>
                 🚪 Leave Family
