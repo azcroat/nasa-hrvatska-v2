@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { speak } from '../../data.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
+import { useApp } from '../../context/AppContext.jsx';
 
 // ── Conversation scenarios ───────────────────────────────────────────────────
 const SCENARIOS = [
@@ -297,8 +298,37 @@ Return ONLY a valid JSON object (no markdown):
 Keep the translation concise and accurate. For verbs, give the infinitive meaning.`;
 }
 
+// ── TappableMessage — defined outside to prevent remount on every parent render ─
+// Each word in an AI message is a span; tapping calls onWordClick and stops
+// event propagation so the outer "tap to speak" div is not also triggered.
+function TappableMessage({ text, onWordClick }) {
+  const tokens = text.split(/(\s+)/);
+  return (
+    <>
+      {tokens.map((token, i) => {
+        if (/^\s+$/.test(token)) return <span key={i}>{token}</span>;
+        const stripped = token.replace(/[.,!?;:…«»"'""''()\[\]]/g, "").trim();
+        if (stripped.length < 2) return <span key={i}>{token}</span>;
+        return (
+          <span
+            key={i}
+            data-word="1"
+            onClick={e => { e.stopPropagation(); onWordClick(token); }}
+            style={{ cursor: "pointer", borderBottom: "1px dotted rgba(14,116,144,.4)",
+              borderRadius: 2, transition: "background .1s" }}
+            title="Tap to translate"
+          >
+            {token}
+          </span>
+        );
+      })}
+    </>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
-export default function AIConversation({ goBack, setScr, sCurEx, setJWords }) {
+export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWords }) {
+  const { award } = useApp();
   const isOnline = useOnlineStatus();
 
   // ── Mode (conversation vs. free write) ─────────────────────────────────────
@@ -331,6 +361,9 @@ export default function AIConversation({ goBack, setScr, sCurEx, setJWords }) {
 
   // ── Words saved to journal this session ───────────────────────────────────
   const [savedWords, setSavedWords] = useState(new Set());
+
+  // ── Translation cache — avoids duplicate API calls for the same word ───────
+  const translationCacheRef = useRef({});
 
   // ── Free Write state ───────────────────────────────────────────────────────
   const [writePrompt,    setWritePrompt]    = useState(null);
@@ -398,7 +431,7 @@ export default function AIConversation({ goBack, setScr, sCurEx, setJWords }) {
     const clean = raw.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```\s*$/i, "").trim();
     const match = clean.match(/\{[\s\S]*\}/);
     if (!match) return null;
-    return JSON.parse(match[0]);
+    try { return JSON.parse(match[0]); } catch { return null; }
   }
 
   // ── Start conversation ──────────────────────────────────────────────────────
@@ -437,9 +470,16 @@ export default function AIConversation({ goBack, setScr, sCurEx, setJWords }) {
     try {
       const reply = await callAI(next, buildConvoPrompt(scenario, level));
       setMessages(prev => [...prev, { role: "assistant", content: reply }]);
-      // Fire correction check in background — does not block the conversation
-      checkCorrection(userText, userMsgIndex);
+      // Fire correction check in background — skip if text is too short or
+      // appears to be English (no Croatian diacritics, ends in common English words)
+      const looksEnglish = userText.length < 4 || (
+        !/[čćšžđČĆŠŽĐ]/.test(userText) &&
+        /\b(the|is|are|was|were|have|has|can|will|my|your|i|we|you)\b/i.test(userText)
+      );
+      if (!looksEnglish) checkCorrection(userText, userMsgIndex);
     } catch (e) {
+      // Restore input so the user can retry without retyping
+      setInput(userText);
       setSendError(e.message || "Send failed — please try again.");
     }
     setLoading(false);
@@ -466,6 +506,12 @@ export default function AIConversation({ goBack, setScr, sCurEx, setJWords }) {
   async function translateWord(word) {
     const clean = word.replace(/[.,!?;:…«»"'""''()\[\]]/g, "").trim();
     if (!clean || clean.length < 2) return;
+    // Serve from cache instantly if we've translated this word before
+    const cached = translationCacheRef.current[clean.toLowerCase()];
+    if (cached) {
+      setTooltip({ word: clean, loading: false, ...cached, saved: savedWords.has(clean) });
+      return;
+    }
     setTooltip({ word: clean, loading: true, translation: null, note: null, saved: savedWords.has(clean) });
     try {
       const raw = await callAI(
@@ -474,9 +520,12 @@ export default function AIConversation({ goBack, setScr, sCurEx, setJWords }) {
         "translate"
       );
       const result = parseJSON(raw);
+      const translation = result?.translation || "—";
+      const note = result?.note || null;
+      translationCacheRef.current[clean.toLowerCase()] = { translation, note };
       setTooltip(prev =>
         prev?.word === clean
-          ? { ...prev, loading: false, translation: result?.translation || "—", note: result?.note || null }
+          ? { ...prev, loading: false, translation, note }
           : prev
       );
     } catch {
@@ -573,7 +622,13 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
       .join("\n\n");
     try {
       const raw = await callAI([{ role: "user", content: convoText }], buildEvalPrompt(scenario, level), "evaluate");
-      setEvaluation(parseJSON(raw));
+      const ev = parseJSON(raw);
+      setEvaluation(ev);
+      // Award XP based on conversation quality and length
+      if (ev && typeof award === "function") {
+        const xp = ev.score >= 80 ? 20 : ev.score >= 60 ? 15 : 10;
+        award(xp + Math.min(userMsgs.length, 5) * 2, false);
+      }
       setPhase("result");
     } catch (e) {
       setEvalError(e.message || "Evaluation failed");
@@ -597,6 +652,11 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
       const result = parseJSON(raw);
       if (!result) throw new Error("Could not parse evaluation response.");
       setWriteEval(result);
+      // Award XP for completing a free-write evaluation
+      if (typeof award === "function") {
+        const xp = result.score >= 80 ? 18 : result.score >= 60 ? 13 : 8;
+        award(xp, false);
+      }
       setWritePhase("result");
     } catch (e) {
       setWriteEvalError(e.message || "Evaluation failed");
@@ -615,40 +675,18 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
     setWriteEvalError(""); setWritePrompt(null);
   }
 
-  const userCount = messages.filter(m => m.role === "user").length;
-  const filteredScenarios = SCENARIOS.filter(s =>
-    (activeCat === "All" || s.cat === activeCat) && s.levels.includes(level)
+  const userCount = useMemo(() => messages.filter(m => m.role === "user").length, [messages]);
+  const filteredScenarios = useMemo(() =>
+    SCENARIOS.filter(s => (activeCat === "All" || s.cat === activeCat) && s.levels.includes(level)),
+    [activeCat, level]
   );
-  const filteredPrompts = WRITE_PROMPTS.filter(p => p.level === writeLevel);
-  const hasSpeechAPI = typeof window !== "undefined" && (window.SpeechRecognition || window.webkitSpeechRecognition);
+  const filteredPrompts = useMemo(() =>
+    WRITE_PROMPTS.filter(p => p.level === writeLevel),
+    [writeLevel]
+  );
+  const hasSpeechAPI = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
   // ── Sub-components ──────────────────────────────────────────────────────────
-
-  // AI message with tappable words
-  function TappableMessage({ text }) {
-    const tokens = text.split(/(\s+)/);
-    return (
-      <>
-        {tokens.map((token, i) => {
-          if (/^\s+$/.test(token)) return <span key={i}>{token}</span>;
-          const stripped = token.replace(/[.,!?;:…«»"'""''()\[\]]/g, "").trim();
-          if (stripped.length < 2) return <span key={i}>{token}</span>;
-          return (
-            <span
-              key={i}
-              data-word="1"
-              onClick={() => translateWord(token)}
-              style={{ cursor: "pointer", borderBottom: "1px dotted rgba(14,116,144,.4)", borderRadius: 2,
-                transition: "background .1s" }}
-              title="Tap to translate"
-            >
-              {token}
-            </span>
-          );
-        })}
-      </>
-    );
-  }
 
   // Word translation tooltip overlay
   const WordTooltip = tooltip ? (
@@ -881,7 +919,6 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
     );
 
     const ev = writeEval;
-    const scoreColor = ev.score >= 80 ? "#16a34a" : ev.score >= 55 ? "#d97706" : "#dc2626";
     const scoreEmoji = ev.score >= 80 ? "🏆" : ev.score >= 55 ? "👏" : "📚";
 
     return (
@@ -1232,7 +1269,11 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
       {/* Header */}
       <div style={{ background: "white", borderBottom: "1px solid #e2e8f0", padding: "10px 16px",
         display: "flex", alignItems: "center", gap: 10, flexShrink: 0, boxShadow: "0 1px 4px rgba(0,0,0,.06)" }}>
-        <button onClick={goBack}
+        <button
+          onClick={() => {
+            if (messages.length > 0 && !window.confirm("Leave this conversation? Your progress will be lost.")) return;
+            resetConvo();
+          }}
           style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", padding: "4px 6px",
             color: "#64748b", lineHeight: 1, borderRadius: 8 }}>←</button>
         <div style={{ width: 38, height: 38, borderRadius: "50%", flexShrink: 0,
@@ -1334,7 +1375,7 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
                     cursor: !isUser ? "pointer" : "default" }}
                 >
                   {/* AI messages: words are tappable for translation */}
-                  {!isUser ? <TappableMessage text={m.content} /> : m.content}
+                  {!isUser ? <TappableMessage text={m.content} onWordClick={translateWord} /> : m.content}
                   {!isUser && <span style={{ fontSize: 11, opacity: .4, marginLeft: 5 }}>🔊</span>}
                 </div>
               </div>
@@ -1362,11 +1403,11 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
             <span style={{ flexShrink: 0 }}>⚠️</span>
             <div>
               <strong>Send failed:</strong> {sendError}
-              <button onClick={() => { setSendError(""); sendMessage(); }}
+              <button onClick={() => setSendError("")}
                 style={{ display: "block", marginTop: 6, padding: "4px 12px", borderRadius: 8, border: "none",
                   background: "#dc2626", color: "white", fontSize: 11, fontWeight: 700, cursor: "pointer",
                   fontFamily: "'Outfit',sans-serif" }}>
-                Retry
+                Dismiss (your message is restored in the input)
               </button>
             </div>
           </div>
