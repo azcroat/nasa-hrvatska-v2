@@ -25,7 +25,7 @@ export function initFirebase(){
     // Privacy browsers (DuckDuckGo, Firefox strict, Safari ITP, Chrome incognito) block IndexedDB.
     // browserSessionPersistence uses sessionStorage which is always available.
     setPersistence(_fbAuth,browserLocalPersistence).catch(()=>setPersistence(_fbAuth,browserSessionPersistence)).catch(()=>{});return true
-  }catch(e){console.warn("Firebase init failed:",e);return false}
+  }catch(e){console.error("Firebase init failed:",e);return false}
 }
 // Auto-init on module load
 initFirebase();
