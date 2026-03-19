@@ -18,7 +18,7 @@ async function tryElevenLabs(text, slow, apiKey, voiceId) {
       style: 0.0,
       use_speaker_boost: true,
     },
-    speed: slow ? 0.80 : 0.90,
+    speed: slow ? 0.70 : 0.80,
   };
 
   const res = await fetch(
