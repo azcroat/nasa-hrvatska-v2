@@ -54,8 +54,8 @@ test.describe('Production smoke — site availability', () => {
 test.describe('Production smoke — PWA assets', () => {
   test('service worker is registered after page load', async ({ page }) => {
     await page.goto('/');
-    // Give SW time to register (Firebase + React init can take a few seconds)
-    await page.waitForTimeout(4_000);
+    // Wait for full network idle — Firebase + React + SW registration all need time
+    await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
     const registered = await page.evaluate(() =>
       'serviceWorker' in navigator
         ? navigator.serviceWorker.getRegistrations().then(r => r.length > 0)
@@ -85,18 +85,18 @@ test.describe('Production smoke — PWA assets', () => {
     expect(resp.status()).toBe(200);
   });
 
-  test('web app manifest is linked from HTML', async ({ page }) => {
+  test('web app manifest is linked from HTML and loads', async ({ page }) => {
     await page.goto('/');
-    // Wait for the HTML head to render
-    await page.waitForLoadState('domcontentloaded');
+    await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
+    // Read the manifest URL from the HTML <link> tag (handles hashed filenames)
     const manifestHref = await page.evaluate(() => {
       const link = document.querySelector('link[rel="manifest"]');
       return link?.href ?? null;
     });
-    expect(manifestHref, 'manifest link tag must exist in <head>').toBeTruthy();
-    // Fetch and validate the manifest content
+    expect(manifestHref, 'manifest <link> tag must exist in <head>').toBeTruthy();
+    // Fetch it — if the href is a relative path, request.get resolves against baseURL
     const resp = await page.request.get(manifestHref);
-    expect(resp.status()).toBe(200);
+    expect(resp.status(), `manifest at ${manifestHref} must return 200`).toBe(200);
     const body = await resp.json();
     expect(body.name).toContain('Naša Hrvatska');
     expect(body.icons?.length).toBeGreaterThan(0);
