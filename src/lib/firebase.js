@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile } from 'firebase/auth';
-import { getFirestore, doc as fsDoc, getDoc, setDoc, collection, getDocs, query, limit, orderBy, runTransaction, onSnapshot } from 'firebase/firestore';
+import { getFirestore, doc as fsDoc, getDoc, setDoc, updateDoc, collection, getDocs, query, limit, orderBy, runTransaction, onSnapshot } from 'firebase/firestore';
 
 const FIREBASE_CONFIG = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -51,6 +51,15 @@ export async function fbSaveProgress(uid,data){
   // Write public leaderboard projection alongside the private progress doc
   const lbEntry={name:data.name||"",xp:(data.stats&&data.stats.xp)||0,lc:(data.stats&&data.stats.lc)||0,updated:incoming.updated};
   try{setDoc(fsDoc(_fbDb,"leaderboard",id),lbEntry,{merge:true}).catch(function(e){console.warn("Leaderboard write failed:",e)});}catch(e){console.warn("Leaderboard write error:",e);}
+  // Denormalize XP into the family doc so family leaderboard always shows live data
+  // without depending on the /leaderboard collection being up-to-date for each member.
+  const localFam=getLocalFamily();
+  if(localFam&&localFam.code){
+    try{
+      const famRef=fsDoc(_fbDb,"families",localFam.code);
+      updateDoc(famRef,{["memberXP."+id]:{xp:lbEntry.xp,lc:lbEntry.lc,name:lbEntry.name,updated:incoming.updated}}).catch(function(e){console.warn("Family XP sync failed:",e);});
+    }catch(e){console.warn("Family XP sync error:",e);}
+  }
   try{
     await runTransaction(_fbDb,async function(tx){
       const ref=fsDoc(_fbDb,"users",id);
@@ -181,11 +190,15 @@ export async function fbGetFamilyMembers(code){
     const famSnap2=await getDoc(fsDoc(_fbDb,"families",code));
     if(!famSnap2.exists())return[];
     const data=famSnap2.data();const members=data.members||[];
-    // Parallel reads — read from /leaderboard (public) not /users (private)
-    // Use uid as the leaderboard key (matches fbSaveProgress), fall back to email-based id
+    // memberXP is a denormalized map written by fbSaveProgress — single-doc read, no N reads needed.
+    // Falls back to /leaderboard per-member reads for members who haven't synced yet.
+    const memberXP=data.memberXP||{};
     const results=await Promise.all(members.map(async function(m){
       try{
         const id=(m.uid||m.email).replace(/[.#$/\[\]]/g,"_");
+        const famXP=memberXP[id];
+        if(famXP){return{name:famXP.name||m.name,email:m.email,role:m.role,xp:famXP.xp||0,lc:famXP.lc||0,joined:m.joined};}
+        // Fallback: read from /leaderboard (for members who haven't saved progress with new code)
         const lbSnap=await getDoc(fsDoc(_fbDb,"leaderboard",id));
         const lb=lbSnap.exists()?lbSnap.data():null;
         return{name:m.name,email:m.email,role:m.role,xp:lb?lb.xp:0,lc:lb?lb.lc:0,joined:m.joined};
