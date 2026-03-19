@@ -23,7 +23,8 @@ export async function onRequestPost(context) {
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
 
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
-  const allowed = ["nasahrvatska.com", "pages.dev", "localhost"];
+  const isDev = env.ENVIRONMENT !== "production";
+  const allowed = isDev ? ["nasahrvatska.com", "pages.dev", "localhost"] : ["nasahrvatska.com", "pages.dev"];
   if (!allowed.some(d => origin.includes(d))) return err(403, "Forbidden");
 
   if (!ANTHROPIC_KEY) return err(500, "AI_KEY_MISSING: Add ANTHROPIC_API_KEY in Cloudflare Pages → Settings → Environment Variables.");
