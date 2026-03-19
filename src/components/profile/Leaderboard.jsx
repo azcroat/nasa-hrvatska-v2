@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { H, fbGetFamilyMembers, fbCreateFamily, fbJoinFamily, fbLeaveFamily } from '../../data.jsx';
 
 export default function Leaderboard({
-  goBack, authUser: au, name,
+  goBack, authUser: au, name, stats,
   famData, setFamData,
   famMembers, setFamMembers,
   famLoading, setFamLoading,
@@ -11,6 +11,25 @@ export default function Leaderboard({
   famErr, setFamErr,
   famTab, setFamTab,
 }) {
+  // Auto-load leaderboard on mount when already in a family
+  const didAutoLoad = useRef(false);
+  useEffect(() => {
+    if (famData && !didAutoLoad.current && famTab === "main") {
+      didAutoLoad.current = true;
+      setFamLoading(true);
+      fbGetFamilyMembers(famData.code).then(m => { setFamMembers(m); setFamLoading(false); });
+    }
+  }, [famData, famTab]); // eslint-disable-line
+
+  // Merge live local stats for the current user so their XP is always up-to-date
+  // even before Firestore leaderboard doc catches up
+  const displayMembers = famMembers.map(m => {
+    if (au && m.email === au.e && stats) {
+      return { ...m, xp: Math.max(m.xp, stats.xp || 0), lc: Math.max(m.lc, stats.lc || 0), name: name || m.name };
+    }
+    return m;
+  }).sort((a, b) => b.xp - a.xp);
+
   return (
     <div className="scr-wrap">
       
@@ -62,7 +81,7 @@ export default function Leaderboard({
                 {famLoading ? "Loading..." : "🔄 Refresh Leaderboard"}
               </button>
               {famErr && <div style={{color:"#dc2626",fontSize:13,marginBottom:12}}>{famErr}</div>}
-              {famMembers.length > 0 ? famMembers.map((u, i) => (
+              {displayMembers.length > 0 ? displayMembers.map((u, i) => (
                 <div
                   key={u.email}
                   className="c"

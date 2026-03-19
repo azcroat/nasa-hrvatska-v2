@@ -626,7 +626,7 @@ function App(){
       {// ═══ ALL PROVERBS ═══
       currentScreen==="proverbs"&&<ProverbsScreen goBack={goBack} />}
       {// ═══ LEADERBOARD ═══
-      currentScreen==="leaderboard"&&<Leaderboard goBack={goBack} authUser={authUser} name={name} famData={famData} setFamData={setFamData} famMembers={famMembers} setFamMembers={setFamMembers} famLoading={famLoading} setFamLoading={setFamLoading} famName={famName} setFamName={setFamName} famCode={famCode} setFamCode={setFamCode} famErr={famErr} setFamErr={setFamErr} famTab={famTab} setFamTab={setFamTab} />}
+      currentScreen==="leaderboard"&&<Leaderboard goBack={goBack} authUser={authUser} name={name} stats={stats} famData={famData} setFamData={setFamData} famMembers={famMembers} setFamMembers={setFamMembers} famLoading={famLoading} setFamLoading={setFamLoading} famName={famName} setFamName={setFamName} famCode={famCode} setFamCode={setFamCode} famErr={famErr} setFamErr={setFamErr} famTab={famTab} setFamTab={setFamTab} />}
       {// ═══ SCHOOL KIT ═══
       currentScreen==="school"&&<SchoolScreen goBack={goBack} />}
       {currentScreen==="texting"&&<TextingScreen goBack={goBack} />}
@@ -638,7 +638,7 @@ function App(){
       {currentScreen==="croatiaathletes"&&<CroatiaAthletes goBack={goBack} />}
       {currentScreen==="immersion"&&<ImmersionHub goBack={goBack} setScr={setScr} />}
       {currentScreen==="lyrics"&&<LyricsScreen goBack={goBack} award={award} />}
-      {currentScreen==="aiconvo"&&<AIConversation goBack={goBack} setScr={setScr} sCurEx={sCurEx} />}
+      {currentScreen==="aiconvo"&&<AIConversation goBack={goBack} setScr={setScr} sCurEx={sCurEx} setJWords={setJWords} />}
       {currentScreen==="popculture"&&<PopCultureScreen goBack={goBack} />}
       {currentScreen==="basketball"&&<BasketballScreen goBack={goBack} />}
       {currentScreen==="gym"&&<GymScreen goBack={goBack} />}
