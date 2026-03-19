@@ -244,7 +244,7 @@ function App(){
     if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));
     if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}
     if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}
-    const _arDay=new Date().toISOString().slice(0,10);
+    const _arNd=new Date();const _arDay=_arNd.getFullYear()+'-'+String(_arNd.getMonth()+1).padStart(2,'0')+'-'+String(_arNd.getDate()).padStart(2,'0');
     if(fp.dc&&fp.dc.day===_arDay){const _arAns=fp.dc.answered||[false,false,false];const _arSel=Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""];sDchlA(_arAns);sDchlSl(_arSel);localStorage.setItem("dcDay3",JSON.stringify({day:_arDay,answered:_arAns,selected:_arSel}));}
     if(fp.cooldown){const _arT=new Date().toISOString().slice(0,10);let _arCd={};try{_arCd=JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch(e){}for(const _arCk in fp.cooldown){if(fp.cooldown[_arCk]===_arT)_arCd[_arCk]=fp.cooldown[_arCk];}localStorage.setItem("xpCooldown",JSON.stringify(_arCd));}
   },[setFavs,setJWords]);
@@ -291,7 +291,7 @@ function App(){
     ds,
   });
   // Keep _unloadRef current on every render so beforeunload always flushes latest state
-  _unloadRef.current={authUser,stats,name,authScreen,favs,jWords};
+  _unloadRef.current={authUser,stats,name,authScreen,favs,jWords,dchlA,dchlSl};
   useEffect(()=>{
     if(authScreen!=="app")return;
     const lastSeen=localStorage.getItem("lastSeen");const now=Date.now();
@@ -323,7 +323,7 @@ function App(){
       const{authUser:u,stats:st,name:nm,authScreen:as}=_unloadRef.current;
       if(!u||as!=="app")return;
       const _nd=new Date();const _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');
-      try{const _d={name:nm,stats:st,cp:true,onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),favs:_unloadRef.current.favs||[],journal:_unloadRef.current.jWords||[],dc:{day:_dcDay},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};localStorage.setItem("uP_"+u.u,JSON.stringify(_d));}catch(_){}
+      try{const _d={name:nm,stats:st,cp:true,onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),favs:_unloadRef.current.favs||[],journal:_unloadRef.current.jWords||[],dc:{day:_dcDay,answered:_unloadRef.current.dchlA||[false,false,false],selected:_unloadRef.current.dchlSl||["","",""]},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};localStorage.setItem("uP_"+u.u,JSON.stringify(_d));}catch(_){}
     };
     window.addEventListener("beforeunload",onUnload);
     return()=>window.removeEventListener("beforeunload",onUnload);
