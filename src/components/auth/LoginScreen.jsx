@@ -68,9 +68,9 @@ export default function LoginScreen({
           </button>
           <div style={{textAlign:"center",marginTop:12,fontSize:11,color:"#94a3b8"}}>
             By continuing you agree to our{" "}
-            <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{color:"#0e7490",textDecoration:"underline"}}>Privacy Policy</a>
+            <a href="/privacy.html" target="_blank" rel="noopener noreferrer" style={{color:"#0e7490",textDecoration:"underline"}}>Privacy Policy</a>
             {" & "}
-            <a href="/terms" target="_blank" rel="noopener noreferrer" style={{color:"#0e7490",textDecoration:"underline"}}>Terms of Use</a>
+            <a href="/privacy.html#terms" target="_blank" rel="noopener noreferrer" style={{color:"#0e7490",textDecoration:"underline"}}>Terms of Use</a>
           </div>
           <div style={{textAlign:"center",marginTop:12,fontSize:14,color:"#78716c"}}>
             {isR?"Have an account? ":"No account? "}

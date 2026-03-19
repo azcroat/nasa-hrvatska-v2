@@ -10,36 +10,93 @@ export default function PrivacyScreen({ goBack }) {
         <h3 style={{fontSize:15,fontWeight:800,color:"var(--heading)",marginBottom:8}}>Privacy Policy</h3>
 
         <p style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7,marginBottom:10}}>
-          <strong>What we collect:</strong> Your email address and display name (used to identify your account).
-          Your learning progress — XP, lesson completions, and spaced-repetition data — stored in Firebase Firestore.
-          No browsing data, no device fingerprinting, no advertising identifiers.
+          <strong>What we collect:</strong> Your email address and display name (used to identify your
+          account). Your learning progress — XP, lesson completions, streak data, spaced-repetition
+          records, favorites, and vocabulary journal — stored securely in Firebase Firestore and cached
+          locally on your device for offline access. No browsing data, no device fingerprinting, no
+          advertising identifiers.
         </p>
 
         <p style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7,marginBottom:10}}>
-          <strong>Analytics:</strong> We use Plausible Analytics, a privacy-first, cookie-free service.
-          Plausible does not track individuals or sell data. No cookies are set.
+          <strong>Family groups (parent-managed):</strong> The family leaderboard feature is designed
+          to be created and managed by a parent or legal guardian. By creating a family group that
+          includes minor children, the parent or guardian confirms they have authority to enroll those
+          children and consents to their display name and learning progress (XP, lesson count) being
+          shared within the family group. Member email addresses are visible to other members of the
+          same family group in order to support the invite and management flow. Family data is stored
+          in Firebase Firestore and is not accessible to users outside the group.
         </p>
 
         <p style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7,marginBottom:10}}>
-          <strong>Text-to-speech:</strong> Words and phrases you choose to hear aloud are sent to Microsoft Azure
-          Speech Services to generate audio. These requests are proxied through our server and are not stored.
+          <strong>Text-to-speech:</strong> Words and phrases you choose to hear aloud are sent to
+          ElevenLabs (primary) or Microsoft Azure Speech Services (fallback) to generate audio.
+          These requests are proxied through our server and are not stored or retained by us after
+          the audio is delivered.
         </p>
 
         <p style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7,marginBottom:10}}>
-          <strong>Data sharing:</strong> We do not sell, rent, or share your personal data with third parties
-          for commercial purposes. Firebase and Microsoft Azure process data as processors under their
-          respective data processing agreements.
+          <strong>AI writing assistance:</strong> When you use the AI Conversation or writing
+          correction features, the text you write (up to 1,000 characters) and the current
+          conversation context are sent to Anthropic's Claude API to generate feedback and
+          corrections. This content is not stored by us after the response is returned.
+          Anthropic's data practices are governed by their{" "}
+          <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener noreferrer" style={{color:"#0e7490"}}>privacy policy</a>.
         </p>
 
         <p style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7,marginBottom:10}}>
-          <strong>Data deletion:</strong> To delete your account and all associated data, email
-          {" "}<a href="mailto:privacy@nasahrvatska.com" style={{color:"#0e7490"}}>privacy@nasahrvatska.com</a>.
+          <strong>Support tickets:</strong> When you submit a help request through the Contact
+          Support form, the contents of your message (type, subject, description, and optional
+          reply email) along with your display name, level, and XP are sent to our administrator
+          via Resend, a transactional email service. This data is used solely to respond to your
+          request.
+        </p>
+
+        <p style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7,marginBottom:10}}>
+          <strong>Analytics:</strong> We use Plausible Analytics, a privacy-first, cookie-free
+          service. Plausible does not track individuals, set cookies, or sell data. We may also
+          use PostHog for product analytics and Sentry for error monitoring — both configured to
+          minimize personal data collection, disable session recording, and scrub sensitive fields.
+        </p>
+
+        <p style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7,marginBottom:10}}>
+          <strong>Data processors:</strong> The following third-party services process data on
+          our behalf under their respective data processing agreements: Google Firebase
+          (authentication and database), ElevenLabs (text-to-speech), Microsoft Azure Speech
+          Services (text-to-speech fallback), Anthropic (AI writing assistance), Resend
+          (support email delivery), Plausible Analytics (privacy-first analytics).
+          We do not sell, rent, or share your personal data with third parties for commercial
+          purposes.
+        </p>
+
+        <p style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7,marginBottom:10}}>
+          <strong>Data retention:</strong> Your account data is retained until you request
+          deletion. Local device data (localStorage) persists until you clear your browser
+          storage or uninstall the app. Cached family leaderboard data is stored locally for
+          offline access and refreshed automatically.
+        </p>
+
+        <p style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7,marginBottom:10}}>
+          <strong>Cross-device sync:</strong> Your learning progress is automatically
+          synchronized across your devices via Firebase Firestore. When you sign in on a new
+          device, your progress is downloaded and the most recent version is applied.
+        </p>
+
+        <p style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7,marginBottom:10}}>
+          <strong>Your rights:</strong> You may request access to, correction of, or deletion
+          of your personal data at any time. To exercise these rights, email{" "}
+          <a href="mailto:privacy@nasahrvatska.com" style={{color:"#0e7490"}}>privacy@nasahrvatska.com</a>.
           We will process your request within 30 days.
         </p>
 
         <p style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7}}>
-          <strong>Children:</strong> This service is not directed to children under 13. We do not knowingly
-          collect data from children under 13.
+          <strong>Children and family accounts:</strong> The app is designed for use by families
+          under parental supervision. The family leaderboard is a parent-managed feature — a
+          parent or guardian must create the group and is responsible for enrolling minor members.
+          We do not knowingly collect data from children under 13 outside of a parent-managed
+          family group. If you believe a child under 13 has registered independently without
+          parental consent, contact us at{" "}
+          <a href="mailto:privacy@nasahrvatska.com" style={{color:"#0e7490"}}>privacy@nasahrvatska.com</a>{" "}
+          and we will promptly delete the account.
         </p>
       </div>
 
@@ -54,6 +111,13 @@ export default function PrivacyScreen({ goBack }) {
         <p style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7,marginBottom:10}}>
           <strong>Account responsibility:</strong> You are responsible for keeping your password secure.
           Do not share your account. We reserve the right to suspend accounts engaged in abuse.
+        </p>
+
+        <p style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7,marginBottom:10}}>
+          <strong>Family group responsibility:</strong> The adult who creates a family group is
+          responsible for managing membership and ensuring that any minor members have parental
+          or guardian consent to participate. The group creator agrees to our privacy policy on
+          behalf of all minor members they enroll.
         </p>
 
         <p style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7,marginBottom:10}}>
