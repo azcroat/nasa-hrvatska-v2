@@ -154,8 +154,11 @@ export default function Leaderboard({
 
       {famTab === "create" && (
         <div className="c" style={{padding:24}}>
-          <div style={{fontSize:14,color:"#44403c",marginBottom:16}}>
+          <div style={{fontSize:14,color:"#44403c",marginBottom:12}}>
             Create a family group. You'll get a 6-character code to share with your family members.
+          </div>
+          <div style={{fontSize:12,color:"#78716c",background:"#f8fafc",border:"1px solid #e2e8f0",borderRadius:10,padding:"10px 14px",marginBottom:16,lineHeight:1.6}}>
+            <strong style={{color:"#0f172a"}}>Parent/guardian notice:</strong> By creating a family group you confirm you are the parent or legal guardian of any minor members you invite, and consent to their display name and XP being visible within the group. <a href="/privacy.html" target="_blank" rel="noopener noreferrer" style={{color:"#0e7490"}}>Privacy Policy</a>
           </div>
           {famErr && (
             <div style={{background:famErr.startsWith("✅") ? "rgba(22,163,74,.08)" : "rgba(220,38,38,.08)",border:"1px solid",borderColor:famErr.startsWith("✅") ? "rgba(22,163,74,.2)" : "rgba(220,38,38,.2)",borderRadius:10,padding:"12px 16px",color:famErr.startsWith("✅") ? "#16a34a" : "#dc2626",fontSize:14,fontWeight:600,marginBottom:16}}>
