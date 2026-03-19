@@ -182,6 +182,14 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
         </div>
         <div style={{fontSize:20,color:"var(--subtext)",opacity:.35}}>›</div>
       </button>
+      <button className="tc" style={{display:"flex",alignItems:"center",gap:14,padding:"16px",marginBottom:10}} onClick={() => setScr("contact")}>
+        <div style={{width:38,height:38,borderRadius:12,background:"linear-gradient(135deg,#0e7490,#164e63)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>🛟</div>
+        <div style={{flex:1,textAlign:"left"}}>
+          <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>Help & Feedback</div>
+          <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>Report a bug or suggest a feature</div>
+        </div>
+        <div style={{fontSize:20,color:"var(--subtext)",opacity:.35}}>›</div>
+      </button>
       <button className="tc" style={{width:"100%",textAlign:"center",padding:"14px",marginBottom:24}} onClick={() => setScr("privacy")}>
         <div style={{fontSize:13,color:"var(--subtext)",fontWeight:600}}>Privacy Policy & Terms</div>
       </button>
