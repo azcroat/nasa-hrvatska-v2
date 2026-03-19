@@ -16,7 +16,7 @@ import {
   touchSession, updateStreak, isValidEmail,
   fbLogin, fbRegister, fbLogout, fbResetPassword,
   fbLoadProgress, fbWatchProgress, fbLoadUserFamily, fbOnAuthStateChanged,
-  initFirebase, getLocalFamily,
+  initFirebase, getLocalFamily, saveLocalFamily, fbSaveProgress,
 } from '../data.jsx';
 
 /**
@@ -132,7 +132,19 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         setAuthScreen('app');
       }
 
-      fbLoadUserFamily(k).then(function(f) { if (f) cb.current.setFamData(f); });
+      fbLoadUserFamily(k).then(function(f) {
+        if (f) {
+          saveLocalFamily(f);
+          cb.current.setFamData(f);
+          // Backfill: write this user's current XP into the family memberXP map.
+          // Handles the case where children joined the family before memberXP was added,
+          // or where fbSaveProgress fired before fbLoadUserFamily completed on a fresh device.
+          const localProgress = gP(k);
+          if (localProgress && localProgress.stats && localProgress.stats.xp > 0) {
+            fbSaveProgress(k, localProgress).catch(function() {});
+          }
+        }
+      });
 
       let syncReadyFired = false;
       function fireSyncReady() {
