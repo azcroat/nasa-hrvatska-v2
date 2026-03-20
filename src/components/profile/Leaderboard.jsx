@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { H, fbGetFamilyMembers, fbCreateFamily, fbJoinFamily, fbLeaveFamily } from '../../data.jsx';
+import React, { useEffect, useRef, useState } from 'react';
+import { H, fbGetFamilyMembers, fbWatchFamilyMembers, fbCreateFamily, fbJoinFamily, fbLeaveFamily } from '../../data.jsx';
 
 export default function Leaderboard({
   goBack, authUser: au, name, stats,
@@ -11,33 +11,43 @@ export default function Leaderboard({
   famErr, setFamErr,
   famTab, setFamTab,
 }) {
-  // Auto-load leaderboard on mount when already in a family
-  const didAutoLoad = useRef(false);
+  const watchRef = useRef(null);
+  const [liveStatus, setLiveStatus] = useState(null); // null | 'connecting' | 'live' | 'offline'
+
+  // Real-time listener — starts when user is in a family and on the main tab,
+  // fires immediately with current data and then on every remote change.
   useEffect(() => {
-    if (famData && !didAutoLoad.current && famTab === "main") {
-      didAutoLoad.current = true;
-      setFamLoading(true);
+    // Stop any existing watcher when tab changes or famData clears
+    if (watchRef.current) { watchRef.current(); watchRef.current = null; }
+    if (!famData || famTab !== "main") { setLiveStatus(null); return; }
+
+    setFamLoading(true);
+    setLiveStatus('connecting');
+
+    watchRef.current = fbWatchFamilyMembers(famData.code, function(members) {
+      setFamMembers(members);
+      setFamLoading(false);
+      setLiveStatus('live');
+      try { localStorage.setItem("famCache_" + famData.code, JSON.stringify(members)); } catch {}
+    });
+
+    // If watcher returns a no-op (Firebase not ready), fall back to a one-shot read
+    if (!watchRef.current || watchRef.current.toString() === 'function(){}') {
       fbGetFamilyMembers(famData.code)
-        .then(m => {
-          setFamMembers(m);
-          setFamLoading(false);
-          // Cache for offline fallback
-          try { localStorage.setItem("famCache_" + famData.code, JSON.stringify(m)); } catch {}
-        })
+        .then(m => { setFamMembers(m); setFamLoading(false); setLiveStatus('live'); })
         .catch(() => {
-          setFamLoading(false);
-          // Try offline cache before showing error
+          setFamLoading(false); setLiveStatus('offline');
           try {
             const cached = JSON.parse(localStorage.getItem("famCache_" + famData.code) || "null");
-            if (cached && cached.length > 0) { setFamMembers(cached); setFamErr("⚠️ Showing cached results — offline"); return; }
+            if (cached && cached.length > 0) { setFamMembers(cached); setFamErr("⚠️ Showing cached results — offline"); }
           } catch {}
-          setFamErr("Could not load leaderboard. Check your connection and tap Refresh.");
         });
     }
+
+    return () => { if (watchRef.current) { watchRef.current(); watchRef.current = null; } };
   }, [famData, famTab]); // eslint-disable-line
 
   // Merge live local stats for the current user so their XP is always up-to-date
-  // even before Firestore leaderboard doc catches up
   const displayMembers = famMembers.map(m => {
     if (au && m.email === au.e && stats) {
       return { ...m, xp: Math.max(m.xp, stats.xp || 0), lc: Math.max(m.lc, stats.lc || 0), name: name || m.name };
@@ -85,22 +95,33 @@ export default function Leaderboard({
                   </div>
                 </div>
               </div>
-              <button
-                className="b bp"
-                style={{width:"100%",marginBottom:16,fontSize:14}}
-                onClick={() => {
-                  setFamLoading(true); setFamErr("");
-                  fbGetFamilyMembers(famData.code)
-                    .then(m => {
-                      setFamMembers(m); setFamLoading(false);
-                      try { localStorage.setItem("famCache_" + famData.code, JSON.stringify(m)); } catch {}
-                    })
-                    .catch(() => { setFamLoading(false); setFamErr("Could not refresh. Check your connection."); });
-                }}
-                disabled={famLoading}>
-                {famLoading ? "Loading..." : "🔄 Refresh Leaderboard"}
-              </button>
-              {famErr && <div style={{color:"#dc2626",fontSize:13,marginBottom:12}}>{famErr}</div>}
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
+                <button
+                  className="b bp"
+                  style={{flex:1,fontSize:14}}
+                  onClick={() => {
+                    setFamLoading(true); setFamErr(""); setLiveStatus('connecting');
+                    fbGetFamilyMembers(famData.code)
+                      .then(m => {
+                        setFamMembers(m); setFamLoading(false); setLiveStatus('live');
+                        try { localStorage.setItem("famCache_" + famData.code, JSON.stringify(m)); } catch {}
+                      })
+                      .catch(() => { setFamLoading(false); setLiveStatus('offline'); setFamErr("Could not refresh. Check your connection."); });
+                  }}
+                  disabled={famLoading}>
+                  {famLoading ? "⏳ Loading..." : "🔄 Refresh"}
+                </button>
+                <div style={{fontSize:12,fontWeight:700,padding:"8px 12px",borderRadius:10,
+                  background: liveStatus==='live' ? "#f0fdf4" : liveStatus==='connecting' ? "#fefce8" : liveStatus==='offline' ? "#fff1f2" : "#f8fafc",
+                  color: liveStatus==='live' ? "#16a34a" : liveStatus==='connecting' ? "#a16207" : liveStatus==='offline' ? "#dc2626" : "#78716c",
+                  border: "1.5px solid",
+                  borderColor: liveStatus==='live' ? "#bbf7d0" : liveStatus==='connecting' ? "#fde68a" : liveStatus==='offline' ? "#fecaca" : "#e2e8f0",
+                  whiteSpace:"nowrap",
+                }}>
+                  {liveStatus==='live' ? "● Live" : liveStatus==='connecting' ? "◌ Connecting" : liveStatus==='offline' ? "⚠ Offline" : "—"}
+                </div>
+              </div>
+              {famErr && <div style={{color:famErr.startsWith("✅")?"#16a34a":"#dc2626",fontSize:13,marginBottom:12}}>{famErr}</div>}
               {displayMembers.length > 0 ? displayMembers.map((u, i) => (
                 <div
                   key={u.email}
