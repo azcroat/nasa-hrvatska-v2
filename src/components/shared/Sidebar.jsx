@@ -216,13 +216,6 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
 
       {/* Bottom: dark mode toggle + PWA install */}
       <div style={{ padding: '12px 16px', borderTop: '1px solid var(--nav-b)', display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {installPrompt && !installed && (
-          <button onClick={handleInstall}
-            style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 10px', borderRadius: 10, border: '1.5px solid #0e7490', background: 'linear-gradient(135deg,#f0f9ff,#e0f2fe)', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }}>
-            <span style={{ fontSize: 16 }}>📲</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#0e7490' }}>Install App</span>
-          </button>
-        )}
         <button onClick={() => setDarkMode(d => !d)}
           style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 10px', borderRadius: 10, border: 'none', background: 'var(--bar-bg)', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }}>
           <span style={{ fontSize: 16 }}>{darkMode ? '☀️' : '🌙'}</span>

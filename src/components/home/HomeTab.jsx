@@ -83,8 +83,17 @@ export default function HomeTab({
         {/* Subtle radial glow behind content */}
         <div style={{
           position:"absolute",top:0,left:0,right:0,bottom:0,
-          background:"radial-gradient(ellipse 70% 60% at 30% 40%, rgba(14,116,144,0.18) 0%, transparent 70%)",
+          background:"radial-gradient(ellipse 70% 60% at 30% 40%, rgba(14,116,144,0.22) 0%, transparent 70%)",
           pointerEvents:"none",
+        }}/>
+        {/* Animated diagonal shimmer — hero polish */}
+        <div style={{
+          position:"absolute",top:0,left:0,right:0,bottom:0,
+          background:"linear-gradient(105deg, transparent 25%, rgba(255,255,255,.045) 50%, transparent 75%)",
+          backgroundSize:"200% 100%",
+          animation:"shimmer 4s linear infinite",
+          pointerEvents:"none",
+          borderRadius:"inherit",
         }}/>
 
         <div style={{padding:"22px 24px 44px"}}>
@@ -150,7 +159,7 @@ export default function HomeTab({
               borderRadius:10,
               width:xpPct+"%",
               transition:"width .9s cubic-bezier(.4,0,.2,1)",
-              boxShadow:"0 0 12px rgba(56,189,248,.6)",
+              boxShadow:"0 0 18px rgba(56,189,248,.85), 0 0 36px rgba(56,189,248,.3)",
             }}/>
           </div>
         </div>
@@ -170,10 +179,11 @@ export default function HomeTab({
               display:"inline-flex",alignItems:"center",gap:5,
               padding:"7px 12px",
               borderRadius:20,
-              border:"1.5px solid rgba(255,255,255,.2)",
-              background:"rgba(255,255,255,.12)",
+              border:"1.5px solid rgba(255,255,255,.3)",
+              background:"rgba(255,255,255,.14)",
               whiteSpace:"nowrap",flexShrink:0,
-              backdropFilter:"blur(8px)",
+              backdropFilter:"blur(12px)",
+              boxShadow:"0 2px 8px rgba(0,0,0,.15), 0 1px 0 rgba(255,255,255,.15) inset",
             }}>
               <span style={{fontSize:13}}>{s.icon}</span>
               <span style={{fontSize:13,fontWeight:900,color:"white",fontVariantNumeric:"tabular-nums"}}>{s.value}</span>
