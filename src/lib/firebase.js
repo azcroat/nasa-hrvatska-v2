@@ -78,7 +78,7 @@ export async function fbSaveProgress(uid,data){
       // active session is clearly ahead of us. Never skip if remote has equal or less XP.
       if(snap.exists()){
         let remoteXP=0;
-        try{const rp=JSON.parse(snap.data().progress||'{}');remoteXP=(rp.stats&&rp.stats.xp)||0;}catch{}
+        try{const rp=JSON.parse(snap.data().progress||'{}');const rs=rp.stats||rp.st||{};remoteXP=rs.xp||0;}catch{}
         if(remoteXP>(incoming.xp||0)+100){return;} // remote is clearly ahead — don't overwrite
       }
       tx.set(ref,incoming,{merge:true});
