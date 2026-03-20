@@ -868,15 +868,15 @@ export default function SlangScreen({ goBack, award }) {
             width: 44, height: 44, borderRadius: 12, flexShrink: 0,
             background: light, border: `1.5px solid ${border}`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 13, fontWeight: 900, color: color, letterSpacing: -0.5,
+            fontSize: 22,
           }}>
-            {entry.hr.slice(0,2).toUpperCase()}
+            {[...entry.level][0]}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 15, fontWeight: 900, color: 'var(--heading)', fontFamily: "'Playfair Display',serif", lineHeight: 1.2 }}>
+            <div style={{ fontSize: 17, fontWeight: 900, color: 'var(--heading)', fontFamily: "'Playfair Display',serif", lineHeight: 1.2 }}>
               {entry.hr}
             </div>
-            <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 2, fontWeight: 600 }}>
+            <div style={{ fontSize: 13, color: 'var(--subtext)', marginTop: 2, fontWeight: 600 }}>
               {entry.en}
             </div>
           </div>
