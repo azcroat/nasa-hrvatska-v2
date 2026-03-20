@@ -297,6 +297,7 @@ function App(){
       if (isNew) setScr('welcome');
     },
     onSignedOut() { setStats(ds); setScr('welcome'); setName(''); setFamData(null); setFamMembers([]); },
+    onBeforeSignOut: doSyncNow,
     applyRemoteProgress,
     setFamData,
     setSyncReady: _setSyncReady,

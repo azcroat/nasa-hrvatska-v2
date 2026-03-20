@@ -27,10 +27,10 @@ import {
  * @param {function} opts.setFamData   — (fam|null) => void
  * @param {function} opts.setSyncReady — (bool) => void
  */
-export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady }) {
+export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady, onBeforeSignOut }) {
   // Keep callbacks in a ref so the one-time mount effect never goes stale
-  const cb = useRef({ onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady });
-  cb.current = { onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady };
+  const cb = useRef({ onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady, onBeforeSignOut });
+  cb.current = { onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady, onBeforeSignOut };
 
   // Holds the Firestore onSnapshot unsubscribe fn — cleaned up on sign-out / unmount
   const watchRef = useRef(null);
@@ -173,12 +173,13 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       fbLoadProgress(k).then(function(fp) {
         clearTimeout(t);
 
+        const lp = gP(k);
+        const fpXP = (fp && fp.stats && fp.stats.xp) || 0;
+        const lpXP = (lp && lp.stats && lp.stats.xp) || 0;
+
         if (fp) {
-          const lp = gP(k);
           const fpTs = fp._fbUpdated || fp.savedAt || 0;
           const lpTs = (lp && lp.savedAt) || 0;
-          const fpXP = (fp.stats && fp.stats.xp) || 0;
-          const lpXP = (lp && lp.stats && lp.stats.xp) || 0;
           const remoteIsNewer = fpTs > lpTs || (!fpTs && !lpTs && fpXP >= lpXP);
 
           if (remoteIsNewer) {
@@ -186,6 +187,13 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
             cb.current.onSignedIn({ user, progress: fp, isHydrate: true });
             cb.current.applyRemoteProgress(fp);
           }
+        }
+
+        // Recovery push: if Firestore has no XP but local storage does, the user's data
+        // was never synced (network failure, blocked writes, or clock-skew skip).
+        // Push it now so it's safe regardless of what happens to this device's storage.
+        if (fpXP === 0 && lpXP > 0) {
+          fbSaveProgress(k, lp).catch(function() {});
         }
 
         // Call onSignedIn (which triggers _goPostAuth navigation) if:
@@ -344,7 +352,13 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
   }
 
   // ── Sign out ──────────────────────────────────────────────────────────────
-  function doOut() {
+  async function doOut() {
+    // Flush latest progress to Firestore BEFORE revoking the auth token.
+    // This guarantees the user's final state is saved even if the periodic save
+    // hadn't fired yet. Auth token is still valid at this point so the write succeeds.
+    if (cb.current.onBeforeSignOut) {
+      try { await cb.current.onBeforeSignOut(); } catch {}
+    }
     if (watchRef.current) { watchRef.current(); watchRef.current = null; }
     fbLogout(); cS(); setAuthUser(null); setAuthScreen('login');
     cb.current.onSignedOut();
