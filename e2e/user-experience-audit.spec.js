@@ -480,14 +480,14 @@ test.describe('UX Audit — Full user journey on nasahrvatska.com', () => {
 
     if (txt.match(/create.*family|join.*family|no family/i)) {
       // Try joining EPLJRC
-      const joinTab = page.locator('button').filter({ hasText: /join/i }).first();
+      const joinTab = page.locator('button').filter({ hasText: /join family/i }).first();
       if (await joinTab.isVisible({ timeout: 2000 }).catch(() => false)) {
         await joinTab.click();
         await page.waitForTimeout(500);
         const codeInput = page.locator('input[maxlength="6"]').or(page.locator('input[placeholder*="code" i]')).first();
         if (await codeInput.isVisible({ timeout: 2000 }).catch(() => false)) {
           await codeInput.fill('EPLJRC');
-          const joinBtn = page.locator('button').filter({ hasText: /^join/i }).last();
+          const joinBtn = page.locator('button').filter({ hasText: /join family/i }).last();
           await joinBtn.click();
           await page.waitForTimeout(3000);
           await screenshot(page, '08-after-join');
@@ -528,13 +528,20 @@ test.describe('UX Audit — Full user journey on nasahrvatska.com', () => {
     await page.evaluate(() => window.scrollTo(0, 9999));
     await page.waitForTimeout(300);
 
-    const logoutBtn = page.locator('button').filter({ hasText: /log.?out/i }).first();
+    const logoutBtn = page.locator('button').filter({ hasText: /sign.?out|log.?out/i }).first();
     if (!await logoutBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-      logIssue('UX', 'Logout', 'Cannot find logout button to test persistence');
+      logIssue('UX', 'Logout', 'Cannot find Sign Out button on Profile tab');
       return;
     }
 
+    // Step 1: click the initial Sign Out button (shows confirmation dialog)
     await logoutBtn.click();
+    await page.waitForTimeout(500);
+    // Step 2: click the confirmation Sign Out button if confirmation dialog appeared
+    const confirmBtn = page.locator('button').filter({ hasText: /^sign.?out$/i }).last();
+    if (await confirmBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
+      await confirmBtn.click();
+    }
     await page.waitForTimeout(2000);
     await screenshot(page, '09-after-logout');
 
