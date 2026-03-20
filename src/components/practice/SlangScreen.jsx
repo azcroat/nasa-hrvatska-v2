@@ -864,14 +864,6 @@ export default function SlangScreen({ goBack, award }) {
             padding: '14px 16px', background: 'none', border: 'none',
             cursor: 'pointer', textAlign: 'left', fontFamily: "'Outfit',sans-serif",
           }}>
-          <div style={{
-            width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-            background: light, border: `1.5px solid ${border}`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 22,
-          }}>
-            {[...entry.level][0]}
-          </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 17, fontWeight: 900, color: 'var(--heading)', fontFamily: "'Playfair Display',serif", lineHeight: 1.2 }}>
               {entry.hr}
