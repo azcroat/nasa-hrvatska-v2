@@ -161,7 +161,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       // Returning devices already show cached data so 6s is fine.
       const freshDevice = !earlyRestored && !localP;
       const t = setTimeout(function() {
-        const needsNavTimeout = !earlyRestored || authScreenRef.current === 'login' || authScreenRef.current === 'register';
+        const needsNavTimeout = !earlyRestored || authScreenRef.current === 'login' || authScreenRef.current === 'register' || authScreenRef.current === 'loading';
         if (needsNavTimeout) {
           earlyRestored = true;
           cb.current.onSignedIn({ user, progress: localP });
@@ -202,7 +202,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         //  a) earlyRestored is false — first time showing the app on this load, OR
         //  b) we came from 'login'/'register' screen — re-login after logout needs navigation
         //     even when earlyRestored=true from a prior session in this page load.
-        const needsNav = !earlyRestored || authScreenRef.current === 'login' || authScreenRef.current === 'register';
+        const needsNav = !earlyRestored || authScreenRef.current === 'login' || authScreenRef.current === 'register' || authScreenRef.current === 'loading';
         if (needsNav) {
           earlyRestored = true;
           cb.current.onSignedIn({ user, progress: fp || localP });
@@ -244,7 +244,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       }).catch(function() {
         clearTimeout(t);
         // Network error — show app with local data (or empty stats for fresh device)
-        const needsNavCatch = !earlyRestored || authScreenRef.current === 'login' || authScreenRef.current === 'register';
+        const needsNavCatch = !earlyRestored || authScreenRef.current === 'login' || authScreenRef.current === 'register' || authScreenRef.current === 'loading';
         if (needsNavCatch) {
           earlyRestored = true;
           cb.current.onSignedIn({ user, progress: localP });
