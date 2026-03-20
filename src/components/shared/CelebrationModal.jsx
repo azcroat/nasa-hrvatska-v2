@@ -206,12 +206,12 @@ export default function CelebrationModal({ xp, onClose }) {
           padding: '40px 44px 36px',
           textAlign: 'center',
           boxShadow:
-            '0 32px 80px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.8) inset, 0 4px 0 rgba(14,116,144,.15)',
+            '0 40px 90px rgba(0,0,0,.35), 0 16px 40px rgba(14,116,144,.2), 0 0 0 1px rgba(255,255,255,.8) inset, 0 4px 0 rgba(14,116,144,.2)',
           animation:
             'celebPop .5s cubic-bezier(.34,1.56,.64,1) forwards',
           minWidth: 280,
           maxWidth: 340,
-          border: '2px solid rgba(14,116,144,.12)',
+          border: '2px solid rgba(14,116,144,.2)',
         }}
       >
         {/* Trophy */}
@@ -267,7 +267,8 @@ export default function CelebrationModal({ xp, onClose }) {
             borderRadius: 16,
             padding: '12px 24px',
             boxShadow:
-              '0 4px 16px rgba(245,158,11,.25), 0 1px 0 rgba(255,255,255,.6) inset',
+              '0 8px 28px rgba(245,158,11,.4), 0 2px 0 rgba(255,255,255,.7) inset',
+          animation: 'heartbeat .6s ease .4s 1',
             marginBottom: 16,
           }}
         >

@@ -64,7 +64,7 @@ export default function XPPopup({ showXP, xpA }) {
           fontSize: 18,
           fontWeight: 900,
           boxShadow:
-            '0 8px 28px rgba(245,158,11,.45), 0 2px 0 rgba(255,255,255,.3) inset',
+            '0 12px 36px rgba(245,158,11,.55), 0 4px 16px rgba(245,158,11,.3), 0 2px 0 rgba(255,255,255,.35) inset',
           animation: 'slideIn .35s cubic-bezier(.34,1.56,.64,1)',
           letterSpacing: '-.01em',
           border: '2px solid rgba(255,255,255,.3)',
