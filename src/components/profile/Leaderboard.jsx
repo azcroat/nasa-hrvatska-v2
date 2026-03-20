@@ -33,7 +33,7 @@ export default function Leaderboard({
       setFamMembers(members);
       setFamLoading(false);
       setLiveStatus('live');
-      try { localStorage.setItem("famCache_" + famData.code, JSON.stringify(members)); } catch {}
+      try { localStorage.setItem("famCache_" + famData.code, JSON.stringify({ m: members, ts: Date.now() })); } catch {}
     });
 
     // If watcher returns a no-op (Firebase not ready), fall back to a one-shot read
@@ -43,7 +43,11 @@ export default function Leaderboard({
         .catch(() => {
           setFamLoading(false); setLiveStatus('offline');
           try {
-            const cached = JSON.parse(localStorage.getItem("famCache_" + famData.code) || "null");
+            const raw = JSON.parse(localStorage.getItem("famCache_" + famData.code) || "null");
+            // Support new {m, ts} format and legacy plain array format.
+            // Reject cached data older than 5 minutes to prevent stale XP scores.
+            const cached = raw && raw.m && (Date.now() - (raw.ts || 0) < 300_000) ? raw.m
+              : Array.isArray(raw) ? raw : null;
             if (cached && cached.length > 0) { setFamMembers(cached); setFamErr("⚠️ Showing cached results — offline"); }
           } catch {}
         });
@@ -114,7 +118,7 @@ export default function Leaderboard({
                       })
                       .then(m => {
                         setFamMembers(m); setFamLoading(false); setLiveStatus('live');
-                        try { localStorage.setItem("famCache_" + famData.code, JSON.stringify(m)); } catch {}
+                        try { localStorage.setItem("famCache_" + famData.code, JSON.stringify({ m, ts: Date.now() })); } catch {}
                       })
                       .catch(() => { setFamLoading(false); setLiveStatus('offline'); setFamErr("Could not refresh. Check your connection."); });
                   }}
