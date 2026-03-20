@@ -19,7 +19,7 @@ export default function Flashcards({ pool, goBack, award }) {
   // When a new card loads, return focus to the card
   useEffect(() => {
     if (!flipped && cardRef.current) cardRef.current.focus();
-  }, [idx]);
+  }, [idx, flipped]);
 
   if (!pool[idx]) return (
     <div className="scr-wrap">

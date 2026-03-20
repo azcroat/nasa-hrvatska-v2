@@ -21,7 +21,7 @@ export default function HomeTab({
   syncReady, onSyncNow, authUser,
 }) {
   const dc = useMemo(getDailyChallenge, []);
-  const ws = useMemo(getWeekStats, [st]);
+  const ws = useMemo(() => getWeekStats(), [getWeekStats]);
   const streak = useMemo(getStreak, []);
   const [freezes, setFreezes] = useState(getStreakFreezes);
   const proverb = useMemo(getProverbOfDay, []);
