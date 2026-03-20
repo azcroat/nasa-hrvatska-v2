@@ -14,7 +14,7 @@ import { useState, useEffect, useRef } from 'react';
 import {
   gP, sP, lP, gS, sS, cS,
   touchSession, updateStreak, isValidEmail,
-  fbLogin, fbRegister, fbLogout, fbResetPassword,
+  fbLogin, fbRegister, fbLogout, fbLoginGoogle, fbResetPassword,
   fbLoadProgress, fbWatchProgress, fbLoadUserFamily, fbOnAuthStateChanged,
   initFirebase, getLocalFamily, saveLocalFamily, fbSaveProgress,
 } from '../data.jsx';
@@ -325,6 +325,24 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
     setAuthLoading(false);
   }
 
+  // ── Google Sign-In ────────────────────────────────────────────────────────
+  async function doGoogleLogin() {
+    setAuthError('');
+    setAuthLoading(true);
+    try {
+      const result = await fbLoginGoogle();
+      if (result.ok) {
+        // Auth listener (fbOnAuthStateChanged) handles the rest — same path as doLog
+        setAuthScreen('loading');
+      } else if (result.err) {
+        setAuthError(result.err);
+      }
+    } catch (e) {
+      setAuthError('Google sign-in failed. Please try again.');
+    }
+    setAuthLoading(false);
+  }
+
   // ── Sign out ──────────────────────────────────────────────────────────────
   function doOut() {
     if (watchRef.current) { watchRef.current(); watchRef.current = null; }
@@ -342,6 +360,6 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
     rpEm, setRpEm,
     authError, setAuthError,
     authLoading,
-    doReg, doLog, doOut, doReset,
+    doReg, doLog, doOut, doReset, doGoogleLogin,
   };
 }

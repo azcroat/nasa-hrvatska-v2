@@ -282,7 +282,7 @@ function App(){
     rpEm, setRpEm,
     authError, setAuthError,
     authLoading,
-    doReg, doLog, doOut, doReset,
+    doReg, doLog, doOut, doReset, doGoogleLogin,
   } = useAuth({
     onSignedIn({ user, progress, isNew, isHydrate }) {
       if (isHydrate) {
@@ -483,7 +483,7 @@ function App(){
     </div>
   );
   if(authScreen==="login"||authScreen==="register"){
-    return <LoginScreen authScreen={authScreen} authError={authError} authLoading={authLoading} authEmail={authEmail} pw={pw} pc={pc} displayName={displayName} sp={sp} setAuthScreen={setAuthScreen} setAuthError={setAuthError} setAuthEmail={setAuthEmail} setPw={setPw} setPc={setPc} setDisplayName={setDisplayName} setSp2={setSp2} setRpEm={setRpEm} doLog={doLog} doReg={doReg} />;
+    return <LoginScreen authScreen={authScreen} authError={authError} authLoading={authLoading} authEmail={authEmail} pw={pw} pc={pc} displayName={displayName} sp={sp} setAuthScreen={setAuthScreen} setAuthError={setAuthError} setAuthEmail={setAuthEmail} setPw={setPw} setPc={setPc} setDisplayName={setDisplayName} setSp2={setSp2} setRpEm={setRpEm} doLog={doLog} doReg={doReg} doGoogleLogin={doGoogleLogin} />;
   }
   // ═══ RESET PASSWORD SCREEN ═══
   if(authScreen==="reset"){
