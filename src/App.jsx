@@ -250,7 +250,12 @@ function App(){
   // Fix 2: single helper replaces 4 copy-pasted data-hydration blocks across auth flows
   const applyRemoteProgress=useCallback(function(fp){
     if(!fp)return;
-    if(fp.onboarded){localStorage.setItem("onboarded","true");setOnboarded(true);}
+    // Set onboarded for any returning user with prior app usage.
+    // Older Firestore docs lack an explicit "onboarded" field — derive it from
+    // cp (completed placement) or any earned XP so the onboarding tour never
+    // shows for established users on fresh devices.
+    const _apSt = fp.stats || fp.st || {};
+    if(fp.onboarded || fp.cp || _apSt.xp > 0){localStorage.setItem("onboarded","true");setOnboarded(true);}
     if(fp.sr)saveSR(fp.sr);
     if(fp.streak)localStorage.setItem("uStreak",JSON.stringify(fp.streak));
     if(fp.freezes!==undefined)localStorage.setItem("uFreeze",String(Math.max(0,parseInt(fp.freezes,10)||0)));
@@ -297,9 +302,17 @@ function App(){
         setName(progress.name || user.d);
         const _pStats = progress.stats || progress.st || {};
         setStats({...ds,..._pStats});
-        if (!isNew) _goPostAuth(progress.cp || (_pStats.xp > 0 || _pStats.lc > 0));
+        // Mark as onboarded for any returning user with prior usage.
+        // Many older Firestore docs lack the "onboarded" field — derive it from cp or xp.
+        if (!isNew && (progress.onboarded || progress.cp || _pStats.xp > 0)) {
+          localStorage.setItem("onboarded", "true"); setOnboarded(true);
+        }
       } else { setName(user.d); }
+      // New registrations go to the welcome/placement flow.
+      // ANY returning user (existing account) always lands on the dashboard —
+      // never the welcome screen, regardless of XP or completion state.
       if (isNew) setScr('welcome');
+      else _goPostAuth(true);
     },
     onSignedOut() { setStats(ds); setScr('welcome'); setName(''); setFamData(null); setFamMembers([]); },
     onBeforeSignOut: async function(){ if(_syncNowRef.current) return _syncNowRef.current(); },
@@ -327,7 +340,7 @@ function App(){
   useEffect(()=>{if(authScreen!=="app")return;const iv=setInterval(()=>{if(isSessionExpired()){doOut();}},5*60*1000);return()=>clearInterval(iv)},[authScreen]);// eslint-disable-line
   useEffect(()=>{if(authScreen!=="app")return;const h=()=>touchSession();window.addEventListener("click",h);window.addEventListener("touchstart",h);window.addEventListener("keydown",h);return()=>{window.removeEventListener("click",h);window.removeEventListener("touchstart",h);window.removeEventListener("keydown",h)}},[authScreen]);
   useEffect(()=>{if(!_syncReady||authScreen!=="app"||!authUser)return;if(!localStorage.getItem("fbBackupConfirmed")){setShowBackupBanner(true);}},[_syncReady,authScreen,authUser]);
-  useEffect(()=>{if(authScreen!=="app"||!authUser)return;function fetchIfNewer(){fbLoadProgress(authUser.u).then(function(fp){if(!fp)return;const lp=gP(authUser.u);const fpTs=fp._fbUpdated||fp.savedAt||0;const lpTs=(lp&&lp.savedAt)||0;if(fpTs>lpTs){sP(authUser.u,fp);setStats({...ds,...(fp.stats||fp.st||{})});if(fp.name)setName(fp.name);applyRemoteProgress(fp);}}).catch(function(){/* network error — keep local state */})}// Fetch immediately on app load so returning users always get the latest Firebase data
+  useEffect(()=>{if(authScreen!=="app"||!authUser)return;function fetchIfNewer(){fbLoadProgress(authUser.u).then(function(fp){if(!fp)return;const lp=gP(authUser.u);const fpTs=fp._fbUpdated||fp.savedAt||0;const lpTs=(lp&&lp.savedAt)||0;if(fpTs>lpTs){sP(authUser.u,fp);const _pllSt=fp.stats||fp.st||{};setStats({...ds,..._pllSt});if(fp.name)setName(fp.name);applyRemoteProgress(fp);}}).catch(function(){/* network error — keep local state */})}// Fetch immediately on app load so returning users always get the latest Firebase data
   fetchIfNewer();function onVisible(){if(document.visibilityState==="visible")fetchIfNewer();}function onFocus(){fetchIfNewer();}document.addEventListener("visibilitychange",onVisible);window.addEventListener("focus",onFocus);const pollId=setInterval(function(){if(document.visibilityState==="visible")fetchIfNewer();},180000);return()=>{document.removeEventListener("visibilitychange",onVisible);window.removeEventListener("focus",onFocus);clearInterval(pollId);}},[authScreen,authUser]);
   // Auto-save on every lesson completion (stats.lc or stats.ct length changes).
   // Lesson components only call setStats — they never write to localStorage or Firebase.
