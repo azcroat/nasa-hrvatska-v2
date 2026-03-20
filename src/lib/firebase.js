@@ -3,7 +3,7 @@
 // Extracted from data.jsx as part of Sprint 1 architectural split
 // ═══════════════════════════════════════════════════════════
 import { initializeApp, getApps } from 'firebase/app';
-import { getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile } from 'firebase/auth';
+import { getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { getFirestore, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, collection, getDocs, query, limit, orderBy, runTransaction, onSnapshot } from 'firebase/firestore';
 
 const FIREBASE_CONFIG = {
@@ -130,6 +130,20 @@ export async function fbLogin(email,password){
   try{const cred=await signInWithEmailAndPassword(_fbAuth,email,password);return{ok:true,user:cred.user}}catch(e){return{ok:false,err:friendlyError(e.message)}}
 }
 export async function fbLogout(){if(_fbReady&&_fbAuth)try{await fbSignOut(_fbAuth)}catch(e){}}
+export async function fbLoginGoogle(){
+  if(!_fbReady||!_fbAuth)return{ok:false,err:"Firebase not configured."};
+  try{
+    const provider=new GoogleAuthProvider();
+    // Always show account chooser so users with multiple Google accounts can pick
+    provider.setCustomParameters({prompt:"select_account"});
+    const cred=await signInWithPopup(_fbAuth,provider);
+    return{ok:true,user:cred.user};
+  }catch(e){
+    // Popup blocked or user closed it — not an error worth showing
+    if(e.code==="auth/popup-closed-by-user"||e.code==="auth/cancelled-popup-request")return{ok:false,err:""};
+    return{ok:false,err:friendlyError(e.message)};
+  }
+}
 export async function fbResetPassword(email){
   if(!_fbReady||!_fbAuth)return{ok:false,err:"Firebase not configured."};
   try{await sendPasswordResetEmail(_fbAuth,email);return{ok:true}}catch(e){return{ok:false,err:friendlyError(e.message)}}
