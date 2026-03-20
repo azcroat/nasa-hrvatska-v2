@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { H, fbGetFamilyMembers, fbWatchFamilyMembers, fbCreateFamily, fbJoinFamily, fbLeaveFamily } from '../../data.jsx';
+import { H, fbGetFamilyMembers, fbWatchFamilyMembers, fbCreateFamily, fbJoinFamily, fbLeaveFamily, fbForceSyncMemberXP } from '../../data.jsx';
 
 export default function Leaderboard({
   goBack, authUser: au, name, stats,
@@ -23,6 +23,11 @@ export default function Leaderboard({
 
     setFamLoading(true);
     setLiveStatus('connecting');
+
+    // Force-sync all member XP from /leaderboard on mount — guarantees fresh data
+    // even if children's fbSaveProgress didn't write to memberXP (race/network issue).
+    // Runs immediately; the watcher snapshot will pick up the updated memberXP.
+    fbForceSyncMemberXP(famData.code).catch(function() {});
 
     watchRef.current = fbWatchFamilyMembers(famData.code, function(members) {
       setFamMembers(members);
@@ -101,7 +106,12 @@ export default function Leaderboard({
                   style={{flex:1,fontSize:14}}
                   onClick={() => {
                     setFamLoading(true); setFamErr(""); setLiveStatus('connecting');
-                    fbGetFamilyMembers(famData.code)
+                    // Force-sync rebuilds memberXP from /leaderboard, then read fresh results
+                    fbForceSyncMemberXP(famData.code)
+                      .catch(function(){})
+                      .then(function(){
+                        return fbGetFamilyMembers(famData.code);
+                      })
                       .then(m => {
                         setFamMembers(m); setFamLoading(false); setLiveStatus('live');
                         try { localStorage.setItem("famCache_" + famData.code, JSON.stringify(m)); } catch {}

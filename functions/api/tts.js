@@ -14,12 +14,12 @@ async function tryElevenLabs(text, slow, apiKey, voiceId) {
     model_id: "eleven_multilingual_v2",
     language_code: "hr", // Tells ElevenLabs to treat the text as Croatian — dramatically improves phoneme accuracy for č, ć, š, ž, đ
     voice_settings: {
-      stability: slow ? 0.85 : 0.72,     // Higher stability = clearer, more consistent pronunciation (was 0.45 — too low for language learning)
-      similarity_boost: 0.85,             // Slightly boosted for consistent voice character
+      stability: slow ? 0.95 : 0.88,     // High stability suppresses emotional variation — critical for slang/psovanje where model otherwise "performs" the word (screeching, shouting)
+      similarity_boost: 0.75,             // Slightly looser so the voice stays neutral on unusual/loaded vocabulary (was 0.85 — too locked-in for expressive words)
       style: 0.0,                         // No style exaggeration — clean, neutral delivery
       use_speaker_boost: true,
     },
-    speed: slow ? 0.72 : 0.90,           // 0.90 = slightly measured pace for learning; 0.72 = clearly slow for study mode (was 0.80/0.70 — too fast)
+    speed: slow ? 0.68 : 0.88,           // 0.88 = clear measured pace; 0.68 = deliberately slow for study mode (was 0.90/0.72 — speed was inconsistent on short/emotional words)
   };
 
   const controller = new AbortController();
