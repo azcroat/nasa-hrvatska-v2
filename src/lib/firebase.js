@@ -47,9 +47,11 @@ export function isValidEmail(e){return/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)}
 export async function fbSaveProgress(uid,data){
   if(!_fbReady||!_fbDb)return{ok:true};
   const id=uid.replace(/[.#$/\[\]]/g,"_");
-  const incoming={progress:JSON.stringify(data),updated:Date.now(),xp:(data.stats&&data.stats.xp)||0};
+  // Support both current ("stats") and legacy ("st") key formats when extracting XP.
+  const _st=data.stats||data.st||{};
+  const incoming={progress:JSON.stringify(data),updated:Date.now(),xp:_st.xp||0};
   // Write public leaderboard projection alongside the private progress doc
-  const lbEntry={name:data.name||"",xp:(data.stats&&data.stats.xp)||0,lc:(data.stats&&data.stats.lc)||0,updated:incoming.updated};
+  const lbEntry={name:data.name||"",xp:_st.xp||0,lc:_st.lc||0,updated:incoming.updated};
   try{setDoc(fsDoc(_fbDb,"leaderboard",id),lbEntry,{merge:true}).catch(function(e){console.warn("Leaderboard write failed:",e)});}catch(e){console.warn("Leaderboard write error:",e);}
   // Denormalize XP into the family doc so family leaderboard always shows live data
   // without depending on the /leaderboard collection being up-to-date for each member.
