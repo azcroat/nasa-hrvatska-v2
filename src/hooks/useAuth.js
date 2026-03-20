@@ -220,7 +220,8 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         (function() {
           const famData = getLocalFamily();
           const latestProgress = fp || gP(k);
-          if (famData && famData.code && latestProgress && latestProgress.stats && latestProgress.stats.xp > 0) {
+          const _lpSt = latestProgress && (latestProgress.stats || latestProgress.st);
+          if (famData && famData.code && _lpSt && _lpSt.xp > 0) {
             fbSaveProgress(k, latestProgress).catch(function() {});
           }
         })();
