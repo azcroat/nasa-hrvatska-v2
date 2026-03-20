@@ -15,7 +15,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
       const p = JSON.parse(localStorage.getItem('uP_' + au.u) || 'null');
       return p && p.savedAt ? new Date(p.savedAt) : null;
     } catch { return null; }
-  }, [au, syncDone]); // refresh after a successful sync
+  }, [au, syncDone]); // eslint-disable-line react-hooks/exhaustive-deps -- syncDone is intentionally included to force a re-read of localStorage after a successful sync
 
   async function handleSyncNow() {
     if (syncing) return; // prevent overlapping calls

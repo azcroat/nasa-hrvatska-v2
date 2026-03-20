@@ -267,7 +267,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
     });
 
     return function() { clearTimeout(authFallbackTimer); unsub(); if (watchRef.current) { watchRef.current(); watchRef.current = null; } };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Register ─────────────────────────────────────────────────────────────
   async function doReg() {

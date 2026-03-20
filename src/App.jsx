@@ -176,6 +176,8 @@ const ICONS={greetings:"👋",numbers:"🔢",family:"👨‍👩‍👧‍👦",
 
 let _appNavDepth=0;
 function pushUrl(path){try{if(window.location.pathname!==path){_appNavDepth++;window.history.pushState({_ad:_appNavDepth},"",path)}}catch(e){}}
+// Module-level — stable across renders, safe to reference in useCallback without listing as dep
+const TAB_PATHS={home:"/",learn:"/learn",practice:"/practice",croatia:"/croatia",profile:"/profile"};
 // XP cooldown helpers — pure localStorage functions, defined outside component
 // so they never cause stale-closure issues in useCallback
 function canEarnXP(exerciseId){
@@ -230,7 +232,6 @@ function App(){
   const[pfQ,sPfQ]=useState([]);const[pfI,sPfI]=useState(0);const[pfS,sPfS]=useState(0);const[pfA,sPfA]=useState(false);const[pfSl,sPfSl]=useState(-1);const[pfO,sPfO]=useState([]);const[pfCase,sPfCase]=useState("");const[pfCaseA,sPfCaseA]=useState(false);const[pfCaseSl,sPfCaseSl]=useState(-1);
   const { famData, setFamData, famMembers, setFamMembers, famLoading, setFamLoading, famName, setFamName, famCode, setFamCode, famErr, setFamErr, famTab, setFamTab } = useFamily();
   const[tab,_setTab]=useState("home");
-  const TAB_PATHS={home:"/",learn:"/learn",practice:"/practice",croatia:"/croatia",profile:"/profile"};
   const setTab=useCallback(function(t){_setTab(t);pushUrl(TAB_PATHS[t]||"/");},[]);
   const[tnVerb,setTnVerb]=useState(0);const[tnTense,setTnTense]=useState("present");const[tnGender,setTnGender]=useState("m");const[tnMode,setTnMode]=useState("learn");const[tnQ,setTnQ]=useState([]);const[tnI,setTnI]=useState(0);const[tnS,setTnS]=useState(0);const[tnA,setTnA]=useState(false);const[tnSl,setTnSl]=useState(-1);const[tnO,setTnO]=useState([]);
   const[mapCat,setMapCat]=useState("all");const[mapSel,setMapSel]=useState(null);
@@ -264,7 +265,7 @@ function App(){
     const _arNd=new Date();const _arDay=_arNd.getFullYear()+'-'+String(_arNd.getMonth()+1).padStart(2,'0')+'-'+String(_arNd.getDate()).padStart(2,'0');
     if(fp.dc&&fp.dc.day===_arDay){const _arAns=fp.dc.answered||[false,false,false];const _arSel=Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""];sDchlA(_arAns);sDchlSl(_arSel);localStorage.setItem("dcDay3",JSON.stringify({day:_arDay,answered:_arAns,selected:_arSel}));}
     if(fp.cooldown){const _arT=new Date().toISOString().slice(0,10);let _arCd={};try{_arCd=JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch(e){}for(const _arCk in fp.cooldown){if(fp.cooldown[_arCk]===_arT)_arCd[_arCk]=fp.cooldown[_arCk];}localStorage.setItem("xpCooldown",JSON.stringify(_arCd));}
-  },[setFavs,setJWords]);
+  },[setFavs,setJWords,sDchlA,sDchlSl]);
   const { tDir, setTDir: sTDir, tIn, setTIn: sTIn, tOut, tL, doTr } = useTranslator();
   const[t1k,sT1k]=useState(null);
   const[hIdx,sHIdx]=useState(0);
@@ -341,7 +342,7 @@ function App(){
   useEffect(()=>{if(authScreen!=="app")return;const h=()=>touchSession();window.addEventListener("click",h);window.addEventListener("touchstart",h);window.addEventListener("keydown",h);return()=>{window.removeEventListener("click",h);window.removeEventListener("touchstart",h);window.removeEventListener("keydown",h)}},[authScreen]);
   useEffect(()=>{if(!_syncReady||authScreen!=="app"||!authUser)return;if(!localStorage.getItem("fbBackupConfirmed")){setShowBackupBanner(true);}},[_syncReady,authScreen,authUser]);
   useEffect(()=>{if(authScreen!=="app"||!authUser)return;function fetchIfNewer(){fbLoadProgress(authUser.u).then(function(fp){if(!fp)return;const lp=gP(authUser.u);const fpTs=fp._fbUpdated||fp.savedAt||0;const lpTs=(lp&&lp.savedAt)||0;if(fpTs>lpTs){sP(authUser.u,fp);const _pllSt=fp.stats||fp.st||{};setStats({...ds,..._pllSt});if(fp.name)setName(fp.name);applyRemoteProgress(fp);}}).catch(function(){/* network error — keep local state */})}// Fetch immediately on app load so returning users always get the latest Firebase data
-  fetchIfNewer();function onVisible(){if(document.visibilityState==="visible")fetchIfNewer();}function onFocus(){fetchIfNewer();}document.addEventListener("visibilitychange",onVisible);window.addEventListener("focus",onFocus);const pollId=setInterval(function(){if(document.visibilityState==="visible")fetchIfNewer();},180000);return()=>{document.removeEventListener("visibilitychange",onVisible);window.removeEventListener("focus",onFocus);clearInterval(pollId);}},[authScreen,authUser]);
+  fetchIfNewer();function onVisible(){if(document.visibilityState==="visible")fetchIfNewer();}function onFocus(){fetchIfNewer();}document.addEventListener("visibilitychange",onVisible);window.addEventListener("focus",onFocus);const pollId=setInterval(function(){if(document.visibilityState==="visible")fetchIfNewer();},180000);return()=>{document.removeEventListener("visibilitychange",onVisible);window.removeEventListener("focus",onFocus);clearInterval(pollId);}},[authScreen,authUser,applyRemoteProgress,ds]);
   // Auto-save on every lesson completion (stats.lc or stats.ct length changes).
   // Lesson components only call setStats — they never write to localStorage or Firebase.
   // This effect fires immediately (no debounce) so progress is persisted even if the
@@ -377,7 +378,7 @@ function App(){
       window.removeEventListener("pagehide",onPageHide);
       document.removeEventListener("visibilitychange",onVisHide);
     };
-  },[]);// eslint-disable-line react-hooks/exhaustive-deps
+  },[]);
   // ═══ BROWSER BACK BUTTON SUPPORT (popstate) ═══
   useEffect(function(){
     // Mark baseline so we can detect when back would exit the app
