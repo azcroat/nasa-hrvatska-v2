@@ -190,6 +190,26 @@ export async function fbJoinFamily(code,uid,email,name){
       const id=uid.replace(/[.#$/\[\]]/g,"_");
       await setDoc(fsDoc(_fbDb,"users",id),{familyCode:code.toUpperCase()},{merge:true});
     }
+    // Fire-and-forget: write joiner's existing XP into memberXP immediately so they
+    // appear on the leaderboard without needing to complete another lesson first.
+    (function(){
+      const jid=uid.replace(/[.#$/\[\]]/g,"_");
+      const jcode=resultFam.code;
+      getDoc(fsDoc(_fbDb,"leaderboard",jid)).then(function(lbs){
+        const lbd=lbs.exists()?lbs.data():null;
+        if(lbd&&(lbd.xp||0)>0){
+          updateDoc(fsDoc(_fbDb,"families",jcode),{["memberXP."+jid]:{xp:lbd.xp||0,lc:lbd.lc||0,name:lbd.name||name,updated:Date.now()}}).catch(function(){});
+        } else {
+          // Also try /users/{id} in case leaderboard doc is missing
+          getDoc(fsDoc(_fbDb,"users",jid)).then(function(us){
+            const ud=us.exists()?us.data():null;
+            if(ud&&(ud.xp||0)>0){
+              updateDoc(fsDoc(_fbDb,"families",jcode),{["memberXP."+jid]:{xp:ud.xp||0,lc:0,name:name||uid,updated:Date.now()}}).catch(function(){});
+            }
+          }).catch(function(){});
+        }
+      }).catch(function(){});
+    })();
     return{ok:true,family:resultFam};
   }catch(e){
     const msg=e.message||"";
@@ -210,16 +230,31 @@ export async function fbGetFamilyMembers(code){
       try{
         const id=(m.uid||m.email).replace(/[.#$/\[\]]/g,"_");
         const famXP=memberXP[id];
-        if(famXP){return{name:famXP.name||m.name,email:m.email,role:m.role,xp:famXP.xp||0,lc:famXP.lc||0,joined:m.joined};}
-        // Fallback: read from /leaderboard (for members who haven't saved progress with new code)
+        // Fast path: use denormalized memberXP if it has real XP
+        if(famXP&&(famXP.xp||0)>0){return{name:famXP.name||m.name,email:m.email,role:m.role,xp:famXP.xp||0,lc:famXP.lc||0,joined:m.joined};}
+        // Fallback 1: read from /leaderboard (written by every fbSaveProgress call)
         const lbSnap=await getDoc(fsDoc(_fbDb,"leaderboard",id));
         const lb=lbSnap.exists()?lbSnap.data():null;
-        // Self-heal: write leaderboard data back into memberXP so the next Refresh
-        // uses the fast single-doc path and this member never shows 0 XP again.
         if(lb&&(lb.xp||0)>0){
+          // Self-heal: write into memberXP so next Refresh uses the fast path
           updateDoc(fsDoc(_fbDb,"families",code),{["memberXP."+id]:{xp:lb.xp||0,lc:lb.lc||0,name:lb.name||m.name,updated:Date.now()}}).catch(function(){});
+          return{name:lb.name||m.name,email:m.email,role:m.role,xp:lb.xp||0,lc:lb.lc||0,joined:m.joined};
         }
-        return{name:m.name,email:m.email,role:m.role,xp:lb?lb.xp:0,lc:lb?lb.lc:0,joined:m.joined};
+        // Fallback 2: read from /users/{id} which always has a top-level xp field.
+        // This recovers XP for members whose leaderboard doc was never written
+        // (e.g. family write skipped because getLocalFamily() was null at save time).
+        const uSnap=await getDoc(fsDoc(_fbDb,"users",id)).catch(function(){return null;});
+        const ud=uSnap&&uSnap.exists()?uSnap.data():null;
+        const udXP=ud?(ud.xp||0):0;
+        if(udXP>0){
+          const udName=(lb&&lb.name)||m.name;
+          const udLc=(lb&&lb.lc)||0;
+          // Self-heal: backfill memberXP and leaderboard so subsequent reads are fast
+          updateDoc(fsDoc(_fbDb,"families",code),{["memberXP."+id]:{xp:udXP,lc:udLc,name:udName,updated:Date.now()}}).catch(function(){});
+          setDoc(fsDoc(_fbDb,"leaderboard",id),{name:udName,xp:udXP,lc:udLc,updated:Date.now()},{merge:true}).catch(function(){});
+          return{name:udName,email:m.email,role:m.role,xp:udXP,lc:udLc,joined:m.joined};
+        }
+        return{name:(lb&&lb.name)||m.name,email:m.email,role:m.role,xp:(lb&&lb.xp)||0,lc:(lb&&lb.lc)||0,joined:m.joined};
       }catch(e){return{name:m.name,email:m.email,role:m.role,xp:0,lc:0,joined:m.joined}}
     }));
     return results.sort(function(a,b){return b.xp-a.xp});
