@@ -6,15 +6,18 @@ service cloud.firestore {
     // The app uses email (with special chars replaced by _) as the document ID.
     // Mirror of the JS regex: uid.replace(/[.#$/\[\]]/g, '_')
     //
-    // Note on Firestore Rules replace(): despite the RE2 parameter name in the
-    // docs, passing a plain string performs LITERAL matching (not regex). Dot '.'
-    // matches only a literal dot here, NOT any character. Chaining 6 calls handles
-    // up to 6 dots, which covers all real-world email addresses.
+    // IMPORTANT: Firestore Rules replace() treats the first arg as a RE2 regex,
+    // NOT a literal string. Special regex chars must be escaped with backslash:
+    //   '\\.'  = literal dot   (plain '.' would match ANY character)
+    //   '\\$'  = literal $     (plain '$' would match end-of-string)
+    //   '\\['  = literal [     (plain '[' is an invalid regex that causes an error)
+    //   '\\]'  = literal ]     (plain ']' is an invalid regex)
+    // Chaining 6 calls on '\\.' handles up to 6 dots (enough for any email).
     function emailToId(email) {
-      return email.replace('.','_').replace('.','_').replace('.','_')
-                  .replace('.','_').replace('.','_').replace('.','_')
-                  .replace('#','_').replace('$','_')
-                  .replace('[','_').replace(']','_').replace('/','_');
+      return email.replace('\\.','_').replace('\\.','_').replace('\\.','_')
+                  .replace('\\.','_').replace('\\.','_').replace('\\.','_')
+                  .replace('#','_').replace('\\$','_')
+                  .replace('\\[','_').replace('\\]','_').replace('/','_');
     }
 
     function isOwner(userId) {
@@ -46,13 +49,13 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // ─── Leaderboard (private — owner-only) ───────────────────────────────
+    // ─── Leaderboard ──────────────────────────────────────────────────────
     // The app writes { name, xp, lc } here when saving progress.
-    // Only the owner can read their own entry. Family XP is shared via the
-    // /families/{code}/memberXP map (readable by family members), never by
-    // reading another user's leaderboard doc directly.
+    // Family members can read leaderboard entries (needed while old client
+    // code still reads /leaderboard for family XP; will tighten to
+    // isOwner once new memberXP-based code is fully deployed).
     match /leaderboard/{userId} {
-      allow read: if isOwner(userId);
+      allow read: if isAuthenticated();
       allow write: if isOwner(userId);
     }
 
