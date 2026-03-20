@@ -2,7 +2,7 @@
 // Firebase + auth + storage: src/lib/firebase.js
 // Audio engine: src/lib/audio.js
 import React from 'react';
-import { _fbReady, initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbWatchFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged } from './lib/firebase.js';
+import { _fbReady, initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbWatchFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbForceSyncMemberXP } from './lib/firebase.js';
 import { loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN } from './lib/audio.js';
 import { rnd } from './lib/random.js';
 function sh(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
@@ -459,19 +459,50 @@ function srMark(word,correct){
 }
 // ═══ MISTAKE TRACKER ═══
 function getMistakes(){try{return JSON.parse(localStorage.getItem("uMistakes")||"[]");}catch{return[];}}
-function recordMistake(hr,en,q,category){
+function recordMistake(hr,en,q,category,initialCount){
   try{
     const list=getMistakes();
     const existing=list.findIndex(function(m){return m.hr===hr;});
     if(existing!==-1){list[existing].count=(list[existing].count||1)+1;list[existing].t=Date.now();list[existing].q=q||list[existing].q;}
-    else{list.push({hr,en:en||"",q:q||"",category:category||"",count:1,t:Date.now()});}
-    // cap at 200 entries, keep most recent
+    else{list.push({hr,en:en||"",q:q||"",category:category||"",count:initialCount||1,t:Date.now()});}
     if(list.length>200)list.splice(0,list.length-200);
     localStorage.setItem("uMistakes",JSON.stringify(list));
   }catch{}
 }
 function clearMistake(hr){try{const list=getMistakes().filter(function(m){return m.hr!==hr;});localStorage.setItem("uMistakes",JSON.stringify(list));}catch{}}
 function clearAllMistakes(){try{localStorage.removeItem("uMistakes");}catch{}}
+// Silently backfills mistakes from historical SRS wrong-answer data.
+// Runs once per device (guards with localStorage flag). Safe to call early —
+// only reads/writes localStorage, never blocks the UI.
+function bootstrapMistakesFromSRS(){
+  try{
+    if(localStorage.getItem("uMistakesBootstrapped"))return;
+    const sr=getSR();
+    const existing=new Set(getMistakes().map(function(m){return m.hr;}));
+    // Build a flat hr→{en,category} lookup from V
+    const lookup={};
+    for(const cat in V){
+      const items=V[cat];
+      if(!Array.isArray(items))continue;
+      for(const item of items){
+        if(Array.isArray(item)&&item.length>=2){
+          const hr=String(item[0]).trim();
+          const en=String(item[1]).trim();
+          if(hr&&en&&!lookup[hr.toLowerCase()])lookup[hr.toLowerCase()]={en,category:cat};
+        }
+      }
+    }
+    // Import words missed 2+ times (threshold filters misclicks vs. real gaps)
+    for(const word in sr){
+      const card=sr[word];
+      if((card.w||0)<2)continue;
+      if(existing.has(word))continue;
+      const found=lookup[word.toLowerCase()];
+      recordMistake(word,found?found.en:"","",found?found.category:"",card.w);
+    }
+    localStorage.setItem("uMistakesBootstrapped","1");
+  }catch{}
+}
 // ═══ HRT & CROATIAN MEDIA ═══
 const MEDIA = [
   // ─── TV & NEWS ───────────────────────────────────────────────────────────────
@@ -4810,4 +4841,4 @@ function getDueReviews() {
 export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, CROATIAN_CITIES, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS };
 export { _fbReady };
 export { H, Bar, Spk };
-export { initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbWatchFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex, getDueReviews, getMistakes, recordMistake, clearMistake, clearAllMistakes };
+export { initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbWatchFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, fbForceSyncMemberXP, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex, getDueReviews, getMistakes, recordMistake, clearMistake, clearAllMistakes, bootstrapMistakesFromSRS };

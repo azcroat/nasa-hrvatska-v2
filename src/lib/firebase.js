@@ -231,31 +231,50 @@ export async function fbGetFamilyMembers(code){
     const famSnap2=await getDoc(fsDoc(_fbDb,"families",code));
     if(!famSnap2.exists())return[];
     const data=famSnap2.data();const members=data.members||[];
-    // memberXP is a denormalized map written by fbSaveProgress — single-doc read, no N reads needed.
-    // Falls back to /leaderboard per-member reads for members who haven't synced yet.
-    const memberXP=data.memberXP||{};
+    // Always read fresh from /leaderboard for every member — single source of truth.
+    // memberXP is written denormalized but may lag; leaderboard is authoritative.
     const results=await Promise.all(members.map(async function(m){
+      // App uses email as the user key everywhere (k = fbUser.email in useAuth).
+      // Priority: email-based ID (matches fbSaveProgress writes), uid fallback for legacy.
+      const id=(m.email||m.uid||"").replace(/[.#$/\[\]]/g,"_");
+      if(!id)return{name:m.name,email:m.email||"",role:m.role,xp:0,lc:0,joined:m.joined};
       try{
-        const id=(m.uid||m.email).replace(/[.#$/\[\]]/g,"_");
-        const famXP=memberXP[id];
-        // Fast path: use denormalized memberXP if it has real XP
-        if(famXP&&(famXP.xp||0)>0){return{name:famXP.name||m.name,email:m.email,role:m.role,xp:famXP.xp||0,lc:famXP.lc||0,joined:m.joined};}
-        // Fallback 1: read from /leaderboard (written by every fbSaveProgress call)
         const lbSnap=await getDoc(fsDoc(_fbDb,"leaderboard",id));
         const lb=lbSnap.exists()?lbSnap.data():null;
-        if(lb&&(lb.xp||0)>0){
-          // Self-heal: write into memberXP so next Refresh uses the fast path
-          updateDoc(fsDoc(_fbDb,"families",code),{["memberXP."+id]:{xp:lb.xp||0,lc:lb.lc||0,name:lb.name||m.name,updated:Date.now()}}).catch(function(){});
-          return{name:lb.name||m.name,email:m.email,role:m.role,xp:lb.xp||0,lc:lb.lc||0,joined:m.joined};
-        }
-        // /users/{id} is owner-only — a parent cannot read a child's doc.
-        // The write-side fix in fbSaveProgress ensures /leaderboard is always populated,
-        // so Fallback 1 above is the terminal recovery path.
-        return{name:(lb&&lb.name)||m.name,email:m.email,role:m.role,xp:(lb&&lb.xp)||0,lc:(lb&&lb.lc)||0,joined:m.joined};
-      }catch(e){return{name:m.name,email:m.email,role:m.role,xp:0,lc:0,joined:m.joined}}
+        const xp=(lb&&lb.xp)||0;const lc=(lb&&lb.lc)||0;const lname=(lb&&lb.name)||m.name;
+        // Self-heal: always keep memberXP current so the real-time watcher fast-path works
+        updateDoc(fsDoc(_fbDb,"families",code),{["memberXP."+id]:{xp,lc,name:lname,updated:Date.now()}}).catch(function(){});
+        return{name:lname,email:m.email||"",role:m.role,xp,lc,joined:m.joined};
+      }catch(e){return{name:m.name,email:m.email||"",role:m.role,xp:0,lc:0,joined:m.joined}}
     }));
     return results.sort(function(a,b){return b.xp-a.xp});
   }catch(e){return[]}
+}
+// Force-rebuilds memberXP in the family doc from the authoritative /leaderboard collection.
+// Call this when the leaderboard screen opens to guarantee fresh data regardless of sync state.
+// Safe for any authenticated family member to call — only reads public /leaderboard docs.
+export async function fbForceSyncMemberXP(code){
+  if(!_fbReady||!_fbDb)return;
+  try{
+    const famSnap=await getDoc(fsDoc(_fbDb,"families",code));
+    if(!famSnap.exists())return;
+    const members=famSnap.data().members||[];
+    const updates={};
+    await Promise.all(members.map(async function(m){
+      const id=(m.email||m.uid||"").replace(/[.#$/\[\]]/g,"_");
+      if(!id)return;
+      try{
+        const lbSnap=await getDoc(fsDoc(_fbDb,"leaderboard",id));
+        if(lbSnap.exists()){
+          const lb=lbSnap.data();
+          updates["memberXP."+id]={xp:lb.xp||0,lc:lb.lc||0,name:lb.name||m.name,updated:Date.now()};
+        }
+      }catch(e){}
+    }));
+    if(Object.keys(updates).length>0){
+      await updateDoc(fsDoc(_fbDb,"families",code),updates);
+    }
+  }catch(e){}
 }
 // Real-time listener on the /families/{code} doc.
 // Fires immediately with current data, then on every remote change (e.g. a child saves progress).
@@ -270,19 +289,20 @@ export function fbWatchFamilyMembers(code,callback){
       const memberXP=data.memberXP||{};
       const results=await Promise.all(members.map(async function(m){
         try{
-          const id=(m.uid||m.email).replace(/[.#$/\[\]]/g,"_");
+          // Use email-first ID — matches how fbSaveProgress writes leaderboard/memberXP
+          const id=(m.email||m.uid||"").replace(/[.#$/\[\]]/g,"_");
+          if(!id)return{name:m.name,email:m.email||"",role:m.role,xp:0,lc:0,joined:m.joined};
           const famXP=memberXP[id];
-          if(famXP&&(famXP.xp||0)>0){return{name:famXP.name||m.name,email:m.email,role:m.role,xp:famXP.xp||0,lc:famXP.lc||0,joined:m.joined};}
+          if(famXP&&(famXP.xp||0)>0){return{name:famXP.name||m.name,email:m.email||"",role:m.role,xp:famXP.xp||0,lc:famXP.lc||0,joined:m.joined};}
           // Fallback: leaderboard doc (any authenticated user can read)
           const lbSnap=await getDoc(fsDoc(_fbDb,"leaderboard",id));
           const lb=lbSnap.exists()?lbSnap.data():null;
           if(lb&&(lb.xp||0)>0){
-            // Self-heal memberXP so future snapshots use the fast path
             updateDoc(fsDoc(_fbDb,"families",code),{["memberXP."+id]:{xp:lb.xp||0,lc:lb.lc||0,name:lb.name||m.name,updated:Date.now()}}).catch(function(){});
-            return{name:lb.name||m.name,email:m.email,role:m.role,xp:lb.xp||0,lc:lb.lc||0,joined:m.joined};
+            return{name:lb.name||m.name,email:m.email||"",role:m.role,xp:lb.xp||0,lc:lb.lc||0,joined:m.joined};
           }
-          return{name:m.name,email:m.email,role:m.role,xp:0,lc:0,joined:m.joined};
-        }catch(e){return{name:m.name,email:m.email,role:m.role,xp:0,lc:0,joined:m.joined};}
+          return{name:m.name,email:m.email||"",role:m.role,xp:0,lc:0,joined:m.joined};
+        }catch(e){return{name:m.name,email:m.email||"",role:m.role,xp:0,lc:0,joined:m.joined};}
       }));
       callback(results.sort(function(a,b){return b.xp-a.xp;}));
     },
