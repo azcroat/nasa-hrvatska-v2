@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Bar, V, LEARN_PATH, getStreak, getStreakFreezes, spendFreeze, getProverbOfDay, getHistFact, getDailyChallenge, lXP, nXP, speak, getSR } from '../../data.jsx';
+import { Bar, V, LEARN_PATH, getStreak, getStreakFreezes, spendFreeze, getProverbOfDay, getHistFact, getDailyChallenge, lXP, nXP, speak, getSR, getDueReviews, getMistakes } from '../../data.jsx';
 import CroatianGrb from '../shared/CroatianGrb.jsx';
 
 const LEVEL_PALETTE = [
@@ -541,6 +541,78 @@ export default function HomeTab({
           Full Path →
         </button>
       </div>
+
+      {/* ── SRS REVIEW NUDGE ── */}
+      {(() => {
+        const due = getDueReviews();
+        if (due.length === 0) return null;
+        return (
+          <div
+            onClick={() => setScr("review")}
+            style={{
+              background: "linear-gradient(135deg,#eff6ff,#dbeafe)",
+              border: "1.5px solid #93c5fd",
+              borderRadius: 18, padding: "14px 18px", marginBottom: 16,
+              cursor: "pointer", display: "flex", alignItems: "center", gap: 14,
+              boxShadow: "0 4px 16px rgba(59,130,246,.12)",
+            }}>
+            <div style={{
+              width: 48, height: 48, borderRadius: 14, flexShrink: 0,
+              background: "linear-gradient(135deg,#2563eb,#1d4ed8)",
+              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22,
+              boxShadow: "0 4px 12px rgba(37,99,235,.35)",
+            }}>🧠</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#1e40af" }}>
+                {due.length} Word{due.length !== 1 ? "s" : ""} Ready to Review
+              </div>
+              <div style={{ fontSize: 11, color: "#3b82f6", fontWeight: 600, marginTop: 2 }}>
+                Spaced Repetition · Tap to review now →
+              </div>
+            </div>
+            <div style={{
+              fontSize: 22, fontWeight: 800, color: "#2563eb",
+              background: "white", borderRadius: 12, width: 40, height: 40,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,.08)",
+            }}>{due.length}</div>
+          </div>
+        );
+      })()}
+
+      {/* ── MISTAKES REVIEW NUDGE ── */}
+      {(() => {
+        const mistakes = getMistakes();
+        if (mistakes.length === 0) return null;
+        const topMistake = mistakes.sort((a, b) => b.count - a.count)[0];
+        return (
+          <div
+            onClick={() => setScr("mistakes")}
+            style={{
+              background: "linear-gradient(135deg,#fff7ed,#fed7aa)",
+              border: "1.5px solid #fdba74",
+              borderRadius: 18, padding: "14px 18px", marginBottom: 16,
+              cursor: "pointer", display: "flex", alignItems: "center", gap: 14,
+              boxShadow: "0 4px 16px rgba(249,115,22,.12)",
+            }}>
+            <div style={{
+              width: 48, height: 48, borderRadius: 14, flexShrink: 0,
+              background: "linear-gradient(135deg,#ea580c,#c2410c)",
+              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22,
+              boxShadow: "0 4px 12px rgba(234,88,12,.35)",
+            }}>📚</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#9a3412" }}>
+                {mistakes.length} Mistake{mistakes.length !== 1 ? "s" : ""} to Master
+              </div>
+              <div style={{ fontSize: 11, color: "#ea580c", fontWeight: 600, marginTop: 2 }}>
+                Most missed: <strong>{topMistake?.hr}</strong> · Tap to review →
+              </div>
+            </div>
+            <div style={{ fontSize: 20, color: "#ea580c", flexShrink: 0 }}>›</div>
+          </div>
+        );
+      })()}
 
       {/* ── TODAY'S CROATIAN ── */}
       <h3 className="sh">Today's Croatian</h3>

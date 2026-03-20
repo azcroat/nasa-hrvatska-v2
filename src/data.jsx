@@ -240,17 +240,40 @@ const PLACE = [
 ];
 // ═══ BADGES ═══
 const BADGES=[
+  // XP milestones
   {id:"first",n:"First Steps",i:"🌱",d:"Complete 1 lesson",r:s=>s.lc>=1},
-  {id:"x100",n:"Rising Star",i:"⭐",d:"100 XP",r:s=>s.xp>=100},
-  {id:"x500",n:"Scholar",i:"📚",d:"500 XP",r:s=>s.xp>=500},
-  {id:"x1k",n:"Master",i:"🏆",d:"1000 XP",r:s=>s.xp>=1000},
-  {id:"perf",n:"Perfectionist",i:"💎",d:"100% on a lesson",r:s=>s.pf>=1},
-  {id:"gram",n:"Grammar Guru",i:"📝",d:"Grammar done",r:s=>s.gc>=1},
-  {id:"spk",n:"Voice of Croatia",i:"🎤",d:"Speaking done",r:s=>s.sp>=1},
-  {id:"mod",n:"Modal Master",i:"🔮",d:"Modal verbs done",r:s=>s.mv>=1},
-  {id:"hist",n:"Historian",i:"🏛️",d:"Read history",r:s=>s.hi>=1},
-  {id:"x2k",n:"Expert",i:"🎓",d:"2000 XP",r:s=>s.xp>=2000},
-  {id:"ded",n:"Dedicated",i:"🔥",d:"5 lessons",r:s=>s.lc>=5}
+  {id:"x100",n:"Rising Star",i:"⭐",d:"Earn 100 XP",r:s=>s.xp>=100},
+  {id:"x500",n:"Scholar",i:"📚",d:"Earn 500 XP",r:s=>s.xp>=500},
+  {id:"x1k",n:"Master",i:"🏆",d:"Earn 1,000 XP",r:s=>s.xp>=1000},
+  {id:"x2k",n:"Expert",i:"🎓",d:"Earn 2,000 XP",r:s=>s.xp>=2000},
+  {id:"x5k",n:"Champion",i:"🥇",d:"Earn 5,000 XP",r:s=>s.xp>=5000},
+  {id:"x10k",n:"Legend",i:"👑",d:"Earn 10,000 XP",r:s=>s.xp>=10000},
+  // Lesson count
+  {id:"ded",n:"Dedicated",i:"🔥",d:"Complete 5 lessons",r:s=>s.lc>=5},
+  {id:"lc20",n:"Go-Getter",i:"🚀",d:"Complete 20 lessons",r:s=>s.lc>=20},
+  {id:"lc50",n:"Marathoner",i:"🏃",d:"Complete 50 lessons",r:s=>s.lc>=50},
+  {id:"lc100",n:"Centurion",i:"💯",d:"Complete 100 lessons",r:s=>s.lc>=100},
+  // Perfection
+  {id:"perf",n:"Perfectionist",i:"💎",d:"Get 100% on a lesson",r:s=>s.pf>=1},
+  {id:"perf5",n:"Flawless",i:"✨",d:"Get 100% on 5 lessons",r:s=>s.pf>=5},
+  // Skill categories
+  {id:"gram",n:"Grammar Guru",i:"📝",d:"Complete a grammar lesson",r:s=>s.gc>=1},
+  {id:"spk",n:"Voice of Croatia",i:"🎤",d:"Complete a speaking lesson",r:s=>s.sp>=1},
+  {id:"mod",n:"Modal Master",i:"🔮",d:"Complete modal verbs",r:s=>s.mv>=1},
+  {id:"hist",n:"Historian",i:"🏛️",d:"Read a history passage",r:s=>s.hi>=1},
+  // SRS / vocabulary
+  {id:"srs10",n:"Word Collector",i:"📖",d:"Review 10 SRS words",r:s=>(s.srsTotal||0)>=10},
+  {id:"srs50",n:"Polyglot",i:"🌍",d:"Review 50 SRS words",r:s=>(s.srsTotal||0)>=50},
+  // Streak
+  {id:"str3",n:"On a Roll",i:"🔥",d:"3-day streak",r:s=>(s.streak||0)>=3},
+  {id:"str7",n:"Week Warrior",i:"📅",d:"7-day streak",r:s=>(s.streak||0)>=7},
+  {id:"str30",n:"Unstoppable",i:"⚡",d:"30-day streak",r:s=>(s.streak||0)>=30},
+  // Mistakes mastered
+  {id:"fix5",n:"Mistake Crusher",i:"🛠️",d:"Master 5 mistake words",r:s=>(s.mistakesMastered||0)>=5},
+  // Reading
+  {id:"read3",n:"Reading Pro",i:"📰",d:"Complete 3 reading passages",r:s=>(s.readingDone||0)>=3},
+  // Cultural
+  {id:"amb",n:"Cultural Ambassador",i:"🇭🇷",d:"Explore HRT & media",r:s=>(s.mediaVisits||0)>=1},
 ];
 // ═══ READING PASSAGES ═══
 const READ = {
@@ -258,18 +281,28 @@ const READ = {
     {title:"Moja Obitelj",tEn:"My Family",text:"Ja sam Ana. Imam jedanaest godina. Moja mama se zove Marija. Moj tata se zove Ivan. Imam brata. On se zove Luka. Luka ima \u010detrnaest godina. Mi \u017eivimo u Zagrebu. Volimo Hrvatsku.",vocab:[["imam","I have"],["godina","years"],["\u017eivimo","we live"],["volimo","we love"]],qs:[{q:"How old is Ana?",o:["10","11","14"],c:1},{q:"Where do they live?",o:["Split","Zagreb","Rijeka"],c:1},{q:"How old is Luka?",o:["11","12","14"],c:2}]},
     {title:"Moj Pas Rex",tEn:"My Dog Rex",text:"Imam psa. Moj pas se zove Rex. Rex je veliki i sme\u0111i. On voli tr\u010dati u parku. Svaki dan idemo u \u0161etnju. Rex voli jesti meso i kosti. On je moj najbolji prijatelj.",vocab:[["pas","dog"],["sme\u0111i","brown"],["tr\u010dati","to run"],["najbolji","best"]],qs:[{q:"Dog name?",o:["Max","Rex","Luka"],c:1},{q:"What color?",o:["White","Brown","Black"],c:1},{q:"Rex eats?",o:["Fish","Meat and bones","Bread"],c:1}]},
     {title:"U \u0160koli",tEn:"At School",text:"Danas je ponedjeljak. Idem u \u0161kolu. Moja \u0161kola je velika. Imam puno prijatelja. U\u010diteljica se zove Ivana. Danas u\u010dimo matematiku i hrvatski jezik. Volim \u0161kolu.",vocab:[["danas","today"],["ponedjeljak","Monday"],["velika","big"],["u\u010dimo","we learn"]],qs:[{q:"What day?",o:["Tuesday","Monday","Friday"],c:1},{q:"Teacher?",o:["Ana","Ivana","Marija"],c:1},{q:"Subjects?",o:["English","Math and Croatian","Science"],c:1}]},
-    {title:"Moja Ku\u0107a",tEn:"My House",text:"Moja ku\u0107a je nova i velika. Imam malu kuhinju i veliku sobu. Moj stol je bijeli. Prozor je mali ali soba je lijepa. Vani je sun\u010dano. Nebo je plavo. Moj pas pije mlijeko. Ja \u010ditam knjige. Ja sam sretna.",vocab:[["ku\u0107a","house"],["kuhinja","kitchen"],["stol","table"],["nebo","sky"],["\u010ditam","I read"]],qs:[{q:"House new or old?",o:["Old","Small","New"],c:2},{q:"Table color?",o:["Brown","White","Black"],c:1},{q:"Weather?",o:["Rainy","Cloudy","Sunny"],c:2}]}
+    {title:"Moja Ku\u0107a",tEn:"My House",text:"Moja ku\u0107a je nova i velika. Imam malu kuhinju i veliku sobu. Moj stol je bijeli. Prozor je mali ali soba je lijepa. Vani je sun\u010dano. Nebo je plavo. Moj pas pije mlijeko. Ja \u010ditam knjige. Ja sam sretna.",vocab:[["ku\u0107a","house"],["kuhinja","kitchen"],["stol","table"],["nebo","sky"],["\u010ditam","I read"]],qs:[{q:"House new or old?",o:["Old","Small","New"],c:2},{q:"Table color?",o:["Brown","White","Black"],c:1},{q:"Weather?",o:["Rainy","Cloudy","Sunny"],c:2}]},
+    {title:"U Gradu",tEn:"In the City",text:"Zagreb je glavni grad Hrvatske. Ima puno lijepih zgrada i parkova. Volim \u0161etati po gradu s prijateljem. Idemo na kavu u centar. Ima puno kafića i restorana. Tramvaj ide brzo. Kupujemo hleb u pekarnici. Zagreb je moj grad.",vocab:[["glavni grad","capital"],["zgrada","building"],["tramvaj","tram"],["pekarnica","bakery"]],qs:[{q:"Zagreb is?",o:["Coastal city","Capital","Village"],c:1},{q:"They go by?",o:["Bus","Car","Tram"],c:2},{q:"Buy what in bakery?",o:["Coffee","Bread","Cake"],c:1}]},
+    {title:"Hrana i Pi\u0107e",tEn:"Food and Drink",text:"Volim hrvatsku hranu. Za doru\u010dak jedem jaja i kruh. Za ru\u010dak jedem juhu i meso. Za ve\u010deru jedem salatu. Pijem vodu i sok. Ponekad pijem kavu s mlijekom. Moja omiljena hrana je pizza. Mama kuha jako dobro.",vocab:[["doru\u010dak","breakfast"],["ru\u010dak","lunch"],["ve\u010dera","dinner"],["omiljena","favourite"]],qs:[{q:"Breakfast?",o:["Soup","Eggs and bread","Salad"],c:1},{q:"Favourite food?",o:["Pasta","Soup","Pizza"],c:2},{q:"Who cooks well?",o:["Dad","Grandma","Mum"],c:2}]},
+    {title:"Godišnja Doba",tEn:"Seasons",text:"Postoje \u010detiri godi\u0161nja doba. Prolje\u0107e je toplo i cvjetovi cvjetaju. Ljeto je vru\u0107e i idemo na more. Jesen je hladnija i li\u0161\u0107e pada. Zima je hladna i pada snijeg. Moje omiljeno godi\u0161nje doba je ljeto jer volim plivati.",vocab:[["godi\u0161nja doba","seasons"],["cvjetovi","flowers"],["li\u0161\u0107e","leaves"],["snijeg","snow"]],qs:[{q:"Favourite season?",o:["Spring","Summer","Winter"],c:1},{q:"Leaves fall in?",o:["Spring","Summer","Autumn"],c:2},{q:"Snow in?",o:["Summer","Autumn","Winter"],c:2}]},
+    {title:"Moji Prijatelji",tEn:"My Friends",text:"Imam tri najbolja prijatelja. Zovu se Ante Maja i Tomislav. Ante voli nogomet. Maja voli glazbu i pjevanje. Tomislav voli \u010ditati knjige. Zajedno idemo u kino i na izlete. Prijatelji su va\u017eni u \u017eivotu.",vocab:[["prijatelji","friends"],["zajedno","together"],["kino","cinema"],["izleti","outings"],["va\u017eni","important"]],qs:[{q:"How many best friends?",o:["Two","Three","Four"],c:1},{q:"Ante likes?",o:["Reading","Football","Music"],c:1},{q:"They go to?",o:["Market","Cinema and outings","Library"],c:1}]}
   ],
   intermediate: [
     {title:"Ljeto u Dalmaciji",tEn:"Summer in Dalmatia",text:"Pro\u0161log ljeta moja obitelj je putovala u Dalmaciju. Bili smo u Splitu tri dana. Split je prekrasan grad. Svaki dan smo i\u0161li na pla\u017eu. More je bilo toplo i plavo. Jeli smo svje\u017eu ribu. Moj brat je nau\u010dio roniti. Bilo je predivno ljeto.",vocab:[["pro\u0161log ljeta","last summer"],["prekrasan","gorgeous"],["svje\u017eu","fresh"],["roniti","to dive"]],qs:[{q:"Where?",o:["Istria","Dalmatia","Slavonia"],c:1},{q:"Days in Split?",o:["2","3","5"],c:1},{q:"Brother learned?",o:["Swim","Dive","Surf"],c:1}]},
     {title:"Na Tr\u017enici",tEn:"At the Market",text:"Svake subote idem na tr\u017enicu s mamom. Tr\u017enica je puna boja i mirisa. Kupujemo svje\u017ee vo\u0107e i povr\u0107e. Prodava\u010dica nam uvijek da malo sira za probati. Mama kupuje raj\u010dice krastavce i papriku. Ja biram jabuke i kru\u0161ke. Volim tr\u017enicu jer je sve svje\u017ee i ljudi su ljubazni.",vocab:[["tr\u017enica","market"],["subota","Saturday"],["svje\u017ee","fresh"],["ljubazni","kind"]],qs:[{q:"When?",o:["Sundays","Saturdays","Fridays"],c:1},{q:"Seller gives?",o:["Bread","Cheese to try","Fruit"],c:1},{q:"Why like it?",o:["Cheap","Fresh and kind people","Close"],c:1}]},
     {title:"U Restoranu",tEn:"At the Restaurant",text:"Ve\u010deras idemo u restoran. Konobar nam donosi jelovnik. Ja naru\u010dujem riblju juhu za predjelo i lignje za glavno jelo. Moj prijatelj naru\u010duje \u0107evape s ajvarom. Za pi\u0107e uzimamo gemi\u0161t. Na kraju tra\u017eimo ra\u010dun. Ukupno je \u010detrdeset eura. Ostavljamo napojnicu jer je hrana bila izvrsna.",vocab:[["konobar","waiter"],["jelovnik","menu"],["naru\u010dujem","I order"],["ra\u010dun","bill"],["napojnicu","tip"]],qs:[{q:"Appetizer?",o:["\u0106evapi","Fish soup","Squid"],c:1},{q:"Gemi\u0161t is?",o:["Beer","Wine spritzer","Juice"],c:1},{q:"Bill?",o:["20 euros","40 euros","50 euros"],c:1}]},
-    {title:"Tra\u017eim Put",tEn:"Asking Directions",text:"Izgubio sam se u centru Zagreba. Pitam prolaznika gdje je Trg bana Jela\u010di\u0107a. On ka\u017ee idite ravno ovom ulicom skrenite lijevo kod po\u0161te pa onda desno na semaforu. Trg je odmah tamo. Nakon pet minuta vidim veliki trg s fontanom i kipom.",vocab:[["izgubio sam se","I got lost"],["ravno","straight"],["skrenite","turn"],["lijevo","left"],["desno","right"]],qs:[{q:"Where lost?",o:["Split","Zagreb","Rijeka"],c:1},{q:"Turn at post office?",o:["Right","Left","Straight"],c:1},{q:"On the square?",o:["Church","Fountain and statue","Market"],c:1}]}
+    {title:"Tra\u017eim Put",tEn:"Asking Directions",text:"Izgubio sam se u centru Zagreba. Pitam prolaznika gdje je Trg bana Jela\u010di\u0107a. On ka\u017ee idite ravno ovom ulicom skrenite lijevo kod po\u0161te pa onda desno na semaforu. Trg je odmah tamo. Nakon pet minuta vidim veliki trg s fontanom i kipom.",vocab:[["izgubio sam se","I got lost"],["ravno","straight"],["skrenite","turn"],["lijevo","left"],["desno","right"]],qs:[{q:"Where lost?",o:["Split","Zagreb","Rijeka"],c:1},{q:"Turn at post office?",o:["Right","Left","Straight"],c:1},{q:"On the square?",o:["Church","Fountain and statue","Market"],c:1}]},
+    {title:"Putovanje Vlakom",tEn:"Train Journey",text:"Putujemo vlakom iz Zagreba do Splita. Vlak polazi u sedam ujutro. Na kolodvoru kupujemo karte na blagajni. Vo\u017enja traje \u0161est sati. Prolazimo kroz planine i polja. U vagonu pijemo kavu i jedemo sendvi\u010de. Kad stignem u Split vidim more za prvu.",vocab:[["vlak","train"],["kolodvor","railway station"],["karte","tickets"],["vo\u017enja","journey"],["stigne","arrives"]],qs:[{q:"Departure time?",o:["6am","7am","8am"],c:1},{q:"Journey duration?",o:["4 hours","5 hours","6 hours"],c:2},{q:"First sight in Split?",o:["Mountains","Station","Sea"],c:2}]},
+    {title:"U Hotelu",tEn:"At the Hotel",text:"Stigli smo u hotel kasno nave\u010der. Recepcionar nas je lijepo do\u010dekao. Rezervirali smo sobu s pogledom na more. Soba je bila \u010dista i udobna. Ujutro smo doručkovali u restoranu hotela. Imali su bogat bife s raznim jestivima. Ostali smo tri no\u0107i.",vocab:[["recepcionar","receptionist"],["rezervirali","reserved"],["udobna","comfortable"],["bogat bife","rich buffet"],["jestiva","foods"]],qs:[{q:"Arrived when?",o:["Morning","Afternoon","Late evening"],c:2},{q:"Room view?",o:["Garden","Sea","Mountains"],c:1},{q:"How many nights?",o:["Two","Three","Four"],c:1}]},
+    {title:"Sport i Rekreacija",tEn:"Sport and Recreation",text:"Hrvati vole sport. Nogomet je najpopularniji sport. Hrvatska reprezentacija je osvajala medalje na velikim natjecanjima. Osim nogometa popularne su i košarka tenis i veslanje. Mnogi Hrvati vole planinariti i plivati. Sport je va\u017ean dio hrvatskog identiteta.",vocab:[["predstavlja\u010di","representatives"],["natjecanja","competitions"],["planinariti","to hike"],["identitet","identity"]],qs:[{q:"Most popular sport?",o:["Basketball","Tennis","Football"],c:2},{q:"Other sports listed?",o:["Golf","Basketball tennis rowing","Volleyball"],c:1},{q:"Sport is?",o:["New trend","Part of identity","For tourists"],c:1}]},
+    {title:"Kupovina Odje\u0107e",tEn:"Buying Clothes",text:"Trebam kupiti novu odje\u0107u za zimu. Idem u trgovinu s mamom. Probiram jaknu ali je prevelika. Prodava\u010dica mi donosi manji broj. Odgovara mi savr\u0161eno. Tako\u0111er kupujem toplu kapu i rukavice. Pla\u0107am karticom. Mama ka\u017ee da sam sada spreman za zimu.",vocab:[["odje\u0107a","clothes"],["jakna","jacket"],["prevelika","too big"],["rukavice","gloves"],["pla\u0107am","I pay"]],qs:[{q:"What's too big?",o:["Jumper","Jacket","Trousers"],c:1},{q:"Pay how?",o:["Cash","Card","Phone"],c:1},{q:"Also buys?",o:["Shoes and gloves","Hat and gloves","Scarf and boots"],c:1}]}
   ],
   advanced: [
     {title:"Hrvatska Kultura",tEn:"Croatian Culture",text:"Hrvatska je zemlja bogate kulture i dugih tradicija. Jadransko more planine i ravnice oblikovali su na\u010din \u017eivota razli\u010ditih regija. U Dalmaciji se ljeti odr\u017eavaju festivali klapa. U Slavoniji je tamburica simbol regije. Ova raznolikost \u010dini Hrvatsku posebnom \u2014 mala zemlja s velikim srcem.",vocab:[["bogate","rich"],["oblikovali","shaped"],["raznolikost","diversity"],["posebnom","special"]],qs:[{q:"Slavonia symbol?",o:["Klapa","Tamburica","Kulen"],c:1},{q:"Croatia described as?",o:["Large country","Small with big heart","Island"],c:1}]},
     {title:"Dubrovnik",tEn:"Pearl of the Adriatic",text:"Dubrovnik je jedan od najljep\u0161ih gradova na svijetu. Stare gradske zidine izgra\u0111ene u srednjem vijeku okru\u017euju grad pun kamenih ulica i baroknih crkava. Grad je pre\u017eivio potres 1667 godine i Domovinski rat. Danas je Dubrovnik turisti\u010dka zvijezda poznat po festivalu prekrasnom Stradunu i pogledu na otoke Elafite.",vocab:[["najljep\u0161ih","most beautiful"],["zidine","walls"],["srednjem vijeku","Middle Ages"],["pre\u017eivio","survived"]],qs:[{q:"Walls built?",o:["Roman era","Middle Ages","18th century"],c:1},{q:"1667?",o:["Fire","Earthquake","War"],c:1}]},
-    {title:"Kod Lije\u010dnika",tEn:"At the Doctor",text:"Danas se ne osje\u0107am dobro. Imam temperaturu i boli me grlo. Idem kod lije\u010dnika. Lije\u010dnik me pregleda i ka\u017ee da imam anginu. Propisuje mi antibiotik i ka\u017ee da trebam piti puno teku\u0107ine i odmarati se. Idem u ljekarnu po lijekove. Ljekarnica mi obja\u0161njava kako uzimati tablete \u2014 jednu ujutro i jednu nave\u010der nakon jela.",vocab:[["osje\u0107am","I feel"],["temperatura","fever"],["boli me grlo","throat hurts"],["lije\u010dnik","doctor"],["propisuje","prescribes"]],qs:[{q:"Symptoms?",o:["Headache","Fever and sore throat","Stomach"],c:1},{q:"Diagnosis?",o:["Cold","Angina","Flu"],c:1},{q:"Pills how?",o:["Two morning","One morning one evening","Three daily"],c:1}]}
+    {title:"Kod Lije\u010dnika",tEn:"At the Doctor",text:"Danas se ne osje\u0107am dobro. Imam temperaturu i boli me grlo. Idem kod lije\u010dnika. Lije\u010dnik me pregleda i ka\u017ee da imam anginu. Propisuje mi antibiotik i ka\u017ee da trebam piti puno teku\u0107ine i odmarati se. Idem u ljekarnu po lijekove. Ljekarnica mi obja\u0161njava kako uzimati tablete \u2014 jednu ujutro i jednu nave\u010der nakon jela.",vocab:[["osje\u0107am","I feel"],["temperatura","fever"],["boli me grlo","throat hurts"],["lije\u010dnik","doctor"],["propisuje","prescribes"]],qs:[{q:"Symptoms?",o:["Headache","Fever and sore throat","Stomach"],c:1},{q:"Diagnosis?",o:["Cold","Angina","Flu"],c:1},{q:"Pills how?",o:["Two morning","One morning one evening","Three daily"],c:1}]},
+    {title:"Hrvatska u Europskoj Uniji",tEn:"Croatia in the EU",text:"Hrvatska je postala \u010dlanicom Europske unije 2013. godine. To je bio va\u017ean trenutak za zemlju koja je prošla kroz ratna razaranja devedesetih. \u010clanstvo u EU donijelo je Hrvatima slobodu kretanja rada i studiranja u 27 zemalja. Uvođenjem eura 2023. godine Hrvatska je napravila jo\u0161 jedan korak prema srcu Europe. Danas mladi Hrvati rade diljem kontinenta dok se sve vi\u0161e stranaca doseljava u Zagreb i Dalmaciju.",vocab:[[["\u010dlanicom","member (f.)"],["razaranja","devastation"],["kretanja","movement"],["doseljava","moves in"]]],qs:[{q:"Croatia joined EU when?",o:["2007","2013","2015"],c:1},{q:"Euro introduced when?",o:["2020","2021","2023"],c:2},{q:"Freedom includes?",o:["Tax exemption","Work and study in 27 countries","Free flights"],c:1}]},
+    {title:"Jadransko More",tEn:"The Adriatic Sea",text:"Jadransko more jedno je od najljep\u0161ih mora na svijetu. Hrvatska obala duga je gotovo 1800 kilometara a uz nju le\u017ei vi\u0161e od tisu\u0107u otoka. Najpoznatiji otoci su Krk Hvar Bra\u010d i Korkula. More je bistro i toplo ljeti pa privla\u010di milijune turista. Ribarstvo je tradicionalno va\u017eno za priobalna mjesta. Osim prirodne ljepote Jadran krije i bogatu povijest \u2014 stare rimske luke i mediteranski gradovi svjedo\u010de o stoljetnoj civilizaciji.",vocab:[["priobalna","coastal"],["bistro","clear"],["ribarstvo","fishing"],["svjedo\u010de","testify/witness"]],qs:[{q:"Coast length approx?",o:["800 km","1800 km","3000 km"],c:1},{q:"Best-known island NOT listed?",o:["Krk","Hvar","Vis"],c:2},{q:"Adriatic also rich in?",o:["Oil","History and Roman ports","Freshwater fish"],c:1}]}
   ]
 };
 // ═══ ALPHABET ═══
@@ -424,6 +457,21 @@ function srMark(word,correct){
   card.t=Date.now();
   saveSR(d);
 }
+// ═══ MISTAKE TRACKER ═══
+function getMistakes(){try{return JSON.parse(localStorage.getItem("uMistakes")||"[]");}catch{return[];}}
+function recordMistake(hr,en,q,category){
+  try{
+    const list=getMistakes();
+    const existing=list.findIndex(function(m){return m.hr===hr;});
+    if(existing!==-1){list[existing].count=(list[existing].count||1)+1;list[existing].t=Date.now();list[existing].q=q||list[existing].q;}
+    else{list.push({hr,en:en||"",q:q||"",category:category||"",count:1,t:Date.now()});}
+    // cap at 200 entries, keep most recent
+    if(list.length>200)list.splice(0,list.length-200);
+    localStorage.setItem("uMistakes",JSON.stringify(list));
+  }catch{}
+}
+function clearMistake(hr){try{const list=getMistakes().filter(function(m){return m.hr!==hr;});localStorage.setItem("uMistakes",JSON.stringify(list));}catch{}}
+function clearAllMistakes(){try{localStorage.removeItem("uMistakes");}catch{}}
 // ═══ HRT & CROATIAN MEDIA ═══
 const MEDIA = [
   // ─── TV & NEWS ───────────────────────────────────────────────────────────────
@@ -4762,4 +4810,4 @@ function getDueReviews() {
 export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, CROATIAN_CITIES, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS };
 export { _fbReady };
 export { H, Bar, Spk };
-export { initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbWatchFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex, getDueReviews };
+export { initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbWatchFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbGetLeaderboard, fbOnAuthStateChanged, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex, getDueReviews, getMistakes, recordMistake, clearMistake, clearAllMistakes };
