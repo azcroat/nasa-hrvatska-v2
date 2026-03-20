@@ -12,13 +12,14 @@ async function tryElevenLabs(text, slow, apiKey, voiceId) {
   const body = {
     text,
     model_id: "eleven_multilingual_v2",
+    language_code: "hr", // Tells ElevenLabs to treat the text as Croatian — dramatically improves phoneme accuracy for č, ć, š, ž, đ
     voice_settings: {
-      stability: slow ? 0.80 : 0.45,
-      similarity_boost: 0.80,
-      style: 0.0,
+      stability: slow ? 0.85 : 0.72,     // Higher stability = clearer, more consistent pronunciation (was 0.45 — too low for language learning)
+      similarity_boost: 0.85,             // Slightly boosted for consistent voice character
+      style: 0.0,                         // No style exaggeration — clean, neutral delivery
       use_speaker_boost: true,
     },
-    speed: slow ? 0.70 : 0.80,
+    speed: slow ? 0.72 : 0.90,           // 0.90 = slightly measured pace for learning; 0.72 = clearly slow for study mode (was 0.80/0.70 — too fast)
   };
 
   const controller = new AbortController();
@@ -48,7 +49,9 @@ async function tryElevenLabs(text, slow, apiKey, voiceId) {
 // IPA phoneme map kept for reference — Azure hr-HR does NOT support IPA
 // so these tags are stripped out. Azure remains as a network fallback only.
 async function tryAzure(text, slow, azureKey, primaryRegion) {
-  const voice = slow ? "hr-HR-SreckoNeural" : "hr-HR-GabrijelaNeural";
+  // Use GabrijelaNeural for both — consistent female voice. SreckoNeural was used
+  // for slow but caused jarring gender switch mid-lesson. Prosody handles speed.
+  const voice = "hr-HR-GabrijelaNeural";
   const safeText = text.replace(
     /[<>&"']/g,
     // eslint-disable-next-line security/detect-object-injection
@@ -56,8 +59,8 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
   );
 
   const ssml = slow
-    ? `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}"><prosody rate="slow">${safeText}</prosody></voice></speak>`
-    : `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}">${safeText}</voice></speak>`;
+    ? `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}"><prosody rate="-25%">${safeText}</prosody></voice></speak>`
+    : `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}"><prosody rate="-8%">${safeText}</prosody></voice></speak>`;
 
   const regions = [primaryRegion, "eastus", "eastus2", "westeurope", "northeurope", "westus2"].filter(
     (r, i, a) => a.indexOf(r) === i
