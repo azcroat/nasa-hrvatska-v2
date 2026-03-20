@@ -174,8 +174,10 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         clearTimeout(t);
 
         const lp = gP(k);
-        const fpXP = (fp && fp.stats && fp.stats.xp) || 0;
-        const lpXP = (lp && lp.stats && lp.stats.xp) || 0;
+        // Support both current ("stats") and legacy ("st") key formats.
+        // Data saved before a prior rename uses "st"; newer saves use "stats".
+        const fpXP = (fp && ((fp.stats && fp.stats.xp) || (fp.st && fp.st.xp))) || 0;
+        const lpXP = (lp && ((lp.stats && lp.stats.xp) || (lp.st && lp.st.xp))) || 0;
 
         if (fp) {
           const fpTs = fp._fbUpdated || fp.savedAt || 0;
