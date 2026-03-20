@@ -240,79 +240,33 @@ export async function fbGetFamilyMembers(code){
     const famSnap2=await getDoc(fsDoc(_fbDb,"families",code));
     if(!famSnap2.exists())return[];
     const data=famSnap2.data();const members=data.members||[];
-    // Always read fresh from /leaderboard for every member — single source of truth.
-    // memberXP is written denormalized but may lag; leaderboard is authoritative.
-    const results=await Promise.all(members.map(async function(m){
-      // App uses email as the user key everywhere (k = fbUser.email in useAuth).
-      // Priority: email-based ID (matches fbSaveProgress writes), uid fallback for legacy.
+    const memberXP=data.memberXP||{};
+    // Read XP from the family doc's memberXP map — written by fbSaveProgress on every save.
+    // Never reads /leaderboard for other users; that collection is now owner-only.
+    return members.map(function(m){
       const id=(m.email||m.uid||"").replace(/[.#$/\[\]]/g,"_");
-      if(!id)return{name:m.name,email:m.email||"",role:m.role,xp:0,lc:0,joined:m.joined};
-      try{
-        const lbSnap=await getDoc(fsDoc(_fbDb,"leaderboard",id));
-        const lb=lbSnap.exists()?lbSnap.data():null;
-        const xp=(lb&&lb.xp)||0;const lc=(lb&&lb.lc)||0;const lname=(lb&&lb.name)||m.name;
-        // Self-heal: always keep memberXP current so the real-time watcher fast-path works
-        updateDoc(fsDoc(_fbDb,"families",code),{["memberXP."+id]:{xp,lc,name:lname,updated:Date.now()}}).catch(function(){});
-        return{name:lname,email:m.email||"",role:m.role,xp,lc,joined:m.joined};
-      }catch(e){return{name:m.name,email:m.email||"",role:m.role,xp:0,lc:0,joined:m.joined}}
-    }));
-    return results.sort(function(a,b){return b.xp-a.xp});
+      const xpData=(id&&memberXP[id])||{};
+      return{name:xpData.name||m.name,email:m.email||"",role:m.role,xp:xpData.xp||0,lc:xpData.lc||0,joined:m.joined};
+    }).sort(function(a,b){return b.xp-a.xp});
   }catch(e){return[]}
-}
-// Force-rebuilds memberXP in the family doc from the authoritative /leaderboard collection.
-// Call this when the leaderboard screen opens to guarantee fresh data regardless of sync state.
-// Safe for any authenticated family member to call — only reads public /leaderboard docs.
-export async function fbForceSyncMemberXP(code){
-  if(!_fbReady||!_fbDb)return;
-  try{
-    const famSnap=await getDoc(fsDoc(_fbDb,"families",code));
-    if(!famSnap.exists())return;
-    const members=famSnap.data().members||[];
-    const updates={};
-    await Promise.all(members.map(async function(m){
-      const id=(m.email||m.uid||"").replace(/[.#$/\[\]]/g,"_");
-      if(!id)return;
-      try{
-        const lbSnap=await getDoc(fsDoc(_fbDb,"leaderboard",id));
-        if(lbSnap.exists()){
-          const lb=lbSnap.data();
-          updates["memberXP."+id]={xp:lb.xp||0,lc:lb.lc||0,name:lb.name||m.name,updated:Date.now()};
-        }
-      }catch(e){}
-    }));
-    if(Object.keys(updates).length>0){
-      await updateDoc(fsDoc(_fbDb,"families",code),updates);
-    }
-  }catch(e){}
 }
 // Real-time listener on the /families/{code} doc.
 // Fires immediately with current data, then on every remote change (e.g. a child saves progress).
-// Returns an unsubscribe function. Use in the Leaderboard component to give parents live XP updates.
+// Returns an unsubscribe function. XP is read from the family doc's memberXP map — written by
+// fbSaveProgress on every save. Never reads /leaderboard for other users.
 export function fbWatchFamilyMembers(code,callback){
   if(!_fbReady||!_fbDb)return function(){};
   return onSnapshot(
     fsDoc(_fbDb,"families",code),
-    async function(snap){
+    function(snap){
       if(!snap.exists()){callback([]);return;}
       const data=snap.data();const members=data.members||[];
       const memberXP=data.memberXP||{};
-      const results=await Promise.all(members.map(async function(m){
-        try{
-          // Use email-first ID — matches how fbSaveProgress writes leaderboard/memberXP
-          const id=(m.email||m.uid||"").replace(/[.#$/\[\]]/g,"_");
-          if(!id)return{name:m.name,email:m.email||"",role:m.role,xp:0,lc:0,joined:m.joined};
-          const famXP=memberXP[id];
-          if(famXP&&(famXP.xp||0)>0){return{name:famXP.name||m.name,email:m.email||"",role:m.role,xp:famXP.xp||0,lc:famXP.lc||0,joined:m.joined};}
-          // Fallback: leaderboard doc (any authenticated user can read)
-          const lbSnap=await getDoc(fsDoc(_fbDb,"leaderboard",id));
-          const lb=lbSnap.exists()?lbSnap.data():null;
-          if(lb&&(lb.xp||0)>0){
-            updateDoc(fsDoc(_fbDb,"families",code),{["memberXP."+id]:{xp:lb.xp||0,lc:lb.lc||0,name:lb.name||m.name,updated:Date.now()}}).catch(function(){});
-            return{name:lb.name||m.name,email:m.email||"",role:m.role,xp:lb.xp||0,lc:lb.lc||0,joined:m.joined};
-          }
-          return{name:m.name,email:m.email||"",role:m.role,xp:0,lc:0,joined:m.joined};
-        }catch(e){return{name:m.name,email:m.email||"",role:m.role,xp:0,lc:0,joined:m.joined};}
-      }));
+      const results=members.map(function(m){
+        const id=(m.email||m.uid||"").replace(/[.#$/\[\]]/g,"_");
+        const xpData=(id&&memberXP[id])||{};
+        return{name:xpData.name||m.name,email:m.email||"",role:m.role,xp:xpData.xp||0,lc:xpData.lc||0,joined:m.joined};
+      });
       callback(results.sort(function(a,b){return b.xp-a.xp;}));
     },
     function(err){console.warn("fbWatchFamilyMembers error:",err);}
@@ -360,15 +314,4 @@ export function fbWatchProgress(uid,callback){
     },
     function(err){console.warn("fbWatchProgress error:",err);}
   );
-}
-export async function fbGetLeaderboard(){
-  if(!_fbReady||!_fbDb)return[];
-  try{
-    // Read from /leaderboard (public projection) — never from /users (private)
-    const q=query(collection(_fbDb,"leaderboard"),orderBy("xp","desc"),limit(50));
-    const snap=await getDocs(q);const users=[];
-    snap.forEach(function(docSnap){const d=docSnap.data();
-    users.push({name:d.name||docSnap.id,xp:d.xp||0,lc:d.lc||0})});
-    return users.sort(function(a,b){return b.xp-a.xp})
-  }catch(e){return[]}
 }

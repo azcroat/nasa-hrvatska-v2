@@ -46,11 +46,13 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // ─── Leaderboard (public read, server-written projection) ─────────────
+    // ─── Leaderboard (private — owner-only) ───────────────────────────────
     // The app writes { name, xp, lc } here when saving progress.
-    // Any authenticated user can read — no PII exposed.
+    // Only the owner can read their own entry. Family XP is shared via the
+    // /families/{code}/memberXP map (readable by family members), never by
+    // reading another user's leaderboard doc directly.
     match /leaderboard/{userId} {
-      allow read: if isAuthenticated();
+      allow read: if isOwner(userId);
       allow write: if isOwner(userId);
     }
 
