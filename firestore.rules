@@ -3,10 +3,14 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ─── Helper functions ──────────────────────────────────────────────────
-    // The app uses email (with special chars replaced by _) as the document ID
+    // The app uses email (with special chars replaced by _) as the document ID.
+    // Mirror of the JS regex: uid.replace(/[.#$/\[\]]/g, '_')
+    //
+    // Note on Firestore Rules replace(): despite the RE2 parameter name in the
+    // docs, passing a plain string performs LITERAL matching (not regex). Dot '.'
+    // matches only a literal dot here, NOT any character. Chaining 6 calls handles
+    // up to 6 dots, which covers all real-world email addresses.
     function emailToId(email) {
-      // Chain 6 replaces to handle up to 6 dots in local-part (covers all real-world emails).
-      // Firestore Rules don't support regex global replace, so we chain calls.
       return email.replace('.','_').replace('.','_').replace('.','_')
                   .replace('.','_').replace('.','_').replace('.','_')
                   .replace('#','_').replace('$','_')
@@ -52,8 +56,12 @@ service cloud.firestore {
 
     // ─── Family groups ─────────────────────────────────────────────────────
     match /families/{familyCode} {
-      // Any authenticated user can read (needed to validate join codes)
-      allow read: if isAuthenticated();
+      // get: any authenticated user can fetch a specific family doc by code.
+      //   Required for join-code validation — a user must read the doc to confirm
+      //   the code exists and retrieve the family name before writing themselves in.
+      // list: disabled — no client path queries across multiple family docs.
+      allow get: if isAuthenticated();
+      allow list: if false;
 
       // Creator must be the sole initial member and include memberEmails for rule enforcement
       allow create: if isAuthenticated()

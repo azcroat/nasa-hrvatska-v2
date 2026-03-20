@@ -10,7 +10,7 @@ const _ttsCache = new Map();
 function _cacheGet(key) {
   const e = _ttsCache.get(key);
   if (!e) return null;
-  if (Date.now() > e.expires) { _ttsCache.delete(key); return null; }
+  if (Date.now() > e.expires) { URL.revokeObjectURL(e.url); _ttsCache.delete(key); return null; }
   return e.url;
 }
 function _cacheSet(key, url) {
