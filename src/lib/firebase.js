@@ -257,6 +257,38 @@ export async function fbGetFamilyMembers(code){
     return results.sort(function(a,b){return b.xp-a.xp});
   }catch(e){return[]}
 }
+// Real-time listener on the /families/{code} doc.
+// Fires immediately with current data, then on every remote change (e.g. a child saves progress).
+// Returns an unsubscribe function. Use in the Leaderboard component to give parents live XP updates.
+export function fbWatchFamilyMembers(code,callback){
+  if(!_fbReady||!_fbDb)return function(){};
+  return onSnapshot(
+    fsDoc(_fbDb,"families",code),
+    async function(snap){
+      if(!snap.exists()){callback([]);return;}
+      const data=snap.data();const members=data.members||[];
+      const memberXP=data.memberXP||{};
+      const results=await Promise.all(members.map(async function(m){
+        try{
+          const id=(m.uid||m.email).replace(/[.#$/\[\]]/g,"_");
+          const famXP=memberXP[id];
+          if(famXP&&(famXP.xp||0)>0){return{name:famXP.name||m.name,email:m.email,role:m.role,xp:famXP.xp||0,lc:famXP.lc||0,joined:m.joined};}
+          // Fallback: leaderboard doc (any authenticated user can read)
+          const lbSnap=await getDoc(fsDoc(_fbDb,"leaderboard",id));
+          const lb=lbSnap.exists()?lbSnap.data():null;
+          if(lb&&(lb.xp||0)>0){
+            // Self-heal memberXP so future snapshots use the fast path
+            updateDoc(fsDoc(_fbDb,"families",code),{["memberXP."+id]:{xp:lb.xp||0,lc:lb.lc||0,name:lb.name||m.name,updated:Date.now()}}).catch(function(){});
+            return{name:lb.name||m.name,email:m.email,role:m.role,xp:lb.xp||0,lc:lb.lc||0,joined:m.joined};
+          }
+          return{name:m.name,email:m.email,role:m.role,xp:0,lc:0,joined:m.joined};
+        }catch(e){return{name:m.name,email:m.email,role:m.role,xp:0,lc:0,joined:m.joined};}
+      }));
+      callback(results.sort(function(a,b){return b.xp-a.xp;}));
+    },
+    function(err){console.warn("fbWatchFamilyMembers error:",err);}
+  );
+}
 export async function fbLeaveFamily(code,email){
   if(!_fbReady||!_fbDb)return{ok:false};
   try{const leaveSnap=await getDoc(fsDoc(_fbDb,"families",code));
