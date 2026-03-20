@@ -72,28 +72,21 @@ export async function fbSaveProgress(uid,data){
     await runTransaction(_fbDb,async function(tx){
       const ref=fsDoc(_fbDb,"users",id);
       const snap=await tx.get(ref);
-      // Conflict resolution: only overwrite if our data is fresher or remote has no timestamp
+      // Conflict resolution: XP-based, not timestamp-based.
+      // Timestamps are unreliable (device clock skew silently blocks all future writes).
+      // Only skip if the remote document has meaningfully MORE XP — meaning another
+      // active session is clearly ahead of us. Never skip if remote has equal or less XP.
       if(snap.exists()){
-        const remote=snap.data();
-        const remoteTs=remote.updated||0;
-        if(remoteTs>incoming.updated){
-          // Remote is newer — skip this write to avoid stomping concurrent update
-          return;
-        }
+        let remoteXP=0;
+        try{const rp=JSON.parse(snap.data().progress||'{}');remoteXP=(rp.stats&&rp.stats.xp)||0;}catch{}
+        if(remoteXP>(incoming.xp||0)+100){return;} // remote is clearly ahead — don't overwrite
       }
       tx.set(ref,incoming,{merge:true});
     });
     return{ok:true};
   }catch(e){
     console.warn("FB save error:",e);
-    // Graceful fallback: try a simple setDoc if transaction fails
-    // Re-check timestamp before writing to avoid overwriting newer remote data
     try{
-      const fallbackSnap=await getDoc(fsDoc(_fbDb,"users",id)).catch(()=>null);
-      if(fallbackSnap&&fallbackSnap.exists()){
-        const fbRemoteTs=(fallbackSnap.data().updated)||0;
-        if(fbRemoteTs>incoming.updated){return{ok:true};} // remote is newer — skip
-      }
       await setDoc(fsDoc(_fbDb,"users",id),incoming,{merge:true});
       return{ok:true};
     }catch(e2){
