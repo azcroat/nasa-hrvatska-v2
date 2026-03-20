@@ -59,6 +59,14 @@ export async function fbSaveProgress(uid,data){
       const famRef=fsDoc(_fbDb,"families",localFam.code);
       updateDoc(famRef,{["memberXP."+id]:{xp:lbEntry.xp,lc:lbEntry.lc,name:lbEntry.name,updated:incoming.updated}}).catch(function(e){console.warn("Family XP sync failed:",e);});
     }catch(e){console.warn("Family XP sync error:",e);}
+  } else if(lbEntry.xp>0){
+    // Family code not cached locally yet — read from the user's OWN doc to find it.
+    // isOwner passes: every user can always read their own /users/{id} doc.
+    // Fire-and-forget so it doesn't block the progress save.
+    getDoc(fsDoc(_fbDb,"users",id)).then(function(uSnap){
+      const fc=uSnap.exists()?uSnap.data().familyCode:null;
+      if(fc){updateDoc(fsDoc(_fbDb,"families",fc),{["memberXP."+id]:{xp:lbEntry.xp,lc:lbEntry.lc,name:lbEntry.name,updated:incoming.updated}}).catch(function(){});}
+    }).catch(function(){});
   }
   try{
     await runTransaction(_fbDb,async function(tx){
@@ -240,20 +248,9 @@ export async function fbGetFamilyMembers(code){
           updateDoc(fsDoc(_fbDb,"families",code),{["memberXP."+id]:{xp:lb.xp||0,lc:lb.lc||0,name:lb.name||m.name,updated:Date.now()}}).catch(function(){});
           return{name:lb.name||m.name,email:m.email,role:m.role,xp:lb.xp||0,lc:lb.lc||0,joined:m.joined};
         }
-        // Fallback 2: read from /users/{id} which always has a top-level xp field.
-        // This recovers XP for members whose leaderboard doc was never written
-        // (e.g. family write skipped because getLocalFamily() was null at save time).
-        const uSnap=await getDoc(fsDoc(_fbDb,"users",id)).catch(function(){return null;});
-        const ud=uSnap&&uSnap.exists()?uSnap.data():null;
-        const udXP=ud?(ud.xp||0):0;
-        if(udXP>0){
-          const udName=(lb&&lb.name)||m.name;
-          const udLc=(lb&&lb.lc)||0;
-          // Self-heal: backfill memberXP and leaderboard so subsequent reads are fast
-          updateDoc(fsDoc(_fbDb,"families",code),{["memberXP."+id]:{xp:udXP,lc:udLc,name:udName,updated:Date.now()}}).catch(function(){});
-          setDoc(fsDoc(_fbDb,"leaderboard",id),{name:udName,xp:udXP,lc:udLc,updated:Date.now()},{merge:true}).catch(function(){});
-          return{name:udName,email:m.email,role:m.role,xp:udXP,lc:udLc,joined:m.joined};
-        }
+        // /users/{id} is owner-only — a parent cannot read a child's doc.
+        // The write-side fix in fbSaveProgress ensures /leaderboard is always populated,
+        // so Fallback 1 above is the terminal recovery path.
         return{name:(lb&&lb.name)||m.name,email:m.email,role:m.role,xp:(lb&&lb.xp)||0,lc:(lb&&lb.lc)||0,joined:m.joined};
       }catch(e){return{name:m.name,email:m.email,role:m.role,xp:0,lc:0,joined:m.joined}}
     }));
