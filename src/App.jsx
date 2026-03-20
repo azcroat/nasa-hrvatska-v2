@@ -321,14 +321,33 @@ function App(){
   // Synchronous localStorage flush on browser close / tab kill.
   // Firebase is async so this is the only way to guarantee no data loss on close.
   useEffect(()=>{
-    const onUnload=()=>{
-      const{authUser:u,stats:st,name:nm,authScreen:as}=_unloadRef.current;
+    // Shared save: localStorage (always sync) + Firebase (when switching away)
+    const saveSnapshot=(pushToFirebase)=>{
+      const{authUser:u,stats:st,name:nm,authScreen:as,favs:fv,jWords:jw,dchlA:da,dchlSl:ds}=_unloadRef.current;
       if(!u||as!=="app")return;
       const _nd=new Date();const _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');
-      try{const _d={name:nm,stats:st,cp:true,onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),favs:_unloadRef.current.favs||[],journal:_unloadRef.current.jWords||[],dc:{day:_dcDay,answered:_unloadRef.current.dchlA||[false,false,false],selected:_unloadRef.current.dchlSl||["","",""]},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};localStorage.setItem("uP_"+u.u,JSON.stringify(_d));}catch(_){}
+      try{
+        const _d={name:nm,stats:st,cp:true,onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),favs:fv||[],journal:jw||[],dc:{day:_dcDay,answered:da||[false,false,false],selected:ds||["","",""]},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};
+        localStorage.setItem("uP_"+u.u,JSON.stringify(_d));
+        // Best-effort Firebase push so the next device sees latest data immediately.
+        // Fire-and-forget — browser keeps async ops alive briefly after hide/unload.
+        if(pushToFirebase)fbSaveProgress(u.u,_d).catch(function(){});
+      }catch(_){}
     };
+    // beforeunload: localStorage only (must be synchronous)
+    const onUnload=()=>saveSnapshot(false);
+    // pagehide: fires on iOS Safari tab close and bfcache entry — push to Firebase
+    const onPageHide=()=>saveSnapshot(true);
+    // visibilitychange hidden: user switches apps/tabs on mobile — most reliable cross-platform event
+    const onVisHide=()=>{if(document.visibilityState==="hidden")saveSnapshot(true);};
     window.addEventListener("beforeunload",onUnload);
-    return()=>window.removeEventListener("beforeunload",onUnload);
+    window.addEventListener("pagehide",onPageHide);
+    document.addEventListener("visibilitychange",onVisHide);
+    return()=>{
+      window.removeEventListener("beforeunload",onUnload);
+      window.removeEventListener("pagehide",onPageHide);
+      document.removeEventListener("visibilitychange",onVisHide);
+    };
   },[]);// eslint-disable-line react-hooks/exhaustive-deps
   // ═══ BROWSER BACK BUTTON SUPPORT (popstate) ═══
   useEffect(function(){
