@@ -267,6 +267,10 @@ function App(){
   const[showXP,setShowXP]=useState(false);const[xpA,setXpA]=useState(0);const[nB,setNB]=useState(null);const[sB,setSB]=useState(false);
   const _initialPath=useRef(window.location.pathname);
   const _unloadRef=useRef({});
+  // Ref keeps onBeforeSignOut pointing at the latest doSyncNow without a TDZ issue.
+  // doSyncNow is defined after useAuth (it depends on authUser from useAuth's return),
+  // so passing it directly causes "Cannot access before initialization" in production builds.
+  const _syncNowRef=useRef(null);
   const[_syncReady,_setSyncReady]=useState(false);
   const[showBackupBanner,setShowBackupBanner]=useState(false);
   // ── useAuth — must be declared BEFORE the useEffects that reference
@@ -297,7 +301,7 @@ function App(){
       if (isNew) setScr('welcome');
     },
     onSignedOut() { setStats(ds); setScr('welcome'); setName(''); setFamData(null); setFamMembers([]); },
-    onBeforeSignOut: doSyncNow,
+    onBeforeSignOut: async function(){ if(_syncNowRef.current) return _syncNowRef.current(); },
     applyRemoteProgress,
     setFamData,
     setSyncReady: _setSyncReady,
@@ -429,6 +433,8 @@ function App(){
     setScr("dashboard");
   }
   const doSyncNow=useCallback(async function(){if(!authUser)return false;const _nd=new Date();const _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');const _data={name,stats,cp:true,onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),freezes:getStreakFreezes(),favs,journal:jWords,dc:{day:_dcDay,answered:dchlA,selected:dchlSl},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};localStorage.setItem("uP_"+authUser.u,JSON.stringify(_data));const result=await fbSaveProgress(authUser.u,_data).catch(function(){return{ok:false}});return result&&result.ok!==false;},[authUser,name,stats,favs,jWords,dchlA,dchlSl]);
+  // Keep the ref current so onBeforeSignOut always calls the latest version
+  _syncNowRef.current=doSyncNow;
   function goBack(){
     if(curEx)markExerciseDone(curEx);
     sCurEx("");
