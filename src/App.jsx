@@ -165,6 +165,8 @@ const DialogueSim = lazyWithReload(() => import("./components/practice/DialogueS
 const CefrTest = lazyWithReload(() => import("./components/practice/CefrTest.jsx"));
 const Leaderboard = lazyWithReload(() => import("./components/profile/Leaderboard.jsx"));
 const CertificateScreen = lazyWithReload(() => import("./components/profile/CertificateScreen.jsx"));
+const MistakesScreen = lazyWithReload(() => import("./components/practice/MistakesScreen.jsx"));
+const AnalyticsScreen = lazyWithReload(() => import("./components/profile/AnalyticsScreen.jsx"));
 
 // Module-level constants — defined once, not recreated on every render
 const DS={xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,authLoading:0,mv:0,hi:0,rs:[],ct:[],badges:[]};
@@ -825,6 +827,10 @@ function App(){
       {currentScreen==="dialogue"&&<DialogueSim goBack={goBack} award={award} />}
       {currentScreen==="cefrtest"&&<CefrTest goBack={goBack} award={award} />}
       {currentScreen==="slang"&&<SlangScreen goBack={goBack} award={award} />}
+      {// ═══ MISTAKE REVIEW ═══
+      currentScreen==="mistakes"&&<MistakesScreen goBack={goBack} award={award} />}
+      {// ═══ ANALYTICS ═══
+      currentScreen==="analytics"&&<AnalyticsScreen goBack={goBack} stats={stats} name={name} />}
       {// ═══ VOCABULARY LESSON ═══
       currentScreen==="lesson"&&<LessonScreen
         lt={lt} li={li} lx={lx} ls={ls} lp={lp} la={la} lsl={lsl} qi={qi} icons={icons}

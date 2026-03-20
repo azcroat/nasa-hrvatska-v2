@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { lXP, nXP, getStreak } from '../../data.jsx';
 import CroatianGrb from './CroatianGrb.jsx';
 
@@ -39,6 +39,27 @@ function getWeeklyXP(currentXP) {
 export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode, setDarkMode, badges, srchQ, setSrchQ, onSearch }) {
   const [goalOpen, setGoalOpen] = useState(false);
   const [goal, setGoalState] = useState(getWeeklyGoal());
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [installed, setInstalled] = useState(false);
+
+  useEffect(() => {
+    function onBeforeInstall(e) { e.preventDefault(); setInstallPrompt(e); }
+    function onAppInstalled() { setInstalled(true); setInstallPrompt(null); }
+    window.addEventListener('beforeinstallprompt', onBeforeInstall);
+    window.addEventListener('appinstalled', onAppInstalled);
+    // Already installed check
+    if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) setInstalled(true);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onBeforeInstall);
+      window.removeEventListener('appinstalled', onAppInstalled);
+    };
+  }, []);
+
+  function handleInstall() {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    installPrompt.userChoice.then(() => setInstallPrompt(null));
+  }
 
   const streak = getStreak();
   const xpCur = st.xp - lXP(level);
@@ -172,8 +193,36 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
         ))}
       </nav>
 
-      {/* Bottom: dark mode toggle */}
-      <div style={{ padding: '12px 16px', borderTop: '1px solid var(--nav-b)' }}>
+      {/* Quick shortcuts */}
+      <div style={{ padding: '10px 16px', borderTop: '1px solid var(--nav-b)' }}>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={() => setScr('analytics')}
+            style={{ flex: 1, padding: '8px 6px', borderRadius: 10, border: '1.5px solid var(--inp-b)', background: 'var(--bar-bg)', cursor: 'pointer', fontFamily: "'Outfit',sans-serif", display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+            <span style={{ fontSize: 16 }}>📊</span>
+            <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '.04em' }}>Analytics</span>
+          </button>
+          <button onClick={() => setScr('mistakes')}
+            style={{ flex: 1, padding: '8px 6px', borderRadius: 10, border: '1.5px solid var(--inp-b)', background: 'var(--bar-bg)', cursor: 'pointer', fontFamily: "'Outfit',sans-serif", display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+            <span style={{ fontSize: 16 }}>📚</span>
+            <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '.04em' }}>Mistakes</span>
+          </button>
+          <button onClick={() => setScr('leaderboard')}
+            style={{ flex: 1, padding: '8px 6px', borderRadius: 10, border: '1.5px solid var(--inp-b)', background: 'var(--bar-bg)', cursor: 'pointer', fontFamily: "'Outfit',sans-serif", display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+            <span style={{ fontSize: 16 }}>🏆</span>
+            <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '.04em' }}>Family</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Bottom: dark mode toggle + PWA install */}
+      <div style={{ padding: '12px 16px', borderTop: '1px solid var(--nav-b)', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {installPrompt && !installed && (
+          <button onClick={handleInstall}
+            style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 10px', borderRadius: 10, border: '1.5px solid #0e7490', background: 'linear-gradient(135deg,#f0f9ff,#e0f2fe)', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }}>
+            <span style={{ fontSize: 16 }}>📲</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#0e7490' }}>Install App</span>
+          </button>
+        )}
         <button onClick={() => setDarkMode(d => !d)}
           style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 10px', borderRadius: 10, border: 'none', background: 'var(--bar-bg)', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }}>
           <span style={{ fontSize: 16 }}>{darkMode ? '☀️' : '🌙'}</span>

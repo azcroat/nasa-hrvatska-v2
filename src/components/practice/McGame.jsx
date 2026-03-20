@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { H, Spk, srMark } from '../../data.jsx';
+import { H, Spk, srMark, recordMistake } from '../../data.jsx';
 
 const XP_PER_CORRECT = 3;
 const XP_COMPLETION_BONUS = 5;
@@ -110,6 +110,7 @@ export default function McGame({ questions, onComplete, goBack, award }) {
     } else {
       playWrong();
       setStreak(0);
+      if (q.hr) recordMistake(q.hr, q.en || q.correct || '', q.q || q.prompt || '', q.category || '');
     }
     if (q.hr) srMark(q.hr, ok);
   }
