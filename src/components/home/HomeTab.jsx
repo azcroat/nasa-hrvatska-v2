@@ -480,6 +480,7 @@ export default function HomeTab({
                                 opacity:answered&&o!==ch.a&&o!==selVal?0.45:1,
                               }}
                               onClick={() => {
+                                if (answered) return;
                                 const newA = [...dchlA]; newA[ci] = true; sDchlA(newA);
                                 const newSl = [...dchlSl]; newSl[ci] = o; sDchlSl(newSl);
                                 localStorage.setItem("dcDay3", JSON.stringify({day:dc.dateKey,answered:newA,selected:newSl}));
