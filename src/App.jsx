@@ -387,7 +387,10 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       if(!u||as!=="app")return;
       const _nd=new Date();const _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');
       try{
-        const _d={name:nm,stats:st,cp:true,onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),freezes:getStreakFreezes(),favs:fv||[],journal:jw||[],dc:{day:_dcDay,answered:da||[false,false,false],selected:ds||["","",""]},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};
+        const _dcLocalAns2=(function(){try{const p=JSON.parse(localStorage.getItem("dcDay3")||"{}");if(p.day===_dcDay&&Array.isArray(p.answered))return p.answered;}catch(_){}return[false,false,false];})();
+        const _daBest=(da||[false,false,false]).map(function(a,i){return a||_dcLocalAns2[i]||false;});
+        const _dsBest=(ds&&ds.some(function(s){return s;}))?ds:(function(){try{const p=JSON.parse(localStorage.getItem("dcDay3")||"{}");if(p.day===_dcDay&&Array.isArray(p.selected)&&typeof p.selected[0]==="string")return p.selected;}catch(_){}return["","",""];})();
+        const _d={name:nm,stats:st,cp:true,onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),freezes:getStreakFreezes(),favs:fv||[],journal:jw||[],dc:{day:_dcDay,answered:_daBest,selected:_dsBest},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};
         localStorage.setItem("uP_"+u.u,JSON.stringify(_d));
         // Best-effort Firebase push so the next device sees latest data immediately.
         // Fire-and-forget — browser keeps async ops alive briefly after hide/unload.
@@ -477,7 +480,13 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
     if(tabByPath[ip]){_setTab(tabByPath[ip]);_setCurrentScreen("dashboard");return}
     setScr("dashboard");
   }
-  const doSyncNow=useCallback(async function(){if(!authUser)return false;const _nd=new Date();const _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');const _data={name,stats,cp:true,onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),freezes:getStreakFreezes(),favs,journal:jWords,dc:{day:_dcDay,answered:dchlA,selected:dchlSl},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};localStorage.setItem("uP_"+authUser.u,JSON.stringify(_data));const result=await fbSaveProgress(authUser.u,_data).catch(function(){return{ok:false}});return result&&result.ok!==false;},[authUser,name,stats,favs,jWords,dchlA,dchlSl]);
+  const doSyncNow=useCallback(async function(){if(!authUser)return false;const _nd=new Date();const _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');// Merge React state with dcDay3 localStorage — whichever source has more answers wins.
+  // Prevents a corrupted dchlA=[false,false,false] React state from overwriting good
+  // answers stored in dcDay3 (e.g. after applyRemoteProgress race on login).
+  const _dcLocalAns=(function(){try{const p=JSON.parse(localStorage.getItem("dcDay3")||"{}");if(p.day===_dcDay&&Array.isArray(p.answered))return p.answered;}catch(_){}return[false,false,false];})();
+  const _dcBestAns=dchlA.map(function(a,i){return a||_dcLocalAns[i]||false;});
+  const _dcBestSel=dchlSl.some(function(s){return s;})?dchlSl:(function(){try{const p=JSON.parse(localStorage.getItem("dcDay3")||"{}");if(p.day===_dcDay&&Array.isArray(p.selected)&&typeof p.selected[0]==="string")return p.selected;}catch(_){}return["","",""];})();
+  const _data={name,stats,cp:true,onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),freezes:getStreakFreezes(),favs,journal:jWords,dc:{day:_dcDay,answered:_dcBestAns,selected:_dcBestSel},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};localStorage.setItem("uP_"+authUser.u,JSON.stringify(_data));const result=await fbSaveProgress(authUser.u,_data).catch(function(){return{ok:false}});return result&&result.ok!==false;},[authUser,name,stats,favs,jWords,dchlA,dchlSl]);
   // Keep the ref current so onBeforeSignOut always calls the latest version
   _syncNowRef.current=doSyncNow;
   function goBack(){
