@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { H, Bar, Spk, speak } from '../../data.jsx';
 
 export default function ReadingScreen({
@@ -6,6 +6,7 @@ export default function ReadingScreen({
   sRph, sRqi, sRsc, sRa, sRsl, sHw,
   goBack, setScr, award, setSt,
 }) {
+  const resultFired = useRef(false);
   if (!rp) return null;
   return (
     <div className="scr-wrap">
@@ -47,7 +48,7 @@ export default function ReadingScreen({
           ))}
           {ra&&<button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{
             if(rqi<rp.qs.length-1){sRqi(i=>i+1);sRa(false);sRsl(-1);}
-            else{award(Math.round((rsc/rp.qs.length)*35)+10);setSt(s=>({...s,rc:s.rc+1}));sRph("result");}
+            else{if(resultFired.current)return;resultFired.current=true;award(Math.round((rsc/rp.qs.length)*35)+10);setSt(s=>({...s,rc:s.rc+1}));sRph("result");}
           }}>{rqi<rp.qs.length-1?"Next →":"Results"}</button>}
         </div>
       </React.Fragment>}

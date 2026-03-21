@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh, TENSES } from '../../data.jsx';
 import { rnd } from '../../lib/random.js';
 
 export default function TensesScreen({ goBack, award }) {
+  const finishFired = useRef(false);
   const [tnMode, setTnMode] = useState("learn");
   const [tnGender, setTnGender] = useState("m");
   const [tnTense, setTnTense] = useState("present");
@@ -159,7 +160,7 @@ export default function TensesScreen({ goBack, award }) {
               <div style={{fontSize:64}}>{pct >= 80 ? "🏆" : pct >= 50 ? "👍" : "📚"}</div>
               <h2 style={{fontFamily:"'Playfair Display',serif",color:"#164e63"}}>Tense Quiz Complete!</h2>
               <div style={{fontSize:32,fontWeight:800,color:"#0e7490"}}>{tnS} / {total}</div>
-              <button className="b bp" style={{marginTop:16}} onClick={() => { award(tnS * 5); goBack(); }}>🏠 Finish</button>
+              <button className="b bp" style={{marginTop:16}} onClick={() => { if(finishFired.current)return; finishFired.current=true; award(tnS * 5); goBack(); }}>🏠 Finish</button>
             </div>
           );
         }
