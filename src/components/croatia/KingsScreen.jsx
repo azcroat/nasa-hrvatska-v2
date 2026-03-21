@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, speak } from '../../data.jsx';
 import { KINGS } from '../../data.jsx';
 
 export default function KingsScreen({ goBack, award, setSt }) {
+  const finishFired = useRef(false);
   const [kgTab, sKgTab] = useState("timeline");
   return (
     <div className="scr-wrap">
@@ -92,7 +93,7 @@ export default function KingsScreen({ goBack, award, setSt }) {
           );})}
         </div>
         <button className="b bp" style={{width:"100%",marginTop:20}}
-          onClick={function(){setSt(function(s){return Object.assign({},s,{hi:(s.hi||0)+1})});award(25);goBack()}}>
+          onClick={function(){if(finishFired.current)return;finishFired.current=true;setSt(function(s){return Object.assign({},s,{hi:(s.hi||0)+1})});award(25);goBack()}}>
           ✅ Mark as Read (+25 XP)
         </button>
       </React.Fragment>}

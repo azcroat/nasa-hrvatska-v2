@@ -100,6 +100,7 @@ export default function LyricsScreen({ goBack, award }) {
   const blankKey = useCallback((lineIdx, wordIdx) => `${lineIdx}-${wordIdx}`, []);
 
   function checkAnswers() {
+    if (checked) return;
     let correct = 0;
     let total = 0;
     quiz.forEach((line, li) => line.forEach((token, wi) => {
