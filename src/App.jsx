@@ -263,7 +263,12 @@ function App(){
     if(fp.favs){localStorage.setItem("uFavs",JSON.stringify(fp.favs));setFavs(fp.favs);}
     if(fp.journal){localStorage.setItem("uJournal",JSON.stringify(fp.journal));setJWords(fp.journal);}
     const _arNd=new Date();const _arDay=_arNd.getFullYear()+'-'+String(_arNd.getMonth()+1).padStart(2,'0')+'-'+String(_arNd.getDate()).padStart(2,'0');
-    if(fp.dc&&fp.dc.day===_arDay){const _arAns=fp.dc.answered||[false,false,false];const _arSel=Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""];sDchlA(_arAns);sDchlSl(_arSel);localStorage.setItem("dcDay3",JSON.stringify({day:_arDay,answered:_arAns,selected:_arSel}));}
+    if(fp.dc&&fp.dc.day===_arDay){const _arAns=fp.dc.answered||[false,false,false];const _arSel=Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==="string"?fp.dc.selected:["","",""];// Merge with local progress — once a question is answered locally it stays answered.
+    // The Firestore watcher can fire with startup state (all false) AFTER the user
+    // has already answered, resetting dchlA and showing badge=3 incorrectly.
+    let _localAns=[false,false,false];try{const _ld=JSON.parse(localStorage.getItem("dcDay3")||"{}");if(_ld.day===_arDay)_localAns=_ld.answered||_localAns;}catch(_){}
+    const _mergedAns=_arAns.map(function(a,i){return a||_localAns[i]||false;});
+    sDchlA(_mergedAns);sDchlSl(_arSel);localStorage.setItem("dcDay3",JSON.stringify({day:_arDay,answered:_mergedAns,selected:_arSel}));}
     if(fp.cooldown){const _arT=new Date().toISOString().slice(0,10);let _arCd={};try{_arCd=JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch(e){}for(const _arCk in fp.cooldown){if(fp.cooldown[_arCk]===_arT)_arCd[_arCk]=fp.cooldown[_arCk];}localStorage.setItem("xpCooldown",JSON.stringify(_arCd));}
   },[setFavs,setJWords,sDchlA,sDchlSl]);
   const { tDir, setTDir: sTDir, tIn, setTIn: sTIn, tOut, tL, doTr } = useTranslator();
