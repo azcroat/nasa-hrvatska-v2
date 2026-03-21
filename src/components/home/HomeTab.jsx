@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Bar, V, LEARN_PATH, getStreak, getStreakFreezes, spendFreeze, getProverbOfDay, getHistFact, getDailyChallenge, lXP, nXP, speak, getSR, getDueReviews, getMistakes } from '../../data.jsx';
+import { Bar, V, LEARN_PATH, getStreak, getStreakFreezes, earnFreeze, getProverbOfDay, getHistFact, getDailyChallenge, lXP, nXP, speak, getSR, getDueReviews, getMistakes } from '../../data.jsx';
 import CroatianGrb from '../shared/CroatianGrb.jsx';
 
 const LEVEL_PALETTE = [
@@ -200,7 +200,7 @@ export default function HomeTab({
               <span style={{fontSize:12,color:'white',fontWeight:700}}>{freezes} streak freeze{freezes>1?'s':''}</span>
             </div>
           ):(
-            <button onClick={()=>{if(st.xp>=200){spendFreeze();setFreezes(f=>f+1);alert('Streak freeze earned! Your streak is now protected for one missed day.');} else alert('You need 200 XP to earn a streak freeze.');}}
+            <button onClick={()=>{if(st.xp>=200){earnFreeze();setFreezes(f=>f+1);alert('Streak freeze earned! Your streak is now protected for one missed day.');} else alert('You need 200 XP to earn a streak freeze.');}}
               style={{background:'rgba(255,255,255,.15)',border:'1px dashed rgba(255,255,255,.4)',borderRadius:20,padding:'12px 16px',fontSize:12,color:'white',fontWeight:700,cursor:'pointer',minHeight:44}}>
               🛡️ Earn Streak Freeze (200 XP)
             </button>
