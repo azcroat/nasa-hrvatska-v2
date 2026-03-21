@@ -203,10 +203,11 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
           }
         }
 
-        // Recovery push: if Firestore has no XP but local storage does, the user's data
-        // was never synced (network failure, blocked writes, or clock-skew skip).
-        // Push it now so it's safe regardless of what happens to this device's storage.
-        if (fpXP === 0 && lpXP > 0) {
+        // Recovery push: if local storage has more XP than Firestore, the user's data
+        // is ahead of what's synced — push it now so other devices see the latest progress.
+        // Covers: Firestore rules outage, network failures, or clock-skew skips where
+        // the write was blocked and the local device kept earning XP offline.
+        if (lpXP > fpXP) {
           fbSaveProgress(k, lp).catch(function() {});
         }
 
