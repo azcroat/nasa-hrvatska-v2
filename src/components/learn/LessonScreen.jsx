@@ -54,7 +54,7 @@ export default function LessonScreen({
         <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:28,color:"#164e63"}}>{ls===qi.length?"Perfect!":"Great Job!"}</h2>
         <p style={{color:"#78716c",marginTop:8}}>{ls}/{qi.length}</p>
         <div style={{display:"flex",gap:12,justifyContent:"center",marginTop:32}}>
-          <button className="b bg" onClick={()=>{sLi(shuffleArr(V[lt]));sLx(0);sLs(0);sLp("learn");sLa(false);}}>Retry</button>
+          <button className="b bg" onClick={()=>{resultFired.current=false;sLi(shuffleArr(V[lt]));sLx(0);sLs(0);sLp("learn");sLa(false);}}>Retry</button>
           <button className="b bp" onClick={goBack}>Continue →</button>
         </div>
       </div>}
