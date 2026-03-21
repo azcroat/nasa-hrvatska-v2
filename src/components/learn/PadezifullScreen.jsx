@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh, PADEZI_FULL } from '../../data.jsx';
 
 export default function PadezifullScreen({ goBack, award }) {
+  const finishFired = useRef(false);
   const [pfTab, sPfTab] = useState("sing");
   const [pfMode, sPfMode] = useState("learn");
   const [pfGender, sPfGender] = useState("f");
@@ -126,7 +127,7 @@ export default function PadezifullScreen({ goBack, award }) {
             <div style={{textAlign:"center"}}>
               <div style={{fontSize:64}}>{pct >= 80 ? "🏆" : "📚"}</div>
               <h2>{pfS} / {total}</h2>
-              <button className="b bp" onClick={() => { award(pfS * 5); goBack(); }}>🏠 Finish</button>
+              <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; award(pfS * 5); goBack(); }}>🏠 Finish</button>
             </div>
           );
         }

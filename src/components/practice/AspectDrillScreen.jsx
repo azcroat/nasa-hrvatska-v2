@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { H, Bar, Spk, sh } from '../../data.jsx';
 import { rnd } from '../../lib/random.js';
 
 export default function AspectDrillScreen({ goBack, award, ASPECT_PAIRS }) {
+  const finishFired = useRef(false);
   const items = useMemo(() => {
     if (!ASPECT_PAIRS) return [];
     return sh(ASPECT_PAIRS).slice(0, 15);
@@ -39,7 +40,7 @@ export default function AspectDrillScreen({ goBack, award, ASPECT_PAIRS }) {
           </div>
           <div style={{display:"flex",gap:12,justifyContent:"center",marginTop:24}}>
             <button className="b bg" onClick={()=>{setIdx(0);setAnswered(false);setSelected(null);setScore(0);setDone(false);}}>Retry</button>
-            <button className="b bp" onClick={()=>{award(score*5+5);goBack();}}>Finish</button>
+            <button className="b bp" onClick={()=>{if(finishFired.current)return;finishFired.current=true;award(score*5+5);goBack();}}>Finish</button>
           </div>
         </div>
       </div>
