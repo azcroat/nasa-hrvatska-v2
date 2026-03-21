@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh, PADEZI, PREPS } from '../../data.jsx';
 
 export default function PadeziScreen({ goBack, award, setSt }) {
+  const finishFired = useRef(false);
   const [czMode, sCzMode] = useState("learn");
   const [czQ, sCzQ] = useState([]);
   const [czI, sCzI] = useState(0);
@@ -83,7 +84,7 @@ export default function PadeziScreen({ goBack, award, setSt }) {
               <div style={{fontSize:32,fontWeight:800,color:"#0e7490"}}>{czS} / {total}</div>
               <div style={{display:"flex",gap:10,justifyContent:"center",marginTop:16}}>
                 <button className="b bg" onClick={() => sCzMode("learn")}>📖 Review</button>
-                <button className="b bp" onClick={() => { award(czS * 3 + 15); setSt(s => ({...s, gc: s.gc + 1})); goBack(); }}>🏠 Finish!</button>
+                <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; award(czS * 3 + 15); setSt(s => ({...s, gc: s.gc + 1})); goBack(); }}>🏠 Finish!</button>
               </div>
             </div>
           );

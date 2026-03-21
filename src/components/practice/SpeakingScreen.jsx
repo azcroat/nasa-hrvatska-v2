@@ -34,6 +34,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   const [langIdx, setLangIdx] = useState(0);
   const recRef = useRef(null);
   const timeoutRef = useRef(null);
+  const finishFired = useRef(false);
 
   if (!sw) return null;
 
@@ -227,7 +228,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
               if (sx < si.length - 1) {
                 const n = sx + 1; sSx(n); sSw(si[n]); sSr(null);
               } else {
-                award(ssc * 5 + 5); setSt(s => ({...s, sp: s.sp + 1})); goBack();
+                if(finishFired.current)return; finishFired.current=true; award(ssc * 5 + 5); setSt(s => ({...s, sp: s.sp + 1})); goBack();
               }
             }}>
             {sx < si.length - 1 ? 'Next →' : 'Finish'}
