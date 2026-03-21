@@ -36,7 +36,7 @@ function getWeeklyXP(currentXP) {
   } catch { return 0; }
 }
 
-export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode, setDarkMode, badges, srchQ, setSrchQ, onSearch }) {
+export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode, setDarkMode, badges, srchQ, setSrchQ, onSearch, doOut }) {
   const [goalOpen, setGoalOpen] = useState(false);
   const [goal, setGoalState] = useState(getWeeklyGoal());
   const [installPrompt, setInstallPrompt] = useState(null);
@@ -214,13 +214,20 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
         </div>
       </div>
 
-      {/* Bottom: dark mode toggle + PWA install */}
+      {/* Bottom: dark mode toggle + sign out */}
       <div style={{ padding: '12px 16px', borderTop: '1px solid var(--nav-b)', display: 'flex', flexDirection: 'column', gap: 8 }}>
         <button onClick={() => setDarkMode(d => !d)}
           style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 10px', borderRadius: 10, border: 'none', background: 'var(--bar-bg)', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }}>
           <span style={{ fontSize: 16 }}>{darkMode ? '☀️' : '🌙'}</span>
           <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--subtext)' }}>{darkMode ? 'Light mode' : 'Dark mode'}</span>
         </button>
+        {doOut && (
+          <button onClick={doOut}
+            style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 10px', borderRadius: 10, border: '1px solid rgba(194,65,12,.2)', background: 'rgba(194,65,12,.05)', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }}>
+            <span style={{ fontSize: 16 }}>🚪</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#c2410c' }}>Sign Out</span>
+          </button>
+        )}
       </div>
     </aside>
   );

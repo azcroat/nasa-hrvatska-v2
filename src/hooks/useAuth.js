@@ -373,7 +373,14 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
     // This guarantees the user's final state is saved even if the periodic save
     // hadn't fired yet. Auth token is still valid at this point so the write succeeds.
     if (cb.current.onBeforeSignOut) {
-      try { await cb.current.onBeforeSignOut(); } catch {}
+      try {
+        // Cap the pre-signout sync at 3 seconds so a slow/hanging Firebase write
+        // (network error, quota exhaustion) never blocks the user from signing out.
+        await Promise.race([
+          cb.current.onBeforeSignOut(),
+          new Promise(resolve => setTimeout(resolve, 3000)),
+        ]);
+      } catch {}
     }
     if (watchRef.current) { watchRef.current(); watchRef.current = null; }
     fbLogout(); cS(); setAuthUser(null); setAuthScreen('login');

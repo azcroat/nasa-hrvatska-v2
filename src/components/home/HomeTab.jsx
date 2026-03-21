@@ -201,7 +201,7 @@ export default function HomeTab({
             </div>
           ):(
             <button onClick={()=>{if(st.xp>=200){spendFreeze();setFreezes(f=>f+1);alert('Streak freeze earned! Your streak is now protected for one missed day.');} else alert('You need 200 XP to earn a streak freeze.');}}
-              style={{background:'rgba(255,255,255,.15)',border:'1px dashed rgba(255,255,255,.4)',borderRadius:20,padding:'5px 12px',fontSize:12,color:'white',fontWeight:700,cursor:'pointer'}}>
+              style={{background:'rgba(255,255,255,.15)',border:'1px dashed rgba(255,255,255,.4)',borderRadius:20,padding:'12px 16px',fontSize:12,color:'white',fontWeight:700,cursor:'pointer',minHeight:44}}>
               🛡️ Earn Streak Freeze (200 XP)
             </button>
           )}
@@ -301,10 +301,10 @@ export default function HomeTab({
             </div>
             {syncReady && onSyncNow && (
               <button onClick={onSyncNow} style={{
-                padding: "7px 12px", borderRadius: 9, border: "none", cursor: "pointer",
+                padding: "12px 16px", borderRadius: 9, border: "none", cursor: "pointer",
                 background: "linear-gradient(135deg,#16a34a,#15803d)",
                 color: "#fff", fontSize: 11, fontWeight: 800,
-                fontFamily: "'Outfit',sans-serif", flexShrink: 0,
+                fontFamily: "'Outfit',sans-serif", flexShrink: 0, minHeight: 44,
               }}>
                 Sync Now
               </button>
