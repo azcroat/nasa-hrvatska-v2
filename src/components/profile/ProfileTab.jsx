@@ -97,10 +97,10 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
         </div>
         {syncReady && (
           <button onClick={handleSyncNow} disabled={syncing} style={{
-            padding: "8px 14px", borderRadius: 10, border: "none", cursor: syncing ? "default" : "pointer",
+            padding: "12px 16px", borderRadius: 10, border: "none", cursor: syncing ? "default" : "pointer",
             background: syncing ? "#e2e8f0" : syncErr ? "linear-gradient(135deg,#dc2626,#b91c1c)" : "linear-gradient(135deg,#16a34a,#15803d)",
             color: syncing ? "#94a3b8" : "#fff", fontSize: 12, fontWeight: 800,
-            fontFamily: "'Outfit',sans-serif", flexShrink: 0,
+            fontFamily: "'Outfit',sans-serif", flexShrink: 0, minHeight: 44,
           }}>
             {syncing ? "…" : "Sync Now"}
           </button>

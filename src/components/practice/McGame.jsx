@@ -153,7 +153,8 @@ export default function McGame({ questions, onComplete, goBack, award }) {
             cursor: 'pointer',
             fontSize: 24,
             color: 'var(--subtext)',
-            padding: '4px 8px',
+            padding: '10px 12px',
+            minHeight: 44,
             borderRadius: 10,
             transition: 'background .15s',
           }}

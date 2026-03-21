@@ -128,7 +128,7 @@ export default function LearnTab({
               <button
                 onClick={() => launchPathItem(nextItem)}
                 style={{
-                  padding:'10px 18px', borderRadius:12, border:'none', flexShrink:0,
+                  padding:'13px 18px', borderRadius:12, border:'none', flexShrink:0,
                   background:sc.bg, color:'#fff', fontSize:13, fontWeight:800,
                   cursor:'pointer', fontFamily:"'Outfit',sans-serif",
                   boxShadow:'0 3px 10px rgba(0,0,0,.15)',
@@ -145,7 +145,7 @@ export default function LearnTab({
           <button
             onClick={() => setScr("learnpath")}
             style={{
-              width:'100%', marginTop:12, padding:'9px', borderRadius:10,
+              width:'100%', marginTop:12, padding:'13px', borderRadius:10,
               border:'1.5px solid var(--inp-b)', background:'none', cursor:'pointer',
               fontSize:12, fontWeight:700, color:'var(--subtext)', fontFamily:"'Outfit',sans-serif",
             }}
