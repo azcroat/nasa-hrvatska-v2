@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, Bar, sh, UNJUMBLE } from '../../data.jsx';
 
 export default function Unjumble({ goBack, award }) {
@@ -7,6 +7,7 @@ export default function Unjumble({ goBack, award }) {
   const [ujS, sUjS] = useState(0);
   const [ujIn, sUjIn] = useState("");
   const [ujA, sUjA] = useState(false);
+  const finishFired = useRef(false);
 
   const total = ujQ.length;
   const q = ujQ[ujI];
@@ -77,6 +78,8 @@ export default function Unjumble({ goBack, award }) {
               if (ujI < total - 1) {
                 sUjI(i => i + 1); sUjIn(""); sUjA(false);
               } else {
+                if (finishFired.current) return;
+                finishFired.current = true;
                 award(ujS * 3 + 10); goBack();
               }
             }}>
