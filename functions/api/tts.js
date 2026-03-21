@@ -9,17 +9,26 @@
 const EL_DEFAULT_VOICE = "XB0fDUnXU5powFXDhCwa"; // Charlotte
 
 async function tryElevenLabs(text, slow, apiKey, voiceId) {
+  // Only force language_code='hr' when the text contains Croatian-specific diacritics (č,ć,š,ž,đ).
+  // For ASCII-only text (English loanwords in Gen Z section, šatrovački without diacritics, etc.)
+  // the multilingual model auto-detects correctly — forcing 'hr' on English words like
+  // "Bussin" or "No cap" makes Charlotte apply Croatian phoneme rules to English, producing
+  // unnatural pronunciation ("noh tsap" instead of "no cap").
+  const hasCroatianChars = /[čćšžđČĆŠŽĐ]/.test(text);
+
   const body = {
     text,
     model_id: "eleven_multilingual_v2",
-    language_code: "hr", // Tells ElevenLabs to treat the text as Croatian — dramatically improves phoneme accuracy for č, ć, š, ž, đ
+    ...(hasCroatianChars && { language_code: "hr" }), // Force Croatian only when diacritics present
     voice_settings: {
-      stability: slow ? 0.95 : 0.88,     // High stability suppresses emotional variation — critical for slang/psovanje where model otherwise "performs" the word (screeching, shouting)
-      similarity_boost: 0.75,             // Slightly looser so the voice stays neutral on unusual/loaded vocabulary (was 0.85 — too locked-in for expressive words)
-      style: 0.0,                         // No style exaggeration — clean, neutral delivery
+      stability: 1.0,             // Max stability — fully neutral, no emotional variation.
+                                  // At 0.88 the model "performs" loaded phrases (e.g. "Jebem ti mater"
+                                  // gets screeched/shouted). 1.0 locks in flat, educational delivery.
+      similarity_boost: 0.80,     // Slightly closer to Charlotte's neutral base (was 0.75)
+      style: 0.0,                 // No style exaggeration — clean delivery
       use_speaker_boost: true,
     },
-    speed: slow ? 0.68 : 0.88,           // 0.88 = clear measured pace; 0.68 = deliberately slow for study mode (was 0.90/0.72 — speed was inconsistent on short/emotional words)
+    speed: slow ? 0.68 : 0.88,   // 0.88 = clear measured pace; 0.68 = study mode
   };
 
   const controller = new AbortController();
