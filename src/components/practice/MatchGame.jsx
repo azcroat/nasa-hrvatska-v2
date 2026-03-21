@@ -26,7 +26,7 @@ export default function MatchGame({ mp, mm, msl, gph, gsc, sMm, sMsl, sGsc, sGph
                 if (f.id === c.id) { sMsl([]); return; }
                 if (f.p === c.p && f.tp !== c.tp) {
                   sMm(m => [...m, c.p]); sGsc(s => s + 1); sMsl([]);
-                  if (mm.length + 1 === 6) setTimeout(() => { award(20); sGph("done"); }, 500);
+                  if (mm.length + 1 === mp.length / 2) setTimeout(() => { award(20); sGph("done"); }, 500);
                 } else {
                   sMsl([f, c]); setTimeout(() => sMsl([]), 800);
                 }
