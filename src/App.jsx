@@ -296,13 +296,21 @@ function App(){
   } = useAuth({
     onSignedIn({ user, progress, isNew, isHydrate }) {
       if (isHydrate) {
-        if (progress) { setStats({...ds,...(progress.stats||progress.st||{})}); if (progress.name) setName(progress.name); }
+        if (progress) {
+          const _hSt=progress.stats||progress.st||{};
+          // Merge ct (completed topics) — never overwrite with fewer topics than current.
+          // Remote ct may be stale (e.g. Firestore doc written before ct existed,
+          // or written during a rules outage with empty ct). Take the union so progress
+          // is never lost from a less-complete remote snapshot.
+          setStats(prev=>({...ds,..._hSt,ct:[...new Set([...(prev.ct||[]),...(_hSt.ct||[])])],lc:Math.max(prev.lc||0,_hSt.lc||0),gc:Math.max(prev.gc||0,_hSt.gc||0),xp:Math.max(prev.xp||0,_hSt.xp||0)}));
+          if (progress.name) setName(progress.name);
+        }
         return;
       }
       if (progress) {
         setName(progress.name || user.d);
         const _pStats = progress.stats || progress.st || {};
-        setStats({...ds,..._pStats});
+        setStats(prev=>({...ds,..._pStats,ct:[...new Set([...(prev.ct||[]),...(_pStats.ct||[])])],lc:Math.max(prev.lc||0,_pStats.lc||0),gc:Math.max(prev.gc||0,_pStats.gc||0),xp:Math.max(prev.xp||0,_pStats.xp||0)}));
         // Mark as onboarded for any returning user with prior usage.
         // Many older Firestore docs lack the "onboarded" field — derive it from cp or xp.
         if (!isNew && (progress.onboarded || progress.cp || _pStats.xp > 0)) {
@@ -348,13 +356,23 @@ function App(){
 // progress — they've already seen it on their first device and don't need the
 // reminder on every new browser/device they sign in from.
 if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(true);}},[_syncReady,authScreen,authUser]);
-  useEffect(()=>{if(authScreen!=="app"||!authUser)return;function fetchIfNewer(){const lp=gP(authUser.u);const lpTs=(lp&&lp.savedAt)||0;fbLoadProgress(authUser.u).then(function(fp){if(!fp)return;const fpTs=fp._fbUpdated||fp.savedAt||0;if(fpTs>lpTs){lP(authUser.u,fp);const _pllSt=fp.stats||fp.st||{};setStats({...ds,..._pllSt});if(fp.name)setName(fp.name);applyRemoteProgress(fp);}}).catch(function(){/* network error — keep local state */})}// Fetch immediately on app load so returning users always get the latest Firebase data
+  useEffect(()=>{if(authScreen!=="app"||!authUser)return;function fetchIfNewer(){const lp=gP(authUser.u);const lpTs=(lp&&lp.savedAt)||0;fbLoadProgress(authUser.u).then(function(fp){if(!fp)return;const fpTs=fp._fbUpdated||fp.savedAt||0;if(fpTs>lpTs){lP(authUser.u,fp);const _pllSt=fp.stats||fp.st||{};setStats(prev=>({...ds,..._pllSt,ct:[...new Set([...(prev.ct||[]),...(_pllSt.ct||[])])],lc:Math.max(prev.lc||0,_pllSt.lc||0),gc:Math.max(prev.gc||0,_pllSt.gc||0),xp:Math.max(prev.xp||0,_pllSt.xp||0)}));if(fp.name)setName(fp.name);applyRemoteProgress(fp);}}).catch(function(){/* network error — keep local state */})}// Fetch immediately on app load so returning users always get the latest Firebase data
   fetchIfNewer();function onVisible(){if(document.visibilityState==="visible")fetchIfNewer();}function onFocus(){fetchIfNewer();}document.addEventListener("visibilitychange",onVisible);window.addEventListener("focus",onFocus);const pollId=setInterval(function(){if(document.visibilityState==="visible")fetchIfNewer();},180000);return()=>{document.removeEventListener("visibilitychange",onVisible);window.removeEventListener("focus",onFocus);clearInterval(pollId);}},[authScreen,authUser,applyRemoteProgress,ds]);
   // Auto-save on every lesson completion (stats.lc or stats.ct length changes).
   // Lesson components only call setStats — they never write to localStorage or Firebase.
   // This effect fires immediately (no debounce) so progress is persisted even if the
   // user closes the browser right after finishing a lesson.
   useEffect(()=>{if(!authUser||authScreen!=="app"||stats.lc===0)return;doSyncNow();},[stats.lc,stats.ct?.length,stats.gc]);// eslint-disable-line react-hooks/exhaustive-deps
+  // Self-healing: if the user has completed lessons (lc > 0) but ct is empty,
+  // the completed-topics array was lost (Firestore rules outage, stale remote doc,
+  // or pre-ct data format). Reconstruct ct from LEARN_PATH lesson order as a best
+  // approximation — this triggers doSyncNow and permanently fixes the Firestore doc.
+  useEffect(()=>{
+    if(!authUser||authScreen!=="app"||stats.lc===0||stats.ct.length>0)return;
+    const recovered=[];
+    for(const lv of LEARN_PATH){for(const it of lv.items){if(it.topic&&recovered.length<stats.lc)recovered.push(it.topic);}}
+    if(recovered.length>0)setStats(prev=>({...prev,ct:[...new Set([...prev.ct,...recovered])]}));
+  },[authScreen,authUser,stats.lc,stats.ct.length]);// eslint-disable-line react-hooks/exhaustive-deps
   // Synchronous localStorage flush on browser close / tab kill.
   // Firebase is async so this is the only way to guarantee no data loss on close.
   useEffect(()=>{
