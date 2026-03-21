@@ -70,31 +70,18 @@ export async function fbSaveProgress(uid,data){
       if(fc){updateDoc(fsDoc(_fbDb,"families",fc),{["memberXP."+id]:{xp:lbEntry.xp,lc:lbEntry.lc,name:lbEntry.name,updated:incoming.updated}}).catch(function(){});}
     }).catch(function(){});
   }
+  // Direct write — no transaction read needed.
+  // Previously used runTransaction to skip writes when remote XP was >100 ahead, but that
+  // required two Firestore round-trips (~400-800ms total). If the user closed the browser
+  // during that window after completing a lesson, the write never finished — causing the
+  // "1-2 lessons behind" cross-device gap. Multi-device conflicts are now handled entirely
+  // client-side via MAX/union merging in the fbWatchProgress real-time listener.
   try{
-    await runTransaction(_fbDb,async function(tx){
-      const ref=fsDoc(_fbDb,"users",id);
-      const snap=await tx.get(ref);
-      // Conflict resolution: XP-based, not timestamp-based.
-      // Timestamps are unreliable (device clock skew silently blocks all future writes).
-      // Only skip if the remote document has meaningfully MORE XP — meaning another
-      // active session is clearly ahead of us. Never skip if remote has equal or less XP.
-      if(snap.exists()){
-        let remoteXP=0;
-        try{const rp=JSON.parse(snap.data().progress||'{}');const rs=rp.stats||rp.st||{};remoteXP=rs.xp||0;}catch{}
-        if(remoteXP>(incoming.xp||0)+100){return;} // remote is clearly ahead — don't overwrite
-      }
-      tx.set(ref,incoming,{merge:true});
-    });
+    await setDoc(fsDoc(_fbDb,"users",id),incoming,{merge:true});
     return{ok:true};
   }catch(e){
     console.warn("FB save error:",e);
-    try{
-      await setDoc(fsDoc(_fbDb,"users",id),incoming,{merge:true});
-      return{ok:true};
-    }catch(e2){
-      console.warn("FB save fallback failed:",e2);
-      return{ok:false,err:"Progress could not be saved. Check your connection."};
-    }
+    return{ok:false,err:"Progress could not be saved. Check your connection."};
   }
 }
 export async function fbLoadProgress(uid){
