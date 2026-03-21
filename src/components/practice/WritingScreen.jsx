@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H } from '../../data.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
 import { rnd } from '../../lib/random.js';
@@ -31,6 +31,7 @@ const PROMPTS = [
 ];
 
 export default function WritingScreen({ goBack, award }) {
+  const finishFired = useRef(false);
   const isOnline = useOnlineStatus();
   const [promptIdx, setPromptIdx] = useState(() => Math.floor(rnd() * PROMPTS.length));
   const [text, setText] = useState("");
@@ -59,6 +60,7 @@ export default function WritingScreen({ goBack, award }) {
       });
       if (!res.ok) throw new Error("API error " + res.status);
       const data = await res.json();
+      finishFired.current = false;
       setResult(data);
     } catch (e) {
       setError("Could not connect to AI correction service. Check your connection.");
@@ -154,7 +156,7 @@ export default function WritingScreen({ goBack, award }) {
               💬 {result.encouragement}
             </div>
           )}
-          <button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{award(result.score>0?Math.round(result.score/10)+5:5);setText("");setResult(null);}}>
+          <button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{if(finishFired.current)return;finishFired.current=true;award(result.score>0?Math.round(result.score/10)+5:5);setText("");setResult(null);}}>
             ✨ New Prompt
           </button>
         </div>

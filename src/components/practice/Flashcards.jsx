@@ -5,6 +5,7 @@ const XP_PER_KNOWN = 2;
 const XP_COMPLETION_BONUS = 5;
 
 export default function Flashcards({ pool, goBack, award }) {
+  const finishFired = useRef(false);
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [known, setKnown] = useState(0);
@@ -67,12 +68,12 @@ export default function Flashcards({ pool, goBack, award }) {
         <button aria-label="Mark word for further study" className="b bd" style={{flex:1,fontSize:15}} onClick={()=>{
           srMark(pool[idx][0],false);setFlipped(false);
           if(idx<pool.length-1)setIdx(i=>i+1);
-          else{award(known*XP_PER_KNOWN+XP_COMPLETION_BONUS);goBack();}
+          else{if(finishFired.current)return;finishFired.current=true;award(known*XP_PER_KNOWN+XP_COMPLETION_BONUS);goBack();}
         }}>❌ Study Again</button>
         <button ref={knowBtnRef} aria-label="Mark word as known" className="b bs" style={{flex:1,fontSize:15}} onClick={()=>{
           srMark(pool[idx][0],true);setKnown(k=>k+1);setFlipped(false);
           if(idx<pool.length-1)setIdx(i=>i+1);
-          else{award(known*XP_PER_KNOWN+XP_COMPLETION_BONUS);goBack();}
+          else{if(finishFired.current)return;finishFired.current=true;award((known+1)*XP_PER_KNOWN+XP_COMPLETION_BONUS);goBack();}
         }}>✅ I Know It</button>
       </div>}
     </div>
