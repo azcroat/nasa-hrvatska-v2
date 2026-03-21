@@ -52,7 +52,7 @@ export default function TypingScreen({ goBack, award }) {
         {["č","ć","š","ž","đ"].map(ch => (
           <button
             key={ch}
-            style={{padding:"8px 16px",border:"2px solid #e7e5e4",borderRadius:10,fontSize:18,fontWeight:700,cursor:"pointer",background:"white"}}
+            style={{padding:"12px 16px",border:"2px solid #e7e5e4",borderRadius:10,fontSize:18,fontWeight:700,cursor:"pointer",background:"white",minHeight:44}}
             onClick={() => sTyIn(tyIn + ch)}>
             {ch}
           </button>

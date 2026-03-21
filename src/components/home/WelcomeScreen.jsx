@@ -72,7 +72,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
           Počnimo! — Let's start! →
         </button>
         {st.xp > 0 && (
-          <button className="b bg" style={{ fontSize:13, padding:'10px 24px', width:'100%' }} onClick={() => setScr('dashboard')}>
+          <button className="b bg" style={{ fontSize:13, padding:'13px 24px', width:'100%' }} onClick={() => setScr('dashboard')}>
             Already have an account? Skip →
           </button>
         )}
