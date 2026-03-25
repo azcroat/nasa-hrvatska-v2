@@ -1,7 +1,7 @@
 // One-time SW/cache migration for users on legacy service workers.
 // Runs only when an old cache key is detected, not on every load.
 if ('serviceWorker' in navigator) {
-  var CURRENT_CACHE_PREFIX = 'nasa-hrvatska-v5';
+  var CURRENT_CACHE_PREFIX = 'nasa-hrvatska-v6';
   caches.keys().then(function(keys) {
     var hasLegacy = keys.some(function(k) { return !k.startsWith(CURRENT_CACHE_PREFIX); });
     if (hasLegacy) {
