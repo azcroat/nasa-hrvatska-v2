@@ -10,7 +10,7 @@
  *  - Fresh device (no local cache): holds at 'loading' until Firebase responds,
  *    so the hero banner never shows stale/empty stats.
  */
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   gP, sP, lP, gS, sS, cS,
   touchSession, updateStreak, isValidEmail,
@@ -61,6 +61,9 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
   // ── Error / loading ──────────────────────────────────────────────────────
   const [authError, setAuthError] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
+
+  // ── Email verification ───────────────────────────────────────────────────
+  const [emailUnverified, setEmailUnverified] = useState(false);
 
   // ── Firebase auth listener (runs once on mount) ──────────────────────────
   useEffect(() => {
@@ -134,6 +137,10 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         cb.current.onSignedIn({ user, progress: null, isNew: true });
         cb.current.setSyncReady(true);
         setAuthScreen('app');
+        // Show email verification banner for email/password registrations (Google is pre-verified)
+        if (fbUser && !fbUser.emailVerified && fbUser.providerData && fbUser.providerData[0] && fbUser.providerData[0].providerId !== 'google.com') {
+          setEmailUnverified(true);
+        }
         return;
       }
 
@@ -291,6 +298,20 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
     if (pw !== pc) { setAuthError('Passwords do not match.'); return; }
     if (!displayName.trim()) { setAuthError('Please enter your display name.'); return; }
     setAuthLoading(true);
+    // Rate limit: max 3 registration attempts per 10 minutes
+    const regKey = 'reg_attempts';
+    const regData = JSON.parse(localStorage.getItem(regKey) || '{"count":0,"since":0}');
+    const now = Date.now();
+    if (now - regData.since < 600000) {
+      if (regData.count >= 3) {
+        setAuthError('Too many registration attempts. Please wait 10 minutes.');
+        setAuthLoading(false);
+        return;
+      }
+      localStorage.setItem(regKey, JSON.stringify({ count: regData.count + 1, since: regData.since }));
+    } else {
+      localStorage.setItem(regKey, JSON.stringify({ count: 1, since: now }));
+    }
     try {
       const k = authEmail.trim().toLowerCase();
       isNewReg.current = true;
@@ -316,6 +337,20 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
     if (!authEmail.trim() || !isValidEmail(authEmail.trim())) { setAuthError('Please enter a valid email address.'); return; }
     if (!pw) { setAuthError('Please enter your password.'); return; }
     setAuthLoading(true);
+    // Rate limit: max 5 login attempts per 10 minutes
+    const loginKey = 'login_attempts';
+    const loginData = JSON.parse(localStorage.getItem(loginKey) || '{"count":0,"since":0}');
+    const now = Date.now();
+    if (now - loginData.since < 600000) {
+      if (loginData.count >= 5) {
+        setAuthError('Too many sign-in attempts. Please wait 10 minutes.');
+        setAuthLoading(false);
+        return;
+      }
+      localStorage.setItem(loginKey, JSON.stringify({ count: loginData.count + 1, since: loginData.since }));
+    } else {
+      localStorage.setItem(loginKey, JSON.stringify({ count: 1, since: now }));
+    }
     try {
       const k = authEmail.trim().toLowerCase();
       const result = await fbLogin(k, pw);
@@ -368,6 +403,16 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
     setAuthLoading(false);
   }
 
+  // ── Resend verification email ─────────────────────────────────────────────
+  async function resendVerification() {
+    try {
+      const { getAuth } = await import('firebase/auth');
+      const { sendEmailVerification } = await import('firebase/auth');
+      const auth = getAuth();
+      if (auth.currentUser) await sendEmailVerification(auth.currentUser);
+    } catch(e) {}
+  }
+
   // ── Sign out ──────────────────────────────────────────────────────────────
   async function doOut() {
     // Flush latest progress to Firestore BEFORE revoking the auth token.
@@ -398,6 +443,8 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
     rpEm, setRpEm,
     authError, setAuthError,
     authLoading,
+    emailUnverified, setEmailUnverified,
+    resendVerification,
     doReg, doLog, doOut, doReset, doGoogleLogin,
   };
 }

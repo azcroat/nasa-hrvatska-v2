@@ -79,6 +79,35 @@ export function useNotifications() {
   }, []);
 }
 
+// Stores the setTimeout ID for the 8 PM streak reminder so it can be cleared
+// when the user completes a lesson.
+let _streakReminderTimer = null;
+
+export function scheduleStreakReminder(streakDays) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  // Clear any previously scheduled reminder
+  if (_streakReminderTimer !== null) { clearTimeout(_streakReminderTimer); _streakReminderTimer = null; }
+  const now = new Date();
+  const target = new Date(now);
+  target.setHours(20, 0, 0, 0); // 8 PM local time
+  let delay = target.getTime() - now.getTime();
+  if (delay <= 0) return; // already past 8 PM today — skip
+  _streakReminderTimer = setTimeout(() => {
+    _streakReminderTimer = null;
+    // Check if user has practiced today before firing
+    const lastPractice = parseInt(localStorage.getItem(LAST_PRACTICE_KEY) || '0', 10);
+    const hoursSince = (Date.now() - lastPractice) / 3600000;
+    if (lastPractice > 0 && hoursSince < 20) return; // already practiced today
+    try {
+      new Notification('🔥 Don\'t lose your ' + (streakDays || 1) + '-day streak!', {
+        body: 'Complete a lesson to keep your streak alive.',
+        icon: '/icon-192.png',
+        tag: 'streak-reminder',
+      });
+    } catch (_) {}
+  }, delay);
+}
+
 function showReminder() {
   const messages = [
     { body: "You're on a streak — don't break it! 🔥 A quick review keeps your Croatian sharp.", title: 'Naša Hrvatska' },

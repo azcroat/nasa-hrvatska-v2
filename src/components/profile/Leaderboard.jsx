@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { H, fbGetFamilyMembers, fbWatchFamilyMembers, fbCreateFamily, fbJoinFamily, fbLeaveFamily } from '../../data.jsx';
 
 export default function Leaderboard({
@@ -13,6 +13,45 @@ export default function Leaderboard({
 }) {
   const watchRef = useRef(null);
   const [liveStatus, setLiveStatus] = useState(null); // null | 'connecting' | 'live' | 'offline'
+
+  // ── Global leaderboard pagination ─────────────────────────────────────────
+  const [globalUsers, setGlobalUsers] = useState([]);
+  const [globalLoading, setGlobalLoading] = useState(false);
+  const [globalError, setGlobalError] = useState('');
+  const [lastDoc, setLastDoc] = useState(null);
+  const [hasMore, setHasMore] = useState(false);
+  const PAGE_SIZE = 20;
+
+  const loadGlobal = useCallback(async (after) => {
+    setGlobalLoading(true); setGlobalError('');
+    try {
+      const { getFirestore, collection, getDocs, orderBy, query, limit, startAfter } = await import('firebase/firestore');
+      const db = getFirestore();
+      const col = collection(db, 'leaderboard');
+      const q = after
+        ? query(col, orderBy('xp', 'desc'), limit(PAGE_SIZE), startAfter(after))
+        : query(col, orderBy('xp', 'desc'), limit(PAGE_SIZE));
+      const snap = await getDocs(q);
+      const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (after) {
+        setGlobalUsers(prev => [...prev, ...docs]);
+      } else {
+        setGlobalUsers(docs);
+      }
+      setLastDoc(snap.docs[snap.docs.length - 1] || null);
+      setHasMore(snap.docs.length === PAGE_SIZE);
+    } catch(e) {
+      setGlobalError('Could not load global leaderboard. Check your connection.');
+    }
+    setGlobalLoading(false);
+  }, []);
+
+  // Load global leaderboard when that tab is selected
+  useEffect(() => {
+    if (famTab === 'global' && globalUsers.length === 0 && !globalLoading) {
+      loadGlobal(null);
+    }
+  }, [famTab]); // eslint-disable-line
 
   // Real-time listener — starts when user is in a family and on the main tab,
   // fires immediately with current data and then on every remote change.
@@ -63,14 +102,14 @@ export default function Leaderboard({
     <div className="scr-wrap">
       
       {H("🏆 Family Leaderboard","Compete with your family!")}
-      <div style={{display:"flex",gap:6,marginBottom:16}}>
-        {["main","create","join"].map(t => (
+      <div style={{display:"flex",gap:6,marginBottom:16,flexWrap:"wrap"}}>
+        {["main","global","create","join"].map(t => (
           <button
             key={t}
             className={"b " + (famTab === t ? "bp" : "bg")}
             style={{fontSize:12,padding:"8px 14px"}}
             onClick={() => { setFamTab(t); setFamErr(""); }}>
-            {t === "main" ? "🏆 Leaderboard" : t === "create" ? "➕ Create Family" : "🔗 Join Family"}
+            {t === "main" ? "🏆 Family" : t === "global" ? "🌍 Global" : t === "create" ? "➕ Create Family" : "🔗 Join Family"}
           </button>
         ))}
       </div>
@@ -173,6 +212,32 @@ export default function Leaderboard({
                 <button className="b bg" onClick={() => setFamTab("join")}>🔗 Join Family</button>
               </div>
             </div>
+          )}
+        </React.Fragment>
+      )}
+
+      {famTab === "global" && (
+        <React.Fragment>
+          <div style={{fontSize:13,color:"var(--subtext)",marginBottom:12,fontWeight:600}}>Top learners globally (first 20 shown)</div>
+          {globalError && <div style={{color:"#dc2626",fontSize:13,marginBottom:12}}>{globalError}</div>}
+          {globalUsers.length > 0 && globalUsers.map((u, i) => (
+            <div key={u.id} className="c" style={{display:"flex",alignItems:"center",gap:12,marginBottom:8,padding:"10px 16px"}}>
+              <div style={{fontSize:15,fontWeight:900,color:"var(--subtext)",width:28,flexShrink:0}}>#{i+1}</div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:14,fontWeight:700,color:"var(--heading)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{u.name||u.id}</div>
+                <div style={{fontSize:11,color:"var(--subtext)"}}>{u.lc||0} lessons</div>
+              </div>
+              <div style={{fontSize:15,fontWeight:800,color:"#0e7490",flexShrink:0}}>{(u.xp||0).toLocaleString()} XP</div>
+            </div>
+          ))}
+          {globalUsers.length === 0 && !globalLoading && !globalError && (
+            <div className="c" style={{textAlign:"center",color:"var(--subtext)",padding:"24px"}}>No data yet.</div>
+          )}
+          {globalLoading && <div style={{textAlign:"center",color:"var(--subtext)",padding:"16px"}}>⏳ Loading…</div>}
+          {hasMore && !globalLoading && (
+            <button className="b bg" style={{width:"100%",marginTop:12}} onClick={() => loadGlobal(lastDoc)}>
+              Load More
+            </button>
           )}
         </React.Fragment>
       )}
