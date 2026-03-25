@@ -13,7 +13,7 @@ export default function LessonScreen({
       {lp==="learn"&&<React.Fragment>
         {H((icons[lt]||"📚")+" "+lt)}
         {li.map((w,i)=>(
-          <div key={i} className="c" onClick={()=>speak(w[0])} style={{marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center",padding:"16px 20px",cursor:"pointer"}}>
+          <div key={i} className="c" role="button" tabIndex={0} onClick={()=>speak(w[0])} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();speak(w[0]);}}} aria-label={"Hear pronunciation of "+w[0]} style={{marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center",padding:"16px 20px",cursor:"pointer"}}>
             <div style={{display:"flex",alignItems:"center",gap:12}}>
               <span style={{fontSize:20}}>🔊</span>
               <div>
@@ -33,7 +33,7 @@ export default function LessonScreen({
       {lp==="quiz"&&qi[lx]&&<React.Fragment>
         <Bar v={lx+1} mx={qi.length} h={6} />
         <div className="c" style={{marginTop:16}}>
-          <div onClick={()=>speak(qi[lx][0])} style={{display:"flex",alignItems:"center",gap:12,marginBottom:20,cursor:"pointer"}}>
+          <div role="button" tabIndex={0} onClick={()=>speak(qi[lx][0])} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();speak(qi[lx][0]);}}} aria-label={"Hear pronunciation of "+qi[lx][0]} style={{display:"flex",alignItems:"center",gap:12,marginBottom:20,cursor:"pointer"}}>
             <span style={{fontSize:22}}>🔊</span>
             <p style={{fontSize:24,fontWeight:800,margin:0}}>{qi[lx][0]}</p>
           </div>

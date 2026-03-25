@@ -7,7 +7,7 @@ export default function IdiomsScreen({ goBack }) {
       
       {H("🗣️ Idioms & Slang","Speak like a real Croatian!")}
       {IDIOMS.map((idm,i)=>(
-        <div key={i} className="c" style={{marginBottom:10,cursor:"pointer"}} onClick={()=>speak(idm.hr)}>
+        <div key={i} className="c" role="button" tabIndex={0} style={{marginBottom:10,cursor:"pointer"}} onClick={()=>speak(idm.hr)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();speak(idm.hr);}}} aria-label={"Hear idiom: "+idm.hr}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
             <div style={{fontSize:16,fontWeight:800,color:"#164e63"}}>{idm.hr} 🔊</div>
             <div style={{fontSize:14,fontWeight:600,color:"#0e7490"}}>{idm.en}</div>

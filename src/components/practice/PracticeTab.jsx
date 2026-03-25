@@ -26,17 +26,11 @@ function Section({ title, icon, count, defaultOpen = false, children }) {
   );
 }
 
+// Q-4: PracticeTab now receives callbacks instead of raw App.jsx state setters.
+// Screens manage their own state; App.jsx only keeps state needed by screen props.
 export default function PracticeTab({
   allCats, sh, setScr, sCurEx,
-  onLaunchQuiz, onLaunchFlash, onLaunchListen,
-  sMp, sMsl, sMm, sGsc, sGph,
-  sTyPool, sTyI, sTyS, sTyIn, sTyA, sTyW,
-  sSi, sSx, sSw, sSr, sSsc,
-  sZnMode,
-  sUjQ, sUjI, sUjS, sUjIn, sUjA,
-  sPpQ, sPpI, sPpS, sPpA, sPpSl,
-  sNtQ, sNtI, sNtS, sNtA, sNtSl, sNtO,
-  sEvM,
+  onLaunchQuiz, onLaunchFlash, onLaunchListen, onLaunchMatch, onLaunchSpeaking,
 }) {
   const [weakMsg, setWeakMsg] = useState("");
   const pool = () => allCats.flatMap(cc => V[cc]);
@@ -53,13 +47,12 @@ export default function PracticeTab({
   function startMatch() {
     const p = pool();
     const sel = sh(p).slice(0,6);
-    sMp(sh(sel.map((w,i)=>({id:"h"+i,t:w[0],p:i,tp:"hr"})).concat(sel.map((w,i)=>({id:"e"+i,t:w[1],p:i,tp:"en"})))));
-    sMsl([]); sMm([]); sGsc(0); sGph("play"); setScr("match"); sCurEx("match");
+    const initPool = sh(sel.map((w,i)=>({id:"h"+i,t:w[0],p:i,tp:"hr"})).concat(sel.map((w,i)=>({id:"e"+i,t:w[1],p:i,tp:"en"}))));
+    onLaunchMatch(initPool);
   }
   function startTyping() {
-    const p = pool();
-    const items = sh(p).slice(0,10);
-    sTyPool(items); sTyI(0); sTyS(0); sTyIn(""); sTyA(false); sTyW(items[0]); setScr("typing"); sCurEx("typing");
+    // TypingScreen manages its own state internally
+    setScr("typing"); sCurEx("typing");
   }
   function startListening() {
     onLaunchListen(sh(LISTEN).slice(0,8));
@@ -67,7 +60,7 @@ export default function PracticeTab({
   function startSpeaking() {
     const p = pool();
     const items = sh(p).slice(0,6);
-    sSi(items); sSx(0); sSw(items[0]); sSr(null); sSsc(0); setScr("speaking"); sCurEx("speaking");
+    onLaunchSpeaking(items);
   }
   function startWeakWords() {
     const d = getSR();
@@ -95,11 +88,13 @@ export default function PracticeTab({
     setScr("aspectdrill"); sCurEx("aspectdrill");
   }
 
+  // Q-4: Screens (ZnamGame, Unjumble, PrepDrill, NumTime) all manage their own state internally.
+  // These launch functions only navigate — no App.jsx state setters needed.
   const specialInit = {
-    znam:      () => { sZnMode("menu"); setScr("znam"); sCurEx("znam"); },
-    unjumble:  () => { const q=sh(UNJUMBLE).slice(0,10); sUjQ(q); sUjI(0); sUjS(0); sUjIn(""); sUjA(false); setScr("unjumble"); sCurEx("unjumble"); },
-    prepdrill: () => { const q=sh(PREPDRILL); sPpQ(q); sPpI(0); sPpS(0); sPpA(false); sPpSl(-1); setScr("prepdrill"); sCurEx("prepdrill"); },
-    numtime:   () => { const q=sh([...NUMTIME.numbers,...NUMTIME.time]).slice(0,10); sNtQ(q); sNtI(0); sNtS(0); sNtA(false); sNtSl(-1); sNtO(sh([q[0].a].concat(q[0].al))); setScr("numtime"); sCurEx("numtime"); },
+    znam:      () => { setScr("znam"); sCurEx("znam"); },
+    unjumble:  () => { setScr("unjumble"); sCurEx("unjumble"); },
+    prepdrill: () => { setScr("prepdrill"); sCurEx("prepdrill"); },
+    numtime:   () => { setScr("numtime"); sCurEx("numtime"); },
   };
   const go = screen => {
     if (screen.startsWith('slang:')) {
@@ -201,7 +196,7 @@ export default function PracticeTab({
     [() => { setWeakMsg(""); startWeakWords(); }, "🧠","Weak Words",   "Words you've struggled with"],
     [() => { setScr("proverbs"); sCurEx("proverbs"); }, "🌟","Proverbs","Croatian wisdom & sayings"],
     [() => { setScr("idioms"); sCurEx("idioms"); },     "🗣️","Idioms",  "Phrases locals actually use"],
-    [() => { sEvM(new Date().getMonth()+1); setScr("events"); sCurEx("events"); },"📅","Croatian Events","Festivals & holidays"],
+    [() => { setScr("events"); sCurEx("events"); },"📅","Croatian Events","Festivals & holidays"],
   ];
 
   return (
