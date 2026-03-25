@@ -11,7 +11,7 @@ import { useFamily } from "./hooks/useFamily.js";
 import { useJournal } from "./hooks/useJournal.js";
 import { useDaily } from "./hooks/useDaily.js";
 import { useTranslator } from "./hooks/useTranslator.js";
-import { useNotifications, checkNameDay } from "./hooks/useNotifications.js";
+import { useNotifications, checkNameDay, scheduleStreakReminder } from "./hooks/useNotifications.js";
 // Always-needed: auth + core UI (eager)
 import LoginScreen from "./components/auth/LoginScreen.jsx";
 import ResetPassword from "./components/auth/ResetPassword.jsx";
@@ -25,6 +25,9 @@ import OnboardingTour from "./components/shared/OnboardingTour.jsx";
 import OfflineBanner from "./components/shared/OfflineBanner.jsx";
 import WelcomeScreen from "./components/home/WelcomeScreen.jsx";
 import CroatianGrb from "./components/shared/CroatianGrb.jsx";
+import CookieConsent from "./components/shared/CookieConsent.jsx";
+import TermsOfService from "./components/shared/TermsOfService.jsx";
+import AdminDashboard from "./components/admin/AdminDashboard.jsx";
 import PlacementTest from "./components/home/PlacementTest.jsx";
 // Reload once on stale-chunk errors (happens after deploy when old index.html
 // tries to load chunk files that no longer exist at their old hashed paths).
@@ -283,7 +286,8 @@ function App(){
         football:"croatia",popculture:"croatia",practical:"croatia",school:"croatia",basketball:"croatia",gym:"croatia",
         top100:"croatia",events:"croatia",croatiaathletes:"croatia",
         badges:"profile",leaderboard:"profile",journal:"profile",favorites:"profile",learnpath:"profile",contact:"profile",
-        certificate:"profile",analytics:"profile",profile:"profile",
+        certificate:"profile",analytics:"profile",profile:"profile",admin:"profile",
+        privacy:"profile",terms:"profile",
         mistakes:"practice",listeningpath:"practice",
       };
       _setCurrentScreen(scr);
@@ -340,6 +344,8 @@ function App(){
     rpEm, setRpEm,
     authError, setAuthError,
     authLoading,
+    emailUnverified, setEmailUnverified,
+    resendVerification,
     doReg, doLog, doOut, doReset, doGoogleLogin,
   } = useAuth({
     onSignedIn({ user, progress, isNew, isHydrate }) {
@@ -393,6 +399,7 @@ function App(){
       setPendingJoinCode(null);
     }
     checkNameDay(name);
+    scheduleStreakReminder(stats.str || getStreak().count);
   },[authScreen]);// eslint-disable-line
   // localStorage-only auto-save on any state change. Firebase writes are handled by:
   //  1. doSyncNow() — fires on lesson/grammar/ct completion (line below)
@@ -415,7 +422,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   // Lesson components only call setStats — they never write to localStorage or Firebase.
   // This effect fires immediately (no debounce) so progress is persisted even if the
   // user closes the browser right after finishing a lesson.
-  useEffect(()=>{if(!authUser||authScreen!=="app"||stats.lc===0)return;doSyncNow();},[stats.lc,stats.ct?.length,stats.gc]);// eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(()=>{if(!authUser||authScreen!=="app"||stats.lc===0)return;doSyncNow();scheduleStreakReminder(getStreak().count);},[stats.lc,stats.ct?.length,stats.gc]);// eslint-disable-line react-hooks/exhaustive-deps
   // Self-healing: if the user has completed lessons (lc > 0) but ct is empty,
   // the completed-topics array was lost (Firestore rules outage, stale remote doc,
   // or pre-ct data format). Reconstruct ct from LEARN_PATH lesson order as a best
@@ -569,6 +576,25 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {streakMilestone&&<StreakMilestoneModal days={streakMilestone} onClose={()=>setStreakMilestone(null)} />}
       {!onboarded&&_syncReady&&authScreen==="app"&&currentScreen!=="welcome"&&currentScreen!=="placement"&&<OnboardingTour onDone={()=>setOnboarded(true)} />}
       {comebackBonus&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#f59e0b,#d97706)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.2)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease"}}>🔥 Welcome back! Keep your streak alive!</div>}
+      {emailUnverified && (
+        <div style={{
+          background: '#fef3c7', borderBottom: '2px solid #f59e0b',
+          padding: '10px 20px', display: 'flex', alignItems: 'center',
+          gap: 12, fontFamily: "'Outfit', sans-serif", fontSize: 13, fontWeight: 600,
+          position: 'relative', zIndex: 900,
+        }}>
+          <span>⚠️ Please verify your email to secure your account.</span>
+          <button onClick={resendVerification} style={{
+            background: '#f59e0b', color: '#fff', border: 'none', borderRadius: 6,
+            padding: '4px 12px', cursor: 'pointer', fontSize: 12, fontWeight: 700,
+            fontFamily: "'Outfit', sans-serif",
+          }}>Resend Email</button>
+          <button onClick={() => setEmailUnverified(false)} style={{
+            marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer',
+            fontSize: 16, color: '#92400e',
+          }} aria-label="Dismiss">×</button>
+        </div>
+      )}
       {showBackupBanner&&<div role="status" aria-live="polite" style={{position:"fixed",bottom:90,left:"50%",transform:"translateX(-50%)",zIndex:9600,width:"calc(100% - 32px)",maxWidth:420,background:"linear-gradient(135deg,#0e7490,#164e63)",color:"#fff",borderRadius:20,padding:"18px 20px 18px 20px",boxShadow:"0 8px 40px rgba(14,116,144,.45)",animation:"slideUp .4s cubic-bezier(.34,1.56,.64,1)"}}>
         <div style={{display:"flex",alignItems:"flex-start",gap:14}}>
           <div style={{fontSize:36,flexShrink:0,lineHeight:1}}>🛡️</div>
@@ -678,6 +704,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
           darkMode={darkMode} setDarkMode={setDarkMode}
           setScr={setScr} doOut={doOut}
           syncReady={_syncReady} onSyncNow={doSyncNow}
+          jWords={jWords}
         /></ScreenErrorBoundary>}
       </div>}
       {// ═══ MODAL VERBS ═══
@@ -700,6 +727,8 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {// ═══ IDIOMS & SLANG ═══
       currentScreen==="idioms"&&<IdiomsScreen goBack={goBack} />}
       {currentScreen==="privacy"&&<PrivacyScreen goBack={goBack} />}
+      {currentScreen==="terms"&&<TermsOfService goBack={goBack} />}
+      {currentScreen==="admin"&&<AdminDashboard authUser={authUser} goBack={goBack} />}
       {// ═══ FLASHCARDS ═══
       currentScreen==="flashcards"&&<Flashcards pool={fcInitPool} goBack={goBack} award={award} />}
       {// ═══ LISTENING COMPREHENSION ═══
@@ -926,6 +955,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {currentScreen==="certificate"&&<CertificateScreen name={name} level={level} st={stats} goBack={goBack} />}
       {(authScreen==="app"&&currentScreen!=="welcome"&&currentScreen!=="placement") && <TabBar tab={tab} setTab={setTab} setScr={setScr} badges={badges} />}
       <OfflineBanner />
+      <CookieConsent />
       </Suspense>
       </div>
     </div>

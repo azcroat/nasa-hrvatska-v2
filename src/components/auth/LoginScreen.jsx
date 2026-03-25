@@ -80,12 +80,15 @@ export default function LoginScreen({
           <button className="b bp" style={{width:"100%",fontSize:16,padding:"14px 24px",marginTop:4}} onClick={isR?doReg:doLog} disabled={authLoading}>
             {authLoading?"Loading...":isR?"Create Account":"Sign In"}
           </button>
-          <div style={{textAlign:"center",marginTop:12,fontSize:11,color:"#94a3b8"}}>
-            By continuing you agree to our{" "}
-            <a href="/privacy.html" target="_blank" rel="noopener noreferrer" style={{color:"#0e7490",textDecoration:"underline"}}>Privacy Policy</a>
-            {" & "}
-            <a href="/privacy.html#terms" target="_blank" rel="noopener noreferrer" style={{color:"#0e7490",textDecoration:"underline"}}>Terms of Use</a>
-          </div>
+          <p style={{ fontSize: 11, color: 'var(--subtext)', textAlign: 'center', marginTop: 12 }}>
+            By continuing you agree to our{' '}
+            <button onClick={() => window.open('#/terms', '_blank')} style={{ background: 'none', border: 'none', color: '#0e7490', cursor: 'pointer', fontSize: 11, padding: 0, textDecoration: 'underline' }}>
+              Terms of Service
+            </button>{' '}and{' '}
+            <button onClick={() => window.open('#/privacy', '_blank')} style={{ background: 'none', border: 'none', color: '#0e7490', cursor: 'pointer', fontSize: 11, padding: 0, textDecoration: 'underline' }}>
+              Privacy Policy
+            </button>
+          </p>
           <div style={{textAlign:"center",marginTop:12,fontSize:14,color:"#78716c"}}>
             {isR?"Have an account? ":"No account? "}
             <button type="button" style={{color:"#0e7490",cursor:"pointer",fontWeight:700,background:"none",border:"none",padding:0,fontSize:"inherit",fontFamily:"inherit"}} onClick={()=>{setAuthScreen(isR?"login":"register");setAuthError("");setAuthEmail("");setPw("");setPc("");setDisplayName("")}}>

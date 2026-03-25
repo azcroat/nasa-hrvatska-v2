@@ -1,8 +1,40 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { getStreak, getSR } from '../../data.jsx';
+import { getStreak, getSR, fbDeleteAccount } from '../../data.jsx';
 
-export default function ProfileTab({ name, au, level, st, favs, darkMode, setDarkMode, setScr, doOut, syncReady, onSyncNow }) {
+export default function ProfileTab({ name, au, level, st, favs, darkMode, setDarkMode, setScr, doOut, syncReady, onSyncNow, jWords }) {
   const [confirmOut, setConfirmOut] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  function exportData() {
+    const data = {
+      exportDate: new Date().toISOString(),
+      profile: { name, email: au?.u },
+      stats: st,
+      streak: { current: getStreak() },
+      favourites: favs,
+      journal: jWords,
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `nasa-hrvatska-export-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function handleDeleteAccount() {
+    if (!au || !au.u) return;
+    setDeleting(true);
+    try {
+      await fbDeleteAccount(au.u);
+      doOut();
+    } catch(e) {
+      setDeleting(false);
+      setConfirmDelete(false);
+    }
+  }
   const [syncing, setSyncing] = useState(false);
   const [syncDone, setSyncDone] = useState(false);
   const [syncErr, setSyncErr] = useState(false);
@@ -190,9 +222,53 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
         </div>
         <div style={{fontSize:20,color:"var(--subtext)",opacity:.35}}>›</div>
       </button>
-      <button className="tc" style={{width:"100%",textAlign:"center",padding:"14px",marginBottom:24}} onClick={() => setScr("privacy")}>
+      <button className="tc" style={{width:"100%",textAlign:"center",padding:"14px",marginBottom:10}} onClick={() => setScr("privacy")}>
         <div style={{fontSize:13,color:"var(--subtext)",fontWeight:600}}>Privacy Policy & Terms</div>
       </button>
+      {au && au.u === 'jschreiner75@gmail.com' && (
+        <button className="tc" style={{width:"100%",display:"flex",alignItems:"center",gap:14,padding:"16px",marginBottom:24}} onClick={() => setScr("admin")}>
+          <div style={{width:38,height:38,borderRadius:12,background:"linear-gradient(135deg,#7c3aed,#4c1d95)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>🛠️</div>
+          <div style={{flex:1,textAlign:"left"}}>
+            <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>Admin Dashboard</div>
+            <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>Platform overview & user stats</div>
+          </div>
+          <div style={{fontSize:20,color:"var(--subtext)",opacity:.35}}>›</div>
+        </button>
+      )}
+      {!(au && au.u === 'jschreiner75@gmail.com') && <div style={{marginBottom:24}} />}
+
+      {/* ── GDPR DATA EXPORT ── */}
+      <h3 className="sh">Your Data</h3>
+      <button className="tc" style={{width:"100%",display:"flex",alignItems:"center",gap:14,padding:"16px",marginBottom:10}}
+        onClick={exportData}>
+        <div style={{width:38,height:38,borderRadius:12,background:"linear-gradient(135deg,#0e7490,#164e63)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>📦</div>
+        <div style={{flex:1,textAlign:"left"}}>
+          <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>Export My Data</div>
+          <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>Download all your progress as JSON</div>
+        </div>
+        <div style={{fontSize:20,color:"var(--subtext)",opacity:.35}}>›</div>
+      </button>
+
+      {/* ── DANGER ZONE ── */}
+      <h3 className="sh" style={{color:"#dc2626",marginTop:24}}>Danger Zone</h3>
+      {confirmDelete ? (
+        <div style={{border:"2px solid rgba(220,38,38,.2)",borderRadius:16,padding:"20px",background:"rgba(220,38,38,.04)",marginBottom:16}}>
+          <p style={{fontSize:15,fontWeight:700,color:"#dc2626",textAlign:"center",marginBottom:8}}>Delete your account?</p>
+          <p style={{fontSize:13,color:"#78716c",textAlign:"center",marginBottom:16}}>This permanently deletes all your progress and cannot be undone.</p>
+          <div style={{display:"flex",gap:10}}>
+            <button onClick={() => setConfirmDelete(false)} disabled={deleting} style={{flex:1,padding:"13px",border:"1.5px solid var(--card-b)",borderRadius:12,background:"var(--card)",color:"var(--subtext)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
+              Cancel
+            </button>
+            <button onClick={handleDeleteAccount} disabled={deleting} style={{flex:1,padding:"13px",border:"none",borderRadius:12,background:"#dc2626",color:"#fff",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
+              {deleting ? "Deleting…" : "Delete"}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => setConfirmDelete(true)} style={{width:"100%",padding:"14px",border:"2px solid rgba(220,38,38,.15)",borderRadius:14,background:"rgba(220,38,38,.05)",color:"#dc2626",fontSize:14,fontWeight:700,cursor:"pointer",marginBottom:16,fontFamily:"'Outfit',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+          🗑️ Delete Account
+        </button>
+      )}
 
       {/* ── SIGN OUT ── */}
       {confirmOut ? (

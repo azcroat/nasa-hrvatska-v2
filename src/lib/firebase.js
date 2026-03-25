@@ -3,8 +3,8 @@
 // Extracted from data.jsx as part of Sprint 1 architectural split
 // ═══════════════════════════════════════════════════════════
 import { initializeApp, getApps } from 'firebase/app';
-import { getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { getFirestore, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, collection, getDocs, query, limit, orderBy, runTransaction, onSnapshot } from 'firebase/firestore';
+import { getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup, sendEmailVerification, deleteUser } from 'firebase/auth';
+import { getFirestore, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, deleteDoc, collection, getDocs, query, limit, orderBy, runTransaction, onSnapshot } from 'firebase/firestore';
 
 const FIREBASE_CONFIG = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -103,6 +103,7 @@ export async function fbRegister(email,password,displayName){
   if(!_fbReady||!_fbAuth)return{ok:false,err:"Firebase not configured. Account created locally only."};
   try{const cred=await createUserWithEmailAndPassword(_fbAuth,email,password);
   try{await updateProfile(cred.user,{displayName:displayName})}catch(pe){console.warn("Profile update failed:",pe)}
+  try{await sendEmailVerification(cred.user)}catch(ve){console.warn("Email verification send failed:",ve)}
   try{const id=email.replace(/[.#$/\[\]]/g,"_");
   await setDoc(fsDoc(_fbDb,"users",id),{displayName:displayName,email:email,created:Date.now()},{merge:true})}catch(fe){console.warn("Firestore profile write failed:",fe)}
   return{ok:true,user:cred.user}}catch(e){return{ok:false,err:friendlyError(e.message)}}
@@ -286,6 +287,18 @@ export async function fbLoadUserFamily(email){
   return fam}catch(e){return null}
 }
 export function fbOnAuthStateChanged(cb){if(!_fbReady||!_fbAuth)return()=>{};return onAuthStateChanged(_fbAuth,cb)}
+export async function fbDeleteAccount(userId){
+  if(!_fbReady)return{ok:false,err:"Firebase not ready."};
+  try{
+    const id=userId.replace(/[.#$/\[\]]/g,"_");
+    await Promise.allSettled([
+      deleteDoc(fsDoc(_fbDb,"users",id)),
+      deleteDoc(fsDoc(_fbDb,"leaderboard",id)),
+    ]);
+    if(_fbAuth&&_fbAuth.currentUser)await deleteUser(_fbAuth.currentUser);
+    return{ok:true};
+  }catch(e){return{ok:false,err:friendlyError(e.message)}}
+}
 // Real-time listener — fires immediately with current data, then on every remote change.
 // Returns an unsubscribe function. Use lP() inside the callback to cache locally
 // without triggering a circular Firestore write.
