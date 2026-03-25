@@ -62,7 +62,7 @@ async function hashPasswordSHA256(password) {
  *
  * @param {string} password   — plaintext input
  * @param {string} storedHash — hex hash from storage
- * @param {function} [onMigrate] — called with the new PBKDF2 hash if migration happens
+ * @param {function} [onMigrate] - called with the new PBKDF2 hash if migration happens
  * @returns {Promise<boolean>}
  */
 export async function verifyPassword(password, storedHash, onMigrate) {

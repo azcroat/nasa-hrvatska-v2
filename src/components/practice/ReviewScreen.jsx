@@ -30,7 +30,7 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
   }, [dueWords, pool]);
 
   // Use a ref to hold current values so the keyboard handler never goes stale
-  const stateRef = useRef({});
+  const stateRef = useRef(/** @type {{answered: boolean, idx: number, questions: any[], score: number}} */ ({}));
   stateRef.current = { answered, idx, questions, score };
 
   // Keyboard shortcuts: 1-4 to pick answer, Space/Enter to advance
@@ -108,7 +108,7 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
       <Bar v={idx+1} mx={questions.length} color="#7c3aed" h={6} />
       <div className="c" style={{marginTop:16,padding:"20px"}}>
         <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:20}}>
-          <Spk text={q.word[0]} />
+          <Spk text={q.word[0]} label={q.word[0]} />
           <p style={{fontSize:28,fontWeight:800,fontFamily:"'Playfair Display',serif",margin:0}}>{q.word[0]}</p>
         </div>
         <p style={{fontSize:13,color:"#78716c",marginBottom:16}}>What does this mean?</p>

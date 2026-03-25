@@ -80,7 +80,7 @@ export default function ModalScreen({ goBack, award, setSt }) {
                   <div style={{fontSize:24,fontWeight:800,color:"#5b21b6",fontFamily:"'Playfair Display',serif"}}>{v.inf}</div>
                   <div style={{fontSize:15,color:"#78716c"}}>{v.en}</div>
                 </div>
-                <Spk text={v.inf} />
+                <Spk text={v.inf} label={v.inf} />
               </div>
             </div>
             <div className="c" style={{marginBottom:16,padding:0,overflow:"hidden"}}>

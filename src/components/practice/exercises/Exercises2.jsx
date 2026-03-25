@@ -13,9 +13,9 @@ export function TenseFlipScreen({ goBack, award }) {
           <button style={{fontSize:14,fontWeight:700,color:"var(--heading)",marginBottom:8,background:"none",border:"none",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif",padding:0}} onClick={function(){speak(t.prez)}}>{"🔵 "}{t.prez}</button>
           <div style={{display:"flex",gap:8}}>
             <button style={{flex:1,padding:"8px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,cursor:"pointer",textAlign:"left"}}
-              onClick={function(e){e.target.textContent="✅ "+t.perf;e.target.style.background="#dcfce7";e.target.style.borderColor="#16a34a";speak(t.perf);award(3);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>🔵 Perfekt?</button>
+              onClick={function(/** @type {any} */ e){e.target.textContent="✅ "+t.perf;e.target.style.background="#dcfce7";e.target.style.borderColor="#16a34a";speak(t.perf);award(3);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>🔵 Perfekt?</button>
             <button style={{flex:1,padding:"8px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,cursor:"pointer",textAlign:"left"}}
-              onClick={function(e){e.target.textContent="❌ "+t.neg;e.target.style.background="#fee2e2";e.target.style.borderColor="#dc2626";speak(t.neg);award(3);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>🔴 Negative?</button>
+              onClick={function(/** @type {any} */ e){e.target.textContent="❌ "+t.neg;e.target.style.background="#fee2e2";e.target.style.borderColor="#dc2626";speak(t.neg);award(3);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>🔴 Negative?</button>
           </div>
         </div>
       );})}
@@ -34,7 +34,7 @@ export function RiddlesScreen({ goBack, award }) {
           <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
             {r.opts.map(function(o,oi){return (
               <button key={oi} style={{padding:"8px 16px",border:"2px solid #d6d3d1",borderRadius:12,background:"white",fontSize:13,fontWeight:600,cursor:"pointer"}}
-                onClick={function(e){e.target.style.background=o===r.answer?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===r.answer?"#16a34a":"#dc2626";if(o===r.answer){award(5);speak(r.answer);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>{o}</button>
+                onClick={function(/** @type {any} */ e){e.target.style.background=o===r.answer?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===r.answer?"#16a34a":"#dc2626";if(o===r.answer){award(5);speak(r.answer);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>{o}</button>
             );})}
           </div>
           <div style={{fontSize:11,color:"#a8a29e",marginTop:6}}>{"🇬🇧 "}{r.en}</div>
@@ -56,7 +56,7 @@ export function LogicQuizScreen({ goBack, award }) {
           <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
             {allOpts.map(function(o,oi){const isRight=lq.right.indexOf(o)>=0;return (
               <button key={oi} style={{padding:"8px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,fontWeight:600,cursor:"pointer"}}
-                onClick={function(e){e.target.style.background=isRight?"#dcfce7":"#fee2e2";e.target.style.borderColor=isRight?"#16a34a":"#dc2626";if(isRight){award(3);speak(o);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
+                onClick={function(/** @type {any} */ e){e.target.style.background=isRight?"#dcfce7":"#fee2e2";e.target.style.borderColor=isRight?"#16a34a":"#dc2626";if(isRight){award(3);speak(o);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
                 {o}
               </button>
             );})}
@@ -89,7 +89,7 @@ export function OrdinalsScreen({ goBack, award }) {
           <div style={{display:"flex",gap:6}}>
             {q.opts.map(function(o,oi){return (
               <button key={oi} style={{padding:"6px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,fontWeight:600,cursor:"pointer"}}
-                onClick={function(e){e.target.style.background=o===q.a?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.a?"#16a34a":"#dc2626";if(o===q.a){award(3);speak("na "+q.a+" katu");}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
+                onClick={function(/** @type {any} */ e){e.target.style.background=o===q.a?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.a?"#16a34a":"#dc2626";if(o===q.a){award(3);speak("na "+q.a+" katu");}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
                 {o}
               </button>
             );})}
@@ -126,7 +126,7 @@ export function RelativePronounsScreen({ goBack, award }) {
           <div style={{display:"flex",gap:6}}>
             {q.opts.map(function(o,oi){return (
               <button key={oi} style={{padding:"6px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,fontWeight:600,cursor:"pointer"}}
-                onClick={function(e){e.target.style.background=o===q.a?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.a?"#16a34a":"#dc2626";if(o===q.a){award(3);speak(q.q.replace("_____",q.a).split("(")[0]);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
+                onClick={function(/** @type {any} */ e){e.target.style.background=o===q.a?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.a?"#16a34a":"#dc2626";if(o===q.a){award(3);speak(q.q.replace("_____",q.a).split("(")[0]);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
                 {o}
               </button>
             );})}
@@ -150,7 +150,7 @@ export function EmotionGenderScreen({ goBack, award }) {
             <div key={pi} style={{display:"flex",gap:8,marginBottom:6}}>
               {sh([correct,wrong]).map(function(o,oi){return (
                 <button key={oi} style={{flex:1,padding:"8px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:13,fontWeight:600,cursor:"pointer"}}
-                  onClick={function(e){e.target.style.background=o===correct?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===correct?"#16a34a":"#dc2626";if(o===correct){award(2);speak(eg.subj.split("...")[0]+" "+correct);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
+                  onClick={function(/** @type {any} */ e){e.target.style.background=o===correct?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===correct?"#16a34a":"#dc2626";if(o===correct){award(2);speak(eg.subj.split("...")[0]+" "+correct);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
                   {o}
                 </button>
               );})}
@@ -215,7 +215,7 @@ export function CityLocativeScreen({ goBack, award }) {
           <div style={{display:"flex",gap:4}}>
             {sh([c2.lok,wrong]).map(function(o,oi){return (
               <button key={oi} style={{padding:"8px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:11,fontWeight:600,cursor:"pointer"}}
-                onClick={function(e){e.target.style.background=o===c2.lok?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===c2.lok?"#16a34a":"#dc2626";if(o===c2.lok)award(3);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>{o}</button>
+                onClick={function(/** @type {any} */ e){e.target.style.background=o===c2.lok?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===c2.lok?"#16a34a":"#dc2626";if(o===c2.lok)award(3);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>{o}</button>
             );})}
           </div>
         </div>
@@ -235,7 +235,7 @@ export function AccusativeDrillScreen({ goBack, award }) {
         <div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
           <div style={{flex:1,fontSize:12}}><span style={{color:"#78716c"}}>{f.q.replace("_____","")}</span>{" "}<span style={{fontWeight:700,color:"#164e63"}}>{f.nom}</span>{" → ?"}</div>
           <button style={{padding:"8px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,cursor:"pointer"}}
-            onClick={function(e){e.target.textContent=f.aku;e.target.style.background="#dcfce7";e.target.style.borderColor="#16a34a";speak(f.q.replace("_____",f.aku));award(2);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>Show</button>
+            onClick={function(/** @type {any} */ e){e.target.textContent=f.aku;e.target.style.background="#dcfce7";e.target.style.borderColor="#16a34a";speak(f.q.replace("_____",f.aku));award(2);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>Show</button>
         </div>
       );})}
       <h3 className="sh" style={{marginTop:16}}>👚 Odjeća (Clothes)</h3>
@@ -243,7 +243,7 @@ export function AccusativeDrillScreen({ goBack, award }) {
         <div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
           <div style={{flex:1,fontSize:12}}><span style={{color:"#78716c"}}>{cl.q.replace("_____","")}</span>{" "}<span style={{fontWeight:700,color:"#164e63"}}>{cl.nom}</span>{" → ?"}</div>
           <button style={{padding:"8px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,cursor:"pointer"}}
-            onClick={function(e){e.target.textContent=cl.aku;e.target.style.background="#dcfce7";e.target.style.borderColor="#16a34a";speak(cl.q.replace("_____",cl.aku));award(2);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>Show</button>
+            onClick={function(/** @type {any} */ e){e.target.textContent=cl.aku;e.target.style.background="#dcfce7";e.target.style.borderColor="#16a34a";speak(cl.q.replace("_____",cl.aku));award(2);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>Show</button>
         </div>
       );})}
     </div>

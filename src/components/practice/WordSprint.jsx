@@ -65,7 +65,7 @@ export default function WordSprint({ sh, award, goBack }) {
   }, [selectedCats, sh, catList]);
 
   useEffect(() => {
-    if (phase !== 'playing') return;
+    if (phase !== 'playing') return undefined;
     timerRef.current = setInterval(() => {
       setTimeLeft(t => {
         if (t <= 1) { clearInterval(timerRef.current); setPhase('result'); return 0; }
@@ -76,7 +76,7 @@ export default function WordSprint({ sh, award, goBack }) {
   }, [phase]);
 
   useEffect(() => {
-    if (feedback === null) return;
+    if (feedback === null) return undefined;
     feedbackRef.current = setTimeout(() => {
       setChosen(null); setFeedback(null);
       if (qi + 1 >= questions.length) {

@@ -261,7 +261,7 @@ export default function McGame({ questions, onComplete, goBack, award }) {
             marginBottom: 8,
           }}
         >
-          {q.hr && <Spk text={q.hr} />}
+          {q.hr && <Spk text={q.hr} label="" />}
           <p
             style={{
               fontSize: 26,

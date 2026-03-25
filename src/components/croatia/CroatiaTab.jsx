@@ -365,7 +365,7 @@ export default function CroatiaTab({ setScr, sCurEx }) {
             [()=>setScr("region_bibinje"),"🏖️","Bibinje & Zadar","Dalmatian gateway to the sea","#0284c7"],
             [()=>setScr("region_hercegovina"),"⚔️","Hrvati Hercegovine","Our Croatian heritage in Herzegovina","#b45309"],
             [()=>setScr("region_vinkovci"),"🏛️","Vinkovci","8,300 years of continuous history","#78716c"],
-          ].map(([fn,icon,title,sub,color],i)=>(
+          ].map((/** @type {any} */ [fn,icon,title,sub,color],i)=>(
             <button key={i} className="tc" onClick={fn}
               style={{display:"flex",alignItems:"center",gap:14,padding:"13px 16px",textAlign:"left",borderLeft:`3px solid ${color}`}}>
               <div style={{width:44,height:44,borderRadius:13,background:`${color}15`,border:`1px solid ${color}25`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>{icon}</div>
@@ -395,7 +395,7 @@ export default function CroatiaTab({ setScr, sCurEx }) {
             [()=>setScr("practical"),"💼","Practical Life","Banks, post office, doctors & admin","#78716c"],
             [()=>setScr("basketball"),"🏀","At Basketball","Croatian basketball culture & terms","#b45309"],
             [()=>setScr("gym"),"🏋️","At the Gym","Fitness vocabulary & gym phrases","#16a34a"],
-          ].map(([fn,icon,title,sub,color],i)=>(
+          ].map((/** @type {any} */ [fn,icon,title,sub,color],i)=>(
             <button key={i} className="tc" onClick={fn}
               style={{display:"flex",alignItems:"center",gap:14,padding:"13px 16px",textAlign:"left",borderLeft:`3px solid ${color}`}}>
               <div style={{width:44,height:44,borderRadius:13,background:`${color}15`,border:`1px solid ${color}25`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>{icon}</div>

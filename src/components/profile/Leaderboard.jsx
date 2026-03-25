@@ -19,7 +19,7 @@ export default function Leaderboard({
   useEffect(() => {
     // Stop any existing watcher when tab changes or famData clears
     if (watchRef.current) { watchRef.current(); watchRef.current = null; }
-    if (!famData || famTab !== "main") { setLiveStatus(null); return; }
+    if (!famData || famTab !== "main") { setLiveStatus(null); return undefined; }
 
     setFamLoading(true);
     setLiveStatus('connecting');

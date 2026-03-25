@@ -2393,7 +2393,7 @@ const CROATIAN_CITIES = [
 function getCityOfDay(){
   const n=new Date();
   const year=n.getFullYear();
-  const dayOfYear=Math.floor((n-new Date(year,0,1))/86400000);
+  const dayOfYear=Math.floor((Number(n)-Number(new Date(year,0,1)))/86400000);
   // Fisher-Yates shuffle seeded by year — every city appears once before any repeats
   const idx=CROATIAN_CITIES.map(function(_,i){return i});
   let seed=(year*2654435761)>>>0;
@@ -3824,8 +3824,8 @@ function buildSearchIndex(){if(_searchIdx)return _searchIdx;const idx=[];Object.
 GROCERY.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"grocery"})});SCHOOL.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"school"})});TRANSPORT.forEach(function(t){idx.push({hr:t.hr,en:t.en,type:"phrase",go:"transport"})});EMERGENCY.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"emergency"})});_searchIdx=idx;return idx}
 // ═══ THEME OBJECTS (background/color tokens for inline root styles) ═══
 // Global CSS classes are in src/index.css (imported in main.jsx)
-const BG_LIGHT={minHeight:"100vh",background:"#f1f5f9",color:"#1c1917",fontFamily:"'Outfit',sans-serif",position:"relative",overflowX:"hidden"};
-const BG_DARK={minHeight:"100vh",background:"linear-gradient(170deg,#0f172a 0%,#1e293b 30%,#1a1a2e 60%,#16213e 100%)",color:"#e2e8f0",fontFamily:"'Outfit',sans-serif",position:"relative",overflowX:"hidden"};
+const BG_LIGHT=/** @type {React.CSSProperties} */({minHeight:"100vh",background:"#f1f5f9",color:"#1c1917",fontFamily:"'Outfit',sans-serif",position:"relative",overflowX:"hidden"});
+const BG_DARK=/** @type {React.CSSProperties} */({minHeight:"100vh",background:"linear-gradient(170deg,#0f172a 0%,#1e293b 30%,#1a1a2e 60%,#16213e 100%)",color:"#e2e8f0",fontFamily:"'Outfit',sans-serif",position:"relative",overflowX:"hidden"});
 const BG=BG_LIGHT;
 const H=(t,s,back)=><div style={{marginBottom:20,paddingBottom:16,borderBottom:"1px solid rgba(0,0,0,.06)"}}>
   {back&&<button onClick={back} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",cursor:"pointer",fontSize:13,fontWeight:700,color:"var(--subtext)",marginBottom:8,padding:"4px 0",fontFamily:"'Outfit',sans-serif"}}>‹ Back</button>}

@@ -48,21 +48,22 @@ export function checkNameDay(userName) {
 
 export function useNotifications() {
   useEffect(() => {
-    if (!('Notification' in window)) return;
+    if (!('Notification' in window)) return undefined;
 
     const todayStr = new Date().toDateString();
     const dismissedOn = localStorage.getItem(REMINDER_DISMISSED_KEY);
-    if (dismissedOn === todayStr) return; // already shown/dismissed today
+    if (dismissedOn === todayStr) return undefined; // already shown/dismissed today
 
     const lastPractice = parseInt(localStorage.getItem(LAST_PRACTICE_KEY) || '0', 10);
     const hoursSince = (Date.now() - lastPractice) / 3600000;
 
     // Only prompt if user has practiced before (has a history) and it's been > 20 hours
-    if (lastPractice === 0 || hoursSince < 20) return;
+    if (lastPractice === 0 || hoursSince < 20) return undefined;
 
     if (Notification.permission === 'granted') {
       showReminder();
       localStorage.setItem(REMINDER_DISMISSED_KEY, todayStr);
+      return undefined;
     } else if (Notification.permission === 'default') {
       // Delay the permission prompt slightly so it doesn't fire on first load
       const t = setTimeout(async () => {
@@ -74,6 +75,7 @@ export function useNotifications() {
       }, 8000);
       return () => clearTimeout(t);
     }
+    return undefined;
   }, []);
 }
 

@@ -200,7 +200,7 @@ export default function LearnTab({
             ["🔄","Tenses & Gender","a1",() => { setScr("tenses"); sCurEx("tenses"); }],
             ["📝","Cases Intro","a2",() => { setScr("padezi"); sCurEx("padezi"); }],
             ["🎨","Colors & Gender","a2",() => { setScr("boje"); sCurEx("boje"); }],
-          ].map(([icon,label,cefr,fn]) => (
+          ].map((/** @type {any} */ [icon,label,cefr,fn]) => (
             <button key={label} className="tc" style={{ display:"flex", alignItems:"center", gap:10, padding:"13px 14px", textAlign:"left" }} onClick={fn}>
               <div style={{ fontSize:22, flexShrink:0 }}>{icon}</div>
               <div style={{ fontSize:12, fontWeight:800, color:"var(--heading)", flex:1 }}>{label}</div>
@@ -218,7 +218,7 @@ export default function LearnTab({
             ["📚","Padeži Master","b1",() => { setScr("padezifull"); sCurEx("padezifull"); }],
             ["↔️","Verb Aspect","b1",() => { setScr("aspect"); }],
             ["🔀","Conjugation","b1",() => { setScr("conjdrill"); sCurEx("conjdrill"); }],
-          ].map(([icon,label,cefr,fn]) => (
+          ].map((/** @type {any} */ [icon,label,cefr,fn]) => (
             <button key={label} className="tc" style={{ display:"flex", alignItems:"center", gap:10, padding:"13px 14px", textAlign:"left" }} onClick={fn}>
               <div style={{ fontSize:22, flexShrink:0 }}>{icon}</div>
               <div style={{ fontSize:12, fontWeight:800, color:"var(--heading)", flex:1 }}>{label}</div>
@@ -240,7 +240,7 @@ export default function LearnTab({
             ["🔁","Impersonal","b2",() => setScr("impersonal")],
             ["💻","Tech & Digital","b2",() => setScr("techvoc")],
             ["🏛️","Admin Life","b2",() => setScr("bureaucratic")],
-          ].map(([icon,label,cefr,fn]) => (
+          ].map((/** @type {any} */ [icon,label,cefr,fn]) => (
             <button key={label} className="tc" style={{ display:"flex", alignItems:"center", gap:10, padding:"13px 14px", textAlign:"left" }} onClick={fn}>
               <div style={{ fontSize:22, flexShrink:0 }}>{icon}</div>
               <div style={{ fontSize:12, fontWeight:800, color:"var(--heading)", flex:1 }}>{label}</div>

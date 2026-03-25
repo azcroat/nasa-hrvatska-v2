@@ -57,7 +57,7 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
         return (
           <button
             key={t.id}
-            ref={el => btnRefs.current[i] = el}
+            ref={el => { btnRefs.current[i] = el; }}
             className={"nav-btn" + (isActive ? " active" : "")}
             onClick={() => { setTab(t.id); setScr("dashboard"); }}
             aria-current={isActive ? "page" : undefined}

@@ -170,7 +170,7 @@ export async function fbCreateFamily(familyName,creatorUid,creatorEmail,creatorN
 }
 export async function fbJoinFamily(code,uid,email,name){
   if(!_fbReady||!_fbDb)return{ok:false,err:"Firebase not configured."};
-  let resultFam=null;let alreadyIn=false;
+  let resultFam=/** @type {any} */ (null);let alreadyIn=false;
   try{
     await runTransaction(_fbDb,async function(tx){
       const famRef=fsDoc(_fbDb,"families",code.toUpperCase());

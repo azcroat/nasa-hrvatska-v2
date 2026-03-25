@@ -388,7 +388,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
 
   // Dismiss tooltip on outside tap
   useEffect(() => {
-    if (!tooltip) return;
+    if (!tooltip) return undefined;
     function dismiss(e) {
       if (!e.target.closest("[data-tooltip]") && !e.target.closest("[data-word]")) {
         setTooltip(null);
