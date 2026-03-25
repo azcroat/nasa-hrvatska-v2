@@ -38,25 +38,67 @@ service cloud.firestore {
       return request.auth.token.email in memberEmails;
     }
 
+    // ─── XP validation helpers ─────────────────────────────────────────────
+
+    // User-doc UPDATE: top-level xp field must be non-negative integer, max +500
+    // per write, or exactly 0 (account reset). Uses .get() to handle old docs
+    // written before the xp field was added (fbRegister omits it).
+    function validXpUpdate() {
+      let oldXp = resource.data.get('xp', 0);
+      let newXp = request.resource.data.get('xp', oldXp);
+      return newXp >= 0
+        && newXp == int(newXp)
+        && (newXp <= oldXp + 500 || newXp == 0);
+    }
+
+    // Leaderboard CREATE: first-write caps xp at 1000 and lc at 100.
+    function validLbXpCreate() {
+      return request.resource.data.xp >= 0
+        && request.resource.data.xp <= 1000;
+    }
+    function validLbLcCreate() {
+      return request.resource.data.lc >= 0
+        && request.resource.data.lc <= 100;
+    }
+
+    // Leaderboard UPDATE: xp max +500 per write; lc may only increase by ≤10.
+    function validLbXpUpdate() {
+      let oldXp = resource.data.get('xp', 0);
+      let newXp = request.resource.data.xp;
+      return newXp >= 0
+        && newXp == int(newXp)
+        && (newXp <= oldXp + 500 || newXp == 0);
+    }
+    function validLbLcUpdate() {
+      let oldLc = resource.data.get('lc', 0);
+      let newLc = request.resource.data.lc;
+      return newLc >= 0
+        && newLc >= oldLc
+        && newLc <= oldLc + 10;
+    }
+
     // ─── User documents ────────────────────────────────────────────────────
     // Owner reads/writes their own document only.
-    // Leaderboard reads are scoped to a dedicated read-only projection (xp, name)
-    // via the separate /leaderboard collection. Full progress docs are owner-only.
+    // UPDATE validates the top-level xp field to prevent client-side XP inflation.
+    // CREATE is ownership-only (resource.data doesn't exist yet; XP bounded by first UPDATE).
     match /users/{userId} {
       allow read: if isOwner(userId);
       allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
+      allow update: if isOwner(userId) && validXpUpdate();
       allow delete: if false;
     }
 
     // ─── Leaderboard ──────────────────────────────────────────────────────
-    // The app writes { name, xp, lc } here when saving progress.
-    // Family members can read leaderboard entries (needed while old client
-    // code still reads /leaderboard for family XP; will tighten to
-    // isOwner once new memberXP-based code is fully deployed).
+    // Split into create/update so resource.data (old doc) is only accessed on UPDATE.
+    // XP and lc increments are capped per write to prevent leaderboard stuffing.
     match /leaderboard/{userId} {
       allow read: if isAuthenticated();
-      allow write: if isOwner(userId);
+      allow create: if isOwner(userId)
+        && validLbXpCreate()
+        && validLbLcCreate();
+      allow update: if isOwner(userId)
+        && validLbXpUpdate()
+        && validLbLcUpdate();
     }
 
     // ─── Family groups ─────────────────────────────────────────────────────
