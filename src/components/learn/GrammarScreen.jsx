@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { H, Bar, speak } from '../../data.jsx';
+import { recordTopicResult } from '../../lib/adaptive.js';
 
 export default function GrammarScreen({
   gl, gp, gx, gs, ga, gsl,
@@ -30,7 +31,7 @@ export default function GrammarScreen({
           <p style={{fontSize:20,fontWeight:700,marginBottom:20}}>{gl.qs[gx].q}</p>
           {gl.qs[gx].o.map((o,i)=>(
             <button key={i} className={"ob "+(ga?(i===gl.qs[gx].c?"ok":gsl===i?"no":""):"")}
-              onClick={()=>{if(!ga){sGsl(i);sGa(true);if(i===gl.qs[gx].c)sGs(s=>s+1);}}}>
+              onClick={()=>{if(!ga){sGsl(i);sGa(true);const correct=i===gl.qs[gx].c;if(correct)sGs(s=>s+1);recordTopicResult('grammar',correct);}}}>
               {o}
             </button>
           ))}

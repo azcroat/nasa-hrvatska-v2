@@ -5,12 +5,17 @@
  * business logic live in one place. App.jsx imports and spreads
  * the returned values into its render and context.
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export function usePreferences() {
   const [darkMode, setDarkMode] = useState(
     () => localStorage.getItem('darkMode') === 'true'
   );
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+    localStorage.setItem('darkMode', darkMode ? 'true' : 'false');
+  }, [darkMode]);
 
   const [favs, setFavs] = useState(() => {
     try { return JSON.parse(localStorage.getItem('uFavs') || '[]'); }

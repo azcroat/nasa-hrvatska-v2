@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, Spk, speakSlow } from '../../data.jsx';
+import PronunciationScorer from '../shared/PronunciationScorer.jsx';
 
 const SRSupported = typeof window !== 'undefined' && !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
@@ -167,6 +168,8 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
             🐢 Slow
           </button>
         </div>
+
+        <PronunciationScorer targetText={sw[0]} />
 
         {SRSupported ? (
           <div style={{marginBottom:16}}>

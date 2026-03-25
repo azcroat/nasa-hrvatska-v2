@@ -784,3 +784,19 @@ input::placeholder,textarea::placeholder{color:#6b7280;font-weight:400} /* WCAG 
 ═══════════════════════════════════════════════════════════ */
 button.tc{font-family:'Outfit',sans-serif;width:100%;cursor:pointer;display:block}
 button.c{font-family:'Outfit',sans-serif;width:100%;cursor:pointer;display:block;text-align:left}
+
+/* ═══════════════════════════════════════════════════════════
+   DARK MODE — data-theme attribute (alias for .dark)
+═══════════════════════════════════════════════════════════ */
+:root[data-theme="dark"] {
+  --bg: #0f172a;
+  --bg2: #1e293b;
+  --bg3: #334155;
+  --text: #e2e8f0;
+  --heading: #f1f5f9;
+  --subtext: #94a3b8;
+  --border: rgba(255,255,255,.1);
+  --bar-bg: rgba(255,255,255,.1);
+  --card-bg: #1e293b;
+  --card-shadow: 0 2px 12px rgba(0,0,0,.4);
+}

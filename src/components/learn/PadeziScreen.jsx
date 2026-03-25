@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh, PADEZI, PREPS } from '../../data.jsx';
+import { recordTopicResult } from '../../lib/adaptive.js';
 
 export default function PadeziScreen({ goBack, award, setSt }) {
   const finishFired = useRef(false);
@@ -102,7 +103,7 @@ export default function PadeziScreen({ goBack, award, setSt }) {
                 <button
                   key={oi}
                   className={"ob " + (czA ? (oi === ci ? "ok" : czSl === oi ? "no" : "") : "")}
-                  onClick={() => { if (!czA) { sCzSl(oi); sCzA(true); if (oi === ci) { sCzS(s => s + 1); award(4); } } }}>
+                  onClick={() => { if (!czA) { sCzSl(oi); sCzA(true); const correct=oi===ci; if (correct) { sCzS(s => s + 1); award(4); } recordTopicResult('padezi',correct); } }}>
                   {o}
                 </button>
               ))}
