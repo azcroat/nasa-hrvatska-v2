@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data.jsx';
 
 import { rnd } from '../../lib/random.js';
@@ -172,6 +172,7 @@ const SCENARIOS = [
 ];
 
 export default function DialogueSim({ award }) {
+  const finishFired = useRef(false);
   const [scenario, setScenario] = useState(null);
   const [turnIdx, setTurnIdx] = useState(0);
   const [score, setScore] = useState(0);
@@ -180,6 +181,7 @@ export default function DialogueSim({ award }) {
   const [done, setDone] = useState(false);
 
   function startScenario(s) {
+    finishFired.current = false;
     setScenario(s);
     setTurnIdx(0);
     setScore(0);
@@ -200,8 +202,11 @@ export default function DialogueSim({ award }) {
   function handleContinue() {
     const nextIdx = turnIdx + 1;
     if (nextIdx >= scenario.turns.length) {
+      if (!finishFired.current) {
+        finishFired.current = true;
+        if (award) award((score + (selected === scenario.turns[turnIdx].answer ? 1 : 0)) * 6);
+      }
       setDone(true);
-      if (award) award((score + (selected === scenario.turns[turnIdx].answer ? 1 : 0)) * 6);
     } else {
       setTurnIdx(nextIdx);
       setAnswered(false);

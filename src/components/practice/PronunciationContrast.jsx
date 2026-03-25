@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data.jsx';
 
 import { rnd } from '../../lib/random.js';
@@ -33,6 +33,7 @@ const DATA = [
 ];
 
 export default function PronunciationContrast({ goBack, award }) {
+  const finishFired = useRef(false);
   const [qs] = useState(() => shLocal(DATA));
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
@@ -50,7 +51,7 @@ export default function PronunciationContrast({ goBack, award }) {
         <div style={{textAlign:"center"}}>
           <div style={{fontSize:64}}>{score >= total * 0.8 ? "🏆" : "📚"}</div>
           <h2>{score} / {total}</h2>
-          <button className="b bp" onClick={() => { award(score * 5); goBack(); }} style={{width:"100%",marginTop:16}}>🏠 Done</button>
+          <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; award(score * 5); goBack(); }} style={{width:"100%",marginTop:16}}>🏠 Done</button>
         </div>
       </div>
     );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, Bar, sh, PREPDRILL } from '../../data.jsx';
 
 export default function PrepDrill({ goBack, award }) {
@@ -7,6 +7,7 @@ export default function PrepDrill({ goBack, award }) {
   const [ppS, sPpS] = useState(0);
   const [ppA, sPpA] = useState(false);
   const [ppSl, sPpSl] = useState(-1);
+  const finishFired = useRef(false);
 
   const total = ppQ.length;
 
@@ -15,12 +16,12 @@ export default function PrepDrill({ goBack, award }) {
   if (ppI >= total) {
     return (
       <div className="scr-wrap">
-        
+
         {H("📍 Preposition Drills","Fill in the correct preposition")}
         <div style={{textAlign:"center"}}>
           <div style={{fontSize:64}}>{ppS >= total * 0.8 ? "🏆" : "📚"}</div>
           <h2>{ppS} / {total}</h2>
-          <button className="b bp" onClick={() => { award(ppS * 5); goBack(); }}>🏠 Done</button>
+          <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; award(ppS * 5); goBack(); }}>🏠 Done</button>
         </div>
       </div>
     );
@@ -30,7 +31,7 @@ export default function PrepDrill({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      
+
       {H("📍 Preposition Drills","Fill in the correct preposition")}
       <div style={{display:"flex",justifyContent:"space-between"}}>
         <span>{ppI + 1} / {total}</span>

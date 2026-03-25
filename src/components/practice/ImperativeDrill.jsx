@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data.jsx';
 
 import { rnd } from '../../lib/random.js';
@@ -30,6 +30,7 @@ const DATA = [
 ];
 
 export default function ImperativeDrill({ goBack, award }) {
+  const finishFired = useRef(false);
   const [q] = useState(() => shLocal(DATA));
   const total = q.length;
   const [idx, setIdx] = useState(0);
@@ -48,6 +49,7 @@ export default function ImperativeDrill({ goBack, award }) {
 
   function next() {
     if (idx + 1 >= total) {
+      if (!finishFired.current) { finishFired.current = true; if (award) award(score * 5); }
       setDone(true);
     } else {
       setIdx(i => i + 1);
@@ -65,7 +67,6 @@ export default function ImperativeDrill({ goBack, award }) {
           <div style={{ fontSize: 15, color: "#64748b", marginBottom: 16 }}>
             {score === total ? "Flawless! Command the language! 🏆" : score >= total * 0.8 ? "Strong work on imperatives! 💪" : "Keep practising those command forms!"}
           </div>
-          {award && <div style={{ marginBottom: 16 }}>{award}</div>}
           <button className="b bp" style={{ width: "100%" }} onClick={goBack}>← Back</button>
         </div>
       </div>

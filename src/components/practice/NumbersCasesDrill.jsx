@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data.jsx';
 
 import { rnd } from '../../lib/random.js';
@@ -32,6 +32,7 @@ const DATA = [
 ];
 
 export default function NumbersCasesDrill({ goBack, award }) {
+  const finishFired = useRef(false);
   const [q] = useState(() => shLocal(DATA));
   const total = q.length;
   const [idx, setIdx] = useState(0);
@@ -50,6 +51,7 @@ export default function NumbersCasesDrill({ goBack, award }) {
 
   function next() {
     if (idx + 1 >= total) {
+      if (!finishFired.current) { finishFired.current = true; if (award) award(score * 5); }
       setDone(true);
     } else {
       setIdx(i => i + 1);
@@ -67,7 +69,6 @@ export default function NumbersCasesDrill({ goBack, award }) {
           <div style={{ fontSize: 15, color: "#64748b", marginBottom: 16 }}>
             {score === total ? "Perfect! You nailed the number rules! 🏆" : score >= total * 0.8 ? "Really solid work! 💪" : "Numbers and cases take practice — keep going!"}
           </div>
-          {award && <div style={{ marginBottom: 16 }}>{award}</div>}
           <button className="b bp" style={{ width: "100%" }} onClick={goBack}>← Back</button>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, Bar, Spk } from '../../data.jsx';
 
 const ACCENT_TYPES = [
@@ -9,6 +9,7 @@ const ACCENT_TYPES = [
 ];
 
 export default function PitchAccentScreen({ goBack, award, PITCH_ACCENT }) {
+  const finishFired = useRef(false);
   const [idx, setIdx] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [selected, setSelected] = useState(null);
@@ -41,7 +42,7 @@ export default function PitchAccentScreen({ goBack, award, PITCH_ACCENT }) {
           </div>
           <div style={{display:"flex",gap:12,justifyContent:"center",marginTop:24}}>
             <button className="b bg" onClick={()=>{setIdx(0);setAnswered(false);setSelected(null);setScore(0);setDone(false);}}>Retry</button>
-            <button className="b bp" onClick={()=>{award(score*5+5);goBack();}}>Finish</button>
+            <button className="b bp" onClick={()=>{if(finishFired.current)return;finishFired.current=true;award(score*5+5);goBack();}}>Finish</button>
           </div>
         </div>
       </div>

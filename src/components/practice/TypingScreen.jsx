@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, Bar, V, sh } from '../../data.jsx';
 
 export default function TypingScreen({ goBack, award }) {
+  const finishFired = useRef(false);
   const [tyPoolData] = useState(() => {
     const allWords = Object.values(V).flat();
     const items = sh(allWords).slice(0, 10);
@@ -24,7 +25,7 @@ export default function TypingScreen({ goBack, award }) {
         <div style={{textAlign:"center"}}>
           <div style={{fontSize:64}}>{tyS >= tyPool.length * 0.8 ? "🏆" : "📚"}</div>
           <h2>{tyS} / {tyPool.length}</h2>
-          <button className="b bp" onClick={() => { award(tyS * 5); goBack(); }}>🏠 Done</button>
+          <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; award(tyS * 5); goBack(); }}>🏠 Done</button>
         </div>
       </div>
     );
