@@ -26,6 +26,7 @@ import {
  * @param {function} opts.applyRemoteProgress — (progress) => void
  * @param {function} opts.setFamData   — (fam|null) => void
  * @param {function} opts.setSyncReady — (bool) => void
+ * @param {function} [opts.onBeforeSignOut] - async () => void, called before sign-out to flush pending sync
  */
 export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady, onBeforeSignOut }) {
   // Keep callbacks in a ref so the one-time mount effect never goes stale

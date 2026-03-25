@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-03-21T01:53:47.712Z",
+  "url": "https://nasahrvatska.com",
+  "timings": {
+    "domContentLoaded": 334,
+    "firstContentful": 358,
+    "loginToApp": 3545,
+    "mobileFCP": 352
+  },
+  "totalIssues": 4,
+  "issuesBySeverity": {
+    "CRITICAL": 0,
+    "BUG": 1,
+    "WARN": 0,
+    "UX": 3,
+    "PERF": 0
+  },
+  "issues": [
+    {
+      "severity": "UX",
+      "area": "Weekly Goal",
+      "description": "Weekly goal not set — \"Tap Set to choose a weekly target\" shown, could confuse new users",
+      "detail": "",
+      "ts": "2026-03-21T01:52:35.165Z"
+    },
+    {
+      "severity": "UX",
+      "area": "Profile Edit",
+      "description": "No visible way to edit name or settings from profile",
+      "detail": "",
+      "ts": "2026-03-21T01:53:18.927Z"
+    },
+    {
+      "severity": "BUG",
+      "area": "Logout",
+      "description": "Not on login screen after logout",
+      "detail": "",
+      "ts": "2026-03-21T01:53:43.659Z"
+    },
+    {
+      "severity": "UX",
+      "area": "Mobile Touch Targets",
+      "description": "5 buttons < 36px: \"🛡️ Earn Streak Free\", \"Sync Now\", \"pisem\", \"pišim\", \"pisam\"",
+      "detail": "",
+      "ts": "2026-03-21T01:53:47.504Z"
+    }
+  ],
+  "jsErrors": []
+}

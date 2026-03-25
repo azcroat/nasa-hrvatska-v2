@@ -179,7 +179,7 @@ export default function LyricsScreen({ goBack, award }) {
                     <span style={{ fontSize:12, color:'#10b981', fontWeight:700 }}>{token.word}</span>
                   )}
                   <span>{token.punctuation} </span>
-                  <button onClick={() => speak(token.word, 'hr')} style={{ background:'none', border:'none', cursor:'pointer', fontSize:14, padding:0 }}>🔊</button>
+                  <button onClick={() => speak(token.word)} style={{ background:'none', border:'none', cursor:'pointer', fontSize:14, padding:0 }}>🔊</button>
                 </span>
               );
             })}

@@ -14,7 +14,7 @@ export default function StreakMilestoneModal({ days, onClose }) {
   const fired = useRef(false);
 
   useEffect(() => {
-    if (fired.current) return;
+    if (fired.current) return undefined;
     fired.current = true;
     const end = Date.now() + 3000;
     const colors = [msg.color, '#f59e0b', '#ffffff', '#10b981'];

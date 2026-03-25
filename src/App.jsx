@@ -320,7 +320,7 @@ function App(){
   // t1k, hIdx, evM removed — screens manage these internally (Q-4 cleanup)
   const[showXP,setShowXP]=useState(false);const[xpA,setXpA]=useState(0);const[nB,setNB]=useState(null);const[sB,setSB]=useState(false);
   const _initialPath=useRef(window.location.pathname);
-  const _unloadRef=useRef({});
+  const _unloadRef=useRef(/** @type {any} */ ({}));
   // Ref keeps onBeforeSignOut pointing at the latest doSyncNow without a TDZ issue.
   // doSyncNow is defined after useAuth (it depends on authUser from useAuth's return),
   // so passing it directly causes "Cannot access before initialization" in production builds.
@@ -376,6 +376,7 @@ function App(){
     applyRemoteProgress,
     setFamData,
     setSyncReady: _setSyncReady,
+    // @ts-ignore — ds is an extra convenience prop not declared in JSDoc
     ds,
   });
   // Keep _unloadRef current on every render so beforeunload always flushes latest state
@@ -398,8 +399,8 @@ function App(){
   //  2. saveSnapshot(true) — fires on pagehide/visibilitychange hidden (tab close/switch)
   // This prevents one Firebase write per XP award (15+ per lesson) from exhausting quota.
   useEffect(()=>{if(!authUser||authScreen!=="app")return;const _nd=new Date();const _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');const _saveData={name,stats,cp:currentScreen!=="welcome"&&currentScreen!=="placement",onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),freezes:getStreakFreezes(),favs,journal:jWords,dc:{day:_dcDay,answered:dchlA,selected:dchlSl},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};localStorage.setItem("uP_"+authUser.u,JSON.stringify(_saveData));touchSession();},[stats,currentScreen,name,authUser,authScreen,jWords,favs,dchlA,dchlSl]);
-  useEffect(()=>{if(authScreen!=="app")return;const iv=setInterval(()=>{if(isSessionExpired()){doOut();}},5*60*1000);return()=>clearInterval(iv)},[authScreen]);// eslint-disable-line
-  useEffect(()=>{if(authScreen!=="app")return;const h=()=>touchSession();window.addEventListener("click",h);window.addEventListener("touchstart",h);window.addEventListener("keydown",h);return()=>{window.removeEventListener("click",h);window.removeEventListener("touchstart",h);window.removeEventListener("keydown",h)}},[authScreen]);
+  useEffect(()=>{if(authScreen!=="app")return undefined;const iv=setInterval(()=>{if(isSessionExpired()){doOut();}},5*60*1000);return()=>clearInterval(iv)},[authScreen]);// eslint-disable-line
+  useEffect(()=>{if(authScreen!=="app")return undefined;const h=()=>touchSession();window.addEventListener("click",h);window.addEventListener("touchstart",h);window.addEventListener("keydown",h);return()=>{window.removeEventListener("click",h);window.removeEventListener("touchstart",h);window.removeEventListener("keydown",h)}},[authScreen]);
   useEffect(()=>{if(!_syncReady||authScreen!=="app"||!authUser)return;// Only show backup banner once per device. Skip for returning users with prior
 // progress — they've already seen it on their first device and don't need the
 // reminder on every new browser/device they sign in from.
@@ -409,7 +410,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   // Cross-device lesson completion now syncs in <2 seconds instead of up to 3 minutes.
   // savedAt is bumped to fpTs after each merge so repeated snapshots of unchanged data
   // are cleanly skipped on the next compare (fpTs === lpTs → no-op).
-  useEffect(()=>{if(authScreen!=="app"||!authUser)return;const _unsub=fbWatchProgress(authUser.u,function(fp,fpTs){const lp=gP(authUser.u);const lpTs=(lp&&lp.savedAt)||0;if(fpTs>lpTs){lP(authUser.u,{...fp,savedAt:fpTs});const _pllSt=fp.stats||fp.st||{};setStats(prev=>({...ds,..._pllSt,ct:[...new Set([...(prev.ct||[]),...(_pllSt.ct||[])])],lc:Math.max(prev.lc||0,_pllSt.lc||0),gc:Math.max(prev.gc||0,_pllSt.gc||0),xp:Math.max(prev.xp||0,_pllSt.xp||0)}));if(fp.name)setName(fp.name);applyRemoteProgress(fp);}});return()=>_unsub();},[authScreen,authUser,applyRemoteProgress,ds]);
+  useEffect(()=>{if(authScreen!=="app"||!authUser)return undefined;const _unsub=fbWatchProgress(authUser.u,function(fp,fpTs){const lp=gP(authUser.u);const lpTs=(lp&&lp.savedAt)||0;if(fpTs>lpTs){lP(authUser.u,{...fp,savedAt:fpTs});const _pllSt=fp.stats||fp.st||{};setStats(prev=>({...ds,..._pllSt,ct:[...new Set([...(prev.ct||[]),...(_pllSt.ct||[])])],lc:Math.max(prev.lc||0,_pllSt.lc||0),gc:Math.max(prev.gc||0,_pllSt.gc||0),xp:Math.max(prev.xp||0,_pllSt.xp||0)}));if(fp.name)setName(fp.name);applyRemoteProgress(fp);}});return()=>_unsub();},[authScreen,authUser,applyRemoteProgress,ds]);
   // Auto-save on every lesson completion (stats.lc or stats.ct length changes).
   // Lesson components only call setStats — they never write to localStorage or Firebase.
   // This effect fires immediately (no debounce) so progress is persisted even if the

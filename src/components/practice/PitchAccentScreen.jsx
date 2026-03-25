@@ -59,7 +59,7 @@ export default function PitchAccentScreen({ goBack, award, PITCH_ACCENT }) {
       <Bar v={idx+1} mx={items.length} color="#7c3aed" h={6} />
       <div className="c" style={{textAlign:"center",marginTop:16,padding:"24px 20px"}}>
         <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:12,marginBottom:8}}>
-          <Spk text={item.hr} />
+          <Spk text={item.hr} label={item.hr} />
           <p style={{fontSize:40,fontWeight:800,fontFamily:"'Playfair Display',serif",margin:0}}>{item.hr}</p>
         </div>
         <p style={{fontSize:14,color:"#78716c",marginBottom:4,fontStyle:"italic"}}>{item.en}</p>

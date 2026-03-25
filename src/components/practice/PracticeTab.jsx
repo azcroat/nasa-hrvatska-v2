@@ -242,7 +242,7 @@ export default function PracticeTab({
           [() => { setScr("wordsprint"); sCurEx("wordsprint"); },"⚡","Word Sprint","#fffbeb","#fde68a"],
           [startReview,"🔁","SRS Review","#f5f3ff","#ddd6fe"],
           [startWriting,"✍️","Free Writing","#fdf4ff","#e9d5ff"],
-        ].map(([fn,icon,label,bg,border], i) => (
+        ].map((/** @type {any} */ [fn,icon,label,bg,border], i) => (
           <button key={i} className="tc"
             style={{ textAlign:"center", padding:"14px 8px", background:bg, border:`1.5px solid ${border}` }}
             onClick={fn}>
@@ -280,7 +280,7 @@ export default function PracticeTab({
       <Section title="Review & Culture" icon="🧠" count={`${reviewItems.length} activities`} defaultOpen={false}>
         <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>Deep dives and cultural immersion</p>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
-          {reviewItems.map(([fn,icon,label,desc], i) => (
+          {reviewItems.map((/** @type {any} */ [fn,icon,label,desc], i) => (
             <button key={i} className="tc"
               style={{ display:"flex", alignItems:"center", gap:12, padding:"14px", textAlign:"left" }}
               onClick={fn}>
@@ -306,7 +306,7 @@ export default function PracticeTab({
             [startReview,      "🔁", "SRS Review",   "Smart spaced repetition"],
             [startWriting,     "✍️", "Free Writing",  "Write & get AI feedback"],
             [startAspectDrill, "🔄", "Aspect Drill",  "Imperfective vs perfective"],
-          ].map(([fn,icon,label,desc], i) => (
+          ].map((/** @type {any} */ [fn,icon,label,desc], i) => (
             <button key={i} className="tc"
               style={{ display:"flex", alignItems:"center", gap:12, padding:"14px", textAlign:"left" }}
               onClick={fn}>
@@ -351,7 +351,7 @@ export default function PracticeTab({
             [() => { setScr("dictation"); sCurEx("dictation"); }, "🎧", "Dictation",        "Listen and type Croatian"],
             [() => { setScr("proncontrast"); sCurEx("proncontrast"); }, "🔤", "Sound Contrast", "č/ć, š/ž, đ/dž mastery"],
             [() => { setScr("cefrtest"); sCurEx("cefrtest"); },   "🎓", "CEFR Test",        "A1→B2 proficiency check"],
-          ].map(([fn,icon,label,desc], i) => (
+          ].map((/** @type {any} */ [fn,icon,label,desc], i) => (
             <button key={i} className="tc"
               style={{ display:"flex", alignItems:"center", gap:12, padding:"14px", textAlign:"left" }}
               onClick={fn}>

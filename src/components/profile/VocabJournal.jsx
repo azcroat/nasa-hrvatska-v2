@@ -3,7 +3,7 @@ import Dexie from 'dexie';
 import { H, speak } from '../../data.jsx';
 
 // ── Dexie (IndexedDB) — unlimited offline storage, syncs seamlessly ──────────
-const db = new Dexie('NasaHrvatska');
+const db = /** @type {any} */ (new Dexie('NasaHrvatska'));
 db.version(1).stores({ journal: '++id,date' });
 
 // Migrate existing localStorage words on first load
