@@ -60,7 +60,6 @@ export default function WritingScreen({ goBack, award }) {
       });
       if (!res.ok) throw new Error("API error " + res.status);
       const data = await res.json();
-      finishFired.current = false;
       setResult(data);
     } catch (e) {
       setError("Could not connect to AI correction service. Check your connection.");
@@ -69,6 +68,7 @@ export default function WritingScreen({ goBack, award }) {
   }
 
   function newPrompt() {
+    finishFired.current = false;
     setText("");
     setResult(null);
     setError("");

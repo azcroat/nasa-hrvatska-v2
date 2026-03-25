@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, Bar, speak, speakSlow, sh } from '../../data.jsx';
 
 export default function ListeningScreen({ questions, goBack, award }) {
+  const finishFired = useRef(false);
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(false);
@@ -16,7 +17,7 @@ export default function ListeningScreen({ questions, goBack, award }) {
         <div style={{fontSize:64}}>{score>=total*0.7?"🏆":"👍"}</div>
         <h2 style={{fontFamily:"'Playfair Display',serif",color:"#164e63"}}>Listening Complete!</h2>
         <div style={{fontSize:32,fontWeight:800,color:"#0e7490"}}>{score} / {total}</div>
-        <button className="b bp" style={{marginTop:16}} onClick={()=>{award(score*4+10);goBack();}}>Finish!</button>
+        <button className="b bp" style={{marginTop:16}} onClick={()=>{if(finishFired.current)return;finishFired.current=true;award(score*4+10);goBack();}}>Finish!</button>
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, Bar, sh, NUMTIME } from '../../data.jsx';
 
 export default function NumTime({ goBack, award }) {
+  const finishFired = useRef(false);
   const [ntQData] = useState(() => {
     const q = sh([...NUMTIME.numbers, ...NUMTIME.time]).slice(0, 10);
     return [q, sh([q[0].a].concat(q[0].al))];
@@ -24,7 +25,7 @@ export default function NumTime({ goBack, award }) {
           <div style={{fontSize:64}}>{ntS >= total * 0.7 ? "🏆" : "👍"}</div>
           <h2 style={{fontFamily:"'Playfair Display',serif",color:"#164e63"}}>Numbers Complete!</h2>
           <div style={{fontSize:32,fontWeight:800,color:"#0e7490"}}>{ntS} / {total}</div>
-          <button className="b bp" style={{marginTop:16}} onClick={() => { award(ntS * 3 + 10); goBack(); }}>
+          <button className="b bp" style={{marginTop:16}} onClick={() => { if(finishFired.current)return; finishFired.current=true; award(ntS * 3 + 10); goBack(); }}>
             Finish!
           </button>
         </div>

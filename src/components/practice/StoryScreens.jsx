@@ -1,21 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, Bar, speak, STORIES } from '../../data.jsx';
 
 // Single component managing both story selection and playback
 export default function StoryScreens({ goBack, award, sCurEx }) {
   const [stSt, sStSt] = useState(null);
   const [stSc, sStSc] = useState(0);
+  const finishFired = useRef(false);
 
   if (!stSt) {
     return (
       <div className="scr-wrap">
-        
+
         {H("📖 Mini Stories","Interactive stories where YOU choose what happens")}
         {STORIES.map((s, i) => (
           <div
             key={i}
             className="tc"
-            onClick={() => { sStSt(s); sStSc(0); if (sCurEx) sCurEx("story"); }}
+            onClick={() => { finishFired.current = false; sStSt(s); sStSc(0); if (sCurEx) sCurEx("story"); }}
             style={{display:"flex",alignItems:"center",gap:14,marginBottom:10}}>
             <div style={{fontSize:36}}>
               {i === 0 ? "☕" : i === 1 ? "🍒" : "🏖️"}
@@ -48,7 +49,7 @@ export default function StoryScreens({ goBack, award, sCurEx }) {
           <button
             className="b bp"
             style={{marginTop:16}}
-            onClick={() => { award(15); sStSt(null); }}>
+            onClick={() => { if(finishFired.current)return; finishFired.current=true; award(15); sStSt(null); }}>
             Back to Stories
           </button>
         </div>
@@ -84,7 +85,7 @@ export default function StoryScreens({ goBack, award, sCurEx }) {
             <button
               className="b bp"
               style={{width:"100%",marginTop:20}}
-              onClick={() => { award(15); sStSt(null); }}>
+              onClick={() => { if(finishFired.current)return; finishFired.current=true; award(15); sStSt(null); }}>
               ✅ Story Complete!
             </button>
           )}

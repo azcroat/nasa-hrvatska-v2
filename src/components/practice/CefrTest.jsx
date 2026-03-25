@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data.jsx';
 
 import { rnd } from '../../lib/random.js';
@@ -117,6 +117,7 @@ function gradeMessage(pct) {
 }
 
 export default function CefrTest({ award }) {
+  const finishFired = useRef(false);
   const [levelKey, setLevelKey] = useState(null);
   const [qIdx, setQIdx] = useState(0);
   const [score, setScore] = useState(0);
@@ -125,6 +126,7 @@ export default function CefrTest({ award }) {
   const [done, setDone] = useState(false);
 
   function startLevel(key) {
+    finishFired.current = false;
     setLevelKey(key);
     setQIdx(0);
     setScore(0);
@@ -146,9 +148,12 @@ export default function CefrTest({ award }) {
     const level = LEVELS[levelKey];
     const nextIdx = qIdx + 1;
     if (nextIdx >= level.questions.length) {
-      const finalScore = score + (selected === level.questions[qIdx].answer ? 1 : 0);
+      if (!finishFired.current) {
+        finishFired.current = true;
+        const finalScore = score + (selected === level.questions[qIdx].answer ? 1 : 0);
+        if (award) award(finalScore * 7);
+      }
       setDone(true);
-      if (award) award(finalScore * 7);
     } else {
       setQIdx(nextIdx);
       setAnswered(false);
