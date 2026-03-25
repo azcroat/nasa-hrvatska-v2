@@ -29,6 +29,7 @@ import CookieConsent from "./components/shared/CookieConsent.jsx";
 import TermsOfService from "./components/shared/TermsOfService.jsx";
 import AdminDashboard from "./components/admin/AdminDashboard.jsx";
 import PlacementTest from "./components/home/PlacementTest.jsx";
+import NewPlacementTest from "./components/auth/PlacementTest.jsx";
 // Reload once on stale-chunk errors (happens after deploy when old index.html
 // tries to load chunk files that no longer exist at their old hashed paths).
 function lazyWithReload(fn) {
@@ -172,6 +173,7 @@ const Leaderboard = lazyWithReload(() => import("./components/profile/Leaderboar
 const CertificateScreen = lazyWithReload(() => import("./components/profile/CertificateScreen.jsx"));
 const MistakesScreen = lazyWithReload(() => import("./components/practice/MistakesScreen.jsx"));
 const AnalyticsScreen = lazyWithReload(() => import("./components/profile/AnalyticsScreen.jsx"));
+const GrammarReference = lazyWithReload(() => import("./components/shared/GrammarReference.jsx"));
 
 // Module-level constants — defined once, not recreated on every render
 const DS={xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,authLoading:0,mv:0,hi:0,rs:[],ct:[],badges:[]};
@@ -207,7 +209,7 @@ function App(){
   const[currentScreen,_setCurrentScreen]=useState("welcome");
   const setScr=useCallback(function(s){
     _setCurrentScreen(s);
-    if(s==="welcome"||s==="placement")return;
+    if(s==="welcome"||s==="placement"||s==="new-placement")return;
     // Q-6: use React Router navigate instead of pushState
     navigate(s==="dashboard"?"/":`/${s}`,{replace:false});
   },[navigate]);
@@ -287,7 +289,7 @@ function App(){
         top100:"croatia",events:"croatia",croatiaathletes:"croatia",
         badges:"profile",leaderboard:"profile",journal:"profile",favorites:"profile",learnpath:"profile",contact:"profile",
         certificate:"profile",analytics:"profile",profile:"profile",admin:"profile",
-        privacy:"profile",terms:"profile",
+        privacy:"profile",terms:"profile","grammar-ref":"learn",
         mistakes:"practice",listeningpath:"practice",
       };
       _setCurrentScreen(scr);
@@ -401,6 +403,17 @@ function App(){
     checkNameDay(name);
     scheduleStreakReminder(stats.str || getStreak().count);
   },[authScreen]);// eslint-disable-line
+  // Show new placement test for brand-new users with zero progress who haven't taken it
+  useEffect(()=>{
+    if(authScreen!=="app")return undefined;
+    if(currentScreen==="welcome"||currentScreen==="placement"||currentScreen==="new-placement")return undefined;
+    if(stats.lc===0&&stats.xp===0&&!localStorage.getItem("placement_done")&&!localStorage.getItem("onboarded")){
+      // Only trigger after a short delay to ensure auth state has settled
+      const t=setTimeout(()=>setScr("new-placement"),1200);
+      return()=>clearTimeout(t);
+    }
+    return undefined;
+  },[authScreen,stats.lc,stats.xp,currentScreen]);// eslint-disable-line react-hooks/exhaustive-deps
   // localStorage-only auto-save on any state change. Firebase writes are handled by:
   //  1. doSyncNow() — fires on lesson/grammar/ct completion (line below)
   //  2. saveSnapshot(true) — fires on pagehide/visibilitychange hidden (tab close/switch)
@@ -496,6 +509,26 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   const _data={name,stats,cp:true,onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),freezes:getStreakFreezes(),favs,journal:jWords,dc:{day:_dcDay,answered:_dcBestAns,selected:_dcBestSel},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};localStorage.setItem("uP_"+authUser.u,JSON.stringify(_data));const result=await fbSaveProgress(authUser.u,_data).catch(function(){return{ok:false}});return result&&result.ok!==false;},[authUser,name,stats,favs,jWords,dchlA,dchlSl]);
   // Keep the ref current so onBeforeSignOut always calls the latest version
   _syncNowRef.current=doSyncNow;
+  // Daily snapshot for progress charts
+  useEffect(()=>{
+    if(!authUser||authScreen!=="app"||stats.xp===0)return;
+    const today=new Date().toISOString().slice(0,10);
+    const key='progress_history';
+    try{
+      const history=JSON.parse(localStorage.getItem(key)||'[]');
+      const idx=history.findIndex(function(h){return h.date===today});
+      const snap={date:today,xp:stats.xp,lc:stats.lc,gc:stats.gc};
+      if(idx>=0)history[idx]=snap;else history.push(snap);
+      localStorage.setItem(key,JSON.stringify(history.slice(-90)));
+    }catch(_){}
+  },[stats.xp,authUser,authScreen]);// eslint-disable-line react-hooks/exhaustive-deps
+  function getPlacementCt(level){
+    const ct=[];
+    const targets=[0,0,5,10,15,20];
+    const max=targets[level]||0;
+    for(const lv of LEARN_PATH){for(const it of lv.items){if(it.topic&&ct.length<max)ct.push(it.topic);}}
+    return ct;
+  }
   function goBack(){
     if(curEx)markExerciseDone(curEx);
     sCurEx("");
@@ -920,6 +953,10 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       currentScreen==="mistakes"&&<MistakesScreen goBack={goBack} award={award} />}
       {// ═══ ANALYTICS ═══
       currentScreen==="analytics"&&<AnalyticsScreen goBack={goBack} stats={stats} name={name} />}
+      {// ═══ GRAMMAR REFERENCE ═══
+      currentScreen==="grammar-ref"&&<GrammarReference onClose={()=>setScr("dashboard")} />}
+      {// ═══ NEW PLACEMENT TEST (first-time users) ═══
+      currentScreen==="new-placement"&&<NewPlacementTest onComplete={function(level){localStorage.setItem("placement_done","1");setStats(function(prev){return{...prev,ct:getPlacementCt(level),lc:Math.max(prev.lc,getPlacementCt(level).length)};});setScr("dashboard");}} />}
       {// ═══ VOCABULARY LESSON ═══
       currentScreen==="lesson"&&<LessonScreen
         lt={lt} li={li} lx={lx} ls={ls} lp={lp} la={la} lsl={lsl} qi={qi} icons={icons}

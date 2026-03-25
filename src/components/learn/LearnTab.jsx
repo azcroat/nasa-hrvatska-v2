@@ -80,7 +80,21 @@ export default function LearnTab({
 
   return (
     <React.Fragment>
-      {H("🗺️ My Path", "Structured journey to Croatian fluency")}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--heading)' }}>🗺️ My Path</div>
+        <button
+          onClick={() => setScr('grammar-ref')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '8px 14px', borderRadius: 10, border: 'none', cursor: 'pointer',
+            background: 'linear-gradient(135deg,#0e7490,#164e63)',
+            color: '#fff', fontSize: 12, fontWeight: 700,
+            fontFamily: "'Outfit',sans-serif",
+          }}
+        >
+          📖 Grammar
+        </button>
+      </div>
 
       {/* ── PATH WIDGET ─────────────────────────────────────────────────── */}
       <div style={{

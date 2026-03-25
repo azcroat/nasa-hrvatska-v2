@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, Spk, speakSlow } from '../../data.jsx';
+import PronunciationScorer from '../shared/PronunciationScorer.jsx';
 
 export default function ShadowingScreen({ goBack, award, SHADOWING }) {
   const finishFired = useRef(false);
@@ -64,9 +65,10 @@ export default function ShadowingScreen({ goBack, award, SHADOWING }) {
             Listened {plays} time{plays!==1?"s":""}
           </div>
         )}
+        <PronunciationScorer targetText={item.hr} />
         <button
           className="b bs"
-          style={{marginBottom:12}}
+          style={{marginBottom:12,marginTop:12}}
           onClick={()=>{setSaid(true);setReps(r=>r+1);}}>
           🎤 I Said It!
         </button>

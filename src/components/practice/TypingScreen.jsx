@@ -1,8 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, V, sh } from '../../data.jsx';
+import CroatianKeyboard from '../shared/CroatianKeyboard.jsx';
 
 export default function TypingScreen({ goBack, award }) {
   const finishFired = useRef(false);
+  const inputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
   const [tyPoolData] = useState(() => {
     const allWords = Object.values(V).flat();
     const items = sh(allWords).slice(0, 10);
@@ -33,6 +35,15 @@ export default function TypingScreen({ goBack, award }) {
 
   const isCorrect = tyIn.trim().toLowerCase() === tyW[0].toLowerCase();
 
+  function insertChar(char) {
+    const el = inputRef.current;
+    if (!el) { sTyIn(v => v + char); return; }
+    const start = el.selectionStart || 0, end = el.selectionEnd || 0;
+    const newVal = tyIn.slice(0, start) + char + tyIn.slice(end);
+    sTyIn(newVal);
+    setTimeout(() => { el.focus(); el.setSelectionRange(start + 1, start + 1); }, 0);
+  }
+
   return (
     <div className="scr-wrap">
       
@@ -43,22 +54,14 @@ export default function TypingScreen({ goBack, award }) {
         <div style={{fontSize:24,fontWeight:800,color:"#164e63",marginTop:8}}>{tyW[1]}</div>
       </div>
       <input
+        ref={inputRef}
         type="text"
         value={tyIn}
         onChange={e => sTyIn(e.target.value)}
         onKeyDown={e => { if (e.key === "Enter" && !tyA) { sTyA(true); if (isCorrect) sTyS(tyS + 1); } }}
         placeholder="Type Croatian..."
         style={{marginTop:16,textAlign:"center",fontSize:18}} />
-      <div style={{display:"flex",gap:6,justifyContent:"center",marginTop:8,flexWrap:"wrap"}}>
-        {["č","ć","š","ž","đ"].map(ch => (
-          <button
-            key={ch}
-            style={{padding:"12px 16px",border:"2px solid #e7e5e4",borderRadius:10,fontSize:18,fontWeight:700,cursor:"pointer",background:"white",minHeight:44}}
-            onClick={() => sTyIn(tyIn + ch)}>
-            {ch}
-          </button>
-        ))}
-      </div>
+      <CroatianKeyboard onChar={insertChar} />
       {tyA && (
         <div style={{textAlign:"center",marginTop:16}}>
           <div style={{fontSize:18,fontWeight:700,color:isCorrect?"#16a34a":"#dc2626"}}>

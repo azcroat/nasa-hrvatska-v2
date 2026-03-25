@@ -1,5 +1,7 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { getStreak, getSR, fbDeleteAccount } from '../../data.jsx';
+import ProgressCharts from './ProgressCharts.jsx';
+import { getWeakTopics } from '../../lib/adaptive.js';
 
 export default function ProfileTab({ name, au, level, st, favs, darkMode, setDarkMode, setScr, doOut, syncReady, onSyncNow, jWords }) {
   const [confirmOut, setConfirmOut] = useState(false);
@@ -149,6 +151,44 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
           </div>
         ))}
       </div>
+
+      {/* ── MY PROGRESS ── */}
+      <h3 className="sh">My Progress</h3>
+      <ProgressCharts stats={st} />
+
+      {/* ── WEAK AREAS ── */}
+      {(() => {
+        const weak = getWeakTopics(60);
+        if (!weak.length) return null;
+        return (
+          <React.Fragment>
+            <h3 className="sh">Weak Areas</h3>
+            <div style={{ marginBottom: 20 }}>
+              {weak.slice(0, 5).map(w => (
+                <div key={w.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
+                  background: 'var(--card)', border: '1.5px solid var(--card-b)',
+                  borderRadius: 12, marginBottom: 8,
+                }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', textTransform: 'capitalize' }}>{w.id.replace(/_/g, ' ')}</div>
+                    <div style={{ fontSize: 11, color: '#dc2626', fontWeight: 600, marginTop: 2 }}>{w.accuracy}% accuracy · {w.attempts} attempts</div>
+                  </div>
+                  <button
+                    onClick={() => setScr(w.id)}
+                    style={{
+                      padding: '8px 14px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                      background: 'linear-gradient(135deg,#dc2626,#b91c1c)',
+                      color: '#fff', fontSize: 12, fontWeight: 700,
+                      fontFamily: "'Outfit',sans-serif",
+                    }}
+                  >Review</button>
+                </div>
+              ))}
+            </div>
+          </React.Fragment>
+        );
+      })()}
 
       {/* ── ACHIEVEMENTS ── */}
       <h3 className="sh">Achievements</h3>

@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh, CONJ } from '../../data.jsx';
+import { recordTopicResult } from '../../lib/adaptive.js';
 
 export default function ConjugationDrill({ goBack, award, setSt }) {
   const finishFired = useRef(false);
@@ -108,7 +109,7 @@ export default function ConjugationDrill({ goBack, award, setSt }) {
                 <button
                   key={oi}
                   className={"ob " + (cjA ? (oi === ci ? "ok" : cjSl === oi ? "no" : "") : "")}
-                  onClick={() => { if (!cjA) { sCjSl(oi); sCjA(true); if (oi === ci) { sCjS(s => s + 1); award(3); } } }}>
+                  onClick={() => { if (!cjA) { sCjSl(oi); sCjA(true); const correct=oi===ci; if (correct) { sCjS(s => s + 1); award(3); } recordTopicResult('conjugation',correct); } }}>
                   {q.person} {o}
                 </button>
               ))}
