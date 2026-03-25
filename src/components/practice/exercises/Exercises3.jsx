@@ -74,7 +74,7 @@ export function PossessivesScreen({ goBack, award }) {
       <h3 className="sh">🎯 Ovo je _____ ...</h3>
       {shMemo("pq",POSSESS.quiz,10).map(function(q,qi){return (
         <div key={qi} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-          <div style={{flex:1,fontSize:13}}>({"$"}{q.person}{") Ovo je _____ "}<span style={{fontWeight:700}}>{q.noun}</span></div>
+          <div style={{flex:1,fontSize:13}}>{"("}{q.person}{") Ovo je _____ "}<span style={{fontWeight:700}}>{q.noun}</span></div>
           <div style={{display:"flex",gap:4}}>
             {q.opts.map(function(o,oi){return (
               <button key={oi} style={{padding:"8px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:11,cursor:"pointer"}}

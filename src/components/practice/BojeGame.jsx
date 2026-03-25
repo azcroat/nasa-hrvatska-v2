@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh, BOJE } from '../../data.jsx';
 
 export default function BojeGame({ goBack, award }) {
+  const finishFired = useRef(false);
   const [bjMode, sBjMode] = useState("learn");
   const [bjIdx, sBjIdx] = useState(0);
   const [bjSc, sBjSc] = useState(0);
@@ -11,6 +12,7 @@ export default function BojeGame({ goBack, award }) {
   const [bjQ, sBjQ] = useState([]);
 
   function startQuiz() {
+    finishFired.current = false;
     const q = sh(BOJE.quiz);
     sBjQ(q); sBjIdx(0); sBjSc(0); sBjAns(false); sBjSel(-1); sBjOpts([]);
   }
@@ -151,7 +153,8 @@ export default function BojeGame({ goBack, award }) {
                     sBjAns(false);
                     sBjSel(-1);
                   } else {
-                    award(bjSc * 2); sBjIdx(total);
+                    if (!finishFired.current) { finishFired.current = true; award(bjSc * 2); }
+                    sBjIdx(total);
                   }
                 }}>
                 {bjIdx < total - 1 ? "Next →" : "See Results"}
