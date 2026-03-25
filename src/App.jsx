@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from "react";
+// Q-6: React Router — useNavigate replaces pushUrl(), useLocation drives tab sync
+import { useNavigate, useLocation } from "react-router-dom";
 import { _fbReady, H, Bar, Spk, V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbWatchProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbOnAuthStateChanged, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getProverbOfDay, getDailyChallenge, getHistFact, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, getDueReviews, shMemo, shuffleArr, buildSearchIndex, bootstrapMistakesFromSRS } from "./data.jsx";
 import AppContext from "./context/AppContext.jsx";
 import ScreenErrorBoundary from "./components/shared/ScreenErrorBoundary.jsx";
@@ -174,10 +176,9 @@ const DS={xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,authLoading:0
 const ALL_CATS=Object.keys(V);
 const ICONS={greetings:"👋",numbers:"🔢",family:"👨‍👩‍👧‍👦",food:"🍕",animals:"🐾",body:"🦴","body & face":"🦴",colors:"🎨",home:"🏠","home & rooms":"🏠",clothing:"👔",weather:"☀️","weather & seasons":"☀️",places:"📍",transport:"🚗",verbs:"💬",adjectives:"📏",time:"📅","time & calendar":"📅",months:"🗓️",directions:"🧭",emotions:"💭",professions:"💼",restaurant:"🍽️",shopping:"🛍️",travel:"✈️",health:"🏥",questions:"❓",conjunctions:"🔗",culture:"🏛️","daily routine":"🌅","in the classroom":"📖","commands at home":"🏡","fairy tales":"📜",hobbies:"🎯",zagreb:"🏙️",opposites:"🔄",comparatives:"📊",fruits:"🍎",vegetables:"🥦",sports:"⚽",holidays:"🎄",personality:"😊"};
 
-let _appNavDepth=0;
-function pushUrl(path){try{if(window.location.pathname!==path){_appNavDepth++;window.history.pushState({_ad:_appNavDepth},"",path)}}catch(e){}}
-// Module-level — stable across renders, safe to reference in useCallback without listing as dep
+// Q-6: TAB_PATHS still used for URL construction — kept at module level
 const TAB_PATHS={home:"/",learn:"/learn",practice:"/practice",croatia:"/croatia",profile:"/profile"};
+const PATH_TO_TAB={"/":"home","/learn":"learn","/practice":"practice","/croatia":"croatia","/profile":"profile"};
 // XP cooldown helpers — pure localStorage functions, defined outside component
 // so they never cause stale-closure issues in useCallback
 function canEarnXP(exerciseId){
@@ -189,6 +190,9 @@ function markExerciseDone(exerciseId){
 
 function App(){
   useNotifications();
+  // Q-6: React Router hooks — replace custom pushUrl + popstate with navigate + useLocation
+  const navigate = useNavigate();
+  const location = useLocation();
   // One-time silent bootstrap: imports historical SRS wrong-answer data into
   // the mistakes store so existing users see their trouble words immediately.
   // Runs 500ms after mount (never blocks render), guarded by localStorage flag.
@@ -201,42 +205,37 @@ function App(){
   const setScr=useCallback(function(s){
     _setCurrentScreen(s);
     if(s==="welcome"||s==="placement")return;
-    pushUrl(s==="dashboard"?"/":`/${s}`);
-  },[]);
+    // Q-6: use React Router navigate instead of pushState
+    navigate(s==="dashboard"?"/":`/${s}`,{replace:false});
+  },[navigate]);
   const[name,setName]=useState("");
   const[stats,setStats]=useState(ds);
+  // ── Placement test state (shared between WelcomeScreen and PlacementTest) ──
   const[pi,sPi]=useState(0);const[ps,sPs]=useState(0);const[pa,sPa]=useState(false);const[px,sPx]=useState(-1);const[pq,sPq]=useState([]);
+  // ── Lesson screen state (bidirectional: LearnTab sets, LessonScreen reads+writes) ──
   const[lt,sLt]=useState(null);const[li,sLi]=useState([]);const[lx,sLx]=useState(0);const[ls,sLs]=useState(0);const[lp,sLp]=useState("learn");const[la,sLa]=useState(false);const[lsl,sLsl]=useState(-1);const[qi,sQi]=useState([]);
+  // ── Grammar screen state ──
   const[gl,sGl]=useState(null);const[gx,sGx]=useState(0);const[gp,sGp]=useState("learn");const[gs,sGs]=useState(0);const[ga,sGa]=useState(false);const[gsl,sGsl]=useState(-1);
-  const[gt,sGt]=useState(null);const[gsc,sGsc]=useState(0);const[gph,sGph]=useState("play");const[mp,sMp]=useState([]);const[msl,sMsl]=useState([]);const[mm,sMm]=useState([]);
+  // ── Match game: only initPool needed — MatchGame owns mm/msl/gsc/gph internally ──
+  const[matchInitPool,setMatchInitPool]=useState([]);
+  // ── Multiple choice game ──
   const[mcInitQ,setMcInitQ]=useState([]);const[mcResultQ,setMcResultQ]=useState([]);const[mcResultScore,setMcResultScore]=useState(0);
+  // ── Reading screen state ──
   const[rp,sRp]=useState(null);const[rph,sRph]=useState("read");const[rqi,sRqi]=useState(0);const[rsc,sRsc]=useState(0);const[ra,sRa]=useState(false);const[rsl,sRsl]=useState(-1);const[hw,sHw]=useState(null);
+  // ── Speaking screen state ──
   const[sw,sSw]=useState(null);const[sr,sSr]=useState(null);const[sx,sSx]=useState(0);const[si,sSi]=useState([]);const[ssc,sSsc]=useState(0);
-  const[m7,sM7]=useState("menu");const[m7i,sM7i]=useState(0);const[m7s,sM7s]=useState(0);const[m7a,sM7a]=useState(false);const[m7sl,sM7sl]=useState(-1);const[m7o,sM7o]=useState([]);const[m7q,sM7q]=useState([]);const[m7v,sM7v]=useState(0);
-  const[znSec,sZnSec]=useState(0);const[znIdx,sZnIdx]=useState(0);const[znSc,sZnSc]=useState(0);const[znAns,sZnAns]=useState(false);const[znSel,sZnSel]=useState(-1);const[znOpts,sZnOpts]=useState([]);const[znMode,sZnMode]=useState("menu");
-  const[bjMode,sBjMode]=useState("learn");const[bjIdx,sBjIdx]=useState(0);const[bjSc,sBjSc]=useState(0);const[bjAns,sBjAns]=useState(false);const[bjSel,sBjSel]=useState(-1);const[bjOpts,sBjOpts]=useState([]);const[bjQ,sBjQ]=useState([]);
-  const[cjMode,sCjMode]=useState("menu");const[cjQ,sCjQ]=useState([]);const[cjI,sCjI]=useState(0);const[cjS,sCjS]=useState(0);const[cjA,sCjA]=useState(false);const[cjSl,sCjSl]=useState(-1);const[cjO,sCjO]=useState([]);
-  const[czMode,sCzMode]=useState("learn");const[kgTab,sKgTab]=useState("timeline");
+  // ── Flashcards / Listening init pools ──
   const[fcInitPool,setFcInitPool]=useState([]);
   const[lsInitQ,setLsInitQ]=useState([]);
-  const[stSt,sStSt]=useState(null);const[stSc,sStSc]=useState(0);
-  const[ntQ,sNtQ]=useState([]);const[ntI,sNtI]=useState(0);const[ntS,sNtS]=useState(0);const[ntA,sNtA]=useState(false);const[ntSl,sNtSl]=useState(-1);const[ntO,sNtO]=useState([]);const[czI,sCzI]=useState(0);const[czS,sCzS]=useState(0);const[czA,sCzA]=useState(false);const[czSl,sCzSl]=useState(-1);const[czO,sCzO]=useState([]);const[czQ,sCzQ]=useState([]);
-  const[ujQ,sUjQ]=useState([]);const[ujI,sUjI]=useState(0);const[ujS,sUjS]=useState(0);const[ujIn,sUjIn]=useState("");const[ujA,sUjA]=useState(false);
-  const[asQ,sAsQ]=useState([]);const[asI,sAsI]=useState(0);const[asS,sAsS]=useState(0);const[asA,sAsA]=useState(false);const[asSl,sAsSl]=useState(-1);const[asO,sAsO]=useState([]);const[asMode,sAsMode]=useState("learn");
-  const[ppQ,sPpQ]=useState([]);const[ppI,sPpI]=useState(0);const[ppS,sPpS]=useState(0);const[ppA,sPpA]=useState(false);const[ppSl,sPpSl]=useState(-1);
-  const[dcNoun,sDcNoun]=useState(0);const[dcMode,sDcMode]=useState("learn");const[dcI,sDcI]=useState(0);const[dcS,sDcS]=useState(0);const[dcA,sDcA]=useState(false);const[dcSl,sDcSl]=useState(-1);const[dcO,sDcO]=useState([]);const[dcQ,sDcQ]=useState([]);
-  const[tyW,sTyW]=useState(null);const[tyIn,sTyIn]=useState("");const[tyI,sTyI]=useState(0);const[tyS,sTyS]=useState(0);const[tyA,sTyA]=useState(false);const[tyPool,sTyPool]=useState([]);
+  // ── Current exercise ID (used by XP cooldown) ──
   const[curEx,sCurEx]=useState("");
   const { dchlA, sDchlA, dchlSl, sDchlSl } = useDaily();
-  const[pfTab,sPfTab]=useState("sing");const[pfGender,sPfGender]=useState("f");const[pfMode,sPfMode]=useState("learn");
-  const[pfQ,sPfQ]=useState([]);const[pfI,sPfI]=useState(0);const[pfS,sPfS]=useState(0);const[pfA,sPfA]=useState(false);const[pfSl,sPfSl]=useState(-1);const[pfO,sPfO]=useState([]);const[pfCase,sPfCase]=useState("");const[pfCaseA,sPfCaseA]=useState(false);const[pfCaseSl,sPfCaseSl]=useState(-1);
   const { famData, setFamData, famMembers, setFamMembers, famLoading, setFamLoading, famName, setFamName, famCode, setFamCode, famErr, setFamErr, famTab, setFamTab } = useFamily();
-  const[tab,_setTab]=useState("home");
-  const setTab=useCallback(function(t){_setTab(t);pushUrl(TAB_PATHS[t]||"/");},[]);
-  const[tnVerb,setTnVerb]=useState(0);const[tnTense,setTnTense]=useState("present");const[tnGender,setTnGender]=useState("m");const[tnMode,setTnMode]=useState("learn");const[tnQ,setTnQ]=useState([]);const[tnI,setTnI]=useState(0);const[tnS,setTnS]=useState(0);const[tnA,setTnA]=useState(false);const[tnSl,setTnSl]=useState(-1);const[tnO,setTnO]=useState([]);
-  const[mapCat,setMapCat]=useState("all");const[mapSel,setMapSel]=useState(null);
-  const[rpIdx,setRpIdx]=useState(0);const[rpLine,setRpLine]=useState(0);const[rpShow,setRpShow]=useState(false);
-  const[rcIdx,setRcIdx]=useState(0);const[rcServ,setRcServ]=useState(4);const[rcTimer,setRcTimer]=useState(null);const[rcTimerVal,setRcTimerVal]=useState(0);
+  const[tab,_setTab]=useState(()=>{
+    // Q-6: initialise tab from URL on first load
+    return PATH_TO_TAB[window.location.pathname]||"home";
+  });
+  const setTab=useCallback(function(t){_setTab(t);navigate(TAB_PATHS[t]||"/",{replace:false});},[navigate]);
   const { jWords, setJWords, jIn, setJIn, jEn, setJEn } = useJournal();
   const{darkMode,setDarkMode,favs,setFavs,toggleFav,isFav}=usePreferences();
   const{srchQ,setSrchQ,srchR,srchOpen,setSrchOpen,doSearch}=useSearch();
@@ -245,6 +244,52 @@ function App(){
   const[comebackBonus,setComebackBonus]=useState(false);
   const[streakMilestone,setStreakMilestone]=useState(null); // number (7/30/50/100/365) or null
   const[pendingJoinCode,setPendingJoinCode]=useState(()=>{try{return new URLSearchParams(window.location.search).get('join')||null;}catch{return null;}});
+  // Q-6: Sync tab and currentScreen when React Router location changes (browser back/forward)
+  useEffect(function(){
+    const p=location.pathname;
+    const tabForPath=PATH_TO_TAB[p];
+    if(tabForPath){
+      // Tab-root path → restore dashboard + correct tab
+      _setTab(tabForPath);
+      _setCurrentScreen("dashboard");
+    } else if(p&&p!=="/"&&p!=="/welcome"&&p!=="/placement"){
+      // Screen path → restore screen + sync nav tab
+      const scr=p.slice(1);
+      const screenTabMap={
+        lesson:"learn",grammar:"learn",padezi:"learn",padezifull:"learn",modal:"learn",tenses:"learn",
+        alphabet:"learn",reading:"learn",read:"learn",readinglist:"learn",readlist:"learn",aspect:"learn",falsefr:"learn",
+        declension:"learn",brzalice:"learn",dialects:"learn",diminutives:"learn",wordform:"learn",colorquirk:"learn",svojmoj:"learn",
+        countries:"learn",professions:"learn",weather:"learn",clothes:"learn",bodydesc:"learn",phonology:"learn",
+        mcgame:"practice",mcresult:"practice",flashcards:"practice",match:"practice",typing:"practice",
+        listening:"practice",speaking:"practice",znam:"practice",boje:"practice",conj:"practice",conjdrill:"practice",
+        unjumble:"practice",prepdrill:"practice",numtime:"practice",wordsprint:"practice",
+        profgender:"practice",comparatives:"practice",future:"practice",sibil:"practice",restaurant:"practice",
+        qwords:"practice",negation:"practice",possess:"practice",coloragree:"practice",opposites:"practice",
+        cityloc:"practice",akudrill:"practice",ordinals:"practice",relpron:"practice",emogender:"practice",
+        verbdrill:"practice",tenseflip:"practice",riddles:"practice",logicquiz:"practice",pronouns:"practice",
+        genderdrill:"practice",sentbuild:"practice",reflexive:"practice",fillstory:"practice",
+        convmatch:"practice",scenes:"practice",storyselect:"practice",story:"practice",
+        proverbs:"practice",idioms:"practice",
+        pitchaccent:"practice",shadowing:"practice",review:"practice",writing:"practice",aspectdrill:"practice",
+        clitic:"practice",numcases:"practice",imperative:"practice",neggen:"practice",
+        collocations:"practice",wordfamilies:"practice",dictation:"practice",
+        proncontrast:"practice",dialogue:"practice",cefrtest:"practice",slang:"practice",
+        region_labin:"croatia",region_bibinje:"croatia",region_hercegovina:"croatia",
+        region_vukovar:"croatia",region_vinkovci:"croatia",region_zagreb:"croatia",
+        region_split:"croatia",region_mostar:"croatia",region_tomislavgrad:"croatia",region_knin:"croatia",
+        cityofday:"croatia",immersion:"croatia",aiconvo:"croatia",crmap:"croatia",
+        history:"croatia",kings:"croatia",grocery:"croatia",recipes:"croatia",roleplay:"croatia",
+        texting:"croatia",friends:"croatia",foodorder:"croatia",transport:"croatia",emergency:"croatia",
+        football:"croatia",popculture:"croatia",practical:"croatia",school:"croatia",basketball:"croatia",gym:"croatia",
+        top100:"croatia",events:"croatia",croatiaathletes:"croatia",
+        badges:"profile",leaderboard:"profile",journal:"profile",favorites:"profile",learnpath:"profile",contact:"profile",
+        certificate:"profile",analytics:"profile",profile:"profile",
+        mistakes:"practice",listeningpath:"practice",
+      };
+      _setCurrentScreen(scr);
+      if(screenTabMap[scr])_setTab(screenTabMap[scr]);
+    }
+  },[location.pathname]);
   // toggleFav, isFav → usePreferences hook | doSearch → useSearch hook
   // Fix 3: stable reference — prevents HomeTab useMemo from re-running every render
   const getWeekStats=useCallback(function(){const sr=getSR();const weak=Object.values(sr).filter(function(v){return v.w>v.r}).length;const strong=Object.values(sr).filter(function(v){return v.r>v.w}).length;return{lessons:stats.lc,grammar:stats.gc,streak:getStreak().count,weak:weak,strong:strong}},[stats]);
@@ -272,9 +317,7 @@ function App(){
     if(fp.cooldown){const _arT=new Date().toISOString().slice(0,10);let _arCd={};try{_arCd=JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch(e){}for(const _arCk in fp.cooldown){if(fp.cooldown[_arCk]===_arT)_arCd[_arCk]=fp.cooldown[_arCk];}localStorage.setItem("xpCooldown",JSON.stringify(_arCd));}
   },[setFavs,setJWords,sDchlA,sDchlSl]);
   const { tDir, setTDir: sTDir, tIn, setTIn: sTIn, tOut, tL, doTr } = useTranslator();
-  const[t1k,sT1k]=useState(null);
-  const[hIdx,sHIdx]=useState(0);
-  const[evM,sEvM]=useState(new Date().getMonth()+1);
+  // t1k, hIdx, evM removed — screens manage these internally (Q-4 cleanup)
   const[showXP,setShowXP]=useState(false);const[xpA,setXpA]=useState(0);const[nB,setNB]=useState(null);const[sB,setSB]=useState(false);
   const _initialPath=useRef(window.location.pathname);
   const _unloadRef=useRef({});
@@ -416,55 +459,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       document.removeEventListener("visibilitychange",onVisHide);
     };
   },[]);
-  // ═══ BROWSER BACK BUTTON SUPPORT (popstate) ═══
-  useEffect(function(){
-    // Mark baseline so we can detect when back would exit the app
-    window.history.replaceState({_ad:0},"",window.location.pathname);
-    const tabByPath={"/":"home","/learn":"learn","/practice":"practice","/croatia":"croatia","/profile":"profile"};
-    // Maps every screen name to its parent tab so nav bar stays in sync
-    const screenTab={
-      lesson:"learn",grammar:"learn",padezi:"learn",padezifull:"learn",modal:"learn",tenses:"learn",
-      alphabet:"learn",reading:"learn",read:"learn",readinglist:"learn",readlist:"learn",aspect:"learn",falsefr:"learn",
-      declension:"learn",brzalice:"learn",dialects:"learn",diminutives:"learn",wordform:"learn",colorquirk:"learn",svojmoj:"learn",
-      countries:"learn",professions:"learn",weather:"learn",clothes:"learn",bodydesc:"learn",phonology:"learn",
-      mcgame:"practice",mcresult:"practice",flashcards:"practice",match:"practice",typing:"practice",
-      listening:"practice",speaking:"practice",znam:"practice",boje:"practice",conj:"practice",conjdrill:"practice",
-      unjumble:"practice",prepdrill:"practice",numtime:"practice",wordsprint:"practice",
-      profgender:"practice",comparatives:"practice",future:"practice",sibil:"practice",restaurant:"practice",
-      qwords:"practice",negation:"practice",possess:"practice",coloragree:"practice",opposites:"practice",
-      cityloc:"practice",akudrill:"practice",ordinals:"practice",relpron:"practice",emogender:"practice",
-      verbdrill:"practice",tenseflip:"practice",riddles:"practice",logicquiz:"practice",pronouns:"practice",
-      genderdrill:"practice",sentbuild:"practice",reflexive:"practice",fillstory:"practice",
-      convmatch:"practice",scenes:"practice",storyselect:"practice",story:"practice",
-      proverbs:"practice",idioms:"practice",
-      pitchaccent:"practice",shadowing:"practice",review:"practice",writing:"practice",aspectdrill:"practice",
-      clitic:"practice",numcases:"practice",imperative:"practice",neggen:"practice",
-      collocations:"practice",wordfamilies:"practice",dictation:"practice",
-      proncontrast:"practice",dialogue:"practice",cefrtest:"practice",slang:"practice",
-      region_labin:"croatia",region_bibinje:"croatia",region_hercegovina:"croatia",
-      region_vukovar:"croatia",region_vinkovci:"croatia",region_zagreb:"croatia",
-      region_split:"croatia",region_mostar:"croatia",region_tomislavgrad:"croatia",region_knin:"croatia",
-      cityofday:"croatia",immersion:"croatia",aiconvo:"croatia",crmap:"croatia",
-      history:"croatia",kings:"croatia",grocery:"croatia",recipes:"croatia",roleplay:"croatia",
-      texting:"croatia",friends:"croatia",foodorder:"croatia",transport:"croatia",emergency:"croatia",
-      football:"croatia",popculture:"croatia",practical:"croatia",school:"croatia",basketball:"croatia",gym:"croatia",
-      top100:"croatia",events:"croatia",croatiaathletes:"croatia",
-      badges:"profile",leaderboard:"profile",journal:"profile",favorites:"profile",learnpath:"profile",contact:"profile",
-    };
-    function onPopState(e){
-      const p=window.location.pathname;
-      // Tab-root paths → restore dashboard + correct tab
-      if(tabByPath[p]!==undefined){_setCurrentScreen("dashboard");_setTab(tabByPath[p]);return;}
-      const s=p.slice(1);
-      // Unknown or auth paths → safe fallback to home dashboard
-      if(!s||s==="welcome"||s==="placement"){_setCurrentScreen("dashboard");_setTab("home");window.history.replaceState({_ad:0},"","/");return;}
-      // Restore screen + sync nav tab
-      _setCurrentScreen(s);
-      if(screenTab[s])_setTab(screenTab[s]);
-    }
-    window.addEventListener("popstate",onPopState);
-    return function(){window.removeEventListener("popstate",onPopState)};
-  },[]); 
+  // Q-6: popstate replaced by location.pathname useEffect above (React Router owns back/forward)
   const award=useCallback((amt,celebrate)=>{
     if(curEx&&!canEarnXP(curEx)){setXpA(0);setShowXP(true);setTimeout(()=>setShowXP(false),2000);return}
     if(curEx)markExerciseDone(curEx);
@@ -496,12 +491,10 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   function goBack(){
     if(curEx)markExerciseDone(curEx);
     sCurEx("");
-    // Only use browser back if we have an in-app history entry to return to.
-    // history.state._ad === 0 means we're at the app baseline — going back
-    // would exit the SPA entirely. Instead, fall back to the home dashboard.
-    const depth=(window.history.state&&window.history.state._ad)||0;
-    if(depth>0){window.history.back();}
-    else{_setCurrentScreen("dashboard");_setTab("home");window.history.replaceState({_ad:0},"","/");}
+    // Q-6: React Router owns navigation history — navigate(-1) handles back safely.
+    // If there's no in-app entry to return to, React Router will stay put
+    // (can't navigate before the SPA entry point without an explicit fallback).
+    navigate(-1);
   }
   const level=useMemo(()=>lvl(stats.xp),[stats.xp]);
   // Fix 1: these hooks must live above all early returns (Rules of Hooks)
@@ -509,11 +502,15 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   const onCloseCelebration=useCallback(()=>setShowCelebration(false),[]);
   const allCats=ALL_CATS;
   const icons=ICONS;
-  // ═══ SCREEN LAUNCH FUNCTIONS (S1-3) ═══
+  // ═══ SCREEN LAUNCH FUNCTIONS ═══
   function launchMcGame(questions){setMcInitQ(questions);sCurEx("mcgame");setScr("mcgame");}
   function mcGameComplete(questions,score){setMcResultQ(questions);setMcResultScore(score);setScr("mcresult");}
   function launchFlashcards(pool){setFcInitPool(pool);sCurEx("flashcards");setScr("flashcards");}
   function launchListening(questions){setLsInitQ(questions);sCurEx("listening");setScr("listening");}
+  // Q-4: MatchGame now manages its own state; App only stores the init pool
+  function launchMatch(pool){setMatchInitPool(pool);sCurEx("match");setScr("match");}
+  // Q-4: Speaking launch — App owns the speaking init state (used by SpeakingScreen props)
+  function launchSpeaking(items){sSi(items);sSx(0);sSw(items[0]);sSr(null);sSsc(0);sCurEx("speaking");setScr("speaking");}
 
   function launchPathItem(item){
     if(!item)return;
@@ -560,6 +557,8 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   return (
     <AppContext.Provider value={ctxValue}>
     <div className={darkMode?"dark":""} style={darkMode?BG_DARK:BG_LIGHT}>
+      {/* Q-5 WCAG: skip-to-main link — visible only on keyboard focus */}
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       {authScreen==="app"&&currentScreen!=="welcome"&&currentScreen!=="placement"&&<Sidebar tab={tab} setTab={setTab} setScr={setScr} name={name} level={level} st={stats} darkMode={darkMode} setDarkMode={setDarkMode} badges={badges} srchQ={srchQ} setSrchQ={setSrchQ} onSearch={doSidebarSearch} doOut={doOut} />}
       <div className="app-content">
       <Suspense fallback={<div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"60vh"}}><div style={{textAlign:"center"}}><div style={{display:"flex",justifyContent:"center",gap:0,marginBottom:16,borderRadius:3,overflow:"hidden",width:54,margin:"0 auto 16px"}}><div style={{height:6,flex:1,background:"#D4002D"}}/><div style={{height:6,flex:1,background:"#F5F5F5"}}/><div style={{height:6,flex:1,background:"#003DA5"}}/></div><div style={{fontSize:13,fontWeight:800,color:"var(--subtext)",letterSpacing:".1em",textTransform:"uppercase",opacity:.6}}>Naša Hrvatska</div></div></div>}>
@@ -658,31 +657,19 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
         tab==="learn"&&<ScreenErrorBoundary name="LearnTab"><LearnTab
           allCats={allCats} icons={icons} setScr={setScr} sCurEx={sCurEx} st={stats}
           sh={sh} sLt={sLt} sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl}
-          setTnVerb={setTnVerb} setTnTense={setTnTense} setTnGender={setTnGender} setTnMode={setTnMode}
-          sCzMode={sCzMode} sPfTab={sPfTab} sPfGender={sPfGender} sPfMode={sPfMode}
-          sDcMode={sDcMode} sAsMode={sAsMode} sCjMode={sCjMode} sM7={sM7} sBjMode={sBjMode}
           sGl={sGl} sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
           launchPathItem={launchPathItem}
         /></ScreenErrorBoundary>}
         {// ═══ TAB: PRACTICE ═══
         tab==="practice"&&<ScreenErrorBoundary name="PracticeTab"><PracticeTab
           allCats={allCats} sh={sh} setScr={setScr} sCurEx={sCurEx}
-          onLaunchQuiz={launchMcGame} onLaunchFlash={launchFlashcards} onLaunchListen={launchListening}
-          sMp={sMp} sMsl={sMsl} sMm={sMm} sGsc={sGsc} sGph={sGph}
-          sTyPool={sTyPool} sTyI={sTyI} sTyS={sTyS} sTyIn={sTyIn} sTyA={sTyA} sTyW={sTyW}
-          sSi={sSi} sSx={sSx} sSw={sSw} sSr={sSr} sSsc={sSsc}
-          sZnMode={sZnMode}
-          sUjQ={sUjQ} sUjI={sUjI} sUjS={sUjS} sUjIn={sUjIn} sUjA={sUjA}
-          sPpQ={sPpQ} sPpI={sPpI} sPpS={sPpS} sPpA={sPpA} sPpSl={sPpSl}
-          sNtQ={sNtQ} sNtI={sNtI} sNtS={sNtS} sNtA={sNtA} sNtSl={sNtSl} sNtO={sNtO}
-          sEvM={sEvM}
+          onLaunchQuiz={launchMcGame} onLaunchFlash={launchFlashcards}
+          onLaunchListen={launchListening} onLaunchMatch={launchMatch}
+          onLaunchSpeaking={launchSpeaking}
         /></ScreenErrorBoundary>}
         {// ═══ TAB: CROATIA ═══
         tab==="croatia"&&<ScreenErrorBoundary name="CroatiaTab"><CroatiaTab
-          setScr={setScr} sHIdx={sHIdx} sKgTab={sKgTab} sCurEx={sCurEx}
-          setRcIdx={setRcIdx} setRcServ={setRcServ}
-          setRpIdx={setRpIdx} setRpLine={setRpLine} setRpShow={setRpShow}
-          setMapCat={setMapCat} setMapSel={setMapSel}
+          setScr={setScr} sCurEx={sCurEx}
         /></ScreenErrorBoundary>}
         {// ═══ TAB: PROFILE ═══
         tab==="profile"&&<ScreenErrorBoundary name="ProfileTab"><ProfileTab
@@ -871,7 +858,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {// ═══ COLORS & GENDER ═══
       currentScreen==="boje"&&<BojeGame goBack={goBack} award={award} />}
       {// ═══ MATCH GAME ═══
-      currentScreen==="match"&&<MatchGame mp={mp} mm={mm} msl={msl} gph={gph} gsc={gsc} sMm={sMm} sMsl={sMsl} sGsc={sGsc} sGph={sGph} goBack={goBack} award={award} />}
+      currentScreen==="match"&&<MatchGame initPool={matchInitPool} goBack={goBack} award={award} />}
       {// ═══ WORD SPRINT ═══
       currentScreen==="wordsprint"&&<WordSprint sh={sh} award={award} goBack={goBack} />}
       {// ═══ SPEAKING / PRONUNCIATION ═══

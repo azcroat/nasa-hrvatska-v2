@@ -300,11 +300,8 @@ function CrSection({ title, icon, count, defaultOpen = false, children }) {
   );
 }
 
-export default function CroatiaTab({
-  setScr, sHIdx, sKgTab, sCurEx,
-  setRcIdx, setRcServ, setRpIdx, setRpLine, setRpShow,
-  setMapCat, setMapSel,
-}) {
+// Q-4: Removed dead state setters — target screens manage their own state.
+export default function CroatiaTab({ setScr, sCurEx }) {
   const cats = ["tv","music","film","sport","podcast","culture"];
   const city = getCityOfDay();
   const [activeStream, setActiveStream] = useState(null);
@@ -356,9 +353,9 @@ export default function CroatiaTab({
       <CrSection title="History & Regions" icon="🇭🇷" count="12 entries" defaultOpen={false}>
         <div style={{display:"flex",flexDirection:"column",gap:8}}>
           {[
-            [()=>{sHIdx(0);setScr("history");},"🇭🇷","Domovinski Rat","Croatia's 1991–1995 Homeland War","#dc2626"],
+            [()=>{setScr("history");},"🇭🇷","Domovinski Rat","Croatia's 1991–1995 Homeland War","#dc2626"],
             [()=>setScr("region_vukovar"),"🕯️","Vukovar","Hero city — a deep dive","#dc2626"],
-            [()=>{sKgTab("timeline");setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval dynasty & royal timeline","#b45309"],
+            [()=>{setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval dynasty & royal timeline","#b45309"],
             [()=>setScr("region_zagreb"),"🏛️","Zagreb","Croatia's vibrant capital city","#0e7490"],
             [()=>setScr("region_split"),"🌊","Split","Rome on the Adriatic coast","#0284c7"],
             [()=>setScr("region_mostar"),"🌉","Mostar","The bridge reborn — our city","#7c3aed"],
@@ -387,8 +384,8 @@ export default function CroatiaTab({
         <div style={{display:"flex",flexDirection:"column",gap:8}}>
           {[
             [()=>setScr("grocery"),"🛒","Grocery Shopping","Supermarket vocabulary & phrases","#16a34a"],
-            [()=>{setRcIdx(0);setRcServ(4);setScr("recipes");},"🍳","Croatian Recipes","Cook traditional dishes in Croatian","#b45309"],
-            [()=>{setRpIdx(0);setRpLine(0);setRpShow(false);setScr("roleplay");},"🎭","Role-Play Scenarios","Practice real-life conversations","#7c3aed"],
+            [()=>{setScr("recipes");},"🍳","Croatian Recipes","Cook traditional dishes in Croatian","#b45309"],
+            [()=>{setScr("roleplay");},"🎭","Role-Play Scenarios","Practice real-life conversations","#7c3aed"],
             [()=>setScr("school"),"🏫","School Kit","Vocabulary for parents & students","#0e7490"],
             [()=>setScr("texting"),"📱","Texting & Slang","How Croatians actually text","#7c3aed"],
             [()=>setScr("friends"),"🤝","Making Friends","Meeting people & social life","#16a34a"],
@@ -412,7 +409,7 @@ export default function CroatiaTab({
         </div>
       </CrSection>
 
-      <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px",marginBottom:20}} onClick={() => { setMapCat("all"); setMapSel(null); setScr("crmap"); }}>
+      <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px",marginBottom:20}} onClick={() => { setScr("crmap"); }}>
         <div style={{fontSize:36}}>🗺️</div>
         <div>
           <div style={{fontSize:16,fontWeight:800,color:"var(--heading)"}}>Interactive Map & Directions</div>

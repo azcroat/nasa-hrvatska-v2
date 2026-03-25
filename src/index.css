@@ -32,7 +32,7 @@ body{-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;
   /* Navigation */
   --nav-bg:rgba(255,255,255,0.85);
   --nav-b:rgba(0,0,0,.06);
-  --nav-lbl:#94a3b8;
+  --nav-lbl:#5c6370; /* WCAG AA: ~5.1:1 on white (was #94a3b8 = 2.4:1, failed) */
   --nav-active:#0e7490;
 
   /* Sidebar */
@@ -42,8 +42,8 @@ body{-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;
 
   /* Typography */
   --heading:#0f172a;
-  --subtext:#64748b;
-  --sh-c:#94a3b8;
+  --subtext:#555e6e; /* WCAG AA: ~5.3:1 on white (was #64748b = 4.0:1, failed for small text) */
+  --sh-c:#5c6370; /* WCAG AA: ~5.1:1 on white (was #94a3b8 = 2.4:1, failed) */
   --rt-c:#374151;
 
   /* Misc */
@@ -319,7 +319,7 @@ input:focus,textarea:focus{
   border-color:#0e7490;
   box-shadow:0 0 0 4px rgba(14,116,144,.1),0 1px 4px rgba(0,0,0,.06);
 }
-input::placeholder,textarea::placeholder{color:#94a3b8;font-weight:400}
+input::placeholder,textarea::placeholder{color:#6b7280;font-weight:400} /* WCAG AA: ~4.6:1 on white */
 
 /* ═══════════════════════════════════════════════════════════
    QUIZ OPTIONS — the most-used interactive element

@@ -107,7 +107,7 @@ export function RegionScreen({ regionKey, goBack }) {
         <div>
           <div style={{fontSize:13,color:"#78716c",marginBottom:16}}>Notable figures from {r.title}</div>
           {r.people.map(function(p,i){const open = expandedPerson === i; return (
-            <div key={i} className="c" style={{marginBottom:12,cursor:"pointer"}} onClick={() => setExpandedPerson(open ? null : i)}>
+            <div key={i} className="c" role="button" tabIndex={0} style={{marginBottom:12,cursor:"pointer"}} onClick={() => setExpandedPerson(open ? null : i)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setExpandedPerson(open?null:i);}}} aria-expanded={open}>
               <div style={{display:"flex",gap:12,alignItems:"flex-start"}}>
                 <div style={{width:48,height:48,borderRadius:24,background:accentColor+"20",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>
                   👤
@@ -166,7 +166,7 @@ export function RegionScreen({ regionKey, goBack }) {
                 if (revealed && correct) { bg = "#dcfce7"; border = "2px solid #16a34a"; color = "#166534"; }
                 else if (revealed && chosen && !correct) { bg = "#fee2e2"; border = "2px solid #dc2626"; color = "#991b1b"; }
                 return (
-                  <div key={i} onClick={() => handleQuizAnswer(opt)}
+                  <div key={i} role="button" tabIndex={0} onClick={() => handleQuizAnswer(opt)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleQuizAnswer(opt);}}}
                     style={{padding:"14px 16px",background:bg,border,borderRadius:12,marginBottom:8,cursor:"pointer",
                       fontSize:14,fontWeight:600,color,transition:"all .2s"}}>
                     {revealed && correct && "✅ "}{revealed && chosen && !correct && "❌ "}{opt}

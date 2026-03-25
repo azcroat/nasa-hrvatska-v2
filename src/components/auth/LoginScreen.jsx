@@ -52,13 +52,13 @@ export default function LoginScreen({
             <div style={{flex:1,height:1,background:"#e2e8f0"}} />
           </div>
           {isR && <React.Fragment>
-            <label style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>DISPLAY NAME</label>
-            <input type="text" placeholder="Your name" value={displayName} onChange={e=>{setDisplayName(e.target.value);setAuthError("")}} style={{marginBottom:14}} />
+            <label htmlFor="auth-name" style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>DISPLAY NAME</label>
+            <input id="auth-name" type="text" placeholder="Your name" value={displayName} onChange={e=>{setDisplayName(e.target.value);setAuthError("")}} style={{marginBottom:14}} />
           </React.Fragment>}
-          <label style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>EMAIL ADDRESS</label>
-          <input type="email" placeholder={isR?"Enter your email address":"Email address"} value={authEmail} onChange={e=>{setAuthEmail(e.target.value);setAuthError("")}} autoComplete="email" inputMode="email" autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{marginBottom:14}} />
-          <label style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>PASSWORD</label>
-          <input type={sp?"text":"password"} placeholder={isR?"Create password (6+ characters)":"Enter your password"} value={pw} onChange={e=>{setPw(e.target.value);setAuthError("")}} onKeyDown={e=>{if(e.key==="Enter"&&!isR)doLog()}} autoComplete={isR?"new-password":"current-password"} autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{marginBottom:8}} />
+          <label htmlFor="auth-email" style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>EMAIL ADDRESS</label>
+          <input id="auth-email" type="email" placeholder={isR?"Enter your email address":"Email address"} value={authEmail} onChange={e=>{setAuthEmail(e.target.value);setAuthError("")}} autoComplete="email" inputMode="email" autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{marginBottom:14}} />
+          <label htmlFor="auth-password" style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>PASSWORD</label>
+          <input id="auth-password" type={sp?"text":"password"} placeholder={isR?"Create password (6+ characters)":"Enter your password"} value={pw} onChange={e=>{setPw(e.target.value);setAuthError("")}} onKeyDown={e=>{if(e.key==="Enter"&&!isR)doLog()}} autoComplete={isR?"new-password":"current-password"} autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{marginBottom:8}} />
           {isR && pw && (
             <div style={{marginBottom:14}}>
               <div style={{display:"flex",gap:4,marginBottom:4}}>
@@ -71,11 +71,11 @@ export default function LoginScreen({
           )}
           {isR && !pw && <div style={{marginBottom:14}} />}
           {isR && <React.Fragment>
-            <label style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>CONFIRM PASSWORD</label>
-            <input type="password" placeholder="Confirm your password" value={pc} onChange={e=>{setPc(e.target.value);setAuthError("")}} autoComplete="new-password" autoCapitalize="none" autoCorrect="off" spellCheck="false" onKeyDown={e=>{if(e.key==="Enter")doReg()}} style={{marginBottom:16}} />
+            <label htmlFor="auth-confirm" style={{fontSize:12,fontWeight:700,color:"#78716c",display:"block",marginBottom:6}}>CONFIRM PASSWORD</label>
+            <input id="auth-confirm" type="password" placeholder="Confirm your password" value={pc} onChange={e=>{setPc(e.target.value);setAuthError("")}} autoComplete="new-password" autoCapitalize="none" autoCorrect="off" spellCheck="false" onKeyDown={e=>{if(e.key==="Enter")doReg()}} style={{marginBottom:16}} />
           </React.Fragment>}
           {!isR && <div style={{textAlign:"right",marginBottom:12}}>
-            <span style={{fontSize:13,color:"#0e7490",cursor:"pointer",fontWeight:600}} onClick={()=>{setAuthScreen("reset");setAuthError("");setRpEm(authEmail||"")}}>Forgot password?</span>
+            <button type="button" style={{fontSize:13,color:"#0e7490",cursor:"pointer",fontWeight:600,background:"none",border:"none",padding:0,fontFamily:"inherit"}} onClick={()=>{setAuthScreen("reset");setAuthError("");setRpEm(authEmail||"")}}>Forgot password?</button>
           </div>}
           <button className="b bp" style={{width:"100%",fontSize:16,padding:"14px 24px",marginTop:4}} onClick={isR?doReg:doLog} disabled={authLoading}>
             {authLoading?"Loading...":isR?"Create Account":"Sign In"}
@@ -88,9 +88,9 @@ export default function LoginScreen({
           </div>
           <div style={{textAlign:"center",marginTop:12,fontSize:14,color:"#78716c"}}>
             {isR?"Have an account? ":"No account? "}
-            <span style={{color:"#0e7490",cursor:"pointer",fontWeight:700}} onClick={()=>{setAuthScreen(isR?"login":"register");setAuthError("");setAuthEmail("");setPw("");setPc("");setDisplayName("")}}>
+            <button type="button" style={{color:"#0e7490",cursor:"pointer",fontWeight:700,background:"none",border:"none",padding:0,fontSize:"inherit",fontFamily:"inherit"}} onClick={()=>{setAuthScreen(isR?"login":"register");setAuthError("");setAuthEmail("");setPw("");setPc("");setDisplayName("")}}>
               {isR?"Sign in":"Create one"}
-            </span>
+            </button>
           </div>
         </div>
       </div>

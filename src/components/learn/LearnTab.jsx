@@ -47,11 +47,10 @@ const STAGE_COLORS = [
   { bg:'linear-gradient(135deg,#dc2626,#b91c1c)', light:'#fff1f2', border:'#fecaca' },
 ];
 
+// Q-4: Removed dead state setters — target screens manage their own init state.
 export default function LearnTab({
   allCats, icons, setScr, sCurEx, st,
   sh, sLt, sLi, sLx, sLs, sLp, sLa, sLsl,
-  setTnVerb, setTnTense, setTnGender, setTnMode,
-  sCzMode, sPfTab, sPfGender, sPfMode, sDcMode, sAsMode, sCjMode, sM7, sBjMode,
   sGl, sGp, sGx, sGs, sGa, sGsl,
   launchPathItem,
 }) {
@@ -198,9 +197,9 @@ export default function LearnTab({
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:14 }}>
           {[
             ["📜","Grammar Intro","a1",() => { sGl(GRAM.beginner[0]); sGp("learn"); sGx(0); sGs(0); sGa(false); sGsl(-1); setScr("grammar"); sCurEx("grammar"); }],
-            ["🔄","Tenses & Gender","a1",() => { setTnVerb(0); setTnTense("present"); setTnGender("m"); setTnMode("learn"); setScr("tenses"); sCurEx("tenses"); }],
-            ["📝","Cases Intro","a2",() => { sCzMode("learn"); setScr("padezi"); sCurEx("padezi"); }],
-            ["🎨","Colors & Gender","a2",() => { sBjMode("learn"); setScr("boje"); sCurEx("boje"); }],
+            ["🔄","Tenses & Gender","a1",() => { setScr("tenses"); sCurEx("tenses"); }],
+            ["📝","Cases Intro","a2",() => { setScr("padezi"); sCurEx("padezi"); }],
+            ["🎨","Colors & Gender","a2",() => { setScr("boje"); sCurEx("boje"); }],
           ].map(([icon,label,cefr,fn]) => (
             <button key={label} className="tc" style={{ display:"flex", alignItems:"center", gap:10, padding:"13px 14px", textAlign:"left" }} onClick={fn}>
               <div style={{ fontSize:22, flexShrink:0 }}>{icon}</div>
@@ -216,9 +215,9 @@ export default function LearnTab({
         </div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:14 }}>
           {[
-            ["📚","Padeži Master","b1",() => { sPfTab("sing"); sPfGender("f"); sPfMode("learn"); setScr("padezifull"); sCurEx("padezifull"); }],
-            ["↔️","Verb Aspect","b1",() => { sAsMode("learn"); setScr("aspect"); }],
-            ["🔀","Conjugation","b1",() => { sCjMode("menu"); setScr("conjdrill"); sCurEx("conjdrill"); }],
+            ["📚","Padeži Master","b1",() => { setScr("padezifull"); sCurEx("padezifull"); }],
+            ["↔️","Verb Aspect","b1",() => { setScr("aspect"); }],
+            ["🔀","Conjugation","b1",() => { setScr("conjdrill"); sCurEx("conjdrill"); }],
           ].map(([icon,label,cefr,fn]) => (
             <button key={label} className="tc" style={{ display:"flex", alignItems:"center", gap:10, padding:"13px 14px", textAlign:"left" }} onClick={fn}>
               <div style={{ fontSize:22, flexShrink:0 }}>{icon}</div>
@@ -234,8 +233,8 @@ export default function LearnTab({
         </div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
           {[
-            ["🔮","Modal Verbs","b1",() => { sM7("menu"); setScr("modal"); }],
-            ["📝","Declension","b2",() => { sDcMode("learn"); setScr("declension"); }],
+            ["🔮","Modal Verbs","b1",() => { setScr("modal"); }],
+            ["📝","Declension","b2",() => { setScr("declension"); }],
             ["🔀","Conditional","b1",() => setScr("conditional")],
             ["🤝","Vi ili ti?","b1",() => setScr("formalregister")],
             ["🔁","Impersonal","b2",() => setScr("impersonal")],

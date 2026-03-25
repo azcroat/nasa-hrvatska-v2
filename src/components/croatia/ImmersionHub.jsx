@@ -104,10 +104,10 @@ export default function ImmersionHub({ goBack, setScr }) {
       {activeTab === 'journey' && (
         <div>
           {/* AI Conversation Partner hero */}
-          <div onClick={() => setScr && setScr('aiconvo')}
+          <div role="button" tabIndex={0} onClick={() => setScr && setScr('aiconvo')} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setScr&&setScr('aiconvo');}}}
             style={{background:'linear-gradient(135deg,#1e1b4b,#3730a3)',borderRadius:20,padding:'18px 20px',
               marginBottom:16,cursor:'pointer',color:'white',boxShadow:'0 6px 24px rgba(55,48,163,.25)',
-              display:'flex',gap:14,alignItems:'center'}}>
+              display:'flex',gap:14,alignItems:'center'}} aria-label="Open AI Conversation Partner">
             <div style={{fontSize:40,flexShrink:0}}>🤖</div>
             <div style={{flex:1}}>
               <div style={{fontSize:15,fontWeight:900,marginBottom:3}}>AI Conversation Partner</div>
@@ -244,7 +244,7 @@ function JourneyCard({ j, color }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="c" style={{marginBottom:12,padding:0,overflow:'hidden'}}>
-      <div style={{padding:'14px 16px',cursor:'pointer',display:'flex',gap:12,alignItems:'center'}} onClick={() => setOpen(o => !o)}>
+      <div role="button" tabIndex={0} style={{padding:'14px 16px',cursor:'pointer',display:'flex',gap:12,alignItems:'center'}} onClick={() => setOpen(o => !o)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setOpen(o=>!o);}}} aria-expanded={open}>
         <div style={{width:44,height:44,borderRadius:12,background:`${color}15`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,flexShrink:0}}>{j.icon}</div>
         <div style={{flex:1,minWidth:0}}>
           <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:2}}>
