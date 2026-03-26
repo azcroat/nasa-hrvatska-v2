@@ -31,10 +31,14 @@ function NavIcon({ id, active }) {
   );
   if (id === 'croatia') return (
     <svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-      <rect x="2.5" y="2.5" width="8.5" height="8.5" rx="1.5" fill={active ? '#0e7490' : 'currentColor'} opacity={active ? 0.85 : 0.75}/>
-      <rect x="13" y="2.5" width="8.5" height="8.5" rx="1.5" stroke="currentColor" strokeWidth="1.5" fill={active ? 'rgba(14,116,144,.12)' : 'transparent'}/>
-      <rect x="2.5" y="13" width="8.5" height="8.5" rx="1.5" stroke="currentColor" strokeWidth="1.5" fill={active ? 'rgba(14,116,144,.12)' : 'transparent'}/>
-      <rect x="13" y="13" width="8.5" height="8.5" rx="1.5" fill={active ? '#0e7490' : 'currentColor'} opacity={active ? 0.85 : 0.75}/>
+      {/* Top-left: red (filled) */}
+      <rect x="2.5" y="2.5" width="8.5" height="8.5" rx="1.5" fill={active ? '#D40030' : 'currentColor'} opacity={active ? 1 : 0.75}/>
+      {/* Top-right: white (outline) */}
+      <rect x="13" y="2.5" width="8.5" height="8.5" rx="1.5" fill={active ? '#F8F6F2' : 'transparent'} stroke={active ? '#D40030' : 'currentColor'} strokeWidth={active ? 1 : 1.5} opacity={active ? 1 : 0.4}/>
+      {/* Bottom-left: white (outline) */}
+      <rect x="2.5" y="13" width="8.5" height="8.5" rx="1.5" fill={active ? '#F8F6F2' : 'transparent'} stroke={active ? '#D40030' : 'currentColor'} strokeWidth={active ? 1 : 1.5} opacity={active ? 1 : 0.4}/>
+      {/* Bottom-right: red (filled) */}
+      <rect x="13" y="13" width="8.5" height="8.5" rx="1.5" fill={active ? '#D40030' : 'currentColor'} opacity={active ? 1 : 0.75}/>
     </svg>
   );
   if (id === 'profile') return (
@@ -220,7 +224,7 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
           <button key={t.id} className={'sb-btn' + (tab === t.id ? ' active' : '')}
             onClick={() => { setTab(t.id); setScr('dashboard'); }}
             aria-current={tab === t.id ? 'page' : undefined}>
-            <span style={{ display:'flex', alignItems:'center', color: tab === t.id ? '#0e7490' : 'var(--nav-lbl)', flexShrink:0 }}>
+            <span style={{ display:'flex', alignItems:'center', color: tab === t.id ? (t.id === 'croatia' ? '#D40030' : '#0e7490') : 'var(--nav-lbl)', flexShrink:0 }}>
               <NavIcon id={t.id} active={tab === t.id} />
             </span>
             <span style={{ flex: 1 }}>{t.label}</span>

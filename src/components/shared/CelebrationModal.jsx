@@ -180,7 +180,7 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
             'celebPop .5s cubic-bezier(.34,1.56,.64,1) forwards',
           minWidth: 280,
           maxWidth: 340,
-          border: '2px solid rgba(14,116,144,.2)',
+          border: '2px solid var(--info-b)',
         }}
       >
         {/* Trophy */}
@@ -202,7 +202,7 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
           style={{
             fontSize: 28,
             fontWeight: 900,
-            background: 'linear-gradient(135deg,#0e7490,#06b6d4)',
+            background: 'linear-gradient(135deg,var(--info),#06b6d4)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
