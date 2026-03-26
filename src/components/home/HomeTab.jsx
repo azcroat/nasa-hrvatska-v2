@@ -310,86 +310,113 @@ export default function HomeTab({
           </span>
         </div>
 
-        {/* XP bar */}
-        <div style={{marginBottom:8}}>
-          <div style={{
-            background:"rgba(255,255,255,.15)",
-            borderRadius:10,height:10,overflow:"hidden",
-            boxShadow:"inset 0 1px 3px rgba(0,0,0,.2)",
-          }}>
-            <div className="bar-animated" style={{
-              height:"100%",
-              background:"linear-gradient(90deg,var(--info),#06b6d4)",
-              borderRadius:10,
-              width:xpPct+"%",
-              transition:"width .9s cubic-bezier(.4,0,.2,1)",
-              boxShadow:"0 0 18px rgba(56,189,248,.85), 0 0 36px rgba(56,189,248,.3)",
-            }}/>
+        {/* ── PREMIUM STATS: Streak card + XP ring ── */}
+        <div style={{display:'flex',gap:10,marginBottom:12,marginTop:8}}>
+
+          {/* Streak card */}
+          <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',
+            background:'rgba(255,255,255,.09)',borderRadius:20,padding:'18px 10px 14px',
+            border:'1px solid rgba(255,255,255,.14)',backdropFilter:'blur(12px)',
+            boxShadow:'inset 0 1px 0 rgba(255,255,255,.12)'}}>
+            <span className="anim-streak" style={{fontSize:34,lineHeight:1,marginBottom:2}}>🔥</span>
+            <div style={{fontSize:46,fontWeight:900,color:'white',lineHeight:1,fontVariantNumeric:'tabular-nums',
+              fontFamily:"'Outfit',sans-serif",textShadow:'0 0 28px rgba(251,146,60,.75)',marginTop:3}}>
+              {streak.count}
+            </div>
+            <div style={{fontSize:10,fontWeight:700,color:'rgba(255,255,255,.6)',textTransform:'uppercase',letterSpacing:'.1em',marginTop:6}}>
+              day streak
+            </div>
+            {streak.count > 0 && (
+              <div style={{fontSize:10,fontWeight:800,color:'rgba(253,186,116,.95)',marginTop:5}}>
+                {streak.count >= 30 ? '🇭🇷 Legend!' : streak.count >= 7 ? '⚡ Odlično!' : '✓ Keep going!'}
+              </div>
+            )}
+            {freezes > 0 && (
+              <div style={{marginTop:8,display:'flex',alignItems:'center',gap:3,
+                background:'rgba(255,255,255,.11)',borderRadius:10,padding:'3px 9px'}}>
+                <span style={{fontSize:11}}>🛡️</span>
+                <span style={{fontSize:9,color:'rgba(255,255,255,.8)',fontWeight:700}}>{freezes} freeze{freezes>1?'s':''}</span>
+              </div>
+            )}
+          </div>
+
+          {/* XP progress ring */}
+          <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',
+            background:'rgba(255,255,255,.09)',borderRadius:20,padding:'14px 10px 12px',
+            border:'1px solid rgba(255,255,255,.14)',backdropFilter:'blur(12px)',
+            boxShadow:'inset 0 1px 0 rgba(255,255,255,.12)'}}>
+            <svg width="96" height="96" viewBox="0 0 96 96" aria-hidden="true">
+              <defs>
+                <linearGradient id="xpRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#38bdf8"/>
+                  <stop offset="100%" stopColor="#818cf8"/>
+                </linearGradient>
+              </defs>
+              {/* Glow halo */}
+              <circle cx="48" cy="48" r="38" fill="none" stroke="rgba(56,189,248,.1)" strokeWidth="14"/>
+              {/* Track */}
+              <circle cx="48" cy="48" r="38" fill="none" stroke="rgba(255,255,255,.12)" strokeWidth="8"/>
+              {/* Fill */}
+              <circle cx="48" cy="48" r="38" fill="none"
+                stroke="url(#xpRingGrad)" strokeWidth="8" strokeLinecap="round"
+                strokeDasharray="238.76"
+                strokeDashoffset={238.76 * (1 - xpPct / 100)}
+                style={{
+                  transform:'rotate(-90deg)',transformOrigin:'48px 48px',
+                  transition:'stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1)',
+                  filter:'drop-shadow(0 0 5px rgba(56,189,248,.9))',
+                }}
+              />
+              {/* Level number */}
+              <text x="48" y="45" textAnchor="middle" fontSize="26" fontWeight="900" fill="white"
+                fontFamily="Outfit,sans-serif" style={{fontVariantNumeric:'tabular-nums'}}>{level}</text>
+              <text x="48" y="60" textAnchor="middle" fontSize="9" fontWeight="800"
+                fill="rgba(255,255,255,.55)" fontFamily="Outfit,sans-serif" letterSpacing="2">LEVEL</text>
+            </svg>
+            <div style={{fontSize:10,fontWeight:800,color:'rgba(96,205,250,.95)',marginTop:1,letterSpacing:'.04em'}}>
+              {xpPct}% → Lv {level+1}
+            </div>
+            <div style={{fontSize:9,color:'rgba(255,255,255,.45)',marginTop:3,fontWeight:600}}>
+              {(nXP(level)-st.xp).toLocaleString()} XP to go
+            </div>
           </div>
         </div>
-        <div style={{fontSize:11,color:"rgba(255,255,255,.6)",fontWeight:500,marginBottom:18,letterSpacing:".01em"}}>
-          {xpCur.toLocaleString()} XP · Level {level + 1} in {(nXP(level) - st.xp).toLocaleString()} more XP
+
+        {/* Mini stat row */}
+        <div style={{display:'flex',gap:7,marginBottom:freezes===0?11:14}}>
+          {[
+            {icon:'📚', value:st.lc, label:'lessons'},
+            {icon:'💪', value:ws.strong, label:'mastered'},
+            {icon:'⭐', value:st.xp.toLocaleString(), label:'total XP'},
+          ].map((s,i) => (
+            <div key={i} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:6,
+              background:'rgba(255,255,255,.07)',borderRadius:12,padding:'8px 4px',
+              border:'1px solid rgba(255,255,255,.09)'}}>
+              <span style={{fontSize:15}}>{s.icon}</span>
+              <div>
+                <div style={{fontSize:13,fontWeight:900,color:'white',lineHeight:1,fontVariantNumeric:'tabular-nums'}}>{s.value}</div>
+                <div style={{fontSize:9,fontWeight:600,color:'rgba(255,255,255,.45)',textTransform:'uppercase',letterSpacing:'.05em'}}>{s.label}</div>
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Stat chips — right-side fade signals scrollability */}
-        <div style={{position:"relative"}}>
-        <div style={{display:"flex",gap:8,overflowX:"auto",msOverflowStyle:"none",scrollbarWidth:"none",paddingRight:24}}>
-          {[
-            {icon:"🔥",value:streak.count,label:"streak"},
-            {icon:"⭐",value:st.xp.toLocaleString(),label:"XP total"},
-            {icon:"📚",value:st.lc,label:"lessons"},
-            {icon:"💪",value:ws.strong,label:"mastered"},
-          ].map((s,i) => {
-            const statsLoaded = st !== null && st !== undefined && st.xp !== undefined;
-            return (
-            <div key={i} style={{
-              display:"inline-flex",alignItems:"center",gap:5,
-              padding:"7px 12px",
-              borderRadius:20,
-              border:"1.5px solid rgba(255,255,255,.3)",
-              background:"rgba(255,255,255,.14)",
-              whiteSpace:"nowrap",flexShrink:0,
-              backdropFilter:"blur(12px)",
-              boxShadow:"0 2px 8px rgba(0,0,0,.15), 0 1px 0 rgba(255,255,255,.15) inset",
-            }}>
-              {s.label === "streak"
-                ? <span className="anim-streak" style={{fontSize:28}}>🔥</span>
-                : <span style={{fontSize:13}}>{s.icon}</span>}
-              {statsLoaded
-                ? <span style={{fontSize:13,fontWeight:900,color:"white",fontVariantNumeric:"tabular-nums"}}>{s.value}</span>
-                : <div className="skeleton" style={{width:36,height:16,borderRadius:6,opacity:.5}} />}
-              <span style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,.65)"}} title={s.label==="mastered" ? "Words with 2+ correct reviews" : undefined}>{s.label}</span>
-              {s.label === "streak" && streak.count > 0 && (
-                <span style={{fontSize:9,fontWeight:700,color:"rgba(255,255,255,.75)",marginLeft:2,whiteSpace:"nowrap"}}>
-                  {streak.count >= 30 ? "Ne odustaješ! 🇭🇷" : streak.count >= 7 ? "Odlično!" : "Svaki dan!"}
-                </span>
-              )}
-            </div>
-            );
-          })}
-        </div>{/* end scroll row */}
-        <div style={{position:"absolute",top:0,right:0,bottom:0,width:32,background:"linear-gradient(to left,rgba(10,35,72,0.85),transparent)",pointerEvents:"none",borderRadius:"0 10px 10px 0"}}/>
-        </div>{/* end position:relative wrapper */}
-        {/* Streak freeze */}
-        <div style={{marginTop:10,display:'flex',alignItems:'center',gap:8}}>
-          {freezes>0?(
-            <div style={{display:'flex',alignItems:'center',gap:6,background:'rgba(255,255,255,.15)',borderRadius:20,padding:'5px 12px'}}>
-              <span style={{fontSize:14}}>🛡️</span>
-              <span style={{fontSize:12,color:'white',fontWeight:700}}>{freezes} streak freeze{freezes>1?'s':''}</span>
-            </div>
-          ):(
-            <div>
-              <button onClick={()=>{
-                if(st.xp>=200){earnFreeze();setFreezes(f=>f+1);setFreezeMsg('✓ Streak freeze earned! Your streak is protected for one missed day.');}
-                else setFreezeMsg('You need 200 XP to earn a streak freeze. Keep going!');
-              }}
-                style={{background:'rgba(255,255,255,.22)',border:'1.5px solid rgba(255,255,255,.6)',borderRadius:20,padding:'12px 16px',fontSize:12,color:'white',fontWeight:700,cursor:'pointer',minHeight:44,display:'flex',alignItems:'center',gap:6}}>
-                <span>🛡️</span><span>Earn Streak Freeze (200 XP)</span><span style={{opacity:.7,fontSize:14}}>›</span>
-              </button>
-              {freezeMsg&&<div style={{fontSize:11,color:'rgba(255,255,255,.85)',marginTop:6,fontWeight:600}}>{freezeMsg}</div>}
-            </div>
-          )}
-        </div>
+        {/* Streak freeze — compact */}
+        {freezes===0 && (
+          <div>
+            <button onClick={()=>{
+              if(st.xp>=200){earnFreeze();setFreezes(f=>f+1);setFreezeMsg('✓ Streak freeze earned! Your streak is protected for one missed day.');}
+              else setFreezeMsg('You need 200 XP to earn a streak freeze. Keep going!');
+            }}
+              style={{background:'rgba(255,255,255,.09)',border:'1.5px solid rgba(255,255,255,.25)',borderRadius:12,
+                padding:'9px 14px',fontSize:11,color:'rgba(255,255,255,.75)',fontWeight:700,
+                cursor:'pointer',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',
+                gap:6,minHeight:40,fontFamily:"'Outfit',sans-serif"}}>
+              <span>🛡️</span><span>Earn Streak Freeze · 200 XP</span>
+            </button>
+            {freezeMsg&&<div style={{fontSize:10,color:'rgba(255,255,255,.8)',marginTop:5,fontWeight:600,textAlign:'center'}}>{freezeMsg}</div>}
+          </div>
+        )}
         </div>{/* end padding wrapper */}
       </div>
 
