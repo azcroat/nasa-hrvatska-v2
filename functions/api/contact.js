@@ -55,18 +55,23 @@ export async function onRequestPost(context) {
       { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
   }
 
+  function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
+
   // eslint-disable-next-line security/detect-object-injection
   const typeInfo = TYPE_COLORS[type] || TYPE_COLORS.other;
   const timestamp = new Date().toISOString().replace("T", " ").slice(0, 19) + " UTC";
   const ticketId = Date.now().toString(36).toUpperCase();
+  const safeSubject = esc(subject);
+  const safeReplyEmail = esc(replyEmail);
+  const safeUserName = esc(userName || "Anonymous");
 
   const replyBlock = replyEmail ? `
     <div style="margin-top:20px;padding:16px 20px;background:#f0fdf4;border:1px solid #86efac;border-radius:12px;display:flex;align-items:center;justify-content:space-between">
       <div>
         <div style="font-size:11px;font-weight:700;color:#166534;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Reply To</div>
-        <div style="font-size:14px;color:#15803d;font-weight:700">${replyEmail}</div>
+        <div style="font-size:14px;color:#15803d;font-weight:700">${safeReplyEmail}</div>
       </div>
-      <a href="mailto:${replyEmail}?subject=Re: [${ticketId}] ${subject}"
+      <a href="mailto:${safeReplyEmail}?subject=Re: [${ticketId}] ${safeSubject}"
          style="background:#16a34a;color:#fff;text-decoration:none;border-radius:10px;padding:10px 20px;font-weight:700;font-size:13px">
         Reply ↗
       </a>
@@ -78,7 +83,7 @@ export async function onRequestPost(context) {
     <!-- Header -->
     <div style="background:linear-gradient(135deg,#0a1628 0%,#0e7490 100%);padding:32px 40px">
       <div style="font-size:11px;letter-spacing:.2em;color:rgba(255,255,255,.55);font-weight:700;text-transform:uppercase;margin-bottom:10px">Naša Hrvatska · Support Ticket</div>
-      <div style="font-size:22px;font-weight:900;color:#fff;line-height:1.25">${subject}</div>
+      <div style="font-size:22px;font-weight:900;color:#fff;line-height:1.25">${safeSubject}</div>
       <div style="margin-top:14px;display:inline-block;background:${typeInfo.badge};color:#fff;border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700">${typeInfo.label}</div>
     </div>
 
@@ -97,13 +102,13 @@ export async function onRequestPost(context) {
         </div>
         <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 16px;flex:1;min-width:120px">
           <div style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">User</div>
-          <div style="font-size:13px;font-weight:700;color:#0f172a">${userName || "Anonymous"} · ${userLevel || "?"} · ${userXp || 0} XP</div>
+          <div style="font-size:13px;font-weight:700;color:#0f172a">${safeUserName} · ${esc(userLevel || "?")} · ${parseInt(userXp)||0} XP</div>
         </div>
       </div>
 
       <!-- Description -->
       <div style="margin-bottom:8px;font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase">Description</div>
-      <div style="background:${typeInfo.bg};border:1.5px solid ${typeInfo.border};border-radius:12px;padding:20px 24px;font-size:15px;color:#1e293b;line-height:1.7;white-space:pre-wrap">${description.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</div>
+      <div style="background:${typeInfo.bg};border:1.5px solid ${typeInfo.border};border-radius:12px;padding:20px 24px;font-size:15px;color:#1e293b;line-height:1.7;white-space:pre-wrap">${esc(description)}</div>
 
       <!-- Reply block -->
       ${replyBlock}

@@ -1,5 +1,6 @@
 // Cloudflare Pages Function — Anthropic Claude AI Conversation Proxy
 // Keeps the API key server-side; never exposed to the browser
+// systemPrompt is built server-side from mode + params to prevent prompt injection
 
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-haiku-4-5-20251001";
@@ -13,6 +14,125 @@ const corsHeaders = {
 
 function ok(body)           { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders }); }
 function err(status, msg)   { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders }); }
+
+// ── Server-side prompt builders ──────────────────────────────────────────────
+function buildConvoPrompt(params) {
+  const { level = "B1", aiName = "Maja", aiRole = "native speaker", context = "" } = params;
+  const complexity = {
+    A1: "Use ONLY simple present tense. Maximum 1-2 very short sentences. Very basic, high-frequency vocabulary only.",
+    A2: "Use present tense primarily. 2 short sentences. Common everyday vocabulary.",
+    B1: "Use present, past (perfective), and near-future naturally. 2-3 sentences. Conversational vocabulary.",
+    B2: "Speak naturally and fluently. 3-4 sentences. You may use idioms, participles, and varied tenses.",
+    C1: "Speak exactly as you would to a native speaker. Rich vocabulary, idioms, subordinate clauses, all tenses.",
+    C2: "Full native speaker register. Regional expressions, idiomatic speech, cultural references are welcome.",
+  };
+  const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
+  // eslint-disable-next-line security/detect-object-injection
+  const complexityRule = complexity[safeLevel] || complexity["B1"];
+  return `You are ${aiName}, a native Croatian speaker. Role: ${aiRole}.
+${context}
+
+THE LEARNER IS AT LEVEL: ${safeLevel}
+Language rules for YOU:
+- ${complexityRule}
+- ALWAYS respond entirely in Croatian. Never switch to English in your replies.
+- If the learner writes in English, respond in Croatian and gently add: (Pokušaj na hrvatskom! — Try in Croatian!)
+- If the learner makes a grammar error, seamlessly use the correct form in your next sentence without commenting on the error.
+- Be warm, in-character, and always end with a natural follow-up question to keep the conversation flowing.
+- Stay completely in character. Do not explain grammar or break the fourth wall.`;
+}
+
+function buildEvalPrompt(params) {
+  const { level = "B1", scenarioTitle = "Croatian conversation" } = params;
+  const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
+  return `You are an expert Croatian language teacher and applied linguist. Analyze the conversation below between a ${safeLevel} learner and an AI partner in the scenario: "${scenarioTitle}".
+
+Return ONLY a valid JSON object with this exact structure (no markdown, no explanation, just JSON):
+{
+  "score": <integer 0-100>,
+  "level_demonstrated": "<A1|A2|B1|B2|C1|C2>",
+  "strengths": ["<specific positive observation>", "<another strength>"],
+  "mistakes": [
+    {"original": "<exact learner phrase with error>", "correction": "<corrected form>", "rule": "<brief grammar rule>" }
+  ],
+  "focus_areas": [
+    {"topic": "<grammar or vocab topic>", "explanation": "<1 sentence on why this is the priority>", "exercise": "<one key from: akudrill,tenseflip,verbdrill,negation,possess,ordinals,relpron,emogender,comparatives,future,sibil,prepdrill,numtime,profgender,reflexive,sentbuild,genderdrill>"}
+  ],
+  "vocabulary_feedback": "<1-2 sentences on vocabulary range and variety>",
+  "encouragement": "<warm, specific encouraging message in Croatian — 1-2 sentences>"
+}
+
+Scoring guide: 90-100=near-native fluency, 75-89=confident learner, 60-74=communicative with errors, 40-59=basic communication, below 40=significant barriers.
+Rules: max 4 mistakes, 2-3 focus areas, score honestly. If fewer than 3 user messages, note brevity in vocabulary_feedback.`;
+}
+
+function buildCorrectPrompt() {
+  return `You are a Croatian language grammar checker. Given a Croatian sentence or short text from a language learner, check for grammar, case, tense, or agreement errors.
+
+Return ONLY a valid JSON object (no markdown):
+{"corrected": "the corrected Croatian text, or null if no errors", "note": "brief English explanation of the main error (e.g. 'wrong case: use accusative after vidim'), or null if no errors"}
+
+Rules:
+- Only flag real grammatical errors (wrong case endings, verb conjugation, gender agreement).
+- Ignore stylistic preferences or minor word order variations that are still correct.
+- If the text is fully correct, return null for both fields.`;
+}
+
+function buildWriteEvalPrompt(params) {
+  const { level = "B1", writingPrompt = "Write about yourself in Croatian" } = params;
+  const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
+  return `You are an expert Croatian language teacher. Evaluate the following Croatian writing sample from a ${safeLevel} learner responding to this prompt: "${writingPrompt}"
+
+Return ONLY a valid JSON object (no markdown, no explanation):
+{
+  "score": <integer 0-100>,
+  "level_demonstrated": "<A1|A2|B1|B2|C1|C2>",
+  "corrected_text": "<the full text with corrections applied>",
+  "changes": [
+    {"original": "<exact phrase with error>", "corrected": "<corrected version>", "note": "<brief English grammar rule>"}
+  ],
+  "strengths": ["<specific positive observation>"],
+  "improvements": ["<specific actionable suggestion>"],
+  "encouragement": "<warm, motivating message in Croatian — 1-2 sentences>"
+}
+
+Scoring: 90-100=excellent, 75-89=good with minor errors, 60-74=communicative with noticeable errors, 40-59=basic, below 40=significant barriers.
+Rules: max 6 changes, 2-3 improvements, score honestly. If text is very short, note this.`;
+}
+
+function buildTranslatePrompt() {
+  return `You are a Croatian-English dictionary assistant. Translate the given Croatian word or short phrase to English.
+
+Return ONLY a valid JSON object (no markdown):
+{"translation": "the English meaning", "note": "optional brief grammar info: gender (m/f/n), irregular form, or usage note — or null"}
+
+Keep the translation concise and accurate. For verbs, give the infinitive meaning.`;
+}
+
+function buildHintPrompt() {
+  return `You are a Croatian language tutor. The student needs a quick hint to continue their conversation.
+Give 2-3 sentences in English explaining what to say next. Include 1-2 example Croatian phrases they could use with a translation. Be concise and encouraging.`;
+}
+
+function buildSystemPrompt(mode, params) {
+  switch (mode) {
+    case "convo":
+    case "chat":
+      return buildConvoPrompt(params || {});
+    case "evaluate":
+      return buildEvalPrompt(params || {});
+    case "correct":
+      return buildCorrectPrompt();
+    case "writeeval":
+      return buildWriteEvalPrompt(params || {});
+    case "translate":
+      return buildTranslatePrompt();
+    case "hint":
+      return buildHintPrompt();
+    default:
+      return null;
+  }
+}
 
 export async function onRequestOptions() {
   return new Response(null, { status: 204, headers: corsHeaders });
@@ -33,9 +153,14 @@ export async function onRequestPost(context) {
   try { body = await request.json(); }
   catch { return err(400, "Invalid JSON in request body"); }
 
-  const { messages, systemPrompt, mode } = body;
-  if (!messages || !Array.isArray(messages) || !systemPrompt) {
-    return err(400, "Missing required fields: messages (array) and systemPrompt");
+  const { messages, mode, params } = body;
+  if (!messages || !Array.isArray(messages) || !mode) {
+    return err(400, "Missing required fields: messages (array) and mode");
+  }
+
+  const systemPrompt = buildSystemPrompt(mode, params);
+  if (!systemPrompt) {
+    return err(400, "Unknown mode: " + mode);
   }
 
   let anthropicMsgs = messages

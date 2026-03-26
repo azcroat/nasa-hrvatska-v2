@@ -130,6 +130,17 @@ service cloud.firestore {
         && resource.data.code == request.resource.data.code;
 
       allow delete: if false;
+
+      // ─── Reactions subcollection ──────────────────────────────────────
+      // Any authenticated family member can read and write reactions.
+      // Keyed by achievementKey — one reaction document per achievement.
+      match /reactions/{reactionId} {
+        allow read: if isAuthenticated()
+          && isFamilyMember(get(/databases/$(database)/documents/families/$(familyCode)).data.memberEmails);
+        allow create, update: if isAuthenticated()
+          && isFamilyMember(get(/databases/$(database)/documents/families/$(familyCode)).data.memberEmails);
+        allow delete: if false;
+      }
     }
 
     // ─── Deny everything else ─────────────────────────────────────────────
