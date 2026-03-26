@@ -1167,29 +1167,30 @@ button.c{font-family:'Outfit',sans-serif;width:100%;cursor:pointer;display:block
 
 /* ─── Croatian visual identity ──────────────────────────────────────────────── */
 
-/* Cipka (Croatian lace) — used as a section divider */
+/* Cipka (Croatian lace) — SVG lace pattern divider */
 .cipka-divider {
   position: relative;
-  height: 24px;
   margin: var(--space-lg) 0 var(--space-md);
-  overflow: hidden;
-  opacity: 0.35;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 10px;
+  opacity: 0.45;
 }
 .cipka-divider::before,
 .cipka-divider::after {
   content: '';
   flex: 1;
   height: 1px;
-  background: var(--card-b);
+  background: linear-gradient(90deg, transparent, var(--card-b) 30%, var(--card-b) 70%, transparent);
 }
 .cipka-divider > span {
-  padding: 0 var(--space-sm);
-  font-size: 14px;
-  letter-spacing: 4px;
-  color: var(--subtext);
+  flex-shrink: 0;
+  display: block;
+  width: 80px;
+  height: 16px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='16'%3E%3Cpath d='M0 8 L8 0 L16 8 L8 16 Z' fill='none' stroke='%2394a3b8' stroke-width='1'/%3E%3Cpath d='M16 8 L24 0 L32 8 L24 16 Z' fill='none' stroke='%2394a3b8' stroke-width='1'/%3E%3Cpath d='M32 8 L40 0 L48 8 L40 16 Z' fill='none' stroke='%2394a3b8' stroke-width='1'/%3E%3Cpath d='M48 8 L56 0 L64 8 L56 16 Z' fill='none' stroke='%2394a3b8' stroke-width='1'/%3E%3Cpath d='M64 8 L72 0 L80 8 L72 16 Z' fill='none' stroke='%2394a3b8' stroke-width='1'/%3E%3Ccircle cx='16' cy='8' r='2' fill='%2394a3b8'/%3E%3Ccircle cx='32' cy='8' r='2' fill='%2394a3b8'/%3E%3Ccircle cx='48' cy='8' r='2' fill='%2394a3b8'/%3E%3Ccircle cx='64' cy='8' r='2' fill='%2394a3b8'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
   user-select: none;
 }
 

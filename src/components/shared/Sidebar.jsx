@@ -3,12 +3,48 @@ import { lXP, nXP, getStreak } from '../../data.jsx';
 import CroatianGrb from './CroatianGrb.jsx';
 
 const TABS = [
-  { id:"home",     icon:"🏠", label:"Home" },
-  { id:"learn",    icon:"🗺️", label:"Path" },
-  { id:"practice", icon:"🎮", label:"Practice" },
-  { id:"croatia",  icon:"🇭🇷", label:"Life in Croatia" },
-  { id:"profile",  icon:"👤", label:"Profile" },
+  { id:"home",     label:"Home" },
+  { id:"learn",    label:"Learn Path" },
+  { id:"practice", label:"Practice" },
+  { id:"croatia",  label:"Life in Croatia" },
+  { id:"profile",  label:"Profile" },
 ];
+
+function NavIcon({ id, active }) {
+  const sw = 1.9;
+  if (id === 'home') return (
+    <svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 11.5L12 4l9 7.5" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M5 10V20a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1V10" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill={active ? 'rgba(14,116,144,.1)' : 'none'}/>
+    </svg>
+  );
+  if (id === 'learn') return (
+    <svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3L2 8l10 5 10-5-10-5z" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill={active ? 'rgba(14,116,144,.1)' : 'none'}/>
+      <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+  if (id === 'practice') return (
+    <svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13 2L4 14h7l-1 8 10-12h-7l1-8z" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill={active ? 'rgba(14,116,144,.1)' : 'none'}/>
+    </svg>
+  );
+  if (id === 'croatia') return (
+    <svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2.5" y="2.5" width="8.5" height="8.5" rx="1.5" fill={active ? '#0e7490' : 'currentColor'} opacity={active ? 0.85 : 0.75}/>
+      <rect x="13" y="2.5" width="8.5" height="8.5" rx="1.5" stroke="currentColor" strokeWidth="1.5" fill={active ? 'rgba(14,116,144,.12)' : 'transparent'}/>
+      <rect x="2.5" y="13" width="8.5" height="8.5" rx="1.5" stroke="currentColor" strokeWidth="1.5" fill={active ? 'rgba(14,116,144,.12)' : 'transparent'}/>
+      <rect x="13" y="13" width="8.5" height="8.5" rx="1.5" fill={active ? '#0e7490' : 'currentColor'} opacity={active ? 0.85 : 0.75}/>
+    </svg>
+  );
+  if (id === 'profile') return (
+    <svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth={sw} fill={active ? 'rgba(14,116,144,.1)' : 'none'}/>
+      <path d="M4 20c0-3.866 3.582-7 8-7s8 3.134 8 7" stroke="currentColor" strokeWidth={sw} strokeLinecap="round"/>
+    </svg>
+  );
+  return null;
+}
 
 const WEEKLY_OPTIONS = [
   { xp:50,  label:"Light",   desc:"50 XP / week" },
@@ -184,7 +220,9 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
           <button key={t.id} className={'sb-btn' + (tab === t.id ? ' active' : '')}
             onClick={() => { setTab(t.id); setScr('dashboard'); }}
             aria-current={tab === t.id ? 'page' : undefined}>
-            <span style={{ fontSize: 18 }}>{t.icon}</span>
+            <span style={{ display:'flex', alignItems:'center', color: tab === t.id ? '#0e7490' : 'var(--nav-lbl)', flexShrink:0 }}>
+              <NavIcon id={t.id} active={tab === t.id} />
+            </span>
             <span style={{ flex: 1 }}>{t.label}</span>
             {badges && badges[t.id] > 0 && (
               <span className="sb-badge">{badges[t.id]}</span>

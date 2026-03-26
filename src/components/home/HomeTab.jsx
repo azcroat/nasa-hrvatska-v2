@@ -206,11 +206,18 @@ export default function HomeTab({
         borderBottom: "1px solid rgba(200,152,10,0.35)",
         boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
       }}>
-        {/* Gold accent line — top */}
-        <div style={{
-          height: 3,
-          background: "linear-gradient(90deg, transparent 0%, #C8980A 20%, #FFE070 50%, #C8980A 80%, transparent 100%)",
-        }}/>
+        {/* Croatian identity stripe — šahovnica dots + gold line */}
+        <div style={{ position:'relative' }}>
+          <div style={{
+            height: 3,
+            background: "linear-gradient(90deg, transparent 0%, #C8980A 20%, #FFE070 50%, #C8980A 80%, transparent 100%)",
+          }}/>
+          <div style={{
+            position:'absolute', top:3, left:0, right:0, height:3,
+            backgroundImage:"repeating-linear-gradient(90deg, #D40030 0px, #D40030 6px, #F8F6F2 6px, #F8F6F2 12px, #D40030 12px)",
+            opacity:0.18,
+          }}/>
+        </div>
         {/* Subtle radial glow behind content */}
         <div style={{
           position:"absolute",top:0,left:0,right:0,bottom:0,
@@ -225,6 +232,19 @@ export default function HomeTab({
           animation:"shimmer 4s linear infinite",
           pointerEvents:"none",
           borderRadius:"inherit",
+        }}/>
+        {/* Šahovnica ghost pattern — Croatian identity texture */}
+        <div style={{
+          position:"absolute",top:0,left:0,right:0,bottom:0,
+          backgroundImage:`
+            linear-gradient(45deg, rgba(255,255,255,0.025) 25%, transparent 25%),
+            linear-gradient(-45deg, rgba(255,255,255,0.025) 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.025) 75%),
+            linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.025) 75%)
+          `,
+          backgroundSize:"20px 20px",
+          backgroundPosition:"0 0, 0 10px, 10px -10px, -10px 0px",
+          pointerEvents:"none",
         }}/>
 
         <div style={{padding:"22px 24px 44px"}}>

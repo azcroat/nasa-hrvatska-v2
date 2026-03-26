@@ -62,15 +62,34 @@ export default function StreakMilestoneModal({ days, onClose }) {
         border:`3px solid ${msg.color}`, animation:'celebPop .5s cubic-bezier(.34,1.56,.64,1) forwards',
         fontFamily:'var(--font-sans)',
       }}>
-        <div style={{ fontSize:72, lineHeight:1, marginBottom:8 }}>{msg.emoji}</div>
-        <div style={{ fontSize:'var(--text-3xl)', fontWeight:900, color:msg.color, fontFamily:'var(--font-serif)', marginBottom:6 }}>
-          {msg.title}
+        {/* SVG Badge Ring */}
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', marginBottom:16 }}>
+          <svg width="140" height="140" viewBox="0 0 140 140" style={{ display:'block', marginBottom:8 }}>
+            {/* Outer glow ring */}
+            <circle cx="70" cy="70" r="64" fill="none" stroke={msg.color} strokeWidth="3" opacity="0.15"/>
+            {/* Track ring */}
+            <circle cx="70" cy="70" r="55" fill="none" stroke={msg.color} strokeWidth="10" opacity="0.12"/>
+            {/* Animated fill ring */}
+            <circle cx="70" cy="70" r="55" fill="none" stroke={msg.color} strokeWidth="10"
+              strokeLinecap="round"
+              strokeDasharray="345.4"
+              strokeDashoffset="0"
+              style={{ transform:'rotate(-90deg)', transformOrigin:'70px 70px', animation:'ringFill 1.8s cubic-bezier(.4,0,.2,1) forwards' }}
+            />
+            {/* Inner circle fill */}
+            <circle cx="70" cy="70" r="46" fill={msg.color} opacity="0.08"/>
+            {/* Emoji */}
+            <text x="70" y="58" textAnchor="middle" fontSize="30" style={{ userSelect:'none' }}>{msg.emoji}</text>
+            {/* Day count */}
+            <text x="70" y="88" textAnchor="middle" fontSize="26" fontWeight="900" fill={msg.color} fontFamily="Outfit,sans-serif" style={{ fontVariantNumeric:'tabular-nums' }}>{days}</text>
+            {/* "days" label */}
+            <text x="70" y="104" textAnchor="middle" fontSize="11" fontWeight="700" fill={msg.color} opacity="0.7" fontFamily="Outfit,sans-serif" letterSpacing="2">DAYS</text>
+          </svg>
+          <div style={{ fontSize:'var(--text-3xl)', fontWeight:900, color:msg.color, fontFamily:'var(--font-serif)', marginBottom:6, textAlign:'center' }}>
+            {msg.title}
+          </div>
+          <div style={{ fontSize:'var(--text-base)', color:'var(--subtext)', marginBottom:16, lineHeight:'var(--leading-normal)', textAlign:'center' }}>{msg.sub}</div>
         </div>
-        <div style={{ fontSize:'var(--text-base)', color:'var(--subtext)', marginBottom:20, lineHeight:'var(--leading-normal)' }}>{msg.sub}</div>
-        <div style={{ fontSize:48, fontWeight:900, color:msg.color, fontVariantNumeric:'tabular-nums', marginBottom:4 }}>
-          {days}
-        </div>
-        <div style={{ fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:8 }}>days in a row</div>
         <div style={{
           fontSize:'var(--text-sm)', color:'var(--body)', background:'var(--bar-bg)', borderRadius:'var(--radius-md)',
           padding:'10px 14px', marginBottom:20, lineHeight:'var(--leading-normal)', textAlign:'left',
