@@ -108,7 +108,7 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
       }} />
 
       {/* Tab buttons — paddingRight reserves space so the Profile tab doesn't hide under the search button */}
-      <div style={{ display:'flex', paddingRight: 40 }}>
+      <div style={{ display:'flex', paddingRight: 50 }}>
         {TABS.map((t, i) => {
           const isActive = tab === t.id;
           return (

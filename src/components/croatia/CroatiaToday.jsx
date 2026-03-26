@@ -137,7 +137,7 @@ Hrvatska turistička zajednica prepoznala je klapa pjevanje kao važan dio turis
     lead: 'Splitski maraton ove je godine postavio novi rekord po broju sudionika. Trkači iz 60 zemalja trčali su kroz antičke ulice i uz obalu Jadranskog mora.',
     body: `Dvadeset i treće izdanje Splitskog maratona odvilo se ove nedjelje u savršenim uvjetima — sunčano jutro, temperatura 14 stupnjeva i blagi povetarac s mora. Ulice oko Dioklecijanove palače i Rive bile su punjene navijačima koji su glasno bodrili trkače.
 
-Ukupno 12.340 trkača prijavilo se na natjecanje, od čega je 4.200 trčalo punu maratonsku dionicu od 42,195 kilometara, a ostatak je sudjelovao u polumarat onu i rekreativnoj utrci. Najdalji sudionici stigli su iz Australije, Brazila i Japana. Organizatori ističu da Split Marathon sve više postaje boutique maraton poznat po iznimnoj kulisi.
+Ukupno 12.340 trkača prijavilo se na natjecanje, od čega je 4.200 trčalo punu maratonsku dionicu od 42,195 kilometara, a ostatak je sudjelovao u polumaratonu i rekreativnoj utrci. Najdalji sudionici stigli su iz Australije, Brazila i Japana. Organizatori ističu da Split Marathon sve više postaje boutique maraton poznat po iznimnoj kulisi.
 
 Pobjeda na muškoj trci otišla je kenijskom atletičaru Josephu Kipchoge, koji je trčao za splitski atletski klub nakon godinu dana treniranja u Dalmaciji. Pobjednik je rekao: "Nikad nisam trčao u tako ljepom gradu. Jadransko more me daje snagu." Ženska pobjeda pripala je hrvatskoj atletičarki Ani Kovačić iz Zagreba, koja je postavila novi nacionalni rekord.
 
@@ -228,7 +228,7 @@ Hrvatski rukometni savez objavio je plan za sljedeću sezonu koji uključuje vi�
     id: 9,
     category: 'Kultura',
     date: 'srijeda, 1. travnja 2026.',
-    headline: '"Dalmatinski blues" osvaja Cannes: hrvatska koprodukciija u glavnom programu festivala',
+    headline: '"Dalmatinski blues" osvaja Cannes: hrvatska koprodukcija u glavnom programu festivala',
     lead: 'Film "Dalmatinski blues" redatelja Ivana Peroše odabran je za glavni natjecateljski program Cannes Film Festivala 2026. To je tek treći put u povijesti da je hrvatska produkcija ušla u La Sélection Officielle.',
     body: `Hrvatska filmska zajednica proslavila je veliku vijest: film "Dalmatinski blues" redatelja Ivana Peroše odabran je za natjecanje u glavnom programu Cannes Film Festivala koji se ove godine održava od 12. do 23. svibnja. To je veliki uspjeh za domaću kinematografiju i potvrda da hrvatska filmska scena raste.
 

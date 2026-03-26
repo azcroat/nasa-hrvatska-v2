@@ -1761,8 +1761,8 @@ const FOODORDER = {
 const TRANSPORT = [{hr:"Gdje je autobusna stanica?",en:"Where is the bus station?"},{hr:"Ide li ovaj bus do centra?",en:"Does this bus go to center?"},{hr:"Jednu kartu, molim.",en:"One ticket please."},{hr:"Koja je sljedeća stanica?",en:"What's the next stop?"},{hr:"Gdje moram sići?",en:"Where do I get off?"},{hr:"Trebam presjedati?",en:"Do I need to transfer?"},{hr:"Možete me odvesti do...?",en:"Can you take me to...? (taxi)"},{hr:"Koliko košta do aerodroma?",en:"How much to the airport?"},{hr:"Tramvaj broj pet.",en:"Tram number five."},{hr:"Zadržite ostatak.",en:"Keep the change."}];
 const EMERGENCY = {
   number:"112 — Hitna pomoć (Emergency)",
-  phrases:[["Trebam pomoć!","I need help!"],["Zovite hitnu!","Call ambulance!"],["Boli me glava.","Head hurts."],["Boli me stomak.","Stomach hurts."],["Imam temperaturu.","I have fever."],["Slomio sam ruku.","I broke my arm."],["Alergican sam na...","I'm allergic to..."],["Gdje je najbliža bolnica?","Nearest hospital?"],["Gdje je ljekarna?","Where's pharmacy?"],["Ne osjećam se dobro.","I don't feel well."],["Možete li nazvati roditelje?","Call my parents?"]],
-  bodyParts:[["glava","head"],["oko","eye"],["uho","ear"],["nos","nose"],["zub","tooth"],["grlo","throat"],["leđa","back"],["ruka","arm"],["noga","leg"],["stomak","stomach"],["prsa","chest"],["koljeno","knee"]],
+  phrases:[["Trebam pomoć!","I need help!"],["Zovite hitnu!","Call ambulance!"],["Boli me glava.","Head hurts."],["Boli me trbuh.","Stomach hurts."],["Imam temperaturu.","I have fever."],["Slomio sam ruku.","I broke my arm."],["Alergican sam na...","I'm allergic to..."],["Gdje je najbliža bolnica?","Nearest hospital?"],["Gdje je ljekarna?","Where's pharmacy?"],["Ne osjećam se dobro.","I don't feel well."],["Možete li nazvati roditelje?","Call my parents?"]],
+  bodyParts:[["glava","head"],["oko","eye"],["uho","ear"],["nos","nose"],["zub","tooth"],["grlo","throat"],["leđa","back"],["ruka","arm"],["noga","leg"],["trbuh","stomach / belly"],["prsa","chest"],["koljeno","knee"]],
   phoneNumbers:[["112","Emergency"],["192","Police"],["193","Fire"],["194","Ambulance"]]
 };
 const FOOTBALL = {
@@ -3579,7 +3579,7 @@ const FILL_STORIES = [
     {text:"Za doručak je pojeo _____ s džemom.",blank:"palačinke",opts:["palačinke","juhu","salatu"],en:"For breakfast he ate pancakes with jam."},
     {text:"Na posao je išao _____.",blank:"pješice",opts:["pješice","zrakoplovom","brodom"],en:"He went to work on foot."},
     {text:"Putem je kupio _____ za čitanje.",blank:"novine",opts:["novine","cipele","cvijeće"],en:"On the way he bought a newspaper to read."},
-    {text:"Na poslu je primijetio da nema _____.",blank:"mobitel",opts:["mobitel","ručak","kapu"],en:"At work he noticed he didn't have his phone."}
+    {text:"Na poslu je primijetio da nema _____.",blank:"mobitela",opts:["mobitela","ručak","kapu"],en:"At work he noticed he didn't have his phone."}
   ]},
   {title:"Izlet na otok",story:[
     {text:"Obitelj je išla na izlet na _____ Hvar.",blank:"otok",opts:["otok","planinu","rijeku"],en:"The family went on a trip to the island of Hvar."},

@@ -269,7 +269,7 @@ function WordTooltip({ word, data, loading, onClose, onSave, alreadySaved }) {
         <span style={{ fontSize: 18, fontWeight: 900, color: '#0e7490', fontFamily: "'Playfair Display',serif" }}>{word}</span>
         <button
           onClick={onClose}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: 'var(--subtext)', lineHeight: 1, padding: 0 }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: 'var(--subtext)', lineHeight: 1, padding: '8px' }}
           aria-label="Close"
         >×</button>
       </div>
@@ -611,11 +611,11 @@ export default function LyricsScreen({ goBack, award }) {
       </div>
 
       {/* Song selector */}
-      <div style={{ display:'flex', gap:6, marginBottom:16, overflowX:'auto' }}>
+      <div style={{ display:'flex', gap:6, marginBottom:16, overflowX:'auto', scrollbarWidth:'none', WebkitOverflowScrolling:'touch' }}>
         {SONGS.map((s, i) => (
           <button key={s.id} onClick={() => { setSongIdx(i); reset(); }}
             className={'b ' + (i === songIdx ? 'bp' : 'bg')}
-            style={{ fontSize:11, padding:'6px 12px', whiteSpace:'nowrap', flexShrink:0 }}>
+            style={{ fontSize:11, padding:'10px 12px', whiteSpace:'nowrap', flexShrink:0 }}>
             {s.title}
           </button>
         ))}
@@ -846,7 +846,7 @@ export default function LyricsScreen({ goBack, award }) {
                         onChange={e => setAnswers(a => ({ ...a, [key]: e.target.value }))}
                         onKeyDown={e => { if (e.key === 'Enter') checkAnswers(); }}
                         placeholder="___"
-                        style={{ width: Math.max(60, token.word.length * 11), background:bg, border, borderRadius:8,
+                        style={{ width: Math.min(Math.max(56, token.word.length * 9), 140), background:bg, border, borderRadius:8,
                           padding:'2px 6px', fontSize:15, fontFamily:"'Playfair Display',serif",
                           textAlign:'center', outline:'none' }}
                       />

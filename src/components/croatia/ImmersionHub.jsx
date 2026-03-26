@@ -65,12 +65,12 @@ export default function ImmersionHub({ goBack, setScr }) {
   });
 
   const LevelBadge = ({level, small}) => (
-    <span style={{background:LEVEL_COLORS[level]+'22',color:LEVEL_COLORS[level],fontWeight:800,fontSize:small?9:11,padding:small?'2px 6px':'3px 8px',borderRadius:20,border:`1px solid ${LEVEL_COLORS[level]}44`,whiteSpace:'nowrap'}}>
+    <span style={{background:LEVEL_COLORS[level]+'22',color:LEVEL_COLORS[level],fontWeight:800,fontSize:small?10:11,padding:small?'2px 6px':'3px 8px',borderRadius:20,border:`1px solid ${LEVEL_COLORS[level]}44`,whiteSpace:'nowrap'}}>
       {level}
     </span>
   );
 
-  const tabs = [{id:'journey',label:'🗺️ Path'},{id:'media',label:'📺 Media'},{id:'schedule',label:'📅 Schedule'},{id:'tips',label:'💡 Tips'}];
+  const tabs = [{id:'journey',label:'🗺️ Path'},{id:'media',label:'📺 Media'},{id:'schedule',label:'📅 Plan'},{id:'tips',label:'💡 Tips'}];
 
   return (
     <div className="scr-wrap">
