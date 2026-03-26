@@ -71,7 +71,7 @@ export default function SearchModal({ setTab, onClose }) {
   const TAB_LABELS = { home:'Home', learn:'Learn', practice:'Practice', croatia:'Croatia', profile:'Profile' };
 
   return (
-    <div role="dialog" aria-modal="true" onKeyDown={handleKeyDown} style={{ position:'fixed', inset:0, zIndex:2000, background:'var(--bg)', display:'flex', flexDirection:'column' }}>
+    <div role="dialog" aria-modal="true" onKeyDown={handleKeyDown} style={{ position:'fixed', inset:0, zIndex:2000, background:'var(--app-bg)', display:'flex', flexDirection:'column' }}>
       {/* Header */}
       <div style={{ display:'flex', alignItems:'center', gap:12, padding:'12px 16px', borderBottom:'1px solid var(--bar-bg)' }}>
         <span style={{ fontSize:20 }}>🔍</span>
@@ -82,7 +82,7 @@ export default function SearchModal({ setTab, onClose }) {
           placeholder="Search lessons, practice, Croatia..."
           style={{
             flex:1, background:'none', border:'none', outline:'none',
-            fontSize:16, color:'var(--text)',
+            fontSize:16, color:'var(--heading)',
           }}
         />
         <button onClick={onClose} aria-label="Close search" style={{ background:'none', border:'none', fontSize:22, cursor:'pointer', color:'var(--subtext)' }}>✕</button>
@@ -106,7 +106,7 @@ export default function SearchModal({ setTab, onClose }) {
               <button key={i} onClick={() => { setTab(tab); onClose(); }} style={{
                 width:'100%', display:'flex', alignItems:'center', gap:12,
                 padding:'10px 12px', borderRadius:10, border:'none',
-                background:'var(--card-bg)', cursor:'pointer', marginBottom:6,
+                background:'var(--card)', cursor:'pointer', marginBottom:6,
                 textAlign:'left',
               }}>
                 <span style={{ fontSize:20, flexShrink:0 }}>{item.icon}</span>
