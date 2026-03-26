@@ -676,7 +676,7 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
                 }}>NEW</span>
                 <div style={{ fontSize:26, marginBottom:6 }}>📖</div>
                 <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--warning)' }}>Baka's Summer</div>
-                <div style={{ fontSize:'var(--text-xs)', color:'var(--warning)', marginTop:2, opacity:.75 }}>12-chapter story</div>
+                <div style={{ fontSize:'var(--text-xs)', color:'var(--warning)', marginTop:2, opacity:.75 }}>16-chapter story</div>
               </button>
               <button onClick={() => setScr("croatia_today")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(14,116,144,.3)', background:'rgba(14,116,144,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
                 <div style={{ fontSize:26, marginBottom:6 }}>📰</div>

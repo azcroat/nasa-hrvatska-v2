@@ -661,4 +661,263 @@ export const LESSONS = [
       },
     ],
   },
+
+  // ─────────────────────────────────────────────────────────
+  // LESSON 7: Kondicionalni način (Conditional Mood)
+  // ─────────────────────────────────────────────────────────
+  {
+    id: "conditional",
+    title: "Kondicionalni način",
+    subtitle: "Conditional mood — wishes, hypotheticals, and polite requests",
+    icon: "🔮",
+    level: "B2",
+    duration: "~6 min",
+    color: "#b45309",
+    bg: "#fffbeb",
+    slides: [
+      {
+        type: "intro",
+        title: "The Conditional Mood",
+        body: "The conditional mood expresses wishes, hypotheticals, and polite requests. It uses the auxiliary 'bi' + past active participle.",
+        icon: "🔮",
+      },
+      {
+        type: "table",
+        title: "Formation — bi + Participle",
+        headers: ["Person", "Masculine", "Feminine"],
+        rows: [
+          ["ja (I)", "ja bih radio", "ja bih radila"],
+          ["ti (you sg.)", "ti bi radio", "ti bi radila"],
+          ["on/ona (he/she)", "on/ona bi radio/radila", "on/ona bi radio/radila"],
+          ["mi (we)", "mi bismo radili", "mi bismo radile"],
+          ["vi (you pl.)", "vi biste radili", "vi biste radile"],
+          ["oni/one (they)", "oni/one bi radili", "oni/one bi radile"],
+        ],
+      },
+      {
+        type: "rule",
+        title: "Three Core Uses",
+        body: "The conditional has three main uses: (1) Hypotheticals — 'Kad bih imao vremena, učio bih više.' (If I had time, I would study more.) (2) Polite requests — 'Biste li mi mogli pomoći?' (Could you help me?) (3) Wishes — 'Volio bih posjetiti Dubrovnik.' (I would love to visit Dubrovnik.)",
+        highlight: "hypotheticals, requests, wishes",
+      },
+      {
+        type: "rule",
+        title: "Past Conditional — bio/bila + bi",
+        body: "The past conditional expresses what would have happened but didn't. It adds 'bio/bila' (past of biti) before the main participle: 'Bio bih došao, ali nisam mogao.' (I would have come, but I couldn't.) The 'bio/bila' agrees in gender with the subject.",
+        highlight: "bio bih + participle",
+      },
+      {
+        type: "example",
+        title: "Conditional in Context",
+        items: [
+          { hr: "Htio/Htjela bih kavu, molim.", en: "I would like a coffee, please.", note: "Most natural polite way to order" },
+          { hr: "Biste li mogli govoriti sporije?", en: "Could you speak more slowly?", note: "Polite request with biste li" },
+          { hr: "Kad bih živio u Zagrebu, svaki dan bih šetao Gornjim gradom.", en: "If I lived in Zagreb, I would walk Upper Town every day.", note: "Hypothetical present condition" },
+          { hr: "Bila bih kupila kartu, ali nije ih bilo.", en: "I would have bought a ticket, but there were none.", note: "Past conditional — feminine subject" },
+        ],
+      },
+      {
+        type: "quiz",
+        q: "How do you say 'I would like a coffee' politely?",
+        options: ["Htio/Htjela bih kavu, molim.", "Ja hoću kavu.", "Mogu kavu.", "Kava, molim."],
+        correct: 0,
+        explanation: "'Htio/Htjela bih kavu, molim.' uses the conditional 'bih' with the participle 'htio/htjela' — this is the standard polite way to order or request in Croatian. 'Ja hoću kavu' is too blunt. 'Mogu kavu' is ungrammatical in this context.",
+      },
+      {
+        type: "summary",
+        title: "Conditional Mood — Complete!",
+        points: [
+          "Conditional = bi + past active participle (radio/radila)",
+          "Forms: ja bih, ti bi, on/ona bi, mi bismo, vi biste, oni/one bi",
+          "Use 1 — hypotheticals: 'Kad bih imao vremena, učio bih više.'",
+          "Use 2 — polite requests: 'Biste li mi mogli pomoći?'",
+          "Use 3 — wishes: 'Volio bih posjetiti Dubrovnik.'",
+          "Past conditional adds bio/bila: 'Bio bih došao, ali nisam mogao.'",
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────
+  // LESSON 8: Složene rečenice (Complex Sentences)
+  // ─────────────────────────────────────────────────────────
+  {
+    id: "complex-sentences",
+    title: "Složene rečenice",
+    subtitle: "Complex sentences — subordinating conjunctions and relative clauses",
+    icon: "🔗",
+    level: "B2",
+    duration: "~8 min",
+    color: "#0f766e",
+    bg: "#f0fdfa",
+    slides: [
+      {
+        type: "intro",
+        title: "Complex Sentences",
+        body: "Complex sentences connect ideas using subordinating conjunctions. Mastering these moves you from basic communication to natural conversation.",
+        icon: "🔗",
+      },
+      {
+        type: "rule",
+        title: "Temporal Clauses — When, While, As Soon As",
+        body: "Key temporal conjunctions: kad/kada (when), dok (while), čim (as soon as), prije nego što (before), nakon što (after). Examples: 'Kad dođeš, nazovi me.' (When you arrive, call me.) 'Dok sam učio, slušao sam glazbu.' (While I was studying, I was listening to music.) 'Čim završim, idem.' (As soon as I finish, I'm going.) Key rule: use a perfective verb after 'kad' for future events.",
+        highlight: "perfective after 'kad' for future",
+      },
+      {
+        type: "table",
+        title: "Temporal Conjunctions",
+        headers: ["Croatian", "English", "Example"],
+        rows: [
+          ["kad / kada", "when", "Kad dođeš, nazovi me."],
+          ["dok", "while", "Dok sam učio, slušao sam glazbu."],
+          ["čim", "as soon as", "Čim završim, idem."],
+          ["prije nego što", "before", "Jedi prije nego što odeš."],
+          ["nakon što", "after", "Nakon što sam jeo, odmarao sam."],
+        ],
+      },
+      {
+        type: "rule",
+        title: "Causal and Concessive Clauses",
+        body: "jer (because), iako (although), premda (even though), budući da (since/given that). Examples: 'Učim hrvatski jer volim Hrvatsku.' (I study Croatian because I love Croatia.) 'Iako je teško, ne odustajem.' (Although it's hard, I'm not giving up.) 'Budući da imaš iskustva, možeš voditi tim.' (Since you have experience, you can lead the team.)",
+        highlight: "jer, iako, premda, budući da",
+      },
+      {
+        type: "rule",
+        title: "Relative Clauses — koji/koja/koje",
+        body: "Relative clauses use koji (who/which/that). Koji must agree in gender with the noun it refers to (its antecedent): 'Čovjek koji govori hrvatski.' (The man who speaks Croatian — koji = masculine.) 'Žena koja govori hrvatski.' (The woman who speaks Croatian — koja = feminine.) 'Dijete koje govori hrvatski.' (The child who speaks Croatian — koje = neuter.) Koji also declines for case within the relative clause.",
+        highlight: "koji agrees in gender with antecedent",
+      },
+      {
+        type: "rule",
+        title: "Indirect Speech — da + Present/Past",
+        body: "Indirect speech uses 'da' + the appropriate tense: 'Rekao je da uči hrvatski.' (He said that he is studying Croatian.) 'Mislim da je to točno.' (I think that's correct.) Common pitfall: do NOT use 'što' where 'da' is needed. 'Rekao je da dolazi.' ✓ 'Rekao je što dolazi.' ✗ — 'što' in this position means 'what', creating a different meaning.",
+        highlight: "da for indirect speech — not što",
+      },
+      {
+        type: "example",
+        title: "Complex Sentences in Context",
+        items: [
+          { hr: "Kad završiš posao, dođi k meni.", en: "When you finish work, come to me.", note: "Perfective 'završiš' — completion triggers the main clause" },
+          { hr: "Iako nisam Hrvat, govorim jezik.", en: "Although I'm not Croatian, I speak the language.", note: "Concessive iako — surprising contrast" },
+          { hr: "Knjiga koju čitam je odlična.", en: "The book that I'm reading is excellent.", note: "koju = accusative of koja (fem.) — relative clause with case" },
+          { hr: "Rekli su da će doći.", en: "They said they would come.", note: "da + future — indirect speech" },
+        ],
+      },
+      {
+        type: "quiz",
+        q: "Complete: 'Volio bih posjetiti Dubrovnik, ___ sam čuo da je predivno.'",
+        options: ["jer", "iako", "čim", "dok"],
+        correct: 0,
+        explanation: "'jer' (because) is correct — 'Volio bih posjetiti Dubrovnik, jer sam čuo da je predivno.' (I would love to visit Dubrovnik, because I've heard it's beautiful.) 'iako' would mean 'although', which contradicts the positive intent. 'čim' means 'as soon as' and 'dok' means 'while' — neither fits here.",
+      },
+      {
+        type: "summary",
+        title: "Complex Sentences — Complete!",
+        points: [
+          "Temporal: kad/kada (when), dok (while), čim (as soon as), prije nego što (before), nakon što (after)",
+          "Use perfective verb after 'kad' for future events: 'Kad dođeš...'",
+          "Causal/concessive: jer (because), iako (although), premda (even though), budući da (since)",
+          "Relative clauses: koji/koja/koje agrees in gender with its antecedent",
+          "Indirect speech: da + tense — NOT 'što' where 'da' is needed",
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────
+  // LESSON: Formalno obraćanje: Vi i ti
+  // ─────────────────────────────────────────────────────────
+  {
+    id: "vi-vs-ti",
+    title: "Formalno obraćanje: Vi i ti",
+    subtitle: "Formal and informal address — when to use which",
+    icon: "🤝",
+    level: "A2",
+    duration: "~4 min",
+    color: "#7c3aed",
+    bg: "#f5f3ff",
+    slides: [
+      {
+        type: "intro",
+        title: "Vi i ti — Formal vs Informal Address",
+        body: "Croatian, like most European languages, has two ways to say 'you': Vi (formal, capitalized) and ti (informal). Choosing correctly is one of the most important social skills in Croatian — more so than grammar. Getting it wrong with elders is a noticeable social misstep.",
+        icon: "🤝",
+      },
+      {
+        type: "rule",
+        title: "When to Use Vi (Formal)",
+        body: "Use Vi (always capitalized in writing) with: elders and grandparents you are meeting for the first time, your partner's parents until they explicitly invite you to use ti, strangers over roughly 40 in formal situations, teachers, doctors, and officials. Vi is the safe default — when in doubt, start here.",
+        highlight: "when in doubt, use Vi",
+      },
+      {
+        type: "rule",
+        title: "When to Use ti (Informal)",
+        body: "Use ti with peers your own age, children, close friends and family, and anyone who has explicitly said 'možemo prijeći na ti' (we can switch to ti). Among younger Croatians (under ~30) and in casual settings, ti is often used right away — but with older acquaintances, always wait for the invitation.",
+        highlight: "wait for the invitation",
+      },
+      {
+        type: "table",
+        title: "Vi vs ti — Quick Reference",
+        headers: ["Situation", "Use"],
+        rows: [
+          ["Partner's parents, first meeting", "Vi"],
+          ["Elders / grandparents (strangers)", "Vi"],
+          ["Doctors, teachers, officials", "Vi"],
+          ["Strangers over ~40 (formal)", "Vi"],
+          ["Peers your age", "ti"],
+          ["Children", "ti"],
+          ["Close friends and family", "ti"],
+          ["After 'možemo prijeći na ti'", "ti"],
+        ],
+      },
+      {
+        type: "rule",
+        title: "The Switch Offer — Prijelaz na ti",
+        body: "When someone says 'Možemo li prijeći na ti?' (Can we switch to ti?), always accept warmly. The natural reply is 'Naravno, s veseljem!' (Of course, with pleasure!) or 'Naravno, s radošću!' Refusing is considered awkward and cold. The offer itself signals you have been accepted.",
+        highlight: "always accept warmly",
+      },
+      {
+        type: "example",
+        title: "Vi vs ti in Sentences",
+        items: [
+          { hr: "Kako ste Vi?", en: "How are you? (formal)", note: "Vi — formal singular or plural" },
+          { hr: "Kako si ti?", en: "How are you? (informal)", note: "ti — informal, with a peer" },
+          { hr: "Možete li mi pomoći?", en: "Can you help me? (formal)", note: "Možete — Vi verb form" },
+          { hr: "Možeš li mi pomoći?", en: "Can you help me? (informal)", note: "Možeš — ti verb form" },
+          { hr: "Možemo li prijeći na ti?", en: "Can we switch to ti?", note: "The classic switch offer" },
+        ],
+      },
+      {
+        type: "rule",
+        title: "Cultural Note — Why This Matters",
+        body: "Croatians notice when foreigners use Vi correctly with elders — it earns immediate respect. Using ti too early with someone's grandmother or with a doctor signals carelessness. Most Croatians will gently correct you if ti is appropriate, but switching to ti too soon with elders is harder to recover from. The effort to use Vi shows cultural awareness.",
+        highlight: "Croatians will correct you kindly",
+      },
+      {
+        type: "quiz",
+        q: "You are meeting your Croatian partner's mother for the first time. Which form do you use?",
+        options: ["ti — to seem friendly", "Vi — she is an elder you are meeting formally", "Either is fine", "Use first name only"],
+        correct: 1,
+        explanation: "Always start with Vi when meeting a partner's parents. Wait until they explicitly offer to switch to ti. Starting with ti signals a lack of respect for Croatian social norms, even if you mean to be warm.",
+      },
+      {
+        type: "quiz",
+        q: "A Croatian peer says: 'Možemo li prijeći na ti?' What do you do?",
+        options: ["Politely decline to keep it formal", "Accept warmly — 'Naravno, s veseljem!'", "Ignore it and keep using Vi", "Ask why they want to switch"],
+        correct: 1,
+        explanation: "When someone offers to switch to ti, always accept warmly. The offer is a sign of welcome and acceptance. Refusing is considered awkward and cold in Croatian culture.",
+      },
+      {
+        type: "summary",
+        title: "Formalno obraćanje — Complete!",
+        points: [
+          "Vi (capitalized) = formal: elders, officials, partner's parents, strangers over ~40",
+          "ti = informal: peers, children, friends, family",
+          "When in doubt, use Vi — Croatians will invite you to switch if ti is appropriate",
+          "When offered 'Možemo li prijeći na ti?' always accept warmly",
+          "Getting Vi right with elders earns immediate respect as a foreigner",
+        ],
+      },
+    ],
+  },
 ];

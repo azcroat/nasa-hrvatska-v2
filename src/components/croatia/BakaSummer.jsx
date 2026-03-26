@@ -36,9 +36,9 @@ const CHAPTERS = [
   },
   {
     id: 3,
-    title: "Poglavlje 3: Nedjeljna ručak",
+    title: "Poglavlje 3: Nedjeljni ručak",
     date: "29. lipnja",
-    croatian: `Nedjelja je najljepši dan u tjednu. Od jutros u pet sati janje se pečelo na ražnju ispred kuće, a miris se širio cijelom ulicom — susjedi su znali što se sprema. Stigla je teta Mirjana s kruharom punim sominih kolačića, stric Branko s bocom domaćeg vina, a mala Petra trčala je ravno u moje naručje. Stol je bio dugačak kao brodski pontons, prekriven bijelim stolnjakom koji je moja mama vezla prije pedeset godina. Jeli smo, pričali i smijali se dok sunce nije palo iza brda. To su trenuci zbog kojih se živi.`,
+    croatian: `Nedjelja je najljepši dan u tjednu. Od jutros u pet sati janje se pečelo na ražnju ispred kuće, a miris se širio cijelom ulicom — susjedi su znali što se sprema. Stigla je teta Mirjana s kruharom punim sominih kolačića, stric Branko s bocom domaćeg vina, a mala Petra trčala je ravno u moje naručje. Stol je bio dugačak kao brodski pontoni, prekriven bijelim stolnjakom koji je moja mama vezla prije pedeset godina. Jeli smo, pričali i smijali se dok sunce nije palo iza brda. To su trenuci zbog kojih se živi.`,
     english: `Sunday is the most beautiful day of the week. Since five in the morning a lamb had been roasting on a spit in front of the house, and the smell spread down the whole street — the neighbors knew what was coming. Aunt Mirjana arrived with a bread basket full of sesame cookies, Uncle Branko with a bottle of homemade wine, and little Petra ran straight into my arms. The table was as long as a ship's gangway, covered with the white tablecloth my mother embroidered fifty years ago. We ate, talked and laughed until the sun fell behind the hills. These are the moments that make life worth living.`,
     vocab: [
       { hr: "ražanj", en: "spit (for roasting)" },

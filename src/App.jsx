@@ -273,6 +273,7 @@ function App(){
   const[comebackBonus,setComebackBonus]=useState(false);
   const[streakMilestone,setStreakMilestone]=useState(null); // number (7/30/50/100/365) or null
   const[ceremonyType,setCeremonyType]=useState(null);
+  const[freezeUsedToast,setFreezeUsedToast]=useState(false);
   const[pendingJoinCode,setPendingJoinCode]=useState(()=>{try{const c=new URLSearchParams(window.location.search).get('join')||null;return c&&/^[A-Z2-9]{6}$/.test(c)?c:null;}catch{return null;}});
   // Q-6: Sync tab and currentScreen when React Router location changes (browser back/forward)
   useEffect(function(){
@@ -560,7 +561,10 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
     if(sr.count>=30&&!localStorage.getItem('nh_ceremony_streak_30')){localStorage.setItem('nh_ceremony_streak_30','1');setCeremonyType('streak_30');}
     if(sr.count>=50&&!localStorage.getItem('nh_ceremony_streak_50')){localStorage.setItem('nh_ceremony_streak_50','1');setCeremonyType('streak_50');}
     if(sr.count>=100&&!localStorage.getItem('nh_ceremony_streak_100')){localStorage.setItem('nh_ceremony_streak_100','1');setCeremonyType('streak_100');}
-    earnFreeze();
+    // Award 1 freeze at every 7-day milestone (7, 14, 21, 28 …), max 2
+    if(sr.count>0&&sr.count%7===0)earnFreeze();
+    // Show toast if a freeze was consumed to save the streak
+    if(sr.freezeUsed){setFreezeUsedToast(true);setTimeout(()=>setFreezeUsedToast(false),4500);}
     // Stage completion ceremonies — check if lesson count just crossed a stage gate
     const _stageGates=[5,11,22,34,45];
     setStats(function(s){
@@ -709,7 +713,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {/* Q-5 WCAG: skip-to-main link — visible only on keyboard focus */}
       <a href="#main-content" className="skip-link">Skip to main content</a>
       {authScreen==="app"&&currentScreen!=="welcome"&&currentScreen!=="placement"&&<Sidebar tab={tab} setTab={setTab} setScr={setScr} name={name} level={level} st={stats} darkMode={darkMode} setDarkMode={setDarkMode} badges={badges} srchQ={srchQ} setSrchQ={setSrchQ} onSearch={doSidebarSearch} doOut={doOut} />}
-      <div className="app-content" id="main-content">
+      <div className="app-content" id="main-content" role="main">
       <Suspense fallback={<div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"60vh"}}><div style={{textAlign:"center"}}><div style={{display:"flex",justifyContent:"center",gap:0,marginBottom:16,borderRadius:3,overflow:"hidden",width:54,margin:"0 auto 16px"}}><div style={{height:6,flex:1,background:"#D4002D"}}/><div style={{height:6,flex:1,background:"#F5F5F5"}}/><div style={{height:6,flex:1,background:"#003DA5"}}/></div><div style={{fontSize:13,fontWeight:800,color:"var(--subtext)",letterSpacing:".1em",textTransform:"uppercase",opacity:.6}}>Naša Hrvatska</div></div></div>}>
       <XPPopup showXP={showXP} xpA={xpA} />
       <BadgeToast show={sB} badge={nB} />
@@ -739,6 +743,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       )}
       {!onboarded&&_syncReady&&authScreen==="app"&&currentScreen!=="welcome"&&currentScreen!=="placement"&&<OnboardingTour onDone={()=>setOnboarded(true)} />}
       {comebackBonus&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#f59e0b,#d97706)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.2)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease"}}>🔥 Welcome back! Keep your streak alive!</div>}
+      {freezeUsedToast&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#1e40af,#3b82f6)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.25)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease",whiteSpace:"nowrap"}}>🛡️ Zaštita niza aktivirana! Tvoj niz je sačuvan.</div>}
       {emailUnverified && (
         <div style={{
           background: '#fef3c7', borderBottom: '2px solid #f59e0b',
@@ -775,7 +780,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {currentScreen==="welcome" && <WelcomeScreen name={name} au={authUser} st={stats} setScr={setScr} setName={setName} sPq={sPq} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} />}
       {currentScreen==="placement" && <PlacementTest pq={pq} pi={pi} ps={ps} pa={pa} px={px} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} setScr={setScr} setSt={setStats} />}
       {// ═══ DASHBOARD ═══
-      currentScreen==="dashboard"&&<div className="dash" role="main">
+      currentScreen==="dashboard"&&<div className="dash">
         <div style={{position:"relative",marginBottom:20}}>
           <div style={{position:"relative"}} role="search">
             <span style={{position:"absolute",left:14,top:"50%",transform:"translateY(-50%)",fontSize:16,pointerEvents:"none",opacity:.4}} aria-hidden="true">🔍</span>
