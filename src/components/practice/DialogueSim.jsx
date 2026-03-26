@@ -148,6 +148,31 @@ const SCENARIOS = [
     ]
   },
   {
+    id:"pharmacy",
+    title:"💊 At the Pharmacy",
+    subtitle:"Get medication for a headache in Split",
+    turns:[
+      { speaker:"Ljekarnica Ana", line:"Dobar dan! Mogu li vam pomoći?", en:"Good day! Can I help you?",
+        opts:["Dobar dan! Imate li nešto za glavobolju?","Ja imam glavobolja.","Hoću lijek za glava.","Glavobolja."],
+        answer:0, tip:"'Imate li nešto za glavobolju?' (Do you have something for a headache?) — correct accusative 'glavobolju' after 'za'. The other options use wrong case or broken phrasing." },
+      { speaker:"Ljekarnica Ana", line:"Imate li recept, ili vam treba nešto bez recepta?", en:"Do you have a prescription, or do you need something over the counter?",
+        opts:["Nemam recept. Trebam nešto bez recepta, molim.","Ja nemam recept.","Ne imam recept.","Bez recept."],
+        answer:0, tip:"'Nemam recept' (I don't have a prescription) + 'trebam nešto bez recepta' (I need something without a prescription) is a complete natural response. 'Ne imam' is wrong — Croatian negation fuses as 'nemam', not 'ne imam'." },
+      { speaker:"Ljekarnica Ana", line:"U redu. Preporučujem ibuprofen ili aspirin. Koji preferirate?", en:"Alright. I recommend ibuprofen or aspirin. Which do you prefer?",
+        opts:["Ibuprofen, molim. Koliko tableta trebam uzimati i kako često?","Ibuprofen.","Dajte mi ibuprofen.","Hoću ibuprofen."],
+        answer:0, tip:"Asking 'koliko tableta... i kako često?' (how many tablets and how often?) is essential — it shows competence and gets the dosage info you need. Just saying 'Ibuprofen' is too abrupt for a pharmacy." },
+      { speaker:"Ljekarnica Ana", line:"Jednu do dvije tablete, svaka četiri do šest sati. Ne više od šest tableta dnevno.", en:"One to two tablets every four to six hours. No more than six tablets per day.",
+        opts:["Razumijem, hvala. Smiju li se uzimati na prazan želudac?","Ok.","Razumijem.","Hvala, gotovo."],
+        answer:0, tip:"'Smiju li se uzimati na prazan želudac?' (Can they be taken on an empty stomach?) is a practical follow-up question that shows real comprehension. 'Na prazan želudac' (on an empty stomach) is a useful phrase to know." },
+      { speaker:"Ljekarnica Ana", line:"Bolje s hranom ili mlijekom. Ima li još nešto?", en:"Better with food or milk. Is there anything else?",
+        opts:["Hvala lijepa. Koliko to košta?","Koliko košta?","Što košta?","Cijena?"],
+        answer:0, tip:"'Hvala lijepa' (many thanks) before asking the price is polite. 'Koliko to košta?' (How much does that cost?) is more complete than bare 'Koliko košta?', and much more natural than just 'Cijena?' (Price?)." },
+      { speaker:"Ljekarnica Ana", line:"Deset eura, molim. Evo vam račun.", en:"Ten euros, please. Here is your receipt.",
+        opts:["Izvolite, hvala lijepa! Ugodan dan!","Hvala.","Ok, bog.","Bok."],
+        answer:0, tip:"'Izvolite' (here you are, as you hand over payment) + 'hvala lijepa' + 'Ugodan dan!' (Have a pleasant day!) is the complete warm leave-taking. 'Ok, bog' is too casual for a pharmacy interaction." },
+    ]
+  },
+  {
     id:"restaurant",
     title:"🍽️ Restaurant Reservation",
     subtitle:"Make a reservation and order a meal",
