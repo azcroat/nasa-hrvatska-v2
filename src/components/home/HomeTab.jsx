@@ -654,10 +654,10 @@ export default function HomeTab({
         const lessonsGoal = st.lc >= 25 ? 50 : st.lc >= 10 ? 25 : 10;
         const masteredGoal = ws.strong >= 50 ? 100 : ws.strong >= 20 ? 50 : 20;
         const challenges = [
-          { icon:'🔥', label:'Day Streak', cur: Math.min(streak.count, streakGoal), goal: streakGoal, color:'#ea580c', bg:'#fff7ed', border:'#fed7aa' },
-          { icon:'📚', label:'Lessons', cur: Math.min(st.lc, lessonsGoal), goal: lessonsGoal, color:'#0e7490', bg:'#f0f9ff', border:'#bae6fd' },
-          { icon:'💪', label:'Words Mastered', cur: Math.min(ws.strong, masteredGoal), goal: masteredGoal, color:'#16a34a', bg:'#f0fdf4', border:'#bbf7d0' },
-          { icon:'⚡', label:'XP This Week', cur: Math.min(weekXP, 100), goal: 100, color:'#7c3aed', bg:'#faf5ff', border:'#ddd6fe' },
+          { icon:'🔥', label:'Day Streak', cur: Math.min(streak.count, streakGoal), goal: streakGoal, color:'#ea580c' },
+          { icon:'📚', label:'Lessons', cur: Math.min(st.lc, lessonsGoal), goal: lessonsGoal, color:'#0e7490' },
+          { icon:'💪', label:'Words Mastered', cur: Math.min(ws.strong, masteredGoal), goal: masteredGoal, color:'#16a34a' },
+          { icon:'⚡', label:'XP This Week', cur: Math.min(weekXP, 100), goal: 100, color:'#7c3aed' },
         ];
         return (
           <React.Fragment>
@@ -667,7 +667,7 @@ export default function HomeTab({
                 const pct = Math.round(c.cur / c.goal * 100);
                 const done = c.cur >= c.goal;
                 return (
-                  <div key={i} style={{ background:c.bg, border:`1.5px solid ${done ? c.color : c.border}`, borderRadius:14, padding:'12px 10px', textAlign:'center' }}>
+                  <div key={i} style={{ background:c.color+'15', border:`1.5px solid ${done ? c.color : c.color+'40'}`, borderRadius:14, padding:'12px 10px', textAlign:'center' }}>
                     <div style={{ fontSize:22, marginBottom:4 }}>{c.icon}</div>
                     <div style={{ fontSize:11, fontWeight:900, color:c.color, lineHeight:1, fontVariantNumeric:'tabular-nums' }}>
                       {done ? '✓' : `${c.cur}/${c.goal}`}

@@ -81,20 +81,20 @@ function RadioPlayer({ src, color, streamId, activeStream, setActiveStream }) {
           flexShrink:0,transition:'all .15s',
           boxShadow:(playing||buffering) ? `0 4px 14px ${color}50` : 'none',
         }}>
-        {buffering ? <span style={{fontSize:12,fontWeight:900}}>…</span> : playing ? '⏸' : '▶'}
+        {buffering ? <span style={{fontSize:'var(--text-sm)',fontWeight:900}}>…</span> : playing ? '⏸' : '▶'}
       </button>
       <div style={{flex:1,minWidth:0}}>
         {error
-          ? <span style={{fontSize:11,color:'#dc2626',fontWeight:700}}>Stream unavailable — tap to retry</span>
+          ? <span style={{fontSize:'var(--text-xs)',color:'var(--error)',fontWeight:700}}>Stream unavailable — tap to retry</span>
           : playing
             ? <div style={{display:'flex',alignItems:'center',gap:5}}>
-                <span style={{width:7,height:7,borderRadius:'50%',background:'#dc2626',display:'inline-block',flexShrink:0,boxShadow:'0 0 6px #dc2626'}}/>
-                <span style={{fontSize:11,fontWeight:900,color:'#dc2626',letterSpacing:'0.05em'}}>LIVE</span>
-                <span style={{fontSize:11,color:'var(--subtext)',marginLeft:2}}>Streaming now</span>
+                <span style={{width:7,height:7,borderRadius:'50%',background:'var(--error)',display:'inline-block',flexShrink:0,boxShadow:'0 0 6px var(--error)'}}/>
+                <span style={{fontSize:'var(--text-xs)',fontWeight:900,color:'var(--error)',letterSpacing:'0.05em'}}>LIVE</span>
+                <span style={{fontSize:'var(--text-xs)',color:'var(--subtext)',marginLeft:2}}>Streaming now</span>
               </div>
             : buffering
-              ? <span style={{fontSize:11,color:'var(--subtext)'}}>Connecting to stream…</span>
-              : <span style={{fontSize:11,color:'var(--subtext)'}}>Tap ▶ to stream live</span>
+              ? <span style={{fontSize:'var(--text-xs)',color:'var(--subtext)'}}>Connecting to stream…</span>
+              : <span style={{fontSize:'var(--text-xs)',color:'var(--subtext)'}}>Tap ▶ to stream live</span>
         }
       </div>
     </div>
@@ -115,7 +115,7 @@ function MediaCard({ m, cat, onOpen, activeStream, setActiveStream }) {
   const streamId = m.stream ? m.name : null;
 
   return (
-    <div className="media-card" style={{background:'var(--card)',borderRadius:16,border:'1px solid rgba(0,0,0,.07)',boxShadow:'0 2px 8px rgba(0,0,0,.04)',overflow:'hidden',marginBottom:10}}>
+    <div className="media-card" style={{background:'var(--card)',borderRadius:16,border:'1px solid var(--card-b)',boxShadow:'0 2px 8px rgba(0,0,0,.04)',overflow:'hidden',marginBottom:10}}>
       {/* Info row */}
       <div style={{display:'flex',gap:12,padding:'14px 14px 12px',alignItems:'flex-start'}}>
         <div style={{width:46,height:46,borderRadius:13,background:m.color+'15',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0,border:`1px solid ${m.color}20`}}>
@@ -125,18 +125,18 @@ function MediaCard({ m, cat, onOpen, activeStream, setActiveStream }) {
           <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:4,flexWrap:'wrap'}}>
             <span style={{fontSize:'var(--text-sm)',fontWeight:800,color:'var(--heading)'}}>{m.name}</span>
             {m.level && <span style={{background:`${lc}18`,color:lc,fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:20,border:`1px solid ${lc}35`,letterSpacing:'0.04em'}}>{m.level}</span>}
-            {isHRTI && <span style={{background:'rgba(220,38,38,.08)',color:'#dc2626',fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)',letterSpacing:'0.04em'}}>HRT+</span>}
+            {isHRTI && <span style={{background:'rgba(220,38,38,.08)',color:'var(--error)',fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)',letterSpacing:'0.04em'}}>HRT+</span>}
             {isInternal && <span style={{background:'rgba(14,116,144,.08)',color:'#0e7490',fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:20,border:'1px solid rgba(14,116,144,.2)',letterSpacing:'0.04em'}}>IN APP</span>}
-            {m.stream && <span style={{background:'rgba(220,38,38,.08)',color:'#dc2626',fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)',letterSpacing:'0.04em'}}>LIVE</span>}
+            {m.stream && <span style={{background:'rgba(220,38,38,.08)',color:'var(--error)',fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)',letterSpacing:'0.04em'}}>LIVE</span>}
           </div>
           <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',lineHeight:1.5}}>{m.desc}</div>
           {domain && !isHRTI && !m.stream && (
-            <div style={{display:'flex',alignItems:'center',gap:3,marginTop:5,fontSize:10,color:'#a8a29e'}}>
+            <div style={{display:'flex',alignItems:'center',gap:3,marginTop:5,fontSize:'var(--text-xs)',color:'var(--subtext)'}}>
               <span>🌐</span><span>{domain}</span>
             </div>
           )}
           {isHRTI && (
-            <div style={{display:'flex',alignItems:'center',gap:3,marginTop:5,fontSize:10,color:'#b91c1c'}}>
+            <div style={{display:'flex',alignItems:'center',gap:3,marginTop:5,fontSize:'var(--text-xs)',color:'var(--error)'}}>
               <span>🔐</span><span>Subscription required · browser auto-fills saved login</span>
             </div>
           )}
@@ -144,7 +144,7 @@ function MediaCard({ m, cat, onOpen, activeStream, setActiveStream }) {
       </div>
 
       {/* Action footer */}
-      <div style={{display:'flex',alignItems:'center',gap:8,padding:'10px 14px',borderTop:'1px solid rgba(0,0,0,.05)',background:'rgba(0,0,0,.015)'}}>
+      <div style={{display:'flex',alignItems:'center',gap:8,padding:'10px 14px',borderTop:'1px solid var(--card-b)',background:'rgba(0,0,0,.015)'}}>
         {m.stream
           ? <RadioPlayer
               src={m.stream}
@@ -156,7 +156,7 @@ function MediaCard({ m, cat, onOpen, activeStream, setActiveStream }) {
           : hasAction && (
             <button
               onClick={onOpen}
-              style={{display:'flex',alignItems:'center',gap:5,padding:'8px 14px',background:btnBg,color:'white',border:'none',borderRadius:10,fontSize:11,fontWeight:800,cursor:'pointer',letterSpacing:'0.02em',boxShadow:btnShadow,flexShrink:0}}>
+              style={{display:'flex',alignItems:'center',gap:5,padding:'8px 14px',background:btnBg,color:'white',border:'none',borderRadius:10,fontSize:'var(--text-xs)',fontWeight:800,cursor:'pointer',letterSpacing:'0.02em',boxShadow:btnShadow,flexShrink:0}}>
               {isLive && <span style={{width:6,height:6,borderRadius:'50%',background:'white',display:'inline-block',opacity:.9,flexShrink:0}}/>}
               {actionLabel}
             </button>
@@ -166,16 +166,16 @@ function MediaCard({ m, cat, onOpen, activeStream, setActiveStream }) {
           <button
             onClick={() => setTipOpen(o => !o)}
             style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:4,cursor:'pointer',padding:'6px 10px',borderRadius:8,background:tipOpen?'rgba(14,116,144,.08)':'transparent',border:'1px solid '+(tipOpen?'rgba(14,116,144,.2)':'rgba(0,0,0,.07)'),color:tipOpen?'#0e7490':'#78716c',flexShrink:0}}>
-            <span style={{fontSize:12}}>💡</span>
-            <span style={{fontSize:11,fontWeight:700}}>Tip</span>
-            <span style={{fontSize:10,fontWeight:700}}>{tipOpen ? '▲' : '▼'}</span>
+            <span style={{fontSize:'var(--text-sm)'}}>💡</span>
+            <span style={{fontSize:'var(--text-xs)',fontWeight:700}}>Tip</span>
+            <span style={{fontSize:'var(--text-xs)',fontWeight:700}}>{tipOpen ? '▲' : '▼'}</span>
           </button>
         )}
       </div>
 
       {/* Tip content */}
       {m.tip && tipOpen && (
-        <div style={{padding:'12px 14px 16px',borderTop:'1px solid rgba(14,116,144,.08)',background:'var(--bar-bg)'}}>
+        <div style={{padding:'12px 14px 16px',borderTop:'1px solid var(--card-b)',background:'var(--bar-bg)'}}>
           <p style={{margin:0,fontSize:'var(--text-xs)',color:'var(--body)',lineHeight:1.75}}>{m.tip}</p>
         </div>
       )}
@@ -186,8 +186,8 @@ function MediaCard({ m, cat, onOpen, activeStream, setActiveStream }) {
 const SPOTIFY_PLAYLISTS = {
   icons: [
     { id:'37i9dQZF1DZ06evO2GzzZj', name:'This Is Oliver Dragojević', desc:'The soul of Dalmatia — all the classics', icon:'🎤', color:'#0369a1', tag:'Legend' },
-    { id:'37i9dQZF1DZ06evO3UANd2', name:'This Is Prljavo Kazalište', desc:"Croatia's greatest rock band — essential listening", icon:'🎸', color:'#dc2626', tag:'Rock' },
-    { id:'5OPhthDiArDJMPQfTKIYCn', name:'Thompson', desc:'Patriotic Croatian rock — Marin Čavić', icon:'🇭🇷', color:'#b91c1c', tag:'Patriotic' },
+    { id:'37i9dQZF1DZ06evO3UANd2', name:'This Is Prljavo Kazalište', desc:"Croatia's greatest rock band — essential listening", icon:'🎸', color:'var(--error)', tag:'Rock' },
+    { id:'5OPhthDiArDJMPQfTKIYCn', name:'Thompson', desc:'Patriotic Croatian rock — Marin Čavić', icon:'🇭🇷', color:'var(--error)', tag:'Patriotic' },
     { id:'37i9dQZF1EIUUk1h0TA16K', name:'Crvena Jabuka Mix', desc:'Timeless Croatian pop-rock from the 80s & 90s', icon:'🍎', color:'#e11d48', tag:'Pop/Rock' },
     { id:'5pFl9Ll0hBYydQPEVkMJsQ', name:'Magazin', desc:"Croatia's beloved pop group — hits spanning 4 decades", icon:'💫', color:'#9333ea', tag:'Pop' },
     { id:'37i9dQZF1E4zd1TBgRl9w6', name:'Klapa', desc:'UNESCO-listed Dalmatian choral tradition', icon:'🎶', color:'#0891b2', tag:'Traditional' },
@@ -272,10 +272,10 @@ function SpotifyCard({ pl, openId, setOpenId }) {
         </div>
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:3, flexWrap:'wrap' }}>
-            <span style={{ fontSize:13, fontWeight:800, color:'var(--heading)' }}>{pl.name}</span>
+            <span style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)' }}>{pl.name}</span>
             <span style={{ background:pl.color+'18', color:pl.color, fontSize:9, fontWeight:800, padding:'2px 7px', borderRadius:20, border:`1px solid ${pl.color}30`, letterSpacing:'0.04em', flexShrink:0 }}>{pl.tag}</span>
           </div>
-          <div style={{ fontSize:11, color:'var(--subtext)', lineHeight:1.4 }}>{pl.desc}</div>
+          <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.4 }}>{pl.desc}</div>
         </div>
         <div style={{ fontSize:18, color:'var(--subtext)', opacity:.5, transition:'transform .2s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink:0 }}>⌄</div>
       </button>
@@ -291,12 +291,12 @@ function SpotifyCard({ pl, openId, setOpenId }) {
             style={{ display:'block' }}
           />
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 14px', background:'rgba(30,215,96,.05)', borderTop:'1px solid rgba(30,215,96,.12)' }}>
-            <span style={{ fontSize:11, color:'var(--subtext)' }}>Not loading? Open directly in Spotify.</span>
+            <span style={{ fontSize:'var(--text-xs)', color:'var(--subtext)' }}>Not loading? Open directly in Spotify.</span>
             <a
               href={`https://open.spotify.com/playlist/${pl.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ display:'flex', alignItems:'center', gap:5, padding:'6px 12px', background:'#1ed760', borderRadius:20, fontSize:11, fontWeight:800, color:'#000', textDecoration:'none', flexShrink:0 }}
+              style={{ display:'flex', alignItems:'center', gap:5, padding:'6px 12px', background:'#1ed760', borderRadius:20, fontSize:'var(--text-xs)', fontWeight:800, color:'#000', textDecoration:'none', flexShrink:0 }}
             >
               <span>Open in Spotify ↗</span>
             </a>
@@ -318,7 +318,7 @@ function SpotifyPlaylists() {
     <div>
       {groups.map(({ label, key }) => (
         <div key={key}>
-          <div style={{ fontSize:10, fontWeight:800, color:'var(--subtext)', letterSpacing:'.12em', textTransform:'uppercase', marginBottom:8, marginTop: key==='icons' ? 0 : 14 }}>{label}</div>
+          <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', letterSpacing:'.12em', textTransform:'uppercase', marginBottom:8, marginTop: key==='icons' ? 0 : 14 }}>{label}</div>
           {SPOTIFY_PLAYLISTS[key].map(pl => (
             <SpotifyCard key={pl.id} pl={pl} openId={openId} setOpenId={setOpenId} />
           ))}
@@ -344,9 +344,9 @@ function CrSection({ title, icon, count, defaultOpen = false, children }) {
         }}
       >
         <span style={{ fontSize:18 }}>{icon}</span>
-        <span style={{ flex:1, fontSize:14, fontWeight:800, color:'var(--heading)', textAlign:'left' }}>{title}</span>
-        <span style={{ fontSize:11, color:'var(--subtext)', fontWeight:600, background:'var(--bar-bg)', borderRadius:8, padding:'2px 8px' }}>{count}</span>
-        <span style={{ fontSize:11, color:'var(--subtext)', opacity:.5, marginLeft:4 }}>{open ? '▲' : '▼'}</span>
+        <span style={{ flex:1, fontSize:'var(--text-base)', fontWeight:800, color:'var(--heading)', textAlign:'left' }}>{title}</span>
+        <span style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:600, background:'var(--bar-bg)', borderRadius:8, padding:'2px 8px' }}>{count}</span>
+        <span style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', opacity:.5, marginLeft:4 }}>{open ? '▲' : '▼'}</span>
       </button>
       {open && <div style={{ marginBottom:16 }}>{children}</div>}
     </div>
@@ -371,13 +371,13 @@ export default function CroatiaTab({ setScr, sCurEx }) {
         <div style={{background:"linear-gradient(135deg,"+city.color+"dd,"+city.color+")",padding:"14px 16px",display:"flex",alignItems:"center",gap:14}}>
           <div style={{fontSize:36,flexShrink:0}}>{city.icon}</div>
           <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:10,fontWeight:800,color:"rgba(255,255,255,.75)",letterSpacing:"0.08em",marginBottom:3}}>🗓️ CITY OF THE DAY</div>
+            <div style={{fontSize:'var(--text-xs)',fontWeight:800,color:"rgba(255,255,255,.75)",letterSpacing:"0.08em",marginBottom:3}}>🗓️ CITY OF THE DAY</div>
             <div style={{fontSize:17,fontWeight:900,color:"white",lineHeight:1.2}}>{city.name}</div>
-            <div style={{fontSize:11,color:"rgba(255,255,255,.75)",marginTop:2}}>{city.region} &nbsp;·&nbsp; <span style={{fontStyle:"italic"}}>"{city.tagline}"</span></div>
+            <div style={{fontSize:'var(--text-xs)',color:"rgba(255,255,255,.75)",marginTop:2}}>{city.region} &nbsp;·&nbsp; <span style={{fontStyle:"italic"}}>"{city.tagline}"</span></div>
           </div>
           <div style={{fontSize:20,opacity:.7,color:"white"}}>→</div>
         </div>
-        <div style={{background:"rgba(0,0,0,.55)",padding:"7px 16px",fontSize:11,color:"rgba(255,255,255,.65)"}}>
+        <div style={{background:"rgba(0,0,0,.55)",padding:"7px 16px",fontSize:'var(--text-xs)',color:"rgba(255,255,255,.65)"}}>
           New city every day · {city.facts.length} facts · {city.vocab.length} words to learn
         </div>
       </button>
@@ -385,25 +385,25 @@ export default function CroatiaTab({ setScr, sCurEx }) {
       {/* ── STORIES & NEWS ── */}
 <div style={{ borderRadius:20, overflow:'hidden', marginBottom:16, boxShadow:'0 4px 20px rgba(0,0,0,.10)', border:'1px solid var(--card-b)' }}>
   <div style={{ background:'linear-gradient(135deg,#451a03,#92400e)', padding:'18px 20px', color:'#fff' }}>
-    <div style={{ fontSize:10, fontWeight:700, opacity:.7, letterSpacing:'.12em', textTransform:'uppercase', marginBottom:4 }}>STORIES & NEWS</div>
+    <div style={{ fontSize:'var(--text-xs)', fontWeight:700, opacity:.7, letterSpacing:'.12em', textTransform:'uppercase', marginBottom:4 }}>STORIES & NEWS</div>
     <div style={{ fontSize:18, fontWeight:900, marginBottom:4 }}>Live the language</div>
-    <div style={{ fontSize:12, opacity:.8, lineHeight:1.5 }}>Stories from Croatia + real Croatian news</div>
+    <div style={{ fontSize:'var(--text-sm)', opacity:.8, lineHeight:1.5 }}>Stories from Croatia + real Croatian news</div>
   </div>
-  <div style={{ background:'var(--card)', padding:'14px 16px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
-    <button onClick={() => setScr("baka_summer")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #fde68a', background:'linear-gradient(135deg,#fffbeb,#fef3c7)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+  <div className="g3" style={{ background:'var(--card)', padding:'14px 16px', gap:10 }}>
+    <button onClick={() => setScr("baka_summer")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(245,158,11,.3)', background:'rgba(245,158,11,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
       <div style={{ fontSize:26, marginBottom:6 }}>📖</div>
-      <div style={{ fontSize:13, fontWeight:800, color:'#92400e' }}>Baka's Summer</div>
-      <div style={{ fontSize:10, color:'#b45309', marginTop:2 }}>12-chapter story</div>
+      <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--warning)' }}>Baka's Summer</div>
+      <div style={{ fontSize:'var(--text-xs)', color:'var(--warning)', marginTop:2, opacity:.75 }}>12-chapter story</div>
     </button>
-    <button onClick={() => setScr("croatia_today")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #bae6fd', background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+    <button onClick={() => setScr("croatia_today")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(14,116,144,.3)', background:'rgba(14,116,144,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
       <div style={{ fontSize:26, marginBottom:6 }}>📰</div>
-      <div style={{ fontSize:13, fontWeight:800, color:'#0369a1' }}>Croatia Today</div>
-      <div style={{ fontSize:10, color:'#0284c7', marginTop:2 }}>Daily Croatian news</div>
+      <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--info)' }}>Croatia Today</div>
+      <div style={{ fontSize:'var(--text-xs)', color:'var(--info)', marginTop:2, opacity:.75 }}>Daily Croatian news</div>
     </button>
-    <button onClick={() => setScr("survival_dinner")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #86efac', background:'linear-gradient(135deg,#f0fdf4,#dcfce7)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+    <button onClick={() => setScr("survival_dinner")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(22,163,74,.3)', background:'rgba(22,163,74,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
       <div style={{ fontSize:26, marginBottom:6 }}>🍽️</div>
-      <div style={{ fontSize:13, fontWeight:800, color:'#166534' }}>At the Table</div>
-      <div style={{ fontSize:10, color:'#16a34a', marginTop:2 }}>Navigate any dinner</div>
+      <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--success)' }}>At the Table</div>
+      <div style={{ fontSize:'var(--text-xs)', color:'var(--success)', marginTop:2, opacity:.75 }}>Navigate any dinner</div>
     </button>
     {/* Only show during Easter season (March 20 - April 30) */}
     {(() => {
@@ -414,15 +414,15 @@ export default function CroatiaTab({ setScr, sCurEx }) {
         <div
           onClick={() => setScr('easter')}
           style={{
-            background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)',
-            border: '1.5px solid #86efac', borderRadius: 14,
+            background: 'rgba(22,163,74,.06)',
+            border: '1.5px solid rgba(22,163,74,.3)', borderRadius: 14,
             padding: '14px', cursor: 'pointer', position: 'relative', textAlign: 'center',
           }}
         >
-          <span style={{ position: 'absolute', top: 8, right: 8, background: '#dc2626', color: '#fff', fontSize: 9, fontWeight: 900, borderRadius: 6, padding: '2px 5px' }}>NEW</span>
+          <span style={{ position: 'absolute', top: 8, right: 8, background: 'var(--error)', color: '#fff', fontSize: 9, fontWeight: 900, borderRadius: 6, padding: '2px 5px' }}>NEW</span>
           <div style={{ fontSize: 24, marginBottom: 6 }}>🥚</div>
-          <div style={{ fontSize: 13, fontWeight: 800, color: '#166534' }}>Uskrs u Hrvatskoj</div>
-          <div style={{ fontSize: 11, color: '#4ade80', fontWeight: 600, marginTop: 2 }}>Easter traditions & phrases</div>
+          <div style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: '#166534' }}>Uskrs u Hrvatskoj</div>
+          <div style={{ fontSize: 'var(--text-xs)', color: '#4ade80', fontWeight: 600, marginTop: 2 }}>Easter traditions & phrases</div>
         </div>
       );
     })()}
@@ -432,18 +432,18 @@ export default function CroatiaTab({ setScr, sCurEx }) {
       {/* ── MEDIA & IMMERSION ── */}
       <h3 className="sh">📺 Media & Immersion</h3>
       <div style={{padding:'12px 14px',background:'linear-gradient(135deg,rgba(14,116,144,.06),rgba(14,116,144,.1))',borderRadius:12,marginBottom:20,borderLeft:'3px solid #0e7490'}}>
-        <div style={{fontSize:12,fontWeight:800,color:'var(--heading)',marginBottom:5}}>📱 How it works</div>
-        <div style={{fontSize:12,color:'var(--body)',lineHeight:1.7}}>
+        <div style={{fontSize:'var(--text-sm)',fontWeight:800,color:'var(--heading)',marginBottom:5}}>📱 How it works</div>
+        <div style={{fontSize:'var(--text-sm)',color:'var(--body)',lineHeight:1.7}}>
           Radio stations with a{' '}
-          <span style={{background:'rgba(220,38,38,.08)',color:'#dc2626',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)'}}>LIVE</span>{' '}
+          <span style={{background:'rgba(220,38,38,.08)',color:'var(--error)',fontSize:'var(--text-xs)',fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)'}}>LIVE</span>{' '}
           badge stream directly inside the app — tap ▶ to start. TV and other media open in your browser.{' '}
-          <span style={{background:'rgba(220,38,38,.08)',color:'#dc2626',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)'}}>HRT+</span>{' '}
+          <span style={{background:'rgba(220,38,38,.08)',color:'var(--error)',fontSize:'var(--text-xs)',fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)'}}>HRT+</span>{' '}
           requires an HRT subscription.{' '}
           Tap <strong>💡 Tip</strong> on any card for a language-learning tip.{' '}
           Spotify playlists expand inline — a free{' '}
-          <span style={{background:'rgba(30,215,96,.10)',color:'#15803d',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(30,215,96,.25)'}}>SPOTIFY</span>{' '}
+          <span style={{background:'rgba(30,215,96,.10)',color:'#15803d',fontSize:'var(--text-xs)',fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(30,215,96,.25)'}}>SPOTIFY</span>{' '}
           account unlocks full tracks;{' '}
-          <span style={{background:'rgba(100,116,139,.08)',color:'#475569',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(100,116,139,.2)'}}>30 SEC</span>{' '}
+          <span style={{background:'rgba(100,116,139,.08)',color:'#475569',fontSize:'var(--text-xs)',fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(100,116,139,.2)'}}>30 SEC</span>{' '}
           previews play without login.
         </div>
       </div>
@@ -467,8 +467,8 @@ export default function CroatiaTab({ setScr, sCurEx }) {
                 {catEmoji}
               </div>
               <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:14,fontWeight:700,color:'var(--heading)'}}>{catTitle}</div>
-                <div style={{fontSize:11,color:'var(--subtext)',marginTop:1}}>
+                <div style={{fontSize:'var(--text-base)',fontWeight:700,color:'var(--heading)'}}>{catTitle}</div>
+                <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',marginTop:1}}>
                   {items.length} {items.length === 1 ? 'resource' : 'resources'}
                   {cat==='music' && <span style={{marginLeft:6,background:'rgba(30,215,96,.12)',color:'#15803d',fontSize:9,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(30,215,96,.25)'}}>+ 14 Spotify playlists</span>}
                 </div>
@@ -493,10 +493,10 @@ export default function CroatiaTab({ setScr, sCurEx }) {
                 {cat === 'music' && (
                   <div style={{padding:'16px 14px 20px',borderTop:'2px solid rgba(30,215,96,.2)',background:'linear-gradient(180deg,rgba(30,215,96,.03) 0%,transparent 100%)'}}>
                     <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>
-                      <div style={{width:28,height:28,borderRadius:8,background:'#1ed760',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>🎵</div>
+                      <div style={{width:28,height:28,borderRadius:8,background:'#1ed760',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'var(--text-base)',flexShrink:0}}>🎵</div>
                       <div>
-                        <div style={{fontSize:12,fontWeight:800,color:'var(--heading)'}}>Croatian Playlists on Spotify</div>
-                        <div style={{fontSize:10,color:'var(--subtext)'}}>14 curated playlists · tap to expand</div>
+                        <div style={{fontSize:'var(--text-sm)',fontWeight:800,color:'var(--heading)'}}>Croatian Playlists on Spotify</div>
+                        <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)'}}>14 curated playlists · tap to expand</div>
                       </div>
                     </div>
                     <SpotifyPlaylists />
@@ -512,26 +512,26 @@ export default function CroatiaTab({ setScr, sCurEx }) {
       {/* ── IMMERSION FEATURE ── */}
       <div style={{ borderRadius:20, overflow:'hidden', marginBottom:16, boxShadow:'0 4px 20px rgba(0,0,0,.10)', border:'1px solid var(--card-b)' }}>
         <div style={{ background:'linear-gradient(135deg,#1e1b4b,#3730a3)', padding:'18px 20px', color:'#fff' }}>
-          <div style={{ fontSize:10, fontWeight:700, opacity:.7, letterSpacing:'.12em', textTransform:'uppercase', marginBottom:4 }}>IMMERSION</div>
+          <div style={{ fontSize:'var(--text-xs)', fontWeight:700, opacity:.7, letterSpacing:'.12em', textTransform:'uppercase', marginBottom:4 }}>IMMERSION</div>
           <div style={{ fontSize:18, fontWeight:900, marginBottom:4 }}>Level up your Croatian</div>
-          <div style={{ fontSize:12, opacity:.8, lineHeight:1.5 }}>AI conversation practice + curated media from A1 to C2</div>
+          <div style={{ fontSize:'var(--text-sm)', opacity:.8, lineHeight:1.5 }}>AI conversation practice + curated media from A1 to C2</div>
         </div>
         <div style={{ background:'var(--card)', padding:'14px 16px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
           <button onClick={() => setScr("aiconvo")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #c7d2fe', background:'linear-gradient(135deg,#eef2ff,#e0e7ff)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
             <div style={{ fontSize:26, marginBottom:6 }}>🤖</div>
-            <div style={{ fontSize:13, fontWeight:800, color:'#3730a3' }}>AI Conversations</div>
-            <div style={{ fontSize:10, color:'#6366f1', marginTop:2 }}>50 scenarios · all levels</div>
+            <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'#3730a3' }}>AI Conversations</div>
+            <div style={{ fontSize:'var(--text-xs)', color:'#6366f1', marginTop:2 }}>50 scenarios · all levels</div>
           </button>
-          <button onClick={() => setScr("immersion")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #bae6fd', background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+          <button onClick={() => setScr("immersion")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(14,116,144,.3)', background:'rgba(14,116,144,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
             <div style={{ fontSize:26, marginBottom:6 }}>🌊</div>
-            <div style={{ fontSize:13, fontWeight:800, color:'#0369a1' }}>Immersion Hub</div>
-            <div style={{ fontSize:10, color:'#0284c7', marginTop:2 }}>A1 → C2 pathway</div>
+            <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--info)' }}>Immersion Hub</div>
+            <div style={{ fontSize:'var(--text-xs)', color:'var(--info)', marginTop:2, opacity:.75 }}>A1 → C2 pathway</div>
           </button>
         </div>
       </div>
 
 {/* ── LANGUAGE & CULTURE ──────────────────────────────────────────── */}
-<div style={{ fontSize:11, fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:10, marginTop:8 }}>
+<div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:10, marginTop:8 }}>
   Language & Culture
 </div>
 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:24 }}>
@@ -545,11 +545,11 @@ export default function CroatiaTab({ setScr, sCurEx }) {
       style={{ textAlign:'center', padding:'16px 12px', background:c.color, border:`1.5px solid ${c.border}` }}
       onClick={() => setScr(c.scr)}>
       <div style={{ fontSize:28, marginBottom:6 }}>{c.icon}</div>
-      <div style={{ fontSize:12, fontWeight:800, color:'var(--heading)', lineHeight:1.2, marginBottom:3 }}>
+      <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', lineHeight:1.2, marginBottom:3 }}>
         {c.title}
-        <span style={{ background:'#dc2626', color:'#fff', fontSize:9, fontWeight:900, borderRadius:6, padding:'2px 5px', marginLeft:6, letterSpacing:0.5 }}>NEW</span>
+        <span style={{ background:'var(--error)', color:'#fff', fontSize:9, fontWeight:900, borderRadius:6, padding:'2px 5px', marginLeft:6, letterSpacing:0.5 }}>NEW</span>
       </div>
-      <div style={{ fontSize:10, color:'var(--subtext)', lineHeight:1.3 }}>{c.desc}</div>
+      <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.3 }}>{c.desc}</div>
     </button>
   ))}
 </div>
@@ -557,12 +557,12 @@ export default function CroatiaTab({ setScr, sCurEx }) {
       {/* ── LETTERS FROM BAKA ─── */}
       <div style={{ marginBottom: 24 }}>
         <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
-          <div style={{ fontSize:11, fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase' }}>
+          <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase' }}>
             ✉️ Letters from Baka
           </div>
           <div style={{ flex:1, height:1, background:'var(--card-b)' }} />
         </div>
-        <p style={{ fontSize:12, color:'var(--subtext)', marginBottom:12, fontWeight:500, fontStyle:'italic' }}>
+        <p style={{ fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:12, fontWeight:500, fontStyle:'italic' }}>
           Authentic letters to help you read Croatian the way family really writes it
         </p>
         <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
@@ -575,10 +575,10 @@ export default function CroatiaTab({ setScr, sCurEx }) {
                   <div style={{ width:40, height:40, borderRadius:10, background:'linear-gradient(135deg,#fef3c7,#fde68a)', border:'1px solid #fde68a',
                     display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0 }}>💌</div>
                   <div style={{ flex:1 }}>
-                    <div style={{ fontSize:13, fontWeight:800, color:'var(--heading)' }}>{letter.from}</div>
-                    <div style={{ fontSize:11, color:'var(--subtext)', marginTop:1 }}>{letter.subject} · {letter.date}</div>
+                    <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)' }}>{letter.from}</div>
+                    <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:1 }}>{letter.subject} · {letter.date}</div>
                   </div>
-                  <span style={{ fontSize:14, color:'var(--subtext)', opacity:.5 }}>{openLetter === letter.id ? '▲' : '▼'}</span>
+                  <span style={{ fontSize:'var(--text-base)', color:'var(--subtext)', opacity:.5 }}>{openLetter === letter.id ? '▲' : '▼'}</span>
                 </div>
               </button>
               {openLetter === letter.id && (
@@ -586,19 +586,19 @@ export default function CroatiaTab({ setScr, sCurEx }) {
                   <div style={{
                     background:'#fffbeb', border:'1px solid #fde68a',
                     borderRadius:10, padding:'14px 16px', marginBottom:14,
-                    fontFamily:"Georgia, serif", fontSize:13, lineHeight:1.8, color:'#451a03',
+                    fontFamily:"Georgia, serif", fontSize:'var(--text-sm)', lineHeight:1.8, color:'#451a03',
                     whiteSpace:'pre-line',
                   }}>
                     {letter.full}
                   </div>
-                  <div style={{ fontSize:11, fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:8 }}>
+                  <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:8 }}>
                     📚 Words from this letter
                   </div>
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
                     {letter.words.map(w => (
                       <div key={w.hr} style={{ background:'var(--bar-bg)', borderRadius:8, padding:'8px 10px' }}>
-                        <div style={{ fontSize:13, fontWeight:800, color:'#0e7490' }}>{w.hr}</div>
-                        <div style={{ fontSize:11, color:'var(--subtext)', marginTop:2 }}>{w.en}</div>
+                        <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'#0e7490' }}>{w.hr}</div>
+                        <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:2 }}>{w.en}</div>
                       </div>
                     ))}
                   </div>
@@ -630,8 +630,8 @@ export default function CroatiaTab({ setScr, sCurEx }) {
               style={{display:"flex",alignItems:"center",gap:14,padding:"13px 16px",textAlign:"left",borderLeft:`3px solid ${color}`}}>
               <div style={{width:44,height:44,borderRadius:13,background:`${color}15`,border:`1px solid ${color}25`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>{icon}</div>
               <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:14,fontWeight:700,color:"var(--heading)",marginBottom:2}}>{title}</div>
-                <div style={{fontSize:11,color:"var(--subtext)",lineHeight:1.4}}>{sub}</div>
+                <div style={{fontSize:'var(--text-base)',fontWeight:700,color:"var(--heading)",marginBottom:2}}>{title}</div>
+                <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",lineHeight:1.4}}>{sub}</div>
               </div>
               <div style={{fontSize:16,color:"var(--subtext)",flexShrink:0,opacity:.5}}>›</div>
             </button>
@@ -660,8 +660,8 @@ export default function CroatiaTab({ setScr, sCurEx }) {
               style={{display:"flex",alignItems:"center",gap:14,padding:"13px 16px",textAlign:"left",borderLeft:`3px solid ${color}`}}>
               <div style={{width:44,height:44,borderRadius:13,background:`${color}15`,border:`1px solid ${color}25`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>{icon}</div>
               <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:14,fontWeight:700,color:"var(--heading)",marginBottom:2}}>{title}</div>
-                <div style={{fontSize:11,color:"var(--subtext)",lineHeight:1.4}}>{sub}</div>
+                <div style={{fontSize:'var(--text-base)',fontWeight:700,color:"var(--heading)",marginBottom:2}}>{title}</div>
+                <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",lineHeight:1.4}}>{sub}</div>
               </div>
               <div style={{fontSize:16,color:"var(--subtext)",flexShrink:0,opacity:.5}}>›</div>
             </button>
@@ -671,14 +671,14 @@ export default function CroatiaTab({ setScr, sCurEx }) {
 
       {/* ── EXPLORE CROATIA ── */}
       <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--subtext)', letterSpacing: 1, marginBottom: 10, textTransform: 'uppercase' }}>
+        <div style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--subtext)', letterSpacing: 1, marginBottom: 10, textTransform: 'uppercase' }}>
           Explore Croatia
         </div>
         <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px",width:"100%"}} onClick={() => { setScr("crmap"); }}>
           <div style={{fontSize:36}}>🗺️</div>
           <div>
             <div style={{fontSize:16,fontWeight:800,color:"var(--heading)"}}>Interactive Map & Directions</div>
-            <div style={{fontSize:12,color:"var(--subtext)"}}>Explore Croatia — cities, parks, beaches, islands</div>
+            <div style={{fontSize:'var(--text-sm)',color:"var(--subtext)"}}>Explore Croatia — cities, parks, beaches, islands</div>
           </div>
         </button>
       </div>

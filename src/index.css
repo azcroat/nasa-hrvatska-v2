@@ -1328,3 +1328,19 @@ img, video, canvas, .skeleton, [class*="anim-"], [style*="animation"] {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; }
 }
+
+/* ── Top loading progress bar ────────────────────────────────── */
+.nprogress {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 3px; z-index: 99999; pointer-events: none;
+}
+.nprogress-bar {
+  background: linear-gradient(90deg, #b61800, #0e7490);
+  height: 3px;
+  animation: nprogress 2s cubic-bezier(.4,0,.2,1) forwards;
+}
+@keyframes nprogress {
+  0%   { width: 0; opacity: 1; }
+  70%  { width: 85%; opacity: 1; }
+  100% { width: 100%; opacity: 0; }
+}
