@@ -90,11 +90,11 @@ function RadioPlayer({ src, color, streamId, activeStream, setActiveStream }) {
             ? <div style={{display:'flex',alignItems:'center',gap:5}}>
                 <span style={{width:7,height:7,borderRadius:'50%',background:'#dc2626',display:'inline-block',flexShrink:0,boxShadow:'0 0 6px #dc2626'}}/>
                 <span style={{fontSize:11,fontWeight:900,color:'#dc2626',letterSpacing:'0.05em'}}>LIVE</span>
-                <span style={{fontSize:11,color:'#6b7280',marginLeft:2}}>Streaming now</span>
+                <span style={{fontSize:11,color:'var(--subtext)',marginLeft:2}}>Streaming now</span>
               </div>
             : buffering
-              ? <span style={{fontSize:11,color:'#6b7280'}}>Connecting to stream…</span>
-              : <span style={{fontSize:11,color:'#6b7280'}}>Tap ▶ to stream live</span>
+              ? <span style={{fontSize:11,color:'var(--subtext)'}}>Connecting to stream…</span>
+              : <span style={{fontSize:11,color:'var(--subtext)'}}>Tap ▶ to stream live</span>
         }
       </div>
     </div>
@@ -115,7 +115,7 @@ function MediaCard({ m, cat, onOpen, activeStream, setActiveStream }) {
   const streamId = m.stream ? m.name : null;
 
   return (
-    <div style={{background:'white',borderRadius:16,border:'1px solid rgba(0,0,0,.07)',boxShadow:'0 2px 8px rgba(0,0,0,.04)',overflow:'hidden',marginBottom:10}}>
+    <div className="media-card" style={{background:'var(--card)',borderRadius:16,border:'1px solid rgba(0,0,0,.07)',boxShadow:'0 2px 8px rgba(0,0,0,.04)',overflow:'hidden',marginBottom:10}}>
       {/* Info row */}
       <div style={{display:'flex',gap:12,padding:'14px 14px 12px',alignItems:'flex-start'}}>
         <div style={{width:46,height:46,borderRadius:13,background:m.color+'15',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0,border:`1px solid ${m.color}20`}}>
@@ -123,13 +123,13 @@ function MediaCard({ m, cat, onOpen, activeStream, setActiveStream }) {
         </div>
         <div style={{flex:1,minWidth:0}}>
           <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:4,flexWrap:'wrap'}}>
-            <span style={{fontSize:13,fontWeight:800,color:'#1c1917'}}>{m.name}</span>
+            <span style={{fontSize:'var(--text-sm)',fontWeight:800,color:'var(--heading)'}}>{m.name}</span>
             {m.level && <span style={{background:`${lc}18`,color:lc,fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:20,border:`1px solid ${lc}35`,letterSpacing:'0.04em'}}>{m.level}</span>}
             {isHRTI && <span style={{background:'rgba(220,38,38,.08)',color:'#dc2626',fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)',letterSpacing:'0.04em'}}>HRT+</span>}
             {isInternal && <span style={{background:'rgba(14,116,144,.08)',color:'#0e7490',fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:20,border:'1px solid rgba(14,116,144,.2)',letterSpacing:'0.04em'}}>IN APP</span>}
             {m.stream && <span style={{background:'rgba(220,38,38,.08)',color:'#dc2626',fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)',letterSpacing:'0.04em'}}>LIVE</span>}
           </div>
-          <div style={{fontSize:11.5,color:'#6b7280',lineHeight:1.5}}>{m.desc}</div>
+          <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',lineHeight:1.5}}>{m.desc}</div>
           {domain && !isHRTI && !m.stream && (
             <div style={{display:'flex',alignItems:'center',gap:3,marginTop:5,fontSize:10,color:'#a8a29e'}}>
               <span>🌐</span><span>{domain}</span>
@@ -175,8 +175,8 @@ function MediaCard({ m, cat, onOpen, activeStream, setActiveStream }) {
 
       {/* Tip content */}
       {m.tip && tipOpen && (
-        <div style={{padding:'12px 14px 16px',borderTop:'1px solid rgba(14,116,144,.08)',background:'rgba(14,116,144,.025)'}}>
-          <p style={{margin:0,fontSize:11.5,color:'#44403c',lineHeight:1.75}}>{m.tip}</p>
+        <div style={{padding:'12px 14px 16px',borderTop:'1px solid rgba(14,116,144,.08)',background:'var(--bar-bg)'}}>
+          <p style={{margin:0,fontSize:'var(--text-xs)',color:'var(--body)',lineHeight:1.75}}>{m.tip}</p>
         </div>
       )}
     </div>
@@ -432,8 +432,8 @@ export default function CroatiaTab({ setScr, sCurEx }) {
       {/* ── MEDIA & IMMERSION ── */}
       <h3 className="sh">📺 Media & Immersion</h3>
       <div style={{padding:'12px 14px',background:'linear-gradient(135deg,rgba(14,116,144,.06),rgba(14,116,144,.1))',borderRadius:12,marginBottom:20,borderLeft:'3px solid #0e7490'}}>
-        <div style={{fontSize:12,fontWeight:800,color:'#164e63',marginBottom:5}}>📱 How it works</div>
-        <div style={{fontSize:12,color:'#44403c',lineHeight:1.7}}>
+        <div style={{fontSize:12,fontWeight:800,color:'var(--heading)',marginBottom:5}}>📱 How it works</div>
+        <div style={{fontSize:12,color:'var(--body)',lineHeight:1.7}}>
           Radio stations with a{' '}
           <span style={{background:'rgba(220,38,38,.08)',color:'#dc2626',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)'}}>LIVE</span>{' '}
           badge stream directly inside the app — tap ▶ to start. TV and other media open in your browser.{' '}
@@ -448,7 +448,7 @@ export default function CroatiaTab({ setScr, sCurEx }) {
         </div>
       </div>
 
-      {cats.map(cat => {
+      {cats.map((cat, catIdx) => {
         const items = MEDIA.filter(m => m.cat === cat);
         if (!items.length) return null;
         const parts = CAT_LABELS[cat].split(' ');
@@ -456,9 +456,12 @@ export default function CroatiaTab({ setScr, sCurEx }) {
         const catTitle = parts.slice(1).join(' ');
         const isOpen = !!openCats[cat];
         return (
-          <div key={cat} style={{marginBottom:8}}>
+          <React.Fragment key={cat}>
+            {catIdx > 0 && <div className="cipka-divider"><span>✦ ✦ ✦</span></div>}
+          <div style={{marginBottom:8}}>
             <button
               onClick={() => toggleCat(cat)}
+              className="card-hr"
               style={{width:'100%',display:'flex',alignItems:'center',gap:12,padding:'13px 16px',background:'var(--card)',border:'1px solid var(--card-b)',borderRadius: isOpen ? '16px 16px 0 0' : 16,cursor:'pointer',textAlign:'left',transition:'border-radius .2s'}}>
               <div style={{width:40,height:40,borderRadius:11,background:'rgba(14,116,144,.1)',border:'1px solid rgba(14,116,144,.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,flexShrink:0}}>
                 {catEmoji}
@@ -502,6 +505,7 @@ export default function CroatiaTab({ setScr, sCurEx }) {
               </div>
             )}
           </div>
+          </React.Fragment>
         );
       })}
 

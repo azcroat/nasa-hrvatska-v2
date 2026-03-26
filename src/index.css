@@ -1164,3 +1164,91 @@ button.c{font-family:'Outfit',sans-serif;width:100%;cursor:pointer;display:block
   .g2 { grid-template-columns: 1fr; }
   .g3 { grid-template-columns: 1fr; }
 }
+
+/* ─── Croatian visual identity ──────────────────────────────────────────────── */
+
+/* Cipka (Croatian lace) — used as a section divider */
+.cipka-divider {
+  position: relative;
+  height: 24px;
+  margin: var(--space-lg) 0 var(--space-md);
+  overflow: hidden;
+  opacity: 0.35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cipka-divider::before,
+.cipka-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--card-b);
+}
+.cipka-divider > span {
+  padding: 0 var(--space-sm);
+  font-size: 14px;
+  letter-spacing: 4px;
+  color: var(--subtext);
+  user-select: none;
+}
+
+/* Šahovnica (Croatian checkerboard) card accent — subtle top border */
+.card-hr {
+  border-top: 3px solid transparent;
+  border-image: repeating-linear-gradient(
+    90deg,
+    #b61800 0px, #b61800 8px,
+    #ffffff 8px, #ffffff 16px
+  ) 3;
+}
+
+/* Media card hover lift — for CroatiaTab content cards */
+.media-card {
+  transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s ease;
+  cursor: pointer;
+}
+.media-card:hover, .media-card:focus-within {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 12px 40px rgba(0,0,0,.18);
+}
+
+/* Adriatic gradient text — for section headings */
+.text-adriatic {
+  background: linear-gradient(135deg, var(--adriatic, #0e7490), #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Croatian red accent line — for featured/hero cards */
+.accent-hr {
+  display: block;
+  width: 40px;
+  height: 3px;
+  background: #b61800;
+  border-radius: 2px;
+  margin: var(--space-xs) 0 var(--space-sm);
+}
+
+/* ─── Global interaction polish ─────────────────────────────────────────────── */
+
+/* Button press feedback — subtle scale-down on active */
+.b:active {
+  transform: scale(0.97);
+  transition: transform .08s ease;
+}
+
+/* Card press feedback */
+.c:active {
+  transform: scale(0.99);
+  transition: transform .08s ease;
+}
+
+/* Quality response buttons (Flashcards) */
+.qb {
+  transition: transform .15s cubic-bezier(.34,1.56,.64,1), box-shadow .15s ease;
+  cursor: pointer;
+}
+.qb:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 6px 20px rgba(0,0,0,.18); }
+.qb:active { transform: scale(0.96); }
