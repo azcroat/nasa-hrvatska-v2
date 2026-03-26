@@ -506,8 +506,8 @@ export const LESSONS = [
         type: "example",
         title: "The Same Verb — Two Meanings",
         items: [
-          { hr: "Juče sam pisao pismo.", en: "Yesterday I was writing a letter. (process, unfinished)", note: "Imperfective — the writing was in progress" },
-          { hr: "Juče sam napisao pismo.", en: "Yesterday I wrote a letter. (completed)", note: "Perfective — the letter is done" },
+          { hr: "Jučer sam pisao pismo.", en: "Yesterday I was writing a letter. (process, unfinished)", note: "Imperfective — the writing was in progress" },
+          { hr: "Jučer sam napisao pismo.", en: "Yesterday I wrote a letter. (completed)", note: "Perfective — the letter is done" },
           { hr: "Svaki dan čitam novine.", en: "Every day I read the newspaper. (habit)", note: "Imperfective for habitual actions" },
           { hr: "Pročitao sam cijelu knjigu.", en: "I read the whole book. (finished)", note: "Perfective — completed from start to finish" },
         ],
