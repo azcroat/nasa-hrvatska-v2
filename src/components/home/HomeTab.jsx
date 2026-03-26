@@ -52,6 +52,8 @@ export default function HomeTab({
   const lastActivity = useMemo(getLastActivity, []);
   const [freezes, setFreezes] = useState(getStreakFreezes);
   const [freezeMsg, setFreezeMsg] = useState('');
+  const [streakRestored, setStreakRestored] = useState(false);
+  const [streakRestoreMsg, setStreakRestoreMsg] = useState('');
   const xpCur = st.xp - lXP(level);
   const xpNeeded = nXP(level) - lXP(level);
   const xpPct = Math.min(Math.round((xpCur / xpNeeded) * 100), 100);
@@ -364,6 +366,50 @@ export default function HomeTab({
               <span>🛡️</span><span>Earn Streak Freeze · 200 XP</span>
             </button>
             {freezeMsg&&<div style={{fontSize:10,color:'rgba(255,255,255,.8)',marginTop:5,fontWeight:600,textAlign:'center'}}>{freezeMsg}</div>}
+          </div>
+        )}
+
+        {/* Streak Recovery — show when streak is 0, user has 200 XP, and hasn't restored today */}
+        {streak.count === 0 && st.xp >= 200 && !streakRestored && !localStorage.getItem('nh_streak_restored_' + today) && (
+          <div style={{marginTop:8}}>
+            <button
+              onClick={() => {
+                award && award(-200, false);
+                localStorage.setItem('nh_streak_restored_' + today, '1');
+                // Write streak back to 1 using the uStreak key (same format as getStreak in data.jsx)
+                localStorage.setItem('uStreak', JSON.stringify({ count: 1, last: today }));
+                setStreakRestored(true);
+                setStreakRestoreMsg('✓ Streak restored! Keep it alive today 🔥');
+              }}
+              style={{
+                background:'transparent',
+                border:'1.5px solid rgba(255,255,255,.4)',
+                borderRadius:12,
+                padding:'9px 14px',
+                fontSize:11,
+                color:'rgba(255,255,255,.85)',
+                fontWeight:700,
+                cursor:'pointer',
+                width:'100%',
+                display:'flex',
+                alignItems:'center',
+                justifyContent:'center',
+                gap:6,
+                minHeight:40,
+                fontFamily:"'Outfit',sans-serif",
+              }}>
+              <span>🔄</span><span>Restore streak — 200 XP</span>
+            </button>
+            {streakRestoreMsg && (
+              <div style={{fontSize:10,color:'rgba(253,186,116,.95)',marginTop:5,fontWeight:700,textAlign:'center'}}>
+                {streakRestoreMsg}
+              </div>
+            )}
+          </div>
+        )}
+        {streakRestored && streakRestoreMsg && (
+          <div style={{fontSize:10,color:'rgba(253,186,116,.95)',marginTop:5,fontWeight:700,textAlign:'center'}}>
+            {streakRestoreMsg}
           </div>
         )}
         </div>{/* end padding wrapper */}

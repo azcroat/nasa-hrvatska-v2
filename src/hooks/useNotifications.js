@@ -26,6 +26,7 @@ const REMINDER_DISMISSED_KEY = 'nh_reminder_dismissed_today';
 
 export function markPracticed() {
   localStorage.setItem(LAST_PRACTICE_KEY, Date.now().toString());
+  localStorage.setItem('nh_last_practice_time', new Date().getHours().toString());
 }
 
 export function checkNameDay(userName) {
