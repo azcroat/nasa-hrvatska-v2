@@ -493,19 +493,20 @@ export default function PracticeTab({
       </div>
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:24 }}>
         {[
-          [startQuiz,       "🎯","Quiz",         "#fff7ed","#fed7aa"],
-          [startFlashcards, "🃏","Flashcards",   "#f5f3ff","#ddd6fe"],
-          [startMatch,      "🔗","Match Pairs",  "#f0fdf4","#bbf7d0"],
-          [startTyping,     "⌨️","Typing",       "#fef9c3","#fde047"],
-          [startListening,  "🎧","Listening",    "#fff1f2","#fecaca"],
-          [startSpeaking,   "🎤","Pronunciation","#f0f9ff","#bae6fd"],
-          [() => { setScr("wordsprint"); sCurEx("wordsprint"); },"⚡","Word Sprint","#fffbeb","#fde68a"],
-        ].map((/** @type {any} */ [fn,icon,label,bg,border], i) => (
-          <button key={i} className="tc"
-            style={{ textAlign:"center", padding:"14px 8px", background:bg, border:`1.5px solid ${border}`, minHeight:56, cursor:'pointer' }}
+          [startQuiz,       "🎯","Quiz",        "Vocabulary","linear-gradient(155deg,#071828 0%,#0a3d52 60%,#0e7490 100%)"],
+          [startFlashcards, "🃏","Flashcards",  "Spaced rep","linear-gradient(155deg,#120830 0%,#2d1260 60%,#7c3aed 100%)"],
+          [startMatch,      "🔗","Match Pairs", "Memory","linear-gradient(155deg,#041410 0%,#0d3820 60%,#16a34a 100%)"],
+          [startTyping,     "⌨️","Typing",      "Accuracy","linear-gradient(155deg,#1a0c00 0%,#3d1e00 60%,#d97706 100%)"],
+          [startListening,  "🎧","Listening",   "Train ear","linear-gradient(155deg,#1a0008 0%,#4a0015 60%,#D40030 100%)"],
+          [startSpeaking,   "🎤","Speaking",    "Pronunc.","linear-gradient(155deg,#031020 0%,#083050 60%,#0284c7 100%)"],
+          [() => { setScr("wordsprint"); sCurEx("wordsprint"); },"⚡","Word Sprint","Speed","linear-gradient(155deg,#1a0e00 0%,#3d2200 60%,#f59e0b 100%)"],
+        ].map(([fn,icon,label,sub,bg], i) => (
+          <button key={i} className="tc practice-card-dark"
+            style={{ textAlign:"center", padding:"16px 10px", background:bg, minHeight:86, cursor:'pointer' }}
             onClick={fn}>
-            <div style={{ fontSize:28 }}>{icon}</div>
-            <div style={{ fontSize:'var(--text-xs)', fontWeight:800, marginTop:5, color:"var(--heading)" }}>{label}</div>
+            <div className="pc-icon">{icon}</div>
+            <div className="pc-label">{label}</div>
+            <div className="pc-desc">{sub}</div>
           </button>
         ))}
       </div>
@@ -543,7 +544,7 @@ export default function PracticeTab({
               <div className="g3" style={{ marginBottom:16 }}>
                 {goalItems.map((r, i) => (
                   <button key={i} className="tc"
-                    style={{ textAlign:"center", padding:"16px 10px", background:r.color, border:`1.5px solid ${r.border}` }}
+                    style={{ textAlign:"center", padding:"16px 10px" }}
                     onClick={r.fn}>
                     <div style={{ fontSize:28, marginBottom:6 }}>{r.icon}</div>
                     <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{r.title}</div>
@@ -556,7 +557,7 @@ export default function PracticeTab({
           <div className="g3" style={{ marginBottom:24 }}>
             {recommendations.map((r, i) => (
               <button key={i} className="tc"
-                style={{ textAlign:"center", padding:"16px 10px", background:r.color, border:`1.5px solid ${r.border}` }}
+                style={{ textAlign:"center", padding:"16px 10px" }}
                 onClick={r.fn}>
                 <div style={{ fontSize:28, marginBottom:6 }}>{r.icon}</div>
                 <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{r.title}</div>

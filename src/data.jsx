@@ -4095,8 +4095,8 @@ screenEntries.forEach(e => idx.push(e));
 _searchIdx=idx;return idx}
 // ═══ THEME OBJECTS (background/color tokens for inline root styles) ═══
 // Global CSS classes are in src/index.css (imported in main.jsx)
-const BG_LIGHT=/** @type {React.CSSProperties} */({minHeight:"100vh",background:"#f1f5f9",color:"#1c1917",fontFamily:"'Outfit',sans-serif",position:"relative",overflowX:"hidden"});
-const BG_DARK=/** @type {React.CSSProperties} */({minHeight:"100vh",background:"linear-gradient(170deg,#0f172a 0%,#1e293b 30%,#1a1a2e 60%,#16213e 100%)",color:"#e2e8f0",fontFamily:"'Outfit',sans-serif",position:"relative",overflowX:"hidden"});
+const BG_LIGHT=/** @type {React.CSSProperties} */({minHeight:"100vh",background:"radial-gradient(ellipse 100% 55% at 60% -10%, rgba(14,116,144,.09) 0%, transparent 60%), radial-gradient(ellipse 70% 45% at 0% 100%, rgba(212,0,48,.05) 0%, transparent 55%), radial-gradient(ellipse 60% 40% at 100% 50%, rgba(0,61,165,.04) 0%, transparent 50%), #eef2f7",color:"#1c1917",fontFamily:"'Outfit',sans-serif",position:"relative",overflowX:"hidden"});
+const BG_DARK=/** @type {React.CSSProperties} */({minHeight:"100vh",background:"radial-gradient(ellipse 100% 55% at 50% -10%, rgba(14,116,144,.18) 0%, transparent 55%), radial-gradient(ellipse 60% 40% at 100% 100%, rgba(212,0,48,.1) 0%, transparent 50%), linear-gradient(170deg,#080f1e 0%,#0d1b35 40%,#101828 70%,#0c1520 100%)",color:"#e2e8f0",fontFamily:"'Outfit',sans-serif",position:"relative",overflowX:"hidden"});
 const BG=BG_LIGHT;
 const H=(t,s,back)=><div style={{marginBottom:20,paddingBottom:16,borderBottom:"1px solid rgba(0,0,0,.06)"}}>
   {back&&<button onClick={back} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",cursor:"pointer",fontSize:13,fontWeight:700,color:"var(--subtext)",marginBottom:8,padding:"4px 0",fontFamily:"'Outfit',sans-serif"}}>‹ Back</button>}

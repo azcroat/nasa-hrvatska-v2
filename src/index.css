@@ -2020,3 +2020,177 @@ img, video, canvas, .skeleton, [class*="anim-"], [style*="animation"] {
   animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   WORLD-CLASS VISUAL SYSTEM v3 — Premium overhaul
+═══════════════════════════════════════════════════════════ */
+
+/* ── Loading screen animations ───────────────────────────── */
+@keyframes dot-bounce {
+  0%,80%,100% { transform:scale(0);opacity:.35 }
+  40%         { transform:scale(1);opacity:1 }
+}
+@keyframes grb-glow {
+  0%,100% { filter:drop-shadow(0 0 14px rgba(14,116,144,.4)) }
+  50%     { filter:drop-shadow(0 0 32px rgba(14,116,144,.75)) drop-shadow(0 0 60px rgba(14,116,144,.3)) }
+}
+@keyframes stripe-slide {
+  from { transform:scaleX(0);transform-origin:left }
+  to   { transform:scaleX(1);transform-origin:left }
+}
+
+/* ── Premium practice cards ──────────────────────────────── */
+.practice-card-dark {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.1) !important;
+  transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s, border-color .2s !important;
+}
+.practice-card-dark::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(145deg, rgba(255,255,255,.07) 0%, transparent 55%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+.practice-card-dark:hover {
+  transform: translateY(-5px) scale(1.03) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5), 0 4px 16px rgba(0,0,0,.3) !important;
+  border-color: rgba(255,255,255,.22) !important;
+}
+.practice-card-dark:active {
+  transform: translateY(-1px) scale(.98) !important;
+}
+.pc-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  background: rgba(255,255,255,.14);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin: 0 auto 9px;
+  border: 1px solid rgba(255,255,255,.18);
+}
+.pc-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(255,255,255,.95);
+  line-height: 1.2;
+  font-family: 'Outfit', sans-serif;
+}
+.pc-desc {
+  font-size: 10px;
+  color: rgba(255,255,255,.5);
+  margin-top: 3px;
+  line-height: 1.3;
+  font-family: 'Outfit', sans-serif;
+}
+
+/* ── Premium stat cards — Profile v3 ─────────────────────── */
+.stat-card-v3 {
+  border-radius: 16px;
+  padding: 14px 8px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,.06) !important;
+  transition: transform .2s, box-shadow .2s;
+}
+.stat-card-v3::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--stat-accent, var(--info));
+  border-radius: 16px 16px 0 0;
+}
+.stat-card-v3::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(145deg, rgba(255,255,255,.55) 0%, transparent 60%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+.stat-card-v3:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.1);
+}
+.dark .stat-card-v3 {
+  border-color: rgba(255,255,255,.07) !important;
+}
+.dark .stat-card-v3::before {
+  background: linear-gradient(145deg, rgba(255,255,255,.05) 0%, transparent 60%);
+}
+.stat-icon {
+  font-size: 22px;
+  margin-bottom: 6px;
+  display: block;
+}
+.stat-label {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--subtext);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-top: 5px;
+  font-family: 'Outfit', sans-serif;
+}
+.stat-sub {
+  font-size: 9px;
+  color: var(--subtext);
+  margin-top: 3px;
+  font-weight: 600;
+  line-height: 1.3;
+  font-family: 'Outfit', sans-serif;
+}
+
+/* ── Gradient text utilities ─────────────────────────────── */
+.text-gradient-brand {
+  background: linear-gradient(135deg,#0e7490,#06b6d4,#0284c7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-gold {
+  background: linear-gradient(135deg,#f59e0b,#d97706,#b45309);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-croatia {
+  background: linear-gradient(135deg,#D40030,#c2410c,#7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Šahovnica pattern overlay ───────────────────────────── */
+.croatia-pattern::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: .035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='10' height='10' fill='%23D40030'/%3E%3Crect x='10' y='10' width='10' height='10' fill='%23D40030'/%3E%3C/svg%3E");
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* ── Tab hero v3 — richer Croatian identity ──────────────── */
+.tab-hero {
+  box-shadow: 0 16px 56px rgba(0,0,0,.45), 0 4px 16px rgba(0,0,0,.3) !important;
+}
+.tab-hero-body::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Crect width='14' height='14' fill='rgba(212,0,48,0.04)'/%3E%3Crect x='14' y='14' width='14' height='14' fill='rgba(212,0,48,0.04)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
+}
+.tab-hero-body > * { position: relative; z-index: 1; }
