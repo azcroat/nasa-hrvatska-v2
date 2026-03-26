@@ -1,8 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { H, V, LISTEN, UNJUMBLE, PREPDRILL, NUMTIME, getSR, getDueReviews } from '../../data.jsx';
 
-function Section({ title, icon, count, defaultOpen = false, children }) {
-  const [open, setOpen] = useState(defaultOpen);
+function Section({ title, icon, count, defaultOpen = false, open: controlledOpen, onToggle, children }) {
+  const [internalOpen, setInternalOpen] = useState(defaultOpen);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = onToggle !== undefined ? onToggle : setInternalOpen;
   return (
     <div style={{ marginBottom:'var(--space-sm)' }}>
       <button
@@ -34,6 +36,21 @@ export default function PracticeTab({
   lc = 0,
 }) {
   const [weakMsg, setWeakMsg] = useState("");
+  const [secGrammar, setSecGrammar] = useState(false);
+  const [secVocab, setSecVocab] = useState(false);
+  const [secPractical, setSecPractical] = useState(false);
+  const [secReading, setSecReading] = useState(false);
+  const [secSlang, setSecSlang] = useState(false);
+  const [secAdvanced, setSecAdvanced] = useState(false);
+  const allOpen = secGrammar && secVocab && secPractical && secReading && secSlang && secAdvanced;
+  function openAllSections() {
+    setSecGrammar(true); setSecVocab(true); setSecPractical(true);
+    setSecReading(true); setSecSlang(true); setSecAdvanced(true);
+  }
+  function closeAllSections() {
+    setSecGrammar(false); setSecVocab(false); setSecPractical(false);
+    setSecReading(false); setSecSlang(false); setSecAdvanced(false);
+  }
   const pool = () => allCats.flatMap(cc => V[cc]);
 
   function startQuiz() {
@@ -249,6 +266,22 @@ export default function PracticeTab({
     <React.Fragment>
       {H("🎮 Practice", "Games, exercises & daily review")}
 
+      {/* ── TODAY'S FOCUS BANNER ────────────────────────────────────────── */}
+      <div style={{
+        background:'linear-gradient(135deg,var(--info),#0c4a6e)',
+        borderRadius:18, padding:'18px 20px', marginBottom:16,
+        display:'flex', alignItems:'center', gap:14,
+        boxShadow:'0 4px 20px rgba(14,116,144,.25)',
+        animation:'rise .4s ease',
+      }}>
+        <div style={{fontSize:36}}>🎯</div>
+        <div style={{flex:1}}>
+          <div style={{fontSize:11, fontWeight:800, color:'rgba(255,255,255,.65)', textTransform:'uppercase', letterSpacing:'.1em', marginBottom:4}}>TODAY'S FOCUS</div>
+          <div style={{fontSize:17, fontWeight:900, color:'white', marginBottom:4}}>Practice makes perfect</div>
+          <div style={{fontSize:12, color:'rgba(255,255,255,.7)'}}>Pick any exercise below to earn XP</div>
+        </div>
+      </div>
+
       {/* ── SRS DUE BANNER ──────────────────────────────────────────────── */}
       {dueReviews.length > 0 && (
         <button
@@ -376,27 +409,27 @@ export default function PracticeTab({
         All Exercises
       </div>
 
-      <Section title="Grammar Drills" icon="📝" count={`${grammarDrills.length} exercises`} defaultOpen={false}>
+      <Section title="Grammar Drills" icon="📝" count={`${grammarDrills.length} exercises`} open={secGrammar} onToggle={() => setSecGrammar(o => !o)}>
         <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:'var(--space-sm)', fontWeight:500 }}>Master Croatian structure step by step</p>
         <ExRow items={grammarDrills} />
       </Section>
 
-      <Section title="Vocabulary" icon="🔤" count={`${vocabularyDrills.length} exercises`} defaultOpen={false}>
+      <Section title="Vocabulary" icon="🔤" count={`${vocabularyDrills.length} exercises`} open={secVocab} onToggle={() => setSecVocab(o => !o)}>
         <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:'var(--space-sm)', fontWeight:500 }}>Build and reinforce your word bank</p>
         <ExRow items={vocabularyDrills} />
       </Section>
 
-      <Section title="Practical Croatian" icon="🌍" count={`${practicalCroatian.length} exercises`} defaultOpen={false}>
+      <Section title="Practical Croatian" icon="🌍" count={`${practicalCroatian.length} exercises`} open={secPractical} onToggle={() => setSecPractical(o => !o)}>
         <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:'var(--space-sm)', fontWeight:500 }}>Real situations, real language</p>
         <ExRow items={practicalCroatian} />
       </Section>
 
-      <Section title="Reading & Fun" icon="📖" count={`${readingFun.length} exercises`} defaultOpen={false}>
+      <Section title="Reading & Fun" icon="📖" count={`${readingFun.length} exercises`} open={secReading} onToggle={() => setSecReading(o => !o)}>
         <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:'var(--space-sm)', fontWeight:500 }}>Stories, riddles, and challenges</p>
         <ExRow items={readingFun} />
       </Section>
 
-      <Section title="Slang & Expressions" icon="🗣️" count="12 modules · 150+ phrases" defaultOpen={false}>
+      <Section title="Slang & Expressions" icon="🗣️" count="12 modules · 150+ phrases" open={secSlang} onToggle={() => setSecSlang(o => !o)}>
         <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:'var(--space-sm)', fontWeight:500 }}>Authentic slang, psovanje & street language with cultural context</p>
         <ExRow items={[
           ['🔥', 'The Classics',      'slang:classics',   'Foundation expletives — built on one root verb'],
@@ -414,7 +447,7 @@ export default function PracticeTab({
         ]} />
       </Section>
 
-      <Section title="Advanced Tools" icon="⚡" count="9 tools" defaultOpen={false}>
+      <Section title="Advanced Tools" icon="⚡" count="9 tools" open={secAdvanced} onToggle={() => setSecAdvanced(o => !o)}>
         <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:'var(--space-sm)', fontWeight:500 }}>
           Advanced exercises to reach native-level fluency — close the gap from B1 to C1
         </p>
@@ -445,6 +478,21 @@ export default function PracticeTab({
           ))}
         </div>
       </Section>
+
+      {/* ── BROWSE ALL TOGGLE ───────────────────────────────────────────── */}
+      <button
+        onClick={() => { allOpen ? closeAllSections() : openAllSections(); }}
+        style={{
+          width:'100%', padding:'14px', borderRadius:14, marginTop:8, marginBottom:8,
+          background:'none', border:'1.5px solid var(--card-b)',
+          color:'var(--subtext)', fontSize:13, fontWeight:700,
+          cursor:'pointer', fontFamily:"'Outfit',sans-serif",
+          display:'flex', alignItems:'center', justifyContent:'center', gap:6,
+        }}
+      >
+        <span>📚</span>
+        <span>{allOpen ? 'Hide All Exercises' : 'Browse All Exercises'}</span>
+      </button>
 
       {/* ── CULTURAL EXTRAS FOOTER ──────────────────────────────────────── */}
       <div style={{ marginTop:8, marginBottom:16 }}>
