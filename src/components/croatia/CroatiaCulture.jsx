@@ -346,10 +346,10 @@ function HimnaPlayer() {
         </div>
       </div>
       <div style={{fontSize:12,color:"#44403c",lineHeight:1.7,marginBottom:10}}>
-        Written by Thompson while defending his village of Čavoglave near Knin, recorded on a cassette tape and passed hand-to-hand among soldiers and civilians. It became the battle himna of the Homeland War — sung in trenches, at funerals, and at the liberation of Knin on August 5, 1995.
+        Written by Thompson while defending his village of Čavoglave in the Drniš area of Dalmatinska zagora, recorded on a cassette tape and passed hand-to-hand among soldiers and civilians. It became the battle himna of the Homeland War — sung in trenches, at funerals, and at the liberation of Knin on August 5, 1995.
       </div>
       <div style={{fontSize:12,color:"#44403c",lineHeight:1.7,marginBottom:16,padding:"10px 14px",background:"rgba(185,28,28,.06)",borderRadius:10}}>
-        <strong style={{color:"#991b1b"}}>Why "Thompson"?</strong> During the war, Marko Perković carried a <em>Thompson M1A1</em> — the iconic American submachine gun, the same "Tommy gun" used in World War II and familiar to Croatian fighters who had inherited or acquired older NATO-era weapons. His fellow soldiers started calling him by the name of the gun he never put down. He kept the nickname as his stage name, and Marko Perković Thompson has been known simply as <em>Thompson</em> ever since.
+        <strong style={{color:"#991b1b"}}>Why "Thompson"?</strong> During the war, Marko Perković carried a <em>Thompson M1A1</em> — the iconic American submachine gun, the same "Tommy gun" used in World War II and familiar to Croatian fighters who had inherited or acquired WWII-era surplus weapons. His fellow soldiers started calling him by the name of the gun he never put down. He kept the nickname as his stage name, and Marko Perković Thompson has been known simply as <em>Thompson</em> ever since.
       </div>
       {error ? (
         <div style={{fontSize:12,color:"#991b1b",fontStyle:"italic"}}>⚠️ Audio unavailable.</div>

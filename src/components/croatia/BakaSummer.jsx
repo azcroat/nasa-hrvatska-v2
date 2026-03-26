@@ -620,7 +620,7 @@ export default function BakaSummer({ goBack, award }) {
           >
             ✓ Mark Complete
           </button>
-        ) : chapter < 14 ? (
+        ) : chapter < 15 ? (
           <button
             onClick={() => goToChapter(chapter + 1)}
             style={{

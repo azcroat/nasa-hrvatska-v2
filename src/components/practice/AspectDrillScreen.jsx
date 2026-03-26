@@ -215,7 +215,7 @@ export default function AspectDrillScreen({ goBack, award, ASPECT_PAIRS }) {
             <p style={{fontSize:13,color:"#78350f",lineHeight:1.6}}>
               <strong>Imperfective</strong> = ongoing, repeated, or habitual actions<br/>
               <strong>Perfective</strong> = completed, one-time, or result-focused actions<br/>
-              After <em>početi, završiti, nastaviti</em> → always imperfective<br/>
+              After <em>početi, nastaviti, prestati</em> → always imperfective<br/>
               With <em>odmah, jednom</em> → usually perfective
             </p>
           </div>

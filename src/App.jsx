@@ -546,7 +546,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
     setXpA(totalAmt);setShowXP(true);
     setStats(s=>{
       const oldLevel=lvl(s.xp);
-      const n={...s,xp:s.xp+totalAmt};
+      const n={...s,xp:s.xp+totalAmt,streak:getStreak().count};
       const newLevel=lvl(n.xp);
       const nb=BADGES.filter(b=>!s.badges.includes(b.id)&&b.r(n));
       if(nb.length){n.badges=[...s.badges,...nb.map(b=>b.id)];setTimeout(()=>{setNB(nb[0]);setSB(true);setTimeout(()=>setSB(false),3000)},600)}
