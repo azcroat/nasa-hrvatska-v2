@@ -328,7 +328,7 @@ function TappableMessage({ text, onWordClick }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWords }) {
-  const { award } = useApp();
+  const { award, stats: appSt } = useApp();
   const isOnline = useOnlineStatus();
 
   // ── Mode (conversation vs. free write) ─────────────────────────────────────
@@ -337,7 +337,11 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   // ── Conversation state ─────────────────────────────────────────────────────
   const [phase,      setPhase]      = useState("setup");    // setup|chat|evaluating|result
   const [scenario,   setScenario]   = useState(null);
-  const [level,      setLevel]      = useState("B1");
+  // M10: default level based on user's proficiency setting
+  const [level,      setLevel]      = useState(() => {
+    const diffMap = { beginner: 'A1', intermediate: 'B1', advanced: 'B2' };
+    return diffMap[appSt?.diff] || 'B1';
+  });
   const [messages,   setMessages]   = useState([]);
   const [input,      setInput]      = useState("");
   const [loading,    setLoading]    = useState(false);
@@ -358,6 +362,9 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   // ── Voice input ────────────────────────────────────────────────────────────
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef(null);
+
+  // ── NPC mute toggle ─────────────────────────────────────────────────────────
+  const [muted, setMuted] = useState(false);
 
   // ── Words saved to journal this session ───────────────────────────────────
   const [savedWords, setSavedWords] = useState(new Set());
@@ -480,6 +487,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     try {
       const reply = await callAI(next, buildConvoPrompt(scenario, level));
       setMessages(prev => [...prev, { role: "assistant", content: reply }]);
+      if (!muted) speak(reply);
       // Fire correction check in background — skip if text is too short or
       // appears to be English (no Croatian diacritics, ends in common English words)
       const looksEnglish = userText.length < 4 || (
@@ -1298,6 +1306,18 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
           <div style={{ fontSize: 14, fontWeight: 800, color: "#0f172a", lineHeight: 1.2 }}>{scenario.aiName}</div>
           <div style={{ fontSize: 11, color: "#64748b" }}>{scenario.title} · Level {level}</div>
         </div>
+        <button
+          onClick={() => setMuted(m => !m)}
+          style={{
+            background:'none', border:'1.5px solid var(--inp-b)', borderRadius:8,
+            padding:'6px 10px', cursor:'pointer', fontSize:14,
+            color: muted ? 'var(--subtext)' : '#0e7490',
+            fontFamily:"'Outfit',sans-serif",
+          }}
+          title={muted ? 'Unmute NPC' : 'Mute NPC'}
+        >
+          {muted ? '🔇' : '🔊'}
+        </button>
         <button onClick={endAndEvaluate} disabled={loading || userCount < 2 || !!chatError}
           style={{ padding: "7px 13px", borderRadius: 10, border: "1.5px solid", fontWeight: 700, fontSize: 12,
             cursor: (userCount >= 2 && !chatError && !loading) ? "pointer" : "not-allowed",

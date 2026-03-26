@@ -50,6 +50,16 @@ export default function ProgressCharts({ stats }) {
   const lastWeek = history.slice(-14, -7).reduce((s, d) => s + d.delta, 0);
   const trend = lastWeek > 0 ? Math.round(((thisWeek - lastWeek) / lastWeek) * 100) : 0;
 
+  const isNewUser = stats.xp === 0 && stats.lc === 0;
+
+  if (isNewUser) return (
+    <div style={{ background:'var(--card)', border:'1.5px solid var(--card-b)', borderRadius:16, padding:'24px 20px', textAlign:'center', marginBottom:16 }}>
+      <div style={{ fontSize:40, marginBottom:10 }}>📊</div>
+      <div style={{ fontSize:14, fontWeight:800, color:'var(--heading)', marginBottom:6 }}>No data yet</div>
+      <div style={{ fontSize:12, color:'var(--subtext)', lineHeight:1.6 }}>Complete your first lesson to start tracking your progress here.</div>
+    </div>
+  );
+
   return (
     <div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 20 }}>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from "react";
 // Q-6: React Router — useNavigate replaces pushUrl(), useLocation drives tab sync
 import { useNavigate, useLocation } from "react-router-dom";
-import { _fbReady, H, Bar, Spk, V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbWatchProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbOnAuthStateChanged, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getProverbOfDay, getDailyChallenge, getHistFact, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, getDueReviews, shMemo, shuffleArr, buildSearchIndex, bootstrapMistakesFromSRS } from "./data.jsx";
+import { _fbReady, H, Bar, Spk, V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbWatchProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbOnAuthStateChanged, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getProverbOfDay, getDailyChallenge, getHistFact, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, getDueReviews, shMemo, shuffleArr, buildSearchIndex, bootstrapMistakesFromSRS, recordJourneyMilestone } from "./data.jsx";
 import AppContext from "./context/AppContext.jsx";
 import ScreenErrorBoundary from "./components/shared/ScreenErrorBoundary.jsx";
 import { usePreferences } from "./hooks/usePreferences.js";
@@ -174,6 +174,9 @@ const CertificateScreen = lazyWithReload(() => import("./components/profile/Cert
 const MistakesScreen = lazyWithReload(() => import("./components/practice/MistakesScreen.jsx"));
 const AnalyticsScreen = lazyWithReload(() => import("./components/profile/AnalyticsScreen.jsx"));
 const GrammarReference = lazyWithReload(() => import("./components/shared/GrammarReference.jsx"));
+const BakaSummer = lazyWithReload(() => import("./components/croatia/BakaSummer.jsx"));
+const CroatiaToday = lazyWithReload(() => import("./components/croatia/CroatiaToday.jsx"));
+const GrammarConstellation = lazyWithReload(() => import("./components/learn/GrammarConstellation.jsx"));
 
 // Module-level constants — defined once, not recreated on every render
 const DS={xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,authLoading:0,mv:0,hi:0,rs:[],ct:[],badges:[]};
@@ -245,7 +248,7 @@ function App(){
   const{darkMode,setDarkMode,favs,setFavs,toggleFav,isFav}=usePreferences();
   const{srchQ,setSrchQ,srchR,srchOpen,setSrchOpen,doSearch}=useSearch();
   const[onboarded,setOnboarded]=useState(function(){return localStorage.getItem("onboarded")==="true"});
-  const[showCelebration,setShowCelebration]=useState(false);const[celebXP,setCelebXP]=useState(0);
+  const[showCelebration,setShowCelebration]=useState(false);const[celebXP,setCelebXP]=useState(0);const[showFirstWords,setShowFirstWords]=useState(false);
   const[comebackBonus,setComebackBonus]=useState(false);
   const[streakMilestone,setStreakMilestone]=useState(null); // number (7/30/50/100/365) or null
   const[pendingJoinCode,setPendingJoinCode]=useState(()=>{try{return new URLSearchParams(window.location.search).get('join')||null;}catch{return null;}});
@@ -287,10 +290,11 @@ function App(){
         texting:"croatia",friends:"croatia",foodorder:"croatia",transport:"croatia",emergency:"croatia",
         football:"croatia",popculture:"croatia",practical:"croatia",school:"croatia",basketball:"croatia",gym:"croatia",
         top100:"croatia",events:"croatia",croatiaathletes:"croatia",
+        baka_summer:"croatia", croatia_today:"croatia",
         badges:"profile",leaderboard:"profile",journal:"profile",favorites:"profile",learnpath:"profile",contact:"profile",
         certificate:"profile",analytics:"profile",profile:"profile",admin:"profile",
         privacy:"profile",terms:"profile","grammar-ref":"learn",
-        mistakes:"practice",listeningpath:"practice",
+        mistakes:"practice",listeningpath:"practice",grammarmap:"practice",
       };
       _setCurrentScreen(scr);
       if(screenTabMap[scr])_setTab(screenTabMap[scr]);
@@ -394,6 +398,20 @@ function App(){
     const lastSeen=localStorage.getItem("lastSeen");const now=Date.now();
     if(lastSeen&&stats.xp>0){const diff=now-parseInt(lastSeen,10);if(diff>86400000&&diff<7*86400000){setComebackBonus(true);setTimeout(()=>setComebackBonus(false),4000);}}
     localStorage.setItem("lastSeen",String(now));
+    // Weekly streak-freeze recharge: grant 1 free freeze on new week if user was active last week
+    (function(){
+      const _wkFn=function(){const d=new Date();const day=d.getDay()||7;d.setDate(d.getDate()+4-day);const yr=d.getFullYear();const wk=Math.ceil(((d.getTime()-new Date(yr,0,1).getTime())/86400000+1)/7);return `${yr}-W${String(wk).padStart(2,'0')}`;};
+      const _thisWk=_wkFn();
+      const _lastRechargeWk=localStorage.getItem('nh_freeze_recharge_wk')||'';
+      if(_lastRechargeWk!==_thisWk){
+        // Check if user earned any XP the previous week
+        const _prevD=new Date();_prevD.setDate(_prevD.getDate()-7);
+        const _pd=_prevD.getDay()||7;_prevD.setDate(_prevD.getDate()+4-_pd);const _py=_prevD.getFullYear();const _pw=Math.ceil(((_prevD.getTime()-new Date(_py,0,1).getTime())/86400000+1)/7);const _prevWk=`${_py}-W${String(_pw).padStart(2,'0')}`;
+        const _prevXP=parseInt(localStorage.getItem('nh_week_xp_'+_prevWk)||'0',10);
+        if(_prevXP>0){earnFreeze();localStorage.setItem('nh_freeze_recharge_wk',_thisWk);}
+        else{localStorage.setItem('nh_freeze_recharge_wk',_thisWk);}
+      }
+    })();
     if(pendingJoinCode){
       try{const u=new URL(window.location.href);u.searchParams.delete('join');window.history.replaceState({},'',u.pathname);}catch(_){}
       setFamCode(pendingJoinCode);setFamTab("join");
@@ -484,13 +502,46 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   const award=useCallback((amt,celebrate)=>{
     if(curEx&&!canEarnXP(curEx)){setXpA(0);setShowXP(true);setTimeout(()=>setShowXP(false),2000);return}
     if(curEx)markExerciseDone(curEx);
-    setXpA(amt);setShowXP(true);
-    setStats(s=>{const n={...s,xp:s.xp+amt};const nb=BADGES.filter(b=>!s.badges.includes(b.id)&&b.r(n));if(nb.length){n.badges=[...s.badges,...nb.map(b=>b.id)];setTimeout(()=>{setNB(nb[0]);setSB(true);setTimeout(()=>setSB(false),3000)},600)}return n});
+    let totalAmt=amt;
+    const _today=new Date().toISOString().slice(0,10);
+    if(comebackBonus&&amt>0&&!localStorage.getItem('nh_comeback_used_'+_today)){localStorage.setItem('nh_comeback_used_'+_today,'1');totalAmt=amt+50;}
+    setXpA(totalAmt);setShowXP(true);
+    setStats(s=>{const n={...s,xp:s.xp+totalAmt};const nb=BADGES.filter(b=>!s.badges.includes(b.id)&&b.r(n));if(nb.length){n.badges=[...s.badges,...nb.map(b=>b.id)];setTimeout(()=>{setNB(nb[0]);setSB(true);setTimeout(()=>setSB(false),3000)},600)}return n});
     setTimeout(()=>setShowXP(false),1500);
-    if(celebrate&&amt>0){setCelebXP(amt);setTimeout(()=>setShowCelebration(true),400)}
+    if(celebrate&&totalAmt>0){setCelebXP(totalAmt);setTimeout(()=>setShowCelebration(true),400)}
     const sr=updateStreak();
     if(sr.milestone)setTimeout(()=>setStreakMilestone(sr.milestone),800);
+    if(sr.milestone) recordJourneyMilestone('streak_'+sr.milestone, {count: sr.milestone, allowRepeat: false});
     earnFreeze();
+    // Track weekly XP
+    const _wk=(function(){const d=new Date();const day=d.getDay()||7;d.setDate(d.getDate()+4-day);const yr=d.getFullYear();const wk=Math.ceil(((d.getTime()-new Date(yr,0,1).getTime())/86400000+1)/7);return `${yr}-W${String(wk).padStart(2,'0')}`;})();
+    const _wkKey='nh_week_xp_'+_wk;
+    localStorage.setItem(_wkKey,String((parseInt(localStorage.getItem(_wkKey)||'0',10))+totalAmt));
+    if(!localStorage.getItem('nh_journey_first_lesson') && totalAmt > 0) {
+      localStorage.setItem('nh_journey_first_lesson','1');
+      recordJourneyMilestone('first_lesson', {});
+    }
+  },[curEx,comebackBonus]);
+  // Persist last exercise to localStorage so Home tab can show a Resume button
+  useEffect(function(){
+    if(!curEx) return;
+    const LABELS = {
+      mcgame:'Quiz', flashcards:'Flashcards', match:'Match Pairs', typing:'Typing',
+      listening:'Listening', speaking:'Speaking', wordsprint:'Word Sprint', review:'SRS Review',
+      writing:'Free Writing', znam:'Translate', unjumble:'Word Order', prepdrill:'Prepositions',
+      numtime:'Numbers & Time', grammar:'Grammar', tenses:'Tenses', padezi:'Cases',
+      padezifull:'Padeži Master', conjdrill:'Conjugation', aspect:'Verb Aspect',
+      modal:'Modal Verbs', declension:'Declension', dialogue:'Dialogue Sim',
+      shadowing:'Shadowing', cefrtest:'CEFR Test', dictation:'Dictation',
+      roleplay:'Role-Play', readlist:'Reading', idioms:'Idioms', proverbs:'Proverbs',
+    };
+    const label = LABELS[curEx] || (curEx.startsWith('vocab_') ? curEx.replace('vocab_','').replace(/_/g,' ') + ' vocab' : curEx);
+    localStorage.setItem('nh_last_ex', curEx);
+    localStorage.setItem('nh_last_ex_label', label);
+    if((curEx === 'speaking') && !localStorage.getItem('nh_journey_first_speaking')) {
+      localStorage.setItem('nh_journey_first_speaking','1');
+      recordJourneyMilestone('first_speaking', {});
+    }
   },[curEx]);
   function _goPostAuth(hasProgress){
     if(!hasProgress){setScr("welcome");return}
@@ -532,10 +583,8 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   function goBack(){
     if(curEx)markExerciseDone(curEx);
     sCurEx("");
-    // Q-6: React Router owns navigation history — navigate(-1) handles back safely.
-    // If there's no in-app entry to return to, React Router will stay put
-    // (can't navigate before the SPA entry point without an explicit fallback).
-    navigate(-1);
+    // H2: guard against navigating out of the SPA when history is empty
+    if(window.history.length <= 1){ setScr("dashboard"); } else { navigate(-1); }
   }
   const level=useMemo(()=>lvl(stats.xp),[stats.xp]);
   // Fix 1: these hooks must live above all early returns (Rules of Hooks)
@@ -607,6 +656,27 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       <BadgeToast show={sB} badge={nB} />
       {showCelebration&&<CelebrationModal xp={celebXP} onClose={onCloseCelebration} />}
       {streakMilestone&&<StreakMilestoneModal days={streakMilestone} onClose={()=>setStreakMilestone(null)} />}
+      {showFirstWords&&(
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.6)',zIndex:999,display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
+          <div style={{background:'var(--card)',borderRadius:24,padding:'32px 24px',maxWidth:400,width:'100%',textAlign:'center',animation:'rise .4s'}}>
+            <div style={{fontSize:48,marginBottom:12}}>🇭🇷</div>
+            <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:22,color:'var(--heading)',marginBottom:8}}>Your First Croatian Words</h2>
+            <p style={{fontSize:13,color:'var(--subtext)',marginBottom:20}}>Tap any word to hear it</p>
+            <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:24}}>
+              {[['Bog','Hello / Hi'],['Hvala','Thank you'],['Molim','Please'],['Da','Yes'],['Dobar dan','Good day']].map(([hr,en])=>(
+                <button key={hr} onClick={()=>speak(hr)} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'12px 16px',borderRadius:12,border:'1.5px solid var(--card-b)',background:'var(--bar-bg)',cursor:'pointer',fontFamily:"'Outfit',sans-serif"}}>
+                  <span style={{fontSize:16,fontWeight:800,color:'#0e7490'}}>{hr}</span>
+                  <span style={{fontSize:14,color:'var(--subtext)'}}>{en}</span>
+                  <span style={{fontSize:18}}>🔊</span>
+                </button>
+              ))}
+            </div>
+            <button className="b bp" style={{width:'100%',fontSize:15,padding:'14px'}} onClick={()=>{setShowFirstWords(false);setScr('dashboard');}}>
+              Start Learning →
+            </button>
+          </div>
+        </div>
+      )}
       {!onboarded&&_syncReady&&authScreen==="app"&&currentScreen!=="welcome"&&currentScreen!=="placement"&&<OnboardingTour onDone={()=>setOnboarded(true)} />}
       {comebackBonus&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#f59e0b,#d97706)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.2)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease"}}>🔥 Welcome back! Keep your streak alive!</div>}
       {emailUnverified && (
@@ -712,6 +782,8 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
           allCats={allCats} sh={sh}
           launchPathItem={launchPathItem}
           syncReady={_syncReady} onSyncNow={doSyncNow} authUser={authUser}
+          comebackBonus={comebackBonus}
+          goal={localStorage.getItem('nh_goal')||'fluent'}
         /></ScreenErrorBoundary>}
         {// ═══ TAB: LEARN ═══
         tab==="learn"&&<ScreenErrorBoundary name="LearnTab"><LearnTab
@@ -726,6 +798,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
           onLaunchQuiz={launchMcGame} onLaunchFlash={launchFlashcards}
           onLaunchListen={launchListening} onLaunchMatch={launchMatch}
           onLaunchSpeaking={launchSpeaking}
+          lc={stats.lc}
         /></ScreenErrorBoundary>}
         {// ═══ TAB: CROATIA ═══
         tab==="croatia"&&<ScreenErrorBoundary name="CroatiaTab"><CroatiaTab
@@ -949,6 +1022,9 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {currentScreen==="dialogue"&&<DialogueSim goBack={goBack} award={award} />}
       {currentScreen==="cefrtest"&&<CefrTest goBack={goBack} award={award} />}
       {currentScreen==="slang"&&<SlangScreen goBack={goBack} award={award} />}
+      {currentScreen==="baka_summer"&&<BakaSummer goBack={goBack} award={award} />}
+      {currentScreen==="croatia_today"&&<CroatiaToday goBack={goBack} />}
+      {currentScreen==="grammarmap"&&<GrammarConstellation goBack={goBack} award={award} />}
       {// ═══ MISTAKE REVIEW ═══
       currentScreen==="mistakes"&&<MistakesScreen goBack={goBack} award={award} />}
       {// ═══ ANALYTICS ═══
@@ -956,7 +1032,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {// ═══ GRAMMAR REFERENCE ═══
       currentScreen==="grammar-ref"&&<GrammarReference onClose={()=>setScr("dashboard")} />}
       {// ═══ NEW PLACEMENT TEST (first-time users) ═══
-      currentScreen==="new-placement"&&<NewPlacementTest onComplete={function(level){localStorage.setItem("placement_done","1");setStats(function(prev){return{...prev,ct:getPlacementCt(level),lc:Math.max(prev.lc,getPlacementCt(level).length)};});setScr("dashboard");}} />}
+      currentScreen==="new-placement"&&<NewPlacementTest onComplete={function(level){localStorage.setItem("placement_done","1");setStats(function(prev){return{...prev,ct:getPlacementCt(level),lc:Math.max(prev.lc,getPlacementCt(level).length)};});setShowFirstWords(true);}} />}
       {// ═══ VOCABULARY LESSON ═══
       currentScreen==="lesson"&&<LessonScreen
         lt={lt} li={li} lx={lx} ls={ls} lp={lp} la={la} lsl={lsl} qi={qi} icons={icons}
@@ -983,11 +1059,11 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
         goBack={goBack} setScr={setScr} award={award} setSt={setStats}
       />}
       {// ═══ BADGES ═══
-      currentScreen==="badges"&&<BadgesScreen badges={stats.badges} goBack={goBack} />}
+      currentScreen==="badges"&&<BadgesScreen badges={stats.badges} stats={stats} goBack={goBack} />}
       {// ═══ PROFILE ═══
       currentScreen==="profile"&&<ProfileScreen
         name={name} level={level} st={stats} authUser={authUser}
-        goBack={goBack} doOut={doOut}
+        goBack={goBack} doOut={doOut} setScr={setScr}
       />}
       {currentScreen==="certificate"&&<CertificateScreen name={name} level={level} st={stats} goBack={goBack} />}
       {(authScreen==="app"&&currentScreen!=="welcome"&&currentScreen!=="placement") && <TabBar tab={tab} setTab={setTab} setScr={setScr} badges={badges} />}

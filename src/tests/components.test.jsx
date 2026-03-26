@@ -92,15 +92,15 @@ describe('Flashcards', () => {
   });
   it('flip buttons are not visible before card is flipped', () => {
     render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
-    expect(screen.queryByText(/I Know It/i)).toBeNull();
-    expect(screen.queryByText(/Study Again/i)).toBeNull();
+    expect(screen.queryByText(/How well did you know it/i)).toBeNull();
+    expect(screen.queryByText(/Perfect/i)).toBeNull();
   });
   it('shows flip buttons after clicking the card', () => {
     render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
     const card = screen.getByRole('button', { name: /tap to see English/i });
     fireEvent.click(card);
-    expect(screen.getByText(/I Know It/i)).toBeTruthy();
-    expect(screen.getByText(/Study Again/i)).toBeTruthy();
+    expect(screen.getByText(/How well did you know it/i)).toBeTruthy();
+    expect(screen.getByText(/Perfect/i)).toBeTruthy();
   });
   it('card has role="button" and tabIndex=0 for keyboard access', () => {
     render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
@@ -111,13 +111,13 @@ describe('Flashcards', () => {
     render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
     const card = screen.getByRole('button', { name: /tap to see English/i });
     fireEvent.keyDown(card, { key: 'Enter' });
-    expect(screen.getByText(/I Know It/i)).toBeTruthy();
+    expect(screen.getByText(/How well did you know it/i)).toBeTruthy();
   });
   it('Space key flips the card', () => {
     render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
     const card = screen.getByRole('button', { name: /tap to see English/i });
     fireEvent.keyDown(card, { key: ' ' });
-    expect(screen.getByText(/I Know It/i)).toBeTruthy();
+    expect(screen.getByText(/How well did you know it/i)).toBeTruthy();
   });
   it('shows completion screen when pool is empty', () => {
     render(<Flashcards pool={[]} goBack={goBack} award={award} />);

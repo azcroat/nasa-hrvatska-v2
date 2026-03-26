@@ -57,12 +57,16 @@ body{-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;
   /* Gold accent */
   --gold:linear-gradient(135deg,#f59e0b,#d97706);
   --gold-glow:rgba(245,158,11,.3);
+
+  /* Croatian identity */
+  --color-croatian: #b61800;
 }
 
 /* ═══════════════════════════════════════════════════════════
    DARK MODE TOKENS
 ═══════════════════════════════════════════════════════════ */
 .dark{
+  --color-croatian: #e53e3e;
   --card:#1e293b;
   --card-b:rgba(255,255,255,.08);
   --card-shadow:0 2px 8px rgba(0,0,0,.3),0 8px 32px rgba(0,0,0,.2);
@@ -754,6 +758,9 @@ input::placeholder,textarea::placeholder{color:#6b7280;font-weight:400} /* WCAG 
 .sr-item:hover,.sr-item:active{background:var(--ob-hbg)}
 .sr-close{padding:10px;text-align:center;font-size:12px;color:var(--subtext);cursor:pointer;border-top:1px solid var(--card-b)}
 .sr-close:hover{color:#0e7490}
+
+/* Croatian identity utility */
+.milestone-border { border-left: 3px solid var(--color-croatian) !important; }
 
 /* ═══════════════════════════════════════════════════════════
    DESKTOP (≥768px)

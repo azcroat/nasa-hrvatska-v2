@@ -2,10 +2,10 @@ import React, { useRef, useEffect, useState } from 'react';
 
 const TABS = [
   { id: "home",     emoji: "🏠", label: "Home" },
-  { id: "learn",    emoji: "🗺️",  label: "Path" },
+  { id: "learn",    emoji: "🗺️",  label: "Learn" },
   { id: "practice", emoji: "🎮", label: "Practice" },
-  { id: "croatia",  emoji: "🇭🇷", label: "Life in Croatia" },
-  { id: "profile",  emoji: "👤", label: "Me" },
+  { id: "croatia",  emoji: "🇭🇷", label: "Croatia" },
+  { id: "profile",  emoji: "👤", label: "Profile" },
 ];
 
 export default function TabBar({ tab, setTab, setScr, badges }) {

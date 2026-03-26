@@ -71,6 +71,17 @@ export default function LearnTab({
   const stagePct = currentStage ? Math.round(currentStageDone / currentStage.items.length * 100) : 100;
   const sc = STAGE_COLORS[((currentStage?.level || 1) - 1) % STAGE_COLORS.length];
 
+  // CEFR level estimate from stats
+  const cefrLevel = (() => {
+    if (!st) return 'A1';
+    const { xp = 0, lc = 0, gc = 0 } = st;
+    if (xp >= 700 && lc >= 25 && gc >= 6) return 'B2';
+    if (xp >= 300 && lc >= 15 && gc >= 4) return 'B1';
+    if (xp >= 100 && lc >= 8 && gc >= 2) return 'A2';
+    return 'A1';
+  })();
+  const cefrPct = { A1: 8, A2: 33, B1: 58, B2: 83 }[cefrLevel] || 8;
+
   function launchVocab(t) {
     const items = sh(V[t] || []);
     if (!items.length) return;
@@ -119,14 +130,14 @@ export default function LearnTab({
             <div style={{ height:'100%', width:stagePct+'%', background:'#fff', borderRadius:6, transition:'width .5s ease' }} />
           </div>
           <div style={{ fontSize:10, opacity:.7, marginTop:5 }}>
-            {currentStageDone} / {currentStage?.items.length} milestones this stage
+            {currentStageDone} / {currentStage?.items.length} lessons this stage
           </div>
         </div>
 
         {/* Next Up */}
         <div style={{ background:'var(--card)', padding:'16px 20px' }}>
           {nextItem ? (
-            <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:14, position:'relative' }}>
               <div style={{
                 width:44, height:44, borderRadius:13, flexShrink:0,
                 background:sc.light, border:`1px solid ${sc.border}`,
@@ -138,6 +149,17 @@ export default function LearnTab({
                   {nextItem.name}
                 </div>
               </div>
+              {(!st || st.lc === 0) && (
+                <div style={{
+                  position:'absolute', top:-8, right:60,
+                  background:'#dc2626', color:'#fff',
+                  fontSize:9, fontWeight:900, padding:'3px 8px',
+                  borderRadius:10, letterSpacing:'.05em',
+                  animation:'pulse 2s infinite',
+                }}>
+                  START HERE
+                </div>
+              )}
               <button
                 onClick={() => launchPathItem(nextItem)}
                 style={{
@@ -152,7 +174,7 @@ export default function LearnTab({
             <div style={{ textAlign:'center', padding:'8px 0' }}>
               <div style={{ fontSize:32, marginBottom:6 }}>🏆</div>
               <div style={{ fontSize:15, fontWeight:900, color:'var(--heading)' }}>Path Complete!</div>
-              <div style={{ fontSize:12, color:'var(--subtext)', marginTop:2 }}>Ste postali pravi Hrvat!</div>
+              <div style={{ fontSize:12, color:'var(--subtext)', marginTop:2 }}>Ti si pravi Hrvat! Bravo!</div>
             </div>
           )}
           <button
@@ -163,8 +185,183 @@ export default function LearnTab({
               fontSize:12, fontWeight:700, color:'var(--subtext)', fontFamily:"'Outfit',sans-serif",
             }}
           >
-            View full path — {totalDone}/{totalItems} milestones
+            View full path — {totalDone}/{totalItems} lessons
           </button>
+        </div>
+      </div>
+
+      {/* ── GOAL-BASED STAGE 1 FOCUS ────────────────────────────────── */}
+      {(() => {
+        const goal = localStorage.getItem('nh_goal');
+        if (!goal || (currentStage && currentStage.level > 2)) return null;
+        const GOAL_STAGE1 = {
+          heritage: {
+            label: 'Heritage & Roots Path',
+            icon: '🇭🇷',
+            color: '#92400e',
+            bg: '#fffbeb',
+            border: '#fde68a',
+            tips: [
+              'Start with Basic Greetings — the same words your grandparents use',
+              'Then Family Words — mama, tata, baka, djed',
+              'Then explore Croatian History in the Croatia tab',
+            ],
+            first: 'lp1',
+          },
+          family: {
+            label: 'Speaking with Family Path',
+            icon: '👨‍👩‍👧',
+            color: '#0e7490',
+            bg: '#f0f9ff',
+            border: '#bae6fd',
+            tips: [
+              'Start with Basic Greetings — "Bog!", "Kako si?"',
+              'Then Family Words — the vocabulary your family uses',
+              'Then try Speaking practice to build confidence',
+            ],
+            first: 'lp1',
+          },
+          travel: {
+            label: 'Travel to Croatia Path',
+            icon: '✈️',
+            color: '#16a34a',
+            bg: '#f0fdf4',
+            border: '#bbf7d0',
+            tips: [
+              'Start with Basic Greetings for daily interactions',
+              'Then Get Around (Transport) — buses, taxis, directions',
+              'Then Order Food — restaurants and cafés',
+            ],
+            first: 'lp5',
+          },
+          culture: {
+            label: 'Croatian Culture Path',
+            icon: '📖',
+            color: '#7c3aed',
+            bg: '#faf5ff',
+            border: '#ddd6fe',
+            tips: [
+              'Start with Basic Greetings and Numbers',
+              'Then explore the Croatia tab — music, history, cities',
+              'Then Texting & Slang — how Croatians actually talk',
+            ],
+            first: 'lp1',
+          },
+          fluent: {
+            label: 'Fluency Track',
+            icon: '🗣️',
+            color: '#0369a1',
+            bg: '#f0f9ff',
+            border: '#bae6fd',
+            tips: [
+              'Follow the full Learn Path in order — every stage matters',
+              'Prioritize Grammar alongside vocabulary from day one',
+              'Use Dialogue Sim and Speaking Practice every session',
+            ],
+            first: 'lp1',
+          },
+        };
+        const gf = GOAL_STAGE1[goal];
+        if (!gf) return null;
+        return (
+          <div style={{
+            background: gf.bg,
+            border: `1.5px solid ${gf.border}`,
+            borderRadius: 16, padding: '16px 18px', marginBottom: 20,
+          }}>
+            <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
+              <span style={{ fontSize:20 }}>{gf.icon}</span>
+              <div>
+                <div style={{ fontSize:13, fontWeight:900, color: gf.color }}>{gf.label}</div>
+                <div style={{ fontSize:11, color:'#94a3b8', marginTop:1, fontWeight:500 }}>Personalized for your goal</div>
+              </div>
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+              {gf.tips.map((tip, i) => (
+                <div key={i} style={{ display:'flex', alignItems:'flex-start', gap:10 }}>
+                  <span style={{ fontSize:13, fontWeight:900, color: gf.color, flexShrink:0, marginTop:1 }}>{i+1}.</span>
+                  <span style={{ fontSize:12, color:'#374151', fontWeight:500, lineHeight:1.5 }}>{tip}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ── 5-STAGE JOURNEY STRIP ───────────────────────────────────────── */}
+      <div style={{ marginBottom:20 }}>
+        <div style={{ fontSize:10, fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:8 }}>
+          Your Journey
+        </div>
+        <div style={{ display:'flex', alignItems:'center', gap:0 }}>
+          {LEARN_PATH.map((lv, i) => {
+            const lvDone = lv.items.filter(it => st && it.ck(st)).length;
+            const isComplete = lvDone === lv.items.length;
+            const isCurrent = lv === currentStage;
+            const color = STAGE_COLORS[i % STAGE_COLORS.length];
+            return (
+              <React.Fragment key={lv.level}>
+                <div style={{ flex:1, textAlign:'center' }}>
+                  <div style={{
+                    width:32, height:32, borderRadius:'50%', margin:'0 auto 4px',
+                    background: isComplete ? color.bg : isCurrent ? color.bg : 'var(--bar-bg)',
+                    border: isCurrent ? '2.5px solid var(--heading)' : isComplete ? 'none' : '2px solid var(--card-b)',
+                    display:'flex', alignItems:'center', justifyContent:'center',
+                    fontSize:13, color: isComplete || isCurrent ? '#fff' : 'var(--subtext)',
+                    fontWeight:900, boxShadow: isCurrent ? '0 0 0 3px rgba(14,116,144,.2)' : 'none',
+                    transition:'all .3s',
+                  }}>
+                    {isComplete ? '✓' : lv.level}
+                  </div>
+                  <div style={{ fontSize:9, fontWeight:800, color: isCurrent ? 'var(--heading)' : isComplete ? '#16a34a' : 'var(--subtext)', letterSpacing:'.03em', lineHeight:1.2 }}>
+                    {lv.title}
+                  </div>
+                </div>
+                {i < LEARN_PATH.length - 1 && (
+                  <div style={{
+                    width:18, height:2, flexShrink:0, marginBottom:16,
+                    background: lvDone === lv.items.length ? '#16a34a' : 'var(--card-b)',
+                    borderRadius:2,
+                  }} />
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── CEFR FLUENCY TRACK ──────────────────────────────────────────── */}
+      <div style={{
+        background:'var(--card)', border:'1px solid var(--card-b)',
+        borderRadius:14, padding:'14px 16px', marginBottom:20,
+      }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
+          <div style={{ fontSize:12, fontWeight:800, color:'var(--heading)' }}>🎓 CEFR Level</div>
+          <span style={{
+            fontSize:11, fontWeight:900, color:'#fff',
+            background: cefrLevel === 'B2' ? '#16a34a' : cefrLevel === 'B1' ? '#0e7490' : cefrLevel === 'A2' ? '#d97706' : '#94a3b8',
+            borderRadius:8, padding:'2px 9px',
+          }}>{cefrLevel}</span>
+        </div>
+        <div style={{ position:'relative', height:8, background:'var(--bar-bg)', borderRadius:6, overflow:'visible', marginBottom:6 }}>
+          <div style={{
+            height:'100%', borderRadius:6,
+            width: cefrPct + '%',
+            background: 'linear-gradient(90deg,#94a3b8,#0e7490,#059669)',
+            transition:'width .8s ease',
+          }} />
+          {/* Level markers */}
+          {[{ pct:25, label:'A2' },{ pct:50, label:'B1' },{ pct:75, label:'B2' }].map(m => (
+            <div key={m.label} style={{
+              position:'absolute', top:'50%', left:m.pct+'%', transform:'translate(-50%,-50%)',
+              width:3, height:12, background:'var(--card)', borderRadius:2,
+            }} />
+          ))}
+        </div>
+        <div style={{ display:'flex', justifyContent:'space-between' }}>
+          {['A1','A2','B1','B2','C1'].map(l => (
+            <div key={l} style={{ fontSize:9, fontWeight:700, color: cefrLevel === l ? 'var(--heading)' : 'var(--subtext)', opacity: cefrLevel === l ? 1 : 0.5 }}>{l}</div>
+          ))}
         </div>
       </div>
 
@@ -183,7 +380,15 @@ export default function LearnTab({
             <button key={t} className="tc" style={{ textAlign:"center", padding:"14px 8px" }} onClick={() => launchVocab(t)}>
               <div style={{ fontSize:24 }}>{icons[t] || "📚"}</div>
               <div style={{ fontSize:12, fontWeight:700, marginTop:4, textTransform:"capitalize" }}>{t}</div>
-              <div style={{ fontSize:10, color:"var(--subtext)" }}>{V[t].length} words</div>
+              <div style={{ fontSize:10, color:"var(--subtext)", marginTop:2 }}>{V[t].length} words</div>
+              <div style={{ fontSize:9, color:"var(--subtext)", marginTop:3, opacity:.7, lineHeight:1.3 }}>
+                {(V[t]||[]).slice(0,2).map(w=>w[0]).join(' · ')}
+              </div>
+              {(() => {
+                const count = V[t].length;
+                const [badge, color, bg] = count < 15 ? ['Essential','#16a34a','#f0fdf4'] : count < 25 ? ['Core','#0e7490','#f0f9ff'] : ['Extended','#7c3aed','#faf5ff'];
+                return <span style={{fontSize:8,fontWeight:800,color,background:bg,borderRadius:6,padding:'2px 5px',marginTop:3,letterSpacing:'.04em'}}>{badge}</span>;
+              })()}
             </button>
           ))}
         </div>

@@ -31,6 +31,10 @@ export default function LessonScreen({
         }}>Quiz Me! →</button>}
       </React.Fragment>}
       {lp==="quiz"&&qi[lx]&&<React.Fragment>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+          <span style={{fontSize:12,fontWeight:700,color:"var(--subtext)"}}>Question {lx+1} of {qi.length}</span>
+          <button onClick={goBack} style={{background:"none",border:"none",cursor:"pointer",fontSize:22,color:"var(--subtext)",padding:"6px 10px",minHeight:44}} aria-label="Exit quiz">×</button>
+        </div>
         <Bar v={lx+1} mx={qi.length} h={6} />
         <div className="c" style={{marginTop:16}}>
           <div role="button" tabIndex={0} onClick={()=>speak(qi[lx][0])} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();speak(qi[lx][0]);}}} aria-label={"Hear pronunciation of "+qi[lx][0]} style={{display:"flex",alignItems:"center",gap:12,marginBottom:20,cursor:"pointer"}}>

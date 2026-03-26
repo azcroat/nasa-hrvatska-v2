@@ -48,6 +48,10 @@ function normalise(s) {
 
 const DIACRITICS = ['Č','Ć','Š','Ž','Đ','č','ć','š','ž','đ'];
 
+function stripDiacritics(s) {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
 export default function DictationScreen({ goBack, award }) {
   const finishFired = useRef(false);
   const [qs] = useState(() => shLocal(DATA));
@@ -56,6 +60,7 @@ export default function DictationScreen({ goBack, award }) {
   const [input, setInput] = useState('');
   const [checked, setChecked] = useState(false);
   const [correct, setCorrect] = useState(false);
+  const [closeMatch, setCloseMatch] = useState(false);
   const inputRef = useRef(null);
 
   const total = qs.length;
@@ -79,10 +84,14 @@ export default function DictationScreen({ goBack, award }) {
 
   function handleCheck() {
     if (!input.trim()) return;
-    const isCorrect = normalise(input) === normalise(q.text);
-    setCorrect(isCorrect);
+    const norm = normalise(input);
+    const target = normalise(q.text);
+    const isExact = norm === target;
+    const isClose = !isExact && stripDiacritics(norm) === stripDiacritics(target);
+    setCorrect(isExact || isClose);
+    setCloseMatch(isClose);
     setChecked(true);
-    if (isCorrect) setScore(score + 1);
+    if (isExact || isClose) setScore(score + 1);
   }
 
   function handleNext() {
@@ -90,6 +99,7 @@ export default function DictationScreen({ goBack, award }) {
     setInput('');
     setChecked(false);
     setCorrect(false);
+    setCloseMatch(false);
   }
 
   function insertDiacritic(ch) {
@@ -188,7 +198,14 @@ export default function DictationScreen({ goBack, award }) {
       {checked && (
         <div style={{marginBottom:8}}>
           {correct ? (
-            <div style={{color:"#166534",fontWeight:700,fontSize:15}}>✓ Correct!</div>
+            closeMatch ? (
+              <div>
+                <div style={{color:"#b45309",fontWeight:700,fontSize:15}}>✓ Close! Watch your diacritics ✍️</div>
+                <div style={{color:"#92400e",fontSize:13,marginTop:2}}>Correct: <strong>{q.text}</strong></div>
+              </div>
+            ) : (
+              <div style={{color:"#166534",fontWeight:700,fontSize:15}}>✓ Correct!</div>
+            )
           ) : (
             <div>
               <div style={{color:"#dc2626",fontSize:13,marginBottom:2}}><strong>Your answer:</strong> {input}</div>
