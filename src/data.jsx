@@ -294,13 +294,52 @@ const BADGES=[
   {id:"media20",n:"Culture Master",    i:"🇭🇷",d:"Experienced 20 Croatian media items",     r:()=>(getCultureStats().mediaCnt||0)>=20},
   {id:"region5",n:"Regional Explorer", i:"🏔️",d:"Explored 5 Croatian regions",             r:()=>(getCultureStats().regionCnt||0)>=5},
   {id:"proverb",n:"Wisdom Seeker",     i:"📜", d:"Read 3 Croatian proverbs",                 r:()=>(getCultureStats().proverbCnt||0)>=3},
+  // Additional streak tiers
+  {id:"str14",n:"Two Weeks Strong",  i:"🔥", d:"14-day streak",                              r:s=>(s.streak||0)>=14},
+  {id:"str21",n:"Three Week Hero",   i:"💪", d:"21-day streak",                              r:s=>(s.streak||0)>=21},
+  {id:"str60",n:"Two Month Titan",   i:"⚡", d:"60-day streak",                              r:s=>(s.streak||0)>=60},
+  {id:"str100",n:"Century Streak",   i:"🏆", d:"100-day streak",                             r:s=>(s.streak||0)>=100},
+  // Additional lesson counts
+  {id:"lc10",n:"Ten Strong",         i:"🎯", d:"Complete 10 lessons",                        r:s=>s.lc>=10},
+  {id:"lc30",n:"Committed",          i:"📘", d:"Complete 30 lessons",                        r:s=>s.lc>=30},
+  {id:"lc75",n:"Dedicated Learner",  i:"🎓", d:"Complete 75 lessons",                        r:s=>s.lc>=75},
+  // Accuracy / performance
+  {id:"sharp3",n:"Sharp Shooter",    i:"🎯", d:"Score 100% on 3 different exercises",        r:s=>(s.pf||0)>=3},
+  {id:"perf10",n:"Perfectionist Pro",i:"💎", d:"Score 100% on 10 exercises total",           r:s=>(s.pf||0)>=10},
+  {id:"nomistake",n:"No Mistakes",   i:"✅", d:"Complete any exercise without a wrong answer",r:s=>(s.pf||0)>=1},
+  // Vocabulary mastery (SRS)
+  {id:"srs25",n:"Word Collector",    i:"📖", d:"Review 25 SRS words",                        r:s=>(s.srsTotal||0)>=25},
+  {id:"srs100",n:"Vocabulary Builder",i:"📚",d:"Review 100 SRS words",                       r:s=>(s.srsTotal||0)>=100},
+  {id:"srs250",n:"Lexicon Master",   i:"🌐", d:"Review 250 SRS words",                       r:s=>(s.srsTotal||0)>=250},
+  // Practice diversity
+  {id:"extype5",n:"Explorer",        i:"🔍", d:"Complete 5 different exercise types",        r:()=>{try{return JSON.parse(localStorage.getItem('nh_ex_types_done')||'[]').length>=5}catch(_){return false}}},
+  {id:"extype10",n:"Polyglot Practice",i:"🗣️",d:"Complete 10 different exercise types",     r:()=>{try{return JSON.parse(localStorage.getItem('nh_ex_types_done')||'[]').length>=10}catch(_){return false}}},
+  {id:"extype15",n:"All-Rounder",    i:"🌟", d:"Complete 15 different exercise types",       r:()=>{try{return JSON.parse(localStorage.getItem('nh_ex_types_done')||'[]').length>=15}catch(_){return false}}},
+  // Time-based
+  {id:"earlybird",n:"Early Bird",    i:"🌅", d:"Practice before 8am",                        r:()=>new Date().getHours()<8},
+  {id:"nightowl",n:"Night Owl",      i:"🦉", d:"Practice after 10pm",                        r:()=>new Date().getHours()>=22},
+  {id:"weekend",n:"Weekend Warrior", i:"🏖️", d:"Practice on both Saturday and Sunday in same weekend", r:()=>{try{const w=JSON.parse(localStorage.getItem('nh_weekend_days')||'{}');return !!(w.sat&&w.sun)}catch(_){return false}}},
+  // Goal-specific
+  {id:"heritage5",n:"Heritage Seeker",i:"🧬",d:"Set heritage goal and complete 5 lessons",  r:s=>{try{const g=localStorage.getItem('nh_goal');return g==='heritage'&&s.lc>=5}catch(_){return false}}},
+  {id:"family5",n:"Family First",    i:"👨‍👩‍👧", d:"Set family goal and complete 5 lessons",     r:s=>{try{const g=localStorage.getItem('nh_goal');return g==='family'&&s.lc>=5}catch(_){return false}}},
+  {id:"travel5",n:"World Traveler",  i:"✈️", d:"Set travel goal and complete 5 lessons",    r:s=>{try{const g=localStorage.getItem('nh_goal');return g==='travel'&&s.lc>=5}catch(_){return false}}},
+  // Cultural
+  {id:"hajduk",n:"Hajduk Fan",       i:"⚽", d:"Complete the football slang exercise",       r:s=>(s.footballDone||0)>=1},
+  {id:"dalmatian",n:"Dalmatian Soul",i:"🌊", d:"Complete the Dalmatian dialect exercise",    r:s=>(s.dialectDone||0)>=1},
+  {id:"zagreb",n:"Zagrepčanin",      i:"🏙️", d:"Complete the Zagreb slang exercise",        r:s=>(s.textingDone||0)>=1},
 ];
 const DAILY_QUESTS = [
-  { id: 'speak',   icon: '🎤', name: 'Speak Quest',   desc: 'Complete 1 speaking exercise',  xp: 25 },
-  { id: 'grammar', icon: '📝', name: 'Grammar Quest',  desc: 'Complete 1 grammar lesson',     xp: 25 },
-  { id: 'master',  icon: '✨', name: 'Master Quest',   desc: 'Review 5+ SRS words',           xp: 30 },
-  { id: 'reading', icon: '📖', name: 'Reading Quest',  desc: 'Complete 1 reading passage',    xp: 20 },
-  { id: 'streak',  icon: '🔥', name: 'Streak Quest',   desc: 'Keep your daily streak alive',  xp: 10 },
+  { id: 'speak',        tier: 1, icon: '🎤', name: 'Speak Quest',        desc: 'Complete 1 speaking exercise',   xp: 25 },
+  { id: 'speak2',       tier: 2, icon: '🎤', name: 'Speak Twice',        desc: '2 speaking exercises',           xp: 50 },
+  { id: 'grammar',      tier: 1, icon: '📝', name: 'Grammar Quest',      desc: 'Complete 1 grammar lesson',      xp: 25 },
+  { id: 'grammar2',     tier: 2, icon: '📝', name: 'Grammar Double',     desc: '2 grammar exercises',            xp: 45 },
+  { id: 'master',       tier: 1, icon: '✨', name: 'Master Quest',       desc: 'Review 5+ SRS words',            xp: 30 },
+  { id: 'master2',      tier: 2, icon: '✨', name: 'Master Pro',         desc: 'Review 15+ SRS words',           xp: 55 },
+  { id: 'reading',      tier: 1, icon: '📖', name: 'Reading Quest',      desc: 'Complete 1 reading passage',     xp: 20 },
+  { id: 'reading2',     tier: 2, icon: '📖', name: 'Reading Double',     desc: '2 reading passages',             xp: 40 },
+  { id: 'streak',       tier: 1, icon: '🔥', name: 'Streak Quest',       desc: 'Keep your daily streak alive',   xp: 10 },
+  { id: 'streak_alive', tier: 1, icon: '🔥', name: 'Keep Streak',        desc: 'Practice anything today',        xp: 10 },
+  { id: 'perfect',      tier: 2, icon: '🎯', name: 'Perfect Score',      desc: 'Score 100% on any exercise',     xp: 60 },
 ];
 // ═══ READING PASSAGES ═══
 const READ = {
@@ -3101,7 +3140,7 @@ function getHistFact(){
 // ═══ LEARNING PATH ═══
 const LEARN_PATH = [
   {level:1,title:"Survivor",desc:"First 48 hours",items:[
-    {id:"lp1",name:"Basic Greetings",diff:1,dur:"~5 min",ck:function(s){return (s.ct&&s.ct.includes("greetings"))||s.lc>=1},go:"lesson",topic:"greetings"},{id:"lp2",name:"Numbers",diff:1,dur:"~5 min",ck:function(s){return (s.ct&&s.ct.includes("numbers"))||s.lc>=2},go:"lesson",topic:"numbers"},{id:"lp3",name:"Emergency Phrases",diff:1,dur:"~6 min",ck:function(s){return (s.ct&&s.ct.includes("health"))||s.lc>=3},go:"lesson",topic:"health"},{id:"lp4",name:"Order Food",diff:1,dur:"~6 min",ck:function(s){return (s.ct&&s.ct.includes("restaurant"))||s.lc>=4},go:"lesson",topic:"restaurant"},{id:"lp5",name:"Get Around",diff:1,dur:"~8 min",ck:function(s){return (s.ct&&s.ct.includes("transport"))||s.lc>=5},go:"lesson",topic:"transport"}]},
+    {id:"lp1",name:"Basic Greetings",diff:1,dur:"~5 min",ck:function(s){return (s.ct&&s.ct.includes("greetings"))||s.lc>=1},go:"lesson",topic:"greetings"},{id:"lp2",name:"Numbers",diff:1,dur:"~5 min",ck:function(s){return (s.ct&&s.ct.includes("numbers"))||s.lc>=2},go:"lesson",topic:"numbers"},{id:"lp_listen_basics",name:"Hear Croatian",cat:"listening",icon:"🎧",desc:"Train your ear — listen to basic Croatian phrases",dur:"~5 min",diff:1,go:"listening",ck:function(s){return s&&(s.lc>=2)}},{id:"lp3",name:"Emergency Phrases",diff:1,dur:"~6 min",ck:function(s){return (s.ct&&s.ct.includes("health"))||s.lc>=3},go:"lesson",topic:"health"},{id:"lp4",name:"Order Food",diff:1,dur:"~6 min",ck:function(s){return (s.ct&&s.ct.includes("restaurant"))||s.lc>=4},go:"lesson",topic:"restaurant"},{id:"lp5",name:"Get Around",diff:1,dur:"~8 min",ck:function(s){return (s.ct&&s.ct.includes("transport"))||s.lc>=5},go:"lesson",topic:"transport"}]},
   {level:2,title:"Settler",desc:"First week",items:[
     {id:"lp6",name:"Family Words",diff:1,dur:"~8 min",ck:function(s){return (s.ct&&s.ct.includes("family"))||s.lc>=6},go:"lesson",topic:"family"},{id:"lp7",name:"School Kit",diff:1,dur:"~8 min",ck:function(s){return (s.ct&&s.ct.includes("in the classroom"))||s.lc>=7},go:"lesson",topic:"in the classroom"},{id:"lp8",name:"Making Friends",diff:2,dur:"~8 min",ck:function(s){return (s.ct&&s.ct.includes("personality"))||s.lc>=8},go:"lesson",topic:"personality"},{id:"lp9",name:"Grocery Shopping",diff:1,dur:"~8 min",ck:function(s){return (s.ct&&s.ct.includes("shopping"))||s.lc>=9},go:"lesson",topic:"shopping"},{id:"lp10",name:"Alphabet",diff:2,dur:"~10 min",ck:function(s){return s.lc>=3},go:"alphabet",topic:"alphabet"},{id:"lp11",name:"First Quiz",diff:1,dur:"~5 min",ck:function(s){return s.xp>=50},go:"mcgame"}]},
   {level:3,title:"Communicator",desc:"First month",items:[
@@ -4967,16 +5006,36 @@ function getDueReviews() {
 const SEASONAL_CAMPAIGNS = [
   { id: 'easter', name: 'Uskrs u Hrvatskoj', icon: '🥚', color: '#16a34a', bg: '#f0fdf4', border: '#86efac',
     start: [3, 20], end: [4, 30], multiplier: 1.5,
-    blurb: 'Learn Easter traditions — pisanice, lamb, holiday greetings' },
+    blurb: 'Learn Easter traditions — pisanice, lamb, holiday greetings',
+    quests: [
+      { id: 'uskrs_q1', label: 'Learn 5 Easter words', desc: 'Complete the greetings lesson', xp: 30, screen: 'lesson' },
+      { id: 'uskrs_q2', label: 'Practice family vocab', desc: 'Family flashcards', xp: 25, screen: 'flashcards' },
+      { id: 'uskrs_q3', label: 'Easter challenge', desc: 'Score 80%+ on any quiz', xp: 50, screen: 'quiz' },
+    ] },
   { id: 'midsummer', name: 'Ivanjdan', icon: '🔥', color: '#ea580c', bg: '#fff7ed', border: '#fed7aa',
     start: [6, 20], end: [6, 28], multiplier: 1.5,
-    blurb: 'Celebrate Midsummer with bonfire traditions and Croatian folklore' },
+    blurb: 'Celebrate Midsummer with bonfire traditions and Croatian folklore',
+    quests: [
+      { id: 'ivanjdan_q1', label: 'Learn bonfire words', desc: 'Complete the culture lesson', xp: 30, screen: 'lesson' },
+      { id: 'ivanjdan_q2', label: 'Explore Croatian folklore', desc: 'Read a Croatian story', xp: 25, screen: 'readlist' },
+      { id: 'ivanjdan_q3', label: 'Midsummer quiz', desc: 'Score 80%+ on any quiz', xp: 50, screen: 'quiz' },
+    ] },
   { id: 'domovina', name: 'Dan domovine', icon: '🇭🇷', color: '#b61800', bg: '#fff1f0', border: '#fca5a5',
     start: [7, 25], end: [8, 10], multiplier: 2.0,
-    blurb: "Honor Croatia's liberation — learn history, heroes, and homeland pride" },
+    blurb: "Honor Croatia's liberation — learn history, heroes, and homeland pride",
+    quests: [
+      { id: 'domovina_q1', label: 'Learn 5 history words', desc: 'Complete the Domovinski Rat lesson', xp: 40, screen: 'history' },
+      { id: 'domovina_q2', label: 'Read about Operation Storm', desc: 'Complete a history reading passage', xp: 35, screen: 'readlist' },
+      { id: 'domovina_q3', label: 'Homeland pride quiz', desc: 'Score 80%+ on the history quiz', xp: 60, screen: 'quiz' },
+    ] },
   { id: 'bozic', name: 'Božić', icon: '🎄', color: '#0e7490', bg: '#f0f9ff', border: '#bae6fd',
     start: [12, 1], end: [12, 31], multiplier: 2.0,
-    blurb: 'Croatian Christmas — fritule, pokloni, carols, and family traditions' },
+    blurb: 'Croatian Christmas — fritule, pokloni, carols, and family traditions',
+    quests: [
+      { id: 'bozic_q1', label: 'Learn Christmas vocab', desc: 'Complete the greetings lesson', xp: 30, screen: 'lesson' },
+      { id: 'bozic_q2', label: 'Practice holiday phrases', desc: 'Complete a speaking exercise', xp: 25, screen: 'speaking' },
+      { id: 'bozic_q3', label: 'Christmas challenge', desc: 'Score 80%+ on any quiz', xp: 50, screen: 'quiz' },
+    ] },
 ];
 
 function getActiveCampaign() {
