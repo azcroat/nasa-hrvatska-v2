@@ -59,7 +59,8 @@ export async function fbSaveProgress(uid,data){
   if(localFam&&localFam.code){
     try{
       const famRef=fsDoc(_fbDb,"families",localFam.code);
-      updateDoc(famRef,{["memberXP."+id]:{xp:lbEntry.xp,lc:lbEntry.lc,name:lbEntry.name,updated:incoming.updated}}).catch(function(e){console.warn("Family XP sync failed:",e);});
+      const _famWeekXP=typeof data.weekXP==='number'?data.weekXP:0;
+      updateDoc(famRef,{["memberXP."+id]:{xp:lbEntry.xp,lc:lbEntry.lc,name:lbEntry.name,weekXP:_famWeekXP,updated:incoming.updated}}).catch(function(e){console.warn("Family XP sync failed:",e);});
     }catch(e){console.warn("Family XP sync error:",e);}
   } else if(lbEntry.xp>0){
     // Family code not cached locally yet — read from the user's OWN doc to find it.
@@ -67,7 +68,8 @@ export async function fbSaveProgress(uid,data){
     // Fire-and-forget so it doesn't block the progress save.
     getDoc(fsDoc(_fbDb,"users",id)).then(function(uSnap){
       const fc=uSnap.exists()?uSnap.data().familyCode:null;
-      if(fc){updateDoc(fsDoc(_fbDb,"families",fc),{["memberXP."+id]:{xp:lbEntry.xp,lc:lbEntry.lc,name:lbEntry.name,updated:incoming.updated}}).catch(function(){});}
+      const _fbWeekXP2=typeof data.weekXP==='number'?data.weekXP:0;
+      if(fc){updateDoc(fsDoc(_fbDb,"families",fc),{["memberXP."+id]:{xp:lbEntry.xp,lc:lbEntry.lc,name:lbEntry.name,weekXP:_fbWeekXP2,updated:incoming.updated}}).catch(function(){});}
     }).catch(function(){});
   }
   // Direct write — no transaction read needed.
@@ -253,7 +255,7 @@ export function fbWatchFamilyMembers(code,callback){
       const results=members.map(function(m){
         const id=(m.email||m.uid||"").replace(/[.#$/\[\]]/g,"_");
         const xpData=(id&&memberXP[id])||{};
-        return{name:xpData.name||m.name,email:m.email||"",role:m.role,xp:xpData.xp||0,lc:xpData.lc||0,joined:m.joined};
+        return{name:xpData.name||m.name,email:m.email||"",role:m.role,xp:xpData.xp||0,lc:xpData.lc||0,weekXP:xpData.weekXP||0,joined:m.joined};
       });
       callback(results.sort(function(a,b){return b.xp-a.xp;}));
     },
@@ -314,4 +316,40 @@ export function fbWatchProgress(uid,callback){
     },
     function(err){console.warn("fbWatchProgress error:",err);}
   );
+}
+
+// Save a reaction emoji for a family achievement to Firestore
+// achievementKey: "{email}_{type}_{date}" — uniquely identifies a milestone
+// emoji: the reaction string (e.g. "🔥")
+// reactorName: display name of the person reacting
+export async function fbSaveReaction(familyCode, achievementKey, emoji, reactorName) {
+  if (!_fbReady || !_fbDb || !familyCode) return { ok: false };
+  try {
+    const safeKey = achievementKey.replace(/[.#$/\[\]]/g, '_');
+    const ref = fsDoc(_fbDb, 'families', familyCode, 'reactions', safeKey);
+    await setDoc(ref, { emoji, reactorName, updatedAt: Date.now() }, { merge: true });
+    return { ok: true };
+  } catch (e) {
+    console.warn('fbSaveReaction error:', e);
+    return { ok: false };
+  }
+}
+
+// Watch all reactions in a family — fires on every change
+// Returns an unsubscribe function
+export function fbWatchReactions(familyCode, callback) {
+  if (!_fbReady || !_fbDb || !familyCode) return function () {};
+  try {
+    const colRef = collection(_fbDb, 'families', familyCode, 'reactions');
+    return onSnapshot(colRef, function (snap) {
+      const reactions = {};
+      snap.forEach(function (doc) {
+        reactions[doc.id] = doc.data();
+      });
+      callback(reactions);
+    }, function (err) { console.warn('fbWatchReactions error:', err); });
+  } catch (e) {
+    console.warn('fbWatchReactions setup error:', e);
+    return function () {};
+  }
 }

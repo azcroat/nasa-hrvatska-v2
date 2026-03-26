@@ -157,9 +157,14 @@ export default function PracticeTab({
       { icon:'💬', title:'Dialogue Sim',        desc:'Real turn-based conversations',   color:'#faf5ff', border:'#ddd6fe', fn:()=>{setScr("dialogue");sCurEx("dialogue");} },
       { icon:'🗣️', title:'Shadowing',           desc:'Native-speed listen & repeat',    color:'#f0fdf4', border:'#bbf7d0', fn:()=>{setScr("shadowing");sCurEx("shadowing");} },
     ],
+    partner: [
+      { icon:'💑', title:'In-Law Words',    desc:'Svekrva, punac, šogor...',    color:'#fff7ed', border:'#fed7aa', fn:()=>{ const p=V['inlaws']||[]; onLaunchFlash(sh(p||[]).slice(0,20)); } },
+      { icon:'🍽️', title:'Survival Dinner', desc:'Navigate family gatherings',   color:'#f0fdf4', border:'#bbf7d0', fn:()=>{setScr("survival_dinner");sCurEx("survival_dinner");} },
+      { icon:'🎤', title:'Speaking',         desc:'Impress them out loud',        color:'#f0f9ff', border:'#bae6fd', fn:startSpeaking },
+    ],
   };
   const goalItems = userGoal ? goalRecMap[userGoal] : null;
-  const goalLabels = { heritage:'Your Heritage', family:'Speaking with Family', travel:'Traveling to Croatia', culture:'Croatian Culture', fluent:'Becoming Fluent' };
+  const goalLabels = { heritage:'Your Heritage', family:'Speaking with Family', travel:'Traveling to Croatia', culture:'Croatian Culture', fluent:'Becoming Fluent', partner:'Your Partner\'s Language' };
 
   function ExRow({ items }) {
     return (
@@ -184,6 +189,7 @@ export default function PracticeTab({
 
   const grammarDrills = [
     ["⭐","Case Constellation", "grammarmap", "Explore all 7 cases visually"],
+    ["🧩","Sentence Cloze","cloze","Fill the blank — cases in context"],
     ["🧩","Word Order",    "unjumble",    "Put words in the right order"],
     ["📍","Prepositions",  "prepdrill",   "u, na, od, do — which one?"],
     ["❓","Questions",     "qwords",      "Tko, Što, Gdje, Zašto..."],

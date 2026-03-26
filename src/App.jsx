@@ -21,6 +21,7 @@ import TabBar from "./components/shared/TabBar.jsx";
 import Sidebar from "./components/shared/Sidebar.jsx";
 import CelebrationModal from "./components/shared/CelebrationModal.jsx";
 import StreakMilestoneModal from "./components/shared/StreakMilestoneModal.jsx";
+import CeremonyModal from "./components/shared/CeremonyModal.jsx";
 import OnboardingTour from "./components/shared/OnboardingTour.jsx";
 import OfflineBanner from "./components/shared/OfflineBanner.jsx";
 import WelcomeScreen from "./components/home/WelcomeScreen.jsx";
@@ -176,6 +177,8 @@ const AnalyticsScreen = lazyWithReload(() => import("./components/profile/Analyt
 const GrammarReference = lazyWithReload(() => import("./components/shared/GrammarReference.jsx"));
 const BakaSummer = lazyWithReload(() => import("./components/croatia/BakaSummer.jsx"));
 const CroatiaToday = lazyWithReload(() => import("./components/croatia/CroatiaToday.jsx"));
+const SurvivalDinner = lazyWithReload(() => import("./components/croatia/SurvivalDinner.jsx"));
+const ClozeEngine = lazyWithReload(() => import("./components/practice/ClozeEngine.jsx"));
 const GrammarConstellation = lazyWithReload(() => import("./components/learn/GrammarConstellation.jsx"));
 
 // Module-level constants — defined once, not recreated on every render
@@ -251,6 +254,7 @@ function App(){
   const[showCelebration,setShowCelebration]=useState(false);const[celebXP,setCelebXP]=useState(0);const[showFirstWords,setShowFirstWords]=useState(false);
   const[comebackBonus,setComebackBonus]=useState(false);
   const[streakMilestone,setStreakMilestone]=useState(null); // number (7/30/50/100/365) or null
+  const[ceremonyType,setCeremonyType]=useState(null);
   const[pendingJoinCode,setPendingJoinCode]=useState(()=>{try{return new URLSearchParams(window.location.search).get('join')||null;}catch{return null;}});
   // Q-6: Sync tab and currentScreen when React Router location changes (browser back/forward)
   useEffect(function(){
@@ -291,6 +295,8 @@ function App(){
         football:"croatia",popculture:"croatia",practical:"croatia",school:"croatia",basketball:"croatia",gym:"croatia",
         top100:"croatia",events:"croatia",croatiaathletes:"croatia",
         baka_summer:"croatia", croatia_today:"croatia",
+        survival_dinner:"croatia",
+        cloze:"practice",
         badges:"profile",leaderboard:"profile",journal:"profile",favorites:"profile",learnpath:"profile",contact:"profile",
         certificate:"profile",analytics:"profile",profile:"profile",admin:"profile",
         privacy:"profile",terms:"profile","grammar-ref":"learn",
@@ -512,6 +518,8 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
     const sr=updateStreak();
     if(sr.milestone)setTimeout(()=>setStreakMilestone(sr.milestone),800);
     if(sr.milestone) recordJourneyMilestone('streak_'+sr.milestone, {count: sr.milestone, allowRepeat: false});
+    // Ceremony at 30-day streak (only once, guarded by localStorage)
+    if(sr.count>=30&&!localStorage.getItem('nh_ceremony_streak_30')){localStorage.setItem('nh_ceremony_streak_30','1');setCeremonyType('streak_30');}
     earnFreeze();
     // Track weekly XP
     const _wk=(function(){const d=new Date();const day=d.getDay()||7;d.setDate(d.getDate()+4-day);const yr=d.getFullYear();const wk=Math.ceil(((d.getTime()-new Date(yr,0,1).getTime())/86400000+1)/7);return `${yr}-W${String(wk).padStart(2,'0')}`;})();
@@ -557,7 +565,8 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   const _dcLocalAns=(function(){try{const p=JSON.parse(localStorage.getItem("dcDay3")||"{}");if(p.day===_dcDay&&Array.isArray(p.answered))return p.answered;}catch(_){}return[false,false,false];})();
   const _dcBestAns=dchlA.map(function(a,i){return a||_dcLocalAns[i]||false;});
   const _dcBestSel=dchlSl.some(function(s){return s;})?dchlSl:(function(){try{const p=JSON.parse(localStorage.getItem("dcDay3")||"{}");if(p.day===_dcDay&&Array.isArray(p.selected)&&typeof p.selected[0]==="string")return p.selected;}catch(_){}return["","",""];})();
-  const _data={name,stats,cp:true,onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),freezes:getStreakFreezes(),favs,journal:jWords,dc:{day:_dcDay,answered:_dcBestAns,selected:_dcBestSel},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};localStorage.setItem("uP_"+authUser.u,JSON.stringify(_data));const result=await fbSaveProgress(authUser.u,_data).catch(function(){return{ok:false}});return result&&result.ok!==false;},[authUser,name,stats,favs,jWords,dchlA,dchlSl]);
+  const _wkD=new Date();const _wkDay=_wkD.getDay()||7;_wkD.setDate(_wkD.getDate()+4-_wkDay);const _wkYr=_wkD.getFullYear();const _wkNum=Math.ceil(((_wkD.getTime()-new Date(_wkYr,0,1).getTime())/86400000+1)/7);const _wkKey2=_wkYr+'-W'+String(_wkNum).padStart(2,'0');const _weekXP=parseInt(localStorage.getItem('nh_week_xp_'+_wkKey2)||'0',10);
+  const _data={name,stats,cp:true,onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),freezes:getStreakFreezes(),favs,journal:jWords,dc:{day:_dcDay,answered:_dcBestAns,selected:_dcBestSel},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})(),weekXP:_weekXP};localStorage.setItem("uP_"+authUser.u,JSON.stringify(_data));const result=await fbSaveProgress(authUser.u,_data).catch(function(){return{ok:false}});return result&&result.ok!==false;},[authUser,name,stats,favs,jWords,dchlA,dchlSl]);
   // Keep the ref current so onBeforeSignOut always calls the latest version
   _syncNowRef.current=doSyncNow;
   // Daily snapshot for progress charts
@@ -656,6 +665,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       <BadgeToast show={sB} badge={nB} />
       {showCelebration&&<CelebrationModal xp={celebXP} onClose={onCloseCelebration} />}
       {streakMilestone&&<StreakMilestoneModal days={streakMilestone} onClose={()=>setStreakMilestone(null)} />}
+      {ceremonyType&&<CeremonyModal type={ceremonyType} stats={stats} name={name} onClose={()=>setCeremonyType(null)} />}
       {showFirstWords&&(
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.6)',zIndex:999,display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
           <div style={{background:'var(--card)',borderRadius:24,padding:'32px 24px',maxWidth:400,width:'100%',textAlign:'center',animation:'rise .4s'}}>
@@ -1024,6 +1034,8 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {currentScreen==="slang"&&<SlangScreen goBack={goBack} award={award} />}
       {currentScreen==="baka_summer"&&<BakaSummer goBack={goBack} award={award} />}
       {currentScreen==="croatia_today"&&<CroatiaToday goBack={goBack} />}
+      {currentScreen==="survival_dinner"&&<SurvivalDinner goBack={goBack} />}
+      {currentScreen==="cloze"&&<ClozeEngine goBack={goBack} award={award} />}
       {currentScreen==="grammarmap"&&<GrammarConstellation goBack={goBack} award={award} />}
       {// ═══ MISTAKE REVIEW ═══
       currentScreen==="mistakes"&&<MistakesScreen goBack={goBack} award={award} />}

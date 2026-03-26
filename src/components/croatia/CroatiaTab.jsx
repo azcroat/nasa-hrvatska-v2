@@ -389,7 +389,7 @@ export default function CroatiaTab({ setScr, sCurEx }) {
     <div style={{ fontSize:18, fontWeight:900, marginBottom:4 }}>Live the language</div>
     <div style={{ fontSize:12, opacity:.8, lineHeight:1.5 }}>Stories from Croatia + real Croatian news</div>
   </div>
-  <div style={{ background:'var(--card)', padding:'14px 16px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+  <div style={{ background:'var(--card)', padding:'14px 16px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
     <button onClick={() => setScr("baka_summer")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #fde68a', background:'linear-gradient(135deg,#fffbeb,#fef3c7)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
       <div style={{ fontSize:26, marginBottom:6 }}>📖</div>
       <div style={{ fontSize:13, fontWeight:800, color:'#92400e' }}>Baka's Summer</div>
@@ -399,6 +399,11 @@ export default function CroatiaTab({ setScr, sCurEx }) {
       <div style={{ fontSize:26, marginBottom:6 }}>📰</div>
       <div style={{ fontSize:13, fontWeight:800, color:'#0369a1' }}>Croatia Today</div>
       <div style={{ fontSize:10, color:'#0284c7', marginTop:2 }}>Daily Croatian news</div>
+    </button>
+    <button onClick={() => setScr("survival_dinner")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #86efac', background:'linear-gradient(135deg,#f0fdf4,#dcfce7)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+      <div style={{ fontSize:26, marginBottom:6 }}>🍽️</div>
+      <div style={{ fontSize:13, fontWeight:800, color:'#166534' }}>At the Table</div>
+      <div style={{ fontSize:10, color:'#16a34a', marginTop:2 }}>Navigate any dinner</div>
     </button>
   </div>
 </div>
