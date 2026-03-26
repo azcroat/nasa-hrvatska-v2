@@ -31,6 +31,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
   const [currentGoal, setCurrentGoal] = useState(() => localStorage.getItem('nh_goal') || '');
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
   const prestigeLevel = parseInt(localStorage.getItem('nh_prestige') || '0', 10);
+  const [imdOpen, setImdOpen] = useState(false);
 
   const GOALS = [
     { id: 'heritage', icon: '🇭🇷', label: 'My heritage & roots' },
@@ -176,6 +177,32 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
           </button>
         )}
       </div>
+
+      {/* ── PARTNER GOAL CARD ── */}
+      {localStorage.getItem('nh_goal') === 'partner' && (
+        <div style={{
+          background:'linear-gradient(135deg,rgba(249,168,37,.1),rgba(14,116,144,.08))',
+          border:'1.5px solid rgba(249,168,37,.3)',
+          borderRadius:16, padding:'16px 18px', marginBottom:16,
+        }}>
+          <div style={{ fontSize:14, fontWeight:900, color:'var(--heading)', marginBottom:6 }}>
+            💑 Learning for your partner
+          </div>
+          <div style={{ fontSize:12, color:'var(--subtext)', lineHeight:1.6, marginBottom:12 }}>
+            You're learning Croatian because someone special is Croatian. That's the most powerful motivation there is.
+          </div>
+          <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+            {[
+              '✓ Learn in-law vocabulary (Svekrva, punac, šogor)',
+              '✓ Master the Imendan tradition (see below)',
+              '✓ Practice "Survival at the Table" phrases',
+              '✓ Say Živjeli! at the right moment',
+            ].map((tip, i) => (
+              <div key={i} style={{ fontSize:12, color:'var(--subtext)', fontWeight:600 }}>{tip}</div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── STATS GRID ── */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:24}}>
@@ -337,6 +364,65 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
               }}
             />
             <div style={{fontSize:10, color:'var(--subtext)', marginTop:6}}>Saved automatically ✓</div>
+          </div>
+        )}
+      </div>
+
+      {/* ── IMENDAN EXPLAINER ──────────────────────────────────────────── */}
+      <div style={{
+        background:'linear-gradient(135deg,rgba(182,24,0,.07),rgba(0,48,135,.05))',
+        border:'1.5px solid rgba(182,24,0,.18)',
+        borderRadius:16, padding:'16px 18px', marginBottom:16,
+      }}>
+        <button
+          onClick={() => setImdOpen(o => !o)}
+          style={{
+            display:'flex', alignItems:'center', gap:12, width:'100%',
+            background:'none', border:'none', cursor:'pointer',
+            fontFamily:"'Outfit',sans-serif", textAlign:'left',
+          }}
+        >
+          <span style={{ fontSize:28 }}>🎉</span>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:14, fontWeight:900, color:'var(--heading)', marginBottom:2 }}>
+              What is Imendan?
+            </div>
+            <div style={{ fontSize:11, color:'var(--subtext)', fontWeight:600 }}>
+              The Croatian name day tradition — essential knowledge
+            </div>
+          </div>
+          <span style={{ fontSize:14, color:'var(--subtext)', opacity:.5 }}>{imdOpen ? '▲' : '▼'}</span>
+        </button>
+        {imdOpen && (
+          <div style={{ marginTop:14, borderTop:'1px solid rgba(182,24,0,.12)', paddingTop:14 }}>
+            <p style={{ fontSize:13, color:'var(--subtext)', lineHeight:1.7, marginBottom:12 }}>
+              In Croatia, every day of the year is associated with one or more saints. If you share your name with a saint, that day is your <strong style={{ color:'var(--heading)' }}>imendan</strong> (name day) — and it's often celebrated just as much as your birthday, if not more.
+            </p>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:12 }}>
+              {[
+                { day:'Jan 13', name:'Stjepan (Stephen)', emoji:'🎊' },
+                { day:'Mar 19', name:'Josip (Joseph)', emoji:'🎊' },
+                { day:'Jun 29', name:'Petar (Peter)', emoji:'🎊' },
+                { day:'Aug 15', name:'Marija (Mary)', emoji:'🎊' },
+                { day:'Nov 1', name:'Svi Sveti (All Saints)', emoji:'⛪' },
+                { day:'Dec 13', name:'Lucija (Lucy)', emoji:'🎊' },
+              ].map(m => (
+                <div key={m.day} style={{
+                  background:'var(--card)', border:'1px solid var(--card-b)',
+                  borderRadius:10, padding:'8px 10px',
+                }}>
+                  <div style={{ fontSize:10, color:'var(--subtext)', fontWeight:700, marginBottom:2 }}>{m.day}</div>
+                  <div style={{ fontSize:12, fontWeight:800, color:'var(--heading)' }}>{m.emoji} {m.name}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{
+              background:'rgba(14,116,144,.08)', borderRadius:12, padding:'12px 14px',
+              fontSize:12, color:'var(--subtext)', lineHeight:1.6,
+            }}>
+              <strong style={{ color:'var(--heading)' }}>What to do:</strong> Say{' '}
+              <strong style={{ color:'#0e7490' }}>"Sretan imendan!"</strong> (Happy Name Day!) and bring a small gift or flowers. Never forget your partner's or their parents' imendan — it matters more than you think.
+            </div>
           </div>
         )}
       </div>

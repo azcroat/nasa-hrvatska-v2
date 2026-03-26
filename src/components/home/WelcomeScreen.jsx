@@ -5,6 +5,7 @@ import CroatianGrb from '../shared/CroatianGrb.jsx';
 const GOALS = [
   { id: 'heritage', icon: '🇭🇷', label: 'My heritage & roots', sub: 'Connect with where I came from' },
   { id: 'family',   icon: '👨‍👩‍👧', label: 'Speak with family', sub: 'Talk to parents, grandparents, relatives' },
+  { id: 'partner',  icon: '💑',  label: 'My partner is Croatian', sub: 'Navigate family gatherings, impress their parents' },
   { id: 'travel',   icon: '✈️',  label: 'Travel to Croatia',  sub: 'Navigate, meet locals, feel at home' },
   { id: 'culture',  icon: '📖',  label: 'Love the culture',   sub: 'Music, history, food, football' },
   { id: 'fluent',   icon: '🗣️',  label: 'Become fluent',      sub: 'Full conversational ability in Croatian' },
@@ -18,10 +19,11 @@ const DAILY_GOALS = [
 ];
 
 export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi, sPs, sPa, sPx }) {
-  const [step, setStep] = useState(0); // 0=hero, 1=goal, 2=daily, 3=heritage (heritage/family only)
+  const [step, setStep] = useState(0); // 0=hero, 1=goal, 2=daily, 3=heritage/partner
   const [goal, setGoal] = useState('');
   const [dailyMin, setDailyMin] = useState(0);
   const [showSpeakModal, setShowSpeakModal] = useState(false);
+  const [selectedGen, setSelectedGen] = useState(localStorage.getItem('nh_heritage_gen') || '');
 
   function startPlacement() {
     if (!name && au) setName(au.d);
@@ -173,7 +175,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
           style={{ fontSize:16, padding:'14px', width:'100%', marginBottom:12, opacity: dailyMin ? 1 : 0.5 }}
           disabled={!dailyMin}
           onClick={() => {
-            if ((goal === 'heritage' || goal === 'family')) {
+            if (goal === 'heritage' || goal === 'family' || goal === 'partner') {
               setStep(3);
             } else {
               setShowSpeakModal(true);
@@ -250,10 +252,10 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
       <div style={{ maxWidth:460, width:'100%', animation:'rise .4s' }}>
         <StepDots step={2} />
         <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:24, color:'var(--heading)', fontWeight:900, marginBottom:6, textAlign:'center' }}>
-          Tell us about your roots 🇭🇷
+          {goal === 'partner' ? 'Tell us about your partner 💑' : 'Tell us about your roots 🇭🇷'}
         </h2>
         <p style={{ color:'var(--subtext)', fontSize:13, textAlign:'center', marginBottom:24 }}>
-          This helps us personalize your content (totally optional)
+          {goal === 'partner' ? "We'll teach you the words that matter most at family gatherings" : 'This helps us personalize your content (totally optional)'}
         </p>
 
         <div style={{ marginBottom:16 }}>
@@ -287,11 +289,11 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
               { id: 'third', label: 'My grandparents are Croatian', sub: '3rd generation diaspora' },
               { id: 'fourth', label: 'Great-grandparents or further', sub: '4th+ generation' },
             ].map(g => {
-              const sel = localStorage.getItem('nh_heritage_gen') === g.id;
+              const sel = selectedGen === g.id;
               return (
                 <button
                   key={g.id}
-                  onClick={() => localStorage.setItem('nh_heritage_gen', g.id)}
+                  onClick={() => { localStorage.setItem('nh_heritage_gen', g.id); setSelectedGen(g.id); }}
                   style={{
                     display:'flex', alignItems:'center', gap:12, padding:'12px 16px',
                     borderRadius:12, border:`1.5px solid ${sel ? '#0e7490' : 'var(--inp-b)'}`,
