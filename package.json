@@ -21,7 +21,10 @@
     "size": "size-limit",
     "audit:pwa": "npx lhci autorun",
     "audit:store": "node -e \"console.log('Run: gh workflow run store-readiness.yml')\"",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test:live": "npx playwright test --config playwright.stealth.config.js",
+    "screenshots": "npx playwright test --config playwright.stealth.config.js e2e/screenshots.spec.js",
+    "verify:firestore": "node scripts/verify-firestore.mjs"
   },
   "dependencies": {
     "@sentry/react": "^10.42.0",
@@ -58,6 +61,8 @@
     "husky": "^9.1.7",
     "jsdom": "^28.1.0",
     "lint-staged": "^16.4.0",
+    "playwright-extra": "^4.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "sharp": "^0.34.5",
     "size-limit": "^12.0.1",
     "typescript": "^5.9.3",
