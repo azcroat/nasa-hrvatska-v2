@@ -6,7 +6,7 @@ const CHAPTERS = [
     id: 1,
     title: "Poglavlje 1: Ljeto počinje",
     date: "15. lipnja",
-    croatian: `Dragi moji daleki, pišem vam iz moje male kuhinje dok vani sunce već peče kao ludi. Dalmacija je ove godine posebno lijepa — smokve su pune, lavanda miriši po cijelom dvorištu, a more je već toplije nego ikad u lipnju. Svaki dan ujutro idem u vrt i razgovaram s rajčicama kao da su moji stari prijatelji. Čekam vas, moja mila djeco — sobe su spravljene, kreveti namješteni, a u zamrzivaču sam već napravila sladoled od maline. Jedino što nedostaje ste vi.`,
+    croatian: `Dragi moji daleki, pišem vam iz moje male kuhinje dok vani sunce već peče kao ludi. Dalmacija je ove godine posebno lijepa — smokve su pune, lavanda miriši po cijelom dvorištu, a more je već toplije nego ikad u lipnju. Svaki dan ujutro idem u vrt i razgovaram s rajčicama kao da su moji stari prijatelji. Čekam vas, moja mila djeco — sobe su spravljene, kreveti namješteni, a u zamrzivaču sam već napravila sladoled od maline. Vi ste jedino što mi nedostaje.`,
     english: `My dear faraway ones, I'm writing to you from my little kitchen while the sun outside is already blazing like crazy. Dalmatia is especially beautiful this year — the figs are full, lavender scents the whole yard, and the sea is already warmer than ever in June. Every morning I go to the garden and talk to the tomatoes as if they were my old friends. I'm waiting for you, my dear children — the rooms are prepared, the beds made, and I've already made raspberry ice cream in the freezer. The only thing missing is you.`,
     vocab: [
       { hr: "peći", en: "to bake / to blaze (of sun)" },
