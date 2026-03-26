@@ -167,6 +167,26 @@ export default function CeremonyModal({ type, stats, name, onClose }) {
               ))}
             </div>
 
+            {/* Letter to Future Me */}
+            {(() => {
+              const letter = localStorage.getItem('nh_letter_to_self');
+              if (!letter || !letter.trim()) return null;
+              return (
+                <div style={{
+                  background: 'rgba(255,255,255,0.08)', borderRadius: 12,
+                  padding: '14px 16px', margin: '16px 0',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginBottom: 6, letterSpacing: 1 }}>
+                    YOU WROTE THIS WHEN YOU STARTED
+                  </div>
+                  <div style={{ fontSize: 13, color: '#fff', fontStyle: 'italic', lineHeight: 1.6 }}>
+                    "{letter.trim()}"
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Shareable card message */}
             {showShare && (
               <div style={{ background:'#f0fdf4', border:'1.5px solid #86efac', borderRadius:12, padding:'10px', marginBottom:16, fontSize:12, color:'#166534', fontWeight:600 }}>

@@ -239,11 +239,10 @@ export default function PracticeTab({
     ["😝","Tongue Twisters","brzalice",  "Brzalice — dare yourself"],
   ];
 
-  const reviewItems = [
-    [() => { setWeakMsg(""); startWeakWords(); }, "🧠","Weak Words",   "Words you've struggled with"],
+  const culturalExtras = [
     [() => { setScr("proverbs"); sCurEx("proverbs"); }, "🌟","Proverbs","Croatian wisdom & sayings"],
     [() => { setScr("idioms"); sCurEx("idioms"); },     "🗣️","Idioms",  "Phrases locals actually use"],
-    [() => { setScr("events"); sCurEx("events"); },"📅","Croatian Events","Festivals & holidays"],
+    [() => { setScr("events"); sCurEx("events"); },     "📅","Events",  "Festivals & holidays"],
   ];
 
   return (
@@ -362,8 +361,6 @@ export default function PracticeTab({
           [startListening,  "🎧","Listening",    "#fff1f2","#fecaca"],
           [startSpeaking,   "🎤","Pronunciation","#f0f9ff","#bae6fd"],
           [() => { setScr("wordsprint"); sCurEx("wordsprint"); },"⚡","Word Sprint","#fffbeb","#fde68a"],
-          [startReview,"🔁","SRS Review","#f5f3ff","#ddd6fe"],
-          [startWriting,"✍️","Free Writing","#fdf4ff","#e9d5ff"],
         ].map((/** @type {any} */ [fn,icon,label,bg,border], i) => (
           <button key={i} className="tc"
             style={{ textAlign:"center", padding:"14px 8px", background:bg, border:`1.5px solid ${border}` }}
@@ -399,52 +396,6 @@ export default function PracticeTab({
         <ExRow items={readingFun} />
       </Section>
 
-      <Section title="Review & Culture" icon="🧠" count={`${reviewItems.length} activities`} defaultOpen={false}>
-        <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>Deep dives and cultural immersion</p>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
-          {reviewItems.map((/** @type {any} */ [fn,icon,label,desc], i) => (
-            <button key={i} className="tc"
-              style={{ display:"flex", alignItems:"center", gap:12, padding:"14px", textAlign:"left" }}
-              onClick={fn}>
-              <div style={{ width:40, height:40, borderRadius:12, background:"var(--bar-bg)", border:"1px solid var(--card-b)",
-                display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0 }}>
-                {icon}
-              </div>
-              <div style={{ minWidth:0 }}>
-                <div style={{ fontSize:12, fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{label}</div>
-                <div style={{ fontSize:10, color:"var(--subtext)", marginTop:2, lineHeight:1.3 }}>{desc}</div>
-              </div>
-            </button>
-          ))}
-        </div>
-      </Section>
-
-      <Section title="Native Speaker Skills" icon="🌟" count="5 tools" defaultOpen={false}>
-        <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>Advanced tools to reach native-level fluency</p>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
-          {[
-            [startPitchAccent, "🎵", "Pitch Accent", "Master Croatian tonal stress"],
-            [startShadowing,   "🗣️", "Shadowing",    "Native-speed listen & repeat"],
-            [startReview,      "🔁", "SRS Review",   "Smart spaced repetition"],
-            [startWriting,     "✍️", "Free Writing",  "Write & get AI feedback"],
-            [startAspectDrill, "🔄", "Aspect Drill",  "Imperfective vs perfective"],
-          ].map((/** @type {any} */ [fn,icon,label,desc], i) => (
-            <button key={i} className="tc"
-              style={{ display:"flex", alignItems:"center", gap:12, padding:"14px", textAlign:"left" }}
-              onClick={fn}>
-              <div style={{ width:40, height:40, borderRadius:12, background:"var(--bar-bg)", border:"1px solid var(--card-b)",
-                display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0 }}>
-                {icon}
-              </div>
-              <div style={{ minWidth:0 }}>
-                <div style={{ fontSize:12, fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{label}</div>
-                <div style={{ fontSize:10, color:"var(--subtext)", marginTop:2, lineHeight:1.3 }}>{desc}</div>
-              </div>
-            </button>
-          ))}
-        </div>
-      </Section>
-
       <Section title="Slang & Expressions" icon="🗣️" count="12 modules · 150+ phrases" defaultOpen={false}>
         <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>Authentic slang, psovanje & street language with cultural context</p>
         <ExRow items={[
@@ -463,16 +414,21 @@ export default function PracticeTab({
         ]} />
       </Section>
 
-      <Section title="🧪 Fluency Lab" icon="🧪" count="3 advanced tools" defaultOpen={false}>
+      <Section title="Advanced Tools" icon="⚡" count="9 tools" defaultOpen={false}>
         <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>
-          The gap between B1 and C1 — close it here
+          Advanced exercises to reach native-level fluency — close the gap from B1 to C1
         </p>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
           {[
-            [() => { setScr("dialogue"); sCurEx("dialogue"); },   "💬", "Dialogue Sim",    "Real turn-based conversations"],
-            [() => { setScr("dictation"); sCurEx("dictation"); }, "🎧", "Dictation",        "Listen and type Croatian"],
-            [() => { setScr("proncontrast"); sCurEx("proncontrast"); }, "🔤", "Sound Contrast", "č/ć, š/ž, đ/dž mastery"],
-            [() => { setScr("cefrtest"); sCurEx("cefrtest"); },   "🎓", "CEFR Test",        "A1→B2 proficiency check"],
+            [startPitchAccent,                                              "🎵", "Pitch Accent",   "Master Croatian tonal stress"],
+            [startShadowing,                                                "🗣️", "Shadowing",      "Native-speed listen & repeat"],
+            [startReview,                                                   "🔁", "SRS Review",     "Smart spaced repetition"],
+            [startWriting,                                                  "✍️", "Free Writing",   "Write & get AI feedback"],
+            [startAspectDrill,                                              "🔄", "Aspect Drill",   "Imperfective vs perfective"],
+            [() => { setScr("dialogue"); sCurEx("dialogue"); },            "💬", "Dialogue Sim",   "Real turn-based conversations"],
+            [() => { setScr("dictation"); sCurEx("dictation"); },          "🎧", "Dictation",      "Listen and type Croatian"],
+            [() => { setScr("proncontrast"); sCurEx("proncontrast"); },    "🔤", "Sound Contrast", "č/ć, š/ž, đ/dž mastery"],
+            [() => { setScr("cefrtest"); sCurEx("cefrtest"); },            "🎓", "CEFR Test",      "A1→B2 proficiency check"],
           ].map((/** @type {any} */ [fn,icon,label,desc], i) => (
             <button key={i} className="tc"
               style={{ display:"flex", alignItems:"center", gap:12, padding:"14px", textAlign:"left" }}
@@ -489,6 +445,29 @@ export default function PracticeTab({
           ))}
         </div>
       </Section>
+
+      {/* ── CULTURAL EXTRAS FOOTER ──────────────────────────────────────── */}
+      <div style={{ marginTop:8, marginBottom:16 }}>
+        <div style={{ fontSize:11, fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:10 }}>
+          Cultural Extras
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8 }}>
+          {culturalExtras.map((/** @type {any} */ [fn,icon,label,desc], i) => (
+            <button key={i} className="tc"
+              style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:6, padding:"14px 8px", textAlign:"center" }}
+              onClick={fn}>
+              <div style={{ width:36, height:36, borderRadius:10, background:"var(--bar-bg)", border:"1px solid var(--card-b)",
+                display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, flexShrink:0 }}>
+                {icon}
+              </div>
+              <div style={{ minWidth:0 }}>
+                <div style={{ fontSize:11, fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{label}</div>
+                <div style={{ fontSize:9, color:"var(--subtext)", marginTop:2, lineHeight:1.3 }}>{desc}</div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
 
     </React.Fragment>
   );

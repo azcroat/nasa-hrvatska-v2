@@ -260,7 +260,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
 
         <div style={{ marginBottom:16 }}>
           <label style={{ fontSize:13, fontWeight:700, color:'var(--heading)', display:'block', marginBottom:6 }}>
-            Where is your family from?
+            {goal === 'partner' ? 'Where is your partner from?' : 'Where is your family from?'}
           </label>
           <select
             onChange={(e) => localStorage.setItem('nh_heritage_region', e.target.value)}
@@ -280,15 +280,19 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
 
         <div style={{ marginBottom:24 }}>
           <label style={{ fontSize:13, fontWeight:700, color:'var(--heading)', display:'block', marginBottom:6 }}>
-            Your generation
+            {goal === 'partner' ? 'Tell us about your partner' : 'Your generation'}
           </label>
           <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-            {[
-              { id: 'first', label: "I'm from Croatia", sub: 'Born or raised there' },
-              { id: 'second', label: 'My parents are Croatian', sub: '2nd generation diaspora' },
-              { id: 'third', label: 'My grandparents are Croatian', sub: '3rd generation diaspora' },
-              { id: 'fourth', label: 'Great-grandparents or further', sub: '4th+ generation' },
-            ].map(g => {
+            {(goal === 'partner' ? [
+              { id: 'partner_native',   label: "My partner is Croatian-born 🇭🇷",       sub: 'Born or raised in Croatia' },
+              { id: 'partner_heritage', label: "My partner's parents are Croatian 🌍",   sub: '2nd generation diaspora' },
+              { id: 'partner_extended', label: "My partner has Croatian family ties 👨‍👩‍👧", sub: 'Extended Croatian family' },
+            ] : [
+              { id: 'first',  label: "I'm from Croatia",               sub: 'Born or raised there' },
+              { id: 'second', label: 'My parents are Croatian',         sub: '2nd generation diaspora' },
+              { id: 'third',  label: 'My grandparents are Croatian',    sub: '3rd generation diaspora' },
+              { id: 'fourth', label: 'Great-grandparents or further',   sub: '4th+ generation' },
+            ]).map(g => {
               const sel = selectedGen === g.id;
               return (
                 <button

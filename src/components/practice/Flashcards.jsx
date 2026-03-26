@@ -102,16 +102,31 @@ export default function Flashcards({ pool, goBack, award }) {
           aria-label={flipped ? `${activePool[idx][1]} — tap to flip back` : `${activePool[idx][0]} — tap to see English`}
         >
           <div className="fc-face fc-front">
-            <div style={{fontSize:32,fontWeight:800,color:"#1e40af",fontFamily:"'Playfair Display',serif",textAlign:"center",lineHeight:1.3}}>
-              {activePool[idx][0]}
-            </div>
-            {activePool[idx][2]&&<div style={{fontSize:14,color:"#6b7280",marginTop:8}}>/{activePool[idx][2]}/</div>}
+            {(() => {
+              const word = activePool[idx][0];
+              const example = activePool[idx][3];
+              const blankedExample = example ? example.replace(new RegExp(word, 'gi'), '___') : null;
+              return blankedExample ? (
+                <div style={{textAlign:'center'}}>
+                  <div style={{fontSize:11, color:'var(--subtext)', marginBottom:8, fontWeight:600}}>Fill in the blank:</div>
+                  <div style={{fontSize:17, fontWeight:700, color:'var(--heading)', lineHeight:1.5}}>{blankedExample}</div>
+                </div>
+              ) : (
+                <>
+                  <div style={{fontSize:32,fontWeight:800,color:"#1e40af",fontFamily:"'Playfair Display',serif",textAlign:"center",lineHeight:1.3}}>
+                    {word}
+                  </div>
+                  {activePool[idx][2]&&<div style={{fontSize:14,color:"#6b7280",marginTop:8}}>/{activePool[idx][2]}/</div>}
+                </>
+              );
+            })()}
             <div style={{fontSize:12,color:"#9ca3af",marginTop:12}}>tap to see English</div>
           </div>
           <div className="fc-face fc-back">
             <div style={{fontSize:22,fontWeight:800,color:"#16a34a",fontFamily:"'Playfair Display',serif",textAlign:"center",lineHeight:1.3}}>
-              {activePool[idx][1]}
+              {activePool[idx][0]}
             </div>
+            <div style={{fontSize:14,color:"#6b7280",marginTop:4,textAlign:"center"}}>{activePool[idx][1]}</div>
             {activePool[idx][3] && (
               <p style={{fontSize:12, color:'var(--subtext)', fontStyle:'italic', marginTop:8, lineHeight:1.5, borderTop:'1px solid var(--bar-bg)', paddingTop:8}}>
                 "{activePool[idx][3]}"

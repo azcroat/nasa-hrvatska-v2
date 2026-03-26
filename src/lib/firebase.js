@@ -322,12 +322,19 @@ export function fbWatchProgress(uid,callback){
 // achievementKey: "{email}_{type}_{date}" — uniquely identifies a milestone
 // emoji: the reaction string (e.g. "🔥")
 // reactorName: display name of the person reacting
-export async function fbSaveReaction(familyCode, achievementKey, emoji, reactorName) {
-  if (!_fbReady || !_fbDb || !familyCode) return { ok: false };
+// reactorEmail: email of the person reacting (used as the unique reactor key)
+export async function fbSaveReaction(familyCode, achievementKey, emoji, reactorName, reactorEmail) {
+  if (!_fbReady || !_fbDb || !familyCode || !achievementKey || !emoji) return { ok: false };
   try {
-    const safeKey = achievementKey.replace(/[.#$/\[\]]/g, '_');
+    const safeKey = achievementKey.replace(/[^a-zA-Z0-9_]/g, '_');
+    const safeReactor = (reactorEmail || reactorName || 'anon').replace(/[^a-zA-Z0-9_@.]/g, '_').slice(0, 40);
     const ref = fsDoc(_fbDb, 'families', familyCode, 'reactions', safeKey);
-    await setDoc(ref, { emoji, reactorName, updatedAt: Date.now() }, { merge: true });
+    try {
+      await updateDoc(ref, { [`reactors.${safeReactor}`]: { emoji, name: reactorName, updatedAt: Date.now() } });
+    } catch (e) {
+      // Document doesn't exist yet — create it
+      await setDoc(ref, { reactors: { [safeReactor]: { emoji, name: reactorName, updatedAt: Date.now() } } });
+    }
     return { ok: true };
   } catch (e) {
     console.warn('fbSaveReaction error:', e);

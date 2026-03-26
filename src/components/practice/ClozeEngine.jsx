@@ -59,6 +59,8 @@ export default function ClozeEngine({ goBack, award }) {
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  const [typingMode, setTypingMode] = useState(false);
+  const [typedAnswer, setTypedAnswer] = useState('');
 
   const q = questions[qi];
   // Shuffle options once per question
@@ -88,7 +90,19 @@ export default function ClozeEngine({ goBack, award }) {
       setQi(qi + 1);
       setSelected(null);
       setShowHint(false);
+      setTypedAnswer('');
     }
+  }
+
+  function handleTypedSubmit() {
+    if (!typedAnswer.trim()) return;
+    const normalize = s => s.toLowerCase().trim()
+      .replace(/č/g, 'c').replace(/ć/g, 'c').replace(/š/g, 's')
+      .replace(/ž/g, 'z').replace(/đ/g, 'd');
+    const correct = normalize(typedAnswer) === normalize(q.blank) ||
+                    typedAnswer.trim().toLowerCase() === q.blank.toLowerCase();
+    handleSelect(correct ? q.blank : typedAnswer.trim());
+    setTypedAnswer('');
   }
 
   function renderSentenceWithBlank() {
@@ -135,7 +149,7 @@ export default function ClozeEngine({ goBack, award }) {
         <button
           className="b bp"
           style={{ width: '100%', fontSize: 15, padding: '14px', marginBottom: 10 }}
-          onClick={() => { setQi(0); setSelected(null); setScore(0); setDone(false); setShowHint(false); }}
+          onClick={() => { setQi(0); setSelected(null); setScore(0); setDone(false); setShowHint(false); setTypedAnswer(''); }}
         >
           Play Again
         </button>
@@ -160,7 +174,20 @@ export default function ClozeEngine({ goBack, award }) {
       {/* Progress */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <div style={{ fontSize: 12, color: 'var(--subtext)', fontWeight: 700 }}>{qi + 1} / {questions.length}</div>
-        <div style={{ fontSize: 12, color: '#16a34a', fontWeight: 700 }}>✓ {score} correct</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ fontSize: 12, color: '#16a34a', fontWeight: 700 }}>✓ {score} correct</div>
+          <button
+            onClick={() => { setTypingMode(t => !t); setSelected(null); setTypedAnswer(''); }}
+            style={{
+              fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 8,
+              border: '1.5px solid var(--card-b)', background: typingMode ? '#0e7490' : 'var(--card)',
+              color: typingMode ? '#fff' : 'var(--subtext)', cursor: 'pointer',
+              fontFamily: "'Outfit',sans-serif", transition: 'all .15s',
+            }}
+          >
+            {typingMode ? '📝 Typing' : '🔘 Multiple Choice'}
+          </button>
+        </div>
       </div>
       <div style={{ height: 4, background: 'var(--bar-bg)', borderRadius: 4, marginBottom: 20, overflow: 'hidden' }}>
         <div style={{ height: '100%', width: `${((qi + 1) / questions.length) * 100}%`, background: '#0e7490', borderRadius: 4, transition: 'width .3s' }} />
@@ -222,30 +249,64 @@ export default function ClozeEngine({ goBack, award }) {
       )}
 
       {/* Options */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
-        {options.map(opt => {
-          let bg = 'var(--card)', border = 'var(--card-b)', color = 'var(--heading)';
-          if (isAnswered) {
-            if (opt === q.blank) { bg = '#dcfce7'; border = '#86efac'; color = '#166534'; }
-            else if (opt === selected) { bg = '#fee2e2'; border = '#fca5a5'; color = '#991b1b'; }
-          }
-          return (
-            <button
-              key={opt}
-              onClick={() => handleSelect(opt)}
-              style={{
-                padding: '14px 10px', borderRadius: 14, border: `2px solid ${border}`,
-                background: bg, cursor: isAnswered ? 'default' : 'pointer',
-                fontSize: 15, fontWeight: 800,
-                color, transition: 'all .15s',
-                fontFamily: "'Playfair Display',serif",
-              }}
-            >
-              {opt}
-            </button>
-          );
-        })}
-      </div>
+      {typingMode ? (
+        <div style={{ marginBottom: 20 }}>
+          {!isAnswered ? (
+            <>
+              <input
+                type="text"
+                placeholder="Type the Croatian word..."
+                value={typedAnswer}
+                onChange={e => setTypedAnswer(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleTypedSubmit()}
+                style={{ width: '100%', padding: '12px', fontSize: 16, borderRadius: 8, border: '1.5px solid var(--card-b)', background: 'var(--card)', color: 'var(--heading)', marginTop: 12, boxSizing: 'border-box', fontFamily: "'Outfit',sans-serif" }}
+                autoFocus
+              />
+              <button
+                onClick={handleTypedSubmit}
+                style={{ marginTop: 8, width: '100%', padding: '12px', borderRadius: 8, background: '#0e7490', color: '#fff', border: 'none', fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }}
+              >
+                Check ✓
+              </button>
+            </>
+          ) : (
+            !isCorrect && (
+              <div style={{
+                marginTop: 12, padding: '14px 16px', borderRadius: 12,
+                background: '#f0f9ff', border: '1.5px solid #bae6fd', textAlign: 'center',
+              }}>
+                <div style={{ fontSize: 11, color: 'var(--subtext)', fontWeight: 700, marginBottom: 4 }}>Correct answer:</div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#0e7490', fontFamily: "'Playfair Display',serif" }}>{q.blank}</div>
+              </div>
+            )
+          )}
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+          {options.map(opt => {
+            let bg = 'var(--card)', border = 'var(--card-b)', color = 'var(--heading)';
+            if (isAnswered) {
+              if (opt === q.blank) { bg = '#dcfce7'; border = '#86efac'; color = '#166534'; }
+              else if (opt === selected) { bg = '#fee2e2'; border = '#fca5a5'; color = '#991b1b'; }
+            }
+            return (
+              <button
+                key={opt}
+                onClick={() => handleSelect(opt)}
+                style={{
+                  padding: '14px 10px', borderRadius: 14, border: `2px solid ${border}`,
+                  background: bg, cursor: isAnswered ? 'default' : 'pointer',
+                  fontSize: 15, fontWeight: 800,
+                  color, transition: 'all .15s',
+                  fontFamily: "'Playfair Display',serif",
+                }}
+              >
+                {opt}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {isAnswered && (
         <button className="b bp" style={{ width: '100%', fontSize: 15, padding: '14px' }} onClick={handleNext}>

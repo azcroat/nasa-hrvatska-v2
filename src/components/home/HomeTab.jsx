@@ -70,11 +70,27 @@ export default function HomeTab({
   const allQuestsDone = Object.values(questsDone).every(Boolean);
   const questXP = DAILY_QUESTS.filter(q => questsDone[q.id]).reduce((s,q) => s + q.xp, 0);
 
+  // Award Daily Mastery +50 XP bonus the first time all quests are done today
+  const today = new Date().toISOString().slice(0,10);
+  const masteryKey = `nh_daily_mastery_${today}`;
+  if (allQuestsDone && !localStorage.getItem(masteryKey)) {
+    localStorage.setItem(masteryKey, '1');
+    award && award(50);
+  }
+
   const allOpts = dc.challenges.map(ch => ch.opts || [ch.a]);
   const doneCount = dchlA.filter(Boolean).length;
   const allDone = doneCount === 3;
 
   const [dcOpen, setDcOpen] = useState(doneCount === 0);
+  const [campaignDismissed, setCampaignDismissed] = useState(false);
+
+  const longAbsence = useMemo(() => {
+    const ls = localStorage.getItem('nh_last_seen');
+    if (!ls) return false;
+    const diff = Date.now() - parseInt(ls);
+    return diff > 7 * 86400000; // more than 7 days
+  }, []);
 
   const greetingByTime = () => {
     const h = new Date().getHours();
@@ -124,7 +140,28 @@ export default function HomeTab({
         </div>
       )}
 
-      {activeCampaign && localStorage.getItem('nh_campaign_dismissed_'+activeCampaign.id) !== '1' && (
+      {longAbsence && !comebackBonus && (
+        <div style={{
+          background: 'linear-gradient(135deg, #7c3aed, #4f46e5)',
+          borderRadius: 16, padding: '14px 16px', marginBottom: 16,
+          display: 'flex', alignItems: 'flex-start', gap: 12,
+        }}>
+          <span style={{fontSize: 26}}>🌟</span>
+          <div style={{flex: 1}}>
+            <div style={{fontSize: 13, fontWeight: 900, color: '#fff', marginBottom: 2}}>
+              Dobrodošli natrag!
+            </div>
+            <div style={{fontSize: 11, color: 'rgba(255,255,255,0.85)', fontWeight: 500, lineHeight: 1.5}}>
+              It's been a while — Croatia is still here waiting for you. Every day you practice is a day you're closer to your family.
+            </div>
+            <div style={{marginTop: 8, fontSize: 11, color: 'rgba(255,255,255,0.7)', fontStyle: 'italic'}}>
+              No judgment. Just start again. 💪
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeCampaign && !campaignDismissed && localStorage.getItem('nh_campaign_dismissed_'+activeCampaign.id) !== '1' && (
         <div style={{
           background: activeCampaign.bg, border: `1.5px solid ${activeCampaign.border}`,
           borderRadius:16, padding:'14px 16px', marginBottom:16,
@@ -134,12 +171,24 @@ export default function HomeTab({
           <div style={{flex:1}}>
             <div style={{fontSize:13, fontWeight:900, color: activeCampaign.color, marginBottom:2}}>{activeCampaign.name}</div>
             <div style={{fontSize:11, color:'var(--subtext)', fontWeight:500, lineHeight:1.5, marginBottom:6}}>{activeCampaign.blurb}</div>
-            <div style={{display:'inline-flex', alignItems:'center', gap:4, background: activeCampaign.color, color:'#fff', borderRadius:8, padding:'3px 8px', fontSize:11, fontWeight:800}}>
-              🚀 {activeCampaign.multiplier}x XP this season!
+            <div style={{display:'flex', alignItems:'center', flexWrap:'wrap', gap:4}}>
+              <div style={{display:'inline-flex', alignItems:'center', gap:4, background: activeCampaign.color, color:'#fff', borderRadius:8, padding:'3px 8px', fontSize:11, fontWeight:800}}>
+                🚀 {activeCampaign.multiplier}x XP this season!
+              </div>
+              <button
+                onClick={() => setTab && setTab(activeCampaign.id)}
+                style={{
+                  background: activeCampaign.color, color: '#fff',
+                  border: 'none', borderRadius: 8, padding: '4px 10px',
+                  fontSize: 11, fontWeight: 700, cursor: 'pointer', marginLeft: 8
+                }}
+              >
+                Start →
+              </button>
             </div>
           </div>
           <button
-            onClick={() => { localStorage.setItem('nh_campaign_dismissed_'+activeCampaign.id,'1'); window.location.reload(); }}
+            onClick={() => { setCampaignDismissed(true); localStorage.setItem('nh_campaign_dismissed_'+activeCampaign.id,'1'); }}
             style={{background:'none',border:'none',cursor:'pointer',fontSize:16,color:'var(--subtext)',padding:4,flexShrink:0}}
             aria-label="Dismiss campaign"
           >×</button>
@@ -213,6 +262,7 @@ export default function HomeTab({
             <p style={{fontSize:12,fontWeight:600,color:"rgba(255,255,255,.7)",marginTop:6,marginBottom:0,lineHeight:1.4}}>
               {userGoal === 'heritage' ? "Reconnecting with your roots 🇭🇷"
                : userGoal === 'family'  ? "Learning for the people you love 👨‍👩‍👧"
+               : userGoal === 'partner' ? "Learning for the people you love 💙"
                : userGoal === 'travel'  ? "Croatia is waiting for you ✈️"
                : userGoal === 'culture' ? "Immerse yourself in Croatian culture 🎵"
                : "On the path to fluency 🗣️"}

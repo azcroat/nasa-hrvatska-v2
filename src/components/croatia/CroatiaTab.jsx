@@ -405,8 +405,126 @@ export default function CroatiaTab({ setScr, sCurEx }) {
       <div style={{ fontSize:13, fontWeight:800, color:'#166534' }}>At the Table</div>
       <div style={{ fontSize:10, color:'#16a34a', marginTop:2 }}>Navigate any dinner</div>
     </button>
+    {/* Only show during Easter season (March 20 - April 30) */}
+    {(() => {
+      const m = new Date().getMonth() + 1, d = new Date().getDate();
+      const isEaster = (m === 3 && d >= 20) || (m === 4 && d <= 30);
+      if (!isEaster) return null;
+      return (
+        <div
+          onClick={() => setScr('easter')}
+          style={{
+            background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)',
+            border: '1.5px solid #86efac', borderRadius: 14,
+            padding: '14px', cursor: 'pointer', position: 'relative', textAlign: 'center',
+          }}
+        >
+          <span style={{ position: 'absolute', top: 8, right: 8, background: '#dc2626', color: '#fff', fontSize: 9, fontWeight: 900, borderRadius: 6, padding: '2px 5px' }}>NEW</span>
+          <div style={{ fontSize: 24, marginBottom: 6 }}>🥚</div>
+          <div style={{ fontSize: 13, fontWeight: 800, color: '#166534' }}>Uskrs u Hrvatskoj</div>
+          <div style={{ fontSize: 11, color: '#4ade80', fontWeight: 600, marginTop: 2 }}>Easter traditions & phrases</div>
+        </div>
+      );
+    })()}
   </div>
 </div>
+
+      {/* ── MEDIA & IMMERSION ── */}
+      <h3 className="sh">📺 Media & Immersion</h3>
+      <div style={{padding:'12px 14px',background:'linear-gradient(135deg,rgba(14,116,144,.06),rgba(14,116,144,.1))',borderRadius:12,marginBottom:20,borderLeft:'3px solid #0e7490'}}>
+        <div style={{fontSize:12,fontWeight:800,color:'#164e63',marginBottom:5}}>📱 How it works</div>
+        <div style={{fontSize:12,color:'#44403c',lineHeight:1.7}}>
+          Radio stations with a{' '}
+          <span style={{background:'rgba(220,38,38,.08)',color:'#dc2626',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)'}}>LIVE</span>{' '}
+          badge stream directly inside the app — tap ▶ to start. TV and other media open in your browser.{' '}
+          <span style={{background:'rgba(220,38,38,.08)',color:'#dc2626',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)'}}>HRT+</span>{' '}
+          requires an HRT subscription.{' '}
+          Tap <strong>💡 Tip</strong> on any card for a language-learning tip.{' '}
+          Spotify playlists expand inline — a free{' '}
+          <span style={{background:'rgba(30,215,96,.10)',color:'#15803d',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(30,215,96,.25)'}}>SPOTIFY</span>{' '}
+          account unlocks full tracks;{' '}
+          <span style={{background:'rgba(100,116,139,.08)',color:'#475569',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(100,116,139,.2)'}}>30 SEC</span>{' '}
+          previews play without login.
+        </div>
+      </div>
+
+      {cats.map(cat => {
+        const items = MEDIA.filter(m => m.cat === cat);
+        if (!items.length) return null;
+        const parts = CAT_LABELS[cat].split(' ');
+        const catEmoji = parts[0];
+        const catTitle = parts.slice(1).join(' ');
+        const isOpen = !!openCats[cat];
+        return (
+          <div key={cat} style={{marginBottom:8}}>
+            <button
+              onClick={() => toggleCat(cat)}
+              style={{width:'100%',display:'flex',alignItems:'center',gap:12,padding:'13px 16px',background:'var(--card)',border:'1px solid var(--card-b)',borderRadius: isOpen ? '16px 16px 0 0' : 16,cursor:'pointer',textAlign:'left',transition:'border-radius .2s'}}>
+              <div style={{width:40,height:40,borderRadius:11,background:'rgba(14,116,144,.1)',border:'1px solid rgba(14,116,144,.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,flexShrink:0}}>
+                {catEmoji}
+              </div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:14,fontWeight:700,color:'var(--heading)'}}>{catTitle}</div>
+                <div style={{fontSize:11,color:'var(--subtext)',marginTop:1}}>
+                  {items.length} {items.length === 1 ? 'resource' : 'resources'}
+                  {cat==='music' && <span style={{marginLeft:6,background:'rgba(30,215,96,.12)',color:'#15803d',fontSize:9,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(30,215,96,.25)'}}>+ 14 Spotify playlists</span>}
+                </div>
+              </div>
+              <div style={{fontSize:18,color:'var(--subtext)',opacity:.5,transition:'transform .2s',transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',flexShrink:0}}>⌄</div>
+            </button>
+            {isOpen && (
+              <div style={{border:'1px solid var(--card-b)',borderTop:'none',borderRadius:'0 0 16px 16px',overflow:'hidden',marginBottom:8}}>
+                {items.map((m, i) => (
+                  <MediaCard
+                    key={i}
+                    m={m}
+                    cat={cat}
+                    onOpen={() => {
+                      if (m.scr) setScr(m.scr);
+                      else if (m.web) window.open(m.web, '_blank', 'noopener,noreferrer');
+                    }}
+                    activeStream={activeStream}
+                    setActiveStream={setActiveStream}
+                  />
+                ))}
+                {cat === 'music' && (
+                  <div style={{padding:'16px 14px 20px',borderTop:'2px solid rgba(30,215,96,.2)',background:'linear-gradient(180deg,rgba(30,215,96,.03) 0%,transparent 100%)'}}>
+                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>
+                      <div style={{width:28,height:28,borderRadius:8,background:'#1ed760',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>🎵</div>
+                      <div>
+                        <div style={{fontSize:12,fontWeight:800,color:'var(--heading)'}}>Croatian Playlists on Spotify</div>
+                        <div style={{fontSize:10,color:'var(--subtext)'}}>14 curated playlists · tap to expand</div>
+                      </div>
+                    </div>
+                    <SpotifyPlaylists />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {/* ── IMMERSION FEATURE ── */}
+      <div style={{ borderRadius:20, overflow:'hidden', marginBottom:16, boxShadow:'0 4px 20px rgba(0,0,0,.10)', border:'1px solid var(--card-b)' }}>
+        <div style={{ background:'linear-gradient(135deg,#1e1b4b,#3730a3)', padding:'18px 20px', color:'#fff' }}>
+          <div style={{ fontSize:10, fontWeight:700, opacity:.7, letterSpacing:'.12em', textTransform:'uppercase', marginBottom:4 }}>IMMERSION</div>
+          <div style={{ fontSize:18, fontWeight:900, marginBottom:4 }}>Level up your Croatian</div>
+          <div style={{ fontSize:12, opacity:.8, lineHeight:1.5 }}>AI conversation practice + curated media from A1 to C2</div>
+        </div>
+        <div style={{ background:'var(--card)', padding:'14px 16px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+          <button onClick={() => setScr("aiconvo")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #c7d2fe', background:'linear-gradient(135deg,#eef2ff,#e0e7ff)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+            <div style={{ fontSize:26, marginBottom:6 }}>🤖</div>
+            <div style={{ fontSize:13, fontWeight:800, color:'#3730a3' }}>AI Conversations</div>
+            <div style={{ fontSize:10, color:'#6366f1', marginTop:2 }}>50 scenarios · all levels</div>
+          </button>
+          <button onClick={() => setScr("immersion")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #bae6fd', background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+            <div style={{ fontSize:26, marginBottom:6 }}>🌊</div>
+            <div style={{ fontSize:13, fontWeight:800, color:'#0369a1' }}>Immersion Hub</div>
+            <div style={{ fontSize:10, color:'#0284c7', marginTop:2 }}>A1 → C2 pathway</div>
+          </button>
+        </div>
+      </div>
 
 {/* ── LANGUAGE & CULTURE ──────────────────────────────────────────── */}
 <div style={{ fontSize:11, fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:10, marginTop:8 }}>
@@ -423,7 +541,10 @@ export default function CroatiaTab({ setScr, sCurEx }) {
       style={{ textAlign:'center', padding:'16px 12px', background:c.color, border:`1.5px solid ${c.border}` }}
       onClick={() => setScr(c.scr)}>
       <div style={{ fontSize:28, marginBottom:6 }}>{c.icon}</div>
-      <div style={{ fontSize:12, fontWeight:800, color:'var(--heading)', lineHeight:1.2, marginBottom:3 }}>{c.title}</div>
+      <div style={{ fontSize:12, fontWeight:800, color:'var(--heading)', lineHeight:1.2, marginBottom:3 }}>
+        {c.title}
+        <span style={{ background:'#dc2626', color:'#fff', fontSize:9, fontWeight:900, borderRadius:6, padding:'2px 5px', marginLeft:6, letterSpacing:0.5 }}>NEW</span>
+      </div>
       <div style={{ fontSize:10, color:'var(--subtext)', lineHeight:1.3 }}>{c.desc}</div>
     </button>
   ))}
@@ -514,27 +635,6 @@ export default function CroatiaTab({ setScr, sCurEx }) {
         </div>
       </CrSection>
 
-      {/* ── IMMERSION FEATURE ── */}
-      <div style={{ borderRadius:20, overflow:'hidden', marginBottom:16, boxShadow:'0 4px 20px rgba(0,0,0,.10)', border:'1px solid var(--card-b)' }}>
-        <div style={{ background:'linear-gradient(135deg,#1e1b4b,#3730a3)', padding:'18px 20px', color:'#fff' }}>
-          <div style={{ fontSize:10, fontWeight:700, opacity:.7, letterSpacing:'.12em', textTransform:'uppercase', marginBottom:4 }}>IMMERSION</div>
-          <div style={{ fontSize:18, fontWeight:900, marginBottom:4 }}>Level up your Croatian</div>
-          <div style={{ fontSize:12, opacity:.8, lineHeight:1.5 }}>AI conversation practice + curated media from A1 to C2</div>
-        </div>
-        <div style={{ background:'var(--card)', padding:'14px 16px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-          <button onClick={() => setScr("aiconvo")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #c7d2fe', background:'linear-gradient(135deg,#eef2ff,#e0e7ff)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
-            <div style={{ fontSize:26, marginBottom:6 }}>🤖</div>
-            <div style={{ fontSize:13, fontWeight:800, color:'#3730a3' }}>AI Conversations</div>
-            <div style={{ fontSize:10, color:'#6366f1', marginTop:2 }}>50 scenarios · all levels</div>
-          </button>
-          <button onClick={() => setScr("immersion")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #bae6fd', background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
-            <div style={{ fontSize:26, marginBottom:6 }}>🌊</div>
-            <div style={{ fontSize:13, fontWeight:800, color:'#0369a1' }}>Immersion Hub</div>
-            <div style={{ fontSize:10, color:'#0284c7', marginTop:2 }}>A1 → C2 pathway</div>
-          </button>
-        </div>
-      </div>
-
       {/* ── CROATIAN LIFE ── */}
       <CrSection title="Croatian Life" icon="🏘️" count="12 topics" defaultOpen={false}>
         <div style={{display:"flex",flexDirection:"column",gap:8}}>
@@ -565,89 +665,19 @@ export default function CroatiaTab({ setScr, sCurEx }) {
         </div>
       </CrSection>
 
-      <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px",marginBottom:20}} onClick={() => { setScr("crmap"); }}>
-        <div style={{fontSize:36}}>🗺️</div>
-        <div>
-          <div style={{fontSize:16,fontWeight:800,color:"var(--heading)"}}>Interactive Map & Directions</div>
-          <div style={{fontSize:12,color:"var(--subtext)"}}>Explore Croatia — cities, parks, beaches, islands</div>
+      {/* ── EXPLORE CROATIA ── */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--subtext)', letterSpacing: 1, marginBottom: 10, textTransform: 'uppercase' }}>
+          Explore Croatia
         </div>
-      </button>
-
-      {/* ── SPOTIFY PLAYLISTS ── */}
-      <h3 className="sh">📺 Media & Immersion</h3>
-      <div style={{padding:'12px 14px',background:'linear-gradient(135deg,rgba(14,116,144,.06),rgba(14,116,144,.1))',borderRadius:12,marginBottom:20,borderLeft:'3px solid #0e7490'}}>
-        <div style={{fontSize:12,fontWeight:800,color:'#164e63',marginBottom:5}}>📱 How it works</div>
-        <div style={{fontSize:12,color:'#44403c',lineHeight:1.7}}>
-          Radio stations with a{' '}
-          <span style={{background:'rgba(220,38,38,.08)',color:'#dc2626',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)'}}>LIVE</span>{' '}
-          badge stream directly inside the app — tap ▶ to start. TV and other media open in your browser.{' '}
-          <span style={{background:'rgba(220,38,38,.08)',color:'#dc2626',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)'}}>HRT+</span>{' '}
-          requires an HRT subscription.{' '}
-          Tap <strong>💡 Tip</strong> on any card for a language-learning tip.{' '}
-          Spotify playlists expand inline — a free{' '}
-          <span style={{background:'rgba(30,215,96,.10)',color:'#15803d',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(30,215,96,.25)'}}>SPOTIFY</span>{' '}
-          account unlocks full tracks;{' '}
-          <span style={{background:'rgba(100,116,139,.08)',color:'#475569',fontSize:10,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(100,116,139,.2)'}}>30 SEC</span>{' '}
-          previews play without login.
-        </div>
-      </div>
-
-      {cats.map(cat => {
-        const items = MEDIA.filter(m => m.cat === cat);
-        if (!items.length) return null;
-        const parts = CAT_LABELS[cat].split(' ');
-        const catEmoji = parts[0];
-        const catTitle = parts.slice(1).join(' ');
-        const isOpen = !!openCats[cat];
-        return (
-          <div key={cat} style={{marginBottom:8}}>
-            <button
-              onClick={() => toggleCat(cat)}
-              style={{width:'100%',display:'flex',alignItems:'center',gap:12,padding:'13px 16px',background:'var(--card)',border:'1px solid var(--card-b)',borderRadius: isOpen ? '16px 16px 0 0' : 16,cursor:'pointer',textAlign:'left',transition:'border-radius .2s'}}>
-              <div style={{width:40,height:40,borderRadius:11,background:'rgba(14,116,144,.1)',border:'1px solid rgba(14,116,144,.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,flexShrink:0}}>
-                {catEmoji}
-              </div>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:14,fontWeight:700,color:'var(--heading)'}}>{catTitle}</div>
-                <div style={{fontSize:11,color:'var(--subtext)',marginTop:1}}>
-                  {items.length} {items.length === 1 ? 'resource' : 'resources'}
-                  {cat==='music' && <span style={{marginLeft:6,background:'rgba(30,215,96,.12)',color:'#15803d',fontSize:9,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(30,215,96,.25)'}}>+ 14 Spotify playlists</span>}
-                </div>
-              </div>
-              <div style={{fontSize:18,color:'var(--subtext)',opacity:.5,transition:'transform .2s',transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',flexShrink:0}}>⌄</div>
-            </button>
-            {isOpen && (
-              <div style={{border:'1px solid var(--card-b)',borderTop:'none',borderRadius:'0 0 16px 16px',overflow:'hidden',marginBottom:8}}>
-                {items.map((m, i) => (
-                  <MediaCard
-                    key={i}
-                    m={m}
-                    cat={cat}
-                    onOpen={() => {
-                      if (m.scr) setScr(m.scr);
-                      else if (m.web) window.open(m.web, '_blank', 'noopener,noreferrer');
-                    }}
-                    activeStream={activeStream}
-                    setActiveStream={setActiveStream}
-                  />
-                ))}
-                {cat === 'music' && (
-                  <div style={{padding:'16px 14px 20px',borderTop:'2px solid rgba(30,215,96,.2)',background:'linear-gradient(180deg,rgba(30,215,96,.03) 0%,transparent 100%)'}}>
-                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>
-                      <div style={{width:28,height:28,borderRadius:8,background:'#1ed760',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>🎵</div>
-                      <div>
-                        <div style={{fontSize:12,fontWeight:800,color:'var(--heading)'}}>Croatian Playlists on Spotify</div>
-                        <div style={{fontSize:10,color:'var(--subtext)'}}>14 curated playlists · tap to expand</div>
-                      </div>
-                    </div>
-                    <SpotifyPlaylists />
-                  </div>
-                )}
-              </div>
-            )}
+        <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px",width:"100%"}} onClick={() => { setScr("crmap"); }}>
+          <div style={{fontSize:36}}>🗺️</div>
+          <div>
+            <div style={{fontSize:16,fontWeight:800,color:"var(--heading)"}}>Interactive Map & Directions</div>
+            <div style={{fontSize:12,color:"var(--subtext)"}}>Explore Croatia — cities, parks, beaches, islands</div>
           </div>
-        );
-      })}
+        </button>
+      </div>
     </React.Fragment>
   );
 }

@@ -52,7 +52,7 @@ export default function LearnTab({
   allCats, icons, setScr, sCurEx, st,
   sh, sLt, sLi, sLx, sLs, sLp, sLa, sLsl,
   sGl, sGp, sGx, sGs, sGa, sGsl,
-  launchPathItem,
+  launchPathItem, setTab,
 }) {
   // ── PATH PROGRESS ──────────────────────────────────────────────────────
   let totalDone = 0, totalItems = 0;
@@ -187,6 +187,23 @@ export default function LearnTab({
           >
             View full path — {totalDone}/{totalItems} lessons
           </button>
+          {st && st.lc > 0 && (
+            <div
+              onClick={() => { if (setTab) setTab('practice'); }}
+              style={{
+                display:'flex', alignItems:'center', gap:10, padding:'12px 14px',
+                background:'var(--card)', border:'1px solid var(--card-b)',
+                borderRadius:12, cursor:'pointer', marginTop:12,
+              }}
+            >
+              <span style={{fontSize:20}}>🎯</span>
+              <div style={{flex:1}}>
+                <div style={{fontSize:12, fontWeight:700, color:'var(--heading)'}}>Now practice what you learned</div>
+                <div style={{fontSize:11, color:'var(--subtext)'}}>Flashcards → drill new vocabulary</div>
+              </div>
+              <span style={{color:'var(--subtext)', fontSize:14}}>→</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -289,46 +306,58 @@ export default function LearnTab({
       })()}
 
       {/* ── 5-STAGE JOURNEY STRIP ───────────────────────────────────────── */}
-      <div style={{ marginBottom:20 }}>
-        <div style={{ fontSize:10, fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:8 }}>
-          Your Journey
-        </div>
-        <div style={{ display:'flex', alignItems:'center', gap:0 }}>
-          {LEARN_PATH.map((lv, i) => {
-            const lvDone = lv.items.filter(it => st && it.ck(st)).length;
-            const isComplete = lvDone === lv.items.length;
-            const isCurrent = lv === currentStage;
-            const color = STAGE_COLORS[i % STAGE_COLORS.length];
-            return (
-              <React.Fragment key={lv.level}>
-                <div style={{ flex:1, textAlign:'center' }}>
-                  <div style={{
-                    width:32, height:32, borderRadius:'50%', margin:'0 auto 4px',
-                    background: isComplete ? color.bg : isCurrent ? color.bg : 'var(--bar-bg)',
-                    border: isCurrent ? '2.5px solid var(--heading)' : isComplete ? 'none' : '2px solid var(--card-b)',
-                    display:'flex', alignItems:'center', justifyContent:'center',
-                    fontSize:13, color: isComplete || isCurrent ? '#fff' : 'var(--subtext)',
-                    fontWeight:900, boxShadow: isCurrent ? '0 0 0 3px rgba(14,116,144,.2)' : 'none',
-                    transition:'all .3s',
-                  }}>
-                    {isComplete ? '✓' : lv.level}
-                  </div>
-                  <div style={{ fontSize:9, fontWeight:800, color: isCurrent ? 'var(--heading)' : isComplete ? '#16a34a' : 'var(--subtext)', letterSpacing:'.03em', lineHeight:1.2 }}>
-                    {lv.title}
-                  </div>
-                </div>
-                {i < LEARN_PATH.length - 1 && (
-                  <div style={{
-                    width:18, height:2, flexShrink:0, marginBottom:16,
-                    background: lvDone === lv.items.length ? '#16a34a' : 'var(--card-b)',
-                    borderRadius:2,
-                  }} />
-                )}
-              </React.Fragment>
-            );
-          })}
-        </div>
-      </div>
+      {(() => {
+        const stageCEFR = { 0:'A1', 1:'A2', 2:'B1', 3:'B1+', 4:'B2+' };
+        return (
+          <div style={{ marginBottom:20 }}>
+            <div style={{ fontSize:10, fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:8 }}>
+              Your Journey
+            </div>
+            <div style={{ display:'flex', alignItems:'center', gap:0 }}>
+              {LEARN_PATH.map((lv, i) => {
+                const lvDone = lv.items.filter(it => st && it.ck(st)).length;
+                const isComplete = lvDone === lv.items.length;
+                const isCurrent = lv === currentStage;
+                const color = STAGE_COLORS[i % STAGE_COLORS.length];
+                return (
+                  <React.Fragment key={lv.level}>
+                    <div style={{ flex:1, textAlign:'center' }}>
+                      <div style={{
+                        width:32, height:32, borderRadius:'50%', margin:'0 auto 4px',
+                        background: isComplete ? color.bg : isCurrent ? color.bg : 'var(--bar-bg)',
+                        border: isCurrent ? '2.5px solid var(--heading)' : isComplete ? 'none' : '2px solid var(--card-b)',
+                        display:'flex', alignItems:'center', justifyContent:'center',
+                        fontSize:13, color: isComplete || isCurrent ? '#fff' : 'var(--subtext)',
+                        fontWeight:900, boxShadow: isCurrent ? '0 0 0 3px rgba(14,116,144,.2)' : 'none',
+                        transition:'all .3s',
+                      }}>
+                        {isComplete ? '✓' : lv.level}
+                      </div>
+                      <div style={{ fontSize:9, fontWeight:800, color: isCurrent ? 'var(--heading)' : isComplete ? '#16a34a' : 'var(--subtext)', letterSpacing:'.03em', lineHeight:1.2 }}>
+                        {lv.title}
+                      </div>
+                      <span style={{
+                        fontSize:9, fontWeight:800, background:'rgba(14,116,144,0.15)',
+                        color:'#0e7490', borderRadius:4, padding:'1px 4px', marginTop:2,
+                        display:'inline-block',
+                      }}>
+                        {stageCEFR[i]}
+                      </span>
+                    </div>
+                    {i < LEARN_PATH.length - 1 && (
+                      <div style={{
+                        width:18, height:2, flexShrink:0, marginBottom:16,
+                        background: lvDone === lv.items.length ? '#16a34a' : 'var(--card-b)',
+                        borderRadius:2,
+                      }} />
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── CEFR FLUENCY TRACK ──────────────────────────────────────────── */}
       <div style={{
