@@ -140,7 +140,7 @@ export default function LessonScreen({
         </div>
 
         <div style={{
-          fontSize:11, color:'var(--subtext)', fontWeight:600,
+          fontSize:12, color:'var(--subtext)', fontWeight:600,
           marginBottom:6, textAlign:'center'
         }}>
           {lt || 'Lesson'} · Question {(lx || 0) + 1} of {qi?.length || '?'}
@@ -224,10 +224,11 @@ export default function LessonScreen({
           )}
           {la && !isCorrect && (
             <div style={{
-              marginTop:10, padding:'10px 14px',
-              background:'rgba(14,116,144,0.08)',
+              marginTop:10, padding:'12px 14px',
+              background:'rgba(14,116,144,0.15)',
               border:'1px solid rgba(14,116,144,0.15)',
-              borderRadius:10, fontSize:13, color:'var(--subtext)', lineHeight:1.5
+              borderLeft:'3px solid var(--info)',
+              borderRadius:10, fontSize:13, color:'var(--subtext)', lineHeight:1.6
             }}>
               💡 <strong style={{color:'var(--heading)'}}>Tip:</strong>{' '}
               {qi?.[lx]?.hint || qi?.[lx]?.explanation || 'Review this word in your vocabulary journal to remember it better.'}

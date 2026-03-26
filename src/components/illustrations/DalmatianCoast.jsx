@@ -5,6 +5,17 @@ export default function DalmatianCoast({ width = 320, height = 180, className = 
     <svg width={width} height={height} viewBox="0 0 320 180" fill="none" xmlns="http://www.w3.org/2000/svg"
       className={className} style={style} role="img" aria-label="Dalmatian coast illustration">
 
+      <style>{`
+        @keyframes dcBob {
+          0%, 100% { transform: translateY(0px) rotate(-0.5deg); }
+          50% { transform: translateY(-4px) rotate(0.5deg); }
+        }
+        @keyframes dcWave {
+          0%, 100% { transform: scaleX(1) translateX(0px); }
+          50% { transform: scaleX(1.015) translateX(-1px); }
+        }
+      `}</style>
+
       <defs>
         <linearGradient id="dc-skyGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#87CEEB"/>
@@ -42,12 +53,14 @@ export default function DalmatianCoast({ width = 320, height = 180, className = 
       <rect y="90" width="320" height="90" fill="url(#dc-seaGrad)"/>
 
       {/* Wave patterns */}
-      <path d="M 0 100 Q 40 95 80 100 Q 120 105 160 100 Q 200 95 240 100 Q 280 105 320 100"
-        stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" fill="none"/>
-      <path d="M 0 115 Q 50 110 100 115 Q 150 120 200 115 Q 250 110 320 115"
-        stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" fill="none"/>
-      <path d="M 0 130 Q 60 125 120 130 Q 180 135 240 130 Q 280 127 320 130"
-        stroke="rgba(255,255,255,0.15)" strokeWidth="1" fill="none"/>
+      <g style={{ animation: 'dcWave 5s ease-in-out infinite' }}>
+        <path d="M 0 100 Q 40 95 80 100 Q 120 105 160 100 Q 200 95 240 100 Q 280 105 320 100"
+          stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" fill="none"/>
+        <path d="M 0 115 Q 50 110 100 115 Q 150 120 200 115 Q 250 110 320 115"
+          stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" fill="none"/>
+        <path d="M 0 130 Q 60 125 120 130 Q 180 135 240 130 Q 280 127 320 130"
+          stroke="rgba(255,255,255,0.15)" strokeWidth="1" fill="none"/>
+      </g>
 
       {/* Distant island/headland */}
       <ellipse cx="240" cy="90" rx="40" ry="12" fill="#6b8f3a" opacity="0.7"/>
@@ -100,10 +113,12 @@ export default function DalmatianCoast({ width = 320, height = 180, className = 
       <rect x="209" y="84" width="3" height="6" fill="#5c4033"/>
 
       {/* Sailboat on water */}
-      <path d="M 270 108 L 265 92 L 280 108 Z" fill="white" stroke="#d4c9b0" strokeWidth="0.5"/>
-      <path d="M 270 108 L 275 93 L 285 108 Z" fill="#b61800" opacity="0.85" stroke="#7f1d1d" strokeWidth="0.5"/>
-      <rect x="268" y="92" width="2" height="24" fill="#5c4033"/>
-      <path d="M 258 116 Q 272 112 286 116 L 283 120 Q 270 118 257 120 Z" fill="white" stroke="#c4b89f" strokeWidth="0.5"/>
+      <g style={{ animation: 'dcBob 3.5s ease-in-out infinite', transformOrigin: 'center 70%' }}>
+        <path d="M 270 108 L 265 92 L 280 108 Z" fill="white" stroke="#d4c9b0" strokeWidth="0.5"/>
+        <path d="M 270 108 L 275 93 L 285 108 Z" fill="#b61800" opacity="0.85" stroke="#7f1d1d" strokeWidth="0.5"/>
+        <rect x="268" y="92" width="2" height="24" fill="#5c4033"/>
+        <path d="M 258 116 Q 272 112 286 116 L 283 120 Q 270 118 257 120 Z" fill="white" stroke="#c4b89f" strokeWidth="0.5"/>
+      </g>
 
       {/* Water reflections near boat */}
       <path d="M 265 122 Q 272 120 280 122" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" fill="none"/>

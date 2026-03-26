@@ -121,7 +121,7 @@ describe('Flashcards', () => {
   });
   it('shows completion screen when pool is empty', () => {
     render(<Flashcards pool={[]} goBack={goBack} award={award} />);
-    expect(screen.getByText(/Done!/i)).toBeTruthy();
+    expect(screen.getByText(/All caught up/i)).toBeTruthy();
     expect(screen.getByText(/Continue/i)).toBeTruthy();
   });
   it('shows phonetic hint when provided', () => {

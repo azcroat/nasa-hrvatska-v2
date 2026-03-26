@@ -310,6 +310,28 @@ export default function PracticeTab({
       </div>
 
       {/* ── SRS DUE BANNER ──────────────────────────────────────────────── */}
+      {Object.keys(sr).length > 0 && dueReviews.length === 0 && (
+        <div style={{
+          background: 'var(--success-bg)',
+          border: '1.5px solid var(--success-b, rgba(22,163,74,0.3))',
+          borderRadius: 14,
+          padding: '12px 16px',
+          marginBottom: 14,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+        }}>
+          <span style={{ fontSize: 22 }}>✅</span>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--success)' }}>
+              All caught up!
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 2 }}>
+              No reviews due. Keep practicing to grow your vocabulary queue.
+            </div>
+          </div>
+        </div>
+      )}
       {dueReviews.length > 0 && (
         <button
           onClick={startReview}
@@ -347,13 +369,17 @@ export default function PracticeTab({
         </div>
       </div>
       {isNewUser ? (
-        <div style={{ background:"var(--bar-bg)", border:"1.5px solid var(--card-b)", borderRadius:14, padding:"20px", marginBottom:24, textAlign:"center" }}>
-          <div style={{ fontSize:40, marginBottom:8 }}>🗺️</div>
-          <div style={{ fontSize:15, fontWeight:800, color:"var(--heading)", marginBottom:6 }}>Start your first lesson</div>
-          <div style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:16, lineHeight:1.5 }}>
-            Complete a lesson in the Learn tab to unlock personalized practice recommendations.
+        <div style={{ background:"var(--bar-bg)", border:"1.5px solid var(--card-b)", borderRadius:14, padding:"20px", marginBottom:24 }}>
+          <div style={{ textAlign: 'center', padding: '20px 16px 8px' }}>
+            <div style={{ fontSize: 40, marginBottom: 8 }}>🎯</div>
+            <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--heading)', marginBottom: 6 }}>
+              Ready to practice?
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.6 }}>
+              Jump into a Quick Game below, or complete your first lesson in <strong>Learn</strong> to unlock personalized recommendations.
+            </div>
           </div>
-          <button className="b bp" style={{ fontSize:14, padding:"12px 24px" }} onClick={() => setScr("learnpath")}>
+          <button className="b bp" style={{ fontSize:14, padding:"12px 24px", width:'100%', marginTop:8 }} onClick={() => setScr("learnpath")}>
             Go to Learning Path →
           </button>
         </div>
