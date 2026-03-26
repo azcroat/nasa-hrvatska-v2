@@ -1252,3 +1252,79 @@ button.c{font-family:'Outfit',sans-serif;width:100%;cursor:pointer;display:block
 }
 .qb:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 6px 20px rgba(0,0,0,.18); }
 .qb:active { transform: scale(0.96); }
+
+/* ─── Wave 14 — final polish ────────────────────────────────────────────────── */
+
+/* Dark mode theme transition — smooth color shift when toggling */
+*, *::before, *::after {
+  transition:
+    background-color .25s ease,
+    border-color .25s ease,
+    color .2s ease;
+}
+/* Exclude elements where transition would cause jank */
+img, video, canvas, .skeleton, [class*="anim-"], [style*="animation"] {
+  transition: none !important;
+}
+
+/* Spinner keyframe (used by WritingScreen loading state) */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Enhanced focus rings — WCAG 2.2 compliant, consistent everywhere */
+:focus-visible {
+  outline: 3px solid var(--info);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+/* Remove focus ring for mouse users (only show for keyboard nav) */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── Offline / empty state Croatian copy ────────────────────────────────── */
+.empty-state-hr {
+  text-align: center;
+  padding: var(--space-3xl) var(--space-lg);
+  color: var(--subtext);
+  font-family: var(--font-sans);
+}
+.empty-state-hr .es-emoji { font-size: 44px; margin-bottom: var(--space-md); }
+.empty-state-hr .es-title {
+  font-size: var(--text-xl);
+  font-weight: 800;
+  color: var(--heading);
+  margin-bottom: var(--space-sm);
+  font-family: var(--font-serif);
+}
+.empty-state-hr .es-desc {
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+/* Offline banner */
+.offline-banner {
+  position: fixed;
+  bottom: 76px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9990;
+  background: var(--warning);
+  color: #fff;
+  border-radius: var(--radius-xl);
+  padding: var(--space-sm) var(--space-2xl);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  box-shadow: 0 4px 20px rgba(0,0,0,.25);
+  animation: slideUp .3s cubic-bezier(.34,1.56,.64,1) both;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+}
+
+/* ── prefers-reduced-motion: disable smooth theme transition ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; }
+}

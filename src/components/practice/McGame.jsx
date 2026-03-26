@@ -153,7 +153,7 @@ export default function McGame({ questions, onComplete, goBack, award }) {
         {confirmQuit ? (
           <div style={{display:'flex',alignItems:'center',gap:8,flex:1}}>
             <span style={{fontSize:13,fontWeight:700,color:'var(--subtext)'}}>Quit game?</span>
-            <button onClick={goBack} style={{padding:'6px 14px',borderRadius:10,border:'none',background:'#dc2626',color:'#fff',fontSize:12,fontWeight:800,cursor:'pointer',fontFamily:"'Outfit',sans-serif"}}>Quit</button>
+            <button onClick={goBack} style={{padding:'6px 14px',borderRadius:10,border:'none',background:'var(--error)',color:'#fff',fontSize:12,fontWeight:800,cursor:'pointer',fontFamily:"'Outfit',sans-serif"}}>Quit</button>
             <button onClick={() => setConfirmQuit(false)} style={{padding:'6px 14px',borderRadius:10,border:'1.5px solid var(--inp-b)',background:'none',color:'var(--subtext)',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'Outfit',sans-serif"}}>Keep going</button>
           </div>
         ) : (
@@ -330,6 +330,7 @@ export default function McGame({ questions, onComplete, goBack, award }) {
                   padding: '14px 18px',
                   borderRadius: 14,
                   fontSize: 15,
+                  transition: 'background .2s ease, border-color .2s ease, transform .12s ease',
                 }}
               >
                 {/* Letter label */}
@@ -345,9 +346,9 @@ export default function McGame({ questions, onComplete, goBack, award }) {
                     fontWeight: 800,
                     flexShrink: 0,
                     background: isCorrect
-                      ? '#16a34a'
+                      ? 'var(--success)'
                       : isWrong
-                      ? '#dc2626'
+                      ? 'var(--error)'
                       : 'var(--bar-bg)',
                     color:
                       isCorrect || isWrong
