@@ -28,6 +28,20 @@ function srError(code) {
   }
 }
 
+// Score badge helpers — spec thresholds: 90+ excellent, 70+ good, 50+ keep practicing, <50 try again
+function scoreBadgeColor(s) {
+  if (s >= 90) return { bg: 'var(--success-bg)', border: 'var(--success-b)', text: 'var(--success)' };
+  if (s >= 70) return { bg: '#fff7ed', border: '#fed7aa', text: '#c2410c' };
+  if (s >= 50) return { bg: '#fff7ed', border: '#fed7aa', text: '#ea580c' };
+  return { bg: '#fef2f2', border: '#fecaca', text: 'var(--error)' };
+}
+function scoreBadgeLabel(s) {
+  if (s >= 90) return `🟢 Excellent! ${s}%`;
+  if (s >= 70) return `🟡 Good! ${s}%`;
+  if (s >= 50) return `🟠 Keep practicing ${s}%`;
+  return `🔴 Try again ${s}%`;
+}
+
 export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSsc, goBack, award, setSt }) {
   const [listening, setListening] = useState(false);
   const [recResult, setRecResult] = useState(null);
@@ -43,7 +57,52 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   const [recordingURL, setRecordingURL] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
 
+  // Per-word accuracy score from PronunciationScorer
+  const [currentWordScore, setCurrentWordScore] = useState(null);
+
+  // Session scores: array of { word: string, score: number }
+  const [wordScores, setWordScores] = useState([]);
+
+  // Results summary screen (shown before goBack after all words done)
+  const [showSummary, setShowSummary] = useState(false);
+
   if (!sw) return null;
+
+  // Reset per-word score when word changes (called on Next)
+  function advanceWord() {
+    setRecordingURL(null);
+    setRecResult(null);
+    setRecMsg('');
+    setListening(false);
+    setCurrentWordScore(null);
+    if (sx < si.length - 1) {
+      const n = sx + 1;
+      sSx(n);
+      sSw(si[n]);
+      sSr(null);
+    } else {
+      // All words done — show summary before awarding
+      if (finishFired.current) return;
+      finishFired.current = true;
+      award(ssc * 5 + 5);
+      setSt(s => ({ ...s, sp: s.sp + 1 }));
+      setShowSummary(true);
+    }
+  }
+
+  // Called by PronunciationScorer when it gets a result
+  function handleScorerResult({ spoken, score }) {
+    setCurrentWordScore({ spoken, score });
+    // Record score for the current word
+    setWordScores(prev => {
+      // If we already have a score for this word index, update it (keep best)
+      const existing = prev.find(ws => ws.word === sw[0]);
+      if (existing) {
+        return prev.map(ws => ws.word === sw[0] ? { ...ws, score: Math.max(ws.score, score) } : ws);
+      }
+      return [...prev, { word: sw[0], meaning: sw[1], score }];
+    });
+  }
 
   function stopRecording() {
     if (mediaRecRef.current && mediaRecRef.current.state === 'recording') {
@@ -86,7 +145,6 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
         const longer = a.length > b.length ? a : b;
         const shorter = a.length > b.length ? b : a;
         if (longer.length === 0) return true;
-        // Simple overlap heuristic
         const shared = shorter.split('').filter(c => longer.includes(c)).length;
         return shared / longer.length >= 0.6;
       };
@@ -187,6 +245,138 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
 
   const currentLang = LANG_FALLBACKS[langIdx];
 
+  // ── Summary screen ────────────────────────────────────────────────────────
+  if (showSummary) {
+    const scored = wordScores;
+    const avg = scored.length > 0
+      ? Math.round(scored.reduce((sum, ws) => sum + ws.score, 0) / scored.length)
+      : null;
+    const best = scored.length > 0
+      ? scored.reduce((b, ws) => ws.score > b.score ? ws : b, scored[0])
+      : null;
+    const worst = scored.length > 0
+      ? scored.reduce((b, ws) => ws.score < b.score ? ws : b, scored[0])
+      : null;
+
+    return (
+      <div className="scr-wrap">
+        {H('🎤 Pronunciation Results')}
+        <div className="c" style={{ textAlign: 'center', marginTop: 16 }}>
+
+          {/* Average score badge */}
+          {avg !== null && (
+            <div style={{
+              display: 'inline-flex', flexDirection: 'column', alignItems: 'center',
+              marginBottom: 20, padding: '18px 28px',
+              background: avg >= 90 ? 'var(--success-bg)' : avg >= 70 ? '#fff7ed' : avg >= 50 ? '#fff7ed' : '#fef2f2',
+              border: `2px solid ${avg >= 90 ? 'var(--success-b)' : avg >= 70 ? '#fed7aa' : avg >= 50 ? '#fdba74' : '#fecaca'}`,
+              borderRadius: 18,
+            }}>
+              <div style={{
+                fontSize: 'var(--text-4xl)', fontWeight: 900,
+                color: avg >= 90 ? 'var(--success)' : avg >= 70 ? '#c2410c' : avg >= 50 ? '#ea580c' : 'var(--error)',
+              }}>{avg}%</div>
+              <div style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--subtext)', marginTop: 4 }}>
+                Average pronunciation score
+              </div>
+              <div style={{ fontSize: 'var(--text-base)', fontWeight: 800, marginTop: 6 }}>
+                {avg >= 90 ? '🟢 Excellent session!' : avg >= 70 ? '🟡 Good work!' : avg >= 50 ? '🟠 Keep practicing!' : '🔴 Keep at it!'}
+              </div>
+            </div>
+          )}
+
+          {/* Highlights */}
+          {best && worst && best.word !== worst.word && (
+            <div style={{ display: 'flex', gap: 10, marginBottom: 18, flexWrap: 'wrap', justifyContent: 'center' }}>
+              <div style={{
+                flex: 1, minWidth: 130, padding: '12px 14px', borderRadius: 14,
+                background: 'var(--success-bg)', border: '1.5px solid var(--success-b)',
+              }}>
+                <div style={{ fontSize: 'var(--text-xs)', fontWeight: 800, color: 'var(--success)', marginBottom: 4 }}>
+                  ⭐ Best word
+                </div>
+                <div style={{ fontSize: 'var(--text-base)', fontWeight: 800, color: 'var(--heading)' }}>{best.word}</div>
+                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)' }}>{best.meaning}</div>
+                <div style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--success)', marginTop: 4 }}>{best.score}%</div>
+              </div>
+              <div style={{
+                flex: 1, minWidth: 130, padding: '12px 14px', borderRadius: 14,
+                background: '#fef2f2', border: '1.5px solid #fecaca',
+              }}>
+                <div style={{ fontSize: 'var(--text-xs)', fontWeight: 800, color: 'var(--error)', marginBottom: 4 }}>
+                  📚 Needs work
+                </div>
+                <div style={{ fontSize: 'var(--text-base)', fontWeight: 800, color: 'var(--heading)' }}>{worst.word}</div>
+                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)' }}>{worst.meaning}</div>
+                <div style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--error)', marginTop: 4 }}>{worst.score}%</div>
+              </div>
+            </div>
+          )}
+
+          {/* Per-word breakdown */}
+          {scored.length > 0 && (
+            <div style={{
+              background: 'var(--card)', borderRadius: 14, border: '1.5px solid var(--card-b)',
+              overflow: 'hidden', marginBottom: 20, textAlign: 'left',
+            }}>
+              <div style={{
+                padding: '10px 16px', background: 'var(--bar-bg)',
+                fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--heading)',
+                borderBottom: '1px solid var(--card-b)',
+              }}>
+                Word-by-word breakdown
+              </div>
+              {scored.map((ws, idx) => {
+                const colors = scoreBadgeColor(ws.score);
+                return (
+                  <div key={idx} style={{
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '10px 16px',
+                    borderBottom: idx < scored.length - 1 ? '1px solid var(--card-b)' : 'none',
+                  }}>
+                    <div style={{
+                      width: 44, height: 44, borderRadius: '50%', flexShrink: 0,
+                      background: colors.bg, border: `2px solid ${colors.border}`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 13, fontWeight: 900, color: colors.text,
+                    }}>{ws.score}%</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 800, fontSize: 'var(--text-base)', color: 'var(--heading)' }}>{ws.word}</div>
+                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)' }}>{ws.meaning}</div>
+                    </div>
+                    <div style={{
+                      fontSize: 'var(--text-xs)', fontWeight: 800, color: colors.text,
+                      background: colors.bg, border: `1px solid ${colors.border}`,
+                      borderRadius: 8, padding: '3px 8px', whiteSpace: 'nowrap',
+                    }}>
+                      {scoreBadgeLabel(ws.score)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* No scores — all self-assessed */}
+          {scored.length === 0 && (
+            <div style={{
+              fontSize: 'var(--text-sm)', color: 'var(--subtext)', marginBottom: 20,
+              padding: '14px', background: 'var(--bar-bg)', borderRadius: 12,
+              border: '1.5px solid var(--card-b)',
+            }}>
+              No pronunciation scores recorded. Use "Test My Pronunciation" on the next session to see your accuracy!
+            </div>
+          )}
+
+          <button className="b bp" onClick={() => goBack()}>
+            Done ✓
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Main speaking screen ───────────────────────────────────────────────────
   return (
     <div className="scr-wrap">
       {H('🎤 Pronunciation Practice')}
@@ -204,10 +394,30 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
           </button>
         </div>
 
-        <PronunciationScorer targetText={sw[0]} />
+        {/* Pronunciation scorer with onScore wired to session tracking */}
+        {SRSupported ? (
+          <PronunciationScorer targetText={sw[0]} onScore={handleScorerResult} />
+        ) : (
+          <div style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:8, padding:'10px 14px', background:'var(--bar-bg)', borderRadius:12, border:'1.5px solid var(--card-b)'}}>
+            💡 Tap ✓ if you said it correctly
+          </div>
+        )}
+
+        {/* Per-word score badge shown after PronunciationScorer fires */}
+        {currentWordScore !== null && (
+          <div style={{
+            marginTop: 10, padding: '10px 16px', borderRadius: 12,
+            background: scoreBadgeColor(currentWordScore.score).bg,
+            border: `1.5px solid ${scoreBadgeColor(currentWordScore.score).border}`,
+            fontWeight: 800, fontSize: 'var(--text-base)',
+            color: scoreBadgeColor(currentWordScore.score).text,
+          }}>
+            {scoreBadgeLabel(currentWordScore.score)}
+          </div>
+        )}
 
         {SRSupported ? (
-          <div style={{marginBottom:16}}>
+          <div style={{marginBottom:16, marginTop:16}}>
             <button
               onClick={listening ? stopMic : startMic}
               style={{
@@ -295,16 +505,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
           <button
             className="b bp"
             style={{marginTop:16}}
-            onClick={() => {
-              setRecordingURL(null);
-              setRecResult(null);
-              setRecMsg('');
-              if (sx < si.length - 1) {
-                const n = sx + 1; sSx(n); sSw(si[n]); sSr(null);
-              } else {
-                if(finishFired.current)return; finishFired.current=true; award(ssc * 5 + 5); setSt(s => ({...s, sp: s.sp + 1})); goBack();
-              }
-            }}>
+            onClick={advanceWord}>
             {sx < si.length - 1 ? 'Next →' : 'Finish'}
           </button>
         )}
