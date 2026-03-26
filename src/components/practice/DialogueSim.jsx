@@ -445,7 +445,7 @@ export default function DialogueSim({ award }) {
 
       {/* Feedback tip */}
       {answered && (
-        <div role="status" aria-live="assertive" style={{
+        <div role="alert" aria-live="assertive" style={{
           background: isCorrect ? "#dcfce7" : "#fef3c7",
           border: `1.5px solid ${isCorrect ? "#86efac" : "#fcd34d"}`,
           borderRadius:12,
