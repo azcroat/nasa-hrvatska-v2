@@ -1306,6 +1306,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                   localStorage.setItem('nh_prestige', String(newPrestige));
                   localStorage.setItem('nh_xp', '0');
                   setShowPrestigeModal(false);
+                  if (onSyncNow) onSyncNow();
                 }}
                 style={{ flex:1, padding:'12px', borderRadius:12, border:'none', background:'linear-gradient(135deg,var(--lavender, #7c3aed),#4c1d95)', cursor:'pointer', fontSize:'var(--text-base)', fontWeight:800, color:'var(--card)', fontFamily:"'Outfit',sans-serif" }}
               >

@@ -289,7 +289,7 @@ export default function HomeTab({
                 {streak.count >= 30 ? '🇭🇷 Legend!' : streak.count >= 7 ? '⚡ Odlično!' : '✓ Keep going!'}
               </div>
             )}
-            {streak.count >= 25 && <div style={{fontSize:10, color:'#d97706', fontWeight:700, marginTop:2}}>5 more days to legendary status! ⭐</div>}
+            {streak.count >= 25 && streak.count < 30 && <div style={{fontSize:10, color:'#d97706', fontWeight:700, marginTop:2}}>5 more days to legendary status! ⭐</div>}
             {streak.count >= 7 && streak.count < 25 && <div style={{fontSize:10, color:'rgba(255,255,255,.6)', marginTop:2}}>{30 - streak.count} days to Legend status</div>}
             {freezes > 0 && (
               <div title="Zaštita niza — Streak shield" style={{marginTop:8,display:'flex',alignItems:'center',gap:3,
@@ -389,6 +389,7 @@ export default function HomeTab({
                 localStorage.setItem('uStreak', JSON.stringify({ count: 1, last: today }));
                 setStreakRestored(true);
                 setStreakRestoreMsg('✓ Streak restored! Keep it alive today 🔥');
+                if (onSyncNow) onSyncNow();
               }}
               style={{
                 background:'transparent',
