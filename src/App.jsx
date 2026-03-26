@@ -183,9 +183,11 @@ const CroatiaToday = lazyWithReload(() => import("./components/croatia/CroatiaTo
 const SurvivalDinner = lazyWithReload(() => import("./components/croatia/SurvivalDinner.jsx"));
 const ClozeEngine = lazyWithReload(() => import("./components/practice/ClozeEngine.jsx"));
 const GrammarConstellation = lazyWithReload(() => import("./components/learn/GrammarConstellation.jsx"));
+const GrammarExplainer = lazyWithReload(() => import("./components/learn/GrammarExplainer.jsx"));
 const KaficScreen = lazyWithReload(() => import("./components/croatia/KaficScreen.jsx"));
 const DiasporaNote = lazyWithReload(() => import("./components/croatia/DiasporaNote.jsx"));
 const TiViScreen = lazyWithReload(() => import("./components/learn/TiViScreen.jsx"));
+const GrammarVideos = lazyWithReload(() => import("./components/learn/GrammarVideos.jsx"));
 const LifeEventsScreen = lazyWithReload(() => import("./components/croatia/LifeEventsScreen.jsx"));
 const CivicScreen = lazyWithReload(() => import("./components/croatia/CivicScreen.jsx"));
 const EasterScreen = lazyWithReload(() => import("./components/croatia/EasterScreen.jsx"));
@@ -308,6 +310,8 @@ function App(){
         kafic:"croatia",
         diaspora:"croatia",
         tivicompare:"learn",
+        grammarvideos:"learn",
+        grammarexplainer:"learn",
         lifeevents:"croatia",
         civic:"croatia",
         easter:"croatia",midsummer:"croatia",domovina:"croatia",bozic:"croatia",
@@ -930,6 +934,10 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       currentScreen==="padezifull"&&<PadezifullScreen goBack={goBack} award={award} />}
       {// ═══ VERB ASPECT ═══
       currentScreen==="aspect"&&<AspectScreen goBack={goBack} />}
+      {// ═══ GRAMMAR VIDEOS ═══
+      currentScreen==="grammarvideos"&&<GrammarVideos goBack={goBack} setScr={setScr} />}
+      {// ═══ GRAMMAR EXPLAINER ═══
+      currentScreen==="grammarexplainer"&&<GrammarExplainer goBack={goBack} award={award} />}
       {// ═══ FALSE FRIENDS ═══
       currentScreen==="falsefr"&&<FalseFriendsScreen goBack={goBack} />}
       {// ═══ PREPOSITION DRILLS ═══

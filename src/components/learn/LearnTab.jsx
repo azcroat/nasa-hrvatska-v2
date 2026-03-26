@@ -606,15 +606,27 @@ export default function LearnTab({
             </Section>
 
             {/* Reading */}
-            <Section title="Reading" icon="📖" count="11 passages" defaultOpen={false}>
+            <Section title="Reading" icon="📖" count="100+ passages" defaultOpen={false}>
               <button className="tc" style={{ width:"100%", display:"flex", alignItems:"center", gap:14, padding:"16px" }} onClick={() => { setShowBrowse(false); setScr("readlist"); }}>
                 <div style={{ width:44, height:44, borderRadius:13, background:'var(--success-bg)', border:'1px solid var(--success-b)',
                   display:"flex", alignItems:"center", justifyContent:"center", fontSize:'var(--text-2xl)', flexShrink:0 }}>📖</div>
                 <div style={{ flex:1, textAlign:"left" }}>
                   <div style={{ fontSize:'var(--text-base)', fontWeight:800, color:"var(--heading)" }}>Reading Passages</div>
-                  <div style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginTop:1 }}>11 stories · A1 to B2</div>
+                  <div style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginTop:1 }}>100+ stories · A1 to B2</div>
                 </div>
                 <div style={{ fontSize:'var(--text-xl)', color:"var(--subtext)", opacity:.35 }}>›</div>
+              </button>
+            </Section>
+
+            {/* Grammar Videos */}
+            <Section title="Grammar Videos" icon="🎥" count="18 videos" defaultOpen={false}>
+              <button className="tc" style={{ width:"100%", display:"flex", alignItems:"center", gap:14, padding:"16px" }}
+                onClick={() => { setShowBrowse(false); setScr("grammarvideos"); }}>
+                <span style={{ fontSize:28 }}>🎬</span>
+                <div style={{ textAlign:"left" }}>
+                  <div style={{ fontSize:15, fontWeight:700 }}>Watch Grammar Lessons</div>
+                  <div style={{ fontSize:12, color:"var(--subtext)" }}>18 video lessons from beginner to advanced</div>
+                </div>
               </button>
             </Section>
 
