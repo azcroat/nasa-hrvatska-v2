@@ -119,6 +119,17 @@ function TravelScene({ w, h }) {
 function GreetingScene({ w, h }) {
   return (
     <>
+      <style>{`
+        @keyframes gsPopIn {
+          0% { transform: scale(0); opacity: 0; transform-origin: bottom left; }
+          70% { transform: scale(1.05); opacity: 1; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes gsFade {
+          0% { opacity: 0; transform: translateY(2px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
       {/* Background - café terrace */}
       <rect width={w} height={h} fill="#fff8f0"/>
       <rect x={0} y={h*0.7} width={w} height={h*0.3} fill="#f5f0e8"/>
@@ -131,14 +142,18 @@ function GreetingScene({ w, h }) {
       <ellipse cx={w*0.6} cy={h*0.61} rx={w*0.055} ry={h*0.04} fill="white" stroke="#ddd" strokeWidth="1"/>
       <ellipse cx={w*0.6} cy={h*0.59} rx={w*0.04} ry={h*0.027} fill="#8B4513"/>
       {/* Speech bubbles */}
-      <rect x={w*0.05} y={h*0.1} width={w*0.35} height={h*0.18} rx="12" fill="white" stroke="#e2e8f0" strokeWidth="1.5"/>
-      <path d={`M ${w*0.15} ${h*0.28} L ${w*0.12} ${h*0.35} L ${w*0.22} ${h*0.28}`} fill="white" stroke="#e2e8f0" strokeWidth="1.5"/>
-      <text x={w*0.22} y={h*0.2} textAnchor="middle" fontSize={h*0.07} fontWeight="700" fill="#0e7490" fontFamily="Playfair Display,serif">Bog!</text>
-      <text x={w*0.22} y={h*0.27} textAnchor="middle" fontSize={h*0.042} fill="#5c6370">Hello / Goodbye</text>
-      <rect x={w*0.6} y={h*0.1} width={w*0.35} height={h*0.18} rx="12" fill="white" stroke="#e2e8f0" strokeWidth="1.5"/>
-      <path d={`M ${w*0.85} ${h*0.28} L ${w*0.88} ${h*0.35} L ${w*0.78} ${h*0.28}`} fill="white" stroke="#e2e8f0" strokeWidth="1.5"/>
-      <text x={w*0.775} y={h*0.2} textAnchor="middle" fontSize={h*0.055} fontWeight="700" fill="#b61800" fontFamily="Playfair Display,serif">Hvala!</text>
-      <text x={w*0.775} y={h*0.27} textAnchor="middle" fontSize={h*0.042} fill="#5c6370">Thank you</text>
+      <g style={{ animation: 'gsPopIn 0.35s 0.15s cubic-bezier(0.34,1.56,0.64,1) both' }}>
+        <rect x={w*0.05} y={h*0.1} width={w*0.35} height={h*0.18} rx="12" fill="white" stroke="#e2e8f0" strokeWidth="1.5"/>
+        <path d={`M ${w*0.15} ${h*0.28} L ${w*0.12} ${h*0.35} L ${w*0.22} ${h*0.28}`} fill="white" stroke="#e2e8f0" strokeWidth="1.5"/>
+        <text x={w*0.22} y={h*0.2} textAnchor="middle" fontSize={h*0.07} fontWeight="700" fill="#0e7490" fontFamily="Playfair Display,serif">Bog!</text>
+        <text x={w*0.22} y={h*0.27} textAnchor="middle" fontSize={h*0.042} fill="#5c6370">Hello / Goodbye</text>
+      </g>
+      <g style={{ animation: 'gsPopIn 0.35s 0.5s cubic-bezier(0.34,1.56,0.64,1) both' }}>
+        <rect x={w*0.6} y={h*0.1} width={w*0.35} height={h*0.18} rx="12" fill="white" stroke="#e2e8f0" strokeWidth="1.5"/>
+        <path d={`M ${w*0.85} ${h*0.28} L ${w*0.88} ${h*0.35} L ${w*0.78} ${h*0.28}`} fill="white" stroke="#e2e8f0" strokeWidth="1.5"/>
+        <text x={w*0.775} y={h*0.2} textAnchor="middle" fontSize={h*0.055} fontWeight="700" fill="#b61800" fontFamily="Playfair Display,serif">Hvala!</text>
+        <text x={w*0.775} y={h*0.27} textAnchor="middle" fontSize={h*0.042} fill="#5c6370">Thank you</text>
+      </g>
     </>
   );
 }

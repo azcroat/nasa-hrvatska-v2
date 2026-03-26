@@ -85,12 +85,31 @@ export default function McGame({ questions, onComplete, goBack, award }) {
   const [bestStreak, setBestStreak] = useState(0);
   const [burst, setBurst] = useState(-1);
   const [confirmQuit, setConfirmQuit] = useState(false);
+  const [revealCorrect, setRevealCorrect] = useState(false);
+  const [comboMsg, setComboMsg] = useState('');
+  const [showCombo, setShowCombo] = useState(false);
   const firstOptionRef = useRef(null);
   const resultFired = useRef(false);
 
   useEffect(() => {
     if (firstOptionRef.current) firstOptionRef.current.focus();
   }, [idx]);
+
+  // Keyboard shortcuts 1–4 to select options
+  useEffect(() => {
+    if (answered) return;
+    const handleKeyNum = (e) => {
+      const numKey = parseInt(e.key);
+      if (numKey >= 1 && numKey <= (q?.opts?.length || 4)) {
+        const optIndex = numKey - 1;
+        if (q?.opts?.[optIndex] !== undefined) {
+          handleAnswer(q.opts[optIndex], optIndex);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyNum);
+    return () => window.removeEventListener('keydown', handleKeyNum);
+  }, [answered, idx]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const q = questions[idx];
   if (!q) return null;
@@ -109,12 +128,26 @@ export default function McGame({ questions, onComplete, goBack, award }) {
       setStreak(s => {
         const ns = s + 1;
         setBestStreak(b => Math.max(b, ns));
+        // Combo toast
+        let msg = '';
+        if (ns === 3) msg = '🔥 3 in a row!';
+        else if (ns === 5) msg = '⚡ On fire! 5 streak!';
+        else if (ns === 10) msg = '💥 Unstoppable! 10 streak!';
+        else if (ns === 15) msg = '🌟 Legendary!';
+        if (msg) {
+          setComboMsg(msg);
+          setShowCombo(true);
+          setTimeout(() => setShowCombo(false), 1500);
+        }
         return ns;
       });
     } else {
       haptic.wrong();
       playWrong();
       setStreak(0);
+      setRevealCorrect(true);
+      setShowCombo(false);
+      setComboMsg('');
       if (q.hr) recordMistake(q.hr, q.en || q.correct || '', q.q || q.prompt || '', q.category || '');
     }
     if (q.hr) srMark(q.hr, ok);
@@ -307,12 +340,28 @@ export default function McGame({ questions, onComplete, goBack, award }) {
             : `Incorrect. The answer is ${q.correct}. Score: ${score} of ${questions.length}.`)}
       </div>
 
+      {/* Combo toast */}
+      {showCombo && (
+        <div style={{
+          textAlign: 'center',
+          fontSize: 15,
+          fontWeight: 900,
+          color: '#f59e0b',
+          animation: 'bounce-in 0.4s cubic-bezier(0.34,1.56,0.64,1)',
+          marginBottom: 10,
+          letterSpacing: '0.02em',
+        }}>
+          {comboMsg}
+        </div>
+      )}
+
       {/* Options */}
       <div style={{ position: 'relative' }}>
         {q.opts.map((o, i) => {
           const isCorrect = answered && o === q.correct;
           const isWrong =
             answered && selected === i && o !== q.correct;
+          const isRevealedCorrect = revealCorrect && o === q.correct && !isCorrect;
           return (
             <div key={i} style={{ position: 'relative' }}>
               <button
@@ -331,6 +380,11 @@ export default function McGame({ questions, onComplete, goBack, award }) {
                   borderRadius: 14,
                   fontSize: 15,
                   transition: 'background .2s ease, border-color .2s ease, transform .12s ease',
+                  ...(isRevealedCorrect ? {
+                    background: 'var(--success-bg)',
+                    borderColor: 'var(--success-b)',
+                    color: 'var(--success)',
+                  } : {}),
                 }}
               >
                 {/* Letter label */}
@@ -349,17 +403,22 @@ export default function McGame({ questions, onComplete, goBack, award }) {
                       ? 'var(--success)'
                       : isWrong
                       ? 'var(--error)'
+                      : isRevealedCorrect
+                      ? 'var(--success)'
                       : 'var(--bar-bg)',
                     color:
-                      isCorrect || isWrong
+                      isCorrect || isWrong || isRevealedCorrect
                         ? '#fff'
                         : 'var(--subtext)',
                     transition: 'all .2s',
                   }}
                 >
-                  {isCorrect ? '✓' : isWrong ? '✕' : LABELS[i]}
+                  {isCorrect ? '✓' : isWrong ? '✕' : isRevealedCorrect ? '✓' : LABELS[i]}
                 </span>
                 <span style={{ flex: 1, textAlign: 'left' }}>{o}</span>
+                {isRevealedCorrect && (
+                  <span style={{ fontSize: 11, marginLeft: 4 }}>✓</span>
+                )}
                 {isCorrect && (
                   <span style={{ fontSize: 18 }}>🎯</span>
                 )}
@@ -368,6 +427,11 @@ export default function McGame({ questions, onComplete, goBack, award }) {
             </div>
           );
         })}
+      </div>
+
+      {/* Keyboard hint (desktop only) */}
+      <div style={{ fontSize: 10, color: 'var(--subtext)', textAlign: 'center', marginTop: 6, opacity: 0.6 }}>
+        Tip: Press 1–{q?.opts?.length || 4} to select
       </div>
 
       {/* Grammar hint on wrong answer */}
@@ -397,6 +461,7 @@ export default function McGame({ questions, onComplete, goBack, award }) {
               setIdx(i => i + 1);
               setAnswered(false);
               setSelected(-1);
+              setRevealCorrect(false);
             } else {
               if (resultFired.current) return;
               resultFired.current = true;

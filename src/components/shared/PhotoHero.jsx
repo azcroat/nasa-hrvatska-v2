@@ -1,119 +1,92 @@
 import React, { useState } from 'react';
 
-/**
- * A beautiful photo hero section with overlay text.
- * Used for culture tab sections, region headers, etc.
- *
- * Props:
- *   src        - image URL (use PHOTOS.* from src/lib/photos.js)
- *   alt        - img alt text (default: 'Croatia')
- *   title      - bold headline rendered over the photo
- *   subtitle   - smaller line beneath the title
- *   height     - container height in px (default: 160)
- *   overlay    - CSS color for gradient overlay (default: rgba(0,0,0,0.35))
- *   titleColor - color for the title text (default: 'white')
- *   style      - additional styles merged into the container
- *   children   - rendered inside the bottom text area, below subtitle
- */
 export default function PhotoHero({
   src,
-  alt = 'Croatia',
+  alt = 'Croatian landscape',
   title,
   subtitle,
   height = 160,
-  overlay = 'rgba(0,0,0,0.35)',
-  titleColor = 'white',
+  overlay = 'rgba(0,0,0,0.45)',
+  titleColor = '#fff',
   style = {},
   children,
 }) {
   const [loaded, setLoaded] = useState(false);
-  const [error, setError] = useState(false);
+  const [errored, setErrored] = useState(false);
 
   return (
-    <div style={{
-      position: 'relative',
-      height,
-      borderRadius: 16,
-      overflow: 'hidden',
-      background: 'linear-gradient(135deg, #0a2348, #0c3868)',
-      ...style,
-    }}>
+    <div
+      className="photo-hero"
+      style={{
+        height,
+        background: 'linear-gradient(160deg, #0c2d6b 0%, #0e4d8a 50%, #0284c7 100%)',
+        ...style,
+      }}
+    >
+      {/* Croatian flag stripe at top */}
+      <div className="photo-hero-flag-stripe" />
+
+      {/* Shimmer skeleton loader */}
+      {!loaded && !errored && (
+        <div
+          className="skeleton"
+          style={{ position: 'absolute', inset: 0, borderRadius: 'inherit', zIndex: 1 }}
+        />
+      )}
+
       {/* Photo */}
-      {!error && (
+      {!errored && (
         <img
           src={src}
           alt={alt}
+          loading="lazy"
           onLoad={() => setLoaded(true)}
-          onError={() => setError(true)}
+          onError={() => setErrored(true)}
           style={{
             width: '100%',
             height: '100%',
             objectFit: 'cover',
             objectPosition: 'center',
             opacity: loaded ? 1 : 0,
-            transition: 'opacity 0.5s ease',
+            transition: 'opacity 0.4s ease',
             position: 'absolute',
             inset: 0,
+            zIndex: 2,
           }}
         />
       )}
 
-      {/* Loading shimmer */}
-      {!loaded && !error && (
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'linear-gradient(90deg, #1e293b 0%, #334155 50%, #1e293b 100%)',
-          backgroundSize: '200% 100%',
-          animation: 'shimmer 1.5s infinite',
-        }} />
-      )}
-
       {/* Gradient overlay */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: `linear-gradient(to bottom, transparent 20%, ${overlay} 100%)`,
-      }} />
+      <div
+        className="photo-hero-overlay"
+        style={{
+          background: `linear-gradient(to bottom, transparent 25%, ${overlay} 100%)`,
+          zIndex: 3,
+        }}
+      />
 
-      {/* Croatian flag stripe at top */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: 4,
-        background: 'linear-gradient(90deg, #b61800 33.3%, white 33.3%, white 66.6%, #0284c7 66.6%)',
-      }} />
-
-      {/* Text overlay */}
+      {/* Text content */}
       {(title || subtitle || children) && (
-        <div style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          padding: '16px 20px',
-        }}>
+        <div className="photo-hero-text" style={{ zIndex: 4 }}>
           {title && (
-            <div style={{
-              fontSize: 20,
-              fontWeight: 900,
-              color: titleColor,
-              fontFamily: "'Playfair Display', serif",
-              textShadow: '0 1px 4px rgba(0,0,0,0.5)',
-              marginBottom: subtitle ? 4 : 0,
-            }}>
+            <div
+              className="photo-hero-title"
+              style={{
+                color: titleColor,
+                textShadow: '0 2px 8px rgba(0,0,0,0.75), 0 1px 3px rgba(0,0,0,0.5)',
+              }}
+            >
               {title}
             </div>
           )}
           {subtitle && (
-            <div style={{
-              fontSize: 13,
-              color: 'rgba(255,255,255,0.85)',
-              fontWeight: 600,
-              textShadow: '0 1px 3px rgba(0,0,0,0.5)',
-            }}>
+            <div
+              className="photo-hero-subtitle"
+              style={{
+                color: titleColor,
+                textShadow: '0 1px 4px rgba(0,0,0,0.6)',
+              }}
+            >
               {subtitle}
             </div>
           )}

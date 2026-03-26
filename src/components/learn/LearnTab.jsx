@@ -116,10 +116,11 @@ export default function LearnTab({
         <div style={{ background: sc.bg, padding:'18px 20px', color:'var(--card)' }}>
           <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:10 }}>
             <div>
-              <div style={{ fontSize:'var(--text-xs)', opacity:.75, fontWeight:700, textTransform:'uppercase', letterSpacing:'.1em' }}>
-                Stage {currentStage?.level} · {currentStage?.title}
+              <div style={{ fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.08em', opacity:.75 }}>
+                Stage {currentStage?.level}
               </div>
-              <div style={{ fontSize:'var(--text-lg)', fontWeight:900, marginTop:3 }}>{currentStage?.desc}</div>
+              <div style={{ fontSize:18, fontWeight:800, marginTop:3, color:'var(--card)' }}>{currentStage?.title}</div>
+              <div style={{ fontSize:13, fontWeight:400, marginTop:3, lineHeight:1.5, opacity:.85 }}>{currentStage?.desc}</div>
             </div>
             <div style={{ textAlign:'right', flexShrink:0 }}>
               <div style={{ fontSize:'var(--text-2xl)', fontWeight:900, lineHeight:1 }}>{overallPct}%</div>
@@ -426,7 +427,7 @@ export default function LearnTab({
               <div style={{ fontSize:'var(--text-sm)', fontWeight:700, marginTop:4, textTransform:"capitalize" }}>
                 {t}
                 {isCompleted && (
-                  <span style={{color:'var(--success, #16a34a)', fontWeight:900, fontSize:14, marginLeft:6}}>✓</span>
+                  <span style={{ color: 'var(--success)', fontWeight: 800, marginLeft: 6 }}>✓</span>
                 )}
               </div>
               <div style={{ fontSize:'var(--text-xs)', color:"var(--subtext)", marginTop:2 }}>{V[t].length} words</div>

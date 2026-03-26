@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Bar } from '../../data.jsx';
+import CroatianKnight from '../shared/CroatianKnight';
 
 const PLACEMENT_QUESTIONS = [
   // Level 1 — A1 Survival
@@ -45,6 +46,7 @@ function calculatePlacement(levelCorrect) {
 }
 
 export default function PlacementTest({ onComplete }) {
+  const [showIntro, setShowIntro] = useState(true);
   const [qi, setQi] = useState(0);
   const [selected, setSelected] = useState(/** @type {number|null} */ (null));
   const [answered, setAnswered] = useState(false);
@@ -90,10 +92,79 @@ export default function PlacementTest({ onComplete }) {
     setAnswered(false);
   }
 
+  if (showIntro) {
+    return (
+      <div className="scr-wrap">
+        <div style={{ textAlign: 'center', padding: '28px 20px 16px' }}>
+          <CroatianKnight
+            size={100}
+            mood="happy"
+            style={{ margin: '0 auto 12px', display: 'block' }}
+          />
+          <h2 style={{
+            fontFamily: "'Playfair Display',serif",
+            fontSize: 24,
+            color: 'var(--heading)',
+            marginBottom: 8,
+          }}>
+            Let's find your level!
+          </h2>
+          <p style={{
+            color: 'var(--subtext)',
+            fontSize: 14,
+            lineHeight: 1.6,
+            marginBottom: 6,
+          }}>
+            A few quick questions — about 2 minutes.
+            The test adapts as you go and stops early if needed. 🧠
+          </p>
+          <p style={{
+            color: 'var(--subtext)',
+            fontSize: 13,
+            lineHeight: 1.5,
+            marginBottom: 24,
+            fontStyle: 'italic',
+          }}>
+            Don't worry if some questions feel hard — that's exactly how we find your level!
+          </p>
+          <button
+            className="b bp"
+            style={{ width: '100%', marginBottom: 10 }}
+            onClick={() => setShowIntro(false)}
+          >
+            Start the test →
+          </button>
+          <button
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--subtext)',
+              fontSize: 13,
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              display: 'block',
+              margin: '0 auto',
+            }}
+            onClick={() => {
+              localStorage.setItem('nh_placement_done', 'true');
+              onComplete(1);
+            }}
+          >
+            Skip — I'll start at A1
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (done) {
     return (
       <div className="scr-wrap" style={{ paddingBottom: 80, textAlign: 'center' }}>
-        <div style={{ fontSize: 72, marginBottom: 16 }}>🎯</div>
+        <CroatianKnight
+          size={90}
+          mood={placedLevel >= 3 ? 'celebrating' : 'happy'}
+          style={{ margin: '0 auto 12px', display: 'block' }}
+        />
         <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 26, color: 'var(--heading)', marginBottom: 8 }}>
           Placement Complete!
         </h2>
@@ -172,13 +243,29 @@ export default function PlacementTest({ onComplete }) {
           </button>
         ))}
         {answered && (
-          <button
-            className="b bp"
-            style={{ width: '100%', marginTop: 12 }}
-            onClick={handleNext}
-          >
-            {qi < PLACEMENT_QUESTIONS.length - 1 ? 'Next →' : 'See Results'}
-          </button>
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <CroatianKnight
+                size={50}
+                mood={selected === q.answer ? 'happy' : 'encouraged'}
+                style={{ flexShrink: 0 }}
+              />
+              <div style={{
+                fontSize: 14,
+                fontWeight: 700,
+                color: selected === q.answer ? 'var(--success)' : 'var(--subtext)',
+              }}>
+                {selected === q.answer ? 'Točno! ✓ Great job!' : "Netočno — keep going, you've got this!"}
+              </div>
+            </div>
+            <button
+              className="b bp"
+              style={{ width: '100%', marginTop: 12 }}
+              onClick={handleNext}
+            >
+              {qi < PLACEMENT_QUESTIONS.length - 1 ? 'Next →' : 'See Results'}
+            </button>
+          </>
         )}
       </div>
     </div>

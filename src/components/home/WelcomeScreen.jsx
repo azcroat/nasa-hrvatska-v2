@@ -111,6 +111,11 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100vh', padding:'clamp(14px, 4vw, 24px)', position:'relative', zIndex:1 }}>
       <div style={{ maxWidth:460, width:'100%', animation:'rise .4s' }}>
         <StepDots step={1} />
+        <CroatianKnight
+          size={72}
+          mood="happy"
+          style={{ margin: '0 auto 8px', display: 'block' }}
+        />
         <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:26, color:'var(--heading)', fontWeight:900, marginBottom:6, textAlign:'center' }}>
           What's your story?
         </h2>
@@ -147,6 +152,17 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
             </button>
           ))}
         </div>
+        {!goal && (
+          <p style={{
+            fontSize: 12,
+            color: 'var(--subtext)',
+            textAlign: 'center',
+            marginBottom: 8,
+            opacity: 0.8,
+          }}>
+            👆 Choose your goal above to continue
+          </p>
+        )}
         <button
           className="b bp"
           style={{ fontSize:'var(--text-lg)', padding:'14px', width:'100%', opacity: goal ? 1 : 0.5 }}
@@ -164,6 +180,11 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100vh', padding:'clamp(14px, 4vw, 24px)', position:'relative', zIndex:1 }}>
       <div style={{ maxWidth:460, width:'100%', animation:'rise .4s' }}>
         <StepDots step={2} />
+        <CroatianKnight
+          size={72}
+          mood="thinking"
+          style={{ margin: '0 auto 8px', display: 'block' }}
+        />
         <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:26, color:'var(--heading)', fontWeight:900, marginBottom:6, textAlign:'center' }}>
           How much time each day?
         </h2>
@@ -207,6 +228,17 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
         }}>
           📊 Quick level check: 8 questions, ~2 minutes — places you at the right starting point
         </div>
+        {!dailyMin && (
+          <p style={{
+            fontSize: 12,
+            color: 'var(--subtext)',
+            textAlign: 'center',
+            marginBottom: 8,
+            opacity: 0.8,
+          }}>
+            👆 Pick a daily goal above to continue
+          </p>
+        )}
         <button
           className="b bp"
           style={{ fontSize:'var(--text-lg)', padding:'14px', width:'100%', marginBottom:12, opacity: dailyMin ? 1 : 0.5 }}

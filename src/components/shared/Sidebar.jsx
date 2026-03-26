@@ -5,9 +5,9 @@ import CroatianKnight from './CroatianKnight.jsx';
 
 const TABS = [
   { id:"home",     label:"Home" },
-  { id:"learn",    label:"Learn Path" },
+  { id:"learn",    label:"Learn" },
   { id:"practice", label:"Practice" },
-  { id:"croatia",  label:"Life in Croatia" },
+  { id:"croatia",  label:"Croatia" },
   { id:"profile",  label:"Profile" },
 ];
 
@@ -136,7 +136,11 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
             <div style={{ fontSize: 14, fontWeight: 900, fontFamily: "'Playfair Display',serif", color: 'var(--heading)', lineHeight: 1 }}>Naša Hrvatska</div>
             <div style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 600, marginTop: 2, letterSpacing: '.06em', textTransform: 'uppercase' }}>Learn Croatian</div>
           </div>
-          <CroatianKnight size={40} mood="happy" style={{ flexShrink: 0 }} />
+          <CroatianKnight size={40} mood={
+            (streak.count >= 30) ? 'celebrating' :
+            (streak.count >= 7) ? 'happy' :
+            'happy'
+          } style={{ flexShrink: 0 }} />
         </div>
       </div>
 

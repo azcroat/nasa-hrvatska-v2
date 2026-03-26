@@ -26,6 +26,23 @@ export default function CelebrationScene({ width = 280, height = 160, message = 
       xmlns="http://www.w3.org/2000/svg" className={className} style={style}
       role="img" aria-label="Celebration illustration">
 
+      <style>{`
+        @keyframes csDrop {
+          0% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+          100% { transform: translateY(${Math.round(h * 0.7)}px) rotate(720deg); opacity: 0; }
+        }
+        @keyframes csTrophy {
+          0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+          70% { transform: scale(1.1) rotate(3deg); opacity: 1; }
+          100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        @keyframes csBurst {
+          0% { opacity: 0; transform: scale(0); }
+          60% { opacity: 1; transform: scale(1.15); }
+          100% { opacity: 0.85; transform: scale(1); }
+        }
+      `}</style>
+
       <defs>
         <radialGradient id="cs-celebGlow" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.15"/>
@@ -42,41 +59,49 @@ export default function CelebrationScene({ width = 280, height = 160, message = 
       ))}
 
       {/* Confetti */}
-      {confetti.map((c, i) => (
-        c.shape === 'rect' ? (
-          <rect key={i}
-            x={c.x - 5} y={c.y - 3}
-            width={10} height={6}
-            fill={c.color}
-            transform={`rotate(${c.r} ${c.x} ${c.y})`}
-            opacity={0.85}
-          />
+      {confetti.map((c, i) => {
+        const delay = (i * 0.07).toFixed(2);
+        const duration = (1.6 + (i % 7) * 0.1).toFixed(1);
+        return c.shape === 'rect' ? (
+          <g key={i} style={{ animation: `csDrop ${duration}s ${delay}s ease-in infinite` }}>
+            <rect
+              x={c.x - 5} y={c.y - 3}
+              width={10} height={6}
+              fill={c.color}
+              transform={`rotate(${c.r} ${c.x} ${c.y})`}
+              opacity={0.85}
+            />
+          </g>
         ) : (
-          <circle key={i} cx={c.x} cy={c.y} r={4} fill={c.color} opacity={0.85}/>
-        )
-      ))}
+          <g key={i} style={{ animation: `csDrop ${duration}s ${delay}s ease-in infinite` }}>
+            <circle cx={c.x} cy={c.y} r={4} fill={c.color} opacity={0.85}/>
+          </g>
+        );
+      })}
 
       {/* Trophy cup */}
-      <path d={`M ${w*0.4} ${h*0.35} L ${w*0.38} ${h*0.2} L ${w*0.62} ${h*0.2} L ${w*0.6} ${h*0.35}`} fill="#fbbf24" stroke="#d97706" strokeWidth="1"/>
-      <ellipse cx={w*0.5} cy={h*0.35} rx={w*0.1} ry={h*0.06} fill="#fbbf24" stroke="#d97706" strokeWidth="1"/>
-      {/* Trophy handles */}
-      <path d={`M ${w*0.38} ${h*0.23} Q ${w*0.32} ${h*0.23} ${w*0.32} ${h*0.3} Q ${w*0.32} ${h*0.37} ${w*0.38} ${h*0.35}`}
-        stroke="#d97706" strokeWidth="2" fill="none"/>
-      <path d={`M ${w*0.62} ${h*0.23} Q ${w*0.68} ${h*0.23} ${w*0.68} ${h*0.3} Q ${w*0.68} ${h*0.37} ${w*0.62} ${h*0.35}`}
-        stroke="#d97706" strokeWidth="2" fill="none"/>
-      {/* Trophy stem */}
-      <rect x={w*0.47} y={h*0.41} width={w*0.06} height={h*0.12} fill="#d97706"/>
-      <rect x={w*0.41} y={h*0.53} width={w*0.18} height={h*0.04} rx="3" fill="#d97706"/>
-      {/* Star on trophy */}
-      <text x={w*0.5} y={h*0.31} fontSize={h*0.09} textAnchor="middle">⭐</text>
+      <g style={{ animation: 'csTrophy 0.5s cubic-bezier(0.34,1.56,0.64,1) both' }}>
+        <path d={`M ${w*0.4} ${h*0.35} L ${w*0.38} ${h*0.2} L ${w*0.62} ${h*0.2} L ${w*0.6} ${h*0.35}`} fill="#fbbf24" stroke="#d97706" strokeWidth="1"/>
+        <ellipse cx={w*0.5} cy={h*0.35} rx={w*0.1} ry={h*0.06} fill="#fbbf24" stroke="#d97706" strokeWidth="1"/>
+        {/* Trophy handles */}
+        <path d={`M ${w*0.38} ${h*0.23} Q ${w*0.32} ${h*0.23} ${w*0.32} ${h*0.3} Q ${w*0.32} ${h*0.37} ${w*0.38} ${h*0.35}`}
+          stroke="#d97706" strokeWidth="2" fill="none"/>
+        <path d={`M ${w*0.62} ${h*0.23} Q ${w*0.68} ${h*0.23} ${w*0.68} ${h*0.3} Q ${w*0.68} ${h*0.37} ${w*0.62} ${h*0.35}`}
+          stroke="#d97706" strokeWidth="2" fill="none"/>
+        {/* Trophy stem */}
+        <rect x={w*0.47} y={h*0.41} width={w*0.06} height={h*0.12} fill="#d97706"/>
+        <rect x={w*0.41} y={h*0.53} width={w*0.18} height={h*0.04} rx="3" fill="#d97706"/>
+        {/* Star on trophy */}
+        <text x={w*0.5} y={h*0.31} fontSize={h*0.09} textAnchor="middle">⭐</text>
+      </g>
 
       {/* Message text */}
-      <text x={w*0.5} y={h*0.75} fontSize={h*0.1} fontWeight="900" textAnchor="middle"
+      <text x={w*0.5} y={h*0.75} fontSize={Math.max(16, h*0.13)} fontWeight="900" textAnchor="middle"
         fill="#0f172a" fontFamily="Playfair Display,serif">{message}</text>
 
       {/* Firework bursts */}
       {[{cx:w*0.15,cy:h*0.6},{cx:w*0.85,cy:h*0.65}].map((fw, i) => (
-        <g key={i}>
+        <g key={i} style={{ animation: `csBurst 0.6s ${i === 0 ? '0s' : '0.2s'} ease-out forwards` }}>
           {[0,45,90,135,180,225,270,315].map((angle, j) => (
             <line key={j}
               x1={fw.cx} y1={fw.cy}

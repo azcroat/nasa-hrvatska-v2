@@ -93,7 +93,7 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
         height: 3,
         background: indicatorGradient,
         borderRadius: 3,
-        transition: 'left .3s cubic-bezier(.34,1.56,.64,1), width .3s, background .25s',
+        transition: 'left .3s cubic-bezier(0.25, 0.46, 0.45, 0.94), width .3s, background .25s',
         ...indicatorStyle,
         pointerEvents: 'none',
       }} />
@@ -111,7 +111,7 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
             style={{
               position: 'relative',
               flex: 1,
-              padding: '8px 4px 6px',
+              padding: '10px 4px 8px',
               minWidth: 0,
               transition: 'background .18s',
             }}
@@ -122,8 +122,8 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
                 display: 'block',
                 lineHeight: 1,
                 color: isActive ? (t.id === 'croatia' ? 'var(--color-croatian, #b61800)' : 'var(--info, #0e7490)') : 'var(--nav-lbl)',
-                transition: 'transform .3s cubic-bezier(.34,1.56,.64,1), color .18s',
-                transform: isActive ? 'scale(1.15) translateY(-2px)' : 'scale(1)',
+                transition: 'transform .3s cubic-bezier(0.25, 0.46, 0.45, 0.94), color .18s',
+                transform: isActive ? 'scale(1.05) translateY(-2px)' : 'scale(1)',
               }}
             >
               <NavIcon id={t.id} active={isActive} />
@@ -131,7 +131,7 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
             <span
               className="nav-label"
               style={{
-                fontSize: 10,
+                fontSize: 11,
                 fontWeight: isActive ? 800 : 600,
                 color: isActive ? (t.id === 'croatia' ? 'var(--color-croatian, #b61800)' : 'var(--info, #0e7490)') : 'var(--nav-lbl)',
                 display: 'block',
@@ -144,7 +144,7 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
             </span>
             {badges && badges[t.id] > 0 && (
               <span style={{
-                position: 'absolute', top: 5, right: '18%',
+                position: 'absolute', top: 4, right: 4,
                 background: 'linear-gradient(135deg,#e11d48,#be123c)',
                 color: '#fff',
                 fontSize: 9, fontWeight: 800,

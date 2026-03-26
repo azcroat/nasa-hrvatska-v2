@@ -10,15 +10,34 @@ export default function CroatianKnight({ size = 120, mood = 'neutral', className
   const w = s * 0.8;
   const h = s;
 
-  // Mood variants: neutral, happy, celebrating, thinking, sad
+  // Mood variants: neutral, happy, celebrating, thinking, sad, encouraged, confused
   const moodFace = {
     neutral:     { mouth: 'M 32 58 Q 38 62 44 58', eyeL: 'M 29 50 Q 32 47 35 50', eyeR: 'M 41 50 Q 44 47 47 50' },
     happy:       { mouth: 'M 30 56 Q 38 64 46 56', eyeL: 'M 29 50 Q 32 45 35 50', eyeR: 'M 41 50 Q 44 45 47 50' },
     celebrating: { mouth: 'M 30 54 Q 38 65 46 54', eyeL: 'M 28 49 Q 32 44 36 49', eyeR: 'M 40 49 Q 44 44 48 49' },
     thinking:    { mouth: 'M 32 59 Q 38 60 44 59', eyeL: 'M 29 50 Q 32 47 35 50', eyeR: 'M 44 48 Q 47 51 50 48' },
     sad:         { mouth: 'M 30 62 Q 38 56 46 62', eyeL: 'M 29 52 Q 32 49 35 52', eyeR: 'M 41 52 Q 44 49 47 52' },
+    encouraged: (
+      <>
+        <ellipse cx="32" cy="51" rx="3.5" ry="3" fill="#2d3748"/>
+        <ellipse cx="44" cy="51" rx="3.5" ry="3" fill="#2d3748"/>
+        <path d="M 25,62 Q 32,69 39,62" stroke="#2d3748" strokeWidth="2" fill="none" strokeLinecap="round"/>
+        <circle cx="29" cy="57" r="3" fill="#fca5a5" opacity="0.5"/>
+        <circle cx="47" cy="57" r="3" fill="#fca5a5" opacity="0.5"/>
+        <text x="36" y="46" fontSize="6" fill="#f59e0b" fontWeight="900" textAnchor="middle">▲</text>
+      </>
+    ),
+    confused: (
+      <>
+        <circle cx="32" cy="50" r="3.5" fill="#2d3748"/>
+        <ellipse cx="44" cy="51" rx="3.5" ry="1.5" fill="#2d3748"/>
+        <path d="M 26,63 Q 29,61 32,63 Q 35,65 38,63" stroke="#2d3748" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
+        <text x="53" y="35" fontSize="9" fill="#f59e0b" fontWeight="900">?</text>
+      </>
+    ),
   };
   const face = moodFace[mood] || moodFace.neutral;
+  const isFaceJSX = React.isValidElement(face);
 
   return (
     <svg
@@ -30,7 +49,7 @@ export default function CroatianKnight({ size = 120, mood = 'neutral', className
       className={className}
       style={style}
       role="img"
-      aria-label="Croatian Knight mascot"
+      aria-label={`Croatian knight mascot, ${mood} expression`}
     >
       {/* ── KNIGHT BODY ───────────────────────────────── */}
 
@@ -111,21 +130,25 @@ export default function CroatianKnight({ size = 120, mood = 'neutral', className
       {/* Face */}
       <ellipse cx="40" cy="47" rx="11" ry="10" fill="#e8b896" />
 
-      {/* Eyes */}
-      <path d={face.eyeL} stroke="#1f2937" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-      <path d={face.eyeR} stroke="#1f2937" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-      {/* Eye pupils */}
-      <circle cx="32" cy="50" r="1.5" fill="#1f2937" />
-      <circle cx="44" cy="50" r="1.5" fill="#1f2937" />
-      {/* Eye shine */}
-      <circle cx="32.8" cy="49.3" r="0.6" fill="white" />
-      <circle cx="44.8" cy="49.3" r="0.6" fill="white" />
+      {/* Eyes / Mouth — path-data moods vs JSX moods */}
+      {isFaceJSX ? face : (
+        <>
+          <path d={face.eyeL} stroke="#1f2937" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+          <path d={face.eyeR} stroke="#1f2937" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+          {/* Eye pupils */}
+          <circle cx="32" cy="50" r="1.5" fill="#1f2937" />
+          <circle cx="44" cy="50" r="1.5" fill="#1f2937" />
+          {/* Eye shine */}
+          <circle cx="32.8" cy="49.3" r="0.6" fill="white" />
+          <circle cx="44.8" cy="49.3" r="0.6" fill="white" />
 
-      {/* Nose */}
-      <path d="M 38 53 Q 40 56 42 53" stroke="#c0917a" strokeWidth="1" fill="none" strokeLinecap="round" />
+          {/* Nose */}
+          <path d="M 38 53 Q 40 56 42 53" stroke="#c0917a" strokeWidth="1" fill="none" strokeLinecap="round" />
 
-      {/* Mouth */}
-      <path d={face.mouth} stroke="#8b4513" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+          {/* Mouth */}
+          <path d={face.mouth} stroke="#8b4513" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        </>
+      )}
 
       {/* Cheeks (happy/celebrating) */}
       {(mood === 'happy' || mood === 'celebrating') && (
