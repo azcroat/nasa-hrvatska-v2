@@ -8,6 +8,18 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
+function isAllowedOrigin(origin, isDev) {
+  try {
+    const hostname = new URL(origin).hostname;
+    if (isDev && hostname === "localhost") return true;
+    return hostname === "nasahrvatska.com"
+      || hostname.endsWith(".nasahrvatska.com")
+      || hostname.endsWith(".pages.dev");
+  } catch { return false; }
+}
+
+const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,253}\.[^\s@]{2,}$/;
+
 const TYPE_COLORS = {
   bug:     { bg: "#fef2f2", border: "#fca5a5", badge: "#dc2626", label: "🐛 Bug Report" },
   feature: { bg: "#eff6ff", border: "#93c5fd", badge: "#2563eb", label: "💡 Feature Request" },
@@ -25,10 +37,7 @@ export async function onRequestPost(context) {
 
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
   const isDev = env.ENVIRONMENT !== "production";
-  const allowed = isDev
-    ? ["nasahrvatska.com", "pages.dev", "localhost"]
-    : ["nasahrvatska.com", "pages.dev"];
-  if (!allowed.some(d => origin.includes(d))) {
+  if (!isAllowedOrigin(origin, isDev)) {
     return new Response("Forbidden", { status: 403 });
   }
 
@@ -52,6 +61,14 @@ export async function onRequestPost(context) {
   }
   if (subject.length > 120 || description.length > 2000) {
     return new Response(JSON.stringify({ ok: false, error: "Content too long." }),
+      { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
+  }
+  if (replyEmail && !EMAIL_RE.test(replyEmail)) {
+    return new Response(JSON.stringify({ ok: false, error: "Invalid email address." }),
+      { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
+  }
+  if (replyEmail && /[\r\n]/.test(replyEmail)) {
+    return new Response(JSON.stringify({ ok: false, error: "Invalid email address." }),
       { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
   }
 

@@ -112,14 +112,23 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
   return null;
 }
 
+function isAllowedOrigin(origin, isDev) {
+  try {
+    const hostname = new URL(origin).hostname;
+    if (isDev && hostname === "localhost") return true;
+    return hostname === "nasahrvatska.com"
+      || hostname.endsWith(".nasahrvatska.com")
+      || hostname.endsWith(".pages.dev");
+  } catch { return false; }
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 export async function onRequestPost(context) {
   const { request, env } = context;
 
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
   const isDev = env.ENVIRONMENT !== "production";
-  const allowed = isDev ? ["nasahrvatska.com", "pages.dev", "localhost"] : ["nasahrvatska.com", "pages.dev"];
-  if (!allowed.some((d) => origin.includes(d))) {
+  if (!isAllowedOrigin(origin, isDev)) {
     return new Response("Forbidden", { status: 403 });
   }
 

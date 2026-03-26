@@ -3,6 +3,18 @@
 // Call this endpoint from the frontend on Sunday with the user's stats.
 // POST /api/digest  { email, name, xp, lessons, streakDays, wordsLearned }
 
+function isAllowedOrigin(origin, isDev) {
+  try {
+    const hostname = new URL(origin).hostname;
+    if (isDev && hostname === 'localhost') return true;
+    return hostname === 'nasahrvatska.com'
+      || hostname.endsWith('.nasahrvatska.com')
+      || hostname.endsWith('.pages.dev');
+  } catch { return false; }
+}
+
+const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,253}\.[^\s@]{2,}$/;
+
 export async function onRequestPost(ctx) {
   const corsHeaders = {
     'Access-Control-Allow-Origin': 'https://nasahrvatska.com',
@@ -11,14 +23,23 @@ export async function onRequestPost(ctx) {
   };
   if (ctx.request.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
+  const origin = ctx.request.headers.get('origin') || ctx.request.headers.get('referer') || '';
+  const isDev = ctx.env.ENVIRONMENT !== 'production';
+  if (!isAllowedOrigin(origin, isDev)) {
+    return new Response('Forbidden', { status: 403, headers: corsHeaders });
+  }
+
   const RESEND_KEY = ctx.env.RESEND_API_KEY;
   if (!RESEND_KEY) return new Response(JSON.stringify({ ok: false, error: 'digest not configured' }), { status: 200, headers: corsHeaders });
 
   let body;
-  try { body = await ctx.request.json(); } catch { return new Response('bad request', { status: 400 }); }
+  try { body = await ctx.request.json(); } catch { return new Response('bad request', { status: 400, headers: corsHeaders }); }
 
   const { email, name, xp, lessons, streakDays, wordsLearned } = body;
-  if (!email || !name) return new Response('missing fields', { status: 400 });
+  if (!email || !name) return new Response('missing fields', { status: 400, headers: corsHeaders });
+  if (!EMAIL_RE.test(email) || /[\r\n]/.test(email)) {
+    return new Response(JSON.stringify({ ok: false, error: 'Invalid email address.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  }
 
   function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
   const safeName = esc(name);

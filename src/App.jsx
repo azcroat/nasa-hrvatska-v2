@@ -262,7 +262,7 @@ function App(){
   const[comebackBonus,setComebackBonus]=useState(false);
   const[streakMilestone,setStreakMilestone]=useState(null); // number (7/30/50/100/365) or null
   const[ceremonyType,setCeremonyType]=useState(null);
-  const[pendingJoinCode,setPendingJoinCode]=useState(()=>{try{return new URLSearchParams(window.location.search).get('join')||null;}catch{return null;}});
+  const[pendingJoinCode,setPendingJoinCode]=useState(()=>{try{const c=new URLSearchParams(window.location.search).get('join')||null;return c&&/^[A-Z2-9]{6}$/.test(c)?c:null;}catch{return null;}});
   // Q-6: Sync tab and currentScreen when React Router location changes (browser back/forward)
   useEffect(function(){
     const p=location.pathname;

@@ -185,7 +185,7 @@ export default function Leaderboard({
                       Code: <span style={{fontWeight:800,color:"#0e7490",letterSpacing:2,fontSize:14}}>{famData.code}</span>
                     </div>
                     <button onClick={async()=>{
-                      const link=`https://nasahrvatska.com/?join=${famData.code}`;
+                      const link=`${window.location.origin}/?join=${famData.code}`;
                       if(navigator.share){try{await navigator.share({title:'Join my family on Naša Hrvatska 🇭🇷',text:'Click to join and learn Croatian together!',url:link});}catch(_){}}
                       else{await navigator.clipboard.writeText(link);setFamErr("✅ Invite link copied!");setTimeout(()=>setFamErr(""),3000);}
                     }} style={{background:'linear-gradient(135deg,#0e7490,#164e63)',color:'#fff',border:'none',borderRadius:10,padding:'6px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
