@@ -60,6 +60,19 @@ body{-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;
 
   /* Croatian identity */
   --color-croatian: #b61800;
+
+  /* Extended Croatian identity palette */
+  --adriatic: #0284c7;        /* Adriatic sea */
+  --adriatic-light: #e0f2fe;
+  --terracotta: #c2410c;      /* Dalmatian rooftops */
+  --terracotta-light: #fff7ed;
+  --stone: #f5f0e8;           /* Korčula white stone */
+  --stone-dark: #a8a29e;
+  --lavender: #7c3aed;        /* Prestige/premium moments */
+  --lavender-light: #f5f3ff;
+  --harvest: #d97706;         /* Croatian harvest gold */
+  --forest: #16a34a;          /* Slavonian forest */
+  --forest-light: #f0fdf4;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -90,6 +103,19 @@ body{-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;
   --rt-c:#cbd5e1;
   --bar-bg:rgba(255,255,255,.1);
   --app-bg:#0f172a;
+
+  /* Extended Croatian identity palette — dark */
+  --adriatic: #38bdf8;
+  --adriatic-light: rgba(56,189,248,.12);
+  --terracotta: #fb923c;
+  --terracotta-light: rgba(251,146,60,.1);
+  --stone: #292524;
+  --stone-dark: #57534e;
+  --lavender: #a78bfa;
+  --lavender-light: rgba(167,139,250,.12);
+  --harvest: #fbbf24;
+  --forest: #4ade80;
+  --forest-light: rgba(74,222,128,.1);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -98,6 +124,76 @@ body{-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;
 
 /* Entrances */
 @keyframes rise{0%{opacity:0;transform:translateY(18px)}100%{opacity:1;transform:translateY(0)}}
+
+/* ─── MICRO-ANIMATIONS ─── */
+@keyframes bounce-in {
+  0%   { transform: scale(0.3); opacity: 0; }
+  50%  { transform: scale(1.1); }
+  70%  { transform: scale(0.95); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes spring-in {
+  0%   { transform: translateY(8px) scale(0.95); opacity: 0; }
+  60%  { transform: translateY(-3px) scale(1.02); opacity: 1; }
+  80%  { transform: translateY(1px) scale(0.99); }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes correct-flash {
+  0%   { background-color: inherit; }
+  25%  { background-color: #dcfce7; }
+  75%  { background-color: #dcfce7; }
+  100% { background-color: inherit; }
+}
+
+@keyframes wrong-shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+
+@keyframes xp-pulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.15); filter: brightness(1.2); }
+  100% { transform: scale(1); }
+}
+
+@keyframes streak-glow {
+  0%   { text-shadow: 0 0 0 transparent; }
+  50%  { text-shadow: 0 0 12px rgba(245,158,11,0.6), 0 0 24px rgba(245,158,11,0.3); }
+  100% { text-shadow: 0 0 0 transparent; }
+}
+
+@keyframes shimmer-util {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes bar-fill {
+  from { width: 0%; }
+  to   { width: var(--bar-target, 100%); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes flip-in {
+  0%   { transform: rotateY(-90deg) scale(0.9); opacity: 0; }
+  100% { transform: rotateY(0deg) scale(1); opacity: 1; }
+}
+
+@keyframes count-up-pop {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.4); color: #f59e0b; }
+  60%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
 @keyframes slideUp{0%{opacity:0;transform:translateY(28px)}100%{opacity:1;transform:translateY(0)}}
 @keyframes slideIn{0%{opacity:0;transform:translateX(-20px)}100%{opacity:1;transform:translateX(0)}}
 @keyframes fadeIn{0%{opacity:0}100%{opacity:1}}
@@ -704,10 +800,15 @@ input::placeholder,textarea::placeholder{color:#6b7280;font-weight:400} /* WCAG 
    SHIMMER SKELETON LOADER
 ═══════════════════════════════════════════════════════════ */
 .skeleton{
-  background:linear-gradient(90deg,var(--bar-bg) 25%,rgba(255,255,255,.15) 50%,var(--bar-bg) 75%);
+  background:linear-gradient(90deg,var(--card-b) 25%,rgba(0,0,0,0.04) 50%,var(--card-b) 75%);
   background-size:200% 100%;
   animation:shimmer 1.5s infinite;
   border-radius:8px;
+}
+.dark .skeleton{
+  background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.5s infinite;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -806,4 +907,71 @@ button.c{font-family:'Outfit',sans-serif;width:100%;cursor:pointer;display:block
   --bar-bg: rgba(255,255,255,.1);
   --card-bg: #1e293b;
   --card-shadow: 0 2px 12px rgba(0,0,0,.4);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ANIMATION UTILITY CLASSES
+═══════════════════════════════════════════════════════════ */
+.anim-bounce-in   { animation: bounce-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.anim-spring-in   { animation: spring-in 0.4s ease forwards; }
+.anim-correct     { animation: correct-flash 0.5s ease forwards; }
+.anim-wrong       { animation: wrong-shake 0.4s ease forwards; }
+.anim-xp-pulse    { animation: xp-pulse 0.6s ease forwards; }
+.anim-streak      { animation: streak-glow 2s ease-in-out infinite; }
+.anim-fade-up     { animation: fade-up 0.35s ease forwards; }
+.anim-flip-in     { animation: flip-in 0.35s ease forwards; }
+
+/* Staggered children fade-up */
+.anim-children-fade > *:nth-child(1) { animation: fade-up 0.3s 0.05s ease both; }
+.anim-children-fade > *:nth-child(2) { animation: fade-up 0.3s 0.10s ease both; }
+.anim-children-fade > *:nth-child(3) { animation: fade-up 0.3s 0.15s ease both; }
+.anim-children-fade > *:nth-child(4) { animation: fade-up 0.3s 0.20s ease both; }
+.anim-children-fade > *:nth-child(5) { animation: fade-up 0.3s 0.25s ease both; }
+.anim-children-fade > *:nth-child(6) { animation: fade-up 0.3s 0.30s ease both; }
+
+/* ═══════════════════════════════════════════════════════════
+   3D FLASHCARD FLIP
+═══════════════════════════════════════════════════════════ */
+.flashcard-scene {
+  perspective: 900px;
+  width: 100%;
+}
+.flashcard-3d {
+  width: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+.flashcard-3d.is-flipped {
+  transform: rotateY(180deg);
+}
+.flashcard-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  width: 100%;
+}
+.flashcard-face.is-back {
+  transform: rotateY(180deg);
+  position: absolute;
+  top: 0; left: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ANIMATED PROGRESS BARS
+═══════════════════════════════════════════════════════════ */
+.bar-animated {
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.bar-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.bar-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: shimmer 2s infinite;
 }

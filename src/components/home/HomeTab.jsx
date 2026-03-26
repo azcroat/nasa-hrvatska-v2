@@ -8,6 +8,7 @@ function getLastActivity() {
   return ex && label ? { ex, label } : null;
 }
 import CroatianGrb from '../shared/CroatianGrb.jsx';
+import CipkaPattern from '../shared/CipkaPattern.jsx';
 
 const LEVEL_PALETTE = [
   { grad: "linear-gradient(135deg,#92400e,#b45309)", light: "#fef3c7", text: "#92400e", border: "#fcd34d" },
@@ -296,7 +297,7 @@ export default function HomeTab({
             borderRadius:10,height:10,overflow:"hidden",
             boxShadow:"inset 0 1px 3px rgba(0,0,0,.2)",
           }}>
-            <div style={{
+            <div className="bar-animated" style={{
               height:"100%",
               background:"linear-gradient(90deg,#38bdf8,#7dd3fc)",
               borderRadius:10,
@@ -329,7 +330,9 @@ export default function HomeTab({
               backdropFilter:"blur(12px)",
               boxShadow:"0 2px 8px rgba(0,0,0,.15), 0 1px 0 rgba(255,255,255,.15) inset",
             }}>
-              <span style={{fontSize:13}}>{s.icon}</span>
+              {s.label === "streak"
+                ? <span className="anim-streak" style={{fontSize:28}}>🔥</span>
+                : <span style={{fontSize:13}}>{s.icon}</span>}
               <span style={{fontSize:13,fontWeight:900,color:"white",fontVariantNumeric:"tabular-nums"}}>{s.value}</span>
               <span style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,.65)"}} title={s.label==="mastered" ? "Words with 2+ correct reviews" : undefined}>{s.label}</span>
             </div>
@@ -481,9 +484,16 @@ export default function HomeTab({
         );
       })()}
 
+      <CipkaPattern
+        color="var(--nav-active)"
+        opacity={0.12}
+        height={20}
+        style={{ marginBottom: 16 }}
+      />
+
       {/* ── DAILY QUESTS ── */}
       <h3 className="sh">Daily Quests</h3>
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:10, marginBottom:20 }}>
+      <div className="anim-children-fade" style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:10, marginBottom:20 }}>
         {DAILY_QUESTS.map(q => {
           const done = questsDone[q.id];
           return (
