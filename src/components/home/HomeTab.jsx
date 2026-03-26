@@ -91,6 +91,15 @@ export default function HomeTab({
   const [dcOpen, setDcOpen] = useState(doneCount === 0);
   const [campaignDismissed, setCampaignDismissed] = useState(false);
 
+  const campaignQuestsDone = useMemo(() => {
+    if (!activeCampaign || !activeCampaign.quests || activeCampaign.quests.length === 0) return {};
+    const result = {};
+    for (const q of activeCampaign.quests) {
+      result[q.id] = localStorage.getItem(`nh_cq_${activeCampaign.id}_${q.id}`) === '1';
+    }
+    return result;
+  }, [activeCampaign]);
+
   const longAbsence = useMemo(() => {
     const ls = localStorage.getItem('nh_last_seen');
     if (!ls) return false;
@@ -494,6 +503,59 @@ export default function HomeTab({
                     Start →
                   </button>
                 </div>
+                {activeCampaign.quests && activeCampaign.quests.length > 0 && (() => {
+                  const allCampaignDone = activeCampaign.quests.every(q => campaignQuestsDone[q.id]);
+                  const earnedXP = activeCampaign.quests.filter(q => campaignQuestsDone[q.id]).reduce((s, q) => s + q.xp, 0);
+                  const totalXP = activeCampaign.quests.reduce((s, q) => s + q.xp, 0);
+                  return (
+                    <div style={{marginTop:10}}>
+                      {allCampaignDone ? (
+                        <div style={{fontSize:12, fontWeight:800, color: activeCampaign.color}}>
+                          🏆 Campaign complete! All quests done.
+                        </div>
+                      ) : (
+                        <>
+                          <div style={{fontSize:10, fontWeight:800, color: activeCampaign.color, textTransform:'uppercase', letterSpacing:'.08em', marginBottom:4}}>
+                            Quests
+                          </div>
+                          {activeCampaign.quests.map(q => {
+                            const done = campaignQuestsDone[q.id];
+                            return (
+                              <div
+                                key={q.id}
+                                onClick={() => !done && (setScr ? setScr(q.screen) : setTab && setTab(q.screen))}
+                                style={{display:'flex', alignItems:'center', gap:8, padding:'4px 0', cursor: done ? 'default' : 'pointer'}}
+                              >
+                                <span style={{fontSize:14, color: done ? activeCampaign.color : 'var(--subtext)', flexShrink:0}}>
+                                  {done ? '✓' : '○'}
+                                </span>
+                                <span style={{
+                                  fontSize:11, fontWeight:500, flex:1,
+                                  color: done ? activeCampaign.color : 'var(--text)',
+                                  opacity: done ? 1 : 0.85,
+                                  textDecoration: done ? 'line-through' : 'none',
+                                }}>
+                                  {q.label}
+                                </span>
+                                <span style={{
+                                  fontSize:10, fontWeight:800,
+                                  background: done ? activeCampaign.color : 'var(--bar-bg)',
+                                  color: done ? '#fff' : 'var(--subtext)',
+                                  borderRadius:6, padding:'2px 6px', flexShrink:0,
+                                }}>
+                                  +{q.xp} XP
+                                </span>
+                              </div>
+                            );
+                          })}
+                          <div style={{fontSize:10, fontWeight:700, color:'var(--subtext)', marginTop:6}}>
+                            Campaign XP: {earnedXP} / {totalXP}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
               <button
                 onClick={() => { setCampaignDismissed(true); localStorage.setItem('nh_campaign_dismissed_'+activeCampaign.id,'1'); }}
