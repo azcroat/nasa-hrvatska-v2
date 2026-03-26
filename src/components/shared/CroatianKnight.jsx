@@ -1,319 +1,435 @@
 import React from 'react';
 
 /**
- * Croatian Knight Mascot — Naša Hrvatska app mascot
- * Bold geometric flat-design character with full mood system.
- * ViewBox: 0 0 100 120
+ * Croatian Knight Mascot v2 — Premium detailed character
+ * Full articulated armor with šahovnica shield, mood system,
+ * rich gradients, and animated states.
+ * ViewBox: 0 0 120 160
  */
 export default function CroatianKnight({ size = 80, mood = 'neutral', className = '', style = {} }) {
 
-  // ── MOOD LOGIC ────────────────────────────────────────────────────────────
-  const isConfused = mood === 'confused';
   const isCelebrating = mood === 'celebrating';
+  const isConfused    = mood === 'confused';
+  const isSad         = mood === 'sad';
+  const isHappy       = mood === 'happy';
+  const isThinking    = mood === 'thinking';
+  const isEncouraged  = mood === 'encouraged';
 
-  // Eye elements rendered above visor — keyed by mood
+  // ── CONFETTI ────────────────────────────────────────────────────────────────
+  const confetti = [
+    { x:8,  y:20, w:6, h:3.5, c:'#D40030', r:22  },
+    { x:24, y:10, w:4, h:6,   c:'#FFE070', r:-16 },
+    { x:75, y:14, w:6, h:3.5, c:'#38bdf8', r:32  },
+    { x:92, y:26, w:3.5,h:6,  c:'#16a34a', r:-12 },
+    { x:12, y:42, w:5, h:3,   c:'#38bdf8', r:48  },
+    { x:96, y:44, w:3.5,h:5,  c:'#D40030', r:-38 },
+    { x:5,  y:65, w:5, h:3,   c:'#FFE070', r:12  },
+    { x:100,y:68, w:3.5,h:5,  c:'#16a34a', r:28  },
+    { x:20, y:80, w:4, h:4,   c:'#a78bfa', r:-22 },
+    { x:88, y:82, w:4, h:4,   c:'#f59e0b', r:18  },
+  ];
+
+  // ── MOOD EYES ──────────────────────────────────────────────────────────────
   const renderEyes = () => {
+    // Eye base positions in the visor slit
+    const ly = 36, ry = 36, lx = 50, rx = 66;
     switch (mood) {
       case 'happy':
-        // Curved happy arcs (upward squint)
         return (
           <>
-            <path d="M 41 22 Q 44 19 47 22" stroke="#1e3a5f" strokeWidth="2" fill="none" strokeLinecap="round" />
-            <path d="M 53 22 Q 56 19 59 22" stroke="#1e3a5f" strokeWidth="2" fill="none" strokeLinecap="round" />
-            <circle cx="43" cy="24" r="1.2" fill="#f87171" opacity="0.45" />
-            <circle cx="57" cy="24" r="1.2" fill="#f87171" opacity="0.45" />
+            <path d={`M ${lx-4} ${ly} Q ${lx} ${ly-4} ${lx+4} ${ly}`}
+              stroke="#1e3a5f" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
+            <path d={`M ${rx-4} ${ry} Q ${rx} ${ry-4} ${rx+4} ${ry}`}
+              stroke="#1e3a5f" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
+            <circle cx={lx-2} cy={ly+2} r="1.5" fill="#f87171" opacity="0.45"/>
+            <circle cx={rx+2} cy={ry+2} r="1.5" fill="#f87171" opacity="0.45"/>
           </>
         );
       case 'celebrating':
         return (
           <>
-            {/* Wide-open circle eyes */}
-            <circle cx="44" cy="21" r="3" fill="#1e3a5f" />
-            <circle cx="56" cy="21" r="3" fill="#1e3a5f" />
-            <circle cx="44.9" cy="20.1" r="1" fill="white" />
-            <circle cx="56.9" cy="20.1" r="1" fill="white" />
-            {/* Star sparkles at eye corners */}
-            <text x="38" y="19" fontSize="4" fill="#FFE070" textAnchor="middle">★</text>
-            <text x="62" y="19" fontSize="4" fill="#FFE070" textAnchor="middle">★</text>
-            {/* Rosy cheeks */}
-            <circle cx="41" cy="25" r="2.5" fill="#f87171" opacity="0.4" />
-            <circle cx="59" cy="25" r="2.5" fill="#f87171" opacity="0.4" />
-          </>
-        );
-      case 'thinking':
-        // One eye slightly larger
-        return (
-          <>
-            <circle cx="44" cy="21" r="2.5" fill="#1e3a5f" />
-            <circle cx="56" cy="21" r="3.2" fill="#1e3a5f" />
-            <circle cx="44.7" cy="20.3" r="0.9" fill="white" />
-            <circle cx="56.9" cy="20.3" r="1.1" fill="white" />
-            {/* Hand-to-chin: small rect at jaw */}
-            <rect x="46" y="30" width="8" height="3" rx="1.5" fill="#b8cce4" opacity="0.7" />
+            <circle cx={lx} cy={ly} r="4" fill="#1e3a5f"/>
+            <circle cx={rx} cy={ry} r="4" fill="#1e3a5f"/>
+            <circle cx={lx+1.2} cy={ly-1.2} r="1.4" fill="white"/>
+            <circle cx={rx+1.2} cy={ry-1.2} r="1.4" fill="white"/>
+            <text x={lx-8} y={ly-4} fontSize="5" fill="#FFE070">★</text>
+            <text x={rx+3} y={ry-4} fontSize="5" fill="#FFE070">★</text>
+            <circle cx={lx-6} cy={ly+4} r="3" fill="#f87171" opacity="0.4"/>
+            <circle cx={rx+6} cy={ry+4} r="3" fill="#f87171" opacity="0.4"/>
           </>
         );
       case 'sad':
-        // Drooping inner-corner eyes
         return (
           <>
-            <path d="M 41 23 Q 44 21 47 20" stroke="#1e3a5f" strokeWidth="2" fill="none" strokeLinecap="round" />
-            <path d="M 53 20 Q 56 21 59 23" stroke="#1e3a5f" strokeWidth="2" fill="none" strokeLinecap="round" />
-            {/* Downward mouth */}
-            <path d="M 44 30 Q 50 27 56 30" stroke="#1e3a5f" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-            {/* Tear drops */}
-            <ellipse cx="43" cy="26" rx="1" ry="1.5" fill="#93c5fd" opacity="0.7" />
+            <path d={`M ${lx-4} ${ly-1} Q ${lx} ${ly+2} ${lx+4} ${ly+3}`}
+              stroke="#1e3a5f" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
+            <path d={`M ${rx-4} ${ry+3} Q ${rx} ${ry+2} ${rx+4} ${ry-1}`}
+              stroke="#1e3a5f" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
+            <ellipse cx={lx-1} cy={ly+6} rx="1.5" ry="2.5" fill="#93c5fd" opacity="0.75"/>
+          </>
+        );
+      case 'thinking':
+        return (
+          <>
+            <circle cx={lx}   cy={ly} r="3.2" fill="#1e3a5f"/>
+            <circle cx={rx}   cy={ry} r="4"   fill="#1e3a5f"/>
+            <circle cx={lx+1} cy={ly-1.2} r="1.1" fill="white"/>
+            <circle cx={rx+1.2} cy={ry-1.2} r="1.3" fill="white"/>
+            <text x="72" y="30" fontSize="7" fill="#FFE070" fontWeight="900">?</text>
           </>
         );
       case 'encouraged':
         return (
           <>
-            <circle cx="44" cy="21" r="2.5" fill="#1e3a5f" />
-            <circle cx="56" cy="21" r="2.5" fill="#1e3a5f" />
-            <circle cx="44.7" cy="20.3" r="0.9" fill="white" />
-            <circle cx="56.7" cy="20.3" r="0.9" fill="white" />
-            {/* Raised brows */}
-            <rect x="41" y="16" width="6" height="1.5" rx="0.75" fill="#1e3a5f" />
-            <rect x="53" y="16" width="6" height="1.5" rx="0.75" fill="#1e3a5f" />
-            {/* Half-smile */}
-            <path d="M 44 29 Q 50 33 56 29" stroke="#1e3a5f" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+            <circle cx={lx} cy={ly} r="3.2" fill="#1e3a5f"/>
+            <circle cx={rx} cy={ry} r="3.2" fill="#1e3a5f"/>
+            <circle cx={lx+1} cy={ly-1} r="1.1" fill="white"/>
+            <circle cx={rx+1} cy={ry-1} r="1.1" fill="white"/>
+            <rect x={lx-5} y={ly-8} width="9" height="2" rx="1" fill="#1e3a5f"/>
+            <rect x={rx-5} y={ry-8} width="9" height="2" rx="1" fill="#1e3a5f"/>
+            <path d={`M ${lx-4} ${ly+7} Q ${lx+8} ${ly+11} ${rx+4} ${ry+7}`}
+              stroke="#1e3a5f" strokeWidth="2" fill="none" strokeLinecap="round"/>
           </>
         );
       case 'confused':
         return (
           <>
-            {/* One eye larger */}
-            <circle cx="44" cy="21" r="2" fill="#1e3a5f" />
-            <circle cx="56" cy="21" r="3.2" fill="#1e3a5f" />
-            <circle cx="44.6" cy="20.4" r="0.7" fill="white" />
-            <circle cx="56.9" cy="20.3" r="1.1" fill="white" />
-            {/* Wavy confused mouth */}
-            <path d="M 44 29 Q 47 31 50 29 Q 53 27 56 29" stroke="#1e3a5f" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-            {/* ? near helmet */}
-            <text x="68" y="18" fontSize="8" fill="#FFE070" fontWeight="900" textAnchor="middle">?</text>
+            <circle cx={lx}   cy={ly} r="2.5" fill="#1e3a5f"/>
+            <circle cx={rx}   cy={ry} r="4"   fill="#1e3a5f"/>
+            <circle cx={lx+0.8} cy={ly-0.8} r="0.9" fill="white"/>
+            <circle cx={rx+1.2} cy={ry-1.2} r="1.4" fill="white"/>
+            <path d={`M ${lx-3} ${ly+7} Q ${lx+4} ${ly+10} ${lx+8} ${ly+7} Q ${rx} ${ly+4} ${rx+4} ${ry+7}`}
+              stroke="#1e3a5f" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
+            <text x="76" y="22" fontSize="8" fill="#FFE070" fontWeight="900">?</text>
           </>
         );
-      default:
-        // neutral
+      default: // neutral
         return (
           <>
-            <circle cx="44" cy="21" r="2.5" fill="#1e3a5f" />
-            <circle cx="56" cy="21" r="2.5" fill="#1e3a5f" />
-            <circle cx="44.7" cy="20.3" r="0.9" fill="white" />
-            <circle cx="56.7" cy="20.3" r="0.9" fill="white" />
+            <circle cx={lx}   cy={ly}   r="3.2" fill="#1e3a5f"/>
+            <circle cx={rx}   cy={ry}   r="3.2" fill="#1e3a5f"/>
+            <circle cx={lx+1} cy={ly-1} r="1.1" fill="white"/>
+            <circle cx={rx+1} cy={ry-1} r="1.1" fill="white"/>
           </>
         );
     }
   };
 
-  // ── CONFETTI (celebrating) ────────────────────────────────────────────────
-  const confettiPieces = [
-    { x: 10, y: 18, w: 5, h: 3, color: '#D40030', rotate: 20 },
-    { x: 22, y: 10, w: 3, h: 5, color: '#FFE070', rotate: -15 },
-    { x: 70, y: 12, w: 5, h: 3, color: '#38bdf8', rotate: 30 },
-    { x: 80, y: 24, w: 3, h: 5, color: '#16a34a', rotate: -10 },
-    { x: 14, y: 36, w: 4, h: 3, color: '#38bdf8', rotate: 45 },
-    { x: 82, y: 40, w: 3, h: 4, color: '#D40030', rotate: -35 },
-    { x: 6,  y: 55, w: 4, h: 3, color: '#FFE070', rotate: 10 },
-    { x: 88, y: 60, w: 3, h: 4, color: '#16a34a', rotate: 25 },
-  ];
-
-  // ── RENDER ────────────────────────────────────────────────────────────────
   return (
     <svg
       width={size}
       height={size * 1.5}
-      viewBox="0 0 100 120"
+      viewBox="0 0 120 160"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       style={style}
       role="img"
       aria-label={`Croatian knight mascot, ${mood} expression`}
-      transform={isConfused ? 'rotate(-4)' : undefined}
+      transform={isConfused ? 'rotate(-5)' : undefined}
     >
       <defs>
-        {/* Steel armor — metallic blue-steel */}
-        <linearGradient id="ck-steelArmor" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#b8cce4" />
-          <stop offset="100%" stopColor="#5c7a9e" />
+        {/* ── Premium armor gradients ── */}
+        <linearGradient id="ck2-armor" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stopColor="#c8d8ee"/>
+          <stop offset="35%"  stopColor="#94b2cc"/>
+          <stop offset="100%" stopColor="#5a7898"/>
         </linearGradient>
-        {/* Deep armor shadow */}
-        <linearGradient id="ck-deepArmor" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#4a6080" />
-          <stop offset="100%" stopColor="#2d3d52" />
+        <linearGradient id="ck2-armorDark" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stopColor="#546880"/>
+          <stop offset="100%" stopColor="#2a3848"/>
         </linearGradient>
-        {/* Croatian gold trim */}
-        <linearGradient id="ck-goldTrim" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#FFE070" />
-          <stop offset="100%" stopColor="#C8980A" />
+        <linearGradient id="ck2-armorSheen" x1="0%" y1="0%" x2="60%" y2="100%">
+          <stop offset="0%"   stopColor="#dceaf8" stopOpacity="0.8"/>
+          <stop offset="60%"  stopColor="#a0bcd0" stopOpacity="0.3"/>
+          <stop offset="100%" stopColor="#6080a0" stopOpacity="0.1"/>
         </linearGradient>
-        {/* Warm skin tone */}
-        <linearGradient id="ck-skinTone" x1="0%" y1="0%" x2="30%" y2="100%">
-          <stop offset="0%" stopColor="#fad4b0" />
-          <stop offset="100%" stopColor="#e8a87c" />
+        <linearGradient id="ck2-gold" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stopColor="#FFE682"/>
+          <stop offset="50%"  stopColor="#F4C430"/>
+          <stop offset="100%" stopColor="#C8920A"/>
         </linearGradient>
-        {/* Crimson plume */}
-        <linearGradient id="ck-plume" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#dc2626" />
-          <stop offset="100%" stopColor="#7f1d1d" />
+        <linearGradient id="ck2-goldV" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%"   stopColor="#FFE682"/>
+          <stop offset="100%" stopColor="#B87800"/>
         </linearGradient>
-        {/* Dark red cape */}
-        <linearGradient id="ck-cape" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#7f1d1d" />
-          <stop offset="100%" stopColor="#450a0a" />
+        <linearGradient id="ck2-skin" x1="0%" y1="0%" x2="30%" y2="100%">
+          <stop offset="0%"   stopColor="#ffd9b0"/>
+          <stop offset="60%"  stopColor="#f0b880"/>
+          <stop offset="100%" stopColor="#d89060"/>
         </linearGradient>
-        {/* Šahovnica shield clip */}
-        <clipPath id="ck-shieldClip">
-          <path d="M 8 50 L 8 76 Q 8 88 20 94 L 26 88 L 26 50 Z" />
+        <linearGradient id="ck2-plume" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%"   stopColor="#ff4444"/>
+          <stop offset="40%"  stopColor="#dc1414"/>
+          <stop offset="100%" stopColor="#7f0000"/>
+        </linearGradient>
+        <linearGradient id="ck2-cape" x1="0%" y1="0%" x2="30%" y2="100%">
+          <stop offset="0%"   stopColor="#8c1c1c"/>
+          <stop offset="60%"  stopColor="#5c0c0c"/>
+          <stop offset="100%" stopColor="#380808"/>
+        </linearGradient>
+        <linearGradient id="ck2-sword" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stopColor="#d0d8e0"/>
+          <stop offset="40%"  stopColor="#e8f0f8"/>
+          <stop offset="100%" stopColor="#a0b0c0"/>
+        </linearGradient>
+        <linearGradient id="ck2-boot" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%"   stopColor="#2a2a3e"/>
+          <stop offset="100%" stopColor="#14141e"/>
+        </linearGradient>
+
+        {/* ── Shield clip path ── */}
+        <clipPath id="ck2-shieldClip">
+          <path d="M 5 64 L 5 92 Q 5 108 18 116 L 26 110 L 26 64 Z"/>
         </clipPath>
+
+        {/* ── Glow filter for sword blade ── */}
+        <filter id="ck2-swordGlow" x="-20%" y="-10%" width="140%" height="120%">
+          <feGaussianBlur stdDeviation="1.5" result="blur"/>
+          <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+        </filter>
+
+        {/* ── Drop shadow filter ── */}
+        <filter id="ck2-drop" x="-20%" y="-10%" width="140%" height="130%">
+          <feDropShadow dx="1" dy="3" stdDeviation="3" floodColor="rgba(0,0,0,0.35)"/>
+        </filter>
       </defs>
 
-      {/* ── GROUND SHADOW ─────────────────────────────────── */}
-      <ellipse cx="50" cy="118" rx="28" ry="3" fill="rgba(0,0,0,0.15)" />
+      {/* ── Ground shadow ── */}
+      <ellipse cx="60" cy="156" rx="34" ry="4" fill="rgba(0,0,0,0.18)"/>
 
-      {/* ── CELEBRATING CONFETTI (behind knight) ─────────── */}
-      {isCelebrating && confettiPieces.map((p, i) => (
-        <rect
-          key={i}
-          x={p.x} y={p.y}
-          width={p.w} height={p.h}
-          rx="0.5"
-          fill={p.color}
-          opacity="0.9"
-          transform={`rotate(${p.rotate} ${p.x + p.w / 2} ${p.y + p.h / 2})`}
-        />
+      {/* ── Confetti (celebrating) ── */}
+      {isCelebrating && confetti.map((p,i) => (
+        <rect key={i} x={p.x} y={p.y} width={p.w} height={p.h} rx="0.6"
+          fill={p.c} opacity="0.9"
+          transform={`rotate(${p.r} ${p.x+p.w/2} ${p.y+p.h/2})`}/>
       ))}
 
-      <g filter="drop-shadow(0px 2px 5px rgba(0,0,0,0.22))">
+      <g filter="url(#ck2-drop)">
 
-        {/* ── CAPE (behind body — render first) ────────────── */}
-        <path d="M 28 46 Q 18 60 20 90 L 30 86 L 30 80 L 28 46" fill="url(#ck-cape)" />
-        <path d="M 72 46 Q 82 60 80 90 L 70 86 L 70 80 L 72 46" fill="url(#ck-cape)" />
+        {/* ═══ CAPE ═════════════════════════════════════════ */}
+        {/* Left cape wing */}
+        <path d="M 32 58 Q 20 72 22 112 L 34 108 L 34 96 L 32 58"
+          fill="url(#ck2-cape)"/>
+        {/* Cape lining — gold trim */}
+        <path d="M 32 58 Q 21 72 22 112"
+          stroke="url(#ck2-gold)" strokeWidth="1.5" fill="none" opacity="0.7"/>
+        {/* Right cape wing */}
+        <path d="M 88 58 Q 100 72 98 112 L 86 108 L 86 96 L 88 58"
+          fill="url(#ck2-cape)"/>
+        <path d="M 88 58 Q 99 72 98 112"
+          stroke="url(#ck2-gold)" strokeWidth="1.5" fill="none" opacity="0.7"/>
 
-        {/* ── LEGS ──────────────────────────────────────────── */}
+        {/* ═══ LEGS ════════════════════════════════════════ */}
         {/* Left leg */}
-        <rect x="32" y="84" width="14" height="28" rx="3" fill="url(#ck-steelArmor)" />
+        <rect x="34" y="104" width="18" height="36" rx="4" fill="url(#ck2-armor)"/>
+        {/* Left leg sheen */}
+        <rect x="36" y="104" width="7" height="36" rx="3.5" fill="url(#ck2-armorSheen)" opacity="0.6"/>
+        {/* Left shin stripe */}
+        <rect x="42.5" y="106" width="2.5" height="26" rx="1.2" fill="url(#ck2-gold)" opacity="0.65"/>
+        {/* Left knee guard */}
+        <ellipse cx="43" cy="116" rx="10" ry="5" fill="url(#ck2-armorDark)"/>
+        {/* Left knee center stud */}
+        <circle cx="43" cy="116" r="2.5" fill="url(#ck2-gold)"/>
+        {/* Left boot */}
+        <rect x="33" y="136" width="20" height="12" rx="3" fill="url(#ck2-boot)"/>
+        {/* Boot highlight */}
+        <rect x="35" y="137" width="8" height="3" rx="1.5" fill="rgba(255,255,255,0.12)"/>
+        {/* Boot sole */}
+        <rect x="32" y="146" width="22" height="3" rx="1.5" fill="#0a0a14"/>
+
         {/* Right leg */}
-        <rect x="54" y="84" width="14" height="28" rx="3" fill="url(#ck-steelArmor)" />
-        {/* Gold shin stripes */}
-        <rect x="38" y="86" width="2" height="20" rx="1" fill="url(#ck-goldTrim)" opacity="0.55" />
-        <rect x="60" y="86" width="2" height="20" rx="1" fill="url(#ck-goldTrim)" opacity="0.55" />
-        {/* Knee guards */}
-        <rect x="30" y="95" width="18" height="6" rx="2" fill="url(#ck-deepArmor)" />
-        <rect x="52" y="95" width="18" height="6" rx="2" fill="url(#ck-deepArmor)" />
-        {/* Boots */}
-        <rect x="31" y="108" width="16" height="8" rx="2" fill="#1a1a2e" />
-        <rect x="53" y="108" width="16" height="8" rx="2" fill="#1a1a2e" />
+        <rect x="68" y="104" width="18" height="36" rx="4" fill="url(#ck2-armor)"/>
+        <rect x="70" y="104" width="7" height="36" rx="3.5" fill="url(#ck2-armorSheen)" opacity="0.6"/>
+        <rect x="76.5" y="106" width="2.5" height="26" rx="1.2" fill="url(#ck2-gold)" opacity="0.65"/>
+        <ellipse cx="77" cy="116" rx="10" ry="5" fill="url(#ck2-armorDark)"/>
+        <circle cx="77" cy="116" r="2.5" fill="url(#ck2-gold)"/>
+        <rect x="67" y="136" width="20" height="12" rx="3" fill="url(#ck2-boot)"/>
+        <rect x="69" y="137" width="8" height="3" rx="1.5" fill="rgba(255,255,255,0.12)"/>
+        <rect x="66" y="146" width="22" height="3" rx="1.5" fill="#0a0a14"/>
 
-        {/* ── BODY / TORSO ──────────────────────────────────── */}
-        {/* Chest armor trapezoid */}
-        <path d="M 28 46 L 72 46 L 68 80 L 32 80 Z" fill="url(#ck-steelArmor)" />
-        {/* Chest center gold stripe */}
-        <rect x="48.5" y="46" width="3" height="34" rx="1" fill="url(#ck-goldTrim)" opacity="0.7" />
-        {/* Chest highlight sheen */}
-        <ellipse cx="44" cy="58" rx="5" ry="8" fill="rgba(255,255,255,0.12)" />
-
-        {/* ── PAULDRONS (shoulders) ─────────────────────────── */}
-        <path d="M 22 44 Q 18 42 20 54 Q 22 58 30 56 L 30 44 Z" fill="url(#ck-steelArmor)" />
-        <path d="M 78 44 Q 82 42 80 54 Q 78 58 70 56 L 70 44 Z" fill="url(#ck-steelArmor)" />
-        {/* Gold shoulder edge highlights */}
-        <path d="M 22 44 Q 18 42 20 54" stroke="url(#ck-goldTrim)" strokeWidth="1.2" fill="none" />
-        <path d="M 78 44 Q 82 42 80 54" stroke="url(#ck-goldTrim)" strokeWidth="1.2" fill="none" />
-
-        {/* ── BELT ──────────────────────────────────────────── */}
-        <rect x="30" y="78" width="40" height="6" rx="2" fill="url(#ck-deepArmor)" />
-        {/* Belt buckle */}
-        <rect x="46" y="79" width="8" height="4" rx="1" fill="url(#ck-goldTrim)" />
-
-        {/* ── SHIELD (left arm) ─────────────────────────────── */}
-        {/* Left arm holding shield */}
-        <rect x="26" y="56" width="8" height="24" rx="3" fill="url(#ck-steelArmor)" />
-        {/* Shield body — heater shape */}
-        <path
-          d="M 8 50 L 8 76 Q 8 88 20 94 L 26 88 L 26 50 Z"
-          fill="#D40030"
-          stroke="url(#ck-goldTrim)"
-          strokeWidth="1.5"
-        />
-        {/* Šahovnica — 2×3 checkerboard clipped to shield */}
-        <g clipPath="url(#ck-shieldClip)">
-          {[0, 1].map(col =>
-            [0, 1, 2].map(row => (
-              <rect
-                key={`shd-${col}-${row}`}
-                x={8 + col * 9}
-                y={52 + row * 13}
-                width={9}
-                height={13}
-                fill={(col + row) % 2 === 0 ? '#D40030' : 'white'}
-              />
-            ))
-          )}
+        {/* ═══ TORSO ═══════════════════════════════════════ */}
+        {/* Chest plate */}
+        <path d="M 30 56 L 90 56 L 85 100 L 35 100 Z" fill="url(#ck2-armor)"/>
+        {/* Chest sheen — specular highlight */}
+        <path d="M 32 56 L 62 56 L 58 100 L 36 100 Z" fill="url(#ck2-armorSheen)" opacity="0.5"/>
+        {/* Chest center keel — gold */}
+        <rect x="58.5" y="56" width="3" height="44" rx="1.5" fill="url(#ck2-goldV)" opacity="0.8"/>
+        {/* Chest horizontal bands — articulation lines */}
+        {[64,72,80,88,96].map((y,i) => (
+          <line key={i} x1={30+i*1.2} y1={y} x2={90-i*1.2} y2={y}
+            stroke="#4a6888" strokeWidth="0.9" opacity="0.45"/>
+        ))}
+        {/* Left breast rivets */}
+        <circle cx="44" cy="68" r="1.8" fill="url(#ck2-gold)" opacity="0.8"/>
+        <circle cx="44" cy="80" r="1.8" fill="url(#ck2-gold)" opacity="0.8"/>
+        {/* Right breast rivets */}
+        <circle cx="76" cy="68" r="1.8" fill="url(#ck2-gold)" opacity="0.8"/>
+        <circle cx="76" cy="80" r="1.8" fill="url(#ck2-gold)" opacity="0.8"/>
+        {/* Coat of arms engraving on breastplate — šahovnica motif */}
+        <g opacity="0.35">
+          {[0,1,2].map(col=>[0,1,2].map(row=>(
+            <rect key={`${col}-${row}`}
+              x={53+col*5} y={68+row*5} width={5} height={5}
+              fill={(col+row)%2===0?'#D40030':'white'} rx="0.3"/>
+          )))}
         </g>
-        {/* Shield border overlay (on top of šahovnica) */}
-        <path
-          d="M 8 50 L 8 76 Q 8 88 20 94 L 26 88 L 26 50 Z"
-          fill="none"
-          stroke="url(#ck-goldTrim)"
-          strokeWidth="1.5"
-        />
 
-        {/* ── SWORD (right arm, pointing upward) ────────────── */}
-        {/* Right arm */}
-        <rect x="68" y="56" width="8" height="20" rx="3" fill="url(#ck-steelArmor)" />
-        {/* Blade */}
-        <rect x="72" y="16" width="4" height="56" rx="2" fill="#d1d5db" />
-        {/* Blade shine */}
-        <rect x="73" y="16" width="2" height="56" fill="white" opacity="0.6" />
-        {/* Sword tip */}
-        <polygon points="72,16 76,16 74,8" fill="#d1d5db" />
+        {/* ═══ PAULDRONS (shoulder armor) ═════════════════ */}
+        {/* Left pauldron */}
+        <path d="M 22 52 Q 16 50 18 66 Q 20 72 30 70 L 30 52 Z"
+          fill="url(#ck2-armor)"/>
+        <path d="M 22 52 Q 16 50 18 66" stroke="url(#ck2-gold)" strokeWidth="1.5" fill="none"/>
+        <ellipse cx="22" cy="60" rx="6" ry="3.5" fill="url(#ck2-armorSheen)" opacity="0.5"/>
+        {/* Left pauldron lower lamella */}
+        <path d="M 22 64 Q 16 64 18 72 Q 20 76 30 74"
+          fill="url(#ck2-armorDark)" opacity="0.7"/>
+        <path d="M 22 64 Q 16 64 18 72" stroke="url(#ck2-gold)" strokeWidth="1" fill="none" opacity="0.6"/>
+
+        {/* Right pauldron */}
+        <path d="M 98 52 Q 104 50 102 66 Q 100 72 90 70 L 90 52 Z"
+          fill="url(#ck2-armor)"/>
+        <path d="M 98 52 Q 104 50 102 66" stroke="url(#ck2-gold)" strokeWidth="1.5" fill="none"/>
+        <ellipse cx="98" cy="60" rx="6" ry="3.5" fill="url(#ck2-armorSheen)" opacity="0.5"/>
+        <path d="M 98 64 Q 104 64 102 72 Q 100 76 90 74"
+          fill="url(#ck2-armorDark)" opacity="0.7"/>
+        <path d="M 98 64 Q 104 64 102 72" stroke="url(#ck2-gold)" strokeWidth="1" fill="none" opacity="0.6"/>
+
+        {/* ═══ BELT & TASSETS ═════════════════════════════ */}
+        {/* Belt */}
+        <rect x="33" y="98" width="54" height="8" rx="2.5" fill="url(#ck2-armorDark)"/>
+        {/* Belt plate center */}
+        <rect x="55" y="98" width="10" height="8" rx="2" fill="url(#ck2-armor)"/>
+        {/* Buckle */}
+        <rect x="57.5" y="99.5" width="5" height="5" rx="1" fill="url(#ck2-gold)"/>
+        <rect x="59" y="100.5" width="2" height="3" rx="0.5" fill="rgba(0,0,0,0.4)"/>
+        {/* Tassets (hip armor plates) */}
+        <path d="M 33 104 Q 28 108 30 120 L 38 118 L 36 104 Z" fill="url(#ck2-armorDark)" opacity="0.8"/>
+        <path d="M 87 104 Q 92 108 90 120 L 82 118 L 84 104 Z" fill="url(#ck2-armorDark)" opacity="0.8"/>
+
+        {/* ═══ SHIELD (left arm) ═══════════════════════════ */}
+        {/* Arm holding shield */}
+        <rect x="28" y="68" width="10" height="32" rx="4" fill="url(#ck2-armor)"/>
+        <rect x="30" y="68" width="4" height="32" rx="2" fill="url(#ck2-armorSheen)" opacity="0.6"/>
+
+        {/* Shield body — heater/almond shape */}
+        <path d="M 5 64 L 5 92 Q 5 108 18 116 L 26 110 L 26 64 Z"
+          fill="#cc0020" stroke="url(#ck2-gold)" strokeWidth="2"/>
+        {/* Šahovnica — 2×4 checkerboard clipped to shield */}
+        <g clipPath="url(#ck2-shieldClip)">
+          {[0,1].map(col=>[0,1,2,3].map(row=>(
+            <rect key={`s-${col}-${row}`}
+              x={5+col*10.5} y={66+row*11.5}
+              width={10.5} height={11.5}
+              fill={(col+row)%2===0?'#cc0020':'white'}/>
+          )))}
+        </g>
+        {/* Shield border (on top of šahovnica) */}
+        <path d="M 5 64 L 5 92 Q 5 108 18 116 L 26 110 L 26 64 Z"
+          fill="none" stroke="url(#ck2-gold)" strokeWidth="2"/>
+        {/* Shield boss (center) */}
+        <circle cx="15.5" cy="88" r="5" fill="url(#ck2-gold)"/>
+        <circle cx="15.5" cy="88" r="3" fill="#c8900a"/>
+        {/* Shield shine */}
+        <path d="M 8 66 Q 6 80 8 90" stroke="rgba(255,255,255,0.25)" strokeWidth="2" fill="none"/>
+
+        {/* ═══ SWORD (right arm) ═══════════════════════════ */}
+        {/* Arm */}
+        <rect x="82" y="68" width="10" height="26" rx="4" fill="url(#ck2-armor)"/>
+        <rect x="84" y="68" width="4" height="26" rx="2" fill="url(#ck2-armorSheen)" opacity="0.6"/>
+
+        {/* Blade — with fuller groove and taper */}
+        <path d="M 89 18 L 91 88 L 90 88 L 88 18 Z" fill="url(#ck2-sword)" filter="url(#ck2-swordGlow)"/>
+        {/* Fuller groove */}
+        <line x1="89.8" y1="20" x2="89.8" y2="85" stroke="rgba(200,220,240,0.6)" strokeWidth="0.8"/>
+        {/* Blade edge gleam */}
+        <path d="M 88 18 L 90.5 18 L 90.5 88 L 88 88 Z"
+          fill="rgba(255,255,255,0.55)" opacity="0.7"/>
+        {/* Blade tip */}
+        <polygon points="88,18 91,18 89.5,8" fill="url(#ck2-sword)"/>
+        <polygon points="89.3,8 90.2,8 89.5,4" fill="#c8d4e0"/>
         {/* Crossguard */}
-        <rect x="66" y="60" width="16" height="5" rx="2" fill="url(#ck-goldTrim)" />
-        {/* Grip */}
-        <rect x="73" y="65" width="4" height="12" rx="2" fill="#92400e" />
+        <rect x="80" y="76" width="20" height="6" rx="3" fill="url(#ck2-gold)"/>
+        <rect x="80" y="76" width="20" height="2.5" rx="1.2" fill="#FFE682" opacity="0.5"/>
+        {/* Grip — wound leather */}
+        <rect x="88" y="82" width="5" height="14" rx="2.5" fill="#7a3a10"/>
+        {[84,87,90,93].map((y,i) => (
+          <rect key={i} x="88" y={y} width="5" height="1.5" rx="0.75" fill="#5a2a08" opacity="0.6"/>
+        ))}
         {/* Pommel */}
-        <circle cx="75" cy="80" r="4" fill="url(#ck-goldTrim)" />
+        <ellipse cx="90.5" cy="98" rx="5.5" ry="4" fill="url(#ck2-gold)"/>
+        <ellipse cx="90.5" cy="97.5" rx="3" ry="2" fill="#FFE682" opacity="0.5"/>
 
-        {/* ── NECK & GORGET ─────────────────────────────────── */}
-        <rect x="45" y="34" width="10" height="6" rx="2" fill="url(#ck-skinTone)" />
-        {/* Gorget (collar armor) */}
-        <rect x="40" y="38" width="20" height="8" rx="3" fill="url(#ck-steelArmor)" />
-        {/* Gold gorget rim */}
-        <rect x="40" y="38" width="20" height="2" rx="1" fill="url(#ck-goldTrim)" opacity="0.8" />
+        {/* ═══ NECK & GORGET ═══════════════════════════════ */}
+        <rect x="54" y="46" width="12" height="8" rx="2.5" fill="url(#ck2-skin)"/>
+        {/* Gorget — articulated collar armor */}
+        <rect x="46" y="50" width="28" height="10" rx="4" fill="url(#ck2-armor)"/>
+        {/* Gorget lamella lines */}
+        <line x1="46" y1="54" x2="74" y2="54" stroke="#4a6888" strokeWidth="1" opacity="0.5"/>
+        {/* Gorget gold trim */}
+        <rect x="46" y="50" width="28" height="2.5" rx="1.2" fill="url(#ck2-gold)" opacity="0.85"/>
+        <rect x="46" y="58" width="28" height="2" rx="1" fill="url(#ck2-gold)" opacity="0.65"/>
 
-        {/* ── HEAD & HELMET ──────────────────────────────────── */}
-        {/* Face ellipse */}
-        <ellipse cx="50" cy="26" rx="12" ry="13" fill="url(#ck-skinTone)" />
+        {/* ═══ HEAD & HELMET ═══════════════════════════════ */}
+        {/* Face — warm skin */}
+        <ellipse cx="60" cy="34" rx="15" ry="16" fill="url(#ck2-skin)"/>
 
-        {/* Helmet dome — curved path over the head */}
-        <path d="M 38 26 Q 36 12 50 10 Q 64 12 62 26" fill="url(#ck-steelArmor)" />
+        {/* Helmet dome — full visor helmet */}
+        <path d="M 44 34 Q 42 14 60 12 Q 78 14 76 34"
+          fill="url(#ck2-armor)"/>
+        {/* Helmet dome sheen */}
+        <path d="M 46 34 Q 45 16 60 14 Q 70 15 73 28"
+          fill="url(#ck2-armorSheen)" opacity="0.55"/>
 
         {/* Cheek guards */}
-        <rect x="35" y="22" width="6" height="12" rx="3" fill="url(#ck-steelArmor)" />
-        <rect x="59" y="22" width="6" height="12" rx="3" fill="url(#ck-steelArmor)" />
+        <rect x="40" y="28" width="9" height="16" rx="4" fill="url(#ck2-armor)"/>
+        <rect x="71" y="28" width="9" height="16" rx="4" fill="url(#ck2-armor)"/>
+        {/* Cheek guard rivets */}
+        <circle cx="44" cy="32" r="1.2" fill="url(#ck2-gold)" opacity="0.7"/>
+        <circle cx="76" cy="32" r="1.2" fill="url(#ck2-gold)" opacity="0.7"/>
 
-        {/* Helmet gold rim */}
-        <rect x="36" y="21" width="28" height="3" rx="1" fill="url(#ck-goldTrim)" />
+        {/* Helmet gold brow band */}
+        <rect x="40" y="27" width="40" height="4" rx="2" fill="url(#ck2-gold)"/>
+        <rect x="40" y="27" width="40" height="1.5" rx="0.75" fill="#FFE682" opacity="0.6"/>
 
-        {/* Visor/brow — dark covering the upper eye zone when helmeted */}
-        <rect x="37" y="22" width="26" height="8" rx="3" fill="url(#ck-deepArmor)" />
+        {/* Nose guard */}
+        <rect x="58.5" y="28" width="3" height="16" rx="1.5" fill="url(#ck2-armorDark)" opacity="0.8"/>
 
-        {/* Visor slit — eye opening */}
-        <rect x="38" y="25" width="24" height="3" rx="1" fill="rgba(0,0,0,0.8)" />
+        {/* Visor — articulated lower face cover */}
+        <rect x="41" y="28" width="38" height="13" rx="4" fill="url(#ck2-armorDark)"/>
+        {/* Visor sheen */}
+        <rect x="42" y="29" width="16" height="5" rx="2.5" fill="rgba(255,255,255,0.07)"/>
 
-        {/* ── MOOD EYES (float above/in visor) ─────────────── */}
+        {/* Visor eye slit — twin slits with grill */}
+        <rect x="42" y="33" width="13" height="4" rx="2" fill="rgba(0,0,0,0.82)"/>
+        <rect x="59" y="33" width="13" height="4" rx="2" fill="rgba(0,0,0,0.82)"/>
+        {/* Slit grill bars */}
+        {[44.5,47,49.5,52].map((x,i) => (
+          <line key={i} x1={x} y1={33} x2={x} y2={37} stroke="rgba(80,100,120,0.5)" strokeWidth="0.6"/>
+        ))}
+        {[61.5,64,66.5,69].map((x,i) => (
+          <line key={i} x1={x} y1={33} x2={x} y2={37} stroke="rgba(80,100,120,0.5)" strokeWidth="0.6"/>
+        ))}
+
+        {/* ── Mood eyes (glow through visor) ── */}
         {renderEyes()}
 
-        {/* ── HELMET PLUME ──────────────────────────────────── */}
-        <path
-          d="M 58 12 Q 72 8 74 4 Q 72 2 68 4 Q 72 6 62 14"
-          fill="url(#ck-plume)"
-          stroke="#991b1b"
-          strokeWidth="0.5"
-        />
+        {/* Ventail (lower visor breathing holes) */}
+        {[46,50,54,58,62,66,70].map((x,i) => (
+          <circle key={i} cx={x} cy="40" r="0.9" fill="rgba(0,0,0,0.6)"/>
+        ))}
 
-        {/* Helmet top crest ridge */}
-        <rect x="47.5" y="10" width="5" height="14" rx="2.5" fill="url(#ck-steelArmor)" />
+        {/* ═══ HELMET PLUME ════════════════════════════════ */}
+        {/* Plume base/ferrule */}
+        <rect x="57" y="10" width="6" height="5" rx="1.5" fill="url(#ck2-armorDark)"/>
+        {/* Crimson feather plume — layered for volume */}
+        <path d="M 63 14 Q 80 8 84 3 Q 80 0 74 4 Q 78 6 68 14"
+          fill="url(#ck2-plume)" stroke="#7f0000" strokeWidth="0.6"/>
+        <path d="M 62 15 Q 78 10 83 5 Q 79 3 73 6 Q 77 8 66 15"
+          fill="#ff3333" opacity="0.45"/>
+        {/* Crest ridge */}
+        <rect x="57.5" y="10" width="5" height="18" rx="2.5" fill="url(#ck2-armor)"/>
+        <rect x="58.5" y="10" width="2" height="18" rx="1" fill="url(#ck2-armorSheen)" opacity="0.7"/>
 
       </g>
     </svg>

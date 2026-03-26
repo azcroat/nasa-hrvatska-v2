@@ -108,6 +108,11 @@ html{
   --bar-bg:rgba(0,0,0,.08);
   --app-bg: #f4f6f9;
 
+  /* Primary accent — used throughout components for interactive elements */
+  --accent: #0e7490;
+  --accent-light: rgba(14,116,144,.12);
+  --accent-hover: #0c6680;
+
   /* Brand gradient */
   --brand:linear-gradient(135deg,#0e7490,#164e63);
   --brand-glow:rgba(14,116,144,.25);
