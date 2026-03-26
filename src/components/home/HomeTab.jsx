@@ -124,8 +124,8 @@ export default function HomeTab({
 
       {comebackBonus && (
         <div style={{
-          background:'linear-gradient(135deg,#fef3c7,#fde68a)',
-          border:'1.5px solid #f59e0b',
+          background:'var(--warning-bg)',
+          border:'1.5px solid var(--warning-b)',
           borderRadius:16, padding:'16px 18px', marginBottom:16,
           display:'flex', alignItems:'center', gap:14,
           boxShadow:'0 4px 16px rgba(245,158,11,.2)',
@@ -133,8 +133,8 @@ export default function HomeTab({
         }}>
           <span style={{fontSize:32}}>🎉</span>
           <div style={{flex:1}}>
-            <div style={{fontSize:14,fontWeight:900,color:'#92400e'}}>Dobrodošli natrag! Welcome back!</div>
-            <div style={{fontSize:12,color:'#b45309',marginTop:2,fontWeight:600}}>
+            <div style={{fontSize:14,fontWeight:900,color:'var(--warning)'}}>Dobrodošli natrag! Welcome back!</div>
+            <div style={{fontSize:12,color:'var(--warning)',marginTop:2,fontWeight:600,opacity:.85}}>
               You've been away — pick up where you left off. +50 bonus XP on your first lesson today!
             </div>
           </div>
@@ -760,20 +760,20 @@ export default function HomeTab({
           transition:"transform .15s, box-shadow .15s",
         }}
         onClick={() => speak(proverb.hr)}>
-        <div style={{fontSize:11,fontWeight:800,color:"#a16207",letterSpacing:".08em",textTransform:"uppercase",marginBottom:8}}>
+        <div style={{fontSize:11,fontWeight:800,color:"var(--warning)",letterSpacing:".08em",textTransform:"uppercase",marginBottom:8}}>
           🌟 Poslovica dana · Proverb of the Day
         </div>
         <div style={{
-          fontSize:16,fontWeight:700,color:"#78350f",fontStyle:"italic",
+          fontSize:16,fontWeight:700,color:"var(--heading)",fontStyle:"italic",
           marginBottom:8,lineHeight:1.6,
           fontFamily:"'Playfair Display',serif",
         }}>
           "{proverb.hr}"
         </div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <span style={{fontSize:12,color:"#92400e",fontWeight:500,lineHeight:1.4,flex:1,marginRight:12}}>{proverb.en}</span>
+          <span style={{fontSize:12,color:"var(--body)",fontWeight:500,lineHeight:1.4,flex:1,marginRight:12}}>{proverb.en}</span>
           <span style={{
-            fontSize:11,color:"#a16207",
+            fontSize:11,color:"var(--warning)",
             background:"rgba(161,98,7,.1)",
             borderRadius:20,padding:"4px 10px",
             fontWeight:600,flexShrink:0,
@@ -785,8 +785,8 @@ export default function HomeTab({
       <button
         style={{
           width:"100%",
-          background:"linear-gradient(135deg,#faf5ff,#ede9fe)",
-          border:"1.5px solid #c4b5fd",
+          background:"var(--card)",
+          border:"1.5px solid rgba(124,58,237,.25)",
           borderRadius:20,
           padding:"18px",marginBottom:20,
           cursor:"pointer",textAlign:"left",
@@ -795,20 +795,20 @@ export default function HomeTab({
           transition:"transform .15s, box-shadow .15s",
         }}
         onClick={() => speak(fact.hr)}>
-        <div style={{fontSize:11,fontWeight:800,color:"#6d28d9",letterSpacing:".08em",textTransform:"uppercase",marginBottom:8}}>
+        <div style={{fontSize:11,fontWeight:800,color:"rgba(109,40,217,.9)",letterSpacing:".08em",textTransform:"uppercase",marginBottom:8}}>
           🏛️ Povijesna činjenica · Historical Fact
         </div>
         <div style={{
-          fontSize:16,fontWeight:700,color:"#3b0764",fontStyle:"italic",
+          fontSize:16,fontWeight:700,color:"var(--heading)",fontStyle:"italic",
           marginBottom:8,lineHeight:1.6,
           fontFamily:"'Playfair Display',serif",
         }}>
           "{fact.hr}"
         </div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <span style={{fontSize:12,color:"#5b21b6",fontWeight:500,lineHeight:1.4,flex:1,marginRight:12}}>{fact.en}</span>
+          <span style={{fontSize:12,color:"var(--body)",fontWeight:500,lineHeight:1.4,flex:1,marginRight:12}}>{fact.en}</span>
           <span style={{
-            fontSize:11,color:"#6d28d9",
+            fontSize:11,color:"rgba(109,40,217,.9)",
             background:"rgba(109,40,217,.1)",
             borderRadius:20,padding:"4px 10px",
             fontWeight:600,flexShrink:0,

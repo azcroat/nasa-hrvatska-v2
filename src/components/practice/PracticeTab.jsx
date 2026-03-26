@@ -119,48 +119,48 @@ export default function PracticeTab({
 
   const recommendations = [
     weakCount >= 3
-      ? { icon:'🧠', title:'Fix Weak Words', desc:`${weakCount} words need attention`, color:'#fff1f2', border:'#fca5a5', fn: () => { setWeakMsg(""); startWeakWords(); } }
-      : { icon:'🎯', title:'Quick Quiz',      desc:'Test your vocabulary',             color:'#fff7ed', border:'#fed7aa', fn: startQuiz },
+      ? { icon:'🧠', title:'Fix Weak Words', desc:`${weakCount} words need attention`, color:'rgba(220,38,38,.08)', border:'rgba(220,38,38,.25)', fn: () => { setWeakMsg(""); startWeakWords(); } }
+      : { icon:'🎯', title:'Quick Quiz',      desc:'Test your vocabulary',             color:'rgba(234,88,12,.08)', border:'rgba(234,88,12,.25)', fn: startQuiz },
     h < 12
-      ? { icon:'🃏', title:'Flashcards',   desc:'Start the day strong',     color:'#f5f3ff', border:'#ddd6fe', fn: startFlashcards }
+      ? { icon:'🃏', title:'Flashcards',   desc:'Start the day strong',     color:'rgba(124,58,237,.08)', border:'rgba(124,58,237,.25)', fn: startFlashcards }
       : h < 18
-      ? { icon:'🎧', title:'Listening',    desc:'Train your ear',            color:'#fff1f2', border:'#fecaca', fn: startListening }
-      : { icon:'⚡', title:'Word Sprint',  desc:'End the day with speed',    color:'#fffbeb', border:'#fde68a', fn: () => { setScr("wordsprint"); sCurEx("wordsprint"); } },
-    { icon:'🔗', title:'Match Pairs', desc:'Quick memory game', color:'#f0fdf4', border:'#bbf7d0', fn: startMatch },
+      ? { icon:'🎧', title:'Listening',    desc:'Train your ear',            color:'rgba(220,38,38,.08)', border:'rgba(220,38,38,.25)', fn: startListening }
+      : { icon:'⚡', title:'Word Sprint',  desc:'End the day with speed',    color:'rgba(245,158,11,.08)', border:'rgba(245,158,11,.25)', fn: () => { setScr("wordsprint"); sCurEx("wordsprint"); } },
+    { icon:'🔗', title:'Match Pairs', desc:'Quick memory game', color:'rgba(22,163,74,.08)', border:'rgba(22,163,74,.25)', fn: startMatch },
   ];
 
   // Goal-based recommendations — shown when nh_goal is set, giving the
   // personalisation we promised during onboarding
   const goalRecMap = {
     heritage: [
-      { icon:'🏛️', title:'Croatian History',   desc:'Explore your roots',              color:'#fff7ed', border:'#fed7aa', fn:()=>{setScr("history");sCurEx("history");} },
-      { icon:'🌟', title:'Proverbs',            desc:'Wisdom through generations',      color:'#faf5ff', border:'#ddd6fe', fn:()=>{setScr("proverbs");sCurEx("proverbs");} },
-      { icon:'📖', title:'Reading',             desc:'Stories from Croatia',            color:'#f0fdf4', border:'#bbf7d0', fn:()=>{setScr("readlist");sCurEx("readlist");} },
+      { icon:'🏛️', title:'Croatian History',   desc:'Explore your roots',              color:'rgba(234,88,12,.08)', border:'rgba(234,88,12,.25)', fn:()=>{setScr("history");sCurEx("history");} },
+      { icon:'🌟', title:'Proverbs',            desc:'Wisdom through generations',      color:'rgba(124,58,237,.08)', border:'rgba(124,58,237,.25)', fn:()=>{setScr("proverbs");sCurEx("proverbs");} },
+      { icon:'📖', title:'Reading',             desc:'Stories from Croatia',            color:'rgba(22,163,74,.08)', border:'rgba(22,163,74,.25)', fn:()=>{setScr("readlist");sCurEx("readlist");} },
     ],
     family: [
-      { icon:'🃏', title:'Family Words',        desc:'People & relationships',          color:'#fff7ed', border:'#fed7aa', fn:()=>{ const p=V['family']||[]; onLaunchFlash(sh(p).slice(0,20)); } },
-      { icon:'🎤', title:'Speaking',            desc:'Say it out loud',                 color:'#f0f9ff', border:'#bae6fd', fn:startSpeaking },
-      { icon:'💬', title:'Dialogue Sim',        desc:'Real-life conversations',         color:'#faf5ff', border:'#ddd6fe', fn:()=>{setScr("dialogue");sCurEx("dialogue");} },
+      { icon:'🃏', title:'Family Words',        desc:'People & relationships',          color:'rgba(234,88,12,.08)', border:'rgba(234,88,12,.25)', fn:()=>{ const p=V['family']||[]; onLaunchFlash(sh(p).slice(0,20)); } },
+      { icon:'🎤', title:'Speaking',            desc:'Say it out loud',                 color:'rgba(14,116,144,.08)', border:'rgba(14,116,144,.25)', fn:startSpeaking },
+      { icon:'💬', title:'Dialogue Sim',        desc:'Real-life conversations',         color:'rgba(124,58,237,.08)', border:'rgba(124,58,237,.25)', fn:()=>{setScr("dialogue");sCurEx("dialogue");} },
     ],
     travel: [
-      { icon:'🍽️', title:'Restaurant',         desc:'Order like a local',              color:'#fff7ed', border:'#fed7aa', fn:()=>{setScr("restaurant");sCurEx("restaurant");} },
-      { icon:'🚗', title:'Transport',           desc:'Get around Croatia',              color:'#f0fdf4', border:'#bbf7d0', fn:()=>{setScr("transport");sCurEx("transport");} },
-      { icon:'🚨', title:'Emergency',           desc:'Phrases that matter most',        color:'#fff1f2', border:'#fecaca', fn:()=>{setScr("emergency");sCurEx("emergency");} },
+      { icon:'🍽️', title:'Restaurant',         desc:'Order like a local',              color:'rgba(234,88,12,.08)', border:'rgba(234,88,12,.25)', fn:()=>{setScr("restaurant");sCurEx("restaurant");} },
+      { icon:'🚗', title:'Transport',           desc:'Get around Croatia',              color:'rgba(22,163,74,.08)', border:'rgba(22,163,74,.25)', fn:()=>{setScr("transport");sCurEx("transport");} },
+      { icon:'🚨', title:'Emergency',           desc:'Phrases that matter most',        color:'rgba(220,38,38,.08)', border:'rgba(220,38,38,.25)', fn:()=>{setScr("emergency");sCurEx("emergency");} },
     ],
     culture: [
-      { icon:'🌊', title:'Immersion Hub',       desc:'Full Croatian immersion',         color:'#f0f9ff', border:'#bae6fd', fn:()=>{setScr("immersion");sCurEx("immersion");} },
-      { icon:'🤖', title:'AI Conversation',     desc:'Chat in Croatian',                color:'#faf5ff', border:'#ddd6fe', fn:()=>{setScr("aiconvo");sCurEx("aiconvo");} },
-      { icon:'🎵', title:'Song Lyrics',         desc:'Learn through music',             color:'#fff7ed', border:'#fed7aa', fn:()=>{setScr("lyrics");sCurEx("lyrics");} },
+      { icon:'🌊', title:'Immersion Hub',       desc:'Full Croatian immersion',         color:'rgba(14,116,144,.08)', border:'rgba(14,116,144,.25)', fn:()=>{setScr("immersion");sCurEx("immersion");} },
+      { icon:'🤖', title:'AI Conversation',     desc:'Chat in Croatian',                color:'rgba(124,58,237,.08)', border:'rgba(124,58,237,.25)', fn:()=>{setScr("aiconvo");sCurEx("aiconvo");} },
+      { icon:'🎵', title:'Song Lyrics',         desc:'Learn through music',             color:'rgba(234,88,12,.08)', border:'rgba(234,88,12,.25)', fn:()=>{setScr("lyrics");sCurEx("lyrics");} },
     ],
     fluent: [
-      { icon:'🎓', title:'CEFR Test',           desc:'Check your level A1→B2',          color:'#f0f9ff', border:'#bae6fd', fn:()=>{setScr("cefrtest");sCurEx("cefrtest");} },
-      { icon:'💬', title:'Dialogue Sim',        desc:'Real turn-based conversations',   color:'#faf5ff', border:'#ddd6fe', fn:()=>{setScr("dialogue");sCurEx("dialogue");} },
-      { icon:'🗣️', title:'Shadowing',           desc:'Native-speed listen & repeat',    color:'#f0fdf4', border:'#bbf7d0', fn:()=>{setScr("shadowing");sCurEx("shadowing");} },
+      { icon:'🎓', title:'CEFR Test',           desc:'Check your level A1→B2',          color:'rgba(14,116,144,.08)', border:'rgba(14,116,144,.25)', fn:()=>{setScr("cefrtest");sCurEx("cefrtest");} },
+      { icon:'💬', title:'Dialogue Sim',        desc:'Real turn-based conversations',   color:'rgba(124,58,237,.08)', border:'rgba(124,58,237,.25)', fn:()=>{setScr("dialogue");sCurEx("dialogue");} },
+      { icon:'🗣️', title:'Shadowing',           desc:'Native-speed listen & repeat',    color:'rgba(22,163,74,.08)', border:'rgba(22,163,74,.25)', fn:()=>{setScr("shadowing");sCurEx("shadowing");} },
     ],
     partner: [
-      { icon:'💑', title:'In-Law Words',    desc:'Svekrva, punac, šogor...',    color:'#fff7ed', border:'#fed7aa', fn:()=>{ const p=V['inlaws']||[]; onLaunchFlash(sh(p||[]).slice(0,20)); } },
-      { icon:'🍽️', title:'Survival Dinner', desc:'Navigate family gatherings',   color:'#f0fdf4', border:'#bbf7d0', fn:()=>{setScr("survival_dinner");sCurEx("survival_dinner");} },
-      { icon:'🎤', title:'Speaking',         desc:'Impress them out loud',        color:'#f0f9ff', border:'#bae6fd', fn:startSpeaking },
+      { icon:'💑', title:'In-Law Words',    desc:'Svekrva, punac, šogor...',    color:'rgba(234,88,12,.08)', border:'rgba(234,88,12,.25)', fn:()=>{ const p=V['inlaws']||[]; onLaunchFlash(sh(p||[]).slice(0,20)); } },
+      { icon:'🍽️', title:'Survival Dinner', desc:'Navigate family gatherings',   color:'rgba(22,163,74,.08)', border:'rgba(22,163,74,.25)', fn:()=>{setScr("survival_dinner");sCurEx("survival_dinner");} },
+      { icon:'🎤', title:'Speaking',         desc:'Impress them out loud',        color:'rgba(14,116,144,.08)', border:'rgba(14,116,144,.25)', fn:startSpeaking },
     ],
   };
   const goalItems = userGoal ? goalRecMap[userGoal] : null;
