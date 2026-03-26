@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const GENERIC_STEPS = [
   {
@@ -53,6 +53,20 @@ export default function OnboardingTour({ onDone }) {
   const [step, setStep] = useState(0);
   const cur = STEPS[step];
   const isLast = step === STEPS.length - 1;
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onDone(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [onDone]);
+
+  useEffect(() => {
+    if (modalRef.current) {
+      const firstFocusable = modalRef.current.querySelector('button, [tabindex="0"]');
+      if (firstFocusable) firstFocusable.focus();
+    }
+  }, []);
 
   function finish() {
     localStorage.setItem('onboarded', 'true');
@@ -66,7 +80,12 @@ export default function OnboardingTour({ onDone }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: 20,
     }}>
-      <div style={{
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Welcome tour"
+        style={{
         background: 'var(--card, #fff)',
         borderRadius: 24,
         padding: '36px 32px 28px',
@@ -99,6 +118,7 @@ export default function OnboardingTour({ onDone }) {
           {step > 0 && (
             <button
               onClick={() => setStep(s => s - 1)}
+              aria-label="Previous step"
               style={{
                 flex: 1, padding: '12px', borderRadius: 12, border: '1.5px solid var(--inp-b, #e2e8f0)',
                 background: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 700,
@@ -110,6 +130,7 @@ export default function OnboardingTour({ onDone }) {
           )}
           <button
             onClick={isLast ? finish : () => setStep(s => s + 1)}
+            aria-label="Next step"
             style={{
               flex: 1, padding: '12px', borderRadius: 12, border: 'none',
               background: 'linear-gradient(135deg,#0e7490,#164e63)',
@@ -124,6 +145,7 @@ export default function OnboardingTour({ onDone }) {
 
         <button
           onClick={finish}
+          aria-label="Skip introduction"
           style={{
             marginTop: 14, background: 'none', border: 'none', cursor: 'pointer',
             fontSize: 12, color: 'var(--subtext, #94a3b8)', fontFamily: "'Outfit',sans-serif",

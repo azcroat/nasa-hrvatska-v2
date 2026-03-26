@@ -152,7 +152,7 @@ export default function HomeTab({
 
       {longAbsence && !comebackBonus && (
         <div style={{
-          background: 'linear-gradient(135deg, #7c3aed, #4f46e5)',
+          background: 'linear-gradient(135deg, var(--lavender, #7c3aed), #4f46e5)',
           borderRadius: 16, padding: '14px 16px', marginBottom: 16,
           display: 'flex', alignItems: 'flex-start', gap: 12,
         }}>
@@ -174,7 +174,7 @@ export default function HomeTab({
 
       {/* ── HERO ── */}
       <div style={{
-        background: "linear-gradient(160deg,#060e1e 0%,#0a2348 40%,#0c3868 100%)",
+        background: "linear-gradient(160deg,var(--grad-start,#060e1e) 0%,var(--grad-mid,#0a2348) 40%,var(--grad-end,#0c3868) 100%)",
         position: "relative",
         overflow: "hidden",
         color: "white",
@@ -186,7 +186,7 @@ export default function HomeTab({
         <div style={{ position:'relative' }}>
           <div style={{
             height: 3,
-            background: "linear-gradient(90deg, transparent 0%, #C8980A 20%, #FFE070 50%, #C8980A 80%, transparent 100%)",
+            background: "linear-gradient(90deg, transparent 0%, var(--gold, #C8980A) 20%, var(--harvest, #FFE070) 50%, var(--gold, #C8980A) 80%, transparent 100%)",
           }}/>
         </div>
 

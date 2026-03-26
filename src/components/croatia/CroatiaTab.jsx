@@ -4,7 +4,7 @@ import PhotoHero from '../shared/PhotoHero';
 import { PHOTOS } from '../../lib/photos';
 import CroatianKnight from '../shared/CroatianKnight';
 
-const LEVEL_COLORS = {A1:'#16a34a',A2:'#65a30d',B1:'#ca8a04',B2:'#b45309',C1:'#0e7490',C2:'#7c3aed'};
+const LEVEL_COLORS = {A1:'#16a34a',A2:'#65a30d',B1:'#ca8a04',B2:'#b45309',C1:'#0e7490',C2:'#7c3aed'}; // TODO: move to CSS vars
 const CAT_LABELS = {tv:"📺 TV & News",music:"🎵 Music & Radio",sport:"⚽ Sports",film:"🎬 Film & Series",podcast:"🎙️ Podcasts",culture:"🌍 Culture & Press"};
 
 function getDomain(url) {
@@ -188,18 +188,18 @@ function MediaCard({ m, cat, onOpen, activeStream, setActiveStream }) {
 
 const SPOTIFY_PLAYLISTS = {
   icons: [
-    { id:'37i9dQZF1DZ06evO2GzzZj', name:'This Is Oliver Dragojević', desc:'The soul of Dalmatia — all the classics', icon:'🎤', color:'#0369a1', tag:'Legend' },
+    { id:'37i9dQZF1DZ06evO2GzzZj', name:'This Is Oliver Dragojević', desc:'The soul of Dalmatia — all the classics', icon:'🎤', color:'var(--info-dark, #0369a1)', tag:'Legend' },
     { id:'37i9dQZF1DZ06evO3UANd2', name:'This Is Prljavo Kazalište', desc:"Croatia's greatest rock band — essential listening", icon:'🎸', color:'var(--error)', tag:'Rock' },
     { id:'5OPhthDiArDJMPQfTKIYCn', name:'Thompson', desc:'Patriotic Croatian rock — Marin Čavić', icon:'🇭🇷', color:'var(--error)', tag:'Patriotic' },
     { id:'37i9dQZF1EIUUk1h0TA16K', name:'Crvena Jabuka Mix', desc:'Timeless Croatian pop-rock from the 80s & 90s', icon:'🍎', color:'#e11d48', tag:'Pop/Rock' },
-    { id:'5pFl9Ll0hBYydQPEVkMJsQ', name:'Magazin', desc:"Croatia's beloved pop group — hits spanning 4 decades", icon:'💫', color:'#9333ea', tag:'Pop' },
+    { id:'5pFl9Ll0hBYydQPEVkMJsQ', name:'Magazin', desc:"Croatia's beloved pop group — hits spanning 4 decades", icon:'💫', color:'var(--lavender, #9333ea)', tag:'Pop' },
     { id:'37i9dQZF1E4zd1TBgRl9w6', name:'Klapa', desc:'UNESCO-listed Dalmatian choral tradition', icon:'🎶', color:'#0891b2', tag:'Traditional' },
   ],
   genres: [
     { id:'1iqFmUPFuPpBVgvrWccMVW', name:'Croatian Music 2025', desc:'The freshest Croatian tracks right now', icon:'⚡', color:'#059669', tag:'New Music' },
     { id:'1iFnviT7aGiPqpCpNT2hYy', name:'Croatian Hip Hop', desc:'The best of the hrvatski rap scene', icon:'🎤', color:'#6d28d9', tag:'Rap' },
     { id:'2J4UX2zKunR9uRkaAYLbgs', name:'Ljetni Hitovi', desc:"Croatia's biggest summer bangers", icon:'☀️', color:'#d97706', tag:'Summer' },
-    { id:'0SFU1J9KaRmtPT5T1Ou6KN', name:'Ultra Europe 2025', desc:"The sound of Split's legendary festival", icon:'🎉', color:'#7c3aed', tag:'Festival' },
+    { id:'0SFU1J9KaRmtPT5T1Ou6KN', name:'Ultra Europe 2025', desc:"The sound of Split's legendary festival", icon:'🎉', color:'var(--lavender, #7c3aed)', tag:'Festival' },
   ],
   regions: [
     { id:'72YvCUCAsq0K5WD114It0J', name:'Sound of Tamburica', desc:'Folk tamburica from Slavonia & Baranja', icon:'🎻', color:'#b45309', tag:'Slavonia' },
@@ -494,9 +494,9 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
           <div style={{
             background:'var(--card)', border:'1px solid var(--card-b)',
             borderRadius:14, padding:'14px 16px', marginBottom:16,
-            borderLeft:'3px solid #7c3aed',
+            borderLeft:'3px solid var(--lavender, #7c3aed)',
           }}>
-            <div style={{fontSize:10,fontWeight:900,color:'#7c3aed',letterSpacing:'.1em',textTransform:'uppercase',marginBottom:6}}>📅 Did You Know?</div>
+            <div style={{fontSize:10,fontWeight:900,color:'var(--lavender, #7c3aed)',letterSpacing:'.1em',textTransform:'uppercase',marginBottom:6}}>📅 Did You Know?</div>
             <div style={{fontSize:'var(--text-sm)',fontWeight:800,color:'var(--heading)',marginBottom:4,lineHeight:1.4}}>{histFact.hr}</div>
             <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',fontStyle:'italic',lineHeight:1.4}}>{histFact.en}</div>
           </div>
@@ -552,7 +552,7 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
                 [()=>{setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval dynasty","#b45309","history"],
                 [()=>setScr("region_zagreb"),"🏛️","Zagreb","Croatia's capital","#0e7490","history"],
                 [()=>setScr("region_split"),"🌊","Split","Rome on the Adriatic","#0284c7","history"],
-                [()=>setScr("region_mostar"),"🌉","Mostar","The bridge reborn","#7c3aed","history"],
+                [()=>setScr("region_mostar"),"🌉","Mostar","The bridge reborn","var(--lavender, #7c3aed)","history"],
                 [()=>setScr("region_tomislavgrad"),"👑","Tomislavgrad","Where the kingdom was born","#b45309","history"],
                 [()=>setScr("region_knin"),"🏰","Knin","Liberated August 5, 1995","#dc2626","history"],
                 [()=>setScr("region_labin"),"⛵","Labin & Rabac","Our home in Istria","#0e7490","history"],
@@ -612,9 +612,9 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
               {[
                 [()=>setScr("grocery"),"🛒","Grocery Shopping","Supermarket vocab","#16a34a","interactive"],
                 [()=>{setScr("recipes");},"🍳","Croatian Recipes","Traditional dishes","#b45309","reading"],
-                [()=>{setScr("roleplay");},"🎭","Role-Play","Real-life conversations","#7c3aed","interactive"],
+                [()=>{setScr("roleplay");},"🎭","Role-Play","Real-life conversations","var(--lavender, #7c3aed)","interactive"],
                 [()=>setScr("school"),"🏫","School Kit","For parents & students","#0e7490","language"],
-                [()=>setScr("texting"),"📱","Texting & Slang","How Croatians text","#7c3aed","language"],
+                [()=>setScr("texting"),"📱","Texting & Slang","How Croatians text","var(--lavender, #7c3aed)","language"],
                 [()=>setScr("friends"),"🤝","Making Friends","Social life","#16a34a","interactive"],
                 [()=>setScr("foodorder"),"🍕","Ordering Food","Restaurants & cafés","#b45309","interactive"],
                 [()=>setScr("transport"),"🚌","Transport","Buses, taxis & trams","#0284c7","language"],
@@ -912,11 +912,11 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
           {/* ─── CONTENT CATEGORIES ─────────────────────────── */}
           {[
             {cat:'tv',     emoji:'📺', title:'TV & News',         accent:'#0e7490',  noStream:false},
-            {cat:'music',  emoji:'🎵', title:'Music',              accent:'#9333ea',  noStream:true},
+            {cat:'music',  emoji:'🎵', title:'Music',              accent:'var(--lavender, #9333ea)',  noStream:true},
             {cat:'film',   emoji:'🎬', title:'Film & Video',       accent:'#b91c1c',  noStream:false},
             {cat:'sport',  emoji:'⚽', title:'Sport',              accent:'#1d4ed8',  noStream:false},
             {cat:'podcast',emoji:'🎙️',title:'Podcasts & Audio',   accent:'#16a34a',  noStream:false},
-            {cat:'culture',emoji:'🌍', title:'Culture & Press',    accent:'#7c3aed',  noStream:false},
+            {cat:'culture',emoji:'🌍', title:'Culture & Press',    accent:'var(--lavender, #7c3aed)',  noStream:false},
           ].map(({cat,emoji,title,accent,noStream}) => {
             if (mediaFilter !== 'all' && mediaFilter !== cat) return null;
             const items = MEDIA.filter(m => m.cat === cat && (noStream ? !m.stream : true));

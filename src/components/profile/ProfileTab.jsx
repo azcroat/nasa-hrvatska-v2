@@ -236,9 +236,9 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
           </div>
 
           {/* ── STATS GRID ── */}
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:24}}>
+          <div role="region" aria-label="Your statistics" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:24}}>
             {stats.map((s, i) => (
-              <div key={i} style={{background:s.bg,border:`1.5px solid ${s.border}`,borderRadius:14,padding:"12px 8px",textAlign:"center"}}>
+              <div key={i} aria-label={`${s.value} ${s.label}`} style={{background:s.bg,border:`1.5px solid ${s.border}`,borderRadius:14,padding:"12px 8px",textAlign:"center"}}>
                 <div style={{fontSize:'var(--text-xl)',marginBottom:3}}>{s.icon}</div>
                 {s.label === "Day Streak" ? (
                   <div style={{fontSize:28,fontWeight:900,color:'var(--warning)',lineHeight:1,fontVariantNumeric:"tabular-nums",textShadow:'0 0 12px rgba(251,191,36,.4)'}}>
@@ -739,7 +739,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
             </div>
             <button
               role="switch"
-              aria-checked={soundOn}
+              aria-checked={soundOn ? 'true' : 'false'}
               onClick={() => { const v = !soundOn; setSoundOn(v); setSoundEnabled(v); }}
               style={{width:44,height:26,borderRadius:13,border:'none',cursor:'pointer',transition:'background .2s',
                 background: soundOn ? 'var(--success)' : 'var(--bar-bg)', position:'relative', flexShrink:0}}
@@ -757,7 +757,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
             </div>
             <button
               role="switch"
-              aria-checked={hapticOn}
+              aria-checked={hapticOn ? 'true' : 'false'}
               onClick={() => { const v = !hapticOn; setHapticOn(v); setHapticEnabled(v); }}
               style={{width:44,height:26,borderRadius:13,border:'none',cursor:'pointer',transition:'background .2s',
                 background: hapticOn ? 'var(--success)' : 'var(--bar-bg)', position:'relative', flexShrink:0}}

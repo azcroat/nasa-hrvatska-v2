@@ -117,13 +117,13 @@ export default function CelebrationScene({ width = 280, height = 160, message = 
         const duration = (1.6 + (i % 7) * 0.1).toFixed(1);
         if (c.shape === 'circle') {
           return (
-            <g key={i} style={{ animation: `csDrop ${duration}s ${delay}s ease-in infinite` }}>
+            <g key={i} style={{ animation: `csDrop ${duration}s ${delay}s ease-in 3` }}>
               <circle cx={c.x} cy={c.y} r={4} fill={c.color} opacity={0.85}/>
             </g>
           );
         } else if (c.shape === 'diamond') {
           return (
-            <g key={i} style={{ animation: `csDrop ${duration}s ${delay}s ease-in infinite` }}>
+            <g key={i} style={{ animation: `csDrop ${duration}s ${delay}s ease-in 3` }}>
               <rect
                 x={c.x - 2.5} y={c.y - 2.5}
                 width={5} height={5}
@@ -134,7 +134,7 @@ export default function CelebrationScene({ width = 280, height = 160, message = 
           );
         } else {
           return (
-            <g key={i} style={{ animation: `csDrop ${duration}s ${delay}s ease-in infinite` }}>
+            <g key={i} style={{ animation: `csDrop ${duration}s ${delay}s ease-in 3` }}>
               <rect
                 x={c.x - 5} y={c.y - 3}
                 width={10} height={6}
