@@ -265,8 +265,8 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
         {confirmQuit ? (
           <div style={{display:'flex',alignItems:'center',gap:8,flex:1}}>
             <span style={{fontSize:13,fontWeight:700,color:'var(--subtext)'}}>Quit game?</span>
-            <button onClick={goBack} style={{padding:'6px 14px',borderRadius:10,border:'none',background:'var(--error)',color:'#fff',fontSize:12,fontWeight:800,cursor:'pointer',fontFamily:"'Outfit',sans-serif"}}>Quit</button>
-            <button onClick={() => setConfirmQuit(false)} style={{padding:'6px 14px',borderRadius:10,border:'1.5px solid var(--inp-b)',background:'none',color:'var(--subtext)',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'Outfit',sans-serif"}}>Keep going</button>
+            <button onClick={goBack} style={{padding:'12px 20px',borderRadius:10,border:'none',background:'var(--error)',color:'#fff',fontSize:12,fontWeight:800,cursor:'pointer',fontFamily:"'Outfit',sans-serif",minHeight:44}}>Quit</button>
+            <button onClick={() => setConfirmQuit(false)} style={{padding:'12px 20px',borderRadius:10,border:'1.5px solid var(--inp-b)',background:'none',color:'var(--subtext)',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'Outfit',sans-serif",minHeight:44}}>Keep going</button>
           </div>
         ) : (
           <button
@@ -277,8 +277,9 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
               cursor: 'pointer',
               fontSize: 24,
               color: 'var(--subtext)',
-              padding: '10px 12px',
+              padding: '10px 16px',
               minHeight: 44,
+              minWidth: 44,
               borderRadius: 10,
               transition: 'background .15s',
             }}
@@ -301,10 +302,12 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
             <div
               style={{
                 height: '100%',
-                width: progress + '%',
-                background: 'linear-gradient(90deg,#0e7490,#06b6d4)',
+                width: '100%',
+                background: 'linear-gradient(90deg,var(--info),#06b6d4)',
                 borderRadius: 10,
-                transition: 'width .5s cubic-bezier(.4,0,.2,1)',
+                transformOrigin: 'left center',
+                transform: `scaleX(${progress / 100})`,
+                transition: 'transform 0.5s cubic-bezier(0.4,0,0.2,1)',
                 position: 'relative',
                 overflow: 'hidden',
               }}
@@ -462,6 +465,7 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
                   'ob' + (isCorrect ? ' ok' : isWrong ? ' no' : '')
                 }
                 aria-pressed={answered && selected === i}
+                aria-label={`Option ${i + 1}: ${o}`}
                 onKeyDown={e => handleKey(e, i)}
                 onClick={() => handleAnswer(o, i)}
                 style={{
@@ -525,6 +529,7 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
       <div style={{ fontSize: 10, color: 'var(--subtext)', textAlign: 'center', marginTop: 6, opacity: 0.6 }}>
         Tip: Press 1–{q?.opts?.length || 4} to select
       </div>
+      <span className="sr-only" aria-live="polite">Tip: press 1–4 to choose an answer</span>
 
       {/* Grammar hint on wrong answer */}
       {answered && q.opts[selected] !== q.correct && (

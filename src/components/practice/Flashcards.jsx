@@ -317,9 +317,10 @@ export default function Flashcards({ pool, goBack, award }) {
       {flipped&&(
         <div style={{marginTop:16}}>
         <div style={{fontSize:12,fontWeight:700,color:"var(--subtext)",textAlign:"center",marginBottom:8}}>How well did you know it?</div>
-        <div style={{display:'flex', gap:10}}>
+        <div role="group" aria-label="How well did you know it?" style={{display:'flex', gap:10}}>
           <button
             onClick={handleStillLearning}
+            aria-label="Still learning — review again soon"
             style={{
               flex:1, height:56, borderRadius:16,
               border:'2px solid #d97706',
@@ -338,6 +339,7 @@ export default function Flashcards({ pool, goBack, award }) {
           <button
             ref={knowBtnRef}
             onClick={handleKnown}
+            aria-label="I know it — move to next interval"
             style={{
               flex:1, height:56, borderRadius:16,
               border:'2px solid var(--success-b)',

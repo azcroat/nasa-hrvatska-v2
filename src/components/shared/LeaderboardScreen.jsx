@@ -83,7 +83,7 @@ export default function LeaderboardScreen({ db, user, weekXP = 0, goBack }) {
                 boxShadow: isMe ? '0 2px 12px rgba(14,116,144,.1)' : 'none',
               }}>
                 <div style={{ width:28, textAlign:'center', fontSize:e.rank <= 3 ? 20 : 13,
-                  fontWeight:900, color: e.rank === 1 ? '#f59e0b' : e.rank === 2 ? '#94a3b8' : e.rank === 3 ? '#cd7f32' : 'var(--subtext)' }}>
+                  fontWeight:900, color: e.rank === 1 ? 'var(--medal-gold, #f59e0b)' : e.rank === 2 ? 'var(--medal-silver, #94a3b8)' : e.rank === 3 ? 'var(--medal-bronze, #cd7f32)' : 'var(--subtext)' }}>
                   {e.rank === 1 ? '🥇' : e.rank === 2 ? '🥈' : e.rank === 3 ? '🥉' : `#${e.rank}`}
                 </div>
                 <div style={{ flex:1, minWidth:0 }}>

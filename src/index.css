@@ -131,6 +131,12 @@ html{
   --harvest: #d97706;         /* Croatian harvest gold */
   --forest: #16a34a;          /* Slavonian forest */
   --forest-light: #f0fdf4;
+
+  /* Medal colors */
+  --medal-gold: #f59e0b;
+  --medal-silver: #64748b;
+  --medal-bronze: #b45309;
+  --warning-dark: #92400e;
 }
 
 /* ── Card accent variants ─────────────────────────────── */
@@ -347,6 +353,12 @@ html{
   --harvest: #fbbf24;
   --forest: #4ade80;
   --forest-light: rgba(74,222,128,.1);
+
+  /* Medal colors — dark */
+  --medal-gold: #fbbf24;
+  --medal-silver: #94a3b8;
+  --medal-bronze: #d97706;
+  --warning-dark: #fbbf24;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -681,6 +693,7 @@ html{
 .b:hover::after{opacity:1}
 .b:hover{transform:translateY(-2px)}
 .b:active{transform:translateY(0) scale(.97)}
+.b:active { transform: scale(0.96); }
 .b:focus-visible{outline:3px solid rgba(14,116,144,.45);outline-offset:3px}
 
 /* Primary — deep teal */

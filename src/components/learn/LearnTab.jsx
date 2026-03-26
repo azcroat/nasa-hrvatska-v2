@@ -13,10 +13,13 @@ function LevelBadge({ label, color, bg }) {
 
 function Section({ title, icon, count, defaultOpen = false, children }) {
   const [open, setOpen] = useState(defaultOpen);
+  const sectionId = `section-content-${title.toLowerCase().replace(/\s+/g, '-')}`;
   return (
     <div style={{ marginBottom: 8 }}>
       <button
         onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
+        aria-controls={sectionId}
         style={{
           display:'flex', alignItems:'center', gap:10, width:'100%',
           padding:'13px 16px', borderRadius:14,
@@ -35,10 +38,22 @@ function Section({ title, icon, count, defaultOpen = false, children }) {
         )}
         <span style={{ fontSize:'var(--text-sm)', color:'var(--subtext)', opacity:.5, marginLeft:4 }}>{open ? '▲' : '▼'}</span>
       </button>
-      {open && <div style={{ marginBottom:16 }}>{children}</div>}
+      {open && <div id={sectionId} style={{ marginBottom:16 }}>{children}</div>}
     </div>
   );
 }
+
+const LESSON_TIPS = {
+  'greetings': { title: 'Greetings in Croatian', tip: 'Croatian has formal (Vi) and informal (ti) forms. Use "Vi" with strangers and elders, "ti" with friends and children.' },
+  'numbers': { title: 'Croatian Numbers', tip: 'Numbers 1-4 require noun case agreement. 1 uses nominative, 2-4 use genitive singular, 5+ use genitive plural.' },
+  'nouns': { title: 'Croatian Noun Gender', tip: 'Croatian nouns have 3 genders: masculine, feminine, neuter. Masculine usually ends in consonant, feminine in -a, neuter in -o/-e.' },
+  'verbs': { title: 'Croatian Verb Conjugation', tip: 'Croatian verbs conjugate for person (1st/2nd/3rd) and number (singular/plural). Infinitives end in -ti or -ći.' },
+  'adjectives': { title: 'Croatian Adjectives', tip: 'Adjectives agree with nouns in gender, number, and case. They usually come before the noun they modify.' },
+  'cases': { title: 'Croatian Cases', tip: 'Croatian has 7 grammatical cases. The nominative is for subjects, accusative for direct objects, dative for indirect objects.' },
+  'family': { title: 'Family Vocabulary', tip: 'Croatian family terms often differ by gender. Otac (father), majka (mother), brat (brother), sestra (sister).' },
+  'food': { title: 'Food & Dining', tip: 'The word "hvala" (thank you) is essential at mealtimes. "Dobar tek!" means "Enjoy your meal!" (similar to "Bon appétit").' },
+  'travel': { title: 'Travel Phrases', tip: 'Directions in Croatian use the locative case after "u" (in) and "na" (on/at). "Gdje je...?" means "Where is...?"' },
+};
 
 const STAGE_COLORS = [
   { bg:'linear-gradient(135deg,#0e7490,#164e63)', light:'#f0f9ff', border:'#bae6fd' },
@@ -56,6 +71,7 @@ export default function LearnTab({
   launchPathItem, setTab,
 }) {
   const [showBrowse, setShowBrowse] = useState(false);
+  const [pendingLesson, setPendingLesson] = useState(null);
 
   // ── PATH PROGRESS ──────────────────────────────────────────────────────
   let totalDone = 0, totalItems = 0;
@@ -92,6 +108,17 @@ export default function LearnTab({
     setScr("lesson"); sCurEx("vocab_" + t);
   }
 
+  function handleLaunchPathItem(lesson) {
+    const tipKey = Object.keys(LESSON_TIPS).find(k =>
+      (lesson.name || lesson.title || lesson.cat || '').toLowerCase().includes(k)
+    );
+    if (tipKey && LESSON_TIPS[tipKey]) {
+      setPendingLesson({ lesson, tip: LESSON_TIPS[tipKey] });
+    } else {
+      launchPathItem(lesson);
+    }
+  }
+
   return (
     <React.Fragment>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -100,10 +127,10 @@ export default function LearnTab({
           onClick={() => setScr('grammar-ref')}
           style={{
             display: 'flex', alignItems: 'center', gap: 6,
-            padding: '8px 14px', borderRadius: 10, border: 'none', cursor: 'pointer',
+            padding: '12px 18px', borderRadius: 10, border: 'none', cursor: 'pointer',
             background: 'linear-gradient(135deg,var(--info),var(--heading))',
             color: 'var(--card)', fontSize: 'var(--text-sm)', fontWeight: 700,
-            fontFamily: "'Outfit',sans-serif",
+            fontFamily: "'Outfit',sans-serif", minHeight: 44,
           }}
         >
           📖 Grammar
@@ -191,7 +218,7 @@ export default function LearnTab({
                 </>
               )}
               <button
-                onClick={() => launchPathItem(nextItem)}
+                onClick={() => handleLaunchPathItem(nextItem)}
                 style={{
                   padding:'13px 18px', borderRadius:12, border:'none', flexShrink:0,
                   background:sc.bg, color:'var(--card)', fontSize:'var(--text-base)', fontWeight:800,
@@ -613,6 +640,48 @@ export default function LearnTab({
         </div>
       )}
 
+      {pendingLesson && (
+        <div style={{
+          position:'fixed', inset:0, zIndex:1000,
+          background:'rgba(0,0,0,0.5)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          padding:20,
+        }}
+          role="dialog" aria-modal="true" aria-label="Grammar tip"
+          onClick={(e) => { if (e.target === e.currentTarget) setPendingLesson(null); }}
+        >
+          <div style={{
+            background:'var(--card)', borderRadius:20,
+            padding:24, maxWidth:360, width:'100%',
+            boxShadow:'0 20px 60px rgba(0,0,0,.3)',
+          }}>
+            <div style={{fontSize:28, textAlign:'center', marginBottom:8}}>📖</div>
+            <h3 style={{
+              fontFamily:"'Playfair Display',serif",
+              fontSize:'var(--text-lg)',
+              color:'var(--heading)', textAlign:'center', marginBottom:12,
+            }}>{pendingLesson.tip.title}</h3>
+            <p style={{
+              color:'var(--subtext)', fontSize:'var(--text-sm)',
+              lineHeight:1.6, textAlign:'center', marginBottom:20,
+            }}>{pendingLesson.tip.tip}</p>
+            <button
+              className="b bp"
+              style={{width:'100%'}}
+              onClick={() => { launchPathItem(pendingLesson.lesson); setPendingLesson(null); }}
+            >
+              Got it — Start Lesson →
+            </button>
+            <button
+              className="b"
+              style={{width:'100%', marginTop:8}}
+              onClick={() => setPendingLesson(null)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </React.Fragment>
   );
 }

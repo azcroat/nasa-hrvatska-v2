@@ -5,7 +5,7 @@ import CroatianKnight from '../shared/CroatianKnight';
 import { CelebrationScene } from '../illustrations';
 import Flashcards from '../practice/Flashcards';
 
-const CONFETTI_COLORS = ['#38bdf8','#fbbf24','#4ade80','#f87171','#a78bfa','#fb923c','#34d399','#e879f9'];
+const CONFETTI_COLORS = ['var(--info-light, #38bdf8)','var(--gold, #fbbf24)','var(--success-light, #4ade80)','var(--error-light, #f87171)','var(--lavender-light, #a78bfa)','#fb923c','#34d399','#e879f9'];
 
 export default function LessonScreen({
   lt, li, lx, ls, lp, la, lsl, qi, icons,
@@ -44,7 +44,7 @@ export default function LessonScreen({
     <div className="scr-wrap">
       {H((icons?.[lt] || "📚") + " " + lt)}
       <div style={{
-        background:'linear-gradient(135deg, rgba(14,116,144,0.1), rgba(22,78,99,0.1))',
+        background:'linear-gradient(135deg, var(--info-bg), rgba(14,116,144,0.08))',
         border:'1px solid rgba(14,116,144,0.2)',
         borderRadius:12, padding:'10px 14px', marginBottom:16,
         display:'flex', alignItems:'center', gap:10
@@ -283,7 +283,7 @@ export default function LessonScreen({
   if (lp === "result") return (
     <div style={{
       minHeight: '80vh',
-      background: 'linear-gradient(160deg,#060e1e 0%,#0a2348 45%,#0c3868 100%)',
+      background: 'linear-gradient(160deg,var(--grad-start,#060e1e) 0%,var(--grad-mid,#0a2348) 45%,var(--grad-end,#0c3868) 100%)',
       display: 'flex', flexDirection: 'column', alignItems: 'center',
       justifyContent: 'center', padding: '40px 24px 52px',
       position: 'relative', overflow: 'hidden',
@@ -401,7 +401,7 @@ export default function LessonScreen({
             letterSpacing: '.12em', marginBottom: 6,
           }}>XP EARNED</div>
           <div style={{
-            fontSize: 56, fontWeight: 900, color: '#fbbf24',
+            fontSize: 56, fontWeight: 900, color: 'var(--gold, #fbbf24)',
             fontFamily: "'Outfit',sans-serif", lineHeight: 1,
             textShadow: '0 0 28px rgba(251,191,36,.7)',
             animation: 'count-up-pop .7s ease .65s both',

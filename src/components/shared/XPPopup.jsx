@@ -78,7 +78,7 @@ export default function XPPopup({ showXP, xpA }) {
           display: 'flex',
           alignItems: 'center',
           gap: 8,
-          background: 'linear-gradient(135deg,#f59e0b,#d97706)',
+          background: 'linear-gradient(135deg, var(--medal-gold, #f59e0b), var(--warning, #d97706))',
           color: '#fff',
           padding: '10px 20px',
           borderRadius: 40,
