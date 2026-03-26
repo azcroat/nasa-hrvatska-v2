@@ -172,6 +172,8 @@ const DialogueSim = lazyWithReload(() => import("./components/practice/DialogueS
 const CefrTest = lazyWithReload(() => import("./components/practice/CefrTest.jsx"));
 const MyWordsScreen = lazyWithReload(() => import("./components/practice/MyWordsScreen.jsx"));
 const Leaderboard = lazyWithReload(() => import("./components/profile/Leaderboard.jsx"));
+const LeaderboardScreen = lazyWithReload(() => import("./components/shared/LeaderboardScreen.jsx"));
+const ProfileFriendsScreen = lazyWithReload(() => import("./components/profile/FriendsScreen.jsx"));
 const CertificateScreen = lazyWithReload(() => import("./components/profile/CertificateScreen.jsx"));
 const MistakesScreen = lazyWithReload(() => import("./components/practice/MistakesScreen.jsx"));
 const AnalyticsScreen = lazyWithReload(() => import("./components/profile/AnalyticsScreen.jsx"));
@@ -310,7 +312,7 @@ function App(){
         civic:"croatia",
         easter:"croatia",midsummer:"croatia",domovina:"croatia",bozic:"croatia",
         cloze:"practice",
-        badges:"profile",leaderboard:"profile",journal:"profile",favorites:"profile",learnpath:"profile",contact:"profile",
+        badges:"profile",leaderboard:"profile",leaderboard_weekly:"profile",family_group:"profile",journal:"profile",favorites:"profile",learnpath:"profile",contact:"profile",
         certificate:"profile",analytics:"profile",profile:"profile",admin:"profile",
         privacy:"profile",terms:"profile","grammar-ref":"learn",
         mistakes:"practice",listeningpath:"practice",grammarmap:"practice",my_words:"practice",
@@ -853,6 +855,8 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
           setScr={setScr} onNavigate={setScr} doOut={doOut}
           syncReady={_syncReady} onSyncNow={doSyncNow}
           jWords={jWords}
+          onOpenLeaderboard={() => setScr('leaderboard_weekly')}
+          onOpenFriends={() => setScr('family_group')}
         /></ScreenErrorBoundary></div>}
       </div>}
       {// ═══ MODAL VERBS ═══
@@ -891,6 +895,10 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       currentScreen==="contact"&&<ContactScreen goBack={goBack} authUser={authUser} name={name} level={level} stats={stats} />}
       {// ═══ LEADERBOARD ═══
       currentScreen==="leaderboard"&&<Leaderboard goBack={goBack} authUser={authUser} name={name} stats={stats} famData={famData} setFamData={setFamData} famMembers={famMembers} setFamMembers={setFamMembers} famLoading={famLoading} setFamLoading={setFamLoading} famName={famName} setFamName={setFamName} famCode={famCode} setFamCode={setFamCode} famErr={famErr} setFamErr={setFamErr} famTab={famTab} setFamTab={setFamTab} />}
+      {// ═══ WEEKLY LEADERBOARD SCREEN ═══
+      currentScreen==="leaderboard_weekly"&&(()=>{const _wk=(function(){const d=new Date();const day=d.getDay()||7;d.setDate(d.getDate()+4-day);const yr=d.getFullYear();const wk=Math.ceil(((d.getTime()-new Date(yr,0,1).getTime())/86400000+1)/7);return`${yr}-W${String(wk).padStart(2,'0')}`;})();const _weekXP=parseInt(localStorage.getItem('nh_week_xp_'+_wk)||'0',10);return <LeaderboardScreen db={null} user={authUser} weekXP={_weekXP} goBack={goBack} />;})()}
+      {// ═══ FRIENDS & FAMILY GROUP SCREEN ═══
+      currentScreen==="family_group"&&<ProfileFriendsScreen user={authUser} goBack={goBack} />}
       {// ═══ SCHOOL KIT ═══
       currentScreen==="school"&&<SchoolScreen goBack={goBack} />}
       {currentScreen==="texting"&&<TextingScreen goBack={goBack} />}

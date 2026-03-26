@@ -257,7 +257,7 @@ export default function PracticeTab({
         </div>
         <div style={{ minWidth:0, flex:1 }}>
           <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', lineHeight:1.2 }}>{label}</div>
-          <div style={{ fontSize:10, color:'var(--subtext)', marginTop:2, lineHeight:1.3 }}>{desc}</div>
+          <div style={{ fontSize:12, color:'var(--subtext)', marginTop:2, lineHeight:1.3 }}>{desc}</div>
           <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginTop:4, alignItems:'center' }}>
             {cefr && (
               <span style={{
@@ -451,7 +451,7 @@ export default function PracticeTab({
           [() => { setScr("wordsprint"); sCurEx("wordsprint"); },"⚡","Word Sprint","#fffbeb","#fde68a"],
         ].map((/** @type {any} */ [fn,icon,label,bg,border], i) => (
           <button key={i} className="tc"
-            style={{ textAlign:"center", padding:"14px 8px", background:bg, border:`1.5px solid ${border}` }}
+            style={{ textAlign:"center", padding:"14px 8px", background:bg, border:`1.5px solid ${border}`, minHeight:56, cursor:'pointer' }}
             onClick={fn}>
             <div style={{ fontSize:28 }}>{icon}</div>
             <div style={{ fontSize:'var(--text-xs)', fontWeight:800, marginTop:5, color:"var(--heading)" }}>{label}</div>
@@ -469,7 +469,7 @@ export default function PracticeTab({
       </div>
 
       {/* Filter pills */}
-      <div style={{ display:'flex', gap:8, padding:'4px 0 16px', overflowX:'auto', scrollbarWidth:'none', position:'sticky', top:0, zIndex:10, background:'var(--bg)', paddingTop:8, paddingBottom:8, marginBottom:0 }}>
+      <div role="group" aria-label="Filter exercises" style={{ display:'flex', gap:8, padding:'4px 0 16px', overflowX:'auto', scrollbarWidth:'none', position:'sticky', top:0, zIndex:10, background:'var(--bg)', paddingTop:8, paddingBottom:8, marginBottom:0 }}>
         {[
           { id:'all',       label:'All' },
           { id:'grammar',   label:'🧠 Grammar' },
@@ -477,7 +477,7 @@ export default function PracticeTab({
           { id:'practical', label:'💬 Practical' },
           { id:'advanced',  label:'⚡ Advanced' },
         ].map(f => (
-          <button key={f.id} onClick={() => setPFilter(f.id)} style={{
+          <button key={f.id} onClick={() => setPFilter(f.id)} aria-pressed={pFilter === f.id} style={{
             padding:'7px 16px', borderRadius:20, border:'none', flexShrink:0,
             background: pFilter === f.id ? 'var(--info)' : 'var(--bar-bg)',
             color: pFilter === f.id ? '#fff' : 'var(--subtext)',

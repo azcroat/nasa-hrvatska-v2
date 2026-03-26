@@ -1,5 +1,6 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { getStreak, getSR, fbDeleteAccount } from '../../data.jsx';
+import { isSoundEnabled, setSoundEnabled, isHapticEnabled, setHapticEnabled } from '../../lib/soundSettings.js';
 import CroatianKnight from '../shared/CroatianKnight';
 import ProgressCharts from './ProgressCharts.jsx';
 import { getWeakTopics } from '../../lib/adaptive.js';
@@ -28,7 +29,7 @@ const STAGE_CEFR = ['A1', 'A2', 'B1', 'B1+', 'B2+', 'C1'];
 const STAGE_NAMES_PROFILE = ['Survivor', 'Settler', 'Communicator', 'Explorer', 'Hrvat!'];
 const STAGE_THRESHOLDS = [0, 8, 16, 24, 32]; // lc thresholds for each stage
 
-export default function ProfileTab({ name, au, level, st, favs, darkMode, setDarkMode, setScr, doOut, syncReady, onSyncNow, jWords, onNavigate }) {
+export default function ProfileTab({ name, au, level, st, favs, darkMode, setDarkMode, setScr, doOut, syncReady, onSyncNow, jWords, onNavigate, onOpenLeaderboard, onOpenFriends }) {
   const [confirmOut, setConfirmOut] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -39,6 +40,8 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
   const prestigeLevel = parseInt(localStorage.getItem('nh_prestige') || '0', 10);
   const [imdOpen, setImdOpen] = useState(false);
   const [ptab, setPTab] = useState('stats');
+  const [soundOn, setSoundOn] = React.useState(() => isSoundEnabled());
+  const [hapticOn, setHapticOn] = React.useState(() => isHapticEnabled());
 
   const GOALS = [
     { id: 'heritage', icon: '🇭🇷', label: 'My heritage & roots' },
@@ -599,6 +602,24 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
               </div>
               <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.35}}>›</div>
             </button>
+            {onOpenLeaderboard && (
+              <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}} onClick={onOpenLeaderboard}>
+                <div style={{width:44,height:44,borderRadius:13,background:"rgba(167,139,250,.12)",border:"1px solid rgba(167,139,250,.3)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:'var(--text-xl)',flexShrink:0}}>👑</div>
+                <div style={{textAlign:"left",minWidth:0}}>
+                  <div style={{fontSize:'var(--text-sm)',fontWeight:800,color:"var(--heading)"}}>Weekly Leaderboard</div>
+                  <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",marginTop:1}}>Top learners this week</div>
+                </div>
+              </button>
+            )}
+            {onOpenFriends && (
+              <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}} onClick={onOpenFriends}>
+                <div style={{width:44,height:44,borderRadius:13,background:"rgba(74,222,128,.12)",border:"1px solid rgba(74,222,128,.3)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:'var(--text-xl)',flexShrink:0}}>👥</div>
+                <div style={{textAlign:"left",minWidth:0}}>
+                  <div style={{fontSize:'var(--text-sm)',fontWeight:800,color:"var(--heading)"}}>Friends & Family</div>
+                  <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",marginTop:1}}>Learn together</div>
+                </div>
+              </button>
+            )}
           </div>
 
           {/* ── LETTER TO FUTURE ME ── */}
@@ -708,6 +729,42 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
           {/* ── LEARNING PREFERENCES ── */}
           <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.1em', marginTop:8, marginBottom:10, paddingLeft:4}}>
             ⚙️ Learning Preferences
+          </div>
+
+          {/* Sound toggle */}
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 0',borderBottom:'1px solid var(--card-b)'}}>
+            <div>
+              <div style={{fontWeight:700,fontSize:'var(--text-sm)'}}>🔊 Sound Effects</div>
+              <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',marginTop:2}}>Play audio feedback for answers</div>
+            </div>
+            <button
+              role="switch"
+              aria-checked={soundOn}
+              onClick={() => { const v = !soundOn; setSoundOn(v); setSoundEnabled(v); }}
+              style={{width:44,height:26,borderRadius:13,border:'none',cursor:'pointer',transition:'background .2s',
+                background: soundOn ? 'var(--success)' : 'var(--bar-bg)', position:'relative', flexShrink:0}}
+            >
+              <span style={{position:'absolute',top:3,left: soundOn ? 21 : 3,width:20,height:20,borderRadius:'50%',
+                background:'white',transition:'left .2s',boxShadow:'0 1px 4px rgba(0,0,0,.2)'}} />
+            </button>
+          </div>
+
+          {/* Haptic toggle */}
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 0',borderBottom:'1px solid var(--card-b)'}}>
+            <div>
+              <div style={{fontWeight:700,fontSize:'var(--text-sm)'}}>📳 Haptic Feedback</div>
+              <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',marginTop:2}}>Vibration on correct/wrong answers</div>
+            </div>
+            <button
+              role="switch"
+              aria-checked={hapticOn}
+              onClick={() => { const v = !hapticOn; setHapticOn(v); setHapticEnabled(v); }}
+              style={{width:44,height:26,borderRadius:13,border:'none',cursor:'pointer',transition:'background .2s',
+                background: hapticOn ? 'var(--success)' : 'var(--bar-bg)', position:'relative', flexShrink:0}}
+            >
+              <span style={{position:'absolute',top:3,left: hapticOn ? 21 : 3,width:20,height:20,borderRadius:'50%',
+                background:'white',transition:'left .2s',boxShadow:'0 1px 4px rgba(0,0,0,.2)'}} />
+            </button>
           </div>
 
           {/* Goal selector */}

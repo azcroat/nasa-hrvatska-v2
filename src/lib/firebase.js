@@ -29,6 +29,7 @@ export function initFirebase(){
 }
 // Auto-init on module load
 initFirebase();
+export function getDb(){ return _fbDb; }
 
 // ═══ LOCAL PROGRESS & SESSION STORAGE ═══
 export function gP(u){try{return JSON.parse(localStorage.getItem("uP_"+u))}catch{return null}}

@@ -157,8 +157,19 @@ export default function LearnTab({
                 <div style={{ fontSize:'var(--text-base)', fontWeight:800, color:'var(--heading)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
                   {nextItem.name}
                 </div>
+                {/* Difficulty + duration row — Next Up (featured) */}
+                <div style={{display:'flex',alignItems:'center',gap:10,marginTop:5}}>
+                  <span style={{fontSize:12,letterSpacing:1}} title={`Difficulty: ${nextItem.diff||1}/3`}>
+                    {'⭐'.repeat(nextItem.diff||1)}{'☆'.repeat(3-(nextItem.diff||1))}
+                  </span>
+                  {nextItem.dur && (
+                    <span style={{fontSize:'var(--text-sm)',color:'var(--subtext)',fontWeight:700}}>
+                      {nextItem.dur}
+                    </span>
+                  )}
+                </div>
                 <div style={{fontSize:12, color:'var(--subtext)', marginTop:4, marginBottom:12, lineHeight:1.5}}>
-                  {nextItem.description || `Learn essential ${nextItem.label || 'vocabulary'} · ~${nextItem.duration || '5–8'} min · includes audio`}
+                  {nextItem.description || `Learn essential ${nextItem.label || 'vocabulary'} · includes audio`}
                 </div>
               </div>
               {(!st || st.lc === 0) && (
