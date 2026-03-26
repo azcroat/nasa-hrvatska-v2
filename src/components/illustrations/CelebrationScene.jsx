@@ -35,6 +35,16 @@ export default function CelebrationScene({ width = 280, height = 160, message = 
     { x: w*0.15,  y: h*0.02, r: -20, color: '#D40030', shape: 'circle' },
   ];
 
+  // Trophy geometry constants
+  const tTop    = cy - 30;   // top of cup opening
+  const tMid    = cy + 6;    // widest point / bottom of cup
+  const tStemT  = cy + 6;    // top of stem
+  const tStemB  = cy + 18;   // bottom of stem
+  const tBase1  = cy + 18;   // top of base stack
+  const tBase2  = cy + 22;
+  const tBase3  = cy + 26;
+  const tBase4  = cy + 30;   // bottom of base
+
   return (
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} fill="none"
       xmlns="http://www.w3.org/2000/svg" className={className} style={style}
@@ -58,14 +68,38 @@ export default function CelebrationScene({ width = 280, height = 160, message = 
       `}</style>
 
       <defs>
+        {/* Background glow */}
         <radialGradient id="cs-celebGlow" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.15"/>
           <stop offset="100%" stopColor="#fbbf24" stopOpacity="0"/>
         </radialGradient>
-        <linearGradient id="trophyGold" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FFE070" />
-          <stop offset="40%" stopColor="#f59e0b" />
-          <stop offset="100%" stopColor="#C8980A" />
+
+        {/* Trophy glow halo */}
+        <radialGradient id="cs-trophyHalo" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.35"/>
+          <stop offset="70%" stopColor="#d97706" stopOpacity="0.12"/>
+          <stop offset="100%" stopColor="#d97706" stopOpacity="0"/>
+        </radialGradient>
+
+        {/* Cup body gradient — left highlight to shadow to reflected light */}
+        <linearGradient id="cs-cupGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stopColor="#FFE066"/>
+          <stop offset="35%"  stopColor="#D4A017"/>
+          <stop offset="70%"  stopColor="#8B6914"/>
+          <stop offset="100%" stopColor="#D4A017"/>
+        </linearGradient>
+
+        {/* Stem gradient — slightly darker */}
+        <linearGradient id="cs-stemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stopColor="#D4A017"/>
+          <stop offset="50%"  stopColor="#7A5A10"/>
+          <stop offset="100%" stopColor="#C49A0A"/>
+        </linearGradient>
+
+        {/* Base tiers gradient */}
+        <linearGradient id="cs-baseGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%"   stopColor="#FFD700"/>
+          <stop offset="100%" stopColor="#B8860B"/>
         </linearGradient>
       </defs>
 
@@ -127,19 +161,83 @@ export default function CelebrationScene({ width = 280, height = 160, message = 
           />;
         })}
 
-        {/* Trophy cup body — wider, more shaped */}
-        <path d={`M ${cx-22} ${cy+10} Q ${cx-28} ${cy-15} ${cx-18} ${cy-28} L ${cx+18} ${cy-28} Q ${cx+28} ${cy-15} ${cx+22} ${cy+10} Z`}
-          fill="url(#trophyGold)" stroke="#C8980A" strokeWidth="1.5" />
-        {/* Trophy handles */}
-        <path d={`M ${cx-22} ${cy} Q ${cx-36} ${cy} ${cx-34} ${cy+8} Q ${cx-32} ${cy+14} ${cx-20} ${cy+12}`}
-          fill="none" stroke="#C8980A" strokeWidth="2.5" strokeLinecap="round" />
-        <path d={`M ${cx+22} ${cy} Q ${cx+36} ${cy} ${cx+34} ${cy+8} Q ${cx+32} ${cy+14} ${cx+20} ${cy+12}`}
-          fill="none" stroke="#C8980A" strokeWidth="2.5" strokeLinecap="round" />
-        {/* Trophy base */}
-        <rect x={cx-14} y={cy+10} width={28} height={6} rx={2} fill="url(#trophyGold)" />
-        <rect x={cx-10} y={cy+16} width={20} height={4} rx={2} fill="#C8980A" />
-        {/* Star inside trophy */}
-        <text x={cx} y={cy-6} textAnchor="middle" fontSize={14}>⭐</text>
+        {/* ── Trophy glow halo ── */}
+        <ellipse cx={cx} cy={cy} rx={38} ry={34} fill="url(#cs-trophyHalo)"/>
+
+        {/* ── Base — three-tiered ── */}
+        {/* Bottom tier — widest, darkest gold */}
+        <rect x={cx - 22} y={tBase3} width={44} height={tBase4 - tBase3} rx={2} fill="#B8860B"/>
+        {/* Middle tier — bright gold */}
+        <rect x={cx - 18} y={tBase2} width={36} height={tBase3 - tBase2} rx={1.5} fill="url(#cs-baseGrad)"/>
+        {/* Top plinth — narrow connector to stem */}
+        <rect x={cx - 12} y={tBase1} width={24} height={tBase2 - tBase1} rx={1} fill="#D4A017"/>
+
+        {/* ── Stem — hourglass/baluster shape ── */}
+        <path d={`
+          M ${cx - 8} ${tStemT}
+          Q ${cx - 5} ${tStemT + 4} ${cx - 4} ${(tStemT + tStemB) / 2}
+          Q ${cx - 5} ${tStemB - 4} ${cx - 8} ${tStemB}
+          L ${cx + 8} ${tStemB}
+          Q ${cx + 5} ${tStemB - 4} ${cx + 4} ${(tStemT + tStemB) / 2}
+          Q ${cx + 5} ${tStemT + 4} ${cx + 8} ${tStemT}
+          Z
+        `} fill="url(#cs-stemGrad)" stroke="#9A7010" strokeWidth="0.5"/>
+
+        {/* ── Cup body — proper goblet shape ── */}
+        {/* Left side: wide at top, narrows to stem */}
+        <path d={`
+          M ${cx - 24} ${tTop}
+          Q ${cx - 28} ${cy - 8} ${cx - 20} ${cy + 2}
+          Q ${cx - 14} ${tMid + 2} ${cx - 8} ${tStemT}
+          L ${cx + 8} ${tStemT}
+          Q ${cx + 14} ${tMid + 2} ${cx + 20} ${cy + 2}
+          Q ${cx + 28} ${cy - 8} ${cx + 24} ${tTop}
+          Z
+        `} fill="url(#cs-cupGrad)" stroke="#9A7010" strokeWidth="1"/>
+
+        {/* ── Left handle — filled bezier arc ── */}
+        <path d={`
+          M ${cx - 22} ${cy - 10}
+          C ${cx - 40} ${cy - 10} ${cx - 42} ${cy + 8} ${cx - 22} ${cy + 6}
+          L ${cx - 20} ${cy + 2}
+          C ${cx - 34} ${cy + 4} ${cx - 34} ${cy - 8} ${cx - 20} ${cy - 8}
+          Z
+        `} fill="#C49A0A" stroke="#9A7010" strokeWidth="0.5"/>
+
+        {/* ── Right handle — mirror ── */}
+        <path d={`
+          M ${cx + 22} ${cy - 10}
+          C ${cx + 40} ${cy - 10} ${cx + 42} ${cy + 8} ${cx + 22} ${cy + 6}
+          L ${cx + 20} ${cy + 2}
+          C ${cx + 34} ${cy + 4} ${cx + 34} ${cy - 8} ${cx + 20} ${cy - 8}
+          Z
+        `} fill="#C49A0A" stroke="#9A7010" strokeWidth="0.5"/>
+
+        {/* ── Cup rim — 3D illusion ellipse ── */}
+        <ellipse cx={cx} cy={tTop} rx={26} ry={4} fill="#B8860B" stroke="#9A7010" strokeWidth="0.5"/>
+        {/* Cup interior depth */}
+        <ellipse cx={cx} cy={tTop + 0.5} rx={21} ry={2.8} fill="#7A5A10" opacity="0.7"/>
+
+        {/* ── Metallic shine highlight — curved stroke on left side ── */}
+        <path d={`
+          M ${cx - 18} ${tTop + 5}
+          Q ${cx - 22} ${cy - 8} ${cx - 16} ${cy + 2}
+        `} fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" opacity="0.5"/>
+
+        {/* ── 5-point SVG star inside cup opening ── */}
+        <polygon
+          points={(() => {
+            const starCx = cx, starCy = tTop + 7, outerR = 7, innerR = 3;
+            return Array.from({length: 10}).map((_, i) => {
+              const angle = (i * 36 - 90) * Math.PI / 180;
+              const r = i % 2 === 0 ? outerR : innerR;
+              return `${starCx + Math.cos(angle) * r},${starCy + Math.sin(angle) * r}`;
+            }).join(' ');
+          })()}
+          fill="#FFE066"
+          stroke="#D4A017"
+          strokeWidth="0.5"
+        />
       </g>
 
       {/* Message text */}

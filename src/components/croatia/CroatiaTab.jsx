@@ -267,9 +267,7 @@ function SpotifyCard({ pl, openId, setOpenId }) {
   return (
     <div style={{
       borderRadius: 14, overflow: 'hidden', marginBottom: 8,
-      background: isOpen
-        ? 'linear-gradient(160deg,#0c1a2e,#0d1f18)'
-        : 'linear-gradient(135deg,#0f1e2e,#0d1a14)',
+      background: isOpen ? 'var(--card)' : 'var(--bar-bg)',
       border: `1px solid ${isOpen ? 'rgba(30,215,96,.35)' : 'rgba(30,215,96,.15)'}`,
       transition: 'border-color .2s',
     }}>
@@ -861,7 +859,7 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
           {(mediaFilter === 'all' || mediaFilter === 'music') && (
             <div style={{
               marginBottom:24, padding:'18px 14px 20px', borderRadius:16,
-              background:'linear-gradient(160deg,#0c1a2e 0%,#0d1f18 100%)',
+              background:'var(--card)',
               border:'1px solid rgba(30,215,96,.2)',
               boxShadow:'0 4px 20px rgba(0,0,0,.3)',
             }}>

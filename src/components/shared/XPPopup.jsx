@@ -109,6 +109,7 @@ export default function XPPopup({ showXP, xpA }) {
         const rad = (angleDeg * Math.PI) / 180;
         const offsetX = Math.cos(rad) * sparkleRadius;
         const offsetY = Math.sin(rad) * sparkleRadius;
+        const gradId = `spk${i}`;
         return (
           <div
             key={i}
@@ -116,13 +117,22 @@ export default function XPPopup({ showXP, xpA }) {
               position: 'absolute',
               top: '50%',
               left: '50%',
-              fontSize: 12,
+              width: 14,
+              height: 14,
               animation: `xpFloat .7s ${(i * 0.08).toFixed(2)}s ease forwards`,
               transform: `translate(${offsetX}px, ${offsetY}px)`,
               opacity: 0,
             }}
           >
-            ✨
+            <svg width="14" height="14" viewBox="0 0 14 14">
+              <path d="M7 0 L8.2 5.8 L14 7 L8.2 8.2 L7 14 L5.8 8.2 L0 7 L5.8 5.8 Z" fill={`url(#${gradId})`} />
+              <defs>
+                <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#fff" />
+                  <stop offset="100%" stopColor="#fbbf24" />
+                </linearGradient>
+              </defs>
+            </svg>
           </div>
         );
       })}

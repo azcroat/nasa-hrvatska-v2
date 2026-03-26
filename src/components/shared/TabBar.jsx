@@ -143,8 +143,8 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
                   color: isActive ? (t.id === 'croatia' ? 'var(--color-croatian, #b61800)' : 'var(--info, #0e7490)') : 'var(--nav-lbl)',
                   display: 'block',
                   marginTop: 3,
-                  transition: 'color .18s, font-weight .18s',
-                  letterSpacing: isActive ? '.02em' : 0,
+                  transition: 'color .18s, font-weight .18s, letter-spacing .18s ease',
+                  letterSpacing: isActive ? '.02em' : '.01em',
                 }}
               >
                 {t.label}

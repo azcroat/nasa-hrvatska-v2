@@ -317,7 +317,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
               {prestigeLevel === 0 && (
                 <button
                   onClick={() => setShowPrestigeModal(true)}
-                  style={{ width:'100%', padding:'12px', borderRadius:12, border:'none', cursor:'pointer', background:'linear-gradient(135deg,var(--lavender),#4c1d95)', color:'var(--card)', fontWeight:800, fontSize:'var(--text-base)', fontFamily:"'Outfit',sans-serif", marginTop:12 }}
+                  style={{ width:'100%', padding:'12px', borderRadius:12, border:'none', cursor:'pointer', background:'linear-gradient(135deg,var(--lavender, #7c3aed),#4c1d95)', color:'var(--card)', fontWeight:800, fontSize:'var(--text-base)', fontFamily:"'Outfit',sans-serif", marginTop:12 }}
                 >
                   ✦ Prestige Now
                 </button>
@@ -343,7 +343,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                     </span>
                     <span style={{
                       fontSize: 'var(--text-xs)', fontWeight: 800,
-                      background: 'rgba(14,116,144,0.15)', color: 'var(--info)',
+                      background: 'var(--info-bg)', color: 'var(--info)',
                       borderRadius: 4, padding: '1px 4px', marginLeft: 6,
                     }}>
                       {STAGE_CEFR[i]}
@@ -356,7 +356,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
             {/* Stage 6 teaser — show when user has completed Stage 4 or is in Stage 5 */}
             {(st.lc || 0) >= 20 && (
               <div style={{
-                background: 'rgba(14,116,144,.08)',
+                background: 'var(--info-bg)',
                 border: '1.5px dashed var(--card-b)',
                 borderRadius: 14, padding: '14px 16px', marginTop: 10, opacity: 0.75,
               }}>
@@ -367,7 +367,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                       Stage 6: Naš Čovjek
                       <span style={{
                         fontSize: 'var(--text-xs)', fontWeight: 800,
-                        background: 'rgba(14,116,144,0.15)', color: 'var(--info)',
+                        background: 'var(--info-bg)', color: 'var(--info)',
                         borderRadius: 4, padding: '1px 4px', marginLeft: 6,
                       }}>
                         {STAGE_CEFR[5]}
@@ -540,7 +540,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                   ))}
                 </div>
                 <div style={{
-                  background:'rgba(14,116,144,.08)', borderRadius:12, padding:'12px 14px',
+                  background:'var(--info-bg)', borderRadius:12, padding:'12px 14px',
                   fontSize:'var(--text-sm)', color:'var(--subtext)', lineHeight:1.6,
                 }}>
                   <strong style={{ color:'var(--heading)' }}>What to do:</strong> Say{' '}
@@ -736,7 +736,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                     style={{
                       width:'100%',display:'flex',alignItems:'center',gap:12,padding:'10px 12px',
                       borderRadius:10,border:'none',cursor:'pointer',textAlign:'left',
-                      background: currentGoal === g.id ? 'rgba(14,116,144,.08)' : 'transparent',
+                      background: currentGoal === g.id ? 'var(--info-bg)' : 'transparent',
                       fontFamily:"'Outfit',sans-serif",marginBottom:4,
                     }}
                   >
@@ -926,7 +926,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                   localStorage.setItem('nh_xp', '0');
                   setShowPrestigeModal(false);
                 }}
-                style={{ flex:1, padding:'12px', borderRadius:12, border:'none', background:'linear-gradient(135deg,var(--lavender),#4c1d95)', cursor:'pointer', fontSize:'var(--text-base)', fontWeight:800, color:'var(--card)', fontFamily:"'Outfit',sans-serif" }}
+                style={{ flex:1, padding:'12px', borderRadius:12, border:'none', background:'linear-gradient(135deg,var(--lavender, #7c3aed),#4c1d95)', cursor:'pointer', fontSize:'var(--text-base)', fontWeight:800, color:'var(--card)', fontFamily:"'Outfit',sans-serif" }}
               >
                 ✦ Confirm
               </button>
