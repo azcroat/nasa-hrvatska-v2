@@ -40,10 +40,50 @@ messaging.onBackgroundMessage((payload) => {
   });
 });
 
+// Handle direct Web Push events (no FCM — signed with our own VAPID private key)
+self.addEventListener('push', (event) => {
+  let data = { title: 'Naša Hrvatska', body: 'Time to practice your Croatian! 🇭🇷' };
+  try { if (event.data) data = { ...data, ...event.data.json() }; } catch (_) {}
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body:     data.body,
+      icon:     data.icon     || '/icons/icon-192x192.png',
+      badge:    data.badge    || '/icons/icon-72x72.png',
+      tag:      'nh-daily-reminder',
+      renotify: true,
+      data:     data.url ? { url: data.url } : {},
+      actions: [
+        { action: 'open',    title: 'Practice Now →' },
+        { action: 'dismiss', title: 'Later'           },
+      ],
+    })
+  );
+});
+
+// Periodic Background Sync — daily reminder without a push server (Chrome/Edge)
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'nh-daily-reminder') {
+    event.waitUntil(
+      self.registration.showNotification('🇭🇷 Naša Hrvatska', {
+        body:     'Time to practice your Croatian today!',
+        icon:     '/icons/icon-192x192.png',
+        badge:    '/icons/icon-72x72.png',
+        tag:      'nh-daily-reminder',
+        renotify: true,
+        actions: [
+          { action: 'open',    title: 'Practice Now →' },
+          { action: 'dismiss', title: 'Later'           },
+        ],
+      })
+    );
+  }
+});
+
 // Handle notification click
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   if (event.action === 'dismiss') return;
+  const url = (event.notification.data && event.notification.data.url) || '/';
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
@@ -51,7 +91,7 @@ self.addEventListener('notificationclick', (event) => {
           return client.focus();
         }
       }
-      return clients.openWindow('/');
+      return clients.openWindow(url);
     })
   );
 });
