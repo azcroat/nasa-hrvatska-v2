@@ -41,6 +41,22 @@ function playWrong() {
 }
 
 // ── Particle burst on correct answer ──────────────────────────────────────────
+const PARTICLES = ['⭐','✨','🌟','💫','⚡','✨','⭐','🌟','💥','✨'];
+
+// Starburst positions: [top offset px, left offset px]
+const PARTICLE_POSITIONS = [
+  [-30, -20],   // 0: upper-left
+  [-40,   0],   // 1: top-center
+  [-30,  20],   // 2: upper-right
+  [  0,  30],   // 3: right
+  [  0, -30],   // 4: left
+  [-20,  40],   // 5: upper-far-right diagonal
+  [ 20,  40],   // 6: lower-far-right diagonal
+  [ 30,   0],   // 7: bottom-center
+  [ 20, -40],   // 8: lower-far-left diagonal
+  [-20, -40],   // 9: upper-far-left diagonal
+];
+
 function ParticleBurst({ active }) {
   if (!active) return null;
   return (
@@ -53,22 +69,24 @@ function ParticleBurst({ active }) {
         zIndex: 10,
       }}
     >
-      {['⭐', '✨', '🌟', '💫', '⚡'].map((e, i) => (
-        <div
-          key={i}
-          style={{
-            position: 'absolute',
-            fontSize: 16 + i * 3,
-            animation: `xpFloat .8s ${i * 0.08}s ease forwards`,
-            transform: `translate(${Math.cos((i / 5) * Math.PI * 2) * 40}px, ${
-              Math.sin((i / 5) * Math.PI * 2) * 40
-            }px)`,
-            opacity: 0,
-          }}
-        >
-          {e}
-        </div>
-      ))}
+      {PARTICLES.map((e, i) => {
+        const [topOff, leftOff] = PARTICLE_POSITIONS[i];
+        return (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              fontSize: 14 + (i % 3) * 4,
+              animation: `xpFloat .8s ${i * 0.05}s ease forwards`,
+              top: topOff,
+              left: leftOff,
+              opacity: 0,
+            }}
+          >
+            {e}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -88,6 +106,10 @@ export default function McGame({ questions, onComplete, goBack, award }) {
   const [revealCorrect, setRevealCorrect] = useState(false);
   const [comboMsg, setComboMsg] = useState('');
   const [showCombo, setShowCombo] = useState(false);
+  // Change 1: screen shake state
+  const [shaking, setShaking] = useState(false);
+  // Change 3: streak badge pulse state
+  const [streakPulse, setStreakPulse] = useState(false);
   const firstOptionRef = useRef(null);
   const resultFired = useRef(false);
 
@@ -137,17 +159,26 @@ export default function McGame({ questions, onComplete, goBack, award }) {
         if (msg) {
           setComboMsg(msg);
           setShowCombo(true);
-          setTimeout(() => setShowCombo(false), 1500);
+          // Change 3: pulse the streak badge for the combo toast duration
+          setStreakPulse(true);
+          setTimeout(() => {
+            setShowCombo(false);
+            setStreakPulse(false);
+          }, 1500);
         }
         return ns;
       });
     } else {
       haptic.wrong();
       playWrong();
+      // Change 1: trigger screen shake
+      setShaking(true);
+      setTimeout(() => setShaking(false), 500);
       setStreak(0);
       setRevealCorrect(true);
       setShowCombo(false);
       setComboMsg('');
+      setStreakPulse(false);
       if (q.hr) recordMistake(q.hr, q.en || q.correct || '', q.q || q.prompt || '', q.category || '');
     }
     if (q.hr) srMark(q.hr, ok);
@@ -173,7 +204,24 @@ export default function McGame({ questions, onComplete, goBack, award }) {
   const isLast = idx === questions.length - 1;
 
   return (
-    <div className="scr-wrap">
+    // Change 1: apply shake animation to outer wrapper
+    <div
+      className="scr-wrap"
+      style={{ animation: shaking ? 'mcShake 0.5s ease' : 'none' }}
+    >
+      {/* Change 1: inject mcShake keyframes */}
+      <style>{`
+        @keyframes mcShake {
+          0%,100% { transform: translateX(0); }
+          15%      { transform: translateX(-8px); }
+          30%      { transform: translateX(8px); }
+          45%      { transform: translateX(-6px); }
+          60%      { transform: translateX(6px); }
+          75%      { transform: translateX(-3px); }
+          90%      { transform: translateX(3px); }
+        }
+      `}</style>
+
       {/* Header row */}
       <div
         style={{
@@ -244,7 +292,7 @@ export default function McGame({ questions, onComplete, goBack, award }) {
           </div>
         </div>
 
-        {/* Streak badge */}
+        {/* Streak badge — Change 3: pulse with heartbeat during combo toast */}
         {streak >= 1 && (
           <div
             style={{
@@ -253,13 +301,17 @@ export default function McGame({ questions, onComplete, goBack, award }) {
               gap: 4,
               background:
                 'linear-gradient(135deg,rgba(249,115,22,.15),rgba(239,68,68,.1))',
-              border: '1.5px solid rgba(249,115,22,.3)',
+              border: streakPulse
+                ? '1.5px solid rgba(249,115,22,.7)'
+                : '1.5px solid rgba(249,115,22,.3)',
               borderRadius: 20,
               padding: '4px 10px',
               fontSize: 13,
               fontWeight: 800,
               color: '#ea580c',
-              animation: 'streakPop .3s ease',
+              animation: streakPulse ? 'heartbeat 0.4s ease infinite' : 'streakPop .3s ease',
+              boxShadow: streakPulse ? '0 0 10px rgba(249,115,22,.45)' : 'none',
+              transition: 'box-shadow .2s, border-color .2s',
             }}
           >
             <span

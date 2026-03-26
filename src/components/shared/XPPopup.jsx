@@ -1,7 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function XPPopup({ showXP, xpA }) {
   const alreadyEarned = xpA === 0;
+
+  const [displayAmt, setDisplayAmt] = useState(0);
+
+  useEffect(() => {
+    if (!showXP || xpA <= 0) return;
+    let start = null;
+    const duration = 600;
+    const animate = (ts) => {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 2); // ease-out quad
+      setDisplayAmt(Math.floor(eased * xpA));
+      if (progress < 1) requestAnimationFrame(animate);
+      else setDisplayAmt(xpA);
+    };
+    requestAnimationFrame(animate);
+  }, [showXP, xpA]);
 
   if (!showXP) return null;
 
@@ -36,6 +53,10 @@ export default function XPPopup({ showXP, xpA }) {
       </div>
     );
   }
+
+  // 6 sparkle positions at 45° increments around the badge (starting top-right)
+  const sparkleAngles = [45, 90, 135, 180, 225, 270];
+  const sparkleRadius = 38;
 
   return (
     <div
@@ -80,26 +101,31 @@ export default function XPPopup({ showXP, xpA }) {
         >
           ⭐
         </span>
-        <span style={{ fontVariantNumeric: 'tabular-nums' }}>+{xpA} XP</span>
+        <span style={{ fontVariantNumeric: 'tabular-nums' }}>+{displayAmt} XP</span>
       </div>
 
-      {/* Floating particles */}
-      {[...Array(4)].map((_, i) => (
-        <div
-          key={i}
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            fontSize: 12,
-            animation: `xpFloat .7s ${i * 0.1}s ease forwards`,
-            transform: `translate(${(i - 1.5) * 24}px, 0)`,
-            opacity: 0,
-          }}
-        >
-          ✨
-        </div>
-      ))}
+      {/* Floating sparkle particles — 6 at diverse angles */}
+      {sparkleAngles.map((angleDeg, i) => {
+        const rad = (angleDeg * Math.PI) / 180;
+        const offsetX = Math.cos(rad) * sparkleRadius;
+        const offsetY = Math.sin(rad) * sparkleRadius;
+        return (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              fontSize: 12,
+              animation: `xpFloat .7s ${(i * 0.08).toFixed(2)}s ease forwards`,
+              transform: `translate(${offsetX}px, ${offsetY}px)`,
+              opacity: 0,
+            }}
+          >
+            ✨
+          </div>
+        );
+      })}
     </div>
   );
 }

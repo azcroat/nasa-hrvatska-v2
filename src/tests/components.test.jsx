@@ -31,8 +31,9 @@ describe('XPPopup', () => {
     expect(screen.getByRole('status')).toBeTruthy();
   });
   it('shows +XP text when visible with positive amount', () => {
-    render(<XPPopup showXP={true} xpA={25} />);
-    expect(screen.getByText('+25 XP')).toBeTruthy();
+    const { container } = render(<XPPopup showXP={true} xpA={25} />);
+    // XP amount animates from 0; verify the component communicates 25 XP via aria-label
+    expect(container.firstChild.getAttribute('aria-label')).toMatch(/25/);
   });
   it('shows already-earned message when xpA is 0', () => {
     render(<XPPopup showXP={true} xpA={0} />);
