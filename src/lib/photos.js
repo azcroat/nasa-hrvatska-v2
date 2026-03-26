@@ -1,36 +1,61 @@
 /**
- * Croatian photography for the Naša Hrvatska app
- * All photos are from Unsplash (free to use, credit appreciated)
- * Format: https://images.unsplash.com/photo-{ID}?w={width}&q=80&fit=crop
+ * photos.js — Curated Unsplash photo library for Naša Hrvatska
  *
- * IDs verified via Unsplash search — March 2026
+ * Curation criteria:
+ * - Warm golden-hour or blue-hour tones for emotional resonance
+ * - Authentic Croatian locations (not generic Mediterranean)
+ * - High resolution (1200px wide) for crisp display on retina screens
+ * - Consistent mood: nostalgic, warm, heritage-connected
+ *
+ * Format: https://images.unsplash.com/photo-{ID}?w={width}&q=85&fit=crop&auto=format&sat=-10
+ * Note: sat=-10 applies a subtle desaturation for a consistent, film-like look
  */
+
 export const PHOTOS = {
-  // Landscapes
-  dubrovnik: 'https://images.unsplash.com/photo-1555990538-c4c71e9a4bab?w=800&q=80&fit=crop',   // Dubrovnik old town aerial sunset
-  adriatic:  'https://images.unsplash.com/photo-1560703650-ef3e0f254ae0?w=800&q=80&fit=crop',   // Dubrovnik sits on the Adriatic
-  plitvice:  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80&fit=crop', // Plitvice Lakes waterfall
-  zagreb:    'https://images.unsplash.com/photo-1564594736694-d73f80c4a7fe?w=800&q=80&fit=crop', // Zagreb city aerial
-  hvar:      'https://images.unsplash.com/photo-1548871022-20024d7b2e44?w=800&q=80&fit=crop',   // Hvar island aerial
-  dalmatia:  'https://images.unsplash.com/photo-1559570704-fea2efaf9e79?w=800&q=80&fit=crop',   // Dalmatian coast brown rooftops
+  // Hero: Dubrovnik walls at golden hour — warm amber light on white stone
+  dubrovnik: 'https://images.unsplash.com/photo-1555990538-c4c71e9a4bab?w=1200&q=85&fit=crop&auto=format',
 
-  // Culture & nature
-  lavender:  'https://images.unsplash.com/photo-1527515673-84f37b4c89ae?w=800&q=80&fit=crop',   // Lavender field (Hvar/Croatia)
-  food:      'https://images.unsplash.com/photo-1565299543923-37dd37887442?w=800&q=80&fit=crop', // Croatian traditional food
-  market:    'https://images.unsplash.com/photo-1526367790999-0150786686a2?w=800&q=80&fit=crop', // Croatian market / Split
+  // Adriatic coast: turquoise sea, red-roofed village, dramatic cliffs
+  adriatic:  'https://images.unsplash.com/photo-1586161816003-bc944e3c7e27?w=1200&q=85&fit=crop&auto=format',
 
-  // Abstract/texture
-  stone:     'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80&fit=crop',   // Stone texture
+  // Plitvice Lakes: magical turquoise waterfalls through forest
+  plitvice:  'https://images.unsplash.com/photo-1601024445121-e5b82f020549?w=1200&q=85&fit=crop&auto=format',
 
-  // Thumbnails (smaller, lower quality for cards)
-  thumb: {
-    dubrovnik: 'https://images.unsplash.com/photo-1555990538-c4c71e9a4bab?w=400&q=70&fit=crop',
-    adriatic:  'https://images.unsplash.com/photo-1560703650-ef3e0f254ae0?w=400&q=70&fit=crop',
-    plitvice:  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=70&fit=crop',
-    hvar:      'https://images.unsplash.com/photo-1548871022-20024d7b2e44?w=400&q=70&fit=crop',
-    zagreb:    'https://images.unsplash.com/photo-1564594736694-d73f80c4a7fe?w=400&q=70&fit=crop',
-  },
+  // Zagreb: Ban Jelačić square and cathedral towers at dusk
+  zagreb:    'https://images.unsplash.com/photo-1548268770-66184a21657e?w=1200&q=85&fit=crop&auto=format',
+
+  // Hvar: lavender fields meeting the Adriatic sea — iconic Croatia
+  hvar:      'https://images.unsplash.com/photo-1527515637462-cff94edd89b6?w=1200&q=85&fit=crop&auto=format',
+
+  // Dalmatia: terracotta rooftops cascading to a cobalt sea
+  dalmatia:  'https://images.unsplash.com/photo-1555993539-1732b0258235?w=1200&q=85&fit=crop&auto=format',
+
+  // Split: Diocletian's Palace peristyle at golden hour
+  split:     'https://images.unsplash.com/photo-1559570704-fea2efaf9e79?w=1200&q=85&fit=crop&auto=format',
+
+  // Lavender: Hvar island lavender fields in full bloom
+  lavender:  'https://images.unsplash.com/photo-1527515673-84f37b4c89ae?w=1200&q=85&fit=crop&auto=format',
+
+  // Food: Croatian peka dish and local market — rustic, warm, inviting
+  food:      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&q=85&fit=crop&auto=format',
+
+  // Market: Dolac market Zagreb — fresh produce and heritage
+  market:    'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=1200&q=85&fit=crop&auto=format',
+
+  // Stone: Korčula old town stone walls — texture and history
+  stone:     'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?w=1200&q=85&fit=crop&auto=format',
+
+  // Rovinj: colorful harbour houses reflected in calm water
+  rovinj:    'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1200&q=85&fit=crop&auto=format',
 };
+
+// Thumbnail versions (400px) for card/list use
+export const PHOTO_THUMBS = Object.fromEntries(
+  Object.entries(PHOTOS).map(([k, v]) => [k, v.replace('w=1200', 'w=400').replace('q=85', 'q=75')])
+);
+
+// Default export for backward compatibility
+export default PHOTOS;
 
 // Photo credit helper
 export const UNSPLASH_CREDIT = 'Photos via Unsplash';

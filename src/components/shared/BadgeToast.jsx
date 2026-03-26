@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useHaptic } from '../../hooks/useHaptic.js';
+import BadgeArtwork from './BadgeArtwork.jsx';
 
 export default function BadgeToast({ show, badge }) {
   const haptic = useHaptic();
@@ -70,19 +71,16 @@ export default function BadgeToast({ show, badge }) {
             Achievement Unlocked!
           </div>
 
-          {/* Badge emoji — large, with glow */}
+          {/* Badge artwork — large, with bounce animation */}
           <div
-            aria-hidden="true"
             style={{
-              fontSize: 52,
-              lineHeight: 1,
+              display: 'flex',
+              justifyContent: 'center',
               marginBottom: 10,
-              filter: 'drop-shadow(0 4px 12px rgba(245,158,11,.5))',
               animation: 'heartbeat .5s ease',
-              display: 'block',
             }}
           >
-            {badge.i}
+            <BadgeArtwork badgeId={badge.id} size={56} earned={true} />
           </div>
 
           {/* Badge name */}
