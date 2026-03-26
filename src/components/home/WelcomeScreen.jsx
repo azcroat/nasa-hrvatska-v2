@@ -37,9 +37,9 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
       localStorage.setItem('nh_heritage_saved', 'true');
     }
     localStorage.setItem('onboarded', 'true');
-    const b = sh(PLACE.filter(x => x.d === 1)).slice(0, 3);
-    const m = sh(PLACE.filter(x => x.d === 2)).slice(0, 3);
-    const a = sh(PLACE.filter(x => x.d === 3)).slice(0, 2);
+    const b = sh(PLACE.filter(x => x.d === 1)).slice(0, 5);
+    const m = sh(PLACE.filter(x => x.d === 2)).slice(0, 5);
+    const a = sh(PLACE.filter(x => x.d === 3)).slice(0, 5);
     const q = [...b, ...m, ...a].map(q => {
       const c = q.o[q.c];
       const o = sh([...q.o]);
@@ -226,7 +226,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
           alignItems: 'center',
           gap: 8
         }}>
-          📊 Quick level check: 8 questions, ~2 minutes — places you at the right starting point
+          📊 Quick level check: 15 questions, ~3 minutes — places you at the right starting point
         </div>
         {!dailyMin && (
           <p style={{
