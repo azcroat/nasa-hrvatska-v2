@@ -385,10 +385,32 @@ export default function CroatiaTab({ setScr, sCurEx }) {
   const [activeStream, setActiveStream] = useState(null);
   const [activeMediaCat, setActiveMediaCat] = useState("tv");
   const [openLetter, setOpenLetter] = useState(null);
+  const [expandedContext, setExpandedContext] = React.useState(null);
 
   return (
     <React.Fragment>
-      {H("🇭🇷 Life in Croatia", "Culture, history, daily life")}
+      {/* ── TAB HERO ── */}
+      <div className="tab-hero">
+        <div className="tab-hero-stripe" />
+        <div style={{position:'absolute',top:0,left:0,right:0,bottom:0,background:'linear-gradient(105deg,transparent 30%,rgba(255,255,255,.025) 50%,transparent 70%)',backgroundSize:'200% 100%',animation:'shimmer 8s linear infinite',pointerEvents:'none'}} />
+        <div className="tab-hero-body">
+          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
+            <span style={{fontSize:36,lineHeight:1}}>🇭🇷</span>
+            <div>
+              <div style={{fontSize:10,fontWeight:800,color:'rgba(255,255,255,.45)',letterSpacing:'.16em',textTransform:'uppercase',marginBottom:3}}>Life in Croatia</div>
+              <div style={{fontSize:26,fontWeight:900,color:'white',fontFamily:"'Playfair Display',serif",lineHeight:1.1,textShadow:'0 2px 16px rgba(0,0,0,.4)'}}>Naša Hrvatska</div>
+            </div>
+          </div>
+          <div style={{fontSize:'var(--text-sm)',color:'rgba(255,255,255,.58)',lineHeight:1.5,fontWeight:500}}>
+            Culture, history, daily life &amp; immersion
+          </div>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:12}}>
+            {['🏰 History','🎵 Culture','📰 Stories','🌊 Immersion'].map(t=>(
+              <span key={t} style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.55)',background:'rgba(255,255,255,.07)',border:'1px solid rgba(255,255,255,.1)',borderRadius:20,padding:'4px 10px'}}>{t}</span>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* ── CITY OF THE DAY ── */}
       <button style={{marginBottom:16,borderRadius:16,overflow:"hidden",boxShadow:"0 4px 16px rgba(0,0,0,.1)",width:"100%",border:"none",cursor:"pointer",padding:0,textAlign:"left"}} onClick={()=>setScr("cityofday")}>
@@ -407,27 +429,49 @@ export default function CroatiaTab({ setScr, sCurEx }) {
       </button>
 
       {/* ── HISTORY & REGIONS — always-visible 2-col grid ── */}
-      <div style={{ marginBottom:20 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
-          <span style={{ fontSize:20 }}>🇭🇷</span>
-          <span style={{ fontSize:'var(--text-base)', fontWeight:800, color:'var(--heading)', flex:1 }}>History & Regions</span>
-          <span style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:600, background:'var(--bar-bg)', borderRadius:8, padding:'2px 8px' }}>12 entries</span>
+      <div className="section-block">
+        <div className="section-hdr">
+          <div className="section-hdr-icon" style={{background:'rgba(212,0,48,.12)'}}>🏰</div>
+          <div className="section-hdr-text">
+            <div className="section-hdr-title">History &amp; Regions</div>
+            <div className="section-hdr-sub">Journey through Croatia's past and places</div>
+          </div>
+          <div className="section-hdr-badge">12 entries</div>
         </div>
+        <div
+          onClick={() => setExpandedContext(expandedContext === 'history' ? null : 'history')}
+          style={{
+            fontSize:12, color:'var(--info)', cursor:'pointer',
+            marginBottom: expandedContext === 'history' ? 0 : 12,
+            display:'flex', alignItems:'center', gap:4, fontWeight:600
+          }}
+        >
+          {expandedContext === 'history' ? '▲' : '▼'} Why this matters for your Croatian
+        </div>
+        {expandedContext === 'history' && (
+          <div style={{
+            fontSize:12, color:'var(--subtext)', lineHeight:1.6,
+            padding:'10px 14px', background:'var(--info-bg)',
+            borderRadius:10, marginBottom:12, border:'1px solid var(--info-b)'
+          }}>
+            🏰 <strong>Croatian history</strong> is woven into everyday conversation. References to the Domovinski Rat, Vukovar, and the medieval kings are part of how Croatians identify themselves. Understanding this context makes your Croatian feel genuine and earns respect from native speakers.
+          </div>
+        )}
         <div className="g2" style={{ gap:8 }}>
           {[
-            [()=>{setScr("history");},"🇭🇷","Domovinski Rat","1991–1995 Homeland War","#dc2626"],
-            [()=>setScr("region_vukovar"),"🕯️","Vukovar","Hero city — a deep dive","#dc2626"],
-            [()=>{setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval dynasty","#b45309"],
-            [()=>setScr("region_zagreb"),"🏛️","Zagreb","Croatia's capital","#0e7490"],
-            [()=>setScr("region_split"),"🌊","Split","Rome on the Adriatic","#0284c7"],
-            [()=>setScr("region_mostar"),"🌉","Mostar","The bridge reborn","#7c3aed"],
-            [()=>setScr("region_tomislavgrad"),"👑","Tomislavgrad","Where the kingdom was born","#b45309"],
-            [()=>setScr("region_knin"),"🏰","Knin","Liberated August 5, 1995","#dc2626"],
-            [()=>setScr("region_labin"),"⛵","Labin & Rabac","Our home in Istria","#0e7490"],
-            [()=>setScr("region_bibinje"),"🏖️","Bibinje & Zadar","Dalmatian gateway","#0284c7"],
-            [()=>setScr("region_hercegovina"),"⚔️","Hercegovina","Croatian heritage","#b45309"],
-            [()=>setScr("region_vinkovci"),"🏛️","Vinkovci","8,300 years of history","#78716c"],
-          ].map((/** @type {any} */ [fn,icon,title,sub,color],i) => (
+            [()=>{setScr("history");},"🇭🇷","Domovinski Rat","1991–1995 Homeland War","#dc2626","history"],
+            [()=>setScr("region_vukovar"),"🕯️","Vukovar","Hero city — a deep dive","#dc2626","history"],
+            [()=>{setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval dynasty","#b45309","history"],
+            [()=>setScr("region_zagreb"),"🏛️","Zagreb","Croatia's capital","#0e7490","history"],
+            [()=>setScr("region_split"),"🌊","Split","Rome on the Adriatic","#0284c7","history"],
+            [()=>setScr("region_mostar"),"🌉","Mostar","The bridge reborn","#7c3aed","history"],
+            [()=>setScr("region_tomislavgrad"),"👑","Tomislavgrad","Where the kingdom was born","#b45309","history"],
+            [()=>setScr("region_knin"),"🏰","Knin","Liberated August 5, 1995","#dc2626","history"],
+            [()=>setScr("region_labin"),"⛵","Labin & Rabac","Our home in Istria","#0e7490","history"],
+            [()=>setScr("region_bibinje"),"🏖️","Bibinje & Zadar","Dalmatian gateway","#0284c7","history"],
+            [()=>setScr("region_hercegovina"),"⚔️","Hercegovina","Croatian heritage","#b45309","history"],
+            [()=>setScr("region_vinkovci"),"🏛️","Vinkovci","8,300 years of history","#78716c","history"],
+          ].map((/** @type {any} */ [fn,icon,title,sub,color,type],i) => (
             <button key={i} onClick={fn}
               style={{
                 display:'flex', alignItems:'center', gap:10, padding:'12px',
@@ -443,6 +487,15 @@ export default function CroatiaTab({ setScr, sCurEx }) {
               <div style={{flex:1,minWidth:0}}>
                 <div style={{fontSize:'var(--text-sm)',fontWeight:700,color:'var(--heading)',lineHeight:1.2,marginBottom:2}}>{title}</div>
                 <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',lineHeight:1.3}}>{sub}</div>
+                <span style={{
+                  display:'inline-block', fontSize:9, fontWeight:800, padding:'2px 6px',
+                  borderRadius:4, textTransform:'uppercase', letterSpacing:'0.06em',
+                  marginTop:4,
+                  background:'rgba(124,58,237,0.1)',
+                  color:'var(--lavender, #7c3aed)',
+                }}>
+                  {type}
+                </span>
               </div>
             </button>
           ))}
@@ -450,27 +503,30 @@ export default function CroatiaTab({ setScr, sCurEx }) {
       </div>
 
       {/* ── CROATIAN LIFE — always-visible 2-col grid ── */}
-      <div style={{ marginBottom:20 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
-          <span style={{ fontSize:20 }}>🏘️</span>
-          <span style={{ fontSize:'var(--text-base)', fontWeight:800, color:'var(--heading)', flex:1 }}>Croatian Life</span>
-          <span style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:600, background:'var(--bar-bg)', borderRadius:8, padding:'2px 8px' }}>12 topics</span>
+      <div className="section-block">
+        <div className="section-hdr">
+          <div className="section-hdr-icon" style={{background:'rgba(22,163,74,.12)'}}>🏘️</div>
+          <div className="section-hdr-text">
+            <div className="section-hdr-title">Croatian Life</div>
+            <div className="section-hdr-sub">Everyday vocabulary for real situations</div>
+          </div>
+          <div className="section-hdr-badge">12 topics</div>
         </div>
         <div className="g2" style={{ gap:8 }}>
           {[
-            [()=>setScr("grocery"),"🛒","Grocery Shopping","Supermarket vocab","#16a34a"],
-            [()=>{setScr("recipes");},"🍳","Croatian Recipes","Traditional dishes","#b45309"],
-            [()=>{setScr("roleplay");},"🎭","Role-Play","Real-life conversations","#7c3aed"],
-            [()=>setScr("school"),"🏫","School Kit","For parents & students","#0e7490"],
-            [()=>setScr("texting"),"📱","Texting & Slang","How Croatians text","#7c3aed"],
-            [()=>setScr("friends"),"🤝","Making Friends","Social life","#16a34a"],
-            [()=>setScr("foodorder"),"🍕","Ordering Food","Restaurants & cafés","#b45309"],
-            [()=>setScr("transport"),"🚌","Transport","Buses, taxis & trams","#0284c7"],
-            [()=>setScr("emergency"),"🚨","Emergency","Essential phrases","#dc2626"],
-            [()=>setScr("practical"),"💼","Practical Life","Banks, doctors, admin","#78716c"],
-            [()=>setScr("basketball"),"🏀","At Basketball","Croatian basketball","#b45309"],
-            [()=>setScr("gym"),"🏋️","At the Gym","Fitness vocabulary","#16a34a"],
-          ].map((/** @type {any} */ [fn,icon,title,sub,color],i) => (
+            [()=>setScr("grocery"),"🛒","Grocery Shopping","Supermarket vocab","#16a34a","interactive"],
+            [()=>{setScr("recipes");},"🍳","Croatian Recipes","Traditional dishes","#b45309","reading"],
+            [()=>{setScr("roleplay");},"🎭","Role-Play","Real-life conversations","#7c3aed","interactive"],
+            [()=>setScr("school"),"🏫","School Kit","For parents & students","#0e7490","language"],
+            [()=>setScr("texting"),"📱","Texting & Slang","How Croatians text","#7c3aed","language"],
+            [()=>setScr("friends"),"🤝","Making Friends","Social life","#16a34a","interactive"],
+            [()=>setScr("foodorder"),"🍕","Ordering Food","Restaurants & cafés","#b45309","interactive"],
+            [()=>setScr("transport"),"🚌","Transport","Buses, taxis & trams","#0284c7","language"],
+            [()=>setScr("emergency"),"🚨","Emergency","Essential phrases","#dc2626","language"],
+            [()=>setScr("practical"),"💼","Practical Life","Banks, doctors, admin","#78716c","language"],
+            [()=>setScr("basketball"),"🏀","At Basketball","Croatian basketball","#b45309","culture"],
+            [()=>setScr("gym"),"🏋️","At the Gym","Fitness vocabulary","#16a34a","language"],
+          ].map((/** @type {any} */ [fn,icon,title,sub,color,type],i) => (
             <button key={i} onClick={fn}
               style={{
                 display:'flex', alignItems:'center', gap:10, padding:'12px',
@@ -486,6 +542,19 @@ export default function CroatiaTab({ setScr, sCurEx }) {
               <div style={{flex:1,minWidth:0}}>
                 <div style={{fontSize:'var(--text-sm)',fontWeight:700,color:'var(--heading)',lineHeight:1.2,marginBottom:2}}>{title}</div>
                 <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',lineHeight:1.3}}>{sub}</div>
+                <span style={{
+                  display:'inline-block', fontSize:9, fontWeight:800, padding:'2px 6px',
+                  borderRadius:4, textTransform:'uppercase', letterSpacing:'0.06em',
+                  marginTop:4,
+                  background: type === 'interactive' ? 'rgba(14,116,144,0.1)' :
+                              type === 'reading' ? 'rgba(22,163,74,0.1)' :
+                              type === 'history' ? 'rgba(124,58,237,0.1)' : 'rgba(217,119,6,0.1)',
+                  color: type === 'interactive' ? 'var(--info)' :
+                         type === 'reading' ? 'var(--forest, #16a34a)' :
+                         type === 'history' ? 'var(--lavender, #7c3aed)' : 'var(--harvest, #d97706)',
+                }}>
+                  {type}
+                </span>
               </div>
             </button>
           ))}
@@ -493,14 +562,22 @@ export default function CroatiaTab({ setScr, sCurEx }) {
       </div>
 
       {/* ── STORIES & NEWS ── */}
-<div style={{ borderRadius:20, overflow:'hidden', marginBottom:16, boxShadow:'0 4px 20px rgba(0,0,0,.10)', border:'1px solid var(--card-b)' }}>
-  <div style={{ background:'linear-gradient(135deg,#451a03,#92400e)', padding:'18px 20px', color:'#fff' }}>
-    <div style={{ fontSize:'var(--text-xs)', fontWeight:700, opacity:.7, letterSpacing:'.12em', textTransform:'uppercase', marginBottom:4 }}>STORIES & NEWS</div>
-    <div style={{ fontSize:18, fontWeight:900, marginBottom:4 }}>Live the language</div>
-    <div style={{ fontSize:'var(--text-sm)', opacity:.8, lineHeight:1.5 }}>Stories from Croatia + real Croatian news</div>
+<div className="section-block">
+  <div className="section-hdr">
+    <div className="section-hdr-icon" style={{background:'rgba(245,158,11,.12)'}}>📰</div>
+    <div className="section-hdr-text">
+      <div className="section-hdr-title">Stories &amp; News</div>
+      <div className="section-hdr-sub">Live the language through real Croatian stories</div>
+    </div>
   </div>
-  <div className="g3" style={{ background:'var(--card)', padding:'14px 16px', gap:10 }}>
-    <button onClick={() => setScr("baka_summer")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(245,158,11,.3)', background:'rgba(245,158,11,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+  <div className="g3" style={{ gap:10 }}>
+    <button onClick={() => setScr("baka_summer")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(245,158,11,.3)', background:'rgba(245,158,11,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif", position:'relative' }}>
+      <span style={{
+        display:'inline-block', fontSize:9, fontWeight:900, padding:'2px 6px',
+        borderRadius:4, background:'#dc2626', color:'white',
+        textTransform:'uppercase', letterSpacing:'0.06em',
+        position:'absolute', top:8, right:8,
+      }}>NEW</span>
       <div style={{ fontSize:26, marginBottom:6 }}>📖</div>
       <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--warning)' }}>Baka's Summer</div>
       <div style={{ fontSize:'var(--text-xs)', color:'var(--warning)', marginTop:2, opacity:.75 }}>12-chapter story</div>
@@ -540,17 +617,19 @@ export default function CroatiaTab({ setScr, sCurEx }) {
 </div>
 
       {/* ── IMMERSION FEATURE ── */}
-      <div style={{ borderRadius:20, overflow:'hidden', marginBottom:16, boxShadow:'0 4px 20px rgba(0,0,0,.10)', border:'1px solid var(--card-b)' }}>
-        <div style={{ background:'linear-gradient(135deg,#1e1b4b,#3730a3)', padding:'18px 20px', color:'#fff' }}>
-          <div style={{ fontSize:'var(--text-xs)', fontWeight:700, opacity:.7, letterSpacing:'.12em', textTransform:'uppercase', marginBottom:4 }}>IMMERSION</div>
-          <div style={{ fontSize:18, fontWeight:900, marginBottom:4 }}>Level up your Croatian</div>
-          <div style={{ fontSize:'var(--text-sm)', opacity:.8, lineHeight:1.5 }}>AI conversation practice + curated media from A1 to C2</div>
+      <div className="section-block">
+        <div className="section-hdr">
+          <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>🌊</div>
+          <div className="section-hdr-text">
+            <div className="section-hdr-title">Immersion</div>
+            <div className="section-hdr-sub">AI conversation + curated media from A1 to C2</div>
+          </div>
         </div>
-        <div style={{ background:'var(--card)', padding:'14px 16px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-          <button onClick={() => setScr("aiconvo")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #c7d2fe', background:'linear-gradient(135deg,#eef2ff,#e0e7ff)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+          <button onClick={() => setScr("aiconvo")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(99,102,241,.3)', background:'rgba(99,102,241,.07)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
             <div style={{ fontSize:26, marginBottom:6 }}>🤖</div>
-            <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'#3730a3' }}>AI Conversations</div>
-            <div style={{ fontSize:'var(--text-xs)', color:'#6366f1', marginTop:2 }}>50 scenarios · all levels</div>
+            <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)' }}>AI Conversations</div>
+            <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:2 }}>50 scenarios · all levels</div>
           </button>
           <button onClick={() => setScr("immersion")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(14,116,144,.3)', background:'rgba(14,116,144,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
             <div style={{ fontSize:26, marginBottom:6 }}>🌊</div>
@@ -561,40 +640,83 @@ export default function CroatiaTab({ setScr, sCurEx }) {
       </div>
 
 {/* ── LANGUAGE & CULTURE ──────────────────────────────────────────── */}
-<div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:10, marginTop:8 }}>
-  Language & Culture
-</div>
-<div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:24 }}>
+<div className="section-block">
+  <div className="section-hdr">
+    <div className="section-hdr-icon" style={{background:'rgba(124,58,237,.12)'}}>🎭</div>
+    <div className="section-hdr-text">
+      <div className="section-hdr-title">Language &amp; Culture</div>
+      <div className="section-hdr-sub">Deepen your connection to Croatian identity</div>
+    </div>
+    <div className="section-hdr-badge">4 topics</div>
+  </div>
+  <div
+    onClick={() => setExpandedContext(expandedContext === 'kafic' ? null : 'kafic')}
+    style={{
+      fontSize:12, color:'var(--info)', cursor:'pointer',
+      marginBottom: expandedContext === 'kafic' ? 0 : 12,
+      display:'flex', alignItems:'center', gap:4, fontWeight:600
+    }}
+  >
+    {expandedContext === 'kafic' ? '▲' : '▼'} Why this matters for your Croatian
+  </div>
+  {expandedContext === 'kafic' && (
+    <div style={{
+      fontSize:12, color:'var(--subtext)', lineHeight:1.6,
+      padding:'10px 14px', background:'var(--info-bg)',
+      borderRadius:10, marginBottom:12, border:'1px solid var(--info-b)'
+    }}>
+      ☕ <strong>U Kafiću</strong> (At the Café) is where Croatian social life happens. Croatians spend hours in kafići — it's not just coffee, it's connection. Mastering café vocabulary and small talk unlocks the most natural everyday conversations you'll ever have.
+    </div>
+  )}
+  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
   {[
-    { icon:'☕', title:'U Kafiću', desc:'The art of Croatian coffee culture', color:'#fff7ed', border:'#fed7aa', scr:'kafic' },
-    { icon:'💙', title:'Diaspora Croatian', desc:'Code-switching & heritage language', color:'#f0f9ff', border:'#bae6fd', scr:'diaspora' },
-    { icon:'🎊', title:'Life Events', desc:'Weddings, funerals, baptisms', color:'#fdf4ff', border:'#e9d5ff', scr:'lifeevents' },
-    { icon:'🏛️', title:'Civic Croatian', desc:'Vocabulary to read the news', color:'#f0fdf4', border:'#86efac', scr:'civic' },
+    { icon:'☕', title:'U Kafiću', desc:'The art of Croatian coffee culture', accent:'rgba(245,158,11,.25)', scr:'kafic' },
+    { icon:'💙', title:'Diaspora Croatian', desc:'Code-switching & heritage language', accent:'rgba(14,116,144,.25)', scr:'diaspora' },
+    { icon:'🎊', title:'Life Events', desc:'Weddings, funerals, baptisms', accent:'rgba(124,58,237,.25)', scr:'lifeevents' },
+    { icon:'🏛️', title:'Civic Croatian', desc:'Vocabulary to read the news', accent:'rgba(22,163,74,.25)', scr:'civic' },
   ].map(c => (
     <button key={c.scr} className="tc"
-      style={{ textAlign:'center', padding:'16px 12px', background:c.color, border:`1.5px solid ${c.border}` }}
+      style={{ textAlign:'center', padding:'16px 12px' }}
       onClick={() => setScr(c.scr)}>
-      <div style={{ fontSize:28, marginBottom:6 }}>{c.icon}</div>
-      <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', lineHeight:1.2, marginBottom:3 }}>
-        {c.title}
-        <span style={{ background:'var(--error)', color:'#fff', fontSize:9, fontWeight:900, borderRadius:6, padding:'2px 5px', marginLeft:6, letterSpacing:0.5 }}>NEW</span>
-      </div>
+      <div style={{ width:48, height:48, borderRadius:14, background:c.accent, display:'flex', alignItems:'center', justifyContent:'center', fontSize:24, margin:'0 auto 8px' }}>{c.icon}</div>
+      <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', lineHeight:1.2, marginBottom:4 }}>{c.title}</div>
       <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.3 }}>{c.desc}</div>
     </button>
   ))}
 </div>
+</div>
 
       {/* ── LETTERS FROM BAKA ─── */}
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
-          <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase' }}>
-            ✉️ Letters from Baka
+      <div className="section-block">
+        <div className="section-hdr">
+          <div className="section-hdr-icon" style={{background:'rgba(200,152,10,.14)'}}>💌</div>
+          <div className="section-hdr-text">
+            <div className="section-hdr-title">Letters from Baka</div>
+            <div className="section-hdr-sub">Read Croatian the way family really writes it</div>
           </div>
-          <div style={{ flex:1, height:1, background:'var(--card-b)' }} />
         </div>
-        <p style={{ fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:12, fontWeight:500, fontStyle:'italic' }}>
-          Authentic letters to help you read Croatian the way family really writes it
-        </p>
+        <div style={{fontSize:12, color:'var(--subtext)', marginBottom:12, lineHeight:1.5}}>
+          Personal letters written in authentic Croatian — perfect for understanding how family members actually speak, including regional expressions and emotional vocabulary.
+        </div>
+        <div
+          onClick={() => setExpandedContext(expandedContext === 'baka' ? null : 'baka')}
+          style={{
+            fontSize:12, color:'var(--info)', cursor:'pointer',
+            marginBottom: expandedContext === 'baka' ? 0 : 12,
+            display:'flex', alignItems:'center', gap:4, fontWeight:600
+          }}
+        >
+          {expandedContext === 'baka' ? '▲' : '▼'} Why this matters for your Croatian
+        </div>
+        {expandedContext === 'baka' && (
+          <div style={{
+            fontSize:12, color:'var(--subtext)', lineHeight:1.6,
+            padding:'10px 14px', background:'var(--info-bg)',
+            borderRadius:10, marginBottom:12, border:'1px solid var(--info-b)'
+          }}>
+            💌 <strong>Baka's letters</strong> capture authentic Croatian as it's actually written between family members — warm, informal, full of dialect and emotion. This is the Croatian you won't find in textbooks, but will hear and read with your family.
+          </div>
+        )}
         <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
           {BAKA_LETTERS.map(letter => (
             <div key={letter.id} style={{ background:'var(--card)', border:'1.5px solid var(--card-b)', borderRadius:14, overflow:'hidden' }}>
@@ -640,14 +762,18 @@ export default function CroatiaTab({ setScr, sCurEx }) {
       </div>
 
       {/* ── EXPLORE CROATIA ── */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--subtext)', letterSpacing: 1, marginBottom: 10, textTransform: 'uppercase' }}>
-          Explore Croatia
+      <div className="section-block">
+        <div className="section-hdr">
+          <div className="section-hdr-icon" style={{background:'rgba(14,116,144,.12)'}}>🗺️</div>
+          <div className="section-hdr-text">
+            <div className="section-hdr-title">Explore Croatia</div>
+            <div className="section-hdr-sub">Cities, parks, beaches &amp; islands</div>
+          </div>
         </div>
         <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px",width:"100%"}} onClick={() => { setScr("crmap"); }}>
           <div style={{fontSize:36}}>🗺️</div>
           <div>
-            <div style={{fontSize:16,fontWeight:800,color:"var(--heading)"}}>Interactive Map & Directions</div>
+            <div style={{fontSize:16,fontWeight:800,color:"var(--heading)"}}>Interactive Map &amp; Directions</div>
             <div style={{fontSize:'var(--text-sm)',color:"var(--subtext)"}}>Explore Croatia — cities, parks, beaches, islands</div>
           </div>
         </button>

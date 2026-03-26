@@ -5,27 +5,22 @@ const PLACEMENT_QUESTIONS = [
   // Level 1 — A1 Survival
   { level: 1, q: 'What does "Dobar dan" mean?', options: ['Good morning', 'Good afternoon', 'Good night', 'Goodbye'], answer: 1 },
   { level: 1, q: 'How do you say "thank you" in Croatian?', options: ['Molim', 'Hvala', 'Oprosti', 'Zdravo'], answer: 1 },
-  { level: 1, q: 'Choose the correct greeting for the evening:', options: ['Dobro jutro', 'Dobar dan', 'Dobra večer', 'Laku noć'], answer: 2 },
 
   // Level 2 — A2 Settler
   { level: 2, q: '"Koliko košta?" means:', options: ['Where is it?', 'How much does it cost?', 'What time is it?', 'How far is it?'], answer: 1 },
   { level: 2, q: 'Complete: "Ja ___ student." (I am a student)', options: ['je', 'sam', 'si', 'smo'], answer: 1 },
-  { level: 2, q: 'Which is "I want water"?', options: ['Hoću voda', 'Hoću vodu', 'Hoću vode', 'Hoću vodom'], answer: 1 },
 
   // Level 3 — B1 Communicator
   { level: 3, q: 'Which is the correct past tense? "She went to school"', options: ['Ona ide u školu', 'Ona je išla u školu', 'Ona će ići u školu', 'Ona bi išla u školu'], answer: 1 },
   { level: 3, q: '"Pišem" vs "napisati" — what is the difference?', options: ['Pišem is past, napisati is present', 'Pišem is imperfective (ongoing), napisati is perfective (completed)', 'They mean the same thing', 'Pišem is formal, napisati is informal'], answer: 1 },
-  { level: 3, q: 'What case follows "bez" (without)?', options: ['Accusative', 'Genitive', 'Dative', 'Instrumental'], answer: 1 },
 
   // Level 4 — B2 Explorer
   { level: 4, q: 'Choose the correct genitive plural: "a lot of books"', options: ['puno knjiga', 'puno knjige', 'puno knjizi', 'puno knjigama'], answer: 0 },
   { level: 4, q: '"Kad bih imao novca, putovao bih." This uses:', options: ['Present tense', 'Future tense', 'Conditional mood', 'Imperative'], answer: 2 },
-  { level: 4, q: 'The clitic "ga" replaces:', options: ['a feminine noun in nominative', 'a masculine/neuter noun in accusative or genitive', 'a verb in past tense', 'an adjective in dative'], answer: 1 },
 
   // Level 5 — C1 Hrvat
   { level: 5, q: '"Da + present" construction expresses:', options: ['A wish or necessity (subjunctive-like)', 'Simple future', 'Past habit', 'Passive voice'], answer: 0 },
   { level: 5, q: 'Which is the correct reflexive passive? "Croatian is spoken here"', options: ['Hrvatska se govori ovdje', 'Ovdje se govori hrvatski', 'Ovdje govori se hrvatski', 'Se govori ovdje hrvatski'], answer: 1 },
-  { level: 5, q: '"Svratio sam" vs "Svraćao sam" — the difference is:', options: ['One is formal, one is informal', 'One is singular, one is plural', '"Svratio sam" = I stopped by once (perfective), "Svraćao sam" = I used to stop by (imperfective)', 'No difference in meaning'], answer: 2 },
 ];
 
 const LEVEL_NAMES = ['', 'A1 Survival', 'A2 Settler', 'B1 Communicator', 'B2 Explorer', 'C1 Hrvat'];
@@ -131,7 +126,7 @@ export default function PlacementTest({ onComplete }) {
 
   return (
     <div className="scr-wrap">
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 12, color: 'var(--subtext)', fontWeight: 700, marginBottom: 4 }}>
             Placement Test · Question {qi + 1} of {PLACEMENT_QUESTIONS.length}
@@ -146,8 +141,23 @@ export default function PlacementTest({ onComplete }) {
           Level {q.level} — {LEVEL_NAMES[q.level]}
         </div>
       </div>
+      <div style={{
+        fontSize: 10, color: 'rgba(255,255,255,0.5)',
+        textAlign: 'center', marginBottom: 8
+      }}>
+        The test adapts to your level — it stops early if needed
+      </div>
 
       <div className="c" style={{ marginTop: 16 }}>
+        {qi === 3 && (
+          <div style={{
+            textAlign:'center', fontSize:'var(--text-sm)',
+            color:'rgba(255,255,255,0.7)', marginBottom:12,
+            animation: 'rise .4s'
+          }}>
+            You're doing great! Keep going 💪
+          </div>
+        )}
         <p style={{ fontSize: 18, fontWeight: 700, marginBottom: 24, color: 'var(--heading)', lineHeight: 1.5 }}>
           {q.q}
         </p>

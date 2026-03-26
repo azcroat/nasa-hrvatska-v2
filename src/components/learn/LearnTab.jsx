@@ -148,6 +148,9 @@ export default function LearnTab({
                 <div style={{ fontSize:'var(--text-base)', fontWeight:800, color:'var(--heading)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
                   {nextItem.name}
                 </div>
+                <div style={{fontSize:12, color:'var(--subtext)', marginTop:4, marginBottom:12, lineHeight:1.5}}>
+                  {nextItem.description || `Learn essential ${nextItem.label || 'vocabulary'} · ~${nextItem.duration || '5–8'} min · includes audio`}
+                </div>
               </div>
               {(!st || st.lc === 0) && (
                 <div style={{
@@ -308,6 +311,13 @@ export default function LearnTab({
       {/* ── 5-STAGE JOURNEY STRIP ───────────────────────────────────────── */}
       {(() => {
         const stageCEFR = { 0:'A1', 1:'A2', 2:'B1', 3:'B1+', 4:'B2+' };
+        const stageDescriptions = {
+          0: '50+ core words your family uses every day',
+          1: 'Greetings, family, numbers, days of week',
+          2: 'Travel, food, work, expressing opinions',
+          3: 'Fluent conversation, idioms, cultural references',
+          4: 'Native-level expression and cultural mastery',
+        };
         return (
           <div style={{ marginBottom:20 }}>
             <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:8 }}>
@@ -343,6 +353,9 @@ export default function LearnTab({
                       }}>
                         {stageCEFR[i]}
                       </span>
+                      <div style={{fontSize:10, color:'var(--subtext)', marginTop:2, maxWidth:100, textAlign:'center', lineHeight:1.3}}>
+                        {stageDescriptions[i] || ''}
+                      </div>
                     </div>
                     {i < LEARN_PATH.length - 1 && (
                       <div style={{
@@ -405,10 +418,17 @@ export default function LearnTab({
           {allCats.length} core categories · tap any to start
         </p>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:16 }}>
-          {allCats.map(t => (
+          {allCats.map(t => {
+            const isCompleted = st && Array.isArray(st.ct) && st.ct.includes(t);
+            return (
             <button key={t} className="tc" style={{ textAlign:"center", padding:"14px 8px" }} onClick={() => launchVocab(t)}>
               <div style={{ fontSize:'var(--text-2xl)' }}>{icons[t] || "📚"}</div>
-              <div style={{ fontSize:'var(--text-sm)', fontWeight:700, marginTop:4, textTransform:"capitalize" }}>{t}</div>
+              <div style={{ fontSize:'var(--text-sm)', fontWeight:700, marginTop:4, textTransform:"capitalize" }}>
+                {t}
+                {isCompleted && (
+                  <span style={{color:'var(--success, #16a34a)', fontWeight:900, fontSize:14, marginLeft:6}}>✓</span>
+                )}
+              </div>
               <div style={{ fontSize:'var(--text-xs)', color:"var(--subtext)", marginTop:2 }}>{V[t].length} words</div>
               <div style={{ fontSize:'var(--text-xs)', color:"var(--subtext)", marginTop:3, opacity:.7, lineHeight:1.3 }}>
                 {(V[t]||[]).slice(0,2).map(w=>w[0]).join(' · ')}
@@ -419,7 +439,8 @@ export default function LearnTab({
                 return <span style={{fontSize:'var(--text-xs)',fontWeight:800,color,background:bg,borderRadius:6,padding:'2px 5px',marginTop:3,letterSpacing:'.04em'}}>{badge}</span>;
               })()}
             </button>
-          ))}
+            );
+          })}
         </div>
         <div style={{ fontSize:'var(--text-sm)', fontWeight:700, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Themes</div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>

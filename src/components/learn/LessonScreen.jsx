@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { H, Bar, speak, srMark, sh, shuffleArr, V } from '../../data.jsx';
 
 const CONFETTI_COLORS = ['#38bdf8','#fbbf24','#4ade80','#f87171','#a78bfa','#fb923c','#34d399','#e879f9'];
@@ -9,6 +9,7 @@ export default function LessonScreen({
   goBack, award, setSt,
 }) {
   const resultFired = useRef(false);
+  const [showQuit, setShowQuit] = useState(false);
   const earnedXp = qi.length > 0 ? Math.round((ls / qi.length) * 30) + 5 : 5;
   const scorePct = qi.length > 0 ? ls / qi.length : 0;
 
@@ -16,6 +17,20 @@ export default function LessonScreen({
   if (lp === "learn") return (
     <div className="scr-wrap">
       {H((icons?.[lt] || "📚") + " " + lt)}
+      <div style={{
+        background:'linear-gradient(135deg, rgba(14,116,144,0.1), rgba(22,78,99,0.1))',
+        border:'1px solid rgba(14,116,144,0.2)',
+        borderRadius:12, padding:'10px 14px', marginBottom:16,
+        display:'flex', alignItems:'center', gap:10
+      }}>
+        <span style={{fontSize:20}}>🎯</span>
+        <div>
+          <div style={{fontSize:12, fontWeight:800, color:'var(--info)'}}>TODAY'S LESSON</div>
+          <div style={{fontSize:13, fontWeight:700, color:'var(--heading)'}}>
+            Complete this lesson to earn XP and advance your learning path
+          </div>
+        </div>
+      </div>
       <div style={{ marginBottom: 8 }}>
         {li.map((w, i) => (
           <div key={i}
@@ -79,6 +94,29 @@ export default function LessonScreen({
     const isCorrect = la && lsl === qi[lx].ci;
     return (
       <div className="scr-wrap">
+        {showQuit && (
+          <div style={{
+            position:'fixed', inset:0, background:'rgba(0,0,0,0.5)',
+            display:'flex', alignItems:'center', justifyContent:'center',
+            zIndex:1000, padding:24
+          }}>
+            <div className="c" style={{maxWidth:320, width:'100%', padding:24, textAlign:'center'}}>
+              <div style={{fontSize:24, marginBottom:8}}>🚪</div>
+              <div style={{fontSize:'var(--text-xl)', fontWeight:800, color:'var(--heading)', marginBottom:8}}>
+                Leave this lesson?
+              </div>
+              <div style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:20}}>
+                Your progress in this lesson won't be saved.
+              </div>
+              <button className="b bd" style={{width:'100%', marginBottom:10}} onClick={goBack}>
+                Yes, leave
+              </button>
+              <button className="b bg" style={{width:'100%'}} onClick={() => setShowQuit(false)}>
+                Keep going →
+              </button>
+            </div>
+          </div>
+        )}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
           <span style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: "var(--subtext)" }}>
             {lx + 1} / {qi.length}
@@ -93,10 +131,17 @@ export default function LessonScreen({
               {ls * 3} XP
             </span>
           </div>
-          <button onClick={goBack} style={{
+          <button onClick={() => { if (lx > 0 || ls > 0) setShowQuit(true); else goBack(); }} style={{
             background: "none", border: "none", cursor: "pointer",
             fontSize: 22, color: "var(--subtext)", padding: "6px 10px", minHeight: 44,
           }} aria-label="Exit quiz">×</button>
+        </div>
+
+        <div style={{
+          fontSize:11, color:'var(--subtext)', fontWeight:600,
+          marginBottom:6, textAlign:'center'
+        }}>
+          {lt || 'Lesson'} · Question {(lx || 0) + 1} of {qi?.length || '?'}
         </div>
 
         <Bar v={lx + 1} mx={qi.length} h={6} />
@@ -173,6 +218,17 @@ export default function LessonScreen({
                   </div>
                 )}
               </div>
+            </div>
+          )}
+          {la && !isCorrect && (
+            <div style={{
+              marginTop:10, padding:'10px 14px',
+              background:'rgba(14,116,144,0.08)',
+              border:'1px solid rgba(14,116,144,0.15)',
+              borderRadius:10, fontSize:13, color:'var(--subtext)', lineHeight:1.5
+            }}>
+              💡 <strong style={{color:'var(--heading)'}}>Tip:</strong>{' '}
+              {qi?.[lx]?.hint || qi?.[lx]?.explanation || 'Review this word in your vocabulary journal to remember it better.'}
             </div>
           )}
 
@@ -270,7 +326,15 @@ export default function LessonScreen({
           animation: 'fade-up .6s ease .22s both',
           fontWeight: 600, marginBottom: 28,
         }}>
-          {scorePct === 1 ? 'Perfect score!' : scorePct >= 0.7 ? 'Great work! Keep it up.' : 'Every practice counts.'}
+          {scorePct === 1 ? 'Perfect!' : scorePct >= 0.5 ? 'Great Job!' : 'Every practice counts.'}
+        </div>
+
+        {/* Score fraction */}
+        <div style={{
+          fontSize: 13, color: 'rgba(255,255,255,.5)', fontWeight: 700,
+          marginBottom: 12, letterSpacing: '.04em',
+        }}>
+          {ls}/{qi.length}
         </div>
 
         {/* Score dots */}
@@ -326,6 +390,25 @@ export default function LessonScreen({
               <div style={{ fontSize: 10, color: 'rgba(255,255,255,.45)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em' }}>total</div>
             </div>
           </div>
+        </div>
+
+        {/* What's Next card */}
+        <div style={{
+          marginTop:16, padding:'14px 16px',
+          background:'var(--info-bg, #f0f9ff)',
+          border:'1px solid var(--info-b, #bae6fd)',
+          borderRadius:14, width:'100%', maxWidth:320,
+          animation:'fade-up .6s ease .44s both',
+        }}>
+          <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--info)', textTransform:'uppercase', letterSpacing:'0.08em'}}>
+            WHAT'S NEXT
+          </div>
+          <div style={{fontSize:'var(--text-sm)', fontWeight:700, color:'var(--heading)', marginTop:4, marginBottom:12}}>
+            Practice what you just learned with Flashcards 🃏
+          </div>
+          <button className="b bp" style={{width:'100%', fontSize:'var(--text-sm)'}} onClick={goBack}>
+            Start Flashcard Practice →
+          </button>
         </div>
 
         {/* CTAs */}

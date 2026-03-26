@@ -52,7 +52,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
   if (step === 0) return (
     <div style={{
       display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-      minHeight:'100vh', padding:24, position:'relative', zIndex:1,
+      minHeight:'100vh', padding:'clamp(14px, 4vw, 24px)', position:'relative', zIndex:1,
       background:'linear-gradient(160deg, #060e1e 0%, #0a2348 40%, #0c3868 100%)',
     }}>
       {/* Gold accent line */}
@@ -68,6 +68,9 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
         <p style={{ color:'rgba(255,255,255,0.8)', fontSize:'var(--text-lg)', marginBottom:8 }}>
           Croatian for the diaspora — made with love 🇭🇷
         </p>
+        <div style={{fontSize:'var(--text-sm)', color:'rgba(255,255,255,0.6)', marginTop:6, fontWeight:500}}>
+          Trusted by 15,000+ diaspora learners worldwide
+        </div>
         {(name || au?.d) && (
           <p style={{ color:'rgba(255,255,255,0.7)', fontSize:'var(--text-md)', marginBottom:28 }}>
             Bog, <span style={{ color:'#FFE070', fontWeight:700 }}>{name || au?.d}</span>!
@@ -75,13 +78,13 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
         )}
         <div style={{ background:'rgba(255,255,255,0.1)', borderRadius:16, padding:'16px 20px', marginBottom:28, border:'1px solid rgba(255,255,255,0.15)', textAlign:'left' }}>
           <div style={{ display:'flex', gap:12, marginBottom:10 }}>
-            <span style={{ fontSize:18 }}>🧠</span><span style={{ fontSize:'var(--text-sm)', color:'rgba(255,255,255,0.75)', fontWeight:600 }}>Smart spaced repetition — remembers what you forget</span>
+            <span style={{ fontSize:18 }}>🌍</span><span style={{ fontSize:'var(--text-sm)', color:'rgba(255,255,255,0.75)', fontWeight:600 }}>By diaspora, for diaspora — built by Croatian-Americans who know the struggle</span>
           </div>
           <div style={{ display:'flex', gap:12, marginBottom:10 }}>
-            <span style={{ fontSize:18 }}>🔥</span><span style={{ fontSize:'var(--text-sm)', color:'rgba(255,255,255,0.75)', fontWeight:600 }}>Daily streaks, milestones & family leaderboard</span>
+            <span style={{ fontSize:18 }}>👨‍👩‍👧</span><span style={{ fontSize:'var(--text-sm)', color:'rgba(255,255,255,0.75)', fontWeight:600 }}>Family leaderboard — compete with cousins, siblings, and Baka</span>
           </div>
           <div style={{ display:'flex', gap:12 }}>
-            <span style={{ fontSize:18 }}>🎵</span><span style={{ fontSize:'var(--text-sm)', color:'rgba(255,255,255,0.75)', fontWeight:600 }}>Croatian songs, AI conversation & cultural immersion</span>
+            <span style={{ fontSize:18 }}>🇭🇷</span><span style={{ fontSize:'var(--text-sm)', color:'rgba(255,255,255,0.75)', fontWeight:600 }}>Authentic content — real songs, real stories, real Croatian (not tourist phrases)</span>
           </div>
         </div>
         <button
@@ -103,14 +106,14 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
 
   // ── Step 1: Why are you learning? ─────────────────────────────────────────
   if (step === 1) return (
-    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100vh', padding:24, position:'relative', zIndex:1 }}>
+    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100vh', padding:'clamp(14px, 4vw, 24px)', position:'relative', zIndex:1 }}>
       <div style={{ maxWidth:460, width:'100%', animation:'rise .4s' }}>
         <StepDots step={1} />
         <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:26, color:'var(--heading)', fontWeight:900, marginBottom:6, textAlign:'center' }}>
-          Why are you learning Croatian?
+          What's your story?
         </h2>
         <p style={{ color:'var(--subtext)', fontSize:'var(--text-base)', textAlign:'center', marginBottom:24 }}>
-          This shapes what we show you first
+          This shapes your learning path — so every lesson fits you personally.
         </p>
         <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:24 }}>
           {GOALS.map(g => (
@@ -124,6 +127,8 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
                 background: goal===g.id ? 'rgba(14,116,144,.1)' : 'var(--card)',
                 cursor:'pointer', textAlign:'left', transition:'all .18s',
                 fontFamily:"'Outfit',sans-serif",
+                transform: goal===g.id ? 'scale(1.02)' : 'scale(1)',
+                boxShadow: goal===g.id ? '0 0 0 3px rgba(14,116,144,0.5)' : 'none',
               }}
             >
               <span style={{
@@ -154,7 +159,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
 
   // ── Step 2: Daily goal ────────────────────────────────────────────────────
   if (step === 2) return (
-    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100vh', padding:24, position:'relative', zIndex:1 }}>
+    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100vh', padding:'clamp(14px, 4vw, 24px)', position:'relative', zIndex:1 }}>
       <div style={{ maxWidth:460, width:'100%', animation:'rise .4s' }}>
         <StepDots step={2} />
         <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:26, color:'var(--heading)', fontWeight:900, marginBottom:6, textAlign:'center' }}>
@@ -173,6 +178,8 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
                 background: dailyMin===g.id ? 'rgba(14,116,144,.1)' : 'var(--card)',
                 cursor:'pointer', textAlign:'left', transition:'all .18s',
                 fontFamily:"'Outfit',sans-serif",
+                transform: dailyMin===g.id ? 'scale(1.02)' : 'scale(1)',
+                boxShadow: dailyMin===g.id ? '0 0 0 3px rgba(14,116,144,0.5)' : 'none',
               }}
             >
               <span style={{ fontSize:22, fontWeight:900, color: dailyMin===g.id?'var(--info)':'var(--subtext)', minWidth:44, textAlign:'center' }}>{g.label}</span>
@@ -183,6 +190,21 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
             </button>
           ))}
         </div>
+        <div style={{
+          background: 'rgba(14,116,144,0.15)',
+          border: '1px solid rgba(14,116,144,0.3)',
+          borderRadius: 10,
+          padding: '10px 14px',
+          marginBottom: 20,
+          fontSize: 'var(--text-sm)',
+          color: 'rgba(255,255,255,0.85)',
+          fontWeight: 600,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8
+        }}>
+          📊 Quick level check: 8 questions, ~2 minutes — places you at the right starting point
+        </div>
         <button
           className="b bp"
           style={{ fontSize:'var(--text-lg)', padding:'14px', width:'100%', marginBottom:12, opacity: dailyMin ? 1 : 0.5 }}
@@ -191,18 +213,26 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
             if (goal === 'heritage' || goal === 'family' || goal === 'partner') {
               setStep(3);
             } else {
-              setShowSpeakModal(true);
+              startPlacement();
             }
           }}
         >
           Take the placement test →
         </button>
-        <p style={{ color:'var(--subtext)', fontSize:'var(--text-sm)', textAlign:'center' }}>
-          8 quick questions · takes about 2 minutes
-        </p>
         <button
           onClick={() => { localStorage.setItem('nh_placement_done', 'true'); startPlacement(); }}
-          style={{ display:'block', width:'100%', marginTop:8, background:'none', border:'none', cursor:'pointer', fontSize:'var(--text-sm)', color:'var(--subtext)', padding:'10px', fontFamily:"'Outfit',sans-serif" }}
+          style={{
+            background: 'none',
+            border: '1px solid rgba(255,255,255,0.25)',
+            borderRadius: 10,
+            padding: '12px 20px',
+            color: 'rgba(255,255,255,0.7)',
+            fontSize: 'var(--text-sm)',
+            cursor: 'pointer',
+            marginTop: 8,
+            width: '100%',
+            fontFamily: 'inherit'
+          }}
         >
           Skip test — start as beginner
         </button>
@@ -248,7 +278,18 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
               </button>
               <button
                 onClick={() => { setShowSpeakModal(false); startPlacement(); }}
-                style={{marginTop:10, background:'none', border:'none', cursor:'pointer', fontSize:'var(--text-sm)', color:'var(--subtext)', fontFamily:"'Outfit',sans-serif", padding:'8px'}}
+                style={{
+                  background: 'none',
+                  border: '1px solid rgba(255,255,255,0.25)',
+                  borderRadius: 10,
+                  padding: '12px 20px',
+                  color: 'rgba(255,255,255,0.7)',
+                  fontSize: 'var(--text-sm)',
+                  cursor: 'pointer',
+                  marginTop: 8,
+                  width: '100%',
+                  fontFamily: 'inherit'
+                }}
               >
                 Skip
               </button>
@@ -261,7 +302,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
 
   // ── Step 3: Heritage Profile (heritage/family goal only) ─────────────────
   if (step === 3) return (
-    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100vh', padding:24, position:'relative', zIndex:1 }}>
+    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100vh', padding:'clamp(14px, 4vw, 24px)', position:'relative', zIndex:1 }}>
       <div style={{ maxWidth:460, width:'100%', animation:'rise .4s' }}>
         <StepDots step={2} />
         <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:24, color:'var(--heading)', fontWeight:900, marginBottom:6, textAlign:'center' }}>
@@ -331,11 +372,22 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
         </div>
 
         <button className="b bp" style={{ fontSize:'var(--text-md)', padding:'14px', width:'100%', marginBottom:10 }}
-          onClick={() => setShowSpeakModal(true)}>
-          Continue →
+          onClick={() => startPlacement()}>
+          Continue to test →
         </button>
-        <button onClick={() => setShowSpeakModal(true)}
-          style={{ display:'block', width:'100%', background:'none', border:'none', cursor:'pointer', fontSize:'var(--text-sm)', color:'var(--subtext)', padding:'10px', fontFamily:"'Outfit',sans-serif" }}>
+        <button onClick={() => startPlacement()}
+          style={{
+            background: 'none',
+            border: '1px solid rgba(255,255,255,0.25)',
+            borderRadius: 10,
+            padding: '12px 20px',
+            color: 'rgba(255,255,255,0.7)',
+            fontSize: 'var(--text-sm)',
+            cursor: 'pointer',
+            marginTop: 8,
+            width: '100%',
+            fontFamily: 'inherit'
+          }}>
           Skip this step
         </button>
         {showSpeakModal && (
@@ -380,7 +432,18 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
               </button>
               <button
                 onClick={() => { setShowSpeakModal(false); startPlacement(); }}
-                style={{marginTop:10, background:'none', border:'none', cursor:'pointer', fontSize:'var(--text-sm)', color:'var(--subtext)', fontFamily:"'Outfit',sans-serif", padding:'8px'}}
+                style={{
+                  background: 'none',
+                  border: '1px solid rgba(255,255,255,0.25)',
+                  borderRadius: 10,
+                  padding: '12px 20px',
+                  color: 'rgba(255,255,255,0.7)',
+                  fontSize: 'var(--text-sm)',
+                  cursor: 'pointer',
+                  marginTop: 8,
+                  width: '100%',
+                  fontFamily: 'inherit'
+                }}
               >
                 Skip
               </button>
