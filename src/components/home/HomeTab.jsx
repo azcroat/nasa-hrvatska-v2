@@ -524,13 +524,30 @@ export default function HomeTab({
                   <span>{st.lc > 0 ? "Continue Learning" : "Start Learning"}</span>
                 </button>
 
+                {/* Practice Now — always visible for returning users */}
+                {st.lc > 0 && (
+                  <button
+                    onClick={() => setTab && setTab('practice')}
+                    style={{
+                      width:"100%", marginTop:10, height:44,
+                      background:"rgba(255,255,255,.12)", border:"1.5px solid rgba(255,255,255,.3)",
+                      borderRadius:12, cursor:"pointer",
+                      fontFamily:"'Outfit',sans-serif",
+                      display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+                      color:"rgba(255,255,255,.9)", fontSize:13, fontWeight:700,
+                    }}>
+                    <span style={{fontSize:14}}>🎮</span>
+                    <span>Start Practicing →</span>
+                  </button>
+                )}
+
                 {/* Resume last activity */}
                 {lastActivity && st.lc > 0 && (
                   <button
                     onClick={() => { setScr(lastActivity.ex); sCurEx(lastActivity.ex); }}
                     style={{
-                      width:"100%", marginTop:10, height:44,
-                      background:"rgba(255,255,255,.12)", border:"1.5px solid rgba(255,255,255,.3)",
+                      width:"100%", marginTop:8, height:44,
+                      background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,255,255,.2)",
                       borderRadius:12, cursor:"pointer",
                       fontFamily:"'Outfit',sans-serif",
                       display:"flex", alignItems:"center", justifyContent:"center", gap:8,
