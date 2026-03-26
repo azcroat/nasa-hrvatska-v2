@@ -272,7 +272,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
           Skip test — start as beginner
         </button>
         {showSpeakModal && (
-          <div style={{
+          <div role="dialog" aria-modal="true" aria-label="Say your first Croatian word" style={{
             position:'fixed', inset:0, background:'rgba(0,0,0,.65)', zIndex:100,
             display:'flex', alignItems:'center', justifyContent:'center', padding:20,
           }}>
@@ -437,7 +437,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
           Skip this step
         </button>
         {showSpeakModal && (
-          <div style={{
+          <div role="dialog" aria-modal="true" aria-label={goal === 'elders' ? "Your first Croatian phrase" : "Say your first Croatian word"} style={{
             position:'fixed', inset:0, background:'rgba(0,0,0,.65)', zIndex:100,
             display:'flex', alignItems:'center', justifyContent:'center', padding:20,
           }}>

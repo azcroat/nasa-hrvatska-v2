@@ -102,8 +102,8 @@ const SCENARIOS = [
         opts:["Drago mi je, Marko! Ja sam iz Engleske, ali učim hrvatski.","Engleska.","Iz Engleske.","Ja sam Englez."],
         answer:0, tip:"Full response with their name + your origin + showing you're learning Croatian = great first impression!" },
       { speaker:"Marko", line:"Super! Kako ti ide s hrvatskim?", en:"Great! How's your Croatian going?",
-        opts:["Polako, ali napradujem. Jezik mi je teži nego što sam mislio.","Dobro.","Teško.","Ok, teško."],
-        answer:0, tip:"'Polako, ali napradujem' (slowly but I'm progressing) is honest and shows effort. Locals love this." },
+        opts:["Polako, ali napredujem. Jezik mi je teži nego što sam mislio.","Dobro.","Teško.","Ok, teško."],
+        answer:0, tip:"'Polako, ali napredujem' (slowly but I'm progressing) is honest and shows effort. Locals love this." },
       { speaker:"Marko", line:"Ha! Svima nam je bio težak. Hoćeš još piće?", en:"Ha! It was hard for all of us. Do you want another drink?",
         opts:["Rado! Hvala puno, Marko.","Da.","Hoću.","Ok."],
         answer:0, tip:"'Rado!' (gladly/with pleasure) is a warm enthusiastic yes — much better than just 'da'." },
@@ -358,7 +358,7 @@ export default function DialogueSim({ award }) {
       </div>
 
       {/* Speaker bubble */}
-      <div style={{
+      <div aria-live="polite" aria-atomic="true" style={{
         background:"var(--card)",
         borderRadius:"16px 16px 16px 4px",
         padding:"14px 16px",
@@ -445,7 +445,7 @@ export default function DialogueSim({ award }) {
 
       {/* Feedback tip */}
       {answered && (
-        <div style={{
+        <div role="status" aria-live="assertive" style={{
           background: isCorrect ? "#dcfce7" : "#fef3c7",
           border: `1.5px solid ${isCorrect ? "#86efac" : "#fcd34d"}`,
           borderRadius:12,
