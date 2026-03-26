@@ -310,7 +310,7 @@ html{
   --ob-hbg:linear-gradient(135deg,rgba(14,116,144,.18),rgba(14,116,144,.1));
   --nav-bg:rgba(15,23,42,0.9);
   --nav-b:rgba(255,255,255,.08);
-  --nav-lbl:#64748b;
+  --nav-lbl:#94a3b8;
   --ghost-bg:#1e293b;
   --ghost-c:#94a3b8;
   --ghost-b:#334155;
@@ -432,7 +432,6 @@ html{
 @keyframes pop{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}60%{transform:translate(-50%,-50%) scale(1.08)}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
 
 /* Looping */
-@keyframes boat{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-8px) rotate(1.5deg)}}
 @keyframes wave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
@@ -1205,6 +1204,24 @@ input::placeholder,textarea::placeholder{color:#6b7280;font-weight:400} /* WCAG 
   .path-node.active {
     animation: none !important;
   }
+  /* SVG illustration animation overrides */
+  .dc-boat-group,
+  .dc-wave-group {
+    animation: none !important;
+  }
+  .gs-bubble-1,
+  .gs-bubble-2 {
+    animation: none !important;
+  }
+  .cs-confetti-group,
+  .cs-trophy-group,
+  .cs-burst-group {
+    animation: none !important;
+  }
+  svg * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1216,19 +1233,6 @@ button.c{font-family:'Outfit',sans-serif;width:100%;cursor:pointer;display:block
 /* ═══════════════════════════════════════════════════════════
    DARK MODE — data-theme attribute (alias for .dark)
 ═══════════════════════════════════════════════════════════ */
-:root[data-theme="dark"] {
-  --bg: #0f172a;
-  --bg2: #1e293b;
-  --bg3: #334155;
-  --text: #e2e8f0;
-  --heading: #f1f5f9;
-  --subtext: #94a3b8;
-  --border: rgba(255,255,255,.1);
-  --bar-bg: rgba(255,255,255,.1);
-  --card-bg: #1e293b;
-  --card-shadow: 0 2px 12px rgba(0,0,0,.4);
-}
-
 /* Dark mode — extended fixes */
 [data-theme="dark"] .card-grammar  { border-left-color: #a78bfa; }
 [data-theme="dark"] .card-vocab    { border-left-color: #4ade80; }
@@ -1886,8 +1890,9 @@ img, video, canvas, .skeleton, [class*="anim-"], [style*="animation"] {
 }
 
 /* ── Dark mode photo adjustments ─────────────────────────── */
-[data-theme="dark"] .photo-hero-overlay {
-  background: linear-gradient(to bottom, rgba(0,0,0,.2) 0%, rgba(0,0,0,.65) 100%);
+[data-theme="dark"] .photo-hero-overlay,
+.dark .photo-hero-overlay {
+  background: linear-gradient(to bottom, transparent 25%, rgba(0,0,0,0.5) 100%) !important;
 }
 
 [data-theme="dark"] .illus-container {

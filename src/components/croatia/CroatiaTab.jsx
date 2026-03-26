@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { H, MEDIA, getCityOfDay } from '../../data.jsx';
 import PhotoHero from '../shared/PhotoHero';
 import { PHOTOS } from '../../lib/photos';
+import CroatianKnight from '../shared/CroatianKnight';
 
 const LEVEL_COLORS = {A1:'#16a34a',A2:'#65a30d',B1:'#ca8a04',B2:'#b45309',C1:'#0e7490',C2:'#7c3aed'};
 const CAT_LABELS = {tv:"📺 TV & News",music:"🎵 Music & Radio",sport:"⚽ Sports",film:"🎬 Film & Series",podcast:"🎙️ Podcasts",culture:"🌍 Culture & Press"};
@@ -424,13 +425,25 @@ export default function CroatiaTab({ setScr, sCurEx }) {
         style={{marginBottom: 20}}
       />
 
+      {/* ── KNIGHT WELCOME BANNER ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', background: 'var(--card)', borderRadius: 12, margin: '0 0 12px' }}>
+        <CroatianKnight size={44} mood="happy" style={{ flexShrink: 0 }} />
+        <div style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.5 }}>
+          <strong style={{ color: 'var(--heading)', display: 'block', marginBottom: 2 }}>Dobrodošli u Hrvatsku! 🇭🇷</strong>
+          Explore culture, music, stories & language from the homeland.
+        </div>
+      </div>
+
       {/* ── CITY OF THE DAY ── */}
       <button style={{marginBottom:16,borderRadius:16,overflow:"hidden",boxShadow:"0 4px 16px rgba(0,0,0,.1)",width:"100%",border:"none",cursor:"pointer",padding:0,textAlign:"left"}} onClick={()=>setScr("cityofday")}>
         <div style={{background:"linear-gradient(135deg,"+city.color+"dd,"+city.color+")",padding:"14px 16px",display:"flex",alignItems:"center",gap:14}}>
           <div style={{fontSize:36,flexShrink:0}}>{city.icon}</div>
           <div style={{flex:1,minWidth:0}}>
             <div style={{fontSize:'var(--text-xs)',fontWeight:800,color:"rgba(255,255,255,.75)",letterSpacing:"0.08em",marginBottom:3}}>🗓️ CITY OF THE DAY</div>
-            <div style={{fontSize:17,fontWeight:900,color:"white",lineHeight:1.2}}>{city.name}</div>
+            <div style={{fontSize:17,fontWeight:900,color:"white",lineHeight:1.2,display:'flex',alignItems:'center',gap:8}}>
+              <CroatianKnight size={36} mood="thinking" style={{ flexShrink: 0 }} />
+              {city.name}
+            </div>
             <div style={{fontSize:'var(--text-xs)',color:"rgba(255,255,255,.75)",marginTop:2}}>{city.region} &nbsp;·&nbsp; <span style={{fontStyle:"italic"}}>"{city.tagline}"</span></div>
           </div>
           <div style={{fontSize:20,opacity:.7,color:"white"}}>→</div>
@@ -722,6 +735,7 @@ export default function CroatiaTab({ setScr, sCurEx }) {
             <div className="section-hdr-title">Letters from Baka</div>
             <div className="section-hdr-sub">Read Croatian the way family really writes it</div>
           </div>
+          <CroatianKnight size={40} mood="happy" style={{ flexShrink: 0 }} />
         </div>
         <div style={{fontSize:12, color:'var(--subtext)', marginBottom:12, lineHeight:1.5}}>
           Personal letters written in authentic Croatian — perfect for understanding how family members actually speak, including regional expressions and emotional vocabulary.

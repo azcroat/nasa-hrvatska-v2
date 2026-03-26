@@ -168,6 +168,7 @@ export default function PlacementTest({ onComplete }) {
         <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 26, color: 'var(--heading)', marginBottom: 8 }}>
           Placement Complete!
         </h2>
+        <div style={{ animation: 'spring-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both' }}>
         <div style={{
           background: 'linear-gradient(135deg,#0e7490,#164e63)',
           borderRadius: 20, padding: '24px 20px', color: '#fff',
@@ -178,7 +179,18 @@ export default function PlacementTest({ onComplete }) {
           </div>
           <div style={{ fontSize: 32, fontWeight: 900, marginBottom: 4 }}>Level {placedLevel}</div>
           <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 8 }}>{LEVEL_NAMES[placedLevel]}</div>
+          <div style={{
+            fontSize: 18,
+            fontWeight: 900,
+            color: '#fbbf24',
+            textAlign: 'center',
+            margin: '8px 0',
+            animation: 'bounce-in 0.4s 0.3s cubic-bezier(0.34,1.56,0.64,1) both',
+          }}>
+            +25 XP — Placement Complete!
+          </div>
           <div style={{ fontSize: 14, opacity: .88, lineHeight: 1.5 }}>{LEVEL_DESC[placedLevel]}</div>
+        </div>
         </div>
         <button
           onClick={() => onComplete(placedLevel)}
