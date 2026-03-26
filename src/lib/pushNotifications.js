@@ -1,8 +1,27 @@
-// pushNotifications.js — Web Push Notifications using Firebase Cloud Messaging
-// Handles permission requests, token management, and local notification scheduling
+// pushNotifications.js — Web Push Notifications
+// Uses the Web Push API directly with a generated VAPID key pair.
+// No Firebase Console setup required.
+//
+// To send server-side pushes, use the `web-push` npm package with:
+//   VAPID_PUBLIC_KEY  = (see VAPID_PUBLIC_KEY constant below)
+//   VAPID_PRIVATE_KEY = (stored in Cloudflare env var VAPID_PRIVATE_KEY)
+//   Contact email     = mailto:jschreiner75@gmail.com
 
 const NOTIF_KEY = 'nh_notifications_enabled';
-const TOKEN_KEY = 'nh_fcm_token';
+const SUB_KEY   = 'nh_push_subscription';
+
+// ECDH P-256 VAPID key pair generated for this project.
+// Public key is safe to include in client code.
+// Private key is stored as Cloudflare Pages env var VAPID_PRIVATE_KEY.
+export const VAPID_PUBLIC_KEY =
+  'BAFN-xEz0NYzDK8Pn9cdKTuTFYNd_cpQQxM_nKRVwz65tzBB--dPawvo59OPkoUlh8GuvIjd1phITqLmJFpnirc';
+
+function urlBase64ToUint8Array(b64) {
+  const padding = '='.repeat((4 - (b64.length % 4)) % 4);
+  const base64  = (b64 + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw     = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
 
 export function isNotificationsEnabled() {
   return localStorage.getItem(NOTIF_KEY) === 'true';
@@ -16,87 +35,95 @@ export async function requestNotificationPermission() {
   if (!('Notification' in window)) return 'unsupported';
   if (Notification.permission === 'granted') return 'granted';
   if (Notification.permission === 'denied') return 'denied';
-  const result = await Notification.requestPermission();
-  return result;
+  return Notification.requestPermission();
 }
 
-export async function initPushNotifications(firebaseApp) {
+// Register for Web Push using our generated VAPID key.
+// Stores the subscription in localStorage for server-side access.
+// Also registers Periodic Background Sync for daily reminders (Chrome/Edge).
+export async function initPushNotifications() {
   try {
-    const { getMessaging, getToken, onMessage } = await import('firebase/messaging');
-    const messaging = getMessaging(firebaseApp);
-
-    // VAPID key — replace with your actual VAPID key from Firebase Console
-    // Go to: Firebase Console → Project Settings → Cloud Messaging → Web Push certificates
-    const VAPID_KEY = 'YOUR_VAPID_KEY_FROM_FIREBASE_CONSOLE';
-
-    const token = await getToken(messaging, {
-      vapidKey: VAPID_KEY,
-      serviceWorkerRegistration: await navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js'),
-    });
-
-    if (token) {
-      localStorage.setItem(TOKEN_KEY, token);
-      return { token, messaging };
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      return { subscription: null };
     }
-    return { token: null, messaging };
+
+    const registration = await navigator.serviceWorker.ready;
+
+    // Reuse existing subscription if it already exists
+    let subscription = await registration.pushManager.getSubscription();
+
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      });
+    }
+
+    localStorage.setItem(SUB_KEY, JSON.stringify(subscription.toJSON()));
+
+    // Register Periodic Background Sync for daily reminders (no server needed)
+    if ('periodicSync' in registration) {
+      try {
+        await registration.periodicSync.register('nh-daily-reminder', {
+          minInterval: 24 * 60 * 60 * 1000,
+        });
+      } catch (_) { /* permission not granted or API unavailable */ }
+    }
+
+    return { subscription };
   } catch (e) {
     console.warn('Push notifications not available:', e.message);
-    return { token: null, messaging: null };
+    return { subscription: null };
   }
 }
 
-export function getFCMToken() {
-  return localStorage.getItem(TOKEN_KEY);
+export function getPushSubscription() {
+  const raw = localStorage.getItem(SUB_KEY);
+  return raw ? JSON.parse(raw) : null;
 }
 
-// Schedule a local notification (fallback when FCM backend not set up)
-// Shows a local notification after a delay if user hasn't practiced today
+// Schedule a local notification for today at 7pm (or tomorrow if past 7pm).
+// Falls back gracefully — works whenever browser tab is open.
 export function scheduleLocalReminder(streakDays = 0) {
   if (!isNotificationsEnabled()) return;
   if (Notification.permission !== 'granted') return;
 
   const lastPractice = localStorage.getItem('nh_last_practice_date');
   const today = new Date().toISOString().slice(0, 10);
+  if (lastPractice === today) return;
 
-  if (lastPractice === today) return; // already practiced today
-
-  // Schedule for 7pm if it's before 7pm, otherwise tomorrow
-  const now = new Date();
+  const now    = new Date();
   const target = new Date();
   target.setHours(19, 0, 0, 0);
-  if (now >= target) {
-    target.setDate(target.getDate() + 1);
-  }
+  if (now >= target) target.setDate(target.getDate() + 1);
 
-  const delayMs = target - now;
   const messages = [
     { title: "🔥 Don't break your streak!", body: `You're on a ${streakDays}-day streak — keep it going!` },
-    { title: '🇭🇷 Croatian practice time!', body: 'Just 5 minutes keeps your skills sharp.' },
-    { title: `⚡ ${streakDays} days strong!`, body: 'Come practice and protect your streak.' },
+    { title: '🇭🇷 Croatian practice time!',  body: 'Just 5 minutes keeps your skills sharp.'            },
+    { title: `⚡ ${streakDays} days strong!`, body: 'Come practice and protect your streak.'             },
   ];
-
   const msg = messages[streakDays % messages.length];
 
   setTimeout(() => {
     if (isNotificationsEnabled() && Notification.permission === 'granted') {
       new Notification(msg.title, {
-        body: msg.body,
-        icon: '/icons/icon-192x192.png',
-        tag: 'nh-daily-reminder',
+        body:     msg.body,
+        icon:     '/icons/icon-192x192.png',
+        tag:      'nh-daily-reminder',
         renotify: true,
       });
     }
-  }, delayMs);
+  }, target - now);
 }
 
-// Register the Firebase messaging service worker
+// Register the service worker (same file handles both FCM background messages
+// and direct Web Push events).
 export async function registerMessagingServiceWorker() {
   if (!('serviceWorker' in navigator)) return null;
   try {
-    const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
-    return reg;
+    return navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
   } catch (e) {
-    console.warn('FCM service worker registration failed:', e.message);
+    console.warn('Service worker registration failed:', e.message);
     return null;
   }
 }
