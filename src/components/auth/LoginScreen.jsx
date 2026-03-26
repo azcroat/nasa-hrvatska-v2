@@ -1,5 +1,4 @@
 import React from 'react';
-import CroatianGrb from '../shared/CroatianGrb.jsx';
 
 
 function pwStrength(pw) {
@@ -26,14 +25,41 @@ export default function LoginScreen({
   return (
     <div style={{minHeight:'100vh',background:'var(--app-bg)',color:'var(--heading)',fontFamily:"'Outfit',sans-serif",position:'relative',overflowX:'hidden',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
       <div style={{width:'100%',maxWidth:420,animation:'rise .5s',position:'relative',zIndex:1}}>
-        <div style={{textAlign:'center',marginBottom:32}}>
-          <div style={{marginBottom:12,display:'flex',justifyContent:'center'}}>
-            <CroatianGrb size={80} style={{filter:'drop-shadow(0 8px 24px rgba(0,0,0,0.2))'}} />
-          </div>
-          <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:36,color:'var(--heading)',fontWeight:800}}>Naša Hrvatska</h1>
-          <p style={{color:'var(--subtext)',fontSize:'var(--text-lg)'}}>
-            {isR ? "Create your account" : "Sign in to continue"}
+        {/* Hero — sits above the login card */}
+        <div style={{
+          textAlign:'center', marginBottom:28, animation:'fade-up .6s ease',
+        }}>
+          {/* Adriatic gradient backdrop visual — a simple elegant SVG wave */}
+          <div style={{
+            width:80, height:80, borderRadius:'50%', margin:'0 auto 16px',
+            background:'linear-gradient(135deg,#D40030,#8B0000)',
+            display:'flex', alignItems:'center', justifyContent:'center',
+            boxShadow:'0 8px 32px rgba(212,0,48,.3)',
+            fontSize:40,
+          }}>🇭🇷</div>
+          <h1 style={{
+            fontFamily:"'Playfair Display',serif",
+            fontSize:28, fontWeight:900,
+            color:'var(--heading)', lineHeight:1.15, marginBottom:10,
+          }}>
+            Naša Hrvatska
+          </h1>
+          <p style={{
+            fontSize:15, color:'var(--subtext)', fontWeight:500,
+            lineHeight:1.6, maxWidth:300, margin:'0 auto 18px',
+          }}>
+            Learn Croatian. Connect to your roots.<br/>Speak the language of your heritage.
           </p>
+          {/* 3 feature pills */}
+          <div style={{display:'flex', gap:6, justifyContent:'center', flexWrap:'wrap'}}>
+            {['🔥 Daily Streaks','🤖 AI Conversation','🇭🇷 Real Croatian Culture'].map(f => (
+              <span key={f} style={{
+                fontSize:11, fontWeight:700, color:'var(--info)',
+                background:'var(--info-bg)', borderRadius:20,
+                padding:'4px 10px', border:'1px solid var(--info-b)',
+              }}>{f}</span>
+            ))}
+          </div>
         </div>
         <div className="c" style={{padding:28,position:'relative',overflow:'hidden'}}>
           {/* Croatian flag gradient top bar */}
