@@ -25,6 +25,16 @@ if (import.meta.env.VITE_SENTRY_DSN) {
       if (event.request?.url) {
         event.request.url = event.request.url.replace(/[?#].*/, '');
       }
+      // Remove extra/contexts that may contain user data from error boundary
+      delete event.extra;
+      if (event.contexts) {
+        event.contexts = event.contexts.trace ? { trace: event.contexts.trace } : {};
+      }
+      if (event.breadcrumbs?.values) {
+        event.breadcrumbs.values = event.breadcrumbs.values
+          .filter(b => b.category === 'web-vitals' || b.category === 'navigation')
+          .map(({ category, level, timestamp }) => ({ category, level, timestamp }));
+      }
       return event;
     },
   });

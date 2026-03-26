@@ -1,14 +1,35 @@
 // Cloudflare Pages Function — AI Croatian Writing Correction
 // Uses Anthropic Claude to correct Croatian writing and provide feedback
 
+const CORS = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "https://nasahrvatska.com",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+function isAllowedOrigin(origin, isDev) {
+  try {
+    const hostname = new URL(origin).hostname;
+    if (isDev && hostname === "localhost") return true;
+    return hostname === "nasahrvatska.com"
+      || hostname.endsWith(".nasahrvatska.com")
+      || hostname.endsWith(".pages.dev");
+  } catch { return false; }
+}
+
+export async function onRequestOptions() {
+  return new Response(null, { status: 204, headers: CORS });
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
 
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
-  const allowed = ["nasahrvatska.com", "pages.dev", "localhost"];
-  if (!allowed.some(d => origin.includes(d))) {
-    return new Response("Forbidden", { status: 403 });
+  const isDev = env.ENVIRONMENT !== "production";
+  if (!isAllowedOrigin(origin, isDev)) {
+    return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: CORS });
   }
 
   if (!ANTHROPIC_KEY) {
@@ -20,14 +41,14 @@ export async function onRequestPost(context) {
       encouragement: "Keep writing in Croatian — practice makes perfect!"
     }), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: CORS,
     });
   }
 
   try {
     const { prompt, text } = await request.json();
     if (!text || text.length > 1000) {
-      return new Response("Invalid text", { status: 400 });
+      return new Response(JSON.stringify({ error: "Invalid text" }), { status: 400, headers: CORS });
     }
 
     const systemPrompt = `You are a Croatian language teacher. The student was asked to write about: "${prompt}".
@@ -85,12 +106,9 @@ List up to 5 most important errors. Be encouraging and specific.`;
 
     return new Response(JSON.stringify(result), {
       status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-store",
-      },
+      headers: { ...CORS, "Cache-Control": "no-store" },
     });
-  } catch (e) {
+  } catch {
     return new Response(JSON.stringify({
       corrected: "",
       score: 0,
@@ -99,7 +117,7 @@ List up to 5 most important errors. Be encouraging and specific.`;
       encouragement: "Keep writing — every sentence is progress!"
     }), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: CORS,
     });
   }
 }

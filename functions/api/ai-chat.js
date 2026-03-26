@@ -5,6 +5,16 @@
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-haiku-4-5-20251001";
 
+function isAllowedOrigin(origin, isDev) {
+  try {
+    const hostname = new URL(origin).hostname;
+    if (isDev && hostname === "localhost") return true;
+    return hostname === "nasahrvatska.com"
+      || hostname.endsWith(".nasahrvatska.com")
+      || hostname.endsWith(".pages.dev");
+  } catch { return false; }
+}
+
 const corsHeaders = {
   "Content-Type": "application/json",
   "Access-Control-Allow-Origin": "https://nasahrvatska.com",
@@ -144,8 +154,7 @@ export async function onRequestPost(context) {
 
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
   const isDev = env.ENVIRONMENT !== "production";
-  const allowed = isDev ? ["nasahrvatska.com", "pages.dev", "localhost"] : ["nasahrvatska.com", "pages.dev"];
-  if (!allowed.some(d => origin.includes(d))) return err(403, "Forbidden");
+  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden");
 
   if (!ANTHROPIC_KEY) return err(500, "AI_KEY_MISSING: Add ANTHROPIC_API_KEY in Cloudflare Pages → Settings → Environment Variables.");
 
@@ -156,6 +165,9 @@ export async function onRequestPost(context) {
   const { messages, mode, params } = body;
   if (!messages || !Array.isArray(messages) || !mode) {
     return err(400, "Missing required fields: messages (array) and mode");
+  }
+  if (messages.length > 50) {
+    return err(400, "Too many messages: max 50 allowed");
   }
 
   const systemPrompt = buildSystemPrompt(mode, params);
