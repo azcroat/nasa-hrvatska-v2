@@ -444,7 +444,6 @@ function AddWordForm({ words, setWords, setView }) {
     const updated = [...words, newWord];
     setWords(updated);
     saveWords(updated);
-    lXP(5);
     setView('list');
   }
 
