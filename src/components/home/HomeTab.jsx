@@ -550,26 +550,50 @@ export default function HomeTab({
 
       {/* ── DAILY QUESTS ── */}
       <h3 className="sh">Daily Quests</h3>
-      <div className="anim-children-fade" style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:10, marginBottom:20 }}>
-        {DAILY_QUESTS.map(q => {
-          const done = questsDone[q.id];
-          return (
-            <div key={q.id} style={{
-              background: done ? 'var(--success-bg)' : 'var(--card)',
-              border: `1.5px solid ${done ? 'var(--success-b)' : 'var(--inp-b,#e2e8f0)'}`,
-              borderRadius:14, padding:'12px 10px', textAlign:'center',
-            }}>
-              <div style={{fontSize:22, marginBottom:4}}>{q.icon}</div>
-              <div style={{fontSize:11, fontWeight:900, color: done ? 'var(--success)' : 'var(--heading)', lineHeight:1.2, marginBottom:3}}>{q.name}</div>
-              <div style={{fontSize:10, color:'var(--subtext)', fontWeight:600, marginBottom:6, lineHeight:1.3}}>{q.desc}</div>
-              {done
-                ? <div style={{fontSize:11, color:'var(--success)', fontWeight:800}}>✓ +{q.xp} XP</div>
-                : <div style={{fontSize:11, color:'var(--subtext)'}}>{q.xp} XP</div>
-              }
-            </div>
-          );
-        })}
-      </div>
+      {(() => {
+        const questScreenMap = { speak:'speaking', grammar:'grammar-screen', master:'flashcards', reading:'reading-list', streak:'learnpath' };
+        const questBtnLabel = { speak:'Start →', grammar:'Start →', master:'Start →', reading:'Start →', streak:'Do a lesson →' };
+        const questsDoneCount = DAILY_QUESTS.filter(q => questsDone[q.id]).length;
+        return (<>
+          <div style={{fontSize:11, fontWeight:700, color:'var(--subtext)', marginBottom:8, marginTop:-4}}>
+            {questsDoneCount} of 5 complete
+          </div>
+          <div className="anim-children-fade" style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:10, marginBottom:20 }}>
+            {DAILY_QUESTS.map(q => {
+              const done = questsDone[q.id];
+              return (
+                <div key={q.id} style={{
+                  background: done ? 'var(--success-bg)' : 'var(--card)',
+                  border: `1.5px solid ${done ? 'var(--success-b)' : 'var(--inp-b,#e2e8f0)'}`,
+                  borderRadius:14, padding:'16px 12px', textAlign:'center',
+                  display:'flex', flexDirection:'column', alignItems:'center',
+                }}>
+                  <div style={{fontSize:30, marginBottom:5}}>{q.icon}</div>
+                  <div style={{fontSize:11, fontWeight:900, color: done ? 'var(--success)' : 'var(--heading)', lineHeight:1.2, marginBottom:3}}>{q.name}</div>
+                  <div style={{fontSize:10, color:'var(--subtext)', fontWeight:600, marginBottom:8, lineHeight:1.3}}>{q.desc}</div>
+                  {done
+                    ? <div style={{fontSize:18, color:'var(--success)', fontWeight:900, animation:'bounce-in .4s', lineHeight:1}}>✓</div>
+                    : <button
+                        onClick={() => setScr(questScreenMap[q.id])}
+                        style={{
+                          marginTop:'auto', fontSize:11, fontWeight:800,
+                          color:'var(--accent,#2563eb)', background:'transparent',
+                          border:'1.5px solid var(--accent,#2563eb)',
+                          borderRadius:8, padding:'4px 10px', cursor:'pointer',
+                          lineHeight:1.4,
+                        }}
+                      >
+                        {questBtnLabel[q.id]}
+                      </button>
+                  }
+                  {done && <div style={{fontSize:10, color:'var(--success)', fontWeight:700, marginTop:3}}>+{q.xp} XP</div>}
+                  {!done && <div style={{fontSize:10, color:'var(--subtext)', marginTop:4}}>{q.xp} XP</div>}
+                </div>
+              );
+            })}
+          </div>
+        </>);
+      })()}
       {allQuestsDone && (
         <div style={{background:'var(--success-bg)',border:'1.5px solid var(--success-b)',borderRadius:14,padding:'14px 16px',marginBottom:16,textAlign:'center',animation:'rise .4s'}}>
           <div style={{fontSize:20,marginBottom:4}}>🏆</div>
