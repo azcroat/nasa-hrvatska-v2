@@ -112,9 +112,17 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
   const [shaking, setShaking] = useState(false);
   // Change 3: streak badge pulse state
   const [streakPulse, setStreakPulse] = useState(false);
-  // Challenge Mode: hearts and game-over
+  // Hearts system
   const [hearts, setHearts] = useState(() => challengeMode ? getHearts() : 5);
   const [gameOver, setGameOver] = useState(false);
+  const [continueAnyway, setContinueAnyway] = useState(false);
+  // Practice Mode toggle — disables heart deduction when active
+  const [practiceMode, setPracticeMode] = useState(false);
+  // Adaptive difficulty: wrong streak and correct streak
+  const [wrongStreak, setWrongStreak] = useState(0);
+  const [correctStreak, setCorrectStreak] = useState(0);
+  const [glowIndex, setGlowIndex] = useState(-1);
+  const [showOnARoll, setShowOnARoll] = useState(false);
   // Question transition
   const [qTransition, setQTransition] = useState(false);
   const firstOptionRef = useRef(null);
@@ -154,6 +162,7 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
       setBurst(i);
       setTimeout(() => setBurst(-1), 900);
       setScore(s => s + 1);
+      setWrongStreak(0);
       setStreak(s => {
         const ns = s + 1;
         setBestStreak(b => Math.max(b, ns));
@@ -175,6 +184,14 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
         }
         return ns;
       });
+      setCorrectStreak(cs => {
+        const newCs = cs + 1;
+        if (newCs === 5) {
+          setShowOnARoll(true);
+          setTimeout(() => setShowOnARoll(false), 2000);
+        }
+        return newCs;
+      });
     } else {
       haptic.wrong();
       playWrong();
@@ -182,17 +199,43 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
       setShaking(true);
       setTimeout(() => setShaking(false), 500);
       setStreak(0);
+      setCorrectStreak(0);
       setRevealCorrect(true);
       setShowCombo(false);
       setComboMsg('');
       setStreakPulse(false);
       if (q.hr) recordMistake(q.hr, q.en || q.correct || '', q.q || q.prompt || '', q.category || '');
+
+      // Update wrong streak and handle help mode glow
+      setWrongStreak(ws => {
+        const newWs = ws + 1;
+        if (newWs >= 3) {
+          // Find correct answer index and highlight it for 1.5s
+          const correctIdx = q.opts.indexOf(q.correct);
+          if (correctIdx !== -1) {
+            setGlowIndex(correctIdx);
+            setTimeout(() => setGlowIndex(-1), 1500);
+          }
+        }
+        return newWs;
+      });
+
+      // Heart deduction: only in challengeMode OR if not in practiceMode (regular mode)
       if (challengeMode) {
         const remaining = loseHeart();
         setHearts(remaining);
         if (remaining === 0) {
           setTimeout(() => setGameOver(true), 600); // let animation finish
         }
+      } else if (!practiceMode) {
+        // Regular mode hearts deduction
+        setHearts(h => {
+          const newH = Math.max(0, h - 1);
+          if (newH === 0) {
+            setTimeout(() => setGameOver(true), 600);
+          }
+          return newH;
+        });
       }
     }
     if (q.hr) srMark(q.hr, ok);
@@ -217,19 +260,55 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
   const progress = (idx / questions.length) * 100;
   const isLast = idx === questions.length - 1;
 
-  if (gameOver) {
+  // "No hearts left" state — show before gameOver if continueAnyway not chosen
+  if (gameOver && !continueAnyway) {
     return (
       <div className="scr-wrap" style={{textAlign:'center', padding:'40px 20px'}}>
         <div style={{fontSize:52}}>💔</div>
         <h3 style={{fontFamily:"'Playfair Display',serif", fontSize:22, color:'var(--heading)', marginTop:12}}>
-          Out of Hearts!
+          No hearts left!
         </h3>
         <p style={{color:'var(--subtext)', marginTop:8, fontSize:14, lineHeight:1.6}}>
-          Hearts refill over time — 1 per hour.<br/>Come back to keep going!
+          {challengeMode
+            ? 'Hearts refill over time — 1 per hour.\nCome back to keep going!'
+            : 'Take a break and come back fresh, or keep going anyway.'}
         </p>
-        <button className="b bp" style={{marginTop:24, width:'100%'}} onClick={goBack}>
-          ← Back to Practice
+        <button
+          className="b bp"
+          style={{marginTop:24, width:'100%'}}
+          onClick={() => {
+            setIdx(0);
+            setScore(0);
+            setHearts(5);
+            setAnswered(false);
+            setSelected(-1);
+            setRevealCorrect(false);
+            setStreak(0);
+            setWrongStreak(0);
+            setCorrectStreak(0);
+            setGameOver(false);
+            resultFired.current = false;
+          }}
+        >
+          🔄 Try Again
         </button>
+        {!challengeMode && (
+          <button
+            className="b bg"
+            style={{marginTop:10, width:'100%'}}
+            onClick={() => {
+              setContinueAnyway(true);
+              setGameOver(false);
+            }}
+          >
+            Continue Anyway →
+          </button>
+        )}
+        {challengeMode && (
+          <button className="b bg" style={{marginTop:10, width:'100%'}} onClick={goBack}>
+            ← Back to Practice
+          </button>
+        )}
       </div>
     );
   }
@@ -250,6 +329,10 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
           60%      { transform: translateX(6px); }
           75%      { transform: translateX(-3px); }
           90%      { transform: translateX(3px); }
+        }
+        @keyframes correctGlow {
+          0%,100% { box-shadow: 0 0 0px rgba(22,163,74,0); }
+          50%     { box-shadow: 0 0 16px 4px rgba(22,163,74,0.7); }
         }
       `}</style>
 
@@ -359,6 +442,27 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
             {streak}
           </div>
         )}
+
+        {/* Practice Mode toggle */}
+        <button
+          onClick={() => setPracticeMode(m => !m)}
+          title={practiceMode ? 'Practice Mode ON (hearts disabled)' : 'Practice Mode OFF'}
+          aria-label={practiceMode ? 'Practice Mode active — click to disable' : 'Enable Practice Mode'}
+          style={{
+            background: practiceMode ? 'rgba(99,102,241,0.15)' : 'none',
+            border: practiceMode ? '1.5px solid rgba(99,102,241,0.5)' : '1.5px solid transparent',
+            borderRadius: 10,
+            cursor: 'pointer',
+            fontSize: 20,
+            padding: '6px 10px',
+            minHeight: 44,
+            minWidth: 44,
+            marginLeft: 6,
+            transition: 'background .15s, border-color .15s',
+          }}
+        >
+          🛡️
+        </button>
       </div>
 
       {/* Score line */}
@@ -375,9 +479,40 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
         Question {idx + 1} of {questions.length} · {score} correct
       </div>
 
-      {challengeMode && (
-        <div style={{display:'flex', justifyContent:'flex-end', marginBottom:8}}>
-          <HeartsBar hearts={hearts} />
+      {/* Hearts bar — always show, right-aligned */}
+      <div style={{display:'flex', justifyContent:'flex-end', marginBottom:8}}>
+        <HeartsBar hearts={hearts} />
+      </div>
+
+      {/* "On a roll" banner for 5 correct in a row */}
+      {showOnARoll && (
+        <div style={{
+          textAlign: 'center',
+          fontSize: 15,
+          fontWeight: 900,
+          color: '#f59e0b',
+          animation: 'bounce-in 0.4s cubic-bezier(0.34,1.56,0.64,1)',
+          marginBottom: 10,
+          letterSpacing: '0.02em',
+        }}>
+          🔥 You're on a roll!
+        </div>
+      )}
+
+      {/* Tip banner when wrongStreak >= 3 */}
+      {wrongStreak >= 3 && (
+        <div style={{
+          marginBottom: 10,
+          padding: '8px 14px',
+          background: 'rgba(245,158,11,0.1)',
+          border: '1px solid rgba(245,158,11,0.3)',
+          borderRadius: 10,
+          fontSize: 12,
+          color: '#92400e',
+          fontWeight: 600,
+          textAlign: 'center',
+        }}>
+          💡 Tip: Take your time — these are tricky!
         </div>
       )}
 
@@ -457,6 +592,7 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
           const isWrong =
             answered && selected === i && o !== q.correct;
           const isRevealedCorrect = revealCorrect && o === q.correct && !isCorrect;
+          const isGlowing = glowIndex === i && answered && !isCorrect;
           return (
             <div key={i} style={{ position: 'relative' }}>
               <button
@@ -480,6 +616,10 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
                     background: 'var(--success-bg)',
                     borderColor: 'var(--success-b)',
                     color: 'var(--success)',
+                  } : {}),
+                  ...(isGlowing ? {
+                    animation: 'correctGlow 0.5s ease infinite',
+                    borderColor: 'var(--success-b)',
                   } : {}),
                 }}
               >
