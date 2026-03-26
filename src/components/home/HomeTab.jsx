@@ -702,14 +702,14 @@ export default function HomeTab({
         if (dismissed) return null;
         return (
           <div style={{
-            background:'linear-gradient(135deg,#f0fdf4,#dcfce7)', border:'1.5px solid #86efac',
+            background:'var(--success-bg)', border:'1.5px solid var(--success-b)',
             borderRadius:16, padding:'14px 16px', marginBottom:16,
             display:'flex', alignItems:'flex-start', gap:12,
           }}>
             <span style={{fontSize:22, flexShrink:0}}>🚀</span>
             <div style={{flex:1}}>
-              <div style={{fontSize:13, fontWeight:800, color:'#15803d', marginBottom:3}}>You're crushing your goal!</div>
-              <div style={{fontSize:12, color:'#166534', fontWeight:500, lineHeight:1.5}}>
+              <div style={{fontSize:13, fontWeight:800, color:'var(--success)', marginBottom:3}}>You're crushing your goal!</div>
+              <div style={{fontSize:12, color:'var(--success)', fontWeight:500, lineHeight:1.5}}>
                 You're averaging {Math.round(dailyAvg)} XP/day — well above your {dailyMin}-min target.
                 Ready to bump it up to {nextMin} min?
               </div>

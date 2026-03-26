@@ -17,13 +17,13 @@ export default function MatchGame({ initPool, goBack, award }) {
       {gph === "play" && (
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
           <div style={{fontSize:13,fontWeight:700,color:"var(--subtext)"}}>
-            <span style={{color:"#22c55e",fontWeight:900}}>{mm.length}</span> / {mp.length / 2} pairs found
+            <span style={{color:"var(--success)",fontWeight:900}}>{mm.length}</span> / {mp.length / 2} pairs found
           </div>
-          {mm.length > 0 && <div style={{fontSize:12,color:"#16a34a",fontWeight:700}}>{'★'.repeat(mm.length)}</div>}
+          {mm.length > 0 && <div style={{fontSize:12,color:"var(--success)",fontWeight:700}}>{'★'.repeat(mm.length)}</div>}
         </div>
       )}
       {gph === "play" && (
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
+        <div className="g3">
           {mp.map(c => (
             <div
               key={c.id}
@@ -32,11 +32,13 @@ export default function MatchGame({ initPool, goBack, award }) {
               aria-pressed={msl.some(s => s.id === c.id)}
               style={{
                 padding:"14px 12px",
-                border: mm.includes(c.p) ? "2px solid #22c55e" : msl.some(s => s.id === c.id) ? "2px solid #0e7490" : "2px solid #e7e5e4",
+                border: mm.includes(c.p) ? "2px solid var(--success)" : msl.some(s => s.id === c.id) ? "2px solid var(--info)" : "2px solid var(--card-b)",
                 borderRadius:14,
-                background: mm.includes(c.p) ? "rgba(77,124,15,.1)" : msl.some(s => s.id === c.id) ? "rgba(14,116,144,.1)" : "white",
+                background: mm.includes(c.p) ? "var(--success-bg)" : msl.some(s => s.id === c.id) ? "rgba(14,116,144,.1)" : "var(--card)",
                 textAlign:"center",fontWeight:600,fontSize:14,cursor:"pointer",
-                opacity: mm.includes(c.p) ? 0.6 : 1
+                opacity: mm.includes(c.p) ? 0.6 : 1,
+                transition:"transform .15s ease, box-shadow .15s ease",
+                transform: msl.some(s => s.id === c.id) ? "scale(1.03)" : "scale(1)",
               }}
               onClick={() => {
                 if (mm.includes(c.p)) return;
@@ -81,8 +83,8 @@ export default function MatchGame({ initPool, goBack, award }) {
       {gph === "done" && (
         <div style={{textAlign:"center",paddingTop:40}}>
           <div style={{fontSize:64}}>🎉</div>
-          <h3 style={{fontFamily:"'Playfair Display',serif",fontSize:24,color:"#164e63",marginTop:12}}>All Matched!</h3>
-          <p style={{color:"#78716c",marginTop:4}}>{gsc} pairs matched!</p>
+          <h3 style={{fontFamily:"'Playfair Display',serif",fontSize:24,color:"var(--heading)",marginTop:12}}>All Matched!</h3>
+          <p style={{color:"var(--subtext)",marginTop:4}}>{gsc} pairs matched!</p>
           <button className="b bp" style={{marginTop:24}} onClick={goBack}>Continue →</button>
         </div>
       )}
