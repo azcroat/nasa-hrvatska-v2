@@ -2,23 +2,37 @@ import React from 'react';
 
 export default function CelebrationScene({ width = 280, height = 160, message = 'Odlično!', className = '', style = {} }) {
   const w = width, h = height;
+  const cx = w * 0.5;
+  const cy = h * 0.42;
 
   const confetti = [
-    { x: w*0.1,  y: h*0.2,  r: -15, color: '#b61800', shape: 'rect' },
-    { x: w*0.2,  y: h*0.1,  r: 30,  color: '#fbbf24', shape: 'circle' },
-    { x: w*0.3,  y: h*0.25, r: -25, color: '#0e7490', shape: 'rect' },
-    { x: w*0.4,  y: h*0.08, r: 45,  color: '#7c3aed', shape: 'rect' },
-    { x: w*0.5,  y: h*0.15, r: -10, color: '#16a34a', shape: 'circle' },
-    { x: w*0.6,  y: h*0.05, r: 20,  color: '#b61800', shape: 'rect' },
-    { x: w*0.7,  y: h*0.2,  r: -35, color: '#fbbf24', shape: 'rect' },
-    { x: w*0.8,  y: h*0.12, r: 15,  color: '#0e7490', shape: 'circle' },
-    { x: w*0.9,  y: h*0.25, r: -20, color: '#7c3aed', shape: 'rect' },
-    { x: w*0.15, y: h*0.4,  r: 10,  color: '#16a34a', shape: 'rect' },
-    { x: w*0.85, y: h*0.35, r: -15, color: '#b61800', shape: 'circle' },
-    { x: w*0.45, y: h*0.35, r: 25,  color: '#fbbf24', shape: 'rect' },
-    { x: w*0.25, y: h*0.5,  r: -30, color: '#0e7490', shape: 'rect' },
-    { x: w*0.75, y: h*0.45, r: 40,  color: '#7c3aed', shape: 'circle' },
-    { x: w*0.55, y: h*0.5,  r: -5,  color: '#16a34a', shape: 'rect' },
+    // Original 15 — updated colors and added diamond shapes
+    { x: w*0.05,  y: h*0.15, r: -15, color: '#D40030', shape: 'rect' },
+    { x: w*0.12,  y: h*0.08, r: 30,  color: '#f59e0b', shape: 'circle' },
+    { x: w*0.22,  y: h*0.22, r: -25, color: '#003087', shape: 'rect' },
+    { x: w*0.32,  y: h*0.06, r: 45,  color: '#a78bfa', shape: 'diamond' },
+    { x: w*0.42,  y: h*0.12, r: -10, color: '#16a34a', shape: 'circle' },
+    { x: w*0.52,  y: h*0.04, r: 20,  color: '#D40030', shape: 'rect' },
+    { x: w*0.62,  y: h*0.18, r: -35, color: '#f59e0b', shape: 'diamond' },
+    { x: w*0.72,  y: h*0.08, r: 15,  color: '#38bdf8', shape: 'circle' },
+    { x: w*0.82,  y: h*0.22, r: -20, color: '#a78bfa', shape: 'rect' },
+    { x: w*0.92,  y: h*0.1,  r: 10,  color: '#16a34a', shape: 'rect' },
+    { x: w*0.88,  y: h*0.35, r: -15, color: '#D40030', shape: 'circle' },
+    { x: w*0.95,  y: h*0.28, r: 25,  color: '#f59e0b', shape: 'diamond' },
+    { x: w*0.18,  y: h*0.45, r: -30, color: '#38bdf8', shape: 'rect' },
+    { x: w*0.78,  y: h*0.42, r: 40,  color: '#003087', shape: 'circle' },
+    { x: w*0.48,  y: h*0.48, r: -5,  color: '#16a34a', shape: 'rect' },
+    // 10 additional pieces for 25 total
+    { x: w*0.02,  y: h*0.35, r: 55,  color: '#FFFFFF', shape: 'diamond' },
+    { x: w*0.08,  y: h*0.52, r: -40, color: '#38bdf8', shape: 'rect' },
+    { x: w*0.28,  y: h*0.55, r: 20,  color: '#D40030', shape: 'circle' },
+    { x: w*0.38,  y: h*0.02, r: -60, color: '#003087', shape: 'diamond' },
+    { x: w*0.58,  y: h*0.5,  r: 35,  color: '#a78bfa', shape: 'rect' },
+    { x: w*0.68,  y: h*0.55, r: -25, color: '#f59e0b', shape: 'circle' },
+    { x: w*0.75,  y: h*0.03, r: 50,  color: '#16a34a', shape: 'diamond' },
+    { x: w*0.85,  y: h*0.5,  r: -45, color: '#FFFFFF', shape: 'rect' },
+    { x: w*0.97,  y: h*0.45, r: 15,  color: '#38bdf8', shape: 'diamond' },
+    { x: w*0.15,  y: h*0.02, r: -20, color: '#D40030', shape: 'circle' },
   ];
 
   return (
@@ -48,6 +62,11 @@ export default function CelebrationScene({ width = 280, height = 160, message = 
           <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.15"/>
           <stop offset="100%" stopColor="#fbbf24" stopOpacity="0"/>
         </radialGradient>
+        <linearGradient id="trophyGold" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FFE070" />
+          <stop offset="40%" stopColor="#f59e0b" />
+          <stop offset="100%" stopColor="#C8980A" />
+        </linearGradient>
       </defs>
 
       {/* Background glow */}
@@ -62,41 +81,69 @@ export default function CelebrationScene({ width = 280, height = 160, message = 
       {confetti.map((c, i) => {
         const delay = (i * 0.07).toFixed(2);
         const duration = (1.6 + (i % 7) * 0.1).toFixed(1);
-        return c.shape === 'rect' ? (
-          <g key={i} style={{ animation: `csDrop ${duration}s ${delay}s ease-in infinite` }}>
-            <rect
-              x={c.x - 5} y={c.y - 3}
-              width={10} height={6}
-              fill={c.color}
-              transform={`rotate(${c.r} ${c.x} ${c.y})`}
-              opacity={0.85}
-            />
-          </g>
-        ) : (
-          <g key={i} style={{ animation: `csDrop ${duration}s ${delay}s ease-in infinite` }}>
-            <circle cx={c.x} cy={c.y} r={4} fill={c.color} opacity={0.85}/>
-          </g>
-        );
+        if (c.shape === 'circle') {
+          return (
+            <g key={i} style={{ animation: `csDrop ${duration}s ${delay}s ease-in infinite` }}>
+              <circle cx={c.x} cy={c.y} r={4} fill={c.color} opacity={0.85}/>
+            </g>
+          );
+        } else if (c.shape === 'diamond') {
+          return (
+            <g key={i} style={{ animation: `csDrop ${duration}s ${delay}s ease-in infinite` }}>
+              <rect
+                x={c.x - 2.5} y={c.y - 2.5}
+                width={5} height={5}
+                fill={c.color} opacity={0.85}
+                transform={`translate(${c.x},${c.y}) rotate(45) translate(${-c.x},${-c.y})`}
+              />
+            </g>
+          );
+        } else {
+          return (
+            <g key={i} style={{ animation: `csDrop ${duration}s ${delay}s ease-in infinite` }}>
+              <rect
+                x={c.x - 5} y={c.y - 3}
+                width={10} height={6}
+                fill={c.color}
+                transform={`rotate(${c.r} ${c.x} ${c.y})`}
+                opacity={0.85}
+              />
+            </g>
+          );
+        }
       })}
 
-      {/* Trophy cup */}
+      {/* Trophy group */}
       <g style={{ animation: 'csTrophy 0.5s cubic-bezier(0.34,1.56,0.64,1) both' }}>
-        <path d={`M ${w*0.4} ${h*0.35} L ${w*0.38} ${h*0.2} L ${w*0.62} ${h*0.2} L ${w*0.6} ${h*0.35}`} fill="#fbbf24" stroke="#d97706" strokeWidth="1"/>
-        <ellipse cx={w*0.5} cy={h*0.35} rx={w*0.1} ry={h*0.06} fill="#fbbf24" stroke="#d97706" strokeWidth="1"/>
+
+        {/* Star burst rays behind trophy */}
+        {Array.from({length: 10}).map((_, i) => {
+          const angle = (i * 36) * Math.PI / 180;
+          return <line key={i}
+            x1={cx} y1={cy - 15}
+            x2={cx + Math.cos(angle) * 58} y2={(cy - 15) + Math.sin(angle) * 58}
+            stroke="rgba(251,191,36,0.38)" strokeWidth={3}
+            style={{ animation: `csBurst 1.2s ease ${(i * 0.05).toFixed(2)}s both` }}
+          />;
+        })}
+
+        {/* Trophy cup body — wider, more shaped */}
+        <path d={`M ${cx-22} ${cy+10} Q ${cx-28} ${cy-15} ${cx-18} ${cy-28} L ${cx+18} ${cy-28} Q ${cx+28} ${cy-15} ${cx+22} ${cy+10} Z`}
+          fill="url(#trophyGold)" stroke="#C8980A" strokeWidth="1.5" />
         {/* Trophy handles */}
-        <path d={`M ${w*0.38} ${h*0.23} Q ${w*0.32} ${h*0.23} ${w*0.32} ${h*0.3} Q ${w*0.32} ${h*0.37} ${w*0.38} ${h*0.35}`}
-          stroke="#d97706" strokeWidth="2" fill="none"/>
-        <path d={`M ${w*0.62} ${h*0.23} Q ${w*0.68} ${h*0.23} ${w*0.68} ${h*0.3} Q ${w*0.68} ${h*0.37} ${w*0.62} ${h*0.35}`}
-          stroke="#d97706" strokeWidth="2" fill="none"/>
-        {/* Trophy stem */}
-        <rect x={w*0.47} y={h*0.41} width={w*0.06} height={h*0.12} fill="#d97706"/>
-        <rect x={w*0.41} y={h*0.53} width={w*0.18} height={h*0.04} rx="3" fill="#d97706"/>
-        {/* Star on trophy */}
-        <text x={w*0.5} y={h*0.31} fontSize={h*0.09} textAnchor="middle">⭐</text>
+        <path d={`M ${cx-22} ${cy} Q ${cx-36} ${cy} ${cx-34} ${cy+8} Q ${cx-32} ${cy+14} ${cx-20} ${cy+12}`}
+          fill="none" stroke="#C8980A" strokeWidth="2.5" strokeLinecap="round" />
+        <path d={`M ${cx+22} ${cy} Q ${cx+36} ${cy} ${cx+34} ${cy+8} Q ${cx+32} ${cy+14} ${cx+20} ${cy+12}`}
+          fill="none" stroke="#C8980A" strokeWidth="2.5" strokeLinecap="round" />
+        {/* Trophy base */}
+        <rect x={cx-14} y={cy+10} width={28} height={6} rx={2} fill="url(#trophyGold)" />
+        <rect x={cx-10} y={cy+16} width={20} height={4} rx={2} fill="#C8980A" />
+        {/* Star inside trophy */}
+        <text x={cx} y={cy-6} textAnchor="middle" fontSize={14}>⭐</text>
       </g>
 
       {/* Message text */}
-      <text x={w*0.5} y={h*0.75} fontSize={Math.max(16, h*0.13)} fontWeight="900" textAnchor="middle"
+      <text x={w*0.5} y={h*0.9} fontSize={Math.max(16, h*0.13)} fontWeight="900" textAnchor="middle"
         fill="#0f172a" fontFamily="Playfair Display,serif">{message}</text>
 
       {/* Firework bursts */}
@@ -107,7 +154,7 @@ export default function CelebrationScene({ width = 280, height = 160, message = 
               x1={fw.cx} y1={fw.cy}
               x2={fw.cx + Math.cos(angle * Math.PI / 180) * h * 0.08}
               y2={fw.cy + Math.sin(angle * Math.PI / 180) * h * 0.08}
-              stroke={['#fbbf24','#b61800','#0e7490','#7c3aed'][j % 4]}
+              stroke={['#fbbf24','#D40030','#003087','#a78bfa'][j % 4]}
               strokeWidth="1.5" strokeLinecap="round"
             />
           ))}

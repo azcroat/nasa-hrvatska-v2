@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, srMark } from '../../data.jsx';
 import CroatianKnight from '../shared/CroatianKnight';
+import confetti from 'canvas-confetti';
 
 const STILL_LEARNING_MSG_DURATION = 1200;
 
@@ -18,6 +19,7 @@ export default function Flashcards({ pool, goBack, award }) {
   const [correctAnim, setCorrectAnim] = useState(false);
   const [wrongAnim, setWrongAnim] = useState(false);
   const [showStillLearning, setShowStillLearning] = useState(false);
+  const [sparkPos, setSparkPos] = useState(null);
   const cardRef = useRef(null);
   const knowBtnRef = useRef(null);
   const touchStartX = useRef(null);
@@ -38,6 +40,15 @@ export default function Flashcards({ pool, goBack, award }) {
     finishFired.current = true;
     award(finalKnown * XP_PER_KNOWN + XP_COMPLETION_BONUS);
     setDone(true);
+    if (finalKnown === activePool.length) {
+      setTimeout(() => confetti({
+        particleCount: 60,
+        spread: 70,
+        origin: { x: 0.5, y: 0.4 },
+        colors: ['#f59e0b', '#16a34a', '#0e7490', '#b61800', '#ffffff'],
+        ticks: 150,
+      }), 300);
+    }
   }
 
   function studyMissedAgain(missedCards) {
@@ -110,6 +121,8 @@ export default function Flashcards({ pool, goBack, award }) {
   }
 
   function handleKnown() {
+    setSparkPos({ x: 50, y: 50 });
+    setTimeout(() => setSparkPos(null), 700);
     const q = 4;
     const correct = q >= 3;
     srMark(activePool[idx][0], correct);
@@ -196,7 +209,10 @@ export default function Flashcards({ pool, goBack, award }) {
         <div style={{fontSize:14,fontWeight:700,color:"var(--success)"}}>✅ Know: {known}</div>
       </div>
       <Bar v={idx+1} mx={activePool.length} h={6} color="#f59e0b" />
-      <div className={`fc-scene${correctAnim ? ' anim-bounce-in' : ''}${wrongAnim ? ' anim-wrong' : ''}`}>
+      <div
+        className={`fc-scene${correctAnim ? ' anim-bounce-in' : ''}${wrongAnim ? ' anim-wrong' : ''}`}
+        style={{ position: 'relative' }}
+      >
         <div
           ref={cardRef}
           className={`fc-card${flipped?" flipped":""}`}
@@ -237,6 +253,21 @@ export default function Flashcards({ pool, goBack, award }) {
             <div style={{fontSize:12,color:"var(--subtext)",marginTop:12}}>tap to flip back</div>
           </div>
         </div>
+        {sparkPos && (
+          <div style={{ position:'absolute', top:'50%', left:'50%', pointerEvents:'none', zIndex:10 }}>
+            {['⭐','✨','🌟','💫','⚡','✨'].map((em, i) => (
+              <span key={i} style={{
+                position:'absolute',
+                fontSize: 14 + (i % 3) * 4,
+                animation: `xpFloat 0.6s ease forwards`,
+                animationDelay: `${i * 0.08}s`,
+                top: `${Math.sin(i * 60 * Math.PI/180) * 40}px`,
+                left: `${Math.cos(i * 60 * Math.PI/180) * 40}px`,
+                opacity: 1,
+              }}>{em}</span>
+            ))}
+          </div>
+        )}
       </div>
       {showStillLearning && (
         <div style={{
