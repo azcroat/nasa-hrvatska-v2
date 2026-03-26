@@ -6,6 +6,7 @@ import CroatianKnight from '../shared/CroatianKnight';
 const GOALS = [
   { id: 'heritage', icon: '🇭🇷', label: 'My heritage & roots', sub: 'Connect with where I came from' },
   { id: 'family',   icon: '👨‍👩‍👧', label: 'Speak with family', sub: 'Talk to parents, grandparents, relatives' },
+  { id: 'elders',   icon: '👴👵', label: 'Za bake i djedove', sub: 'Connect with elderly relatives before time runs out' },
   { id: 'partner',  icon: '💑',  label: 'My partner is Croatian', sub: 'Navigate family gatherings, impress their parents' },
   { id: 'travel',   icon: '✈️',  label: 'Travel to Croatia',  sub: 'Navigate, meet locals, feel at home' },
   { id: 'culture',  icon: '📖',  label: 'Love the culture',   sub: 'Music, history, food, football' },
@@ -244,7 +245,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
           style={{ fontSize:'var(--text-lg)', padding:'14px', width:'100%', marginBottom:12, opacity: dailyMin ? 1 : 0.5 }}
           disabled={!dailyMin}
           onClick={() => {
-            if (goal === 'heritage' || goal === 'family' || goal === 'partner') {
+            if (goal === 'heritage' || goal === 'family' || goal === 'partner' || goal === 'elders') {
               setStep(3);
             } else {
               setShowSpeakModal(true);
@@ -340,10 +341,14 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
       <div style={{ maxWidth:460, width:'100%', animation:'rise .4s' }}>
         <StepDots step={3} />
         <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:24, color:'var(--heading)', fontWeight:900, marginBottom:6, textAlign:'center' }}>
-          {goal === 'partner' ? 'Tell us about your partner 💑' : 'Tell us about your roots 🇭🇷'}
+          {goal === 'partner' ? 'Tell us about your partner 💑'
+            : goal === 'elders' ? 'Tell us about your family 👴👵'
+            : 'Tell us about your roots 🇭🇷'}
         </h2>
         <p style={{ color:'var(--subtext)', fontSize:'var(--text-sm)', textAlign:'center', marginBottom:24 }}>
-          {goal === 'partner' ? "We'll teach you the words that matter most at family gatherings" : 'This helps us personalize your content (totally optional)'}
+          {goal === 'partner' ? "We'll teach you the words that matter most at family gatherings"
+            : goal === 'elders' ? 'Every conversation is precious — we\'ll focus on what matters most right now'
+            : 'This helps us personalize your content (totally optional)'}
         </p>
 
         <div style={{ marginBottom:16 }}>
@@ -368,13 +373,20 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
 
         <div style={{ marginBottom:24 }}>
           <label style={{ fontSize:'var(--text-sm)', fontWeight:700, color:'var(--heading)', display:'block', marginBottom:6 }}>
-            {goal === 'partner' ? 'Tell us about your partner' : 'Your generation'}
+            {goal === 'partner' ? 'Tell us about your partner'
+              : goal === 'elders' ? 'Who are you hoping to connect with?'
+              : 'Your generation'}
           </label>
           <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
             {(goal === 'partner' ? [
               { id: 'partner_native',   label: "My partner is Croatian-born 🇭🇷",       sub: 'Born or raised in Croatia' },
               { id: 'partner_heritage', label: "My partner's parents are Croatian 🌍",   sub: '2nd generation diaspora' },
               { id: 'partner_extended', label: "My partner has Croatian family ties 👨‍👩‍👧", sub: 'Extended Croatian family' },
+            ] : goal === 'elders' ? [
+              { id: 'elders_baka',      label: 'Baka i djed 👴👵',                        sub: 'Grandparents — I want them to hear me speak Croatian' },
+              { id: 'elders_gathering', label: 'Family gatherings 👨‍👩‍👧',                  sub: 'Weddings, funerals, reunions — I want to be present' },
+              { id: 'elders_aging',     label: 'Before it\'s too late ❤️',                sub: 'Reconnecting while there\'s still time' },
+              { id: 'elders_general',   label: 'Older relatives generally 🏡',            sub: 'Aunts, uncles, distant family abroad' },
             ] : [
               { id: 'first',  label: "I'm from Croatia",               sub: 'Born or raised there' },
               { id: 'second', label: 'My parents are Croatian',         sub: '2nd generation diaspora' },
@@ -406,7 +418,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
         </div>
 
         <button className="b bp" style={{ fontSize:'var(--text-md)', padding:'14px', width:'100%', marginBottom:10 }}
-          onClick={() => startPlacement()}>
+          onClick={() => goal === 'elders' ? setShowSpeakModal(true) : startPlacement()}>
           Continue to test →
         </button>
         <button onClick={() => startPlacement()}
@@ -431,38 +443,79 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
           }}>
             <div style={{
               background:'var(--card)', borderRadius:24, padding:'32px 24px',
-              maxWidth:360, width:'100%', textAlign:'center',
+              maxWidth:380, width:'100%', textAlign:'center',
               animation:'rise .4s',
               fontFamily:"'Outfit',sans-serif",
             }}>
-              <div style={{fontSize:52, marginBottom:8}}>🎤</div>
-              <h2 style={{fontFamily:"'Playfair Display',serif", fontSize:22, color:'var(--heading)', marginBottom:6}}>
-                Say your first word
-              </h2>
-              <p style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:20, lineHeight:1.5}}>
-                Before we start, let's say the most important word in Croatian:
-              </p>
-              <button
-                onClick={() => speak('Bog')}
-                style={{
-                  width:'100%', padding:'20px', borderRadius:16, marginBottom:16, cursor:'pointer',
-                  background:'linear-gradient(135deg,#0e7490,#164e63)',
-                  border:'none', fontFamily:"'Outfit',sans-serif",
-                  display:'flex', flexDirection:'column', alignItems:'center', gap:4,
-                }}
-              >
-                <span style={{fontSize:36, fontWeight:900, color:'#fff', fontFamily:"'Playfair Display',serif"}}>Bog</span>
-                <span style={{fontSize:'var(--text-base)', color:'rgba(255,255,255,.8)', fontWeight:600}}>Hello / Hi — tap to hear it 🔊</span>
-              </button>
-              <p style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:20, fontStyle:'italic'}}>
-                Now you say it! Repeat after the audio.
-              </p>
+              {goal === 'elders' ? (
+                <>
+                  <div style={{fontSize:52, marginBottom:8}}>❤️</div>
+                  <h2 style={{fontFamily:"'Playfair Display',serif", fontSize:22, color:'var(--heading)', marginBottom:10}}>
+                    Your first phrase
+                  </h2>
+                  <div style={{
+                    background:'rgba(14,116,144,0.12)',
+                    border:'1px solid rgba(14,116,144,0.3)',
+                    borderRadius:14,
+                    padding:'16px 18px',
+                    marginBottom:16,
+                    textAlign:'left',
+                  }}>
+                    <p style={{fontSize:'var(--text-md)', fontWeight:800, color:'var(--heading)', marginBottom:4, fontStyle:'italic', lineHeight:1.4}}>
+                      "Učim hrvatski kako bih mogao razgovarati s bakom i djedom."
+                    </p>
+                    <p style={{fontSize:'var(--text-sm)', color:'var(--subtext)', fontWeight:500, marginBottom:0}}>
+                      I'm learning Croatian so I can talk with my grandparents.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => speak('Učim hrvatski kako bih mogao razgovarati s bakom i djedom')}
+                    style={{
+                      width:'100%', padding:'14px 18px', borderRadius:14, marginBottom:14, cursor:'pointer',
+                      background:'linear-gradient(135deg,#0e7490,#164e63)',
+                      border:'none', fontFamily:"'Outfit',sans-serif",
+                      display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+                      color:'#fff', fontSize:'var(--text-sm)', fontWeight:700,
+                    }}
+                  >
+                    🔊 Hear it in Croatian
+                  </button>
+                  <p style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:20, lineHeight:1.5, fontStyle:'italic'}}>
+                    Svaki razgovor je dragocjen — every conversation is precious.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div style={{fontSize:52, marginBottom:8}}>🎤</div>
+                  <h2 style={{fontFamily:"'Playfair Display',serif", fontSize:22, color:'var(--heading)', marginBottom:6}}>
+                    Say your first word
+                  </h2>
+                  <p style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:20, lineHeight:1.5}}>
+                    Before we start, let's say the most important word in Croatian:
+                  </p>
+                  <button
+                    onClick={() => speak('Bog')}
+                    style={{
+                      width:'100%', padding:'20px', borderRadius:16, marginBottom:16, cursor:'pointer',
+                      background:'linear-gradient(135deg,#0e7490,#164e63)',
+                      border:'none', fontFamily:"'Outfit',sans-serif",
+                      display:'flex', flexDirection:'column', alignItems:'center', gap:4,
+                    }}
+                  >
+                    <span style={{fontSize:36, fontWeight:900, color:'#fff', fontFamily:"'Playfair Display',serif"}}>Bog</span>
+                    <span style={{fontSize:'var(--text-base)', color:'rgba(255,255,255,.8)', fontWeight:600}}>Hello / Hi — tap to hear it 🔊</span>
+                  </button>
+                  <p style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:20, fontStyle:'italic'}}>
+                    Now you say it! Repeat after the audio.
+                  </p>
+                </>
+              )}
               <button
                 className="b bp"
                 style={{width:'100%', fontSize:'var(--text-md)', padding:'14px'}}
                 onClick={() => { setShowSpeakModal(false); startPlacement(); }}
               >
-                I said it! Take the test →
+                {goal === 'elders' ? "Let's begin — take the test →" : "I said it! Take the test →"}
               </button>
               <button
                 onClick={() => { setShowSpeakModal(false); startPlacement(); }}
