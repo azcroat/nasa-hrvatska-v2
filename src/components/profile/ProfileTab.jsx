@@ -42,6 +42,21 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
   const [ptab, setPTab] = useState('stats');
   const [soundOn, setSoundOn] = React.useState(() => isSoundEnabled());
   const [hapticOn, setHapticOn] = React.useState(() => isHapticEnabled());
+  const [fontSize, setFontSize] = React.useState(() => localStorage.getItem('nh_font_size') || 'medium');
+  const [reduceMotion, setReduceMotion] = React.useState(() => localStorage.getItem('nh_reduce_motion') === 'true');
+
+  React.useEffect(() => {
+    // Apply font size on mount
+    const fs = localStorage.getItem('nh_font_size') || 'medium';
+    if (fs === 'medium') {
+      document.documentElement.removeAttribute('data-font');
+    } else {
+      document.documentElement.setAttribute('data-font', fs);
+    }
+    // Apply reduce motion on mount
+    const rm = localStorage.getItem('nh_reduce_motion') === 'true';
+    document.documentElement.classList.toggle('reduce-motion', rm);
+  }, []);
 
   const GOALS = [
     { id: 'heritage', icon: '🇭🇷', label: 'My heritage & roots' },
@@ -879,6 +894,68 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
             </div>
             <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.35}}>›</div>
           </button>
+
+          {/* Font size control */}
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 0',borderBottom:'1px solid var(--card-b)'}}>
+            <div>
+              <div style={{fontWeight:700,fontSize:'var(--text-sm)'}}>🔠 Font Size</div>
+              <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',marginTop:2}}>Adjust text size across the app</div>
+            </div>
+            <div style={{display:'flex',borderRadius:10,overflow:'hidden',border:'1.5px solid var(--card-b)',flexShrink:0}}>
+              {['small','medium','large'].map((size, i) => (
+                <button
+                  key={size}
+                  onClick={() => {
+                    setFontSize(size);
+                    localStorage.setItem('nh_font_size', size);
+                    if (size === 'medium') {
+                      document.documentElement.removeAttribute('data-font');
+                    } else {
+                      document.documentElement.setAttribute('data-font', size);
+                    }
+                  }}
+                  style={{
+                    padding:'6px 12px',
+                    border:'none',
+                    borderLeft: i > 0 ? '1px solid var(--card-b)' : 'none',
+                    cursor:'pointer',
+                    background: fontSize === size ? 'var(--info)' : 'var(--card)',
+                    color: fontSize === size ? '#fff' : 'var(--subtext)',
+                    fontWeight:700,
+                    fontSize: size === 'small' ? 11 : size === 'large' ? 15 : 13,
+                    fontFamily:"'Outfit',sans-serif",
+                    transition:'background .15s',
+                    minHeight:36,
+                  }}
+                >
+                  {size.charAt(0).toUpperCase() + size.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Reduce motion toggle */}
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 0',borderBottom:'1px solid var(--card-b)'}}>
+            <div>
+              <div style={{fontWeight:700,fontSize:'var(--text-sm)'}}>✋ Reduce Animations</div>
+              <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',marginTop:2}}>Minimize motion and transitions</div>
+            </div>
+            <button
+              role="switch"
+              aria-checked={reduceMotion ? 'true' : 'false'}
+              onClick={() => {
+                const v = !reduceMotion;
+                setReduceMotion(v);
+                localStorage.setItem('nh_reduce_motion', v.toString());
+                document.documentElement.classList.toggle('reduce-motion', v);
+              }}
+              style={{width:44,height:26,borderRadius:13,border:'none',cursor:'pointer',transition:'background .2s',
+                background: reduceMotion ? 'var(--success)' : 'var(--bar-bg)', position:'relative', flexShrink:0}}
+            >
+              <span style={{position:'absolute',top:3,left: reduceMotion ? 21 : 3,width:20,height:20,borderRadius:'50%',
+                background:'white',transition:'left .2s',boxShadow:'0 1px 4px rgba(0,0,0,.2)'}} />
+            </button>
+          </div>
 
           {/* ── DATA & ACCOUNT ── */}
           <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.1em', marginTop:24, marginBottom:10, paddingLeft:4}}>

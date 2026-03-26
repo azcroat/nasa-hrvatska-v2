@@ -1972,3 +1972,51 @@ img, video, canvas, .skeleton, [class*="anim-"], [style*="animation"] {
   60% { opacity: 1; transform: scale(1.2); }
   100% { opacity: 0.8; transform: scale(1); }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   ACCESSIBILITY — FONT SIZE OVERRIDES
+═══════════════════════════════════════════════════════════ */
+
+/* Applied when user selects 'large' font size */
+[data-font="large"] {
+  --text-xs:   12px;
+  --text-sm:   14px;
+  --text-base: 16px;
+  --text-md:   17px;
+  --text-lg:   19px;
+  --text-xl:   22px;
+  --text-2xl:  26px;
+  --text-3xl:  30px;
+  --text-4xl:  34px;
+}
+
+/* Applied when user selects 'small' font size */
+[data-font="small"] {
+  --text-xs:   8px;
+  --text-sm:   10px;
+  --text-base: 12px;
+  --text-md:   13px;
+  --text-lg:   15px;
+  --text-xl:   18px;
+  --text-2xl:  22px;
+  --text-3xl:  26px;
+  --text-4xl:  30px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ACCESSIBILITY — REDUCED MOTION
+═══════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.reduce-motion *, .reduce-motion *::before, .reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
