@@ -135,11 +135,13 @@ export default function CeremonyModal({ type, stats, name, onClose }) {
         padding:20, animation:'fadeIn .3s',
       }}>
         <div style={{
-          background:'#fff', borderRadius:28,
+          background:'var(--card)', borderRadius:28,
           maxWidth:380, width:'100%',
           textAlign:'center', overflow:'hidden',
           animation:'rise .5s cubic-bezier(.34,1.56,.64,1)',
-          fontFamily:"'Outfit',sans-serif",
+          fontFamily:'var(--font-sans)',
+          border:'1px solid var(--card-b)',
+          boxShadow:'var(--card-shadow)',
         }}>
           {/* Header */}
           <div style={{ background: cfg.color, padding:'32px 24px 24px' }}>
@@ -151,7 +153,7 @@ export default function CeremonyModal({ type, stats, name, onClose }) {
 
           {/* Body */}
           <div style={{ padding:'24px 24px 20px' }}>
-            <div style={{ fontSize:15, color:'#334155', lineHeight:1.6, marginBottom:20, fontWeight:500 }}>{cfg.subtitle}</div>
+            <div style={{ fontSize:'var(--text-md)', color:'var(--heading)', lineHeight:'var(--leading-normal)', marginBottom:20, fontWeight:500 }}>{cfg.subtitle}</div>
 
             {/* Stats recap */}
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10, marginBottom:24 }}>
@@ -160,9 +162,9 @@ export default function CeremonyModal({ type, stats, name, onClose }) {
                 { label:'XP', value:xp.toLocaleString() },
                 { label:'Day Streak', value:`${streak}🔥` },
               ].map(s => (
-                <div key={s.label} style={{ background:'#f8fafc', borderRadius:12, padding:'12px 8px' }}>
-                  <div style={{ fontSize:18, fontWeight:900, color:'#0e7490' }}>{s.value}</div>
-                  <div style={{ fontSize:10, color:'#64748b', fontWeight:600, marginTop:2 }}>{s.label}</div>
+                <div key={s.label} style={{ background:'var(--bar-bg)', borderRadius:'var(--radius-md)', padding:'12px 8px' }}>
+                  <div style={{ fontSize:18, fontWeight:900, color:'var(--info)' }}>{s.value}</div>
+                  <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:600, marginTop:2 }}>{s.label}</div>
                 </div>
               ))}
             </div>
@@ -196,21 +198,15 @@ export default function CeremonyModal({ type, stats, name, onClose }) {
 
             <button
               onClick={handleShare}
-              style={{
-                width:'100%', padding:'13px', borderRadius:14, marginBottom:10, cursor:'pointer',
-                background:'linear-gradient(135deg,#0e7490,#164e63)', border:'none',
-                fontSize:14, fontWeight:800, color:'#fff', fontFamily:"'Outfit',sans-serif",
-              }}
+              className="b bp"
+              style={{ width:'100%', marginBottom:10 }}
             >
               📱 Share this moment
             </button>
             <button
               onClick={onClose}
-              style={{
-                width:'100%', padding:'12px', borderRadius:14, cursor:'pointer',
-                background:'#f1f5f9', border:'none',
-                fontSize:14, fontWeight:700, color:'#64748b', fontFamily:"'Outfit',sans-serif",
-              }}
+              className="b bg"
+              style={{ width:'100%' }}
             >
               Nastavi učiti →
             </button>
