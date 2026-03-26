@@ -308,7 +308,7 @@ function App(){
         tivicompare:"learn",
         lifeevents:"croatia",
         civic:"croatia",
-        easter:"croatia",
+        easter:"croatia",midsummer:"croatia",domovina:"croatia",bozic:"croatia",
         cloze:"practice",
         badges:"profile",leaderboard:"profile",journal:"profile",favorites:"profile",learnpath:"profile",contact:"profile",
         certificate:"profile",analytics:"profile",profile:"profile",admin:"profile",
@@ -850,7 +850,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
         tab==="profile"&&<ScreenErrorBoundary name="ProfileTab"><ProfileTab
           name={name} au={authUser} level={level} st={stats} favs={favs}
           darkMode={darkMode} setDarkMode={setDarkMode}
-          setScr={setScr} doOut={doOut}
+          setScr={setScr} onNavigate={setScr} doOut={doOut}
           syncReady={_syncReady} onSyncNow={doSyncNow}
           jWords={jWords}
         /></ScreenErrorBoundary>}

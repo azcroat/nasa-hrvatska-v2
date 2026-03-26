@@ -20,6 +20,13 @@ export async function onRequestPost(ctx) {
   const { email, name, xp, lessons, streakDays, wordsLearned } = body;
   if (!email || !name) return new Response('missing fields', { status: 400 });
 
+  function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
+  const safeName = esc(name);
+  const safeXp = parseInt(xp) || 0;
+  const safeLessons = parseInt(lessons) || 0;
+  const safeStreak = parseInt(streakDays) || 0;
+  const safeWords = parseInt(wordsLearned) || 0;
+
   const html = `
     <div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.1)">
       <div style="background:linear-gradient(135deg,#0a1628,#0e7490);padding:32px 40px;color:#fff;text-align:center">
@@ -27,13 +34,13 @@ export async function onRequestPost(ctx) {
         <div style="font-size:26px;font-weight:900">Your Weekly Progress 🇭🇷</div>
       </div>
       <div style="padding:32px 40px">
-        <p style="font-size:16px;color:#374151">Bog <strong>${name}</strong>! Here's what you achieved this week:</p>
+        <p style="font-size:16px;color:#374151">Bog <strong>${safeName}</strong>! Here's what you achieved this week:</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0">
           ${[
-            ['⭐', 'Total XP', xp?.toLocaleString() || '—'],
-            ['📚', 'Lessons', lessons || '—'],
-            ['🔥', 'Streak', `${streakDays || 0} days`],
-            ['💬', 'Words', wordsLearned || '—'],
+            ['⭐', 'Total XP', safeXp.toLocaleString()],
+            ['📚', 'Lessons', safeLessons],
+            ['🔥', 'Streak', `${safeStreak} days`],
+            ['💬', 'Words', safeWords],
           ].map(([icon, label, val]) => `
             <div style="background:#f8fafc;border-radius:12px;padding:16px;text-align:center;border:1px solid #e2e8f0">
               <div style="font-size:24px">${icon}</div>
@@ -59,7 +66,7 @@ export async function onRequestPost(ctx) {
     body: JSON.stringify({
       from: 'Naša Hrvatska <hello@nasahrvatska.com>',
       to: [email],
-      subject: `Your Croatian progress this week, ${name}! 🇭🇷`,
+      subject: `Your Croatian progress this week, ${safeName}! 🇭🇷`,
       html,
     }),
   });

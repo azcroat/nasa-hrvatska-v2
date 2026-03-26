@@ -212,92 +212,6 @@ const EXERCISE_MAP = {
   sentbuild:"🏗️ Sentence Builder",genderdrill:"♂️♀️ Gender Drill",
 };
 
-// ── System prompt builders ───────────────────────────────────────────────────
-function buildConvoPrompt(scenario, level) {
-  const complexity = {
-    A1: "Use ONLY simple present tense. Maximum 1-2 very short sentences. Very basic, high-frequency vocabulary only.",
-    A2: "Use present tense primarily. 2 short sentences. Common everyday vocabulary.",
-    B1: "Use present, past (perfective), and near-future naturally. 2-3 sentences. Conversational vocabulary.",
-    B2: "Speak naturally and fluently. 3-4 sentences. You may use idioms, participles, and varied tenses.",
-    C1: "Speak exactly as you would to a native speaker. Rich vocabulary, idioms, subordinate clauses, all tenses.",
-    C2: "Full native speaker register. Regional expressions, idiomatic speech, cultural references are welcome.",
-  };
-  return `You are ${scenario.aiName}, a native Croatian speaker. Role: ${scenario.aiRole}.
-${scenario.context}
-
-THE LEARNER IS AT LEVEL: ${level}
-Language rules for YOU:
-- ${complexity[level] || complexity["B1"]}
-- ALWAYS respond entirely in Croatian. Never switch to English in your replies.
-- If the learner writes in English, respond in Croatian and gently add: (Pokušaj na hrvatskom! — Try in Croatian!)
-- If the learner makes a grammar error, seamlessly use the correct form in your next sentence without commenting on the error.
-- Be warm, in-character, and always end with a natural follow-up question to keep the conversation flowing.
-- Stay completely in character. Do not explain grammar or break the fourth wall.`;
-}
-
-function buildEvalPrompt(scenario, level) {
-  return `You are an expert Croatian language teacher and applied linguist. Analyze the conversation below between a ${level} learner and an AI partner in the scenario: "${scenario.title}".
-
-Return ONLY a valid JSON object with this exact structure (no markdown, no explanation, just JSON):
-{
-  "score": <integer 0-100>,
-  "level_demonstrated": "<A1|A2|B1|B2|C1|C2>",
-  "strengths": ["<specific positive observation>", "<another strength>"],
-  "mistakes": [
-    {"original": "<exact learner phrase with error>", "correction": "<corrected form>", "rule": "<brief grammar rule>" }
-  ],
-  "focus_areas": [
-    {"topic": "<grammar or vocab topic>", "explanation": "<1 sentence on why this is the priority>", "exercise": "<one key from: akudrill,tenseflip,verbdrill,negation,possess,ordinals,relpron,emogender,comparatives,future,sibil,prepdrill,numtime,profgender,reflexive,sentbuild,genderdrill>"}
-  ],
-  "vocabulary_feedback": "<1-2 sentences on vocabulary range and variety>",
-  "encouragement": "<warm, specific encouraging message in Croatian — 1-2 sentences>"
-}
-
-Scoring guide: 90-100=near-native fluency, 75-89=confident learner, 60-74=communicative with errors, 40-59=basic communication, below 40=significant barriers.
-Rules: max 4 mistakes, 2-3 focus areas, score honestly. If fewer than 3 user messages, note brevity in vocabulary_feedback.`;
-}
-
-function buildCorrectPrompt() {
-  return `You are a Croatian language grammar checker. Given a Croatian sentence or short text from a language learner, check for grammar, case, tense, or agreement errors.
-
-Return ONLY a valid JSON object (no markdown):
-{"corrected": "the corrected Croatian text, or null if no errors", "note": "brief English explanation of the main error (e.g. 'wrong case: use accusative after vidim'), or null if no errors"}
-
-Rules:
-- Only flag real grammatical errors (wrong case endings, verb conjugation, gender agreement).
-- Ignore stylistic preferences or minor word order variations that are still correct.
-- If the text is fully correct, return null for both fields.`;
-}
-
-function buildWriteEvalPrompt(prompt, level) {
-  return `You are an expert Croatian language teacher. Evaluate the following Croatian writing sample from a ${level} learner responding to this prompt: "${prompt}"
-
-Return ONLY a valid JSON object (no markdown, no explanation):
-{
-  "score": <integer 0-100>,
-  "level_demonstrated": "<A1|A2|B1|B2|C1|C2>",
-  "corrected_text": "<the full text with corrections applied>",
-  "changes": [
-    {"original": "<exact phrase with error>", "corrected": "<corrected version>", "note": "<brief English grammar rule>"}
-  ],
-  "strengths": ["<specific positive observation>"],
-  "improvements": ["<specific actionable suggestion>"],
-  "encouragement": "<warm, motivating message in Croatian — 1-2 sentences>"
-}
-
-Scoring: 90-100=excellent, 75-89=good with minor errors, 60-74=communicative with noticeable errors, 40-59=basic, below 40=significant barriers.
-Rules: max 6 changes, 2-3 improvements, score honestly. If text is very short, note this.`;
-}
-
-function buildTranslatePrompt() {
-  return `You are a Croatian-English dictionary assistant. Translate the given Croatian word or short phrase to English.
-
-Return ONLY a valid JSON object (no markdown):
-{"translation": "the English meaning", "note": "optional brief grammar info: gender (m/f/n), irregular form, or usage note — or null"}
-
-Keep the translation concise and accurate. For verbs, give the infinitive meaning.`;
-}
-
 // ── TappableMessage — defined outside to prevent remount on every parent render ─
 // Each word in an AI message is a span; tapping calls onWordClick and stops
 // event propagation so the outer "tap to speak" div is not also triggered.
@@ -406,7 +320,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   }, [tooltip]);
 
   // ── Core API caller ─────────────────────────────────────────────────────────
-  async function callAI(msgs, systemPrompt, mode = "chat") {
+  async function callAI(msgs, params, mode = "convo") {
     let res, data;
     try {
       const controller = new AbortController();
@@ -415,7 +329,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
         res = await fetch("/api/ai-chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: msgs, systemPrompt, mode }),
+          body: JSON.stringify({ messages: msgs, mode, params }),
           signal: controller.signal,
         });
       } finally {
@@ -459,10 +373,11 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     setMessages([]);
     setCorrections({});
     setLoading(true);
+    const convoParams = { level, aiName: scenario.aiName, aiRole: scenario.aiRole, context: scenario.context };
     try {
       const opener = await callAI(
         [{ role: "user", content: "Pozdrav! Možemo li početi?" }],
-        buildConvoPrompt(scenario, level)
+        convoParams
       );
       setMessages([{ role: "assistant", content: opener }]);
     } catch (e) {
@@ -485,7 +400,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     setInput("");
     setLoading(true);
     try {
-      const reply = await callAI(next, buildConvoPrompt(scenario, level));
+      const reply = await callAI(next, { level, aiName: scenario.aiName, aiRole: scenario.aiRole, context: scenario.context });
       setMessages(prev => [...prev, { role: "assistant", content: reply }]);
       if (!muted) speak(reply);
       // Fire correction check in background — skip if text is too short or
@@ -508,7 +423,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     try {
       const raw = await callAI(
         [{ role: "user", content: userText }],
-        buildCorrectPrompt(),
+        {},
         "correct"
       );
       const result = parseJSON(raw);
@@ -536,7 +451,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     try {
       const raw = await callAI(
         [{ role: "user", content: clean }],
-        buildTranslatePrompt(),
+        {},
         "translate"
       );
       const result = parseJSON(raw);
@@ -599,12 +514,11 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   async function requestHint() {
     if (loading) return;
     setLoading(true);
-    const hintPrompt = `You are a Croatian language tutor. The student needs a quick hint to continue their conversation.
-Give 2-3 sentences in English explaining what to say next. Include 1-2 example Croatian phrases they could use with a translation. Be concise and encouraging.`;
     try {
       const hint = await callAI(
         [...messages.filter(m => m.role !== "hint"), { role: "user", content: "I need a hint to continue this conversation." }],
-        hintPrompt
+        {},
+        "hint"
       );
       setMessages(prev => [...prev, { role: "hint", content: hint }]);
     } catch {
@@ -621,7 +535,7 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
     try {
       const opener = await callAI(
         [{ role: "user", content: "Pozdrav! Možemo li početi?" }],
-        buildConvoPrompt(scenario, level)
+        { level, aiName: scenario.aiName, aiRole: scenario.aiRole, context: scenario.context }
       );
       setMessages([{ role: "assistant", content: opener }]);
     } catch (e) {
@@ -641,7 +555,7 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
       .map(m => `${m.role === "user" ? "LEARNER" : "AI (" + scenario.aiName + ")"}: ${m.content}`)
       .join("\n\n");
     try {
-      const raw = await callAI([{ role: "user", content: convoText }], buildEvalPrompt(scenario, level), "evaluate");
+      const raw = await callAI([{ role: "user", content: convoText }], { level, scenarioTitle: scenario.title }, "evaluate");
       const ev = parseJSON(raw);
       setEvaluation(ev);
       // Award XP based on conversation quality and length
@@ -666,7 +580,7 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
     try {
       const raw = await callAI(
         [{ role: "user", content: writeText.trim() }],
-        buildWriteEvalPrompt(writePrompt.prompt, writeLevel),
+        { level: writeLevel, writingPrompt: writePrompt.prompt },
         "writeeval"
       );
       const result = parseJSON(raw);
