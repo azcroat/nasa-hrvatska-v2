@@ -283,24 +283,90 @@ export default function PracticeTab({
     [() => { setScr("events"); sCurEx("events"); },     "📅","Events",  "Festivals & holidays"],
   ];
 
+  // Daily quest progress for Practice tab header
+  const practiceQuestsDone = (() => {
+    const d = new Date().toISOString().slice(0,10);
+    const speak   = localStorage.getItem('nh_quest_speak_'+d) === '1';
+    const grammar = localStorage.getItem('nh_quest_grammar_'+d) === '1';
+    const master  = localStorage.getItem('nh_quest_master_'+d) === '1';
+    const reading = localStorage.getItem('nh_quest_reading_'+d) === '1';
+    const done = [speak, grammar, master, reading].filter(Boolean).length;
+    return { done, total: 4, speak, grammar, master, reading };
+  })();
+
   return (
     <React.Fragment>
       {H("🎮 Practice", "Games, exercises & daily review")}
 
-      {/* ── TODAY'S FOCUS BANNER ────────────────────────────────────────── */}
-      <div style={{
-        background:'linear-gradient(135deg,var(--info),#0c4a6e)',
-        borderRadius:18, padding:'18px 20px', marginBottom:16,
-        display:'flex', alignItems:'center', gap:14,
-        boxShadow:'0 4px 20px rgba(14,116,144,.25)',
-        animation:'rise .4s ease',
-      }}>
-        <div style={{fontSize:36}}>🎯</div>
-        <div style={{flex:1}}>
-          <div style={{fontSize:11, fontWeight:800, color:'rgba(255,255,255,.65)', textTransform:'uppercase', letterSpacing:'.1em', marginBottom:4}}>TODAY'S FOCUS</div>
-          <div style={{fontSize:17, fontWeight:900, color:'white', marginBottom:4}}>Practice makes perfect</div>
-          <div style={{fontSize:12, color:'rgba(255,255,255,.7)'}}>Pick any exercise below to earn XP</div>
+      {/* ── QUICK START CTA ─────────────────────────────────────────────── */}
+      {!isNewUser ? (
+        <button
+          onClick={recommendations[0].fn}
+          style={{
+            width:'100%', display:'flex', alignItems:'center', gap:14,
+            padding:'14px 18px', borderRadius:18, marginBottom:8, border:'none', cursor:'pointer',
+            background:'linear-gradient(135deg,var(--info),#0c4a6e)',
+            boxShadow:'0 4px 20px rgba(14,116,144,.25)',
+            animation:'rise .4s ease', fontFamily:"'Outfit',sans-serif",
+          }}
+        >
+          <div style={{
+            width:44, height:44, borderRadius:14, flexShrink:0,
+            background:'rgba(255,255,255,.15)', border:'1.5px solid rgba(255,255,255,.3)',
+            display:'flex', alignItems:'center', justifyContent:'center', fontSize:22,
+          }}>{recommendations[0].icon}</div>
+          <div style={{flex:1, textAlign:'left'}}>
+            <div style={{fontSize:11, fontWeight:800, color:'rgba(255,255,255,.65)', textTransform:'uppercase', letterSpacing:'.1em', marginBottom:2}}>START NOW</div>
+            <div style={{fontSize:16, fontWeight:900, color:'white'}}>{recommendations[0].title}</div>
+            <div style={{fontSize:12, color:'rgba(255,255,255,.75)'}}>{recommendations[0].desc}</div>
+          </div>
+          <div style={{fontSize:22, color:'rgba(255,255,255,.8)', fontWeight:300}}>›</div>
+        </button>
+      ) : (
+        <div style={{
+          background:'linear-gradient(135deg,var(--info),#0c4a6e)',
+          borderRadius:18, padding:'18px 20px', marginBottom:8,
+          display:'flex', alignItems:'center', gap:14,
+          boxShadow:'0 4px 20px rgba(14,116,144,.25)',
+          animation:'rise .4s ease',
+        }}>
+          <div style={{fontSize:36}}>🎯</div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:11, fontWeight:800, color:'rgba(255,255,255,.65)', textTransform:'uppercase', letterSpacing:'.1em', marginBottom:4}}>WELCOME</div>
+            <div style={{fontSize:15, fontWeight:900, color:'white', marginBottom:2}}>Ready to practice?</div>
+            <div style={{fontSize:12, color:'rgba(255,255,255,.7)'}}>Complete a lesson first to unlock recommendations</div>
+          </div>
         </div>
+      )}
+
+      {/* ── DAILY QUEST PROGRESS ────────────────────────────────────────── */}
+      <div style={{
+        display:'flex', gap:6, marginBottom:12, padding:'8px 12px',
+        background:'var(--card)', border:'1px solid var(--card-b)', borderRadius:12,
+        alignItems:'center',
+      }}>
+        <span style={{fontSize:12, fontWeight:700, color:'var(--subtext)', marginRight:2}}>Today:</span>
+        {[
+          { key:'speak',   icon:'🎤', label:'Speak'   },
+          { key:'grammar', icon:'📝', label:'Grammar' },
+          { key:'master',  icon:'🃏', label:'Words'   },
+          { key:'reading', icon:'📖', label:'Read'    },
+        ].map(q => (
+          <div key={q.key} style={{
+            display:'flex', alignItems:'center', gap:3,
+            padding:'3px 8px', borderRadius:8,
+            background: practiceQuestsDone[q.key] ? 'var(--success-bg)' : 'var(--bar-bg)',
+            border: `1px solid ${practiceQuestsDone[q.key] ? 'var(--success-b)' : 'var(--card-b)'}`,
+          }}>
+            <span style={{fontSize:12}}>{q.icon}</span>
+            <span style={{fontSize:11, fontWeight:700, color: practiceQuestsDone[q.key] ? 'var(--success)' : 'var(--subtext)'}}>
+              {practiceQuestsDone[q.key] ? '✓' : q.label}
+            </span>
+          </div>
+        ))}
+        <span style={{fontSize:11, color:'var(--subtext)', marginLeft:'auto', fontWeight:600}}>
+          {practiceQuestsDone.done}/4
+        </span>
       </div>
 
       {/* ── SRS DUE BANNER ──────────────────────────────────────────────── */}
@@ -354,7 +420,76 @@ export default function PracticeTab({
         </button>
       )}
 
-      {/* ── RECOMMENDED FOR YOU ─────────────────────────────────────────── */}
+      {weakMsg && (
+        <div className="empty-state" style={{ background:"#fffbeb", border:"1.5px solid #fde68a", borderRadius:16, marginBottom:16, position:"relative" }}>
+          <div className="es-icon">🧠</div>
+          <div className="es-title">Not enough weak words yet</div>
+          <div className="es-desc">{weakMsg}</div>
+          <button onClick={() => setWeakMsg("")} style={{ position:"absolute", top:10, right:12, background:"none", border:"none", cursor:"pointer", fontSize:18, color:"#92400e", lineHeight:1, opacity:.6 }} aria-label="Dismiss">×</button>
+        </div>
+      )}
+
+      {/* ── ALL EXERCISES — FILTER PILLS + FLAT GRID ────────────────────── */}
+      <div className="section-hdr">
+        <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>📚</div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">All Exercises</div>
+          <div className="section-hdr-sub">{visibleCount} exercise{visibleCount !== 1 ? 's' : ''} — grammar, vocabulary, and more</div>
+        </div>
+      </div>
+
+      {/* Filter pills — sticky so they stay visible while scrolling the grid */}
+      <div role="group" aria-label="Filter exercises" style={{ display:'flex', gap:8, overflowX:'auto', scrollbarWidth:'none', position:'sticky', top:0, zIndex:10, background:'var(--bg)', paddingTop:8, paddingBottom:8, marginBottom:0 }}>
+        {[
+          { id:'all',       label:'All' },
+          { id:'grammar',   label:'🧠 Grammar' },
+          { id:'vocab',     label:'📚 Vocab' },
+          { id:'practical', label:'💬 Practical' },
+          { id:'advanced',  label:'⚡ Advanced' },
+        ].map(f => (
+          <button key={f.id} onClick={() => setPFilter(f.id)} aria-pressed={pFilter === f.id} style={{
+            padding:'7px 16px', borderRadius:20, border:'none', flexShrink:0,
+            background: pFilter === f.id ? 'var(--info)' : 'var(--bar-bg)',
+            color: pFilter === f.id ? '#fff' : 'var(--subtext)',
+            fontWeight:700, fontSize:13, cursor:'pointer', whiteSpace:'nowrap',
+            transition:'background 0.2s', fontFamily:"'Outfit',sans-serif",
+          }}>{f.label}</button>
+        ))}
+      </div>
+
+      {/* Flat 2-column exercise grid */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:24, marginTop:12 }}>
+        {visible.map(e => <ExerciseCard key={e.id} {...e} />)}
+      </div>
+
+      {/* ── QUICK GAMES ─────────────────────────────────────────────────── */}
+      <div className="section-hdr">
+        <div className="section-hdr-icon" style={{background:'rgba(245,158,11,.12)'}}>⚡</div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">Quick Games</div>
+          <div className="section-hdr-sub">Tap any to start instantly</div>
+        </div>
+      </div>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:24 }}>
+        {[
+          [startQuiz,       "🎯","Quiz",         "#fff7ed","#fed7aa"],
+          [startFlashcards, "🃏","Flashcards",   "#f5f3ff","#ddd6fe"],
+          [startMatch,      "🔗","Match Pairs",  "#f0fdf4","#bbf7d0"],
+          [startTyping,     "⌨️","Typing",       "#fef9c3","#fde047"],
+          [startListening,  "🎧","Listening",    "#fff1f2","#fecaca"],
+          [startSpeaking,   "🎤","Pronunciation","#f0f9ff","#bae6fd"],
+          [() => { setScr("wordsprint"); sCurEx("wordsprint"); },"⚡","Word Sprint","#fffbeb","#fde68a"],
+        ].map((/** @type {any} */ [fn,icon,label,bg,border], i) => (
+          <button key={i} className="tc"
+            style={{ textAlign:"center", padding:"14px 8px", background:bg, border:`1.5px solid ${border}`, minHeight:56, cursor:'pointer' }}
+            onClick={fn}>
+            <div style={{ fontSize:28 }}>{icon}</div>
+            <div style={{ fontSize:'var(--text-xs)', fontWeight:800, marginTop:5, color:"var(--heading)" }}>{label}</div>
+          </button>
+        ))}
+      </div>
+
+      {/* ── RECOMMENDED FOR YOU (moved below exercises) ──────────────────── */}
       <div className="section-hdr">
         <div className="section-hdr-icon" style={{background:'rgba(245,158,11,.12)'}}>✨</div>
         <div className="section-hdr-text">
@@ -370,7 +505,7 @@ export default function PracticeTab({
               Ready to practice?
             </div>
             <div style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.6 }}>
-              Jump into a Quick Game below, or complete your first lesson in <strong>Learn</strong> to unlock personalized recommendations.
+              Jump into a Quick Game above, or complete your first lesson in <strong>Learn</strong> to unlock personalized recommendations.
             </div>
           </div>
           <button className="b bp" style={{ fontSize:14, padding:"12px 24px", width:'100%', marginTop:8 }} onClick={() => setScr("learnpath")}>
@@ -423,74 +558,6 @@ export default function PracticeTab({
           </div>
         </div>
       )}
-      {weakMsg && (
-        <div className="empty-state" style={{ background:"#fffbeb", border:"1.5px solid #fde68a", borderRadius:16, marginBottom:16, position:"relative" }}>
-          <div className="es-icon">🧠</div>
-          <div className="es-title">Not enough weak words yet</div>
-          <div className="es-desc">{weakMsg}</div>
-          <button onClick={() => setWeakMsg("")} style={{ position:"absolute", top:10, right:12, background:"none", border:"none", cursor:"pointer", fontSize:18, color:"#92400e", lineHeight:1, opacity:.6 }} aria-label="Dismiss">×</button>
-        </div>
-      )}
-
-      {/* ── QUICK GAMES ─────────────────────────────────────────────────── */}
-      <div className="section-hdr">
-        <div className="section-hdr-icon" style={{background:'rgba(245,158,11,.12)'}}>⚡</div>
-        <div className="section-hdr-text">
-          <div className="section-hdr-title">Quick Games</div>
-          <div className="section-hdr-sub">Tap any to start instantly</div>
-        </div>
-      </div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:24 }}>
-        {[
-          [startQuiz,       "🎯","Quiz",         "#fff7ed","#fed7aa"],
-          [startFlashcards, "🃏","Flashcards",   "#f5f3ff","#ddd6fe"],
-          [startMatch,      "🔗","Match Pairs",  "#f0fdf4","#bbf7d0"],
-          [startTyping,     "⌨️","Typing",       "#fef9c3","#fde047"],
-          [startListening,  "🎧","Listening",    "#fff1f2","#fecaca"],
-          [startSpeaking,   "🎤","Pronunciation","#f0f9ff","#bae6fd"],
-          [() => { setScr("wordsprint"); sCurEx("wordsprint"); },"⚡","Word Sprint","#fffbeb","#fde68a"],
-        ].map((/** @type {any} */ [fn,icon,label,bg,border], i) => (
-          <button key={i} className="tc"
-            style={{ textAlign:"center", padding:"14px 8px", background:bg, border:`1.5px solid ${border}`, minHeight:56, cursor:'pointer' }}
-            onClick={fn}>
-            <div style={{ fontSize:28 }}>{icon}</div>
-            <div style={{ fontSize:'var(--text-xs)', fontWeight:800, marginTop:5, color:"var(--heading)" }}>{label}</div>
-          </button>
-        ))}
-      </div>
-
-      {/* ── ALL EXERCISES — FILTER PILLS + FLAT GRID ────────────────────── */}
-      <div className="section-hdr">
-        <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>📚</div>
-        <div className="section-hdr-text">
-          <div className="section-hdr-title">All Exercises</div>
-          <div className="section-hdr-sub">{visibleCount} exercise{visibleCount !== 1 ? 's' : ''} — grammar, vocabulary, and more</div>
-        </div>
-      </div>
-
-      {/* Filter pills */}
-      <div role="group" aria-label="Filter exercises" style={{ display:'flex', gap:8, padding:'4px 0 16px', overflowX:'auto', scrollbarWidth:'none', position:'sticky', top:0, zIndex:10, background:'var(--bg)', paddingTop:8, paddingBottom:8, marginBottom:0 }}>
-        {[
-          { id:'all',       label:'All' },
-          { id:'grammar',   label:'🧠 Grammar' },
-          { id:'vocab',     label:'📚 Vocab' },
-          { id:'practical', label:'💬 Practical' },
-          { id:'advanced',  label:'⚡ Advanced' },
-        ].map(f => (
-          <button key={f.id} onClick={() => setPFilter(f.id)} aria-pressed={pFilter === f.id} style={{
-            padding:'7px 16px', borderRadius:20, border:'none', flexShrink:0,
-            background: pFilter === f.id ? 'var(--info)' : 'var(--bar-bg)',
-            color: pFilter === f.id ? '#fff' : 'var(--subtext)',
-            fontWeight:700, fontSize:13, cursor:'pointer', whiteSpace:'nowrap',
-            transition:'background 0.2s', fontFamily:"'Outfit',sans-serif",
-          }}>{f.label}</button>
-        ))}
-      </div>
-
-      {/* Flat 2-column exercise grid */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:24 }}>
-        {visible.map(e => <ExerciseCard key={e.id} {...e} />)}
-      </div>
 
       {/* ── CULTURAL EXTRAS FOOTER ──────────────────────────────────────── */}
       <div style={{ marginTop:8, marginBottom:16 }}>
