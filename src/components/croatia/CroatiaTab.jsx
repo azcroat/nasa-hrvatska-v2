@@ -603,87 +603,139 @@ export default function CroatiaTab({ setScr, sCurEx }) {
         </button>
       </div>
 
-      {/* ── MEDIA & IMMERSION ── */}
-      <h3 className="sh">📺 Media & Immersion</h3>
-      <div style={{padding:'12px 14px',background:'linear-gradient(135deg,rgba(14,116,144,.06),rgba(14,116,144,.1))',borderRadius:12,marginBottom:20,borderLeft:'3px solid #0e7490'}}>
-        <div style={{fontSize:'var(--text-sm)',fontWeight:800,color:'var(--heading)',marginBottom:5}}>📱 How it works</div>
-        <div style={{fontSize:'var(--text-sm)',color:'var(--body)',lineHeight:1.7}}>
-          Radio stations with a{' '}
-          <span style={{background:'rgba(220,38,38,.08)',color:'var(--error)',fontSize:'var(--text-xs)',fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)'}}>LIVE</span>{' '}
-          badge stream directly inside the app — tap ▶ to start. TV and other media open in your browser.{' '}
-          <span style={{background:'rgba(220,38,38,.08)',color:'var(--error)',fontSize:'var(--text-xs)',fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)'}}>HRT+</span>{' '}
-          requires an HRT subscription.{' '}
-          Tap <strong>💡 Tip</strong> on any card for a language-learning tip.{' '}
-          Spotify playlists expand inline — a free{' '}
-          <span style={{background:'rgba(30,215,96,.10)',color:'#15803d',fontSize:'var(--text-xs)',fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(30,215,96,.25)'}}>SPOTIFY</span>{' '}
-          account unlocks full tracks;{' '}
-          <span style={{background:'rgba(100,116,139,.08)',color:'#475569',fontSize:'var(--text-xs)',fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(100,116,139,.2)'}}>30 SEC</span>{' '}
-          previews play without login.
+      {/* ══════════════════════════════════════════════
+          TUNE IN TO CROATIA — Immersive Broadcast Hub
+      ══════════════════════════════════════════════ */}
+
+      {/* ─── Hero ─────────────────────────────────────── */}
+      <div style={{
+        background:'linear-gradient(160deg,#060e1e 0%,#071830 50%,#0a2a50 100%)',
+        borderRadius:20, overflow:'hidden', marginBottom:22,
+        position:'relative', boxShadow:'0 8px 40px rgba(0,0,0,.5)',
+      }}>
+        <div style={{height:4,background:'linear-gradient(90deg,#D40030 0%,#D40030 50%,#F8F6F2 50%,#F8F6F2 100%)'}}/>
+        <div style={{position:'absolute',top:0,left:0,right:0,bottom:0,background:'linear-gradient(105deg,transparent 30%,rgba(255,255,255,.035) 50%,transparent 70%)',backgroundSize:'200% 100%',animation:'shimmer 6s linear infinite',pointerEvents:'none'}}/>
+        <div style={{padding:'22px 22px 24px',position:'relative',zIndex:1}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
+            <div style={{width:8,height:8,borderRadius:'50%',background:'#ef4444',boxShadow:'0 0 10px #ef4444',animation:'pulse 1.5s ease-in-out infinite'}}/>
+            <span style={{fontSize:10,fontWeight:900,color:'rgba(255,255,255,.45)',letterSpacing:'.18em',textTransform:'uppercase'}}>LIVE FROM CROATIA</span>
+          </div>
+          <div style={{fontSize:28,fontWeight:900,color:'white',fontFamily:"'Playfair Display',serif",lineHeight:1.1,marginBottom:8,textShadow:'0 2px 20px rgba(0,0,0,.5)'}}>
+            Tune In to Croatia
+          </div>
+          <div style={{fontSize:13,color:'rgba(255,255,255,.6)',fontWeight:500,lineHeight:1.5,marginBottom:14}}>
+            Real Croatian — live radio, TV, music, film & sport
+          </div>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+            {['📡 Live Radio','📺 TV & News','🎵 Music','⚽ Sport','🎬 Film'].map(t => (
+              <span key={t} style={{fontSize:10,fontWeight:700,color:'rgba(255,255,255,.55)',background:'rgba(255,255,255,.07)',borderRadius:20,padding:'3px 10px',border:'1px solid rgba(255,255,255,.1)'}}>{t}</span>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* ── MEDIA PILL FILTER ── */}
-      <div style={{ marginBottom: 16 }}>
-        {/* Category pills */}
-        <div style={{ display:'flex', gap:8, overflowX:'auto', msOverflowStyle:'none', scrollbarWidth:'none', paddingBottom:2, marginBottom:12 }}>
-          {cats.map(cat => {
-            const parts = CAT_LABELS[cat].split(' ');
-            const emoji = parts[0];
-            const label = parts.slice(1).join(' ');
-            const isActive = activeMediaCat === cat;
-            return (
-              <button key={cat} onClick={() => setActiveMediaCat(cat)}
-                style={{
-                  flexShrink:0, display:'flex', alignItems:'center', gap:6,
-                  padding:'8px 14px', borderRadius:20, cursor:'pointer',
-                  fontFamily:"'Outfit',sans-serif", fontWeight:700, fontSize:'var(--text-sm)',
-                  border:`1.5px solid ${isActive ? '#0e7490' : 'var(--card-b)'}`,
-                  background: isActive ? 'rgba(14,116,144,.1)' : 'var(--card)',
-                  color: isActive ? '#0e7490' : 'var(--subtext)',
-                  transition:'all .15s',
-                  whiteSpace:'nowrap',
-                }}>
-                <span>{emoji}</span>
-                <span>{label}</span>
-              </button>
-            );
-          })}
+      {/* ─── LIVE RADIO ────────────────────────────────── */}
+      <div style={{marginBottom:24}}>
+        <div style={{display:'flex',alignItems:'center',gap:7,marginBottom:12}}>
+          <div style={{width:8,height:8,borderRadius:'50%',background:'var(--error)',boxShadow:'0 0 8px var(--error)',animation:'pulse 1.5s ease-in-out infinite'}}/>
+          <span style={{fontSize:11,fontWeight:900,color:'var(--error)',textTransform:'uppercase',letterSpacing:'.1em'}}>Streaming Live</span>
         </div>
-
-        {/* Active category content */}
-        {cats.filter(cat => cat === activeMediaCat).map(cat => {
-          const items = MEDIA.filter(m => m.cat === cat);
-          return (
-            <div key={cat} style={{ borderRadius:16, border:'1px solid var(--card-b)', overflow:'hidden', animation:'fadeIn .2s ease' }}>
-              {items.map((m, i) => (
-                <MediaCard
-                  key={i}
-                  m={m}
-                  cat={cat}
-                  onOpen={() => {
-                    if (m.scr) setScr(m.scr);
-                    else if (m.web) window.open(m.web, '_blank', 'noopener,noreferrer');
-                  }}
-                  activeStream={activeStream}
-                  setActiveStream={setActiveStream}
-                />
-              ))}
-              {cat === 'music' && (
-                <div style={{padding:'16px 14px 20px',borderTop:'2px solid rgba(30,215,96,.2)',background:'linear-gradient(180deg,rgba(30,215,96,.03) 0%,transparent 100%)'}}>
-                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>
-                    <div style={{width:28,height:28,borderRadius:8,background:'#1ed760',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'var(--text-base)',flexShrink:0}}>🎵</div>
-                    <div>
-                      <div style={{fontSize:'var(--text-sm)',fontWeight:800,color:'var(--heading)'}}>Croatian Playlists on Spotify</div>
-                      <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)'}}>14 curated playlists · tap to expand</div>
-                    </div>
-                  </div>
-                  <SpotifyPlaylists />
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
+          {MEDIA.filter(m => !!m.stream).map((m,i) => (
+            <div key={i} style={{
+              background:`linear-gradient(175deg,#0c1520 0%,${m.color}40 100%)`,
+              borderRadius:16,overflow:'hidden',border:`1px solid ${m.color}30`,
+              display:'flex',flexDirection:'column',
+              boxShadow:`0 4px 20px ${m.color}18`,
+            }}>
+              <div style={{padding:'16px 10px 8px',textAlign:'center'}}>
+                <div style={{fontSize:30,marginBottom:6}}>{m.icon}</div>
+                <div style={{fontSize:10,fontWeight:900,color:'white',lineHeight:1.25,marginBottom:3}}>
+                  {m.name.split(' — ')[0].replace(' Live','').replace(' Radio Live','').trim()}
                 </div>
-              )}
+                <div style={{fontSize:9,color:'rgba(255,255,255,.4)',lineHeight:1.3,marginBottom:8}}>{m.level}</div>
+              </div>
+              <div style={{padding:'0 8px 10px'}}>
+                <RadioPlayer src={m.stream} color={m.color} streamId={m.name} activeStream={activeStream} setActiveStream={setActiveStream}/>
+              </div>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
+
+      {/* ─── CONTENT CATEGORIES ─────────────────────────── */}
+      {[
+        {cat:'tv',     emoji:'📺', title:'TV & News',         accent:'#0e7490',  noStream:false},
+        {cat:'music',  emoji:'🎵', title:'Music',              accent:'#9333ea',  noStream:true},
+        {cat:'film',   emoji:'🎬', title:'Film & Video',       accent:'#b91c1c',  noStream:false},
+        {cat:'sport',  emoji:'⚽', title:'Sport',              accent:'#1d4ed8',  noStream:false},
+        {cat:'podcast',emoji:'🎙️',title:'Podcasts & Audio',   accent:'#16a34a',  noStream:false},
+        {cat:'culture',emoji:'🌍', title:'Culture & Press',    accent:'#7c3aed',  noStream:false},
+      ].map(({cat,emoji,title,accent,noStream}) => {
+        const items = MEDIA.filter(m => m.cat === cat && (noStream ? !m.stream : true));
+        if (!items.length) return null;
+        return (
+          <div key={cat} style={{marginBottom:24}}>
+            {/* Section header */}
+            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12,padding:'10px 14px',borderRadius:12,background:`${accent}10`,borderLeft:`3px solid ${accent}`}}>
+              <span style={{fontSize:18}}>{emoji}</span>
+              <span style={{fontSize:15,fontWeight:900,color:'var(--heading)',flex:1}}>{title}</span>
+              <span style={{fontSize:10,color:'var(--subtext)',fontWeight:600,background:'var(--bar-bg)',borderRadius:8,padding:'2px 8px'}}>{items.length}</span>
+            </div>
+            {/* 2-column visual grid */}
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+              {items.map((m,i) => {
+                const isInternal = !!m.scr && !m.web;
+                const isExtLive = !!(m.live && !m.stream && m.web);
+                const hasAction = !!(m.scr || m.web);
+                return (
+                  <button key={i}
+                    onClick={() => { if (m.scr) setScr(m.scr); else if (m.web) window.open(m.web,'_blank','noopener,noreferrer'); }}
+                    style={{
+                      display:'flex',flexDirection:'column',background:'var(--card)',
+                      borderRadius:16,border:'1px solid var(--card-b)',overflow:'hidden',
+                      cursor:hasAction?'pointer':'default',textAlign:'left',
+                      fontFamily:"'Outfit',sans-serif",padding:0,
+                      transition:'transform .15s,box-shadow .15s',
+                      boxShadow:'0 2px 8px rgba(0,0,0,.04)',
+                    }}
+                    onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow=`0 8px 28px ${m.color}28`;}}
+                    onMouseLeave={e=>{e.currentTarget.style.transform='';e.currentTarget.style.boxShadow='0 2px 8px rgba(0,0,0,.04)';}}>
+                    {/* Color band */}
+                    <div style={{height:64,background:`linear-gradient(135deg,${m.color}cc,${m.color})`,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden',flexShrink:0}}>
+                      <div style={{position:'absolute',top:0,left:0,right:0,bottom:0,backgroundImage:'radial-gradient(circle,rgba(255,255,255,.13) 1px,transparent 1px)',backgroundSize:'14px 14px'}}/>
+                      <span style={{fontSize:30,position:'relative'}}>{m.icon}</span>
+                      {m.level && <span style={{position:'absolute',bottom:6,right:8,background:'rgba(0,0,0,.45)',color:'white',fontSize:8,fontWeight:900,padding:'2px 6px',borderRadius:6}}>{m.level}</span>}
+                      {isInternal && <span style={{position:'absolute',top:6,right:8,background:'rgba(255,255,255,.22)',color:'white',fontSize:8,fontWeight:900,padding:'1px 5px',borderRadius:4,border:'1px solid rgba(255,255,255,.3)'}}>IN APP</span>}
+                      {isExtLive && <span style={{position:'absolute',top:6,left:8,background:'#dc2626',color:'white',fontSize:8,fontWeight:900,padding:'2px 6px',borderRadius:6}}>LIVE ↗</span>}
+                    </div>
+                    {/* Content */}
+                    <div style={{padding:'10px 12px 12px',flex:1,display:'flex',flexDirection:'column'}}>
+                      <div style={{fontSize:12,fontWeight:800,color:'var(--heading)',lineHeight:1.3,marginBottom:4}}>{m.name}</div>
+                      <div style={{fontSize:10,color:'var(--subtext)',lineHeight:1.45,flex:1}}>
+                        {m.desc.length > 58 ? m.desc.substring(0,55)+'…' : m.desc}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            {/* Spotify section under Music */}
+            {cat === 'music' && (
+              <div style={{marginTop:14,padding:'16px 14px 20px',borderRadius:14,background:'linear-gradient(180deg,rgba(30,215,96,.05) 0%,rgba(30,215,96,.02) 100%)',border:'1px solid rgba(30,215,96,.15)'}}>
+                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}>
+                  <div style={{width:32,height:32,borderRadius:10,background:'#1ed760',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,flexShrink:0}}>🎵</div>
+                  <div>
+                    <div style={{fontSize:14,fontWeight:900,color:'var(--heading)'}}>Croatian Music on Spotify</div>
+                    <div style={{fontSize:11,color:'var(--subtext)'}}>14 curated playlists · tap to expand</div>
+                  </div>
+                </div>
+                <SpotifyPlaylists/>
+              </div>
+            )}
+          </div>
+        );
+      })}
     </React.Fragment>
   );
 }
