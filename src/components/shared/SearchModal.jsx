@@ -1,0 +1,112 @@
+import React, { useState, useRef, useEffect } from 'react';
+
+const SEARCH_INDEX = [
+  // Learn tab items
+  { tab:'learn', label:'Greetings & Introductions', icon:'👋', desc:'Core vocabulary lesson' },
+  { tab:'learn', label:'Family & Relationships', icon:'👨‍👩‍👧', desc:'Core vocabulary lesson' },
+  { tab:'learn', label:'Numbers & Counting', icon:'🔢', desc:'Core vocabulary lesson' },
+  { tab:'learn', label:'Food & Eating', icon:'🍽️', desc:'Core vocabulary lesson' },
+  { tab:'learn', label:'Grammar Lessons', icon:'📝', desc:'Foundation to Advanced' },
+  { tab:'learn', label:'Reading Passages', icon:'📖', desc:'11 stories A1 to B2' },
+  { tab:'learn', label:'Quick Reference Guides', icon:'📋', desc:'13 reference guides' },
+  { tab:'learn', label:'Vocabulary Categories', icon:'📚', desc:'41+ topic categories' },
+  // Practice tab items
+  { tab:'practice', label:'Flashcards', icon:'🃏', desc:'Spaced repetition review' },
+  { tab:'practice', label:'Quiz (Znam)', icon:'🎯', desc:'Multiple choice vocabulary' },
+  { tab:'practice', label:'Grammar Drills', icon:'🧠', desc:'20 grammar exercises' },
+  { tab:'practice', label:'Listening Practice', icon:'🎧', desc:'Hear and identify Croatian' },
+  { tab:'practice', label:'Case Constellation', icon:'⭐', desc:'Visual case explorer' },
+  { tab:'practice', label:'Tongue Twisters', icon:'🌀', desc:'Pronunciation practice' },
+  { tab:'practice', label:'Weak Words Review', icon:'💪', desc:'Focus on problem words' },
+  { tab:'practice', label:'Sentence Building', icon:'🏗️', desc:'Arrange word blocks' },
+  { tab:'practice', label:'Dialogue Simulation', icon:'💬', desc:'Branching conversations' },
+  { tab:'practice', label:'Shadowing', icon:'🗣️', desc:'Listen and repeat' },
+  // Croatia tab items
+  { tab:'croatia', label:'City of the Day', icon:'🏙️', desc:'Daily Croatian city spotlight' },
+  { tab:'croatia', label:'History & Regions', icon:'🏰', desc:'Croatian history and regions' },
+  { tab:'croatia', label:'Cuisine & Traditions', icon:'🍷', desc:'Food and cultural traditions' },
+  { tab:'croatia', label:'Croatian Music', icon:'🎵', desc:'Spotify playlists by genre' },
+  { tab:'croatia', label:"Baka's Letters", icon:'💌', desc:'Authentic family letters' },
+  { tab:'croatia', label:'Media Library', icon:'📺', desc:'TV, Radio, Film, Podcast' },
+  { tab:'croatia', label:'Nature & Heritage', icon:'🌲', desc:'National parks and coast' },
+  { tab:'croatia', label:'Sports', icon:'⚽', desc:'Croatian sports culture' },
+  // Profile tab items
+  { tab:'profile', label:'My Stats', icon:'📊', desc:'XP, streak, lessons, mastery' },
+  { tab:'profile', label:'CEFR Progress', icon:'🎓', desc:'Language level tracker' },
+  { tab:'profile', label:'Learning Insights', icon:'💡', desc:'Vocab analytics dashboard' },
+  { tab:'profile', label:'My Journey', icon:'🗺️', desc:'Learning milestones timeline' },
+  { tab:'profile', label:'Settings', icon:'⚙️', desc:'Goals, theme, account' },
+  { tab:'profile', label:'Badges & Achievements', icon:'🏆', desc:'Your earned badges' },
+];
+
+export default function SearchModal({ setTab, onClose }) {
+  const [q, setQ] = useState('');
+  const inputRef = useRef(null);
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  const results = q.length < 1 ? [] : SEARCH_INDEX.filter(
+    item => item.label.toLowerCase().includes(q.toLowerCase()) ||
+            item.desc.toLowerCase().includes(q.toLowerCase())
+  );
+
+  // Group results by tab
+  const grouped = results.reduce((acc, item) => {
+    if (!acc[item.tab]) acc[item.tab] = [];
+    acc[item.tab].push(item);
+    return acc;
+  }, {});
+
+  const TAB_LABELS = { learn:'Learn', practice:'Practice', croatia:'Croatia', profile:'Profile' };
+
+  return (
+    <div style={{ position:'fixed', inset:0, zIndex:2000, background:'var(--bg)', display:'flex', flexDirection:'column' }}>
+      {/* Header */}
+      <div style={{ display:'flex', alignItems:'center', gap:12, padding:'12px 16px', borderBottom:'1px solid var(--bar-bg)' }}>
+        <span style={{ fontSize:20 }}>🔍</span>
+        <input
+          ref={inputRef}
+          value={q}
+          onChange={e => setQ(e.target.value)}
+          placeholder="Search lessons, practice, Croatia..."
+          style={{
+            flex:1, background:'none', border:'none', outline:'none',
+            fontSize:16, color:'var(--text)',
+          }}
+        />
+        <button onClick={onClose} style={{ background:'none', border:'none', fontSize:22, cursor:'pointer', color:'var(--subtext)' }}>✕</button>
+      </div>
+      {/* Results */}
+      <div style={{ flex:1, overflowY:'auto', padding:'8px 16px' }}>
+        {q.length === 0 && (
+          <p style={{ color:'var(--subtext)', fontSize:14, marginTop:24, textAlign:'center' }}>
+            Search across all lessons, practice modes, and Croatia content
+          </p>
+        )}
+        {q.length > 0 && results.length === 0 && (
+          <p style={{ color:'var(--subtext)', fontSize:14, marginTop:24, textAlign:'center' }}>No results for "{q}"</p>
+        )}
+        {Object.entries(grouped).map(([tab, items]) => (
+          <div key={tab} style={{ marginBottom:16 }}>
+            <div style={{ fontSize:11, fontWeight:700, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:1, marginBottom:8 }}>
+              {TAB_LABELS[tab]}
+            </div>
+            {items.map((item, i) => (
+              <button key={i} onClick={() => { setTab(tab); onClose(); }} style={{
+                width:'100%', display:'flex', alignItems:'center', gap:12,
+                padding:'10px 12px', borderRadius:10, border:'none',
+                background:'var(--card-bg)', cursor:'pointer', marginBottom:6,
+                textAlign:'left',
+              }}>
+                <span style={{ fontSize:20, flexShrink:0 }}>{item.icon}</span>
+                <div>
+                  <div style={{ fontWeight:700, fontSize:14, color:'var(--text)' }}>{item.label}</div>
+                  <div style={{ fontSize:12, color:'var(--subtext)' }}>{item.desc}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

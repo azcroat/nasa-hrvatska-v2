@@ -1,38 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { H, V, LISTEN, UNJUMBLE, PREPDRILL, NUMTIME, getSR, getDueReviews } from '../../data.jsx';
 
-function Section({ title, icon, count, description, defaultOpen = false, open: controlledOpen, onToggle, children }) {
-  const [internalOpen, setInternalOpen] = useState(defaultOpen);
-  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
-  const setOpen = onToggle !== undefined ? onToggle : setInternalOpen;
-  return (
-    <div style={{ marginBottom:'var(--space-sm)' }}>
-      <button
-        onClick={() => setOpen(o => !o)}
-        style={{
-          display:'flex', alignItems:'center', gap:'var(--space-sm)', width:'100%',
-          padding:'13px 16px', borderRadius:14,
-          background:'var(--card)', border:'1px solid var(--card-b)',
-          cursor:'pointer', fontFamily:"'Outfit',sans-serif",
-          boxShadow:'0 1px 3px rgba(0,0,0,.06)',
-          marginBottom: open ? 10 : 0,
-        }}
-      >
-        <span style={{ fontSize:18 }}>{icon}</span>
-        <div style={{ flex:1, textAlign:'left' }}>
-          <span style={{ fontSize:14, fontWeight:800, color:'var(--heading)' }}>{title}</span>
-          {description && (
-            <div style={{fontSize:11, color:'var(--subtext)', marginTop:2, fontWeight:500}}>{description}</div>
-          )}
-        </div>
-        <span style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:600, background:'var(--bar-bg)', borderRadius:8, padding:'2px 8px' }}>{count}</span>
-        <span style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', opacity:.5, marginLeft:4 }}>{open ? '▲' : '▼'}</span>
-      </button>
-      {open && <div style={{ marginBottom:16 }}>{children}</div>}
-    </div>
-  );
-}
-
 // Q-4: PracticeTab now receives callbacks instead of raw App.jsx state setters.
 // Screens manage their own state; App.jsx only keeps state needed by screen props.
 export default function PracticeTab({
@@ -41,22 +9,8 @@ export default function PracticeTab({
   lc = 0,
 }) {
   const [weakMsg, setWeakMsg] = useState("");
-  const [levelFilter, setLevelFilter] = useState('All');
-  const [secGrammar, setSecGrammar] = useState(false);
-  const [secVocab, setSecVocab] = useState(false);
-  const [secPractical, setSecPractical] = useState(false);
-  const [secReading, setSecReading] = useState(false);
-  const [secSlang, setSecSlang] = useState(false);
-  const [secAdvanced, setSecAdvanced] = useState(false);
-  const allOpen = secGrammar && secVocab && secPractical && secReading && secSlang && secAdvanced;
-  function openAllSections() {
-    setSecGrammar(true); setSecVocab(true); setSecPractical(true);
-    setSecReading(true); setSecSlang(true); setSecAdvanced(true);
-  }
-  function closeAllSections() {
-    setSecGrammar(false); setSecVocab(false); setSecPractical(false);
-    setSecReading(false); setSecSlang(false); setSecAdvanced(false);
-  }
+  const [pFilter, setPFilter] = useState('all');
+
   const pool = () => allCats.flatMap(cc => V[cc]);
 
   function startQuiz() {
@@ -75,7 +29,6 @@ export default function PracticeTab({
     onLaunchMatch(initPool);
   }
   function startTyping() {
-    // TypingScreen manages its own state internally
     setScr("typing"); sCurEx("typing");
   }
   function startListening() {
@@ -189,99 +142,117 @@ export default function PracticeTab({
   const goalItems = userGoal ? goalRecMap[userGoal] : null;
   const goalLabels = { heritage:'Your Heritage', family:'Speaking with Family', travel:'Traveling to Croatia', culture:'Croatian Culture', fluent:'Becoming Fluent', partner:'Your Partner\'s Language' };
 
-  function ExRow({ items }) {
+  // ── ALL EXERCISES FLAT ARRAY ──────────────────────────────────────────
+  // category: 'grammar' | 'vocab' | 'practical' | 'advanced'
+  const EXERCISES = [
+    // Grammar
+    { id:'grammarmap',   label:'Case Constellation', icon:'⭐', desc:'Explore all 7 cases visually',           category:'grammar',  cefr:'B1',   duration:'~10 min', action: go('grammarmap') },
+    { id:'cloze',        label:'Sentence Cloze',      icon:'🧩', desc:'Fill the blank — cases in context',      category:'grammar',  cefr:'A2',   duration:'~8 min',  action: go('cloze') },
+    { id:'unjumble',     label:'Word Order',           icon:'🧩', desc:'Put words in the right order',           category:'grammar',  cefr:'A2',   duration:'~8 min',  action: go('unjumble') },
+    { id:'prepdrill',    label:'Prepositions',         icon:'📍', desc:'u, na, od, do — which one?',             category:'grammar',  cefr:'A2',   duration:'~8 min',  action: go('prepdrill') },
+    { id:'qwords',       label:'Questions',            icon:'❓', desc:'Tko, Što, Gdje, Zašto...',              category:'grammar',  cefr:'A1+',  duration:'~5 min',  action: go('qwords') },
+    { id:'negation',     label:'Negation',             icon:'❌', desc:'Ne, nije, nisam...',                    category:'grammar',  cefr:'A2',   duration:'~8 min',  action: go('negation') },
+    { id:'genderdrill',  label:'Gender',               icon:'♂️♀️', desc:'Masculine, feminine, neuter',         category:'grammar',  cefr:'A1+',  duration:'~5 min',  action: go('genderdrill') },
+    { id:'profgender',   label:'M/F Jobs',             icon:'👨‍⚖️', desc:'Učitelj vs učiteljica',             category:'grammar',  cefr:'A2',   duration:'~5 min',  action: go('profgender') },
+    { id:'comparatives', label:'Compare',              icon:'📈', desc:'Bigger, faster, better',                category:'grammar',  cefr:'B1',   duration:'~10 min', action: go('comparatives') },
+    { id:'future',       label:'Future Tense',         icon:'🚀', desc:'ću, ćeš, će...',                        category:'grammar',  cefr:'B1',   duration:'~10 min', action: go('future') },
+    { id:'sibil',        label:'Sibilization',         icon:'🔄', desc:'k→c, g→z sound changes',               category:'grammar',  cefr:'B1',   duration:'~8 min',  action: go('sibil') },
+    { id:'coloragree',   label:'Color Agreement',      icon:'🎨', desc:'Colors match noun gender',              category:'grammar',  cefr:'A2',   duration:'~5 min',  action: go('coloragree') },
+    { id:'akudrill',     label:'Accusative',           icon:'🍽️', desc:'Direct objects change form',           category:'grammar',  cefr:'B1',   duration:'~10 min', action: go('akudrill') },
+    { id:'relpron',      label:'Koji/Koja',            icon:'🔗', desc:'Relative pronouns',                     category:'grammar',  cefr:'B1',   duration:'~8 min',  action: go('relpron') },
+    { id:'reflexive',    label:'SE Verbs',             icon:'🧲', desc:'Reflexive verbs with se/si',            category:'grammar',  cefr:'B1',   duration:'~10 min', action: go('reflexive') },
+    { id:'sentbuild',    label:'Build Sentences',      icon:'🏗️', desc:'Arrange the building blocks',          category:'grammar',  cefr:'A2',   duration:'~8 min',  action: go('sentbuild') },
+    { id:'clitic',       label:'Clitic Drill',         icon:'🔗', desc:'The #1 hardest rule in Croatian',       category:'grammar',  cefr:'B1+',  duration:'~10 min', action: go('clitic') },
+    { id:'numcases',     label:'Numbers+Cases',        icon:'🔢', desc:'1/2-4/5+ — never wrong again',          category:'grammar',  cefr:'B1',   duration:'~10 min', action: go('numcases') },
+    { id:'imperative',   label:'Imperative',           icon:'⚡', desc:'Commands — essential production',       category:'grammar',  cefr:'B1',   duration:'~8 min',  action: go('imperative') },
+    { id:'neggen',       label:'Negation+Genitive',    icon:'❌', desc:'Negate correctly — case shifts!',       category:'grammar',  cefr:'B1',   duration:'~10 min', action: go('neggen') },
+    // Vocab
+    { id:'znam',         label:'Translate',            icon:'🇭🇷', desc:'English ↔ Croatian',                  category:'vocab',    cefr:'A1+',  duration:'~5 min',  action: go('znam') },
+    { id:'possess',      label:'My/Your',              icon:'👤', desc:'Moj, tvoj, njegov, njezin',             category:'vocab',    cefr:'A1+',  duration:'~5 min',  action: go('possess') },
+    { id:'opposites',    label:'Opposites',            icon:'↔️', desc:'Hot/cold, big/small...',               category:'vocab',    cefr:'A1+',  duration:'~5 min',  action: go('opposites') },
+    { id:'ordinals',     label:'Ordinals',             icon:'🏢', desc:'First, second, third...',              category:'vocab',    cefr:'A2',   duration:'~5 min',  action: go('ordinals') },
+    { id:'emogender',    label:'Emotions',             icon:'😀', desc:'Sretan, sretna — feel it',             category:'vocab',    cefr:'A2',   duration:'~5 min',  action: go('emogender') },
+    { id:'verbdrill',    label:'20 Core Verbs',        icon:'💪', desc:'The most-used Croatian verbs',          category:'vocab',    cefr:'A2',   duration:'~8 min',  action: go('verbdrill') },
+    { id:'pronouns',     label:'Pronouns',             icon:'🎯', desc:'Ja, ti, on, ona, mi...',               category:'vocab',    cefr:'A1+',  duration:'~5 min',  action: go('pronouns') },
+    { id:'cityloc',      label:'City Locations',       icon:'🏙️', desc:'Where is it in Croatia?',             category:'vocab',    cefr:'A2+',  duration:'~5 min',  action: go('cityloc') },
+    { id:'collocations', label:'Collocations',         icon:'🔀', desc:'Which words belong together',          category:'vocab',    cefr:'B1',   duration:'~8 min',  action: go('collocations') },
+    { id:'wordfamilies', label:'Word Families',        icon:'🌱', desc:'One root, a hundred words',            category:'vocab',    cefr:'B1',   duration:'~8 min',  action: go('wordfamilies') },
+    // Practical
+    { id:'restaurant',   label:'Restaurant',           icon:'🍽️', desc:'Order food like a local',             category:'practical', cefr:'A2',  duration:'~8 min',  action: go('restaurant') },
+    { id:'numtime',      label:'Numbers & Time',       icon:'🔢', desc:'Tell time, count anything',            category:'practical', cefr:'A2',  duration:'~5 min',  action: go('numtime') },
+    { id:'convmatch',    label:'Conversations',        icon:'💬', desc:'Match real-world dialogues',           category:'practical', cefr:'A2+', duration:'~8 min',  action: go('convmatch') },
+    { id:'scenes',       label:'Describe',             icon:'🖼️', desc:'Describe what you see',               category:'practical', cefr:'B1',  duration:'~8 min',  action: go('scenes') },
+    { id:'tenseflip',    label:'Tense Flip',           icon:'⏳', desc:'Switch tense on the fly',             category:'practical', cefr:'B1',  duration:'~8 min',  action: go('tenseflip') },
+    { id:'fillstory',    label:'Story Fill',           icon:'📝', desc:'Fill in the blanks',                  category:'practical', cefr:'B1',  duration:'~15 min', action: go('fillstory') },
+    { id:'storyselect',  label:'Stories',              icon:'📖', desc:'Read short Croatian tales',            category:'practical', cefr:'B1',  duration:'~15 min', action: go('storyselect') },
+    { id:'riddles',      label:'Riddles',              icon:'🧩', desc:'Can you guess the answer?',           category:'practical', cefr:'A2+', duration:'~5 min',  action: go('riddles') },
+    { id:'logicquiz',    label:'Think Croatian',       icon:'🧠', desc:'Logic puzzles in Croatian',            category:'practical', cefr:'B1',  duration:'~10 min', action: go('logicquiz') },
+    { id:'brzalice',     label:'Tongue Twisters',      icon:'😝', desc:'Brzalice — dare yourself',            category:'practical', cefr:'A2+', duration:'~5 min',  action: go('brzalice') },
+    // Advanced
+    { id:'pitchaccent',  label:'Pitch Accent',         icon:'🎵', desc:'Master Croatian tonal stress',         category:'advanced', cefr:'B1+', duration:'~10 min', action: startPitchAccent },
+    { id:'shadowing',    label:'Shadowing',            icon:'🗣️', desc:'Native-speed listen & repeat',        category:'advanced', cefr:'B1+', duration:'~10 min', action: startShadowing },
+    { id:'srsreview',    label:'SRS Review',           icon:'🔁', desc:'Smart spaced repetition',             category:'advanced', cefr:'A1+', duration:'self-paced', action: startReview },
+    { id:'writing',      label:'Free Writing',         icon:'✍️', desc:'Write & get AI feedback',             category:'advanced', cefr:'B1',  duration:'open-ended', action: startWriting },
+    { id:'aspectdrill',  label:'Aspect Drill',         icon:'🔄', desc:'Imperfective vs perfective',          category:'advanced', cefr:'B1+', duration:'~10 min', action: startAspectDrill },
+    { id:'dialogue',     label:'Dialogue Sim',         icon:'💬', desc:'Real turn-based conversations',       category:'advanced', cefr:'B1',  duration:'~10 min', action: () => { setScr("dialogue"); sCurEx("dialogue"); } },
+    { id:'dictation',    label:'Dictation',            icon:'🎧', desc:'Listen and type Croatian',            category:'advanced', cefr:'B1',  duration:'~10 min', action: () => { setScr("dictation"); sCurEx("dictation"); } },
+    { id:'proncontrast', label:'Sound Contrast',       icon:'🔤', desc:'č/ć, š/ž, đ/dž mastery',            category:'advanced', cefr:'A2+', duration:'~8 min',  action: () => { setScr("proncontrast"); sCurEx("proncontrast"); } },
+    { id:'cefrtest',     label:'CEFR Test',            icon:'🎓', desc:'A1→B2 proficiency check',             category:'advanced', cefr:'A1+', duration:'~15 min', action: () => { setScr("cefrtest"); sCurEx("cefrtest"); } },
+    // Slang (advanced)
+    { id:'slang_classics',  label:'The Classics',      icon:'🔥', desc:'Foundation expletives — built on one root verb', category:'advanced', cefr:'B1+', duration:'~10 min', action: go('slang:classics') },
+    { id:'slang_everyday',  label:'Svaki Dan',         icon:'😤', desc:'Mild-to-medium — usable around most adults',    category:'advanced', cefr:'A2+', duration:'~8 min',  action: go('slang:everyday') },
+    { id:'slang_slang',     label:'Ulični Sleng',      icon:'😎', desc:'General everyday slang — sound like a local',   category:'advanced', cefr:'A2+', duration:'~8 min',  action: go('slang:slang') },
+    { id:'slang_people',    label:'Ljudi i Adrese',    icon:'👥', desc:'How Croatians address each other',              category:'advanced', cefr:'A2',  duration:'~5 min',  action: go('slang:people') },
+    { id:'slang_dalmatian', label:'Dalmatinski',       icon:'☀️', desc:'Split, Dalmatia & coast dialect',               category:'advanced', cefr:'B1',  duration:'~10 min', action: go('slang:dalmatian') },
+    { id:'slang_zagreb',    label:'Zagrebački',        icon:'🏙️', desc:'Capital city slang — German meets Slavic',      category:'advanced', cefr:'B1',  duration:'~10 min', action: go('slang:zagreb') },
+    { id:'slang_satrovski', label:'Šatrovački',        icon:'🔄', desc:'Croatian pig latin — reverse syllable slang',   category:'advanced', cefr:'B1+', duration:'~10 min', action: go('slang:satrovski') },
+    { id:'slang_genz',      label:'Gen Z & Internet',  icon:'📱', desc:'Digital generation slang & memes',              category:'advanced', cefr:'A2+', duration:'~8 min',  action: go('slang:genz') },
+    { id:'slang_pijani',    label:'Pijani & Mamurani', icon:'🍺', desc:'Drinking culture & hangover vocabulary',         category:'advanced', cefr:'B1',  duration:'~8 min',  action: go('slang:pijani') },
+    { id:'slang_football',  label:'Nogomet',           icon:'⚽', desc:'Football supporter slang',                      category:'advanced', cefr:'A2+', duration:'~8 min',  action: go('slang:football') },
+    { id:'slang_regional',  label:'Zagreb vs Split',   icon:'🗺️', desc:'Regional rivalries & dialect wars',             category:'advanced', cefr:'B1',  duration:'~10 min', action: go('slang:regional') },
+    { id:'slang_art',       label:'Psovanje kao Kunst',icon:'🎨', desc:'Swearing elevated to an art form',              category:'advanced', cefr:'B2',  duration:'~10 min', action: go('slang:art') },
+  ];
+
+  const visible = EXERCISES.filter(e => pFilter === 'all' || e.category === pFilter);
+
+  function ExerciseCard({ id, label, icon, desc, cefr, duration, action }) {
     return (
-      <div className="g2">
-        {items.map(([icon,label,screen,desc,meta]) => (
-          <button key={screen} className="tc"
-            style={{ display:"flex", alignItems:"center", gap:12, padding:"14px", textAlign:"left" }}
-            onClick={go(screen)}>
-            <div style={{ width:40, height:40, borderRadius:12, background:"var(--bar-bg)", border:"1px solid var(--card-b)",
-              display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0 }}>
-              {icon}
-            </div>
-            <div style={{ minWidth:0 }}>
-              <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{label}</div>
-              <div style={{ fontSize:10, color:"var(--subtext)", marginTop:2, lineHeight:1.3 }}>{desc}</div>
-              {meta && (
-                <div style={{display:'flex', gap:6, flexWrap:'wrap', marginTop:4, alignItems:'center'}}>
-                  {meta.level && (
-                    <span style={{
-                      fontSize:10, fontWeight:800, padding:'2px 7px',
-                      borderRadius:4, background:'var(--info-bg, #f0f9ff)', color:'var(--info, #0e7490)',
-                      border:'1px solid var(--info-b, #bae6fd)'
-                    }}>
-                      {meta.level}
-                    </span>
-                  )}
-                  {meta.duration && (
-                    <span style={{fontSize:10, color:'var(--subtext)', fontWeight:600}}>
-                      ⏱ {meta.duration}
-                    </span>
-                  )}
-                  {meta.format && (
-                    <span style={{fontSize:10, color:'var(--subtext)'}}>· {meta.format}</span>
-                  )}
-                </div>
-              )}
-            </div>
-          </button>
-        ))}
-      </div>
+      <button
+        onClick={action}
+        style={{
+          display:'flex', alignItems:'center', gap:12, padding:14,
+          borderRadius:14, background:'var(--card)', border:'1px solid var(--card-b)',
+          cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+          boxShadow:'0 1px 3px rgba(0,0,0,.06)',
+        }}
+      >
+        <div style={{
+          width:40, height:40, borderRadius:12,
+          background:'var(--bar-bg)', border:'1px solid var(--card-b)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          fontSize:20, flexShrink:0,
+        }}>
+          {icon}
+        </div>
+        <div style={{ minWidth:0, flex:1 }}>
+          <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', lineHeight:1.2 }}>{label}</div>
+          <div style={{ fontSize:10, color:'var(--subtext)', marginTop:2, lineHeight:1.3 }}>{desc}</div>
+          <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginTop:4, alignItems:'center' }}>
+            {cefr && (
+              <span style={{
+                fontSize:10, fontWeight:800, padding:'2px 7px',
+                borderRadius:4, background:'var(--info-bg, #f0f9ff)', color:'var(--info, #0e7490)',
+                border:'1px solid var(--info-b, #bae6fd)',
+              }}>{cefr}</span>
+            )}
+            {duration && (
+              <span style={{ fontSize:10, color:'var(--subtext)', fontWeight:600 }}>⏱ {duration}</span>
+            )}
+          </div>
+        </div>
+      </button>
     );
   }
-
-  const grammarDrills = [
-    ["⭐","Case Constellation", "grammarmap", "Explore all 7 cases visually",       {level:'B1', duration:'~10 min', format:'Grammar drill'}],
-    ["🧩","Sentence Cloze","cloze","Fill the blank — cases in context",             {level:'A2', duration:'~8 min',  format:'Fill in blank'}],
-    ["🧩","Word Order",    "unjumble",    "Put words in the right order",            {level:'A2', duration:'~8 min',  format:'Fill in blank'}],
-    ["📍","Prepositions",  "prepdrill",   "u, na, od, do — which one?",             {level:'A2', duration:'~8 min',  format:'Grammar drill'}],
-    ["❓","Questions",     "qwords",      "Tko, Što, Gdje, Zašto...",               {level:'A1+', duration:'~5 min', format:'Multiple choice'}],
-    ["❌","Negation",      "negation",    "Ne, nije, nisam...",                      {level:'A2', duration:'~8 min',  format:'Grammar drill'}],
-    ["♂️♀️","Gender",     "genderdrill", "Masculine, feminine, neuter",             {level:'A1+', duration:'~5 min', format:'Multiple choice'}],
-    ["👨‍⚖️","M/F Jobs",  "profgender",  "Učitelj vs učiteljica",                  {level:'A2', duration:'~5 min',  format:'Multiple choice'}],
-    ["📈","Compare",       "comparatives","Bigger, faster, better",                  {level:'B1', duration:'~10 min', format:'Grammar drill'}],
-    ["🚀","Future Tense",  "future",      "ću, ćeš, će...",                         {level:'B1', duration:'~10 min', format:'Grammar drill'}],
-    ["🔄","Sibilization",  "sibil",       "k→c, g→z sound changes",                 {level:'B1', duration:'~8 min',  format:'Grammar drill'}],
-    ["🎨","Color Agreement","coloragree", "Colors match noun gender",                {level:'A2', duration:'~5 min',  format:'Multiple choice'}],
-    ["🍽️","Accusative",   "akudrill",    "Direct objects change form",              {level:'B1', duration:'~10 min', format:'Grammar drill'}],
-    ["🔗","Koji/Koja",     "relpron",     "Relative pronouns",                       {level:'B1', duration:'~8 min',  format:'Grammar drill'}],
-    ["🧲","SE Verbs",      "reflexive",   "Reflexive verbs with se/si",              {level:'B1', duration:'~10 min', format:'Grammar drill'}],
-    ["🏗️","Build Sentences","sentbuild",  "Arrange the building blocks",            {level:'A2', duration:'~8 min',  format:'Fill in blank'}],
-    ["🔗","Clitic Drill",    "clitic",     "The #1 hardest rule in Croatian",        {level:'B1+', duration:'~10 min', format:'Grammar drill'}],
-    ["🔢","Numbers+Cases",   "numcases",   "1/2-4/5+ — never wrong again",           {level:'B1', duration:'~10 min', format:'Grammar drill'}],
-    ["⚡","Imperative",      "imperative", "Commands — essential production",         {level:'B1', duration:'~8 min',  format:'Grammar drill'}],
-    ["❌","Negation+Genitive","neggen",    "Negate correctly — case shifts!",         {level:'B1', duration:'~10 min', format:'Grammar drill'}],
-  ];
-
-  const vocabularyDrills = [
-    ["🇭🇷","Translate",    "znam",       "English ↔ Croatian",                      {level:'A1+', duration:'~5 min', format:'Multiple choice'}],
-    ["👤","My/Your",        "possess",    "Moj, tvoj, njegov, njezin",               {level:'A1+', duration:'~5 min', format:'Multiple choice'}],
-    ["↔️","Opposites",      "opposites",  "Hot/cold, big/small...",                  {level:'A1+', duration:'~5 min', format:'Card flip'}],
-    ["🏢","Ordinals",       "ordinals",   "First, second, third...",                 {level:'A2', duration:'~5 min',  format:'Multiple choice'}],
-    ["😀","Emotions",       "emogender",  "Sretan, sretna — feel it",                {level:'A2', duration:'~5 min',  format:'Multiple choice'}],
-    ["💪","20 Core Verbs",  "verbdrill",  "The most-used Croatian verbs",            {level:'A2', duration:'~8 min',  format:'Grammar drill'}],
-    ["🎯","Pronouns",       "pronouns",   "Ja, ti, on, ona, mi...",                  {level:'A1+', duration:'~5 min', format:'Multiple choice'}],
-    ["🏙️","City Locations","cityloc",    "Where is it in Croatia?",                 {level:'A2+', duration:'~5 min', format:'Game'}],
-    ["🔀","Collocations",   "collocations",  "Which words belong together",          {level:'B1', duration:'~8 min',  format:'Multiple choice'}],
-    ["🌱","Word Families",  "wordfamilies",  "One root, a hundred words",            {level:'B1', duration:'~8 min',  format:'Multiple choice'}],
-  ];
-
-  const practicalCroatian = [
-    ["🍽️","Restaurant",   "restaurant",  "Order food like a local",                 {level:'A2', duration:'~8 min',  format:'Fill in blank'}],
-    ["🔢","Numbers & Time","numtime",     "Tell time, count anything",               {level:'A2', duration:'~5 min',  format:'Multiple choice'}],
-    ["💬","Conversations", "convmatch",   "Match real-world dialogues",              {level:'A2+', duration:'~8 min', format:'Multiple choice'}],
-    ["🖼️","Describe",     "scenes",      "Describe what you see",                   {level:'B1', duration:'~8 min',  format:'Grammar drill'}],
-    ["⏳","Tense Flip",    "tenseflip",   "Switch tense on the fly",                 {level:'B1', duration:'~8 min',  format:'Grammar drill'}],
-  ];
-
-  const readingFun = [
-    ["📝","Story Fill",    "fillstory",  "Fill in the blanks",                       {level:'B1', duration:'~15 min', format:'Reading'}],
-    ["📖","Stories",       "storyselect","Read short Croatian tales",                {level:'B1', duration:'~15 min', format:'Reading'}],
-    ["🧩","Riddles",       "riddles",    "Can you guess the answer?",                {level:'A2+', duration:'~5 min', format:'Game'}],
-    ["🧠","Think Croatian","logicquiz",  "Logic puzzles in Croatian",                {level:'B1', duration:'~10 min', format:'Multiple choice'}],
-    ["😝","Tongue Twisters","brzalice",  "Brzalice — dare yourself",                 {level:'A2+', duration:'~5 min', format:'Game'}],
-  ];
 
   const culturalExtras = [
     [() => { setScr("proverbs"); sCurEx("proverbs"); }, "🌟","Proverbs","Croatian wisdom & sayings"],
@@ -465,7 +436,7 @@ export default function PracticeTab({
         ))}
       </div>
 
-      {/* ── COLLAPSIBLE DRILL SECTIONS ──────────────────────────────────── */}
+      {/* ── ALL EXERCISES — FILTER PILLS + FLAT GRID ────────────────────── */}
       <div className="section-hdr">
         <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>📚</div>
         <div className="section-hdr-text">
@@ -473,109 +444,30 @@ export default function PracticeTab({
           <div className="section-hdr-sub">Grammar, vocabulary, and more — sorted by category</div>
         </div>
       </div>
-      <div style={{display:'flex', gap:6, marginBottom:16, flexWrap:'wrap'}}>
-        {['All', 'A1', 'A2', 'B1', 'B2'].map(l => (
-          <button
-            key={l}
-            onClick={() => setLevelFilter(l)}
-            style={{
-              padding:'6px 14px', borderRadius:20, fontSize:12, fontWeight:700,
-              border: levelFilter === l ? 'none' : '1.5px solid var(--card-b)',
-              background: levelFilter === l ? 'var(--info, #0e7490)' : 'var(--card)',
-              color: levelFilter === l ? 'white' : 'var(--subtext)',
-              cursor:'pointer', transition:'all .15s',
-              fontFamily:"'Outfit',sans-serif",
-            }}
-          >
-            {l === 'All' ? 'All Levels' : l}
-          </button>
+
+      {/* Filter pills */}
+      <div style={{ display:'flex', gap:8, padding:'4px 0 16px', overflowX:'auto', scrollbarWidth:'none' }}>
+        {[
+          { id:'all',       label:'All' },
+          { id:'grammar',   label:'🧠 Grammar' },
+          { id:'vocab',     label:'📚 Vocab' },
+          { id:'practical', label:'💬 Practical' },
+          { id:'advanced',  label:'⚡ Advanced' },
+        ].map(f => (
+          <button key={f.id} onClick={() => setPFilter(f.id)} style={{
+            padding:'7px 16px', borderRadius:20, border:'none', flexShrink:0,
+            background: pFilter === f.id ? 'var(--info)' : 'var(--bar-bg)',
+            color: pFilter === f.id ? '#fff' : 'var(--subtext)',
+            fontWeight:700, fontSize:13, cursor:'pointer', whiteSpace:'nowrap',
+            transition:'background 0.2s', fontFamily:"'Outfit',sans-serif",
+          }}>{f.label}</button>
         ))}
       </div>
 
-      <Section title="Grammar Drills" icon="📝" count={`${grammarDrills.length} exercises`} description="Targeted practice for Croatian cases, verbs, and sentence structure" open={secGrammar} onToggle={() => setSecGrammar(o => !o)}>
-        <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:'var(--space-sm)', fontWeight:500 }}>Master Croatian structure step by step</p>
-        <ExRow items={grammarDrills} />
-      </Section>
-
-      <Section title="Vocabulary" icon="🔤" count={`${vocabularyDrills.length} exercises`} description="Fast 5-minute vocabulary games — great for daily practice" open={secVocab} onToggle={() => setSecVocab(o => !o)}>
-        <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:'var(--space-sm)', fontWeight:500 }}>Build and reinforce your word bank</p>
-        <ExRow items={vocabularyDrills} />
-      </Section>
-
-      <Section title="Practical Croatian" icon="🌍" count={`${practicalCroatian.length} exercises`} open={secPractical} onToggle={() => setSecPractical(o => !o)}>
-        <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:'var(--space-sm)', fontWeight:500 }}>Real situations, real language</p>
-        <ExRow items={practicalCroatian} />
-      </Section>
-
-      <Section title="Reading & Fun" icon="📖" count={`${readingFun.length} exercises`} open={secReading} onToggle={() => setSecReading(o => !o)}>
-        <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:'var(--space-sm)', fontWeight:500 }}>Stories, riddles, and challenges</p>
-        <ExRow items={readingFun} />
-      </Section>
-
-      <Section title="Slang & Expressions" icon="🗣️" count="12 modules · 150+ phrases" description="Listening, shadowing, and conversation practice for fluency" open={secSlang} onToggle={() => setSecSlang(o => !o)}>
-        <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:'var(--space-sm)', fontWeight:500 }}>Authentic slang, psovanje & street language with cultural context</p>
-        <ExRow items={[
-          ['🔥', 'The Classics',      'slang:classics',   'Foundation expletives — built on one root verb', {level:'B1+', duration:'~10 min', format:'Immersion'}],
-          ['😤', 'Svaki Dan',          'slang:everyday',   'Mild-to-medium — usable around most adults',    {level:'A2+', duration:'~8 min',  format:'Immersion'}],
-          ['😎', 'Ulični Sleng',       'slang:slang',      'General everyday slang — sound like a local',   {level:'A2+', duration:'~8 min',  format:'Immersion'}],
-          ['👥', 'Ljudi i Adrese',     'slang:people',     'How Croatians address each other',              {level:'A2', duration:'~5 min',   format:'Immersion'}],
-          ['☀️', 'Dalmatinski',       'slang:dalmatian',  'Split, Dalmatia & coast dialect',               {level:'B1', duration:'~10 min',  format:'Immersion'}],
-          ['🏙️', 'Zagrebački',       'slang:zagreb',     'Capital city slang — German meets Slavic',      {level:'B1', duration:'~10 min',  format:'Immersion'}],
-          ['🔄', 'Šatrovački',        'slang:satrovski',  'Croatian pig latin — reverse syllable slang',   {level:'B1+', duration:'~10 min', format:'Immersion'}],
-          ['📱', 'Gen Z & Internet',   'slang:genz',       'Digital generation slang & memes',              {level:'A2+', duration:'~8 min',  format:'Immersion'}],
-          ['🍺', 'Pijani & Mamurani', 'slang:pijani',     'Drinking culture & hangover vocabulary',         {level:'B1', duration:'~8 min',   format:'Immersion'}],
-          ['⚽', 'Nogomet',            'slang:football',   'Football supporter slang',                      {level:'A2+', duration:'~8 min',  format:'Immersion'}],
-          ['🗺️', 'Zagreb vs Split',  'slang:regional',   'Regional rivalries & dialect wars',             {level:'B1', duration:'~10 min',  format:'Immersion'}],
-          ['🎨', 'Psovanje kao Kunst', 'slang:art',        'Swearing elevated to an art form',              {level:'B2', duration:'~10 min',  format:'Immersion'}],
-        ]} />
-      </Section>
-
-      <Section title="Advanced Tools" icon="⚡" count="9 tools" description="Listening, shadowing, and conversation practice for fluency" open={secAdvanced} onToggle={() => setSecAdvanced(o => !o)}>
-        <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:'var(--space-sm)', fontWeight:500 }}>
-          Advanced exercises to reach native-level fluency — close the gap from B1 to C1
-        </p>
-        <div className="g2">
-          {[
-            [startPitchAccent,                                              "🎵", "Pitch Accent",   "Master Croatian tonal stress"],
-            [startShadowing,                                                "🗣️", "Shadowing",      "Native-speed listen & repeat"],
-            [startReview,                                                   "🔁", "SRS Review",     "Smart spaced repetition"],
-            [startWriting,                                                  "✍️", "Free Writing",   "Write & get AI feedback"],
-            [startAspectDrill,                                              "🔄", "Aspect Drill",   "Imperfective vs perfective"],
-            [() => { setScr("dialogue"); sCurEx("dialogue"); },            "💬", "Dialogue Sim",   "Real turn-based conversations"],
-            [() => { setScr("dictation"); sCurEx("dictation"); },          "🎧", "Dictation",      "Listen and type Croatian"],
-            [() => { setScr("proncontrast"); sCurEx("proncontrast"); },    "🔤", "Sound Contrast", "č/ć, š/ž, đ/dž mastery"],
-            [() => { setScr("cefrtest"); sCurEx("cefrtest"); },            "🎓", "CEFR Test",      "A1→B2 proficiency check"],
-          ].map((/** @type {any} */ [fn,icon,label,desc], i) => (
-            <button key={i} className="tc"
-              style={{ display:"flex", alignItems:"center", gap:12, padding:"14px", textAlign:"left" }}
-              onClick={fn}>
-              <div style={{ width:40, height:40, borderRadius:12, background:"var(--bar-bg)", border:"1px solid var(--card-b)",
-                display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0 }}>
-                {icon}
-              </div>
-              <div style={{ minWidth:0 }}>
-                <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{label}</div>
-                <div style={{ fontSize:10, color:"var(--subtext)", marginTop:2, lineHeight:1.3 }}>{desc}</div>
-              </div>
-            </button>
-          ))}
-        </div>
-      </Section>
-
-      {/* ── BROWSE ALL TOGGLE ───────────────────────────────────────────── */}
-      <button
-        onClick={() => { allOpen ? closeAllSections() : openAllSections(); }}
-        style={{
-          width:'100%', padding:'14px', borderRadius:14, marginTop:8, marginBottom:8,
-          background:'none', border:'1.5px solid var(--card-b)',
-          color:'var(--subtext)', fontSize:13, fontWeight:700,
-          cursor:'pointer', fontFamily:"'Outfit',sans-serif",
-          display:'flex', alignItems:'center', justifyContent:'center', gap:6,
-        }}
-      >
-        <span>📚</span>
-        <span>{allOpen ? 'Hide All Exercises' : 'Browse All Exercises'}</span>
-      </button>
+      {/* Flat 2-column exercise grid */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:24 }}>
+        {visible.map(e => <ExerciseCard key={e.id} {...e} />)}
+      </div>
 
       {/* ── CULTURAL EXTRAS FOOTER ──────────────────────────────────────── */}
       <div style={{ marginTop:8, marginBottom:16 }}>

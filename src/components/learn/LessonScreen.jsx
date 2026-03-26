@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { H, Bar, speak, srMark, sh, shuffleArr, V } from '../../data.jsx';
 import CroatianKnight from '../shared/CroatianKnight';
 import { CelebrationScene } from '../illustrations';
+import Flashcards from '../practice/Flashcards';
 
 const CONFETTI_COLORS = ['#38bdf8','#fbbf24','#4ade80','#f87171','#a78bfa','#fb923c','#34d399','#e879f9'];
 
@@ -12,8 +13,30 @@ export default function LessonScreen({
 }) {
   const resultFired = useRef(false);
   const [showQuit, setShowQuit] = useState(false);
+  const [showFlashcards, setShowFlashcards] = useState(false);
   const earnedXp = qi.length > 0 ? Math.round((ls / qi.length) * 30) + 5 : 5;
   const scorePct = qi.length > 0 ? ls / qi.length : 0;
+
+  // Build flash pool from lesson words (li is the shuffled word array)
+  const flashPool = (li || []).map(w => [
+    w.w || w[0],
+    w.e || w[1],
+    w.p || w[2],
+    w.ex || w[3],
+  ]).filter(row => row[0] && row[1]);
+
+  const awardFn = typeof award === 'function' ? award : () => {};
+
+  /* ── FLASHCARDS OVERLAY ───────────────────────────────────────── */
+  if (showFlashcards) {
+    return (
+      <Flashcards
+        pool={flashPool}
+        goBack={() => setShowFlashcards(false)}
+        award={awardFn}
+      />
+    );
+  }
 
   /* ── LEARN PHASE ──────────────────────────────────────────────── */
   if (lp === "learn") return (
@@ -243,7 +266,7 @@ export default function LessonScreen({
                 if (resultFired.current) return;
                 resultFired.current = true;
                 const p = ls / qi.length;
-                award(Math.round(p * 30) + 5);
+                awardFn(Math.round(p * 30) + 5);
                 setSt(s => ({ ...s, lc: s.lc + 1, pf: p === 1 ? s.pf + 1 : s.pf, rs: [...s.rs, p], ct: [...new Set([...s.ct, lt])] }));
                 sLp("result");
               }
@@ -422,7 +445,7 @@ export default function LessonScreen({
           <div style={{fontSize:'var(--text-sm)', fontWeight:700, color:'var(--heading)', marginTop:4, marginBottom:12}}>
             Practice what you just learned with Flashcards 🃏
           </div>
-          <button className="b bp" style={{width:'100%', fontSize:'var(--text-sm)'}} onClick={goBack}>
+          <button className="b bp" style={{width:'100%', fontSize:'var(--text-sm)'}} onClick={() => setShowFlashcards(true)}>
             Start Flashcard Practice →
           </button>
         </div>

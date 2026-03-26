@@ -55,6 +55,8 @@ export default function LearnTab({
   sGl, sGp, sGx, sGs, sGa, sGsl,
   launchPathItem, setTab,
 }) {
+  const [showBrowse, setShowBrowse] = useState(false);
+
   // ── PATH PROGRESS ──────────────────────────────────────────────────────
   let totalDone = 0, totalItems = 0;
   let nextItem = null, currentStage = null, currentStageDone = 0;
@@ -426,148 +428,179 @@ export default function LearnTab({
         </div>
       </div>
 
-      {/* ── COLLAPSIBLE CATALOG ─────────────────────────────────────────── */}
-      <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:12 }}>
-        Browse All Content
-      </div>
+      {/* ── BROWSE ALL CONTENT BUTTON ────────────────────────────────────── */}
+      <button onClick={() => setShowBrowse(true)} style={{
+        width:'100%', padding:'14px', borderRadius:14,
+        border:'2px dashed var(--bar-bg)', background:'transparent',
+        color:'var(--subtext)', fontWeight:700, fontSize:14, cursor:'pointer',
+        display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+        fontFamily:"'Outfit',sans-serif",
+      }}>
+        📚 Browse all content →
+      </button>
 
-      {/* Vocabulary */}
-      <Section title="Vocabulary" icon="📚" count={`${allCats.length + 6} topics`} defaultOpen={false}>
-        <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>
-          {allCats.length} core categories · tap any to start
-        </p>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:16 }}>
-          {allCats.map(t => {
-            const isCompleted = st && Array.isArray(st.ct) && st.ct.includes(t);
-            return (
-            <button key={t} className="tc" style={{ textAlign:"center", padding:"14px 8px" }} onClick={() => launchVocab(t)}>
-              <div style={{ fontSize:'var(--text-2xl)' }}>{icons[t] || "📚"}</div>
-              <div style={{ fontSize:'var(--text-sm)', fontWeight:700, marginTop:4, textTransform:"capitalize" }}>
-                {t}
-                {isCompleted && (
-                  <span style={{ color: 'var(--success)', fontWeight: 800, marginLeft: 6 }}>✓</span>
-                )}
-              </div>
-              <div style={{ fontSize:'var(--text-xs)', color:"var(--subtext)", marginTop:2 }}>{V[t].length} words</div>
-              <div style={{ fontSize:'var(--text-xs)', color:"var(--subtext)", marginTop:3, opacity:.7, lineHeight:1.3 }}>
-                {(V[t]||[]).slice(0,2).map(w=>w[0]).join(' · ')}
-              </div>
-              {(() => {
-                const count = V[t].length;
-                const [badge, color, bg] = count < 15 ? ['Essential','var(--success)','var(--success-bg)'] : count < 25 ? ['Core','var(--info)','var(--info-bg)'] : ['Extended','var(--lavender)','var(--bar-bg)'];
-                return <span style={{fontSize:'var(--text-xs)',fontWeight:800,color,background:bg,borderRadius:6,padding:'2px 5px',marginTop:3,letterSpacing:'.04em'}}>{badge}</span>;
-              })()}
-            </button>
-            );
-          })}
-        </div>
-        <div style={{ fontSize:'var(--text-sm)', fontWeight:700, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Themes</div>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
-          {[
-            ["🌍","Countries","countries"],["💼","Professions","professions"],
-            ["🌤️","Weather","weather"],["👗","Clothing","clothes"],
-            ["👤","Appearance","bodydesc"],["🔤","Pronunciation","phonology"],
-          ].map(([icon,label,screen]) => (
-            <button key={screen} className="tc" style={{ textAlign:"center", padding:"14px 8px" }} onClick={() => setScr(screen)}>
-              <div style={{ fontSize:'var(--text-2xl)' }}>{icon}</div>
-              <div style={{ fontSize:'var(--text-sm)', fontWeight:700, marginTop:4 }}>{label}</div>
-            </button>
-          ))}
-        </div>
-      </Section>
-
-      {/* Grammar */}
-      <Section title="Grammar" icon="📝" count="14 lessons" defaultOpen={false}>
-        <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
-          <LevelBadge label="Foundation" color="var(--success)" bg="var(--success-bg)" />
-          <div style={{ flex:1, height:1, background:"var(--card-b)" }} />
-        </div>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:14 }}>
-          {[
-            ["📜","Grammar Intro","a1",() => { sGl(GRAM.beginner[0]); sGp("learn"); sGx(0); sGs(0); sGa(false); sGsl(-1); setScr("grammar"); sCurEx("grammar"); }],
-            ["🔄","Tenses & Gender","a1",() => { setScr("tenses"); sCurEx("tenses"); }],
-            ["📝","Cases Intro","a2",() => { setScr("padezi"); sCurEx("padezi"); }],
-            ["🎨","Colors & Gender","a2",() => { setScr("boje"); sCurEx("boje"); }],
-          ].map((/** @type {any} */ [icon,label,cefr,fn]) => (
-            <button key={label} className="tc" style={{ display:"flex", alignItems:"center", gap:10, padding:"13px 14px", textAlign:"left" }} onClick={fn}>
-              <div style={{ fontSize:'var(--text-xl)', flexShrink:0 }}>{icon}</div>
-              <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", flex:1 }}>{label}</div>
-              <span className={`cefr cefr-${cefr}`}>{cefr.toUpperCase()}</span>
-            </button>
-          ))}
-        </div>
-
-        <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
-          <LevelBadge label="Intermediate" color="var(--warning)" bg="var(--warning-bg)" />
-          <div style={{ flex:1, height:1, background:"var(--card-b)" }} />
-        </div>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:14 }}>
-          {[
-            ["📚","Padeži Master","b1",() => { setScr("padezifull"); sCurEx("padezifull"); }],
-            ["↔️","Verb Aspect","b1",() => { setScr("aspect"); }],
-            ["🔀","Conjugation","b1",() => { setScr("conjdrill"); sCurEx("conjdrill"); }],
-          ].map((/** @type {any} */ [icon,label,cefr,fn]) => (
-            <button key={label} className="tc" style={{ display:"flex", alignItems:"center", gap:10, padding:"13px 14px", textAlign:"left" }} onClick={fn}>
-              <div style={{ fontSize:'var(--text-xl)', flexShrink:0 }}>{icon}</div>
-              <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", flex:1 }}>{label}</div>
-              <span className={`cefr cefr-${cefr}`}>{cefr.toUpperCase()}</span>
-            </button>
-          ))}
-        </div>
-
-        <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
-          <LevelBadge label="Advanced" color="var(--lavender)" bg="var(--bar-bg)" />
-          <div style={{ flex:1, height:1, background:"var(--card-b)" }} />
-        </div>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
-          {[
-            ["🔮","Modal Verbs","b1",() => { setScr("modal"); }],
-            ["📝","Declension","b2",() => { setScr("declension"); }],
-            ["🔀","Conditional","b1",() => setScr("conditional")],
-            ["🤝","Vi ili ti?","b1",() => setScr("formalregister")],
-            ["🔁","Impersonal","b2",() => setScr("impersonal")],
-            ["💻","Tech & Digital","b2",() => setScr("techvoc")],
-            ["🏛️","Admin Life","b2",() => setScr("bureaucratic")],
-          ].map((/** @type {any} */ [icon,label,cefr,fn]) => (
-            <button key={label} className="tc" style={{ display:"flex", alignItems:"center", gap:10, padding:"13px 14px", textAlign:"left" }} onClick={fn}>
-              <div style={{ fontSize:'var(--text-xl)', flexShrink:0 }}>{icon}</div>
-              <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", flex:1 }}>{label}</div>
-              <span className={`cefr cefr-${cefr}`}>{cefr.toUpperCase()}</span>
-            </button>
-          ))}
-        </div>
-      </Section>
-
-      {/* Reading */}
-      <Section title="Reading" icon="📖" count="11 passages" defaultOpen={false}>
-        <button className="tc" style={{ width:"100%", display:"flex", alignItems:"center", gap:14, padding:"16px" }} onClick={() => setScr("readlist")}>
-          <div style={{ width:44, height:44, borderRadius:13, background:'var(--success-bg)', border:'1px solid var(--success-b)',
-            display:"flex", alignItems:"center", justifyContent:"center", fontSize:'var(--text-2xl)', flexShrink:0 }}>📖</div>
-          <div style={{ flex:1, textAlign:"left" }}>
-            <div style={{ fontSize:'var(--text-base)', fontWeight:800, color:"var(--heading)" }}>Reading Passages</div>
-            <div style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginTop:1 }}>11 stories · A1 to B2</div>
+      {/* ── BROWSE ALL CONTENT MODAL ─────────────────────────────────────── */}
+      {showBrowse && (
+        <div style={{
+          position:'fixed', inset:0, zIndex:1000,
+          background:'var(--bg)', overflowY:'auto',
+          display:'flex', flexDirection:'column',
+        }}>
+          <div style={{
+            display:'flex', alignItems:'center', justifyContent:'space-between',
+            padding:'16px', borderBottom:'1px solid var(--bar-bg)',
+            position:'sticky', top:0, background:'var(--bg)', zIndex:1,
+          }}>
+            <h2 style={{ margin:0, fontSize:18, fontFamily:"'Playfair Display',serif" }}>📚 Browse All Content</h2>
+            <button onClick={() => setShowBrowse(false)} style={{
+              background:'none', border:'none', fontSize:24, cursor:'pointer', color:'var(--subtext)',
+            }}>✕</button>
           </div>
-          <div style={{ fontSize:'var(--text-xl)', color:"var(--subtext)", opacity:.35 }}>›</div>
-        </button>
-      </Section>
+          <div style={{ padding:'0 16px 40px' }}>
 
-      {/* Reference */}
-      <Section title="Quick Reference" icon="📌" count="13 guides" defaultOpen={false}>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
-          {[
-            ["🔤","Alphabet","alphabet"],["🧩","Word Patterns","wordform"],["🐣","Diminutives","diminutives"],
-            ["🗺️","Dialects","dialects"],["⚠️","False Friends","falsefr"],["🎨","Color Quirks","colorquirk"],
-            ["🪞","Svoj vs Moj","svojmoj"],["🔀","Conditional","conditional"],["🤝","Vi ili ti?","formalregister"],
-            ["🔁","Impersonal","impersonal"],["💻","Tech & Digital","techvoc"],["🏛️","Admin Life","bureaucratic"],
-            ["🎭","Ti vs Vi","tivicompare"],
-          ].map(([icon,label,screen]) => (
-            <button key={screen} className="tc" style={{ textAlign:"center", padding:"12px 8px" }} onClick={() => setScr(screen)}>
-              <div style={{ fontSize:'var(--text-2xl)' }}>{icon}</div>
-              <div style={{ fontSize:'var(--text-sm)', fontWeight:700, marginTop:4 }}>{label}</div>
-            </button>
-          ))}
+            {/* Vocabulary */}
+            <div style={{ marginTop:16 }}>
+              <Section title="Vocabulary" icon="📚" count={`${allCats.length + 6} topics`} defaultOpen={false}>
+                <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>
+                  {allCats.length} core categories · tap any to start
+                </p>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:16 }}>
+                  {allCats.map(t => {
+                    const isCompleted = st && Array.isArray(st.ct) && st.ct.includes(t);
+                    return (
+                    <button key={t} className="tc" style={{ textAlign:"center", padding:"14px 8px" }} onClick={() => { setShowBrowse(false); launchVocab(t); }}>
+                      <div style={{ fontSize:'var(--text-2xl)' }}>{icons[t] || "📚"}</div>
+                      <div style={{ fontSize:'var(--text-sm)', fontWeight:700, marginTop:4, textTransform:"capitalize" }}>
+                        {t}
+                        {isCompleted && (
+                          <span style={{ color: 'var(--success)', fontWeight: 800, marginLeft: 6 }}>✓</span>
+                        )}
+                      </div>
+                      <div style={{ fontSize:'var(--text-xs)', color:"var(--subtext)", marginTop:2 }}>{V[t].length} words</div>
+                      <div style={{ fontSize:'var(--text-xs)', color:"var(--subtext)", marginTop:3, opacity:.7, lineHeight:1.3 }}>
+                        {(V[t]||[]).slice(0,2).map(w=>w[0]).join(' · ')}
+                      </div>
+                      {(() => {
+                        const count = V[t].length;
+                        const [badge, color, bg] = count < 15 ? ['Essential','var(--success)','var(--success-bg)'] : count < 25 ? ['Core','var(--info)','var(--info-bg)'] : ['Extended','var(--lavender)','var(--bar-bg)'];
+                        return <span style={{fontSize:'var(--text-xs)',fontWeight:800,color,background:bg,borderRadius:6,padding:'2px 5px',marginTop:3,letterSpacing:'.04em'}}>{badge}</span>;
+                      })()}
+                    </button>
+                    );
+                  })}
+                </div>
+                <div style={{ fontSize:'var(--text-sm)', fontWeight:700, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Themes</div>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
+                  {[
+                    ["🌍","Countries","countries"],["💼","Professions","professions"],
+                    ["🌤️","Weather","weather"],["👗","Clothing","clothes"],
+                    ["👤","Appearance","bodydesc"],["🔤","Pronunciation","phonology"],
+                  ].map(([icon,label,screen]) => (
+                    <button key={screen} className="tc" style={{ textAlign:"center", padding:"14px 8px" }} onClick={() => { setShowBrowse(false); setScr(screen); }}>
+                      <div style={{ fontSize:'var(--text-2xl)' }}>{icon}</div>
+                      <div style={{ fontSize:'var(--text-sm)', fontWeight:700, marginTop:4 }}>{label}</div>
+                    </button>
+                  ))}
+                </div>
+              </Section>
+            </div>
+
+            {/* Grammar */}
+            <Section title="Grammar" icon="📝" count="14 lessons" defaultOpen={false}>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
+                <LevelBadge label="Foundation" color="var(--success)" bg="var(--success-bg)" />
+                <div style={{ flex:1, height:1, background:"var(--card-b)" }} />
+              </div>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:14 }}>
+                {[
+                  ["📜","Grammar Intro","a1",() => { sGl(GRAM.beginner[0]); sGp("learn"); sGx(0); sGs(0); sGa(false); sGsl(-1); setScr("grammar"); sCurEx("grammar"); }],
+                  ["🔄","Tenses & Gender","a1",() => { setScr("tenses"); sCurEx("tenses"); }],
+                  ["📝","Cases Intro","a2",() => { setScr("padezi"); sCurEx("padezi"); }],
+                  ["🎨","Colors & Gender","a2",() => { setScr("boje"); sCurEx("boje"); }],
+                ].map((/** @type {any} */ [icon,label,cefr,fn]) => (
+                  <button key={label} className="tc" style={{ display:"flex", alignItems:"center", gap:10, padding:"13px 14px", textAlign:"left" }} onClick={() => { setShowBrowse(false); fn(); }}>
+                    <div style={{ fontSize:'var(--text-xl)', flexShrink:0 }}>{icon}</div>
+                    <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", flex:1 }}>{label}</div>
+                    <span className={`cefr cefr-${cefr}`}>{cefr.toUpperCase()}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
+                <LevelBadge label="Intermediate" color="var(--warning)" bg="var(--warning-bg)" />
+                <div style={{ flex:1, height:1, background:"var(--card-b)" }} />
+              </div>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:14 }}>
+                {[
+                  ["📚","Padeži Master","b1",() => { setScr("padezifull"); sCurEx("padezifull"); }],
+                  ["↔️","Verb Aspect","b1",() => { setScr("aspect"); }],
+                  ["🔀","Conjugation","b1",() => { setScr("conjdrill"); sCurEx("conjdrill"); }],
+                ].map((/** @type {any} */ [icon,label,cefr,fn]) => (
+                  <button key={label} className="tc" style={{ display:"flex", alignItems:"center", gap:10, padding:"13px 14px", textAlign:"left" }} onClick={() => { setShowBrowse(false); fn(); }}>
+                    <div style={{ fontSize:'var(--text-xl)', flexShrink:0 }}>{icon}</div>
+                    <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", flex:1 }}>{label}</div>
+                    <span className={`cefr cefr-${cefr}`}>{cefr.toUpperCase()}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
+                <LevelBadge label="Advanced" color="var(--lavender)" bg="var(--bar-bg)" />
+                <div style={{ flex:1, height:1, background:"var(--card-b)" }} />
+              </div>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+                {[
+                  ["🔮","Modal Verbs","b1",() => { setScr("modal"); }],
+                  ["📝","Declension","b2",() => { setScr("declension"); }],
+                  ["🔀","Conditional","b1",() => setScr("conditional")],
+                  ["🤝","Vi ili ti?","b1",() => setScr("formalregister")],
+                  ["🔁","Impersonal","b2",() => setScr("impersonal")],
+                  ["💻","Tech & Digital","b2",() => setScr("techvoc")],
+                  ["🏛️","Admin Life","b2",() => setScr("bureaucratic")],
+                ].map((/** @type {any} */ [icon,label,cefr,fn]) => (
+                  <button key={label} className="tc" style={{ display:"flex", alignItems:"center", gap:10, padding:"13px 14px", textAlign:"left" }} onClick={() => { setShowBrowse(false); fn(); }}>
+                    <div style={{ fontSize:'var(--text-xl)', flexShrink:0 }}>{icon}</div>
+                    <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", flex:1 }}>{label}</div>
+                    <span className={`cefr cefr-${cefr}`}>{cefr.toUpperCase()}</span>
+                  </button>
+                ))}
+              </div>
+            </Section>
+
+            {/* Reading */}
+            <Section title="Reading" icon="📖" count="11 passages" defaultOpen={false}>
+              <button className="tc" style={{ width:"100%", display:"flex", alignItems:"center", gap:14, padding:"16px" }} onClick={() => { setShowBrowse(false); setScr("readlist"); }}>
+                <div style={{ width:44, height:44, borderRadius:13, background:'var(--success-bg)', border:'1px solid var(--success-b)',
+                  display:"flex", alignItems:"center", justifyContent:"center", fontSize:'var(--text-2xl)', flexShrink:0 }}>📖</div>
+                <div style={{ flex:1, textAlign:"left" }}>
+                  <div style={{ fontSize:'var(--text-base)', fontWeight:800, color:"var(--heading)" }}>Reading Passages</div>
+                  <div style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginTop:1 }}>11 stories · A1 to B2</div>
+                </div>
+                <div style={{ fontSize:'var(--text-xl)', color:"var(--subtext)", opacity:.35 }}>›</div>
+              </button>
+            </Section>
+
+            {/* Reference */}
+            <Section title="Quick Reference" icon="📌" count="13 guides" defaultOpen={false}>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
+                {[
+                  ["🔤","Alphabet","alphabet"],["🧩","Word Patterns","wordform"],["🐣","Diminutives","diminutives"],
+                  ["🗺️","Dialects","dialects"],["⚠️","False Friends","falsefr"],["🎨","Color Quirks","colorquirk"],
+                  ["🪞","Svoj vs Moj","svojmoj"],["🔀","Conditional","conditional"],["🤝","Vi ili ti?","formalregister"],
+                  ["🔁","Impersonal","impersonal"],["💻","Tech & Digital","techvoc"],["🏛️","Admin Life","bureaucratic"],
+                  ["🎭","Ti vs Vi","tivicompare"],
+                ].map(([icon,label,screen]) => (
+                  <button key={screen} className="tc" style={{ textAlign:"center", padding:"12px 8px" }} onClick={() => { setShowBrowse(false); setScr(screen); }}>
+                    <div style={{ fontSize:'var(--text-2xl)' }}>{icon}</div>
+                    <div style={{ fontSize:'var(--text-sm)', fontWeight:700, marginTop:4 }}>{label}</div>
+                  </button>
+                ))}
+              </div>
+            </Section>
+
+          </div>
         </div>
-      </Section>
+      )}
 
     </React.Fragment>
   );

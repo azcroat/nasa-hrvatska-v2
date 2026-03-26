@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { H, MEDIA, getCityOfDay, incrementCulture } from '../../data.jsx';
+import { H, MEDIA, getCityOfDay, incrementCulture, getProverbOfDay, getHistFact } from '../../data.jsx';
 import PhotoHero from '../shared/PhotoHero';
 import { PHOTOS } from '../../lib/photos';
 import CroatianKnight from '../shared/CroatianKnight';
@@ -385,14 +385,17 @@ function SpotifyPlaylists() {
 export default function CroatiaTab({ setScr, sCurEx, award }) {
   const cats = ["tv","music","film","sport","podcast","culture"];
   const city = getCityOfDay();
+  const proverb = getProverbOfDay();
+  const histFact = getHistFact();
   const [activeStream, setActiveStream] = useState(null);
   const [activeMediaCat, setActiveMediaCat] = useState("tv");
   const [openLetter, setOpenLetter] = useState(null);
   const [expandedContext, setExpandedContext] = React.useState(null);
+  const [ctab, setCTab] = useState('discover');
 
   return (
     <React.Fragment>
-      {/* ── TAB HERO ── */}
+      {/* ── TAB HERO — always visible ── */}
       <div className="tab-hero">
         <div className="tab-hero-stripe" />
         <div style={{position:'absolute',top:0,left:0,right:0,bottom:0,background:'linear-gradient(105deg,transparent 30%,rgba(255,255,255,.025) 50%,transparent 70%)',backgroundSize:'200% 100%',animation:'shimmer 8s linear infinite',pointerEvents:'none'}} />
@@ -415,554 +418,617 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
         </div>
       </div>
 
-      {/* ── PHOTO HERO ── */}
-      <PhotoHero
-        src={PHOTOS.dubrovnik}
-        alt="Dubrovnik old town"
-        title="Naša Hrvatska"
-        subtitle="Culture, history & language — all in one place"
-        height={180}
-        style={{marginBottom: 20}}
-      />
-
-      {/* ── KNIGHT WELCOME BANNER ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', background: 'var(--card)', borderRadius: 12, margin: '0 0 12px' }}>
-        <CroatianKnight size={44} mood="happy" style={{ flexShrink: 0 }} />
-        <div style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.5 }}>
-          <strong style={{ color: 'var(--heading)', display: 'block', marginBottom: 2 }}>Dobrodošli u Hrvatsku! 🇭🇷</strong>
-          Explore culture, music, stories & language from the homeland.
-        </div>
+      {/* ── SUB-TAB PILL SELECTOR ── */}
+      <div style={{ display:'flex', gap:8, padding:'4px 0 16px', overflowX:'auto', scrollbarWidth:'none' }}>
+        {[
+          { id:'discover', label:'🗓️ Discover' },
+          { id:'culture',  label:'🏰 Culture' },
+          { id:'media',    label:'🎵 Media' },
+          { id:'stories',  label:'📖 Stories' },
+        ].map(t => (
+          <button key={t.id} onClick={() => setCTab(t.id)} style={{
+            padding:'7px 16px', borderRadius:20, border:'none', flexShrink:0,
+            background: ctab === t.id ? 'var(--info)' : 'var(--bar-bg)',
+            color: ctab === t.id ? '#fff' : 'var(--subtext)',
+            fontWeight:700, fontSize:13, cursor:'pointer', whiteSpace:'nowrap',
+            transition:'background 0.2s',
+          }}>{t.label}</button>
+        ))}
       </div>
 
-      {/* ── CITY OF THE DAY ── */}
-      <button style={{marginBottom:16,borderRadius:16,overflow:"hidden",boxShadow:"0 4px 16px rgba(0,0,0,.1)",width:"100%",border:"none",cursor:"pointer",padding:0,textAlign:"left"}} onClick={()=>{ incrementCulture('cityCnt'); if (award) award(3); setScr("cityofday"); }}>
-        <div style={{background:"linear-gradient(135deg,"+city.color+"dd,"+city.color+")",padding:"14px 16px",display:"flex",alignItems:"center",gap:14}}>
-          <div style={{fontSize:36,flexShrink:0}}>{city.icon}</div>
-          <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:'var(--text-xs)',fontWeight:800,color:"rgba(255,255,255,.75)",letterSpacing:"0.08em",marginBottom:3}}>🗓️ CITY OF THE DAY</div>
-            <div style={{fontSize:17,fontWeight:900,color:"white",lineHeight:1.2,display:'flex',alignItems:'center',gap:8}}>
-              <CroatianKnight size={36} mood="thinking" style={{ flexShrink: 0 }} />
-              {city.name}
-            </div>
-            <div style={{fontSize:'var(--text-xs)',color:"rgba(255,255,255,.75)",marginTop:2}}>{city.region} &nbsp;·&nbsp; <span style={{fontStyle:"italic"}}>"{city.tagline}"</span></div>
-          </div>
-          <div style={{fontSize:20,opacity:.7,color:"white"}}>→</div>
-        </div>
-        <div style={{background:"rgba(0,0,0,.55)",padding:"7px 16px",fontSize:'var(--text-xs)',color:"rgba(255,255,255,.65)"}}>
-          New city every day · {city.facts.length} facts · {city.vocab.length} words to learn
-        </div>
-      </button>
+      {/* ══════════════════════════════════════════
+          DISCOVER TAB
+      ══════════════════════════════════════════ */}
+      {ctab === 'discover' && (
+        <React.Fragment>
+          {/* ── PHOTO HERO ── */}
+          <PhotoHero
+            src={PHOTOS.dubrovnik}
+            alt="Dubrovnik old town"
+            title="Naša Hrvatska"
+            subtitle="Culture, history & language — all in one place"
+            height={180}
+            style={{marginBottom: 20}}
+          />
 
-      {/* ── HISTORY & REGIONS — always-visible 2-col grid ── */}
-      <PhotoHero
-        src={PHOTOS.adriatic}
-        alt="Dalmatian coast"
-        title="🗺️ History & Regions"
-        subtitle="Explore Croatia's rich cultural heritage"
-        height={120}
-        style={{marginBottom: 16, borderRadius: 12}}
-      />
-      <div className="section-block">
-        <div className="section-hdr">
-          <div className="section-hdr-icon" style={{background:'rgba(212,0,48,.12)'}}>🏰</div>
-          <div className="section-hdr-text">
-            <div className="section-hdr-title">History &amp; Regions</div>
-            <div className="section-hdr-sub">Journey through Croatia's past and places</div>
+          {/* ── KNIGHT WELCOME BANNER ── */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', background: 'var(--card)', borderRadius: 12, margin: '0 0 12px' }}>
+            <CroatianKnight size={44} mood="happy" style={{ flexShrink: 0 }} />
+            <div style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.5 }}>
+              <strong style={{ color: 'var(--heading)', display: 'block', marginBottom: 2 }}>Dobrodošli u Hrvatsku! 🇭🇷</strong>
+              Explore culture, music, stories & language from the homeland.
+            </div>
           </div>
-          <div className="section-hdr-badge">12 entries</div>
-        </div>
-        <div
-          onClick={() => { if (expandedContext !== 'history') incrementCulture('regionCnt'); setExpandedContext(expandedContext === 'history' ? null : 'history'); }}
-          style={{
-            fontSize:12, color:'var(--info)', cursor:'pointer',
-            marginBottom: expandedContext === 'history' ? 0 : 12,
-            display:'flex', alignItems:'center', gap:4, fontWeight:600
-          }}
-        >
-          {expandedContext === 'history' ? '▲' : '▼'} Why this matters for your Croatian
-        </div>
-        {expandedContext === 'history' && (
-          <div style={{
-            fontSize:12, color:'var(--subtext)', lineHeight:1.6,
-            padding:'10px 14px', background:'var(--info-bg)',
-            borderRadius:10, marginBottom:12, border:'1px solid var(--info-b)'
-          }}>
-            🏰 <strong>Croatian history</strong> is woven into everyday conversation. References to the Domovinski Rat, Vukovar, and the medieval kings are part of how Croatians identify themselves. Understanding this context makes your Croatian feel genuine and earns respect from native speakers.
-          </div>
-        )}
-        <div className="g2" style={{ gap:8 }}>
-          {[
-            [()=>{setScr("history");},"🇭🇷","Domovinski Rat","1991–1995 Homeland War","#dc2626","history"],
-            [()=>setScr("region_vukovar"),"🕯️","Vukovar","Hero city — a deep dive","#dc2626","history"],
-            [()=>{setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval dynasty","#b45309","history"],
-            [()=>setScr("region_zagreb"),"🏛️","Zagreb","Croatia's capital","#0e7490","history"],
-            [()=>setScr("region_split"),"🌊","Split","Rome on the Adriatic","#0284c7","history"],
-            [()=>setScr("region_mostar"),"🌉","Mostar","The bridge reborn","#7c3aed","history"],
-            [()=>setScr("region_tomislavgrad"),"👑","Tomislavgrad","Where the kingdom was born","#b45309","history"],
-            [()=>setScr("region_knin"),"🏰","Knin","Liberated August 5, 1995","#dc2626","history"],
-            [()=>setScr("region_labin"),"⛵","Labin & Rabac","Our home in Istria","#0e7490","history"],
-            [()=>setScr("region_bibinje"),"🏖️","Bibinje & Zadar","Dalmatian gateway","#0284c7","history"],
-            [()=>setScr("region_hercegovina"),"⚔️","Hercegovina","Croatian heritage","#b45309","history"],
-            [()=>setScr("region_vinkovci"),"🏛️","Vinkovci","8,300 years of history","#78716c","history"],
-          ].map((/** @type {any} */ [fn,icon,title,sub,color,type],i) => (
-            <button key={i} onClick={fn}
-              style={{
-                display:'flex', alignItems:'center', gap:10, padding:'12px',
-                background:'var(--card)', border:`1.5px solid ${color}25`,
-                borderLeft:`3px solid ${color}`, borderRadius:12,
-                cursor:'pointer', fontFamily:"'Outfit',sans-serif", textAlign:'left',
-                transition:'transform .15s, box-shadow .15s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.transform='translateY(-1px)'; e.currentTarget.style.boxShadow=`0 4px 16px ${color}20`; }}
-              onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow=''; }}
-            >
-              <div style={{width:36,height:36,borderRadius:10,background:`${color}15`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}}>{icon}</div>
+
+          {/* ── CITY OF THE DAY ── */}
+          <button style={{marginBottom:16,borderRadius:16,overflow:"hidden",boxShadow:"0 4px 16px rgba(0,0,0,.1)",width:"100%",border:"none",cursor:"pointer",padding:0,textAlign:"left"}} onClick={()=>{ incrementCulture('cityCnt'); if (award) award(3); setScr("cityofday"); }}>
+            <div style={{background:"linear-gradient(135deg,"+city.color+"dd,"+city.color+")",padding:"14px 16px",display:"flex",alignItems:"center",gap:14}}>
+              <div style={{fontSize:36,flexShrink:0}}>{city.icon}</div>
               <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:'var(--text-sm)',fontWeight:700,color:'var(--heading)',lineHeight:1.2,marginBottom:2}}>{title}</div>
-                <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',lineHeight:1.3}}>{sub}</div>
-                <span style={{
-                  display:'inline-block', fontSize:9, fontWeight:800, padding:'2px 6px',
-                  borderRadius:4, textTransform:'uppercase', letterSpacing:'0.06em',
-                  marginTop:4,
-                  background:'rgba(124,58,237,0.1)',
-                  color:'var(--lavender, #7c3aed)',
-                }}>
-                  {type}
-                </span>
+                <div style={{fontSize:'var(--text-xs)',fontWeight:800,color:"rgba(255,255,255,.75)",letterSpacing:"0.08em",marginBottom:3}}>🗓️ CITY OF THE DAY</div>
+                <div style={{fontSize:17,fontWeight:900,color:"white",lineHeight:1.2,display:'flex',alignItems:'center',gap:8}}>
+                  <CroatianKnight size={36} mood="thinking" style={{ flexShrink: 0 }} />
+                  {city.name}
+                </div>
+                <div style={{fontSize:'var(--text-xs)',color:"rgba(255,255,255,.75)",marginTop:2}}>{city.region} &nbsp;·&nbsp; <span style={{fontStyle:"italic"}}>"{city.tagline}"</span></div>
               </div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── CROATIAN LIFE — always-visible 2-col grid ── */}
-      <PhotoHero
-        src={PHOTOS.market}
-        alt="Croatian market"
-        title="🇭🇷 Croatian Life"
-        subtitle="Daily customs, food, family & traditions"
-        height={100}
-        style={{marginBottom: 16, borderRadius: 12}}
-      />
-      <div className="section-block">
-        <div className="section-hdr">
-          <div className="section-hdr-icon" style={{background:'rgba(22,163,74,.12)'}}>🏘️</div>
-          <div className="section-hdr-text">
-            <div className="section-hdr-title">Croatian Life</div>
-            <div className="section-hdr-sub">Everyday vocabulary for real situations</div>
-          </div>
-          <div className="section-hdr-badge">12 topics</div>
-        </div>
-        <div className="g2" style={{ gap:8 }}>
-          {[
-            [()=>setScr("grocery"),"🛒","Grocery Shopping","Supermarket vocab","#16a34a","interactive"],
-            [()=>{setScr("recipes");},"🍳","Croatian Recipes","Traditional dishes","#b45309","reading"],
-            [()=>{setScr("roleplay");},"🎭","Role-Play","Real-life conversations","#7c3aed","interactive"],
-            [()=>setScr("school"),"🏫","School Kit","For parents & students","#0e7490","language"],
-            [()=>setScr("texting"),"📱","Texting & Slang","How Croatians text","#7c3aed","language"],
-            [()=>setScr("friends"),"🤝","Making Friends","Social life","#16a34a","interactive"],
-            [()=>setScr("foodorder"),"🍕","Ordering Food","Restaurants & cafés","#b45309","interactive"],
-            [()=>setScr("transport"),"🚌","Transport","Buses, taxis & trams","#0284c7","language"],
-            [()=>setScr("emergency"),"🚨","Emergency","Essential phrases","#dc2626","language"],
-            [()=>setScr("practical"),"💼","Practical Life","Banks, doctors, admin","#78716c","language"],
-            [()=>setScr("basketball"),"🏀","At Basketball","Croatian basketball","#b45309","culture"],
-            [()=>setScr("gym"),"🏋️","At the Gym","Fitness vocabulary","#16a34a","language"],
-          ].map((/** @type {any} */ [fn,icon,title,sub,color,type],i) => (
-            <button key={i} onClick={fn}
-              style={{
-                display:'flex', alignItems:'center', gap:10, padding:'12px',
-                background:'var(--card)', border:`1.5px solid ${color}25`,
-                borderLeft:`3px solid ${color}`, borderRadius:12,
-                cursor:'pointer', fontFamily:"'Outfit',sans-serif", textAlign:'left',
-                transition:'transform .15s, box-shadow .15s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.transform='translateY(-1px)'; e.currentTarget.style.boxShadow=`0 4px 16px ${color}20`; }}
-              onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow=''; }}
-            >
-              <div style={{width:36,height:36,borderRadius:10,background:`${color}15`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}}>{icon}</div>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:'var(--text-sm)',fontWeight:700,color:'var(--heading)',lineHeight:1.2,marginBottom:2}}>{title}</div>
-                <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',lineHeight:1.3}}>{sub}</div>
-                <span style={{
-                  display:'inline-block', fontSize:9, fontWeight:800, padding:'2px 6px',
-                  borderRadius:4, textTransform:'uppercase', letterSpacing:'0.06em',
-                  marginTop:4,
-                  background: type === 'interactive' ? 'rgba(14,116,144,0.1)' :
-                              type === 'reading' ? 'rgba(22,163,74,0.1)' :
-                              type === 'history' ? 'rgba(124,58,237,0.1)' : 'rgba(217,119,6,0.1)',
-                  color: type === 'interactive' ? 'var(--info)' :
-                         type === 'reading' ? 'var(--forest, #16a34a)' :
-                         type === 'history' ? 'var(--lavender, #7c3aed)' : 'var(--harvest, #d97706)',
-                }}>
-                  {type}
-                </span>
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── STORIES & NEWS ── */}
-<div className="section-block">
-  <div className="section-hdr">
-    <div className="section-hdr-icon" style={{background:'rgba(245,158,11,.12)'}}>📰</div>
-    <div className="section-hdr-text">
-      <div className="section-hdr-title">Stories &amp; News</div>
-      <div className="section-hdr-sub">Live the language through real Croatian stories</div>
-    </div>
-  </div>
-  <div className="g3" style={{ gap:10 }}>
-    <button onClick={() => setScr("baka_summer")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(245,158,11,.3)', background:'rgba(245,158,11,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif", position:'relative' }}>
-      <span style={{
-        display:'inline-block', fontSize:9, fontWeight:900, padding:'2px 6px',
-        borderRadius:4, background:'#dc2626', color:'white',
-        textTransform:'uppercase', letterSpacing:'0.06em',
-        position:'absolute', top:8, right:8,
-      }}>NEW</span>
-      <div style={{ fontSize:26, marginBottom:6 }}>📖</div>
-      <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--warning)' }}>Baka's Summer</div>
-      <div style={{ fontSize:'var(--text-xs)', color:'var(--warning)', marginTop:2, opacity:.75 }}>12-chapter story</div>
-    </button>
-    <button onClick={() => setScr("croatia_today")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(14,116,144,.3)', background:'rgba(14,116,144,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
-      <div style={{ fontSize:26, marginBottom:6 }}>📰</div>
-      <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--info)' }}>Croatia Today</div>
-      <div style={{ fontSize:'var(--text-xs)', color:'var(--info)', marginTop:2, opacity:.75 }}>Daily Croatian news</div>
-    </button>
-    <button onClick={() => setScr("survival_dinner")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(22,163,74,.3)', background:'rgba(22,163,74,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
-      <div style={{ fontSize:26, marginBottom:6 }}>🍽️</div>
-      <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--success)' }}>At the Table</div>
-      <div style={{ fontSize:'var(--text-xs)', color:'var(--success)', marginTop:2, opacity:.75 }}>Navigate any dinner</div>
-    </button>
-    {/* Only show during Easter season (March 20 - April 30) */}
-    {(() => {
-      const m = new Date().getMonth() + 1, d = new Date().getDate();
-      const isEaster = (m === 3 && d >= 20) || (m === 4 && d <= 30);
-      if (!isEaster) return null;
-      return (
-        <div
-          onClick={() => setScr('easter')}
-          style={{
-            background: 'rgba(22,163,74,.06)',
-            border: '1.5px solid rgba(22,163,74,.3)', borderRadius: 14,
-            padding: '14px', cursor: 'pointer', position: 'relative', textAlign: 'center',
-          }}
-        >
-          <span style={{ position: 'absolute', top: 8, right: 8, background: 'var(--error)', color: '#fff', fontSize: 9, fontWeight: 900, borderRadius: 6, padding: '2px 5px' }}>NEW</span>
-          <div style={{ fontSize: 24, marginBottom: 6 }}>🥚</div>
-          <div style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: '#166534' }}>Uskrs u Hrvatskoj</div>
-          <div style={{ fontSize: 'var(--text-xs)', color: '#4ade80', fontWeight: 600, marginTop: 2 }}>Easter traditions & phrases</div>
-        </div>
-      );
-    })()}
-  </div>
-</div>
-
-      {/* ── IMMERSION FEATURE ── */}
-      <div className="section-block">
-        <div className="section-hdr">
-          <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>🌊</div>
-          <div className="section-hdr-text">
-            <div className="section-hdr-title">Immersion</div>
-            <div className="section-hdr-sub">AI conversation + curated media from A1 to C2</div>
-          </div>
-        </div>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-          <button onClick={() => setScr("aiconvo")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(99,102,241,.3)', background:'rgba(99,102,241,.07)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
-            <div style={{ fontSize:26, marginBottom:6 }}>🤖</div>
-            <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)' }}>AI Conversations</div>
-            <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:2 }}>50 scenarios · all levels</div>
+              <div style={{fontSize:20,opacity:.7,color:"white"}}>→</div>
+            </div>
+            <div style={{background:"rgba(0,0,0,.55)",padding:"7px 16px",fontSize:'var(--text-xs)',color:"rgba(255,255,255,.65)"}}>
+              New city every day · {city.facts.length} facts · {city.vocab.length} words to learn
+            </div>
           </button>
-          <button onClick={() => setScr("immersion")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(14,116,144,.3)', background:'rgba(14,116,144,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
-            <div style={{ fontSize:26, marginBottom:6 }}>🌊</div>
-            <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--info)' }}>Immersion Hub</div>
-            <div style={{ fontSize:'var(--text-xs)', color:'var(--info)', marginTop:2, opacity:.75 }}>A1 → C2 pathway</div>
-          </button>
-        </div>
-      </div>
 
-{/* ── LANGUAGE & CULTURE ──────────────────────────────────────────── */}
-<div className="section-block">
-  <div className="section-hdr">
-    <div className="section-hdr-icon" style={{background:'rgba(124,58,237,.12)'}}>🎭</div>
-    <div className="section-hdr-text">
-      <div className="section-hdr-title">Language &amp; Culture</div>
-      <div className="section-hdr-sub">Deepen your connection to Croatian identity</div>
-    </div>
-    <div className="section-hdr-badge">4 topics</div>
-  </div>
-  <div
-    onClick={() => { if (expandedContext !== 'kafic') incrementCulture('regionCnt'); setExpandedContext(expandedContext === 'kafic' ? null : 'kafic'); }}
-    style={{
-      fontSize:12, color:'var(--info)', cursor:'pointer',
-      marginBottom: expandedContext === 'kafic' ? 0 : 12,
-      display:'flex', alignItems:'center', gap:4, fontWeight:600
-    }}
-  >
-    {expandedContext === 'kafic' ? '▲' : '▼'} Why this matters for your Croatian
-  </div>
-  {expandedContext === 'kafic' && (
-    <div style={{
-      fontSize:12, color:'var(--subtext)', lineHeight:1.6,
-      padding:'10px 14px', background:'var(--info-bg)',
-      borderRadius:10, marginBottom:12, border:'1px solid var(--info-b)'
-    }}>
-      ☕ <strong>U Kafiću</strong> (At the Café) is where Croatian social life happens. Croatians spend hours in kafići — it's not just coffee, it's connection. Mastering café vocabulary and small talk unlocks the most natural everyday conversations you'll ever have.
-    </div>
-  )}
-  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-  {[
-    { icon:'☕', title:'U Kafiću', desc:'The art of Croatian coffee culture', accent:'rgba(245,158,11,.25)', scr:'kafic' },
-    { icon:'💙', title:'Diaspora Croatian', desc:'Code-switching & heritage language', accent:'rgba(14,116,144,.25)', scr:'diaspora' },
-    { icon:'🎊', title:'Life Events', desc:'Weddings, funerals, baptisms', accent:'rgba(124,58,237,.25)', scr:'lifeevents' },
-    { icon:'🏛️', title:'Civic Croatian', desc:'Vocabulary to read the news', accent:'rgba(22,163,74,.25)', scr:'civic' },
-  ].map(c => (
-    <button key={c.scr} className="tc"
-      style={{ textAlign:'center', padding:'16px 12px' }}
-      onClick={() => setScr(c.scr)}>
-      <div style={{ width:48, height:48, borderRadius:14, background:c.accent, display:'flex', alignItems:'center', justifyContent:'center', fontSize:24, margin:'0 auto 8px' }}>{c.icon}</div>
-      <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', lineHeight:1.2, marginBottom:4 }}>{c.title}</div>
-      <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.3 }}>{c.desc}</div>
-    </button>
-  ))}
-</div>
-</div>
-
-      {/* ── LETTERS FROM BAKA ─── */}
-      <div className="section-block">
-        <div className="section-hdr">
-          <div className="section-hdr-icon" style={{background:'rgba(200,152,10,.14)'}}>💌</div>
-          <div className="section-hdr-text">
-            <div className="section-hdr-title">Letters from Baka</div>
-            <div className="section-hdr-sub">Read Croatian the way family really writes it</div>
-          </div>
-          <CroatianKnight size={40} mood="happy" style={{ flexShrink: 0 }} />
-        </div>
-        <div style={{fontSize:12, color:'var(--subtext)', marginBottom:12, lineHeight:1.5}}>
-          Personal letters written in authentic Croatian — perfect for understanding how family members actually speak, including regional expressions and emotional vocabulary.
-        </div>
-        <div
-          onClick={() => { if (expandedContext !== 'baka') incrementCulture('regionCnt'); setExpandedContext(expandedContext === 'baka' ? null : 'baka'); }}
-          style={{
-            fontSize:12, color:'var(--info)', cursor:'pointer',
-            marginBottom: expandedContext === 'baka' ? 0 : 12,
-            display:'flex', alignItems:'center', gap:4, fontWeight:600
-          }}
-        >
-          {expandedContext === 'baka' ? '▲' : '▼'} Why this matters for your Croatian
-        </div>
-        {expandedContext === 'baka' && (
+          {/* ── PROVERB OF THE DAY ── */}
           <div style={{
-            fontSize:12, color:'var(--subtext)', lineHeight:1.6,
-            padding:'10px 14px', background:'var(--info-bg)',
-            borderRadius:10, marginBottom:12, border:'1px solid var(--info-b)'
+            background:'var(--card)', border:'1px solid var(--card-b)',
+            borderRadius:14, padding:'14px 16px', marginBottom:12,
+            borderLeft:'3px solid #b45309',
           }}>
-            💌 <strong>Baka's letters</strong> capture authentic Croatian as it's actually written between family members — warm, informal, full of dialect and emotion. This is the Croatian you won't find in textbooks, but will hear and read with your family.
+            <div style={{fontSize:10,fontWeight:900,color:'#b45309',letterSpacing:'.1em',textTransform:'uppercase',marginBottom:6}}>📜 Proverb of the Day</div>
+            <div style={{fontSize:'var(--text-sm)',fontWeight:800,color:'var(--heading)',marginBottom:4,lineHeight:1.4}}>{proverb.hr}</div>
+            <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',fontStyle:'italic',lineHeight:1.4}}>{proverb.en}</div>
           </div>
-        )}
-        <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-          {BAKA_LETTERS.map(letter => (
-            <div key={letter.id} style={{ background:'var(--card)', border:'1.5px solid var(--card-b)', borderRadius:14, overflow:'hidden' }}>
-              <button
-                onClick={() => { const opening = openLetter !== letter.id; setOpenLetter(opening ? letter.id : null); if (opening) { incrementCulture('bakaCnt'); if (award) award(5); } }}
-                style={{ width:'100%', padding:'14px 16px', background:'none', border:'none', cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif" }}>
-                <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                  <div style={{ width:40, height:40, borderRadius:10, background:'linear-gradient(135deg,#fef3c7,#fde68a)', border:'1px solid #fde68a',
-                    display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0 }}>💌</div>
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)' }}>{letter.from}</div>
-                    <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:1 }}>{letter.subject} · {letter.date}</div>
-                  </div>
-                  <span style={{ fontSize:'var(--text-base)', color:'var(--subtext)', opacity:.5 }}>{openLetter === letter.id ? '▲' : '▼'}</span>
-                </div>
-              </button>
-              {openLetter === letter.id && (
-                <div style={{ borderTop:'1px solid var(--card-b)', padding:'16px' }}>
-                  <div style={{
-                    background:'#fffbeb', border:'1px solid #fde68a',
-                    borderRadius:10, padding:'14px 16px', marginBottom:14,
-                    fontFamily:"Georgia, serif", fontSize:'var(--text-sm)', lineHeight:1.8, color:'#451a03',
-                    whiteSpace:'pre-line',
-                  }}>
-                    {letter.full}
-                  </div>
-                  <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:8 }}>
-                    📚 Words from this letter
-                  </div>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-                    {letter.words.map(w => (
-                      <div key={w.hr} style={{ background:'var(--bar-bg)', borderRadius:8, padding:'8px 10px' }}>
-                        <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'#0e7490' }}>{w.hr}</div>
-                        <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:2 }}>{w.en}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
 
-      {/* ── EXPLORE CROATIA ── */}
-      <div className="section-block">
-        <div className="section-hdr">
-          <div className="section-hdr-icon" style={{background:'rgba(14,116,144,.12)'}}>🗺️</div>
-          <div className="section-hdr-text">
-            <div className="section-hdr-title">Explore Croatia</div>
-            <div className="section-hdr-sub">Cities, parks, beaches &amp; islands</div>
+          {/* ── HISTORICAL FACT OF THE DAY ── */}
+          <div style={{
+            background:'var(--card)', border:'1px solid var(--card-b)',
+            borderRadius:14, padding:'14px 16px', marginBottom:16,
+            borderLeft:'3px solid #7c3aed',
+          }}>
+            <div style={{fontSize:10,fontWeight:900,color:'#7c3aed',letterSpacing:'.1em',textTransform:'uppercase',marginBottom:6}}>📅 Did You Know?</div>
+            <div style={{fontSize:'var(--text-sm)',fontWeight:800,color:'var(--heading)',marginBottom:4,lineHeight:1.4}}>{histFact.hr}</div>
+            <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',fontStyle:'italic',lineHeight:1.4}}>{histFact.en}</div>
           </div>
-        </div>
-        <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px",width:"100%"}} onClick={() => { setScr("crmap"); }}>
-          <div style={{fontSize:36}}>🗺️</div>
-          <div>
-            <div style={{fontSize:16,fontWeight:800,color:"var(--heading)"}}>Interactive Map &amp; Directions</div>
-            <div style={{fontSize:'var(--text-sm)',color:"var(--subtext)"}}>Explore Croatia — cities, parks, beaches, islands</div>
-          </div>
-        </button>
-      </div>
+        </React.Fragment>
+      )}
 
-      {/* ══════════════════════════════════════════════
-          TUNE IN TO CROATIA — Immersive Broadcast Hub
-      ══════════════════════════════════════════════ */}
-
-      {/* ─── Hero ─────────────────────────────────────── */}
-      <div style={{
-        background:'linear-gradient(160deg,#060e1e 0%,#071830 50%,#0a2a50 100%)',
-        borderRadius:20, overflow:'hidden', marginBottom:22,
-        position:'relative', boxShadow:'0 8px 40px rgba(0,0,0,.5)',
-      }}>
-        <div style={{height:4,background:'linear-gradient(90deg,#D40030 0%,#D40030 50%,#F8F6F2 50%,#F8F6F2 100%)'}}/>
-        <div style={{position:'absolute',top:0,left:0,right:0,bottom:0,background:'linear-gradient(105deg,transparent 30%,rgba(255,255,255,.035) 50%,transparent 70%)',backgroundSize:'200% 100%',animation:'shimmer 6s linear infinite',pointerEvents:'none'}}/>
-        <div style={{padding:'22px 22px 24px',position:'relative',zIndex:1}}>
-          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
-            <div style={{width:8,height:8,borderRadius:'50%',background:'#ef4444',boxShadow:'0 0 10px #ef4444',animation:'pulse 1.5s ease-in-out infinite'}}/>
-            <span style={{fontSize:10,fontWeight:900,color:'rgba(255,255,255,.45)',letterSpacing:'.18em',textTransform:'uppercase'}}>LIVE FROM CROATIA</span>
-          </div>
-          <div style={{fontSize:28,fontWeight:900,color:'white',fontFamily:"'Playfair Display',serif",lineHeight:1.1,marginBottom:8,textShadow:'0 2px 20px rgba(0,0,0,.5)'}}>
-            Tune In to Croatia
-          </div>
-          <div style={{fontSize:13,color:'rgba(255,255,255,.6)',fontWeight:500,lineHeight:1.5,marginBottom:14}}>
-            Real Croatian — live radio, TV, music, film & sport
-          </div>
-          <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
-            {['📡 Live Radio','📺 TV & News','🎵 Music','⚽ Sport','🎬 Film'].map(t => (
-              <span key={t} style={{fontSize:10,fontWeight:700,color:'rgba(255,255,255,.55)',background:'rgba(255,255,255,.07)',borderRadius:20,padding:'3px 10px',border:'1px solid rgba(255,255,255,.1)'}}>{t}</span>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ─── LIVE RADIO ────────────────────────────────── */}
-      <div style={{marginBottom:24}}>
-        <div style={{display:'flex',alignItems:'center',gap:7,marginBottom:12}}>
-          <div style={{width:8,height:8,borderRadius:'50%',background:'var(--error)',boxShadow:'0 0 8px var(--error)',animation:'pulse 1.5s ease-in-out infinite'}}/>
-          <span style={{fontSize:11,fontWeight:900,color:'var(--error)',textTransform:'uppercase',letterSpacing:'.1em'}}>Streaming Live</span>
-        </div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
-          {MEDIA.filter(m => !!m.stream).map((m,i) => (
-            <div key={i} style={{
-              background:`linear-gradient(175deg,#0c1520 0%,${m.color}40 100%)`,
-              borderRadius:16,overflow:'hidden',border:`1px solid ${m.color}30`,
-              display:'flex',flexDirection:'column',
-              boxShadow:`0 4px 20px ${m.color}18`,
-            }}>
-              <div style={{padding:'16px 10px 8px',textAlign:'center'}}>
-                <div style={{fontSize:30,marginBottom:6}}>{m.icon}</div>
-                <div style={{fontSize:10,fontWeight:900,color:'white',lineHeight:1.25,marginBottom:3}}>
-                  {m.name.split(' — ')[0].replace(' Live','').replace(' Radio Live','').trim()}
-                </div>
-                <div style={{fontSize:9,color:'rgba(255,255,255,.4)',lineHeight:1.3,marginBottom:8}}>{m.level}</div>
+      {/* ══════════════════════════════════════════
+          CULTURE TAB
+      ══════════════════════════════════════════ */}
+      {ctab === 'culture' && (
+        <React.Fragment>
+          {/* ── HISTORY & REGIONS ── */}
+          <PhotoHero
+            src={PHOTOS.adriatic}
+            alt="Dalmatian coast"
+            title="🗺️ History & Regions"
+            subtitle="Explore Croatia's rich cultural heritage"
+            height={120}
+            style={{marginBottom: 16, borderRadius: 12}}
+          />
+          <div className="section-block">
+            <div className="section-hdr">
+              <div className="section-hdr-icon" style={{background:'rgba(212,0,48,.12)'}}>🏰</div>
+              <div className="section-hdr-text">
+                <div className="section-hdr-title">History &amp; Regions</div>
+                <div className="section-hdr-sub">Journey through Croatia's past and places</div>
               </div>
-              <div style={{padding:'0 8px 10px'}}>
-                <RadioPlayer src={m.stream} color={m.color} streamId={m.name} activeStream={activeStream} setActiveStream={setActiveStream}/>
-              </div>
+              <div className="section-hdr-badge">12 entries</div>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ─── CONTENT CATEGORIES ─────────────────────────── */}
-      {[
-        {cat:'tv',     emoji:'📺', title:'TV & News',         accent:'#0e7490',  noStream:false},
-        {cat:'music',  emoji:'🎵', title:'Music',              accent:'#9333ea',  noStream:true},
-        {cat:'film',   emoji:'🎬', title:'Film & Video',       accent:'#b91c1c',  noStream:false},
-        {cat:'sport',  emoji:'⚽', title:'Sport',              accent:'#1d4ed8',  noStream:false},
-        {cat:'podcast',emoji:'🎙️',title:'Podcasts & Audio',   accent:'#16a34a',  noStream:false},
-        {cat:'culture',emoji:'🌍', title:'Culture & Press',    accent:'#7c3aed',  noStream:false},
-      ].map(({cat,emoji,title,accent,noStream}) => {
-        const items = MEDIA.filter(m => m.cat === cat && (noStream ? !m.stream : true));
-        if (!items.length) return null;
-        return (
-          <div key={cat} style={{marginBottom:24}}>
-            {/* Section header */}
-            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12,padding:'10px 14px',borderRadius:12,background:`${accent}10`,borderLeft:`3px solid ${accent}`}}>
-              <span style={{fontSize:18}}>{emoji}</span>
-              <span style={{fontSize:15,fontWeight:900,color:'var(--heading)',flex:1}}>{title}</span>
-              <span style={{fontSize:10,color:'var(--subtext)',fontWeight:600,background:'var(--bar-bg)',borderRadius:8,padding:'2px 8px'}}>{items.length}</span>
+            <div
+              onClick={() => { if (expandedContext !== 'history') incrementCulture('regionCnt'); setExpandedContext(expandedContext === 'history' ? null : 'history'); }}
+              style={{
+                fontSize:12, color:'var(--info)', cursor:'pointer',
+                marginBottom: expandedContext === 'history' ? 0 : 12,
+                display:'flex', alignItems:'center', gap:4, fontWeight:600
+              }}
+            >
+              {expandedContext === 'history' ? '▲' : '▼'} Why this matters for your Croatian
             </div>
-            {/* 2-column visual grid */}
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-              {items.map((m,i) => {
-                const isInternal = !!m.scr && !m.web;
-                const isExtLive = !!(m.live && !m.stream && m.web);
-                const hasAction = !!(m.scr || m.web);
-                return (
-                  <button key={i}
-                    onClick={() => { if (m.scr || m.web) { incrementCulture('mediaCnt'); if (award) award(3); } if (m.scr) setScr(m.scr); else if (m.web) window.open(m.web,'_blank','noopener,noreferrer'); }}
-                    style={{
-                      display:'flex',flexDirection:'column',background:'var(--card)',
-                      borderRadius:16,border:'1px solid var(--card-b)',overflow:'hidden',
-                      cursor:hasAction?'pointer':'default',textAlign:'left',
-                      fontFamily:"'Outfit',sans-serif",padding:0,
-                      transition:'transform .15s,box-shadow .15s',
-                      boxShadow:'0 2px 8px rgba(0,0,0,.04)',
-                    }}
-                    onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow=`0 8px 28px ${m.color}28`;}}
-                    onMouseLeave={e=>{e.currentTarget.style.transform='';e.currentTarget.style.boxShadow='0 2px 8px rgba(0,0,0,.04)';}}>
-                    {/* Color band */}
-                    <div style={{height:64,background:`linear-gradient(135deg,${m.color}cc,${m.color})`,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden',flexShrink:0}}>
-                      <div style={{position:'absolute',top:0,left:0,right:0,bottom:0,backgroundImage:'radial-gradient(circle,rgba(255,255,255,.13) 1px,transparent 1px)',backgroundSize:'14px 14px'}}/>
-                      <span style={{fontSize:30,position:'relative'}}>{m.icon}</span>
-                      {m.level && <span style={{position:'absolute',bottom:6,right:8,background:'rgba(0,0,0,.45)',color:'white',fontSize:8,fontWeight:900,padding:'2px 6px',borderRadius:6}}>{m.level}</span>}
-                      {isInternal && <span style={{position:'absolute',top:6,right:8,background:'rgba(255,255,255,.22)',color:'white',fontSize:8,fontWeight:900,padding:'1px 5px',borderRadius:4,border:'1px solid rgba(255,255,255,.3)'}}>IN APP</span>}
-                      {isExtLive && <span style={{position:'absolute',top:6,left:8,background:'#dc2626',color:'white',fontSize:8,fontWeight:900,padding:'2px 6px',borderRadius:6}}>LIVE ↗</span>}
-                    </div>
-                    {/* Content */}
-                    <div style={{padding:'10px 12px 12px',flex:1,display:'flex',flexDirection:'column'}}>
-                      <div style={{fontSize:12,fontWeight:800,color:'var(--heading)',lineHeight:1.3,marginBottom:4}}>{m.name}</div>
-                      <div style={{fontSize:10,color:'var(--subtext)',lineHeight:1.45,flex:1}}>
-                        {m.desc.length > 58 ? m.desc.substring(0,55)+'…' : m.desc}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-            {/* Spotify section under Music */}
-            {cat === 'music' && (
+            {expandedContext === 'history' && (
               <div style={{
-                marginTop:14, padding:'18px 14px 20px', borderRadius:16,
-                background:'linear-gradient(160deg,#0c1a2e 0%,#0d1f18 100%)',
-                border:'1px solid rgba(30,215,96,.2)',
-                boxShadow:'0 4px 20px rgba(0,0,0,.3)',
+                fontSize:12, color:'var(--subtext)', lineHeight:1.6,
+                padding:'10px 14px', background:'var(--info-bg)',
+                borderRadius:10, marginBottom:12, border:'1px solid var(--info-b)'
               }}>
-                <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
-                  <div style={{
-                    width:40,height:40,borderRadius:12,background:'#1ed760',
-                    display:'flex',alignItems:'center',justifyContent:'center',
-                    fontSize:20,flexShrink:0,boxShadow:'0 4px 12px rgba(30,215,96,.4)',
-                  }}>🎵</div>
-                  <div>
-                    <div style={{fontSize:15,fontWeight:900,color:'white'}}>Croatian Music on Spotify</div>
-                    <div style={{fontSize:11,color:'rgba(255,255,255,.45)',marginTop:1}}>14 curated playlists · tap to expand</div>
-                  </div>
-                </div>
-                <SpotifyPlaylists/>
+                🏰 <strong>Croatian history</strong> is woven into everyday conversation. References to the Domovinski Rat, Vukovar, and the medieval kings are part of how Croatians identify themselves. Understanding this context makes your Croatian feel genuine and earns respect from native speakers.
               </div>
             )}
+            <div className="g2" style={{ gap:8 }}>
+              {[
+                [()=>{setScr("history");},"🇭🇷","Domovinski Rat","1991–1995 Homeland War","#dc2626","history"],
+                [()=>setScr("region_vukovar"),"🕯️","Vukovar","Hero city — a deep dive","#dc2626","history"],
+                [()=>{setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval dynasty","#b45309","history"],
+                [()=>setScr("region_zagreb"),"🏛️","Zagreb","Croatia's capital","#0e7490","history"],
+                [()=>setScr("region_split"),"🌊","Split","Rome on the Adriatic","#0284c7","history"],
+                [()=>setScr("region_mostar"),"🌉","Mostar","The bridge reborn","#7c3aed","history"],
+                [()=>setScr("region_tomislavgrad"),"👑","Tomislavgrad","Where the kingdom was born","#b45309","history"],
+                [()=>setScr("region_knin"),"🏰","Knin","Liberated August 5, 1995","#dc2626","history"],
+                [()=>setScr("region_labin"),"⛵","Labin & Rabac","Our home in Istria","#0e7490","history"],
+                [()=>setScr("region_bibinje"),"🏖️","Bibinje & Zadar","Dalmatian gateway","#0284c7","history"],
+                [()=>setScr("region_hercegovina"),"⚔️","Hercegovina","Croatian heritage","#b45309","history"],
+                [()=>setScr("region_vinkovci"),"🏛️","Vinkovci","8,300 years of history","#78716c","history"],
+              ].map((/** @type {any} */ [fn,icon,title,sub,color,type],i) => (
+                <button key={i} onClick={fn}
+                  style={{
+                    display:'flex', alignItems:'center', gap:10, padding:'12px',
+                    background:'var(--card)', border:`1.5px solid ${color}25`,
+                    borderLeft:`3px solid ${color}`, borderRadius:12,
+                    cursor:'pointer', fontFamily:"'Outfit',sans-serif", textAlign:'left',
+                    transition:'transform .15s, box-shadow .15s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.transform='translateY(-1px)'; e.currentTarget.style.boxShadow=`0 4px 16px ${color}20`; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow=''; }}
+                >
+                  <div style={{width:36,height:36,borderRadius:10,background:`${color}15`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}}>{icon}</div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:'var(--text-sm)',fontWeight:700,color:'var(--heading)',lineHeight:1.2,marginBottom:2}}>{title}</div>
+                    <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',lineHeight:1.3}}>{sub}</div>
+                    <span style={{
+                      display:'inline-block', fontSize:9, fontWeight:800, padding:'2px 6px',
+                      borderRadius:4, textTransform:'uppercase', letterSpacing:'0.06em',
+                      marginTop:4,
+                      background:'rgba(124,58,237,0.1)',
+                      color:'var(--lavender, #7c3aed)',
+                    }}>
+                      {type}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
-        );
-      })}
+
+          {/* ── NATURE & HERITAGE (Croatian Life) ── */}
+          <PhotoHero
+            src={PHOTOS.market}
+            alt="Croatian market"
+            title="🇭🇷 Croatian Life"
+            subtitle="Daily customs, food, family & traditions"
+            height={100}
+            style={{marginBottom: 16, borderRadius: 12}}
+          />
+          <div className="section-block">
+            <div className="section-hdr">
+              <div className="section-hdr-icon" style={{background:'rgba(22,163,74,.12)'}}>🏘️</div>
+              <div className="section-hdr-text">
+                <div className="section-hdr-title">Croatian Life</div>
+                <div className="section-hdr-sub">Everyday vocabulary for real situations</div>
+              </div>
+              <div className="section-hdr-badge">12 topics</div>
+            </div>
+            <div className="g2" style={{ gap:8 }}>
+              {[
+                [()=>setScr("grocery"),"🛒","Grocery Shopping","Supermarket vocab","#16a34a","interactive"],
+                [()=>{setScr("recipes");},"🍳","Croatian Recipes","Traditional dishes","#b45309","reading"],
+                [()=>{setScr("roleplay");},"🎭","Role-Play","Real-life conversations","#7c3aed","interactive"],
+                [()=>setScr("school"),"🏫","School Kit","For parents & students","#0e7490","language"],
+                [()=>setScr("texting"),"📱","Texting & Slang","How Croatians text","#7c3aed","language"],
+                [()=>setScr("friends"),"🤝","Making Friends","Social life","#16a34a","interactive"],
+                [()=>setScr("foodorder"),"🍕","Ordering Food","Restaurants & cafés","#b45309","interactive"],
+                [()=>setScr("transport"),"🚌","Transport","Buses, taxis & trams","#0284c7","language"],
+                [()=>setScr("emergency"),"🚨","Emergency","Essential phrases","#dc2626","language"],
+                [()=>setScr("practical"),"💼","Practical Life","Banks, doctors, admin","#78716c","language"],
+                [()=>setScr("basketball"),"🏀","At Basketball","Croatian basketball","#b45309","culture"],
+                [()=>setScr("gym"),"🏋️","At the Gym","Fitness vocabulary","#16a34a","language"],
+              ].map((/** @type {any} */ [fn,icon,title,sub,color,type],i) => (
+                <button key={i} onClick={fn}
+                  style={{
+                    display:'flex', alignItems:'center', gap:10, padding:'12px',
+                    background:'var(--card)', border:`1.5px solid ${color}25`,
+                    borderLeft:`3px solid ${color}`, borderRadius:12,
+                    cursor:'pointer', fontFamily:"'Outfit',sans-serif", textAlign:'left',
+                    transition:'transform .15s, box-shadow .15s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.transform='translateY(-1px)'; e.currentTarget.style.boxShadow=`0 4px 16px ${color}20`; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow=''; }}
+                >
+                  <div style={{width:36,height:36,borderRadius:10,background:`${color}15`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}}>{icon}</div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:'var(--text-sm)',fontWeight:700,color:'var(--heading)',lineHeight:1.2,marginBottom:2}}>{title}</div>
+                    <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',lineHeight:1.3}}>{sub}</div>
+                    <span style={{
+                      display:'inline-block', fontSize:9, fontWeight:800, padding:'2px 6px',
+                      borderRadius:4, textTransform:'uppercase', letterSpacing:'0.06em',
+                      marginTop:4,
+                      background: type === 'interactive' ? 'rgba(14,116,144,0.1)' :
+                                  type === 'reading' ? 'rgba(22,163,74,0.1)' :
+                                  type === 'history' ? 'rgba(124,58,237,0.1)' : 'rgba(217,119,6,0.1)',
+                      color: type === 'interactive' ? 'var(--info)' :
+                             type === 'reading' ? 'var(--forest, #16a34a)' :
+                             type === 'history' ? 'var(--lavender, #7c3aed)' : 'var(--harvest, #d97706)',
+                    }}>
+                      {type}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ── STORIES & NEWS ── */}
+          <div className="section-block">
+            <div className="section-hdr">
+              <div className="section-hdr-icon" style={{background:'rgba(245,158,11,.12)'}}>📰</div>
+              <div className="section-hdr-text">
+                <div className="section-hdr-title">Stories &amp; News</div>
+                <div className="section-hdr-sub">Live the language through real Croatian stories</div>
+              </div>
+            </div>
+            <div className="g3" style={{ gap:10 }}>
+              <button onClick={() => setScr("baka_summer")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(245,158,11,.3)', background:'rgba(245,158,11,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif", position:'relative' }}>
+                <span style={{
+                  display:'inline-block', fontSize:9, fontWeight:900, padding:'2px 6px',
+                  borderRadius:4, background:'#dc2626', color:'white',
+                  textTransform:'uppercase', letterSpacing:'0.06em',
+                  position:'absolute', top:8, right:8,
+                }}>NEW</span>
+                <div style={{ fontSize:26, marginBottom:6 }}>📖</div>
+                <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--warning)' }}>Baka's Summer</div>
+                <div style={{ fontSize:'var(--text-xs)', color:'var(--warning)', marginTop:2, opacity:.75 }}>12-chapter story</div>
+              </button>
+              <button onClick={() => setScr("croatia_today")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(14,116,144,.3)', background:'rgba(14,116,144,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+                <div style={{ fontSize:26, marginBottom:6 }}>📰</div>
+                <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--info)' }}>Croatia Today</div>
+                <div style={{ fontSize:'var(--text-xs)', color:'var(--info)', marginTop:2, opacity:.75 }}>Daily Croatian news</div>
+              </button>
+              <button onClick={() => setScr("survival_dinner")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(22,163,74,.3)', background:'rgba(22,163,74,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+                <div style={{ fontSize:26, marginBottom:6 }}>🍽️</div>
+                <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--success)' }}>At the Table</div>
+                <div style={{ fontSize:'var(--text-xs)', color:'var(--success)', marginTop:2, opacity:.75 }}>Navigate any dinner</div>
+              </button>
+              {/* Only show during Easter season (March 20 - April 30) */}
+              {(() => {
+                const m = new Date().getMonth() + 1, d = new Date().getDate();
+                const isEaster = (m === 3 && d >= 20) || (m === 4 && d <= 30);
+                if (!isEaster) return null;
+                return (
+                  <div
+                    onClick={() => setScr('easter')}
+                    style={{
+                      background: 'rgba(22,163,74,.06)',
+                      border: '1.5px solid rgba(22,163,74,.3)', borderRadius: 14,
+                      padding: '14px', cursor: 'pointer', position: 'relative', textAlign: 'center',
+                    }}
+                  >
+                    <span style={{ position: 'absolute', top: 8, right: 8, background: 'var(--error)', color: '#fff', fontSize: 9, fontWeight: 900, borderRadius: 6, padding: '2px 5px' }}>NEW</span>
+                    <div style={{ fontSize: 24, marginBottom: 6 }}>🥚</div>
+                    <div style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: '#166534' }}>Uskrs u Hrvatskoj</div>
+                    <div style={{ fontSize: 'var(--text-xs)', color: '#4ade80', fontWeight: 600, marginTop: 2 }}>Easter traditions & phrases</div>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+
+          {/* ── IMMERSION FEATURE ── */}
+          <div className="section-block">
+            <div className="section-hdr">
+              <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>🌊</div>
+              <div className="section-hdr-text">
+                <div className="section-hdr-title">Immersion</div>
+                <div className="section-hdr-sub">AI conversation + curated media from A1 to C2</div>
+              </div>
+            </div>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+              <button onClick={() => setScr("aiconvo")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(99,102,241,.3)', background:'rgba(99,102,241,.07)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+                <div style={{ fontSize:26, marginBottom:6 }}>🤖</div>
+                <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)' }}>AI Conversations</div>
+                <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:2 }}>50 scenarios · all levels</div>
+              </button>
+              <button onClick={() => setScr("immersion")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(14,116,144,.3)', background:'rgba(14,116,144,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+                <div style={{ fontSize:26, marginBottom:6 }}>🌊</div>
+                <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--info)' }}>Immersion Hub</div>
+                <div style={{ fontSize:'var(--text-xs)', color:'var(--info)', marginTop:2, opacity:.75 }}>A1 → C2 pathway</div>
+              </button>
+            </div>
+          </div>
+
+          {/* ── LANGUAGE & CULTURE ── */}
+          <div className="section-block">
+            <div className="section-hdr">
+              <div className="section-hdr-icon" style={{background:'rgba(124,58,237,.12)'}}>🎭</div>
+              <div className="section-hdr-text">
+                <div className="section-hdr-title">Language &amp; Culture</div>
+                <div className="section-hdr-sub">Deepen your connection to Croatian identity</div>
+              </div>
+              <div className="section-hdr-badge">4 topics</div>
+            </div>
+            <div
+              onClick={() => { if (expandedContext !== 'kafic') incrementCulture('regionCnt'); setExpandedContext(expandedContext === 'kafic' ? null : 'kafic'); }}
+              style={{
+                fontSize:12, color:'var(--info)', cursor:'pointer',
+                marginBottom: expandedContext === 'kafic' ? 0 : 12,
+                display:'flex', alignItems:'center', gap:4, fontWeight:600
+              }}
+            >
+              {expandedContext === 'kafic' ? '▲' : '▼'} Why this matters for your Croatian
+            </div>
+            {expandedContext === 'kafic' && (
+              <div style={{
+                fontSize:12, color:'var(--subtext)', lineHeight:1.6,
+                padding:'10px 14px', background:'var(--info-bg)',
+                borderRadius:10, marginBottom:12, border:'1px solid var(--info-b)'
+              }}>
+                ☕ <strong>U Kafiću</strong> (At the Café) is where Croatian social life happens. Croatians spend hours in kafići — it's not just coffee, it's connection. Mastering café vocabulary and small talk unlocks the most natural everyday conversations you'll ever have.
+              </div>
+            )}
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+              {[
+                { icon:'☕', title:'U Kafiću', desc:'The art of Croatian coffee culture', accent:'rgba(245,158,11,.25)', scr:'kafic' },
+                { icon:'💙', title:'Diaspora Croatian', desc:'Code-switching & heritage language', accent:'rgba(14,116,144,.25)', scr:'diaspora' },
+                { icon:'🎊', title:'Life Events', desc:'Weddings, funerals, baptisms', accent:'rgba(124,58,237,.25)', scr:'lifeevents' },
+                { icon:'🏛️', title:'Civic Croatian', desc:'Vocabulary to read the news', accent:'rgba(22,163,74,.25)', scr:'civic' },
+              ].map(c => (
+                <button key={c.scr} className="tc"
+                  style={{ textAlign:'center', padding:'16px 12px' }}
+                  onClick={() => setScr(c.scr)}>
+                  <div style={{ width:48, height:48, borderRadius:14, background:c.accent, display:'flex', alignItems:'center', justifyContent:'center', fontSize:24, margin:'0 auto 8px' }}>{c.icon}</div>
+                  <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', lineHeight:1.2, marginBottom:4 }}>{c.title}</div>
+                  <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.3 }}>{c.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ── EXPLORE CROATIA ── */}
+          <div className="section-block">
+            <div className="section-hdr">
+              <div className="section-hdr-icon" style={{background:'rgba(14,116,144,.12)'}}>🗺️</div>
+              <div className="section-hdr-text">
+                <div className="section-hdr-title">Explore Croatia</div>
+                <div className="section-hdr-sub">Cities, parks, beaches &amp; islands</div>
+              </div>
+            </div>
+            <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px",width:"100%"}} onClick={() => { setScr("crmap"); }}>
+              <div style={{fontSize:36}}>🗺️</div>
+              <div>
+                <div style={{fontSize:16,fontWeight:800,color:"var(--heading)"}}>Interactive Map &amp; Directions</div>
+                <div style={{fontSize:'var(--text-sm)',color:"var(--subtext)"}}>Explore Croatia — cities, parks, beaches, islands</div>
+              </div>
+            </button>
+          </div>
+        </React.Fragment>
+      )}
+
+      {/* ══════════════════════════════════════════
+          MEDIA TAB
+      ══════════════════════════════════════════ */}
+      {ctab === 'media' && (
+        <React.Fragment>
+          {/* ─── Hero ─────────────────────────────────────── */}
+          <div style={{
+            background:'linear-gradient(160deg,#060e1e 0%,#071830 50%,#0a2a50 100%)',
+            borderRadius:20, overflow:'hidden', marginBottom:22,
+            position:'relative', boxShadow:'0 8px 40px rgba(0,0,0,.5)',
+          }}>
+            <div style={{height:4,background:'linear-gradient(90deg,#D40030 0%,#D40030 50%,#F8F6F2 50%,#F8F6F2 100%)'}}/>
+            <div style={{position:'absolute',top:0,left:0,right:0,bottom:0,background:'linear-gradient(105deg,transparent 30%,rgba(255,255,255,.035) 50%,transparent 70%)',backgroundSize:'200% 100%',animation:'shimmer 6s linear infinite',pointerEvents:'none'}}/>
+            <div style={{padding:'22px 22px 24px',position:'relative',zIndex:1}}>
+              <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
+                <div style={{width:8,height:8,borderRadius:'50%',background:'#ef4444',boxShadow:'0 0 10px #ef4444',animation:'pulse 1.5s ease-in-out infinite'}}/>
+                <span style={{fontSize:10,fontWeight:900,color:'rgba(255,255,255,.45)',letterSpacing:'.18em',textTransform:'uppercase'}}>LIVE FROM CROATIA</span>
+              </div>
+              <div style={{fontSize:28,fontWeight:900,color:'white',fontFamily:"'Playfair Display',serif",lineHeight:1.1,marginBottom:8,textShadow:'0 2px 20px rgba(0,0,0,.5)'}}>
+                Tune In to Croatia
+              </div>
+              <div style={{fontSize:13,color:'rgba(255,255,255,.6)',fontWeight:500,lineHeight:1.5,marginBottom:14}}>
+                Real Croatian — live radio, TV, music, film & sport
+              </div>
+              <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                {['📡 Live Radio','📺 TV & News','🎵 Music','⚽ Sport','🎬 Film'].map(t => (
+                  <span key={t} style={{fontSize:10,fontWeight:700,color:'rgba(255,255,255,.55)',background:'rgba(255,255,255,.07)',borderRadius:20,padding:'3px 10px',border:'1px solid rgba(255,255,255,.1)'}}>{t}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ─── SPOTIFY PLAYLISTS ─────────────────────────── */}
+          <div style={{
+            marginBottom:24, padding:'18px 14px 20px', borderRadius:16,
+            background:'linear-gradient(160deg,#0c1a2e 0%,#0d1f18 100%)',
+            border:'1px solid rgba(30,215,96,.2)',
+            boxShadow:'0 4px 20px rgba(0,0,0,.3)',
+          }}>
+            <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
+              <div style={{
+                width:40,height:40,borderRadius:12,background:'#1ed760',
+                display:'flex',alignItems:'center',justifyContent:'center',
+                fontSize:20,flexShrink:0,boxShadow:'0 4px 12px rgba(30,215,96,.4)',
+              }}>🎵</div>
+              <div>
+                <div style={{fontSize:15,fontWeight:900,color:'white'}}>Croatian Music on Spotify</div>
+                <div style={{fontSize:11,color:'rgba(255,255,255,.45)',marginTop:1}}>14 curated playlists · tap to expand</div>
+              </div>
+            </div>
+            <SpotifyPlaylists/>
+          </div>
+
+          {/* ─── LIVE RADIO ────────────────────────────────── */}
+          <div style={{marginBottom:24}}>
+            <div style={{display:'flex',alignItems:'center',gap:7,marginBottom:12}}>
+              <div style={{width:8,height:8,borderRadius:'50%',background:'var(--error)',boxShadow:'0 0 8px var(--error)',animation:'pulse 1.5s ease-in-out infinite'}}/>
+              <span style={{fontSize:11,fontWeight:900,color:'var(--error)',textTransform:'uppercase',letterSpacing:'.1em'}}>Streaming Live</span>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
+              {MEDIA.filter(m => !!m.stream).map((m,i) => (
+                <div key={i} style={{
+                  background:`linear-gradient(175deg,#0c1520 0%,${m.color}40 100%)`,
+                  borderRadius:16,overflow:'hidden',border:`1px solid ${m.color}30`,
+                  display:'flex',flexDirection:'column',
+                  boxShadow:`0 4px 20px ${m.color}18`,
+                }}>
+                  <div style={{padding:'16px 10px 8px',textAlign:'center'}}>
+                    <div style={{fontSize:30,marginBottom:6}}>{m.icon}</div>
+                    <div style={{fontSize:10,fontWeight:900,color:'white',lineHeight:1.25,marginBottom:3}}>
+                      {m.name.split(' — ')[0].replace(' Live','').replace(' Radio Live','').trim()}
+                    </div>
+                    <div style={{fontSize:9,color:'rgba(255,255,255,.4)',lineHeight:1.3,marginBottom:8}}>{m.level}</div>
+                  </div>
+                  <div style={{padding:'0 8px 10px'}}>
+                    <RadioPlayer src={m.stream} color={m.color} streamId={m.name} activeStream={activeStream} setActiveStream={setActiveStream}/>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ─── CONTENT CATEGORIES ─────────────────────────── */}
+          {[
+            {cat:'tv',     emoji:'📺', title:'TV & News',         accent:'#0e7490',  noStream:false},
+            {cat:'music',  emoji:'🎵', title:'Music',              accent:'#9333ea',  noStream:true},
+            {cat:'film',   emoji:'🎬', title:'Film & Video',       accent:'#b91c1c',  noStream:false},
+            {cat:'sport',  emoji:'⚽', title:'Sport',              accent:'#1d4ed8',  noStream:false},
+            {cat:'podcast',emoji:'🎙️',title:'Podcasts & Audio',   accent:'#16a34a',  noStream:false},
+            {cat:'culture',emoji:'🌍', title:'Culture & Press',    accent:'#7c3aed',  noStream:false},
+          ].map(({cat,emoji,title,accent,noStream}) => {
+            const items = MEDIA.filter(m => m.cat === cat && (noStream ? !m.stream : true));
+            if (!items.length) return null;
+            return (
+              <div key={cat} style={{marginBottom:24}}>
+                {/* Section header */}
+                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12,padding:'10px 14px',borderRadius:12,background:`${accent}10`,borderLeft:`3px solid ${accent}`}}>
+                  <span style={{fontSize:18}}>{emoji}</span>
+                  <span style={{fontSize:15,fontWeight:900,color:'var(--heading)',flex:1}}>{title}</span>
+                  <span style={{fontSize:10,color:'var(--subtext)',fontWeight:600,background:'var(--bar-bg)',borderRadius:8,padding:'2px 8px'}}>{items.length}</span>
+                </div>
+                {/* 2-column visual grid */}
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+                  {items.map((m,i) => {
+                    const isInternal = !!m.scr && !m.web;
+                    const isExtLive = !!(m.live && !m.stream && m.web);
+                    const hasAction = !!(m.scr || m.web);
+                    return (
+                      <button key={i}
+                        onClick={() => { if (m.scr || m.web) { incrementCulture('mediaCnt'); if (award) award(3); } if (m.scr) setScr(m.scr); else if (m.web) window.open(m.web,'_blank','noopener,noreferrer'); }}
+                        style={{
+                          display:'flex',flexDirection:'column',background:'var(--card)',
+                          borderRadius:16,border:'1px solid var(--card-b)',overflow:'hidden',
+                          cursor:hasAction?'pointer':'default',textAlign:'left',
+                          fontFamily:"'Outfit',sans-serif",padding:0,
+                          transition:'transform .15s,box-shadow .15s',
+                          boxShadow:'0 2px 8px rgba(0,0,0,.04)',
+                        }}
+                        onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow=`0 8px 28px ${m.color}28`;}}
+                        onMouseLeave={e=>{e.currentTarget.style.transform='';e.currentTarget.style.boxShadow='0 2px 8px rgba(0,0,0,.04)';}}>
+                        {/* Color band */}
+                        <div style={{height:64,background:`linear-gradient(135deg,${m.color}cc,${m.color})`,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden',flexShrink:0}}>
+                          <div style={{position:'absolute',top:0,left:0,right:0,bottom:0,backgroundImage:'radial-gradient(circle,rgba(255,255,255,.13) 1px,transparent 1px)',backgroundSize:'14px 14px'}}/>
+                          <span style={{fontSize:30,position:'relative'}}>{m.icon}</span>
+                          {m.level && <span style={{position:'absolute',bottom:6,right:8,background:'rgba(0,0,0,.45)',color:'white',fontSize:8,fontWeight:900,padding:'2px 6px',borderRadius:6}}>{m.level}</span>}
+                          {isInternal && <span style={{position:'absolute',top:6,right:8,background:'rgba(255,255,255,.22)',color:'white',fontSize:8,fontWeight:900,padding:'1px 5px',borderRadius:4,border:'1px solid rgba(255,255,255,.3)'}}>IN APP</span>}
+                          {isExtLive && <span style={{position:'absolute',top:6,left:8,background:'#dc2626',color:'white',fontSize:8,fontWeight:900,padding:'2px 6px',borderRadius:6}}>LIVE ↗</span>}
+                        </div>
+                        {/* Content */}
+                        <div style={{padding:'10px 12px 12px',flex:1,display:'flex',flexDirection:'column'}}>
+                          <div style={{fontSize:12,fontWeight:800,color:'var(--heading)',lineHeight:1.3,marginBottom:4}}>{m.name}</div>
+                          <div style={{fontSize:10,color:'var(--subtext)',lineHeight:1.45,flex:1}}>
+                            {m.desc.length > 58 ? m.desc.substring(0,55)+'…' : m.desc}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </React.Fragment>
+      )}
+
+      {/* ══════════════════════════════════════════
+          STORIES TAB
+      ══════════════════════════════════════════ */}
+      {ctab === 'stories' && (
+        <React.Fragment>
+          {/* ── LETTERS FROM BAKA ── */}
+          <div className="section-block">
+            <div className="section-hdr">
+              <div className="section-hdr-icon" style={{background:'rgba(200,152,10,.14)'}}>💌</div>
+              <div className="section-hdr-text">
+                <div className="section-hdr-title">Letters from Baka</div>
+                <div className="section-hdr-sub">Read Croatian the way family really writes it</div>
+              </div>
+              <CroatianKnight size={40} mood="happy" style={{ flexShrink: 0 }} />
+            </div>
+            <div style={{fontSize:12, color:'var(--subtext)', marginBottom:12, lineHeight:1.5}}>
+              Personal letters written in authentic Croatian — perfect for understanding how family members actually speak, including regional expressions and emotional vocabulary.
+            </div>
+            <div
+              onClick={() => { if (expandedContext !== 'baka') incrementCulture('regionCnt'); setExpandedContext(expandedContext === 'baka' ? null : 'baka'); }}
+              style={{
+                fontSize:12, color:'var(--info)', cursor:'pointer',
+                marginBottom: expandedContext === 'baka' ? 0 : 12,
+                display:'flex', alignItems:'center', gap:4, fontWeight:600
+              }}
+            >
+              {expandedContext === 'baka' ? '▲' : '▼'} Why this matters for your Croatian
+            </div>
+            {expandedContext === 'baka' && (
+              <div style={{
+                fontSize:12, color:'var(--subtext)', lineHeight:1.6,
+                padding:'10px 14px', background:'var(--info-bg)',
+                borderRadius:10, marginBottom:12, border:'1px solid var(--info-b)'
+              }}>
+                💌 <strong>Baka's letters</strong> capture authentic Croatian as it's actually written between family members — warm, informal, full of dialect and emotion. This is the Croatian you won't find in textbooks, but will hear and read with your family.
+              </div>
+            )}
+            <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+              {BAKA_LETTERS.map(letter => (
+                <div key={letter.id} style={{ background:'var(--card)', border:'1.5px solid var(--card-b)', borderRadius:14, overflow:'hidden' }}>
+                  <button
+                    onClick={() => { const opening = openLetter !== letter.id; setOpenLetter(opening ? letter.id : null); if (opening) { incrementCulture('bakaCnt'); if (award) award(5); } }}
+                    style={{ width:'100%', padding:'14px 16px', background:'none', border:'none', cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif" }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                      <div style={{ width:40, height:40, borderRadius:10, background:'linear-gradient(135deg,#fef3c7,#fde68a)', border:'1px solid #fde68a',
+                        display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0 }}>💌</div>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)' }}>{letter.from}</div>
+                        <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:1 }}>{letter.subject} · {letter.date}</div>
+                      </div>
+                      <span style={{ fontSize:'var(--text-base)', color:'var(--subtext)', opacity:.5 }}>{openLetter === letter.id ? '▲' : '▼'}</span>
+                    </div>
+                  </button>
+                  {openLetter === letter.id && (
+                    <div style={{ borderTop:'1px solid var(--card-b)', padding:'16px' }}>
+                      <div style={{
+                        background:'#fffbeb', border:'1px solid #fde68a',
+                        borderRadius:10, padding:'14px 16px', marginBottom:14,
+                        fontFamily:"Georgia, serif", fontSize:'var(--text-sm)', lineHeight:1.8, color:'#451a03',
+                        whiteSpace:'pre-line',
+                      }}>
+                        {letter.full}
+                      </div>
+                      <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:8 }}>
+                        📚 Words from this letter
+                      </div>
+                      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+                        {letter.words.map(w => (
+                          <div key={w.hr} style={{ background:'var(--bar-bg)', borderRadius:8, padding:'8px 10px' }}>
+                            <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'#0e7490' }}>{w.hr}</div>
+                            <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:2 }}>{w.en}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </React.Fragment>
+      )}
     </React.Fragment>
   );
 }

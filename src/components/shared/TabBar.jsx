@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import SearchModal from './SearchModal';
 
 const TABS = [
   { id: "home",     label: "Home" },
@@ -50,6 +51,7 @@ function NavIcon({ id, active }) {
 
 export default function TabBar({ tab, setTab, setScr, badges }) {
   const [indicatorStyle, setIndicatorStyle] = useState({});
+  const [showSearch, setShowSearch] = useState(false);
   const btnRefs = useRef([]);
   const navRef = useRef(null);
 
@@ -73,12 +75,15 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
     : 'linear-gradient(90deg,#0e7490,#06b6d4)';
 
   return (
+    <>
+      {showSearch && <SearchModal setTab={setTab} onClose={() => setShowSearch(false)} />}
     <nav
       ref={navRef}
       className="nav-bar"
       role="navigation"
       aria-label="Main navigation"
       style={{
+        position: 'relative',
         background: 'rgba(255,255,255,0.88)',
         backdropFilter: 'saturate(200%) blur(28px)',
         WebkitBackdropFilter: 'saturate(200%) blur(28px)',
@@ -97,6 +102,16 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
         ...indicatorStyle,
         pointerEvents: 'none',
       }} />
+
+      <button
+        onClick={() => setShowSearch(true)}
+        aria-label="Search"
+        style={{
+          position:'absolute', right:8, top:'50%', transform:'translateY(-50%)',
+          background:'none', border:'none', fontSize:18, cursor:'pointer',
+          color:'var(--subtext)', padding:4, lineHeight:1,
+        }}
+      >🔍</button>
 
       {TABS.map((t, i) => {
         const isActive = tab === t.id;
@@ -163,5 +178,6 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
         );
       })}
     </nav>
+    </>
   );
 }
