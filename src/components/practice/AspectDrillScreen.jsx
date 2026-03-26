@@ -2,6 +2,153 @@ import React, { useState, useMemo, useRef } from 'react';
 import { H, Bar, Spk, sh } from '../../data.jsx';
 import { rnd } from '../../lib/random.js';
 
+const ASPECT_KEYFRAMES = `
+@keyframes pulseBar {
+  0%   { width: 0; opacity: 0.4; }
+  60%  { opacity: 1; }
+  100% { width: 100%; opacity: 1; }
+}
+@keyframes pulseDot {
+  0%   { opacity: 0.3; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.3; }
+}
+@keyframes dotAppear {
+  0%   { opacity: 0; transform: scale(0); }
+  70%  { transform: scale(1.3); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes barFill {
+  0%   { width: 0; }
+  100% { width: calc(100% - 18px); }
+}
+`;
+
+function AspectTimeline({ aspect, dimmed }) {
+  const isPf = aspect === 'pf';
+  const color = dimmed ? 'var(--subtext, #94a3b8)' : (isPf ? 'var(--success, #16a34a)' : 'var(--info, #0284c7)');
+  const bgColor = dimmed ? '#f1f5f9' : (isPf ? '#f0fdf4' : '#f0f9ff');
+  const borderColor = dimmed ? '#e2e8f0' : (isPf ? '#bbf7d0' : '#bae6fd');
+
+  return (
+    <div style={{
+      background: bgColor,
+      border: `1.5px solid ${borderColor}`,
+      borderRadius: 10,
+      padding: '10px 14px',
+      opacity: dimmed ? 0.55 : 1,
+      transition: 'opacity 0.3s',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+        <span style={{ fontSize: 16 }}>{isPf ? '✓' : '🔄'}</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          {isPf ? 'Perfective — completed action' : 'Imperfective — ongoing / habitual action'}
+        </span>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, height: 24 }}>
+        {isPf ? (
+          /* Perfective: line + dot that appears */
+          <>
+            <div style={{
+              flex: 1,
+              height: 3,
+              background: dimmed ? '#cbd5e1' : 'var(--success, #16a34a)',
+              borderRadius: 2,
+              position: 'relative',
+              overflow: 'visible',
+            }}>
+              {!dimmed && (
+                <div style={{
+                  position: 'absolute',
+                  right: -6,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: 14,
+                  height: 14,
+                  borderRadius: '50%',
+                  background: 'var(--success, #16a34a)',
+                  animation: 'dotAppear 0.5s ease forwards',
+                  boxShadow: '0 0 0 3px #bbf7d0',
+                }} />
+              )}
+              {dimmed && (
+                <div style={{
+                  position: 'absolute',
+                  right: -6,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: 14,
+                  height: 14,
+                  borderRadius: '50%',
+                  background: '#cbd5e1',
+                }} />
+              )}
+            </div>
+          </>
+        ) : (
+          /* Imperfective: animated pulse bar */
+          <div style={{
+            flex: 1,
+            height: 10,
+            background: '#e0f2fe',
+            borderRadius: 6,
+            overflow: 'hidden',
+            position: 'relative',
+          }}>
+            {!dimmed ? (
+              <div style={{
+                height: '100%',
+                background: 'linear-gradient(90deg, var(--info, #0284c7) 0%, #7dd3fc 60%, var(--info, #0284c7) 100%)',
+                backgroundSize: '200% 100%',
+                borderRadius: 6,
+                animation: 'pulseBar 1.2s ease forwards',
+                width: 0,
+              }} />
+            ) : (
+              <div style={{
+                height: '100%',
+                width: '100%',
+                background: '#cbd5e1',
+                borderRadius: 6,
+              }} />
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ContextAnnotation({ item, questionAspect }) {
+  // ctx format: "Impf sentence. / Pf sentence."
+  const parts = item.ctx.split('/').map(s => s.trim());
+  const impfSentence = parts[0] || '';
+  const pfSentence = parts[1] || '';
+
+  return (
+    <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
+      {impfSentence && (
+        <div style={{ fontSize: 12, color: '#475569', fontStyle: 'italic' }}>
+          <span style={{ color: 'var(--info, #0284c7)', marginRight: 4 }}>🔄</span>
+          {impfSentence}
+          <span style={{ color: 'var(--info, #0284c7)', fontStyle: 'normal', fontWeight: 600, marginLeft: 4 }}>
+            — imperfective (habit/ongoing)
+          </span>
+        </div>
+      )}
+      {pfSentence && (
+        <div style={{ fontSize: 12, color: '#475569', fontStyle: 'italic' }}>
+          <span style={{ color: 'var(--success, #16a34a)', marginRight: 4 }}>✓</span>
+          {pfSentence}
+          <span style={{ color: 'var(--success, #16a34a)', fontStyle: 'normal', fontWeight: 600, marginLeft: 4 }}>
+            — perfective (done)
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AspectDrillScreen({ goBack, award, ASPECT_PAIRS }) {
   const finishFired = useRef(false);
   const items = useMemo(() => {
@@ -55,19 +202,22 @@ export default function AspectDrillScreen({ goBack, award, ASPECT_PAIRS }) {
         question: `Which is the IMPERFECTIVE (ongoing/repeated) form of "${item.en}"?`,
         correct: item.impf,
         wrong: item.pf,
-        explain: `${item.impf} = ongoing/habitual. ${item.rule}.`
+        explain: `${item.impf} = ongoing/habitual. ${item.rule}.`,
+        correctAspect: 'impf',
       }
     : {
         question: `Which is the PERFECTIVE (completed/one-time) form of "${item.en}"?`,
         correct: item.pf,
         wrong: item.impf,
-        explain: `${item.pf} = completed. ${item.rule}.`
+        explain: `${item.pf} = completed. ${item.rule}.`,
+        correctAspect: 'pf',
       };
 
   const opts = sh([q.correct, q.wrong]);
 
   return (
     <div className="scr-wrap">
+      <style>{ASPECT_KEYFRAMES}</style>
       {H("🔄 Verb Aspect Drill")}
       <Bar v={idx+1} mx={items.length} color="#d97706" h={6} />
       <div className="c" style={{padding:"20px",marginTop:16}}>
@@ -101,6 +251,18 @@ export default function AspectDrillScreen({ goBack, award, ASPECT_PAIRS }) {
               {selected===q.correct?"✓ Correct!":"✗ Incorrect"}
             </p>
             <p style={{fontSize:13,color:"#475569",margin:0}}>{q.explain}</p>
+          </div>
+        )}
+        {answered && (
+          <div style={{marginTop:14}}>
+            <div style={{fontSize:11,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:8}}>
+              Aspect Visualized
+            </div>
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              <AspectTimeline aspect={q.correctAspect} dimmed={false} />
+              <AspectTimeline aspect={q.correctAspect === 'pf' ? 'impf' : 'pf'} dimmed={true} />
+            </div>
+            <ContextAnnotation item={item} questionAspect={q.correctAspect} />
           </div>
         )}
         {answered && (

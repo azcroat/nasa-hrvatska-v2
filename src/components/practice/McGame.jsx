@@ -125,6 +125,8 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
   const [showOnARoll, setShowOnARoll] = useState(false);
   // Question transition
   const [qTransition, setQTransition] = useState(false);
+  // Mistake tracking for post-game review drill
+  const [mistakes, setMistakes] = useState([]);
   const firstOptionRef = useRef(null);
   const resultFired = useRef(false);
 
@@ -205,6 +207,12 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
       setComboMsg('');
       setStreakPulse(false);
       if (q.hr) recordMistake(q.hr, q.en || q.correct || '', q.q || q.prompt || '', q.category || '');
+      // Track unique mistakes for post-game review drill
+      setMistakes(prev => {
+        const key = q.hr || q.q || q.correct;
+        if (prev.some(m => (m.hr || m.q || m.correct) === key)) return prev;
+        return [...prev, q];
+      });
 
       // Update wrong streak and handle help mode glow
       setWrongStreak(ws => {
@@ -287,6 +295,7 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
             setWrongStreak(0);
             setCorrectStreak(0);
             setGameOver(false);
+            setMistakes([]);
             resultFired.current = false;
           }}
         >

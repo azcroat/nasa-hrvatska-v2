@@ -68,7 +68,7 @@ export default function LearnTab({
   allCats, icons, setScr, sCurEx, st,
   sh, sLt, sLi, sLx, sLs, sLp, sLa, sLsl,
   sGl, sGp, sGx, sGs, sGa, sGsl,
-  launchPathItem, setTab,
+  launchPathItem, setTab, launchAnimLesson,
 }) {
   const [showBrowse, setShowBrowse] = useState(false);
   const [pendingLesson, setPendingLesson] = useState(null);
@@ -619,15 +619,44 @@ export default function LearnTab({
             </Section>
 
             {/* Grammar Videos */}
-            <Section title="Grammar Videos" icon="🎥" count="18 videos" defaultOpen={false}>
-              <button className="tc" style={{ width:"100%", display:"flex", alignItems:"center", gap:14, padding:"16px" }}
-                onClick={() => { setShowBrowse(false); setScr("grammarvideos"); }}>
-                <span style={{ fontSize:28 }}>🎬</span>
-                <div style={{ textAlign:"left" }}>
-                  <div style={{ fontSize:15, fontWeight:700 }}>Watch Grammar Lessons</div>
-                  <div style={{ fontSize:12, color:"var(--subtext)" }}>18 video lessons from beginner to advanced</div>
-                </div>
-              </button>
+            <Section title="Grammar Videos & AI Lessons" icon="🎥" count="18 videos + AI" defaultOpen={false}>
+              <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                <button className="tc" style={{ width:"100%", display:"flex", alignItems:"center", gap:14, padding:"16px" }}
+                  onClick={() => { setShowBrowse(false); setScr("grammarvideos"); }}>
+                  <span style={{ fontSize:28 }}>🎬</span>
+                  <div style={{ textAlign:"left" }}>
+                    <div style={{ fontSize:15, fontWeight:700 }}>Watch Grammar Lessons</div>
+                    <div style={{ fontSize:12, color:"var(--subtext)" }}>18 video lessons from beginner to advanced</div>
+                  </div>
+                </button>
+                <button className="tc" style={{ width:"100%", display:"flex", alignItems:"center", gap:14, padding:"16px" }}
+                  onClick={() => { setShowBrowse(false); setScr("grammarexplainer"); }}>
+                  <span style={{ fontSize:28 }}>🤖</span>
+                  <div style={{ textAlign:"left" }}>
+                    <div style={{ fontSize:15, fontWeight:700 }}>AI Grammar Explainer</div>
+                    <div style={{ fontSize:12, color:"var(--subtext)" }}>Instant AI lessons on any topic + quiz</div>
+                  </div>
+                </button>
+              </div>
+            </Section>
+
+            {/* Interactive Media */}
+            <Section title="Interactive Media" icon="✨" count="3 tools" defaultOpen={false}>
+              <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                {[
+                  ["🎬","Animated Lessons","Slide-by-slide grammar lessons with audio","animlesson_alphabet",() => { setShowBrowse(false); launchAnimLesson && launchAnimLesson("alphabet"); }],
+                  ["🔀","Case Transformer","Declension explorer — tap any noun across all 7 cases","casetransformer",() => { setShowBrowse(false); setScr("casetransformer"); }],
+                  ["🗺️","Vocabulary Scenes","Tap objects in real-life scenes to learn words","vocabscenes",() => { setShowBrowse(false); setScr("vocabscenes"); }],
+                ].map(([icon,label,sub,key,fn]) => (
+                  <button key={key} className="tc" style={{ width:"100%", display:"flex", alignItems:"center", gap:14, padding:"14px 16px", textAlign:"left" }} onClick={fn}>
+                    <span style={{ fontSize:28, flexShrink:0 }}>{icon}</span>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:"var(--text-sm)", fontWeight:800, color:"var(--heading)" }}>{label}</div>
+                      <div style={{ fontSize:"var(--text-xs)", color:"var(--subtext)", marginTop:2 }}>{sub}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </Section>
 
             {/* Reference */}

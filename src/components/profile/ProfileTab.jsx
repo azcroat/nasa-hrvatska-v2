@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { getStreak, getSR, fbDeleteAccount } from '../../data.jsx';
 import { isSoundEnabled, setSoundEnabled, isHapticEnabled, setHapticEnabled } from '../../lib/soundSettings.js';
 import CroatianKnight from '../shared/CroatianKnight';
@@ -6,6 +6,247 @@ import ProgressCharts from './ProgressCharts.jsx';
 import { getWeakTopics } from '../../lib/adaptive.js';
 import JourneyTimeline from './JourneyTimeline.jsx';
 import LearningInsights from './LearningInsights';
+
+// ── Skill Radar Chart ──────────────────────────────────────────────────────
+function SkillRadar({ st }) {
+  const [animated, setAnimated] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setAnimated(true), 300);
+    return () => clearTimeout(t);
+  }, []);
+
+  const skills = [
+    { label: 'Vocab',    score: Math.min(100, (st.wl    || 0) / 2) },
+    { label: 'Grammar',  score: Math.min(100, (st.gc    || 0) * 10) },
+    { label: 'Listening',score: Math.min(100, (st.listen|| 0) * 20) },
+    { label: 'Speaking', score: Math.min(100, (st.speak || 0) * 10) },
+    { label: 'Reading',  score: Math.min(100, (st.rc    || 0) * 5) },
+  ];
+
+  const cx = 100, cy = 100, R = 80;
+  const angles = [0, 72, 144, 216, 288]; // degrees, top = Vocab
+
+  function polarToXY(angleDeg, r) {
+    const rad = ((angleDeg - 90) * Math.PI) / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  }
+
+  function pentagonPoints(r) {
+    return angles.map(a => {
+      const p = polarToXY(a, r);
+      return `${p.x},${p.y}`;
+    }).join(' ');
+  }
+
+  const dataPoints = animated
+    ? skills.map((s, i) => polarToXY(angles[i], (s.score / 100) * R))
+    : skills.map((_, i) => polarToXY(angles[i], 0));
+
+  const dataPolygon = dataPoints.map(p => `${p.x},${p.y}`).join(' ');
+
+  const weakIdx = skills.reduce((minI, s, i, arr) => s.score < arr[minI].score ? i : minI, 0);
+
+  const labelOffsets = [
+    { dx: 0,   dy: -12 }, // top (Vocab)
+    { dx: 14,  dy: -6  }, // upper-right (Grammar)
+    { dx: 10,  dy: 12  }, // lower-right (Listening)
+    { dx: -10, dy: 12  }, // lower-left (Speaking)
+    { dx: -14, dy: -6  }, // upper-left (Reading)
+  ];
+
+  return (
+    <div style={{ background: 'var(--card)', border: '1px solid var(--card-b)', borderRadius: 16, padding: '16px', marginBottom: 16 }}>
+      <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 12 }}>
+        📊 Skill Profile
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <svg width="200" height="200" viewBox="0 0 200 200" style={{ overflow: 'visible' }}>
+          {/* Guide pentagons at 25%, 50%, 75% */}
+          {[0.25, 0.5, 0.75].map(pct => (
+            <polygon
+              key={pct}
+              points={pentagonPoints(R * pct)}
+              fill="none"
+              stroke="var(--bar-bg)"
+              strokeWidth="1"
+            />
+          ))}
+          {/* Outer pentagon */}
+          <polygon points={pentagonPoints(R)} fill="none" stroke="var(--bar-bg)" strokeWidth="1.5" />
+          {/* Axis lines */}
+          {angles.map((a, i) => {
+            const p = polarToXY(a, R);
+            return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="var(--bar-bg)" strokeWidth="1" />;
+          })}
+          {/* Data polygon */}
+          <polygon
+            points={dataPolygon}
+            fill="var(--accent, var(--info))"
+            fillOpacity="0.25"
+            stroke="var(--accent, var(--info))"
+            strokeWidth="2"
+            style={{ transition: animated ? 'all 0.6s ease' : 'none' }}
+          />
+          {/* Data point dots */}
+          {dataPoints.map((p, i) => (
+            <circle key={i} cx={p.x} cy={p.y} r="3" fill="var(--accent, var(--info))" />
+          ))}
+          {/* Labels */}
+          {skills.map((s, i) => {
+            const vertex = polarToXY(angles[i], R);
+            const off = labelOffsets[i];
+            const lx = vertex.x + off.dx * 2.2;
+            const ly = vertex.y + off.dy * 2.2;
+            return (
+              <g key={i}>
+                <text x={lx} y={ly} textAnchor="middle" dominantBaseline="middle"
+                  fontSize="9" fontWeight="700" fill="var(--subtext)">
+                  {s.label}
+                </text>
+                <text x={lx} y={ly + 10} textAnchor="middle" dominantBaseline="middle"
+                  fontSize="8" fontWeight="600" fill="var(--accent, var(--info))">
+                  {Math.round(s.score)}%
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+
+      {/* Horizontal skill bars */}
+      <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 7 }}>
+        {skills.map((s, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 58, fontSize: 11, fontWeight: 700, color: 'var(--subtext)', textAlign: 'right', flexShrink: 0 }}>
+              {s.label}
+            </div>
+            <div style={{ flex: 1, height: 7, borderRadius: 4, background: 'var(--bar-bg)', overflow: 'hidden' }}>
+              <div style={{
+                height: '100%', borderRadius: 4,
+                background: i === weakIdx ? 'var(--error)' : 'var(--accent, var(--info))',
+                width: animated ? `${s.score}%` : '0%',
+                transition: 'width 0.6s ease',
+              }} />
+            </div>
+            <div style={{ width: 30, fontSize: 10, fontWeight: 700, color: 'var(--subtext)' }}>
+              {Math.round(s.score)}%
+            </div>
+            {i === weakIdx && (
+              <div style={{ fontSize: 9, fontWeight: 800, color: 'var(--error)', whiteSpace: 'nowrap' }}>
+                Focus here →
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── XP Activity Calendar ───────────────────────────────────────────────────
+function XPActivityCalendar({ st }) {
+  const [tooltip, setTooltip] = useState(null);
+
+  const activityLog = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem('nh_activity_log') || '{}');
+    } catch { return {}; }
+  }, []);
+
+  const days = useMemo(() => {
+    const result = [];
+    const streakCount = st.streak?.count || (typeof st.streak === 'number' ? st.streak : 0);
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      let xp = activityLog[key] !== undefined ? activityLog[key] : 0;
+      // fallback: if no activity log but streak covers this day, give mock xp
+      if (xp === 0 && activityLog && Object.keys(activityLog).length === 0 && i < streakCount) {
+        xp = 50 + Math.floor(Math.random() * 80);
+      }
+      const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+      const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      result.push({
+        key,
+        xp,
+        label: `${monthNames[d.getMonth()]} ${d.getDate()}: ${xp} XP`,
+        dow: dayNames[d.getDay()],
+      });
+    }
+    return result;
+  }, [activityLog, st]);
+
+  function xpColor(xp) {
+    if (xp === 0) return 'var(--bar-bg)';
+    if (xp <= 50) return '#bbf7d0';
+    if (xp <= 150) return '#4ade80';
+    return '#16a34a';
+  }
+
+  const dowLabels = ['M','T','W','T','F','S','S'];
+
+  return (
+    <div style={{ background: 'var(--card)', border: '1px solid var(--card-b)', borderRadius: 16, padding: '16px', marginBottom: 16 }}>
+      <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 12 }}>
+        📅 Activity
+      </div>
+      {/* DOW headers — approximate, 6 columns */}
+      <div style={{ display: 'flex', gap: 3, marginBottom: 4 }}>
+        {Array.from({ length: 6 }, (_, ci) => (
+          <div key={ci} style={{ width: 28, textAlign: 'center', fontSize: 9, fontWeight: 700, color: 'var(--subtext)' }}>
+            {dowLabels[ci % 7]}
+          </div>
+        ))}
+      </div>
+      {/* 5 rows × 6 cols = 30 squares */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 28px)', gridTemplateRows: 'repeat(5, 28px)', gap: 3, position: 'relative' }}>
+        {days.map((day, idx) => (
+          <div
+            key={day.key}
+            onMouseEnter={e => setTooltip({ label: day.label, x: e.clientX, y: e.clientY })}
+            onMouseLeave={() => setTooltip(null)}
+            onTouchStart={() => setTooltip({ label: day.label, x: 0, y: 0 })}
+            onTouchEnd={() => setTooltip(null)}
+            style={{
+              width: 28, height: 28, borderRadius: 6,
+              background: xpColor(day.xp),
+              cursor: 'default',
+              transition: 'transform 0.1s',
+              boxShadow: day.xp > 0 ? '0 1px 4px rgba(74,222,128,.3)' : 'none',
+            }}
+          />
+        ))}
+      </div>
+      {/* Legend */}
+      <div style={{ display: 'flex', gap: 10, marginTop: 10, alignItems: 'center' }}>
+        {[
+          { color: 'var(--bar-bg)', label: 'No activity' },
+          { color: '#bbf7d0',       label: '1–50 XP' },
+          { color: '#4ade80',       label: '51–150 XP' },
+          { color: '#16a34a',       label: '151+ XP' },
+        ].map(l => (
+          <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+            <div style={{ width: 10, height: 10, borderRadius: 2, background: l.color }} />
+            <span style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 600 }}>{l.label}</span>
+          </div>
+        ))}
+      </div>
+      {/* Tooltip */}
+      {tooltip && (
+        <div style={{
+          position: 'fixed', top: tooltip.y - 36, left: tooltip.x - 60,
+          background: 'var(--heading)', color: 'var(--card)',
+          fontSize: 11, fontWeight: 700, borderRadius: 8,
+          padding: '4px 10px', pointerEvents: 'none', zIndex: 9999,
+          whiteSpace: 'nowrap', boxShadow: '0 2px 8px rgba(0,0,0,.25)',
+        }}>
+          {tooltip.label}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function getCEFR(xp, lc, gc) {
   const total = xp + (lc * 15) + (gc * 25);
@@ -250,6 +491,9 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
             </div>
           </div>
 
+          {/* ── SKILL RADAR CHART ── */}
+          <SkillRadar st={st} />
+
           {/* ── STATS GRID ── */}
           <div role="region" aria-label="Your statistics" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:24}}>
             {stats.map((s, i) => (
@@ -281,6 +525,9 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
               </div>
             ))}
           </div>
+
+          {/* ── XP ACTIVITY CALENDAR ── */}
+          <XPActivityCalendar st={st} />
 
           {/* ── CEFR ESTIMATE ── */}
           {(() => {

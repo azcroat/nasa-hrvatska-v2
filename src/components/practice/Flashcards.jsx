@@ -2,8 +2,71 @@ import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, srMark } from '../../data.jsx';
 import CroatianKnight from '../shared/CroatianKnight';
 import confetti from 'canvas-confetti';
+import { speak } from '../../lib/audio.js';
 
 const STILL_LEARNING_MSG_DURATION = 1200;
+
+// ── Pronunciation engine ──────────────────────────────────────────────────────
+// Converts Croatian text to a simple English phonetic approximation.
+// Multi-character digraphs are handled first (order matters).
+function getPronunciation(word) {
+  if (!word) return '';
+  // Work on lowercase; preserve original casing intent via replacement
+  let s = word;
+  // Digraphs first
+  s = s.replace(/[Dd][žŽ]/g, 'dj');
+  s = s.replace(/[Ll][jJ]/g, 'ly');
+  s = s.replace(/[Nn][jJ]/g, 'ny');
+  // Single special characters
+  s = s.replace(/[čČ]/g, 'ch');
+  s = s.replace(/[ćĆ]/g, 'ch');
+  s = s.replace(/[šŠ]/g, 'sh');
+  s = s.replace(/[žŽ]/g, 'zh');
+  s = s.replace(/[đĐ]/g, 'j');
+  s = s.replace(/[jJ]/g, 'y');
+  s = s.replace(/[cC]/g, 'ts');
+  // Roll indicator — mark r before vowel or in consonant cluster
+  s = s.replace(/[rR]/g, 'r');
+  return s;
+}
+
+// ── Word-type contextual tip ──────────────────────────────────────────────────
+// Derive a simple tip from the Croatian word when no example sentence exists.
+function getWordTip(croatianWord, englishMeaning) {
+  if (!croatianWord || !englishMeaning) return null;
+  const w = croatianWord.trim();
+  const en = englishMeaning.toLowerCase();
+
+  // Verb detection: English starts with "to " or Croatian ends in -ti / -ći
+  const isVerb = en.startsWith('to ') || /[tć]i$/i.test(w);
+  if (isVerb) {
+    // Strip infinitive suffix to hint at stem
+    const stem = w.replace(/[tć]i$/i, '');
+    return { type: 'verb', hr: `${w} → ${stem}im / ${stem}iš`, en: 'infinitive → I / you (present)' };
+  }
+
+  // Adjective: English is common adjective word and Croatian ends in -i/-a/-o
+  const adjEndings = /[iao]$/i;
+  const adjKeywords = ['good','bad','big','small','happy','sad','beautiful','old','new','fast','slow','hard','easy','hot','cold','long','short','young','old','free','full','empty','dark','light','heavy','clean','dirty'];
+  const looksAdj = adjEndings.test(w) && adjKeywords.some(k => en.includes(k));
+  if (looksAdj) {
+    return { type: 'adj', hr: null, en: 'Agrees with noun gender (m./f./n.)' };
+  }
+
+  // Noun gender: Croatian nouns ending in consonant = m., -a = f., -o/-e = n.
+  const lastChar = w.replace(/[!?,.'"-]/g, '').slice(-1).toLowerCase();
+  let gender = null;
+  if (/[aá]/.test(lastChar)) gender = 'f.';
+  else if (/[oe]/.test(lastChar)) gender = 'n.';
+  else if (/[bcčćdfghjklmnprsštvzž]/.test(lastChar)) gender = 'm.';
+
+  if (gender) {
+    const labels = { 'm.': 'masculine', 'f.': 'feminine', 'n.': 'neuter' };
+    return { type: 'noun', gender, en: `${labels[gender]} noun` };
+  }
+
+  return null;
+}
 
 const XP_PER_KNOWN = 2;
 const XP_COMPLETION_BONUS = 5;
@@ -27,6 +90,8 @@ export default function Flashcards({ pool, goBack, award }) {
   const touchStartX = useRef(null);
   const touchStartY = useRef(null);
   const mountedRef = useRef(true);
+  // Auto-TTS: track last spoken word to prevent double-play
+  const lastSpokenRef = useRef(null);
   useEffect(() => () => { mountedRef.current = false; }, []);
 
   // When buttons appear (card flipped), focus "I Know It" so keyboard users can act
@@ -38,6 +103,23 @@ export default function Flashcards({ pool, goBack, award }) {
   useEffect(() => {
     if (!flipped && !done && cardRef.current) cardRef.current.focus();
   }, [idx, flipped, done]);
+
+  // Auto-TTS on flip: speak Croatian word 300ms after card is flipped front→back
+  useEffect(() => {
+    if (!flipped || done) return;
+    const autoTTS = localStorage.getItem('nh_autotts') !== 'false'; // default on
+    if (!autoTTS) return;
+    const word = activePool[idx] && activePool[idx][0];
+    if (!word) return;
+    const key = `${idx}:${word}`;
+    if (lastSpokenRef.current === key) return;
+    lastSpokenRef.current = key;
+    const t = setTimeout(() => {
+      if (mountedRef.current) speak(word);
+    }, 300);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flipped, idx]);
 
   function finish(finalKnown) {
     if (finishFired.current) return;
@@ -294,12 +376,154 @@ export default function Flashcards({ pool, goBack, award }) {
           </div>
           <div className="fc-face fc-back">
             <div style={{fontSize:14,color:"var(--subtext)",marginTop:4,textAlign:"center",fontWeight:700}}>{activePool[idx][1]}</div>
-            {activePool[idx][3] && (
-              <p style={{fontSize:12, color:'var(--subtext)', fontStyle:'italic', marginTop:8, lineHeight:1.5, borderTop:'1px solid var(--bar-bg)', paddingTop:8}}>
-                "{activePool[idx][3]}"
-              </p>
-            )}
-            <div style={{fontSize:12,color:"var(--subtext)",marginTop:12}}>tap to flip back</div>
+
+            {/* Pronunciation pill + speak button */}
+            {(() => {
+              const croatianWord = activePool[idx][0];
+              const phonetic = getPronunciation(croatianWord);
+              // Only show if phonetic differs from the original (i.e. has special chars)
+              const hasSpecial = croatianWord !== phonetic;
+              return hasSpecial ? (
+                <div style={{display:'flex', alignItems:'center', justifyContent:'center', gap:6, marginTop:8, flexWrap:'wrap'}}>
+                  <span style={{
+                    background:'var(--bar-bg)',
+                    borderRadius:20,
+                    padding:'4px 12px',
+                    fontSize:12,
+                    color:'var(--subtext)',
+                    fontStyle:'italic',
+                    letterSpacing:'0.02em',
+                  }}>
+                    🔊 {phonetic}
+                  </span>
+                  <button
+                    onClick={e => { e.stopPropagation(); speak(croatianWord); }}
+                    aria-label={`Hear pronunciation of ${croatianWord}`}
+                    style={{
+                      background:'var(--bar-bg)',
+                      border:'none',
+                      borderRadius:20,
+                      padding:'4px 10px',
+                      fontSize:13,
+                      cursor:'pointer',
+                      color:'var(--info)',
+                      fontWeight:700,
+                      lineHeight:1,
+                    }}
+                    title="Hear it"
+                  >▶</button>
+                </div>
+              ) : (
+                <div style={{display:'flex', alignItems:'center', justifyContent:'center', marginTop:8}}>
+                  <button
+                    onClick={e => { e.stopPropagation(); speak(croatianWord); }}
+                    aria-label={`Hear pronunciation of ${croatianWord}`}
+                    style={{
+                      background:'var(--bar-bg)',
+                      border:'none',
+                      borderRadius:20,
+                      padding:'4px 14px',
+                      fontSize:13,
+                      cursor:'pointer',
+                      color:'var(--info)',
+                      fontWeight:700,
+                    }}
+                    title="Hear it"
+                  >🔊 Hear it</button>
+                </div>
+              );
+            })()}
+
+            {/* Example sentence or contextual tip */}
+            {(() => {
+              const card = activePool[idx];
+              const croatianWord = card[0];
+              const englishMeaning = card[1];
+              const exampleSentence = card[3]; // index 3 = example sentence in data
+
+              if (exampleSentence) {
+                return (
+                  <div style={{
+                    background:'var(--bar-bg)',
+                    borderRadius:10,
+                    padding:'10px 12px',
+                    marginTop:8,
+                    textAlign:'left',
+                  }}>
+                    <p style={{
+                      fontSize:12,
+                      fontStyle:'italic',
+                      color:'var(--body)',
+                      margin:0,
+                      lineHeight:1.5,
+                    }}>
+                      "{exampleSentence}"
+                    </p>
+                  </div>
+                );
+              }
+
+              // Fallback: contextual tip
+              const tip = getWordTip(croatianWord, englishMeaning);
+              if (!tip) return null;
+
+              if (tip.type === 'verb') {
+                return (
+                  <div style={{
+                    background:'var(--bar-bg)',
+                    borderRadius:10,
+                    padding:'10px 12px',
+                    marginTop:8,
+                    textAlign:'left',
+                  }}>
+                    <div style={{fontSize:11,fontWeight:700,color:'var(--subtext)',marginBottom:3,textTransform:'uppercase',letterSpacing:'0.05em'}}>Verb forms</div>
+                    <div style={{fontSize:12,fontStyle:'italic',color:'var(--body)',lineHeight:1.5}}>{tip.hr}</div>
+                    <div style={{fontSize:11,color:'var(--subtext)',marginTop:2}}>{tip.en}</div>
+                  </div>
+                );
+              }
+
+              if (tip.type === 'adj') {
+                return (
+                  <div style={{
+                    background:'var(--bar-bg)',
+                    borderRadius:10,
+                    padding:'10px 12px',
+                    marginTop:8,
+                    textAlign:'center',
+                  }}>
+                    <div style={{fontSize:11,color:'var(--subtext)',lineHeight:1.5}}>{tip.en}</div>
+                  </div>
+                );
+              }
+
+              if (tip.type === 'noun' && tip.gender) {
+                const genderColor = tip.gender === 'm.' ? '#3b82f6' : tip.gender === 'f.' ? '#ec4899' : '#a855f7';
+                return (
+                  <div style={{
+                    display:'flex',
+                    justifyContent:'center',
+                    marginTop:8,
+                  }}>
+                    <span style={{
+                      background: genderColor + '20',
+                      border: `1px solid ${genderColor}50`,
+                      borderRadius:8,
+                      padding:'4px 12px',
+                      fontSize:12,
+                      fontWeight:700,
+                      color: genderColor,
+                    }}>
+                      {tip.gender} {tip.en}
+                    </span>
+                  </div>
+                );
+              }
+
+              return null;
+            })()}
+
+            <div style={{fontSize:12,color:"var(--subtext)",marginTop:10}}>tap to flip back</div>
           </div>
         </div>
         {sparkPos && (

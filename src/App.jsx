@@ -31,6 +31,7 @@ import TermsOfService from "./components/shared/TermsOfService.jsx";
 import AdminDashboard from "./components/admin/AdminDashboard.jsx";
 import PlacementTest from "./components/home/PlacementTest.jsx";
 import NewPlacementTest from "./components/auth/PlacementTest.jsx";
+import { LESSONS as ANIM_LESSONS } from "./data/lessons.js";
 // Reload once on stale-chunk errors (happens after deploy when old index.html
 // tries to load chunk files that no longer exist at their old hashed paths).
 function lazyWithReload(fn) {
@@ -184,6 +185,9 @@ const SurvivalDinner = lazyWithReload(() => import("./components/croatia/Surviva
 const ClozeEngine = lazyWithReload(() => import("./components/practice/ClozeEngine.jsx"));
 const GrammarConstellation = lazyWithReload(() => import("./components/learn/GrammarConstellation.jsx"));
 const GrammarExplainer = lazyWithReload(() => import("./components/learn/GrammarExplainer.jsx"));
+const CaseTransformer = lazyWithReload(() => import("./components/learn/CaseTransformer.jsx"));
+const VocabScenes = lazyWithReload(() => import("./components/learn/VocabScenes.jsx"));
+const AnimatedLesson = lazyWithReload(() => import("./components/learn/AnimatedLesson.jsx"));
 const KaficScreen = lazyWithReload(() => import("./components/croatia/KaficScreen.jsx"));
 const DiasporaNote = lazyWithReload(() => import("./components/croatia/DiasporaNote.jsx"));
 const TiViScreen = lazyWithReload(() => import("./components/learn/TiViScreen.jsx"));
@@ -241,11 +245,13 @@ function App(){
   // ── Match game: only initPool needed — MatchGame owns mm/msl/gsc/gph internally ──
   const[matchInitPool,setMatchInitPool]=useState([]);
   // ── Multiple choice game ──
-  const[mcInitQ,setMcInitQ]=useState([]);const[mcResultQ,setMcResultQ]=useState([]);const[mcResultScore,setMcResultScore]=useState(0);
+  const[mcInitQ,setMcInitQ]=useState([]);const[mcResultQ,setMcResultQ]=useState([]);const[mcResultScore,setMcResultScore]=useState(0);const[mcMistakes,setMcMistakes]=useState([]);
   // ── Reading screen state ──
   const[rp,sRp]=useState(null);const[rph,sRph]=useState("read");const[rqi,sRqi]=useState(0);const[rsc,sRsc]=useState(0);const[ra,sRa]=useState(false);const[rsl,sRsl]=useState(-1);const[hw,sHw]=useState(null);
   // ── Speaking screen state ──
   const[sw,sSw]=useState(null);const[sr,sSr]=useState(null);const[sx,sSx]=useState(0);const[si,sSi]=useState([]);const[ssc,sSsc]=useState(0);
+  // ── Animated lesson ──
+  const[animLesson,setAnimLesson]=useState(null);
   // ── Flashcards / Listening init pools ──
   const[fcInitPool,setFcInitPool]=useState([]);
   const[lsInitQ,setLsInitQ]=useState([]);
@@ -312,6 +318,9 @@ function App(){
         tivicompare:"learn",
         grammarvideos:"learn",
         grammarexplainer:"learn",
+        casetransformer:"learn",
+        vocabscenes:"learn",
+        animlesson:"learn",
         lifeevents:"croatia",
         civic:"croatia",
         easter:"croatia",midsummer:"croatia",domovina:"croatia",bozic:"croatia",
@@ -640,8 +649,9 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   const allCats=ALL_CATS;
   const icons=ICONS;
   // ═══ SCREEN LAUNCH FUNCTIONS ═══
+  function launchAnimLesson(lessonId){const l=ANIM_LESSONS.find(x=>x.id===lessonId);if(l){setAnimLesson(l);sCurEx("animlesson");setScr("animlesson");}}
   function launchMcGame(questions){setMcInitQ(questions);sCurEx("mcgame");setScr("mcgame");}
-  function mcGameComplete(questions,score){setMcResultQ(questions);setMcResultScore(score);setScr("mcresult");}
+  function mcGameComplete(questions,score,mistakes){setMcResultQ(questions);setMcResultScore(score);setMcMistakes(mistakes||[]);setScr("mcresult");}
   function launchFlashcards(pool){setFcInitPool(pool);sCurEx("flashcards");setScr("flashcards");}
   function launchListening(questions){setLsInitQ(questions);sCurEx("listening");setScr("listening");}
   // Q-4: MatchGame now manages its own state; App only stores the init pool
@@ -839,6 +849,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
           sh={sh} sLt={sLt} sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl}
           sGl={sGl} sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
           launchPathItem={launchPathItem} setTab={setTab}
+          launchAnimLesson={launchAnimLesson}
         /></ScreenErrorBoundary></div>}
         {// ═══ TAB: PRACTICE ═══
         tab==="practice"&&<div key="tab-practice" className="screen-enter"><ScreenErrorBoundary name="PracticeTab"><PracticeTab
@@ -875,7 +886,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       currentScreen==="mcgame"&&<McGame
         questions={mcInitQ} onComplete={mcGameComplete} goBack={goBack} award={award}
       />}
-      {currentScreen==="mcresult"&&<McResult questions={mcResultQ} score={mcResultScore} setScr={setScr} goBack={goBack} onNewGame={launchMcGame} />}
+      {currentScreen==="mcresult"&&<McResult questions={mcResultQ} score={mcResultScore} mistakes={mcMistakes} setScr={setScr} goBack={goBack} onNewGame={launchMcGame} award={award} />}
       {// ═══ CROATIAN CASES ═══
       currentScreen==="padezi"&&<PadeziScreen goBack={goBack} award={award} setSt={setStats} />}
       {// ═══ UNJUMBLE / WORD ORDER ═══
@@ -938,6 +949,12 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       currentScreen==="grammarvideos"&&<GrammarVideos goBack={goBack} setScr={setScr} />}
       {// ═══ GRAMMAR EXPLAINER ═══
       currentScreen==="grammarexplainer"&&<GrammarExplainer goBack={goBack} award={award} />}
+      {// ═══ CASE TRANSFORMER ═══
+      currentScreen==="casetransformer"&&<CaseTransformer goBack={goBack} award={award} />}
+      {// ═══ VOCAB SCENES ═══
+      currentScreen==="vocabscenes"&&<VocabScenes goBack={goBack} award={award} />}
+      {// ═══ ANIMATED LESSON ═══
+      currentScreen==="animlesson"&&animLesson&&<AnimatedLesson lesson={animLesson} goBack={goBack} award={award} />}
       {// ═══ FALSE FRIENDS ═══
       currentScreen==="falsefr"&&<FalseFriendsScreen goBack={goBack} />}
       {// ═══ PREPOSITION DRILLS ═══
