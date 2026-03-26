@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { H, Spk, srMark, recordMistake } from '../../data.jsx';
 import { useHaptic } from '../../hooks/useHaptic.js';
+import { getHearts, loseHeart } from '../../lib/lives.js';
+import HeartsBar from '../shared/HeartsBar.jsx';
 
 const XP_PER_CORRECT = 3;
 const XP_COMPLETION_BONUS = 5;
@@ -93,7 +95,7 @@ function ParticleBurst({ active }) {
 
 const LABELS = ['A', 'B', 'C', 'D'];
 
-export default function McGame({ questions, onComplete, goBack, award }) {
+export default function McGame({ questions, onComplete, goBack, award, challengeMode = false }) {
   const haptic = useHaptic();
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
@@ -110,6 +112,11 @@ export default function McGame({ questions, onComplete, goBack, award }) {
   const [shaking, setShaking] = useState(false);
   // Change 3: streak badge pulse state
   const [streakPulse, setStreakPulse] = useState(false);
+  // Challenge Mode: hearts and game-over
+  const [hearts, setHearts] = useState(() => challengeMode ? getHearts() : 5);
+  const [gameOver, setGameOver] = useState(false);
+  // Question transition
+  const [qTransition, setQTransition] = useState(false);
   const firstOptionRef = useRef(null);
   const resultFired = useRef(false);
 
@@ -180,6 +187,13 @@ export default function McGame({ questions, onComplete, goBack, award }) {
       setComboMsg('');
       setStreakPulse(false);
       if (q.hr) recordMistake(q.hr, q.en || q.correct || '', q.q || q.prompt || '', q.category || '');
+      if (challengeMode) {
+        const remaining = loseHeart();
+        setHearts(remaining);
+        if (remaining === 0) {
+          setTimeout(() => setGameOver(true), 600); // let animation finish
+        }
+      }
     }
     if (q.hr) srMark(q.hr, ok);
   }
@@ -202,6 +216,23 @@ export default function McGame({ questions, onComplete, goBack, award }) {
 
   const progress = (idx / questions.length) * 100;
   const isLast = idx === questions.length - 1;
+
+  if (gameOver) {
+    return (
+      <div className="scr-wrap" style={{textAlign:'center', padding:'40px 20px'}}>
+        <div style={{fontSize:52}}>💔</div>
+        <h3 style={{fontFamily:"'Playfair Display',serif", fontSize:22, color:'var(--heading)', marginTop:12}}>
+          Out of Hearts!
+        </h3>
+        <p style={{color:'var(--subtext)', marginTop:8, fontSize:14, lineHeight:1.6}}>
+          Hearts refill over time — 1 per hour.<br/>Come back to keep going!
+        </p>
+        <button className="b bp" style={{marginTop:24, width:'100%'}} onClick={goBack}>
+          ← Back to Practice
+        </button>
+      </div>
+    );
+  }
 
   return (
     // Change 1: apply shake animation to outer wrapper
@@ -341,6 +372,12 @@ export default function McGame({ questions, onComplete, goBack, award }) {
         Question {idx + 1} of {questions.length} · {score} correct
       </div>
 
+      {challengeMode && (
+        <div style={{display:'flex', justifyContent:'flex-end', marginBottom:8}}>
+          <HeartsBar hearts={hearts} />
+        </div>
+      )}
+
       {/* Question card */}
       <div
         className="c"
@@ -349,6 +386,9 @@ export default function McGame({ questions, onComplete, goBack, award }) {
           background:
             'linear-gradient(145deg,var(--card),var(--card))',
           borderLeft: '4px solid var(--info)',
+          opacity: qTransition ? 0 : 1,
+          transform: qTransition ? 'translateY(8px)' : 'translateY(0)',
+          transition: 'opacity 0.2s ease, transform 0.2s ease',
         }}
       >
         <div
@@ -408,7 +448,7 @@ export default function McGame({ questions, onComplete, goBack, award }) {
       )}
 
       {/* Options */}
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', opacity: qTransition ? 0 : 1, transform: qTransition ? 'translateY(8px)' : 'translateY(0)', transition: 'opacity 0.2s ease, transform 0.2s ease' }}>
         {q.opts.map((o, i) => {
           const isCorrect = answered && o === q.correct;
           const isWrong =
@@ -510,10 +550,14 @@ export default function McGame({ questions, onComplete, goBack, award }) {
           }}
           onClick={() => {
             if (!isLast) {
-              setIdx(i => i + 1);
-              setAnswered(false);
-              setSelected(-1);
-              setRevealCorrect(false);
+              setQTransition(true);
+              setTimeout(() => {
+                setIdx(i => i + 1);
+                setAnswered(false);
+                setSelected(-1);
+                setRevealCorrect(false);
+                setQTransition(false);
+              }, 200);
             } else {
               if (resultFired.current) return;
               resultFired.current = true;

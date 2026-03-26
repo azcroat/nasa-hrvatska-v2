@@ -489,6 +489,35 @@ html{
 @keyframes tileSnap{0%{transform:scale(1.08)}100%{transform:scale(1)}}
 @keyframes tileShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 
+/* Card slide transitions */
+@keyframes slide-out-left {
+  from { transform: translateX(0); opacity: 1; }
+  to   { transform: translateX(-32px); opacity: 0; }
+}
+@keyframes slide-in-right {
+  from { transform: translateX(32px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+@keyframes slide-out-right {
+  from { transform: translateX(0); opacity: 1; }
+  to   { transform: translateX(32px); opacity: 0; }
+}
+@keyframes slide-in-left {
+  from { transform: translateX(-32px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+@keyframes fade-out-quick {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.96); }
+}
+@keyframes tab-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.tab-enter { animation: tab-enter 0.22s cubic-bezier(0.4,0,0.2,1) both; }
+.slide-in-right { animation: slide-in-right 0.22s cubic-bezier(0.4,0,0.2,1) both; }
+.slide-out-left { animation: slide-out-left 0.18s cubic-bezier(0.4,0,1,1) both; }
+
 /* ═══════════════════════════════════════════════════════════
    ACCESSIBILITY
 ═══════════════════════════════════════════════════════════ */

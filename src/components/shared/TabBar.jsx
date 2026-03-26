@@ -49,6 +49,10 @@ function NavIcon({ id, active }) {
   return null;
 }
 
+// Tab content transitions: TabBar only renders the bottom nav bar — it does not
+// wrap or render any tab content. To animate tab switches, apply the `.tab-enter`
+// CSS class (defined in index.css) to the content wrapper in App.jsx whenever the
+// active tab changes (e.g. via a `key={tab}` prop or a className toggle).
 export default function TabBar({ tab, setTab, setScr, badges }) {
   const [indicatorStyle, setIndicatorStyle] = useState({});
   const [showSearch, setShowSearch] = useState(false);

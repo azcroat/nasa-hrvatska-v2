@@ -20,10 +20,14 @@ export default function Flashcards({ pool, goBack, award }) {
   const [wrongAnim, setWrongAnim] = useState(false);
   const [showStillLearning, setShowStillLearning] = useState(false);
   const [sparkPos, setSparkPos] = useState(null);
+  const [exiting, setExiting] = useState(false);
+  const [entering, setEntering] = useState(false);
   const cardRef = useRef(null);
   const knowBtnRef = useRef(null);
   const touchStartX = useRef(null);
   const touchStartY = useRef(null);
+  const mountedRef = useRef(true);
+  useEffect(() => () => { mountedRef.current = false; }, []);
 
   // When buttons appear (card flipped), focus "I Know It" so keyboard users can act
   useEffect(() => {
@@ -106,33 +110,55 @@ export default function Flashcards({ pool, goBack, award }) {
     );
   }
 
+  function advanceCard(direction, callback) {
+    setExiting(direction);
+    setTimeout(() => {
+      if (!mountedRef.current) return;
+      setExiting(false);
+      callback();
+      setEntering(true);
+      setTimeout(() => {
+        if (!mountedRef.current) return;
+        setEntering(false);
+      }, 220);
+    }, 180);
+  }
+
   function handleStillLearning() {
     const q = 2;
     const correct = q >= 3;
     srMark(activePool[idx][0], correct);
     setWrongAnim(true);
-    setTimeout(() => setWrongAnim(false), 400);
+    setTimeout(() => { if (mountedRef.current) setWrongAnim(false); }, 400);
     setShowStillLearning(true);
-    setTimeout(() => setShowStillLearning(false), STILL_LEARNING_MSG_DURATION);
-    setMissed(m => [...m, activePool[idx]]);
-    setFlipped(false);
-    if (idx < activePool.length - 1) { setIdx(i => i + 1); }
-    else { finish(known); }
+    setTimeout(() => { if (mountedRef.current) setShowStillLearning(false); }, STILL_LEARNING_MSG_DURATION);
+    const currentIdx = idx;
+    const currentKnown = known;
+    const currentCard = activePool[idx];
+    advanceCard('left', () => {
+      setMissed(m => [...m, currentCard]);
+      setFlipped(false);
+      if (currentIdx < activePool.length - 1) { setIdx(currentIdx + 1); }
+      else { finish(currentKnown); }
+    });
   }
 
   function handleKnown() {
     setSparkPos({ x: 50, y: 50 });
-    setTimeout(() => setSparkPos(null), 700);
+    setTimeout(() => { if (mountedRef.current) setSparkPos(null); }, 700);
     const q = 4;
     const correct = q >= 3;
     srMark(activePool[idx][0], correct);
     setCorrectAnim(true);
-    setTimeout(() => setCorrectAnim(false), 500);
+    setTimeout(() => { if (mountedRef.current) setCorrectAnim(false); }, 500);
     const newKnown = known + 1;
-    setKnown(newKnown);
-    setFlipped(false);
-    if (idx < activePool.length - 1) { setIdx(i => i + 1); }
-    else { finish(newKnown); }
+    const currentIdx = idx;
+    advanceCard('right', () => {
+      setKnown(newKnown);
+      setFlipped(false);
+      if (currentIdx < activePool.length - 1) { setIdx(currentIdx + 1); }
+      else { finish(newKnown); }
+    });
   }
 
   const handleTouchStart = (e) => {
@@ -210,7 +236,7 @@ export default function Flashcards({ pool, goBack, award }) {
       </div>
       <Bar v={idx+1} mx={activePool.length} h={6} color="#f59e0b" />
       <div
-        className={`fc-scene${correctAnim ? ' anim-bounce-in' : ''}${wrongAnim ? ' anim-wrong' : ''}`}
+        className={`fc-scene${correctAnim ? ' anim-bounce-in' : ''}${wrongAnim ? ' anim-wrong' : ''}${exiting === 'right' ? ' slide-out-left' : ''}${exiting === 'left' ? ' slide-out-right' : ''}${entering ? ' slide-in-right' : ''}`}
         style={{ position: 'relative' }}
       >
         <div

@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { H, Bar, speak, srMark, sh, shuffleArr, V } from '../../data.jsx';
+import { playCorrect, playWrong, haptic } from '../../lib/soundSettings.js';
 import CroatianKnight from '../shared/CroatianKnight';
 import { CelebrationScene } from '../illustrations';
 import Flashcards from '../practice/Flashcards';
@@ -205,7 +206,8 @@ export default function LessonScreen({
                 if (!la) {
                   sLsl(i); sLa(true);
                   const ok = i === qi[lx].ci;
-                  if (ok) sLs(s => s + 1);
+                  if (ok) { playCorrect(); haptic(40); sLs(s => s + 1); }
+                  else { playWrong(); haptic([40, 30, 40]); }
                   srMark(qi[lx][0], ok);
                 }
               }}>

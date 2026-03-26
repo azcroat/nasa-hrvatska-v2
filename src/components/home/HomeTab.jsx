@@ -122,6 +122,12 @@ export default function HomeTab({
   const activePalette = LEVEL_PALETTE[(pathData.activeLv.level - 1) % LEVEL_PALETTE.length];
   const nameInitial = (name || "U")[0].toUpperCase();
 
+  const SkeletonBar = ({ w = '100%', h = 16, r = 8, mt = 0 }) => (
+    <div style={{width:w, height:h, borderRadius:r, marginTop:mt,
+      background:'linear-gradient(90deg, var(--bar-bg) 25%, var(--card-b) 50%, var(--bar-bg) 75%)',
+      backgroundSize:'200% 100%', animation:'shimmer 1.4s ease infinite'}} />
+  );
+
   return (
     <React.Fragment>
 
@@ -306,7 +312,7 @@ export default function HomeTab({
                 strokeDashoffset={238.76 * (1 - xpPct / 100)}
                 style={{
                   transform:'rotate(-90deg)',transformOrigin:'48px 48px',
-                  transition:'stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1)',
+                  transition:'stroke-dashoffset 0.9s cubic-bezier(.4,0,.2,1)',
                   filter:'drop-shadow(0 0 5px rgba(56,189,248,.9))',
                 }}
               />
@@ -362,6 +368,36 @@ export default function HomeTab({
         )}
         </div>{/* end padding wrapper */}
       </div>
+
+      {/* Daily Goal Progress */}
+      {(() => {
+        const dailyTarget = parseInt(localStorage.getItem('nh_daily_goal_xp') || '50', 10);
+        const todayKey = 'nh_day_xp_' + new Date().toISOString().slice(0,10);
+        const todayXp = parseInt(localStorage.getItem(todayKey) || '0', 10);
+        const pct = Math.min(1, todayXp / dailyTarget);
+        const done = pct >= 1;
+        return (
+          <div style={{margin:'12px 0 8px', padding:'12px 16px', background:'var(--card)',
+            borderRadius:14, border:'1px solid var(--card-b)'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+              <span style={{fontSize:'var(--text-xs)',fontWeight:700,color:'var(--subtext)',textTransform:'uppercase',letterSpacing:'.08em'}}>
+                Daily Goal
+              </span>
+              <span style={{fontSize:'var(--text-xs)',fontWeight:700,color: done ? 'var(--success)' : 'var(--info)'}}>
+                {done ? '✅ Complete!' : `${todayXp} / ${dailyTarget} XP`}
+              </span>
+            </div>
+            <div style={{height:8,borderRadius:4,background:'var(--bar-bg)',overflow:'hidden'}}>
+              <div style={{height:'100%',borderRadius:4,width:`${pct*100}%`,
+                background: done ? 'var(--success)' : 'linear-gradient(90deg,var(--info),#38bdf8)',
+                transition:'width 0.6s cubic-bezier(0.4,0,0.2,1)'}} />
+            </div>
+            {done && <div style={{fontSize:'var(--text-xs)',color:'var(--success)',marginTop:6,fontWeight:600}}>
+              🎉 Goal reached! Every extra XP builds your lead.
+            </div>}
+          </div>
+        );
+      })()}
 
       {/* ── SUB-TAB PILL SELECTOR ── */}
       <div style={{ display:'flex', gap:8, padding:'12px 0 4px', borderBottom:'1px solid var(--bar-bg)', marginBottom:16 }}>
@@ -434,70 +470,77 @@ export default function HomeTab({
             <div style={{position:"absolute",top:-30,right:-30,width:140,height:140,background:"rgba(255,255,255,.07)",borderRadius:"50%",pointerEvents:"none"}}/>
             <div style={{position:"absolute",bottom:-20,left:-20,width:100,height:100,background:"rgba(0,0,0,.1)",borderRadius:"50%",pointerEvents:"none"}}/>
 
-            <div style={{fontSize:10,fontWeight:800,color:"rgba(255,255,255,.7)",letterSpacing:".12em",textTransform:"uppercase",marginBottom:8}}>
-              Your Next Lesson
-            </div>
-            <div style={{
-              fontSize:20,fontWeight:900,
-              fontFamily:"'Playfair Display',serif",
-              color:"white",lineHeight:1.2,marginBottom:4,
-              textShadow:"0 2px 8px rgba(0,0,0,.2)",
-            }}>
-              {!syncReady
-                ? <span style={{opacity:.6,fontStyle:"italic"}}>Syncing progress…</span>
-                : (pathData.nextItem?.name || "Learning Path Complete")}
-            </div>
-            <div style={{fontSize:12,color:"rgba(255,255,255,.7)",fontWeight:600,marginBottom:14}}>
-              Level {pathData.activeLv.level} · {pathData.activeLv.title}
-            </div>
-
-            {/* Progress bar */}
-            <div style={{background:"rgba(255,255,255,.25)",borderRadius:6,height:6,overflow:"hidden",marginBottom:6}}>
-              <div style={{
-                height:"100%",background:"white",borderRadius:6,
-                width: (pathData.activeLvDone / pathData.activeLv.items.length * 100) + "%",
-                transition:"width .7s cubic-bezier(.4,0,.2,1)",
-              }}/>
-            </div>
-            <div style={{fontSize:11,color:"rgba(255,255,255,.7)",fontWeight:500,marginBottom:16}}>
-              This stage: {pathData.activeLvDone} of {pathData.activeLv.items.length} lessons
-            </div>
-
-            {/* Start Now button */}
-            <button
-              onClick={() => { if (!syncReady) return; if (pathData.nextItem) { launchPathItem(pathData.nextItem); } else setScr("learnpath"); }}
-              style={{
-                width:"100%",height:52,
-                background:"white",
-                color: activePalette.text,
-                fontSize:16,fontWeight:800,
-                border:"none",borderRadius:14,cursor:"pointer",
-                fontFamily:"'Outfit',sans-serif",
-                letterSpacing:".01em",
-                boxShadow:"0 4px 20px rgba(0,0,0,.25)",
-                display:"flex",alignItems:"center",justifyContent:"center",gap:8,
-                transition:"transform .15s, box-shadow .15s",
-                opacity: !syncReady ? 0.6 : 1,
-              }}>
-              <span style={{fontSize:18}}>{!syncReady ? "⏳" : "▶"}</span>
-              <span>{!syncReady ? "Syncing…" : st.lc > 0 ? "Continue Learning" : "Start Learning"}</span>
-            </button>
-
-            {/* Resume last activity */}
-            {lastActivity && st.lc > 0 && (
-              <button
-                onClick={() => { setScr(lastActivity.ex); sCurEx(lastActivity.ex); }}
-                style={{
-                  width:"100%", marginTop:10, height:44,
-                  background:"rgba(255,255,255,.12)", border:"1.5px solid rgba(255,255,255,.3)",
-                  borderRadius:12, cursor:"pointer",
-                  fontFamily:"'Outfit',sans-serif",
-                  display:"flex", alignItems:"center", justifyContent:"center", gap:8,
-                  color:"rgba(255,255,255,.9)", fontSize:13, fontWeight:700,
+            {!syncReady ? (
+              <div style={{padding:'16px 0'}}>
+                <SkeletonBar h={20} w="60%" r={10} />
+                <SkeletonBar h={14} w="80%" r={8} mt={10} />
+                <SkeletonBar h={48} r={14} mt={14} />
+              </div>
+            ) : (
+              <>
+                <div style={{fontSize:10,fontWeight:800,color:"rgba(255,255,255,.7)",letterSpacing:".12em",textTransform:"uppercase",marginBottom:8}}>
+                  Your Next Lesson
+                </div>
+                <div style={{
+                  fontSize:20,fontWeight:900,
+                  fontFamily:"'Playfair Display',serif",
+                  color:"white",lineHeight:1.2,marginBottom:4,
+                  textShadow:"0 2px 8px rgba(0,0,0,.2)",
                 }}>
-                <span style={{fontSize:14}}>↩️</span>
-                <span>Resume: {lastActivity.label} →</span>
-              </button>
+                  {pathData.nextItem?.name || "Learning Path Complete"}
+                </div>
+                <div style={{fontSize:12,color:"rgba(255,255,255,.7)",fontWeight:600,marginBottom:14}}>
+                  Level {pathData.activeLv.level} · {pathData.activeLv.title}
+                </div>
+
+                {/* Progress bar */}
+                <div style={{background:"rgba(255,255,255,.25)",borderRadius:6,height:6,overflow:"hidden",marginBottom:6}}>
+                  <div style={{
+                    height:"100%",background:"white",borderRadius:6,
+                    width: (pathData.activeLvDone / pathData.activeLv.items.length * 100) + "%",
+                    transition:"width .7s cubic-bezier(.4,0,.2,1)",
+                  }}/>
+                </div>
+                <div style={{fontSize:11,color:"rgba(255,255,255,.7)",fontWeight:500,marginBottom:16}}>
+                  This stage: {pathData.activeLvDone} of {pathData.activeLv.items.length} lessons
+                </div>
+
+                {/* Start Now button */}
+                <button
+                  onClick={() => { if (pathData.nextItem) { launchPathItem(pathData.nextItem); } else setScr("learnpath"); }}
+                  style={{
+                    width:"100%",height:52,
+                    background:"white",
+                    color: activePalette.text,
+                    fontSize:16,fontWeight:800,
+                    border:"none",borderRadius:14,cursor:"pointer",
+                    fontFamily:"'Outfit',sans-serif",
+                    letterSpacing:".01em",
+                    boxShadow:"0 4px 20px rgba(0,0,0,.25)",
+                    display:"flex",alignItems:"center",justifyContent:"center",gap:8,
+                    transition:"transform .15s, box-shadow .15s",
+                  }}>
+                  <span style={{fontSize:18}}>▶</span>
+                  <span>{st.lc > 0 ? "Continue Learning" : "Start Learning"}</span>
+                </button>
+
+                {/* Resume last activity */}
+                {lastActivity && st.lc > 0 && (
+                  <button
+                    onClick={() => { setScr(lastActivity.ex); sCurEx(lastActivity.ex); }}
+                    style={{
+                      width:"100%", marginTop:10, height:44,
+                      background:"rgba(255,255,255,.12)", border:"1.5px solid rgba(255,255,255,.3)",
+                      borderRadius:12, cursor:"pointer",
+                      fontFamily:"'Outfit',sans-serif",
+                      display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+                      color:"rgba(255,255,255,.9)", fontSize:13, fontWeight:700,
+                    }}>
+                    <span style={{fontSize:14}}>↩️</span>
+                    <span>Resume: {lastActivity.label} →</span>
+                  </button>
+                )}
+              </>
             )}
           </div>
 

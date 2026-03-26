@@ -10,7 +10,7 @@
  *   - goBack is callable without crashing
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 
 // ── Firebase mock (required by data.jsx import chain) ─────────────────────────
@@ -129,12 +129,12 @@ describe('McGame — answer mechanics', () => {
     expect(screen.getByText(/1 correct/i)).toBeTruthy();
   });
 
-  it('advances to next question after clicking Next', () => {
+  it('advances to next question after clicking Next', async () => {
     renderGame();
     answerCurrent(true);
     fireEvent.click(screen.getByText(/Next/i));
-    expect(screen.getByText('word1')).toBeTruthy();
-    expect(screen.getByText(/Question 2 of 3/i)).toBeTruthy();
+    await waitFor(() => expect(screen.getByText('word1')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText(/Question 2 of 3/i)).toBeTruthy());
   });
 });
 
@@ -206,26 +206,26 @@ describe('McGame — XP double-award prevention', () => {
 
 // ── Streak ────────────────────────────────────────────────────────────────────
 describe('McGame — streak', () => {
-  it('streak badge appears after 2 consecutive correct answers', () => {
+  it('streak badge appears after 2 consecutive correct answers', async () => {
     const questions = makeQuestions(3);
     const { props } = renderGame({ questions });
 
     answerCurrent(true, 0);
     fireEvent.click(screen.getByText(/Next/i));
-    answerCurrent(true, 1);
+    await waitFor(() => answerCurrent(true, 1));
     // Streak >= 2 — badge should appear
-    expect(screen.getByText('2')).toBeTruthy(); // streak count
+    await waitFor(() => expect(screen.getByText('2')).toBeTruthy()); // streak count
   });
 
-  it('streak resets to 0 after a wrong answer', () => {
+  it('streak resets to 0 after a wrong answer', async () => {
     const questions = makeQuestions(3);
     renderGame({ questions });
 
     answerCurrent(true, 0);
     fireEvent.click(screen.getByText(/Next/i));
-    answerCurrent(false, 1); // wrong
+    await waitFor(() => answerCurrent(false, 1)); // wrong
     // Streak badge should be gone (streak < 2)
-    expect(screen.queryByText('🔥')).toBeNull();
+    await waitFor(() => expect(screen.queryByText('🔥')).toBeNull());
   });
 });
 
