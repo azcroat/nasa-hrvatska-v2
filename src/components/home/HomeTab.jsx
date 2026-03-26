@@ -319,7 +319,9 @@ export default function HomeTab({
             {icon:"⭐",value:st.xp.toLocaleString(),label:"XP total"},
             {icon:"📚",value:st.lc,label:"lessons"},
             {icon:"💪",value:ws.strong,label:"mastered"},
-          ].map((s,i) => (
+          ].map((s,i) => {
+            const statsLoaded = st !== null && st !== undefined && st.xp !== undefined;
+            return (
             <div key={i} style={{
               display:"inline-flex",alignItems:"center",gap:5,
               padding:"7px 12px",
@@ -333,10 +335,13 @@ export default function HomeTab({
               {s.label === "streak"
                 ? <span className="anim-streak" style={{fontSize:28}}>🔥</span>
                 : <span style={{fontSize:13}}>{s.icon}</span>}
-              <span style={{fontSize:13,fontWeight:900,color:"white",fontVariantNumeric:"tabular-nums"}}>{s.value}</span>
+              {statsLoaded
+                ? <span style={{fontSize:13,fontWeight:900,color:"white",fontVariantNumeric:"tabular-nums"}}>{s.value}</span>
+                : <div className="skeleton" style={{width:36,height:16,borderRadius:6,opacity:.5}} />}
               <span style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,.65)"}} title={s.label==="mastered" ? "Words with 2+ correct reviews" : undefined}>{s.label}</span>
             </div>
-          ))}
+            );
+          })}
         </div>{/* end scroll row */}
         <div style={{position:"absolute",top:0,right:0,bottom:0,width:32,background:"linear-gradient(to left,rgba(10,35,72,0.85),transparent)",pointerEvents:"none",borderRadius:"0 10px 10px 0"}}/>
         </div>{/* end position:relative wrapper */}

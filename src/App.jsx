@@ -814,7 +814,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
           </div>}
         </div>
         {// ═══ TAB: HOME ═══
-        tab==="home"&&<ScreenErrorBoundary name="HomeTab"><HomeTab
+        tab==="home"&&<div key="tab-home" className="screen-enter"><ScreenErrorBoundary name="HomeTab"><HomeTab
           name={name} level={level} st={stats}
           tDir={tDir} sTDir={sTDir} tIn={tIn} sTIn={sTIn} tOut={tOut} tL={tL} doTr={doTr}
           dchlA={dchlA} sDchlA={sDchlA} dchlSl={dchlSl} sDchlSl={sDchlSl}
@@ -826,34 +826,34 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
           syncReady={_syncReady} onSyncNow={doSyncNow} authUser={authUser}
           comebackBonus={comebackBonus}
           goal={localStorage.getItem('nh_goal')||'fluent'}
-        /></ScreenErrorBoundary>}
+        /></ScreenErrorBoundary></div>}
         {// ═══ TAB: LEARN ═══
-        tab==="learn"&&<ScreenErrorBoundary name="LearnTab"><LearnTab
+        tab==="learn"&&<div key="tab-learn" className="screen-enter"><ScreenErrorBoundary name="LearnTab"><LearnTab
           allCats={allCats} icons={icons} setScr={setScr} sCurEx={sCurEx} st={stats}
           sh={sh} sLt={sLt} sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl}
           sGl={sGl} sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
           launchPathItem={launchPathItem} setTab={setTab}
-        /></ScreenErrorBoundary>}
+        /></ScreenErrorBoundary></div>}
         {// ═══ TAB: PRACTICE ═══
-        tab==="practice"&&<ScreenErrorBoundary name="PracticeTab"><PracticeTab
+        tab==="practice"&&<div key="tab-practice" className="screen-enter"><ScreenErrorBoundary name="PracticeTab"><PracticeTab
           allCats={allCats} sh={sh} setScr={setScr} sCurEx={sCurEx}
           onLaunchQuiz={launchMcGame} onLaunchFlash={launchFlashcards}
           onLaunchListen={launchListening} onLaunchMatch={launchMatch}
           onLaunchSpeaking={launchSpeaking}
           lc={stats.lc}
-        /></ScreenErrorBoundary>}
+        /></ScreenErrorBoundary></div>}
         {// ═══ TAB: CROATIA ═══
-        tab==="croatia"&&<ScreenErrorBoundary name="CroatiaTab"><CroatiaTab
+        tab==="croatia"&&<div key="tab-croatia" className="screen-enter"><ScreenErrorBoundary name="CroatiaTab"><CroatiaTab
           setScr={setScr} sCurEx={sCurEx}
-        /></ScreenErrorBoundary>}
+        /></ScreenErrorBoundary></div>}
         {// ═══ TAB: PROFILE ═══
-        tab==="profile"&&<ScreenErrorBoundary name="ProfileTab"><ProfileTab
+        tab==="profile"&&<div key="tab-profile" className="screen-enter"><ScreenErrorBoundary name="ProfileTab"><ProfileTab
           name={name} au={authUser} level={level} st={stats} favs={favs}
           darkMode={darkMode} setDarkMode={setDarkMode}
           setScr={setScr} onNavigate={setScr} doOut={doOut}
           syncReady={_syncReady} onSyncNow={doSyncNow}
           jWords={jWords}
-        /></ScreenErrorBoundary>}
+        /></ScreenErrorBoundary></div>}
       </div>}
       {// ═══ MODAL VERBS ═══
       currentScreen==="modal"&&<ModalScreen goBack={goBack} award={award} setSt={setStats} />}

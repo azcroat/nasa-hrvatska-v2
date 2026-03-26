@@ -341,11 +341,11 @@ export default function PracticeTab({
         </div>
       )}
       {weakMsg && (
-        <div style={{ background:"#fffbeb", border:"1.5px solid #fde68a", borderRadius:12, padding:"12px 16px", marginBottom:16,
-          fontSize:13, fontWeight:600, color:"#92400e", display:"flex", alignItems:"center", gap:8 }}>
-          <span>💡</span>
-          <span style={{ flex:1 }}>{weakMsg}</span>
-          <button onClick={() => setWeakMsg("")} style={{ background:"none", border:"none", cursor:"pointer", fontSize:16, color:"#92400e", lineHeight:1 }}>×</button>
+        <div className="empty-state" style={{ background:"#fffbeb", border:"1.5px solid #fde68a", borderRadius:16, marginBottom:16, position:"relative" }}>
+          <div className="es-icon">🧠</div>
+          <div className="es-title">Not enough weak words yet</div>
+          <div className="es-desc">{weakMsg}</div>
+          <button onClick={() => setWeakMsg("")} style={{ position:"absolute", top:10, right:12, background:"none", border:"none", cursor:"pointer", fontSize:18, color:"#92400e", lineHeight:1, opacity:.6 }} aria-label="Dismiss">×</button>
         </div>
       )}
 

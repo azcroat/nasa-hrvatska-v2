@@ -1135,3 +1135,32 @@ button.c{font-family:'Outfit',sans-serif;width:100%;cursor:pointer;display:block
   .anim-stagger-sm > *,
   .anim-children-fade > *{animation:none!important;opacity:1!important}
 }
+
+/* ═══════════════════════════════════════════════════════════
+   SCREEN TRANSITIONS
+═══════════════════════════════════════════════════════════ */
+@keyframes screenIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.screen-enter {
+  animation: screenIn .22s cubic-bezier(.34,1.2,.64,1) both;
+}
+@media(prefers-reduced-motion:reduce){
+  .screen-enter{animation:none!important;opacity:1!important}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE GRID UTILITIES
+═══════════════════════════════════════════════════════════ */
+.g1 { display: grid; grid-template-columns: 1fr; gap: var(--space-sm); }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm); }
+.g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-sm); }
+@media (max-width: 480px) {
+  .g3 { grid-template-columns: 1fr 1fr; }
+  .g3-mobile-1 { grid-template-columns: 1fr; }
+}
+@media (max-width: 360px) {
+  .g2 { grid-template-columns: 1fr; }
+  .g3 { grid-template-columns: 1fr; }
+}
