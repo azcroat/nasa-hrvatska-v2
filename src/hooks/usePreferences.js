@@ -17,6 +17,18 @@ export function usePreferences() {
     localStorage.setItem('darkMode', darkMode ? 'true' : 'false');
   }, [darkMode]);
 
+  // Initialise font-size and reduce-motion accessibility settings on app load
+  useEffect(() => {
+    const fs = localStorage.getItem('nh_font_size') || 'medium';
+    if (fs === 'medium') {
+      document.documentElement.removeAttribute('data-font');
+    } else {
+      document.documentElement.setAttribute('data-font', fs);
+    }
+    const rm = localStorage.getItem('nh_reduce_motion') === 'true';
+    document.documentElement.classList.toggle('reduce-motion', rm);
+  }, []);
+
   const [favs, setFavs] = useState(() => {
     try { return JSON.parse(localStorage.getItem('uFavs') || '[]'); }
     catch { return []; }
