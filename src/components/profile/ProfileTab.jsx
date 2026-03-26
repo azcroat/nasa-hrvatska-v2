@@ -8,10 +8,10 @@ function getCEFR(xp, lc, gc) {
   const total = xp + (lc * 15) + (gc * 25);
   if (total < 300) return { level: 'A1', label: 'Beginner', color: 'var(--success)', next: 'A2', needed: 300 };
   if (total < 1200) return { level: 'A2', label: 'Elementary', color: '#65a30d', next: 'B1', needed: 1200 };
-  if (total < 3500) return { level: 'B1', label: 'Intermediate', color: '#ca8a04', next: 'B2', needed: 3500 };
-  if (total < 8000) return { level: 'B2', label: 'Upper-Int.', color: '#b45309', next: 'C1', needed: 8000 };
+  if (total < 3500) return { level: 'B1', label: 'Intermediate', color: 'var(--warning)', next: 'B2', needed: 3500 };
+  if (total < 8000) return { level: 'B2', label: 'Upper-Int.', color: 'var(--warning)', next: 'C1', needed: 8000 };
   if (total < 18000) return { level: 'C1', label: 'Advanced', color: 'var(--info)', next: 'C2', needed: 18000 };
-  return { level: 'C2', label: 'Mastery', color: '#7c3aed', next: null, needed: null };
+  return { level: 'C2', label: 'Mastery', color: 'var(--lavender)', next: null, needed: null };
 }
 
 function getWordsLearned() {
@@ -112,11 +112,11 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
 
   const stats = [
     { icon: "⭐", value: st.xp.toLocaleString(), label: "Total XP",   color: "var(--info)",    bg: "var(--info-bg)",    border: "var(--info-b)" },
-    { icon: "🔥", value: streak.count,            label: "Day Streak", color: "#f59e0b",        bg: "#fffbeb",           border: "#fde68a" },
+    { icon: "🔥", value: streak.count,            label: "Day Streak", color: "var(--warning)", bg: "var(--warning-bg)", border: "var(--warning-b)" },
     { icon: "📚", value: st.lc,                   label: "Lessons",    color: "var(--success)", bg: "var(--success-bg)", border: "var(--success-b)" },
-    { icon: "📝", value: st.gc,                   label: "Grammar",    color: "#7c3aed",        bg: "#f5f3ff",           border: "#ddd6fe" },
+    { icon: "📝", value: st.gc,                   label: "Grammar",    color: "var(--lavender)", bg: "rgba(124,58,237,.1)", border: "rgba(124,58,237,.25)" },
     { icon: "💪", value: mastered,                label: "Mastered",   color: "var(--error)",   bg: "var(--error-bg)",   border: "var(--error-b)" },
-    { icon: "🏆", value: (st.badges||[]).length,  label: "Badges",     color: "#d97706",        bg: "#fffbeb",           border: "#fde68a" },
+    { icon: "🏆", value: (st.badges||[]).length,  label: "Badges",     color: "var(--warning)", bg: "var(--warning-bg)", border: "var(--warning-b)" },
   ];
 
   return (
@@ -124,9 +124,9 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
 
       {/* ── PROFILE HEADER ── */}
       <div style={{
-        background: "linear-gradient(145deg,#0c4a6e 0%,#0e7490 55%,#0369a1 100%)",
+        background: "linear-gradient(135deg,var(--info),#164e63)",
         borderRadius: 24, padding: "28px 20px 24px", marginBottom: 16,
-        textAlign: "center", color: "white", position: "relative", overflow: "hidden",
+        textAlign: "center", color: "var(--card)", position: "relative", overflow: "hidden",
         boxShadow: "0 8px 32px rgba(14,116,144,.3)"
       }}>
         <div style={{position:"absolute",top:-40,right:-40,width:160,height:160,background:"rgba(255,255,255,.05)",borderRadius:"50%",pointerEvents:"none"}}/>
@@ -136,29 +136,29 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
           background: "rgba(255,255,255,.18)", backdropFilter: "blur(10px)",
           border: "3px solid rgba(255,255,255,.35)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          margin: "0 auto 14px", fontSize: 38, fontWeight: 900, color: "#fff",
+          margin: "0 auto 14px", fontSize: 38, fontWeight: 900, color: "var(--card)",
           position: "relative"
         }}>
           {name ? name.charAt(0).toUpperCase() : "👤"}
         </div>
-        <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:22,color:"#fff",marginBottom:4,fontWeight:800,letterSpacing:"-.01em"}}>
+        <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:'var(--text-xl)',color:"var(--card)",marginBottom:4,fontWeight:800,letterSpacing:"-.01em"}}>
           {name || au?.d}
         </h2>
         <div style={{fontSize:'var(--text-sm)',opacity:.7,marginBottom:2,fontWeight:600}}>Level {level} Learner</div>
-        {au?.e && <div style={{fontSize:12,opacity:.5,marginTop:2}}>{au.e}</div>}
+        {au?.e && <div style={{fontSize:'var(--text-sm)',opacity:.5,marginTop:2}}>{au.e}</div>}
       </div>
 
       {/* ── CLOUD SYNC STATUS ── */}
       <div style={{
-        background: syncErr ? "linear-gradient(135deg,var(--error-bg),#fee2e2)" : syncReady ? "linear-gradient(135deg,var(--success-bg),#dcfce7)" : "linear-gradient(135deg,var(--bar-bg),#f1f5f9)",
-        border: `1.5px solid ${syncErr ? "var(--error-b)" : syncReady ? "var(--success-b)" : "#cbd5e1"}`,
+        background: syncErr ? "linear-gradient(135deg,var(--error-bg),rgba(220,38,38,.15))" : syncReady ? "linear-gradient(135deg,var(--success-bg),rgba(22,163,74,.15))" : "linear-gradient(135deg,var(--bar-bg),var(--bar-bg))",
+        border: `1.5px solid ${syncErr ? "var(--error-b)" : syncReady ? "var(--success-b)" : "var(--card-b)"}`,
         borderRadius: 16, padding: "14px 16px", marginBottom: 16,
         display: "flex", alignItems: "center", gap: 12,
         transition: 'all .3s ease',
       }}>
         <div style={{
           width: 42, height: 42, borderRadius: 12, flexShrink: 0,
-          background: syncErr ? "linear-gradient(135deg,var(--error),#b91c1c)" : syncReady ? "linear-gradient(135deg,var(--success),#15803d)" : "linear-gradient(135deg,#94a3b8,var(--subtext))",
+          background: syncErr ? "linear-gradient(135deg,var(--error),#b91c1c)" : syncReady ? "linear-gradient(135deg,var(--success),#15803d)" : "linear-gradient(135deg,var(--subtext),var(--subtext))",
           display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20,
         }}>
           {syncing ? "⏳" : syncErr ? "⚠️" : syncDone ? "✅" : syncReady ? "☁️" : "📵"}
@@ -167,7 +167,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
           <div style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: syncErr ? "var(--error)" : syncReady ? "var(--success)" : "var(--subtext)" }}>
             {syncing ? "Saving to cloud…" : syncErr ? "Sync failed — check connection" : syncDone ? "Saved to cloud!" : syncReady ? "Cloud backup active" : "Connecting…"}
           </div>
-          <div style={{ fontSize: 'var(--text-xs)', color: "#94a3b8", marginTop: 2, fontWeight: 500 }}>
+          <div style={{ fontSize: 'var(--text-xs)', color: "var(--subtext)", marginTop: 2, fontWeight: 500 }}>
             {lastSaved ? `Last saved: ${lastSaved.toLocaleString()}` : "No local save found"}
           </div>
         </div>
@@ -175,7 +175,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
           <button onClick={handleSyncNow} disabled={syncing} style={{
             padding: "12px 16px", borderRadius: 10, border: "none", cursor: syncing ? "default" : "pointer",
             background: syncing ? "var(--bar-bg)" : syncErr ? "linear-gradient(135deg,var(--error),#b91c1c)" : "linear-gradient(135deg,var(--success),#15803d)",
-            color: syncing ? "#94a3b8" : "#fff", fontSize: 12, fontWeight: 800,
+            color: syncing ? "var(--subtext)" : "var(--card)", fontSize: 'var(--text-sm)', fontWeight: 800,
             fontFamily: "'Outfit',sans-serif", flexShrink: 0, minHeight: 44,
           }}>
             {syncing ? "…" : "Sync Now"}
@@ -190,10 +190,10 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
           border:'1.5px solid rgba(249,168,37,.3)',
           borderRadius:16, padding:'16px 18px', marginBottom:16,
         }}>
-          <div style={{ fontSize:14, fontWeight:900, color:'var(--heading)', marginBottom:6 }}>
+          <div style={{ fontSize:'var(--text-base)', fontWeight:900, color:'var(--heading)', marginBottom:6 }}>
             💑 Learning for your partner
           </div>
-          <div style={{ fontSize:12, color:'var(--subtext)', lineHeight:1.6, marginBottom:12 }}>
+          <div style={{ fontSize:'var(--text-sm)', color:'var(--subtext)', lineHeight:1.6, marginBottom:12 }}>
             You're learning Croatian because someone special is Croatian. That's the most powerful motivation there is.
           </div>
           <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
@@ -203,7 +203,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
               '✓ Practice "Survival at the Table" phrases',
               '✓ Say Živjeli! at the right moment',
             ].map((tip, i) => (
-              <div key={i} style={{ fontSize:12, color:'var(--subtext)', fontWeight:600 }}>{tip}</div>
+              <div key={i} style={{ fontSize:'var(--text-sm)', color:'var(--subtext)', fontWeight:600 }}>{tip}</div>
             ))}
           </div>
         </div>
@@ -213,9 +213,9 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:24}}>
         {stats.map((s, i) => (
           <div key={i} style={{background:s.bg,border:`1.5px solid ${s.border}`,borderRadius:14,padding:"12px 8px",textAlign:"center"}}>
-            <div style={{fontSize:18,marginBottom:3}}>{s.icon}</div>
-            <div style={{fontSize:17,fontWeight:900,color:s.color,lineHeight:1,fontVariantNumeric:"tabular-nums"}}>{s.value}</div>
-            <div style={{fontSize:'var(--text-xs)',color:"#94a3b8",fontWeight:700,marginTop:3,textTransform:"uppercase",letterSpacing:".04em"}}>{s.label}</div>
+            <div style={{fontSize:'var(--text-xl)',marginBottom:3}}>{s.icon}</div>
+            <div style={{fontSize:'var(--text-lg)',fontWeight:900,color:s.color,lineHeight:1,fontVariantNumeric:"tabular-nums"}}>{s.value}</div>
+            <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",fontWeight:700,marginTop:3,textTransform:"uppercase",letterSpacing:".04em"}}>{s.label}</div>
           </div>
         ))}
       </div>
@@ -230,15 +230,15 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
           <div style={{ background:'var(--card)', border:'1.5px solid var(--card-b)', borderRadius:18, padding:'18px', marginBottom:16 }}>
             <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:12 }}>
               <div style={{ width:52, height:52, borderRadius:14, background:cefr.color, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                <span style={{ fontSize:20, fontWeight:900, color:'#fff' }}>{cefr.level}</span>
+                <span style={{ fontSize:'var(--text-xl)', fontWeight:900, color:'var(--card)' }}>{cefr.level}</span>
               </div>
               <div style={{ flex:1 }}>
-                <div style={{ fontSize:16, fontWeight:900, color:'var(--heading)' }}>CEFR Level: {cefr.level}</div>
-                <div style={{ fontSize:12, color:'var(--subtext)', fontWeight:600 }}>{cefr.label}{prestigeLevel > 0 ? ` · ${'✦'.repeat(prestigeLevel)} Prestige` : ''}</div>
+                <div style={{ fontSize:'var(--text-lg)', fontWeight:900, color:'var(--heading)' }}>CEFR Level: {cefr.level}</div>
+                <div style={{ fontSize:'var(--text-sm)', color:'var(--subtext)', fontWeight:600 }}>{cefr.label}{prestigeLevel > 0 ? ` · ${'✦'.repeat(prestigeLevel)} Prestige` : ''}</div>
               </div>
               <div style={{ textAlign:'right' }}>
-                <div style={{ fontSize:18, fontWeight:900, color:cefr.color }}>{wordsLearned}</div>
-                <div style={{ fontSize:10, color:'var(--subtext)', fontWeight:700 }}>words</div>
+                <div style={{ fontSize:'var(--text-xl)', fontWeight:900, color:cefr.color }}>{wordsLearned}</div>
+                <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:700 }}>words</div>
               </div>
             </div>
             {cefr.needed && (
@@ -249,7 +249,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                 <div style={{ height:8, borderRadius:4, background:'var(--bar-bg)', overflow:'hidden' }}>
                   <div style={{ height:'100%', borderRadius:4, background:cefr.color, width:`${progress}%`, transition:'width .4s ease' }} />
                 </div>
-                <div style={{ fontSize:10, color:'var(--subtext)', marginTop:4, fontWeight:600 }}>{progress}% to {cefr.next}</div>
+                <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:4, fontWeight:600 }}>{progress}% to {cefr.next}</div>
               </div>
             )}
           </div>
@@ -260,12 +260,12 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
       {(st.lc || 0) >= 30 && (
         <div style={{ background:'var(--card)', border:'1.5px solid var(--card-b)', borderRadius:18, padding:'18px', marginBottom:16 }}>
           <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:prestigeLevel > 0 ? 12 : 0 }}>
-            <div style={{ fontSize:28 }}>{prestigeLevel > 0 ? '✦' : '🏆'}</div>
+            <div style={{ fontSize:'var(--text-3xl)' }}>{prestigeLevel > 0 ? '✦' : '🏆'}</div>
             <div style={{ flex:1 }}>
-              <div style={{ fontSize:15, fontWeight:900, color:'var(--heading)' }}>
+              <div style={{ fontSize:'var(--text-md)', fontWeight:900, color:'var(--heading)' }}>
                 {prestigeLevel > 0 ? `Prestige ${prestigeLevel} — ${'✦'.repeat(prestigeLevel)}` : 'Ready to Prestige?'}
               </div>
-              <div style={{ fontSize:12, color:'var(--subtext)', fontWeight:500, lineHeight:1.5, marginTop:2 }}>
+              <div style={{ fontSize:'var(--text-sm)', color:'var(--subtext)', fontWeight:500, lineHeight:1.5, marginTop:2 }}>
                 {prestigeLevel > 0 ? 'You have prestiged. Your dedication to Croatian is legendary.' : 'Reset your XP counter and earn the ✦ Prestige badge — wear it as a mark of dedication. Stage 6 "Naš Čovjek" is in development and will be unlocked for prestige members first.'}
               </div>
             </div>
@@ -273,7 +273,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
           {prestigeLevel === 0 && (
             <button
               onClick={() => setShowPrestigeModal(true)}
-              style={{ width:'100%', padding:'12px', borderRadius:12, border:'none', cursor:'pointer', background:'linear-gradient(135deg,#7c3aed,#4c1d95)', color:'#fff', fontWeight:800, fontSize:14, fontFamily:"'Outfit',sans-serif", marginTop:12 }}
+              style={{ width:'100%', padding:'12px', borderRadius:12, border:'none', cursor:'pointer', background:'linear-gradient(135deg,var(--lavender),#4c1d95)', color:'var(--card)', fontWeight:800, fontSize:'var(--text-base)', fontFamily:"'Outfit',sans-serif", marginTop:12 }}
             >
               ✦ Prestige Now
             </button>
@@ -293,13 +293,13 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                 display: 'flex', alignItems: 'center', gap: 10,
                 opacity: (st.lc || 0) >= STAGE_THRESHOLDS[i] ? 1 : 0.45,
               }}>
-                <span style={{ fontSize: 16 }}>{isDone ? '✅' : isActive ? '▶️' : '⬜'}</span>
+                <span style={{ fontSize:'var(--text-lg)' }}>{isDone ? '✅' : isActive ? '▶️' : '⬜'}</span>
                 <span style={{ fontSize: 'var(--text-sm)', fontWeight: isActive ? 800 : 600, color: isActive ? 'var(--heading)' : 'var(--subtext)' }}>
                   Stage {i + 1}: {stageName}
                 </span>
                 <span style={{
-                  fontSize: 9, fontWeight: 800,
-                  background: 'rgba(14,116,144,0.15)', color: '#0e7490',
+                  fontSize: 'var(--text-xs)', fontWeight: 800,
+                  background: 'rgba(14,116,144,0.15)', color: 'var(--info)',
                   borderRadius: 4, padding: '1px 4px', marginLeft: 6,
                 }}>
                   {STAGE_CEFR[i]}
@@ -312,18 +312,18 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
         {/* Stage 6 teaser — show when user has completed Stage 4 or is in Stage 5 */}
         {(st.lc || 0) >= 20 && (
           <div style={{
-            background: 'linear-gradient(135deg, rgba(14,116,144,0.08), rgba(22,78,99,0.12))',
+            background: 'rgba(14,116,144,.08)',
             border: '1.5px dashed var(--card-b)',
             borderRadius: 14, padding: '14px 16px', marginTop: 10, opacity: 0.75,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 24 }}>🔒</span>
+              <span style={{ fontSize:'var(--text-2xl)' }}>🔒</span>
               <div>
                 <div style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--heading)' }}>
                   Stage 6: Naš Čovjek
                   <span style={{
-                    fontSize: 9, fontWeight: 800,
-                    background: 'rgba(14,116,144,0.15)', color: '#0e7490',
+                    fontSize: 'var(--text-xs)', fontWeight: 800,
+                    background: 'rgba(14,116,144,0.15)', color: 'var(--info)',
                     borderRadius: 4, padding: '1px 4px', marginLeft: 6,
                   }}>
                     {STAGE_CEFR[5]}
@@ -344,15 +344,15 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
       {/* ── GOAL FOCUS ── */}
       {currentGoal && (() => {
         const GOAL_FOCUS = {
-          heritage: { label:'Heritage & Roots', icon:'🇭🇷', color:'#92400e', bg:'#fffbeb', border:'#fde68a',
+          heritage: { label:'Heritage & Roots', icon:'🇭🇷', color:'var(--warning)', bg:'var(--warning-bg)', border:'var(--warning-b)',
             items:[{icon:'🏛️',label:'Croatian History',scr:'history'},{icon:'🌟',label:'Proverbs',scr:'proverbs'},{icon:'📖',label:'Reading',scr:'readlist'}] },
           family:   { label:'Speaking with Family', icon:'👨‍👩‍👧', color:'var(--info)', bg:'var(--info-bg)', border:'var(--info-b)',
             items:[{icon:'🃏',label:'Family Words',scr:'flashcards'},{icon:'🎤',label:'Speaking',scr:'speaking'},{icon:'💬',label:'Dialogue Sim',scr:'dialogue'}] },
           travel:   { label:'Traveling to Croatia', icon:'✈️', color:'var(--success)', bg:'var(--success-bg)', border:'var(--success-b)',
             items:[{icon:'🍽️',label:'Restaurant',scr:'restaurant'},{icon:'🚗',label:'Transport',scr:'transport'},{icon:'🚨',label:'Emergency',scr:'emergency'}] },
-          culture:  { label:'Croatian Culture', icon:'📖', color:'#7c3aed', bg:'#faf5ff', border:'#ddd6fe',
+          culture:  { label:'Croatian Culture', icon:'📖', color:'var(--lavender)', bg:'rgba(124,58,237,.1)', border:'rgba(124,58,237,.25)',
             items:[{icon:'🌊',label:'Immersion',scr:'immersion'},{icon:'🤖',label:'AI Convo',scr:'aiconvo'},{icon:'🎵',label:'Song Lyrics',scr:'lyrics'}] },
-          fluent:   { label:'Becoming Fluent', icon:'🗣️', color:'#0369a1', bg:'#f0f9ff', border:'#bae6fd',
+          fluent:   { label:'Becoming Fluent', icon:'🗣️', color:'var(--info)', bg:'var(--info-bg)', border:'var(--info-b)',
             items:[{icon:'🎓',label:'CEFR Test',scr:'cefrtest'},{icon:'💬',label:'Dialogue Sim',scr:'dialogue'},{icon:'🗣️',label:'Shadowing',scr:'shadowing'}] },
         };
         const gf = GOAL_FOCUS[currentGoal];
@@ -362,10 +362,10 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
             <h3 className="sh">Goal Focus</h3>
             <div style={{ background:gf.bg, border:`1.5px solid ${gf.border}`, borderRadius:16, padding:'16px', marginBottom:20 }}>
               <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
-                <span style={{ fontSize:22 }}>{gf.icon}</span>
+                <span style={{ fontSize:'var(--text-xl)' }}>{gf.icon}</span>
                 <div>
                   <div style={{ fontSize:'var(--text-sm)', fontWeight:900, color:gf.color }}>{gf.label}</div>
-                  <div style={{ fontSize:'var(--text-xs)', color:'#94a3b8', marginTop:1 }}>Your recommended exercises</div>
+                  <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:1 }}>Your recommended exercises</div>
                 </div>
               </div>
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8 }}>
@@ -373,8 +373,8 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                   <button key={it.scr}
                     onClick={() => setScr(it.scr)}
                     style={{ background:'var(--card)', border:`1px solid ${gf.border}`, borderRadius:10, padding:'10px 6px', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
-                    <div style={{ fontSize:20 }}>{it.icon}</div>
-                    <div style={{ fontSize:10, fontWeight:700, color:'var(--heading)', marginTop:4, lineHeight:1.2 }}>{it.label}</div>
+                    <div style={{ fontSize:'var(--text-xl)' }}>{it.icon}</div>
+                    <div style={{ fontSize:'var(--text-xs)', fontWeight:700, color:'var(--heading)', marginTop:4, lineHeight:1.2 }}>{it.label}</div>
                   </button>
                 ))}
               </div>
@@ -403,7 +403,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
             cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
           }}
         >
-          <span style={{fontSize:20}}>💌</span>
+          <span style={{fontSize:'var(--text-xl)'}}>💌</span>
           <div style={{flex:1}}>
             <div style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)'}}>Letter to Future Me</div>
             <div style={{fontSize:'var(--text-xs)', color:'var(--subtext)'}}>Why are you learning Croatian?</div>
@@ -412,7 +412,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
         </button>
         {letterOpen && (
           <div style={{background:'var(--card)', border:'1px solid var(--card-b)', borderTop:'none', borderRadius:'0 0 14px 14px', padding:'14px 16px'}}>
-            <p style={{fontSize:12, color:'var(--subtext)', marginBottom:10, fontStyle:'italic'}}>
+            <p style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:10, fontStyle:'italic'}}>
               Write a note to your future self about why you're learning Croatian. The app will remind you of this when you hit milestones.
             </p>
             <textarea
@@ -428,7 +428,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                 fontSize:'var(--text-sm)', fontFamily:"'Outfit',sans-serif", resize:'vertical', boxSizing:'border-box',
               }}
             />
-            <div style={{fontSize:10, color:'var(--subtext)', marginTop:6}}>Saved automatically ✓</div>
+            <div style={{fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:6}}>Saved automatically ✓</div>
           </div>
         )}
       </div>
@@ -447,16 +447,16 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
             fontFamily:"'Outfit',sans-serif", textAlign:'left',
           }}
         >
-          <span style={{ fontSize:28 }}>🎉</span>
+          <span style={{ fontSize:'var(--text-3xl)' }}>🎉</span>
           <div style={{ flex:1 }}>
-            <div style={{ fontSize:14, fontWeight:900, color:'var(--heading)', marginBottom:2 }}>
+            <div style={{ fontSize:'var(--text-base)', fontWeight:900, color:'var(--heading)', marginBottom:2 }}>
               What is Imendan?
             </div>
             <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:600 }}>
               The Croatian name day tradition — essential knowledge
             </div>
           </div>
-          <span style={{ fontSize:14, color:'var(--subtext)', opacity:.5 }}>{imdOpen ? '▲' : '▼'}</span>
+          <span style={{ fontSize:'var(--text-base)', color:'var(--subtext)', opacity:.5 }}>{imdOpen ? '▲' : '▼'}</span>
         </button>
         {imdOpen && (
           <div style={{ marginTop:14, borderTop:'1px solid rgba(182,24,0,.12)', paddingTop:14 }}>
@@ -476,14 +476,14 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                   background:'var(--card)', border:'1px solid var(--card-b)',
                   borderRadius:10, padding:'8px 10px',
                 }}>
-                  <div style={{ fontSize:10, color:'var(--subtext)', fontWeight:700, marginBottom:2 }}>{m.day}</div>
-                  <div style={{ fontSize:12, fontWeight:800, color:'var(--heading)' }}>{m.emoji} {m.name}</div>
+                  <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:700, marginBottom:2 }}>{m.day}</div>
+                  <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)' }}>{m.emoji} {m.name}</div>
                 </div>
               ))}
             </div>
             <div style={{
               background:'rgba(14,116,144,.08)', borderRadius:12, padding:'12px 14px',
-              fontSize:12, color:'var(--subtext)', lineHeight:1.6,
+              fontSize:'var(--text-sm)', color:'var(--subtext)', lineHeight:1.6,
             }}>
               <strong style={{ color:'var(--heading)' }}>What to do:</strong> Say{' '}
               <strong style={{ color:'var(--info)' }}>"Sretan imendan!"</strong> (Happy Name Day!) and bring a small gift or flowers. Never forget your partner's or their parents' imendan — it matters more than you think.
@@ -514,8 +514,8 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                     onClick={() => setScr(w.id)}
                     style={{
                       padding: '8px 14px', borderRadius: 10, border: 'none', cursor: 'pointer',
-                      background: 'linear-gradient(135deg,#dc2626,#b91c1c)',
-                      color: '#fff', fontSize: 12, fontWeight: 700,
+                      background: 'linear-gradient(135deg,var(--error),#b91c1c)',
+                      color: 'var(--card)', fontSize: 'var(--text-sm)', fontWeight: 700,
                       fontFamily: "'Outfit',sans-serif",
                     }}
                   >Review</button>
@@ -530,26 +530,26 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
       <h3 className="sh">Achievements</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
         <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}} onClick={() => setScr("badges")}>
-          <div style={{width:44,height:44,borderRadius:13,background:"linear-gradient(135deg,#fffbeb,#fef3c7)",border:"1px solid #fde68a",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>🏆</div>
+          <div style={{width:44,height:44,borderRadius:13,background:"var(--warning-bg)",border:"1px solid var(--warning-b)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:'var(--text-xl)',flexShrink:0}}>🏆</div>
           <div style={{textAlign:"left",minWidth:0}}>
             <div style={{fontSize:'var(--text-sm)',fontWeight:800,color:"var(--heading)"}}>Badges</div>
             <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",marginTop:1}}>{(st.badges||[]).length} earned</div>
           </div>
         </button>
         <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}} onClick={() => setScr("leaderboard")}>
-          <div style={{width:44,height:44,borderRadius:13,background:"linear-gradient(135deg,#f0fdf4,#dcfce7)",border:"1px solid #bbf7d0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>🏅</div>
+          <div style={{width:44,height:44,borderRadius:13,background:"var(--success-bg)",border:"1px solid var(--success-b)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:'var(--text-xl)',flexShrink:0}}>🏅</div>
           <div style={{textAlign:"left",minWidth:0}}>
             <div style={{fontSize:'var(--text-sm)',fontWeight:800,color:"var(--heading)"}}>Leaderboard</div>
             <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",marginTop:1}}>View rankings</div>
           </div>
         </button>
         <button className="tc" style={{gridColumn:"1/-1",display:"flex",alignItems:"center",gap:14,padding:"16px"}} onClick={() => setScr("certificate")}>
-          <div style={{width:44,height:44,borderRadius:13,background:"linear-gradient(135deg,#f0f9ff,#bae6fd)",border:"1px solid #7dd3fc",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>📜</div>
+          <div style={{width:44,height:44,borderRadius:13,background:"var(--info-bg)",border:"1px solid var(--info-b)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:'var(--text-xl)',flexShrink:0}}>📜</div>
           <div style={{flex:1,textAlign:"left"}}>
-            <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>My Certificate</div>
+            <div style={{fontSize:'var(--text-base)',fontWeight:800,color:"var(--heading)"}}>My Certificate</div>
             <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",marginTop:1}}>Download your progress certificate</div>
           </div>
-          <div style={{fontSize:20,color:"var(--subtext)",opacity:.35}}>›</div>
+          <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.35}}>›</div>
         </button>
       </div>
 
@@ -557,14 +557,14 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
       <h3 className="sh">My Collection</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
         <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}} onClick={() => setScr("favorites")}>
-          <div style={{width:44,height:44,borderRadius:13,background:"linear-gradient(135deg,#fef9c3,#fef08a)",border:"1px solid #fde047",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>⭐</div>
+          <div style={{width:44,height:44,borderRadius:13,background:"rgba(253,224,71,.2)",border:"1px solid rgba(253,224,71,.5)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:'var(--text-xl)',flexShrink:0}}>⭐</div>
           <div style={{textAlign:"left",minWidth:0}}>
             <div style={{fontSize:'var(--text-sm)',fontWeight:800,color:"var(--heading)"}}>Favorites</div>
             <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",marginTop:1}}>{favs.length} saved</div>
           </div>
         </button>
         <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}} onClick={() => setScr("journal")}>
-          <div style={{width:44,height:44,borderRadius:13,background:"linear-gradient(135deg,#faf5ff,#ede9fe)",border:"1px solid #ddd6fe",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>📓</div>
+          <div style={{width:44,height:44,borderRadius:13,background:"rgba(124,58,237,.1)",border:"1px solid rgba(124,58,237,.25)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:'var(--text-xl)',flexShrink:0}}>📓</div>
           <div style={{textAlign:"left",minWidth:0}}>
             <div style={{fontSize:'var(--text-sm)',fontWeight:800,color:"var(--heading)"}}>Vocabulary</div>
             <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",marginTop:1}}>Personal journal</div>
@@ -581,7 +581,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
           cursor: 'pointer', marginBottom: 8,
         }}
       >
-        <span style={{ fontSize: 22 }}>📚</span>
+        <span style={{ fontSize:'var(--text-xl)' }}>📚</span>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--heading)' }}>My Words</div>
           <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)' }}>
@@ -603,16 +603,16 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
           onClick={() => setGoalOpen(o => !o)}
           style={{width:'100%',display:'flex',alignItems:'center',gap:14,padding:'16px',background:'none',border:'none',cursor:'pointer',fontFamily:"'Outfit',sans-serif",textAlign:'left'}}
         >
-          <div style={{width:44,height:44,borderRadius:13,background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)',border:'1px solid #bae6fd',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0}}>
+          <div style={{width:44,height:44,borderRadius:13,background:'var(--info-bg)',border:'1px solid var(--info-b)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'var(--text-xl)',flexShrink:0}}>
             {GOALS.find(g => g.id === currentGoal)?.icon || '🎯'}
           </div>
           <div style={{flex:1}}>
-            <div style={{fontSize:14,fontWeight:800,color:'var(--heading)'}}>My Learning Goal</div>
+            <div style={{fontSize:'var(--text-base)',fontWeight:800,color:'var(--heading)'}}>My Learning Goal</div>
             <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',marginTop:1}}>
               {currentGoal ? GOALS.find(g => g.id === currentGoal)?.label : 'Not set — tap to choose'}
             </div>
           </div>
-          <div style={{fontSize:14,color:'var(--subtext)',opacity:.5,transition:'transform .2s',transform:goalOpen?'rotate(180deg)':'none'}}>⌄</div>
+          <div style={{fontSize:'var(--text-base)',color:'var(--subtext)',opacity:.5,transition:'transform .2s',transform:goalOpen?'rotate(180deg)':'none'}}>⌄</div>
         </button>
         {goalOpen && (
           <div style={{borderTop:'1px solid var(--card-b)',padding:'10px 12px 12px'}}>
@@ -627,9 +627,9 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                   fontFamily:"'Outfit',sans-serif",marginBottom:4,
                 }}
               >
-                <span style={{fontSize:20}}>{g.icon}</span>
+                <span style={{fontSize:'var(--text-xl)'}}>{g.icon}</span>
                 <span style={{fontSize:'var(--text-sm)',fontWeight:currentGoal===g.id?800:600,color:currentGoal===g.id?'var(--info)':'var(--heading)'}}>{g.label}</span>
-                {currentGoal === g.id && <span style={{marginLeft:'auto',color:'var(--info)',fontSize:14,fontWeight:900}}>✓</span>}
+                {currentGoal === g.id && <span style={{marginLeft:'auto',color:'var(--info)',fontSize:'var(--text-base)',fontWeight:900}}>✓</span>}
               </button>
             ))}
           </div>
@@ -640,37 +640,37 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
         onClick={() => { const nv = !darkMode; setDarkMode(nv); localStorage.setItem("darkMode", nv.toString()); }}>
         <div style={{
           width:44,height:44,borderRadius:13,
-          background: darkMode ? "linear-gradient(135deg,#fef9c3,#fef08a)" : "linear-gradient(135deg,#1e293b,#334155)",
-          border: darkMode ? "1px solid #fde047" : "1px solid #475569",
-          display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0
+          background: darkMode ? "rgba(253,224,71,.2)" : "linear-gradient(135deg,var(--heading),#334155)",
+          border: darkMode ? "1px solid rgba(253,224,71,.5)" : "1px solid #475569",
+          display:"flex",alignItems:"center",justifyContent:"center",fontSize:'var(--text-xl)',flexShrink:0
         }}>
           {darkMode ? "☀️" : "🌙"}
         </div>
         <div style={{flex:1,textAlign:"left"}}>
-          <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>{darkMode ? "Light Mode" : "Dark Mode"}</div>
+          <div style={{fontSize:'var(--text-base)',fontWeight:800,color:"var(--heading)"}}>{darkMode ? "Light Mode" : "Dark Mode"}</div>
           <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",marginTop:1}}>Switch appearance</div>
         </div>
-        <div style={{fontSize:20,color:"var(--subtext)",opacity:.35}}>›</div>
+        <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.35}}>›</div>
       </button>
       <button className="tc" style={{display:"flex",alignItems:"center",gap:14,padding:"16px",marginBottom:10}} onClick={() => setScr("contact")}>
-        <div style={{width:38,height:38,borderRadius:12,background:"linear-gradient(135deg,#0e7490,#164e63)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>🛟</div>
+        <div style={{width:38,height:38,borderRadius:12,background:"linear-gradient(135deg,var(--info),#164e63)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:'var(--text-lg)',flexShrink:0}}>🛟</div>
         <div style={{flex:1,textAlign:"left"}}>
-          <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>Help & Feedback</div>
+          <div style={{fontSize:'var(--text-base)',fontWeight:800,color:"var(--heading)"}}>Help & Feedback</div>
           <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",marginTop:1}}>Report a bug or suggest a feature</div>
         </div>
-        <div style={{fontSize:20,color:"var(--subtext)",opacity:.35}}>›</div>
+        <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.35}}>›</div>
       </button>
       <button className="tc" style={{width:"100%",textAlign:"center",padding:"14px",marginBottom:10}} onClick={() => setScr("privacy")}>
         <div style={{fontSize:'var(--text-sm)',color:"var(--subtext)",fontWeight:600}}>Privacy Policy & Terms</div>
       </button>
       {au && au.u === 'jschreiner75@gmail.com' && (
         <button className="tc" style={{width:"100%",display:"flex",alignItems:"center",gap:14,padding:"16px",marginBottom:24}} onClick={() => setScr("admin")}>
-          <div style={{width:38,height:38,borderRadius:12,background:"linear-gradient(135deg,#7c3aed,#4c1d95)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>🛠️</div>
+          <div style={{width:38,height:38,borderRadius:12,background:"linear-gradient(135deg,var(--lavender),#4c1d95)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:'var(--text-lg)',flexShrink:0}}>🛠️</div>
           <div style={{flex:1,textAlign:"left"}}>
-            <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>Admin Dashboard</div>
+            <div style={{fontSize:'var(--text-base)',fontWeight:800,color:"var(--heading)"}}>Admin Dashboard</div>
             <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",marginTop:1}}>Platform overview & user stats</div>
           </div>
-          <div style={{fontSize:20,color:"var(--subtext)",opacity:.35}}>›</div>
+          <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.35}}>›</div>
         </button>
       )}
       {!(au && au.u === 'jschreiner75@gmail.com') && <div style={{marginBottom:24}} />}
@@ -679,31 +679,31 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
       <h3 className="sh">Your Data</h3>
       <button className="tc" style={{width:"100%",display:"flex",alignItems:"center",gap:14,padding:"16px",marginBottom:10}}
         onClick={exportData}>
-        <div style={{width:38,height:38,borderRadius:12,background:"linear-gradient(135deg,#0e7490,#164e63)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>📦</div>
+        <div style={{width:38,height:38,borderRadius:12,background:"linear-gradient(135deg,var(--info),#164e63)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:'var(--text-lg)',flexShrink:0}}>📦</div>
         <div style={{flex:1,textAlign:"left"}}>
-          <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>Export My Data</div>
+          <div style={{fontSize:'var(--text-base)',fontWeight:800,color:"var(--heading)"}}>Export My Data</div>
           <div style={{fontSize:'var(--text-xs)',color:exportDone?"var(--success)":"var(--subtext)",marginTop:1,fontWeight:exportDone?700:500}}>
             {exportDone ? "✓ Downloaded! Check your downloads folder." : "Download all your progress as JSON"}
           </div>
         </div>
-        <div style={{fontSize:20,color:"var(--subtext)",opacity:.35}}>›</div>
+        <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.35}}>›</div>
       </button>
 
       {/* ── SIGN OUT ── */}
       {confirmOut ? (
         <div style={{border:"2px solid rgba(194,65,12,.2)",borderRadius:16,padding:"20px",background:"rgba(194,65,12,.04)",marginBottom:16}}>
-          <p style={{fontSize:15,fontWeight:700,color:"#c2410c",textAlign:"center",marginBottom:16}}>Sign out of Naša Hrvatska?</p>
+          <p style={{fontSize:'var(--text-md)',fontWeight:700,color:"#c2410c",textAlign:"center",marginBottom:16}}>Sign out of Naša Hrvatska?</p>
           <div style={{display:"flex",gap:10}}>
-            <button onClick={() => setConfirmOut(false)} style={{flex:1,padding:"13px",border:"1.5px solid var(--card-b)",borderRadius:12,background:"var(--card)",color:"var(--subtext)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
+            <button onClick={() => setConfirmOut(false)} style={{flex:1,padding:"13px",border:"1.5px solid var(--card-b)",borderRadius:12,background:"var(--card)",color:"var(--subtext)",fontSize:'var(--text-base)',fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
               Cancel
             </button>
-            <button onClick={doOut} style={{flex:1,padding:"13px",border:"none",borderRadius:12,background:"#c2410c",color:"#fff",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
+            <button onClick={doOut} style={{flex:1,padding:"13px",border:"none",borderRadius:12,background:"#c2410c",color:"var(--card)",fontSize:'var(--text-base)',fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
               Sign Out
             </button>
           </div>
         </div>
       ) : (
-        <button onClick={() => setConfirmOut(true)} style={{width:"100%",padding:"14px",border:"2px solid rgba(194,65,12,.15)",borderRadius:14,background:"rgba(194,65,12,.05)",color:"#c2410c",fontSize:14,fontWeight:700,cursor:"pointer",marginBottom:16,fontFamily:"'Outfit',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+        <button onClick={() => setConfirmOut(true)} style={{width:"100%",padding:"14px",border:"2px solid rgba(194,65,12,.15)",borderRadius:14,background:"rgba(194,65,12,.05)",color:"#c2410c",fontSize:'var(--text-base)',fontWeight:700,cursor:"pointer",marginBottom:16,fontFamily:"'Outfit',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
           🚪 Sign Out
         </button>
       )}
@@ -712,19 +712,19 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
       <h3 className="sh" style={{color:"var(--error)",marginTop:8}}>Danger Zone</h3>
       {confirmDelete ? (
         <div style={{border:"2px solid rgba(220,38,38,.2)",borderRadius:16,padding:"20px",background:"rgba(220,38,38,.04)",marginBottom:16}}>
-          <p style={{fontSize:15,fontWeight:700,color:"var(--error)",textAlign:"center",marginBottom:8}}>Delete your account?</p>
-          <p style={{fontSize:'var(--text-sm)',color:"#78716c",textAlign:"center",marginBottom:16}}>This permanently deletes all your progress and cannot be undone.</p>
+          <p style={{fontSize:'var(--text-md)',fontWeight:700,color:"var(--error)",textAlign:"center",marginBottom:8}}>Delete your account?</p>
+          <p style={{fontSize:'var(--text-sm)',color:"var(--subtext)",textAlign:"center",marginBottom:16}}>This permanently deletes all your progress and cannot be undone.</p>
           <div style={{display:"flex",gap:10}}>
-            <button onClick={() => setConfirmDelete(false)} disabled={deleting} style={{flex:1,padding:"13px",border:"1.5px solid var(--card-b)",borderRadius:12,background:"var(--card)",color:"var(--subtext)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
+            <button onClick={() => setConfirmDelete(false)} disabled={deleting} style={{flex:1,padding:"13px",border:"1.5px solid var(--card-b)",borderRadius:12,background:"var(--card)",color:"var(--subtext)",fontSize:'var(--text-base)',fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
               Cancel
             </button>
-            <button onClick={handleDeleteAccount} disabled={deleting} style={{flex:1,padding:"13px",border:"none",borderRadius:12,background:"var(--error)",color:"#fff",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
+            <button onClick={handleDeleteAccount} disabled={deleting} style={{flex:1,padding:"13px",border:"none",borderRadius:12,background:"var(--error)",color:"var(--card)",fontSize:'var(--text-base)',fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
               {deleting ? "Deleting…" : "Delete"}
             </button>
           </div>
         </div>
       ) : (
-        <button onClick={() => setConfirmDelete(true)} style={{width:"100%",padding:"14px",border:"2px solid rgba(220,38,38,.15)",borderRadius:14,background:"rgba(220,38,38,.05)",color:"var(--error)",fontSize:14,fontWeight:700,cursor:"pointer",marginBottom:16,fontFamily:"'Outfit',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+        <button onClick={() => setConfirmDelete(true)} style={{width:"100%",padding:"14px",border:"2px solid rgba(220,38,38,.15)",borderRadius:14,background:"rgba(220,38,38,.05)",color:"var(--error)",fontSize:'var(--text-base)',fontWeight:700,cursor:"pointer",marginBottom:16,fontFamily:"'Outfit',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
           🗑️ Delete Account
         </button>
       )}
@@ -732,13 +732,13 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
       {showPrestigeModal && (
         <div style={{ position:'fixed', inset:0, zIndex:9999, background:'rgba(0,0,0,.6)', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
           <div style={{ background:'var(--card)', borderRadius:24, padding:'32px 24px', maxWidth:340, width:'100%', textAlign:'center' }}>
-            <div style={{ fontSize:48, marginBottom:12 }}>✦</div>
-            <div style={{ fontSize:20, fontWeight:900, color:'var(--heading)', marginBottom:8 }}>Prestige?</div>
+            <div style={{ fontSize:'var(--text-4xl)', marginBottom:12 }}>✦</div>
+            <div style={{ fontSize:'var(--text-xl)', fontWeight:900, color:'var(--heading)', marginBottom:8 }}>Prestige?</div>
             <div style={{ fontSize:'var(--text-sm)', color:'var(--subtext)', lineHeight:1.7, marginBottom:24 }}>
               Your XP will reset to 0, but you'll earn a permanent ✦ Prestige badge. Your lessons, streak, and vocabulary remain. This is a mark of honour.
             </div>
             <div style={{ display:'flex', gap:10 }}>
-              <button onClick={() => setShowPrestigeModal(false)} style={{ flex:1, padding:'12px', borderRadius:12, border:'1.5px solid var(--inp-b)', background:'none', cursor:'pointer', fontSize:14, fontWeight:700, color:'var(--subtext)', fontFamily:"'Outfit',sans-serif" }}>Cancel</button>
+              <button onClick={() => setShowPrestigeModal(false)} style={{ flex:1, padding:'12px', borderRadius:12, border:'1.5px solid var(--inp-b)', background:'none', cursor:'pointer', fontSize:'var(--text-base)', fontWeight:700, color:'var(--subtext)', fontFamily:"'Outfit',sans-serif" }}>Cancel</button>
               <button
                 onClick={() => {
                   const newPrestige = prestigeLevel + 1;
@@ -746,7 +746,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                   localStorage.setItem('nh_xp', '0');
                   setShowPrestigeModal(false);
                 }}
-                style={{ flex:1, padding:'12px', borderRadius:12, border:'none', background:'linear-gradient(135deg,#7c3aed,#4c1d95)', cursor:'pointer', fontSize:14, fontWeight:800, color:'#fff', fontFamily:"'Outfit',sans-serif" }}
+                style={{ flex:1, padding:'12px', borderRadius:12, border:'none', background:'linear-gradient(135deg,var(--lavender),#4c1d95)', cursor:'pointer', fontSize:'var(--text-base)', fontWeight:800, color:'var(--card)', fontFamily:"'Outfit',sans-serif" }}
               >
                 ✦ Confirm
               </button>
