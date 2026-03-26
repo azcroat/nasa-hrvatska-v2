@@ -139,50 +139,63 @@ export default function Flashcards({ pool, goBack, award }) {
         </div>
       </div>
       {flipped&&(
-        <div style={{display:'flex', flexDirection:'column', gap:8, marginTop:16}}>
-          <div style={{fontSize:11, color:'var(--subtext)', textAlign:'center', fontWeight:600, marginBottom:4}}>How well did you know it?</div>
-          <div style={{display:'flex', gap:6, flexWrap:'wrap'}}>
-            {[
-              {q:1, label:'Blank', color:'#dc2626', bg:'var(--error-bg)'},
-              {q:2, label:'Vague', color:'#f59e0b', bg:'#fffbeb'},
-              {q:3, label:'Slow', color:'#d97706', bg:'#fef3c7'},
-              {q:4, label:'Good', color:'var(--success)', bg:'var(--success-bg)'},
-              {q:5, label:'Perfect', color:'var(--success)', bg:'var(--success-bg)'},
-            ].map(({q, label, color, bg}) => (
-              <button
-                key={q}
-                ref={q === 4 ? knowBtnRef : null}
-                className="qb"
-                onClick={() => {
-                  const correct = q >= 3;
-                  srMark(activePool[idx][0], correct);
-                  if (correct) {
-                    setCorrectAnim(true);
-                    setTimeout(() => setCorrectAnim(false), 500);
-                    const newKnown = known + 1;
-                    setKnown(newKnown);
-                    setFlipped(false);
-                    if (idx < activePool.length - 1) { setIdx(i => i + 1); }
-                    else { finish(newKnown); }
-                  } else {
-                    setWrongAnim(true);
-                    setTimeout(() => setWrongAnim(false), 400);
-                    setMissed(m => [...m, activePool[idx]]);
-                    setFlipped(false);
-                    if (idx < activePool.length - 1) { setIdx(i => i + 1); }
-                    else { finish(known); }
-                  }
-                }}
-                style={{
-                  flex:1, padding:'8px 2px', borderRadius:10, border:`1.5px solid ${color}`,
-                  background:bg, fontFamily:"'Outfit',sans-serif",
-                  fontSize:10, fontWeight:800, color,
-                }}
-              >
-                {q}<br/><span style={{fontWeight:600}}>{label}</span>
-              </button>
-            ))}
-          </div>
+        <div style={{display:'flex', gap:10, marginTop:16}}>
+          <button
+            onClick={() => {
+              const q = 2;
+              const correct = q >= 3;
+              srMark(activePool[idx][0], correct);
+              setWrongAnim(true);
+              setTimeout(() => setWrongAnim(false), 400);
+              setMissed(m => [...m, activePool[idx]]);
+              setFlipped(false);
+              if (idx < activePool.length - 1) { setIdx(i => i + 1); }
+              else { finish(known); }
+            }}
+            style={{
+              flex:1, height:56, borderRadius:16,
+              border:'2px solid var(--error-b)',
+              background:'var(--error-bg)',
+              color:'var(--error)',
+              fontFamily:"'Outfit',sans-serif",
+              fontSize:15, fontWeight:900,
+              display:'flex', flexDirection:'column',
+              alignItems:'center', justifyContent:'center',
+              cursor:'pointer',
+            }}
+          >
+            🔄 Still Learning
+            <span style={{fontSize:10, fontWeight:600, opacity:.7, marginTop:4}}>Review again soon</span>
+          </button>
+          <button
+            ref={knowBtnRef}
+            onClick={() => {
+              const q = 4;
+              const correct = q >= 3;
+              srMark(activePool[idx][0], correct);
+              setCorrectAnim(true);
+              setTimeout(() => setCorrectAnim(false), 500);
+              const newKnown = known + 1;
+              setKnown(newKnown);
+              setFlipped(false);
+              if (idx < activePool.length - 1) { setIdx(i => i + 1); }
+              else { finish(newKnown); }
+            }}
+            style={{
+              flex:1, height:56, borderRadius:16,
+              border:'2px solid var(--success-b)',
+              background:'var(--success-bg)',
+              color:'var(--success)',
+              fontFamily:"'Outfit',sans-serif",
+              fontSize:15, fontWeight:900,
+              display:'flex', flexDirection:'column',
+              alignItems:'center', justifyContent:'center',
+              cursor:'pointer',
+            }}
+          >
+            Got It! ✓
+            <span style={{fontSize:10, fontWeight:600, opacity:.7, marginTop:4}}>Move to next interval</span>
+          </button>
         </div>
       )}
     </div>
