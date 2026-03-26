@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { H } from '../../data.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
 import { rnd } from '../../lib/random.js';
+import { useApp } from '../../context/AppContext.jsx';
 
 const PROMPTS = [
   // A2 — simple present, basic vocabulary
@@ -33,6 +34,7 @@ const PROMPTS = [
 export default function WritingScreen({ goBack, award }) {
   const finishFired = useRef(false);
   const isOnline = useOnlineStatus();
+  const { level: userLevel } = useApp();
   const [promptIdx, setPromptIdx] = useState(() => Math.floor(rnd() * PROMPTS.length));
   const [text, setText] = useState("");
   const [result, setResult] = useState(null);
@@ -54,8 +56,10 @@ export default function WritingScreen({ goBack, award }) {
         method: "POST",
         headers: {"Content-Type":"application/json"},
         body: JSON.stringify({
+          mode: "writeeval",
           prompt: prompt.en,
           text: text.trim(),
+          params: { level: userLevel, writingPrompt: prompt.en },
         }),
       });
       if (!res.ok) throw new Error("API error " + res.status);

@@ -48,7 +48,7 @@ const CHAPTERS = [
       { hr: "trenuci", en: "moments" },
       { hr: "janje", en: "lamb" },
     ],
-    cultural: "Sunday lunch (nedjeljna ručak) is the most sacred family ritual in Croatia. Spit-roasted lamb (janjetina) is a hallmark of Dalmatian celebrations, often started before dawn and eaten in the early afternoon.",
+    cultural: "Sunday lunch (nedjeljni ručak) is the most sacred family ritual in Croatia. Spit-roasted lamb (janjetina) is a hallmark of Dalmatian celebrations, often started before dawn and eaten in the early afternoon.",
   },
   {
     id: 4,
@@ -86,7 +86,7 @@ const CHAPTERS = [
     id: 6,
     title: "Poglavlje 6: Fešta u selu",
     date: "25. srpnja",
-    croatian: `Na Svetu Jakobu bila je fešta u selu — cijela ulica ukrašena zastavicama, miris pečene janjetine i bunjevačkog kola u zraku. Mladi su plesali kolo na trgu do ponoći, a ja sam sjedila s tetom Anđom i gledala. Bilo je prekrasno vidjeti djecu kako uče stare korake — mali Ivan, tek sedam godina, već zna okretati djevojčice. Jedna skupina iz Amerike, Hrvati koji su došli na ljetovanje, stajala je sa strane i gledala, a u njihovim očima vidjela sam nešto poput čežnje. Isti onaj izraz koji vidim kad zamislim vaša lica. Tradicija nas čuva — čak i kad smo daleko jedni od drugih.`,
+    croatian: `Na Svetu Jakobu bila je fešta u selu — cijela ulica ukrašena zastavicama, miris pečene janjetine i dalmatinskog kola u zraku. Mladi su plesali kolo na trgu do ponoći, a ja sam sjedila s tetom Anđom i gledala. Bilo je prekrasno vidjeti djecu kako uče stare korake — mali Ivan, tek sedam godina, već zna okretati djevojčice. Jedna skupina iz Amerike, Hrvati koji su došli na ljetovanje, stajala je sa strane i gledala, a u njihovim očima vidjela sam nešto poput čežnje. Isti onaj izraz koji vidim kad zamislim vaša lica. Tradicija nas čuva — čak i kad smo daleko jedni od drugih.`,
     english: `On the feast of St. James there was a village festival — the whole street decorated with little flags, the smell of roasted lamb and the sound of kolo dancing in the air. The young people danced kolo in the square until midnight, and I sat with Aunt Anđa and watched. It was wonderful to see children learning the old steps — little Ivan, barely seven years old, already knows how to spin the girls around. A group from America, Croatians who had come for the summer, stood to the side and watched, and in their eyes I saw something like longing. The same expression I imagine on your faces. Tradition keeps us — even when we are far from one another.`,
     vocab: [
       { hr: "fešta", en: "village festival / feast day" },
@@ -150,8 +150,8 @@ const CHAPTERS = [
     id: 10,
     title: "Poglavlje 10: Prva zimska oluja",
     date: "18. studenog",
-    croatian: `Noćas je puhala bura kakvu nisam pamtila. Prozori su drhtali, dimnjak je urlao, a mačka Sinica skupila se uz mene kao da traži zaštitu. Zapalila sam kaminu i sjela pletući nove čarape za malog Luku — one crvene s bijelim zvjezdicama koje sam obećala u rujnu. Pletenje me smiri. Svaka petlja je jedna misao, svaki red je jedna molitva. Kuhala sam grah s kobasicama na sporom vatru i slušala radio — stara glazba, Arsen Dedić i Tereza Kesovija, koja me vraća u neki drugi život. Bura je vani, ali unutra je toplo. Čovjek ne treba puno.`,
-    english: `Last night the bura blew like I hadn't remembered. The windows trembled, the chimney howled, and my cat Sinica curled up next to me as if seeking protection. I lit the fireplace and sat knitting new socks for little Luka — the red ones with white stars I promised in September. Knitting calms me down. Each stitch is one thought, each row is one prayer. I cooked beans with sausages on a slow fire and listened to the radio — old music, Arsen Dedić and Tereza Kesovija, which takes me back to another life. The bura is outside, but inside it is warm. A person doesn't need much.`,
+    croatian: `Noćas je puhala bura kakvu nisam pamtila. Prozori su drhtali, dimnjak je urlao, a mačka Sinica skupila se uz mene kao da traži zaštitu. Zapalila sam kaminu i sjela pletući nove čarape za malog Luku — one crvene s bijelim zvjezdicama koje sam obećala u rujnu. Pletenje me smiri. Svaka petlja je jedna misao, svaki red je jedna molitva. Kuhala sam grah s kobasicama na laganoj vatri i slušala radio — stara glazba, Arsen Dedić i Tereza Kesovija, koja me vraća u neki drugi život. Bura je vani, ali unutra je toplo. Čovjek ne treba puno.`,
+    english: `Last night the bura blew like I hadn't remembered. The windows trembled, the chimney howled, and my cat Sinica curled up next to me as if seeking protection. I lit the fireplace and sat knitting new socks for little Luka — the red ones with white stars I promised in September. Knitting calms me down. Each stitch is one thought, each row is one prayer. I cooked beans with sausages on a low flame and listened to the radio — old music, Arsen Dedić and Tereza Kesovija, which takes me back to another life. The bura is outside, but inside it is warm. A person doesn't need much.`,
     vocab: [
       { hr: "bura", en: "bura wind (cold NE wind)" },
       { hr: "dimnjak", en: "chimney" },

@@ -95,6 +95,41 @@ export default function PrivacyScreen({ goBack }) {
           We will process your request within 30 days.
         </p>
 
+        <p style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7,marginBottom:6}}>
+          <strong>Additional rights:</strong>
+        </p>
+        <ul style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7,marginBottom:10,paddingLeft:20}}>
+          <li style={{marginBottom:6}}>
+            <strong>Right to data portability (Article 20):</strong> You can request an export of your
+            personal data in a structured, machine-readable format.
+          </li>
+          <li>
+            <strong>Right to lodge a complaint:</strong> You have the right to lodge a complaint with
+            your national data protection authority. In the EU, contact your country's DPA. In Germany,
+            the supervisory authority is the{" "}
+            <em>Bundesbeauftragter für den Datenschutz und die Informationsfreiheit</em>{" "}
+            (<a href="https://www.bfdi.bund.de" target="_blank" rel="noopener noreferrer" style={{color:"#0e7490"}}>bfdi.bund.de</a>).
+          </li>
+        </ul>
+
+        <p style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7,marginBottom:6}}>
+          <strong>Legal Basis for Processing (GDPR Article 6):</strong>
+        </p>
+        <ul style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7,marginBottom:10,paddingLeft:20}}>
+          <li style={{marginBottom:6}}>
+            <strong>Learning progress and account data:</strong> processed on the basis of contract
+            performance (Article 6(1)(b)).
+          </li>
+          <li style={{marginBottom:6}}>
+            <strong>Analytics (PostHog, Plausible):</strong> processed on the basis of your consent
+            (Article 6(1)(a)). You may withdraw consent at any time via the cookie settings.
+          </li>
+          <li>
+            <strong>Error monitoring (Sentry):</strong> processed on the basis of legitimate interests
+            in maintaining app stability and security (Article 6(1)(f)).
+          </li>
+        </ul>
+
         <p style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7}}>
           <strong>Children and family accounts:</strong> The app is designed for use by families
           under parental supervision. The family leaderboard is a parent-managed feature — a

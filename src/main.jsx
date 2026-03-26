@@ -42,17 +42,26 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 
 // ─── PostHog product analytics ─────────────────────────────────────────────
 // Set VITE_POSTHOG_KEY in Cloudflare Pages env vars. Free up to 1M events/mo.
-// Opt-in via env var — app works fully without it.
-if (import.meta.env.VITE_POSTHOG_KEY && import.meta.env.PROD) {
-  posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
-    api_host: 'https://us.i.posthog.com',
-    person_profiles: 'identified_only',
-    capture_pageview: true,
-    capture_pageleave: true,
-    autocapture: false,       // manual events only — no accidental PII
-    disable_session_recording: true,
-    persistence: 'localStorage+cookie',
-  });
+// Opt-in via env var AND requires explicit cookie consent — never fires without both.
+export function initPostHog() {
+  if (import.meta.env.VITE_POSTHOG_KEY && import.meta.env.PROD) {
+    posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
+      api_host: 'https://us.i.posthog.com',
+      person_profiles: 'identified_only',
+      capture_pageview: true,
+      capture_pageleave: true,
+      autocapture: false,       // manual events only — no accidental PII
+      disable_session_recording: true,
+      persistence: 'localStorage+cookie',
+    });
+  }
+}
+
+// Only initialize PostHog if the user has already accepted analytics cookies
+// (i.e. they accepted on a previous visit). On first visit this is skipped and
+// CookieConsent will call initPostHog() when the user clicks "Accept all".
+if (localStorage.getItem('cookieConsent') === 'accepted') {
+  initPostHog();
 }
 
 // ─── Web Vitals → Sentry ───────────────────────────────────────────────────
