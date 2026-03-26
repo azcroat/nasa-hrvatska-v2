@@ -124,6 +124,36 @@ function buildHintPrompt() {
 Give 2-3 sentences in English explaining what to say next. Include 1-2 example Croatian phrases they could use with a translation. Be concise and encouraging.`;
 }
 
+function buildExplainPrompt(params) {
+  const { level = "A2" } = params || {};
+  const safeLevel = /^[ABC][12]$/.test(level) ? level : "A2";
+  return `You are a world-class Croatian language teacher creating a personalized grammar lesson.
+The learner is at level: ${safeLevel}
+
+Return ONLY valid JSON (no markdown, no code blocks, just raw JSON) in this exact structure:
+{
+  "title": "short lesson title",
+  "intro": "1-2 sentence engaging hook explaining why this grammar topic matters in real Croatian",
+  "rule": "clear, concise explanation of the main rule — use simple language appropriate for the level",
+  "examples": [
+    {"hr": "Croatian sentence", "en": "English translation", "note": "brief grammar note"},
+    {"hr": "...", "en": "...", "note": "..."},
+    {"hr": "...", "en": "...", "note": "..."}
+  ],
+  "table": {"headers": ["Column1", "Column2", "Column3"], "rows": [["cell","cell","cell"]]},
+  "quiz": [
+    {"q": "quiz question in English", "options": ["A", "B", "C", "D"], "correct": 0, "explanation": "why this is correct"},
+    {"q": "...", "options": ["A","B","C","D"], "correct": 1, "explanation": "..."},
+    {"q": "...", "options": ["A","B","C","D"], "correct": 2, "explanation": "..."}
+  ],
+  "tip": "one memorable practical tip for using this correctly in real conversation"
+}
+
+The "table" field is optional — include it only when a conjugation or declension table would genuinely help (omit it otherwise).
+Examples must be natural Croatian sentences, not isolated words. Complexity matches the level.
+For A1/A2: simple vocabulary, present tense only. For B1: include past and future. For B2/C1: use all tenses freely.`;
+}
+
 function buildSystemPrompt(mode, params) {
   switch (mode) {
     case "convo":
@@ -139,6 +169,8 @@ function buildSystemPrompt(mode, params) {
       return buildTranslatePrompt();
     case "hint":
       return buildHintPrompt();
+    case "explain":
+      return buildExplainPrompt(params || {});
     default:
       return null;
   }
@@ -163,6 +195,31 @@ export async function onRequestPost(context) {
   catch { return err(400, "Invalid JSON in request body"); }
 
   const { messages, mode, params } = body;
+
+  // ── "explain" mode: no messages array needed — topic comes from params ──────
+  if (mode === "explain") {
+    const topic = (params && params.topic) ? String(params.topic).slice(0, 80) : "Croatian grammar";
+    const systemPrompt = buildExplainPrompt(params || {});
+    try {
+      const res = await fetch(ANTHROPIC_URL, {
+        method: "POST",
+        headers: { "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+        body: JSON.stringify({ model: MODEL, max_tokens: 1200, system: systemPrompt, messages: [{ role: "user", content: `Explain: ${topic}` }] }),
+      });
+      if (!res.ok) return err(res.status, "Upstream error");
+      const data = await res.json();
+      const raw = data.content?.[0]?.text || "";
+      try {
+        const parsed = JSON.parse(raw);
+        return new Response(JSON.stringify(parsed), { status: 200, headers: corsHeaders });
+      } catch {
+        return err(500, "Generation failed");
+      }
+    } catch {
+      return err(500, "Request failed");
+    }
+  }
+
   if (!messages || !Array.isArray(messages) || !mode) {
     return err(400, "Missing required fields: messages (array) and mode");
   }
