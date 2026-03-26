@@ -713,8 +713,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
             style={{ padding: "8px 18px", borderRadius: 20, border: "2px solid",
               fontWeight: 800, fontSize: "var(--text-sm)", cursor: "pointer", fontFamily: "'Outfit',sans-serif",
               borderColor: writeLevel === l ? "var(--info)" : "var(--card-b)",
-              background: writeLevel === l ? "#0e7490" : "var(--card)",
-              color: writeLevel === l ? "white" : "var(--subtext)" }}>
+              background: writeLevel === l ? "var(--info)" : "var(--card)",
+              color: writeLevel === l ? "var(--card)" : "var(--subtext)" }}>
             {l}
           </button>
         ))}
@@ -754,7 +754,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
 
       {!isOnline && (
         <div style={{ background: "var(--warning-bg)", border: "1px solid var(--warning-b)", borderRadius: 12,
-          padding: "12px 16px", marginBottom: 12, fontSize: "var(--text-sm)", color: "#92400e", fontWeight: 600,
+          padding: "12px 16px", marginBottom: 12, fontSize: "var(--text-sm)", color: "var(--warning)", fontWeight: 600,
           display: "flex", gap: 10, alignItems: "center" }}>
           <span>📶</span><span>You're offline — writing evaluation requires an internet connection.</span>
         </div>
@@ -771,7 +771,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   // FREE WRITE — WRITING
   // ════════════════════════════════════════════════════════════════════════════
   if (appMode === "write" && writePhase === "writing") return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 9100, background: "#f8fafc",
+    <div style={{ position: "fixed", inset: 0, zIndex: 9100, background: "var(--app-bg)",
       display: "flex", flexDirection: "column", fontFamily: "'Outfit',sans-serif" }}>
       {/* Header */}
       <div style={{ background: "var(--card)", borderBottom: "1px solid var(--card-b)", padding: "12px 16px",
@@ -788,8 +788,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
             fontWeight: 700, fontSize: "var(--text-sm)", cursor: writeText.trim().split(/\s+/).length >= 5 ? "pointer" : "not-allowed",
             fontFamily: "'Outfit',sans-serif", whiteSpace: "nowrap",
             borderColor: writeText.trim().split(/\s+/).length >= 5 ? "var(--info)" : "var(--card-b)",
-            background: writeText.trim().split(/\s+/).length >= 5 ? "#0e7490" : "#f8fafc",
-            color: writeText.trim().split(/\s+/).length >= 5 ? "white" : "#cbd5e1" }}>
+            background: writeText.trim().split(/\s+/).length >= 5 ? "var(--info)" : "var(--bar-bg)",
+            color: writeText.trim().split(/\s+/).length >= 5 ? "var(--card)" : "var(--subtext)" }}>
           Submit →
         </button>
       </div>
@@ -842,7 +842,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     if (writeEvalError || !writeEval) return (
       <div className="scr-wrap" style={{ textAlign: "center", paddingTop: 40 }}>
         <div style={{ fontSize: 40, marginBottom: 12 }}>⚠️</div>
-        <div style={{ fontSize: 15, fontWeight: 700, color: "#dc2626", marginBottom: 20 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: "var(--error)", marginBottom: 20 }}>
           {writeEvalError || "Could not load evaluation"}
         </div>
         <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
@@ -965,8 +965,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
             style={{ padding: "8px 18px", borderRadius: 20, border: "2px solid", fontWeight: 800, fontSize: "var(--text-sm)",
               cursor: "pointer", fontFamily: "'Outfit',sans-serif", transition: "all .15s",
               borderColor: level === l ? "var(--info)" : "var(--card-b)",
-              background: level === l ? "#0e7490" : "var(--card)",
-              color: level === l ? "white" : "var(--subtext)" }}>
+              background: level === l ? "var(--info)" : "var(--card)",
+              color: level === l ? "var(--card)" : "var(--subtext)" }}>
             {l}
           </button>
         ))}
@@ -1050,7 +1050,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
 
       {!isOnline && (
         <div style={{ background: "var(--warning-bg)", border: "1px solid var(--warning-b)", borderRadius: 12,
-          padding: "12px 16px", marginBottom: 12, fontSize: "var(--text-sm)", color: "#92400e", fontWeight: 600,
+          padding: "12px 16px", marginBottom: 12, fontSize: "var(--text-sm)", color: "var(--warning)", fontWeight: 600,
           display: "flex", gap: 10, alignItems: "center" }}>
           <span>📶</span><span>You're offline — AI conversation requires an internet connection.</span>
         </div>
@@ -1191,9 +1191,9 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
         )}
 
         {ev.vocabulary_feedback && (
-          <div style={{ background: "#fffbeb", border: "1.5px solid #fde68a", borderRadius: 14, padding: 15, marginBottom: 20 }}>
-            <div style={{ fontSize: "var(--text-xs)", fontWeight: 800, color: "#a16207", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>📚 Vocabulary</div>
-            <div style={{ fontSize: "var(--text-sm)", color: "#78350f", lineHeight: 1.6 }}>{ev.vocabulary_feedback}</div>
+          <div style={{ background: "var(--warning-bg)", border: "1.5px solid var(--warning-b)", borderRadius: 14, padding: 15, marginBottom: 20 }}>
+            <div style={{ fontSize: "var(--text-xs)", fontWeight: 800, color: "var(--warning)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>📚 Vocabulary</div>
+            <div style={{ fontSize: "var(--text-sm)", color: "var(--body)", lineHeight: 1.6 }}>{ev.vocabulary_feedback}</div>
           </div>
         )}
 
@@ -1210,7 +1210,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   // ════════════════════════════════════════════════════════════════════════════
   if (!scenario) { setPhase("setup"); return null; }
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 9100, background: "#f8fafc",
+    <div style={{ position: "fixed", inset: 0, zIndex: 9100, background: "var(--app-bg)",
       display: "flex", flexDirection: "column", fontFamily: "'Outfit',sans-serif" }}>
 
       {/* Header */}
@@ -1249,8 +1249,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
             cursor: (userCount >= 2 && !chatError && !loading) ? "pointer" : "not-allowed",
             fontFamily: "'Outfit',sans-serif", transition: "all .15s", whiteSpace: "nowrap",
             borderColor: (userCount >= 2 && !chatError) ? "var(--info)" : "var(--card-b)",
-            background: (userCount >= 2 && !chatError) ? "var(--info-bg)" : "#f8fafc",
-            color: (userCount >= 2 && !chatError) ? "var(--info)" : "#cbd5e1",
+            background: (userCount >= 2 && !chatError) ? "var(--info-bg)" : "var(--bar-bg)",
+            color: (userCount >= 2 && !chatError) ? "var(--info)" : "var(--subtext)",
             opacity: loading ? 0.5 : 1 }}>
           End & Evaluate
         </button>
@@ -1260,14 +1260,14 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       <div style={{ flex: 1, overflowY: "auto", padding: "16px 14px", display: "flex", flexDirection: "column", gap: 12 }}>
         {/* Context pill */}
         <div style={{ textAlign: "center", marginBottom: 4 }}>
-          <span style={{ fontSize: "var(--text-xs)", fontWeight: 600, color: "var(--subtext)", background: "#f1f5f9", padding: "4px 12px", borderRadius: 20 }}>
+          <span style={{ fontSize: "var(--text-xs)", fontWeight: 600, color: "var(--subtext)", background: "var(--bar-bg)", padding: "4px 12px", borderRadius: 20 }}>
             {scenario.hr} · {level}
           </span>
         </div>
         {/* Tap-to-translate hint (shown once) */}
         {messages.length > 0 && (
           <div style={{ textAlign: "center" }}>
-            <span style={{ fontSize: "var(--text-xs)", color: "#bae6fd", background: "rgba(14,116,144,.08)",
+            <span style={{ fontSize: "var(--text-xs)", color: "var(--info)", background: "var(--info-bg)",
               padding: "3px 10px", borderRadius: 20, fontWeight: 600 }}>
               Tap any Croatian word to translate
             </span>
@@ -1276,17 +1276,17 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
 
         {/* Error state */}
         {chatError && messages.length === 0 && !loading && (
-          <div style={{ background: "#fef2f2", border: "1.5px solid #fecaca", borderRadius: 16, padding: 20, margin: "8px 0", textAlign: "center" }}>
+          <div style={{ background: "var(--error-bg)", border: "1.5px solid var(--error-b)", borderRadius: 16, padding: 20, margin: "8px 0", textAlign: "center" }}>
             <div style={{ fontSize: 32, marginBottom: 10 }}>⚠️</div>
-            <div style={{ fontSize: "var(--text-base)", fontWeight: 800, color: "#991b1b", marginBottom: 8 }}>Could not connect to AI</div>
-            <div style={{ fontSize: "var(--text-sm)", color: "#7f1d1d", lineHeight: 1.65, marginBottom: 16, textAlign: "left",
-              background: "var(--card)", borderRadius: 10, padding: "12px 14px", border: "1px solid #fecaca" }}>
+            <div style={{ fontSize: "var(--text-base)", fontWeight: 800, color: "var(--error)", marginBottom: 8 }}>Could not connect to AI</div>
+            <div style={{ fontSize: "var(--text-sm)", color: "var(--body)", lineHeight: 1.65, marginBottom: 16, textAlign: "left",
+              background: "var(--card)", borderRadius: 10, padding: "12px 14px", border: "1px solid var(--error-b)" }}>
               {chatError}
             </div>
             <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
               <button onClick={retryOpener}
-                style={{ padding: "10px 20px", borderRadius: 12, border: "none", background: "#0e7490",
-                  color: "white", fontWeight: 700, fontSize: "var(--text-sm)", cursor: "pointer", fontFamily: "'Outfit',sans-serif" }}>
+                style={{ padding: "10px 20px", borderRadius: 12, border: "none", background: "var(--info)",
+                  color: "var(--card)", fontWeight: 700, fontSize: "var(--text-sm)", cursor: "pointer", fontFamily: "'Outfit',sans-serif" }}>
                 Try Again
               </button>
               <button onClick={resetConvo}
@@ -1302,8 +1302,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
         {messages.map((m, i) => {
           // Hint bubble
           if (m.role === "hint") return (
-            <div key={i} style={{ background: "#fffbeb", border: "1.5px solid #fde68a", borderRadius: 14,
-              padding: "12px 14px", fontSize: "var(--text-sm)", color: "#78350f", lineHeight: 1.6 }}>
+            <div key={i} style={{ background: "var(--warning-bg)", border: "1.5px solid var(--warning-b)", borderRadius: 14,
+              padding: "12px 14px", fontSize: "var(--text-sm)", color: "var(--body)", lineHeight: 1.6 }}>
               💡 <strong>Hint:</strong> {m.content}
             </div>
           );
@@ -1344,10 +1344,10 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
                 <div style={{ alignSelf: "flex-end", maxWidth: "78%", marginTop: -6,
                   background: "var(--success-bg)", border: "1px solid var(--success-b)", borderRadius: "0 0 14px 14px",
                   padding: "8px 14px", fontSize: "var(--text-sm)" }}>
-                  <span style={{ color: "#166534", fontWeight: 800 }}>✏️ Better: </span>
-                  <span style={{ color: "#166534", fontWeight: 900 }}>{correction.corrected}</span>
+                  <span style={{ color: "var(--success)", fontWeight: 800 }}>✏️ Better: </span>
+                  <span style={{ color: "var(--success)", fontWeight: 900 }}>{correction.corrected}</span>
                   {correction.note && (
-                    <div style={{ color: "#166534", opacity: .75, marginTop: 2 }}>{correction.note}</div>
+                    <div style={{ color: "var(--success)", opacity: .75, marginTop: 2 }}>{correction.note}</div>
                   )}
                 </div>
               )}
@@ -1384,7 +1384,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
               border: "1px solid var(--card-b)", display: "flex", gap: 4, alignItems: "center",
               boxShadow: "0 1px 4px rgba(0,0,0,.06)" }}>
               {[0, 1, 2].map(j => (
-                <div key={j} style={{ width: 7, height: 7, borderRadius: "50%", background: "#cbd5e1",
+                <div key={j} style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--subtext)",
                   animation: `pulse 1.2s ease-in-out ${j * 0.22}s infinite` }} />
               ))}
             </div>
@@ -1430,7 +1430,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
                 placeholder={isOnline ? "Piši na hrvatskom…" : "Offline — reconnect to continue…"}
                 disabled={loading || !isOnline || (chatError && messages.length === 0)}
                 style={{ flex: 1, padding: "11px 14px", fontSize: 15, borderRadius: 12,
-                  border: `1.5px solid ${sendError ? "#fca5a5" : "var(--card-b)"}`,
+                  border: `1.5px solid ${sendError ? "var(--error-b)" : "var(--card-b)"}`,
                   background: "var(--bar-bg)", outline: "none", fontFamily: "'Outfit',sans-serif",
                   transition: "border-color .2s", color: "var(--heading)" }}
               />
@@ -1455,8 +1455,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
                 disabled={loading || !input.trim() || !isOnline}
                 style={{ width: 44, height: 44, borderRadius: 12, border: "none", flexShrink: 0, fontSize: 18,
                   cursor: input.trim() && !loading ? "pointer" : "not-allowed", transition: "all .15s",
-                  background: input.trim() && !loading ? "linear-gradient(135deg,#0e7490,#0c4a6e)" : "var(--bar-bg)",
-                  color: input.trim() && !loading ? "white" : "var(--subtext)" }}>
+                  background: input.trim() && !loading ? "linear-gradient(135deg,var(--info),#0c4a6e)" : "var(--bar-bg)",
+                  color: input.trim() && !loading ? "var(--card)" : "var(--subtext)" }}>
                 ➤
               </button>
             </div>
@@ -1469,13 +1469,13 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
                     fontFamily: "'Outfit',sans-serif", fontWeight: 600, padding: "2px 0", opacity: loading ? 0.4 : 1 }}>
                   💡 Hint
                 </button>
-                <span style={{ color: "#e2e8f0", fontSize: "var(--text-base)" }}>|</span>
+                <span style={{ color: "var(--card-b)", fontSize: "var(--text-base)" }}>|</span>
                 <button
                   onClick={() => setShowStarters(p => !p)}
-                  style={{ background: showStarters ? "#0e7490" : "none",
+                  style={{ background: showStarters ? "var(--info)" : "none",
                     border: `1.5px solid ${showStarters ? "var(--info)" : "var(--card-b)"}`,
                     borderRadius: 10, fontSize: "var(--text-sm)", padding: "2px 10px",
-                    color: showStarters ? "white" : "var(--subtext)",
+                    color: showStarters ? "var(--card)" : "var(--subtext)",
                     cursor: "pointer", fontFamily: "'Outfit',sans-serif", fontWeight: 600,
                     transition: "all .15s" }}>
                   💬 Phrases
