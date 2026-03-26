@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Bar, V, LEARN_PATH, getStreak, getStreakFreezes, earnFreeze, getProverbOfDay, getHistFact, getDailyChallenge, lXP, nXP, speak, getSR, getDueReviews, getMistakes, DAILY_QUESTS, LEVEL_NARRATIVE, getActiveCampaign } from '../../data.jsx';
+import { Bar, V, LEARN_PATH, getStreak, getStreakFreezes, earnFreeze, getDailyChallenge, lXP, nXP, speak, getSR, getDueReviews, getMistakes, DAILY_QUESTS, LEVEL_NARRATIVE, getActiveCampaign } from '../../data.jsx';
 
 // Read last activity saved by App.jsx when exercises are launched
 function getLastActivity() {
@@ -52,8 +52,6 @@ export default function HomeTab({
   const lastActivity = useMemo(getLastActivity, []);
   const [freezes, setFreezes] = useState(getStreakFreezes);
   const [freezeMsg, setFreezeMsg] = useState('');
-  const proverb = useMemo(getProverbOfDay, []);
-  const fact = useMemo(getHistFact, []);
   const xpCur = st.xp - lXP(level);
   const xpNeeded = nXP(level) - lXP(level);
   const xpPct = Math.min(Math.round((xpCur / xpNeeded) * 100), 100);
@@ -479,46 +477,6 @@ export default function HomeTab({
 
       <KnightSpeech st={st} />
 
-      {/* ── CLOUD SYNC STATUS ── */}
-      {(() => {
-        const lastSaved = authUser && authUser.u ? (() => {
-          try { const p = JSON.parse(localStorage.getItem('uP_' + authUser.u) || 'null'); return p && p.savedAt ? new Date(p.savedAt) : null; } catch { return null; }
-        })() : null;
-        return (
-          <div style={{
-            background: syncReady ? "var(--success-bg)" : "var(--bar-bg)",
-            border: `1.5px solid ${syncReady ? "var(--success-b)" : "var(--card-b)"}`,
-            borderRadius: 16, padding: "12px 16px", marginBottom: 16,
-            display: "flex", alignItems: "center", gap: 12,
-          }}>
-            <div style={{
-              width: 38, height: 38, borderRadius: 10, flexShrink: 0,
-              background: syncReady ? "linear-gradient(135deg,var(--success),#15803d)" : "linear-gradient(135deg,#94a3b8,#64748b)",
-              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18,
-            }}>
-              {syncReady ? "☁️" : "⏳"}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 800, color: syncReady ? "var(--success)" : "var(--subtext)", lineHeight: 1.2 }}>
-                {syncReady ? "✓ Progress backed up to cloud" : "Connecting to cloud…"}
-              </div>
-              <div style={{ fontSize: 11, color: "var(--subtext)", marginTop: 2, fontWeight: 500 }}>
-                {lastSaved ? `Last saved: ${lastSaved.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})} · ${lastSaved.toLocaleDateString()}` : syncReady ? "Saving now…" : "Please wait"}
-              </div>
-            </div>
-            {syncReady && onSyncNow && (
-              <button onClick={onSyncNow} style={{
-                padding: "12px 16px", borderRadius: 9, border: "none", cursor: "pointer",
-                background: "linear-gradient(135deg,var(--success),#15803d)",
-                color: "#fff", fontSize: 11, fontWeight: 800,
-                fontFamily: "'Outfit',sans-serif", flexShrink: 0, minHeight: 44,
-              }}>
-                Sync Now
-              </button>
-            )}
-          </div>
-        );
-      })()}
 
       <CipkaPattern
         color="var(--nav-active)"
@@ -817,75 +775,6 @@ export default function HomeTab({
         </div>
       </div>
 
-      {/* Proverb */}
-      <button
-        style={{
-          width:"100%",
-          background:"linear-gradient(135deg,#fefce8,#fef9c3)",
-          border:"1.5px solid #fde047",
-          borderRadius:20,
-          padding:"18px",marginBottom:12,
-          cursor:"pointer",textAlign:"left",
-          boxShadow:"0 4px 16px rgba(234,179,8,.12)",
-          fontFamily:"'Outfit',sans-serif",
-          transition:"transform .15s, box-shadow .15s",
-        }}
-        onClick={() => speak(proverb.hr)}>
-        <div style={{fontSize:11,fontWeight:800,color:"var(--warning)",letterSpacing:".08em",textTransform:"uppercase",marginBottom:8}}>
-          🌟 Poslovica dana · Proverb of the Day
-        </div>
-        <div style={{
-          fontSize:16,fontWeight:700,color:"var(--heading)",fontStyle:"italic",
-          marginBottom:8,lineHeight:1.6,
-          fontFamily:"'Playfair Display',serif",
-        }}>
-          "{proverb.hr}"
-        </div>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <span style={{fontSize:12,color:"var(--body)",fontWeight:500,lineHeight:1.4,flex:1,marginRight:12}}>{proverb.en}</span>
-          <span style={{
-            fontSize:11,color:"var(--warning)",
-            background:"rgba(161,98,7,.1)",
-            borderRadius:20,padding:"4px 10px",
-            fontWeight:600,flexShrink:0,
-          }}>🔊 Tap to hear</span>
-        </div>
-      </button>
-
-      {/* Historical Fact */}
-      <button
-        style={{
-          width:"100%",
-          background:"var(--card)",
-          border:"1.5px solid rgba(124,58,237,.25)",
-          borderRadius:20,
-          padding:"18px",marginBottom:20,
-          cursor:"pointer",textAlign:"left",
-          boxShadow:"0 4px 16px rgba(124,58,237,.1)",
-          fontFamily:"'Outfit',sans-serif",
-          transition:"transform .15s, box-shadow .15s",
-        }}
-        onClick={() => speak(fact.hr)}>
-        <div style={{fontSize:11,fontWeight:800,color:"rgba(109,40,217,.9)",letterSpacing:".08em",textTransform:"uppercase",marginBottom:8}}>
-          🏛️ Povijesna činjenica · Historical Fact
-        </div>
-        <div style={{
-          fontSize:16,fontWeight:700,color:"var(--heading)",fontStyle:"italic",
-          marginBottom:8,lineHeight:1.6,
-          fontFamily:"'Playfair Display',serif",
-        }}>
-          "{fact.hr}"
-        </div>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <span style={{fontSize:12,color:"var(--body)",fontWeight:500,lineHeight:1.4,flex:1,marginRight:12}}>{fact.en}</span>
-          <span style={{
-            fontSize:11,color:"rgba(109,40,217,.9)",
-            background:"rgba(109,40,217,.1)",
-            borderRadius:20,padding:"4px 10px",
-            fontWeight:600,flexShrink:0,
-          }}>🔊 Tap to hear</span>
-        </div>
-      </button>
 
       {/* ── QUICK TRANSLATE ── */}
       <div className="section-hdr">
