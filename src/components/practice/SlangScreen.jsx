@@ -909,7 +909,7 @@ export default function SlangScreen({ goBack, award }) {
               </div>
             )}
             <div style={{
-              fontSize: 13, color: 'var(--text)', lineHeight: 1.7,
+              fontSize: 13, color: 'var(--rt-c)', lineHeight: 1.7,
               background: 'var(--bar-bg)', borderRadius: 10, padding: '12px 14px',
               marginBottom: entry.variants.length ? 12 : 0,
             }}>
@@ -1100,7 +1100,7 @@ export default function SlangScreen({ goBack, award }) {
                 {quizQuestions[quizIdx].opts.map((opt, oi) => {
                   const isCorrect = opt === quizQuestions[quizIdx].correct;
                   const isSelected = quizSelected === opt;
-                  let bg = 'var(--card)'; let borderC = 'var(--card-b)'; let txtC = 'var(--text)';
+                  let bg = 'var(--card)'; let borderC = 'var(--card-b)'; let txtC = 'var(--rt-c)';
                   if (quizSelected !== null) {
                     if (isCorrect) { bg = '#dcfce7'; borderC = '#16a34a'; txtC = '#15803d'; }
                     else if (isSelected) { bg = '#fee2e2'; borderC = '#dc2626'; txtC = '#dc2626'; }

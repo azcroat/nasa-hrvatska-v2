@@ -111,7 +111,7 @@ export default function SearchModal({ setTab, onClose }) {
               }}>
                 <span style={{ fontSize:20, flexShrink:0 }}>{item.icon}</span>
                 <div>
-                  <div style={{ fontWeight:700, fontSize:14, color:'var(--text)' }}>{item.label}</div>
+                  <div style={{ fontWeight:700, fontSize:14, color:'var(--rt-c)' }}>{item.label}</div>
                   <div style={{ fontSize:12, color:'var(--subtext)' }}>{item.desc}</div>
                 </div>
               </button>

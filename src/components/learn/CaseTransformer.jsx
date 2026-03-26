@@ -346,7 +346,7 @@ export default function CaseTransformer({ goBack, award }) {
             to   { opacity: 1; transform: translateX(0); }
           }
           .ct-noun-card {
-            background: var(--card-bg);
+            background: var(--card);
             border: 1px solid var(--card-b);
             border-radius: 12px;
             padding: 12px;
@@ -362,7 +362,7 @@ export default function CaseTransformer({ goBack, award }) {
             padding: 6px 14px;
             border-radius: 999px;
             border: 1px solid var(--card-b);
-            background: var(--card-bg);
+            background: var(--card);
             cursor: pointer;
             font-size: 13px;
             font-weight: 700;
@@ -399,7 +399,7 @@ export default function CaseTransformer({ goBack, award }) {
               padding: "10px 14px",
               borderRadius: 10,
               border: "1px solid var(--card-b)",
-              background: "var(--card-bg)",
+              background: "var(--card)",
               color: "var(--heading)",
               fontSize: "var(--text-base)",
               fontFamily: "'Outfit', sans-serif",
@@ -611,7 +611,7 @@ export default function CaseTransformer({ goBack, award }) {
         {/* Answer options */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
           {q.opts.map(opt => {
-            let bg = "var(--card-bg)";
+            let bg = "var(--card)";
             let border = "var(--card-b)";
             let color = "var(--heading)";
             if (quizChosen !== null) {
@@ -683,7 +683,7 @@ export default function CaseTransformer({ goBack, award }) {
         .ct-case-card {
           opacity: 0;
           animation: caseReveal 0.4s ease forwards;
-          background: var(--card-bg);
+          background: var(--card);
           border: 1px solid var(--card-b);
           border-radius: 14px;
           padding: 14px 16px;

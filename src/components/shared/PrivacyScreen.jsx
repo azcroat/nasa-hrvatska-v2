@@ -11,7 +11,7 @@ export default function PrivacyScreen({ goBack }) {
 
         <p style={{fontSize:13,color:"var(--rt-c)",lineHeight:1.7,marginBottom:10}}>
           This Privacy Policy applies to the Naša Hrvatska application operated by{" "}
-          <strong>[LEGAL ENTITY NAME]</strong>. By using this app, you agree to the collection and use
+          <strong>Lijepa Naša (personal non-commercial project)</strong>. By using this app, you agree to the collection and use
           of information as described in this policy.
         </p>
 

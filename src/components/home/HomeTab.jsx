@@ -531,7 +531,7 @@ export default function HomeTab({
                                 </span>
                                 <span style={{
                                   fontSize:11, fontWeight:500, flex:1,
-                                  color: done ? activeCampaign.color : 'var(--text)',
+                                  color: done ? activeCampaign.color : 'var(--rt-c)',
                                   opacity: done ? 1 : 0.85,
                                   textDecoration: done ? 'line-through' : 'none',
                                 }}>
