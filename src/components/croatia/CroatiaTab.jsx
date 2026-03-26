@@ -328,31 +328,6 @@ function SpotifyPlaylists() {
   );
 }
 
-function CrSection({ title, icon, count, defaultOpen = false, children }) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <div style={{ marginBottom:8 }}>
-      <button
-        onClick={() => setOpen(o => !o)}
-        style={{
-          display:'flex', alignItems:'center', gap:10, width:'100%',
-          padding:'13px 16px', borderRadius:14,
-          background:'var(--card)', border:'1px solid var(--card-b)',
-          cursor:'pointer', fontFamily:"'Outfit',sans-serif",
-          boxShadow:'0 1px 3px rgba(0,0,0,.06)',
-          marginBottom: open ? 10 : 0,
-        }}
-      >
-        <span style={{ fontSize:18 }}>{icon}</span>
-        <span style={{ flex:1, fontSize:'var(--text-base)', fontWeight:800, color:'var(--heading)', textAlign:'left' }}>{title}</span>
-        <span style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:600, background:'var(--bar-bg)', borderRadius:8, padding:'2px 8px' }}>{count}</span>
-        <span style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', opacity:.5, marginLeft:4 }}>{open ? '▲' : '▼'}</span>
-      </button>
-      {open && <div style={{ marginBottom:16 }}>{children}</div>}
-    </div>
-  );
-}
-
 // Q-4: Removed dead state setters — target screens manage their own state.
 export default function CroatiaTab({ setScr, sCurEx }) {
   const cats = ["tv","music","film","sport","podcast","culture"];
@@ -692,92 +667,6 @@ export default function CroatiaTab({ setScr, sCurEx }) {
                 </div>
               )}
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── HISTORY & REGIONS — always-visible 2-col grid ── */}
-      <div style={{ marginBottom:20 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
-          <span style={{ fontSize:20 }}>🇭🇷</span>
-          <span style={{ fontSize:'var(--text-base)', fontWeight:800, color:'var(--heading)', flex:1 }}>History & Regions</span>
-          <span style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:600, background:'var(--bar-bg)', borderRadius:8, padding:'2px 8px' }}>12 entries</span>
-        </div>
-        <div className="g2" style={{ gap:8 }}>
-          {[
-            [()=>{setScr("history");},"🇭🇷","Domovinski Rat","1991–1995 Homeland War","#dc2626"],
-            [()=>setScr("region_vukovar"),"🕯️","Vukovar","Hero city — a deep dive","#dc2626"],
-            [()=>{setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval dynasty","#b45309"],
-            [()=>setScr("region_zagreb"),"🏛️","Zagreb","Croatia's capital","#0e7490"],
-            [()=>setScr("region_split"),"🌊","Split","Rome on the Adriatic","#0284c7"],
-            [()=>setScr("region_mostar"),"🌉","Mostar","The bridge reborn","#7c3aed"],
-            [()=>setScr("region_tomislavgrad"),"👑","Tomislavgrad","Where the kingdom was born","#b45309"],
-            [()=>setScr("region_knin"),"🏰","Knin","Liberated August 5, 1995","#dc2626"],
-            [()=>setScr("region_labin"),"⛵","Labin & Rabac","Our home in Istria","#0e7490"],
-            [()=>setScr("region_bibinje"),"🏖️","Bibinje & Zadar","Dalmatian gateway","#0284c7"],
-            [()=>setScr("region_hercegovina"),"⚔️","Hercegovina","Croatian heritage","#b45309"],
-            [()=>setScr("region_vinkovci"),"🏛️","Vinkovci","8,300 years of history","#78716c"],
-          ].map((/** @type {any} */ [fn,icon,title,sub,color],i) => (
-            <button key={i} onClick={fn}
-              style={{
-                display:'flex', alignItems:'center', gap:10, padding:'12px',
-                background:'var(--card)', border:`1.5px solid ${color}25`,
-                borderLeft:`3px solid ${color}`, borderRadius:12,
-                cursor:'pointer', fontFamily:"'Outfit',sans-serif", textAlign:'left',
-                transition:'transform .15s, box-shadow .15s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.transform='translateY(-1px)'; e.currentTarget.style.boxShadow=`0 4px 16px ${color}20`; }}
-              onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow=''; }}
-            >
-              <div style={{width:36,height:36,borderRadius:10,background:`${color}15`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}}>{icon}</div>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:'var(--text-sm)',fontWeight:700,color:'var(--heading)',lineHeight:1.2,marginBottom:2}}>{title}</div>
-                <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',lineHeight:1.3}}>{sub}</div>
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── CROATIAN LIFE — always-visible 2-col grid ── */}
-      <div style={{ marginBottom:20 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
-          <span style={{ fontSize:20 }}>🏘️</span>
-          <span style={{ fontSize:'var(--text-base)', fontWeight:800, color:'var(--heading)', flex:1 }}>Croatian Life</span>
-          <span style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:600, background:'var(--bar-bg)', borderRadius:8, padding:'2px 8px' }}>12 topics</span>
-        </div>
-        <div className="g2" style={{ gap:8 }}>
-          {[
-            [()=>setScr("grocery"),"🛒","Grocery Shopping","Supermarket vocab","#16a34a"],
-            [()=>{setScr("recipes");},"🍳","Croatian Recipes","Traditional dishes","#b45309"],
-            [()=>{setScr("roleplay");},"🎭","Role-Play","Real-life conversations","#7c3aed"],
-            [()=>setScr("school"),"🏫","School Kit","For parents & students","#0e7490"],
-            [()=>setScr("texting"),"📱","Texting & Slang","How Croatians text","#7c3aed"],
-            [()=>setScr("friends"),"🤝","Making Friends","Social life","#16a34a"],
-            [()=>setScr("foodorder"),"🍕","Ordering Food","Restaurants & cafés","#b45309"],
-            [()=>setScr("transport"),"🚌","Transport","Buses, taxis & trams","#0284c7"],
-            [()=>setScr("emergency"),"🚨","Emergency","Essential phrases","#dc2626"],
-            [()=>setScr("practical"),"💼","Practical Life","Banks, doctors, admin","#78716c"],
-            [()=>setScr("basketball"),"🏀","At Basketball","Croatian basketball","#b45309"],
-            [()=>setScr("gym"),"🏋️","At the Gym","Fitness vocabulary","#16a34a"],
-          ].map((/** @type {any} */ [fn,icon,title,sub,color],i) => (
-            <button key={i} onClick={fn}
-              style={{
-                display:'flex', alignItems:'center', gap:10, padding:'12px',
-                background:'var(--card)', border:`1.5px solid ${color}25`,
-                borderLeft:`3px solid ${color}`, borderRadius:12,
-                cursor:'pointer', fontFamily:"'Outfit',sans-serif", textAlign:'left',
-                transition:'transform .15s, box-shadow .15s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.transform='translateY(-1px)'; e.currentTarget.style.boxShadow=`0 4px 16px ${color}20`; }}
-              onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow=''; }}
-            >
-              <div style={{width:36,height:36,borderRadius:10,background:`${color}15`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}}>{icon}</div>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:'var(--text-sm)',fontWeight:700,color:'var(--heading)',lineHeight:1.2,marginBottom:2}}>{title}</div>
-                <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',lineHeight:1.3}}>{sub}</div>
-              </div>
-            </button>
           ))}
         </div>
       </div>
