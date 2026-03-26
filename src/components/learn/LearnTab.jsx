@@ -483,13 +483,14 @@ export default function LearnTab({
       </Section>
 
       {/* Reference */}
-      <Section title="Quick Reference" icon="📌" count="12 guides" defaultOpen={false}>
+      <Section title="Quick Reference" icon="📌" count="13 guides" defaultOpen={false}>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
           {[
             ["🔤","Alphabet","alphabet"],["🧩","Word Patterns","wordform"],["🐣","Diminutives","diminutives"],
             ["🗺️","Dialects","dialects"],["⚠️","False Friends","falsefr"],["🎨","Color Quirks","colorquirk"],
             ["🪞","Svoj vs Moj","svojmoj"],["🔀","Conditional","conditional"],["🤝","Vi ili ti?","formalregister"],
             ["🔁","Impersonal","impersonal"],["💻","Tech & Digital","techvoc"],["🏛️","Admin Life","bureaucratic"],
+            ["🎭","Ti vs Vi","tivicompare"],
           ].map(([icon,label,screen]) => (
             <button key={screen} className="tc" style={{ textAlign:"center", padding:"12px 8px" }} onClick={() => setScr(screen)}>
               <div style={{ fontSize:24 }}>{icon}</div>
