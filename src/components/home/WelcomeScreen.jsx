@@ -50,44 +50,50 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
 
   // ── Step 0: Hero ──────────────────────────────────────────────────────────
   if (step === 0) return (
-    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100vh', padding:24, position:'relative', zIndex:1 }}>
+    <div style={{
+      display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+      minHeight:'100vh', padding:24, position:'relative', zIndex:1,
+      background:'linear-gradient(160deg, #060e1e 0%, #0a2348 40%, #0c3868 100%)',
+    }}>
+      {/* Gold accent line */}
+      <div style={{ position:'fixed', top:0, left:0, right:0, height:3, background:'linear-gradient(90deg, transparent, #C8980A 20%, #FFE070 50%, #C8980A 80%, transparent)', zIndex:10 }}/>
       <div style={{ textAlign:'center', maxWidth:460, animation:'rise .6s' }}>
-        <StepDots step={0} />
+        <StepDots step={0} dark />
         <div style={{ display:'flex', justifyContent:'center', marginBottom:20 }}>
-          <CroatianGrb size={120} style={{ filter:'drop-shadow(0 6px 20px rgba(0,0,0,0.25))' }} />
+          <CroatianGrb size={120} style={{ filter:'drop-shadow(0 8px 24px rgba(0,0,0,0.35))' }} />
         </div>
-        <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:40, color:'var(--heading)', fontWeight:900, marginBottom:8, lineHeight:1.15 }}>
+        <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:'var(--text-4xl)', color:'white', fontWeight:900, marginBottom:8, lineHeight:1.15 }}>
           Naša Hrvatska
         </h1>
-        <p style={{ color:'var(--subtext)', fontSize:17, marginBottom:8 }}>
+        <p style={{ color:'rgba(255,255,255,0.8)', fontSize:'var(--text-lg)', marginBottom:8 }}>
           Croatian for the diaspora — made with love 🇭🇷
         </p>
         {(name || au?.d) && (
-          <p style={{ color:'var(--rt-c)', fontSize:15, marginBottom:28 }}>
-            Bog, <span style={{ color:'#0e7490', fontWeight:700 }}>{name || au?.d}</span>!
+          <p style={{ color:'rgba(255,255,255,0.7)', fontSize:'var(--text-md)', marginBottom:28 }}>
+            Bog, <span style={{ color:'#FFE070', fontWeight:700 }}>{name || au?.d}</span>!
           </p>
         )}
-        <div style={{ background:'var(--card,#fff)', borderRadius:16, padding:'16px 20px', marginBottom:28, border:'1px solid var(--inp-b,#e2e8f0)', textAlign:'left' }}>
+        <div style={{ background:'rgba(255,255,255,0.1)', borderRadius:16, padding:'16px 20px', marginBottom:28, border:'1px solid rgba(255,255,255,0.15)', textAlign:'left' }}>
           <div style={{ display:'flex', gap:12, marginBottom:10 }}>
-            <span style={{ fontSize:18 }}>🧠</span><span style={{ fontSize:13, color:'var(--subtext)', fontWeight:600 }}>Smart spaced repetition — remembers what you forget</span>
+            <span style={{ fontSize:18 }}>🧠</span><span style={{ fontSize:'var(--text-sm)', color:'rgba(255,255,255,0.75)', fontWeight:600 }}>Smart spaced repetition — remembers what you forget</span>
           </div>
           <div style={{ display:'flex', gap:12, marginBottom:10 }}>
-            <span style={{ fontSize:18 }}>🔥</span><span style={{ fontSize:13, color:'var(--subtext)', fontWeight:600 }}>Daily streaks, milestones & family leaderboard</span>
+            <span style={{ fontSize:18 }}>🔥</span><span style={{ fontSize:'var(--text-sm)', color:'rgba(255,255,255,0.75)', fontWeight:600 }}>Daily streaks, milestones & family leaderboard</span>
           </div>
           <div style={{ display:'flex', gap:12 }}>
-            <span style={{ fontSize:18 }}>🎵</span><span style={{ fontSize:13, color:'var(--subtext)', fontWeight:600 }}>Croatian songs, AI conversation & cultural immersion</span>
+            <span style={{ fontSize:18 }}>🎵</span><span style={{ fontSize:'var(--text-sm)', color:'rgba(255,255,255,0.75)', fontWeight:600 }}>Croatian songs, AI conversation & cultural immersion</span>
           </div>
         </div>
         <button
           className="b bp"
-          style={{ fontSize:17, padding:'14px 48px', width:'100%', marginBottom:12 }}
+          style={{ fontSize:'var(--text-lg)', padding:'14px 48px', width:'100%', marginBottom:12 }}
           onClick={() => setStep(1)}
         >
           <span style={{ display:'block', fontWeight:900 }}>Počnimo!</span>
-          <span style={{ display:'block', fontSize:13, fontWeight:600, opacity:0.85, marginTop:2 }}>Let's begin →</span>
+          <span style={{ display:'block', fontSize:'var(--text-sm)', fontWeight:600, opacity:0.85, marginTop:2 }}>Let's begin →</span>
         </button>
         {!!au && (
-          <button className="b bg" style={{ fontSize:13, padding:'13px 24px', width:'100%' }} onClick={() => setScr('dashboard')}>
+          <button className="b bg" style={{ fontSize:'var(--text-sm)', padding:'13px 24px', width:'100%' }} onClick={() => setScr('dashboard')}>
             Already signed in? Continue →
           </button>
         )}
@@ -103,7 +109,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
         <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:26, color:'var(--heading)', fontWeight:900, marginBottom:6, textAlign:'center' }}>
           Why are you learning Croatian?
         </h2>
-        <p style={{ color:'var(--subtext)', fontSize:14, textAlign:'center', marginBottom:24 }}>
+        <p style={{ color:'var(--subtext)', fontSize:'var(--text-base)', textAlign:'center', marginBottom:24 }}>
           This shapes what we show you first
         </p>
         <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:24 }}>
@@ -113,24 +119,30 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
               onClick={() => setGoal(g.id)}
               style={{
                 display:'flex', alignItems:'center', gap:14, padding:'14px 18px',
-                borderRadius:14, border:`2px solid ${goal===g.id?'#0e7490':'var(--inp-b,#e2e8f0)'}`,
-                background: goal===g.id ? 'rgba(14,116,144,.07)' : 'var(--card,#fff)',
+                borderRadius:14,
+                border: goal===g.id ? '2px solid var(--info)' : '2px solid var(--card-b)',
+                background: goal===g.id ? 'rgba(14,116,144,.1)' : 'var(--card)',
                 cursor:'pointer', textAlign:'left', transition:'all .18s',
                 fontFamily:"'Outfit',sans-serif",
               }}
             >
-              <span style={{ fontSize:26, flexShrink:0 }}>{g.icon}</span>
+              <span style={{
+                fontSize:22, flexShrink:0, width:40, height:40, borderRadius:'50%',
+                display:'flex', alignItems:'center', justifyContent:'center',
+                background: goal===g.id ? 'rgba(14,116,144,.15)' : 'transparent',
+                transition:'background .18s',
+              }}>{g.icon}</span>
               <div>
-                <div style={{ fontSize:15, fontWeight:800, color:'var(--heading)', marginBottom:2 }}>{g.label}</div>
-                <div style={{ fontSize:12, color:'var(--subtext)', fontWeight:500 }}>{g.sub}</div>
+                <div style={{ fontSize:'var(--text-md)', fontWeight:800, color:'var(--heading)', marginBottom:2 }}>{g.label}</div>
+                <div style={{ fontSize:'var(--text-sm)', color:'var(--subtext)', fontWeight:500 }}>{g.sub}</div>
               </div>
-              {goal===g.id && <span style={{ marginLeft:'auto', color:'#0e7490', fontSize:18 }}>✓</span>}
+              {goal===g.id && <span style={{ marginLeft:'auto', color:'var(--info)', fontSize:18 }}>✓</span>}
             </button>
           ))}
         </div>
         <button
           className="b bp"
-          style={{ fontSize:16, padding:'14px', width:'100%', opacity: goal ? 1 : 0.5 }}
+          style={{ fontSize:'var(--text-lg)', padding:'14px', width:'100%', opacity: goal ? 1 : 0.5 }}
           disabled={!goal}
           onClick={() => setStep(2)}
         >
@@ -148,7 +160,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
         <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:26, color:'var(--heading)', fontWeight:900, marginBottom:6, textAlign:'center' }}>
           How much time each day?
         </h2>
-        <p style={{ color:'var(--subtext)', fontSize:14, textAlign:'center', marginBottom:24 }}>Consistency beats intensity every time</p>
+        <p style={{ color:'var(--subtext)', fontSize:'var(--text-base)', textAlign:'center', marginBottom:24 }}>Consistency beats intensity every time</p>
         <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:24 }}>
           {DAILY_GOALS.map(g => (
             <button
@@ -156,23 +168,24 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
               onClick={() => setDailyMin(g.id)}
               style={{
                 display:'flex', alignItems:'center', gap:14, padding:'14px 18px',
-                borderRadius:14, border:`2px solid ${dailyMin===g.id?'#0e7490':'var(--inp-b,#e2e8f0)'}`,
-                background: dailyMin===g.id ? 'rgba(14,116,144,.07)' : 'var(--card,#fff)',
+                borderRadius:14,
+                border: dailyMin===g.id ? '2px solid var(--info)' : '2px solid var(--card-b)',
+                background: dailyMin===g.id ? 'rgba(14,116,144,.1)' : 'var(--card)',
                 cursor:'pointer', textAlign:'left', transition:'all .18s',
                 fontFamily:"'Outfit',sans-serif",
               }}
             >
-              <span style={{ fontSize:22, fontWeight:900, color: dailyMin===g.id?'#0e7490':'var(--subtext)', minWidth:44, textAlign:'center' }}>{g.label}</span>
+              <span style={{ fontSize:22, fontWeight:900, color: dailyMin===g.id?'var(--info)':'var(--subtext)', minWidth:44, textAlign:'center' }}>{g.label}</span>
               <div>
-                <div style={{ fontSize:13, color:'var(--subtext)', fontWeight:600 }}>{g.sub}</div>
+                <div style={{ fontSize:'var(--text-sm)', color:'var(--subtext)', fontWeight:600 }}>{g.sub}</div>
               </div>
-              {dailyMin===g.id && <span style={{ marginLeft:'auto', color:'#0e7490', fontSize:18 }}>✓</span>}
+              {dailyMin===g.id && <span style={{ marginLeft:'auto', color:'var(--info)', fontSize:18 }}>✓</span>}
             </button>
           ))}
         </div>
         <button
           className="b bp"
-          style={{ fontSize:16, padding:'14px', width:'100%', marginBottom:12, opacity: dailyMin ? 1 : 0.5 }}
+          style={{ fontSize:'var(--text-lg)', padding:'14px', width:'100%', marginBottom:12, opacity: dailyMin ? 1 : 0.5 }}
           disabled={!dailyMin}
           onClick={() => {
             if (goal === 'heritage' || goal === 'family' || goal === 'partner') {
@@ -184,12 +197,12 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
         >
           Take the placement test →
         </button>
-        <p style={{ color:'var(--subtext)', fontSize:12, textAlign:'center' }}>
+        <p style={{ color:'var(--subtext)', fontSize:'var(--text-sm)', textAlign:'center' }}>
           8 quick questions · takes about 2 minutes
         </p>
         <button
           onClick={() => { localStorage.setItem('nh_placement_done', 'true'); startPlacement(); }}
-          style={{ display:'block', width:'100%', marginTop:8, background:'none', border:'none', cursor:'pointer', fontSize:12, color:'var(--subtext)', padding:'10px', fontFamily:"'Outfit',sans-serif" }}
+          style={{ display:'block', width:'100%', marginTop:8, background:'none', border:'none', cursor:'pointer', fontSize:'var(--text-sm)', color:'var(--subtext)', padding:'10px', fontFamily:"'Outfit',sans-serif" }}
         >
           Skip test — start as beginner
         </button>
@@ -199,16 +212,16 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
             display:'flex', alignItems:'center', justifyContent:'center', padding:20,
           }}>
             <div style={{
-              background:'#fff', borderRadius:24, padding:'32px 24px',
+              background:'var(--card)', borderRadius:24, padding:'32px 24px',
               maxWidth:360, width:'100%', textAlign:'center',
               animation:'rise .4s',
               fontFamily:"'Outfit',sans-serif",
             }}>
               <div style={{fontSize:52, marginBottom:8}}>🎤</div>
-              <h2 style={{fontFamily:"'Playfair Display',serif", fontSize:22, color:'#0c4a6e', marginBottom:6}}>
+              <h2 style={{fontFamily:"'Playfair Display',serif", fontSize:22, color:'var(--heading)', marginBottom:6}}>
                 Say your first word
               </h2>
-              <p style={{fontSize:13, color:'#64748b', marginBottom:20, lineHeight:1.5}}>
+              <p style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:20, lineHeight:1.5}}>
                 Before we start, let's say the most important word in Croatian:
               </p>
               <button
@@ -221,21 +234,21 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
                 }}
               >
                 <span style={{fontSize:36, fontWeight:900, color:'#fff', fontFamily:"'Playfair Display',serif"}}>Bog</span>
-                <span style={{fontSize:14, color:'rgba(255,255,255,.8)', fontWeight:600}}>Hello / Hi — tap to hear it 🔊</span>
+                <span style={{fontSize:'var(--text-base)', color:'rgba(255,255,255,.8)', fontWeight:600}}>Hello / Hi — tap to hear it 🔊</span>
               </button>
-              <p style={{fontSize:12, color:'#94a3b8', marginBottom:20, fontStyle:'italic'}}>
+              <p style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:20, fontStyle:'italic'}}>
                 Now you say it! Repeat after the audio.
               </p>
               <button
                 className="b bp"
-                style={{width:'100%', fontSize:15, padding:'14px'}}
+                style={{width:'100%', fontSize:'var(--text-md)', padding:'14px'}}
                 onClick={() => { setShowSpeakModal(false); startPlacement(); }}
               >
                 I said it! Take the test →
               </button>
               <button
                 onClick={() => { setShowSpeakModal(false); startPlacement(); }}
-                style={{marginTop:10, background:'none', border:'none', cursor:'pointer', fontSize:12, color:'#94a3b8', fontFamily:"'Outfit',sans-serif", padding:'8px'}}
+                style={{marginTop:10, background:'none', border:'none', cursor:'pointer', fontSize:'var(--text-sm)', color:'var(--subtext)', fontFamily:"'Outfit',sans-serif", padding:'8px'}}
               >
                 Skip
               </button>
@@ -254,18 +267,18 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
         <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:24, color:'var(--heading)', fontWeight:900, marginBottom:6, textAlign:'center' }}>
           {goal === 'partner' ? 'Tell us about your partner 💑' : 'Tell us about your roots 🇭🇷'}
         </h2>
-        <p style={{ color:'var(--subtext)', fontSize:13, textAlign:'center', marginBottom:24 }}>
+        <p style={{ color:'var(--subtext)', fontSize:'var(--text-sm)', textAlign:'center', marginBottom:24 }}>
           {goal === 'partner' ? "We'll teach you the words that matter most at family gatherings" : 'This helps us personalize your content (totally optional)'}
         </p>
 
         <div style={{ marginBottom:16 }}>
-          <label style={{ fontSize:13, fontWeight:700, color:'var(--heading)', display:'block', marginBottom:6 }}>
+          <label style={{ fontSize:'var(--text-sm)', fontWeight:700, color:'var(--heading)', display:'block', marginBottom:6 }}>
             {goal === 'partner' ? 'Where is your partner from?' : 'Where is your family from?'}
           </label>
           <select
             onChange={(e) => localStorage.setItem('nh_heritage_region', e.target.value)}
             defaultValue={localStorage.getItem('nh_heritage_region') || ''}
-            style={{ width:'100%', padding:'12px 14px', borderRadius:12, border:'1.5px solid var(--inp-b)', background:'var(--card)', color:'var(--heading)', fontSize:14, fontFamily:"'Outfit',sans-serif" }}
+            style={{ width:'100%', padding:'12px 14px', borderRadius:12, border:'1.5px solid var(--card-b)', background:'var(--card)', color:'var(--heading)', fontSize:'var(--text-base)', fontFamily:"'Outfit',sans-serif" }}
           >
             <option value="">Choose a region...</option>
             <option value="dalmatia">Dalmatia (Split, Dubrovnik, islands)</option>
@@ -279,7 +292,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
         </div>
 
         <div style={{ marginBottom:24 }}>
-          <label style={{ fontSize:13, fontWeight:700, color:'var(--heading)', display:'block', marginBottom:6 }}>
+          <label style={{ fontSize:'var(--text-sm)', fontWeight:700, color:'var(--heading)', display:'block', marginBottom:6 }}>
             {goal === 'partner' ? 'Tell us about your partner' : 'Your generation'}
           </label>
           <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
@@ -300,28 +313,29 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
                   onClick={() => { localStorage.setItem('nh_heritage_gen', g.id); setSelectedGen(g.id); }}
                   style={{
                     display:'flex', alignItems:'center', gap:12, padding:'12px 16px',
-                    borderRadius:12, border:`1.5px solid ${sel ? '#0e7490' : 'var(--inp-b)'}`,
-                    background: sel ? 'rgba(14,116,144,.07)' : 'var(--card)',
+                    borderRadius:12,
+                    border: sel ? '2px solid var(--info)' : '2px solid var(--card-b)',
+                    background: sel ? 'rgba(14,116,144,.1)' : 'var(--card)',
                     cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
                   }}
                 >
                   <div>
-                    <div style={{ fontSize:14, fontWeight:700, color:'var(--heading)' }}>{g.label}</div>
-                    <div style={{ fontSize:11, color:'var(--subtext)' }}>{g.sub}</div>
+                    <div style={{ fontSize:'var(--text-base)', fontWeight:700, color:'var(--heading)' }}>{g.label}</div>
+                    <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)' }}>{g.sub}</div>
                   </div>
-                  {sel && <span style={{ marginLeft:'auto', color:'#0e7490' }}>✓</span>}
+                  {sel && <span style={{ marginLeft:'auto', color:'var(--info)' }}>✓</span>}
                 </button>
               );
             })}
           </div>
         </div>
 
-        <button className="b bp" style={{ fontSize:15, padding:'14px', width:'100%', marginBottom:10 }}
+        <button className="b bp" style={{ fontSize:'var(--text-md)', padding:'14px', width:'100%', marginBottom:10 }}
           onClick={() => setShowSpeakModal(true)}>
           Continue →
         </button>
         <button onClick={() => setShowSpeakModal(true)}
-          style={{ display:'block', width:'100%', background:'none', border:'none', cursor:'pointer', fontSize:12, color:'var(--subtext)', padding:'10px', fontFamily:"'Outfit',sans-serif" }}>
+          style={{ display:'block', width:'100%', background:'none', border:'none', cursor:'pointer', fontSize:'var(--text-sm)', color:'var(--subtext)', padding:'10px', fontFamily:"'Outfit',sans-serif" }}>
           Skip this step
         </button>
         {showSpeakModal && (
@@ -330,16 +344,16 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
             display:'flex', alignItems:'center', justifyContent:'center', padding:20,
           }}>
             <div style={{
-              background:'#fff', borderRadius:24, padding:'32px 24px',
+              background:'var(--card)', borderRadius:24, padding:'32px 24px',
               maxWidth:360, width:'100%', textAlign:'center',
               animation:'rise .4s',
               fontFamily:"'Outfit',sans-serif",
             }}>
               <div style={{fontSize:52, marginBottom:8}}>🎤</div>
-              <h2 style={{fontFamily:"'Playfair Display',serif", fontSize:22, color:'#0c4a6e', marginBottom:6}}>
+              <h2 style={{fontFamily:"'Playfair Display',serif", fontSize:22, color:'var(--heading)', marginBottom:6}}>
                 Say your first word
               </h2>
-              <p style={{fontSize:13, color:'#64748b', marginBottom:20, lineHeight:1.5}}>
+              <p style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:20, lineHeight:1.5}}>
                 Before we start, let's say the most important word in Croatian:
               </p>
               <button
@@ -352,21 +366,21 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
                 }}
               >
                 <span style={{fontSize:36, fontWeight:900, color:'#fff', fontFamily:"'Playfair Display',serif"}}>Bog</span>
-                <span style={{fontSize:14, color:'rgba(255,255,255,.8)', fontWeight:600}}>Hello / Hi — tap to hear it 🔊</span>
+                <span style={{fontSize:'var(--text-base)', color:'rgba(255,255,255,.8)', fontWeight:600}}>Hello / Hi — tap to hear it 🔊</span>
               </button>
-              <p style={{fontSize:12, color:'#94a3b8', marginBottom:20, fontStyle:'italic'}}>
+              <p style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:20, fontStyle:'italic'}}>
                 Now you say it! Repeat after the audio.
               </p>
               <button
                 className="b bp"
-                style={{width:'100%', fontSize:15, padding:'14px'}}
+                style={{width:'100%', fontSize:'var(--text-md)', padding:'14px'}}
                 onClick={() => { setShowSpeakModal(false); startPlacement(); }}
               >
                 I said it! Take the test →
               </button>
               <button
                 onClick={() => { setShowSpeakModal(false); startPlacement(); }}
-                style={{marginTop:10, background:'none', border:'none', cursor:'pointer', fontSize:12, color:'#94a3b8', fontFamily:"'Outfit',sans-serif", padding:'8px'}}
+                style={{marginTop:10, background:'none', border:'none', cursor:'pointer', fontSize:'var(--text-sm)', color:'var(--subtext)', fontFamily:"'Outfit',sans-serif", padding:'8px'}}
               >
                 Skip
               </button>
@@ -381,13 +395,13 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
 }
 
 // 3-step indicator — dots fill left to right as user advances
-function StepDots({ step }) {
+function StepDots({ step, dark }) {
   return (
     <div style={{ display:'flex', justifyContent:'center', gap:6, marginBottom:24 }}>
       {[0,1,2].map(i => (
         <div key={i} style={{
           width: i===step ? 22 : 8, height:8, borderRadius:4,
-          background: i<=step ? '#0e7490' : 'var(--bar-bg,#e2e8f0)',
+          background: i<=step ? (dark ? '#C8980A' : 'var(--info)') : (dark ? 'rgba(255,255,255,0.2)' : 'var(--bar-bg,#e2e8f0)'),
           transition:'all .25s',
         }} />
       ))}
