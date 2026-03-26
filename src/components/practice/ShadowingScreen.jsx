@@ -196,7 +196,9 @@ function WaveformPanel({ text, audioBlob, onTryAgain, onNailedIt }) {
       {matchScore !== null && (
         <div style={{ textAlign: 'center', marginTop: 12, fontSize: 13, color: '#475569' }}>
           Match score: <span style={{ fontWeight: 800, color: matchScore >= 70 ? 'var(--success,#16a34a)' : '#d97706' }}>{matchScore}%</span>
-          <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 6 }}>(simulated)</span>
+          <div style={{ fontSize: '0.75rem', color: 'var(--subtext, #94a3b8)', marginTop: 3 }}>
+            (Approximate score — not acoustic analysis)
+          </div>
         </div>
       )}
       <div style={{ marginTop: 14, background: '#f0fdf4', border: '1.5px solid #bbf7d0', borderRadius: 10, padding: '10px 14px', textAlign: 'center', fontSize: 13, color: '#166534', fontWeight: 600 }}>

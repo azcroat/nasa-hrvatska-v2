@@ -119,6 +119,7 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
       aria-label="Lesson complete — Odlično!"
       className="anim-bounce-in"
       onClick={onClose}
+      onKeyDown={e => { if (e.key === 'Escape') onClose(); }}
       style={{
         position: 'fixed',
         inset: 0,
@@ -183,6 +184,26 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
           border: '2px solid var(--info-b)',
         }}
       >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          aria-label="Close"
+          style={{
+            position: 'absolute',
+            top: 12,
+            right: 12,
+            background: 'none',
+            border: 'none',
+            fontSize: 22,
+            lineHeight: 1,
+            cursor: 'pointer',
+            color: 'var(--subtext)',
+            padding: 4,
+          }}
+        >
+          ×
+        </button>
+
         {/* Trophy */}
         <div
           style={{

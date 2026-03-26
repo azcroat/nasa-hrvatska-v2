@@ -52,6 +52,10 @@ export default function SearchModal({ setTab, onClose }) {
   const inputRef = useRef(null);
   useEffect(() => { inputRef.current?.focus(); }, []);
 
+  function handleKeyDown(e) {
+    if (e.key === 'Escape') onClose();
+  }
+
   const results = q.length < 1 ? [] : SEARCH_INDEX.filter(
     item => item.label.toLowerCase().includes(q.toLowerCase()) ||
             item.desc.toLowerCase().includes(q.toLowerCase())
@@ -67,7 +71,7 @@ export default function SearchModal({ setTab, onClose }) {
   const TAB_LABELS = { home:'Home', learn:'Learn', practice:'Practice', croatia:'Croatia', profile:'Profile' };
 
   return (
-    <div style={{ position:'fixed', inset:0, zIndex:2000, background:'var(--bg)', display:'flex', flexDirection:'column' }}>
+    <div role="dialog" aria-modal="true" onKeyDown={handleKeyDown} style={{ position:'fixed', inset:0, zIndex:2000, background:'var(--bg)', display:'flex', flexDirection:'column' }}>
       {/* Header */}
       <div style={{ display:'flex', alignItems:'center', gap:12, padding:'12px 16px', borderBottom:'1px solid var(--bar-bg)' }}>
         <span style={{ fontSize:20 }}>🔍</span>
@@ -81,7 +85,7 @@ export default function SearchModal({ setTab, onClose }) {
             fontSize:16, color:'var(--text)',
           }}
         />
-        <button onClick={onClose} style={{ background:'none', border:'none', fontSize:22, cursor:'pointer', color:'var(--subtext)' }}>✕</button>
+        <button onClick={onClose} aria-label="Close search" style={{ background:'none', border:'none', fontSize:22, cursor:'pointer', color:'var(--subtext)' }}>✕</button>
       </div>
       {/* Results */}
       <div style={{ flex:1, overflowY:'auto', padding:'8px 16px' }}>

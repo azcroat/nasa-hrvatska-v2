@@ -437,7 +437,13 @@ export default function LearnTab({
         borderRadius:14, padding:'14px 16px', marginBottom:20,
       }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
-          <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)' }}>🎓 CEFR Level</div>
+          <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+            <span style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)' }}>🎓 CEFR Level</span>
+            <span
+              title="A1=Beginner, A2=Elementary, B1=Intermediate, B2=Upper-Intermediate, C1=Advanced, C2=Mastery"
+              style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', cursor:'help', lineHeight:1, userSelect:'none' }}
+            >ℹ</span>
+          </div>
           <span style={{
             fontSize:'var(--text-sm)', fontWeight:900, color:'var(--card)',
             background: cefrLevel === 'B2' ? 'var(--success)' : cefrLevel === 'B1' ? 'var(--info)' : cefrLevel === 'A2' ? 'var(--warning)' : 'var(--subtext)',
@@ -469,7 +475,7 @@ export default function LearnTab({
       {/* ── BROWSE ALL CONTENT BUTTON ────────────────────────────────────── */}
       <button onClick={() => setShowBrowse(true)} style={{
         width:'100%', padding:'14px', borderRadius:14,
-        border:'2px dashed var(--bar-bg)', background:'transparent',
+        border:'2px solid var(--accent)', background:'transparent',
         color:'var(--subtext)', fontWeight:700, fontSize:14, cursor:'pointer',
         display:'flex', alignItems:'center', justifyContent:'center', gap:8,
         fontFamily:"'Outfit',sans-serif",

@@ -247,7 +247,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
             if (goal === 'heritage' || goal === 'family' || goal === 'partner') {
               setStep(3);
             } else {
-              startPlacement();
+              setShowSpeakModal(true);
             }
           }}
         >
@@ -338,7 +338,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
   if (step === 3) return (
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100vh', padding:'clamp(14px, 4vw, 24px)', position:'relative', zIndex:1 }}>
       <div style={{ maxWidth:460, width:'100%', animation:'rise .4s' }}>
-        <StepDots step={2} />
+        <StepDots step={3} />
         <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:24, color:'var(--heading)', fontWeight:900, marginBottom:6, textAlign:'center' }}>
           {goal === 'partner' ? 'Tell us about your partner 💑' : 'Tell us about your roots 🇭🇷'}
         </h2>
@@ -495,7 +495,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
 function StepDots({ step, dark }) {
   return (
     <div style={{ display:'flex', justifyContent:'center', gap:6, marginBottom:24 }}>
-      {[0,1,2].map(i => (
+      {[0,1,2,3].map(i => (
         <div key={i} style={{
           width: i===step ? 22 : 8, height:8, borderRadius:4,
           background: i<=step ? (dark ? '#C8980A' : 'var(--info)') : (dark ? 'rgba(255,255,255,0.2)' : 'var(--bar-bg,#e2e8f0)'),

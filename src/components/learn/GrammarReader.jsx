@@ -1,8 +1,51 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { H } from '../../data.jsx';
+import { H, READ } from '../../data.jsx';
 
-// ─── Curated reading texts ────────────────────────────────────────────────────
-const TEXTS = [
+// ─── Level style map ──────────────────────────────────────────────────────────
+const LEVEL_STYLE = {
+  'A1':   { levelColor: '#166534', levelBg: '#dcfce7' },
+  'A2':   { levelColor: '#1e40af', levelBg: '#dbeafe' },
+  'B1':   { levelColor: '#92400e', levelBg: '#fef3c7' },
+  'B2':   { levelColor: '#6b21a8', levelBg: '#f3e8ff' },
+  'C1':   { levelColor: '#b91c1c', levelBg: '#fee2e2' },
+  'C2':   { levelColor: '#0f172a', levelBg: '#f1f5f9' },
+};
+
+// ─── Map READ library to GrammarReader format ─────────────────────────────────
+function buildLibraryTexts() {
+  try {
+    const buckets = [
+      { key: 'beginner',     level: 'A1' },
+      { key: 'intermediate', level: 'B1' },
+      { key: 'advanced',     level: 'B2' },
+      { key: 'b2',           level: 'B2' },
+      { key: 'c1',           level: 'C1' },
+    ];
+    const out = [];
+    buckets.forEach(({ key, level }) => {
+      const passages = READ[key];
+      if (!Array.isArray(passages)) return;
+      passages.forEach((p, i) => {
+        if (!p.text || !p.title) return;
+        const style = LEVEL_STYLE[level] || LEVEL_STYLE['B1'];
+        out.push({
+          id: `${key}_${i}`,
+          title: p.title,
+          english: p.tEn || '',
+          level,
+          ...style,
+          text: p.text,
+        });
+      });
+    });
+    return out.length > 0 ? out : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+// ─── Fallback hardcoded texts (used if library import fails) ──────────────────
+const FALLBACK_TEXTS = [
   {
     id: 'market_a1',
     title: 'Na tržnici',
@@ -68,6 +111,8 @@ const TEXTS = [
     text: 'Jezik nije samo sredstvo komunikacije — on oblikuje naš način razmišljanja. Svaki jezik ima pojmove koji se ne mogu lako prevesti na drugi. Hrvatska ima bogat sustav glagolskih vidova koji razlikuje trajanje radnje od njezine dovršenosti. Učenjem stranog jezika ne usvajamo samo gramatiku, nego i novi pogled na svijet.',
   },
 ];
+
+const TEXTS = buildLibraryTexts() || FALLBACK_TEXTS;
 
 // ─── POS color map ────────────────────────────────────────────────────────────
 const POS_COLOR = {
@@ -307,7 +352,8 @@ function ReadingPane({ text, title, english, level, levelColor, levelBg, cache, 
 // ─── Text picker ──────────────────────────────────────────────────────────────
 function TextPicker({ onSelect, goBack }) {
   const [filter, setFilter] = useState('All');
-  const levels = ['All', 'A1', 'A2', 'B1', 'B2'];
+  // Derive available levels from the actual texts so new levels appear automatically
+  const levels = ['All', ...Array.from(new Set(TEXTS.map(t => t.level)))];
   const visible = filter === 'All' ? TEXTS : TEXTS.filter(t => t.level === filter);
   return (
     <div className="scr-wrap">
