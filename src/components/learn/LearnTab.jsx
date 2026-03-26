@@ -498,7 +498,7 @@ export default function LearnTab({
 
             {/* Vocabulary */}
             <div style={{ marginTop:16 }}>
-              <Section title="Vocabulary" icon="📚" count={`${allCats.length + 6} topics`} defaultOpen={false}>
+              <Section title="Vocabulary" icon="📚" count={`${allCats.length + 6} topics`} defaultOpen={true}>
                 <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>
                   {allCats.length} core categories · tap any to start
                 </p>
@@ -544,7 +544,7 @@ export default function LearnTab({
             </div>
 
             {/* Grammar */}
-            <Section title="Grammar" icon="📝" count="14 lessons" defaultOpen={false}>
+            <Section title="Grammar" icon="📝" count="14 lessons" defaultOpen={true}>
               <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
                 <LevelBadge label="Foundation" color="var(--success)" bg="var(--success-bg)" />
                 <div style={{ flex:1, height:1, background:"var(--card-b)" }} />
