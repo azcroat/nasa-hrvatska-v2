@@ -24,27 +24,6 @@ function playSuccessSound() {
   } catch (e) {}
 }
 
-// ── Confetti particle generator ───────────────────────────────────────────────
-const COLORS = [
-  '#dc2626', '#ffffff', '#f59e0b', '#dc2626', '#ffffff',
-  '#f59e0b', '#dc2626', '#ffffff', '#f59e0b', '#dc2626',
-];
-const SHAPES = ['circle', 'rect', 'triangle', 'star'];
-
-function makeParticles(n = 80) {
-  return Array.from({ length: n }, (_, i) => ({
-    id: i,
-    color: COLORS[i % COLORS.length],
-    left: rnd() * 100,
-    delay: rnd() * 1.4,
-    duration: 2.0 + rnd() * 1.6,
-    size: 5 + rnd() * 10,
-    shape: SHAPES[Math.floor(rnd() * SHAPES.length)],
-    rotSpeed: (rnd() > 0.5 ? 1 : -1) * (360 + rnd() * 720),
-    drift: (rnd() - 0.5) * 80,
-  }));
-}
-
 // ── Star sparkle generator ────────────────────────────────────────────────────
 function makeStars(n = 12) {
   return Array.from({ length: n }, (_, i) => ({
@@ -53,12 +32,11 @@ function makeStars(n = 12) {
     dist: 80 + rnd() * 60,
     size: 8 + rnd() * 16,
     delay: rnd() * 0.4,
-    color: ['#f59e0b', '#fcd34d', '#fbbf24', '#facc15'][i % 4],
   }));
 }
 
 export default function CelebrationModal({ xp, onClose, streak = 0 }) {
-  const particles = useRef(makeParticles(80)).current;
+  // DOM particle layer removed — canvas-confetti handles all particles (better perf)
   const stars = useRef(makeStars(12)).current;
   const [displayXP, setDisplayXP] = useState(0);
   const [phase, setPhase] = useState('burst'); // burst → reveal → done
@@ -118,16 +96,16 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
           left: '50%',
           transform: 'translateX(-50%)',
           zIndex: 99998,
-          background: 'linear-gradient(135deg,#0f172a,#1e293b)',
-          color: '#f1f5f9',
-          borderRadius: 18,
-          padding: '14px 28px',
-          fontSize: 15,
+          background: 'var(--brand)',
+          color: '#fff',
+          borderRadius: 'var(--radius-xl)',
+          padding: 'var(--space-md) var(--space-2xl)',
+          fontSize: 'var(--text-md)',
           fontWeight: 700,
           boxShadow: '0 8px 32px rgba(0,0,0,.35)',
           animation: 'slideUp .4s cubic-bezier(.34,1.56,.64,1) forwards',
           whiteSpace: 'nowrap',
-          fontFamily: "'Outfit', sans-serif",
+          fontFamily: 'var(--font-sans)',
         }}
       >
         {streak > 0
@@ -154,49 +132,6 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
         backdropFilter: 'blur(4px)',
       }}
     >
-      {/* ── Confetti layer ─────────────────────────────────────────────── */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          overflow: 'hidden',
-          pointerEvents: 'none',
-        }}
-      >
-        {particles.map(p => (
-          <div
-            key={p.id}
-            style={{
-              position: 'absolute',
-              left: p.left + '%',
-              top: -20,
-              width: p.size,
-              height:
-                p.shape === 'circle'
-                  ? p.size
-                  : p.shape === 'rect'
-                  ? p.size * 0.55
-                  : p.size,
-              borderRadius:
-                p.shape === 'circle'
-                  ? '50%'
-                  : p.shape === 'rect'
-                  ? 2
-                  : 0,
-              background: p.color,
-              clipPath:
-                p.shape === 'triangle'
-                  ? 'polygon(50% 0%, 0% 100%, 100% 100%)'
-                  : p.shape === 'star'
-                  ? 'polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)'
-                  : undefined,
-              animation: `confettiDrop ${p.duration}s ${p.delay}s cubic-bezier(.3,1,.7,1) forwards`,
-              opacity: 0,
-            }}
-          />
-        ))}
-      </div>
-
       {/* ── Star burst ring ────────────────────────────────────────────── */}
       <div
         style={{
@@ -235,13 +170,12 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
         onClick={e => e.stopPropagation()}
         style={{
           position: 'relative',
-          background:
-            'linear-gradient(145deg, #ffffff 0%, #f0f9ff 50%, #ffffff 100%)',
+          background: 'var(--card)',
           borderRadius: 28,
           padding: '40px 44px 36px',
           textAlign: 'center',
           boxShadow:
-            '0 40px 90px rgba(0,0,0,.35), 0 16px 40px rgba(14,116,144,.2), 0 0 0 1px rgba(255,255,255,.8) inset, 0 4px 0 rgba(14,116,144,.2)',
+            '0 40px 90px rgba(0,0,0,.35), 0 16px 40px rgba(14,116,144,.2), 0 0 0 1px var(--card-b) inset, 0 4px 0 rgba(14,116,144,.2)',
           animation:
             'celebPop .5s cubic-bezier(.34,1.56,.64,1) forwards',
           minWidth: 280,
@@ -282,8 +216,8 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
 
         <div
           style={{
-            fontSize: 14,
-            color: '#64748b',
+            fontSize: 'var(--text-base)',
+            color: 'var(--subtext)',
             marginBottom: 20,
             fontWeight: 500,
           }}
@@ -330,8 +264,8 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
             alignItems: 'center',
             justifyContent: 'center',
             gap: 6,
-            fontSize: 13,
-            color: '#64748b',
+            fontSize: 'var(--text-sm)',
+            color: 'var(--subtext)',
             fontWeight: 600,
           }}
         >
@@ -349,10 +283,11 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
 
         <div
           style={{
-            fontSize: 11,
-            color: '#94a3b8',
+            fontSize: 'var(--text-xs)',
+            color: 'var(--subtext)',
             marginTop: 14,
             fontWeight: 500,
+            opacity: .7,
           }}
         >
           Tap anywhere to continue
