@@ -390,8 +390,10 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
   const [activeStream, setActiveStream] = useState(null);
   const [activeMediaCat, setActiveMediaCat] = useState("tv");
   const [openLetter, setOpenLetter] = useState(null);
-  const [expandedContext, setExpandedContext] = React.useState(null);
+  const [expandedCtx, setExpandedCtx] = useState({});
+  const toggleCtx = (key) => setExpandedCtx(prev => ({ ...prev, [key]: !prev[key] }));
   const [ctab, setCTab] = useState('discover');
+  const [mediaFilter, setMediaFilter] = useState('all');
 
   return (
     <React.Fragment>
@@ -527,16 +529,16 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
               <div className="section-hdr-badge">12 entries</div>
             </div>
             <div
-              onClick={() => { if (expandedContext !== 'history') incrementCulture('regionCnt'); setExpandedContext(expandedContext === 'history' ? null : 'history'); }}
+              onClick={() => { if (!expandedCtx['history']) incrementCulture('regionCnt'); toggleCtx('history'); }}
               style={{
                 fontSize:12, color:'var(--info)', cursor:'pointer',
-                marginBottom: expandedContext === 'history' ? 0 : 12,
+                marginBottom: !!expandedCtx['history'] ? 0 : 12,
                 display:'flex', alignItems:'center', gap:4, fontWeight:600
               }}
             >
-              {expandedContext === 'history' ? '▲' : '▼'} Why this matters for your Croatian
+              {!!expandedCtx['history'] ? '▲' : '▼'} Why this matters for your Croatian
             </div>
-            {expandedContext === 'history' && (
+            {!!expandedCtx['history'] && (
               <div style={{
                 fontSize:12, color:'var(--subtext)', lineHeight:1.6,
                 padding:'10px 14px', background:'var(--info-bg)',
@@ -746,16 +748,16 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
               <div className="section-hdr-badge">4 topics</div>
             </div>
             <div
-              onClick={() => { if (expandedContext !== 'kafic') incrementCulture('regionCnt'); setExpandedContext(expandedContext === 'kafic' ? null : 'kafic'); }}
+              onClick={() => { if (!expandedCtx['kafic']) incrementCulture('regionCnt'); toggleCtx('kafic'); }}
               style={{
                 fontSize:12, color:'var(--info)', cursor:'pointer',
-                marginBottom: expandedContext === 'kafic' ? 0 : 12,
+                marginBottom: !!expandedCtx['kafic'] ? 0 : 12,
                 display:'flex', alignItems:'center', gap:4, fontWeight:600
               }}
             >
-              {expandedContext === 'kafic' ? '▲' : '▼'} Why this matters for your Croatian
+              {!!expandedCtx['kafic'] ? '▲' : '▼'} Why this matters for your Croatian
             </div>
-            {expandedContext === 'kafic' && (
+            {!!expandedCtx['kafic'] && (
               <div style={{
                 fontSize:12, color:'var(--subtext)', lineHeight:1.6,
                 padding:'10px 14px', background:'var(--info-bg)',
@@ -834,55 +836,80 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
             </div>
           </div>
 
-          {/* ─── SPOTIFY PLAYLISTS ─────────────────────────── */}
-          <div style={{
-            marginBottom:24, padding:'18px 14px 20px', borderRadius:16,
-            background:'linear-gradient(160deg,#0c1a2e 0%,#0d1f18 100%)',
-            border:'1px solid rgba(30,215,96,.2)',
-            boxShadow:'0 4px 20px rgba(0,0,0,.3)',
-          }}>
-            <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
-              <div style={{
-                width:40,height:40,borderRadius:12,background:'#1ed760',
-                display:'flex',alignItems:'center',justifyContent:'center',
-                fontSize:20,flexShrink:0,boxShadow:'0 4px 12px rgba(30,215,96,.4)',
-              }}>🎵</div>
-              <div>
-                <div style={{fontSize:15,fontWeight:900,color:'white'}}>Croatian Music on Spotify</div>
-                <div style={{fontSize:11,color:'rgba(255,255,255,.45)',marginTop:1}}>14 curated playlists · tap to expand</div>
-              </div>
-            </div>
-            <SpotifyPlaylists/>
+          {/* ─── MEDIA FILTER PILLS ────────────────────────── */}
+          <div style={{ display:'flex', gap:8, padding:'4px 0 16px', overflowX:'auto', scrollbarWidth:'none' }}>
+            {[
+              { id:'all',     label:'🎯 All' },
+              { id:'tv',      label:'📺 TV' },
+              { id:'music',   label:'🎵 Music' },
+              { id:'film',    label:'🎬 Film' },
+              { id:'sport',   label:'⚽ Sport' },
+              { id:'podcast', label:'🎙️ Podcast' },
+              { id:'culture', label:'🎭 Culture' },
+            ].map(f => (
+              <button key={f.id} onClick={() => setMediaFilter(f.id)} style={{
+                padding:'7px 14px', borderRadius:20, border:'none', flexShrink:0,
+                background: mediaFilter === f.id ? '#D40030' : 'var(--bar-bg)',
+                color: mediaFilter === f.id ? '#fff' : 'var(--subtext)',
+                fontWeight:700, fontSize:12, cursor:'pointer', whiteSpace:'nowrap',
+                transition:'background 0.2s',
+              }}>{f.label}</button>
+            ))}
           </div>
 
-          {/* ─── LIVE RADIO ────────────────────────────────── */}
-          <div style={{marginBottom:24}}>
-            <div style={{display:'flex',alignItems:'center',gap:7,marginBottom:12}}>
-              <div style={{width:8,height:8,borderRadius:'50%',background:'var(--error)',boxShadow:'0 0 8px var(--error)',animation:'pulse 1.5s ease-in-out infinite'}}/>
-              <span style={{fontSize:11,fontWeight:900,color:'var(--error)',textTransform:'uppercase',letterSpacing:'.1em'}}>Streaming Live</span>
-            </div>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
-              {MEDIA.filter(m => !!m.stream).map((m,i) => (
-                <div key={i} style={{
-                  background:`linear-gradient(175deg,#0c1520 0%,${m.color}40 100%)`,
-                  borderRadius:16,overflow:'hidden',border:`1px solid ${m.color}30`,
-                  display:'flex',flexDirection:'column',
-                  boxShadow:`0 4px 20px ${m.color}18`,
-                }}>
-                  <div style={{padding:'16px 10px 8px',textAlign:'center'}}>
-                    <div style={{fontSize:30,marginBottom:6}}>{m.icon}</div>
-                    <div style={{fontSize:10,fontWeight:900,color:'white',lineHeight:1.25,marginBottom:3}}>
-                      {m.name.split(' — ')[0].replace(' Live','').replace(' Radio Live','').trim()}
-                    </div>
-                    <div style={{fontSize:9,color:'rgba(255,255,255,.4)',lineHeight:1.3,marginBottom:8}}>{m.level}</div>
-                  </div>
-                  <div style={{padding:'0 8px 10px'}}>
-                    <RadioPlayer src={m.stream} color={m.color} streamId={m.name} activeStream={activeStream} setActiveStream={setActiveStream}/>
-                  </div>
+          {/* ─── SPOTIFY PLAYLISTS ─────────────────────────── */}
+          {(mediaFilter === 'all' || mediaFilter === 'music') && (
+            <div style={{
+              marginBottom:24, padding:'18px 14px 20px', borderRadius:16,
+              background:'linear-gradient(160deg,#0c1a2e 0%,#0d1f18 100%)',
+              border:'1px solid rgba(30,215,96,.2)',
+              boxShadow:'0 4px 20px rgba(0,0,0,.3)',
+            }}>
+              <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
+                <div style={{
+                  width:40,height:40,borderRadius:12,background:'#1ed760',
+                  display:'flex',alignItems:'center',justifyContent:'center',
+                  fontSize:20,flexShrink:0,boxShadow:'0 4px 12px rgba(30,215,96,.4)',
+                }}>🎵</div>
+                <div>
+                  <div style={{fontSize:15,fontWeight:900,color:'white'}}>Croatian Music on Spotify</div>
+                  <div style={{fontSize:11,color:'rgba(255,255,255,.45)',marginTop:1}}>14 curated playlists · tap to expand</div>
                 </div>
-              ))}
+              </div>
+              <SpotifyPlaylists/>
             </div>
-          </div>
+          )}
+
+          {/* ─── LIVE RADIO ────────────────────────────────── */}
+          {mediaFilter === 'all' && (
+            <div style={{marginBottom:24}}>
+              <div style={{display:'flex',alignItems:'center',gap:7,marginBottom:12}}>
+                <div style={{width:8,height:8,borderRadius:'50%',background:'var(--error)',boxShadow:'0 0 8px var(--error)',animation:'pulse 1.5s ease-in-out infinite'}}/>
+                <span style={{fontSize:11,fontWeight:900,color:'var(--error)',textTransform:'uppercase',letterSpacing:'.1em'}}>Streaming Live</span>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
+                {MEDIA.filter(m => !!m.stream).map((m,i) => (
+                  <div key={i} style={{
+                    background:`linear-gradient(175deg,#0c1520 0%,${m.color}40 100%)`,
+                    borderRadius:16,overflow:'hidden',border:`1px solid ${m.color}30`,
+                    display:'flex',flexDirection:'column',
+                    boxShadow:`0 4px 20px ${m.color}18`,
+                  }}>
+                    <div style={{padding:'16px 10px 8px',textAlign:'center'}}>
+                      <div style={{fontSize:30,marginBottom:6}}>{m.icon}</div>
+                      <div style={{fontSize:10,fontWeight:900,color:'white',lineHeight:1.25,marginBottom:3}}>
+                        {m.name.split(' — ')[0].replace(' Live','').replace(' Radio Live','').trim()}
+                      </div>
+                      <div style={{fontSize:9,color:'rgba(255,255,255,.4)',lineHeight:1.3,marginBottom:8}}>{m.level}</div>
+                    </div>
+                    <div style={{padding:'0 8px 10px'}}>
+                      <RadioPlayer src={m.stream} color={m.color} streamId={m.name} activeStream={activeStream} setActiveStream={setActiveStream}/>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* ─── CONTENT CATEGORIES ─────────────────────────── */}
           {[
@@ -893,6 +920,7 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
             {cat:'podcast',emoji:'🎙️',title:'Podcasts & Audio',   accent:'#16a34a',  noStream:false},
             {cat:'culture',emoji:'🌍', title:'Culture & Press',    accent:'#7c3aed',  noStream:false},
           ].map(({cat,emoji,title,accent,noStream}) => {
+            if (mediaFilter !== 'all' && mediaFilter !== cat) return null;
             const items = MEDIA.filter(m => m.cat === cat && (noStream ? !m.stream : true));
             if (!items.length) return null;
             return (
@@ -966,16 +994,16 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
               Personal letters written in authentic Croatian — perfect for understanding how family members actually speak, including regional expressions and emotional vocabulary.
             </div>
             <div
-              onClick={() => { if (expandedContext !== 'baka') incrementCulture('regionCnt'); setExpandedContext(expandedContext === 'baka' ? null : 'baka'); }}
+              onClick={() => { if (!expandedCtx['baka']) incrementCulture('regionCnt'); toggleCtx('baka'); }}
               style={{
                 fontSize:12, color:'var(--info)', cursor:'pointer',
-                marginBottom: expandedContext === 'baka' ? 0 : 12,
+                marginBottom: !!expandedCtx['baka'] ? 0 : 12,
                 display:'flex', alignItems:'center', gap:4, fontWeight:600
               }}
             >
-              {expandedContext === 'baka' ? '▲' : '▼'} Why this matters for your Croatian
+              {!!expandedCtx['baka'] ? '▲' : '▼'} Why this matters for your Croatian
             </div>
-            {expandedContext === 'baka' && (
+            {!!expandedCtx['baka'] && (
               <div style={{
                 fontSize:12, color:'var(--subtext)', lineHeight:1.6,
                 padding:'10px 14px', background:'var(--info-bg)',

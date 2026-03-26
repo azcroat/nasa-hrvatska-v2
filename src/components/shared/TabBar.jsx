@@ -103,80 +103,90 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
         pointerEvents: 'none',
       }} />
 
+      {/* Tab buttons — paddingRight reserves space so the Profile tab doesn't hide under the search button */}
+      <div style={{ display:'flex', paddingRight: 40 }}>
+        {TABS.map((t, i) => {
+          const isActive = tab === t.id;
+          return (
+            <button
+              key={t.id}
+              ref={el => { btnRefs.current[i] = el; }}
+              className={"nav-btn" + (isActive ? " active" : "")}
+              onClick={() => { setTab(t.id); setScr("dashboard"); }}
+              aria-current={isActive ? "page" : undefined}
+              aria-label={t.label}
+              style={{
+                position: 'relative',
+                flex: 1,
+                padding: '10px 4px 8px',
+                minWidth: 0,
+                transition: 'background .18s',
+              }}
+            >
+              <span
+                className="nav-icon"
+                style={{
+                  display: 'block',
+                  lineHeight: 1,
+                  color: isActive ? (t.id === 'croatia' ? 'var(--color-croatian, #b61800)' : 'var(--info, #0e7490)') : 'var(--nav-lbl)',
+                  transition: 'transform .3s cubic-bezier(0.25, 0.46, 0.45, 0.94), color .18s',
+                  transform: isActive ? 'scale(1.05) translateY(-2px)' : 'scale(1)',
+                }}
+              >
+                <NavIcon id={t.id} active={isActive} />
+              </span>
+              <span
+                className="nav-label"
+                style={{
+                  fontSize: 11,
+                  fontWeight: isActive ? 800 : 600,
+                  color: isActive ? (t.id === 'croatia' ? 'var(--color-croatian, #b61800)' : 'var(--info, #0e7490)') : 'var(--nav-lbl)',
+                  display: 'block',
+                  marginTop: 3,
+                  transition: 'color .18s, font-weight .18s',
+                  letterSpacing: isActive ? '.02em' : 0,
+                }}
+              >
+                {t.label}
+              </span>
+              {badges && badges[t.id] > 0 && (
+                <span style={{
+                  position: 'absolute', top: 4, right: 4,
+                  background: 'linear-gradient(135deg,#e11d48,#be123c)',
+                  color: '#fff',
+                  fontSize: 9, fontWeight: 800,
+                  minWidth: 16, height: 16,
+                  borderRadius: 8,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '0 4px', lineHeight: 1,
+                  boxShadow: '0 2px 8px rgba(225,29,72,0.4)',
+                  border: '1.5px solid #fff',
+                  animation: 'heartbeat 2s ease-in-out infinite',
+                }}>
+                  {badges[t.id]}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
       <button
         onClick={() => setShowSearch(true)}
         aria-label="Search"
         style={{
-          position:'absolute', right:8, top:'50%', transform:'translateY(-50%)',
-          background:'none', border:'none', fontSize:18, cursor:'pointer',
-          color:'var(--subtext)', padding:4, lineHeight:1,
+          position:'absolute', right:6, top:'50%', transform:'translateY(-50%)',
+          background:'var(--bar-bg)',
+          border:'1.5px solid var(--bar-bg)',
+          borderRadius:20,
+          width:32, height:32,
+          display:'flex', alignItems:'center', justifyContent:'center',
+          fontSize:15, cursor:'pointer',
+          color:'var(--subtext)',
+          flexShrink:0,
         }}
       >🔍</button>
 
-      {TABS.map((t, i) => {
-        const isActive = tab === t.id;
-        return (
-          <button
-            key={t.id}
-            ref={el => { btnRefs.current[i] = el; }}
-            className={"nav-btn" + (isActive ? " active" : "")}
-            onClick={() => { setTab(t.id); setScr("dashboard"); }}
-            aria-current={isActive ? "page" : undefined}
-            aria-label={t.label}
-            style={{
-              position: 'relative',
-              flex: 1,
-              padding: '10px 4px 8px',
-              minWidth: 0,
-              transition: 'background .18s',
-            }}
-          >
-            <span
-              className="nav-icon"
-              style={{
-                display: 'block',
-                lineHeight: 1,
-                color: isActive ? (t.id === 'croatia' ? 'var(--color-croatian, #b61800)' : 'var(--info, #0e7490)') : 'var(--nav-lbl)',
-                transition: 'transform .3s cubic-bezier(0.25, 0.46, 0.45, 0.94), color .18s',
-                transform: isActive ? 'scale(1.05) translateY(-2px)' : 'scale(1)',
-              }}
-            >
-              <NavIcon id={t.id} active={isActive} />
-            </span>
-            <span
-              className="nav-label"
-              style={{
-                fontSize: 11,
-                fontWeight: isActive ? 800 : 600,
-                color: isActive ? (t.id === 'croatia' ? 'var(--color-croatian, #b61800)' : 'var(--info, #0e7490)') : 'var(--nav-lbl)',
-                display: 'block',
-                marginTop: 3,
-                transition: 'color .18s, font-weight .18s',
-                letterSpacing: isActive ? '.02em' : 0,
-              }}
-            >
-              {t.label}
-            </span>
-            {badges && badges[t.id] > 0 && (
-              <span style={{
-                position: 'absolute', top: 4, right: 4,
-                background: 'linear-gradient(135deg,#e11d48,#be123c)',
-                color: '#fff',
-                fontSize: 9, fontWeight: 800,
-                minWidth: 16, height: 16,
-                borderRadius: 8,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                padding: '0 4px', lineHeight: 1,
-                boxShadow: '0 2px 8px rgba(225,29,72,0.4)',
-                border: '1.5px solid #fff',
-                animation: 'heartbeat 2s ease-in-out infinite',
-              }}>
-                {badges[t.id]}
-              </span>
-            )}
-          </button>
-        );
-      })}
     </nav>
     </>
   );

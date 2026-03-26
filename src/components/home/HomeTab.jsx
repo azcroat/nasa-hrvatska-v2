@@ -59,6 +59,8 @@ export default function HomeTab({
   const userGoal = goal || localStorage.getItem('nh_goal') || 'fluent';
   const activeCampaign = useMemo(getActiveCampaign, []);
 
+  const [htab, setHTab] = useState('today');
+
   const questsDone = useMemo(() => {
     const d = new Date().toISOString().slice(0,10);
     return {
@@ -161,40 +163,6 @@ export default function HomeTab({
               Your streak is waiting to be rebuilt. One lesson is all it takes. 💪
             </div>
           </div>
-        </div>
-      )}
-
-      {activeCampaign && !campaignDismissed && localStorage.getItem('nh_campaign_dismissed_'+activeCampaign.id) !== '1' && (
-        <div style={{
-          background: activeCampaign.bg, border: `1.5px solid ${activeCampaign.border}`,
-          borderRadius:16, padding:'14px 16px', marginBottom:16,
-          display:'flex', alignItems:'flex-start', gap:12, animation:'rise .4s',
-        }}>
-          <span style={{fontSize:26, flexShrink:0}}>{activeCampaign.icon}</span>
-          <div style={{flex:1}}>
-            <div style={{fontSize:13, fontWeight:900, color: activeCampaign.color, marginBottom:2}}>{activeCampaign.name}</div>
-            <div style={{fontSize:11, color:'var(--subtext)', fontWeight:500, lineHeight:1.5, marginBottom:6}}>{activeCampaign.blurb}</div>
-            <div style={{display:'flex', alignItems:'center', flexWrap:'wrap', gap:4}}>
-              <div style={{display:'inline-flex', alignItems:'center', gap:4, background: activeCampaign.color, color:'#fff', borderRadius:8, padding:'3px 8px', fontSize:11, fontWeight:800}}>
-                🚀 {activeCampaign.multiplier}x XP this season!
-              </div>
-              <button
-                onClick={() => setTab && setTab(activeCampaign.id)}
-                style={{
-                  background: activeCampaign.color, color: '#fff',
-                  border: 'none', borderRadius: 8, padding: '4px 10px',
-                  fontSize: 11, fontWeight: 700, cursor: 'pointer', marginLeft: 8
-                }}
-              >
-                Start →
-              </button>
-            </div>
-          </div>
-          <button
-            onClick={() => { setCampaignDismissed(true); localStorage.setItem('nh_campaign_dismissed_'+activeCampaign.id,'1'); }}
-            style={{background:'none',border:'none',cursor:'pointer',fontSize:16,color:'var(--subtext)',padding:4,flexShrink:0}}
-            aria-label="Dismiss campaign"
-          >×</button>
         </div>
       )}
 
@@ -395,447 +363,532 @@ export default function HomeTab({
         </div>{/* end padding wrapper */}
       </div>
 
-      {/* ── CONTINUE LEARNING ── */}
-      <div style={{
-        background: activePalette.grad,
-        borderRadius: "0 0 22px 22px",
-        padding: "20px 20px 22px",
-        marginBottom: 20,
-        boxShadow: "0 8px 32px rgba(0,0,0,.2)",
-        position: "relative",
-        overflow: "hidden",
-      }}>
-        <div style={{position:"absolute",top:-30,right:-30,width:140,height:140,background:"rgba(255,255,255,.07)",borderRadius:"50%",pointerEvents:"none"}}/>
-        <div style={{position:"absolute",bottom:-20,left:-20,width:100,height:100,background:"rgba(0,0,0,.1)",borderRadius:"50%",pointerEvents:"none"}}/>
+      {/* ── SUB-TAB PILL SELECTOR ── */}
+      <div style={{ display:'flex', gap:8, padding:'12px 0 4px', borderBottom:'1px solid var(--bar-bg)', marginBottom:16 }}>
+        {[
+          { id:'today',    label:'⚡ Today' },
+          { id:'progress', label:'📈 Progress' },
+          { id:'review',   label:'🔄 Review' },
+        ].map(t => (
+          <button key={t.id} onClick={() => setHTab(t.id)} style={{
+            flex:1, padding:'8px 4px', borderRadius:20, border:'none',
+            background: htab === t.id ? 'var(--info)' : 'var(--bar-bg)',
+            color: htab === t.id ? '#fff' : 'var(--subtext)',
+            fontWeight:700, fontSize:13, cursor:'pointer',
+            transition:'background 0.2s',
+          }}>{t.label}</button>
+        ))}
+      </div>
 
-        <div style={{fontSize:10,fontWeight:800,color:"rgba(255,255,255,.7)",letterSpacing:".12em",textTransform:"uppercase",marginBottom:8}}>
-          Your Next Lesson
-        </div>
-        <div style={{
-          fontSize:20,fontWeight:900,
-          fontFamily:"'Playfair Display',serif",
-          color:"white",lineHeight:1.2,marginBottom:4,
-          textShadow:"0 2px 8px rgba(0,0,0,.2)",
-        }}>
-          {!syncReady
-            ? <span style={{opacity:.6,fontStyle:"italic"}}>Syncing progress…</span>
-            : (pathData.nextItem?.name || "Learning Path Complete")}
-        </div>
-        <div style={{fontSize:12,color:"rgba(255,255,255,.7)",fontWeight:600,marginBottom:14}}>
-          Level {pathData.activeLv.level} · {pathData.activeLv.title}
-        </div>
+      {/* ══════════════════════════════════════════
+          ⚡ TODAY TAB
+      ══════════════════════════════════════════ */}
+      {htab === 'today' && (
+        <React.Fragment>
 
-        {/* Progress bar */}
-        <div style={{background:"rgba(255,255,255,.25)",borderRadius:6,height:6,overflow:"hidden",marginBottom:6}}>
-          <div style={{
-            height:"100%",background:"white",borderRadius:6,
-            width: (pathData.activeLvDone / pathData.activeLv.items.length * 100) + "%",
-            transition:"width .7s cubic-bezier(.4,0,.2,1)",
-          }}/>
-        </div>
-        <div style={{fontSize:11,color:"rgba(255,255,255,.7)",fontWeight:500,marginBottom:16}}>
-          This stage: {pathData.activeLvDone} of {pathData.activeLv.items.length} lessons
-        </div>
-
-        {/* Start Now button */}
-        <button
-          onClick={() => { if (!syncReady) return; if (pathData.nextItem) { launchPathItem(pathData.nextItem); } else setScr("learnpath"); }}
-          style={{
-            width:"100%",height:52,
-            background:"white",
-            color: activePalette.text,
-            fontSize:16,fontWeight:800,
-            border:"none",borderRadius:14,cursor:"pointer",
-            fontFamily:"'Outfit',sans-serif",
-            letterSpacing:".01em",
-            boxShadow:"0 4px 20px rgba(0,0,0,.25)",
-            display:"flex",alignItems:"center",justifyContent:"center",gap:8,
-            transition:"transform .15s, box-shadow .15s",
-            opacity: !syncReady ? 0.6 : 1,
-          }}>
-          <span style={{fontSize:18}}>{!syncReady ? "⏳" : "▶"}</span>
-          <span>{!syncReady ? "Syncing…" : st.lc > 0 ? "Continue Learning" : "Start Learning"}</span>
-        </button>
-
-        {/* Resume last activity */}
-        {lastActivity && st.lc > 0 && (
-          <button
-            onClick={() => { setScr(lastActivity.ex); sCurEx(lastActivity.ex); }}
-            style={{
-              width:"100%", marginTop:10, height:44,
-              background:"rgba(255,255,255,.12)", border:"1.5px solid rgba(255,255,255,.3)",
-              borderRadius:12, cursor:"pointer",
-              fontFamily:"'Outfit',sans-serif",
-              display:"flex", alignItems:"center", justifyContent:"center", gap:8,
-              color:"rgba(255,255,255,.9)", fontSize:13, fontWeight:700,
+          {/* Campaign banner */}
+          {activeCampaign && !campaignDismissed && localStorage.getItem('nh_campaign_dismissed_'+activeCampaign.id) !== '1' && (
+            <div style={{
+              background: activeCampaign.bg, border: `1.5px solid ${activeCampaign.border}`,
+              borderRadius:16, padding:'14px 16px', marginBottom:16,
+              display:'flex', alignItems:'flex-start', gap:12, animation:'rise .4s',
             }}>
-            <span style={{fontSize:14}}>↩️</span>
-            <span>Resume: {lastActivity.label} →</span>
-          </button>
-        )}
-      </div>
-
-      <KnightSpeech st={st} />
-
-
-      <CipkaPattern
-        color="var(--nav-active)"
-        opacity={0.12}
-        height={20}
-        style={{ marginBottom: 16 }}
-      />
-
-      {/* ── TODAY'S FOCUS HEADER ── */}
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12, marginTop:24}}>
-        <div style={{width:3, height:20, background:'var(--info)', borderRadius:2}}/>
-        <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Today's Focus</span>
-      </div>
-
-      {/* ── DAILY QUESTS ── */}
-      {(() => {
-        const questScreenMap = { speak:'speaking', grammar:'grammar-screen', master:'flashcards', reading:'reading-list', streak:'learnpath' };
-        const questBtnLabel = { speak:'Start →', grammar:'Start →', master:'Start →', reading:'Start →', streak:'Do a lesson →' };
-        const questsDoneCount = DAILY_QUESTS.filter(q => questsDone[q.id]).length;
-        return (<>
-          <div className="section-hdr">
-            <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>🎯</div>
-            <div className="section-hdr-text">
-              <div className="section-hdr-title">Daily Quests</div>
-              <div className="section-hdr-sub">Complete quests to earn bonus XP</div>
-            </div>
-            <div className="section-hdr-badge">{questsDoneCount}/5</div>
-          </div>
-          <div className="anim-children-fade" style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:10, marginBottom:20 }}>
-            {DAILY_QUESTS.map(q => {
-              const done = questsDone[q.id];
-              return (
-                <div key={q.id} style={{
-                  background: done ? 'var(--success-bg)' : 'var(--card)',
-                  border: `1.5px solid ${done ? 'var(--success-b)' : 'var(--inp-b,#e2e8f0)'}`,
-                  borderRadius:14, padding:'16px 12px', textAlign:'center',
-                  display:'flex', flexDirection:'column', alignItems:'center',
-                }}>
-                  <div style={{fontSize:30, marginBottom:5}}>{q.icon}</div>
-                  <div style={{fontSize:11, fontWeight:900, color: done ? 'var(--success)' : 'var(--heading)', lineHeight:1.2, marginBottom:3}}>{q.name}</div>
-                  <div style={{fontSize:10, color:'var(--subtext)', fontWeight:600, marginBottom:8, lineHeight:1.3}}>{q.desc}</div>
-                  {done
-                    ? <div style={{fontSize:18, color:'var(--success)', fontWeight:900, animation:'bounce-in .4s', lineHeight:1}}>✓</div>
-                    : <button
-                        onClick={() => setScr(questScreenMap[q.id])}
-                        style={{
-                          marginTop:'auto', fontSize:11, fontWeight:800,
-                          color:'var(--accent,#2563eb)', background:'transparent',
-                          border:'1.5px solid var(--accent,#2563eb)',
-                          borderRadius:8, padding:'4px 10px', cursor:'pointer',
-                          lineHeight:1.4,
-                        }}
-                      >
-                        {questBtnLabel[q.id]}
-                      </button>
-                  }
-                  {done && <div style={{fontSize:10, color:'var(--success)', fontWeight:700, marginTop:3}}>+{q.xp} XP</div>}
-                  {!done && <div style={{fontSize:10, color:'var(--subtext)', marginTop:4}}>{q.xp} XP</div>}
+              <span style={{fontSize:26, flexShrink:0}}>{activeCampaign.icon}</span>
+              <div style={{flex:1}}>
+                <div style={{fontSize:13, fontWeight:900, color: activeCampaign.color, marginBottom:2}}>{activeCampaign.name}</div>
+                <div style={{fontSize:11, color:'var(--subtext)', fontWeight:500, lineHeight:1.5, marginBottom:6}}>{activeCampaign.blurb}</div>
+                <div style={{display:'flex', alignItems:'center', flexWrap:'wrap', gap:4}}>
+                  <div style={{display:'inline-flex', alignItems:'center', gap:4, background: activeCampaign.color, color:'#fff', borderRadius:8, padding:'3px 8px', fontSize:11, fontWeight:800}}>
+                    🚀 {activeCampaign.multiplier}x XP this season!
+                  </div>
+                  <button
+                    onClick={() => setTab && setTab(activeCampaign.id)}
+                    style={{
+                      background: activeCampaign.color, color: '#fff',
+                      border: 'none', borderRadius: 8, padding: '4px 10px',
+                      fontSize: 11, fontWeight: 700, cursor: 'pointer', marginLeft: 8
+                    }}
+                  >
+                    Start →
+                  </button>
                 </div>
-              );
-            })}
+              </div>
+              <button
+                onClick={() => { setCampaignDismissed(true); localStorage.setItem('nh_campaign_dismissed_'+activeCampaign.id,'1'); }}
+                style={{background:'none',border:'none',cursor:'pointer',fontSize:16,color:'var(--subtext)',padding:4,flexShrink:0}}
+                aria-label="Dismiss campaign"
+              >×</button>
+            </div>
+          )}
+
+          {/* ── CONTINUE LEARNING ── */}
+          <div style={{
+            background: activePalette.grad,
+            borderRadius: "0 0 22px 22px",
+            padding: "20px 20px 22px",
+            marginBottom: 20,
+            boxShadow: "0 8px 32px rgba(0,0,0,.2)",
+            position: "relative",
+            overflow: "hidden",
+          }}>
+            <div style={{position:"absolute",top:-30,right:-30,width:140,height:140,background:"rgba(255,255,255,.07)",borderRadius:"50%",pointerEvents:"none"}}/>
+            <div style={{position:"absolute",bottom:-20,left:-20,width:100,height:100,background:"rgba(0,0,0,.1)",borderRadius:"50%",pointerEvents:"none"}}/>
+
+            <div style={{fontSize:10,fontWeight:800,color:"rgba(255,255,255,.7)",letterSpacing:".12em",textTransform:"uppercase",marginBottom:8}}>
+              Your Next Lesson
+            </div>
+            <div style={{
+              fontSize:20,fontWeight:900,
+              fontFamily:"'Playfair Display',serif",
+              color:"white",lineHeight:1.2,marginBottom:4,
+              textShadow:"0 2px 8px rgba(0,0,0,.2)",
+            }}>
+              {!syncReady
+                ? <span style={{opacity:.6,fontStyle:"italic"}}>Syncing progress…</span>
+                : (pathData.nextItem?.name || "Learning Path Complete")}
+            </div>
+            <div style={{fontSize:12,color:"rgba(255,255,255,.7)",fontWeight:600,marginBottom:14}}>
+              Level {pathData.activeLv.level} · {pathData.activeLv.title}
+            </div>
+
+            {/* Progress bar */}
+            <div style={{background:"rgba(255,255,255,.25)",borderRadius:6,height:6,overflow:"hidden",marginBottom:6}}>
+              <div style={{
+                height:"100%",background:"white",borderRadius:6,
+                width: (pathData.activeLvDone / pathData.activeLv.items.length * 100) + "%",
+                transition:"width .7s cubic-bezier(.4,0,.2,1)",
+              }}/>
+            </div>
+            <div style={{fontSize:11,color:"rgba(255,255,255,.7)",fontWeight:500,marginBottom:16}}>
+              This stage: {pathData.activeLvDone} of {pathData.activeLv.items.length} lessons
+            </div>
+
+            {/* Start Now button */}
+            <button
+              onClick={() => { if (!syncReady) return; if (pathData.nextItem) { launchPathItem(pathData.nextItem); } else setScr("learnpath"); }}
+              style={{
+                width:"100%",height:52,
+                background:"white",
+                color: activePalette.text,
+                fontSize:16,fontWeight:800,
+                border:"none",borderRadius:14,cursor:"pointer",
+                fontFamily:"'Outfit',sans-serif",
+                letterSpacing:".01em",
+                boxShadow:"0 4px 20px rgba(0,0,0,.25)",
+                display:"flex",alignItems:"center",justifyContent:"center",gap:8,
+                transition:"transform .15s, box-shadow .15s",
+                opacity: !syncReady ? 0.6 : 1,
+              }}>
+              <span style={{fontSize:18}}>{!syncReady ? "⏳" : "▶"}</span>
+              <span>{!syncReady ? "Syncing…" : st.lc > 0 ? "Continue Learning" : "Start Learning"}</span>
+            </button>
+
+            {/* Resume last activity */}
+            {lastActivity && st.lc > 0 && (
+              <button
+                onClick={() => { setScr(lastActivity.ex); sCurEx(lastActivity.ex); }}
+                style={{
+                  width:"100%", marginTop:10, height:44,
+                  background:"rgba(255,255,255,.12)", border:"1.5px solid rgba(255,255,255,.3)",
+                  borderRadius:12, cursor:"pointer",
+                  fontFamily:"'Outfit',sans-serif",
+                  display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+                  color:"rgba(255,255,255,.9)", fontSize:13, fontWeight:700,
+                }}>
+                <span style={{fontSize:14}}>↩️</span>
+                <span>Resume: {lastActivity.label} →</span>
+              </button>
+            )}
           </div>
-        </>);
-      })()}
-      {allQuestsDone && (
-        <div style={{background:'var(--success-bg)',border:'1.5px solid var(--success-b)',borderRadius:14,padding:'14px 16px',marginBottom:16,textAlign:'center',animation:'rise .4s'}}>
-          <div style={{fontSize:20,marginBottom:4}}>🏆</div>
-          <div style={{fontSize:14,fontWeight:900,color:'var(--success)'}}>Daily Mastery!</div>
-          <div style={{fontSize:12,color:'var(--success)',fontWeight:600}}>+50 XP bonus · All 5 quests complete</div>
-        </div>
+
+          <KnightSpeech st={st} />
+
+          {/* ── TODAY'S FOCUS HEADER ── */}
+          <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12, marginTop:24}}>
+            <div style={{width:3, height:20, background:'var(--info)', borderRadius:2}}/>
+            <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Today's Focus</span>
+          </div>
+
+          {/* ── DAILY QUESTS ── */}
+          {(() => {
+            const questScreenMap = { speak:'speaking', grammar:'grammar-screen', master:'flashcards', reading:'reading-list', streak:'learnpath' };
+            const questBtnLabel = { speak:'Start →', grammar:'Start →', master:'Start →', reading:'Start →', streak:'Do a lesson →' };
+            const questsDoneCount = DAILY_QUESTS.filter(q => questsDone[q.id]).length;
+            return (<>
+              <div className="section-hdr">
+                <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>🎯</div>
+                <div className="section-hdr-text">
+                  <div className="section-hdr-title">Daily Quests</div>
+                  <div className="section-hdr-sub">Complete quests to earn bonus XP</div>
+                </div>
+                <div className="section-hdr-badge">{questsDoneCount}/5</div>
+              </div>
+              <div className="anim-children-fade" style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:10, marginBottom:20 }}>
+                {DAILY_QUESTS.map(q => {
+                  const done = questsDone[q.id];
+                  return (
+                    <div key={q.id} style={{
+                      background: done ? 'var(--success-bg)' : 'var(--card)',
+                      border: `1.5px solid ${done ? 'var(--success-b)' : 'var(--inp-b,#e2e8f0)'}`,
+                      borderRadius:14, padding:'16px 12px', textAlign:'center',
+                      display:'flex', flexDirection:'column', alignItems:'center',
+                    }}>
+                      <div style={{fontSize:30, marginBottom:5}}>{q.icon}</div>
+                      <div style={{fontSize:11, fontWeight:900, color: done ? 'var(--success)' : 'var(--heading)', lineHeight:1.2, marginBottom:3}}>{q.name}</div>
+                      <div style={{fontSize:10, color:'var(--subtext)', fontWeight:600, marginBottom:8, lineHeight:1.3}}>{q.desc}</div>
+                      {done
+                        ? <div style={{fontSize:18, color:'var(--success)', fontWeight:900, animation:'bounce-in .4s', lineHeight:1}}>✓</div>
+                        : <button
+                            onClick={() => setScr(questScreenMap[q.id])}
+                            style={{
+                              marginTop:'auto', fontSize:11, fontWeight:800,
+                              color:'var(--accent,#2563eb)', background:'transparent',
+                              border:'1.5px solid var(--accent,#2563eb)',
+                              borderRadius:8, padding:'4px 10px', cursor:'pointer',
+                              lineHeight:1.4,
+                            }}
+                          >
+                            {questBtnLabel[q.id]}
+                          </button>
+                      }
+                      {done && <div style={{fontSize:10, color:'var(--success)', fontWeight:700, marginTop:3}}>+{q.xp} XP</div>}
+                      {!done && <div style={{fontSize:10, color:'var(--subtext)', marginTop:4}}>{q.xp} XP</div>}
+                    </div>
+                  );
+                })}
+              </div>
+            </>);
+          })()}
+          {allQuestsDone && (
+            <div style={{background:'var(--success-bg)',border:'1.5px solid var(--success-b)',borderRadius:14,padding:'14px 16px',marginBottom:16,textAlign:'center',animation:'rise .4s'}}>
+              <div style={{fontSize:20,marginBottom:4}}>🏆</div>
+              <div style={{fontSize:14,fontWeight:900,color:'var(--success)'}}>Daily Mastery!</div>
+              <div style={{fontSize:12,color:'var(--success)',fontWeight:600}}>+50 XP bonus · All 5 quests complete</div>
+            </div>
+          )}
+
+          {/* ── DISCOVER CROATIAN HEADER ── */}
+          <DalmatianCoast width="100%" height={140} style={{borderRadius:16, marginBottom:12, maxWidth:'100%'}}/>
+          <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12, marginTop:24}}>
+            <div style={{width:3, height:20, background:'var(--color-croatian, #b61800)', borderRadius:2}}/>
+            <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Discover Croatian</span>
+          </div>
+
+          {/* ── TODAY'S CROATIAN ── */}
+          <div className="section-hdr">
+            <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>🇭🇷</div>
+            <div className="section-hdr-text">
+              <div className="section-hdr-title">Today's Croatian</div>
+              <div className="section-hdr-sub">Tap any phrase to hear it spoken aloud</div>
+            </div>
+          </div>
+
+          {/* ── QUICK TRANSLATE ── */}
+          <div className="section-hdr">
+            <div className="section-hdr-icon" style={{background:'rgba(14,116,144,.12)'}}>⇄</div>
+            <div className="section-hdr-text">
+              <div className="section-hdr-title">Quick Translate</div>
+              <div className="section-hdr-sub">English ↔ Croatian instant lookup</div>
+            </div>
+          </div>
+          <div style={{
+            background:"var(--card)",
+            border:"1.5px solid var(--card-b)",
+            borderRadius:20,padding:"18px",
+            marginBottom:24,
+            boxShadow:"0 4px 16px rgba(0,0,0,.05)",
+          }}>
+            <div style={{display:"flex",justifyContent:"flex-end",marginBottom:12}}>
+              <button
+                style={{
+                  background:"var(--bar-bg)",
+                  border:"1.5px solid var(--card-b)",
+                  borderRadius:10,padding:"6px 14px",
+                  fontSize:12,fontWeight:700,color:"var(--body)",
+                  cursor:"pointer",fontFamily:"'Outfit',sans-serif",
+                  transition:"background .15s",
+                }}
+                onClick={() => sTDir(tDir==="en-hr"?"hr-en":"en-hr")}>
+                {tDir==="en-hr"?"EN → HR ⇄":"HR → EN ⇄"}
+              </button>
+            </div>
+            <div style={{display:"flex",gap:8}}>
+              <input
+                type="text"
+                value={tIn}
+                onChange={e=>sTIn(e.target.value)}
+                onKeyDown={e=>{if(e.key==="Enter")doTr()}}
+                placeholder={tDir==="en-hr"?"Type English…":"Unesite hrvatski…"}
+                style={{flex:1,fontSize:14,padding:"12px 14px"}}
+              />
+              <button className="b bp" style={{fontSize:14,padding:"12px 20px",whiteSpace:"nowrap"}} onClick={doTr} disabled={tL}>
+                {tL ? "⏳" : "Go"}
+              </button>
+            </div>
+            {tOut && (
+              <button
+                style={{
+                  width:"100%",marginTop:12,padding:"14px 16px",
+                  background:"var(--bar-bg)",borderRadius:14,
+                  border:"1.5px solid var(--card-b)",
+                  fontSize:16,fontWeight:700,color:"var(--heading)",
+                  cursor:"pointer",textAlign:"left",
+                  fontFamily:"'Outfit',sans-serif",
+                  display:"flex",justifyContent:"space-between",alignItems:"center",
+                  boxShadow:"0 2px 8px rgba(14,116,144,.08)",
+                }}
+                onClick={() => speak(tDir==="en-hr"?tOut:tIn)}>
+                <span>{tOut}</span>
+                <span style={{fontSize:20}}>🔊</span>
+              </button>
+            )}
+          </div>
+
+        </React.Fragment>
       )}
 
-      {/* ── TRACK PROGRESS HEADER ── */}
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12, marginTop:24}}>
-        <div style={{width:3, height:20, background:'var(--harvest, #d97706)', borderRadius:2}}/>
-        <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Track Progress</span>
-      </div>
+      {/* ══════════════════════════════════════════
+          📈 PROGRESS TAB
+      ══════════════════════════════════════════ */}
+      {htab === 'progress' && (
+        <React.Fragment>
 
-      {/* ── NEXT ACHIEVEMENT ── */}
-      <div className="c" style={{padding:'12px 16px', marginBottom:12, display:'flex', alignItems:'center', gap:12}}>
-        <span style={{fontSize:24}}>🔓</span>
-        <div style={{flex:1}}>
-          <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.08em'}}>Next Achievement</div>
-          <div style={{fontSize:'var(--text-sm)', fontWeight:700, color:'var(--heading)', marginTop:2}}>
-            {streak.count < 7 ? `🔥 Streak Starter — reach a 7-day streak (${7 - streak.count} days away)` :
-             streak.count < 30 ? `🌟 Streak Master — reach a 30-day streak (${30 - streak.count} days away)` :
-             st.lc < 25 ? `📚 Dedicated Learner — complete 25 lessons (${25 - st.lc} to go)` :
-             '🏆 Keep going — you\'re on a great path!'}
+          {/* ── TRACK PROGRESS HEADER ── */}
+          <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12, marginTop:8}}>
+            <div style={{width:3, height:20, background:'var(--harvest, #d97706)', borderRadius:2}}/>
+            <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Track Progress</span>
           </div>
-        </div>
-      </div>
 
-      {/* ── MILESTONES (conditional on lc > 0) ── */}
-      {st.lc === 0 ? (
-        <div className="c" style={{padding:16, marginBottom:8}}>
-          <CroatianKnight size={80} mood="happy" style={{margin:'0 auto 12px', display:'block'}} />
-          <div style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', marginBottom:8}}>🗺️ Your Croatian Journey</div>
-          <div style={{fontSize:'var(--text-sm)', color:'var(--subtext)', lineHeight:1.5}}>
-            Start with <strong>Basic Greetings</strong> → <strong>Numbers</strong> → <strong>Family Vocabulary</strong>. Each lesson takes 5–10 minutes.
+          {/* ── NEXT ACHIEVEMENT ── */}
+          <div className="c" style={{padding:'12px 16px', marginBottom:12, display:'flex', alignItems:'center', gap:12}}>
+            <span style={{fontSize:24}}>🔓</span>
+            <div style={{flex:1}}>
+              <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.08em'}}>Next Achievement</div>
+              <div style={{fontSize:'var(--text-sm)', fontWeight:700, color:'var(--heading)', marginTop:2}}>
+                {streak.count < 7 ? `🔥 Streak Starter — reach a 7-day streak (${7 - streak.count} days away)` :
+                 streak.count < 30 ? `🌟 Streak Master — reach a 30-day streak (${30 - streak.count} days away)` :
+                 st.lc < 25 ? `📚 Dedicated Learner — complete 25 lessons (${25 - st.lc} to go)` :
+                 '🏆 Keep going — you\'re on a great path!'}
+              </div>
+            </div>
           </div>
-        </div>
-      ) : (
-        <>
+
+          {/* ── MILESTONES (conditional on lc > 0) ── */}
+          {st.lc === 0 ? (
+            <div className="c" style={{padding:16, marginBottom:8}}>
+              <CroatianKnight size={80} mood="happy" style={{margin:'0 auto 12px', display:'block'}} />
+              <div style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', marginBottom:8}}>🗺️ Your Croatian Journey</div>
+              <div style={{fontSize:'var(--text-sm)', color:'var(--subtext)', lineHeight:1.5}}>
+                Start with <strong>Basic Greetings</strong> → <strong>Numbers</strong> → <strong>Family Vocabulary</strong>. Each lesson takes 5–10 minutes.
+              </div>
+            </div>
+          ) : (
+            <>
+              {(() => {
+                // Progressive milestone challenges — next tier unlocks when current is complete
+                const streakGoal = streak.count >= 30 ? 100 : streak.count >= 7 ? 30 : 7;
+                const lessonsGoal = st.lc >= 25 ? 50 : st.lc >= 10 ? 25 : 10;
+                const masteredGoal = ws.strong >= 50 ? 100 : ws.strong >= 20 ? 50 : 20;
+                const challenges = [
+                  { icon:'🔥', label:'Day Streak', cur: Math.min(streak.count, streakGoal), goal: streakGoal, color:'#ea580c' },
+                  { icon:'📚', label:'Lessons', cur: Math.min(st.lc, lessonsGoal), goal: lessonsGoal, color:'#0e7490' },
+                  { icon:'💪', label:'Words Mastered', cur: Math.min(ws.strong, masteredGoal), goal: masteredGoal, color:'#16a34a' },
+                  { icon:'⚡', label:'XP This Week', cur: Math.min(weekXP, 100), goal: 100, color:'#7c3aed' },
+                ];
+                return (
+                  <React.Fragment>
+                    <div className="section-hdr">
+                      <div className="section-hdr-icon" style={{background:'rgba(245,158,11,.12)'}}>🏆</div>
+                      <div className="section-hdr-text">
+                        <div className="section-hdr-title">Milestones</div>
+                        <div className="section-hdr-sub">Track your streaks, lessons & XP goals</div>
+                      </div>
+                    </div>
+                    <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:10, marginBottom:20 }}>
+                      {challenges.map((c, i) => {
+                        const pct = Math.round(c.cur / c.goal * 100);
+                        const done = c.cur >= c.goal;
+                        return (
+                          <div key={i} style={{ background:c.color+'15', border:`1.5px solid ${done ? c.color : c.color+'40'}`, borderRadius:14, padding:'12px 10px', textAlign:'center' }}>
+                            <div style={{ fontSize:22, marginBottom:4 }}>{c.icon}</div>
+                            <div style={{ fontSize:11, fontWeight:900, color:c.color, lineHeight:1, fontVariantNumeric:'tabular-nums' }}>
+                              {done ? '✓' : `${c.cur}/${c.goal}`}
+                            </div>
+                            <div style={{ fontSize:9, color:'var(--subtext)', fontWeight:700, textTransform:'uppercase', letterSpacing:'.04em', marginTop:3 }}>{c.label}</div>
+                            <div style={{ height:4, background:'var(--bar-bg)', borderRadius:3, overflow:'hidden', marginTop:6 }}>
+                              <div style={{ height:'100%', width:pct+'%', background:c.color, borderRadius:3, transition:'width .6s ease' }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </React.Fragment>
+                );
+              })()}
+            </>
+          )}
+
+          {/* ── ADAPTIVE DAILY GOAL NUDGE ── */}
           {(() => {
-            // Progressive milestone challenges — next tier unlocks when current is complete
-            const streakGoal = streak.count >= 30 ? 100 : streak.count >= 7 ? 30 : 7;
-            const lessonsGoal = st.lc >= 25 ? 50 : st.lc >= 10 ? 25 : 10;
-            const masteredGoal = ws.strong >= 50 ? 100 : ws.strong >= 20 ? 50 : 20;
-            const challenges = [
-              { icon:'🔥', label:'Day Streak', cur: Math.min(streak.count, streakGoal), goal: streakGoal, color:'#ea580c' },
-              { icon:'📚', label:'Lessons', cur: Math.min(st.lc, lessonsGoal), goal: lessonsGoal, color:'#0e7490' },
-              { icon:'💪', label:'Words Mastered', cur: Math.min(ws.strong, masteredGoal), goal: masteredGoal, color:'#16a34a' },
-              { icon:'⚡', label:'XP This Week', cur: Math.min(weekXP, 100), goal: 100, color:'#7c3aed' },
-            ];
+            const dailyMin = parseInt(localStorage.getItem('nh_daily_min') || '0', 10);
+            if (!dailyMin || dailyMin >= 20) return null;
+            // XP threshold per daily-minute tier (rough mapping)
+            const thresholds = { 5: 40, 10: 80, 15: 120 };
+            const xpTarget = thresholds[dailyMin] || 0;
+            if (!xpTarget) return null;
+            // Only nudge if enough days elapsed this week and they're clearly exceeding goal
+            const dayOfWeek = new Date().getDay() || 7; // 1=Mon … 7=Sun
+            if (dayOfWeek < 3) return null; // wait until Wed to have meaningful data
+            const dailyAvg = weekXP / dayOfWeek;
+            if (dailyAvg < xpTarget * 1.5) return null; // must be 50% over target
+            const nextMin = dailyMin === 5 ? 10 : dailyMin === 10 ? 15 : 20;
+            const dismissed = localStorage.getItem('nh_goal_nudge_dismissed') === String(dailyMin);
+            if (dismissed) return null;
             return (
-              <React.Fragment>
-                <div className="section-hdr">
-                  <div className="section-hdr-icon" style={{background:'rgba(245,158,11,.12)'}}>🏆</div>
-                  <div className="section-hdr-text">
-                    <div className="section-hdr-title">Milestones</div>
-                    <div className="section-hdr-sub">Track your streaks, lessons & XP goals</div>
+              <div style={{
+                background:'var(--success-bg)', border:'1.5px solid var(--success-b)',
+                borderRadius:16, padding:'14px 16px', marginBottom:16,
+                display:'flex', alignItems:'flex-start', gap:12,
+              }}>
+                <span style={{fontSize:22, flexShrink:0}}>🚀</span>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:13, fontWeight:800, color:'var(--success)', marginBottom:3}}>You're crushing your goal!</div>
+                  <div style={{fontSize:12, color:'var(--success)', fontWeight:500, lineHeight:1.5}}>
+                    You're averaging {Math.round(dailyAvg)} XP/day — well above your {dailyMin}-min target.
+                    Ready to bump it up to {nextMin} min?
+                  </div>
+                  <div style={{display:'flex', gap:8, marginTop:10}}>
+                    <button
+                      onClick={() => { localStorage.setItem('nh_daily_min', String(nextMin)); localStorage.removeItem('nh_goal_nudge_dismissed'); window.location.reload(); }}
+                      style={{
+                        background:'var(--success)', color:'#fff', border:'none', borderRadius:10,
+                        padding:'8px 14px', fontSize:12, fontWeight:800, cursor:'pointer',
+                        fontFamily:"'Outfit',sans-serif",
+                      }}
+                    >
+                      Yes, {nextMin} min/day →
+                    </button>
+                    <button
+                      onClick={() => { localStorage.setItem('nh_goal_nudge_dismissed', String(dailyMin)); window.location.reload(); }}
+                      style={{
+                        background:'none', color:'var(--success)', border:'1.5px solid var(--success-b)', borderRadius:10,
+                        padding:'8px 14px', fontSize:12, fontWeight:700, cursor:'pointer',
+                        fontFamily:"'Outfit',sans-serif",
+                      }}
+                    >
+                      I'm happy at {dailyMin} min
+                    </button>
                   </div>
                 </div>
-                <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:10, marginBottom:20 }}>
-                  {challenges.map((c, i) => {
-                    const pct = Math.round(c.cur / c.goal * 100);
-                    const done = c.cur >= c.goal;
-                    return (
-                      <div key={i} style={{ background:c.color+'15', border:`1.5px solid ${done ? c.color : c.color+'40'}`, borderRadius:14, padding:'12px 10px', textAlign:'center' }}>
-                        <div style={{ fontSize:22, marginBottom:4 }}>{c.icon}</div>
-                        <div style={{ fontSize:11, fontWeight:900, color:c.color, lineHeight:1, fontVariantNumeric:'tabular-nums' }}>
-                          {done ? '✓' : `${c.cur}/${c.goal}`}
-                        </div>
-                        <div style={{ fontSize:9, color:'var(--subtext)', fontWeight:700, textTransform:'uppercase', letterSpacing:'.04em', marginTop:3 }}>{c.label}</div>
-                        <div style={{ height:4, background:'var(--bar-bg)', borderRadius:3, overflow:'hidden', marginTop:6 }}>
-                          <div style={{ height:'100%', width:pct+'%', background:c.color, borderRadius:3, transition:'width .6s ease' }} />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </React.Fragment>
+              </div>
             );
           })()}
-        </>
+
+        </React.Fragment>
       )}
 
-      {/* ── REVIEW & REINFORCE HEADER ── */}
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12, marginTop:24}}>
-        <div style={{width:3, height:20, background:'var(--lavender, #7c3aed)', borderRadius:2}}/>
-        <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Review & Reinforce</span>
-      </div>
+      {/* ══════════════════════════════════════════
+          🔄 REVIEW TAB
+      ══════════════════════════════════════════ */}
+      {htab === 'review' && (
+        <React.Fragment>
 
-      {/* ── SRS REVIEW NUDGE ── */}
-      {(() => {
-        const due = getDueReviews();
-        if (due.length === 0) return null;
-        return (
-          <div
-            onClick={() => setScr("review")}
-            style={{
-              background: "linear-gradient(135deg,#eff6ff,#dbeafe)",
-              border: "1.5px solid #93c5fd",
-              borderRadius: 18, padding: "14px 18px", marginBottom: 16,
-              cursor: "pointer", display: "flex", alignItems: "center", gap: 14,
-              boxShadow: "0 4px 16px rgba(59,130,246,.12)",
-            }}>
-            <div style={{
-              width: 48, height: 48, borderRadius: 14, flexShrink: 0,
-              background: "linear-gradient(135deg,#2563eb,#1d4ed8)",
-              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22,
-              boxShadow: "0 4px 12px rgba(37,99,235,.35)",
-            }}>🧠</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 800, color: "#1e40af" }}>
-                {due.length} Word{due.length !== 1 ? "s" : ""} Ready to Review
-              </div>
-              <div style={{ fontSize: 11, color: "#3b82f6", fontWeight: 600, marginTop: 2 }}>
-                Spaced Repetition · Tap to review now →
-              </div>
-            </div>
-            <div style={{
-              fontSize: 22, fontWeight: 800, color: "#2563eb",
-              background: "white", borderRadius: 12, width: 40, height: 40,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,.08)",
-            }}>{due.length}</div>
+          {/* ── REVIEW & REINFORCE HEADER ── */}
+          <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12, marginTop:8}}>
+            <div style={{width:3, height:20, background:'var(--lavender, #7c3aed)', borderRadius:2}}/>
+            <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Review & Reinforce</span>
           </div>
-        );
-      })()}
 
-      {/* ── MISTAKES REVIEW NUDGE ── */}
-      {(() => {
-        const mistakes = getMistakes();
-        if (mistakes.length === 0) return null;
-        const topMistake = mistakes.sort((a, b) => b.count - a.count)[0];
-        return (
-          <div
-            onClick={() => setScr("mistakes")}
-            style={{
-              background: "linear-gradient(135deg,#fff7ed,#fed7aa)",
-              border: "1.5px solid #fdba74",
-              borderRadius: 18, padding: "14px 18px", marginBottom: 16,
-              cursor: "pointer", display: "flex", alignItems: "center", gap: 14,
-              boxShadow: "0 4px 16px rgba(249,115,22,.12)",
-            }}>
-            <div style={{
-              width: 48, height: 48, borderRadius: 14, flexShrink: 0,
-              background: "linear-gradient(135deg,#ea580c,#c2410c)",
-              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22,
-              boxShadow: "0 4px 12px rgba(234,88,12,.35)",
-            }}>📚</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 800, color: "#9a3412" }}>
-                {mistakes.length} Mistake{mistakes.length !== 1 ? "s" : ""} to Master
+          {/* ── SRS REVIEW NUDGE ── */}
+          {(() => {
+            const due = getDueReviews();
+            if (due.length === 0) return null;
+            return (
+              <div
+                onClick={() => setScr("review")}
+                style={{
+                  background: "linear-gradient(135deg,#eff6ff,#dbeafe)",
+                  border: "1.5px solid #93c5fd",
+                  borderRadius: 18, padding: "14px 18px", marginBottom: 16,
+                  cursor: "pointer", display: "flex", alignItems: "center", gap: 14,
+                  boxShadow: "0 4px 16px rgba(59,130,246,.12)",
+                }}>
+                <div style={{
+                  width: 48, height: 48, borderRadius: 14, flexShrink: 0,
+                  background: "linear-gradient(135deg,#2563eb,#1d4ed8)",
+                  display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22,
+                  boxShadow: "0 4px 12px rgba(37,99,235,.35)",
+                }}>🧠</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: "#1e40af" }}>
+                    {due.length} Word{due.length !== 1 ? "s" : ""} Ready to Review
+                  </div>
+                  <div style={{ fontSize: 11, color: "#3b82f6", fontWeight: 600, marginTop: 2 }}>
+                    Spaced Repetition · Tap to review now →
+                  </div>
+                </div>
+                <div style={{
+                  fontSize: 22, fontWeight: 800, color: "#2563eb",
+                  background: "white", borderRadius: 12, width: 40, height: 40,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,.08)",
+                }}>{due.length}</div>
               </div>
-              <div style={{ fontSize: 11, color: "#ea580c", fontWeight: 600, marginTop: 2 }}>
-                Most missed: <strong>{topMistake?.hr}</strong> · Tap to review →
+            );
+          })()}
+
+          {/* ── MISTAKES REVIEW NUDGE ── */}
+          {(() => {
+            const mistakes = getMistakes();
+            if (mistakes.length === 0) return null;
+            const topMistake = mistakes.sort((a, b) => b.count - a.count)[0];
+            return (
+              <div
+                onClick={() => setScr("mistakes")}
+                style={{
+                  background: "linear-gradient(135deg,#fff7ed,#fed7aa)",
+                  border: "1.5px solid #fdba74",
+                  borderRadius: 18, padding: "14px 18px", marginBottom: 16,
+                  cursor: "pointer", display: "flex", alignItems: "center", gap: 14,
+                  boxShadow: "0 4px 16px rgba(249,115,22,.12)",
+                }}>
+                <div style={{
+                  width: 48, height: 48, borderRadius: 14, flexShrink: 0,
+                  background: "linear-gradient(135deg,#ea580c,#c2410c)",
+                  display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22,
+                  boxShadow: "0 4px 12px rgba(234,88,12,.35)",
+                }}>📚</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: "#9a3412" }}>
+                    {mistakes.length} Mistake{mistakes.length !== 1 ? "s" : ""} to Master
+                  </div>
+                  <div style={{ fontSize: 11, color: "#ea580c", fontWeight: 600, marginTop: 2 }}>
+                    Most missed: <strong>{topMistake?.hr}</strong> · Tap to review →
+                  </div>
+                </div>
+                <div style={{ fontSize: 20, color: "#ea580c", flexShrink: 0 }}>›</div>
               </div>
-            </div>
-            <div style={{ fontSize: 20, color: "#ea580c", flexShrink: 0 }}>›</div>
-          </div>
-        );
-      })()}
+            );
+          })()}
 
-
-      {/* ── ADAPTIVE DAILY GOAL NUDGE ── */}
-      {(() => {
-        const dailyMin = parseInt(localStorage.getItem('nh_daily_min') || '0', 10);
-        if (!dailyMin || dailyMin >= 20) return null;
-        // XP threshold per daily-minute tier (rough mapping)
-        const thresholds = { 5: 40, 10: 80, 15: 120 };
-        const xpTarget = thresholds[dailyMin] || 0;
-        if (!xpTarget) return null;
-        // Only nudge if enough days elapsed this week and they're clearly exceeding goal
-        const dayOfWeek = new Date().getDay() || 7; // 1=Mon … 7=Sun
-        if (dayOfWeek < 3) return null; // wait until Wed to have meaningful data
-        const dailyAvg = weekXP / dayOfWeek;
-        if (dailyAvg < xpTarget * 1.5) return null; // must be 50% over target
-        const nextMin = dailyMin === 5 ? 10 : dailyMin === 10 ? 15 : 20;
-        const dismissed = localStorage.getItem('nh_goal_nudge_dismissed') === String(dailyMin);
-        if (dismissed) return null;
-        return (
-          <div style={{
-            background:'var(--success-bg)', border:'1.5px solid var(--success-b)',
-            borderRadius:16, padding:'14px 16px', marginBottom:16,
-            display:'flex', alignItems:'flex-start', gap:12,
-          }}>
-            <span style={{fontSize:22, flexShrink:0}}>🚀</span>
-            <div style={{flex:1}}>
-              <div style={{fontSize:13, fontWeight:800, color:'var(--success)', marginBottom:3}}>You're crushing your goal!</div>
-              <div style={{fontSize:12, color:'var(--success)', fontWeight:500, lineHeight:1.5}}>
-                You're averaging {Math.round(dailyAvg)} XP/day — well above your {dailyMin}-min target.
-                Ready to bump it up to {nextMin} min?
+          {/* Empty state when nothing to review */}
+          {(() => {
+            const due = getDueReviews();
+            const mistakes = getMistakes();
+            if (due.length > 0 || mistakes.length > 0) return null;
+            return (
+              <div className="c" style={{padding:'24px 16px', textAlign:'center', marginBottom:16}}>
+                <div style={{fontSize:40, marginBottom:12}}>✨</div>
+                <div style={{fontSize:14, fontWeight:800, color:'var(--heading)', marginBottom:6}}>All caught up!</div>
+                <div style={{fontSize:12, color:'var(--subtext)', lineHeight:1.5}}>
+                  No words due for review right now. Keep learning to build your review queue.
+                </div>
               </div>
-              <div style={{display:'flex', gap:8, marginTop:10}}>
-                <button
-                  onClick={() => { localStorage.setItem('nh_daily_min', String(nextMin)); localStorage.removeItem('nh_goal_nudge_dismissed'); window.location.reload(); }}
-                  style={{
-                    background:'var(--success)', color:'#fff', border:'none', borderRadius:10,
-                    padding:'8px 14px', fontSize:12, fontWeight:800, cursor:'pointer',
-                    fontFamily:"'Outfit',sans-serif",
-                  }}
-                >
-                  Yes, {nextMin} min/day →
-                </button>
-                <button
-                  onClick={() => { localStorage.setItem('nh_goal_nudge_dismissed', String(dailyMin)); window.location.reload(); }}
-                  style={{
-                    background:'none', color:'var(--success)', border:'1.5px solid var(--success-b)', borderRadius:10,
-                    padding:'8px 14px', fontSize:12, fontWeight:700, cursor:'pointer',
-                    fontFamily:"'Outfit',sans-serif",
-                  }}
-                >
-                  I'm happy at {dailyMin} min
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
+            );
+          })()}
 
-      {/* ── DISCOVER CROATIAN HEADER ── */}
-      <DalmatianCoast width="100%" height={140} style={{borderRadius:16, marginBottom:12, maxWidth:'100%'}}/>
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12, marginTop:24}}>
-        <div style={{width:3, height:20, background:'var(--color-croatian, #b61800)', borderRadius:2}}/>
-        <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Discover Croatian</span>
-      </div>
-
-      {/* ── TODAY'S CROATIAN ── */}
-      <div className="section-hdr">
-        <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>🇭🇷</div>
-        <div className="section-hdr-text">
-          <div className="section-hdr-title">Today's Croatian</div>
-          <div className="section-hdr-sub">Tap any phrase to hear it spoken aloud</div>
-        </div>
-      </div>
-
-
-      {/* ── QUICK TRANSLATE ── */}
-      <div className="section-hdr">
-        <div className="section-hdr-icon" style={{background:'rgba(14,116,144,.12)'}}>⇄</div>
-        <div className="section-hdr-text">
-          <div className="section-hdr-title">Quick Translate</div>
-          <div className="section-hdr-sub">English ↔ Croatian instant lookup</div>
-        </div>
-      </div>
-      <div style={{
-        background:"var(--card)",
-        border:"1.5px solid var(--card-b)",
-        borderRadius:20,padding:"18px",
-        marginBottom:24,
-        boxShadow:"0 4px 16px rgba(0,0,0,.05)",
-      }}>
-        <div style={{display:"flex",justifyContent:"flex-end",marginBottom:12}}>
-          <button
-            style={{
-              background:"var(--bar-bg)",
-              border:"1.5px solid var(--card-b)",
-              borderRadius:10,padding:"6px 14px",
-              fontSize:12,fontWeight:700,color:"var(--body)",
-              cursor:"pointer",fontFamily:"'Outfit',sans-serif",
-              transition:"background .15s",
-            }}
-            onClick={() => sTDir(tDir==="en-hr"?"hr-en":"en-hr")}>
-            {tDir==="en-hr"?"EN → HR ⇄":"HR → EN ⇄"}
-          </button>
-        </div>
-        <div style={{display:"flex",gap:8}}>
-          <input
-            type="text"
-            value={tIn}
-            onChange={e=>sTIn(e.target.value)}
-            onKeyDown={e=>{if(e.key==="Enter")doTr()}}
-            placeholder={tDir==="en-hr"?"Type English…":"Unesite hrvatski…"}
-            style={{flex:1,fontSize:14,padding:"12px 14px"}}
-          />
-          <button className="b bp" style={{fontSize:14,padding:"12px 20px",whiteSpace:"nowrap"}} onClick={doTr} disabled={tL}>
-            {tL ? "⏳" : "Go"}
-          </button>
-        </div>
-        {tOut && (
-          <button
-            style={{
-              width:"100%",marginTop:12,padding:"14px 16px",
-              background:"var(--bar-bg)",borderRadius:14,
-              border:"1.5px solid var(--card-b)",
-              fontSize:16,fontWeight:700,color:"var(--heading)",
-              cursor:"pointer",textAlign:"left",
-              fontFamily:"'Outfit',sans-serif",
-              display:"flex",justifyContent:"space-between",alignItems:"center",
-              boxShadow:"0 2px 8px rgba(14,116,144,.08)",
-            }}
-            onClick={() => speak(tDir==="en-hr"?tOut:tIn)}>
-            <span>{tOut}</span>
-            <span style={{fontSize:20}}>🔊</span>
-          </button>
-        )}
-      </div>
+        </React.Fragment>
+      )}
 
     </React.Fragment>
   );
