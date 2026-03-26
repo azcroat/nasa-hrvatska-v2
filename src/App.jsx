@@ -208,11 +208,12 @@ const TAB_PATHS={home:"/",learn:"/learn",practice:"/practice",croatia:"/croatia"
 const PATH_TO_TAB={"/":"home","/learn":"learn","/practice":"practice","/croatia":"croatia","/profile":"profile"};
 // XP cooldown helpers — pure localStorage functions, defined outside component
 // so they never cause stale-closure issues in useCallback
+function localDateStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function canEarnXP(exerciseId){
-  try{const cd=JSON.parse(localStorage.getItem("xpCooldown")||"{}");return cd[exerciseId]!==new Date().toISOString().slice(0,10)}catch{return true}
+  try{const cd=JSON.parse(localStorage.getItem("xpCooldown")||"{}");return cd[exerciseId]!==localDateStr()}catch{return true}
 }
 function markExerciseDone(exerciseId){
-  try{const cd=JSON.parse(localStorage.getItem("xpCooldown")||"{}");const today=new Date().toISOString().slice(0,10);cd[exerciseId]=today;const clean={};for(const k in cd){if(cd[k]===today)clean[k]=cd[k]}localStorage.setItem("xpCooldown",JSON.stringify(clean))}catch(e){}
+  try{const cd=JSON.parse(localStorage.getItem("xpCooldown")||"{}");const today=localDateStr();cd[exerciseId]=today;const clean={};for(const k in cd){if(cd[k]===today)clean[k]=cd[k]}localStorage.setItem("xpCooldown",JSON.stringify(clean))}catch(e){}
 }
 
 function App(){
@@ -462,7 +463,7 @@ function App(){
   useEffect(()=>{
     if(authScreen!=="app")return undefined;
     if(currentScreen==="welcome"||currentScreen==="placement"||currentScreen==="new-placement")return undefined;
-    if(stats.lc===0&&stats.xp===0&&!localStorage.getItem("placement_done")&&!localStorage.getItem("onboarded")){
+    if(stats.lc===0&&stats.xp===0&&!localStorage.getItem("placement_done")&&!localStorage.getItem("nh_placement_done")&&!localStorage.getItem("onboarded")){
       // Only trigger after a short delay to ensure auth state has settled
       const t=setTimeout(()=>setScr("new-placement"),1200);
       return()=>clearTimeout(t);
@@ -473,7 +474,7 @@ function App(){
   //  1. doSyncNow() — fires on lesson/grammar/ct completion (line below)
   //  2. saveSnapshot(true) — fires on pagehide/visibilitychange hidden (tab close/switch)
   // This prevents one Firebase write per XP award (15+ per lesson) from exhausting quota.
-  useEffect(()=>{if(!authUser||authScreen!=="app")return;const _nd=new Date();const _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');const _saveData={name,stats,cp:currentScreen!=="welcome"&&currentScreen!=="placement",onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),freezes:getStreakFreezes(),favs,journal:jWords,dc:{day:_dcDay,answered:dchlA,selected:dchlSl},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};localStorage.setItem("uP_"+authUser.u,JSON.stringify(_saveData));touchSession();},[stats,currentScreen,name,authUser,authScreen,jWords,favs,dchlA,dchlSl]);
+  useEffect(()=>{if(!authUser||authScreen!=="app")return;const _nd=new Date();const _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');const _saveData={name,stats,cp:currentScreen!=="welcome"&&currentScreen!=="placement",onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),freezes:getStreakFreezes(),favs,journal:jWords,dc:{day:_dcDay,answered:dchlA,selected:dchlSl},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};try{localStorage.setItem("uP_"+authUser.u,JSON.stringify(_saveData));}catch(e){console.warn("localStorage quota exceeded — progress not saved locally",e);}touchSession();},[stats,currentScreen,name,authUser,authScreen,jWords,favs,dchlA,dchlSl]);
   useEffect(()=>{if(authScreen!=="app")return undefined;const iv=setInterval(()=>{if(isSessionExpired()){doOut();}},5*60*1000);return()=>clearInterval(iv)},[authScreen]);// eslint-disable-line
   useEffect(()=>{if(authScreen!=="app")return undefined;const h=()=>touchSession();window.addEventListener("click",h);window.addEventListener("touchstart",h);window.addEventListener("keydown",h);return()=>{window.removeEventListener("click",h);window.removeEventListener("touchstart",h);window.removeEventListener("keydown",h)}},[authScreen]);
   useEffect(()=>{if(!_syncReady||authScreen!=="app"||!authUser)return;// Only show backup banner once per device. Skip for returning users with prior
@@ -537,7 +538,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   },[]);
   // Q-6: popstate replaced by location.pathname useEffect above (React Router owns back/forward)
   const award=useCallback((amt,celebrate)=>{
-    if(curEx&&!canEarnXP(curEx)){setXpA(0);setShowXP(true);setTimeout(()=>setShowXP(false),2000);return}
+    if(curEx&&!canEarnXP(curEx)){setXpA(0);setShowXP(false);return}
     if(curEx)markExerciseDone(curEx);
     let totalAmt=lXPgain(amt);
     const _today=new Date().toISOString().slice(0,10);

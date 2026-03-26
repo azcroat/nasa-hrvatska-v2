@@ -106,7 +106,7 @@ export const LESSONS = [
         q: "Which word uses R as a vowel (syllabic R)?",
         options: ["ljubav", "prst", "čaj", "more"],
         correct: 1,
-        explanation: "'Prst' (finger) has no written vowel — R serves as the syllable nucleus. This is one of Croatian's most fascinating features, shared with Czech and Serbian.",
+        explanation: "'Prst' (finger) has no written vowel — R serves as the syllable nucleus. This is one of Croatian's most distinctive features, also found in Czech and Slovak.",
       },
       {
         type: "summary",

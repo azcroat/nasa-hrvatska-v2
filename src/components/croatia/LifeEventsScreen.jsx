@@ -47,7 +47,7 @@ const EVENTS = [
       {
         title: 'Condolence Phrases',
         items: [
-          { hr: 'Primite moje iskreno sućut.', en: 'Please accept my sincere condolences.', ph: 'pri-mi-te mo-ye is-kre-no su-chut', note: 'Formal — use with people you don\'t know well' },
+          { hr: 'Primite moju iskrenu sućut.', en: 'Please accept my sincere condolences.', ph: 'pri-mi-te mo-yu is-kre-nu su-chut', note: 'Formal — use with people you don\'t know well' },
           { hr: 'Iskrena sućut.', en: 'Sincere condolences.', ph: 'is-kre-na su-chut', note: 'Shorter, commonly used' },
           { hr: 'Žao mi je.', en: 'I\'m sorry for your loss.', ph: 'zha-o mi ye', note: 'Literal: it pains me — direct and heartfelt' },
           { hr: 'Neka mu / joj je laka zemlja.', en: 'May the earth be light upon him / her.', ph: 'ne-ka mu yo-y ye la-ka zem-lya', note: 'Traditional phrase — one of the most meaningful you can say' },

@@ -3,6 +3,8 @@ import { H, Bar } from '../../data.jsx';
 
 import { rnd } from '../../lib/random.js';
 function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;}
+// Normalize Croatian diacritics for lenient free-text comparison
+function normCro(s){return s.toLowerCase().replace(/[čć]/g,'c').replace(/š/g,'s').replace(/ž/g,'z').replace(/đ/g,'d').replace(/[^\w\s]/g,'').replace(/\s+/g,' ').trim();}
 
 const SCENARIOS = [
   {
@@ -359,7 +361,8 @@ export default function DialogueSim({ award }) {
     const correctAnswer = turn.opts[turn.answer];
     const userTrimmed = freeInput.trim().toLowerCase();
     const correctTrimmed = correctAnswer.toLowerCase();
-    const matched = userTrimmed === correctTrimmed;
+    // Exact match first; fall back to diacritic-normalized match (for users without Croatian keyboard)
+    const matched = userTrimmed === correctTrimmed || normCro(userTrimmed) === normCro(correctTrimmed);
     setFreeResult({ matched, input: freeInput.trim(), correct: correctAnswer });
     setAnswered(true);
     if (matched) {
