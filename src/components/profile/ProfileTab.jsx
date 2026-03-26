@@ -110,6 +110,26 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
   const sr = getSR();
   const mastered = Object.values(sr).filter(v => v.r > v.w && v.r >= 2).length;
 
+  // Compute last 30 days activity from localStorage
+  const practiceHistory = (() => {
+    const days = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0,10);
+      const practiced = !!(
+        localStorage.getItem('nh_quest_speak_' + key) ||
+        localStorage.getItem('nh_quest_grammar_' + key) ||
+        localStorage.getItem('nh_quest_master_' + key) ||
+        localStorage.getItem('nh_quest_reading_' + key) ||
+        localStorage.getItem('nh_daily_mastery_' + key) ||
+        localStorage.getItem('nh_week_xp_' + key.slice(0,7))
+      );
+      days.push({ date: key, practiced, dayNum: d.getDate(), isToday: i === 0 });
+    }
+    return days;
+  })();
+
   const stats = [
     { icon: "⭐", value: st.xp.toLocaleString(), label: "Total XP",   color: "var(--info)",    bg: "var(--info-bg)",    border: "var(--info-b)" },
     { icon: "🔥", value: streak.count,            label: "Day Streak", color: "var(--warning)", bg: "var(--warning-bg)", border: "var(--warning-b)" },
@@ -146,6 +166,44 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
         </h2>
         <div style={{fontSize:'var(--text-sm)',opacity:.7,marginBottom:2,fontWeight:600}}>Level {level} Learner</div>
         {au?.e && <div style={{fontSize:'var(--text-sm)',opacity:.5,marginTop:2}}>{au.e}</div>}
+      </div>
+
+      {/* ── 30-DAY ACTIVITY CALENDAR ── */}
+      <div style={{
+        background:'var(--card)', border:'1px solid var(--card-b)',
+        borderRadius:16, padding:'16px', marginBottom:16,
+      }}>
+        <div style={{fontSize:12, fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:12}}>
+          📅 30-Day Activity
+        </div>
+        <div style={{display:'flex', gap:4, flexWrap:'wrap'}}>
+          {practiceHistory.map((day, i) => (
+            <div key={i} title={day.date} style={{
+              width:18, height:18, borderRadius:4,
+              background: day.isToday
+                ? (day.practiced ? 'var(--success)' : 'var(--info)')
+                : day.practiced ? 'var(--success)' : 'var(--bar-bg)',
+              border: day.isToday ? '2px solid var(--info)' : '1px solid transparent',
+              boxShadow: day.practiced ? '0 0 4px rgba(74,222,128,.4)' : 'none',
+              transition:'transform .1s',
+              flexShrink: 0,
+            }}/>
+          ))}
+        </div>
+        <div style={{display:'flex', gap:12, marginTop:10}}>
+          <div style={{display:'flex', alignItems:'center', gap:4}}>
+            <div style={{width:10, height:10, borderRadius:2, background:'var(--success)'}}/>
+            <span style={{fontSize:10, color:'var(--subtext)', fontWeight:600}}>Practiced</span>
+          </div>
+          <div style={{display:'flex', alignItems:'center', gap:4}}>
+            <div style={{width:10, height:10, borderRadius:2, background:'var(--info)', border:'1.5px solid var(--info)'}}/>
+            <span style={{fontSize:10, color:'var(--subtext)', fontWeight:600}}>Today</span>
+          </div>
+          <div style={{display:'flex', alignItems:'center', gap:4}}>
+            <div style={{width:10, height:10, borderRadius:2, background:'var(--bar-bg)'}}/>
+            <span style={{fontSize:10, color:'var(--subtext)', fontWeight:600}}>Missed</span>
+          </div>
+        </div>
       </div>
 
       {/* ── CLOUD SYNC STATUS ── */}
@@ -214,7 +272,13 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
         {stats.map((s, i) => (
           <div key={i} style={{background:s.bg,border:`1.5px solid ${s.border}`,borderRadius:14,padding:"12px 8px",textAlign:"center"}}>
             <div style={{fontSize:'var(--text-xl)',marginBottom:3}}>{s.icon}</div>
-            <div style={{fontSize:'var(--text-lg)',fontWeight:900,color:s.color,lineHeight:1,fontVariantNumeric:"tabular-nums"}}>{s.value}</div>
+            {s.label === "Day Streak" ? (
+              <div style={{fontSize:28,fontWeight:900,color:'var(--warning)',lineHeight:1,fontVariantNumeric:"tabular-nums",textShadow:'0 0 12px rgba(251,191,36,.4)'}}>
+                {s.value} 🔥
+              </div>
+            ) : (
+              <div style={{fontSize:'var(--text-lg)',fontWeight:900,color:s.color,lineHeight:1,fontVariantNumeric:"tabular-nums"}}>{s.value}</div>
+            )}
             <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",fontWeight:700,marginTop:3,textTransform:"uppercase",letterSpacing:".04em"}}>{s.label}</div>
           </div>
         ))}
