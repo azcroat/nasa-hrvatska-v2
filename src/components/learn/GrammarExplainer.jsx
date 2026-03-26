@@ -189,7 +189,7 @@ export default function GrammarExplainer({ goBack, award }) {
   // ── PHASE: loading ────────────────────────────────────────────────────────
   if (phase === "loading") {
     return (
-      <div style={{ minHeight: "100vh", background: "var(--bg)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20 }}>
+      <div style={{ minHeight: "100vh", background: "var(--app-bg)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20 }}>
         <div style={{ fontSize: 56, animation: "spin 1.5s linear infinite" }}>🇭🇷</div>
         <p style={{ color: "var(--subtext)", fontSize: "var(--text-base)", fontWeight: 500 }}>Claude is preparing your lesson...</p>
         <div style={{ display: "flex", gap: 8 }}>
@@ -212,7 +212,7 @@ export default function GrammarExplainer({ goBack, award }) {
   // ── PHASE: done (XP celebration) ─────────────────────────────────────────
   if (phase === "done") {
     return (
-      <div style={{ minHeight: "100vh", background: "var(--bg)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
+      <div style={{ minHeight: "100vh", background: "var(--app-bg)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
         <div style={{ fontSize: 64 }}>🎉</div>
         <div style={{ fontSize: "var(--text-2xl)", fontWeight: 700, color: "var(--accent)" }}>+20 XP</div>
         <p style={{ color: "var(--subtext)", fontSize: "var(--text-base)" }}>Great work!</p>
@@ -227,7 +227,7 @@ export default function GrammarExplainer({ goBack, award }) {
     const scoreColor = score === 3 ? "#16a34a" : score === 2 ? "#d97706" : "#dc2626";
 
     return (
-      <div style={{ minHeight: "100vh", background: "var(--bg)", paddingBottom: 80 }}>
+      <div style={{ minHeight: "100vh", background: "var(--app-bg)", paddingBottom: 80 }}>
         <style>{`
           @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
           .example-card { animation: fadeUp 0.35s ease both; }
@@ -547,7 +547,7 @@ export default function GrammarExplainer({ goBack, award }) {
 
   // ── PHASE: pick ───────────────────────────────────────────────────────────
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg)", paddingBottom: 80 }}>
+    <div style={{ minHeight: "100vh", background: "var(--app-bg)", paddingBottom: 80 }}>
       {/* Header */}
       <div style={{ padding: "16px 16px 0" }}>
         <button onClick={goBack} style={{ background: "none", border: "none", color: "var(--subtext)", cursor: "pointer", fontSize: "var(--text-sm)", display: "flex", alignItems: "center", gap: 4 }}>

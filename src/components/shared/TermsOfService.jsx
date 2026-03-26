@@ -27,7 +27,7 @@ export default function TermsOfService({ goBack }) {
       ].map(({ title, body }) => (
         <div key={title} style={{ marginBottom: 24 }}>
           <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 8 }}>{title}</h3>
-          <p style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--text)', margin: 0 }}>{body}</p>
+          <p style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--rt-c)', margin: 0 }}>{body}</p>
         </div>
       ))}
     </div>

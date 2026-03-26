@@ -738,7 +738,7 @@ export default function LyricsScreen({ goBack, award }) {
                     fontSize: isCurrent ? 17 : 15,
                     lineHeight: 2.2,
                     fontFamily: "'Playfair Display',serif",
-                    color: 'var(--text)',
+                    color: 'var(--rt-c)',
                     fontWeight: isCurrent ? 700 : 400,
                     transition: 'font-size 0.2s',
                   }}>

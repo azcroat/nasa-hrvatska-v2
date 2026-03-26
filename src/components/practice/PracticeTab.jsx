@@ -460,7 +460,7 @@ export default function PracticeTab({
       </div>
 
       {/* Filter pills — sticky so they stay visible while scrolling the grid */}
-      <div role="group" aria-label="Filter exercises" style={{ display:'flex', gap:8, overflowX:'auto', scrollbarWidth:'none', position:'sticky', top:0, zIndex:10, background:'var(--bg)', paddingTop:8, paddingBottom:8, marginBottom:0 }}>
+      <div role="group" aria-label="Filter exercises" style={{ display:'flex', gap:8, overflowX:'auto', scrollbarWidth:'none', position:'sticky', top:0, zIndex:10, background:'var(--app-bg)', paddingTop:8, paddingBottom:8, marginBottom:0 }}>
         {[
           { id:'all',       label:'All' },
           { id:'grammar',   label:'🧠 Grammar' },

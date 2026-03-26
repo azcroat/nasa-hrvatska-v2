@@ -487,13 +487,13 @@ export default function LearnTab({
       {showBrowse && (
         <div style={{
           position:'fixed', inset:0, zIndex:1000,
-          background:'var(--bg)', overflowY:'auto',
+          background:'var(--app-bg)', overflowY:'auto',
           display:'flex', flexDirection:'column',
         }}>
           <div style={{
             display:'flex', alignItems:'center', justifyContent:'space-between',
             padding:'16px', borderBottom:'1px solid var(--bar-bg)',
-            position:'sticky', top:0, background:'var(--bg)', zIndex:1,
+            position:'sticky', top:0, background:'var(--app-bg)', zIndex:1,
           }}>
             <h2 style={{ margin:0, fontSize:18, fontFamily:"'Playfair Display',serif" }}>📚 Browse All Content</h2>
             <button onClick={() => setShowBrowse(false)} style={{

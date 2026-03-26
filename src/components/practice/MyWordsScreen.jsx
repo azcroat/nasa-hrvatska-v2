@@ -29,7 +29,7 @@ function timeAgo(ts) {
 const S = {
   wrap: {
     minHeight: '100vh',
-    background: 'var(--bg)',
+    background: 'var(--app-bg)',
     fontFamily: 'inherit',
   },
   header: {
@@ -235,7 +235,7 @@ const S = {
     fontSize: 15,
     borderRadius: 8,
     border: '1.5px solid var(--card-b)',
-    background: 'var(--bg)',
+    background: 'var(--app-bg)',
     color: 'var(--heading)',
     boxSizing: 'border-box',
     outline: 'none',
