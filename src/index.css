@@ -1602,3 +1602,287 @@ img, video, canvas, .skeleton, [class*="anim-"], [style*="animation"] {
   70%  { width: 85%; opacity: 1; }
   100% { width: 100%; opacity: 0; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   ILLUSTRATION & PHOTOGRAPHY SYSTEM
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Photo hero container ────────────────────────────────── */
+.photo-hero {
+  position: relative;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: linear-gradient(135deg, #0a2348, #0c3868);
+}
+
+.photo-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.4s ease, opacity 0.5s ease;
+}
+
+.photo-hero:hover img {
+  transform: scale(1.03);
+}
+
+.photo-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.5) 100%);
+}
+
+.photo-hero-flag-stripe {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #b61800 33.3%, white 33.3%, white 66.6%, #0284c7 66.6%);
+}
+
+.photo-hero-text {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 16px 20px;
+}
+
+.photo-hero-title {
+  font-size: var(--text-xl);
+  font-weight: 900;
+  color: white;
+  font-family: 'Playfair Display', serif;
+  text-shadow: 0 1px 4px rgba(0,0,0,.5);
+  margin-bottom: 4px;
+}
+
+.photo-hero-subtitle {
+  font-size: var(--text-sm);
+  color: rgba(255,255,255,.85);
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0,0,0,.5);
+}
+
+/* ── Image loading shimmer ───────────────────────────────── */
+.img-loading {
+  background: linear-gradient(90deg, var(--bar-bg) 0%, var(--card) 50%, var(--bar-bg) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ── Illustration containers ─────────────────────────────── */
+.illus-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--info-bg) 0%, rgba(14,116,144,.04) 100%);
+  padding: var(--space-xl);
+}
+
+.illus-scene {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ── Vocabulary card with illustration ───────────────────── */
+.vocab-card-visual {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: var(--space-lg);
+  background: var(--card);
+  box-shadow: var(--card-shadow);
+}
+
+.vocab-card-visual-header {
+  height: 140px;
+  background: linear-gradient(135deg, #0a2348 0%, #0c3868 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.vocab-card-visual-body {
+  padding: var(--space-xl);
+}
+
+/* ── Scene thumbnail cards ───────────────────────────────── */
+.scene-thumb {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.scene-thumb:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.scene-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Photo grid for culture tab ──────────────────────────── */
+.photo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.photo-grid-item {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  position: relative;
+  background: var(--bar-bg);
+}
+
+.photo-grid-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .35s;
+}
+
+.photo-grid-item:hover img {
+  transform: scale(1.06);
+}
+
+.photo-grid-item-label {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,.6));
+  color: white;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  padding: var(--space-sm) var(--space-md);
+}
+
+/* ── Full-bleed section photo headers ────────────────────── */
+.section-photo-header {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  margin-bottom: var(--space-xl);
+  position: relative;
+  min-height: 120px;
+}
+
+/* ── Mascot placement utilities ──────────────────────────── */
+.knight-hero {
+  display: block;
+  margin: 8px auto;
+  animation: bounce-in .6s ease;
+}
+
+.knight-empty {
+  display: block;
+  margin: 0 auto 16px;
+  animation: rise .5s ease;
+}
+
+.knight-celebrate {
+  display: block;
+  margin: 0 auto 12px;
+  animation: bounce-in .5s ease;
+}
+
+.knight-corner {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  opacity: 0.9;
+}
+
+/* ── Empty state with knight ─────────────────────────────── */
+.empty-knight {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-3xl) var(--space-xl);
+  gap: var(--space-sm);
+}
+
+.empty-knight-title {
+  font-size: var(--text-xl);
+  font-weight: 800;
+  color: var(--heading);
+  font-family: 'Playfair Display', serif;
+  margin-top: var(--space-md);
+}
+
+.empty-knight-sub {
+  font-size: var(--text-sm);
+  color: var(--subtext);
+  line-height: var(--leading-normal);
+  max-width: 260px;
+}
+
+/* ── Croatian landscape section dividers ────────────────── */
+.landscape-divider {
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--adriatic, #0284c7), var(--color-croatian, #b61800), var(--adriatic, #0284c7), transparent);
+  border-radius: 2px;
+  margin: var(--space-2xl) 0;
+  opacity: 0.4;
+}
+
+/* ── Illustration caption ────────────────────────────────── */
+.illus-caption {
+  font-size: 10px;
+  color: var(--subtext);
+  text-align: center;
+  margin-top: var(--space-xs);
+  opacity: 0.7;
+  font-style: italic;
+}
+
+/* ── Photo credit ────────────────────────────────────────── */
+.photo-credit {
+  position: absolute;
+  bottom: var(--space-xs);
+  right: var(--space-sm);
+  font-size: 9px;
+  color: rgba(255,255,255,.5);
+  font-weight: 500;
+}
+
+/* ── Responsive illustration sizing ─────────────────────── */
+@media (min-width: 768px) {
+  .photo-hero-title { font-size: var(--text-2xl); }
+  .vocab-card-visual-header { height: 180px; }
+  .photo-grid { grid-template-columns: 1fr 1fr 1fr; }
+  .photo-grid-item { aspect-ratio: 3/2; }
+  .section-photo-header { min-height: 160px; }
+}
+
+@media (min-width: 1200px) {
+  .photo-hero-title { font-size: var(--text-3xl); }
+  .photo-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ── Dark mode photo adjustments ─────────────────────────── */
+[data-theme="dark"] .photo-hero-overlay {
+  background: linear-gradient(to bottom, rgba(0,0,0,.2) 0%, rgba(0,0,0,.65) 100%);
+}
+
+[data-theme="dark"] .illus-container {
+  background: linear-gradient(135deg, rgba(56,189,248,.08) 0%, rgba(14,116,144,.04) 100%);
+}
+
+[data-theme="dark"] .vocab-card-visual-header {
+  background: linear-gradient(135deg, #060e1e 0%, #0a1628 100%);
+}
+
+[data-theme="dark"] .photo-grid-item {
+  background: var(--bar-bg);
+}

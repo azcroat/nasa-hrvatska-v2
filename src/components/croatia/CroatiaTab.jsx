@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { H, MEDIA, getCityOfDay } from '../../data.jsx';
+import PhotoHero from '../shared/PhotoHero';
+import { PHOTOS } from '../../lib/photos';
 
 const LEVEL_COLORS = {A1:'#16a34a',A2:'#65a30d',B1:'#ca8a04',B2:'#b45309',C1:'#0e7490',C2:'#7c3aed'};
 const CAT_LABELS = {tv:"📺 TV & News",music:"🎵 Music & Radio",sport:"⚽ Sports",film:"🎬 Film & Series",podcast:"🎙️ Podcasts",culture:"🌍 Culture & Press"};
@@ -412,6 +414,16 @@ export default function CroatiaTab({ setScr, sCurEx }) {
         </div>
       </div>
 
+      {/* ── PHOTO HERO ── */}
+      <PhotoHero
+        src={PHOTOS.dubrovnik}
+        alt="Dubrovnik old town"
+        title="Naša Hrvatska"
+        subtitle="Culture, history & language — all in one place"
+        height={180}
+        style={{marginBottom: 20}}
+      />
+
       {/* ── CITY OF THE DAY ── */}
       <button style={{marginBottom:16,borderRadius:16,overflow:"hidden",boxShadow:"0 4px 16px rgba(0,0,0,.1)",width:"100%",border:"none",cursor:"pointer",padding:0,textAlign:"left"}} onClick={()=>setScr("cityofday")}>
         <div style={{background:"linear-gradient(135deg,"+city.color+"dd,"+city.color+")",padding:"14px 16px",display:"flex",alignItems:"center",gap:14}}>
@@ -429,6 +441,14 @@ export default function CroatiaTab({ setScr, sCurEx }) {
       </button>
 
       {/* ── HISTORY & REGIONS — always-visible 2-col grid ── */}
+      <PhotoHero
+        src={PHOTOS.adriatic}
+        alt="Dalmatian coast"
+        title="🗺️ History & Regions"
+        subtitle="Explore Croatia's rich cultural heritage"
+        height={120}
+        style={{marginBottom: 16, borderRadius: 12}}
+      />
       <div className="section-block">
         <div className="section-hdr">
           <div className="section-hdr-icon" style={{background:'rgba(212,0,48,.12)'}}>🏰</div>
@@ -503,6 +523,14 @@ export default function CroatiaTab({ setScr, sCurEx }) {
       </div>
 
       {/* ── CROATIAN LIFE — always-visible 2-col grid ── */}
+      <PhotoHero
+        src={PHOTOS.market}
+        alt="Croatian market"
+        title="🇭🇷 Croatian Life"
+        subtitle="Daily customs, food, family & traditions"
+        height={100}
+        style={{marginBottom: 16, borderRadius: 12}}
+      />
       <div className="section-block">
         <div className="section-hdr">
           <div className="section-hdr-icon" style={{background:'rgba(22,163,74,.12)'}}>🏘️</div>

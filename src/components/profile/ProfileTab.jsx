@@ -1,5 +1,6 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { getStreak, getSR, fbDeleteAccount } from '../../data.jsx';
+import CroatianKnight from '../shared/CroatianKnight';
 import ProgressCharts from './ProgressCharts.jsx';
 import { getWeakTopics } from '../../lib/adaptive.js';
 import JourneyTimeline from './JourneyTimeline.jsx';
@@ -164,6 +165,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
         <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:'var(--text-xl)',color:"var(--card)",marginBottom:4,fontWeight:800,letterSpacing:"-.01em"}}>
           {name || au?.d}
         </h2>
+        <CroatianKnight size={50} mood="happy" style={{margin:'8px auto 0', display:'block'}} />
         <div style={{fontSize:'var(--text-sm)',opacity:.7,marginBottom:2,fontWeight:600}}>Level {level} Learner</div>
         {au?.e && <div style={{fontSize:'var(--text-sm)',opacity:.5,marginTop:2}}>{au.e}</div>}
       </div>

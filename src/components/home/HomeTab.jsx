@@ -9,6 +9,8 @@ function getLastActivity() {
 }
 import CroatianGrb from '../shared/CroatianGrb.jsx';
 import CipkaPattern from '../shared/CipkaPattern.jsx';
+import CroatianKnight from '../shared/CroatianKnight';
+import { DalmatianCoast } from '../illustrations';
 
 const LEVEL_PALETTE = [
   { grad: "linear-gradient(135deg,#92400e,#b45309)", light: "#fef3c7", text: "#92400e", border: "#fcd34d" },
@@ -149,6 +151,7 @@ export default function HomeTab({
         }}>
           <span style={{fontSize: 26}}>🌟</span>
           <div style={{flex: 1}}>
+          <CroatianKnight size={60} mood="thinking" style={{float:'right', marginLeft:12}} />
             <div style={{fontSize: 13, fontWeight: 900, color: '#fff', marginBottom: 2}}>
               Great to have you back!
             </div>
@@ -608,6 +611,7 @@ export default function HomeTab({
       {/* ── MILESTONES (conditional on lc > 0) ── */}
       {st.lc === 0 ? (
         <div className="c" style={{padding:16, marginBottom:8}}>
+          <CroatianKnight size={80} mood="happy" style={{margin:'0 auto 12px', display:'block'}} />
           <div style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', marginBottom:8}}>🗺️ Your Croatian Journey</div>
           <div style={{fontSize:'var(--text-sm)', color:'var(--subtext)', lineHeight:1.5}}>
             Start with <strong>Basic Greetings</strong> → <strong>Numbers</strong> → <strong>Family Vocabulary</strong>. Each lesson takes 5–10 minutes.
@@ -795,6 +799,7 @@ export default function HomeTab({
       })()}
 
       {/* ── DISCOVER CROATIAN HEADER ── */}
+      <DalmatianCoast width="100%" height={140} style={{borderRadius:16, marginBottom:12, maxWidth:'100%'}}/>
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12, marginTop:24}}>
         <div style={{width:3, height:20, background:'var(--color-croatian, #b61800)', borderRadius:2}}/>
         <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Discover Croatian</span>

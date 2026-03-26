@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { sh, PLACE, speak } from '../../data.jsx';
 import CroatianGrb from '../shared/CroatianGrb.jsx';
+import CroatianKnight from '../shared/CroatianKnight';
 
 const GOALS = [
   { id: 'heritage', icon: '🇭🇷', label: 'My heritage & roots', sub: 'Connect with where I came from' },
@@ -65,6 +66,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
         <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:'var(--text-4xl)', color:'white', fontWeight:900, marginBottom:8, lineHeight:1.15 }}>
           Naša Hrvatska
         </h1>
+        <CroatianKnight size={110} mood="celebrating" style={{margin:'8px auto', display:'block'}} />
         <p style={{ color:'rgba(255,255,255,0.8)', fontSize:'var(--text-lg)', marginBottom:8 }}>
           Croatian for the diaspora — made with love 🇭🇷
         </p>
