@@ -13,7 +13,7 @@ const DATA = [
   { sentence:"Vidio ___ jutros.", opts:["sam ga","ga sam","se ga","ga je"], answer:"sam ga", en:"I saw him this morning.", tip:"Auxiliary 'sam' goes before accusative 'ga' in clitic order" },
   { sentence:"Pričala ___ o tome.", opts:["mi se","se mi","mi je","je mi"], answer:"mi je", en:"She told me about it.", tip:"Dative 'mi' comes before auxiliary 'je'" },
   { sentence:"On ___ se smiješi.", opts:["mu","joj","im","ga"], answer:"joj", en:"He smiles at her.", tip:"Dative 'joj' (to her) + reflexive 'se' — smiling at someone uses dative" },
-  { sentence:"Uzeli ___ su novac.", opts:["su im","im su","ih su","su ih"], answer:"su im", en:"They took the money from them.", tip:"Auxiliary 'su' precedes dative 'im' in standard clitic order" },
+  { sentence:"Uzeli su ___ novac.", opts:["im","mu","mi","nam"], answer:"im", en:"They took the money from them.", tip:"Dative 'im' (from/for them) — 'uzeti + dative of interest' expresses taking from someone's possession" },
   { sentence:"Zašto ___ ne javlja?", opts:["se ti","ti se","se","te"], answer:"ti se", en:"Why doesn't she call you?", tip:"Dative 'ti' (to you) + reflexive 'se' — javiti se uses reflexive" },
   { sentence:"Mama ___ kupila tortu.", opts:["mi je","je mi","mi se","se mi"], answer:"mi je", en:"Mom bought me a cake.", tip:"Dative 'mi' (for me) → auxiliary 'je'" },
   { sentence:"Poslali ___ pismo.", opts:["su nam","nam su","smo im","im smo"], answer:"su nam", en:"They sent us a letter.", tip:"Auxiliary 'su' then dative 'nam' (to us)" },

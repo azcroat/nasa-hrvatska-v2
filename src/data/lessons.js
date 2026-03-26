@@ -63,7 +63,7 @@ export const LESSONS = [
       {
         type: "rule",
         title: "Č vs Ć — The Classic Challenge",
-        body: "Č (hard) and Ć (soft) are the most confusing pair for learners. Č sounds like 'ch' in 'church' — made with the tongue against the hard palate. Ć is softer — the tongue touches further back, almost like a 'ty' sound. Native speakers always distinguish them.",
+        body: "Č (hard) and Ć (soft) are the most confusing pair for learners. Č sounds like 'ch' in 'church' — the tongue is against the hard palate. Ć is softer — the tongue is positioned further forward, near the teeth ridge, producing a 'ty'-like sound (think the English 'tune' said quickly as 'tyoon'). Native speakers always distinguish them.",
         highlight: "Č vs Ć",
       },
       {
@@ -172,7 +172,7 @@ export const LESSONS = [
       {
         type: "rule",
         title: "Natural Gender Exceptions",
-        body: "Biological sex can override grammatical rules. Male names ending in -a are masculine: Luka, Nikola, Matija. Female titles like 'gospođa' (Mrs.) are feminine even though the person is female. The word 'dijete' (child) is neuter but refers to a person.",
+        body: "Biological sex can override grammatical gender. Male names ending in -a are masculine despite the -a ending: Luka, Nikola, Matija all take masculine adjective agreement (mali Luka — little Luka). Occupational words ending in -a like 'kolega' (colleague) and 'vojvoda' (duke/warlord) can refer to males and take masculine agreement in practice: 'dobar kolega' (good colleague, male).",
         highlight: "biological sex overrides",
       },
       {
