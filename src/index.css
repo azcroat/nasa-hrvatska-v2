@@ -6,7 +6,15 @@
 ═══════════════════════════════════════════════════════════ */
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{
+  -webkit-tap-highlight-color:transparent;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  background:var(--app-bg);
+}
+html{
+  background:var(--app-bg);
+}
 
 /* ═══════════════════════════════════════════════════════════
    DESIGN TOKENS — LIGHT MODE
@@ -98,7 +106,7 @@ body{-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;
 
   /* Misc */
   --bar-bg:rgba(0,0,0,.08);
-  --app-bg:#f8fafc;
+  --app-bg: #f4f6f9;
 
   /* Brand gradient */
   --brand:linear-gradient(135deg,#0e7490,#164e63);
@@ -152,7 +160,7 @@ body{-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;
   --sh-c:#64748b;
   --rt-c:#cbd5e1;
   --bar-bg:rgba(255,255,255,.1);
-  --app-bg:#0f172a;
+  --app-bg: #0b1120;
 
   /* Semantic colors — dark */
   --success:      #4ade80;
