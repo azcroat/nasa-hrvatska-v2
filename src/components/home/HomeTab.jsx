@@ -711,10 +711,12 @@ export default function HomeTab({
                             onClick={() => setScr(questScreenMap[q.id])}
                             style={{
                               marginTop:'auto', fontSize:11, fontWeight:800,
-                              color:'var(--accent,#2563eb)', background:'transparent',
-                              border:'1.5px solid var(--accent,#2563eb)',
-                              borderRadius:8, padding:'4px 10px', cursor:'pointer',
+                              color:'#ffffff',
+                              background:'linear-gradient(135deg,var(--accent,#0e7490),#0284c7)',
+                              border:'none',
+                              borderRadius:8, padding:'5px 12px', cursor:'pointer',
                               lineHeight:1.4,
+                              boxShadow:'0 2px 8px rgba(14,116,144,.35)',
                             }}
                           >
                             {questBtnLabel[q.id]}
