@@ -151,6 +151,32 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
             </button>
           );
         })}
+        {answered && selected !== -1 && q.opts[selected] !== q.correct && (
+          <div style={{
+            background:'var(--info-bg)', border:'1.5px solid var(--info-b)',
+            borderRadius:14, padding:'14px 16px', marginTop:14, marginBottom:4,
+            animation:'spring-in .3s ease',
+          }}>
+            <div style={{fontSize:11, fontWeight:800, color:'var(--info)', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:8}}>
+              ✓ The answer was
+            </div>
+            <div style={{fontSize:22, fontWeight:900, color:'var(--success)', fontFamily:"'Playfair Display',serif", marginBottom:6}}>
+              {q.correct}
+            </div>
+            {q.word[2] && (
+              <div style={{fontSize:12, color:'var(--subtext)', lineHeight:1.5, marginBottom:8}}>
+                {q.word[2]}
+              </div>
+            )}
+            <Spk text={q.word[0]} label="Tip: hear it again 🔊" />
+          </div>
+        )}
+        {answered && selected !== -1 && q.opts[selected] === q.correct && (
+          <div style={{background:'var(--success-bg)', border:'1.5px solid var(--success-b)', borderRadius:12, padding:'10px 14px', marginTop:12, display:'flex', alignItems:'center', gap:8, animation:'spring-in .3s ease'}}>
+            <span style={{fontSize:18}}>✓</span>
+            <span style={{fontSize:14, fontWeight:800, color:'var(--success)'}}>Točno! · Correct!</span>
+          </div>
+        )}
         {answered && (
           <button className="b bp" style={{width:"100%",marginTop:16}} onClick={() => {
             if (idx < questions.length - 1) { setIdx(i => i + 1); setAnswered(false); setSelected(-1); }
