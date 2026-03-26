@@ -194,7 +194,7 @@ export default function PracticeTab({
     { id:'srsreview',    label:'SRS Review',           icon:'🔁', desc:'Smart spaced repetition',             category:'advanced', cefr:'A1+', duration:'self-paced', action: startReview },
     { id:'writing',      label:'Free Writing',         icon:'✍️', desc:'Write & get AI feedback',             category:'advanced', cefr:'B1',  duration:'open-ended', action: startWriting },
     { id:'aspectdrill',  label:'Aspect Drill',         icon:'🔄', desc:'Imperfective vs perfective',          category:'advanced', cefr:'B1+', duration:'~10 min', action: startAspectDrill },
-    { id:'dialogue',     label:'Dialogue Sim',         icon:'💬', desc:'Real turn-based conversations',       category:'advanced', cefr:'B1',  duration:'~10 min', action: () => { setScr("dialogue"); sCurEx("dialogue"); } },
+    { id:'dialogue',     label:'Dialogue Sim',         icon:'💬', desc:'Real turn-based conversations',       category:'practical', cefr:'A1+', duration:'~10 min', action: () => { setScr("dialogue"); sCurEx("dialogue"); } },
     { id:'dictation',    label:'Dictation',            icon:'🎧', desc:'Listen and type Croatian',            category:'advanced', cefr:'B1',  duration:'~10 min', action: () => { setScr("dictation"); sCurEx("dictation"); } },
     { id:'proncontrast', label:'Sound Contrast',       icon:'🔤', desc:'č/ć, š/ž, đ/dž mastery',            category:'advanced', cefr:'A2+', duration:'~8 min',  action: () => { setScr("proncontrast"); sCurEx("proncontrast"); } },
     { id:'cefrtest',     label:'CEFR Test',            icon:'🎓', desc:'A1→B2 proficiency check',             category:'advanced', cefr:'A1+', duration:'~15 min', action: () => { setScr("cefrtest"); sCurEx("cefrtest"); } },

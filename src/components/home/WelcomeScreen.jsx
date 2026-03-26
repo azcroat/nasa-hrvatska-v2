@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { sh, PLACE, speak } from '../../data.jsx';
 import CroatianGrb from '../shared/CroatianGrb.jsx';
 import CroatianKnight from '../shared/CroatianKnight';
@@ -26,6 +26,44 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
   const [dailyMin, setDailyMin] = useState(0);
   const [showSpeakModal, setShowSpeakModal] = useState(false);
   const [selectedGen, setSelectedGen] = useState(localStorage.getItem('nh_heritage_gen') || '');
+
+  // Focus trap refs for the speak modal
+  const modalRef = useRef(null);
+  const triggerRefStep2 = useRef(null);
+  const triggerRefStep3 = useRef(null);
+
+  // Move focus into modal and trap it when open
+  useEffect(() => {
+    if (!showSpeakModal) return;
+    const focusable = modalRef.current?.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable?.length) focusable[0].focus();
+    const handleKeyDown = (e) => {
+      if (e.key !== 'Tab') return;
+      const elements = [...focusable];
+      const first = elements[0];
+      const last = elements[elements.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showSpeakModal]);
+
+  // Return focus to trigger when modal closes
+  useEffect(() => {
+    if (!showSpeakModal) {
+      const trigger = step === 2 ? triggerRefStep2.current : triggerRefStep3.current;
+      if (trigger) trigger.focus();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showSpeakModal]);
 
   function startPlacement() {
     if (!name && au) setName(au.d);
@@ -241,6 +279,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
           </p>
         )}
         <button
+          ref={triggerRefStep2}
           className="b bp"
           style={{ fontSize:'var(--text-lg)', padding:'14px', width:'100%', marginBottom:12, opacity: dailyMin ? 1 : 0.5 }}
           disabled={!dailyMin}
@@ -272,7 +311,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
           Skip test — start as beginner
         </button>
         {showSpeakModal && (
-          <div role="dialog" aria-modal="true" aria-label="Say your first Croatian word" style={{
+          <div ref={modalRef} role="dialog" aria-modal="true" aria-label="Say your first Croatian word" style={{
             position:'fixed', inset:0, background:'rgba(0,0,0,.65)', zIndex:100,
             display:'flex', alignItems:'center', justifyContent:'center', padding:20,
           }}>
@@ -417,7 +456,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
           </div>
         </div>
 
-        <button className="b bp" style={{ fontSize:'var(--text-md)', padding:'14px', width:'100%', marginBottom:10 }}
+        <button ref={triggerRefStep3} className="b bp" style={{ fontSize:'var(--text-md)', padding:'14px', width:'100%', marginBottom:10 }}
           onClick={() => goal === 'elders' ? setShowSpeakModal(true) : startPlacement()}>
           Continue to test →
         </button>
@@ -437,7 +476,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
           Skip this step
         </button>
         {showSpeakModal && (
-          <div role="dialog" aria-modal="true" aria-label={goal === 'elders' ? "Your first Croatian phrase" : "Say your first Croatian word"} style={{
+          <div ref={modalRef} role="dialog" aria-modal="true" aria-label={goal === 'elders' ? "Your first Croatian phrase" : "Say your first Croatian word"} style={{
             position:'fixed', inset:0, background:'rgba(0,0,0,.65)', zIndex:100,
             display:'flex', alignItems:'center', justifyContent:'center', padding:20,
           }}>

@@ -292,10 +292,10 @@ export default function HomeTab({
             {streak.count >= 25 && <div style={{fontSize:10, color:'#d97706', fontWeight:700, marginTop:2}}>5 more days to legendary status! ⭐</div>}
             {streak.count >= 7 && streak.count < 25 && <div style={{fontSize:10, color:'rgba(255,255,255,.6)', marginTop:2}}>{30 - streak.count} days to Legend status</div>}
             {freezes > 0 && (
-              <div style={{marginTop:8,display:'flex',alignItems:'center',gap:3,
-                background:'rgba(255,255,255,.11)',borderRadius:10,padding:'3px 9px'}}>
-                <span style={{fontSize:11}}>🛡️</span>
-                <span style={{fontSize:9,color:'rgba(255,255,255,.8)',fontWeight:700}}>{freezes} freeze{freezes>1?'s':''}</span>
+              <div title="Zaštita niza — Streak shield" style={{marginTop:8,display:'flex',alignItems:'center',gap:3,
+                background:'rgba(59,130,246,.18)',border:'1px solid rgba(59,130,246,.35)',borderRadius:10,padding:'4px 9px'}}>
+                <span style={{fontSize:12}}>🛡️</span>
+                <span style={{fontSize:9,color:'rgba(147,197,253,.95)',fontWeight:800}}>×{freezes} Zaštita niza</span>
               </div>
             )}
           </div>
