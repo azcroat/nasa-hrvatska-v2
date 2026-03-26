@@ -191,7 +191,7 @@ export default function CeremonyModal({ type, stats, name, onClose }) {
 
             {/* Shareable card message */}
             {showShare && (
-              <div style={{ background:'#f0fdf4', border:'1.5px solid #86efac', borderRadius:12, padding:'10px', marginBottom:16, fontSize:12, color:'#166534', fontWeight:600 }}>
+              <div style={{ background:'var(--success-bg)', border:`1.5px solid var(--success-b)`, borderRadius:12, padding:'10px', marginBottom:16, fontSize:'var(--text-sm)', color:'var(--success)', fontWeight:600 }}>
                 ✓ Copied to clipboard!
               </div>
             )}
