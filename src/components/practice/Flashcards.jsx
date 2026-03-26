@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, srMark } from '../../data.jsx';
+import CroatianKnight from '../shared/CroatianKnight';
 
 const STILL_LEARNING_MSG_DURATION = 1200;
 
@@ -54,6 +55,11 @@ export default function Flashcards({ pool, goBack, award }) {
     return (
       <div className="scr-wrap">
         <div style={{textAlign:"center",padding:"40px 20px 20px"}}>
+          <CroatianKnight
+            size={80}
+            mood={missedCount === 0 ? 'celebrating' : 'happy'}
+            style={{margin:'0 auto 12px', display:'block'}}
+          />
           <div style={{fontSize:64}}>{missedCount === 0 ? "🌟" : "🎉"}</div>
           <h3 style={{fontFamily:"'Playfair Display',serif",fontSize:22,color:"var(--heading)",marginTop:12}}>
             {missedCount === 0 ? "Perfect round!" : "Round complete!"}

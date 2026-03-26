@@ -1,5 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { H, Bar, speak, srMark, sh, shuffleArr, V } from '../../data.jsx';
+import CroatianKnight from '../shared/CroatianKnight';
+import { CelebrationScene } from '../illustrations';
 
 const CONFETTI_COLORS = ['#38bdf8','#fbbf24','#4ade80','#f87171','#a78bfa','#fb923c','#34d399','#e879f9'];
 
@@ -301,6 +303,12 @@ export default function LessonScreen({
 
       <div style={{ position: 'relative', zIndex: 1, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
+        <CroatianKnight
+          size={90}
+          mood={scorePct === 1 ? 'celebrating' : scorePct >= 0.5 ? 'happy' : 'neutral'}
+          style={{margin:'0 auto 16px', display:'block', animation:'bounce-in .5s ease'}}
+        />
+
         {/* Trophy / emoji */}
         <div style={{
           fontSize: 76, lineHeight: 1, marginBottom: 18,
@@ -391,6 +399,13 @@ export default function LessonScreen({
             </div>
           </div>
         </div>
+
+        {/* Celebration illustration */}
+        <CelebrationScene
+          width={280} height={120}
+          message={scorePct === 1 ? 'Savršeno!' : 'Odlično!'}
+          style={{margin:'0 auto 4px', display:'block'}}
+        />
 
         {/* What's Next card */}
         <div style={{
