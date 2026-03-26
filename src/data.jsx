@@ -285,6 +285,15 @@ const BADGES=[
   {id:"read3",n:"Reading Pro",i:"📰",d:"Complete 3 reading passages",r:s=>(s.readingDone||0)>=3},
   // Cultural
   {id:"amb",n:"Cultural Ambassador",i:"🇭🇷",d:"Explore HRT & media",r:s=>(s.mediaVisits||0)>=1},
+  // Cultural content badges
+  {id:"baka1",  n:"Baka's Listener",   i:"💌", d:"Opened your first letter from Baka",       r:()=>(getCultureStats().bakaCnt||0)>=1},
+  {id:"baka5",  n:"Baka's Devotee",    i:"👵", d:"Read 5 letters from Baka",                 r:()=>(getCultureStats().bakaCnt||0)>=5},
+  {id:"city5",  n:"City Explorer",     i:"🏙️",d:"Explored 5 Croatian cities",               r:()=>(getCultureStats().cityCnt||0)>=5},
+  {id:"city15", n:"Wanderer",          i:"🗺️",d:"Discovered 15 Croatian cities",            r:()=>(getCultureStats().cityCnt||0)>=15},
+  {id:"media5", n:"Culture Seeker",    i:"🎵", d:"Explored 5 Croatian media items",          r:()=>(getCultureStats().mediaCnt||0)>=5},
+  {id:"media20",n:"Culture Master",    i:"🇭🇷",d:"Experienced 20 Croatian media items",     r:()=>(getCultureStats().mediaCnt||0)>=20},
+  {id:"region5",n:"Regional Explorer", i:"🏔️",d:"Explored 5 Croatian regions",             r:()=>(getCultureStats().regionCnt||0)>=5},
+  {id:"proverb",n:"Wisdom Seeker",     i:"📜", d:"Read 3 Croatian proverbs",                 r:()=>(getCultureStats().proverbCnt||0)>=3},
 ];
 const DAILY_QUESTS = [
   { id: 'speak',   icon: '🎤', name: 'Speak Quest',   desc: 'Complete 1 speaking exercise',  xp: 25 },
@@ -459,6 +468,16 @@ const CONJ = {
 // ═══ SPACED REPETITION ═══
 function getSR(){try{return JSON.parse(localStorage.getItem("uSR")||"{}")}catch{return{}}}
 function saveSR(d){localStorage.setItem("uSR",JSON.stringify(d))}
+// Cultural content tracking
+export function getCultureStats() {
+  try { return JSON.parse(localStorage.getItem('nh_culture') || '{}'); } catch { return {}; }
+}
+export function incrementCulture(key) {
+  const c = getCultureStats();
+  c[key] = (c[key] || 0) + 1;
+  localStorage.setItem('nh_culture', JSON.stringify(c));
+  return c[key];
+}
 // SM-2 spaced repetition — tracks ease factor + interval per word
 // correct=true → quality 4 (good recall), false → quality 1 (forgot)
 function srMark(word,correct){

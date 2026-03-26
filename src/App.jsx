@@ -844,7 +844,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
         /></ScreenErrorBoundary></div>}
         {// ═══ TAB: CROATIA ═══
         tab==="croatia"&&<div key="tab-croatia" className="screen-enter"><ScreenErrorBoundary name="CroatiaTab"><CroatiaTab
-          setScr={setScr} sCurEx={sCurEx}
+          setScr={setScr} sCurEx={sCurEx} award={award}
         /></ScreenErrorBoundary></div>}
         {// ═══ TAB: PROFILE ═══
         tab==="profile"&&<div key="tab-profile" className="screen-enter"><ScreenErrorBoundary name="ProfileTab"><ProfileTab
