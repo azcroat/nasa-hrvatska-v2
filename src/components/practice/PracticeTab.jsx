@@ -235,18 +235,39 @@ export default function PracticeTab({
     'C1': '#5b21b6', 'C2': '#5b21b6',
   };
 
+  // Today's Pick — 3 exercise IDs chosen by time of day
+  const todaysPicks = (() => {
+    const hr = new Date().getHours();
+    if (hr < 12) return ['znam', 'srsreview', 'genderdrill'];
+    if (hr < 18) return ['cloze', 'verbdrill', 'srsreview'];
+    return ['verbdrill', 'prepdrill', 'znam'];
+  })();
+
   function ExerciseCard({ id, label, icon, desc, cefr, duration, action, category }) {
+    const isPick = todaysPicks.includes(id);
     return (
       <button
         onClick={action}
         style={{
           display:'flex', alignItems:'center', gap:12, padding:14,
-          borderRadius:14, background:'var(--card)', border:'1px solid var(--card-b)',
+          borderRadius:14,
+          background: isPick ? 'var(--info-bg, #f0f9ff)' : 'var(--card)',
+          border: isPick ? '1.5px solid var(--info-b, #bae6fd)' : '1px solid var(--card-b)',
           cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
-          boxShadow:'0 1px 3px rgba(0,0,0,.06)',
-          borderLeft: `3px solid ${CATEGORY_COLORS[category] || 'var(--bar-bg)'}`,
+          boxShadow: isPick ? '0 2px 8px rgba(14,116,144,.12)' : '0 1px 3px rgba(0,0,0,.06)',
+          borderLeft: `3px solid ${isPick ? 'var(--info)' : (CATEGORY_COLORS[category] || 'var(--bar-bg)')}`,
+          position:'relative',
         }}
       >
+        {isPick && (
+          <div style={{
+            position:'absolute', top:6, right:8,
+            fontSize:9, fontWeight:900, color:'var(--info)',
+            background:'var(--card)', border:'1px solid var(--info-b)',
+            borderRadius:6, padding:'1px 6px', letterSpacing:'.05em',
+            textTransform:'uppercase',
+          }}>⭐ Today</div>
+        )}
         <div style={{
           width:40, height:40, borderRadius:12,
           background:'var(--bar-bg)', border:'1px solid var(--card-b)',
