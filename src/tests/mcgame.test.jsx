@@ -188,7 +188,6 @@ describe('McGame — XP double-award prevention', () => {
 
     fireEvent.click(screen.getByText('answer0')); // correct answer
     fireEvent.click(screen.getByText(/See Results/i));
-    // onComplete(questions, score)
     expect(onComplete).toHaveBeenCalledWith(questions, 1);
   });
 

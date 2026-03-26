@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data.jsx';
-
+import { speak } from '../../lib/audio.js';
 import { rnd } from '../../lib/random.js';
 function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;}
 
@@ -32,6 +32,72 @@ const DATA = [
   { q:"'Enough' in Croatian:", opts:["dosta","dôsta","dosta","doška"], answer:"dosta", en:"dosta = enough", tip:"'Dosta' — essential word. 'To je dosta' = That's enough" },
 ];
 
+// Detect which sound contrast is at play in a question's options
+function detectContrast(opts) {
+  const joined = opts.join(' ');
+  const hasC = (c) => joined.includes(c);
+  if (hasC('č') && hasC('ć')) return 'c_soft';
+  if (hasC('š') && hasC('ž')) return 's_voiced';
+  if (hasC('đ') || hasC('dž')) return 'dj';
+  return 'generic';
+}
+
+const CONTRAST_BARS = {
+  c_soft: [
+    { label: 'č — harder', sublabel: '"ch" in church', pct: 85, color: 'var(--info, #0284c7)' },
+    { label: 'ć — softer', sublabel: '"ch" in cheap (palatalized)', pct: 45, color: 'var(--accent, #e0805a)' },
+  ],
+  s_voiced: [
+    { label: 'š — unvoiced', sublabel: '"sh" in shop', pct: 70, color: '#7c3aed' },
+    { label: 'ž — voiced', sublabel: '"s" in measure', pct: 90, color: '#db2777' },
+  ],
+  dj: [
+    { label: 'đ — soft fused', sublabel: 'like "dj" merged', pct: 55, color: '#059669' },
+    { label: 'dj — separate', sublabel: 'd + j distinct', pct: 75, color: '#0284c7' },
+  ],
+  generic: [
+    { label: 'Option A', sublabel: 'first sound', pct: 60, color: 'var(--info, #0284c7)' },
+    { label: 'Option B', sublabel: 'second sound', pct: 80, color: 'var(--accent, #e0805a)' },
+  ],
+};
+
+const VIZ_KEYFRAMES = `
+@keyframes barGrow {
+  from { width: 0; }
+  to   { width: var(--target-w); }
+}
+`;
+
+function FrequencyViz({ opts }) {
+  const contrast = detectContrast(opts);
+  const bars = CONTRAST_BARS[contrast];
+  return (
+    <div style={{ marginTop: 12, padding: '10px 14px', background: 'var(--card, #f8fafc)', border: '1.5px solid #e2e8f0', borderRadius: 10 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
+        Sound Comparison
+      </div>
+      {bars.map((bar, i) => (
+        <div key={i} style={{ marginBottom: i < bars.length - 1 ? 10 : 0 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: bar.color }}>{bar.label}</span>
+            <span style={{ fontSize: 11, color: '#94a3b8' }}>{bar.sublabel}</span>
+          </div>
+          <div style={{ height: 10, background: '#e2e8f0', borderRadius: 6, overflow: 'hidden' }}>
+            <div style={{
+              height: '100%',
+              width: `${bar.pct}%`,
+              background: bar.color,
+              borderRadius: 6,
+              animation: `barGrow 0.6s ease ${i * 0.15}s both`,
+              '--target-w': `${bar.pct}%`,
+            }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function PronunciationContrast({ goBack, award }) {
   const finishFired = useRef(false);
   const [qs] = useState(() => shLocal(DATA));
@@ -61,6 +127,7 @@ export default function PronunciationContrast({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
+      <style>{VIZ_KEYFRAMES}</style>
       {H("🔤 Sound Contrast", "Master č/ć, š/ž, đ/dž and more")}
       <div style={{display:"flex",justifyContent:"space-between"}}>
         <span>{idx + 1} / {total}</span>
@@ -73,23 +140,48 @@ export default function PronunciationContrast({ goBack, award }) {
       </div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:16}}>
         {q.opts.map((o, oi) => (
-          <button
-            key={oi}
-            className="ob"
-            style={{
-              textAlign:"center",
-              background: answered ? (o === q.answer ? "#dcfce7" : selected === oi ? "#fee2e2" : "white") : "white",
-              borderColor: answered ? (o === q.answer ? "#16a34a" : selected === oi ? "#dc2626" : "rgba(14,116,144,.12)") : "rgba(14,116,144,.12)"
-            }}
-            onClick={() => {
-              if (!answered) {
-                setSelected(oi);
-                setAnswered(true);
-                if (o === q.answer) setScore(score + 1);
-              }
-            }}>
-            {o}
-          </button>
+          <div key={oi} style={{ position: 'relative' }}>
+            <button
+              className="ob"
+              style={{
+                textAlign:"center",
+                width: '100%',
+                paddingRight: 36,
+                background: answered ? (o === q.answer ? "#dcfce7" : selected === oi ? "#fee2e2" : "white") : "white",
+                borderColor: answered ? (o === q.answer ? "#16a34a" : selected === oi ? "#dc2626" : "rgba(14,116,144,.12)") : "rgba(14,116,144,.12)"
+              }}
+              onClick={() => {
+                if (!answered) {
+                  setSelected(oi);
+                  setAnswered(true);
+                  if (o === q.answer) setScore(score + 1);
+                }
+              }}>
+              {o}
+            </button>
+            {/* 🔊 button — always visible, speaks the option */}
+            <button
+              onClick={(e) => { e.stopPropagation(); speak(o); }}
+              style={{
+                position: 'absolute',
+                right: 6,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: 16,
+                padding: '4px',
+                lineHeight: 1,
+                color: '#0e7490',
+                opacity: 0.75,
+              }}
+              title={`Hear "${o}"`}
+              aria-label={`Play pronunciation of ${o}`}
+            >
+              🔊
+            </button>
+          </div>
         ))}
       </div>
       {answered && (
@@ -98,6 +190,7 @@ export default function PronunciationContrast({ goBack, award }) {
           <div style={{fontSize:13,color:"#075985"}}>{q.tip}</div>
         </div>
       )}
+      {answered && <FrequencyViz opts={q.opts} />}
       {answered && (
         <button
           className="b bp"

@@ -3,7 +3,7 @@ import confetti from 'canvas-confetti';
 import { V, sh } from '../../data.jsx';
 import CroatianKnight from '../shared/CroatianKnight';
 
-export default function McResult({ questions, score, setScr, goBack, onNewGame }) {
+export default function McResult({ questions, score, mistakes = [], setScr, goBack, onNewGame, award }) {
   const total = questions.length;
   const allCats = Object.keys(V);
   const targetXP = score * 3 + 5;
@@ -47,6 +47,35 @@ export default function McResult({ questions, score, setScr, goBack, onNewGame }
     }
   }, []);
 
+  // ── Mistake review drill state ────────────────────────────────────────────
+  // reviewPhase: "idle" | "drilling" | "done"
+  const [reviewPhase, setReviewPhase] = useState('idle');
+  const [reviewIdx, setReviewIdx] = useState(0);
+  const [reviewFlipped, setReviewFlipped] = useState(false);
+  const [knownCount, setKnownCount] = useState(0);
+  const [reviewDismissed, setReviewDismissed] = useState(false);
+
+  const showReviewPrompt = mistakes.length >= 2 && !reviewDismissed && reviewPhase === 'idle';
+
+  function startReview() {
+    setReviewIdx(0);
+    setReviewFlipped(false);
+    setKnownCount(0);
+    setReviewPhase('drilling');
+  }
+
+  function handleReviewMark(known) {
+    if (known) setKnownCount(k => k + 1);
+    const next = reviewIdx + 1;
+    if (next >= mistakes.length) {
+      setReviewPhase('done');
+      if (award) award(5);
+    } else {
+      setReviewIdx(next);
+      setReviewFlipped(false);
+    }
+  }
+
   function playAgain() {
     const pool = allCats.flatMap(c => V[c]);
     const items = sh(pool).slice(0, 15).map(w => {
@@ -55,6 +84,8 @@ export default function McResult({ questions, score, setScr, goBack, onNewGame }
     });
     onNewGame(items);
   }
+
+  const currentMistake = mistakes[reviewIdx];
 
   return (
     <div className="scr-wrap">
@@ -122,6 +153,215 @@ export default function McResult({ questions, score, setScr, goBack, onNewGame }
             : '📖 Practice these words with Flashcards before retrying 🃏'}
         </div>
       </div>
+
+      {/* ── Mistake Review Prompt ── shown when 2+ mistakes and not dismissed */}
+      {showReviewPrompt && (
+        <div style={{
+          animation: 'fade-up 0.5s ease both',
+          animationDelay: '0.35s',
+          marginTop: 12,
+          padding: '14px 16px',
+          background: 'rgba(245,158,11,0.08)',
+          border: '1px solid rgba(245,158,11,0.3)',
+          borderRadius: 14,
+        }}>
+          <div style={{ fontWeight: 800, fontSize: 14, color: '#b45309', marginBottom: 4 }}>
+            ⚡ Quick Review — {mistakes.length} {mistakes.length === 1 ? 'Word' : 'Words'} to Reinforce
+          </div>
+          <div style={{ width: '100%', height: 1, background: 'rgba(245,158,11,0.25)', margin: '8px 0' }} />
+          <div style={{ fontSize: 13, color: 'var(--subtext)', marginBottom: 12 }}>
+            You missed these words. 30-second review?
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button
+              onClick={() => setReviewDismissed(true)}
+              style={{
+                flex: 1,
+                padding: '10px 12px',
+                borderRadius: 10,
+                border: '1.5px solid rgba(245,158,11,0.35)',
+                background: 'none',
+                color: '#92400e',
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: "'Outfit',sans-serif",
+              }}
+            >
+              ✗ Skip
+            </button>
+            <button
+              onClick={startReview}
+              style={{
+                flex: 2,
+                padding: '10px 12px',
+                borderRadius: 10,
+                border: 'none',
+                background: 'linear-gradient(135deg,#f59e0b,#d97706)',
+                color: '#fff',
+                fontSize: 13,
+                fontWeight: 800,
+                cursor: 'pointer',
+                fontFamily: "'Outfit',sans-serif",
+              }}
+            >
+              Review Now →
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Mini Flashcard Drill ── */}
+      {reviewPhase === 'drilling' && currentMistake && (
+        <div style={{
+          marginTop: 16,
+          border: '1.5px solid rgba(245,158,11,0.4)',
+          borderRadius: 16,
+          overflow: 'hidden',
+          animation: 'fade-up 0.3s ease both',
+        }}>
+          {/* Drill header */}
+          <div style={{
+            background: 'rgba(245,158,11,0.1)',
+            padding: '10px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}>
+            <span style={{ fontSize: 13, fontWeight: 800, color: '#b45309' }}>
+              ⚡ Mistake Review
+            </span>
+            <span style={{ fontSize: 12, color: '#92400e', fontWeight: 600 }}>
+              {reviewIdx + 1} / {mistakes.length}
+            </span>
+          </div>
+
+          {/* Flashcard */}
+          <div style={{ padding: '20px 16px', background: 'var(--card)' }}>
+            {!reviewFlipped ? (
+              /* Front: Croatian word / question */
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--subtext)', letterSpacing: '0.08em', marginBottom: 8, textTransform: 'uppercase' }}>
+                  Croatian
+                </div>
+                <div style={{
+                  fontSize: 32,
+                  fontWeight: 900,
+                  fontFamily: "'Playfair Display',serif",
+                  color: 'var(--heading)',
+                  marginBottom: 16,
+                  lineHeight: 1.2,
+                }}>
+                  {currentMistake.hr || currentMistake.q || '—'}
+                </div>
+                <button
+                  onClick={() => setReviewFlipped(true)}
+                  style={{
+                    padding: '12px 28px',
+                    borderRadius: 12,
+                    border: '1.5px solid rgba(245,158,11,0.5)',
+                    background: 'rgba(245,158,11,0.1)',
+                    color: '#b45309',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontFamily: "'Outfit',sans-serif",
+                  }}
+                >
+                  Show Answer
+                </button>
+              </div>
+            ) : (
+              /* Back: English meaning + mark buttons */
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--subtext)', letterSpacing: '0.08em', marginBottom: 4, textTransform: 'uppercase' }}>
+                  English
+                </div>
+                <div style={{
+                  fontSize: 22,
+                  fontWeight: 800,
+                  color: 'var(--heading)',
+                  marginBottom: 4,
+                  lineHeight: 1.3,
+                }}>
+                  {currentMistake.en || currentMistake.correct || '—'}
+                </div>
+                {currentMistake.hr && (
+                  <div style={{ fontSize: 13, color: 'var(--subtext)', marginBottom: 16 }}>
+                    {currentMistake.hr}
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+                  <button
+                    onClick={() => handleReviewMark(false)}
+                    style={{
+                      flex: 1,
+                      padding: '12px 10px',
+                      borderRadius: 12,
+                      border: '1.5px solid rgba(239,68,68,0.4)',
+                      background: 'rgba(239,68,68,0.07)',
+                      color: '#dc2626',
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontFamily: "'Outfit',sans-serif",
+                    }}
+                  >
+                    Still unsure ✗
+                  </button>
+                  <button
+                    onClick={() => handleReviewMark(true)}
+                    style={{
+                      flex: 1,
+                      padding: '12px 10px',
+                      borderRadius: 12,
+                      border: '1.5px solid rgba(22,163,74,0.4)',
+                      background: 'rgba(22,163,74,0.07)',
+                      color: '#16a34a',
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontFamily: "'Outfit',sans-serif",
+                    }}
+                  >
+                    I know it ✓
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Review Done banner ── */}
+      {reviewPhase === 'done' && (
+        <div style={{
+          marginTop: 16,
+          padding: '14px 16px',
+          background: 'rgba(22,163,74,0.08)',
+          border: '1px solid rgba(22,163,74,0.3)',
+          borderRadius: 14,
+          textAlign: 'center',
+          animation: 'fade-up 0.4s ease both',
+        }}>
+          <div style={{ fontSize: 22, marginBottom: 4 }}>🎉</div>
+          <div style={{ fontWeight: 800, fontSize: 14, color: '#15803d', marginBottom: 4 }}>
+            Great! You reviewed {mistakes.length} {mistakes.length === 1 ? 'word' : 'words'}. Keep going!
+          </div>
+          <div style={{
+            display: 'inline-block',
+            marginTop: 4,
+            padding: '4px 12px',
+            background: 'rgba(22,163,74,0.15)',
+            borderRadius: 20,
+            fontSize: 12,
+            fontWeight: 800,
+            color: '#16a34a',
+          }}>
+            +5 XP
+          </div>
+        </div>
+      )}
 
       {/* ── Buttons ── delay 0.4s */}
       <div style={{
