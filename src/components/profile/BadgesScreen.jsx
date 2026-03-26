@@ -1,5 +1,6 @@
 import React from 'react';
 import { H, BADGES, getStreak, getSR } from '../../data.jsx';
+import BadgeArtwork from '../shared/BadgeArtwork.jsx';
 
 // Returns { cur, total } for badges that have trackable numeric progress.
 // Returns null for one-shot badges (gram, spk, hist, etc.)
@@ -55,7 +56,9 @@ export default function BadgesScreen({ badges, stats, goBack }) {
           const prog = !u ? getBadgeProgress(b, st) : null;
           return (
             <div key={b.id} className="c" style={{textAlign:"center",opacity:u?1:.6,border:u?"2px solid #fbbf24":"1.5px dashed #e2e8f0"}}>
-              <div style={{fontSize:36}}>{b.i}</div>
+              <div style={{display:"flex",justifyContent:"center",marginBottom:4}}>
+                <BadgeArtwork badgeId={b.id} size={52} earned={u} />
+              </div>
               <div style={{fontSize:14,fontWeight:700}}>{b.n}</div>
               <div style={{fontSize:11,color:"#78716c",marginTop:4}}>{b.d}</div>
               {u
