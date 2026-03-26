@@ -62,6 +62,9 @@ export default function PitchAccentScreen({ goBack, award, PITCH_ACCENT }) {
           <Spk text={item.hr} label={item.hr} />
           <p style={{fontSize:40,fontWeight:800,fontFamily:"'Playfair Display',serif",margin:0}}>{item.hr}</p>
         </div>
+        <p style={{fontSize:"0.75rem",color:"var(--subtext,#94a3b8)",marginBottom:4,marginTop:-4}}>
+          Note: Synthetic voice approximates pitch accent — listen to native recordings for precise tones.
+        </p>
         <p style={{fontSize:14,color:"#78716c",marginBottom:4,fontStyle:"italic"}}>{item.en}</p>
         {answered && (
           <p style={{fontSize:22,fontWeight:700,color:"#7c3aed",marginBottom:4}}>{item.mark}</p>

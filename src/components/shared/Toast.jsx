@@ -15,6 +15,8 @@ export default function Toast({ message, type = 'success', onClose }) {
 
   return (
     <div
+      role="alert"
+      aria-live="polite"
       onClick={onClose}
       style={{
         position: 'fixed', bottom: 88, left: '50%', transform: 'translateX(-50%)',

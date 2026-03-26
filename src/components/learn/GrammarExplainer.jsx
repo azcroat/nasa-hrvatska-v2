@@ -20,7 +20,39 @@ const TOPICS = [
   { id:"conditional",icon:"💭",title:"Conditional Mood",   level:"B2", desc:"Wishes & hypotheticals with bi" },
   { id:"impersonal",icon:"🌀", title:"Impersonal Constructions",level:"B2",desc:"Se constructions" },
   { id:"pitch",     icon:"🎵", title:"Pitch Accent",        level:"B2", desc:"Four-way tone system" },
+  { id:"relative_clauses",  icon:"🔗", title:"Relative Clauses",      level:"C1", desc:"koji/koja/koje with full case agreement" },
+  { id:"verbal_nouns",      icon:"📦", title:"Verbal Nouns",           level:"C1", desc:"Glagolske imenice — čitanje, pisanje, učenje" },
+  { id:"aspect_narrative",  icon:"📖", title:"Aspect in Narrative",    level:"C1", desc:"Perfective/imperfective for foreground/background" },
+  { id:"genitive_negation", icon:"🚫", title:"Genitive of Negation",   level:"C1", desc:"Negation shifts accusative → genitive" },
+  { id:"advanced_clitics",  icon:"⚙️", title:"Advanced Clitics",       level:"C1", desc:"Clitic clusters, ordering rules & climbing" },
 ];
+
+const WRITING_PROMPTS = {
+  gender:            "Write 3 sentences in Croatian using nouns of different genders (masculine, feminine, and neuter). For each noun, include an adjective that matches its gender.",
+  present:           "Write 4 sentences describing what you and people around you do every day. Use at least 3 different verbs.",
+  past:              "Write about what you did yesterday morning. Describe at least 3 actions using the past tense.",
+  future:            "Write about your plans for next weekend. Use both ways of expressing the future if you can.",
+  cases_intro:       "Write 3 sentences in Croatian that each use a different grammatical case. Note which case you used in parentheses.",
+  nominative:        "Write 3 sentences where the subject does something. Make the subject as specific and interesting as possible.",
+  accusative:        "Write 3 sentences about what you see in your room right now. Use direct objects in the accusative case.",
+  genitive:          "Write 3 sentences expressing possession or quantity. For example, describe what belongs to someone or how much of something there is.",
+  dative:            "Write 3 sentences about giving, sending, or doing something for someone. Use the dative case for the recipient.",
+  locative:          "Write 3 sentences describing where things or people are. Use prepositions like u, na, or o with the locative case.",
+  instrumental:      "Write 3 sentences about doing something with a tool or together with someone. Use the instrumental case.",
+  vocative:          "Write a short note (3-4 sentences) addressing a friend or family member directly by name. Use the vocative case.",
+  aspect:            "Write 3 sentence pairs — each pair should describe the same action once as completed (perfective) and once as ongoing (imperfective).",
+  clitics:           "Write 4 sentences using clitic pronouns (mi, ti, mu, joj, ga, je, etc.). Pay attention to word order.",
+  conditional:       "Write 3 sentences about wishes or hypotheticals using the conditional mood (bi + past participle).",
+  impersonal:        "Write 3 sentences using se constructions to describe things that happen in general or without a specific subject.",
+  pitch:             "Write 3 Croatian sentences and mark which syllable carries stress in at least one word per sentence.",
+  relative_clauses:  "Write 3 sentences with relative clauses using koji, koja, or koje. Make sure the relative pronoun agrees with the noun it refers to.",
+  verbal_nouns:      "Write 3 sentences using verbal nouns (e.g. čitanje, pisanje, učenje). Describe activities you enjoy or find difficult.",
+  aspect_narrative:  "Write a short paragraph (3-4 sentences) about something that happened to you, mixing perfective and imperfective verbs to show background and foreground action.",
+  genitive_negation: "Write 3 sentences using negation. Notice how the object shifts from accusative to genitive when you negate.",
+  advanced_clitics:  "Write 4 sentences that include clitic clusters (e.g. joj ga, mu se). Pay careful attention to the ordering rules.",
+};
+
+const FALLBACK_PROMPT = "Write 2-3 sentences in Croatian using what you just learned in this lesson.";
 
 const LEVEL_COLORS = {
   A1: { bg: "#dcfce7", text: "#166534", border: "#86efac" },
@@ -65,6 +97,13 @@ export default function GrammarExplainer({ goBack, award }) {
   const [xpAwarded, setXpAwarded] = useState(false);
   const [error, setError] = useState(null);
 
+  // Writing practice state
+  const [writingText, setWritingText] = useState("");
+  const [writingLoading, setWritingLoading] = useState(false);
+  const [writingResult, setWritingResult] = useState(null);
+  const [writingError, setWritingError] = useState(null);
+  const [writingSkipped, setWritingSkipped] = useState(false);
+
   async function generateLesson() {
     if (!selectedTopic) return;
     setPhase("loading");
@@ -85,6 +124,10 @@ export default function GrammarExplainer({ goBack, award }) {
       setQuizAnswers(new Array((data.quiz || []).length).fill(null));
       setQuizSubmitted(false);
       setXpAwarded(false);
+      setWritingText("");
+      setWritingResult(null);
+      setWritingError(null);
+      setWritingSkipped(false);
       setPhase("lesson");
     } catch (e) {
       setError(e.message || "Failed to generate lesson");
@@ -110,6 +153,37 @@ export default function GrammarExplainer({ goBack, award }) {
     setQuizSubmitted(false);
     setXpAwarded(false);
     setError(null);
+    setWritingText("");
+    setWritingResult(null);
+    setWritingError(null);
+    setWritingSkipped(false);
+  }
+
+  async function handleCheckWriting() {
+    if (!writingText.trim()) return;
+    const promptText = (selectedTopic && WRITING_PROMPTS[selectedTopic.id]) || FALLBACK_PROMPT;
+    setWritingLoading(true);
+    setWritingResult(null);
+    setWritingError(null);
+    try {
+      const res = await fetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "writeeval",
+          params: { level, writingPrompt: promptText },
+          messages: [{ role: "user", content: writingText.trim() }],
+        }),
+      });
+      if (!res.ok) throw new Error("API error " + res.status);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setWritingResult(data);
+    } catch (e) {
+      setWritingError(e.message || "Failed to evaluate writing");
+    } finally {
+      setWritingLoading(false);
+    }
   }
 
   // ── PHASE: loading ────────────────────────────────────────────────────────
@@ -322,7 +396,120 @@ export default function GrammarExplainer({ goBack, award }) {
             )}
           </div>
 
-          {/* 6. Tip */}
+          {/* 6. Writing Practice (shown after quiz is submitted) */}
+          {quizSubmitted && !writingSkipped && (
+            <div style={{ background: "var(--card)", border: "1px solid var(--card-b)", borderRadius: 14, padding: "20px 20px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                <div style={{ fontSize: "var(--text-lg)", fontWeight: 700, color: "var(--heading)" }}>✍️ Practice Writing</div>
+                <button
+                  onClick={() => setWritingSkipped(true)}
+                  style={{ background: "none", border: "none", color: "var(--subtext)", cursor: "pointer", fontSize: "var(--text-sm)", textDecoration: "underline", padding: 0 }}
+                >
+                  Skip
+                </button>
+              </div>
+              <p style={{ margin: "0 0 14px", fontSize: "var(--text-sm)", color: "var(--subtext)", lineHeight: 1.6 }}>
+                {(selectedTopic && WRITING_PROMPTS[selectedTopic.id]) || FALLBACK_PROMPT}
+              </p>
+              <textarea
+                value={writingText}
+                onChange={e => { setWritingText(e.target.value); setWritingResult(null); setWritingError(null); }}
+                placeholder="Napiši ovdje na hrvatskom..."
+                rows={4}
+                style={{
+                  width: "100%", boxSizing: "border-box",
+                  background: "var(--bar-bg)", border: "1px solid var(--card-b)",
+                  borderRadius: 10, padding: "12px 14px",
+                  fontSize: "var(--text-base)", color: "var(--heading)",
+                  fontFamily: "inherit", lineHeight: 1.6, resize: "vertical",
+                  outline: "none",
+                }}
+              />
+              {writingError && (
+                <div style={{ marginTop: 10, background: "#fee2e2", border: "1px solid #fca5a5", borderRadius: 8, padding: "10px 14px", color: "#991b1b", fontSize: "var(--text-sm)" }}>
+                  {writingError}
+                </div>
+              )}
+              <button
+                onClick={handleCheckWriting}
+                disabled={!writingText.trim() || writingLoading}
+                style={{
+                  marginTop: 12, width: "100%",
+                  background: (!writingText.trim() || writingLoading) ? "var(--bar-bg)" : "var(--accent)",
+                  color: (!writingText.trim() || writingLoading) ? "var(--subtext)" : "#fff",
+                  border: "none", borderRadius: 12, padding: "13px",
+                  fontSize: "var(--text-base)", fontWeight: 700,
+                  cursor: (!writingText.trim() || writingLoading) ? "not-allowed" : "pointer",
+                  transition: "all 0.2s",
+                }}
+              >
+                {writingLoading ? "Checking..." : "Check my writing"}
+              </button>
+
+              {/* AI Feedback */}
+              {writingResult && (
+                <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+                  {/* Score bar */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ flex: 1, height: 8, background: "var(--bar-bg)", borderRadius: 99, overflow: "hidden" }}>
+                      <div style={{ height: "100%", width: (writingResult.score || 0) + "%", background: writingResult.score >= 75 ? "#16a34a" : writingResult.score >= 50 ? "#d97706" : "#dc2626", borderRadius: 99, transition: "width 0.5s ease" }} />
+                    </div>
+                    <span style={{ fontWeight: 700, fontSize: "var(--text-sm)", color: "var(--heading)", whiteSpace: "nowrap" }}>
+                      {writingResult.score}/100
+                    </span>
+                  </div>
+
+                  {/* Corrected text */}
+                  {writingResult.corrected_text && writingResult.corrected_text !== writingText.trim() && (
+                    <div style={{ background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 10, padding: "12px 14px" }}>
+                      <div style={{ fontSize: "var(--text-xs)", fontWeight: 700, color: "#166534", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Corrected Version</div>
+                      <p style={{ margin: 0, fontSize: "var(--text-sm)", color: "#166534", lineHeight: 1.65 }}>{writingResult.corrected_text}</p>
+                    </div>
+                  )}
+
+                  {/* Changes */}
+                  {writingResult.changes && writingResult.changes.length > 0 && (
+                    <div style={{ background: "var(--bar-bg)", borderRadius: 10, padding: "12px 14px" }}>
+                      <div style={{ fontSize: "var(--text-xs)", fontWeight: 700, color: "var(--subtext)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Corrections</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        {writingResult.changes.map((c, i) => (
+                          <div key={i} style={{ fontSize: "var(--text-sm)", lineHeight: 1.5 }}>
+                            <span style={{ color: "#dc2626", textDecoration: "line-through", marginRight: 6 }}>{c.original}</span>
+                            <span style={{ color: "#16a34a", fontWeight: 700, marginRight: 6 }}>→ {c.corrected}</span>
+                            {c.note && <span style={{ color: "var(--subtext)", fontStyle: "italic" }}>({c.note})</span>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Strengths */}
+                  {writingResult.strengths && writingResult.strengths.length > 0 && (
+                    <div style={{ background: "var(--bar-bg)", borderRadius: 10, padding: "12px 14px" }}>
+                      <div style={{ fontSize: "var(--text-xs)", fontWeight: 700, color: "var(--subtext)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Strengths</div>
+                      <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 6 }}>
+                        {writingResult.strengths.map((s, i) => (
+                          <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: "var(--text-sm)", color: "var(--heading)", lineHeight: 1.5 }}>
+                            <span style={{ color: "#16a34a", fontWeight: 900, flexShrink: 0 }}>✓</span>
+                            {s}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Encouragement */}
+                  {writingResult.encouragement && (
+                    <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 10, padding: "12px 14px" }}>
+                      <p style={{ margin: 0, fontSize: "var(--text-sm)", color: "#78350f", lineHeight: 1.6, fontStyle: "italic" }}>{writingResult.encouragement}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 7. Tip */}
           {lesson.tip && (
             <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 14, padding: "18px 20px" }}>
               <div style={{ fontSize: "var(--text-sm)", fontWeight: 700, color: "#92400e", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>💡 Pro Tip</div>
@@ -330,7 +517,7 @@ export default function GrammarExplainer({ goBack, award }) {
             </div>
           )}
 
-          {/* 7. Practice + Reset buttons */}
+          {/* 8. Practice + Reset buttons */}
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {selectedTopic && TOPIC_TO_SCREEN[selectedTopic.id] && (
               <button

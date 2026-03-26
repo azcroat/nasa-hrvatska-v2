@@ -141,6 +141,9 @@ export default function PronunciationScorer({ targetText, onScore }) {
             fontSize: 12, fontWeight: 700, fontFamily: "'Outfit',sans-serif",
             color: 'var(--subtext)',
           }}>🔄 Try Again</button>
+          <div style={{ fontSize: '0.75rem', color: 'var(--subtext,#94a3b8)', marginTop: 8 }}>
+            Score based on Web Speech API recognition — not a professional pronunciation evaluator.
+          </div>
         </div>
       )}
     </div>
