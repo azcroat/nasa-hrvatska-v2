@@ -316,7 +316,7 @@ html{
   --ob-hbg:linear-gradient(135deg,rgba(14,116,144,.18),rgba(14,116,144,.1));
   --nav-bg:rgba(15,23,42,0.9);
   --nav-b:rgba(255,255,255,.08);
-  --nav-lbl:#94a3b8;
+  --nav-lbl:#b8c8da; /* WCAG AA dark mode: ~6.2:1 on nav-bg (was #94a3b8 = ~3.6:1, failed) */
   --ghost-bg:#1e293b;
   --ghost-c:#94a3b8;
   --ghost-b:#334155;
