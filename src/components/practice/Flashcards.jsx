@@ -55,7 +55,7 @@ export default function Flashcards({ pool, goBack, award }) {
             {missed.length === 0 ? "Perfect round!" : "Round complete!"}
           </h3>
           <p style={{color:"var(--subtext)",marginTop:6,fontSize:14}}>
-            Known: <strong style={{color:"#16a34a"}}>{knownCount}</strong>
+            Known: <strong style={{color:"var(--success)"}}>{knownCount}</strong>
             {missed.length > 0 && <> · Still learning: <strong style={{color:"#f59e0b"}}>{missed.length}</strong></>}
             {' '}/ {activePool.length}
           </p>
@@ -90,7 +90,7 @@ export default function Flashcards({ pool, goBack, award }) {
       {H("🃏 Flashcards","Tap card to flip, then choose below.")}
       <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>
         <span key={idx} className="anim-fade-up" style={{fontSize:14,fontWeight:700}}>{idx+1} / {activePool.length}</span>
-        <div style={{fontSize:14,fontWeight:700,color:"#16a34a"}}>✅ Know: {known}</div>
+        <div style={{fontSize:14,fontWeight:700,color:"var(--success)"}}>✅ Know: {known}</div>
       </div>
       <Bar v={idx+1} mx={activePool.length} h={6} color="#f59e0b" />
       <div className={`fc-scene${correctAnim ? ' anim-bounce-in' : ''}${wrongAnim ? ' anim-wrong' : ''}`}>
@@ -115,43 +115,44 @@ export default function Flashcards({ pool, goBack, award }) {
                 </div>
               ) : (
                 <>
-                  <div style={{fontSize:32,fontWeight:800,color:"#1e40af",fontFamily:"'Playfair Display',serif",textAlign:"center",lineHeight:1.3}}>
+                  <div style={{fontSize:32,fontWeight:800,color:"var(--info)",fontFamily:"'Playfair Display',serif",textAlign:"center",lineHeight:1.3}}>
                     {word}
                   </div>
-                  {activePool[idx][2]&&<div style={{fontSize:14,color:"#6b7280",marginTop:8}}>/{activePool[idx][2]}/</div>}
+                  {activePool[idx][2]&&<div style={{fontSize:14,color:"var(--subtext)",marginTop:8}}>/{activePool[idx][2]}/</div>}
                 </>
               );
             })()}
-            <div style={{fontSize:12,color:"#9ca3af",marginTop:12}}>tap to see English</div>
+            <div style={{fontSize:12,color:"var(--subtext)",marginTop:12}}>tap to see English</div>
           </div>
           <div className="fc-face fc-back">
-            <div style={{fontSize:22,fontWeight:800,color:"#16a34a",fontFamily:"'Playfair Display',serif",textAlign:"center",lineHeight:1.3}}>
+            <div style={{fontSize:22,fontWeight:800,color:"var(--success)",fontFamily:"'Playfair Display',serif",textAlign:"center",lineHeight:1.3}}>
               {activePool[idx][0]}
             </div>
-            <div style={{fontSize:14,color:"#6b7280",marginTop:4,textAlign:"center"}}>{activePool[idx][1]}</div>
+            <div style={{fontSize:14,color:"var(--subtext)",marginTop:4,textAlign:"center"}}>{activePool[idx][1]}</div>
             {activePool[idx][3] && (
               <p style={{fontSize:12, color:'var(--subtext)', fontStyle:'italic', marginTop:8, lineHeight:1.5, borderTop:'1px solid var(--bar-bg)', paddingTop:8}}>
                 "{activePool[idx][3]}"
               </p>
             )}
-            <div style={{fontSize:12,color:"#9ca3af",marginTop:12}}>tap to flip back</div>
+            <div style={{fontSize:12,color:"var(--subtext)",marginTop:12}}>tap to flip back</div>
           </div>
         </div>
       </div>
       {flipped&&(
         <div style={{display:'flex', flexDirection:'column', gap:8, marginTop:16}}>
           <div style={{fontSize:11, color:'var(--subtext)', textAlign:'center', fontWeight:600, marginBottom:4}}>How well did you know it?</div>
-          <div style={{display:'flex', gap:6}}>
+          <div style={{display:'flex', gap:6, flexWrap:'wrap'}}>
             {[
-              {q:1, label:'Blank', color:'#dc2626', bg:'#fef2f2'},
+              {q:1, label:'Blank', color:'#dc2626', bg:'var(--error-bg)'},
               {q:2, label:'Vague', color:'#f59e0b', bg:'#fffbeb'},
               {q:3, label:'Slow', color:'#d97706', bg:'#fef3c7'},
-              {q:4, label:'Good', color:'#16a34a', bg:'#f0fdf4'},
-              {q:5, label:'Perfect', color:'#15803d', bg:'#dcfce7'},
+              {q:4, label:'Good', color:'var(--success)', bg:'var(--success-bg)'},
+              {q:5, label:'Perfect', color:'var(--success)', bg:'var(--success-bg)'},
             ].map(({q, label, color, bg}) => (
               <button
                 key={q}
                 ref={q === 4 ? knowBtnRef : null}
+                className="qb"
                 onClick={() => {
                   const correct = q >= 3;
                   srMark(activePool[idx][0], correct);
@@ -174,7 +175,7 @@ export default function Flashcards({ pool, goBack, award }) {
                 }}
                 style={{
                   flex:1, padding:'8px 2px', borderRadius:10, border:`1.5px solid ${color}`,
-                  background:bg, cursor:'pointer', fontFamily:"'Outfit',sans-serif",
+                  background:bg, fontFamily:"'Outfit',sans-serif",
                   fontSize:10, fontWeight:800, color,
                 }}
               >

@@ -87,10 +87,10 @@ export default function WritingScreen({ goBack, award }) {
           <div style={{flex:1}}>
             <div style={{display:"flex",gap:6,marginBottom:6,flexWrap:"wrap"}}>
               {prompt.level && <span style={{fontSize:11,fontWeight:700,padding:"2px 8px",borderRadius:20,background:prompt.level==="A2"?"#dcfce7":prompt.level==="B1"?"#fef9c3":prompt.level==="B2"?"#fef3c7":"#ede9fe",color:prompt.level==="A2"?"#16a34a":prompt.level==="B1"?"#a16207":prompt.level==="B2"?"#b45309":"#7c3aed"}}>{prompt.level}</span>}
-              {prompt.focus && <span style={{fontSize:11,color:"#78716c",fontStyle:"italic",padding:"2px 0"}}>📌 {prompt.focus}</span>}
+              {prompt.focus && <span style={{fontSize:11,color:"var(--subtext)",fontStyle:"italic",padding:"2px 0"}}>📌 {prompt.focus}</span>}
             </div>
             <p style={{fontWeight:800,fontSize:15,color:"var(--heading)",margin:0}}>{prompt.en}</p>
-            <p style={{fontSize:13,color:"#78716c",marginTop:2,fontStyle:"italic"}}>{prompt.hr}</p>
+            <p style={{fontSize:13,color:"var(--subtext)",marginTop:2,fontStyle:"italic"}}>{prompt.hr}</p>
           </div>
         </div>
       </div>
@@ -108,54 +108,58 @@ export default function WritingScreen({ goBack, award }) {
           }}
         />
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:4}}>
-          <span style={{fontSize:12,color:"#78716c"}}>{text.length} characters</span>
+          <span style={{fontSize:12,color:"var(--subtext)"}}>{text.length} characters</span>
           <button style={{background:"none",border:"none",cursor:"pointer",fontSize:12,color:"#7c3aed",fontWeight:600}} onClick={newPrompt}>
             🔄 New Prompt
           </button>
         </div>
-        {error && <p style={{color:"#ef4444",fontSize:13,marginTop:8}}>{error}</p>}
-        <div style={{fontSize:11,color:"#94a3b8",marginTop:10,lineHeight:1.5}}>
+        {error && <p style={{color:"var(--error)",fontSize:13,marginTop:8}}>{error}</p>}
+        <div style={{fontSize:11,color:"var(--subtext)",marginTop:10,lineHeight:1.5}}>
           🔒 Your text is sent to an AI for grammar feedback. It is not stored or used for training.
         </div>
         <button
           className="b bp"
-          style={{width:"100%",marginTop:8}}
+          style={{width:"100%",marginTop:8,transition:'transform .15s ease,box-shadow .15s ease'}}
           onClick={checkWithAI}
           disabled={loading || !isOnline}>
-          {!isOnline ? "📶 Offline — AI check unavailable" : loading ? "🤔 Checking..." : "🤖 Check with AI"}
+          {!isOnline ? "📶 Offline — AI check unavailable" : loading ? (
+            <span style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,fontSize:'var(--text-sm)',color:'inherit'}}>
+              <span style={{animation:'spin .8s linear infinite',display:'inline-block',lineHeight:1}}>⟳</span> Checking your Croatian...
+            </span>
+          ) : "🤖 Check with AI"}
         </button>
       </div>
       {result && (
-        <div className="c" style={{padding:"20px",marginTop:0}}>
+        <div className="c" style={{padding:"20px",marginTop:0,animation:'fadeIn .3s ease'}}>
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
             <div style={{fontSize:40}}>{result.score>=80?"🌟":result.score>=60?"🎉":"💪"}</div>
             <div>
               <p style={{fontWeight:800,fontSize:18,color:"var(--heading)",margin:0}}>Score: {result.score}/100</p>
-              <p style={{fontSize:13,color:"#78716c",margin:"2px 0 0"}}>{result.level}</p>
+              <p style={{fontSize:13,color:"var(--subtext)",margin:"2px 0 0"}}>{result.level}</p>
             </div>
           </div>
           {result.corrected && (
             <div style={{marginBottom:16}}>
-              <p style={{fontWeight:700,fontSize:13,color:"#0369a1",marginBottom:8}}>✅ Suggested version:</p>
-              <div style={{background:"#f0f9ff",border:"1.5px solid #bae6fd",borderRadius:10,padding:"12px 14px",fontSize:14,lineHeight:1.7,color:"#1e293b"}}>
+              <p style={{fontWeight:700,fontSize:13,color:"var(--info)",marginBottom:8}}>✅ Suggested version:</p>
+              <div style={{background:"var(--info-bg)",border:"1.5px solid var(--info-b)",borderRadius:10,padding:"12px 14px",fontSize:14,lineHeight:1.7,color:"var(--heading)"}}>
                 {result.corrected}
               </div>
             </div>
           )}
           {result.errors && result.errors.length > 0 && (
             <div style={{marginBottom:16}}>
-              <p style={{fontWeight:700,fontSize:13,color:"#dc2626",marginBottom:8}}>📌 Corrections:</p>
+              <p style={{fontWeight:700,fontSize:13,color:"var(--error)",marginBottom:8}}>📌 Corrections:</p>
               {result.errors.map((e, i) => (
-                <div key={i} style={{background:"#fff1f2",border:"1px solid #fecaca",borderRadius:8,padding:"10px 12px",marginBottom:8}}>
-                  <span style={{color:"#ef4444",fontWeight:700,textDecoration:"line-through",marginRight:8}}>{e.original}</span>
-                  <span style={{color:"#166534",fontWeight:700,marginRight:8}}>→ {e.correct}</span>
-                  <span style={{fontSize:12,color:"#78716c",fontStyle:"italic"}}>{e.rule}</span>
+                <div key={i} style={{background:"var(--error-bg)",border:"1px solid var(--error-b)",borderRadius:8,padding:"10px 12px",marginBottom:8}}>
+                  <span style={{color:"var(--error)",fontWeight:700,textDecoration:"line-through",marginRight:8}}>{e.original}</span>
+                  <span style={{color:"var(--success)",fontWeight:700,marginRight:8}}>→ {e.correct}</span>
+                  <span style={{fontSize:12,color:"var(--subtext)",fontStyle:"italic"}}>{e.rule}</span>
                 </div>
               ))}
             </div>
           )}
           {result.encouragement && (
-            <div style={{background:"#f0fdf4",border:"1.5px solid #bbf7d0",borderRadius:10,padding:"12px 14px",fontSize:13,color:"#166534",fontWeight:600}}>
+            <div style={{background:"var(--success-bg)",border:"1.5px solid var(--success-b)",borderRadius:10,padding:"12px 14px",fontSize:13,color:"var(--success)",fontWeight:600}}>
               💬 {result.encouragement}
             </div>
           )}
