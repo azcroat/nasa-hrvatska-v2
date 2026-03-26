@@ -10,6 +10,7 @@ function getLastActivity() {
 import CroatianGrb from '../shared/CroatianGrb.jsx';
 import CipkaPattern from '../shared/CipkaPattern.jsx';
 import CroatianKnight from '../shared/CroatianKnight';
+import KnightSpeech from '../shared/KnightSpeech';
 import { DalmatianCoast } from '../illustrations';
 
 const LEVEL_PALETTE = [
@@ -475,6 +476,8 @@ export default function HomeTab({
           </button>
         )}
       </div>
+
+      <KnightSpeech st={st} />
 
       {/* ── CLOUD SYNC STATUS ── */}
       {(() => {

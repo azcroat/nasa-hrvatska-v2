@@ -4,6 +4,7 @@ import CroatianKnight from '../shared/CroatianKnight';
 import ProgressCharts from './ProgressCharts.jsx';
 import { getWeakTopics } from '../../lib/adaptive.js';
 import JourneyTimeline from './JourneyTimeline.jsx';
+import LearningInsights from './LearningInsights';
 
 function getCEFR(xp, lc, gc) {
   const total = xp + (lc * 15) + (gc * 25);
@@ -37,6 +38,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
   const prestigeLevel = parseInt(localStorage.getItem('nh_prestige') || '0', 10);
   const [imdOpen, setImdOpen] = useState(false);
+  const [showInsights, setShowInsights] = useState(false);
 
   const GOALS = [
     { id: 'heritage', icon: '🇭🇷', label: 'My heritage & roots' },
@@ -472,6 +474,42 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
       <h3 className="sh" style={{marginTop:24}}>My Croatian Journey</h3>
       <div style={{background:'var(--card)', borderRadius:16, padding:'16px', marginBottom:16, border:'1px solid var(--card-b)'}}>
         <JourneyTimeline />
+      </div>
+
+      {/* ── LEARNING INSIGHTS ── */}
+      <div style={{ marginBottom: 16 }}>
+        <button
+          onClick={() => setShowInsights(v => !v)}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: 'var(--card)',
+            border: '1px solid var(--card-b)',
+            borderRadius: 14,
+            padding: '13px 16px',
+            cursor: 'pointer',
+            marginBottom: showInsights ? 8 : 0,
+            fontFamily: "'Outfit',sans-serif",
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 18 }}>📊</span>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--heading)' }}>Learning Insights</div>
+              <div style={{ fontSize: 11, color: 'var(--subtext)' }}>Vocabulary mastery · accuracy · progress</div>
+            </div>
+          </div>
+          <span style={{ color: 'var(--subtext)', fontSize: 18, transition: 'transform 0.2s', transform: showInsights ? 'rotate(180deg)' : 'none' }}>
+            ▾
+          </span>
+        </button>
+        {showInsights && (
+          <div style={{ background: 'var(--card)', border: '1px solid var(--card-b)', borderTop: 'none', borderRadius: '0 0 14px 14px', padding: '14px 16px' }}>
+            <LearningInsights st={st} />
+          </div>
+        )}
       </div>
 
       {/* ── LETTER TO FUTURE ME ── */}

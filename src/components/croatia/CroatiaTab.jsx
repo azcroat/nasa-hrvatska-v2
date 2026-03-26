@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { H, MEDIA, getCityOfDay } from '../../data.jsx';
+import { H, MEDIA, getCityOfDay, incrementCulture } from '../../data.jsx';
 import PhotoHero from '../shared/PhotoHero';
 import { PHOTOS } from '../../lib/photos';
 import CroatianKnight from '../shared/CroatianKnight';
@@ -382,7 +382,7 @@ function SpotifyPlaylists() {
 }
 
 // Q-4: Removed dead state setters — target screens manage their own state.
-export default function CroatiaTab({ setScr, sCurEx }) {
+export default function CroatiaTab({ setScr, sCurEx, award }) {
   const cats = ["tv","music","film","sport","podcast","culture"];
   const city = getCityOfDay();
   const [activeStream, setActiveStream] = useState(null);
@@ -435,7 +435,7 @@ export default function CroatiaTab({ setScr, sCurEx }) {
       </div>
 
       {/* ── CITY OF THE DAY ── */}
-      <button style={{marginBottom:16,borderRadius:16,overflow:"hidden",boxShadow:"0 4px 16px rgba(0,0,0,.1)",width:"100%",border:"none",cursor:"pointer",padding:0,textAlign:"left"}} onClick={()=>setScr("cityofday")}>
+      <button style={{marginBottom:16,borderRadius:16,overflow:"hidden",boxShadow:"0 4px 16px rgba(0,0,0,.1)",width:"100%",border:"none",cursor:"pointer",padding:0,textAlign:"left"}} onClick={()=>{ incrementCulture('cityCnt'); if (award) award(3); setScr("cityofday"); }}>
         <div style={{background:"linear-gradient(135deg,"+city.color+"dd,"+city.color+")",padding:"14px 16px",display:"flex",alignItems:"center",gap:14}}>
           <div style={{fontSize:36,flexShrink:0}}>{city.icon}</div>
           <div style={{flex:1,minWidth:0}}>
@@ -472,7 +472,7 @@ export default function CroatiaTab({ setScr, sCurEx }) {
           <div className="section-hdr-badge">12 entries</div>
         </div>
         <div
-          onClick={() => setExpandedContext(expandedContext === 'history' ? null : 'history')}
+          onClick={() => { if (expandedContext !== 'history') incrementCulture('regionCnt'); setExpandedContext(expandedContext === 'history' ? null : 'history'); }}
           style={{
             fontSize:12, color:'var(--info)', cursor:'pointer',
             marginBottom: expandedContext === 'history' ? 0 : 12,
@@ -691,7 +691,7 @@ export default function CroatiaTab({ setScr, sCurEx }) {
     <div className="section-hdr-badge">4 topics</div>
   </div>
   <div
-    onClick={() => setExpandedContext(expandedContext === 'kafic' ? null : 'kafic')}
+    onClick={() => { if (expandedContext !== 'kafic') incrementCulture('regionCnt'); setExpandedContext(expandedContext === 'kafic' ? null : 'kafic'); }}
     style={{
       fontSize:12, color:'var(--info)', cursor:'pointer',
       marginBottom: expandedContext === 'kafic' ? 0 : 12,
@@ -741,7 +741,7 @@ export default function CroatiaTab({ setScr, sCurEx }) {
           Personal letters written in authentic Croatian — perfect for understanding how family members actually speak, including regional expressions and emotional vocabulary.
         </div>
         <div
-          onClick={() => setExpandedContext(expandedContext === 'baka' ? null : 'baka')}
+          onClick={() => { if (expandedContext !== 'baka') incrementCulture('regionCnt'); setExpandedContext(expandedContext === 'baka' ? null : 'baka'); }}
           style={{
             fontSize:12, color:'var(--info)', cursor:'pointer',
             marginBottom: expandedContext === 'baka' ? 0 : 12,
@@ -763,7 +763,7 @@ export default function CroatiaTab({ setScr, sCurEx }) {
           {BAKA_LETTERS.map(letter => (
             <div key={letter.id} style={{ background:'var(--card)', border:'1.5px solid var(--card-b)', borderRadius:14, overflow:'hidden' }}>
               <button
-                onClick={() => setOpenLetter(openLetter === letter.id ? null : letter.id)}
+                onClick={() => { const opening = openLetter !== letter.id; setOpenLetter(opening ? letter.id : null); if (opening) { incrementCulture('bakaCnt'); if (award) award(5); } }}
                 style={{ width:'100%', padding:'14px 16px', background:'none', border:'none', cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif" }}>
                 <div style={{ display:'flex', alignItems:'center', gap:10 }}>
                   <div style={{ width:40, height:40, borderRadius:10, background:'linear-gradient(135deg,#fef3c7,#fde68a)', border:'1px solid #fde68a',
@@ -908,7 +908,7 @@ export default function CroatiaTab({ setScr, sCurEx }) {
                 const hasAction = !!(m.scr || m.web);
                 return (
                   <button key={i}
-                    onClick={() => { if (m.scr) setScr(m.scr); else if (m.web) window.open(m.web,'_blank','noopener,noreferrer'); }}
+                    onClick={() => { if (m.scr || m.web) { incrementCulture('mediaCnt'); if (award) award(3); } if (m.scr) setScr(m.scr); else if (m.web) window.open(m.web,'_blank','noopener,noreferrer'); }}
                     style={{
                       display:'flex',flexDirection:'column',background:'var(--card)',
                       borderRadius:16,border:'1px solid var(--card-b)',overflow:'hidden',

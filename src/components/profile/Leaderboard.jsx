@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { H, fbGetFamilyMembers, fbWatchFamilyMembers, fbCreateFamily, fbJoinFamily, fbLeaveFamily } from '../../data.jsx';
 import { fbSaveReaction, fbWatchReactions } from '../../lib/firebase.js';
+import CroatianKnight from '../shared/CroatianKnight';
 
 function getCEFRLevel(weekXP) {
   // Rough weekly XP → CEFR for leaderboard display
@@ -160,7 +161,10 @@ export default function Leaderboard({
   return (
     <div className="scr-wrap">
       
-      {H("🏆 Family Leaderboard","Compete with your family!")}
+      <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:4 }}>
+        <CroatianKnight size={40} mood="celebrating" style={{ flexShrink: 0 }} />
+        <div style={{ flex:1 }}>{H("🏆 Family Leaderboard","Compete with your family!")}</div>
+      </div>
       <div style={{display:"flex",gap:6,marginBottom:16,flexWrap:"wrap"}}>
         {["main","global","create","join"].map(t => (
           <button
@@ -227,9 +231,25 @@ export default function Leaderboard({
                   }}>
                     <span style={{fontSize:28}}>{tier.icon}</span>
                     <div style={{flex:1}}>
-                      <div style={{fontSize:14, fontWeight:900, color: tier.color}}>{tier.name} Division</div>
-                      <div style={{fontSize:11, color:'var(--subtext)', fontWeight:600}}>
-                        Your family · {tier.mult} active this week
+                      <div style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        background: tier.id === 'platinum' ? 'linear-gradient(135deg, rgba(139,92,246,0.15), rgba(168,85,247,0.1))' :
+                                    tier.id === 'gold' ? 'linear-gradient(135deg, rgba(251,191,36,0.15), rgba(245,158,11,0.1))' :
+                                    tier.id === 'silver' ? 'linear-gradient(135deg, rgba(148,163,184,0.15), rgba(100,116,139,0.1))' :
+                                    'linear-gradient(135deg, rgba(205,124,55,0.15), rgba(180,100,30,0.1))',
+                        border: `1.5px solid ${tier.id === 'platinum' ? 'rgba(139,92,246,0.4)' : tier.id === 'gold' ? 'rgba(251,191,36,0.5)' : tier.id === 'silver' ? 'rgba(148,163,184,0.5)' : 'rgba(205,124,55,0.5)'}`,
+                        borderRadius: 20,
+                        padding: '4px 12px',
+                        fontSize: 13,
+                        fontWeight: 800,
+                        color: tier.color,
+                      }}>
+                        {tier.icon} {tier.name} League · {tier.mult}
+                      </div>
+                      <div style={{fontSize:11, color:'var(--subtext)', fontWeight:600, marginTop:4}}>
+                        Your family · active this week
                       </div>
                     </div>
                     <div style={{textAlign:'right'}}>
@@ -266,6 +286,75 @@ export default function Leaderboard({
                 </div>
               </div>
               {famErr && <div style={{color:famErr.startsWith("✅")?"#16a34a":"#dc2626",fontSize:13,marginBottom:12}}>{famErr}</div>}
+              {/* Weekly Challenge Banner */}
+              <div style={{
+                background: 'linear-gradient(135deg, var(--info-bg), rgba(14,116,144,0.05))',
+                border: '1.5px solid var(--info-b, rgba(14,116,144,0.3))',
+                borderRadius: 14,
+                padding: '12px 14px',
+                marginBottom: 14,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+              }}>
+                <span style={{ fontSize: 28 }}>⚡</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--info)' }}>This Week's Challenge</div>
+                  <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 2 }}>
+                    {myWeekXP > 0
+                      ? `You've earned ${myWeekXP} XP this week. Keep pushing for ${Math.ceil(myWeekXP / 100) * 100}!`
+                      : 'Earn XP this week to climb the rankings. Every lesson counts!'}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontWeight: 900, fontSize: 20, color: '#fbbf24' }}>{myWeekXP}</div>
+                  <div style={{ fontSize: 10, color: 'var(--subtext)' }}>my XP</div>
+                </div>
+              </div>
+
+              {/* Family Invite Card */}
+              {famData && famData.code && (
+                <div style={{
+                  background: 'var(--card)',
+                  border: '1px solid var(--card-b)',
+                  borderRadius: 12,
+                  padding: '12px 14px',
+                  marginBottom: 12,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                }}>
+                  <span style={{ fontSize: 20 }}>🔗</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--heading)' }}>Invite Family Members</div>
+                    <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 1 }}>
+                      Share code: <strong style={{ color: 'var(--info)', letterSpacing: '0.1em' }}>{famData.code}</strong>
+                    </div>
+                  </div>
+                  <button
+                    className="b bs"
+                    style={{ padding: '8px 12px', fontSize: 12 }}
+                    onClick={async (e) => {
+                      const btn = e.currentTarget;
+                      if (navigator.share) {
+                        try {
+                          await navigator.share({
+                            title: 'Join my Croatian family leaderboard!',
+                            text: `Learn Croatian with me on Naša Hrvatska! Use family code: ${famData.code}`,
+                          });
+                        } catch(_) {}
+                      } else {
+                        try { await navigator.clipboard.writeText(famData.code); } catch(_) {}
+                        btn.textContent = 'Copied! ✓';
+                        setTimeout(() => { btn.textContent = 'Share'; }, 2000);
+                      }
+                    }}
+                  >
+                    Share
+                  </button>
+                </div>
+              )}
+
               <div style={{ display:'flex', gap:8, marginBottom:16 }}>
                 {['total','week'].map(v => (
                   <button key={v}
@@ -280,49 +369,83 @@ export default function Leaderboard({
                   </button>
                 ))}
               </div>
-              {displayMembers.length > 0 ? displayMembers.map((u, i) => (
-                <div
-                  key={u.email}
-                  className="c"
-                  style={{display:"flex",alignItems:"center",gap:14,marginBottom:10,borderLeft:i === 0 ? "4px solid #f59e0b" : i === 1 ? "4px solid #9ca3af" : "4px solid #d97706"}}>
-                  <div style={{width:44,height:44,borderRadius:"50%",background:i === 0 ? "linear-gradient(135deg,#f59e0b,#d97706)" : i === 1 ? "linear-gradient(135deg,#9ca3af,#6b7280)" : "linear-gradient(135deg,#d97706,#92400e)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:800,fontSize:20}}>
-                    {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
-                  </div>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:16,fontWeight:700,display:'flex',alignItems:'center',flexWrap:'wrap',gap:4}}>
-                      {u.name}{u.role === "admin" ? " 👑" : ""}
-                      {u.gen && (() => {
-                        const gen = GENERATION_LABELS[u.gen];
-                        return gen ? (
-                          <span style={{ fontSize:10, fontWeight:700, color:gen.color, background:'var(--bar-bg)', borderRadius:6, padding:'2px 6px', marginLeft:4 }}>
-                            {gen.emoji} {gen.label}
-                          </span>
-                        ) : null;
-                      })()}
+              {displayMembers.length > 0 ? (() => {
+                const maxXP = displayMembers[0]?.xp || 1;
+                return displayMembers.map((u, i) => {
+                  const rank = i + 1;
+                  const isMe = au && u.email === au.e;
+                  const entryWeekXP = isMe ? myWeekXP : (u.weekXP || 0);
+                  const barColor = rank === 1 ? '#fbbf24' : rank === 2 ? '#94a3b8' : rank === 3 ? '#cd7c37' : 'var(--info)';
+                  const rankMedal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : null;
+                  return (
+                    <div
+                      key={u.email}
+                      className="c"
+                      style={{
+                        display:"flex", alignItems:"center", gap:14, marginBottom:10,
+                        borderLeft: rank === 1 ? "4px solid #f59e0b" : rank === 2 ? "4px solid #9ca3af" : "4px solid #d97706",
+                        background: isMe ? 'var(--info-bg)' : undefined,
+                        border: isMe ? '1px solid var(--info-b, rgba(14,116,144,0.3))' : undefined,
+                      }}>
+                      <div style={{width:44,height:44,borderRadius:"50%",background:rank === 1 ? "linear-gradient(135deg,#f59e0b,#d97706)" : rank === 2 ? "linear-gradient(135deg,#9ca3af,#6b7280)" : "linear-gradient(135deg,#d97706,#92400e)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:800,fontSize:rankMedal ? 24 : 16,flexShrink:0}}>
+                        {rankMedal || rank}
+                      </div>
+                      <div style={{flex:1, minWidth:0}}>
+                        <div style={{fontSize:16,fontWeight:700,display:'flex',alignItems:'center',flexWrap:'wrap',gap:4}}>
+                          {u.name}{u.role === "admin" ? " 👑" : ""}
+                          {isMe && <span style={{ fontSize:10, fontWeight:700, color:'var(--info)', background:'var(--info-bg)', borderRadius:6, padding:'2px 6px' }}>You</span>}
+                          {u.gen && (() => {
+                            const gen = GENERATION_LABELS[u.gen];
+                            return gen ? (
+                              <span style={{ fontSize:10, fontWeight:700, color:gen.color, background:'var(--bar-bg)', borderRadius:6, padding:'2px 6px', marginLeft:4 }}>
+                                {gen.emoji} {gen.label}
+                              </span>
+                            ) : null;
+                          })()}
+                        </div>
+                        <div style={{fontSize:12,color:"#78716c"}}>{u.lc} lessons · Joined {new Date(u.joined).toLocaleDateString()}</div>
+                      </div>
+                      <div style={{textAlign:"right", flexShrink:0}}>
+                        <div style={{fontSize:view==='week'?14:20,fontWeight:800,color:"#b45309",display:'flex',alignItems:'center',justifyContent:'flex-end',gap:4,flexWrap:'wrap'}}>
+                          {view === 'week'
+                            ? (entryWeekXP + ' XP this week')
+                            : (u.xp.toLocaleString() + ' XP')}
+                          {view === 'week' && getCEFRLevel(entryWeekXP) && (
+                            <span style={{ fontSize:9, fontWeight:800, padding:'2px 5px', borderRadius:4, background: CEFR_COLORS[getCEFRLevel(entryWeekXP)], color:'#fff', marginLeft:4 }}>
+                              {getCEFRLevel(entryWeekXP)}
+                            </span>
+                          )}
+                        </div>
+                        {view === 'total' && (
+                          <>
+                            <div style={{height:3, background:'var(--bar-bg)', borderRadius:2, marginTop:3, width:80}}>
+                              <div style={{
+                                height:'100%',
+                                width:`${Math.round((u.xp / maxXP) * 100)}%`,
+                                background: barColor,
+                                borderRadius:2,
+                              }} />
+                            </div>
+                            {entryWeekXP > 0 && (
+                              <div style={{fontSize:10, color:'var(--info)', fontWeight:600, marginTop:2}}>+{entryWeekXP} this week</div>
+                            )}
+                          </>
+                        )}
+                        {view === 'week' && (
+                          <div style={{height:3, background:'var(--bar-bg)', borderRadius:2, marginTop:3, width:80}}>
+                            <div style={{
+                              height:'100%',
+                              width:`${Math.round((entryWeekXP / Math.max(...displayMembers.map(m => (au && m.email === au.e) ? myWeekXP : (m.weekXP || 0)), 1)) * 100)}%`,
+                              background: barColor,
+                              borderRadius:2,
+                            }} />
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div style={{fontSize:12,color:"#78716c"}}>{u.lc} lessons · Joined {new Date(u.joined).toLocaleDateString()}</div>
-                  </div>
-                  <div style={{textAlign:"right"}}>
-                    <div style={{fontSize:view==='week'?14:20,fontWeight:800,color:"#b45309",display:'flex',alignItems:'center',justifyContent:'flex-end',gap:4,flexWrap:'wrap'}}>
-                      {view === 'week'
-                        ? (() => {
-                            const displayXP = (au && u.email === au.e) ? myWeekXP : (u.weekXP || 0);
-                            return displayXP + ' XP this week';
-                          })()
-                        : (u.xp.toLocaleString() + ' XP')}
-                      {view === 'week' && (() => {
-                        const displayXP = (au && u.email === au.e) ? myWeekXP : (u.weekXP || 0);
-                        return getCEFRLevel(displayXP) ? (
-                          <span style={{ fontSize:9, fontWeight:800, padding:'2px 5px', borderRadius:4, background: CEFR_COLORS[getCEFRLevel(displayXP)], color:'#fff', marginLeft:4 }}>
-                            {getCEFRLevel(displayXP)}
-                          </span>
-                        ) : null;
-                      })()}
-                    </div>
-                    {view === 'total' && <div style={{fontSize:11,color:"#78716c"}}>total</div>}
-                  </div>
-                </div>
-              )) : (
+                  );
+                });
+              })() : (
                 <div className="c" style={{textAlign:"center",color:"#78716c"}}>
                   Tap 'Refresh Leaderboard' to load family scores.
                 </div>
@@ -394,16 +517,48 @@ export default function Leaderboard({
         <React.Fragment>
           <div style={{fontSize:13,color:"var(--subtext)",marginBottom:12,fontWeight:600}}>Top learners globally (first 20 shown)</div>
           {globalError && <div style={{color:"#dc2626",fontSize:13,marginBottom:12}}>{globalError}</div>}
-          {globalUsers.length > 0 && globalUsers.map((u, i) => (
-            <div key={u.id} className="c" style={{display:"flex",alignItems:"center",gap:12,marginBottom:8,padding:"10px 16px"}}>
-              <div style={{fontSize:15,fontWeight:900,color:"var(--subtext)",width:28,flexShrink:0}}>#{i+1}</div>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:14,fontWeight:700,color:"var(--heading)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{u.name||u.id}</div>
-                <div style={{fontSize:11,color:"var(--subtext)"}}>{u.lc||0} lessons</div>
-              </div>
-              <div style={{fontSize:15,fontWeight:800,color:"#0e7490",flexShrink:0}}>{(u.xp||0).toLocaleString()} XP</div>
-            </div>
-          ))}
+          {globalUsers.length > 0 && (() => {
+            const globalMaxXP = globalUsers[0]?.xp || 1;
+            return globalUsers.map((u, i) => {
+              const rank = i + 1;
+              const isMe = au && (u.id === au.u || u.email === au.e);
+              const rankMedal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : null;
+              const barColor = rank === 1 ? '#fbbf24' : rank === 2 ? '#94a3b8' : rank === 3 ? '#cd7c37' : 'var(--info)';
+              return (
+                <div key={u.id} className="c" style={{
+                  display:"flex", alignItems:"center", gap:12, marginBottom:8, padding:"10px 16px",
+                  background: isMe ? 'var(--info-bg)' : undefined,
+                  border: isMe ? '1px solid var(--info-b, rgba(14,116,144,0.3))' : undefined,
+                }}>
+                  <div style={{
+                    fontSize: rankMedal ? 22 : 15, fontWeight:900,
+                    color: rankMedal ? undefined : "var(--subtext)",
+                    width:32, flexShrink:0, textAlign:'center',
+                  }}>
+                    {rankMedal || `#${rank}`}
+                  </div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:14,fontWeight:700,color:"var(--heading)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                      {u.name||u.id}
+                      {isMe && <span style={{ fontSize:10, fontWeight:700, color:'var(--info)', background:'var(--info-bg)', borderRadius:6, padding:'2px 6px', marginLeft:6 }}>You</span>}
+                    </div>
+                    <div style={{fontSize:11,color:"var(--subtext)"}}>{u.lc||0} lessons</div>
+                  </div>
+                  <div style={{flexShrink:0, textAlign:'right'}}>
+                    <div style={{fontSize:15,fontWeight:800,color:"#0e7490"}}>{(u.xp||0).toLocaleString()} XP</div>
+                    <div style={{height:3, background:'var(--bar-bg)', borderRadius:2, marginTop:3, width:64}}>
+                      <div style={{
+                        height:'100%',
+                        width:`${Math.round(((u.xp||0) / globalMaxXP) * 100)}%`,
+                        background: barColor,
+                        borderRadius:2,
+                      }} />
+                    </div>
+                  </div>
+                </div>
+              );
+            });
+          })()}
           {globalUsers.length === 0 && !globalLoading && !globalError && (
             <div className="c" style={{textAlign:"center",color:"var(--subtext)",padding:"24px"}}>No data yet.</div>
           )}
