@@ -69,6 +69,14 @@ export default function Flashcards({ pool, goBack, award }) {
   if (done) {
     const knownCount = activePool.length - missed.length;
     const missedCount = missed.length;
+    const totalFlipped = activePool.length;
+    const accuracy = totalFlipped > 0 ? knownCount / totalFlipped : 0;
+    let difficultyRec = null;
+    if (accuracy < 0.5) {
+      difficultyRec = 'Try the basic vocabulary exercises to build your foundation 💪';
+    } else if (accuracy >= 0.8) {
+      difficultyRec = "You're ready for harder content — try Grammar exercises! 🎯";
+    }
     return (
       <div className="scr-wrap">
         <div style={{textAlign:"center",padding:"40px 20px 20px"}}>
@@ -95,6 +103,21 @@ export default function Flashcards({ pool, goBack, award }) {
               `${missedCount} card${missedCount !== 1 ? 's' : ''} need review — they'll come back tomorrow`
             }
           </div>
+          {difficultyRec && (
+            <div style={{
+              marginTop:16,
+              padding:'10px 16px',
+              background: accuracy >= 0.8 ? 'rgba(22,163,74,0.08)' : 'rgba(245,158,11,0.08)',
+              border: `1px solid ${accuracy >= 0.8 ? 'rgba(22,163,74,0.25)' : 'rgba(245,158,11,0.25)'}`,
+              borderRadius:12,
+              fontSize:13,
+              fontWeight:600,
+              color: accuracy >= 0.8 ? 'var(--success)' : '#92400e',
+              lineHeight:1.5,
+            }}>
+              {difficultyRec}
+            </div>
+          )}
         </div>
         <div style={{display:"flex",flexDirection:"column",gap:10,padding:"0 0 20px"}}>
           {missed.length > 0 && (
