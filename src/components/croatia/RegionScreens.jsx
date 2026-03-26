@@ -66,16 +66,16 @@ export function RegionScreen({ regionKey, goBack }) {
           {r.sections.map(function(s,i){return (
             <div key={i} className="c" style={{marginBottom:14,borderLeft:`4px solid ${accentColor}`,padding:"14px 16px"}}>
               <div style={{fontSize:14,fontWeight:800,color:accentColor,marginBottom:8}}>{s.h}</div>
-              <div style={{fontSize:13,lineHeight:1.8,color:"#44403c"}}>{s.t}</div>
+              <div style={{fontSize:13,lineHeight:1.8,color:"var(--subtext)"}}>{s.t}</div>
             </div>
           );})}
           {r.facts && r.facts.length > 0 && (
             <div style={{marginTop:20}}>
-              <div style={{fontSize:14,fontWeight:800,color:"#164e63",marginBottom:12}}>💡 Did You Know?</div>
+              <div style={{fontSize:14,fontWeight:800,color:"var(--info)",marginBottom:12}}>💡 Did You Know?</div>
               {r.facts.map(function(f,i){return (
                 <div key={i} style={{display:"flex",gap:12,padding:"12px 14px",background:bgLight,borderRadius:12,marginBottom:8,alignItems:"flex-start"}}>
                   <div style={{fontSize:18,flexShrink:0}}>⚡</div>
-                  <div style={{fontSize:13,lineHeight:1.6,color:"#1c1917"}}>{f}</div>
+                  <div style={{fontSize:13,lineHeight:1.6,color:"var(--heading)"}}>{f}</div>
                 </div>
               );})}
             </div>
@@ -86,7 +86,7 @@ export function RegionScreen({ regionKey, goBack }) {
       {/* TIMELINE */}
       {tab === "timeline" && r.timeline && (
         <div>
-          <div style={{fontSize:13,color:"#78716c",marginBottom:16}}>Swipe through {r.timeline.length} key moments in history</div>
+          <div style={{fontSize:13,color:"var(--subtext)",marginBottom:16}}>Swipe through {r.timeline.length} key moments in history</div>
           <div style={{position:"relative",paddingLeft:20}}>
             <div style={{position:"absolute",left:9,top:0,bottom:0,width:2,background:`linear-gradient(${accentColor},${accentColor}40)`}}/>
             {r.timeline.map(function(t,i){return (
@@ -94,7 +94,7 @@ export function RegionScreen({ regionKey, goBack }) {
                 <div style={{width:18,height:18,borderRadius:"50%",background:accentColor,flexShrink:0,marginTop:2,border:"3px solid white",boxShadow:`0 0 0 2px ${accentColor}`}}/>
                 <div style={{flex:1}}>
                   <div style={{fontSize:12,fontWeight:800,color:accentColor,marginBottom:3}}>{t.year}</div>
-                  <div style={{fontSize:13,lineHeight:1.6,color:"#1c1917"}}>{t.event}</div>
+                  <div style={{fontSize:13,lineHeight:1.6,color:"var(--heading)"}}>{t.event}</div>
                 </div>
               </div>
             );})}
@@ -105,7 +105,7 @@ export function RegionScreen({ regionKey, goBack }) {
       {/* PEOPLE */}
       {tab === "people" && r.people && (
         <div>
-          <div style={{fontSize:13,color:"#78716c",marginBottom:16}}>Notable figures from {r.title}</div>
+          <div style={{fontSize:13,color:"var(--subtext)",marginBottom:16}}>Notable figures from {r.title}</div>
           {r.people.map(function(p,i){const open = expandedPerson === i; return (
             <div key={i} className="c" role="button" tabIndex={0} style={{marginBottom:12,cursor:"pointer"}} onClick={() => setExpandedPerson(open ? null : i)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setExpandedPerson(open?null:i);}}} aria-expanded={open}>
               <div style={{display:"flex",gap:12,alignItems:"flex-start"}}>
@@ -113,15 +113,15 @@ export function RegionScreen({ regionKey, goBack }) {
                   👤
                 </div>
                 <div style={{flex:1}}>
-                  <div style={{fontSize:14,fontWeight:800,color:"#164e63"}}>{p.name}</div>
+                  <div style={{fontSize:14,fontWeight:800,color:"var(--info)"}}>{p.name}</div>
                   <div style={{fontSize:12,color:accentColor,fontWeight:700}}>{p.years}</div>
-                  <div style={{fontSize:12,color:"#78716c"}}>{p.role}</div>
+                  <div style={{fontSize:12,color:"var(--subtext)"}}>{p.role}</div>
                 </div>
-                <div style={{fontSize:16,color:"#78716c"}}>{open ? "▲" : "▼"}</div>
+                <div style={{fontSize:16,color:"var(--subtext)"}}>{open ? "▲" : "▼"}</div>
               </div>
               {open && (
                 <div style={{marginTop:12,paddingTop:12,borderTop:"1px solid rgba(0,0,0,.08)"}}>
-                  <div style={{fontSize:13,lineHeight:1.8,color:"#44403c"}}>{p.story}</div>
+                  <div style={{fontSize:13,lineHeight:1.8,color:"var(--subtext)"}}>{p.story}</div>
                 </div>
               )}
             </div>
@@ -132,15 +132,15 @@ export function RegionScreen({ regionKey, goBack }) {
       {/* LANGUAGE */}
       {tab === "language" && r.vocab && (
         <div>
-          <div style={{fontSize:13,color:"#78716c",marginBottom:16}}>Local words, dialect terms & cultural vocabulary</div>
+          <div style={{fontSize:13,color:"var(--subtext)",marginBottom:16}}>Local words, dialect terms & cultural vocabulary</div>
           {r.vocab.map(function(v,i){return (
-            <div key={i} style={{padding:"14px",background:"white",borderRadius:14,border:"1px solid rgba(0,0,0,.07)",marginBottom:10,
+            <div key={i} style={{padding:"14px",background:"var(--card)",borderRadius:14,border:"1px solid rgba(0,0,0,.07)",marginBottom:10,
               boxShadow:"0 1px 4px rgba(0,0,0,.05)"}}>
               <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:4}}>
                 <span style={{fontSize:16,fontWeight:900,color:accentColor}}>{v.hr}</span>
-                <span style={{fontSize:13,color:"#44403c",fontWeight:600}}>{v.en}</span>
+                <span style={{fontSize:13,color:"var(--subtext)",fontWeight:600}}>{v.en}</span>
               </div>
-              {v.note && <div style={{fontSize:12,color:"#78716c",lineHeight:1.5,fontStyle:"italic"}}>{v.note}</div>}
+              {v.note && <div style={{fontSize:12,color:"var(--subtext)",lineHeight:1.5,fontStyle:"italic"}}>{v.note}</div>}
             </div>
           );})}
         </div>
@@ -152,19 +152,19 @@ export function RegionScreen({ regionKey, goBack }) {
           {!quizDone ? (
             <div>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-                <div style={{fontSize:13,fontWeight:700,color:"#164e63"}}>Question {quizI + 1} / {r.quiz.length}</div>
+                <div style={{fontSize:13,fontWeight:700,color:"var(--info)"}}>Question {quizI + 1} / {r.quiz.length}</div>
                 <div style={{fontSize:13,fontWeight:700,color:accentColor}}>Score: {quizScore}</div>
               </div>
               <div style={{background:`linear-gradient(135deg,${bgLight},${accentColor}18)`,borderRadius:16,padding:"20px",marginBottom:20}}>
-                <div style={{fontSize:15,fontWeight:800,lineHeight:1.5,color:"#1c1917"}}>{r.quiz[quizI].q}</div>
+                <div style={{fontSize:15,fontWeight:800,lineHeight:1.5,color:"var(--heading)"}}>{r.quiz[quizI].q}</div>
               </div>
               {sh([r.quiz[quizI].a, ...r.quiz[quizI].al]).map(function(opt,i){
                 const chosen = quizSel === opt;
                 const correct = opt === r.quiz[quizI].a;
                 const revealed = quizSel !== null;
-                let bg = "white", border = "1px solid rgba(0,0,0,.08)", color = "#1c1917";
-                if (revealed && correct) { bg = "#dcfce7"; border = "2px solid #16a34a"; color = "#166534"; }
-                else if (revealed && chosen && !correct) { bg = "#fee2e2"; border = "2px solid #dc2626"; color = "#991b1b"; }
+                let bg = "var(--card)", border = "1px solid var(--card-b)", color = "var(--heading)";
+                if (revealed && correct) { bg = "var(--success-bg)"; border = "2px solid var(--success-b)"; color = "var(--success)"; }
+                else if (revealed && chosen && !correct) { bg = "var(--error-bg)"; border = "2px solid var(--error-b)"; color = "var(--error)"; }
                 return (
                   <div key={i} role="button" tabIndex={0} onClick={() => handleQuizAnswer(opt)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleQuizAnswer(opt);}}}
                     style={{padding:"14px 16px",background:bg,border,borderRadius:12,marginBottom:8,cursor:"pointer",
@@ -180,7 +180,7 @@ export function RegionScreen({ regionKey, goBack }) {
               <div style={{fontSize:22,fontWeight:900,color:accentColor,marginBottom:8}}>
                 {quizScore} / {r.quiz.length}
               </div>
-              <div style={{fontSize:15,color:"#44403c",marginBottom:24}}>
+              <div style={{fontSize:15,color:"var(--subtext)",marginBottom:24}}>
                 {quizScore === r.quiz.length ? "Perfect! You know this region well!" :
                  quizScore >= r.quiz.length * 0.8 ? "Excellent knowledge!" :
                  quizScore >= r.quiz.length * 0.5 ? "Good — read the overview again for the rest." :
@@ -214,7 +214,7 @@ export function RoleplayScreen({ goBack }) {
       </div>
       <div className="c" style={{marginBottom:16,borderLeft:"4px solid #7c3aed",background:"linear-gradient(135deg,#f5f3ff,#ede9fe)"}}>
         <div style={{fontSize:16,fontWeight:800,color:"#7c3aed"}}>{r.title}</div>
-        <div style={{fontSize:13,color:"#78716c"}}>{r.en}</div>
+        <div style={{fontSize:13,color:"var(--subtext)"}}>{r.en}</div>
       </div>
       {r.lines.slice(0,rpLine+1).map(function(l,i){return (
         <div key={i} style={{display:"flex",justifyContent:l.you?"flex-end":"flex-start",marginBottom:8}}>
@@ -255,26 +255,26 @@ export function RecipesScreen({ goBack }) {
         );})}
       </div>
       <div className="c" style={{marginBottom:16,borderLeft:"4px solid #f59e0b"}}>
-        <div style={{fontSize:18,fontWeight:800,color:"#164e63"}}>{r.name}</div>
-        <div style={{fontSize:14,color:"#78716c"}}>{r.en}{" • "}{r.time}{" min"}</div>
+        <div style={{fontSize:18,fontWeight:800,color:"var(--info)"}}>{r.name}</div>
+        <div style={{fontSize:14,color:"var(--subtext)"}}>{r.en}{" • "}{r.time}{" min"}</div>
         <div style={{display:"flex",alignItems:"center",gap:10,marginTop:10}}>
           <span style={{fontSize:13,fontWeight:700}}>Servings:</span>
-          <button style={{width:32,height:32,borderRadius:"50%",border:"2px solid #0e7490",background:"white",fontWeight:800,fontSize:16,cursor:"pointer"}} onClick={function(){if(rcServ>1)setRcServ(rcServ-1)}}>-</button>
+          <button style={{width:32,height:32,borderRadius:"50%",border:"2px solid var(--info)",background:"var(--card)",fontWeight:800,fontSize:16,cursor:"pointer"}} onClick={function(){if(rcServ>1)setRcServ(rcServ-1)}}>-</button>
           <span style={{fontSize:20,fontWeight:800,minWidth:30,textAlign:"center"}}>{rcServ}</span>
-          <button style={{width:32,height:32,borderRadius:"50%",border:"2px solid #0e7490",background:"white",fontWeight:800,fontSize:16,cursor:"pointer"}} onClick={function(){setRcServ(rcServ+1)}}>+</button>
+          <button style={{width:32,height:32,borderRadius:"50%",border:"2px solid var(--info)",background:"var(--card)",fontWeight:800,fontSize:16,cursor:"pointer"}} onClick={function(){setRcServ(rcServ+1)}}>+</button>
         </div>
       </div>
       <h3 className="sh">🥚 Ingredients (scaled)</h3>
       {r.ing.map(function(ig,i){const amt=ig[0];const num=parseFloat(amt);const unit=amt.replace(/[0-9./]+/g,"").trim();const scaled=!isNaN(num)?Math.round(num*scale*10)/10+unit:amt;return (
         <div key={i} style={{padding:"6px 0",fontSize:14,borderBottom:"1px solid #f3f4f6",display:"flex",gap:8,cursor:"pointer"}} onClick={function(){speak(ig[1].split("(")[0])}}>
-          <span style={{fontWeight:800,color:"#0e7490",minWidth:60}}>{scaled}</span>
+          <span style={{fontWeight:800,color:"var(--info)",minWidth:60}}>{scaled}</span>
           <span>{ig[1]}{" 🔊"}</span>
         </div>
       );})}
       <h3 className="sh" style={{marginTop:16}}>👨‍🍳 Steps</h3>
       {r.steps.map(function(s,i){return (
         <div key={i} className="c" style={{marginBottom:8,display:"flex",gap:12,cursor:"pointer"}} onClick={function(){speak(s.split("(")[0])}}>
-          <div style={{width:28,height:28,borderRadius:"50%",background:"#0e7490",color:"white",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:13,flexShrink:0}}>{i+1}</div>
+          <div style={{width:28,height:28,borderRadius:"50%",background:"var(--info)",color:"white",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:13,flexShrink:0}}>{i+1}</div>
           <div style={{fontSize:14,lineHeight:1.6}}>{s}{" 🔊"}</div>
         </div>
       );})}
@@ -374,20 +374,20 @@ export function CityOfDayScreen({ goBack }) {
       {/* Overview — introduction only */}
       {tab==="overview" && (
         <div>
-          <div style={{marginBottom:16,padding:"16px",background:city.color+"0e",borderRadius:14,borderLeft:"4px solid "+city.color,fontSize:14,lineHeight:1.8,color:"#1c1917"}}>
+          <div style={{marginBottom:16,padding:"16px",background:city.color+"0e",borderRadius:14,borderLeft:"4px solid "+city.color,fontSize:14,lineHeight:1.8,color:"var(--heading)"}}>
             {city.intro}
           </div>
-          <div style={{marginBottom:16,padding:"14px 16px",background:"white",borderRadius:14,border:"1px solid rgba(0,0,0,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.05)"}}>
-            <div style={{fontSize:11,fontWeight:800,color:"#78716c",marginBottom:8,letterSpacing:"0.06em",textTransform:"uppercase"}}>At a glance</div>
+          <div style={{marginBottom:16,padding:"14px 16px",background:"var(--card)",borderRadius:14,border:"1px solid rgba(0,0,0,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.05)"}}>
+            <div style={{fontSize:11,fontWeight:800,color:"var(--subtext)",marginBottom:8,letterSpacing:"0.06em",textTransform:"uppercase"}}>At a glance</div>
             <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
               <span style={{background:city.color+"18",color:city.color,fontSize:12,fontWeight:700,padding:"5px 12px",borderRadius:20}}>📍 {city.region}</span>
-              <span style={{background:"rgba(14,116,144,.1)",color:"#0e7490",fontSize:12,fontWeight:700,padding:"5px 12px",borderRadius:20}}>📚 {city.vocab.length} vocabulary words</span>
-              <span style={{background:"rgba(245,158,11,.1)",color:"#b45309",fontSize:12,fontWeight:700,padding:"5px 12px",borderRadius:20}}>🏛️ {city.facts.length} historical facts</span>
+              <span style={{background:"var(--info-bg)",color:"var(--info)",fontSize:12,fontWeight:700,padding:"5px 12px",borderRadius:20}}>📚 {city.vocab.length} vocabulary words</span>
+              <span style={{background:"rgba(245,158,11,.1)",color:"var(--warning-dark, #b45309)",fontSize:12,fontWeight:700,padding:"5px 12px",borderRadius:20}}>🏛️ {city.facts.length} historical facts</span>
             </div>
           </div>
           <div style={{padding:"14px 16px",background:"linear-gradient(135deg,#f0f9ff,#e0f2fe)",borderRadius:14,borderLeft:"4px solid "+city.color}}>
             <div style={{fontSize:11,fontWeight:800,color:city.color,marginBottom:6,letterSpacing:"0.06em",textTransform:"uppercase"}}>Local saying</div>
-            <div style={{fontSize:14,fontStyle:"italic",color:"#1c1917",lineHeight:1.6}}>"{city.tagline}"</div>
+            <div style={{fontSize:14,fontStyle:"italic",color:"var(--heading)",lineHeight:1.6}}>"{city.tagline}"</div>
           </div>
         </div>
       )}
@@ -398,18 +398,18 @@ export function CityOfDayScreen({ goBack }) {
         const histFacts = city.facts.slice(0, half);
         return (
           <div>
-            <div style={{marginBottom:16,padding:"16px",background:"white",borderRadius:14,border:"1px solid rgba(0,0,0,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.05)",fontSize:14,lineHeight:1.8,color:"#44403c"}}>
+            <div style={{marginBottom:16,padding:"16px",background:"var(--card)",borderRadius:14,border:"1px solid rgba(0,0,0,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.05)",fontSize:14,lineHeight:1.8,color:"var(--subtext)"}}>
               {city.history}
             </div>
-            <div style={{marginBottom:12,fontSize:13,fontWeight:800,color:"#164e63"}}>
+            <div style={{marginBottom:12,fontSize:13,fontWeight:800,color:"var(--info)"}}>
               🏛️ Key Historical Facts
             </div>
             {histFacts.map(function(f,fi){return (
-              <div key={fi} style={{display:"flex",alignItems:"flex-start",gap:12,marginBottom:10,padding:"12px 14px",background:"white",borderRadius:12,border:"1px solid rgba(0,0,0,.06)",boxShadow:"0 1px 3px rgba(0,0,0,.04)"}}>
+              <div key={fi} style={{display:"flex",alignItems:"flex-start",gap:12,marginBottom:10,padding:"12px 14px",background:"var(--card)",borderRadius:12,border:"1px solid rgba(0,0,0,.06)",boxShadow:"0 1px 3px rgba(0,0,0,.04)"}}>
                 <div style={{width:26,height:26,borderRadius:"50%",background:city.color,color:"white",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:800,flexShrink:0}}>
                   {fi+1}
                 </div>
-                <div style={{fontSize:13,color:"#1c1917",lineHeight:1.6,flex:1}}>{f}</div>
+                <div style={{fontSize:13,color:"var(--heading)",lineHeight:1.6,flex:1}}>{f}</div>
               </div>
             );})}
           </div>
@@ -423,14 +423,14 @@ export function CityOfDayScreen({ goBack }) {
             Words and phrases connected to {city.name} — tap to hear
           </div>
           {city.vocab.map(function(v,vi){return (
-            <div key={vi} style={{marginBottom:10,background:"white",borderRadius:14,border:"1px solid rgba(0,0,0,.06)",overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,.05)",cursor:"pointer"}}
+            <div key={vi} style={{marginBottom:10,background:"var(--card)",borderRadius:14,border:"1px solid rgba(0,0,0,.06)",overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,.05)",cursor:"pointer"}}
               onClick={function(){speak(v.hr)}}>
               <div style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px"}}>
                 <div style={{width:4,alignSelf:"stretch",background:city.color,borderRadius:2,flexShrink:0}} />
                 <div style={{flex:1}}>
                   <div style={{fontSize:17,fontWeight:800,color:city.color,marginBottom:3}}>{v.hr} <span style={{fontSize:14,opacity:.5}}>🔊</span></div>
-                  <div style={{fontSize:13,color:"#44403c",fontWeight:600,marginBottom:4}}>{v.en}</div>
-                  {v.note && <div style={{fontSize:12,color:"#78716c",lineHeight:1.5}}>{v.note}</div>}
+                  <div style={{fontSize:13,color:"var(--subtext)",fontWeight:600,marginBottom:4}}>{v.en}</div>
+                  {v.note && <div style={{fontSize:12,color:"var(--subtext)",lineHeight:1.5}}>{v.note}</div>}
                 </div>
               </div>
             </div>
@@ -445,11 +445,11 @@ export function CityOfDayScreen({ goBack }) {
         const allFacts = [city.didYouKnow].concat(fastFacts);
         return (
           <div>
-            <div style={{fontSize:15,fontWeight:800,color:"#164e63",marginBottom:14}}>💡 Did You Know?</div>
+            <div style={{fontSize:15,fontWeight:800,color:"var(--info)",marginBottom:14}}>💡 Did You Know?</div>
             {allFacts.map(function(fact, i){
               return (
-                <div key={i} style={{marginBottom:10,padding:"14px 16px",background:"white",borderRadius:14,border:"1px solid rgba(0,0,0,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.05)"}}>
-                  <div style={{fontSize:13,color:"#1c1917",lineHeight:1.7}}>{fact}</div>
+                <div key={i} style={{marginBottom:10,padding:"14px 16px",background:"var(--card)",borderRadius:14,border:"1px solid rgba(0,0,0,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.05)"}}>
+                  <div style={{fontSize:13,color:"var(--heading)",lineHeight:1.7}}>{fact}</div>
                 </div>
               );
             })}

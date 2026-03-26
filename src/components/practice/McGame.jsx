@@ -308,7 +308,7 @@ export default function McGame({ questions, onComplete, goBack, award }) {
               padding: '4px 10px',
               fontSize: 13,
               fontWeight: 800,
-              color: '#ea580c',
+              color: 'var(--warning, #ea580c)',
               animation: streakPulse ? 'heartbeat 0.4s ease infinite' : 'streakPop .3s ease',
               boxShadow: streakPulse ? '0 0 10px rgba(249,115,22,.45)' : 'none',
               transition: 'box-shadow .2s, border-color .2s',
@@ -348,7 +348,7 @@ export default function McGame({ questions, onComplete, goBack, award }) {
           marginBottom: 20,
           background:
             'linear-gradient(145deg,var(--card),var(--card))',
-          borderLeft: '4px solid #0e7490',
+          borderLeft: '4px solid var(--info)',
         }}
       >
         <div
@@ -490,8 +490,8 @@ export default function McGame({ questions, onComplete, goBack, award }) {
       {answered && q.opts[selected] !== q.correct && (
         <div style={{
           marginTop:8, padding:'10px 14px',
-          background:'rgba(14,116,144,0.08)',
-          border:'1px solid rgba(14,116,144,0.15)',
+          background:'var(--info-bg)',
+          border:'1px solid var(--info-b, rgba(14,116,144,0.2))',
           borderRadius:10, fontSize:12, color:'var(--subtext)', lineHeight:1.5
         }}>
           💡 {q.hint || q.explanation || 'Take note of this word — it will appear again in spaced repetition.'}

@@ -55,24 +55,24 @@ export default function BadgesScreen({ badges, stats, goBack }) {
           const u = earned.includes(b.id);
           const prog = !u ? getBadgeProgress(b, st) : null;
           return (
-            <div key={b.id} className="c" style={{textAlign:"center",opacity:u?1:.6,border:u?"2px solid #fbbf24":"1.5px dashed #e2e8f0"}}>
+            <div key={b.id} className="c" style={{textAlign:"center",opacity:u?1:.6,border:u?"2px solid var(--warning)":"1.5px dashed var(--card-b)"}}>
               <div style={{display:"flex",justifyContent:"center",marginBottom:4}}>
                 <BadgeArtwork badgeId={b.id} size={52} earned={u} />
               </div>
               <div style={{fontSize:14,fontWeight:700}}>{b.n}</div>
-              <div style={{fontSize:11,color:"#78716c",marginTop:4}}>{b.d}</div>
+              <div style={{fontSize:11,color:"var(--subtext)",marginTop:4}}>{b.d}</div>
               {u
-                ? <div style={{fontSize:11,color:"#b45309",marginTop:6,fontWeight:700}}>✓ Earned</div>
+                ? <div style={{fontSize:11,color:"var(--warning-dark, #b45309)",marginTop:6,fontWeight:700}}>✓ Earned</div>
                 : prog
                   ? (
                     <div style={{marginTop:8}}>
                       <div style={{height:4,background:"var(--bar-bg)",borderRadius:2,overflow:"hidden",marginBottom:4}}>
-                        <div style={{height:"100%",width:`${Math.round(prog.cur/prog.total*100)}%`,background:"linear-gradient(90deg,#0e7490,#06b6d4)",borderRadius:2,transition:"width .4s"}}/>
+                        <div style={{height:"100%",width:`${Math.round(prog.cur/prog.total*100)}%`,background:"linear-gradient(90deg,var(--info),#06b6d4)",borderRadius:2,transition:"width .4s"}}/>
                       </div>
-                      <div style={{fontSize:10,color:"#94a3b8",fontWeight:700}}>🔒 {prog.cur.toLocaleString()} / {prog.total.toLocaleString()}</div>
+                      <div style={{fontSize:10,color:"var(--subtext)",fontWeight:700}}>🔒 {prog.cur.toLocaleString()} / {prog.total.toLocaleString()}</div>
                     </div>
                   )
-                  : <div style={{fontSize:10,color:"#94a3b8",marginTop:6,fontWeight:600}}>🔒 {b.d}</div>
+                  : <div style={{fontSize:10,color:"var(--subtext)",marginTop:6,fontWeight:600}}>🔒 {b.d}</div>
               }
             </div>
           );
