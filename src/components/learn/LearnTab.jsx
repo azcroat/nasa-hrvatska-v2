@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { H, V, GRAM, LEARN_PATH } from '../../data.jsx';
+import CroatianKnight from '../shared/CroatianKnight';
 
 function LevelBadge({ label, color, bg }) {
   return (
@@ -145,7 +146,12 @@ export default function LearnTab({
                 display:'flex', alignItems:'center', justifyContent:'center', fontSize:'var(--text-2xl)',
               }}>🎯</div>
               <div style={{ flex:1, minWidth:0 }}>
-                <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em' }}>Next Up</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <CroatianKnight size={36} mood="thinking" style={{ flexShrink: 0 }} />
+                  <div style={{ fontWeight: 700, fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--subtext)' }}>
+                    Next Up
+                  </div>
+                </div>
                 <div style={{ fontSize:'var(--text-base)', fontWeight:800, color:'var(--heading)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
                   {nextItem.name}
                 </div>
@@ -154,15 +160,22 @@ export default function LearnTab({
                 </div>
               </div>
               {(!st || st.lc === 0) && (
-                <div style={{
-                  position:'absolute', top:-8, right:60,
-                  background:'var(--error)', color:'var(--card)',
-                  fontSize:'var(--text-xs)', fontWeight:900, padding:'3px 8px',
-                  borderRadius:10, letterSpacing:'.05em',
-                  animation:'pulse 2s infinite',
-                }}>
-                  START HERE
-                </div>
+                <>
+                  <CroatianKnight
+                    size={70}
+                    mood="happy"
+                    style={{ margin: '0 auto 8px', display: 'block' }}
+                  />
+                  <div style={{
+                    position:'absolute', top:-8, right:60,
+                    background:'var(--error)', color:'var(--card)',
+                    fontSize:'var(--text-xs)', fontWeight:900, padding:'3px 8px',
+                    borderRadius:10, letterSpacing:'.05em',
+                    animation:'pulse 2s infinite',
+                  }}>
+                    START HERE
+                  </div>
+                </>
               )}
               <button
                 onClick={() => launchPathItem(nextItem)}
@@ -176,6 +189,11 @@ export default function LearnTab({
             </div>
           ) : (
             <div style={{ textAlign:'center', padding:'8px 0' }}>
+              <CroatianKnight
+                size={80}
+                mood="celebrating"
+                style={{ margin: '0 auto 8px', display: 'block' }}
+              />
               <div style={{ fontSize:'var(--text-4xl)', marginBottom:6 }}>🏆</div>
               <div style={{ fontSize:'var(--text-md)', fontWeight:900, color:'var(--heading)' }}>Path Complete!</div>
               <div style={{ fontSize:'var(--text-sm)', color:'var(--subtext)', marginTop:2 }}>Ti si pravi Hrvat! Bravo!</div>
