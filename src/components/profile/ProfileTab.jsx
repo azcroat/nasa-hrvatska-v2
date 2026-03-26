@@ -7,7 +7,7 @@ import JourneyTimeline from './JourneyTimeline.jsx';
 function getCEFR(xp, lc, gc) {
   const total = xp + (lc * 15) + (gc * 25);
   if (total < 300) return { level: 'A1', label: 'Beginner', color: 'var(--success)', next: 'A2', needed: 300 };
-  if (total < 1200) return { level: 'A2', label: 'Elementary', color: '#65a30d', next: 'B1', needed: 1200 };
+  if (total < 1200) return { level: 'A2', label: 'Elementary', color: 'var(--success)', next: 'B1', needed: 1200 };
   if (total < 3500) return { level: 'B1', label: 'Intermediate', color: 'var(--warning)', next: 'B2', needed: 3500 };
   if (total < 8000) return { level: 'B2', label: 'Upper-Int.', color: 'var(--warning)', next: 'C1', needed: 8000 };
   if (total < 18000) return { level: 'C1', label: 'Advanced', color: 'var(--info)', next: 'C2', needed: 18000 };
@@ -692,18 +692,18 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
       {/* ── SIGN OUT ── */}
       {confirmOut ? (
         <div style={{border:"2px solid rgba(194,65,12,.2)",borderRadius:16,padding:"20px",background:"rgba(194,65,12,.04)",marginBottom:16}}>
-          <p style={{fontSize:'var(--text-md)',fontWeight:700,color:"#c2410c",textAlign:"center",marginBottom:16}}>Sign out of Naša Hrvatska?</p>
+          <p style={{fontSize:'var(--text-md)',fontWeight:700,color:"var(--warning)",textAlign:"center",marginBottom:16}}>Sign out of Naša Hrvatska?</p>
           <div style={{display:"flex",gap:10}}>
             <button onClick={() => setConfirmOut(false)} style={{flex:1,padding:"13px",border:"1.5px solid var(--card-b)",borderRadius:12,background:"var(--card)",color:"var(--subtext)",fontSize:'var(--text-base)',fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
               Cancel
             </button>
-            <button onClick={doOut} style={{flex:1,padding:"13px",border:"none",borderRadius:12,background:"#c2410c",color:"var(--card)",fontSize:'var(--text-base)',fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
+            <button onClick={doOut} style={{flex:1,padding:"13px",border:"none",borderRadius:12,background:"var(--warning)",color:"var(--card)",fontSize:'var(--text-base)',fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
               Sign Out
             </button>
           </div>
         </div>
       ) : (
-        <button onClick={() => setConfirmOut(true)} style={{width:"100%",padding:"14px",border:"2px solid rgba(194,65,12,.15)",borderRadius:14,background:"rgba(194,65,12,.05)",color:"#c2410c",fontSize:'var(--text-base)',fontWeight:700,cursor:"pointer",marginBottom:16,fontFamily:"'Outfit',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+        <button onClick={() => setConfirmOut(true)} style={{width:"100%",padding:"14px",border:"2px solid rgba(194,65,12,.15)",borderRadius:14,background:"rgba(194,65,12,.05)",color:"var(--warning)",fontSize:'var(--text-base)',fontWeight:700,cursor:"pointer",marginBottom:16,fontFamily:"'Outfit',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
           🚪 Sign Out
         </button>
       )}
