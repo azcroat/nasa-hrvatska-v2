@@ -9,6 +9,7 @@ function sh(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(r
 function lvl(x){const t=[0,50,150,300,500,800,1200,1800,2500,3500];for(let i=t.length-1;i>=0;i--)if(x>=t[i])return i+1;return 1}
 function lXP(l){return[0,0,50,150,300,500,800,1200,1800,2500,3500][l]??3500}
 function nXP(l){return[0,50,150,300,500,800,1200,1800,2500,3500,5000][l]??5000}
+function lXPgain(xp){const campaign=getActiveCampaign();if(campaign&&campaign.multiplier&&campaign.multiplier>1){return Math.round(xp*campaign.multiplier);}return xp;}
 // ═══════════════════════════════════════
 // ═══════════════════════════════════════
 const V = {
@@ -59,7 +60,8 @@ const V = {
   "environment":[["okoliš","environment"],["priroda","nature"],["klimatske promjene","climate change"],["zagađenje","pollution"],["recikliranje","recycling"],["obnovljivi izvori energije","renewable energy"],["solarni paneli","solar panels"],["emisije CO2","CO2 emissions"],["šuma","forest"],["biološka raznolikost","biodiversity"],["plastični otpad","plastic waste"],["otpad","waste / rubbish"],["električni automobil","electric car"],["organska hrana","organic food"],["zaštita životinja","animal protection"],["ekosustav","ecosystem"],["staklenički plinovi","greenhouse gases"],["ekološki","eco-friendly / ecological"],["štediti energiju","to save energy"],["globalno zatopljenje","global warming"],["morska razina","sea level"],["vjetroelektrana","wind farm"],["solarni park","solar park"],["zelena politika","green policy"],["otopljavanje","warming / melting"]],
   "society":[["zajednica","community"],["volontirati","to volunteer"],["udruga","association / NGO"],["demonstracije","demonstrations / protests"],["glasovati","to vote"],["demokracija","democracy"],["prava","rights"],["jednakost","equality"],["raznolikost","diversity"],["solidarnost","solidarity"],["migranti","migrants"],["integracija","integration"],["vrjednote","values"],["generacija","generation"],["stariji","elderly"],["mladi","youth / young people"],["socijalna podrška","social support"],["zdravstveni sustav","healthcare system"],["obrazovni sustav","education system"],["mediji","media"],["javni prijevoz","public transport"],["civilno društvo","civil society"],["nejednakost","inequality"],["siromaštvo","poverty"],["sloboda govora","freedom of speech"]],
   "civic":[['glasati','to vote','gla-sa-ti'],['glasanje','voting / election','gla-sa-nye'],['izbori','elections','iz-bo-ri'],['vlada','government','vla-da'],['premijer','prime minister','pre-mi-yer'],['predsjednik','president','pred-syed-nik'],['Sabor','Croatian parliament','sa-bor'],['oporba','opposition','o-por-ba'],['stranka','political party','stran-ka'],['koalicija','coalition','ko-a-li-tsi-ya'],['referendum','referendum','re-fe-ren-dum'],['zakon','law','za-kon'],['proračun','budget','pro-ra-chun'],['ministarstvo','ministry','mi-ni-star-stvo'],['gradonačelnik','mayor','gra-do-na-chel-nik'],['EU','European Union','e-u'],['Schengen','Schengen area','shen-gen'],['euro','euro (currency)','eu-ro'],['porez','tax','po-rez'],['mirovinac','pensioner','mi-ro-vi-nats']],
-  "life_events":[['vjenčanje','wedding','vyen-cha-nye'],['svadba','wedding celebration (feast)','svad-ba'],['kum','godfather / best man','kum'],['kuma','godmother / maid of honor','ku-ma'],['mladenci','bride and groom','mla-den-tsi'],['zaruke','engagement','za-ru-ke'],['krštenje','baptism','kr-shte-nye'],['kumče','godchild','kum-che'],['sprovod','funeral','spro-vod'],['pogreb','burial','po-greb'],['sućut','condolences','su-chut'],['Primite moje iskreno sućut.','Please accept my sincere condolences.','pri-mi-te mo-ye is-kre-no su-chut'],['Neka mu / joj je laka zemlja.','May the earth be light upon him/her.','ne-ka mu yo-y ye la-ka zem-lya'],['Živjeli!','Cheers! (wedding toast)','zhiv-ye-li'],['Svim gostima čestitam!','Congratulations to all the guests!','svim gos-ti-ma che-sti-tam'],['Neka vam bude sretno!','May you be happy!','ne-ka vam bu-de sret-no'],['birm','confirmation (Catholic)','birm'],['matura','high school graduation','ma-tu-ra'],['rođendan','birthday','ro-jen-dan'],['obljetnica','anniversary','ob-lyet-ni-tsa']]
+  "life_events":[['vjenčanje','wedding','vyen-cha-nye'],['svadba','wedding celebration (feast)','svad-ba'],['kum','godfather / best man','kum'],['kuma','godmother / maid of honor','ku-ma'],['mladenci','bride and groom','mla-den-tsi'],['zaruke','engagement','za-ru-ke'],['krštenje','baptism','kr-shte-nye'],['kumče','godchild','kum-che'],['sprovod','funeral','spro-vod'],['pogreb','burial','po-greb'],['sućut','condolences','su-chut'],['Primite moje iskreno sućut.','Please accept my sincere condolences.','pri-mi-te mo-ye is-kre-no su-chut'],['Neka mu / joj je laka zemlja.','May the earth be light upon him/her.','ne-ka mu yo-y ye la-ka zem-lya'],['Živjeli!','Cheers! (wedding toast)','zhiv-ye-li'],['Svim gostima čestitam!','Congratulations to all the guests!','svim gos-ti-ma che-sti-tam'],['Neka vam bude sretno!','May you be happy!','ne-ka vam bu-de sret-no'],['birm','confirmation (Catholic)','birm'],['matura','high school graduation','ma-tu-ra'],['rođendan','birthday','ro-jen-dan'],['obljetnica','anniversary','ob-lyet-ni-tsa']],
+  "easter":[['pisanica','Easter egg (painted)','pee-SAH-nee-tsah'],['janje','lamb','YAH-nyeh'],['šunka','ham','SHUN-kah'],['hren','horseradish','hren'],['uskrsnja košarica','Easter basket','oos-KRSN-yah koh-SHAH-ree-tsah'],['Sretan Uskrs!','Happy Easter!','SREH-tan OOS-krs'],['Krist uskrsnu!','Christ is risen!','kreest OOS-krs-noo'],['Uistinu uskrsnu!','He is truly risen!','OO-ees-tee-noo OOS-krs-noo'],['blagoslov','blessing','blah-GOH-slov'],['svetkovina','feast day / holy day','svyet-KOH-vee-nah'],['procesija','procession','pro-TSEH-see-yah'],['post','fast / Lent','pohst'],['Veliki tjedan','Holy Week','VEH-lee-kee TYEH-dan'],['Veliki petak','Good Friday','VEH-lee-kee PEH-tak'],['Uskrsna nedjelja','Easter Sunday','OOS-krsna neh-DYEH-lyah'],['licitarsko srce','gingerbread heart','lee-tsee-TAR-skoh SR-tseh'],['proljeće','spring','PROH-lyeh-cheh'],['čestitati','to congratulate / wish well','cheh-stee-TAH-tee'],['obiteljski ručak','family lunch','oh-bee-TELJ-skee ROO-chak'],['tradicija','tradition','trah-dee-TSEE-yah']]
 };
 // ═══ TOP 100 WORDS BY SITUATION ═══
 const TOP100 = {
@@ -463,6 +465,13 @@ function srMark(word,correct){
   const d=getSR();
   if(!d[word])d[word]={r:0,w:0,rep:0,ef:2.5,iv:1,b:0};
   const card=d[word];
+  // Lapse detection: if overdue by more than 2× the interval, reset
+  const overdueDays = (Date.now() - card.t) / 86400000 - card.iv;
+  if(overdueDays > card.iv){
+    card.rep = 0;
+    card.iv = 1;
+    card.ef = Math.max(1.3, (card.ef || 2.5) - 0.2);
+  }
   const q=correct?4:1;
   if(q<3){card.rep=0;card.iv=1;}
   else{
@@ -725,7 +734,7 @@ function getStreak(){try{return JSON.parse(localStorage.getItem("uStreak")||'{"c
 function getStreakFreezes(){try{return parseInt(localStorage.getItem('uFreeze')||'0',10);}catch{return 0}}
 function earnFreeze(){const f=getStreakFreezes();localStorage.setItem('uFreeze',String(Math.min(f+1,5)));}
 function spendFreeze(){const f=getStreakFreezes();if(f<=0)return false;localStorage.setItem('uFreeze',String(f-1));return true;}
-const STREAK_MILESTONES=[7,30,50,100,365];
+const STREAK_MILESTONES=[7,14,21,30,50,100,365];
 function updateStreak(){
   const s=getStreak();const today=new Date().toISOString().slice(0,10);
   if(s.last===today)return{...s,milestone:null};
@@ -3889,7 +3898,37 @@ const CONVMATCH = [
 let _searchIdx=null;
 function buildSearchIndex(){if(_searchIdx)return _searchIdx;const idx=[];Object.keys(V).forEach(function(cat){V[cat].forEach(function(w){idx.push({hr:w[0],en:w[1],type:"vocab",go:"lesson"})})});
 [{n:"School Kit",s:"school"},{n:"Texting",s:"texting"},{n:"Friends",s:"friends"},{n:"Food",s:"foodorder"},{n:"Transport",s:"transport"},{n:"Emergency",s:"emergency"},{n:"Football",s:"football"},{n:"Pop Culture",s:"popculture"},{n:"Practical Life",s:"practical"},{n:"Grocery",s:"grocery"},{n:"Recipes",s:"recipes"},{n:"Role-Play",s:"roleplay"},{n:"Map",s:"crmap"},{n:"Grammar",s:"grammar"},{n:"Cases",s:"padezi"},{n:"Padeži Master",s:"padezifull"},{n:"Aspect",s:"aspect"},{n:"Conjugation",s:"conjdrill"},{n:"Modal Verbs",s:"modal"},{n:"Declension",s:"declension"},{n:"Tenses Gender",s:"tenses"},{n:"Colors Gender",s:"boje"},{n:"Alphabet",s:"alphabet"},{n:"False Friends",s:"falsefr"},{n:"Dialects",s:"dialects"},{n:"Diminutives",s:"diminutives"},{n:"Word Formation",s:"wordform"},{n:"Tongue Twisters",s:"brzalice"},{n:"Flashcards",s:"flashcards"},{n:"Typing",s:"typing"},{n:"Idioms",s:"idioms"},{n:"Proverbs",s:"proverbs"},{n:"Leaderboard",s:"leaderboard"},{n:"Badges",s:"badges"},{n:"Domovinski Rat",s:"history"},{n:"Kings",s:"kings"},{n:"Labin Rabac",s:"region_labin"},{n:"Bibinje Zadar",s:"region_bibinje"},{n:"Hercegovina",s:"region_hercegovina"},{n:"Vukovar",s:"region_vukovar"},{n:"Vinkovci",s:"region_vinkovci"},{n:"Learning Path",s:"learnpath"},{n:"Favorites",s:"favorites"},{n:"Journal",s:"journal"},{n:"Conditional Mood",s:"conditional"},{n:"Vi ili ti? Formal",s:"formalregister"},{n:"Impersonal",s:"impersonal"},{n:"Tech & Digital",s:"techvoc"},{n:"Admin Life",s:"bureaucratic"}].forEach(function(x){idx.push({hr:x.n,en:x.n,type:"screen",go:x.s})});
-GROCERY.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"grocery"})});SCHOOL.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"school"})});TRANSPORT.forEach(function(t){idx.push({hr:t.hr,en:t.en,type:"phrase",go:"transport"})});EMERGENCY.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"emergency"})});_searchIdx=idx;return idx}
+GROCERY.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"grocery"})});SCHOOL.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"school"})});TRANSPORT.forEach(function(t){idx.push({hr:t.hr,en:t.en,type:"phrase",go:"transport"})});EMERGENCY.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"emergency"})});
+// Screen name entries for discoverability
+const screenEntries = [
+  { hr: 'Šatrovački Slang', en: 'slang urban street language', type: 'screen', go: 'slang' },
+  { hr: 'Poslovice', en: 'proverbs Croatian sayings', type: 'screen', go: 'proverbs' },
+  { hr: 'Sjenovni govor', en: 'shadowing speaking practice', type: 'screen', go: 'shadowing' },
+  { hr: 'Diktat', en: 'dictation listen and type', type: 'screen', go: 'dictation' },
+  { hr: 'Dijalog', en: 'dialogue conversation simulation', type: 'screen', go: 'dialogue_sim' },
+  { hr: 'Dopuni rečenicu', en: 'cloze sentence fill blank grammar', type: 'screen', go: 'cloze' },
+  { hr: 'Glagolski vid', en: 'aspect drill verb aspect perfective imperfective', type: 'screen', go: 'aspect_drill' },
+  { hr: 'Povijest', en: 'history Croatia historical', type: 'screen', go: 'history' },
+  { hr: 'Baka', en: 'baka grandmother letters stories', type: 'screen', go: 'baka_letters' },
+  { hr: 'Izgovor', en: 'pronunciation contrast sounds phoneme', type: 'screen', go: 'pron_contrast' },
+  { hr: 'Spajanje parova', en: 'match pairs matching game', type: 'screen', go: 'match_pairs' },
+  { hr: 'Naglasak', en: 'pitch accent intonation tone', type: 'screen', go: 'pitch_accent' },
+  { hr: 'Interaktivna karta', en: 'interactive map Croatia regions', type: 'screen', go: 'map' },
+  { hr: 'U kafiću', en: 'kafic cafe coffee culture', type: 'screen', go: 'kafic' },
+  { hr: 'Građanski rječnik', en: 'civic vocabulary government politics EU', type: 'screen', go: 'civic' },
+  { hr: 'Životni događaji', en: 'life events wedding funeral baptism', type: 'screen', go: 'life_events' },
+  { hr: 'Ti i Vi', en: 'ti vi formal informal address', type: 'screen', go: 'ti_vi' },
+  { hr: 'Dijaspora', en: 'diaspora heritage code switching', type: 'screen', go: 'diaspora_note' },
+  { hr: 'Uskrs u Hrvatskoj', en: 'Easter Croatian traditions pisanice lamb', type: 'screen', go: 'easter' },
+  { hr: 'Restoran', en: 'restaurant ordering food dining', type: 'screen', go: 'restaurant' },
+  { hr: 'Prijevoz', en: 'transport bus tram travel', type: 'screen', go: 'transport' },
+  { hr: 'Hitni slučajevi', en: 'emergency phrases help police hospital', type: 'screen', go: 'emergency' },
+  { hr: 'Slobodno pisanje', en: 'free writing AI correction essay', type: 'screen', go: 'writing' },
+  { hr: 'Konjugacija', en: 'conjugation verb forms present past', type: 'screen', go: 'conjugation' },
+  { hr: 'Padeži', en: 'cases padezi grammar nominative accusative', type: 'screen', go: 'cases' },
+];
+screenEntries.forEach(e => idx.push(e));
+_searchIdx=idx;return idx}
 // ═══ THEME OBJECTS (background/color tokens for inline root styles) ═══
 // Global CSS classes are in src/index.css (imported in main.jsx)
 const BG_LIGHT=/** @type {React.CSSProperties} */({minHeight:"100vh",background:"#f1f5f9",color:"#1c1917",fontFamily:"'Outfit',sans-serif",position:"relative",overflowX:"hidden"});
@@ -4958,4 +4997,4 @@ function getJourneyMilestones() {
 export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, DAILY_QUESTS, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, CROATIAN_CITIES, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, SEASONAL_CAMPAIGNS, LEVEL_NARRATIVE };
 export { _fbReady };
 export { H, Bar, Spk };
-export { initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbRegister, fbLogin, fbLogout, fbLoginGoogle, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbWatchFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbOnAuthStateChanged, fbDeleteAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex, getDueReviews, getMistakes, recordMistake, clearMistake, clearAllMistakes, bootstrapMistakesFromSRS, getActiveCampaign, recordJourneyMilestone, getJourneyMilestones };
+export { initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbRegister, fbLogin, fbLogout, fbLoginGoogle, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbWatchFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbOnAuthStateChanged, fbDeleteAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, lXPgain, getSR, saveSR, srMark, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex, getDueReviews, getMistakes, recordMistake, clearMistake, clearAllMistakes, bootstrapMistakesFromSRS, getActiveCampaign, recordJourneyMilestone, getJourneyMilestones };

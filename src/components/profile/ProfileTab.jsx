@@ -22,7 +22,11 @@ function getWordsLearned() {
   } catch(_) { return 0; }
 }
 
-export default function ProfileTab({ name, au, level, st, favs, darkMode, setDarkMode, setScr, doOut, syncReady, onSyncNow, jWords }) {
+const STAGE_CEFR = ['A1', 'A2', 'B1', 'B1+', 'B2+', 'C1'];
+const STAGE_NAMES_PROFILE = ['Survivor', 'Settler', 'Communicator', 'Explorer', 'Hrvat!'];
+const STAGE_THRESHOLDS = [0, 8, 16, 24, 32]; // lc thresholds for each stage
+
+export default function ProfileTab({ name, au, level, st, favs, darkMode, setDarkMode, setScr, doOut, syncReady, onSyncNow, jWords, onNavigate }) {
   const [confirmOut, setConfirmOut] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -261,7 +265,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                 {prestigeLevel > 0 ? `Prestige ${prestigeLevel} — ${'✦'.repeat(prestigeLevel)}` : 'Ready to Prestige?'}
               </div>
               <div style={{ fontSize:12, color:'var(--subtext)', fontWeight:500, lineHeight:1.5, marginTop:2 }}>
-                {prestigeLevel > 0 ? 'You have prestiged. Your dedication to Croatian is legendary.' : 'You\'ve reached an advanced level. Prestige resets your XP counter but grants a permanent ✦ badge and unlocks harder content.'}
+                {prestigeLevel > 0 ? 'You have prestiged. Your dedication to Croatian is legendary.' : 'Reset your XP counter and earn the ✦ Prestige badge — wear it as a mark of dedication. Stage 6 "Naš Čovjek" is in development and will be unlocked for prestige members first.'}
               </div>
             </div>
           </div>
@@ -275,6 +279,66 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
           )}
         </div>
       )}
+
+      {/* ── LEARN PATH STAGE OVERVIEW ── */}
+      <h3 className="sh" style={{marginTop:8}}>Learn Path</h3>
+      <div style={{ background:'var(--card)', border:'1.5px solid var(--card-b)', borderRadius:18, padding:'16px 18px', marginBottom:16 }}>
+        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+          {STAGE_NAMES_PROFILE.map((stageName, i) => {
+            const isActive = (st.lc || 0) >= STAGE_THRESHOLDS[i] && (i === STAGE_NAMES_PROFILE.length - 1 || (st.lc || 0) < STAGE_THRESHOLDS[i + 1]);
+            const isDone = i < STAGE_NAMES_PROFILE.length - 1 ? (st.lc || 0) >= STAGE_THRESHOLDS[i + 1] : (st.lc || 0) >= STAGE_THRESHOLDS[i];
+            return (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                opacity: (st.lc || 0) >= STAGE_THRESHOLDS[i] ? 1 : 0.45,
+              }}>
+                <span style={{ fontSize: 16 }}>{isDone ? '✅' : isActive ? '▶️' : '⬜'}</span>
+                <span style={{ fontSize: 13, fontWeight: isActive ? 800 : 600, color: isActive ? 'var(--heading)' : 'var(--subtext)' }}>
+                  Stage {i + 1}: {stageName}
+                </span>
+                <span style={{
+                  fontSize: 9, fontWeight: 800,
+                  background: 'rgba(14,116,144,0.15)', color: '#0e7490',
+                  borderRadius: 4, padding: '1px 4px', marginLeft: 6,
+                }}>
+                  {STAGE_CEFR[i]}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Stage 6 teaser — show when user has completed Stage 4 or is in Stage 5 */}
+        {(st.lc || 0) >= 20 && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(14,116,144,0.08), rgba(22,78,99,0.12))',
+            border: '1.5px dashed var(--card-b)',
+            borderRadius: 14, padding: '14px 16px', marginTop: 10, opacity: 0.75,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 24 }}>🔒</span>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)' }}>
+                  Stage 6: Naš Čovjek
+                  <span style={{
+                    fontSize: 9, fontWeight: 800,
+                    background: 'rgba(14,116,144,0.15)', color: '#0e7490',
+                    borderRadius: 4, padding: '1px 4px', marginLeft: 6,
+                  }}>
+                    {STAGE_CEFR[5]}
+                  </span>
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2 }}>
+                  Advanced fluency — Shadowing, Pitch Accent, Bureaucratic Croatian, Formal Register
+                </div>
+              </div>
+            </div>
+            <div style={{ marginTop: 8, fontSize: 11, color: 'var(--subtext)', fontStyle: 'italic' }}>
+              Complete Stage 5 to unlock. Coming soon.
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* ── GOAL FOCUS ── */}
       {currentGoal && (() => {
@@ -505,6 +569,28 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
             <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>Personal journal</div>
           </div>
         </button>
+      </div>
+
+      <div
+        onClick={() => onNavigate && onNavigate('my_words')}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          padding: '12px 14px', background: 'var(--card)',
+          border: '1px solid var(--card-b)', borderRadius: 12,
+          cursor: 'pointer', marginBottom: 8,
+        }}
+      >
+        <span style={{ fontSize: 22 }}>📚</span>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--heading)' }}>My Words</div>
+          <div style={{ fontSize: 11, color: 'var(--subtext)' }}>
+            {(() => {
+              try { return JSON.parse(localStorage.getItem('nh_custom_words') || '[]').length + ' words saved'; }
+              catch { return 'Your personal vocabulary deck'; }
+            })()}
+          </div>
+        </div>
+        <span style={{ color: 'var(--subtext)' }}>→</span>
       </div>
 
       {/* ── SETTINGS ── */}

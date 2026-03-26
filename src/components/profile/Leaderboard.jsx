@@ -291,8 +291,8 @@ export default function Leaderboard({
                   <div style={{flex:1}}>
                     <div style={{fontSize:16,fontWeight:700,display:'flex',alignItems:'center',flexWrap:'wrap',gap:4}}>
                       {u.name}{u.role === "admin" ? " 👑" : ""}
-                      {au && u.email === au.e && localStorage.getItem('nh_generation') && (() => {
-                        const gen = GENERATION_LABELS[localStorage.getItem('nh_generation')];
+                      {u.gen && (() => {
+                        const gen = GENERATION_LABELS[u.gen];
                         return gen ? (
                           <span style={{ fontSize:10, fontWeight:700, color:gen.color, background:'var(--bar-bg)', borderRadius:6, padding:'2px 6px', marginLeft:4 }}>
                             {gen.emoji} {gen.label}
@@ -515,7 +515,14 @@ export default function Leaderboard({
                 const achievementKey = `${ownerEmail}_${a.type}_${a.date}`;
                 const safeKey = achievementKey.replace(/[.#$/\[\]]/g, '_');
                 // Merge local reactions with Firestore reactions from other family members
-                const fsReaction = firestoreReactions[safeKey];
+                const reactionData = firestoreReactions[safeKey];
+                const allFsReactions = reactionData?.reactors
+                  ? Object.values(reactionData.reactors).map(r => r.emoji)
+                  : [];
+                // Build a summary of who reacted for display
+                const fsReactorNames = reactionData?.reactors
+                  ? Object.values(reactionData.reactors).map(r => r.name).filter(Boolean)
+                  : [];
                 return (
                   <div key={i} style={{ background:'var(--card)', border:'1px solid var(--card-b)', borderRadius:14, padding:'12px 14px' }}>
                     <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
@@ -526,17 +533,17 @@ export default function Leaderboard({
                         </div>
                         <div style={{ fontSize:10, color:'var(--subtext)', fontWeight:600 }}>{date}</div>
                       </div>
-                      {fsReaction && (
+                      {fsReactorNames.length > 0 && (
                         <div style={{ fontSize:11, color:'var(--subtext)', fontWeight:600 }}>
-                          {fsReaction.emoji} {fsReaction.reactorName}
+                          {allFsReactions.slice(0, 3).join('')} {fsReactorNames.slice(0, 2).join(', ')}
                         </div>
                       )}
                     </div>
                     <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
                       {REACTION_EMOJIS.map(emoji => {
                         const localCount = localReactions[emoji] || 0;
-                        // Show Firestore reaction count if this emoji matches what was synced
-                        const fsCount = fsReaction && fsReaction.emoji === emoji ? 1 : 0;
+                        // Count how many Firestore reactors used this emoji
+                        const fsCount = allFsReactions.filter(e => e === emoji).length;
                         const count = Math.max(localCount, fsCount);
                         return (
                           <button
@@ -546,7 +553,8 @@ export default function Leaderboard({
                               localStorage.setItem(reactionKey, JSON.stringify(updated));
                               // Sync to Firestore so other family members see this reaction
                               if (famCode) {
-                                fbSaveReaction(famCode, achievementKey, emoji, name || 'Someone').catch(() => {});
+                                const reactorEmail = au?.e || '';
+                                fbSaveReaction(famCode, achievementKey, emoji, name || 'Someone', reactorEmail).catch(() => {});
                               }
                               // Force re-render by triggering a state update
                               setReactionTick(t => t + 1);
