@@ -1,5 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { Bar, V, LEARN_PATH, getStreak, getStreakFreezes, earnFreeze, getProverbOfDay, getHistFact, getDailyChallenge, lXP, nXP, speak, getSR, getDueReviews, getMistakes } from '../../data.jsx';
+import { Bar, V, LEARN_PATH, getStreak, getStreakFreezes, earnFreeze, getProverbOfDay, getHistFact, getDailyChallenge, lXP, nXP, speak, getSR, getDueReviews, getMistakes, DAILY_QUESTS, LEVEL_NARRATIVE, getActiveCampaign } from '../../data.jsx';
+
+// Read last activity saved by App.jsx when exercises are launched
+function getLastActivity() {
+  const ex = localStorage.getItem('nh_last_ex');
+  const label = localStorage.getItem('nh_last_ex_label');
+  return ex && label ? { ex, label } : null;
+}
 import CroatianGrb from '../shared/CroatianGrb.jsx';
 
 const LEVEL_PALETTE = [
@@ -10,6 +17,18 @@ const LEVEL_PALETTE = [
   { grad: "linear-gradient(135deg,#7f1d1d,#dc2626)", light: "#fee2e2", text: "#7f1d1d", border: "#fca5a5" },
 ];
 
+function getWeekKey() {
+  const d = new Date();
+  const day = d.getDay() || 7;
+  d.setDate(d.getDate() + 4 - day);
+  const year = d.getFullYear();
+  const week = Math.ceil(((d.getTime() - new Date(year, 0, 1).getTime()) / 86400000 + 1) / 7);
+  return `${year}-W${String(week).padStart(2,'0')}`;
+}
+function getWeekXP() {
+  return parseInt(localStorage.getItem('nh_week_xp_' + getWeekKey()) || '0', 10);
+}
+
 export default function HomeTab({
   name, level, st,
   tDir, sTDir, tIn, sTIn, tOut, tL, doTr,
@@ -19,16 +38,37 @@ export default function HomeTab({
   allCats, sh,
   launchPathItem,
   syncReady, onSyncNow, authUser,
+  comebackBonus,
+  goal,
 }) {
   const dc = useMemo(getDailyChallenge, []);
   const ws = useMemo(() => getWeekStats(), [getWeekStats]);
+  const weekXP = useMemo(getWeekXP, []);
   const streak = useMemo(getStreak, []);
+  const lastActivity = useMemo(getLastActivity, []);
   const [freezes, setFreezes] = useState(getStreakFreezes);
+  const [freezeMsg, setFreezeMsg] = useState('');
   const proverb = useMemo(getProverbOfDay, []);
   const fact = useMemo(getHistFact, []);
   const xpCur = st.xp - lXP(level);
   const xpNeeded = nXP(level) - lXP(level);
   const xpPct = Math.min(Math.round((xpCur / xpNeeded) * 100), 100);
+
+  const userGoal = goal || localStorage.getItem('nh_goal') || 'fluent';
+  const activeCampaign = useMemo(getActiveCampaign, []);
+
+  const questsDone = useMemo(() => {
+    const d = new Date().toISOString().slice(0,10);
+    return {
+      speak:   localStorage.getItem('nh_quest_speak_'+d) === '1',
+      grammar: localStorage.getItem('nh_quest_grammar_'+d) === '1',
+      master:  localStorage.getItem('nh_quest_master_'+d) === '1',
+      reading: localStorage.getItem('nh_quest_reading_'+d) === '1',
+      streak:  streak.count > 0,
+    };
+  }, [streak]);
+  const allQuestsDone = Object.values(questsDone).every(Boolean);
+  const questXP = DAILY_QUESTS.filter(q => questsDone[q.id]).reduce((s,q) => s + q.xp, 0);
 
   const allOpts = dc.challenges.map(ch => ch.opts || [ch.a]);
   const doneCount = dchlA.filter(Boolean).length;
@@ -64,6 +104,47 @@ export default function HomeTab({
 
   return (
     <React.Fragment>
+
+      {comebackBonus && (
+        <div style={{
+          background:'linear-gradient(135deg,#fef3c7,#fde68a)',
+          border:'1.5px solid #f59e0b',
+          borderRadius:16, padding:'16px 18px', marginBottom:16,
+          display:'flex', alignItems:'center', gap:14,
+          boxShadow:'0 4px 16px rgba(245,158,11,.2)',
+          animation:'rise .5s',
+        }}>
+          <span style={{fontSize:32}}>🎉</span>
+          <div style={{flex:1}}>
+            <div style={{fontSize:14,fontWeight:900,color:'#92400e'}}>Dobrodošli natrag! Welcome back!</div>
+            <div style={{fontSize:12,color:'#b45309',marginTop:2,fontWeight:600}}>
+              You've been away — pick up where you left off. +50 bonus XP on your first lesson today!
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeCampaign && localStorage.getItem('nh_campaign_dismissed_'+activeCampaign.id) !== '1' && (
+        <div style={{
+          background: activeCampaign.bg, border: `1.5px solid ${activeCampaign.border}`,
+          borderRadius:16, padding:'14px 16px', marginBottom:16,
+          display:'flex', alignItems:'flex-start', gap:12, animation:'rise .4s',
+        }}>
+          <span style={{fontSize:26, flexShrink:0}}>{activeCampaign.icon}</span>
+          <div style={{flex:1}}>
+            <div style={{fontSize:13, fontWeight:900, color: activeCampaign.color, marginBottom:2}}>{activeCampaign.name}</div>
+            <div style={{fontSize:11, color:'var(--subtext)', fontWeight:500, lineHeight:1.5, marginBottom:6}}>{activeCampaign.blurb}</div>
+            <div style={{display:'inline-flex', alignItems:'center', gap:4, background: activeCampaign.color, color:'#fff', borderRadius:8, padding:'3px 8px', fontSize:11, fontWeight:800}}>
+              🚀 {activeCampaign.multiplier}x XP this season!
+            </div>
+          </div>
+          <button
+            onClick={() => { localStorage.setItem('nh_campaign_dismissed_'+activeCampaign.id,'1'); window.location.reload(); }}
+            style={{background:'none',border:'none',cursor:'pointer',fontSize:16,color:'var(--subtext)',padding:4,flexShrink:0}}
+            aria-label="Dismiss campaign"
+          >×</button>
+        </div>
+      )}
 
       {/* ── HERO ── */}
       <div style={{
@@ -128,6 +209,15 @@ export default function HomeTab({
           }}>
             {name || "Učenik"} 👋
           </div>
+          {name && (
+            <p style={{fontSize:12,fontWeight:600,color:"rgba(255,255,255,.7)",marginTop:6,marginBottom:0,lineHeight:1.4}}>
+              {userGoal === 'heritage' ? "Reconnecting with your roots 🇭🇷"
+               : userGoal === 'family'  ? "Learning for the people you love 👨‍👩‍👧"
+               : userGoal === 'travel'  ? "Croatia is waiting for you ✈️"
+               : userGoal === 'culture' ? "Immerse yourself in Croatian culture 🎵"
+               : "On the path to fluency 🗣️"}
+            </p>
+          )}
         </div>
 
         {/* Level badge pill */}
@@ -143,6 +233,9 @@ export default function HomeTab({
             boxShadow:`0 4px 14px rgba(0,0,0,.3)`,
           }}>
             <span>Level {level}</span><span style={{opacity:.65,fontWeight:600}}> · {pathData.activeLv.title}</span>
+            <span style={{marginLeft:8,background:'rgba(255,255,255,.2)',borderRadius:10,padding:'2px 7px',fontSize:10,fontWeight:700,letterSpacing:'.02em'}}>
+              {LEVEL_NARRATIVE[userGoal]?.[level-1] || 'Learning'}
+            </span>
           </span>
         </div>
 
@@ -167,8 +260,9 @@ export default function HomeTab({
           {xpCur.toLocaleString()} XP · Level {level + 1} in {(nXP(level) - st.xp).toLocaleString()} more XP
         </div>
 
-        {/* Stat chips */}
-        <div style={{display:"flex",gap:8,overflowX:"auto",msOverflowStyle:"none",scrollbarWidth:"none"}}>
+        {/* Stat chips — right-side fade signals scrollability */}
+        <div style={{position:"relative"}}>
+        <div style={{display:"flex",gap:8,overflowX:"auto",msOverflowStyle:"none",scrollbarWidth:"none",paddingRight:24}}>
           {[
             {icon:"🔥",value:streak.count,label:"streak"},
             {icon:"⭐",value:st.xp.toLocaleString(),label:"XP total"},
@@ -187,11 +281,12 @@ export default function HomeTab({
             }}>
               <span style={{fontSize:13}}>{s.icon}</span>
               <span style={{fontSize:13,fontWeight:900,color:"white",fontVariantNumeric:"tabular-nums"}}>{s.value}</span>
-              <span style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,.65)"}}>{s.label}</span>
+              <span style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,.65)"}} title={s.label==="mastered" ? "Words with 2+ correct reviews" : undefined}>{s.label}</span>
             </div>
           ))}
-        </div>
-
+        </div>{/* end scroll row */}
+        <div style={{position:"absolute",top:0,right:0,bottom:0,width:32,background:"linear-gradient(to left,rgba(10,35,72,0.85),transparent)",pointerEvents:"none",borderRadius:"0 10px 10px 0"}}/>
+        </div>{/* end position:relative wrapper */}
         {/* Streak freeze */}
         <div style={{marginTop:10,display:'flex',alignItems:'center',gap:8}}>
           {freezes>0?(
@@ -200,10 +295,16 @@ export default function HomeTab({
               <span style={{fontSize:12,color:'white',fontWeight:700}}>{freezes} streak freeze{freezes>1?'s':''}</span>
             </div>
           ):(
-            <button onClick={()=>{if(st.xp>=200){earnFreeze();setFreezes(f=>f+1);alert('Streak freeze earned! Your streak is now protected for one missed day.');} else alert('You need 200 XP to earn a streak freeze.');}}
-              style={{background:'rgba(255,255,255,.15)',border:'1px dashed rgba(255,255,255,.4)',borderRadius:20,padding:'12px 16px',fontSize:12,color:'white',fontWeight:700,cursor:'pointer',minHeight:44}}>
-              🛡️ Earn Streak Freeze (200 XP)
-            </button>
+            <div>
+              <button onClick={()=>{
+                if(st.xp>=200){earnFreeze();setFreezes(f=>f+1);setFreezeMsg('✓ Streak freeze earned! Your streak is protected for one missed day.');}
+                else setFreezeMsg('You need 200 XP to earn a streak freeze. Keep going!');
+              }}
+                style={{background:'rgba(255,255,255,.22)',border:'1.5px solid rgba(255,255,255,.6)',borderRadius:20,padding:'12px 16px',fontSize:12,color:'white',fontWeight:700,cursor:'pointer',minHeight:44,display:'flex',alignItems:'center',gap:6}}>
+                <span>🛡️</span><span>Earn Streak Freeze (200 XP)</span><span style={{opacity:.7,fontSize:14}}>›</span>
+              </button>
+              {freezeMsg&&<div style={{fontSize:11,color:'rgba(255,255,255,.85)',marginTop:6,fontWeight:600}}>{freezeMsg}</div>}
+            </div>
           )}
         </div>
         </div>{/* end padding wrapper */}
@@ -248,7 +349,7 @@ export default function HomeTab({
           }}/>
         </div>
         <div style={{fontSize:11,color:"rgba(255,255,255,.7)",fontWeight:500,marginBottom:16}}>
-          {pathData.activeLvDone} of {pathData.activeLv.items.length} lessons complete
+          This stage: {pathData.activeLvDone} of {pathData.activeLv.items.length} lessons
         </div>
 
         {/* Start Now button */}
@@ -268,8 +369,25 @@ export default function HomeTab({
             opacity: !syncReady ? 0.6 : 1,
           }}>
           <span style={{fontSize:18}}>{!syncReady ? "⏳" : "▶"}</span>
-          <span>{!syncReady ? "Syncing…" : "Start Now"}</span>
+          <span>{!syncReady ? "Syncing…" : st.lc > 0 ? "Continue Learning" : "Start Learning"}</span>
         </button>
+
+        {/* Resume last activity */}
+        {lastActivity && st.lc > 0 && (
+          <button
+            onClick={() => { setScr(lastActivity.ex); sCurEx(lastActivity.ex); }}
+            style={{
+              width:"100%", marginTop:10, height:44,
+              background:"rgba(255,255,255,.12)", border:"1.5px solid rgba(255,255,255,.3)",
+              borderRadius:12, cursor:"pointer",
+              fontFamily:"'Outfit',sans-serif",
+              display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+              color:"rgba(255,255,255,.9)", fontSize:13, fontWeight:700,
+            }}>
+            <span style={{fontSize:14}}>↩️</span>
+            <span>Resume: {lastActivity.label} →</span>
+          </button>
+        )}
       </div>
 
       {/* ── CLOUD SYNC STATUS ── */}
@@ -313,201 +431,35 @@ export default function HomeTab({
         );
       })()}
 
-      {/* ── DAILY CHALLENGES ── */}
-      <div style={{
-        background:"var(--card)",
-        border:"1.5px solid #e0e7ff",
-        borderRadius:20,
-        marginBottom:16,
-        overflow:"hidden",
-        boxShadow:"0 4px 24px rgba(124,58,237,.08)",
-      }}>
-        {allDone ? (
-          <div style={{padding:"20px 20px 18px"}}>
-            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
-              <div style={{
-                width:40,height:40,borderRadius:12,
-                background:"linear-gradient(135deg,#16a34a,#15803d)",
-                display:"flex",alignItems:"center",justifyContent:"center",
-                fontSize:20,flexShrink:0,
-                boxShadow:"0 4px 12px rgba(22,163,74,.3)",
-              }}>🏆</div>
-              <div style={{flex:1}}>
-                <div style={{fontSize:13,fontWeight:800,color:"#16a34a"}}>Daily Challenges</div>
-                <div style={{fontSize:10,color:"var(--subtext)",marginTop:1}}>All complete · Come back tomorrow</div>
-              </div>
-              <div style={{display:"flex",alignItems:"center",gap:4}}>
-                {[0,1,2].map(i=>(
-                  <div key={i} style={{width:10,height:10,borderRadius:"50%",background:"#16a34a",boxShadow:"0 0 6px rgba(22,163,74,.5)"}}/>
-                ))}
-                <span style={{fontSize:11,fontWeight:800,color:"#16a34a",marginLeft:4}}>3/3</span>
-              </div>
-            </div>
-            <div style={{
-              background:"linear-gradient(135deg,#f0fdf4,#dcfce7)",
-              border:"1.5px solid #86efac",
-              borderRadius:16,padding:"18px",textAlign:"center",
+      {/* ── DAILY QUESTS ── */}
+      <h3 className="sh">Daily Quests</h3>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:10, marginBottom:20 }}>
+        {DAILY_QUESTS.map(q => {
+          const done = questsDone[q.id];
+          return (
+            <div key={q.id} style={{
+              background: done ? '#f0fdf4' : 'var(--card)',
+              border: `1.5px solid ${done ? '#86efac' : 'var(--inp-b,#e2e8f0)'}`,
+              borderRadius:14, padding:'12px 10px', textAlign:'center',
             }}>
-              <div style={{fontSize:42,marginBottom:8}}>
-                {dchlA.filter((a,i) => a && dchlSl[i] === dc.challenges[i].a).length >= 2 ? "🏆" : "🎯"}
-              </div>
-              <div style={{fontSize:16,fontWeight:900,color:"#15803d",marginBottom:4}}>
-                {dc.challenges.filter((ch,i) => dchlSl[i] === ch.a).length}/3 correct
-                {' '}· +{dc.challenges.filter((ch,i) => dchlSl[i] === ch.a).length * 10} XP earned
-              </div>
-              <div style={{fontSize:12,color:"#166534",fontWeight:500}}>New challenges at midnight</div>
+              <div style={{fontSize:22, marginBottom:4}}>{q.icon}</div>
+              <div style={{fontSize:11, fontWeight:900, color: done ? '#16a34a' : 'var(--heading)', lineHeight:1.2, marginBottom:3}}>{q.name}</div>
+              <div style={{fontSize:10, color:'var(--subtext)', fontWeight:600, marginBottom:6, lineHeight:1.3}}>{q.desc}</div>
+              {done
+                ? <div style={{fontSize:11, color:'#16a34a', fontWeight:800}}>✓ +{q.xp} XP</div>
+                : <div style={{fontSize:11, color:'var(--subtext)'}}>{q.xp} XP</div>
+              }
             </div>
-          </div>
-        ) : (
-          <>
-            {/* Accordion header */}
-            <div
-              onClick={() => setDcOpen(o => !o)}
-              style={{
-                padding:"16px 20px",cursor:"pointer",
-                display:"flex",alignItems:"center",gap:12,
-                borderBottom: dcOpen ? "1px solid #e0e7ff" : "none",
-                background: dcOpen
-                  ? "linear-gradient(135deg,#faf5ff,#f5f3ff)"
-                  : "var(--card)",
-                transition:"background .2s",
-              }}>
-              <div style={{
-                width:40,height:40,borderRadius:12,
-                background:"linear-gradient(135deg,#7c3aed,#6d28d9)",
-                display:"flex",alignItems:"center",justifyContent:"center",
-                fontSize:20,flexShrink:0,
-                boxShadow:"0 4px 12px rgba(124,58,237,.35)",
-              }}>
-                🎯
-              </div>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:13,fontWeight:800,color:"#7c3aed"}}>Daily Challenges</div>
-                <div style={{fontSize:10,color:"var(--subtext)",marginTop:2}}>
-                  {doneCount === 0
-                    ? "earn up to +30 XP today"
-                    : `${doneCount}/3 answered`}
-                </div>
-              </div>
-              <div style={{display:"flex",alignItems:"center",gap:7}}>
-                {[0,1,2].map(i=>(
-                  <div key={i} style={{
-                    width:9,height:9,borderRadius:"50%",
-                    background:dchlA[i]?"#16a34a":"#e2e8f0",
-                    border:`1.5px solid ${dchlA[i]?"#16a34a":"#cbd5e1"}`,
-                    transition:"background .25s",
-                    boxShadow:dchlA[i]?"0 0 6px rgba(22,163,74,.4)":"none",
-                  }}/>
-                ))}
-                <div style={{
-                  fontSize:18,color:"#7c3aed",marginLeft:4,fontWeight:300,
-                  transform:dcOpen?"rotate(90deg)":"none",
-                  transition:"transform .2s",
-                  lineHeight:1,
-                }}>›</div>
-              </div>
-            </div>
-
-            {/* Expanded questions */}
-            {dcOpen && (
-              <div style={{padding:"16px 20px 20px",display:"flex",flexDirection:"column",gap:12}}>
-                {doneCount === 0 && (
-                  <div style={{
-                    background:"linear-gradient(135deg,#fdf4ff,#faf5ff)",
-                    border:"1.5px solid #e9d5ff",
-                    borderRadius:12,
-                    padding:"10px 14px",
-                    fontSize:12,fontWeight:700,color:"#7c3aed",
-                    display:"flex",alignItems:"center",gap:8,
-                  }}>
-                    <span style={{fontSize:16}}>🔥</span>
-                    <span>Today's Mission — answer all 3 for +30 XP</span>
-                  </div>
-                )}
-                {dc.challenges.map((ch, ci) => {
-                  const answered = dchlA[ci];
-                  const selVal = dchlSl[ci];
-                  const opts = allOpts[ci];
-                  const correct = selVal === ch.a;
-                  return (
-                    <div key={ci} style={{
-                      borderRadius:14,
-                      border:`1.5px solid ${answered ? (correct ? "#bbf7d0" : "#fecaca") : "#e2e8f0"}`,
-                      background: answered ? (correct ? "#f0fdf4" : "#fff5f5") : "#f8fafc",
-                      padding:"14px",
-                      transition:"all .25s",
-                      boxShadow: answered
-                        ? (correct ? "0 4px 16px rgba(22,163,74,.1)" : "0 4px 16px rgba(220,38,38,.08)")
-                        : "0 2px 8px rgba(0,0,0,.04)",
-                    }}>
-                      <div style={{display:"flex",alignItems:"flex-start",gap:8,marginBottom:10}}>
-                        <span style={{
-                          width:22,height:22,borderRadius:"50%",
-                          background: answered ? (correct ? "#16a34a" : "#dc2626") : "#7c3aed",
-                          color:"white",fontSize:10,fontWeight:900,
-                          display:"flex",alignItems:"center",justifyContent:"center",
-                          flexShrink:0,marginTop:1,
-                          boxShadow: answered
-                            ? (correct ? "0 2px 8px rgba(22,163,74,.35)" : "0 2px 8px rgba(220,38,38,.3)")
-                            : "0 2px 8px rgba(124,58,237,.3)",
-                        }}>
-                          {answered ? (correct ? "✓" : "✗") : ci + 1}
-                        </span>
-                        <span style={{fontSize:13,fontWeight:700,color:"#1e293b",lineHeight:1.5}}>{ch.q}</span>
-                      </div>
-                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
-                        {opts.map((o, oi) => {
-                          let bg = "#fff", border = "#e2e8f0", color = "#1e293b";
-                          if (answered) {
-                            if (o === ch.a) { bg="#dcfce7"; border="#86efac"; color="#166534"; }
-                            else if (o === selVal) { bg="#fee2e2"; border="#fca5a5"; color="#991b1b"; }
-                            else { bg="#f1f5f9"; color="#94a3b8"; }
-                          }
-                          return (
-                            <button key={oi}
-                              data-dc-option="true"
-                              disabled={answered}
-                              style={{
-                                padding:"9px 10px",
-                                border:`1.5px solid ${border}`,
-                                borderRadius:10,background:bg,
-                                fontSize:11,fontWeight:600,
-                                cursor:answered?"default":"pointer",
-                                textAlign:"left",
-                                fontFamily:"'Outfit',sans-serif",
-                                color,lineHeight:1.4,
-                                transition:"all .15s",
-                                opacity:answered&&o!==ch.a&&o!==selVal?0.45:1,
-                              }}
-                              onClick={() => {
-                                if (answered) return;
-                                const newA = [...dchlA]; newA[ci] = true; sDchlA(newA);
-                                const newSl = [...dchlSl]; newSl[ci] = o; sDchlSl(newSl);
-                                localStorage.setItem("dcDay3", JSON.stringify({day:dc.dateKey,answered:newA,selected:newSl}));
-                                if (o === ch.a) award(10);
-                              }}>
-                              {o}
-                            </button>
-                          );
-                        })}
-                      </div>
-                      {answered && (
-                        <div style={{
-                          marginTop:10,fontSize:12,fontWeight:700,
-                          color:correct?"#166534":"#991b1b",
-                          display:"flex",alignItems:"center",gap:6,
-                        }}>
-                          <span>{correct ? "✅ Correct! +10 XP" : `❌ Correct answer: ${ch.a}`}</span>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </>
-        )}
+          );
+        })}
       </div>
+      {allQuestsDone && (
+        <div style={{background:'linear-gradient(135deg,#f0fdf4,#dcfce7)',border:'1.5px solid #86efac',borderRadius:14,padding:'14px 16px',marginBottom:16,textAlign:'center',animation:'rise .4s'}}>
+          <div style={{fontSize:20,marginBottom:4}}>🏆</div>
+          <div style={{fontSize:14,fontWeight:900,color:'#15803d'}}>Daily Mastery!</div>
+          <div style={{fontSize:12,color:'#166534',fontWeight:600}}>+50 XP bonus · All 5 quests complete</div>
+        </div>
+      )}
 
       {/* ── PROGRESS SNAPSHOT ── */}
       <div style={{
@@ -528,7 +480,7 @@ export default function HomeTab({
           {pathData.pct}%
         </div>
         <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:10,fontWeight:800,color:"var(--subtext)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:2}}>Overall Progress</div>
+          <div style={{fontSize:10,fontWeight:800,color:"var(--subtext)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:2}}>Overall Progress — All Stages</div>
           <div style={{fontSize:15,fontWeight:900,color:"var(--heading)"}}>
             {pathData.activeLv.title}
             <span style={{fontSize:11,fontWeight:600,color:"var(--subtext)",marginLeft:6}}>Stage {pathData.activeLv.level}</span>
@@ -537,7 +489,7 @@ export default function HomeTab({
             <div style={{height:"100%",width:pathData.pct+"%",background:activePalette.grad,borderRadius:3,transition:"width .6s ease"}}/>
           </div>
           <div style={{fontSize:10,color:"var(--subtext)",marginTop:4,fontWeight:500}}>
-            {pathData.totalDone} of {pathData.totalItems} milestones complete
+            {pathData.totalDone} of {pathData.totalItems} lessons complete
           </div>
         </div>
         <button
@@ -621,6 +573,99 @@ export default function HomeTab({
               </div>
             </div>
             <div style={{ fontSize: 20, color: "#ea580c", flexShrink: 0 }}>›</div>
+          </div>
+        );
+      })()}
+
+      {/* ── WEEKLY CHALLENGES ── */}
+      {(() => {
+        // Progressive milestone challenges — next tier unlocks when current is complete
+        const streakGoal = streak.count >= 30 ? 100 : streak.count >= 7 ? 30 : 7;
+        const lessonsGoal = st.lc >= 25 ? 50 : st.lc >= 10 ? 25 : 10;
+        const masteredGoal = ws.strong >= 50 ? 100 : ws.strong >= 20 ? 50 : 20;
+        const challenges = [
+          { icon:'🔥', label:'Day Streak', cur: Math.min(streak.count, streakGoal), goal: streakGoal, color:'#ea580c', bg:'#fff7ed', border:'#fed7aa' },
+          { icon:'📚', label:'Lessons', cur: Math.min(st.lc, lessonsGoal), goal: lessonsGoal, color:'#0e7490', bg:'#f0f9ff', border:'#bae6fd' },
+          { icon:'💪', label:'Words Mastered', cur: Math.min(ws.strong, masteredGoal), goal: masteredGoal, color:'#16a34a', bg:'#f0fdf4', border:'#bbf7d0' },
+          { icon:'⚡', label:'XP This Week', cur: Math.min(weekXP, 100), goal: 100, color:'#7c3aed', bg:'#faf5ff', border:'#ddd6fe' },
+        ];
+        return (
+          <React.Fragment>
+            <h3 className="sh">Milestones</h3>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:10, marginBottom:20 }}>
+              {challenges.map((c, i) => {
+                const pct = Math.round(c.cur / c.goal * 100);
+                const done = c.cur >= c.goal;
+                return (
+                  <div key={i} style={{ background:c.bg, border:`1.5px solid ${done ? c.color : c.border}`, borderRadius:14, padding:'12px 10px', textAlign:'center' }}>
+                    <div style={{ fontSize:22, marginBottom:4 }}>{c.icon}</div>
+                    <div style={{ fontSize:11, fontWeight:900, color:c.color, lineHeight:1, fontVariantNumeric:'tabular-nums' }}>
+                      {done ? '✓' : `${c.cur}/${c.goal}`}
+                    </div>
+                    <div style={{ fontSize:9, color:'#94a3b8', fontWeight:700, textTransform:'uppercase', letterSpacing:'.04em', marginTop:3 }}>{c.label}</div>
+                    <div style={{ height:4, background:'var(--bar-bg)', borderRadius:3, overflow:'hidden', marginTop:6 }}>
+                      <div style={{ height:'100%', width:pct+'%', background:c.color, borderRadius:3, transition:'width .6s ease' }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </React.Fragment>
+        );
+      })()}
+
+      {/* ── ADAPTIVE DAILY GOAL NUDGE ── */}
+      {(() => {
+        const dailyMin = parseInt(localStorage.getItem('nh_daily_min') || '0', 10);
+        if (!dailyMin || dailyMin >= 20) return null;
+        // XP threshold per daily-minute tier (rough mapping)
+        const thresholds = { 5: 40, 10: 80, 15: 120 };
+        const xpTarget = thresholds[dailyMin] || 0;
+        if (!xpTarget) return null;
+        // Only nudge if enough days elapsed this week and they're clearly exceeding goal
+        const dayOfWeek = new Date().getDay() || 7; // 1=Mon … 7=Sun
+        if (dayOfWeek < 3) return null; // wait until Wed to have meaningful data
+        const dailyAvg = weekXP / dayOfWeek;
+        if (dailyAvg < xpTarget * 1.5) return null; // must be 50% over target
+        const nextMin = dailyMin === 5 ? 10 : dailyMin === 10 ? 15 : 20;
+        const dismissed = localStorage.getItem('nh_goal_nudge_dismissed') === String(dailyMin);
+        if (dismissed) return null;
+        return (
+          <div style={{
+            background:'linear-gradient(135deg,#f0fdf4,#dcfce7)', border:'1.5px solid #86efac',
+            borderRadius:16, padding:'14px 16px', marginBottom:16,
+            display:'flex', alignItems:'flex-start', gap:12,
+          }}>
+            <span style={{fontSize:22, flexShrink:0}}>🚀</span>
+            <div style={{flex:1}}>
+              <div style={{fontSize:13, fontWeight:800, color:'#15803d', marginBottom:3}}>You're crushing your goal!</div>
+              <div style={{fontSize:12, color:'#166534', fontWeight:500, lineHeight:1.5}}>
+                You're averaging {Math.round(dailyAvg)} XP/day — well above your {dailyMin}-min target.
+                Ready to bump it up to {nextMin} min?
+              </div>
+              <div style={{display:'flex', gap:8, marginTop:10}}>
+                <button
+                  onClick={() => { localStorage.setItem('nh_daily_min', String(nextMin)); localStorage.removeItem('nh_goal_nudge_dismissed'); window.location.reload(); }}
+                  style={{
+                    background:'#16a34a', color:'#fff', border:'none', borderRadius:10,
+                    padding:'8px 14px', fontSize:12, fontWeight:800, cursor:'pointer',
+                    fontFamily:"'Outfit',sans-serif",
+                  }}
+                >
+                  Yes, {nextMin} min/day →
+                </button>
+                <button
+                  onClick={() => { localStorage.setItem('nh_goal_nudge_dismissed', String(dailyMin)); window.location.reload(); }}
+                  style={{
+                    background:'none', color:'#16a34a', border:'1.5px solid #86efac', borderRadius:10,
+                    padding:'8px 14px', fontSize:12, fontWeight:700, cursor:'pointer',
+                    fontFamily:"'Outfit',sans-serif",
+                  }}
+                >
+                  I'm happy at {dailyMin} min
+                </button>
+              </div>
+            </div>
           </div>
         );
       })()}

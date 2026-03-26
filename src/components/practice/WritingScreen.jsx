@@ -114,9 +114,12 @@ export default function WritingScreen({ goBack, award }) {
           </button>
         </div>
         {error && <p style={{color:"#ef4444",fontSize:13,marginTop:8}}>{error}</p>}
+        <div style={{fontSize:11,color:"#94a3b8",marginTop:10,lineHeight:1.5}}>
+          🔒 Your text is sent to an AI for grammar feedback. It is not stored or used for training.
+        </div>
         <button
           className="b bp"
-          style={{width:"100%",marginTop:12}}
+          style={{width:"100%",marginTop:8}}
           onClick={checkWithAI}
           disabled={loading || !isOnline}>
           {!isOnline ? "📶 Offline — AI check unavailable" : loading ? "🤔 Checking..." : "🤖 Check with AI"}

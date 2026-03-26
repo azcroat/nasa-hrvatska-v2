@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { H, Spk, srMark, recordMistake } from '../../data.jsx';
+import { useHaptic } from '../../hooks/useHaptic.js';
 
 const XP_PER_CORRECT = 3;
 const XP_COMPLETION_BONUS = 5;
@@ -75,6 +76,7 @@ function ParticleBurst({ active }) {
 const LABELS = ['A', 'B', 'C', 'D'];
 
 export default function McGame({ questions, onComplete, goBack, award }) {
+  const haptic = useHaptic();
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(false);
@@ -82,6 +84,7 @@ export default function McGame({ questions, onComplete, goBack, award }) {
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
   const [burst, setBurst] = useState(-1);
+  const [confirmQuit, setConfirmQuit] = useState(false);
   const firstOptionRef = useRef(null);
   const resultFired = useRef(false);
 
@@ -98,6 +101,7 @@ export default function McGame({ questions, onComplete, goBack, award }) {
     setAnswered(true);
     const ok = o === q.correct;
     if (ok) {
+      haptic.correct();
       playCorrect();
       setBurst(i);
       setTimeout(() => setBurst(-1), 900);
@@ -108,6 +112,7 @@ export default function McGame({ questions, onComplete, goBack, award }) {
         return ns;
       });
     } else {
+      haptic.wrong();
       playWrong();
       setStreak(0);
       if (q.hr) recordMistake(q.hr, q.en || q.correct || '', q.q || q.prompt || '', q.category || '');
@@ -145,23 +150,31 @@ export default function McGame({ questions, onComplete, goBack, award }) {
           marginBottom: 16,
         }}
       >
-        <button
-          onClick={goBack}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: 24,
-            color: 'var(--subtext)',
-            padding: '10px 12px',
-            minHeight: 44,
-            borderRadius: 10,
-            transition: 'background .15s',
-          }}
-          aria-label="Go back"
-        >
-          ×
-        </button>
+        {confirmQuit ? (
+          <div style={{display:'flex',alignItems:'center',gap:8,flex:1}}>
+            <span style={{fontSize:13,fontWeight:700,color:'var(--subtext)'}}>Quit game?</span>
+            <button onClick={goBack} style={{padding:'6px 14px',borderRadius:10,border:'none',background:'#dc2626',color:'#fff',fontSize:12,fontWeight:800,cursor:'pointer',fontFamily:"'Outfit',sans-serif"}}>Quit</button>
+            <button onClick={() => setConfirmQuit(false)} style={{padding:'6px 14px',borderRadius:10,border:'1.5px solid var(--inp-b)',background:'none',color:'var(--subtext)',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'Outfit',sans-serif"}}>Keep going</button>
+          </div>
+        ) : (
+          <button
+            onClick={() => { if (idx === 0 && !answered) { goBack(); } else { setConfirmQuit(true); } }}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: 24,
+              color: 'var(--subtext)',
+              padding: '10px 12px',
+              minHeight: 44,
+              borderRadius: 10,
+              transition: 'background .15s',
+            }}
+            aria-label="Go back"
+          >
+            ×
+          </button>
+        )}
 
         {/* Animated progress bar */}
         <div style={{ flex: 1, margin: '0 12px', position: 'relative' }}>
@@ -199,7 +212,7 @@ export default function McGame({ questions, onComplete, goBack, award }) {
         </div>
 
         {/* Streak badge */}
-        {streak >= 2 && (
+        {streak >= 1 && (
           <div
             style={{
               display: 'flex',

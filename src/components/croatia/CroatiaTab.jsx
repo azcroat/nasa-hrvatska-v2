@@ -206,6 +206,59 @@ const SPOTIFY_PLAYLISTS = {
   ],
 };
 
+const BAKA_LETTERS = [
+  {
+    id: 'letter1',
+    from: 'Baka Marija',
+    date: 'Nedjelja, 14. travnja',
+    subject: 'Drago moje unuče...',
+    preview: 'Kako si ti? Ovdje je lijepo proljetno vrijeme...',
+    full: `Drago moje unuče,
+
+Kako si ti? Ovdje je lijepo proljetno vrijeme. Cvjetovi su procvjetali u vrtu i miris jorgovana dolazi kroz prozor.
+
+Juče sam napravila sarmu — baš onako kako si ti volio kad si bio mali. Stavila sam puno riže i malo više paprike, jer znam da ti se sviđa ljuto.
+
+Djed i ja često pričamo o tebi. Nedostaje nam tvoj smijeh. Jesi li naučio još koji novi glagol? Pišemo ti svaki tjedan, ali odgovori nam kad možeš.
+
+Puno ljubavi i zagrljaj,
+Tvoja Baka 💙`,
+    words: [
+      { hr: 'proljetno', en: 'spring (adj.)' },
+      { hr: 'cvjetovi', en: 'flowers' },
+      { hr: 'miris', en: 'scent/fragrance' },
+      { hr: 'sarma', en: 'stuffed cabbage (traditional dish)' },
+      { hr: 'nedostaje nam', en: 'we miss (you)' },
+      { hr: 'zagrljaj', en: 'hug/embrace' },
+    ],
+  },
+  {
+    id: 'letter2',
+    from: 'Baka Marija',
+    date: 'Ponedjeljak, 22. travnja',
+    subject: 'Vijesti iz sela...',
+    preview: 'Jučer je bila svadba kod susjeda Ivića...',
+    full: `Drago unuče,
+
+Jučer je bila svadba kod susjeda Ivića. Cijelo selo je plesalo kolo do ponoći! Glazba je bila tako lijepa — tamburice i harmonika.
+
+Tvoja teta Ana je donijela fritule — onaj recept koji smo ti uvijek davali za Božić. Svi su pitali za tebe. Rekla sam im da učiš hrvatski i da ćeš doći ljeti. Je li to istina?
+
+Djed je nešto bolje. Hoda po vrtu svako jutro i kopa. Kaže da se bez rada ne može živjeti.
+
+Čekamo te s nestrpljenjem.
+Tvoja Baka 💙`,
+    words: [
+      { hr: 'svadba', en: 'wedding' },
+      { hr: 'kolo', en: 'traditional circle dance' },
+      { hr: 'tamburice', en: 'traditional string instruments' },
+      { hr: 'fritule', en: 'Croatian doughnuts (holiday treat)' },
+      { hr: 'nestrpljenje', en: 'impatience / anticipation' },
+      { hr: 'kopati', en: 'to dig / to garden' },
+    ],
+  },
+];
+
 function SpotifyCard({ pl, openId, setOpenId }) {
   const isOpen = openId === pl.id;
   return (
@@ -306,32 +359,12 @@ export default function CroatiaTab({ setScr, sCurEx }) {
   const city = getCityOfDay();
   const [activeStream, setActiveStream] = useState(null);
   const [openCats, setOpenCats] = useState({});
+  const [openLetter, setOpenLetter] = useState(null);
   function toggleCat(cat) { setOpenCats(prev => ({...prev, [cat]: !prev[cat]})); }
 
   return (
     <React.Fragment>
       {H("🇭🇷 Life in Croatia", "Culture, history, daily life")}
-
-      {/* ── IMMERSION FEATURE ── */}
-      <div style={{ borderRadius:20, overflow:'hidden', marginBottom:16, boxShadow:'0 4px 20px rgba(0,0,0,.10)', border:'1px solid var(--card-b)' }}>
-        <div style={{ background:'linear-gradient(135deg,#1e1b4b,#3730a3)', padding:'18px 20px', color:'#fff' }}>
-          <div style={{ fontSize:10, fontWeight:700, opacity:.7, letterSpacing:'.12em', textTransform:'uppercase', marginBottom:4 }}>IMMERSION</div>
-          <div style={{ fontSize:18, fontWeight:900, marginBottom:4 }}>Level up your Croatian</div>
-          <div style={{ fontSize:12, opacity:.8, lineHeight:1.5 }}>AI conversation practice + curated media from A1 to C2</div>
-        </div>
-        <div style={{ background:'var(--card)', padding:'14px 16px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-          <button onClick={() => setScr("aiconvo")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #c7d2fe', background:'linear-gradient(135deg,#eef2ff,#e0e7ff)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
-            <div style={{ fontSize:26, marginBottom:6 }}>🤖</div>
-            <div style={{ fontSize:13, fontWeight:800, color:'#3730a3' }}>AI Conversations</div>
-            <div style={{ fontSize:10, color:'#6366f1', marginTop:2 }}>50 scenarios · all levels</div>
-          </button>
-          <button onClick={() => setScr("immersion")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #bae6fd', background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
-            <div style={{ fontSize:26, marginBottom:6 }}>🌊</div>
-            <div style={{ fontSize:13, fontWeight:800, color:'#0369a1' }}>Immersion Hub</div>
-            <div style={{ fontSize:10, color:'#0284c7', marginTop:2 }}>A1 → C2 pathway</div>
-          </button>
-        </div>
-      </div>
 
       {/* ── CITY OF THE DAY ── */}
       <button style={{marginBottom:16,borderRadius:16,overflow:"hidden",boxShadow:"0 4px 16px rgba(0,0,0,.1)",width:"100%",border:"none",cursor:"pointer",padding:0,textAlign:"left"}} onClick={()=>setScr("cityofday")}>
@@ -348,6 +381,82 @@ export default function CroatiaTab({ setScr, sCurEx }) {
           New city every day · {city.facts.length} facts · {city.vocab.length} words to learn
         </div>
       </button>
+
+      {/* ── STORIES & NEWS ── */}
+<div style={{ borderRadius:20, overflow:'hidden', marginBottom:16, boxShadow:'0 4px 20px rgba(0,0,0,.10)', border:'1px solid var(--card-b)' }}>
+  <div style={{ background:'linear-gradient(135deg,#451a03,#92400e)', padding:'18px 20px', color:'#fff' }}>
+    <div style={{ fontSize:10, fontWeight:700, opacity:.7, letterSpacing:'.12em', textTransform:'uppercase', marginBottom:4 }}>STORIES & NEWS</div>
+    <div style={{ fontSize:18, fontWeight:900, marginBottom:4 }}>Live the language</div>
+    <div style={{ fontSize:12, opacity:.8, lineHeight:1.5 }}>Stories from Croatia + real Croatian news</div>
+  </div>
+  <div style={{ background:'var(--card)', padding:'14px 16px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+    <button onClick={() => setScr("baka_summer")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #fde68a', background:'linear-gradient(135deg,#fffbeb,#fef3c7)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+      <div style={{ fontSize:26, marginBottom:6 }}>📖</div>
+      <div style={{ fontSize:13, fontWeight:800, color:'#92400e' }}>Baka's Summer</div>
+      <div style={{ fontSize:10, color:'#b45309', marginTop:2 }}>12-chapter story</div>
+    </button>
+    <button onClick={() => setScr("croatia_today")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #bae6fd', background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+      <div style={{ fontSize:26, marginBottom:6 }}>📰</div>
+      <div style={{ fontSize:13, fontWeight:800, color:'#0369a1' }}>Croatia Today</div>
+      <div style={{ fontSize:10, color:'#0284c7', marginTop:2 }}>Daily Croatian news</div>
+    </button>
+  </div>
+</div>
+
+      {/* ── LETTERS FROM BAKA ─── */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
+          <div style={{ fontSize:11, fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase' }}>
+            ✉️ Letters from Baka
+          </div>
+          <div style={{ flex:1, height:1, background:'var(--card-b)' }} />
+        </div>
+        <p style={{ fontSize:12, color:'var(--subtext)', marginBottom:12, fontWeight:500, fontStyle:'italic' }}>
+          Authentic letters to help you read Croatian the way family really writes it
+        </p>
+        <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+          {BAKA_LETTERS.map(letter => (
+            <div key={letter.id} style={{ background:'var(--card)', border:'1.5px solid var(--card-b)', borderRadius:14, overflow:'hidden' }}>
+              <button
+                onClick={() => setOpenLetter(openLetter === letter.id ? null : letter.id)}
+                style={{ width:'100%', padding:'14px 16px', background:'none', border:'none', cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif" }}>
+                <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                  <div style={{ width:40, height:40, borderRadius:10, background:'linear-gradient(135deg,#fef3c7,#fde68a)', border:'1px solid #fde68a',
+                    display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0 }}>💌</div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:13, fontWeight:800, color:'var(--heading)' }}>{letter.from}</div>
+                    <div style={{ fontSize:11, color:'var(--subtext)', marginTop:1 }}>{letter.subject} · {letter.date}</div>
+                  </div>
+                  <span style={{ fontSize:14, color:'var(--subtext)', opacity:.5 }}>{openLetter === letter.id ? '▲' : '▼'}</span>
+                </div>
+              </button>
+              {openLetter === letter.id && (
+                <div style={{ borderTop:'1px solid var(--card-b)', padding:'16px' }}>
+                  <div style={{
+                    background:'#fffbeb', border:'1px solid #fde68a',
+                    borderRadius:10, padding:'14px 16px', marginBottom:14,
+                    fontFamily:"Georgia, serif", fontSize:13, lineHeight:1.8, color:'#451a03',
+                    whiteSpace:'pre-line',
+                  }}>
+                    {letter.full}
+                  </div>
+                  <div style={{ fontSize:11, fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:8 }}>
+                    📚 Words from this letter
+                  </div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+                    {letter.words.map(w => (
+                      <div key={w.hr} style={{ background:'var(--bar-bg)', borderRadius:8, padding:'8px 10px' }}>
+                        <div style={{ fontSize:13, fontWeight:800, color:'#0e7490' }}>{w.hr}</div>
+                        <div style={{ fontSize:11, color:'var(--subtext)', marginTop:2 }}>{w.en}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* ── HISTORY & REGIONS ── */}
       <CrSection title="History & Regions" icon="🇭🇷" count="12 entries" defaultOpen={false}>
@@ -378,6 +487,27 @@ export default function CroatiaTab({ setScr, sCurEx }) {
           ))}
         </div>
       </CrSection>
+
+      {/* ── IMMERSION FEATURE ── */}
+      <div style={{ borderRadius:20, overflow:'hidden', marginBottom:16, boxShadow:'0 4px 20px rgba(0,0,0,.10)', border:'1px solid var(--card-b)' }}>
+        <div style={{ background:'linear-gradient(135deg,#1e1b4b,#3730a3)', padding:'18px 20px', color:'#fff' }}>
+          <div style={{ fontSize:10, fontWeight:700, opacity:.7, letterSpacing:'.12em', textTransform:'uppercase', marginBottom:4 }}>IMMERSION</div>
+          <div style={{ fontSize:18, fontWeight:900, marginBottom:4 }}>Level up your Croatian</div>
+          <div style={{ fontSize:12, opacity:.8, lineHeight:1.5 }}>AI conversation practice + curated media from A1 to C2</div>
+        </div>
+        <div style={{ background:'var(--card)', padding:'14px 16px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+          <button onClick={() => setScr("aiconvo")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #c7d2fe', background:'linear-gradient(135deg,#eef2ff,#e0e7ff)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+            <div style={{ fontSize:26, marginBottom:6 }}>🤖</div>
+            <div style={{ fontSize:13, fontWeight:800, color:'#3730a3' }}>AI Conversations</div>
+            <div style={{ fontSize:10, color:'#6366f1', marginTop:2 }}>50 scenarios · all levels</div>
+          </button>
+          <button onClick={() => setScr("immersion")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid #bae6fd', background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+            <div style={{ fontSize:26, marginBottom:6 }}>🌊</div>
+            <div style={{ fontSize:13, fontWeight:800, color:'#0369a1' }}>Immersion Hub</div>
+            <div style={{ fontSize:10, color:'#0284c7', marginTop:2 }}>A1 → C2 pathway</div>
+          </button>
+        </div>
+      </div>
 
       {/* ── CROATIAN LIFE ── */}
       <CrSection title="Croatian Life" icon="🏘️" count="12 topics" defaultOpen={false}>

@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
 import { rnd } from '../../lib/random.js';
 
+const CROATIAN_COLORS = ['#b61800', '#ffffff', '#003087', '#f59e0b', '#16a34a'];
+
 // ── Sound synthesis ──────────────────────────────────────────────────────────
 function playSuccessSound() {
   try {
@@ -55,11 +57,12 @@ function makeStars(n = 12) {
   }));
 }
 
-export default function CelebrationModal({ xp, onClose }) {
+export default function CelebrationModal({ xp, onClose, streak = 0 }) {
   const particles = useRef(makeParticles(80)).current;
   const stars = useRef(makeStars(12)).current;
   const [displayXP, setDisplayXP] = useState(0);
   const [phase, setPhase] = useState('burst'); // burst → reveal → done
+  const [showMomentum, setShowMomentum] = useState(false);
 
   useEffect(() => {
     playSuccessSound();
@@ -67,8 +70,8 @@ export default function CelebrationModal({ xp, onClose }) {
     // canvas-confetti burst — performant canvas-based particles
     const end = Date.now() + 1800;
     const frame = () => {
-      confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#0e7490','#f59e0b','#e11d48','#10b981'] });
-      confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#3b82f6','#8b5cf6','#f97316','#facc15'] });
+      confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 }, colors: CROATIAN_COLORS });
+      confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 }, colors: CROATIAN_COLORS });
       if (Date.now() < end) requestAnimationFrame(frame);
     };
     requestAnimationFrame(frame);
@@ -91,16 +94,48 @@ export default function CelebrationModal({ xp, onClose }) {
 
     // Phases
     const t1 = setTimeout(() => setPhase('reveal'), 200);
-    const t2 = setTimeout(onClose, 4000);
+    const t2 = setTimeout(() => {
+      setShowMomentum(true);
+      onClose();
+    }, 4000);
+    const t3 = setTimeout(() => setShowMomentum(false), 7000);
 
     return () => {
       clearInterval(iv);
       clearTimeout(t1);
       clearTimeout(t2);
+      clearTimeout(t3);
     };
   }, [onClose, xp]);
 
   return (
+    <>
+    {showMomentum && (
+      <div
+        aria-live="polite"
+        style={{
+          position: 'fixed',
+          bottom: 80,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 99998,
+          background: 'linear-gradient(135deg,#0f172a,#1e293b)',
+          color: '#f1f5f9',
+          borderRadius: 18,
+          padding: '14px 28px',
+          fontSize: 15,
+          fontWeight: 700,
+          boxShadow: '0 8px 32px rgba(0,0,0,.35)',
+          animation: 'slideUp .4s cubic-bezier(.34,1.56,.64,1) forwards',
+          whiteSpace: 'nowrap',
+          fontFamily: "'Outfit', sans-serif",
+        }}
+      >
+        {streak > 0
+          ? `🔥 ${streak}-day streak — keep going!`
+          : "You're on a roll! Keep it up!"}
+      </div>
+    )}
     <div
       role="dialog"
       aria-modal="true"
@@ -323,5 +358,6 @@ export default function CelebrationModal({ xp, onClose }) {
         </div>
       </div>
     </div>
+    </>
   );
 }

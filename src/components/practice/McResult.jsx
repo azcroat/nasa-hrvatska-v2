@@ -29,14 +29,9 @@ export default function McResult({ questions, score, setScr, goBack, onNewGame }
           Play Again
         </button>
         <button className="b bp" onClick={goBack}>
-          Continue →
+          Back to Practice
         </button>
       </div>
-      <button
-        onClick={() => { setScr("dashboard"); }}
-        style={{padding:"14px 32px",border:"2px solid #d6d3d1",borderRadius:14,background:"white",color:"#78716c",fontSize:15,fontWeight:700,cursor:"pointer",marginTop:16,display:"block",margin:"16px auto 0"}}>
-        ← Done
-      </button>
     </div>
   );
 }

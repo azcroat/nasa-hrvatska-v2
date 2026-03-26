@@ -86,11 +86,6 @@ class ErrorBoundary extends React.Component {
             <div style={{ fontSize: 64, marginBottom: 16 }} aria-hidden="true">⚠️</div>
             <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 24, color: '#164e63', marginBottom: 8 }}>Something went wrong</h2>
             <p style={{ color: '#78716c', marginBottom: 12, fontSize: 14 }}>The app hit an unexpected error. Your progress is saved.</p>
-            {this.state.errorMsg && (
-              <p style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 8, padding: '8px 12px', fontSize: 12, color: '#991b1b', marginBottom: 16, wordBreak: 'break-all', textAlign: 'left' }}>
-                {this.state.errorMsg}
-              </p>
-            )}
             <button
               onClick={() => window.location.reload()}
               style={{ padding: '12px 32px', background: 'linear-gradient(135deg,#0e7490,#164e63)', color: 'white', border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>

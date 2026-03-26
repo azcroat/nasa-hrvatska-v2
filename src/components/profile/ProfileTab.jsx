@@ -2,11 +2,43 @@ import React, { useState, useRef, useMemo } from 'react';
 import { getStreak, getSR, fbDeleteAccount } from '../../data.jsx';
 import ProgressCharts from './ProgressCharts.jsx';
 import { getWeakTopics } from '../../lib/adaptive.js';
+import JourneyTimeline from './JourneyTimeline.jsx';
+
+function getCEFR(xp, lc, gc) {
+  const total = xp + (lc * 15) + (gc * 25);
+  if (total < 300) return { level: 'A1', label: 'Beginner', color: '#16a34a', next: 'A2', needed: 300 };
+  if (total < 1200) return { level: 'A2', label: 'Elementary', color: '#65a30d', next: 'B1', needed: 1200 };
+  if (total < 3500) return { level: 'B1', label: 'Intermediate', color: '#ca8a04', next: 'B2', needed: 3500 };
+  if (total < 8000) return { level: 'B2', label: 'Upper-Int.', color: '#b45309', next: 'C1', needed: 8000 };
+  if (total < 18000) return { level: 'C1', label: 'Advanced', color: '#0e7490', next: 'C2', needed: 18000 };
+  return { level: 'C2', label: 'Mastery', color: '#7c3aed', next: null, needed: null };
+}
+
+function getWordsLearned() {
+  try {
+    const sr = JSON.parse(localStorage.getItem('nh_sr') || '{}');
+    // Count entries where right answers > 0 (been seen at least once correctly)
+    return Object.values(sr).filter(v => v && v.r > 0).length;
+  } catch(_) { return 0; }
+}
 
 export default function ProfileTab({ name, au, level, st, favs, darkMode, setDarkMode, setScr, doOut, syncReady, onSyncNow, jWords }) {
   const [confirmOut, setConfirmOut] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [exportDone, setExportDone] = useState(false);
+  const [goalOpen, setGoalOpen] = useState(false);
+  const [currentGoal, setCurrentGoal] = useState(() => localStorage.getItem('nh_goal') || '');
+  const [showPrestigeModal, setShowPrestigeModal] = useState(false);
+  const prestigeLevel = parseInt(localStorage.getItem('nh_prestige') || '0', 10);
+
+  const GOALS = [
+    { id: 'heritage', icon: '🇭🇷', label: 'My heritage & roots' },
+    { id: 'family',   icon: '👨‍👩‍👧', label: 'Speak with family' },
+    { id: 'travel',   icon: '✈️',  label: 'Travel to Croatia' },
+    { id: 'culture',  icon: '📖',  label: 'Love the culture' },
+    { id: 'fluent',   icon: '🗣️',  label: 'Become fluent' },
+  ];
 
   function exportData() {
     const data = {
@@ -24,6 +56,8 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
     a.download = `nasa-hrvatska-export-${new Date().toISOString().slice(0,10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    setExportDone(true);
+    setTimeout(() => setExportDone(false), 3000);
   }
 
   async function handleDeleteAccount() {
@@ -37,6 +71,8 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
       setConfirmDelete(false);
     }
   }
+  const [letterOpen, setLetterOpen] = useState(false);
+  const [letterText, setLetterText] = useState(() => localStorage.getItem('nh_letter_to_self') || '');
   const [syncing, setSyncing] = useState(false);
   const [syncDone, setSyncDone] = useState(false);
   const [syncErr, setSyncErr] = useState(false);
@@ -147,14 +183,163 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
           <div key={i} style={{background:s.bg,border:`1.5px solid ${s.border}`,borderRadius:14,padding:"12px 8px",textAlign:"center"}}>
             <div style={{fontSize:18,marginBottom:3}}>{s.icon}</div>
             <div style={{fontSize:17,fontWeight:900,color:s.color,lineHeight:1,fontVariantNumeric:"tabular-nums"}}>{s.value}</div>
-            <div style={{fontSize:9,color:"#94a3b8",fontWeight:700,marginTop:3,textTransform:"uppercase",letterSpacing:".06em"}}>{s.label}</div>
+            <div style={{fontSize:11,color:"#94a3b8",fontWeight:700,marginTop:3,textTransform:"uppercase",letterSpacing:".04em"}}>{s.label}</div>
           </div>
         ))}
       </div>
 
+      {/* ── CEFR ESTIMATE ── */}
+      {(() => {
+        const cefr = getCEFR(st.xp || 0, st.lc || 0, st.gc || 0);
+        const wordsLearned = getWordsLearned();
+        const cefrScore = (st.xp || 0) + ((st.lc || 0) * 15) + ((st.gc || 0) * 25);
+        const progress = cefr.needed ? Math.min(100, Math.round((cefrScore / cefr.needed) * 100)) : 100;
+        return (
+          <div style={{ background:'var(--card)', border:'1.5px solid var(--card-b)', borderRadius:18, padding:'18px', marginBottom:16 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:12 }}>
+              <div style={{ width:52, height:52, borderRadius:14, background:cefr.color, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                <span style={{ fontSize:20, fontWeight:900, color:'#fff' }}>{cefr.level}</span>
+              </div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:16, fontWeight:900, color:'var(--heading)' }}>CEFR Level: {cefr.level}</div>
+                <div style={{ fontSize:12, color:'var(--subtext)', fontWeight:600 }}>{cefr.label}{prestigeLevel > 0 ? ` · ${'✦'.repeat(prestigeLevel)} Prestige` : ''}</div>
+              </div>
+              <div style={{ textAlign:'right' }}>
+                <div style={{ fontSize:18, fontWeight:900, color:cefr.color }}>{wordsLearned}</div>
+                <div style={{ fontSize:10, color:'var(--subtext)', fontWeight:700 }}>words</div>
+              </div>
+            </div>
+            {cefr.needed && (
+              <div>
+                <div style={{ display:'flex', justifyContent:'space-between', fontSize:11, color:'var(--subtext)', marginBottom:4, fontWeight:600 }}>
+                  <span>{cefr.level}</span><span>→ {cefr.next}</span>
+                </div>
+                <div style={{ height:8, borderRadius:4, background:'var(--bar-bg)', overflow:'hidden' }}>
+                  <div style={{ height:'100%', borderRadius:4, background:cefr.color, width:`${progress}%`, transition:'width .4s ease' }} />
+                </div>
+                <div style={{ fontSize:10, color:'var(--subtext)', marginTop:4, fontWeight:600 }}>{progress}% to {cefr.next}</div>
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
+      {/* ── PRESTIGE ── */}
+      {(st.lc || 0) >= 30 && (
+        <div style={{ background:'var(--card)', border:'1.5px solid var(--card-b)', borderRadius:18, padding:'18px', marginBottom:16 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:prestigeLevel > 0 ? 12 : 0 }}>
+            <div style={{ fontSize:28 }}>{prestigeLevel > 0 ? '✦' : '🏆'}</div>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:15, fontWeight:900, color:'var(--heading)' }}>
+                {prestigeLevel > 0 ? `Prestige ${prestigeLevel} — ${'✦'.repeat(prestigeLevel)}` : 'Ready to Prestige?'}
+              </div>
+              <div style={{ fontSize:12, color:'var(--subtext)', fontWeight:500, lineHeight:1.5, marginTop:2 }}>
+                {prestigeLevel > 0 ? 'You have prestiged. Your dedication to Croatian is legendary.' : 'You\'ve reached an advanced level. Prestige resets your XP counter but grants a permanent ✦ badge and unlocks harder content.'}
+              </div>
+            </div>
+          </div>
+          {prestigeLevel === 0 && (
+            <button
+              onClick={() => setShowPrestigeModal(true)}
+              style={{ width:'100%', padding:'12px', borderRadius:12, border:'none', cursor:'pointer', background:'linear-gradient(135deg,#7c3aed,#4c1d95)', color:'#fff', fontWeight:800, fontSize:14, fontFamily:"'Outfit',sans-serif", marginTop:12 }}
+            >
+              ✦ Prestige Now
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* ── GOAL FOCUS ── */}
+      {currentGoal && (() => {
+        const GOAL_FOCUS = {
+          heritage: { label:'Heritage & Roots', icon:'🇭🇷', color:'#92400e', bg:'#fffbeb', border:'#fde68a',
+            items:[{icon:'🏛️',label:'Croatian History',scr:'history'},{icon:'🌟',label:'Proverbs',scr:'proverbs'},{icon:'📖',label:'Reading',scr:'readlist'}] },
+          family:   { label:'Speaking with Family', icon:'👨‍👩‍👧', color:'#0e7490', bg:'#f0f9ff', border:'#bae6fd',
+            items:[{icon:'🃏',label:'Family Words',scr:'flashcards'},{icon:'🎤',label:'Speaking',scr:'speaking'},{icon:'💬',label:'Dialogue Sim',scr:'dialogue'}] },
+          travel:   { label:'Traveling to Croatia', icon:'✈️', color:'#16a34a', bg:'#f0fdf4', border:'#bbf7d0',
+            items:[{icon:'🍽️',label:'Restaurant',scr:'restaurant'},{icon:'🚗',label:'Transport',scr:'transport'},{icon:'🚨',label:'Emergency',scr:'emergency'}] },
+          culture:  { label:'Croatian Culture', icon:'📖', color:'#7c3aed', bg:'#faf5ff', border:'#ddd6fe',
+            items:[{icon:'🌊',label:'Immersion',scr:'immersion'},{icon:'🤖',label:'AI Convo',scr:'aiconvo'},{icon:'🎵',label:'Song Lyrics',scr:'lyrics'}] },
+          fluent:   { label:'Becoming Fluent', icon:'🗣️', color:'#0369a1', bg:'#f0f9ff', border:'#bae6fd',
+            items:[{icon:'🎓',label:'CEFR Test',scr:'cefrtest'},{icon:'💬',label:'Dialogue Sim',scr:'dialogue'},{icon:'🗣️',label:'Shadowing',scr:'shadowing'}] },
+        };
+        const gf = GOAL_FOCUS[currentGoal];
+        if (!gf) return null;
+        return (
+          <React.Fragment>
+            <h3 className="sh">Goal Focus</h3>
+            <div style={{ background:gf.bg, border:`1.5px solid ${gf.border}`, borderRadius:16, padding:'16px', marginBottom:20 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
+                <span style={{ fontSize:22 }}>{gf.icon}</span>
+                <div>
+                  <div style={{ fontSize:13, fontWeight:900, color:gf.color }}>{gf.label}</div>
+                  <div style={{ fontSize:11, color:'#94a3b8', marginTop:1 }}>Your recommended exercises</div>
+                </div>
+              </div>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8 }}>
+                {gf.items.map(it => (
+                  <button key={it.scr}
+                    onClick={() => setScr(it.scr)}
+                    style={{ background:'var(--card)', border:`1px solid ${gf.border}`, borderRadius:10, padding:'10px 6px', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
+                    <div style={{ fontSize:20 }}>{it.icon}</div>
+                    <div style={{ fontSize:10, fontWeight:700, color:'var(--heading)', marginTop:4, lineHeight:1.2 }}>{it.label}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </React.Fragment>
+        );
+      })()}
+
       {/* ── MY PROGRESS ── */}
       <h3 className="sh">My Progress</h3>
       <ProgressCharts stats={st} />
+
+      {/* ── MY CROATIAN JOURNEY ── */}
+      <h3 className="sh" style={{marginTop:24}}>My Croatian Journey</h3>
+      <div style={{background:'var(--card)', borderRadius:16, padding:'16px', marginBottom:16, border:'1px solid var(--card-b)'}}>
+        <JourneyTimeline />
+      </div>
+
+      {/* ── LETTER TO FUTURE ME ── */}
+      <div style={{marginBottom:16}}>
+        <button
+          onClick={() => setLetterOpen(o => !o)}
+          style={{
+            width:'100%', display:'flex', alignItems:'center', gap:10, padding:'14px 16px',
+            background:'var(--card)', border:'1px solid var(--card-b)', borderRadius:14,
+            cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+          }}
+        >
+          <span style={{fontSize:20}}>💌</span>
+          <div style={{flex:1}}>
+            <div style={{fontSize:13, fontWeight:800, color:'var(--heading)'}}>Letter to Future Me</div>
+            <div style={{fontSize:11, color:'var(--subtext)'}}>Why are you learning Croatian?</div>
+          </div>
+          <span style={{color:'var(--subtext)',opacity:.5}}>{letterOpen ? '▲' : '▼'}</span>
+        </button>
+        {letterOpen && (
+          <div style={{background:'var(--card)', border:'1px solid var(--card-b)', borderTop:'none', borderRadius:'0 0 14px 14px', padding:'14px 16px'}}>
+            <p style={{fontSize:12, color:'var(--subtext)', marginBottom:10, fontStyle:'italic'}}>
+              Write a note to your future self about why you're learning Croatian. The app will remind you of this when you hit milestones.
+            </p>
+            <textarea
+              value={letterText}
+              onChange={(e) => {
+                setLetterText(e.target.value);
+                localStorage.setItem('nh_letter_to_self', e.target.value);
+              }}
+              placeholder="I want to speak Croatian because..."
+              style={{
+                width:'100%', minHeight:100, padding:'10px 12px', borderRadius:10,
+                border:'1.5px solid var(--inp-b)', background:'var(--card)', color:'var(--heading)',
+                fontSize:13, fontFamily:"'Outfit',sans-serif", resize:'vertical', boxSizing:'border-box',
+              }}
+            />
+            <div style={{fontSize:10, color:'var(--subtext)', marginTop:6}}>Saved automatically ✓</div>
+          </div>
+        )}
+      </div>
 
       {/* ── WEAK AREAS ── */}
       {(() => {
@@ -238,6 +423,46 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
 
       {/* ── SETTINGS ── */}
       <h3 className="sh">Settings</h3>
+
+      {/* Goal selector */}
+      <div className="tc" style={{marginBottom:10,overflow:'hidden'}}>
+        <button
+          onClick={() => setGoalOpen(o => !o)}
+          style={{width:'100%',display:'flex',alignItems:'center',gap:14,padding:'16px',background:'none',border:'none',cursor:'pointer',fontFamily:"'Outfit',sans-serif",textAlign:'left'}}
+        >
+          <div style={{width:44,height:44,borderRadius:13,background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)',border:'1px solid #bae6fd',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0}}>
+            {GOALS.find(g => g.id === currentGoal)?.icon || '🎯'}
+          </div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:14,fontWeight:800,color:'var(--heading)'}}>My Learning Goal</div>
+            <div style={{fontSize:11,color:'var(--subtext)',marginTop:1}}>
+              {currentGoal ? GOALS.find(g => g.id === currentGoal)?.label : 'Not set — tap to choose'}
+            </div>
+          </div>
+          <div style={{fontSize:14,color:'var(--subtext)',opacity:.5,transition:'transform .2s',transform:goalOpen?'rotate(180deg)':'none'}}>⌄</div>
+        </button>
+        {goalOpen && (
+          <div style={{borderTop:'1px solid var(--card-b)',padding:'10px 12px 12px'}}>
+            {GOALS.map(g => (
+              <button
+                key={g.id}
+                onClick={() => { localStorage.setItem('nh_goal', g.id); setCurrentGoal(g.id); setGoalOpen(false); }}
+                style={{
+                  width:'100%',display:'flex',alignItems:'center',gap:12,padding:'10px 12px',
+                  borderRadius:10,border:'none',cursor:'pointer',textAlign:'left',
+                  background: currentGoal === g.id ? 'rgba(14,116,144,.08)' : 'transparent',
+                  fontFamily:"'Outfit',sans-serif",marginBottom:4,
+                }}
+              >
+                <span style={{fontSize:20}}>{g.icon}</span>
+                <span style={{fontSize:13,fontWeight:currentGoal===g.id?800:600,color:currentGoal===g.id?'#0e7490':'var(--heading)'}}>{g.label}</span>
+                {currentGoal === g.id && <span style={{marginLeft:'auto',color:'#0e7490',fontSize:14,fontWeight:900}}>✓</span>}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
       <button className="tc" style={{width:"100%",display:"flex",alignItems:"center",gap:14,padding:"16px",marginBottom:10}}
         onClick={() => { const nv = !darkMode; setDarkMode(nv); localStorage.setItem("darkMode", nv.toString()); }}>
         <div style={{
@@ -284,13 +509,34 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
         <div style={{width:38,height:38,borderRadius:12,background:"linear-gradient(135deg,#0e7490,#164e63)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>📦</div>
         <div style={{flex:1,textAlign:"left"}}>
           <div style={{fontSize:14,fontWeight:800,color:"var(--heading)"}}>Export My Data</div>
-          <div style={{fontSize:11,color:"var(--subtext)",marginTop:1}}>Download all your progress as JSON</div>
+          <div style={{fontSize:11,color:exportDone?"#16a34a":"var(--subtext)",marginTop:1,fontWeight:exportDone?700:500}}>
+            {exportDone ? "✓ Downloaded! Check your downloads folder." : "Download all your progress as JSON"}
+          </div>
         </div>
         <div style={{fontSize:20,color:"var(--subtext)",opacity:.35}}>›</div>
       </button>
 
+      {/* ── SIGN OUT ── */}
+      {confirmOut ? (
+        <div style={{border:"2px solid rgba(194,65,12,.2)",borderRadius:16,padding:"20px",background:"rgba(194,65,12,.04)",marginBottom:16}}>
+          <p style={{fontSize:15,fontWeight:700,color:"#c2410c",textAlign:"center",marginBottom:16}}>Sign out of Naša Hrvatska?</p>
+          <div style={{display:"flex",gap:10}}>
+            <button onClick={() => setConfirmOut(false)} style={{flex:1,padding:"13px",border:"1.5px solid var(--card-b)",borderRadius:12,background:"var(--card)",color:"var(--subtext)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
+              Cancel
+            </button>
+            <button onClick={doOut} style={{flex:1,padding:"13px",border:"none",borderRadius:12,background:"#c2410c",color:"#fff",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
+              Sign Out
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => setConfirmOut(true)} style={{width:"100%",padding:"14px",border:"2px solid rgba(194,65,12,.15)",borderRadius:14,background:"rgba(194,65,12,.05)",color:"#c2410c",fontSize:14,fontWeight:700,cursor:"pointer",marginBottom:16,fontFamily:"'Outfit',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+          🚪 Sign Out
+        </button>
+      )}
+
       {/* ── DANGER ZONE ── */}
-      <h3 className="sh" style={{color:"#dc2626",marginTop:24}}>Danger Zone</h3>
+      <h3 className="sh" style={{color:"#dc2626",marginTop:8}}>Danger Zone</h3>
       {confirmDelete ? (
         <div style={{border:"2px solid rgba(220,38,38,.2)",borderRadius:16,padding:"20px",background:"rgba(220,38,38,.04)",marginBottom:16}}>
           <p style={{fontSize:15,fontWeight:700,color:"#dc2626",textAlign:"center",marginBottom:8}}>Delete your account?</p>
@@ -310,23 +556,30 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
         </button>
       )}
 
-      {/* ── SIGN OUT ── */}
-      {confirmOut ? (
-        <div style={{border:"2px solid rgba(194,65,12,.2)",borderRadius:16,padding:"20px",background:"rgba(194,65,12,.04)"}}>
-          <p style={{fontSize:15,fontWeight:700,color:"#c2410c",textAlign:"center",marginBottom:16}}>Sign out of Naša Hrvatska?</p>
-          <div style={{display:"flex",gap:10}}>
-            <button onClick={() => setConfirmOut(false)} style={{flex:1,padding:"13px",border:"1.5px solid var(--card-b)",borderRadius:12,background:"var(--card)",color:"var(--subtext)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
-              Cancel
-            </button>
-            <button onClick={doOut} style={{flex:1,padding:"13px",border:"none",borderRadius:12,background:"#c2410c",color:"#fff",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
-              Sign Out
-            </button>
+      {showPrestigeModal && (
+        <div style={{ position:'fixed', inset:0, zIndex:9999, background:'rgba(0,0,0,.6)', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+          <div style={{ background:'var(--card)', borderRadius:24, padding:'32px 24px', maxWidth:340, width:'100%', textAlign:'center' }}>
+            <div style={{ fontSize:48, marginBottom:12 }}>✦</div>
+            <div style={{ fontSize:20, fontWeight:900, color:'var(--heading)', marginBottom:8 }}>Prestige?</div>
+            <div style={{ fontSize:13, color:'var(--subtext)', lineHeight:1.7, marginBottom:24 }}>
+              Your XP will reset to 0, but you'll earn a permanent ✦ Prestige badge. Your lessons, streak, and vocabulary remain. This is a mark of honour.
+            </div>
+            <div style={{ display:'flex', gap:10 }}>
+              <button onClick={() => setShowPrestigeModal(false)} style={{ flex:1, padding:'12px', borderRadius:12, border:'1.5px solid var(--inp-b)', background:'none', cursor:'pointer', fontSize:14, fontWeight:700, color:'var(--subtext)', fontFamily:"'Outfit',sans-serif" }}>Cancel</button>
+              <button
+                onClick={() => {
+                  const newPrestige = prestigeLevel + 1;
+                  localStorage.setItem('nh_prestige', String(newPrestige));
+                  localStorage.setItem('nh_xp', '0');
+                  setShowPrestigeModal(false);
+                }}
+                style={{ flex:1, padding:'12px', borderRadius:12, border:'none', background:'linear-gradient(135deg,#7c3aed,#4c1d95)', cursor:'pointer', fontSize:14, fontWeight:800, color:'#fff', fontFamily:"'Outfit',sans-serif" }}
+              >
+                ✦ Confirm
+              </button>
+            </div>
           </div>
         </div>
-      ) : (
-        <button onClick={() => setConfirmOut(true)} style={{width:"100%",padding:"14px",border:"2px solid rgba(194,65,12,.15)",borderRadius:14,background:"rgba(194,65,12,.05)",color:"#c2410c",fontSize:14,fontWeight:700,cursor:"pointer",marginBottom:8,fontFamily:"'Outfit',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-          🚪 Sign Out
-        </button>
       )}
 
     </React.Fragment>

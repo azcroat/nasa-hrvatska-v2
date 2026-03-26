@@ -1,6 +1,29 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { H, fbGetFamilyMembers, fbWatchFamilyMembers, fbCreateFamily, fbJoinFamily, fbLeaveFamily } from '../../data.jsx';
 
+function getCEFRLevel(weekXP) {
+  // Rough weekly XP → CEFR for leaderboard display
+  if (weekXP < 50) return null;
+  if (weekXP < 150) return 'A1';
+  if (weekXP < 300) return 'A2';
+  if (weekXP < 600) return 'B1';
+  if (weekXP < 1000) return 'B2';
+  return 'C1+';
+}
+
+const CEFR_COLORS = { 'A1':'#16a34a','A2':'#65a30d','B1':'#ca8a04','B2':'#b45309','C1+':'#0e7490' };
+
+function getRecentAchievements() {
+  try { return JSON.parse(localStorage.getItem('nh_journey') || '[]').slice(-10).reverse(); } catch(_) { return []; }
+}
+
+const ACHIEVEMENT_ICONS = {
+  first_lesson:'📚', first_speaking:'🎤',
+  streak_7:'🔥', streak_30:'🌟', streak_50:'💎', streak_100:'🏆', streak_365:'👑',
+  name_day:'🎉',
+};
+const REACTION_EMOJIS = ['🔥','❤️','🇭🇷','👏','💪'];
+
 export default function Leaderboard({
   goBack, authUser: au, name, stats,
   famData, setFamData,
@@ -13,6 +36,33 @@ export default function Leaderboard({
 }) {
   const watchRef = useRef(null);
   const [liveStatus, setLiveStatus] = useState(null); // null | 'connecting' | 'live' | 'offline'
+  const [view, setView] = useState('total'); // 'total' or 'week'
+  const [generation, setGeneration] = useState(() => localStorage.getItem('nh_generation') || '');
+  const [reactionTick, setReactionTick] = useState(0);
+
+  function getWeekKey() {
+    const d = new Date();
+    const day = d.getDay() || 7;
+    d.setDate(d.getDate() + 4 - day);
+    const year = d.getFullYear();
+    const week = Math.ceil(((d.getTime() - new Date(year, 0, 1).getTime()) / 86400000 + 1) / 7);
+    return `${year}-W${String(week).padStart(2,'0')}`;
+  }
+  const myWeekXP = parseInt(localStorage.getItem('nh_week_xp_' + getWeekKey()) || '0', 10);
+
+  function getLeagueTier(weekXP) {
+    if (weekXP >= 600) return { id:'platinum', name:'Platinum', icon:'💎', color:'#7c3aed', bg:'rgba(124,58,237,.08)', border:'#c4b5fd', mult:'2.0x XP' };
+    if (weekXP >= 300) return { id:'gold',     name:'Gold',     icon:'🥇', color:'#d97706', bg:'rgba(217,119,6,.08)',  border:'#fcd34d', mult:'1.5x XP' };
+    if (weekXP >= 100) return { id:'silver',   name:'Silver',   icon:'🥈', color:'#6b7280', bg:'rgba(107,114,128,.08)',border:'#d1d5db', mult:'1.25x XP' };
+    return                     { id:'bronze',   name:'Bronze',   icon:'🥉', color:'#b45309', bg:'rgba(180,83,9,.08)',   border:'#fcd34d', mult:'1.0x XP' };
+  }
+
+  const GENERATION_LABELS = {
+    grandparent: { label: 'Baka/Djed', emoji: '👴', color: '#d97706' },
+    parent:      { label: 'Parent',    emoji: '👨', color: '#0e7490' },
+    adult:       { label: 'Adult',     emoji: '🧑', color: '#7c3aed' },
+    teen:        { label: 'Teen',      emoji: '🧒', color: '#16a34a' },
+  };
 
   // ── Global leaderboard pagination ─────────────────────────────────────────
   const [globalUsers, setGlobalUsers] = useState([]);
@@ -138,6 +188,48 @@ export default function Leaderboard({
                   </div>
                 </div>
               </div>
+              {/* ── SET GENERATION ── */}
+              <div style={{marginBottom:16,background:'var(--card)',border:'1px solid var(--card-b)',borderRadius:14,padding:'14px 16px'}}>
+                <div style={{fontSize:11,fontWeight:800,color:'var(--subtext)',letterSpacing:'.08em',textTransform:'uppercase',marginBottom:10}}>
+                  🧬 Your Generation
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+                  {Object.entries(GENERATION_LABELS).map(([id, g]) => (
+                    <button key={id}
+                      onClick={() => { localStorage.setItem('nh_generation', id); setGeneration(id); }}
+                      style={{
+                        padding:'10px 8px', borderRadius:10, border:`2px solid ${generation===id ? g.color : 'var(--card-b)'}`,
+                        background: generation===id ? g.color+'18' : 'var(--bar-bg)',
+                        color: generation===id ? g.color : 'var(--subtext)',
+                        fontSize:12, fontWeight:800, cursor:'pointer', fontFamily:"'Outfit',sans-serif",
+                      }}>
+                      {g.emoji} {g.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {famData && (() => {
+                const tier = getLeagueTier(myWeekXP);
+                return (
+                  <div style={{
+                    background: tier.bg, border: `1.5px solid ${tier.border}`,
+                    borderRadius:14, padding:'12px 14px', marginBottom:14,
+                    display:'flex', alignItems:'center', gap:12,
+                  }}>
+                    <span style={{fontSize:28}}>{tier.icon}</span>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:14, fontWeight:900, color: tier.color}}>{tier.name} Division</div>
+                      <div style={{fontSize:11, color:'var(--subtext)', fontWeight:600}}>
+                        Your family · {tier.mult} active this week
+                      </div>
+                    </div>
+                    <div style={{textAlign:'right'}}>
+                      <div style={{fontSize:18, fontWeight:900, color: tier.color}}>{myWeekXP}</div>
+                      <div style={{fontSize:9, color:'var(--subtext)', fontWeight:700, textTransform:'uppercase'}}>XP this week</div>
+                    </div>
+                  </div>
+                );
+              })()}
               <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
                 <button
                   className="b bp"
@@ -165,6 +257,20 @@ export default function Leaderboard({
                 </div>
               </div>
               {famErr && <div style={{color:famErr.startsWith("✅")?"#16a34a":"#dc2626",fontSize:13,marginBottom:12}}>{famErr}</div>}
+              <div style={{ display:'flex', gap:8, marginBottom:16 }}>
+                {['total','week'].map(v => (
+                  <button key={v}
+                    onClick={() => setView(v)}
+                    style={{
+                      flex:1, padding:'10px', borderRadius:10, border:'none', cursor:'pointer',
+                      background: view===v ? 'linear-gradient(135deg,#0e7490,#164e63)' : 'var(--bar-bg)',
+                      color: view===v ? '#fff' : 'var(--subtext)',
+                      fontSize:12, fontWeight:800, fontFamily:"'Outfit',sans-serif",
+                    }}>
+                    {v === 'total' ? '⭐ All Time' : '⚡ This Week'}
+                  </button>
+                ))}
+              </div>
               {displayMembers.length > 0 ? displayMembers.map((u, i) => (
                 <div
                   key={u.email}
@@ -174,17 +280,70 @@ export default function Leaderboard({
                     {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
                   </div>
                   <div style={{flex:1}}>
-                    <div style={{fontSize:16,fontWeight:700}}>{u.name}{u.role === "admin" ? " 👑" : ""}</div>
+                    <div style={{fontSize:16,fontWeight:700,display:'flex',alignItems:'center',flexWrap:'wrap',gap:4}}>
+                      {u.name}{u.role === "admin" ? " 👑" : ""}
+                      {au && u.email === au.e && localStorage.getItem('nh_generation') && (() => {
+                        const gen = GENERATION_LABELS[localStorage.getItem('nh_generation')];
+                        return gen ? (
+                          <span style={{ fontSize:10, fontWeight:700, color:gen.color, background:'var(--bar-bg)', borderRadius:6, padding:'2px 6px', marginLeft:4 }}>
+                            {gen.emoji} {gen.label}
+                          </span>
+                        ) : null;
+                      })()}
+                    </div>
                     <div style={{fontSize:12,color:"#78716c"}}>{u.lc} lessons · Joined {new Date(u.joined).toLocaleDateString()}</div>
                   </div>
                   <div style={{textAlign:"right"}}>
-                    <div style={{fontSize:20,fontWeight:800,color:"#b45309"}}>{u.xp}</div>
-                    <div style={{fontSize:11,color:"#78716c"}}>XP</div>
+                    <div style={{fontSize:view==='week'?14:20,fontWeight:800,color:"#b45309",display:'flex',alignItems:'center',justifyContent:'flex-end',gap:4,flexWrap:'wrap'}}>
+                      {view === 'week'
+                        ? (au && u.email === au.e ? myWeekXP + ' XP this week' : '– XP this week')
+                        : (u.xp.toLocaleString() + ' XP')}
+                      {view === 'week' && au && u.email === au.e && getCEFRLevel(myWeekXP) && (
+                        <span style={{ fontSize:9, fontWeight:800, padding:'2px 5px', borderRadius:4, background: CEFR_COLORS[getCEFRLevel(myWeekXP)], color:'#fff', marginLeft:4 }}>
+                          {getCEFRLevel(myWeekXP)}
+                        </span>
+                      )}
+                    </div>
+                    {view === 'total' && <div style={{fontSize:11,color:"#78716c"}}>total</div>}
                   </div>
                 </div>
               )) : (
                 <div className="c" style={{textAlign:"center",color:"#78716c"}}>
                   Tap 'Refresh Leaderboard' to load family scores.
+                </div>
+              )}
+              {famData && (
+                <div style={{marginTop:16}}>
+                  <div style={{fontSize:11, fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:10}}>
+                    🎯 This Week's Family Challenges
+                  </div>
+                  {[
+                    { name: 'Streak Champions', desc: 'Everyone on 3+ day streak', icon: '🔥', progress: Math.min(famMembers.filter(m => (m.streak||0) >= 3).length, famMembers.length), total: Math.max(famMembers.length, 1), reward: '+100 family XP' },
+                    { name: 'XP Milestone', desc: 'Earn 200+ XP as a family this week', icon: '⚡', progress: Math.min(myWeekXP, 200), total: 200, reward: '1.5x XP next week' },
+                    { name: 'Active Family', desc: 'All members practice this week', icon: '👨‍👩‍👧', progress: Math.min(famMembers.filter(m => (m.xp||0) > 0).length, famMembers.length), total: Math.max(famMembers.length, 1), reward: 'Unlock bonus content' },
+                  ].map((ch, i) => {
+                    const pct = Math.round(ch.progress / ch.total * 100);
+                    const done = ch.progress >= ch.total;
+                    return (
+                      <div key={i} style={{background:'var(--card)', border:`1px solid ${done?'#86efac':'var(--card-b)'}`, borderRadius:12, padding:'12px 14px', marginBottom:10}}>
+                        <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:6}}>
+                          <span style={{fontSize:16}}>{ch.icon}</span>
+                          <div style={{flex:1}}>
+                            <div style={{fontSize:12, fontWeight:800, color:'var(--heading)'}}>{ch.name}</div>
+                            <div style={{fontSize:10, color:'var(--subtext)'}}>{ch.desc}</div>
+                          </div>
+                          {done && <span style={{fontSize:12, color:'#16a34a', fontWeight:800}}>✓</span>}
+                        </div>
+                        <div style={{height:5, background:'var(--bar-bg)', borderRadius:3, overflow:'hidden', marginBottom:4}}>
+                          <div style={{height:'100%', width:pct+'%', background: done?'#16a34a':'#0e7490', borderRadius:3, transition:'width .4s'}} />
+                        </div>
+                        <div style={{display:'flex', justifyContent:'space-between'}}>
+                          <span style={{fontSize:10, color:'var(--subtext)', fontWeight:600}}>{pct}% complete</span>
+                          <span style={{fontSize:10, color:'#0e7490', fontWeight:700}}>{ch.reward}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
               <button
@@ -317,6 +476,62 @@ export default function Leaderboard({
           </button>
         </div>
       )}
+
+      {/* ── RECENT ACHIEVEMENTS ── */}
+      {(() => {
+        const achievements = getRecentAchievements();
+        if (achievements.length === 0) return null;
+        return (
+          <div style={{ marginTop:16 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
+              <div style={{ fontSize:11, fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase' }}>
+                🏅 My Achievements
+              </div>
+              <div style={{ flex:1, height:1, background:'var(--card-b)' }} />
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+              {achievements.slice(0, 5).map((a, i) => {
+                const icon = ACHIEVEMENT_ICONS[a.type] || '🌟';
+                const date = new Date(a.date).toLocaleDateString('en-US', { month:'short', day:'numeric' });
+                const reactionKey = `nh_react_${a.type}_${a.date}`;
+                const reactions = JSON.parse(localStorage.getItem(reactionKey) || '{}');
+                return (
+                  <div key={i} style={{ background:'var(--card)', border:'1px solid var(--card-b)', borderRadius:14, padding:'12px 14px' }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
+                      <span style={{ fontSize:22 }}>{icon}</span>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontSize:13, fontWeight:800, color:'var(--heading)' }}>
+                          {a.type.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}
+                        </div>
+                        <div style={{ fontSize:10, color:'var(--subtext)', fontWeight:600 }}>{date}</div>
+                      </div>
+                    </div>
+                    <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
+                      {REACTION_EMOJIS.map(emoji => {
+                        const count = reactions[emoji] || 0;
+                        return (
+                          <button
+                            key={emoji}
+                            onClick={() => {
+                              const updated = { ...reactions, [emoji]: (reactions[emoji] || 0) + 1 };
+                              localStorage.setItem(reactionKey, JSON.stringify(updated));
+                              // Force re-render by triggering a state update
+                              setReactionTick(t => t + 1);
+                            }}
+                            style={{ padding:'4px 8px', borderRadius:8, border:'1px solid var(--card-b)', background:'var(--bar-bg)', cursor:'pointer', fontSize:13, fontWeight:600, color:'var(--heading)', fontFamily:"'Outfit',sans-serif" }}
+                          >
+                            {emoji}{count > 0 ? ` ${count}` : ''}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

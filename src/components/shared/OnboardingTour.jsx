@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const STEPS = [
+const GENERIC_STEPS = [
   {
     icon: '👋',
     title: 'Dobrodošli! Welcome!',
@@ -19,11 +19,37 @@ const STEPS = [
   {
     icon: '🔥',
     title: 'Build your streak',
-    body: 'Come back daily to maintain your streak. Set a weekly XP goal in the sidebar and track your progress.',
+    body: 'Come back daily to maintain your streak. Set a weekly XP goal in the Profile tab and track your progress.',
+  },
+];
+
+const DIASPORA_STEPS = [
+  {
+    icon: '🇭🇷',
+    title: 'Dobrodošli! Welcome home.',
+    body: 'Naša Hrvatska is built for the diaspora — for those of us who grew up between two worlds. Every lesson connects you to the language your family carries.',
+  },
+  {
+    icon: '👨‍👩‍👧',
+    title: 'Learn the language your family speaks',
+    body: 'Start with family words, greetings, and the phrases your grandparents use. The Learn tab follows your goal, starting with what matters most to you.',
+  },
+  {
+    icon: '🌊',
+    title: 'Explore Croatia from anywhere',
+    body: 'The Croatia tab is your cultural home — songs, history, recipes, cities, and live Croatian radio. Language and culture, together.',
+  },
+  {
+    icon: '🔥',
+    title: 'Your family is learning too',
+    body: "Add family members to your leaderboard. When Baka sees you learning Croatian, she'll want to join. Build a streak together.",
   },
 ];
 
 export default function OnboardingTour({ onDone }) {
+  const userGoal = localStorage.getItem('nh_goal');
+  const isDiaspora = userGoal === 'heritage' || userGoal === 'family';
+  const STEPS = isDiaspora ? DIASPORA_STEPS : GENERIC_STEPS;
   const [step, setStep] = useState(0);
   const cur = STEPS[step];
   const isLast = step === STEPS.length - 1;
@@ -101,6 +127,7 @@ export default function OnboardingTour({ onDone }) {
           style={{
             marginTop: 14, background: 'none', border: 'none', cursor: 'pointer',
             fontSize: 12, color: 'var(--subtext, #94a3b8)', fontFamily: "'Outfit',sans-serif",
+            padding: '10px 20px', minHeight: 44, display: 'block', width: '100%',
           }}
         >
           Skip intro

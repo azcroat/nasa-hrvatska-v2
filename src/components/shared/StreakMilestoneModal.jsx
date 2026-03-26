@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
+import { useHaptic } from '../../hooks/useHaptic.js';
 
 const MESSAGES = {
   7:   { emoji: '🔥', title: '7-Day Streak!', sub: 'One week straight — you\'re building a real habit!', color: '#f97316' },
@@ -10,8 +11,10 @@ const MESSAGES = {
 };
 
 export default function StreakMilestoneModal({ days, onClose }) {
+  const haptic = useHaptic();
   const msg = MESSAGES[days] || { emoji: '🔥', title: `${days}-Day Streak!`, sub: 'Keep it up!', color: '#f97316' };
   const fired = useRef(false);
+  useEffect(() => { haptic.award(); }, []);
 
   useEffect(() => {
     if (fired.current) return undefined;

@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useHaptic } from '../../hooks/useHaptic.js';
 
 export default function BadgeToast({ show, badge }) {
+  const haptic = useHaptic();
+  useEffect(() => { haptic.award(); }, []);
   return (
     <div
       role="status"

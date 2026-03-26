@@ -1,11 +1,17 @@
 import React from 'react';
 import { Bar, lXP, nXP } from '../../data.jsx';
 
-export default function ProfileScreen({ name, level, st, au, goBack, doOut }) {
+export default function ProfileScreen({ name, level, st, au, goBack, doOut, setScr }) {
+  const tiles = [
+    { icon:"🏆", label:"Badges",        screen:"badges" },
+    { icon:"📖", label:"Vocab Journal", screen:"journal" },
+    { icon:"🗺️", label:"Learning Path", screen:"learnpath" },
+    { icon:"📊", label:"Analytics",     screen:"analytics" },
+  ];
   return (
     <div className="scr-wrap">
-      
-      <div style={{textAlign:"center",marginBottom:32}}>
+
+      <div style={{textAlign:"center",marginBottom:24}}>
         <div style={{width:80,height:80,borderRadius:"50%",background:"linear-gradient(135deg,#0e7490,#164e63)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px",fontSize:36,color:"#fff",fontWeight:800}}>
           {name.charAt(0).toUpperCase()}
         </div>
@@ -27,6 +33,18 @@ export default function ProfileScreen({ name, level, st, au, goBack, doOut }) {
         <Bar v={st.xp-lXP(level)} mx={nXP(level)-lXP(level)} />
         <p style={{fontSize:12,color:"#a8a29e",marginTop:8}}>{nXP(level)-st.xp} XP to Level {level+1}</p>
       </div>
+      {setScr && (
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:16}}>
+          {tiles.map(t => (
+            <button key={t.screen} className="tc"
+              style={{display:"flex",alignItems:"center",gap:12,padding:"14px",textAlign:"left"}}
+              onClick={() => setScr(t.screen)}>
+              <span style={{fontSize:24}}>{t.icon}</span>
+              <span style={{fontSize:13,fontWeight:800,color:"var(--heading)"}}>{t.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
       <button onClick={doOut} style={{width:"100%",padding:"14px",border:"2px solid rgba(194,65,12,.15)",borderRadius:14,background:"rgba(194,65,12,.05)",color:"#c2410c",fontSize:15,fontWeight:700,cursor:"pointer"}}>
         🚪 Sign Out
       </button>

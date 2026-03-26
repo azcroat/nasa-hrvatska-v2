@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { H, Bar, V } from '../../data.jsx';
+import { H, Bar, V, srMark } from '../../data.jsx';
 import { rnd } from '../../lib/random.js';
 
 const ROUND_TIME = 30;
@@ -47,6 +47,7 @@ export default function WordSprint({ sh, award, goBack }) {
   const [results, setResults] = useState([]);
   const timerRef = useRef(null);
   const feedbackRef = useRef(null);
+  const pausedRef = useRef(false);
 
   const startGame = useCallback(() => {
     const cats = selectedCats.length > 0 ? selectedCats : catList.slice(0, 5);
@@ -67,6 +68,7 @@ export default function WordSprint({ sh, award, goBack }) {
   useEffect(() => {
     if (phase !== 'playing') return undefined;
     timerRef.current = setInterval(() => {
+      if (pausedRef.current) return; // paused during answer feedback
       setTimeLeft(t => {
         if (t <= 1) { clearInterval(timerRef.current); setPhase('result'); return 0; }
         return t - 1;
@@ -78,6 +80,7 @@ export default function WordSprint({ sh, award, goBack }) {
   useEffect(() => {
     if (feedback === null) return undefined;
     feedbackRef.current = setTimeout(() => {
+      pausedRef.current = false; // resume timer
       setChosen(null); setFeedback(null);
       if (qi + 1 >= questions.length) {
         clearInterval(timerRef.current); setPhase('result');
@@ -91,8 +94,13 @@ export default function WordSprint({ sh, award, goBack }) {
   function answer(opt) {
     if (chosen !== null || phase !== 'playing') return;
     const q = questions[qi];
+    pausedRef.current = true; // pause timer during feedback
     setChosen(opt);
     const correct = opt === q.answer;
+    if (q && q.word) {
+      const word = q.word.hr || '';
+      if (word) srMark(word, correct);
+    }
     setFeedback(correct ? 'correct' : 'wrong');
     setResults(r => [...r, { q, chosen: opt, correct }]);
     if (correct) {

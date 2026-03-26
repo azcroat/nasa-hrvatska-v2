@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { H, Bar, sh, ZNAM } from '../../data.jsx';
+import { H, Bar, sh, ZNAM, srMark } from '../../data.jsx';
 
 export default function ZnamGame({ goBack, award }) {
   const [znMode, sZnMode] = useState("menu");
@@ -67,7 +67,9 @@ export default function ZnamGame({ goBack, award }) {
                   onClick={() => {
                     if (znAns) return;
                     sZnSel(oi); sZnAns(true);
-                    if (o === correct) { sZnSc(s => s + 1); award(5); }
+                    const isCorrect = o === correct;
+                    srMark(correct, isCorrect);
+                    if (isCorrect) { sZnSc(s => s + 1); award(5); }
                   }}>
                   {o}
                 </button>

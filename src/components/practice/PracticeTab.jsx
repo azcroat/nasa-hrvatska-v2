@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { H, V, LISTEN, UNJUMBLE, PREPDRILL, NUMTIME, getSR } from '../../data.jsx';
+import React, { useState, useMemo } from 'react';
+import { H, V, LISTEN, UNJUMBLE, PREPDRILL, NUMTIME, getSR, getDueReviews } from '../../data.jsx';
 
 function Section({ title, icon, count, defaultOpen = false, children }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -31,6 +31,7 @@ function Section({ title, icon, count, defaultOpen = false, children }) {
 export default function PracticeTab({
   allCats, sh, setScr, sCurEx,
   onLaunchQuiz, onLaunchFlash, onLaunchListen, onLaunchMatch, onLaunchSpeaking,
+  lc = 0,
 }) {
   const [weakMsg, setWeakMsg] = useState("");
   const pool = () => allCats.flatMap(cc => V[cc]);
@@ -66,7 +67,7 @@ export default function PracticeTab({
     const d = getSR();
     const p = pool();
     const weak = Object.entries(d).filter(e=>e[1].w>0).sort((a,b)=>(b[1].w/(b[1].r+1))-(a[1].w/(a[1].r+1)));
-    if (weak.length < 3) { setWeakMsg("Keep practicing! Words you get wrong will appear here."); return; }
+    if (weak.length < 3) { setWeakMsg("Words you miss 3+ times show up here for focused review. Make some mistakes — it's how you learn!"); return; }
     const weakWords = weak.slice(0,15).map(e=>p.find(w=>w[0]===e[0])).filter(Boolean);
     if (weakWords.length < 3) { setWeakMsg("Not enough weak words yet — keep practicing!"); return; }
     const items = weakWords.map(w => { const wr=sh(p.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]); return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]}; });
@@ -105,9 +106,16 @@ export default function PracticeTab({
   };
 
   // ── SMART RECOMMENDATIONS ─────────────────────────────────────────────
+  const dueReviews = useMemo(getDueReviews, []);
   const sr = getSR();
   const weakCount = Object.values(sr).filter(v => v.w > 0).length;
   const h = new Date().getHours();
+  const placementDone = !!localStorage.getItem('nh_placement_done');
+  const isNewUser = lc === 0 && !placementDone;
+  const userGoal = localStorage.getItem('nh_goal');
+  const goalSetDate = localStorage.getItem('nh_goal_set_date');
+  const daysSinceGoalSet = goalSetDate ? Math.floor((Date.now() - parseInt(goalSetDate)) / 86400000) : 0;
+  const showGoalReminder = userGoal && daysSinceGoalSet > 30 && !isNewUser;
 
   const recommendations = [
     weakCount >= 3
@@ -120,6 +128,38 @@ export default function PracticeTab({
       : { icon:'⚡', title:'Word Sprint',  desc:'End the day with speed',    color:'#fffbeb', border:'#fde68a', fn: () => { setScr("wordsprint"); sCurEx("wordsprint"); } },
     { icon:'🔗', title:'Match Pairs', desc:'Quick memory game', color:'#f0fdf4', border:'#bbf7d0', fn: startMatch },
   ];
+
+  // Goal-based recommendations — shown when nh_goal is set, giving the
+  // personalisation we promised during onboarding
+  const goalRecMap = {
+    heritage: [
+      { icon:'🏛️', title:'Croatian History',   desc:'Explore your roots',              color:'#fff7ed', border:'#fed7aa', fn:()=>{setScr("history");sCurEx("history");} },
+      { icon:'🌟', title:'Proverbs',            desc:'Wisdom through generations',      color:'#faf5ff', border:'#ddd6fe', fn:()=>{setScr("proverbs");sCurEx("proverbs");} },
+      { icon:'📖', title:'Reading',             desc:'Stories from Croatia',            color:'#f0fdf4', border:'#bbf7d0', fn:()=>{setScr("readlist");sCurEx("readlist");} },
+    ],
+    family: [
+      { icon:'🃏', title:'Family Words',        desc:'People & relationships',          color:'#fff7ed', border:'#fed7aa', fn:()=>{ const p=V['family']||[]; onLaunchFlash(sh(p).slice(0,20)); } },
+      { icon:'🎤', title:'Speaking',            desc:'Say it out loud',                 color:'#f0f9ff', border:'#bae6fd', fn:startSpeaking },
+      { icon:'💬', title:'Dialogue Sim',        desc:'Real-life conversations',         color:'#faf5ff', border:'#ddd6fe', fn:()=>{setScr("dialogue");sCurEx("dialogue");} },
+    ],
+    travel: [
+      { icon:'🍽️', title:'Restaurant',         desc:'Order like a local',              color:'#fff7ed', border:'#fed7aa', fn:()=>{setScr("restaurant");sCurEx("restaurant");} },
+      { icon:'🚗', title:'Transport',           desc:'Get around Croatia',              color:'#f0fdf4', border:'#bbf7d0', fn:()=>{setScr("transport");sCurEx("transport");} },
+      { icon:'🚨', title:'Emergency',           desc:'Phrases that matter most',        color:'#fff1f2', border:'#fecaca', fn:()=>{setScr("emergency");sCurEx("emergency");} },
+    ],
+    culture: [
+      { icon:'🌊', title:'Immersion Hub',       desc:'Full Croatian immersion',         color:'#f0f9ff', border:'#bae6fd', fn:()=>{setScr("immersion");sCurEx("immersion");} },
+      { icon:'🤖', title:'AI Conversation',     desc:'Chat in Croatian',                color:'#faf5ff', border:'#ddd6fe', fn:()=>{setScr("aiconvo");sCurEx("aiconvo");} },
+      { icon:'🎵', title:'Song Lyrics',         desc:'Learn through music',             color:'#fff7ed', border:'#fed7aa', fn:()=>{setScr("lyrics");sCurEx("lyrics");} },
+    ],
+    fluent: [
+      { icon:'🎓', title:'CEFR Test',           desc:'Check your level A1→B2',          color:'#f0f9ff', border:'#bae6fd', fn:()=>{setScr("cefrtest");sCurEx("cefrtest");} },
+      { icon:'💬', title:'Dialogue Sim',        desc:'Real turn-based conversations',   color:'#faf5ff', border:'#ddd6fe', fn:()=>{setScr("dialogue");sCurEx("dialogue");} },
+      { icon:'🗣️', title:'Shadowing',           desc:'Native-speed listen & repeat',    color:'#f0fdf4', border:'#bbf7d0', fn:()=>{setScr("shadowing");sCurEx("shadowing");} },
+    ],
+  };
+  const goalItems = userGoal ? goalRecMap[userGoal] : null;
+  const goalLabels = { heritage:'Your Heritage', family:'Speaking with Family', travel:'Traveling to Croatia', culture:'Croatian Culture', fluent:'Becoming Fluent' };
 
   function ExRow({ items }) {
     return (
@@ -143,6 +183,7 @@ export default function PracticeTab({
   }
 
   const grammarDrills = [
+    ["⭐","Case Constellation", "grammarmap", "Explore all 7 cases visually"],
     ["🧩","Word Order",    "unjumble",    "Put words in the right order"],
     ["📍","Prepositions",  "prepdrill",   "u, na, od, do — which one?"],
     ["❓","Questions",     "qwords",      "Tko, Što, Gdje, Zašto..."],
@@ -203,22 +244,97 @@ export default function PracticeTab({
     <React.Fragment>
       {H("🎮 Practice", "Games, exercises & daily review")}
 
+      {/* ── SRS DUE BANNER ──────────────────────────────────────────────── */}
+      {dueReviews.length > 0 && (
+        <button
+          onClick={startReview}
+          style={{
+            width:"100%", display:"flex", alignItems:"center", gap:14,
+            padding:"14px 16px", borderRadius:14, marginBottom:16, border:"none", cursor:"pointer",
+            background:"linear-gradient(135deg,#312e81,#4338ca)",
+            boxShadow:"0 4px 16px rgba(67,56,202,.35)",
+            fontFamily:"'Outfit',sans-serif",
+          }}
+        >
+          <div style={{
+            width:42, height:42, borderRadius:12, flexShrink:0,
+            background:"rgba(255,255,255,.15)", border:"1.5px solid rgba(255,255,255,.3)",
+            display:"flex", alignItems:"center", justifyContent:"center", fontSize:22,
+          }}>📅</div>
+          <div style={{ flex:1, textAlign:"left" }}>
+            <div style={{ fontSize:14, fontWeight:900, color:"#fff" }}>
+              {dueReviews.length} word{dueReviews.length !== 1 ? "s" : ""} due for review
+            </div>
+            <div style={{ fontSize:11, color:"rgba(255,255,255,.75)", marginTop:1, fontWeight:600 }}>
+              Tap to review now — spaced repetition keeps words in memory
+            </div>
+          </div>
+          <div style={{ fontSize:18, color:"rgba(255,255,255,.8)", fontWeight:300 }}>›</div>
+        </button>
+      )}
+
       {/* ── RECOMMENDED FOR YOU ─────────────────────────────────────────── */}
       <h3 className="sh">✨ Recommended for You</h3>
-      <p style={{ fontSize:12, color:"var(--subtext)", marginTop:-6, marginBottom:12, fontWeight:500 }}>
-        Picked based on your progress today
-      </p>
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:24 }}>
-        {recommendations.map((r, i) => (
-          <button key={i} className="tc"
-            style={{ textAlign:"center", padding:"16px 10px", background:r.color, border:`1.5px solid ${r.border}` }}
-            onClick={r.fn}>
-            <div style={{ fontSize:28, marginBottom:6 }}>{r.icon}</div>
-            <div style={{ fontSize:12, fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{r.title}</div>
-            <div style={{ fontSize:10, color:"var(--subtext)", marginTop:4, lineHeight:1.3 }}>{r.desc}</div>
+      {isNewUser ? (
+        <div style={{ background:"#f0f9ff", border:"1.5px solid #bae6fd", borderRadius:14, padding:"20px", marginBottom:24, textAlign:"center" }}>
+          <div style={{ fontSize:40, marginBottom:8 }}>🗺️</div>
+          <div style={{ fontSize:15, fontWeight:800, color:"#0369a1", marginBottom:6 }}>Start your first lesson</div>
+          <div style={{ fontSize:13, color:"#64748b", marginBottom:16, lineHeight:1.5 }}>
+            Complete a lesson in the Learn tab to unlock personalized practice recommendations.
+          </div>
+          <button className="b bp" style={{ fontSize:14, padding:"12px 24px" }} onClick={() => setScr("learnpath")}>
+            Go to Learning Path →
           </button>
-        ))}
-      </div>
+        </div>
+      ) : (
+        <>
+          <p style={{ fontSize:12, color:"var(--subtext)", marginTop:-6, marginBottom:12, fontWeight:500 }}>
+            Picked based on your progress today
+          </p>
+          {goalItems && (
+            <div style={{ marginBottom:16 }}>
+              <div style={{ fontSize:11, fontWeight:800, color:'#0e7490', letterSpacing:'.06em', textTransform:'uppercase', marginBottom:8 }}>
+                🎯 For your goal: {goalLabels[userGoal]}
+              </div>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:16 }}>
+                {goalItems.map((r, i) => (
+                  <button key={i} className="tc"
+                    style={{ textAlign:"center", padding:"16px 10px", background:r.color, border:`1.5px solid ${r.border}` }}
+                    onClick={r.fn}>
+                    <div style={{ fontSize:28, marginBottom:6 }}>{r.icon}</div>
+                    <div style={{ fontSize:12, fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{r.title}</div>
+                    <div style={{ fontSize:10, color:"var(--subtext)", marginTop:4, lineHeight:1.3 }}>{r.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:24 }}>
+            {recommendations.map((r, i) => (
+              <button key={i} className="tc"
+                style={{ textAlign:"center", padding:"16px 10px", background:r.color, border:`1.5px solid ${r.border}` }}
+                onClick={r.fn}>
+                <div style={{ fontSize:28, marginBottom:6 }}>{r.icon}</div>
+                <div style={{ fontSize:12, fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{r.title}</div>
+                <div style={{ fontSize:10, color:"var(--subtext)", marginTop:4, lineHeight:1.3 }}>{r.desc}</div>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+      {showGoalReminder && (
+        <div style={{
+          background:'#f0f9ff', border:'1.5px solid #bae6fd',
+          borderRadius:12, padding:'12px 14px', marginBottom:16,
+          display:'flex', alignItems:'center', gap:10,
+        }}>
+          <span style={{fontSize:18}}>🎯</span>
+          <div style={{flex:1}}>
+            <div style={{fontSize:12,fontWeight:700,color:'#0369a1'}}>Still working toward your goal?</div>
+            <div style={{fontSize:11,color:'#64748b',marginTop:2}}>Your goal is set to "{goalLabels[userGoal]}". Update it in Profile → Settings if needed.</div>
+          </div>
+        </div>
+      )}
       {weakMsg && (
         <div style={{ background:"#fffbeb", border:"1.5px solid #fde68a", borderRadius:12, padding:"12px 16px", marginBottom:16,
           fontSize:13, fontWeight:600, color:"#92400e", display:"flex", alignItems:"center", gap:8 }}>
@@ -323,7 +439,7 @@ export default function PracticeTab({
         </div>
       </Section>
 
-      <Section title="Slang & Expressions" icon="🤬" count="12 modules · 150+ phrases" defaultOpen={false}>
+      <Section title="Slang & Expressions" icon="🗣️" count="12 modules · 150+ phrases" defaultOpen={false}>
         <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>Authentic slang, psovanje & street language with cultural context</p>
         <ExRow items={[
           ['🔥', 'The Classics',      'slang:classics',   'Foundation expletives — built on one root verb'],

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { H } from '../../data.jsx';
+import { H, srMark } from '../../data.jsx';
 
 // Q-4: State moved into component — App.jsx no longer owns mp/mm/msl/gph/gsc.
 // PracticeTab passes initPool (the shuffled card array) as the only init prop.
@@ -14,6 +14,14 @@ export default function MatchGame({ initPool, goBack, award }) {
     <div className="scr-wrap">
 
       {H("🃏 Match Pairs")}
+      {gph === "play" && (
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+          <div style={{fontSize:13,fontWeight:700,color:"var(--subtext)"}}>
+            <span style={{color:"#22c55e",fontWeight:900}}>{mm.length}</span> / {mp.length / 2} pairs found
+          </div>
+          {mm.length > 0 && <div style={{fontSize:12,color:"#16a34a",fontWeight:700}}>{'★'.repeat(mm.length)}</div>}
+        </div>
+      )}
       {gph === "play" && (
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
           {mp.map(c => (
@@ -36,9 +44,13 @@ export default function MatchGame({ initPool, goBack, award }) {
                 const f = msl[0];
                 if (f.id === c.id) { sMsl([]); return; }
                 if (f.p === c.p && f.tp !== c.tp) {
+                  const hrWord = f.tp === 'hr' ? f.t : c.t;
+                  srMark(hrWord, true);
                   sMm(m => [...m, c.p]); sGsc(s => s + 1); sMsl([]);
                   if (mm.length + 1 === mp.length / 2) setTimeout(() => { award(20); sGph("done"); }, 500);
                 } else {
+                  const hrWord = f.tp === 'hr' ? f.t : (c.tp === 'hr' ? c.t : null);
+                  if (hrWord) srMark(hrWord, false);
                   sMsl([f, c]); setTimeout(() => sMsl([]), 800);
                 }
               }}
@@ -50,9 +62,13 @@ export default function MatchGame({ initPool, goBack, award }) {
                   const f = msl[0];
                   if (f.id === c.id) { sMsl([]); return; }
                   if (f.p === c.p && f.tp !== c.tp) {
+                    const hrWord = f.tp === 'hr' ? f.t : c.t;
+                    srMark(hrWord, true);
                     sMm(m => [...m, c.p]); sGsc(s => s + 1); sMsl([]);
                     if (mm.length + 1 === mp.length / 2) setTimeout(() => { award(20); sGph("done"); }, 500);
                   } else {
+                    const hrWord = f.tp === 'hr' ? f.t : (c.tp === 'hr' ? c.t : null);
+                    if (hrWord) srMark(hrWord, false);
                     sMsl([f, c]); setTimeout(() => sMsl([]), 800);
                   }
                 }

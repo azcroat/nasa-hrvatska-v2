@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { H, Bar, Spk, srMark, getDueReviews, sh } from '../../data.jsx';
+import { H, Bar, Spk, srMark, getDueReviews, getSR, sh } from '../../data.jsx';
 import { useHaptic } from '../../hooks/useHaptic.js';
 import { markPracticed } from '../../hooks/useNotifications.js';
 
@@ -59,6 +59,18 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
     return () => window.removeEventListener('keydown', handleKey);
   }, [haptic]); // haptic is stable; stateRef.current is read inside, no stale closure
 
+  const nextReviewETA = useMemo(() => {
+    const sr = getSR();
+    const now = Date.now();
+    let earliest = Infinity;
+    for (const entry of Object.values(sr)) {
+      if (entry.nextDue && entry.nextDue > now && entry.nextDue < earliest) {
+        earliest = entry.nextDue;
+      }
+    }
+    return earliest === Infinity ? null : new Date(earliest);
+  }, []);
+
   if (dueWords.length === 0) {
     return (
       <div className="scr-wrap">
@@ -70,6 +82,14 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
             No reviews due right now.<br/>
             Words you&apos;ve practiced will appear here when it&apos;s time to review them.
           </p>
+          {nextReviewETA && (
+            <div style={{background:"#f0f9ff",border:"1.5px solid #bae6fd",borderRadius:12,padding:"12px 16px",marginTop:16,display:"inline-flex",alignItems:"center",gap:8}}>
+              <span style={{fontSize:18}}>⏰</span>
+              <span style={{fontSize:13,fontWeight:700,color:"#0369a1"}}>
+                Next review: {nextReviewETA.toLocaleDateString([], {weekday:'short',month:'short',day:'numeric'})} at {nextReviewETA.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
+              </span>
+            </div>
+          )}
           <div style={{background:"#f0fdf4",border:"1.5px solid #bbf7d0",borderRadius:14,padding:"16px",marginTop:24,textAlign:"left"}}>
             <p style={{fontWeight:700,fontSize:13,color:"#166534",marginBottom:6}}>💡 How spaced repetition works:</p>
             <p style={{fontSize:13,color:"#374151",lineHeight:1.6}}>
