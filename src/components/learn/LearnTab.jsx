@@ -3,7 +3,7 @@ import { H, V, GRAM, LEARN_PATH } from '../../data.jsx';
 
 function LevelBadge({ label, color, bg }) {
   return (
-    <span style={{ fontSize:9,fontWeight:800,color,background:bg,borderRadius:6,padding:"2px 7px",
+    <span style={{ fontSize:'var(--text-xs)',fontWeight:800,color,background:bg,borderRadius:6,padding:"2px 7px",
       letterSpacing:".05em",textTransform:"uppercase",flexShrink:0 }}>
       {label}
     </span>
@@ -25,14 +25,14 @@ function Section({ title, icon, count, defaultOpen = false, children }) {
           marginBottom: open ? 10 : 0,
         }}
       >
-        <span style={{ fontSize:18 }}>{icon}</span>
-        <span style={{ flex:1, fontSize:14, fontWeight:800, color:'var(--heading)', textAlign:'left' }}>{title}</span>
+        <span style={{ fontSize:'var(--text-xl)' }}>{icon}</span>
+        <span style={{ flex:1, fontSize:'var(--text-base)', fontWeight:800, color:'var(--heading)', textAlign:'left' }}>{title}</span>
         {count != null && (
-          <span style={{ fontSize:11, color:'var(--subtext)', fontWeight:600, background:'var(--bar-bg)', borderRadius:8, padding:'2px 8px' }}>
+          <span style={{ fontSize:'var(--text-sm)', color:'var(--subtext)', fontWeight:600, background:'var(--bar-bg)', borderRadius:8, padding:'2px 8px' }}>
             {count}
           </span>
         )}
-        <span style={{ fontSize:11, color:'var(--subtext)', opacity:.5, marginLeft:4 }}>{open ? '▲' : '▼'}</span>
+        <span style={{ fontSize:'var(--text-sm)', color:'var(--subtext)', opacity:.5, marginLeft:4 }}>{open ? '▲' : '▼'}</span>
       </button>
       {open && <div style={{ marginBottom:16 }}>{children}</div>}
     </div>
@@ -92,14 +92,14 @@ export default function LearnTab({
   return (
     <React.Fragment>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--heading)' }}>🗺️ My Path</div>
+        <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 900, color: 'var(--heading)' }}>🗺️ My Path</div>
         <button
           onClick={() => setScr('grammar-ref')}
           style={{
             display: 'flex', alignItems: 'center', gap: 6,
             padding: '8px 14px', borderRadius: 10, border: 'none', cursor: 'pointer',
-            background: 'linear-gradient(135deg,#0e7490,#164e63)',
-            color: '#fff', fontSize: 12, fontWeight: 700,
+            background: 'linear-gradient(135deg,var(--info),var(--heading))',
+            color: 'var(--card)', fontSize: 'var(--text-sm)', fontWeight: 700,
             fontFamily: "'Outfit',sans-serif",
           }}
         >
@@ -113,23 +113,23 @@ export default function LearnTab({
         boxShadow:'0 4px 20px rgba(0,0,0,.10)', border:'1px solid var(--card-b)',
       }}>
         {/* Stage header */}
-        <div style={{ background: sc.bg, padding:'18px 20px', color:'#fff' }}>
+        <div style={{ background: sc.bg, padding:'18px 20px', color:'var(--card)' }}>
           <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:10 }}>
             <div>
-              <div style={{ fontSize:10, opacity:.75, fontWeight:700, textTransform:'uppercase', letterSpacing:'.1em' }}>
+              <div style={{ fontSize:'var(--text-xs)', opacity:.75, fontWeight:700, textTransform:'uppercase', letterSpacing:'.1em' }}>
                 Stage {currentStage?.level} · {currentStage?.title}
               </div>
-              <div style={{ fontSize:17, fontWeight:900, marginTop:3 }}>{currentStage?.desc}</div>
+              <div style={{ fontSize:'var(--text-lg)', fontWeight:900, marginTop:3 }}>{currentStage?.desc}</div>
             </div>
             <div style={{ textAlign:'right', flexShrink:0 }}>
-              <div style={{ fontSize:24, fontWeight:900, lineHeight:1 }}>{overallPct}%</div>
-              <div style={{ fontSize:10, opacity:.7, marginTop:2 }}>overall</div>
+              <div style={{ fontSize:'var(--text-2xl)', fontWeight:900, lineHeight:1 }}>{overallPct}%</div>
+              <div style={{ fontSize:'var(--text-xs)', opacity:.7, marginTop:2 }}>overall</div>
             </div>
           </div>
           <div style={{ background:'rgba(255,255,255,.25)', borderRadius:6, height:6, overflow:'hidden' }}>
-            <div style={{ height:'100%', width:stagePct+'%', background:'#fff', borderRadius:6, transition:'width .5s ease' }} />
+            <div style={{ height:'100%', width:stagePct+'%', background:'var(--card)', borderRadius:6, transition:'width .5s ease' }} />
           </div>
-          <div style={{ fontSize:10, opacity:.7, marginTop:5 }}>
+          <div style={{ fontSize:'var(--text-xs)', opacity:.7, marginTop:5 }}>
             {currentStageDone} / {currentStage?.items.length} lessons this stage
           </div>
         </div>
@@ -140,19 +140,19 @@ export default function LearnTab({
             <div style={{ display:'flex', alignItems:'center', gap:14, position:'relative' }}>
               <div style={{
                 width:44, height:44, borderRadius:13, flexShrink:0,
-                background:sc.light, border:`1px solid ${sc.border}`,
-                display:'flex', alignItems:'center', justifyContent:'center', fontSize:22,
+                background:'var(--info-bg)', border:'1px solid var(--info-b)',
+                display:'flex', alignItems:'center', justifyContent:'center', fontSize:'var(--text-2xl)',
               }}>🎯</div>
               <div style={{ flex:1, minWidth:0 }}>
-                <div style={{ fontSize:10, color:'var(--subtext)', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em' }}>Next Up</div>
-                <div style={{ fontSize:14, fontWeight:800, color:'var(--heading)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em' }}>Next Up</div>
+                <div style={{ fontSize:'var(--text-base)', fontWeight:800, color:'var(--heading)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
                   {nextItem.name}
                 </div>
               </div>
               {(!st || st.lc === 0) && (
                 <div style={{
                   position:'absolute', top:-8, right:60,
-                  background:'var(--error)', color:'#fff',
+                  background:'var(--error)', color:'var(--card)',
                   fontSize:'var(--text-xs)', fontWeight:900, padding:'3px 8px',
                   borderRadius:10, letterSpacing:'.05em',
                   animation:'pulse 2s infinite',
@@ -164,7 +164,7 @@ export default function LearnTab({
                 onClick={() => launchPathItem(nextItem)}
                 style={{
                   padding:'13px 18px', borderRadius:12, border:'none', flexShrink:0,
-                  background:sc.bg, color:'#fff', fontSize:13, fontWeight:800,
+                  background:sc.bg, color:'var(--card)', fontSize:'var(--text-base)', fontWeight:800,
                   cursor:'pointer', fontFamily:"'Outfit',sans-serif",
                   boxShadow:'0 3px 10px rgba(0,0,0,.15)',
                 }}
@@ -172,9 +172,9 @@ export default function LearnTab({
             </div>
           ) : (
             <div style={{ textAlign:'center', padding:'8px 0' }}>
-              <div style={{ fontSize:32, marginBottom:6 }}>🏆</div>
-              <div style={{ fontSize:15, fontWeight:900, color:'var(--heading)' }}>Path Complete!</div>
-              <div style={{ fontSize:12, color:'var(--subtext)', marginTop:2 }}>Ti si pravi Hrvat! Bravo!</div>
+              <div style={{ fontSize:'var(--text-4xl)', marginBottom:6 }}>🏆</div>
+              <div style={{ fontSize:'var(--text-md)', fontWeight:900, color:'var(--heading)' }}>Path Complete!</div>
+              <div style={{ fontSize:'var(--text-sm)', color:'var(--subtext)', marginTop:2 }}>Ti si pravi Hrvat! Bravo!</div>
             </div>
           )}
           <button
@@ -182,7 +182,7 @@ export default function LearnTab({
             style={{
               width:'100%', marginTop:12, padding:'13px', borderRadius:10,
               border:'1.5px solid var(--inp-b)', background:'none', cursor:'pointer',
-              fontSize:12, fontWeight:700, color:'var(--subtext)', fontFamily:"'Outfit',sans-serif",
+              fontSize:'var(--text-sm)', fontWeight:700, color:'var(--subtext)', fontFamily:"'Outfit',sans-serif",
             }}
           >
             View full path — {totalDone}/{totalItems} lessons
@@ -196,12 +196,12 @@ export default function LearnTab({
                 borderRadius:12, cursor:'pointer', marginTop:12,
               }}
             >
-              <span style={{fontSize:20}}>🎯</span>
+              <span style={{fontSize:'var(--text-xl)'}}>🎯</span>
               <div style={{flex:1}}>
-                <div style={{fontSize:12, fontWeight:700, color:'var(--heading)'}}>Now practice what you learned</div>
-                <div style={{fontSize:11, color:'var(--subtext)'}}>Flashcards → drill new vocabulary</div>
+                <div style={{fontSize:'var(--text-sm)', fontWeight:700, color:'var(--heading)'}}>Now practice what you learned</div>
+                <div style={{fontSize:'var(--text-sm)', color:'var(--subtext)'}}>Flashcards → drill new vocabulary</div>
               </div>
-              <span style={{color:'var(--subtext)', fontSize:14}}>→</span>
+              <span style={{color:'var(--subtext)', fontSize:'var(--text-base)'}}>→</span>
             </div>
           )}
         </div>
@@ -215,9 +215,9 @@ export default function LearnTab({
           heritage: {
             label: 'Heritage & Roots Path',
             icon: '🇭🇷',
-            color: '#92400e',
-            bg: '#fffbeb',
-            border: '#fde68a',
+            color: 'var(--warning)',
+            bg: 'var(--warning-bg)',
+            border: 'var(--warning-b)',
             tips: [
               'Start with Basic Greetings — the same words your grandparents use',
               'Then Family Words — mama, tata, baka, djed',
@@ -228,9 +228,9 @@ export default function LearnTab({
           family: {
             label: 'Speaking with Family Path',
             icon: '👨‍👩‍👧',
-            color: '#0e7490',
-            bg: '#f0f9ff',
-            border: '#bae6fd',
+            color: 'var(--info)',
+            bg: 'var(--info-bg)',
+            border: 'var(--info-b)',
             tips: [
               'Start with Basic Greetings — "Bog!", "Kako si?"',
               'Then Family Words — the vocabulary your family uses',
@@ -241,9 +241,9 @@ export default function LearnTab({
           travel: {
             label: 'Travel to Croatia Path',
             icon: '✈️',
-            color: '#16a34a',
-            bg: '#f0fdf4',
-            border: '#bbf7d0',
+            color: 'var(--success)',
+            bg: 'var(--success-bg)',
+            border: 'var(--success-b)',
             tips: [
               'Start with Basic Greetings for daily interactions',
               'Then Get Around (Transport) — buses, taxis, directions',
@@ -254,9 +254,9 @@ export default function LearnTab({
           culture: {
             label: 'Croatian Culture Path',
             icon: '📖',
-            color: '#7c3aed',
-            bg: '#faf5ff',
-            border: '#ddd6fe',
+            color: 'var(--lavender)',
+            bg: 'var(--info-bg)',
+            border: 'var(--card-b)',
             tips: [
               'Start with Basic Greetings and Numbers',
               'Then explore the Croatia tab — music, history, cities',
@@ -267,9 +267,9 @@ export default function LearnTab({
           fluent: {
             label: 'Fluency Track',
             icon: '🗣️',
-            color: '#0369a1',
-            bg: '#f0f9ff',
-            border: '#bae6fd',
+            color: 'var(--info)',
+            bg: 'var(--info-bg)',
+            border: 'var(--info-b)',
             tips: [
               'Follow the full Learn Path in order — every stage matters',
               'Prioritize Grammar alongside vocabulary from day one',
@@ -287,17 +287,17 @@ export default function LearnTab({
             borderRadius: 16, padding: '16px 18px', marginBottom: 20,
           }}>
             <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
-              <span style={{ fontSize:20 }}>{gf.icon}</span>
+              <span style={{ fontSize:'var(--text-xl)' }}>{gf.icon}</span>
               <div>
-                <div style={{ fontSize:13, fontWeight:900, color: gf.color }}>{gf.label}</div>
-                <div style={{ fontSize:11, color:'var(--subtext)', marginTop:1, fontWeight:500 }}>Personalized for your goal</div>
+                <div style={{ fontSize:'var(--text-base)', fontWeight:900, color: gf.color }}>{gf.label}</div>
+                <div style={{ fontSize:'var(--text-sm)', color:'var(--subtext)', marginTop:1, fontWeight:500 }}>Personalized for your goal</div>
               </div>
             </div>
             <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
               {gf.tips.map((tip, i) => (
                 <div key={i} style={{ display:'flex', alignItems:'flex-start', gap:10 }}>
-                  <span style={{ fontSize:13, fontWeight:900, color: gf.color, flexShrink:0, marginTop:1 }}>{i+1}.</span>
-                  <span style={{ fontSize:12, color:'var(--body)', fontWeight:500, lineHeight:1.5 }}>{tip}</span>
+                  <span style={{ fontSize:'var(--text-base)', fontWeight:900, color: gf.color, flexShrink:0, marginTop:1 }}>{i+1}.</span>
+                  <span style={{ fontSize:'var(--text-sm)', color:'var(--body)', fontWeight:500, lineHeight:1.5 }}>{tip}</span>
                 </div>
               ))}
             </div>
@@ -310,7 +310,7 @@ export default function LearnTab({
         const stageCEFR = { 0:'A1', 1:'A2', 2:'B1', 3:'B1+', 4:'B2+' };
         return (
           <div style={{ marginBottom:20 }}>
-            <div style={{ fontSize:10, fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:8 }}>
+            <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:8 }}>
               Your Journey
             </div>
             <div style={{ display:'flex', alignItems:'center', gap:0 }}>
@@ -327,7 +327,7 @@ export default function LearnTab({
                         background: isComplete ? color.bg : isCurrent ? color.bg : 'var(--bar-bg)',
                         border: isCurrent ? '2.5px solid var(--heading)' : isComplete ? 'none' : '2px solid var(--card-b)',
                         display:'flex', alignItems:'center', justifyContent:'center',
-                        fontSize:13, color: isComplete || isCurrent ? '#fff' : 'var(--subtext)',
+                        fontSize:'var(--text-base)', color: isComplete || isCurrent ? 'var(--card)' : 'var(--subtext)',
                         fontWeight:900, boxShadow: isCurrent ? '0 0 0 3px rgba(14,116,144,.2)' : 'none',
                         transition:'all .3s',
                       }}>
@@ -347,7 +347,7 @@ export default function LearnTab({
                     {i < LEARN_PATH.length - 1 && (
                       <div style={{
                         width:18, height:2, flexShrink:0, marginBottom:16,
-                        background: lvDone === lv.items.length ? '#16a34a' : 'var(--card-b)',
+                        background: lvDone === lv.items.length ? 'var(--success)' : 'var(--card-b)',
                         borderRadius:2,
                       }} />
                     )}
@@ -365,10 +365,10 @@ export default function LearnTab({
         borderRadius:14, padding:'14px 16px', marginBottom:20,
       }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
-          <div style={{ fontSize:12, fontWeight:800, color:'var(--heading)' }}>🎓 CEFR Level</div>
+          <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)' }}>🎓 CEFR Level</div>
           <span style={{
-            fontSize:11, fontWeight:900, color:'#fff',
-            background: cefrLevel === 'B2' ? '#16a34a' : cefrLevel === 'B1' ? '#0e7490' : cefrLevel === 'A2' ? '#d97706' : '#94a3b8',
+            fontSize:'var(--text-sm)', fontWeight:900, color:'var(--card)',
+            background: cefrLevel === 'B2' ? 'var(--success)' : cefrLevel === 'B1' ? 'var(--info)' : cefrLevel === 'A2' ? 'var(--warning)' : 'var(--subtext)',
             borderRadius:8, padding:'2px 9px',
           }}>{cefrLevel}</span>
         </div>
@@ -376,7 +376,7 @@ export default function LearnTab({
           <div style={{
             height:'100%', borderRadius:6,
             width: cefrPct + '%',
-            background: 'linear-gradient(90deg,#94a3b8,#0e7490,#059669)',
+            background: 'linear-gradient(90deg,var(--subtext),var(--info),var(--success))',
             transition:'width .8s ease',
           }} />
           {/* Level markers */}
@@ -389,39 +389,39 @@ export default function LearnTab({
         </div>
         <div style={{ display:'flex', justifyContent:'space-between' }}>
           {['A1','A2','B1','B2','C1'].map(l => (
-            <div key={l} style={{ fontSize:9, fontWeight:700, color: cefrLevel === l ? 'var(--heading)' : 'var(--subtext)', opacity: cefrLevel === l ? 1 : 0.5 }}>{l}</div>
+            <div key={l} style={{ fontSize:'var(--text-xs)', fontWeight:700, color: cefrLevel === l ? 'var(--heading)' : 'var(--subtext)', opacity: cefrLevel === l ? 1 : 0.5 }}>{l}</div>
           ))}
         </div>
       </div>
 
       {/* ── COLLAPSIBLE CATALOG ─────────────────────────────────────────── */}
-      <div style={{ fontSize:11, fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:12 }}>
+      <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:12 }}>
         Browse All Content
       </div>
 
       {/* Vocabulary */}
       <Section title="Vocabulary" icon="📚" count={`${allCats.length + 6} topics`} defaultOpen={false}>
-        <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>
+        <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>
           {allCats.length} core categories · tap any to start
         </p>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:16 }}>
           {allCats.map(t => (
             <button key={t} className="tc" style={{ textAlign:"center", padding:"14px 8px" }} onClick={() => launchVocab(t)}>
-              <div style={{ fontSize:24 }}>{icons[t] || "📚"}</div>
-              <div style={{ fontSize:12, fontWeight:700, marginTop:4, textTransform:"capitalize" }}>{t}</div>
-              <div style={{ fontSize:10, color:"var(--subtext)", marginTop:2 }}>{V[t].length} words</div>
-              <div style={{ fontSize:9, color:"var(--subtext)", marginTop:3, opacity:.7, lineHeight:1.3 }}>
+              <div style={{ fontSize:'var(--text-2xl)' }}>{icons[t] || "📚"}</div>
+              <div style={{ fontSize:'var(--text-sm)', fontWeight:700, marginTop:4, textTransform:"capitalize" }}>{t}</div>
+              <div style={{ fontSize:'var(--text-xs)', color:"var(--subtext)", marginTop:2 }}>{V[t].length} words</div>
+              <div style={{ fontSize:'var(--text-xs)', color:"var(--subtext)", marginTop:3, opacity:.7, lineHeight:1.3 }}>
                 {(V[t]||[]).slice(0,2).map(w=>w[0]).join(' · ')}
               </div>
               {(() => {
                 const count = V[t].length;
-                const [badge, color, bg] = count < 15 ? ['Essential','#16a34a','#f0fdf4'] : count < 25 ? ['Core','#0e7490','#f0f9ff'] : ['Extended','#7c3aed','#faf5ff'];
-                return <span style={{fontSize:8,fontWeight:800,color,background:bg,borderRadius:6,padding:'2px 5px',marginTop:3,letterSpacing:'.04em'}}>{badge}</span>;
+                const [badge, color, bg] = count < 15 ? ['Essential','var(--success)','var(--success-bg)'] : count < 25 ? ['Core','var(--info)','var(--info-bg)'] : ['Extended','var(--lavender)','var(--bar-bg)'];
+                return <span style={{fontSize:'var(--text-xs)',fontWeight:800,color,background:bg,borderRadius:6,padding:'2px 5px',marginTop:3,letterSpacing:'.04em'}}>{badge}</span>;
               })()}
             </button>
           ))}
         </div>
-        <div style={{ fontSize:11, fontWeight:700, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Themes</div>
+        <div style={{ fontSize:'var(--text-sm)', fontWeight:700, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Themes</div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
           {[
             ["🌍","Countries","countries"],["💼","Professions","professions"],
@@ -429,8 +429,8 @@ export default function LearnTab({
             ["👤","Appearance","bodydesc"],["🔤","Pronunciation","phonology"],
           ].map(([icon,label,screen]) => (
             <button key={screen} className="tc" style={{ textAlign:"center", padding:"14px 8px" }} onClick={() => setScr(screen)}>
-              <div style={{ fontSize:24 }}>{icon}</div>
-              <div style={{ fontSize:11, fontWeight:700, marginTop:4 }}>{label}</div>
+              <div style={{ fontSize:'var(--text-2xl)' }}>{icon}</div>
+              <div style={{ fontSize:'var(--text-sm)', fontWeight:700, marginTop:4 }}>{label}</div>
             </button>
           ))}
         </div>
@@ -439,8 +439,8 @@ export default function LearnTab({
       {/* Grammar */}
       <Section title="Grammar" icon="📝" count="14 lessons" defaultOpen={false}>
         <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
-          <LevelBadge label="Foundation" color="#16a34a" bg="#f0fdf4" />
-          <div style={{ flex:1, height:1, background:"#e2e8f0" }} />
+          <LevelBadge label="Foundation" color="var(--success)" bg="var(--success-bg)" />
+          <div style={{ flex:1, height:1, background:"var(--card-b)" }} />
         </div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:14 }}>
           {[
@@ -450,16 +450,16 @@ export default function LearnTab({
             ["🎨","Colors & Gender","a2",() => { setScr("boje"); sCurEx("boje"); }],
           ].map((/** @type {any} */ [icon,label,cefr,fn]) => (
             <button key={label} className="tc" style={{ display:"flex", alignItems:"center", gap:10, padding:"13px 14px", textAlign:"left" }} onClick={fn}>
-              <div style={{ fontSize:22, flexShrink:0 }}>{icon}</div>
-              <div style={{ fontSize:12, fontWeight:800, color:"var(--heading)", flex:1 }}>{label}</div>
+              <div style={{ fontSize:'var(--text-xl)', flexShrink:0 }}>{icon}</div>
+              <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", flex:1 }}>{label}</div>
               <span className={`cefr cefr-${cefr}`}>{cefr.toUpperCase()}</span>
             </button>
           ))}
         </div>
 
         <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
-          <LevelBadge label="Intermediate" color="#d97706" bg="#fffbeb" />
-          <div style={{ flex:1, height:1, background:"#e2e8f0" }} />
+          <LevelBadge label="Intermediate" color="var(--warning)" bg="var(--warning-bg)" />
+          <div style={{ flex:1, height:1, background:"var(--card-b)" }} />
         </div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:14 }}>
           {[
@@ -468,16 +468,16 @@ export default function LearnTab({
             ["🔀","Conjugation","b1",() => { setScr("conjdrill"); sCurEx("conjdrill"); }],
           ].map((/** @type {any} */ [icon,label,cefr,fn]) => (
             <button key={label} className="tc" style={{ display:"flex", alignItems:"center", gap:10, padding:"13px 14px", textAlign:"left" }} onClick={fn}>
-              <div style={{ fontSize:22, flexShrink:0 }}>{icon}</div>
-              <div style={{ fontSize:12, fontWeight:800, color:"var(--heading)", flex:1 }}>{label}</div>
+              <div style={{ fontSize:'var(--text-xl)', flexShrink:0 }}>{icon}</div>
+              <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", flex:1 }}>{label}</div>
               <span className={`cefr cefr-${cefr}`}>{cefr.toUpperCase()}</span>
             </button>
           ))}
         </div>
 
         <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
-          <LevelBadge label="Advanced" color="#7c3aed" bg="#f5f3ff" />
-          <div style={{ flex:1, height:1, background:"#e2e8f0" }} />
+          <LevelBadge label="Advanced" color="var(--lavender)" bg="var(--bar-bg)" />
+          <div style={{ flex:1, height:1, background:"var(--card-b)" }} />
         </div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
           {[
@@ -490,8 +490,8 @@ export default function LearnTab({
             ["🏛️","Admin Life","b2",() => setScr("bureaucratic")],
           ].map((/** @type {any} */ [icon,label,cefr,fn]) => (
             <button key={label} className="tc" style={{ display:"flex", alignItems:"center", gap:10, padding:"13px 14px", textAlign:"left" }} onClick={fn}>
-              <div style={{ fontSize:22, flexShrink:0 }}>{icon}</div>
-              <div style={{ fontSize:12, fontWeight:800, color:"var(--heading)", flex:1 }}>{label}</div>
+              <div style={{ fontSize:'var(--text-xl)', flexShrink:0 }}>{icon}</div>
+              <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", flex:1 }}>{label}</div>
               <span className={`cefr cefr-${cefr}`}>{cefr.toUpperCase()}</span>
             </button>
           ))}
@@ -501,13 +501,13 @@ export default function LearnTab({
       {/* Reading */}
       <Section title="Reading" icon="📖" count="11 passages" defaultOpen={false}>
         <button className="tc" style={{ width:"100%", display:"flex", alignItems:"center", gap:14, padding:"16px" }} onClick={() => setScr("readlist")}>
-          <div style={{ width:44, height:44, borderRadius:13, background:"linear-gradient(135deg,#f0fdf4,#dcfce7)", border:"1px solid #bbf7d0",
-            display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>📖</div>
+          <div style={{ width:44, height:44, borderRadius:13, background:'var(--success-bg)', border:'1px solid var(--success-b)',
+            display:"flex", alignItems:"center", justifyContent:"center", fontSize:'var(--text-2xl)', flexShrink:0 }}>📖</div>
           <div style={{ flex:1, textAlign:"left" }}>
-            <div style={{ fontSize:14, fontWeight:800, color:"var(--heading)" }}>Reading Passages</div>
-            <div style={{ fontSize:11, color:"var(--subtext)", marginTop:1 }}>11 stories · A1 to B2</div>
+            <div style={{ fontSize:'var(--text-base)', fontWeight:800, color:"var(--heading)" }}>Reading Passages</div>
+            <div style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginTop:1 }}>11 stories · A1 to B2</div>
           </div>
-          <div style={{ fontSize:20, color:"var(--subtext)", opacity:.35 }}>›</div>
+          <div style={{ fontSize:'var(--text-xl)', color:"var(--subtext)", opacity:.35 }}>›</div>
         </button>
       </Section>
 
@@ -522,8 +522,8 @@ export default function LearnTab({
             ["🎭","Ti vs Vi","tivicompare"],
           ].map(([icon,label,screen]) => (
             <button key={screen} className="tc" style={{ textAlign:"center", padding:"12px 8px" }} onClick={() => setScr(screen)}>
-              <div style={{ fontSize:24 }}>{icon}</div>
-              <div style={{ fontSize:11, fontWeight:700, marginTop:4 }}>{label}</div>
+              <div style={{ fontSize:'var(--text-2xl)' }}>{icon}</div>
+              <div style={{ fontSize:'var(--text-sm)', fontWeight:700, marginTop:4 }}>{label}</div>
             </button>
           ))}
         </div>
