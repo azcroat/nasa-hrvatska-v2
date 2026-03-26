@@ -64,7 +64,7 @@ export default function LoginScreen({
         <div className="c" style={{padding:28,position:'relative',overflow:'hidden'}}>
           {/* Croatian flag gradient top bar */}
           <div style={{position:'absolute',top:0,left:0,right:0,height:3,background:'linear-gradient(90deg, #D40030, #C8980A, #003087)',borderRadius:'12px 12px 0 0'}} />
-          {authError && <div style={{background:authError.startsWith("✅")?'var(--success-bg)':'var(--error-bg)',border:authError.startsWith("✅")?'1px solid var(--success-b)':'1px solid var(--error-b)',borderRadius:10,padding:'12px 16px',color:authError.startsWith("✅")?'var(--success)':'var(--error)',fontSize:'var(--text-base)',fontWeight:600,marginBottom:16}}>{authError}</div>}
+          {authError && <div role="alert" aria-live="assertive" style={{background:authError.startsWith("✅")?'var(--success-bg)':'var(--error-bg)',border:authError.startsWith("✅")?'1px solid var(--success-b)':'1px solid var(--error-b)',borderRadius:10,padding:'12px 16px',color:authError.startsWith("✅")?'var(--success)':'var(--error)',fontSize:'var(--text-base)',fontWeight:600,marginBottom:16}}>{authError}</div>}
           {/* Google Sign-In — shown on both login and register screens */}
           <button
             onClick={doGoogleLogin}
