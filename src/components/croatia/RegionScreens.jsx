@@ -282,43 +282,89 @@ export function RecipesScreen({ goBack }) {
   );
 }
 
+const CITY_PHOTOS = {
+  dubrovnik: 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=80&fit=crop&auto=format',
+  split: 'https://images.unsplash.com/photo-1555993539-1732b0258235?w=800&q=80&fit=crop&auto=format',
+  zagreb: 'https://images.unsplash.com/photo-1555952517-2e8e729e0b44?w=800&q=80&fit=crop&auto=format',
+  zadar: 'https://images.unsplash.com/photo-1587974928442-77dc3e0dba72?w=800&q=80&fit=crop&auto=format',
+  rovinj: 'https://images.unsplash.com/photo-1622178416624-0e4478c27547?w=800&q=80&fit=crop&auto=format',
+  plitvice: 'https://images.unsplash.com/photo-1555881398-9d4f51f66400?w=800&q=80&fit=crop&auto=format',
+  hvar: 'https://images.unsplash.com/photo-1600197930954-4c07b2e7c41b?w=800&q=80&fit=crop&auto=format',
+  sibenik: 'https://images.unsplash.com/photo-1602002418082-a4443e081dd1?w=800&q=80&fit=crop&auto=format',
+  osijek: 'https://images.unsplash.com/photo-1555993539-1732b0258235?w=800&q=80&fit=crop&auto=format',
+  varazdin: 'https://images.unsplash.com/photo-1555952517-2e8e729e0b44?w=800&q=80&fit=crop&auto=format',
+  korcula: 'https://images.unsplash.com/photo-1622178416624-0e4478c27547?w=800&q=80&fit=crop&auto=format',
+  makarska: 'https://images.unsplash.com/photo-1600197930954-4c07b2e7c41b?w=800&q=80&fit=crop&auto=format',
+  default: 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=80&fit=crop&auto=format',
+};
+
 export function CityOfDayScreen({ goBack }) {
   const [tab, setTab] = useState("overview");
   const city = getCityOfDay();
   const tomorrow = (function(){const d=new Date();d.setDate(d.getDate()+1);return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});})();
   const tabs = [{id:"overview",label:"Overview",icon:"📖"},{id:"history",label:"History",icon:"🏛️"},{id:"vocab",label:"Vocabulary",icon:"💬"},{id:"facts",label:"Fast Facts",icon:"⚡"}];
 
+  const cityKey = (city.id || city.name || '').toLowerCase();
+  const photoUrl = CITY_PHOTOS[cityKey] || CITY_PHOTOS.default;
+
   return (
     <div className="scr-wrap">
-      {/* Hero */}
-      <div style={{marginBottom:20,borderRadius:20,overflow:"hidden",boxShadow:"0 8px 32px rgba(0,0,0,.15)"}}>
-        <div style={{background:"linear-gradient(145deg,"+city.color+"dd,"+city.color+")",padding:"28px 20px 20px",position:"relative"}}>
-          <div style={{position:"absolute",top:16,right:16,background:"rgba(0,0,0,.25)",borderRadius:20,padding:"4px 10px",fontSize:10,fontWeight:800,color:"white",letterSpacing:"0.06em"}}>
-            CITY OF THE DAY
+      {/* Photo header */}
+      <div style={{
+        position: 'relative',
+        height: 200,
+        background: `linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%), url(${photoUrl}) center/cover no-repeat`,
+        borderRadius: '0 0 20px 20px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        padding: '0 16px 16px',
+        marginBottom: 16,
+        overflow: 'hidden',
+      }}>
+        {/* Back button */}
+        <button onClick={goBack} style={{
+          position: 'absolute', top: 12, left: 12,
+          background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)',
+          border: '1px solid rgba(255,255,255,0.2)', borderRadius: 20,
+          color: '#fff', padding: '6px 12px', fontSize: 13, cursor: 'pointer',
+        }}>← Back</button>
+
+        {/* City name overlay */}
+        <div style={{color: '#fff'}}>
+          <div style={{fontSize: 11, fontWeight: 600, opacity: 0.8, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4}}>
+            City of the Day
           </div>
-          <div style={{fontSize:48,marginBottom:8}}>{city.icon}</div>
-          <div style={{fontSize:26,fontWeight:900,color:"white",letterSpacing:"-.02em",lineHeight:1.15}}>{city.name}</div>
-          <div style={{fontSize:13,color:"rgba(255,255,255,.75)",marginTop:4,fontWeight:600}}>{city.region} · Croatia</div>
-          <div style={{marginTop:10,display:"inline-block",background:"rgba(255,255,255,.18)",borderRadius:20,padding:"5px 12px",fontSize:12,fontWeight:700,color:"white",fontStyle:"italic"}}>
-            "{city.tagline}"
-          </div>
-        </div>
-        <div style={{background:"rgba(0,0,0,.6)",padding:"10px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div style={{fontSize:11,color:"rgba(255,255,255,.7)"}}>🔄 New city tomorrow — {tomorrow}</div>
-          <div style={{fontSize:11,color:"rgba(255,255,255,.5)",fontWeight:600}}>{CROATIAN_CITIES.length} cities in rotation</div>
+          <div style={{fontSize: 24, fontWeight: 900}}>{city.icon} {city.name}</div>
+          <div style={{fontSize: 13, opacity: 0.85, marginTop: 2}}>{city.region || city.subtitle || ''}</div>
         </div>
       </div>
 
       {/* Tab bar */}
-      <div style={{display:"flex",gap:0,marginBottom:20,borderBottom:"2px solid #f1f5f9"}}>
+      <div style={{display:"flex",gap:6,marginBottom:20,paddingBottom:4,overflowX:"auto"}}>
         {tabs.map(function(t){
           const active=tab===t.id;
           return (
             <button key={t.id} onClick={function(){setTab(t.id)}}
-              style={{flex:1,padding:"10px 6px",border:"none",borderBottom:active?"2.5px solid "+city.color:"2.5px solid transparent",
-                background:"transparent",fontSize:11,fontWeight:active?800:500,
-                color:active?city.color:"#78716c",cursor:"pointer",transition:"all .18s",
-                marginBottom:"-2px",whiteSpace:"nowrap"}}>
+              style={active ? {
+                background: city.color ? `linear-gradient(135deg, ${city.color}, ${city.color}dd)` : 'linear-gradient(135deg,#0e7490,#164e63)',
+                color: '#fff',
+                borderRadius: 20,
+                padding: '6px 14px',
+                fontWeight: 700,
+                fontSize: 12,
+                border: 'none',
+                cursor: 'pointer',
+              } : {
+                background: 'none',
+                color: 'var(--subtext)',
+                borderRadius: 20,
+                padding: '6px 14px',
+                fontWeight: 600,
+                fontSize: 12,
+                border: 'none',
+                cursor: 'pointer',
+              }}>
               {t.icon} {t.label}
             </button>
           );

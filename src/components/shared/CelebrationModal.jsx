@@ -26,8 +26,8 @@ function playSuccessSound() {
 
 // ── Confetti particle generator ───────────────────────────────────────────────
 const COLORS = [
-  '#e11d48', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6',
-  '#ec4899', '#06b6d4', '#f97316', '#84cc16', '#facc15',
+  '#dc2626', '#ffffff', '#f59e0b', '#dc2626', '#ffffff',
+  '#f59e0b', '#dc2626', '#ffffff', '#f59e0b', '#dc2626',
 ];
 const SHAPES = ['circle', 'rect', 'triangle', 'star'];
 
@@ -76,21 +76,20 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
     };
     requestAnimationFrame(frame);
 
-    // Count up XP
+    // Count up XP with eased requestAnimationFrame
     const target = xp || 0;
-    const dur = 800;
-    const step = 16;
-    const steps = dur / step;
-    let current = 0;
-    const iv = setInterval(() => {
-      current += target / steps;
-      if (current >= target) {
-        setDisplayXP(target);
-        clearInterval(iv);
-      } else {
-        setDisplayXP(Math.round(current));
-      }
-    }, step);
+    const duration = 800;
+    const start = Date.now();
+    let rafId;
+    const tick = () => {
+      const elapsed = Date.now() - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplayXP(Math.round(eased * target));
+      if (progress < 1) { rafId = requestAnimationFrame(tick); }
+    };
+    rafId = requestAnimationFrame(tick);
 
     // Phases
     const t1 = setTimeout(() => setPhase('reveal'), 200);
@@ -101,7 +100,7 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
     const t3 = setTimeout(() => setShowMomentum(false), 7000);
 
     return () => {
-      clearInterval(iv);
+      cancelAnimationFrame(rafId);
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
@@ -140,6 +139,7 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
       role="dialog"
       aria-modal="true"
       aria-label="Lesson complete — Odlično!"
+      className="anim-bounce-in"
       onClick={onClose}
       style={{
         position: 'fixed',
@@ -309,6 +309,7 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
         >
           <span style={{ fontSize: 24 }}>⭐</span>
           <span
+            className="anim-count-up-pop"
             style={{
               fontSize: 26,
               fontWeight: 900,
@@ -318,7 +319,7 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
               textAlign: 'center',
             }}
           >
-            +{displayXP} XP
+            {displayXP > 0 ? `+${displayXP}` : '+0'} XP
           </span>
         </div>
 

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { H, speak, srMark } from '../../data.jsx';
 
 // Sentence bank — fill-in-the-blank Croatian sentences covering cases, prepositions, and grammar
@@ -61,6 +61,7 @@ export default function ClozeEngine({ goBack, award }) {
   const [showHint, setShowHint] = useState(false);
   const [typingMode, setTypingMode] = useState(false);
   const [typedAnswer, setTypedAnswer] = useState('');
+  const [feedbackAnim, setFeedbackAnim] = useState(null); // 'correct' | 'wrong' | null
 
   const q = questions[qi];
   // Shuffle options once per question
@@ -76,8 +77,12 @@ export default function ClozeEngine({ goBack, award }) {
       setScore(s => s + 1);
       srMark(q.blank, true);
       speak(q.sentence);
+      setFeedbackAnim('correct');
+      setTimeout(() => setFeedbackAnim(null), 500);
     } else {
       srMark(q.blank, false);
+      setFeedbackAnim('wrong');
+      setTimeout(() => setFeedbackAnim(null), 400);
     }
   }
 
@@ -91,6 +96,7 @@ export default function ClozeEngine({ goBack, award }) {
       setSelected(null);
       setShowHint(false);
       setTypedAnswer('');
+      setFeedbackAnim(null);
     }
   }
 
@@ -194,7 +200,7 @@ export default function ClozeEngine({ goBack, award }) {
       </div>
 
       {/* Sentence card */}
-      <div style={{
+      <div key={qi} className="anim-spring-in" style={{
         background: 'var(--card)', border: '1.5px solid var(--card-b)',
         borderRadius: 16, padding: '24px 20px', marginBottom: 16, textAlign: 'center',
       }}>
@@ -237,12 +243,15 @@ export default function ClozeEngine({ goBack, award }) {
         </button>
       )}
       {isAnswered && (
-        <div style={{
-          background: isCorrect ? '#f0fdf4' : '#fff1f2',
-          border: `1.5px solid ${isCorrect ? '#86efac' : '#fca5a5'}`,
-          borderRadius: 12, padding: '10px 14px', marginBottom: 12, fontSize: 12, fontWeight: 700,
-          color: isCorrect ? '#166534' : '#991b1b',
-        }}>
+        <div
+          className={feedbackAnim === 'correct' ? 'anim-bounce-in' : feedbackAnim === 'wrong' ? 'anim-wrong' : ''}
+          style={{
+            background: isCorrect ? '#f0fdf4' : '#fff1f2',
+            border: `1.5px solid ${isCorrect ? '#86efac' : '#fca5a5'}`,
+            borderRadius: 12, padding: '10px 14px', marginBottom: 12, fontSize: 12, fontWeight: 700,
+            color: isCorrect ? '#166534' : '#991b1b',
+          }}
+        >
           {isCorrect ? '✓ Correct! ' : `✗ The answer was "${q.blank}". `}
           <span style={{ fontWeight: 600, color: 'var(--subtext)' }}>{q.hint}</span>
         </div>

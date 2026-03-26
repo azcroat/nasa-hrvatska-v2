@@ -12,6 +12,8 @@ export default function Flashcards({ pool, goBack, award }) {
   const [known, setKnown] = useState(0);
   const [missed, setMissed] = useState([]);
   const [done, setDone] = useState(false);
+  const [correctAnim, setCorrectAnim] = useState(false);
+  const [wrongAnim, setWrongAnim] = useState(false);
   const cardRef = useRef(null);
   const knowBtnRef = useRef(null);
 
@@ -87,11 +89,11 @@ export default function Flashcards({ pool, goBack, award }) {
     <div className="scr-wrap">
       {H("🃏 Flashcards","Tap card to flip, then choose below.")}
       <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>
-        <div style={{fontSize:14,fontWeight:700}}>{idx+1} / {activePool.length}</div>
+        <span key={idx} className="anim-fade-up" style={{fontSize:14,fontWeight:700}}>{idx+1} / {activePool.length}</span>
         <div style={{fontSize:14,fontWeight:700,color:"#16a34a"}}>✅ Know: {known}</div>
       </div>
       <Bar v={idx+1} mx={activePool.length} h={6} color="#f59e0b" />
-      <div className="fc-scene">
+      <div className={`fc-scene${correctAnim ? ' anim-bounce-in' : ''}${wrongAnim ? ' anim-wrong' : ''}`}>
         <div
           ref={cardRef}
           className={`fc-card${flipped?" flipped":""}`}
@@ -154,12 +156,16 @@ export default function Flashcards({ pool, goBack, award }) {
                   const correct = q >= 3;
                   srMark(activePool[idx][0], correct);
                   if (correct) {
+                    setCorrectAnim(true);
+                    setTimeout(() => setCorrectAnim(false), 500);
                     const newKnown = known + 1;
                     setKnown(newKnown);
                     setFlipped(false);
                     if (idx < activePool.length - 1) { setIdx(i => i + 1); }
                     else { finish(newKnown); }
                   } else {
+                    setWrongAnim(true);
+                    setTimeout(() => setWrongAnim(false), 400);
                     setMissed(m => [...m, activePool[idx]]);
                     setFlipped(false);
                     if (idx < activePool.length - 1) { setIdx(i => i + 1); }
