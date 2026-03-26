@@ -52,7 +52,9 @@ export default function StreakMilestoneModal({ days, onClose }) {
   return (
     <div
       role="dialog" aria-modal="true"
+      aria-label={msg.title}
       onClick={onClose}
+      onKeyDown={e => { if (e.key === 'Escape') { e.preventDefault(); onClose(); } }}
       style={{ position:'fixed', inset:0, zIndex:99999, display:'flex', alignItems:'center', justifyContent:'center',
         background:'rgba(0,0,0,0.6)', backdropFilter:'blur(6px)' }}
     >

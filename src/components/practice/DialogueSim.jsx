@@ -171,10 +171,25 @@ const SCENARIOS = [
   },
 ];
 
+// Build a shuffled options array for a single turn; returns { opts, correctIdx }
+function shuffleTurnOpts(turn) {
+  const indices = turn.opts.map((_, i) => i);
+  // Fisher-Yates shuffle on the index array
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  const shuffledOpts = indices.map(i => turn.opts[i]);
+  const correctIdx = indices.indexOf(turn.answer);
+  return { opts: shuffledOpts, correctIdx };
+}
+
 export default function DialogueSim({ award }) {
   const finishFired = useRef(false);
   const [scenario, setScenario] = useState(null);
   const [turnIdx, setTurnIdx] = useState(0);
+  // shuffledTurns: array of { opts, correctIdx } parallel to scenario.turns
+  const [shuffledTurns, setShuffledTurns] = useState([]);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [selected, setSelected] = useState(-1);
@@ -183,6 +198,7 @@ export default function DialogueSim({ award }) {
   function startScenario(s) {
     finishFired.current = false;
     setScenario(s);
+    setShuffledTurns(s.turns.map(shuffleTurnOpts));
     setTurnIdx(0);
     setScore(0);
     setAnswered(false);
@@ -194,7 +210,7 @@ export default function DialogueSim({ award }) {
     if (answered) return;
     setSelected(i);
     setAnswered(true);
-    if (i === scenario.turns[turnIdx].answer) {
+    if (i === shuffledTurns[turnIdx].correctIdx) {
       setScore(sc => sc + 1);
     }
   }
@@ -204,7 +220,7 @@ export default function DialogueSim({ award }) {
     if (nextIdx >= scenario.turns.length) {
       if (!finishFired.current) {
         finishFired.current = true;
-        if (award) award((score + (selected === scenario.turns[turnIdx].answer ? 1 : 0)) * 6);
+        if (award) award((score + (selected === shuffledTurns[turnIdx].correctIdx ? 1 : 0)) * 6);
       }
       setDone(true);
     } else {
@@ -221,6 +237,7 @@ export default function DialogueSim({ award }) {
     setSelected(-1);
     setTurnIdx(0);
     setScore(0);
+    setShuffledTurns([]);
   }
 
   // --- MENU SCREEN ---
@@ -303,7 +320,8 @@ export default function DialogueSim({ award }) {
 
   // --- CONVERSATION SCREEN ---
   const turn = scenario.turns[turnIdx];
-  const isCorrect = selected === turn.answer;
+  const shuffled = shuffledTurns[turnIdx] || { opts: turn.opts, correctIdx: turn.answer };
+  const isCorrect = selected === shuffled.correctIdx;
 
   return (
     <div className="scr-wrap">
@@ -333,19 +351,19 @@ export default function DialogueSim({ award }) {
         Your response:
       </div>
 
-      {/* Options */}
+      {/* Options — rendered from shuffled order */}
       <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:16}}>
-        {turn.opts.map((opt, i) => {
+        {shuffled.opts.map((opt, i) => {
           let bg = "var(--card)";
           let border = "1.5px solid var(--card-b)";
           let color = "var(--heading)";
 
           if (answered) {
-            if (i === turn.answer) {
+            if (i === shuffled.correctIdx) {
               bg = "#dcfce7";
               border = "1.5px solid #86efac";
               color = "#166534";
-            } else if (i === selected && i !== turn.answer) {
+            } else if (i === selected && i !== shuffled.correctIdx) {
               bg = "#fee2e2";
               border = "1.5px solid #fca5a5";
               color = "#991b1b";
@@ -380,10 +398,10 @@ export default function DialogueSim({ award }) {
                 width:22,
                 height:22,
                 borderRadius:"50%",
-                background: answered && i === turn.answer ? "#86efac"
-                  : answered && i === selected && i !== turn.answer ? "#fca5a5"
+                background: answered && i === shuffled.correctIdx ? "#86efac"
+                  : answered && i === selected && i !== shuffled.correctIdx ? "#fca5a5"
                   : "var(--bar-bg)",
-                color: answered && (i === turn.answer || (i === selected && i !== turn.answer)) ? "#fff" : "var(--subtext)",
+                color: answered && (i === shuffled.correctIdx || (i === selected && i !== shuffled.correctIdx)) ? "#fff" : "var(--subtext)",
                 fontSize:11,
                 fontWeight:800,
                 textAlign:"center",
@@ -392,7 +410,7 @@ export default function DialogueSim({ award }) {
                 flexShrink:0,
                 verticalAlign:"middle",
               }}>
-                {answered && i === turn.answer ? "✓" : answered && i === selected && i !== turn.answer ? "✗" : String.fromCharCode(65 + i)}
+                {answered && i === shuffled.correctIdx ? "✓" : answered && i === selected && i !== shuffled.correctIdx ? "✗" : String.fromCharCode(65 + i)}
               </span>
               {opt}
             </button>

@@ -7,7 +7,7 @@ import { speak } from '../../lib/audio.js';
 // ─── Scene SVG Illustrations ─────────────────────────────────────────────────
 
 const SVG_kitchen = (
-  <svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg" style={{ position:'absolute', inset:0, width:'100%', height:'100%' }}>
+  <svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ position:'absolute', inset:0, width:'100%', height:'100%' }}>
     {/* Sky/wall */}
     <rect width="400" height="320" fill="#fef9f0"/>
     {/* Floor */}
@@ -70,7 +70,7 @@ const SVG_kitchen = (
 );
 
 const SVG_market = (
-  <svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg" style={{ position:'absolute', inset:0, width:'100%', height:'100%' }}>
+  <svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ position:'absolute', inset:0, width:'100%', height:'100%' }}>
     {/* Sky */}
     <rect width="400" height="320" fill="#e8f5e9"/>
     {/* Ground */}
@@ -127,7 +127,7 @@ const SVG_market = (
 );
 
 const SVG_cafe = (
-  <svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg" style={{ position:'absolute', inset:0, width:'100%', height:'100%' }}>
+  <svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ position:'absolute', inset:0, width:'100%', height:'100%' }}>
     {/* Wall */}
     <rect width="400" height="320" fill="#fff8f0"/>
     {/* Floor */}
@@ -195,7 +195,7 @@ const SVG_cafe = (
 );
 
 const SVG_beach = (
-  <svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg" style={{ position:'absolute', inset:0, width:'100%', height:'100%' }}>
+  <svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ position:'absolute', inset:0, width:'100%', height:'100%' }}>
     {/* Sky */}
     <rect width="400" height="320" fill="#87ceeb"/>
     {/* Gradient sky */}
@@ -259,7 +259,7 @@ const SVG_beach = (
 );
 
 const SVG_livingroom = (
-  <svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg" style={{ position:'absolute', inset:0, width:'100%', height:'100%' }}>
+  <svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ position:'absolute', inset:0, width:'100%', height:'100%' }}>
     {/* Wall */}
     <rect width="400" height="320" fill="#f3e5f5"/>
     {/* Floor */}
@@ -341,7 +341,7 @@ const SVG_livingroom = (
 );
 
 const SVG_classroom = (
-  <svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg" style={{ position:'absolute', inset:0, width:'100%', height:'100%' }}>
+  <svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ position:'absolute', inset:0, width:'100%', height:'100%' }}>
     {/* Wall */}
     <rect width="400" height="320" fill="#e3f2fd"/>
     {/* Floor */}
@@ -416,7 +416,7 @@ const SVG_classroom = (
 );
 
 const SVG_city = (
-  <svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg" style={{ position:'absolute', inset:0, width:'100%', height:'100%' }}>
+  <svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ position:'absolute', inset:0, width:'100%', height:'100%' }}>
     {/* Sky */}
     <rect width="400" height="320" fill="#87ceeb"/>
     <rect width="400" height="200" fill="#b0d4f1" opacity="0.5"/>
@@ -511,7 +511,7 @@ const SVG_city = (
 );
 
 const SVG_home = (
-  <svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg" style={{ position:'absolute', inset:0, width:'100%', height:'100%' }}>
+  <svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ position:'absolute', inset:0, width:'100%', height:'100%' }}>
     {/* Sky */}
     <rect width="400" height="320" fill="#bbdefb"/>
     {/* Clouds */}
@@ -1060,7 +1060,7 @@ function ItemButton({ item, discovered, isActive, isQuiz, onTap }) {
 
   if (discovered) {
     return (
-      <button onClick={onTap} style={{
+      <button onClick={onTap} aria-label={`${item.hr} — ${item.en}`} style={{
         ...baseStyle,
         background: isActive ? '#fff' : 'rgba(255,255,255,0.92)',
         boxShadow: isActive
@@ -1082,6 +1082,7 @@ function ItemButton({ item, discovered, isActive, isQuiz, onTap }) {
   const showQuizMark = isQuiz;
   return (
     <button onClick={onTap}
+      aria-label="Undiscovered item — tap to reveal"
       className="vs-pulse-anim"
       style={{
         ...baseStyle,
@@ -1114,7 +1115,7 @@ function ItemPopup({ item, scene, isAdded, isQuiz, quizRevealed, onClose, onSpea
         animation:'vs-popup-in 0.28s cubic-bezier(.4,0,.2,1)',
       }}>
         {/* Close */}
-        <button onClick={onClose} style={{
+        <button onClick={onClose} aria-label="Close" style={{
           position:'absolute', top:12, right:14,
           background:'none', border:'none', cursor:'pointer',
           fontSize:20, color:'#78716c', lineHeight:1, padding:4,

@@ -5,7 +5,7 @@ const TABS = [
   { id: "home",     label: "Home" },
   { id: "learn",    label: "Learn" },
   { id: "practice", label: "Practice" },
-  { id: "croatia",  label: "Croatia" },
+  { id: "croatia",  label: "Culture" },
   { id: "profile",  label: "Profile" },
 ];
 

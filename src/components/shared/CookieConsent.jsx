@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { initPostHog } from '../../main.jsx';
 
 const COOKIE_KEY = 'cookie_consent_v1';
 
@@ -7,13 +8,17 @@ export default function CookieConsent() {
 
   if (!visible) return null;
 
-  function accept() {
+  function acceptAll() {
     localStorage.setItem(COOKIE_KEY, 'accepted');
+    localStorage.setItem('cookieConsent', 'accepted');
+    initPostHog();
     setVisible(false);
   }
 
-  function decline() {
-    localStorage.setItem(COOKIE_KEY, 'declined');
+  function essentialOnly() {
+    localStorage.setItem(COOKIE_KEY, 'essential');
+    localStorage.setItem('cookieConsent', 'essential');
+    // PostHog is NOT initialized — analytics cookies declined
     setVisible(false);
   }
 
@@ -28,7 +33,8 @@ export default function CookieConsent() {
     }} role="dialog" aria-label="Cookie consent">
       <div style={{ flex: 1, minWidth: 240, fontSize: 14, lineHeight: 1.5 }}>
         🍪 We use essential cookies for authentication and local progress saving.
-        No tracking or advertising cookies.{' '}
+        We also use PostHog analytics cookies to understand how the app is used.
+        You can decline analytics while keeping essential functionality.{' '}
         <button
           onClick={() => window.open('#/privacy', '_blank')}
           style={{ background: 'none', border: 'none', color: '#38bdf8', cursor: 'pointer', fontSize: 14, padding: 0, textDecoration: 'underline' }}
@@ -37,16 +43,16 @@ export default function CookieConsent() {
         </button>
       </div>
       <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
-        <button onClick={decline} style={{
+        <button onClick={essentialOnly} style={{
           padding: '8px 18px', borderRadius: 8, border: '1px solid #475569',
           background: 'transparent', color: '#94a3b8', cursor: 'pointer',
           fontSize: 13, fontWeight: 700, fontFamily: "'Outfit', sans-serif",
-        }}>Decline</button>
-        <button onClick={accept} style={{
+        }}>Essential only</button>
+        <button onClick={acceptAll} style={{
           padding: '8px 18px', borderRadius: 8, border: 'none',
           background: '#0e7490', color: '#fff', cursor: 'pointer',
           fontSize: 13, fontWeight: 700, fontFamily: "'Outfit', sans-serif",
-        }}>Accept</button>
+        }}>Accept all</button>
       </div>
     </div>
   );

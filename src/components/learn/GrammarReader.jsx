@@ -144,7 +144,7 @@ function hasPunct(w) { return /[.,!?;:"""'()]$/.test(w); }
 
 // ─── Inline style tag ─────────────────────────────────────────────────────────
 const STYLE = `
-.gr-word { cursor: pointer; border-radius: 3px; transition: background .12s; display: inline; }
+.gr-word { border-radius: 3px; transition: background .12s; display: inline; background: none; padding: 0; font: inherit; color: inherit; }
 .gr-word:hover { background: rgba(99,102,241,.12); }
 .gr-word.gr-analyzed { border-bottom: 2px solid var(--accent); }
 .gr-word.gr-loading { opacity: .55; }
@@ -157,12 +157,15 @@ function WordToken({ word, cache, loading, onTap }) {
   const analyzed = !!cache[key];
   const isLoading = loading === key;
   return (
-    <span
+    <button
       className={`gr-word${analyzed ? ' gr-analyzed' : ''}${isLoading ? ' gr-loading' : ''}`}
       onClick={() => onTap(word)}
+      tabIndex={0}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTap(word); } }}
+      aria-label={`Analyze word: ${key}`}
     >
       {word}
-    </span>
+    </button>
   );
 }
 
@@ -180,6 +183,9 @@ function AnalysisSheet({ word, data, onClose }) {
       }}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Word analysis"
         onClick={e => e.stopPropagation()}
         style={{
           width: '100%', maxHeight: '70vh', overflowY: 'auto',

@@ -694,7 +694,7 @@ const SECTIONS = [
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function SlangScreen({ goBack, award }) {
-  const [gated, setGated]   = useState(true);
+  const [gated, setGated]   = useState(() => localStorage.getItem('slangAgeConfirmed') !== 'true');
   const [activeSection, setActiveSection] = useState(() => {
     const init = localStorage.getItem('slangInitSection');
     if (init) { localStorage.removeItem('slangInitSection'); return init; }
@@ -720,6 +720,7 @@ export default function SlangScreen({ goBack, award }) {
   const [quizXpGiven, setQuizXpGiven] = useState(false);
 
   function handleUnlock() {
+    localStorage.setItem('slangAgeConfirmed', 'true');
     setGated(false);
     if (award && !xpAwarded) { award(15); setXpAwarded(true); }
   }
@@ -778,7 +779,7 @@ export default function SlangScreen({ goBack, award }) {
     if (award && !quizXpGiven && xp > 0) { award(xp); setQuizXpGiven(true); }
   }
 
-  // ── Gate ──────────────────────────────────────────────────────────────────
+  // ── Age Gate ──────────────────────────────────────────────────────────────
   if (gated) {
     return (
       <div className="scr-wrap" style={{ paddingBottom: 100 }}>
@@ -787,11 +788,14 @@ export default function SlangScreen({ goBack, award }) {
           background: 'linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)',
           borderRadius: 24, color: '#fff', marginBottom: 20,
         }}>
-          <div style={{ fontSize: 64, marginBottom: 16 }}>🤬</div>
-          <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 26, marginBottom: 8, color: '#fff' }}>
-            Psovanje kao Umjetnost
+          <div style={{ fontSize: 64, marginBottom: 16 }}>🔞</div>
+          <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 24, marginBottom: 12, color: '#fff' }}>
+            Age Confirmation Required
           </h2>
-          <p style={{ fontSize: 14, opacity: .75, marginBottom: 20 }}><em>Swearing as an artform</em></p>
+          <p style={{ fontSize: 15, lineHeight: 1.6, opacity: .9, marginBottom: 24 }}>
+            This section contains adult language.<br />
+            <strong>Are you 18 or older?</strong>
+          </p>
           <div style={{
             background: 'rgba(255,255,255,.08)', borderRadius: 14,
             padding: '16px 20px', marginBottom: 28, fontSize: 13,
@@ -811,23 +815,28 @@ export default function SlangScreen({ goBack, award }) {
             <div>🗺️ Zagreb vs Split — regional comparison</div>
             <div>🎨 The Art of the Curse — grammar masterclass</div>
           </div>
-          <button onClick={handleUnlock} style={{
-            padding: '16px 40px', borderRadius: 16, border: 'none', cursor: 'pointer',
-            background: 'linear-gradient(135deg,#dc2626,#b91c1c)',
-            color: '#fff', fontSize: 16, fontWeight: 900,
-            fontFamily: "'Outfit',sans-serif",
-            boxShadow: '0 8px 32px rgba(220,38,38,.4)',
-          }}>
-            I'm an adult — Let's learn 🔥
-          </button>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button onClick={handleUnlock} style={{
+              padding: '14px 32px', borderRadius: 14, border: 'none', cursor: 'pointer',
+              background: 'linear-gradient(135deg,#dc2626,#b91c1c)',
+              color: '#fff', fontSize: 15, fontWeight: 900,
+              fontFamily: "'Outfit',sans-serif",
+              boxShadow: '0 8px 32px rgba(220,38,38,.4)',
+            }}>
+              Yes, continue
+            </button>
+            <button onClick={goBack} style={{
+              padding: '14px 32px', borderRadius: 14, cursor: 'pointer',
+              background: 'rgba(255,255,255,.12)',
+              border: '1.5px solid rgba(255,255,255,.25)',
+              color: '#fff', fontSize: 15, fontWeight: 700,
+              fontFamily: "'Outfit',sans-serif",
+            }}>
+              No, go back
+            </button>
+          </div>
           <div style={{ marginTop: 14, fontSize: 11, opacity: .5 }}>+15 XP for unlocking this module</div>
         </div>
-        <button onClick={goBack} style={{
-          width: '100%', padding: 14, background: 'none',
-          border: '1.5px solid var(--card-b)', borderRadius: 14,
-          color: 'var(--subtext)', fontSize: 14, fontWeight: 700,
-          cursor: 'pointer', fontFamily: "'Outfit',sans-serif",
-        }}>← Back</button>
       </div>
     );
   }
