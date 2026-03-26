@@ -405,29 +405,35 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
 
       {/* ── PROFILE HEADER (always visible) ── */}
       <div style={{
-        background: "linear-gradient(135deg,var(--info),#164e63)",
+        background: "linear-gradient(160deg,#030c1a 0%,#071830 30%,#0a2848 60%,#0d3562 100%)",
         borderRadius: 24, padding: "28px 20px 24px", marginBottom: 16,
         textAlign: "center", color: "var(--card)", position: "relative", overflow: "hidden",
-        boxShadow: "0 8px 32px rgba(14,116,144,.3)"
+        boxShadow: "0 16px 56px rgba(0,0,0,.45), 0 4px 16px rgba(0,0,0,.3)"
       }}>
-        <div style={{position:"absolute",top:-40,right:-40,width:160,height:160,background:"rgba(255,255,255,.05)",borderRadius:"50%",pointerEvents:"none"}}/>
-        <div style={{position:"absolute",bottom:-30,left:-30,width:100,height:100,background:"rgba(255,255,255,.04)",borderRadius:"50%",pointerEvents:"none"}}/>
+        {/* Šahovnica pattern */}
+        <div style={{position:"absolute",inset:0,backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Crect width='14' height='14' fill='rgba(212,0,48,0.04)'/%3E%3Crect x='14' y='14' width='14' height='14' fill='rgba(212,0,48,0.04)'/%3E%3C/svg%3E")`,pointerEvents:"none",borderRadius:"inherit"}}/>
+        {/* Radial glow */}
+        <div style={{position:"absolute",top:"-50%",left:"50%",transform:"translateX(-50%)",width:"120%",height:"100%",background:"radial-gradient(ellipse at 50% 20%, rgba(14,116,144,.28) 0%, transparent 65%)",pointerEvents:"none"}}/>
+        {/* Decorative circles */}
+        <div style={{position:"absolute",top:-50,right:-50,width:180,height:180,background:"rgba(14,116,144,.08)",borderRadius:"50%",pointerEvents:"none"}}/>
+        <div style={{position:"absolute",bottom:-40,left:-40,width:120,height:120,background:"rgba(212,0,48,.05)",borderRadius:"50%",pointerEvents:"none"}}/>
         <div style={{
           width: 84, height: 84, borderRadius: "50%",
-          background: "rgba(255,255,255,.18)", backdropFilter: "blur(10px)",
-          border: "3px solid rgba(255,255,255,.35)",
+          background: "rgba(255,255,255,.14)", backdropFilter: "blur(12px)",
+          border: "2px solid rgba(255,255,255,.28)",
+          boxShadow: "0 8px 32px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.2)",
           display: "flex", alignItems: "center", justifyContent: "center",
           margin: "0 auto 14px", fontSize: 38, fontWeight: 900, color: "var(--card)",
-          position: "relative"
+          position: "relative", zIndex: 1
         }}>
           {name ? name.charAt(0).toUpperCase() : "👤"}
         </div>
-        <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:'var(--text-xl)',color:"var(--card)",marginBottom:4,fontWeight:800,letterSpacing:"-.01em"}}>
+        <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:'var(--text-xl)',color:"#fff",marginBottom:4,fontWeight:800,letterSpacing:"-.01em",position:"relative",zIndex:1,textShadow:"0 2px 12px rgba(0,0,0,.5)"}}>
           {name || au?.d}
         </h2>
-        <CroatianKnight size={50} mood="happy" style={{margin:'8px auto 0', display:'block'}} />
-        <div style={{fontSize:'var(--text-sm)',opacity:.7,marginBottom:2,fontWeight:600}}>Level {level} Learner</div>
-        {au?.e && <div style={{fontSize:'var(--text-sm)',opacity:.5,marginTop:2}}>{au.e}</div>}
+        <CroatianKnight size={50} mood="happy" style={{margin:'8px auto 0', display:'block', position:'relative', zIndex:1}} />
+        <div style={{fontSize:'var(--text-sm)',opacity:.75,marginBottom:2,fontWeight:600,position:"relative",zIndex:1,color:"rgba(255,255,255,.8)"}}>Level {level} Learner</div>
+        {au?.e && <div style={{fontSize:'var(--text-sm)',opacity:.45,marginTop:2,position:"relative",zIndex:1}}>{au.e}</div>}
       </div>
 
       {/* ── SUB-TAB PILL SELECTOR ── */}
