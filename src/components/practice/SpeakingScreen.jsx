@@ -190,16 +190,16 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   return (
     <div className="scr-wrap">
       {H('🎤 Pronunciation Practice')}
-      <Bar v={sx + 1} mx={si.length} color="#4d7c0f" h={6} />
+      <Bar v={sx + 1} mx={si.length} color="var(--success)" h={6} />
       <div className="c" style={{textAlign:'center', marginTop:16}}>
-        <p style={{fontSize:36, fontWeight:800, fontFamily:"'Playfair Display',serif"}}>{sw[0]}</p>
-        {sw[2] && <p style={{fontSize:14, color:'#78716c', marginBottom:4}}>/{sw[2]}/</p>}
-        <p style={{fontSize:16, color:'#44403c', marginBottom:16}}>{sw[1]}</p>
+        <p style={{fontSize:'var(--text-4xl)', fontWeight:800, fontFamily:"'Playfair Display',serif"}}>{sw[0]}</p>
+        {sw[2] && <p style={{fontSize:'var(--text-base)', color:'var(--subtext)', marginBottom:4}}>/{sw[2]}/</p>}
+        <p style={{fontSize:'var(--text-lg)', color:'var(--body)', marginBottom:16}}>{sw[1]}</p>
         <div style={{display:'flex', gap:8, justifyContent:'center', marginBottom:16, flexWrap:'wrap'}}>
           <Spk text={sw[0]} label="Normal" />
           <button
             onClick={() => speakSlow(sw[0])}
-            style={{background:'rgba(77,124,15,.1)', border:'1px solid rgba(77,124,15,.2)', borderRadius:10, padding:'7px 12px', cursor:'pointer', fontSize:12, color:'#4d7c0f', fontWeight:700}}>
+            style={{background:'var(--success-bg)', border:'1px solid var(--success-b)', borderRadius:10, padding:'7px 12px', cursor:'pointer', fontSize:'var(--text-sm)', color:'var(--success)', fontWeight:700}}>
             🐢 Slow
           </button>
         </div>
@@ -211,37 +211,37 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
             <button
               onClick={listening ? stopMic : startMic}
               style={{
-                background: listening ? '#ef4444' : 'rgba(77,124,15,.15)',
-                border: `1.5px solid ${listening ? '#ef4444' : 'rgba(77,124,15,.4)'}`,
-                borderRadius: 12, padding: '10px 20px', cursor: 'pointer', fontSize: 14,
-                color: listening ? '#fff' : '#4d7c0f', fontWeight: 800,
+                background: listening ? 'var(--error)' : 'var(--success-bg)',
+                border: `1.5px solid ${listening ? 'var(--error)' : 'var(--success-b)'}`,
+                borderRadius: 12, padding: '10px 20px', cursor: 'pointer', fontSize: 'var(--text-base)',
+                color: listening ? '#fff' : 'var(--success)', fontWeight: 800,
                 animation: listening ? 'pulse 1s infinite' : undefined,
                 boxShadow: listening ? '0 0 0 4px rgba(239,68,68,.2)' : undefined,
               }}>
               {listening ? '🔴 Listening… (tap to stop)' : '🎙️ Tap to Speak'}
             </button>
             {listening && (
-              <div style={{fontSize:12, color:'#6b7280', marginTop:6, animation:'pulse 1.5s infinite'}}>
+              <div style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginTop:6, animation:'pulse 1.5s infinite'}}>
                 Speak "{sw[0]}" into your mic…
               </div>
             )}
             {recResult === 'match' && (
-              <div style={{color:'#4d7c0f', fontSize:15, fontWeight:800, marginTop:10, padding:'10px', background:'#f0fdf4', borderRadius:12, border:'1.5px solid #86efac'}}>
+              <div style={{color:'var(--success)', fontSize:'var(--text-md)', fontWeight:800, marginTop:10, padding:'10px', background:'var(--success-bg)', borderRadius:12, border:'1.5px solid var(--success-b)'}}>
                 🎯 Great pronunciation match!
               </div>
             )}
             {recResult === 'nomatch' && (
-              <div style={{color:'#ea580c', fontSize:14, fontWeight:600, marginTop:10, padding:'10px', background:'#fff7ed', borderRadius:12, border:'1.5px solid #fdba74'}}>
+              <div style={{color:'var(--warning)', fontSize:'var(--text-base)', fontWeight:600, marginTop:10, padding:'10px', background:'var(--warning-bg)', borderRadius:12, border:'1.5px solid var(--warning-b)'}}>
                 Close! Try again or use self-assessment below.
               </div>
             )}
             {(recResult === 'error' || recResult === 'timeout') && recMsg && (
-              <div style={{color:'#64748b', fontSize:13, marginTop:10, padding:'10px 14px', background:'#f8fafc', borderRadius:12, border:'1.5px solid #e2e8f0', textAlign:'left', lineHeight:1.5}}>
+              <div style={{color:'var(--subtext)', fontSize:'var(--text-sm)', marginTop:10, padding:'10px 14px', background:'var(--bar-bg)', borderRadius:12, border:'1.5px solid var(--card-b)', textAlign:'left', lineHeight:1.5}}>
                 ⚠️ {recMsg}
               </div>
             )}
             {langIdx > 0 && (
-              <div style={{fontSize:11, color:'#94a3b8', marginTop:6}}>
+              <div style={{fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:6}}>
                 Using {currentLang} recognition
               </div>
             )}
@@ -252,15 +252,15 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
                 background:'var(--card)', borderRadius:14,
                 border:'1.5px solid var(--inp-b)',
               }}>
-                <div style={{fontSize:12, fontWeight:800, color:'var(--heading)', marginBottom:10}}>
+                <div style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', marginBottom:10}}>
                   🎧 Compare your pronunciation:
                 </div>
                 <div style={{marginBottom:8}}>
-                  <div style={{fontSize:11, color:'var(--subtext)', fontWeight:700, marginBottom:4}}>You:</div>
+                  <div style={{fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:700, marginBottom:4}}>You:</div>
                   <audio src={recordingURL} controls style={{width:'100%', height:36}} />
                 </div>
                 <div style={{marginBottom:12}}>
-                  <div style={{fontSize:11, color:'var(--subtext)', fontWeight:700, marginBottom:4}}>Native speaker:</div>
+                  <div style={{fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:700, marginBottom:4}}>Native speaker:</div>
                   <Spk text={sw[0]} label="▶ Play native" />
                 </div>
                 <button
@@ -272,7 +272,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
                   }}
                   style={{
                     width:'100%', padding:'8px', borderRadius:10, border:'1.5px solid var(--inp-b)',
-                    background:'none', cursor:'pointer', fontSize:12, fontWeight:700,
+                    background:'none', cursor:'pointer', fontSize:'var(--text-sm)', fontWeight:700,
                     color:'var(--subtext)', fontFamily:"'Outfit',sans-serif",
                   }}
                 >
@@ -282,7 +282,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
             )}
           </div>
         ) : (
-          <div style={{fontSize:13, color:'#78716c', marginBottom:16, padding:'10px 14px', background:'#f8fafc', borderRadius:12, border:'1.5px solid #e2e8f0'}}>
+          <div style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:16, padding:'10px 14px', background:'var(--bar-bg)', borderRadius:12, border:'1.5px solid var(--card-b)'}}>
             Speech recognition is not supported in this browser. Use the self-assessment button below, or try Chrome on desktop/Android.
           </div>
         )}
@@ -290,7 +290,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
         <button className="b bs" onClick={() => { sSr('ok'); sSsc(s => s + 1); }}>
           👍 I Said It Correctly!
         </button>
-        {sr === 'ok' && <div style={{color:'#4d7c0f', fontSize:20, fontWeight:800, marginTop:12}}>✓ Great pronunciation!</div>}
+        {sr === 'ok' && <div style={{color:'var(--success)', fontSize:'var(--text-xl)', fontWeight:800, marginTop:12}}>✓ Great pronunciation!</div>}
         {sr === 'ok' && (
           <button
             className="b bp"
