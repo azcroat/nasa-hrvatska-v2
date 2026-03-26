@@ -299,7 +299,7 @@ export default function HomeTab({
           }}>
             <div className="bar-animated" style={{
               height:"100%",
-              background:"linear-gradient(90deg,#38bdf8,#7dd3fc)",
+              background:"linear-gradient(90deg,var(--info),#06b6d4)",
               borderRadius:10,
               width:xpPct+"%",
               transition:"width .9s cubic-bezier(.4,0,.2,1)",
@@ -339,6 +339,11 @@ export default function HomeTab({
                 ? <span style={{fontSize:13,fontWeight:900,color:"white",fontVariantNumeric:"tabular-nums"}}>{s.value}</span>
                 : <div className="skeleton" style={{width:36,height:16,borderRadius:6,opacity:.5}} />}
               <span style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,.65)"}} title={s.label==="mastered" ? "Words with 2+ correct reviews" : undefined}>{s.label}</span>
+              {s.label === "streak" && streak.count > 0 && (
+                <span style={{fontSize:9,fontWeight:700,color:"rgba(255,255,255,.75)",marginLeft:2,whiteSpace:"nowrap"}}>
+                  {streak.count >= 30 ? "Ne odustaješ! 🇭🇷" : streak.count >= 7 ? "Odlično!" : "Svaki dan!"}
+                </span>
+              )}
             </div>
             );
           })}
@@ -455,8 +460,8 @@ export default function HomeTab({
         })() : null;
         return (
           <div style={{
-            background: syncReady ? "linear-gradient(135deg,#f0fdf4,#dcfce7)" : "linear-gradient(135deg,#f8fafc,#f1f5f9)",
-            border: `1.5px solid ${syncReady ? "#86efac" : "#cbd5e1"}`,
+            background: syncReady ? "var(--success-bg)" : "var(--bar-bg)",
+            border: `1.5px solid ${syncReady ? "var(--success-b)" : "var(--card-b)"}`,
             borderRadius: 16, padding: "12px 16px", marginBottom: 16,
             display: "flex", alignItems: "center", gap: 12,
           }}>
@@ -468,10 +473,10 @@ export default function HomeTab({
               {syncReady ? "☁️" : "⏳"}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 800, color: syncReady ? "#15803d" : "#64748b", lineHeight: 1.2 }}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: syncReady ? "var(--success)" : "var(--subtext)", lineHeight: 1.2 }}>
                 {syncReady ? "✓ Progress backed up to cloud" : "Connecting to cloud…"}
               </div>
-              <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2, fontWeight: 500 }}>
+              <div style={{ fontSize: 11, color: "var(--subtext)", marginTop: 2, fontWeight: 500 }}>
                 {lastSaved ? `Last saved: ${lastSaved.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})} · ${lastSaved.toLocaleDateString()}` : syncReady ? "Saving now…" : "Please wait"}
               </div>
             </div>
@@ -503,15 +508,15 @@ export default function HomeTab({
           const done = questsDone[q.id];
           return (
             <div key={q.id} style={{
-              background: done ? '#f0fdf4' : 'var(--card)',
-              border: `1.5px solid ${done ? '#86efac' : 'var(--inp-b,#e2e8f0)'}`,
+              background: done ? 'var(--success-bg)' : 'var(--card)',
+              border: `1.5px solid ${done ? 'var(--success-b)' : 'var(--inp-b,#e2e8f0)'}`,
               borderRadius:14, padding:'12px 10px', textAlign:'center',
             }}>
               <div style={{fontSize:22, marginBottom:4}}>{q.icon}</div>
-              <div style={{fontSize:11, fontWeight:900, color: done ? '#16a34a' : 'var(--heading)', lineHeight:1.2, marginBottom:3}}>{q.name}</div>
+              <div style={{fontSize:11, fontWeight:900, color: done ? 'var(--success)' : 'var(--heading)', lineHeight:1.2, marginBottom:3}}>{q.name}</div>
               <div style={{fontSize:10, color:'var(--subtext)', fontWeight:600, marginBottom:6, lineHeight:1.3}}>{q.desc}</div>
               {done
-                ? <div style={{fontSize:11, color:'#16a34a', fontWeight:800}}>✓ +{q.xp} XP</div>
+                ? <div style={{fontSize:11, color:'var(--success)', fontWeight:800}}>✓ +{q.xp} XP</div>
                 : <div style={{fontSize:11, color:'var(--subtext)'}}>{q.xp} XP</div>
               }
             </div>
@@ -519,10 +524,10 @@ export default function HomeTab({
         })}
       </div>
       {allQuestsDone && (
-        <div style={{background:'linear-gradient(135deg,#f0fdf4,#dcfce7)',border:'1.5px solid #86efac',borderRadius:14,padding:'14px 16px',marginBottom:16,textAlign:'center',animation:'rise .4s'}}>
+        <div style={{background:'var(--success-bg)',border:'1.5px solid var(--success-b)',borderRadius:14,padding:'14px 16px',marginBottom:16,textAlign:'center',animation:'rise .4s'}}>
           <div style={{fontSize:20,marginBottom:4}}>🏆</div>
-          <div style={{fontSize:14,fontWeight:900,color:'#15803d'}}>Daily Mastery!</div>
-          <div style={{fontSize:12,color:'#166534',fontWeight:600}}>+50 XP bonus · All 5 quests complete</div>
+          <div style={{fontSize:14,fontWeight:900,color:'var(--success)'}}>Daily Mastery!</div>
+          <div style={{fontSize:12,color:'var(--success)',fontWeight:600}}>+50 XP bonus · All 5 quests complete</div>
         </div>
       )}
 
@@ -667,7 +672,7 @@ export default function HomeTab({
                     <div style={{ fontSize:11, fontWeight:900, color:c.color, lineHeight:1, fontVariantNumeric:'tabular-nums' }}>
                       {done ? '✓' : `${c.cur}/${c.goal}`}
                     </div>
-                    <div style={{ fontSize:9, color:'#94a3b8', fontWeight:700, textTransform:'uppercase', letterSpacing:'.04em', marginTop:3 }}>{c.label}</div>
+                    <div style={{ fontSize:9, color:'var(--subtext)', fontWeight:700, textTransform:'uppercase', letterSpacing:'.04em', marginTop:3 }}>{c.label}</div>
                     <div style={{ height:4, background:'var(--bar-bg)', borderRadius:3, overflow:'hidden', marginTop:6 }}>
                       <div style={{ height:'100%', width:pct+'%', background:c.color, borderRadius:3, transition:'width .6s ease' }} />
                     </div>
@@ -823,10 +828,10 @@ export default function HomeTab({
         <div style={{display:"flex",justifyContent:"flex-end",marginBottom:12}}>
           <button
             style={{
-              background:"#f0f9ff",
-              border:"1.5px solid #bae6fd",
+              background:"var(--bar-bg)",
+              border:"1.5px solid var(--card-b)",
               borderRadius:10,padding:"6px 14px",
-              fontSize:12,fontWeight:700,color:"#0e7490",
+              fontSize:12,fontWeight:700,color:"var(--body)",
               cursor:"pointer",fontFamily:"'Outfit',sans-serif",
               transition:"background .15s",
             }}
@@ -851,9 +856,9 @@ export default function HomeTab({
           <button
             style={{
               width:"100%",marginTop:12,padding:"14px 16px",
-              background:"#f0f9ff",borderRadius:14,
-              border:"1.5px solid #bae6fd",
-              fontSize:16,fontWeight:700,color:"#0c4a6e",
+              background:"var(--bar-bg)",borderRadius:14,
+              border:"1.5px solid var(--card-b)",
+              fontSize:16,fontWeight:700,color:"var(--heading)",
               cursor:"pointer",textAlign:"left",
               fontFamily:"'Outfit',sans-serif",
               display:"flex",justifyContent:"space-between",alignItems:"center",

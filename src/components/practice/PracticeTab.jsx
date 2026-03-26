@@ -4,11 +4,11 @@ import { H, V, LISTEN, UNJUMBLE, PREPDRILL, NUMTIME, getSR, getDueReviews } from
 function Section({ title, icon, count, defaultOpen = false, children }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div style={{ marginBottom:8 }}>
+    <div style={{ marginBottom:'var(--space-sm)' }}>
       <button
         onClick={() => setOpen(o => !o)}
         style={{
-          display:'flex', alignItems:'center', gap:10, width:'100%',
+          display:'flex', alignItems:'center', gap:'var(--space-sm)', width:'100%',
           padding:'13px 16px', borderRadius:14,
           background:'var(--card)', border:'1px solid var(--card-b)',
           cursor:'pointer', fontFamily:"'Outfit',sans-serif",
@@ -18,8 +18,8 @@ function Section({ title, icon, count, defaultOpen = false, children }) {
       >
         <span style={{ fontSize:18 }}>{icon}</span>
         <span style={{ flex:1, fontSize:14, fontWeight:800, color:'var(--heading)', textAlign:'left' }}>{title}</span>
-        <span style={{ fontSize:11, color:'var(--subtext)', fontWeight:600, background:'var(--bar-bg)', borderRadius:8, padding:'2px 8px' }}>{count}</span>
-        <span style={{ fontSize:11, color:'var(--subtext)', opacity:.5, marginLeft:4 }}>{open ? '▲' : '▼'}</span>
+        <span style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:600, background:'var(--bar-bg)', borderRadius:8, padding:'2px 8px' }}>{count}</span>
+        <span style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', opacity:.5, marginLeft:4 }}>{open ? '▲' : '▼'}</span>
       </button>
       {open && <div style={{ marginBottom:16 }}>{children}</div>}
     </div>
@@ -168,7 +168,7 @@ export default function PracticeTab({
 
   function ExRow({ items }) {
     return (
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+      <div className="g2">
         {items.map(([icon,label,screen,desc]) => (
           <button key={screen} className="tc"
             style={{ display:"flex", alignItems:"center", gap:12, padding:"14px", textAlign:"left" }}
@@ -178,7 +178,7 @@ export default function PracticeTab({
               {icon}
             </div>
             <div style={{ minWidth:0 }}>
-              <div style={{ fontSize:12, fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{label}</div>
+              <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{label}</div>
               <div style={{ fontSize:10, color:"var(--subtext)", marginTop:2, lineHeight:1.3 }}>{desc}</div>
             </div>
           </button>
@@ -267,10 +267,10 @@ export default function PracticeTab({
             display:"flex", alignItems:"center", justifyContent:"center", fontSize:22,
           }}>📅</div>
           <div style={{ flex:1, textAlign:"left" }}>
-            <div style={{ fontSize:14, fontWeight:900, color:"#fff" }}>
+            <div style={{ fontSize:'var(--text-base)', fontWeight:900, color:"#fff" }}>
               {dueReviews.length} word{dueReviews.length !== 1 ? "s" : ""} due for review
             </div>
-            <div style={{ fontSize:11, color:"rgba(255,255,255,.75)", marginTop:1, fontWeight:600 }}>
+            <div style={{ fontSize:'var(--text-xs)', color:"rgba(255,255,255,.75)", marginTop:1, fontWeight:600 }}>
               Tap to review now — spaced repetition keeps words in memory
             </div>
           </div>
@@ -281,10 +281,10 @@ export default function PracticeTab({
       {/* ── RECOMMENDED FOR YOU ─────────────────────────────────────────── */}
       <h3 className="sh">✨ Recommended for You</h3>
       {isNewUser ? (
-        <div style={{ background:"#f0f9ff", border:"1.5px solid #bae6fd", borderRadius:14, padding:"20px", marginBottom:24, textAlign:"center" }}>
+        <div style={{ background:"var(--bar-bg)", border:"1.5px solid var(--card-b)", borderRadius:14, padding:"20px", marginBottom:24, textAlign:"center" }}>
           <div style={{ fontSize:40, marginBottom:8 }}>🗺️</div>
-          <div style={{ fontSize:15, fontWeight:800, color:"#0369a1", marginBottom:6 }}>Start your first lesson</div>
-          <div style={{ fontSize:13, color:"#64748b", marginBottom:16, lineHeight:1.5 }}>
+          <div style={{ fontSize:15, fontWeight:800, color:"var(--heading)", marginBottom:6 }}>Start your first lesson</div>
+          <div style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:16, lineHeight:1.5 }}>
             Complete a lesson in the Learn tab to unlock personalized practice recommendations.
           </div>
           <button className="b bp" style={{ fontSize:14, padding:"12px 24px" }} onClick={() => setScr("learnpath")}>
@@ -293,34 +293,34 @@ export default function PracticeTab({
         </div>
       ) : (
         <>
-          <p style={{ fontSize:12, color:"var(--subtext)", marginTop:-6, marginBottom:12, fontWeight:500 }}>
+          <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginTop:-6, marginBottom:'var(--space-md)', fontWeight:500 }}>
             Picked based on your progress today
           </p>
           {goalItems && (
             <div style={{ marginBottom:16 }}>
-              <div style={{ fontSize:11, fontWeight:800, color:'#0e7490', letterSpacing:'.06em', textTransform:'uppercase', marginBottom:8 }}>
+              <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', letterSpacing:'.06em', textTransform:'uppercase', marginBottom:'var(--space-sm)' }}>
                 🎯 For your goal: {goalLabels[userGoal]}
               </div>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:16 }}>
+              <div className="g3" style={{ marginBottom:16 }}>
                 {goalItems.map((r, i) => (
                   <button key={i} className="tc"
                     style={{ textAlign:"center", padding:"16px 10px", background:r.color, border:`1.5px solid ${r.border}` }}
                     onClick={r.fn}>
                     <div style={{ fontSize:28, marginBottom:6 }}>{r.icon}</div>
-                    <div style={{ fontSize:12, fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{r.title}</div>
+                    <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{r.title}</div>
                     <div style={{ fontSize:10, color:"var(--subtext)", marginTop:4, lineHeight:1.3 }}>{r.desc}</div>
                   </button>
                 ))}
               </div>
             </div>
           )}
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:24 }}>
+          <div className="g3" style={{ marginBottom:24 }}>
             {recommendations.map((r, i) => (
               <button key={i} className="tc"
                 style={{ textAlign:"center", padding:"16px 10px", background:r.color, border:`1.5px solid ${r.border}` }}
                 onClick={r.fn}>
                 <div style={{ fontSize:28, marginBottom:6 }}>{r.icon}</div>
-                <div style={{ fontSize:12, fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{r.title}</div>
+                <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{r.title}</div>
                 <div style={{ fontSize:10, color:"var(--subtext)", marginTop:4, lineHeight:1.3 }}>{r.desc}</div>
               </button>
             ))}
@@ -329,14 +329,14 @@ export default function PracticeTab({
       )}
       {showGoalReminder && (
         <div style={{
-          background:'#f0f9ff', border:'1.5px solid #bae6fd',
+          background:'var(--bar-bg)', border:'1.5px solid var(--card-b)',
           borderRadius:12, padding:'12px 14px', marginBottom:16,
-          display:'flex', alignItems:'center', gap:10,
+          display:'flex', alignItems:'center', gap:'var(--space-sm)',
         }}>
           <span style={{fontSize:18}}>🎯</span>
           <div style={{flex:1}}>
-            <div style={{fontSize:12,fontWeight:700,color:'#0369a1'}}>Still working toward your goal?</div>
-            <div style={{fontSize:11,color:'#64748b',marginTop:2}}>Your goal is set to "{goalLabels[userGoal]}". Update it in Profile → Settings if needed.</div>
+            <div style={{fontSize:'var(--text-sm)',fontWeight:700,color:'var(--heading)'}}>Still working toward your goal?</div>
+            <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',marginTop:2}}>Your goal is set to "{goalLabels[userGoal]}". Update it in Profile → Settings if needed.</div>
           </div>
         </div>
       )}
@@ -351,8 +351,8 @@ export default function PracticeTab({
 
       {/* ── QUICK GAMES ─────────────────────────────────────────────────── */}
       <h3 className="sh">⚡ Quick Games</h3>
-      <p style={{ fontSize:12, color:"var(--subtext)", marginTop:-6, marginBottom:12, fontWeight:500 }}>Tap any to start instantly</p>
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:24 }}>
+      <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginTop:-6, marginBottom:'var(--space-md)', fontWeight:500 }}>Tap any to start instantly</p>
+      <div className="g3" style={{ marginBottom:24 }}>
         {[
           [startQuiz,       "🎯","Quiz",         "#fff7ed","#fed7aa"],
           [startFlashcards, "🃏","Flashcards",   "#f5f3ff","#ddd6fe"],
@@ -366,38 +366,38 @@ export default function PracticeTab({
             style={{ textAlign:"center", padding:"14px 8px", background:bg, border:`1.5px solid ${border}` }}
             onClick={fn}>
             <div style={{ fontSize:28 }}>{icon}</div>
-            <div style={{ fontSize:11, fontWeight:800, marginTop:5, color:"var(--heading)" }}>{label}</div>
+            <div style={{ fontSize:'var(--text-xs)', fontWeight:800, marginTop:5, color:"var(--heading)" }}>{label}</div>
           </button>
         ))}
       </div>
 
       {/* ── COLLAPSIBLE DRILL SECTIONS ──────────────────────────────────── */}
-      <div style={{ fontSize:11, fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:12 }}>
+      <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:'var(--space-md)' }}>
         All Exercises
       </div>
 
       <Section title="Grammar Drills" icon="📝" count={`${grammarDrills.length} exercises`} defaultOpen={false}>
-        <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>Master Croatian structure step by step</p>
+        <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:'var(--space-sm)', fontWeight:500 }}>Master Croatian structure step by step</p>
         <ExRow items={grammarDrills} />
       </Section>
 
       <Section title="Vocabulary" icon="🔤" count={`${vocabularyDrills.length} exercises`} defaultOpen={false}>
-        <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>Build and reinforce your word bank</p>
+        <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:'var(--space-sm)', fontWeight:500 }}>Build and reinforce your word bank</p>
         <ExRow items={vocabularyDrills} />
       </Section>
 
       <Section title="Practical Croatian" icon="🌍" count={`${practicalCroatian.length} exercises`} defaultOpen={false}>
-        <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>Real situations, real language</p>
+        <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:'var(--space-sm)', fontWeight:500 }}>Real situations, real language</p>
         <ExRow items={practicalCroatian} />
       </Section>
 
       <Section title="Reading & Fun" icon="📖" count={`${readingFun.length} exercises`} defaultOpen={false}>
-        <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>Stories, riddles, and challenges</p>
+        <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:'var(--space-sm)', fontWeight:500 }}>Stories, riddles, and challenges</p>
         <ExRow items={readingFun} />
       </Section>
 
       <Section title="Slang & Expressions" icon="🗣️" count="12 modules · 150+ phrases" defaultOpen={false}>
-        <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>Authentic slang, psovanje & street language with cultural context</p>
+        <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:'var(--space-sm)', fontWeight:500 }}>Authentic slang, psovanje & street language with cultural context</p>
         <ExRow items={[
           ['🔥', 'The Classics',      'slang:classics',   'Foundation expletives — built on one root verb'],
           ['😤', 'Svaki Dan',          'slang:everyday',   'Mild-to-medium — usable around most adults'],
@@ -415,10 +415,10 @@ export default function PracticeTab({
       </Section>
 
       <Section title="Advanced Tools" icon="⚡" count="9 tools" defaultOpen={false}>
-        <p style={{ fontSize:12, color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>
+        <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:'var(--space-sm)', fontWeight:500 }}>
           Advanced exercises to reach native-level fluency — close the gap from B1 to C1
         </p>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+        <div className="g2">
           {[
             [startPitchAccent,                                              "🎵", "Pitch Accent",   "Master Croatian tonal stress"],
             [startShadowing,                                                "🗣️", "Shadowing",      "Native-speed listen & repeat"],
@@ -438,7 +438,7 @@ export default function PracticeTab({
                 {icon}
               </div>
               <div style={{ minWidth:0 }}>
-                <div style={{ fontSize:12, fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{label}</div>
+                <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{label}</div>
                 <div style={{ fontSize:10, color:"var(--subtext)", marginTop:2, lineHeight:1.3 }}>{desc}</div>
               </div>
             </button>
@@ -448,10 +448,10 @@ export default function PracticeTab({
 
       {/* ── CULTURAL EXTRAS FOOTER ──────────────────────────────────────── */}
       <div style={{ marginTop:8, marginBottom:16 }}>
-        <div style={{ fontSize:11, fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:10 }}>
+        <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:'var(--space-sm)' }}>
           Cultural Extras
         </div>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8 }}>
+        <div className="g3">
           {culturalExtras.map((/** @type {any} */ [fn,icon,label,desc], i) => (
             <button key={i} className="tc"
               style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:6, padding:"14px 8px", textAlign:"center" }}
@@ -461,7 +461,7 @@ export default function PracticeTab({
                 {icon}
               </div>
               <div style={{ minWidth:0 }}>
-                <div style={{ fontSize:11, fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{label}</div>
+                <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{label}</div>
                 <div style={{ fontSize:9, color:"var(--subtext)", marginTop:2, lineHeight:1.3 }}>{desc}</div>
               </div>
             </button>
