@@ -66,6 +66,12 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
     });
   }, [tab]);
 
+  // Croatia tab uses Croatian red; all others use teal
+  const activeColor = tab === 'croatia' ? 'var(--color-croatian, #b61800)' : 'var(--info, #0e7490)';
+  const indicatorGradient = tab === 'croatia'
+    ? 'linear-gradient(90deg,#b61800,#e53e3e)'
+    : 'linear-gradient(90deg,#0e7490,#06b6d4)';
+
   return (
     <nav
       ref={navRef}
@@ -80,14 +86,14 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
         boxShadow: '0 -4px 24px rgba(0,0,0,0.06)',
       }}
     >
-      {/* Sliding indicator */}
+      {/* Sliding indicator — color follows active tab */}
       <div style={{
         position: 'absolute',
         top: 6,
         height: 3,
-        background: 'linear-gradient(90deg,#0e7490,#06b6d4)',
+        background: indicatorGradient,
         borderRadius: 3,
-        transition: 'left .3s cubic-bezier(.34,1.56,.64,1), width .3s',
+        transition: 'left .3s cubic-bezier(.34,1.56,.64,1), width .3s, background .25s',
         ...indicatorStyle,
         pointerEvents: 'none',
       }} />
@@ -115,7 +121,7 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
               style={{
                 display: 'block',
                 lineHeight: 1,
-                color: isActive ? (t.id === 'croatia' ? '#D40030' : '#0e7490') : 'var(--nav-lbl)',
+                color: isActive ? (t.id === 'croatia' ? 'var(--color-croatian, #b61800)' : 'var(--info, #0e7490)') : 'var(--nav-lbl)',
                 transition: 'transform .3s cubic-bezier(.34,1.56,.64,1), color .18s',
                 transform: isActive ? 'scale(1.15) translateY(-2px)' : 'scale(1)',
               }}
@@ -127,7 +133,7 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
               style={{
                 fontSize: 10,
                 fontWeight: isActive ? 800 : 600,
-                color: isActive ? (t.id === 'croatia' ? '#D40030' : '#0e7490') : 'var(--nav-lbl)',
+                color: isActive ? (t.id === 'croatia' ? 'var(--color-croatian, #b61800)' : 'var(--info, #0e7490)') : 'var(--nav-lbl)',
                 display: 'block',
                 marginTop: 3,
                 transition: 'color .18s, font-weight .18s',

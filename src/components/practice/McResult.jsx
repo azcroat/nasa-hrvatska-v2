@@ -24,6 +24,13 @@ export default function McResult({ questions, score, setScr, goBack, onNewGame }
       <p style={{color:"#78716c",marginTop:8,fontSize:20}}>
         {score}/{questions.length}
       </p>
+      <div style={{
+        marginTop:12, padding:'10px 14px',
+        background:'var(--bar-bg)', borderRadius:10,
+        fontSize:12, color:'var(--subtext)', textAlign:'center', fontWeight:600
+      }}>
+        📊 Session: {score || 0} correct · {(score || 0) * 3 + 5} XP earned
+      </div>
       <div style={{display:"flex",gap:12,justifyContent:"center",marginTop:24}}>
         <button className="b bg" onClick={playAgain}>
           Play Again

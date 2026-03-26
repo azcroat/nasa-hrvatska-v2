@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, srMark } from '../../data.jsx';
 
+const STILL_LEARNING_MSG_DURATION = 1200;
+
 const XP_PER_KNOWN = 2;
 const XP_COMPLETION_BONUS = 5;
 
@@ -14,6 +16,7 @@ export default function Flashcards({ pool, goBack, award }) {
   const [done, setDone] = useState(false);
   const [correctAnim, setCorrectAnim] = useState(false);
   const [wrongAnim, setWrongAnim] = useState(false);
+  const [showStillLearning, setShowStillLearning] = useState(false);
   const cardRef = useRef(null);
   const knowBtnRef = useRef(null);
 
@@ -47,18 +50,28 @@ export default function Flashcards({ pool, goBack, award }) {
   // ── RESULT SCREEN ──
   if (done) {
     const knownCount = activePool.length - missed.length;
+    const missedCount = missed.length;
     return (
       <div className="scr-wrap">
         <div style={{textAlign:"center",padding:"40px 20px 20px"}}>
-          <div style={{fontSize:64}}>{missed.length === 0 ? "🌟" : "🎉"}</div>
+          <div style={{fontSize:64}}>{missedCount === 0 ? "🌟" : "🎉"}</div>
           <h3 style={{fontFamily:"'Playfair Display',serif",fontSize:22,color:"var(--heading)",marginTop:12}}>
-            {missed.length === 0 ? "Perfect round!" : "Round complete!"}
+            {missedCount === 0 ? "Perfect round!" : "Round complete!"}
           </h3>
           <p style={{color:"var(--subtext)",marginTop:6,fontSize:14}}>
             Known: <strong style={{color:"var(--success)"}}>{knownCount}</strong>
-            {missed.length > 0 && <> · Still learning: <strong style={{color:"#f59e0b"}}>{missed.length}</strong></>}
+            {missedCount > 0 && <> · Still learning: <strong style={{color:"#f59e0b"}}>{missedCount}</strong></>}
             {' '}/ {activePool.length}
           </p>
+          <div style={{fontSize:'var(--text-2xl)', fontWeight:900, color:'#fbbf24', marginTop:8}}>
+            +{knownCount * 2 + 5} XP
+          </div>
+          <div style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginTop:4}}>
+            {missedCount === 0 ?
+              '🌟 Perfect! Ready for new words.' :
+              `${missedCount} card${missedCount !== 1 ? 's' : ''} need review — they'll come back tomorrow`
+            }
+          </div>
         </div>
         <div style={{display:"flex",flexDirection:"column",gap:10,padding:"0 0 20px"}}>
           {missed.length > 0 && (
@@ -125,10 +138,7 @@ export default function Flashcards({ pool, goBack, award }) {
             <div style={{fontSize:12,color:"var(--subtext)",marginTop:12}}>tap to see English</div>
           </div>
           <div className="fc-face fc-back">
-            <div style={{fontSize:22,fontWeight:800,color:"var(--success)",fontFamily:"'Playfair Display',serif",textAlign:"center",lineHeight:1.3}}>
-              {activePool[idx][0]}
-            </div>
-            <div style={{fontSize:14,color:"var(--subtext)",marginTop:4,textAlign:"center"}}>{activePool[idx][1]}</div>
+            <div style={{fontSize:14,color:"var(--subtext)",marginTop:4,textAlign:"center",fontWeight:700}}>{activePool[idx][1]}</div>
             {activePool[idx][3] && (
               <p style={{fontSize:12, color:'var(--subtext)', fontStyle:'italic', marginTop:8, lineHeight:1.5, borderTop:'1px solid var(--bar-bg)', paddingTop:8}}>
                 "{activePool[idx][3]}"
@@ -138,8 +148,18 @@ export default function Flashcards({ pool, goBack, award }) {
           </div>
         </div>
       </div>
+      {showStillLearning && (
+        <div style={{
+          fontSize:11, color:'var(--error)', fontWeight:600,
+          textAlign:'center', marginTop:6, animation:'rise .3s'
+        }}>
+          ↻ This card will reappear for review
+        </div>
+      )}
       {flipped&&(
-        <div style={{display:'flex', gap:10, marginTop:16}}>
+        <div style={{marginTop:16}}>
+        <div style={{fontSize:12,fontWeight:700,color:"var(--subtext)",textAlign:"center",marginBottom:8}}>How well did you know it?</div>
+        <div style={{display:'flex', gap:10}}>
           <button
             onClick={() => {
               const q = 2;
@@ -147,6 +167,8 @@ export default function Flashcards({ pool, goBack, award }) {
               srMark(activePool[idx][0], correct);
               setWrongAnim(true);
               setTimeout(() => setWrongAnim(false), 400);
+              setShowStillLearning(true);
+              setTimeout(() => setShowStillLearning(false), STILL_LEARNING_MSG_DURATION);
               setMissed(m => [...m, activePool[idx]]);
               setFlipped(false);
               if (idx < activePool.length - 1) { setIdx(i => i + 1); }
@@ -193,9 +215,10 @@ export default function Flashcards({ pool, goBack, award }) {
               cursor:'pointer',
             }}
           >
-            Got It! ✓
+            Perfect ✓
             <span style={{fontSize:10, fontWeight:600, opacity:.7, marginTop:4}}>Move to next interval</span>
           </button>
+        </div>
         </div>
       )}
     </div>

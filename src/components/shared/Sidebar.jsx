@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { lXP, nXP, getStreak } from '../../data.jsx';
 import CroatianGrb from './CroatianGrb.jsx';
+import CroatianKnight from './CroatianKnight.jsx';
 
 const TABS = [
   { id:"home",     label:"Home" },
@@ -131,10 +132,11 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
           <div style={{ width: 36, height: 44, flexShrink: 0, filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.18))' }}>
             <CroatianGrb size={36} />
           </div>
-          <div>
+          <div style={{ flex: 1 }}>
             <div style={{ fontSize: 14, fontWeight: 900, fontFamily: "'Playfair Display',serif", color: 'var(--heading)', lineHeight: 1 }}>Naša Hrvatska</div>
             <div style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 600, marginTop: 2, letterSpacing: '.06em', textTransform: 'uppercase' }}>Learn Croatian</div>
           </div>
+          <CroatianKnight size={40} mood="happy" style={{ flexShrink: 0 }} />
         </div>
       </div>
 

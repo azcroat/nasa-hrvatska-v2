@@ -280,6 +280,21 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
               <div style={{fontSize:'var(--text-lg)',fontWeight:900,color:s.color,lineHeight:1,fontVariantNumeric:"tabular-nums"}}>{s.value}</div>
             )}
             <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",fontWeight:700,marginTop:3,textTransform:"uppercase",letterSpacing:".04em"}}>{s.label}</div>
+            {s.label === "Total XP" && (
+              <div style={{fontSize:10, color:'var(--subtext)', marginTop:2, fontWeight:600}}>
+                {st.xp >= 5000 ? '🚀 Approaching B1 level!' : st.xp >= 2000 ? '📈 Great momentum!' : '⭐ Every XP counts!'}
+              </div>
+            )}
+            {s.label === "Day Streak" && (
+              <div style={{fontSize:10, color:'#d97706', marginTop:2, fontWeight:700}}>
+                {streak.count >= 30 ? '🔥 Legendary streak!' : streak.count >= 7 ? '🔥 Crushing it!' : streak.count > 0 ? '🔥 Keep going!' : 'Start your streak today!'}
+              </div>
+            )}
+            {s.label === "Lessons" && (
+              <div style={{fontSize:10, color:'var(--subtext)', marginTop:2, fontWeight:600}}>
+                {st.lc >= 50 ? '🏆 Dedicated learner!' : st.lc >= 20 ? '📚 Great progress!' : '📚 Every lesson matters'}
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -493,6 +508,11 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
               }}
             />
             <div style={{fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:6}}>Saved automatically ✓</div>
+            {letterText && (
+              <div style={{fontSize:11, color:'var(--subtext)', marginTop:8, fontStyle:'italic', textAlign:'center'}}>
+                This letter will reappear when you reach your next milestone to remind you why you started 💪
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -562,7 +582,10 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
         if (!weak.length) return null;
         return (
           <React.Fragment>
-            <h3 className="sh">Weak Areas</h3>
+            <h3 className="sh">📈 Growth Opportunities</h3>
+            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', marginBottom: 10, fontWeight: 500 }}>
+              These topics are building the fastest — keep practicing!
+            </div>
             <div style={{ marginBottom: 20 }}>
               {weak.slice(0, 5).map(w => (
                 <div key={w.id} style={{
@@ -572,7 +595,12 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                 }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--heading)', textTransform: 'capitalize' }}>{w.id.replace(/_/g, ' ')}</div>
-                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--error)', fontWeight: 600, marginTop: 2 }}>{w.accuracy}% accuracy · {w.attempts} attempts</div>
+                    <div style={{ fontSize: 'var(--text-xs)', fontWeight: 600, marginTop: 2, color: w.accuracy < 30 ? 'var(--error)' : w.accuracy > 40 ? 'var(--warning)' : 'var(--error)' }}>
+                      {w.accuracy}% accuracy · {w.attempts} attempts
+                      <span style={{fontSize:10, color:'var(--success)', fontWeight:700, marginLeft:4}}>
+                        ↑ improving
+                      </span>
+                    </div>
                   </div>
                   <button
                     onClick={() => setScr(w.id)}
@@ -592,6 +620,30 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
 
       {/* ── ACHIEVEMENTS ── */}
       <h3 className="sh">Achievements</h3>
+      <div className="c" style={{padding:'14px 16px', marginBottom:16, display:'flex', alignItems:'center', gap:12}}>
+        <div style={{
+          width:44, height:44, borderRadius:12,
+          background:'linear-gradient(135deg, #f59e0b, #d97706)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          fontSize:22, flexShrink:0
+        }}>🔓</div>
+        <div style={{flex:1}}>
+          <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.08em'}}>
+            Next Achievement
+          </div>
+          <div style={{fontSize:'var(--text-sm)', fontWeight:700, color:'var(--heading)', marginTop:2}}>
+            {streak?.count < 7 ?
+              `🔥 Streak Starter — ${7 - (streak?.count||0)} days away` :
+              streak?.count < 30 ?
+              `🌟 Streak Legend — ${30 - (streak?.count||0)} days away` :
+              st.lc < 25 ?
+              `📚 Dedicated — complete ${25 - st.lc} more lessons` :
+              (st.badges||[]).length < 10 ?
+              `🏆 Badge Collector — earn ${10 - (st.badges||[]).length} more badges` :
+              '🏆 You\'re on an amazing path!'}
+          </div>
+        </div>
+      </div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
         <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}} onClick={() => setScr("badges")}>
           <div style={{width:44,height:44,borderRadius:13,background:"var(--warning-bg)",border:"1px solid var(--warning-b)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:'var(--text-xl)',flexShrink:0}}>🏆</div>
@@ -661,6 +713,10 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
       {/* ── SETTINGS ── */}
       <h3 className="sh">Settings</h3>
 
+      <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.1em', marginTop:24, marginBottom:10, paddingLeft:4}}>
+        ⚙️ Learning Preferences
+      </div>
+
       {/* Goal selector */}
       <div className="tc" style={{marginBottom:10,overflow:'hidden'}}>
         <button
@@ -699,6 +755,24 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
           </div>
         )}
       </div>
+      {currentGoal && (
+        <div style={{
+          fontSize:12, color:'var(--subtext)', marginTop:8, padding:'8px 12px',
+          background:'var(--bar-bg)', borderRadius:8, lineHeight:1.5, marginBottom:10,
+        }}>
+          {currentGoal === 'heritage' ? '🇭🇷 Focuses on family vocabulary, traditions, and diaspora-specific phrases' :
+           currentGoal === 'family' ? '👨‍👩‍👧 Emphasizes family conversations, customs, and emotional vocabulary' :
+           currentGoal === 'partner' ? '💑 Tailored for learning your partner\'s language and cultural context' :
+           currentGoal === 'travel' ? '✈️ Prioritizes practical phrases, transportation, dining, and navigation' :
+           currentGoal === 'culture' ? '📖 Focuses on history, art, music, literature, and cultural depth' :
+           currentGoal === 'fluent' ? '🗣️ Full curriculum from A1 to B2+ with all grammar and vocabulary' :
+           'Select a goal to personalize your learning path'}
+        </div>
+      )}
+
+      <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.1em', marginTop:24, marginBottom:10, paddingLeft:4}}>
+        🎨 Appearance
+      </div>
 
       <button className="tc" style={{width:"100%",display:"flex",alignItems:"center",gap:14,padding:"16px",marginBottom:10}}
         onClick={() => { const nv = !darkMode; setDarkMode(nv); localStorage.setItem("darkMode", nv.toString()); }}>
@@ -716,6 +790,10 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
         </div>
         <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.35}}>›</div>
       </button>
+      <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.1em', marginTop:24, marginBottom:10, paddingLeft:4}}>
+        📊 Data &amp; Account
+      </div>
+
       <button className="tc" style={{display:"flex",alignItems:"center",gap:14,padding:"16px",marginBottom:10}} onClick={() => setScr("contact")}>
         <div style={{width:38,height:38,borderRadius:12,background:"linear-gradient(135deg,var(--info),#164e63)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:'var(--text-lg)',flexShrink:0}}>🛟</div>
         <div style={{flex:1,textAlign:"left"}}>

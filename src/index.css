@@ -133,6 +133,157 @@ html{
   --forest-light: #f0fdf4;
 }
 
+/* ── Card accent variants ─────────────────────────────── */
+.card-grammar {
+  border-left: 4px solid var(--lavender, #7c3aed);
+}
+.card-vocab {
+  border-left: 4px solid var(--forest, #16a34a);
+}
+.card-culture {
+  border-left: 4px solid var(--terracotta, #c2410c);
+}
+.card-achievement {
+  border-left: 4px solid var(--harvest, #d97706);
+}
+.card-adriatic {
+  border-left: 4px solid var(--adriatic, #0284c7);
+}
+
+/* ── Elevation system ────────────────────────────────── */
+.shadow-base  { box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.shadow-md    { box-shadow: 0 4px 12px rgba(0,0,0,.08), 0 1px 4px rgba(0,0,0,.05); }
+.shadow-lg    { box-shadow: 0 8px 32px rgba(0,0,0,.1), 0 2px 8px rgba(0,0,0,.06); }
+.shadow-premium { box-shadow: 0 12px 48px rgba(14,116,144,.15), 0 4px 16px rgba(0,0,0,.08); }
+
+/* ── Featured card variant ────────────────────────────── */
+.c-featured {
+  border: 2px solid var(--harvest, #d97706);
+  background: linear-gradient(135deg, var(--card) 0%, rgba(245,158,11,.04) 100%);
+}
+
+/* ── Compact card variant ────────────────────────────── */
+.c-compact {
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+}
+
+/* ── Motivational stat chip ──────────────────────────── */
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  background: var(--success-bg, #f0fdf4);
+  color: var(--success, #16a34a);
+}
+.stat-chip.warning { background: var(--warning-bg); color: var(--warning); }
+.stat-chip.info    { background: var(--info-bg); color: var(--info); }
+
+/* ── Section divider accents ─────────────────────────── */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 24px 0 12px;
+}
+.section-divider-line {
+  width: 3px;
+  height: 20px;
+  border-radius: 2px;
+  background: var(--info);
+  flex-shrink: 0;
+}
+.section-divider-text {
+  font-size: var(--text-xs);
+  font-weight: 800;
+  color: var(--heading);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── Content type badges ─────────────────────────────── */
+.type-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.type-badge-history  { background: rgba(124,58,237,.1);  color: #7c3aed; }
+.type-badge-reading  { background: rgba(22,163,74,.1);   color: #16a34a; }
+.type-badge-culture  { background: rgba(194,65,12,.1);   color: #c2410c; }
+.type-badge-language { background: rgba(14,116,144,.1);  color: #0e7490; }
+.type-badge-new      { background: #dc2626; color: white; }
+
+/* ── Growth opportunity (replaces weak area) ─────────── */
+.growth-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--bar-bg);
+  margin-bottom: 8px;
+  transition: background .15s;
+}
+.growth-item:hover { background: var(--card-b); }
+.growth-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--card-b);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.growth-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--warning), var(--success));
+  border-radius: 2px;
+  transition: width .5s ease;
+}
+
+/* ── Gradient variety classes ────────────────────────── */
+.grad-diagonal-soft {
+  background: linear-gradient(110deg, var(--card) 0%, rgba(14,116,144,.04) 100%);
+}
+.grad-warm {
+  background: linear-gradient(135deg, rgba(245,158,11,.08) 0%, rgba(194,65,12,.06) 100%);
+}
+.grad-heritage {
+  background: linear-gradient(155deg, #060e1e 0%, #0a2348 40%, #0c3868 100%);
+}
+.grad-adriatic {
+  background: linear-gradient(135deg, #0e7490 0%, #0284c7 50%, #164e63 100%);
+}
+.grad-gold {
+  background: linear-gradient(110deg, #f59e0b 0%, #d97706 60%, #b45309 100%);
+}
+.grad-achievement {
+  background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+}
+.grad-croatia {
+  background: linear-gradient(135deg, #b61800 0%, #c2410c 50%, #7c3aed 100%);
+}
+
+/* Colored card backgrounds */
+.card-bg-grammar    { background: linear-gradient(135deg, var(--card) 0%, rgba(124,58,237,.04) 100%); }
+.card-bg-vocab      { background: linear-gradient(135deg, var(--card) 0%, rgba(22,163,74,.04) 100%); }
+.card-bg-culture    { background: linear-gradient(135deg, var(--card) 0%, rgba(194,65,12,.04) 100%); }
+.card-bg-achievement{ background: linear-gradient(135deg, var(--card) 0%, rgba(245,158,11,.04) 100%); }
+
+/* ── Hero compression ────────────────────────────────── */
+.hero-compressed {
+  padding: 16px 20px 20px !important;
+}
+.hero-greeting-sm {
+  font-size: var(--text-2xl) !important;
+}
+
 /* ═══════════════════════════════════════════════════════════
    DARK MODE TOKENS
 ═══════════════════════════════════════════════════════════ */
@@ -299,6 +450,17 @@ html{
 @keyframes coinSpin{0%{transform:rotateY(0)}100%{transform:rotateY(360deg)}}
 @keyframes ringFill{0%{stroke-dashoffset:283}100%{stroke-dashoffset:var(--ring-offset,0)}}
 
+/* ── Animation intent documentation ──────────────────── */
+/*
+  Looping animations (infinite) should ONLY be used on:
+  - .streak-flame (flameDance)
+  - .prog-fill (shimmer)
+  - Active/loading states
+
+  All other looping use is considered animation overuse.
+  Entrance/feedback animations are appropriate everywhere.
+*/
+
 /* Feedback */
 @keyframes correctFlash{0%,100%{background:var(--ob-bg)}40%{background:#dcfce7}}
 @keyframes shakeX{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
@@ -383,6 +545,77 @@ html{
   box-shadow:0 0 0 3px rgba(14,116,144,.06),var(--card-shadow);
   animation:glow 3s ease-in-out infinite;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   TAB HERO & SECTION DESIGN SYSTEM
+═══════════════════════════════════════════════════════════ */
+
+/* Tab hero — one consistent dark Croatian identity header per tab */
+.tab-hero{
+  background:linear-gradient(160deg,#060e1e 0%,#0a2348 55%,#0c3868 100%);
+  border-radius:20px;
+  overflow:hidden;
+  margin-bottom:20px;
+  position:relative;
+  box-shadow:0 8px 40px rgba(0,0,0,.38);
+}
+.tab-hero-stripe{
+  height:4px;
+  background:linear-gradient(90deg,#D40030 0%,#D40030 50%,#C8980A 50%,#C8980A 100%);
+}
+.tab-hero-body{
+  padding:22px 20px 24px;
+  position:relative;
+  z-index:1;
+}
+
+/* Section header — unified across every section of every tab */
+.section-hdr{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:14px;
+  padding-bottom:12px;
+  border-bottom:1.5px solid var(--card-b);
+}
+.section-hdr-icon{
+  width:40px;
+  height:40px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+  flex-shrink:0;
+}
+.section-hdr-text{flex:1;min-width:0}
+.section-hdr-title{
+  font-size:var(--text-base);
+  font-weight:800;
+  color:var(--heading);
+  line-height:1.2;
+  margin-bottom:2px;
+  font-family:'Outfit',sans-serif;
+}
+.section-hdr-sub{
+  font-size:var(--text-xs);
+  color:var(--subtext);
+  font-weight:500;
+  line-height:1.4;
+}
+.section-hdr-badge{
+  font-size:var(--text-xs);
+  color:var(--subtext);
+  font-weight:700;
+  background:var(--bar-bg);
+  border-radius:8px;
+  padding:3px 10px;
+  flex-shrink:0;
+  white-space:nowrap;
+}
+
+/* Section block — consistent spacing wrapper */
+.section-block{margin-bottom:28px}
 
 /* ═══════════════════════════════════════════════════════════
    BUTTONS
@@ -981,6 +1214,22 @@ button.c{font-family:'Outfit',sans-serif;width:100%;cursor:pointer;display:block
   --card-shadow: 0 2px 12px rgba(0,0,0,.4);
 }
 
+/* Dark mode — extended fixes */
+[data-theme="dark"] .card-grammar  { border-left-color: #a78bfa; }
+[data-theme="dark"] .card-vocab    { border-left-color: #4ade80; }
+[data-theme="dark"] .card-culture  { border-left-color: #fb923c; }
+[data-theme="dark"] .card-achievement { border-left-color: #fbbf24; }
+[data-theme="dark"] .grad-diagonal-soft {
+  background: linear-gradient(110deg, var(--card) 0%, rgba(56,189,248,.04) 100%);
+}
+.dark .card-grammar  { border-left-color: #a78bfa; }
+.dark .card-vocab    { border-left-color: #4ade80; }
+.dark .card-culture  { border-left-color: #fb923c; }
+.dark .card-achievement { border-left-color: #fbbf24; }
+.dark .grad-diagonal-soft {
+  background: linear-gradient(110deg, var(--card) 0%, rgba(56,189,248,.04) 100%);
+}
+
 /* ═══════════════════════════════════════════════════════════
    ANIMATION UTILITY CLASSES
 ═══════════════════════════════════════════════════════════ */
@@ -1182,7 +1431,7 @@ button.c{font-family:'Outfit',sans-serif;width:100%;cursor:pointer;display:block
   display: flex;
   align-items: center;
   gap: 10px;
-  opacity: 0.45;
+  opacity: 0.6;
 }
 .cipka-divider::before,
 .cipka-divider::after {

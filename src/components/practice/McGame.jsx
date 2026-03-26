@@ -370,6 +370,18 @@ export default function McGame({ questions, onComplete, goBack, award }) {
         })}
       </div>
 
+      {/* Grammar hint on wrong answer */}
+      {answered && q.opts[selected] !== q.correct && (
+        <div style={{
+          marginTop:8, padding:'10px 14px',
+          background:'rgba(14,116,144,0.08)',
+          border:'1px solid rgba(14,116,144,0.15)',
+          borderRadius:10, fontSize:12, color:'var(--subtext)', lineHeight:1.5
+        }}>
+          💡 {q.hint || q.explanation || 'Take note of this word — it will appear again in spaced repetition.'}
+        </div>
+      )}
+
       {/* Next button */}
       {answered && (
         <button

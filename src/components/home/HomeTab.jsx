@@ -150,13 +150,13 @@ export default function HomeTab({
           <span style={{fontSize: 26}}>🌟</span>
           <div style={{flex: 1}}>
             <div style={{fontSize: 13, fontWeight: 900, color: '#fff', marginBottom: 2}}>
-              Dobrodošli natrag!
+              Great to have you back!
             </div>
             <div style={{fontSize: 11, color: 'rgba(255,255,255,0.85)', fontWeight: 500, lineHeight: 1.5}}>
-              It's been a while — Croatia is still here waiting for you. Every day you practice is a day you're closer to your family.
+              Let's pick up right where you left off. Your Croatian is still here waiting for you.
             </div>
             <div style={{marginTop: 8, fontSize: 11, color: 'rgba(255,255,255,0.7)', fontStyle: 'italic'}}>
-              No judgment. Just start again. 💪
+              Your streak is waiting to be rebuilt. One lesson is all it takes. 💪
             </div>
           </div>
         </div>
@@ -206,48 +206,15 @@ export default function HomeTab({
         borderBottom: "1px solid rgba(200,152,10,0.35)",
         boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
       }}>
-        {/* Croatian identity stripe — šahovnica dots + gold line */}
+        {/* Croatian identity stripe — gold line */}
         <div style={{ position:'relative' }}>
           <div style={{
             height: 3,
             background: "linear-gradient(90deg, transparent 0%, #C8980A 20%, #FFE070 50%, #C8980A 80%, transparent 100%)",
           }}/>
-          <div style={{
-            position:'absolute', top:3, left:0, right:0, height:3,
-            backgroundImage:"repeating-linear-gradient(90deg, #D40030 0px, #D40030 6px, #F8F6F2 6px, #F8F6F2 12px, #D40030 12px)",
-            opacity:0.18,
-          }}/>
         </div>
-        {/* Subtle radial glow behind content */}
-        <div style={{
-          position:"absolute",top:0,left:0,right:0,bottom:0,
-          background:"radial-gradient(ellipse 70% 60% at 30% 40%, rgba(14,116,144,0.22) 0%, transparent 70%)",
-          pointerEvents:"none",
-        }}/>
-        {/* Animated diagonal shimmer — hero polish */}
-        <div style={{
-          position:"absolute",top:0,left:0,right:0,bottom:0,
-          background:"linear-gradient(105deg, transparent 25%, rgba(255,255,255,.045) 50%, transparent 75%)",
-          backgroundSize:"200% 100%",
-          animation:"shimmer 4s linear infinite",
-          pointerEvents:"none",
-          borderRadius:"inherit",
-        }}/>
-        {/* Šahovnica ghost pattern — Croatian identity texture */}
-        <div style={{
-          position:"absolute",top:0,left:0,right:0,bottom:0,
-          backgroundImage:`
-            linear-gradient(45deg, rgba(255,255,255,0.025) 25%, transparent 25%),
-            linear-gradient(-45deg, rgba(255,255,255,0.025) 25%, transparent 25%),
-            linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.025) 75%),
-            linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.025) 75%)
-          `,
-          backgroundSize:"20px 20px",
-          backgroundPosition:"0 0, 0 10px, 10px -10px, -10px 0px",
-          pointerEvents:"none",
-        }}/>
 
-        <div style={{padding:"22px 24px 44px"}}>
+        <div style={{padding:"16px 20px 20px"}}>
 
         {/* Top row: brand — grb + logotype */}
         <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:24}}>
@@ -272,7 +239,7 @@ export default function HomeTab({
             {greetingByTime()}
           </div>
           <div style={{
-            fontSize:32,fontWeight:900,
+            fontSize:24,fontWeight:900,
             fontFamily:"'Playfair Display',serif",
             letterSpacing:"-.01em",lineHeight:1.1,
             textShadow:"0 2px 24px rgba(0,0,0,.5)",
@@ -326,11 +293,17 @@ export default function HomeTab({
             <div style={{fontSize:10,fontWeight:700,color:'rgba(255,255,255,.6)',textTransform:'uppercase',letterSpacing:'.1em',marginTop:6}}>
               day streak
             </div>
-            {streak.count > 0 && (
+            {streak.count === 0 ? (
+              <div style={{fontSize:10,fontWeight:800,color:'rgba(253,186,116,.95)',marginTop:5}}>
+                Start your streak! Complete a lesson today 🔥
+              </div>
+            ) : (
               <div style={{fontSize:10,fontWeight:800,color:'rgba(253,186,116,.95)',marginTop:5}}>
                 {streak.count >= 30 ? '🇭🇷 Legend!' : streak.count >= 7 ? '⚡ Odlično!' : '✓ Keep going!'}
               </div>
             )}
+            {streak.count >= 25 && <div style={{fontSize:10, color:'#d97706', fontWeight:700, marginTop:2}}>5 more days to legendary status! ⭐</div>}
+            {streak.count >= 7 && streak.count < 25 && <div style={{fontSize:10, color:'rgba(255,255,255,.6)', marginTop:2}}>{30 - streak.count} days to Legend status</div>}
             {freezes > 0 && (
               <div style={{marginTop:8,display:'flex',alignItems:'center',gap:3,
                 background:'rgba(255,255,255,.11)',borderRadius:10,padding:'3px 9px'}}>
@@ -548,15 +521,25 @@ export default function HomeTab({
         style={{ marginBottom: 16 }}
       />
 
+      {/* ── TODAY'S FOCUS HEADER ── */}
+      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12, marginTop:24}}>
+        <div style={{width:3, height:20, background:'var(--info)', borderRadius:2}}/>
+        <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Today's Focus</span>
+      </div>
+
       {/* ── DAILY QUESTS ── */}
-      <h3 className="sh">Daily Quests</h3>
       {(() => {
         const questScreenMap = { speak:'speaking', grammar:'grammar-screen', master:'flashcards', reading:'reading-list', streak:'learnpath' };
         const questBtnLabel = { speak:'Start →', grammar:'Start →', master:'Start →', reading:'Start →', streak:'Do a lesson →' };
         const questsDoneCount = DAILY_QUESTS.filter(q => questsDone[q.id]).length;
         return (<>
-          <div style={{fontSize:11, fontWeight:700, color:'var(--subtext)', marginBottom:8, marginTop:-4}}>
-            {questsDoneCount} of 5 complete
+          <div className="section-hdr">
+            <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>🎯</div>
+            <div className="section-hdr-text">
+              <div className="section-hdr-title">Daily Quests</div>
+              <div className="section-hdr-sub">Complete quests to earn bonus XP</div>
+            </div>
+            <div className="section-hdr-badge">{questsDoneCount}/5</div>
           </div>
           <div className="anim-children-fade" style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:10, marginBottom:20 }}>
             {DAILY_QUESTS.map(q => {
@@ -602,48 +585,84 @@ export default function HomeTab({
         </div>
       )}
 
-      {/* ── PROGRESS SNAPSHOT ── */}
-      <div style={{
-        background:"var(--card)",
-        border:`1.5px solid ${activePalette.border}`,
-        borderRadius:18,padding:"14px 18px",
-        marginBottom:16,
-        display:"flex",alignItems:"center",gap:16,
-        boxShadow:`0 4px 16px ${activePalette.border}33`,
-      }}>
-        <div style={{
-          width:56,height:56,borderRadius:14,flexShrink:0,
-          background:activePalette.grad,
-          display:"flex",alignItems:"center",justifyContent:"center",
-          color:"white",fontWeight:900,fontSize:17,
-          boxShadow:`0 4px 14px ${activePalette.border}55`,
-        }}>
-          {pathData.pct}%
-        </div>
-        <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:10,fontWeight:800,color:"var(--subtext)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:2}}>Overall Progress — All Stages</div>
-          <div style={{fontSize:15,fontWeight:900,color:"var(--heading)"}}>
-            {pathData.activeLv.title}
-            <span style={{fontSize:11,fontWeight:600,color:"var(--subtext)",marginLeft:6}}>Stage {pathData.activeLv.level}</span>
-          </div>
-          <div style={{height:5,background:"var(--bar-bg)",borderRadius:3,overflow:"hidden",marginTop:6}}>
-            <div style={{height:"100%",width:pathData.pct+"%",background:activePalette.grad,borderRadius:3,transition:"width .6s ease"}}/>
-          </div>
-          <div style={{fontSize:10,color:"var(--subtext)",marginTop:4,fontWeight:500}}>
-            {pathData.totalDone} of {pathData.totalItems} lessons complete
+      {/* ── TRACK PROGRESS HEADER ── */}
+      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12, marginTop:24}}>
+        <div style={{width:3, height:20, background:'var(--harvest, #d97706)', borderRadius:2}}/>
+        <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Track Progress</span>
+      </div>
+
+      {/* ── NEXT ACHIEVEMENT ── */}
+      <div className="c" style={{padding:'12px 16px', marginBottom:12, display:'flex', alignItems:'center', gap:12}}>
+        <span style={{fontSize:24}}>🔓</span>
+        <div style={{flex:1}}>
+          <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.08em'}}>Next Achievement</div>
+          <div style={{fontSize:'var(--text-sm)', fontWeight:700, color:'var(--heading)', marginTop:2}}>
+            {streak.count < 7 ? `🔥 Streak Starter — reach a 7-day streak (${7 - streak.count} days away)` :
+             streak.count < 30 ? `🌟 Streak Master — reach a 30-day streak (${30 - streak.count} days away)` :
+             st.lc < 25 ? `📚 Dedicated Learner — complete 25 lessons (${25 - st.lc} to go)` :
+             '🏆 Keep going — you\'re on a great path!'}
           </div>
         </div>
-        <button
-          onClick={() => setScr("learnpath")}
-          style={{
-            fontSize:11,fontWeight:800,
-            background:"none",border:`1.5px solid ${activePalette.border}`,
-            borderRadius:10,padding:"8px 12px",cursor:"pointer",
-            fontFamily:"'Outfit',sans-serif",flexShrink:0,
-            whiteSpace:"nowrap",color:activePalette.text,
-          }}>
-          Full Path →
-        </button>
+      </div>
+
+      {/* ── MILESTONES (conditional on lc > 0) ── */}
+      {st.lc === 0 ? (
+        <div className="c" style={{padding:16, marginBottom:8}}>
+          <div style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', marginBottom:8}}>🗺️ Your Croatian Journey</div>
+          <div style={{fontSize:'var(--text-sm)', color:'var(--subtext)', lineHeight:1.5}}>
+            Start with <strong>Basic Greetings</strong> → <strong>Numbers</strong> → <strong>Family Vocabulary</strong>. Each lesson takes 5–10 minutes.
+          </div>
+        </div>
+      ) : (
+        <>
+          {(() => {
+            // Progressive milestone challenges — next tier unlocks when current is complete
+            const streakGoal = streak.count >= 30 ? 100 : streak.count >= 7 ? 30 : 7;
+            const lessonsGoal = st.lc >= 25 ? 50 : st.lc >= 10 ? 25 : 10;
+            const masteredGoal = ws.strong >= 50 ? 100 : ws.strong >= 20 ? 50 : 20;
+            const challenges = [
+              { icon:'🔥', label:'Day Streak', cur: Math.min(streak.count, streakGoal), goal: streakGoal, color:'#ea580c' },
+              { icon:'📚', label:'Lessons', cur: Math.min(st.lc, lessonsGoal), goal: lessonsGoal, color:'#0e7490' },
+              { icon:'💪', label:'Words Mastered', cur: Math.min(ws.strong, masteredGoal), goal: masteredGoal, color:'#16a34a' },
+              { icon:'⚡', label:'XP This Week', cur: Math.min(weekXP, 100), goal: 100, color:'#7c3aed' },
+            ];
+            return (
+              <React.Fragment>
+                <div className="section-hdr">
+                  <div className="section-hdr-icon" style={{background:'rgba(245,158,11,.12)'}}>🏆</div>
+                  <div className="section-hdr-text">
+                    <div className="section-hdr-title">Milestones</div>
+                    <div className="section-hdr-sub">Track your streaks, lessons & XP goals</div>
+                  </div>
+                </div>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:10, marginBottom:20 }}>
+                  {challenges.map((c, i) => {
+                    const pct = Math.round(c.cur / c.goal * 100);
+                    const done = c.cur >= c.goal;
+                    return (
+                      <div key={i} style={{ background:c.color+'15', border:`1.5px solid ${done ? c.color : c.color+'40'}`, borderRadius:14, padding:'12px 10px', textAlign:'center' }}>
+                        <div style={{ fontSize:22, marginBottom:4 }}>{c.icon}</div>
+                        <div style={{ fontSize:11, fontWeight:900, color:c.color, lineHeight:1, fontVariantNumeric:'tabular-nums' }}>
+                          {done ? '✓' : `${c.cur}/${c.goal}`}
+                        </div>
+                        <div style={{ fontSize:9, color:'var(--subtext)', fontWeight:700, textTransform:'uppercase', letterSpacing:'.04em', marginTop:3 }}>{c.label}</div>
+                        <div style={{ height:4, background:'var(--bar-bg)', borderRadius:3, overflow:'hidden', marginTop:6 }}>
+                          <div style={{ height:'100%', width:pct+'%', background:c.color, borderRadius:3, transition:'width .6s ease' }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </React.Fragment>
+            );
+          })()}
+        </>
+      )}
+
+      {/* ── REVIEW & REINFORCE HEADER ── */}
+      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12, marginTop:24}}>
+        <div style={{width:3, height:20, background:'var(--lavender, #7c3aed)', borderRadius:2}}/>
+        <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Review & Reinforce</span>
       </div>
 
       {/* ── SRS REVIEW NUDGE ── */}
@@ -718,42 +737,6 @@ export default function HomeTab({
         );
       })()}
 
-      {/* ── WEEKLY CHALLENGES ── */}
-      {(() => {
-        // Progressive milestone challenges — next tier unlocks when current is complete
-        const streakGoal = streak.count >= 30 ? 100 : streak.count >= 7 ? 30 : 7;
-        const lessonsGoal = st.lc >= 25 ? 50 : st.lc >= 10 ? 25 : 10;
-        const masteredGoal = ws.strong >= 50 ? 100 : ws.strong >= 20 ? 50 : 20;
-        const challenges = [
-          { icon:'🔥', label:'Day Streak', cur: Math.min(streak.count, streakGoal), goal: streakGoal, color:'#ea580c' },
-          { icon:'📚', label:'Lessons', cur: Math.min(st.lc, lessonsGoal), goal: lessonsGoal, color:'#0e7490' },
-          { icon:'💪', label:'Words Mastered', cur: Math.min(ws.strong, masteredGoal), goal: masteredGoal, color:'#16a34a' },
-          { icon:'⚡', label:'XP This Week', cur: Math.min(weekXP, 100), goal: 100, color:'#7c3aed' },
-        ];
-        return (
-          <React.Fragment>
-            <h3 className="sh">Milestones</h3>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:10, marginBottom:20 }}>
-              {challenges.map((c, i) => {
-                const pct = Math.round(c.cur / c.goal * 100);
-                const done = c.cur >= c.goal;
-                return (
-                  <div key={i} style={{ background:c.color+'15', border:`1.5px solid ${done ? c.color : c.color+'40'}`, borderRadius:14, padding:'12px 10px', textAlign:'center' }}>
-                    <div style={{ fontSize:22, marginBottom:4 }}>{c.icon}</div>
-                    <div style={{ fontSize:11, fontWeight:900, color:c.color, lineHeight:1, fontVariantNumeric:'tabular-nums' }}>
-                      {done ? '✓' : `${c.cur}/${c.goal}`}
-                    </div>
-                    <div style={{ fontSize:9, color:'var(--subtext)', fontWeight:700, textTransform:'uppercase', letterSpacing:'.04em', marginTop:3 }}>{c.label}</div>
-                    <div style={{ height:4, background:'var(--bar-bg)', borderRadius:3, overflow:'hidden', marginTop:6 }}>
-                      <div style={{ height:'100%', width:pct+'%', background:c.color, borderRadius:3, transition:'width .6s ease' }} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </React.Fragment>
-        );
-      })()}
 
       {/* ── ADAPTIVE DAILY GOAL NUDGE ── */}
       {(() => {
@@ -811,11 +794,20 @@ export default function HomeTab({
         );
       })()}
 
+      {/* ── DISCOVER CROATIAN HEADER ── */}
+      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12, marginTop:24}}>
+        <div style={{width:3, height:20, background:'var(--color-croatian, #b61800)', borderRadius:2}}/>
+        <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Discover Croatian</span>
+      </div>
+
       {/* ── TODAY'S CROATIAN ── */}
-      <h3 className="sh">Today's Croatian</h3>
-      <p style={{fontSize:12,color:"var(--subtext)",marginTop:-6,marginBottom:14,fontWeight:500}}>
-        Tap any phrase to hear it spoken aloud
-      </p>
+      <div className="section-hdr">
+        <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>🇭🇷</div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">Today's Croatian</div>
+          <div className="section-hdr-sub">Tap any phrase to hear it spoken aloud</div>
+        </div>
+      </div>
 
       {/* Proverb */}
       <button
@@ -888,7 +880,13 @@ export default function HomeTab({
       </button>
 
       {/* ── QUICK TRANSLATE ── */}
-      <h3 className="sh">Quick Translate</h3>
+      <div className="section-hdr">
+        <div className="section-hdr-icon" style={{background:'rgba(14,116,144,.12)'}}>⇄</div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">Quick Translate</div>
+          <div className="section-hdr-sub">English ↔ Croatian instant lookup</div>
+        </div>
+      </div>
       <div style={{
         background:"var(--card)",
         border:"1.5px solid var(--card-b)",
