@@ -358,9 +358,8 @@ export default function CroatiaTab({ setScr, sCurEx }) {
   const cats = ["tv","music","film","sport","podcast","culture"];
   const city = getCityOfDay();
   const [activeStream, setActiveStream] = useState(null);
-  const [openCats, setOpenCats] = useState({});
+  const [activeMediaCat, setActiveMediaCat] = useState("tv");
   const [openLetter, setOpenLetter] = useState(null);
-  function toggleCat(cat) { setOpenCats(prev => ({...prev, [cat]: !prev[cat]})); }
 
   return (
     <React.Fragment>
@@ -448,66 +447,68 @@ export default function CroatiaTab({ setScr, sCurEx }) {
         </div>
       </div>
 
-      {cats.map((cat, catIdx) => {
-        const items = MEDIA.filter(m => m.cat === cat);
-        if (!items.length) return null;
-        const parts = CAT_LABELS[cat].split(' ');
-        const catEmoji = parts[0];
-        const catTitle = parts.slice(1).join(' ');
-        const isOpen = !!openCats[cat];
-        return (
-          <React.Fragment key={cat}>
-            {catIdx > 0 && <div className="cipka-divider"><span>✦ ✦ ✦</span></div>}
-          <div style={{marginBottom:8}}>
-            <button
-              onClick={() => toggleCat(cat)}
-              className="card-hr"
-              style={{width:'100%',display:'flex',alignItems:'center',gap:12,padding:'13px 16px',background:'var(--card)',border:'1px solid var(--card-b)',borderRadius: isOpen ? '16px 16px 0 0' : 16,cursor:'pointer',textAlign:'left',transition:'border-radius .2s'}}>
-              <div style={{width:40,height:40,borderRadius:11,background:'rgba(14,116,144,.1)',border:'1px solid rgba(14,116,144,.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,flexShrink:0}}>
-                {catEmoji}
-              </div>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:'var(--text-base)',fontWeight:700,color:'var(--heading)'}}>{catTitle}</div>
-                <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',marginTop:1}}>
-                  {items.length} {items.length === 1 ? 'resource' : 'resources'}
-                  {cat==='music' && <span style={{marginLeft:6,background:'rgba(30,215,96,.12)',color:'#15803d',fontSize:9,fontWeight:800,padding:'1px 6px',borderRadius:20,border:'1px solid rgba(30,215,96,.25)'}}>+ 14 Spotify playlists</span>}
-                </div>
-              </div>
-              <div style={{fontSize:18,color:'var(--subtext)',opacity:.5,transition:'transform .2s',transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',flexShrink:0}}>⌄</div>
-            </button>
-            {isOpen && (
-              <div style={{border:'1px solid var(--card-b)',borderTop:'none',borderRadius:'0 0 16px 16px',overflow:'hidden',marginBottom:8}}>
-                {items.map((m, i) => (
-                  <MediaCard
-                    key={i}
-                    m={m}
-                    cat={cat}
-                    onOpen={() => {
-                      if (m.scr) setScr(m.scr);
-                      else if (m.web) window.open(m.web, '_blank', 'noopener,noreferrer');
-                    }}
-                    activeStream={activeStream}
-                    setActiveStream={setActiveStream}
-                  />
-                ))}
-                {cat === 'music' && (
-                  <div style={{padding:'16px 14px 20px',borderTop:'2px solid rgba(30,215,96,.2)',background:'linear-gradient(180deg,rgba(30,215,96,.03) 0%,transparent 100%)'}}>
-                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>
-                      <div style={{width:28,height:28,borderRadius:8,background:'#1ed760',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'var(--text-base)',flexShrink:0}}>🎵</div>
-                      <div>
-                        <div style={{fontSize:'var(--text-sm)',fontWeight:800,color:'var(--heading)'}}>Croatian Playlists on Spotify</div>
-                        <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)'}}>14 curated playlists · tap to expand</div>
-                      </div>
+      {/* ── MEDIA PILL FILTER ── */}
+      <div style={{ marginBottom: 16 }}>
+        {/* Category pills */}
+        <div style={{ display:'flex', gap:8, overflowX:'auto', msOverflowStyle:'none', scrollbarWidth:'none', paddingBottom:2, marginBottom:12 }}>
+          {cats.map(cat => {
+            const parts = CAT_LABELS[cat].split(' ');
+            const emoji = parts[0];
+            const label = parts.slice(1).join(' ');
+            const isActive = activeMediaCat === cat;
+            return (
+              <button key={cat} onClick={() => setActiveMediaCat(cat)}
+                style={{
+                  flexShrink:0, display:'flex', alignItems:'center', gap:6,
+                  padding:'8px 14px', borderRadius:20, cursor:'pointer',
+                  fontFamily:"'Outfit',sans-serif", fontWeight:700, fontSize:'var(--text-sm)',
+                  border:`1.5px solid ${isActive ? '#0e7490' : 'var(--card-b)'}`,
+                  background: isActive ? 'rgba(14,116,144,.1)' : 'var(--card)',
+                  color: isActive ? '#0e7490' : 'var(--subtext)',
+                  transition:'all .15s',
+                  whiteSpace:'nowrap',
+                }}>
+                <span>{emoji}</span>
+                <span>{label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Active category content */}
+        {cats.filter(cat => cat === activeMediaCat).map(cat => {
+          const items = MEDIA.filter(m => m.cat === cat);
+          return (
+            <div key={cat} style={{ borderRadius:16, border:'1px solid var(--card-b)', overflow:'hidden', animation:'fadeIn .2s ease' }}>
+              {items.map((m, i) => (
+                <MediaCard
+                  key={i}
+                  m={m}
+                  cat={cat}
+                  onOpen={() => {
+                    if (m.scr) setScr(m.scr);
+                    else if (m.web) window.open(m.web, '_blank', 'noopener,noreferrer');
+                  }}
+                  activeStream={activeStream}
+                  setActiveStream={setActiveStream}
+                />
+              ))}
+              {cat === 'music' && (
+                <div style={{padding:'16px 14px 20px',borderTop:'2px solid rgba(30,215,96,.2)',background:'linear-gradient(180deg,rgba(30,215,96,.03) 0%,transparent 100%)'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>
+                    <div style={{width:28,height:28,borderRadius:8,background:'#1ed760',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'var(--text-base)',flexShrink:0}}>🎵</div>
+                    <div>
+                      <div style={{fontSize:'var(--text-sm)',fontWeight:800,color:'var(--heading)'}}>Croatian Playlists on Spotify</div>
+                      <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)'}}>14 curated playlists · tap to expand</div>
                     </div>
-                    <SpotifyPlaylists />
                   </div>
-                )}
-              </div>
-            )}
-          </div>
-          </React.Fragment>
-        );
-      })}
+                  <SpotifyPlaylists />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
 
       {/* ── IMMERSION FEATURE ── */}
       <div style={{ borderRadius:20, overflow:'hidden', marginBottom:16, boxShadow:'0 4px 20px rgba(0,0,0,.10)', border:'1px solid var(--card-b)' }}>
@@ -609,35 +610,48 @@ export default function CroatiaTab({ setScr, sCurEx }) {
         </div>
       </div>
 
-      {/* ── HISTORY & REGIONS ── */}
-      <CrSection title="History & Regions" icon="🇭🇷" count="12 entries" defaultOpen={false}>
-        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+      {/* ── HISTORY & REGIONS — always-visible 2-col grid ── */}
+      <div style={{ marginBottom:20 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
+          <span style={{ fontSize:20 }}>🇭🇷</span>
+          <span style={{ fontSize:'var(--text-base)', fontWeight:800, color:'var(--heading)', flex:1 }}>History & Regions</span>
+          <span style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:600, background:'var(--bar-bg)', borderRadius:8, padding:'2px 8px' }}>12 entries</span>
+        </div>
+        <div className="g2" style={{ gap:8 }}>
           {[
-            [()=>{setScr("history");},"🇭🇷","Domovinski Rat","Croatia's 1991–1995 Homeland War","#dc2626"],
+            [()=>{setScr("history");},"🇭🇷","Domovinski Rat","1991–1995 Homeland War","#dc2626"],
             [()=>setScr("region_vukovar"),"🕯️","Vukovar","Hero city — a deep dive","#dc2626"],
-            [()=>{setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval dynasty & royal timeline","#b45309"],
-            [()=>setScr("region_zagreb"),"🏛️","Zagreb","Croatia's vibrant capital city","#0e7490"],
-            [()=>setScr("region_split"),"🌊","Split","Rome on the Adriatic coast","#0284c7"],
-            [()=>setScr("region_mostar"),"🌉","Mostar","The bridge reborn — our city","#7c3aed"],
-            [()=>setScr("region_tomislavgrad"),"👑","Tomislavgrad","Where the Croatian kingdom was born","#b45309"],
+            [()=>{setScr("kings");sCurEx("kings");},"👑","Croatian Kings","Medieval dynasty","#b45309"],
+            [()=>setScr("region_zagreb"),"🏛️","Zagreb","Croatia's capital","#0e7490"],
+            [()=>setScr("region_split"),"🌊","Split","Rome on the Adriatic","#0284c7"],
+            [()=>setScr("region_mostar"),"🌉","Mostar","The bridge reborn","#7c3aed"],
+            [()=>setScr("region_tomislavgrad"),"👑","Tomislavgrad","Where the kingdom was born","#b45309"],
             [()=>setScr("region_knin"),"🏰","Knin","Liberated August 5, 1995","#dc2626"],
-            [()=>setScr("region_labin"),"⛵","Labin & Rabac","Our new home in Istria","#0e7490"],
-            [()=>setScr("region_bibinje"),"🏖️","Bibinje & Zadar","Dalmatian gateway to the sea","#0284c7"],
-            [()=>setScr("region_hercegovina"),"⚔️","Hrvati Hercegovine","Our Croatian heritage in Herzegovina","#b45309"],
-            [()=>setScr("region_vinkovci"),"🏛️","Vinkovci","8,300 years of continuous history","#78716c"],
-          ].map((/** @type {any} */ [fn,icon,title,sub,color],i)=>(
-            <button key={i} className="tc" onClick={fn}
-              style={{display:"flex",alignItems:"center",gap:14,padding:"13px 16px",textAlign:"left",borderLeft:`3px solid ${color}`}}>
-              <div style={{width:44,height:44,borderRadius:13,background:`${color}15`,border:`1px solid ${color}25`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>{icon}</div>
+            [()=>setScr("region_labin"),"⛵","Labin & Rabac","Our home in Istria","#0e7490"],
+            [()=>setScr("region_bibinje"),"🏖️","Bibinje & Zadar","Dalmatian gateway","#0284c7"],
+            [()=>setScr("region_hercegovina"),"⚔️","Hercegovina","Croatian heritage","#b45309"],
+            [()=>setScr("region_vinkovci"),"🏛️","Vinkovci","8,300 years of history","#78716c"],
+          ].map((/** @type {any} */ [fn,icon,title,sub,color],i) => (
+            <button key={i} onClick={fn}
+              style={{
+                display:'flex', alignItems:'center', gap:10, padding:'12px',
+                background:'var(--card)', border:`1.5px solid ${color}25`,
+                borderLeft:`3px solid ${color}`, borderRadius:12,
+                cursor:'pointer', fontFamily:"'Outfit',sans-serif", textAlign:'left',
+                transition:'transform .15s, box-shadow .15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.transform='translateY(-1px)'; e.currentTarget.style.boxShadow=`0 4px 16px ${color}20`; }}
+              onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow=''; }}
+            >
+              <div style={{width:36,height:36,borderRadius:10,background:`${color}15`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}}>{icon}</div>
               <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:'var(--text-base)',fontWeight:700,color:"var(--heading)",marginBottom:2}}>{title}</div>
-                <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",lineHeight:1.4}}>{sub}</div>
+                <div style={{fontSize:'var(--text-sm)',fontWeight:700,color:'var(--heading)',lineHeight:1.2,marginBottom:2}}>{title}</div>
+                <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',lineHeight:1.3}}>{sub}</div>
               </div>
-              <div style={{fontSize:16,color:"var(--subtext)",flexShrink:0,opacity:.5}}>›</div>
             </button>
           ))}
         </div>
-      </CrSection>
+      </div>
 
       {/* ── CROATIAN LIFE ── */}
       <CrSection title="Croatian Life" icon="🏘️" count="12 topics" defaultOpen={false}>
