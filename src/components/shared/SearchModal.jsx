@@ -1,6 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 const SEARCH_INDEX = [
+  // Home tab items
+  { tab:'home', label:'Continue Learning', icon:'▶️', desc:'Pick up your next lesson' },
+  { tab:'home', label:'Daily Quests', icon:'⚡', desc:'5 daily challenges for XP' },
+  { tab:'home', label:'Streak & XP', icon:'🔥', desc:'Your streak counter and level progress' },
+  { tab:'home', label:'Achievements', icon:'🏆', desc:'Next badge and milestone progress' },
+  { tab:'home', label:'SRS Review', icon:'📅', desc:'Spaced repetition words due for review' },
+  { tab:'home', label:'Mistake Review', icon:'🎯', desc:'Practice your most-missed words' },
+  { tab:'home', label:'Weekly Goal', icon:'📊', desc:'Weekly XP target and progress' },
   // Learn tab items
   { tab:'learn', label:'Greetings & Introductions', icon:'👋', desc:'Core vocabulary lesson' },
   { tab:'learn', label:'Family & Relationships', icon:'👨‍👩‍👧', desc:'Core vocabulary lesson' },
@@ -56,7 +64,7 @@ export default function SearchModal({ setTab, onClose }) {
     return acc;
   }, {});
 
-  const TAB_LABELS = { learn:'Learn', practice:'Practice', croatia:'Croatia', profile:'Profile' };
+  const TAB_LABELS = { home:'Home', learn:'Learn', practice:'Practice', croatia:'Croatia', profile:'Profile' };
 
   return (
     <div style={{ position:'fixed', inset:0, zIndex:2000, background:'var(--bg)', display:'flex', flexDirection:'column' }}>

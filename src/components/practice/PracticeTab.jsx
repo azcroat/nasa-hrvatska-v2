@@ -214,8 +214,28 @@ export default function PracticeTab({
   ];
 
   const visible = EXERCISES.filter(e => pFilter === 'all' || e.category === pFilter);
+  const visibleCount = pFilter === 'all' ? EXERCISES.length : EXERCISES.filter(e => e.category === pFilter).length;
 
-  function ExerciseCard({ id, label, icon, desc, cefr, duration, action }) {
+  const CATEGORY_COLORS = {
+    grammar:   '#7c3aed',
+    vocab:     '#0e7490',
+    practical: '#059669',
+    advanced:  '#d97706',
+  };
+
+  const CEFR_COLORS = {
+    'A1': '#dcfce7', 'A2': '#dcfce7',
+    'B1': '#fef3c7', 'B2': '#fef3c7',
+    'C1': '#ede9fe', 'C2': '#ede9fe',
+  };
+
+  const CEFR_TEXT = {
+    'A1': '#166534', 'A2': '#166534',
+    'B1': '#92400e', 'B2': '#92400e',
+    'C1': '#5b21b6', 'C2': '#5b21b6',
+  };
+
+  function ExerciseCard({ id, label, icon, desc, cefr, duration, action, category }) {
     return (
       <button
         onClick={action}
@@ -224,6 +244,7 @@ export default function PracticeTab({
           borderRadius:14, background:'var(--card)', border:'1px solid var(--card-b)',
           cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
           boxShadow:'0 1px 3px rgba(0,0,0,.06)',
+          borderLeft: `3px solid ${CATEGORY_COLORS[category] || 'var(--bar-bg)'}`,
         }}
       >
         <div style={{
@@ -241,7 +262,9 @@ export default function PracticeTab({
             {cefr && (
               <span style={{
                 fontSize:10, fontWeight:800, padding:'2px 7px',
-                borderRadius:4, background:'var(--info-bg, #f0f9ff)', color:'var(--info, #0e7490)',
+                borderRadius:4,
+                background: CEFR_COLORS[cefr] || 'var(--info-bg, #f0f9ff)',
+                color: CEFR_TEXT[cefr] || 'var(--info, #0e7490)',
                 border:'1px solid var(--info-b, #bae6fd)',
               }}>{cefr}</span>
             )}
@@ -417,7 +440,7 @@ export default function PracticeTab({
           <div className="section-hdr-sub">Tap any to start instantly</div>
         </div>
       </div>
-      <div className="g3" style={{ marginBottom:24 }}>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:24 }}>
         {[
           [startQuiz,       "🎯","Quiz",         "#fff7ed","#fed7aa"],
           [startFlashcards, "🃏","Flashcards",   "#f5f3ff","#ddd6fe"],
@@ -441,12 +464,12 @@ export default function PracticeTab({
         <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>📚</div>
         <div className="section-hdr-text">
           <div className="section-hdr-title">All Exercises</div>
-          <div className="section-hdr-sub">Grammar, vocabulary, and more — sorted by category</div>
+          <div className="section-hdr-sub">{visibleCount} exercise{visibleCount !== 1 ? 's' : ''} — grammar, vocabulary, and more</div>
         </div>
       </div>
 
       {/* Filter pills */}
-      <div style={{ display:'flex', gap:8, padding:'4px 0 16px', overflowX:'auto', scrollbarWidth:'none' }}>
+      <div style={{ display:'flex', gap:8, padding:'4px 0 16px', overflowX:'auto', scrollbarWidth:'none', position:'sticky', top:0, zIndex:10, background:'var(--bg)', paddingTop:8, paddingBottom:8, marginBottom:0 }}>
         {[
           { id:'all',       label:'All' },
           { id:'grammar',   label:'🧠 Grammar' },
