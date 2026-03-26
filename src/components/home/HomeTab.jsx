@@ -467,7 +467,7 @@ export default function HomeTab({
           }}>
             <div style={{
               width: 38, height: 38, borderRadius: 10, flexShrink: 0,
-              background: syncReady ? "linear-gradient(135deg,#16a34a,#15803d)" : "linear-gradient(135deg,#94a3b8,#64748b)",
+              background: syncReady ? "linear-gradient(135deg,var(--success),#15803d)" : "linear-gradient(135deg,#94a3b8,#64748b)",
               display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18,
             }}>
               {syncReady ? "☁️" : "⏳"}
@@ -483,7 +483,7 @@ export default function HomeTab({
             {syncReady && onSyncNow && (
               <button onClick={onSyncNow} style={{
                 padding: "12px 16px", borderRadius: 9, border: "none", cursor: "pointer",
-                background: "linear-gradient(135deg,#16a34a,#15803d)",
+                background: "linear-gradient(135deg,var(--success),#15803d)",
                 color: "#fff", fontSize: 11, fontWeight: 800,
                 fontFamily: "'Outfit',sans-serif", flexShrink: 0, minHeight: 44,
               }}>
@@ -717,7 +717,7 @@ export default function HomeTab({
                 <button
                   onClick={() => { localStorage.setItem('nh_daily_min', String(nextMin)); localStorage.removeItem('nh_goal_nudge_dismissed'); window.location.reload(); }}
                   style={{
-                    background:'#16a34a', color:'#fff', border:'none', borderRadius:10,
+                    background:'var(--success)', color:'#fff', border:'none', borderRadius:10,
                     padding:'8px 14px', fontSize:12, fontWeight:800, cursor:'pointer',
                     fontFamily:"'Outfit',sans-serif",
                   }}
@@ -727,7 +727,7 @@ export default function HomeTab({
                 <button
                   onClick={() => { localStorage.setItem('nh_goal_nudge_dismissed', String(dailyMin)); window.location.reload(); }}
                   style={{
-                    background:'none', color:'#16a34a', border:'1.5px solid #86efac', borderRadius:10,
+                    background:'none', color:'var(--success)', border:'1.5px solid var(--success-b)', borderRadius:10,
                     padding:'8px 14px', fontSize:12, fontWeight:700, cursor:'pointer',
                     fontFamily:"'Outfit',sans-serif",
                   }}

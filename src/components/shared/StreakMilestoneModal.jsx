@@ -57,41 +57,44 @@ export default function StreakMilestoneModal({ days, onClose }) {
         background:'rgba(0,0,0,0.6)', backdropFilter:'blur(6px)' }}
     >
       <div onClick={e=>e.stopPropagation()} style={{
-        background:'#fff', borderRadius:28, padding:'44px 40px 36px', textAlign:'center',
-        maxWidth:320, width:'90%', boxShadow:'0 32px 80px rgba(0,0,0,.3)',
+        background:'var(--card)', borderRadius:28, padding:'44px 40px 36px', textAlign:'center',
+        maxWidth:320, width:'90%', boxShadow:'var(--card-shadow)',
         border:`3px solid ${msg.color}`, animation:'celebPop .5s cubic-bezier(.34,1.56,.64,1) forwards',
+        fontFamily:'var(--font-sans)',
       }}>
         <div style={{ fontSize:72, lineHeight:1, marginBottom:8 }}>{msg.emoji}</div>
-        <div style={{ fontSize:26, fontWeight:900, color:msg.color, fontFamily:"'Playfair Display',serif", marginBottom:6 }}>
+        <div style={{ fontSize:'var(--text-3xl)', fontWeight:900, color:msg.color, fontFamily:'var(--font-serif)', marginBottom:6 }}>
           {msg.title}
         </div>
-        <div style={{ fontSize:14, color:'#64748b', marginBottom:20, lineHeight:1.5 }}>{msg.sub}</div>
+        <div style={{ fontSize:'var(--text-base)', color:'var(--subtext)', marginBottom:20, lineHeight:'var(--leading-normal)' }}>{msg.sub}</div>
         <div style={{ fontSize:48, fontWeight:900, color:msg.color, fontVariantNumeric:'tabular-nums', marginBottom:4 }}>
           {days}
         </div>
-        <div style={{ fontSize:12, color:'#94a3b8', marginBottom:8 }}>days in a row</div>
+        <div style={{ fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:8 }}>days in a row</div>
         <div style={{
-          fontSize:12, color:'#475569', background:'#f1f5f9', borderRadius:10,
-          padding:'10px 14px', marginBottom:20, lineHeight:1.5, textAlign:'left',
+          fontSize:'var(--text-sm)', color:'var(--body)', background:'var(--bar-bg)', borderRadius:'var(--radius-md)',
+          padding:'10px 14px', marginBottom:20, lineHeight:'var(--leading-normal)', textAlign:'left',
+          border:'1px solid var(--card-b)',
         }}>
           {msg.tip}
         </div>
-        <button onClick={onClose} style={{
+        <button onClick={onClose} className="b" style={{
           width:'100%', padding:'12px 32px', background:`linear-gradient(135deg,${msg.color},#164e63)`,
-          color:'#fff', border:'none', borderRadius:14, fontSize:15, fontWeight:700, cursor:'pointer',
+          color:'#fff', border:'none', borderRadius:14, fontSize:'var(--text-md)', fontWeight:700, cursor:'pointer',
         }}>Keep Going 💪</button>
         <button
           onClick={handleShare}
+          className="b"
           style={{
             width:'100%', padding:'12px', marginTop:12,
             background:'linear-gradient(135deg, #0e7490, #164e63)',
             color:'#fff', border:'none', borderRadius:12,
-            fontSize:13, fontWeight:800, cursor:'pointer',
+            fontSize:'var(--text-sm)', fontWeight:800, cursor:'pointer',
           }}
         >
           {copied ? '✓ Copied to clipboard!' : '📤 Share your streak'}
         </button>
-        <div style={{ fontSize:11, color:'#94a3b8', marginTop:12 }}>Tap anywhere to close</div>
+        <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:12 }}>Tap anywhere to close</div>
       </div>
     </div>
   );

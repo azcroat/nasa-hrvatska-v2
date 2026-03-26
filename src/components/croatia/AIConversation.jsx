@@ -1001,21 +1001,23 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
           const selected = scenario?.id === s.id;
           return (
             <div key={s.id} onClick={() => setScenario(s)}
-              style={{ padding: 15, borderRadius: 16, border: `2px solid ${selected ? s.color : "#e2e8f0"}`,
-                background: selected ? s.bg : "white", cursor: "pointer", transition: "all .15s",
+              style={{ padding: 15, borderRadius: 16, border: `2px solid ${selected ? s.color : "var(--card-b)"}`,
+                background: selected ? s.bg : "var(--card)", cursor: "pointer",
+                transition: 'transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s ease, border-color .15s ease',
+                transform: selected ? 'scale(1.02)' : 'scale(1)',
                 boxShadow: selected ? `0 4px 18px ${s.color}25` : "none" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div style={{ fontSize: 26, flexShrink: 0, width: 40, textAlign: "center" }}>{s.icon}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                    <span style={{ fontSize: 14, fontWeight: 800, color: "#0f172a" }}>{s.title}</span>
-                    <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, background: "#f1f5f9", padding: "1px 7px", borderRadius: 10 }}>{s.cat}</span>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: "var(--heading)" }}>{s.title}</span>
+                    <span style={{ fontSize: 10, color: "var(--subtext)", fontWeight: 600, background: "var(--bar-bg)", padding: "1px 7px", borderRadius: 10 }}>{s.cat}</span>
                   </div>
-                  <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>{s.desc}</div>
+                  <div style={{ fontSize: 12, color: "var(--subtext)", marginTop: 2 }}>{s.desc}</div>
                   <div style={{ display: "flex", gap: 4, marginTop: 6, flexWrap: "wrap" }}>
                     {s.levels.map(l => (
                       <span key={l} style={{ fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 10,
-                        background: l === level ? s.color : "#f1f5f9", color: l === level ? "white" : "#94a3b8" }}>
+                        background: l === level ? s.color : "var(--bar-bg)", color: l === level ? "white" : "var(--subtext)" }}>
                         {l}
                       </span>
                     ))}

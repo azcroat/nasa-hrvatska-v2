@@ -152,8 +152,8 @@ export default function LearnTab({
               {(!st || st.lc === 0) && (
                 <div style={{
                   position:'absolute', top:-8, right:60,
-                  background:'#dc2626', color:'#fff',
-                  fontSize:9, fontWeight:900, padding:'3px 8px',
+                  background:'var(--error)', color:'#fff',
+                  fontSize:'var(--text-xs)', fontWeight:900, padding:'3px 8px',
                   borderRadius:10, letterSpacing:'.05em',
                   animation:'pulse 2s infinite',
                 }}>
@@ -290,14 +290,14 @@ export default function LearnTab({
               <span style={{ fontSize:20 }}>{gf.icon}</span>
               <div>
                 <div style={{ fontSize:13, fontWeight:900, color: gf.color }}>{gf.label}</div>
-                <div style={{ fontSize:11, color:'#94a3b8', marginTop:1, fontWeight:500 }}>Personalized for your goal</div>
+                <div style={{ fontSize:11, color:'var(--subtext)', marginTop:1, fontWeight:500 }}>Personalized for your goal</div>
               </div>
             </div>
             <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
               {gf.tips.map((tip, i) => (
                 <div key={i} style={{ display:'flex', alignItems:'flex-start', gap:10 }}>
                   <span style={{ fontSize:13, fontWeight:900, color: gf.color, flexShrink:0, marginTop:1 }}>{i+1}.</span>
-                  <span style={{ fontSize:12, color:'#374151', fontWeight:500, lineHeight:1.5 }}>{tip}</span>
+                  <span style={{ fontSize:12, color:'var(--body)', fontWeight:500, lineHeight:1.5 }}>{tip}</span>
                 </div>
               ))}
             </div>
@@ -333,12 +333,12 @@ export default function LearnTab({
                       }}>
                         {isComplete ? '✓' : lv.level}
                       </div>
-                      <div style={{ fontSize:9, fontWeight:800, color: isCurrent ? 'var(--heading)' : isComplete ? '#16a34a' : 'var(--subtext)', letterSpacing:'.03em', lineHeight:1.2 }}>
+                      <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color: isCurrent ? 'var(--heading)' : isComplete ? 'var(--success)' : 'var(--subtext)', letterSpacing:'.03em', lineHeight:1.2 }}>
                         {lv.title}
                       </div>
                       <span style={{
-                        fontSize:9, fontWeight:800, background:'rgba(14,116,144,0.15)',
-                        color:'#0e7490', borderRadius:4, padding:'1px 4px', marginTop:2,
+                        fontSize:'var(--text-xs)', fontWeight:800, background:'var(--info-bg)',
+                        color:'var(--info)', borderRadius:4, padding:'1px 4px', marginTop:2,
                         display:'inline-block',
                       }}>
                         {stageCEFR[i]}
