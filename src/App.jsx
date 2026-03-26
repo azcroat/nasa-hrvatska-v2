@@ -775,7 +775,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {currentScreen==="welcome" && <WelcomeScreen name={name} au={authUser} st={stats} setScr={setScr} setName={setName} sPq={sPq} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} />}
       {currentScreen==="placement" && <PlacementTest pq={pq} pi={pi} ps={ps} pa={pa} px={px} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} setScr={setScr} setSt={setStats} />}
       {// ═══ DASHBOARD ═══
-      currentScreen==="dashboard"&&<div className="dash" id="main-content" role="main">
+      currentScreen==="dashboard"&&<div className="dash" role="main">
         <div style={{position:"relative",marginBottom:20}}>
           <div style={{position:"relative"}} role="search">
             <span style={{position:"absolute",left:14,top:"50%",transform:"translateY(-50%)",fontSize:16,pointerEvents:"none",opacity:.4}} aria-hidden="true">🔍</span>
