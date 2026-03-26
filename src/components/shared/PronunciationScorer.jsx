@@ -13,21 +13,29 @@ export default function PronunciationScorer({ targetText, onScore }) {
     (/** @type {any} */ (window).SpeechRecognition || /** @type {any} */ (window).webkitSpeechRecognition)
   );
 
-  function similarity(a, b) {
-    // Normalize: lowercase, remove punctuation, trim
-    const norm = (/** @type {string} */ s) => s.toLowerCase().replace(/[.,!?;:'"]/g, '').trim();
-    const na = norm(a), nb = norm(b);
-    if (na === nb) return 100;
-    // Levenshtein distance-based score
-    const m = na.length, n = nb.length;
+  function levenshtein(a, b) {
+    const m = a.length, n = b.length;
     const dp = Array.from({ length: m + 1 }, (_, i) =>
       Array.from({ length: n + 1 }, (_, j) => i === 0 ? j : j === 0 ? i : 0)
     );
     for (let i = 1; i <= m; i++)
       for (let j = 1; j <= n; j++)
-        dp[i][j] = na[i-1] === nb[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
-    const maxLen = Math.max(m, n);
-    return maxLen === 0 ? 100 : Math.round((1 - dp[m][n] / maxLen) * 100);
+        dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+    return dp[m][n];
+  }
+
+  function similarity(a, b) {
+    // Normalize: lowercase, remove diacritics for comparison, remove punctuation, trim
+    const norm = (/** @type {string} */ s) => s.toLowerCase()
+      .replace(/[čć]/g, 'c').replace(/[šš]/g, 's')
+      .replace(/[žž]/g, 'z').replace(/đ/g, 'd')
+      .replace(/[.,!?;:'"]/g, '').trim();
+    const na = norm(a), nb = norm(b);
+    if (na === nb) return 100;
+    const maxLen = Math.max(na.length, nb.length);
+    if (maxLen === 0) return 100;
+    const dist = levenshtein(na, nb);
+    return Math.round((1 - dist / maxLen) * 100);
   }
 
   function start() {
@@ -58,8 +66,25 @@ export default function PronunciationScorer({ targetText, onScore }) {
     setState('listening');
   }
 
-  function scoreColor(s) { return s >= 80 ? '#16a34a' : s >= 60 ? '#d97706' : '#dc2626'; }
-  function scoreLabel(s) { return s >= 90 ? 'Excellent!' : s >= 75 ? 'Good' : s >= 55 ? 'Keep practising' : 'Try again'; }
+  // Spec thresholds: 90-100 excellent, 70-89 good, 50-69 keep practicing, <50 try again
+  function scoreColor(s) {
+    if (s >= 90) return '#16a34a';
+    if (s >= 70) return '#d97706';
+    if (s >= 50) return '#ea580c';
+    return '#dc2626';
+  }
+  function scoreEmoji(s) {
+    if (s >= 90) return '🟢';
+    if (s >= 70) return '🟡';
+    if (s >= 50) return '🟠';
+    return '🔴';
+  }
+  function scoreLabel(s) {
+    if (s >= 90) return 'Excellent!';
+    if (s >= 70) return 'Good!';
+    if (s >= 50) return 'Keep practicing';
+    return 'Try again';
+  }
 
   if (!supported) return (
     <div style={{ fontSize: 12, color: 'var(--subtext)', fontStyle: 'italic', marginTop: 8 }}>
@@ -104,7 +129,9 @@ export default function PronunciationScorer({ targetText, onScore }) {
               fontSize: 17, fontWeight: 900, color: scoreColor(result.score),
             }}>{result.score}%</div>
             <div>
-              <div style={{ fontWeight: 800, fontSize: 15, color: scoreColor(result.score) }}>{scoreLabel(result.score)}</div>
+              <div style={{ fontWeight: 800, fontSize: 15, color: scoreColor(result.score) }}>
+                {scoreEmoji(result.score)} {scoreLabel(result.score)} {result.score}%
+              </div>
               <div style={{ fontSize: 12, color: 'var(--subtext)' }}>You said: "{result.spoken}"</div>
             </div>
           </div>
