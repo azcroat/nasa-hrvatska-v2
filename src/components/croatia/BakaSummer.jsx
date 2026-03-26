@@ -194,6 +194,57 @@ const CHAPTERS = [
     ],
     cultural: "Prošek is a traditional Dalmatian sweet wine made from dried grapes, sipped slowly and ceremonially. The Croatian diaspora numbers over 1.2 million people worldwide — their connection to language and homeland is the living heart of this app.",
   },
+  {
+    id: 13,
+    title: "Poglavlje 13: Pismo iz Slavonije — Baka Vera",
+    date: "20. rujna",
+    croatian: `Draga djeco, pišem vam iz naše kuće blizu Đakova, gdje je upravo počela berba kukuruza. Slavonska ravnica je sada zlatna dokle oko seže — redovi kukuruza visoki kao odrasli čovjek, a nebo ogromno i plavo nad njima. Muž i sinovi su od zore na polju, a ja sam u dvorištu nizala paprike na konac. Crvene, žute, narančaste — vise s krovnog vijenca kao ukras. Znaš, lijepo je to gledati. Osušit ću ih za zimu i napravit ću kolač od maka kakvog nema nigdje na svijetu — moj recept je star sto godina. Za ručak sam skuhala fiš paprikaš od šarana kojeg je Ivan ulovio na Dravi, a za večer pripreman kulen — onaj pravi, ljuti, što grije iznutra. Slavonija nema mora, ali ima ravnicu, i ta ravnica ti da sve što trebaš. Čuvajte se i pišite svojoj baki Veri.`,
+    english: `Dear children, I'm writing to you from our house near Đakovo, where the corn harvest has just begun. The Slavonian plain is golden now as far as the eye can see — rows of corn as tall as a grown person, and the sky enormous and blue above them. My husband and sons have been in the field since dawn, and I've been in the yard stringing peppers on a thread. Red, yellow, orange — they hang from the roof eave like decorations. You know, it's beautiful to watch. I'll dry them for winter and I'll make a poppy-seed cake the likes of which exist nowhere else in the world — my recipe is a hundred years old. For lunch I cooked fish stew from the carp that Ivan caught on the Drava, and for the evening I'm preparing kulen — the real kind, spicy, the kind that warms you from within. Slavonia has no sea, but it has the plain, and that plain gives you everything you need. Take care of yourselves and write to your Baka Vera.`,
+    vocab: [
+      { hr: "berba kukuruza", en: "corn harvest" },
+      { hr: "ravnica", en: "plain / flatland" },
+      { hr: "nizati na konac", en: "to string on a thread (peppers to dry)" },
+      { hr: "kolač od maka", en: "poppy-seed cake" },
+      { hr: "fiš paprikaš", en: "spicy freshwater fish stew (Slavonian specialty)" },
+      { hr: "kulen", en: "Slavonian spiced sausage (protected designation)" },
+      { hr: "šaran", en: "carp" },
+    ],
+    cultural: "Slavonia, in eastern Croatia, is the country's agricultural heartland — flat, fertile, and famous for its food culture. Kulen is a UNESCO-recognized Slavonian sausage made with pork and hot paprika, cured over months. Fiš paprikaš, a paprika-laced fish stew cooked in a cauldron over open fire, is the region's defining dish.",
+  },
+  {
+    id: 14,
+    title: "Poglavlje 14: Pisma s brežuljaka — Baka Kata",
+    date: "12. listopada",
+    croatian: `Dragi moji, pišem vam dok gledam kroz prozor na naše zagorske brežuljke, mokre od jesenske kiše i zelene kao u bajci. Varaždin je jučer bio pun turista koji su se divili baroknim pročeljima i gradskim zidinama — a ja sam samo sjedila na klupi i gledala ih kako fotografiraju ono što mi je svakodnevica. Čovjek ne cijeni što ima dok ne vidi tuđe oduševljenje. Prošlog tjedna bila je berba grožđa kod susjeda Horvata. Svi smo pomogli, ruke su nam bile ljubičaste do lakta, a smijeh se čuo sve do Trakošćana. Navečer smo jeli zagorske štrukle — one prave, s toplim sirom i vrhnjem, kakvih nema nigdje drugdje. Znate da je taj kolač zaštićen kao naša nematerijalna baština? Pravo je tako. Neke se stvari moraju čuvati. Kao što se čuvaju djeca, kao što se čuva jezik, kao što se čuva sjećanje na oca i majku. Vaša baka Kata vas grli.`,
+    english: `My dears, I'm writing to you while looking through the window at our Zagorje hills, wet from autumn rain and green as in a fairy tale. Varaždin was full of tourists yesterday admiring the baroque facades and the city walls — and I just sat on a bench watching them photograph what is my everyday life. One doesn't appreciate what one has until one sees another's wonder. Last week was the grape harvest at the Horvat neighbors'. We all helped, our hands were purple to the elbow, and the laughter could be heard all the way to Trakošćan. In the evening we ate zagorski štrukli — the real kind, with warm cheese and cream, the kind that exists nowhere else. Did you know that this pastry is protected as our intangible heritage? Rightly so. Some things must be preserved. Like children are preserved, like language is preserved, like the memory of father and mother is preserved. Your Baka Kata embraces you.`,
+    vocab: [
+      { hr: "brežuljak", en: "hill / hillock (rolling hill)" },
+      { hr: "barokno pročelje", en: "baroque facade" },
+      { hr: "berba grožđa", en: "grape harvest / wine harvest" },
+      { hr: "zagorski štrukli", en: "Zagorje cheese-filled pastry (protected dish)" },
+      { hr: "vrhnje", en: "soured cream / crème fraîche" },
+      { hr: "nematerijalna baština", en: "intangible heritage" },
+      { hr: "kajkavski", en: "Kajkavian (Croatian dialect of Zagorje region)" },
+    ],
+    cultural: "Zagorje is the hilly region north of Zagreb, famous for its medieval castles (including Trakošćan, built in the 13th century), baroque Varaždin, and the Kajkavian dialect. Zagorski štrukli — baked or boiled pastry filled with cottage cheese — was added to Croatia's intangible cultural heritage list in 2007 and is one of the country's most beloved comfort foods.",
+  },
+  {
+    id: 15,
+    title: "Poglavlje 15: Pozdrav iz Baranje — Stric Stjepan",
+    date: "5. rujna",
+    croatian: `Dragi nećaci i nećakinje, pisati pisma nije moj najjači adut, ali baka kaže da morate čuti i glas jednog strica. Živim u Baranji, na samom kutu gdje se Drava ulijeva u Dunav, i ovo je jedno od najtiših i najljepših mjesta na svijetu — makar to malo tko zna. Jutros sam bio u Kopačkom ritu, onome divovskom močvarnom parku gdje žive tisuće ptica. Vidio sam štrkove, čaplju, i čudio se kako takvo mjesto može biti toliko tiho i glasno u isti čas. Pecam u slobodnom vremenu — sinoć sam ulovio odličnog šarana, a susjed Janoš, koji je Mađar, dao mi je svoju tajnu za riblja juha. Baranja je takva — Hrvati, Mađari, Nijemci, svi zajedno, svaki sa svojom kuhinjom i svojom pričom. Za večer ću otvoriti bocu domaće graševine i nazdraviti vama, gdje god bili. Živjeli!`,
+    english: `Dear nephews and nieces, writing letters is not my strongest suit, but grandma says you must hear the voice of an uncle too. I live in Baranja, at the very corner where the Drava flows into the Danube, and this is one of the quietest and most beautiful places in the world — even if few people know it. This morning I was in Kopački rit, that enormous wetland park where thousands of birds live. I saw storks, a heron, and marveled at how such a place can be so silent and so loud at the same time. I fish in my free time — last night I caught an excellent carp, and my neighbor Janoš, who is Hungarian, gave me his secret for fish soup. Baranja is like that — Croatians, Hungarians, Germans, all together, each with their own kitchen and their own story. This evening I'll open a bottle of homemade Graševina and toast to you, wherever you are. Cheers!`,
+    vocab: [
+      { hr: "nećak / nećakinja", en: "nephew / niece" },
+      { hr: "adut", en: "strong suit / trump card" },
+      { hr: "Kopački rit", en: "Kopački Rit — vast wetland nature reserve in Baranja" },
+      { hr: "štrkao", en: "stork" },
+      { hr: "čaplja", en: "heron" },
+      { hr: "graševina", en: "Graševina — white wine grape variety, dominant in Baranja" },
+      { hr: "nazdraviti", en: "to toast (raise a glass)" },
+    ],
+    cultural: "Baranja is Croatia's northeastern tip, wedged between the Drava and Danube rivers. Kopački Rit Nature Park is one of Europe's largest wetlands and a UNESCO candidate site, home to over 290 bird species. The region has a centuries-old multiethnic character — Croatian, Hungarian, and Danube-Swabian German communities have coexisted here, each contributing to the food, wine, and folk culture of the area. Baranja's Graševina white wine is among Croatia's most celebrated varieties.",
+  },
 ];
 
 export default function BakaSummer({ goBack, award }) {
@@ -226,7 +277,7 @@ export default function BakaSummer({ goBack, award }) {
 
   // Award completion bonus if all done and not yet awarded
   useEffect(() => {
-    if (chaptersDone.size === 12 && !bonusAwarded) {
+    if (chaptersDone.size === 15 && !bonusAwarded) {
       award(100);
       localStorage.setItem('nh_baka_done_bonus', '1');
       setBonusAwarded(true);
@@ -235,7 +286,7 @@ export default function BakaSummer({ goBack, award }) {
 
   const current = CHAPTERS[chapter];
   const isCompleted = chaptersDone.has(chapter);
-  const allDone = chaptersDone.size === 12;
+  const allDone = chaptersDone.size === 15;
 
   function markComplete() {
     const updated = new Set(chaptersDone);
@@ -243,18 +294,18 @@ export default function BakaSummer({ goBack, award }) {
     setChaptersDone(updated);
     localStorage.setItem('nh_baka_done', JSON.stringify([...updated]));
     award(20);
-    if (chapter < 11) {
+    if (chapter < 14) {
       const next = chapter + 1;
       setChapter(next);
       localStorage.setItem('nh_baka_ch', String(next));
     } else {
-      localStorage.setItem('nh_baka_ch', '11');
+      localStorage.setItem('nh_baka_ch', '14');
     }
   }
 
   function goToChapter(idx) {
     const maxAllowed = chaptersDone.size;
-    if (idx >= 0 && idx <= Math.min(maxAllowed, 11)) {
+    if (idx >= 0 && idx <= Math.min(maxAllowed, 14)) {
       setChapter(idx);
       localStorage.setItem('nh_baka_ch', String(idx));
     }
@@ -291,14 +342,14 @@ export default function BakaSummer({ goBack, award }) {
           display: 'flex', justifyContent: 'space-between',
           fontSize: 12, color: '#78716c', marginBottom: 6,
         }}>
-          <span style={{ fontWeight: 600 }}>Poglavlje {chapter + 1} od 12</span>
-          <span>{chaptersDone.size} / 12 dovršeno</span>
+          <span style={{ fontWeight: 600 }}>Poglavlje {chapter + 1} od 15</span>
+          <span>{chaptersDone.size} / 15 dovršeno</span>
         </div>
         <div style={{ background: '#e5e7eb', borderRadius: 8, height: 8, overflow: 'hidden' }}>
           <div style={{
             background: '#b61800',
             height: '100%',
-            width: `${(chaptersDone.size / 12) * 100}%`,
+            width: `${(chaptersDone.size / 15) * 100}%`,
             borderRadius: 8,
             transition: 'width 0.4s ease',
           }} />
@@ -354,7 +405,7 @@ export default function BakaSummer({ goBack, award }) {
             Završili ste Bakino Ljeto!
           </div>
           <div style={{ fontSize: 14, color: '#78350f', fontStyle: 'italic' }}>
-            You finished all 12 chapters of Baka's Summer. Bravo!
+            You finished all 15 chapters of Baka's Summer. Bravo!
           </div>
         </div>
       )}
@@ -551,7 +602,7 @@ export default function BakaSummer({ goBack, award }) {
           >
             ✓ Mark Complete
           </button>
-        ) : chapter < 11 ? (
+        ) : chapter < 14 ? (
           <button
             onClick={() => goToChapter(chapter + 1)}
             style={{
