@@ -262,44 +262,84 @@ Tvoja Baka 💙`,
 function SpotifyCard({ pl, openId, setOpenId }) {
   const isOpen = openId === pl.id;
   return (
-    <div style={{ borderRadius:14, overflow:'hidden', border:'1px solid var(--card-b)', marginBottom:8, background:'var(--card)' }}>
+    <div style={{
+      borderRadius: 14, overflow: 'hidden', marginBottom: 8,
+      background: isOpen
+        ? 'linear-gradient(160deg,#0c1a2e,#0d1f18)'
+        : 'linear-gradient(135deg,#0f1e2e,#0d1a14)',
+      border: `1px solid ${isOpen ? 'rgba(30,215,96,.35)' : 'rgba(30,215,96,.15)'}`,
+      transition: 'border-color .2s',
+    }}>
       <button
         onClick={() => setOpenId(isOpen ? null : pl.id)}
-        style={{ width:'100%', display:'flex', alignItems:'center', gap:12, padding:'12px 14px', background:'none', border:'none', cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif" }}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+          padding: '12px 14px', background: 'none', border: 'none',
+          cursor: 'pointer', textAlign: 'left', fontFamily: "'Outfit',sans-serif",
+        }}
       >
-        <div style={{ width:42, height:42, borderRadius:11, background:pl.color+'18', border:`1px solid ${pl.color}30`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0 }}>
-          {pl.icon}
+        {/* Icon band */}
+        <div style={{
+          width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+          background: `linear-gradient(135deg,${pl.color}cc,${pl.color})`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 20, boxShadow: `0 4px 12px ${pl.color}40`,
+          position: 'relative', overflow: 'hidden',
+        }}>
+          <div style={{ position:'absolute',top:0,left:0,right:0,bottom:0,backgroundImage:'radial-gradient(circle,rgba(255,255,255,.15) 1px,transparent 1px)',backgroundSize:'10px 10px' }}/>
+          <span style={{ position: 'relative' }}>{pl.icon}</span>
         </div>
-        <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:3, flexWrap:'wrap' }}>
-            <span style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)' }}>{pl.name}</span>
-            <span style={{ background:pl.color+'18', color:pl.color, fontSize:9, fontWeight:800, padding:'2px 7px', borderRadius:20, border:`1px solid ${pl.color}30`, letterSpacing:'0.04em', flexShrink:0 }}>{pl.tag}</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'white' }}>{pl.name}</span>
+            <span style={{
+              background: 'rgba(30,215,96,.18)', color: '#1ed760',
+              fontSize: 9, fontWeight: 800, padding: '2px 7px',
+              borderRadius: 20, border: '1px solid rgba(30,215,96,.3)',
+              letterSpacing: '0.04em', flexShrink: 0,
+            }}>{pl.tag}</span>
           </div>
-          <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.4 }}>{pl.desc}</div>
+          <div style={{ fontSize: 'var(--text-xs)', color: 'rgba(255,255,255,.5)', lineHeight: 1.4 }}>{pl.desc}</div>
         </div>
-        <div style={{ fontSize:18, color:'var(--subtext)', opacity:.5, transition:'transform .2s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink:0 }}>⌄</div>
+        <div style={{
+          width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+          background: isOpen ? 'rgba(30,215,96,.2)' : 'rgba(255,255,255,.07)',
+          border: `1px solid ${isOpen ? 'rgba(30,215,96,.4)' : 'rgba(255,255,255,.12)'}`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: isOpen ? '#1ed760' : 'rgba(255,255,255,.4)',
+          fontSize: 14, transition: 'all .2s',
+          transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+        }}>⌄</div>
       </button>
       {isOpen && (
-        <div style={{ borderTop:'1px solid var(--card-b)' }}>
+        <div style={{ borderTop: '1px solid rgba(30,215,96,.2)' }}>
           <iframe
-            src={`https://open.spotify.com/embed/playlist/${pl.id}?utm_source=generator`}
+            src={`https://open.spotify.com/embed/playlist/${pl.id}?utm_source=generator&theme=0`}
             width="100%"
             height="352"
             frameBorder="0"
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture; storage-access"
             loading="lazy"
-            style={{ display:'block' }}
+            style={{ display: 'block' }}
           />
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 14px', background:'rgba(30,215,96,.05)', borderTop:'1px solid rgba(30,215,96,.12)' }}>
-            <span style={{ fontSize:'var(--text-xs)', color:'var(--subtext)' }}>Not loading? Open directly in Spotify.</span>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '10px 14px',
+            background: 'rgba(30,215,96,.06)',
+            borderTop: '1px solid rgba(30,215,96,.15)',
+          }}>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'rgba(255,255,255,.4)' }}>Not loading? Open directly in Spotify.</span>
             <a
               href={`https://open.spotify.com/playlist/${pl.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ display:'flex', alignItems:'center', gap:5, padding:'6px 12px', background:'#1ed760', borderRadius:20, fontSize:'var(--text-xs)', fontWeight:800, color:'#000', textDecoration:'none', flexShrink:0 }}
-            >
-              <span>Open in Spotify ↗</span>
-            </a>
+              style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                padding: '6px 14px', background: '#1ed760',
+                borderRadius: 20, fontSize: 'var(--text-xs)',
+                fontWeight: 800, color: '#000', textDecoration: 'none', flexShrink: 0,
+              }}
+            >Open in Spotify ↗</a>
           </div>
         </div>
       )}
@@ -310,15 +350,25 @@ function SpotifyCard({ pl, openId, setOpenId }) {
 function SpotifyPlaylists() {
   const [openId, setOpenId] = useState(null);
   const groups = [
-    { label:'🎤 Croatian Icons', key:'icons' },
-    { label:'🎧 Genres & Moods', key:'genres' },
-    { label:'🗺️ By Region', key:'regions' },
+    { label: '🎤 Croatian Icons', key: 'icons' },
+    { label: '🎧 Genres & Moods', key: 'genres' },
+    { label: '🗺️ By Region', key: 'regions' },
   ];
   return (
     <div>
       {groups.map(({ label, key }) => (
         <div key={key}>
-          <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', letterSpacing:'.12em', textTransform:'uppercase', marginBottom:8, marginTop: key==='icons' ? 0 : 14 }}>{label}</div>
+          <div style={{
+            fontSize: 'var(--text-xs)', fontWeight: 900,
+            color: 'rgba(255,255,255,.5)',
+            letterSpacing: '.12em', textTransform: 'uppercase',
+            marginBottom: 8, marginTop: key === 'icons' ? 0 : 16,
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}>
+            <div style={{ width: 16, height: 1, background: 'rgba(30,215,96,.4)' }}/>
+            {label}
+            <div style={{ flex: 1, height: 1, background: 'rgba(30,215,96,.15)' }}/>
+          </div>
           {SPOTIFY_PLAYLISTS[key].map(pl => (
             <SpotifyCard key={pl.id} pl={pl} openId={openId} setOpenId={setOpenId} />
           ))}
@@ -722,12 +772,21 @@ export default function CroatiaTab({ setScr, sCurEx }) {
             </div>
             {/* Spotify section under Music */}
             {cat === 'music' && (
-              <div style={{marginTop:14,padding:'16px 14px 20px',borderRadius:14,background:'linear-gradient(180deg,rgba(30,215,96,.05) 0%,rgba(30,215,96,.02) 100%)',border:'1px solid rgba(30,215,96,.15)'}}>
-                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}>
-                  <div style={{width:32,height:32,borderRadius:10,background:'#1ed760',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,flexShrink:0}}>🎵</div>
+              <div style={{
+                marginTop:14, padding:'18px 14px 20px', borderRadius:16,
+                background:'linear-gradient(160deg,#0c1a2e 0%,#0d1f18 100%)',
+                border:'1px solid rgba(30,215,96,.2)',
+                boxShadow:'0 4px 20px rgba(0,0,0,.3)',
+              }}>
+                <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
+                  <div style={{
+                    width:40,height:40,borderRadius:12,background:'#1ed760',
+                    display:'flex',alignItems:'center',justifyContent:'center',
+                    fontSize:20,flexShrink:0,boxShadow:'0 4px 12px rgba(30,215,96,.4)',
+                  }}>🎵</div>
                   <div>
-                    <div style={{fontSize:14,fontWeight:900,color:'var(--heading)'}}>Croatian Music on Spotify</div>
-                    <div style={{fontSize:11,color:'var(--subtext)'}}>14 curated playlists · tap to expand</div>
+                    <div style={{fontSize:15,fontWeight:900,color:'white'}}>Croatian Music on Spotify</div>
+                    <div style={{fontSize:11,color:'rgba(255,255,255,.45)',marginTop:1}}>14 curated playlists · tap to expand</div>
                   </div>
                 </div>
                 <SpotifyPlaylists/>
