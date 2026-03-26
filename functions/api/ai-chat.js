@@ -119,6 +119,26 @@ Return ONLY a valid JSON object (no markdown):
 Keep the translation concise and accurate. For verbs, give the infinitive meaning.`;
 }
 
+function buildWordAnalyzePrompt() {
+  return `You are an expert Croatian linguist and grammar teacher. Analyze the given Croatian word in context.
+
+Return ONLY a valid JSON object (no markdown, no explanation):
+{
+  "pos": "<noun|verb|adjective|adverb|preposition|conjunction|pronoun|numeral|particle>",
+  "base_form": "<nominative singular for nouns/adjectives, infinitive for verbs>",
+  "gender": "<m|f|n|null>",
+  "case": "<Nominative|Genitive|Dative|Accusative|Vocative|Locative|Instrumental|null>",
+  "number": "<singular|plural|null>",
+  "tense": "<present|past|future|null>",
+  "person": "<1st|2nd|3rd|null>",
+  "aspect": "<imperfective|perfective|null>",
+  "explanation": "<1 sentence in English explaining this exact word form and why it appears in this case/tense/form>",
+  "examples": ["<short Croatian example sentence using the base form>", "<another example>"]
+}
+
+Rules: be accurate to standard Croatian grammar. If the word is a preposition or conjunction, set most fields to null. Always provide 2 examples.`;
+}
+
 function buildHintPrompt() {
   return `You are a Croatian language tutor. The student needs a quick hint to continue their conversation.
 Give 2-3 sentences in English explaining what to say next. Include 1-2 example Croatian phrases they could use with a translation. Be concise and encouraging.`;
@@ -167,6 +187,8 @@ function buildSystemPrompt(mode, params) {
       return buildWriteEvalPrompt(params || {});
     case "translate":
       return buildTranslatePrompt();
+    case "wordanalyze":
+      return buildWordAnalyzePrompt();
     case "hint":
       return buildHintPrompt();
     case "explain":
@@ -256,7 +278,7 @@ export async function onRequestPost(context) {
 
   const payload = {
     model: MODEL,
-    max_tokens: mode === "evaluate" || mode === "writeeval" ? 1600 : (mode === "correct" || mode === "translate") ? 200 : 400,
+    max_tokens: mode === "evaluate" || mode === "writeeval" ? 1600 : (mode === "correct" || mode === "translate") ? 200 : mode === "wordanalyze" ? 400 : 400,
     system: systemPrompt,
     messages: anthropicMsgs,
   };

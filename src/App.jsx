@@ -188,6 +188,7 @@ const GrammarExplainer = lazyWithReload(() => import("./components/learn/Grammar
 const CaseTransformer = lazyWithReload(() => import("./components/learn/CaseTransformer.jsx"));
 const VocabScenes = lazyWithReload(() => import("./components/learn/VocabScenes.jsx"));
 const AnimatedLesson = lazyWithReload(() => import("./components/learn/AnimatedLesson.jsx"));
+const GrammarReader = lazyWithReload(() => import("./components/learn/GrammarReader.jsx"));
 const KaficScreen = lazyWithReload(() => import("./components/croatia/KaficScreen.jsx"));
 const DiasporaNote = lazyWithReload(() => import("./components/croatia/DiasporaNote.jsx"));
 const TiViScreen = lazyWithReload(() => import("./components/learn/TiViScreen.jsx"));
@@ -321,6 +322,7 @@ function App(){
         casetransformer:"learn",
         vocabscenes:"learn",
         animlesson:"learn",
+        grammarreader:"learn",
         lifeevents:"croatia",
         civic:"croatia",
         easter:"croatia",midsummer:"croatia",domovina:"croatia",bozic:"croatia",
@@ -955,6 +957,8 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       currentScreen==="vocabscenes"&&<VocabScenes goBack={goBack} award={award} />}
       {// ═══ ANIMATED LESSON ═══
       currentScreen==="animlesson"&&animLesson&&<AnimatedLesson lesson={animLesson} goBack={goBack} award={award} />}
+      {// ═══ GRAMMAR READER (X-RAY) ═══
+      currentScreen==="grammarreader"&&<GrammarReader goBack={goBack} />}
       {// ═══ FALSE FRIENDS ═══
       currentScreen==="falsefr"&&<FalseFriendsScreen goBack={goBack} />}
       {// ═══ PREPOSITION DRILLS ═══
