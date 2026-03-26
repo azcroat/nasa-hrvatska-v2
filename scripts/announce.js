@@ -13,7 +13,7 @@ import { resolve } from 'path';
 
 const RESEND_KEY = process.env.RESEND_API_KEY;
 const FROM = 'Naša Hrvatska <hello@nasahrvatska.com>';
-const SUBJECT = 'Big updates to Naša Hrvatska — we\'ve been busy 🇭🇷';
+const SUBJECT = 'Naša Hrvatska just got a lot better 🇭🇷';
 
 if (!RESEND_KEY) {
   console.error('\n❌  Set RESEND_API_KEY before running.\n');
@@ -43,27 +43,28 @@ function buildEmail(name) {
       <div style="width:60px;height:6px;background:#003DA5;border-radius:0 2px 2px 0"></div>
     </div>
     <div style="color:rgba(255,255,255,.65);font-size:12px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px">Naša Hrvatska</div>
-    <h1 style="color:#fff;font-size:26px;font-weight:900;margin:0;line-height:1.3">We&rsquo;ve been busy building<br>something special for you 🇭🇷</h1>
+    <h1 style="color:#fff;font-size:26px;font-weight:900;margin:0;line-height:1.3">A big round of fixes &amp; improvements<br>just landed 🇭🇷</h1>
   </div>
 
   <!-- Body -->
   <div style="padding:36px 40px">
     <p style="color:#374151;font-size:16px;line-height:1.7;margin:0 0 20px">${greeting}</p>
     <p style="color:#374151;font-size:16px;line-height:1.7;margin:0 0 24px">
-      Thank you for your patience while we&rsquo;ve been working hard behind the scenes.
-      We&rsquo;ve made major improvements to Naša Hrvatska and we&rsquo;d love for you to come back and experience them.
+      We&rsquo;ve just shipped the most thorough update to Naša Hrvatska since launch &mdash;
+      dozens of fixes, accuracy improvements, and polish across every part of the app.
+      If you haven&rsquo;t been in recently, now is a great time to come back.
     </p>
 
     <div style="background:#f8fafc;border-radius:14px;padding:20px 24px;margin-bottom:28px">
       <p style="font-weight:900;font-size:14px;color:#0e7490;text-transform:uppercase;letter-spacing:.08em;margin:0 0 16px">What&rsquo;s new</p>
 
       ${[
-        ['🧠', 'Smarter learning', 'We upgraded to the SM-2 spaced repetition algorithm — the same science behind Anki. Words you struggle with come back sooner. Words you know get pushed further out. Your vocabulary now actually sticks.'],
-        ['🎵', 'Song Lyrics Mode', 'Learn Croatian through real Croatian songs. Fill in the missing words as you listen — a proven method that makes vocabulary memorable. Find it in the Croatia → Immersion Hub.'],
-        ['🛡️', 'Streak Freeze', 'Miss a day? Your streak is now protected. Earn streak freezes as you learn — so one busy day doesn\'t wipe out weeks of progress.'],
-        ['🏆', 'Streak Milestones', '7 days, 30 days, 100 days — hitting these now triggers a real celebration. You\'ve earned it.'],
-        ['👨‍👩‍👧‍👦', 'Easier family invites', 'Share a single link and family members join your leaderboard instantly. No more typing codes.'],
-        ['📱', 'Better notifications', 'Daily practice reminders — and a special notification on your Croatian name day (imendan).'],
+        ['🏆', 'Streak badges that actually fire', 'Hit 7, 30, 60, or 100 days and you\'ll now get a real celebration. The milestone badges were silently broken — they\'re working perfectly now.'],
+        ['📖', 'Baka\'s Letters — all 16 chapters', 'The final chapters of Baka\'s story are now fully accessible. Navigate through all 16 chapters of authentic family letters from the homeland.'],
+        ['🎯', 'Cleaner, more accurate Croatian', 'We combed through every lesson, drill, and phrase and removed Serbisms, fixed grammar examples, and corrected case usage throughout. The Croatian you\'re learning is now the real thing.'],
+        ['🔍', 'Search modal fixed', 'The global search (the magnifying glass icon) was rendering invisible on some devices. It\'s now fully visible and working.'],
+        ['🎵', 'Lyrics mode on mobile', 'The fill-in-the-blank song lyrics exercise no longer overflows on smaller phones. Works cleanly on all screen sizes.'],
+        ['💾', 'Prestige & streak sync fixed', 'Prestige resets and streak recoveries now save to your account immediately — no more silent rollbacks when switching devices.'],
       ].map(([icon, title, desc]) => `
       <div style="display:flex;gap:14px;margin-bottom:18px;align-items:flex-start">
         <span style="font-size:22px;flex-shrink:0;margin-top:2px">${icon}</span>
@@ -75,8 +76,8 @@ function buildEmail(name) {
     </div>
 
     <p style="color:#374151;font-size:15px;line-height:1.7;margin:0 0 28px">
-      We built this app for Croatian heritage families — for parents who want their children to know their language,
-      for diaspora communities who want to stay connected to their roots. Your support means everything to us.
+      We built this for Croatian heritage families &mdash; for parents who want their children to know their language,
+      for diaspora communities who want to stay connected to the homeland. Your support means everything to us.
     </p>
 
     <div style="text-align:center;margin-bottom:32px">
