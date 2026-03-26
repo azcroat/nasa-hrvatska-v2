@@ -1,5 +1,7 @@
 import React, { useRef } from 'react';
-import { H, Bar, Spk, speak, srMark, sh, shuffleArr, V } from '../../data.jsx';
+import { H, Bar, speak, srMark, sh, shuffleArr, V } from '../../data.jsx';
+
+const CONFETTI_COLORS = ['#38bdf8','#fbbf24','#4ade80','#f87171','#a78bfa','#fb923c','#34d399','#e879f9'];
 
 export default function LessonScreen({
   lt, li, lx, ls, lp, la, lsl, qi, icons,
@@ -7,61 +9,361 @@ export default function LessonScreen({
   goBack, award, setSt,
 }) {
   const resultFired = useRef(false);
-  return (
+  const earnedXp = qi.length > 0 ? Math.round((ls / qi.length) * 30) + 5 : 5;
+  const scorePct = qi.length > 0 ? ls / qi.length : 0;
+
+  /* ── LEARN PHASE ──────────────────────────────────────────────── */
+  if (lp === "learn") return (
     <div className="scr-wrap">
-      
-      {lp==="learn"&&<React.Fragment>
-        {H((icons[lt]||"📚")+" "+lt)}
-        {li.map((w,i)=>(
-          <div key={i} className="c" role="button" tabIndex={0} onClick={()=>speak(w[0])} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();speak(w[0]);}}} aria-label={"Hear pronunciation of "+w[0]} style={{marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center",padding:"16px 20px",cursor:"pointer"}}>
-            <div style={{display:"flex",alignItems:"center",gap:12}}>
-              <span style={{fontSize:20}}>🔊</span>
+      {H((icons?.[lt] || "📚") + " " + lt)}
+      <div style={{ marginBottom: 8 }}>
+        {li.map((w, i) => (
+          <div key={i}
+            role="button" tabIndex={0}
+            onClick={() => speak(w[0])}
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speak(w[0]); } }}
+            aria-label={"Hear pronunciation of " + w[0]}
+            style={{
+              marginBottom: 10, display: "flex", justifyContent: "space-between",
+              alignItems: "center", padding: "18px 20px", cursor: "pointer",
+              background: 'var(--card)', borderRadius: 14,
+              border: '1px solid var(--card-b)',
+              borderLeft: '4px solid var(--info)',
+              boxShadow: '0 2px 8px rgba(0,0,0,.05)',
+              transition: 'transform .1s, box-shadow .1s',
+              animation: `fade-up .4s ease ${i * 0.05}s both`,
+            }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <div style={{
+                width: 42, height: 42, borderRadius: 12,
+                background: 'var(--info-bg)', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: '1px solid var(--info-b)', fontSize: 18,
+              }}>🔊</div>
               <div>
-                <div style={{fontSize:18,fontWeight:700}}>{w[0]}</div>
-                {w[2]&&<div style={{fontSize:12,color:"#78716c"}}>/{w[2]}/</div>}
+                <div style={{
+                  fontSize: 20, fontWeight: 800, color: 'var(--heading)',
+                  fontFamily: "'Playfair Display',serif",
+                }}>{w[0]}</div>
+                {w[2] && (
+                  <div style={{
+                    fontSize: 'var(--text-xs)', color: 'var(--subtext)',
+                    marginTop: 2, fontFamily: 'monospace', letterSpacing: '.03em',
+                  }}>/{w[2]}/</div>
+                )}
               </div>
             </div>
-            <div style={{color:"#44403c"}}>{w[1]}</div>
+            <div style={{
+              fontSize: 15, fontWeight: 600, color: 'var(--subtext)',
+              textAlign: 'right', maxWidth: '45%',
+            }}>{w[1]}</div>
           </div>
         ))}
-        {li.length>=4&&<button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{
-          const qPool=sh(li).slice(0,Math.min(li.length,15));
-          const q=qPool.map(w=>{const wr=sh(li.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]);const o=sh([w[1],...wr]);return{...w,opts:o,ci:o.indexOf(w[1])};});
-          sQi(q);sLx(0);sLp("quiz");sLa(false);sLsl(-1);
-        }}>Quiz Me! →</button>}
-      </React.Fragment>}
-      {lp==="quiz"&&qi[lx]&&<React.Fragment>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-          <span style={{fontSize:12,fontWeight:700,color:"var(--subtext)"}}>Question {lx+1} of {qi.length}</span>
-          <button onClick={goBack} style={{background:"none",border:"none",cursor:"pointer",fontSize:22,color:"var(--subtext)",padding:"6px 10px",minHeight:44}} aria-label="Exit quiz">×</button>
-        </div>
-        <Bar v={lx+1} mx={qi.length} h={6} />
-        <div className="c" style={{marginTop:16}}>
-          <div role="button" tabIndex={0} onClick={()=>speak(qi[lx][0])} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();speak(qi[lx][0]);}}} aria-label={"Hear pronunciation of "+qi[lx][0]} style={{display:"flex",alignItems:"center",gap:12,marginBottom:20,cursor:"pointer"}}>
-            <span style={{fontSize:22}}>🔊</span>
-            <p style={{fontSize:24,fontWeight:800,margin:0}}>{qi[lx][0]}</p>
+      </div>
+      {li.length >= 4 && (
+        <button className="b bp" style={{ width: "100%", marginTop: 8 }} onClick={() => {
+          const qPool = sh(li).slice(0, Math.min(li.length, 15));
+          const q = qPool.map(w => {
+            const wr = sh(li.filter(x => x[1] !== w[1])).slice(0, 3).map(x => x[1]);
+            const o = sh([w[1], ...wr]);
+            return { ...w, opts: o, ci: o.indexOf(w[1]) };
+          });
+          sQi(q); sLx(0); sLp("quiz"); sLa(false); sLsl(-1);
+        }}>Quiz Me! →</button>
+      )}
+    </div>
+  );
+
+  /* ── QUIZ PHASE ───────────────────────────────────────────────── */
+  if (lp === "quiz" && qi[lx]) {
+    const isCorrect = la && lsl === qi[lx].ci;
+    return (
+      <div className="scr-wrap">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+          <span style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: "var(--subtext)" }}>
+            {lx + 1} / {qi.length}
+          </span>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 5,
+            background: 'var(--warning-bg)', borderRadius: 20,
+            padding: '4px 10px', border: '1px solid var(--warning-b)',
+          }}>
+            <span style={{ fontSize: 13 }}>⭐</span>
+            <span style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--warning)' }}>
+              {ls * 3} XP
+            </span>
           </div>
-          {qi[lx].opts.map((o,i)=>(
-            <button key={i} className={"ob "+(la?(i===qi[lx].ci?"ok":lsl===i?"no":""):"")}
-              onClick={()=>{if(!la){sLsl(i);sLa(true);const ok=i===qi[lx].ci;if(ok)sLs(s=>s+1);srMark(qi[lx][0],ok);}}}>
+          <button onClick={goBack} style={{
+            background: "none", border: "none", cursor: "pointer",
+            fontSize: 22, color: "var(--subtext)", padding: "6px 10px", minHeight: 44,
+          }} aria-label="Exit quiz">×</button>
+        </div>
+
+        <Bar v={lx + 1} mx={qi.length} h={6} />
+
+        <div className="c" style={{ marginTop: 16 }}>
+          <div
+            role="button" tabIndex={0}
+            onClick={() => speak(qi[lx][0])}
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speak(qi[lx][0]); } }}
+            aria-label={"Hear pronunciation of " + qi[lx][0]}
+            style={{
+              display: "flex", alignItems: "center", gap: 14,
+              marginBottom: 24, cursor: "pointer",
+              padding: '12px 0',
+            }}>
+            <div style={{
+              width: 48, height: 48, borderRadius: 14,
+              background: 'var(--info-bg)', flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: '1px solid var(--info-b)', fontSize: 20,
+            }}>🔊</div>
+            <p style={{
+              fontSize: 28, fontWeight: 900, margin: 0,
+              fontFamily: "'Playfair Display',serif",
+              color: 'var(--heading)',
+            }}>{qi[lx][0]}</p>
+          </div>
+
+          {qi[lx].opts.map((o, i) => (
+            <button key={i}
+              className={"ob " + (la ? (i === qi[lx].ci ? "ok" : lsl === i ? "no" : "") : "")}
+              style={{
+                animation: la && i === qi[lx].ci ? 'correct-flash .5s ease' : la && lsl === i ? 'wrong-shake .4s ease' : undefined,
+              }}
+              onClick={() => {
+                if (!la) {
+                  sLsl(i); sLa(true);
+                  const ok = i === qi[lx].ci;
+                  if (ok) sLs(s => s + 1);
+                  srMark(qi[lx][0], ok);
+                }
+              }}>
               {o}
             </button>
           ))}
-          {la&&<button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{
-            if(lx<qi.length-1){sLx(i=>i+1);sLa(false);sLsl(-1);}
-            else{if(resultFired.current)return;resultFired.current=true;const p=ls/qi.length;award(Math.round(p*30)+5);setSt(s=>({...s,lc:s.lc+1,pf:p===1?s.pf+1:s.pf,rs:[...s.rs,p],ct:[...new Set([...s.ct,lt])]}));sLp("result");}
-          }}>{lx<qi.length-1?"Next →":"Results"}</button>}
+
+          {/* Answer feedback banner */}
+          {la && (
+            <div style={{
+              marginTop: 14, borderRadius: 14, padding: '14px 16px',
+              background: isCorrect ? 'var(--success-bg)' : 'var(--error-bg)',
+              border: `1.5px solid ${isCorrect ? 'var(--success-b)' : 'var(--error-b)'}`,
+              display: 'flex', alignItems: 'center', gap: 12,
+              animation: 'spring-in .3s ease',
+            }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+                background: isCorrect ? 'var(--success)' : 'var(--error)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: 'white', fontSize: 18, fontWeight: 900,
+              }}>
+                {isCorrect ? '✓' : '✗'}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{
+                  fontSize: 15, fontWeight: 900,
+                  color: isCorrect ? 'var(--success)' : 'var(--error)',
+                }}>
+                  {isCorrect ? 'Točno! · Correct!' : 'Netočno · Incorrect'}
+                </div>
+                {!isCorrect && (
+                  <div style={{ fontSize: 13, color: 'var(--subtext)', marginTop: 2, fontWeight: 600 }}>
+                    Answer: <span style={{ color: 'var(--success)', fontWeight: 800 }}>{qi[lx].opts[qi[lx].ci]}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {la && (
+            <button className="b bp" style={{ width: "100%", marginTop: 14 }} onClick={() => {
+              if (lx < qi.length - 1) {
+                sLx(i => i + 1); sLa(false); sLsl(-1);
+              } else {
+                if (resultFired.current) return;
+                resultFired.current = true;
+                const p = ls / qi.length;
+                award(Math.round(p * 30) + 5);
+                setSt(s => ({ ...s, lc: s.lc + 1, pf: p === 1 ? s.pf + 1 : s.pf, rs: [...s.rs, p], ct: [...new Set([...s.ct, lt])] }));
+                sLp("result");
+              }
+            }}>{lx < qi.length - 1 ? "Next →" : "See Results"}</button>
+          )}
         </div>
-      </React.Fragment>}
-      {lp==="result"&&<div style={{textAlign:"center",paddingTop:40}}>
-        <div style={{fontSize:64}}>{ls===qi.length?"🌟":"🎉"}</div>
-        <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:28,color:"#164e63"}}>{ls===qi.length?"Perfect!":"Great Job!"}</h2>
-        <p style={{color:"#78716c",marginTop:8}}>{ls}/{qi.length}</p>
-        <div style={{display:"flex",gap:12,justifyContent:"center",marginTop:32}}>
-          <button className="b bg" onClick={()=>{resultFired.current=false;sLi(shuffleArr(V[lt]));sLx(0);sLs(0);sLp("learn");sLa(false);}}>Retry</button>
-          <button className="b bp" onClick={goBack}>Continue →</button>
+      </div>
+    );
+  }
+
+  /* ── RESULT PHASE ─────────────────────────────────────────────── */
+  if (lp === "result") return (
+    <div style={{
+      minHeight: '80vh',
+      background: 'linear-gradient(160deg,#060e1e 0%,#0a2348 45%,#0c3868 100%)',
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      justifyContent: 'center', padding: '40px 24px 52px',
+      position: 'relative', overflow: 'hidden',
+      borderRadius: 20, margin: '0 -16px',
+    }}>
+
+      {/* Confetti particles */}
+      {CONFETTI_COLORS.map((color, i) => (
+        <div key={i} style={{
+          position: 'absolute',
+          left: `${(i * 13 + 5) % 95}%`,
+          top: -16,
+          width: i % 3 === 0 ? 10 : 7,
+          height: i % 3 === 0 ? 10 : 7,
+          borderRadius: i % 2 === 0 ? '50%' : 3,
+          background: color,
+          animation: `confettiDrop ${1.1 + (i * 0.13) % 1.0}s ease-in ${(i * 0.09) % 0.7}s both`,
+          zIndex: 0,
+        }} />
+      ))}
+      {CONFETTI_COLORS.map((color, i) => (
+        <div key={'b' + i} style={{
+          position: 'absolute',
+          left: `${(i * 19 + 10) % 95}%`,
+          top: -12,
+          width: 6, height: 6,
+          borderRadius: 2,
+          background: color,
+          animation: `confettiDrop ${1.4 + (i * 0.11) % 0.9}s ease-in ${0.1 + (i * 0.07) % 0.6}s both`,
+          zIndex: 0,
+        }} />
+      ))}
+
+      {/* Shimmer overlay */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+        background: 'linear-gradient(105deg, transparent 25%, rgba(255,255,255,.04) 50%, transparent 75%)',
+        backgroundSize: '200% 100%',
+        animation: 'shimmer 4s linear infinite',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }} />
+
+      <div style={{ position: 'relative', zIndex: 1, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+
+        {/* Trophy / emoji */}
+        <div style={{
+          fontSize: 76, lineHeight: 1, marginBottom: 18,
+          animation: 'bounce-in .6s cubic-bezier(.175,.885,.32,1.275)',
+          filter: scorePct === 1 ? 'drop-shadow(0 0 20px rgba(251,191,36,.8))' : 'drop-shadow(0 0 12px rgba(74,222,128,.5))',
+        }}>
+          {scorePct === 1 ? '⭐' : scorePct >= 0.7 ? '🎉' : '💪'}
         </div>
-      </div>}
+
+        {/* Croatian celebration heading */}
+        <div style={{
+          fontSize: 38, fontWeight: 900,
+          fontFamily: "'Playfair Display',serif",
+          color: 'white', textAlign: 'center', lineHeight: 1.1,
+          textShadow: '0 2px 24px rgba(0,0,0,.5)',
+          animation: 'fade-up .6s ease .15s both',
+          marginBottom: 6,
+        }}>
+          {scorePct === 1 ? 'Savršeno!' : scorePct >= 0.7 ? 'Odlično!' : 'Bravo!'}
+        </div>
+        <div style={{
+          fontSize: 15, color: 'rgba(255,255,255,.65)',
+          animation: 'fade-up .6s ease .22s both',
+          fontWeight: 600, marginBottom: 28,
+        }}>
+          {scorePct === 1 ? 'Perfect score!' : scorePct >= 0.7 ? 'Great work! Keep it up.' : 'Every practice counts.'}
+        </div>
+
+        {/* Score dots */}
+        <div style={{
+          display: 'flex', gap: 8, marginBottom: 28, flexWrap: 'wrap', justifyContent: 'center',
+          animation: 'fade-up .6s ease .28s both',
+        }}>
+          {qi.map((_, i) => (
+            <div key={i} style={{
+              width: 16, height: 16, borderRadius: '50%',
+              background: i < ls ? 'var(--success)' : 'rgba(255,255,255,.18)',
+              boxShadow: i < ls ? '0 0 8px rgba(74,222,128,.7)' : 'none',
+              transition: `all .35s ease ${i * 0.04}s`,
+            }} />
+          ))}
+        </div>
+
+        {/* XP award card */}
+        <div style={{
+          background: 'rgba(255,255,255,.1)', borderRadius: 22,
+          padding: '22px 36px', textAlign: 'center',
+          border: '1px solid rgba(255,255,255,.18)',
+          backdropFilter: 'blur(16px)',
+          animation: 'fade-up .6s ease .38s both',
+          marginBottom: 32, width: '100%', maxWidth: 320,
+        }}>
+          <div style={{
+            fontSize: 'var(--text-xs)', fontWeight: 800,
+            color: 'rgba(255,255,255,.55)', textTransform: 'uppercase',
+            letterSpacing: '.12em', marginBottom: 6,
+          }}>XP EARNED</div>
+          <div style={{
+            fontSize: 56, fontWeight: 900, color: '#fbbf24',
+            fontFamily: "'Outfit',sans-serif", lineHeight: 1,
+            textShadow: '0 0 28px rgba(251,191,36,.7)',
+            animation: 'count-up-pop .7s ease .65s both',
+          }}>+{earnedXp}</div>
+          <div style={{
+            marginTop: 10, display: 'flex', gap: 16, justifyContent: 'center',
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 22, fontWeight: 900, color: 'white', fontFamily: "'Outfit',sans-serif" }}>{ls}</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,.45)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em' }}>correct</div>
+            </div>
+            <div style={{ width: 1, background: 'rgba(255,255,255,.15)' }} />
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 22, fontWeight: 900, color: 'white', fontFamily: "'Outfit',sans-serif" }}>{qi.length - ls}</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,.45)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em' }}>missed</div>
+            </div>
+            <div style={{ width: 1, background: 'rgba(255,255,255,.15)' }} />
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 22, fontWeight: 900, color: 'white', fontFamily: "'Outfit',sans-serif" }}>{qi.length}</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,.45)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em' }}>total</div>
+            </div>
+          </div>
+        </div>
+
+        {/* CTAs */}
+        <div style={{
+          display: 'flex', flexDirection: 'column', gap: 10,
+          width: '100%', maxWidth: 340,
+          animation: 'fade-up .6s ease .48s both',
+        }}>
+          <button
+            style={{
+              width: '100%', height: 56, fontSize: 17, fontWeight: 800,
+              background: 'white', color: '#0a2348',
+              borderRadius: 16, border: 'none', cursor: 'pointer',
+              fontFamily: "'Outfit',sans-serif", letterSpacing: '.01em',
+              boxShadow: '0 4px 24px rgba(0,0,0,.35)',
+            }}
+            onClick={goBack}>
+            Continue →
+          </button>
+          <button
+            style={{
+              width: '100%', height: 46,
+              background: 'rgba(255,255,255,.1)',
+              border: '1.5px solid rgba(255,255,255,.22)',
+              borderRadius: 14, cursor: 'pointer',
+              color: 'rgba(255,255,255,.75)', fontSize: 14, fontWeight: 700,
+              fontFamily: "'Outfit',sans-serif",
+            }}
+            onClick={() => {
+              resultFired.current = false;
+              sLi(shuffleArr(V[lt])); sLx(0); sLs(0); sLp("learn"); sLa(false);
+            }}>
+            ↩ Study Again
+          </button>
+        </div>
+      </div>
     </div>
   );
+
+  return null;
 }
