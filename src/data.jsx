@@ -85,7 +85,7 @@ const HISTORY = {
     { year: "1990", title: "First Free Elections", text: "In the first democratic elections since World War II, Croatians overwhelmingly choose independence. Dr. Franjo Tuđman becomes the first democratically elected President. A new constitution is drafted, establishing Croatia as a sovereign nation of the Croatian people. The Croatian šahovnica (checkerboard) proudly returns as the national symbol.", emoji: "🗳️" },
     { year: "1991", title: "Independence Declared", text: "On June 25, 1991, Croatia formally declares independence from Yugoslavia. The decision reflects the will of 94% of Croatian citizens who voted for sovereignty in the May referendum. However, the Yugoslav People\'s Army (JNA) and Serbian paramilitaries refuse to accept Croatian independence and launch armed aggression.", emoji: "🇭🇷" },
     { year: "1991", title: "The Battle of Vukovar", text: "For 87 devastating days, the defenders of Vukovar — outnumbered and outgunned — hold their ground against a massive assault by the JNA and Serbian forces. The city is reduced to rubble, but its heroic resistance becomes the symbol of Croatian courage and sacrifice. Vukovar\'s defenders bought precious time for Croatia to organize its defense. The city\'s sacrifice will never be forgotten. Vukovar — grad heroj (city hero).", emoji: "🕯️" },
-    { year: "1991", title: "International Recognition", text: "On January 15, 1992, Croatia is recognized as an independent state by the European Community and the international community. Germany, under Chancellor Helmut Kohl, leads the push for recognition. The dream of Croatian statehood becomes reality in the eyes of the world.", emoji: "🌍" },
+    { year: "1992", title: "International Recognition", text: "On January 15, 1992, Croatia is recognized as an independent state by the European Community and the international community. Germany, under Chancellor Helmut Kohl, leads the push for recognition. The dream of Croatian statehood becomes reality in the eyes of the world.", emoji: "🌍" },
     { year: "1992-94", title: "Under Occupation", text: "Nearly one-third of Croatian territory remains under Serbian occupation. The UN deploys peacekeeping forces, but the occupied areas — the self-proclaimed \'Republic of Serbian Krajina\' — continue to exist. Over 250,000 Croatians are expelled from their homes. The Croatian people endure, building their military and waiting for the right moment to liberate their homeland.", emoji: "⏳" },
     { year: "1995", title: "Operacija Oluja — Operation Storm", text: "On August 4-7, 1995, the Croatian Army launches Operation Storm, the largest European land military operation since World War II. In just 84 hours, Croatian forces liberate the vast majority of occupied territory. The operation is a brilliant military success and restores Croatian sovereignty over nearly all of its internationally recognized borders. Church bells ring across Croatia. People weep with joy. The homeland is finally free.", emoji: "⚡" },
     { year: "1998", title: "Peaceful Reintegration", text: "The last occupied region — eastern Slavonia including Vukovar — is peacefully reintegrated into Croatia through the Erdut Agreement and UN transitional administration. Croatia is whole again. The Croatian flag flies over Vukovar for the first time since 1991.", emoji: "🕊️" }
@@ -93,7 +93,7 @@ const HISTORY = {
   heroes: [
     { name: "Franjo Tuđman", role: "First President of Croatia", desc: "Father of the nation. Led Croatia from communist Yugoslavia to independence. His vision and determination guided the country through its darkest hours to sovereignty." },
     { name: "Gojko Šušak", role: "Minister of Defence", desc: "Organized the Croatian military from virtually nothing into a force capable of defending and liberating the homeland." },
-    { name: "Blago Zadro", role: "Commander of Vukovar Defense", desc: "Hero of Vukovar. Led the defense of the city with extraordinary courage. Gave his life defending his hometown." },
+    { name: "Blago Zadro", role: "3rd Battalion Commander, 204th Vukovar Brigade", desc: "Hero of Vukovar. Led the 3rd Battalion with extraordinary courage until his death in battle. The city's broader defense was commanded by Mile Dedaković 'Jastreb'." },
     { name: "Branimir Glavaš", role: "Defense of Osijek", desc: "Organized the defense of Osijek in eastern Slavonia when Croatian cities came under attack." },
     { name: "Ante Gotovina", role: "General — Operation Storm", desc: "Commanded the Split Military District. Key architect of the liberation of the Krajina region during Operation Storm." },
     { name: "Janko Bobetko", role: "Army Chief of Staff", desc: "Veteran military leader who helped shape the Croatian Army into an effective fighting force." }
@@ -104,7 +104,7 @@ const HISTORY = {
     ["15. siječnja 1992.","International recognition of Croatia","Međunarodno priznanje"],
     ["1. svibnja 1995.","Operation Flash liberates western Slavonia","Operacija Bljesak"],
     ["4.-7. kolovoza 1995.","Operation Storm liberates the Krajina","Operacija Oluja"],
-    ["8. listopada","Croatian Parliament independence vote","Dan neovisnosti"],
+    ["8. listopada","Croatia severs all constitutional ties with Yugoslavia — independence fully activated","Dan neovisnosti"],
     ["5. kolovoza","Victory and Homeland Thanksgiving Day","Dan pobjede i domovinske zahvalnosti"]
   ],
   vocabulary: [
@@ -136,7 +136,7 @@ const EVENTS = [
   { month: 7, day: 0, name: "Ultra Europe", en: "Ultra Europe Festival", desc: "One of Europe\'s biggest electronic music festivals, held in Split." },
   { month: 8, day: 5, name: "Dan pobjede", en: "Victory Day", desc: "Celebrates Operation Storm (1995), the liberation of occupied Croatian territory. Massive celebrations in Knin." },
   { month: 8, day: 15, name: "Velika Gospa", en: "Assumption of Mary", desc: "Major Catholic holiday. Pilgrimages to Sinj for the Sinjska Alka — a medieval knights\' tournament held since 1715." },
-  { month: 10, day: 8, name: "Dan Sabora", en: "Croatian Parliament Day", desc: "Commemorates the 1991 Croatian Parliament decision to sever ties with Yugoslavia." },
+  { month: 10, day: 8, name: "Dan neovisnosti", en: "Independence Day", desc: "October 8, 1991 — the Croatian Parliament formally severed all constitutional ties with Yugoslavia. This is Croatia's official Independence Day." },
   { month: 11, day: 1, name: "Svi sveti", en: "All Saints\' Day", desc: "Croatians visit cemeteries and light candles for deceased loved ones. A deeply emotional day." },
   { month: 11, day: 18, name: "Dan sjećanja na Vukovar", en: "Vukovar Remembrance Day", desc: "Solemn procession through Vukovar. Thousands walk holding candles to honor those who gave their lives for Croatian freedom." },
   { month: 12, day: 25, name: "Božić", en: "Christmas", desc: "Croatian Christmas traditions: badnjak (Yule log), midnight mass, bakalar (cod) on Christmas Eve, sarma and turkey on Christmas Day." },

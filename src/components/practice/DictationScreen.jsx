@@ -7,7 +7,7 @@ function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.fl
 const DATA = [
   { text:"Dobar dan, kako ste?", en:"Good day, how are you?", level:"A1" },
   { text:"Gdje je najbliža ljekarna?", en:"Where is the nearest pharmacy?", level:"A1" },
-  { text:"Jedan kava i dva soka, molim.", en:"One coffee and two juices, please.", level:"A1" },
+  { text:"Jednu kavu i dva soka, molim.", en:"One coffee and two juices, please.", level:"A1" },
   { text:"Koliko košta ta majica?", en:"How much does that t-shirt cost?", level:"A1" },
   { text:"Trebam pomoć, izgubio sam se.", en:"I need help, I got lost.", level:"A2" },
   { text:"Vlak polazi u devet i pol.", en:"The train departs at half past nine.", level:"A2" },

@@ -25,7 +25,7 @@ const DATA = [
   { sentence:"Zahvalila ___ se lijepo.", opts:["mu","ga","ga mu","mu ga"], answer:"mu", en:"She thanked him nicely.", tip:"'Zahvaliti se' + dative: 'zahvaliti se nekome' = to thank someone" },
   { sentence:"Daj ___ to!", opts:["mi","me","meni","mojem"], answer:"mi", en:"Give it to me!", tip:"Imperative with dative clitic 'mi' — give to me" },
   { sentence:"Nosila ___ je cvijeće.", opts:["joj","ju","je","nju"], answer:"joj", en:"She brought her flowers.", tip:"Dative 'joj' (to her) — bringing something to someone uses dative" },
-  { sentence:"Nije ___ te vidio.", opts:["se","si","ga","je"], answer:"se", en:"He didn't see himself recognizing you.", tip:"Reflexive 'se' in reflexive constructions sits before accusative pronouns" },
+  { sentence:"Sjeća ___ svega.", opts:["se","si","ga","je"], answer:"se", en:"He remembers everything.", tip:"Reflexive 'se' with 'sjećati se' (to remember) — always attached directly after the verb form" },
   { sentence:"Pitali ___ za pravac.", opts:["su nas","nas su","smo ih","ih smo"], answer:"su nas", en:"They asked us for directions.", tip:"Auxiliary 'su' then accusative 'nas' (us)" },
 ];
 
