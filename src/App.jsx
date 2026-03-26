@@ -685,16 +685,32 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   }
   // ═══ AUTH SCREENS ═══
   if(authScreen==="loading")return (
-    <div
-      className={darkMode?"dark":""}
-      style={{...(darkMode?BG_DARK:BG_LIGHT),display:"flex",alignItems:"center",justifyContent:"center"}}>
-      <div style={{textAlign:"center",animation:"rise .6s"}}>
-        <div style={{display:"flex",justifyContent:"center",marginBottom:16,animation:"pulse 2s ease-in-out infinite"}}>
-          <CroatianGrb size={80} />
+    <div className={darkMode?"dark":""} style={{
+      minHeight:"100vh",
+      background:"linear-gradient(160deg,#030c1a 0%,#071830 30%,#0a2848 60%,#0c3562 100%)",
+      display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
+      fontFamily:"'Outfit',sans-serif",position:"relative",overflow:"hidden",
+    }}>
+      {/* Šahovnica pattern */}
+      <div style={{position:"absolute",inset:0,backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Crect width='16' height='16' fill='rgba(212,0,48,0.045)'/%3E%3Crect x='16' y='16' width='16' height='16' fill='rgba(212,0,48,0.045)'/%3E%3C/svg%3E")`,pointerEvents:"none"}}/>
+      {/* Radial glow */}
+      <div style={{position:"absolute",top:"-30%",left:"50%",transform:"translateX(-50%)",width:"80vw",height:"60vh",background:"radial-gradient(ellipse at center,rgba(14,116,144,.22) 0%,transparent 70%)",pointerEvents:"none"}}/>
+      {/* Content */}
+      <div style={{textAlign:"center",animation:"rise .55s ease",position:"relative",zIndex:1}}>
+        <div style={{display:"flex",justifyContent:"center",marginBottom:28,animation:"grb-glow 2.5s ease-in-out infinite",filter:"drop-shadow(0 0 20px rgba(14,116,144,.5))"}}>
+          <CroatianGrb size={108} />
         </div>
-        <p style={{color:"var(--subtext)",marginTop:4,fontWeight:600}}>
-          Loading...
-        </p>
+        <div style={{fontSize:13,fontWeight:800,color:"rgba(255,255,255,.55)",letterSpacing:".35em",textTransform:"uppercase",marginBottom:5}}>Naša Hrvatska</div>
+        <div style={{fontSize:12,fontWeight:500,color:"rgba(255,255,255,.35)",letterSpacing:".18em",textTransform:"uppercase",marginBottom:36}}>Learn Croatian</div>
+        <div style={{display:"flex",gap:9,justifyContent:"center"}}>
+          {[0,1,2].map(i=>(
+            <div key={i} style={{width:8,height:8,borderRadius:"50%",background:"rgba(14,116,144,.85)",animation:`dot-bounce 1.4s ease-in-out ${i*0.18}s infinite`}}/>
+          ))}
+        </div>
+      </div>
+      {/* Croatian flag stripe */}
+      <div style={{position:"absolute",bottom:0,left:0,right:0,height:4,display:"flex",animation:"stripe-slide .9s ease .3s both"}}>
+        <div style={{flex:1,background:"#D40030"}}/><div style={{flex:1,background:"rgba(255,255,255,.9)"}}/><div style={{flex:1,background:"#003DA5"}}/>
       </div>
     </div>
   );

@@ -495,35 +495,47 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
           <SkillRadar st={st} />
 
           {/* ── STATS GRID ── */}
-          <div role="region" aria-label="Your statistics" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:24}}>
-            {stats.map((s, i) => (
-              <div key={i} aria-label={`${s.value} ${s.label}`} style={{background:s.bg,border:`1.5px solid ${s.border}`,borderRadius:14,padding:"12px 8px",textAlign:"center"}}>
-                <div style={{fontSize:'var(--text-xl)',marginBottom:3}}>{s.icon}</div>
-                {s.label === "Day Streak" ? (
-                  <div style={{fontSize:28,fontWeight:900,color:'var(--warning)',lineHeight:1,fontVariantNumeric:"tabular-nums",textShadow:'0 0 12px rgba(251,191,36,.4)'}}>
-                    {s.value} 🔥
-                  </div>
-                ) : (
-                  <div style={{fontSize:'var(--text-lg)',fontWeight:900,color:s.color,lineHeight:1,fontVariantNumeric:"tabular-nums"}}>{s.value}</div>
-                )}
-                <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",fontWeight:700,marginTop:3,textTransform:"uppercase",letterSpacing:".04em"}}>{s.label}</div>
-                {s.label === "Total XP" && (
-                  <div style={{fontSize:10, color:'var(--subtext)', marginTop:2, fontWeight:600}}>
-                    {st.xp >= 5000 ? '🚀 Approaching B1 level!' : st.xp >= 2000 ? '📈 Great momentum!' : '⭐ Every XP counts!'}
-                  </div>
-                )}
-                {s.label === "Day Streak" && (
-                  <div style={{fontSize:10, color:'#d97706', marginTop:2, fontWeight:700}}>
-                    {streak.count >= 30 ? '🔥 Legendary streak!' : streak.count >= 7 ? '🔥 Crushing it!' : streak.count > 0 ? '🔥 Keep going!' : 'Start your streak today!'}
-                  </div>
-                )}
-                {s.label === "Lessons" && (
-                  <div style={{fontSize:10, color:'var(--subtext)', marginTop:2, fontWeight:600}}>
-                    {st.lc >= 50 ? '🏆 Dedicated learner!' : st.lc >= 20 ? '📚 Great progress!' : '📚 Every lesson matters'}
-                  </div>
-                )}
-              </div>
-            ))}
+          <div role="region" aria-label="Your statistics" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:24}}>
+            {stats.map((s, i) => {
+              const bgs = [
+                "linear-gradient(145deg,rgba(14,116,144,.16) 0%,rgba(14,116,144,.05) 100%)",
+                "linear-gradient(145deg,rgba(245,158,11,.18) 0%,rgba(212,0,48,.07) 100%)",
+                "linear-gradient(145deg,rgba(22,163,74,.16) 0%,rgba(22,163,74,.04) 100%)",
+                "linear-gradient(145deg,rgba(124,58,237,.16) 0%,rgba(124,58,237,.04) 100%)",
+                "linear-gradient(145deg,rgba(2,132,199,.16) 0%,rgba(0,61,165,.06) 100%)",
+                "linear-gradient(145deg,rgba(245,158,11,.18) 0%,rgba(180,83,9,.06) 100%)",
+              ];
+              const accents = ["#0e7490","#d97706","#16a34a","#7c3aed","#0284c7","#f59e0b"];
+              const valueGrads = [
+                "linear-gradient(135deg,#0e7490,#06b6d4)",
+                "linear-gradient(135deg,#ea580c,#f59e0b)",
+                "linear-gradient(135deg,#16a34a,#22c55e)",
+                "linear-gradient(135deg,#7c3aed,#a78bfa)",
+                "linear-gradient(135deg,#0284c7,#38bdf8)",
+                "linear-gradient(135deg,#b45309,#f59e0b)",
+              ];
+              return (
+                <div key={i} aria-label={`${s.value} ${s.label}`} className="stat-card-v3"
+                  style={{background:bgs[i],'--stat-accent':accents[i]}}>
+                  <span className="stat-icon">{s.icon}</span>
+                  {s.label === "Day Streak" ? (
+                    <div style={{fontSize:26,fontWeight:900,lineHeight:1,fontVariantNumeric:"tabular-nums",
+                      background:valueGrads[i],WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>
+                      {s.value} 🔥
+                    </div>
+                  ) : (
+                    <div style={{fontSize:26,fontWeight:900,lineHeight:1,fontVariantNumeric:"tabular-nums",
+                      background:valueGrads[i],WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>
+                      {s.value}
+                    </div>
+                  )}
+                  <div className="stat-label">{s.label}</div>
+                  {s.label === "Total XP" && <div className="stat-sub">{st.xp >= 5000 ? '🚀 Near B1!' : st.xp >= 2000 ? '📈 Momentum!' : '⭐ Keep going'}</div>}
+                  {s.label === "Day Streak" && <div className="stat-sub" style={{color:'#d97706'}}>{streak.count >= 30 ? 'Legendary!' : streak.count >= 7 ? 'Crushing it!' : 'Keep going!'}</div>}
+                  {s.label === "Lessons" && <div className="stat-sub">{st.lc >= 50 ? '🏆 Dedicated!' : '📚 Keep learning'}</div>}
+                </div>
+              );
+            })}
           </div>
 
           {/* ── XP ACTIVITY CALENDAR ── */}
