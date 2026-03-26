@@ -245,6 +245,24 @@ const CHAPTERS = [
     ],
     cultural: "Baranja is Croatia's northeastern tip, wedged between the Drava and Danube rivers. Kopački Rit Nature Park is one of Europe's largest wetlands and a UNESCO candidate site, home to over 290 bird species. The region has a centuries-old multiethnic character — Croatian, Hungarian, and Danube-Swabian German communities have coexisted here, each contributing to the food, wine, and folk culture of the area. Baranja's Graševina white wine is among Croatia's most celebrated varieties.",
   },
+  {
+    id: 16,
+    title: "Poglavlje 16: Pismo iz Istre — Nona Lucia",
+    date: "15. listopada",
+    croatian: `Dragi moji daleki, pišem vam iz Rovinja, gdje su uličice od kamena toliko uske da dva čovjeka jedva mogu proći jedan pored drugoga. Jutros sam ustala rano i čula zvono crkve svete Eufemije s vrha brežuljka — taj zvuk razlije se gradom svaki sat kao podsjetnik da smo ovdje već stotinama godina. Ispred konobe kraj luke ribari su složili mreže i razgovarali na talijanskom i hrvatskom u istoj rečenici, jer ovdje jezik nije granica nego most. Moj susjed Gianni, koji me poznaje od djetinjstva, i danas me zove: "Lucia mia!" — a ja mu odgovorim na hrvatskom i smijemo se oboje. Takva je Istra — ni sasvim hrvatska ni sasvim talijanska, nego nešto posebno i lijepo samo za sebe. Sezona tartufa je počela i slikari su izašli s platnima na obalu — Rovinj uvijek privlači one koji vide ljepotu u sitnim stvarima. Večeras ću otvoriti bocu Malvazije i gledati kako sunce tone u Jadran. Boje neba navečer ovdje nemaju imena. Vaša nona vas voli i čeka.`,
+    english: `My dear faraway ones, I am writing to you from Rovinj, where the cobblestone streets are so narrow that two people can barely pass side by side. This morning I woke early and heard the bell of the church of St. Euphemia from the top of the hill — that sound pours over the town every hour like a reminder that we have been here for hundreds of years. In front of the konoba by the harbour, fishermen had laid out their nets and were talking in Italian and Croatian in the same sentence, because here language is not a border but a bridge. My neighbour Gianni, who has known me since childhood, still calls out: "Lucia mia!" — and I answer in Croatian and we both laugh. That is Istria — not entirely Croatian, not entirely Italian, but something special and beautiful in its own right. The truffle season has begun and painters have gone out with canvases to the shore — Rovinj always draws those who see beauty in small things. This evening I will open a bottle of Malvazija and watch the sun sink into the Adriatic. The colours of the evening sky here have no names. Your nona loves you and waits for you.`,
+    vocab: [
+      { hr: "nona", en: "grandmother (Istrian Croatian / Italian)" },
+      { hr: "tartufi", en: "truffles" },
+      { hr: "Malvazija", en: "Malvasia — aromatic white wine native to Istria" },
+      { hr: "konoba", en: "traditional tavern / family-run restaurant" },
+      { hr: "ribar", en: "fisherman" },
+      { hr: "zvono", en: "bell" },
+      { hr: "slikar", en: "painter / artist" },
+      { hr: "brežuljak", en: "hill / hillock" },
+    ],
+    cultural: "Istria is Croatia's westernmost peninsula, shaped by centuries of Venetian and Austro-Hungarian rule. Its largest town, Pula, holds a near-complete Roman amphitheatre; Rovinj (Rovigno in Italian) is an artists' haven of pastel-coloured houses clustered around the hilltop church of St. Euphemia. Both Croatian and Italian are official languages in much of Istria, and the region's identity — proudly distinct from both Zagreb and Rome — is rooted in this bilingual, multicultural heritage. White truffle hunting in the Motovun forest (October–November) and the crisp local Malvazija wine are defining symbols of Istrian food culture.",
+  },
 ];
 
 export default function BakaSummer({ goBack, award }) {
@@ -277,7 +295,7 @@ export default function BakaSummer({ goBack, award }) {
 
   // Award completion bonus if all done and not yet awarded
   useEffect(() => {
-    if (chaptersDone.size === 15 && !bonusAwarded) {
+    if (chaptersDone.size === 16 && !bonusAwarded) {
       award(100);
       localStorage.setItem('nh_baka_done_bonus', '1');
       setBonusAwarded(true);
@@ -286,7 +304,7 @@ export default function BakaSummer({ goBack, award }) {
 
   const current = CHAPTERS[chapter];
   const isCompleted = chaptersDone.has(chapter);
-  const allDone = chaptersDone.size === 15;
+  const allDone = chaptersDone.size === 16;
 
   function markComplete() {
     const updated = new Set(chaptersDone);
@@ -294,18 +312,18 @@ export default function BakaSummer({ goBack, award }) {
     setChaptersDone(updated);
     localStorage.setItem('nh_baka_done', JSON.stringify([...updated]));
     award(20);
-    if (chapter < 14) {
+    if (chapter < 15) {
       const next = chapter + 1;
       setChapter(next);
       localStorage.setItem('nh_baka_ch', String(next));
     } else {
-      localStorage.setItem('nh_baka_ch', '14');
+      localStorage.setItem('nh_baka_ch', '15');
     }
   }
 
   function goToChapter(idx) {
     const maxAllowed = chaptersDone.size;
-    if (idx >= 0 && idx <= Math.min(maxAllowed, 14)) {
+    if (idx >= 0 && idx <= Math.min(maxAllowed, 15)) {
       setChapter(idx);
       localStorage.setItem('nh_baka_ch', String(idx));
     }
@@ -342,14 +360,14 @@ export default function BakaSummer({ goBack, award }) {
           display: 'flex', justifyContent: 'space-between',
           fontSize: 12, color: '#78716c', marginBottom: 6,
         }}>
-          <span style={{ fontWeight: 600 }}>Poglavlje {chapter + 1} od 15</span>
-          <span>{chaptersDone.size} / 15 dovršeno</span>
+          <span style={{ fontWeight: 600 }}>Poglavlje {chapter + 1} od 16</span>
+          <span>{chaptersDone.size} / 16 dovršeno</span>
         </div>
         <div style={{ background: '#e5e7eb', borderRadius: 8, height: 8, overflow: 'hidden' }}>
           <div style={{
             background: '#b61800',
             height: '100%',
-            width: `${(chaptersDone.size / 15) * 100}%`,
+            width: `${(chaptersDone.size / 16) * 100}%`,
             borderRadius: 8,
             transition: 'width 0.4s ease',
           }} />
@@ -405,7 +423,7 @@ export default function BakaSummer({ goBack, award }) {
             Završili ste Bakino Ljeto!
           </div>
           <div style={{ fontSize: 14, color: '#78350f', fontStyle: 'italic' }}>
-            You finished all 15 chapters of Baka's Summer. Bravo!
+            You finished all 16 chapters of Baka's Summer. Bravo!
           </div>
         </div>
       )}
