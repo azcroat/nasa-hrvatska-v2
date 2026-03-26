@@ -74,6 +74,23 @@ const SCENARIOS = [
       { hr: 'Gdje je WC?', en: 'Where is the bathroom?', ph: 'gd-ye ye ve-tse', tip: 'Essential. Always.' },
     ],
   },
+  {
+    id: 'hospitality',
+    icon: '🫶',
+    title: 'Croatian Hospitality',
+    color: '#f5f3ff',
+    border: '#c4b5fd',
+    phrases: [
+      { hr: 'Dođi na ručak!', en: 'Come for lunch!', ph: 'do-ji na ru-chak', tip: 'This is not a casual invitation. It means: you are being welcomed into the family circle.' },
+      { hr: 'Nema rasprave!', en: 'There\'s no discussion! (you\'re coming)', ph: 'ne-ma ras-pra-ve', tip: 'Croatian hospitality is not optional. This is said with love.' },
+      { hr: 'Ostani na večeri.', en: 'Stay for dinner.', ph: 'os-ta-ni na ve-che-ri', tip: 'The extended version of the invitation — you have made a good impression.' },
+      { hr: 'Hvala, jako si/ste ljubazan/ljubazna.', en: 'Thank you, you are very kind.', ph: 'hva-la ya-ko si/ste lyu-ba-zan/lyu-baz-na', tip: 'Your required response when accepting. If you\'re declining: "Hvala, drugi put rado."' },
+      { hr: 'Jesi li sit? / Jesi li sita?', en: 'Are you full? (asked at least 3 times)', ph: 'ye-si li sit / ye-si li si-ta', tip: 'sit (male) / sita (female). Say yes — then accept more food anyway.' },
+      { hr: 'Uzmi još malo.', en: 'Take a little more.', ph: 'uz-mi yosh ma-lo', tip: 'Said with the authority of a direct order. Resistance is futile and rude.' },
+      { hr: 'Donesi nešto slatko.', en: 'Bring something sweet (when visiting).', ph: 'do-ne-si ne-shto slat-ko', tip: 'You never arrive at a Croatian home empty-handed. Cake, chocolates, or wine.' },
+      { hr: 'Dobar tek!', en: 'Enjoy your meal! (said before eating)', ph: 'do-bar tek', tip: 'Said by the host before the meal begins. Respond with "Hvala, i tebi!" (Thank you, and to you!)' },
+    ],
+  },
 ];
 
 export default function SurvivalDinner({ goBack }) {
@@ -167,7 +184,7 @@ export default function SurvivalDinner({ goBack }) {
           🇭🇷 You've been invited to a Croatian family dinner
         </div>
         <div style={{ fontSize:12, color:'var(--subtext)', lineHeight:1.6 }}>
-          You'll hear fast Croatian, be offered food you can't identify, and someone's baka will try to feed you until you can't move. This guide will help you survive — and make them love you.
+          You'll hear fast Croatian, be offered food you can't identify, and someone's baka will try to feed you until you can't move. This guide will help you survive — and make them love you. And you'll be invited for lunch — "Dođi na ručak" — which means far more than those three words suggest.
         </div>
       </div>
 

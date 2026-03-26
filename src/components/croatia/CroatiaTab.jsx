@@ -408,6 +408,27 @@ export default function CroatiaTab({ setScr, sCurEx }) {
   </div>
 </div>
 
+{/* ── LANGUAGE & CULTURE ──────────────────────────────────────────── */}
+<div style={{ fontSize:11, fontWeight:800, color:'var(--subtext)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:10, marginTop:8 }}>
+  Language & Culture
+</div>
+<div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:24 }}>
+  {[
+    { icon:'☕', title:'U Kafiću', desc:'The art of Croatian coffee culture', color:'#fff7ed', border:'#fed7aa', scr:'kafic' },
+    { icon:'💙', title:'Diaspora Croatian', desc:'Code-switching & heritage language', color:'#f0f9ff', border:'#bae6fd', scr:'diaspora' },
+    { icon:'🎊', title:'Life Events', desc:'Weddings, funerals, baptisms', color:'#fdf4ff', border:'#e9d5ff', scr:'lifeevents' },
+    { icon:'🏛️', title:'Civic Croatian', desc:'Vocabulary to read the news', color:'#f0fdf4', border:'#86efac', scr:'civic' },
+  ].map(c => (
+    <button key={c.scr} className="tc"
+      style={{ textAlign:'center', padding:'16px 12px', background:c.color, border:`1.5px solid ${c.border}` }}
+      onClick={() => setScr(c.scr)}>
+      <div style={{ fontSize:28, marginBottom:6 }}>{c.icon}</div>
+      <div style={{ fontSize:12, fontWeight:800, color:'var(--heading)', lineHeight:1.2, marginBottom:3 }}>{c.title}</div>
+      <div style={{ fontSize:10, color:'var(--subtext)', lineHeight:1.3 }}>{c.desc}</div>
+    </button>
+  ))}
+</div>
+
       {/* ── LETTERS FROM BAKA ─── */}
       <div style={{ marginBottom: 24 }}>
         <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>

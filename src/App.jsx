@@ -180,6 +180,11 @@ const CroatiaToday = lazyWithReload(() => import("./components/croatia/CroatiaTo
 const SurvivalDinner = lazyWithReload(() => import("./components/croatia/SurvivalDinner.jsx"));
 const ClozeEngine = lazyWithReload(() => import("./components/practice/ClozeEngine.jsx"));
 const GrammarConstellation = lazyWithReload(() => import("./components/learn/GrammarConstellation.jsx"));
+const KaficScreen = lazyWithReload(() => import("./components/croatia/KaficScreen.jsx"));
+const DiasporaNote = lazyWithReload(() => import("./components/croatia/DiasporaNote.jsx"));
+const TiViScreen = lazyWithReload(() => import("./components/learn/TiViScreen.jsx"));
+const LifeEventsScreen = lazyWithReload(() => import("./components/croatia/LifeEventsScreen.jsx"));
+const CivicScreen = lazyWithReload(() => import("./components/croatia/CivicScreen.jsx"));
 
 // Module-level constants — defined once, not recreated on every render
 const DS={xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,authLoading:0,mv:0,hi:0,rs:[],ct:[],badges:[]};
@@ -296,6 +301,11 @@ function App(){
         top100:"croatia",events:"croatia",croatiaathletes:"croatia",
         baka_summer:"croatia", croatia_today:"croatia",
         survival_dinner:"croatia",
+        kafic:"croatia",
+        diaspora:"croatia",
+        tivicompare:"learn",
+        lifeevents:"croatia",
+        civic:"croatia",
         cloze:"practice",
         badges:"profile",leaderboard:"profile",journal:"profile",favorites:"profile",learnpath:"profile",contact:"profile",
         certificate:"profile",analytics:"profile",profile:"profile",admin:"profile",
@@ -1035,6 +1045,11 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {currentScreen==="baka_summer"&&<BakaSummer goBack={goBack} award={award} />}
       {currentScreen==="croatia_today"&&<CroatiaToday goBack={goBack} />}
       {currentScreen==="survival_dinner"&&<SurvivalDinner goBack={goBack} />}
+      {currentScreen==="kafic"&&<KaficScreen goBack={goBack} />}
+      {currentScreen==="diaspora"&&<DiasporaNote goBack={goBack} />}
+      {currentScreen==="tivicompare"&&<TiViScreen goBack={goBack} />}
+      {currentScreen==="lifeevents"&&<LifeEventsScreen goBack={goBack} />}
+      {currentScreen==="civic"&&<CivicScreen goBack={goBack} />}
       {currentScreen==="cloze"&&<ClozeEngine goBack={goBack} award={award} />}
       {currentScreen==="grammarmap"&&<GrammarConstellation goBack={goBack} award={award} />}
       {// ═══ MISTAKE REVIEW ═══
