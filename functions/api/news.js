@@ -114,24 +114,23 @@ export async function onRequestGet(context) {
   const VALID_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
   const level = VALID_LEVELS.includes(rawLevel) ? rawLevel : "B1";
 
-  // Try to fetch from one of the RSS feeds
-  let rawArticles = [];
-  for (const feed of RSS_FEEDS) {
-    try {
-      const res = await fetch(feed.url, {
-        headers: { "User-Agent": "NasaHrvatska/1.0 (Croatian language learning app)" },
-        signal: AbortSignal.timeout(8000),
-      });
-      if (res.ok) {
+  // Fetch all RSS feeds in parallel (saves ~16s vs sequential)
+  const feedResults = await Promise.all(
+    RSS_FEEDS.map(async (feed) => {
+      try {
+        const res = await fetch(feed.url, {
+          headers: { "User-Agent": "NasaHrvatska/1.0 (Croatian language learning app)" },
+          signal: AbortSignal.timeout(8000),
+        });
+        if (!res.ok) return [];
         const xml = await res.text();
-        const items = parseRSS(xml, feed.name);
-        rawArticles = rawArticles.concat(items);
-        if (rawArticles.length >= 6) break;
+        return parseRSS(xml, feed.name);
+      } catch {
+        return [];
       }
-    } catch {
-      // Try next feed
-    }
-  }
+    })
+  );
+  const rawArticles = feedResults.flat().slice(0, 6);
 
   if (rawArticles.length === 0) {
     // Return curated fallback articles if RSS fails
