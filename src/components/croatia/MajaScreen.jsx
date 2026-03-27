@@ -6,6 +6,7 @@ import React, {
   useMemo,
 } from 'react';
 import { useApp } from '../../context/AppContext';
+import CroatianGrb from '../shared/CroatianGrb.jsx';
 
 // ─────────────────────────────────────────────
 // KEYFRAME STYLES
@@ -202,15 +203,17 @@ function MajaOrb({ phase, waveform, liveTranscript, personaCfg }) {
               width: 120,
               height: 120,
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, #1e293b, #334155)',
+              background: 'linear-gradient(160deg, #D4002D 0%, #D4002D 33%, #ffffff 33%, #ffffff 66%, #003DA5 66%, #003DA5 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.25)',
+              boxShadow: '0 4px 24px rgba(212,0,45,0.35)',
               animation: 'maja-float 3s ease-in-out infinite',
+              overflow: 'hidden',
+              position: 'relative',
             }}
           >
-            <span style={{ fontSize: 40 }}>🇭🇷</span>
+            <CroatianGrb size={72} style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.4))' }} />
           </div>
         </div>
         <span style={{ fontSize: 13, color: 'var(--subtext)', letterSpacing: 0.3 }}>
