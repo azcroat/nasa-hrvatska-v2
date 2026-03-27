@@ -668,7 +668,7 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
               </div>
             </div>
             <button
-              onClick={() => setScr("maja")}
+              onClick={() => setScr("personas")}
               style={{
                 width:'100%', padding:'18px 20px', borderRadius:16,
                 border:'2px solid rgba(212,0,48,.35)',
@@ -684,19 +684,43 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
                 position:'absolute', top:10, right:12
               }}>AI · VOICE</span>
 
-              {/* Maja avatar */}
-              <img
-                src="/images/portraits/tutor-hero.jpg"
-                alt="Maja"
-                style={{ width:64, height:64, borderRadius:'50%', objectFit:'cover', border:'2px solid #D4002D', flexShrink:0 }}
-              />
+              {/* Avatar row — 4 small avatars */}
+              <div style={{ display:'flex', flexDirection:'column', gap:4, flexShrink:0 }}>
+                <div style={{ display:'flex', gap:-6 }}>
+                  {[
+                    { src:'/images/portraits/tutor-hero.jpg', emoji:'👩‍🏫', color:'#D4002D' },
+                    { src:'/images/portraits/fisherman.jpg',  emoji:'⛵',   color:'#0284c7' },
+                    { src:'/images/portraits/secretary.jpg',  emoji:'💼',   color:'#7c3aed' },
+                    { src:'/images/portraits/baka.jpg',       emoji:'👵',   color:'#b45309' },
+                  ].map(({ src, emoji, color }, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        width:32, height:32, borderRadius:'50%',
+                        border:`2px solid ${color}`, overflow:'hidden',
+                        marginLeft: i > 0 ? -8 : 0,
+                        background: color + '22',
+                        display:'flex', alignItems:'center', justifyContent:'center',
+                        fontSize:14, flexShrink:0,
+                      }}
+                    >
+                      <img
+                        src={src} alt=""
+                        style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }}
+                        onError={(e) => { e.currentTarget.style.display='none'; e.currentTarget.parentNode.innerText=emoji; }}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <span style={{ fontSize:9, color:'var(--subtext)', textAlign:'center' }}>4 personas</span>
+              </div>
 
               {/* Text content */}
               <div>
-                <div style={{ fontSize:17, fontWeight:900, color:'#D4002D', marginBottom:3 }}>Razgovaraj s Majom</div>
-                <div style={{ fontSize:'var(--text-sm)', fontWeight:700, color:'var(--heading)', marginBottom:4 }}>Your personal Croatian conversation partner</div>
+                <div style={{ fontSize:17, fontWeight:900, color:'#D4002D', marginBottom:3 }}>Razgovaraj s Hrvatima →</div>
+                <div style={{ fontSize:'var(--text-sm)', fontWeight:700, color:'var(--heading)', marginBottom:4 }}>Choose from 4 conversation partners</div>
                 <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.5 }}>
-                  Voice-to-voice · She remembers every session · Adapts to your level
+                  Maja · Marko · Ana · Baka Mara · Voice-to-voice AI
                 </div>
               </div>
             </button>

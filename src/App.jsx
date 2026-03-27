@@ -52,6 +52,7 @@ const ImmersionHub = lazyWithReload(() => import("./components/croatia/Immersion
 const LyricsScreen = lazyWithReload(() => import("./components/croatia/LyricsScreen.jsx"));
 const AIConversation = lazyWithReload(() => import("./components/croatia/AIConversation.jsx"));
 const MajaScreen = lazyWithReload(() => import("./components/croatia/MajaScreen.jsx"));
+const PersonaScreen = lazyWithReload(() => import("./components/croatia/PersonaScreen.jsx"));
 const ProfileTab = lazyWithReload(() => import("./components/profile/ProfileTab.jsx"));
 const ContactScreen = lazyWithReload(() => import("./components/profile/ContactScreen.jsx"));
 const PracticeTab = lazyWithReload(() => import("./components/practice/PracticeTab.jsx"));
@@ -155,6 +156,7 @@ const BojeGame = lazyWithReload(() => import("./components/practice/BojeGame.jsx
 const MatchGame = lazyWithReload(() => import("./components/practice/MatchGame.jsx"));
 const WordSprint = lazyWithReload(() => import("./components/practice/WordSprint.jsx"));
 const SpeakingScreen = lazyWithReload(() => import("./components/practice/SpeakingScreen.jsx"));
+const SpeakingSprintScreen = lazyWithReload(() => import("./components/practice/SpeakingSprintScreen.jsx"));
 const PitchAccentScreen = lazyWithReload(() => import("./components/practice/PitchAccentScreen.jsx"));
 const ShadowingScreen = lazyWithReload(() => import("./components/practice/ShadowingScreen.jsx"));
 const ReviewScreen = lazyWithReload(() => import("./components/practice/ReviewScreen.jsx"));
@@ -1109,6 +1111,8 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       currentScreen==="wordsprint"&&<WordSprint sh={sh} award={award} goBack={goBack} />}
       {// ═══ SPEAKING / PRONUNCIATION ═══
       currentScreen==="speaking"&&<SpeakingScreen sw={sw} si={si} sx={sx} sr={sr} ssc={ssc} sSr={sSr} sSx={sSx} sSw={sSw} sSsc={sSsc} goBack={goBack} award={award} setSt={setStats} />}
+      {// ═══ SPEAKING SPRINT ═══
+      currentScreen==="speaking_sprint"&&<SpeakingSprintScreen goBack={goBack} award={award} />}
       {// ═══ PITCH ACCENT ═══
       currentScreen==="pitchaccent"&&<PitchAccentScreen goBack={goBack} award={award} PITCH_ACCENT={PITCH_ACCENT} />}
       {// ═══ SHADOWING ═══
@@ -1143,6 +1147,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {currentScreen==="easter"&&<EasterScreen onBack={goBack} />}
       {currentScreen==="postcard"&&<PostcardScreen goBack={goBack} award={award} />}
       {currentScreen==="storymode"&&<StoryModeScreen goBack={goBack} award={award} />}
+      {currentScreen==="personas"&&<PersonaScreen goBack={goBack} setScr={setScr} />}
       {currentScreen==="maja"&&<MajaScreen goBack={goBack} award={award} />}
       {currentScreen==="ai_listening"&&<AIListeningScreen goBack={goBack} award={award} />}
       {currentScreen==="grammar_diagnosis"&&<GrammarDiagnosisScreen goBack={goBack} award={award} />}
