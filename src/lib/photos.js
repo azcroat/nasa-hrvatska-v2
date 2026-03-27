@@ -11,18 +11,29 @@
  * Note: sat=-10 applies a subtle desaturation for a consistent, film-like look
  */
 
+// ── Locally committed CC/AI photos (always available, no CDN dependency) ────
+// Generated/sourced by scripts/generate-portraits.mjs + Wikipedia Commons
+export const LOCAL_PHOTOS = {
+  dubrovnik:    '/images/scenes/dubrovnik-hero.jpg',
+  adriatic:     '/images/scenes/dalmatian-coast.jpg',
+  plitvice:     '/images/scenes/plitvice.jpg',
+  zagreb:       '/images/scenes/zagreb.jpg',
+  dubrovnik_ai: '/images/scenes/dubrovnik-ai.jpg',   // SDXL ultra-cinematic (when generated)
+  adriatic_ai:  '/images/scenes/dalmatian-ai.jpg',   // SDXL ultra-cinematic (when generated)
+};
+
 export const PHOTOS = {
-  // Hero: Dubrovnik walls at golden hour — warm amber light on white stone
-  dubrovnik: 'https://images.unsplash.com/photo-1555990538-c4c71e9a4bab?w=1200&q=85&fit=crop&auto=format',
+  // Hero: Dubrovnik panorama — local CC photo, consistent load
+  dubrovnik: '/images/scenes/dubrovnik-hero.jpg',
 
-  // Adriatic coast: turquoise sea, red-roofed village, dramatic cliffs
-  adriatic:  'https://images.unsplash.com/photo-1586161816003-bc944e3c7e27?w=1200&q=85&fit=crop&auto=format',
+  // Adriatic coast: Hvar island from above — local CC photo
+  adriatic:  '/images/scenes/dalmatian-coast.jpg',
 
-  // Plitvice Lakes: magical turquoise waterfalls through forest
-  plitvice:  'https://images.unsplash.com/photo-1601024445121-e5b82f020549?w=1200&q=85&fit=crop&auto=format',
+  // Plitvice Lakes: UNESCO waterfall cascade — local CC photo
+  plitvice:  '/images/scenes/plitvice.jpg',
 
-  // Zagreb: Ban Jelačić square and cathedral towers at dusk
-  zagreb:    'https://images.unsplash.com/photo-1548268770-66184a21657e?w=1200&q=85&fit=crop&auto=format',
+  // Zagreb: cathedral + city — local CC photo
+  zagreb:    '/images/scenes/zagreb.jpg',
 
   // Hvar: lavender fields meeting the Adriatic sea — iconic Croatia
   hvar:      'https://images.unsplash.com/photo-1527515637462-cff94edd89b6?w=1200&q=85&fit=crop&auto=format',
@@ -49,10 +60,8 @@ export const PHOTOS = {
   rovinj:    'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1200&q=85&fit=crop&auto=format',
 };
 
-// Thumbnail versions (400px) for card/list use
-export const PHOTO_THUMBS = Object.fromEntries(
-  Object.entries(PHOTOS).map(([k, v]) => [k, v.replace('w=1200', 'w=400').replace('q=85', 'q=75')])
-);
+// Thumbnail versions — local paths serve the same file (browser caches it)
+export const PHOTO_THUMBS = PHOTOS;
 
 // Default export for backward compatibility
 export default PHOTOS;
