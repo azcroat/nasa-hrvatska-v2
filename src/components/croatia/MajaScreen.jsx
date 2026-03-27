@@ -48,6 +48,65 @@ const MAJA_STYLES = `
 `;
 
 // ─────────────────────────────────────────────
+// PERSONA CONFIG
+// ─────────────────────────────────────────────
+const PERSONA_CONFIG = {
+  teacher: {
+    name: 'Maja Kovačević',
+    title: 'Učiteljica Hrvatskog',
+    avatar: '/images/portraits/tutor-hero.jpg',
+    fallbackEmoji: '👩‍🏫',
+    orbColor: '#D4002D',
+    thinkingColor: '#F59E0B',
+    speakingColor: '#D4002D',
+    listenColor: '#0e7490',
+    accentColor: '#D4002D',
+  },
+  fisherman: {
+    name: 'Marko',
+    title: 'Ribar, Stari Grad, Hvar',
+    avatar: '/images/portraits/fisherman.jpg',
+    fallbackEmoji: '⛵',
+    orbColor: '#0284c7',
+    thinkingColor: '#0369a1',
+    speakingColor: '#0284c7',
+    listenColor: '#0ea5e9',
+    accentColor: '#0284c7',
+  },
+  secretary: {
+    name: 'Ana Perković',
+    title: 'Tajnica, Grad Zagreb',
+    avatar: '/images/portraits/secretary.jpg',
+    fallbackEmoji: '💼',
+    orbColor: '#7c3aed',
+    thinkingColor: '#6d28d9',
+    speakingColor: '#7c3aed',
+    listenColor: '#8b5cf6',
+    accentColor: '#7c3aed',
+  },
+  baka: {
+    name: 'Baka Mara',
+    title: 'Baka iz Vinkovaca, Slavonija',
+    avatar: '/images/portraits/baka.jpg',
+    fallbackEmoji: '👵',
+    orbColor: '#b45309',
+    thinkingColor: '#92400e',
+    speakingColor: '#b45309',
+    listenColor: '#d97706',
+    accentColor: '#b45309',
+  },
+};
+
+function getPersona() {
+  try {
+    const p = localStorage.getItem('maja_persona');
+    return PERSONA_CONFIG[p] ? p : 'teacher';
+  } catch {
+    return 'teacher';
+  }
+}
+
+// ─────────────────────────────────────────────
 // CONSTANTS
 // ─────────────────────────────────────────────
 const SR_SUPPORTED =
@@ -114,7 +173,8 @@ function computeRelationshipLevel(sessionCount) {
 // ─────────────────────────────────────────────
 // SUB-COMPONENT: MajaOrb
 // ─────────────────────────────────────────────
-function MajaOrb({ phase, waveform, liveTranscript }) {
+function MajaOrb({ phase, waveform, liveTranscript, personaCfg }) {
+  const cfg = personaCfg || PERSONA_CONFIG.teacher;
   const containerStyle = {
     display: 'flex',
     flexDirection: 'column',
@@ -193,7 +253,7 @@ function MajaOrb({ phase, waveform, liveTranscript }) {
           </div>
         </div>
         <span style={{ fontSize: 13, color: '#d97706', fontWeight: 600 }}>
-          Maja razmišlja...
+          {cfg.name.split(' ')[0]} razmišlja...
         </span>
       </div>
     );
@@ -201,12 +261,17 @@ function MajaOrb({ phase, waveform, liveTranscript }) {
 
   // ── maja-speaking ─────────────────────────
   if (phase === 'maja-speaking') {
+    const speakColor = cfg.speakingColor;
+    const speakColorRgb = speakColor === '#D4002D' ? '212,0,45'
+      : speakColor === '#0284c7' ? '2,132,199'
+      : speakColor === '#7c3aed' ? '124,58,237'
+      : '180,83,9';
     const pulseBase = {
       position: 'absolute',
       width: 120,
       height: 120,
       borderRadius: '50%',
-      border: '2px solid rgba(212,0,45,0.5)',
+      border: `2px solid rgba(${speakColorRgb},0.5)`,
       top: '50%',
       left: '50%',
       transform: 'translate(-50%, -50%)',
@@ -228,8 +293,8 @@ function MajaOrb({ phase, waveform, liveTranscript }) {
               width: 120,
               height: 120,
               borderRadius: '50%',
-              background: 'radial-gradient(circle, #D4002D 0%, #a00021 100%)',
-              boxShadow: '0 0 40px rgba(212,0,45,0.4)',
+              background: `radial-gradient(circle, ${speakColor} 0%, ${speakColor}cc 100%)`,
+              boxShadow: `0 0 40px rgba(${speakColorRgb},0.4)`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -240,8 +305,8 @@ function MajaOrb({ phase, waveform, liveTranscript }) {
             <span style={{ fontSize: 24, userSelect: 'none' }}>🎙️</span>
           </div>
         </div>
-        <span style={{ fontSize: 13, color: '#D4002D', fontWeight: 600 }}>
-          Maja govori...
+        <span style={{ fontSize: 13, color: speakColor, fontWeight: 600 }}>
+          {cfg.name.split(' ')[0]} govori...
         </span>
       </div>
     );
@@ -249,6 +314,11 @@ function MajaOrb({ phase, waveform, liveTranscript }) {
 
   // ── listening ─────────────────────────────
   if (phase === 'listening') {
+    const listenColor = cfg.listenColor;
+    const listenColorRgb = listenColor === '#0e7490' ? '14,116,144'
+      : listenColor === '#0ea5e9' ? '14,165,233'
+      : listenColor === '#8b5cf6' ? '139,92,246'
+      : '217,119,6';
     return (
       <div style={containerStyle}>
         <div style={orbWrapStyle}>
@@ -257,8 +327,8 @@ function MajaOrb({ phase, waveform, liveTranscript }) {
               width: 120,
               height: 120,
               borderRadius: '50%',
-              background: 'radial-gradient(circle, #0e7490 0%, #0a5567 100%)',
-              boxShadow: '0 0 40px rgba(14,116,144,0.4)',
+              background: `radial-gradient(circle, ${listenColor} 0%, ${listenColor}cc 100%)`,
+              boxShadow: `0 0 40px rgba(${listenColorRgb},0.4)`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -287,7 +357,7 @@ function MajaOrb({ phase, waveform, liveTranscript }) {
                 width: 3,
                 height: h,
                 borderRadius: 2,
-                background: '#0e7490',
+                background: listenColor,
                 transition: 'height 0.08s ease',
                 animation: 'maja-bar-pulse 1.2s ease-in-out infinite',
                 animationDelay: `${(i * 0.04).toFixed(2)}s`,
@@ -296,7 +366,7 @@ function MajaOrb({ phase, waveform, liveTranscript }) {
           ))}
         </div>
 
-        <span style={{ fontSize: 13, color: '#0e7490', fontWeight: 600 }}>
+        <span style={{ fontSize: 13, color: listenColor, fontWeight: 600 }}>
           Tvoj red... Govori!
         </span>
 
@@ -406,8 +476,9 @@ function MemoryChips({ knownFacts }) {
 // ─────────────────────────────────────────────
 // SUB-COMPONENT: ConversationBubble
 // ─────────────────────────────────────────────
-function ConversationBubble({ msg }) {
+function ConversationBubble({ msg, personaCfg }) {
   const isUser = msg.role === 'user';
+  const cfg = personaCfg || PERSONA_CONFIG.teacher;
 
   const bubbleStyle = isUser
     ? {
@@ -444,21 +515,40 @@ function ConversationBubble({ msg }) {
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, flexDirection: isUser ? 'row-reverse' : 'row' }}>
         {!isUser && (
-          <img
-            src="/images/portraits/tutor-hero.jpg"
-            alt="Maja"
-            style={{
-              width: 30,
-              height: 30,
-              borderRadius: '50%',
-              objectFit: 'cover',
-              flexShrink: 0,
-              border: '2px solid #D4002D',
-            }}
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-            }}
-          />
+          <div style={{ position: 'relative', flexShrink: 0 }}>
+            <img
+              src={cfg.avatar}
+              alt={cfg.name}
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: '50%',
+                objectFit: 'cover',
+                flexShrink: 0,
+                border: `2px solid ${cfg.accentColor}`,
+                display: 'block',
+              }}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextSibling.style.display = 'flex';
+              }}
+            />
+            <div
+              style={{
+                display: 'none',
+                width: 30,
+                height: 30,
+                borderRadius: '50%',
+                border: `2px solid ${cfg.accentColor}`,
+                background: cfg.accentColor + '22',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 16,
+              }}
+            >
+              {cfg.fallbackEmoji}
+            </div>
+          </div>
         )}
         <div style={bubbleStyle}>{msg.content}</div>
       </div>
@@ -736,6 +826,10 @@ function DebriefScreen({ debrief, conversation, durationSecs, onContinue, onBack
 export default function MajaScreen() {
   const { name, level, award, goBack } = useApp();
 
+  // ── persona ────────────────────────────────
+  const [personaKey] = useState(() => getPersona());
+  const personaCfg = PERSONA_CONFIG[personaKey] || PERSONA_CONFIG.teacher;
+
   // ── state ──────────────────────────────────
   const [memory, setMemory] = useState(loadMemory);
   const [phase, setPhase] = useState('idle');
@@ -961,6 +1055,7 @@ export default function MajaScreen() {
             userLevel: level || 'A1',
             userName: name || 'Student',
             isSessionStart: false,
+            persona: personaKey,
           }),
         });
 
@@ -1097,6 +1192,7 @@ export default function MajaScreen() {
           userLevel: level || 'A1',
           userName: name || 'Student',
           isSessionStart: true,
+          persona: personaKey,
         }),
       });
 
@@ -1294,7 +1390,7 @@ export default function MajaScreen() {
               gap: 6,
             }}
           >
-            ← Maja
+            ← {personaCfg.name.split(' ')[0]}
           </button>
 
           {sessionActive && phase !== 'debrief' && (
@@ -1330,7 +1426,7 @@ export default function MajaScreen() {
 
         {phase !== 'debrief' && (
           <>
-            {/* ── Maja avatar card ── */}
+            {/* ── Persona avatar card ── */}
             <div
               style={{
                 display: 'flex',
@@ -1342,28 +1438,43 @@ export default function MajaScreen() {
             >
               <div style={{ position: 'relative' }}>
                 <img
-                  src="/images/portraits/tutor-hero.jpg"
-                  alt="Maja Kovačević"
+                  src={personaCfg.avatar}
+                  alt={personaCfg.name}
                   style={{
                     width: 80,
                     height: 80,
                     borderRadius: '50%',
                     objectFit: 'cover',
-                    border: '3px solid #D4002D',
+                    border: `3px solid ${personaCfg.accentColor}`,
                     display: 'block',
                   }}
                   onError={(e) => {
-                    e.currentTarget.style.background = '#D4002D';
-                    e.currentTarget.style.display = 'flex';
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextSibling.style.display = 'flex';
                   }}
                 />
+                <div
+                  style={{
+                    display: 'none',
+                    width: 80,
+                    height: 80,
+                    borderRadius: '50%',
+                    border: `3px solid ${personaCfg.accentColor}`,
+                    background: personaCfg.accentColor + '22',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 36,
+                  }}
+                >
+                  {personaCfg.fallbackEmoji}
+                </div>
                 {memory.sessionCount > 0 && (
                   <span
                     style={{
                       position: 'absolute',
                       bottom: -4,
                       right: -4,
-                      background: '#D4002D',
+                      background: personaCfg.accentColor,
                       color: '#fff',
                       fontSize: 10,
                       fontWeight: 700,
@@ -1385,18 +1496,18 @@ export default function MajaScreen() {
                   marginTop: 4,
                 }}
               >
-                Maja Kovačević
+                {personaCfg.name}
               </span>
               <span style={{ fontSize: 12, color: 'var(--subtext)' }}>
-                Učiteljica Hrvatskog
+                {personaCfg.title}
               </span>
               {memory.sessionCount > 0 && (
                 <span
                   style={{
                     fontSize: 11,
-                    color: '#D4002D',
-                    background: 'rgba(212,0,45,0.08)',
-                    border: '1px solid rgba(212,0,45,0.2)',
+                    color: personaCfg.accentColor,
+                    background: personaCfg.accentColor + '14',
+                    border: `1px solid ${personaCfg.accentColor}33`,
                     borderRadius: 10,
                     padding: '2px 8px',
                   }}
@@ -1431,7 +1542,7 @@ export default function MajaScreen() {
                         textAlign: 'center',
                       }}
                     >
-                      Upoznaj Maju
+                      Upoznaj {personaCfg.name.split(' ')[0]}
                     </h2>
                     <div
                       style={{
@@ -1441,17 +1552,35 @@ export default function MajaScreen() {
                       }}
                     >
                       <img
-                        src="/images/portraits/tutor-hero.jpg"
-                        alt="Maja"
+                        src={personaCfg.avatar}
+                        alt={personaCfg.name}
                         style={{
                           width: 100,
                           height: 100,
                           borderRadius: '50%',
                           objectFit: 'cover',
-                          border: '3px solid #D4002D',
+                          border: `3px solid ${personaCfg.accentColor}`,
                         }}
-                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextSibling.style.display = 'flex';
+                        }}
                       />
+                      <div
+                        style={{
+                          display: 'none',
+                          width: 100,
+                          height: 100,
+                          borderRadius: '50%',
+                          border: `3px solid ${personaCfg.accentColor}`,
+                          background: personaCfg.accentColor + '22',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 48,
+                        }}
+                      >
+                        {personaCfg.fallbackEmoji}
+                      </div>
                     </div>
                     <ul
                       style={{
@@ -1463,11 +1592,28 @@ export default function MajaScreen() {
                         gap: 8,
                       }}
                     >
-                      {[
-                        '🇭🇷 Predaje Hrvatski u Zagrebu',
-                        '📍 Rodom iz Zadra',
-                        '❤️ Prstaci, brudet i Hajduk Split',
-                      ].map((item) => (
+                      {({
+                        teacher: [
+                          '🇭🇷 Predaje Hrvatski u Zagrebu',
+                          '📍 Rodom iz Zadra',
+                          '❤️ Prstaci, brudet i Hajduk Split',
+                        ],
+                        fisherman: [
+                          '⛵ Ribar u Starom Gradu, Hvar',
+                          '🐟 Jedini prave ribe: zubatac i špar',
+                          '⚽ Navijač Hajduka Split',
+                        ],
+                        secretary: [
+                          '🏛️ Tajnica u Gradu Zagrebu',
+                          '📋 Stručnjakinja za obrasce i postupke',
+                          '☕ Kava u 10:00 je sveta',
+                        ],
+                        baka: [
+                          '🏠 Baka iz Vinkovaca, Slavonija',
+                          '🍲 Kulen, sarma i pogača iz pećnice',
+                          '❤️ Sedam unuka i beskonačna ljubav',
+                        ],
+                      }[personaKey] || []).map((item) => (
                         <li
                           key={item}
                           style={{
@@ -1490,7 +1636,10 @@ export default function MajaScreen() {
                         textAlign: 'center',
                       }}
                     >
-                      Maja će se sjetiti svakog vašeg razgovora i prilagoditi lekcije vama.
+                      {personaKey === 'teacher' && 'Maja će se sjetiti svakog vašeg razgovora i prilagoditi lekcije vama.'}
+                      {personaKey === 'fisherman' && 'Marko ne uči gramatiku — ali čut ćeš pravi dalmatinski Hrvatski.'}
+                      {personaKey === 'secretary' && 'Ana te uči formalnom Hrvatskom kroz stvarnu birokratsku interakciju.'}
+                      {personaKey === 'baka' && 'Baka Mara te dočekuje s toplinom i hranom. Savršeno za početnike.'}
                     </p>
                   </div>
                 ) : (
@@ -1613,7 +1762,7 @@ export default function MajaScreen() {
             )}
 
             {/* ── THE ORB ── */}
-            <MajaOrb phase={phase} waveform={waveform} liveTranscript={liveTranscript} />
+            <MajaOrb phase={phase} waveform={waveform} liveTranscript={liveTranscript} personaCfg={personaCfg} />
 
             {/* ── Error message ── */}
             {phase === 'error' && (
@@ -1656,7 +1805,7 @@ export default function MajaScreen() {
                 }}
               >
                 {conversation.map((msg, i) => (
-                  <ConversationBubble key={i} msg={msg} />
+                  <ConversationBubble key={i} msg={msg} personaCfg={personaCfg} />
                 ))}
               </div>
             )}
@@ -1673,7 +1822,7 @@ export default function MajaScreen() {
                       handleFallbackSend();
                     }
                   }}
-                  placeholder="Upiši svoju poruku Maji..."
+                  placeholder={`Upiši svoju poruku ${personaCfg.name.split(' ')[0]}...`}
                   rows={2}
                   style={{
                     flex: 1,
@@ -1717,14 +1866,14 @@ export default function MajaScreen() {
                     width: '100%',
                     height: 52,
                     borderRadius: 12,
-                    background: '#D4002D',
+                    background: personaCfg.accentColor,
                     color: '#fff',
                     border: 'none',
                     fontSize: 17,
                     fontWeight: 700,
                     cursor: 'pointer',
                     letterSpacing: 0.3,
-                    boxShadow: '0 4px 16px rgba(212,0,45,0.25)',
+                    boxShadow: `0 4px 16px ${personaCfg.accentColor}40`,
                   }}
                 >
                   Počni razgovor →
@@ -1747,11 +1896,11 @@ export default function MajaScreen() {
                     }}
                   >
                     {phase === 'listening' ? (
-                      <span style={{ color: '#0e7490', fontWeight: 600 }}>Govoriš…</span>
+                      <span style={{ color: personaCfg.listenColor, fontWeight: 600 }}>Govoriš…</span>
                     ) : phase === 'thinking' ? (
                       <span style={{ color: '#d97706', fontWeight: 600 }}>Obrađujem…</span>
                     ) : phase === 'maja-speaking' ? (
-                      <span style={{ color: '#D4002D', fontWeight: 600 }}>Maja govori…</span>
+                      <span style={{ color: personaCfg.speakingColor, fontWeight: 600 }}>{personaCfg.name.split(' ')[0]} govori…</span>
                     ) : null}
                   </span>
                   <span

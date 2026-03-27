@@ -1,0 +1,206 @@
+// Cloudflare Pages Function — Adaptive Daily Curriculum Plan
+// Generates a personalized 15-minute daily Croatian learning plan using Claude.
+
+const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
+const MODEL = "claude-sonnet-4-6";
+
+// ── Security helpers ──────────────────────────────────────────────────────────
+
+function sanitizeParam(value, maxLen = 200) {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/[\r\n]/g, ' ')
+    .replace(/[`\\]/g, '')
+    .replace(/\bignore\b.*\binstruction/gi, '')
+    .trim()
+    .slice(0, maxLen);
+}
+
+function isAllowedOrigin(origin, isDev) {
+  try {
+    const hostname = new URL(origin).hostname;
+    if (isDev && hostname === "localhost") return true;
+    return hostname === "nasahrvatska.com"
+      || hostname.endsWith(".nasahrvatska.com")
+      || hostname === "nasa-hrvatska-v2.pages.dev"
+      || hostname.endsWith(".nasa-hrvatska-v2.pages.dev");
+  } catch { return false; }
+}
+
+const corsHeaders = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "https://nasahrvatska.com",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Cache-Control": "no-cache",
+};
+
+function ok(body)         { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders }); }
+function err(status, msg) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders }); }
+
+// ── Input validation ──────────────────────────────────────────────────────────
+
+const VALID_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
+const VALID_GOALS  = ["heritage", "family", "travel", "culture", "fluent", "partner"];
+
+function sanitizeLevel(level) {
+  return VALID_LEVELS.includes(level) ? level : "B1";
+}
+
+function sanitizeGoal(goal) {
+  return VALID_GOALS.includes(goal) ? goal : "fluent";
+}
+
+function sanitizeStreak(streak) {
+  const n = Number(streak);
+  if (!Number.isFinite(n) || n < 0) return 0;
+  return Math.min(Math.floor(n), 9999);
+}
+
+function sanitizeStringArray(arr, maxItems, maxItemLen) {
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .slice(0, maxItems)
+    .map(item => sanitizeParam(String(item ?? ''), maxItemLen))
+    .filter(Boolean);
+}
+
+function sanitizeRecentActivity(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return { flashcards: 0, listening: 0, speaking: 0, writing: 0, lastActive: 0 };
+  }
+  const clamp = (v) => {
+    const n = Number(v);
+    return Number.isFinite(n) && n >= 0 ? Math.min(Math.floor(n), 9999) : 0;
+  };
+  return {
+    flashcards: clamp(raw.flashcards),
+    listening:  clamp(raw.listening),
+    speaking:   clamp(raw.speaking),
+    writing:    clamp(raw.writing),
+    lastActive: clamp(raw.lastActive),
+  };
+}
+
+// ── Handler ───────────────────────────────────────────────────────────────────
+
+export async function onRequestOptions() {
+  return new Response(null, { status: 204, headers: corsHeaders });
+}
+
+export async function onRequestPost(context) {
+  const { request, env } = context;
+  const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
+
+  // CORS check
+  const origin = request.headers.get("origin") || request.headers.get("referer") || "";
+  const isDev = env.ENVIRONMENT !== "production";
+  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden");
+
+  // API key check
+  if (!ANTHROPIC_KEY) return err(500, "Service not configured");
+
+  // Content-type check
+  const ct = request.headers.get("content-type") || "";
+  if (!ct.includes("application/json")) return err(400, "Invalid content type");
+
+  // Parse body
+  let body;
+  try { body = await request.json(); }
+  catch { return err(400, "Invalid JSON in request body"); }
+
+  const {
+    level,
+    srWeakWords,
+    majaPatterns,
+    recentActivity,
+    goal,
+    streak,
+  } = body;
+
+  // ── Validate and sanitize inputs ──
+  const safeLevel          = sanitizeLevel(level);
+  const safeGoal           = sanitizeGoal(goal);
+  const safeStreak         = sanitizeStreak(streak);
+  const safeSrWeakWords    = sanitizeStringArray(srWeakWords, 8, 60);
+  const safeMajaPatterns   = sanitizeStringArray(majaPatterns, 10, 100);
+  const safeRecentActivity = sanitizeRecentActivity(recentActivity);
+
+  // ── Build prompts ──
+  const systemPrompt = "You are a Croatian language learning coach creating a personalized daily practice plan. Return ONLY valid JSON, no markdown.";
+
+  const userMessage = `Create a personalized 15-minute daily Croatian practice plan for a ${safeLevel} learner with goal '${safeGoal}' (${safeStreak} day streak). Their weakest SRS words: ${safeSrWeakWords.join(', ') || 'none yet'}. Maja mistake patterns: ${safeMajaPatterns.join(', ') || 'none'}. Recent activity counts: ${JSON.stringify(safeRecentActivity)}. Return JSON: { greeting: 'short encouraging Croatian greeting to the user (5-10 words)', activities: [ { id: string (one of: flashcards|srsreview|ai_listening|speaking|writing|grammar_diagnosis|dialogue|shadowing|aspectdrill), title: string, reason: string (why this specifically today, 1 sentence), duration: number (minutes, 3-7), priority: 'high'|'medium' } ], motivational_note: 'one encouraging sentence about their progress', focus_topic: 'one grammar/vocab area to focus on today' } — exactly 3 activities totaling ~15 minutes.`;
+
+  // ── Call Anthropic ──
+  let res, data;
+  try {
+    res = await fetch(ANTHROPIC_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      signal: AbortSignal.timeout(20000),
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 600,
+        system: systemPrompt,
+        messages: [{ role: "user", content: userMessage }],
+      }),
+    });
+    data = await res.json();
+  } catch (fetchErr) {
+    console.error("daily-plan.js: network error calling Anthropic:", fetchErr.message);
+    return err(502, "Service temporarily unavailable");
+  }
+
+  if (!res.ok) {
+    console.error("daily-plan.js: Anthropic API error", res.status, data?.error?.message);
+    return err(res.status, data?.error?.message || "Anthropic API error: HTTP " + res.status);
+  }
+
+  const raw = data?.content?.[0]?.text?.trim() || "";
+  if (!raw) {
+    console.error("daily-plan.js: Anthropic returned empty response");
+    return err(500, "Empty response from AI");
+  }
+
+  // ── Parse Claude's JSON response ──
+  let parsed;
+  try {
+    const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+    parsed = JSON.parse(cleaned);
+  } catch (parseErr) {
+    console.error("daily-plan.js: JSON parse failed. Raw:", raw.slice(0, 200));
+    return err(500, "Failed to parse AI response");
+  }
+
+  // ── Validate activities array ──
+  if (!Array.isArray(parsed.activities) || parsed.activities.length !== 3) {
+    console.error("daily-plan.js: activities array invalid, length:", parsed.activities?.length);
+    return err(500, "AI returned invalid plan structure");
+  }
+
+  const VALID_ACTIVITY_IDS = ["flashcards", "srsreview", "ai_listening", "speaking", "writing", "grammar_diagnosis", "dialogue", "shadowing", "aspectdrill"];
+  const VALID_PRIORITIES   = ["high", "medium"];
+
+  const activities = parsed.activities.map(act => ({
+    id:       VALID_ACTIVITY_IDS.includes(act.id) ? act.id : "flashcards",
+    title:    sanitizeParam(String(act.title || ""), 80),
+    reason:   sanitizeParam(String(act.reason || ""), 200),
+    duration: Math.min(Math.max(Number(act.duration) || 5, 1), 30),
+    priority: VALID_PRIORITIES.includes(act.priority) ? act.priority : "medium",
+  }));
+
+  const greeting         = sanitizeParam(String(parsed.greeting || ""), 150);
+  const motivational_note = sanitizeParam(String(parsed.motivational_note || ""), 250);
+  const focus_topic      = sanitizeParam(String(parsed.focus_topic || ""), 100);
+
+  return ok({
+    greeting,
+    activities,
+    motivational_note,
+    focus_topic,
+    generatedAt: Date.now(),
+  });
+}

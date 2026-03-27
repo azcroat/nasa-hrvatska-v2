@@ -49,7 +49,7 @@ export default defineConfig({
       workbox: {
         skipWaiting: true,
         clientsClaim: true,
-        cacheId: 'nasa-hrvatska-v7',
+        cacheId: 'nasa-hrvatska-v8',
         // Only precache JS/CSS/images — exclude large data chunk and splash screens
         globPatterns: ['**/*.{js,css,svg,ico,png,webp,woff2}'],
         globIgnores: ['**/chunk-data*.js', '**/splash/**'],
