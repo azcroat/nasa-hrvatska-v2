@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { getSR, getStreak } from '../../data.jsx';
 import AppContext from '../../context/AppContext.jsx';
+import CroatianGrb from '../shared/CroatianGrb.jsx';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -56,16 +57,6 @@ function savePlanToCache(plan) {
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
-
-function CroatianFlagStripe() {
-  return (
-    <div style={{ display: 'flex', width: 18, height: 14, borderRadius: 2, overflow: 'hidden', flexShrink: 0 }}>
-      <div style={{ flex: 1, background: '#D4001A' }} />
-      <div style={{ flex: 1, background: '#FFFFFF' }} />
-      <div style={{ flex: 1, background: '#0033A0' }} />
-    </div>
-  );
-}
 
 function LoadingDots() {
   const [dots, setDots] = useState('.');
@@ -166,7 +157,7 @@ export default function DailyPlanCard() {
     return (
       <div className="c" style={{ borderLeft: '4px solid #0e7490', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-          <CroatianFlagStripe />
+          <CroatianGrb size={20} />
           <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--heading)', letterSpacing: 0.3 }}>
             Dnevni Plan
           </span>
@@ -184,7 +175,7 @@ export default function DailyPlanCard() {
       {/* Header row */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <CroatianFlagStripe />
+          <CroatianGrb size={20} />
           <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--heading)', letterSpacing: 0.3 }}>
             Dnevni Plan
           </span>
