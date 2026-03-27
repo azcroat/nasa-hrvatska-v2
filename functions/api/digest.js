@@ -30,7 +30,7 @@ export async function onRequestPost(ctx) {
   }
 
   const RESEND_KEY = ctx.env.RESEND_API_KEY;
-  if (!RESEND_KEY) return new Response(JSON.stringify({ ok: false, error: 'digest not configured' }), { status: 200, headers: corsHeaders });
+  if (!RESEND_KEY) return new Response(JSON.stringify({ ok: false, error: 'Service not configured' }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
   let body;
   try { body = await ctx.request.json(); } catch { return new Response('bad request', { status: 400, headers: corsHeaders }); }

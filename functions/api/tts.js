@@ -122,7 +122,8 @@ function isAllowedOrigin(origin, isDev) {
     if (isDev && hostname === "localhost") return true;
     return hostname === "nasahrvatska.com"
       || hostname.endsWith(".nasahrvatska.com")
-      || hostname.endsWith(".pages.dev");
+      || hostname === "nasa-hrvatska-v2.pages.dev"
+      || hostname.endsWith(".nasa-hrvatska-v2.pages.dev");
   } catch { return false; }
 }
 
@@ -146,8 +147,14 @@ export async function onRequestPost(context) {
   }
 
   try {
-    const { text, slow } = await request.json();
-    if (!text || text.length > 500) {
+    const ct = request.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) {
+      return new Response("Invalid content type", { status: 400 });
+    }
+    const body = await request.json();
+    const text = body.text;
+    const slow = body.slow === true; // explicit boolean check
+    if (typeof text !== 'string' || !text.trim() || text.length > 500) {
       return new Response("Invalid text", { status: 400 });
     }
 
@@ -156,7 +163,7 @@ export async function onRequestPost(context) {
     // 1. Try ElevenLabs (best quality, no content filtering)
     if (ELEVENLABS_KEY) {
       try {
-        buffer = await tryElevenLabs(text, !!slow, ELEVENLABS_KEY, VOICE_ID);
+        buffer = await tryElevenLabs(text, slow, ELEVENLABS_KEY, VOICE_ID);
       } catch {
         // network error — fall through to Azure
       }
@@ -165,7 +172,7 @@ export async function onRequestPost(context) {
     // 2. Fall back to Azure
     if (!buffer && AZURE_KEY) {
       try {
-        buffer = await tryAzure(text, !!slow, AZURE_KEY, PRIMARY_REGION);
+        buffer = await tryAzure(text, slow, AZURE_KEY, PRIMARY_REGION);
       } catch {
         // fall through
       }

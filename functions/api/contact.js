@@ -14,7 +14,8 @@ function isAllowedOrigin(origin, isDev) {
     if (isDev && hostname === "localhost") return true;
     return hostname === "nasahrvatska.com"
       || hostname.endsWith(".nasahrvatska.com")
-      || hostname.endsWith(".pages.dev");
+      || hostname === "nasa-hrvatska-v2.pages.dev"
+      || hostname.endsWith(".nasa-hrvatska-v2.pages.dev");
   } catch { return false; }
 }
 
@@ -42,11 +43,22 @@ export async function onRequestPost(context) {
   }
 
   const RESEND_KEY  = env.RESEND_API_KEY;
-  const ADMIN_EMAIL = env.ADMIN_EMAIL || "jschreiner75@gmail.com";
+  const ADMIN_EMAIL = env.ADMIN_EMAIL;
+  if (!ADMIN_EMAIL) {
+    console.error("ADMIN_EMAIL environment variable is not configured");
+    return new Response(JSON.stringify({ ok: false, error: "Contact service is temporarily unavailable." }), {
+      status: 500, headers: { "Content-Type": "application/json" }
+    });
+  }
 
   if (!RESEND_KEY) {
     return new Response(JSON.stringify({ ok: false, error: "Contact not configured." }),
       { status: 200, headers: { ...CORS, "Content-Type": "application/json" } });
+  }
+
+  const ct = request.headers.get('content-type') || '';
+  if (!ct.includes('application/json')) {
+    return new Response(JSON.stringify({ ok: false, error: "Invalid content type" }), { status: 400, headers: { "Content-Type": "application/json" } });
   }
 
   let body;
@@ -54,6 +66,11 @@ export async function onRequestPost(context) {
   catch { return new Response("Bad request", { status: 400 }); }
 
   const { type, subject, description, replyEmail, userName, userLevel, userXp } = body;
+
+  const VALID_TYPES = ["bug", "feature", "content", "question", "other"];
+  if (!VALID_TYPES.includes(type)) {
+    return new Response(JSON.stringify({ ok: false, error: "Invalid type." }), { status: 400, headers: { "Content-Type": "application/json" } });
+  }
 
   if (!type || !subject || !description) {
     return new Response(JSON.stringify({ ok: false, error: "Missing required fields." }),

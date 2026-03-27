@@ -5,13 +5,36 @@
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-4-6";
 
+// ── Security: sanitize user-supplied prompt parameters ────────────────────────
+function sanitizeParam(value, maxLen = 200) {
+  if (value === null || value === undefined) return '';
+  // Remove characters that could be used for prompt injection
+  return String(value)
+    .replace(/[\r\n]/g, ' ')          // newline injection
+    .replace(/[`\\]/g, '')            // backtick/backslash injection
+    .replace(/\bignore\b.*\binstruction/gi, '') // crude prompt injection attempt filter
+    .trim()
+    .slice(0, maxLen);
+}
+
+function sanitizeLevel(level) {
+  const VALID = ['A1','A2','B1','B2','C1','C2'];
+  return VALID.includes(level) ? level : 'B1';
+}
+
+function sanitizeCategory(cat) {
+  const VALID = ['greeting','work','travel','food','slang','love','sports','family'];
+  return VALID.includes(cat) ? cat : 'greeting';
+}
+
 function isAllowedOrigin(origin, isDev) {
   try {
     const hostname = new URL(origin).hostname;
     if (isDev && hostname === "localhost") return true;
     return hostname === "nasahrvatska.com"
       || hostname.endsWith(".nasahrvatska.com")
-      || hostname.endsWith(".pages.dev");
+      || hostname === "nasa-hrvatska-v2.pages.dev"
+      || hostname.endsWith(".nasa-hrvatska-v2.pages.dev");
   } catch { return false; }
 }
 
@@ -27,7 +50,11 @@ function err(status, msg)   { return new Response(JSON.stringify({ error: msg })
 
 // ── Server-side prompt builders ──────────────────────────────────────────────
 function buildConvoPrompt(params) {
-  const { level = "B1", aiName = "Maja", aiRole = "native speaker", context = "" } = params;
+  const rawLevel = params?.level; const rawName = params?.aiName; const rawRole = params?.aiRole; const rawCtx = params?.context;
+  const level = sanitizeLevel(rawLevel);
+  const aiName = sanitizeParam(rawName || "Maja", 50);
+  const aiRole = sanitizeParam(rawRole || "native speaker", 80);
+  const context = sanitizeParam(rawCtx || "", 300);
   const complexity = {
     A1: "Use ONLY simple present tense. Maximum 1-2 very short sentences. Very basic, high-frequency vocabulary only.",
     A2: "Use present tense primarily. 2 short sentences. Common everyday vocabulary.",
@@ -53,7 +80,8 @@ Language rules for YOU:
 }
 
 function buildEvalPrompt(params) {
-  const { level = "B1", scenarioTitle = "Croatian conversation" } = params;
+  const level = sanitizeLevel(params?.level);
+  const scenarioTitle = sanitizeParam(params?.scenarioTitle || "Croatian conversation", 100);
   const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
   return `You are an expert Croatian language teacher and applied linguist. Analyze the conversation below between a ${safeLevel} learner and an AI partner in the scenario: "${scenarioTitle}".
 
@@ -175,7 +203,10 @@ For A1/A2: simple vocabulary, present tense only. For B1: include past and futur
 }
 
 function buildStoryPrompt(params) {
-  const { city = "Zagreb", region = "Croatia", level = "B1", character_name = "Marko" } = params || {};
+  const city = sanitizeParam(params?.city || "Zagreb", 50);
+  const region = sanitizeParam(params?.region || "Croatia", 50);
+  const level = sanitizeLevel(params?.level);
+  const character_name = sanitizeParam(params?.character_name || "Marko", 40);
   const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
   const complexity = {
     A1: "Use ONLY present tense, very short sentences (max 8 words each), and the 200 most common Croatian words. Every 3rd sentence should have an English hint in parentheses.",
@@ -216,7 +247,10 @@ The story must feel like literature, not a language exercise — engaging plot, 
 }
 
 function buildHeritagePrompt(params) {
-  const { region = "Croatia", family_notes = "", user_name = "you", ancestor_era = "early 20th century" } = params || {};
+  const region = sanitizeParam(params?.region || "Croatia", 50);
+  const family_notes = sanitizeParam(params?.family_notes || "", 400);
+  const user_name = sanitizeParam(params?.user_name || "you", 50);
+  const ancestor_era = sanitizeParam(params?.ancestor_era || "early 20th century", 80);
   return `You are a Croatian cultural historian and storyteller. Create a deeply personal, emotionally resonant narrative connecting someone to their Croatian roots.
 
 User name: ${user_name}
@@ -251,7 +285,9 @@ The tone must be warm, poetic, and personal — this should move someone to tear
 }
 
 function buildPhraseOfDayPrompt(params) {
-  const { category = "greeting", level = "B1", seed = "" } = params || {};
+  const category = sanitizeCategory(params?.category);
+  const level = sanitizeLevel(params?.level);
+  const seed = sanitizeParam(params?.seed || "", 20);
   const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
   const categoryDesc = {
     greeting: "everyday Croatian greetings and farewells — include some that are uniquely Croatian or regional",
@@ -303,7 +339,16 @@ Include 2-3 related phrases. The cultural note must be genuinely interesting, no
 }
 
 function buildAdaptiveConvoPrompt(params) {
-  const { level = "B1", aiName = "Maja", aiRole = "native speaker", context = "", weak_areas = [], topics_mastered = [] } = params || {};
+  const level = sanitizeLevel(params?.level);
+  const aiName = sanitizeParam(params?.aiName || "Maja", 50);
+  const aiRole = sanitizeParam(params?.aiRole || "native speaker", 80);
+  const context = sanitizeParam(params?.context || "", 300);
+  const weak_areas = Array.isArray(params?.weak_areas)
+    ? params.weak_areas.slice(0, 5).map(a => sanitizeParam(String(a), 50))
+    : [];
+  const topics_mastered = Array.isArray(params?.topics_mastered)
+    ? params.topics_mastered.slice(0, 10).map(t => sanitizeParam(String(t), 50))
+    : [];
   const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
   const complexity = {
     A1: "Use ONLY simple present tense. Maximum 1-2 very short sentences. Very basic vocabulary only.",
@@ -338,7 +383,9 @@ Language rules for YOU:
 }
 
 function buildNewsSimplifyPrompt(params) {
-  const { level = "B1", title = "", original = "" } = params || {};
+  const level = sanitizeLevel(params?.level);
+  const title = sanitizeParam(params?.title || "", 200);
+  const original = sanitizeParam(params?.original || "", 1000);
   const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
   const complexity = {
     A1: "Use ONLY the 500 most common Croatian words. Maximum 8 words per sentence. Present tense only. No subordinate clauses.",
@@ -373,7 +420,9 @@ Include 6-8 key vocabulary items. Keep the simplified text accurate to the origi
 }
 
 function buildPostcardCoachPrompt(params) {
-  const { city = "Croatia", level = "B1", user_name = "" } = params || {};
+  const city = sanitizeParam(params?.city || "Croatia", 50);
+  const level = sanitizeLevel(params?.level);
+  const user_name = sanitizeParam(params?.user_name || "", 50);
   const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
   return `You are a warm, encouraging Croatian language teacher helping a student write a postcard from ${city}.
 The student is at CEFR level ${safeLevel}.${user_name ? ` Their name is ${user_name}.` : ""}
@@ -445,7 +494,10 @@ export async function onRequestPost(context) {
   const isDev = env.ENVIRONMENT !== "production";
   if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden");
 
-  if (!ANTHROPIC_KEY) return err(500, "AI_KEY_MISSING: Add ANTHROPIC_API_KEY in Cloudflare Pages → Settings → Environment Variables.");
+  if (!ANTHROPIC_KEY) return err(500, "Service not configured");
+
+  const ct = request.headers.get('content-type') || '';
+  if (!ct.includes('application/json')) return err(400, "Invalid content type");
 
   let body;
   try { body = await request.json(); }
@@ -453,14 +505,31 @@ export async function onRequestPost(context) {
 
   const { messages, mode, params } = body;
 
+  // ── Input type validation ────────────────────────────────────────────────────
+  if (typeof mode !== 'string' || mode.length > 30) return err(400, "Invalid request");
+  if (params !== undefined && (typeof params !== 'object' || Array.isArray(params))) {
+    return err(400, "Invalid request");
+  }
+  if (messages !== undefined && !Array.isArray(messages)) return err(400, "Invalid request");
+  if (Array.isArray(messages)) {
+    if (messages.length > 50) return err(400, "Too many messages");
+    for (const msg of messages) {
+      if (typeof msg !== 'object' || !msg) return err(400, "Invalid message format");
+      if (!['user','assistant'].includes(msg.role)) return err(400, "Invalid message role");
+      if (typeof msg.content !== 'string') return err(400, "Invalid message content");
+      if (msg.content.length > 4000) return err(400, "Message too long");
+    }
+  }
+
   // ── "explain" mode: no messages array needed — topic comes from params ──────
   if (mode === "explain") {
-    const topic = (params && params.topic) ? String(params.topic).slice(0, 80) : "Croatian grammar";
+    const topic = sanitizeParam(params?.topic || "Croatian grammar", 80);
     const systemPrompt = buildExplainPrompt(params || {});
     try {
       const res = await fetch(ANTHROPIC_URL, {
         method: "POST",
         headers: { "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(28000),
         body: JSON.stringify({ model: MODEL, max_tokens: 1200, system: systemPrompt, messages: [{ role: "user", content: `Explain: ${topic}` }] }),
       });
       if (!res.ok) return err(res.status, "Upstream error");
@@ -487,6 +556,7 @@ export async function onRequestPost(context) {
       const res = await fetch(ANTHROPIC_URL, {
         method: "POST",
         headers: { "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(28000),
         body: JSON.stringify({
           model: MODEL,
           max_tokens: (mode === "story" || mode === "heritage") ? 2000 : 1000,
@@ -505,7 +575,8 @@ export async function onRequestPost(context) {
         return ok({ text: raw, model: MODEL });
       }
     } catch (fetchErr) {
-      return err(502, "Network error: " + fetchErr.message);
+      console.error("Network error calling Anthropic:", fetchErr.message);
+      return err(502, "Service temporarily unavailable");
     }
   }
 
@@ -559,11 +630,13 @@ export async function onRequestPost(context) {
         "x-api-key": ANTHROPIC_KEY,
         "anthropic-version": "2023-06-01",
       },
+      signal: AbortSignal.timeout(28000),
       body: JSON.stringify(payload),
     });
     data = await res.json();
   } catch (fetchErr) {
-    return err(502, "Network error calling Anthropic API: " + fetchErr.message);
+    console.error("Network error calling Anthropic:", fetchErr.message);
+    return err(502, "Service temporarily unavailable");
   }
 
   if (!res.ok) {
@@ -571,7 +644,10 @@ export async function onRequestPost(context) {
   }
 
   const text = data?.content?.[0]?.text?.trim() || "";
-  if (!text) return err(500, "Anthropic returned an empty response. Stop reason: " + (data?.stop_reason || "unknown"));
+  if (!text) {
+    console.error("Anthropic empty response, stop_reason:", data?.stop_reason);
+    return err(500, "AI service returned an empty response");
+  }
 
   return ok({ text, model: MODEL });
 }

@@ -93,6 +93,10 @@ export default function WritingScreen({ goBack, award }) {
       setError("Please write at least a sentence or two in Croatian.");
       return;
     }
+    if (text.length > 3000) {
+      setError("Text too long. Please keep your writing under 3000 characters.");
+      return;
+    }
     setLoading(true);
     setError("");
     setResult(null);
@@ -228,6 +232,7 @@ export default function WritingScreen({ goBack, award }) {
           value={text}
           onChange={e => setText(e.target.value)}
           placeholder="Write in Croatian here... (Piši na hrvatskom...)"
+          maxLength={3000}
           style={{
             width:"100%",minHeight:140,padding:"12px",fontSize:15,
             border:"1.5px solid var(--card-b)",borderRadius:10,
