@@ -14,12 +14,16 @@ async function tryElevenLabs(text, slow, apiKey, voiceId) {
   // the multilingual model auto-detects correctly — forcing 'hr' on English words like
   // "Bussin" or "No cap" makes Charlotte apply Croatian phoneme rules to English, producing
   // unnatural pronunciation ("noh tsap" instead of "no cap").
-  const hasCroatianChars = /[čćšžđČĆŠŽĐ]/.test(text);
+  // Force Croatian when diacritics are present OR when common Croatian ASCII words appear.
+  // Short Croatian sentences without diacritics (e.g. "Tko si ti?", "Kako si danas?",
+  // "Kakav je pas?") were being auto-detected as the wrong language, causing poor quality.
+  const hasCroatianChars = /[čćšžđČĆŠŽĐ]/.test(text) ||
+    /\b(tko|gdje|kad|kako|kamo|kakav|kakva|kakvo|čiji|koliko|zašto|odakle|dokle|koji|koja|koje|sam|si|smo|ste|jest|jesi|jesu|nisam|nisi|nije|nismo|niste|nisu|imam|imaš|ima|imamo|imate|imaju|idem|ideš|ide|idemo|idete|idu|da|ne|bok|hvala|molim|dobar|dobra|dobro|dan|jutro|večer)\b/i.test(text);
 
   const body = {
     text,
     model_id: "eleven_multilingual_v2",
-    ...(hasCroatianChars && { language_code: "hr" }), // Force Croatian only when diacritics present
+    ...(hasCroatianChars && { language_code: "hr" }), // Force Croatian when Croatian patterns detected
     voice_settings: {
       stability: 1.0,             // Max stability — fully neutral, no emotional variation.
                                   // At 0.88 the model "performs" loaded phrases (e.g. "Jebem ti mater"
