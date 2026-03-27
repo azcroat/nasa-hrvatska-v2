@@ -161,8 +161,8 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
             <span style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 600 }}>Level {level + 1}</span>
             <span style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 600 }}>{xpPct}%</span>
           </div>
-          <div style={{ height: 6, background: 'var(--bar-bg)', borderRadius: 4, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: xpPct + '%', background: `linear-gradient(90deg,${levelColor},${levelColor}99)`, borderRadius: 4, transition: 'width .6s ease' }} />
+          <div className="prog-track" style={{ height: 6 }}>
+            <div className="prog-fill" style={{ width: xpPct + '%', background: `linear-gradient(90deg,${levelColor},${levelColor}99)` }} />
           </div>
         </div>
         {/* Streak + stat row */}
@@ -203,8 +203,8 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
               <span style={{ fontSize: 11, color: 'var(--heading)', fontWeight: 700 }}>{weeklyXP} / {weeklyGoal} XP</span>
               <span style={{ fontSize: 11, color: weeklyPct >= 100 ? '#16a34a' : '#0e7490', fontWeight: 700 }}>{weeklyPct}%</span>
             </div>
-            <div style={{ height: 6, background: 'var(--bar-bg)', borderRadius: 4, overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: weeklyPct + '%', background: weeklyPct >= 100 ? 'linear-gradient(90deg,#16a34a,#22c55e)' : 'linear-gradient(90deg,#0e7490,#38bdf8)', borderRadius: 4, transition: 'width .5s ease' }} />
+            <div className="prog-track" style={{ height: 6 }}>
+              <div className="prog-fill" style={{ width: weeklyPct + '%', background: weeklyPct >= 100 ? 'linear-gradient(90deg,#16a34a,#22c55e)' : 'linear-gradient(90deg,#0e7490,#38bdf8)' }} />
             </div>
             {weeklyPct >= 100 && <div style={{ fontSize: 10, color: '#16a34a', fontWeight: 700, marginTop: 4 }}>🏆 Goal reached!</div>}
           </div>

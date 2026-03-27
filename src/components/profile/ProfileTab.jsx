@@ -797,7 +797,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                   The Croatian name day tradition — essential knowledge
                 </div>
               </div>
-              <span style={{ fontSize:'var(--text-base)', color:'var(--subtext)', opacity:.5 }}>{imdOpen ? '▲' : '▼'}</span>
+              <span style={{ fontSize:'var(--text-base)', color:'var(--subtext)', opacity:.85 }}>{imdOpen ? '▲' : '▼'}</span>
             </button>
             {imdOpen && (
               <div style={{ marginTop:14, borderTop:'1px solid rgba(182,24,0,.12)', paddingTop:14 }}>
@@ -880,7 +880,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                 <div style={{fontSize:'var(--text-base)',fontWeight:800,color:"var(--heading)"}}>My Certificate</div>
                 <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",marginTop:1}}>Download your progress certificate</div>
               </div>
-              <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.35}}>›</div>
+              <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.8}}>›</div>
             </button>
             {onOpenLeaderboard && (
               <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}} onClick={onOpenLeaderboard}>
@@ -1062,7 +1062,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                   {currentGoal ? GOALS.find(g => g.id === currentGoal)?.label : 'Not set — tap to choose'}
                 </div>
               </div>
-              <div style={{fontSize:'var(--text-base)',color:'var(--subtext)',opacity:.5,transition:'transform .2s',transform:goalOpen?'rotate(180deg)':'none'}}>⌄</div>
+              <div style={{fontSize:'var(--text-base)',color:'var(--subtext)',opacity:.85,transition:'transform .2s',transform:goalOpen?'rotate(180deg)':'none'}}>⌄</div>
             </button>
             {goalOpen && (
               <div style={{borderTop:'1px solid var(--card-b)',padding:'10px 12px 12px'}}>
@@ -1157,7 +1157,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
               <div style={{fontSize:'var(--text-base)',fontWeight:800,color:"var(--heading)"}}>{darkMode ? "Light Mode" : "Dark Mode"}</div>
               <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",marginTop:1}}>Switch appearance</div>
             </div>
-            <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.35}}>›</div>
+            <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.8}}>›</div>
           </button>
 
           {/* Font size control */}
@@ -1233,7 +1233,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
               <div style={{fontSize:'var(--text-base)',fontWeight:800,color:"var(--heading)"}}>Help & Feedback</div>
               <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",marginTop:1}}>Report a bug or suggest a feature</div>
             </div>
-            <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.35}}>›</div>
+            <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.8}}>›</div>
           </button>
           <button className="tc" style={{width:"100%",textAlign:"center",padding:"14px",marginBottom:10}} onClick={() => setScr("privacy")}>
             <div style={{fontSize:'var(--text-sm)',color:"var(--subtext)",fontWeight:600}}>Privacy Policy & Terms</div>
@@ -1245,7 +1245,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                 <div style={{fontSize:'var(--text-base)',fontWeight:800,color:"var(--heading)"}}>Admin Dashboard</div>
                 <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",marginTop:1}}>Platform overview & user stats</div>
               </div>
-              <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.35}}>›</div>
+              <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.8}}>›</div>
             </button>
           )}
           {!(au && au.u === 'jschreiner75@gmail.com') && <div style={{marginBottom:24}} />}
@@ -1261,7 +1261,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                 {exportDone ? "✓ Downloaded! Check your downloads folder." : "Download all your progress as JSON"}
               </div>
             </div>
-            <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.35}}>›</div>
+            <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.8}}>›</div>
           </button>
 
           {/* ── SIGN OUT ── */}

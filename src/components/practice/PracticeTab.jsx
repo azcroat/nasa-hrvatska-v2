@@ -224,15 +224,15 @@ export default function PracticeTab({
   };
 
   const CEFR_COLORS = {
-    'A1': '#dcfce7', 'A2': '#dcfce7',
-    'B1': '#fef3c7', 'B2': '#fef3c7',
-    'C1': '#ede9fe', 'C2': '#ede9fe',
+    'A1': 'rgba(22,163,74,.15)',  'A2': 'rgba(22,163,74,.15)',
+    'B1': 'rgba(217,119,6,.15)', 'B2': 'rgba(217,119,6,.15)',
+    'C1': 'rgba(124,58,237,.15)', 'C2': 'rgba(124,58,237,.15)',
   };
 
   const CEFR_TEXT = {
-    'A1': '#166534', 'A2': '#166534',
-    'B1': '#92400e', 'B2': '#92400e',
-    'C1': '#5b21b6', 'C2': '#5b21b6',
+    'A1': 'var(--success, #16a34a)', 'A2': 'var(--success, #16a34a)',
+    'B1': 'var(--warning, #d97706)', 'B2': 'var(--warning, #d97706)',
+    'C1': 'var(--purple,  #7c3aed)', 'C2': 'var(--purple,  #7c3aed)',
   };
 
   // Today's Pick — 3 exercise IDs chosen by time of day
