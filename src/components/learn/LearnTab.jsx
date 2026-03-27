@@ -137,6 +137,28 @@ export default function LearnTab({
         </button>
       </div>
 
+      {/* ── AI MICRO-LESSON CARD ──────────────────────────────────────── */}
+      <button
+        onClick={() => setScr('micro_lesson')}
+        style={{
+          display:'flex', alignItems:'center', gap:14, width:'100%', marginBottom:20,
+          padding:'14px 16px', borderRadius:16, border:'1.5px solid #bae6fd',
+          background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)',
+          cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+        }}
+      >
+        <div style={{
+          width:44, height:44, borderRadius:12, flexShrink:0,
+          background:'linear-gradient(135deg,#0e7490,#0369a1)',
+          display:'flex', alignItems:'center', justifyContent:'center', fontSize:22,
+        }}>🎯</div>
+        <div style={{flex:1}}>
+          <div style={{fontSize:14, fontWeight:800, color:'#0c4a6e'}}>AI Micro-Lesson</div>
+          <div style={{fontSize:12, color:'#0369a1', marginTop:2}}>Personalized 5-min lesson from your weak words</div>
+        </div>
+        <div style={{fontSize:18, color:'#0369a1'}}>→</div>
+      </button>
+
       {/* ── PATH WIDGET ─────────────────────────────────────────────────── */}
       <div style={{
         borderRadius:20, overflow:'hidden', marginBottom:24,

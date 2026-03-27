@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data.jsx';
+import { useApp } from '../../context/AppContext.jsx';
 
 import { rnd } from '../../lib/random.js';
 function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;}
@@ -354,6 +355,7 @@ function shuffleTurnOpts(turn) {
 }
 
 export default function DialogueSim({ award }) {
+  const { level: userLevel } = useApp();
   const finishFired = useRef(false);
   const [scenario, setScenario] = useState(null);
   const [turnIdx, setTurnIdx] = useState(0);
@@ -367,6 +369,16 @@ export default function DialogueSim({ award }) {
   const [freeInput, setFreeInput] = useState('');
   const [freeResult, setFreeResult] = useState(null); // null | { matched: bool, input: string, correct: string }
 
+  // AI Conversation Mode state
+  const [aiMode, setAiMode] = useState(false);
+  const [aiHistory, setAiHistory] = useState([]); // [{role:'user'|'assistant', content: string}]
+  const [aiInput, setAiInput] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiCoaching, setAiCoaching] = useState(null); // null | string (last coaching note)
+  const [aiTurns, setAiTurns] = useState(0);
+  const [aiDone, setAiDone] = useState(false);
+  const [aiError, setAiError] = useState('');
+
   function startScenario(s) {
     finishFired.current = false;
     setScenario(s);
@@ -378,6 +390,14 @@ export default function DialogueSim({ award }) {
     setDone(false);
     setFreeInput('');
     setFreeResult(null);
+    setAiMode(false);
+    setAiHistory([]);
+    setAiInput('');
+    setAiLoading(false);
+    setAiCoaching(null);
+    setAiTurns(0);
+    setAiDone(false);
+    setAiError('');
   }
 
   function handleSelect(i) {
@@ -436,6 +456,47 @@ export default function DialogueSim({ award }) {
     setShuffledTurns([]);
     setFreeInput('');
     setFreeResult(null);
+    setAiMode(false);
+    setAiHistory([]);
+    setAiInput('');
+    setAiLoading(false);
+    setAiCoaching(null);
+    setAiTurns(0);
+    setAiDone(false);
+    setAiError('');
+  }
+
+  async function sendAiMessage() {
+    if (!aiInput.trim() || aiLoading || aiDone) return;
+    const userMsg = aiInput.trim();
+    setAiInput('');
+    setAiLoading(true);
+    setAiError('');
+    const newHistory = [...aiHistory, { role: 'user', content: userMsg }];
+    setAiHistory(newHistory);
+    try {
+      const res = await fetch('/api/dialogue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          scenario_id: scenario.id,
+          userMessage: userMsg,
+          history: aiHistory,
+          level: userLevel || 'A2',
+        }),
+      });
+      if (!res.ok) throw new Error('API error');
+      const data = await res.json();
+      setAiHistory([...newHistory, { role: 'assistant', content: data.reply }]);
+      setAiCoaching(data.coaching || null);
+      setAiTurns(t => t + 1);
+    } catch {
+      setAiError('Could not connect. Check your internet and try again.');
+      // Remove the user message we optimistically added on error
+      setAiHistory(aiHistory);
+    } finally {
+      setAiLoading(false);
+    }
   }
 
   // Difficulty badge colours
@@ -546,259 +607,450 @@ export default function DialogueSim({ award }) {
         Turn {turnIdx + 1} of {totalTurns}
       </div>
 
-      {/* Speaker bubble */}
-      <div style={{display:'flex', alignItems:'flex-start', gap:10, marginBottom:16}}>
-        <DialogueAvatar scenarioId={scenario.id} />
-        <div aria-live="polite" aria-atomic="true" style={{
-          background:"var(--card)",
-          borderRadius:"16px 16px 16px 4px",
-          padding:"14px 16px",
-          border:"1.5px solid var(--card-b)",
-          flex:1,
-        }}>
-          <div style={{fontSize:11,fontWeight:800,color:"#0e7490",marginBottom:4}}>{turn.speaker}</div>
-          <div style={{fontSize:16,fontWeight:600,color:"var(--heading)",lineHeight:1.5}}>{turn.line}</div>
-          <div style={{fontSize:12,color:"var(--subtext)",marginTop:6,fontStyle:"italic"}}>{turn.en}</div>
-        </div>
-      </div>
-
-      {/* Your turn label + free mode toggle */}
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-        <div style={{fontSize:12,fontWeight:800,color:"var(--subtext)"}}>
-          Your response:
-        </div>
+      {/* Mode toggle */}
+      <div style={{display:'flex', gap:8, marginBottom:16}}>
         <button
-          onClick={() => {
-            if (!answered) {
-              setFreeMode(m => !m);
-              setFreeInput('');
-              setFreeResult(null);
-            }
-          }}
+          onClick={() => { setAiMode(false); setAiHistory([]); setAiInput(''); setAiTurns(0); setAiDone(false); setAiCoaching(null); }}
           style={{
-            background: freeMode ? "#7c3aed" : "var(--bar-bg)",
-            border: "none",
-            borderRadius:20,
-            padding:"4px 10px",
-            fontSize:11,
-            fontWeight:700,
-            color: freeMode ? "#fff" : "var(--subtext)",
-            cursor: answered ? "default" : "pointer",
-            fontFamily:"'Outfit',sans-serif",
-            transition:"all 0.15s ease",
+            flex:1, padding:'9px', borderRadius:10, border:'none', cursor:'pointer',
+            background: !aiMode ? '#0e7490' : 'var(--card)',
+            color: !aiMode ? '#fff' : 'var(--subtext)',
+            fontWeight:700, fontSize:12, fontFamily:"'Outfit',sans-serif",
           }}
-        >
-          💬 Slobodan odgovor
-        </button>
+        >📋 Guided Practice</button>
+        <button
+          onClick={() => { setAiMode(true); setAiHistory([]); setAiInput(''); setAiTurns(0); setAiDone(false); setAiCoaching(null); }}
+          style={{
+            flex:1, padding:'9px', borderRadius:10, border:'none', cursor:'pointer',
+            background: aiMode ? '#7c3aed' : 'var(--card)',
+            color: aiMode ? '#fff' : 'var(--subtext)',
+            fontWeight:700, fontSize:12, fontFamily:"'Outfit',sans-serif",
+          }}
+        >✨ AI Conversation</button>
       </div>
 
-      {freeMode ? (
-        /* Free response input */
-        <div style={{marginBottom:16}}>
-          <div style={{display:"flex",gap:8}}>
-            <input
-              type="text"
-              value={freeInput}
-              onChange={e => setFreeInput(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') handleFreeSubmit(); }}
-              disabled={answered}
-              placeholder="Upiši svoj odgovor..."
-              style={{
-                flex:1,
-                padding:"11px 14px",
-                borderRadius:12,
-                border:"1.5px solid var(--card-b)",
-                background:"var(--card)",
-                color:"var(--heading)",
-                fontSize:14,
-                fontWeight:600,
-                fontFamily:"'Outfit',sans-serif",
-                outline:"none",
-              }}
-            />
+      {aiMode ? (
+        /* ── AI CONVERSATION MODE ── */
+        <div>
+          {/* Character intro */}
+          {aiHistory.length === 0 && (
+            <div style={{
+              background:'var(--card)', border:'1.5px solid var(--card-b)',
+              borderRadius:14, padding:'14px 16px', marginBottom:16, textAlign:'center',
+            }}>
+              <div style={{fontSize:13, color:'var(--subtext)', marginBottom:6}}>
+                You're now in a free conversation with
+              </div>
+              <div style={{fontSize:15, fontWeight:800, color:'var(--heading)'}}>
+                {scenario.turns[0]?.speaker || 'Your conversation partner'}
+              </div>
+              <div style={{fontSize:12, color:'var(--subtext)', marginTop:4}}>
+                Type anything in Croatian — they'll respond naturally. Don't worry about mistakes!
+              </div>
+            </div>
+          )}
+
+          {/* Conversation history */}
+          <div style={{marginBottom:12}}>
+            {aiHistory.map((msg, i) => (
+              <div key={i} style={{
+                display:'flex', flexDirection: msg.role==='user' ? 'row-reverse' : 'row',
+                gap:8, marginBottom:10, alignItems:'flex-end',
+              }}>
+                {msg.role==='assistant' && <DialogueAvatar scenarioId={scenario.id} />}
+                <div style={{
+                  maxWidth:'80%',
+                  background: msg.role==='user' ? '#0e7490' : 'var(--card)',
+                  color: msg.role==='user' ? '#fff' : 'var(--heading)',
+                  border: msg.role==='assistant' ? '1.5px solid var(--card-b)' : 'none',
+                  borderRadius: msg.role==='user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                  padding:'10px 14px',
+                  fontSize:14, fontWeight:500, lineHeight:1.5,
+                }}>
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+            {aiLoading && (
+              <div style={{display:'flex', gap:8, marginBottom:10, alignItems:'flex-end'}}>
+                <DialogueAvatar scenarioId={scenario.id} />
+                <div style={{
+                  background:'var(--card)', border:'1.5px solid var(--card-b)',
+                  borderRadius:'18px 18px 18px 4px', padding:'12px 16px',
+                }}>
+                  <div style={{display:'flex', gap:4}}>
+                    {[0,0.2,0.4].map((d,i) => (
+                      <div key={i} style={{
+                        width:7, height:7, borderRadius:'50%',
+                        background:'var(--subtext)', opacity:.5,
+                        animation:`maja-dot 1.2s ease-in-out ${d}s infinite`,
+                      }} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Coaching note */}
+          {aiCoaching && (
+            <div style={{
+              background:'#fef3c7', border:'1.5px solid #fcd34d',
+              borderRadius:10, padding:'8px 12px', marginBottom:10,
+              fontSize:12, fontWeight:600, color:'#92400e',
+            }}>
+              💡 {aiCoaching}
+            </div>
+          )}
+
+          {/* Error */}
+          {aiError && (
+            <div style={{fontSize:12, color:'#dc2626', marginBottom:8, padding:'8px 12px', background:'#fee2e2', borderRadius:8}}>
+              {aiError}
+            </div>
+          )}
+
+          {/* Input */}
+          {!aiDone && (
+            <>
+              <div style={{display:'flex', gap:8, marginBottom:10}}>
+                <input
+                  type="text"
+                  value={aiInput}
+                  onChange={e => setAiInput(e.target.value)}
+                  onKeyDown={e => { if(e.key==='Enter') sendAiMessage(); }}
+                  disabled={aiLoading}
+                  placeholder="Upiši na hrvatskom..."
+                  style={{
+                    flex:1, padding:'11px 14px', borderRadius:12,
+                    border:'1.5px solid var(--card-b)', background:'var(--card)',
+                    color:'var(--heading)', fontSize:14, fontWeight:500,
+                    fontFamily:"'Outfit',sans-serif", outline:'none',
+                    opacity: aiLoading ? .6 : 1,
+                  }}
+                />
+                <button
+                  onClick={sendAiMessage}
+                  disabled={aiLoading || !aiInput.trim()}
+                  style={{
+                    background:'#7c3aed', border:'none', borderRadius:12,
+                    padding:'11px 16px', color:'#fff', fontSize:16,
+                    cursor: aiLoading || !aiInput.trim() ? 'default' : 'pointer',
+                    opacity: aiLoading || !aiInput.trim() ? .5 : 1,
+                  }}
+                >→</button>
+              </div>
+              {aiTurns >= 4 && (
+                <button
+                  onClick={() => {
+                    if (!finishFired.current) {
+                      finishFired.current = true;
+                      if (award) award(aiTurns * 5);
+                    }
+                    setAiDone(true);
+                  }}
+                  style={{
+                    width:'100%', padding:'12px', borderRadius:12, border:'none',
+                    background:'var(--card)', color:'var(--subtext)', fontWeight:700,
+                    fontSize:13, cursor:'pointer', fontFamily:"'Outfit',sans-serif",
+                    marginBottom:8,
+                  }}
+                >
+                  Finish Conversation →
+                </button>
+              )}
+            </>
+          )}
+
+          {/* AI results */}
+          {aiDone && (
+            <div style={{
+              background:'var(--card)', border:'1.5px solid var(--card-b)',
+              borderRadius:16, padding:'24px 20px', textAlign:'center',
+            }}>
+              <div style={{fontSize:40, marginBottom:8}}>🎉</div>
+              <div style={{fontSize:18, fontWeight:900, color:'var(--heading)', marginBottom:4}}>
+                Great conversation!
+              </div>
+              <div style={{fontSize:13, color:'var(--subtext)', marginBottom:16}}>
+                {aiTurns} exchange{aiTurns !== 1 ? 's' : ''} · +{aiTurns * 5} XP earned
+              </div>
+              <button className="tc" onClick={goBack}
+                style={{width:'100%', padding:'13px', fontWeight:800, fontSize:14, color:'var(--heading)'}}>
+                ← Back to Scenarios
+              </button>
+            </div>
+          )}
+
+          {/* Back button when in ai mode */}
+          {!aiDone && (
+            <button onClick={goBack} style={{
+              background:'none', border:'none', color:'var(--subtext)',
+              fontSize:12, fontWeight:600, cursor:'pointer', padding:'8px 0',
+              fontFamily:"'Outfit',sans-serif",
+            }}>
+              ← Back to scenarios
+            </button>
+          )}
+        </div>
+      ) : (
+        /* ── EXISTING MCQ / FREE TEXT MODE ── */
+        <div>
+          {/* Speaker bubble */}
+          <div style={{display:'flex', alignItems:'flex-start', gap:10, marginBottom:16}}>
+            <DialogueAvatar scenarioId={scenario.id} />
+            <div aria-live="polite" aria-atomic="true" style={{
+              background:"var(--card)",
+              borderRadius:"16px 16px 16px 4px",
+              padding:"14px 16px",
+              border:"1.5px solid var(--card-b)",
+              flex:1,
+            }}>
+              <div style={{fontSize:11,fontWeight:800,color:"#0e7490",marginBottom:4}}>{turn.speaker}</div>
+              <div style={{fontSize:16,fontWeight:600,color:"var(--heading)",lineHeight:1.5}}>{turn.line}</div>
+              <div style={{fontSize:12,color:"var(--subtext)",marginTop:6,fontStyle:"italic"}}>{turn.en}</div>
+            </div>
+          </div>
+
+          {/* Your turn label + free mode toggle */}
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
+            <div style={{fontSize:12,fontWeight:800,color:"var(--subtext)"}}>
+              Your response:
+            </div>
             <button
-              onClick={handleFreeSubmit}
-              disabled={answered || !freeInput.trim()}
+              onClick={() => {
+                if (!answered) {
+                  setFreeMode(m => !m);
+                  setFreeInput('');
+                  setFreeResult(null);
+                }
+              }}
               style={{
-                background:"#0e7490",
-                border:"none",
-                borderRadius:12,
-                padding:"11px 16px",
-                color:"#fff",
-                fontSize:13,
-                fontWeight:800,
-                cursor: answered || !freeInput.trim() ? "default" : "pointer",
+                background: freeMode ? "#7c3aed" : "var(--bar-bg)",
+                border: "none",
+                borderRadius:20,
+                padding:"4px 10px",
+                fontSize:11,
+                fontWeight:700,
+                color: freeMode ? "#fff" : "var(--subtext)",
+                cursor: answered ? "default" : "pointer",
                 fontFamily:"'Outfit',sans-serif",
-                opacity: answered || !freeInput.trim() ? 0.5 : 1,
-                transition:"opacity 0.15s ease",
+                transition:"all 0.15s ease",
               }}
             >
-              Provjeri
+              💬 Slobodan odgovor
             </button>
           </div>
 
-          {/* Free mode feedback */}
-          {answered && freeResult && (
+          {freeMode ? (
+            /* Free response input */
+            <div style={{marginBottom:16}}>
+              <div style={{display:"flex",gap:8}}>
+                <input
+                  type="text"
+                  value={freeInput}
+                  onChange={e => setFreeInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') handleFreeSubmit(); }}
+                  disabled={answered}
+                  placeholder="Upiši svoj odgovor..."
+                  style={{
+                    flex:1,
+                    padding:"11px 14px",
+                    borderRadius:12,
+                    border:"1.5px solid var(--card-b)",
+                    background:"var(--card)",
+                    color:"var(--heading)",
+                    fontSize:14,
+                    fontWeight:600,
+                    fontFamily:"'Outfit',sans-serif",
+                    outline:"none",
+                  }}
+                />
+                <button
+                  onClick={handleFreeSubmit}
+                  disabled={answered || !freeInput.trim()}
+                  style={{
+                    background:"#0e7490",
+                    border:"none",
+                    borderRadius:12,
+                    padding:"11px 16px",
+                    color:"#fff",
+                    fontSize:13,
+                    fontWeight:800,
+                    cursor: answered || !freeInput.trim() ? "default" : "pointer",
+                    fontFamily:"'Outfit',sans-serif",
+                    opacity: answered || !freeInput.trim() ? 0.5 : 1,
+                    transition:"opacity 0.15s ease",
+                  }}
+                >
+                  Provjeri
+                </button>
+              </div>
+
+              {/* Free mode feedback */}
+              {answered && freeResult && (
+                <div role="alert" aria-live="assertive" style={{
+                  background: freeResult.matched ? "#dcfce7" : "#fef3c7",
+                  border: `1.5px solid ${freeResult.matched ? "#86efac" : "#fcd34d"}`,
+                  borderRadius:12,
+                  padding:"12px 14px",
+                  marginTop:12,
+                  marginBottom:4,
+                }}>
+                  <div style={{
+                    fontSize:13,
+                    fontWeight:800,
+                    color: freeResult.matched ? "#166534" : "#92400e",
+                    marginBottom:6,
+                  }}>
+                    {freeResult.matched ? "✅ Točno!" : "💡 Tvoj odgovor vs naš prijedlog:"}
+                  </div>
+                  {!freeResult.matched && (
+                    <div style={{
+                      fontSize:13,
+                      color:"#78350f",
+                      marginBottom:6,
+                      lineHeight:1.5,
+                    }}>
+                      <span style={{fontWeight:700}}>Tvoj:</span> {freeResult.input}
+                      <br />
+                      <span style={{fontWeight:700}}>Prijedlog:</span> {freeResult.correct}
+                    </div>
+                  )}
+                  <div style={{fontSize:13,color: freeResult.matched ? "#15803d" : "#78350f",lineHeight:1.5}}>
+                    {turn.tip}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Multiple choice options — rendered from shuffled order */
+            <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:16}}>
+              {shuffled.opts.map((opt, i) => {
+                let bg = "var(--card)";
+                let border = "1.5px solid var(--card-b)";
+                let color = "var(--heading)";
+
+                if (answered) {
+                  if (i === shuffled.correctIdx) {
+                    bg = "#dcfce7";
+                    border = "1.5px solid #86efac";
+                    color = "#166534";
+                  } else if (i === selected && i !== shuffled.correctIdx) {
+                    bg = "#fee2e2";
+                    border = "1.5px solid #fca5a5";
+                    color = "#991b1b";
+                  } else {
+                    bg = "var(--card)";
+                    color = "var(--subtext)";
+                  }
+                }
+
+                return (
+                  <button
+                    key={i}
+                    onClick={() => handleSelect(i)}
+                    disabled={answered}
+                    style={{
+                      background:bg,
+                      border,
+                      borderRadius:12,
+                      padding:"12px 14px",
+                      textAlign:"left",
+                      fontSize:14,
+                      fontWeight:600,
+                      color,
+                      cursor: answered ? "default" : "pointer",
+                      transition:"all 0.15s ease",
+                      fontFamily:"'Outfit',sans-serif",
+                      lineHeight:1.4,
+                    }}
+                  >
+                    <span style={{
+                      display:"inline-block",
+                      width:22,
+                      height:22,
+                      borderRadius:"50%",
+                      background: answered && i === shuffled.correctIdx ? "#86efac"
+                        : answered && i === selected && i !== shuffled.correctIdx ? "#fca5a5"
+                        : "var(--bar-bg)",
+                      color: answered && (i === shuffled.correctIdx || (i === selected && i !== shuffled.correctIdx)) ? "#fff" : "var(--subtext)",
+                      fontSize:11,
+                      fontWeight:800,
+                      textAlign:"center",
+                      lineHeight:"22px",
+                      marginRight:10,
+                      flexShrink:0,
+                      verticalAlign:"middle",
+                    }}>
+                      {answered && i === shuffled.correctIdx ? "✓" : answered && i === selected && i !== shuffled.correctIdx ? "✗" : String.fromCharCode(65 + i)}
+                    </span>
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Feedback tip (multiple choice mode only — free mode has its own inline feedback) */}
+          {answered && !freeMode && (
             <div role="alert" aria-live="assertive" style={{
-              background: freeResult.matched ? "#dcfce7" : "#fef3c7",
-              border: `1.5px solid ${freeResult.matched ? "#86efac" : "#fcd34d"}`,
+              background: isCorrect ? "#dcfce7" : "#fef3c7",
+              border: `1.5px solid ${isCorrect ? "#86efac" : "#fcd34d"}`,
               borderRadius:12,
               padding:"12px 14px",
-              marginTop:12,
-              marginBottom:4,
+              marginBottom:16,
             }}>
               <div style={{
                 fontSize:13,
                 fontWeight:800,
-                color: freeResult.matched ? "#166534" : "#92400e",
-                marginBottom:6,
+                color: isCorrect ? "#166534" : "#92400e",
+                marginBottom:4,
               }}>
-                {freeResult.matched ? "✅ Točno!" : "💡 Tvoj odgovor vs naš prijedlog:"}
+                {isCorrect ? "✅ Correct!" : "💡 Better choice:"}
               </div>
-              {!freeResult.matched && (
-                <div style={{
-                  fontSize:13,
-                  color:"#78350f",
-                  marginBottom:6,
-                  lineHeight:1.5,
-                }}>
-                  <span style={{fontWeight:700}}>Tvoj:</span> {freeResult.input}
-                  <br />
-                  <span style={{fontWeight:700}}>Prijedlog:</span> {freeResult.correct}
-                </div>
-              )}
-              <div style={{fontSize:13,color: freeResult.matched ? "#15803d" : "#78350f",lineHeight:1.5}}>
+              <div style={{fontSize:13,color: isCorrect ? "#15803d" : "#78350f",lineHeight:1.5}}>
                 {turn.tip}
               </div>
             </div>
           )}
-        </div>
-      ) : (
-        /* Multiple choice options — rendered from shuffled order */
-        <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:16}}>
-          {shuffled.opts.map((opt, i) => {
-            let bg = "var(--card)";
-            let border = "1.5px solid var(--card-b)";
-            let color = "var(--heading)";
 
-            if (answered) {
-              if (i === shuffled.correctIdx) {
-                bg = "#dcfce7";
-                border = "1.5px solid #86efac";
-                color = "#166534";
-              } else if (i === selected && i !== shuffled.correctIdx) {
-                bg = "#fee2e2";
-                border = "1.5px solid #fca5a5";
-                color = "#991b1b";
-              } else {
-                bg = "var(--card)";
-                color = "var(--subtext)";
-              }
-            }
+          {/* Continue button */}
+          {answered && (
+            <button
+              className="tc"
+              onClick={handleContinue}
+              style={{
+                width:"100%",
+                padding:"14px",
+                fontWeight:800,
+                fontSize:15,
+                color:"var(--heading)",
+              }}
+            >
+              {turnIdx + 1 >= totalTurns ? "See Results →" : "Next Turn →"}
+            </button>
+          )}
 
-            return (
-              <button
-                key={i}
-                onClick={() => handleSelect(i)}
-                disabled={answered}
-                style={{
-                  background:bg,
-                  border,
-                  borderRadius:12,
-                  padding:"12px 14px",
-                  textAlign:"left",
-                  fontSize:14,
-                  fontWeight:600,
-                  color,
-                  cursor: answered ? "default" : "pointer",
-                  transition:"all 0.15s ease",
-                  fontFamily:"'Outfit',sans-serif",
-                  lineHeight:1.4,
-                }}
-              >
-                <span style={{
-                  display:"inline-block",
-                  width:22,
-                  height:22,
-                  borderRadius:"50%",
-                  background: answered && i === shuffled.correctIdx ? "#86efac"
-                    : answered && i === selected && i !== shuffled.correctIdx ? "#fca5a5"
-                    : "var(--bar-bg)",
-                  color: answered && (i === shuffled.correctIdx || (i === selected && i !== shuffled.correctIdx)) ? "#fff" : "var(--subtext)",
-                  fontSize:11,
-                  fontWeight:800,
-                  textAlign:"center",
-                  lineHeight:"22px",
-                  marginRight:10,
-                  flexShrink:0,
-                  verticalAlign:"middle",
-                }}>
-                  {answered && i === shuffled.correctIdx ? "✓" : answered && i === selected && i !== shuffled.correctIdx ? "✗" : String.fromCharCode(65 + i)}
-                </span>
-                {opt}
-              </button>
-            );
-          })}
+          {/* Back link */}
+          <button
+            onClick={goBack}
+            style={{
+              background:"none",
+              border:"none",
+              color:"var(--subtext)",
+              fontSize:12,
+              fontWeight:600,
+              cursor:"pointer",
+              padding:"8px 0",
+              marginTop:4,
+              fontFamily:"'Outfit',sans-serif",
+            }}
+          >
+            ← Back to scenarios
+          </button>
         </div>
       )}
-
-      {/* Feedback tip (multiple choice mode only — free mode has its own inline feedback) */}
-      {answered && !freeMode && (
-        <div role="alert" aria-live="assertive" style={{
-          background: isCorrect ? "#dcfce7" : "#fef3c7",
-          border: `1.5px solid ${isCorrect ? "#86efac" : "#fcd34d"}`,
-          borderRadius:12,
-          padding:"12px 14px",
-          marginBottom:16,
-        }}>
-          <div style={{
-            fontSize:13,
-            fontWeight:800,
-            color: isCorrect ? "#166534" : "#92400e",
-            marginBottom:4,
-          }}>
-            {isCorrect ? "✅ Correct!" : "💡 Better choice:"}
-          </div>
-          <div style={{fontSize:13,color: isCorrect ? "#15803d" : "#78350f",lineHeight:1.5}}>
-            {turn.tip}
-          </div>
-        </div>
-      )}
-
-      {/* Continue button */}
-      {answered && (
-        <button
-          className="tc"
-          onClick={handleContinue}
-          style={{
-            width:"100%",
-            padding:"14px",
-            fontWeight:800,
-            fontSize:15,
-            color:"var(--heading)",
-          }}
-        >
-          {turnIdx + 1 >= totalTurns ? "See Results →" : "Next Turn →"}
-        </button>
-      )}
-
-      {/* Back link */}
-      <button
-        onClick={goBack}
-        style={{
-          background:"none",
-          border:"none",
-          color:"var(--subtext)",
-          fontSize:12,
-          fontWeight:600,
-          cursor:"pointer",
-          padding:"8px 0",
-          marginTop:4,
-          fontFamily:"'Outfit',sans-serif",
-        }}
-      >
-        ← Back to scenarios
-      </button>
     </div>
   );
 }

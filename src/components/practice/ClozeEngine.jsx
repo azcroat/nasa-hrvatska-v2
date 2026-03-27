@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { H, speak, srMark } from '../../data.jsx';
+import { useApp } from '../../context/AppContext.jsx';
 
 // Sentence bank — fill-in-the-blank Croatian sentences covering cases, prepositions, and grammar
 // Format: { sentence: 'full sentence', blank: 'word to hide', options: [correct, wrong1, wrong2, wrong3], translation: 'English', hint: 'grammar note' }
@@ -53,6 +54,7 @@ function shuffle(arr) {
 }
 
 export default function ClozeEngine({ goBack, award }) {
+  const { level } = useApp();
   const questions = useMemo(() => shuffle(SENTENCE_BANK).slice(0, 12), []);
   const [qi, setQi] = useState(0);
   const [selected, setSelected] = useState(null);
@@ -62,6 +64,23 @@ export default function ClozeEngine({ goBack, award }) {
   const [typingMode, setTypingMode] = useState(false);
   const [typedAnswer, setTypedAnswer] = useState('');
   const [feedbackAnim, setFeedbackAnim] = useState(null); // 'correct' | 'wrong' | null
+  const [aiExplain, setAiExplain] = useState(null); // null | 'loading' | {explanation,rule,tip,example}
+
+  const fetchExplanation = useCallback(async (wrong, correct, context) => {
+    setAiExplain('loading');
+    try {
+      const res = await fetch('/api/explain-error', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wrong, correct, context, type: 'cloze', level: level || 'B1' }),
+      });
+      if (!res.ok) throw new Error('API error');
+      const data = await res.json();
+      setAiExplain(data);
+    } catch {
+      setAiExplain({ explanation: 'Could not load explanation. Check your connection.', rule: '', tip: '', example: '' });
+    }
+  }, [level]);
 
   const q = questions[qi];
   // Shuffle options once per question
@@ -97,6 +116,7 @@ export default function ClozeEngine({ goBack, award }) {
       setShowHint(false);
       setTypedAnswer('');
       setFeedbackAnim(null);
+      setAiExplain(null);
     }
   }
 
@@ -248,12 +268,37 @@ export default function ClozeEngine({ goBack, award }) {
           style={{
             background: isCorrect ? '#f0fdf4' : '#fff1f2',
             border: `1.5px solid ${isCorrect ? '#86efac' : '#fca5a5'}`,
-            borderRadius: 12, padding: '10px 14px', marginBottom: 12, fontSize: 12, fontWeight: 700,
+            borderRadius: 12, padding: '10px 14px', marginBottom: !isCorrect ? 8 : 12, fontSize: 12, fontWeight: 700,
             color: isCorrect ? '#166534' : '#991b1b',
           }}
         >
           {isCorrect ? '✓ Correct! ' : `✗ The answer was "${q.blank}". `}
           <span style={{ fontWeight: 600, color: 'var(--subtext)' }}>{q.hint}</span>
+        </div>
+      )}
+      {isAnswered && !isCorrect && !aiExplain && (
+        <button
+          onClick={() => fetchExplanation(selected, q.blank, q.sentence)}
+          style={{
+            display: 'block', width: '100%', marginBottom: 12,
+            padding: '8px', borderRadius: 10, border: '1.5px solid #bae6fd',
+            background: '#f0f9ff', color: '#0369a1', fontWeight: 700, fontSize: 12,
+            cursor: 'pointer', fontFamily: "'Outfit',sans-serif",
+          }}
+        >
+          🧠 Why is "{q.blank}" correct?
+        </button>
+      )}
+      {aiExplain === 'loading' && (
+        <div style={{ padding: '10px 14px', borderRadius: 10, background: '#f0f9ff', border: '1.5px solid #bae6fd', marginBottom: 12, fontSize: 12, color: '#0369a1', fontWeight: 600 }}>
+          Explaining…
+        </div>
+      )}
+      {aiExplain && aiExplain !== 'loading' && (
+        <div style={{ padding: '12px 14px', borderRadius: 12, background: '#f0f9ff', border: '1.5px solid #bae6fd', marginBottom: 12 }}>
+          {aiExplain.rule && <div style={{ fontSize: 11, fontWeight: 800, color: '#0369a1', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{aiExplain.rule}</div>}
+          <div style={{ fontSize: 13, color: 'var(--heading)', lineHeight: 1.6, marginBottom: aiExplain.example ? 6 : 0 }}>{aiExplain.explanation}</div>
+          {aiExplain.example && <div style={{ fontSize: 12, color: '#0369a1', fontStyle: 'italic', borderTop: '1px solid #bae6fd', paddingTop: 6, marginTop: 4 }}>e.g. <strong>{aiExplain.example}</strong></div>}
         </div>
       )}
 

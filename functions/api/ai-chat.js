@@ -207,6 +207,7 @@ function buildStoryPrompt(params) {
   const region = sanitizeParam(params?.region || "Croatia", 50);
   const level = sanitizeLevel(params?.level);
   const character_name = sanitizeParam(params?.character_name || "Marko", 40);
+  const goal_theme = params?.goal_theme ? sanitizeParam(params.goal_theme, 120) : null;
   const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
   const complexity = {
     A1: "Use ONLY present tense, very short sentences (max 8 words each), and the 200 most common Croatian words. Every 3rd sentence should have an English hint in parentheses.",
@@ -218,11 +219,14 @@ function buildStoryPrompt(params) {
   };
   // eslint-disable-next-line security/detect-object-injection
   const complexityRule = complexity[safeLevel] || complexity["B1"];
+  const goalLine = goal_theme
+    ? `\nPersonalization theme: The story should weave in themes of ${goal_theme}. Let this shape the plot, setting details, and emotional arc naturally.`
+    : "";
   return `You are a master Croatian storyteller creating an immersive language learning experience.
 
 Write a vivid, emotionally engaging short story (350-450 words) set in ${city}, ${region}, Croatia.
 The main character's name is ${character_name}.
-The story should feel authentic to life in ${city} — mention real local details, food, architecture, customs where natural.
+The story should feel authentic to life in ${city} — mention real local details, food, architecture, customs where natural.${goalLine}
 
 CEFR Level: ${safeLevel}
 Language rules: ${complexityRule}

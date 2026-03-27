@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { H, Bar } from '../../data.jsx';
 
 import { rnd } from '../../lib/random.js';
@@ -62,6 +62,23 @@ export default function DictationScreen({ goBack, award }) {
   const [correct, setCorrect] = useState(false);
   const [closeMatch, setCloseMatch] = useState(false);
   const inputRef = useRef(null);
+  const [aiExplain, setAiExplain] = useState(null); // null | 'loading' | {explanation,rule,tip,example}
+
+  const fetchExplanation = useCallback(async (wrong, correctText, level) => {
+    setAiExplain('loading');
+    try {
+      const res = await fetch('/api/explain-error', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wrong, correct: correctText, type: 'dictation', level: level || 'A2' }),
+      });
+      if (!res.ok) throw new Error('API error');
+      const data = await res.json();
+      setAiExplain(data);
+    } catch {
+      setAiExplain({ explanation: 'Could not load explanation.', rule: '', tip: '', example: '' });
+    }
+  }, []);
 
   const total = qs.length;
 
@@ -100,6 +117,7 @@ export default function DictationScreen({ goBack, award }) {
     setChecked(false);
     setCorrect(false);
     setCloseMatch(false);
+    setAiExplain(null);
   }
 
   function insertDiacritic(ch) {
@@ -213,6 +231,27 @@ export default function DictationScreen({ goBack, award }) {
             </div>
           )}
           <div style={{color:"#78716c",fontSize:13,marginTop:4}}>{q.en}</div>
+          {!correct && !aiExplain && (
+            <button
+              onClick={() => fetchExplanation(input, q.text, q.level)}
+              style={{
+                marginTop:8, display:'block', width:'100%',
+                padding:'7px', borderRadius:9, border:'1.5px solid #bae6fd',
+                background:'#f0f9ff', color:'#0369a1', fontWeight:700, fontSize:12,
+                cursor:'pointer', fontFamily:"'Outfit',sans-serif",
+              }}
+            >🧠 Explain this sentence</button>
+          )}
+          {aiExplain === 'loading' && (
+            <div style={{marginTop:8, padding:'8px 12px', borderRadius:9, background:'#f0f9ff', border:'1.5px solid #bae6fd', fontSize:12, color:'#0369a1', fontWeight:600}}>Explaining…</div>
+          )}
+          {aiExplain && aiExplain !== 'loading' && (
+            <div style={{marginTop:8, padding:'10px 12px', borderRadius:10, background:'#f0f9ff', border:'1.5px solid #bae6fd'}}>
+              {aiExplain.rule && <div style={{fontSize:11, fontWeight:800, color:'#0369a1', marginBottom:3, textTransform:'uppercase', letterSpacing:'0.05em'}}>{aiExplain.rule}</div>}
+              <div style={{fontSize:12, color:'var(--heading)', lineHeight:1.6}}>{aiExplain.explanation}</div>
+              {aiExplain.tip && <div style={{fontSize:12, color:'#0369a1', marginTop:4, fontStyle:'italic'}}>💡 {aiExplain.tip}</div>}
+            </div>
+          )}
         </div>
       )}
 
