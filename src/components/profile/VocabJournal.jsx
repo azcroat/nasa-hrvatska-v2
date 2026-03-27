@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Dexie from 'dexie';
-import { H, speak } from '../../data.jsx';
+import { H, speak, srMark, getSR } from '../../data.jsx';
 
 // ── Dexie (IndexedDB) — unlimited offline storage, syncs seamlessly ──────────
 const db = /** @type {any} */ (new Dexie('NasaHrvatska'));
@@ -25,6 +25,7 @@ export default function VocabJournal({ goBack }) {
   const [words, setWords] = useState([]);
   const [jIn, setJIn] = useState('');
   const [jEn, setJEn] = useState('');
+  const [inSRS, setInSRS] = useState({});
 
   useEffect(() => {
     migrateFromLocalStorage().then(loadWords);
@@ -33,6 +34,16 @@ export default function VocabJournal({ goBack }) {
   async function loadWords() {
     const all = await db.journal.orderBy('date').reverse().toArray();
     setWords(all);
+    const srData = getSR();
+    const srsMap = {};
+    all.forEach(w => { srsMap[w.hr] = !!srData[w.hr]; });
+    setInSRS(srsMap);
+  }
+
+  function addToSRS(word) {
+    // srMark(word, correct) — false initializes as "needs review"
+    srMark(word.hr, false);
+    setInSRS(prev => ({ ...prev, [word.hr]: true }));
   }
 
   async function addWord() {
@@ -59,6 +70,20 @@ export default function VocabJournal({ goBack }) {
         </div>
         <button className="b bp" style={{ width: '100%' }} onClick={addWord}>➕ Add Word</button>
       </div>
+      {words.length > 0 && words.some(w => !inSRS[w.hr]) && (
+        <button
+          className="b bg"
+          style={{ width: '100%', marginBottom: 12, fontSize: 13 }}
+          onClick={() => {
+            words.filter(w => !inSRS[w.hr]).forEach(w => srMark(w.hr, false));
+            const newMap = { ...inSRS };
+            words.forEach(w => { newMap[w.hr] = true; });
+            setInSRS(newMap);
+          }}
+        >
+          📚 Add All to SRS Study ({words.filter(w => !inSRS[w.hr]).length} words)
+        </button>
+      )}
       <div style={{ fontSize: 14, fontWeight: 700, color: '#78716c', marginBottom: 8 }}>{words.length} words saved</div>
       {words.map((w) => (
         <div key={w.id} className="c" style={{ marginBottom: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px' }}>
@@ -66,8 +91,23 @@ export default function VocabJournal({ goBack }) {
             <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--heading)' }}>{w.hr} 🔊</div>
             <div style={{ fontSize: 13, color: 'var(--subtext)' }}>{w.en}</div>
           </button>
-          <button style={{ background: 'none', border: 'none', fontSize: 16, cursor: 'pointer', color: '#dc2626', padding: 4 }}
-            onClick={() => deleteWord(w.id)}>✖</button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            {inSRS[w.hr] ? (
+              <span style={{ fontSize: 11, color: '#16a34a', fontWeight: 700, padding: '4px 8px', background: 'rgba(22,163,74,0.1)', borderRadius: 20 }}>
+                ✓ In SRS
+              </span>
+            ) : (
+              <button
+                style={{ background: 'rgba(14,116,144,0.1)', border: 'none', borderRadius: 20, fontSize: 11, fontWeight: 700, color: '#0e7490', padding: '4px 10px', cursor: 'pointer', marginRight: 4 }}
+                onClick={() => addToSRS(w)}
+                title="Add to spaced repetition review"
+              >
+                📚 Study
+              </button>
+            )}
+            <button style={{ background: 'none', border: 'none', fontSize: 16, cursor: 'pointer', color: '#dc2626', padding: 4 }}
+              onClick={() => deleteWord(w.id)}>✖</button>
+          </div>
         </div>
       ))}
     </div>
