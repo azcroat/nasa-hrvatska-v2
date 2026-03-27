@@ -764,7 +764,7 @@ export async function onRequestPost(context) {
     // Strip markdown code fences if Claude wrapped the JSON (defensive)
     const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
     parsed = JSON.parse(cleaned);
-  } catch (parseErr) {
+  } catch {
     console.error("maja.js: JSON parse failed, using fallback. Raw:", raw.slice(0, 200));
     return ok(majaFallback());
   }
