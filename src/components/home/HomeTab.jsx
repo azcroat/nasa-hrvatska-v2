@@ -11,7 +11,8 @@ import CroatianGrb from '../shared/CroatianGrb.jsx';
 import CipkaPattern from '../shared/CipkaPattern.jsx';
 import CroatianKnight from '../shared/CroatianKnight';
 import KnightSpeech from '../shared/KnightSpeech';
-import { DalmatianCoast } from '../illustrations';
+// DalmatianCoast SVG replaced with real AI/CC photography
+// import { DalmatianCoast } from '../illustrations';
 
 const LEVEL_PALETTE = [
   { grad: "linear-gradient(135deg,#92400e,#b45309)", light: "#fef3c7", text: "#92400e", border: "#fcd34d" },
@@ -738,8 +739,46 @@ export default function HomeTab({
             </div>
           )}
 
-          {/* ── DISCOVER CROATIAN HEADER ── */}
-          <DalmatianCoast width="100%" height={140} style={{borderRadius:16, marginBottom:12, maxWidth:'100%'}}/>
+          {/* ── DISCOVER CROATIAN HEADER — Real Croatia Photography ── */}
+          <div style={{
+            borderRadius:18, marginBottom:12, maxWidth:'100%',
+            height:160, overflow:'hidden', position:'relative',
+            boxShadow:'0 4px 24px rgba(0,0,0,.18)',
+          }}>
+            <img
+              src="/images/scenes/dubrovnik-hero.jpg"
+              alt="Dubrovnik, Croatia"
+              style={{
+                width:'100%', height:'100%', objectFit:'cover',
+                objectPosition:'center 60%',
+                filter:'brightness(1.05) saturate(1.1)',
+              }}
+            />
+            {/* Animated shimmer overlay — golden hour light sweep */}
+            <div style={{
+              position:'absolute', inset:0,
+              background:'linear-gradient(105deg, transparent 30%, rgba(255,200,60,.07) 50%, transparent 70%)',
+              backgroundSize:'200% 100%',
+              animation:'heroShimmer 4s ease-in-out infinite',
+              pointerEvents:'none',
+            }} />
+            {/* Vignette */}
+            <div style={{
+              position:'absolute', inset:0,
+              background:'linear-gradient(to bottom, rgba(0,0,0,.08) 0%, transparent 40%, rgba(0,0,0,.35) 100%)',
+              pointerEvents:'none',
+            }} />
+            {/* Location badge */}
+            <div style={{
+              position:'absolute', bottom:10, left:12,
+              background:'rgba(0,0,0,.5)', backdropFilter:'blur(8px)',
+              borderRadius:20, padding:'4px 12px',
+              fontSize:11, fontWeight:700, color:'rgba(255,255,255,.95)',
+              letterSpacing:'.04em', display:'flex', alignItems:'center', gap:5,
+            }}>
+              <span>📍</span> Dubrovnik, Hrvatska
+            </div>
+          </div>
           <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12, marginTop:24}}>
             <div style={{width:3, height:20, background:'var(--color-croatian, #b61800)', borderRadius:2}}/>
             <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Discover Croatian</span>
