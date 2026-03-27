@@ -651,7 +651,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   }
   const level=useMemo(()=>lvl(stats.xp),[stats.xp]);
   // Fix 1: these hooks must live above all early returns (Rules of Hooks)
-  const badges=useMemo(()=>({home:dchlA.filter(v=>!v).length,learn:0,practice:getDueReviews().length,croatia:0,profile:0}),[dchlA]);
+  const badges=useMemo(()=>({home:0,learn:0,practice:getDueReviews().length,croatia:0,profile:0}),[]);
   const onCloseCelebration=useCallback(()=>setShowCelebration(false),[]);
   const allCats=ALL_CATS;
   const icons=ICONS;
