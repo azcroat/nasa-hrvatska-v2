@@ -51,6 +51,7 @@ const CroatiaTab = lazyWithReload(() => import("./components/croatia/CroatiaTab.
 const ImmersionHub = lazyWithReload(() => import("./components/croatia/ImmersionHub.jsx"));
 const LyricsScreen = lazyWithReload(() => import("./components/croatia/LyricsScreen.jsx"));
 const AIConversation = lazyWithReload(() => import("./components/croatia/AIConversation.jsx"));
+const MajaScreen = lazyWithReload(() => import("./components/croatia/MajaScreen.jsx"));
 const ProfileTab = lazyWithReload(() => import("./components/profile/ProfileTab.jsx"));
 const ContactScreen = lazyWithReload(() => import("./components/profile/ContactScreen.jsx"));
 const PracticeTab = lazyWithReload(() => import("./components/practice/PracticeTab.jsx"));
@@ -323,7 +324,7 @@ function App(){
         survival_dinner:"croatia",
         kafic:"croatia",
         diaspora:"croatia",
-        postcard:"croatia", storymode:"croatia", heritage:"croatia", croatianews:"croatia", phraseofday:"croatia",
+        postcard:"croatia", storymode:"croatia", heritage:"croatia", croatianews:"croatia", phraseofday:"croatia", maja:"croatia",
         tivicompare:"learn",
         grammarvideos:"learn",
         grammarexplainer:"learn",
@@ -1140,6 +1141,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {currentScreen==="easter"&&<EasterScreen onBack={goBack} />}
       {currentScreen==="postcard"&&<PostcardScreen goBack={goBack} award={award} />}
       {currentScreen==="storymode"&&<StoryModeScreen goBack={goBack} award={award} />}
+      {currentScreen==="maja"&&<MajaScreen goBack={goBack} award={award} />}
       {currentScreen==="heritage"&&<HeritageStoryScreen goBack={goBack} award={award} />}
       {currentScreen==="croatianews"&&<CroatianNewsScreen goBack={goBack} award={award} />}
       {currentScreen==="phraseofday"&&<PhraseOfDayScreen goBack={goBack} award={award} />}
