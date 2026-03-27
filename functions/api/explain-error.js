@@ -26,21 +26,24 @@ function isAllowedOrigin(origin, isDev) {
   } catch { return false; }
 }
 
-const corsHeaders = {
-  "Content-Type": "application/json",
-  "Access-Control-Allow-Origin": "https://nasahrvatska.com",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Cache-Control": "no-cache",
-};
+function corsHeaders(origin) {
+  return {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Cache-Control": "no-cache",
+  };
+}
 
-function ok(body) { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders }); }
-function err(status, msg) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders }); }
+function ok(body, origin) { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) }); }
+function err(status, msg, origin) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) }); }
 
 const VALID_TYPES = ["cloze", "dictation", "flashcard"];
 const VALID_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
 
-export async function onRequestOptions() {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export async function onRequestOptions({ request }) {
+  const origin = request.headers.get("origin") || "";
+  return new Response(null, { status: 204, headers: corsHeaders(origin) });
 }
 
 export async function onRequestPost({ request, env }) {
@@ -48,20 +51,20 @@ export async function onRequestPost({ request, env }) {
 
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
   const isDev = env.ENVIRONMENT !== "production";
-  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden");
-  if (!ANTHROPIC_KEY) return err(500, "Service not configured");
+  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden", origin);
+  if (!ANTHROPIC_KEY) return err(500, "Service not configured", origin);
 
   const ct = request.headers.get("content-type") || "";
-  if (!ct.includes("application/json")) return err(400, "Invalid content type");
+  if (!ct.includes("application/json")) return err(400, "Invalid content type", origin);
 
   let body;
   try { body = await request.json(); }
-  catch { return err(400, "Invalid JSON in request body"); }
+  catch { return err(400, "Invalid JSON in request body", origin); }
 
   const { wrong, correct, context: ctx, type, level } = body;
 
-  if (!VALID_TYPES.includes(type)) return err(400, "Invalid type");
-  if (typeof correct !== "string" || !correct.trim()) return err(400, "Missing correct answer");
+  if (!VALID_TYPES.includes(type)) return err(400, "Invalid type", origin);
+  if (typeof correct !== "string" || !correct.trim()) return err(400, "Missing correct answer", origin);
 
   const safeWrong = sanitizeParam(wrong || "", 200);
   const safeCorrect = sanitizeParam(correct, 200);
@@ -108,13 +111,13 @@ Return ONLY valid JSON (no markdown, no code blocks):
     data = await res.json();
   } catch (fetchErr) {
     console.error("explain-error.js: network error:", fetchErr.message);
-    return err(502, "Service temporarily unavailable");
+    return err(502, "Service temporarily unavailable", origin);
   }
 
-  if (!res.ok) return err(502, "AI service error");
+  if (!res.ok) return err(502, "AI service error", origin);
 
   const raw = data?.content?.[0]?.text?.trim() || "";
-  if (!raw) return err(502, "Empty response from AI");
+  if (!raw) return err(502, "Empty response from AI", origin);
 
   let parsed;
   try {
@@ -122,7 +125,7 @@ Return ONLY valid JSON (no markdown, no code blocks):
     parsed = JSON.parse(cleaned);
   } catch {
     console.error("explain-error.js: JSON parse failed. Raw:", raw.slice(0, 200));
-    return err(502, "parse_failed");
+    return err(502, "parse_failed", origin);
   }
 
   return ok({
@@ -130,5 +133,5 @@ Return ONLY valid JSON (no markdown, no code blocks):
     rule: String(parsed.rule || "").slice(0, 80),
     tip: String(parsed.tip || "").slice(0, 150),
     example: String(parsed.example || "").slice(0, 150),
-  });
+  }, origin);
 }

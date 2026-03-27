@@ -84,7 +84,7 @@ export default function ClozeEngine({ goBack, award }) {
 
   const q = questions[qi];
   // Shuffle options once per question
-  const options = useMemo(() => shuffle(q?.options || []), [qi]); // eslint-disable-line react-hooks/exhaustive-deps
+  const options = useMemo(() => shuffle(q?.options || []), [q]);
 
   const isCorrect = selected === q?.blank;
   const isAnswered = selected !== null;

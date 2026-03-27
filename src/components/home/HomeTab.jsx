@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Bar, V, LEARN_PATH, getStreak, getStreakFreezes, earnFreeze, getDailyChallenge, lXP, nXP, speak, getSR, getDueReviews, getMistakes, DAILY_QUESTS, LEVEL_NARRATIVE, getActiveCampaign } from '../../data.jsx';
 
 // Read last activity saved by App.jsx when exercises are launched
@@ -81,10 +81,12 @@ export default function HomeTab({
   // Award Daily Mastery +50 XP bonus the first time all quests are done today
   const today = new Date().toISOString().slice(0,10);
   const masteryKey = `nh_daily_mastery_${today}`;
-  if (allQuestsDone && !localStorage.getItem(masteryKey)) {
-    localStorage.setItem(masteryKey, '1');
-    award && award(50);
-  }
+  useEffect(() => {
+    if (allQuestsDone && !localStorage.getItem(masteryKey)) {
+      localStorage.setItem(masteryKey, '1');
+      if (award) award(50);
+    }
+  }, [allQuestsDone, masteryKey, award]);
 
   const allOpts = dc.challenges.map(ch => ch.opts || [ch.a]);
   const doneCount = dchlA.filter(Boolean).length;

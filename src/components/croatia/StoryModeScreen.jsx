@@ -249,21 +249,25 @@ export default function StoryModeScreen({ goBack, award }) {
   const audioRef = useRef(null);
   const awardFired = useRef(false);
   const storyRef = useRef(null);
+  const tappedWordsRef = useRef(0);
 
-  // Track reading completion via scroll
+  // Keep ref in sync so scroll handler always sees current value without re-adding listener
+  useEffect(() => { tappedWordsRef.current = tappedWords; }, [tappedWords]);
+
+  // Track reading completion via scroll — only re-attach when phase changes, not on every word tap
   useEffect(() => {
     if (phase !== 'story' || !storyRef.current) return;
     const el = storyRef.current;
     const check = () => {
       const { scrollTop, scrollHeight, clientHeight } = el;
-      if (scrollTop + clientHeight >= scrollHeight - 80 && tappedWords >= 5 && !awardFired.current) {
+      if (scrollTop + clientHeight >= scrollHeight - 80 && tappedWordsRef.current >= 5 && !awardFired.current) {
         awardFired.current = true;
         award(15);
       }
     };
     el.addEventListener('scroll', check, { passive: true });
     return () => el.removeEventListener('scroll', check);
-  }, [phase, tappedWords, award]);
+  }, [phase, award]);
 
   const generateStory = useCallback(async () => {
     if (!isOnline) { setError('You need an internet connection to generate stories.'); return; }

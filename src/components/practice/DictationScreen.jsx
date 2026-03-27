@@ -108,7 +108,7 @@ export default function DictationScreen({ goBack, award }) {
     setCorrect(isExact || isClose);
     setCloseMatch(isClose);
     setChecked(true);
-    if (isExact || isClose) setScore(score + 1);
+    if (isExact || isClose) setScore(s => s + 1);
   }
 
   function handleNext() {

@@ -7,6 +7,7 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
   const [state, setState] = useState('idle'); // idle | listening | scored | unsupported
   const [result, setResult] = useState(/** @type {{spoken:string,score:number}|null} */ (null));
   const [coaching, setCoaching] = useState(null); // null | 'loading' | {feedback,issue,phonetic_guide,drills}
+  const [srErrorMsg, setSrErrorMsg] = useState(null);
   const recRef = useRef(/** @type {any} */ (null));
 
   const supported = !!(
@@ -41,6 +42,7 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
   function start() {
     if (!supported) { setState('unsupported'); return; }
     setCoaching(null);
+    setSrErrorMsg(null);
     const SR = /** @type {any} */ (window).SpeechRecognition || /** @type {any} */ (window).webkitSpeechRecognition;
     const rec = new SR();
     rec.lang = 'hr-HR';
@@ -58,7 +60,22 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
       setState('scored');
       if (onScore) onScore(r);
     };
-    rec.onerror = () => setState('idle');
+    rec.onerror = (/** @type {any} */ e) => {
+      const code = e?.error || '';
+      const msg = code === 'not-allowed' || code === 'permission-denied'
+        ? 'Microphone permission denied. Please allow mic access in your browser settings.'
+        : code === 'no-speech'
+        ? 'No speech detected. Please speak louder and closer to the mic.'
+        : code === 'audio-capture'
+        ? 'No microphone found. Check that your mic is connected.'
+        : code === 'network'
+        ? 'Network error during recognition. Check your connection.'
+        : code === 'aborted'
+        ? null
+        : 'Microphone error — please try again.';
+      if (msg) setSrErrorMsg(msg);
+      setState('idle');
+    };
     rec.onend = () => {
       if (recRef.current === rec) setState(s => s === 'listening' ? 'idle' : s);
     };
@@ -111,15 +128,22 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
   return (
     <div style={{ marginTop: 12 }}>
       {state === 'idle' && (
-        <button onClick={start} style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          background: 'linear-gradient(135deg,#0e7490,#164e63)',
-          color: '#fff', border: 'none', borderRadius: 10,
-          padding: '10px 18px', cursor: 'pointer',
-          fontSize: 13, fontWeight: 700, fontFamily: "'Outfit',sans-serif",
-        }}>
-          🎙️ Test My Pronunciation
-        </button>
+        <>
+          <button onClick={start} style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            background: 'linear-gradient(135deg,#0e7490,#164e63)',
+            color: '#fff', border: 'none', borderRadius: 10,
+            padding: '10px 18px', cursor: 'pointer',
+            fontSize: 13, fontWeight: 700, fontFamily: "'Outfit',sans-serif",
+          }}>
+            🎙️ Test My Pronunciation
+          </button>
+          {srErrorMsg && (
+            <div style={{ marginTop: 6, fontSize: 12, color: '#dc2626', background: '#fee2e2', borderRadius: 8, padding: '6px 10px' }}>
+              ⚠️ {srErrorMsg}
+            </div>
+          )}
+        </>
       )}
       {state === 'listening' && (
         <div style={{

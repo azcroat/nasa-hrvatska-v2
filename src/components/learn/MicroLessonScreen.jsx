@@ -48,7 +48,7 @@ function MicroBar({ v, mx }) {
   );
 }
 
-export default function MicroLessonScreen({ goBack, award }) {
+export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
   const { level } = useApp();
   const [phase, setPhase] = useState('loading'); // loading | error | intro | quiz | results
   const [lesson, setLesson] = useState(null);
@@ -213,9 +213,17 @@ export default function MicroLessonScreen({ goBack, award }) {
               : errorMsg}
           </div>
           {noWords ? (
-            <button className="b bp" style={{ width: '100%', padding: 14 }} onClick={goBack}>
-              ← Back to Learn
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ fontSize: 13, color: 'var(--subtext)', background: 'var(--app-bg)', borderRadius: 10, padding: '10px 14px', lineHeight: 1.6 }}>
+                💡 <strong>Tip:</strong> Complete a few flashcard reviews, answer some wrong, then come back — your micro-lesson will be ready.
+              </div>
+              <button className="b bp" style={{ width: '100%', padding: 14 }} onClick={() => { if (goFlashcards) goFlashcards(); else goBack(); }}>
+                📚 Go to Flashcards
+              </button>
+              <button onClick={goBack} style={{ width: '100%', padding: 12, background: 'none', border: '1.5px solid var(--card-b)', borderRadius: 12, cursor: 'pointer', fontSize: 14, fontWeight: 700, color: 'var(--subtext)' }}>
+                ← Back
+              </button>
+            </div>
           ) : (
             <>
               <button className="b bp" style={{ width: '100%', padding: 14, marginBottom: 10 }} onClick={fetchLesson}>

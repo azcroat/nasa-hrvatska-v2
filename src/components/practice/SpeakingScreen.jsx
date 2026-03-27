@@ -159,6 +159,10 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   }
 
   async function analyzePronunciation(transcript, targetWord) {
+    if (!navigator.onLine) {
+      setPronScore({ score: 0, match_quality: 'off', phonetic_tips: [], encouragement: "You're offline — pronunciation analysis needs a connection." });
+      return;
+    }
     try {
       const res = await fetch("/api/ai-chat", {
         method: "POST",
