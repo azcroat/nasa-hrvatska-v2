@@ -13,14 +13,17 @@ export default function Unjumble({ goBack, award }) {
   const q = ujQ[ujI];
 
   if (!q) {
+    const xp = ujS * 3 + 10;
     return (
       <div className="scr-wrap">
-        
+
         {H("🧩 Word Order","Arrange words to form correct Croatian sentences")}
         <div style={{textAlign:"center",padding:40}}>
-          <div style={{fontSize:64}}>🌟</div>
-          <p>Score: {ujS}/{ujQ.length}</p>
-          <button className="b bp" onClick={goBack}>Continue →</button>
+          <div style={{fontSize:64}}>{ujS >= total * 0.8 ? "🌟" : "👍"}</div>
+          <h2 style={{fontFamily:"'Playfair Display',serif",color:"#164e63"}}>Word Order Complete!</h2>
+          <div style={{fontSize:32,fontWeight:800,color:"#0e7490"}}>{ujS} / {ujQ.length}</div>
+          <div style={{fontSize:24,fontWeight:900,color:"#d97706",margin:"12px 0 20px"}}>+{xp} XP</div>
+          <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; award(xp); goBack(); }}>Continue →</button>
         </div>
       </div>
     );
@@ -78,9 +81,7 @@ export default function Unjumble({ goBack, award }) {
               if (ujI < total - 1) {
                 sUjI(i => i + 1); sUjIn(""); sUjA(false);
               } else {
-                if (finishFired.current) return;
-                finishFired.current = true;
-                award(ujS * 3 + 10); goBack();
+                sUjI(total); // show completion screen
               }
             }}>
             {ujI < total - 1 ? "Next →" : "Finish!"}

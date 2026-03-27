@@ -21,6 +21,7 @@ export default function PrepDrill({ goBack, award }) {
         <div style={{textAlign:"center"}}>
           <div style={{fontSize:64}}>{ppS >= total * 0.8 ? "🏆" : "📚"}</div>
           <h2>{ppS} / {total}</h2>
+          <div style={{fontSize:24,fontWeight:900,color:"#d97706",margin:"8px 0 16px"}}>+{ppS * 5} XP</div>
           <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; award(ppS * 5); goBack(); }}>🏠 Done</button>
         </div>
       </div>

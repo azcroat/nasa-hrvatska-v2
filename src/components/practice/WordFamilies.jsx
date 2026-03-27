@@ -46,6 +46,7 @@ export default function WordFamilies({ goBack, award }) {
         <div style={{textAlign:"center"}}>
           <div style={{fontSize:64}}>{score >= total * 0.8 ? "🏆" : "📚"}</div>
           <h2>{score} / {total}</h2>
+          <div style={{fontSize:24,fontWeight:900,color:"#d97706",margin:"8px 0 16px"}}>+{score * 5} XP</div>
           <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; award(score * 5); goBack(); }} style={{width:"100%",marginTop:16}}>🏠 Done</button>
         </div>
       </div>

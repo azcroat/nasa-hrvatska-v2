@@ -102,6 +102,7 @@ export default function ZnamGame({ goBack, award }) {
             <div style={{fontSize:64}}>{pct >= 80 ? "🏆" : pct >= 50 ? "👍" : "📚"}</div>
             <h2 style={{fontFamily:"'Playfair Display',serif",color:"#164e63"}}>{sec.name} Complete!</h2>
             <div style={{fontSize:32,fontWeight:800,color:"#0e7490"}}>{znSc} / {sec.sentences.length}</div>
+            <div style={{fontSize:24,fontWeight:900,color:"#d97706",margin:"8px 0 4px"}}>+{znSc * 5} XP</div>
             <div style={{fontSize:14,color:"#78716c",marginBottom:24}}>{pct}% correct</div>
             <div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap"}}>
               <button className="b bg" onClick={() => startSection(znSec)}>🔄 Retry</button>
