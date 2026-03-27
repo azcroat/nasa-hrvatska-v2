@@ -49,10 +49,21 @@ export default defineConfig({
       workbox: {
         skipWaiting: true,
         clientsClaim: true,
-        cacheId: 'nasa-hrvatska-v6',
-        // Only precache JS/CSS/images — never HTML (so deployments show instantly)
+        cacheId: 'nasa-hrvatska-v7',
+        // Only precache JS/CSS/images — exclude large data chunk and splash screens
         globPatterns: ['**/*.{js,css,svg,ico,png,webp,woff2}'],
+        globIgnores: ['**/chunk-data*.js', '**/splash/**'],
         runtimeCaching: [
+          {
+            // Data chunk (698KB vocabulary data) — serve stale, revalidate in background
+            urlPattern: /\/assets\/chunk-data[^/]*\.js$/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'data-chunk-cache',
+              expiration: { maxEntries: 3, maxAgeSeconds: 60 * 60 * 24 * 7 },
+              cacheableResponse: { statuses: [0, 200] }
+            }
+          },
           {
             // HTML navigation: always fetch fresh from network (3s timeout), fall back to cache offline
             urlPattern: ({ request }) => request.mode === 'navigate',
@@ -109,6 +120,9 @@ export default defineConfig({
           if (id.includes('node_modules/dexie')) return 'vendor-dexie';
           // data.jsx is 570 KB of vocabulary/lesson data — isolate it so other chunks stay small
           if (id.includes('src/data')) return 'chunk-data';
+          // Context and hooks — break circular deps between croatia/practice/learn chunks
+          if (id.includes('src/context')) return 'chunk-context';
+          if (id.includes('src/hooks')) return 'chunk-hooks';
           // Split learn into sub-chunks to keep each below 500 KB
           if (id.includes('src/components/learn/GrammarRef')) return 'chunk-learn-grammar';
           if (id.includes('src/components/learn/NewLessons')) return 'chunk-learn-new';

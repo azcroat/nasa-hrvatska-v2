@@ -93,7 +93,7 @@ List up to 5 most important changes. List 1-3 strengths and 1-2 improvements. Be
       },
       signal: AbortSignal.timeout(25000),
       body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
+        model: "claude-sonnet-4-6",
         max_tokens: 1000,
         system: systemPrompt,
         messages: [{ role: "user", content: text }],

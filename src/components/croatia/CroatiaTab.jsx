@@ -449,6 +449,7 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
             subtitle="Culture, history & language — all in one place"
             height={180}
             style={{marginBottom: 20}}
+            priority={true}
           />
 
           {/* ── KNIGHT WELCOME BANNER ── */}

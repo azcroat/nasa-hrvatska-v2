@@ -158,6 +158,20 @@ export async function onRequestPost(context) {
       return new Response("Invalid text", { status: 400 });
     }
 
+    // Check Cloudflare edge cache first (POST responses aren't auto-cached)
+    const cacheKey = new Request(
+      `https://tts-cache.internal/v1/${encodeURIComponent(text.slice(0, 400))}?slow=${slow}`,
+      { method: "GET" }
+    );
+    let edgeCache;
+    try {
+      edgeCache = caches.default;
+      const cached = await edgeCache.match(cacheKey);
+      if (cached) return cached;
+    } catch {
+      edgeCache = null; // Cache API unavailable — proceed without caching
+    }
+
     let buffer = null;
 
     // 1. Try ElevenLabs (best quality, no content filtering)
@@ -179,13 +193,18 @@ export async function onRequestPost(context) {
     }
 
     if (buffer) {
-      return new Response(buffer, {
+      const ttsResponse = new Response(buffer, {
         status: 200,
         headers: {
           "Content-Type": "audio/mpeg",
           "Cache-Control": "public, max-age=86400",
         },
       });
+      // Store in edge cache asynchronously (don't block response)
+      if (edgeCache) {
+        try { edgeCache.put(cacheKey, ttsResponse.clone()); } catch { /* ignore */ }
+      }
+      return ttsResponse;
     }
 
     return new Response("TTS unavailable", { status: 503 });

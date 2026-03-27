@@ -9,10 +9,14 @@ export default function PhotoHero({
   overlay = 'rgba(0,0,0,0.45)',
   titleColor = '#fff',
   style = {},
+  priority = false,
   children,
 }) {
   const [loaded, setLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
+
+  // Derive WebP src from jpg/jpeg src
+  const webpSrc = src ? src.replace(/\.(jpg|jpeg)$/i, '.webp') : null;
 
   return (
     <div
@@ -34,27 +38,31 @@ export default function PhotoHero({
         />
       )}
 
-      {/* Photo */}
+      {/* Photo — WebP with JPG fallback */}
       {!errored && (
-        <img
-          src={src}
-          alt={alt}
-          loading="lazy"
-          onLoad={() => setLoaded(true)}
-          onError={() => setErrored(true)}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center',
-            opacity: loaded ? 1 : 0,
-            transition: 'opacity 0.4s ease',
-            position: 'absolute',
-            inset: 0,
-            zIndex: 2,
-            filter: 'brightness(0.92) contrast(1.05) saturate(0.9)',
-          }}
-        />
+        <picture>
+          {webpSrc && <source srcSet={webpSrc} type="image/webp" />}
+          <img
+            src={src}
+            alt={alt}
+            loading={priority ? 'eager' : 'lazy'}
+            fetchPriority={priority ? 'high' : 'auto'}
+            onLoad={() => setLoaded(true)}
+            onError={() => setErrored(true)}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center',
+              opacity: loaded ? 1 : 0,
+              transition: 'opacity 0.4s ease',
+              position: 'absolute',
+              inset: 0,
+              zIndex: 2,
+              filter: 'brightness(0.92) contrast(1.05) saturate(0.9)',
+            }}
+          />
+        </picture>
       )}
 
       {/* Gradient overlay */}
