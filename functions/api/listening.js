@@ -1,0 +1,211 @@
+// Cloudflare Pages Function — Listening Exercise Generator
+// Generates a complete AI Croatian listening exercise: dialogue or monologue + comprehension questions.
+
+const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
+const MODEL = "claude-sonnet-4-6";
+
+// ── Security helpers ──────────────────────────────────────────────────────────
+
+function sanitizeParam(value, maxLen = 200) {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/[\r\n]/g, ' ')
+    .replace(/[`\\]/g, '')
+    .replace(/\bignore\b.*\binstruction/gi, '')
+    .trim()
+    .slice(0, maxLen);
+}
+
+function isAllowedOrigin(origin, isDev) {
+  try {
+    const hostname = new URL(origin).hostname;
+    if (isDev && hostname === "localhost") return true;
+    return hostname === "nasahrvatska.com"
+      || hostname.endsWith(".nasahrvatska.com")
+      || hostname === "nasa-hrvatska-v2.pages.dev"
+      || hostname.endsWith(".nasa-hrvatska-v2.pages.dev");
+  } catch { return false; }
+}
+
+const corsHeaders = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "https://nasahrvatska.com",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Cache-Control": "no-cache",
+};
+
+function ok(body)         { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders }); }
+function err(status, msg) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders }); }
+
+// ── Input validation ──────────────────────────────────────────────────────────
+
+const VALID_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
+const VALID_TOPICS = ["cafe", "market", "family", "travel", "weather", "sports", "work", "weekend",
+                      "restaurant", "city", "school", "nature", "health", "culture", "history"];
+const VALID_STYLES = ["dialogue", "monologue"];
+
+function sanitizeLevel(level) {
+  return VALID_LEVELS.includes(level) ? level : "B1";
+}
+
+function sanitizeTopic(topic) {
+  return VALID_TOPICS.includes(topic) ? topic : "cafe";
+}
+
+function sanitizeStyle(style) {
+  return VALID_STYLES.includes(style) ? style : "dialogue";
+}
+
+// ── Handler ───────────────────────────────────────────────────────────────────
+
+export async function onRequestPost({ request, env }) {
+  // OPTIONS preflight
+  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
+
+  const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
+
+  // CORS check
+  const origin = request.headers.get("origin") || request.headers.get("referer") || "";
+  const isDev = env.ENVIRONMENT !== "production";
+  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden");
+
+  // API key check
+  if (!ANTHROPIC_KEY) return err(500, "Service not configured");
+
+  // Content-type check
+  const ct = request.headers.get("content-type") || "";
+  if (!ct.includes("application/json")) return err(400, "Invalid content type");
+
+  // Parse body
+  let body;
+  try { body = await request.json(); }
+  catch { return err(400, "Invalid JSON in request body"); }
+
+  const { topic, level, style } = body;
+
+  // Validate inputs
+  const safeTopic = sanitizeTopic(typeof topic === "string" ? topic.trim() : "");
+  const safeLevel = sanitizeLevel(typeof level === "string" ? level.trim() : "");
+  const safeStyle = sanitizeStyle(typeof style === "string" ? style.trim() : "");
+
+  // ── Build prompts ──
+  const systemPrompt = "You are creating Croatian language listening exercises. Return ONLY valid JSON, no markdown, no code blocks.";
+
+  const styleInstructions = safeStyle === "dialogue"
+    ? `a dialogue between 2 speakers named Ana and Marko with 8-12 exchanges. Use the format: speakers: [{name: "Ana", lines: ["line1", "line2", ...]}, {name: "Marko", lines: ["line1", ...]}] — alternate turns naturally. Do NOT include the "narrator" field.`
+    : `a monologue by a narrator speaking naturally and continuously. Use the format: narrator: "full Croatian text". Do NOT include the "speakers" field.`;
+
+  const userMessage =
+    `Create a Croatian language listening exercise about '${safeTopic}' at CEFR level ${safeLevel} as a ${safeStyle}. ` +
+    `The exercise should be ${styleInstructions} ` +
+    `Use vocabulary appropriate for CEFR ${safeLevel}. ` +
+    `Include 3 comprehension questions with 4 multiple-choice options each (exactly one correct). ` +
+    `Return JSON with this exact structure: { ` +
+    `"title": "short Croatian title", ` +
+    `${safeStyle === "dialogue" ? `"speakers": [{"name": "string", "lines": ["string"]}]` : `"narrator": "full Croatian text"`}, ` +
+    `"en_summary": "brief English summary of what happens", ` +
+    `"questions": [{ "q": "Croatian question", "options": ["option A", "option B", "option C", "option D"], "correct": 0 }], ` +
+    `"vocab": [{"hr": "word", "en": "meaning"}] ` +
+    `} — questions must have exactly 3 items, correct is 0-3 index, vocab must have 5-8 key words used in the exercise.`;
+
+  // ── Call Anthropic ──
+  let res, data;
+  try {
+    res = await fetch(ANTHROPIC_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      signal: AbortSignal.timeout(25000),
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 1200,
+        system: systemPrompt,
+        messages: [{ role: "user", content: userMessage }],
+      }),
+    });
+    data = await res.json();
+  } catch (fetchErr) {
+    console.error("listening.js: network error calling Anthropic:", fetchErr.message);
+    return err(502, "Service temporarily unavailable");
+  }
+
+  if (!res.ok) {
+    console.error("listening.js: Anthropic API error", res.status, data?.error?.message);
+    return err(res.status, data?.error?.message || "Anthropic API error: HTTP " + res.status);
+  }
+
+  const raw = data?.content?.[0]?.text?.trim() || "";
+  if (!raw) {
+    console.error("listening.js: Anthropic returned empty response");
+    return err(502, "Empty response from AI");
+  }
+
+  // ── Parse response ──
+  let parsed;
+  try {
+    const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+    parsed = JSON.parse(cleaned);
+  } catch (parseErr) {
+    console.error("listening.js: JSON parse failed. Raw:", raw.slice(0, 200));
+    return err(502, "parse_failed");
+  }
+
+  // Validate required structure
+  if (typeof parsed.title !== "string" || !parsed.title.trim()) {
+    console.error("listening.js: missing title in response");
+    return err(502, "parse_failed");
+  }
+  if (!Array.isArray(parsed.questions) || parsed.questions.length < 1) {
+    console.error("listening.js: missing or empty questions array");
+    return err(502, "parse_failed");
+  }
+  if (!Array.isArray(parsed.vocab)) {
+    console.error("listening.js: missing vocab array");
+    return err(502, "parse_failed");
+  }
+
+  // Validate style-specific field
+  if (safeStyle === "dialogue") {
+    if (!Array.isArray(parsed.speakers) || parsed.speakers.length === 0) {
+      console.error("listening.js: missing speakers array for dialogue");
+      return err(502, "parse_failed");
+    }
+  } else {
+    if (typeof parsed.narrator !== "string" || !parsed.narrator.trim()) {
+      console.error("listening.js: missing narrator for monologue");
+      return err(502, "parse_failed");
+    }
+  }
+
+  // Build clean response
+  const response = {
+    title: parsed.title.trim(),
+    en_summary: typeof parsed.en_summary === "string" ? parsed.en_summary.trim() : "",
+    questions: parsed.questions.slice(0, 3).map(q => ({
+      q: String(q.q || "").trim(),
+      options: Array.isArray(q.options) ? q.options.slice(0, 4).map(o => String(o).trim()) : [],
+      correct: Number.isInteger(q.correct) && q.correct >= 0 && q.correct <= 3 ? q.correct : 0,
+    })),
+    vocab: parsed.vocab.slice(0, 8).map(v => ({
+      hr: String(v.hr || "").trim(),
+      en: String(v.en || "").trim(),
+    })).filter(v => v.hr && v.en),
+    level: safeLevel,
+    topic: safeTopic,
+    style: safeStyle,
+  };
+
+  if (safeStyle === "dialogue") {
+    response.speakers = parsed.speakers.map(s => ({
+      name: String(s.name || "").trim(),
+      lines: Array.isArray(s.lines) ? s.lines.map(l => String(l).trim()).filter(Boolean) : [],
+    }));
+  } else {
+    response.narrator = parsed.narrator.trim();
+  }
+
+  return ok(response);
+}

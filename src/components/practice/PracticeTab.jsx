@@ -64,6 +64,12 @@ export default function PracticeTab({
   function startAspectDrill() {
     setScr("aspectdrill"); sCurEx("aspectdrill");
   }
+  function startAIListening() {
+    setScr("ai_listening"); sCurEx("ai_listening");
+  }
+  function startGrammarDiagnosis() {
+    setScr("grammar_diagnosis"); sCurEx("grammar_diagnosis");
+  }
 
   // Q-4: Screens (ZnamGame, Unjumble, PrepDrill, NumTime) all manage their own state internally.
   // These launch functions only navigate — no App.jsx state setters needed.
@@ -100,7 +106,7 @@ export default function PracticeTab({
     h < 12
       ? { icon:'🃏', title:'Flashcards',   desc:'Start the day strong',     color:'rgba(124,58,237,.08)', border:'rgba(124,58,237,.25)', fn: startFlashcards }
       : h < 18
-      ? { icon:'🎧', title:'Listening',    desc:'Train your ear',            color:'rgba(220,38,38,.08)', border:'rgba(220,38,38,.25)', fn: startListening }
+      ? { icon:'🎧', title:'AI Listening',  desc:'AI dialogue + comprehension', color:'rgba(220,38,38,.08)', border:'rgba(220,38,38,.25)', fn: startAIListening }
       : { icon:'⚡', title:'Word Sprint',  desc:'End the day with speed',    color:'rgba(245,158,11,.08)', border:'rgba(245,158,11,.25)', fn: () => { setScr("wordsprint"); sCurEx("wordsprint"); } },
     { icon:'🔗', title:'Match Pairs', desc:'Quick memory game', color:'rgba(22,163,74,.08)', border:'rgba(22,163,74,.25)', fn: startMatch },
   ];
@@ -197,6 +203,8 @@ export default function PracticeTab({
     { id:'dialogue',     label:'Dialogue Sim',         icon:'💬', desc:'Real turn-based conversations',       category:'practical', cefr:'A1+', duration:'~10 min', action: () => { setScr("dialogue"); sCurEx("dialogue"); } },
     { id:'dictation',    label:'Dictation',            icon:'🎧', desc:'Listen and type Croatian',            category:'advanced', cefr:'B1',  duration:'~10 min', action: () => { setScr("dictation"); sCurEx("dictation"); } },
     { id:'proncontrast', label:'Sound Contrast',       icon:'🔤', desc:'č/ć, š/ž, đ/dž mastery',            category:'advanced', cefr:'A2+', duration:'~8 min',  action: () => { setScr("proncontrast"); sCurEx("proncontrast"); } },
+    { id:'ai_listening',      label:'AI Listening',        icon:'🎧', desc:'AI-generated dialogues + comprehension',  category:'advanced', cefr:'A2+', duration:'~10 min', action: startAIListening },
+    { id:'grammar_diagnosis', label:'Grammar Blind Spots',  icon:'🔬', desc:'Weekly AI analysis of your weak points',  category:'advanced', cefr:'A1+', duration:'weekly',   action: startGrammarDiagnosis },
     { id:'cefrtest',     label:'CEFR Test',            icon:'🎓', desc:'A1→B2 proficiency check',             category:'advanced', cefr:'A1+', duration:'~15 min', action: () => { setScr("cefrtest"); sCurEx("cefrtest"); } },
     // Slang (advanced)
     { id:'slang_classics',  label:'The Classics',      icon:'🔥', desc:'Foundation expletives — built on one root verb', category:'advanced', cefr:'B1+', duration:'~10 min', action: go('slang:classics') },
