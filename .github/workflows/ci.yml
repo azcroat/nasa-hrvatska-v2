@@ -39,6 +39,9 @@ jobs:
       - name: ESLint
         run: npm run lint
 
+      - name: Dependency security audit
+        run: npm audit --audit-level=high
+
       - name: TypeScript check (reporting only)
         run: npm run typecheck || true
 
