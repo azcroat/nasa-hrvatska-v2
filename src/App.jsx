@@ -196,6 +196,11 @@ const GrammarVideos = lazyWithReload(() => import("./components/learn/GrammarVid
 const LifeEventsScreen = lazyWithReload(() => import("./components/croatia/LifeEventsScreen.jsx"));
 const CivicScreen = lazyWithReload(() => import("./components/croatia/CivicScreen.jsx"));
 const EasterScreen = lazyWithReload(() => import("./components/croatia/EasterScreen.jsx"));
+const PostcardScreen = lazyWithReload(() => import("./components/croatia/PostcardScreen.jsx"));
+const StoryModeScreen = lazyWithReload(() => import("./components/croatia/StoryModeScreen.jsx"));
+const HeritageStoryScreen = lazyWithReload(() => import("./components/croatia/HeritageStoryScreen.jsx"));
+const CroatianNewsScreen = lazyWithReload(() => import("./components/croatia/CroatianNewsScreen.jsx"));
+const PhraseOfDayScreen = lazyWithReload(() => import("./components/croatia/PhraseOfDayScreen.jsx"));
 
 // Module-level constants — defined once, not recreated on every render
 const DS={xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,authLoading:0,mv:0,hi:0,rs:[],ct:[],badges:[]};
@@ -318,6 +323,7 @@ function App(){
         survival_dinner:"croatia",
         kafic:"croatia",
         diaspora:"croatia",
+        postcard:"croatia", storymode:"croatia", heritage:"croatia", croatianews:"croatia", phraseofday:"croatia",
         tivicompare:"learn",
         grammarvideos:"learn",
         grammarexplainer:"learn",
@@ -1132,6 +1138,11 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {currentScreen==="lifeevents"&&<LifeEventsScreen goBack={goBack} />}
       {currentScreen==="civic"&&<CivicScreen goBack={goBack} />}
       {currentScreen==="easter"&&<EasterScreen onBack={goBack} />}
+      {currentScreen==="postcard"&&<PostcardScreen goBack={goBack} award={award} />}
+      {currentScreen==="storymode"&&<StoryModeScreen goBack={goBack} award={award} />}
+      {currentScreen==="heritage"&&<HeritageStoryScreen goBack={goBack} award={award} />}
+      {currentScreen==="croatianews"&&<CroatianNewsScreen goBack={goBack} award={award} />}
+      {currentScreen==="phraseofday"&&<PhraseOfDayScreen goBack={goBack} award={award} />}
       {currentScreen==="cloze"&&<ClozeEngine goBack={goBack} award={award} />}
       {currentScreen==="grammarmap"&&<GrammarConstellation goBack={goBack} award={award} />}
       {currentScreen==="my_words"&&<MyWordsScreen onBack={goBack} />}

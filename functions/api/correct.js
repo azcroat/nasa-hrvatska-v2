@@ -34,10 +34,12 @@ export async function onRequestPost(context) {
 
   if (!ANTHROPIC_KEY) {
     return new Response(JSON.stringify({
-      corrected: "",
+      corrected_text: "",
       score: 50,
-      level: "AI correction unavailable",
-      errors: [],
+      level_demonstrated: "AI correction unavailable",
+      changes: [],
+      strengths: [],
+      improvements: [],
       encouragement: "Keep writing in Croatian — practice makes perfect!"
     }), {
       status: 200,
@@ -55,18 +57,24 @@ export async function onRequestPost(context) {
 
 Analyze their Croatian text and respond with ONLY valid JSON (no markdown, no code blocks) in this exact format:
 {
-  "corrected": "the corrected Croatian text",
+  "corrected_text": "the full corrected Croatian text",
   "score": 75,
-  "level": "B1 - Intermediate",
-  "errors": [
-    {"original": "wrong word/phrase", "correct": "correct form", "rule": "brief grammar rule explanation"}
+  "level_demonstrated": "B1 - Intermediate",
+  "changes": [
+    {"original": "wrong word or phrase as written", "corrected": "correct form", "note": "brief grammar rule explanation"}
+  ],
+  "strengths": [
+    "One specific thing the student did well"
+  ],
+  "improvements": [
+    "One specific area to focus on next time"
   ],
   "encouragement": "One encouraging sentence about their progress"
 }
 
 Score 0-100 based on grammar accuracy, vocabulary, and natural expression.
-Level: A1 (Beginner), A2 (Elementary), B1 (Intermediate), B2 (Upper-Intermediate), C1 (Advanced).
-List up to 5 most important errors. Be encouraging and specific.`;
+level_demonstrated: A1 (Beginner), A2 (Elementary), B1 (Intermediate), B2 (Upper-Intermediate), C1 (Advanced).
+List up to 5 most important changes. List 1-3 strengths and 1-2 improvements. Be encouraging and specific.`;
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -77,7 +85,7 @@ List up to 5 most important errors. Be encouraging and specific.`;
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 800,
+        max_tokens: 1000,
         system: systemPrompt,
         messages: [{ role: "user", content: text }],
       }),
@@ -96,10 +104,12 @@ List up to 5 most important errors. Be encouraging and specific.`;
     } catch {
       // If JSON parse fails, return a graceful fallback
       result = {
-        corrected: text,
+        corrected_text: text,
         score: 60,
-        level: "Analysis complete",
-        errors: [],
+        level_demonstrated: "Analysis complete",
+        changes: [],
+        strengths: [],
+        improvements: [],
         encouragement: "Great effort writing in Croatian! Keep practicing every day."
       };
     }
@@ -110,10 +120,12 @@ List up to 5 most important errors. Be encouraging and specific.`;
     });
   } catch {
     return new Response(JSON.stringify({
-      corrected: "",
+      corrected_text: "",
       score: 0,
-      level: "Error",
-      errors: [],
+      level_demonstrated: "Error",
+      changes: [],
+      strengths: [],
+      improvements: [],
       encouragement: "Keep writing — every sentence is progress!"
     }), {
       status: 200,
