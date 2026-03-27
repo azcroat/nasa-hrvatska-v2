@@ -26,15 +26,17 @@ function isAllowedOrigin(origin, isDev) {
   } catch { return false; }
 }
 
-const corsHeaders = {
-  "Content-Type": "application/json",
-  "Access-Control-Allow-Origin": "https://nasahrvatska.com",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Cache-Control": "no-cache",
-};
+function corsHeaders(origin) {
+  return {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Cache-Control": "no-cache",
+  };
+}
 
-function ok(body) { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders }); }
-function err(status, msg) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders }); }
+function ok(body, origin) { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) }); }
+function err(status, msg, origin) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) }); }
 
 const VALID_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
 const VALID_GOALS = ["heritage", "family", "travel", "culture", "partner", "fluent"];
@@ -48,8 +50,9 @@ const GOAL_CONTEXT = {
   fluent:   "working toward full conversational fluency in Croatian",
 };
 
-export async function onRequestOptions() {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export async function onRequestOptions({ request }) {
+  const origin = request.headers.get("origin") || "";
+  return new Response(null, { status: 204, headers: corsHeaders(origin) });
 }
 
 export async function onRequestPost({ request, env }) {
@@ -57,19 +60,19 @@ export async function onRequestPost({ request, env }) {
 
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
   const isDev = env.ENVIRONMENT !== "production";
-  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden");
-  if (!ANTHROPIC_KEY) return err(500, "Service not configured");
+  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden", origin);
+  if (!ANTHROPIC_KEY) return err(500, "Service not configured", origin);
 
   const ct = request.headers.get("content-type") || "";
-  if (!ct.includes("application/json")) return err(400, "Invalid content type");
+  if (!ct.includes("application/json")) return err(400, "Invalid content type", origin);
 
   let body;
   try { body = await request.json(); }
-  catch { return err(400, "Invalid JSON in request body"); }
+  catch { return err(400, "Invalid JSON in request body", origin); }
 
   const { weakWords, level, goal } = body;
 
-  if (!Array.isArray(weakWords) || weakWords.length === 0) return err(400, "Missing weakWords array");
+  if (!Array.isArray(weakWords) || weakWords.length === 0) return err(400, "Missing weakWords array", origin);
 
   const safeLevel = VALID_LEVELS.includes(level) ? level : "A2";
   const safeGoal = VALID_GOALS.includes(goal) ? goal : "fluent";
@@ -81,7 +84,7 @@ export async function onRequestPost({ request, env }) {
     missCount: Math.min(Math.max(parseInt(w.missCount || w.wrong || 0) || 0, 0), 99),
   })).filter(w => w.hr && w.en);
 
-  if (topWords.length === 0) return err(400, "No valid weak words");
+  if (topWords.length === 0) return err(400, "No valid weak words", origin);
 
   const goalDesc = GOAL_CONTEXT[safeGoal];
   const wordsList = topWords.map(w => `- ${w.hr} (${w.en}) — missed ${w.missCount}×`).join("\n");
@@ -131,13 +134,13 @@ Return ONLY valid JSON (no markdown):
     data = await res.json();
   } catch (fetchErr) {
     console.error("micro-lesson.js: network error:", fetchErr.message);
-    return err(502, "Service temporarily unavailable");
+    return err(502, "Service temporarily unavailable", origin);
   }
 
-  if (!res.ok) return err(502, "AI service error");
+  if (!res.ok) return err(502, "AI service error", origin);
 
   const raw = data?.content?.[0]?.text?.trim() || "";
-  if (!raw) return err(502, "Empty response from AI");
+  if (!raw) return err(502, "Empty response from AI", origin);
 
   let parsed;
   try {
@@ -145,7 +148,7 @@ Return ONLY valid JSON (no markdown):
     parsed = JSON.parse(cleaned);
   } catch {
     console.error("micro-lesson.js: JSON parse failed. Raw:", raw.slice(0, 200));
-    return err(502, "parse_failed");
+    return err(502, "parse_failed", origin);
   }
 
   return ok({
@@ -157,5 +160,5 @@ Return ONLY valid JSON (no markdown):
     tip: String(parsed.tip || "").slice(0, 200),
     weakWords: topWords,
     generatedAt: Date.now(),
-  });
+  }, origin);
 }

@@ -472,7 +472,7 @@ export default function DialogueSim({ award }) {
     setAiInput('');
     setAiLoading(true);
     setAiError('');
-    const newHistory = [...aiHistory, { role: 'user', content: userMsg }];
+    const newHistory = [...aiHistory, { role: 'user', content: userMsg, id: Date.now() }];
     setAiHistory(newHistory);
     try {
       const res = await fetch('/api/dialogue', {
@@ -487,7 +487,7 @@ export default function DialogueSim({ award }) {
       });
       if (!res.ok) throw new Error('API error');
       const data = await res.json();
-      setAiHistory([...newHistory, { role: 'assistant', content: data.reply }]);
+      setAiHistory([...newHistory, { role: 'assistant', content: data.reply, id: Date.now() + 1 }]);
       setAiCoaching(data.coaching || null);
       setAiTurns(t => t + 1);
     } catch {
@@ -652,8 +652,8 @@ export default function DialogueSim({ award }) {
 
           {/* Conversation history */}
           <div style={{marginBottom:12}}>
-            {aiHistory.map((msg, i) => (
-              <div key={i} style={{
+            {aiHistory.map((msg) => (
+              <div key={msg.id} style={{
                 display:'flex', flexDirection: msg.role==='user' ? 'row-reverse' : 'row',
                 gap:8, marginBottom:10, alignItems:'flex-end',
               }}>
@@ -737,8 +737,19 @@ export default function DialogueSim({ award }) {
                     padding:'11px 16px', color:'#fff', fontSize:16,
                     cursor: aiLoading || !aiInput.trim() ? 'default' : 'pointer',
                     opacity: aiLoading || !aiInput.trim() ? .5 : 1,
+                    display:'flex', alignItems:'center', justifyContent:'center', minWidth:44,
                   }}
-                >→</button>
+                >
+                  {aiLoading ? (
+                    <span style={{
+                      width:13, height:13, borderRadius:'50%',
+                      border:'2px solid rgba(255,255,255,0.35)',
+                      borderTopColor:'#fff',
+                      display:'inline-block',
+                      animation:'spin 0.65s linear infinite',
+                    }} />
+                  ) : '→'}
+                </button>
               </div>
               {aiTurns >= 4 && (
                 <button
@@ -948,7 +959,7 @@ export default function DialogueSim({ award }) {
 
                 return (
                   <button
-                    key={i}
+                    key={opt}
                     onClick={() => handleSelect(i)}
                     disabled={answered}
                     style={{
