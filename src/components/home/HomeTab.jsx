@@ -746,7 +746,7 @@ export default function HomeTab({
             boxShadow:'0 4px 24px rgba(0,0,0,.18)',
           }}>
             <img
-              src="/images/scenes/dubrovnik-hero.jpg"
+              src="/images/scenes/dubrovnik-ai.jpg"
               alt="Dubrovnik, Croatia"
               style={{
                 width:'100%', height:'100%', objectFit:'cover',

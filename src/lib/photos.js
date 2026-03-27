@@ -23,11 +23,11 @@ export const LOCAL_PHOTOS = {
 };
 
 export const PHOTOS = {
-  // Hero: Dubrovnik panorama — local CC photo, consistent load
-  dubrovnik: '/images/scenes/dubrovnik-hero.jpg',
+  // Hero: Dubrovnik — SDXL AI cinematic render (golden hour, 8K quality)
+  dubrovnik: '/images/scenes/dubrovnik-ai.jpg',
 
-  // Adriatic coast: Hvar island from above — local CC photo
-  adriatic:  '/images/scenes/dalmatian-coast.jpg',
+  // Adriatic coast: SDXL AI cinematic Dalmatian coast panorama
+  adriatic:  '/images/scenes/dalmatian-ai.jpg',
 
   // Plitvice Lakes: UNESCO waterfall cascade — local CC photo
   plitvice:  '/images/scenes/plitvice.jpg',
