@@ -667,6 +667,39 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
                 <div className="section-hdr-sub">Live the language through real Croatian stories</div>
               </div>
             </div>
+            <button
+              onClick={() => setScr("maja")}
+              style={{
+                width:'100%', padding:'18px 20px', borderRadius:16,
+                border:'2px solid rgba(212,0,48,.35)',
+                background:'linear-gradient(135deg, rgba(212,0,48,.07) 0%, rgba(212,0,48,.03) 100%)',
+                cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+                position:'relative', marginBottom:12, display:'flex', alignItems:'center', gap:16
+              }}
+            >
+              {/* LIVE badge */}
+              <span style={{
+                display:'inline-block', fontSize:9, fontWeight:900, padding:'3px 7px', borderRadius:4,
+                background:'#D4002D', color:'white', textTransform:'uppercase', letterSpacing:'0.08em',
+                position:'absolute', top:10, right:12
+              }}>AI · VOICE</span>
+
+              {/* Maja avatar */}
+              <img
+                src="/images/portraits/tutor-hero.jpg"
+                alt="Maja"
+                style={{ width:64, height:64, borderRadius:'50%', objectFit:'cover', border:'2px solid #D4002D', flexShrink:0 }}
+              />
+
+              {/* Text content */}
+              <div>
+                <div style={{ fontSize:17, fontWeight:900, color:'#D4002D', marginBottom:3 }}>Razgovaraj s Majom</div>
+                <div style={{ fontSize:'var(--text-sm)', fontWeight:700, color:'var(--heading)', marginBottom:4 }}>Your personal Croatian conversation partner</div>
+                <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.5 }}>
+                  Voice-to-voice · She remembers every session · Adapts to your level
+                </div>
+              </div>
+            </button>
             <div className="g3" style={{ gap:10 }}>
               <button onClick={() => setScr("baka_summer")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(245,158,11,.3)', background:'rgba(245,158,11,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif", position:'relative' }}>
                 <span style={{
