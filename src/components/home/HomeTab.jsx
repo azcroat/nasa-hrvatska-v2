@@ -978,29 +978,29 @@ export default function HomeTab({
               <div
                 onClick={() => setScr("review")}
                 style={{
-                  background: "linear-gradient(135deg,#eff6ff,#dbeafe)",
-                  border: "1.5px solid #93c5fd",
+                  background: "linear-gradient(135deg,var(--info-bg),rgba(14,116,144,.1))",
+                  border: "1.5px solid var(--info-b)",
                   borderRadius: 18, padding: "14px 18px", marginBottom: 16,
                   cursor: "pointer", display: "flex", alignItems: "center", gap: 14,
-                  boxShadow: "0 4px 16px rgba(59,130,246,.12)",
+                  boxShadow: "0 4px 16px rgba(14,116,144,.15)",
                 }}>
                 <div style={{
                   width: 48, height: 48, borderRadius: 14, flexShrink: 0,
-                  background: "linear-gradient(135deg,#2563eb,#1d4ed8)",
+                  background: "linear-gradient(135deg,#0e7490,#0284c7)",
                   display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22,
-                  boxShadow: "0 4px 12px rgba(37,99,235,.35)",
+                  boxShadow: "0 4px 12px rgba(14,116,144,.35)",
                 }}>🧠</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: "#1e40af" }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: "var(--info)" }}>
                     {due.length} Word{due.length !== 1 ? "s" : ""} Ready to Review
                   </div>
-                  <div style={{ fontSize: 11, color: "#3b82f6", fontWeight: 600, marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: "var(--info)", fontWeight: 600, marginTop: 2, opacity: .75 }}>
                     Spaced Repetition · Tap to review now →
                   </div>
                 </div>
                 <div style={{
-                  fontSize: 22, fontWeight: 800, color: "#2563eb",
-                  background: "white", borderRadius: 12, width: 40, height: 40,
+                  fontSize: 22, fontWeight: 800, color: "var(--info)",
+                  background: "var(--card)", borderRadius: 12, width: 40, height: 40,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,.08)",
                 }}>{due.length}</div>
@@ -1017,27 +1017,27 @@ export default function HomeTab({
               <div
                 onClick={() => setScr("mistakes")}
                 style={{
-                  background: "linear-gradient(135deg,#fff7ed,#fed7aa)",
-                  border: "1.5px solid #fdba74",
+                  background: "linear-gradient(135deg,var(--warning-bg),rgba(217,119,6,.1))",
+                  border: "1.5px solid var(--warning-b)",
                   borderRadius: 18, padding: "14px 18px", marginBottom: 16,
                   cursor: "pointer", display: "flex", alignItems: "center", gap: 14,
-                  boxShadow: "0 4px 16px rgba(249,115,22,.12)",
+                  boxShadow: "0 4px 16px rgba(217,119,6,.15)",
                 }}>
                 <div style={{
                   width: 48, height: 48, borderRadius: 14, flexShrink: 0,
-                  background: "linear-gradient(135deg,#ea580c,#c2410c)",
+                  background: "linear-gradient(135deg,#d97706,#b45309)",
                   display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22,
-                  boxShadow: "0 4px 12px rgba(234,88,12,.35)",
+                  boxShadow: "0 4px 12px rgba(217,119,6,.35)",
                 }}>📚</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: "#9a3412" }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: "var(--warning)" }}>
                     {mistakes.length} Mistake{mistakes.length !== 1 ? "s" : ""} to Master
                   </div>
-                  <div style={{ fontSize: 11, color: "#ea580c", fontWeight: 600, marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: "var(--warning)", fontWeight: 600, marginTop: 2, opacity: .8 }}>
                     Most missed: <strong>{topMistake?.hr}</strong> · Tap to review →
                   </div>
                 </div>
-                <div style={{ fontSize: 20, color: "#ea580c", flexShrink: 0 }}>›</div>
+                <div style={{ fontSize: 20, color: "var(--warning)", fontWeight: 700, flexShrink: 0 }}>›</div>
               </div>
             );
           })()}
