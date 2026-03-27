@@ -2,6 +2,8 @@
 // When a learner gets a cloze, dictation, or flashcard wrong, explains WHY.
 // Returns a pedagogically useful explanation of the grammar rule.
 
+import { checkRateLimit } from './_rateLimit.js';
+
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-4-6";
 
@@ -52,6 +54,12 @@ export async function onRequestPost({ request, env }) {
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
   const isDev = env.ENVIRONMENT !== "production";
   if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden", origin);
+
+  const allowed = await checkRateLimit(request, 20);
+  if (!allowed) {
+    return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders(origin) });
+  }
+
   if (!ANTHROPIC_KEY) return err(500, "Service not configured", origin);
 
   const ct = request.headers.get("content-type") || "";

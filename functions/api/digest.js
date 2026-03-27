@@ -9,11 +9,12 @@ function isAllowedOrigin(origin, isDev) {
     if (isDev && hostname === 'localhost') return true;
     return hostname === 'nasahrvatska.com'
       || hostname.endsWith('.nasahrvatska.com')
-      || hostname.endsWith('.pages.dev');
+      || hostname === 'nasa-hrvatska-v2.pages.dev'
+      || hostname.endsWith('.nasa-hrvatska-v2.pages.dev');
   } catch { return false; }
 }
 
-const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,253}\.[^\s@]{2,}$/;
+const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
 
 export async function onRequestPost(ctx) {
   const corsHeaders = {
@@ -37,7 +38,7 @@ export async function onRequestPost(ctx) {
 
   const { email, name, xp, lessons, streakDays, wordsLearned } = body;
   if (!email || !name) return new Response('missing fields', { status: 400, headers: corsHeaders });
-  if (!EMAIL_RE.test(email) || /[\r\n]/.test(email)) {
+  if (!EMAIL_RE.test(email) || /[\r\n\t%]/.test(email)) {
     return new Response(JSON.stringify({ ok: false, error: 'Invalid email address.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
 

@@ -726,7 +726,7 @@ const PADEZI = {
     {name:"Genitiv",q:"Koga? \u010cega?",en:"Genitive (of whom/what)",use:"Possession, origin, after prepositions (iz, od, do, bez, kod)",exs:["Knjiga je od Ivana.","Dolazim iz Zagreba.","\u010ca\u0161a vode."],tip:"Fem: -a\u2192-e. Masc: add -a. Prepositions: iz, od, do, bez, kod, blizu, ispod, iznad."},
     {name:"Dativ",q:"Komu? \u010cemu?",en:"Dative (to whom/what)",use:"Indirect object, giving/selling to someone",exs:["Dajem knjigu Ani.","Ivan daje kavu prijatelju.","Idem prema trgovini."],tip:"Fem: -a\u2192-i. Masc: add -u. The \u2018receiver\u2019 case. Same endings as lokativ!"},
     {name:"Akuzativ",q:"Koga? \u0160to? (vidim)",en:"Accusative (whom/what)",use:"Direct object of sentence",exs:["Vidim ku\u0107u.","\u010citam knjigu.","Volim Hrvatsku."],tip:"Fem: -a\u2192-u. Masc animate: add -a. Masc inanimate: no change."},
-    {name:"Vokativ",q:"Hej!",en:"Vocative (addressing)",use:"Calling someone directly, always with comma",exs:["Ivane, do\u0111i!","Ana, pazi!","Profesore, hvala!"],tip:"Masc: -e/-u. Fem: -o/-a stays. Used less and less in modern Croatian."},
+    {name:"Vokativ",q:"Hej!",en:"Vocative (addressing)",use:"Calling someone directly, always with comma",exs:["Ivane, do\u0111i!","Ana, pazi!","Profesore, hvala!"],tip:"Masc: -e/-u. Fem: -o/-a stays. Actively used in modern Croatian, especially with names and in formal address. Nominative is used informally as a shortcut but vocative remains the correct form."},
     {name:"Lokativ",q:"Gdje? O \u010demu?",en:"Locative (where/about what)",use:"Location, after prepositions u, na, o, po",exs:["\u017divim u Zagrebu.","Auto je u gara\u017ei.","Pri\u010dam o filmu."],tip:"Same endings as dativ! Always has a preposition before it (u, na, o, po, pri)."},
     {name:"Instrumental",q:"S kim? \u010cime?",en:"Instrumental (with whom/what)",use:"Companionship, tool/means used",exs:["Idem s prijateljem.","Pi\u0161em olovkom.","Jedem vilicom."],tip:"Fem: -om. Masc: -om. Living beings use \u2018s/sa\u2019 preposition, objects don\u2019t."}
   ],
@@ -912,7 +912,7 @@ const PROVERBS = [
   {hr:"Novac ne raste na drveću.",en:"Money doesn't grow on trees."},
   {hr:"Tko laže, taj i krade.",en:"He who lies also steals."},
   {hr:"Jedna lasta ne čini proljeće.",en:"One swallow doesn't make spring."},
-  {hr:"Bolje ikad nego nikad.",en:"Better late than never."},
+  {hr:"Bolje kasno nego nikad.",en:"Better late than never."},
   {hr:"Tko se zadnji smije, najslađe se smije.",en:"He who laughs last, laughs sweetest."},
   {hr:"Ljubav je slijepa.",en:"Love is blind."},
   {hr:"Glad je najbolji kuhar.",en:"Hunger is the best cook."},
@@ -1279,7 +1279,7 @@ const LISTEN = [
   {hr:"Stanarina u Zagrebu je jako visoka za mlade.",en:"Rent in Zagreb is very high for young people.",opts:["Rent in Zagreb is very high for young people.","Zagreb has cheap apartments.","Young people own houses in Zagreb.","Zagreb is the cheapest city."]},
   {hr:"Slažem se s tobom da trebamo reciklirati više.",en:"I agree with you that we need to recycle more.",opts:["I agree with you that we need to recycle more.","I disagree about recycling.","Recycling is not important.","We recycle enough already."]},
   {hr:"Kolege su mi rekle da je šef jako zahtjevan.",en:"My colleagues told me that the boss is very demanding.",opts:["My colleagues told me that the boss is very demanding.","The boss is very easy-going.","I have no colleagues.","The boss left the company."]},
-  {hr:"Ne mogu si priuštiti taj stan bez suvlasnika.",en:"I can't afford that apartment without a co-tenant.",opts:["I can't afford that apartment without a co-tenant.","I can easily afford the apartment.","I don't need an apartment.","I own a house already."]},
+  {hr:"Ne mogu priuštiti taj stan bez suvlasnika.",en:"I can't afford that apartment without a co-tenant.",opts:["I can't afford that apartment without a co-tenant.","I can easily afford the apartment.","I don't need an apartment.","I own a house already."]},
   {hr:"Hrvatska je postala članica Europske unije 2013. godine.",en:"Croatia became a member of the European Union in 2013.",opts:["Croatia became a member of the European Union in 2013.","Croatia joined the EU in 2004.","Croatia is not in the EU.","Croatia will join the EU soon."]},
   {hr:"Rekao bih da je važno znati više od jednog jezika.",en:"I would say it's important to know more than one language.",opts:["I would say it's important to know more than one language.","One language is enough.","Languages are too difficult.","I don't care about languages."]},
   {hr:"Mladi sve češće biraju rad od kuće umjesto ureda.",en:"Young people increasingly choose working from home instead of the office.",opts:["Young people increasingly choose working from home instead of the office.","Young people prefer offices.","No one works from home.","Working from home is banned."]}
@@ -1340,7 +1340,7 @@ const NUMTIME = {
 // ═══ VERB ASPECT (PERFECTIVE/IMPERFECTIVE) ═══
 const ASPECT = {
   title:"Glagolski vid \u2014 Verb Aspect",
-  intro:"Croatian verbs come in pairs: imperfective (ongoing/repeated action) and perfective (completed/one-time action). This is the most important concept English doesn\u0027t have.",
+  intro:"Croatian verbs come in pairs: imperfective (views the action as an ongoing process or repeated habit) and perfective (views the action as a completed whole). Aspect is about the speaker\u0027s viewpoint of the action, not whether it actually finished. This is the most important concept English doesn\u0027t have.",
   pairs:[
     {impf:"pisati",perf:"napisati",en:"write",exImpf:"Pisao sam pismo.",exPerf:"Napisao sam pismo.",enImpf:"I was writing a letter.",enPerf:"I finished writing the letter."},
     {impf:"\u010ditati",perf:"pro\u010ditati",en:"read",exImpf:"\u010citam knjigu.",exPerf:"Pro\u010ditao sam knjigu.",enImpf:"I\u0027m reading a book.",enPerf:"I read (finished) the book."},
@@ -3287,7 +3287,7 @@ const REFLEXIVE = {
     {rule:"Present tense: SE follows the verb",icon:"✅",bad:"Ja se vraćam kući.",good:"Vraćam se kući.",note:"The subject pronoun (ja/ti/on) is usually dropped. SE attaches right after the verb."},
     {rule:"Past tense: auxiliary comes before SE",icon:"📌",bad:"Tuširali se su.",good:"Tuširali su se.",note:"Clitics stack in order: [aux] [se] — never swap them. 'Sam/si/je/smo/ste/su' always beats SE."},
     {rule:"Future tense: SE follows ću/ćeš/će...",icon:"🔮",bad:"Se tuširaću.",good:"Tuširat ću se.",note:"In future, the ću-form comes second, SE comes after: 'Tuširat ću se', 'Obući ćeš se'."},
-    {rule:"Negative: NE attaches to the verb",icon:"❌",bad:"Ne se mogu koncentrirati.",good:"Ne mogu se koncentrirati.",note:"NE fuses with the verb. SE stays in its normal position after the conjugated verb."},
+    {rule:"Negative: NE attaches to the verb",icon:"✅",bad:"Se ne mogu koncentrirati.",good:"Ne mogu se koncentrirati.",note:"NE fuses with the verb. SE stays in its normal position after the conjugated verb. 'Ne mogu se koncentrirati' is more common in everyday speech; 'Ne se mogu koncentrirati' is also standard and found in literature."},
     {rule:"Questions work the same way",icon:"❓",bad:"Se jesi umorio?",good:"Jesi li se umorio?",note:"LI follows the auxiliary. SE stays after the auxiliary: 'Jesi li se tuširao?'"}
   ],
   tenseExamples:[
@@ -3322,7 +3322,7 @@ const REFLEXIVE = {
     {q:"She got dressed quickly.",a:"Brzo se obukla.",opts:["Brzo se obukla.","Brzo obukla se.","Se brzo obukla."]},
     {q:"We returned home.",a:"Vratili smo se kući.",opts:["Vratili smo se kući.","Se vratili smo kući.","Vratili se smo kući."]},
     {q:"He shaved this morning.",a:"Obrijao se jutros.",opts:["Obrijao se jutros.","Se obrijao jutros.","Jutros obrijao se."]},
-    {q:"I can't concentrate.",a:"Ne mogu se koncentrirati.",opts:["Ne mogu se koncentrirati.","Ne se mogu koncentrirati.","Se ne mogu koncentrirati."]},
+    {q:"I can't concentrate.",a:"Ne mogu se koncentrirati.",opts:["Ne mogu se koncentrirati.","Se ne mogu koncentrirati.","Mogu se ne koncentrirati."]},
     {q:"They showered after the gym.",a:"Tuširali su se nakon teretane.",opts:["Tuširali su se nakon teretane.","Se tuširali su nakon teretane.","Tuširali će su nakon teretane."]},
     {q:"She combs her hair every morning.",a:"Počešlja se svako jutro.",opts:["Počešlja se svako jutro.","Se počešlja svako jutro.","Počešlja svako jutro se."]},
     {q:"Will you get dressed now? (ti)",a:"Obući ćeš se sada?",opts:["Obući ćeš se sada?","Se obući ćeš sada?","Obući se ćeš sada?"]},

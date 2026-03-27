@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { H } from '../../data.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
 import { rnd } from '../../lib/random.js';
-import { useApp } from '../../context/AppContext.jsx';
+import { useStats } from '../../context/StatsContext.jsx';
 
 const PROMPTS = [
   // A2 — simple present, basic vocabulary
@@ -71,7 +71,7 @@ export default function WritingScreen({ goBack, award }) {
   const finishFired = useRef(false);
   const audioRef = useRef(null);
   const isOnline = useOnlineStatus();
-  const { level: userLevel } = useApp();
+  const { level: userLevel } = useStats();
   const [promptIdx, setPromptIdx] = useState(() => Math.floor(rnd() * PROMPTS.length));
   const [text, setText] = useState("");
   const [result, setResult] = useState(null);

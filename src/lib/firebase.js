@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup, sendEmailVerification, deleteUser } from 'firebase/auth';
-import { getFirestore, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, deleteDoc, collection, getDocs, query, limit, orderBy, runTransaction, onSnapshot } from 'firebase/firestore';
+import { getFirestore, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, deleteDoc, collection, runTransaction, onSnapshot } from 'firebase/firestore';
 
 const FIREBASE_CONFIG = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,

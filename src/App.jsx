@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspens
 import { useNavigate, useLocation } from "react-router-dom";
 import { _fbReady, H, Bar, Spk, V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbWatchProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbOnAuthStateChanged, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, lXPgain, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getProverbOfDay, getDailyChallenge, getHistFact, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, getDueReviews, shMemo, shuffleArr, buildSearchIndex, bootstrapMistakesFromSRS, recordJourneyMilestone } from "./data.jsx";
 import AppContext from "./context/AppContext.jsx";
+import { StatsProvider } from "./context/StatsContext.jsx";
 import ScreenErrorBoundary from "./components/shared/ScreenErrorBoundary.jsx";
 import { usePreferences } from "./hooks/usePreferences.js";
 import { useSearch } from "./hooks/useSearch.js";
@@ -72,78 +73,78 @@ const ListeningScreen = lazyWithReload(() => import("./components/practice/Liste
 const McGame = lazyWithReload(() => import("./components/practice/McGame.jsx"));
 const IdiomsScreen = lazyWithReload(() => import("./components/croatia/IdiomsScreen.jsx"));
 const PrivacyScreen = lazyWithReload(() => import("./components/shared/PrivacyScreen.jsx"));
-const TextingScreen = lazyWithReload(() => import("./components/croatia/CroatiaCulture.jsx").then(m => ({default: m.TextingScreen})));
-const FriendsScreen = lazyWithReload(() => import("./components/croatia/CroatiaCulture.jsx").then(m => ({default: m.FriendsScreen})));
-const FoodOrderScreen = lazyWithReload(() => import("./components/croatia/CroatiaCulture.jsx").then(m => ({default: m.FoodOrderScreen})));
-const TransportScreen = lazyWithReload(() => import("./components/croatia/CroatiaCulture.jsx").then(m => ({default: m.TransportScreen})));
-const EmergencyScreen = lazyWithReload(() => import("./components/croatia/CroatiaCulture.jsx").then(m => ({default: m.EmergencyScreen})));
-const PopCultureScreen = lazyWithReload(() => import("./components/croatia/CroatiaCulture.jsx").then(m => ({default: m.PopCultureScreen})));
-const PracticalScreen = lazyWithReload(() => import("./components/croatia/CroatiaCulture.jsx").then(m => ({default: m.PracticalScreen})));
-const SchoolScreen = lazyWithReload(() => import("./components/croatia/CroatiaCulture.jsx").then(m => ({default: m.SchoolScreen})));
-const GroceryScreen = lazyWithReload(() => import("./components/croatia/CroatiaCulture.jsx").then(m => ({default: m.GroceryScreen})));
-const CroatiaHistoryScreen = lazyWithReload(() => import("./components/croatia/CroatiaCulture.jsx").then(m => ({default: m.HistoryScreen})));
-const BasketballScreen = lazyWithReload(() => import("./components/croatia/CroatiaCulture.jsx").then(m => ({default: m.BasketballScreen})));
-const GymScreen = lazyWithReload(() => import("./components/croatia/CroatiaCulture.jsx").then(m => ({default: m.GymScreen})));
+const TextingScreen = lazyWithReload(() => import("./components/croatia/TextingScreen.jsx"));
+const FriendsScreen = lazyWithReload(() => import("./components/croatia/FriendsScreen.jsx"));
+const FoodOrderScreen = lazyWithReload(() => import("./components/croatia/FoodOrderScreen.jsx"));
+const TransportScreen = lazyWithReload(() => import("./components/croatia/TransportScreen.jsx"));
+const EmergencyScreen = lazyWithReload(() => import("./components/croatia/EmergencyScreen.jsx"));
+const PopCultureScreen = lazyWithReload(() => import("./components/croatia/PopCultureScreen.jsx"));
+const PracticalScreen = lazyWithReload(() => import("./components/croatia/PracticalScreen.jsx"));
+const SchoolScreen = lazyWithReload(() => import("./components/croatia/SchoolScreen.jsx"));
+const GroceryScreen = lazyWithReload(() => import("./components/croatia/GroceryScreen.jsx"));
+const CroatiaHistoryScreen = lazyWithReload(() => import("./components/croatia/CroatiaHistoryScreen.jsx"));
+const BasketballScreen = lazyWithReload(() => import("./components/croatia/BasketballScreen.jsx"));
+const GymScreen = lazyWithReload(() => import("./components/croatia/GymScreen.jsx"));
 const HNLScreen = lazyWithReload(() => import("./components/croatia/HNLScreen.jsx"));
 const CroatiaAthletes = lazyWithReload(() => import("./components/croatia/CroatiaAthletes.jsx"));
-const RegionScreen = lazyWithReload(() => import("./components/croatia/RegionScreens.jsx").then(m => ({default: m.RegionScreen})));
-const RoleplayScreen = lazyWithReload(() => import("./components/croatia/RegionScreens.jsx").then(m => ({default: m.RoleplayScreen})));
-const RecipesScreen = lazyWithReload(() => import("./components/croatia/RegionScreens.jsx").then(m => ({default: m.RecipesScreen})));
-const CityOfDayScreen = lazyWithReload(() => import("./components/croatia/RegionScreens.jsx").then(m => ({default: m.CityOfDayScreen})));
-const EventsCalendar = lazyWithReload(() => import("./components/croatia/EventsTop100.jsx").then(m => ({default: m.EventsCalendar})));
-const Top100Screen = lazyWithReload(() => import("./components/croatia/EventsTop100.jsx").then(m => ({default: m.Top100Screen})));
+const RegionScreen = lazyWithReload(() => import("./components/croatia/RegionScreen.jsx"));
+const RoleplayScreen = lazyWithReload(() => import("./components/croatia/RoleplayScreen.jsx"));
+const RecipesScreen = lazyWithReload(() => import("./components/croatia/RecipesScreen.jsx"));
+const CityOfDayScreen = lazyWithReload(() => import("./components/croatia/CityOfDayScreen.jsx"));
+const EventsCalendar = lazyWithReload(() => import("./components/croatia/EventsCalendar.jsx"));
+const Top100Screen = lazyWithReload(() => import("./components/croatia/Top100Screen.jsx"));
 const KingsScreen = lazyWithReload(() => import("./components/croatia/KingsScreen.jsx"));
 const CrMap = lazyWithReload(() => import("./components/croatia/CrMap.jsx"));
-const AspectScreen = lazyWithReload(() => import("./components/learn/GrammarRef.jsx").then(m => ({default: m.AspectScreen})));
-const FalseFriendsScreen = lazyWithReload(() => import("./components/learn/GrammarRef.jsx").then(m => ({default: m.FalseFriendsScreen})));
-const DeclensionScreen = lazyWithReload(() => import("./components/learn/GrammarRef.jsx").then(m => ({default: m.DeclensionScreen})));
-const BrzaliceScreen = lazyWithReload(() => import("./components/learn/GrammarRef.jsx").then(m => ({default: m.BrzaliceScreen})));
-const DialectsScreen = lazyWithReload(() => import("./components/learn/GrammarRef.jsx").then(m => ({default: m.DialectsScreen})));
-const DiminutivesScreen = lazyWithReload(() => import("./components/learn/GrammarRef.jsx").then(m => ({default: m.DiminutivesScreen})));
-const WordFormScreen = lazyWithReload(() => import("./components/learn/GrammarRef.jsx").then(m => ({default: m.WordFormScreen})));
-const ColorQuirkScreen = lazyWithReload(() => import("./components/learn/GrammarRef.jsx").then(m => ({default: m.ColorQuirkScreen})));
-const SvojMojScreen = lazyWithReload(() => import("./components/learn/GrammarRef.jsx").then(m => ({default: m.SvojMojScreen})));
-const ConditionalScreen = lazyWithReload(() => import("./components/learn/NewLessons.jsx").then(m => ({default: m.ConditionalScreen})));
-const FormalRegisterScreen = lazyWithReload(() => import("./components/learn/NewLessons.jsx").then(m => ({default: m.FormalRegisterScreen})));
-const ImpersonalScreen = lazyWithReload(() => import("./components/learn/NewLessons.jsx").then(m => ({default: m.ImpersonalScreen})));
-const TechVocScreen = lazyWithReload(() => import("./components/learn/NewLessons.jsx").then(m => ({default: m.TechVocScreen})));
-const BureaucraticScreen = lazyWithReload(() => import("./components/learn/NewLessons.jsx").then(m => ({default: m.BureaucraticScreen})));
-const CountriesScreen = lazyWithReload(() => import("./components/learn/VocabScreens.jsx").then(m => ({default: m.CountriesScreen})));
-const ProfessionsScreen = lazyWithReload(() => import("./components/learn/VocabScreens.jsx").then(m => ({default: m.ProfessionsScreen})));
-const WeatherScreen = lazyWithReload(() => import("./components/learn/VocabScreens.jsx").then(m => ({default: m.WeatherScreen})));
-const ClothesScreen = lazyWithReload(() => import("./components/learn/VocabScreens.jsx").then(m => ({default: m.ClothesScreen})));
-const BodyDescScreen = lazyWithReload(() => import("./components/learn/VocabScreens.jsx").then(m => ({default: m.BodyDescScreen})));
-const PhonologyScreen = lazyWithReload(() => import("./components/learn/VocabScreens.jsx").then(m => ({default: m.PhonologyScreen})));
+const AspectScreen = lazyWithReload(() => import("./components/learn/AspectScreen.jsx"));
+const FalseFriendsScreen = lazyWithReload(() => import("./components/learn/FalseFriendsScreen.jsx"));
+const DeclensionScreen = lazyWithReload(() => import("./components/learn/DeclensionScreen.jsx"));
+const BrzaliceScreen = lazyWithReload(() => import("./components/learn/BrzaliceScreen.jsx"));
+const DialectsScreen = lazyWithReload(() => import("./components/learn/DialectsScreen.jsx"));
+const DiminutivesScreen = lazyWithReload(() => import("./components/learn/DiminutivesScreen.jsx"));
+const WordFormScreen = lazyWithReload(() => import("./components/learn/WordFormScreen.jsx"));
+const ColorQuirkScreen = lazyWithReload(() => import("./components/learn/ColorQuirkScreen.jsx"));
+const SvojMojScreen = lazyWithReload(() => import("./components/learn/SvojMojScreen.jsx"));
+const ConditionalScreen = lazyWithReload(() => import("./components/learn/ConditionalScreen.jsx"));
+const FormalRegisterScreen = lazyWithReload(() => import("./components/learn/FormalRegisterScreen.jsx"));
+const ImpersonalScreen = lazyWithReload(() => import("./components/learn/ImpersonalScreen.jsx"));
+const TechVocScreen = lazyWithReload(() => import("./components/learn/TechVocScreen.jsx"));
+const BureaucraticScreen = lazyWithReload(() => import("./components/learn/BureaucraticScreen.jsx"));
+const CountriesScreen = lazyWithReload(() => import("./components/learn/CountriesScreen.jsx"));
+const ProfessionsScreen = lazyWithReload(() => import("./components/learn/ProfessionsScreen.jsx"));
+const WeatherScreen = lazyWithReload(() => import("./components/learn/WeatherScreen.jsx"));
+const ClothesScreen = lazyWithReload(() => import("./components/learn/ClothesScreen.jsx"));
+const BodyDescScreen = lazyWithReload(() => import("./components/learn/BodyDescScreen.jsx"));
+const PhonologyScreen = lazyWithReload(() => import("./components/learn/PhonologyScreen.jsx"));
 const ModalScreen = lazyWithReload(() => import("./components/learn/ModalScreen.jsx"));
 const PadeziScreen = lazyWithReload(() => import("./components/learn/PadeziScreen.jsx"));
 const PadezifullScreen = lazyWithReload(() => import("./components/learn/PadezifullScreen.jsx"));
 const TensesScreen = lazyWithReload(() => import("./components/learn/TensesScreen.jsx"));
-const ReflexiveScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises1.jsx").then(m => ({default: m.ReflexiveScreen})));
-const FillStoryScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises1.jsx").then(m => ({default: m.FillStoryScreen})));
-const ConvMatchScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises1.jsx").then(m => ({default: m.ConvMatchScreen})));
-const ScenesScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises1.jsx").then(m => ({default: m.ScenesScreen})));
-const PronounsScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises1.jsx").then(m => ({default: m.PronounsScreen})));
-const GenderDrillScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises1.jsx").then(m => ({default: m.GenderDrillScreen})));
-const SentenceBuilderScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises1.jsx").then(m => ({default: m.SentenceBuilderScreen})));
-const VerbDrillScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises1.jsx").then(m => ({default: m.VerbDrillScreen})));
-const TenseFlipScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises2.jsx").then(m => ({default: m.TenseFlipScreen})));
-const RiddlesScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises2.jsx").then(m => ({default: m.RiddlesScreen})));
-const LogicQuizScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises2.jsx").then(m => ({default: m.LogicQuizScreen})));
-const OrdinalsScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises2.jsx").then(m => ({default: m.OrdinalsScreen})));
-const RelativePronounsScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises2.jsx").then(m => ({default: m.RelativePronounsScreen})));
-const EmotionGenderScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises2.jsx").then(m => ({default: m.EmotionGenderScreen})));
-const OppositesScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises2.jsx").then(m => ({default: m.OppositesScreen})));
-const CityLocativeScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises2.jsx").then(m => ({default: m.CityLocativeScreen})));
-const AccusativeDrillScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises2.jsx").then(m => ({default: m.AccusativeDrillScreen})));
-const ColorAgreementScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises3.jsx").then(m => ({default: m.ColorAgreementScreen})));
-const PossessivesScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises3.jsx").then(m => ({default: m.PossessivesScreen})));
-const QuestionWordsScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises3.jsx").then(m => ({default: m.QuestionWordsScreen})));
-const NegationScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises3.jsx").then(m => ({default: m.NegationScreen})));
-const SibilarizationScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises3.jsx").then(m => ({default: m.SibilarizationScreen})));
-const RestaurantScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises3.jsx").then(m => ({default: m.RestaurantScreen})));
-const ProfessionGenderScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises3.jsx").then(m => ({default: m.ProfessionGenderScreen})));
-const ComparativesScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises3.jsx").then(m => ({default: m.ComparativesScreen})));
-const FutureTenseScreen = lazyWithReload(() => import("./components/practice/exercises/Exercises3.jsx").then(m => ({default: m.FutureTenseScreen})));
+const ReflexiveScreen = lazyWithReload(() => import("./components/practice/exercises/ReflexiveScreen.jsx"));
+const FillStoryScreen = lazyWithReload(() => import("./components/practice/exercises/FillStoryScreen.jsx"));
+const ConvMatchScreen = lazyWithReload(() => import("./components/practice/exercises/ConvMatchScreen.jsx"));
+const ScenesScreen = lazyWithReload(() => import("./components/practice/exercises/ScenesScreen.jsx"));
+const PronounsScreen = lazyWithReload(() => import("./components/practice/exercises/PronounsScreen.jsx"));
+const GenderDrillScreen = lazyWithReload(() => import("./components/practice/exercises/GenderDrillScreen.jsx"));
+const SentenceBuilderScreen = lazyWithReload(() => import("./components/practice/exercises/SentenceBuilderScreen.jsx"));
+const VerbDrillScreen = lazyWithReload(() => import("./components/practice/exercises/VerbDrillScreen.jsx"));
+const TenseFlipScreen = lazyWithReload(() => import("./components/practice/exercises/TenseFlipScreen.jsx"));
+const RiddlesScreen = lazyWithReload(() => import("./components/practice/exercises/RiddlesScreen.jsx"));
+const LogicQuizScreen = lazyWithReload(() => import("./components/practice/exercises/LogicQuizScreen.jsx"));
+const OrdinalsScreen = lazyWithReload(() => import("./components/practice/exercises/OrdinalsScreen.jsx"));
+const RelativePronounsScreen = lazyWithReload(() => import("./components/practice/exercises/RelativePronounsScreen.jsx"));
+const EmotionGenderScreen = lazyWithReload(() => import("./components/practice/exercises/EmotionGenderScreen.jsx"));
+const OppositesScreen = lazyWithReload(() => import("./components/practice/exercises/OppositesScreen.jsx"));
+const CityLocativeScreen = lazyWithReload(() => import("./components/practice/exercises/CityLocativeScreen.jsx"));
+const AccusativeDrillScreen = lazyWithReload(() => import("./components/practice/exercises/AccusativeDrillScreen.jsx"));
+const ColorAgreementScreen = lazyWithReload(() => import("./components/practice/exercises/ColorAgreementScreen.jsx"));
+const PossessivesScreen = lazyWithReload(() => import("./components/practice/exercises/PossessivesScreen.jsx"));
+const QuestionWordsScreen = lazyWithReload(() => import("./components/practice/exercises/QuestionWordsScreen.jsx"));
+const NegationScreen = lazyWithReload(() => import("./components/practice/exercises/NegationScreen.jsx"));
+const SibilarizationScreen = lazyWithReload(() => import("./components/practice/exercises/SibilarizationScreen.jsx"));
+const RestaurantScreen = lazyWithReload(() => import("./components/practice/exercises/RestaurantScreen.jsx"));
+const ProfessionGenderScreen = lazyWithReload(() => import("./components/practice/exercises/ProfessionGenderScreen.jsx"));
+const ComparativesScreen = lazyWithReload(() => import("./components/practice/exercises/ComparativesScreen.jsx"));
+const FutureTenseScreen = lazyWithReload(() => import("./components/practice/exercises/FutureTenseScreen.jsx"));
 const McResult = lazyWithReload(() => import("./components/practice/McResult.jsx"));
 const StoryScreens = lazyWithReload(() => import("./components/practice/StoryScreens.jsx"));
 const NumTime = lazyWithReload(() => import("./components/practice/NumTime.jsx"));
@@ -345,6 +346,7 @@ function App(){
         certificate:"profile",analytics:"profile",profile:"profile",admin:"profile",
         privacy:"profile",terms:"profile","grammar-ref":"learn",
         mistakes:"practice",listeningpath:"practice",grammarmap:"practice",my_words:"practice",
+        speaking_sprint:"practice",ai_listening:"practice",grammar_diagnosis:"learn",micro_lesson:"learn",personas:"croatia",
       };
       _setCurrentScreen(scr);
       if(screenTabMap[scr])_setTab(screenTabMap[scr]);
@@ -550,6 +552,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   },[]);
   // Q-6: popstate replaced by location.pathname useEffect above (React Router owns back/forward)
   const award=useCallback((amt,celebrate)=>{
+    if(!Number.isFinite(amt)||amt===0)return;
     if(curEx&&!canEarnXP(curEx)){setXpA(0);setShowXP(false);return}
     if(curEx)markExerciseDone(curEx);
     let totalAmt=lXPgain(amt);
@@ -558,7 +561,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
     setXpA(totalAmt);setShowXP(true);
     setStats(s=>{
       const oldLevel=lvl(s.xp);
-      const n={...s,xp:s.xp+totalAmt,streak:getStreak().count};
+      const n={...s,xp:Math.max(0,s.xp+totalAmt),streak:getStreak().count};
       const newLevel=lvl(n.xp);
       const nb=BADGES.filter(b=>!s.badges.includes(b.id)&&b.r(n));
       if(nb.length){n.badges=[...s.badges,...nb.map(b=>b.id)];setTimeout(()=>{setNB(nb[0]);setSB(true);setTimeout(()=>setSB(false),3000)},600)}
@@ -590,7 +593,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
     // Track weekly XP
     const _wk=(function(){const d=new Date();const day=d.getDay()||7;d.setDate(d.getDate()+4-day);const yr=d.getFullYear();const wk=Math.ceil(((d.getTime()-new Date(yr,0,1).getTime())/86400000+1)/7);return `${yr}-W${String(wk).padStart(2,'0')}`;})();
     const _wkKey='nh_week_xp_'+_wk;
-    localStorage.setItem(_wkKey,String((parseInt(localStorage.getItem(_wkKey)||'0',10))+totalAmt));
+    localStorage.setItem(_wkKey,String(Math.max(0,(parseInt(localStorage.getItem(_wkKey)||'0',10))+totalAmt)));
     if(!localStorage.getItem('nh_journey_first_lesson') && totalAmt > 0) {
       localStorage.setItem('nh_journey_first_lesson','1');
       recordJourneyMilestone('first_lesson', {});
@@ -697,7 +700,8 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   }
   // ═══ STABLE HOOKS — must be before any early returns (Rules of Hooks) ═══
   const doSidebarSearch=useCallback(()=>{if(srchQ.trim()){doSearch(srchQ);setSrchOpen(true);}},[srchQ,doSearch,setSrchOpen]);
-  const ctxValue=useMemo(()=>({authScreen,authUser,name,setName,doOut,stats,setStats,level,award,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx}),[authScreen,authUser,name,setName,doOut,stats,setStats,level,award,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx]);
+  const ctxValue=useMemo(()=>({authScreen,authUser,name,setName,doOut,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx}),[authScreen,authUser,name,setName,doOut,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx]);
+  const statsValue=useMemo(()=>({stats,setStats,award,level}),[stats,setStats,award,level]);
   // ═══ AUTH SCREENS ═══
   if(authScreen==="loading")return (
     <div className={darkMode?"dark":""} style={{
@@ -739,6 +743,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
     // ═══ MAIN APP RENDER ═══
   return (
     <AppContext.Provider value={ctxValue}>
+    <StatsProvider value={statsValue}>
     <div className={darkMode?"dark":""} style={darkMode?BG_DARK:BG_LIGHT}>
       {/* Q-5 WCAG: skip-to-main link — visible only on keyboard focus */}
       <a href="#main-content" className="skip-link">Skip to main content</a>
@@ -1153,7 +1158,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {currentScreen==="maja"&&<MajaScreen goBack={goBack} award={award} />}
       {currentScreen==="ai_listening"&&<AIListeningScreen goBack={goBack} award={award} />}
       {currentScreen==="grammar_diagnosis"&&<GrammarDiagnosisScreen goBack={goBack} award={award} />}
-      {currentScreen==="micro_lesson"&&<MicroLessonScreen goBack={goBack} award={award} />}
+      {currentScreen==="micro_lesson"&&<MicroLessonScreen goBack={goBack} award={award} goFlashcards={()=>{launchFlashcards([]);}} />}
       {currentScreen==="heritage"&&<HeritageStoryScreen goBack={goBack} award={award} />}
       {currentScreen==="croatianews"&&<CroatianNewsScreen goBack={goBack} award={award} />}
       {currentScreen==="phraseofday"&&<PhraseOfDayScreen goBack={goBack} award={award} />}
@@ -1207,6 +1212,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       </Suspense>
       </div>
     </div>
+    </StatsProvider>
     </AppContext.Provider>
   );
 }

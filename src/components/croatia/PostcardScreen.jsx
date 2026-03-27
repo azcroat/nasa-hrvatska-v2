@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { H } from '../../data.jsx';
-import { useApp } from '../../context/AppContext.jsx';
+import { useStats } from '../../context/StatsContext.jsx';
 
 const CITIES = [
   { name: "Dubrovnik",      region: "Dalmatia",         photo: "/images/scenes/dubrovnik-ai.jpg", color: "#7c3aed" },
@@ -19,7 +19,7 @@ function sanitizeForCanvas(str, maxLen = 400) {
 }
 
 export default function PostcardScreen({ goBack, award }) {
-  const { level: userLevel } = useApp();
+  const { level: userLevel } = useStats();
 
   const [step, setStep]               = useState(1);
   const [selectedCity, setSelectedCity] = useState(CITIES[0]);

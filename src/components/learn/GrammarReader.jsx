@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { H, READ } from '../../data.jsx';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 // ─── Level style map ──────────────────────────────────────────────────────────
 const LEVEL_STYLE = {
@@ -468,7 +469,7 @@ export default function GrammarReader({ goBack }) {
 
     try {
       const sentence = selectedText ? selectedText.text : '';
-      const res = await fetch('/api/ai-chat', {
+      const res = await apiFetch('/api/ai-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

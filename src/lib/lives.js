@@ -30,7 +30,7 @@ export function getHearts() {
     return fresh.hearts;
   }
   // Check regen: +1 per 4 hours since lastRegen, up to 5
-  const hoursPassed = (Date.now() - (s.lastRegen || 0)) / 3600000;
+  const hoursPassed = (Date.now() - (s.lastRegen || 0)) / 14400000;
   const regenCount = Math.floor(hoursPassed);
   if (regenCount > 0 && s.hearts < 5) {
     const newHearts = Math.min(5, s.hearts + regenCount);
@@ -59,6 +59,6 @@ export function getRegenTimeMs() {
   const s = getState();
   if (!s || s.hearts >= 5) return 0;
   const elapsed = Date.now() - (s.lastRegen || 0);
-  const nextRegen = 3600000 - (elapsed % 3600000);
+  const nextRegen = 14400000 - (elapsed % 14400000);
   return nextRegen;
 }

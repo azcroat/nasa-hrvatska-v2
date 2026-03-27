@@ -111,6 +111,7 @@ export default function SpeakingSprintScreen({ goBack, award }) {
   const [liveTranscript, setLiveTranscript] = useState('');
 
   const recRef = useRef(null);
+  const finishFired = useRef(false);
   const silenceTimerRef = useRef(null);
   const transcriptRef = useRef('');
   const audioRef = useRef(null);
@@ -289,8 +290,11 @@ export default function SpeakingSprintScreen({ goBack, award }) {
   // ── Done / exit ──────────────────────────────
   function handleDone() {
     stopMic();
-    const totalRounds = rounds + (phase === 'feedback' ? 1 : 0);
-    if (award && totalRounds > 0) award(totalRounds * 5);
+    if (!finishFired.current) {
+      finishFired.current = true;
+      const totalRounds = rounds + (phase === 'feedback' ? 1 : 0);
+      if (award && totalRounds > 0) award(totalRounds * 5);
+    }
     goBack();
   }
 

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { H, speak, srMark } from '../../data.jsx';
-import { useApp } from '../../context/AppContext.jsx';
+import { useStats } from '../../context/StatsContext.jsx';
 
 // Sentence bank — fill-in-the-blank Croatian sentences covering cases, prepositions, and grammar
 // Format: { sentence: 'full sentence', blank: 'word to hide', options: [correct, wrong1, wrong2, wrong3], translation: 'English', hint: 'grammar note' }
@@ -54,7 +54,7 @@ function shuffle(arr) {
 }
 
 export default function ClozeEngine({ goBack, award }) {
-  const { level } = useApp();
+  const { level } = useStats();
   const questions = useMemo(() => shuffle(SENTENCE_BANK).slice(0, 12), []);
   const [qi, setQi] = useState(0);
   const [selected, setSelected] = useState(null);

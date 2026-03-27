@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
-import { getStreak, getSR, fbDeleteAccount } from '../../data.jsx';
+import { getStreak, getSR, fbDeleteAccount, fbLeaveFamily, getLocalFamily } from '../../data.jsx';
 import { isSoundEnabled, setSoundEnabled, isHapticEnabled, setHapticEnabled } from '../../lib/soundSettings.js';
 import CroatianKnight from '../shared/CroatianKnight';
 import ProgressCharts from './ProgressCharts.jsx';
@@ -331,6 +331,11 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
     if (!au || !au.u) return;
     setDeleting(true);
     try {
+      // Leave family before deleting account to clean up family membership records
+      const localFam = getLocalFamily();
+      if (localFam && localFam.code && au.e) {
+        try { await fbLeaveFamily(localFam.code, au.e); } catch { /* Non-blocking — proceed with deletion even if family leave fails */ }
+      }
       await fbDeleteAccount(au.u);
       doOut();
     } catch(e) {

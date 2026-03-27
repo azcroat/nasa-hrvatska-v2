@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { H, Bar } from '../../data.jsx';
+import { H, Bar, speak } from '../../data.jsx';
 
 import { rnd } from '../../lib/random.js';
 function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;}
@@ -29,18 +29,6 @@ const DATA = [
 
 const levelColor = { A1:'#dcfce7', A2:'#dbeafe', B1:'#fef3c7', B2:'#f3e8ff' };
 const levelText  = { A1:'#166534', A2:'#1d4ed8', B1:'#92400e', B2:'#6b21a8' };
-
-function speak(text) {
-  if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'hr-HR';
-  u.rate = 0.85;
-  const voices = window.speechSynthesis.getVoices();
-  const hrVoice = voices.find(v => v.lang.startsWith('hr'));
-  if (hrVoice) u.voice = hrVoice;
-  window.speechSynthesis.speak(u);
-}
 
 function normalise(s) {
   return s.trim().toLowerCase().replace(/[.,!?;:]+$/, '');

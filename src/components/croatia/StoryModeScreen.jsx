@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { H } from '../../data.jsx';
-import { useApp } from '../../context/AppContext.jsx';
+import { useStats } from '../../context/StatsContext.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 // ── City data ─────────────────────────────────────────────────────────────────
 const STORY_CITIES = [
@@ -60,7 +61,7 @@ function WordToken({ word, accentColor, onTap, isPunctuation }) {
     setState('loading');
     onTap();
     try {
-      const res = await fetch('/api/ai-chat', {
+      const res = await apiFetch('/api/ai-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -218,7 +219,7 @@ const GOAL_META = {
 
 // ── Main component ─────────────────────────────────────────────────────────────
 export default function StoryModeScreen({ goBack, award }) {
-  const { level: userLevel } = useApp();
+  const { level: userLevel } = useStats();
   const isOnline = useOnlineStatus();
 
   // Read user goal
@@ -276,7 +277,7 @@ export default function StoryModeScreen({ goBack, award }) {
     awardFired.current = false;
     setTappedWords(0);
     try {
-      const res = await fetch('/api/ai-chat', {
+      const res = await apiFetch('/api/ai-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

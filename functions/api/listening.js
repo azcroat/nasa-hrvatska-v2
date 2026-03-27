@@ -1,6 +1,8 @@
 // Cloudflare Pages Function — Listening Exercise Generator
 // Generates a complete AI Croatian listening exercise: dialogue or monologue + comprehension questions.
 
+import { checkRateLimit } from './_rateLimit.js';
+
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-4-6";
 
@@ -18,15 +20,17 @@ function isAllowedOrigin(origin, isDev) {
   } catch { return false; }
 }
 
-const corsHeaders = {
-  "Content-Type": "application/json",
-  "Access-Control-Allow-Origin": "https://nasahrvatska.com",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Cache-Control": "no-cache",
-};
+function corsHeaders(origin) {
+  return {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Cache-Control": "no-cache",
+  };
+}
 
-function ok(body)         { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders }); }
-function err(status, msg) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders }); }
+function ok(body, origin)         { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) }); }
+function err(status, msg, origin) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) }); }
 
 // ── Input validation ──────────────────────────────────────────────────────────
 
@@ -50,27 +54,33 @@ function sanitizeStyle(style) {
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 export async function onRequestPost({ request, env }) {
+  const origin = request.headers.get("origin") || request.headers.get("referer") || "";
+
   // OPTIONS preflight
-  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
+  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(origin) });
 
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
 
   // CORS check
-  const origin = request.headers.get("origin") || request.headers.get("referer") || "";
   const isDev = env.ENVIRONMENT !== "production";
-  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden");
+  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden", origin);
+
+  const allowed = await checkRateLimit(request, 20);
+  if (!allowed) {
+    return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders(origin) });
+  }
 
   // API key check
-  if (!ANTHROPIC_KEY) return err(500, "Service not configured");
+  if (!ANTHROPIC_KEY) return err(500, "Service not configured", origin);
 
   // Content-type check
   const ct = request.headers.get("content-type") || "";
-  if (!ct.includes("application/json")) return err(400, "Invalid content type");
+  if (!ct.includes("application/json")) return err(400, "Invalid content type", origin);
 
   // Parse body
   let body;
   try { body = await request.json(); }
-  catch { return err(400, "Invalid JSON in request body"); }
+  catch { return err(400, "Invalid JSON in request body", origin); }
 
   const { topic, level, style } = body;
 
@@ -120,18 +130,18 @@ export async function onRequestPost({ request, env }) {
     data = await res.json();
   } catch (fetchErr) {
     console.error("listening.js: network error calling Anthropic:", fetchErr.message);
-    return err(502, "Service temporarily unavailable");
+    return err(502, "Service temporarily unavailable", origin);
   }
 
   if (!res.ok) {
     console.error("listening.js: Anthropic API error", res.status, data?.error?.message);
-    return err(res.status, data?.error?.message || "Anthropic API error: HTTP " + res.status);
+    return err(res.status, data?.error?.message || "Anthropic API error: HTTP " + res.status, origin);
   }
 
   const raw = data?.content?.[0]?.text?.trim() || "";
   if (!raw) {
     console.error("listening.js: Anthropic returned empty response");
-    return err(502, "Empty response from AI");
+    return err(502, "Empty response from AI", origin);
   }
 
   // ── Parse response ──
@@ -141,33 +151,33 @@ export async function onRequestPost({ request, env }) {
     parsed = JSON.parse(cleaned);
   } catch {
     console.error("listening.js: JSON parse failed. Raw:", raw.slice(0, 200));
-    return err(502, "parse_failed");
+    return err(502, "parse_failed", origin);
   }
 
   // Validate required structure
   if (typeof parsed.title !== "string" || !parsed.title.trim()) {
     console.error("listening.js: missing title in response");
-    return err(502, "parse_failed");
+    return err(502, "parse_failed", origin);
   }
   if (!Array.isArray(parsed.questions) || parsed.questions.length < 1) {
     console.error("listening.js: missing or empty questions array");
-    return err(502, "parse_failed");
+    return err(502, "parse_failed", origin);
   }
   if (!Array.isArray(parsed.vocab)) {
     console.error("listening.js: missing vocab array");
-    return err(502, "parse_failed");
+    return err(502, "parse_failed", origin);
   }
 
   // Validate style-specific field
   if (safeStyle === "dialogue") {
     if (!Array.isArray(parsed.speakers) || parsed.speakers.length === 0) {
       console.error("listening.js: missing speakers array for dialogue");
-      return err(502, "parse_failed");
+      return err(502, "parse_failed", origin);
     }
   } else {
     if (typeof parsed.narrator !== "string" || !parsed.narrator.trim()) {
       console.error("listening.js: missing narrator for monologue");
-      return err(502, "parse_failed");
+      return err(502, "parse_failed", origin);
     }
   }
 
@@ -198,5 +208,5 @@ export async function onRequestPost({ request, env }) {
     response.narrator = parsed.narrator.trim();
   }
 
-  return ok(response);
+  return ok(response, origin);
 }

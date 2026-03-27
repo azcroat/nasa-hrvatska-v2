@@ -15,6 +15,37 @@ import DailyPlanCard from './DailyPlanCard.jsx';
 // DalmatianCoast SVG replaced with real AI/CC photography
 // import { DalmatianCoast } from '../illustrations';
 
+const DAILY_PHRASES = [
+  { hr: "Dobar dan!", en: "Good day!", cat: "Greetings" },
+  { hr: "Kako ste?", en: "How are you?", cat: "Greetings" },
+  { hr: "Hvala lijepo.", en: "Thank you very much.", cat: "Courtesy" },
+  { hr: "Molim vas.", en: "Please / You're welcome.", cat: "Courtesy" },
+  { hr: "Gdje je plaža?", en: "Where is the beach?", cat: "Travel" },
+  { hr: "Koliko košta?", en: "How much does it cost?", cat: "Shopping" },
+  { hr: "Govorite li engleski?", en: "Do you speak English?", cat: "Communication" },
+  { hr: "Jedno kava, molim.", en: "One coffee, please.", cat: "Food & Drink" },
+  { hr: "Uživam u Hrvatskoj.", en: "I'm enjoying Croatia.", cat: "Travel" },
+  { hr: "Sretan put!", en: "Have a good trip!", cat: "Farewells" },
+  { hr: "Vidimo se!", en: "See you!", cat: "Farewells" },
+  { hr: "Ne razumijem.", en: "I don't understand.", cat: "Communication" },
+  { hr: "Možete li ponoviti?", en: "Can you repeat that?", cat: "Communication" },
+  { hr: "Gdje je WC?", en: "Where is the bathroom?", cat: "Travel" },
+  { hr: "Volim Hrvatsku!", en: "I love Croatia!", cat: "Feelings" },
+  { hr: "Lijepo jutro!", en: "Beautiful morning!", cat: "Greetings" },
+  { hr: "Što imate za jesti?", en: "What do you have to eat?", cat: "Food & Drink" },
+  { hr: "Račun, molim.", en: "The bill, please.", cat: "Food & Drink" },
+  { hr: "Živjeli!", en: "Cheers!", cat: "Social" },
+  { hr: "Sretno!", en: "Good luck!", cat: "Social" },
+  { hr: "Sve je u redu.", en: "Everything is fine.", cat: "Feelings" },
+  { hr: "Volim te.", en: "I love you.", cat: "Feelings" },
+  { hr: "Oprostite.", en: "Excuse me / Sorry.", cat: "Courtesy" },
+  { hr: "Gdje je hotel?", en: "Where is the hotel?", cat: "Travel" },
+  { hr: "Trebam pomoć.", en: "I need help.", cat: "Communication" },
+  { hr: "Lijepo je ovdje.", en: "It's beautiful here.", cat: "Appreciation" },
+  { hr: "Kakvo je vrijeme?", en: "What's the weather like?", cat: "Small Talk" },
+  { hr: "Govorim malo hrvatski.", en: "I speak a little Croatian.", cat: "Communication" },
+];
+
 const LEVEL_PALETTE = [
   { grad: "linear-gradient(135deg,#92400e,#b45309)", light: "#fef3c7", text: "#92400e", border: "#fcd34d" },
   { grad: "linear-gradient(135deg,#065f46,#059669)", light: "#d1fae5", text: "#065f46", border: "#6ee7b7" },
@@ -47,11 +78,11 @@ export default function HomeTab({
   comebackBonus,
   goal,
 }) {
-  const dc = useMemo(getDailyChallenge, []);
-  const ws = useMemo(() => getWeekStats(), [getWeekStats]);
-  const weekXP = useMemo(getWeekXP, []);
-  const streak = useMemo(getStreak, []);
-  const lastActivity = useMemo(getLastActivity, []);
+  const dc = useMemo(() => getDailyChallenge(), []);
+  const ws = useMemo(() => getWeekStats(), [st]);
+  const weekXP = useMemo(() => getWeekXP(), []);
+  const streak = useMemo(() => getStreak(), []);
+  const lastActivity = useMemo(() => getLastActivity(), []);
   const [freezes, setFreezes] = useState(getStreakFreezes);
   const [freezeMsg, setFreezeMsg] = useState('');
   const [streakRestored, setStreakRestored] = useState(false);
@@ -61,7 +92,7 @@ export default function HomeTab({
   const xpPct = Math.min(Math.round((xpCur / xpNeeded) * 100), 100);
 
   const userGoal = goal || localStorage.getItem('nh_goal') || 'fluent';
-  const activeCampaign = useMemo(getActiveCampaign, []);
+  const activeCampaign = useMemo(() => getActiveCampaign(), []);
 
   const [htab, setHTab] = useState('today');
 
@@ -88,12 +119,13 @@ export default function HomeTab({
     }
   }, [allQuestsDone, masteryKey, award]);
 
-  const allOpts = dc.challenges.map(ch => ch.opts || [ch.a]);
+  const allOpts = useMemo(() => dc.challenges?.map(ch => ch.opts || [ch.a]) || [], [dc.challenges]);
   const doneCount = dchlA.filter(Boolean).length;
   const allDone = doneCount === 3;
 
   const [dcOpen, setDcOpen] = useState(doneCount === 0);
   const [campaignDismissed, setCampaignDismissed] = useState(false);
+  const [nudgeDismissed, setNudgeDismissed] = useState(false);
 
   const campaignQuestsDone = useMemo(() => {
     if (!activeCampaign || !activeCampaign.quests || activeCampaign.quests.length === 0) return {};
@@ -136,6 +168,13 @@ export default function HomeTab({
 
   const activePalette = LEVEL_PALETTE[(pathData.activeLv.level - 1) % LEVEL_PALETTE.length];
   const nameInitial = (name || "U")[0].toUpperCase();
+
+  // Daily rotating phrases — 4 new phrases per day, cycles through the full pool
+  const todayPhrases = useMemo(() => {
+    const dayIdx = Math.floor(Date.now() / 86400000);
+    const start = (dayIdx * 4) % DAILY_PHRASES.length;
+    return [0, 1, 2, 3].map(i => DAILY_PHRASES[(start + i) % DAILY_PHRASES.length]);
+  }, []);
 
   const SkeletonBar = ({ w = '100%', h = 16, r = 8, mt = 0 }) => (
     <div style={{width:w, height:h, borderRadius:r, marginTop:mt,
@@ -798,6 +837,37 @@ export default function HomeTab({
               <div className="section-hdr-sub">Tap any phrase to hear it spoken aloud</div>
             </div>
           </div>
+          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:24}}>
+            {todayPhrases.map((p, i) => (
+              <button
+                key={i}
+                onClick={() => speak(p.hr)}
+                style={{
+                  background:'var(--card)',
+                  border:'1.5px solid var(--card-b)',
+                  borderRadius:16,
+                  padding:'14px 12px',
+                  textAlign:'left',
+                  cursor:'pointer',
+                  boxShadow:'0 2px 8px rgba(0,0,0,.05)',
+                  fontFamily:"'Outfit',sans-serif",
+                  transition:'transform .12s, box-shadow .12s',
+                  WebkitTapHighlightColor:'transparent',
+                  display:'flex',
+                  flexDirection:'column',
+                  gap:4,
+                }}
+                onPointerDown={e => e.currentTarget.style.transform='scale(0.97)'}
+                onPointerUp={e => e.currentTarget.style.transform=''}
+                onPointerLeave={e => e.currentTarget.style.transform=''}
+              >
+                <span style={{fontSize:11, fontWeight:800, color:'var(--color-croatian,#b61800)', textTransform:'uppercase', letterSpacing:'.05em'}}>{p.cat}</span>
+                <span style={{fontSize:15, fontWeight:800, color:'var(--heading)', lineHeight:1.3}}>{p.hr}</span>
+                <span style={{fontSize:12, color:'var(--subtext)', fontWeight:500}}>{p.en}</span>
+                <span style={{marginTop:4, fontSize:16}}>🔊</span>
+              </button>
+            ))}
+          </div>
 
           {/* ── QUICK TRANSLATE ── */}
           <div className="section-hdr">
@@ -958,7 +1028,7 @@ export default function HomeTab({
             const dailyAvg = weekXP / dayOfWeek;
             if (dailyAvg < xpTarget * 1.5) return null; // must be 50% over target
             const nextMin = dailyMin === 5 ? 10 : dailyMin === 10 ? 15 : 20;
-            const dismissed = localStorage.getItem('nh_goal_nudge_dismissed') === String(dailyMin);
+            const dismissed = nudgeDismissed || localStorage.getItem('nh_goal_nudge_dismissed') === String(dailyMin);
             if (dismissed) return null;
             return (
               <div style={{
@@ -975,7 +1045,7 @@ export default function HomeTab({
                   </div>
                   <div style={{display:'flex', gap:8, marginTop:10}}>
                     <button
-                      onClick={() => { localStorage.setItem('nh_daily_min', String(nextMin)); localStorage.removeItem('nh_goal_nudge_dismissed'); window.location.reload(); }}
+                      onClick={() => { localStorage.setItem('nh_daily_min', String(nextMin)); localStorage.removeItem('nh_goal_nudge_dismissed'); setNudgeDismissed(true); }}
                       style={{
                         background:'var(--success)', color:'#fff', border:'none', borderRadius:10,
                         padding:'8px 14px', fontSize:12, fontWeight:800, cursor:'pointer',
@@ -985,7 +1055,7 @@ export default function HomeTab({
                       Yes, {nextMin} min/day →
                     </button>
                     <button
-                      onClick={() => { localStorage.setItem('nh_goal_nudge_dismissed', String(dailyMin)); window.location.reload(); }}
+                      onClick={() => { localStorage.setItem('nh_goal_nudge_dismissed', String(dailyMin)); setNudgeDismissed(true); }}
                       style={{
                         background:'none', color:'var(--success)', border:'1.5px solid var(--success-b)', borderRadius:10,
                         padding:'8px 14px', fontSize:12, fontWeight:700, cursor:'pointer',

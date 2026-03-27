@@ -2,6 +2,9 @@
 // Generates a personalised post-conversation summary from Maja Kovačević's perspective
 // Keeps the API key server-side; never exposed to the browser
 
+import { checkRateLimit } from './_rateLimit.js';
+import { getFirebaseUid } from './_verifyToken.js';
+
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-4-6";
 
@@ -17,6 +20,15 @@ function sanitizeParam(value, maxLen = 200) {
     .slice(0, maxLen);
 }
 
+function sanitizeHistory(value, maxLen = 300) {
+  return String(value || '')
+    .replace(/[\r\n]/g, ' ')           // no newlines
+    .replace(/[`\\]/g, '')             // no backticks/backslash
+    .replace(/\b(ignore|disregard|override|forget|system|instruction|prompt)\b/gi, '[…]') // mask injection keywords
+    .trim()
+    .slice(0, maxLen);
+}
+
 function isAllowedOrigin(origin, isDev) {
   try {
     const hostname = new URL(origin).hostname;
@@ -28,15 +40,17 @@ function isAllowedOrigin(origin, isDev) {
   } catch { return false; }
 }
 
-const corsHeaders = {
-  "Content-Type": "application/json",
-  "Access-Control-Allow-Origin": "https://nasahrvatska.com",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Cache-Control": "no-cache",
-};
+function corsHeaders(origin) {
+  return {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Cache-Control": "no-cache",
+  };
+}
 
-function ok(body)         { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders }); }
-function err(status, msg) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders }); }
+function ok(body, origin)         { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) }); }
+function err(status, msg, origin) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) }); }
 
 // ── Input validation ──────────────────────────────────────────────────────────
 
@@ -154,8 +168,9 @@ Return ONLY a valid JSON object. No markdown. No code blocks. No explanation bef
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
-export async function onRequestOptions() {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export async function onRequestOptions({ request }) {
+  const origin = request.headers.get("origin") || "";
+  return new Response(null, { status: 204, headers: corsHeaders(origin) });
 }
 
 export async function onRequestPost(context) {
@@ -165,29 +180,41 @@ export async function onRequestPost(context) {
   // CORS check
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
   const isDev = env.ENVIRONMENT !== "production";
-  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden");
+  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden", origin);
+
+  const allowed = await checkRateLimit(request, 20);
+  if (!allowed) {
+    return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders(origin) });
+  }
+
+  // Require valid Firebase auth token for AI endpoints
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
+  if (FIREBASE_PROJECT_ID && !uid) {
+    return new Response('Unauthorized', { status: 401, headers: corsHeaders(origin) });
+  }
 
   // API key check
-  if (!ANTHROPIC_KEY) return err(500, "Service not configured");
+  if (!ANTHROPIC_KEY) return err(500, "Service not configured", origin);
 
   // Content-type check
   const ct = request.headers.get("content-type") || "";
-  if (!ct.includes("application/json")) return err(400, "Invalid content type");
+  if (!ct.includes("application/json")) return err(400, "Invalid content type", origin);
 
   // Parse body
   let body;
   try { body = await request.json(); }
-  catch { return err(400, "Invalid JSON in request body"); }
+  catch { return err(400, "Invalid JSON in request body", origin); }
 
   const { history, session, durationSeconds } = body;
 
   // ── Validate history ──
-  if (!Array.isArray(history)) return err(400, "history must be an array");
-  if (history.length > 200) return err(400, "history too long (max 200 turns)");
-  if (history.length === 0) return err(400, "history is empty");
+  if (!Array.isArray(history)) return err(400, "history must be an array", origin);
+  if (history.length > 200) return err(400, "history too long (max 200 turns)", origin);
+  if (history.length === 0) return err(400, "history is empty", origin);
 
   // ── Validate session ──
-  if (!session || typeof session !== "object") return err(400, "session object is required");
+  if (!session || typeof session !== "object") return err(400, "session object is required", origin);
 
   const userName   = sanitizeParam(session.userName || "", 50);
   const userLevel  = sanitizeLevel(session.userLevel);
@@ -208,15 +235,16 @@ export async function onRequestPost(context) {
     if (typeof turn !== "object" || !turn) continue;
     const role    = turn.role === "maja" ? "Maja" : turn.role === "user" ? (userName || "Student") : null;
     if (!role) continue;
-    const content = sanitizeParam(String(turn.content || ""), 800);
+    const content = sanitizeHistory(String(turn.content || ""), 300);
     if (!content) continue;
     transcriptLines.push(`${role}: ${content}`);
     if (turn.role === "user") userMessageCount++;
   }
 
-  if (transcriptLines.length === 0) return err(400, "No valid messages in history");
+  if (transcriptLines.length === 0) return err(400, "No valid messages in history", origin);
 
-  const transcript = transcriptLines.join("\n");
+  // Cap total transcript to prevent prompt stuffing
+  const transcript = transcriptLines.join('\n').slice(0, 8000);
 
   // ── Build system prompt ──
   const systemPrompt = buildDebriefSystemPrompt({
@@ -255,18 +283,18 @@ export async function onRequestPost(context) {
     data = await res.json();
   } catch (fetchErr) {
     console.error("maja-debrief.js: network error calling Anthropic:", fetchErr.message);
-    return err(502, "Service temporarily unavailable");
+    return err(502, "Service temporarily unavailable", origin);
   }
 
   if (!res.ok) {
     console.error("maja-debrief.js: Anthropic API error", res.status, data?.error?.message);
-    return err(res.status, data?.error?.message || "Anthropic API error: HTTP " + res.status);
+    return err(res.status, data?.error?.message || "Anthropic API error: HTTP " + res.status, origin);
   }
 
   const raw = data?.content?.[0]?.text?.trim() || "";
   if (!raw) {
     console.error("maja-debrief.js: Anthropic returned empty response");
-    return ok(debriefFallback(userName));
+    return ok(debriefFallback(userName), origin);
   }
 
   // ── Parse Claude's JSON response ──
@@ -276,7 +304,7 @@ export async function onRequestPost(context) {
     parsed = JSON.parse(cleaned);
   } catch {
     console.error("maja-debrief.js: JSON parse failed, using fallback. Raw:", raw.slice(0, 200));
-    return ok(debriefFallback(userName));
+    return ok(debriefFallback(userName), origin);
   }
 
   // ── Validate and sanitize the parsed response ──
@@ -340,5 +368,5 @@ export async function onRequestPost(context) {
     updatedFacts,
     mistakePatternsUpdate,
     xpEarned: 30,
-  });
+  }, origin);
 }
