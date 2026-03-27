@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { H, getSR } from '../../data.jsx';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 // ── Severity config ────────────────────────────────────────────────────────────
 const SEV = {
@@ -98,7 +99,7 @@ export default function GrammarDiagnosisScreen({ goBack, award }) {
     ).slice(0, 20);
 
     try {
-      const res = await fetch('/api/grammar-diagnosis', {
+      const res = await apiFetch('/api/grammar-diagnosis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ level, srMistakes, majaPatterns, writingMistakes }),

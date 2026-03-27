@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import SearchModal from './SearchModal';
 
 const TABS = [
@@ -54,23 +54,12 @@ function NavIcon({ id, active }) {
 // CSS class (defined in index.css) to the content wrapper in App.jsx whenever the
 // active tab changes (e.g. via a `key={tab}` prop or a className toggle).
 export default function TabBar({ tab, setTab, setScr, badges }) {
-  const [indicatorStyle, setIndicatorStyle] = useState({});
   const [showSearch, setShowSearch] = useState(false);
-  const btnRefs = useRef([]);
-  const navRef = useRef(null);
 
-  useEffect(() => {
-    const idx = TABS.findIndex(t => t.id === tab);
-    const btn = btnRefs.current[idx];
-    const nav = navRef.current;
-    if (!btn || !nav) return;
-    const bRect = btn.getBoundingClientRect();
-    const nRect = nav.getBoundingClientRect();
-    setIndicatorStyle({
-      left: bRect.left - nRect.left + bRect.width / 2 - 22,
-      width: 44,
-    });
-  }, [tab]);
+  const activeIdx = TABS.findIndex(t => t.id === tab);
+  const tabCount = TABS.length;
+  const indicatorLeft = `${(activeIdx / tabCount) * 100}%`;
+  const indicatorWidth = `${(1 / tabCount) * 100}%`;
 
   // Croatia tab uses Croatian red; all others use teal
   const activeColor = tab === 'croatia' ? 'var(--color-croatian, #b61800)' : 'var(--info, #0e7490)';
@@ -82,7 +71,6 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
     <>
       {showSearch && <SearchModal setTab={setTab} onClose={() => setShowSearch(false)} />}
     <nav
-      ref={navRef}
       className="nav-bar"
       role="navigation"
       aria-label="Main navigation"
@@ -102,19 +90,20 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
         height: 3,
         background: indicatorGradient,
         borderRadius: 3,
-        transition: 'left .3s cubic-bezier(0.25, 0.46, 0.45, 0.94), width .3s, background .25s',
-        ...indicatorStyle,
+        left: indicatorLeft,
+        width: indicatorWidth,
+        transition: 'left .3s cubic-bezier(0.25, 0.46, 0.45, 0.94), background .25s',
+        willChange: 'left',
         pointerEvents: 'none',
       }} />
 
       {/* Tab buttons — paddingRight reserves space so the Profile tab doesn't hide under the search button */}
       <div style={{ display:'flex', paddingRight: 50 }}>
-        {TABS.map((t, i) => {
+        {TABS.map((t) => {
           const isActive = tab === t.id;
           return (
             <button
               key={t.id}
-              ref={el => { btnRefs.current[i] = el; }}
               className={"nav-btn" + (isActive ? " active" : "")}
               onClick={() => { setTab(t.id); setScr("dashboard"); }}
               aria-current={isActive ? "page" : undefined}

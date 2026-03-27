@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { H } from '../../data.jsx';
 
 const CHAPTERS = [
@@ -286,6 +286,7 @@ export default function BakaSummer({ goBack, award }) {
   const [bonusAwarded, setBonusAwarded] = useState(
     () => !!localStorage.getItem('nh_baka_done_bonus')
   );
+  const chapterXpFired = useRef(new Set());
 
   // Reset translation/vocab state when chapter changes
   useEffect(() => {
@@ -307,6 +308,8 @@ export default function BakaSummer({ goBack, award }) {
   const allDone = chaptersDone.size === 16;
 
   function markComplete() {
+    if (chapterXpFired.current.has(chapter)) return;
+    chapterXpFired.current.add(chapter);
     const updated = new Set(chaptersDone);
     updated.add(chapter);
     setChaptersDone(updated);

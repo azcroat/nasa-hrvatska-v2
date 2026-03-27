@@ -26,7 +26,7 @@ function SVGBarChart({ data, color = '#0e7490', height = 80 }) {
 /**
  * @param {{ stats: { xp: number, lc: number, gc: number } }} props
  */
-export default function ProgressCharts({ stats }) {
+const ProgressCharts = React.memo(function ProgressCharts({ stats }) {
   const history = useMemo(() => {
     const raw = JSON.parse(localStorage.getItem('progress_history') || '[]');
     const today = new Date().toISOString().slice(0, 10);
@@ -88,4 +88,6 @@ export default function ProgressCharts({ stats }) {
       </div>
     </div>
   );
-}
+});
+
+export default ProgressCharts;

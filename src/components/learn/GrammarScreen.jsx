@@ -27,7 +27,19 @@ export default function GrammarScreen({
       </React.Fragment>}
       {gp==="ex"&&gl.qs[gx]&&<React.Fragment>
         <Bar v={gx+1} mx={gl.qs.length} color="#b45309" h={6} />
-        <div className="c" style={{marginTop:16}}>
+        <div style={{textAlign:'right',marginBottom:4}}>
+          <button
+            onClick={goBack}
+            style={{
+              background:'none', border:'none',
+              fontSize:'var(--text-sm)', color:'var(--subtext)',
+              cursor:'pointer', fontFamily:"'Outfit',sans-serif",
+              fontWeight:700, padding:'4px 8px',
+            }}>
+            ✕ Exit
+          </button>
+        </div>
+        <div className="c" style={{marginTop:8}}>
           <p style={{fontSize:20,fontWeight:700,marginBottom:20}}>{gl.qs[gx].q}</p>
           {gl.qs[gx].o.map((o,i)=>(
             <button key={i} className={"ob "+(ga?(i===gl.qs[gx].c?"ok":gsl===i?"no":""):"")}

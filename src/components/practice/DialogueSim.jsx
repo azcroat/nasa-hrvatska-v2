@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
-import { H, Bar } from '../../data.jsx';
-import { useApp } from '../../context/AppContext.jsx';
+import React, { useState, useRef, useEffect } from 'react';
+import { H, Bar, speak } from '../../data.jsx';
+import { useStats } from '../../context/StatsContext.jsx';
 
 import { rnd } from '../../lib/random.js';
 function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;}
@@ -202,7 +202,7 @@ const SCENARIOS = [
         answer:0, tip:"'Imate li nešto za glavobolju?' (Do you have something for a headache?) — correct accusative 'glavobolju' after 'za'. The other options use wrong case or broken phrasing." },
       { speaker:"Ljekarnica Ana", line:"Imate li recept, ili vam treba nešto bez recepta?", en:"Do you have a prescription, or do you need something over the counter?",
         opts:["Nemam recept. Trebam nešto bez recepta, molim.","Ja nemam recept.","Ne imam recept.","Bez recept."],
-        answer:0, tip:"'Nemam recept' (I don't have a prescription) + 'trebam nešto bez recepta' (I need something without a prescription) is a complete natural response. 'Ne imam' is wrong — Croatian negation fuses as 'nemam', not 'ne imam'." },
+        answer:0, tip:"'Nemam recept' (I don't have a prescription) + 'trebam nešto bez recepta' (I need something without a prescription) is a complete natural response. Both 'nemam' and 'ne imam' are correct — 'nemam' is the standard fused form; 'ne imam' is the emphatic alternative. Neither is wrong." },
       { speaker:"Ljekarnica Ana", line:"U redu. Preporučujem ibuprofen ili aspirin. Koji preferirate?", en:"Alright. I recommend ibuprofen or aspirin. Which do you prefer?",
         opts:["Ibuprofen, molim. Koliko tableta trebam uzimati i kako često?","Ibuprofen.","Dajte mi ibuprofen.","Hoću ibuprofen."],
         answer:0, tip:"Asking 'koliko tableta... i kako često?' (how many tablets and how often?) is essential — it shows competence and gets the dosage info you need. Just saying 'Ibuprofen' is too abrupt for a pharmacy." },
@@ -355,7 +355,7 @@ function shuffleTurnOpts(turn) {
 }
 
 export default function DialogueSim({ award }) {
-  const { level: userLevel } = useApp();
+  const { level: userLevel } = useStats();
   const finishFired = useRef(false);
   const [scenario, setScenario] = useState(null);
   const [turnIdx, setTurnIdx] = useState(0);
@@ -378,6 +378,14 @@ export default function DialogueSim({ award }) {
   const [aiTurns, setAiTurns] = useState(0);
   const [aiDone, setAiDone] = useState(false);
   const [aiError, setAiError] = useState('');
+
+  // Speak NPC line whenever a new guided turn loads
+  useEffect(() => {
+    if (!scenario || !scenario.turns[turnIdx] || aiMode) return;
+    const line = scenario.turns[turnIdx].line;
+    // Skip meta-cues like "[You need to ask...]"
+    if (line && !line.startsWith('[')) speak(line);
+  }, [scenario, turnIdx, aiMode]); // eslint-disable-line
 
   function startScenario(s) {
     finishFired.current = false;

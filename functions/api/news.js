@@ -1,6 +1,8 @@
 // Cloudflare Pages Function — Croatian News RSS Proxy + Claude Simplification
 // Fetches real Croatian news and simplifies it to the user's CEFR level
 
+import { checkRateLimit } from './_rateLimit.js';
+
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-4-6";
 
@@ -22,25 +24,28 @@ function isAllowedOrigin(origin, isDev) {
   } catch { return false; }
 }
 
-const corsHeaders = {
-  "Content-Type": "application/json",
-  "Access-Control-Allow-Origin": "https://nasahrvatska.com",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Cache-Control": "public, max-age=1800", // 30 min cache
-};
+function corsHeaders(origin) {
+  return {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Cache-Control": "public, max-age=1800", // 30 min cache
+  };
+}
 
-function ok(body) { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders }); }
-function err(status, msg) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders }); }
+function ok(body, origin) { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) }); }
+function err(status, msg, origin) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) }); }
 
 // Parse RSS XML into article objects
-function parseRSS(xml, sourceName) {
+function parseRSS(rawXml, sourceName) {
+  const xml = rawXml.slice(0, 50000); // cap input to prevent ReDoS on very large feeds
   const items = [];
   const itemRegex = /<item>([\s\S]*?)<\/item>/gi;
   let match;
   while ((match = itemRegex.exec(xml)) !== null && items.length < 5) {
     const item = match[1];
     const getTag = (tag) => {
-      const m = item.match(new RegExp(`<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${tag}>|<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'i'));
+      const m = item.match(new RegExp(`<${tag}[^>]{0,200}><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${tag}>|<${tag}[^>]{0,200}>([\\s\\S]*?)<\\/${tag}>`, 'i'));
       return m ? (m[1] || m[2] || "").trim() : "";
     };
     const title = getTag("title");
@@ -48,7 +53,7 @@ function parseRSS(xml, sourceName) {
     const link = getTag("link");
     const pubDate = getTag("pubDate");
     if (title && description) {
-      items.push({ title, description: description.replace(/<[^>]+>/g, '').replace(/&[a-z]+;/gi, ' ').slice(0, 500), link, pubDate, source: sourceName });
+      items.push({ title, description: description.replace(/<[^>]{0,200}>/g, '').replace(/&[a-z]+;/gi, ' ').slice(0, 500), link, pubDate, source: sourceName });
     }
   }
   return items;
@@ -96,8 +101,9 @@ Include 5-6 key vocabulary items. Keep facts accurate.`;
   }
 }
 
-export async function onRequestOptions() {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export async function onRequestOptions({ request }) {
+  const origin = request.headers.get("origin") || "";
+  return new Response(null, { status: 204, headers: corsHeaders(origin) });
 }
 
 export async function onRequestGet(context) {
@@ -106,8 +112,14 @@ export async function onRequestGet(context) {
 
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
   const isDev = env.ENVIRONMENT !== "production";
-  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden");
-  if (!ANTHROPIC_KEY) return err(500, "AI_KEY_MISSING");
+  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden", origin);
+
+  const allowed = await checkRateLimit(request, 10);
+  if (!allowed) {
+    return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders(origin) });
+  }
+
+  if (!ANTHROPIC_KEY) return err(500, "AI_KEY_MISSING", origin);
 
   const url = new URL(request.url);
   const rawLevel = url.searchParams.get("level") || "B1";
@@ -123,8 +135,8 @@ export async function onRequestGet(context) {
           signal: AbortSignal.timeout(8000),
         });
         if (!res.ok) return [];
-        const xml = await res.text();
-        return parseRSS(xml, feed.name);
+        const rawXml = await res.text();
+        return parseRSS(rawXml, feed.name);
       } catch {
         return [];
       }
@@ -138,7 +150,7 @@ export async function onRequestGet(context) {
       articles: FALLBACK_ARTICLES.map(a => ({ ...a, level })),
       source: "curated",
       timestamp: Date.now(),
-    });
+    }, origin);
   }
 
   // Simplify top 4 articles in parallel
@@ -149,7 +161,7 @@ export async function onRequestGet(context) {
 
   const articles = simplified.filter(Boolean);
 
-  return ok({ articles, source: "live", timestamp: Date.now() });
+  return ok({ articles, source: "live", timestamp: Date.now() }, origin);
 }
 
 // Fallback articles if RSS is unavailable

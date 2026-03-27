@@ -2,6 +2,9 @@
 // Maja Kovačević: 34-year-old Croatian language teacher from Zadar, lives in Zagreb
 // Keeps the API key server-side; never exposed to the browser
 
+import { checkRateLimit } from './_rateLimit.js';
+import { getFirebaseUid } from './_verifyToken.js';
+
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-4-6";
 
@@ -28,15 +31,17 @@ function isAllowedOrigin(origin, isDev) {
   } catch { return false; }
 }
 
-const corsHeaders = {
-  "Content-Type": "application/json",
-  "Access-Control-Allow-Origin": "https://nasahrvatska.com",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Cache-Control": "no-cache",
-};
+function corsHeaders(origin) {
+  return {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Cache-Control": "no-cache",
+  };
+}
 
-function ok(body)         { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders }); }
-function err(status, msg) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders }); }
+function ok(body, origin)         { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) }); }
+function err(status, msg, origin) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) }); }
 
 // ── Input validation ──────────────────────────────────────────────────────────
 
@@ -617,8 +622,9 @@ function majaFallback() {
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
-export async function onRequestOptions() {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export async function onRequestOptions({ request }) {
+  const origin = request.headers.get("origin") || "";
+  return new Response(null, { status: 204, headers: corsHeaders(origin) });
 }
 
 export async function onRequestPost(context) {
@@ -628,19 +634,31 @@ export async function onRequestPost(context) {
   // CORS check
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
   const isDev = env.ENVIRONMENT !== "production";
-  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden");
+  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden", origin);
+
+  const allowed = await checkRateLimit(request, 20);
+  if (!allowed) {
+    return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders(origin) });
+  }
+
+  // Require valid Firebase auth token for AI endpoints
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
+  if (FIREBASE_PROJECT_ID && !uid) {
+    return new Response('Unauthorized', { status: 401, headers: corsHeaders(origin) });
+  }
 
   // API key check
-  if (!ANTHROPIC_KEY) return err(500, "Service not configured");
+  if (!ANTHROPIC_KEY) return err(500, "Service not configured", origin);
 
   // Content-type check
   const ct = request.headers.get("content-type") || "";
-  if (!ct.includes("application/json")) return err(400, "Invalid content type");
+  if (!ct.includes("application/json")) return err(400, "Invalid content type", origin);
 
   // Parse body
   let body;
   try { body = await request.json(); }
-  catch { return err(400, "Invalid JSON in request body"); }
+  catch { return err(400, "Invalid JSON in request body", origin); }
 
   const {
     message,
@@ -657,10 +675,10 @@ export async function onRequestPost(context) {
 
   // ── Validate message ──
   if (typeof message !== "string" || !message.trim()) {
-    return err(400, "Missing or invalid message");
+    return err(400, "Missing or invalid message", origin);
   }
   const safeMessage = sanitizeParam(message, 500);
-  if (!safeMessage) return err(400, "Message is empty after sanitization");
+  if (!safeMessage) return err(400, "Message is empty after sanitization", origin);
 
   // ── Validate userLevel ──
   const safeLevel = sanitizeLevel(userLevel);
@@ -670,10 +688,10 @@ export async function onRequestPost(context) {
 
   // ── Validate history ──
   if (history !== undefined && !Array.isArray(history)) {
-    return err(400, "history must be an array");
+    return err(400, "history must be an array", origin);
   }
   const rawHistory = Array.isArray(history) ? history : [];
-  if (rawHistory.length > 100) return err(400, "history too long (max 100 turns)");
+  if (rawHistory.length > 100) return err(400, "history too long (max 100 turns)", origin);
 
   // Build conversation messages for Anthropic
   // History roles are "maja" and "user" — map "maja" -> "assistant"
@@ -744,18 +762,18 @@ export async function onRequestPost(context) {
     data = await res.json();
   } catch (fetchErr) {
     console.error("maja.js: network error calling Anthropic:", fetchErr.message);
-    return err(502, "Service temporarily unavailable");
+    return err(502, "Service temporarily unavailable", origin);
   }
 
   if (!res.ok) {
     console.error("maja.js: Anthropic API error", res.status, data?.error?.message);
-    return err(res.status, data?.error?.message || "Anthropic API error: HTTP " + res.status);
+    return err(res.status, data?.error?.message || "Anthropic API error: HTTP " + res.status, origin);
   }
 
   const raw = data?.content?.[0]?.text?.trim() || "";
   if (!raw) {
     console.error("maja.js: Anthropic returned empty response");
-    return ok(majaFallback());
+    return ok(majaFallback(), origin);
   }
 
   // ── Parse Claude's JSON response ──
@@ -766,7 +784,7 @@ export async function onRequestPost(context) {
     parsed = JSON.parse(cleaned);
   } catch {
     console.error("maja.js: JSON parse failed, using fallback. Raw:", raw.slice(0, 200));
-    return ok(majaFallback());
+    return ok(majaFallback(), origin);
   }
 
   // ── Validate and sanitize the parsed response ──
@@ -798,5 +816,5 @@ export async function onRequestPost(context) {
 
   const levelDemonstrated = VALID_LEVELS.includes(parsed.levelDemonstrated) ? parsed.levelDemonstrated : safeLevel;
 
-  return ok({ reply, correction, newFacts, emotion, topic, levelDemonstrated, persona: safePersona });
+  return ok({ reply, correction, newFacts, emotion, topic, levelDemonstrated, persona: safePersona }, origin);
 }

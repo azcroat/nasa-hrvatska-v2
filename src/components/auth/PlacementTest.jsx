@@ -25,6 +25,7 @@ const PLACEMENT_QUESTIONS = [
 ];
 
 const LEVEL_NAMES = ['', 'A1 Survival', 'A2 Settler', 'B1 Communicator', 'B2 Explorer', 'C1 Hrvat'];
+const LEVEL_TO_CEFR = ['', 'A1', 'A2', 'B1', 'B2', 'C1'];
 const LEVEL_DESC = [
   '',
   'You\'re just starting out — let\'s build your foundations with greetings, numbers, and everyday words.',
@@ -147,6 +148,7 @@ export default function PlacementTest({ onComplete }) {
             }}
             onClick={() => {
               localStorage.setItem('nh_placement_done', 'true');
+              localStorage.setItem('nh_level', 'A1');
               onComplete(1);
             }}
           >
@@ -193,7 +195,10 @@ export default function PlacementTest({ onComplete }) {
         </div>
         </div>
         <button
-          onClick={() => onComplete(placedLevel)}
+          onClick={() => {
+            localStorage.setItem('nh_level', LEVEL_TO_CEFR[placedLevel] || 'A1');
+            onComplete(placedLevel);
+          }}
           style={{
             width: '100%', padding: '16px', borderRadius: 14, border: 'none',
             background: 'linear-gradient(135deg,#0e7490,#164e63)',

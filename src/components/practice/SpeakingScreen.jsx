@@ -492,6 +492,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
             background:'linear-gradient(135deg,#0e7490,#0c4a6e)',
           }}>
             <img src="/images/portraits/tutor-hero.jpg" alt="Maja"
+              loading="lazy"
               style={{width:'100%', height:'100%', objectFit:'cover'}}
               onError={e => { e.currentTarget.style.display='none'; }} />
           </div>

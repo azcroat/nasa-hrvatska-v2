@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { H } from '../../data.jsx';
-import { useApp } from '../../context/AppContext.jsx';
+import { useStats } from '../../context/StatsContext.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 // ── Category definitions ──────────────────────────────────────────────────────
 const CATEGORIES = [
@@ -205,7 +206,7 @@ function PhraseSkeletonLoader({ color }) {
 
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function PhraseOfDayScreen({ goBack, award }) {
-  const { level: userLevel } = useApp();
+  const { level: userLevel } = useStats();
   const isOnline = useOnlineStatus();
 
   const [selectedCategory, setSelectedCategory] = useState('greeting');
@@ -248,7 +249,7 @@ export default function PhraseOfDayScreen({ goBack, award }) {
 
     try {
       const today = new Date().toISOString().slice(0, 10);
-      const res = await fetch('/api/ai-chat', {
+      const res = await apiFetch('/api/ai-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

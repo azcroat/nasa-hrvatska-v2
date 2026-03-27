@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { H, Bar, speak } from '../../data.jsx';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 // ── Croatian song lyrics fill-in-the-blank ──────────────────────────────────
 // Classic and popular Croatian songs. Each line has "blanks" that the learner fills in.
@@ -467,7 +468,7 @@ export default function LyricsScreen({ goBack, award }) {
     setLoadingWord(cleanWord);
     setTooltipData(null);
     try {
-      const res = await fetch('/api/ai-chat', {
+      const res = await apiFetch('/api/ai-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

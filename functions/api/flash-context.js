@@ -1,6 +1,8 @@
 // Cloudflare Pages Function — Flash Context
 // Given a Croatian word + English meaning + CEFR level, generate a fresh example sentence.
 
+import { checkRateLimit } from './_rateLimit.js';
+
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-4-6";
 
@@ -27,15 +29,17 @@ function isAllowedOrigin(origin, isDev) {
   } catch { return false; }
 }
 
-const corsHeaders = {
-  "Content-Type": "application/json",
-  "Access-Control-Allow-Origin": "https://nasahrvatska.com",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Cache-Control": "no-cache",
-};
+function corsHeaders(origin) {
+  return {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Cache-Control": "no-cache",
+  };
+}
 
-function ok(body)         { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders }); }
-function err(status, msg) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders }); }
+function ok(body, origin)         { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) }); }
+function err(status, msg, origin) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) }); }
 
 // ── Input validation ──────────────────────────────────────────────────────────
 
@@ -59,43 +63,49 @@ const complexityNote = {
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 export async function onRequestPost({ request, env }) {
+  const origin = request.headers.get("origin") || request.headers.get("referer") || "";
+
   // OPTIONS preflight
-  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
+  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(origin) });
 
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
 
   // CORS check
-  const origin = request.headers.get("origin") || request.headers.get("referer") || "";
   const isDev = env.ENVIRONMENT !== "production";
-  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden");
+  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden", origin);
+
+  const allowed = await checkRateLimit(request, 20);
+  if (!allowed) {
+    return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders(origin) });
+  }
 
   // API key check
-  if (!ANTHROPIC_KEY) return err(500, "Service not configured");
+  if (!ANTHROPIC_KEY) return err(500, "Service not configured", origin);
 
   // Content-type check
   const ct = request.headers.get("content-type") || "";
-  if (!ct.includes("application/json")) return err(400, "Invalid content type");
+  if (!ct.includes("application/json")) return err(400, "Invalid content type", origin);
 
   // Parse body
   let body;
   try { body = await request.json(); }
-  catch { return err(400, "Invalid JSON in request body"); }
+  catch { return err(400, "Invalid JSON in request body", origin); }
 
   const { word, meaning, level } = body;
 
   // Validate word
   if (typeof word !== "string" || !word.trim()) {
-    return err(400, "Missing or invalid word");
+    return err(400, "Missing or invalid word", origin);
   }
   const safeWord = sanitizeParam(word, 60);
-  if (!safeWord) return err(400, "word is empty after sanitization");
+  if (!safeWord) return err(400, "word is empty after sanitization", origin);
 
   // Validate meaning
   if (typeof meaning !== "string" || !meaning.trim()) {
-    return err(400, "Missing or invalid meaning");
+    return err(400, "Missing or invalid meaning", origin);
   }
   const safeMeaning = sanitizeParam(meaning, 100);
-  if (!safeMeaning) return err(400, "meaning is empty after sanitization");
+  if (!safeMeaning) return err(400, "meaning is empty after sanitization", origin);
 
   // Validate level
   const safeLevel = sanitizeLevel(level);
@@ -130,18 +140,18 @@ export async function onRequestPost({ request, env }) {
     data = await res.json();
   } catch (fetchErr) {
     console.error("flash-context.js: network error calling Anthropic:", fetchErr.message);
-    return err(502, "Service temporarily unavailable");
+    return err(502, "Service temporarily unavailable", origin);
   }
 
   if (!res.ok) {
     console.error("flash-context.js: Anthropic API error", res.status, data?.error?.message);
-    return err(res.status, data?.error?.message || "Anthropic API error: HTTP " + res.status);
+    return err(res.status, data?.error?.message || "Anthropic API error: HTTP " + res.status, origin);
   }
 
   const raw = data?.content?.[0]?.text?.trim() || "";
   if (!raw) {
     console.error("flash-context.js: Anthropic returned empty response");
-    return err(502, "Empty response from AI");
+    return err(502, "Empty response from AI", origin);
   }
 
   // ── Parse response ──
@@ -151,22 +161,22 @@ export async function onRequestPost({ request, env }) {
     parsed = JSON.parse(cleaned);
   } catch {
     console.error("flash-context.js: JSON parse failed. Raw:", raw.slice(0, 200));
-    return err(502, "parse_failed");
+    return err(502, "parse_failed", origin);
   }
 
   // Validate required fields
   if (typeof parsed.hr !== "string" || !parsed.hr.trim()) {
     console.error("flash-context.js: missing hr field in response");
-    return err(502, "parse_failed");
+    return err(502, "parse_failed", origin);
   }
   if (typeof parsed.en !== "string" || !parsed.en.trim()) {
     console.error("flash-context.js: missing en field in response");
-    return err(502, "parse_failed");
+    return err(502, "parse_failed", origin);
   }
 
   const hr = parsed.hr.trim();
   const en = parsed.en.trim();
   const note = (typeof parsed.note === "string" && parsed.note.trim()) ? parsed.note.trim().slice(0, 80) : null;
 
-  return ok({ hr, en, note });
+  return ok({ hr, en, note }, origin);
 }

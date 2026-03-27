@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import * as Sentry from '@sentry/react';
-import posthog from 'posthog-js';
 import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 import './index.css';
 import App from './App.jsx';
@@ -10,49 +8,57 @@ import App from './App.jsx';
 // ─── Sentry error telemetry ────────────────────────────────────────────────
 // Set VITE_SENTRY_DSN in Cloudflare Pages environment variables.
 // The app works fully without it — telemetry is opt-in via env var.
+// Dynamically imported so the ~40KB Sentry bundle is never parsed when DSN is absent.
+let _sentry = null;
 if (import.meta.env.VITE_SENTRY_DSN) {
-  Sentry.init({
-    dsn: import.meta.env.VITE_SENTRY_DSN,
-    environment: import.meta.env.MODE,
-    release: import.meta.env.VITE_APP_VERSION || '2.0.0',
-    // Only send errors in production; silence in dev
-    enabled: import.meta.env.PROD,
-    tracesSampleRate: 0.1,
-    replaysOnErrorSampleRate: 0,
-    integrations: [Sentry.browserTracingIntegration()],
-    // Scrub PII from error reports
-    beforeSend(event) {
-      if (event.request?.url) {
-        event.request.url = event.request.url.replace(/[?#].*/, '');
-      }
-      // Remove extra/contexts that may contain user data from error boundary
-      delete event.extra;
-      if (event.contexts) {
-        event.contexts = event.contexts.trace ? { trace: event.contexts.trace } : {};
-      }
-      if (event.breadcrumbs?.values) {
-        event.breadcrumbs.values = event.breadcrumbs.values
-          .filter(b => b.category === 'web-vitals' || b.category === 'navigation')
-          .map(({ category, level, timestamp }) => ({ category, level, timestamp }));
-      }
-      return event;
-    },
+  import('@sentry/react').then((Sentry) => {
+    _sentry = Sentry;
+    Sentry.init({
+      dsn: import.meta.env.VITE_SENTRY_DSN,
+      environment: import.meta.env.MODE,
+      release: import.meta.env.VITE_APP_VERSION || '2.0.0',
+      // Only send errors in production; silence in dev
+      enabled: import.meta.env.PROD,
+      tracesSampleRate: 0.1,
+      replaysOnErrorSampleRate: 0,
+      integrations: [Sentry.browserTracingIntegration()],
+      // Scrub PII from error reports
+      beforeSend(event) {
+        if (event.request?.url) {
+          event.request.url = event.request.url.replace(/[?#].*/, '');
+        }
+        // Remove extra/contexts that may contain user data from error boundary
+        delete event.extra;
+        if (event.contexts) {
+          event.contexts = event.contexts.trace ? { trace: event.contexts.trace } : {};
+        }
+        if (event.breadcrumbs?.values) {
+          event.breadcrumbs.values = event.breadcrumbs.values
+            .filter(b => b.category === 'web-vitals' || b.category === 'navigation')
+            .map(({ category, level, timestamp }) => ({ category, level, timestamp }));
+        }
+        return event;
+      },
+    });
   });
 }
 
 // ─── PostHog product analytics ─────────────────────────────────────────────
 // Set VITE_POSTHOG_KEY in Cloudflare Pages env vars. Free up to 1M events/mo.
 // Opt-in via env var AND requires explicit cookie consent — never fires without both.
+// Dynamically imported so the ~30KB PostHog bundle is never parsed when key is absent.
 export function initPostHog() {
   if (import.meta.env.VITE_POSTHOG_KEY && import.meta.env.PROD) {
-    posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
-      api_host: 'https://us.i.posthog.com',
-      person_profiles: 'identified_only',
-      capture_pageview: true,
-      capture_pageleave: true,
-      autocapture: false,       // manual events only — no accidental PII
-      disable_session_recording: true,
-      persistence: 'localStorage+cookie',
+    import('posthog-js').then(({ default: posthog }) => {
+      posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'identified_only',
+        capture_pageview: true,
+        capture_pageleave: true,
+        autocapture: false,       // manual events only — no accidental PII
+        disable_session_recording: true,
+        persistence: 'localStorage+cookie',
+      });
     });
   }
 }
@@ -68,8 +74,8 @@ if (localStorage.getItem('cookieConsent') === 'accepted') {
 // Reports Core Web Vitals as Sentry performance measurements.
 // Fires once per page load; no PII is collected.
 function reportWebVitals(metric) {
-  if (!import.meta.env.VITE_SENTRY_DSN) return;
-  Sentry.addBreadcrumb({
+  if (!_sentry) return;
+  _sentry.addBreadcrumb({
     category: 'web-vitals',
     message: metric.name,
     data: { value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value), rating: metric.rating },
@@ -93,8 +99,8 @@ class ErrorBoundary extends React.Component {
   }
   componentDidCatch(error, info) {
     console.error('App crash:', error, info);
-    if (import.meta.env.VITE_SENTRY_DSN) {
-      Sentry.captureException(error, { extra: info });
+    if (_sentry) {
+      _sentry.captureException(error, { extra: info });
     }
   }
   render() {

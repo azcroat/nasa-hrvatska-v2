@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { H } from '../../data.jsx';
-import { useApp } from '../../context/AppContext.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 // ── Region data ───────────────────────────────────────────────────────────────
 const REGIONS = [
@@ -212,7 +212,7 @@ export default function HeritageStoryScreen({ goBack, award }) {
     awardFired.current = false;
     readParts.current = new Set();
     try {
-      const res = await fetch('/api/ai-chat', {
+      const res = await apiFetch('/api/ai-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

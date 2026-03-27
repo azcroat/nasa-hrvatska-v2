@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { H } from '../../data.jsx';
-import { useApp } from '../../context/AppContext.jsx';
+import { useStats } from '../../context/StatsContext.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 // ── Fallback articles shown when the live API is unavailable ─────────────────
 const FALLBACK_ARTICLES = [
@@ -329,7 +330,7 @@ function ArticleCard({ article, index, translating, tooltip, onWordTap, onAward,
 
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function CroatianNewsScreen({ goBack, award }) {
-  const { level: userLevel } = useApp();
+  const { level: userLevel } = useStats();
   const isOnline = useOnlineStatus();
 
   const defaultLevel = LEVELS.includes(userLevel) ? userLevel : 'B1';
@@ -394,7 +395,7 @@ export default function CroatianNewsScreen({ goBack, award }) {
     if (translating) return;
     setTranslating({ articleId, wordIndex });
     try {
-      const res = await fetch('/api/ai-chat', {
+      const res = await apiFetch('/api/ai-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

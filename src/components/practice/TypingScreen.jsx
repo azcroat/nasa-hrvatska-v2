@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { H, Bar, V, sh, srMark } from '../../data.jsx';
+import { H, Bar, V, sh, srMark, speak } from '../../data.jsx';
 import CroatianKeyboard from '../shared/CroatianKeyboard.jsx';
 
 export default function TypingScreen({ goBack, award }) {
@@ -59,7 +59,7 @@ export default function TypingScreen({ goBack, award }) {
         type="text"
         value={tyIn}
         onChange={e => sTyIn(e.target.value)}
-        onKeyDown={e => { if (e.key === "Enter" && !tyA) { sTyA(true); srMark(tyW[0], isCorrect); if (isCorrect) sTyS(tyS + 1); } }}
+        onKeyDown={e => { if (e.key === "Enter" && !tyA) { sTyA(true); srMark(tyW[0], isCorrect); if (isCorrect) sTyS(tyS + 1); speak(tyW[0]); } }}
         placeholder="Type Croatian..."
         style={{marginTop:16,textAlign:"center",fontSize:18}} />
       <CroatianKeyboard onChar={insertChar} />

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { H, speak, getMistakes } from '../../data.jsx';
-import { useApp } from '../../context/AppContext.jsx';
+import { useStats } from '../../context/StatsContext.jsx';
 
 // Render a Croatian sentence with one word bolded in the brand teal
 function HighlightedSentence({ text, highlight }) {
@@ -49,7 +49,7 @@ function MicroBar({ v, mx }) {
 }
 
 export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
-  const { level } = useApp();
+  const { level } = useStats();
   const [phase, setPhase] = useState('loading'); // loading | error | intro | quiz | results
   const [lesson, setLesson] = useState(null);
   const [weakWords, setWeakWords] = useState([]);

@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { H, Bar, V, srMark } from '../../data.jsx';
+import { H, Bar, V, srMark, speak } from '../../data.jsx';
 import { rnd } from '../../lib/random.js';
+
+const TimerDisplay = React.memo(function TimerDisplay({ timeLeft, color }) {
+  return (
+    <div style={{fontSize:'var(--text-2xl)',fontWeight:900,color,fontVariantNumeric:'tabular-nums',minWidth:36,textAlign:'center'}}>
+      {timeLeft}s
+    </div>
+  );
+});
 
 const ROUND_TIME = 30;
 const QUESTIONS_PER_ROUND = 15;
@@ -64,6 +72,13 @@ export default function WordSprint({ sh, award, goBack }) {
     setTimeLeft(ROUND_TIME); setChosen(null); setFeedback(null); setResults([]);
     setPhase('playing');
   }, [selectedCats, sh, catList]);
+
+  // Speak the Croatian word whenever a new question loads (Croatian prompt only)
+  useEffect(() => {
+    if (phase !== 'playing' || !questions[qi]) return;
+    const q = questions[qi];
+    if (q.prompt === q.word.hr) speak(q.word.hr);
+  }, [qi, phase]); // eslint-disable-line
 
   useEffect(() => {
     if (phase !== 'playing') return undefined;
@@ -173,7 +188,7 @@ export default function WordSprint({ sh, award, goBack }) {
 
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
           <div style={{fontSize:'var(--text-sm)',fontWeight:700,color:'var(--subtext)'}}>{qi+1} / {questions.length}</div>
-          <div style={{fontSize:'var(--text-2xl)',fontWeight:900,color:timerColor,fontVariantNumeric:'tabular-nums',minWidth:36,textAlign:'center'}}>{timeLeft}s</div>
+          <TimerDisplay timeLeft={timeLeft} color={timerColor} />
           <div style={{fontSize:'var(--text-sm)',fontWeight:700,color:'var(--info)'}}>⭐ {score} pts</div>
         </div>
 

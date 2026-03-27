@@ -1,12 +1,24 @@
 // Cloudflare Pages Function — AI Croatian Writing Correction
 // Uses Anthropic Claude to correct Croatian writing and provide feedback
 
-const CORS = {
-  "Content-Type": "application/json",
-  "Access-Control-Allow-Origin": "https://nasahrvatska.com",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
+import { checkRateLimit } from './_rateLimit.js';
+
+function sanitizeParam(value, maxLen = 200) {
+  return String(value || '')
+    .replace(/[\r\n]/g, ' ')
+    .replace(/[`\\]/g, '')
+    .trim()
+    .slice(0, maxLen);
+}
+
+function CORS(origin) {
+  return {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+}
 
 function isAllowedOrigin(origin, isDev) {
   try {
@@ -19,8 +31,9 @@ function isAllowedOrigin(origin, isDev) {
   } catch { return false; }
 }
 
-export async function onRequestOptions() {
-  return new Response(null, { status: 204, headers: CORS });
+export async function onRequestOptions({ request }) {
+  const origin = request.headers.get("origin") || "";
+  return new Response(null, { status: 204, headers: CORS(origin) });
 }
 
 export async function onRequestPost(context) {
@@ -30,7 +43,12 @@ export async function onRequestPost(context) {
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
   const isDev = env.ENVIRONMENT !== "production";
   if (!isAllowedOrigin(origin, isDev)) {
-    return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: CORS });
+    return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: CORS(origin) });
+  }
+
+  const allowed = await checkRateLimit(request, 20);
+  if (!allowed) {
+    return new Response('Rate limit exceeded', { status: 429, headers: CORS(origin) });
   }
 
   if (!ANTHROPIC_KEY) {
@@ -44,24 +62,26 @@ export async function onRequestPost(context) {
       encouragement: "Keep writing in Croatian — practice makes perfect!"
     }), {
       status: 200,
-      headers: CORS,
+      headers: CORS(origin),
     });
   }
 
   try {
     const ct = request.headers.get('content-type') || '';
     if (!ct.includes('application/json')) {
-      return new Response(JSON.stringify({ error: "Invalid content type" }), { status: 400, headers: CORS });
+      return new Response(JSON.stringify({ error: "Invalid content type" }), { status: 400, headers: CORS(origin) });
     }
     const { prompt, text } = await request.json();
     if (typeof text !== 'string' || !text.trim()) {
-      return new Response(JSON.stringify({ error: "Invalid input" }), { status: 400, headers: CORS });
+      return new Response(JSON.stringify({ error: "Invalid input" }), { status: 400, headers: CORS(origin) });
     }
     if (text.length > 3000) {
-      return new Response(JSON.stringify({ error: "Text too long (max 3000 chars)" }), { status: 400, headers: CORS });
+      return new Response(JSON.stringify({ error: "Text too long (max 3000 chars)" }), { status: 400, headers: CORS(origin) });
     }
 
-    const systemPrompt = `You are a Croatian language teacher. The student was asked to write about: "${prompt}".
+    const safePrompt = sanitizeParam(prompt, 300);
+
+    const systemPrompt = `You are a Croatian language teacher. The student was asked to write about: "${safePrompt}".
 
 Analyze their Croatian text and respond with ONLY valid JSON (no markdown, no code blocks) in this exact format:
 {
@@ -125,7 +145,7 @@ List up to 5 most important changes. List 1-3 strengths and 1-2 improvements. Be
 
     return new Response(JSON.stringify(result), {
       status: 200,
-      headers: { ...CORS, "Cache-Control": "no-store" },
+      headers: { ...CORS(origin), "Cache-Control": "no-store" },
     });
   } catch {
     return new Response(JSON.stringify({
@@ -138,7 +158,7 @@ List up to 5 most important changes. List 1-3 strengths and 1-2 improvements. Be
       encouragement: "Keep writing — every sentence is progress!"
     }), {
       status: 200,
-      headers: CORS,
+      headers: CORS(origin),
     });
   }
 }

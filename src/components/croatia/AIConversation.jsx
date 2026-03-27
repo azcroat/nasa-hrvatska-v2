@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { speak } from '../../data.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
-import { useApp } from '../../context/AppContext.jsx';
+import { useStats } from '../../context/StatsContext.jsx';
 
 // ── Conversation scenarios ───────────────────────────────────────────────────
 const SCENARIOS = [
@@ -303,6 +303,7 @@ function SpeakingAvatar({ src, name, size = 38, isSpeaking = false, style: extra
     }}>
       {!imgErr
         ? <img src={src} alt={name}
+            loading="lazy"
             onError={() => setImgErr(true)}
             style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }} />
         : <span style={{ fontSize: Math.round(size * 0.45) }}>🇭🇷</span>
@@ -312,7 +313,7 @@ function SpeakingAvatar({ src, name, size = 38, isSpeaking = false, style: extra
 }
 
 export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWords }) {
-  const { award, stats: appSt } = useApp();
+  const { award, stats: appSt } = useStats();
   const stats = appSt;
   const isOnline = useOnlineStatus();
 
@@ -350,6 +351,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   // ── Voice input ────────────────────────────────────────────────────────────
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef(null);
+  const evalXpFired = useRef(false);
+  const writeXpFired = useRef(false);
 
   // ── NPC mute toggle ─────────────────────────────────────────────────────────
   const [muted, setMuted] = useState(false);
@@ -651,7 +654,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       const ev = parseJSON(raw);
       setEvaluation(ev);
       // Award XP based on conversation quality and length
-      if (ev && typeof award === "function") {
+      if (ev && typeof award === "function" && !evalXpFired.current) {
+        evalXpFired.current = true;
         const xp = ev.score >= 80 ? 20 : ev.score >= 60 ? 15 : 10;
         award(xp + Math.min(userMsgs.length, 5) * 2, false);
       }
@@ -679,7 +683,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       if (!result) throw new Error("Could not parse evaluation response.");
       setWriteEval(result);
       // Award XP for completing a free-write evaluation
-      if (typeof award === "function") {
+      if (typeof award === "function" && !writeXpFired.current) {
+        writeXpFired.current = true;
         const xp = result.score >= 80 ? 18 : result.score >= 60 ? 13 : 8;
         award(xp, false);
       }
@@ -779,6 +784,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
               boxShadow:"0 4px 20px rgba(0,0,0,.3), 0 0 0 3px rgba(255,255,255,.25)",
               background:"linear-gradient(135deg,rgba(255,255,255,.15),rgba(255,255,255,.05))" }}>
               <img src="/images/portraits/tutor-hero.jpg" alt="Maja — Croatian tutor"
+                loading="lazy"
                 onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }}
                 style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"top center" }} />
               <div style={{ display:"none", width:"100%", height:"100%", alignItems:"center", justifyContent:"center", fontSize:32 }}>🇭🇷</div>
@@ -1148,6 +1154,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
                     border: selected ? `2px solid ${s.color}` : "2px solid var(--card-b)",
                     background:`linear-gradient(135deg,${s.color}22,${s.color}44)` }}>
                     <img src={portraitSrc(s.id)} alt={s.aiName}
+                      loading="lazy"
                       onError={e => { e.target.style.display='none'; }}
                       style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"top center" }} />
                   </div>

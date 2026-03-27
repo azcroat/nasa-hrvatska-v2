@@ -2,11 +2,17 @@
 // ElevenLabs (primary, no content filtering, native Croatian quality)
 // Azure (fallback)
 
+import { checkRateLimit } from './_rateLimit.js';
+
 // ── ElevenLabs ────────────────────────────────────────────────────────────────
-// eleven_multilingual_v2 handles Croatian natively with no content filtering.
-// Voice: "Charlotte" — clear, neutral European female voice.
-// Override voice by setting ELEVENLABS_VOICE_ID env var in Cloudflare.
-const EL_DEFAULT_VOICE = "XB0fDUnXU5powFXDhCwa"; // Charlotte
+// eleven_flash_v2_5: 32-language model, ~75ms latency, 50% cheaper than v2, full Croatian support.
+// Voice: "Charlotte" (EL_DEFAULT_VOICE) — clear, neutral European female voice, English/Swedish-trained.
+// Charlotte approximates Croatian phonemes — ć/č and đ/dž are handled incorrectly for native speakers.
+// For Croatian text, Azure hr-HR-GabrijelaNeural is used when Charlotte is the active voice, as it is
+// a phonemically accurate native Croatian neural voice.
+// To use a Croatian ElevenLabs voice instead, set ELEVENLABS_VOICE_ID env var in Cloudflare — when a
+// custom voice ID is configured, the operator's choice is trusted and ElevenLabs remains primary.
+const EL_DEFAULT_VOICE = "XB0fDUnXU5powFXDhCwa"; // Charlotte (English/Swedish-trained)
 
 async function tryElevenLabs(text, slow, apiKey, voiceId) {
   // Only force language_code='hr' when the text contains Croatian-specific diacritics (č,ć,š,ž,đ).
@@ -22,7 +28,7 @@ async function tryElevenLabs(text, slow, apiKey, voiceId) {
 
   const body = {
     text,
-    model_id: "eleven_multilingual_v2",
+    model_id: "eleven_flash_v2_5",
     ...(hasCroatianChars && { language_code: "hr" }), // Force Croatian when Croatian patterns detected
     voice_settings: {
       stability: 1.0,             // Max stability — fully neutral, no emotional variation.
@@ -127,6 +133,20 @@ function isAllowedOrigin(origin, isDev) {
   } catch { return false; }
 }
 
+// ── CORS ─────────────────────────────────────────────────────────────────────
+function corsHeaders(origin) {
+  return {
+    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+  };
+}
+
+export async function onRequestOptions({ request }) {
+  const origin = request.headers.get("origin") || "";
+  return new Response(null, { status: 204, headers: corsHeaders(origin) });
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -134,7 +154,12 @@ export async function onRequestPost(context) {
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
   const isDev = env.ENVIRONMENT !== "production";
   if (!isAllowedOrigin(origin, isDev)) {
-    return new Response("Forbidden", { status: 403 });
+    return new Response("Forbidden", { status: 403, headers: corsHeaders(origin) });
+  }
+
+  const allowed = await checkRateLimit(request, 30);
+  if (!allowed) {
+    return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders(origin) });
   }
 
   const ELEVENLABS_KEY = env.ELEVENLABS_API_KEY;
@@ -143,7 +168,7 @@ export async function onRequestPost(context) {
   const VOICE_ID = env.ELEVENLABS_VOICE_ID || EL_DEFAULT_VOICE;
 
   if (!ELEVENLABS_KEY && !AZURE_KEY) {
-    return new Response("TTS not configured", { status: 500 });
+    return new Response("TTS not configured", { status: 500, headers: corsHeaders(origin) });
   }
 
   try {
@@ -174,17 +199,36 @@ export async function onRequestPost(context) {
 
     let buffer = null;
 
-    // 1. Try ElevenLabs (best quality, no content filtering)
-    if (ELEVENLABS_KEY) {
+    // Determine if text is Croatian
+    const hasCroatianChars = /[čćšžđČĆŠŽĐ]/.test(text) ||
+      /\b(tko|gdje|kad|kako|kamo|kakav|kakva|kakvo|sam|si|smo|ste|jest|jesi|jesu|nisam|nisi|nije|nismo|niste|nisu|imam|imaš|ima|imamo|imate|imaju|idem|ideš|ide|idemo|idete|idu|da|ne|bok|hvala|molim|dobar|dobra|dobro|dan|jutro|večer)\b/i.test(text);
+
+    // When text is Croatian and we're using the default Charlotte voice (not a custom Croatian voice),
+    // prefer Azure hr-HR-GabrijelaNeural — it's a phonemically native Croatian neural voice.
+    // Charlotte is English/Swedish-trained and approximates ć/č and đ/dž incorrectly.
+    // If operator configured a custom ELEVENLABS_VOICE_ID, assume they chose a Croatian voice.
+    const useAzurePrimary = hasCroatianChars && VOICE_ID === EL_DEFAULT_VOICE;
+
+    if (useAzurePrimary && AZURE_KEY) {
+      // 1. Try Azure first for Croatian text (phonemically accurate)
       try {
-        buffer = await tryElevenLabs(text, slow, ELEVENLABS_KEY, VOICE_ID);
+        buffer = await tryAzure(text, slow, AZURE_KEY, PRIMARY_REGION);
       } catch {
-        // network error — fall through to Azure
+        // fall through to ElevenLabs
       }
     }
 
-    // 2. Fall back to Azure
-    if (!buffer && AZURE_KEY) {
+    // 2. Try ElevenLabs (primary for non-Croatian, fallback for Croatian with default voice)
+    if (!buffer && ELEVENLABS_KEY) {
+      try {
+        buffer = await tryElevenLabs(text, slow, ELEVENLABS_KEY, VOICE_ID);
+      } catch {
+        // network error — fall through
+      }
+    }
+
+    // 3. Final fallback: Azure for non-Croatian text (if ElevenLabs failed)
+    if (!buffer && AZURE_KEY && !useAzurePrimary) {
       try {
         buffer = await tryAzure(text, slow, AZURE_KEY, PRIMARY_REGION);
       } catch {
@@ -198,6 +242,7 @@ export async function onRequestPost(context) {
         headers: {
           "Content-Type": "audio/mpeg",
           "Cache-Control": "public, max-age=86400",
+          ...corsHeaders(origin),
         },
       });
       // Store in edge cache asynchronously (don't block response)
@@ -207,7 +252,7 @@ export async function onRequestPost(context) {
       return ttsResponse;
     }
 
-    return new Response("TTS unavailable", { status: 503 });
+    return new Response("TTS unavailable", { status: 503, headers: corsHeaders(origin) });
   } catch {
     return new Response("TTS proxy error", { status: 500 });
   }

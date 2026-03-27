@@ -2,6 +2,9 @@
 // Keeps the API key server-side; never exposed to the browser
 // systemPrompt is built server-side from mode + params to prevent prompt injection
 
+import { checkRateLimit } from './_rateLimit.js';
+import { getFirebaseUid } from './_verifyToken.js';
+
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-4-6";
 
@@ -38,15 +41,17 @@ function isAllowedOrigin(origin, isDev) {
   } catch { return false; }
 }
 
-const corsHeaders = {
-  "Content-Type": "application/json",
-  "Access-Control-Allow-Origin": "https://nasahrvatska.com",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Cache-Control": "no-cache",
-};
+function corsHeaders(origin) {
+  return {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Cache-Control": "no-cache",
+  };
+}
 
-function ok(body)           { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders }); }
-function err(status, msg)   { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders }); }
+function ok(body, origin)           { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) }); }
+function err(status, msg, origin)   { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) }); }
 
 // ── Server-side prompt builders ──────────────────────────────────────────────
 function buildConvoPrompt(params) {
@@ -486,8 +491,9 @@ function buildSystemPrompt(mode, params) {
   }
 }
 
-export async function onRequestOptions() {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export async function onRequestOptions({ request }) {
+  const origin = request.headers.get("origin") || "";
+  return new Response(null, { status: 204, headers: corsHeaders(origin) });
 }
 
 export async function onRequestPost(context) {
@@ -496,32 +502,44 @@ export async function onRequestPost(context) {
 
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
   const isDev = env.ENVIRONMENT !== "production";
-  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden");
+  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden", origin);
 
-  if (!ANTHROPIC_KEY) return err(500, "Service not configured");
+  const allowed = await checkRateLimit(request, 20);
+  if (!allowed) {
+    return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders(origin) });
+  }
+
+  // Require valid Firebase auth token for AI endpoints
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
+  if (FIREBASE_PROJECT_ID && !uid) {
+    return new Response('Unauthorized', { status: 401, headers: corsHeaders(origin) });
+  }
+
+  if (!ANTHROPIC_KEY) return err(500, "Service not configured", origin);
 
   const ct = request.headers.get('content-type') || '';
-  if (!ct.includes('application/json')) return err(400, "Invalid content type");
+  if (!ct.includes('application/json')) return err(400, "Invalid content type", origin);
 
   let body;
   try { body = await request.json(); }
-  catch { return err(400, "Invalid JSON in request body"); }
+  catch { return err(400, "Invalid JSON in request body", origin); }
 
   const { messages, mode, params } = body;
 
   // ── Input type validation ────────────────────────────────────────────────────
-  if (typeof mode !== 'string' || mode.length > 30) return err(400, "Invalid request");
+  if (typeof mode !== 'string' || mode.length > 30) return err(400, "Invalid request", origin);
   if (params !== undefined && (typeof params !== 'object' || Array.isArray(params))) {
-    return err(400, "Invalid request");
+    return err(400, "Invalid request", origin);
   }
-  if (messages !== undefined && !Array.isArray(messages)) return err(400, "Invalid request");
+  if (messages !== undefined && !Array.isArray(messages)) return err(400, "Invalid request", origin);
   if (Array.isArray(messages)) {
-    if (messages.length > 50) return err(400, "Too many messages");
+    if (messages.length > 50) return err(400, "Too many messages", origin);
     for (const msg of messages) {
-      if (typeof msg !== 'object' || !msg) return err(400, "Invalid message format");
-      if (!['user','assistant'].includes(msg.role)) return err(400, "Invalid message role");
-      if (typeof msg.content !== 'string') return err(400, "Invalid message content");
-      if (msg.content.length > 4000) return err(400, "Message too long");
+      if (typeof msg !== 'object' || !msg) return err(400, "Invalid message format", origin);
+      if (!['user','assistant'].includes(msg.role)) return err(400, "Invalid message role", origin);
+      if (typeof msg.content !== 'string') return err(400, "Invalid message content", origin);
+      if (msg.content.length > 4000) return err(400, "Message too long", origin);
     }
   }
 
@@ -536,17 +554,17 @@ export async function onRequestPost(context) {
         signal: AbortSignal.timeout(28000),
         body: JSON.stringify({ model: MODEL, max_tokens: 1200, system: systemPrompt, messages: [{ role: "user", content: `Explain: ${topic}` }] }),
       });
-      if (!res.ok) return err(res.status, "Upstream error");
+      if (!res.ok) return err(res.status, "Upstream error", origin);
       const data = await res.json();
       const raw = data.content?.[0]?.text || "";
       try {
         const parsed = JSON.parse(raw);
-        return new Response(JSON.stringify(parsed), { status: 200, headers: corsHeaders });
+        return new Response(JSON.stringify(parsed), { status: 200, headers: corsHeaders(origin) });
       } catch {
-        return err(500, "Generation failed");
+        return err(500, "Generation failed", origin);
       }
     } catch {
-      return err(500, "Request failed");
+      return err(500, "Request failed", origin);
     }
   }
 
@@ -554,7 +572,7 @@ export async function onRequestPost(context) {
   const SINGLE_PROMPT_MODES = ["story", "heritage", "phrase_of_day", "news_simplify", "postcard"];
   if (SINGLE_PROMPT_MODES.includes(mode)) {
     const systemPrompt = buildSystemPrompt(mode, params);
-    if (!systemPrompt) return err(400, "Unknown mode: " + mode);
+    if (!systemPrompt) return err(400, "Unknown mode: " + mode, origin);
     const userContent = (messages && messages[0]?.content) ? String(messages[0].content).slice(0, 2000) : "Generate content";
     try {
       const res = await fetch(ANTHROPIC_URL, {
@@ -568,32 +586,32 @@ export async function onRequestPost(context) {
           messages: [{ role: "user", content: userContent }],
         }),
       });
-      if (!res.ok) return err(res.status, "Upstream error");
+      if (!res.ok) return err(res.status, "Upstream error", origin);
       const data = await res.json();
       const raw = data.content?.[0]?.text || "";
       // Try to return parsed JSON for these structured modes
       try {
         const parsed = JSON.parse(raw);
-        return new Response(JSON.stringify({ ...parsed, _raw: raw, model: MODEL }), { status: 200, headers: corsHeaders });
+        return new Response(JSON.stringify({ ...parsed, _raw: raw, model: MODEL }), { status: 200, headers: corsHeaders(origin) });
       } catch {
-        return ok({ text: raw, model: MODEL });
+        return ok({ text: raw, model: MODEL }, origin);
       }
     } catch (fetchErr) {
       console.error("Network error calling Anthropic:", fetchErr.message);
-      return err(502, "Service temporarily unavailable");
+      return err(502, "Service temporarily unavailable", origin);
     }
   }
 
   if (!messages || !Array.isArray(messages) || !mode) {
-    return err(400, "Missing required fields: messages (array) and mode");
+    return err(400, "Missing required fields: messages (array) and mode", origin);
   }
   if (messages.length > 50) {
-    return err(400, "Too many messages: max 50 allowed");
+    return err(400, "Too many messages: max 50 allowed", origin);
   }
 
   const systemPrompt = buildSystemPrompt(mode, params);
   if (!systemPrompt) {
-    return err(400, "Unknown mode: " + mode);
+    return err(400, "Unknown mode: " + mode, origin);
   }
 
   let anthropicMsgs = messages
@@ -640,18 +658,18 @@ export async function onRequestPost(context) {
     data = await res.json();
   } catch (fetchErr) {
     console.error("Network error calling Anthropic:", fetchErr.message);
-    return err(502, "Service temporarily unavailable");
+    return err(502, "Service temporarily unavailable", origin);
   }
 
   if (!res.ok) {
-    return err(res.status, data?.error?.message || ("Anthropic API error: HTTP " + res.status));
+    return err(res.status, data?.error?.message || ("Anthropic API error: HTTP " + res.status), origin);
   }
 
   const text = data?.content?.[0]?.text?.trim() || "";
   if (!text) {
     console.error("Anthropic empty response, stop_reason:", data?.stop_reason);
-    return err(500, "AI service returned an empty response");
+    return err(500, "AI service returned an empty response", origin);
   }
 
-  return ok({ text, model: MODEL });
+  return ok({ text, model: MODEL }, origin);
 }

@@ -2,11 +2,13 @@
 // POST /api/contact { type, subject, description, replyEmail, userName, userLevel, userXp }
 // Sends a formatted support email to the admin (ADMIN_EMAIL env var).
 
-const CORS = {
-  "Access-Control-Allow-Origin": "https://nasahrvatska.com",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
+function CORS(origin) {
+  return {
+    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+}
 
 function isAllowedOrigin(origin, isDev) {
   try {
@@ -19,7 +21,7 @@ function isAllowedOrigin(origin, isDev) {
   } catch { return false; }
 }
 
-const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,253}\.[^\s@]{2,}$/;
+const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
 
 const TYPE_COLORS = {
   bug:     { bg: "#fef2f2", border: "#fca5a5", badge: "#dc2626", label: "🐛 Bug Report" },
@@ -29,8 +31,9 @@ const TYPE_COLORS = {
   other:   { bg: "#faf5ff", border: "#c4b5fd", badge: "#7c3aed", label: "💬 Other" },
 };
 
-export async function onRequestOptions() {
-  return new Response(null, { status: 204, headers: CORS });
+export async function onRequestOptions({ request }) {
+  const origin = request.headers.get("origin") || "";
+  return new Response(null, { status: 204, headers: CORS(origin) });
 }
 
 export async function onRequestPost(context) {
@@ -47,18 +50,18 @@ export async function onRequestPost(context) {
   if (!ADMIN_EMAIL) {
     console.error("ADMIN_EMAIL environment variable is not configured");
     return new Response(JSON.stringify({ ok: false, error: "Contact service is temporarily unavailable." }), {
-      status: 500, headers: { "Content-Type": "application/json" }
+      status: 500, headers: { ...CORS(origin), "Content-Type": "application/json" }
     });
   }
 
   if (!RESEND_KEY) {
     return new Response(JSON.stringify({ ok: false, error: "Contact not configured." }),
-      { status: 200, headers: { ...CORS, "Content-Type": "application/json" } });
+      { status: 200, headers: { ...CORS(origin), "Content-Type": "application/json" } });
   }
 
   const ct = request.headers.get('content-type') || '';
   if (!ct.includes('application/json')) {
-    return new Response(JSON.stringify({ ok: false, error: "Invalid content type" }), { status: 400, headers: { "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ ok: false, error: "Invalid content type" }), { status: 400, headers: { ...CORS(origin), "Content-Type": "application/json" } });
   }
 
   let body;
@@ -69,24 +72,24 @@ export async function onRequestPost(context) {
 
   const VALID_TYPES = ["bug", "feature", "content", "question", "other"];
   if (!VALID_TYPES.includes(type)) {
-    return new Response(JSON.stringify({ ok: false, error: "Invalid type." }), { status: 400, headers: { "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ ok: false, error: "Invalid type." }), { status: 400, headers: { ...CORS(origin), "Content-Type": "application/json" } });
   }
 
   if (!type || !subject || !description) {
     return new Response(JSON.stringify({ ok: false, error: "Missing required fields." }),
-      { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
+      { status: 400, headers: { ...CORS(origin), "Content-Type": "application/json" } });
   }
   if (subject.length > 120 || description.length > 2000) {
     return new Response(JSON.stringify({ ok: false, error: "Content too long." }),
-      { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
+      { status: 400, headers: { ...CORS(origin), "Content-Type": "application/json" } });
   }
   if (replyEmail && !EMAIL_RE.test(replyEmail)) {
     return new Response(JSON.stringify({ ok: false, error: "Invalid email address." }),
-      { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
+      { status: 400, headers: { ...CORS(origin), "Content-Type": "application/json" } });
   }
-  if (replyEmail && /[\r\n]/.test(replyEmail)) {
+  if (replyEmail && /[\r\n\t%]/.test(replyEmail)) {
     return new Response(JSON.stringify({ ok: false, error: "Invalid email address." }),
-      { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
+      { status: 400, headers: { ...CORS(origin), "Content-Type": "application/json" } });
   }
 
   function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
@@ -170,9 +173,9 @@ export async function onRequestPost(context) {
 
     const data = await res.json().catch(() => ({}));
     return new Response(JSON.stringify({ ok: res.ok, ticketId, ...data }),
-      { status: res.ok ? 200 : 500, headers: { ...CORS, "Content-Type": "application/json" } });
+      { status: res.ok ? 200 : 500, headers: { ...CORS(origin), "Content-Type": "application/json" } });
   } catch (e) {
     return new Response(JSON.stringify({ ok: false, error: e.message }),
-      { status: 502, headers: { ...CORS, "Content-Type": "application/json" } });
+      { status: 502, headers: { ...CORS(origin), "Content-Type": "application/json" } });
   }
 }

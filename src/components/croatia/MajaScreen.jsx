@@ -6,7 +6,9 @@ import React, {
   useMemo,
 } from 'react';
 import { useApp } from '../../context/AppContext';
+import { useStats } from '../../context/StatsContext.jsx';
 import CroatianGrb from '../shared/CroatianGrb.jsx';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 // ─────────────────────────────────────────────
 // KEYFRAME STYLES
@@ -825,7 +827,8 @@ function DebriefScreen({ debrief, conversation, durationSecs, onContinue, onBack
 // MAIN COMPONENT
 // ─────────────────────────────────────────────
 export default function MajaScreen() {
-  const { name, level, award, goBack } = useApp();
+  const { name, goBack } = useApp();
+  const { level, award } = useStats();
 
   // ── persona ────────────────────────────────
   const [personaKey] = useState(() => getPersona());
@@ -853,6 +856,7 @@ export default function MajaScreen() {
   const [micDenied, setMicDenied] = useState(false);
 
   // ── refs ───────────────────────────────────
+  const debriefXpFired = useRef(false);
   const phaseRef = useRef('idle');
   const recRef = useRef(null);
   const audioRef = useRef(null);
@@ -1046,7 +1050,7 @@ export default function MajaScreen() {
       }));
 
       try {
-        const res = await fetch('/api/maja', {
+        const res = await apiFetch('/api/maja', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1183,7 +1187,7 @@ export default function MajaScreen() {
     setSession(sess);
 
     try {
-      const res = await fetch('/api/maja', {
+      const res = await apiFetch('/api/maja', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1241,7 +1245,7 @@ export default function MajaScreen() {
     const durationSecs = elapsedSecs;
 
     try {
-      const res = await fetch('/api/maja-debrief', {
+      const res = await apiFetch('/api/maja-debrief', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1321,7 +1325,8 @@ export default function MajaScreen() {
 
   // ── debrief back (award XP) ────────────────
   const handleDebriefBack = useCallback(() => {
-    if (debrief) {
+    if (debrief && !debriefXpFired.current) {
+      debriefXpFired.current = true;
       award(debrief.xpEarned ?? 30);
     }
     goBack();
