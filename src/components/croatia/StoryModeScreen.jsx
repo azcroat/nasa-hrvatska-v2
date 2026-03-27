@@ -170,13 +170,69 @@ function PulsingDots({ color }) {
   );
 }
 
+// ── Goal meta ─────────────────────────────────────────────────────────────────
+const GOAL_META = {
+  heritage: {
+    label: 'Heritage Seeker',
+    icon: '🧬',
+    cities: ['Zagreb', 'Varaždin', 'Šibenik'],
+    theme: 'family history and Croatian roots',
+    tip: 'Stories about ancestry, old family homes, and cultural identity',
+  },
+  family: {
+    label: 'Family Connection',
+    icon: '👨‍👩‍👧',
+    cities: ['Split', 'Zagreb', 'Zadar'],
+    theme: 'everyday family life and domestic moments',
+    tip: 'Stories set in homes, markets, and family gatherings',
+  },
+  travel: {
+    label: 'Traveler',
+    icon: '✈️',
+    cities: ['Dubrovnik', 'Hvar', 'Rovinj'],
+    theme: 'travel, exploration, and local discoveries',
+    tip: 'Stories as a visitor navigating real Croatian places',
+  },
+  culture: {
+    label: 'Culture Lover',
+    icon: '🎭',
+    cities: ['Šibenik', 'Zadar', 'Varaždin'],
+    theme: 'art, music, festivals, and Croatian traditions',
+    tip: 'Stories rich in cultural references and local customs',
+  },
+  partner: {
+    label: 'Partner Goal',
+    icon: '💑',
+    cities: ['Rovinj', 'Hvar', 'Dubrovnik'],
+    theme: 'romantic settings and heartfelt conversations',
+    tip: 'Stories set in intimate, scenic Croatian locations',
+  },
+  fluent: {
+    label: 'Fluency Goal',
+    icon: '🗣️',
+    cities: ['Zagreb', 'Split', 'Rijeka'],
+    theme: 'authentic everyday Croatian life and natural dialogue',
+    tip: 'Stories with rich vocabulary and natural speech patterns',
+  },
+};
+
 // ── Main component ─────────────────────────────────────────────────────────────
 export default function StoryModeScreen({ goBack, award }) {
   const { level: userLevel } = useApp();
   const isOnline = useOnlineStatus();
 
-  // Setup state
-  const [selectedCity, setSelectedCity] = useState(STORY_CITIES[0]);
+  // Read user goal
+  const userGoal = (() => { try { return localStorage.getItem('nh_goal') || ''; } catch { return ''; } })();
+  const goalMeta = GOAL_META[userGoal] || null;
+
+  // Setup state — pre-select a goal-recommended city if available
+  const [selectedCity, setSelectedCity] = useState(() => {
+    if (goalMeta) {
+      const rec = STORY_CITIES.find(c => goalMeta.cities.includes(c.name));
+      if (rec) return rec;
+    }
+    return STORY_CITIES[0];
+  });
   const [selectedLevel, setSelectedLevel] = useState(userLevel || 'A2');
   const [characterName, setCharacterName] = useState('');
 
@@ -227,6 +283,8 @@ export default function StoryModeScreen({ goBack, award }) {
             region: selectedCity.region,
             level: selectedLevel,
             character_name: characterName || 'you',
+            goal: userGoal || undefined,
+            goal_theme: goalMeta?.theme || undefined,
           },
         }),
       });
@@ -295,6 +353,29 @@ export default function StoryModeScreen({ goBack, award }) {
         `}</style>
 
         {H('📖 Immersive Stories', 'AI-generated stories set in real Croatian places, tailored to your level')}
+
+        {/* Goal-aware recommendation banner */}
+        {goalMeta && (
+          <div style={{
+            display: 'flex', alignItems: 'flex-start', gap: 12,
+            padding: '12px 14px', borderRadius: 12, marginBottom: 16,
+            background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)',
+            border: '1.5px solid #86efac',
+          }}>
+            <span style={{ fontSize: 22, flexShrink: 0 }}>{goalMeta.icon}</span>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: '#15803d', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>
+                Personalized for You · {goalMeta.label}
+              </div>
+              <div style={{ fontSize: 13, color: '#166534', lineHeight: 1.5 }}>
+                {goalMeta.tip}
+              </div>
+              <div style={{ fontSize: 12, color: '#15803d', marginTop: 4 }}>
+                Recommended: {goalMeta.cities.join(', ')}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* City selector */}
         <div className="c" style={{ marginBottom: 16 }}>
