@@ -170,7 +170,7 @@ export async function onRequestPost(context) {
   try {
     const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
     parsed = JSON.parse(cleaned);
-  } catch (parseErr) {
+  } catch {
     console.error("daily-plan.js: JSON parse failed. Raw:", raw.slice(0, 200));
     return err(500, "Failed to parse AI response");
   }

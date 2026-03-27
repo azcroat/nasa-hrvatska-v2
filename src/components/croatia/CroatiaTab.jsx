@@ -531,11 +531,11 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
               onClick={() => { if (!expandedCtx['history']) incrementCulture('regionCnt'); toggleCtx('history'); }}
               style={{
                 fontSize:12, color:'var(--info)', cursor:'pointer',
-                marginBottom: !!expandedCtx['history'] ? 0 : 12,
+                marginBottom: expandedCtx['history'] ? 0 : 12,
                 display:'flex', alignItems:'center', gap:4, fontWeight:600
               }}
             >
-              {!!expandedCtx['history'] ? '▲' : '▼'} Why this matters for your Croatian
+              {expandedCtx['history'] ? '▲' : '▼'} Why this matters for your Croatian
             </div>
             {!!expandedCtx['history'] && (
               <div style={{
@@ -837,11 +837,11 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
               onClick={() => { if (!expandedCtx['kafic']) incrementCulture('regionCnt'); toggleCtx('kafic'); }}
               style={{
                 fontSize:12, color:'var(--info)', cursor:'pointer',
-                marginBottom: !!expandedCtx['kafic'] ? 0 : 12,
+                marginBottom: expandedCtx['kafic'] ? 0 : 12,
                 display:'flex', alignItems:'center', gap:4, fontWeight:600
               }}
             >
-              {!!expandedCtx['kafic'] ? '▲' : '▼'} Why this matters for your Croatian
+              {expandedCtx['kafic'] ? '▲' : '▼'} Why this matters for your Croatian
             </div>
             {!!expandedCtx['kafic'] && (
               <div style={{
@@ -1083,13 +1083,13 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
               onClick={() => { if (!expandedCtx['baka']) incrementCulture('regionCnt'); toggleCtx('baka'); }}
               style={{
                 fontSize:12, color:'var(--info)', cursor:'pointer',
-                marginBottom: !!expandedCtx['baka'] ? 0 : 12,
+                marginBottom: expandedCtx['baka'] ? 0 : 12,
                 display:'flex', alignItems:'center', gap:4, fontWeight:600
               }}
             >
-              {!!expandedCtx['baka'] ? '▲' : '▼'} Why this matters for your Croatian
+              {expandedCtx['baka'] ? '▲' : '▼'} Why this matters for your Croatian
             </div>
-            {!!expandedCtx['baka'] && (
+            {expandedCtx['baka'] && (
               <div style={{
                 fontSize:12, color:'var(--subtext)', lineHeight:1.6,
                 padding:'10px 14px', background:'var(--info-bg)',

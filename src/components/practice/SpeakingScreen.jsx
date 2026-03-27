@@ -75,6 +75,10 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   // Results summary screen (shown before goBack after all words done)
   const [showSummary, setShowSummary] = useState(false);
 
+  // Cleanup waveform on unmount — must be before early return to satisfy Rules of Hooks
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { return () => { stopWaveform(); }; }, []);
+
   if (!sw) return null;
 
   // Reset per-word score when word changes (called on Next)
@@ -192,10 +196,6 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
       setPronScore(null);
     }
   }
-
-  // Cleanup waveform on unmount
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { return () => { stopWaveform(); }; }, []);
 
   function startRecognition(lIdx) {
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;

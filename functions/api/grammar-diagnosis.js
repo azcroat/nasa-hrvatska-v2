@@ -194,7 +194,7 @@ export async function onRequestPost({ request, env }) {
   try {
     const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
     parsed = JSON.parse(cleaned);
-  } catch (parseErr) {
+  } catch {
     console.error("grammar-diagnosis.js: JSON parse failed. Raw:", raw.slice(0, 200));
     return err(502, "parse_failed");
   }
