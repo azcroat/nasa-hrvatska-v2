@@ -688,6 +688,36 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
                 <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--success)' }}>At the Table</div>
                 <div style={{ fontSize:'var(--text-xs)', color:'var(--success)', marginTop:2, opacity:.75 }}>Navigate any dinner</div>
               </button>
+              <button onClick={() => setScr("postcard")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(124,58,237,.3)', background:'rgba(124,58,237,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif", position:'relative' }}>
+                <span style={{ display:'inline-block', fontSize:9, fontWeight:900, padding:'2px 6px', borderRadius:4, background:'#7c3aed', color:'white', textTransform:'uppercase', letterSpacing:'0.06em', position:'absolute', top:8, right:8 }}>AI</span>
+                <div style={{ fontSize:26, marginBottom:6 }}>📮</div>
+                <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'#7c3aed' }}>Postcard</div>
+                <div style={{ fontSize:'var(--text-xs)', color:'#7c3aed', marginTop:2, opacity:.75 }}>Write & share in Croatian</div>
+              </button>
+              <button onClick={() => setScr("storymode")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(14,116,144,.3)', background:'rgba(14,116,144,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif", position:'relative' }}>
+                <span style={{ display:'inline-block', fontSize:9, fontWeight:900, padding:'2px 6px', borderRadius:4, background:'#0e7490', color:'white', textTransform:'uppercase', letterSpacing:'0.06em', position:'absolute', top:8, right:8 }}>AI</span>
+                <div style={{ fontSize:26, marginBottom:6 }}>📖</div>
+                <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--info)' }}>Immersive Stories</div>
+                <div style={{ fontSize:'var(--text-xs)', color:'var(--info)', marginTop:2, opacity:.75 }}>AI stories set in Croatia</div>
+              </button>
+              <button onClick={() => setScr("heritage")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(180,83,9,.3)', background:'rgba(180,83,9,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif", position:'relative' }}>
+                <span style={{ display:'inline-block', fontSize:9, fontWeight:900, padding:'2px 6px', borderRadius:4, background:'#b45309', color:'white', textTransform:'uppercase', letterSpacing:'0.06em', position:'absolute', top:8, right:8 }}>AI</span>
+                <div style={{ fontSize:26, marginBottom:6 }}>🧬</div>
+                <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'#b45309' }}>Your Heritage</div>
+                <div style={{ fontSize:'var(--text-xs)', color:'#b45309', marginTop:2, opacity:.75 }}>Discover your Croatian roots</div>
+              </button>
+              <button onClick={() => setScr("croatianews")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(3,105,161,.3)', background:'rgba(3,105,161,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif", position:'relative' }}>
+                <span style={{ display:'inline-block', fontSize:9, fontWeight:900, padding:'2px 6px', borderRadius:4, background:'#0369a1', color:'white', textTransform:'uppercase', letterSpacing:'0.06em', position:'absolute', top:8, right:8 }}>AI</span>
+                <div style={{ fontSize:26, marginBottom:6 }}>🗞️</div>
+                <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'#0369a1' }}>Croatian News</div>
+                <div style={{ fontSize:'var(--text-xs)', color:'#0369a1', marginTop:2, opacity:.75 }}>Real news at your level</div>
+              </button>
+              <button onClick={() => setScr("phraseofday")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(219,39,119,.3)', background:'rgba(219,39,119,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif", position:'relative' }}>
+                <span style={{ display:'inline-block', fontSize:9, fontWeight:900, padding:'2px 6px', borderRadius:4, background:'#db2777', color:'white', textTransform:'uppercase', letterSpacing:'0.06em', position:'absolute', top:8, right:8 }}>AI</span>
+                <div style={{ fontSize:26, marginBottom:6 }}>💬</div>
+                <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'#db2777' }}>Phrase of the Day</div>
+                <div style={{ fontSize:'var(--text-xs)', color:'#db2777', marginTop:2, opacity:.75 }}>Daily cultural expressions</div>
+              </button>
               {/* Only show during Easter season (March 20 - April 30) */}
               {(() => {
                 const m = new Date().getMonth() + 1, d = new Date().getDate();

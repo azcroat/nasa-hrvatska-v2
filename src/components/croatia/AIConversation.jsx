@@ -212,6 +212,33 @@ const EXERCISE_MAP = {
   sentbuild:"🏗️ Sentence Builder",genderdrill:"♂️♀️ Gender Drill",
 };
 
+// ── Adaptive AI helpers ──────────────────────────────────────────────────────
+function deriveWeakAreas(ct = []) {
+  const GRAMMAR_TOPICS = [
+    { id: 'nominative_case', label: 'nominative case' },
+    { id: 'accusative_case', label: 'accusative case' },
+    { id: 'dative_case', label: 'dative case' },
+    { id: 'genitive_case', label: 'genitive case' },
+    { id: 'locative_case', label: 'locative case' },
+    { id: 'instrumental_case', label: 'instrumental case' },
+    { id: 'past_tense', label: 'past tense perfective' },
+    { id: 'future_tense', label: 'future tense' },
+    { id: 'adjective_agreement', label: 'adjective agreement' },
+    { id: 'verb_aspect', label: 'verb aspect' },
+  ];
+  return GRAMMAR_TOPICS
+    .filter(t => !ct.some(c => c.includes(t.id)))
+    .slice(0, 3)
+    .map(t => t.label);
+}
+
+function deriveMastered(ct = []) {
+  return ct
+    .filter(id => id.includes('vocab') || id.includes('lesson'))
+    .slice(-10)
+    .map(id => id.replace(/_/g, ' '));
+}
+
 // ── TappableMessage — defined outside to prevent remount on every parent render ─
 // Each word in an AI message is a span; tapping calls onWordClick and stops
 // event propagation so the outer "tap to speak" div is not also triggered.
@@ -286,6 +313,7 @@ function SpeakingAvatar({ src, name, size = 38, isSpeaking = false, style: extra
 
 export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWords }) {
   const { award, stats: appSt } = useApp();
+  const stats = appSt;
   const isOnline = useOnlineStatus();
 
   // ── Mode (conversation vs. free write) ─────────────────────────────────────
@@ -306,6 +334,9 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   const [sendError,  setSendError]  = useState("");
   const [evaluation, setEvaluation] = useState(null);
   const [evalError,  setEvalError]  = useState("");
+
+  // ── Adaptive session — weak areas targeted this session ───────────────────
+  const [weakAreasForSession, setWeakAreasForSession] = useState([]);
 
   // ── Inline correction state (fires async after each user message) ──────────
   const [corrections, setCorrections] = useState({}); // { messageIndex: { corrected, note } }
@@ -429,7 +460,10 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     setMessages([]);
     setCorrections({});
     setLoading(true);
-    const convoParams = { level, aiName: scenario.aiName, aiRole: scenario.aiRole, context: scenario.context };
+    const weak_areas = deriveWeakAreas(stats?.ct || []);
+    const topics_mastered = deriveMastered(stats?.ct || []);
+    setWeakAreasForSession(weak_areas);
+    const convoParams = { level, aiName: scenario.aiName, aiRole: scenario.aiRole, context: scenario.context, weak_areas, topics_mastered };
     try {
       const opener = await callAI(
         [{ role: "user", content: "Pozdrav! Možemo li početi?" }],
@@ -456,7 +490,9 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     setInput("");
     setLoading(true);
     try {
-      const reply = await callAI(next, { level, aiName: scenario.aiName, aiRole: scenario.aiRole, context: scenario.context });
+      const weak_areas = deriveWeakAreas(stats?.ct || []);
+      const topics_mastered = deriveMastered(stats?.ct || []);
+      const reply = await callAI(next, { level, aiName: scenario.aiName, aiRole: scenario.aiRole, context: scenario.context, weak_areas, topics_mastered }, "adaptive_convo");
       setMessages(prev => [...prev, { role: "assistant", content: reply }]);
       if (!muted) speakWithAnim(reply);
       // Fire correction check in background — skip if text is too short or
@@ -1061,6 +1097,15 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
         ))}
       </div>
 
+      {deriveWeakAreas(stats?.ct || []).length > 0 && (
+        <div style={{
+          fontSize: 11, color: 'var(--subtext)', fontStyle: 'italic',
+          padding: '4px 0 16px', display: 'flex', alignItems: 'center', gap: 4,
+        }}>
+          🎯 AI will practice: {deriveWeakAreas(stats?.ct || []).slice(0, 2).join(', ')}
+        </div>
+      )}
+
       <div className="sh">Category</div>
       <div style={{ display: "flex", gap: 6, marginBottom: 16, overflowX: "auto", paddingBottom: 4 }}>
         {CATS.map(c => (
@@ -1299,6 +1344,33 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
           <div style={{ background: "var(--warning-bg)", border: "1.5px solid var(--warning-b)", borderRadius: 14, padding: 15, marginBottom: 20 }}>
             <div style={{ fontSize: "var(--text-xs)", fontWeight: 800, color: "var(--warning)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>📚 Vocabulary</div>
             <div style={{ fontSize: "var(--text-sm)", color: "var(--body)", lineHeight: 1.6 }}>{ev.vocabulary_feedback}</div>
+          </div>
+        )}
+
+        {weakAreasForSession.length > 0 && (
+          <div className="c" style={{
+            padding: '14px 16px', marginTop: 12, marginBottom: 14,
+            background: 'var(--info-bg)',
+            borderLeft: '4px solid var(--info)',
+            borderRadius: 14,
+          }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--info)', marginBottom: 8 }}>
+              🎯 Conversation focused on:
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {weakAreasForSession.map((area, i) => (
+                <span key={i} style={{
+                  fontSize: 12, padding: '3px 10px', borderRadius: 20,
+                  background: 'var(--card)', border: '1px solid var(--info-b)',
+                  color: 'var(--info)', fontWeight: 600,
+                }}>
+                  {area}
+                </span>
+              ))}
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 8 }}>
+              The AI naturally wove these grammar patterns into the conversation to help you practice.
+            </div>
           </div>
         )}
 

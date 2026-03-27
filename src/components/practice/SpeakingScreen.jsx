@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, Spk, speakSlow } from '../../data.jsx';
 import PronunciationScorer from '../shared/PronunciationScorer.jsx';
 
@@ -57,6 +57,15 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   const [recordingURL, setRecordingURL] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
 
+  // Waveform visualization state
+  const [waveform, setWaveform] = useState(new Array(30).fill(0));
+  const analyserRef = useRef(null);
+  const animFrameRef = useRef(null);
+  const streamRef = useRef(null);
+
+  // AI pronunciation feedback state
+  const [pronScore, setPronScore] = useState(null);
+
   // Per-word accuracy score from PronunciationScorer
   const [currentWordScore, setCurrentWordScore] = useState(null);
 
@@ -75,6 +84,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
     setRecMsg('');
     setListening(false);
     setCurrentWordScore(null);
+    setPronScore(null);
     if (sx < si.length - 1) {
       const n = sx + 1;
       sSx(n);
@@ -110,6 +120,83 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
     }
   }
 
+  async function startWaveform() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const audioCtx = new AudioContext();
+      const source = audioCtx.createMediaStreamSource(stream);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 64;
+      source.connect(analyser);
+      analyserRef.current = analyser;
+
+      function draw() {
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(dataArray);
+        const bars = Array.from({ length: 30 }, (_, i) => {
+          const idx = Math.floor(i * dataArray.length / 30);
+          return Math.round(dataArray[idx] / 255 * 100);
+        });
+        setWaveform(bars);
+        animFrameRef.current = requestAnimationFrame(draw);
+      }
+      draw();
+    } catch (e) {
+      // Microphone not available — just show static bars
+    }
+  }
+
+  function stopWaveform() {
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
+    setWaveform(new Array(30).fill(0));
+  }
+
+  async function analyzePronunciation(transcript, targetWord) {
+    try {
+      const res = await fetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "convo",
+          messages: [
+            {
+              role: "user",
+              content: `Pronunciation analysis task:\nTarget Croatian word/phrase: "${targetWord}"\nWhat the learner said (as recognized by speech-to-text): "${transcript}"\n\nRate their pronunciation accuracy (0-100) and give specific phonetic tips.\nReturn ONLY JSON: {"score": 0-100, "match_quality": "exact|close|partial|off", "phonetic_tips": ["tip1","tip2"], "encouragement": "brief Croatian + English encouragement"}`,
+            },
+          ],
+          params: {
+            level: "B1",
+            aiName: "Maja",
+            aiRole: "pronunciation coach",
+            context: "You are a Croatian pronunciation coach. Respond only with the JSON requested.",
+          },
+        }),
+      });
+      const data = await res.json();
+      try {
+        const parsed = JSON.parse(data.text);
+        setPronScore(parsed);
+      } catch {
+        const isClose = transcript.toLowerCase().includes(targetWord.toLowerCase().slice(0, 3));
+        setPronScore({
+          score: isClose ? 70 : 40,
+          match_quality: isClose ? 'close' : 'off',
+          phonetic_tips: [],
+          encouragement: "Pokušaj još jednom! / Try again!",
+        });
+      }
+    } catch {
+      setPronScore(null);
+    }
+  }
+
+  // Cleanup waveform on unmount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { return () => { stopWaveform(); }; }, []);
+
   function startRecognition(lIdx) {
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     const rec = new SpeechRec();
@@ -129,6 +216,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
         try { recRef.current.stop(); } catch (_) {}
       }
       stopRecording();
+      stopWaveform();
       setListening(false);
       setRecResult('timeout');
       setRecMsg('No speech detected within 12 seconds. Try again or use self-assessment.');
@@ -137,6 +225,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
     rec.onresult = (e) => {
       clearTimeout(timeoutRef.current);
       stopRecording();
+      stopWaveform();
       const alts = Array.from(e.results[0]).map(r => r.transcript.toLowerCase().trim());
       const target = sw[0].toLowerCase().trim();
       // Generous matching: exact, contains, or at least 60% character overlap
@@ -157,11 +246,14 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
       setRecResult(matched ? 'match' : 'nomatch');
       setListening(false);
       if (matched) { sSr('ok'); sSsc(s => s + 1); }
+      // Analyze pronunciation with AI using the best transcript
+      analyzePronunciation(alts[0] || '', sw[0]);
     };
 
     rec.onerror = (e) => {
       clearTimeout(timeoutRef.current);
       stopRecording();
+      stopWaveform();
       const code = e.error || e.type || '';
       // If language not supported, try next fallback
       if ((code === 'language-not-supported' || code === 'service-not-allowed') && lIdx < LANG_FALLBACKS.length - 1) {
@@ -182,6 +274,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
     rec.onend = () => {
       clearTimeout(timeoutRef.current);
       stopRecording();
+      stopWaveform();
       setListening(false);
     };
 
@@ -199,6 +292,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   async function startMic() {
     if (!SRSupported) return;
     setRecordingURL(null);
+    setPronScore(null);
     chunksRef.current = [];
 
     let stream;
@@ -233,6 +327,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
       // If MediaRecorder fails, continue without recording (speech recognition still works)
     }
 
+    startWaveform();
     startRecognition(langIdx);
   }
 
@@ -240,6 +335,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
     clearTimeout(timeoutRef.current);
     if (recRef.current) { try { recRef.current.stop(); } catch (_) {} }
     stopRecording();
+    stopWaveform();
     setListening(false);
   }
 
@@ -401,6 +497,26 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
             {listening && <div style={{fontSize:'var(--text-xs)', color:'var(--success)', fontWeight:700, marginTop:2}}>listening…</div>}
           </div>
         </div>
+
+        {/* Waveform visualizer */}
+        <div style={{
+          display: 'flex', alignItems: 'flex-end', gap: 3, height: 52,
+          justifyContent: 'center', marginBottom: 12,
+          padding: '0 16px',
+        }}>
+          {waveform.map((h, i) => (
+            <div key={i} style={{
+              width: 6, borderRadius: 3,
+              height: Math.max(4, listening ? h * 0.52 : 4) + 'px',
+              background: listening
+                ? `hsl(${160 + h * 0.5}, 70%, ${40 + h * 0.2}%)`
+                : 'var(--card-b)',
+              transition: 'height 0.05s ease',
+              flexShrink: 0,
+            }} />
+          ))}
+        </div>
+
         <p style={{fontSize:'var(--text-4xl)', fontWeight:800, fontFamily:"'Playfair Display',serif"}}>{sw[0]}</p>
         {sw[2] && <p style={{fontSize:'var(--text-base)', color:'var(--subtext)', marginBottom:4}}>/{sw[2]}/</p>}
         <p style={{fontSize:'var(--text-lg)', color:'var(--body)', marginBottom:16}}>{sw[1]}</p>
@@ -472,6 +588,47 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
             {langIdx > 0 && (
               <div style={{fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:6}}>
                 Using {currentLang} recognition
+              </div>
+            )}
+
+            {/* AI pronunciation score */}
+            {pronScore && (
+              <div className="c" style={{
+                padding: '12px 16px', marginTop: 8,
+                borderLeft: `4px solid ${pronScore.score >= 80 ? 'var(--success)' : pronScore.score >= 60 ? 'var(--info)' : 'var(--error)'}`,
+                animation: 'fadeIn .3s ease',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                  <div style={{
+                    width: 44, height: 44, borderRadius: '50%', flexShrink: 0,
+                    background: pronScore.score >= 80 ? 'var(--success-bg)' : pronScore.score >= 60 ? 'var(--info-bg)' : 'var(--error-bg)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 22,
+                  }}>
+                    {pronScore.score >= 80 ? '🌟' : pronScore.score >= 60 ? '👍' : '🎯'}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--heading)' }}>
+                      Pronunciation: {pronScore.score}/100
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--subtext)' }}>
+                      {pronScore.match_quality === 'exact' ? 'Perfect match!'
+                       : pronScore.match_quality === 'close' ? 'Very close!'
+                       : pronScore.match_quality === 'partial' ? 'Getting there'
+                       : 'Keep practicing'}
+                    </div>
+                  </div>
+                </div>
+                {pronScore.phonetic_tips?.length > 0 && (
+                  <div style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.6 }}>
+                    💡 {pronScore.phonetic_tips[0]}
+                  </div>
+                )}
+                {pronScore.encouragement && (
+                  <div style={{ fontSize: 13, color: 'var(--success)', fontWeight: 600, marginTop: 6 }}>
+                    {pronScore.encouragement}
+                  </div>
+                )}
               </div>
             )}
 

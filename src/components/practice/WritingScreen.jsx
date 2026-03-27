@@ -31,8 +31,45 @@ const PROMPTS = [
   {en:"Write about why you learn Croatian",hr:"Napiši zašto učiš hrvatski",level:"A2",focus:"Basic sentence structure"},
 ];
 
+function HighlightedText({ original, changes }) {
+  if (!changes || changes.length === 0) {
+    return <span>{original}</span>;
+  }
+  const text = original;
+  const segments = [];
+  let lastIdx = 0;
+  // Sort changes by position in text
+  const sorted = [...changes].sort((a, b) => {
+    const ai = text.toLowerCase().indexOf(a.original.toLowerCase());
+    const bi = text.toLowerCase().indexOf(b.original.toLowerCase());
+    return ai - bi;
+  });
+  for (const change of sorted) {
+    const idx = text.toLowerCase().indexOf(change.original.toLowerCase(), lastIdx);
+    if (idx === -1) continue;
+    if (idx > lastIdx) segments.push({ text: text.slice(lastIdx, idx), error: false });
+    segments.push({ text: text.slice(idx, idx + change.original.length), error: true });
+    lastIdx = idx + change.original.length;
+  }
+  if (lastIdx < text.length) segments.push({ text: text.slice(lastIdx), error: false });
+  return (
+    <span>
+      {segments.map((seg, i) => (
+        <span key={i} style={seg.error ? {
+          background: '#fef2f2', color: '#dc2626', borderRadius: 3,
+          padding: '0 2px', textDecoration: 'underline',
+          textDecorationColor: '#dc2626', textDecorationStyle: 'wavy',
+        } : {}}>
+          {seg.text}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 export default function WritingScreen({ goBack, award }) {
   const finishFired = useRef(false);
+  const audioRef = useRef(null);
   const isOnline = useOnlineStatus();
   const { level: userLevel } = useApp();
   const [promptIdx, setPromptIdx] = useState(() => Math.floor(rnd() * PROMPTS.length));
@@ -40,8 +77,16 @@ export default function WritingScreen({ goBack, award }) {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [mode, setMode] = useState("guided"); // "guided" | "free"
+  const [customTopic, setCustomTopic] = useState("");
+  const [ttsLoading, setTtsLoading] = useState(false);
 
   const prompt = PROMPTS[promptIdx];
+  const effectivePrompt = mode === "free"
+    ? { en: customTopic || "Write freely in Croatian", hr: "", level: userLevel, focus: "Free expression" }
+    : prompt;
+
+  const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
 
   async function checkWithAI() {
     if (!text.trim() || text.trim().length < 10) {
@@ -57,9 +102,9 @@ export default function WritingScreen({ goBack, award }) {
         headers: {"Content-Type":"application/json"},
         body: JSON.stringify({
           mode: "writeeval",
-          prompt: prompt.en,
+          prompt: effectivePrompt.en,
           text: text.trim(),
-          params: { level: userLevel, writingPrompt: prompt.en },
+          params: { level: userLevel, writingPrompt: effectivePrompt.en },
         }),
       });
       if (!res.ok) throw new Error("API error " + res.status);
@@ -76,28 +121,108 @@ export default function WritingScreen({ goBack, award }) {
     setText("");
     setResult(null);
     setError("");
+    setCustomTopic("");
     setPromptIdx(function(cur) {
       const next = Math.floor(rnd() * (PROMPTS.length - 1));
       return next >= cur ? next + 1 : next;
     });
   }
 
+  async function playTTS(ttsText) {
+    setTtsLoading(true);
+    try {
+      const res = await fetch("/api/tts", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ text: ttsText.slice(0, 400), slow: false }),
+      });
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      if (audioRef.current) audioRef.current.pause();
+      audioRef.current = new Audio(url);
+      audioRef.current.play();
+    } finally {
+      setTtsLoading(false);
+    }
+  }
+
   return (
     <div className="scr-wrap">
       {H("✍️ Free Writing")}
-      <div className="c" style={{padding:"20px",marginBottom:16}}>
-        <div style={{display:"flex",alignItems:"flex-start",gap:12,marginBottom:4}}>
-          <span style={{fontSize:20}}>📝</span>
-          <div style={{flex:1}}>
-            <div style={{display:"flex",gap:6,marginBottom:6,flexWrap:"wrap"}}>
-              {prompt.level && <span style={{fontSize:11,fontWeight:700,padding:"2px 8px",borderRadius:20,background:prompt.level==="A2"?"#dcfce7":prompt.level==="B1"?"#fef9c3":prompt.level==="B2"?"#fef3c7":"#ede9fe",color:prompt.level==="A2"?"#16a34a":prompt.level==="B1"?"#a16207":prompt.level==="B2"?"#b45309":"#7c3aed"}}>{prompt.level}</span>}
-              {prompt.focus && <span style={{fontSize:11,color:"var(--subtext)",fontStyle:"italic",padding:"2px 0"}}>📌 {prompt.focus}</span>}
+
+      {/* Mode toggle */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 12, padding: "0 2px" }}>
+        <button
+          onClick={() => setMode("guided")}
+          style={{
+            flex: 1, padding: "9px 0", borderRadius: 20, fontSize: 13, fontWeight: 700,
+            cursor: "pointer", transition: "all .15s",
+            background: mode === "guided" ? "#7c3aed" : "var(--card)",
+            color: mode === "guided" ? "#fff" : "var(--subtext)",
+            border: mode === "guided" ? "none" : "1.5px solid var(--card-b)",
+          }}
+        >
+          📚 Guided Prompt
+        </button>
+        <button
+          onClick={() => setMode("free")}
+          style={{
+            flex: 1, padding: "9px 0", borderRadius: 20, fontSize: 13, fontWeight: 700,
+            cursor: "pointer", transition: "all .15s",
+            background: mode === "free" ? "#7c3aed" : "var(--card)",
+            color: mode === "free" ? "#fff" : "var(--subtext)",
+            border: mode === "free" ? "none" : "1.5px solid var(--card-b)",
+          }}
+        >
+          ✏️ Free Topic
+        </button>
+      </div>
+
+      {/* Prompt card — guided mode only */}
+      {mode === "guided" && (
+        <div className="c" style={{padding:"20px",marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"flex-start",gap:12,marginBottom:4}}>
+            <span style={{fontSize:20}}>📝</span>
+            <div style={{flex:1}}>
+              <div style={{display:"flex",gap:6,marginBottom:6,flexWrap:"wrap"}}>
+                {prompt.level && <span style={{fontSize:11,fontWeight:700,padding:"2px 8px",borderRadius:20,background:prompt.level==="A2"?"#dcfce7":prompt.level==="B1"?"#fef9c3":prompt.level==="B2"?"#fef3c7":"#ede9fe",color:prompt.level==="A2"?"#16a34a":prompt.level==="B1"?"#a16207":prompt.level==="B2"?"#b45309":"#7c3aed"}}>{prompt.level}</span>}
+                {prompt.focus && <span style={{fontSize:11,color:"var(--subtext)",fontStyle:"italic",padding:"2px 0"}}>📌 {prompt.focus}</span>}
+              </div>
+              <p style={{fontWeight:800,fontSize:15,color:"var(--heading)",margin:0}}>{prompt.en}</p>
+              <p style={{fontSize:13,color:"var(--subtext)",marginTop:2,fontStyle:"italic"}}>{prompt.hr}</p>
             </div>
-            <p style={{fontWeight:800,fontSize:15,color:"var(--heading)",margin:0}}>{prompt.en}</p>
-            <p style={{fontSize:13,color:"var(--subtext)",marginTop:2,fontStyle:"italic"}}>{prompt.hr}</p>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Custom topic input — free mode only */}
+      {mode === "free" && (
+        <div className="c" style={{padding:"16px",marginBottom:16}}>
+          <p style={{fontWeight:700,fontSize:13,color:"var(--heading)",marginBottom:8,marginTop:0}}>
+            What would you like to write about?
+          </p>
+          <input
+            type="text"
+            value={customTopic}
+            onChange={e => setCustomTopic(e.target.value)}
+            placeholder="e.g. My last holiday, My job, My favourite food..."
+            style={{
+              width:"100%", padding:"10px 12px", fontSize:14,
+              border:"1.5px solid var(--card-b)", borderRadius:10,
+              fontFamily:"'Outfit',sans-serif",
+              background:"var(--card)", color:"var(--heading)",
+              boxSizing:"border-box",
+            }}
+          />
+          {customTopic && (
+            <p style={{fontSize:12,color:"var(--subtext)",marginTop:6,marginBottom:0,fontStyle:"italic"}}>
+              You'll write in Croatian about: <strong style={{color:"var(--heading)"}}>{customTopic}</strong>
+            </p>
+          )}
+        </div>
+      )}
+
       <div className="c" style={{padding:"16px"}}>
         <textarea
           value={text}
@@ -112,7 +237,12 @@ export default function WritingScreen({ goBack, award }) {
           }}
         />
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:4}}>
-          <span style={{fontSize:12,color:"var(--subtext)"}}>{text.length} characters</span>
+          <span style={{fontSize:12,color:"var(--subtext)"}}>
+            {wordCount} words
+            {wordCount < 30 && wordCount > 0 && <span style={{color:"var(--error)"}}> (aim for 30+)</span>}
+            {wordCount >= 30 && wordCount < 80 && <span style={{color:"var(--info)"}}> ✓ good start</span>}
+            {wordCount >= 80 && <span style={{color:"var(--success)"}}> ✓ great length</span>}
+          </span>
           <button style={{background:"none",border:"none",cursor:"pointer",fontSize:12,color:"#7c3aed",fontWeight:600}} onClick={newPrompt}>
             🔄 New Prompt
           </button>
@@ -133,40 +263,101 @@ export default function WritingScreen({ goBack, award }) {
           ) : "🤖 Check with AI"}
         </button>
       </div>
+
       {result && (
         <div className="c" style={{padding:"20px",marginTop:0,animation:'fadeIn .3s ease'}}>
+          {/* Score header */}
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
             <div style={{fontSize:40}}>{result.score>=80?"🌟":result.score>=60?"🎉":"💪"}</div>
             <div>
               <p style={{fontWeight:800,fontSize:18,color:"var(--heading)",margin:0}}>Score: {result.score}/100</p>
-              <p style={{fontSize:13,color:"var(--subtext)",margin:"2px 0 0"}}>{result.level}</p>
+              <p style={{fontSize:13,color:"var(--subtext)",margin:"2px 0 0"}}>{result.level_demonstrated}</p>
             </div>
           </div>
-          {result.corrected && (
+
+          {/* Corrected text with TTS button */}
+          {result.corrected_text && (
             <div style={{marginBottom:16}}>
               <p style={{fontWeight:700,fontSize:13,color:"var(--info)",marginBottom:8}}>✅ Suggested version:</p>
               <div style={{background:"var(--info-bg)",border:"1.5px solid var(--info-b)",borderRadius:10,padding:"12px 14px",fontSize:14,lineHeight:1.7,color:"var(--heading)"}}>
-                {result.corrected}
+                {result.corrected_text}
               </div>
+              <button
+                style={{
+                  background:"none", border:"1.5px solid var(--info)",
+                  borderRadius:20, padding:"6px 14px", cursor:"pointer",
+                  fontSize:12, fontWeight:700, color:"var(--info)",
+                  display:"flex", alignItems:"center", gap:6, marginTop:8,
+                }}
+                onClick={() => playTTS(result.corrected_text)}
+                disabled={ttsLoading}
+              >
+                {ttsLoading ? "⟳" : "🔊"} {ttsLoading ? "Loading..." : "Hear corrected version"}
+              </button>
             </div>
           )}
-          {result.errors && result.errors.length > 0 && (
+
+          {/* Strengths */}
+          {result.strengths && result.strengths.length > 0 && (
             <div style={{marginBottom:16}}>
-              <p style={{fontWeight:700,fontSize:13,color:"var(--error)",marginBottom:8}}>📌 Corrections:</p>
-              {result.errors.map((e, i) => (
-                <div key={i} style={{background:"var(--error-bg)",border:"1px solid var(--error-b)",borderRadius:8,padding:"10px 12px",marginBottom:8}}>
-                  <span style={{color:"var(--error)",fontWeight:700,textDecoration:"line-through",marginRight:8}}>{e.original}</span>
-                  <span style={{color:"var(--success)",fontWeight:700,marginRight:8}}>→ {e.correct}</span>
-                  <span style={{fontSize:12,color:"var(--subtext)",fontStyle:"italic"}}>{e.rule}</span>
+              <p style={{fontWeight:700,fontSize:13,color:"var(--success)",marginBottom:8}}>
+                ✅ What you did well:
+              </p>
+              {result.strengths.map((s, i) => (
+                <div key={i} style={{
+                  display:"flex", gap:8, padding:"8px 10px",
+                  background:"var(--success-bg)", borderRadius:8, marginBottom:6, fontSize:13,
+                }}>
+                  <span>⭐</span><span style={{color:"var(--heading)"}}>{s}</span>
                 </div>
               ))}
             </div>
           )}
+
+          {/* Annotated diff with HighlightedText */}
+          {result.changes && result.changes.length > 0 && (
+            <div style={{marginBottom:16}}>
+              <p style={{fontWeight:700,fontSize:13,color:"var(--info)",marginBottom:8}}>
+                📝 Your text — annotated:
+              </p>
+              <div style={{
+                background:"var(--card)", border:"1.5px solid var(--card-b)",
+                borderRadius:10, padding:"12px 14px", fontSize:14, lineHeight:2,
+                color:"var(--heading)",
+              }}>
+                <HighlightedText original={text} changes={result.changes} />
+              </div>
+              <div style={{marginTop:10}}>
+                {result.changes.map((c, i) => (
+                  <div key={i} style={{
+                    display:"flex", gap:8, alignItems:"flex-start",
+                    padding:"8px 10px", background:"var(--error-bg)",
+                    border:"1px solid var(--error-b)", borderRadius:8, marginBottom:6,
+                  }}>
+                    <span style={{fontSize:16,flexShrink:0}}>✏️</span>
+                    <div>
+                      <span style={{color:"var(--error)",textDecoration:"line-through",fontWeight:700}}>
+                        {c.original}
+                      </span>
+                      <span style={{color:"var(--subtext)",margin:"0 6px"}}>→</span>
+                      <span style={{color:"var(--success)",fontWeight:700}}>{c.corrected}</span>
+                      <div style={{fontSize:12,color:"var(--subtext)",marginTop:3,fontStyle:"italic"}}>
+                        {c.note}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Encouragement */}
           {result.encouragement && (
             <div style={{background:"var(--success-bg)",border:"1.5px solid var(--success-b)",borderRadius:10,padding:"12px 14px",fontSize:13,color:"var(--success)",fontWeight:600}}>
               💬 {result.encouragement}
             </div>
           )}
+
           <button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{if(finishFired.current)return;finishFired.current=true;award(result.score>0?Math.round(result.score/10)+5:5);setText("");setResult(null);}}>
             ✨ New Prompt
           </button>
