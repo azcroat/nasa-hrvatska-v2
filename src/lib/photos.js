@@ -18,8 +18,9 @@ export const LOCAL_PHOTOS = {
   adriatic:     '/images/scenes/dalmatian-coast.jpg',
   plitvice:     '/images/scenes/plitvice.jpg',
   zagreb:       '/images/scenes/zagreb.jpg',
-  dubrovnik_ai: '/images/scenes/dubrovnik-ai.jpg',   // SDXL ultra-cinematic (when generated)
-  adriatic_ai:  '/images/scenes/dalmatian-ai.jpg',   // SDXL ultra-cinematic (when generated)
+  dubrovnik_ai: '/images/scenes/dubrovnik-ai.jpg',
+  adriatic_ai:  '/images/scenes/dalmatian-ai.jpg',
+  food:         '/images/scenes/croatian-food.jpg',  // AI-generated Croatian food table
 };
 
 export const PHOTOS = {
@@ -47,8 +48,8 @@ export const PHOTOS = {
   // Lavender: Hvar island lavender fields in full bloom
   lavender:  'https://images.unsplash.com/photo-1527515673-84f37b4c89ae?w=1200&q=85&fit=crop&auto=format',
 
-  // Food: Croatian peka dish and local market — rustic, warm, inviting
-  food:      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&q=85&fit=crop&auto=format',
+  // Food: AI-generated Croatian food table (peka, prstaci, burek) — local, no CDN dependency
+  food:      '/images/scenes/croatian-food.jpg',
 
   // Market: Dolac market Zagreb — fresh produce and heritage
   market:    'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=1200&q=85&fit=crop&auto=format',

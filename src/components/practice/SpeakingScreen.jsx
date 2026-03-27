@@ -382,6 +382,25 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
       {H('🎤 Pronunciation Practice')}
       <Bar v={sx + 1} mx={si.length} color="var(--success)" h={6} />
       <div className="c" style={{textAlign:'center', marginTop:16}}>
+        {/* Tutor portrait — Maja guides the session */}
+        <div style={{display:'flex', alignItems:'center', gap:12, justifyContent:'center', marginBottom:18}}>
+          <div style={{
+            width:52, height:52, borderRadius:'50%', overflow:'hidden', flexShrink:0,
+            border: listening ? '3px solid var(--success)' : '2.5px solid #e0f2fe',
+            boxShadow: listening ? '0 0 0 5px rgba(14,116,144,.18)' : '0 0 0 2px rgba(14,116,144,.1)',
+            transition:'border-color .3s ease, box-shadow .3s ease',
+            background:'linear-gradient(135deg,#0e7490,#0c4a6e)',
+          }}>
+            <img src="/images/portraits/tutor-hero.jpg" alt="Maja"
+              style={{width:'100%', height:'100%', objectFit:'cover'}}
+              onError={e => { e.currentTarget.style.display='none'; }} />
+          </div>
+          <div style={{textAlign:'left'}}>
+            <div style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', lineHeight:1.2}}>Maja</div>
+            <div style={{fontSize:'var(--text-xs)', color:'var(--subtext)'}}>Croatian tutor</div>
+            {listening && <div style={{fontSize:'var(--text-xs)', color:'var(--success)', fontWeight:700, marginTop:2}}>listening…</div>}
+          </div>
+        </div>
         <p style={{fontSize:'var(--text-4xl)', fontWeight:800, fontFamily:"'Playfair Display',serif"}}>{sw[0]}</p>
         {sw[2] && <p style={{fontSize:'var(--text-base)', color:'var(--subtext)', marginBottom:4}}>/{sw[2]}/</p>}
         <p style={{fontSize:'var(--text-lg)', color:'var(--body)', marginBottom:16}}>{sw[1]}</p>

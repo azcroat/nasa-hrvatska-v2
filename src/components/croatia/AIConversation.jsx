@@ -249,10 +249,10 @@ const PORTRAIT_MAP = {
   bus:'young-woman',     clothes:'young-woman',   petrol:'mature-man',
   simcard:'young-man',   directions:'mature-man', restaurant:'young-man',
   konoba:'fisherman',    beach:'mature-man',      tourist:'young-woman',
-  taxi:'taxi-driver',    hotel:'young-man',       icecream:'young-woman',
+  taxi:'young-man',      hotel:'young-man',       icecream:'young-woman',
   museum:'young-woman',  hairdresser:'young-woman',neighbor:'mature-woman',
   party:'young-man',     birthday:'mature-man',   familydinner:'grandmother',
-  wedding:'mature-man',  football:'fan',          gym:'young-man',
+  wedding:'mature-man',  football:'young-man',    gym:'young-man',
   kafic:'young-man',     weekend:'young-woman',
 };
 function portraitSrc(scenarioId) {
