@@ -438,6 +438,39 @@ html{
   100% { background-position: 200% 0; opacity: 0; }
 }
 
+/* ── CroatianKnight mood animations ─────────────────── */
+@keyframes knightFloat {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-6px); }
+}
+@keyframes knightBounce {
+  0%,100% { transform: translateY(0) scale(1); }
+  20%     { transform: translateY(-14px) scale(1.04); }
+  40%     { transform: translateY(0) scale(0.97); }
+  60%     { transform: translateY(-7px) scale(1.02); }
+  80%     { transform: translateY(0) scale(0.99); }
+}
+@keyframes knightTilt {
+  0%,100% { transform: rotate(0deg); }
+  25%     { transform: rotate(-4deg); }
+  75%     { transform: rotate(4deg); }
+}
+@keyframes knightDroop {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  50%     { transform: translateY(4px) rotate(-2deg); }
+}
+@keyframes knightPulse {
+  0%,100% { transform: scale(1); }
+  50%     { transform: scale(1.05); }
+}
+@keyframes knightWobble {
+  0%,100% { transform: rotate(0deg); }
+  20%     { transform: rotate(-6deg); }
+  40%     { transform: rotate(6deg); }
+  60%     { transform: rotate(-3deg); }
+  80%     { transform: rotate(3deg); }
+}
+
 @keyframes flip-in {
   0%   { transform: rotateY(-90deg) scale(0.9); opacity: 0; }
   100% { transform: rotateY(0deg) scale(1); opacity: 1; }
