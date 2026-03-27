@@ -25,7 +25,8 @@ export default function NumTime({ goBack, award }) {
           <div style={{fontSize:64}}>{ntS >= total * 0.7 ? "🏆" : "👍"}</div>
           <h2 style={{fontFamily:"'Playfair Display',serif",color:"#164e63"}}>Numbers Complete!</h2>
           <div style={{fontSize:32,fontWeight:800,color:"#0e7490"}}>{ntS} / {total}</div>
-          <button className="b bp" style={{marginTop:16}} onClick={() => { if(finishFired.current)return; finishFired.current=true; award(ntS * 3 + 10); goBack(); }}>
+          <div style={{fontSize:24,fontWeight:900,color:"#d97706",margin:"8px 0 16px"}}>+{ntS * 3 + 10} XP</div>
+          <button className="b bp" style={{marginTop:0}} onClick={() => { if(finishFired.current)return; finishFired.current=true; award(ntS * 3 + 10); goBack(); }}>
             Finish!
           </button>
         </div>

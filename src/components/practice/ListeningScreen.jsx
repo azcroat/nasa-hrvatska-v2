@@ -17,7 +17,8 @@ export default function ListeningScreen({ questions, goBack, award }) {
         <div style={{fontSize:64}}>{score>=total*0.7?"🏆":"👍"}</div>
         <h2 style={{fontFamily:"'Playfair Display',serif",color:"#164e63"}}>Listening Complete!</h2>
         <div style={{fontSize:32,fontWeight:800,color:"#0e7490"}}>{score} / {total}</div>
-        <button className="b bp" style={{marginTop:16}} onClick={()=>{if(finishFired.current)return;finishFired.current=true;award(score*4+10);goBack();}}>Finish!</button>
+        <div style={{fontSize:24,fontWeight:900,color:"#d97706",margin:"8px 0 16px"}}>+{score*4+10} XP</div>
+        <button className="b bp" style={{marginTop:0}} onClick={()=>{if(finishFired.current)return;finishFired.current=true;award(score*4+10);goBack();}}>Finish!</button>
       </div>
     </div>
   );

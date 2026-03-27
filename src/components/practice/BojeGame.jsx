@@ -91,7 +91,8 @@ export default function BojeGame({ goBack, award }) {
               <div style={{fontSize:64}}>{pct >= 80 ? "🎨" : "👍"}</div>
               <h2 style={{fontFamily:"'Playfair Display',serif",color:"#164e63"}}>Colors Quiz Complete!</h2>
               <div style={{fontSize:32,fontWeight:800,color:"#0e7490"}}>{bjSc} / {total}</div>
-              <div style={{display:"flex",gap:10,justifyContent:"center",marginTop:16}}>
+              <div style={{fontSize:24,fontWeight:900,color:"#d97706",margin:"8px 0 16px"}}>+{bjSc * 7} XP</div>
+              <div style={{display:"flex",gap:10,justifyContent:"center",marginTop:0}}>
                 <button className="b bg" onClick={() => sBjMode("learn")}>📖 Review</button>
                 <button className="b bg" onClick={() => startQuiz()}>🔄 Retry</button>
                 <button className="b bp" onClick={goBack}>🏠 Done</button>
