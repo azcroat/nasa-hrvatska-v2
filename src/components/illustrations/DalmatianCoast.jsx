@@ -11,6 +11,7 @@ export default function DalmatianCoast({ width = 320, height = 180, className = 
       width={width}
       height={height}
       viewBox="0 0 640 260"
+      preserveAspectRatio="xMidYMid slice"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
