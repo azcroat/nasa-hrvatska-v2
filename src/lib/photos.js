@@ -21,6 +21,8 @@ export const LOCAL_PHOTOS = {
   dubrovnik_ai: '/images/scenes/dubrovnik-ai.jpg',
   adriatic_ai:  '/images/scenes/dalmatian-ai.jpg',
   food:         '/images/scenes/croatian-food.jpg',  // AI-generated Croatian food table
+  mostar:       '/images/scenes/mostar.jpg',          // AI-generated Mostar Old Bridge
+  labin:        '/images/scenes/labin.jpg',           // AI-generated Labin hilltop town
 };
 
 export const PHOTOS = {
@@ -59,6 +61,12 @@ export const PHOTOS = {
 
   // Rovinj: colorful harbour houses reflected in calm water
   rovinj:    'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1200&q=85&fit=crop&auto=format',
+
+  // Mostar: AI-generated Stari Most (Old Bridge) at golden hour
+  mostar:    '/images/scenes/mostar.jpg',
+
+  // Labin: AI-generated Istrian hilltop medieval town
+  labin:     '/images/scenes/labin.jpg',
 };
 
 // Thumbnail versions — local paths serve the same file (browser caches it)

@@ -443,8 +443,8 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
         <React.Fragment>
           {/* ── PHOTO HERO ── */}
           <PhotoHero
-            src={PHOTOS.dubrovnik}
-            alt="Dubrovnik old town"
+            src={PHOTOS.labin}
+            alt="Labin hilltop town, Istria"
             title="Naša Hrvatska"
             subtitle="Culture, history & language — all in one place"
             height={180}

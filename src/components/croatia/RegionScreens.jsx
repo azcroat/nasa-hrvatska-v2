@@ -295,6 +295,8 @@ const CITY_PHOTOS = {
   varazdin:  'https://images.unsplash.com/photo-1548268770-66184a21657e?w=800&q=85&fit=crop&auto=format',
   korcula:   'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?w=800&q=85&fit=crop&auto=format',
   makarska:  'https://images.unsplash.com/photo-1586161816003-bc944e3c7e27?w=800&q=85&fit=crop&auto=format',
+  mostar:    '/images/scenes/mostar.jpg',
+  labin:     '/images/scenes/labin.jpg',
   default:   'https://images.unsplash.com/photo-1555990538-c4c71e9a4bab?w=800&q=85&fit=crop&auto=format',
 };
 
