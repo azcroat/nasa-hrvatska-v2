@@ -11,6 +11,12 @@ const CITIES = [
   { name: "Labin",          region: "Istria",           photo: "/images/scenes/labin.jpg",        color: "#0e7490" },
 ];
 
+function sanitizeForCanvas(str, maxLen = 400) {
+  if (!str) return '';
+  // Remove control characters and limit length
+  return String(str).replace(/[\x00-\x1F\x7F]/g, ' ').slice(0, maxLen);
+}
+
 export default function PostcardScreen({ goBack, award }) {
   const { level: userLevel } = useApp();
 
@@ -138,14 +144,14 @@ export default function PostcardScreen({ goBack, award }) {
       if (toName) {
         ctx.fillStyle = '#292524';
         ctx.font = '13px Georgia, serif';
-        ctx.fillText(toName.slice(0, 20), 628, 392);
+        ctx.fillText(sanitizeForCanvas(toName, 20), 628, 392);
       }
 
       // ── 8. Message text area (word-wrapped)
       ctx.fillStyle = '#292524';
       ctx.font = '14px Georgia, serif';
 
-      const textToRender = correctedText || userText;
+      const textToRender = sanitizeForCanvas(correctedText || userText);
       const words = textToRender.split(' ');
       let line = '';
       let y = 55;
@@ -171,7 +177,7 @@ export default function PostcardScreen({ goBack, award }) {
         const sigY = Math.min(y + 40, 342);
         ctx.font = 'italic 13px Georgia, serif';
         ctx.fillStyle = '#78716c';
-        ctx.fillText(`— ${fromName}`, msgLeft, sigY);
+        ctx.fillText(`— ${sanitizeForCanvas(fromName, 30)}`, msgLeft, sigY);
       }
 
       // ── 10. City name banner over photo (bottom left)

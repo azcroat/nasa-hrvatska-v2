@@ -14,7 +14,8 @@ function isAllowedOrigin(origin, isDev) {
     if (isDev && hostname === "localhost") return true;
     return hostname === "nasahrvatska.com"
       || hostname.endsWith(".nasahrvatska.com")
-      || hostname.endsWith(".pages.dev");
+      || hostname === "nasa-hrvatska-v2.pages.dev"
+      || hostname.endsWith(".nasa-hrvatska-v2.pages.dev");
   } catch { return false; }
 }
 
@@ -48,9 +49,16 @@ export async function onRequestPost(context) {
   }
 
   try {
+    const ct = request.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) {
+      return new Response(JSON.stringify({ error: "Invalid content type" }), { status: 400, headers: CORS });
+    }
     const { prompt, text } = await request.json();
-    if (!text || text.length > 1000) {
-      return new Response(JSON.stringify({ error: "Invalid text" }), { status: 400, headers: CORS });
+    if (typeof text !== 'string' || !text.trim()) {
+      return new Response(JSON.stringify({ error: "Invalid input" }), { status: 400, headers: CORS });
+    }
+    if (text.length > 3000) {
+      return new Response(JSON.stringify({ error: "Text too long (max 3000 chars)" }), { status: 400, headers: CORS });
     }
 
     const systemPrompt = `You are a Croatian language teacher. The student was asked to write about: "${prompt}".
@@ -83,6 +91,7 @@ List up to 5 most important changes. List 1-3 strengths and 1-2 improvements. Be
         "anthropic-version": "2023-06-01",
         "content-type": "application/json",
       },
+      signal: AbortSignal.timeout(25000),
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 1000,

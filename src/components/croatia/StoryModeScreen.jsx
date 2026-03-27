@@ -376,6 +376,7 @@ export default function StoryModeScreen({ goBack, award }) {
             value={characterName}
             onChange={e => setCharacterName(e.target.value)}
             placeholder="Optional — leave blank to use 'you'"
+            maxLength={40}
             style={{
               width: '100%',
               padding: '12px 14px',

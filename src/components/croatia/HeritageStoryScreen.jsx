@@ -348,6 +348,7 @@ export default function HeritageStoryScreen({ goBack, award }) {
             value={userName}
             onChange={e => setUserName(e.target.value)}
             placeholder="For a personal touch"
+            maxLength={50}
             style={{
               width: '100%',
               padding: '12px 14px',
@@ -371,6 +372,7 @@ export default function HeritageStoryScreen({ goBack, award }) {
             onChange={e => setFamilyNotes(e.target.value)}
             placeholder="e.g. My grandparents emigrated in the 1920s, they were fishermen, they spoke a dialect..."
             rows={4}
+            maxLength={500}
             style={{
               width: '100%',
               padding: '12px 14px',

@@ -17,7 +17,8 @@ function isAllowedOrigin(origin, isDev) {
     if (isDev && hostname === "localhost") return true;
     return hostname === "nasahrvatska.com"
       || hostname.endsWith(".nasahrvatska.com")
-      || hostname.endsWith(".pages.dev");
+      || hostname === "nasa-hrvatska-v2.pages.dev"
+      || hostname.endsWith(".nasa-hrvatska-v2.pages.dev");
   } catch { return false; }
 }
 
@@ -47,7 +48,7 @@ function parseRSS(xml, sourceName) {
     const link = getTag("link");
     const pubDate = getTag("pubDate");
     if (title && description) {
-      items.push({ title, description: description.replace(/<[^>]+>/g, "").slice(0, 500), link, pubDate, source: sourceName });
+      items.push({ title, description: description.replace(/<[^>]+>/g, '').replace(/&[a-z]+;/gi, ' ').slice(0, 500), link, pubDate, source: sourceName });
     }
   }
   return items;
@@ -71,12 +72,13 @@ Simplification rules: ${rule}
 Return ONLY valid JSON: {"simplified_title":"...","simplified_title_en":"...","simplified_text":"...","simplified_text_en":"...","key_vocabulary":[{"hr":"...","en":"..."}],"summary_one_sentence":{"hr":"...","en":"..."}}
 Include 5-6 key vocabulary items. Keep facts accurate.`;
 
-  const userContent = `Title: ${article.title}\nText: ${article.description}`;
+  const userContent = `Title: ${String(article.title || '').slice(0, 200)}\nText: ${String(article.description || '').slice(0, 800)}`;
 
   try {
     const res = await fetch(ANTHROPIC_URL, {
       method: "POST",
       headers: { "x-api-key": anthropicKey, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+      signal: AbortSignal.timeout(20000),
       body: JSON.stringify({
         model: MODEL,
         max_tokens: 800,
@@ -108,7 +110,9 @@ export async function onRequestGet(context) {
   if (!ANTHROPIC_KEY) return err(500, "AI_KEY_MISSING");
 
   const url = new URL(request.url);
-  const level = url.searchParams.get("level") || "B1";
+  const rawLevel = url.searchParams.get("level") || "B1";
+  const VALID_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
+  const level = VALID_LEVELS.includes(rawLevel) ? rawLevel : "B1";
 
   // Try to fetch from one of the RSS feeds
   let rawArticles = [];
