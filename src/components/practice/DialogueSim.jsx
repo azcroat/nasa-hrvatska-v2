@@ -6,6 +6,40 @@ function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.fl
 // Normalize Croatian diacritics for lenient free-text comparison
 function normCro(s){return s.toLowerCase().replace(/[čć]/g,'c').replace(/š/g,'s').replace(/ž/g,'z').replace(/đ/g,'d').replace(/[^\w\s]/g,'').replace(/\s+/g,' ').trim();}
 
+// ── Portrait mapping — scenario ID → portrait filename ──────────────────────
+const DIALOGUE_PORTRAIT = {
+  cafe:            'young-man',     // Konobar (waiter)
+  directions:      'mature-man',    // Prolaznik (helpful local man)
+  doctor:          'mature-man',    // Doktor
+  shopping:        'young-woman',   // Prodavačica (shop assistant)
+  meeting:         'young-man',     // Marko (new friend)
+  transport:       'mature-woman',  // Blagajnica (ticket clerk)
+  pharmacy:        'mature-woman',  // Ljekarnica Ana
+  restaurant:      'young-man',     // Konobar / Recepcionista
+  family_gathering:'grandmother',   // Gospođa Horvat / Baka
+};
+
+function DialogueAvatar({ scenarioId }) {
+  const key = DIALOGUE_PORTRAIT[scenarioId];
+  const [err, setErr] = React.useState(false);
+  if (!key || err) return null;
+  return (
+    <div style={{
+      width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
+      overflow: 'hidden', border: '2px solid #e0f2fe',
+      background: 'linear-gradient(135deg,#0e7490,#0c4a6e)',
+      marginTop: 2,
+    }}>
+      <img
+        src={`/images/portraits/${key}.jpg`}
+        alt=""
+        onError={() => setErr(true)}
+        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+      />
+    </div>
+  );
+}
+
 const SCENARIOS = [
   {
     id:"cafe",
@@ -513,17 +547,19 @@ export default function DialogueSim({ award }) {
       </div>
 
       {/* Speaker bubble */}
-      <div aria-live="polite" aria-atomic="true" style={{
-        background:"var(--card)",
-        borderRadius:"16px 16px 16px 4px",
-        padding:"14px 16px",
-        marginBottom:16,
-        border:"1.5px solid var(--card-b)",
-        maxWidth:"85%",
-      }}>
-        <div style={{fontSize:11,fontWeight:800,color:"#0e7490",marginBottom:4}}>{turn.speaker}</div>
-        <div style={{fontSize:16,fontWeight:600,color:"var(--heading)",lineHeight:1.5}}>{turn.line}</div>
-        <div style={{fontSize:12,color:"var(--subtext)",marginTop:6,fontStyle:"italic"}}>{turn.en}</div>
+      <div style={{display:'flex', alignItems:'flex-start', gap:10, marginBottom:16}}>
+        <DialogueAvatar scenarioId={scenario.id} />
+        <div aria-live="polite" aria-atomic="true" style={{
+          background:"var(--card)",
+          borderRadius:"16px 16px 16px 4px",
+          padding:"14px 16px",
+          border:"1.5px solid var(--card-b)",
+          flex:1,
+        }}>
+          <div style={{fontSize:11,fontWeight:800,color:"#0e7490",marginBottom:4}}>{turn.speaker}</div>
+          <div style={{fontSize:16,fontWeight:600,color:"var(--heading)",lineHeight:1.5}}>{turn.line}</div>
+          <div style={{fontSize:12,color:"var(--subtext)",marginTop:6,fontStyle:"italic"}}>{turn.en}</div>
+        </div>
       </div>
 
       {/* Your turn label + free mode toggle */}
