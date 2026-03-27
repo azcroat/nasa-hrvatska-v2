@@ -290,6 +290,15 @@ export default function ShadowingScreen({ goBack, award, SHADOWING }) {
 
   const { micAvailable, recordingState, countdown, audioBlob, startRecording, playBack, reset: resetRecorder } = useRecorder();
 
+  // When a recording completes, show waveform — must be before early return
+  const prevRecordingState = useRef(recordingState);
+  useEffect(() => {
+    if (prevRecordingState.current === 'recording' && recordingState === 'done') {
+      setShowWaveform(true);
+    }
+    prevRecordingState.current = recordingState;
+  }, [recordingState]);
+
   if (!SHADOWING || SHADOWING.length === 0) return null;
   const items = SHADOWING;
 
@@ -300,15 +309,6 @@ export default function ShadowingScreen({ goBack, award, SHADOWING }) {
     setSaid(false);
     setPlays(0);
   }
-
-  // When a recording completes, show waveform
-  const prevRecordingState = useRef(recordingState);
-  useEffect(() => {
-    if (prevRecordingState.current === 'recording' && recordingState === 'done') {
-      setShowWaveform(true);
-    }
-    prevRecordingState.current = recordingState;
-  }, [recordingState]);
 
   if (done) {
     return (

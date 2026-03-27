@@ -428,7 +428,7 @@ export default function CroatianNewsScreen({ goBack, award }) {
             key={lvl}
             onClick={() => setSelectedLevel(lvl)}
             style={{
-              padding: '6px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
+              padding: '6px 14px', borderRadius: 20, cursor: 'pointer',
               background: selectedLevel === lvl ? (LEVEL_COLORS[lvl] || '#0e7490') : 'var(--card)',
               color: selectedLevel === lvl ? '#fff' : 'var(--subtext)',
               fontSize: 13, fontWeight: 700, fontFamily: "'Outfit',sans-serif",

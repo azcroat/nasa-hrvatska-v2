@@ -6,15 +6,6 @@ const MODEL = "claude-sonnet-4-6";
 
 // ── Security helpers ──────────────────────────────────────────────────────────
 
-function sanitizeParam(value, maxLen = 200) {
-  if (value === null || value === undefined) return '';
-  return String(value)
-    .replace(/[\r\n]/g, ' ')
-    .replace(/[`\\]/g, '')
-    .replace(/\bignore\b.*\binstruction/gi, '')
-    .trim()
-    .slice(0, maxLen);
-}
 
 function isAllowedOrigin(origin, isDev) {
   try {
@@ -148,7 +139,7 @@ export async function onRequestPost({ request, env }) {
   try {
     const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
     parsed = JSON.parse(cleaned);
-  } catch (parseErr) {
+  } catch {
     console.error("listening.js: JSON parse failed. Raw:", raw.slice(0, 200));
     return err(502, "parse_failed");
   }

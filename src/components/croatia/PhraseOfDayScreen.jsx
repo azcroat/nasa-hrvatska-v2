@@ -354,7 +354,7 @@ export default function PhraseOfDayScreen({ goBack, award }) {
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
               style={{
-                flexShrink: 0, padding: '7px 14px', borderRadius: 20, border: 'none',
+                flexShrink: 0, padding: '7px 14px', borderRadius: 20,
                 cursor: 'pointer', fontFamily: "'Outfit',sans-serif", fontSize: 12, fontWeight: 700,
                 background: active ? catColor : 'var(--card)',
                 color: active ? '#fff' : 'var(--subtext)',

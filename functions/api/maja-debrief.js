@@ -274,7 +274,7 @@ export async function onRequestPost(context) {
   try {
     const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
     parsed = JSON.parse(cleaned);
-  } catch (parseErr) {
+  } catch {
     console.error("maja-debrief.js: JSON parse failed, using fallback. Raw:", raw.slice(0, 200));
     return ok(debriefFallback(userName));
   }

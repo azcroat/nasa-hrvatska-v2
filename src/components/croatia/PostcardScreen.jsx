@@ -14,6 +14,7 @@ const CITIES = [
 function sanitizeForCanvas(str, maxLen = 400) {
   if (!str) return '';
   // Remove control characters and limit length
+  // eslint-disable-next-line no-control-regex
   return String(str).replace(/[\x00-\x1F\x7F]/g, ' ').slice(0, maxLen);
 }
 

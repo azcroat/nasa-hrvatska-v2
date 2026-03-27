@@ -11,6 +11,7 @@ import CroatianGrb from '../shared/CroatianGrb.jsx';
 import CipkaPattern from '../shared/CipkaPattern.jsx';
 import CroatianKnight from '../shared/CroatianKnight';
 import KnightSpeech from '../shared/KnightSpeech';
+import DailyPlanCard from './DailyPlanCard.jsx';
 // DalmatianCoast SVG replaced with real AI/CC photography
 // import { DalmatianCoast } from '../illustrations';
 
@@ -678,6 +679,9 @@ export default function HomeTab({
             <div style={{width:3, height:20, background:'var(--info)', borderRadius:2}}/>
             <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Today's Focus</span>
           </div>
+
+          {/* ── AI DAILY PLAN ── */}
+          <DailyPlanCard level={level} goal={goal} streak={streak} setScr={setScr} />
 
           {/* ── DAILY QUESTS ── */}
           {(() => {

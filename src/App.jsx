@@ -694,6 +694,9 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       setScr(item.go);sCurEx(item.go);
     }
   }
+  // ═══ STABLE HOOKS — must be before any early returns (Rules of Hooks) ═══
+  const doSidebarSearch=useCallback(()=>{if(srchQ.trim()){doSearch(srchQ);setSrchOpen(true);}},[srchQ,doSearch,setSrchOpen]);
+  const ctxValue=useMemo(()=>({authScreen,authUser,name,setName,doOut,stats,setStats,level,award,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx}),[authScreen,authUser,name,setName,doOut,stats,setStats,level,award,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx]);
   // ═══ AUTH SCREENS ═══
   if(authScreen==="loading")return (
     <div className={darkMode?"dark":""} style={{
@@ -733,8 +736,6 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
     return <ResetPassword authError={authError} authLoading={authLoading} rpEm={rpEm} setAuthScreen={setAuthScreen} setAuthError={setAuthError} setRpEm={setRpEm} doReset={doReset} />;
   }
     // ═══ MAIN APP RENDER ═══
-  const doSidebarSearch=useCallback(()=>{if(srchQ.trim()){doSearch(srchQ);setSrchOpen(true);}},[srchQ,doSearch,setSrchOpen]);
-  const ctxValue=useMemo(()=>({authScreen,authUser,name,setName,doOut,stats,setStats,level,award,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx}),[authScreen,authUser,name,setName,doOut,stats,setStats,level,award,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx]);
   return (
     <AppContext.Provider value={ctxValue}>
     <div className={darkMode?"dark":""} style={darkMode?BG_DARK:BG_LIGHT}>
