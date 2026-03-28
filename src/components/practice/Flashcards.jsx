@@ -4,6 +4,32 @@ import CroatianKnight from '../shared/CroatianKnight';
 import confetti from 'canvas-confetti';
 import { speak } from '../../lib/audio.js';
 
+// Fetch AI-generated contextual image for a vocabulary word via FLUX
+async function fetchCardImage(word, meaning, cacheRef, signal) {
+  const key = `img:${word}`;
+  if (cacheRef.current[key]) return cacheRef.current[key];
+  // Check sessionStorage to avoid re-generating across card navigation
+  try {
+    const stored = sessionStorage.getItem(`nh_fc_img_${word}`);
+    if (stored) { cacheRef.current[key] = stored; return stored; }
+  } catch {}
+  try {
+    const r = await fetch('/api/flux-generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'vocab', word, meaning }),
+      signal,
+    });
+    if (!r.ok) return null;
+    const { imageUrl } = await r.json();
+    if (imageUrl) {
+      cacheRef.current[key] = imageUrl;
+      try { sessionStorage.setItem(`nh_fc_img_${word}`, imageUrl); } catch {}
+    }
+    return imageUrl || null;
+  } catch { return null; }
+}
+
 const STILL_LEARNING_MSG_DURATION = 1200;
 
 // ── Pronunciation engine ──────────────────────────────────────────────────────
@@ -99,12 +125,39 @@ export default function Flashcards({ pool, goBack, award }) {
   const [aiError, setAiError] = useState(false);
   const aiCacheRef = useRef({}); // {word: {hr, en, note}}
 
+  // AI image state — one image per card (fetched on card mount, shown on front)
+  const [cardImg, setCardImg] = useState(null);
+  const [cardImgLoading, setCardImgLoading] = useState(false);
+  const imgCacheRef = useRef({});
+
   // Reset AI state when card index changes
   useEffect(() => {
     setAiSentence(null);
     setAiLoading(false);
     setAiError(false);
   }, [idx]);
+
+  // Fetch contextual image when card changes
+  useEffect(() => {
+    if (done) return;
+    const card = activePool[idx];
+    if (!card) return;
+    const word = card[0];
+    const meaning = card[1];
+    const key = `img:${word}`;
+    // Use cached immediately if available
+    if (imgCacheRef.current[key]) { setCardImg(imgCacheRef.current[key]); return; }
+    const controller = new AbortController();
+    setCardImg(null);
+    setCardImgLoading(true);
+    fetchCardImage(word, meaning, imgCacheRef, controller.signal).then(url => {
+      if (!mountedRef.current) return;
+      setCardImg(url || null);
+      setCardImgLoading(false);
+    });
+    return () => controller.abort();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idx, done]);
 
   // Fetch AI example sentence when card is flipped and no static example exists
   useEffect(() => {
@@ -408,26 +461,86 @@ export default function Flashcards({ pool, goBack, award }) {
           tabIndex={0}
           aria-label={flipped ? `${activePool[idx][1]} — tap to flip back` : `${activePool[idx][0]} — tap to see English`}
         >
-          <div className="fc-face fc-front">
-            {(() => {
-              const word = activePool[idx][0];
-              const example = activePool[idx][3];
-              const blankedExample = example ? example.replace(new RegExp(word, 'gi'), '___') : null;
-              return blankedExample ? (
-                <div style={{textAlign:'center'}}>
-                  <div style={{fontSize:11, color:'var(--subtext)', marginBottom:8, fontWeight:600}}>Fill in the blank:</div>
-                  <div style={{fontSize:17, fontWeight:700, color:'var(--heading)', lineHeight:1.5}}>{blankedExample}</div>
+          <div className="fc-face fc-front" style={{ padding: 0, overflow: 'hidden', borderRadius: 'inherit' }}>
+            {/* AI contextual scene image */}
+            <div style={{
+              width: '100%', height: 130, position: 'relative', flexShrink: 0, overflow: 'hidden',
+              background: cardImgLoading
+                ? 'linear-gradient(135deg,rgba(14,116,144,.08),rgba(14,116,144,.04))'
+                : cardImg
+                  ? undefined
+                  : 'linear-gradient(135deg,rgba(14,116,144,.06),rgba(12,74,110,.10))',
+            }}>
+              {cardImg && (
+                <img
+                  src={cardImg}
+                  alt=""
+                  aria-hidden="true"
+                  style={{
+                    width: '100%', height: '100%', objectFit: 'cover',
+                    display: 'block',
+                  }}
+                />
+              )}
+              {cardImgLoading && !cardImg && (
+                <div style={{
+                  position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  gap: 4,
+                }}>
+                  {[0,1,2].map(i => (
+                    <div key={i} style={{
+                      width: 5, height: 5, borderRadius: '50%',
+                      background: 'var(--info)', opacity: 0.4,
+                      animation: `dot-bounce 1.2s ease-in-out ${i * 0.15}s infinite`,
+                    }} />
+                  ))}
                 </div>
-              ) : (
-                <>
-                  <div style={{fontSize:32,fontWeight:800,color:"var(--info)",fontFamily:"'Playfair Display',serif",textAlign:"center",lineHeight:1.3}}>
-                    {word}
+              )}
+              {!cardImg && !cardImgLoading && (
+                <div style={{
+                  position: 'absolute', inset: 0, display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', fontSize: 36, opacity: 0.18,
+                }}>🇭🇷</div>
+              )}
+              {/* Bottom gradient fade into card */}
+              <div style={{
+                position: 'absolute', bottom: 0, left: 0, right: 0, height: 50,
+                background: 'linear-gradient(to bottom, transparent, var(--card))',
+                pointerEvents: 'none',
+              }} />
+              {/* AI badge */}
+              {cardImg && (
+                <div style={{
+                  position: 'absolute', top: 8, right: 8,
+                  background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)',
+                  borderRadius: 20, padding: '2px 8px',
+                  fontSize: 9, fontWeight: 800, color: '#fff', letterSpacing: '.04em',
+                }}>✦ AI</div>
+              )}
+            </div>
+
+            {/* Word / fill-in-the-blank content */}
+            <div style={{ padding: '8px 20px 16px', textAlign: 'center' }}>
+              {(() => {
+                const word = activePool[idx][0];
+                const example = activePool[idx][3];
+                const blankedExample = example ? example.replace(new RegExp(word, 'gi'), '___') : null;
+                return blankedExample ? (
+                  <div style={{textAlign:'center'}}>
+                    <div style={{fontSize:11, color:'var(--subtext)', marginBottom:8, fontWeight:600}}>Fill in the blank:</div>
+                    <div style={{fontSize:17, fontWeight:700, color:'var(--heading)', lineHeight:1.5}}>{blankedExample}</div>
                   </div>
-                  {activePool[idx][2]&&<div style={{fontSize:14,color:"var(--subtext)",marginTop:8}}>/{activePool[idx][2]}/</div>}
-                </>
-              );
-            })()}
-            <div style={{fontSize:12,color:"var(--subtext)",marginTop:12}}>tap to see English</div>
+                ) : (
+                  <>
+                    <div style={{fontSize:30,fontWeight:800,color:"var(--info)",fontFamily:"'Playfair Display',serif",textAlign:"center",lineHeight:1.3}}>
+                      {word}
+                    </div>
+                    {activePool[idx][2]&&<div style={{fontSize:14,color:"var(--subtext)",marginTop:6}}>/{activePool[idx][2]}/</div>}
+                  </>
+                );
+              })()}
+              <div style={{fontSize:12,color:"var(--subtext)",marginTop:10}}>tap to see English</div>
+            </div>
           </div>
           <div className="fc-face fc-back">
             <div style={{fontSize:14,color:"var(--subtext)",marginTop:4,textAlign:"center",fontWeight:700}}>{activePool[idx][1]}</div>
