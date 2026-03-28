@@ -142,6 +142,7 @@ function ExampleSlide({ slide, lesson, autoTTS, ttsAvailable }) {
       }, 600);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [slide, autoTTS, ttsAvailable]);
 
   return (
@@ -260,6 +261,7 @@ function QuizSlide({ slide, slideIndex, lesson, quizAnswers, quizResults, onAnsw
   const hasSelected = selected !== undefined;
 
   function optionStyle(i) {
+    /** @type {import('react').CSSProperties} */
     const base = {
       width: '100%', padding: '12px 16px', marginBottom: 8,
       borderRadius: 12, cursor: revealed ? 'default' : 'pointer',
@@ -496,13 +498,14 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
 
   // Auto-TTS on slide change
   useEffect(() => {
-    if (!autoTTS || !ttsAvailable) return;
+    if (!autoTTS || !ttsAvailable) return undefined;
     if (currentSlide.type === 'example' && currentSlide.items && currentSlide.items.length > 0) {
       const timer = setTimeout(() => {
         speak(currentSlide.items[0].hr);
       }, 600);
       return () => clearTimeout(timer);
     }
+    return undefined;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slide]);
 

@@ -132,11 +132,11 @@ export default function LiveTutorScreen({ goBack, award }) {
   useEffect(() => {
     if (!navigator.mediaDevices?.getUserMedia) {
       setMicPermission('unavailable');
-      return;
+      return undefined;
     }
     if (!navigator.permissions?.query) {
       // Permissions API not supported — discover on first use
-      return;
+      return undefined;
     }
     let permStatus;
     navigator.permissions.query({ name: 'microphone' })

@@ -256,7 +256,7 @@ function Defs() {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export default function CroatianKnight({ size = 80, mood = 'happy', className, style }) {
+export default function CroatianKnight({ size = 80, mood = 'happy', className = '', style = {} }) {
   const m = MOODS[mood] || MOODS.happy;
   const isCelebrating = mood === 'celebrating';
 

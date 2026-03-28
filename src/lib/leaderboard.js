@@ -20,7 +20,7 @@ export function getLeagueForRank(rank) {
 export function getWeekKey() {
   const now = new Date();
   const jan1 = new Date(now.getFullYear(), 0, 1);
-  const week = Math.ceil(((now - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+  const week = Math.ceil(((now.getTime() - jan1.getTime()) / 86400000 + jan1.getDay() + 1) / 7);
   return `${now.getFullYear()}-W${String(week).padStart(2,'0')}`;
 }
 
@@ -39,7 +39,8 @@ export async function getLeaderboard(db, limitCount = 50) {
     const weekKey = getWeekKey();
     const q = query(collection(_db, 'leaderboard', weekKey, 'entries'), orderBy('xp', 'desc'), limit(limitCount));
     const snap = await getDocs(q);
-    return snap.docs.map((d, i) => ({ rank: i + 1, ...d.data() }));
+    // eslint-disable-next-line
+    return snap.docs.map((d, i) => /** @type {any} */ ({ rank: i + 1, ...d.data() }));
   } catch { return []; }
 }
 

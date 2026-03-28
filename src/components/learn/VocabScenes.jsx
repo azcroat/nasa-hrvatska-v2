@@ -1034,8 +1034,10 @@ function ItemButton({ item, discovered, isActive, isQuiz, onTap }) {
       return () => clearTimeout(t);
     }
     prevDisc.current = discovered;
+    return undefined;
   }, [discovered]);
 
+  /** @type {import('react').CSSProperties} */
   const baseStyle = {
     position:'absolute',
     left:`${item.x}%`,

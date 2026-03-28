@@ -39,7 +39,7 @@ function NarrativePart({ part, index, accentColor, onRead }) {
   const ref = useRef(null);
 
   useEffect(() => {
-    if (!ref.current || read) return;
+    if (!ref.current || read) return undefined;
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
@@ -566,7 +566,7 @@ export default function HeritageStoryScreen({ goBack, award }) {
             src={regionImage}
             alt={selectedRegion.name}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            onError={e => { e.target.src = '/images/scenes/dalmatian-ai.webp'; }}
+            onError={e => { /** @type {HTMLImageElement} */ (e.target).src = '/images/scenes/dalmatian-ai.webp'; }}
           />
           <div style={{
             position: 'absolute', inset: 0,

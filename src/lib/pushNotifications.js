@@ -64,6 +64,7 @@ export async function initPushNotifications() {
     // Register Periodic Background Sync for daily reminders (no server needed)
     if ('periodicSync' in registration) {
       try {
+        // @ts-ignore — Periodic Background Sync API not yet in TS DOM lib
         await registration.periodicSync.register('nh-daily-reminder', {
           minInterval: 24 * 60 * 60 * 1000,
         });
@@ -162,14 +163,15 @@ export function scheduleLocalReminder(streakDays = 0) {
 
   setTimeout(() => {
     if (isNotificationsEnabled() && Notification.permission === 'granted') {
-      new Notification(msg.title, {
+      // @ts-ignore — renotify is a valid Notifications API option not yet in TS DOM lib
+      new Notification(msg.title, /** @type {any} */ ({
         body:     msg.body,
         icon:     '/icons/icon-192x192.png',
         tag:      'nh-daily-reminder',
         renotify: true,
-      });
+      }));
     }
-  }, target - now);
+  }, target.getTime() - now.getTime());
 }
 
 // Goal-specific call-to-action suffix for re-engagement messages
@@ -228,12 +230,13 @@ export function scheduleReEngagementReminder() {
 
   setTimeout(() => {
     if (isNotificationsEnabled() && Notification.permission === 'granted') {
-      new Notification(title, {
+      // @ts-ignore — renotify is a valid Notifications API option not yet in TS DOM lib
+      new Notification(title, /** @type {any} */ ({
         body,
         icon:     '/icons/icon-192x192.png',
         tag:      'nh-reengagement',
         renotify: true,
-      });
+      }));
     }
   }, 5000);
 }

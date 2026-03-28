@@ -533,7 +533,7 @@ export default function ProfileTab({ syncReady, onSyncNow, onOpenLeaderboard, on
               ];
               return (
                 <div key={i} aria-label={`${s.value} ${s.label}`} className="stat-card-v3"
-                  style={{background:bgs[i],'--stat-accent':accents[i]}}>
+                  style={/** @type {any} */ ({background:bgs[i],'--stat-accent':accents[i]})}>
                   <span className="stat-icon">{s.icon}</span>
                   {s.label === "Day Streak" ? (
                     <div style={{fontSize:26,fontWeight:900,lineHeight:1,fontVariantNumeric:"tabular-nums",

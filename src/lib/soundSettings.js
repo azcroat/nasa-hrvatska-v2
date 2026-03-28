@@ -21,7 +21,7 @@ export function setHapticEnabled(val) {
 }
 
 // Play a synthesized tone if sound is enabled
-export function playTone({ freq = 440, type = 'sine', duration = 0.3, gain = 0.18, rampTo } = {}) {
+export function playTone({ freq = 440, type = 'sine', duration = 0.3, gain = 0.18, rampTo = undefined } = {}) {
   if (!isSoundEnabled()) return;
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -29,6 +29,7 @@ export function playTone({ freq = 440, type = 'sine', duration = 0.3, gain = 0.1
     const gainNode = ctx.createGain();
     osc.connect(gainNode);
     gainNode.connect(ctx.destination);
+    // @ts-ignore — type is a valid OscillatorType string (sine/square/sawtooth/triangle)
     osc.type = type;
     osc.frequency.setValueAtTime(freq, ctx.currentTime);
     if (rampTo) osc.frequency.exponentialRampToValueAtTime(rampTo, ctx.currentTime + duration);

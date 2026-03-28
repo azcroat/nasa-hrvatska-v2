@@ -136,7 +136,7 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
 
   // Keyboard shortcuts 1–4 to select options
   useEffect(() => {
-    if (answered) return;
+    if (answered) return undefined;
     const handleKeyNum = (e) => {
       const numKey = parseInt(e.key);
       if (numKey >= 1 && numKey <= (q?.opts?.length || 4)) {

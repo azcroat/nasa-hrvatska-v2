@@ -34,7 +34,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
 
   // Move focus into modal and trap it when open
   useEffect(() => {
-    if (!showSpeakModal) return;
+    if (!showSpeakModal) return undefined;
     const focusable = modalRef.current?.querySelectorAll(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
@@ -584,7 +584,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
 }
 
 // 3-step indicator — dots fill left to right as user advances
-function StepDots({ step, dark }) {
+function StepDots({ step, dark = false }) {
   return (
     <div style={{ display:'flex', justifyContent:'center', gap:6, marginBottom:24 }}>
       {[0,1,2,3].map(i => (

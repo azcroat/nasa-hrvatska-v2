@@ -127,7 +127,7 @@ function RadioPlayer({ src, color, streamId, activeStream, setActiveStream }) {
 
   // Space bar shortcut when this player is active
   useEffect(() => {
-    if (!isActive) return;
+    if (!isActive) return undefined;
     function onKey(e) {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
       if (e.code === 'Space') { e.preventDefault(); toggle(); }
@@ -1038,7 +1038,7 @@ export default function CroatiaTab({ sCurEx }) {
                       <img
                         src={src} alt=""
                         style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }}
-                        onError={(e) => { e.currentTarget.style.display='none'; e.currentTarget.parentNode.innerText=emoji; }}
+                        onError={(e) => { e.currentTarget.style.display='none'; const p = /** @type {HTMLElement} */ (e.currentTarget.parentNode); if (p) p.innerText=emoji; }}
                       />
                     </div>
                   ))}

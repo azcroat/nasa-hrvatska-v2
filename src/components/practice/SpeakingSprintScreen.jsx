@@ -142,7 +142,7 @@ export default function SpeakingSprintScreen({ goBack, award }) {
 
   // ── Countdown phase ─────────────────────────
   useEffect(() => {
-    if (phase !== 'countdown') return;
+    if (phase !== 'countdown') return undefined;
     if (countdown <= 0) {
       const prompt = pickPrompt();
       setCurrentPrompt(prompt);
@@ -152,7 +152,7 @@ export default function SpeakingSprintScreen({ goBack, award }) {
       setMicDenied(false);
       setPhase('speaking');
       startListening();
-      return;
+      return undefined;
     }
     const t = setTimeout(() => setCountdown(c => c - 1), 1000);
     return () => clearTimeout(t);
@@ -389,11 +389,11 @@ export default function SpeakingSprintScreen({ goBack, award }) {
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         justifyContent: 'center', minHeight: '60vh',
       }}>
-        <div style={{
+        <div style={/** @type {any} */ ({
           fontSize: 100, fontWeight: 900, color: '#d4002d',
           animation: 'sprint-countdown 0.5s ease-out',
           key: countdown,
-        }}>
+        })}>
           {countdown}
         </div>
         <p style={{ fontSize: 22, fontWeight: 700, color: 'var(--subtext)', marginTop: 16 }}>

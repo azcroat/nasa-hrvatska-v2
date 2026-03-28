@@ -40,7 +40,7 @@ function _save(uid, entries) {
  * Record a new error entry for a user.
  * @param {string} uid
  * @param {'case_error'|'aspect_error'|'vocab_miss'|'gender_error'|'pronunciation'} type
- * @param {string} [context] — optional extra info (e.g. the word, the sentence)
+ * @param {string} [context] - optional extra info (e.g. the word, the sentence)
  */
 export function recordError(uid, type, context = '') {
   if (!uid || !type) return;

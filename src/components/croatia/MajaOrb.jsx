@@ -3,6 +3,7 @@ import CroatianGrb from '../shared/CroatianGrb.jsx';
 
 export default function MajaOrb({ phase, waveform, liveTranscript, personaCfg }) {
   const cfg = personaCfg || { orbColor: '#D4002D', thinkingColor: '#F59E0B', speakingColor: '#D4002D', listenColor: '#0e7490', accentColor: '#D4002D' };
+  /** @type {import('react').CSSProperties} */
   const containerStyle = {
     display: 'flex',
     flexDirection: 'column',
@@ -11,6 +12,7 @@ export default function MajaOrb({ phase, waveform, liveTranscript, personaCfg })
     margin: '4px 0 8px',
   };
 
+  /** @type {import('react').CSSProperties} */
   const orbWrapStyle = {
     position: 'relative',
     width: 200,
@@ -94,6 +96,7 @@ export default function MajaOrb({ phase, waveform, liveTranscript, personaCfg })
       : speakColor === '#0284c7' ? '2,132,199'
       : speakColor === '#7c3aed' ? '124,58,237'
       : '180,83,9';
+    /** @type {import('react').CSSProperties} */
     const pulseBase = {
       position: 'absolute',
       width: 120,

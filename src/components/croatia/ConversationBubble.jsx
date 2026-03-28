@@ -4,6 +4,7 @@ export default function ConversationBubble({ msg, personaCfg }) {
   const isUser = msg.role === 'user';
   const cfg = personaCfg || { name: 'Maja Kovačević', avatar: '/images/portraits/tutor-hero.webp', fallbackEmoji: '👩‍🏫', accentColor: '#D4002D' };
 
+  /** @type {import('react').CSSProperties} */
   const bubbleStyle = isUser
     ? {
         background: 'rgba(212,0,45,0.08)',
@@ -54,7 +55,8 @@ export default function ConversationBubble({ msg, personaCfg }) {
               }}
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
-                e.currentTarget.nextSibling.style.display = 'flex';
+                const sib = /** @type {HTMLElement} */ (e.currentTarget.nextSibling);
+                if (sib) sib.style.display = 'flex';
               }}
             />
             <div

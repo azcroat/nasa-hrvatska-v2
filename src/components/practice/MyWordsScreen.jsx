@@ -26,6 +26,7 @@ function timeAgo(ts) {
 
 /* ─── Styles ─────────────────────────────────────────────────────────── */
 
+/** @type {Record<string, import('react').CSSProperties>} */
 const S = {
   wrap: {
     minHeight: '100vh',
@@ -406,7 +407,7 @@ function WordList({ words, setWords, setView }) {
             <button
               aria-label={`Play audio for ${w.hr}`}
               style={S.phonetic}
-              onClick={() => speak(w.hr, 'hr-HR')}
+              onClick={() => speak(w.hr)}
               title="Tap to hear pronunciation"
             >
               <span aria-hidden="true">🔊</span> {w.phonetic}

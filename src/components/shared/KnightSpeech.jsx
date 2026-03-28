@@ -44,7 +44,7 @@ function getGreeting(st) {
   return messages[day % messages.length];
 }
 
-export default function KnightSpeech({ st, sessionKey = 'nh_knight_greeted', onDismiss }) {
+export default function KnightSpeech({ st, sessionKey = 'nh_knight_greeted', onDismiss = undefined }) {
   const [visible, setVisible] = useState(false);
   const [animOut, setAnimOut] = useState(false);
 
@@ -55,6 +55,7 @@ export default function KnightSpeech({ st, sessionKey = 'nh_knight_greeted', onD
       const t = setTimeout(() => setVisible(true), 800);
       return () => clearTimeout(t);
     }
+    return undefined;
   }, [sessionKey]);
 
   if (!visible) return null;

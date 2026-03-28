@@ -220,7 +220,7 @@ export default function LearnTab({
                   )}
                 </div>
                 <div style={{fontSize:12, color:'var(--subtext)', marginTop:4, marginBottom:12, lineHeight:1.5}}>
-                  {nextItem.description || `Learn essential ${nextItem.label || 'vocabulary'} · includes audio`}
+                  {(/** @type {any} */ (nextItem)).description || `Learn essential ${(/** @type {any} */ (nextItem)).label || 'vocabulary'} · includes audio`}
                 </div>
               </div>
               {(!st || st.lc === 0) && (
@@ -720,7 +720,7 @@ export default function LearnTab({
                   ["🔀","Case Transformer","Declension explorer — tap any noun across all 7 cases","casetransformer",() => { setShowBrowse(false); setScr("casetransformer"); }],
                   ["🗺️","Vocabulary Scenes","Tap objects in real-life scenes to learn words","vocabscenes",() => { setShowBrowse(false); setScr("vocabscenes"); }],
                   ["🔍","Grammar X-Ray","Tap any word in a text to see full grammatical analysis","grammarreader",() => { setShowBrowse(false); setScr("grammarreader"); }],
-                ].map(([icon,label,sub,key,fn]) => (
+                ].map((/** @type {any[]} */ [icon,label,sub,key,fn]) => (
                   <button key={key} className="tc" style={{ width:"100%", display:"flex", alignItems:"center", gap:14, padding:"14px 16px", textAlign:"left" }} onClick={fn}>
                     <span style={{ fontSize:28, flexShrink:0 }}>{icon}</span>
                     <div style={{ flex:1 }}>

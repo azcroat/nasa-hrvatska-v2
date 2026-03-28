@@ -23,7 +23,7 @@ export function portraitSrc(scenarioId) {
 // ── Speaking avatar — portrait photo with live speaking ring + D-ID video ──
 // When videoUrl is provided and isSpeaking is true, shows the lip-synced video.
 // Falls back to static portrait otherwise.
-export default function SpeakingAvatar({ src, name, size = 38, isSpeaking = false, videoUrl = null, style: extraStyle }) {
+export default function SpeakingAvatar({ src, name, size = 38, isSpeaking = false, videoUrl = null, style: extraStyle = undefined }) {
   const [imgErr, setImgErr] = React.useState(false);
   const [videoEnded, setVideoEnded] = React.useState(false);
   const videoRef = React.useRef(null);

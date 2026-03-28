@@ -602,7 +602,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
               background:"linear-gradient(135deg,rgba(255,255,255,.15),rgba(255,255,255,.05))" }}>
               <img src="/images/portraits/tutor-hero.webp" alt="Maja — Croatian tutor"
                 loading="lazy"
-                onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }}
+                onError={e => { const t = /** @type {HTMLImageElement} */ (e.target); t.style.display='none'; const sib = /** @type {HTMLElement} */ (t.nextSibling); if (sib) sib.style.display='flex'; }}
                 style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"top center" }} />
               <div style={{ display:"none", width:"100%", height:"100%", alignItems:"center", justifyContent:"center", fontSize:32 }}>🇭🇷</div>
             </div>
@@ -994,7 +994,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
                   border:"2px solid rgba(255,255,255,.25)", borderBottom:"none",
                 }}>
                   <img src={portraitSrc(s.id)} alt={s.aiName} loading="lazy"
-                    onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }}
+                    onError={e => { const t = /** @type {HTMLImageElement} */ (e.target); t.style.display='none'; const sib = /** @type {HTMLElement} */ (t.nextSibling); if (sib) sib.style.display='flex'; }}
                     style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"top center" }} />
                   <div style={{ display:"none", width:"100%", height:"100%", alignItems:"center", justifyContent:"center",
                     background:`linear-gradient(135deg,${s.color}88,${s.color}44)`, fontSize:28 }}>
