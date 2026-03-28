@@ -1,0 +1,35 @@
+# wrangler.toml — Cloudflare Workers configuration for scheduled cron jobs.
+# Naša Hrvatska app is deployed via Cloudflare Pages (auto-deploy on git push).
+# This file configures the SEPARATE scheduled worker for push notification crons.
+#
+# ── Deploy instructions ───────────────────────────────────────────────────────
+# 1. Create KV namespace:
+#      wrangler kv:namespace create PUSH_SUBSCRIPTIONS
+# 2. Copy the returned namespace ID into [[kv_namespaces]] id below
+# 3. Set env vars in Cloudflare dashboard (not here):
+#      CRON_SECRET         — any random secret string (used to auth cron → API calls)
+#      VAPID_PRIVATE_KEY   — VAPID private key for web push signing
+#      VAPID_PUBLIC_KEY    — VAPID public key (sent to browser on subscribe)
+#      PAGES_URL           — https://nasahrvatska.com
+# 4. Deploy once: wrangler deploy
+#    (Cloudflare then runs the cron automatically — no further manual steps)
+
+name                  = "nasa-hrvatska-scheduler"
+main                  = "functions/scheduled.js"
+compatibility_date    = "2024-09-23"
+compatibility_flags   = ["nodejs_compat"]
+
+[triggers]
+crons = ["0 9 * * *"]    # 9am UTC daily — streak reminder push
+
+# ── KV namespace binding ───────────────────────────────────────────────────────
+# Replace REPLACE_WITH_ACTUAL_NAMESPACE_ID with output of:
+#   wrangler kv:namespace create PUSH_SUBSCRIPTIONS
+[[kv_namespaces]]
+binding    = "PUSH_SUBSCRIPTIONS"
+id         = "REPLACE_WITH_ACTUAL_NAMESPACE_ID"
+
+# ── Environment variables (placeholders) ─────────────────────────────────────
+# Set actual values in Cloudflare dashboard — never commit secrets here
+[vars]
+ENVIRONMENT = "production"

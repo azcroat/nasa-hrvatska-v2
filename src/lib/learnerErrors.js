@@ -110,3 +110,117 @@ export function clearErrors() {
 export function getErrorCount() {
   return Object.keys(_load()).length;
 }
+
+/**
+ * Detect common Croatian grammar errors by comparing user input to the correct form.
+ * Calls logError() for each pattern found.
+ *
+ * Covers 8 high-frequency error types identifiable without full NLP:
+ *   1. č vs ć confusion (phoneme pair)
+ *   2. đ vs dj/dž confusion
+ *   3. Diacritics dropped entirely (š/ž/č/ć/đ)
+ *   4. Reflexive se/si missing
+ *   5. Animate accusative (masculine -a form)
+ *   6. dva vs dvije numeral gender mismatch
+ *   7. Clitic at sentence-final position
+ *   8. Missing genitive after nema/nije
+ *
+ * @param {string} userText - what the user typed/said
+ * @param {string} correctText - the correct answer
+ * @param {string} [source='exercise'] - where this check happened
+ */
+export function detectAndLogCroatianErrors(userText, correctText, source = 'exercise') {
+  if (!userText || !correctText) return;
+  const user = userText.trim().toLowerCase();
+  const correct = correctText.trim().toLowerCase();
+  if (user === correct) return; // no error to detect
+
+  const ctx = { wrong: userText, correct: correctText, source };
+
+  // ── 1. č vs ć confusion ───────────────────────────────────────────────────
+  // If replacing all č↔ć makes strings equal, the error is phoneme confusion
+  const normC = s => s.replace(/[čć]/g, 'c');
+  if (normC(user) === normC(correct) && user !== correct) {
+    if (user.includes('č') !== correct.includes('č') || user.includes('ć') !== correct.includes('ć')) {
+      logError('c_vs_c_confusion', 'pronunciation', ctx);
+    }
+  }
+
+  // ── 2. đ vs dj confusion ──────────────────────────────────────────────────
+  const normDj = s => s.replace(/đ/g, 'dj');
+  if (normDj(user) === normDj(correct) && user !== correct) {
+    logError('dj_diacritics', 'pronunciation', ctx);
+  }
+
+  // ── 3. Diacritics dropped entirely ───────────────────────────────────────
+  const stripDiacritics = s => s.replace(/[šžčćđ]/g, match => (
+    { š: 's', ž: 'z', č: 'c', ć: 'c', đ: 'd' }[match] || match
+  ));
+  if (stripDiacritics(user) === stripDiacritics(correct) && user !== correct) {
+    logError('diacritics_dropped', 'pronunciation', ctx);
+  }
+
+  // ── 4. Missing reflexive se/si ────────────────────────────────────────────
+  const hasRefCorrect = /\bse\b|\bsi\b/.test(correct);
+  const hasRefUser = /\bse\b|\bsi\b/.test(user);
+  if (hasRefCorrect && !hasRefUser) {
+    logError('reflexive_missing', 'grammar', ctx);
+  }
+
+  // ── 5. Animate accusative (masculine -a ending missing) ──────────────────
+  // Heuristic: correct has word ending -a, user has same stem without -a
+  const correctWords = correct.split(/\s+/);
+  const userWords = user.split(/\s+/);
+  if (correctWords.length === userWords.length) {
+    for (let i = 0; i < correctWords.length; i++) {
+      const cw = correctWords[i];
+      const uw = userWords[i];
+      if (cw.endsWith('a') && cw.length > 3 && uw === cw.slice(0, -1)) {
+        logError('animate_accusative', 'grammar', { ...ctx, word: cw });
+        break;
+      }
+    }
+  }
+
+  // ── 6. Numeral gender agreement (dva vs dvije) ────────────────────────────
+  if ((user.includes('dva') && correct.includes('dvije')) ||
+      (user.includes('dvije') && correct.includes('dva'))) {
+    logError('numeral_gender_dva_dvije', 'grammar', ctx);
+  }
+  // Also catch tri/četiri agreement with neuter
+  if ((user.includes('jedan') && correct.includes('jedno')) ||
+      (user.includes('jedno') && correct.includes('jedan')) ||
+      (user.includes('jedna') && correct.includes('jedan'))) {
+    logError('numeral_gender_agreement', 'grammar', ctx);
+  }
+
+  // ── 7. Clitic at sentence-final position ─────────────────────────────────
+  // Clitics should appear in second Wackernagel position, not at end
+  const CLITICS = new Set(['sam', 'si', 'je', 'smo', 'ste', 'su', 'ga', 'ju', 'mu', 'joj', 'im', 'se', 'li']);
+  const uWords = user.split(/\s+/);
+  const cWords = correct.split(/\s+/);
+  const uLast = uWords[uWords.length - 1];
+  const cLast = cWords[cWords.length - 1];
+  if (CLITICS.has(uLast) && !CLITICS.has(cLast) && uWords.length === cWords.length) {
+    logError('clitic_placement', 'grammar', ctx);
+  }
+
+  // ── 8. Missing genitive after nema/nije ──────────────────────────────────
+  const negationPattern = /\b(nema|nije|nisam|nisi|nismo|niste|nisu)\b/;
+  if (negationPattern.test(correct) && !negationPattern.test(user)) {
+    logError('genitive_of_negation', 'grammar', ctx);
+  }
+}
+
+/**
+ * Log a specific known Croatian error type directly.
+ * Use when the error type is already identified (e.g., from AI correction feedback).
+ *
+ * @param {string} errorType - e.g. 'aspect', 'clitic_placement', 'animate_accusative',
+ *   'genitive_of_negation', 'numeral_agreement', 'vocative_avoidance', 'gender_agreement'
+ * @param {object} [context={}] - { wrong?, correct?, source? }
+ */
+export function logCroatianError(errorType, context = {}) {
+  if (!errorType) return;
+  logError(errorType, 'grammar', context);
+}
