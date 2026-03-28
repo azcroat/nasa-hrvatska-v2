@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 // Cloudflare Pages Function — Live Croatian Conversation Partner (Streaming)
 // Endpoint: POST /api/conversation
 //
@@ -36,7 +37,7 @@ const SESSION_RATE_LIMIT_PER_MINUTE = 4; // ~3 sessions/hour = 1 every 20 min, 4
 function sanitizeParam(value, maxLen = 200) {
   if (value === null || value === undefined) return '';
   return String(value)
-    .replace(/[\x00-\x1F\x7F]/g, ' ')  // strip control characters
+    .replace(/[\x00-\x1F\x7F]/g, ' ')  // eslint-disable-line no-control-regex -- strip control characters
     .replace(/[`\\]/g, '')
     // Broad injection phrase patterns — catch variants with spacing, punctuation, unicode tricks
     .replace(/ign[o0]re\b.{0,80}(instruct|prompt|system|above|previous|prior)/gi, '')
