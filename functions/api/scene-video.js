@@ -2,12 +2,13 @@
 // Scene video endpoint — Cloudflare Pages Function
 // GET /api/scene-video?scene=dubrovnik
 //
-// Returns a Pexels video URL for the requested Croatian scene.
+// Returns a video URL for the requested Croatian scene.
+// Priority: KV cache → Pexels API (if key configured) → Wikimedia Commons fallback
 // Results are cached in KV (PUSH_SUBSCRIPTIONS namespace) for 7 days.
-// Falls back gracefully when PEXELS_API_KEY is not configured.
 //
-// Required Cloudflare env vars:
+// Optional Cloudflare env vars:
 //   PEXELS_API_KEY — free API key from pexels.com/api (200 req/hr, no cost)
+//                    Without this, Wikimedia Commons public-domain videos are used.
 //
 // Scene keys → Pexels search queries:
 //   dubrovnik     → "dubrovnik croatia scenic"
@@ -34,6 +35,18 @@ const SCENE_QUERIES = {
   labin:     'istria croatia',
   mostar:    'mostar bridge river',
   food:      'croatian food seafood',
+};
+
+// Wikimedia Commons public-domain videos — used when PEXELS_API_KEY is not configured.
+// All files are CC0 / public domain, no attribution required for video playback.
+const WIKIMEDIA_FALLBACKS = {
+  dubrovnik: 'https://upload.wikimedia.org/wikipedia/commons/5/5d/Dubrovnik_%2C_Croatia_in_Ultra_4K.webm',
+  dalmatian: 'https://upload.wikimedia.org/wikipedia/commons/0/0f/Hvar%2CCroatia_in_Ultra_4K.webm',
+  plitvice:  'https://upload.wikimedia.org/wikipedia/commons/5/5c/Plitvice_Lakes_National_Park%2C_Croatia_in_Ultra_4k.webm',
+  zagreb:    'https://upload.wikimedia.org/wikipedia/commons/b/b4/Zagreb_old_city_tour_%2C_Croatia_in_Ultra_4K.webm',
+  mostar:    'https://upload.wikimedia.org/wikipedia/commons/7/7a/Titov_most%2C_Mostar_082227.webm',
+  labin:     'https://upload.wikimedia.org/wikipedia/commons/3/39/-Piran_-360_vr_video_Part_2._-insta360x4.webm',
+  // food: no suitable public-domain video — client falls back to Ken Burns image effect
 };
 
 export async function onRequestOptions() {
@@ -68,7 +81,17 @@ export async function onRequestGet({ request, env }) {
 
   const PEXELS_KEY = env.PEXELS_API_KEY;
   if (!PEXELS_KEY) {
-    // No API key configured — client falls back to Ken Burns
+    // No Pexels key — serve Wikimedia Commons public-domain video if available
+    const wikiUrl = WIKIMEDIA_FALLBACKS[scene];
+    if (wikiUrl) {
+      // Cache the fallback URL so future requests skip this logic
+      if (KV) {
+        await KV.put(cacheKey, JSON.stringify({ url: wikiUrl }), { expirationTtl: 604800 }).catch(() => {});
+      }
+      return new Response(JSON.stringify({ ok: true, url: wikiUrl, source: 'wikimedia' }),
+        { status: 200, headers: { ...CORS, 'Content-Type': 'application/json' } });
+    }
+    // No fallback available for this scene — client falls back to Ken Burns image effect
     return new Response(JSON.stringify({ ok: false, error: 'Video service not configured' }),
       { status: 200, headers: { ...CORS, 'Content-Type': 'application/json' } });
   }

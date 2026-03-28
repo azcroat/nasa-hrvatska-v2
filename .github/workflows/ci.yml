@@ -194,7 +194,7 @@ jobs:
         run: npm run size
 
       - name: Lighthouse CI
-        run: npx lhci autorun || true
+        run: npx lhci autorun
         env:
           LHCI_BUILD_CONTEXT__CURRENT_HASH: ${{ github.sha }}
 
