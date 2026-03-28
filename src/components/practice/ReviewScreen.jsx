@@ -3,6 +3,7 @@ import { H, Bar, Spk, srMark, getDueReviews, getSR, sh } from '../../data.jsx';
 import { useHaptic } from '../../hooks/useHaptic.js';
 import { markPracticed } from '../../hooks/useNotifications.js';
 import { markQuest } from '../../lib/quests.js';
+import { logError } from '../../lib/learnerErrors.js';
 
 export default function ReviewScreen({ goBack, award, allCats, V }) {
   const haptic = useHaptic();
@@ -51,7 +52,7 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
         if (!ans && q && q.opts[qi] !== undefined) {
           setSelected(qi); setAnswered(true);
           const ok = q.opts[qi] === q.correct;
-          if (ok) { setScore(s => s + 1); haptic.correct(); } else haptic.wrong();
+          if (ok) { setScore(s => s + 1); haptic.correct(); } else { haptic.wrong(); logError(q.word[0], 'vocabulary', { wrong: q.opts[qi], correct: q.correct, source: 'srs_review' }); }
           srMark(q.word[0], ok);
         }
       }
@@ -145,7 +146,7 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
               setSelected(i);
               setAnswered(true);
               const ok = opt === q.correct;
-              if (ok) { setScore(s => s + 1); haptic.correct(); } else haptic.wrong();
+              if (ok) { setScore(s => s + 1); haptic.correct(); } else { haptic.wrong(); logError(q.word[0], 'vocabulary', { wrong: opt, correct: q.correct, source: 'srs_review' }); }
               srMark(q.word[0], ok);
             }}>
               <span style={{opacity:.4,fontSize:11,marginRight:6}}>{i+1}</span>{opt}

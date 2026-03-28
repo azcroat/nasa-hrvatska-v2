@@ -91,7 +91,7 @@ export async function onRequestPost({ request, env }) {
   try { body = await request.json(); }
   catch { return err(400, "Invalid JSON in request body", origin); }
 
-  const { word, meaning, level } = body;
+  const { word, meaning, level, missCount = 0, learnerErrors = [] } = body;
 
   // Validate word
   if (typeof word !== "string" || !word.trim()) {
@@ -110,14 +110,28 @@ export async function onRequestPost({ request, env }) {
   // Validate level
   const safeLevel = sanitizeLevel(level);
 
+  // Validate missCount and learnerErrors
+  const safeMissCount = (Number.isFinite(Number(missCount)) && Number(missCount) >= 0)
+    ? Math.min(Math.floor(Number(missCount)), 999)
+    : 0;
+  const safeLearnerErrors = Array.isArray(learnerErrors)
+    ? learnerErrors.slice(0, 6).map(e => sanitizeParam(String(e ?? ''), 100)).filter(Boolean)
+    : [];
+
   // ── Build prompts ──
-  const systemPrompt = "You are a Croatian language teacher creating example sentences. Return ONLY valid JSON, no markdown.";
+  const systemPrompt = `You are a Croatian language teacher creating rich flashcard context.
+Word: ${safeWord} (${safeMeaning})
+Level: ${safeLevel}
+Complexity guidance: ${complexityNote[safeLevel] || complexityNote["B1"]}
+Times missed: ${safeMissCount}
+${safeMissCount > 2 ? 'This word is frequently missed — make examples especially memorable and add a mnemonic.' : ''}
+${safeLearnerErrors.length > 0 ? 'Learner struggles with: ' + safeLearnerErrors.join(', ') + '. Incorporate these patterns in examples.' : ''}
+
+Return ONLY valid JSON, no markdown.`;
 
   const userMessage =
-    `Create one example sentence in Croatian using the word '${safeWord}' (meaning: '${safeMeaning}'). ` +
-    `CEFR level: ${safeLevel}. ` +
-    `Complexity guidance: ${complexityNote[safeLevel] || complexityNote["B1"]} ` +
-    `Return JSON: { "hr": "Croatian sentence", "en": "English translation", "note": "optional grammar note in English, max 80 chars or null" }`;
+    `Create two different example sentences in Croatian for the word '${safeWord}'. ` +
+    `Return JSON: { "examples": [ { "hr": "...", "en": "..." }, { "hr": "...", "en": "..." } ], "note": "brief grammar note in English, max 80 chars or null", "mnemonic": "memory trick if helpful, null if not" }`;
 
   // ── Call Anthropic ──
   let res, data;
@@ -132,7 +146,7 @@ export async function onRequestPost({ request, env }) {
       signal: AbortSignal.timeout(15000),
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 120,
+        max_tokens: 300,
         system: systemPrompt,
         messages: [{ role: "user", content: userMessage }],
       }),
@@ -165,18 +179,25 @@ export async function onRequestPost({ request, env }) {
   }
 
   // Validate required fields
-  if (typeof parsed.hr !== "string" || !parsed.hr.trim()) {
-    console.error("flash-context.js: missing hr field in response");
-    return err(502, "parse_failed", origin);
-  }
-  if (typeof parsed.en !== "string" || !parsed.en.trim()) {
-    console.error("flash-context.js: missing en field in response");
+  if (!Array.isArray(parsed.examples) || parsed.examples.length < 1) {
+    console.error("flash-context.js: missing or invalid examples array in response");
     return err(502, "parse_failed", origin);
   }
 
-  const hr = parsed.hr.trim();
-  const en = parsed.en.trim();
-  const note = (typeof parsed.note === "string" && parsed.note.trim()) ? parsed.note.trim().slice(0, 80) : null;
+  const examples = parsed.examples.slice(0, 2).map(ex => {
+    if (typeof ex?.hr !== "string" || !ex.hr.trim() || typeof ex?.en !== "string" || !ex.en.trim()) {
+      return null;
+    }
+    return { hr: ex.hr.trim(), en: ex.en.trim() };
+  }).filter(Boolean);
 
-  return ok({ hr, en, note }, origin);
+  if (examples.length < 1) {
+    console.error("flash-context.js: no valid example entries in response");
+    return err(502, "parse_failed", origin);
+  }
+
+  const note     = (typeof parsed.note === "string" && parsed.note.trim()) ? parsed.note.trim().slice(0, 80) : null;
+  const mnemonic = (typeof parsed.mnemonic === "string" && parsed.mnemonic.trim()) ? parsed.mnemonic.trim().slice(0, 200) : null;
+
+  return ok({ examples, note, mnemonic }, origin);
 }

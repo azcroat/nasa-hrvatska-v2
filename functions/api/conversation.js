@@ -91,13 +91,52 @@ function sanitizeTurnCount(n) {
   return Math.min(Math.floor(num), MAX_TURNS_PER_SESSION + 10); // allow slight over for validation msg
 }
 
+// ── Ability estimator ─────────────────────────────────────────────────────────
+// Analyzes sanitized conversation history to detect whether the learner is
+// performing above or below their stated level. Called after sanitization so
+// the messages array uses the same capped/cleaned content that Claude sees.
+
+function estimateAbility(messages) {
+  if (!messages || messages.length < 2) return null;
+  const userMessages = messages.filter(m => m.role === 'user' && m.content?.length > 3);
+  if (userMessages.length < 2) return null;
+
+  const signals = {
+    avgLength: userMessages.reduce((s, m) => s + m.content.length, 0) / userMessages.length,
+    hasSubclauses: userMessages.some(m => /jer|koji|koja|koje|kada|ako|iako/i.test(m.content)),
+    hasPastTense: userMessages.some(m => /sam bio|sam bila|jesam|bio je|bila je/i.test(m.content)),
+    hasFutureTense: userMessages.some(m => /ću|ćeš|će|ćemo|ćete/i.test(m.content)),
+    errorRate: userMessages.filter(m => /\[correction\]/i.test(m.content || '')).length / userMessages.length,
+    codeSwitch: userMessages.filter(m => /\b(the|is|are|and|but|I|you|we)\b/.test(m.content)).length,
+  };
+
+  // Estimate level shift: 'lower', 'same', or 'higher'
+  if (signals.codeSwitch > userMessages.length * 0.4) return 'lower';
+  if (signals.avgLength < 15 && !signals.hasSubclauses) return 'lower';
+  if (signals.avgLength > 60 && signals.hasSubclauses && signals.hasPastTense) return 'higher';
+  return 'same';
+}
+
 // ── System prompt builder ──────────────────────────────────────────────────────
 
-function buildConversationSystemPrompt({ level, topic, turnCount, userName, mistakePatterns }) {
+function buildConversationSystemPrompt({ level, topic, turnCount, userName, mistakePatterns, abilityShift, learnerErrors }) {
 
   const safeLevel = sanitizeLevel(level);
   const safeTopic = sanitizeTopic(topic);
   const name = sanitizeParam(userName || "", 50);
+
+  // ── Adaptive difficulty note (from real-time ability estimate) ──
+  const adaptiveNote = abilityShift === 'lower'
+    ? '\n\nADAPTIVE: Learner is struggling — simplify vocabulary, use shorter sentences, increase scaffolding.'
+    : abilityShift === 'higher'
+    ? '\n\nADAPTIVE: Learner is performing above stated level — introduce slightly more complex structures naturally.'
+    : '';
+
+  // ── Known weak areas injected from frontend error ledger ──
+  const safeErrors = Array.isArray(learnerErrors) ? learnerErrors : [];
+  const errorContext = safeErrors.length > 0
+    ? `\n\nLEARNER'S KNOWN WEAK AREAS: ${safeErrors.slice(0, 5).map(e => sanitizeParam(String(e?.pattern || ''), 60)).filter(Boolean).join(', ')}. Naturally work in practice of these patterns.`
+    : '';
 
   // ── CEFR-calibrated language rules ──
   const languageRules = {
@@ -268,7 +307,8 @@ SCHEMA:
   "topic_detected": "daily_life",
   "level_demonstrated": "${safeLevel}",
   "is_session_end": false,
-  "recast_word": null
+  "recast_word": null,
+  "errorPatterns": []
 }
 
 FIELD RULES:
@@ -280,7 +320,8 @@ FIELD RULES:
 - topic_detected: one of "${VALID_TOPICS.join('" | "')}"
 - level_demonstrated: your assessment of what CEFR level the learner's message demonstrates: "A1"|"A2"|"B1"|"B2"
 - is_session_end: boolean. True ONLY on the final closing turn.
-- recast_word: string | null. If you did an implicit recast, name the word/form you corrected (e.g. "instrumental case"). Null otherwise.`;
+- recast_word: string | null. If you did an implicit recast, name the word/form you corrected (e.g. "instrumental case"). Null otherwise.
+- errorPatterns: array of strings. Grammar/vocabulary patterns you explicitly corrected THIS turn (e.g. ["accusative_case", "verb_conjugation"]). Empty array [] if no explicit correction was made.${adaptiveNote}${errorContext}`;
 }
 
 // ── CORS ───────────────────────────────────────────────────────────────────────
@@ -344,12 +385,13 @@ export async function onRequestPost(context) {
   }
 
   const {
-    messages,      // Array<{ role: 'user'|'assistant', content: string }>
-    level,         // 'A1' | 'A2' | 'B1' | 'B2'
-    topic,         // string from VALID_TOPICS
-    turnCount,     // integer, how many turns have happened in this session
-    userName,      // optional string
+    messages,        // Array<{ role: 'user'|'assistant', content: string }>
+    level,           // 'A1' | 'A2' | 'B1' | 'B2'
+    topic,           // string from VALID_TOPICS
+    turnCount,       // integer, how many turns have happened in this session
+    userName,        // optional string
     mistakePatterns, // optional Array<{ pattern: string, count: number }>
+    learnerErrors,   // optional Array<{ pattern: string }> — unified error ledger from frontend
   } = body;
 
   // Validate turn count — hard cap enforced server-side
@@ -386,6 +428,9 @@ export async function onRequestPost(context) {
     );
   }
 
+  // Estimate learner ability from sanitized message history
+  const abilityShift = estimateAbility(anthropicMessages);
+
   // Build system prompt
   const systemPrompt = buildConversationSystemPrompt({
     level: sanitizeLevel(level),
@@ -393,6 +438,8 @@ export async function onRequestPost(context) {
     turnCount: safeTurnCount,
     userName,
     mistakePatterns,
+    abilityShift,
+    learnerErrors,
   });
 
   // ── Stream from Anthropic API ──────────────────────────────────────────────

@@ -4,6 +4,7 @@
 import React from 'react';
 import { _fbReady, initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbRegister, fbLogin, fbLogout, fbLoginGoogle, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbWatchFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbOnAuthStateChanged, fbDeleteAccount } from './lib/firebase.js';
 import { loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN } from './lib/audio.js';
+import { getSR, saveSR, getDueReviews, getSRScore } from './lib/srs.js';
 import { rnd } from './lib/random.js';
 function sh(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
 function lvl(x){const t=[0,50,150,300,500,800,1200,1800,2500,3500];for(let i=t.length-1;i>=0;i--)if(x>=t[i])return i+1;return 1}
@@ -584,8 +585,8 @@ const CONJ = {
   persons: ["ja","ti","on/ona","mi","vi","oni/one"]
 };
 // ═══ SPACED REPETITION ═══
-function getSR(){try{return JSON.parse(localStorage.getItem("uSR")||"{}")}catch{return{}}}
-function saveSR(d){localStorage.setItem("uSR",JSON.stringify(d))}
+// getSR / saveSR / getDueReviews are imported from ./lib/srs.js (FSRS-4.5).
+// Re-exported at the bottom of this file so all existing imports keep working.
 // Cultural content tracking
 export function getCultureStats() {
   try { return JSON.parse(localStorage.getItem('nh_culture') || '{}'); } catch { return {}; }
@@ -596,32 +597,11 @@ export function incrementCulture(key) {
   localStorage.setItem('nh_culture', JSON.stringify(c));
   return c[key];
 }
-// SM-2 spaced repetition — tracks ease factor + interval per word
-// correct=true → quality 4 (good recall), false → quality 1 (forgot)
-function srMark(word,correct){
-  const d=getSR();
-  if(!d[word])d[word]={r:0,w:0,rep:0,ef:2.5,iv:1,b:0};
-  const card=d[word];
-  // Lapse detection: if overdue by more than 2× the interval, reset
-  const overdueDays = (Date.now() - card.t) / 86400000 - card.iv;
-  if(overdueDays > card.iv){
-    card.rep = 0;
-    card.iv = 1;
-    card.ef = Math.max(1.3, (card.ef || 2.5) - 0.2);
-  }
-  const q=correct?4:1;
-  if(q<3){card.rep=0;card.iv=1;}
-  else{
-    if(card.rep===0)card.iv=1;
-    else if(card.rep===1)card.iv=6;
-    else card.iv=Math.round((card.iv||1)*(card.ef||2.5));
-    card.rep=(card.rep||0)+1;
-  }
-  card.ef=Math.max(1.3,(card.ef||2.5)+0.1-(5-q)*(0.08+(5-q)*0.02));
-  if(correct)card.r=(card.r||0)+1;else card.w=(card.w||0)+1;
-  card.b=Math.min(Math.max((card.b||0)+(correct?1:-2),0),5);
-  card.t=Date.now();
-  saveSR(d);
+// srMark — delegates to FSRS-4.5 getSRScore() imported from ./lib/srs.js.
+// Signature preserved: srMark(word, correct) — timeMs defaults to 4000 ms
+// (treated as a "medium" response giving grade 4 when correct).
+function srMark(word, correct, timeMs) {
+  getSRScore(word, correct, timeMs != null ? timeMs : 4000);
 }
 // ═══ MISTAKE TRACKER ═══
 function getMistakes(){try{return JSON.parse(localStorage.getItem("uMistakes")||"[]");}catch{return[];}}
@@ -5107,19 +5087,9 @@ const ASPECT_PAIRS = [
 ];
 
 // ─── SPACED REPETITION: GET DUE REVIEWS ──────────────────────────────────
-function getDueReviews() {
-  const FALLBACK = [0, 1, 3, 7, 14, 30]; // legacy bucket fallback
-  const sr = getSR();
-  const now = Date.now();
-  const due = [];
-  for (const [word, data] of Object.entries(sr)) {
-    // Use SM-2 interval if available, fall back to bucket intervals for old records
-    const intervalDays = data.iv != null ? data.iv : FALLBACK[Math.min(data.b || 0, 5)];
-    const nextDue = (data.t || 0) + intervalDays * 86400000;
-    if (now >= nextDue) due.push(word);
-  }
-  return due; // array of Croatian word strings that are due for review
-}
+// Delegates to the FSRS-4.5 implementation imported from ./lib/srs.js.
+// getDueReviews is already imported above — this comment block keeps the
+// section heading visible for orientation while reading this file.
 
 const SEASONAL_CAMPAIGNS = [
   { id: 'easter', name: 'Uskrs u Hrvatskoj', icon: '🥚', color: '#16a34a', bg: '#f0fdf4', border: '#86efac',
@@ -5193,4 +5163,4 @@ function getJourneyMilestones() {
 export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, DAILY_QUESTS, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, CROATIAN_CITIES, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, SEASONAL_CAMPAIGNS, LEVEL_NARRATIVE };
 export { _fbReady };
 export { H, Bar, Spk };
-export { initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbRegister, fbLogin, fbLogout, fbLoginGoogle, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbWatchFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbOnAuthStateChanged, fbDeleteAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, lXPgain, getSR, saveSR, srMark, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex, getDueReviews, getMistakes, recordMistake, clearMistake, clearAllMistakes, bootstrapMistakesFromSRS, getActiveCampaign, recordJourneyMilestone, getJourneyMilestones };
+export { initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbRegister, fbLogin, fbLogout, fbLoginGoogle, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbWatchFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbOnAuthStateChanged, fbDeleteAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, lXPgain, getSR, saveSR, srMark, getSRScore, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex, getDueReviews, getMistakes, recordMistake, clearMistake, clearAllMistakes, bootstrapMistakesFromSRS, getActiveCampaign, recordJourneyMilestone, getJourneyMilestones };
