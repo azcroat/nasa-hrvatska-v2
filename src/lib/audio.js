@@ -129,7 +129,7 @@ export async function speak(text) {
   if (!text) return 'none';
   const t = prepTTS(text);
   const ok = await speakAzure(t, false).catch(() => false);
-  if (!ok) { speakSynth(t, 0.9); return 'fallback'; }
+  if (!ok) return 'failed';
   return 'azure';
 }
 
@@ -137,7 +137,7 @@ export async function speakSlow(text) {
   if (!text) return 'none';
   const t = prepTTS(text);
   const ok = await speakAzure(t, true).catch(() => false);
-  if (!ok) { speakSynth(t, 0.6); return 'fallback'; }
+  if (!ok) return 'failed';
   return 'azure';
 }
 

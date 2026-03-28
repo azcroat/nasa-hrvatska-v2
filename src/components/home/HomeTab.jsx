@@ -809,10 +809,81 @@ export default function HomeTab({
           {/* ── AI DAILY PLAN ── */}
           <DailyPlanCard level={level} goal={goal} streak={streak} setScr={setScr} />
 
+          {/* ── AI LIVE TUTOR HERO CARD ── */}
+          <button
+            onClick={() => setScr("live_tutor")}
+            style={{
+              width:'100%', padding:0, marginBottom:20,
+              borderRadius:20, cursor:'pointer', textAlign:'left',
+              border:'2px solid rgba(212,0,45,.35)',
+              background:'linear-gradient(135deg,#1c0a0e 0%,#2d0d18 45%,#0f172a 100%)',
+              fontFamily:"'Outfit',sans-serif",
+              display:'flex', flexDirection:'column',
+              overflow:'hidden',
+              boxShadow:'0 8px 32px rgba(212,0,45,.22),0 2px 8px rgba(0,0,0,.28)',
+              position:'relative',
+            }}
+          >
+            <div style={{
+              position:'absolute',inset:0,
+              background:'radial-gradient(ellipse at 85% 50%,rgba(212,0,45,.3) 0%,transparent 65%)',
+              pointerEvents:'none',
+            }}/>
+            <div style={{padding:'18px 18px 14px',display:'flex',alignItems:'center',gap:14,position:'relative'}}>
+              <div style={{
+                width:60,height:60,borderRadius:16,flexShrink:0,
+                background:'linear-gradient(135deg,#D4002D,#ff3d5a)',
+                display:'flex',alignItems:'center',justifyContent:'center',
+                fontSize:28,
+                boxShadow:'0 6px 20px rgba(212,0,45,.5)',
+              }}>🎙️</div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:10,fontWeight:800,color:'rgba(255,130,130,.9)',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:4}}>AI-POWERED · LIVE SESSIONS</div>
+                <div style={{fontSize:17,fontWeight:900,color:'#fff',lineHeight:1.2,marginBottom:4}}>Croatian AI Tutor</div>
+                <div style={{fontSize:12,color:'rgba(255,255,255,.6)',lineHeight:1.4}}>Speak live — adapts to your level in real time</div>
+              </div>
+              <div style={{
+                fontSize:12,fontWeight:900,color:'#fff',
+                background:'linear-gradient(135deg,#D4002D,#ff3d5a)',
+                borderRadius:12,padding:'8px 14px',flexShrink:0,
+                boxShadow:'0 4px 14px rgba(212,0,45,.45)',
+              }}>Start →</div>
+            </div>
+            <div style={{
+              padding:'10px 18px',borderTop:'1px solid rgba(255,255,255,.07)',
+              background:'rgba(255,255,255,.04)',display:'flex',gap:18,position:'relative',
+            }}>
+              {[['🎯','Adapts to you'],['🗣️','Real conversation'],['🏆','+XP rewards']].map(([icon,label])=>(
+                <div key={label} style={{display:'flex',alignItems:'center',gap:4,fontSize:11,color:'rgba(255,255,255,.5)',fontWeight:600}}>
+                  <span>{icon}</span>{label}
+                </div>
+              ))}
+            </div>
+          </button>
+
           {/* ── DAILY QUESTS ── */}
           {(() => {
-            const questScreenMap = { speak:'speaking', grammar:'grammar-screen', master:'flashcards', reading:'reading-list', streak:'learnpath' };
-            const questBtnLabel = { speak:'Start →', grammar:'Start →', master:'Start →', reading:'Start →', streak:'Do a lesson →' };
+            const QUEST_COLORS = {
+              speak:       { bg:'#7c3aed', shadow:'rgba(124,58,237,.35)', border:'rgba(124,58,237,.3)' },
+              speak2:      { bg:'#7c3aed', shadow:'rgba(124,58,237,.35)', border:'rgba(124,58,237,.3)' },
+              grammar:     { bg:'#d97706', shadow:'rgba(217,119,6,.35)',  border:'rgba(217,119,6,.3)'  },
+              grammar2:    { bg:'#d97706', shadow:'rgba(217,119,6,.35)',  border:'rgba(217,119,6,.3)'  },
+              master:      { bg:'#0e7490', shadow:'rgba(14,116,144,.35)', border:'rgba(14,116,144,.3)' },
+              master2:     { bg:'#0e7490', shadow:'rgba(14,116,144,.35)', border:'rgba(14,116,144,.3)' },
+              reading:     { bg:'#16a34a', shadow:'rgba(22,163,74,.35)',  border:'rgba(22,163,74,.3)'  },
+              reading2:    { bg:'#16a34a', shadow:'rgba(22,163,74,.35)',  border:'rgba(22,163,74,.3)'  },
+              streak:      { bg:'#ea580c', shadow:'rgba(234,88,12,.35)',  border:'rgba(234,88,12,.3)'  },
+              streak_alive:{ bg:'#ea580c', shadow:'rgba(234,88,12,.35)',  border:'rgba(234,88,12,.3)'  },
+              perfect:     { bg:'#ca8a04', shadow:'rgba(202,138,4,.35)',  border:'rgba(202,138,4,.3)'  },
+            };
+            const questScreenMap = {
+              speak:'speaking',     speak2:'speaking',
+              grammar:'grammar-screen', grammar2:'grammar-screen',
+              master:'review',      master2:'review',
+              reading:'reading-list', reading2:'reading-list',
+              streak:'learnpath',   streak_alive:'learnpath',
+              perfect:'flashcards',
+            };
             const questsDoneCount = DAILY_QUESTS.filter(q => questsDone[q.id]).length;
             return (<>
               <div className="section-hdr">
@@ -821,40 +892,51 @@ export default function HomeTab({
                   <div className="section-hdr-title">Daily Quests</div>
                   <div className="section-hdr-sub">Complete quests to earn bonus XP</div>
                 </div>
-                <div className="section-hdr-badge">{questsDoneCount}/5</div>
+                <div className="section-hdr-badge">{questsDoneCount}/{DAILY_QUESTS.length}</div>
               </div>
               <div className="anim-children-fade" style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:10, marginBottom:20 }}>
                 {DAILY_QUESTS.map(q => {
                   const done = questsDone[q.id];
+                  const qc = QUEST_COLORS[q.id] || QUEST_COLORS.master;
                   return (
                     <div key={q.id} style={{
                       background: done ? 'var(--success-bg)' : 'var(--card)',
-                      border: `1.5px solid ${done ? 'var(--success-b)' : 'var(--inp-b,#e2e8f0)'}`,
-                      borderRadius:14, padding:'16px 12px', textAlign:'center',
+                      border: `1.5px solid ${done ? 'var(--success-b)' : qc.border}`,
+                      borderRadius:16, padding:'14px 12px', textAlign:'center',
                       display:'flex', flexDirection:'column', alignItems:'center',
+                      boxShadow: done ? 'none' : `0 2px 12px ${qc.shadow.replace('.35','.12')}`,
                     }}>
-                      <div style={{fontSize:30, marginBottom:5}}>{q.icon}</div>
-                      <div style={{fontSize:11, fontWeight:900, color: done ? 'var(--success)' : 'var(--heading)', lineHeight:1.2, marginBottom:3}}>{q.name}</div>
-                      <div style={{fontSize:10, color:'var(--subtext)', fontWeight:600, marginBottom:8, lineHeight:1.3}}>{q.desc}</div>
+                      <div style={{
+                        width:48, height:48, borderRadius:14, marginBottom:8,
+                        background: done ? 'var(--success)' : qc.bg,
+                        display:'flex', alignItems:'center', justifyContent:'center',
+                        fontSize:24,
+                        boxShadow: done ? 'none' : `0 4px 14px ${qc.shadow}`,
+                      }}>
+                        {done ? '✓' : q.icon}
+                      </div>
+                      <div style={{fontSize:12, fontWeight:900, color: done ? 'var(--success)' : 'var(--heading)', lineHeight:1.2, marginBottom:3}}>{q.name}</div>
+                      <div style={{fontSize:10, color:'var(--subtext)', fontWeight:500, marginBottom:8, lineHeight:1.3}}>{q.desc}</div>
                       {done
-                        ? <div style={{fontSize:18, color:'var(--success)', fontWeight:900, animation:'bounce-in .4s', lineHeight:1}}>✓</div>
-                        : <button
-                            onClick={() => setScr(questScreenMap[q.id])}
-                            style={{
-                              marginTop:'auto', fontSize:11, fontWeight:800,
-                              color:'#ffffff',
-                              background:'linear-gradient(135deg,var(--accent,#0e7490),#0284c7)',
-                              border:'none',
-                              borderRadius:8, padding:'5px 12px', cursor:'pointer',
-                              lineHeight:1.4,
-                              boxShadow:'0 2px 8px rgba(14,116,144,.35)',
-                            }}
-                          >
-                            {questBtnLabel[q.id]}
-                          </button>
+                        ? <div style={{fontSize:11, color:'var(--success)', fontWeight:800, lineHeight:1}}>+{q.xp} XP earned</div>
+                        : <>
+                            <button
+                              onClick={() => setScr(questScreenMap[q.id])}
+                              style={{
+                                marginTop:'auto', fontSize:11, fontWeight:800,
+                                color:'#fff',
+                                background: qc.bg,
+                                border:'none',
+                                borderRadius:10, padding:'6px 14px', cursor:'pointer',
+                                lineHeight:1.4,
+                                boxShadow: `0 3px 10px ${qc.shadow}`,
+                              }}
+                            >
+                              Start →
+                            </button>
+                            <div style={{fontSize:10, color:'var(--subtext)', marginTop:5}}>{q.xp} XP</div>
+                          </>
                       }
-                      {done && <div style={{fontSize:10, color:'var(--success)', fontWeight:700, marginTop:3}}>+{q.xp} XP</div>}
-                      {!done && <div style={{fontSize:10, color:'var(--subtext)', marginTop:4}}>{q.xp} XP</div>}
                     </div>
                   );
                 })}
