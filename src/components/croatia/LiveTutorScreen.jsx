@@ -25,6 +25,8 @@ const TUTOR_PERSONA = {
 
 const PHASE_LABELS = {
   none:            { icon: "🗣️", label: "Speaking freely" },
+  thinking:        { icon: "⏳", label: "Transcribing..." },
+  speaking:        { icon: "🔊", label: "Tutor speaking..." },
   simplify:        { icon: "📖", label: "Simplifying..." },
   repeat:          { icon: "🔁", label: "Let's try again" },
   explain_english: { icon: "💡", label: "English explanation" },
