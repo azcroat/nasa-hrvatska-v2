@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { H, fbGetFamilyMembers, fbWatchFamilyMembers, fbCreateFamily, fbJoinFamily, fbLeaveFamily } from '../../data.jsx';
 import { fbSaveReaction, fbWatchReactions } from '../../lib/firebase.js';
 import CroatianKnight from '../shared/CroatianKnight';
+import WeeklyLeague from './WeeklyLeague.jsx';
 
 function getCEFRLevel(weekXP) {
   // Rough weekly XP → CEFR for leaderboard display
@@ -166,13 +167,13 @@ export default function Leaderboard({
         <div style={{ flex:1 }}>{H("🏆 Family Leaderboard","Compete with your family!")}</div>
       </div>
       <div style={{display:"flex",gap:6,marginBottom:16,flexWrap:"wrap"}}>
-        {["main","global","create","join"].map(t => (
+        {["main","global","league","create","join"].map(t => (
           <button
             key={t}
             className={"b " + (famTab === t ? "bp" : "bg")}
             style={{fontSize:12,padding:"8px 14px"}}
             onClick={() => { setFamTab(t); setFamErr(""); }}>
-            {t === "main" ? "🏆 Family" : t === "global" ? "🌍 Global" : t === "create" ? "➕ Create Family" : "🔗 Join Family"}
+            {t === "main" ? "🏆 Family" : t === "global" ? "🌍 Global" : t === "league" ? "🥇 League" : t === "create" ? "➕ Create Family" : "🔗 Join Family"}
           </button>
         ))}
       </div>
@@ -645,6 +646,10 @@ export default function Leaderboard({
             {famLoading ? "Joining..." : "🔗 Join Family"}
           </button>
         </div>
+      )}
+
+      {famTab === "league" && (
+        <WeeklyLeague authUser={au} name={name} stats={stats} goBack={() => setFamTab('main')} />
       )}
 
       {/* ── RECENT ACHIEVEMENTS ── */}
