@@ -117,13 +117,75 @@ export function scheduleStreakReminder(streakDays) {
   }, delay);
 }
 
-function showReminder() {
-  const messages = [
-    { body: "You're on a streak — don't break it! 🔥 A quick review keeps your Croatian sharp.", title: 'Naša Hrvatska' },
-    { body: 'Just 5 minutes of Croatian today? Your vocabulary is waiting. 🇭🇷', title: 'Vježbaj danas!' },
-    { body: 'Your review queue has words waiting. Come back and keep learning! 📚', title: 'Naša Hrvatska' },
+// ── Build a personalized notification from the user's actual learning state ──
+function buildPersonalizedMessage() {
+  try {
+    // Pull SRS vocab — find words the user recently learned
+    const sr = JSON.parse(localStorage.getItem('nh_sr') || '{}');
+    const srWords = Object.entries(sr);
+    const recentWord = srWords
+      .filter(([, v]) => v && v.r > 0)
+      .sort((a, b) => (b[1].ts || 0) - (a[1].ts || 0))[0];
+
+    // Pull streak
+    const streakData = JSON.parse(localStorage.getItem('nh_streak') || '{}');
+    const streakCount = streakData.count || streakData.days || 0;
+
+    // Pull SRS due count
+    const dueCount = srWords.filter(([, v]) => {
+      if (!v || !v.due) return false;
+      return new Date(v.due) <= new Date();
+    }).length;
+
+    // Pull recent error patterns for a specific weak area hint
+    const progressKeys = Object.keys(localStorage).filter(k => k.startsWith('uP_'));
+    let lessonsCompleted = 0;
+    if (progressKeys.length) {
+      try {
+        const p = JSON.parse(localStorage.getItem(progressKeys[0]) || '{}');
+        lessonsCompleted = (p.stats || p.st || {}).lc || 0;
+      } catch (_) {}
+    }
+
+    // Build message variants ranked by specificity
+    if (dueCount > 0) {
+      return {
+        title: 'Naša Hrvatska — Review time',
+        body: `You have ${dueCount} word${dueCount > 1 ? 's' : ''} due for review. Quick session? 📚`,
+      };
+    }
+    if (recentWord) {
+      const [word] = recentWord;
+      return {
+        title: 'Vježbaj danas! 🇭🇷',
+        body: `Remember "${word}"? Use it in a sentence today to lock it in. ✨`,
+      };
+    }
+    if (streakCount >= 3) {
+      return {
+        title: `🔥 ${streakCount}-day streak!`,
+        body: `Keep the momentum going — just 5 minutes of Croatian today.`,
+      };
+    }
+    if (lessonsCompleted > 0) {
+      return {
+        title: 'Naša Hrvatska',
+        body: `${lessonsCompleted} lessons in — you're making real progress. Practice today? 🇭🇷`,
+      };
+    }
+  } catch (_) {}
+
+  // Fallback generic messages
+  const fallbacks = [
+    { title: 'Naša Hrvatska', body: "Your Croatian is waiting. 5 minutes keeps the momentum alive. 🇭🇷" },
+    { title: 'Vježbaj danas!', body: "A little Croatian every day adds up fast. Continue your journey! ✨" },
+    { title: 'Naša Hrvatska', body: "Your review queue has words waiting. Come back and keep learning! 📚" },
   ];
-  const msg = messages[Math.floor(rnd() * messages.length)];
+  return fallbacks[Math.floor(rnd() * fallbacks.length)];
+}
+
+function showReminder() {
+  const msg = buildPersonalizedMessage();
   try {
     new Notification(msg.title, {
       body: msg.body,

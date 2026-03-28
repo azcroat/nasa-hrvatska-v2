@@ -12,6 +12,7 @@ import CipkaPattern from '../shared/CipkaPattern.jsx';
 import CroatianKnight from '../shared/CroatianKnight';
 import KnightSpeech from '../shared/KnightSpeech';
 import DailyPlanCard from './DailyPlanCard.jsx';
+import AdaptiveInsightsCard from '../profile/AdaptiveInsightsCard.jsx';
 import VideoBackground from '../shared/VideoBackground.jsx';
 // DalmatianCoast SVG replaced with real AI/CC photography
 // import { DalmatianCoast } from '../illustrations';
@@ -931,6 +932,16 @@ export default function HomeTab({
 
           {/* ── AI DAILY PLAN ── */}
           <DailyPlanCard level={level} goal={goal} streak={streak} setScr={setScr} />
+
+          {/* ── ADAPTIVE AI INSIGHTS ── */}
+          {authUser?.u && st.lc >= 2 && (
+            <AdaptiveInsightsCard
+              uid={authUser.u}
+              level={level}
+              lessonsCompleted={st.lc}
+              goToScreen={setScr}
+            />
+          )}
 
           {/* ── AI LIVE TUTOR HERO CARD ── */}
           <button
