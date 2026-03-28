@@ -94,7 +94,11 @@ export default function PracticeTab({
   // ── SMART RECOMMENDATIONS ─────────────────────────────────────────────
   const dueReviews = useMemo(getDueReviews, []);
   const sr = getSR();
-  const weakCount = Object.values(sr).filter(v => v.w > 0).length;
+  const weakWords = Object.values(sr).filter(v => v.w > 0);
+  const weakCount = weakWords.length;
+  const avgAcc = weakCount > 0
+    ? Math.round(weakWords.reduce((s, v) => s + (v.r || 0) / ((v.r || 0) + v.w), 0) / weakCount * 100)
+    : 0;
   const h = new Date().getHours();
   const placementDone = !!localStorage.getItem('nh_placement_done');
   const isNewUser = lc === 0 && !placementDone;
@@ -105,7 +109,7 @@ export default function PracticeTab({
 
   const recommendations = [
     weakCount >= 3
-      ? { icon:'🧠', title:'Fix Weak Words', desc:`${weakCount} words need attention`, color:'rgba(220,38,38,.08)', border:'rgba(220,38,38,.25)', fn: () => { setWeakMsg(""); startWeakWords(); } }
+      ? { icon:'🧠', title:'Fix Weak Words', desc:`✦ AI: ${avgAcc}% avg accuracy · needs work`, color:'rgba(99,102,241,.08)', border:'rgba(99,102,241,.3)', fn: () => { setWeakMsg(""); startWeakWords(); } }
       : { icon:'🎯', title:'Quick Quiz',      desc:'Test your vocabulary',             color:'rgba(234,88,12,.08)', border:'rgba(234,88,12,.25)', fn: startQuiz },
     h < 12
       ? { icon:'🃏', title:'Flashcards',   desc:'Start the day strong',     color:'rgba(124,58,237,.08)', border:'rgba(124,58,237,.25)', fn: startFlashcards }

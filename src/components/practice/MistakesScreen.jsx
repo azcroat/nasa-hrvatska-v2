@@ -83,7 +83,19 @@ function MistakeListItem({ mistake, onClear }) {
         <div style={{ fontSize: 15, fontWeight: 700, color: '#1e40af' }}>{mistake.hr}</div>
         <div style={{ fontSize: 13, color: '#6b7280' }}>{mistake.en}</div>
       </div>
-      <div style={{ fontSize: 11, fontWeight: 700, color: '#dc2626', background: '#fee2e2', borderRadius: 20, padding: '2px 8px', flexShrink: 0 }}>×{mistake.count}</div>
+      {(() => {
+        const conf = Math.max(10, 100 - mistake.count * 12);
+        const bg = conf > 70
+          ? 'linear-gradient(135deg,#0e7490,#0891b2)'
+          : conf > 45
+          ? 'linear-gradient(135deg,#d97706,#b45309)'
+          : 'linear-gradient(135deg,#dc2626,#b91c1c)';
+        return (
+          <div style={{ fontSize: 10, fontWeight: 800, color: '#fff', background: bg, borderRadius: 20, padding: '3px 9px', flexShrink: 0, letterSpacing: 0.2, whiteSpace: 'nowrap' }}>
+            ✦ {conf}% ready
+          </div>
+        );
+      })()}
       <button onClick={() => onClear(mistake.hr)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: '#9ca3af', flexShrink: 0 }}>×</button>
     </div>
   );
