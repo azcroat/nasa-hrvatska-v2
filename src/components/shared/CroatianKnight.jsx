@@ -46,307 +46,244 @@ const MOOD_ANIM = {
 };
 
 // ---------------------------------------------------------------------------
-// Full SVG fallback — the original hand-crafted knight, kept intact
+// Lego-style SVG knight — blocky, plastic, Croatian colours
 // ---------------------------------------------------------------------------
 function KnightSVG({ size, mood, className, style }) {
   const isCelebrating = mood === 'celebrating';
-  const isConfused    = mood === 'confused';
-  const isSad         = mood === 'sad';
-  const isHappy       = mood === 'happy';
-  const isThinking    = mood === 'thinking';
-  const isEncouraged  = mood === 'encouraged';
 
   const confetti = [
-    { x:8,  y:20, w:6, h:3.5, c:'#D40030', r:22  },
-    { x:24, y:10, w:4, h:6,   c:'#FFE070', r:-16 },
-    { x:75, y:14, w:6, h:3.5, c:'#38bdf8', r:32  },
-    { x:92, y:26, w:3.5,h:6,  c:'#16a34a', r:-12 },
-    { x:12, y:42, w:5, h:3,   c:'#38bdf8', r:48  },
-    { x:96, y:44, w:3.5,h:5,  c:'#D40030', r:-38 },
-    { x:5,  y:65, w:5, h:3,   c:'#FFE070', r:12  },
-    { x:100,y:68, w:3.5,h:5,  c:'#16a34a', r:28  },
-    { x:20, y:80, w:4, h:4,   c:'#a78bfa', r:-22 },
-    { x:88, y:82, w:4, h:4,   c:'#f59e0b', r:18  },
+    { x:5,  y:18, w:6,   h:3.5, c:'#D40030', r:22  },
+    { x:22, y:8,  w:4,   h:6,   c:'#FFE070', r:-16 },
+    { x:78, y:12, w:6,   h:3.5, c:'#38bdf8', r:32  },
+    { x:94, y:24, w:3.5, h:6,   c:'#D40030', r:-12 },
+    { x:10, y:40, w:5,   h:3,   c:'#38bdf8', r:48  },
+    { x:96, y:42, w:3.5, h:5,   c:'#D40030', r:-38 },
+    { x:3,  y:62, w:5,   h:3,   c:'#FFE070', r:12  },
+    { x:102,y:66, w:3.5, h:5,   c:'#16a34a', r:28  },
   ];
 
-  const renderEyes = () => {
-    const ly = 36, ry = 36, lx = 50, rx = 66;
+  // Lego-style printed face expressions
+  const renderFace = () => {
     switch (mood) {
       case 'happy':
         return (<>
-          <path d={`M ${lx-4} ${ly} Q ${lx} ${ly-4} ${lx+4} ${ly}`} stroke="#1e3a5f" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
-          <path d={`M ${rx-4} ${ry} Q ${rx} ${ry-4} ${rx+4} ${ry}`} stroke="#1e3a5f" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
-          <circle cx={lx-2} cy={ly+2} r="1.5" fill="#f87171" opacity="0.45"/>
-          <circle cx={rx+2} cy={ry+2} r="1.5" fill="#f87171" opacity="0.45"/>
+          <path d="M 51 35 Q 53.5 32 56 35" stroke="#1C1C1C" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
+          <path d="M 64 35 Q 66.5 32 69 35" stroke="#1C1C1C" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
+          <path d="M 51 42 Q 60 49 69 42" stroke="#1C1C1C" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
         </>);
       case 'celebrating':
         return (<>
-          <circle cx={lx} cy={ly} r="4" fill="#1e3a5f"/>
-          <circle cx={rx} cy={ry} r="4" fill="#1e3a5f"/>
-          <circle cx={lx+1.2} cy={ly-1.2} r="1.4" fill="white"/>
-          <circle cx={rx+1.2} cy={ry-1.2} r="1.4" fill="white"/>
-          <text x={lx-8} y={ly-4} fontSize="5" fill="#FFE070">★</text>
-          <text x={rx+3} y={ry-4} fontSize="5" fill="#FFE070">★</text>
-          <circle cx={lx-6} cy={ly+4} r="3" fill="#f87171" opacity="0.4"/>
-          <circle cx={rx+6} cy={ry+4} r="3" fill="#f87171" opacity="0.4"/>
+          <text x="53.5" y="39" fontSize="8" fill="#1C1C1C" textAnchor="middle">★</text>
+          <text x="66.5" y="39" fontSize="8" fill="#1C1C1C" textAnchor="middle">★</text>
+          <path d="M 51 43 Q 60 50 69 43" stroke="#1C1C1C" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
         </>);
       case 'sad':
         return (<>
-          <path d={`M ${lx-4} ${ly-1} Q ${lx} ${ly+2} ${lx+4} ${ly+3}`} stroke="#1e3a5f" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
-          <path d={`M ${rx-4} ${ry+3} Q ${rx} ${ry+2} ${rx+4} ${ry-1}`} stroke="#1e3a5f" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
-          <ellipse cx={lx-1} cy={ly+6} rx="1.5" ry="2.5" fill="#93c5fd" opacity="0.75"/>
+          <circle cx="53.5" cy="35" r="2.3" fill="#1C1C1C"/>
+          <circle cx="66.5" cy="35" r="2.3" fill="#1C1C1C"/>
+          <path d="M 52 45 Q 60 40 68 45" stroke="#1C1C1C" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
+          <ellipse cx="52" cy="41" rx="1.3" ry="2.2" fill="#93c5fd" opacity="0.85"/>
         </>);
       case 'thinking':
         return (<>
-          <circle cx={lx}   cy={ly} r="3.2" fill="#1e3a5f"/>
-          <circle cx={rx}   cy={ry} r="4"   fill="#1e3a5f"/>
-          <circle cx={lx+1} cy={ly-1.2} r="1.1" fill="white"/>
-          <circle cx={rx+1.2} cy={ry-1.2} r="1.3" fill="white"/>
-          <text x="72" y="30" fontSize="7" fill="#FFE070" fontWeight="900">?</text>
-        </>);
-      case 'encouraged':
-        return (<>
-          <circle cx={lx} cy={ly} r="3.2" fill="#1e3a5f"/>
-          <circle cx={rx} cy={ry} r="3.2" fill="#1e3a5f"/>
-          <circle cx={lx+1} cy={ly-1} r="1.1" fill="white"/>
-          <circle cx={rx+1} cy={ry-1} r="1.1" fill="white"/>
-          <rect x={lx-5} y={ly-8} width="9" height="2" rx="1" fill="#1e3a5f"/>
-          <rect x={rx-5} y={ry-8} width="9" height="2" rx="1" fill="#1e3a5f"/>
-          <path d={`M ${lx-4} ${ly+7} Q ${lx+8} ${ly+11} ${rx+4} ${ry+7}`} stroke="#1e3a5f" strokeWidth="2" fill="none" strokeLinecap="round"/>
+          <circle cx="53.5" cy="35" r="2.3" fill="#1C1C1C"/>
+          <circle cx="67.5" cy="35" r="3.1" fill="#1C1C1C"/>
+          <path d="M 52 43 Q 56 41 60 43 Q 64 45 68 43" stroke="#1C1C1C" strokeWidth="2" fill="none" strokeLinecap="round"/>
         </>);
       case 'confused':
         return (<>
-          <circle cx={lx}   cy={ly} r="2.5" fill="#1e3a5f"/>
-          <circle cx={rx}   cy={ry} r="4"   fill="#1e3a5f"/>
-          <circle cx={lx+0.8} cy={ly-0.8} r="0.9" fill="white"/>
-          <circle cx={rx+1.2} cy={ry-1.2} r="1.4" fill="white"/>
-          <path d={`M ${lx-3} ${ly+7} Q ${lx+4} ${ly+10} ${lx+8} ${ly+7} Q ${rx} ${ly+4} ${rx+4} ${ry+7}`} stroke="#1e3a5f" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
-          <text x="76" y="22" fontSize="8" fill="#FFE070" fontWeight="900">?</text>
+          <circle cx="53.5" cy="35" r="1.9" fill="#1C1C1C"/>
+          <circle cx="67.5" cy="35" r="3.1" fill="#1C1C1C"/>
+          <path d="M 52 43 L 57 40 L 62 44 L 67 41" stroke="#1C1C1C" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+        </>);
+      case 'encouraged':
+        return (<>
+          <circle cx="53.5" cy="35" r="2.3" fill="#1C1C1C"/>
+          <circle cx="66.5" cy="35" r="2.3" fill="#1C1C1C"/>
+          <line x1="50" y1="30" x2="57" y2="29" stroke="#1C1C1C" strokeWidth="2" strokeLinecap="round"/>
+          <line x1="63" y1="29" x2="70" y2="30" stroke="#1C1C1C" strokeWidth="2" strokeLinecap="round"/>
+          <path d="M 51 42 Q 60 47 69 42" stroke="#1C1C1C" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
         </>);
       default:
         return (<>
-          <circle cx={lx}   cy={ly}   r="3.2" fill="#1e3a5f"/>
-          <circle cx={rx}   cy={ry}   r="3.2" fill="#1e3a5f"/>
-          <circle cx={lx+1} cy={ly-1} r="1.1" fill="white"/>
-          <circle cx={rx+1} cy={ry-1} r="1.1" fill="white"/>
+          <circle cx="53.5" cy="35" r="2.3" fill="#1C1C1C"/>
+          <circle cx="66.5" cy="35" r="2.3" fill="#1C1C1C"/>
+          <path d="M 52 43 Q 60 46 68 43" stroke="#1C1C1C" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
         </>);
     }
   };
 
   return (
-    <svg
-      width={size}
-      height={size * 1.5}
-      viewBox="0 0 120 160"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      style={style}
-      role="img"
-      aria-label={`Croatian knight mascot, ${mood} expression`}
-      transform={isConfused ? 'rotate(-5)' : undefined}
-    >
+    <svg width={size} height={size * 1.5} viewBox="0 0 120 160" fill="none"
+      xmlns="http://www.w3.org/2000/svg" className={className} style={style}
+      role="img" aria-label={`Croatian knight mascot, ${mood} expression`}>
       <defs>
-        <linearGradient id="ck2-armor" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%"   stopColor="#c8d8ee"/>
-          <stop offset="35%"  stopColor="#94b2cc"/>
-          <stop offset="100%" stopColor="#5a7898"/>
+        {/* Steel-blue armor — Lego dark bluish-gray */}
+        <linearGradient id="lg-armor" x1="0%" y1="0%" x2="80%" y2="100%">
+          <stop offset="0%"   stopColor="#6B7D96"/>
+          <stop offset="50%"  stopColor="#485A70"/>
+          <stop offset="100%" stopColor="#2E3D50"/>
         </linearGradient>
-        <linearGradient id="ck2-armorDark" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%"   stopColor="#546880"/>
-          <stop offset="100%" stopColor="#2a3848"/>
+        <linearGradient id="lg-armorLt" x1="0%" y1="0%" x2="60%" y2="100%">
+          <stop offset="0%"   stopColor="#8A9DB4"/>
+          <stop offset="100%" stopColor="#5C7088"/>
         </linearGradient>
-        <linearGradient id="ck2-armorSheen" x1="0%" y1="0%" x2="60%" y2="100%">
-          <stop offset="0%"   stopColor="#dceaf8" stopOpacity="0.8"/>
-          <stop offset="60%"  stopColor="#a0bcd0" stopOpacity="0.3"/>
-          <stop offset="100%" stopColor="#6080a0" stopOpacity="0.1"/>
-        </linearGradient>
-        <linearGradient id="ck2-gold" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%"   stopColor="#FFE682"/>
+        <linearGradient id="lg-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stopColor="#FFE888"/>
           <stop offset="50%"  stopColor="#F4C430"/>
-          <stop offset="100%" stopColor="#C8920A"/>
+          <stop offset="100%" stopColor="#C0920A"/>
         </linearGradient>
-        <linearGradient id="ck2-goldV" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%"   stopColor="#FFE682"/>
-          <stop offset="100%" stopColor="#B87800"/>
+        <linearGradient id="lg-skin" x1="0%" y1="0%" x2="40%" y2="100%">
+          <stop offset="0%"   stopColor="#FFD49E"/>
+          <stop offset="100%" stopColor="#FFC070"/>
         </linearGradient>
-        <linearGradient id="ck2-skin" x1="0%" y1="0%" x2="30%" y2="100%">
-          <stop offset="0%"   stopColor="#ffd9b0"/>
-          <stop offset="60%"  stopColor="#f0b880"/>
-          <stop offset="100%" stopColor="#d89060"/>
+        <linearGradient id="lg-cape" x1="0%" y1="0%" x2="40%" y2="100%">
+          <stop offset="0%"   stopColor="#D40030"/>
+          <stop offset="100%" stopColor="#7A0010"/>
         </linearGradient>
-        <linearGradient id="ck2-plume" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%"   stopColor="#ff4444"/>
-          <stop offset="40%"  stopColor="#dc1414"/>
-          <stop offset="100%" stopColor="#7f0000"/>
+        <linearGradient id="lg-sword" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stopColor="#A8BDD0"/>
+          <stop offset="50%"  stopColor="#E0EAF4"/>
+          <stop offset="100%" stopColor="#7890A4"/>
         </linearGradient>
-        <linearGradient id="ck2-cape" x1="0%" y1="0%" x2="30%" y2="100%">
-          <stop offset="0%"   stopColor="#8c1c1c"/>
-          <stop offset="60%"  stopColor="#5c0c0c"/>
-          <stop offset="100%" stopColor="#380808"/>
-        </linearGradient>
-        <linearGradient id="ck2-sword" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%"   stopColor="#d0d8e0"/>
-          <stop offset="40%"  stopColor="#e8f0f8"/>
-          <stop offset="100%" stopColor="#a0b0c0"/>
-        </linearGradient>
-        <linearGradient id="ck2-boot" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%"   stopColor="#2a2a3e"/>
-          <stop offset="100%" stopColor="#14141e"/>
-        </linearGradient>
-        <clipPath id="ck2-shieldClip">
-          <path d="M 5 64 L 5 92 Q 5 108 18 116 L 26 110 L 26 64 Z"/>
+        <clipPath id="lg-shieldClip">
+          <path d="M 3 86 L 21 86 L 21 106 Q 21 116 12 120 Q 3 116 3 106 Z"/>
         </clipPath>
-        <filter id="ck2-swordGlow" x="-20%" y="-10%" width="140%" height="120%">
-          <feGaussianBlur stdDeviation="1.5" result="blur"/>
-          <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-        </filter>
-        <filter id="ck2-drop" x="-20%" y="-10%" width="140%" height="130%">
-          <feDropShadow dx="1" dy="3" stdDeviation="3" floodColor="rgba(0,0,0,0.35)"/>
+        <filter id="lg-drop" x="-25%" y="-10%" width="150%" height="130%">
+          <feDropShadow dx="2" dy="4" stdDeviation="3" floodColor="rgba(0,0,0,0.3)"/>
         </filter>
       </defs>
 
-      <ellipse cx="60" cy="156" rx="34" ry="4" fill="rgba(0,0,0,0.18)"/>
+      {/* Ground shadow */}
+      <ellipse cx="60" cy="157" rx="28" ry="3.5" fill="rgba(0,0,0,0.18)"/>
 
+      {/* Confetti (celebrating mood) */}
       {isCelebrating && confetti.map((p,i) => (
         <rect key={i} x={p.x} y={p.y} width={p.w} height={p.h} rx="0.6"
-          fill={p.c} opacity="0.9"
-          transform={`rotate(${p.r} ${p.x+p.w/2} ${p.y+p.h/2})`}/>
+          fill={p.c} opacity="0.9" transform={`rotate(${p.r} ${p.x+p.w/2} ${p.y+p.h/2})`}/>
       ))}
 
-      <g filter="url(#ck2-drop)">
-        <path d="M 32 58 Q 20 72 22 112 L 34 108 L 34 96 L 32 58" fill="url(#ck2-cape)"/>
-        <path d="M 32 58 Q 21 72 22 112" stroke="url(#ck2-gold)" strokeWidth="1.5" fill="none" opacity="0.7"/>
-        <path d="M 88 58 Q 100 72 98 112 L 86 108 L 86 96 L 88 58" fill="url(#ck2-cape)"/>
-        <path d="M 88 58 Q 99 72 98 112" stroke="url(#ck2-gold)" strokeWidth="1.5" fill="none" opacity="0.7"/>
+      <g filter="url(#lg-drop)">
 
-        <rect x="34" y="104" width="18" height="36" rx="4" fill="url(#ck2-armor)"/>
-        <rect x="36" y="104" width="7" height="36" rx="3.5" fill="url(#ck2-armorSheen)" opacity="0.6"/>
-        <rect x="42.5" y="106" width="2.5" height="26" rx="1.2" fill="url(#ck2-gold)" opacity="0.65"/>
-        <ellipse cx="43" cy="116" rx="10" ry="5" fill="url(#ck2-armorDark)"/>
-        <circle cx="43" cy="116" r="2.5" fill="url(#ck2-gold)"/>
-        <rect x="33" y="136" width="20" height="12" rx="3" fill="url(#ck2-boot)"/>
-        <rect x="35" y="137" width="8" height="3" rx="1.5" fill="rgba(255,255,255,0.12)"/>
-        <rect x="32" y="146" width="22" height="3" rx="1.5" fill="#0a0a14"/>
+        {/* ── CAPE (behind everything) ── */}
+        <path d="M 38 62 Q 22 80 24 134 Q 28 150 38 152 L 40 102 Z" fill="url(#lg-cape)"/>
+        <path d="M 82 62 Q 98 80 96 134 Q 92 150 82 152 L 80 102 Z" fill="url(#lg-cape)"/>
+        <path d="M 38 62 Q 22 80 24 134" stroke="#F4C430" strokeWidth="1.5" fill="none" opacity="0.6"/>
+        <path d="M 82 62 Q 98 80 96 134" stroke="#F4C430" strokeWidth="1.5" fill="none" opacity="0.6"/>
 
-        <rect x="68" y="104" width="18" height="36" rx="4" fill="url(#ck2-armor)"/>
-        <rect x="70" y="104" width="7" height="36" rx="3.5" fill="url(#ck2-armorSheen)" opacity="0.6"/>
-        <rect x="76.5" y="106" width="2.5" height="26" rx="1.2" fill="url(#ck2-gold)" opacity="0.65"/>
-        <ellipse cx="77" cy="116" rx="10" ry="5" fill="url(#ck2-armorDark)"/>
-        <circle cx="77" cy="116" r="2.5" fill="url(#ck2-gold)"/>
-        <rect x="67" y="136" width="20" height="12" rx="3" fill="url(#ck2-boot)"/>
-        <rect x="69" y="137" width="8" height="3" rx="1.5" fill="rgba(255,255,255,0.12)"/>
-        <rect x="66" y="146" width="22" height="3" rx="1.5" fill="#0a0a14"/>
+        {/* ── LEGS ── */}
+        <rect x="35" y="108" width="23" height="40" rx="5" fill="url(#lg-armor)"/>
+        <rect x="37" y="109" width="9"  height="9"  rx="2.5" fill="rgba(255,255,255,0.17)"/>
+        <rect x="62" y="108" width="23" height="40" rx="5" fill="url(#lg-armor)"/>
+        <rect x="64" y="109" width="9"  height="9"  rx="2.5" fill="rgba(255,255,255,0.17)"/>
+        {/* Leg gap */}
+        <rect x="57.5" y="106" width="5" height="42" rx="1.5" fill="#1E2A38"/>
+        {/* Feet */}
+        <rect x="32" y="144" width="27" height="11" rx="5.5" fill="url(#lg-armorLt)"/>
+        <rect x="34" y="145" width="11" height="4"  rx="2"   fill="rgba(255,255,255,0.2)"/>
+        <rect x="61" y="144" width="27" height="11" rx="5.5" fill="url(#lg-armorLt)"/>
+        <rect x="63" y="145" width="11" height="4"  rx="2"   fill="rgba(255,255,255,0.2)"/>
 
-        <path d="M 30 56 L 90 56 L 85 100 L 35 100 Z" fill="url(#ck2-armor)"/>
-        <path d="M 32 56 L 62 56 L 58 100 L 36 100 Z" fill="url(#ck2-armorSheen)" opacity="0.5"/>
-        <rect x="58.5" y="56" width="3" height="44" rx="1.5" fill="url(#ck2-goldV)" opacity="0.8"/>
-        {[64,72,80,88,96].map((y,i) => (
-          <line key={i} x1={30+i*1.2} y1={y} x2={90-i*1.2} y2={y} stroke="#4a6888" strokeWidth="0.9" opacity="0.45"/>
-        ))}
-        <circle cx="44" cy="68" r="1.8" fill="url(#ck2-gold)" opacity="0.8"/>
-        <circle cx="44" cy="80" r="1.8" fill="url(#ck2-gold)" opacity="0.8"/>
-        <circle cx="76" cy="68" r="1.8" fill="url(#ck2-gold)" opacity="0.8"/>
-        <circle cx="76" cy="80" r="1.8" fill="url(#ck2-gold)" opacity="0.8"/>
-        <g opacity="0.35">
-          {[0,1,2].map(col=>[0,1,2].map(row=>(
-            <rect key={`${col}-${row}`} x={53+col*5} y={68+row*5} width={5} height={5}
-              fill={(col+row)%2===0?'#D40030':'white'} rx="0.3"/>
+        {/* ── BELT / HIP PIECE ── */}
+        <rect x="35" y="101" width="50" height="9" rx="4.5" fill="url(#lg-armorLt)"/>
+        <rect x="56" y="101" width="8"  height="9" rx="3"   fill="url(#lg-armor)"/>
+        <circle cx="60" cy="105.5" r="3" fill="url(#lg-gold)"/>
+        <rect x="35" y="101" width="50" height="3" rx="1.5" fill="rgba(255,255,255,0.14)"/>
+
+        {/* ── TORSO ── */}
+        <rect x="36" y="62" width="48" height="40" rx="6" fill="#F0F4F8"/>
+        {/* Šahovnica chest print — 4×4 grid of 9 px squares */}
+        {[0,1,2,3].map(col => [0,1,2,3].map(row => (
+          <rect key={`t-${col}-${row}`}
+            x={38+col*9} y={66+row*9} width={9} height={9}
+            fill={(col+row)%2===0 ? '#CC001E' : '#F8F8F8'}/>
+        )))}
+        {/* Chest-plate top (armored collar zone) */}
+        <rect x="36" y="62" width="48" height="14" rx="5" fill="url(#lg-armor)"/>
+        <rect x="38" y="63" width="20" height="6"  rx="2" fill="rgba(255,255,255,0.17)"/>
+        {/* Gold gorget */}
+        <rect x="36" y="73" width="48" height="5" rx="2.5" fill="url(#lg-gold)"/>
+        <rect x="36" y="73" width="48" height="2" rx="1"   fill="rgba(255,255,255,0.28)"/>
+        {/* Shoulder round caps */}
+        <ellipse cx="36" cy="68" rx="7" ry="5.5" fill="url(#lg-armor)"/>
+        <ellipse cx="84" cy="68" rx="7" ry="5.5" fill="url(#lg-armor)"/>
+        <ellipse cx="35" cy="66" rx="4" ry="2.5" fill="rgba(255,255,255,0.19)"/>
+        <ellipse cx="83" cy="66" rx="4" ry="2.5" fill="rgba(255,255,255,0.19)"/>
+
+        {/* ── LEFT ARM ── */}
+        <rect x="20" y="66" width="16" height="32" rx="7" fill="url(#lg-armor)"/>
+        <rect x="22" y="67" width="7"  height="12" rx="3" fill="rgba(255,255,255,0.17)"/>
+
+        {/* ── SHIELD (left hand) ── */}
+        <rect x="17" y="90" width="16" height="8" rx="4" fill="url(#lg-armorLt)"/>
+        <path d="M 3 86 L 21 86 L 21 106 Q 21 116 12 120 Q 3 116 3 106 Z"
+          fill="#CC001E" stroke="#F4C430" strokeWidth="2"/>
+        <g clipPath="url(#lg-shieldClip)">
+          {[0,1].map(col => [0,1,2,3].map(row => (
+            <rect key={`s-${col}-${row}`}
+              x={3+col*9} y={87+row*9} width={9} height={9}
+              fill={(col+row)%2===0 ? '#CC001E' : '#F8F8F8'}/>
           )))}
         </g>
+        <path d="M 3 86 L 21 86 L 21 106 Q 21 116 12 120 Q 3 116 3 106 Z"
+          fill="none" stroke="#F4C430" strokeWidth="2"/>
+        <circle cx="12" cy="102" r="4.5" fill="url(#lg-gold)"/>
+        <circle cx="12" cy="102" r="2.5" fill="#B88000"/>
+        <path d="M 5 88 Q 4 96 5 103" stroke="rgba(255,255,255,0.28)" strokeWidth="1.5" fill="none"/>
 
-        <path d="M 22 52 Q 16 50 18 66 Q 20 72 30 70 L 30 52 Z" fill="url(#ck2-armor)"/>
-        <path d="M 22 52 Q 16 50 18 66" stroke="url(#ck2-gold)" strokeWidth="1.5" fill="none"/>
-        <ellipse cx="22" cy="60" rx="6" ry="3.5" fill="url(#ck2-armorSheen)" opacity="0.5"/>
-        <path d="M 22 64 Q 16 64 18 72 Q 20 76 30 74" fill="url(#ck2-armorDark)" opacity="0.7"/>
-        <path d="M 22 64 Q 16 64 18 72" stroke="url(#ck2-gold)" strokeWidth="1" fill="none" opacity="0.6"/>
+        {/* ── RIGHT ARM ── */}
+        <rect x="84" y="66" width="16" height="32" rx="7" fill="url(#lg-armor)"/>
+        <rect x="86" y="67" width="7"  height="12" rx="3" fill="rgba(255,255,255,0.17)"/>
 
-        <path d="M 98 52 Q 104 50 102 66 Q 100 72 90 70 L 90 52 Z" fill="url(#ck2-armor)"/>
-        <path d="M 98 52 Q 104 50 102 66" stroke="url(#ck2-gold)" strokeWidth="1.5" fill="none"/>
-        <ellipse cx="98" cy="60" rx="6" ry="3.5" fill="url(#ck2-armorSheen)" opacity="0.5"/>
-        <path d="M 98 64 Q 104 64 102 72 Q 100 76 90 74" fill="url(#ck2-armorDark)" opacity="0.7"/>
-        <path d="M 98 64 Q 104 64 102 72" stroke="url(#ck2-gold)" strokeWidth="1" fill="none" opacity="0.6"/>
-
-        <rect x="33" y="98" width="54" height="8" rx="2.5" fill="url(#ck2-armorDark)"/>
-        <rect x="55" y="98" width="10" height="8" rx="2" fill="url(#ck2-armor)"/>
-        <rect x="57.5" y="99.5" width="5" height="5" rx="1" fill="url(#ck2-gold)"/>
-        <rect x="59" y="100.5" width="2" height="3" rx="0.5" fill="rgba(0,0,0,0.4)"/>
-        <path d="M 33 104 Q 28 108 30 120 L 38 118 L 36 104 Z" fill="url(#ck2-armorDark)" opacity="0.8"/>
-        <path d="M 87 104 Q 92 108 90 120 L 82 118 L 84 104 Z" fill="url(#ck2-armorDark)" opacity="0.8"/>
-
-        <rect x="28" y="68" width="10" height="32" rx="4" fill="url(#ck2-armor)"/>
-        <rect x="30" y="68" width="4" height="32" rx="2" fill="url(#ck2-armorSheen)" opacity="0.6"/>
-        <path d="M 5 64 L 5 92 Q 5 108 18 116 L 26 110 L 26 64 Z"
-          fill="#cc0020" stroke="url(#ck2-gold)" strokeWidth="2"/>
-        <g clipPath="url(#ck2-shieldClip)">
-          {[0,1].map(col=>[0,1,2,3].map(row=>(
-            <rect key={`s-${col}-${row}`} x={5+col*10.5} y={66+row*11.5} width={10.5} height={11.5}
-              fill={(col+row)%2===0?'#cc0020':'white'}/>
-          )))}
-        </g>
-        <path d="M 5 64 L 5 92 Q 5 108 18 116 L 26 110 L 26 64 Z"
-          fill="none" stroke="url(#ck2-gold)" strokeWidth="2"/>
-        <circle cx="15.5" cy="88" r="5" fill="url(#ck2-gold)"/>
-        <circle cx="15.5" cy="88" r="3" fill="#c8900a"/>
-        <path d="M 8 66 Q 6 80 8 90" stroke="rgba(255,255,255,0.25)" strokeWidth="2" fill="none"/>
-
-        <rect x="82" y="68" width="10" height="26" rx="4" fill="url(#ck2-armor)"/>
-        <rect x="84" y="68" width="4" height="26" rx="2" fill="url(#ck2-armorSheen)" opacity="0.6"/>
-        <path d="M 89 18 L 91 88 L 90 88 L 88 18 Z" fill="url(#ck2-sword)" filter="url(#ck2-swordGlow)"/>
-        <line x1="89.8" y1="20" x2="89.8" y2="85" stroke="rgba(200,220,240,0.6)" strokeWidth="0.8"/>
-        <path d="M 88 18 L 90.5 18 L 90.5 88 L 88 88 Z" fill="rgba(255,255,255,0.55)" opacity="0.7"/>
-        <polygon points="88,18 91,18 89.5,8" fill="url(#ck2-sword)"/>
-        <polygon points="89.3,8 90.2,8 89.5,4" fill="#c8d4e0"/>
-        <rect x="80" y="76" width="20" height="6" rx="3" fill="url(#ck2-gold)"/>
-        <rect x="80" y="76" width="20" height="2.5" rx="1.2" fill="#FFE682" opacity="0.5"/>
-        <rect x="88" y="82" width="5" height="14" rx="2.5" fill="#7a3a10"/>
-        {[84,87,90,93].map((y,i) => (
-          <rect key={i} x="88" y={y} width="5" height="1.5" rx="0.75" fill="#5a2a08" opacity="0.6"/>
+        {/* ── SWORD (right hand) ── */}
+        {/* Blade */}
+        <rect x="88" y="6" width="6" height="76" rx="3" fill="url(#lg-sword)"/>
+        <rect x="89.5" y="8" width="1.5" height="72" rx="0.75" fill="rgba(220,240,255,0.7)"/>
+        <polygon points="88,6 94,6 91,1" fill="url(#lg-sword)"/>
+        {/* Crossguard */}
+        <rect x="82" y="82" width="18" height="5.5" rx="2.8" fill="url(#lg-gold)"/>
+        <rect x="82" y="82" width="18" height="2"   rx="1"   fill="rgba(255,255,255,0.25)"/>
+        {/* Grip */}
+        <rect x="87.5" y="87.5" width="7" height="14" rx="3.5" fill="#5A3010"/>
+        {[89,92,95,98].map((y,i) => (
+          <rect key={i} x="87.5" y={y} width="7" height="1.5" rx="0.7" fill="#3A1800" opacity="0.45"/>
         ))}
-        <ellipse cx="90.5" cy="98" rx="5.5" ry="4" fill="url(#ck2-gold)"/>
-        <ellipse cx="90.5" cy="97.5" rx="3" ry="2" fill="#FFE682" opacity="0.5"/>
+        {/* Pommel */}
+        <ellipse cx="91" cy="103" rx="5.5" ry="4.5" fill="url(#lg-gold)"/>
+        <ellipse cx="91" cy="102" rx="3"   ry="2"   fill="rgba(255,255,255,0.24)"/>
 
-        <rect x="54" y="46" width="12" height="8" rx="2.5" fill="url(#ck2-skin)"/>
-        <rect x="46" y="50" width="28" height="10" rx="4" fill="url(#ck2-armor)"/>
-        <line x1="46" y1="54" x2="74" y2="54" stroke="#4a6888" strokeWidth="1" opacity="0.5"/>
-        <rect x="46" y="50" width="28" height="2.5" rx="1.2" fill="url(#ck2-gold)" opacity="0.85"/>
-        <rect x="46" y="58" width="28" height="2" rx="1" fill="url(#ck2-gold)" opacity="0.65"/>
+        {/* ── HELMET ── */}
+        <rect x="37" y="16" width="46" height="40" rx="23" fill="url(#lg-armor)"/>
+        <path d="M 42 18 Q 60 13 78 18" stroke="rgba(255,255,255,0.26)" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+        {/* Cheek guards */}
+        <rect x="35" y="28" width="12" height="22" rx="5" fill="url(#lg-armor)"/>
+        <rect x="36" y="30" width="5"  height="9"  rx="2.5" fill="rgba(255,255,255,0.17)"/>
+        <rect x="73" y="28" width="12" height="22" rx="5" fill="url(#lg-armor)"/>
+        <rect x="74" y="30" width="5"  height="9"  rx="2.5" fill="rgba(255,255,255,0.17)"/>
+        {/* Gold crown band (bottom) */}
+        <rect x="35" y="46" width="50" height="5" rx="2.5" fill="url(#lg-gold)"/>
+        <rect x="35" y="46" width="50" height="2" rx="1"   fill="rgba(255,255,255,0.26)"/>
+        {/* Gold top band */}
+        <rect x="37" y="15" width="46" height="4.5" rx="2.25" fill="url(#lg-gold)"/>
+        <rect x="37" y="15" width="46" height="2"   rx="1"    fill="rgba(255,255,255,0.26)"/>
+        {/* Visor opening — skin-coloured face window */}
+        <rect x="45" y="25" width="30" height="24" rx="9" fill="url(#lg-skin)"/>
+        {/* ── FACE ── */}
+        {renderFace()}
+        {/* Visor frame */}
+        <rect x="45" y="25" width="30" height="24" rx="9" fill="none" stroke="#2D3A4A" strokeWidth="2.5"/>
 
-        <ellipse cx="60" cy="34" rx="15" ry="16" fill="url(#ck2-skin)"/>
-        <path d="M 44 34 Q 42 14 60 12 Q 78 14 76 34" fill="url(#ck2-armor)"/>
-        <path d="M 46 34 Q 45 16 60 14 Q 70 15 73 28" fill="url(#ck2-armorSheen)" opacity="0.55"/>
+        {/* ── PLUME ── */}
+        <path d="M 62 14 Q 78 5 83 1 Q 78 -1 72 4 Q 76 7 64 14" fill="url(#lg-cape)"/>
+        <path d="M 62 15 Q 77 7 82 3 Q 77 1 71 5 Q 75 8 63 15"  fill="#FF4444" opacity="0.4"/>
 
-        <rect x="40" y="28" width="9" height="16" rx="4" fill="url(#ck2-armor)"/>
-        <rect x="71" y="28" width="9" height="16" rx="4" fill="url(#ck2-armor)"/>
-        <circle cx="44" cy="32" r="1.2" fill="url(#ck2-gold)" opacity="0.7"/>
-        <circle cx="76" cy="32" r="1.2" fill="url(#ck2-gold)" opacity="0.7"/>
+        {/* ── LEGO STUD (classic round bump on top of head) ── */}
+        <ellipse cx="60" cy="15" rx="9.5" ry="6"   fill="url(#lg-armor)"/>
+        <ellipse cx="60" cy="13.5" rx="7" ry="3.5" fill="rgba(255,255,255,0.21)"/>
 
-        <rect x="40" y="27" width="40" height="4" rx="2" fill="url(#ck2-gold)"/>
-        <rect x="40" y="27" width="40" height="1.5" rx="0.75" fill="#FFE682" opacity="0.6"/>
-        <rect x="58.5" y="28" width="3" height="16" rx="1.5" fill="url(#ck2-armorDark)" opacity="0.8"/>
-
-        <rect x="41" y="28" width="38" height="13" rx="4" fill="url(#ck2-armorDark)"/>
-        <rect x="42" y="29" width="16" height="5" rx="2.5" fill="rgba(255,255,255,0.07)"/>
-        <rect x="42" y="33" width="13" height="4" rx="2" fill="rgba(0,0,0,0.82)"/>
-        <rect x="59" y="33" width="13" height="4" rx="2" fill="rgba(0,0,0,0.82)"/>
-        {[44.5,47,49.5,52].map((x,i) => (
-          <line key={i} x1={x} y1={33} x2={x} y2={37} stroke="rgba(80,100,120,0.5)" strokeWidth="0.6"/>
-        ))}
-        {[61.5,64,66.5,69].map((x,i) => (
-          <line key={i} x1={x} y1={33} x2={x} y2={37} stroke="rgba(80,100,120,0.5)" strokeWidth="0.6"/>
-        ))}
-
-        {renderEyes()}
-
-        {[46,50,54,58,62,66,70].map((x,i) => (
-          <circle key={i} cx={x} cy="40" r="0.9" fill="rgba(0,0,0,0.6)"/>
-        ))}
-
-        <rect x="57" y="10" width="6" height="5" rx="1.5" fill="url(#ck2-armorDark)"/>
-        <path d="M 63 14 Q 80 8 84 3 Q 80 0 74 4 Q 78 6 68 14" fill="url(#ck2-plume)" stroke="#7f0000" strokeWidth="0.6"/>
-        <path d="M 62 15 Q 78 10 83 5 Q 79 3 73 6 Q 77 8 66 15" fill="#ff3333" opacity="0.45"/>
-        <rect x="57.5" y="10" width="5" height="18" rx="2.5" fill="url(#ck2-armor)"/>
-        <rect x="58.5" y="10" width="2" height="18" rx="1" fill="url(#ck2-armorSheen)" opacity="0.7"/>
+        {/* ── NECK ── */}
+        <rect x="52" y="52" width="16" height="12" rx="5" fill="url(#lg-skin)"/>
+        <rect x="54" y="53" width="6"  height="5"  rx="2.5" fill="rgba(255,255,255,0.21)"/>
       </g>
     </svg>
   );
