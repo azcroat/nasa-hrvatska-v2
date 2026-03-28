@@ -48,7 +48,7 @@ import CroatianGrb from "./components/shared/CroatianGrb.jsx";
 import CookieConsent from "./components/shared/CookieConsent.jsx";
 import TermsOfService from "./components/shared/TermsOfService.jsx";
 import PaywallScreen from "./components/shared/PaywallScreen.jsx";
-import { useSubscription, grantFreeAnnual } from "./hooks/useSubscription.js";
+import { useSubscription, grantFreeAnnual, getSubscriptionStatus } from "./hooks/useSubscription.js";
 import AdminDashboard from "./components/admin/AdminDashboard.jsx";
 import PlacementTest from "./components/home/PlacementTest.jsx";
 import NewPlacementTest from "./components/auth/PlacementTest.jsx";
@@ -230,6 +230,7 @@ const GrammarDiagnosisScreen = lazyWithReload(() => import("./components/home/Gr
 const MicroLessonScreen = lazyWithReload(() => import("./components/learn/MicroLessonScreen.jsx"));
 const LiveTutorScreen = lazyWithReload(() => import("./components/croatia/LiveTutorScreen.jsx"));
 const PhotoVocabScanner = lazyWithReload(() => import("./components/shared/PhotoVocabScanner.jsx"));
+import PremiumWelcomeBanner from "./components/shared/PremiumWelcomeBanner.jsx";
 
 // Module-level constants — defined once, not recreated on every render
 const DS={xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,authLoading:0,mv:0,hi:0,rs:[],ct:[],vs:[],badges:[]};
@@ -488,6 +489,9 @@ function App(){
   const[_syncReady,_setSyncReady]=useState(false);
   const[showBackupBanner,setShowBackupBanner]=useState(false);
   const[showPwaInstall,setShowPwaInstall]=useState(false);
+  const[showAndroidInstall,setShowAndroidInstall]=useState(false);
+  const[deferredInstallPrompt,setDeferredInstallPrompt]=useState(null);
+  const[showPremiumWelcome,setShowPremiumWelcome]=useState(false);
   // ── useAuth — must be declared BEFORE the useEffects that reference
   // authScreen/authUser in their dependency arrays, to avoid TDZ errors
   // in the minified production bundle.
@@ -718,6 +722,32 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
     const _isSA=('standalone' in navigator)&&(navigator.standalone===true);
     if(_isIOS&&!_isSA&&!localStorage.getItem('nh_pwa_install_dismissed'))setShowPwaInstall(true);
   },[authScreen]);
+  // Android/Chrome: capture beforeinstallprompt so we can show our own install banner
+  useEffect(()=>{
+    const handler=(e)=>{
+      e.preventDefault(); // prevent browser's default mini-infobar
+      setDeferredInstallPrompt(e);
+      // Only show if user is in app (not welcome/auth) and hasn't dismissed
+      if(!localStorage.getItem('nh_pwa_install_dismissed')){
+        setShowAndroidInstall(true);
+      }
+    };
+    window.addEventListener('beforeinstallprompt',handler);
+    // PWA already installed — hide any prompts
+    window.addEventListener('appinstalled',()=>{setShowAndroidInstall(false);setShowPwaInstall(false);});
+    return()=>window.removeEventListener('beforeinstallprompt',handler);
+  },[]);
+  // Premium welcome banner: show once after the first successful free_annual grant
+  useEffect(()=>{
+    if(authScreen!=='app'||!authUser)return;
+    if(localStorage.getItem('nh_premium_welcome_shown'))return;
+    // Wait until subscription is confirmed active, then show banner after brief delay
+    const t=setTimeout(()=>{
+      const{isFreeAnnual}=getSubscriptionStatus();
+      if(isFreeAnnual)setShowPremiumWelcome(true);
+    },2500);
+    return()=>clearTimeout(t);
+  },[authScreen,authUser?.u]);// eslint-disable-line react-hooks/exhaustive-deps
   // Page title — updates whenever the active screen changes
   useEffect(()=>{
     document.title=currentScreen&&currentScreen!=='home'&&currentScreen!=='dashboard'?`${currentScreen.replace(/_/g,' ')} \u00b7 Na\u0161a Hrvatska`:'Na\u0161a Hrvatska \u2014 Learn Croatian';
@@ -812,6 +842,10 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       localStorage.setItem('nh_journey_first_lesson','1');
       recordJourneyMilestone('first_lesson', {});
     }
+    // Clear lesson resume state on successful lesson completion
+    if(celebrate && curEx && curEx.startsWith('vocab_')){
+      try{localStorage.removeItem('nh_lesson_resume');}catch(_){}
+    }
     // Learner style: track completion
     if(curEx){
       const _lsStartTs=parseInt(sessionStorage.getItem('nh_ex_start')||'0');
@@ -821,6 +855,11 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       if(_lsAType){trackComplete(_lsAType,_lsDur);sessionStorage.removeItem('nh_ex_start');}
     }
   },[curEx,comebackBonus]);
+  // Lesson resume: save progress so we can offer "Resume lesson" if interrupted
+  useEffect(function(){
+    if(currentScreen!=='lesson'||!lt)return;
+    try{localStorage.setItem('nh_lesson_resume',JSON.stringify({topic:lt,phase:lp,ts:Date.now()}));}catch(_){}
+  },[currentScreen,lt,lp]);
   // Persist last exercise to localStorage so Home tab can show a Resume button
   useEffect(function(){
     if(!curEx) return;
@@ -907,6 +946,17 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   const allCats=useMemo(()=>Object.keys(V),[]);
   const icons=ICONS;
   // ═══ SCREEN LAUNCH FUNCTIONS ═══
+  function resumeLesson(){
+    try{
+      const r=JSON.parse(localStorage.getItem('nh_lesson_resume')||'null');
+      if(!r||!r.topic||!V[r.topic])return;
+      const items=sh(V[r.topic]);
+      sLt(r.topic);sLi(items);sLx(0);sLs(0);sLp("learn");sLa(false);sLsl(-1);sQi([]);
+      sCurEx("vocab_"+r.topic);
+      sessionStorage.setItem('nh_ex_start',Date.now().toString());
+      setScr("lesson");
+    }catch(_){}
+  }
   function launchAnimLesson(lessonId){const l=ANIM_LESSONS.find(x=>x.id===lessonId);if(l){setAnimLesson(l);sCurEx("animlesson");setScr("animlesson");}}
   function launchMcGame(questions){setMcInitQ(questions);sCurEx("mcgame");sessionStorage.setItem('nh_ex_start',Date.now().toString());trackStart('quiz');setScr("mcgame");}
   function mcGameComplete(questions,score,mistakes){setMcResultQ(questions);setMcResultScore(score);setMcMistakes(mistakes||[]);setScr("mcresult");}
@@ -1011,7 +1061,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       <Suspense fallback={<div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"60vh"}}><div style={{textAlign:"center"}}><div style={{display:"flex",justifyContent:"center",gap:0,marginBottom:16,borderRadius:3,overflow:"hidden",width:54,margin:"0 auto 16px"}}><div style={{height:6,flex:1,background:"#D4002D"}}/><div style={{height:6,flex:1,background:"#F5F5F5"}}/><div style={{height:6,flex:1,background:"#003DA5"}}/></div><div style={{fontSize:13,fontWeight:800,color:"var(--subtext)",letterSpacing:".1em",textTransform:"uppercase",opacity:.6}}>Naša Hrvatska</div></div></div>}>
       <XPPopup showXP={showXP} xpA={xpA} />
       <BadgeToast show={sB} badge={nB} />
-      {showCelebration&&<CelebrationModal xp={celebXP} onClose={onCloseCelebration} />}
+      {showCelebration&&<CelebrationModal xp={celebXP} onClose={onCloseCelebration} streak={stats.str||0} lessonTopic={lt||''} onNext={()=>{onCloseCelebration();setScr("dashboard");setTimeout(()=>setTab("learn"),300);}} />}
       {streakMilestone&&<StreakMilestoneModal days={streakMilestone} onClose={()=>setStreakMilestone(null)} />}
       {ceremonyType&&<CeremonyModal type={ceremonyType} stats={stats} name={name} onClose={()=>setCeremonyType(null)} />}
       {levelUpData&&<LevelUpModal level={levelUpData.level} onClose={()=>setLevelUpData(null)} />}
@@ -1036,13 +1086,28 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
           </div>
         </div>
       )}
-      {!onboarded&&_syncReady&&authScreen==="app"&&currentScreen!=="welcome"&&currentScreen!=="placement"&&<OnboardingTour onDone={()=>setOnboarded(true)} />}
+      {!onboarded&&_syncReady&&authScreen==="app"&&currentScreen!=="welcome"&&currentScreen!=="placement"&&<OnboardingTour onDone={()=>setOnboarded(true)} onLaunchLesson={()=>{setScr("dashboard");setTimeout(()=>{setTab("learn");},400);}} />}
       {comebackBonus&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#f59e0b,#d97706)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.2)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease"}}>🔥 Welcome back! Keep your streak alive!</div>}
       {freezeUsedToast&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#1e40af,#3b82f6)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.25)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease",whiteSpace:"nowrap"}}>🛡️ Zaštita niza aktivirana! Tvoj niz je sačuvan.</div>}
       {earnBackPrompt&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#d97706,#b45309)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.25)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease",maxWidth:320,textAlign:"center"}}>🔥 Complete 1 more lesson today to restore your {earnBackPrompt.prev}-day streak!</div>}
       {streakRestoredCount>0&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#b61800,#dc2626)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(182,24,0,.4)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease",whiteSpace:"nowrap"}}>🇭🇷 Streak restored! {streakRestoredCount}-day streak back!</div>}
       {ttsFailedToast&&<div style={{position:"fixed",bottom:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"rgba(30,30,30,.92)",color:"#fff",borderRadius:20,padding:"9px 20px",fontSize:13,fontWeight:600,pointerEvents:"none",animation:"slideUp .3s ease",whiteSpace:"nowrap"}}>🔇 Audio unavailable</div>}
       {showPaywall&&<PaywallScreen featureName={paywallFeature} onClose={()=>setShowPaywall(false)} onSubscribed={()=>{setShowPaywall(false);refreshSub();}} />}
+      {showPremiumWelcome&&<PremiumWelcomeBanner onClose={()=>setShowPremiumWelcome(false)} />}
+      {showAndroidInstall&&!localStorage.getItem('nh_pwa_install_dismissed')&&<div role="status" aria-live="polite" style={{position:"fixed",bottom:90,left:"50%",transform:"translateX(-50%)",zIndex:9602,width:"calc(100% - 32px)",maxWidth:420,background:"linear-gradient(135deg,#164e63,#0e7490)",color:"#fff",borderRadius:20,padding:"18px 20px",boxShadow:"0 8px 40px rgba(14,116,144,.5)",animation:"slideUp .4s cubic-bezier(.34,1.56,.64,1)"}}>
+        <div style={{display:"flex",alignItems:"flex-start",gap:14}}>
+          <div style={{fontSize:36,flexShrink:0,lineHeight:1}}>📲</div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:15,fontWeight:900,marginBottom:4,lineHeight:1.2}}>Install Naša Hrvatska</div>
+            <div style={{fontSize:12,opacity:.9,lineHeight:1.5,fontWeight:500}}>Add to your home screen for instant access and offline lessons.</div>
+          </div>
+          <button onClick={()=>{localStorage.setItem("nh_pwa_install_dismissed","true");setShowAndroidInstall(false);}} aria-label="Dismiss" style={{background:"rgba(255,255,255,.2)",border:"none",color:"#fff",borderRadius:10,width:32,height:32,fontSize:18,cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+        </div>
+        <div style={{display:"flex",gap:8,marginTop:12}}>
+          <button onClick={async()=>{if(deferredInstallPrompt){await deferredInstallPrompt.prompt();deferredInstallPrompt.userChoice.then(()=>{setShowAndroidInstall(false);localStorage.setItem("nh_pwa_install_dismissed","true");})}}} style={{flex:1,background:"#fff",color:"#0e7490",border:"none",borderRadius:10,padding:"10px",fontSize:13,fontWeight:800,cursor:"pointer"}}>Install Now</button>
+          <button onClick={()=>{localStorage.setItem("nh_pwa_install_dismissed","true");setShowAndroidInstall(false);}} style={{flex:1,background:"rgba(255,255,255,.15)",color:"#fff",border:"1.5px solid rgba(255,255,255,.3)",borderRadius:10,padding:"10px",fontSize:13,fontWeight:700,cursor:"pointer"}}>Not Now</button>
+        </div>
+      </div>}
       {/* Renewal reminder: only shown when free_annual has ≤30 days left AND monetisation is active */}
       {!isFreeAnnual&&daysLeft!=null&&daysLeft<=3&&authScreen==="app"&&currentScreen==="dashboard"&&(
         <div style={{position:"fixed",top:60,left:0,right:0,zIndex:890,background:"linear-gradient(135deg,#164e63,#0e7490)",color:"#fff",padding:"8px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",fontSize:12,fontWeight:700}}>
@@ -1167,6 +1232,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
           goal={localStorage.getItem('nh_goal')||'fluent'}
           isNewUserWindow={isNewUserWindow}
           daysSinceJoin={daysSinceJoin}
+          resumeLesson={resumeLesson}
         /></ScreenErrorBoundary></div>}
         {// ═══ TAB: LEARN ═══
         tab==="learn"&&<div key="tab-learn" className="screen-enter"><ScreenErrorBoundary name="LearnTab"><LearnTab

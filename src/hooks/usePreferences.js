@@ -9,14 +9,39 @@ import { useState, useEffect } from 'react';
 import { fbToggleFavorite } from '../lib/firebase.js';
 
 export function usePreferences(uidRef) {
-  const [darkMode, setDarkMode] = useState(
-    () => localStorage.getItem('darkMode') === 'true'
-  );
+  const [darkMode, setDarkMode] = useState(() => {
+    const stored = localStorage.getItem('darkMode');
+    // If the user has never set a preference, auto-detect from system
+    if (stored === null) {
+      return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+    }
+    return stored === 'true';
+  });
+
+  // Follow system preference changes in real-time, but only when the user
+  // has never explicitly set a preference (localStorage key absent)
+  useEffect(() => {
+    const mq = window.matchMedia?.('(prefers-color-scheme: dark)');
+    if (!mq) return undefined;
+    const handler = (e) => {
+      if (localStorage.getItem('nh_dm_explicit') !== '1') {
+        setDarkMode(e.matches);
+      }
+    };
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
     localStorage.setItem('darkMode', darkMode ? 'true' : 'false');
   }, [darkMode]);
+
+  // Wrap setDarkMode to record that the user explicitly made a choice
+  const setDarkModeExplicit = (val) => {
+    localStorage.setItem('nh_dm_explicit', '1');
+    setDarkMode(val);
+  };
 
   // Initialise font-size and reduce-motion accessibility settings on app load
   useEffect(() => {
@@ -52,5 +77,5 @@ export function usePreferences(uidRef) {
     return favs.some(f => (f.hr || f.name) === key);
   }
 
-  return { darkMode, setDarkMode, favs, setFavs, toggleFav, isFav };
+  return { darkMode, setDarkMode: setDarkModeExplicit, favs, setFavs, toggleFav, isFav };
 }

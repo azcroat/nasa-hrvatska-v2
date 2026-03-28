@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Bar, lXP, nXP } from '../../data.jsx';
 import { fbDeleteAccount } from '../../lib/firebase.js';
+import { getSubscriptionStatus, cancelFreeAnnual } from '../../hooks/useSubscription.js';
 
 export default function ProfileScreen({ name, level, st, au, goBack, doOut, setScr }) {
   const [deleteStep, setDeleteStep] = useState(0); // 0=idle, 1=confirm, 2=deleting
   const [deleteError, setDeleteError] = useState('');
+  const [cancelStep, setCancelStep] = useState(0); // 0=idle, 1=friction, 2=cancelled
+  const sub = getSubscriptionStatus();
 
   async function handleDeleteAccount() {
     if (deleteStep === 0) { setDeleteStep(1); return; }
@@ -67,6 +70,57 @@ export default function ProfileScreen({ name, level, st, au, goBack, doOut, setS
       <button onClick={doOut} style={{width:"100%",padding:"14px",border:"2px solid rgba(194,65,12,.15)",borderRadius:14,background:"rgba(194,65,12,.05)",color:"#c2410c",fontSize:15,fontWeight:700,cursor:"pointer"}}>
         🚪 Sign Out
       </button>
+
+      {/* Subscription management */}
+      {sub.isFreeAnnual && cancelStep === 0 && (
+        <div style={{ marginBottom: 8, padding: '12px 16px', background: 'var(--forest-light,#f0fdf4)', borderRadius: 12, border: '1.5px solid var(--success-b,#86efac)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--success,#16a34a)' }}>✓ Full Premium Access</div>
+            <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2 }}>
+              All AI features, live tutor & more — free annually
+            </div>
+          </div>
+          <button
+            onClick={() => setCancelStep(1)}
+            style={{ background: 'none', border: 'none', color: '#a8a29e', fontSize: 11, cursor: 'pointer', padding: 4, textDecoration: 'underline' }}
+          >
+            Manage
+          </button>
+        </div>
+      )}
+      {cancelStep === 1 && (
+        <div className="c" style={{ marginBottom: 8, padding: 20, border: '2px solid rgba(245,158,11,.25)', borderRadius: 14, background: 'rgba(245,158,11,.04)' }}>
+          <div style={{ fontSize: 15, fontWeight: 800, color: '#92400e', marginBottom: 6 }}>Cancel your free subscription?</div>
+          <div style={{ fontSize: 12, color: '#78716c', marginBottom: 8, lineHeight: 1.5 }}>
+            You'll lose access to the AI Tutor, Live Tutor, Grammar Diagnosis, Photo Scanner, and personalized insights immediately.
+          </div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#0e7490', background: 'rgba(14,116,144,.08)', borderRadius: 8, padding: '8px 12px', marginBottom: 14 }}>
+            💡 Pause instead? Your progress is saved. Come back anytime and your streak, vocabulary, and level will be right where you left them.
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => setCancelStep(0)}
+              style={{ flex: 1, padding: '10px', border: '2px solid #e5e7eb', borderRadius: 10, background: 'var(--card)', fontSize: 13, fontWeight: 800, cursor: 'pointer', color: '#374151' }}
+            >
+              Keep Access
+            </button>
+            <button
+              onClick={() => {
+                cancelFreeAnnual(au?.u || au?.uid || '');
+                setCancelStep(2);
+              }}
+              style={{ flex: 1, padding: '10px', border: '2px solid rgba(185,28,28,.2)', borderRadius: 10, background: 'none', fontSize: 12, fontWeight: 700, cursor: 'pointer', color: '#b91c1c' }}
+            >
+              Cancel Anyway
+            </button>
+          </div>
+        </div>
+      )}
+      {cancelStep === 2 && (
+        <div style={{ marginBottom: 8, padding: '10px 16px', background: 'var(--bar-bg)', borderRadius: 10, fontSize: 12, color: 'var(--subtext)', textAlign: 'center' }}>
+          Subscription cancelled. Sign in again anytime to restore access.
+        </div>
+      )}
 
       {/* Delete Account — GDPR right to erasure */}
       <div style={{marginTop:12,textAlign:"center"}}>
