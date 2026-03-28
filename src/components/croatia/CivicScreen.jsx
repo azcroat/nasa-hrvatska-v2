@@ -100,12 +100,12 @@ export default function CivicScreen({ goBack }) {
               background: 'var(--card)', border: `1px solid ${active.border}`,
               borderRadius: 12, overflow: 'hidden',
             }}>
-              <button onClick={() => speak(w.hr)} style={{
+              <button onClick={() => speak(w.hr)} aria-label={`Play audio: ${w.hr} — ${w.en}`} style={{
                 width: '100%', padding: '12px 14px', background: 'none', border: 'none',
                 cursor: 'pointer', textAlign: 'left', fontFamily: "'Outfit',sans-serif",
                 display: 'flex', alignItems: 'center', gap: 10,
               }}>
-                <span style={{ fontSize: 16, flexShrink: 0 }}>🔊</span>
+                <span style={{ fontSize: 16, flexShrink: 0 }} aria-hidden="true">🔊</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--heading)', fontFamily: "'Playfair Display',serif" }}>{w.hr}</div>
                   <div style={{ fontSize: 12, color: '#0e7490', fontWeight: 600, marginTop: 1 }}>{w.en}</div>
@@ -172,13 +172,13 @@ export default function CivicScreen({ goBack }) {
       {showHeadlines && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
           {SAMPLE_HEADLINES.map((h, i) => (
-            <button key={i} onClick={() => speak(h.hr)} style={{
+            <button key={i} onClick={() => speak(h.hr)} aria-label={`Play audio: ${h.hr} — ${h.en}`} style={{
               display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px',
               background: 'var(--card)', border: '1px solid var(--card-b)',
               borderRadius: 12, cursor: 'pointer', textAlign: 'left',
               fontFamily: "'Outfit',sans-serif",
             }}>
-              <span style={{ fontSize: 16, flexShrink: 0, marginTop: 2 }}>🔊</span>
+              <span style={{ fontSize: 16, flexShrink: 0, marginTop: 2 }} aria-hidden="true">🔊</span>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--heading)', fontFamily: "'Playfair Display',serif", marginBottom: 3 }}>{h.hr}</div>
                 <div style={{ fontSize: 11, color: '#0e7490', fontWeight: 600, fontStyle: 'italic' }}>{h.en}</div>

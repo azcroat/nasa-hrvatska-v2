@@ -351,8 +351,8 @@ export default function HNLScreen({ goBack }) {
         <h3 className="sh" style={{marginBottom:10}}>⚽ Football Vocabulary</h3>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:20}}>
           {[...FOOTBALL.vocab,...VOCAB_EXTRA].map((w,i)=>(
-            <button key={i} className="c" style={{padding:"10px 12px"}} onClick={()=>speak(w[0])}>
-              <div style={{fontSize:13,fontWeight:700,color:"#003da5"}}>{w[0]} 🔊</div>
+            <button key={i} aria-label={`Play audio for ${w[0]}`} className="c" style={{padding:"10px 12px"}} onClick={()=>speak(w[0])}>
+              <div style={{fontSize:13,fontWeight:700,color:"#003da5"}}>{w[0]} <span aria-hidden="true">🔊</span></div>
               <div style={{fontSize:11,color:"var(--subtext)",marginTop:2}}>{w[1]}</div>
             </button>
           ))}
@@ -369,10 +369,10 @@ export default function HNLScreen({ goBack }) {
           ["Promašaj!", "A miss!", "reaction"],
           ["Živi bili pa vidjeli!", "May we live to see it! (ironic)", "when things go wrong"],
         ].map((p,i)=>(
-          <button key={i} className="c" style={{marginBottom:8,display:"flex",alignItems:"center",gap:12,padding:"10px 14px"}}
+          <button key={i} aria-label={`Play audio for ${p[0]}`} className="c" style={{marginBottom:8,display:"flex",alignItems:"center",gap:12,padding:"10px 14px"}}
             onClick={()=>speak(p[0])}>
             <div style={{flex:1}}>
-              <div style={{fontSize:14,fontWeight:700,color:"var(--heading)"}}>{p[0]} 🔊</div>
+              <div style={{fontSize:14,fontWeight:700,color:"var(--heading)"}}>{p[0]} <span aria-hidden="true">🔊</span></div>
               <div style={{fontSize:13,color:"#0e7490"}}>{p[1]}</div>
             </div>
             <div style={{fontSize:10,background:"rgba(14,116,144,.1)",color:"#0e7490",padding:"3px 8px",borderRadius:20,fontWeight:600,whiteSpace:"nowrap"}}>
@@ -387,8 +387,8 @@ export default function HNLScreen({ goBack }) {
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
           {FOOTBALL.waterPolo.map((w,i)=>(
-            <button key={i} className="c" style={{padding:"10px 12px"}} onClick={()=>speak(w[0])}>
-              <div style={{fontSize:13,fontWeight:700,color:"#0e7490"}}>{w[0]} 🔊</div>
+            <button key={i} aria-label={`Play audio for ${w[0]}`} className="c" style={{padding:"10px 12px"}} onClick={()=>speak(w[0])}>
+              <div style={{fontSize:13,fontWeight:700,color:"#0e7490"}}>{w[0]} <span aria-hidden="true">🔊</span></div>
               <div style={{fontSize:11,color:"var(--subtext)",marginTop:2}}>{w[1]}</div>
             </button>
           ))}

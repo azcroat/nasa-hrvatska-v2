@@ -104,8 +104,8 @@ function ConditionalScreen({ goBack, award }) {
           {CONDITIONAL.examples.map(function (ex, i) {
             return (
               <div key={i} style={{ marginBottom: 12, background: 'white', borderRadius: 14, border: '1px solid rgba(0,0,0,.07)', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,.04)' }}>
-                <button style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }} onClick={() => speak(ex.hr)}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: '#0369a1' }}>{ex.hr} 🔊</div>
+                <button aria-label={`Play audio for ${ex.hr}`} style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }} onClick={() => speak(ex.hr)}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#0369a1' }}>{ex.hr} <span aria-hidden="true">🔊</span></div>
                   <div style={{ fontSize: 14, color: '#16a34a', fontWeight: 600, marginTop: 3 }}>{ex.en}</div>
                 </button>
                 <div style={{ padding: '0 16px 12px', fontSize: 12, color: '#78716c', lineHeight: 1.5, borderTop: '1px solid #f3f4f6', paddingTop: 8 }}>💡 {ex.note}</div>
@@ -122,8 +122,8 @@ function ConditionalScreen({ goBack, award }) {
           </div>
           {CONDITIONAL.ifThen.map(function (ex, i) {
             return (
-              <button key={i} className="c" style={{ marginBottom: 10, display: 'block', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => speak(ex.hr)}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#0369a1' }}>{ex.hr} 🔊</div>
+              <button key={i} aria-label={`Play audio for ${ex.hr}`} className="c" style={{ marginBottom: 10, display: 'block', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => speak(ex.hr)}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#0369a1' }}>{ex.hr} <span aria-hidden="true">🔊</span></div>
                 <div style={{ fontSize: 13, color: '#78716c', marginTop: 3 }}>{ex.en}</div>
               </button>
             );
@@ -138,10 +138,10 @@ function ConditionalScreen({ goBack, award }) {
           </div>
           {CONDITIONAL.polite.map(function (p, i) {
             return (
-              <button key={i} className="c" style={{ marginBottom: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, textAlign: 'left', cursor: 'pointer', width: '100%' }} onClick={() => speak(p.hr)}>
+              <button key={i} aria-label={`Play audio for ${p.hr}`} className="c" style={{ marginBottom: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, textAlign: 'left', cursor: 'pointer', width: '100%' }} onClick={() => speak(p.hr)}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, color: '#78716c', marginBottom: 3 }}>{p.situation}</div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: '#0369a1' }}>{p.hr} 🔊</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#0369a1' }}>{p.hr} <span aria-hidden="true">🔊</span></div>
                 </div>
                 <div style={{ fontSize: 13, color: '#16a34a', fontWeight: 600, minWidth: 100, textAlign: 'right' }}>{p.en}</div>
               </button>

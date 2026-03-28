@@ -67,10 +67,10 @@ export default function PadezifullScreen({ goBack, award }) {
                 <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
                   <tbody>
                     {PADEZI_FULL.caseNames.map((cn, ci) => (
-                      <tr key={ci} style={{borderBottom:"1px solid #f3f4f6",cursor:"pointer"}} onClick={() => speak(w.forms[ci])}>
+                      <tr key={ci} role="button" tabIndex={0} aria-label={`Play audio for ${w.forms[ci]}`} style={{borderBottom:"1px solid #f3f4f6",cursor:"pointer"}} onClick={() => speak(w.forms[ci])} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();speak(w.forms[ci]);}}}>
                         <td style={{padding:"8px 10px",fontWeight:700,width:"30%"}}>{cn}</td>
                         <td style={{padding:"8px 10px",fontSize:11,color:"#78716c",width:"25%"}}>{PADEZI_FULL.caseQs[ci]}</td>
-                        <td style={{padding:"8px 10px",fontWeight:600}}>{w.forms[ci]} 🔊</td>
+                        <td style={{padding:"8px 10px",fontWeight:600}}>{w.forms[ci]} <span aria-hidden="true">🔊</span></td>
                       </tr>
                     ))}
                   </tbody>
@@ -105,9 +105,9 @@ export default function PadezifullScreen({ goBack, award }) {
                 <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
                   <tbody>
                     {PADEZI_FULL.caseNames.map((cn, ci) => (
-                      <tr key={ci} style={{borderBottom:"1px solid #f3f4f6",cursor:"pointer"}} onClick={() => speak(w.forms[ci])}>
+                      <tr key={ci} role="button" tabIndex={0} aria-label={`Play audio for ${w.forms[ci]}`} style={{borderBottom:"1px solid #f3f4f6",cursor:"pointer"}} onClick={() => speak(w.forms[ci])} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();speak(w.forms[ci]);}}}>
                         <td style={{padding:"8px 10px",fontWeight:700,width:"30%"}}>{cn}</td>
-                        <td style={{padding:"8px 10px",fontWeight:600}}>{w.forms[ci]} 🔊</td>
+                        <td style={{padding:"8px 10px",fontWeight:600}}>{w.forms[ci]} <span aria-hidden="true">🔊</span></td>
                       </tr>
                     ))}
                   </tbody>

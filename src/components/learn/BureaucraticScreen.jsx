@@ -84,8 +84,8 @@ function BureaucraticScreen({ goBack, award }) {
           <div style={{ fontSize: 13, fontWeight: 700, color: '#0e7490', marginBottom: 10 }}>{cat.icon} {cat.name}</div>
           {cat.words.map(function (w, i) {
             return (
-              <button key={i} className="c" style={{ marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', width: '100%' }} onClick={() => speak(w.hr)}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#0369a1' }}>{w.hr} 🔊</span>
+              <button key={i} aria-label={`Play audio for ${w.hr}`} className="c" style={{ marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', width: '100%' }} onClick={() => speak(w.hr)}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#0369a1' }}>{w.hr} <span aria-hidden="true">🔊</span></span>
                 <span style={{ fontSize: 13, color: '#78716c' }}>{w.en}</span>
               </button>
             );
@@ -100,8 +100,8 @@ function BureaucraticScreen({ goBack, award }) {
           </div>
           {BUREAUCRATIC.phrases.map(function (p, i) {
             return (
-              <button key={i} className="c" style={{ marginBottom: 10, display: 'block', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => speak(p.hr)}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#0369a1' }}>{p.hr} 🔊</div>
+              <button key={i} aria-label={`Play audio for ${p.hr}`} className="c" style={{ marginBottom: 10, display: 'block', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => speak(p.hr)}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#0369a1' }}>{p.hr} <span aria-hidden="true">🔊</span></div>
                 <div style={{ fontSize: 13, color: '#78716c', marginTop: 3 }}>{p.en}</div>
               </button>
             );

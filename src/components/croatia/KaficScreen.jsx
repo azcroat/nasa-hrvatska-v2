@@ -110,12 +110,12 @@ export default function KaficScreen({ goBack }) {
                 <div style={{ fontSize: 14, fontWeight: 900, color: 'var(--heading)', marginBottom: 2 }}>{c.name}</div>
                 <div style={{ fontSize: 11, color: 'var(--subtext)', lineHeight: 1.5 }}>{c.desc}</div>
               </div>
-              <button onClick={() => speak(c.hr)} style={{
+              <button aria-label={`Play audio for ${c.hr}`} onClick={() => speak(c.hr)} style={{
                 width: '100%', padding: '10px 16px', background: 'none', border: 'none',
                 cursor: 'pointer', textAlign: 'left', fontFamily: "'Outfit',sans-serif",
                 display: 'flex', alignItems: 'center', gap: 10,
               }}>
-                <span style={{ fontSize: 16 }}>🔊</span>
+                <span aria-hidden="true" style={{ fontSize: 16 }}>🔊</span>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 800, color: '#0e7490', fontFamily: "'Playfair Display',serif" }}>{c.hr}</div>
                   <div style={{ fontSize: 10, color: 'var(--subtext)', fontStyle: 'italic' }}>/{c.ph}/</div>
@@ -131,13 +131,13 @@ export default function KaficScreen({ goBack }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <p style={{ fontSize: 12, color: 'var(--subtext)', fontWeight: 600, marginBottom: 4 }}>Tap any phrase to hear it</p>
           {PHRASES.map((p, i) => (
-            <button key={i} onClick={() => speak(p.hr)} style={{
+            <button key={i} aria-label={`Play audio for ${p.hr}`} onClick={() => speak(p.hr)} style={{
               display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px',
               background: 'var(--card)', border: '1px solid var(--card-b)',
               borderRadius: 12, cursor: 'pointer', textAlign: 'left',
               fontFamily: "'Outfit',sans-serif",
             }}>
-              <span style={{ fontSize: 18, flexShrink: 0 }}>🔊</span>
+              <span aria-hidden="true" style={{ fontSize: 18, flexShrink: 0 }}>🔊</span>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--heading)', fontFamily: "'Playfair Display',serif" }}>{p.hr}</div>
                 <div style={{ fontSize: 12, color: '#0e7490', fontWeight: 600, marginTop: 1 }}>{p.en}</div>

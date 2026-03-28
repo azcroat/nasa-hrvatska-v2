@@ -178,9 +178,8 @@ function ExampleSlide({ slide, lesson, autoTTS, ttsAvailable }) {
                     fontFamily: 'inherit', lineHeight: 1,
                     transition: 'background .15s',
                   }}
-                  title="Hear pronunciation"
                 >
-                  🔊
+                  <span aria-hidden="true">🔊</span>
                 </button>
               )}
             </div>
@@ -666,7 +665,7 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
               gap: 4, flexShrink: 0, transition: 'all .15s',
             }}
           >
-            🔊
+            <span aria-hidden="true">🔊</span>
             <span style={{ fontSize: 'var(--text-xs)', fontWeight: 700 }}>
               {autoTTS ? 'Auto' : 'Off'}
             </span>

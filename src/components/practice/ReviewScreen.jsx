@@ -170,7 +170,7 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
                 {q.word[2]}
               </div>
             )}
-            <Spk text={q.word[0]} label="Tip: hear it again 🔊" />
+            <Spk text={q.word[0]} label="Tip: hear it again" />
           </div>
         )}
         {answered && selected !== -1 && q.opts[selected] === q.correct && (

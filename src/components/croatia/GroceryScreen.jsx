@@ -28,16 +28,16 @@ function GroceryScreen({ goBack }) {
       <h3 className="sh">📚 Shopping Vocabulary</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:20}}>
         {GROCERY.vocab.map(function(w,i){return (
-          <button key={i} className="c" style={{padding:"8px 12px"}} onClick={function(){speak(w[0])}}>
-            <div style={{fontSize:13,fontWeight:700,color:"#0e7490"}}>{w[0]}{" 🔊"}</div>
+          <button key={i} aria-label={`Play audio for ${w[0]}`} className="c" style={{padding:"8px 12px"}} onClick={function(){speak(w[0])}}>
+            <div style={{fontSize:13,fontWeight:700,color:"#0e7490"}}>{w[0]}{" "}<span aria-hidden="true">🔊</span></div>
             <div style={{fontSize:11,color:"var(--subtext)"}}>{w[1]}</div>
           </button>
         );})}
       </div>
       <h3 className="sh">🗣️ At the Store</h3>
       {GROCERY.phrases.map(function(p,i){return (
-        <button key={i} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px"}} onClick={function(){speak(p[0])}}>
-          <span style={{fontWeight:700,fontSize:14}}>{p[0]}{" 🔊"}</span>
+        <button key={i} aria-label={`Play audio for ${p[0]}`} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px"}} onClick={function(){speak(p[0])}}>
+          <span style={{fontWeight:700,fontSize:14}}>{p[0]}{" "}<span aria-hidden="true">🔊</span></span>
           <span style={{color:"var(--subtext)",fontSize:13}}>{p[1]}</span>
         </button>
       );})}

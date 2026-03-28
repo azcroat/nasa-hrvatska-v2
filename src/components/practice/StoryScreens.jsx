@@ -171,9 +171,10 @@ export default function StoryScreens({ goBack, award, sCurEx }) {
 
           <div className="c" style={{marginTop:12}}>
             <div
+              role="button" tabIndex={0} aria-label={`Play audio for ${scene.text}`}
               style={{fontSize:16,fontWeight:700,lineHeight:1.7,color:"#1c1917",cursor:"pointer"}}
-              onClick={() => speak(scene.text)}>
-              {scene.text} 🔊
+              onClick={() => speak(scene.text)} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();speak(scene.text);}}}>
+              {scene.text} <span aria-hidden="true">🔊</span>
             </div>
             <div style={{fontSize:14,color:"#78716c",fontStyle:"italic",marginTop:8,lineHeight:1.6}}>
               {scene.en}

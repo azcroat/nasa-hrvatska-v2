@@ -18,8 +18,8 @@ export default function FavoritesScreen({ favs, toggleFav, setScr, goBack }) {
               <div style={{fontSize:13,color:"var(--subtext)"}}>{f.en}</div>
             </button>
             <div style={{display:"flex",gap:8}}>
-              {f.hr&&<button style={{background:"none",border:"none",fontSize:16,cursor:"pointer"}} onClick={()=>speak(f.hr)}>🔊</button>}
-              <button style={{background:"none",border:"none",fontSize:16,cursor:"pointer",color:"#dc2626"}} onClick={()=>toggleFav(f)}>✖</button>
+              {f.hr&&<button aria-label={`Play audio for ${f.hr}`} style={{background:"none",border:"none",fontSize:16,cursor:"pointer"}} onClick={()=>speak(f.hr)}><span aria-hidden="true">🔊</span></button>}
+              <button aria-label={`Remove ${f.hr||f.en} from favorites`} style={{background:"none",border:"none",fontSize:16,cursor:"pointer",color:"#dc2626"}} onClick={()=>toggleFav(f)}>✖</button>
             </div>
           </div>
         ))

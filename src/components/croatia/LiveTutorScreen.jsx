@@ -729,7 +729,7 @@ export default function LiveTutorScreen({ goBack, award }) {
               transition:'all .15s',
             }}
           >
-            <span>{testingAudio ? '⏳' : audioTestResult === 'ok' ? '✅' : audioTestResult === 'fail' ? '❌' : '🔊'}</span>
+            <span aria-hidden="true">{testingAudio ? '⏳' : audioTestResult === 'ok' ? '✅' : audioTestResult === 'fail' ? '❌' : '🔊'}</span>
             {testingAudio ? 'Testing…' : audioTestResult === 'ok' ? 'Speaker working' : audioTestResult === 'fail' ? 'No sound — check volume' : 'Test speaker'}
           </button>
           <span style={{ fontSize:'var(--text-xs)', color:'var(--subtext)' }}>
@@ -1061,7 +1061,7 @@ export default function LiveTutorScreen({ goBack, award }) {
         }}>
           <span>⚠️</span>
           <span style={{ flex:1 }}>{error}</span>
-          <button onClick={() => setError(null)} style={{ background:'none', border:'none', cursor:'pointer', color:'var(--error)', fontWeight:800 }}>✕</button>
+          <button onClick={() => setError(null)} aria-label="Dismiss error" style={{ background:'none', border:'none', cursor:'pointer', color:'var(--error)', fontWeight:800 }}>✕</button>
         </div>
       )}
 
@@ -1098,7 +1098,7 @@ export default function LiveTutorScreen({ goBack, award }) {
         }}>
           <span>🔇</span>
           <span style={{ flex:1 }}>Not hearing Marija? Check your volume, speaker, or headphone connection. Her replies are shown as text above.</span>
-          <button onClick={() => setShowAudioWarning(false)} style={{ background:'none', border:'none', cursor:'pointer', color:'#92400e', fontWeight:800, flexShrink:0 }}>✕</button>
+          <button onClick={() => setShowAudioWarning(false)} aria-label="Dismiss audio warning" style={{ background:'none', border:'none', cursor:'pointer', color:'#92400e', fontWeight:800, flexShrink:0 }}>✕</button>
         </div>
       )}
 
@@ -1173,12 +1173,12 @@ export default function LiveTutorScreen({ goBack, award }) {
               }}
             >
               {playing
-                ? '🔊 Listening...'
+                ? <><span aria-hidden="true">🔊</span>{' Listening...'}</>
                 : isRecording
-                ? '🔴 Recording...'
+                ? <><span aria-hidden="true">🔴</span>{' Recording...'}</>
                 : thinking || phase === 'thinking'
-                ? '⏳'
-                : '🎙️ Hold to speak'}
+                ? <span aria-hidden="true">⏳</span>
+                : <><span aria-hidden="true">🎙️</span>{' Hold to speak'}</>}
             </button>
           </div>
         ) : null}

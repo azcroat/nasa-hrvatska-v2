@@ -248,7 +248,7 @@ export default function ClozeEngine({ goBack, award }) {
               fontFamily: "'Outfit',sans-serif", padding: '6px 14px',
             }}
           >
-            🔊 Hear it
+            <span aria-hidden="true">🔊</span> Hear it
           </button>
         )}
       </div>

@@ -128,7 +128,11 @@ export default function CeremonyModal({ type, stats, name, onClose }) {
   return (
     <>
       <Confetti />
-      <div style={{
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={cfg.title}
+        style={{
         position:'fixed', inset:0, zIndex:9999,
         background:'rgba(0,0,0,.75)',
         display:'flex', alignItems:'center', justifyContent:'center',

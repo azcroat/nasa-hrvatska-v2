@@ -139,6 +139,8 @@ export default function WaveformVisualizer({ active, color = '#0e7490', height =
       ref={canvasRef}
       width={560}
       height={height * 2}   // 2x for retina
+      aria-hidden="true"
+      role="presentation"
       style={{
         width: '100%',
         height,

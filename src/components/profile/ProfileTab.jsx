@@ -1164,7 +1164,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
           {/* Sound toggle */}
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 0',borderBottom:'1px solid var(--card-b)'}}>
             <div>
-              <div style={{fontWeight:700,fontSize:'var(--text-sm)'}}>🔊 Sound Effects</div>
+              <div style={{fontWeight:700,fontSize:'var(--text-sm)'}}><span aria-hidden="true">🔊</span> Sound Effects</div>
               <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',marginTop:2}}>Play audio feedback for answers</div>
             </div>
             <button

@@ -62,9 +62,10 @@ function HimnaPlayer() {
       ) : (
         <div style={{display:"flex",alignItems:"center",gap:14}}>
           <button
+            aria-label={playing ? "Pause Bojna Čavoglave" : "Play Bojna Čavoglave"}
             onClick={toggle}
             style={{width:50,height:50,borderRadius:"50%",background:"linear-gradient(135deg,#dc2626,#991b1b)",border:"none",color:"white",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,boxShadow:"0 4px 16px rgba(185,28,28,.4)"}}>
-            {playing ? "⏸" : "▶"}
+            <span aria-hidden="true">{playing ? "⏸" : "▶"}</span>
           </button>
           <div style={{flex:1}}>
             <div
@@ -127,8 +128,8 @@ function CroatiaHistoryScreen({ goBack }) {
       <h3 className="sh" style={{marginTop:24}}>📝 Homeland War Vocabulary</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
         {HISTORY.vocabulary.map(function(v,i){return (
-          <button key={i} className="c" style={{padding:"10px 14px"}} onClick={function(){speak(v[0])}}>
-            <div style={{fontSize:14,fontWeight:700,color:"#991b1b"}}>{v[0]}{" 🔊"}</div>
+          <button key={i} aria-label={`Play audio for ${v[0]}`} className="c" style={{padding:"10px 14px"}} onClick={function(){speak(v[0])}}>
+            <div style={{fontSize:14,fontWeight:700,color:"#991b1b"}}>{v[0]}{" "}<span aria-hidden="true">🔊</span></div>
             <div style={{fontSize:12,color:"var(--subtext)"}}>{v[1]}</div>
           </button>
         );})}

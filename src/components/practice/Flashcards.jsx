@@ -562,7 +562,7 @@ export default function Flashcards({ pool, goBack, award }) {
                     fontStyle:'italic',
                     letterSpacing:'0.02em',
                   }}>
-                    🔊 {phonetic}
+                    <span aria-hidden="true">🔊</span> {phonetic}
                   </span>
                   <button
                     onClick={e => { e.stopPropagation(); speak(croatianWord); }}
@@ -597,7 +597,7 @@ export default function Flashcards({ pool, goBack, award }) {
                       fontWeight:700,
                     }}
                     title="Hear it"
-                  >🔊 Hear it</button>
+                  ><span aria-hidden="true">🔊</span> Hear it</button>
                 </div>
               );
             })()}

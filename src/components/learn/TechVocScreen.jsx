@@ -85,8 +85,8 @@ function TechVocScreen({ goBack, award }) {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             {cat.words.map(function (w, i) {
               return (
-                <button key={i} style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', textAlign: 'left', fontFamily: "'Outfit',sans-serif", boxShadow: '0 1px 2px rgba(0,0,0,.04)' }} onClick={() => speak(w.hr)}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0369a1' }}>{w.hr} 🔊</div>
+                <button key={i} aria-label={`Play audio for ${w.hr}`} style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', textAlign: 'left', fontFamily: "'Outfit',sans-serif", boxShadow: '0 1px 2px rgba(0,0,0,.04)' }} onClick={() => speak(w.hr)}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0369a1' }}>{w.hr} <span aria-hidden="true">🔊</span></div>
                   <div style={{ fontSize: 12, color: '#78716c', marginTop: 2 }}>{w.en}</div>
                 </button>
               );
@@ -99,8 +99,8 @@ function TechVocScreen({ goBack, award }) {
         <div>
           {TECH_VOC.phrases.map(function (p, i) {
             return (
-              <button key={i} className="c" style={{ marginBottom: 10, display: 'block', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => speak(p.hr)}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#0369a1' }}>{p.hr} 🔊</div>
+              <button key={i} aria-label={`Play audio for ${p.hr}`} className="c" style={{ marginBottom: 10, display: 'block', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => speak(p.hr)}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#0369a1' }}>{p.hr} <span aria-hidden="true">🔊</span></div>
                 <div style={{ fontSize: 13, color: '#78716c', marginTop: 3 }}>{p.en}</div>
               </button>
             );

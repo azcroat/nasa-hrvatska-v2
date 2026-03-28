@@ -19,9 +19,9 @@ function DeclensionScreen({ goBack }) {
       <table style={{width:"100%",borderCollapse:"collapse"}}>
         <tbody>
           {DECL.caseNames.map(function(cs,ci){return (
-            <tr key={ci} style={{borderBottom:"1px solid #f3f4f6"}} onClick={function(){speak(n.cases[ci])}} role="button" tabIndex={0} onKeyDown={function(e){if(e.key==="Enter"||e.key===" ")speak(n.cases[ci])}}>
+            <tr key={ci} style={{borderBottom:"1px solid #f3f4f6"}} onClick={function(){speak(n.cases[ci])}} role="button" tabIndex={0} aria-label={`Play audio for ${n.cases[ci]}`} onKeyDown={function(e){if(e.key==="Enter"||e.key===" ")speak(n.cases[ci])}}>
               <td style={{padding:"10px",fontWeight:700,color:"#0e7490"}}>{(ci+1)+". "}{cs}</td>
-              <td style={{padding:"10px",fontWeight:600,fontSize:16}}>{n.cases[ci]}{" 🔊"}</td>
+              <td style={{padding:"10px",fontWeight:600,fontSize:16}}>{n.cases[ci]}{" "}<span aria-hidden="true">🔊</span></td>
             </tr>
           );})}
         </tbody>

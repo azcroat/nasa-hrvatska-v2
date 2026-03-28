@@ -196,7 +196,7 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
               )}
               {/* AI sparkle badge — always shown on Culture tab when not active */}
               {t.id === 'croatia' && tab !== 'croatia' && (
-                <div style={{
+                <div aria-hidden="true" style={{
                   position: 'absolute', bottom: 2, left: '50%',
                   transform: 'translateX(-50%)',
                   fontSize: 8, fontWeight: 900, color: '#b61800',
@@ -206,7 +206,7 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
                 }}>✦AI</div>
               )}
               {badges && badges[t.id] > 0 && (
-                <span style={{
+                <span aria-label={`${badges[t.id]} new items`} style={{
                   position: 'absolute', top: 2, right: 2,
                   background: 'linear-gradient(135deg,#6366f1,#8b5cf6)',
                   color: '#fff',
@@ -218,7 +218,7 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
                   boxShadow: '0 2px 8px rgba(99,102,241,0.5)',
                   border: '1.5px solid #fff',
                 }}>
-                  ✦{badges[t.id]}
+                  <span aria-hidden="true">✦</span>{badges[t.id]}
                 </span>
               )}
               {/* Local SRS fallback badge — shown on Practice when badges prop has no count */}
@@ -254,7 +254,7 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
           color:'var(--subtext)',
           flexShrink:0,
         }}
-      >🔍</button>
+      ><span aria-hidden="true">🔍</span></button>
 
     </nav>
     </>

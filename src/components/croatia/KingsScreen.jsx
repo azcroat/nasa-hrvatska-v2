@@ -46,9 +46,9 @@ export default function KingsScreen({ goBack, award, setSt }) {
           <div style={{fontSize:14,lineHeight:1.7}}>Before Croatia became a kingdom in 925, it was ruled by dukes (knezovi) who built the foundations of the Croatian state. These leaders established the dynasty, gained papal recognition, and created the institutions that made the kingdom possible.</div>
         </div>
         {KINGS.dukes.map(function(d,i){return (
-          <button key={i} className="c" style={{marginBottom:10}} onClick={function(){speak(d.name)}}>
+          <button key={i} aria-label={`Play audio for ${d.name}`} className="c" style={{marginBottom:10}} onClick={function(){speak(d.name)}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
-              <div style={{fontSize:16,fontWeight:800,color:"#164e63"}}>{"🏰 "}{d.name}{" 🔊"}</div>
+              <div style={{fontSize:16,fontWeight:800,color:"#164e63"}}>{"🏰 "}{d.name}{" "}<span aria-hidden="true">🔊</span></div>
               <div style={{fontSize:12,color:"#b45309",fontWeight:700}}>{d.years}</div>
             </div>
             <div style={{fontSize:12,color:"#0e7490",fontWeight:600,marginBottom:4}}>{d.title}</div>
@@ -61,9 +61,9 @@ export default function KingsScreen({ goBack, award, setSt }) {
           <div style={{fontSize:14,lineHeight:1.7}}>From Tomislav in 925 to Petar Svačić in 1097, these kings ruled a sovereign Croatia. They defended the nation against empires, expanded its borders, and built a civilization that forms the bedrock of Croatian identity.</div>
         </div>
         {KINGS.kings.map(function(k,i){return (
-          <button key={i} className="c" style={{marginBottom:12,borderLeft:"4px solid "+(k.color||"#0e7490")}} onClick={function(){speak(k.name)}}>
+          <button key={i} aria-label={`Play audio for ${k.name}`} className="c" style={{marginBottom:12,borderLeft:"4px solid "+(k.color||"#0e7490")}} onClick={function(){speak(k.name)}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
-              <div style={{fontSize:17,fontWeight:800,color:k.color||"#164e63",fontFamily:"'Playfair Display',serif"}}>{k.emoji}{" "}{k.name}{" 🔊"}</div>
+              <div style={{fontSize:17,fontWeight:800,color:k.color||"#164e63",fontFamily:"'Playfair Display',serif"}}>{k.emoji}{" "}{k.name}{" "}<span aria-hidden="true">🔊</span></div>
               <div style={{fontSize:12,color:"#b45309",fontWeight:700}}>{k.years}</div>
             </div>
             <div style={{fontSize:12,color:k.color||"#0e7490",fontWeight:700,marginBottom:4}}>{k.title}</div>
@@ -76,8 +76,8 @@ export default function KingsScreen({ goBack, award, setSt }) {
           <div style={{fontSize:14,lineHeight:1.7}}>The Croatian kingdom had no single permanent capital. Instead, the royal court moved between five principal cities, each serving as a seat of power at different times.</div>
         </div>
         {KINGS.royalCities.map(function(c,i){return (
-          <button key={i} className="c" style={{marginBottom:10}} onClick={function(){speak(c.name)}}>
-            <div style={{fontSize:16,fontWeight:800,color:"#7c3aed"}}>{"🏙️ "}{c.name}{" 🔊"}</div>
+          <button key={i} aria-label={`Play audio for ${c.name}`} className="c" style={{marginBottom:10}} onClick={function(){speak(c.name)}}>
+            <div style={{fontSize:16,fontWeight:800,color:"#7c3aed"}}>{"🏙️ "}{c.name}{" "}<span aria-hidden="true">🔊</span></div>
             <div style={{fontSize:13,color:"#44403c",lineHeight:1.6}}>{c.desc}</div>
           </button>
         );})}
@@ -86,8 +86,8 @@ export default function KingsScreen({ goBack, award, setSt }) {
         <div style={{fontSize:14,fontWeight:700,color:"#0e7490",marginBottom:12}}>📚 Medieval Croatian Vocabulary — Tap to hear:</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
           {KINGS.vocabulary.map(function(v,i){return (
-            <button key={i} className="c" style={{padding:"10px 14px"}} onClick={function(){speak(v[0])}}>
-              <div style={{fontSize:14,fontWeight:700,color:"#b45309"}}>{v[0]}{" 🔊"}</div>
+            <button key={i} aria-label={`Play audio for ${v[0]}`} className="c" style={{padding:"10px 14px"}} onClick={function(){speak(v[0])}}>
+              <div style={{fontSize:14,fontWeight:700,color:"#b45309"}}>{v[0]}{" "}<span aria-hidden="true">🔊</span></div>
               <div style={{fontSize:12,color:"var(--subtext)"}}>{v[1]}</div>
             </button>
           );})}

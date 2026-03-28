@@ -272,9 +272,9 @@ export default function GrammarExplainer({ goBack, award }) {
                     <div style={{ fontSize: "var(--text-lg)", fontWeight: 700, color: "var(--heading)", lineHeight: 1.4 }}>{ex.hr}</div>
                     <button
                       onClick={() => speak(ex.hr)}
+                      aria-label={`Play audio for ${ex.hr}`}
                       style={{ flexShrink: 0, background: "var(--accent)", border: "none", borderRadius: 8, width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 16 }}
-                      title="Listen"
-                    >🔊</button>
+                    ><span aria-hidden="true">🔊</span></button>
                   </div>
                   <div style={{ fontSize: "var(--text-sm)", color: "var(--subtext)", marginTop: 4 }}>{ex.en}</div>
                   {ex.note && (

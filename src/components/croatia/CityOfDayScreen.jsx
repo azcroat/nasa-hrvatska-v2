@@ -145,12 +145,12 @@ function CityOfDayScreen({ goBack }) {
             Words and phrases connected to {city.name} — tap to hear
           </div>
           {city.vocab.map(function(v,vi){return (
-            <div key={vi} style={{marginBottom:10,background:"var(--card)",borderRadius:14,border:"1px solid rgba(0,0,0,.06)",overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,.05)",cursor:"pointer"}}
-              onClick={function(){speak(v.hr)}}>
+            <div key={vi} role="button" tabIndex={0} aria-label={`Play audio for ${v.hr}`} style={{marginBottom:10,background:"var(--card)",borderRadius:14,border:"1px solid rgba(0,0,0,.06)",overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,.05)",cursor:"pointer"}}
+              onClick={function(){speak(v.hr)}} onKeyDown={function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();speak(v.hr);}}}>
               <div style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px"}}>
                 <div style={{width:4,alignSelf:"stretch",background:city.color,borderRadius:2,flexShrink:0}} />
                 <div style={{flex:1}}>
-                  <div style={{fontSize:17,fontWeight:800,color:city.color,marginBottom:3}}>{v.hr} <span style={{fontSize:14,opacity:.5}}>🔊</span></div>
+                  <div style={{fontSize:17,fontWeight:800,color:city.color,marginBottom:3}}>{v.hr} <span aria-hidden="true" style={{fontSize:14,opacity:.5}}>🔊</span></div>
                   <div style={{fontSize:13,color:"var(--subtext)",fontWeight:600,marginBottom:4}}>{v.en}</div>
                   {v.note && <div style={{fontSize:12,color:"var(--subtext)",lineHeight:1.5}}>{v.note}</div>}
                 </div>

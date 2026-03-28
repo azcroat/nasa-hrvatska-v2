@@ -8,9 +8,9 @@ export function TextingScreen({ goBack }) {
       
       {H("📱 Texting & Slang","How Croatian kids actually text",goBack)}
       {TEXTING.map(function(t,i){return (
-        <button key={i} className="c" style={{marginBottom:8}} onClick={function(){speak(t.slang)}}>
+        <button key={i} aria-label={`Play audio for ${t.slang}`} className="c" style={{marginBottom:8}} onClick={function(){speak(t.slang)}}>
           <div style={{display:"flex",justifyContent:"space-between"}}>
-            <div style={{fontSize:16,fontWeight:800,color:"#7c3aed"}}>{t.slang}{" 🔊"}</div>
+            <div style={{fontSize:16,fontWeight:800,color:"#7c3aed"}}>{t.slang}{" "}<span aria-hidden="true">🔊</span></div>
             <div style={{fontSize:14,fontWeight:600,color:"#0e7490"}}>{t.means}</div>
           </div>
           <div style={{fontSize:12,color:"var(--subtext)",marginTop:2}}>{t.ctx}</div>
@@ -26,8 +26,8 @@ export function FriendsScreen({ goBack }) {
       
       {H("🤝 Making Friends","Real phrases kids use",goBack)}
       {FRIENDS.map(function(f,i){return (
-        <button key={i} className="c" style={{marginBottom:8}} onClick={function(){speak(f.hr)}}>
-          <div style={{fontSize:15,fontWeight:700,color:"var(--heading)"}}>{f.hr}{" 🔊"}</div>
+        <button key={i} aria-label={`Play audio for ${f.hr}`} className="c" style={{marginBottom:8}} onClick={function(){speak(f.hr)}}>
+          <div style={{fontSize:15,fontWeight:700,color:"var(--heading)"}}>{f.hr}{" "}<span aria-hidden="true">🔊</span></div>
           <div style={{fontSize:14,color:"#0e7490",marginTop:2}}>{f.en}</div>
         </button>
       );})}
@@ -52,7 +52,7 @@ export function FoodOrderScreen({ goBack }) {
           </div>
           <div style={{borderTop:"1px solid var(--card-b)",paddingTop:8}}>
             {sec.phrases.map(function(p,i){return (
-              <button key={i} style={{display:"block",width:"100%",fontSize:13,padding:"5px 8px",marginBottom:3,fontWeight:600,color:"var(--heading)",background:"rgba(14,116,144,.06)",border:"1px solid rgba(14,116,144,.15)",borderRadius:7,cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif"}} onClick={function(){speak(p)}}>{p}{" 🔊"}</button>
+              <button key={i} aria-label={`Play audio for ${p}`} style={{display:"block",width:"100%",fontSize:13,padding:"5px 8px",marginBottom:3,fontWeight:600,color:"var(--heading)",background:"rgba(14,116,144,.06)",border:"1px solid rgba(14,116,144,.15)",borderRadius:7,cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif"}} onClick={function(){speak(p)}}>{p}{" "}<span aria-hidden="true">🔊</span></button>
             );})}
           </div>
         </div>
@@ -63,8 +63,8 @@ export function FoodOrderScreen({ goBack }) {
       </div>
       <h3 className="sh" style={{marginTop:16}}>🍽️ Restaurant Phrases</h3>
       {FOODORDER.restaurant.phrases.map(function(p,i){return (
-        <button key={i} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px"}} onClick={function(){speak(p[0])}}>
-          <span style={{fontWeight:700,fontSize:14}}>{p[0]}{" 🔊"}</span>
+        <button key={i} aria-label={`Play audio for ${p[0]}`} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px"}} onClick={function(){speak(p[0])}}>
+          <span style={{fontWeight:700,fontSize:14}}>{p[0]}{" "}<span aria-hidden="true">🔊</span></span>
           <span style={{color:"var(--subtext)",fontSize:13}}>{p[1]}</span>
         </button>
       );})}
@@ -78,8 +78,8 @@ export function TransportScreen({ goBack }) {
       
       {H("🚌 Getting Around","Bus, tram, taxi phrases",goBack)}
       {TRANSPORT.map(function(t,i){return (
-        <button key={i} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px"}} onClick={function(){speak(t.hr)}}>
-          <span style={{fontWeight:700,fontSize:14}}>{t.hr}{" 🔊"}</span>
+        <button key={i} aria-label={`Play audio for ${t.hr}`} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px"}} onClick={function(){speak(t.hr)}}>
+          <span style={{fontWeight:700,fontSize:14}}>{t.hr}{" "}<span aria-hidden="true">🔊</span></span>
           <span style={{color:"var(--subtext)",fontSize:13}}>{t.en}</span>
         </button>
       );})}
@@ -97,8 +97,8 @@ export function EmergencyScreen({ goBack }) {
         <div style={{fontSize:14,fontWeight:700}}>{EMERGENCY.number}</div>
       </div>
       {EMERGENCY.phrases.map(function(p,i){return (
-        <button key={i} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px"}} onClick={function(){speak(p[0])}}>
-          <span style={{fontWeight:700,fontSize:14,color:"#dc2626"}}>{p[0]}{" 🔊"}</span>
+        <button key={i} aria-label={`Play audio for ${p[0]}`} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px"}} onClick={function(){speak(p[0])}}>
+          <span style={{fontWeight:700,fontSize:14,color:"#dc2626"}}>{p[0]}{" "}<span aria-hidden="true">🔊</span></span>
           <span style={{color:"var(--subtext)",fontSize:13}}>{p[1]}</span>
         </button>
       );})}
@@ -190,8 +190,8 @@ export function PracticalScreen({ goBack }) {
       <h3 className="sh">📄 Documents</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
         {PRACTICAL.documents.map(function(d,i){return (
-          <button key={i} className="c" style={{padding:"8px 12px"}} onClick={function(){speak(d[0])}}>
-            <div style={{fontSize:13,fontWeight:700}}>{d[0]}{" 🔊"}</div>
+          <button key={i} aria-label={`Play audio for ${d[0]}`} className="c" style={{padding:"8px 12px"}} onClick={function(){speak(d[0])}}>
+            <div style={{fontSize:13,fontWeight:700}}>{d[0]}{" "}<span aria-hidden="true">🔊</span></div>
             <div style={{fontSize:11,color:"#78716c"}}>{d[1]}</div>
           </button>
         );})}
@@ -227,8 +227,8 @@ export function SchoolScreen({ goBack }) {
       <h3 className="sh">📚 Classroom Vocabulary</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
         {SCHOOL.classroom.map(function(w,i){return (
-          <button key={i} className="c" style={{padding:"8px 12px"}} onClick={function(){speak(w[0])}}>
-            <div style={{fontSize:13,fontWeight:700,color:"var(--heading)"}}>{w[0]}{" 🔊"}</div>
+          <button key={i} aria-label={`Play audio for ${w[0]}`} className="c" style={{padding:"8px 12px"}} onClick={function(){speak(w[0])}}>
+            <div style={{fontSize:13,fontWeight:700,color:"var(--heading)"}}>{w[0]}{" "}<span aria-hidden="true">🔊</span></div>
             <div style={{fontSize:11,color:"var(--subtext)"}}>{w[1]}</div>
           </button>
         );})}
@@ -236,16 +236,16 @@ export function SchoolScreen({ goBack }) {
       <h3 className="sh" style={{marginTop:16}}>📝 Subjects</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
         {SCHOOL.subjects.map(function(w,i){return (
-          <button key={i} className="c" style={{padding:"8px 12px"}} onClick={function(){speak(w[0])}}>
-            <div style={{fontSize:13,fontWeight:700,color:"#7c3aed"}}>{w[0]}{" 🔊"}</div>
+          <button key={i} aria-label={`Play audio for ${w[0]}`} className="c" style={{padding:"8px 12px"}} onClick={function(){speak(w[0])}}>
+            <div style={{fontSize:13,fontWeight:700,color:"#7c3aed"}}>{w[0]}{" "}<span aria-hidden="true">🔊</span></div>
             <div style={{fontSize:11,color:"var(--subtext)"}}>{w[1]}</div>
           </button>
         );})}
       </div>
       <h3 className="sh" style={{marginTop:16}}>🗣️ Essential Phrases</h3>
       {SCHOOL.phrases.map(function(p,i){return (
-        <button key={i} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px"}} onClick={function(){speak(p[0])}}>
-          <span style={{fontWeight:700,fontSize:14}}>{p[0]}{" 🔊"}</span>
+        <button key={i} aria-label={`Play audio for ${p[0]}`} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px"}} onClick={function(){speak(p[0])}}>
+          <span style={{fontWeight:700,fontSize:14}}>{p[0]}{" "}<span aria-hidden="true">🔊</span></span>
           <span style={{color:"var(--subtext)",fontSize:13}}>{p[1]}</span>
         </button>
       );})}
@@ -279,16 +279,16 @@ export function GroceryScreen({ goBack }) {
       <h3 className="sh">📚 Shopping Vocabulary</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:20}}>
         {GROCERY.vocab.map(function(w,i){return (
-          <button key={i} className="c" style={{padding:"8px 12px"}} onClick={function(){speak(w[0])}}>
-            <div style={{fontSize:13,fontWeight:700,color:"#0e7490"}}>{w[0]}{" 🔊"}</div>
+          <button key={i} aria-label={`Play audio for ${w[0]}`} className="c" style={{padding:"8px 12px"}} onClick={function(){speak(w[0])}}>
+            <div style={{fontSize:13,fontWeight:700,color:"#0e7490"}}>{w[0]}{" "}<span aria-hidden="true">🔊</span></div>
             <div style={{fontSize:11,color:"var(--subtext)"}}>{w[1]}</div>
           </button>
         );})}
       </div>
       <h3 className="sh">🗣️ At the Store</h3>
       {GROCERY.phrases.map(function(p,i){return (
-        <button key={i} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px"}} onClick={function(){speak(p[0])}}>
-          <span style={{fontWeight:700,fontSize:14}}>{p[0]}{" 🔊"}</span>
+        <button key={i} aria-label={`Play audio for ${p[0]}`} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px"}} onClick={function(){speak(p[0])}}>
+          <span style={{fontWeight:700,fontSize:14}}>{p[0]}{" "}<span aria-hidden="true">🔊</span></span>
           <span style={{color:"var(--subtext)",fontSize:13}}>{p[1]}</span>
         </button>
       );})}
@@ -356,9 +356,10 @@ function HimnaPlayer() {
       ) : (
         <div style={{display:"flex",alignItems:"center",gap:14}}>
           <button
+            aria-label={playing ? "Pause Bojna Čavoglave" : "Play Bojna Čavoglave"}
             onClick={toggle}
             style={{width:50,height:50,borderRadius:"50%",background:"linear-gradient(135deg,#dc2626,#991b1b)",border:"none",color:"white",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,boxShadow:"0 4px 16px rgba(185,28,28,.4)"}}>
-            {playing ? "⏸" : "▶"}
+            <span aria-hidden="true">{playing ? "⏸" : "▶"}</span>
           </button>
           <div style={{flex:1}}>
             <div
@@ -421,8 +422,8 @@ export function HistoryScreen({ goBack }) {
       <h3 className="sh" style={{marginTop:24}}>📝 Homeland War Vocabulary</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
         {HISTORY.vocabulary.map(function(v,i){return (
-          <button key={i} className="c" style={{padding:"10px 14px"}} onClick={function(){speak(v[0])}}>
-            <div style={{fontSize:14,fontWeight:700,color:"#991b1b"}}>{v[0]}{" 🔊"}</div>
+          <button key={i} aria-label={`Play audio for ${v[0]}`} className="c" style={{padding:"10px 14px"}} onClick={function(){speak(v[0])}}>
+            <div style={{fontSize:14,fontWeight:700,color:"#991b1b"}}>{v[0]}{" "}<span aria-hidden="true">🔊</span></div>
             <div style={{fontSize:12,color:"var(--subtext)"}}>{v[1]}</div>
           </button>
         );})}
@@ -515,6 +516,7 @@ function SportScreen({ data, accent, heroGradient, heroIcon }) {
             const isPlaying=playing===key;
             return (
               <button key={pi}
+                aria-label={`Play audio for ${p.hr}`}
                 onClick={function(){playPhrase(p.hr,key)}}
                 style={{background:"white",borderRadius:14,border:"1px solid "+(isPlaying?accent:"rgba(0,0,0,.06)"),
                   boxShadow:isPlaying?"0 0 0 3px "+accent+"25":"0 1px 4px rgba(0,0,0,.05)",
@@ -525,7 +527,7 @@ function SportScreen({ data, accent, heroGradient, heroIcon }) {
                   <span style={{fontSize:10,fontWeight:700,color:accent+"99",fontVariantNumeric:"tabular-nums"}}>
                     {String(pi+1).padStart(2,"0")}
                   </span>
-                  <span style={{fontSize:14,opacity:isPlaying?1:.35,transition:"opacity .2s"}}>🔊</span>
+                  <span aria-hidden="true" style={{fontSize:14,opacity:isPlaying?1:.35,transition:"opacity .2s"}}>🔊</span>
                 </div>
                 <div style={{fontSize:13,fontWeight:700,color:"#1c1917",lineHeight:1.3}}>{p.hr}</div>
                 <div style={{fontSize:11,color:"#78716c",marginTop:3,lineHeight:1.4}}>{p.en}</div>
@@ -543,6 +545,7 @@ function SportScreen({ data, accent, heroGradient, heroIcon }) {
             const isPlaying=playing===key;
             return (
               <button key={pi}
+                aria-label={`Play audio for ${p.hr}`}
                 onClick={function(){playPhrase(p.hr,key)}}
                 style={{display:"flex",alignItems:"stretch",background:"white",borderRadius:14,
                   border:"1px solid "+(isPlaying?accent:"rgba(0,0,0,.06)"),
@@ -574,7 +577,7 @@ function SportScreen({ data, accent, heroGradient, heroIcon }) {
                     background:isPlaying?accent:"rgba(0,0,0,.04)",
                     display:"flex",alignItems:"center",justifyContent:"center",
                     fontSize:13,transition:"all .18s"}}>
-                    {isPlaying ? <span style={{color:"white"}}>♪</span> : <span style={{opacity:.45}}>🔊</span>}
+                    {isPlaying ? <span aria-hidden="true" style={{color:"white"}}>♪</span> : <span aria-hidden="true" style={{opacity:.45}}>🔊</span>}
                   </div>
                 </div>
               </button>

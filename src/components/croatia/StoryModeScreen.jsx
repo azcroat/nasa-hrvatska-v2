@@ -669,7 +669,7 @@ export default function StoryModeScreen({ goBack, award }) {
               Stop Audio
             </>
           ) : (
-            '🔊 Read Story Aloud'
+            <><span aria-hidden="true">🔊</span>{' Read Story Aloud'}</>
           )}
         </button>
 

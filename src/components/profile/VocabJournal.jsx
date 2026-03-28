@@ -123,8 +123,8 @@ export default function VocabJournal({ goBack }) {
         <div key={w.id} className="c" style={{ marginBottom: 8 }}>
           {/* Main word row */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px' }}>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0, fontFamily: "'Outfit',sans-serif" }} onClick={() => speak(w.hr)}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--heading)' }}>{w.hr} 🔊</div>
+            <button aria-label={`Play audio for ${w.hr}`} style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0, fontFamily: "'Outfit',sans-serif" }} onClick={() => speak(w.hr)}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--heading)' }}>{w.hr} <span aria-hidden="true">🔊</span></div>
               <div style={{ fontSize: 13, color: 'var(--subtext)' }}>{w.en}</div>
             </button>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

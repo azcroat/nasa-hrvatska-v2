@@ -1142,12 +1142,12 @@ function ItemPopup({ item, scene, isAdded, isQuiz, quizRevealed, onClose, onSpea
 
         {/* Action row */}
         <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-          <button onClick={onSpeak} style={{
+          <button onClick={onSpeak} aria-label="Listen to pronunciation" style={{
             flex:1, background:`${scene.bg}`, border:`1.5px solid ${scene.color}44`,
             borderRadius:12, padding:'10px 0', cursor:'pointer',
             fontSize:14, fontWeight:700, color:scene.color,
           }}>
-            🔊 Listen
+            <span aria-hidden="true">🔊</span> Listen
           </button>
           <button onClick={onAddSRS} style={{
             flex:1,

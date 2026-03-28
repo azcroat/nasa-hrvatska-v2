@@ -99,10 +99,10 @@ export default function TensesScreen({ goBack, award }) {
                       {forms.map((f, fi) => {
                         const isSpeaker = fi === 0 || fi === 1 || fi === 4 || fi === 5;
                         return (
-                          <tr key={fi} style={{borderBottom:"1px solid #f3f4f6",cursor:"pointer",background:isSpeaker ? "rgba(14,116,144,.03)" : "white"}} onClick={() => speak(TENSES.persons[fi] + " " + f)}>
+                          <tr key={fi} role="button" tabIndex={0} aria-label={`Play audio for ${TENSES.persons[fi]} ${f}`} style={{borderBottom:"1px solid #f3f4f6",cursor:"pointer",background:isSpeaker ? "rgba(14,116,144,.03)" : "white"}} onClick={() => speak(TENSES.persons[fi] + " " + f)} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();speak(TENSES.persons[fi]+" "+f);}}}>
                             <td style={{padding:"10px 14px",fontWeight:700,color:"#7c3aed",width:"20%",fontSize:14}}>{TENSES.persons[fi]}</td>
                             <td style={{padding:"10px 14px",fontWeight:700,fontSize:15,color:fi <= 1 || fi === 4 || fi === 5 ? (tnGender === "m" ? "#0e7490" : "#dc2626") : "#44403c"}}>
-                              {f} 🔊
+                              {f} <span aria-hidden="true">🔊</span>
                             </td>
                             <td style={{padding:"10px 14px",fontSize:11,color:"#a8a29e"}}>{TENSES.personsEn[fi]}</td>
                           </tr>
@@ -116,13 +116,13 @@ export default function TensesScreen({ goBack, award }) {
                   <div className="c" style={{marginTop:12,background:"linear-gradient(135deg,#f5f3ff,#ede9fe)",borderLeft:"4px solid #7c3aed"}}>
                     <div style={{fontSize:13,fontWeight:800,color:"#7c3aed",marginBottom:8}}>♂️ vs ♀️ Gender Comparison (ja + {v.inf})</div>
                     <div style={{display:"flex",gap:16}}>
-                      <div style={{flex:1,cursor:"pointer"}} onClick={() => speak("ja " + v.pastM[0])}>
+                      <div role="button" tabIndex={0} aria-label={`Play audio for Ja ${v.pastM[0]}`} style={{flex:1,cursor:"pointer"}} onClick={() => speak("ja " + v.pastM[0])} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();speak("ja "+v.pastM[0]);}}}>
                         <div style={{fontSize:12,fontWeight:700,color:"#0e7490"}}>👨 Male:</div>
-                        <div style={{fontSize:16,fontWeight:800}}>Ja {v.pastM[0]} 🔊</div>
+                        <div style={{fontSize:16,fontWeight:800}}>Ja {v.pastM[0]} <span aria-hidden="true">🔊</span></div>
                       </div>
-                      <div style={{flex:1,cursor:"pointer"}} onClick={() => speak("ja " + v.pastF[0])}>
+                      <div role="button" tabIndex={0} aria-label={`Play audio for Ja ${v.pastF[0]}`} style={{flex:1,cursor:"pointer"}} onClick={() => speak("ja " + v.pastF[0])} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();speak("ja "+v.pastF[0]);}}}>
                         <div style={{fontSize:12,fontWeight:700,color:"#dc2626"}}>👩 Female:</div>
-                        <div style={{fontSize:16,fontWeight:800}}>Ja {v.pastF[0]} 🔊</div>
+                        <div style={{fontSize:16,fontWeight:800}}>Ja {v.pastF[0]} <span aria-hidden="true">🔊</span></div>
                       </div>
                     </div>
                   </div>

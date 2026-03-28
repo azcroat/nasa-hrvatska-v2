@@ -21,8 +21,8 @@ function Top100Screen({ goBack }) {
         <h3 style={{fontSize:16,fontWeight:800,color:"#164e63",marginBottom:16}}>{t1k}</h3>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
           {TOP100[t1k].map(function(w,i){return (
-            <button key={i} className="c" style={{padding:"10px 14px"}} onClick={function(){speak(w[0])}}>
-              <div style={{fontSize:14,fontWeight:700,color:"#0e7490"}}>{w[0]}{" 🔊"}</div>
+            <button key={i} aria-label={`Play audio for ${w[0]}`} className="c" style={{padding:"10px 14px"}} onClick={function(){speak(w[0])}}>
+              <div style={{fontSize:14,fontWeight:700,color:"#0e7490"}}>{w[0]}{" "}<span aria-hidden="true">🔊</span></div>
               <div style={{fontSize:12,color:"var(--subtext)"}}>{w[1]}</div>
             </button>
           );})}

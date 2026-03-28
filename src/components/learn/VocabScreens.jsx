@@ -124,9 +124,9 @@ export function CountriesScreen({ goBack }) {
       {tab === 'Phrases' && (
         <div>
           {d.phrases.map((p, i) => (
-            <div key={i} style={{ background: 'white', borderRadius: 12, padding: '12px 16px', marginBottom: 8, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
-              onClick={() => speak(p.hr)}>
-              <div style={{ fontSize: 20 }}>🔊</div>
+            <div key={i} role="button" tabIndex={0} aria-label={`Play audio: ${p.hr} — ${p.en}`} style={{ background: 'white', borderRadius: 12, padding: '12px 16px', marginBottom: 8, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
+              onClick={() => speak(p.hr)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speak(p.hr); } }}>
+              <div style={{ fontSize: 20 }} aria-hidden="true">🔊</div>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#0369a1' }}>{p.hr}</div>
                 <div style={{ fontSize: 12, color: '#78716c' }}>{p.en}</div>
@@ -191,9 +191,9 @@ export function ProfessionsScreen({ goBack }) {
       {tab === 'Phrases' && (
         <div>
           {d.phrases.map((p, i) => (
-            <div key={i} style={{ background: 'white', borderRadius: 12, padding: '12px 16px', marginBottom: 8, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
-              onClick={() => speak(p.hr)}>
-              <div style={{ fontSize: 20 }}>🔊</div>
+            <div key={i} role="button" tabIndex={0} aria-label={`Play audio: ${p.hr} — ${p.en}`} style={{ background: 'white', borderRadius: 12, padding: '12px 16px', marginBottom: 8, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
+              onClick={() => speak(p.hr)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speak(p.hr); } }}>
+              <div style={{ fontSize: 20 }} aria-hidden="true">🔊</div>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#1d4ed8' }}>{p.hr}</div>
                 <div style={{ fontSize: 12, color: '#78716c' }}>{p.en}</div>
@@ -270,9 +270,9 @@ export function WeatherScreen({ goBack }) {
       {tab === 'Phrases' && (
         <div>
           {d.phrases.map((p, i) => (
-            <div key={i} style={{ background: 'white', borderRadius: 12, padding: '12px 16px', marginBottom: 8, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
-              onClick={() => speak(p.hr)}>
-              <div style={{ fontSize: 20 }}>🔊</div>
+            <div key={i} role="button" tabIndex={0} aria-label={`Play audio: ${p.hr} — ${p.en}`} style={{ background: 'white', borderRadius: 12, padding: '12px 16px', marginBottom: 8, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
+              onClick={() => speak(p.hr)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speak(p.hr); } }}>
+              <div style={{ fontSize: 20 }} aria-hidden="true">🔊</div>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#0891b2' }}>{p.hr}</div>
                 <div style={{ fontSize: 12, color: '#78716c' }}>{p.en}</div>
@@ -313,8 +313,8 @@ export function ClothesScreen({ goBack }) {
           <div style={{ fontSize: 13, fontWeight: 800, color: '#7c3aed', marginBottom: 10 }}>{cat.icon} {cat.cat}</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             {cat.items.map((item, i) => (
-              <div key={i} style={{ background: 'white', borderRadius: 12, padding: '10px 12px', border: '1px solid rgba(0,0,0,.06)', cursor: 'pointer' }}
-                onClick={() => speak(item.hr)}>
+              <div key={i} role="button" tabIndex={0} aria-label={`Play audio: ${item.hr} — ${item.en}`} style={{ background: 'white', borderRadius: 12, padding: '10px 12px', border: '1px solid rgba(0,0,0,.06)', cursor: 'pointer' }}
+                onClick={() => speak(item.hr)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speak(item.hr); } }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#7c3aed', marginBottom: 2 }}>{item.hr}</div>
                 <div style={{ fontSize: 11, color: '#78716c' }}>{item.en}</div>
                 {item.gen && <div style={{ fontSize: 10, background: '#f3f4f6', color: '#6b7280', padding: '1px 6px', borderRadius: 6, display: 'inline-block', marginTop: 2 }}>{item.gen}</div>}
@@ -328,9 +328,9 @@ export function ClothesScreen({ goBack }) {
       {tab === 'Phrases' && (
         <div>
           {d.phrases.map((p, i) => (
-            <div key={i} style={{ background: 'white', borderRadius: 12, padding: '12px 16px', marginBottom: 8, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
-              onClick={() => speak(p.hr)}>
-              <div style={{ fontSize: 20 }}>🔊</div>
+            <div key={i} role="button" tabIndex={0} aria-label={`Play audio: ${p.hr} — ${p.en}`} style={{ background: 'white', borderRadius: 12, padding: '12px 16px', marginBottom: 8, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
+              onClick={() => speak(p.hr)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speak(p.hr); } }}>
+              <div style={{ fontSize: 20 }} aria-hidden="true">🔊</div>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#7c3aed' }}>{p.hr}</div>
                 <div style={{ fontSize: 12, color: '#78716c' }}>{p.en}</div>
@@ -370,9 +370,9 @@ export function BodyDescScreen({ goBack }) {
           </div>
           <div style={{ display: 'grid', gap: 8 }}>
             {sec.items.map((item, i) => (
-              <div key={i} style={{ background: 'white', borderRadius: 12, padding: '10px 14px', border: '1px solid rgba(0,0,0,.06)', cursor: 'pointer', display: 'flex', gap: 10, alignItems: 'flex-start' }}
-                onClick={() => speak(item.hr)}>
-                <div style={{ fontSize: 20, flexShrink: 0 }}>🔊</div>
+              <div key={i} role="button" tabIndex={0} aria-label={`Play audio: ${item.hr} — ${item.en}`} style={{ background: 'white', borderRadius: 12, padding: '10px 14px', border: '1px solid rgba(0,0,0,.06)', cursor: 'pointer', display: 'flex', gap: 10, alignItems: 'flex-start' }}
+                onClick={() => speak(item.hr)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speak(item.hr); } }}>
+                <div style={{ fontSize: 20, flexShrink: 0 }} aria-hidden="true">🔊</div>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#0f766e' }}>{item.hr}</div>
                   <div style={{ fontSize: 12, color: '#78716c' }}>{item.en}</div>
@@ -387,9 +387,9 @@ export function BodyDescScreen({ goBack }) {
       {tab === 'Phrases' && (
         <div>
           {d.phrases.map((p, i) => (
-            <div key={i} style={{ background: 'white', borderRadius: 12, padding: '12px 16px', marginBottom: 8, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
-              onClick={() => speak(p.hr)}>
-              <div style={{ fontSize: 20 }}>🔊</div>
+            <div key={i} role="button" tabIndex={0} aria-label={`Play audio: ${p.hr} — ${p.en}`} style={{ background: 'white', borderRadius: 12, padding: '12px 16px', marginBottom: 8, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
+              onClick={() => speak(p.hr)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speak(p.hr); } }}>
+              <div style={{ fontSize: 20 }} aria-hidden="true">🔊</div>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#0f766e' }}>{p.hr}</div>
                 <div style={{ fontSize: 12, color: '#78716c' }}>{p.en}</div>

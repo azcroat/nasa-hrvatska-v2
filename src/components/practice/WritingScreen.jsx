@@ -308,7 +308,7 @@ export default function WritingScreen({ goBack, award }) {
                 onClick={() => playTTS(result.corrected_text)}
                 disabled={ttsLoading}
               >
-                {ttsLoading ? "⟳" : "🔊"} {ttsLoading ? "Loading..." : "Hear corrected version"}
+                <span aria-hidden="true">{ttsLoading ? "⟳" : "🔊"}</span> {ttsLoading ? "Loading..." : "Hear corrected version"}
               </button>
             </div>
           )}
