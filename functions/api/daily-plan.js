@@ -181,7 +181,7 @@ LEARNER STYLE PROFILE (based on ${safeStyle.dataPoints} sessions):
     `Recent activity counts: ${JSON.stringify(safeRecentActivity)}.` +
     learnerErrorsBlock +
     styleBlock +
-    ` Return JSON: { greeting: 'short encouraging Croatian greeting to the user (5-10 words)', activities: [ { id: string (one of: flashcards|srsreview|ai_listening|speaking|writing|grammar_diagnosis|dialogue|shadowing|aspectdrill), title: string, reason: string (why this specifically today, 1 sentence — be specific if addressing a persistent error), duration: number (minutes, 3-7), priority: 'high'|'medium' } ], motivational_note: 'one encouraging sentence about their progress', focus_topic: 'one grammar/vocab area to focus on today', theme: 'one sentence connecting all activities to a single grammar or vocab thread, e.g. Today\\'s thread: perfective aspect in past tense' } — exactly 3 activities totaling ~15 minutes.`;
+    ` Return JSON: { greeting: 'short encouraging Croatian greeting to the user (5-10 words)', activities: [ { id: string (one of: srsreview=spaced-repetition card review, aiconvo=AI listening/conversation practice, live_tutor=AI speaking session with tutor Marija, writing=written composition practice, grammar_diagnosis=grammar gap analysis, dialogue=conversational dialogue with Maja, shadowing=pronunciation shadowing drill, aspectdrill=verb aspect perfective/imperfective drill), title: string, reason: string (why this specifically today, 1 sentence — be specific if addressing a persistent error), duration: number (minutes, 3-7), priority: 'high'|'medium' } ], motivational_note: 'one encouraging sentence about their progress', focus_topic: 'one grammar/vocab area to focus on today', theme: 'one sentence connecting all activities to a single grammar or vocab thread, e.g. Today\\'s thread: perfective aspect in past tense' } — exactly 3 activities totaling ~15 minutes.`;
 
   // ── Call Anthropic ──
   let res, data;
@@ -234,7 +234,9 @@ LEARNER STYLE PROFILE (based on ${safeStyle.dataPoints} sessions):
     return err(500, "AI returned invalid plan structure", origin);
   }
 
-  const VALID_ACTIVITY_IDS = ["flashcards", "srsreview", "ai_listening", "speaking", "writing", "grammar_diagnosis", "dialogue", "shadowing", "aspectdrill"];
+  // Only self-contained screens — flashcards/listening/speaking require pre-loaded
+  // data props and cannot be launched safely from the daily plan card.
+  const VALID_ACTIVITY_IDS = ["srsreview", "aiconvo", "live_tutor", "writing", "grammar_diagnosis", "dialogue", "shadowing", "aspectdrill"];
   const VALID_PRIORITIES   = ["high", "medium"];
 
   const activities = parsed.activities.map(act => ({
