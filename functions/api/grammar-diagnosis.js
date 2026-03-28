@@ -97,7 +97,7 @@ function validateDiagnosis(data) {
   // Ensure each blind spot has required fields
   data.blindSpots = data.blindSpots
     .filter(bs => bs.name && bs.explanation)
-    .slice(0, 3) // max 3
+    .slice(0, 5) // allow up to 5 blind spots
     .map(bs => ({
       name: bs.name,
       severity: ['high','medium','low'].includes(bs.severity) ? bs.severity : 'medium',
@@ -178,7 +178,15 @@ export async function onRequestPost({ request, env }) {
 
   const userMessage =
     `Based on this mistake data for a CEFR ${safeLevel} learner: ${summary}. ` +
-    `Identify the top 2-3 grammar blind spots. For each, provide: a name, severity (high/medium/low), ` +
+    `Identify the top 3-5 grammar blind spots. PRIORITIZE checking for these six high-frequency Croatian error types — ` +
+    `include any that appear in the data: ` +
+    `(1) Verbal aspect — imperfective/perfective confusion (most common Croatian error for English speakers); ` +
+    `(2) Clitic placement — clitics (sam/si/je/ga/mu/se etc.) placed at clause end instead of Wackernagel second position; ` +
+    `(3) Animate accusative — masculine animate nouns in accusative should equal genitive singular (vidim brata, not vidim brat); ` +
+    `(4) Genitive of negation — after nema, negated verbs the object takes genitive not accusative (nema kruha, ne vidim brata); ` +
+    `(5) Gender/number agreement — adjective/numeral agreement errors (dva/dvije, jedan/jedna/jedno); ` +
+    `(6) Vocative avoidance — using nominative for direct address instead of vocative (prijatelju!, Marija!). ` +
+    `For each blind spot found, provide: a name, severity (high/medium/low), ` +
     `a 2-sentence explanation of the rule in simple English, 2 example sentences (one wrong, one correct, ` +
     `both in Croatian with English translations), and 3 targeted drill questions (multiple choice, Croatian). ` +
     `Return JSON: { ` +
@@ -190,7 +198,7 @@ export async function onRequestPost({ request, env }) {
     `"drills": [{ "q": "string", "options": ["string","string","string","string"], "correct": 0 }] ` +
     `}], ` +
     `"summary": "one sentence overall assessment" ` +
-    `} — blindSpots must have 2-3 items, each drills array must have exactly 3 items, correct is 0-3 index.`;
+    `} — blindSpots must have 3-5 items, each drills array must have exactly 3 items, correct is 0-3 index.`;
 
   // ── Call Anthropic ──
   let res, data;
