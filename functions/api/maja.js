@@ -40,6 +40,16 @@ function corsHeaders(origin) {
   };
 }
 
+function corsStreamHeaders(origin) {
+  return {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    "Connection": "keep-alive",
+    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  };
+}
+
 function ok(body, origin)         { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) }); }
 function err(status, msg, origin) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) }); }
 
@@ -668,6 +678,7 @@ export async function onRequestPost(context) {
     userName,
     isSessionStart,
     persona,
+    stream,
   } = body;
 
   // ── Validate persona ──
@@ -740,6 +751,40 @@ export async function onRequestPost(context) {
       nextTopic: session?.nextTopic || "",
     },
   });
+
+  // ── Streaming path ────────────────────────────────────────────────────────
+  if (stream === true) {
+    let streamRes;
+    try {
+      streamRes = await fetch(ANTHROPIC_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": ANTHROPIC_KEY,
+          "anthropic-version": "2023-06-01",
+        },
+        signal: AbortSignal.timeout(30000),
+        body: JSON.stringify({
+          model: MODEL,
+          max_tokens: 600,
+          stream: true,
+          system: systemPrompt,
+          messages: merged,
+        }),
+      });
+    } catch (fetchErr) {
+      console.error("maja.js: network error calling Anthropic (stream):", fetchErr.message);
+      return err(502, "Service temporarily unavailable", origin);
+    }
+
+    if (!streamRes.ok) {
+      const errData = await streamRes.json().catch(() => ({}));
+      console.error("maja.js: Anthropic streaming error", streamRes.status, errData?.error?.message);
+      return err(streamRes.status, errData?.error?.message || "Anthropic API error", origin);
+    }
+
+    return new Response(streamRes.body, { status: 200, headers: corsStreamHeaders(origin) });
+  }
 
   // ── Call Anthropic ──
   let res, data;

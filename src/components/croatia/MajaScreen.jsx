@@ -48,6 +48,10 @@ const MAJA_STYLES = `
   0%, 100% { opacity: 0.7; }
   50%       { opacity: 1;   }
 }
+@keyframes maja-cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
 `;
 
 // ─────────────────────────────────────────────
@@ -553,7 +557,22 @@ function ConversationBubble({ msg, personaCfg }) {
             </div>
           </div>
         )}
-        <div style={bubbleStyle}>{msg.content}</div>
+        <div style={bubbleStyle}>
+          {msg.content}
+          {msg.streaming && (
+            <span
+              style={{
+                display: 'inline-block',
+                width: 2,
+                height: '1em',
+                background: 'currentColor',
+                marginLeft: 2,
+                verticalAlign: 'text-bottom',
+                animation: 'maja-cursor-blink 0.8s ease-in-out infinite',
+              }}
+            />
+          )}
+        </div>
       </div>
 
       {msg.correction && (
@@ -1049,43 +1068,94 @@ export default function MajaScreen() {
         content: m.content,
       }));
 
+      const payload = {
+        message: text,
+        history: updatedHistory,
+        session,
+        userLevel: level || 'A1',
+        userName: name || 'Student',
+        isSessionStart: false,
+        persona: personaKey,
+      };
+
       try {
-        const res = await apiFetch('/api/maja', {
+        // ── Streaming path ──────────────────────────────────────────────────
+        const res = await fetch('/api/maja', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: text,
-            history: updatedHistory,
-            session,
-            userLevel: level || 'A1',
-            userName: name || 'Student',
-            isSessionStart: false,
-            persona: personaKey,
-          }),
+          body: JSON.stringify({ ...payload, stream: true }),
         });
 
         if (!res.ok) throw new Error(`API ${res.status}`);
-        const data = await res.json();
 
-        const majaMsg = {
-          role: 'maja',
-          content: data.reply,
-          correction: data.correction || null,
-          emotion: data.emotion,
-        };
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let streamedText = '';
 
-        setConversation((prev) => [...prev, majaMsg]);
+        // Add a placeholder streaming message
+        setConversation((prev) => [...prev, { role: 'maja', content: '', streaming: true }]);
+        setPhase('thinking'); // keep thinking indicator while streaming starts
 
-        if (data.newFacts && Object.keys(data.newFacts).length) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop(); // keep incomplete line in buffer
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            const data = line.slice(6).trim();
+            if (data === '[DONE]') break;
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+                streamedText += parsed.delta.text;
+                setConversation((prev) =>
+                  prev.map((m, i) =>
+                    i === prev.length - 1 && m.streaming
+                      ? { ...m, content: streamedText }
+                      : m
+                  )
+                );
+              }
+            } catch { continue; }
+          }
+        }
+
+        // Mark streaming complete — parse accumulated JSON reply from Maja
+        // Maja streams a JSON object; extract the "reply" field from it
+        let replyText = streamedText;
+        let correction = null;
+        let newFacts = {};
+        let emotion = 'warm';
+        try {
+          const cleaned = streamedText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+          const parsed = JSON.parse(cleaned);
+          replyText = parsed.reply || streamedText;
+          correction = parsed.correction || null;
+          newFacts = parsed.newFacts || {};
+          emotion = parsed.emotion || 'warm';
+        } catch { /* use raw streamedText as reply if JSON parse fails */ }
+
+        setConversation((prev) =>
+          prev.map((m, i) =>
+            i === prev.length - 1 && m.streaming
+              ? { ...m, content: replyText, streaming: false, correction, emotion }
+              : m
+          )
+        );
+
+        if (newFacts && Object.keys(newFacts).length) {
           setSession((prev) => ({
             ...prev,
-            knownFacts: { ...prev.knownFacts, ...data.newFacts },
+            knownFacts: { ...prev.knownFacts, ...newFacts },
           }));
         }
 
         if (phaseRef.current !== 'debrief') {
           setPhase('maja-speaking');
-          await playTTS(data.reply);
+          await playTTS(replyText);
           if (phaseRef.current === 'maja-speaking') {
             startListening();
           }
