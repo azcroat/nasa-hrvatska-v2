@@ -98,11 +98,11 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
       aria-label="Main navigation"
       style={{
         position: 'relative',
-        background: 'rgba(255,255,255,0.88)',
-        backdropFilter: 'saturate(200%) blur(28px)',
-        WebkitBackdropFilter: 'saturate(200%) blur(28px)',
-        borderTop: '1px solid rgba(0,0,0,0.06)',
-        boxShadow: '0 -4px 24px rgba(0,0,0,0.06)',
+        background: 'rgba(255,255,255,0.92)',
+        backdropFilter: 'saturate(180%) blur(32px)',
+        WebkitBackdropFilter: 'saturate(180%) blur(32px)',
+        borderTop: '1px solid rgba(0,0,0,0.07)',
+        boxShadow: '0 -6px 32px rgba(0,0,0,0.08), 0 -1px 0 rgba(255,255,255,0.9) inset',
       }}
     >
       {/* Sliding indicator — color follows active tab */}
@@ -193,6 +193,17 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
                   border: '1.5px solid var(--bg, #fff)',
                   pointerEvents: 'none',
                 }} />
+              )}
+              {/* AI sparkle badge — always shown on Culture tab when not active */}
+              {t.id === 'croatia' && tab !== 'croatia' && (
+                <div style={{
+                  position: 'absolute', bottom: 2, left: '50%',
+                  transform: 'translateX(-50%)',
+                  fontSize: 8, fontWeight: 900, color: '#b61800',
+                  letterSpacing: '.04em', lineHeight: 1,
+                  animation: 'pulse 2.4s ease-in-out infinite',
+                  pointerEvents: 'none',
+                }}>✦AI</div>
               )}
               {badges && badges[t.id] > 0 && (
                 <span style={{
