@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 // is imported directly by those screens from ./data.jsx — not re-imported here.
 import {
   // Vocabulary + grammar data referenced in launchPathItem, award, and screen props
-  V, GRAM, LEARN_PATH, BADGES, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS,
+  V, GRAM, LEARN_PATH, BADGES,
   // Theme objects used in root div inline style
   BG_LIGHT, BG_DARK,
   // Firebase helpers used directly in App.jsx effects (not delegated to hooks)
@@ -20,7 +20,7 @@ import {
 } from "./data.jsx";
 import AppContext from "./context/AppContext.jsx";
 import { StatsProvider } from "./context/StatsContext.jsx";
-import ScreenErrorBoundary from "./components/shared/ScreenErrorBoundary.jsx";
+
 import { usePreferences } from "./hooks/usePreferences.js";
 import { useSearch } from "./hooks/useSearch.js";
 import { useAuth } from "./hooks/useAuth.js";
@@ -43,192 +43,16 @@ import CeremonyModal from "./components/shared/CeremonyModal.jsx";
 import LevelUpModal from "./components/shared/LevelUpModal.jsx";
 import OnboardingTour from "./components/shared/OnboardingTour.jsx";
 import OfflineBanner from "./components/shared/OfflineBanner.jsx";
-import WelcomeScreen from "./components/home/WelcomeScreen.jsx";
+
 import CroatianGrb from "./components/shared/CroatianGrb.jsx";
 import CookieConsent from "./components/shared/CookieConsent.jsx";
-import TermsOfService from "./components/shared/TermsOfService.jsx";
+// PaywallScreen used directly in App.jsx (global paywall modal overlay)
+const PaywallScreen = lazy(() => import("./components/shared/PaywallScreen.jsx"));
 import { useSubscription, grantFreeAnnual, getSubscriptionStatus } from "./hooks/useSubscription.js";
-import PlacementTest from "./components/auth/PlacementTest.jsx";
-import { LESSONS as ANIM_LESSONS } from "./data/lessons.js";
-// Reload once on stale-chunk errors (happens after deploy when old index.html
-// tries to load chunk files that no longer exist at their old hashed paths).
-function lazyWithReload(fn) {
-  return lazy(() => fn().catch((e) => {
-    const msg = e?.message || '';
-    if (msg.includes('importing a module script failed') || msg.includes('Failed to fetch')) {
-      window.location.reload();
-    }
-    throw e;
-  }));
-}
 
-// Tabs + screens — lazy-loaded on first use
-const HomeTab = lazyWithReload(() => import("./components/home/HomeTab.jsx"));
-const LearnTab = lazyWithReload(() => import("./components/learn/LearnTab.jsx"));
-const CroatiaTab = lazyWithReload(() => import("./components/croatia/CroatiaTab.jsx"));
-const ImmersionHub = lazyWithReload(() => import("./components/croatia/ImmersionHub.jsx"));
-const LyricsScreen = lazyWithReload(() => import("./components/croatia/LyricsScreen.jsx"));
-const AIConversation = lazyWithReload(() => import("./components/croatia/AIConversation.jsx"));
-const MajaScreen = lazyWithReload(() => import("./components/croatia/MajaScreen.jsx"));
-const PersonaScreen = lazyWithReload(() => import("./components/croatia/PersonaScreen.jsx"));
-const ProfileTab = lazyWithReload(() => import("./components/profile/ProfileTab.jsx"));
-const ContactScreen = lazyWithReload(() => import("./components/profile/ContactScreen.jsx"));
-const PracticeTab = lazyWithReload(() => import("./components/practice/PracticeTab.jsx"));
-const LessonScreen = lazyWithReload(() => import("./components/learn/LessonScreen.jsx"));
-const GrammarScreen = lazyWithReload(() => import("./components/learn/GrammarScreen.jsx"));
-const AlphabetScreen = lazyWithReload(() => import("./components/learn/AlphabetScreen.jsx"));
-const ReadingList = lazyWithReload(() => import("./components/learn/ReadingList.jsx"));
-const ReadingScreen = lazyWithReload(() => import("./components/learn/ReadingScreen.jsx"));
-const BadgesScreen = lazyWithReload(() => import("./components/profile/BadgesScreen.jsx"));
-const ProfileScreen = lazyWithReload(() => import("./components/profile/ProfileScreen.jsx"));
-const VocabJournal = lazyWithReload(() => import("./components/profile/VocabJournal.jsx"));
-const FavoritesScreen = lazyWithReload(() => import("./components/profile/FavoritesScreen.jsx"));
-const LearnPath = lazyWithReload(() => import("./components/profile/LearnPath.jsx"));
-const ProverbsScreen = lazyWithReload(() => import("./components/croatia/ProverbsScreen.jsx"));
-const Flashcards = lazyWithReload(() => import("./components/practice/Flashcards.jsx"));
-const ListeningScreen = lazyWithReload(() => import("./components/practice/ListeningScreen.jsx"));
-const McGame = lazyWithReload(() => import("./components/practice/McGame.jsx"));
-const IdiomsScreen = lazyWithReload(() => import("./components/croatia/IdiomsScreen.jsx"));
-const PrivacyScreen = lazyWithReload(() => import("./components/shared/PrivacyScreen.jsx"));
-const TextingScreen = lazyWithReload(() => import("./components/croatia/TextingScreen.jsx"));
-const FriendsScreen = lazyWithReload(() => import("./components/croatia/FriendsScreen.jsx"));
-const FoodOrderScreen = lazyWithReload(() => import("./components/croatia/FoodOrderScreen.jsx"));
-const TransportScreen = lazyWithReload(() => import("./components/croatia/TransportScreen.jsx"));
-const EmergencyScreen = lazyWithReload(() => import("./components/croatia/EmergencyScreen.jsx"));
-const PopCultureScreen = lazyWithReload(() => import("./components/croatia/PopCultureScreen.jsx"));
-const PracticalScreen = lazyWithReload(() => import("./components/croatia/PracticalScreen.jsx"));
-const SchoolScreen = lazyWithReload(() => import("./components/croatia/SchoolScreen.jsx"));
-const GroceryScreen = lazyWithReload(() => import("./components/croatia/GroceryScreen.jsx"));
-const CroatiaHistoryScreen = lazyWithReload(() => import("./components/croatia/CroatiaHistoryScreen.jsx"));
-const BasketballScreen = lazyWithReload(() => import("./components/croatia/BasketballScreen.jsx"));
-const GymScreen = lazyWithReload(() => import("./components/croatia/GymScreen.jsx"));
-const HNLScreen = lazyWithReload(() => import("./components/croatia/HNLScreen.jsx"));
-const CroatiaAthletes = lazyWithReload(() => import("./components/croatia/CroatiaAthletes.jsx"));
-const RegionScreen = lazyWithReload(() => import("./components/croatia/RegionScreen.jsx"));
-const RoleplayScreen = lazyWithReload(() => import("./components/croatia/RoleplayScreen.jsx"));
-const RecipesScreen = lazyWithReload(() => import("./components/croatia/RecipesScreen.jsx"));
-const CityOfDayScreen = lazyWithReload(() => import("./components/croatia/CityOfDayScreen.jsx"));
-const EventsCalendar = lazyWithReload(() => import("./components/croatia/EventsCalendar.jsx"));
-const Top100Screen = lazyWithReload(() => import("./components/croatia/Top100Screen.jsx"));
-const KingsScreen = lazyWithReload(() => import("./components/croatia/KingsScreen.jsx"));
-const CrMap = lazyWithReload(() => import("./components/croatia/CrMap.jsx"));
-const AspectScreen = lazyWithReload(() => import("./components/learn/AspectScreen.jsx"));
-const FalseFriendsScreen = lazyWithReload(() => import("./components/learn/FalseFriendsScreen.jsx"));
-const DeclensionScreen = lazyWithReload(() => import("./components/learn/DeclensionScreen.jsx"));
-const BrzaliceScreen = lazyWithReload(() => import("./components/learn/BrzaliceScreen.jsx"));
-const DialectsScreen = lazyWithReload(() => import("./components/learn/DialectsScreen.jsx"));
-const DiminutivesScreen = lazyWithReload(() => import("./components/learn/DiminutivesScreen.jsx"));
-const WordFormScreen = lazyWithReload(() => import("./components/learn/WordFormScreen.jsx"));
-const ColorQuirkScreen = lazyWithReload(() => import("./components/learn/ColorQuirkScreen.jsx"));
-const SvojMojScreen = lazyWithReload(() => import("./components/learn/SvojMojScreen.jsx"));
-const ConditionalScreen = lazyWithReload(() => import("./components/learn/ConditionalScreen.jsx"));
-const FormalRegisterScreen = lazyWithReload(() => import("./components/learn/FormalRegisterScreen.jsx"));
-const ImpersonalScreen = lazyWithReload(() => import("./components/learn/ImpersonalScreen.jsx"));
-const TechVocScreen = lazyWithReload(() => import("./components/learn/TechVocScreen.jsx"));
-const BureaucraticScreen = lazyWithReload(() => import("./components/learn/BureaucraticScreen.jsx"));
-const CountriesScreen = lazyWithReload(() => import("./components/learn/CountriesScreen.jsx"));
-const ProfessionsScreen = lazyWithReload(() => import("./components/learn/ProfessionsScreen.jsx"));
-const WeatherScreen = lazyWithReload(() => import("./components/learn/WeatherScreen.jsx"));
-const ClothesScreen = lazyWithReload(() => import("./components/learn/ClothesScreen.jsx"));
-const BodyDescScreen = lazyWithReload(() => import("./components/learn/BodyDescScreen.jsx"));
-const PhonologyScreen = lazyWithReload(() => import("./components/learn/PhonologyScreen.jsx"));
-const ModalScreen = lazyWithReload(() => import("./components/learn/ModalScreen.jsx"));
-const PadeziScreen = lazyWithReload(() => import("./components/learn/PadeziScreen.jsx"));
-const PadezifullScreen = lazyWithReload(() => import("./components/learn/PadezifullScreen.jsx"));
-const TensesScreen = lazyWithReload(() => import("./components/learn/TensesScreen.jsx"));
-const ReflexiveScreen = lazyWithReload(() => import("./components/practice/exercises/ReflexiveScreen.jsx"));
-const FillStoryScreen = lazyWithReload(() => import("./components/practice/exercises/FillStoryScreen.jsx"));
-const ConvMatchScreen = lazyWithReload(() => import("./components/practice/exercises/ConvMatchScreen.jsx"));
-const ScenesScreen = lazyWithReload(() => import("./components/practice/exercises/ScenesScreen.jsx"));
-const PronounsScreen = lazyWithReload(() => import("./components/practice/exercises/PronounsScreen.jsx"));
-const GenderDrillScreen = lazyWithReload(() => import("./components/practice/exercises/GenderDrillScreen.jsx"));
-const SentenceBuilderScreen = lazyWithReload(() => import("./components/practice/exercises/SentenceBuilderScreen.jsx"));
-const VerbDrillScreen = lazyWithReload(() => import("./components/practice/exercises/VerbDrillScreen.jsx"));
-const TenseFlipScreen = lazyWithReload(() => import("./components/practice/exercises/TenseFlipScreen.jsx"));
-const RiddlesScreen = lazyWithReload(() => import("./components/practice/exercises/RiddlesScreen.jsx"));
-const LogicQuizScreen = lazyWithReload(() => import("./components/practice/exercises/LogicQuizScreen.jsx"));
-const OrdinalsScreen = lazyWithReload(() => import("./components/practice/exercises/OrdinalsScreen.jsx"));
-const RelativePronounsScreen = lazyWithReload(() => import("./components/practice/exercises/RelativePronounsScreen.jsx"));
-const EmotionGenderScreen = lazyWithReload(() => import("./components/practice/exercises/EmotionGenderScreen.jsx"));
-const OppositesScreen = lazyWithReload(() => import("./components/practice/exercises/OppositesScreen.jsx"));
-const CityLocativeScreen = lazyWithReload(() => import("./components/practice/exercises/CityLocativeScreen.jsx"));
-const AccusativeDrillScreen = lazyWithReload(() => import("./components/practice/exercises/AccusativeDrillScreen.jsx"));
-const ColorAgreementScreen = lazyWithReload(() => import("./components/practice/exercises/ColorAgreementScreen.jsx"));
-const PossessivesScreen = lazyWithReload(() => import("./components/practice/exercises/PossessivesScreen.jsx"));
-const QuestionWordsScreen = lazyWithReload(() => import("./components/practice/exercises/QuestionWordsScreen.jsx"));
-const NegationScreen = lazyWithReload(() => import("./components/practice/exercises/NegationScreen.jsx"));
-const SibilarizationScreen = lazyWithReload(() => import("./components/practice/exercises/SibilarizationScreen.jsx"));
-const RestaurantScreen = lazyWithReload(() => import("./components/practice/exercises/RestaurantScreen.jsx"));
-const ProfessionGenderScreen = lazyWithReload(() => import("./components/practice/exercises/ProfessionGenderScreen.jsx"));
-const ComparativesScreen = lazyWithReload(() => import("./components/practice/exercises/ComparativesScreen.jsx"));
-const FutureTenseScreen = lazyWithReload(() => import("./components/practice/exercises/FutureTenseScreen.jsx"));
-const McResult = lazyWithReload(() => import("./components/practice/McResult.jsx"));
-const StoryScreens = lazyWithReload(() => import("./components/practice/StoryScreens.jsx"));
-const NumTime = lazyWithReload(() => import("./components/practice/NumTime.jsx"));
-const Unjumble = lazyWithReload(() => import("./components/practice/Unjumble.jsx"));
-const PrepDrill = lazyWithReload(() => import("./components/practice/PrepDrill.jsx"));
-const TypingScreen = lazyWithReload(() => import("./components/practice/TypingScreen.jsx"));
-const ConjugationDrill = lazyWithReload(() => import("./components/practice/ConjugationDrill.jsx"));
-const ZnamGame = lazyWithReload(() => import("./components/practice/ZnamGame.jsx"));
-const BojeGame = lazyWithReload(() => import("./components/practice/BojeGame.jsx"));
-const MatchGame = lazyWithReload(() => import("./components/practice/MatchGame.jsx"));
-const WordSprint = lazyWithReload(() => import("./components/practice/WordSprint.jsx"));
-const SpeakingScreen = lazyWithReload(() => import("./components/practice/SpeakingScreen.jsx"));
-const SpeakingSprintScreen = lazyWithReload(() => import("./components/practice/SpeakingSprintScreen.jsx"));
-const PitchAccentScreen = lazyWithReload(() => import("./components/practice/PitchAccentScreen.jsx"));
-const ShadowingScreen = lazyWithReload(() => import("./components/practice/ShadowingScreen.jsx"));
-const ReviewScreen = lazyWithReload(() => import("./components/practice/ReviewScreen.jsx"));
-const WritingScreen = lazyWithReload(() => import("./components/practice/WritingScreen.jsx"));
-const ListeningPath = lazyWithReload(() => import("./components/practice/ListeningPath.jsx"));
-const AspectDrillScreen = lazyWithReload(() => import("./components/practice/AspectDrillScreen.jsx"));
-const CliticDrill = lazyWithReload(() => import("./components/practice/CliticDrill.jsx"));
-const SlangScreen = lazyWithReload(() => import("./components/practice/SlangScreen.jsx"));
-const NumbersCasesDrill = lazyWithReload(() => import("./components/practice/NumbersCasesDrill.jsx"));
-const ImperativeDrill = lazyWithReload(() => import("./components/practice/ImperativeDrill.jsx"));
-const NegationGenDrill = lazyWithReload(() => import("./components/practice/NegationGenDrill.jsx"));
-const CollocationsGame = lazyWithReload(() => import("./components/practice/CollocationsGame.jsx"));
-const WordFamilies = lazyWithReload(() => import("./components/practice/WordFamilies.jsx"));
-const DictationScreen = lazyWithReload(() => import("./components/practice/DictationScreen.jsx"));
-const PronunciationContrast = lazyWithReload(() => import("./components/practice/PronunciationContrast.jsx"));
-const DialogueSim = lazyWithReload(() => import("./components/practice/DialogueSim.jsx"));
-const CefrTest = lazyWithReload(() => import("./components/practice/CefrTest.jsx"));
-const MyWordsScreen = lazyWithReload(() => import("./components/practice/MyWordsScreen.jsx"));
-const Leaderboard = lazyWithReload(() => import("./components/profile/Leaderboard.jsx"));
-const LeaderboardScreen = lazyWithReload(() => import("./components/shared/LeaderboardScreen.jsx"));
-const ProfileFriendsScreen = lazyWithReload(() => import("./components/profile/FriendsScreen.jsx"));
-const CertificateScreen = lazyWithReload(() => import("./components/profile/CertificateScreen.jsx"));
-const MistakesScreen = lazyWithReload(() => import("./components/practice/MistakesScreen.jsx"));
-const AnalyticsScreen = lazyWithReload(() => import("./components/profile/AnalyticsScreen.jsx"));
-const GrammarReference = lazyWithReload(() => import("./components/shared/GrammarReference.jsx"));
-const BakaSummer = lazyWithReload(() => import("./components/croatia/BakaSummer.jsx"));
-const CroatiaToday = lazyWithReload(() => import("./components/croatia/CroatiaToday.jsx"));
-const SurvivalDinner = lazyWithReload(() => import("./components/croatia/SurvivalDinner.jsx"));
-const ClozeEngine = lazyWithReload(() => import("./components/practice/ClozeEngine.jsx"));
-const GrammarConstellation = lazyWithReload(() => import("./components/learn/GrammarConstellation.jsx"));
-const GrammarExplainer = lazyWithReload(() => import("./components/learn/GrammarExplainer.jsx"));
-const CaseTransformer = lazyWithReload(() => import("./components/learn/CaseTransformer.jsx"));
-const VocabScenes = lazyWithReload(() => import("./components/learn/VocabScenes.jsx"));
-const AnimatedLesson = lazyWithReload(() => import("./components/learn/AnimatedLesson.jsx"));
-const GrammarReader = lazyWithReload(() => import("./components/learn/GrammarReader.jsx"));
-const KaficScreen = lazyWithReload(() => import("./components/croatia/KaficScreen.jsx"));
-const DiasporaNote = lazyWithReload(() => import("./components/croatia/DiasporaNote.jsx"));
-const TiViScreen = lazyWithReload(() => import("./components/learn/TiViScreen.jsx"));
-const GrammarVideos = lazyWithReload(() => import("./components/learn/GrammarVideos.jsx"));
-const LifeEventsScreen = lazyWithReload(() => import("./components/croatia/LifeEventsScreen.jsx"));
-const CivicScreen = lazyWithReload(() => import("./components/croatia/CivicScreen.jsx"));
-const EasterScreen = lazyWithReload(() => import("./components/croatia/EasterScreen.jsx"));
-const PostcardScreen = lazyWithReload(() => import("./components/croatia/PostcardScreen.jsx"));
-const StoryModeScreen = lazyWithReload(() => import("./components/croatia/StoryModeScreen.jsx"));
-const HeritageStoryScreen = lazyWithReload(() => import("./components/croatia/HeritageStoryScreen.jsx"));
-const CroatianNewsScreen = lazyWithReload(() => import("./components/croatia/CroatianNewsScreen.jsx"));
-const PhraseOfDayScreen = lazyWithReload(() => import("./components/croatia/PhraseOfDayScreen.jsx"));
-const AIListeningScreen = lazyWithReload(() => import("./components/practice/AIListeningScreen.jsx"));
-const GrammarDiagnosisScreen = lazyWithReload(() => import("./components/home/GrammarDiagnosisScreen.jsx"));
-const MicroLessonScreen = lazyWithReload(() => import("./components/learn/MicroLessonScreen.jsx"));
-const LiveTutorScreen = lazyWithReload(() => import("./components/croatia/LiveTutorScreen.jsx"));
-const PhotoVocabScanner = lazyWithReload(() => import("./components/shared/PhotoVocabScanner.jsx"));
-const PaywallScreen = lazyWithReload(() => import("./components/shared/PaywallScreen.jsx"));
-const AdminDashboard = lazyWithReload(() => import("./components/admin/AdminDashboard.jsx"));
+import { LESSONS as ANIM_LESSONS } from "./data/lessons.js";
+import AppRouter from "./components/AppRouter.jsx";
+import { useAppScreenState } from "./hooks/useAppScreenState.js";
 import PremiumWelcomeBanner from "./components/shared/PremiumWelcomeBanner.jsx";
 
 // Module-level constants — defined once, not recreated on every render
@@ -334,25 +158,19 @@ function App(){
   const[stats,setStats]=useState(ds);
   // ── Placement test state (shared between WelcomeScreen and PlacementTest) ──
   const[placementIdx,setPlacementIdx]=useState(0);const[placementScore,setPlacementScore]=useState(0);const[placementAnswers,setPlacementAnswers]=useState(false);const[placementXp,setPlacementXp]=useState(-1);const[placementQ,setPlacementQ]=useState([]);
-  // ── Lesson screen state (bidirectional: LearnTab sets, LessonScreen reads+writes) ──
-  const[lt,sLt]=useState(null);const[li,sLi]=useState([]);const[lx,sLx]=useState(0);const[ls,sLs]=useState(0);const[lp,sLp]=useState("learn");const[la,sLa]=useState(false);const[lsl,sLsl]=useState(-1);const[qi,sQi]=useState([]);
-  // ── Grammar screen state ──
-  const[gl,sGl]=useState(null);const[gx,sGx]=useState(0);const[gp,sGp]=useState("learn");const[gs,sGs]=useState(0);const[ga,sGa]=useState(false);const[gsl,sGsl]=useState(-1);
-  // ── Match game: only initPool needed — MatchGame owns mm/msl/gsc/gph internally ──
-  const[matchInitPool,setMatchInitPool]=useState([]);
-  // ── Multiple choice game ──
-  const[mcInitQ,setMcInitQ]=useState([]);const[mcResultQ,setMcResultQ]=useState([]);const[mcResultScore,setMcResultScore]=useState(0);const[mcMistakes,setMcMistakes]=useState([]);
-  // ── Reading screen state ──
-  const[rp,sRp]=useState(null);const[rph,sRph]=useState("read");const[rqi,sRqi]=useState(0);const[rsc,sRsc]=useState(0);const[ra,sRa]=useState(false);const[rsl,sRsl]=useState(-1);const[hw,sHw]=useState(null);
-  // ── Speaking screen state ──
-  const[sw,sSw]=useState(null);const[sr,sSr]=useState(null);const[sx,sSx]=useState(0);const[si,sSi]=useState([]);const[ssc,sSsc]=useState(0);
-  // ── Animated lesson ──
-  const[animLesson,setAnimLesson]=useState(null);
-  // ── Flashcards / Listening init pools ──
-  const[fcInitPool,setFcInitPool]=useState([]);
-  const[lsInitQ,setLsInitQ]=useState([]);
-  // ── Current exercise ID (used by XP cooldown) ──
-  const[curEx,sCurEx]=useState("");
+  // ── Screen-level state (lesson, grammar, match, mc, reading, speaking, etc.) ──
+  const {
+    lt, sLt, li, sLi, lx, sLx, ls, sLs, lp, sLp, la, sLa, lsl, sLsl, qi, sQi,
+    gl, sGl, gx, sGx, gp, sGp, gs, sGs, ga, sGa, gsl, sGsl,
+    matchInitPool, setMatchInitPool,
+    mcInitQ, setMcInitQ, mcResultQ, setMcResultQ, mcResultScore, setMcResultScore, mcMistakes, setMcMistakes,
+    rp, sRp, rph, sRph, rqi, sRqi, rsc, sRsc, ra, sRa, rsl, sRsl, hw, sHw,
+    sw, sSw, sr, sSr, sx, sSx, si, sSi, ssc, sSsc,
+    animLesson, setAnimLesson,
+    fcInitPool, setFcInitPool,
+    lsInitQ, setLsInitQ,
+    curEx, sCurEx,
+  } = useAppScreenState();
   const { dchlA, sDchlA, dchlSl, sDchlSl } = useDaily();
   const { famData, setFamData, famMembers, setFamMembers, famLoading, setFamLoading, famName, setFamName, famCode, setFamCode, famErr, setFamErr, famTab, setFamTab } = useFamily();
   const[tab,_setTab]=useState(()=>{
@@ -1159,399 +977,44 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
           <div style={{fontSize:11,opacity:.75,fontWeight:700,whiteSpace:"nowrap"}}>✓ Cloud sync active</div>
         </div>
       </div>}
-      {currentScreen==="welcome" && <WelcomeScreen name={name} au={authUser} st={stats} setScr={setScr} setName={setName} setPlacementQ={setPlacementQ} setPlacementIdx={setPlacementIdx} setPlacementScore={setPlacementScore} setPlacementAnswers={setPlacementAnswers} setPlacementXp={setPlacementXp} />}
-      {currentScreen==="placement" && <PlacementTest onComplete={function(level){localStorage.setItem("placement_done","1");setStats(function(prev){return{...prev,ct:getPlacementCt(level),lc:Math.max(prev.lc,getPlacementCt(level).length)};});award(25);setShowFirstWords(true);setTimeout(()=>setTab('learn'),300);}} />}
-      {// ═══ DASHBOARD ═══
-      currentScreen==="dashboard"&&<div className="dash">
-        <div style={{position:"relative",marginBottom:20}}>
-          <div style={{position:"relative"}} role="search">
-            <span style={{position:"absolute",left:14,top:"50%",transform:"translateY(-50%)",fontSize:16,pointerEvents:"none",opacity:.4}} aria-hidden="true">🔍</span>
-            <input
-              type="search"
-              id="app-search"
-              value={srchQ}
-              onChange={function(e){setSrchQ(e.target.value);doSearch(e.target.value);setSrchOpen(true)}}
-              onFocus={function(){if(srchQ)setSrchOpen(true)}}
-              onKeyDown={function(e){if(e.key==="Escape"){setSrchOpen(false);setSrchQ("")}}}
-              placeholder="Search words, phrases, screens…"
-              aria-label="Search vocabulary, phrases, and screens"
-              aria-expanded={srchOpen&&srchQ.length>0}
-              aria-controls="search-results"
-              aria-autocomplete="list"
-              autoComplete="off"
-              style={{width:"100%",padding:"12px 16px 12px 44px",fontSize:14,borderRadius:14,boxShadow:"0 1px 3px rgba(0,0,0,.05)"}} />
-          </div>
-          {srchOpen&&srchQ&&srchR.length===0&&(
-            <div style={{position:"absolute",top:"calc(100% + 6px)",left:0,right:0,background:"var(--card)",borderRadius:16,
-              boxShadow:"0 12px 40px rgba(0,0,0,.14)",zIndex:100,border:"1.5px solid var(--card-b)",
-              padding:"20px 16px",textAlign:"center"}}>
-              <div style={{fontSize:32,marginBottom:8}}>🔍</div>
-              <div style={{fontSize:14,color:"var(--subtext)",fontWeight:600}}>No results for "{srchQ}"</div>
-            </div>
-          )}
-          {srchOpen&&srchR.length>0&&<div
-            id="search-results"
-            role="listbox"
-            aria-label="Search results"
-            style={{position:"absolute",top:"calc(100% + 6px)",left:0,right:0,background:"var(--card)",borderRadius:16,
-              boxShadow:"0 12px 40px rgba(0,0,0,.14)",zIndex:100,maxHeight:320,overflow:"auto",
-              border:"1.5px solid var(--card-b)"}}>
-            {srchR.map(function(r,i){return (
-              <div
-                key={r.hr+":"+r.type+":"+i}
-                className="sr-item"
-                role="option"
-                onClick={function(){setSrchOpen(false);setSrchQ("");setScr(r.go)}}>
-                <div>
-                  <div style={{fontSize:14,fontWeight:700,color:"var(--heading)"}}>{r.hr}</div>
-                  <div style={{fontSize:12,color:"var(--subtext)",marginTop:1}}>{r.en}</div>
-                </div>
-                <span style={{fontSize:10,padding:"3px 9px",borderRadius:20,fontWeight:700,
-                  background:r.type==="vocab"?"#dbeafe":r.type==="screen"?"#dcfce7":"#fef9c3",
-                  color:r.type==="vocab"?"#1d4ed8":r.type==="screen"?"#166534":"#a16207"}}>
-                  {r.type}
-                </span>
-              </div>
-            );})}
-            <div className="sr-close" onClick={function(){setSrchOpen(false)}}>
-              Close
-            </div>
-          </div>}
-        </div>
-        {// ═══ TAB: HOME ═══
-        tab==="home"&&<div key="tab-home" className="screen-enter"><ScreenErrorBoundary name="HomeTab"><HomeTab
-          tDir={tDir} sTDir={sTDir} tIn={tIn} sTIn={sTIn} tOut={tOut} tL={tL} doTr={doTr}
-          dchlA={dchlA} sDchlA={sDchlA} dchlSl={dchlSl} sDchlSl={sDchlSl}
-          getWeekStats={getWeekStats}
-          setTab={(id)=>{const VALID_TABS={home:1,learn:1,practice:1,croatia:1,profile:1};if(VALID_TABS[id])setTab(id);else setScr(id);}} sCurEx={sCurEx}
-          allCats={allCats} sh={sh}
-          launchPathItem={launchPathItem}
-          syncReady={_syncReady} onSyncNow={doSyncNow} authUser={authUser}
-          comebackBonus={comebackBonus}
-          goal={localStorage.getItem('nh_goal')||'fluent'}
-          isNewUserWindow={isNewUserWindow}
-          daysSinceJoin={daysSinceJoin}
-          resumeLesson={resumeLesson}
-        /></ScreenErrorBoundary></div>}
-        {// ═══ TAB: LEARN ═══
-        tab==="learn"&&<div key="tab-learn" className="screen-enter"><ScreenErrorBoundary name="LearnTab"><LearnTab
-          allCats={allCats} icons={icons} sCurEx={sCurEx}
-          sh={sh} sLt={sLt} sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl}
-          sGl={sGl} sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
-          launchPathItem={launchPathItem}
-          launchAnimLesson={launchAnimLesson}
-        /></ScreenErrorBoundary></div>}
-        {// ═══ TAB: PRACTICE ═══
-        tab==="practice"&&<div key="tab-practice" className="screen-enter"><ScreenErrorBoundary name="PracticeTab"><PracticeTab
-          allCats={allCats} sh={sh} sCurEx={sCurEx}
-          onLaunchQuiz={launchMcGame} onLaunchFlash={launchFlashcards}
-          onLaunchListen={launchListening} onLaunchMatch={launchMatch}
-          onLaunchSpeaking={launchSpeaking}
-        /></ScreenErrorBoundary></div>}
-        {// ═══ TAB: CROATIA ═══
-        tab==="croatia"&&<div key="tab-croatia" className="screen-enter"><ScreenErrorBoundary name="CroatiaTab"><CroatiaTab
-          sCurEx={sCurEx}
-        /></ScreenErrorBoundary></div>}
-        {// ═══ TAB: PROFILE ═══
-        tab==="profile"&&<div key="tab-profile" className="screen-enter"><ScreenErrorBoundary name="ProfileTab"><ProfileTab
-          syncReady={_syncReady} onSyncNow={doSyncNow}
-          onOpenLeaderboard={() => setScr('leaderboard_weekly')}
-          onOpenFriends={() => setScr('family_group')}
-        /></ScreenErrorBoundary></div>}
-      </div>}
-      {// ═══ MODAL VERBS ═══
-      currentScreen==="modal"&&<ModalScreen goBack={goBack} award={award} setSt={setStats} />}
-      {// ═══ HISTORY ═══
-      currentScreen==="history"&&<CroatiaHistoryScreen goBack={goBack} />}
-      {// ═══ EVENTS CALENDAR ═══
-      currentScreen==="events"&&<EventsCalendar goBack={goBack} />}
-      {// ═══ TRANSLATOR ═══
-      currentScreen==="top100"&&<Top100Screen goBack={goBack} />}
-      {// ═══ MULTIPLE CHOICE GAME ═══
-      currentScreen==="mcgame"&&<McGame
-        questions={mcInitQ} onComplete={mcGameComplete} goBack={goBack} award={award}
-      />}
-      {currentScreen==="mcresult"&&<McResult questions={mcResultQ} score={mcResultScore} mistakes={mcMistakes} setScr={setScr} goBack={goBack} onNewGame={launchMcGame} award={award} />}
-      {// ═══ CROATIAN CASES ═══
-      currentScreen==="padezi"&&<PadeziScreen goBack={goBack} award={award} setSt={setStats} />}
-      {// ═══ UNJUMBLE / WORD ORDER ═══
-      currentScreen==="unjumble"&&<Unjumble goBack={goBack} award={award} />}
-      {// ═══ IDIOMS & SLANG ═══
-      currentScreen==="idioms"&&<IdiomsScreen goBack={goBack} />}
-      {currentScreen==="privacy"&&<PrivacyScreen goBack={goBack} />}
-      {currentScreen==="terms"&&<TermsOfService goBack={goBack} />}
-      {currentScreen==="admin"&&<AdminDashboard authUser={authUser} goBack={goBack} />}
-      {// ═══ FLASHCARDS ═══
-      currentScreen==="flashcards"&&<Flashcards pool={fcInitPool} goBack={goBack} award={award} />}
-      {// ═══ LISTENING COMPREHENSION ═══
-      currentScreen==="listening"&&<ListeningScreen questions={lsInitQ} goBack={goBack} award={award} />}
-      {// ═══ STORY SELECT ═══
-      currentScreen==="storyselect"&&<StoryScreens goBack={goBack} award={award} sCurEx={sCurEx} />}
-      {// ═══ NUMBER & TIME DRILLS ═══
-      currentScreen==="numtime"&&<NumTime goBack={goBack} award={award} />}
-      {// ═══ ALL PROVERBS ═══
-      currentScreen==="proverbs"&&<ProverbsScreen goBack={goBack} />}
-      {// ═══ CONTACT / SUPPORT ═══
-      currentScreen==="contact"&&<ContactScreen goBack={goBack} authUser={authUser} name={name} level={level} stats={stats} />}
-      {// ═══ LEADERBOARD ═══
-      currentScreen==="leaderboard"&&<Leaderboard goBack={goBack} authUser={authUser} name={name} stats={stats} famData={famData} setFamData={setFamData} famMembers={famMembers} setFamMembers={setFamMembers} famLoading={famLoading} setFamLoading={setFamLoading} famName={famName} setFamName={setFamName} famCode={famCode} setFamCode={setFamCode} famErr={famErr} setFamErr={setFamErr} famTab={famTab} setFamTab={setFamTab} />}
-      {// ═══ WEEKLY LEADERBOARD SCREEN ═══
-      currentScreen==="leaderboard_weekly"&&<LeaderboardScreen db={null} user={authUser} weekXP={_weeklyXP} goBack={goBack} />}
-      {// ═══ FRIENDS & FAMILY GROUP SCREEN ═══
-      currentScreen==="family_group"&&<ProfileFriendsScreen user={authUser} goBack={goBack} />}
-      {// ═══ SCHOOL KIT ═══
-      currentScreen==="school"&&<SchoolScreen goBack={goBack} />}
-      {currentScreen==="texting"&&<TextingScreen goBack={goBack} />}
-      {currentScreen==="friends"&&<FriendsScreen goBack={goBack} />}
-      {currentScreen==="foodorder"&&<FoodOrderScreen goBack={goBack} />}
-      {currentScreen==="transport"&&<TransportScreen goBack={goBack} />}
-      {currentScreen==="emergency"&&<EmergencyScreen goBack={goBack} />}
-      {currentScreen==="football"&&<HNLScreen goBack={goBack} />}
-      {currentScreen==="croatiaathletes"&&<CroatiaAthletes goBack={goBack} />}
-      {currentScreen==="immersion"&&<ImmersionHub goBack={goBack} setScr={setScr} />}
-      {currentScreen==="lyrics"&&<LyricsScreen goBack={goBack} award={award} />}
-      {currentScreen==="aiconvo"&&(isPremium?<AIConversation goBack={goBack} setScr={setScr} sCurEx={sCurEx} setJWords={setJWords} />:<PaywallScreen featureName="AI Conversation" onClose={goBack} onSubscribed={()=>{refreshSub();}} />)}
-      {currentScreen==="popculture"&&<PopCultureScreen goBack={goBack} />}
-      {currentScreen==="basketball"&&<BasketballScreen goBack={goBack} />}
-      {currentScreen==="gym"&&<GymScreen goBack={goBack} />}
-      {currentScreen==="practical"&&<PracticalScreen goBack={goBack} />}
-      {currentScreen==="region_labin"&&<RegionScreen regionKey="labin" goBack={goBack} />}
-      {currentScreen==="region_bibinje"&&<RegionScreen regionKey="bibinje" goBack={goBack} />}
-      {currentScreen==="region_hercegovina"&&<RegionScreen regionKey="hercegovina" goBack={goBack} />}
-      {currentScreen==="region_vukovar"&&<RegionScreen regionKey="vukovar" goBack={goBack} />}
-      {currentScreen==="region_zagreb"&&<RegionScreen regionKey="zagreb" goBack={goBack} />}
-      {currentScreen==="region_split"&&<RegionScreen regionKey="split" goBack={goBack} />}
-      {currentScreen==="region_mostar"&&<RegionScreen regionKey="mostar" goBack={goBack} />}
-      {currentScreen==="region_tomislavgrad"&&<RegionScreen regionKey="tomislavgrad" goBack={goBack} />}
-      {currentScreen==="region_knin"&&<RegionScreen regionKey="knin" goBack={goBack} />}
-      {currentScreen==="cityofday"&&<CityOfDayScreen goBack={goBack} />}
-      {currentScreen==="region_vinkovci"&&<RegionScreen regionKey="vinkovci" goBack={goBack} />}
-      {// ═══ PADEŽI FULL (SINGULAR & PLURAL) ═══
-      currentScreen==="padezifull"&&<PadezifullScreen goBack={goBack} award={award} />}
-      {// ═══ VERB ASPECT ═══
-      currentScreen==="aspect"&&<AspectScreen goBack={goBack} />}
-      {// ═══ GRAMMAR VIDEOS ═══
-      currentScreen==="grammarvideos"&&<GrammarVideos goBack={goBack} setScr={setScr} />}
-      {// ═══ GRAMMAR EXPLAINER ═══
-      currentScreen==="grammarexplainer"&&<GrammarExplainer goBack={goBack} award={award} />}
-      {// ═══ CASE TRANSFORMER ═══
-      currentScreen==="casetransformer"&&<CaseTransformer goBack={goBack} award={award} />}
-      {// ═══ VOCAB SCENES ═══
-      currentScreen==="vocabscenes"&&<VocabScenes goBack={goBack} award={award} />}
-      {// ═══ ANIMATED LESSON ═══
-      currentScreen==="animlesson"&&animLesson&&<AnimatedLesson lesson={animLesson} goBack={goBack} award={award} />}
-      {// ═══ GRAMMAR READER (X-RAY) ═══
-      currentScreen==="grammarreader"&&<GrammarReader goBack={goBack} />}
-      {// ═══ FALSE FRIENDS ═══
-      currentScreen==="falsefr"&&<FalseFriendsScreen goBack={goBack} />}
-      {// ═══ PREPOSITION DRILLS ═══
-      currentScreen==="prepdrill"&&<PrepDrill goBack={goBack} award={award} />}
-      {// ═══ DECLENSION TRAINER ═══
-      currentScreen==="declension"&&<DeclensionScreen goBack={goBack} />}
-      {// ═══ TONGUE TWISTERS ═══
-      currentScreen==="brzalice"&&<BrzaliceScreen goBack={goBack} />}
-      {// ═══ DIALECTS ═══
-      currentScreen==="dialects"&&<DialectsScreen goBack={goBack} />}
-      {// ═══ DIMINUTIVES ═══
-      currentScreen==="diminutives"&&<DiminutivesScreen goBack={goBack} />}
-      {// ═══ WORD FORMATION ═══
-      currentScreen==="wordform"&&<WordFormScreen goBack={goBack} />}
-      {// ═══ COLOR QUIRKS ═══
-      currentScreen==="colorquirk"&&<ColorQuirkScreen goBack={goBack} />}
-      {currentScreen==="svojmoj"&&<SvojMojScreen goBack={goBack} award={award} />}
-      {// ═══ CONDITIONAL MOOD ═══
-      currentScreen==="conditional"&&<ConditionalScreen goBack={goBack} award={award} />}
-      {// ═══ FORMAL vs INFORMAL REGISTER ═══
-      currentScreen==="formalregister"&&<FormalRegisterScreen goBack={goBack} award={award} />}
-      {// ═══ IMPERSONAL CONSTRUCTIONS ═══
-      currentScreen==="impersonal"&&<ImpersonalScreen goBack={goBack} award={award} />}
-      {// ═══ TECHNOLOGY VOCABULARY ═══
-      currentScreen==="techvoc"&&<TechVocScreen goBack={goBack} award={award} />}
-      {// ═══ BUREAUCRATIC / ADMINISTRATIVE ═══
-      currentScreen==="bureaucratic"&&<BureaucraticScreen goBack={goBack} award={award} />}
-      {currentScreen==="countries"&&<CountriesScreen goBack={goBack} />}
-      {currentScreen==="professions"&&<ProfessionsScreen goBack={goBack} />}
-      {currentScreen==="weather"&&<WeatherScreen goBack={goBack} />}
-      {currentScreen==="clothes"&&<ClothesScreen goBack={goBack} />}
-      {currentScreen==="bodydesc"&&<BodyDescScreen goBack={goBack} />}
-      {currentScreen==="phonology"&&<PhonologyScreen goBack={goBack} />}
-      {// ═══ TYPING PRACTICE ═══
-      currentScreen==="typing"&&<TypingScreen goBack={goBack} award={award} />}
-      {// ═══ TENSES & GENDER CONJUGATION ═══
-      currentScreen==="tenses"&&<TensesScreen goBack={goBack} award={award} />}
-      {// ═══ INTERACTIVE MAP ═══
-      currentScreen==="crmap"&&<CrMap goBack={goBack} />}
-      {// ═══ GROCERY SHOPPING ═══
-      currentScreen==="grocery"&&<GroceryScreen goBack={goBack} />}
-      {// ═══ RECIPES ═══
-      currentScreen==="recipes"&&<RecipesScreen goBack={goBack} />}
-      {// ═══ CONVERSATION ROLE-PLAY ═══
-      currentScreen==="roleplay"&&<RoleplayScreen goBack={goBack} />}
-      {// ═══ VOCABULARY JOURNAL ═══
-      currentScreen==="journal"&&<VocabJournal goBack={goBack} />}
-      {// ═══ LEARNING PATH ═══
-      currentScreen==="learnpath"&&<LearnPath st={stats} setScr={setScr} goBack={goBack} />}
-      {// ═══ FAVORITES ═══
-      currentScreen==="favorites"&&<FavoritesScreen
-        favs={favs} toggleFav={toggleFav} setScr={setScr} goBack={goBack}
-      />}
-      {// ═══ REFLEXIVE VERBS ═══
-      currentScreen==="reflexive"&&<ReflexiveScreen goBack={goBack} award={award} />}
-      {// ═══ FILL-IN STORIES ═══
-      currentScreen==="fillstory"&&<FillStoryScreen goBack={goBack} award={award} />}
-      {// ═══ CONVERSATION MATCH ═══
-      currentScreen==="convmatch"&&<ConvMatchScreen goBack={goBack} award={award} />}
-      {// ═══ SCENE DESCRIPTION ═══
-      currentScreen==="scenes"&&<ScenesScreen goBack={goBack} />}
-      {// ═══ PRONOUN CASES ═══
-      currentScreen==="pronouns"&&<PronounsScreen goBack={goBack} award={award} />}
-      {// ═══ GENDER & PLURALS ═══
-      currentScreen==="genderdrill"&&<GenderDrillScreen goBack={goBack} award={award} />}
-      {// ═══ SENTENCE BUILDER ═══
-      currentScreen==="sentbuild"&&<SentenceBuilderScreen goBack={goBack} award={award} />}
-      {// ═══ VERB DRILL ═══
-      currentScreen==="verbdrill"&&<VerbDrillScreen goBack={goBack} />}
-      {// ═══ TENSE TRANSFORMER ═══
-      currentScreen==="tenseflip"&&<TenseFlipScreen goBack={goBack} award={award} />}
-      {// ═══ RIDDLES ═══
-      currentScreen==="riddles"&&<RiddlesScreen goBack={goBack} award={award} />}
-      {// ═══ LOGIC QUIZ ═══
-      currentScreen==="logicquiz"&&<LogicQuizScreen goBack={goBack} award={award} />}
-      {// ═══ ORDINALS & FLOORS ═══
-      currentScreen==="ordinals"&&<OrdinalsScreen goBack={goBack} award={award} />}
-      {// ═══ RELATIVE PRONOUNS ═══
-      currentScreen==="relpron"&&<RelativePronounsScreen goBack={goBack} award={award} />}
-      {// ═══ EMOTIONS & GENDER ═══
-      currentScreen==="emogender"&&<EmotionGenderScreen goBack={goBack} award={award} />}
-      {// ═══ ADJECTIVE OPPOSITES ═══
-      currentScreen==="opposites"&&<OppositesScreen goBack={goBack} award={award} />}
-      {// ═══ CITY & COUNTRY LOCATIVE ═══
-      currentScreen==="cityloc"&&<CityLocativeScreen goBack={goBack} award={award} />}
-      {// ═══ ACCUSATIVE DRILL ═══
-      currentScreen==="akudrill"&&<AccusativeDrillScreen goBack={goBack} award={award} />}
-      {// ═══ COLOR AGREEMENT ═══
-      currentScreen==="coloragree"&&<ColorAgreementScreen goBack={goBack} award={award} />}
-      {// ═══ POSSESSIVE PRONOUNS ═══
-      currentScreen==="possess"&&<PossessivesScreen goBack={goBack} award={award} />}
-      {// ═══ QUESTION WORDS ═══
-      currentScreen==="qwords"&&<QuestionWordsScreen goBack={goBack} award={award} />}
-      {// ═══ NEGATION ═══
-      currentScreen==="negation"&&<NegationScreen goBack={goBack} />}
-      {// ═══ SIBILARIZACIJA ═══
-      currentScreen==="sibil"&&<SibilarizationScreen goBack={goBack} award={award} />}
-      {// ═══ RESTAURANT PRACTICE ═══
-      currentScreen==="restaurant"&&<RestaurantScreen goBack={goBack} />}
-      {// ═══ PROFESSION GENDERS ═══
-      currentScreen==="profgender"&&<ProfessionGenderScreen goBack={goBack} award={award} />}
-      {// ═══ COMPARATIVES ═══
-      currentScreen==="comparatives"&&<ComparativesScreen goBack={goBack} award={award} />}
-      {// ═══ FUTURE TENSE ═══
-      currentScreen==="future"&&<FutureTenseScreen goBack={goBack} award={award} />}
-      {// ═══ CROATIAN KINGS ═══
-      currentScreen==="kings"&&<KingsScreen goBack={goBack} award={award} setSt={setStats} />}
-      {// ═══ CONJUGATION DRILL ═══
-      currentScreen==="conjdrill"&&<ConjugationDrill goBack={goBack} award={award} setSt={setStats} />}
-      {// ═══ ZNAM - NE ZNAM ═══
-      currentScreen==="znam"&&<ZnamGame goBack={goBack} award={award} />}
-      {// ═══ COLORS & GENDER ═══
-      currentScreen==="boje"&&<BojeGame goBack={goBack} award={award} />}
-      {// ═══ MATCH GAME ═══
-      currentScreen==="match"&&<MatchGame initPool={matchInitPool} goBack={goBack} award={award} />}
-      {// ═══ WORD SPRINT ═══
-      currentScreen==="wordsprint"&&<WordSprint sh={sh} award={award} goBack={goBack} />}
-      {// ═══ SPEAKING / PRONUNCIATION ═══
-      currentScreen==="speaking"&&<SpeakingScreen sw={sw} si={si} sx={sx} sr={sr} ssc={ssc} sSr={sSr} sSx={sSx} sSw={sSw} sSsc={sSsc} goBack={goBack} award={award} setSt={setStats} />}
-      {// ═══ SPEAKING SPRINT ═══
-      currentScreen==="speaking_sprint"&&<SpeakingSprintScreen goBack={goBack} award={award} />}
-      {// ═══ PITCH ACCENT ═══
-      currentScreen==="pitchaccent"&&<PitchAccentScreen goBack={goBack} award={award} PITCH_ACCENT={PITCH_ACCENT} />}
-      {// ═══ SHADOWING ═══
-      currentScreen==="shadowing"&&<ShadowingScreen goBack={goBack} award={award} SHADOWING={SHADOWING} />}
-      {// ═══ SPACED REPETITION REVIEW ═══
-      currentScreen==="review"&&<ReviewScreen goBack={goBack} award={award} allCats={allCats} V={V} />}
-      {// ═══ FREE WRITING + AI CORRECTION ═══
-      currentScreen==="writing"&&<WritingScreen goBack={goBack} award={award} />}
-      {// ═══ LISTENING PATH ═══
-      currentScreen==="listeningpath"&&<ListeningPath goBack={goBack} />}
-      {// ═══ VERB ASPECT DRILL ═══
-      currentScreen==="aspectdrill"&&<AspectDrillScreen goBack={goBack} award={award} ASPECT_PAIRS={ASPECT_PAIRS} />}
-      {currentScreen==="clitic"&&<CliticDrill goBack={goBack} award={award} />}
-      {currentScreen==="numcases"&&<NumbersCasesDrill goBack={goBack} award={award} />}
-      {currentScreen==="imperative"&&<ImperativeDrill goBack={goBack} award={award} />}
-      {currentScreen==="neggen"&&<NegationGenDrill goBack={goBack} award={award} />}
-      {currentScreen==="collocations"&&<CollocationsGame goBack={goBack} award={award} />}
-      {currentScreen==="wordfamilies"&&<WordFamilies goBack={goBack} award={award} />}
-      {currentScreen==="dictation"&&<DictationScreen goBack={goBack} award={award} />}
-      {currentScreen==="proncontrast"&&<PronunciationContrast goBack={goBack} award={award} />}
-      {currentScreen==="dialogue"&&<DialogueSim goBack={goBack} award={award} />}
-      {currentScreen==="cefrtest"&&<CefrTest goBack={goBack} award={award} />}
-      {currentScreen==="slang"&&<SlangScreen goBack={goBack} award={award} />}
-      {currentScreen==="baka_summer"&&<BakaSummer goBack={goBack} award={award} />}
-      {currentScreen==="croatia_today"&&<CroatiaToday goBack={goBack} />}
-      {currentScreen==="survival_dinner"&&<SurvivalDinner goBack={goBack} />}
-      {currentScreen==="kafic"&&<KaficScreen goBack={goBack} />}
-      {currentScreen==="diaspora"&&<DiasporaNote goBack={goBack} />}
-      {currentScreen==="tivicompare"&&<TiViScreen goBack={goBack} />}
-      {currentScreen==="lifeevents"&&<LifeEventsScreen goBack={goBack} />}
-      {currentScreen==="civic"&&<CivicScreen goBack={goBack} />}
-      {currentScreen==="easter"&&<EasterScreen onBack={goBack} />}
-      {currentScreen==="postcard"&&<PostcardScreen goBack={goBack} award={award} />}
-      {currentScreen==="storymode"&&<StoryModeScreen goBack={goBack} award={award} />}
-      {currentScreen==="personas"&&<PersonaScreen goBack={goBack} setScr={setScr} />}
-      {currentScreen==="maja"&&(isPremium?<MajaScreen goBack={goBack} award={award} />:<PaywallScreen featureName="Maja AI Tutor" onClose={goBack} onSubscribed={()=>{refreshSub();}} />)}
-      {currentScreen==="live_tutor"&&(isPremium?<LiveTutorScreen goBack={goBack} award={award} />:<PaywallScreen featureName="Live Tutor" onClose={goBack} onSubscribed={()=>{refreshSub();}} />)}
-      {currentScreen==="photo_vocab"&&<PhotoVocabScanner goBack={goBack} level={level} onSaveWords={(words)=>{words.forEach(w=>{if(w.hr&&w.en)setJWords(prev=>[...(prev||[]),{hr:w.hr,en:w.en}]);});}} />}
-      {currentScreen==="ai_listening"&&<AIListeningScreen goBack={goBack} award={award} />}
-      {currentScreen==="grammar_diagnosis"&&<GrammarDiagnosisScreen goBack={goBack} award={award} />}
-      {currentScreen==="micro_lesson"&&<MicroLessonScreen goBack={goBack} award={award} goFlashcards={()=>{launchFlashcards([]);}} />}
-      {currentScreen==="heritage"&&<HeritageStoryScreen goBack={goBack} award={award} />}
-      {currentScreen==="croatianews"&&<CroatianNewsScreen goBack={goBack} award={award} />}
-      {currentScreen==="phraseofday"&&<PhraseOfDayScreen goBack={goBack} award={award} />}
-      {currentScreen==="cloze"&&<ClozeEngine goBack={goBack} award={award} />}
-      {currentScreen==="grammarmap"&&<GrammarConstellation goBack={goBack} award={award} />}
-      {currentScreen==="my_words"&&<MyWordsScreen onBack={goBack} />}
-      {// ═══ MISTAKE REVIEW ═══
-      currentScreen==="mistakes"&&<MistakesScreen goBack={goBack} award={award} />}
-      {// ═══ ANALYTICS ═══
-      currentScreen==="analytics"&&<AnalyticsScreen goBack={goBack} stats={stats} name={name} />}
-      {// ═══ GRAMMAR REFERENCE ═══
-      currentScreen==="grammar-ref"&&<GrammarReference onClose={()=>setScr("dashboard")} />}
-      {// ═══ NEW PLACEMENT TEST (first-time users) ═══
-      currentScreen==="new-placement"&&<PlacementTest onComplete={function(level){localStorage.setItem("placement_done","1");setStats(function(prev){return{...prev,ct:getPlacementCt(level),lc:Math.max(prev.lc,getPlacementCt(level).length)};});award(25);setShowFirstWords(true);setTimeout(()=>setTab('learn'),300);}} />}
-      {// ═══ VOCABULARY LESSON ═══
-      currentScreen==="lesson"&&<LessonScreen
-        lt={lt} li={li} lx={lx} ls={ls} lp={lp} la={la} lsl={lsl} qi={qi} icons={icons}
-        sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl} sQi={sQi}
-        goBack={goBack} award={award} setSt={setStats} setScr={setScr}
-        goToPractice={() => { goBack(); setTimeout(() => setTab('practice'), 50); }}
-      />}
-      {// ═══ GRAMMAR ═══
-      currentScreen==="grammar"&&<GrammarScreen
-        gl={gl||GRAM.beginner[0]} gp={gp} gx={gx} gs={gs} ga={ga} gsl={gsl}
-        sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
-        goBack={goBack} award={award} setSt={setStats}
-      />}
-      {// ═══ ALPHABET ═══
-      currentScreen==="alphabet"&&<AlphabetScreen goBack={goBack} />}
-      {// ═══ READING LIST ═══
-      currentScreen==="readlist"&&<ReadingList
-        setScr={setScr} sRp={sRp} sRph={sRph} sRqi={sRqi} sRsc={sRsc}
-        sRa={sRa} sRsl={sRsl} sHw={sHw} sCurEx={sCurEx} goBack={goBack}
-      />}
-      {// ═══ READING ═══
-      currentScreen==="reading"&&<ReadingScreen
+      <AppRouter
+        currentScreen={currentScreen} goBack={goBack} setScr={setScr} setTab={setTab}
+        authUser={authUser} authScreen={authScreen} name={name} setName={setName}
+        level={level} stats={stats} setStats={setStats} award={award}
+        isPremium={isPremium} refreshSub={refreshSub}
+        srchQ={srchQ} setSrchQ={setSrchQ} srchR={srchR} srchOpen={srchOpen} setSrchOpen={setSrchOpen} doSearch={doSearch}
+        tDir={tDir} sTDir={sTDir} tIn={tIn} sTIn={sTIn} tOut={tOut} tL={tL} doTr={doTr}
+        tab={tab}
+        famData={famData} setFamData={setFamData} famMembers={famMembers} setFamMembers={setFamMembers}
+        famLoading={famLoading} setFamLoading={setFamLoading} famName={famName} setFamName={setFamName}
+        famCode={famCode} setFamCode={setFamCode} famErr={famErr} setFamErr={setFamErr}
+        famTab={famTab} setFamTab={setFamTab}
+        dchlA={dchlA} sDchlA={sDchlA} dchlSl={dchlSl} sDchlSl={sDchlSl}
+        setJWords={setJWords} favs={favs} toggleFav={toggleFav}
+        icons={icons} allCats={allCats} getWeekStats={getWeekStats}
+        isNewUserWindow={isNewUserWindow} daysSinceJoin={daysSinceJoin} comebackBonus={comebackBonus}
+        resumeLesson={resumeLesson} launchPathItem={launchPathItem} launchAnimLesson={launchAnimLesson}
+        launchMcGame={launchMcGame} mcGameComplete={mcGameComplete}
+        launchFlashcards={launchFlashcards} launchListening={launchListening}
+        launchMatch={launchMatch} launchSpeaking={launchSpeaking}
+        _syncReady={_syncReady} doSyncNow={doSyncNow}
+        setPlacementQ={setPlacementQ} setPlacementIdx={setPlacementIdx}
+        setPlacementScore={setPlacementScore} setPlacementAnswers={setPlacementAnswers}
+        setPlacementXp={setPlacementXp} getPlacementCt={getPlacementCt}
+        setShowFirstWords={setShowFirstWords} _weeklyXP={_weeklyXP}
+        lt={lt} li={li} lx={lx} ls={ls} lp={lp} la={la} lsl={lsl} qi={qi}
+        sLt={sLt} sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl} sQi={sQi}
+        gl={gl} gx={gx} gp={gp} gs={gs} ga={ga} gsl={gsl}
+        sGl={sGl} sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
+        matchInitPool={matchInitPool}
+        mcInitQ={mcInitQ} mcResultQ={mcResultQ} mcResultScore={mcResultScore} mcMistakes={mcMistakes}
         rp={rp} rph={rph} rqi={rqi} rsc={rsc} ra={ra} rsl={rsl} hw={hw}
-        sRph={sRph} sRqi={sRqi} sRsc={sRsc} sRa={sRa} sRsl={sRsl} sHw={sHw}
-        goBack={goBack} setScr={setScr} award={award} setSt={setStats}
-      />}
-      {// ═══ BADGES ═══
-      currentScreen==="badges"&&<BadgesScreen badges={stats.badges} stats={stats} goBack={goBack} />}
-      {// ═══ PROFILE ═══
-      currentScreen==="profile"&&<ProfileScreen
-        name={name} level={level} st={stats} authUser={authUser}
-        goBack={goBack} doOut={doOut} setScr={setScr}
-      />}
-      {currentScreen==="certificate"&&<CertificateScreen name={name} level={level} st={stats} goBack={goBack} />}
+        sRp={sRp} sRph={sRph} sRqi={sRqi} sRsc={sRsc} sRa={sRa} sRsl={sRsl} sHw={sHw}
+        sw={sw} si={si} sx={sx} sr={sr} ssc={ssc}
+        sSw={sSw} sSr={sSr} sSx={sSx} sSi={sSi} sSsc={sSsc}
+        animLesson={animLesson} fcInitPool={fcInitPool} lsInitQ={lsInitQ}
+        curEx={curEx} sCurEx={sCurEx} doOut={doOut}
+      />
       {(authScreen==="app"&&currentScreen!=="welcome"&&currentScreen!=="placement") && <TabBar tab={tab} setTab={setTab} setScr={setScr} badges={badges} />}
       <OfflineBanner />
       <CookieConsent />

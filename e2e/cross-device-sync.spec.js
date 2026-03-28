@@ -88,6 +88,7 @@ async function loginFresh(ctx, label) {
 // ─── tests ───────────────────────────────────────────────────────────────────
 
 test.describe('Cross-device sync — nasahrvatska.com', () => {
+  test.skip(!!process.env.CI, 'Requires real Firebase credentials — run locally only');
 
   test('Full cross-device sync: Device A → B → C → re-login', async ({ browser }) => {
     test.setTimeout(120_000);

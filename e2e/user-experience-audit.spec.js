@@ -79,6 +79,7 @@ async function dismissModals(page) {
 }
 
 test.describe('UX Audit — Full user journey on nasahrvatska.com', () => {
+  test.skip(!!process.env.CI, 'Requires real Firebase credentials — run locally only');
 
   test.beforeAll(() => {
     if (fs.existsSync(REPORT_PATH)) fs.unlinkSync(REPORT_PATH);

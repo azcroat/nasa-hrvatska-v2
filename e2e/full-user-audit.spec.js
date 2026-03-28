@@ -68,6 +68,7 @@ async function login(page) {
 // ─── TESTS ────────────────────────────────────────────────────────────────────
 
 test.describe('Full user audit — nasahrvatska.com', () => {
+  test.skip(!!process.env.CI, 'Requires real Firebase credentials — run locally only');
 
   test('01 — Login and home screen', async ({ page }) => {
     const jsErrors = [];
