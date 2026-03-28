@@ -6,8 +6,9 @@
  * the returned values into its render and context.
  */
 import { useState, useEffect } from 'react';
+import { fbToggleFavorite } from '../lib/firebase.js';
 
-export function usePreferences() {
+export function usePreferences(uidRef) {
   const [darkMode, setDarkMode] = useState(
     () => localStorage.getItem('darkMode') === 'true'
   );
@@ -42,6 +43,9 @@ export function usePreferences() {
       : [{ hr: item.hr, en: item.en, type: item.type || 'custom', go: item.go }, ...favs];
     setFavs(next);
     localStorage.setItem('uFavs', JSON.stringify(next));
+    // Immediate Firestore write so this toggle isn't lost if the user closes the app before autosave.
+    const uid = uidRef?.current;
+    if (uid) fbToggleFavorite(uid, next).catch(() => {});
   }
 
   function isFav(key) {

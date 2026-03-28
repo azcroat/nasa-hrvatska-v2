@@ -3,8 +3,8 @@
 // Extracted from data.jsx as part of Sprint 1 architectural split
 // ═══════════════════════════════════════════════════════════
 import { initializeApp, getApps } from 'firebase/app';
-import { getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup, sendEmailVerification, deleteUser } from 'firebase/auth';
-import { getFirestore, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, deleteDoc, collection, runTransaction, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup, sendEmailVerification, deleteUser } from 'firebase/auth';
+import { initializeFirestore, persistentLocalCache, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, deleteDoc, collection, runTransaction, onSnapshot, serverTimestamp } from 'firebase/firestore';
 
 const FIREBASE_CONFIG = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -20,11 +20,13 @@ export function initFirebase(){
   if(_fbReady)return false;
   try{
     const app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);
-    _fbAuth=getAuth(app);_fbDb=getFirestore(app);_fbReady=true;
-    // Persistence fallback chain: local (IndexedDB) → session (sessionStorage) → silent fail (in-memory).
-    // Privacy browsers (DuckDuckGo, Firefox strict, Safari ITP, Chrome incognito) block IndexedDB.
-    // browserSessionPersistence uses sessionStorage which is always available.
-    setPersistence(_fbAuth,browserLocalPersistence).catch(()=>setPersistence(_fbAuth,browserSessionPersistence)).catch(()=>{});return true
+    // initializeAuth with full persistence fallback chain — declared before first use, never chained.
+    // IndexedDB → localStorage → sessionStorage → in-memory (handles all browser modes including private).
+    _fbAuth=initializeAuth(app,{persistence:[indexedDBLocalPersistence,browserLocalPersistence,browserSessionPersistence,inMemoryPersistence]});
+    // persistentLocalCache enables Firestore offline write buffering — writes queue in IndexedDB
+    // while offline and flush automatically when the connection is restored.
+    _fbDb=initializeFirestore(app,{localCache:persistentLocalCache()});
+    _fbReady=true;return true;
   }catch(e){console.error("Firebase init failed:",e);return false}
 }
 // Auto-init on module load
@@ -94,7 +96,7 @@ export async function fbLoadProgress(uid){
   for(let attempt=0;attempt<3;attempt++){
     try{
       const snap=await getDoc(fsDoc(_fbDb,"users",id));
-      if(snap.exists()&&snap.data().progress){const p=JSON.parse(snap.data().progress);const _upd=snap.data().updated;if(_upd)p._fbUpdated=_upd.toMillis?_upd.toMillis():Number(_upd);return p}
+      if(snap.exists()){const _sd=snap.data({serverTimestamps:'estimate'});if(_sd.progress){const p=JSON.parse(_sd.progress);const _upd=_sd.updated;if(_upd)p._fbUpdated=_upd.toMillis?_upd.toMillis():Number(_upd);return p}}
       return null; // doc exists but no progress field, or doc missing — no retry needed
     }catch(e){
       console.warn(`fbLoadProgress attempt ${attempt+1}/3 failed:`,e);
@@ -312,12 +314,28 @@ export function fbWatchProgress(uid,callback){
   return onSnapshot(
     fsDoc(_fbDb,"users",id),
     function(snap){
-      if(!snap.exists()||!snap.data().progress)return;
-      try{const p=JSON.parse(snap.data().progress);const _wu=snap.data().updated;p._fbUpdated=_wu?(_wu.toMillis?_wu.toMillis():Number(_wu)):0;callback(p,p._fbUpdated);}
+      if(!snap.exists())return;const _wd=snap.data({serverTimestamps:'estimate'});if(!_wd.progress)return;
+      try{const p=JSON.parse(_wd.progress);const _wu=_wd.updated;p._fbUpdated=_wu?(_wu.toMillis?_wu.toMillis():Number(_wu)):0;if(_wd.favs_live){try{const _lf=JSON.parse(_wd.favs_live);const _lts=_wd.favs_live_ts?(_wd.favs_live_ts.toMillis?_wd.favs_live_ts.toMillis():Number(_wd.favs_live_ts)):0;const _bts=p._fbUpdated||0;const _bk=new Set((p.favs||[]).map(function(f){return f.hr||f.name;}));for(const _f of _lf){if(!_bk.has(_f.hr||_f.name)){(p.favs=p.favs||[]).push(_f);_bk.add(_f.hr||_f.name);}}if(_lts>_bts){const _lk=new Set(_lf.map(function(f){return f.hr||f.name;}));p.favs=(p.favs||[]).filter(function(f){return _lk.has(f.hr||f.name);});}}catch(_){}}callback(p,p._fbUpdated);}
       catch(e){console.warn("fbWatchProgress parse error:",e);}
     },
     function(err){console.warn("fbWatchProgress error:",err);}
   );
+}
+
+// Immediate atomic Firestore write for favorite toggles — bypasses the debounced autosave
+// so a favorite added just before app close is never lost on the next device.
+// Writes a `favs_live` field alongside the progress doc; fbWatchProgress union-merges it in.
+export async function fbToggleFavorite(uid,favsList){
+  if(!_fbReady||!_fbDb||!uid)return;
+  const id=uid.replace(/[.#$/\[\]]/g,"_");
+  try{await setDoc(fsDoc(_fbDb,"users",id),{favs_live:JSON.stringify(favsList),favs_live_ts:serverTimestamp()},{merge:true});}
+  catch(e){console.warn("fbToggleFavorite error:",e);}
+}
+// Returns the cached Firebase ID token for navigator.sendBeacon authentication.
+// Passes false to avoid a network round-trip in the unload path — uses cached token.
+export async function fbGetIdToken(){
+  if(!_fbAuth||!_fbAuth.currentUser)return'';
+  try{return await _fbAuth.currentUser.getIdToken(false);}catch{return'';}
 }
 
 // Save a reaction emoji for a family achievement to Firestore
