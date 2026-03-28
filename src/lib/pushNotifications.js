@@ -249,3 +249,47 @@ export async function registerMessagingServiceWorker() {
     return null;
   }
 }
+
+// ── Server-side push subscription registration ────────────────────────────────
+// Registers the browser push subscription in Cloudflare KV via /api/push-subscribe.
+// Called after notification permission is granted + user is authenticated.
+// Guards with localStorage timestamp so we re-register at most every 85 days
+// (KV subscriptions expire after 90 days).
+const _REG_TS_KEY = 'nh_push_reg_ts';
+
+export async function registerPushWithServer({ streak = 0, name = '' } = {}) {
+  // Skip if not supported
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return { ok: false };
+  if (Notification.permission !== 'granted') return { ok: false };
+
+  // Guard: re-register only if >85 days have passed (or never registered)
+  try {
+    const ts = parseInt(localStorage.getItem(_REG_TS_KEY) || '0', 10);
+    if (ts && Date.now() - ts < 85 * 24 * 60 * 60 * 1000) return { ok: true, cached: true };
+  } catch {}
+
+  // Create/retrieve the push subscription
+  const { subscription } = await initPushNotifications();
+  if (!subscription) return { ok: false };
+
+  try {
+    const { apiFetch } = await import('./apiFetch.js');
+    const res = await apiFetch('/api/push-subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subscription: subscription.toJSON(),
+        streak: Math.max(0, Math.floor(Number(streak) || 0)),
+        name:   String(name || '').slice(0, 50),
+      }),
+    });
+    if (res.ok) {
+      try { localStorage.setItem(_REG_TS_KEY, String(Date.now())); } catch {}
+      return { ok: true };
+    }
+    return { ok: false };
+  } catch (e) {
+    console.warn('[Push] Server registration failed:', e.message);
+    return { ok: false };
+  }
+}
