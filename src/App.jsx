@@ -229,7 +229,9 @@ const MicroLessonScreen = lazyWithReload(() => import("./components/learn/MicroL
 const LiveTutorScreen = lazyWithReload(() => import("./components/croatia/LiveTutorScreen.jsx"));
 
 // Module-level constants — defined once, not recreated on every render
-const DS={xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,authLoading:0,mv:0,hi:0,rs:[],ct:[],badges:[]};
+const DS={xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,authLoading:0,mv:0,hi:0,rs:[],ct:[],vs:[],badges:[]};
+// Screens in LEARN_PATH that don't self-report completion — visited for ≥20s grants one lc or gc credit
+const BLACK_HOLE_SCREENS={texting:'lc',roleplay:'lc',readlist:'lc',idioms:'lc',brzalice:'lc',wordform:'lc',diminutives:'lc',history:'lc',recipes:'lc',listeningpath:'lc',falsefr:'lc',dialects:'lc',aspect:'gc',declension:'gc'};
 const ICONS={greetings:"👋",numbers:"🔢",family:"👨‍👩‍👧‍👦",food:"🍕",animals:"🐾",body:"🦴","body & face":"🦴",colors:"🎨",home:"🏠","home & rooms":"🏠",clothing:"👔",weather:"☀️","weather & seasons":"☀️",places:"📍",transport:"🚗",verbs:"💬",adjectives:"📏",time:"📅","time & calendar":"📅",months:"🗓️",directions:"🧭",emotions:"💭",professions:"💼",restaurant:"🍽️",shopping:"🛍️",travel:"✈️",health:"🏥",questions:"❓",conjunctions:"🔗",culture:"🏛️","daily routine":"🌅","in the classroom":"📖","commands at home":"🏡","fairy tales":"📜",hobbies:"🎯",zagreb:"🏙️",opposites:"🔄",comparatives:"📊",fruits:"🍎",vegetables:"🥦",sports:"⚽",holidays:"🎄",personality:"😊"};
 
 // Q-6: TAB_PATHS still used for URL construction — kept at module level
@@ -358,6 +360,8 @@ function App(){
   const[freezeUsedToast,setFreezeUsedToast]=useState(false);
   const[ttsFailedToast,setTtsFailedToast]=useState(false);
   const[pendingJoinCode,setPendingJoinCode]=useState(()=>{try{const c=new URLSearchParams(window.location.search).get('join')||null;return c&&/^[A-Z2-9]{6}$/.test(c)?c:null;}catch{return null;}});
+  // Dwell-time tracker for LEARN_PATH "black hole" screens that don't self-report completion
+  const lpDwellRef=useRef(null); // { screen, statType, timer }
   // Q-6: Sync tab and currentScreen when React Router location changes (browser back/forward)
   useEffect(function(){
     const p=location.pathname;
@@ -485,7 +489,7 @@ function App(){
           // Remote ct may be stale (e.g. Firestore doc written before ct existed,
           // or written during a rules outage with empty ct). Take the union so progress
           // is never lost from a less-complete remote snapshot.
-          setStats(prev=>({...ds,..._hSt,ct:[...new Set([...(prev.ct||[]),...(_hSt.ct||[])])],lc:Math.max(prev.lc||0,_hSt.lc||0),gc:Math.max(prev.gc||0,_hSt.gc||0),xp:Math.max(prev.xp||0,_hSt.xp||0)}));
+          setStats(prev=>({...ds,..._hSt,ct:[...new Set([...(prev.ct||[]),...(_hSt.ct||[])])],vs:[...new Set([...(prev.vs||[]),...(_hSt.vs||[])])],lc:Math.max(prev.lc||0,_hSt.lc||0),gc:Math.max(prev.gc||0,_hSt.gc||0),xp:Math.max(prev.xp||0,_hSt.xp||0)}));
           if (progress.name) setName(progress.name);
         }
         return;
@@ -493,7 +497,7 @@ function App(){
       if (progress) {
         setName(progress.name || user.d);
         const _pStats = progress.stats || progress.st || {};
-        setStats(prev=>({...ds,..._pStats,ct:[...new Set([...(prev.ct||[]),...(_pStats.ct||[])])],lc:Math.max(prev.lc||0,_pStats.lc||0),gc:Math.max(prev.gc||0,_pStats.gc||0),xp:Math.max(prev.xp||0,_pStats.xp||0)}));
+        setStats(prev=>({...ds,..._pStats,ct:[...new Set([...(prev.ct||[]),...(_pStats.ct||[])])],vs:[...new Set([...(prev.vs||[]),...(_pStats.vs||[])])],lc:Math.max(prev.lc||0,_pStats.lc||0),gc:Math.max(prev.gc||0,_pStats.gc||0),xp:Math.max(prev.xp||0,_pStats.xp||0)}));
         // Mark as onboarded for any returning user with prior usage.
         // Many older Firestore docs lack the "onboarded" field — derive it from cp or xp.
         if (!isNew && (progress.onboarded || progress.cp || _pStats.xp > 0)) {
@@ -562,6 +566,12 @@ function App(){
   useEffect(()=>{if(!authUser||authScreen!=="app")return;const _nd=new Date();const _dcDay=_nd.getFullYear()+'-'+String(_nd.getMonth()+1).padStart(2,'0')+'-'+String(_nd.getDate()).padStart(2,'0');const _saveData={name,stats,cp:currentScreen!=="welcome"&&currentScreen!=="placement",onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),sr:getSR(),streak:getStreak(),freezes:getStreakFreezes(),favs,journal:jWords,dc:{day:_dcDay,answered:dchlA,selected:dchlSl},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})()};try{localStorage.setItem("uP_"+authUser.u,JSON.stringify(_saveData));}catch(e){console.warn("localStorage quota exceeded — progress not saved locally",e);}touchSession();},[stats,currentScreen,name,authUser,authScreen,jWords,favs,dchlA,dchlSl]);
   useEffect(()=>{if(authScreen!=="app")return undefined;const iv=setInterval(()=>{if(isSessionExpired()){doOut();}},5*60*1000);return()=>clearInterval(iv)},[authScreen]);// eslint-disable-line
   useEffect(()=>{if(authScreen!=="app")return undefined;const h=()=>touchSession();window.addEventListener("click",h);window.addEventListener("touchstart",h);window.addEventListener("keydown",h);return()=>{window.removeEventListener("click",h);window.removeEventListener("touchstart",h);window.removeEventListener("keydown",h)}},[authScreen]);
+  // Dwell-time completion: when user navigates away from a tracked screen, cancel the timer.
+  // When the timer fires (20s), grant credit once via lc or gc increment + add to vs.
+  useEffect(()=>{
+    const dwell=lpDwellRef.current;
+    if(dwell&&currentScreen!==dwell.screen){clearTimeout(dwell.timer);lpDwellRef.current=null;}
+  },[currentScreen]);
   useEffect(()=>{if(!_syncReady||authScreen!=="app"||!authUser)return;// Only show backup banner once per device. Skip for returning users with prior
 // progress — they've already seen it on their first device and don't need the
 // reminder on every new browser/device they sign in from.
@@ -571,7 +581,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   // Cross-device lesson completion now syncs in <2 seconds instead of up to 3 minutes.
   // savedAt is bumped to fpTs after each merge so repeated snapshots of unchanged data
   // are cleanly skipped on the next compare (fpTs === lpTs → no-op).
-  useEffect(()=>{if(authScreen!=="app"||!authUser)return undefined;const _unsub=fbWatchProgress(authUser.u,function(fp,fpTs){const lp=gP(authUser.u);const lpTs=(lp&&lp.savedAt)||0;if(fpTs>lpTs){lP(authUser.u,{...fp,savedAt:fpTs});const _pllSt=fp.stats||fp.st||{};setStats(prev=>({...ds,..._pllSt,ct:[...new Set([...(prev.ct||[]),...(_pllSt.ct||[])])],lc:Math.max(prev.lc||0,_pllSt.lc||0),gc:Math.max(prev.gc||0,_pllSt.gc||0),xp:Math.max(prev.xp||0,_pllSt.xp||0)}));if(fp.name)setName(fp.name);applyRemoteProgress(fp);}});return()=>_unsub();},[authScreen,authUser,applyRemoteProgress,ds]);
+  useEffect(()=>{if(authScreen!=="app"||!authUser)return undefined;const _unsub=fbWatchProgress(authUser.u,function(fp,fpTs){const lp=gP(authUser.u);const lpTs=(lp&&lp.savedAt)||0;if(fpTs>lpTs){lP(authUser.u,{...fp,savedAt:fpTs});const _pllSt=fp.stats||fp.st||{};setStats(prev=>({...ds,..._pllSt,ct:[...new Set([...(prev.ct||[]),...(_pllSt.ct||[])])],vs:[...new Set([...(prev.vs||[]),...(_pllSt.vs||[])])],lc:Math.max(prev.lc||0,_pllSt.lc||0),gc:Math.max(prev.gc||0,_pllSt.gc||0),xp:Math.max(prev.xp||0,_pllSt.xp||0)}));if(fp.name)setName(fp.name);applyRemoteProgress(fp);}});return()=>_unsub();},[authScreen,authUser,applyRemoteProgress,ds]);
   // Auto-save on every lesson completion (stats.lc or stats.ct length changes).
   // Lesson components only call setStats — they never write to localStorage or Firebase.
   // This effect fires immediately (no debounce) so progress is persisted even if the
@@ -823,6 +833,22 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       sessionStorage.setItem('nh_ex_start',Date.now().toString());
       const _lpTypeMap={review:'srs_review',shadowing:'shadowing',writing:'writing',listening:'listening',speaking:'speaking',speaking_sprint:'speaking',aiconvo:'conversation',ai_listening:'listening',cloze:'cloze',reading:'reading',readlist:'reading'};
       if(_lpTypeMap[item.go])trackStart(_lpTypeMap[item.go]);
+      // Start dwell-time tracking for screens that don't self-report completion
+      const _bhStat=BLACK_HOLE_SCREENS[item.go];
+      if(_bhStat){
+        if(lpDwellRef.current?.timer)clearTimeout(lpDwellRef.current.timer);
+        const _bhTimer=setTimeout(()=>{
+          setStats(prev=>{
+            if(prev.vs?.includes(item.go))return prev; // already credited
+            const newVs=[...(prev.vs||[]),item.go];
+            if(_bhStat==='lc')return{...prev,lc:prev.lc+1,vs:newVs};
+            if(_bhStat==='gc')return{...prev,gc:prev.gc+1,vs:newVs};
+            return{...prev,vs:newVs};
+          });
+          award(15); // Small XP for engaging with reference content
+        },20000); // 20 seconds = meaningful engagement
+        lpDwellRef.current={screen:item.go,statType:_bhStat,timer:_bhTimer};
+      }
       setScr(item.go);sCurEx(item.go);
     }
   }
