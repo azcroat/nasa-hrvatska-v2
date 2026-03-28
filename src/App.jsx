@@ -47,9 +47,7 @@ import WelcomeScreen from "./components/home/WelcomeScreen.jsx";
 import CroatianGrb from "./components/shared/CroatianGrb.jsx";
 import CookieConsent from "./components/shared/CookieConsent.jsx";
 import TermsOfService from "./components/shared/TermsOfService.jsx";
-import PaywallScreen from "./components/shared/PaywallScreen.jsx";
 import { useSubscription, grantFreeAnnual, getSubscriptionStatus } from "./hooks/useSubscription.js";
-import AdminDashboard from "./components/admin/AdminDashboard.jsx";
 import PlacementTest from "./components/home/PlacementTest.jsx";
 import NewPlacementTest from "./components/auth/PlacementTest.jsx";
 import { LESSONS as ANIM_LESSONS } from "./data/lessons.js";
@@ -230,6 +228,8 @@ const GrammarDiagnosisScreen = lazyWithReload(() => import("./components/home/Gr
 const MicroLessonScreen = lazyWithReload(() => import("./components/learn/MicroLessonScreen.jsx"));
 const LiveTutorScreen = lazyWithReload(() => import("./components/croatia/LiveTutorScreen.jsx"));
 const PhotoVocabScanner = lazyWithReload(() => import("./components/shared/PhotoVocabScanner.jsx"));
+const PaywallScreen = lazyWithReload(() => import("./components/shared/PaywallScreen.jsx"));
+const AdminDashboard = lazyWithReload(() => import("./components/admin/AdminDashboard.jsx"));
 import PremiumWelcomeBanner from "./components/shared/PremiumWelcomeBanner.jsx";
 
 // Module-level constants — defined once, not recreated on every render
@@ -1089,11 +1089,11 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
         </div>
       )}
       {!onboarded&&_syncReady&&authScreen==="app"&&currentScreen!=="welcome"&&currentScreen!=="placement"&&<OnboardingTour onDone={()=>setOnboarded(true)} onLaunchLesson={()=>{setScr("dashboard");setTimeout(()=>{setTab("learn");},400);}} />}
-      {comebackBonus&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#f59e0b,#d97706)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.2)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease"}}>🔥 Welcome back! Keep your streak alive!</div>}
-      {freezeUsedToast&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#1e40af,#3b82f6)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.25)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease",whiteSpace:"nowrap"}}>🛡️ Zaštita niza aktivirana! Tvoj niz je sačuvan.</div>}
-      {earnBackPrompt&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#d97706,#b45309)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.25)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease",maxWidth:320,textAlign:"center"}}>🔥 Complete 1 more lesson today to restore your {earnBackPrompt.prev}-day streak!</div>}
-      {streakRestoredCount>0&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#b61800,#dc2626)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(182,24,0,.4)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease",whiteSpace:"nowrap"}}>🇭🇷 Streak restored! {streakRestoredCount}-day streak back!</div>}
-      {ttsFailedToast&&<div style={{position:"fixed",bottom:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"rgba(30,30,30,.92)",color:"#fff",borderRadius:20,padding:"9px 20px",fontSize:13,fontWeight:600,pointerEvents:"none",animation:"slideUp .3s ease",whiteSpace:"nowrap"}}>🔇 Audio unavailable</div>}
+      {comebackBonus&&<div role="status" aria-live="polite" aria-atomic="true" style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#f59e0b,#d97706)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.2)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease"}}>🔥 Welcome back! Keep your streak alive!</div>}
+      {freezeUsedToast&&<div role="status" aria-live="polite" aria-atomic="true" style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#1e40af,#3b82f6)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.25)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease",whiteSpace:"nowrap"}}>🛡️ Zaštita niza aktivirana! Tvoj niz je sačuvan.</div>}
+      {earnBackPrompt&&<div role="status" aria-live="polite" aria-atomic="true" style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#d97706,#b45309)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.25)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease",maxWidth:320,textAlign:"center"}}>🔥 Complete 1 more lesson today to restore your {earnBackPrompt.prev}-day streak!</div>}
+      {streakRestoredCount>0&&<div role="status" aria-live="polite" aria-atomic="true" style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#b61800,#dc2626)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(182,24,0,.4)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease",whiteSpace:"nowrap"}}>🇭🇷 Streak restored! {streakRestoredCount}-day streak back!</div>}
+      {ttsFailedToast&&<div role="status" aria-live="polite" aria-atomic="true" style={{position:"fixed",bottom:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"rgba(30,30,30,.92)",color:"#fff",borderRadius:20,padding:"9px 20px",fontSize:13,fontWeight:600,pointerEvents:"none",animation:"slideUp .3s ease",whiteSpace:"nowrap"}}>🔇 Audio unavailable</div>}
       {showPaywall&&<PaywallScreen featureName={paywallFeature} onClose={()=>setShowPaywall(false)} onSubscribed={()=>{setShowPaywall(false);refreshSub();}} />}
       {showPremiumWelcome&&<PremiumWelcomeBanner onClose={()=>setShowPremiumWelcome(false)} />}
       {showAndroidInstall&&!localStorage.getItem('nh_pwa_install_dismissed')&&<div role="status" aria-live="polite" style={{position:"fixed",bottom:90,left:"50%",transform:"translateX(-50%)",zIndex:9602,width:"calc(100% - 32px)",maxWidth:420,background:"linear-gradient(135deg,#164e63,#0e7490)",color:"#fff",borderRadius:20,padding:"18px 20px",boxShadow:"0 8px 40px rgba(14,116,144,.5)",animation:"slideUp .4s cubic-bezier(.34,1.56,.64,1)"}}>
