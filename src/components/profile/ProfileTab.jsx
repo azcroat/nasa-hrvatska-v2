@@ -787,6 +787,98 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
             <JourneyTimeline />
           </div>
 
+          {/* ── B1+ FLUENCY ROADMAP ── */}
+          {level >= 5 && (() => {
+            const B1_RESOURCES = [
+              {
+                icon: '📺',
+                name: 'HRT (Croatian Radio-Television)',
+                url: 'hr.hrt.hr',
+                what: 'Watch news, documentaries, and dramas in standard Croatian. HRT vijesti (news) is excellent for listening to polished, standard ijekavian Croatian.',
+                tip: 'Start with vijesti — newsreaders speak clearly. Then try Provjereno (investigative journalism) for natural conversational Croatian.',
+                level: 'B1+',
+              },
+              {
+                icon: '📻',
+                name: 'HRT Radio — HR3 & HR1',
+                url: 'radio.hrt.hr',
+                what: 'Audio-only forces your brain to process Croatian without visual cues — the highest-value listening practice available. HR3 has cultural programming, HR1 is news-focused.',
+                tip: 'Listen while commuting. Even 20 minutes/day of authentic radio accelerates comprehension faster than structured lessons.',
+                level: 'B1+',
+              },
+              {
+                icon: '🎬',
+                name: 'Croatian Films (streaming)',
+                url: 'mubi.com / YouTube',
+                what: '"Svjedoci" (2003), "Što je Iva snimila 21. listopada 2003." (2005), "Koko i duhovi" for lighter viewing. Many Croatian films are on MUBI or free on YouTube with subtitles.',
+                tip: 'Watch with Croatian subtitles (not English) — your brain learns to read and listen simultaneously, which is exactly how native speakers process language.',
+                level: 'B1–B2',
+              },
+              {
+                icon: '💬',
+                name: 'Language Exchange — Italki / Tandem',
+                url: 'italki.com / tandem.net',
+                what: 'At B1 you have enough language to have real conversations. Language exchange partners are free. Italki community tutors are inexpensive. Speaking with real Croatians will fix fossilized errors the app cannot catch.',
+                tip: 'Commit to 2 conversations per week. Errors you notice in speaking — especially cases and verb aspect — are your highest-priority study targets.',
+                level: 'B1+',
+              },
+              {
+                icon: '📰',
+                name: '24sata.hr / Jutarnji list',
+                url: '24sata.hr',
+                what: 'Croatian news websites in standard Croatian. 24sata is tabloid-accessible (simpler language). Jutarnji list is more formal. Reading 1 article per day dramatically builds reading fluency and vocabulary.',
+                tip: "Don't look up every word. Read for gist first. Circle only words that appear 3+ times — those are worth learning.",
+                level: 'B1',
+              },
+              {
+                icon: '📚',
+                name: 'Razgovarajte s nama! (textbook)',
+                url: 'bookshops / library',
+                what: '"Razgovarajte s nama!" by Cvikić & Jelaska is the gold standard B1–B2 Croatian as a second/heritage language textbook. Structured grammar explanations in Croatian, with authentic audio exercises.',
+                tip: 'Pair with this app\'s grammar drills. The textbook provides the "why" behind grammatical structures — your learning will accelerate significantly.',
+                level: 'B1–B2',
+              },
+            ];
+
+            return (
+              <React.Fragment>
+                <h3 className="sh" style={{ marginTop: 24 }}>🗺️ Your Fluency Roadmap</h3>
+                <div style={{
+                  background: 'rgba(14,116,144,.07)', border: '1.5px solid rgba(14,116,144,.2)',
+                  borderRadius: 12, padding: '12px 14px', marginBottom: 14, fontSize: 12, lineHeight: 1.6,
+                  color: 'var(--subtext)', fontWeight: 500,
+                }}>
+                  <span style={{ fontWeight: 800, color: 'var(--info,#0284c7)' }}>You have reached B1 — the conversational threshold.</span>
+                  {' '}This is when authentic input becomes your primary driver. No app can take you to fluency alone — but these resources, combined with consistent practice, will.{' '}
+                  <span style={{ fontStyle: 'italic' }}>FSI estimates 1,100 classroom hours to professional Croatian proficiency for English speakers. You are making real progress.</span>
+                </div>
+                {B1_RESOURCES.map((r, i) => (
+                  <div key={i} style={{
+                    background: 'var(--card)', border: '1px solid var(--card-b)',
+                    borderRadius: 14, padding: '14px 16px', marginBottom: 10,
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                      <span style={{ fontSize: 22 }}>{r.icon}</span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)' }}>{r.name}</div>
+                        <div style={{ fontSize: 10, color: 'var(--info,#0284c7)', fontWeight: 700 }}>{r.level} · {r.url}</div>
+                      </div>
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--subtext)', lineHeight: 1.55, marginBottom: 6 }}>
+                      {r.what}
+                    </div>
+                    <div style={{
+                      fontSize: 11, background: 'rgba(14,116,144,.07)', borderRadius: 8,
+                      padding: '7px 10px', color: 'var(--info,#0284c7)', fontWeight: 600, lineHeight: 1.5,
+                    }}>
+                      💡 {r.tip}
+                    </div>
+                  </div>
+                ))}
+              </React.Fragment>
+            );
+          })()}
+
           {/* ── WEAK AREAS ── */}
           {(() => {
             const weak = getWeakTopics(60);
