@@ -283,20 +283,20 @@ export function RecipesScreen({ goBack }) {
 }
 
 const CITY_PHOTOS = {
-  dubrovnik: '/images/scenes/dubrovnik-ai.jpg',
+  dubrovnik: '/images/scenes/dubrovnik-ai.webp',
   split:     'https://images.unsplash.com/photo-1559570704-fea2efaf9e79?w=800&q=85&fit=crop&auto=format',
-  zagreb:    '/images/scenes/zagreb.jpg',
+  zagreb:    '/images/scenes/zagreb.webp',
   zadar:     'https://images.unsplash.com/photo-1587974928442-77dc3e0dba72?w=800&q=85&fit=crop&auto=format',
   rovinj:    'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=85&fit=crop&auto=format',
-  plitvice:  '/images/scenes/plitvice.jpg',
+  plitvice:  '/images/scenes/plitvice.webp',
   hvar:      'https://images.unsplash.com/photo-1527515637462-cff94edd89b6?w=800&q=85&fit=crop&auto=format',
   sibenik:   'https://images.unsplash.com/photo-1602002418082-a4443e081dd1?w=800&q=85&fit=crop&auto=format',
   osijek:    'https://images.unsplash.com/photo-1564594736694-d73f80c4a7fe?w=800&q=85&fit=crop&auto=format',
   varazdin:  'https://images.unsplash.com/photo-1548268770-66184a21657e?w=800&q=85&fit=crop&auto=format',
   korcula:   'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?w=800&q=85&fit=crop&auto=format',
   makarska:  'https://images.unsplash.com/photo-1586161816003-bc944e3c7e27?w=800&q=85&fit=crop&auto=format',
-  mostar:    '/images/scenes/mostar.jpg',
-  labin:     '/images/scenes/labin.jpg',
+  mostar:    '/images/scenes/mostar.webp',
+  labin:     '/images/scenes/labin.webp',
   default:   'https://images.unsplash.com/photo-1555990538-c4c71e9a4bab?w=800&q=85&fit=crop&auto=format',
 };
 

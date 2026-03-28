@@ -688,8 +688,8 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
               <div style={{ display:'flex', flexDirection:'column', gap:4, flexShrink:0 }}>
                 <div style={{ display:'flex', gap:-6 }}>
                   {[
-                    { src:'/images/portraits/tutor-hero.jpg', emoji:'👩‍🏫', color:'#D4002D' },
-                    { src:'/images/portraits/fisherman.jpg',  emoji:'⛵',   color:'#0284c7' },
+                    { src:'/images/portraits/tutor-hero.webp', emoji:'👩‍🏫', color:'#D4002D' },
+                    { src:'/images/portraits/fisherman.webp',  emoji:'⛵',   color:'#0284c7' },
                     { src:'/images/portraits/secretary.jpg',  emoji:'💼',   color:'#7c3aed' },
                     { src:'/images/portraits/baka.jpg',       emoji:'👵',   color:'#b45309' },
                   ].map(({ src, emoji, color }, i) => (

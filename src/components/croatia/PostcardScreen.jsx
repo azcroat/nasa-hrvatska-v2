@@ -3,12 +3,12 @@ import { H } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 
 const CITIES = [
-  { name: "Dubrovnik",      region: "Dalmatia",         photo: "/images/scenes/dubrovnik-ai.jpg", color: "#7c3aed" },
-  { name: "Zagreb",         region: "Central Croatia",  photo: "/images/scenes/zagreb.jpg",       color: "#0e7490" },
-  { name: "Dalmatian Coast",region: "Dalmatia",         photo: "/images/scenes/dalmatian-ai.jpg", color: "#0369a1" },
-  { name: "Plitvice",       region: "Lika",             photo: "/images/scenes/plitvice.jpg",     color: "#16a34a" },
-  { name: "Mostar",         region: "Herzegovina",      photo: "/images/scenes/mostar.jpg",       color: "#b45309" },
-  { name: "Labin",          region: "Istria",           photo: "/images/scenes/labin.jpg",        color: "#0e7490" },
+  { name: "Dubrovnik",      region: "Dalmatia",         photo: "/images/scenes/dubrovnik-ai.webp", color: "#7c3aed" },
+  { name: "Zagreb",         region: "Central Croatia",  photo: "/images/scenes/zagreb.webp",       color: "#0e7490" },
+  { name: "Dalmatian Coast",region: "Dalmatia",         photo: "/images/scenes/dalmatian-ai.webp", color: "#0369a1" },
+  { name: "Plitvice",       region: "Lika",             photo: "/images/scenes/plitvice.webp",     color: "#16a34a" },
+  { name: "Mostar",         region: "Herzegovina",      photo: "/images/scenes/mostar.webp",       color: "#b45309" },
+  { name: "Labin",          region: "Istria",           photo: "/images/scenes/labin.webp",        color: "#0e7490" },
 ];
 
 function sanitizeForCanvas(str, maxLen = 400) {

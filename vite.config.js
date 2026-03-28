@@ -47,6 +47,7 @@ export default defineConfig({
         ]
       },
       workbox: {
+        navigationPreload: true,
         skipWaiting: true,
         clientsClaim: true,
         cacheId: 'nasa-hrvatska-v8',
@@ -106,31 +107,33 @@ export default defineConfig({
     })
   ],
   build: {
+    target: 'es2020',              // Modern target — native async/await, smaller output
     outDir: 'dist',
     sourcemap: 'hidden',
     minify: 'esbuild',
-    chunkSizeWarningLimit: 600, // chunk-data (vocabulary/lesson data) is inherently ~537 KB
+    cssCodeSplit: true,            // CSS per chunk (avoids one monolithic stylesheet)
+    reportCompressedSize: false,   // Skip gzip-size computation at build time for faster builds
+    chunkSizeWarningLimit: 600,    // chunk-data (vocabulary/lesson data) is inherently ~537 KB
     rollupOptions: {
       output: {
+        experimentalMinChunkSize: 10000, // Merge chunks < 10 KB to avoid HTTP/2 overhead
         manualChunks(id) {
           if (id.includes('node_modules/firebase')) return 'vendor-firebase';
           if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) return 'vendor-react';
           if (id.includes('node_modules/@sentry')) return 'vendor-sentry';
           if (id.includes('node_modules/posthog-js')) return 'vendor-posthog';
           if (id.includes('node_modules/dexie')) return 'vendor-dexie';
-          // data.jsx is 570 KB of vocabulary/lesson data — isolate it so other chunks stay small
-          if (id.includes('src/data')) return 'chunk-data';
+          // data.jsx (~700 KB) contains all vocabulary/lesson data — isolate it so other chunks
+          // stay small. App.jsx now imports only the ~20 symbols it actually uses directly;
+          // the remaining ~80 data exports are pulled in only by lazy-loaded screen components.
+          // Next optimization step: move heavy data arrays to src/lib/appData.js and use
+          // dynamic import() in App.jsx so chunk-data is no longer a static startup dep.
+          if (id.includes('src/data') || id.includes('src/lib/appData')) return 'chunk-data';
           // Context and hooks — break circular deps between croatia/practice/learn chunks
           if (id.includes('src/context')) return 'chunk-context';
           if (id.includes('src/hooks')) return 'chunk-hooks';
-          // Split learn into sub-chunks to keep each below 500 KB
-          if (id.includes('src/components/learn/GrammarRef')) return 'chunk-learn-grammar';
-          if (id.includes('src/components/learn/NewLessons')) return 'chunk-learn-new';
-          if (id.includes('src/components/learn/VocabScreens')) return 'chunk-learn-vocab';
-          if (id.includes('src/components/learn')) return 'chunk-learn';
-          if (id.includes('src/components/practice')) return 'chunk-practice';
-          if (id.includes('src/components/croatia')) return 'chunk-croatia';
-          if (id.includes('src/components/profile')) return 'chunk-profile';
+          // Individual screen files (croatia/, practice/, profile/, learn/) are NOT matched here.
+          // They fall through to Rollup's default — each lazy-loaded screen becomes its own chunk.
         }
       }
     }

@@ -57,7 +57,7 @@ const PERSONA_CONFIG = {
   teacher: {
     name: 'Maja Kovačević',
     title: 'Učiteljica Hrvatskog',
-    avatar: '/images/portraits/tutor-hero.jpg',
+    avatar: '/images/portraits/tutor-hero.webp',
     fallbackEmoji: '👩‍🏫',
     orbColor: '#D4002D',
     thinkingColor: '#F59E0B',
@@ -68,7 +68,7 @@ const PERSONA_CONFIG = {
   fisherman: {
     name: 'Marko',
     title: 'Ribar, Stari Grad, Hvar',
-    avatar: '/images/portraits/fisherman.jpg',
+    avatar: '/images/portraits/fisherman.webp',
     fallbackEmoji: '⛵',
     orbColor: '#0284c7',
     thinkingColor: '#0369a1',
@@ -658,7 +658,7 @@ function DebriefScreen({ debrief, conversation, durationSecs, onContinue, onBack
       {/* Maja's note */}
       <div style={{ ...cardStyle('#D4002D'), display: 'flex', gap: 12, alignItems: 'flex-start' }}>
         <img
-          src="/images/portraits/tutor-hero.jpg"
+          src="/images/portraits/tutor-hero.webp"
           alt="Maja"
           style={{
             width: 50,

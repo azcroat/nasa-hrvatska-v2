@@ -790,15 +790,18 @@ export default function HomeTab({
             height:160, overflow:'hidden', position:'relative',
             boxShadow:'0 4px 24px rgba(0,0,0,.18)',
           }}>
-            <img
-              src="/images/scenes/dubrovnik-ai.jpg"
-              alt="Dubrovnik, Croatia"
-              style={{
-                width:'100%', height:'100%', objectFit:'cover',
-                objectPosition:'center 60%',
-                filter:'brightness(1.05) saturate(1.1)',
-              }}
-            />
+            <picture>
+              <source srcSet="/images/scenes/dubrovnik-ai.webp" type="image/webp" />
+              <img
+                src="/images/scenes/dubrovnik-ai.jpg"
+                alt="Dubrovnik, Croatia"
+                style={{
+                  width:'100%', height:'100%', objectFit:'cover',
+                  objectPosition:'center 60%',
+                  filter:'brightness(1.05) saturate(1.1)',
+                }}
+              />
+            </picture>
             {/* Animated shimmer overlay — golden hour light sweep */}
             <div style={{
               position:'absolute', inset:0,

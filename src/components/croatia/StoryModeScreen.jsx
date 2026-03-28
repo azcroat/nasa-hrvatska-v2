@@ -21,15 +21,15 @@ const STORY_CITIES = [
 ];
 
 const CITY_PHOTOS = {
-  Zagreb:    '/images/scenes/zagreb.jpg',
+  Zagreb:    '/images/scenes/zagreb.webp',
   Split:     'https://images.unsplash.com/photo-1559570704-fea2efaf9e79?w=800&q=85&fit=crop',
-  Dubrovnik: '/images/scenes/dubrovnik-ai.jpg',
+  Dubrovnik: '/images/scenes/dubrovnik-ai.webp',
   Hvar:      'https://images.unsplash.com/photo-1527515637462-cff94edd89b6?w=800&q=85&fit=crop',
   Rovinj:    'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=85&fit=crop',
-  Plitvice:  '/images/scenes/plitvice.jpg',
-  Labin:     '/images/scenes/labin.jpg',
-  Mostar:    '/images/scenes/mostar.jpg',
-  default:   '/images/scenes/dalmatian-ai.jpg',
+  Plitvice:  '/images/scenes/plitvice.webp',
+  Labin:     '/images/scenes/labin.webp',
+  Mostar:    '/images/scenes/mostar.webp',
+  default:   '/images/scenes/dalmatian-ai.webp',
 };
 
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
