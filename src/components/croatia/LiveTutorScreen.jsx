@@ -87,6 +87,8 @@ export default function LiveTutorScreen({ goBack, award }) {
   const [isRecording, setIsRecording] = useState(false);
   const [useFallbackInput, setUseFallbackInput] = useState(false);
   const [textInput, setTextInput] = useState("");
+  // 'unknown' | 'prompt' | 'granted' | 'denied' | 'unavailable'
+  const [micPermission, setMicPermission] = useState('unknown');
 
   // ── Loading / error / playback state ─────
   const [thinking, setThinking] = useState(false);
@@ -96,12 +98,101 @@ export default function LiveTutorScreen({ goBack, award }) {
   const [phase, setPhase] = useState("none");
   const [avatarError, setAvatarError] = useState(false);
 
+  // ── Audio output state ────────────────────
+  // 'unknown' | 'ok' | 'no-output' | 'suspended'
+  const [audioStatus, setAudioStatus] = useState('unknown');
+  const [testingAudio, setTestingAudio] = useState(false);
+  const [audioTestResult, setAudioTestResult] = useState(null); // null | 'ok' | 'fail'
+  const ttsFailCountRef = useRef(0); // consecutive TTS failures during active session
+  const [showAudioWarning, setShowAudioWarning] = useState(false);
+
   // ── Refs ──────────────────────────────────
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const audioRef = useRef(null);
   const bottomRef = useRef(null);
   const apiMsgsRef = useRef([]);  // mirrors messages but only role+content for API calls
+
+  // ── Check mic permission on mount ─────────
+  useEffect(() => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setMicPermission('unavailable');
+      return;
+    }
+    if (!navigator.permissions?.query) {
+      // Permissions API not supported — discover on first use
+      return;
+    }
+    let permStatus;
+    navigator.permissions.query({ name: 'microphone' })
+      .then(status => {
+        permStatus = status;
+        setMicPermission(status.state); // 'granted' | 'prompt' | 'denied'
+        status.onchange = () => setMicPermission(status.state);
+      })
+      .catch(() => { /* browser doesn't support mic permission query — no-op */ });
+    return () => { if (permStatus) permStatus.onchange = null; };
+  }, []);
+
+  // ── Check audio output on mount ───────────
+  useEffect(() => {
+    async function checkAudio() {
+      // Check if the AudioContext was suspended (iOS: requires user gesture first)
+      const ctx = getAudioContext();
+      if (ctx && ctx.state === 'suspended') {
+        setAudioStatus('suspended');
+        return;
+      }
+      // Enumerate devices: look for any audiooutput device
+      if (navigator.mediaDevices?.enumerateDevices) {
+        try {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const outputs = devices.filter(d => d.kind === 'audiooutput');
+          // outputs.length === 0 means the browser sees no audio output hardware
+          if (outputs.length === 0) {
+            setAudioStatus('no-output');
+            return;
+          }
+        } catch { /* enumerateDevices not supported — assume ok */ }
+      }
+      setAudioStatus('ok');
+    }
+    checkAudio();
+  }, []);
+
+  // ── Test speaker: oscillator beep ─────────
+  const testSpeaker = useCallback(async () => {
+    setTestingAudio(true);
+    setAudioTestResult(null);
+    try {
+      // Use existing unlocked context if available, otherwise create a temporary one
+      let ctx = getAudioContext();
+      let tempCtx = false;
+      if (!ctx) {
+        ctx = new (window.AudioContext || window.webkitAudioContext)();
+        tempCtx = true;
+      }
+      await ctx.resume();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = 520; // pleasant mid-tone
+      gain.gain.setValueAtTime(0.25, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.6);
+      await new Promise(r => setTimeout(r, 700));
+      if (tempCtx) ctx.close();
+      setAudioStatus('ok');
+      setAudioTestResult('ok');
+    } catch {
+      setAudioTestResult('fail');
+      setAudioStatus('no-output');
+    }
+    setTestingAudio(false);
+  }, []);
 
   // ── Auto-scroll ───────────────────────────
   useEffect(() => {
@@ -252,6 +343,8 @@ export default function LiveTutorScreen({ goBack, award }) {
         // Fallback: collect full response then play as blob
         const blob = await res.blob();
         await playBlob(blob);
+        ttsFailCountRef.current = 0; // successful playback — clear warning
+        setShowAudioWarning(false);
         setPlaying(false);
         setPhase('none');
         return;
@@ -301,9 +394,12 @@ export default function LiveTutorScreen({ goBack, award }) {
 
       await endedPromise;
       URL.revokeObjectURL(audioEl.src);
+      ttsFailCountRef.current = 0; // successful streaming — clear warning
+      setShowAudioWarning(false);
 
     } catch {
       // Any MSE failure: fall back to non-streaming blob approach
+      let blobOk = false;
       try {
         const res2 = await apiFetch("/api/tts", {
           method: "POST",
@@ -313,8 +409,13 @@ export default function LiveTutorScreen({ goBack, award }) {
         if (res2.ok) {
           const blob = await res2.blob();
           await playBlob(blob);
+          blobOk = true;
         }
       } catch { /* silent fail — text still displayed */ }
+      if (!blobOk) {
+        ttsFailCountRef.current += 1;
+        if (ttsFailCountRef.current >= 2) setShowAudioWarning(true);
+      }
     }
     setPlaying(false);
     setPhase('none');
@@ -350,8 +451,12 @@ export default function LiveTutorScreen({ goBack, award }) {
       recorder.start();
       mediaRecorderRef.current = recorder;
       setIsRecording(true);
-    } catch {
-      // Mic permission denied or not available — fall back to text input
+    } catch (e) {
+      if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+        setMicPermission('denied');
+      } else if (e.name === 'NotFoundError' || e.name === 'DevicesNotFoundError') {
+        setMicPermission('unavailable');
+      }
       setUseFallbackInput(true);
     }
   }, [isRecording, thinking, playing]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -455,6 +560,128 @@ export default function LiveTutorScreen({ goBack, award }) {
           <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:4, textAlign:'center', maxWidth:260, lineHeight:1.5 }}>
             I'll speak Croatian with you, adapt to your level, and help you break through comprehension gaps.
           </div>
+        </div>
+
+        {/* Mic permission banner */}
+        {micPermission === 'denied' && (
+          <div style={{
+            margin:'0 16px 16px',
+            padding:'12px 16px',
+            borderRadius:12,
+            background:'rgba(220,38,38,.07)',
+            border:'1px solid rgba(220,38,38,.25)',
+            display:'flex', alignItems:'flex-start', gap:10,
+          }}>
+            <span style={{ fontSize:18, flexShrink:0 }}>🎙️</span>
+            <div>
+              <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'#b91c1c', marginBottom:2 }}>Microphone blocked</div>
+              <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.5 }}>
+                To speak with Marija, allow microphone access in your browser's site settings, then reload the page. You can still practice by typing below.
+              </div>
+            </div>
+          </div>
+        )}
+        {micPermission === 'unavailable' && (
+          <div style={{
+            margin:'0 16px 16px',
+            padding:'12px 16px',
+            borderRadius:12,
+            background:'rgba(0,0,0,.04)',
+            border:'1px solid var(--card-b)',
+            display:'flex', alignItems:'flex-start', gap:10,
+          }}>
+            <span style={{ fontSize:18, flexShrink:0 }}>🎙️</span>
+            <div>
+              <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--heading)', marginBottom:2 }}>No microphone detected</div>
+              <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.5 }}>
+                Connect a microphone to speak with Marija. You can still practice by typing.
+              </div>
+            </div>
+          </div>
+        )}
+        {micPermission === 'prompt' && (
+          <div style={{
+            margin:'0 16px 16px',
+            padding:'12px 16px',
+            borderRadius:12,
+            background:'rgba(59,130,246,.07)',
+            border:'1px solid rgba(59,130,246,.25)',
+            display:'flex', alignItems:'flex-start', gap:10,
+          }}>
+            <span style={{ fontSize:18, flexShrink:0 }}>🎙️</span>
+            <div>
+              <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'#1d4ed8', marginBottom:2 }}>Microphone needed</div>
+              <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.5 }}>
+                When you start, your browser will ask to use your microphone. Tap <strong>Allow</strong> to speak with Marija.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Audio output banner + speaker test */}
+        {audioStatus === 'no-output' && (
+          <div style={{
+            margin:'0 16px 16px',
+            padding:'12px 16px',
+            borderRadius:12,
+            background:'rgba(220,38,38,.07)',
+            border:'1px solid rgba(220,38,38,.25)',
+            display:'flex', alignItems:'flex-start', gap:10,
+          }}>
+            <span style={{ fontSize:18, flexShrink:0 }}>🔇</span>
+            <div>
+              <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'#b91c1c', marginBottom:2 }}>No audio output detected</div>
+              <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.5 }}>
+                Check that your speaker or headphones are connected and your device volume is turned up. Marija's voice won't be audible otherwise.
+              </div>
+            </div>
+          </div>
+        )}
+        {audioStatus === 'suspended' && (
+          <div style={{
+            margin:'0 16px 16px',
+            padding:'12px 16px',
+            borderRadius:12,
+            background:'rgba(245,158,11,.07)',
+            border:'1px solid rgba(245,158,11,.3)',
+            display:'flex', alignItems:'flex-start', gap:10,
+          }}>
+            <span style={{ fontSize:18, flexShrink:0 }}>🔈</span>
+            <div>
+              <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'#92400e', marginBottom:2 }}>Audio not yet unlocked</div>
+              <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.5 }}>
+                Tap anywhere on the page before starting — your browser requires a tap to enable audio playback.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Speaker test — always shown so users can verify before starting */}
+        <div style={{ margin:'0 16px 16px', display:'flex', alignItems:'center', gap:10 }}>
+          <button
+            onClick={testSpeaker}
+            disabled={testingAudio}
+            style={{
+              display:'flex', alignItems:'center', gap:6,
+              padding:'8px 14px', borderRadius:10,
+              border:'1.5px solid var(--card-b)',
+              background: audioTestResult === 'ok' ? 'rgba(22,163,74,.08)' : audioTestResult === 'fail' ? 'rgba(220,38,38,.07)' : 'var(--card)',
+              borderColor: audioTestResult === 'ok' ? 'rgba(22,163,74,.35)' : audioTestResult === 'fail' ? 'rgba(220,38,38,.3)' : 'var(--card-b)',
+              color:'var(--heading)', fontSize:'var(--text-xs)', fontWeight:700,
+              cursor: testingAudio ? 'wait' : 'pointer',
+              transition:'all .15s',
+            }}
+          >
+            <span>{testingAudio ? '⏳' : audioTestResult === 'ok' ? '✅' : audioTestResult === 'fail' ? '❌' : '🔊'}</span>
+            {testingAudio ? 'Testing…' : audioTestResult === 'ok' ? 'Speaker working' : audioTestResult === 'fail' ? 'No sound — check volume' : 'Test speaker'}
+          </button>
+          <span style={{ fontSize:'var(--text-xs)', color:'var(--subtext)' }}>
+            {audioTestResult === 'ok'
+              ? 'Audio is working — you\'re ready to go'
+              : audioTestResult === 'fail'
+              ? 'Check your volume and headphone connection'
+              : 'Tap to verify your speakers before starting'}
+          </span>
         </div>
 
         {/* Settings card */}
@@ -686,6 +913,43 @@ export default function LiveTutorScreen({ goBack, award }) {
           <span>⚠️</span>
           <span style={{ flex:1 }}>{error}</span>
           <button onClick={() => setError(null)} style={{ background:'none', border:'none', cursor:'pointer', color:'var(--error)', fontWeight:800 }}>✕</button>
+        </div>
+      )}
+
+      {/* ── Mic blocked banner (active session) ── */}
+      {useFallbackInput && (micPermission === 'denied' || micPermission === 'unavailable') && (
+        <div style={{
+          margin:'0 16px 8px',
+          padding:'10px 14px',
+          borderRadius:10,
+          background: micPermission === 'denied' ? 'rgba(220,38,38,.07)' : 'rgba(0,0,0,.04)',
+          border: '1px solid ' + (micPermission === 'denied' ? 'rgba(220,38,38,.2)' : 'var(--card-b)'),
+          fontSize:'var(--text-xs)', color:'var(--subtext)',
+          display:'flex', alignItems:'center', gap:8,
+        }}>
+          <span>🎙️</span>
+          <span style={{ flex:1 }}>
+            {micPermission === 'denied'
+              ? 'Microphone blocked — type your Croatian below. To enable voice, allow microphone access in your browser site settings and reload.'
+              : 'No microphone detected — type your Croatian below.'}
+          </span>
+        </div>
+      )}
+
+      {/* ── Audio playback warning (active session) ── */}
+      {showAudioWarning && (
+        <div style={{
+          margin:'0 16px 8px',
+          padding:'10px 14px',
+          borderRadius:10,
+          background:'rgba(245,158,11,.08)',
+          border:'1px solid rgba(245,158,11,.3)',
+          fontSize:'var(--text-xs)', color:'#92400e',
+          display:'flex', alignItems:'center', gap:8,
+        }}>
+          <span>🔇</span>
+          <span style={{ flex:1 }}>Not hearing Marija? Check your volume, speaker, or headphone connection. Her replies are shown as text above.</span>
+          <button onClick={() => setShowAudioWarning(false)} style={{ background:'none', border:'none', cursor:'pointer', color:'#92400e', fontWeight:800, flexShrink:0 }}>✕</button>
         </div>
       )}
 
