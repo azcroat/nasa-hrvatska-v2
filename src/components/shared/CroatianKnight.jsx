@@ -442,42 +442,44 @@ export default function CroatianKnight({ size = 80, mood = 'happy', className = 
             fill="rgba(255,255,255,0.35)"/>
 
           {/* ══ SHIELD ══
-              Heater-shape shield, held in left hand
-              Šahovnica 5×5 — WHITE FIRST (correct Croatian heraldry)
+              Heater-shape shield — pure 5×5 šahovnica, white (argent) first.
+              This is the historic Croatian coat of arms: "checky of 25,
+              argent and gules" — no added emblem, no boss.
+              5 cols × 7.4px = 37px fills the shield width cleanly.
+              7 rows shown; bottom point is red continuation of the pattern.
           */}
           <g transform="translate(-16, 76)">
             {/* Arm strap behind shield */}
             <rect rx="3" x="22" y="14" width="7" height="26"
               fill={C.brn} stroke={C.blk} strokeWidth="0.8" opacity="0.85"/>
 
-            {/* Shield white base (heater shape) */}
-            {/* M cx,top — Q right-top — L right-mid — L bottom-tip — L left-mid — Q left-top */}
-            <path d="M 19,0 Q 37,0 37,13 L 37,48 L 19,65 L 1,48 L 1,13 Q 1,0 19,0 Z"
-              fill="url(#lk-wh)" stroke={C.blk} strokeWidth="1.8"/>
+            {/* Shield background — filled with šahovnica squares */}
+            {/* 5 cols × 7.4px = 37px; 7 rows × 7.4px = 51.8px; sq=7.4 */}
+            {Array.from({ length: 7 }).flatMap((_, r) =>
+              Array.from({ length: 5 }).map((_, c) => (
+                <rect
+                  key={`sh-${r}-${c}`}
+                  x={1 + c * 7.4} y={1 + r * 7.4}
+                  width={7.4} height={7.4}
+                  fill={(r + c) % 2 === 0 ? C.wht : C.red}
+                />
+              ))
+            )}
+            {/* Bottom point — red fill (continues the pattern) */}
+            <path d="M 1,53 L 19,68 L 37,53 Z" fill={C.red}/>
+            {/* White triangle for argent continuation in point */}
+            <path d="M 8.4,53 L 19,64 L 29.6,53 Z" fill={C.wht}/>
 
-            {/* ŠAHOVNICA — 5×5, argent (white) first */}
-            {/* Squares: (r+c)%2===0 → white; else → red */}
-            {/* Clipped visually by drawing shield border on top */}
-            <Sahov x={2} y={3} sq={7}/>
+            {/* Shield outline — drawn on top to frame the šahovnica cleanly */}
+            <path d="M 19,0 Q 38,0 38,13 L 38,53 L 19,70 L 0,53 L 0,13 Q 0,0 19,0 Z"
+              fill="none" stroke={C.blk} strokeWidth="2.0"/>
+            {/* Gold trim border */}
+            <path d="M 19,0 Q 38,0 38,13 L 38,53 L 19,70 L 0,53 L 0,13 Q 0,0 19,0 Z"
+              fill="none" stroke="url(#lk-gd)" strokeWidth="1.4"/>
 
-            {/* Gold border — drawn ON TOP of šahovnica to frame it */}
-            <path d="M 19,0 Q 37,0 37,13 L 37,48 L 19,65 L 1,48 L 1,13 Q 1,0 19,0 Z"
-              fill="none" stroke="url(#lk-gd)" strokeWidth="2.8"/>
-
-            {/* Shield boss (center metal knob) */}
-            <circle cx="19" cy="29" r="6"
-              fill="url(#lk-gd)" stroke={C.blk} strokeWidth="1.1"/>
-            <circle cx="19" cy="29" r="3.5"
-              fill={C.gdHi} opacity="0.65"/>
-            <circle cx="17.5" cy="27.5" r="1.2"
-              fill="rgba(255,255,255,0.7)"/>
-
-            {/* Shield surface highlight (top-left plastic sheen) */}
-            <path d="M 5,4 Q 9,4 9,8"
-              stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" strokeLinecap="round"/>
-            {/* Bottom gradient darkening */}
-            <path d="M 5,44 L 19,58 L 33,44"
-              stroke="rgba(0,0,0,0.12)" strokeWidth="2" fill="none"/>
+            {/* Surface highlight — top-left sheen (LEGO plastic quality) */}
+            <path d="M 5,3 Q 9,3 9,7"
+              stroke="rgba(255,255,255,0.6)" strokeWidth="2.2" strokeLinecap="round"/>
           </g>
         </g>
 
