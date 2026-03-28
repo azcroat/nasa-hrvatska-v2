@@ -45,7 +45,7 @@ const PERSONAS = [
     name: 'Baka Mara',
     age: 73,
     location: 'Vinkovci, Slavonija',
-    avatar: '/images/portraits/baka.jpg',
+    avatar: '/images/portraits/grandmother.webp',
     fallbackEmoji: '👵',
     specialty: '👵 Slavonska baka',
     desc: 'Toplina, hrana, obiteljske priče. Savršeno za početnike.',
