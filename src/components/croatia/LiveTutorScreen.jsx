@@ -3,6 +3,16 @@ import { apiFetch } from '../../lib/apiFetch.js';
 import { getAudioContext } from '../../lib/audio.js';
 import { markQuest } from '../../lib/quests.js';
 
+// ── Keyframe for debrief spinner (injected once alongside TUTOR_CSS) ──
+const DEBRIEF_EXTRA_CSS = `
+@keyframes lt-debrief-spin { to { transform: rotate(360deg) } }
+@keyframes lt-debrief-pop {
+  0%   { transform: scale(0.85); opacity: 0; }
+  80%  { transform: scale(1.03); }
+  100% { transform: scale(1);    opacity: 1; }
+}
+`;
+
 // ─────────────────────────────────────────────
 // CONSTANTS
 // ─────────────────────────────────────────────
@@ -61,7 +71,7 @@ let cssInjected = false;
 function injectCSS() {
   if (cssInjected) return;
   const el = document.createElement('style');
-  el.textContent = TUTOR_CSS;
+  el.textContent = TUTOR_CSS + DEBRIEF_EXTRA_CSS;
   document.head.appendChild(el);
   cssInjected = true;
 }
@@ -76,6 +86,11 @@ export default function LiveTutorScreen({ goBack, award }) {
   const [level, setLevel] = useState("A2");
   const [topic, setTopic] = useState(TOPICS[0]);
   const [started, setStarted] = useState(false);
+
+  // ── Session debrief ───────────────────────
+  const [debrief, setDebrief] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const sessionStartRef = useRef(null);
 
   // ── Conversation state ────────────────────
   const [messages, setMessages] = useState([]);      // { role, content, gloss?, correction?, phase? }
@@ -202,6 +217,8 @@ export default function LiveTutorScreen({ goBack, award }) {
   // ── Start session: send opening message ───
   const startSession = useCallback(async () => {
     setStarted(true);
+    setDebrief(null);
+    sessionStartRef.current = Date.now();
     setMessages([]);
     apiMsgsRef.current = [];
     setBreakdownCount(0);
@@ -496,6 +513,46 @@ export default function LiveTutorScreen({ goBack, award }) {
     }
   }, [breakdownCount, sessionHistory, sendToTutor]);
 
+  // ── End session → fetch debrief from Marija ─
+  const endSession = useCallback(async () => {
+    if (summaryLoading || debrief) return;
+    setSummaryLoading(true);
+
+    // Build plain-text transcript
+    const transcript = messages
+      .map(m => `${m.role === 'user' ? 'Learner' : 'Marija'}: ${m.content}`)
+      .join('\n');
+    const durationSecs = sessionStartRef.current
+      ? Math.round((Date.now() - sessionStartRef.current) / 1000)
+      : messages.length * 30;
+
+    try {
+      const res = await apiFetch('/api/live-tutor-summary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transcript, level, topic, durationSecs, turnCount }),
+      });
+      const data = res.ok ? await res.json() : null;
+      setDebrief(data && data.summary ? { ...data, durationSecs } : {
+        summary: 'Odličan razgovor! Svaki put kad govoriš, napredak je zagarantiran.',
+        strength: 'You completed a full conversation session — that takes courage!',
+        nextStep: 'Practice the vocabulary from today in a flashcard session.',
+        xpEarned: Math.min(75, Math.max(25, Math.round(durationSecs / 60) * 10 + turnCount * 3)),
+        durationSecs,
+      });
+    } catch {
+      setDebrief({
+        summary: 'Odličan razgovor! Svaki put kad govoriš, napredak je zagarantiran.',
+        strength: 'You completed a full conversation session — that takes courage!',
+        nextStep: 'Practice the vocabulary from today in a flashcard session.',
+        xpEarned: Math.max(25, turnCount * 4),
+        durationSecs,
+      });
+    } finally {
+      setSummaryLoading(false);
+    }
+  }, [messages, level, topic, turnCount, summaryLoading, debrief]);
+
   // ── Text input submit ──────────────────────
   const handleTextSubmit = useCallback((e) => {
     e.preventDefault();
@@ -751,6 +808,98 @@ export default function LiveTutorScreen({ goBack, award }) {
   }
 
   // ─────────────────────────────────────────────
+  // RENDER — Session debrief
+  // ─────────────────────────────────────────────
+  if (debrief) {
+    const fmtDur = (s) => `${Math.floor(s/60)}m ${s%60}s`;
+    const xpEarned = debrief.xpEarned ?? 30;
+    return (
+      <div className="c" style={{ minHeight:'100vh', paddingBottom:40 }}>
+        <div style={{ padding:'16px 16px 0', display:'flex', alignItems:'center', gap:12 }}>
+          <button onClick={goBack} className="b bp" style={{ padding:'8px 14px', fontSize:'var(--text-sm)', fontWeight:700 }}>
+            ← Back
+          </button>
+        </div>
+        <div style={{ padding:'0 16px', animation:'lt-debrief-pop 0.5s ease-out both' }}>
+          {/* Confetti row */}
+          <div style={{ display:'flex', justifyContent:'center', gap:8, fontSize:22, margin:'20px 0 8px', height:50, overflow:'hidden', position:'relative' }}>
+            {['🎉','🌟','🗣️','✨','🎊','💫','🇭🇷','🎈'].map((e,i)=>(
+              <span key={i} style={{ display:'inline-block', animation:`maja-confetti-fall 1.8s ease-in ${(i*0.18).toFixed(2)}s both` }}>{e}</span>
+            ))}
+          </div>
+
+          <h2 style={{ textAlign:'center', fontSize:22, fontWeight:800, color:'var(--heading)', margin:'0 0 4px' }}>
+            Session Complete!
+          </h2>
+          <p style={{ textAlign:'center', color:'var(--subtext)', fontSize:13, margin:'0 0 20px' }}>
+            {fmtDur(debrief.durationSecs)} · {turnCount} turns · {topic}
+          </p>
+
+          {/* Marija's personal note */}
+          <div style={{ background:'var(--card)', border:'1px solid var(--card-b)', borderLeft:'3px solid #D4002D', borderRadius:12, padding:16, marginBottom:12, display:'flex', gap:12, alignItems:'flex-start' }}>
+            <div style={{ width:44, height:44, borderRadius:'50%', background:'rgba(212,0,45,.1)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0 }}>
+              👩‍🏫
+            </div>
+            <p style={{ fontSize:14, fontStyle:'italic', lineHeight:1.6, color:'var(--heading)', margin:0 }}>
+              {debrief.summary}
+            </p>
+          </div>
+
+          {/* Stats row */}
+          <div style={{ display:'flex', gap:8, marginBottom:12 }}>
+            {[
+              { label:'Turns', value: turnCount },
+              { label:'Minutes', value: Math.ceil(debrief.durationSecs/60) },
+              { label:'XP', value: `+${xpEarned}` },
+            ].map(({label,value})=>(
+              <div key={label} style={{ flex:1, background:'var(--card)', border:'1px solid var(--card-b)', borderRadius:10, padding:'10px 6px', textAlign:'center' }}>
+                <div style={{ fontSize:20, fontWeight:800, color:'var(--heading)' }}>{value}</div>
+                <div style={{ fontSize:11, color:'var(--subtext)', marginTop:2 }}>{label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Strength */}
+          <div style={{ background:'var(--card)', border:'1px solid var(--card-b)', borderLeft:'3px solid #16a34a', borderRadius:12, padding:'12px 16px', marginBottom:10 }}>
+            <p style={{ margin:0, fontSize:14, color:'var(--heading)', lineHeight:1.5 }}>✅ {debrief.strength}</p>
+          </div>
+
+          {/* Next step */}
+          <div style={{ background:'var(--card)', border:'1px solid var(--card-b)', borderLeft:'3px solid #b45309', borderRadius:12, padding:'12px 16px', marginBottom:20 }}>
+            <p style={{ margin:0, fontSize:14, color:'var(--heading)', lineHeight:1.5 }}>🎯 {debrief.nextStep}</p>
+          </div>
+
+          {/* CTA */}
+          <button
+            onClick={() => { if (award) award(xpEarned); goBack(); }}
+            style={{ width:'100%', height:52, borderRadius:12, background:'#D4002D', color:'#fff', border:'none', fontSize:16, fontWeight:800, cursor:'pointer' }}
+          >
+            +{xpEarned} XP · Back to App
+          </button>
+          <button
+            onClick={() => { setDebrief(null); setStarted(false); setMessages([]); apiMsgsRef.current = []; setBreakdownCount(0); setTurnCount(0); setSessionHistory(''); }}
+            style={{ width:'100%', height:48, borderRadius:12, background:'transparent', color:'var(--heading)', border:'1px solid var(--card-b)', fontSize:15, fontWeight:600, cursor:'pointer', marginTop:10 }}
+          >
+            Practice Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ─────────────────────────────────────────────
+  // RENDER — Summary loading overlay
+  // ─────────────────────────────────────────────
+  if (summaryLoading) {
+    return (
+      <div className="c" style={{ minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:20 }}>
+        <div style={{ width:48, height:48, borderRadius:'50%', border:'4px solid rgba(212,0,45,.15)', borderTopColor:'#D4002D', animation:'lt-debrief-spin 0.9s linear infinite' }}/>
+        <p style={{ color:'var(--subtext)', fontSize:14 }}>Marija is writing your summary…</p>
+      </div>
+    );
+  }
+
+  // ─────────────────────────────────────────────
   // RENDER — Active conversation screen
   // ─────────────────────────────────────────────
   const phaseInfo = PHASE_LABELS[phase] || PHASE_LABELS.none;
@@ -960,10 +1109,26 @@ export default function LiveTutorScreen({ goBack, award }) {
         background:'var(--card)',
         flexShrink:0,
       }}>
-        {/* Gloss toggle */}
+        {/* Gloss toggle + End Session */}
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
-          <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)' }}>
-            Turn {turnCount} · Breakdown {breakdownCount}/3
+          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+            <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)' }}>
+              Turn {turnCount} · Breakdown {breakdownCount}/3
+            </div>
+            {messages.length >= 2 && (
+              <button
+                onClick={endSession}
+                disabled={summaryLoading}
+                style={{
+                  padding:'4px 10px', borderRadius:20,
+                  background:'rgba(212,0,45,.08)',
+                  border:'1px solid rgba(212,0,45,.25)',
+                  color:'#D4002D', fontSize:10, fontWeight:700, cursor:'pointer',
+                }}
+              >
+                End Session
+              </button>
+            )}
           </div>
           <button
             onClick={() => setShowGloss(v => !v)}

@@ -229,6 +229,7 @@ const AIListeningScreen = lazyWithReload(() => import("./components/practice/AIL
 const GrammarDiagnosisScreen = lazyWithReload(() => import("./components/home/GrammarDiagnosisScreen.jsx"));
 const MicroLessonScreen = lazyWithReload(() => import("./components/learn/MicroLessonScreen.jsx"));
 const LiveTutorScreen = lazyWithReload(() => import("./components/croatia/LiveTutorScreen.jsx"));
+const PhotoVocabScanner = lazyWithReload(() => import("./components/shared/PhotoVocabScanner.jsx"));
 
 // Module-level constants — defined once, not recreated on every render
 const DS={xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,authLoading:0,mv:0,hi:0,rs:[],ct:[],vs:[],badges:[]};
@@ -1439,6 +1440,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {currentScreen==="personas"&&<PersonaScreen goBack={goBack} setScr={setScr} />}
       {currentScreen==="maja"&&(isPremium?<MajaScreen goBack={goBack} award={award} />:<PaywallScreen featureName="Maja AI Tutor" onClose={goBack} onSubscribed={()=>{refreshSub();}} />)}
       {currentScreen==="live_tutor"&&(isPremium?<LiveTutorScreen goBack={goBack} award={award} />:<PaywallScreen featureName="Live Tutor" onClose={goBack} onSubscribed={()=>{refreshSub();}} />)}
+      {currentScreen==="photo_vocab"&&<PhotoVocabScanner goBack={goBack} level={level} onSaveWords={(words)=>{words.forEach(w=>{if(w.hr&&w.en)setJWords(prev=>[...(prev||[]),{hr:w.hr,en:w.en}]);});}} />}
       {currentScreen==="ai_listening"&&<AIListeningScreen goBack={goBack} award={award} />}
       {currentScreen==="grammar_diagnosis"&&<GrammarDiagnosisScreen goBack={goBack} award={award} />}
       {currentScreen==="micro_lesson"&&<MicroLessonScreen goBack={goBack} award={award} goFlashcards={()=>{launchFlashcards([]);}} />}

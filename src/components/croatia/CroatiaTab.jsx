@@ -492,6 +492,27 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
             </div>
           </div>
 
+          {/* ── PHOTO VOCAB SCANNER ── */}
+          <button
+            onClick={() => setScr('photo_vocab')}
+            style={{
+              marginBottom:12, width:'100%', border:'none', cursor:'pointer', padding:0,
+              borderRadius:16, overflow:'hidden',
+              background:'linear-gradient(135deg,#164e63,#0e7490)',
+              boxShadow:'0 4px 16px rgba(14,116,144,.35)',
+            }}
+          >
+            <div style={{padding:'14px 16px',display:'flex',alignItems:'center',gap:14}}>
+              <div style={{fontSize:36,flexShrink:0}}>📷</div>
+              <div style={{flex:1,textAlign:'left'}}>
+                <div style={{fontSize:10,fontWeight:900,color:'rgba(255,255,255,.7)',letterSpacing:'.1em',textTransform:'uppercase',marginBottom:3}}>NEW · AI FEATURE</div>
+                <div style={{fontSize:16,fontWeight:900,color:'#fff',marginBottom:2}}>Photo Vocabulary Scanner</div>
+                <div style={{fontSize:12,color:'rgba(255,255,255,.75)',lineHeight:1.4}}>Point your camera at anything — menus, signs, labels — and learn the Croatian words instantly.</div>
+              </div>
+              <div style={{fontSize:20,color:'rgba(255,255,255,.7)'}}>→</div>
+            </div>
+          </button>
+
           {/* ── CITY OF THE DAY ── */}
           <button style={{marginBottom:16,borderRadius:16,overflow:"hidden",boxShadow:"0 4px 16px rgba(0,0,0,.1)",width:"100%",border:"none",cursor:"pointer",padding:0,textAlign:"left"}} onClick={()=>{ incrementCulture('cityCnt'); if (award) award(3); setScr("cityofday"); }}>
             <div style={{background:"linear-gradient(135deg,"+city.color+"dd,"+city.color+")",padding:"14px 16px",display:"flex",alignItems:"center",gap:14}}>
