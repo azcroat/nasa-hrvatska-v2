@@ -80,10 +80,12 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
     // fbLoadProgress call. Without this capture, lpTs = Date.now() and Firebase data
     // from our last patch (fpTs = older timestamp) is incorrectly rejected.
     let origLocalSavedAt = 0;
+    let origLocalFbUpdated = 0;
     if (s && s.u) {
       const cached = gP(s.u);
       if (cached) {
         origLocalSavedAt = cached.savedAt || 0;
+        origLocalFbUpdated = cached._fbUpdated || 0;
         earlyRestored = true;
         const user = { u: s.u, d: s.d || s.u, e: s.u };
         setAuthUser(user);
@@ -155,6 +157,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         // Local data exists but wasn't used for early restore (e.g., key mismatch).
         // Show app now and let Firebase update via isHydrate.
         origLocalSavedAt = localP.savedAt || 0;
+        origLocalFbUpdated = localP._fbUpdated || 0;
         earlyRestored = true;
         cb.current.onSignedIn({ user, progress: localP });
         setAuthScreen('app');
@@ -200,8 +203,9 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
           // Use the pre-captured savedAt (before autosave raced ahead) when available.
           // origLocalSavedAt is set during early-restore, before React effects run.
           // After first use, reset to 0 so subsequent polling uses current localStorage.
-          const lpTs = origLocalSavedAt > 0 ? origLocalSavedAt : ((lp && lp.savedAt) || 0);
+          const lpTs = origLocalFbUpdated > 0 ? origLocalFbUpdated : (origLocalSavedAt > 0 ? origLocalSavedAt : ((lp && (lp._fbUpdated || lp.savedAt)) || 0));
           origLocalSavedAt = 0;
+          origLocalFbUpdated = 0;
           const remoteIsNewer = fpTs > lpTs || (!fpTs && !lpTs && fpXP >= lpXP);
 
           if (remoteIsNewer) {
@@ -255,7 +259,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         if (watchRef.current) watchRef.current(); // stop any prior watcher
         watchRef.current = fbWatchProgress(k, function(remoteFp, remoteTs) {
           const lc = gP(k);
-          const localTs = (lc && lc._fbUpdated) || 0;
+          const localTs = (lc && (lc._fbUpdated || lc.savedAt)) || 0;
           if (remoteTs > localTs) {
             lP(k, remoteFp);
             cb.current.onSignedIn({ user, progress: remoteFp, isHydrate: true });
@@ -277,7 +281,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         if (watchRef.current) watchRef.current();
         watchRef.current = fbWatchProgress(k, function(remoteFp, remoteTs) {
           const lc = gP(k);
-          const localTs = (lc && lc._fbUpdated) || 0;
+          const localTs = (lc && (lc._fbUpdated || lc.savedAt)) || 0;
           if (remoteTs > localTs) {
             lP(k, remoteFp);
             cb.current.onSignedIn({ user, progress: remoteFp, isHydrate: true });
