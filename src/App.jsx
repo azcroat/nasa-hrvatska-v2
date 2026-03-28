@@ -48,7 +48,7 @@ import CroatianGrb from "./components/shared/CroatianGrb.jsx";
 import CookieConsent from "./components/shared/CookieConsent.jsx";
 import TermsOfService from "./components/shared/TermsOfService.jsx";
 import PaywallScreen from "./components/shared/PaywallScreen.jsx";
-import { useSubscription, startTrial } from "./hooks/useSubscription.js";
+import { useSubscription, grantFreeAnnual } from "./hooks/useSubscription.js";
 import AdminDashboard from "./components/admin/AdminDashboard.jsx";
 import PlacementTest from "./components/home/PlacementTest.jsx";
 import NewPlacementTest from "./components/auth/PlacementTest.jsx";
@@ -297,7 +297,7 @@ function getDaysSinceJoin(authUser) {
 
 function App(){
   useNotifications();
-  const { isPremium, inTrial, daysLeft, refresh: refreshSub } = useSubscription();
+  const { isPremium, isFreeAnnual, daysLeft, refresh: refreshSub } = useSubscription();
   const [showPaywall, setShowPaywall] = useState(false);
   const [paywallFeature, setPaywallFeature] = useState('AI Tutor');
 
@@ -532,8 +532,8 @@ function App(){
       // never the welcome screen, regardless of XP or completion state.
       if (isNew) setScr('welcome');
       else _goPostAuth(true);
-      // Start 7-day free trial for all users (no-op if already started)
-      startTrial(user.u);
+      // Grant free annual subscription (no-op if already active with >30 days left)
+      grantFreeAnnual(user.u);
       refreshSub();
     },
     onSignedOut() { setStats(ds); setScr('welcome'); setName(''); setFamData(null); setFamMembers([]); },
@@ -694,6 +694,10 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       }
     });
   },[authUser?.u]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Grant / auto-renew free annual subscription for returning signed-in users.
+  // Fires when authUser becomes available (app mount or sign-in). grantFreeAnnual is
+  // a no-op for paid subscribers and when the annual has >30 days left.
+  useEffect(()=>{if(authUser?.u)grantFreeAnnual(authUser.u);},[authUser?.u]); // eslint-disable-line react-hooks/exhaustive-deps
   // Keep _uidRef in sync so usePreferences.toggleFav can fire fbToggleFavorite immediately
   useEffect(()=>{_uidRef.current=authUser?.u||null;},[authUser]);
   // Cache Firebase ID token every 30 min so navigator.sendBeacon can authenticate the
@@ -1038,10 +1042,11 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {streakRestoredCount>0&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#b61800,#dc2626)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(182,24,0,.4)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease",whiteSpace:"nowrap"}}>🇭🇷 Streak restored! {streakRestoredCount}-day streak back!</div>}
       {ttsFailedToast&&<div style={{position:"fixed",bottom:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"rgba(30,30,30,.92)",color:"#fff",borderRadius:20,padding:"9px 20px",fontSize:13,fontWeight:600,pointerEvents:"none",animation:"slideUp .3s ease",whiteSpace:"nowrap"}}>🔇 Audio unavailable</div>}
       {showPaywall&&<PaywallScreen featureName={paywallFeature} onClose={()=>setShowPaywall(false)} onSubscribed={()=>{setShowPaywall(false);refreshSub();}} />}
-      {inTrial&&daysLeft!=null&&daysLeft<=3&&authScreen==="app"&&currentScreen==="dashboard"&&(
+      {/* Renewal reminder: only shown when free_annual has ≤30 days left AND monetisation is active */}
+      {!isFreeAnnual&&daysLeft!=null&&daysLeft<=3&&authScreen==="app"&&currentScreen==="dashboard"&&(
         <div style={{position:"fixed",top:60,left:0,right:0,zIndex:890,background:"linear-gradient(135deg,#164e63,#0e7490)",color:"#fff",padding:"8px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",fontSize:12,fontWeight:700}}>
-          <span style={{fontSize:12}}>Trial: {daysLeft}d left</span>
-          <button onClick={()=>setShowPaywall(true)} style={{background:"#fff",color:"#0e7490",border:"none",borderRadius:20,padding:"4px 12px",fontSize:11,fontWeight:800,cursor:"pointer"}}>Upgrade</button>
+          <span style={{fontSize:12}}>Premium: {daysLeft}d left</span>
+          <button onClick={()=>setShowPaywall(true)} style={{background:"#fff",color:"#0e7490",border:"none",borderRadius:20,padding:"4px 12px",fontSize:11,fontWeight:800,cursor:"pointer"}}>Renew</button>
         </div>
       )}
       {emailUnverified && (
