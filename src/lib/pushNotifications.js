@@ -24,11 +24,11 @@ function urlBase64ToUint8Array(b64) {
 }
 
 export function isNotificationsEnabled() {
-  return localStorage.getItem(NOTIF_KEY) === 'true';
+  try { return localStorage.getItem(NOTIF_KEY) === 'true'; } catch { return false; }
 }
 
 export function setNotificationsEnabled(val) {
-  localStorage.setItem(NOTIF_KEY, String(val));
+  try { localStorage.setItem(NOTIF_KEY, String(val)); } catch { }
 }
 
 export async function requestNotificationPermission() {
@@ -59,7 +59,7 @@ export async function initPushNotifications() {
       });
     }
 
-    localStorage.setItem(SUB_KEY, JSON.stringify(subscription.toJSON()));
+    try { localStorage.setItem(SUB_KEY, JSON.stringify(subscription.toJSON())); } catch { }
 
     // Register Periodic Background Sync for daily reminders (no server needed)
     if ('periodicSync' in registration) {
@@ -81,8 +81,7 @@ export async function initPushNotifications() {
 }
 
 export function getPushSubscription() {
-  const raw = localStorage.getItem(SUB_KEY);
-  return raw ? JSON.parse(raw) : null;
+  try { const raw = localStorage.getItem(SUB_KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }
 }
 
 // Goal-specific reminder message pools
@@ -121,9 +120,7 @@ const DEFAULT_MESSAGES = [
 ];
 
 function getGoalMessages(streakDays) {
-  const goal = localStorage.getItem('nh_goal') || '';
-  const pool = GOAL_MESSAGES[goal] || DEFAULT_MESSAGES;
-  return pool[streakDays % pool.length];
+  try { const goal = localStorage.getItem('nh_goal') || ''; const pool = GOAL_MESSAGES[goal] || DEFAULT_MESSAGES; return pool[streakDays % pool.length]; } catch { return DEFAULT_MESSAGES[0]; }
 }
 
 // Schedule a local notification using smart timing and goal-aware messaging.
@@ -133,7 +130,7 @@ export function scheduleLocalReminder(streakDays = 0) {
   if (!isNotificationsEnabled()) return;
   if (Notification.permission !== 'granted') return;
 
-  const lastPractice = localStorage.getItem('nh_last_practice_date');
+  let lastPractice = null; try { lastPractice = localStorage.getItem('nh_last_practice_date'); } catch { }
   const today = new Date().toISOString().slice(0, 10);
   if (lastPractice === today) return;
 
@@ -141,7 +138,7 @@ export function scheduleLocalReminder(streakDays = 0) {
   const target = new Date();
 
   // Smart timing: use last practice hour if valid (6–22), schedule 30 min before
-  const lastHourRaw = localStorage.getItem('nh_last_practice_time');
+  let lastHourRaw = null; try { lastHourRaw = localStorage.getItem('nh_last_practice_time'); } catch { }
   const lastHour = lastHourRaw !== null ? parseInt(lastHourRaw, 10) : NaN;
 
   if (!isNaN(lastHour) && lastHour >= 6 && lastHour <= 22) {
@@ -177,7 +174,7 @@ export function scheduleLocalReminder(streakDays = 0) {
 
 // Goal-specific call-to-action suffix for re-engagement messages
 function getGoalCTA() {
-  const goal = localStorage.getItem('nh_goal') || '';
+  let goal = ''; try { goal = localStorage.getItem('nh_goal') || ''; } catch { }
   const ctas = {
     heritage: ' Honor your roots — 5 minutes today! 🇭🇷',
     family:   ' Do it for the people you love 💙',
@@ -197,13 +194,13 @@ export function scheduleReEngagementReminder() {
   if (Notification.permission !== 'granted') return;
 
   // Rate-limit: only once per 48 hours
-  const sentRaw = localStorage.getItem('nh_reengagement_sent');
+  let sentRaw = null; try { sentRaw = localStorage.getItem('nh_reengagement_sent'); } catch { }
   if (sentRaw) {
     const sentAt = parseInt(sentRaw, 10);
     if (Date.now() - sentAt < 48 * 60 * 60 * 1000) return;
   }
 
-  const lastSeenRaw = localStorage.getItem('nh_last_seen');
+  let lastSeenRaw = null; try { lastSeenRaw = localStorage.getItem('nh_last_seen'); } catch { }
   if (!lastSeenRaw) return;
 
   const lastSeen = parseInt(lastSeenRaw, 10);
@@ -220,7 +217,7 @@ export function scheduleReEngagementReminder() {
     body += " +50 XP bonus when you return today!";
   }
 
-  localStorage.setItem('nh_reengagement_sent', String(Date.now()));
+  try { localStorage.setItem('nh_reengagement_sent', String(Date.now())); } catch { }
 
   setTimeout(() => {
     if (isNotificationsEnabled() && Notification.permission === 'granted') {
