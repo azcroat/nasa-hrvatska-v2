@@ -855,14 +855,37 @@ const STREAK_MILESTONES=[7,14,21,30,50,100,365];
 function localDateStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function updateStreak(){
   const s=getStreak();const today=localDateStr();
-  if(s.last===today)return{...s,milestone:null};
+  if(s.last===today){
+    // Same day: increment earn-back lesson count if active
+    try{const eb=JSON.parse(localStorage.getItem('nh_earn_back')||'null');if(eb&&eb.date===today){eb.lc=(eb.lc||1)+1;localStorage.setItem('nh_earn_back',JSON.stringify(eb));}}catch{}
+    return{...s,milestone:null};
+  }
   const yd=new Date(Date.now()-86400000);const yesterday=yd.getFullYear()+'-'+String(yd.getMonth()+1).padStart(2,'0')+'-'+String(yd.getDate()).padStart(2,'0');
   let milestone=null;
   let freezeUsed=false;
   if(s.last===yesterday){s.count++;s.last=today;if(STREAK_MILESTONES.includes(s.count))milestone=s.count;}
-  else if(s.last!==today){if(spendFreeze()){s.last=today;s.frozeOn=today;freezeUsed=true;}else{s.count=1;s.last=today;}}
+  else if(s.last!==today){
+    if(spendFreeze()){s.last=today;s.frozeOn=today;freezeUsed=true;}
+    else{
+      // Streak broken — save earn-back opportunity if they had ≥2 streak
+      if(s.count>=2){try{localStorage.setItem('nh_earn_back',JSON.stringify({prev:s.count,date:today,lc:1}));}catch{}}
+      s.count=1;s.last=today;
+    }
+  }
   localStorage.setItem("uStreak",JSON.stringify(s));
   return{...s,milestone,freezeUsed};
+}
+// Returns {prev, date, lc} if an earn-back opportunity exists for today, else null
+function getStreakEarnBack(){
+  try{const eb=JSON.parse(localStorage.getItem('nh_earn_back')||'null');if(!eb)return null;if(eb.date!==localDateStr())return null;return eb;}catch{return null;}
+}
+// Restores streak to earned-back count; clears the earn-back token. Returns restored count or 0.
+function applyStreakEarnBack(){
+  const eb=getStreakEarnBack();
+  if(!eb||eb.lc<2)return 0;
+  const s=getStreak();s.count=eb.prev;localStorage.setItem("uStreak",JSON.stringify(s));
+  try{localStorage.removeItem('nh_earn_back');}catch{}
+  return eb.prev;
 }
 // ═══ CROATIAN PROVERBS ═══
 const PROVERBS = [
@@ -5163,4 +5186,4 @@ function getJourneyMilestones() {
 export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, DAILY_QUESTS, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, CROATIAN_CITIES, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, SEASONAL_CAMPAIGNS, LEVEL_NARRATIVE };
 export { _fbReady };
 export { H, Bar, Spk };
-export { initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbToggleFavorite, fbGetIdToken, fbRegister, fbLogin, fbLogout, fbLoginGoogle, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbWatchFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbOnAuthStateChanged, fbDeleteAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, lXPgain, getSR, saveSR, srMark, getSRScore, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex, getDueReviews, getMistakes, recordMistake, clearMistake, clearAllMistakes, bootstrapMistakesFromSRS, getActiveCampaign, recordJourneyMilestone, getJourneyMilestones };
+export { initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbToggleFavorite, fbGetIdToken, fbRegister, fbLogin, fbLogout, fbLoginGoogle, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbWatchFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbOnAuthStateChanged, fbDeleteAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, lXPgain, getSR, saveSR, srMark, getSRScore, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getStreakEarnBack, applyStreakEarnBack, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex, getDueReviews, getMistakes, recordMistake, clearMistake, clearAllMistakes, bootstrapMistakesFromSRS, getActiveCampaign, recordJourneyMilestone, getJourneyMilestones };

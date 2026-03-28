@@ -205,15 +205,22 @@ export function scheduleReEngagementReminder() {
 
   const lastSeen = parseInt(lastSeenRaw, 10);
   const diffMs   = Date.now() - lastSeen;
-  const threeDays = 3 * 24 * 60 * 60 * 1000;
-  const sevenDays = 7 * 24 * 60 * 60 * 1000;
+  const threeDays   = 3  * 24 * 60 * 60 * 1000;
+  const sevenDays   = 7  * 24 * 60 * 60 * 1000;
+  const fourteenDays= 14 * 24 * 60 * 60 * 1000;
 
   if (diffMs < threeDays) return;
 
-  let body = "We miss you! 💙 Your Croatian is waiting — just 5 minutes to get back on track.";
+  let title = "We miss you! 💙";
+  let body  = "Your Croatian is waiting — just 5 minutes to get back on track.";
   body += getGoalCTA();
 
-  if (diffMs >= sevenDays) {
+  if (diffMs >= fourteenDays) {
+    title = "Your progress is safe 🇭🇷";
+    body  = "It's been 2 weeks, but your Croatian is preserved and ready. "
+          + "Come back today — complete 2 lessons and restore your streak! +100 XP waiting.";
+    body += getGoalCTA();
+  } else if (diffMs >= sevenDays) {
     body += " +50 XP bonus when you return today!";
   }
 
@@ -221,7 +228,7 @@ export function scheduleReEngagementReminder() {
 
   setTimeout(() => {
     if (isNotificationsEnabled() && Notification.permission === 'granted') {
-      new Notification("We miss you! 💙", {
+      new Notification(title, {
         body,
         icon:     '/icons/icon-192x192.png',
         tag:      'nh-reengagement',
