@@ -1305,16 +1305,35 @@ const STORIES = [
       {text:"Koliko koštaju jagode?",next:3},{text:"Dajte mi kilu trešanja.",next:3}]},
     {text:"Prodava\u010d sira ka\u017ee: \u0027Probajte na\u0161 doma\u0107i sir! Iz Like je.\u0027",en:"The cheese seller says: \u0027Try our homemade cheese! It\u0027s from Lika.\u0027",choices:[
       {text:"Da, molim! Koliko košta?",next:3},{text:"Hvala, samo gledam.",next:3}]},
-    {text:"Kupio si sve \u0161to ti treba. Vre\u0107ica je puna. Ka\u017ee\u0161: \u0027Hvala i doviđenja!\u0027 Prodavačica odgovara: \u0027Doviđenja, vidimo se!\u0027",en:"You bought everything you need. Your bag is full. You say: \u0027Thanks and goodbye!\u0027 The seller replies: \u0027Goodbye, see you!\u0027",choices:[]}
+    {text:"Kupio/Kupila si sve \u0161to ti treba. Vre\u0107ica je puna. Ka\u017ee\u0161: \u0027Hvala i doviđenja!\u0027 Prodavačica odgovara: \u0027Doviđenja, vidimo se!\u0027",en:"You bought everything you need. Your bag is full. You say: \u0027Thanks and goodbye!\u0027 The seller replies: \u0027Goodbye, see you!\u0027",choices:[]}
   ]},
-  {title:"Izgubljen u Splitu",tEn:"Lost in Split",scenes:[
+  {title:"Na Poslu",tEn:"At Work",cefr:"B1",scenes:[
+    {text:"Tvoj šef ulazi u ured i kaže: 'Moraš do petka predati izvješće o projektu. Imaš li pitanja?'",en:"Your boss enters the office and says: 'You need to submit the project report by Friday. Do you have any questions?'",choices:[
+      {text:"Naravno, sve je jasno.",next:1},{text:"Oprostite, do kojeg petka?",next:2}]},
+    {text:"Šef kaže: 'Odlično! Ako budeš trebao/trebala pomoć, javi mi se.' Počinješ raditi na izvješću.",en:"Boss says: 'Excellent! If you need help, let me know.' You start working on the report.",choices:[
+      {text:"Pišeš izvješće sam/sama.",next:3},{text:"Pitaš kolegu za savjet.",next:4}]},
+    {text:"Šef odgovara: 'Ovog petka, dakle prekosutra. Znaš li koristiti naš softver za izvješća?'",en:"Boss replies: 'This Friday, so the day after tomorrow. Do you know how to use our reporting software?'",choices:[
+      {text:"Da, naučio/naučila sam ga prošli tjedan.",next:3},{text:"Ne baš — možete li mi pokazati?",next:4}]},
+    {text:"Napisao/Napisala si izvješće. Šef ga čita i kaže: 'Izvrsno! Sve si objasnio/objasnila jasno. Bravo!'",en:"You wrote the report. Your boss reads it and says: 'Excellent! You explained everything clearly. Bravo!'",choices:[]}  ,
+    {text:"Kolega ti pomaže i naučiš novi trik u softveru. Izvješće završavaš na vrijeme. Šef je zadovoljan.",en:"A colleague helps you and you learn a new software trick. You finish the report on time. Your boss is satisfied.",choices:[]}
+  ]},
+  {title:"Izgubljen/a u Splitu",tEn:"Lost in Split",scenes:[
     {text:"Hoda\u0161 Splitom ali ne zna\u0161 gdje si. Vidi\u0161 prolaznika i policajca.",en:"You\u0027re walking through Split but don\u0027t know where you are. You see a passerby and a police officer.",choices:[
       {text:"Pitaj prolaznika",next:1},{text:"Pitaj policajca",next:2}]},
     {text:"Kažeš: \u0027Oprostite, gdje je Dioklecijanova palača?\u0027 Prolaznik odgovara: \u0027Idite ravno pa skrenite lijevo kod crkve.\u0027",en:"You say: \u0027Excuse me, where is Diocletian\u0027s Palace?\u0027 The passerby answers: \u0027Go straight then turn left at the church.\u0027",choices:[
       {text:"Hvala! Idem ravno.",next:3},{text:"Možete li mi pokazati na karti?",next:3}]},
     {text:"Policajac ka\u017ee: \u0027Pala\u010da? Vrlo blizu! Pet minuta pe\u0161ice. Pratite ovu ulicu do mora.\u0027",en:"The officer says: \u0027The Palace? Very close! Five minutes on foot. Follow this street to the sea.\u0027",choices:[
       {text:"Hvala puno!",next:3},{text:"A gdje je dobra konoba?",next:3}]},
-    {text:"Na\u0161ao si Dioklecijanovu pala\u010du! Prekrasna je. Sjeda\u0161 na Rivu i naručuje\u0161 gemišt. Život je lijep.",en:"You found Diocletian\u0027s Palace! It\u0027s stunning. You sit on the Riva and order a gemišt. Life is beautiful.",choices:[]}
+    {text:"Na\u0161ao/Na\u0161la si Dioklecijanovu pala\u010du! Prekrasna je. Sjeda\u0161 na Rivu i naručuje\u0161 gemišt. Život je lijep.",en:"You found Diocletian\u0027s Palace! It\u0027s stunning. You sit on the Riva and order a gemišt. Life is beautiful.",choices:[]}
+  ]},
+  {title:"Sastanak s Prijaviteljem",tEn:"Meeting the Landlord",cefr:"B2",scenes:[
+    {text:"Zvonim na vrata stana koji želiš iznajmiti. Otvara ih Tomislav, vlasnik. Kaže: 'Izvolite, uđite. Stan je tek renoviran — mijenjali smo instalacije i parkete.'",en:"You ring the doorbell of the apartment you want to rent. Tomislav, the owner, opens it. 'Please come in. The apartment was just renovated — we replaced the plumbing and floors.'",choices:[
+      {text:"Prekrasno! Kada bih mogao/mogla uselit?",next:1},{text:"Sjajno. Što je uključeno u najam?",next:2}]},
+    {text:"Tomislav razmišlja: 'Prošlotjedni stanari izlaze do 15-og. Kad biste mogli doći po ključeve?' Odgovaraš...",en:"Tomislav thinks: 'The current tenants leave by the 15th. When could you come for the keys?' You reply...",choices:[
+      {text:"Odgovara mi 16-i, ako vam je to u redu.",next:3},{text:"Moram provjeriti s poslodavcem — mogu li vas nazvati sutra?",next:3}]},
+    {text:"'U najam je uključeno grijanje i voda. Struju i internet sami plaćate.' Pitaš o parkiranju.",en:"'Heating and water are included in the rent. You pay electricity and internet yourself.' You ask about parking.",choices:[
+      {text:"Ima li parking u blizini?",next:3},{text:"Razumijem. A je li dozvoljeno imati kućnog ljubimca?",next:3}]},
+    {text:"Tomislav kaže: 'Odlično! Samo trebamo kopiju putovnice i jamčevinu od jednog stanarskog rata. Dogovoreno?' Suglasan/Suglasna si — ugovarate ključeve za sljedeći tjedan.",en:"Tomislav says: 'Great! We just need a copy of your passport and a deposit of one month's rent. Agreed?' You agree — you arrange to pick up the keys next week.",choices:[]}
   ]}
 ];
 // ═══ NUMBER & TIME DRILLS ═══
@@ -1326,7 +1345,7 @@ const NUMTIME = {
     {q:"How do you say 73?",a:"sedamdeset tri",al:["šezdeset tri","sedamdeset sedam","osamdeset tri"]},
     {q:"How do you say 100?",a:"sto",al:["tisuću","deset","dvjesto"]},
     {q:"How do you say 365?",a:"tristo šezdeset pet",al:["tristo pedeset pet","dvjesto šezdeset pet","tristo šezdeset šest"]},
-    {q:"How do you say 1000?",a:"tisuću",al:["sto","milijun","deset tisuća"]},
+    {q:"How do you say 1000?",a:"tisuća",al:["sto","milijun","deset tisuća"]},
     {q:"Koliko je 12 + 8?",a:"dvadeset",al:["osamnaest","dvadeset dva","devetnaest"]}
   ],
   time: [
@@ -1337,7 +1356,47 @@ const NUMTIME = {
     {q:"It\u0027s 9:15 AM =",a:"Devet sati i petnaest minuta",al:["Devet i pol","Deset i petnaest","Osam i petnaest"]},
     {q:"\u0027Pola pet\u0027 means?",a:"4:30",al:["5:30","5:00","4:00"]},
     {q:"\u0027Četvrt do šest\u0027 means?",a:"5:45",al:["6:15","6:45","5:15"]},
-    {q:"47 euros in Croatian?",a:"Četrdeset sedam eura",al:["Četrdeset pet eura","Trideset sedam eura","Pedeset sedam eura"]}
+    {q:"47 euros in Croatian?",a:"Četrdeset sedam eura",al:["Četrdeset pet eura","Trideset sedam eura","Pedeset sedam eura"]},
+    {q:"Colloquial: 'Pola sedam' means?",a:"6:30",al:["7:30","7:00","6:00"],note:"'Pola' + next hour = half past previous hour. Pola sedam = half to seven = 6:30"},
+    {q:"'Ujutro' means what time of day?",a:"Morning (roughly 6–12)",al:["Afternoon","Evening","Night"]},
+    {q:"Which is colloquial for 'the day after tomorrow'?",a:"prekosutra",al:["jučer","sutra","predjuče"]},
+    {q:"'Uskoro' means?",a:"Soon",al:["Yesterday","Tomorrow","Never"]},
+    {q:"Formal vs colloquial: '15:00' vs colloquial?",a:"Tri sata (popodne)",al:["Petnaest","Tri popodne","Poslijepodne tri"]},
+    {q:"'Tek' in 'Tek sam stigao' means?",a:"Just / only just",al:["Already","Not yet","Always"]}
+  ],
+  colloquial:[
+    {formal:"petnaest sati",colloquial:"tri sata popodne",en:"3:00 PM"},
+    {formal:"trinaest sati",colloquial:"jedan popodne",en:"1:00 PM"},
+    {formal:"dvadeset sati",colloquial:"osam navečer",en:"8:00 PM"},
+    {formal:"pola osam",colloquial:"sedam i trideset",en:"7:30 (lit. half-eight)",note:"'Pola osam' = half past seven (30 min before 8), NOT 8:30!"},
+    {formal:"četvrt do deset",colloquial:"devet i četrdeset pet",en:"9:45"},
+    {formal:"petnaest do pet",colloquial:"četiri i četrdeset pet",en:"4:45"},
+  ]
+};
+// ═══ NUMBER–NOUN AGREEMENT ═══
+// Croatian number-noun agreement rule:
+//   1 (jedan/jedna/jedno) → Nominative singular
+//   2, 3, 4 (dva/dvije, tri, četiri) → Genitive singular
+//   5+ (pet, šest … tisuća …) → Genitive plural
+// The numeral must also agree in gender with the noun.
+const NUMCOUNT = {
+  title: "Broj + imenica — Number + Noun Agreement",
+  intro: "Croatian nouns change form depending on the number. 1 takes nominative singular; 2–4 take genitive singular; 5 and above take genitive plural. The numeral dva/dvije agrees with the gender of the noun.",
+  rule: [
+    {num:"1",form:"Nominative sg.",rule:"jedan/jedna/jedno + NOM SG",examples:["jedan brat (one brother)","jedna sestra (one sister)","jedno dijete (one child)"]},
+    {num:"2–4",form:"Genitive sg.",rule:"dva/dvije/tri/četiri + GEN SG",examples:["dva brata (two brothers)","dvije sestre (two sisters)","tri prijatelja (three friends)","četiri dana (four days)"]},
+    {num:"5+",form:"Genitive pl.",rule:"pet+ + GEN PL",examples:["pet braće (five brothers)","šest sestara (six sisters)","deset dana (ten days)","tisuća ljudi (a thousand people)"]},
+  ],
+  genderNote: "'Dva' is used with masculine and neuter nouns; 'dvije' with feminine nouns. Errors here are very common for English speakers.",
+  quiz: [
+    {q:"___ prijatelja (2 friends)?",a:"Dva prijatelja",al:["Dva prijatelji","Dvije prijatelja","Pet prijatelja"]},
+    {q:"___ sestre (3 sisters)?",a:"Tri sestre",al:["Tri sestara","Tri sestra","Dvije sestre"]},
+    {q:"___ dana (5 days)?",a:"Pet dana",al:["Pet dan","Pet dani","Pet danu"]},
+    {q:"___ jabuka (1 apple — feminine)?",a:"Jedna jabuka",al:["Jedan jabuka","Jedna jabuke","Jedna jabuku"]},
+    {q:"___ kave (2 coffees — feminine)?",a:"Dvije kave",al:["Dva kave","Dvije kavas","Dva kavama"]},
+    {q:"___ automobila (4 cars — masc.)?",a:"Četiri automobila",al:["Četiri automobili","Četiri automobile","Pet automobila"]},
+    {q:"'Imam deset ___ (euro — gen. pl.)' =?",a:"eura",al:["euro","euros","eure"]},
+    {q:"Which is correct: '2 years'?",a:"dvije godine",al:["dva godine","dvije godina","dva godini"]},
   ]
 };
 // ═══ VERB ASPECT (PERFECTIVE/IMPERFECTIVE) ═══
@@ -1383,7 +1442,12 @@ const FALSEFR = [
   {hr:"prospekt",looks:"prospect",means:"brochure, leaflet",real:"mogu\u0107nost = prospect",ex:"Uzmi prospekt hotela. (Take the hotel brochure.)"},
   {hr:"\u0161ef",looks:"chef (cook)",means:"boss",real:"kuhar = chef/cook",ex:"\u0160ef je u uredu. (The boss is in the office.)"},
   {hr:"marmelada",looks:"marmalade (citrus)",means:"any jam",real:"specifics don\u0027t matter \u2014 all jam is marmelada",ex:"Volim marmeladu od jagoda. (I like strawberry jam.)"},
-  {hr:"mobitel",looks:"mobile (moving)",means:"mobile phone",real:"pokretno = mobile (adjective)",ex:"Gdje je moj mobitel? (Where is my phone?)"}
+  {hr:"mobitel",looks:"mobile (moving)",means:"mobile phone",real:"pokretno = mobile (adjective)",ex:"Gdje je moj mobitel? (Where is my phone?)"},
+  {hr:"brat",looks:"brat (spoiled child)",means:"brother",real:"razmaženo dijete = brat",ex:"Moj brat ima pet godina. (My brother is five.)"},
+  {hr:"tip",looks:"tip (gratuity)",means:"type, kind",real:"napojnica = tip (money)",ex:"Koji je tip problema? (What type of problem?)"},
+  {hr:"roba",looks:"robe (gown)",means:"goods, merchandise",real:"ogrtač / haljina = robe",ex:"Gdje je roba? (Where are the goods?)"},
+  {hr:"list",looks:"list (enumeration)",means:"leaf; letter (old style)",real:"popis = list (enumeration)",ex:"Jesen — listovi padaju. (Autumn — leaves fall.)"},
+  {hr:"novosti",looks:"novelties",means:"news",real:"noviteti = novelties",ex:"Kakve ima novosti? (Any news?)"}
 ];
 // ═══ PREPOSITION DRILLS ═══
 const PREPDRILL = [
@@ -1754,17 +1818,17 @@ const SCHOOL = {
   formal:"Always use 'Vi' (formal) with teachers. Say 'Dobar dan' entering, 'Doviđenja' leaving. Stand when teacher enters."
 };
 const TEXTING = [{slang:"di si?",means:"Where are you?",ctx:"Most common greeting"},{slang:"ej / ej bog",means:"Hey",ctx:"Casual opener"},{slang:"ajde",means:"Come on / Let's go",ctx:"Used constantly"},{slang:"ajmo",means:"Let's go (group)",ctx:"Inviting friends"},{slang:"nmvz",means:"Nema veze = No worries",ctx:"Text abbreviation"},{slang:"nzm",means:"Ne znam = IDK",ctx:"Text abbreviation"},{slang:"ful",means:"Very/Really",ctx:"'Ful je dobro'"},{slang:"kul",means:"Cool",ctx:"Borrowed from English"},{slang:"stv?",means:"Stvarno? = Really?",ctx:"Surprise"},{slang:"ekipa",means:"The crew/squad",ctx:"Friend group"},{slang:"ma daj",means:"Oh come on",ctx:"Disbelief"},{slang:"sve pet",means:"All good",ctx:"Everything's fine"},{slang:"čujemo se",means:"Talk soon",ctx:"Phone/text goodbye"},{slang:"vidimo se",means:"See you",ctx:"In-person goodbye"},{slang:"pošalji lokaciju",means:"Send location",ctx:"Meeting up"}];
-const FRIENDS = [{hr:"Ej, ja sam [name]. Ti?",en:"Hey, I'm [name]. You?"},{hr:"Koji razred si?",en:"What grade are you in?"},{hr:"Imaš li Instagram?",en:"Do you have Instagram?"},{hr:"Igrate li košarku?",en:"Do you play basketball?"},{hr:"Hoćeš sjesti s nama?",en:"Want to sit with us?"},{hr:"Idemo van na odmoru?",en:"Going outside for break?"},{hr:"Došao sam iz Amerike.",en:"I came from America."},{hr:"Došao/Došla sam iz Australije.",en:"I came from Australia."},{hr:"Živim u Melbourneu.",en:"I live in Melbourne."},{hr:"Došao/Došla sam iz Kanade.",en:"I came from Canada."},{hr:"Živim u Torontu.",en:"I live in Toronto."},{hr:"Moji su podrijetlom iz Dalmacije.",en:"My family is originally from Dalmatia."},{hr:"Učim hrvatski zbog svog partnera.",en:"I'm learning Croatian because of my partner."},{hr:"Još učim hrvatski, oprosti.",en:"Still learning Croatian, sorry."},{hr:"Možeš li mi pomoći?",en:"Can you help me with this?"},{hr:"Hoćemo na sladoled?",en:"Want ice cream?"},{hr:"Koji ti je najdraži predmet?",en:"Favorite subject?"},{hr:"Ideš li na trening?",en:"Going to practice?"},{hr:"Dodaj me na Insta.",en:"Add me on Insta."}];
+const FRIENDS = [{hr:"Ej, ja sam [name]. Ti?",en:"Hey, I'm [name]. You?"},{hr:"Koji razred si?",en:"What grade are you in?"},{hr:"Imaš li Instagram?",en:"Do you have Instagram?"},{hr:"Igraš li košarku?",en:"Do you play basketball?"},{hr:"Hoćeš sjesti s nama?",en:"Want to sit with us?"},{hr:"Idemo van na odmoru?",en:"Going outside for break?"},{hr:"Došao sam iz Amerike.",en:"I came from America."},{hr:"Došao/Došla sam iz Australije.",en:"I came from Australia."},{hr:"Živim u Melbourneu.",en:"I live in Melbourne."},{hr:"Došao/Došla sam iz Kanade.",en:"I came from Canada."},{hr:"Živim u Torontu.",en:"I live in Toronto."},{hr:"Moji su podrijetlom iz Dalmacije.",en:"My family is originally from Dalmatia."},{hr:"Učim hrvatski zbog svog partnera.",en:"I'm learning Croatian because of my partner."},{hr:"Još učim hrvatski, oprosti.",en:"Still learning Croatian, sorry."},{hr:"Možeš li mi pomoći?",en:"Can you help me with this?"},{hr:"Hoćemo na sladoled?",en:"Want ice cream?"},{hr:"Koji ti je najdraži predmet?",en:"Favorite subject?"},{hr:"Ideš li na trening?",en:"Going to practice?"},{hr:"Dodaj me na Insta.",en:"Add me on Insta."}];
 const FOODORDER = {
   bakery:{title:"U Pekari",items:[["burek sa sirom","cheese burek"],["burek s mesom","meat burek"],["pizza kriška","pizza slice"],["kroasan","croissant"],["kifla","roll"],["kruh","bread"]],phrases:["Dajte mi jedan burek, molim.","Koliko košta?","To je sve, hvala."]},
   fastfood:{title:"Ćevapdžinica",items:[["ćevapi","grilled sausages"],["pljeskavica","burger patty"],["ražnjići","skewers"],["pomfrit","fries"],["lepinja","flatbread"],["ajvar","pepper spread"]],phrases:["Molim deset ćevapa u lepinji.","S ajvarom i lukom.","Za van.","Za ovdje."]},
-  icecream:{title:"Sladoled",items:[["čokolada","chocolate"],["vanilija","vanilla"],["jagoda","strawberry"],["pistacija","pistachio"],["limun","lemon"],["šumsko voće","forest fruit"]],phrases:["Mogu dva kuglice?","U kornetu ili čašici?","Kornet, molim."]},
-  restaurant:{phrases:[["Račun, molim.","Bill please."],["Mogu li platiti karticom?","Can I pay by card?"],["Dnevni meni, molim.","Daily menu please."],["Što preporučate?","What do you recommend?"],["Alergican sam na...","I'm allergic to..."]],tip:"Tipping: not mandatory, 10% appreciated. Round up or leave small change."}
+  icecream:{title:"Sladoled",items:[["čokolada","chocolate"],["vanilija","vanilla"],["jagoda","strawberry"],["pistacija","pistachio"],["limun","lemon"],["šumsko voće","forest fruit"]],phrases:["Mogu li dvije kuglice?","U kornetu ili čašici?","Kornet, molim."]},
+  restaurant:{phrases:[["Račun, molim.","Bill please."],["Mogu li platiti karticom?","Can I pay by card?"],["Dnevni meni, molim.","Daily menu please."],["Što preporučate?","What do you recommend?"],["Alergičan sam na...","I'm allergic to..."]],tip:"Tipping: not mandatory, 10% appreciated. Round up or leave small change."}
 };
 const TRANSPORT = [{hr:"Gdje je autobusna stanica?",en:"Where is the bus station?"},{hr:"Ide li ovaj bus do centra?",en:"Does this bus go to center?"},{hr:"Jednu kartu, molim.",en:"One ticket please."},{hr:"Koja je sljedeća stanica?",en:"What's the next stop?"},{hr:"Gdje moram sići?",en:"Where do I get off?"},{hr:"Trebam presjedati?",en:"Do I need to transfer?"},{hr:"Možete me odvesti do...?",en:"Can you take me to...? (taxi)"},{hr:"Koliko košta do aerodroma?",en:"How much to the airport?"},{hr:"Tramvaj broj pet.",en:"Tram number five."},{hr:"Zadržite ostatak.",en:"Keep the change."}];
 const EMERGENCY = {
   number:"112 — Hitna pomoć (Emergency)",
-  phrases:[["Trebam pomoć!","I need help!"],["Zovite hitnu!","Call ambulance!"],["Boli me glava.","Head hurts."],["Boli me trbuh.","Stomach hurts."],["Imam temperaturu.","I have fever."],["Slomio sam ruku.","I broke my arm."],["Alergican sam na...","I'm allergic to..."],["Gdje je najbliža bolnica?","Nearest hospital?"],["Gdje je ljekarna?","Where's pharmacy?"],["Ne osjećam se dobro.","I don't feel well."],["Možete li nazvati roditelje?","Call my parents?"]],
+  phrases:[["Trebam pomoć!","I need help!"],["Zovite hitnu!","Call ambulance!"],["Boli me glava.","Head hurts."],["Boli me trbuh.","Stomach hurts."],["Imam temperaturu.","I have fever."],["Slomio sam ruku.","I broke my arm."],["Alergičan sam na...","I'm allergic to..."],["Gdje je najbliža bolnica?","Nearest hospital?"],["Gdje je ljekarna?","Where's pharmacy?"],["Ne osjećam se dobro.","I don't feel well."],["Možete li nazvati roditelje?","Call my parents?"]],
   bodyParts:[["glava","head"],["oko","eye"],["uho","ear"],["nos","nose"],["zub","tooth"],["grlo","throat"],["leđa","back"],["ruka","arm"],["noga","leg"],["trbuh","stomach / belly"],["prsa","chest"],["koljeno","knee"]],
   phoneNumbers:[["112","Emergency"],["192","Police"],["193","Fire"],["194","Ambulance"]]
 };
@@ -5183,7 +5247,7 @@ function getJourneyMilestones() {
   try { return JSON.parse(localStorage.getItem('nh_journey') || '[]'); } catch (_) { return []; }
 }
 
-export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, DAILY_QUESTS, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, CROATIAN_CITIES, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, SEASONAL_CAMPAIGNS, LEVEL_NARRATIVE };
+export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, DAILY_QUESTS, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, CROATIAN_CITIES, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, NUMCOUNT, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, SEASONAL_CAMPAIGNS, LEVEL_NARRATIVE };
 export { _fbReady };
 export { H, Bar, Spk };
 export { initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbToggleFavorite, fbGetIdToken, fbRegister, fbLogin, fbLogout, fbLoginGoogle, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbWatchFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbOnAuthStateChanged, fbDeleteAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, lXPgain, getSR, saveSR, srMark, getSRScore, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getStreakEarnBack, applyStreakEarnBack, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex, getDueReviews, getMistakes, recordMistake, clearMistake, clearAllMistakes, bootstrapMistakesFromSRS, getActiveCampaign, recordJourneyMilestone, getJourneyMilestones };

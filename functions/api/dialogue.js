@@ -140,7 +140,7 @@ COACHING: [one coaching tip in English, max 80 chars, ONLY if there's a clear gr
       signal: AbortSignal.timeout(20000),
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 280,
+        max_tokens: { A1: 200, A2: 200, B1: 320, B2: 400, C1: 400, C2: 400 }[safeLevel] || 280,
         system: systemPrompt,
         messages,
       }),

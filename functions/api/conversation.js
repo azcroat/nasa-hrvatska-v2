@@ -24,9 +24,10 @@ const MODEL = "claude-sonnet-4-6";
 
 // ── Per-session limits ─────────────────────────────────────────────────────────
 // Conversation turns are expensive (streaming + TTS per turn).
-// Enforce: max 10 turns per session, max 3 sessions per hour per user.
+// Level-based caps: A1 learners fatigue faster; B2+ can sustain longer sessions.
 // These are enforced via the client sending turnCount; server validates hard max.
-const MAX_TURNS_PER_SESSION = 10;
+const MAX_TURNS_BY_LEVEL = { A1: 8, A2: 10, B1: 15, B2: 20, C1: 25, C2: 25 };
+const MAX_TURNS_PER_SESSION = 10; // fallback if level unknown
 const SESSION_RATE_LIMIT_PER_MINUTE = 4; // ~3 sessions/hour = 1 every 20 min, 4/min is generous
 
 // ── Security helpers ───────────────────────────────────────────────────────────
@@ -122,9 +123,10 @@ function estimateAbility(messages) {
 
 // ── System prompt builder ──────────────────────────────────────────────────────
 
-function buildConversationSystemPrompt({ level, topic, turnCount, userName, mistakePatterns, abilityShift, learnerErrors }) {
+function buildConversationSystemPrompt({ level, topic, turnCount, maxTurns, userName, mistakePatterns, abilityShift, learnerErrors }) {
 
   const safeLevel = sanitizeLevel(level);
+  const sessionMax = maxTurns || MAX_TURNS_BY_LEVEL[safeLevel] || MAX_TURNS_PER_SESSION;
   const safeTopic = sanitizeTopic(topic);
   const name = sanitizeParam(userName || "", 50);
 
@@ -146,6 +148,7 @@ function buildConversationSystemPrompt({ level, topic, turnCount, userName, mist
     A1: `CRITICAL A1 RULES:
 - Maximum 1–2 very short sentences per response. Present tense ONLY.
 - Vocabulary: the 300 most common Croatian words. No idioms, no complex clauses.
+- GRAMMAR: Use NOMINATIVE and ACCUSATIVE cases only. Do NOT use Genitive, Dative, Locative, or Instrumental in your own sentences — these cases are not yet taught.
 - Speak at a noticeably slow, deliberate pace (the TTS caller will use slow:true for A1).
 - End every turn with one simple yes/no question: "Jesi li...?" or "Voliš li...?"
 - If the learner writes in English or seems lost: give a short Croatian sentence AND its English translation in parentheses — just this once.
@@ -250,14 +253,14 @@ This is the very first message of this conversation session.
 - Warm greeting, introduce the topic lightly: "${safeTopic === 'free' ? 'Open with a warm "Bok!" and a simple question about how they are or what they want to talk about.' : `Introduce the topic: ${topicScenarios[safeTopic]}`}"
 - Set a welcoming, low-pressure tone.
 - For A1/A2: speak very slowly and simply. This is the trust-building moment.`;
-  } else if (turnCount >= MAX_TURNS_PER_SESSION - 2) {
-    sessionArcGuidance = `CLOSING TURNS (turn ${turnCount} of ${MAX_TURNS_PER_SESSION}):
+  } else if (turnCount >= sessionMax - 2) {
+    sessionArcGuidance = `CLOSING TURNS (turn ${turnCount} of ${sessionMax}):
 The session is nearly over. Begin wrapping up naturally — don't end abruptly but do not introduce new complex topics.
 On the final 2 turns, bring the conversation to a warm close. Compliment what the learner did well today.
 End the last turn with a short encouraging phrase like: "Do sljedećeg puta! Učio/Učila si super danas."
 Set is_session_end: true in your response on the very last turn.`;
   } else {
-    sessionArcGuidance = `CONVERSATION TURN (turn ${turnCount} of ${MAX_TURNS_PER_SESSION}):
+    sessionArcGuidance = `CONVERSATION TURN (turn ${turnCount} of ${sessionMax}):
 Keep the conversation flowing. One open question at the end to keep momentum.
 ${safeTopic !== 'free' ? `Stay loosely on the topic of: ${topicScenarios[safeTopic]}` : 'Follow wherever the learner leads.'}`;
   }
@@ -397,9 +400,11 @@ export async function onRequestPost(context) {
     learnerErrors,   // optional Array<{ pattern: string }> — unified error ledger from frontend
   } = body;
 
-  // Validate turn count — hard cap enforced server-side
+  // Validate turn count — hard cap enforced server-side, level-adjusted
+  const safeLevel = ['A1','A2','B1','B2','C1','C2'].includes(level) ? level : null;
+  const maxTurns = (safeLevel && MAX_TURNS_BY_LEVEL[safeLevel]) || MAX_TURNS_PER_SESSION;
   const safeTurnCount = sanitizeTurnCount(turnCount);
-  if (safeTurnCount >= MAX_TURNS_PER_SESSION) {
+  if (safeTurnCount >= maxTurns) {
     return new Response(
       JSON.stringify({ error: "Session limit reached", session_end: true }),
       { status: 200, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } }
@@ -439,6 +444,7 @@ export async function onRequestPost(context) {
     level: sanitizeLevel(level),
     topic: sanitizeTopic(topic),
     turnCount: safeTurnCount,
+    maxTurns,
     userName,
     mistakePatterns,
     abilityShift,
@@ -550,11 +556,11 @@ export async function onRequestPost(context) {
               result = JSON.parse(cleaned);
             } catch {
               // JSON parse failure — return a graceful fallback
-              result = fallbackResponse(safeTurnCount, MAX_TURNS_PER_SESSION);
+              result = fallbackResponse(safeTurnCount, maxTurns);
             }
 
             // Enforce is_session_end based on server-side turn count (not model's choice)
-            if (safeTurnCount >= MAX_TURNS_PER_SESSION - 1) {
+            if (safeTurnCount >= maxTurns - 1) {
               result.is_session_end = true;
             }
 

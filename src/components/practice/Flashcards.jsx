@@ -40,15 +40,15 @@ function getPronunciation(word) {
   // Work on lowercase; preserve original casing intent via replacement
   let s = word;
   // Digraphs first
-  s = s.replace(/[Dd][žŽ]/g, 'dj');
+  s = s.replace(/[Dd][žŽ]/g, 'j');  // dž = /dʒ/ like 'j' in "jeans"
   s = s.replace(/[Ll][jJ]/g, 'ly');
   s = s.replace(/[Nn][jJ]/g, 'ny');
   // Single special characters
-  s = s.replace(/[čČ]/g, 'ch');
-  s = s.replace(/[ćĆ]/g, 'ch');
+  s = s.replace(/[čČ]/g, 'ch');     // č = /tʃ/ like 'ch' in "church"
+  s = s.replace(/[ćĆ]/g, 'ty');    // ć = /tɕ/ palatalized, softer than č; 'ty' approximation
   s = s.replace(/[šŠ]/g, 'sh');
   s = s.replace(/[žŽ]/g, 'zh');
-  s = s.replace(/[đĐ]/g, 'j');
+  s = s.replace(/[đĐ]/g, 'dj');    // đ = /dʑ/ palatalized d, voiced counterpart of ć
   s = s.replace(/[jJ]/g, 'y');
   s = s.replace(/[cC]/g, 'ts');
   // Roll indicator — mark r before vowel or in consonant cluster
