@@ -224,6 +224,7 @@ const PhraseOfDayScreen = lazyWithReload(() => import("./components/croatia/Phra
 const AIListeningScreen = lazyWithReload(() => import("./components/practice/AIListeningScreen.jsx"));
 const GrammarDiagnosisScreen = lazyWithReload(() => import("./components/home/GrammarDiagnosisScreen.jsx"));
 const MicroLessonScreen = lazyWithReload(() => import("./components/learn/MicroLessonScreen.jsx"));
+const LiveTutorScreen = lazyWithReload(() => import("./components/croatia/LiveTutorScreen.jsx"));
 
 // Module-level constants — defined once, not recreated on every render
 const DS={xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,authLoading:0,mv:0,hi:0,rs:[],ct:[],badges:[]};
@@ -1172,6 +1173,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {currentScreen==="storymode"&&<StoryModeScreen goBack={goBack} award={award} />}
       {currentScreen==="personas"&&<PersonaScreen goBack={goBack} setScr={setScr} />}
       {currentScreen==="maja"&&<MajaScreen goBack={goBack} award={award} />}
+      {currentScreen==="live_tutor"&&<LiveTutorScreen goBack={goBack} award={award} />}
       {currentScreen==="ai_listening"&&<AIListeningScreen goBack={goBack} award={award} />}
       {currentScreen==="grammar_diagnosis"&&<GrammarDiagnosisScreen goBack={goBack} award={award} />}
       {currentScreen==="micro_lesson"&&<MicroLessonScreen goBack={goBack} award={award} goFlashcards={()=>{launchFlashcards([]);}} />}

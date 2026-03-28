@@ -809,6 +809,25 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
                 <div className="section-hdr-sub">AI conversation + curated media from A1 to C2</div>
               </div>
             </div>
+            {/* Live Tutor — featured premium card */}
+            <button
+              onClick={() => setScr("live_tutor")}
+              style={{
+                width:'100%', padding:'16px', marginBottom:10,
+                borderRadius:14, cursor:'pointer', textAlign:'left',
+                border:'1.5px solid rgba(212,0,45,.35)',
+                background:'linear-gradient(135deg,rgba(212,0,45,.07),rgba(212,0,45,.03))',
+                fontFamily:"'Outfit',sans-serif",
+                display:'flex', alignItems:'center', gap:14,
+              }}
+            >
+              <div style={{ width:48, height:48, borderRadius:14, background:'rgba(212,0,45,.12)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24, flexShrink:0 }}>🎙️</div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontSize:'var(--text-sm)', fontWeight:900, color:'#D4002D', marginBottom:2 }}>Live Croatian Tutor</div>
+                <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.4 }}>Speak Croatian live with an AI tutor — adapts to your level</div>
+              </div>
+              <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'#D4002D', flexShrink:0 }}>→</div>
+            </button>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
               <button onClick={() => setScr("aiconvo")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(99,102,241,.3)', background:'rgba(99,102,241,.07)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
                 <div style={{ fontSize:26, marginBottom:6 }}>🤖</div>
