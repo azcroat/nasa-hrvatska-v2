@@ -5,7 +5,7 @@
 import { checkRateLimit } from './_rateLimit.js';
 
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
-const MODEL = "claude-sonnet-4-6";
+const MODEL = "claude-haiku-4-5-20251001";
 
 function sanitizeParam(value, maxLen = 300) {
   if (value === null || value === undefined) return '';
@@ -109,7 +109,7 @@ Explain the grammar rule. Be specific about case, tense, or pattern.`;
       signal: AbortSignal.timeout(15000),
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 220,
+        max_tokens: 180,
         system: `You are a Croatian grammar teacher. Give a concise explanation (2-3 sentences) of why an answer is correct.
 Return ONLY valid JSON (no markdown, no code blocks):
 {"explanation":"2-3 sentences explaining the grammar rule","rule":"short rule name e.g. 'Accusative case' or 'Negation genitive'","tip":"one memorable tip max 100 chars","example":"one short example sentence in Croatian showing the rule"}`,
