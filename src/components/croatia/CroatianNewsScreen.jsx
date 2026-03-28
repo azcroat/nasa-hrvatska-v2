@@ -97,7 +97,7 @@ function SkeletonCard() {
 }
 
 // ── Word-tappable text renderer ───────────────────────────────────────────────
-function TappableText({ text, articleId, translating, tooltip, onWordTap, style }) {
+function TappableText({ text, articleId, translating, tooltip, onWordTap, style = undefined }) {
   const words = text.split(/(\s+)/);
   let wordIdx = 0;
   return (

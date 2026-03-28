@@ -257,7 +257,7 @@ export default function StoryModeScreen({ goBack, award }) {
 
   // Track reading completion via scroll — only re-attach when phase changes, not on every word tap
   useEffect(() => {
-    if (phase !== 'story' || !storyRef.current) return;
+    if (phase !== 'story' || !storyRef.current) return undefined;
     const el = storyRef.current;
     const check = () => {
       const { scrollTop, scrollHeight, clientHeight } = el;
@@ -569,7 +569,7 @@ export default function StoryModeScreen({ goBack, award }) {
             src={photoSrc}
             alt={selectedCity.name}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            onError={e => { e.target.src = CITY_PHOTOS.default; }}
+            onError={e => { /** @type {HTMLImageElement} */ (e.target).src = CITY_PHOTOS.default; }}
           />
           <div style={{
             position: 'absolute', inset: 0,

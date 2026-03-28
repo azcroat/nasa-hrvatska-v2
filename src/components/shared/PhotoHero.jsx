@@ -10,7 +10,7 @@ export default function PhotoHero({
   titleColor = '#fff',
   style = {},
   priority = false,
-  children,
+  children = null,
 }) {
   const [loaded, setLoaded] = useState(false);
   const [errored, setErrored] = useState(false);

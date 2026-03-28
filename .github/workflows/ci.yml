@@ -42,8 +42,8 @@ jobs:
       - name: Dependency security audit
         run: npm audit --audit-level=high
 
-      - name: TypeScript check (reporting only)
-        run: npm run typecheck || true
+      - name: TypeScript check
+        run: npm run typecheck
 
   test:
     name: Unit Tests

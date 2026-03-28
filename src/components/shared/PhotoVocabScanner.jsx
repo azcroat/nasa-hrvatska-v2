@@ -197,11 +197,11 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
     setPhase('loading');
     setErrorMsg('');
     try {
-      const data = await apiFetch('/api/photo-vocab', {
+      const data = /** @type {any} */ (await apiFetch('/api/photo-vocab', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: imageDataUrl, level, context: context.trim() }),
-      });
+      }));
       setResults(data);
       // Default: all words checked
       const initial = {};

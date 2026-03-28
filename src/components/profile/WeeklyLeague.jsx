@@ -470,7 +470,7 @@ export default function WeeklyLeague({ authUser: au, name, stats, goBack }) {
 
 // ── Tier Explainer (collapsible) ──────────────────────────────────────────
 
-function TierExplainer({ showTiers, setShowTiers, currentTierId }) {
+function TierExplainer({ showTiers, setShowTiers, currentTierId = null }) {
   return (
     <div style={{ marginTop:8 }}>
       <button

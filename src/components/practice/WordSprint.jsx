@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { H, Bar, V, srMark, speak } from '../../data.jsx';
 import { rnd } from '../../lib/random.js';
 
-const TimerDisplay = React.memo(function TimerDisplay({ timeLeft, color }) {
+const TimerDisplay = React.memo(/** @param {{ timeLeft: number, color: string }} props */ function TimerDisplay({ timeLeft, color }) {
   return (
     <div style={{fontSize:'var(--text-2xl)',fontWeight:900,color,fontVariantNumeric:'tabular-nums',minWidth:36,textAlign:'center'}}>
       {timeLeft}s

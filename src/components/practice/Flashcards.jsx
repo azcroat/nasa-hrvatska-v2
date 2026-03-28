@@ -109,7 +109,7 @@ export default function Flashcards({ pool, goBack, award }) {
   const [wrongAnim, setWrongAnim] = useState(false);
   const [showStillLearning, setShowStillLearning] = useState(false);
   const [sparkPos, setSparkPos] = useState(null);
-  const [exiting, setExiting] = useState(false);
+  const [exiting, setExiting] = /** @type {[false|string, Function]} */ (useState(false));
   const [entering, setEntering] = useState(false);
   const cardRef = useRef(null);
   const knowBtnRef = useRef(null);
@@ -139,14 +139,14 @@ export default function Flashcards({ pool, goBack, award }) {
 
   // Fetch contextual image when card changes
   useEffect(() => {
-    if (done) return;
+    if (done) return undefined;
     const card = activePool[idx];
-    if (!card) return;
+    if (!card) return undefined;
     const word = card[0];
     const meaning = card[1];
     const key = `img:${word}`;
     // Use cached immediately if available
-    if (imgCacheRef.current[key]) { setCardImg(imgCacheRef.current[key]); return; }
+    if (imgCacheRef.current[key]) { setCardImg(imgCacheRef.current[key]); return undefined; }
     const controller = new AbortController();
     setCardImg(null);
     setCardImgLoading(true);
@@ -161,17 +161,17 @@ export default function Flashcards({ pool, goBack, award }) {
 
   // Fetch AI example sentence when card is flipped and no static example exists
   useEffect(() => {
-    if (!flipped || done) return;
+    if (!flipped || done) return undefined;
     const card = activePool[idx];
-    if (!card) return;
+    if (!card) return undefined;
     const word = card[0];
     const meaning = card[1];
     // Only fetch if no static example
-    if (card[3]) return;
+    if (card[3]) return undefined;
     // Check session cache
     if (aiCacheRef.current[word]) {
       setAiSentence(aiCacheRef.current[word]);
-      return;
+      return undefined;
     }
     // Fetch from API
     const level = localStorage.getItem('nh_level') || 'B1';
@@ -214,13 +214,13 @@ export default function Flashcards({ pool, goBack, award }) {
 
   // Auto-TTS on flip: speak Croatian word 300ms after card is flipped front→back
   useEffect(() => {
-    if (!flipped || done) return;
+    if (!flipped || done) return undefined;
     const autoTTS = localStorage.getItem('nh_autotts') !== 'false'; // default on
-    if (!autoTTS) return;
+    if (!autoTTS) return undefined;
     const word = activePool[idx] && activePool[idx][0];
-    if (!word) return;
+    if (!word) return undefined;
     const key = `${idx}:${word}`;
-    if (lastSpokenRef.current === key) return;
+    if (lastSpokenRef.current === key) return undefined;
     lastSpokenRef.current = key;
     const t = setTimeout(() => {
       if (mountedRef.current) speak(word);

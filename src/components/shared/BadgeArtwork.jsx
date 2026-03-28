@@ -33,7 +33,7 @@ const SHAPE_COLORS = {
 
 // ── Shape renderers ──────────────────────────────────────────────────────────
 
-function FlameShape({ c }) {
+function FlameShape({ c, earned: _earned = false }) {
   return (
     <>
       {/* Shield outline */}
@@ -59,7 +59,7 @@ function FlameShape({ c }) {
   );
 }
 
-function ScrollShape({ c }) {
+function ScrollShape({ c, earned: _earned = false }) {
   return (
     <>
       {/* Circular background */}
@@ -84,7 +84,7 @@ function ScrollShape({ c }) {
   );
 }
 
-function StarShape({ c }) {
+function StarShape({ c, earned: _earned = false }) {
   const pts = Array.from({ length: 8 }).map((_, i) => {
     const angle = (i * 45 - 90) * Math.PI / 180;
     const r = i % 2 === 0 ? 24 : 14;
@@ -99,7 +99,7 @@ function StarShape({ c }) {
   );
 }
 
-function CrownShape({ c }) {
+function CrownShape({ c, earned: _earned = false }) {
   return (
     <>
       <circle cx="30" cy="30" r="26" fill={`url(#bg_crown)`} stroke={c.border} strokeWidth="1.5" />
@@ -121,7 +121,7 @@ function CrownShape({ c }) {
   );
 }
 
-function CrossShape({ c }) {
+function CrossShape({ c, earned: _earned = false }) {
   return (
     <>
       <circle cx="30" cy="30" r="26" fill={`url(#bg_cross)`} stroke={c.border} strokeWidth="1.5" />
@@ -142,7 +142,7 @@ function CrossShape({ c }) {
   );
 }
 
-function LightningShape({ c }) {
+function LightningShape({ c, earned: _earned = false }) {
   return (
     <>
       <circle cx="30" cy="30" r="26" fill={`url(#bg_lightning)`} stroke={c.border} strokeWidth="1.5" />
@@ -156,7 +156,7 @@ function LightningShape({ c }) {
   );
 }
 
-function HeartShape({ c }) {
+function HeartShape({ c, earned: _earned = false }) {
   return (
     <>
       <circle cx="30" cy="30" r="26" fill={`url(#bg_heart)`} stroke={c.border} strokeWidth="1.5" />

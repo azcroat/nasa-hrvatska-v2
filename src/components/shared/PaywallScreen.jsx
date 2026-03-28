@@ -55,7 +55,7 @@ const PLANS = [
 ];
 
 export default function PaywallScreen({ onClose, featureName = 'AI Tutor', onSubscribed }) {
-  const [selectedPlan, setSelectedPlan] = useState('yearly');
+  const [selectedPlan, setSelectedPlan] = /** @type {[('yearly'|'monthly'), Function]} */ (useState('yearly'));
   const [promoCode, setPromoCode] = useState('');
   const [promoMsg, setPromoMsg]   = useState('');
   const [showPromo, setShowPromo] = useState(false);

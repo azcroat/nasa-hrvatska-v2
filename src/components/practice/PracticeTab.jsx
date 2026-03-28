@@ -561,7 +561,7 @@ export default function PracticeTab({
           [startListening,  "🎧","Listening",   "Train ear","linear-gradient(155deg,#1a0008 0%,#4a0015 60%,#D40030 100%)"],
           [startSpeaking,   "🎤","Speaking",    "Pronunc.","linear-gradient(155deg,#031020 0%,#083050 60%,#0284c7 100%)"],
           [() => { setScr("wordsprint"); sCurEx("wordsprint"); },"⚡","Word Sprint","Speed","linear-gradient(155deg,#1a0e00 0%,#3d2200 60%,#f59e0b 100%)"],
-        ].map(([fn,icon,label,sub,bg], i) => (
+        ].map((/** @type {any[]} */ [fn,icon,label,sub,bg], i) => (
           <button key={i} className="tc practice-card-dark"
             style={{ textAlign:"center", padding:"16px 10px", background:bg, minHeight:86, cursor:'pointer' }}
             onClick={fn}>

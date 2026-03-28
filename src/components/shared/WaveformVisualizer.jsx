@@ -34,7 +34,7 @@ export default function WaveformVisualizer({ active, color = '#0e7490', height =
         c.lineTo(cv.width, cv.height / 2);
         c.stroke();
       }
-      return;
+      return undefined;
     }
 
     let mounted = true;

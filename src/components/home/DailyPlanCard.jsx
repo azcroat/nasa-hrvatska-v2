@@ -92,7 +92,7 @@ function markDone(idx) {
   } catch {}
 }
 
-export default function DailyPlanCard() {
+export default function DailyPlanCard(/** @type {any} */ { level: _level, goal: _goal, streak: _streak, setScr: _setScrProp } = {}) {
   const { setScr, sCurEx } = useContext(AppContext);
   const [phase, setPhase] = useState('idle'); // 'idle' | 'loading' | 'ready' | 'error'
   const [plan, setPlan]   = useState(null);

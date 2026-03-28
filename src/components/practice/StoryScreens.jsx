@@ -41,9 +41,9 @@ export default function StoryScreens({ goBack, award, sCurEx }) {
 
   // Fetch illustration when story + scene changes
   useEffect(() => {
-    if (!stSt) return;
+    if (!stSt) return undefined;
     const scene = stSt.scenes[stSc];
-    if (!scene) return;
+    if (!scene) return undefined;
     setSceneImg(null);
     setSceneImgLoading(true);
     const controller = new AbortController();

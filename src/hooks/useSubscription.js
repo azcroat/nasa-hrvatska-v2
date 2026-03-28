@@ -86,7 +86,7 @@ export function grantFreeAnnual(userId) {
 
   // Already has a valid free_annual with plenty of time left — skip.
   if (sub.source === 'free_annual' && sub.expiresAt) {
-    const daysLeft = Math.ceil((new Date(sub.expiresAt) - new Date()) / 86400000);
+    const daysLeft = Math.ceil((new Date(sub.expiresAt).getTime() - Date.now()) / 86400000);
     if (daysLeft > 30) return;
     // Within 30 days of expiry → fall through to renew.
   }
@@ -161,9 +161,9 @@ export function getSubscriptionStatus() {
 
   let daysLeft = null;
   if (sub.expiresAt && _isActivePaid(sub)) {
-    daysLeft = Math.ceil((new Date(sub.expiresAt) - new Date()) / 86400000);
+    daysLeft = Math.ceil((new Date(sub.expiresAt).getTime() - Date.now()) / 86400000);
   } else if (inTrial && sub.trialUntil) {
-    daysLeft = Math.ceil((new Date(sub.trialUntil) - new Date()) / 86400000);
+    daysLeft = Math.ceil((new Date(sub.trialUntil).getTime() - Date.now()) / 86400000);
   }
 
   return {

@@ -146,7 +146,7 @@ export default function Leaderboard({
 
   // Watch Firestore reactions for the family so other members' reactions appear live
   useEffect(() => {
-    if (!famCode) return;
+    if (!famCode) return undefined;
     const unsub = fbWatchReactions(famCode, setFirestoreReactions);
     return unsub;
   }, [famCode]);

@@ -864,7 +864,8 @@ export default function MajaScreen() {
                   }}
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextSibling.style.display = 'flex';
+                    const sib = /** @type {HTMLElement} */ (e.currentTarget.nextSibling);
+                    if (sib) sib.style.display = 'flex';
                   }}
                 />
                 <div
@@ -977,7 +978,8 @@ export default function MajaScreen() {
                         }}
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
-                          e.currentTarget.nextSibling.style.display = 'flex';
+                          const sib = /** @type {HTMLElement} */ (e.currentTarget.nextSibling);
+                          if (sib) sib.style.display = 'flex';
                         }}
                       />
                       <div

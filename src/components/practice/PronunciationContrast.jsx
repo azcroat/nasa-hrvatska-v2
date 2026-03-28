@@ -83,14 +83,14 @@ function FrequencyViz({ opts }) {
             <span style={{ fontSize: 11, color: '#94a3b8' }}>{bar.sublabel}</span>
           </div>
           <div style={{ height: 10, background: '#e2e8f0', borderRadius: 6, overflow: 'hidden' }}>
-            <div style={{
+            <div style={/** @type {any} */ ({
               height: '100%',
               width: `${bar.pct}%`,
               background: bar.color,
               borderRadius: 6,
               animation: `barGrow 0.6s ease ${i * 0.15}s both`,
               '--target-w': `${bar.pct}%`,
-            }} />
+            })} />
           </div>
         </div>
       ))}

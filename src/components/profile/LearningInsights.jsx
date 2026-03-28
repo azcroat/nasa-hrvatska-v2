@@ -16,7 +16,7 @@ function getWeeklyXP() {
     const copy = new Date(d);
     copy.setDate(copy.getDate() + 4 - day);
     const year = copy.getFullYear();
-    const week = Math.ceil(((copy - new Date(year, 0, 1)) / 86400000 + 1) / 7);
+    const week = Math.ceil(((copy.getTime() - new Date(year, 0, 1).getTime()) / 86400000 + 1) / 7);
     const weekKey = `${year}-W${String(week).padStart(2, '0')}`;
     // We only have weekly totals, so spread across the week for display
     const weekXP = parseInt(localStorage.getItem(`nh_week_xp_${weekKey}`) || '0');

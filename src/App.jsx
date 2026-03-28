@@ -739,8 +739,10 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   },[]);
   // Premium welcome banner: show once after the first successful free_annual grant
   useEffect(()=>{
-    if(authScreen!=='app'||!authUser)return;
-    if(localStorage.getItem('nh_premium_welcome_shown'))return;
+    // eslint-disable-next-line consistent-return
+    if(authScreen!=='app'||!authUser)return undefined;
+    // eslint-disable-next-line consistent-return
+    if(localStorage.getItem('nh_premium_welcome_shown'))return undefined;
     // Wait until subscription is confirmed active, then show banner after brief delay
     const t=setTimeout(()=>{
       const{isFreeAnnual}=getSubscriptionStatus();

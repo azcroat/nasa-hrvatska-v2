@@ -81,7 +81,7 @@ export default function PostcardScreen({ goBack, award }) {
 
     img.src = selectedCity.photo;
 
-    function drawWritingSide(ctx) {
+    function drawWritingSide(ctx, _canvas) {
       // ── 3. White writing area (right 45%)
       ctx.fillStyle = '#fafaf9';
       ctx.fillRect(440, 0, 360, 560);
