@@ -6,32 +6,34 @@ import { getStyleContextForAPI } from '../../lib/learnerStyle.js';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const CACHE_KEY    = 'nh_daily_plan';
+const CACHE_KEY    = 'nh_daily_plan_v2'; // v2: self-contained screen IDs only
 const CACHE_TTL_MS = 86400000; // 24 hours
 
 const ACTIVITY_ICONS = {
-  flashcards:        '🃏',
-  srsreview:         '🔁',
-  ai_listening:      '🎧',
-  speaking:          '🎤',
-  writing:           '✍️',
-  grammar_diagnosis: '🔬',
-  dialogue:          '💬',
-  shadowing:         '🗣️',
-  aspectdrill:       '🔄',
+  // Screens that are fully self-contained (no pre-loaded data needed):
+  srsreview:         '🔁', // ReviewScreen — loads its own SRS card queue
+  aiconvo:           '🎧', // AIConversation — self-contained AI dialogue
+  live_tutor:        '🎤', // LiveTutorScreen — self-contained AI speaking tutor
+  writing:           '✍️', // WritingScreen — generates its own prompts
+  grammar_diagnosis: '🔬', // GrammarDiagnosisScreen — self-contained
+  dialogue:          '💬', // MajaScreen — self-contained AI dialogue
+  shadowing:         '🗣️', // ShadowingScreen — loads its own SHADOWING data
+  aspectdrill:       '🔄', // AspectDrillScreen — loads its own ASPECT_PAIRS
 };
 
-// Map activity IDs to app screen IDs
+// Map activity IDs → screen IDs that are verified self-contained.
+// NOTE: flashcards/listening/speaking are intentionally excluded — they require
+// launchFlashcards(pool)/launchListening(q)/launchSpeaking(items) called first.
+// Without that setup they render blank/done immediately. Use the equivalents below.
 const ACTIVITY_SCREENS = {
-  flashcards:        'flashcards',
-  srsreview:         'review',
-  ai_listening:      'listening',
-  speaking:          'speaking',
-  writing:           'writing',
-  grammar_diagnosis: 'grammar_diagnosis',
-  dialogue:          'maja',
-  shadowing:         'shadowing',
-  aspectdrill:       'aspectdrill',
+  srsreview:         'review',           // ✅ ReviewScreen — self-contained SRS queue
+  aiconvo:           'aiconvo',          // ✅ AIConversation — replaces ai_listening
+  live_tutor:        'live_tutor',       // ✅ LiveTutorScreen — replaces speaking
+  writing:           'writing',          // ✅ WritingScreen
+  grammar_diagnosis: 'grammar_diagnosis',// ✅ GrammarDiagnosisScreen
+  dialogue:          'maja',             // ✅ MajaScreen
+  shadowing:         'shadowing',        // ✅ ShadowingScreen
+  aspectdrill:       'aspectdrill',      // ✅ AspectDrillScreen
 };
 
 // ── Cache helpers ─────────────────────────────────────────────────────────────
@@ -75,7 +77,7 @@ function LoadingDots() {
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function DailyPlanCard() {
-  const { setScr } = useContext(AppContext);
+  const { setScr, sCurEx } = useContext(AppContext);
   const [phase, setPhase] = useState('idle'); // 'idle' | 'loading' | 'ready' | 'error'
   const [plan, setPlan]   = useState(null);
   const [streak, setStreak] = useState(0);
@@ -249,7 +251,13 @@ export default function DailyPlanCard() {
           return (
             <div
               key={i}
-              onClick={() => screen && setScr && setScr(screen)}
+              onClick={() => {
+            if (!screen || !setScr) return;
+            // Set the current exercise type so XP tracking and session logging work
+            if (sCurEx) sCurEx(act.id);
+            sessionStorage.setItem('nh_ex_start', Date.now().toString());
+            setScr(screen);
+          }}
               style={{
                 display: 'flex',
                 alignItems: 'flex-start',
@@ -264,7 +272,13 @@ export default function DailyPlanCard() {
               onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
               role={screen ? 'button' : undefined}
               tabIndex={screen ? 0 : undefined}
-              onKeyDown={e => { if (screen && (e.key === 'Enter' || e.key === ' ')) setScr && setScr(screen); }}
+              onKeyDown={e => {
+                if (screen && (e.key === 'Enter' || e.key === ' ')) {
+                  if (sCurEx) sCurEx(act.id);
+                  sessionStorage.setItem('nh_ex_start', Date.now().toString());
+                  setScr && setScr(screen);
+                }
+              }}
             >
               {/* Icon circle */}
               <div style={{
