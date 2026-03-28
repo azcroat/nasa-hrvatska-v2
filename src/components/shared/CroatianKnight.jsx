@@ -1,483 +1,701 @@
 import React from 'react';
 
-// Maps mood → CSS animation
-const MOOD_ANIM = {
-  celebrating: 'knightBounce 1.2s ease-in-out infinite',
-  happy:       'knightFloat  2.5s ease-in-out infinite',
-  encouraged:  'knightPulse  2s   ease-in-out infinite',
-  thinking:    'knightTilt   3s   ease-in-out infinite',
-  confused:    'knightWobble 0.8s ease-in-out',
-  sad:         'knightDroop  3s   ease-in-out infinite',
-  neutral:     'none',
+/**
+ * CroatianKnight — LEGO Movie–quality minifigure mascot
+ *
+ * Authentic LEGO minifigure proportions:
+ *  - Round stud on bucket visor helmet
+ *  - T-visor with dual eye slits
+ *  - Visible shoulder disk joints
+ *  - Iconic C-clamp hands
+ *  - H-shaped hip connector
+ *  - Šahovnica shield — 5×5, WHITE (argent) first (correct Croatian heraldry)
+ *  - LEGO sword with pommel/guard/blade
+ *  - Red plume
+ *  - Per-mood body + arm animations with LEGO stop-motion feel
+ */
+
+// ─── Palette ─────────────────────────────────────────────────────────────────
+const C = {
+  ar:    '#A4B4C8',  // armor (classic LEGO castle blue-gray)
+  arHi:  '#D2E2F4',  // armor highlight
+  arSh:  '#5A6A84',  // armor shadow
+  arDk:  '#343C50',  // armor deep shadow
+  red:   '#CC0022',  // Croatian red
+  redHi: '#EE3042',
+  gd:    '#D4A400',  // gold
+  gdHi:  '#FFDC3C',
+  sk:    '#F0CC70',  // LEGO classic yellow skin
+  skHi:  '#FFE490',
+  blk:   '#181828',  // near-black outline
+  wht:   '#F4F0E2',  // parchment white (shield)
+  brn:   '#5E3010',  // leather grip
+  stl:   '#8898B0',  // blade steel
 };
 
-// ---------------------------------------------------------------------------
-// Medieval Croatian Knight — high-quality illustrated SVG mascot
-// Full plate armour, šahovnica heraldry, Croatian red cape & plume
-// ---------------------------------------------------------------------------
-function KnightSVG({ size, mood, className, style }) {
-  const anim = MOOD_ANIM[mood] || 'none';
+// ─── CSS Keyframes ────────────────────────────────────────────────────────────
+// LEGO animations have a satisfying "plastic snap" quality — short, snappy timing
+const KF = `
+@keyframes lk-bounce {
+  0%,100%{transform:translateY(0px)}
+  25%{transform:translateY(-15px)}
+  50%{transform:translateY(-10px)}
+  75%{transform:translateY(-18px)}
+}
+@keyframes lk-float {
+  0%,100%{transform:translateY(0px)}
+  50%{transform:translateY(-7px)}
+}
+@keyframes lk-tilt {
+  0%,100%{transform:rotate(0deg) translateY(0px)}
+  50%{transform:rotate(-6deg) translateY(-2px)}
+}
+@keyframes lk-wobble {
+  0%,100%{transform:rotate(0deg)}
+  15%{transform:rotate(-7deg)}
+  45%{transform:rotate(7deg)}
+  75%{transform:rotate(-5deg)}
+  90%{transform:rotate(3deg)}
+}
+@keyframes lk-droop {
+  0%,100%{transform:translateY(0px) scaleY(1)}
+  50%{transform:translateY(5px) scaleY(0.965)}
+}
+@keyframes lk-idle {
+  0%,100%{transform:translateY(0px)}
+  50%{transform:translateY(-3px)}
+}
+@keyframes lk-sheen {
+  0%,100%{opacity:0.18}
+  50%{opacity:0.42}
+}
+
+/* Arm animations — translate-rotate-translate encodes pivot for browser compat */
+@keyframes lk-aL-up {
+  0%,100%{transform:translate(28px,75px) rotate(0deg) translate(-28px,-75px)}
+  50%{transform:translate(28px,75px) rotate(-72deg) translate(-28px,-75px)}
+}
+@keyframes lk-aR-up {
+  0%,100%{transform:translate(92px,75px) rotate(0deg) translate(-92px,-75px)}
+  50%{transform:translate(92px,75px) rotate(72deg) translate(-92px,-75px)}
+}
+@keyframes lk-aL-think {
+  0%,100%{transform:translate(28px,75px) rotate(0deg) translate(-28px,-75px)}
+  50%{transform:translate(28px,75px) rotate(-44deg) translate(-28px,-75px)}
+}
+@keyframes lk-aL-encourage {
+  0%,100%{transform:translate(28px,75px) rotate(0deg) translate(-28px,-75px)}
+  50%{transform:translate(28px,75px) rotate(-55deg) translate(-28px,-75px)}
+}
+@keyframes lk-aL-droop {
+  0%,100%{transform:translate(28px,75px) rotate(0deg) translate(-28px,-75px)}
+  50%{transform:translate(28px,75px) rotate(16deg) translate(-28px,-75px)}
+}
+@keyframes lk-aR-droop {
+  0%,100%{transform:translate(92px,75px) rotate(0deg) translate(-92px,-75px)}
+  50%{transform:translate(92px,75px) rotate(-16deg) translate(-92px,-75px)}
+}
+@keyframes lk-plume {
+  0%,100%{transform:rotate(0deg);transform-origin:78px 14px}
+  50%{transform:rotate(8deg);transform-origin:78px 14px}
+}
+@keyframes lk-confetti {
+  0%{transform:translateY(0px) rotate(0deg);opacity:1}
+  100%{transform:translateY(30px) rotate(360deg);opacity:0}
+}
+`;
+
+// ─── Mood configuration ───────────────────────────────────────────────────────
+const MOODS = {
+  celebrating: {
+    body:   'lk-bounce 0.85s ease-in-out infinite',
+    armL:   'lk-aL-up  0.85s ease-in-out infinite',
+    armR:   'lk-aR-up  0.85s ease-in-out infinite',
+    face:   'celebrate',
+    plume:  'lk-plume  0.85s ease-in-out infinite',
+  },
+  happy: {
+    body:  'lk-float 2.4s ease-in-out infinite',
+    armL:  null,
+    armR:  null,
+    face:  'smile',
+    plume: 'lk-plume 2.4s ease-in-out infinite',
+  },
+  encouraged: {
+    body:  'lk-float 2s ease-in-out infinite',
+    armL:  'lk-aL-encourage 2s ease-in-out infinite',
+    armR:  null,
+    face:  'smile',
+    plume: 'lk-plume 2s ease-in-out infinite',
+  },
+  thinking: {
+    body:  'lk-tilt 3s ease-in-out infinite',
+    armL:  'lk-aL-think 3s ease-in-out infinite',
+    armR:  null,
+    face:  'think',
+    plume: null,
+  },
+  confused: {
+    body:  'lk-wobble 0.7s ease-in-out 3',
+    armL:  null,
+    armR:  null,
+    face:  'confused',
+    plume: null,
+  },
+  sad: {
+    body:  'lk-droop 3s ease-in-out infinite',
+    armL:  'lk-aL-droop 3s ease-in-out infinite',
+    armR:  'lk-aR-droop 3s ease-in-out infinite',
+    face:  'frown',
+    plume: null,
+  },
+  neutral: {
+    body:  'lk-idle 4s ease-in-out infinite',
+    armL:  null,
+    armR:  null,
+    face:  'neutral',
+    plume: 'lk-plume 4s ease-in-out infinite',
+  },
+};
+
+// ─── Šahovnica (Croatian checkerboard) ───────────────────────────────────────
+// 5×5 grid, WHITE (argent) in top-left — the correct heraldic blazon:
+// "checky of 25, argent and gules" (argent = white first)
+function Sahov({ x = 0, y = 0, sq = 6.8 }) {
+  return (
+    <>
+      {Array.from({ length: 5 }).flatMap((_, r) =>
+        Array.from({ length: 5 }).map((_, c) => (
+          <rect
+            key={`${r}-${c}`}
+            x={x + c * sq} y={y + r * sq}
+            width={sq} height={sq}
+            fill={(r + c) % 2 === 0 ? C.wht : C.red}
+          />
+        ))
+      )}
+    </>
+  );
+}
+
+// ─── SVG gradient / filter helpers ───────────────────────────────────────────
+function Defs() {
+  return (
+    <defs>
+      <style>{KF}</style>
+
+      {/* Armor — LEGO plastic with sheen */}
+      <linearGradient id="lk-ar" x1="15%" y1="0%" x2="85%" y2="100%">
+        <stop offset="0%"   stopColor={C.arHi}/>
+        <stop offset="35%"  stopColor={C.ar}/>
+        <stop offset="100%" stopColor={C.arDk}/>
+      </linearGradient>
+      <linearGradient id="lk-arV" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%"   stopColor={C.arHi}/>
+        <stop offset="45%"  stopColor={C.ar}/>
+        <stop offset="100%" stopColor={C.arDk}/>
+      </linearGradient>
+
+      {/* Plastic sheen (overlay) */}
+      <linearGradient id="lk-sh" x1="0%" y1="0%" x2="55%" y2="100%">
+        <stop offset="0%"   stopColor="rgba(255,255,255,0.58)"/>
+        <stop offset="28%"  stopColor="rgba(255,255,255,0.12)"/>
+        <stop offset="100%" stopColor="rgba(0,0,0,0.20)"/>
+      </linearGradient>
+
+      {/* Red — Croatian red with depth */}
+      <linearGradient id="lk-rd" x1="0%" y1="0%" x2="50%" y2="100%">
+        <stop offset="0%"   stopColor={C.redHi}/>
+        <stop offset="55%"  stopColor={C.red}/>
+        <stop offset="100%" stopColor="#860015"/>
+      </linearGradient>
+
+      {/* Gold */}
+      <linearGradient id="lk-gd" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%"   stopColor={C.gdHi}/>
+        <stop offset="55%"  stopColor={C.gd}/>
+        <stop offset="100%" stopColor="#7A5A00"/>
+      </linearGradient>
+      <linearGradient id="lk-gdV" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%"   stopColor={C.gdHi}/>
+        <stop offset="100%" stopColor="#6A4C00"/>
+      </linearGradient>
+
+      {/* LEGO yellow skin */}
+      <linearGradient id="lk-sk" x1="10%" y1="0%" x2="90%" y2="100%">
+        <stop offset="0%"   stopColor={C.skHi}/>
+        <stop offset="50%"  stopColor={C.sk}/>
+        <stop offset="100%" stopColor="#A07020"/>
+      </linearGradient>
+
+      {/* Sword blade */}
+      <linearGradient id="lk-bl" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%"   stopColor="#6A8898"/>
+        <stop offset="38%"  stopColor="#E2EEF6"/>
+        <stop offset="52%"  stopColor="#FFFFFF"/>
+        <stop offset="100%" stopColor="#6A8898"/>
+      </linearGradient>
+
+      {/* Shield white */}
+      <linearGradient id="lk-wh" x1="10%" y1="0%" x2="90%" y2="100%">
+        <stop offset="0%"   stopColor="#FDFAF0"/>
+        <stop offset="100%" stopColor="#C8C4B0"/>
+      </linearGradient>
+
+      {/* Drop shadow */}
+      <filter id="lk-drop" x="-22%" y="-10%" width="155%" height="145%">
+        <feDropShadow dx="2.5" dy="7" stdDeviation="5.5" floodColor="rgba(0,0,0,0.48)"/>
+      </filter>
+
+      {/* Subtle ambient shadow on side pieces */}
+      <filter id="lk-soft" x="-10%" y="-10%" width="125%" height="125%">
+        <feDropShadow dx="1" dy="2" stdDeviation="2" floodColor="rgba(0,0,0,0.3)"/>
+      </filter>
+    </defs>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
+export default function CroatianKnight({ size = 80, mood = 'happy', className, style }) {
+  const m = MOODS[mood] || MOODS.happy;
   const isCelebrating = mood === 'celebrating';
 
-  // Confetti for celebrating state
-  const confetti = [
-    { x:2,  y:18, w:7,   h:3,   c:'#D40030', r:22  },
-    { x:18, y:8,  w:4,   h:7,   c:'#FFE070', r:-16 },
-    { x:78, y:12, w:7,   h:3,   c:'#38bdf8', r:32  },
-    { x:95, y:24, w:3,   h:7,   c:'#D40030', r:-12 },
-    { x:6,  y:40, w:6,   h:3,   c:'#38bdf8', r:48  },
-    { x:96, y:42, w:3,   h:6,   c:'#D40030', r:-38 },
-    { x:0,  y:62, w:6,   h:3,   c:'#FFE070', r:12  },
-    { x:102,y:66, w:3,   h:6,   c:'#16a34a', r:28  },
-    { x:12, y:80, w:5,   h:3,   c:'#a78bfa', r:-22 },
-    { x:98, y:82, w:4,   h:5,   c:'#f59e0b', r:36  },
-  ];
+  // Confetti pieces for celebrating state
+  const confetti = isCelebrating ? [
+    { x: 4,   y: 26,  c: C.red,   r: 24  },
+    { x: 110, y: 16,  c: C.gdHi,  r: -18 },
+    { x: 2,   y: 72,  c: '#38bdf8', r: 40 },
+    { x: 114, y: 66,  c: C.red,   r: -35 },
+    { x: 6,   y: 118, c: C.gdHi,  r: 15  },
+    { x: 113, y: 112, c: '#16a34a', r: -28 },
+    { x: 1,   y: 94,  c: '#a78bfa', r: 52 },
+    { x: 115, y: 88,  c: '#f59e0b', r: -44 },
+    { x: 10,  y: 142, c: C.red,   r: 8   },
+    { x: 108, y: 138, c: '#38bdf8', r: -22 },
+  ] : [];
 
   return (
     <svg
       width={size}
-      height={size * 1.55}
-      viewBox="0 0 110 170"
-      fill="none"
+      height={Math.round(size * 1.56)}
+      viewBox="0 0 120 188"
       xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      style={{ animation: anim, transformOrigin: 'bottom center', display: 'block', ...style }}
+      fill="none"
+      overflow="visible"
       role="img"
-      aria-label={`Croatian knight mascot, ${mood} expression`}
+      aria-label={`LEGO Croatian knight mascot, ${mood} expression`}
+      className={className}
+      style={style}
     >
-      <defs>
-        {/* ── Polished steel plate armour ── */}
-        <linearGradient id="mk-steel" x1="15%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%"   stopColor="#CDD8E4"/>
-          <stop offset="28%"  stopColor="#8EA4B8"/>
-          <stop offset="62%"  stopColor="#566878"/>
-          <stop offset="100%" stopColor="#1E2C3A"/>
-        </linearGradient>
-        <linearGradient id="mk-steelLt" x1="0%" y1="0%" x2="70%" y2="100%">
-          <stop offset="0%"   stopColor="#E8EEF6"/>
-          <stop offset="45%"  stopColor="#A8BCCC"/>
-          <stop offset="100%" stopColor="#4A6070"/>
-        </linearGradient>
-        <linearGradient id="mk-steelDk" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%"   stopColor="#3A4E60"/>
-          <stop offset="100%" stopColor="#0E1820"/>
-        </linearGradient>
-        <linearGradient id="mk-steelV" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%"   stopColor="#D0DCE8"/>
-          <stop offset="40%"  stopColor="#8CA0B0"/>
-          <stop offset="100%" stopColor="#2A3A4A"/>
-        </linearGradient>
-        {/* ── Croatian red ── */}
-        <linearGradient id="mk-red" x1="0%" y1="0%" x2="35%" y2="100%">
-          <stop offset="0%"   stopColor="#E83040"/>
-          <stop offset="55%"  stopColor="#B01825"/>
-          <stop offset="100%" stopColor="#680010"/>
-        </linearGradient>
-        <linearGradient id="mk-redLt" x1="0%" y1="0%" x2="50%" y2="100%">
-          <stop offset="0%"   stopColor="#F04050"/>
-          <stop offset="100%" stopColor="#901020"/>
-        </linearGradient>
-        {/* ── Gold trim ── */}
-        <linearGradient id="mk-gold" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%"   stopColor="#FFF8B0"/>
-          <stop offset="38%"  stopColor="#E8C020"/>
-          <stop offset="72%"  stopColor="#C09000"/>
-          <stop offset="100%" stopColor="#806000"/>
-        </linearGradient>
-        <linearGradient id="mk-goldV" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%"   stopColor="#FFEC90"/>
-          <stop offset="100%" stopColor="#906800"/>
-        </linearGradient>
-        {/* ── Shield parchment-white ── */}
-        <linearGradient id="mk-white" x1="0%" y1="0%" x2="50%" y2="100%">
-          <stop offset="0%"   stopColor="#F6F4EE"/>
-          <stop offset="100%" stopColor="#C8C4B8"/>
-        </linearGradient>
-        {/* ── Sword blade ── */}
-        <linearGradient id="mk-blade" x1="0%" y1="100%" x2="100%" y2="0%">
-          <stop offset="0%"   stopColor="#607888"/>
-          <stop offset="30%"  stopColor="#C8DCE8"/>
-          <stop offset="55%"  stopColor="#FFFFFF"/>
-          <stop offset="78%"  stopColor="#B0C8D8"/>
-          <stop offset="100%" stopColor="#506070"/>
-        </linearGradient>
-        {/* ── Brown leather ── */}
-        <linearGradient id="mk-leather" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%"   stopColor="#8A5028"/>
-          <stop offset="55%"  stopColor="#6A3818"/>
-          <stop offset="100%" stopColor="#3A1808"/>
-        </linearGradient>
-        {/* ── Plume ── */}
-        <linearGradient id="mk-plume" x1="100%" y1="100%" x2="0%" y2="0%">
-          <stop offset="0%"   stopColor="#C01020"/>
-          <stop offset="50%"  stopColor="#E83040"/>
-          <stop offset="100%" stopColor="#FF6070"/>
-        </linearGradient>
-        {/* ── Drop shadow filter ── */}
-        <filter id="mk-drop" x="-18%" y="-6%" width="145%" height="130%">
-          <feDropShadow dx="1.5" dy="5" stdDeviation="4" floodColor="rgba(0,0,0,0.5)"/>
-        </filter>
-        {/* ── Sword glow ── */}
-        <filter id="mk-sglow" x="-25%" y="-5%" width="150%" height="110%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="1.8" result="blur"/>
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-        {/* ── Helmet visor inner shadow ── */}
-        <filter id="mk-visor" x="-5%" y="-5%" width="110%" height="110%">
-          <feDropShadow dx="0" dy="1.5" stdDeviation="2" floodColor="rgba(0,0,0,0.6)"/>
-        </filter>
-        {/* ── Shield clip path (heater shape) ── */}
-        <clipPath id="mk-shieldClip">
-          <path d="M 2 82 L 24 82 L 24 112 Q 24 126 13 131 Q 2 126 2 112 Z"/>
-        </clipPath>
-      </defs>
+      <Defs />
 
-      {/* Ground shadow */}
-      <ellipse cx="58" cy="167" rx="28" ry="3.5" fill="rgba(0,0,0,0.22)"/>
-
-      {/* Confetti (celebrating mood) */}
-      {isCelebrating && confetti.map((p, i) => (
-        <rect key={i} x={p.x} y={p.y} width={p.w} height={p.h} rx="0.7"
+      {/* Confetti — drawn behind figure */}
+      {confetti.map((p, i) => (
+        <rect
+          key={i}
+          x={p.x} y={p.y} width="9" height="4.5" rx="1.5"
           fill={p.c} opacity="0.9"
-          transform={`rotate(${p.r} ${p.x + p.w/2} ${p.y + p.h/2})`}/>
+          transform={`rotate(${p.r} ${p.x + 4.5} ${p.y + 2.25})`}
+        />
       ))}
 
-      {/* ══ MAIN FIGURE — drop shadow group ══ */}
-      <g filter="url(#mk-drop)">
+      {/* ══════════════════════════════════════════════════
+          MAIN FIGURE — body bounce/float/droop animation
+          transformOrigin at foot level keeps figure grounded
+          ══════════════════════════════════════════════════ */}
+      <g
+        filter="url(#lk-drop)"
+        style={{ animation: m.body, transformOrigin: '60px 186px' }}
+      >
 
-        {/* ── CAPE — flowing behind figure, drawn first ── */}
-        <path d="M 42 68 Q 22 92 24 142 Q 26 158 40 162 L 42 112 Z"
-          fill="url(#mk-red)" opacity="0.95"/>
-        <path d="M 68 68 Q 88 92 86 142 Q 84 158 70 162 L 68 112 Z"
-          fill="url(#mk-red)" opacity="0.95"/>
-        {/* Cape inner fold lines */}
-        <path d="M 38 80 Q 27 108 28 136" stroke="#8B0010" strokeWidth="1.5" fill="none" opacity="0.5"/>
-        <path d="M 72 80 Q 83 108 82 136" stroke="#8B0010" strokeWidth="1.5" fill="none" opacity="0.5"/>
-        {/* Cape hem gold trim */}
-        <path d="M 42 68 Q 22 92 24 142 Q 26 158 40 162"
-          stroke="#C89018" strokeWidth="2" fill="none" opacity="0.75"/>
-        <path d="M 68 68 Q 88 92 86 142 Q 84 158 70 162"
-          stroke="#C89018" strokeWidth="2" fill="none" opacity="0.75"/>
+        {/* ───────────── GROUND SHADOW ───────────── */}
+        <ellipse cx="60" cy="185" rx="28" ry="3.5"
+          fill="rgba(0,0,0,0.28)" opacity="0.7"/>
 
-        {/* ── LEGS ── */}
-        {/* Left thigh / cuisse */}
-        <rect x="36" y="112" width="20" height="34" rx="5.5" fill="url(#mk-steelV)"/>
-        <rect x="38" y="113" width="8"  height="13" rx="3"   fill="rgba(255,255,255,0.2)"/>
-        {/* Left poleyne (knee plate) */}
-        <ellipse cx="46" cy="133" rx="11" ry="7" fill="url(#mk-steelLt)"/>
-        <ellipse cx="44" cy="131.5" rx="5.5" ry="3.2" fill="rgba(255,255,255,0.28)"/>
-        <ellipse cx="46" cy="133" rx="11" ry="7" stroke="rgba(255,255,255,0.12)" strokeWidth="0.8" fill="none"/>
-        {/* Left greave */}
-        <rect x="37" y="138" width="18" height="24" rx="4.5" fill="url(#mk-steelV)"/>
-        <rect x="39" y="139" width="7"  height="10" rx="2.5" fill="rgba(255,255,255,0.18)"/>
-        {/* Left sabaton */}
-        <path d="M 34 160 L 56 160 Q 60 162 58 165 L 34 165 Q 30 163 34 160 Z"
-          fill="url(#mk-steelLt)"/>
-        <path d="M 36 161 L 50 161 Q 54 162.5 52 164 L 36 164"
-          fill="rgba(255,255,255,0.2)"/>
+        {/* ───────────── FEET ───────────── */}
+        {/* Left foot */}
+        <rect rx="7" x="18" y="164" width="38" height="20"
+          fill="url(#lk-arV)" stroke={C.blk} strokeWidth="1.2"/>
+        <rect rx="5" x="20" y="165" width="16" height="5"
+          fill="url(#lk-sh)" opacity="0.55"/>
+        {/* Right foot */}
+        <rect rx="7" x="64" y="164" width="38" height="20"
+          fill="url(#lk-arV)" stroke={C.blk} strokeWidth="1.2"/>
+        <rect rx="5" x="66" y="165" width="16" height="5"
+          fill="url(#lk-sh)" opacity="0.55"/>
+        {/* Foot gold toe cap trim */}
+        <rect rx="4" x="20" y="180" width="34" height="4" fill="url(#lk-gd)" opacity="0.6"/>
+        <rect rx="4" x="66" y="180" width="34" height="4" fill="url(#lk-gd)" opacity="0.6"/>
 
-        {/* Right thigh / cuisse */}
-        <rect x="54" y="112" width="20" height="34" rx="5.5" fill="url(#mk-steelV)"/>
-        <rect x="56" y="113" width="8"  height="13" rx="3"   fill="rgba(255,255,255,0.18)"/>
-        {/* Right poleyne */}
-        <ellipse cx="64" cy="133" rx="11" ry="7" fill="url(#mk-steelLt)"/>
-        <ellipse cx="62" cy="131.5" rx="5.5" ry="3.2" fill="rgba(255,255,255,0.28)"/>
-        {/* Right greave */}
-        <rect x="53" y="138" width="18" height="24" rx="4.5" fill="url(#mk-steelV)"/>
-        <rect x="55" y="139" width="7"  height="10" rx="2.5" fill="rgba(255,255,255,0.18)"/>
-        {/* Right sabaton */}
-        <path d="M 54 160 L 76 160 Q 80 163 76 165 L 54 165 Q 50 162 54 160 Z"
-          fill="url(#mk-steelLt)"/>
-        <path d="M 56 161 L 70 161 Q 73 162.5 71 164 L 56 164"
-          fill="rgba(255,255,255,0.2)"/>
+        {/* ───────────── LEGS ───────────── */}
+        {/* Left leg */}
+        <rect rx="7" x="20" y="120" width="34" height="50"
+          fill="url(#lk-arV)" stroke={C.blk} strokeWidth="1.2"/>
+        <rect rx="4" x="22" y="122" width="14" height="22"
+          fill="url(#lk-sh)" opacity="0.45"/>
+        {/* Right leg */}
+        <rect rx="7" x="66" y="120" width="34" height="50"
+          fill="url(#lk-arV)" stroke={C.blk} strokeWidth="1.2"/>
+        <rect rx="4" x="68" y="122" width="14" height="22"
+          fill="url(#lk-sh)" opacity="0.45"/>
+        {/* Knee plates (poleyne) — each leg */}
+        <ellipse cx="37" cy="149" rx="10.5" ry="6.5"
+          fill={C.arHi} stroke={C.blk} strokeWidth="1"/>
+        <ellipse cx="83" cy="149" rx="10.5" ry="6.5"
+          fill={C.arHi} stroke={C.blk} strokeWidth="1"/>
+        {/* Knee boss (center rivet) */}
+        <circle cx="37" cy="149" r="3.5" fill="url(#lk-gd)" stroke={C.blk} strokeWidth="0.8"/>
+        <circle cx="83" cy="149" r="3.5" fill="url(#lk-gd)" stroke={C.blk} strokeWidth="0.8"/>
+        {/* Leg gap groove */}
+        <rect x="54" y="118" width="12" height="52" fill="rgba(0,0,0,0.3)"/>
 
-        {/* Leg gap shadow */}
-        <rect x="54" y="110" width="2" height="56" rx="1" fill="rgba(0,0,0,0.4)"/>
+        {/* ───────────── HIP / BELT PIECE ───────────── */}
+        {/* LEGO H-piece hip connector */}
+        <rect rx="5" x="20" y="114" width="80" height="12"
+          fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1.2"/>
+        {/* Belt center buckle */}
+        <rect rx="3" x="51" y="115" width="18" height="10"
+          fill="url(#lk-gd)" stroke={C.blk} strokeWidth="0.9"/>
+        <circle cx="60" cy="120" r="3" fill={C.gdHi} opacity="0.7"/>
+        {/* Red surcoat hem at belt */}
+        <rect rx="2" x="24" y="122" width="72" height="5"
+          fill="url(#lk-rd)" opacity="0.75"/>
 
-        {/* ── TORSO — breastplate with surcoat/tabard ── */}
-        {/* Backplate edge (darker) */}
-        <rect x="31" y="64" width="48" height="52" rx="7"   fill="url(#mk-steelDk)" opacity="0.4"/>
-        {/* Main breastplate */}
-        <rect x="32" y="62" width="46" height="54" rx="7"   fill="url(#mk-steel)"/>
-        {/* Breastplate central ridge */}
-        <path d="M 55 62 L 55 116" stroke="rgba(255,255,255,0.12)" strokeWidth="2.5" fill="none"/>
-        {/* Breastplate upper highlight */}
-        <ellipse cx="46" cy="74" rx="14" ry="9"
-          fill="rgba(255,255,255,0.22)" transform="rotate(-18 46 74)"/>
+        {/* ───────────── TORSO ───────────── */}
+        {/* Main torso block */}
+        <rect rx="8" x="26" y="62" width="68" height="56"
+          fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1.3"/>
 
-        {/* ŠAHOVNICA SURCOAT — tabard over lower breastplate */}
-        {/* Red section (left half) */}
-        <rect x="32" y="85" width="23" height="31" rx="0" fill="url(#mk-red)"/>
-        {/* White section (right half) */}
-        <rect x="55" y="85" width="23" height="31" rx="0" fill="url(#mk-white)"/>
-        {/* Šahovnica grid lines — 5 columns × 4 rows creating the checkerboard */}
-        {/* Row 0 (y=85–92): L=red, so col 0=red,1=white,2=red,3=white,4=red */}
-        <rect x="32" y="85" width="9"  height="8" fill="#D40030"/>
-        <rect x="41" y="85" width="9"  height="8" fill="#F0EEE8"/>
-        <rect x="50" y="85" width="9"  height="8" fill="#D40030"/>
-        <rect x="59" y="85" width="9"  height="8" fill="#F0EEE8"/>
-        <rect x="68" y="85" width="9"  height="8" fill="#D40030"/>
-        {/* Row 1 (y=93–100) */}
-        <rect x="32" y="93" width="9"  height="8" fill="#F0EEE8"/>
-        <rect x="41" y="93" width="9"  height="8" fill="#D40030"/>
-        <rect x="50" y="93" width="9"  height="8" fill="#F0EEE8"/>
-        <rect x="59" y="93" width="9"  height="8" fill="#D40030"/>
-        <rect x="68" y="93" width="9"  height="8" fill="#F0EEE8"/>
-        {/* Row 2 (y=101–108) */}
-        <rect x="32" y="101" width="9" height="8" fill="#D40030"/>
-        <rect x="41" y="101" width="9" height="8" fill="#F0EEE8"/>
-        <rect x="50" y="101" width="9" height="8" fill="#D40030"/>
-        <rect x="59" y="101" width="9" height="8" fill="#F0EEE8"/>
-        <rect x="68" y="101" width="9" height="8" fill="#D40030"/>
-        {/* Row 3 (y=109–116) */}
-        <rect x="32" y="109" width="9" height="7" fill="#F0EEE8"/>
-        <rect x="41" y="109" width="9" height="7" fill="#D40030"/>
-        <rect x="50" y="109" width="9" height="7" fill="#F0EEE8"/>
-        <rect x="59" y="109" width="9" height="7" fill="#D40030"/>
-        <rect x="68" y="109" width="9" height="7" fill="#F0EEE8"/>
-        {/* Surcoat border (matches breastplate edge) */}
-        <rect x="32" y="85" width="46" height="31" rx="0"
-          stroke="rgba(0,0,0,0.2)" strokeWidth="0.8" fill="none"/>
-        {/* Gold belt over surcoat */}
-        <rect x="30" y="112" width="50" height="7" rx="2.5" fill="url(#mk-steelDk)"/>
-        <rect x="31" y="113" width="48" height="3" rx="1"   fill="rgba(255,255,255,0.15)"/>
-        {/* Belt buckle */}
-        <rect x="51" y="112" width="8"  height="7" rx="2"   fill="url(#mk-gold)"/>
-        <rect x="52" y="113" width="6"  height="3" rx="1"   fill="rgba(255,255,255,0.4)"/>
+        {/* Breastplate center keel / ridge */}
+        <rect rx="3" x="56" y="68" width="8" height="42"
+          fill={C.arHi} stroke={C.arSh} strokeWidth="0.6" opacity="0.5"/>
 
-        {/* ── LEFT ARM — shield side ── */}
-        {/* Pauldron left */}
-        <ellipse cx="31" cy="72" rx="10" ry="8"  fill="url(#mk-steelLt)"/>
-        <ellipse cx="29" cy="70" rx="5.5" ry="3.5" fill="rgba(255,255,255,0.28)"/>
-        {/* Pauldron lames */}
-        <path d="M 21 72 Q 21 80 24 84"   stroke="#8090A0" strokeWidth="2" fill="none"/>
-        {/* Upper arm */}
-        <rect x="16" y="73" width="16" height="30" rx="7"   fill="url(#mk-steel)"/>
-        <rect x="18" y="74" width="6"  height="12" rx="3"   fill="rgba(255,255,255,0.2)"/>
-        {/* Couter (elbow) */}
-        <ellipse cx="24" cy="103" rx="9.5" ry="6" fill="url(#mk-steelLt)"/>
-        <ellipse cx="22" cy="101.5" rx="4.5" ry="2.8" fill="rgba(255,255,255,0.28)"/>
-        {/* Lower arm / vambrace */}
-        <rect x="16" y="105" width="16" height="22" rx="6"  fill="url(#mk-steel)"/>
-        <rect x="18" y="106" width="6"  height="9"  rx="3"  fill="rgba(255,255,255,0.18)"/>
-        {/* Gauntlet */}
-        <rect x="15" y="124" width="18" height="10" rx="5"  fill="url(#mk-steelLt)"/>
-        <rect x="16" y="125" width="9"  height="4"  rx="2"  fill="rgba(255,255,255,0.22)"/>
-        {/* Finger plates */}
-        <rect x="15" y="131" width="4" height="5"  rx="2"  fill="url(#mk-steel)"/>
-        <rect x="20" y="131" width="4" height="5"  rx="2"  fill="url(#mk-steel)"/>
-        <rect x="25" y="131" width="4" height="5"  rx="2"  fill="url(#mk-steel)"/>
+        {/* ŠAHOVNICA on chest — 4×4 version (5×5 is too small at torso scale) */}
+        {/* Croatian coat of arms: white (argent) first — row 0 starts W R W R */}
+        {(() => {
+          const sq = 7; const cols = 4; const rows = 4;
+          const sx = 60 - (cols * sq) / 2;
+          const sy = 72;
+          return Array.from({ length: rows }).flatMap((_, r) =>
+            Array.from({ length: cols }).map((_, c) => (
+              <rect
+                key={`chest-${r}-${c}`}
+                x={sx + c * sq} y={sy + r * sq}
+                width={sq} height={sq}
+                fill={(r + c) % 2 === 0 ? C.wht : C.red}
+                opacity="0.93"
+              />
+            ))
+          );
+        })()}
 
-        {/* ── HEATER SHIELD — Croatian šahovnica ── */}
-        {/* Shield boss/backing */}
-        <path d="M 2 82 L 24 82 L 24 112 Q 24 126 13 131 Q 2 126 2 112 Z"
-          fill="url(#mk-steelDk)" opacity="0.4"/>
-        {/* Shield body */}
-        <path d="M 2 82 L 24 82 L 24 112 Q 24 126 13 131 Q 2 126 2 112 Z"
-          fill="url(#mk-white)"/>
-        {/* Shield šahovnica — 5 columns × 5 rows, clipped to shield shape */}
-        <g clipPath="url(#mk-shieldClip)">
-          {/* Row 0 (y=82): R W R W R */}
-          <rect x="2"  y="82" width="5" height="5" fill="#D40030"/>
-          <rect x="7"  y="82" width="5" height="5" fill="#F0EEE8"/>
-          <rect x="12" y="82" width="5" height="5" fill="#D40030"/>
-          <rect x="17" y="82" width="5" height="5" fill="#F0EEE8"/>
-          <rect x="22" y="82" width="5" height="5" fill="#D40030"/>
-          {/* Row 1 (y=87): W R W R W */}
-          <rect x="2"  y="87" width="5" height="5" fill="#F0EEE8"/>
-          <rect x="7"  y="87" width="5" height="5" fill="#D40030"/>
-          <rect x="12" y="87" width="5" height="5" fill="#F0EEE8"/>
-          <rect x="17" y="87" width="5" height="5" fill="#D40030"/>
-          <rect x="22" y="87" width="5" height="5" fill="#F0EEE8"/>
-          {/* Row 2 (y=92): R W R W R */}
-          <rect x="2"  y="92" width="5" height="5" fill="#D40030"/>
-          <rect x="7"  y="92" width="5" height="5" fill="#F0EEE8"/>
-          <rect x="12" y="92" width="5" height="5" fill="#D40030"/>
-          <rect x="17" y="92" width="5" height="5" fill="#F0EEE8"/>
-          <rect x="22" y="92" width="5" height="5" fill="#D40030"/>
-          {/* Row 3 (y=97): W R W R W */}
-          <rect x="2"  y="97" width="5" height="5" fill="#F0EEE8"/>
-          <rect x="7"  y="97" width="5" height="5" fill="#D40030"/>
-          <rect x="12" y="97" width="5" height="5" fill="#F0EEE8"/>
-          <rect x="17" y="97" width="5" height="5" fill="#D40030"/>
-          <rect x="22" y="97" width="5" height="5" fill="#F0EEE8"/>
-          {/* Row 4 (y=102): R W R W R */}
-          <rect x="2"  y="102" width="5" height="5" fill="#D40030"/>
-          <rect x="7"  y="102" width="5" height="5" fill="#F0EEE8"/>
-          <rect x="12" y="102" width="5" height="5" fill="#D40030"/>
-          <rect x="17" y="102" width="5" height="5" fill="#F0EEE8"/>
-          <rect x="22" y="102" width="5" height="5" fill="#D40030"/>
-          {/* Row 5 (y=107): W R W R W */}
-          <rect x="2"  y="107" width="5" height="5" fill="#F0EEE8"/>
-          <rect x="7"  y="107" width="5" height="5" fill="#D40030"/>
-          <rect x="12" y="107" width="5" height="5" fill="#F0EEE8"/>
-          <rect x="17" y="107" width="5" height="5" fill="#D40030"/>
-          <rect x="22" y="107" width="5" height="5" fill="#F0EEE8"/>
-          {/* Rows 6–8 (fill remaining shield area) */}
-          <rect x="2"  y="112" width="5" height="5" fill="#D40030"/>
-          <rect x="7"  y="112" width="5" height="5" fill="#F0EEE8"/>
-          <rect x="12" y="112" width="5" height="5" fill="#D40030"/>
-          <rect x="17" y="112" width="5" height="5" fill="#F0EEE8"/>
-          <rect x="2"  y="117" width="5" height="5" fill="#F0EEE8"/>
-          <rect x="7"  y="117" width="5" height="5" fill="#D40030"/>
-          <rect x="12" y="117" width="5" height="5" fill="#F0EEE8"/>
-          <rect x="2"  y="122" width="5" height="5" fill="#D40030"/>
-          <rect x="7"  y="122" width="5" height="5" fill="#F0EEE8"/>
-          <rect x="12" y="122" width="5" height="5" fill="#D40030"/>
+        {/* Torso gold trim — top pauldron line */}
+        <rect rx="4" x="26" y="62" width="68" height="7"
+          fill="url(#lk-gdV)" opacity="0.92"/>
+        {/* Torso gold trim — bottom */}
+        <rect rx="0" x="26" y="111" width="68" height="7"
+          fill="url(#lk-gdV)" opacity="0.85"/>
+        {/* Plastic sheen overlay on torso (left half highlight) */}
+        <rect rx="8" x="26" y="62" width="34" height="56"
+          fill="url(#lk-sh)" opacity="0.38"/>
+        {/* Side seam lines (LEGO mold lines) */}
+        <line x1="26" y1="68" x2="26" y2="116"
+          stroke={C.arDk} strokeWidth="0.8" opacity="0.4"/>
+        <line x1="94" y1="68" x2="94" y2="116"
+          stroke={C.arDk} strokeWidth="0.8" opacity="0.4"/>
+
+        {/* ───────────── LEFT ARM GROUP — shield arm ───────────── */}
+        {/* Pivot point: (28, 75) — left shoulder joint */}
+        <g style={{ animation: m.armL }}>
+          {/* Shoulder disk joint (the visible circular pivot — very LEGO) */}
+          <circle cx="28" cy="75" r="13"
+            fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1.2"/>
+          <circle cx="28" cy="75" r="8"
+            fill={C.arHi} stroke={C.arSh} strokeWidth="0.8"/>
+          <circle cx="25" cy="72" r="2.5"
+            fill="rgba(255,255,255,0.45)"/>
+
+          {/* Upper arm */}
+          <rect rx="7" x="5" y="65" width="23" height="38"
+            fill="url(#lk-arV)" stroke={C.blk} strokeWidth="1.2"/>
+          <rect rx="4" x="7" y="67" width="9" height="18"
+            fill="url(#lk-sh)" opacity="0.48"/>
+
+          {/* Elbow joint disk */}
+          <circle cx="16.5" cy="105" r="9"
+            fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1"/>
+          <circle cx="14" cy="103" r="3" fill="rgba(255,255,255,0.3)"/>
+
+          {/* Forearm */}
+          <rect rx="6" x="7" y="103" width="19" height="22"
+            fill="url(#lk-arV)" stroke={C.blk} strokeWidth="1.1"/>
+
+          {/* C-clamp hand — the most iconic LEGO element */}
+          {/* Outer shell */}
+          <rect rx="6" x="8" y="125" width="17" height="13"
+            fill="url(#lk-sk)" stroke={C.blk} strokeWidth="1.1"/>
+          {/* Grip hollow (shadow) */}
+          <ellipse cx="16.5" cy="131.5" rx="4.5" ry="3.5"
+            fill="rgba(0,0,0,0.18)"/>
+          {/* Hand sheen */}
+          <rect rx="3" x="10" y="126" width="7" height="4"
+            fill="rgba(255,255,255,0.35)"/>
+
+          {/* ══ SHIELD ══
+              Heater-shape shield, held in left hand
+              Šahovnica 5×5 — WHITE FIRST (correct Croatian heraldry)
+          */}
+          <g transform="translate(-16, 76)">
+            {/* Arm strap behind shield */}
+            <rect rx="3" x="22" y="14" width="7" height="26"
+              fill={C.brn} stroke={C.blk} strokeWidth="0.8" opacity="0.85"/>
+
+            {/* Shield white base (heater shape) */}
+            {/* M cx,top — Q right-top — L right-mid — L bottom-tip — L left-mid — Q left-top */}
+            <path d="M 19,0 Q 37,0 37,13 L 37,48 L 19,65 L 1,48 L 1,13 Q 1,0 19,0 Z"
+              fill="url(#lk-wh)" stroke={C.blk} strokeWidth="1.8"/>
+
+            {/* ŠAHOVNICA — 5×5, argent (white) first */}
+            {/* Squares: (r+c)%2===0 → white; else → red */}
+            {/* Clipped visually by drawing shield border on top */}
+            <Sahov x={2} y={3} sq={7}/>
+
+            {/* Gold border — drawn ON TOP of šahovnica to frame it */}
+            <path d="M 19,0 Q 37,0 37,13 L 37,48 L 19,65 L 1,48 L 1,13 Q 1,0 19,0 Z"
+              fill="none" stroke="url(#lk-gd)" strokeWidth="2.8"/>
+
+            {/* Shield boss (center metal knob) */}
+            <circle cx="19" cy="29" r="6"
+              fill="url(#lk-gd)" stroke={C.blk} strokeWidth="1.1"/>
+            <circle cx="19" cy="29" r="3.5"
+              fill={C.gdHi} opacity="0.65"/>
+            <circle cx="17.5" cy="27.5" r="1.2"
+              fill="rgba(255,255,255,0.7)"/>
+
+            {/* Shield surface highlight (top-left plastic sheen) */}
+            <path d="M 5,4 Q 9,4 9,8"
+              stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" strokeLinecap="round"/>
+            {/* Bottom gradient darkening */}
+            <path d="M 5,44 L 19,58 L 33,44"
+              stroke="rgba(0,0,0,0.12)" strokeWidth="2" fill="none"/>
+          </g>
         </g>
-        {/* Shield border */}
-        <path d="M 2 82 L 24 82 L 24 112 Q 24 126 13 131 Q 2 126 2 112 Z"
-          stroke="#1E2A38" strokeWidth="1.5" fill="none"/>
-        {/* Shield gold rim */}
-        <path d="M 2 82 L 24 82 L 24 112 Q 24 126 13 131 Q 2 126 2 112 Z"
-          stroke="#C89018" strokeWidth="0.8" fill="none" opacity="0.7"/>
-        {/* Shield highlight (top-left catch light) */}
-        <path d="M 4 84 L 13 84 L 13 100" stroke="rgba(255,255,255,0.35)"
-          strokeWidth="1.5" fill="none" strokeLinecap="round"/>
 
-        {/* ── RIGHT ARM — sword side ── */}
-        {/* Pauldron right */}
-        <ellipse cx="79" cy="72" rx="10" ry="8"  fill="url(#mk-steelLt)"/>
-        <ellipse cx="77" cy="70" rx="5.5" ry="3.5" fill="rgba(255,255,255,0.28)"/>
-        {/* Upper arm */}
-        <rect x="78" y="73" width="16" height="30" rx="7"   fill="url(#mk-steel)"/>
-        <rect x="80" y="74" width="6"  height="12" rx="3"   fill="rgba(255,255,255,0.18)"/>
-        {/* Couter right */}
-        <ellipse cx="86" cy="103" rx="9.5" ry="6" fill="url(#mk-steelLt)"/>
-        <ellipse cx="84" cy="101.5" rx="4.5" ry="2.8" fill="rgba(255,255,255,0.28)"/>
-        {/* Lower arm */}
-        <rect x="78" y="105" width="16" height="22" rx="6"  fill="url(#mk-steel)"/>
-        <rect x="80" y="106" width="6"  height="9"  rx="3"  fill="rgba(255,255,255,0.18)"/>
-        {/* Gauntlet right */}
-        <rect x="77" y="124" width="18" height="10" rx="5"  fill="url(#mk-steelLt)"/>
-        <rect x="78" y="125" width="9"  height="4"  rx="2"  fill="rgba(255,255,255,0.22)"/>
+        {/* ───────────── RIGHT ARM GROUP — sword arm ───────────── */}
+        {/* Pivot point: (92, 75) — right shoulder joint */}
+        <g style={{ animation: m.armR }}>
+          {/* Shoulder disk joint */}
+          <circle cx="92" cy="75" r="13"
+            fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1.2"/>
+          <circle cx="92" cy="75" r="8"
+            fill={C.arHi} stroke={C.arSh} strokeWidth="0.8"/>
+          <circle cx="89" cy="72" r="2.5"
+            fill="rgba(255,255,255,0.45)"/>
 
-        {/* ── LONGSWORD — raised in right hand ── */}
-        {/* Sword glow (mystical aura) */}
-        <path d="M 92 40 L 93 115 L 95 115 L 96 40 Z"
-          fill="rgba(180,220,255,0.25)" filter="url(#mk-sglow)"/>
-        {/* Blade */}
-        <path d="M 92 115 L 90.5 58 L 94 28 L 97.5 58 L 96 115 Z"
-          fill="url(#mk-blade)" filter="url(#mk-sglow)"/>
-        {/* Blade centre fuller (groove) */}
-        <path d="M 94 112 L 94 38" stroke="rgba(0,0,0,0.18)" strokeWidth="1.2" fill="none"/>
-        {/* Blade edge highlight */}
-        <path d="M 92 112 L 91 62 L 94 28" stroke="rgba(255,255,255,0.65)"
-          strokeWidth="0.9" fill="none" strokeLinecap="round"/>
-        {/* Crossguard */}
-        <rect x="84" y="112" width="20" height="5" rx="2.5" fill="url(#mk-gold)"/>
-        <rect x="85" y="112" width="18" height="2" rx="1"   fill="rgba(255,255,255,0.45)"/>
-        {/* Grip */}
-        <rect x="90" y="117" width="8"  height="22" rx="3"  fill="url(#mk-leather)"/>
-        <path d="M 91 119 L 91 136 M 93 119 L 93 136 M 95 119 L 95 136 M 97 119 L 97 136"
-          stroke="rgba(255,255,255,0.12)" strokeWidth="0.7" fill="none"/>
-        {/* Wire wrap accent */}
-        <rect x="90" y="124" width="8" height="3" rx="1"    fill="url(#mk-gold)" opacity="0.7"/>
-        <rect x="90" y="130" width="8" height="3" rx="1"    fill="url(#mk-gold)" opacity="0.7"/>
-        {/* Pommel */}
-        <ellipse cx="94" cy="141" rx="6"   ry="4.5" fill="url(#mk-gold)"/>
-        <ellipse cx="92" cy="139.5" rx="2.5" ry="1.8" fill="rgba(255,255,255,0.45)"/>
+          {/* Upper arm */}
+          <rect rx="7" x="92" y="65" width="23" height="38"
+            fill="url(#lk-arV)" stroke={C.blk} strokeWidth="1.2"/>
+          <rect rx="4" x="94" y="67" width="9" height="18"
+            fill="url(#lk-sh)" opacity="0.48"/>
 
-        {/* ── GORGET (neck/throat armour) ── */}
-        <rect x="40" y="57" width="30" height="10" rx="4"   fill="url(#mk-steelLt)"/>
-        <rect x="42" y="58" width="26" height="4"  rx="2"   fill="rgba(255,255,255,0.28)"/>
-        {/* Gorget gold trim */}
-        <rect x="39" y="64" width="32" height="3"  rx="1.5" fill="url(#mk-goldV)"/>
-        <rect x="40" y="64" width="30" height="1.2" rx="0.6" fill="rgba(255,255,255,0.4)"/>
+          {/* Elbow joint disk */}
+          <circle cx="103.5" cy="105" r="9"
+            fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1"/>
+          <circle cx="101" cy="103" r="3" fill="rgba(255,255,255,0.3)"/>
 
-        {/* ── HELMET — sallet style (sleek visor, swept back) ── */}
-        {/* Aventail — chain mail draping from helm */}
-        <path d="M 34 52 Q 32 60 34 66 L 40 68 Q 55 72 65 68 L 76 66 Q 78 60 76 52 Z"
-          fill="#4A5A6A"/>
-        {/* Aventail texture rings */}
-        <path d="M 35 54 Q 33 62 36 66" stroke="#607888" strokeWidth="0.6" fill="none" opacity="0.7"/>
-        <path d="M 40 53 Q 38 63 40 67" stroke="#607888" strokeWidth="0.6" fill="none" opacity="0.5"/>
-        <path d="M 50 52 Q 48 63 50 67" stroke="#607888" strokeWidth="0.6" fill="none" opacity="0.5"/>
-        <path d="M 60 52 Q 58 63 60 67" stroke="#607888" strokeWidth="0.6" fill="none" opacity="0.5"/>
-        <path d="M 70 53 Q 68 63 70 67" stroke="#607888" strokeWidth="0.6" fill="none" opacity="0.5"/>
-        <path d="M 74 54 Q 72 62 74 66" stroke="#607888" strokeWidth="0.6" fill="none" opacity="0.7"/>
+          {/* Forearm */}
+          <rect rx="6" x="94" y="103" width="19" height="22"
+            fill="url(#lk-arV)" stroke={C.blk} strokeWidth="1.1"/>
 
-        {/* Helmet bowl — sallet silhouette */}
-        <path d="M 33 50 Q 33 20 55 17 Q 77 20 77 50 L 74 55 Q 65 60 55 60 Q 45 60 36 55 Z"
-          fill="url(#mk-steel)"/>
-        {/* Helmet ridge (central crest) */}
-        <path d="M 55 17 L 55 56" stroke="rgba(255,255,255,0.15)" strokeWidth="2.5" fill="none"/>
-        {/* Swept-back tail of sallet */}
-        <path d="M 74 50 Q 80 52 82 55 Q 82 58 76 57 L 74 55 Z" fill="url(#mk-steelDk)"/>
-        <path d="M 74 50 Q 80 52 82 55 Q 82 58 76 57"
-          stroke="rgba(255,255,255,0.1)" strokeWidth="1" fill="none"/>
-        {/* Helmet dome primary highlight */}
-        <ellipse cx="47" cy="32" rx="14" ry="11"
-          fill="rgba(255,255,255,0.24)" transform="rotate(-20 47 32)"/>
-        {/* Secondary catch-light */}
-        <ellipse cx="62" cy="24" rx="5" ry="3.5"
-          fill="rgba(255,255,255,0.14)" transform="rotate(-10 62 24)"/>
+          {/* C-clamp hand */}
+          <rect rx="6" x="95" y="125" width="17" height="13"
+            fill="url(#lk-sk)" stroke={C.blk} strokeWidth="1.1"/>
+          <ellipse cx="103.5" cy="131.5" rx="4.5" ry="3.5"
+            fill="rgba(0,0,0,0.18)"/>
+          <rect rx="3" x="97" y="126" width="7" height="4"
+            fill="rgba(255,255,255,0.35)"/>
 
-        {/* Visor — T-shaped opening */}
-        {/* Eye slit (horizontal) */}
-        <rect x="40" y="36" width="30" height="5.5" rx="2.8" fill="#0E1820" filter="url(#mk-visor)"/>
-        {/* Vertical nasal bar */}
-        <rect x="53" y="36" width="4"  height="16" rx="2" fill="url(#mk-steelLt)"/>
-        <rect x="54" y="37" width="1.5" height="6" rx="0.7" fill="rgba(255,255,255,0.3)"/>
-        {/* Eye slit inner gleam — eyes visible inside */}
-        {mood === 'happy' || mood === 'celebrating' || mood === 'encouraged' ? (
-          <>
-            <ellipse cx="46" cy="38.5" rx="3" ry="1.5" fill="#30C860" opacity="0.7"/>
-            <ellipse cx="64" cy="38.5" rx="3" ry="1.5" fill="#30C860" opacity="0.7"/>
-          </>
-        ) : mood === 'sad' ? (
-          <>
-            <ellipse cx="46" cy="38.5" rx="3" ry="1.5" fill="#6090C0" opacity="0.5"/>
-            <ellipse cx="64" cy="38.5" rx="3" ry="1.5" fill="#6090C0" opacity="0.5"/>
-          </>
-        ) : mood === 'thinking' || mood === 'confused' ? (
-          <>
-            <ellipse cx="46" cy="38.5" rx="2.5" ry="1.2" fill="#FFCC40" opacity="0.55"/>
-            <ellipse cx="64" cy="38.5" rx="2.5" ry="1.2" fill="#FFCC40" opacity="0.55"/>
-          </>
-        ) : (
-          <>
-            <ellipse cx="46" cy="38.5" rx="3" ry="1.5" fill="rgba(255,255,255,0.18)"/>
-            <ellipse cx="64" cy="38.5" rx="3" ry="1.5" fill="rgba(255,255,255,0.18)"/>
-          </>
+          {/* ══ SWORD ══ */}
+          {/* Pommel */}
+          <circle cx="103.5" cy="138" r="7"
+            fill="url(#lk-gd)" stroke={C.blk} strokeWidth="1.2"/>
+          <circle cx="103.5" cy="138" r="4"
+            fill={C.gdHi} opacity="0.55"/>
+          <circle cx="101.5" cy="136" r="1.5"
+            fill="rgba(255,255,255,0.7)"/>
+
+          {/* Grip */}
+          <rect rx="3" x="99.5" y="145" width="8" height="17"
+            fill={C.brn} stroke={C.blk} strokeWidth="1"/>
+          {/* Leather wrap */}
+          <line x1="100" y1="149" x2="107" y2="149" stroke="rgba(255,255,255,0.2)" strokeWidth="1"/>
+          <line x1="100" y1="153" x2="107" y2="153" stroke="rgba(255,255,255,0.2)" strokeWidth="1"/>
+          <line x1="100" y1="157" x2="107" y2="157" stroke="rgba(255,255,255,0.2)" strokeWidth="1"/>
+
+          {/* Crossguard */}
+          <rect rx="3" x="91" y="162" width="25" height="7"
+            fill="url(#lk-gd)" stroke={C.blk} strokeWidth="1.1"/>
+          {/* Guard tips (knobs) */}
+          <circle cx="91" cy="165.5" r="3.5"
+            fill="url(#lk-gd)" stroke={C.blk} strokeWidth="0.9"/>
+          <circle cx="116" cy="165.5" r="3.5"
+            fill="url(#lk-gd)" stroke={C.blk} strokeWidth="0.9"/>
+
+          {/* Blade */}
+          <path
+            d="M 100.5,169 L 100.5,179 L 103.5,188 L 106.5,179 L 106.5,169 Z"
+            fill="url(#lk-bl)" stroke={C.stl} strokeWidth="0.9"/>
+          <rect rx="0.5" x="101" y="169" width="5" height="19"
+            fill="url(#lk-bl)" stroke={C.stl} strokeWidth="0.9"/>
+          {/* Fuller (center mirror line on blade) */}
+          <line x1="103.5" y1="171" x2="103.5" y2="184"
+            stroke="rgba(255,255,255,0.72)" strokeWidth="1.4"/>
+        </g>
+
+        {/* ───────────── NECK CONNECTOR ───────────── */}
+        <rect rx="5" x="50" y="54" width="20" height="10"
+          fill={C.ar} stroke={C.blk} strokeWidth="1.2"/>
+        {/* Neck seam line */}
+        <line x1="52" y1="58" x2="68" y2="58"
+          stroke={C.arDk} strokeWidth="0.7" opacity="0.4"/>
+
+        {/* ───────────── HEAD + FACE + HELMET ───────────── */}
+
+        {/* LEGO head (classic yellow cylinder) */}
+        <rect rx="11" x="38" y="6" width="44" height="50"
+          fill="url(#lk-sk)" stroke={C.blk} strokeWidth="1.3"/>
+
+        {/* FACE (behind helmet — visible at chin gap) */}
+        {/* Eyes */}
+        <circle cx="52" cy="24" r="4.8" fill={C.blk}/>
+        <circle cx="68" cy="24" r="4.8" fill={C.blk}/>
+        {/* Eye highlights */}
+        <circle cx="53.6" cy="22.5" r="1.6" fill="white" opacity="0.88"/>
+        <circle cx="69.6" cy="22.5" r="1.6" fill="white" opacity="0.88"/>
+
+        {/* Expressions */}
+        {mood === 'celebrating' && (
+          /* Big open LEGO smile */
+          <path d="M 48,40 Q 60,54 72,40"
+            stroke={C.blk} strokeWidth="2.8" fill="none" strokeLinecap="round"/>
         )}
-        {/* Visor slit top edge highlight */}
-        <rect x="41" y="36.5" width="12" height="1" rx="0.5" fill="rgba(255,255,255,0.2)"/>
-        <rect x="57" y="36.5" width="12" height="1" rx="0.5" fill="rgba(255,255,255,0.2)"/>
-        {/* Cheek guards / lower helm */}
-        <path d="M 33 50 Q 34 55 36 58 Q 38 62 40 63" stroke="#507090" strokeWidth="3.5"
-          fill="none" strokeLinecap="round"/>
-        <path d="M 77 50 Q 76 55 74 58 Q 72 62 70 63" stroke="#507090" strokeWidth="3.5"
-          fill="none" strokeLinecap="round"/>
-        {/* Lower helm gold trim */}
-        <path d="M 38 57 Q 55 64 72 57" stroke="url(#mk-goldV)" strokeWidth="2.5" fill="none"/>
-        <path d="M 38 57 Q 55 64 72 57" stroke="rgba(255,255,255,0.3)" strokeWidth="0.8" fill="none"/>
+        {(mood === 'happy' || mood === 'encouraged') && (
+          <path d="M 49,39 Q 60,50 71,39"
+            stroke={C.blk} strokeWidth="2.8" fill="none" strokeLinecap="round"/>
+        )}
+        {mood === 'thinking' && (
+          <path d="M 50,41 Q 60,45 70,41"
+            stroke={C.blk} strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+        )}
+        {mood === 'confused' && (
+          <path d="M 50,41 Q 55,37 60,41 Q 65,45 70,41"
+            stroke={C.blk} strokeWidth="2.2" fill="none" strokeLinecap="round"/>
+        )}
+        {mood === 'sad' && (
+          <path d="M 50,46 Q 60,37 70,46"
+            stroke={C.blk} strokeWidth="2.8" fill="none" strokeLinecap="round"/>
+        )}
+        {mood === 'neutral' && (
+          <line x1="51" y1="41" x2="69" y2="41"
+            stroke={C.blk} strokeWidth="2.6" strokeLinecap="round"/>
+        )}
 
-        {/* ── CREST & PLUME — atop helmet ── */}
-        {/* Crest holder / torse (twisted rope at helm top) */}
-        <rect x="51" y="12" width="8" height="6" rx="2.5" fill="url(#mk-goldV)"/>
-        <rect x="52" y="13" width="6" height="2.5" rx="1"   fill="rgba(255,255,255,0.35)"/>
-        {/* Plume — swept back, layered feathers */}
-        <path d="M 55 12 Q 76 0 86 -4 Q 79 -7 70 0 Q 75 4 60 12"
-          fill="url(#mk-plume)"/>
-        <path d="M 55 12 Q 73 2 82 -1 Q 76 -3 67 3 Q 72 6 60 12"
-          fill="url(#mk-redLt)"/>
-        <path d="M 55 12 Q 70 5 77 2 Q 72 1 65 6 Q 68 8 59 12"
-          fill="#FF5060" opacity="0.65"/>
-        <path d="M 55 12 Q 65 7 70 5 Q 66 5 61 8 Q 63 10 58 12"
-          fill="#FF7880" opacity="0.45"/>
-        {/* Plume tip sparkle */}
-        <circle cx="86" cy="-4" r="1.8" fill="#FF8090" opacity="0.75"/>
-        <circle cx="84" cy="-6" r="1"   fill="#FFAAB0" opacity="0.55"/>
+        {/* ─────────────────────────────────────────────
+            LEGO CASTLE BUCKET VISOR HELMET
+            (classic part #2786 — the enclosed knight helmet)
+            Covers head except chin gap where face shows
+            ───────────────────────────────────────────── */}
 
-      </g>{/* end drop-shadow group */}
+        {/* Helmet body — covers top 60% of head */}
+        <rect rx="11" x="38" y="6" width="44" height="36"
+          fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1.3"/>
+
+        {/* Helmet crown bevel */}
+        <rect rx="9" x="40" y="7" width="40" height="10"
+          fill={C.arHi} opacity="0.5"/>
+
+        {/* ── T-VISOR ── */}
+        {/* Visor recess — dark rectangular inset */}
+        <rect rx="4" x="40" y="22" width="40" height="22"
+          fill={C.blk} stroke={C.arSh} strokeWidth="0.9"/>
+        {/* Left eye slit */}
+        <rect rx="2" x="42" y="27" width="15" height="7"
+          fill="#0A1525" stroke="#283848" strokeWidth="0.5"/>
+        {/* Right eye slit */}
+        <rect rx="2" x="63" y="27" width="15" height="7"
+          fill="#0A1525" stroke="#283848" strokeWidth="0.5"/>
+        {/* Nasal bar — vertical center piece of T */}
+        <rect rx="2" x="57.5" y="22" width="5" height="22"
+          fill="#141E30" opacity="0.92"/>
+        {/* Visor surface highlights (plastic glint) */}
+        <rect rx="2" x="42" y="23" width="11" height="3"
+          fill="rgba(255,255,255,0.22)"/>
+        <rect rx="2" x="63" y="23" width="11" height="3"
+          fill="rgba(255,255,255,0.22)"/>
+
+        {/* Cheek guards — side panels */}
+        <rect rx="5" x="38" y="26" width="8" height="20"
+          fill={C.arSh} stroke={C.blk} strokeWidth="1"/>
+        <rect rx="5" x="74" y="26" width="8" height="20"
+          fill={C.arSh} stroke={C.blk} strokeWidth="1"/>
+        {/* Cheek guard highlights */}
+        <rect rx="3" x="39" y="27" width="4" height="8"
+          fill="rgba(255,255,255,0.2)"/>
+        <rect rx="3" x="75" y="27" width="4" height="8"
+          fill="rgba(255,255,255,0.2)"/>
+
+        {/* Neck guard / aventail (covers lower face / neck) */}
+        <rect rx="5" x="40" y="42" width="40" height="14"
+          fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1.1"/>
+        <rect rx="3" x="42" y="43" width="17" height="5"
+          fill="rgba(255,255,255,0.22)"/>
+
+        {/* Gold trim lines on helmet */}
+        <rect rx="2" x="38" y="20" width="44" height="4.5"
+          fill="url(#lk-gdV)" opacity="0.88"/>
+        <rect rx="2" x="38" y="40" width="44" height="4.5"
+          fill="url(#lk-gdV)" opacity="0.82"/>
+
+        {/* ── LEGO STUD ON HELMET TOP ── */}
+        {/* Cylinder body */}
+        <rect rx="6" x="54" y="-1" width="12" height="8"
+          fill={C.ar} stroke={C.blk} strokeWidth="1"/>
+        {/* Stud top cap (ellipse for 3D cylinder look) */}
+        <ellipse cx="60" cy="-1" rx="6" ry="2.8"
+          fill={C.arHi} stroke={C.blk} strokeWidth="0.9"/>
+        {/* Stud highlight */}
+        <ellipse cx="58" cy="-2" rx="2.5" ry="1"
+          fill="rgba(255,255,255,0.5)"/>
+        {/* Stud-to-head ring */}
+        <ellipse cx="60" cy="7" rx="6" ry="2.5"
+          fill={C.ar} stroke={C.blk} strokeWidth="0.8"/>
+
+        {/* ── PLUME — Red feather on right side of helmet ── */}
+        <g style={{ animation: m.plume }}>
+          {/* Main plume sweep */}
+          <path d="M 78,14 Q 96,-8 106,-16 Q 112,-3 104,6 Q 96,14 78,20 Z"
+            fill="url(#lk-rd)" stroke="#7A0010" strokeWidth="0.9"/>
+          {/* Secondary quill (lighter) */}
+          <path d="M 78,15 Q 92,-2 100,-9 Q 104,2 98,9 Q 92,14 78,19 Z"
+            fill={C.redHi} opacity="0.68"/>
+          {/* Feather detail lines */}
+          <path d="M 80,16 Q 90,5 96,-2"
+            stroke="rgba(255,180,180,0.45)" strokeWidth="1.2" fill="none"/>
+          <path d="M 80,18 Q 88,9 93,3"
+            stroke="rgba(255,180,180,0.38)" strokeWidth="0.9" fill="none"/>
+          <path d="M 80,19 Q 86,13 90,8"
+            stroke="rgba(255,180,180,0.3)" strokeWidth="0.7" fill="none"/>
+          {/* Plume tip */}
+          <circle cx="106" cy="-16" r="3.5"
+            fill="#FF4050" opacity="0.82"/>
+          <circle cx="106" cy="-16" r="1.5"
+            fill="rgba(255,255,255,0.5)"/>
+          {/* Plume base attachment to helmet */}
+          <circle cx="78" cy="17" r="4"
+            fill={C.red} stroke={C.blk} strokeWidth="0.8"/>
+        </g>
+
+      </g>
     </svg>
   );
-}
-
-// ---------------------------------------------------------------------------
-// Main export
-// ---------------------------------------------------------------------------
-export default function CroatianKnight({ size = 80, mood = 'neutral', className = '', style = {} }) {
-  return <KnightSVG size={size} mood={mood} className={className} style={style} />;
 }
