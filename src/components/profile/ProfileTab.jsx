@@ -1,6 +1,6 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { getStreak, getSR, fbDeleteAccount, fbLeaveFamily, getLocalFamily } from '../../data.jsx';
-import { isSoundEnabled, setSoundEnabled, isHapticEnabled, setHapticEnabled } from '../../lib/soundSettings.js';
+import { isSoundEnabled, setSoundEnabled, isHapticEnabled, setHapticEnabled, getVoicePreference, setVoicePreference } from '../../lib/soundSettings.js';
 import CroatianKnight from '../shared/CroatianKnight';
 import ProgressCharts from './ProgressCharts.jsx';
 import { getWeakTopics } from '../../lib/adaptive.js';
@@ -286,6 +286,7 @@ export default function ProfileTab({ syncReady, onSyncNow, onOpenLeaderboard, on
   const [ptab, setPTab] = useState('stats');
   const [soundOn, setSoundOn] = React.useState(() => isSoundEnabled());
   const [hapticOn, setHapticOn] = React.useState(() => isHapticEnabled());
+  const [voicePref, setVoicePref] = React.useState(() => getVoicePreference());
   const [fontSize, setFontSize] = React.useState(() => localStorage.getItem('nh_font_size') || 'medium');
   const [reduceMotion, setReduceMotion] = React.useState(() => localStorage.getItem('nh_reduce_motion') === 'true');
 
@@ -1197,6 +1198,40 @@ export default function ProfileTab({ syncReady, onSyncNow, onOpenLeaderboard, on
               <span style={{position:'absolute',top:3,left: hapticOn ? 21 : 3,width:20,height:20,borderRadius:'50%',
                 background:'white',transition:'left .2s',boxShadow:'0 1px 4px rgba(0,0,0,.2)'}} />
             </button>
+          </div>
+
+          {/* Voice preference */}
+          <div style={{padding:'14px 0',borderBottom:'1px solid var(--card-b)'}}>
+            <div style={{marginBottom:8}}>
+              <div style={{fontWeight:700,fontSize:'var(--text-sm)'}}>🗣️ Croatian Voice</div>
+              <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',marginTop:2}}>Choose how Croatian text is spoken</div>
+            </div>
+            <div style={{display:'flex',gap:6}}>
+              {[
+                { id:'auto',      label:'Auto',       desc:'Smart — native for Croatian, natural for English' },
+                { id:'gabrijela', label:'Gabrijela',  desc:'Azure neural — native Croatian pronunciation' },
+                { id:'charlotte', label:'Charlotte',  desc:'ElevenLabs — modern natural voice' },
+              ].map(v => (
+                <button
+                  key={v.id}
+                  onClick={() => { setVoicePref(v.id); setVoicePreference(v.id); }}
+                  title={v.desc}
+                  style={{
+                    flex:1, padding:'8px 4px', borderRadius:9, border:'none', cursor:'pointer',
+                    fontFamily:"'Outfit',sans-serif", fontWeight:700, fontSize:11,
+                    background: voicePref === v.id ? 'var(--info-bg,#e0f2fe)' : 'var(--bar-bg,#f1f5f9)',
+                    color: voicePref === v.id ? 'var(--info,#0284c7)' : 'var(--subtext,#64748b)',
+                    outline: voicePref === v.id ? '2px solid var(--info,#0284c7)' : 'none',
+                    transition:'all .15s',
+                  }}
+                >{v.label}</button>
+              ))}
+            </div>
+            <div style={{fontSize:10,color:'var(--subtext)',marginTop:6,lineHeight:1.4}}>
+              {voicePref === 'gabrijela' ? '📌 Always uses Azure hr-HR-GabrijelaNeural — phonemically accurate, great for heritage learners' :
+               voicePref === 'charlotte' ? '📌 Always uses ElevenLabs Charlotte — natural modern voice, slight non-native accent on Croatian' :
+               '📌 Auto: Gabrijela for Croatian text, Charlotte for English — best of both worlds'}
+            </div>
           </div>
 
           {/* Goal selector */}

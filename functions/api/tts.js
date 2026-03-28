@@ -181,6 +181,8 @@ export async function onRequestPost(context) {
     const text = body.text;
     const slow = body.slow === true; // explicit boolean check
     const wantStream = body.stream === true;
+    // Client voice preference: 'gabrijela' | 'charlotte' | (absent = auto)
+    const clientVoice = ['gabrijela', 'charlotte'].includes(body.voice) ? body.voice : 'auto';
     if (typeof text !== 'string' || !text.trim() || text.length > 500) {
       return new Response("Invalid text", { status: 400 });
     }
@@ -204,7 +206,7 @@ export async function onRequestPost(context) {
 
     // Check Cloudflare edge cache first (POST responses aren't auto-cached)
     const cacheKey = new Request(
-      `https://tts-cache.internal/v1/${encodeURIComponent(text.slice(0, 400))}?slow=${slow}`,
+      `https://tts-cache.internal/v1/${encodeURIComponent(text.slice(0, 400))}?slow=${slow}&voice=${clientVoice}`,
       { method: "GET" }
     );
     let edgeCache;
@@ -222,14 +224,18 @@ export async function onRequestPost(context) {
     const hasCroatianChars = /[čćšžđČĆŠŽĐ]/.test(text) ||
       /\b(tko|gdje|kad|kako|kamo|kakav|kakva|kakvo|sam|si|smo|ste|jest|jesi|jesu|nisam|nisi|nije|nismo|niste|nisu|imam|imaš|ima|imamo|imate|imaju|idem|ideš|ide|idemo|idete|idu|da|ne|bok|hvala|molim|dobar|dobra|dobro|dan|jutro|večer)\b/i.test(text);
 
-    // When text is Croatian and we're using the default Charlotte voice (not a custom Croatian voice),
-    // prefer Azure hr-HR-GabrijelaNeural — it's a phonemically native Croatian neural voice.
-    // Charlotte is English/Swedish-trained and approximates ć/č and đ/dž incorrectly.
-    // If operator configured a custom ELEVENLABS_VOICE_ID, assume they chose a Croatian voice.
-    const useAzurePrimary = hasCroatianChars && VOICE_ID === EL_DEFAULT_VOICE;
+    // Voice routing:
+    //   clientVoice='gabrijela' → Azure GabrijelaNeural always (native Croatian)
+    //   clientVoice='charlotte' → ElevenLabs Charlotte always (natural English-trained)
+    //   clientVoice='auto'      → Azure for Croatian text, Charlotte otherwise
+    const useAzurePrimary =
+      clientVoice === 'gabrijela' ||
+      (clientVoice === 'auto' && hasCroatianChars && VOICE_ID === EL_DEFAULT_VOICE);
+
+    const useElPrimary = clientVoice === 'charlotte';
 
     if (useAzurePrimary && AZURE_KEY) {
-      // 1. Try Azure first for Croatian text (phonemically accurate)
+      // 1. Try Azure first (native Croatian phonemes)
       try {
         buffer = await tryAzure(text, slow, AZURE_KEY, PRIMARY_REGION);
       } catch {
@@ -237,8 +243,8 @@ export async function onRequestPost(context) {
       }
     }
 
-    // 2. Try ElevenLabs (primary for non-Croatian, fallback for Croatian with default voice)
-    if (!buffer && ELEVENLABS_KEY) {
+    // 2. Try ElevenLabs (primary when charlotte preference, or fallback otherwise)
+    if (!buffer && ELEVENLABS_KEY && (useElPrimary || !useAzurePrimary || !buffer)) {
       try {
         buffer = await tryElevenLabs(text, slow, ELEVENLABS_KEY, VOICE_ID);
       } catch {
@@ -246,7 +252,7 @@ export async function onRequestPost(context) {
       }
     }
 
-    // 3. Final fallback: Azure for non-Croatian text (if ElevenLabs failed)
+    // 3. Final fallback: Azure for any remaining failures
     if (!buffer && AZURE_KEY && !useAzurePrimary) {
       try {
         buffer = await tryAzure(text, slow, AZURE_KEY, PRIMARY_REGION);

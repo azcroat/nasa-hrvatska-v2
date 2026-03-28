@@ -1,6 +1,23 @@
 // soundSettings.js — persists user sound and haptic preferences
 const SOUND_KEY = 'nh_sound_enabled';
 const HAPTIC_KEY = 'nh_haptic_enabled';
+const VOICE_KEY  = 'nh_voice_pref';
+
+// Voice preference options:
+//   'auto'      — server decides (Azure GabrijelaNeural for Croatian, Charlotte otherwise)
+//   'gabrijela' — always Azure hr-HR-GabrijelaNeural (native Croatian, slightly robotic)
+//   'charlotte' — always ElevenLabs Charlotte (natural/modern, slight non-native accent)
+export function getVoicePreference() {
+  const v = localStorage.getItem(VOICE_KEY);
+  return (v === 'gabrijela' || v === 'charlotte') ? v : 'auto';
+}
+export function setVoicePreference(val) {
+  if (val === 'gabrijela' || val === 'charlotte') {
+    localStorage.setItem(VOICE_KEY, val);
+  } else {
+    localStorage.removeItem(VOICE_KEY); // 'auto' = use default
+  }
+}
 
 export function isSoundEnabled() {
   const v = localStorage.getItem(SOUND_KEY);

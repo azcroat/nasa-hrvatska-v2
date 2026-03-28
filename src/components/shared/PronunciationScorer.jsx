@@ -1,5 +1,73 @@
 import React, { useState, useRef, useCallback } from 'react';
 
+// ── Croatian phoneme guides — IPA, English approx, articulation, example ──────
+const PHONEME_GUIDES = {
+  'ć': {
+    ipa: '/tɕ/',
+    approx: 'Like "ch" in "cheer" but softer — palatal affricate',
+    articulate: 'Tongue tip rests behind lower teeth. Blade of tongue touches the hard palate just behind the gum ridge. Lips slightly spread.',
+    example: 'ćevap, noć, peć',
+    contrast: 'Softer than č — tongue is further back, lips spread not pursed',
+    lips: 'spread', tongue: 'palatal',
+  },
+  'č': {
+    ipa: '/tʃ/',
+    approx: 'Like "ch" in "church" — alveo-palatal affricate',
+    articulate: 'Tongue tip curls slightly up toward the ridge behind upper teeth. Lips rounded/neutral. Harder, more forward than ć.',
+    example: 'čaj, čovjek, noč',
+    contrast: 'Harder than ć — tongue tip is forward, lips more rounded',
+    lips: 'neutral', tongue: 'alveolar',
+  },
+  'š': {
+    ipa: '/ʃ/',
+    approx: 'Like "sh" in "shoe" — alveo-palatal fricative',
+    articulate: 'Tongue raised toward the ridge behind upper teeth but not touching. Air flows over the tongue with friction. Lips slightly rounded.',
+    example: 'šuma, škola, miš',
+    contrast: 'Voiceless partner of ž',
+    lips: 'rounded', tongue: 'alveolar-raised',
+  },
+  'ž': {
+    ipa: '/ʒ/',
+    approx: 'Like "s" in "measure" or French "j" in "jour" — voiced fricative',
+    articulate: 'Same position as š but with vocal cords vibrating. Tongue raised near the ridge, air flows with friction.',
+    example: 'žena, život, već',
+    contrast: 'Voiced partner of š — add vibration to your throat',
+    lips: 'rounded', tongue: 'alveolar-raised',
+  },
+  'đ': {
+    ipa: '/dʑ/',
+    approx: 'Like "j" in "judge" but softer — voiced palatal affricate',
+    articulate: 'Voiced version of ć. Tongue blade touches hard palate, lips spread. Start with a "d" then release into the soft ć sound.',
+    example: 'đak, đon, nađi',
+    contrast: 'Voiced ć — same position but with vocal cords on',
+    lips: 'spread', tongue: 'palatal',
+  },
+  'lj': {
+    ipa: '/ʎ/',
+    approx: 'Like "lli" in "million" as one sound — palatal lateral',
+    articulate: 'Tongue body presses against the hard palate. Do not separate the l and j — it is one single liquid sound, not two.',
+    example: 'ljubav, ljeto, polje',
+    contrast: 'One sound, not "l" + "j" — the tongue is flat against the palate',
+    lips: 'neutral', tongue: 'flat-palatal',
+  },
+  'nj': {
+    ipa: '/ɲ/',
+    approx: 'Like "ñ" in Spanish "mañana" — palatal nasal',
+    articulate: 'Tongue body presses against the hard palate while air flows through the nose. One nasal sound, not "n" + "j".',
+    example: 'njega, knjiga, konj',
+    contrast: 'One nasal sound — tongue to palate, air through nose',
+    lips: 'neutral', tongue: 'flat-palatal',
+  },
+  'r': {
+    ipa: '/r̩/ (syllabic) or /r/',
+    approx: 'Rolled/trilled "r" — alveolar trill',
+    articulate: 'Tongue tip vibrates against the ridge just behind the upper front teeth. Relax the tongue completely, then let air flutter the tip. Can be syllabic in words like "krk", "trg", "vrh".',
+    example: 'ruka, more, srce, krk',
+    contrast: 'Not the English "r" — tongue tip must vibrate, not curl back',
+    lips: 'neutral', tongue: 'tip-alveolar',
+  },
+};
+
 // ── Croatian phoneme hints shown when a specific phoneme scores poorly ─────────
 const PHONEME_HINTS = {
   'ć': 'Like English "ch" but softer — place tongue behind upper teeth',
@@ -11,6 +79,80 @@ const PHONEME_HINTS = {
   'nj': 'Like Spanish "ñ" in "mañana"',
   'r': 'Rolled "r" — vibrate the tongue tip against the ridge behind upper teeth',
 };
+
+// ── Full phoneme guide card (shown for Croatian-specific sounds) ──────────────
+function PhonemeGuideCard({ phoneme }) {
+  const [open, setOpen] = React.useState(false);
+  const guide = PHONEME_GUIDES[phoneme] || PHONEME_GUIDES[phoneme?.toLowerCase()];
+  if (!guide) return null;
+  return (
+    <div style={{ marginTop: 8 }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          background: 'none', border: 'none', cursor: 'pointer', padding: '3px 0',
+          fontSize: 11, color: '#0e7490', fontWeight: 700, fontFamily: "'Outfit',sans-serif",
+          display: 'flex', alignItems: 'center', gap: 4,
+        }}
+      >
+        <span>{open ? '▲' : '▼'}</span>
+        {open ? 'Hide articulation guide' : `How to pronounce "${phoneme}"`}
+      </button>
+      {open && (
+        <div style={{
+          marginTop: 6, padding: '12px 14px', borderRadius: 10,
+          background: 'linear-gradient(135deg,#f0f9ff,#e0f2fe)',
+          border: '1.5px solid #bae6fd', fontSize: 12, lineHeight: 1.55,
+        }}>
+          {/* IPA + approximation */}
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
+            <span style={{
+              fontFamily: 'monospace', fontSize: 15, fontWeight: 900,
+              color: '#0c4a6e', background: '#e0f2fe', borderRadius: 6,
+              padding: '2px 8px', border: '1px solid #7dd3fc',
+            }}>{guide.ipa}</span>
+            <span style={{ color: '#0369a1', fontWeight: 700 }}>{guide.approx}</span>
+          </div>
+          {/* Articulation */}
+          <div style={{ marginBottom: 6 }}>
+            <span style={{ fontWeight: 800, color: '#0c4a6e' }}>Articulation: </span>
+            <span style={{ color: '#1e293b' }}>{guide.articulate}</span>
+          </div>
+          {/* Contrast note */}
+          {guide.contrast && (
+            <div style={{ marginBottom: 6 }}>
+              <span style={{ fontWeight: 800, color: '#7c3aed' }}>vs. similar sounds: </span>
+              <span style={{ color: '#3730a3' }}>{guide.contrast}</span>
+            </div>
+          )}
+          {/* Example words */}
+          <div style={{ marginTop: 4 }}>
+            <span style={{ fontWeight: 800, color: '#065f46' }}>Examples: </span>
+            <span style={{
+              fontFamily: 'serif', fontSize: 13, fontWeight: 700, color: '#064e3b',
+              fontStyle: 'italic',
+            }}>{guide.example}</span>
+          </div>
+          {/* Lip/tongue position indicator */}
+          <div style={{
+            marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap',
+          }}>
+            {[
+              { label: 'Lips', value: guide.lips },
+              { label: 'Tongue', value: guide.tongue },
+            ].map(({ label, value }) => value && (
+              <span key={label} style={{
+                fontSize: 10, fontWeight: 700, padding: '2px 8px',
+                borderRadius: 20, background: '#f0fdf4', border: '1px solid #86efac',
+                color: '#166534',
+              }}>{label}: {value}</span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // Score threshold colours used throughout both modes
 function scoreColor(s) {
@@ -49,26 +191,32 @@ function PhonemeBreakdown({ phonemes }) {
         {open ? '▲ hide phonemes' : '▼ show phonemes'}
       </button>
       {open && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
-          {phonemes.map((p, i) => {
-            const hint = PHONEME_HINTS[p.phoneme.toLowerCase()] || PHONEME_HINTS[p.phoneme] || null;
-            return (
-              <span
-                key={i}
-                title={hint || undefined}
-                style={{
-                  display: 'inline-flex', flexDirection: 'column', alignItems: 'center',
-                  background: `${scoreColor(p.score)}18`,
-                  border: `1.5px solid ${scoreColor(p.score)}55`,
-                  borderRadius: 6, padding: '2px 7px',
-                  cursor: hint ? 'help' : 'default',
-                }}
-              >
-                <span style={{ fontSize: 12, fontWeight: 700, color: scoreColor(p.score) }}>{p.phoneme}</span>
-                <span style={{ fontSize: 10, color: 'var(--subtext,#94a3b8)' }}>{p.score}%</span>
-              </span>
-            );
-          })}
+        <div style={{ marginTop: 4 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
+            {phonemes.map((p, i) => {
+              const hint = PHONEME_HINTS[p.phoneme.toLowerCase()] || PHONEME_HINTS[p.phoneme] || null;
+              return (
+                <span
+                  key={i}
+                  title={hint || undefined}
+                  style={{
+                    display: 'inline-flex', flexDirection: 'column', alignItems: 'center',
+                    background: `${scoreColor(p.score)}18`,
+                    border: `1.5px solid ${scoreColor(p.score)}55`,
+                    borderRadius: 6, padding: '2px 7px',
+                    cursor: hint ? 'help' : 'default',
+                  }}
+                >
+                  <span style={{ fontSize: 12, fontWeight: 700, color: scoreColor(p.score) }}>{p.phoneme}</span>
+                  <span style={{ fontSize: 10, color: 'var(--subtext,#94a3b8)' }}>{p.score}%</span>
+                </span>
+              );
+            })}
+          </div>
+          {/* Show articulation guide for any low-scoring Croatian-specific phoneme */}
+          {phonemes.filter(p => p.score < 70 && PHONEME_GUIDES[p.phoneme.toLowerCase()]).slice(0, 1).map(p => (
+            <PhonemeGuideCard key={p.phoneme} phoneme={p.phoneme.toLowerCase()} />
+          ))}
         </div>
       )}
     </div>
@@ -150,14 +298,19 @@ function AzureResultPanel({ azureResult, onRetry }) {
         </div>
       )}
 
-      {/* Targeted tip for worst phoneme */}
-      {worstHint && worstScore < 90 && (
-        <div style={{
-          padding: '8px 12px', borderRadius: 9,
-          background: '#fefce8', border: '1.5px solid #fde047',
-          fontSize: 12, color: '#713f12', marginBottom: 10,
-        }}>
-          <span style={{ fontWeight: 800 }}>💡 Tip for "{worstPhoneme}":</span> {worstHint}
+      {/* Targeted tip for worst phoneme + full articulation guide */}
+      {worstPhoneme && worstScore < 90 && (
+        <div style={{ marginBottom: 10 }}>
+          {worstHint && (
+            <div style={{
+              padding: '8px 12px', borderRadius: 9,
+              background: '#fefce8', border: '1.5px solid #fde047',
+              fontSize: 12, color: '#713f12', marginBottom: 6,
+            }}>
+              <span style={{ fontWeight: 800 }}>💡 Tip for &quot;{worstPhoneme}&quot;:</span> {worstHint}
+            </div>
+          )}
+          <PhonemeGuideCard phoneme={worstPhoneme} />
         </div>
       )}
 
