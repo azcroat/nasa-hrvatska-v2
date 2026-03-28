@@ -52,7 +52,24 @@ export async function fbSaveProgress(uid,data){
   const id=uid.replace(/[.#$/\[\]]/g,"_");
   // Support both current ("stats") and legacy ("st") key formats when extracting XP.
   const _st=data.stats||data.st||{};
-  const incoming={progress:JSON.stringify(data),updated:serverTimestamp(),xp:_st.xp||0};
+  // Extract streak count — stored in data.streak.count (the full streak object)
+  const _strk = (data.streak && typeof data.streak.count === 'number')
+    ? data.streak.count
+    : (typeof _st.str === 'number' ? _st.str : 0);
+  // Extract CEFR level — prefer data field, fall back to localStorage
+  const _lvl = data.level
+    || (typeof localStorage !== 'undefined' ? (localStorage.getItem('nh_level') || 'A1') : 'A1');
+  const incoming = {
+    progress:         JSON.stringify(data),
+    updated:          serverTimestamp(),
+    xp:               _st.xp || 0,
+    // ── Hoisted fields — queryable top-level copies of key progress metrics ───
+    // Kept in sync on every save. Enables Firestore queries without parsing the blob.
+    level:            _lvl,
+    streak:           _strk,
+    lessonsCompleted: _st.lc || 0,
+    lastActive:       serverTimestamp(),
+  };
   // Write public leaderboard projection alongside the private progress doc
   const _nowMs=Date.now();
   const lbEntry={name:data.name||"",xp:_st.xp||0,lc:_st.lc||0,updated:_nowMs};
