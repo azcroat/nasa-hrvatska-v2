@@ -29,6 +29,7 @@ import { useJournal } from "./hooks/useJournal.js";
 import { useDaily } from "./hooks/useDaily.js";
 import { useTranslator } from "./hooks/useTranslator.js";
 import { useNotifications, checkNameDay, scheduleStreakReminder } from "./hooks/useNotifications.js";
+import { trackStart, trackComplete, trackAbandon } from './lib/learnerStyle.js';
 // Always-needed: auth + core UI (eager)
 import LoginScreen from "./components/auth/LoginScreen.jsx";
 import ResetPassword from "./components/auth/ResetPassword.jsx";
@@ -655,6 +656,14 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       localStorage.setItem('nh_journey_first_lesson','1');
       recordJourneyMilestone('first_lesson', {});
     }
+    // Learner style: track completion
+    if(curEx){
+      const _lsStartTs=parseInt(sessionStorage.getItem('nh_ex_start')||'0');
+      const _lsDur=_lsStartTs?Date.now()-_lsStartTs:0;
+      const _lsTypeMap={flash:'flashcards',flashcards:'flashcards',mcgame:'quiz',review:'srs_review',listening:'listening',ai_listening:'listening',speaking:'speaking',speaking_sprint:'speaking',aiconvo:'conversation',writing:'writing',shadowing:'shadowing',cloze:'cloze',grammar:'grammar',match:'matching',readlist:'reading'};
+      const _lsAType=_lsTypeMap[curEx]||(curEx.startsWith('vocab_')?'flashcards':null);
+      if(_lsAType){trackComplete(_lsAType,_lsDur);sessionStorage.removeItem('nh_ex_start');}
+    }
   },[curEx,comebackBonus]);
   // Persist last exercise to localStorage so Home tab can show a Resume button
   useEffect(function(){
@@ -717,6 +726,15 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   }
   function goBack(){
     if(curEx)markExerciseDone(curEx);
+    // Learner style: track abandon
+    const _gbStartTs=parseInt(sessionStorage.getItem('nh_ex_start')||'0');
+    const _gbDur=_gbStartTs?Date.now()-_gbStartTs:0;
+    if(curEx&&_gbDur>5000){
+      const _gbTypeMap={flash:'flashcards',flashcards:'flashcards',mcgame:'quiz',review:'srs_review',listening:'listening',ai_listening:'listening',speaking:'speaking',speaking_sprint:'speaking',aiconvo:'conversation',writing:'writing',shadowing:'shadowing',cloze:'cloze',grammar:'grammar',match:'matching',readlist:'reading'};
+      const _gbAType=_gbTypeMap[curEx]||(curEx.startsWith('vocab_')?'flashcards':null);
+      if(_gbAType)trackAbandon(_gbAType,_gbDur);
+    }
+    sessionStorage.removeItem('nh_ex_start');
     sCurEx("");
     // H2: guard against navigating out of the SPA when history is empty
     if(window.history.length <= 1){ setScr("dashboard"); } else { navigate(-1); }
@@ -734,29 +752,34 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   const icons=ICONS;
   // ═══ SCREEN LAUNCH FUNCTIONS ═══
   function launchAnimLesson(lessonId){const l=ANIM_LESSONS.find(x=>x.id===lessonId);if(l){setAnimLesson(l);sCurEx("animlesson");setScr("animlesson");}}
-  function launchMcGame(questions){setMcInitQ(questions);sCurEx("mcgame");setScr("mcgame");}
+  function launchMcGame(questions){setMcInitQ(questions);sCurEx("mcgame");sessionStorage.setItem('nh_ex_start',Date.now().toString());trackStart('quiz');setScr("mcgame");}
   function mcGameComplete(questions,score,mistakes){setMcResultQ(questions);setMcResultScore(score);setMcMistakes(mistakes||[]);setScr("mcresult");}
-  function launchFlashcards(pool){setFcInitPool(pool);sCurEx("flashcards");setScr("flashcards");}
-  function launchListening(questions){setLsInitQ(questions);sCurEx("listening");setScr("listening");}
+  function launchFlashcards(pool){setFcInitPool(pool);sCurEx("flashcards");sessionStorage.setItem('nh_ex_start',Date.now().toString());trackStart('flashcards');setScr("flashcards");}
+  function launchListening(questions){setLsInitQ(questions);sCurEx("listening");sessionStorage.setItem('nh_ex_start',Date.now().toString());trackStart('listening');setScr("listening");}
   // Q-4: MatchGame now manages its own state; App only stores the init pool
-  function launchMatch(pool){setMatchInitPool(pool);sCurEx("match");setScr("match");}
+  function launchMatch(pool){setMatchInitPool(pool);sCurEx("match");sessionStorage.setItem('nh_ex_start',Date.now().toString());trackStart('matching');setScr("match");}
   // Q-4: Speaking launch — App owns the speaking init state (used by SpeakingScreen props)
-  function launchSpeaking(items){sSi(items);sSx(0);sSw(items[0]);sSr(null);sSsc(0);sCurEx("speaking");setScr("speaking");}
+  function launchSpeaking(items){sSi(items);sSx(0);sSw(items[0]);sSr(null);sSsc(0);sCurEx("speaking");sessionStorage.setItem('nh_ex_start',Date.now().toString());trackStart('speaking');setScr("speaking");}
 
   function launchPathItem(item){
     if(!item)return;
     if(item.go==="lesson"&&item.topic){
       const items=sh(V[item.topic]);
       sLt(item.topic);sLi(items);sLx(0);sLs(0);sLp("learn");sLa(false);sLsl(-1);
+      sessionStorage.setItem('nh_ex_start',Date.now().toString());trackStart('flashcards');
       setScr("lesson");sCurEx("vocab_"+item.topic);
     }else if(item.go==="grammar"){
       sGl(GRAM.beginner[0]);sGp("learn");sGx(0);sGs(0);sGa(false);sGsl(-1);
+      sessionStorage.setItem('nh_ex_start',Date.now().toString());trackStart('grammar');
       setScr("grammar");sCurEx("grammar");
     }else if(item.go==="mcgame"){
       const pool=allCats.flatMap(t=>V[t]);
       const qs=sh(pool).slice(0,10).map(w=>{const wr=sh(pool.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]);return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]};});
       launchMcGame(qs);
     }else{
+      sessionStorage.setItem('nh_ex_start',Date.now().toString());
+      const _lpTypeMap={review:'srs_review',shadowing:'shadowing',writing:'writing',listening:'listening',speaking:'speaking',speaking_sprint:'speaking',aiconvo:'conversation',ai_listening:'listening',cloze:'cloze',reading:'reading',readlist:'reading'};
+      if(_lpTypeMap[item.go])trackStart(_lpTypeMap[item.go]);
       setScr(item.go);sCurEx(item.go);
     }
   }
