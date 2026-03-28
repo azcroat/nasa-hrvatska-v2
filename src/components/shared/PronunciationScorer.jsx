@@ -38,6 +38,8 @@ function PhonemeBreakdown({ phonemes }) {
     <div style={{ marginTop: 4 }}>
       <button
         onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
+        aria-label={open ? 'Hide phoneme breakdown' : 'Show phoneme breakdown'}
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
           fontSize: 10, color: 'var(--subtext,#94a3b8)', fontWeight: 600,
@@ -160,12 +162,12 @@ function AzureResultPanel({ azureResult, onRetry }) {
       )}
 
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-        <button onClick={onRetry} style={{
+        <button onClick={onRetry} aria-label="Try pronunciation again" style={{
           background: 'none', border: '1px solid var(--border,#e2e8f0)',
           borderRadius: 8, padding: '6px 14px', cursor: 'pointer',
           fontSize: 12, fontWeight: 700, fontFamily: "'Outfit',sans-serif",
           color: 'var(--subtext)',
-        }}>🔄 Try Again</button>
+        }}><span aria-hidden="true">🔄</span> Try Again</button>
       </div>
       <div style={{ fontSize: '0.75rem', color: 'var(--subtext,#94a3b8)', marginTop: 8 }}>
         Powered by Azure Pronunciation Assessment — phoneme-level accuracy.

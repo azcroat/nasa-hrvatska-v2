@@ -81,7 +81,7 @@ export default function LessonScreen({
                 background: 'var(--info-bg)', flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 border: '1px solid var(--info-b)', fontSize: 18,
-              }}>🔊</div>
+              }} aria-hidden="true">🔊</div>
               <div>
                 <div style={{
                   fontSize: 20, fontWeight: 800, color: 'var(--heading)',
@@ -189,7 +189,7 @@ export default function LessonScreen({
               background: 'var(--info-bg)', flexShrink: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               border: '1px solid var(--info-b)', fontSize: 20,
-            }}>🔊</div>
+            }} aria-hidden="true">🔊</div>
             <p style={{
               fontSize: 28, fontWeight: 900, margin: 0,
               fontFamily: "'Playfair Display',serif",

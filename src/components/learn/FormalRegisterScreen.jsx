@@ -106,11 +106,11 @@ function FormalRegisterScreen({ goBack, award }) {
                       <td style={{ padding: '8px 10px', color: '#78716c', fontSize: 12 }}>{row.situation}</td>
                       <td style={{ padding: '8px 10px' }}>
                         {row.ti !== '—' ? (
-                          <button style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif", fontWeight: 600, color: '#0e7490', fontSize: 13, padding: 0, textAlign: 'left' }} onClick={() => speak(row.ti)}>{row.ti} 🔊</button>
+                          <button aria-label={`Play audio for ${row.ti}`} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif", fontWeight: 600, color: '#0e7490', fontSize: 13, padding: 0, textAlign: 'left' }} onClick={() => speak(row.ti)}>{row.ti} <span aria-hidden="true">🔊</span></button>
                         ) : <span style={{ color: '#cbd5e1' }}>—</span>}
                       </td>
                       <td style={{ padding: '8px 10px' }}>
-                        <button style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif", fontWeight: 700, color: '#7c3aed', fontSize: 13, padding: 0, textAlign: 'left' }} onClick={() => speak(row.vi)}>{row.vi} 🔊</button>
+                        <button aria-label={`Play audio for ${row.vi}`} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif", fontWeight: 700, color: '#7c3aed', fontSize: 13, padding: 0, textAlign: 'left' }} onClick={() => speak(row.vi)}>{row.vi} <span aria-hidden="true">🔊</span></button>
                       </td>
                     </tr>
                   );
@@ -143,7 +143,7 @@ function FormalRegisterScreen({ goBack, award }) {
                       {[row.biti, row.imati, row.ići, row.moći, row.htjeti, row.govoriti].map(function (v, vi) {
                         return (
                           <td key={vi} style={{ padding: '10px 8px', fontWeight: 600 }}>
-                            <button style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif", fontSize: 13 }} onClick={() => speak(v)}>{v} 🔊</button>
+                            <button aria-label={`Play audio for ${v}`} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif", fontSize: 13 }} onClick={() => speak(v)}>{v} <span aria-hidden="true">🔊</span></button>
                           </td>
                         );
                       })}
@@ -163,9 +163,9 @@ function FormalRegisterScreen({ goBack, award }) {
           </div>
           {FORMAL_REGISTER.emailPhrases.map(function (p, i) {
             return (
-              <button key={i} className="c" style={{ marginBottom: 10, display: 'block', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => speak(p.hr)}>
+              <button key={i} aria-label={`Play audio for ${p.hr}`} className="c" style={{ marginBottom: 10, display: 'block', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => speak(p.hr)}>
                 <div style={{ fontSize: 11, color: '#78716c', marginBottom: 3 }}>{p.label}</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#0369a1' }}>{p.hr} 🔊</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#0369a1' }}>{p.hr} <span aria-hidden="true">🔊</span></div>
                 <div style={{ fontSize: 13, color: '#16a34a', marginTop: 2 }}>{p.en}</div>
               </button>
             );

@@ -35,9 +35,10 @@ function FlipCard({ mistake, onGotIt, onStudyAgain }) {
           <div style={{ fontSize: 32, fontWeight: 800, color: '#1e40af', marginBottom: 12, textAlign: 'center' }}>{mistake.hr}</div>
           {mistake.q && <div style={{ fontSize: 13, color: '#4b5563', textAlign: 'center', marginBottom: 8 }}>"{mistake.q}"</div>}
           <button
+            aria-label={`Play audio for ${mistake.hr}`}
             onClick={e => { e.stopPropagation(); speak(mistake.hr); }}
             style={{ background: '#3b82f6', border: 'none', borderRadius: 50, width: 36, height: 36, color: '#fff', fontSize: 16, cursor: 'pointer', marginTop: 4 }}>
-            🔊
+            <span aria-hidden="true">🔊</span>
           </button>
           <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 12 }}>Tap to reveal</div>
         </div>
@@ -78,7 +79,7 @@ function FlipCard({ mistake, onGotIt, onStudyAgain }) {
 function MistakeListItem({ mistake, onClear }) {
   return (
     <div className="c" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-      <button onClick={() => speak(mistake.hr)} style={{ background: '#eff6ff', border: 'none', borderRadius: 50, width: 36, height: 36, fontSize: 16, cursor: 'pointer', flexShrink: 0 }}>🔊</button>
+      <button onClick={() => speak(mistake.hr)} aria-label={`Play audio for ${mistake.hr}`} style={{ background: '#eff6ff', border: 'none', borderRadius: 50, width: 36, height: 36, fontSize: 16, cursor: 'pointer', flexShrink: 0 }}><span aria-hidden="true">🔊</span></button>
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: '#1e40af' }}>{mistake.hr}</div>
         <div style={{ fontSize: 13, color: '#6b7280' }}>{mistake.en}</div>
@@ -96,7 +97,7 @@ function MistakeListItem({ mistake, onClear }) {
           </div>
         );
       })()}
-      <button onClick={() => onClear(mistake.hr)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: '#9ca3af', flexShrink: 0 }}>×</button>
+      <button onClick={() => onClear(mistake.hr)} aria-label={`Remove ${mistake.hr} from mistakes`} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: '#9ca3af', flexShrink: 0 }}>×</button>
     </div>
   );
 }

@@ -179,7 +179,7 @@ export default function PronunciationContrast({ goBack, award }) {
               title={`Hear "${o}"`}
               aria-label={`Play pronunciation of ${o}`}
             >
-              🔊
+              <span aria-hidden="true">🔊</span>
             </button>
           </div>
         ))}

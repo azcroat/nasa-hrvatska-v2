@@ -74,16 +74,16 @@ function ImpersonalScreen({ goBack, award }) {
           {IMPERSONAL.constructions.map(function (c, i) {
             return (
               <div key={i} style={{ marginBottom: 12, background: 'white', borderRadius: 14, border: '1px solid rgba(0,0,0,.07)', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,.04)' }}>
-                <button style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }} onClick={() => speak(c.hr)}>
+                <button aria-label={`Play audio for ${c.hr}`} style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }} onClick={() => speak(c.hr)}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <span style={{ fontSize: 17, fontWeight: 800, color: '#0e7490' }}>{c.hr} 🔊</span>
+                    <span style={{ fontSize: 17, fontWeight: 800, color: '#0e7490' }}>{c.hr} <span aria-hidden="true">🔊</span></span>
                     <span style={{ fontSize: 13, color: '#16a34a', fontWeight: 600 }}>{c.en}</span>
                   </div>
                 </button>
                 <div style={{ padding: '0 16px 12px', borderTop: '1px solid #f3f4f6', paddingTop: 8 }}>
                   <div style={{ fontSize: 12, color: '#78716c', lineHeight: 1.5, marginBottom: 6 }}>{c.note}</div>
-                  <button style={{ background: 'rgba(14,116,144,.07)', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 13, fontWeight: 600, color: '#0e7490', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }} onClick={() => speak(c.example)}>
-                    {c.example} 🔊
+                  <button aria-label={`Play audio for ${c.example}`} style={{ background: 'rgba(14,116,144,.07)', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 13, fontWeight: 600, color: '#0e7490', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }} onClick={() => speak(c.example)}>
+                    {c.example} <span aria-hidden="true">🔊</span>
                   </button>
                 </div>
               </div>

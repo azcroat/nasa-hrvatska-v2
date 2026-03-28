@@ -83,7 +83,11 @@ export default function PaywallScreen({ onClose, featureName = 'AI Tutor', onSub
   }
 
   return (
-    <div style={{
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Unlock ${featureName} — Premium subscription`}
+      style={{
       position: 'fixed', inset: 0, zIndex: 9999,
       background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(6px)',
       display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
@@ -147,6 +151,8 @@ export default function PaywallScreen({ onClose, featureName = 'AI Tutor', onSub
               <button
                 key={plan.id}
                 onClick={() => setSelectedPlan(plan.id)}
+                aria-pressed={selectedPlan === plan.id}
+                aria-label={`${plan.label} plan — ${plan.price}${plan.per}${plan.priceNote ? `, ${plan.priceNote}` : ''}`}
                 style={{
                   flex: 1, padding: '14px 12px', borderRadius: 16, cursor: 'pointer',
                   border: selectedPlan === plan.id
@@ -214,6 +220,7 @@ export default function PaywallScreen({ onClose, featureName = 'AI Tutor', onSub
           {showPromo && (
             <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
               <input
+                aria-label="Promo code"
                 value={promoCode}
                 onChange={e => { setPromoCode(e.target.value.toUpperCase()); setPromoMsg(''); }}
                 placeholder="Enter code (e.g. HRVATSKA2026)"

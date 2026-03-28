@@ -25,12 +25,12 @@ function RoleplayScreen({ goBack }) {
       </div>
       {r.lines.slice(0,rpLine+1).map(function(l,i){return (
         <div key={i} style={{display:"flex",justifyContent:l.you?"flex-end":"flex-start",marginBottom:8}}>
-          <div style={{maxWidth:"80%",padding:"12px 16px",borderRadius:l.you?"16px 16px 4px 16px":"16px 16px 16px 4px",
+          <div role="button" tabIndex={0} aria-label={`Play audio for ${l.text}`} style={{maxWidth:"80%",padding:"12px 16px",borderRadius:l.you?"16px 16px 4px 16px":"16px 16px 16px 4px",
             background:l.you?"linear-gradient(135deg,#0e7490,#164e63)":"rgba(255,255,255,.8)",
             color:l.you?"white":"#1c1917",cursor:"pointer",border:l.you?"none":"1px solid #e7e5e4"}}
-            onClick={function(){speak(l.text)}}>
+            onClick={function(){speak(l.text)}} onKeyDown={function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();speak(l.text);}}}>
             <div style={{fontSize:11,fontWeight:700,marginBottom:4,opacity:.7}}>{l.speaker}</div>
-            <div style={{fontSize:15,fontWeight:600}}>{l.text}{" 🔊"}</div>
+            <div style={{fontSize:15,fontWeight:600}}>{l.text}{" "}<span aria-hidden="true">🔊</span></div>
             {rpShow&&<div style={{fontSize:12,marginTop:4,opacity:.7,fontStyle:"italic"}}>{l.en}</div>}
           </div>
         </div>

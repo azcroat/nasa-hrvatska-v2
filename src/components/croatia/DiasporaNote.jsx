@@ -130,12 +130,12 @@ export default function DiasporaNote({ goBack }) {
               <div style={{ padding: '12px 16px', borderTop: '1px solid var(--card-b)', background: 'rgba(14,116,144,.04)' }}>
                 <div style={{ marginBottom: 8 }}>
                   <div style={{ fontSize: 10, color: '#0e7490', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 2 }}>Native Croatian:</div>
-                  <button onClick={() => speak(ex.full)} style={{
+                  <button aria-label={`Play audio for ${ex.full}`} onClick={() => speak(ex.full)} style={{
                     background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
                     fontFamily: "'Playfair Display',serif", fontSize: 15, fontWeight: 700, color: 'var(--heading)',
                     display: 'flex', alignItems: 'center', gap: 8, padding: 0,
                   }}>
-                    <span>🔊</span> {ex.full}
+                    <span aria-hidden="true">🔊</span> {ex.full}
                   </button>
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--subtext)', lineHeight: 1.6, fontStyle: 'italic' }}>

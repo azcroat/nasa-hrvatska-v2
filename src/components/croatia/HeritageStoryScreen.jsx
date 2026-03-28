@@ -701,7 +701,7 @@ export default function HeritageStoryScreen({ goBack, award }) {
                 }} />
                 Stop
               </>
-            ) : '🔊 Read Aloud'}
+            ) : <><span aria-hidden="true">🔊</span>{' Read Aloud'}</>}
           </button>
 
           <button

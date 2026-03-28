@@ -145,11 +145,11 @@ export default function TiViScreen({ goBack }) {
                   <div style={{ fontSize: 10, fontWeight: 800, color: '#0369a1', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
                     😊 Ti — Informal
                   </div>
-                  <button onClick={() => speak(s.informal.hr)} style={{
+                  <button aria-label={`Play audio for ${s.informal.hr}`} onClick={() => speak(s.informal.hr)} style={{
                     display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none',
                     cursor: 'pointer', textAlign: 'left', padding: 0, fontFamily: "'Outfit',sans-serif",
                   }}>
-                    <span style={{ fontSize: 16 }}>🔊</span>
+                    <span aria-hidden="true" style={{ fontSize: 16 }}>🔊</span>
                     <div>
                       <div style={{ fontSize: 15, fontWeight: 800, color: '#0369a1', fontFamily: "'Playfair Display',serif" }}>{s.informal.hr}</div>
                       <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 1 }}>{s.informal.en}</div>
@@ -161,11 +161,11 @@ export default function TiViScreen({ goBack }) {
                   <div style={{ fontSize: 10, fontWeight: 800, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
                     🤝 Vi — Formal
                   </div>
-                  <button onClick={() => speak(s.formal.hr)} style={{
+                  <button aria-label={`Play audio for ${s.formal.hr}`} onClick={() => speak(s.formal.hr)} style={{
                     display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none',
                     cursor: 'pointer', textAlign: 'left', padding: 0, fontFamily: "'Outfit',sans-serif",
                   }}>
-                    <span style={{ fontSize: 16 }}>🔊</span>
+                    <span aria-hidden="true" style={{ fontSize: 16 }}>🔊</span>
                     <div>
                       <div style={{ fontSize: 15, fontWeight: 800, color: '#7c3aed', fontFamily: "'Playfair Display',serif" }}>{s.formal.hr}</div>
                       <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 1 }}>{s.formal.en}</div>

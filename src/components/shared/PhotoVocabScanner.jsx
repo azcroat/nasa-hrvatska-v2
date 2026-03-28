@@ -99,6 +99,7 @@ function VocabCard({ item, checked, onToggle }) {
       }}>
         <input
           type="checkbox"
+          aria-label={`Select ${item.word} — ${item.translation}`}
           checked={checked}
           onChange={onToggle}
           style={{
@@ -303,6 +304,7 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
           {/* Context hint */}
           <input
             type="text"
+            aria-label="Optional context about the photo"
             value={context}
             onChange={e => setContext(e.target.value)}
             placeholder="What is this? (optional)"

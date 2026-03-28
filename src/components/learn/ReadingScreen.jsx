@@ -30,8 +30,8 @@ export default function ReadingScreen({
       </React.Fragment>}
       {rph==="vocab"&&<React.Fragment>
         {rp.vocab.map((v,i)=>(
-          <button key={i} className="c" style={{marginBottom:8,display:"flex",justifyContent:"space-between",padding:"14px 20px"}} onClick={()=>speak(v[0])}>
-            <span style={{fontWeight:700}}>🔊 {v[0]}</span>
+          <button key={i} aria-label={`Play audio for ${v[0]}`} className="c" style={{marginBottom:8,display:"flex",justifyContent:"space-between",padding:"14px 20px"}} onClick={()=>speak(v[0])}>
+            <span style={{fontWeight:700}}><span aria-hidden="true">🔊</span> {v[0]}</span>
             <span style={{color:"var(--subtext)"}}>{v[1]}</span>
           </button>
         ))}

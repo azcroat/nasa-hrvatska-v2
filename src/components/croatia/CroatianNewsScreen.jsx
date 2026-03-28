@@ -250,7 +250,7 @@ function ArticleCard({ article, index, translating, tooltip, onWordTap, onAward,
               fontFamily: "'Outfit',sans-serif", transition: 'all .2s',
             }}
           >
-            {playing ? '⏸ Playing...' : '🔊 Read Article'}
+            {playing ? <><span aria-hidden="true">⏸</span> Playing...</> : <><span aria-hidden="true">🔊</span> Read Article</>}
           </button>
 
           <button

@@ -404,11 +404,12 @@ function WordList({ words, setWords, setView }) {
           <div style={S.enWord}>{w.en}</div>
           {w.phonetic ? (
             <button
+              aria-label={`Play audio for ${w.hr}`}
               style={S.phonetic}
               onClick={() => speak(w.hr, 'hr-HR')}
               title="Tap to hear pronunciation"
             >
-              🔊 {w.phonetic}
+              <span aria-hidden="true">🔊</span> {w.phonetic}
             </button>
           ) : null}
           {w.example ? (

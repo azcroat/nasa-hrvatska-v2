@@ -19,7 +19,7 @@ function FoodOrderScreen({ goBack }) {
           </div>
           <div style={{borderTop:"1px solid var(--card-b)",paddingTop:8}}>
             {sec.phrases.map(function(p,i){return (
-              <button key={i} style={{display:"block",width:"100%",fontSize:13,padding:"5px 8px",marginBottom:3,fontWeight:600,color:"var(--heading)",background:"rgba(14,116,144,.06)",border:"1px solid rgba(14,116,144,.15)",borderRadius:7,cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif"}} onClick={function(){speak(p)}}>{p}{" 🔊"}</button>
+              <button key={i} aria-label={`Play audio for ${p}`} style={{display:"block",width:"100%",fontSize:13,padding:"5px 8px",marginBottom:3,fontWeight:600,color:"var(--heading)",background:"rgba(14,116,144,.06)",border:"1px solid rgba(14,116,144,.15)",borderRadius:7,cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif"}} onClick={function(){speak(p)}}>{p}{" "}<span aria-hidden="true">🔊</span></button>
             );})}
           </div>
         </div>
@@ -30,8 +30,8 @@ function FoodOrderScreen({ goBack }) {
       </div>
       <h3 className="sh" style={{marginTop:16}}>🍽️ Restaurant Phrases</h3>
       {FOODORDER.restaurant.phrases.map(function(p,i){return (
-        <button key={i} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px"}} onClick={function(){speak(p[0])}}>
-          <span style={{fontWeight:700,fontSize:14}}>{p[0]}{" 🔊"}</span>
+        <button key={i} aria-label={`Play audio for ${p[0]}`} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px"}} onClick={function(){speak(p[0])}}>
+          <span style={{fontWeight:700,fontSize:14}}>{p[0]}{" "}<span aria-hidden="true">🔊</span></span>
           <span style={{color:"var(--subtext)",fontSize:13}}>{p[1]}</span>
         </button>
       );})}

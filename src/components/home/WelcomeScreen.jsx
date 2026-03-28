@@ -338,7 +338,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
                 }}
               >
                 <span style={{fontSize:36, fontWeight:900, color:'#fff', fontFamily:"'Playfair Display',serif"}}>Bog</span>
-                <span style={{fontSize:'var(--text-base)', color:'rgba(255,255,255,.8)', fontWeight:600}}>Hello / Hi — tap to hear it 🔊</span>
+                <span style={{fontSize:'var(--text-base)', color:'rgba(255,255,255,.8)', fontWeight:600}}>Hello / Hi — tap to hear it <span aria-hidden="true">🔊</span></span>
               </button>
               <p style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:20, fontStyle:'italic'}}>
                 Now you say it! Repeat after the audio.
@@ -517,7 +517,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
                       color:'#fff', fontSize:'var(--text-sm)', fontWeight:700,
                     }}
                   >
-                    🔊 Hear it in Croatian
+                    <span aria-hidden="true">🔊</span> Hear it in Croatian
                   </button>
                   <p style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:20, lineHeight:1.5, fontStyle:'italic'}}>
                     Svaki razgovor je dragocjen — every conversation is precious.
@@ -542,7 +542,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
                     }}
                   >
                     <span style={{fontSize:36, fontWeight:900, color:'#fff', fontFamily:"'Playfair Display',serif"}}>Bog</span>
-                    <span style={{fontSize:'var(--text-base)', color:'rgba(255,255,255,.8)', fontWeight:600}}>Hello / Hi — tap to hear it 🔊</span>
+                    <span style={{fontSize:'var(--text-base)', color:'rgba(255,255,255,.8)', fontWeight:600}}>Hello / Hi — tap to hear it <span aria-hidden="true">🔊</span></span>
                   </button>
                   <p style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:20, fontStyle:'italic'}}>
                     Now you say it! Repeat after the audio.

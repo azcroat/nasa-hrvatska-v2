@@ -35,7 +35,7 @@ function SvojMojScreen({ goBack, award }) {
               <div style={{color:"#7f1d1d",fontStyle:"italic"}}>{p.wrong}</div>
             </div>
             <button style={{flex:1,padding:"8px 12px",background:"#dcfce7",borderRadius:10,fontSize:13,cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif",border:"none"}} onClick={function(){speak(p.right)}}>
-              <div style={{fontSize:10,fontWeight:700,color:"#16a34a",marginBottom:4}}>✓ NATIVE 🔊</div>
+              <div style={{fontSize:10,fontWeight:700,color:"#16a34a",marginBottom:4}}>✓ NATIVE <span aria-hidden="true">🔊</span></div>
               <div style={{color:"#14532d",fontWeight:700}}>{p.right}</div>
             </button>
           </div>

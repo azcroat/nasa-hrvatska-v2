@@ -25,7 +25,7 @@ function PronounsScreen({ goBack, award }) {
       <h3 className="sh">🧠 Fill the Blank</h3>
       {shMemo("pc",PRONOUNCASE.quiz,10).map(function(q,qi){return (
         <div key={qi} className="c" style={{marginBottom:10,padding:"10px 14px"}}>
-          <div style={{fontSize:13,fontWeight:600,marginBottom:6,cursor:"pointer"}} onClick={function(){speak(q.q.replace("_____",q.a))}}>{"🔊 "}{q.q}</div>
+          <div role="button" tabIndex={0} aria-label={`Play audio for ${q.q}`} style={{fontSize:13,fontWeight:600,marginBottom:6,cursor:"pointer"}} onClick={function(){speak(q.q.replace("_____",q.a))}} onKeyDown={function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();speak(q.q.replace("_____",q.a));}}}><span aria-hidden="true">🔊</span>{" "}{q.q}</div>
           <div style={{display:"flex",gap:6}}>
             {q.opts.map(function(o,oi){return (
               <button key={oi} style={{padding:"6px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,fontWeight:600,cursor:"pointer"}}

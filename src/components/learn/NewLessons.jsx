@@ -107,7 +107,7 @@ export function ConditionalScreen({ goBack, award }) {
             return (
               <div key={i} style={{ marginBottom: 12, background: 'white', borderRadius: 14, border: '1px solid rgba(0,0,0,.07)', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,.04)' }}>
                 <button style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }} onClick={() => speak(ex.hr)}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: '#0369a1' }}>{ex.hr} 🔊</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#0369a1' }}>{ex.hr} <span aria-hidden="true">🔊</span></div>
                   <div style={{ fontSize: 14, color: '#16a34a', fontWeight: 600, marginTop: 3 }}>{ex.en}</div>
                 </button>
                 <div style={{ padding: '0 16px 12px', fontSize: 12, color: '#78716c', lineHeight: 1.5, borderTop: '1px solid #f3f4f6', paddingTop: 8 }}>💡 {ex.note}</div>
@@ -125,7 +125,7 @@ export function ConditionalScreen({ goBack, award }) {
           {CONDITIONAL.ifThen.map(function (ex, i) {
             return (
               <button key={i} className="c" style={{ marginBottom: 10, display: 'block', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => speak(ex.hr)}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#0369a1' }}>{ex.hr} 🔊</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#0369a1' }}>{ex.hr} <span aria-hidden="true">🔊</span></div>
                 <div style={{ fontSize: 13, color: '#78716c', marginTop: 3 }}>{ex.en}</div>
               </button>
             );
@@ -143,7 +143,7 @@ export function ConditionalScreen({ goBack, award }) {
               <button key={i} className="c" style={{ marginBottom: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, textAlign: 'left', cursor: 'pointer', width: '100%' }} onClick={() => speak(p.hr)}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, color: '#78716c', marginBottom: 3 }}>{p.situation}</div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: '#0369a1' }}>{p.hr} 🔊</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#0369a1' }}>{p.hr} <span aria-hidden="true">🔊</span></div>
                 </div>
                 <div style={{ fontSize: 13, color: '#16a34a', fontWeight: 600, minWidth: 100, textAlign: 'right' }}>{p.en}</div>
               </button>
@@ -209,11 +209,11 @@ export function FormalRegisterScreen({ goBack, award }) {
                       <td style={{ padding: '8px 10px', color: '#78716c', fontSize: 12 }}>{row.situation}</td>
                       <td style={{ padding: '8px 10px' }}>
                         {row.ti !== '—' ? (
-                          <button style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif", fontWeight: 600, color: '#0e7490', fontSize: 13, padding: 0, textAlign: 'left' }} onClick={() => speak(row.ti)}>{row.ti} 🔊</button>
+                          <button aria-label={`Play audio for ${row.ti}`} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif", fontWeight: 600, color: '#0e7490', fontSize: 13, padding: 0, textAlign: 'left' }} onClick={() => speak(row.ti)}>{row.ti} <span aria-hidden="true">🔊</span></button>
                         ) : <span style={{ color: '#cbd5e1' }}>—</span>}
                       </td>
                       <td style={{ padding: '8px 10px' }}>
-                        <button style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif", fontWeight: 700, color: '#7c3aed', fontSize: 13, padding: 0, textAlign: 'left' }} onClick={() => speak(row.vi)}>{row.vi} 🔊</button>
+                        <button aria-label={`Play audio for ${row.vi}`} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif", fontWeight: 700, color: '#7c3aed', fontSize: 13, padding: 0, textAlign: 'left' }} onClick={() => speak(row.vi)}>{row.vi} <span aria-hidden="true">🔊</span></button>
                       </td>
                     </tr>
                   );
@@ -246,7 +246,7 @@ export function FormalRegisterScreen({ goBack, award }) {
                       {[row.biti, row.imati, row.ići, row.moći, row.htjeti, row.govoriti].map(function (v, vi) {
                         return (
                           <td key={vi} style={{ padding: '10px 8px', fontWeight: 600 }}>
-                            <button style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif", fontSize: 13 }} onClick={() => speak(v)}>{v} 🔊</button>
+                            <button aria-label={`Play audio for ${v}`} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif", fontSize: 13 }} onClick={() => speak(v)}>{v} <span aria-hidden="true">🔊</span></button>
                           </td>
                         );
                       })}
@@ -268,7 +268,7 @@ export function FormalRegisterScreen({ goBack, award }) {
             return (
               <button key={i} className="c" style={{ marginBottom: 10, display: 'block', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => speak(p.hr)}>
                 <div style={{ fontSize: 11, color: '#78716c', marginBottom: 3 }}>{p.label}</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#0369a1' }}>{p.hr} 🔊</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#0369a1' }}>{p.hr} <span aria-hidden="true">🔊</span></div>
                 <div style={{ fontSize: 13, color: '#16a34a', marginTop: 2 }}>{p.en}</div>
               </button>
             );
@@ -301,16 +301,16 @@ export function ImpersonalScreen({ goBack, award }) {
           {IMPERSONAL.constructions.map(function (c, i) {
             return (
               <div key={i} style={{ marginBottom: 12, background: 'white', borderRadius: 14, border: '1px solid rgba(0,0,0,.07)', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,.04)' }}>
-                <button style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }} onClick={() => speak(c.hr)}>
+                <button aria-label={`Play audio for ${c.hr}`} style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }} onClick={() => speak(c.hr)}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <span style={{ fontSize: 17, fontWeight: 800, color: '#0e7490' }}>{c.hr} 🔊</span>
+                    <span style={{ fontSize: 17, fontWeight: 800, color: '#0e7490' }}>{c.hr} <span aria-hidden="true">🔊</span></span>
                     <span style={{ fontSize: 13, color: '#16a34a', fontWeight: 600 }}>{c.en}</span>
                   </div>
                 </button>
                 <div style={{ padding: '0 16px 12px', borderTop: '1px solid #f3f4f6', paddingTop: 8 }}>
                   <div style={{ fontSize: 12, color: '#78716c', lineHeight: 1.5, marginBottom: 6 }}>{c.note}</div>
-                  <button style={{ background: 'rgba(14,116,144,.07)', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 13, fontWeight: 600, color: '#0e7490', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }} onClick={() => speak(c.example)}>
-                    {c.example} 🔊
+                  <button aria-label={`Play audio for ${c.example}`} style={{ background: 'rgba(14,116,144,.07)', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 13, fontWeight: 600, color: '#0e7490', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }} onClick={() => speak(c.example)}>
+                    {c.example} <span aria-hidden="true">🔊</span>
                   </button>
                 </div>
               </div>
@@ -373,8 +373,8 @@ export function TechVocScreen({ goBack, award }) {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             {cat.words.map(function (w, i) {
               return (
-                <button key={i} style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', textAlign: 'left', fontFamily: "'Outfit',sans-serif", boxShadow: '0 1px 2px rgba(0,0,0,.04)' }} onClick={() => speak(w.hr)}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0369a1' }}>{w.hr} 🔊</div>
+                <button key={i} aria-label={`Play audio for ${w.hr}`} style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', textAlign: 'left', fontFamily: "'Outfit',sans-serif", boxShadow: '0 1px 2px rgba(0,0,0,.04)' }} onClick={() => speak(w.hr)}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0369a1' }}>{w.hr} <span aria-hidden="true">🔊</span></div>
                   <div style={{ fontSize: 12, color: '#78716c', marginTop: 2 }}>{w.en}</div>
                 </button>
               );
@@ -388,7 +388,7 @@ export function TechVocScreen({ goBack, award }) {
           {TECH_VOC.phrases.map(function (p, i) {
             return (
               <button key={i} className="c" style={{ marginBottom: 10, display: 'block', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => speak(p.hr)}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#0369a1' }}>{p.hr} 🔊</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#0369a1' }}>{p.hr} <span aria-hidden="true">🔊</span></div>
                 <div style={{ fontSize: 13, color: '#78716c', marginTop: 3 }}>{p.en}</div>
               </button>
             );
@@ -431,8 +431,8 @@ export function BureaucraticScreen({ goBack, award }) {
           <div style={{ fontSize: 13, fontWeight: 700, color: '#0e7490', marginBottom: 10 }}>{cat.icon} {cat.name}</div>
           {cat.words.map(function (w, i) {
             return (
-              <button key={i} className="c" style={{ marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', width: '100%' }} onClick={() => speak(w.hr)}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#0369a1' }}>{w.hr} 🔊</span>
+              <button key={i} aria-label={`Play audio for ${w.hr}`} className="c" style={{ marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', width: '100%' }} onClick={() => speak(w.hr)}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#0369a1' }}>{w.hr} <span aria-hidden="true">🔊</span></span>
                 <span style={{ fontSize: 13, color: '#78716c' }}>{w.en}</span>
               </button>
             );
@@ -448,7 +448,7 @@ export function BureaucraticScreen({ goBack, award }) {
           {BUREAUCRATIC.phrases.map(function (p, i) {
             return (
               <button key={i} className="c" style={{ marginBottom: 10, display: 'block', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => speak(p.hr)}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#0369a1' }}>{p.hr} 🔊</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#0369a1' }}>{p.hr} <span aria-hidden="true">🔊</span></div>
                 <div style={{ fontSize: 13, color: '#78716c', marginTop: 3 }}>{p.en}</div>
               </button>
             );

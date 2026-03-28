@@ -140,7 +140,7 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
             <span style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 600 }}>Level {level + 1}</span>
             <span style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 600 }}>{xpPct}%</span>
           </div>
-          <div className="prog-track" style={{ height: 6 }}>
+          <div className="prog-track" role="progressbar" aria-valuenow={xpPct} aria-valuemin={0} aria-valuemax={100} aria-label={`Progress to level ${level + 1}: ${xpPct}%`} style={{ height: 6 }}>
             <div className="prog-fill" style={{ width: xpPct + '%', background: `linear-gradient(90deg,${levelColor},${levelColor}99)` }} />
           </div>
         </div>
@@ -182,7 +182,7 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
               <span style={{ fontSize: 11, color: 'var(--heading)', fontWeight: 700 }}>{weeklyXP} / {weeklyGoal} XP</span>
               <span style={{ fontSize: 11, color: weeklyPct >= 100 ? '#16a34a' : '#0e7490', fontWeight: 700 }}>{weeklyPct}%</span>
             </div>
-            <div className="prog-track" style={{ height: 6 }}>
+            <div className="prog-track" role="progressbar" aria-valuenow={weeklyPct} aria-valuemin={0} aria-valuemax={100} aria-label={`Weekly XP goal: ${weeklyXP} of ${weeklyGoal} XP (${weeklyPct}%)`} style={{ height: 6 }}>
               <div className="prog-fill" style={{ width: weeklyPct + '%', background: weeklyPct >= 100 ? 'linear-gradient(90deg,#16a34a,#22c55e)' : 'linear-gradient(90deg,#0e7490,#38bdf8)' }} />
             </div>
             {weeklyPct >= 100 && <div style={{ fontSize: 10, color: '#16a34a', fontWeight: 700, marginTop: 4 }}>🏆 Goal reached!</div>}
@@ -196,7 +196,7 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
       <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--nav-b)' }}>
         <div style={{ position: 'relative' }}>
           <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 13, opacity: .4, pointerEvents: 'none' }}>🔍</span>
-          <input type="search" value={srchQ} onChange={e => setSrchQ(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') onSearch(); }}
+          <input type="search" aria-label="Search lessons" value={srchQ} onChange={e => setSrchQ(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') onSearch(); }}
             placeholder="Search lessons…"
             style={{ paddingLeft: 32, fontSize: 13, padding: '9px 12px 9px 32px', borderRadius: 10 }}
           />

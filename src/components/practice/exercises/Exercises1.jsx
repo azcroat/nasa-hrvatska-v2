@@ -52,8 +52,8 @@ export function ReflexiveScreen({ goBack, award }) {
                     <div style={{fontSize:10,fontWeight:700,color:"#dc2626",marginBottom:3}}>✗ WRONG</div>
                     <div style={{fontStyle:"italic",color:"#7f1d1d"}}>{r.bad}</div>
                   </div>
-                  <button style={{flex:1,minWidth:140,padding:"8px 12px",background:"#dcfce7",borderRadius:10,fontSize:12,border:"none",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif"}} onClick={function(){speak(r.good)}}>
-                    <div style={{fontSize:10,fontWeight:700,color:"#16a34a",marginBottom:3}}>✓ CORRECT 🔊</div>
+                  <button aria-label={`Play correct form: ${r.good}`} style={{flex:1,minWidth:140,padding:"8px 12px",background:"#dcfce7",borderRadius:10,fontSize:12,border:"none",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif"}} onClick={function(){speak(r.good)}}>
+                    <div style={{fontSize:10,fontWeight:700,color:"#16a34a",marginBottom:3}}>✓ CORRECT <span aria-hidden="true">🔊</span></div>
                     <div style={{fontWeight:700,color:"#14532d"}}>{r.good}</div>
                   </button>
                 </div>
@@ -88,7 +88,7 @@ export function ReflexiveScreen({ goBack, award }) {
                     <div key={row.key} style={{display:"flex",gap:8,alignItems:"flex-start",cursor:"pointer"}} onClick={function(){speak(row.data.hr)}}>
                       <span style={{background:c+"20",color:c,fontSize:9,fontWeight:800,padding:"3px 6px",borderRadius:6,flexShrink:0,marginTop:2}}>{row.label}</span>
                       <div style={{flex:1}}>
-                        <div style={{fontSize:13,fontWeight:700,color:"#1c1917"}}>{row.data.hr} <span style={{fontSize:12,opacity:.6}}>🔊</span></div>
+                        <div style={{fontSize:13,fontWeight:700,color:"#1c1917"}}>{row.data.hr} <span style={{fontSize:12,opacity:.6}} aria-hidden="true">🔊</span></div>
                         <div style={{fontSize:11,color:"#78716c"}}>{row.data.en}</div>
                       </div>
                     </div>
@@ -110,7 +110,7 @@ export function ReflexiveScreen({ goBack, award }) {
                   <span style={{fontSize:16,fontWeight:800,color:"#164e63"}}>{v.inf}</span>
                   <span style={{fontSize:13,color:"#78716c",marginLeft:8}}>{v.en}</span>
                 </div>
-                <button style={{background:"none",border:"none",fontSize:16,cursor:"pointer"}} onClick={function(){speak(v.inf)}}>🔊</button>
+                <button aria-label={`Play audio for ${v.inf}`} style={{background:"none",border:"none",fontSize:16,cursor:"pointer"}} onClick={function(){speak(v.inf)}}><span aria-hidden="true">🔊</span></button>
               </div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:4,fontSize:12}}>
                 {Object.keys(v.forms).map(function(p,pi){return (
@@ -226,7 +226,7 @@ export function ScenesScreen({ goBack }) {
           <div style={{fontSize:12,color:"#78716c",marginBottom:10}}>{scene.desc}</div>
           {scene.qs.map(function(q,qi){return (
             <div key={qi} style={{marginBottom:10}}>
-              <div style={{fontSize:13,fontWeight:600,color:"#164e63",cursor:"pointer",marginBottom:4}} onClick={function(){speak(q.q)}}>{"🔊 "}{q.q}{q.hint?" ("+q.hint+" ...):":""}</div>
+              <div role="button" tabIndex={0} aria-label={`Play audio for ${q.q}`} style={{fontSize:13,fontWeight:600,color:"#164e63",cursor:"pointer",marginBottom:4}} onClick={function(){speak(q.q)}} onKeyDown={function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();speak(q.q);}}}><span aria-hidden="true">🔊</span>{" "}{q.q}{q.hint?" ("+q.hint+" ...):":""}</div>
               <div style={{fontSize:12,color:"#78716c"}}>{"🇬🇧 "}{q.en}</div>
             </div>
           );})}
@@ -259,7 +259,7 @@ export function PronounsScreen({ goBack, award }) {
       <h3 className="sh">🧠 Fill the Blank</h3>
       {shMemo("pc",PRONOUNCASE.quiz,10).map(function(q,qi){return (
         <div key={qi} className="c" style={{marginBottom:10,padding:"10px 14px"}}>
-          <div style={{fontSize:13,fontWeight:600,marginBottom:6,cursor:"pointer"}} onClick={function(){speak(q.q.replace("_____",q.a))}}>{"🔊 "}{q.q}</div>
+          <div role="button" tabIndex={0} aria-label={`Play audio for ${q.q}`} style={{fontSize:13,fontWeight:600,marginBottom:6,cursor:"pointer"}} onClick={function(){speak(q.q.replace("_____",q.a))}} onKeyDown={function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();speak(q.q.replace("_____",q.a));}}}><span aria-hidden="true">🔊</span>{" "}{q.q}</div>
           <div style={{display:"flex",gap:6}}>
             {q.opts.map(function(o,oi){return (
               <button key={oi} style={{padding:"6px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,fontWeight:600,cursor:"pointer"}}

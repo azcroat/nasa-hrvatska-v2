@@ -160,12 +160,12 @@ export default function LifeEventsScreen({ goBack }) {
                   background: 'var(--card)', border: `1px solid ${ev.border}`,
                   borderRadius: 12, overflow: 'hidden',
                 }}>
-                  <button onClick={() => speak(item.hr)} style={{
+                  <button aria-label={`Play audio for ${item.hr}`} onClick={() => speak(item.hr)} style={{
                     width: '100%', padding: '12px 14px', background: 'none', border: 'none',
                     cursor: 'pointer', textAlign: 'left', fontFamily: "'Outfit',sans-serif",
                     display: 'flex', alignItems: 'center', gap: 10,
                   }}>
-                    <span style={{ fontSize: 16, flexShrink: 0 }}>🔊</span>
+                    <span aria-hidden="true" style={{ fontSize: 16, flexShrink: 0 }}>🔊</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--heading)', fontFamily: "'Playfair Display',serif" }}>{item.hr}</div>
                       <div style={{ fontSize: 12, color: '#0e7490', fontWeight: 600, marginTop: 1 }}>{item.en}</div>

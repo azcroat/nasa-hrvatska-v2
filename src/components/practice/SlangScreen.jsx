@@ -890,7 +890,7 @@ export default function SlangScreen({ goBack, award }) {
                 background: `linear-gradient(135deg,${color},${color}cc)`,
                 color: '#fff', fontSize: 16, cursor: 'pointer', flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>🔊</button>
+              }}><span aria-hidden="true">🔊</span></button>
           )}
           <div style={{ fontSize: 14, color: 'var(--subtext)', opacity: .4, flexShrink: 0 }}>
             {isOpen ? '▲' : '▼'}
@@ -935,7 +935,7 @@ export default function SlangScreen({ goBack, award }) {
                         background: color, color: '#fff', fontSize: 12,
                         cursor: 'pointer', flexShrink: 0,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}>🔊</button>
+                      }}><span aria-hidden="true">🔊</span></button>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 800, color: color, fontFamily: "'Playfair Display',serif" }}>{v.hr}</div>
                       <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2, fontWeight: 500 }}>{v.en}</div>
@@ -1091,8 +1091,8 @@ export default function SlangScreen({ goBack, award }) {
                 <div style={{ fontSize: 22, fontWeight: 900, color: section.color, fontFamily: "'Playfair Display',serif", lineHeight: 1.3 }}>
                   {quizQuestions[quizIdx].hr}
                 </div>
-                <button onClick={() => speak(quizQuestions[quizIdx].hr)} style={{ marginTop: 10, padding: '4px 12px', borderRadius: 8, border: 'none', background: section.color, color: '#fff', fontSize: 12, cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }}>
-                  🔊 Hear it
+                <button aria-label={`Play audio for ${quizQuestions[quizIdx].hr}`} onClick={() => speak(quizQuestions[quizIdx].hr)} style={{ marginTop: 10, padding: '4px 12px', borderRadius: 8, border: 'none', background: section.color, color: '#fff', fontSize: 12, cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }}>
+                  <span aria-hidden="true">🔊</span> Hear it
                 </button>
               </div>
               {/* Options */}

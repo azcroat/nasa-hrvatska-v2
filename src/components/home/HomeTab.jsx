@@ -1172,6 +1172,7 @@ export default function HomeTab({
             {todayPhrases.map((p, i) => (
               <button
                 key={i}
+                aria-label={`Play audio for ${p.hr} — ${p.en}`}
                 onClick={() => speak(p.hr)}
                 style={{
                   background:'var(--card)',
@@ -1195,7 +1196,7 @@ export default function HomeTab({
                 <span style={{fontSize:11, fontWeight:800, color:'var(--color-croatian,#b61800)', textTransform:'uppercase', letterSpacing:'.05em'}}>{p.cat}</span>
                 <span style={{fontSize:15, fontWeight:800, color:'var(--heading)', lineHeight:1.3}}>{p.hr}</span>
                 <span style={{fontSize:12, color:'var(--subtext)', fontWeight:500}}>{p.en}</span>
-                <span style={{marginTop:4, fontSize:16}}>🔊</span>
+                <span aria-hidden="true" style={{marginTop:4, fontSize:16}}>🔊</span>
               </button>
             ))}
           </div>
@@ -1254,9 +1255,10 @@ export default function HomeTab({
                   display:"flex",justifyContent:"space-between",alignItems:"center",
                   boxShadow:"0 2px 8px rgba(14,116,144,.08)",
                 }}
+                aria-label={`Play audio for ${tOut}`}
                 onClick={() => speak(tDir==="en-hr"?tOut:tIn)}>
                 <span>{tOut}</span>
-                <span style={{fontSize:20}}>🔊</span>
+                <span aria-hidden="true" style={{fontSize:20}}>🔊</span>
               </button>
             )}
           </div>

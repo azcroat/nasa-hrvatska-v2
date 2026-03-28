@@ -758,9 +758,9 @@ export default function CaseTransformer({ goBack, award }) {
         <button
           className="ct-speak-btn"
           onClick={() => speak(declined.sg[0].replace("!", ""))}
-          title="Listen"
+          aria-label="Listen to pronunciation"
         >
-          🔊
+          <span aria-hidden="true">🔊</span>
         </button>
       </div>
 
@@ -859,9 +859,9 @@ export default function CaseTransformer({ goBack, award }) {
               <button
                 className="ct-speak-btn"
                 onClick={() => speak(form)}
-                title={`Listen to "${form}"`}
+                aria-label={`Listen to ${form}`}
               >
-                🔊
+                <span aria-hidden="true">🔊</span>
               </button>
             </div>
 

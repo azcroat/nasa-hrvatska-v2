@@ -18,8 +18,8 @@ function PracticalScreen({ goBack }) {
       <h3 className="sh">📄 Documents</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
         {PRACTICAL.documents.map(function(d,i){return (
-          <button key={i} className="c" style={{padding:"8px 12px"}} onClick={function(){speak(d[0])}}>
-            <div style={{fontSize:13,fontWeight:700}}>{d[0]}{" 🔊"}</div>
+          <button key={i} aria-label={`Play audio for ${d[0]}`} className="c" style={{padding:"8px 12px"}} onClick={function(){speak(d[0])}}>
+            <div style={{fontSize:13,fontWeight:700}}>{d[0]}{" "}<span aria-hidden="true">🔊</span></div>
             <div style={{fontSize:11,color:"#78716c"}}>{d[1]}</div>
           </button>
         );})}

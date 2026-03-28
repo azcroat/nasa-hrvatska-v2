@@ -94,9 +94,9 @@ function CountriesScreen({ goBack }) {
           {d.countries.map((c, i) => (
             <div key={i} style={{ background: 'white', borderRadius: 14, padding: '14px 16px', marginBottom: 10, border: '1px solid rgba(0,0,0,.06)', boxShadow: '0 1px 3px rgba(0,0,0,.04)' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                <button onClick={() => speak(c.country)}
+                <button onClick={() => speak(c.country)} aria-label={`Play audio for ${c.country}`}
                   style={{ fontSize: 30, background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: 1 }}>
-                  {c.flag}
+                  <span aria-hidden="true">{c.flag}</span>
                 </button>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
@@ -124,9 +124,9 @@ function CountriesScreen({ goBack }) {
       {tab === 'Phrases' && (
         <div>
           {d.phrases.map((p, i) => (
-            <div key={i} style={{ background: 'white', borderRadius: 12, padding: '12px 16px', marginBottom: 8, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
-              onClick={() => speak(p.hr)}>
-              <div style={{ fontSize: 20 }}>🔊</div>
+            <div key={i} role="button" tabIndex={0} aria-label={`Play audio: ${p.hr} — ${p.en}`} style={{ background: 'white', borderRadius: 12, padding: '12px 16px', marginBottom: 8, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
+              onClick={() => speak(p.hr)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speak(p.hr); } }}>
+              <div style={{ fontSize: 20 }} aria-hidden="true">🔊</div>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#0369a1' }}>{p.hr}</div>
                 <div style={{ fontSize: 12, color: '#78716c' }}>{p.en}</div>

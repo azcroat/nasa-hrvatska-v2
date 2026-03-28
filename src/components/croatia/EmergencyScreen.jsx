@@ -12,8 +12,8 @@ function EmergencyScreen({ goBack }) {
         <div style={{fontSize:14,fontWeight:700}}>{EMERGENCY.number}</div>
       </div>
       {EMERGENCY.phrases.map(function(p,i){return (
-        <button key={i} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px"}} onClick={function(){speak(p[0])}}>
-          <span style={{fontWeight:700,fontSize:14,color:"#dc2626"}}>{p[0]}{" 🔊"}</span>
+        <button key={i} aria-label={`Play audio for ${p[0]}`} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px"}} onClick={function(){speak(p[0])}}>
+          <span style={{fontWeight:700,fontSize:14,color:"#dc2626"}}>{p[0]}{" "}<span aria-hidden="true">🔊</span></span>
           <span style={{color:"var(--subtext)",fontSize:13}}>{p[1]}</span>
         </button>
       );})}

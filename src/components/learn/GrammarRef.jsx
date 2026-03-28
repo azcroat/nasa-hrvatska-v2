@@ -10,8 +10,8 @@ export function AspectScreen({ goBack }) {
       {ASPECT.pairs.map(function(p,i){return (
         <div key={i} className="c" style={{marginBottom:10}}>
           <div style={{display:"flex",justifyContent:"space-between"}}>
-            <button style={{fontWeight:700,color:"#dc2626",background:"none",border:"none",cursor:"pointer",fontFamily:"'Outfit',sans-serif",padding:0}} onClick={function(){speak(p.imp)}}>{p.imp}{" 🔊"}</button>
-            <button style={{fontWeight:700,color:"#16a34a",background:"none",border:"none",cursor:"pointer",fontFamily:"'Outfit',sans-serif",padding:0}} onClick={function(){speak(p.perf)}}>{p.perf}{" 🔊"}</button>
+            <button aria-label={`Play imperfective: ${p.imp}`} style={{fontWeight:700,color:"#dc2626",background:"none",border:"none",cursor:"pointer",fontFamily:"'Outfit',sans-serif",padding:0}} onClick={function(){speak(p.imp)}}>{p.imp}{" "}<span aria-hidden="true">🔊</span></button>
+            <button aria-label={`Play perfective: ${p.perf}`} style={{fontWeight:700,color:"#16a34a",background:"none",border:"none",cursor:"pointer",fontFamily:"'Outfit',sans-serif",padding:0}} onClick={function(){speak(p.perf)}}>{p.perf}{" "}<span aria-hidden="true">🔊</span></button>
           </div>
           <div style={{fontSize:13,color:"#78716c"}}>{p.en}</div>
         </div>
@@ -26,9 +26,9 @@ export function FalseFriendsScreen({ goBack }) {
       
       {H("⚠️ False Friends","Croatian words that trick English speakers",goBack)}
       {FALSEFR.map(function(f,i){return (
-        <button key={i} className="c" style={{marginBottom:10}} onClick={function(){speak(f.hr)}}>
+        <button key={i} aria-label={`Play audio for ${f.hr}`} className="c" style={{marginBottom:10}} onClick={function(){speak(f.hr)}}>
           <div style={{display:"flex",justifyContent:"space-between"}}>
-            <span style={{fontSize:16,fontWeight:800,color:"#dc2626"}}>{f.hr}{" 🔊"}</span>
+            <span style={{fontSize:16,fontWeight:800,color:"#dc2626"}}>{f.hr}{" "}<span aria-hidden="true">🔊</span></span>
             <span style={{fontSize:14,color:"#78716c"}}>{"Looks like: "}{f.looks}</span>
           </div>
           <div style={{fontSize:14,fontWeight:600,color:"#16a34a",marginTop:4}}>{"Actually means: "}{f.means}</div>
@@ -56,9 +56,9 @@ export function DeclensionScreen({ goBack }) {
       <table style={{width:"100%",borderCollapse:"collapse"}}>
         <tbody>
           {DECL.caseNames.map(function(cs,ci){return (
-            <tr key={ci} style={{borderBottom:"1px solid #f3f4f6"}} onClick={function(){speak(n.cases[ci])}} role="button" tabIndex={0} onKeyDown={function(e){if(e.key==="Enter"||e.key===" ")speak(n.cases[ci])}}>
+            <tr key={ci} style={{borderBottom:"1px solid #f3f4f6"}} onClick={function(){speak(n.cases[ci])}} role="button" tabIndex={0} aria-label={`Play audio for ${n.cases[ci]}`} onKeyDown={function(e){if(e.key==="Enter"||e.key===" ")speak(n.cases[ci])}}>
               <td style={{padding:"10px",fontWeight:700,color:"#0e7490"}}>{(ci+1)+". "}{cs}</td>
-              <td style={{padding:"10px",fontWeight:600,fontSize:16}}>{n.cases[ci]}{" 🔊"}</td>
+              <td style={{padding:"10px",fontWeight:600,fontSize:16}}>{n.cases[ci]}{" "}<span aria-hidden="true">🔊</span></td>
             </tr>
           );})}
         </tbody>
@@ -74,7 +74,7 @@ export function BrzaliceScreen({ goBack }) {
       {H("😝 Brzalice","Croatian Tongue Twisters",goBack)}
       {shMemo("bz",BRZALICE).map(function(b,i){return (
         <div key={i} className="c" style={{marginBottom:12}}>
-          <button style={{fontSize:16,fontWeight:700,color:"var(--heading)",background:"none",border:"none",cursor:"pointer",fontFamily:"'Outfit',sans-serif",padding:0,textAlign:"left"}} onClick={function(){speak(b.hr)}}>{b.hr}{" 🔊"}</button>
+          <button aria-label={`Play audio for ${b.hr}`} style={{fontSize:16,fontWeight:700,color:"var(--heading)",background:"none",border:"none",cursor:"pointer",fontFamily:"'Outfit',sans-serif",padding:0,textAlign:"left"}} onClick={function(){speak(b.hr)}}>{b.hr}{" "}<span aria-hidden="true">🔊</span></button>
           <div style={{fontSize:13,color:"#78716c",marginTop:4}}>{b.en}</div>
           <div style={{fontSize:12,color:"#b45309",marginTop:2}}>{"Target: "}{b.target}</div>
         </div>
@@ -121,11 +121,11 @@ export function DiminutivesScreen({ goBack }) {
       
       {H("🐣 Umanjenice","Diminutives — making things small & cute",goBack)}
       {DIMWORDS.map(function(d,i){return (
-        <button key={i} className="c" style={{marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}} onClick={function(){speak(d.dim)}}>
+        <button key={i} aria-label={`Play audio for ${d.dim}`} className="c" style={{marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}} onClick={function(){speak(d.dim)}}>
           <div>
             <span style={{fontSize:15,fontWeight:700}}>{d.base}</span>
             <span style={{color:"#78716c"}}>{" → "}</span>
-            <span style={{fontSize:15,fontWeight:700,color:"#16a34a"}}>{d.dim}{" 🔊"}</span>
+            <span style={{fontSize:15,fontWeight:700,color:"#16a34a"}}>{d.dim}{" "}<span aria-hidden="true">🔊</span></span>
           </div>
           <div style={{fontSize:12,color:"var(--subtext)"}}>{d.suffix}</div>
         </button>
@@ -144,8 +144,8 @@ export function WordFormScreen({ goBack }) {
           <div style={{fontSize:16,fontWeight:800,color:"#164e63",marginBottom:10}}>{"Base: "}{b.verb}{" ("}{b.en})</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
             {b.derived.map(function(d,di){return (
-              <button key={di} style={{padding:"6px 0",fontSize:14,background:"none",border:"none",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif"}} onClick={function(){speak(d[0])}}>
-                <span style={{fontWeight:700,color:"#0e7490"}}>{d[0]}{" 🔊"}</span>{" — "}<span style={{color:"var(--subtext)",fontSize:12}}>{d[1]}</span>
+              <button key={di} aria-label={`Play audio for ${d[0]}`} style={{padding:"6px 0",fontSize:14,background:"none",border:"none",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif"}} onClick={function(){speak(d[0])}}>
+                <span style={{fontWeight:700,color:"#0e7490"}}>{d[0]}{" "}<span aria-hidden="true">🔊</span></span>{" — "}<span style={{color:"var(--subtext)",fontSize:12}}>{d[1]}</span>
               </button>
             );})}
           </div>
@@ -161,8 +161,8 @@ export function ColorQuirkScreen({ goBack }) {
 
       {H("🎨 Color Quirks","Colors mean different things in Croatian!",goBack)}
       {COLORQUIRK.map(function(q,i){return (
-        <button key={i} className="c" style={{marginBottom:10}} onClick={function(){speak(q.hr)}}>
-          <div style={{fontSize:16,fontWeight:700,color:"var(--heading)"}}>{q.hr}{" 🔊"}</div>
+        <button key={i} aria-label={`Play audio for ${q.hr}`} className="c" style={{marginBottom:10}} onClick={function(){speak(q.hr)}}>
+          <div style={{fontSize:16,fontWeight:700,color:"var(--heading)"}}>{q.hr}{" "}<span aria-hidden="true">🔊</span></div>
           <div style={{fontSize:14,color:"#0e7490",marginTop:2}}>{"Literal: "}{q.literal}</div>
           <div style={{fontSize:14,fontWeight:600,color:"#16a34a",marginTop:2}}>{"Means: "}{q.means}</div>
         </button>
@@ -204,7 +204,7 @@ export function SvojMojScreen({ goBack, award }) {
               <div style={{color:"#7f1d1d",fontStyle:"italic"}}>{p.wrong}</div>
             </div>
             <button style={{flex:1,padding:"8px 12px",background:"#dcfce7",borderRadius:10,fontSize:13,cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif",border:"none"}} onClick={function(){speak(p.right)}}>
-              <div style={{fontSize:10,fontWeight:700,color:"#16a34a",marginBottom:4}}>✓ NATIVE 🔊</div>
+              <div style={{fontSize:10,fontWeight:700,color:"#16a34a",marginBottom:4}}>✓ NATIVE <span aria-hidden="true">🔊</span></div>
               <div style={{color:"#14532d",fontWeight:700}}>{p.right}</div>
             </button>
           </div>

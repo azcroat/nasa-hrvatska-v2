@@ -18,8 +18,8 @@ function SchoolScreen({ goBack }) {
       <h3 className="sh">📚 Classroom Vocabulary</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
         {SCHOOL.classroom.map(function(w,i){return (
-          <button key={i} className="c" style={{padding:"8px 12px"}} onClick={function(){speak(w[0])}}>
-            <div style={{fontSize:13,fontWeight:700,color:"var(--heading)"}}>{w[0]}{" 🔊"}</div>
+          <button key={i} aria-label={`Play audio for ${w[0]}`} className="c" style={{padding:"8px 12px"}} onClick={function(){speak(w[0])}}>
+            <div style={{fontSize:13,fontWeight:700,color:"var(--heading)"}}>{w[0]}{" "}<span aria-hidden="true">🔊</span></div>
             <div style={{fontSize:11,color:"var(--subtext)"}}>{w[1]}</div>
           </button>
         );})}
@@ -27,16 +27,16 @@ function SchoolScreen({ goBack }) {
       <h3 className="sh" style={{marginTop:16}}>📝 Subjects</h3>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
         {SCHOOL.subjects.map(function(w,i){return (
-          <button key={i} className="c" style={{padding:"8px 12px"}} onClick={function(){speak(w[0])}}>
-            <div style={{fontSize:13,fontWeight:700,color:"#7c3aed"}}>{w[0]}{" 🔊"}</div>
+          <button key={i} aria-label={`Play audio for ${w[0]}`} className="c" style={{padding:"8px 12px"}} onClick={function(){speak(w[0])}}>
+            <div style={{fontSize:13,fontWeight:700,color:"#7c3aed"}}>{w[0]}{" "}<span aria-hidden="true">🔊</span></div>
             <div style={{fontSize:11,color:"var(--subtext)"}}>{w[1]}</div>
           </button>
         );})}
       </div>
       <h3 className="sh" style={{marginTop:16}}>🗣️ Essential Phrases</h3>
       {SCHOOL.phrases.map(function(p,i){return (
-        <button key={i} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px"}} onClick={function(){speak(p[0])}}>
-          <span style={{fontWeight:700,fontSize:14}}>{p[0]}{" 🔊"}</span>
+        <button key={i} aria-label={`Play audio for ${p[0]}`} className="c" style={{marginBottom:6,display:"flex",justifyContent:"space-between",padding:"10px 14px"}} onClick={function(){speak(p[0])}}>
+          <span style={{fontWeight:700,fontSize:14}}>{p[0]}{" "}<span aria-hidden="true">🔊</span></span>
           <span style={{color:"var(--subtext)",fontSize:13}}>{p[1]}</span>
         </button>
       );})}

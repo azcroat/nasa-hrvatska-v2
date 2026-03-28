@@ -71,6 +71,7 @@ function SportScreen({ data, accent, heroGradient, heroIcon }) {
             const isPlaying=playing===key;
             return (
               <button key={pi}
+                aria-label={`Play audio for ${p.hr}`}
                 onClick={function(){playPhrase(p.hr,key)}}
                 style={{background:"white",borderRadius:14,border:"1px solid "+(isPlaying?accent:"rgba(0,0,0,.06)"),
                   boxShadow:isPlaying?"0 0 0 3px "+accent+"25":"0 1px 4px rgba(0,0,0,.05)",
@@ -81,7 +82,7 @@ function SportScreen({ data, accent, heroGradient, heroIcon }) {
                   <span style={{fontSize:10,fontWeight:700,color:accent+"99",fontVariantNumeric:"tabular-nums"}}>
                     {String(pi+1).padStart(2,"0")}
                   </span>
-                  <span style={{fontSize:14,opacity:isPlaying?1:.35,transition:"opacity .2s"}}>🔊</span>
+                  <span aria-hidden="true" style={{fontSize:14,opacity:isPlaying?1:.35,transition:"opacity .2s"}}>🔊</span>
                 </div>
                 <div style={{fontSize:13,fontWeight:700,color:"#1c1917",lineHeight:1.3}}>{p.hr}</div>
                 <div style={{fontSize:11,color:"#78716c",marginTop:3,lineHeight:1.4}}>{p.en}</div>
@@ -97,6 +98,7 @@ function SportScreen({ data, accent, heroGradient, heroIcon }) {
             const isPlaying=playing===key;
             return (
               <button key={pi}
+                aria-label={`Play audio for ${p.hr}`}
                 onClick={function(){playPhrase(p.hr,key)}}
                 style={{display:"flex",alignItems:"stretch",background:"white",borderRadius:14,
                   border:"1px solid "+(isPlaying?accent:"rgba(0,0,0,.06)"),
@@ -125,7 +127,7 @@ function SportScreen({ data, accent, heroGradient, heroIcon }) {
                     background:isPlaying?accent:"rgba(0,0,0,.04)",
                     display:"flex",alignItems:"center",justifyContent:"center",
                     fontSize:13,transition:"all .18s"}}>
-                    {isPlaying ? <span style={{color:"white"}}>♪</span> : <span style={{opacity:.45}}>🔊</span>}
+                    {isPlaying ? <span aria-hidden="true" style={{color:"white"}}>♪</span> : <span aria-hidden="true" style={{opacity:.45}}>🔊</span>}
                   </div>
                 </div>
               </button>

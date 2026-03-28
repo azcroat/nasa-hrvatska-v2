@@ -218,12 +218,12 @@ export function RoleplayScreen({ goBack }) {
       </div>
       {r.lines.slice(0,rpLine+1).map(function(l,i){return (
         <div key={i} style={{display:"flex",justifyContent:l.you?"flex-end":"flex-start",marginBottom:8}}>
-          <div style={{maxWidth:"80%",padding:"12px 16px",borderRadius:l.you?"16px 16px 4px 16px":"16px 16px 16px 4px",
+          <div role="button" tabIndex={0} aria-label={`Play audio for ${l.text}`} style={{maxWidth:"80%",padding:"12px 16px",borderRadius:l.you?"16px 16px 4px 16px":"16px 16px 16px 4px",
             background:l.you?"linear-gradient(135deg,#0e7490,#164e63)":"rgba(255,255,255,.8)",
             color:l.you?"white":"#1c1917",cursor:"pointer",border:l.you?"none":"1px solid #e7e5e4"}}
-            onClick={function(){speak(l.text)}}>
+            onClick={function(){speak(l.text)}} onKeyDown={function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();speak(l.text);}}}>
             <div style={{fontSize:11,fontWeight:700,marginBottom:4,opacity:.7}}>{l.speaker}</div>
-            <div style={{fontSize:15,fontWeight:600}}>{l.text}{" 🔊"}</div>
+            <div style={{fontSize:15,fontWeight:600}}>{l.text}{" "}<span aria-hidden="true">🔊</span></div>
             {rpShow&&<div style={{fontSize:12,marginTop:4,opacity:.7,fontStyle:"italic"}}>{l.en}</div>}
           </div>
         </div>
@@ -266,16 +266,16 @@ export function RecipesScreen({ goBack }) {
       </div>
       <h3 className="sh">🥚 Ingredients (scaled)</h3>
       {r.ing.map(function(ig,i){const amt=ig[0];const num=parseFloat(amt);const unit=amt.replace(/[0-9./]+/g,"").trim();const scaled=!isNaN(num)?Math.round(num*scale*10)/10+unit:amt;return (
-        <div key={i} style={{padding:"6px 0",fontSize:14,borderBottom:"1px solid #f3f4f6",display:"flex",gap:8,cursor:"pointer"}} onClick={function(){speak(ig[1].split("(")[0])}}>
+        <div key={i} role="button" tabIndex={0} aria-label={`Play audio for ${ig[1]}`} style={{padding:"6px 0",fontSize:14,borderBottom:"1px solid #f3f4f6",display:"flex",gap:8,cursor:"pointer"}} onClick={function(){speak(ig[1].split("(")[0])}} onKeyDown={function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();speak(ig[1].split("(")[0]);}}}>
           <span style={{fontWeight:800,color:"var(--info)",minWidth:60}}>{scaled}</span>
-          <span>{ig[1]}{" 🔊"}</span>
+          <span>{ig[1]}{" "}<span aria-hidden="true">🔊</span></span>
         </div>
       );})}
       <h3 className="sh" style={{marginTop:16}}>👨‍🍳 Steps</h3>
       {r.steps.map(function(s,i){return (
-        <div key={i} className="c" style={{marginBottom:8,display:"flex",gap:12,cursor:"pointer"}} onClick={function(){speak(s.split("(")[0])}}>
+        <div key={i} role="button" tabIndex={0} aria-label={`Play audio for step ${i+1}`} className="c" style={{marginBottom:8,display:"flex",gap:12,cursor:"pointer"}} onClick={function(){speak(s.split("(")[0])}} onKeyDown={function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();speak(s.split("(")[0]);}}}>
           <div style={{width:28,height:28,borderRadius:"50%",background:"var(--info)",color:"white",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:13,flexShrink:0}}>{i+1}</div>
-          <div style={{fontSize:14,lineHeight:1.6}}>{s}{" 🔊"}</div>
+          <div style={{fontSize:14,lineHeight:1.6}}>{s}{" "}<span aria-hidden="true">🔊</span></div>
         </div>
       );})}
     </div>
@@ -425,12 +425,12 @@ export function CityOfDayScreen({ goBack }) {
             Words and phrases connected to {city.name} — tap to hear
           </div>
           {city.vocab.map(function(v,vi){return (
-            <div key={vi} style={{marginBottom:10,background:"var(--card)",borderRadius:14,border:"1px solid rgba(0,0,0,.06)",overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,.05)",cursor:"pointer"}}
-              onClick={function(){speak(v.hr)}}>
+            <div key={vi} role="button" tabIndex={0} aria-label={`Play audio for ${v.hr}`} style={{marginBottom:10,background:"var(--card)",borderRadius:14,border:"1px solid rgba(0,0,0,.06)",overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,.05)",cursor:"pointer"}}
+              onClick={function(){speak(v.hr)}} onKeyDown={function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();speak(v.hr);}}}>
               <div style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px"}}>
                 <div style={{width:4,alignSelf:"stretch",background:city.color,borderRadius:2,flexShrink:0}} />
                 <div style={{flex:1}}>
-                  <div style={{fontSize:17,fontWeight:800,color:city.color,marginBottom:3}}>{v.hr} <span style={{fontSize:14,opacity:.5}}>🔊</span></div>
+                  <div style={{fontSize:17,fontWeight:800,color:city.color,marginBottom:3}}>{v.hr} <span aria-hidden="true" style={{fontSize:14,opacity:.5}}>🔊</span></div>
                   <div style={{fontSize:13,color:"var(--subtext)",fontWeight:600,marginBottom:4}}>{v.en}</div>
                   {v.note && <div style={{fontSize:12,color:"var(--subtext)",lineHeight:1.5}}>{v.note}</div>}
                 </div>

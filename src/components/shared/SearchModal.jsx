@@ -77,6 +77,7 @@ export default function SearchModal({ setTab, onClose }) {
         <span style={{ fontSize:20 }}>🔍</span>
         <input
           ref={inputRef}
+          aria-label="Search lessons, practice, and Croatia content"
           value={q}
           onChange={e => setQ(e.target.value)}
           placeholder="Search lessons, practice, Croatia..."

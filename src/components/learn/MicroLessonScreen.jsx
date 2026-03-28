@@ -317,7 +317,7 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
                       color: '#0e7490', marginTop: 1,
                     }}
                   >
-                    🔊
+                    <span aria-hidden="true">🔊</span>
                   </button>
                   <div style={{ flex: 1 }}>
                     <div style={{

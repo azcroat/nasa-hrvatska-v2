@@ -773,11 +773,11 @@ export default function LyricsScreen({ goBack, award }) {
             <div style={{ fontSize:12, fontWeight:700, color:'#78716c', marginBottom:8 }}>Vocabulary</div>
             <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
               {song.vocab.map(v => (
-                <button key={v.hr} onClick={() => speak(v.hr)} style={{
+                <button key={v.hr} aria-label={`Play audio for ${v.hr} — ${v.en}`} onClick={() => speak(v.hr)} style={{
                   background:'#f0f9ff', border:'1px solid #bae6fd', borderRadius:20,
                   padding:'4px 10px', fontSize:12, cursor:'pointer', fontFamily:"'Outfit',sans-serif",
                 }}>
-                  <strong>{v.hr}</strong> · {v.en} 🔊
+                  <strong>{v.hr}</strong> · {v.en} <span aria-hidden="true">🔊</span>
                 </button>
               ))}
             </div>
@@ -855,7 +855,7 @@ export default function LyricsScreen({ goBack, award }) {
                         <span style={{ fontSize:12, color:'#10b981', fontWeight:700 }}>{token.word}</span>
                       )}
                       <span>{token.punctuation} </span>
-                      <button onClick={() => speak(token.word)} style={{ background:'none', border:'none', cursor:'pointer', fontSize:14, padding:0 }}>🔊</button>
+                      <button onClick={() => speak(token.word)} aria-label={`Play audio for ${token.word}`} style={{ background:'none', border:'none', cursor:'pointer', fontSize:14, padding:0 }}><span aria-hidden="true">🔊</span></button>
                     </span>
                   );
                 })}
@@ -868,11 +868,11 @@ export default function LyricsScreen({ goBack, award }) {
             <div style={{ fontSize:12, fontWeight:700, color:'#78716c', marginBottom:8 }}>Vocabulary</div>
             <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
               {song.vocab.map(v => (
-                <button key={v.hr} onClick={() => speak(v.hr)} style={{
+                <button key={v.hr} aria-label={`Play audio for ${v.hr} — ${v.en}`} onClick={() => speak(v.hr)} style={{
                   background:'#f0f9ff', border:'1px solid #bae6fd', borderRadius:20,
                   padding:'4px 10px', fontSize:12, cursor:'pointer', fontFamily:"'Outfit',sans-serif",
                 }}>
-                  <strong>{v.hr}</strong> · {v.en} 🔊
+                  <strong>{v.hr}</strong> · {v.en} <span aria-hidden="true">🔊</span>
                 </button>
               ))}
             </div>

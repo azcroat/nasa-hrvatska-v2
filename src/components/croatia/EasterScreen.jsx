@@ -250,6 +250,7 @@ export default function EasterScreen({ onBack }) {
             return (
               <button
                 key={i}
+                aria-label={`Play audio for ${hr}`}
                 onClick={() => speak(hr)}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 12,
@@ -259,7 +260,7 @@ export default function EasterScreen({ onBack }) {
                   fontFamily: "'Outfit',sans-serif", width: '100%',
                 }}
               >
-                <span style={{
+                <span aria-hidden="true" style={{
                   fontSize: 16, flexShrink: 0, color: ACCENT,
                 }}>🔊</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -311,6 +312,7 @@ export default function EasterScreen({ onBack }) {
                   {r.keywords.map((kw, ki) => (
                     <button
                       key={ki}
+                      aria-label={`Play audio for ${kw.hr}`}
                       onClick={() => speak(kw.hr)}
                       style={{
                         background: ACCENT_LIGHT, border: `1px solid ${ACCENT_BORDER}`,
@@ -319,7 +321,7 @@ export default function EasterScreen({ onBack }) {
                         display: 'inline-flex', alignItems: 'center', gap: 5,
                       }}
                     >
-                      <span style={{ fontSize: 10 }}>🔊</span>
+                      <span aria-hidden="true" style={{ fontSize: 10 }}>🔊</span>
                       <span style={{ fontSize: 12, fontWeight: 700, color: ACCENT }}>{kw.hr}</span>
                       <span style={{ fontSize: 11, color: 'var(--subtext)', fontWeight: 500 }}>{kw.en}</span>
                     </button>

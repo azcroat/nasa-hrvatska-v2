@@ -544,10 +544,12 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
           {tooltip.word}
         </span>
         <button onClick={() => speak(tooltip.word)}
+          aria-label={`Play audio for ${tooltip.word}`}
           style={{ background: "none", border: "none", fontSize: 16, cursor: "pointer", opacity: .65, padding: "0 4px" }}>
-          🔊
+          <span aria-hidden="true">🔊</span>
         </button>
         <button onClick={() => setTooltip(null)}
+          aria-label="Close tooltip"
           style={{ background: "none", border: "none", fontSize: "var(--text-xl)", cursor: "pointer", color: "var(--subtext)", lineHeight: 1, padding: "0 2px" }}>
           ×
         </button>
@@ -823,7 +825,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
             <div>
               <div style={{ fontSize: "var(--text-base)", fontWeight: 700, color: "var(--success)", fontFamily: "'Playfair Display',serif",
                 fontStyle: "italic", lineHeight: 1.55, marginBottom: 4 }}>"{ev.encouragement}"</div>
-              <div style={{ fontSize: "var(--text-xs)", color: "var(--success)", fontWeight: 600 }}>Tap to hear 🔊</div>
+              <div style={{ fontSize: "var(--text-xs)", color: "var(--success)", fontWeight: 600 }}>Tap to hear <span aria-hidden="true">🔊</span></div>
             </div>
           </div>
         )}
@@ -1258,7 +1260,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
             <div>
               <div style={{ fontSize: "var(--text-base)", fontWeight: 700, color: "var(--success)", fontFamily: "'Playfair Display',serif",
                 fontStyle: "italic", lineHeight: 1.55, marginBottom: 4 }}>"{ev.encouragement}"</div>
-              <div style={{ fontSize: "var(--text-xs)", color: "var(--success)", fontWeight: 600 }}>Tap to hear 🔊</div>
+              <div style={{ fontSize: "var(--text-xs)", color: "var(--success)", fontWeight: 600 }}>Tap to hear <span aria-hidden="true">🔊</span></div>
             </div>
           </div>
         )}
@@ -1425,9 +1427,10 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
             color: muted ? 'rgba(255,255,255,0.50)' : '#67e8f9',
             fontFamily:"'Outfit',sans-serif",
           }}
-          title={muted ? 'Unmute NPC' : 'Mute NPC'}
+          aria-label={muted ? 'Unmute NPC audio' : 'Mute NPC audio'}
+          aria-pressed={muted}
         >
-          {muted ? '🔇' : '🔊'}
+          <span aria-hidden="true">{muted ? '🔇' : '🔊'}</span>
         </button>
         <button onClick={endAndEvaluate} disabled={loading || userCount < 2 || !!chatError}
           style={{ padding: "7px 13px", borderRadius: 10, border: "1.5px solid", fontWeight: 700, fontSize: "var(--text-sm)",
@@ -1516,7 +1519,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
                 >
                   {/* AI messages: words are tappable for translation */}
                   {!isUser ? <TappableMessage text={m.content} onWordClick={translateWord} /> : m.content}
-                  {!isUser && <span style={{ fontSize: "var(--text-xs)", opacity: .4, marginLeft: 5 }}>🔊</span>}
+                  {!isUser && <span style={{ fontSize: "var(--text-xs)", opacity: .4, marginLeft: 5 }} aria-hidden="true">🔊</span>}
                 </div>
               </div>
 

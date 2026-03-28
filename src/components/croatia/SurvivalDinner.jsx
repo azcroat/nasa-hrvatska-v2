@@ -120,6 +120,7 @@ export default function SurvivalDinner({ goBack }) {
             }}>
               <button
                 onClick={() => speak(p.hr)}
+                aria-label={`Play audio: ${p.hr} — ${p.en}`}
                 style={{
                   width:'100%', padding:'14px 16px', background:'none', border:'none',
                   cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
@@ -130,7 +131,7 @@ export default function SurvivalDinner({ goBack }) {
                     width:36, height:36, borderRadius:10, flexShrink:0,
                     background: sc.color, border:`1px solid ${sc.border}`,
                     display:'flex', alignItems:'center', justifyContent:'center', fontSize:18,
-                  }}>🔊</div>
+                  }} aria-hidden="true">🔊</div>
                   <div style={{ flex:1, minWidth:0 }}>
                     <div style={{ fontSize:17, fontWeight:900, color:'var(--heading)', marginBottom:2, fontFamily:"'Playfair Display',serif" }}>{p.hr}</div>
                     <div style={{ fontSize:13, color:'#0e7490', fontWeight:700, marginBottom:2 }}>{p.en}</div>

@@ -465,7 +465,7 @@ export default function PhraseOfDayScreen({ goBack, award }) {
                   borderRight: `1px solid ${color}22`, transition: 'background .15s',
                 }}
               >
-                {playing ? '⏸ Playing...' : '🔊 Hear it'}
+                {playing ? <><span aria-hidden="true">⏸</span>{' Playing...'}</> : <><span aria-hidden="true">🔊</span>{' Hear it'}</>}
               </button>
               <button
                 onClick={() => fetchPhrase(selectedCategory)}

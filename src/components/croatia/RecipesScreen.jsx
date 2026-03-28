@@ -31,16 +31,16 @@ function RecipesScreen({ goBack }) {
       </div>
       <h3 className="sh">🥚 Ingredients (scaled)</h3>
       {r.ing.map(function(ig,i){const amt=ig[0];const num=parseFloat(amt);const unit=amt.replace(/[0-9./]+/g,"").trim();const scaled=!isNaN(num)?Math.round(num*scale*10)/10+unit:amt;return (
-        <div key={i} style={{padding:"6px 0",fontSize:14,borderBottom:"1px solid #f3f4f6",display:"flex",gap:8,cursor:"pointer"}} onClick={function(){speak(ig[1].split("(")[0])}}>
+        <div key={i} role="button" tabIndex={0} aria-label={`Play audio for ${ig[1]}`} style={{padding:"6px 0",fontSize:14,borderBottom:"1px solid #f3f4f6",display:"flex",gap:8,cursor:"pointer"}} onClick={function(){speak(ig[1].split("(")[0])}} onKeyDown={function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();speak(ig[1].split("(")[0]);}}}>
           <span style={{fontWeight:800,color:"var(--info)",minWidth:60}}>{scaled}</span>
-          <span>{ig[1]}{" 🔊"}</span>
+          <span>{ig[1]}{" "}<span aria-hidden="true">🔊</span></span>
         </div>
       );})}
       <h3 className="sh" style={{marginTop:16}}>👨‍🍳 Steps</h3>
       {r.steps.map(function(s,i){return (
-        <div key={i} className="c" style={{marginBottom:8,display:"flex",gap:12,cursor:"pointer"}} onClick={function(){speak(s.split("(")[0])}}>
+        <div key={i} role="button" tabIndex={0} aria-label={`Play audio for step ${i+1}`} className="c" style={{marginBottom:8,display:"flex",gap:12,cursor:"pointer"}} onClick={function(){speak(s.split("(")[0])}} onKeyDown={function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();speak(s.split("(")[0]);}}}>
           <div style={{width:28,height:28,borderRadius:"50%",background:"var(--info)",color:"white",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:13,flexShrink:0}}>{i+1}</div>
-          <div style={{fontSize:14,lineHeight:1.6}}>{s}{" 🔊"}</div>
+          <div style={{fontSize:14,lineHeight:1.6}}>{s}{" "}<span aria-hidden="true">🔊</span></div>
         </div>
       );})}
     </div>
