@@ -79,6 +79,9 @@ function debriefFallback(userName) {
     updatedFacts: {},
     mistakePatternsUpdate: [],
     xpEarned: 30,
+    suggestLevelUp: false,
+    suggestLevelUpTo: null,
+    levelUpMessage: null,
   };
 }
 
@@ -149,6 +152,8 @@ DEBRIEF INSTRUCTIONS:
 
 8. XP EARNED ("xpEarned"): Always return 30.
 
+9. LEVEL-UP SUGGESTION ("suggestLevelUp"): Based on the conversation, does the student consistently perform ABOVE their stated level (${level})? Return true ONLY if they clearly and repeatedly used grammar or vocabulary beyond their level — for example, an A1 student constructing correct complex sentences, or an A2 student using B1 aspect distinctions correctly. Return false if they are at or below their current level. When true, also populate "suggestLevelUpTo" with the next level (A1→A2, A2→B1, B1→B2, B2→C1). When true, also write "levelUpMessage" — one short warm sentence from Maja encouraging the level change.
+
 OUTPUT FORMAT — CRITICAL:
 Return ONLY a valid JSON object. No markdown. No code blocks. No explanation before or after. Exactly this structure:
 
@@ -162,7 +167,10 @@ Return ONLY a valid JSON object. No markdown. No code blocks. No explanation bef
   "nextTopicSuggestion": "One sentence about what Maja wants to discuss next time.",
   "updatedFacts": {},
   "mistakePatternsUpdate": [],
-  "xpEarned": 30
+  "xpEarned": 30,
+  "suggestLevelUp": false,
+  "suggestLevelUpTo": null,
+  "levelUpMessage": null
 }`;
 }
 

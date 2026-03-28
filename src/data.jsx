@@ -1449,6 +1449,44 @@ const FALSEFR = [
   {hr:"list",looks:"list (enumeration)",means:"leaf; letter (old style)",real:"popis = list (enumeration)",ex:"Jesen — listovi padaju. (Autumn — leaves fall.)"},
   {hr:"novosti",looks:"novelties",means:"news",real:"noviteti = novelties",ex:"Kakve ima novosti? (Any news?)"}
 ];
+// ═══ VOCATIVE DRILLS ═══
+// Vocative is #5 most common error for English speakers (avoidance — using nominative for address)
+// Rules:
+//   Feminine -a nouns: drop -a, add -o (Marija→Marijo, mama→mamo, sestra→sestro)
+//   Masculine consonant-stem: add -e (drug→druže, profesor→profesore, brat→brate)
+//   Masculine -ar/-ar: add -u or -e (doktor→doktore, prijatelj→prijatelju)
+//   Neuter: Vocative = Nominative (dijete→dijete)
+//   Some irregulars: gospodin→gospodine, gospođa→gospođo, Bog→Bože
+const VOCATIVE = {
+  title: "Vokativ — Direct Address",
+  intro: "Croatian has a vocative case for direct address. English speakers often avoid it by using the nominative, but native speakers always use the vocative when calling someone's name or title. It's one of the most noticeable errors.",
+  rules: [
+    {pattern:"Feminine nouns ending in -a",transform:"-a → -o",examples:[["Marija","Marijo"],["mama","mamo"],["sestra","sestro"],["prijateljica","prijateljice"],["Ivana","Ivano"]]},
+    {pattern:"Masculine nouns ending in consonant",transform:"+ -e",examples:[["drug","druže"],["profesor","profesore"],["brat","brate"],["sin","sine"],["student","studente"]]},
+    {pattern:"Masculine nouns ending in -telj / -alj",transform:"+ -u",examples:[["prijatelj","prijatelju"],["atelj","atelju"],["učitelj","učitelju"]]},
+    {pattern:"Masculine nouns ending in -ar",transform:"+ -u or -e",examples:[["doktor","doktore"],["konobar","konobaru"],["pekar","pekaru"]]},
+    {pattern:"Neuter nouns",transform:"no change",examples:[["dijete","dijete"],["more","more"]]},
+    {pattern:"Irregular / titles",transform:"memorize",examples:[["gospodin","gospodine"],["gospođa","gospođo"],["Bog","Bože"],["tata","tata (same)"]]}
+  ],
+  quiz: [
+    {q:"Calling your friend Marija — what form?",a:"Marijo!",al:["Marija!","Marijam!","Marijeu!"]},
+    {q:"'Hey brother!' in Croatian =",a:"Brate!",al:["Brat!","Bratu!","Bratom!"]},
+    {q:"Addressing your teacher (učitelj) =",a:"Učitelju!",al:["Učitelje!","Učitelj!","Učiteljem!"]},
+    {q:"'Doctor!' (doktor) =",a:"Doktore!",al:["Doktor!","Doktoru!","Doktora!"]},
+    {q:"Calling your mum (mama) =",a:"Mamo!",al:["Mama!","Mami!","Mamu!"]},
+    {q:"'Sir!' (gospodin) =",a:"Gospodine!",al:["Gospodin!","Gospodinu!","Gospodina!"]},
+    {q:"Calling your friend (prijatelj) =",a:"Prijatelju!",al:["Prijatelj!","Prijatelje!","Prijateljem!"]},
+    {q:"'Son!' (sin) =",a:"Sine!",al:["Sin!","Sinu!","Sina!"]},
+    {q:"'Sister!' (sestra) =",a:"Sestro!",al:["Sestra!","Sestri!","Sestrom!"]},
+    {q:"When is vocative = nominative?",a:"Neuter nouns (dijete, more)",al:["Always masculine","All plurals","Feminine -ica nouns"]}
+  ],
+  dialogues: [
+    {ctx:"Calling a friend",wrong:"Petar, dođi!",correct:"Petre, dođi!",note:"Masculine consonant-stem: Petar→Petre"},
+    {ctx:"Addressing a waiter",wrong:"Konobar, molim!",correct:"Konobaru, molim!",note:"Masculine -ar: konobar→konobaru"},
+    {ctx:"Calling mum",wrong:"Mama, gdje si?",correct:"Mamo, gdje si?",note:"Feminine -a: mama→mamo"},
+    {ctx:"Saying 'Oh God!'",wrong:"Bog moj!",correct:"Bože moj!",note:"Irregular: Bog→Bože"},
+  ]
+};
 // ═══ PREPOSITION DRILLS ═══
 const PREPDRILL = [
   {sentence:"Živim ___ Zagrebu.",answer:"u",opts:["u","na","s","iz"],en:"I live in Zagreb."},
@@ -1512,7 +1550,10 @@ const DIALECTS = {
     {en:"Boy",std:"Dječak",kaj:"Deček",cak:"Mulac"},
     {en:"Beautiful",std:"Lijep",kaj:"Lep",cak:"Lip"},
     {en:"Bread",std:"Kruh",kaj:"Kruh",cak:"Kru(h)"}
-  ]
+  ],
+  chakavianNote: "Čakavian (Čakavski) is the dialect of the Adriatic coast — Istria, Kvarner, and the Dalmatian islands. It preserves many archaic Croatian features and shows Italian/Venetian influence (words like 'škulj' for hole, 'šufit' for attic from Italian 'soffitto'). If you visit Hvar, Brač, Vis, or Rovinj, locals may speak Čakavian at home. You don't need to speak it, but recognizing it prevents confusion. Key markers: 'ča' for 'what', 'di' for 'gdje/where', 'more' still means sea, 'znan' for 'znam'. Čakavian poems by writers like Tin Ujević are considered some of the most beautiful Croatian literature.",
+  heritageNote: "Heritage speakers (diaspora Croatian) often mix Štokavian grammar with vocabulary frozen from the 1960s-1990s emigration wave, anglicisms, or regional forms from Dalmatia/Slavonia. Common heritage patterns: older vocabulary (auto instead of automobil), German/Australian English loanwords, simplified case system. If your Croatian comes from family, you may speak naturally but make systematic errors in formal cases — especially genitive plural. This is normal and fixable.",
+  mutualIntelligibility: "All three dialects are mutually intelligible with effort, but Kajkavian and Čakavian can sound very foreign to a Štokavian speaker at first. Standard Croatian is always understood across all regions. Serbian is essentially mutually intelligible with Croatian — grammatically identical, vocabulary differs especially in loanwords (Serbian uses more Slavic/Russian roots; Croatian uses Latin/German)."
 };
 // ═══ DIMINUTIVES & AUGMENTATIVES ═══
 const DIMWORDS = [
@@ -5247,7 +5288,7 @@ function getJourneyMilestones() {
   try { return JSON.parse(localStorage.getItem('nh_journey') || '[]'); } catch (_) { return []; }
 }
 
-export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, DAILY_QUESTS, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, CROATIAN_CITIES, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, NUMCOUNT, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, SEASONAL_CAMPAIGNS, LEVEL_NARRATIVE };
+export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, DAILY_QUESTS, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, CROATIAN_CITIES, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, NUMCOUNT, ASPECT, FALSEFR, VOCATIVE, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, SEASONAL_CAMPAIGNS, LEVEL_NARRATIVE };
 export { _fbReady };
 export { H, Bar, Spk };
 export { initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbToggleFavorite, fbGetIdToken, fbRegister, fbLogin, fbLogout, fbLoginGoogle, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbWatchFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbOnAuthStateChanged, fbDeleteAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, nXP, lXPgain, getSR, saveSR, srMark, getSRScore, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getStreakEarnBack, applyStreakEarnBack, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex, getDueReviews, getMistakes, recordMistake, clearMistake, clearAllMistakes, bootstrapMistakesFromSRS, getActiveCampaign, recordJourneyMilestone, getJourneyMilestones };

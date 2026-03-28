@@ -785,6 +785,33 @@ function DebriefScreen({ debrief, conversation, durationSecs, onContinue, onBack
         </div>
       )}
 
+      {/* Level-up suggestion */}
+      {debrief.suggestLevelUp && debrief.suggestLevelUpTo && (
+        <div
+          style={{
+            background: 'linear-gradient(135deg, #7c3aed22, #a855f722)',
+            border: '2px solid #7c3aed',
+            borderRadius: 14,
+            padding: '16px 18px',
+            marginBottom: 16,
+            textAlign: 'center',
+          }}
+        >
+          <div style={{ fontSize: 28, marginBottom: 6 }}>🌟</div>
+          <div style={{ fontWeight: 800, fontSize: 15, color: '#7c3aed', marginBottom: 4 }}>
+            Ready to Level Up to {debrief.suggestLevelUpTo}?
+          </div>
+          {debrief.levelUpMessage && (
+            <div style={{ fontSize: 13, color: '#7c3aed', opacity: 0.85, fontStyle: 'italic', marginBottom: 10 }}>
+              "{debrief.levelUpMessage}"
+            </div>
+          )}
+          <div style={{ fontSize: 12, color: '#7c3aed', opacity: 0.7 }}>
+            You can change your level in the conversation settings.
+          </div>
+        </div>
+      )}
+
       {/* Next topic teaser */}
       {debrief.nextTopicSuggestion && (
         <div
