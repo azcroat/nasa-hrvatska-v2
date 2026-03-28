@@ -2,8 +2,8 @@ name: Production Smoke Tests
 
 on:
   schedule:
-    # Every 6 hours — catches outages, bad deploys, CDN issues
-    - cron: '0 */6 * * *'
+    # Twice daily — catches outages and bad deploys without excessive noise
+    - cron: '0 8,20 * * *'
   workflow_dispatch:
   # Note: no push trigger — smoke tests run against the live production URL.
   # A push-triggered run fires before Cloudflare deploys the new build (~2-3 min),
