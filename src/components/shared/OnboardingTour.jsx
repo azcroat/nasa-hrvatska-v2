@@ -46,7 +46,7 @@ const DIASPORA_STEPS = [
   },
 ];
 
-export default function OnboardingTour({ onDone }) {
+export default function OnboardingTour({ onDone, onLaunchLesson }) {
   const userGoal = localStorage.getItem('nh_goal');
   const isDiaspora = userGoal === 'heritage' || userGoal === 'family';
   const STEPS = isDiaspora ? DIASPORA_STEPS : GENERIC_STEPS;
@@ -71,6 +71,8 @@ export default function OnboardingTour({ onDone }) {
   function finish() {
     localStorage.setItem('onboarded', 'true');
     onDone();
+    // Launch the first lesson immediately — convert the "Let's go!" moment into action
+    if (onLaunchLesson) onLaunchLesson();
   }
 
   return (
@@ -139,7 +141,7 @@ export default function OnboardingTour({ onDone }) {
               boxShadow: '0 3px 12px rgba(14,116,144,.28)',
             }}
           >
-            {isLast ? "Let's go! 🚀" : 'Next →'}
+            {isLast ? "Start Learning! 🚀" : 'Next →'}
           </button>
         </div>
 

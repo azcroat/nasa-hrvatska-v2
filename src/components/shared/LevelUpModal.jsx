@@ -64,7 +64,20 @@ export default function LevelUpModal({ level, onClose }) {
   const meta = LEVEL_META[level] || LEVEL_META[10];
   const particles = useRef(makeOrbitParticles(16)).current;
   const [phase, setPhase] = useState('burst'); // burst → reveal
+  const [copied, setCopied] = useState(false);
   const haptic = useHaptic();
+
+  const shareText = `🇭🇷 Just reached Level ${level} (${meta.cefr} — ${meta.band}) in Croatian! ${meta.emoji} Learning with Naša Hrvatska — Croatian for the diaspora.`;
+
+  async function handleShare() {
+    if (navigator.share) {
+      try { await navigator.share({ title: 'Naša Hrvatska', text: shareText }); } catch (_) {}
+    } else {
+      await navigator.clipboard.writeText(shareText).catch(() => {});
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }
 
   useEffect(() => {
     playLevelUpSound();
@@ -309,9 +322,22 @@ export default function LevelUpModal({ level, onClose }) {
           <button
             className="b bp"
             onClick={onClose}
-            style={{ width: '100%', fontSize: 15, padding: '14px' }}
+            style={{ width: '100%', fontSize: 15, padding: '14px', marginBottom: 10 }}
           >
             Nastavi učiti →
+          </button>
+
+          {/* Share achievement */}
+          <button
+            onClick={handleShare}
+            className="b"
+            style={{
+              width: '100%', padding: '12px', fontSize: 13, fontWeight: 800,
+              background: 'linear-gradient(135deg,#0e7490,#164e63)',
+              color: '#fff', border: 'none', borderRadius: 12, cursor: 'pointer',
+            }}
+          >
+            {copied ? '✓ Copied!' : '📤 Share your level up'}
           </button>
         </div>
       </div>

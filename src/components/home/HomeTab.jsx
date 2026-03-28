@@ -88,6 +88,7 @@ export default function HomeTab({
   goal,
   isNewUserWindow = false,
   daysSinceJoin = null,
+  resumeLesson = null,
 }) {
   const dc = useMemo(() => getDailyChallenge(), []);
   const ws = useMemo(() => getWeekStats(), [st]);
@@ -901,6 +902,32 @@ export default function HomeTab({
                     <span>Start Practicing →</span>
                   </button>
                 )}
+
+                {/* Resume interrupted lesson */}
+                {(() => {
+                  try {
+                    const r = JSON.parse(localStorage.getItem('nh_lesson_resume') || 'null');
+                    // Only show if the lesson was interrupted recently (within 24h)
+                    if (r && r.topic && r.ts && (Date.now() - r.ts) < 86400000 && resumeLesson) {
+                      return (
+                        <button
+                          onClick={resumeLesson}
+                          style={{
+                            width:"100%", marginTop:8, height:44,
+                            background:"rgba(212,0,45,.15)", border:"1px solid rgba(212,0,45,.35)",
+                            borderRadius:12, cursor:"pointer",
+                            fontFamily:"'Outfit',sans-serif",
+                            display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+                            color:"#fff", fontSize:13, fontWeight:800,
+                          }}>
+                          <span style={{fontSize:14}}>▶️</span>
+                          <span>Resume: {r.topic} lesson →</span>
+                        </button>
+                      );
+                    }
+                  } catch (_) {}
+                  return null;
+                })()}
 
                 {/* Resume last activity */}
                 {lastActivity && st.lc > 0 && (

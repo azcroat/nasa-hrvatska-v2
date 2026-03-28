@@ -36,12 +36,13 @@ function makeStars(n = 12) {
   }));
 }
 
-export default function CelebrationModal({ xp, onClose, streak = 0 }) {
+export default function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic = '' }) {
   // DOM particle layer removed — canvas-confetti handles all particles (better perf)
   const stars = useRef(makeStars(12)).current;
   const [displayXP, setDisplayXP] = useState(0);
   const [phase, setPhase] = useState('burst'); // burst → reveal → done
   const [showMomentum, setShowMomentum] = useState(false);
+  const [difficulty, setDifficulty] = useState(null); // 'easy' | 'right' | 'hard'
   const haptic = useHaptic();
 
   useEffect(() => {
@@ -74,11 +75,12 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
 
     // Phases
     const t1 = setTimeout(() => setPhase('reveal'), 200);
+    // Extend auto-close to 7s to give time for difficulty rating interaction
     const t2 = setTimeout(() => {
       setShowMomentum(true);
       onClose();
-    }, 4000);
-    const t3 = setTimeout(() => setShowMomentum(false), 7000);
+    }, 7000);
+    const t3 = setTimeout(() => setShowMomentum(false), 10000);
 
     return () => {
       cancelAnimationFrame(rafId);
@@ -87,6 +89,18 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
       clearTimeout(t3);
     };
   }, [onClose, xp]);
+
+  function rateDifficulty(rating) {
+    setDifficulty(rating);
+    // Save per-topic difficulty feedback
+    try {
+      const key = 'nh_difficulty';
+      const existing = JSON.parse(localStorage.getItem(key) || '{}');
+      if (lessonTopic) existing[lessonTopic] = rating;
+      existing._last = { topic: lessonTopic, rating, ts: Date.now() };
+      localStorage.setItem(key, JSON.stringify(existing));
+    } catch (_) {}
+  }
 
   return (
     <>
@@ -281,35 +295,56 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
           </span>
         </div>
 
-        {/* Streak reminder */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-            fontSize: 'var(--text-sm)',
-            color: 'var(--subtext)',
-            fontWeight: 600,
-          }}
-        >
-          <span
+        {/* Difficulty rating */}
+        <div style={{ marginTop: 18, marginBottom: 4 }}>
+          <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 8 }}>
+            How was this lesson?
+          </div>
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+            {[
+              { key: 'easy', label: 'Too Easy', emoji: '😴' },
+              { key: 'right', label: 'Just Right', emoji: '✅' },
+              { key: 'hard', label: 'Too Hard', emoji: '😅' },
+            ].map(({ key, label, emoji }) => (
+              <button
+                key={key}
+                onClick={() => rateDifficulty(key)}
+                style={{
+                  flex: 1, padding: '8px 4px', borderRadius: 10, cursor: 'pointer', fontFamily: 'var(--font-sans)',
+                  fontSize: 11, fontWeight: 800, border: '2px solid',
+                  borderColor: difficulty === key ? '#0e7490' : 'var(--card-b)',
+                  background: difficulty === key ? 'rgba(14,116,144,.12)' : 'var(--bar-bg)',
+                  color: difficulty === key ? '#0e7490' : 'var(--subtext)',
+                  transition: 'all .15s',
+                }}
+              >
+                <div style={{ fontSize: 16, marginBottom: 2 }}>{emoji}</div>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* What next CTA */}
+        {onNext && (
+          <button
+            onClick={() => { onClose(); onNext(); }}
             style={{
-              fontSize: 18,
-              animation: 'flameDance 1.2s ease-in-out infinite',
-              display: 'inline-block',
+              width: '100%', marginTop: 14, padding: '13px', borderRadius: 12, border: 'none',
+              background: 'linear-gradient(135deg,#0e7490,#164e63)', color: '#fff',
+              fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'var(--font-sans)',
+              boxShadow: '0 4px 16px rgba(14,116,144,.3)',
             }}
           >
-            🔥
-          </span>
-          Keep your streak alive!
-        </div>
+            Continue Learning →
+          </button>
+        )}
 
         <div
           style={{
             fontSize: 'var(--text-xs)',
             color: 'var(--subtext)',
-            marginTop: 14,
+            marginTop: 12,
             fontWeight: 500,
             opacity: .7,
           }}
