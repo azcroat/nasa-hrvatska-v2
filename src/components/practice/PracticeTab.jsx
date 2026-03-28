@@ -16,7 +16,7 @@ export default function PracticeTab({
 
   function startQuiz() {
     const p = pool();
-    const items = sh(p).slice(0,10).map(w => { const wr=sh(p.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]); return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]}; });
+    const items = sh(p).slice(0,20).map(w => { const wr=sh(p.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]); return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]}; });
     onLaunchQuiz(items);
   }
   function startFlashcards() {
