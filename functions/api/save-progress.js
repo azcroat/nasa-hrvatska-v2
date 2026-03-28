@@ -1,0 +1,122 @@
+/**
+ * /api/save-progress — iOS exit-save insurance endpoint.
+ *
+ * Receives progress JSON via navigator.sendBeacon POST when the user closes the app
+ * on iOS Safari (where the Firebase SDK async setDoc may not complete before page kill).
+ * Verifies the Firebase ID token from the request body, then writes to Firestore via
+ * the REST API using the user's own token (Firestore rules allow owner writes).
+ *
+ * sendBeacon sends a Blob with Content-Type: application/json containing:
+ *   { token: "<Firebase ID token>", uid: "<user UID>", data: "<JSON string of progress>" }
+ */
+
+import { checkRateLimit } from './_rateLimit.js';
+import { getFirebaseUid } from './_verifyToken.js';
+import { corsHeaders, isAllowedOrigin } from './_helpers.js';
+
+export async function onRequestOptions({ request }) {
+  const origin = request.headers.get('origin') || '';
+  return new Response(null, { status: 204, headers: corsHeaders(origin) });
+}
+
+export async function onRequestPost(context) {
+  const { request, env } = context;
+  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
+  const isDev = env.ENVIRONMENT !== 'production';
+
+  // CORS guard — sendBeacon does not send Origin on all browsers, so allow empty origin
+  // (sendBeacon is same-origin by spec; the token check is the real auth gate)
+  if (origin && !isAllowedOrigin(origin, isDev)) {
+    return new Response('Forbidden', { status: 403, headers: corsHeaders(origin) });
+  }
+
+  // Rate limit: 30 saves per minute per IP (well above normal usage)
+  const allowed = await checkRateLimit(request, 30);
+  if (!allowed) {
+    return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders(origin) });
+  }
+
+  // Parse body
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return new Response('Invalid JSON', { status: 400, headers: corsHeaders(origin) });
+  }
+
+  const { token, uid, data } = body || {};
+  if (!token || !uid || !data) {
+    return new Response('Missing fields', { status: 400, headers: corsHeaders(origin) });
+  }
+
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  if (!FIREBASE_PROJECT_ID) {
+    return new Response('Server misconfigured', { status: 500, headers: corsHeaders(origin) });
+  }
+
+  // Verify Firebase ID token by constructing a synthetic request with Bearer header
+  const syntheticReq = new Request('https://dummy.internal', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const verifiedUid = await getFirebaseUid(syntheticReq, FIREBASE_PROJECT_ID);
+  if (!verifiedUid) {
+    return new Response('Unauthorized', { status: 401, headers: corsHeaders(origin) });
+  }
+
+  // Ensure the token's uid matches the claimed uid (prevents one user writing another's doc)
+  if (verifiedUid !== uid) {
+    return new Response('Forbidden', { status: 403, headers: corsHeaders(origin) });
+  }
+
+  // Validate data is a JSON string (progress blob)
+  let parsedData;
+  try {
+    parsedData = JSON.parse(data);
+  } catch {
+    return new Response('Invalid data', { status: 400, headers: corsHeaders(origin) });
+  }
+
+  // Write to Firestore via REST API using the user's own ID token.
+  // Only updates `progress` and `updated` — leaves all other fields (leaderboard, family) intact.
+  // The Firestore security rule allows each user to write their own /users/{docId} document.
+  const docId = uid.replace(/[.#$/[\]]/g, '_');
+  const firestoreUrl = [
+    `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}`,
+    `/databases/(default)/documents/users/${docId}`,
+    `?updateMask.fieldPaths=progress&updateMask.fieldPaths=updated`,
+  ].join('');
+
+  const xp = ((parsedData.stats || parsedData.st || {}).xp) || 0;
+
+  try {
+    const res = await fetch(firestoreUrl, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      signal: AbortSignal.timeout(8000),
+      body: JSON.stringify({
+        fields: {
+          progress: { stringValue: data },
+          updated:  { integerValue: String(Date.now()) },
+          xp:       { integerValue: String(xp) },
+        },
+      }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      console.warn('[save-progress] Firestore write failed:', res.status, errText.slice(0, 200));
+      return new Response('Upstream error', { status: 502, headers: corsHeaders(origin) });
+    }
+  } catch (e) {
+    console.warn('[save-progress] Fetch error:', e.message);
+    return new Response('Network error', { status: 503, headers: corsHeaders(origin) });
+  }
+
+  return new Response(JSON.stringify({ ok: true }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+  });
+}

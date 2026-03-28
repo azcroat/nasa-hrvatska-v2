@@ -10,7 +10,7 @@ import {
   // Theme objects used in root div inline style
   BG_LIGHT, BG_DARK,
   // Firebase helpers used directly in App.jsx effects (not delegated to hooks)
-  gP, lP, fbSaveProgress, fbWatchProgress, touchSession, isSessionExpired,
+  gP, lP, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbGetIdToken, touchSession, isSessionExpired,
   // Audio — speak() called in the "First Croatian Words" welcome panel
   speak,
   // Pure utility functions defined in data.jsx (shuffle, XP, streak, SRS, etc.)
@@ -349,7 +349,8 @@ function App(){
   });
   const setTab=useCallback(function(t){_setTab(t);navigate(TAB_PATHS[t]||"/",{replace:false});},[navigate]);
   const { jWords, setJWords, jIn, setJIn, jEn, setJEn } = useJournal();
-  const{darkMode,setDarkMode,favs,setFavs,toggleFav,isFav}=usePreferences();
+  const _uidRef=useRef(null); // tracks authUser.u for usePreferences fbToggleFavorite
+  const{darkMode,setDarkMode,favs,setFavs,toggleFav,isFav}=usePreferences(_uidRef);
   const{srchQ,setSrchQ,srchR,srchOpen,setSrchOpen,doSearch}=useSearch();
   const[onboarded,setOnboarded]=useState(function(){return localStorage.getItem("onboarded")==="true"});
   const[showCelebration,setShowCelebration]=useState(false);const[celebXP,setCelebXP]=useState(0);const[showFirstWords,setShowFirstWords]=useState(false);
@@ -468,8 +469,11 @@ function App(){
   // doSyncNow is defined after useAuth (it depends on authUser from useAuth's return),
   // so passing it directly causes "Cannot access before initialization" in production builds.
   const _syncNowRef=useRef(null);
+  const _watcherUnsubRef=useRef(null); // Firestore watcher unsubscribe — used for bfcache detach
+  const _idTokenRef=useRef(''); // cached Firebase ID token for navigator.sendBeacon
   const[_syncReady,_setSyncReady]=useState(false);
   const[showBackupBanner,setShowBackupBanner]=useState(false);
+  const[showPwaInstall,setShowPwaInstall]=useState(false);
   // ── useAuth — must be declared BEFORE the useEffects that reference
   // authScreen/authUser in their dependency arrays, to avoid TDZ errors
   // in the minified production bundle.
@@ -587,7 +591,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   // Cross-device lesson completion now syncs in <2 seconds instead of up to 3 minutes.
   // savedAt is bumped to fpTs after each merge so repeated snapshots of unchanged data
   // are cleanly skipped on the next compare (fpTs === lpTs → no-op).
-  useEffect(()=>{if(authScreen!=="app"||!authUser)return undefined;const _unsub=fbWatchProgress(authUser.u,function(fp,fpTs){const lp=gP(authUser.u);const lpTs=(lp&&(lp._fbUpdated||lp.savedAt))||0;if(fpTs>lpTs){lP(authUser.u,{...fp,savedAt:fpTs});const _pllSt=fp.stats||fp.st||{};setStats(prev=>({...ds,..._pllSt,ct:[...new Set([...(prev.ct||[]),...(_pllSt.ct||[])])],vs:[...new Set([...(prev.vs||[]),...(_pllSt.vs||[])])],lc:Math.max(prev.lc||0,_pllSt.lc||0),gc:Math.max(prev.gc||0,_pllSt.gc||0),xp:Math.max(prev.xp||0,_pllSt.xp||0)}));if(fp.name)setName(fp.name);applyRemoteProgress(fp);}});return()=>_unsub();},[authScreen,authUser,applyRemoteProgress,ds]);
+  useEffect(()=>{if(authScreen!=="app"||!authUser)return undefined;const _unsub=fbWatchProgress(authUser.u,function(fp,fpTs){const lp=gP(authUser.u);const lpTs=(lp&&(lp._fbUpdated||lp.savedAt))||0;if(fpTs>lpTs){lP(authUser.u,{...fp,savedAt:fpTs});const _pllSt=fp.stats||fp.st||{};setStats(prev=>({...ds,..._pllSt,ct:[...new Set([...(prev.ct||[]),...(_pllSt.ct||[])])],vs:[...new Set([...(prev.vs||[]),...(_pllSt.vs||[])])],lc:Math.max(prev.lc||0,_pllSt.lc||0),gc:Math.max(prev.gc||0,_pllSt.gc||0),xp:Math.max(prev.xp||0,_pllSt.xp||0)}));if(fp.name)setName(fp.name);applyRemoteProgress(fp);}});_watcherUnsubRef.current=_unsub;// iOS Firestore wake-up: force a getDoc when app becomes visible.// iOS suspends gRPC-Web connections when backgrounded; the onSnapshot listener can silently// fail to deliver updates for 60+ seconds after returning. getDoc bypasses the listener entirely.const _iosWakeUp=async()=>{if(document.visibilityState!=='visible')return;try{const fp=await fbLoadProgress(authUser.u);if(!fp)return;const lp=gP(authUser.u);const fpTs=fp._fbUpdated||0;const lpTs=(lp&&(lp._fbUpdated||lp.savedAt))||0;if(fpTs>lpTs){lP(authUser.u,{...fp,savedAt:fpTs});applyRemoteProgress(fp);}}catch(_){}};// pageshow fires when restoring from bfcache (iOS back/forward cache). Force a Firestore read// immediately because the listener may have been detached during the bfcache pause.const _onPageShow=(e)=>{if(e.persisted)_iosWakeUp();};document.addEventListener('visibilitychange',_iosWakeUp);window.addEventListener('pageshow',_onPageShow);return()=>{_unsub();_watcherUnsubRef.current=null;document.removeEventListener('visibilitychange',_iosWakeUp);window.removeEventListener('pageshow',_onPageShow);};},[authScreen,authUser,applyRemoteProgress,ds]);
   // Auto-save on every lesson completion (stats.lc or stats.ct length changes).
   // Lesson components only call setStats — they never write to localStorage or Firebase.
   // This effect fires immediately (no debounce) so progress is persisted even if the
@@ -629,6 +633,25 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       registerMessagingServiceWorker().catch(()=>{}); // silent fail
     });
   },[authUser?.u]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Keep _uidRef in sync so usePreferences.toggleFav can fire fbToggleFavorite immediately
+  useEffect(()=>{_uidRef.current=authUser?.u||null;},[authUser]);
+  // Cache Firebase ID token every 30 min so navigator.sendBeacon can authenticate the
+  // /api/save-progress Worker request during iOS page kill (no async allowed in unload path).
+  useEffect(()=>{
+    if(!authUser||authScreen!=='app')return undefined;
+    const _refresh=async()=>{try{_idTokenRef.current=await fbGetIdToken();}catch{}};
+    _refresh();const _iv=setInterval(_refresh,30*60*1000);
+    return()=>{clearInterval(_iv);_idTokenRef.current='';};
+  },[authUser,authScreen]);
+  // PWA install prompt: Safari ITP deletes ALL storage (localStorage, IndexedDB, service workers)
+  // after 7 days of inactivity unless the app is installed to the iOS home screen.
+  // Show once per device as a dismissible banner.
+  useEffect(()=>{
+    if(authScreen!=='app')return;
+    const _isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+    const _isSA=('standalone' in navigator)&&(navigator.standalone===true);
+    if(_isIOS&&!_isSA&&!localStorage.getItem('nh_pwa_install_dismissed'))setShowPwaInstall(true);
+  },[authScreen]);
   // Page title — updates whenever the active screen changes
   useEffect(()=>{
     document.title=currentScreen&&currentScreen!=='home'&&currentScreen!=='dashboard'?`${currentScreen.replace(/_/g,' ')} \u00b7 Na\u0161a Hrvatska`:'Na\u0161a Hrvatska \u2014 Learn Croatian';
@@ -646,6 +669,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
         const _daBest=(da||[false,false,false]).map(function(a,i){return a||_dcLocalAns2[i]||false;});
         const _dsBest=(ds&&ds.some(function(s){return s;}))?ds:(function(){try{const p=JSON.parse(localStorage.getItem("dcDay3")||"{}");if(p.day===_dcDay&&Array.isArray(p.selected)&&typeof p.selected[0]==="string")return p.selected;}catch(_){}return["","",""];})();
         const _d={name:nm,stats:st,cp:true,onboarded:localStorage.getItem("onboarded")==="true",savedAt:Date.now(),_fbUpdated:(function(){try{const _psnap=gP(u.u);return(_psnap&&_psnap._fbUpdated)||0;}catch{return 0;}})(),sr:getSR(),streak:getStreak(),freezes:getStreakFreezes(),favs:fv||[],journal:jw||[],dc:{day:_dcDay,answered:_daBest,selected:_dsBest},cooldown:(function(){try{return JSON.parse(localStorage.getItem("xpCooldown")||"{}")}catch{return{}}})(),weekXP:(function(){try{const _ssWD=new Date();const _ssDay=_ssWD.getDay()||7;_ssWD.setDate(_ssWD.getDate()+4-_ssDay);const _ssYr=_ssWD.getFullYear();const _ssWn=Math.ceil(((_ssWD.getTime()-new Date(_ssYr,0,1).getTime())/86400000+1)/7);return parseInt(localStorage.getItem('nh_week_xp_'+_ssYr+'-W'+String(_ssWn).padStart(2,'0'))||'0',10);}catch{return 0;}})()};
+        _unloadRef.current._lastSaved=_d; // cache for sendBeacon use in onPageHide/onVisHide
         localStorage.setItem("uP_"+u.u,JSON.stringify(_d));
         // Best-effort Firebase push so the next device sees latest data immediately.
         // Fire-and-forget — browser keeps async ops alive briefly after hide/unload.
@@ -654,10 +678,13 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
     };
     // beforeunload: localStorage only (must be synchronous)
     const onUnload=()=>saveSnapshot(false);
-    // pagehide: fires on iOS Safari tab close and bfcache entry — push to Firebase
-    const onPageHide=()=>saveSnapshot(true);
+    // sendBeacon helper — the ONLY API the browser guarantees fires even after iOS kills the page.
+    // Authenticates via pre-cached ID token; Worker at /api/save-progress writes to Firestore REST.
+    const _sendBeacon=(u,_d)=>{if(!navigator.sendBeacon||!_idTokenRef.current||!u||!_d)return;try{const _pl=JSON.stringify({token:_idTokenRef.current,uid:u.u,data:JSON.stringify(_d)});if(_pl.length<60000)navigator.sendBeacon('/api/save-progress',new Blob([_pl],{type:'application/json'}));}catch(_){}};
+    // pagehide: fires on iOS Safari tab close AND bfcache entry
+    const onPageHide=(e)=>{saveSnapshot(true);_sendBeacon(_unloadRef.current.authUser,_unloadRef.current._lastSaved);if(e.persisted&&_watcherUnsubRef.current){_watcherUnsubRef.current();_watcherUnsubRef.current=null;}};
     // visibilitychange hidden: user switches apps/tabs on mobile — most reliable cross-platform event
-    const onVisHide=()=>{if(document.visibilityState==="hidden")saveSnapshot(true);};
+    const onVisHide=()=>{if(document.visibilityState!=="hidden")return;saveSnapshot(true);_sendBeacon(_unloadRef.current.authUser,_unloadRef.current._lastSaved);};
     window.addEventListener("beforeunload",onUnload);
     window.addEventListener("pagehide",onPageHide);
     document.addEventListener("visibilitychange",onVisHide);
@@ -960,6 +987,16 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
           }} aria-label="Dismiss">×</button>
         </div>
       )}
+      {showPwaInstall&&<div role="status" aria-live="polite" style={{position:"fixed",bottom:90,left:"50%",transform:"translateX(-50%)",zIndex:9601,width:"calc(100% - 32px)",maxWidth:420,background:"linear-gradient(135deg,#b45309,#78350f)",color:"#fff",borderRadius:20,padding:"18px 20px",boxShadow:"0 8px 40px rgba(180,83,9,.5)",animation:"slideUp .4s cubic-bezier(.34,1.56,.64,1)"}}>
+        <div style={{display:"flex",alignItems:"flex-start",gap:14}}>
+          <div style={{fontSize:36,flexShrink:0,lineHeight:1}}>📱</div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:15,fontWeight:900,marginBottom:4,lineHeight:1.2}}>Add to Home Screen to save progress</div>
+            <div style={{fontSize:12,opacity:.9,lineHeight:1.5,fontWeight:500}}>Safari erases all data after 7 days without it. Tap <strong>Share ↑</strong> then <strong>"Add to Home Screen"</strong>.</div>
+          </div>
+          <button onClick={()=>{localStorage.setItem("nh_pwa_install_dismissed","true");setShowPwaInstall(false);}} aria-label="Dismiss" style={{background:"rgba(255,255,255,.2)",border:"none",color:"#fff",borderRadius:10,width:32,height:32,fontSize:18,cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",lineHeight:1}}>✕</button>
+        </div>
+      </div>}
       {showBackupBanner&&<div role="status" aria-live="polite" style={{position:"fixed",bottom:90,left:"50%",transform:"translateX(-50%)",zIndex:9600,width:"calc(100% - 32px)",maxWidth:420,background:"linear-gradient(135deg,#0e7490,#164e63)",color:"#fff",borderRadius:20,padding:"18px 20px 18px 20px",boxShadow:"0 8px 40px rgba(14,116,144,.45)",animation:"slideUp .4s cubic-bezier(.34,1.56,.64,1)"}}>
         <div style={{display:"flex",alignItems:"flex-start",gap:14}}>
           <div style={{fontSize:36,flexShrink:0,lineHeight:1}}>🛡️</div>
