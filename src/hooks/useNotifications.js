@@ -64,6 +64,10 @@ export function useNotifications() {
     if (Notification.permission === 'granted') {
       showReminder();
       localStorage.setItem(REMINDER_DISMISSED_KEY, todayStr);
+      // Ensure subscription is registered with server (no-op if recently done)
+      import('../lib/pushNotifications.js').then(({ registerPushWithServer }) => {
+        registerPushWithServer().catch(() => {});
+      });
       return undefined;
     } else if (Notification.permission === 'default') {
       // Delay the permission prompt slightly so it doesn't fire on first load
@@ -72,6 +76,10 @@ export function useNotifications() {
         if (result === 'granted') {
           showReminder();
           localStorage.setItem(REMINDER_DISMISSED_KEY, todayStr);
+          // Register with server now that permission is granted
+          import('../lib/pushNotifications.js').then(({ registerPushWithServer }) => {
+            registerPushWithServer().catch(() => {});
+          });
         }
       }, 8000);
       return () => clearTimeout(t);

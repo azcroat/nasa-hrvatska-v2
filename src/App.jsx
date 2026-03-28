@@ -628,11 +628,15 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       }),
     }).catch(()=>{}); // ignore errors — digest is non-critical
   },[authUser]);
-  // Register push notification service worker once auth resolves (best-effort, non-blocking)
+  // Register push notification service worker + KV subscription once auth resolves.
+  // registerPushWithServer is a no-op if permission is not granted or was done recently.
   useEffect(()=>{
     if(!authUser)return;
-    import('./lib/pushNotifications.js').then(({registerMessagingServiceWorker})=>{
-      registerMessagingServiceWorker().catch(()=>{}); // silent fail
+    import('./lib/pushNotifications.js').then(({registerMessagingServiceWorker,registerPushWithServer})=>{
+      registerMessagingServiceWorker().catch(()=>{});
+      if(typeof Notification!=='undefined'&&Notification.permission==='granted'){
+        registerPushWithServer({streak:getStreak().count,name:name||authUser.d||''}).catch(()=>{});
+      }
     });
   },[authUser?.u]); // eslint-disable-line react-hooks/exhaustive-deps
   // Keep _uidRef in sync so usePreferences.toggleFav can fire fbToggleFavorite immediately
