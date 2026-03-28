@@ -1,7 +1,23 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from "react";
 // Q-6: React Router — useNavigate replaces pushUrl(), useLocation drives tab sync
 import { useNavigate, useLocation } from "react-router-dom";
-import { _fbReady, H, Bar, Spk, V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, LEARN_PATH, REFLEXIVE, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, ASPECT, FALSEFR, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbWatchProgress, fbRegister, fbLogin, fbLogout, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbOnAuthStateChanged, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, sh, lvl, lXP, lXPgain, nXP, getSR, saveSR, srMark, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getProverbOfDay, getDailyChallenge, getHistFact, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, getDueReviews, shMemo, shuffleArr, buildSearchIndex, bootstrapMistakesFromSRS, recordJourneyMilestone } from "./data.jsx";
+// Data used directly in App.jsx — only what's actually referenced in this file.
+// Heavy data used exclusively by lazy-loaded screens (PROVERBS, REGIONS, RECIPES, etc.)
+// is imported directly by those screens from ./data.jsx — not re-imported here.
+import {
+  // Vocabulary + grammar data referenced in launchPathItem, award, and screen props
+  V, GRAM, LEARN_PATH, BADGES, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS,
+  // Theme objects used in root div inline style
+  BG_LIGHT, BG_DARK,
+  // Firebase helpers used directly in App.jsx effects (not delegated to hooks)
+  gP, lP, fbSaveProgress, fbWatchProgress, touchSession, isSessionExpired,
+  // Audio — speak() called in the "First Croatian Words" welcome panel
+  speak,
+  // Pure utility functions defined in data.jsx (shuffle, XP, streak, SRS, etc.)
+  sh, lvl, lXPgain, getSR, saveSR, getStreak, updateStreak,
+  getStreakFreezes, earnFreeze, getDueReviews,
+  bootstrapMistakesFromSRS, recordJourneyMilestone,
+} from "./data.jsx";
 import AppContext from "./context/AppContext.jsx";
 import { StatsProvider } from "./context/StatsContext.jsx";
 import ScreenErrorBoundary from "./components/shared/ScreenErrorBoundary.jsx";
@@ -211,8 +227,6 @@ const MicroLessonScreen = lazyWithReload(() => import("./components/learn/MicroL
 
 // Module-level constants — defined once, not recreated on every render
 const DS={xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,authLoading:0,mv:0,hi:0,rs:[],ct:[],badges:[]};
-// Fix 4: computed once at module level — Object.keys(V) is deterministic and expensive to repeat
-const ALL_CATS=Object.keys(V);
 const ICONS={greetings:"👋",numbers:"🔢",family:"👨‍👩‍👧‍👦",food:"🍕",animals:"🐾",body:"🦴","body & face":"🦴",colors:"🎨",home:"🏠","home & rooms":"🏠",clothing:"👔",weather:"☀️","weather & seasons":"☀️",places:"📍",transport:"🚗",verbs:"💬",adjectives:"📏",time:"📅","time & calendar":"📅",months:"🗓️",directions:"🧭",emotions:"💭",professions:"💼",restaurant:"🍽️",shopping:"🛍️",travel:"✈️",health:"🏥",questions:"❓",conjunctions:"🔗",culture:"🏛️","daily routine":"🌅","in the classroom":"📖","commands at home":"🏡","fairy tales":"📜",hobbies:"🎯",zagreb:"🏙️",opposites:"🔄",comparatives:"📊",fruits:"🍎",vegetables:"🥦",sports:"⚽",holidays:"🎄",personality:"😊"};
 
 // Q-6: TAB_PATHS still used for URL construction — kept at module level
@@ -668,7 +682,9 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   // Fix 1: these hooks must live above all early returns (Rules of Hooks)
   const badges=useMemo(()=>({home:0,learn:0,practice:getDueReviews().length,croatia:0,profile:0}),[]);
   const onCloseCelebration=useCallback(()=>setShowCelebration(false),[]);
-  const allCats=ALL_CATS;
+  // ALL_CATS moved from module level into component — Object.keys(V) runs once (useMemo deps=[])
+  // This keeps the same memoization guarantee without forcing module-level V evaluation at parse time
+  const allCats=useMemo(()=>Object.keys(V),[]);
   const icons=ICONS;
   // ═══ SCREEN LAUNCH FUNCTIONS ═══
   function launchAnimLesson(lessonId){const l=ANIM_LESSONS.find(x=>x.id===lessonId);if(l){setAnimLesson(l);sCurEx("animlesson");setScr("animlesson");}}

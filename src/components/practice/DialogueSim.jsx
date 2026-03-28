@@ -32,7 +32,7 @@ function DialogueAvatar({ scenarioId }) {
       marginTop: 2,
     }}>
       <img
-        src={`/images/portraits/${key}.jpg`}
+        src={`/images/portraits/${key}.webp`}
         alt=""
         onError={() => setErr(true)}
         style={{ width: '100%', height: '100%', objectFit: 'cover' }}

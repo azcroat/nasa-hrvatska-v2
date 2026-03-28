@@ -5,14 +5,14 @@ import { apiFetch } from '../../lib/apiFetch.js';
 
 // ── Region data ───────────────────────────────────────────────────────────────
 const REGIONS = [
-  { name: 'Dalmatia',          icon: '☀️', color: '#b45309', desc: 'Adriatic coast & islands',     image: '/images/scenes/dalmatian-ai.jpg' },
-  { name: 'Slavonia',          icon: '🌾', color: '#16a34a', desc: 'Eastern plains & forests',      image: '/images/scenes/zagreb.jpg' },
-  { name: 'Istria',            icon: '🫒', color: '#7c3aed', desc: 'Mediterranean peninsula',       image: '/images/scenes/labin.jpg' },
-  { name: 'Zagorje',           icon: '🏰', color: '#0369a1', desc: 'Castles & rolling hills',       image: '/images/scenes/zagreb.jpg' },
-  { name: 'Lika',              icon: '🦅', color: '#dc2626', desc: 'Mountains & tradition',          image: '/images/scenes/plitvice.jpg' },
-  { name: 'Dubrovnik Region',  icon: '🏯', color: '#7c3aed', desc: 'The pearl of the Adriatic',    image: '/images/scenes/dubrovnik-ai.jpg' },
-  { name: 'Kvarner',           icon: '⛵', color: '#0e7490', desc: 'Islands & sea breezes',         image: '/images/scenes/dalmatian-ai.jpg' },
-  { name: 'Herzegovina',       icon: '🌉', color: '#b45309', desc: 'Ancient bridges & stone towns', image: '/images/scenes/mostar.jpg' },
+  { name: 'Dalmatia',          icon: '☀️', color: '#b45309', desc: 'Adriatic coast & islands',     image: '/images/scenes/dalmatian-ai.webp' },
+  { name: 'Slavonia',          icon: '🌾', color: '#16a34a', desc: 'Eastern plains & forests',      image: '/images/scenes/zagreb.webp' },
+  { name: 'Istria',            icon: '🫒', color: '#7c3aed', desc: 'Mediterranean peninsula',       image: '/images/scenes/labin.webp' },
+  { name: 'Zagorje',           icon: '🏰', color: '#0369a1', desc: 'Castles & rolling hills',       image: '/images/scenes/zagreb.webp' },
+  { name: 'Lika',              icon: '🦅', color: '#dc2626', desc: 'Mountains & tradition',          image: '/images/scenes/plitvice.webp' },
+  { name: 'Dubrovnik Region',  icon: '🏯', color: '#7c3aed', desc: 'The pearl of the Adriatic',    image: '/images/scenes/dubrovnik-ai.webp' },
+  { name: 'Kvarner',           icon: '⛵', color: '#0e7490', desc: 'Islands & sea breezes',         image: '/images/scenes/dalmatian-ai.webp' },
+  { name: 'Herzegovina',       icon: '🌉', color: '#b45309', desc: 'Ancient bridges & stone towns', image: '/images/scenes/mostar.webp' },
 ];
 
 const ERAS = ['Early 1900s', 'Mid 1900s', 'Late 1800s', 'Any era'];
@@ -535,7 +535,7 @@ export default function HeritageStoryScreen({ goBack, award }) {
 
   // ── STORY PHASE ──────────────────────────────────────────────────────────────
   if (phase === 'story' && heritageData) {
-    const regionImage = selectedRegion.image || '/images/scenes/dalmatian-ai.jpg';
+    const regionImage = selectedRegion.image || '/images/scenes/dalmatian-ai.webp';
 
     return (
       <div className="scr-wrap">
@@ -566,7 +566,7 @@ export default function HeritageStoryScreen({ goBack, award }) {
             src={regionImage}
             alt={selectedRegion.name}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            onError={e => { e.target.src = '/images/scenes/dalmatian-ai.jpg'; }}
+            onError={e => { e.target.src = '/images/scenes/dalmatian-ai.webp'; }}
           />
           <div style={{
             position: 'absolute', inset: 0,

@@ -3,15 +3,15 @@ import React, { useState, useEffect, useRef } from 'react';
 /**
  * CroatianKnight — AI-powered mascot with SVG fallback
  *
- * Tries to load `/images/knights/knight-{mood}.jpg` (AI-generated via Stable Horde).
+ * Tries to load `/images/knights/knight-{mood}.webp` (AI-generated via Stable Horde).
  * Falls back to the full hand-crafted SVG if the image hasn't been generated yet.
  *
  * Mood → image mapping:
- *   neutral, encouraged → knight-neutral.jpg
- *   happy               → knight-happy.jpg
- *   celebrating         → knight-celebrating.jpg
- *   sad                 → knight-sad.jpg
- *   thinking, confused  → knight-thinking.jpg
+ *   neutral, encouraged → knight-neutral.webp
+ *   happy               → knight-happy.webp
+ *   celebrating         → knight-celebrating.webp
+ *   sad                 → knight-sad.webp
+ *   thinking, confused  → knight-thinking.webp
  *
  * Mood → CSS animation:
  *   celebrating  → knightBounce (1.2s infinite)
@@ -358,7 +358,7 @@ function KnightSVG({ size, mood, className, style }) {
 function KnightImage({ size, mood, className, style }) {
   const [imgErr, setImgErr] = useState(false);
   const stem = MOOD_IMAGE[mood] || 'knight-neutral';
-  const src  = `/images/knights/${stem}.jpg`;
+  const src  = `/images/knights/${stem}.webp`;
   const anim = MOOD_ANIM[mood] || 'none';
 
   // confetti overlay for celebrating
@@ -471,7 +471,7 @@ export default function CroatianKnight({ size = 80, mood = 'neutral', className 
     const img = new Image();
     img.onload  = () => setUseAI(true);
     img.onerror = () => setUseAI(false);
-    img.src = '/images/knights/knight-neutral.jpg';
+    img.src = '/images/knights/knight-neutral.webp';
   }, []);
 
   if (useAI) {
