@@ -814,7 +814,10 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
                         </div>
                       </div>
                       <button
-                        onClick={() => setScr(w.id)}
+                        onClick={() => {
+                          const topicScreenMap = { grammar: 'grammar', padezi: 'padezi', conjugation: 'conjdrill' };
+                          setScr(topicScreenMap[w.id] || 'dashboard');
+                        }}
                         style={{
                           padding: '8px 14px', borderRadius: 10, border: 'none', cursor: 'pointer',
                           background: 'linear-gradient(135deg,var(--error),#b91c1c)',
