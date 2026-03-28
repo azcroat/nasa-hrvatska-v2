@@ -17,7 +17,7 @@ const DAILY_GOALS = [
   { id: 5,  label: '5 min',  sub: 'Light — just a few words a day' },
   { id: 10, label: '10 min', sub: 'Steady — the most popular choice' },
   { id: 15, label: '15 min', sub: 'Committed — you\'ll be conversational faster' },
-  { id: 20, label: '20 min', sub: 'Serious — fluency is your goal' },
+  { id: 20, label: '20 min', sub: 'Serious — your fastest path to real Croatian' },
 ];
 
 export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi, sPs, sPa, sPx }) {
