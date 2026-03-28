@@ -1,7 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Bar, lXP, nXP } from '../../data.jsx';
+import { fbDeleteAccount } from '../../lib/firebase.js';
 
 export default function ProfileScreen({ name, level, st, au, goBack, doOut, setScr }) {
+  const [deleteStep, setDeleteStep] = useState(0); // 0=idle, 1=confirm, 2=deleting
+  const [deleteError, setDeleteError] = useState('');
+
+  async function handleDeleteAccount() {
+    if (deleteStep === 0) { setDeleteStep(1); return; }
+    if (deleteStep === 1) {
+      setDeleteStep(2);
+      setDeleteError('');
+      const uid = au?.u || au?.uid || '';
+      const res = await fbDeleteAccount(uid);
+      if (res.ok) {
+        doOut();
+      } else {
+        setDeleteError(res.err || 'Could not delete account. Try again.');
+        setDeleteStep(1);
+      }
+    }
+  }
   const tiles = [
     { icon:"🏆", label:"Badges",        screen:"badges" },
     { icon:"📖", label:"Vocab Journal", screen:"journal" },
@@ -48,6 +67,35 @@ export default function ProfileScreen({ name, level, st, au, goBack, doOut, setS
       <button onClick={doOut} style={{width:"100%",padding:"14px",border:"2px solid rgba(194,65,12,.15)",borderRadius:14,background:"rgba(194,65,12,.05)",color:"#c2410c",fontSize:15,fontWeight:700,cursor:"pointer"}}>
         🚪 Sign Out
       </button>
+
+      {/* Delete Account — GDPR right to erasure */}
+      <div style={{marginTop:12,textAlign:"center"}}>
+        {deleteStep === 0 && (
+          <button onClick={handleDeleteAccount}
+            style={{background:"none",border:"none",color:"#a8a29e",fontSize:12,cursor:"pointer",textDecoration:"underline",padding:"8px"}}>
+            Delete Account
+          </button>
+        )}
+        {deleteStep >= 1 && (
+          <div className="c" style={{marginTop:8,padding:20,border:"2px solid rgba(185,28,28,.2)",borderRadius:14,background:"rgba(185,28,28,.04)"}}>
+            <p style={{fontSize:14,fontWeight:700,color:"#991b1b",marginBottom:8}}>Delete your account?</p>
+            <p style={{fontSize:12,color:"#78716c",marginBottom:16}}>This permanently deletes all your progress, streaks, and data. This cannot be undone.</p>
+            {deleteError && <p style={{fontSize:12,color:"#b91c1c",marginBottom:10}}>{deleteError}</p>}
+            <div style={{display:"flex",gap:10}}>
+              <button onClick={() => { setDeleteStep(0); setDeleteError(''); }}
+                style={{flex:1,padding:"10px",border:"2px solid #e5e7eb",borderRadius:10,background:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",color:"#374151"}}
+                disabled={deleteStep === 2}>
+                Cancel
+              </button>
+              <button onClick={handleDeleteAccount}
+                style={{flex:1,padding:"10px",border:"2px solid rgba(185,28,28,.3)",borderRadius:10,background:"#b91c1c",fontSize:13,fontWeight:700,cursor:"pointer",color:"#fff",opacity:deleteStep===2?0.6:1}}
+                disabled={deleteStep === 2}>
+                {deleteStep === 2 ? 'Deleting…' : 'Yes, Delete'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -5,6 +5,7 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup, sendEmailVerification, deleteUser } from 'firebase/auth';
 import { initializeFirestore, persistentLocalCache, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, deleteDoc, collection, runTransaction, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { getAnalytics, logEvent as _fbLogEvent, isSupported as analyticsIsSupported } from 'firebase/analytics';
 
 const FIREBASE_CONFIG = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -12,10 +13,11 @@ const FIREBASE_CONFIG = {
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID, // optional — Analytics only
 };
 export let _fbReady = false;
-let _fbAuth = null, _fbDb = null;
+let _fbAuth = null, _fbDb = null, _fbAnalytics = null;
 export function initFirebase(){
   if(_fbReady)return false;
   try{
@@ -26,11 +28,28 @@ export function initFirebase(){
     // persistentLocalCache enables Firestore offline write buffering — writes queue in IndexedDB
     // while offline and flush automatically when the connection is restored.
     _fbDb=initializeFirestore(app,{localCache:persistentLocalCache()});
-    _fbReady=true;return true;
+    _fbReady=true;
+    // Analytics — async, fire-and-forget. Only enabled in production (requires measurementId).
+    // analyticsIsSupported() checks for cookies + iframes blocked by ad blockers gracefully.
+    if(FIREBASE_CONFIG.measurementId){
+      analyticsIsSupported().then(function(ok){
+        if(ok)_fbAnalytics=getAnalytics(app);
+      }).catch(function(){});
+    }
+    return true;
   }catch(e){console.error("Firebase init failed:",e);return false}
 }
 // Auto-init on module load
 initFirebase();
+
+/**
+ * Log a Firebase Analytics event. No-op if analytics is not available.
+ * @param {string} eventName
+ * @param {object} [params]
+ */
+export function fbLogEvent(eventName, params){
+  try{if(_fbAnalytics)_fbLogEvent(_fbAnalytics,eventName,params||{});}catch{}
+}
 export function getDb(){ return _fbDb; }
 
 // ═══ LOCAL PROGRESS & SESSION STORAGE ═══

@@ -3,6 +3,8 @@
 // Breakdown detection: if user struggles 3x on same concept, switch to English explanation
 
 import { checkRateLimit } from './_rateLimit.js';
+import { getFirebaseUid } from './_verifyToken.js';
+import { checkAIQuota } from './_aiQuota.js';
 
 const MODEL = "claude-haiku-4-5-20251001";
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
@@ -101,6 +103,18 @@ export async function onRequestPost(context) {
   const allowed = await checkRateLimit(request, 30);
   if (!allowed) {
     return new Response(JSON.stringify({ error: "rate_limit" }), { status: 429, headers: corsHeaders(origin) });
+  }
+
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
+
+  // Daily AI quota check (cost 2 — streaming conversation is heavier)
+  const quota = await checkAIQuota(request, env, uid, 2);
+  if (!quota.allowed) {
+    return new Response(
+      JSON.stringify({ error: 'daily_quota_exceeded', message: 'Daily AI limit reached. Resets at midnight UTC.', resetAt: quota.resetAt }),
+      { status: 429, headers: corsHeaders(origin) }
+    );
   }
 
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY || env.CLAUDE_API_KEY;
