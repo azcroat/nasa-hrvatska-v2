@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup, sendEmailVerification, deleteUser } from 'firebase/auth';
-import { getFirestore, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, deleteDoc, collection, runTransaction, onSnapshot } from 'firebase/firestore';
+import { getFirestore, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, deleteDoc, collection, runTransaction, onSnapshot, serverTimestamp } from 'firebase/firestore';
 
 const FIREBASE_CONFIG = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -50,9 +50,10 @@ export async function fbSaveProgress(uid,data){
   const id=uid.replace(/[.#$/\[\]]/g,"_");
   // Support both current ("stats") and legacy ("st") key formats when extracting XP.
   const _st=data.stats||data.st||{};
-  const incoming={progress:JSON.stringify(data),updated:Date.now(),xp:_st.xp||0};
+  const incoming={progress:JSON.stringify(data),updated:serverTimestamp(),xp:_st.xp||0};
   // Write public leaderboard projection alongside the private progress doc
-  const lbEntry={name:data.name||"",xp:_st.xp||0,lc:_st.lc||0,updated:incoming.updated};
+  const _nowMs=Date.now();
+  const lbEntry={name:data.name||"",xp:_st.xp||0,lc:_st.lc||0,updated:_nowMs};
   try{setDoc(fsDoc(_fbDb,"leaderboard",id),lbEntry,{merge:true}).catch(function(e){console.warn("Leaderboard write failed:",e)});}catch(e){console.warn("Leaderboard write error:",e);}
   // Denormalize XP into the family doc so family leaderboard always shows live data
   // without depending on the /leaderboard collection being up-to-date for each member.
@@ -61,7 +62,7 @@ export async function fbSaveProgress(uid,data){
     try{
       const famRef=fsDoc(_fbDb,"families",localFam.code);
       const _famWeekXP=typeof data.weekXP==='number'?data.weekXP:0;
-      updateDoc(famRef,{["memberXP."+id]:{xp:lbEntry.xp,lc:lbEntry.lc,name:lbEntry.name,weekXP:_famWeekXP,updated:incoming.updated}}).catch(function(e){console.warn("Family XP sync failed:",e);});
+      updateDoc(famRef,{["memberXP."+id]:{xp:lbEntry.xp,lc:lbEntry.lc,name:lbEntry.name,weekXP:_famWeekXP,updated:_nowMs}}).catch(function(e){console.warn("Family XP sync failed:",e);});
     }catch(e){console.warn("Family XP sync error:",e);}
   } else if(lbEntry.xp>0){
     // Family code not cached locally yet — read from the user's OWN doc to find it.
@@ -93,7 +94,7 @@ export async function fbLoadProgress(uid){
   for(let attempt=0;attempt<3;attempt++){
     try{
       const snap=await getDoc(fsDoc(_fbDb,"users",id));
-      if(snap.exists()&&snap.data().progress){const p=JSON.parse(snap.data().progress);if(snap.data().updated)p._fbUpdated=snap.data().updated;return p}
+      if(snap.exists()&&snap.data().progress){const p=JSON.parse(snap.data().progress);const _upd=snap.data().updated;if(_upd)p._fbUpdated=_upd.toMillis?_upd.toMillis():Number(_upd);return p}
       return null; // doc exists but no progress field, or doc missing — no retry needed
     }catch(e){
       console.warn(`fbLoadProgress attempt ${attempt+1}/3 failed:`,e);
@@ -312,7 +313,7 @@ export function fbWatchProgress(uid,callback){
     fsDoc(_fbDb,"users",id),
     function(snap){
       if(!snap.exists()||!snap.data().progress)return;
-      try{const p=JSON.parse(snap.data().progress);p._fbUpdated=snap.data().updated||0;callback(p,p._fbUpdated);}
+      try{const p=JSON.parse(snap.data().progress);const _wu=snap.data().updated;p._fbUpdated=_wu?(_wu.toMillis?_wu.toMillis():Number(_wu)):0;callback(p,p._fbUpdated);}
       catch(e){console.warn("fbWatchProgress parse error:",e);}
     },
     function(err){console.warn("fbWatchProgress error:",err);}

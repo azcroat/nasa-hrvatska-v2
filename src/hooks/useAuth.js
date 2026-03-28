@@ -15,7 +15,7 @@ import {
   gP, sP, lP, gS, sS, cS,
   touchSession, updateStreak, isValidEmail,
   fbLogin, fbRegister, fbLogout, fbLoginGoogle, fbResetPassword,
-  fbLoadProgress, fbWatchProgress, fbLoadUserFamily, fbOnAuthStateChanged,
+  fbLoadProgress, fbLoadUserFamily, fbOnAuthStateChanged,
   initFirebase, getLocalFamily, saveLocalFamily, fbSaveProgress,
 } from '../data.jsx';
 
@@ -251,21 +251,11 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
           }
         })();
 
-        // ── Real-time cross-device sync ──────────────────────────────────────
-        // Start a Firestore onSnapshot listener. Any time another device saves
-        // progress, this fires and immediately applies the update here — no
-        // re-login required. We skip the initial event (same data we just loaded)
-        // by comparing remote vs local timestamps.
-        if (watchRef.current) watchRef.current(); // stop any prior watcher
-        watchRef.current = fbWatchProgress(k, function(remoteFp, remoteTs) {
-          const lc = gP(k);
-          const localTs = (lc && (lc._fbUpdated || lc.savedAt)) || 0;
-          if (remoteTs > localTs) {
-            lP(k, remoteFp);
-            cb.current.onSignedIn({ user, progress: remoteFp, isHydrate: true });
-            cb.current.applyRemoteProgress(remoteFp);
-          }
-        });
+        // Real-time cross-device sync is owned entirely by the App.jsx
+        // fbWatchProgress useEffect. Starting a second listener here caused
+        // double-application of every snapshot (two setStats + two applyRemoteProgress
+        // calls per update) and a race where the two lP() writes interfered with
+        // each other. watchRef is still cleaned up on sign-out below.
       }).catch(function() {
         clearTimeout(t);
         // Network error — show app with local data (or empty stats for fresh device)
@@ -276,18 +266,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         }
         setAuthScreen('app');
         fireSyncReady();
-        // Start watcher even after a load error — Firestore may recover and
-        // the snapshot will deliver the user's data when connectivity returns.
-        if (watchRef.current) watchRef.current();
-        watchRef.current = fbWatchProgress(k, function(remoteFp, remoteTs) {
-          const lc = gP(k);
-          const localTs = (lc && (lc._fbUpdated || lc.savedAt)) || 0;
-          if (remoteTs > localTs) {
-            lP(k, remoteFp);
-            cb.current.onSignedIn({ user, progress: remoteFp, isHydrate: true });
-            cb.current.applyRemoteProgress(remoteFp);
-          }
-        });
+        // App.jsx watcher will reconnect once authScreen becomes 'app'.
       });
     });
 
