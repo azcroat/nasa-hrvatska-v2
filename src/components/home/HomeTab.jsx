@@ -274,7 +274,7 @@ export default function HomeTab({
 
       {/* ── HERO ── */}
       <div style={{
-        background: "linear-gradient(160deg,var(--grad-start,#060e1e) 0%,var(--grad-mid,#0a2348) 40%,var(--grad-end,#0c3868) 100%)",
+        background: "linear-gradient(160deg,rgba(6,14,30,0.91) 0%,rgba(10,35,72,0.82) 40%,rgba(12,56,104,0.77) 100%), url('/images/scenes/dubrovnik-hero.webp') center 35% / cover no-repeat",
         position: "relative",
         overflow: "hidden",
         color: "white",
@@ -587,6 +587,60 @@ export default function HomeTab({
             {done && <div style={{fontSize:'var(--text-xs)',color:'var(--success)',marginTop:6,fontWeight:600}}>
               🎉 Goal reached! Every extra XP builds your lead.
             </div>}
+          </div>
+        );
+      })()}
+
+      {/* ── CROATIA POSTCARD — daily scene + phrase ── */}
+      {(() => {
+        const SCENE_POOL = [
+          { img:'/images/scenes/dubrovnik-hero.webp',   city:'Dubrovnik',         label:'Adriatic Pearl' },
+          { img:'/images/scenes/dalmatian-coast.webp',  city:'Dalmatian Coast',   label:'The Adriatic Sea' },
+          { img:'/images/scenes/plitvice.webp',         city:'Plitvice Lakes',    label:'UNESCO World Heritage' },
+          { img:'/images/scenes/zagreb.webp',           city:'Zagreb',            label:'The Capital' },
+          { img:'/images/scenes/labin.webp',            city:'Labin, Istria',     label:'Medieval Hilltop Town' },
+          { img:'/images/scenes/mostar.webp',           city:'Mostar',            label:'Stari Most Bridge' },
+          { img:'/images/scenes/croatian-food.webp',    city:'Croatian Cuisine',  label:'Taste of Croatia' },
+        ];
+        const dayIdx = Math.floor(Date.now() / 86400000);
+        const scene = SCENE_POOL[dayIdx % SCENE_POOL.length];
+        const phrase = todayPhrases[0];
+        return (
+          <div style={{
+            position: 'relative', overflow: 'hidden', borderRadius: 18, marginBottom: 16,
+            background: `url('${scene.img}') center / cover no-repeat`,
+            minHeight: 140,
+            boxShadow: '0 4px 20px rgba(0,0,0,.18)',
+          }}>
+            {/* Dark overlay */}
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(160deg,rgba(0,0,0,.65) 0%,rgba(0,0,0,.3) 60%,rgba(0,0,0,.55) 100%)' }} />
+            {/* Content */}
+            <div style={{ position:'relative', zIndex:1, padding:'18px 18px 16px' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
+                <div>
+                  <div style={{ fontSize:9, fontWeight:800, color:'rgba(255,255,255,.65)', letterSpacing:'.14em', textTransform:'uppercase', marginBottom:3 }}>
+                    Croatia Today · {scene.label}
+                  </div>
+                  <div style={{ fontSize:17, fontWeight:900, color:'#fff', fontFamily:"'Playfair Display',serif", textShadow:'0 1px 6px rgba(0,0,0,.5)' }}>
+                    {scene.city}
+                  </div>
+                </div>
+                <span style={{ fontSize:22 }}>🇭🇷</span>
+              </div>
+              {/* Phrase */}
+              <div style={{
+                background:'rgba(255,255,255,.12)', backdropFilter:'blur(8px)',
+                borderRadius:12, padding:'10px 13px',
+                border:'1px solid rgba(255,255,255,.2)',
+              }}>
+                <div style={{ fontSize:16, fontWeight:900, color:'#fff', marginBottom:3, fontFamily:"'Playfair Display',serif", fontStyle:'italic' }}>
+                  "{phrase.hr}"
+                </div>
+                <div style={{ fontSize:12, color:'rgba(255,255,255,.75)', fontWeight:600 }}>
+                  {phrase.en} · <span style={{ opacity:.65 }}>{phrase.cat}</span>
+                </div>
+              </div>
+            </div>
           </div>
         );
       })()}
