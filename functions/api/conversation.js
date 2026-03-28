@@ -163,6 +163,7 @@ function buildConversationSystemPrompt({ level, topic, turnCount, maxTurns, user
 - 2–3 short, clear sentences. Present and simple past (sam bio/bila).
 - Everyday vocabulary. One gentle idiom per session maximum.
 - Yes/no questions and simple open questions: "Što voliš...?", "Gdje si bio/bila?"
+- ASPECT: A2 is recognition-only. Use aspect naturally in your own speech but do NOT explicitly correct aspect errors or introduce aspect rules — the learner is not yet expected to produce aspect correctly. Gently recast aspect errors without comment.
 - If learner seems confused (repeats the same wrong word twice, says "ne razumijem", writes in English):
   set scaffolding_level to 2 and add a brief English gloss in the english_gloss field.
 - Do not use English in the croatian field.`,

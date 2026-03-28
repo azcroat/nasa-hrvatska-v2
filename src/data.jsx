@@ -1289,7 +1289,7 @@ const LISTEN = [
 ];
 // ═══ MINI STORIES (BRANCHING) ═══
 const STORIES = [
-  {title:"U Kafi\u0107u",tEn:"At the Caf\u00e9",scenes:[
+  {title:"U Kafi\u0107u",tEn:"At the Caf\u00e9",cefr:"A1",scenes:[
     {text:"Ulazi\u0161 u kafi\u0107 u centru Zagreba. Konobar ti se smiješi.",en:"You walk into a caf\u00e9 in downtown Zagreb. The waiter smiles at you.",choices:[
       {text:"Naruči kavu",next:1},{text:"Pitaj za jelovnik",next:2}]},
     {text:"Naručuje\u0161 kavu. Konobar pita: \u0027S mlijekom ili bez?\u0027",en:"You order coffee. The waiter asks: \u0027With milk or without?\u0027",choices:[
@@ -1298,7 +1298,7 @@ const STORIES = [
       {text:"Želim kavu i kolač.",next:3},{text:"Samo čaj, molim.",next:3}]},
     {text:"Konobar donosi tvoju narud\u017ebu. Ka\u017ee\u0161: \u0027Hvala lijepa!\u0027 On odgovara: \u0027Nema na \u010demu!\u0027 Sjedi\u0161 i u\u017eiva\u0161 u pogledu na trg.",en:"The waiter brings your order. You say: \u0027Thank you!\u0027 He replies: \u0027You\u0027re welcome!\u0027 You sit and enjoy the view of the square.",choices:[]}
   ]},
-  {title:"Na Tr\u017enici",tEn:"At the Market",scenes:[
+  {title:"Na Tr\u017enici",tEn:"At the Market",cefr:"A1",scenes:[
     {text:"Dolazi\u0161 na Dola\u010dku tr\u017enicu u subotu ujutro. Puna je svje\u017eeg vo\u0107a i povr\u0107a.",en:"You arrive at Dolac market on Saturday morning. It\u0027s full of fresh fruit and vegetables.",choices:[
       {text:"Idi do prodavačice voća",next:1},{text:"Idi do standa sa sirom",next:2}]},
     {text:"Prodava\u010dica ka\u017ee: \u0027Dobar dan! Imamo svje\u017ee jagode, tre\u0161nje i lubenice.\u0027",en:"The seller says: \u0027Good day! We have fresh strawberries, cherries and watermelons.\u0027",choices:[
@@ -1317,7 +1317,7 @@ const STORIES = [
     {text:"Napisao/Napisala si izvješće. Šef ga čita i kaže: 'Izvrsno! Sve si objasnio/objasnila jasno. Bravo!'",en:"You wrote the report. Your boss reads it and says: 'Excellent! You explained everything clearly. Bravo!'",choices:[]}  ,
     {text:"Kolega ti pomaže i naučiš novi trik u softveru. Izvješće završavaš na vrijeme. Šef je zadovoljan.",en:"A colleague helps you and you learn a new software trick. You finish the report on time. Your boss is satisfied.",choices:[]}
   ]},
-  {title:"Izgubljen/a u Splitu",tEn:"Lost in Split",scenes:[
+  {title:"Izgubljen/a u Splitu",tEn:"Lost in Split",cefr:"A2",scenes:[
     {text:"Hoda\u0161 Splitom ali ne zna\u0161 gdje si. Vidi\u0161 prolaznika i policajca.",en:"You\u0027re walking through Split but don\u0027t know where you are. You see a passerby and a police officer.",choices:[
       {text:"Pitaj prolaznika",next:1},{text:"Pitaj policajca",next:2}]},
     {text:"Kažeš: \u0027Oprostite, gdje je Dioklecijanova palača?\u0027 Prolaznik odgovara: \u0027Idite ravno pa skrenite lijevo kod crkve.\u0027",en:"You say: \u0027Excuse me, where is Diocletian\u0027s Palace?\u0027 The passerby answers: \u0027Go straight then turn left at the church.\u0027",choices:[
@@ -1400,8 +1400,14 @@ const NUMCOUNT = {
   ]
 };
 // ═══ VERB ASPECT (PERFECTIVE/IMPERFECTIVE) ═══
+// Acquisition note (Novak Milić 2010):
+//   A2 — recognition only: learners see aspect pairs, understand the concept
+//   B1 — production begins: learners choose correct aspect in context (negation rule, frequency adverbs)
+//   B2 — mastery: narrative aspect, imperative aspect, complex contexts
+// The quiz/production sections below should be gated to B1+ in UI components.
 const ASPECT = {
   title:"Glagolski vid \u2014 Verb Aspect",
+  minLevel:"B1", // production quiz gated — recognition (pairs) visible from A2
   intro:"Croatian verbs come in pairs: imperfective (views the action as an ongoing process or repeated habit) and perfective (views the action as a completed whole). Aspect is about the speaker\u0027s viewpoint of the action, not whether it actually finished. This is the most important concept English doesn\u0027t have.",
   pairs:[
     {impf:"pisati",perf:"napisati",en:"write",exImpf:"Pisao sam pismo.",exPerf:"Napisao sam pismo.",enImpf:"I was writing a letter.",enPerf:"I finished writing the letter."},

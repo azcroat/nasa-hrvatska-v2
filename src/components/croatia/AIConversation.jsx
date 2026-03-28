@@ -1830,6 +1830,13 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
                   {correction.note && (
                     <div style={{ color: "var(--success)", opacity: .75, marginTop: 2 }}>{correction.note}</div>
                   )}
+                  {correction.echo && (
+                    <div style={{ color: "var(--success)", opacity: .85, marginTop: 6, paddingTop: 6,
+                      borderTop: "1px solid var(--success-b)", fontSize: "var(--text-xs)" }}>
+                      <span style={{ fontWeight: 700 }}>🔁 Now try: </span>
+                      <em>{correction.echo}</em>
+                    </div>
+                  )}
                 </div>
               )}
             </React.Fragment>
