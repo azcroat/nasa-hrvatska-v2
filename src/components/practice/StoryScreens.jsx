@@ -1,11 +1,59 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, speak, STORIES } from '../../data.jsx';
+
+// Fetch AI illustration for a story scene (watercolor style via FLUX)
+const sceneImgCache = {};
+async function fetchSceneIllustration(storyTitle, sceneText, signal) {
+  const key = `${storyTitle}:${sceneText.slice(0, 40)}`;
+  if (sceneImgCache[key]) return sceneImgCache[key];
+  try {
+    const stored = sessionStorage.getItem(`nh_story_img_${btoa(key).slice(0, 40)}`);
+    if (stored) { sceneImgCache[key] = stored; return stored; }
+  } catch {}
+  try {
+    const r = await fetch('/api/flux-generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'scene', sceneText, storyTitle }),
+      signal,
+    });
+    if (!r.ok) return null;
+    const { imageUrl } = await r.json();
+    if (imageUrl) {
+      sceneImgCache[key] = imageUrl;
+      try { sessionStorage.setItem(`nh_story_img_${btoa(key).slice(0, 40)}`, imageUrl); } catch {}
+    }
+    return imageUrl || null;
+  } catch { return null; }
+}
 
 // Single component managing both story selection and playback
 export default function StoryScreens({ goBack, award, sCurEx }) {
   const [stSt, sStSt] = useState(null);
   const [stSc, sStSc] = useState(0);
   const finishFired = useRef(false);
+  const mountedRef = useRef(true);
+  useEffect(() => () => { mountedRef.current = false; }, []);
+
+  // AI scene illustration state
+  const [sceneImg, setSceneImg] = useState(null);
+  const [sceneImgLoading, setSceneImgLoading] = useState(false);
+
+  // Fetch illustration when story + scene changes
+  useEffect(() => {
+    if (!stSt) return;
+    const scene = stSt.scenes[stSc];
+    if (!scene) return;
+    setSceneImg(null);
+    setSceneImgLoading(true);
+    const controller = new AbortController();
+    fetchSceneIllustration(stSt.title, scene.text, controller.signal).then(url => {
+      if (!mountedRef.current) return;
+      setSceneImg(url || null);
+      setSceneImgLoading(false);
+    });
+    return () => controller.abort();
+  }, [stSt, stSc]);
 
   if (!stSt) {
     return (
@@ -56,7 +104,72 @@ export default function StoryScreens({ goBack, award, sCurEx }) {
       ) : (
         <React.Fragment>
           <Bar v={stSc + 1} mx={stSt.scenes.length} h={6} />
-          <div className="c" style={{marginTop:16}}>
+
+          {/* AI scene illustration */}
+          <div style={{
+            width: '100%', height: 160, borderRadius: 16, overflow: 'hidden',
+            marginTop: 12, marginBottom: 4, position: 'relative',
+            background: sceneImgLoading
+              ? 'linear-gradient(135deg,rgba(14,116,144,.08),rgba(12,74,110,.06))'
+              : sceneImg ? undefined : 'linear-gradient(135deg,rgba(14,116,144,.05),rgba(12,74,110,.08))',
+            boxShadow: '0 2px 12px rgba(0,0,0,.10)',
+          }}>
+            {sceneImg && (
+              <img
+                src={sceneImg}
+                alt=""
+                aria-hidden="true"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              />
+            )}
+            {sceneImgLoading && !sceneImg && (
+              <div style={{
+                position: 'absolute', inset: 0, display: 'flex', alignItems: 'center',
+                justifyContent: 'center', gap: 5,
+              }}>
+                {[0,1,2].map(i => (
+                  <div key={i} style={{
+                    width: 6, height: 6, borderRadius: '50%',
+                    background: 'var(--info)', opacity: 0.4,
+                    animation: `dot-bounce 1.2s ease-in-out ${i * 0.15}s infinite`,
+                  }} />
+                ))}
+              </div>
+            )}
+            {!sceneImg && !sceneImgLoading && (
+              <div style={{
+                position: 'absolute', inset: 0, display: 'flex', alignItems: 'center',
+                justifyContent: 'center', fontSize: 48, opacity: 0.15,
+              }}>🏖️</div>
+            )}
+            {/* Gradient bottom fade */}
+            <div style={{
+              position: 'absolute', bottom: 0, left: 0, right: 0, height: 60,
+              background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,.55))',
+              pointerEvents: 'none',
+            }} />
+            {/* AI badge + scene count */}
+            <div style={{
+              position: 'absolute', bottom: 10, left: 12, right: 12,
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}>
+              {sceneImg && (
+                <span style={{
+                  background: 'rgba(0,0,0,.4)', backdropFilter: 'blur(4px)',
+                  borderRadius: 20, padding: '2px 8px',
+                  fontSize: 9, fontWeight: 800, color: '#fff', letterSpacing: '.04em',
+                }}>✦ AI Scene</span>
+              )}
+              <span style={{
+                marginLeft: 'auto',
+                background: 'rgba(0,0,0,.4)', backdropFilter: 'blur(4px)',
+                borderRadius: 20, padding: '2px 8px',
+                fontSize: 10, fontWeight: 700, color: '#fff',
+              }}>{stSc + 1} / {stSt.scenes.length}</span>
+            </div>
+          </div>
+
+          <div className="c" style={{marginTop:12}}>
             <div
               style={{fontSize:16,fontWeight:700,lineHeight:1.7,color:"#1c1917",cursor:"pointer"}}
               onClick={() => speak(scene.text)}>

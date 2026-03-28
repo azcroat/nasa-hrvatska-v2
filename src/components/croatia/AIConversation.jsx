@@ -5,6 +5,7 @@ import { useStats } from '../../context/StatsContext.jsx';
 import { markPracticed } from '../../hooks/useNotifications.js';
 import { markQuest } from '../../lib/quests.js';
 import { logError, getErrorsForAPI } from '../../lib/learnerErrors.js';
+import WaveformVisualizer from '../shared/WaveformVisualizer.jsx';
 
 // ── Conversation scenarios ───────────────────────────────────────────────────
 const SCENARIOS = [
@@ -303,12 +304,28 @@ function portraitSrc(scenarioId) {
   return `/images/portraits/${key}.webp`;
 }
 
-// ── Speaking avatar — portrait photo with live speaking ring ────────────────
-function SpeakingAvatar({ src, name, size = 38, isSpeaking = false, style: extraStyle }) {
+// ── Speaking avatar — portrait photo with live speaking ring + D-ID video ──
+// When videoUrl is provided and isSpeaking is true, shows the lip-synced video.
+// Falls back to static portrait otherwise.
+function SpeakingAvatar({ src, name, size = 38, isSpeaking = false, videoUrl = null, style: extraStyle }) {
   const [imgErr, setImgErr] = React.useState(false);
+  const [videoEnded, setVideoEnded] = React.useState(false);
+  const videoRef = React.useRef(null);
+
+  // Play video when speaking starts; reset when done
+  React.useEffect(() => {
+    if (videoUrl && isSpeaking && videoRef.current && videoEnded) {
+      setVideoEnded(false);
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().catch(() => {});
+    }
+  }, [isSpeaking, videoUrl, videoEnded]);
+
+  const showVideo = videoUrl && isSpeaking && !videoEnded;
   const ring = isSpeaking
     ? `0 0 0 2.5px #0e7490, 0 0 0 5px rgba(14,116,144,.25), 0 0 16px rgba(14,116,144,.35)`
     : `0 0 0 2px rgba(14,116,144,.25)`;
+
   return (
     <div style={{
       width: size, height: size, borderRadius: '50%', flexShrink: 0, overflow: 'hidden',
@@ -317,13 +334,31 @@ function SpeakingAvatar({ src, name, size = 38, isSpeaking = false, style: extra
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       ...extraStyle,
     }}>
-      {!imgErr
-        ? <img src={src} alt={name}
-            loading="lazy"
-            onError={() => setImgErr(true)}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }} />
-        : <span style={{ fontSize: Math.round(size * 0.45) }}>🇭🇷</span>
-      }
+      {/* D-ID lip-sync video (shown when speaking) */}
+      {videoUrl && (
+        <video
+          ref={videoRef}
+          src={videoUrl}
+          autoPlay={isSpeaking && !videoEnded}
+          muted={false}
+          playsInline
+          onEnded={() => setVideoEnded(true)}
+          style={{
+            position: 'absolute',
+            width: '100%', height: '100%',
+            objectFit: 'cover', objectPosition: 'top center',
+            display: showVideo ? 'block' : 'none',
+            borderRadius: '50%',
+          }}
+        />
+      )}
+      {/* Static portrait (shown when not speaking or video ended) */}
+      {!showVideo && (
+        !imgErr
+          ? <img src={src} alt={name} loading="lazy" onError={() => setImgErr(true)}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }} />
+          : <span style={{ fontSize: Math.round(size * 0.45) }}>🇭🇷</span>
+      )}
     </div>
   );
 }
@@ -373,6 +408,16 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   // ── NPC mute toggle ─────────────────────────────────────────────────────────
   const [muted, setMuted] = useState(false);
 
+  // ── D-ID greeting video — generated when scenario is confirmed ──────────────
+  // videoUrl is null until ready; videoLoading tracks the fetch
+  const [npcVideoUrl,     setNpcVideoUrl]     = useState(null);
+  const [npcVideoLoading, setNpcVideoLoading] = useState(false);
+  const npcVideoFiredRef = useRef(null); // scenario.id that triggered the last fetch
+
+  // ── Custom scenario image — for user-typed scenarios ─────────────────────
+  const [customSceneImg,     setCustomSceneImg]     = useState(null);
+  const [customSceneLoading, setCustomSceneLoading] = useState(false);
+
   // ── Speaking animation state ─────────────────────────────────────────────
   const [isSpeaking, setIsSpeaking] = useState(false);
   const speakTimerRef = useRef(null);
@@ -402,6 +447,10 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
 
   // ── Setup category filter ──────────────────────────────────────────────────
   const [activeCat, setActiveCat] = useState("All");
+
+  // ── Custom scenario (user-typed) ───────────────────────────────────────────
+  const [customText,   setCustomText]   = useState("");
+  const [showCustom,   setShowCustom]   = useState(false);
 
   const messagesEndRef = useRef(null);
   const inputRef       = useRef(null);
@@ -478,7 +527,30 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     setChatError("");
     setMessages([]);
     setCorrections({});
+    setNpcVideoUrl(null);
     setLoading(true);
+
+    // Fire D-ID greeting video generation in background (non-blocking)
+    if (npcVideoFiredRef.current !== scenario.id) {
+      npcVideoFiredRef.current = scenario.id;
+      setNpcVideoLoading(true);
+      const portraitUrl = `${window.location.origin}${portraitSrc(scenario.id)}`;
+      // NPC greeting derived from context (first sentence cue)
+      const greetingHint = scenario.cat === 'Social' || scenario.cat === 'Out & About'
+        ? `Dobar dan! Dobro došli.`
+        : `Dobar dan! Izvolite.`;
+      const gender = ['barista','mature-woman','young-woman','grandmother'].some(k => portraitSrc(scenario.id).includes(k))
+        ? 'female' : 'male';
+      fetch('/api/did-stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl: portraitUrl, text: greetingHint, gender }),
+      })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => { if (data?.videoUrl) setNpcVideoUrl(data.videoUrl); })
+        .catch(() => {})
+        .finally(() => setNpcVideoLoading(false));
+    }
     const weak_areas = deriveWeakAreas(stats?.ct || []);
     const topics_mastered = deriveMastered(stats?.ct || []);
     setWeakAreasForSession(weak_areas);
@@ -1265,6 +1337,137 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
         })}
       </div>
 
+      {/* ── Custom Scenario (AI-generated scene) ── */}
+      <div style={{
+        borderRadius: 18, overflow: "hidden", marginBottom: 10,
+        border: `2px solid ${scenario?.id === '__custom__' ? '#7c3aed' : 'var(--card-b)'}`,
+        boxShadow: scenario?.id === '__custom__' ? '0 8px 32px rgba(124,58,237,.2)' : 'none',
+        transition: 'all .2s',
+      }}>
+        {/* Custom card header */}
+        <div
+          onClick={() => setShowCustom(p => !p)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
+            background: scenario?.id === '__custom__'
+              ? 'linear-gradient(135deg,rgba(124,58,237,.15),rgba(109,40,217,.08))'
+              : 'var(--card)',
+            cursor: 'pointer',
+          }}
+        >
+          {/* Custom scenario AI image or placeholder */}
+          <div style={{
+            width: 52, height: 52, borderRadius: 12, overflow: 'hidden', flexShrink: 0,
+            background: customSceneImg
+              ? undefined
+              : 'linear-gradient(135deg,#7c3aed22,#6d28d910)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative',
+          }}>
+            {customSceneImg
+              ? <img src={customSceneImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : <span style={{ fontSize: 24 }}>✨</span>
+            }
+            {customSceneLoading && (
+              <div style={{
+                position: 'absolute', inset: 0, background: 'rgba(0,0,0,.4)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <div style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid rgba(255,255,255,.3)', borderTopColor: '#a78bfa', animation: 'spin 1s linear infinite' }} />
+              </div>
+            )}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--heading)' }}>
+              ✦ Create Custom Scenario
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 1 }}>
+              Describe any situation — AI generates a scene image
+            </div>
+          </div>
+          <div style={{ fontSize: 18, color: '#7c3aed', opacity: 0.6 }}>
+            {showCustom ? '▾' : '›'}
+          </div>
+        </div>
+
+        {/* Custom scenario input */}
+        {showCustom && (
+          <div style={{ padding: '12px 16px 16px', background: 'var(--bar-bg)', borderTop: '1px solid var(--card-b)' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--subtext)', marginBottom: 8 }}>
+              Describe your scenario in English (e.g. "Booking a sailing trip in Hvar"):
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                type="text"
+                value={customText}
+                onChange={e => setCustomText(e.target.value)}
+                placeholder="e.g. At a Split ferry terminal buying tickets..."
+                maxLength={200}
+                style={{
+                  flex: 1, padding: '10px 13px', borderRadius: 10, fontSize: 14,
+                  border: '1.5px solid var(--inp-b)', background: 'var(--card)',
+                  outline: 'none', fontFamily: "'Outfit',sans-serif", color: 'var(--heading)',
+                }}
+              />
+              <button
+                disabled={!customText.trim() || customSceneLoading}
+                onClick={async () => {
+                  if (!customText.trim()) return;
+                  // Build a synthetic scenario object
+                  const customScenario = {
+                    id: '__custom__',
+                    cat: 'Out & About',
+                    icon: '✨',
+                    title: customText.slice(0, 40),
+                    hr: customText.slice(0, 40),
+                    desc: customText,
+                    levels: ['A1','A2','B1','B2','C1','C2'],
+                    color: '#7c3aed',
+                    bg: '#faf5ff',
+                    aiName: 'Lokalni stanovnik',
+                    aiRole: `local Croatian in this situation: ${customText.slice(0, 100)}`,
+                    context: `You are a helpful Croatian local. The learner is practicing Croatian in this scenario: ${customText}. Start by greeting them naturally in Croatian and engaging with the situation.`,
+                  };
+                  setScenario(customScenario);
+                  // Generate scene image
+                  setCustomSceneLoading(true);
+                  setCustomSceneImg(null);
+                  try {
+                    const r = await fetch('/api/flux-generate', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ type: 'custom', prompt: customText }),
+                    });
+                    if (r.ok) {
+                      const { imageUrl } = await r.json();
+                      if (imageUrl) setCustomSceneImg(imageUrl);
+                    }
+                  } catch {}
+                  setCustomSceneLoading(false);
+                }}
+                style={{
+                  padding: '10px 16px', borderRadius: 10, border: 'none',
+                  background: customText.trim() ? '#7c3aed' : 'var(--bar-bg)',
+                  color: customText.trim() ? '#fff' : 'var(--subtext)',
+                  fontWeight: 800, fontSize: 13, cursor: customText.trim() ? 'pointer' : 'not-allowed',
+                  fontFamily: "'Outfit',sans-serif", whiteSpace: 'nowrap',
+                }}
+              >
+                {customSceneLoading ? '…' : '✦ Set'}
+              </button>
+            </div>
+            {scenario?.id === '__custom__' && (
+              <div style={{
+                marginTop: 10, padding: '8px 12px',
+                background: 'rgba(124,58,237,.08)', border: '1px solid rgba(124,58,237,.2)',
+                borderRadius: 10, fontSize: 12, fontWeight: 700, color: '#7c3aed',
+              }}>
+                ✓ Custom scenario selected — start when ready
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Feature pills */}
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
         {[
@@ -1491,9 +1694,22 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
           style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", padding: "4px 6px",
             color: "rgba(255,255,255,0.80)", lineHeight: 1, borderRadius: 8 }}>←</button>
         <div style={{ position:"relative", flexShrink:0 }}>
-          <SpeakingAvatar src={portraitSrc(scenario.id)} name={scenario.aiName} size={40} isSpeaking={isSpeaking} />
+          <SpeakingAvatar
+            src={portraitSrc(scenario.id)}
+            name={scenario.aiName}
+            size={40}
+            isSpeaking={isSpeaking}
+            videoUrl={npcVideoUrl}
+          />
           <div style={{ position:"absolute", bottom:0, right:0, width:12, height:12, borderRadius:"50%",
             background:"#22c55e", border:"2px solid rgba(255,255,255,0.2)" }} />
+          {npcVideoLoading && !npcVideoUrl && (
+            <div style={{
+              position:'absolute', bottom:-2, right:-2, width:14, height:14,
+              borderRadius:'50%', border:'2px solid rgba(14,116,144,.5)',
+              borderTopColor:'#67e8f9', animation:'spin 1s linear infinite',
+            }} />
+          )}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: "var(--text-base)", fontWeight: 800, color: "#fff", lineHeight: 1.2 }}>{scenario.aiName}</div>
@@ -1667,6 +1883,13 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
           </div>
         ) : (
           <>
+            {/* Waveform visualizer — shown while voice input is active */}
+            {listening && (
+              <div style={{ marginBottom: 8 }}>
+                <WaveformVisualizer active={listening} color="#0e7490" height={44} />
+              </div>
+            )}
+
             {/* Sentence starters */}
             {showStarters && (
               <div style={{ overflowX: "auto", display: "flex", gap: 7, paddingBottom: 8, paddingTop: 2,

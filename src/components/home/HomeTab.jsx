@@ -12,6 +12,7 @@ import CipkaPattern from '../shared/CipkaPattern.jsx';
 import CroatianKnight from '../shared/CroatianKnight';
 import KnightSpeech from '../shared/KnightSpeech';
 import DailyPlanCard from './DailyPlanCard.jsx';
+import VideoBackground from '../shared/VideoBackground.jsx';
 // DalmatianCoast SVG replaced with real AI/CC photography
 // import { DalmatianCoast } from '../illustrations';
 
@@ -591,31 +592,28 @@ export default function HomeTab({
         );
       })()}
 
-      {/* ── CROATIA POSTCARD — daily scene + phrase ── */}
+      {/* ── CROATIA POSTCARD — daily scene + phrase (video-first) ── */}
       {(() => {
         const SCENE_POOL = [
-          { img:'/images/scenes/dubrovnik-hero.webp',   city:'Dubrovnik',         label:'Adriatic Pearl' },
-          { img:'/images/scenes/dalmatian-coast.webp',  city:'Dalmatian Coast',   label:'The Adriatic Sea' },
-          { img:'/images/scenes/plitvice.webp',         city:'Plitvice Lakes',    label:'UNESCO World Heritage' },
-          { img:'/images/scenes/zagreb.webp',           city:'Zagreb',            label:'The Capital' },
-          { img:'/images/scenes/labin.webp',            city:'Labin, Istria',     label:'Medieval Hilltop Town' },
-          { img:'/images/scenes/mostar.webp',           city:'Mostar',            label:'Stari Most Bridge' },
-          { img:'/images/scenes/croatian-food.webp',    city:'Croatian Cuisine',  label:'Taste of Croatia' },
+          { img:'/images/scenes/dubrovnik-hero.webp',  video:'/videos/scenes/dubrovnik.mp4',   city:'Dubrovnik',        label:'Adriatic Pearl' },
+          { img:'/images/scenes/dalmatian-coast.webp', video:'/videos/scenes/dalmatian.mp4',   city:'Dalmatian Coast',  label:'The Adriatic Sea' },
+          { img:'/images/scenes/plitvice.webp',        video:'/videos/scenes/plitvice.mp4',    city:'Plitvice Lakes',   label:'UNESCO World Heritage' },
+          { img:'/images/scenes/zagreb.webp',          video:'/videos/scenes/zagreb.mp4',      city:'Zagreb',           label:'The Capital' },
+          { img:'/images/scenes/labin.webp',           video:'/videos/scenes/labin.mp4',       city:'Labin, Istria',    label:'Medieval Hilltop Town' },
+          { img:'/images/scenes/mostar.webp',          video:'/videos/scenes/mostar.mp4',      city:'Mostar',           label:'Stari Most Bridge' },
+          { img:'/images/scenes/croatian-food.webp',   video:'/videos/scenes/food.mp4',        city:'Croatian Cuisine', label:'Taste of Croatia' },
         ];
         const dayIdx = Math.floor(Date.now() / 86400000);
         const scene = SCENE_POOL[dayIdx % SCENE_POOL.length];
         const phrase = todayPhrases[0];
         return (
-          <div style={{
-            position: 'relative', overflow: 'hidden', borderRadius: 18, marginBottom: 16,
-            background: `url('${scene.img}') center / cover no-repeat`,
-            minHeight: 140,
-            boxShadow: '0 4px 20px rgba(0,0,0,.18)',
-          }}>
-            {/* Dark overlay */}
-            <div style={{ position:'absolute', inset:0, background:'linear-gradient(160deg,rgba(0,0,0,.65) 0%,rgba(0,0,0,.3) 60%,rgba(0,0,0,.55) 100%)' }} />
-            {/* Content */}
-            <div style={{ position:'relative', zIndex:1, padding:'18px 18px 16px' }}>
+          <VideoBackground
+            videoSrc={scene.video}
+            imageSrc={scene.img}
+            overlay="linear-gradient(160deg,rgba(0,0,0,.65) 0%,rgba(0,0,0,.3) 60%,rgba(0,0,0,.55) 100%)"
+            style={{ borderRadius: 18, marginBottom: 16, minHeight: 140, boxShadow: '0 4px 20px rgba(0,0,0,.18)' }}
+          >
+            <div style={{ padding:'18px 18px 16px' }}>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
                 <div>
                   <div style={{ fontSize:9, fontWeight:800, color:'rgba(255,255,255,.65)', letterSpacing:'.14em', textTransform:'uppercase', marginBottom:3 }}>
@@ -641,7 +639,7 @@ export default function HomeTab({
                 </div>
               </div>
             </div>
-          </div>
+          </VideoBackground>
         );
       })()}
 
