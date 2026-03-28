@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 
 /**
  * CroatianKnight — AI-powered mascot with SVG fallback
@@ -398,21 +398,8 @@ function KnightImage({ size, mood, className, style }) {
 }
 
 // ---------------------------------------------------------------------------
-// Main export — tries AI image first, falls back to SVG
+// Main export — Lego-style SVG knight
 // ---------------------------------------------------------------------------
 export default function CroatianKnight({ size = 80, mood = 'neutral', className = '', style = {} }) {
-  const [useAI, setUseAI] = useState(true);
-
-  // Check if any knight images have been generated
-  useEffect(() => {
-    const img = new Image();
-    img.onload  = () => setUseAI(true);
-    img.onerror = () => setUseAI(false);
-    img.src = '/images/knights/knight-neutral.webp';
-  }, []);
-
-  if (useAI) {
-    return <KnightImage size={size} mood={mood} className={className} style={style} />;
-  }
   return <KnightSVG size={size} mood={mood} className={className} style={style} />;
 }
