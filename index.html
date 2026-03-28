@@ -50,10 +50,11 @@
   <!-- Canonical -->
   <link rel="canonical" href="https://nasahrvatska.com/">
 
-  <!-- Fonts (Outfit = primary UI, Playfair Display = headings) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <!-- Fonts: self-hosted woff2 — served from Cloudflare edge, no cross-origin DNS round-trip -->
+  <!-- Preload the two most-visible font files (latin subset covers ASCII + common European chars) -->
+  <link rel="preload" href="/fonts/outfit-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/playfair-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/fonts/fonts.css">
   <meta name="color-scheme" content="light dark">
 
   <!-- Analytics (Plausible — privacy-first, no cookies) -->
