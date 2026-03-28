@@ -47,6 +47,8 @@ import WelcomeScreen from "./components/home/WelcomeScreen.jsx";
 import CroatianGrb from "./components/shared/CroatianGrb.jsx";
 import CookieConsent from "./components/shared/CookieConsent.jsx";
 import TermsOfService from "./components/shared/TermsOfService.jsx";
+import PaywallScreen from "./components/shared/PaywallScreen.jsx";
+import { useSubscription, startTrial } from "./hooks/useSubscription.js";
 import AdminDashboard from "./components/admin/AdminDashboard.jsx";
 import PlacementTest from "./components/home/PlacementTest.jsx";
 import NewPlacementTest from "./components/auth/PlacementTest.jsx";
@@ -295,6 +297,15 @@ function getDaysSinceJoin(authUser) {
 
 function App(){
   useNotifications();
+  const { isPremium, inTrial, daysLeft, refresh: refreshSub } = useSubscription();
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [paywallFeature, setPaywallFeature] = useState('AI Tutor');
+
+  function requirePremium(featureName, action) {
+    if (isPremium) { action(); return; }
+    setPaywallFeature(featureName);
+    setShowPaywall(true);
+  }
   // Q-6: React Router hooks — replace custom pushUrl + popstate with navigate + useLocation
   const navigate = useNavigate();
   const location = useLocation();
@@ -521,6 +532,9 @@ function App(){
       // never the welcome screen, regardless of XP or completion state.
       if (isNew) setScr('welcome');
       else _goPostAuth(true);
+      // Start 7-day free trial for all users (no-op if already started)
+      startTrial(user.u);
+      refreshSub();
     },
     onSignedOut() { setStats(ds); setScr('welcome'); setName(''); setFamData(null); setFamMembers([]); },
     onBeforeSignOut: async function(){ if(_syncNowRef.current) return _syncNowRef.current(); },
@@ -593,7 +607,48 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   // Cross-device lesson completion now syncs in <2 seconds instead of up to 3 minutes.
   // savedAt is bumped to fpTs after each merge so repeated snapshots of unchanged data
   // are cleanly skipped on the next compare (fpTs === lpTs → no-op).
-  useEffect(()=>{if(authScreen!=="app"||!authUser)return undefined;const _unsub=fbWatchProgress(authUser.u,function(fp,fpTs){const lp=gP(authUser.u);const lpTs=(lp&&(lp._fbUpdated||lp.savedAt))||0;if(fpTs>lpTs){lP(authUser.u,{...fp,savedAt:fpTs});const _pllSt=fp.stats||fp.st||{};setStats(prev=>({...ds,..._pllSt,ct:[...new Set([...(prev.ct||[]),...(_pllSt.ct||[])])],vs:[...new Set([...(prev.vs||[]),...(_pllSt.vs||[])])],lc:Math.max(prev.lc||0,_pllSt.lc||0),gc:Math.max(prev.gc||0,_pllSt.gc||0),xp:Math.max(prev.xp||0,_pllSt.xp||0)}));if(fp.name)setName(fp.name);applyRemoteProgress(fp);}});_watcherUnsubRef.current=_unsub;// iOS Firestore wake-up: force a getDoc when app becomes visible.// iOS suspends gRPC-Web connections when backgrounded; the onSnapshot listener can silently// fail to deliver updates for 60+ seconds after returning. getDoc bypasses the listener entirely.const _iosWakeUp=async()=>{if(document.visibilityState!=='visible')return;try{const fp=await fbLoadProgress(authUser.u);if(!fp)return;const lp=gP(authUser.u);const fpTs=fp._fbUpdated||0;const lpTs=(lp&&(lp._fbUpdated||lp.savedAt))||0;if(fpTs>lpTs){lP(authUser.u,{...fp,savedAt:fpTs});applyRemoteProgress(fp);}}catch(_){}};// pageshow fires when restoring from bfcache (iOS back/forward cache). Force a Firestore read// immediately because the listener may have been detached during the bfcache pause.const _onPageShow=(e)=>{if(e.persisted)_iosWakeUp();};document.addEventListener('visibilitychange',_iosWakeUp);window.addEventListener('pageshow',_onPageShow);return()=>{_unsub();_watcherUnsubRef.current=null;document.removeEventListener('visibilitychange',_iosWakeUp);window.removeEventListener('pageshow',_onPageShow);};},[authScreen,authUser,applyRemoteProgress,ds]);
+  useEffect(()=>{
+    if(authScreen!=="app"||!authUser)return undefined;
+    const _unsub=fbWatchProgress(authUser.u,function(fp,fpTs){
+      const lp=gP(authUser.u);const lpTs=(lp&&(lp._fbUpdated||lp.savedAt))||0;
+      if(fpTs>lpTs){
+        lP(authUser.u,{...fp,savedAt:fpTs});
+        const _pllSt=fp.stats||fp.st||{};
+        setStats(prev=>({...ds,..._pllSt,
+          ct:[...new Set([...(prev.ct||[]),...(_pllSt.ct||[])])],
+          vs:[...new Set([...(prev.vs||[]),...(_pllSt.vs||[])])],
+          lc:Math.max(prev.lc||0,_pllSt.lc||0),gc:Math.max(prev.gc||0,_pllSt.gc||0),xp:Math.max(prev.xp||0,_pllSt.xp||0)
+        }));
+        if(fp.name)setName(fp.name);
+        applyRemoteProgress(fp);
+      }
+    });
+    _watcherUnsubRef.current=_unsub;
+    // iOS Firestore wake-up: force a getDoc when app becomes visible.
+    // iOS suspends gRPC-Web connections when backgrounded; the onSnapshot listener can silently
+    // fail to deliver updates for 60+ seconds after returning. getDoc bypasses the listener entirely.
+    const _iosWakeUp=async()=>{
+      if(document.visibilityState!=='visible')return;
+      try{
+        const fp=await fbLoadProgress(authUser.u);
+        if(!fp)return;
+        const lp=gP(authUser.u);const fpTs=fp._fbUpdated||0;
+        const lpTs=(lp&&(lp._fbUpdated||lp.savedAt))||0;
+        if(fpTs>lpTs){lP(authUser.u,{...fp,savedAt:fpTs});applyRemoteProgress(fp);}
+      }catch(_){}
+    };
+    // pageshow fires when restoring from bfcache (iOS back/forward cache). Force a Firestore read
+    // immediately because the listener may have been detached during the bfcache pause.
+    const _onPageShow=(e)=>{if(e.persisted)_iosWakeUp();};
+    document.addEventListener('visibilitychange',_iosWakeUp);
+    window.addEventListener('pageshow',_onPageShow);
+    return()=>{
+      _unsub();
+      _watcherUnsubRef.current=null;
+      document.removeEventListener('visibilitychange',_iosWakeUp);
+      window.removeEventListener('pageshow',_onPageShow);
+    };
+  },[authScreen,authUser,applyRemoteProgress,ds]);
   // Auto-save on every lesson completion (stats.lc or stats.ct length changes).
   // Lesson components only call setStats — they never write to localStorage or Firebase.
   // This effect fires immediately (no debounce) so progress is persisted even if the
@@ -937,7 +992,9 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
   if(authScreen==="reset"){
     return <ResetPassword authError={authError} authLoading={authLoading} rpEm={rpEm} setAuthScreen={setAuthScreen} setAuthError={setAuthError} setRpEm={setRpEm} doReset={doReset} />;
   }
-    // ═══ MAIN APP RENDER ═══
+  // ═══ MAIN APP RENDER ═══
+  // weeklyXP computed here (not inside JSX) to avoid IIFE-in-JSX esbuild parse issue
+  const _weeklyXP=(function(){try{const d=new Date();const dy=d.getDay()||7;d.setDate(d.getDate()+4-dy);const yr=d.getFullYear();const wk=Math.ceil(((d.getTime()-new Date(yr,0,1).getTime())/86400000+1)/7);return parseInt(localStorage.getItem('nh_week_xp_'+yr+'-W'+String(wk).padStart(2,'0'))||'0',10);}catch{return 0;}})();
   return (
     <AppContext.Provider value={ctxValue}>
     <StatsProvider value={statsValue}>
@@ -980,6 +1037,13 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {earnBackPrompt&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#d97706,#b45309)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.25)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease",maxWidth:320,textAlign:"center"}}>🔥 Complete 1 more lesson today to restore your {earnBackPrompt.prev}-day streak!</div>}
       {streakRestoredCount>0&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#b61800,#dc2626)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(182,24,0,.4)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease",whiteSpace:"nowrap"}}>🇭🇷 Streak restored! {streakRestoredCount}-day streak back!</div>}
       {ttsFailedToast&&<div style={{position:"fixed",bottom:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"rgba(30,30,30,.92)",color:"#fff",borderRadius:20,padding:"9px 20px",fontSize:13,fontWeight:600,pointerEvents:"none",animation:"slideUp .3s ease",whiteSpace:"nowrap"}}>🔇 Audio unavailable</div>}
+      {showPaywall&&<PaywallScreen featureName={paywallFeature} onClose={()=>setShowPaywall(false)} onSubscribed={()=>{setShowPaywall(false);refreshSub();}} />}
+      {inTrial&&daysLeft!=null&&daysLeft<=3&&authScreen==="app"&&currentScreen==="dashboard"&&(
+        <div style={{position:"fixed",top:60,left:0,right:0,zIndex:890,background:"linear-gradient(135deg,#164e63,#0e7490)",color:"#fff",padding:"8px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",fontSize:12,fontWeight:700}}>
+          <span style={{fontSize:12}}>Trial: {daysLeft}d left</span>
+          <button onClick={()=>setShowPaywall(true)} style={{background:"#fff",color:"#0e7490",border:"none",borderRadius:20,padding:"4px 12px",fontSize:11,fontWeight:800,cursor:"pointer"}}>Upgrade</button>
+        </div>
+      )}
       {emailUnverified && (
         <div style={{
           background: '#fef3c7', borderBottom: '2px solid #f59e0b',
@@ -1166,7 +1230,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {// ═══ LEADERBOARD ═══
       currentScreen==="leaderboard"&&<Leaderboard goBack={goBack} authUser={authUser} name={name} stats={stats} famData={famData} setFamData={setFamData} famMembers={famMembers} setFamMembers={setFamMembers} famLoading={famLoading} setFamLoading={setFamLoading} famName={famName} setFamName={setFamName} famCode={famCode} setFamCode={setFamCode} famErr={famErr} setFamErr={setFamErr} famTab={famTab} setFamTab={setFamTab} />}
       {// ═══ WEEKLY LEADERBOARD SCREEN ═══
-      currentScreen==="leaderboard_weekly"&&(()=>{const _wk=(function(){const d=new Date();const day=d.getDay()||7;d.setDate(d.getDate()+4-day);const yr=d.getFullYear();const wk=Math.ceil(((d.getTime()-new Date(yr,0,1).getTime())/86400000+1)/7);return`${yr}-W${String(wk).padStart(2,'0')}`;})();const _weekXP=parseInt(localStorage.getItem('nh_week_xp_'+_wk)||'0',10);return <LeaderboardScreen db={null} user={authUser} weekXP={_weekXP} goBack={goBack} />;})()}
+      currentScreen==="leaderboard_weekly"&&<LeaderboardScreen db={null} user={authUser} weekXP={_weeklyXP} goBack={goBack} />}
       {// ═══ FRIENDS & FAMILY GROUP SCREEN ═══
       currentScreen==="family_group"&&<ProfileFriendsScreen user={authUser} goBack={goBack} />}
       {// ═══ SCHOOL KIT ═══
@@ -1180,7 +1244,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {currentScreen==="croatiaathletes"&&<CroatiaAthletes goBack={goBack} />}
       {currentScreen==="immersion"&&<ImmersionHub goBack={goBack} setScr={setScr} />}
       {currentScreen==="lyrics"&&<LyricsScreen goBack={goBack} award={award} />}
-      {currentScreen==="aiconvo"&&<AIConversation goBack={goBack} setScr={setScr} sCurEx={sCurEx} setJWords={setJWords} />}
+      {currentScreen==="aiconvo"&&(isPremium?<AIConversation goBack={goBack} setScr={setScr} sCurEx={sCurEx} setJWords={setJWords} />:<PaywallScreen featureName="AI Conversation" onClose={goBack} onSubscribed={()=>{refreshSub();}} />)}
       {currentScreen==="popculture"&&<PopCultureScreen goBack={goBack} />}
       {currentScreen==="basketball"&&<BasketballScreen goBack={goBack} />}
       {currentScreen==="gym"&&<GymScreen goBack={goBack} />}
@@ -1368,8 +1432,8 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {currentScreen==="postcard"&&<PostcardScreen goBack={goBack} award={award} />}
       {currentScreen==="storymode"&&<StoryModeScreen goBack={goBack} award={award} />}
       {currentScreen==="personas"&&<PersonaScreen goBack={goBack} setScr={setScr} />}
-      {currentScreen==="maja"&&<MajaScreen goBack={goBack} award={award} />}
-      {currentScreen==="live_tutor"&&<LiveTutorScreen goBack={goBack} award={award} />}
+      {currentScreen==="maja"&&(isPremium?<MajaScreen goBack={goBack} award={award} />:<PaywallScreen featureName="Maja AI Tutor" onClose={goBack} onSubscribed={()=>{refreshSub();}} />)}
+      {currentScreen==="live_tutor"&&(isPremium?<LiveTutorScreen goBack={goBack} award={award} />:<PaywallScreen featureName="Live Tutor" onClose={goBack} onSubscribed={()=>{refreshSub();}} />)}
       {currentScreen==="ai_listening"&&<AIListeningScreen goBack={goBack} award={award} />}
       {currentScreen==="grammar_diagnosis"&&<GrammarDiagnosisScreen goBack={goBack} award={award} />}
       {currentScreen==="micro_lesson"&&<MicroLessonScreen goBack={goBack} award={award} goFlashcards={()=>{launchFlashcards([]);}} />}

@@ -25,9 +25,18 @@
     "prepare": "husky",
     "test:live": "npx playwright test --config playwright.stealth.config.js",
     "screenshots": "npx playwright test --config playwright.stealth.config.js e2e/screenshots.spec.js",
-    "verify:firestore": "node scripts/verify-firestore.mjs"
+    "verify:firestore": "node scripts/verify-firestore.mjs",
+    "cap:sync": "npm run build && npx cap sync",
+    "cap:android": "npm run build && npx cap sync android && npx cap open android",
+    "cap:ios": "npm run build && npx cap sync ios && npx cap open ios",
+    "cap:run:android": "npm run build && npx cap sync android && npx cap run android",
+    "cap:run:ios": "npm run build && npx cap sync ios && npx cap run ios"
   },
   "dependencies": {
+    "@capacitor/android": "^8.3.0",
+    "@capacitor/cli": "^8.3.0",
+    "@capacitor/core": "^8.3.0",
+    "@capacitor/ios": "^8.3.0",
     "@sentry/react": "^10.42.0",
     "canvas-confetti": "^1.9.4",
     "dexie": "^4.3.0",

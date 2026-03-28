@@ -1,20 +1,208 @@
 import React, { useState, useRef, useCallback } from 'react';
 
+// ── Croatian phoneme hints shown when a specific phoneme scores poorly ─────────
+const PHONEME_HINTS = {
+  'ć': 'Like English "ch" but softer — place tongue behind upper teeth',
+  'č': 'Like English "ch" in "church" — harder than ć',
+  'š': 'Like English "sh" in "shoe"',
+  'ž': 'Like French "j" in "jour" or English "s" in "measure"',
+  'đ': 'Like English "j" in "judge" but softer — voiced ć',
+  'lj': 'Like Spanish "ll" in "llama" — one liquid sound',
+  'nj': 'Like Spanish "ñ" in "mañana"',
+  'r': 'Rolled "r" — vibrate the tongue tip against the ridge behind upper teeth',
+};
+
+// Score threshold colours used throughout both modes
+function scoreColor(s) {
+  if (s >= 90) return '#16a34a';
+  if (s >= 70) return '#d97706';
+  return '#dc2626';
+}
+function scoreEmoji(s) {
+  if (s >= 90) return '🟢';
+  if (s >= 70) return '🟡';
+  return '🔴';
+}
+function scoreLabel(s) {
+  if (s >= 90) return 'Excellent!';
+  if (s >= 70) return 'Good!';
+  if (s >= 50) return 'Keep practicing';
+  return 'Try again';
+}
+
+// ── Phoneme breakdown panel (Azure-mode only) ─────────────────────────────────
+function PhonemeBreakdown({ phonemes }) {
+  const [open, setOpen] = useState(false);
+  if (!phonemes || phonemes.length === 0) return null;
+  return (
+    <div style={{ marginTop: 4 }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          background: 'none', border: 'none', cursor: 'pointer',
+          fontSize: 10, color: 'var(--subtext,#94a3b8)', fontWeight: 600,
+          padding: '2px 0', fontFamily: "'Outfit',sans-serif",
+        }}
+      >
+        {open ? '▲ hide phonemes' : '▼ show phonemes'}
+      </button>
+      {open && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
+          {phonemes.map((p, i) => {
+            const hint = PHONEME_HINTS[p.phoneme.toLowerCase()] || PHONEME_HINTS[p.phoneme] || null;
+            return (
+              <span
+                key={i}
+                title={hint || undefined}
+                style={{
+                  display: 'inline-flex', flexDirection: 'column', alignItems: 'center',
+                  background: `${scoreColor(p.score)}18`,
+                  border: `1.5px solid ${scoreColor(p.score)}55`,
+                  borderRadius: 6, padding: '2px 7px',
+                  cursor: hint ? 'help' : 'default',
+                }}
+              >
+                <span style={{ fontSize: 12, fontWeight: 700, color: scoreColor(p.score) }}>{p.phoneme}</span>
+                <span style={{ fontSize: 10, color: 'var(--subtext,#94a3b8)' }}>{p.score}%</span>
+              </span>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Azure Assessment results panel ────────────────────────────────────────────
+function AzureResultPanel({ azureResult, onRetry }) {
+  // Find the single lowest-scoring phoneme across all words for a targeted tip.
+  let worstPhoneme = null;
+  let worstScore = Infinity;
+  for (const w of azureResult.word_scores || []) {
+    for (const p of w.phonemes || []) {
+      if (p.score < worstScore) { worstScore = p.score; worstPhoneme = p.phoneme; }
+    }
+  }
+  const worstHint = worstPhoneme
+    ? (PHONEME_HINTS[worstPhoneme.toLowerCase()] || PHONEME_HINTS[worstPhoneme] || null)
+    : null;
+
+  const overall = azureResult.overall ?? 0;
+
+  return (
+    <div style={{
+      background: '#f8fafc', borderRadius: 12, padding: '14px 16px',
+      border: `2px solid ${scoreColor(overall)}22`,
+    }}>
+      {/* Header scores row */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+        <div style={{
+          width: 56, height: 56, borderRadius: '50%', flexShrink: 0,
+          background: `${scoreColor(overall)}20`,
+          border: `3px solid ${scoreColor(overall)}`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 15, fontWeight: 900, color: scoreColor(overall),
+        }}>{overall}%</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 800, fontSize: 15, color: scoreColor(overall) }}>
+            {scoreEmoji(overall)} {scoreLabel(overall)} — {overall}%
+          </div>
+          <div style={{ display: 'flex', gap: 10, marginTop: 4, flexWrap: 'wrap' }}>
+            {[
+              ['Accuracy', azureResult.accuracy],
+              ['Fluency',  azureResult.fluency],
+              ['Complete', azureResult.completeness],
+            ].map(([label, val]) => (
+              <span key={label} style={{
+                fontSize: 11, fontWeight: 700,
+                color: scoreColor(val ?? 0),
+                background: `${scoreColor(val ?? 0)}15`,
+                borderRadius: 6, padding: '2px 7px',
+              }}>{label} {val ?? 0}%</span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Word-by-word breakdown */}
+      {azureResult.word_scores && azureResult.word_scores.length > 0 && (
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ fontSize: 11, fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>
+            Word Scores
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {azureResult.word_scores.map((w, i) => (
+              <div key={i} style={{
+                background: '#fff', borderRadius: 10,
+                border: `2px solid ${scoreColor(w.score)}40`,
+                padding: '6px 10px', minWidth: 60,
+              }}>
+                <div style={{ fontWeight: 800, fontSize: 14, color: scoreColor(w.score) }}>
+                  {w.word}
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--subtext,#94a3b8)' }}>{w.score}%</div>
+                <PhonemeBreakdown phonemes={w.phonemes} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Targeted tip for worst phoneme */}
+      {worstHint && worstScore < 90 && (
+        <div style={{
+          padding: '8px 12px', borderRadius: 9,
+          background: '#fefce8', border: '1.5px solid #fde047',
+          fontSize: 12, color: '#713f12', marginBottom: 10,
+        }}>
+          <span style={{ fontWeight: 800 }}>💡 Tip for "{worstPhoneme}":</span> {worstHint}
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <button onClick={onRetry} style={{
+          background: 'none', border: '1px solid var(--border,#e2e8f0)',
+          borderRadius: 8, padding: '6px 14px', cursor: 'pointer',
+          fontSize: 12, fontWeight: 700, fontFamily: "'Outfit',sans-serif",
+          color: 'var(--subtext)',
+        }}>🔄 Try Again</button>
+      </div>
+      <div style={{ fontSize: '0.75rem', color: 'var(--subtext,#94a3b8)', marginTop: 8 }}>
+        Powered by Azure Pronunciation Assessment — phoneme-level accuracy.
+      </div>
+    </div>
+  );
+}
+
 /**
  * @param {{ targetText: string, level?: string, onScore?: (r: {spoken: string, score: number}) => void }} props
  */
 export default function PronunciationScorer({ targetText, level = 'B1', onScore }) {
-  const [state, setState] = useState('idle'); // idle | listening | scored | unsupported
+  // ── Shared state ─────────────────────────────────────────────────────────────
+  const [state, setState] = useState('idle'); // idle | listening | recording | processing | scored | unsupported
   const [result, setResult] = useState(/** @type {{spoken:string,score:number}|null} */ (null));
   const [coaching, setCoaching] = useState(null); // null | 'loading' | {feedback,issue,phonetic_guide,drills}
   const [srErrorMsg, setSrErrorMsg] = useState(null);
-  const recRef = useRef(/** @type {any} */ (null));
+  const [azureResult, setAzureResult] = useState(null); // null | AzureAssessmentResult
+  const [mode, setMode] = useState('auto'); // 'auto' | 'webspeech' | 'azure'
 
-  const supported = !!(
-    (typeof window !== 'undefined') &&
+  const recRef = useRef(/** @type {any} */ (null));          // SpeechRecognition ref
+  const mediaRecRef = useRef(/** @type {MediaRecorder|null} */ (null));  // MediaRecorder ref
+  const chunksRef = useRef(/** @type {Blob[]} */ ([]));      // recorded audio chunks
+
+  // ── Browser capability checks ─────────────────────────────────────────────
+  const webSpeechSupported = !!(
+    typeof window !== 'undefined' &&
     (/** @type {any} */ (window).SpeechRecognition || /** @type {any} */ (window).webkitSpeechRecognition)
   );
+  const mediaRecorderSupported = !!(
+    typeof window !== 'undefined' &&
+    typeof navigator !== 'undefined' &&
+    navigator.mediaDevices &&
+    typeof MediaRecorder !== 'undefined'
+  );
 
+  // ── Levenshtein / similarity (existing, unchanged) ────────────────────────
   function levenshtein(a, b) {
     const m = a.length, n = b.length;
     const dp = Array.from({ length: m + 1 }, (_, i) =>
@@ -39,10 +227,22 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
     return Math.round((1 - dist / maxLen) * 100);
   }
 
-  function start() {
-    if (!supported) { setState('unsupported'); return; }
+  // ── Reset helper ──────────────────────────────────────────────────────────
+  function resetAll() {
+    setResult(null);
     setCoaching(null);
     setSrErrorMsg(null);
+    setAzureResult(null);
+    setState('idle');
+    chunksRef.current = [];
+  }
+
+  // ── Web Speech API mode (existing, unchanged) ─────────────────────────────
+  function startWebSpeech() {
+    if (!webSpeechSupported) { setState('unsupported'); return; }
+    setCoaching(null);
+    setSrErrorMsg(null);
+    setAzureResult(null);
     const SR = /** @type {any} */ (window).SpeechRecognition || /** @type {any} */ (window).webkitSpeechRecognition;
     const rec = new SR();
     rec.lang = 'hr-HR';
@@ -84,6 +284,129 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
     setState('listening');
   }
 
+  // ── Azure mode: record → assess ───────────────────────────────────────────
+  async function startAzureRecording() {
+    if (!mediaRecorderSupported) {
+      setSrErrorMsg('Audio recording not supported in this browser.');
+      return;
+    }
+    setSrErrorMsg(null);
+    setAzureResult(null);
+    setResult(null);
+
+    let stream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    } catch (e) {
+      const msg = (e?.name === 'NotAllowedError' || e?.name === 'PermissionDeniedError')
+        ? 'Microphone permission denied. Please allow mic access in your browser settings.'
+        : 'Could not access microphone. Please check your device settings.';
+      setSrErrorMsg(msg);
+      return;
+    }
+
+    // Prefer audio/wav; fall back to whatever the browser supports.
+    // Azure Pronunciation Assessment REST API accepts audio/wav and audio/ogg;codecs=opus.
+    const preferredMime = ['audio/wav', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus']
+      .find(t => MediaRecorder.isTypeSupported(t)) || '';
+
+    const recorder = new MediaRecorder(stream, preferredMime ? { mimeType: preferredMime } : {});
+    chunksRef.current = [];
+
+    recorder.ondataavailable = e => {
+      if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
+    };
+
+    recorder.onstop = async () => {
+      // Stop all tracks so the mic indicator light goes off.
+      stream.getTracks().forEach(t => t.stop());
+
+      const mimeType = recorder.mimeType || 'audio/webm';
+      const blob = new Blob(chunksRef.current, { type: mimeType });
+      chunksRef.current = [];
+      setState('processing');
+      await submitToAzure(blob);
+    };
+
+    mediaRecRef.current = recorder;
+    recorder.start();
+    setState('recording');
+  }
+
+  function stopAzureRecording() {
+    if (mediaRecRef.current && mediaRecRef.current.state === 'recording') {
+      mediaRecRef.current.stop();
+    }
+  }
+
+  async function submitToAzure(blob) {
+    // Convert Blob → base64
+    let audioBase64;
+    try {
+      const arrayBuffer = await blob.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      let binary = '';
+      for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+      audioBase64 = btoa(binary);
+    } catch {
+      setSrErrorMsg('Could not process audio. Please try again.');
+      setState('idle');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/pronunciation-assess', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          audioBase64,
+          referenceText: targetText,
+          locale: 'hr-HR',
+        }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.ok) {
+        // Azure not configured or unavailable — fall back to Web Speech API mode.
+        if (data?.error === 'not_configured' || !res.ok) {
+          setMode('webspeech');
+          startWebSpeech();
+          return;
+        }
+        throw new Error(data?.error || 'API error');
+      }
+
+      setAzureResult(data);
+      setState('scored');
+      // Emit a synthetic onScore event so parent components still get feedback.
+      if (onScore) onScore({ spoken: targetText, score: data.overall ?? 0 });
+    } catch (fetchErr) {
+      console.warn('PronunciationScorer: Azure assess failed, falling back to Web Speech:', fetchErr?.message);
+      // Graceful fallback: try Web Speech API.
+      if (webSpeechSupported) {
+        setMode('webspeech');
+        startWebSpeech();
+      } else {
+        setSrErrorMsg('Pronunciation assessment unavailable. Please try again later.');
+        setState('idle');
+      }
+    }
+  }
+
+  // ── Mode selection & unified start ───────────────────────────────────────
+  // 'auto': try Azure first; if not available, fall back to Web Speech.
+  // The mode state is updated inside submitToAzure() when a fallback occurs.
+  function start() {
+    resetAll();
+    const useAzure = (mode === 'auto' || mode === 'azure') && mediaRecorderSupported;
+    if (useAzure) {
+      startAzureRecording();
+    } else {
+      startWebSpeech();
+    }
+  }
+
+  // ── AI Coaching fetch (existing, unchanged) ───────────────────────────────
   const fetchCoaching = useCallback(async (spoken, score) => {
     setCoaching('loading');
     try {
@@ -100,33 +423,18 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
     }
   }, [targetText, level]);
 
-  function scoreColor(s) {
-    if (s >= 90) return '#16a34a';
-    if (s >= 70) return '#d97706';
-    if (s >= 50) return '#ea580c';
-    return '#dc2626';
-  }
-  function scoreEmoji(s) {
-    if (s >= 90) return '🟢';
-    if (s >= 70) return '🟡';
-    if (s >= 50) return '🟠';
-    return '🔴';
-  }
-  function scoreLabel(s) {
-    if (s >= 90) return 'Excellent!';
-    if (s >= 70) return 'Good!';
-    if (s >= 50) return 'Keep practicing';
-    return 'Try again';
-  }
-
-  if (!supported) return (
+  // ── Unsupported fallback ──────────────────────────────────────────────────
+  if (!webSpeechSupported && !mediaRecorderSupported) return (
     <div style={{ fontSize: 12, color: 'var(--subtext)', fontStyle: 'italic', marginTop: 8 }}>
       Pronunciation scoring requires Chrome or Edge browser.
     </div>
   );
 
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div style={{ marginTop: 12 }}>
+
+      {/* ── IDLE ── */}
       {state === 'idle' && (
         <>
           <button onClick={start} style={{
@@ -145,6 +453,8 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
           )}
         </>
       )}
+
+      {/* ── WEB SPEECH: listening ── */}
       {state === 'listening' && (
         <div style={{
           display: 'flex', alignItems: 'center', gap: 10,
@@ -155,7 +465,53 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
           Listening… say: <em>{targetText}</em>
         </div>
       )}
-      {state === 'scored' && result && (
+
+      {/* ── AZURE: actively recording ── */}
+      {state === 'recording' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            background: '#fef3c7', borderRadius: 10, padding: '10px 16px',
+            fontSize: 13, fontWeight: 700, color: '#92400e',
+          }}>
+            <span style={{ fontSize: 18, animation: 'pulse 1s infinite' }}>🎙️</span>
+            Recording… say: <em>{targetText}</em>
+          </div>
+          <button
+            onClick={stopAzureRecording}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              background: '#dc2626', color: '#fff',
+              border: 'none', borderRadius: 10,
+              padding: '8px 16px', cursor: 'pointer',
+              fontSize: 13, fontWeight: 700, fontFamily: "'Outfit',sans-serif",
+              alignSelf: 'flex-start',
+            }}
+          >
+            ⏹ Stop Recording
+          </button>
+        </div>
+      )}
+
+      {/* ── AZURE: processing ── */}
+      {state === 'processing' && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          background: '#f0f9ff', borderRadius: 10, padding: '10px 16px',
+          fontSize: 13, fontWeight: 700, color: '#0369a1',
+        }}>
+          <span style={{ fontSize: 16 }}>⏳</span>
+          Analyzing your pronunciation…
+        </div>
+      )}
+
+      {/* ── SCORED: Azure result ── */}
+      {state === 'scored' && azureResult && (
+        <AzureResultPanel azureResult={azureResult} onRetry={resetAll} />
+      )}
+
+      {/* ── SCORED: Web Speech result (existing UI, unchanged) ── */}
+      {state === 'scored' && result && !azureResult && (
         <div style={{
           background: '#f8fafc', borderRadius: 12, padding: '14px 16px',
           border: `2px solid ${scoreColor(result.score)}22`,
@@ -227,7 +583,7 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
           )}
 
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={start} style={{
+            <button onClick={resetAll} style={{
               background: 'none', border: '1px solid var(--border,#e2e8f0)',
               borderRadius: 8, padding: '6px 14px', cursor: 'pointer',
               fontSize: 12, fontWeight: 700, fontFamily: "'Outfit',sans-serif",
