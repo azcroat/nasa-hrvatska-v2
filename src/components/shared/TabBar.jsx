@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import SearchModal from './SearchModal';
 
 const TABS = [
@@ -53,8 +53,30 @@ function NavIcon({ id, active }) {
 // wrap or render any tab content. To animate tab switches, apply the `.tab-enter`
 // CSS class (defined in index.css) to the content wrapper in App.jsx whenever the
 // active tab changes (e.g. via a `key={tab}` prop or a className toggle).
+const TAB_SUBTITLES = {
+  learn:    'Lessons',
+  practice: 'Drills',
+  croatia:  'Culture',
+};
+
 export default function TabBar({ tab, setTab, setScr, badges }) {
   const [showSearch, setShowSearch] = useState(false);
+
+  // Local SRS due-count fallback — used only if the badges prop doesn't carry a practice count
+  const localDueCount = useMemo(() => {
+    try {
+      const sr = JSON.parse(localStorage.getItem('nh_sr') || '{}');
+      const now = Date.now();
+      return Object.values(sr).filter(v => v.due && v.due <= now).length;
+    } catch { return 0; }
+  }, []);
+
+  const croatiaHasNew = (() => {
+    const lastVisit = localStorage.getItem('nh_croatia_last_visit');
+    if (!lastVisit) return true; // never visited = definitely new
+    const today = new Date().toISOString().slice(0, 10);
+    return lastVisit < today; // visited before today = new content available
+  })();
 
   const activeIdx = TABS.findIndex(t => t.id === tab);
   const tabCount = TABS.length;
@@ -105,7 +127,12 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
             <button
               key={t.id}
               className={"nav-btn" + (isActive ? " active" : "")}
-              onClick={() => { setTab(t.id); setScr("dashboard"); }}
+              onClick={() => {
+                if (t.id === 'croatia') {
+                  localStorage.setItem('nh_croatia_last_visit', new Date().toISOString().slice(0, 10));
+                }
+                setTab(t.id); setScr("dashboard");
+              }}
               aria-current={isActive ? "page" : undefined}
               aria-label={t.label}
               style={{
@@ -138,10 +165,35 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
                   marginTop: 3,
                   transition: 'color .18s, font-weight .18s, letter-spacing .18s ease',
                   letterSpacing: isActive ? '.02em' : '.01em',
+                  lineHeight: TAB_SUBTITLES[t.id] ? 1.15 : undefined,
                 }}
               >
                 {t.label}
+                {TAB_SUBTITLES[t.id] && (
+                  <span style={{
+                    fontSize: 9,
+                    display: 'block',
+                    color: 'inherit',
+                    opacity: 0.7,
+                    lineHeight: 1,
+                    fontWeight: isActive ? 700 : 500,
+                    letterSpacing: '.01em',
+                  }}>
+                    {TAB_SUBTITLES[t.id]}
+                  </span>
+                )}
               </span>
+              {t.id === 'croatia' && croatiaHasNew && tab !== 'croatia' && (
+                <div style={{
+                  position: 'absolute', top: 2, right: '50%',
+                  transform: 'translateX(10px)',
+                  width: 8, height: 8,
+                  background: '#dc2626',
+                  borderRadius: '50%',
+                  border: '1.5px solid var(--bg, #fff)',
+                  pointerEvents: 'none',
+                }} />
+              )}
               {badges && badges[t.id] > 0 && (
                 <span style={{
                   position: 'absolute', top: 4, right: 4,
@@ -158,6 +210,20 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
                 }}>
                   {badges[t.id]}
                 </span>
+              )}
+              {/* Local SRS fallback badge — shown on Practice when badges prop has no count */}
+              {t.id === 'practice' && !(badges && badges.practice > 0) && localDueCount > 0 && (
+                <div style={{
+                  position: 'absolute', top: 2, right: '50%', transform: 'translateX(12px)',
+                  minWidth: 16, height: 16, padding: '0 4px',
+                  background: '#dc2626', borderRadius: 8,
+                  fontSize: 9, fontWeight: 900, color: '#fff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  border: '1.5px solid var(--bg, #fff)',
+                  pointerEvents: 'none',
+                }}>
+                  {localDueCount > 9 ? '9+' : localDueCount}
+                </div>
               )}
             </button>
           );

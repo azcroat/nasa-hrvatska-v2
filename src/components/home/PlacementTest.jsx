@@ -34,7 +34,7 @@ function getRating(score) {
   return 'Just starting';
 }
 
-export default function PlacementTest({ pq, pi, ps, pa, px, sPi, sPs, sPa, sPx, setScr, setSt }) {
+export default function PlacementTest({ pq, pi, ps, pa, px, sPi, sPs, sPa, sPx, setScr, setSt, setTab }) {
   const [showResult, setShowResult] = useState(false);
   // Per-skill correct counts — tracked as we go
   // We use a ref-style approach: store in state updated on answer
@@ -131,13 +131,21 @@ export default function PlacementTest({ pq, pi, ps, pa, px, sPi, sPs, sPa, sPx, 
           </div>
 
           <button
-            className="b bp"
-            style={{ width: '100%', marginTop: 4 }}
             onClick={() => {
               localStorage.setItem('nh_placement_done', 'true');
               setSt(s => ({ ...s, diff }));
               setScr('dashboard');
-            }}>
+              setTimeout(() => setTab && setTab('learn'), 300);
+            }}
+            style={{
+              display: 'block', width: '100%', padding: '16px 20px',
+              background: 'linear-gradient(135deg, #16a34a, #15803d)',
+              border: 'none', borderRadius: 14, cursor: 'pointer',
+              color: '#fff', fontSize: 16, fontWeight: 800,
+              boxShadow: '0 4px 16px rgba(22,163,74,0.35)',
+              marginTop: 16, textAlign: 'center',
+            }}
+          >
             Start Learning →
           </button>
         </div>

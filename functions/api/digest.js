@@ -3,6 +3,8 @@
 // Call this endpoint from the frontend on Sunday with the user's stats.
 // POST /api/digest  { email, name, xp, lessons, streakDays, wordsLearned }
 
+import { checkRateLimit } from './_rateLimit.js';
+
 function isAllowedOrigin(origin, isDev) {
   try {
     const hostname = new URL(origin).hostname;
@@ -28,6 +30,11 @@ export async function onRequestPost(ctx) {
   const isDev = ctx.env.ENVIRONMENT !== 'production';
   if (!isAllowedOrigin(origin, isDev)) {
     return new Response('Forbidden', { status: 403, headers: corsHeaders });
+  }
+
+  const allowed = await checkRateLimit(ctx.request, 5); // 5 per minute max
+  if (!allowed) {
+    return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders });
   }
 
   const RESEND_KEY = ctx.env.RESEND_API_KEY;

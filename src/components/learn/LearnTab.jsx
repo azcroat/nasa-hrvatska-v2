@@ -291,6 +291,41 @@ export default function LearnTab({
         </div>
       </div>
 
+      {/* Quick Jump — horizontal scroll category shortcuts */}
+      <div style={{
+        display: 'flex', gap: 8, overflowX: 'auto', padding: '0 0 8px',
+        scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch',
+        marginBottom: 8,
+      }}>
+        {[
+          { icon: '📚', label: 'Vocabulary', color: '#0e7490' },
+          { icon: '⚙️', label: 'Grammar',   color: '#7c3aed' },
+          { icon: '📖', label: 'Reading',    color: '#059669' },
+          { icon: '🎬', label: 'Videos',     color: '#dc2626' },
+          { icon: '🎮', label: 'Interactive',color: '#d97706' },
+        ].map(item => (
+          <button
+            key={item.label}
+            onClick={() => {
+              if (!showBrowse) setShowBrowse(true);
+              setTimeout(() => {
+                const el = document.getElementById('learn-section-' + item.label.toLowerCase());
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }, 50);
+            }}
+            style={{
+              flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6,
+              padding: '8px 14px', borderRadius: 20,
+              background: 'var(--card)', border: '1px solid var(--card-b)',
+              cursor: 'pointer', minHeight: 44,
+            }}
+          >
+            <span style={{fontSize: 16}}>{item.icon}</span>
+            <span style={{fontSize: 12, fontWeight: 700, color: item.color, whiteSpace: 'nowrap'}}>{item.label}</span>
+          </button>
+        ))}
+      </div>
+
       {/* ── GOAL-BASED STAGE 1 FOCUS ────────────────────────────────── */}
       {(() => {
         const goal = localStorage.getItem('nh_goal');
@@ -525,7 +560,7 @@ export default function LearnTab({
           <div style={{ padding:'0 16px 40px' }}>
 
             {/* Vocabulary */}
-            <div style={{ marginTop:16 }}>
+            <div id="learn-section-vocabulary" style={{ marginTop:16 }}>
               <Section title="Vocabulary" icon="📚" count={`${allCats.length + 6} topics`} defaultOpen={true}>
                 <p style={{ fontSize:'var(--text-sm)', color:"var(--subtext)", marginBottom:10, fontWeight:500 }}>
                   {allCats.length} core categories · tap any to start
@@ -572,6 +607,7 @@ export default function LearnTab({
             </div>
 
             {/* Grammar */}
+            <div id="learn-section-grammar">
             <Section title="Grammar" icon="📝" count="14 lessons" defaultOpen={true}>
               <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
                 <LevelBadge label="Foundation" color="var(--success)" bg="var(--success-bg)" />
@@ -632,9 +668,11 @@ export default function LearnTab({
                 ))}
               </div>
             </Section>
+            </div>
 
             {/* Reading */}
-            <Section title="Reading" icon="📖" count="100+ passages" defaultOpen={false}>
+            <div id="learn-section-reading">
+            <Section title="Reading" icon="📖" count="100+ passages" defaultOpen={true}>
               <button className="tc" style={{ width:"100%", display:"flex", alignItems:"center", gap:14, padding:"16px" }} onClick={() => { setShowBrowse(false); setScr("readlist"); }}>
                 <div style={{ width:44, height:44, borderRadius:13, background:'var(--success-bg)', border:'1px solid var(--success-b)',
                   display:"flex", alignItems:"center", justifyContent:"center", fontSize:'var(--text-2xl)', flexShrink:0 }}>📖</div>
@@ -645,9 +683,11 @@ export default function LearnTab({
                 <div style={{ fontSize:'var(--text-xl)', color:"var(--subtext)", opacity:.35 }}>›</div>
               </button>
             </Section>
+            </div>
 
             {/* Grammar Videos */}
-            <Section title="Grammar Videos & AI Lessons" icon="🎥" count="18 videos + AI" defaultOpen={false}>
+            <div id="learn-section-videos">
+            <Section title="Grammar Videos & AI Lessons" icon="🎥" count="18 videos + AI" defaultOpen={true}>
               <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                 <button className="tc" style={{ width:"100%", display:"flex", alignItems:"center", gap:14, padding:"16px" }}
                   onClick={() => { setShowBrowse(false); setScr("grammarvideos"); }}>
@@ -667,9 +707,11 @@ export default function LearnTab({
                 </button>
               </div>
             </Section>
+            </div>
 
             {/* Interactive Media */}
-            <Section title="Interactive Media" icon="✨" count="4 tools" defaultOpen={false}>
+            <div id="learn-section-interactive">
+            <Section title="Interactive Media" icon="✨" count="4 tools" defaultOpen={true}>
               <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                 {[
                   ["🎬","Animated Lessons","Slide-by-slide grammar lessons with audio","animlesson_alphabet",() => { setShowBrowse(false); launchAnimLesson && launchAnimLesson("alphabet"); }],
@@ -687,6 +729,7 @@ export default function LearnTab({
                 ))}
               </div>
             </Section>
+            </div>
 
             {/* Reference */}
             <Section title="Quick Reference" icon="📌" count="13 guides" defaultOpen={false}>

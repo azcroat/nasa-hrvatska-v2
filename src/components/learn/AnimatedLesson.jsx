@@ -6,6 +6,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { speak } from '../../lib/audio.js';
+import { markQuest } from '../../lib/quests.js';
 
 // ── Inline keyframes injected once ──────────────────────────
 const SLIDE_ANIM_ID = 'nh-slide-anim';
@@ -512,6 +513,7 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
       setXpAwarded(true);
       if (typeof award === 'function') {
         award(25);
+        markQuest('grammar');
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

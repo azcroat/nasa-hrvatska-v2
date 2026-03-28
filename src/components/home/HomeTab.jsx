@@ -65,6 +65,13 @@ function getWeekKey() {
 function getWeekXP() {
   return parseInt(localStorage.getItem('nh_week_xp_' + getWeekKey()) || '0', 10);
 }
+function getCEFR(lvl) {
+  if (lvl <= 2) return { current: 'A1', next: 'A2', pctInLevel: Math.round(((lvl - 1) / 2) * 100) };
+  if (lvl <= 4) return { current: 'A2', next: 'B1', pctInLevel: Math.round(((lvl - 3) / 2) * 100) };
+  if (lvl <= 6) return { current: 'B1', next: 'B2', pctInLevel: Math.round(((lvl - 5) / 2) * 100) };
+  if (lvl <= 8) return { current: 'B2', next: 'C1', pctInLevel: Math.round(((lvl - 7) / 2) * 100) };
+  return { current: 'C1', next: 'C2', pctInLevel: Math.min(Math.round(((lvl - 9) / 2) * 100), 100) };
+}
 
 export default function HomeTab({
   name, level, st,
@@ -90,6 +97,7 @@ export default function HomeTab({
   const xpCur = st.xp - lXP(level);
   const xpNeeded = nXP(level) - lXP(level);
   const xpPct = Math.min(Math.round((xpCur / xpNeeded) * 100), 100);
+  const cefr = getCEFR(level);
 
   const userGoal = goal || localStorage.getItem('nh_goal') || 'fluent';
   const activeCampaign = useMemo(() => getActiveCampaign(), []);
@@ -288,6 +296,26 @@ export default function HomeTab({
           )}
         </div>
 
+        {/* ── Continue Learning CTA ── */}
+        {lastActivity && (
+          <button
+            onClick={() => { setScr(lastActivity.ex); if (sCurEx) sCurEx(lastActivity.ex); }}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              width: '100%', padding: '14px 18px', marginBottom: 16, marginTop: 12,
+              background: 'linear-gradient(135deg, #16a34a, #15803d)',
+              border: 'none', borderRadius: 14, cursor: 'pointer',
+              boxShadow: '0 4px 16px rgba(22,163,74,0.35)',
+            }}
+          >
+            <div style={{textAlign: 'left'}}>
+              <div style={{fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.75)', letterSpacing: '.06em', textTransform: 'uppercase'}}>Continue</div>
+              <div style={{fontSize: 15, fontWeight: 800, color: '#fff', marginTop: 1}}>{lastActivity.label}</div>
+            </div>
+            <span style={{fontSize: 24, color: '#fff'}}>▶</span>
+          </button>
+        )}
+
         {/* Level badge pill */}
         <div style={{display:"inline-flex",alignItems:"center",marginBottom:16}}>
           <span style={{
@@ -341,6 +369,11 @@ export default function HomeTab({
                 <span style={{fontSize:9,color:'rgba(147,197,253,.95)',fontWeight:800}}>×{freezes} Zaštita niza</span>
               </div>
             )}
+            {streak.count === 0 && (
+              <div style={{fontSize:11, color:'var(--warning)', fontWeight:600, marginTop:4, textAlign:'center'}}>
+                Complete any lesson today to start your streak! 🔥
+              </div>
+            )}
           </div>
 
           {/* XP progress ring */}
@@ -382,6 +415,28 @@ export default function HomeTab({
             <div style={{fontSize:9,color:'rgba(255,255,255,.45)',marginTop:3,fontWeight:600}}>
               {(nXP(level)-st.xp).toLocaleString()} XP to go
             </div>
+          </div>
+        </div>
+
+        {/* CEFR progression bar */}
+        <div style={{marginTop: 12}}>
+          <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4}}>
+            <span style={{fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.7)', letterSpacing:'.05em'}}>CEFR LEVEL</span>
+            <span style={{fontSize:11, fontWeight:900, color:'var(--gold, #C8980A)'}}>
+              {cefr.current} → {cefr.next} &nbsp;·&nbsp; {cefr.pctInLevel}%
+            </span>
+          </div>
+          <div style={{height:6, background:'rgba(255,255,255,0.15)', borderRadius:6, overflow:'hidden'}}>
+            <div style={{
+              height:'100%',
+              width: cefr.pctInLevel + '%',
+              background:'linear-gradient(90deg, var(--gold,#C8980A), #FFE070)',
+              borderRadius:6,
+              transition:'width 0.6s ease',
+            }} />
+          </div>
+          <div style={{marginTop:4, fontSize:10, color:'rgba(255,255,255,0.5)', fontStyle:'italic'}}>
+            {xpCur} / {xpNeeded} XP this level
           </div>
         </div>
 
@@ -1091,7 +1146,12 @@ export default function HomeTab({
           {/* ── SRS REVIEW NUDGE ── */}
           {(() => {
             const due = getDueReviews();
-            if (due.length === 0) return null;
+            const dueReviews = due;
+            if (dueReviews.length === 0) return (
+              <div style={{fontSize:11, color:'var(--text-2)', fontStyle:'italic', textAlign:'center', padding:'4px 0'}}>
+                No reviews due — keep completing lessons to build your deck
+              </div>
+            );
             return (
               <div
                 onClick={() => setScr("review")}

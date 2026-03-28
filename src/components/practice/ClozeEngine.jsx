@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { H, speak, srMark } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
+import { markQuest } from '../../lib/quests.js';
 
 // Sentence bank — fill-in-the-blank Croatian sentences covering cases, prepositions, and grammar
 // Format: { sentence: 'full sentence', blank: 'word to hide', options: [correct, wrong1, wrong2, wrong3], translation: 'English', hint: 'grammar note' }
@@ -109,6 +110,7 @@ export default function ClozeEngine({ goBack, award }) {
     if (qi + 1 >= questions.length) {
       const earned = Math.round((score / questions.length) * 30) + 10;
       if (award) award(earned);
+      markQuest('grammar');
       setDone(true);
     } else {
       setQi(qi + 1);

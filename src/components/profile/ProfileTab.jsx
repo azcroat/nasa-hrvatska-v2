@@ -714,6 +714,32 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
             <span style={{ color: 'var(--subtext)' }}>→</span>
           </div>
 
+          {/* ── LEARNING TOOLS ── */}
+          <div style={{marginTop: 16, marginBottom: 8}}>
+            <div style={{fontSize: 11, fontWeight: 800, color: 'var(--text-2)', letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 8}}>
+              Learning Tools
+            </div>
+            {[
+              { icon: '📊', label: 'My Analytics', screen: 'analytics', desc: 'Progress charts & stats' },
+              { icon: '❌', label: 'Mistakes Review', screen: 'mistakes', desc: 'Words you got wrong' },
+              { icon: '🏆', label: 'Leaderboard', screen: 'leaderboard', desc: 'Family & friends ranking' },
+            ].map(item => (
+              <button key={item.screen} onClick={() => setScr(item.screen)} style={{
+                display: 'flex', alignItems: 'center', gap: 12, width: '100%',
+                padding: '12px 14px', marginBottom: 8,
+                background: 'var(--card)', border: '1px solid var(--card-b)',
+                borderRadius: 12, cursor: 'pointer', textAlign: 'left',
+              }}>
+                <span style={{fontSize: 22}}>{item.icon}</span>
+                <div>
+                  <div style={{fontSize: 13, fontWeight: 700, color: 'var(--text)'}}>{item.label}</div>
+                  <div style={{fontSize: 11, color: 'var(--text-2)'}}>{item.desc}</div>
+                </div>
+                <span style={{marginLeft: 'auto', color: 'var(--text-3)', fontSize: 14}}>›</span>
+              </button>
+            ))}
+          </div>
+
         </React.Fragment>
       )}
 

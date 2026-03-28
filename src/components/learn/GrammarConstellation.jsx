@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { markQuest } from '../../lib/quests.js';
 
 const CASES = [
   {
@@ -299,6 +300,7 @@ export default function GrammarConstellation({ goBack, award }) {
       if (!awardCalled) {
         setAwardCalled(true);
         if (typeof award === 'function') award(finalScore * 10);
+        markQuest('grammar');
       }
     }
   }

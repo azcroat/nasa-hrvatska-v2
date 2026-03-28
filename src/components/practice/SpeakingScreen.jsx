@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, Spk, speakSlow } from '../../data.jsx';
 import PronunciationScorer from '../shared/PronunciationScorer.jsx';
+import { markQuest } from '../../lib/quests.js';
 
 const SRSupported = typeof window !== 'undefined' && !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
@@ -99,6 +100,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
       if (finishFired.current) return;
       finishFired.current = true;
       award(ssc * 5 + 5);
+      markQuest('speak');
       setSt(s => ({ ...s, sp: s.sp + 1 }));
       setShowSummary(true);
     }
