@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, memo } from 'react';
 import confetti from 'canvas-confetti';
 import { rnd } from '../../lib/random.js';
 import { useHaptic } from '../../hooks/useHaptic.js';
@@ -36,7 +36,7 @@ function makeStars(n = 12) {
   }));
 }
 
-export default function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic = '' }) {
+function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic = '' }) {
   // DOM particle layer removed — canvas-confetti handles all particles (better perf)
   const stars = useRef(makeStars(12)).current;
   const [displayXP, setDisplayXP] = useState(0);
@@ -44,6 +44,11 @@ export default function CelebrationModal({ xp, onClose, streak = 0, onNext = nul
   const [showMomentum, setShowMomentum] = useState(false);
   const [difficulty, setDifficulty] = useState(null); // 'easy' | 'right' | 'hard'
   const haptic = useHaptic();
+
+  useEffect(() => {
+    const firstBtn = /** @type {HTMLElement|null} */ (document.querySelector('[data-modal-focus]'));
+    if (firstBtn) firstBtn.focus();
+  }, []);
 
   useEffect(() => {
     playSuccessSound();
@@ -328,6 +333,7 @@ export default function CelebrationModal({ xp, onClose, streak = 0, onNext = nul
         {/* What next CTA */}
         {onNext && (
           <button
+            data-modal-focus
             onClick={() => { onClose(); onNext(); }}
             style={{
               width: '100%', marginTop: 14, padding: '13px', borderRadius: 12, border: 'none',
@@ -356,3 +362,5 @@ export default function CelebrationModal({ xp, onClose, streak = 0, onNext = nul
     </>
   );
 }
+
+export default memo(CelebrationModal);

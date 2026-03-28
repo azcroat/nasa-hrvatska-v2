@@ -20,7 +20,7 @@ const DAILY_GOALS = [
   { id: 20, label: '20 min', sub: 'Serious — your fastest path to real Croatian' },
 ];
 
-export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi, sPs, sPa, sPx }) {
+export default function WelcomeScreen({ name, au, st, setScr, setName, setPlacementQ, setPlacementIdx, setPlacementScore, setPlacementAnswers, setPlacementXp }) {
   const [step, setStep] = useState(0); // 0=hero, 1=goal, 2=daily, 3=heritage/partner
   const [goal, setGoal] = useState('');
   const [dailyMin, setDailyMin] = useState(0);
@@ -84,7 +84,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, sPq, sPi,
       const o = sh([...q.o]);
       return { ...q, o, c: o.indexOf(c) };
     });
-    sPq(q); sPi(0); sPs(0); sPa(false); sPx(-1);
+    setPlacementQ(q); setPlacementIdx(0); setPlacementScore(0); setPlacementAnswers(false); setPlacementXp(-1);
     setScr('placement');
   }
 

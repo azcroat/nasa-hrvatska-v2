@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 
 // Confetti colors — Croatian flag + gold
 const CONFETTI_COLORS = ['#b61800','#ffffff','#003087','#f59e0b','#16a34a'];
@@ -99,7 +99,7 @@ const CEREMONY_CONFIG = {
   },
 };
 
-export default function CeremonyModal({ type, stats, name, onClose }) {
+function CeremonyModal({ type, stats, name, onClose }) {
   const [showShare, setShowShare] = useState(false);
   const cfg = CEREMONY_CONFIG[type] || CEREMONY_CONFIG['streak_30'];
 
@@ -107,6 +107,11 @@ export default function CeremonyModal({ type, stats, name, onClose }) {
     // Prevent body scroll while modal is open
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
+  }, []);
+
+  useEffect(() => {
+    const firstBtn = /** @type {HTMLElement|null} */ (document.querySelector('[data-modal-focus]'));
+    if (firstBtn) firstBtn.focus();
   }, []);
 
   const xp = stats?.xp || 0;
@@ -201,6 +206,7 @@ export default function CeremonyModal({ type, stats, name, onClose }) {
             )}
 
             <button
+              data-modal-focus
               onClick={handleShare}
               className="b bp"
               style={{ width:'100%', marginBottom:10 }}
@@ -220,3 +226,5 @@ export default function CeremonyModal({ type, stats, name, onClose }) {
     </>
   );
 }
+
+export default memo(CeremonyModal);

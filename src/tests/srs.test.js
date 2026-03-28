@@ -7,7 +7,7 @@ import {
   getDueCards,
   getSRStats,
   srQualityFromResult,
-} from '../../lib/srs.js';
+} from '../lib/srs.js';
 
 function clearLS() { localStorage.clear(); }
 
