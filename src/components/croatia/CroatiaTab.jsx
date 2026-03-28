@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { H, MEDIA, getCityOfDay, incrementCulture, getProverbOfDay, getHistFact } from '../../data.jsx';
 import PhotoHero from '../shared/PhotoHero';
 import { PHOTOS } from '../../lib/photos';
@@ -6,6 +6,87 @@ import CroatianKnight from '../shared/CroatianKnight';
 
 const LEVEL_COLORS = {A1:'#16a34a',A2:'#65a30d',B1:'#ca8a04',B2:'#b45309',C1:'#0e7490',C2:'#7c3aed'}; // TODO: move to CSS vars
 const CAT_LABELS = {tv:"📺 TV & News",music:"🎵 Music & Radio",sport:"⚽ Sports",film:"🎬 Film & Series",podcast:"🎙️ Podcasts",culture:"🌍 Culture & Press"};
+
+// ── Vocabulary previews by content domain ─────────────────────────────────────
+const DOMAIN_VOCAB = {
+  tv:      [{hr:'vijesti',en:'news'},{hr:'izvješće',en:'report'},{hr:'ministar',en:'minister'}],
+  music:   [{hr:'pjesma',en:'song'},{hr:'ritam',en:'rhythm'},{hr:'osjećaj',en:'feeling'}],
+  film:    [{hr:'priča',en:'story'},{hr:'lik',en:'character'},{hr:'kraj',en:'ending'}],
+  sport:   [{hr:'utakmica',en:'match'},{hr:'gol',en:'goal'},{hr:'pobjednik',en:'winner'}],
+  podcast: [{hr:'razgovor',en:'conversation'},{hr:'tema',en:'topic'},{hr:'mišljenje',en:'opinion'}],
+  culture: [{hr:'tradicija',en:'tradition'},{hr:'nasljeđe',en:'heritage'},{hr:'kultura',en:'culture'}],
+};
+
+// ── Immersion streak helpers ──────────────────────────────────────────────────
+function getImmersionDays() {
+  try { return JSON.parse(localStorage.getItem('nh_immersion_days') || '[]'); } catch { return []; }
+}
+function markImmersionToday() {
+  const today = new Date().toISOString().slice(0,10);
+  const days = getImmersionDays();
+  if (!days.includes(today)) { days.push(today); localStorage.setItem('nh_immersion_days', JSON.stringify(days)); }
+}
+function getWeekDots() {
+  const days = getImmersionDays();
+  const dots = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    dots.push(days.includes(d.toISOString().slice(0,10)));
+  }
+  return dots;
+}
+
+// ── Goal-based media sort/tag ─────────────────────────────────────────────────
+function getGoalPersonalization() {
+  try { return localStorage.getItem('nh_goal') || ''; } catch { return ''; }
+}
+function tagMediaForGoal(m, goal) {
+  if (!goal) return null;
+  if ((goal === 'heritage' || goal === 'family') && (m.cat === 'music' || m.cat === 'culture')) return 'For the diaspora';
+  if (goal === 'travel' && (m.cat === 'tv' || m.cat === 'podcast')) return 'Great for travellers';
+  return null;
+}
+function sortMediaForGoal(items, goal) {
+  if (goal === 'fluent') return [...items].sort((a,b) => {
+    const order = {A1:0,A2:1,B1:2,B2:3,C1:4,C2:5};
+    return (order[a.level]??9) - (order[b.level]??9);
+  });
+  if (goal === 'heritage' || goal === 'family') return [...items].sort((a,b) => {
+    const priority = (m) => (m.cat === 'music' || m.cat === 'culture') ? 0 : 1;
+    return priority(a) - priority(b);
+  });
+  if (goal === 'travel') return [...items].sort((a,b) => {
+    const priority = (m) => (m.cat === 'tv' || m.cat === 'podcast') ? 0 : 1;
+    return priority(a) - priority(b);
+  });
+  return items;
+}
+
+// ── CSS keyframe injection (once) ─────────────────────────────────────────────
+const MEDIA_CSS = `
+@keyframes nh-fade-in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+@keyframes nh-bar1 { 0%,100%{height:6px} 50%{height:22px} }
+@keyframes nh-bar2 { 0%,100%{height:14px} 33%{height:4px} 66%{height:20px} }
+@keyframes nh-bar3 { 0%,100%{height:20px} 40%{height:6px} }
+@keyframes nh-bar4 { 0%,100%{height:10px} 60%{height:24px} }
+@keyframes nh-skeleton { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.nh-stagger > * { animation: nh-fade-in 0.3s ease both; }
+.nh-stagger > *:nth-child(1){animation-delay:.04s}
+.nh-stagger > *:nth-child(2){animation-delay:.08s}
+.nh-stagger > *:nth-child(3){animation-delay:.12s}
+.nh-stagger > *:nth-child(4){animation-delay:.16s}
+.nh-stagger > *:nth-child(5){animation-delay:.20s}
+.nh-stagger > *:nth-child(6){animation-delay:.24s}
+.nh-stagger > *:nth-child(7){animation-delay:.28s}
+.nh-stagger > *:nth-child(8){animation-delay:.32s}
+.nh-stagger > *:nth-child(9){animation-delay:.36s}
+.nh-stagger > *:nth-child(10){animation-delay:.40s}
+.nh-stagger > *:nth-child(n+11){animation-delay:.44s}
+`;
+if (typeof document !== 'undefined' && !document.getElementById('nh-media-css')) {
+  const s = document.createElement('style'); s.id = 'nh-media-css'; s.textContent = MEDIA_CSS;
+  document.head.appendChild(s);
+}
 
 function getDomain(url) {
   if (!url) return null;
@@ -43,6 +124,18 @@ function RadioPlayer({ src, color, streamId, activeStream, setActiveStream }) {
     }
   }, [isActive]);
 
+  // Space bar shortcut when this player is active
+  useEffect(() => {
+    if (!isActive) return;
+    function onKey(e) {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.code === 'Space') { e.preventDefault(); toggle(); }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isActive, playing, buffering]);
+
   function toggle() {
     const a = ref.current;
     if (!a) return;
@@ -59,8 +152,34 @@ function RadioPlayer({ src, color, streamId, activeStream, setActiveStream }) {
       setActiveStream(streamId);
       a.src = src;
       a.play().catch(() => { setError(true); setBuffering(false); setActiveStream(null); });
+      // mark immersion engagement
+      markImmersionToday();
     }
   }
+
+  // Visualizer bars (CSS-animated)
+  const Bars = () => (
+    <div style={{display:'flex',alignItems:'flex-end',gap:2,height:24,flexShrink:0}}>
+      {[['nh-bar1','0s'],['nh-bar2','.1s'],['nh-bar3','.2s'],['nh-bar4','.05s']].map(([anim,delay],i) => (
+        <div key={i} style={{
+          width:3,borderRadius:2,background:color,
+          animation:playing?`${anim} 0.7s ease-in-out infinite ${delay}`:'none',
+          height:playing?undefined:4,
+          transition:'height .15s',
+        }}/>
+      ))}
+    </div>
+  );
+
+  // Skeleton shimmer when buffering
+  const Skeleton = () => (
+    <div style={{
+      height:10,borderRadius:6,width:'70%',
+      background:'linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.12) 50%,rgba(255,255,255,.04) 75%)',
+      backgroundSize:'200% 100%',
+      animation:'nh-skeleton 1.4s linear infinite',
+    }}/>
+  );
 
   return (
     <div style={{display:'flex',alignItems:'center',gap:10,flex:1}}>
@@ -74,6 +193,7 @@ function RadioPlayer({ src, color, streamId, activeStream, setActiveStream }) {
       />
       <button
         onClick={toggle}
+        aria-label={playing ? 'Pause radio' : 'Play radio'}
         style={{
           width:40,height:40,borderRadius:'50%',
           background:(playing||buffering) ? color : `${color}18`,
@@ -90,21 +210,167 @@ function RadioPlayer({ src, color, streamId, activeStream, setActiveStream }) {
         {error
           ? <span style={{fontSize:'var(--text-xs)',color:'var(--error)',fontWeight:700}}>Stream unavailable — tap to retry</span>
           : playing
-            ? <div style={{display:'flex',alignItems:'center',gap:5}}>
-                <span style={{width:7,height:7,borderRadius:'50%',background:'var(--error)',display:'inline-block',flexShrink:0,boxShadow:'0 0 6px var(--error)'}}/>
-                <span style={{fontSize:'var(--text-xs)',fontWeight:900,color:'var(--error)',letterSpacing:'0.05em'}}>LIVE</span>
-                <span style={{fontSize:'var(--text-xs)',color:'var(--subtext)',marginLeft:2}}>Streaming now</span>
+            ? <div>
+                <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:3}}>
+                  <span style={{width:7,height:7,borderRadius:'50%',background:'var(--error)',display:'inline-block',flexShrink:0,boxShadow:'0 0 6px var(--error)'}}/>
+                  <span style={{fontSize:'var(--text-xs)',fontWeight:900,color:'var(--error)',letterSpacing:'0.05em'}}>LIVE</span>
+                  <Bars />
+                </div>
+                <div style={{fontSize:9,color:color,fontWeight:700,letterSpacing:'.02em'}}>
+                  Authentic Croatian! 🇭🇷
+                </div>
               </div>
             : buffering
-              ? <span style={{fontSize:'var(--text-xs)',color:'var(--subtext)'}}>Connecting to stream…</span>
-              : <span style={{fontSize:'var(--text-xs)',color:'var(--subtext)'}}>Tap ▶ to stream live</span>
+              ? <div>
+                  <span style={{fontSize:'var(--text-xs)',color:'var(--subtext)',display:'block',marginBottom:4}}>Connecting…</span>
+                  <Skeleton />
+                </div>
+              : <span style={{fontSize:'var(--text-xs)',color:'var(--subtext)'}}>Tap ▶ to stream live · Space to pause</span>
         }
       </div>
     </div>
   );
 }
 
-function MediaCard({ m, cat, onOpen, activeStream, setActiveStream }) {
+// ── Immersion Streak Widget ───────────────────────────────────────────────────
+function ImmersionStreak() {
+  const dots = getWeekDots();
+  const count = dots.filter(Boolean).length;
+  const dayLabels = ['M','T','W','T','F','S','S'];
+  return (
+    <div style={{
+      background:'var(--card)',border:'1px solid var(--card-b)',
+      borderRadius:14,padding:'12px 14px',marginBottom:14,
+      display:'flex',alignItems:'center',gap:14,
+    }}>
+      <div style={{fontSize:24,flexShrink:0}}>🔥</div>
+      <div style={{flex:1,minWidth:0}}>
+        <div style={{fontSize:11,fontWeight:800,color:'var(--heading)',marginBottom:6}}>
+          {count > 0 ? `${count}/7 days this week` : 'Start your immersion streak!'} {count>=5?'🏆':count>=3?'⭐':''}
+        </div>
+        <div style={{display:'flex',gap:5}}>
+          {dots.map((active,i) => (
+            <div key={i} style={{textAlign:'center'}}>
+              <div style={{
+                width:22,height:22,borderRadius:'50%',marginBottom:2,
+                background:active?'#D40030':'var(--bar-bg)',
+                border:`1.5px solid ${active?'#D40030':'var(--card-b)'}`,
+                boxShadow:active?'0 2px 8px rgba(212,0,48,.35)':'none',
+                transition:'all .2s',
+              }}/>
+              <div style={{fontSize:8,color:'var(--subtext)',fontWeight:600}}>{dayLabels[i]}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {count > 0 && (
+        <div style={{fontSize:10,color:'var(--subtext)',fontStyle:'italic',textAlign:'right',maxWidth:80,lineHeight:1.4}}>
+          Great immersion habit!
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Learning Mode Toggle ──────────────────────────────────────────────────────
+function LearningModeToggle({ enabled, onToggle }) {
+  return (
+    <button onClick={onToggle} style={{
+      display:'flex',alignItems:'center',gap:8,padding:'8px 14px',
+      background:enabled?'rgba(212,0,48,.08)':'var(--bar-bg)',
+      border:`1.5px solid ${enabled?'rgba(212,0,48,.3)':'var(--card-b)'}`,
+      borderRadius:20,cursor:'pointer',fontFamily:"'Outfit',sans-serif",
+      transition:'all .2s',flexShrink:0,
+    }}>
+      <span style={{fontSize:14}}>{enabled?'🎓':'👁️'}</span>
+      <span style={{fontSize:11,fontWeight:700,color:enabled?'#D40030':'var(--subtext)',whiteSpace:'nowrap'}}>
+        {enabled?'Learning Mode ON':'Learning Mode'}
+      </span>
+      <div style={{
+        width:32,height:18,borderRadius:9,position:'relative',flexShrink:0,
+        background:enabled?'#D40030':'var(--bar-bg)',border:'1px solid var(--card-b)',
+        transition:'background .2s',
+      }}>
+        <div style={{
+          position:'absolute',top:2,left:enabled?14:2,
+          width:14,height:14,borderRadius:'50%',background:'white',
+          boxShadow:'0 1px 4px rgba(0,0,0,.25)',transition:'left .2s',
+        }}/>
+      </div>
+    </button>
+  );
+}
+
+// ── Goal Tag Badge ────────────────────────────────────────────────────────────
+function GoalTag({ label }) {
+  return (
+    <span style={{
+      background:'rgba(212,0,48,.08)',color:'#D40030',
+      fontSize:9,fontWeight:800,padding:'2px 7px',borderRadius:20,
+      border:'1px solid rgba(212,0,48,.2)',letterSpacing:'0.04em',flexShrink:0,
+    }}>{label}</span>
+  );
+}
+
+// ── Vocab Preview (Learning Mode) ─────────────────────────────────────────────
+function VocabPreview({ cat }) {
+  const words = DOMAIN_VOCAB[cat] || DOMAIN_VOCAB.culture;
+  return (
+    <div style={{padding:'8px 12px',background:'rgba(212,0,48,.04)',borderTop:'1px solid var(--card-b)'}}>
+      <div style={{fontSize:9,fontWeight:900,color:'#D40030',letterSpacing:'.08em',textTransform:'uppercase',marginBottom:6}}>
+        Words you'll hear
+      </div>
+      <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+        {words.map(w => (
+          <div key={w.hr} style={{
+            background:'white',border:'1px solid var(--card-b)',borderRadius:8,
+            padding:'4px 8px',fontSize:10,
+          }}>
+            <span style={{fontWeight:800,color:'#0e7490'}}>{w.hr}</span>
+            <span style={{color:'var(--subtext)',marginLeft:4}}>{w.en}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Comprehension Card (Learning Mode) ───────────────────────────────────────
+const COMPREHENSION_QS = {
+  tv:'After watching, try to summarise: what was the main topic?',
+  music:'After listening: what emotion does this music convey?',
+  film:'After watching: what happened in the first scene?',
+  sport:'After watching: who won and what was the score?',
+  podcast:"After listening: what was the host's main argument?",
+  culture:'After reading: name one tradition or custom mentioned.',
+};
+function ComprehensionCard({ cat, itemId }) {
+  const key = `nh_media_engaged_${itemId}`;
+  const [done, setDone] = useState(() => { try { return !!localStorage.getItem(key); } catch { return false; } });
+  const q = COMPREHENSION_QS[cat] || COMPREHENSION_QS.culture;
+  function markDone() {
+    try { localStorage.setItem(key, '1'); } catch{}
+    setDone(true);
+    markImmersionToday();
+  }
+  return (
+    <div style={{padding:'10px 12px',background:'rgba(14,116,144,.04)',borderTop:'1px solid var(--card-b)'}}>
+      <div style={{fontSize:9,fontWeight:900,color:'#0e7490',letterSpacing:'.08em',textTransform:'uppercase',marginBottom:4}}>
+        Comprehension Check
+      </div>
+      <div style={{fontSize:11,color:'var(--body)',lineHeight:1.5,marginBottom:8}}>{q}</div>
+      {done
+        ? <span style={{fontSize:10,color:'#16a34a',fontWeight:800}}>✓ Completed</span>
+        : <button onClick={markDone} style={{
+            padding:'5px 12px',borderRadius:8,border:'none',background:'#0e7490',
+            color:'white',fontSize:10,fontWeight:700,cursor:'pointer',
+          }}>I watched this ✓</button>
+      }
+    </div>
+  );
+}
+
+function MediaCard({ m, cat, onOpen, activeStream, setActiveStream, learningMode, goalTag }) {
   const [tipOpen, setTipOpen] = useState(false);
   const lc = LEVEL_COLORS[m.level] || '#78716c';
   const isExternal = !!m.web;
@@ -116,9 +382,10 @@ function MediaCard({ m, cat, onOpen, activeStream, setActiveStream }) {
   const btnBg = isLive ? 'linear-gradient(135deg,#dc2626,#b91c1c)' : isInternal ? '#0e7490' : m.color;
   const btnShadow = isLive ? '0 3px 10px rgba(220,38,38,.35)' : `0 2px 6px ${m.color}35`;
   const streamId = m.stream ? m.name : null;
+  const itemId = m.name.replace(/\s+/g,'_').toLowerCase();
 
   return (
-    <div className="media-card" style={{background:'var(--card)',borderRadius:16,border:'1px solid var(--card-b)',boxShadow:'0 2px 8px rgba(0,0,0,.04)',overflow:'hidden',marginBottom:10}}>
+    <div className="media-card" style={{background:'var(--card)',borderRadius:16,border:'1px solid var(--card-b)',boxShadow:'0 2px 8px rgba(0,0,0,.04)',overflow:'hidden',marginBottom:10,animation:'nh-fade-in .3s ease both'}}>
       {/* Info row */}
       <div style={{display:'flex',gap:12,padding:'14px 14px 12px',alignItems:'flex-start'}}>
         <div style={{width:46,height:46,borderRadius:13,background:m.color+'15',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0,border:`1px solid ${m.color}20`}}>
@@ -131,6 +398,7 @@ function MediaCard({ m, cat, onOpen, activeStream, setActiveStream }) {
             {isHRTI && <span style={{background:'rgba(220,38,38,.08)',color:'var(--error)',fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)',letterSpacing:'0.04em'}}>HRT+</span>}
             {isInternal && <span style={{background:'rgba(14,116,144,.08)',color:'#0e7490',fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:20,border:'1px solid rgba(14,116,144,.2)',letterSpacing:'0.04em'}}>IN APP</span>}
             {m.stream && <span style={{background:'rgba(220,38,38,.08)',color:'var(--error)',fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:20,border:'1px solid rgba(220,38,38,.2)',letterSpacing:'0.04em'}}>LIVE</span>}
+            {goalTag && <GoalTag label={goalTag} />}
           </div>
           <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',lineHeight:1.5}}>{m.desc}</div>
           {domain && !isHRTI && !m.stream && (
@@ -182,6 +450,10 @@ function MediaCard({ m, cat, onOpen, activeStream, setActiveStream }) {
           <p style={{margin:0,fontSize:'var(--text-xs)',color:'var(--body)',lineHeight:1.75}}>{m.tip}</p>
         </div>
       )}
+
+      {/* Learning Mode extras */}
+      {learningMode && <VocabPreview cat={cat} />}
+      {learningMode && <ComprehensionCard cat={cat} itemId={itemId} />}
     </div>
   );
 }
@@ -392,6 +664,8 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
   const toggleCtx = (key) => setExpandedCtx(prev => ({ ...prev, [key]: !prev[key] }));
   const [ctab, setCTab] = useState('discover');
   const [mediaFilter, setMediaFilter] = useState('all');
+  const [learningMode, setLearningMode] = useState(false);
+  const userGoal = getGoalPersonalization();
 
   return (
     <React.Fragment>
@@ -466,6 +740,9 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
           }}>{t.label}</button>
         ))}
       </div>
+
+      {/* ── Tab content wrapper with fade transition ── */}
+      <div key={ctab} style={{animation:'nh-fade-in .28s ease both'}}>
 
       {/* ══════════════════════════════════════════
           DISCOVER TAB
@@ -993,6 +1270,14 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
             </div>
           </div>
 
+          {/* ─── IMMERSION STREAK ──────────────────────────── */}
+          <ImmersionStreak />
+
+          {/* ─── LEARNING MODE + FILTER ROW ────────────────── */}
+          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+            <LearningModeToggle enabled={learningMode} onToggle={() => setLearningMode(m => !m)} />
+          </div>
+
           {/* ─── MEDIA FILTER PILLS ────────────────────────── */}
           <div style={{ display:'flex', gap:8, padding:'4px 0 16px', overflowX:'auto', scrollbarWidth:'none' }}>
             {[
@@ -1078,54 +1363,73 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
             {cat:'culture',emoji:'🌍', title:'Culture & Press',    accent:'var(--lavender, #7c3aed)',  noStream:false},
           ].map(({cat,emoji,title,accent,noStream}) => {
             if (mediaFilter !== 'all' && mediaFilter !== cat) return null;
-            const items = MEDIA.filter(m => m.cat === cat && (noStream ? !m.stream : true));
-            if (!items.length) return null;
+            const rawItems = MEDIA.filter(m => m.cat === cat && (noStream ? !m.stream : true));
+            if (!rawItems.length) return null;
+            // Apply goal-based sorting
+            const items = sortMediaForGoal(rawItems, userGoal);
             return (
-              <div key={cat} style={{marginBottom:24}}>
+              <div key={cat} style={{marginBottom:24,animation:'nh-fade-in .35s ease both'}}>
                 {/* Section header */}
                 <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12,padding:'10px 14px',borderRadius:12,background:`${accent}10`,borderLeft:`3px solid ${accent}`}}>
                   <span style={{fontSize:18}}>{emoji}</span>
                   <span style={{fontSize:15,fontWeight:900,color:'var(--heading)',flex:1}}>{title}</span>
+                  {userGoal && <span style={{fontSize:9,color:'var(--subtext)',fontStyle:'italic'}}>sorted for you</span>}
                   <span style={{fontSize:10,color:'var(--subtext)',fontWeight:600,background:'var(--bar-bg)',borderRadius:8,padding:'2px 8px'}}>{items.length}</span>
                 </div>
-                {/* 2-column visual grid */}
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-                  {items.map((m,i) => {
-                    const isInternal = !!m.scr && !m.web;
-                    const isExtLive = !!(m.live && !m.stream && m.web);
-                    const hasAction = !!(m.scr || m.web);
-                    return (
-                      <button key={i}
-                        onClick={() => { if (m.scr || m.web) { incrementCulture('mediaCnt'); if (award) award(3); } if (m.scr) setScr(m.scr); else if (m.web) window.open(m.web,'_blank','noopener,noreferrer'); }}
-                        style={{
-                          display:'flex',flexDirection:'column',background:'var(--card)',
-                          borderRadius:16,border:'1px solid var(--card-b)',overflow:'hidden',
-                          cursor:hasAction?'pointer':'default',textAlign:'left',
-                          fontFamily:"'Outfit',sans-serif",padding:0,
-                          transition:'transform .15s,box-shadow .15s',
-                          boxShadow:'0 2px 8px rgba(0,0,0,.04)',
-                        }}
-                        onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow=`0 8px 28px ${m.color}28`;}}
-                        onMouseLeave={e=>{e.currentTarget.style.transform='';e.currentTarget.style.boxShadow='0 2px 8px rgba(0,0,0,.04)';}}>
-                        {/* Color band */}
-                        <div style={{height:64,background:`linear-gradient(135deg,${m.color}cc,${m.color})`,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden',flexShrink:0}}>
-                          <div style={{position:'absolute',top:0,left:0,right:0,bottom:0,backgroundImage:'radial-gradient(circle,rgba(255,255,255,.13) 1px,transparent 1px)',backgroundSize:'14px 14px'}}/>
-                          <span style={{fontSize:30,position:'relative'}}>{m.icon}</span>
-                          {m.level && <span style={{position:'absolute',bottom:6,right:8,background:'rgba(0,0,0,.45)',color:'white',fontSize:8,fontWeight:900,padding:'2px 6px',borderRadius:6}}>{m.level}</span>}
-                          {isInternal && <span style={{position:'absolute',top:6,right:8,background:'rgba(255,255,255,.22)',color:'white',fontSize:8,fontWeight:900,padding:'1px 5px',borderRadius:4,border:'1px solid rgba(255,255,255,.3)'}}>IN APP</span>}
-                          {isExtLive && <span style={{position:'absolute',top:6,left:8,background:'#dc2626',color:'white',fontSize:8,fontWeight:900,padding:'2px 6px',borderRadius:6}}>LIVE ↗</span>}
-                        </div>
-                        {/* Content */}
-                        <div style={{padding:'10px 12px 12px',flex:1,display:'flex',flexDirection:'column'}}>
-                          <div style={{fontSize:12,fontWeight:800,color:'var(--heading)',lineHeight:1.3,marginBottom:4}}>{m.name}</div>
-                          <div style={{fontSize:10,color:'var(--subtext)',lineHeight:1.45,flex:1}}>
-                            {m.desc.length > 58 ? m.desc.substring(0,55)+'…' : m.desc}
+                {/* Learning Mode: full-width cards with extras; Normal: 2-column visual grid */}
+                {learningMode ? (
+                  <div className="nh-stagger">
+                    {items.map((m,i) => (
+                      <MediaCard
+                        key={i} m={m} cat={cat}
+                        onOpen={() => { if (m.scr || m.web) { incrementCulture('mediaCnt'); if (award) award(3); } if (m.scr) setScr(m.scr); else if (m.web) window.open(m.web,'_blank','noopener,noreferrer'); }}
+                        activeStream={activeStream} setActiveStream={setActiveStream}
+                        learningMode={true}
+                        goalTag={tagMediaForGoal(m, userGoal)}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}} className="nh-stagger">
+                    {items.map((m,i) => {
+                      const isInternal = !!m.scr && !m.web;
+                      const isExtLive = !!(m.live && !m.stream && m.web);
+                      const hasAction = !!(m.scr || m.web);
+                      const goalLabel = tagMediaForGoal(m, userGoal);
+                      return (
+                        <button key={i}
+                          onClick={() => { if (m.scr || m.web) { incrementCulture('mediaCnt'); if (award) award(3); } if (m.scr) setScr(m.scr); else if (m.web) window.open(m.web,'_blank','noopener,noreferrer'); }}
+                          style={{
+                            display:'flex',flexDirection:'column',background:'var(--card)',
+                            borderRadius:16,border:'1px solid var(--card-b)',overflow:'hidden',
+                            cursor:hasAction?'pointer':'default',textAlign:'left',
+                            fontFamily:"'Outfit',sans-serif",padding:0,
+                            transition:'transform .15s,box-shadow .15s',
+                            boxShadow:'0 2px 8px rgba(0,0,0,.04)',
+                          }}
+                          onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow=`0 8px 28px ${m.color}28`;}}
+                          onMouseLeave={e=>{e.currentTarget.style.transform='';e.currentTarget.style.boxShadow='0 2px 8px rgba(0,0,0,.04)';}}>
+                          {/* Color band */}
+                          <div style={{height:64,background:`linear-gradient(135deg,${m.color}cc,${m.color})`,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden',flexShrink:0}}>
+                            <div style={{position:'absolute',top:0,left:0,right:0,bottom:0,backgroundImage:'radial-gradient(circle,rgba(255,255,255,.13) 1px,transparent 1px)',backgroundSize:'14px 14px'}}/>
+                            <span style={{fontSize:30,position:'relative'}}>{m.icon}</span>
+                            {m.level && <span style={{position:'absolute',bottom:6,right:8,background:'rgba(0,0,0,.45)',color:'white',fontSize:8,fontWeight:900,padding:'2px 6px',borderRadius:6}}>{m.level}</span>}
+                            {isInternal && <span style={{position:'absolute',top:6,right:8,background:'rgba(255,255,255,.22)',color:'white',fontSize:8,fontWeight:900,padding:'1px 5px',borderRadius:4,border:'1px solid rgba(255,255,255,.3)'}}>IN APP</span>}
+                            {isExtLive && <span style={{position:'absolute',top:6,left:8,background:'#dc2626',color:'white',fontSize:8,fontWeight:900,padding:'2px 6px',borderRadius:6}}>LIVE ↗</span>}
+                            {goalLabel && <span style={{position:'absolute',bottom:6,left:6,background:'rgba(212,0,48,.85)',color:'white',fontSize:7,fontWeight:900,padding:'2px 5px',borderRadius:4,letterSpacing:'.02em'}}>{goalLabel}</span>}
                           </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+                          {/* Content */}
+                          <div style={{padding:'10px 12px 12px',flex:1,display:'flex',flexDirection:'column'}}>
+                            <div style={{fontSize:12,fontWeight:800,color:'var(--heading)',lineHeight:1.3,marginBottom:4}}>{m.name}</div>
+                            <div style={{fontSize:10,color:'var(--subtext)',lineHeight:1.45,flex:1}}>
+                              {m.desc.length > 58 ? m.desc.substring(0,55)+'…' : m.desc}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             );
           })}
@@ -1214,6 +1518,8 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
           </div>
         </React.Fragment>
       )}
+
+      </div>{/* end tab content fade wrapper */}
     </React.Fragment>
   );
 }
