@@ -44,6 +44,7 @@ async function login(page) {
 }
 
 test.describe('Mobile sign-out bug', () => {
+  test.skip(!!process.env.CI, 'Requires real Firebase credentials — run locally only');
 
   test('01 - Mobile viewport: find and use sign out button', async ({ page }) => {
     // Set iPhone 14 Pro viewport
