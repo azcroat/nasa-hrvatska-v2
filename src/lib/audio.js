@@ -1,6 +1,7 @@
 // ═══════════════════════════════════════════════════════════
 // Audio Engine — Native Croatian Pronunciation
 // ═══════════════════════════════════════════════════════════
+import { getVoicePreference } from './soundSettings.js';
 
 let _au=false;let _voices=[];let _voicesLoaded=false;let _currentAudio=null;let _ctx=null;
 
@@ -43,7 +44,8 @@ export function stopAudio(){
 
 export async function speakAzure(text, slow) {
   stopAudio();
-  const cacheKey = text + '|' + (slow ? '1' : '0');
+  const voicePref = getVoicePreference();
+  const cacheKey = text + '|' + (slow ? '1' : '0') + '|' + voicePref;
   const cached = _cacheGet(cacheKey);
 
   try {
@@ -51,10 +53,12 @@ export async function speakAzure(text, slow) {
     if (cached) {
       url = cached;
     } else {
+      const body = { text, slow: !!slow };
+      if (voicePref !== 'auto') body.voice = voicePref;
       const r = await fetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, slow: !!slow }),
+        body: JSON.stringify(body),
       });
       if (!r.ok) {
         const rb = await r.text().catch(() => '');

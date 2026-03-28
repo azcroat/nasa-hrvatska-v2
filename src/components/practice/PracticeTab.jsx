@@ -73,6 +73,9 @@ export default function PracticeTab({
   function startAIListening() {
     setScr("ai_listening"); sCurEx("ai_listening");
   }
+  function startVideoLesson() {
+    setScr("video_lesson"); sCurEx("video_lesson");
+  }
   function startGrammarDiagnosis() {
     setScr("grammar_diagnosis"); sCurEx("grammar_diagnosis");
   }
@@ -215,6 +218,7 @@ export default function PracticeTab({
     { id:'dictation',    label:'Dictation',            icon:'🎧', desc:'Listen and type Croatian',            category:'advanced', cefr:'B1',  duration:'~10 min', action: () => { setScr("dictation"); sCurEx("dictation"); } },
     { id:'proncontrast', label:'Sound Contrast',       icon:'🔤', desc:'č/ć, š/ž, đ/dž mastery',            category:'advanced', cefr:'A2+', duration:'~8 min',  action: () => { setScr("proncontrast"); sCurEx("proncontrast"); } },
     { id:'ai_listening',      label:'AI Listening',        icon:'🎧', desc:'AI-generated dialogues + comprehension',  category:'advanced', cefr:'A2+', duration:'~10 min', action: startAIListening },
+    { id:'video_lesson',      label:'Video Lesson',        icon:'🎬', desc:'Watch a Croatian scene · follow the dialogue · answer questions', category:'advanced', cefr:'A2+', duration:'~12 min', action: startVideoLesson },
     { id:'grammar_diagnosis', label:'Grammar Blind Spots',  icon:'🔬', desc:'Weekly AI analysis of your weak points',  category:'advanced', cefr:'A1+', duration:'weekly',   action: startGrammarDiagnosis },
     { id:'cefrtest',     label:'CEFR Test',            icon:'🎓', desc:'A1→B2 proficiency check',             category:'advanced', cefr:'A1+', duration:'~15 min', action: () => { setScr("cefrtest"); sCurEx("cefrtest"); } },
     // Slang (advanced)

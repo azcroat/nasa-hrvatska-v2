@@ -7,7 +7,7 @@ import { markQuest } from '../../lib/quests.js';
 import { logError, getErrorsForAPI } from '../../lib/learnerErrors.js';
 import WaveformVisualizer from '../shared/WaveformVisualizer.jsx';
 import TappableMessage from './TappableMessage.jsx';
-import SpeakingAvatar, { portraitSrc } from './SpeakingAvatar.jsx';
+import SpeakingAvatar, { portraitSrc, PORTRAIT_MAP } from './SpeakingAvatar.jsx';
 import { SCENARIOS, STARTERS, deriveWeakAreas, deriveMastered } from './ConversationScenarios.js';
 
 
@@ -230,24 +230,15 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     setNpcVideoUrl(null);
     setLoading(true);
 
-    // Fire D-ID greeting video generation in background (non-blocking)
+    // Fire NPC greeting video in background — uses KV-cached pre-generated videos (instant
+    // after first generation) rather than on-demand D-ID calls per session.
     if (npcVideoFiredRef.current !== scenario.id) {
       npcVideoFiredRef.current = scenario.id;
       setNpcVideoLoading(true);
-      const portraitUrl = `${window.location.origin}${portraitSrc(scenario.id)}`;
-      // NPC greeting derived from context (first sentence cue)
-      const greetingHint = scenario.cat === 'Social' || scenario.cat === 'Out & About'
-        ? `Dobar dan! Dobro došli.`
-        : `Dobar dan! Izvolite.`;
-      const gender = ['barista','mature-woman','young-woman','grandmother'].some(k => portraitSrc(scenario.id).includes(k))
-        ? 'female' : 'male';
-      fetch('/api/did-stream', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageUrl: portraitUrl, text: greetingHint, gender }),
-      })
+      const portraitKey = PORTRAIT_MAP[scenario.id] || 'young-woman';
+      fetch(`/api/npc-video?portrait=${encodeURIComponent(portraitKey)}`)
         .then(r => r.ok ? r.json() : null)
-        .then(data => { if (data?.videoUrl) setNpcVideoUrl(data.videoUrl); })
+        .then(data => { if (data?.ok && data.videoUrl) setNpcVideoUrl(data.videoUrl); })
         .catch(() => {})
         .finally(() => setNpcVideoLoading(false));
     }
