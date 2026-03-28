@@ -93,6 +93,32 @@ export default function HomeTab({
   const weekXP = useMemo(() => getWeekXP(), []);
   const streak = useMemo(() => getStreak(), []);
   const lastActivity = useMemo(() => getLastActivity(), []);
+
+  // Dynamic Croatia Today — AI-generated daily content (lazy-fetched, 6h edge cache)
+  const [dailyCulture, setDailyCulture] = useState(null);
+  const [dailyCultureLoading, setDailyCultureLoading] = useState(false);
+  useEffect(() => {
+    // Check in-memory session cache (keyed by date) to avoid re-fetching on re-render
+    const today = new Date().toISOString().slice(0, 10);
+    const cached = sessionStorage.getItem('nh_daily_culture');
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (parsed.date === today) { setDailyCulture(parsed); return; }
+      } catch {}
+    }
+    setDailyCultureLoading(true);
+    fetch('/api/daily-culture')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data) {
+          setDailyCulture(data);
+          try { sessionStorage.setItem('nh_daily_culture', JSON.stringify(data)); } catch {}
+        }
+      })
+      .catch(() => {})
+      .finally(() => setDailyCultureLoading(false));
+  }, []);
   const [freezes, setFreezes] = useState(getStreakFreezes);
   const [freezeMsg, setFreezeMsg] = useState('');
   const [streakRestored, setStreakRestored] = useState(false);
@@ -610,34 +636,71 @@ export default function HomeTab({
           <VideoBackground
             videoSrc={scene.video}
             imageSrc={scene.img}
-            overlay="linear-gradient(160deg,rgba(0,0,0,.65) 0%,rgba(0,0,0,.3) 60%,rgba(0,0,0,.55) 100%)"
-            style={{ borderRadius: 18, marginBottom: 16, minHeight: 140, boxShadow: '0 4px 20px rgba(0,0,0,.18)' }}
+            overlay="linear-gradient(160deg,rgba(0,0,0,.68) 0%,rgba(0,0,0,.3) 60%,rgba(0,0,0,.58) 100%)"
+            style={{ borderRadius: 18, marginBottom: 16, minHeight: dailyCulture ? 190 : 145, boxShadow: '0 4px 24px rgba(0,0,0,.22)', transition: 'min-height .4s ease' }}
           >
             <div style={{ padding:'18px 18px 16px' }}>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
                 <div>
                   <div style={{ fontSize:9, fontWeight:800, color:'rgba(255,255,255,.65)', letterSpacing:'.14em', textTransform:'uppercase', marginBottom:3 }}>
-                    Croatia Today · {scene.label}
+                    Croatia Today · {dailyCulture ? dailyCulture.region || scene.label : scene.label}
                   </div>
                   <div style={{ fontSize:17, fontWeight:900, color:'#fff', fontFamily:"'Playfair Display',serif", textShadow:'0 1px 6px rgba(0,0,0,.5)' }}>
-                    {scene.city}
+                    {dailyCulture ? `${dailyCulture.locationEmoji || '🇭🇷'} ${dailyCulture.city}` : scene.city}
                   </div>
                 </div>
                 <span style={{ fontSize:22 }}>🇭🇷</span>
               </div>
-              {/* Phrase */}
+
+              {/* AI-generated phrase — replaces static when loaded */}
               <div style={{
                 background:'rgba(255,255,255,.12)', backdropFilter:'blur(8px)',
                 borderRadius:12, padding:'10px 13px',
                 border:'1px solid rgba(255,255,255,.2)',
+                marginBottom: dailyCulture?.culturalFact ? 8 : 0,
               }}>
-                <div style={{ fontSize:16, fontWeight:900, color:'#fff', marginBottom:3, fontFamily:"'Playfair Display',serif", fontStyle:'italic' }}>
-                  "{phrase.hr}"
-                </div>
-                <div style={{ fontSize:12, color:'rgba(255,255,255,.75)', fontWeight:600 }}>
-                  {phrase.en} · <span style={{ opacity:.65 }}>{phrase.cat}</span>
-                </div>
+                {dailyCultureLoading && !dailyCulture ? (
+                  <div style={{ display:'flex', gap:4, justifyContent:'center', padding:'4px 0' }}>
+                    {[0,1,2].map(i => (
+                      <div key={i} style={{ width:5, height:5, borderRadius:'50%', background:'rgba(255,255,255,.6)', animation:`dot-bounce 1.2s ease-in-out ${i*0.15}s infinite` }} />
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ fontSize:16, fontWeight:900, color:'#fff', marginBottom:3, fontFamily:"'Playfair Display',serif", fontStyle:'italic' }}>
+                      "{dailyCulture ? dailyCulture.phrase : phrase.hr}"
+                    </div>
+                    <div style={{ fontSize:12, color:'rgba(255,255,255,.75)', fontWeight:600 }}>
+                      {dailyCulture ? dailyCulture.translation : phrase.en}
+                      {dailyCulture?.pronunciation && (
+                        <span style={{ opacity:.6, marginLeft:4 }}>· /{dailyCulture.pronunciation}/</span>
+                      )}
+                      <span style={{ opacity:.55, marginLeft:4 }}>· {dailyCulture?.category || phrase.cat}</span>
+                    </div>
+                  </>
+                )}
               </div>
+
+              {/* Cultural fact — AI only */}
+              {dailyCulture?.culturalFact && (
+                <div style={{
+                  background:'rgba(0,0,0,.28)', backdropFilter:'blur(6px)',
+                  borderRadius:10, padding:'8px 11px',
+                  border:'1px solid rgba(255,255,255,.1)',
+                }}>
+                  <div style={{ fontSize:9, fontWeight:800, color:'rgba(255,255,255,.55)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:3 }}>
+                    ✦ Today's Insight
+                  </div>
+                  <div style={{ fontSize:12, color:'rgba(255,255,255,.82)', lineHeight:1.55, fontWeight:500 }}>
+                    {dailyCulture.culturalFact}
+                  </div>
+                  {dailyCulture.tip && (
+                    <div style={{ fontSize:11, color:'rgba(255,255,255,.6)', marginTop:5, fontStyle:'italic', fontWeight:500 }}>
+                      💡 {dailyCulture.tip}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </VideoBackground>
         );
