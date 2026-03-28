@@ -878,9 +878,9 @@ export default function HomeTab({
             };
             const questScreenMap = {
               speak:'speaking',     speak2:'speaking',
-              grammar:'grammar-screen', grammar2:'grammar-screen',
+              grammar:'grammar',    grammar2:'grammar',
               master:'review',      master2:'review',
-              reading:'reading-list', reading2:'reading-list',
+              reading:'readlist',   reading2:'readlist',
               streak:'learnpath',   streak_alive:'learnpath',
               perfect:'flashcards',
             };

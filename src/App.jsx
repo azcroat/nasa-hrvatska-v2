@@ -417,6 +417,7 @@ function App(){
         privacy:"profile",terms:"profile","grammar-ref":"learn",
         mistakes:"practice",listeningpath:"practice",grammarmap:"practice",my_words:"practice",
         speaking_sprint:"practice",ai_listening:"practice",grammar_diagnosis:"learn",micro_lesson:"learn",personas:"croatia",
+        live_tutor:"croatia",
       };
       _setCurrentScreen(scr);
       if(screenTabMap[scr])_setTab(screenTabMap[scr]);

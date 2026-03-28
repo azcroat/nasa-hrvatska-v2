@@ -86,10 +86,13 @@ export async function getFirebaseUid(request, projectId) {
     } catch { return null; }
 
     // Validate Firebase-specific claims (fast path before crypto)
+    const now = Math.floor(Date.now() / 1000);
     if (payload.iss !== `https://securetoken.google.com/${projectId}`) return null;
     if (payload.aud !== projectId) return null;
     if (!payload.sub || !payload.user_id) return null;
-    if (payload.exp < Math.floor(Date.now() / 1000)) return null;
+    if (payload.exp < now) return null;
+    // iat must not be in the future (allow 60s clock skew); guards against pre-issued tokens
+    if (!payload.iat || payload.iat > now + 60) return null;
 
     // Cryptographic RS256 signature verification — reject if JWKS unavailable
     const jwks = await getJWKS();
