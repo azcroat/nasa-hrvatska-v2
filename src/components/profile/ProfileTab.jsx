@@ -7,6 +7,7 @@ import { getWeakTopics } from '../../lib/adaptive.js';
 import JourneyTimeline from './JourneyTimeline.jsx';
 import LearningInsights from './LearningInsights';
 import { getStyleLabel, getStylePreferences } from '../../lib/learnerStyle.js';
+import { useApp } from '../../context/AppContext.jsx';
 
 // ── Skill Radar Chart ──────────────────────────────────────────────────────
 function SkillRadar({ st }) {
@@ -271,7 +272,8 @@ const STAGE_CEFR = ['A1', 'A2', 'B1', 'B1+', 'B2+', 'C1'];
 const STAGE_NAMES_PROFILE = ['Survivor', 'Settler', 'Communicator', 'Explorer', 'Hrvat!'];
 const STAGE_THRESHOLDS = [0, 8, 16, 24, 32]; // lc thresholds for each stage
 
-export default function ProfileTab({ name, au, level, st, favs, darkMode, setDarkMode, setScr, doOut, syncReady, onSyncNow, jWords, onNavigate, onOpenLeaderboard, onOpenFriends }) {
+export default function ProfileTab({ syncReady, onSyncNow, onOpenLeaderboard, onOpenFriends }) {
+  const { name, au, level, st, favs, darkMode, setDarkMode, setScr, doOut, jWords } = useApp();
   const [confirmOut, setConfirmOut] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -717,7 +719,7 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
           </div>
 
           <div
-            onClick={() => onNavigate && onNavigate('my_words')}
+            onClick={() => setScr('my_words')}
             style={{
               display: 'flex', alignItems: 'center', gap: 12,
               padding: '12px 14px', background: 'var(--card)',

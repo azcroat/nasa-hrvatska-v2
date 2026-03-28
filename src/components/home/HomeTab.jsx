@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Bar, V, LEARN_PATH, getStreak, getStreakFreezes, earnFreeze, getDailyChallenge, lXP, nXP, speak, getSR, getDueReviews, getMistakes, DAILY_QUESTS, LEVEL_NARRATIVE, getActiveCampaign } from '../../data.jsx';
+import { useApp } from '../../context/AppContext.jsx';
 
 // Read last activity saved by App.jsx when exercises are launched
 function getLastActivity() {
@@ -76,11 +77,10 @@ function getCEFR(lvl) {
 }
 
 export default function HomeTab({
-  name, level, st,
   tDir, sTDir, tIn, sTIn, tOut, tL, doTr,
   dchlA, sDchlA, dchlSl, sDchlSl,
-  getWeekStats, award,
-  setTab, setScr, sCurEx,
+  getWeekStats,
+  setTab, sCurEx,
   allCats, sh,
   launchPathItem,
   syncReady, onSyncNow, authUser,
@@ -90,6 +90,7 @@ export default function HomeTab({
   daysSinceJoin = null,
   resumeLesson = null,
 }) {
+  const { name, level, st, award, setScr } = useApp();
   const dc = useMemo(() => getDailyChallenge(), []);
   const ws = useMemo(() => getWeekStats(), [st]);
   const weekXP = useMemo(() => getWeekXP(), []);

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { H, V, GRAM, LEARN_PATH } from '../../data.jsx';
 import CroatianKnight from '../shared/CroatianKnight';
+import { useApp } from '../../context/AppContext.jsx';
 
 function LevelBadge({ label, color, bg }) {
   return (
@@ -65,11 +66,12 @@ const STAGE_COLORS = [
 
 // Q-4: Removed dead state setters — target screens manage their own init state.
 export default function LearnTab({
-  allCats, icons, setScr, sCurEx, st,
+  allCats, icons, sCurEx,
   sh, sLt, sLi, sLx, sLs, sLp, sLa, sLsl,
   sGl, sGp, sGx, sGs, sGa, sGsl,
-  launchPathItem, setTab, launchAnimLesson,
+  launchPathItem, launchAnimLesson,
 }) {
+  const { setScr, st, setTab } = useApp();
   const [showBrowse, setShowBrowse] = useState(false);
   const [pendingLesson, setPendingLesson] = useState(null);
 
