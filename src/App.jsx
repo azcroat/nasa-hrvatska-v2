@@ -15,7 +15,7 @@ import {
   speak,
   // Pure utility functions defined in data.jsx (shuffle, XP, streak, SRS, etc.)
   sh, lvl, lXPgain, getSR, saveSR, getStreak, updateStreak,
-  getStreakFreezes, earnFreeze, getDueReviews,
+  getStreakFreezes, earnFreeze, getStreakEarnBack, applyStreakEarnBack, getDueReviews,
   bootstrapMistakesFromSRS, recordJourneyMilestone,
 } from "./data.jsx";
 import AppContext from "./context/AppContext.jsx";
@@ -359,6 +359,8 @@ function App(){
   const[ceremonyType,setCeremonyType]=useState(null);
   const[levelUpData,setLevelUpData]=useState(null); // {level:N} or null
   const[freezeUsedToast,setFreezeUsedToast]=useState(false);
+  const[earnBackPrompt,setEarnBackPrompt]=useState(null); // {prev:N} — "1 more lesson to restore"
+  const[streakRestoredCount,setStreakRestoredCount]=useState(0);
   const[ttsFailedToast,setTtsFailedToast]=useState(false);
   const[pendingJoinCode,setPendingJoinCode]=useState(()=>{try{const c=new URLSearchParams(window.location.search).get('join')||null;return c&&/^[A-Z2-9]{6}$/.test(c)?c:null;}catch{return null;}});
   // Dwell-time tracker for LEARN_PATH "black hole" screens that don't self-report completion
@@ -715,6 +717,10 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
     setTimeout(()=>setShowXP(false),1500);
     if(celebrate&&totalAmt>0){setCelebXP(totalAmt);setTimeout(()=>setShowCelebration(true),400)}
     const sr=updateStreak();
+    // Streak earn-back: if the user just completed their 2nd lesson after a streak break, restore it
+    const restoredCount=applyStreakEarnBack();
+    if(restoredCount>0){setTimeout(()=>{setStreakRestoredCount(restoredCount);setTimeout(()=>setStreakRestoredCount(0),5000);},1000);}
+    else{const eb=getStreakEarnBack();if(eb&&eb.lc===1){setEarnBackPrompt({prev:eb.prev});setTimeout(()=>setEarnBackPrompt(null),8000);}}
     if(sr.milestone)setTimeout(()=>setStreakMilestone(sr.milestone),800);
     if(sr.milestone) recordJourneyMilestone('streak_'+sr.milestone, {count: sr.milestone, allowRepeat: false});
     // Streak ceremonies (30, 50, 100) — only once each, guarded by localStorage
@@ -967,6 +973,8 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {!onboarded&&_syncReady&&authScreen==="app"&&currentScreen!=="welcome"&&currentScreen!=="placement"&&<OnboardingTour onDone={()=>setOnboarded(true)} />}
       {comebackBonus&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#f59e0b,#d97706)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.2)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease"}}>🔥 Welcome back! Keep your streak alive!</div>}
       {freezeUsedToast&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#1e40af,#3b82f6)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.25)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease",whiteSpace:"nowrap"}}>🛡️ Zaštita niza aktivirana! Tvoj niz je sačuvan.</div>}
+      {earnBackPrompt&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#d97706,#b45309)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.25)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease",maxWidth:320,textAlign:"center"}}>🔥 Complete 1 more lesson today to restore your {earnBackPrompt.prev}-day streak!</div>}
+      {streakRestoredCount>0&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#b61800,#dc2626)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(182,24,0,.4)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease",whiteSpace:"nowrap"}}>🇭🇷 Streak restored! {streakRestoredCount}-day streak back!</div>}
       {ttsFailedToast&&<div style={{position:"fixed",bottom:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"rgba(30,30,30,.92)",color:"#fff",borderRadius:20,padding:"9px 20px",fontSize:13,fontWeight:600,pointerEvents:"none",animation:"slideUp .3s ease",whiteSpace:"nowrap"}}>🔇 Audio unavailable</div>}
       {emailUnverified && (
         <div style={{

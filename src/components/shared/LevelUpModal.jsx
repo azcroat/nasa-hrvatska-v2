@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
 import { rnd } from '../../lib/random.js';
+import { useHaptic } from '../../hooks/useHaptic.js';
 
 // ── CEFR mapping ──────────────────────────────────────────────────────────────
 // lvl() returns 1-10; map to CEFR bands + Croatian level name
@@ -63,9 +64,11 @@ export default function LevelUpModal({ level, onClose }) {
   const meta = LEVEL_META[level] || LEVEL_META[10];
   const particles = useRef(makeOrbitParticles(16)).current;
   const [phase, setPhase] = useState('burst'); // burst → reveal
+  const haptic = useHaptic();
 
   useEffect(() => {
     playLevelUpSound();
+    haptic.award();
 
     // Heavy confetti burst — more dramatic than lesson complete
     const end = Date.now() + 3000;

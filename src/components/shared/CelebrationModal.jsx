@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
 import { rnd } from '../../lib/random.js';
+import { useHaptic } from '../../hooks/useHaptic.js';
 
 const CROATIAN_COLORS = ['#b61800', '#ffffff', '#003087', '#f59e0b', '#16a34a'];
 
@@ -41,6 +42,7 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
   const [displayXP, setDisplayXP] = useState(0);
   const [phase, setPhase] = useState('burst'); // burst → reveal → done
   const [showMomentum, setShowMomentum] = useState(false);
+  const haptic = useHaptic();
 
   useEffect(() => {
     playSuccessSound();
@@ -66,6 +68,7 @@ export default function CelebrationModal({ xp, onClose, streak = 0 }) {
       const eased = 1 - Math.pow(1 - progress, 3);
       setDisplayXP(Math.round(eased * target));
       if (progress < 1) { rafId = requestAnimationFrame(tick); }
+      else { haptic.award(); }
     };
     rafId = requestAnimationFrame(tick);
 
