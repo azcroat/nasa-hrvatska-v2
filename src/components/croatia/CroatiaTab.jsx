@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { H, MEDIA, getCityOfDay, incrementCulture, getProverbOfDay, getHistFact } from '../../data.jsx';
+import { useApp } from '../../context/AppContext.jsx';
 import PhotoHero from '../shared/PhotoHero';
 import { PHOTOS } from '../../lib/photos';
 import CroatianKnight from '../shared/CroatianKnight';
@@ -652,7 +653,8 @@ function SpotifyPlaylists() {
 }
 
 // Q-4: Removed dead state setters — target screens manage their own state.
-export default function CroatiaTab({ setScr, sCurEx, award }) {
+export default function CroatiaTab({ sCurEx }) {
+  const { setScr, award } = useApp();
   const cats = ["tv","music","film","sport","podcast","culture"];
   const city = getCityOfDay();
   const proverb = getProverbOfDay();

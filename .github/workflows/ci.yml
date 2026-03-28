@@ -192,7 +192,7 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
 
       - name: Bundle size check
-        run: npm run size || true
+        run: npm run size
 
       - name: Lighthouse CI
         run: npx lhci autorun || true

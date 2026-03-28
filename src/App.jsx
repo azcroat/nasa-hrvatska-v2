@@ -1219,12 +1219,10 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
         </div>
         {// ═══ TAB: HOME ═══
         tab==="home"&&<div key="tab-home" className="screen-enter"><ScreenErrorBoundary name="HomeTab"><HomeTab
-          name={name} level={level} st={stats}
           tDir={tDir} sTDir={sTDir} tIn={tIn} sTIn={sTIn} tOut={tOut} tL={tL} doTr={doTr}
           dchlA={dchlA} sDchlA={sDchlA} dchlSl={dchlSl} sDchlSl={sDchlSl}
           getWeekStats={getWeekStats}
-          award={award}
-          setTab={(id)=>{const VALID_TABS={home:1,learn:1,practice:1,croatia:1,profile:1};if(VALID_TABS[id])setTab(id);else setScr(id);}} setScr={setScr} sCurEx={sCurEx}
+          setTab={(id)=>{const VALID_TABS={home:1,learn:1,practice:1,croatia:1,profile:1};if(VALID_TABS[id])setTab(id);else setScr(id);}} sCurEx={sCurEx}
           allCats={allCats} sh={sh}
           launchPathItem={launchPathItem}
           syncReady={_syncReady} onSyncNow={doSyncNow} authUser={authUser}
@@ -1236,31 +1234,26 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
         /></ScreenErrorBoundary></div>}
         {// ═══ TAB: LEARN ═══
         tab==="learn"&&<div key="tab-learn" className="screen-enter"><ScreenErrorBoundary name="LearnTab"><LearnTab
-          allCats={allCats} icons={icons} setScr={setScr} sCurEx={sCurEx} st={stats}
+          allCats={allCats} icons={icons} sCurEx={sCurEx}
           sh={sh} sLt={sLt} sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl}
           sGl={sGl} sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
-          launchPathItem={launchPathItem} setTab={setTab}
+          launchPathItem={launchPathItem}
           launchAnimLesson={launchAnimLesson}
         /></ScreenErrorBoundary></div>}
         {// ═══ TAB: PRACTICE ═══
         tab==="practice"&&<div key="tab-practice" className="screen-enter"><ScreenErrorBoundary name="PracticeTab"><PracticeTab
-          allCats={allCats} sh={sh} setScr={setScr} sCurEx={sCurEx}
+          allCats={allCats} sh={sh} sCurEx={sCurEx}
           onLaunchQuiz={launchMcGame} onLaunchFlash={launchFlashcards}
           onLaunchListen={launchListening} onLaunchMatch={launchMatch}
           onLaunchSpeaking={launchSpeaking}
-          lc={stats.lc}
         /></ScreenErrorBoundary></div>}
         {// ═══ TAB: CROATIA ═══
         tab==="croatia"&&<div key="tab-croatia" className="screen-enter"><ScreenErrorBoundary name="CroatiaTab"><CroatiaTab
-          setScr={setScr} sCurEx={sCurEx} award={award}
+          sCurEx={sCurEx}
         /></ScreenErrorBoundary></div>}
         {// ═══ TAB: PROFILE ═══
         tab==="profile"&&<div key="tab-profile" className="screen-enter"><ScreenErrorBoundary name="ProfileTab"><ProfileTab
-          name={name} au={authUser} level={level} st={stats} favs={favs}
-          darkMode={darkMode} setDarkMode={setDarkMode}
-          setScr={setScr} onNavigate={setScr} doOut={doOut}
           syncReady={_syncReady} onSyncNow={doSyncNow}
-          jWords={jWords}
           onOpenLeaderboard={() => setScr('leaderboard_weekly')}
           onOpenFriends={() => setScr('family_group')}
         /></ScreenErrorBoundary></div>}
