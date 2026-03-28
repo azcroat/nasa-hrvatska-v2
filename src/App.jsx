@@ -48,8 +48,7 @@ import CroatianGrb from "./components/shared/CroatianGrb.jsx";
 import CookieConsent from "./components/shared/CookieConsent.jsx";
 import TermsOfService from "./components/shared/TermsOfService.jsx";
 import { useSubscription, grantFreeAnnual, getSubscriptionStatus } from "./hooks/useSubscription.js";
-import PlacementTest from "./components/home/PlacementTest.jsx";
-import NewPlacementTest from "./components/auth/PlacementTest.jsx";
+import PlacementTest from "./components/auth/PlacementTest.jsx";
 import { LESSONS as ANIM_LESSONS } from "./data/lessons.js";
 // Reload once on stale-chunk errors (happens after deploy when old index.html
 // tries to load chunk files that no longer exist at their old hashed paths).
@@ -334,7 +333,7 @@ function App(){
   const[name,setName]=useState("");
   const[stats,setStats]=useState(ds);
   // ── Placement test state (shared between WelcomeScreen and PlacementTest) ──
-  const[pi,sPi]=useState(0);const[ps,sPs]=useState(0);const[pa,sPa]=useState(false);const[px,sPx]=useState(-1);const[pq,sPq]=useState([]);
+  const[placementIdx,setPlacementIdx]=useState(0);const[placementScore,setPlacementScore]=useState(0);const[placementAnswers,setPlacementAnswers]=useState(false);const[placementXp,setPlacementXp]=useState(-1);const[placementQ,setPlacementQ]=useState([]);
   // ── Lesson screen state (bidirectional: LearnTab sets, LessonScreen reads+writes) ──
   const[lt,sLt]=useState(null);const[li,sLi]=useState([]);const[lx,sLx]=useState(0);const[ls,sLs]=useState(0);const[lp,sLp]=useState("learn");const[la,sLa]=useState(false);const[lsl,sLsl]=useState(-1);const[qi,sQi]=useState([]);
   // ── Grammar screen state ──
@@ -1160,8 +1159,8 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
           <div style={{fontSize:11,opacity:.75,fontWeight:700,whiteSpace:"nowrap"}}>✓ Cloud sync active</div>
         </div>
       </div>}
-      {currentScreen==="welcome" && <WelcomeScreen name={name} au={authUser} st={stats} setScr={setScr} setName={setName} sPq={sPq} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} />}
-      {currentScreen==="placement" && <PlacementTest pq={pq} pi={pi} ps={ps} pa={pa} px={px} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} setScr={setScr} setSt={setStats} setTab={setTab} />}
+      {currentScreen==="welcome" && <WelcomeScreen name={name} au={authUser} st={stats} setScr={setScr} setName={setName} setPlacementQ={setPlacementQ} setPlacementIdx={setPlacementIdx} setPlacementScore={setPlacementScore} setPlacementAnswers={setPlacementAnswers} setPlacementXp={setPlacementXp} />}
+      {currentScreen==="placement" && <PlacementTest onComplete={function(level){localStorage.setItem("placement_done","1");setStats(function(prev){return{...prev,ct:getPlacementCt(level),lc:Math.max(prev.lc,getPlacementCt(level).length)};});award(25);setShowFirstWords(true);setTimeout(()=>setTab('learn'),300);}} />}
       {// ═══ DASHBOARD ═══
       currentScreen==="dashboard"&&<div className="dash">
         <div style={{position:"relative",marginBottom:20}}>
@@ -1518,7 +1517,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {// ═══ GRAMMAR REFERENCE ═══
       currentScreen==="grammar-ref"&&<GrammarReference onClose={()=>setScr("dashboard")} />}
       {// ═══ NEW PLACEMENT TEST (first-time users) ═══
-      currentScreen==="new-placement"&&<NewPlacementTest onComplete={function(level){localStorage.setItem("placement_done","1");setStats(function(prev){return{...prev,ct:getPlacementCt(level),lc:Math.max(prev.lc,getPlacementCt(level).length)};});award(25);setShowFirstWords(true);setTimeout(()=>setTab('learn'),300);}} />}
+      currentScreen==="new-placement"&&<PlacementTest onComplete={function(level){localStorage.setItem("placement_done","1");setStats(function(prev){return{...prev,ct:getPlacementCt(level),lc:Math.max(prev.lc,getPlacementCt(level).length)};});award(25);setShowFirstWords(true);setTimeout(()=>setTab('learn'),300);}} />}
       {// ═══ VOCABULARY LESSON ═══
       currentScreen==="lesson"&&<LessonScreen
         lt={lt} li={li} lx={lx} ls={ls} lp={lp} la={la} lsl={lsl} qi={qi} icons={icons}

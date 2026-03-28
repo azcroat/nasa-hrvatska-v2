@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, memo } from 'react';
 import confetti from 'canvas-confetti';
 import { useHaptic } from '../../hooks/useHaptic.js';
 
@@ -12,13 +12,18 @@ const MESSAGES = {
   365: { emoji: '👑', title: '365 Days! 👑', sub: 'One full year. Čestitamo — congratulations from the whole Croatian diaspora.', tip: 'Jedna godina. Ti si naš čovjek.', color: '#164e63' },
 };
 
-export default function StreakMilestoneModal({ days, onClose }) {
+function StreakMilestoneModal({ days, onClose }) {
   const haptic = useHaptic();
   const msg = MESSAGES[days] || { emoji: '🔥', title: `${days}-Day Streak!`, sub: 'Keep it up!', tip: 'Every day counts. See you tomorrow!', color: '#f97316' };
   const fired = useRef(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => { haptic.award(); }, []);
+
+  useEffect(() => {
+    const firstBtn = /** @type {HTMLElement|null} */ (document.querySelector('[data-modal-focus]'));
+    if (firstBtn) firstBtn.focus();
+  }, []);
 
   useEffect(() => {
     if (fired.current) return undefined;
@@ -99,7 +104,7 @@ export default function StreakMilestoneModal({ days, onClose }) {
         }}>
           {msg.tip}
         </div>
-        <button onClick={onClose} className="b" style={{
+        <button data-modal-focus onClick={onClose} className="b" style={{
           width:'100%', padding:'12px 32px', background:`linear-gradient(135deg,${msg.color},#164e63)`,
           color:'#fff', border:'none', borderRadius:14, fontSize:'var(--text-md)', fontWeight:700, cursor:'pointer',
         }}>Keep Going 💪</button>
@@ -120,3 +125,5 @@ export default function StreakMilestoneModal({ days, onClose }) {
     </div>
   );
 }
+
+export default memo(StreakMilestoneModal);

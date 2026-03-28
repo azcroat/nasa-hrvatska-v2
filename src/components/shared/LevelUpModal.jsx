@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, memo } from 'react';
 import confetti from 'canvas-confetti';
 import { rnd } from '../../lib/random.js';
 import { useHaptic } from '../../hooks/useHaptic.js';
@@ -60,12 +60,17 @@ function makeOrbitParticles(n = 16) {
   }));
 }
 
-export default function LevelUpModal({ level, onClose }) {
+function LevelUpModal({ level, onClose }) {
   const meta = LEVEL_META[level] || LEVEL_META[10];
   const particles = useRef(makeOrbitParticles(16)).current;
   const [phase, setPhase] = useState('burst'); // burst → reveal
   const [copied, setCopied] = useState(false);
   const haptic = useHaptic();
+
+  useEffect(() => {
+    const firstBtn = /** @type {HTMLElement|null} */ (document.querySelector('[data-modal-focus]'));
+    if (firstBtn) firstBtn.focus();
+  }, []);
 
   const shareText = `🇭🇷 Just reached Level ${level} (${meta.cefr} — ${meta.band}) in Croatian! ${meta.emoji} Learning with Naša Hrvatska — Croatian for the diaspora.`;
 
@@ -320,6 +325,7 @@ export default function LevelUpModal({ level, onClose }) {
 
           {/* CTA button */}
           <button
+            data-modal-focus
             className="b bp"
             onClick={onClose}
             style={{ width: '100%', fontSize: 15, padding: '14px', marginBottom: 10 }}
@@ -344,3 +350,5 @@ export default function LevelUpModal({ level, onClose }) {
     </div>
   );
 }
+
+export default memo(LevelUpModal);

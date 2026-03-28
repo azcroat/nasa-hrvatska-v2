@@ -51,17 +51,38 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
         cacheId: 'nasa-hrvatska-v9',
-        // Only precache JS/CSS/images — exclude large data chunk and splash screens
-        globPatterns: ['**/*.{js,css,svg,ico,png,webp,woff2}'],
-        globIgnores: ['**/chunk-data*.js', '**/splash/**'],
+        // Precache only critical app-shell assets: CSS, fonts, favicon/manifest icons.
+        // JS chunks (100+ files, ~5MB) and images are handled by runtimeCaching below.
+        globPatterns: ['**/*.css', '**/*.woff2', '**/*.ico', '**/icon*.png', '**/apple-touch*.png'],
+        globIgnores: ['**/chunk-data*.js', '**/splash/**', '**/screenshots/**'],
         runtimeCaching: [
           {
-            // Data chunk (698KB vocabulary data) — serve stale, revalidate in background
+            // Data chunk (706KB vocabulary data) — serve stale, revalidate in background
             urlPattern: /\/assets\/chunk-data[^/]*\.js$/,
             handler: 'StaleWhileRevalidate',
             options: {
               cacheName: 'data-chunk-cache',
               expiration: { maxEntries: 3, maxAgeSeconds: 60 * 60 * 24 * 7 },
+              cacheableResponse: { statuses: [0, 200] }
+            }
+          },
+          {
+            // All JS chunks — stale-while-revalidate so app loads fast on repeat visits
+            urlPattern: /\.js$/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'js-cache',
+              expiration: { maxEntries: 60, maxAgeSeconds: 30 * 24 * 60 * 60 },
+              cacheableResponse: { statuses: [0, 200] }
+            }
+          },
+          {
+            // SVG/PNG/WebP/JPG images — long-lived CacheFirst (icons, flags, illustrations)
+            urlPattern: /\.(svg|png|webp|jpg|jpeg)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'image-cache',
+              expiration: { maxEntries: 100, maxAgeSeconds: 365 * 24 * 60 * 60 },
               cacheableResponse: { statuses: [0, 200] }
             }
           },

@@ -134,3 +134,112 @@ describe('Flashcards', () => {
     expect(screen.getByTestId('progress-bar')).toBeTruthy();
   });
 });
+
+// ── Tab smoke-render tests ─────────────────────────────────────────────────────
+import AppContext from '../context/AppContext.jsx';
+import HomeTab from '../components/home/HomeTab.jsx';
+import LearnTab from '../components/learn/LearnTab.jsx';
+import PracticeTab from '../components/practice/PracticeTab.jsx';
+import ProfileTab from '../components/profile/ProfileTab.jsx';
+
+const mockSt = {
+  xp: 120, str: 3, diff: 'beginner', lc: 5, pf: 0, gc: 2,
+  sp: 0, de: 0, rc: 0, authLoading: 0, mv: 0, hi: 0,
+  rs: [], ct: [], vs: [], badges: [],
+};
+
+const mockContextValue = {
+  // Navigation
+  setScr: vi.fn(),
+  goBack: vi.fn(),
+  tab: 'home',
+  setTab: vi.fn(),
+  // Auth
+  authScreen: 'app',
+  au: { uid: 'test-uid', email: 'test@example.com' },
+  name: 'Test User',
+  setName: vi.fn(),
+  doOut: vi.fn(),
+  // Stats
+  st: mockSt,
+  setSt: vi.fn(),
+  level: 3,
+  award: vi.fn(),
+  // Prefs
+  darkMode: false,
+  setDarkMode: vi.fn(),
+  favs: [],
+  toggleFav: vi.fn(),
+  isFav: vi.fn(() => false),
+  // Journal
+  jWords: [],
+  setJWords: vi.fn(),
+  // Family
+  famData: null,
+  setFamData: vi.fn(),
+};
+
+describe('HomeTab smoke render', () => {
+  it('renders without crashing', () => {
+    render(
+      <AppContext.Provider value={mockContextValue}>
+        <HomeTab
+          getWeekStats={() => ({ lessons: 0, grammar: 0, streak: 0, weak: 0, strong: 0 })}
+          sh={arr => arr}
+          allCats={[]}
+          dchlA={[null, null, null]}
+          sDchlA={vi.fn()}
+          dchlSl={[null, null, null]}
+          sDchlSl={vi.fn()}
+          setTab={vi.fn()}
+          sCurEx={vi.fn()}
+          launchPathItem={vi.fn()}
+        />
+      </AppContext.Provider>
+    );
+  });
+});
+
+describe('LearnTab smoke render', () => {
+  it('renders without crashing', () => {
+    render(
+      <AppContext.Provider value={mockContextValue}>
+        <LearnTab allCats={[]} icons={{}} sh={arr => arr} />
+      </AppContext.Provider>
+    );
+  });
+});
+
+describe('PracticeTab smoke render', () => {
+  it('renders without crashing', () => {
+    render(
+      <AppContext.Provider value={mockContextValue}>
+        <PracticeTab
+          allCats={[]}
+          sh={arr => arr}
+          sCurEx={vi.fn()}
+          onLaunchQuiz={vi.fn()}
+          onLaunchFlash={vi.fn()}
+          onLaunchListen={vi.fn()}
+          onLaunchMatch={vi.fn()}
+          onLaunchSpeaking={vi.fn()}
+        />
+      </AppContext.Provider>
+    );
+  });
+});
+
+describe('ProfileTab smoke render', () => {
+  it('renders without crashing', () => {
+    render(
+      <AppContext.Provider value={mockContextValue}>
+        <ProfileTab
+          syncReady={false}
+          onSyncNow={vi.fn()}
+          onOpenLeaderboard={vi.fn()}
+          onOpenFriends={vi.fn()}
+        />
+      </AppContext.Provider>
+    );
+  });
+});
