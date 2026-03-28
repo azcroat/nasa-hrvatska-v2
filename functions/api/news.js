@@ -45,8 +45,13 @@ function parseRSS(rawXml, sourceName) {
   while ((match = itemRegex.exec(xml)) !== null && items.length < 5) {
     const item = match[1];
     const getTag = (tag) => {
-      const m = item.match(new RegExp(`<${tag}[^>]{0,200}><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${tag}>|<${tag}[^>]{0,200}>([\\s\\S]*?)<\\/${tag}>`, 'i'));
-      return m ? (m[1] || m[2] || "").trim() : "";
+      // Two separate bounded regexes — avoids catastrophic backtracking from alternation.
+      // CDATA: content bounded to 2000 chars. Plain: [^<]* stops at any tag boundary.
+      const safeTag = tag.replace(/[^a-zA-Z]/g, '');
+      const cdataM = item.match(new RegExp(`<${safeTag}[^>]{0,200}><!\\[CDATA\\[(.{0,2000}?)\\]\\]><\\/${safeTag}>`, 'i'));
+      if (cdataM) return cdataM[1].trim();
+      const plainM = item.match(new RegExp(`<${safeTag}[^>]{0,200}>([^<]{0,2000})<\\/${safeTag}>`, 'i'));
+      return plainM ? plainM[1].trim() : '';
     };
     const title = getTag("title");
     const description = getTag("description");

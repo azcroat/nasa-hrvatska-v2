@@ -34,9 +34,12 @@ const SESSION_RATE_LIMIT_PER_MINUTE = 4; // ~3 sessions/hour = 1 every 20 min, 4
 function sanitizeParam(value, maxLen = 200) {
   if (value === null || value === undefined) return '';
   return String(value)
-    .replace(/[\r\n]/g, ' ')
+    .replace(/[\x00-\x1F\x7F]/g, ' ')  // strip control characters
     .replace(/[`\\]/g, '')
-    .replace(/\bignore\b.*\binstruction/gi, '')
+    // Broad injection phrase patterns — catch variants with spacing, punctuation, unicode tricks
+    .replace(/ign[o0]re\b.{0,80}(instruct|prompt|system|above|previous|prior)/gi, '')
+    .replace(/\b(system prompt|jailbreak|disregard|forget (all|your|previous)|new (role|persona|instruction))/gi, '')
+    .replace(/\bact as\b.{0,40}\b(ai|gpt|claude|llm|model|assistant)\b/gi, '')
     .trim()
     .slice(0, maxLen);
 }
