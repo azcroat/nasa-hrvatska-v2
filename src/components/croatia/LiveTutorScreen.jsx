@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { getAudioContext } from '../../lib/audio.js';
+import { markQuest } from '../../lib/quests.js';
 
 // ─────────────────────────────────────────────
 // CONSTANTS
@@ -189,7 +191,7 @@ export default function LiveTutorScreen({ goBack, award }) {
       setTurnCount(newTurn);
       if (award) {
         award(5);
-        if (newTurn === 10) award(20);
+        if (newTurn === 10) { award(20); markQuest('speak'); }
       }
 
       // Play TTS (streaming)
@@ -208,6 +210,24 @@ export default function LiveTutorScreen({ goBack, award }) {
 
   // ── TTS: blob fallback helper ──────────────
   const playBlob = async (blob) => {
+    // iOS: use the pre-unlocked AudioContext to bypass HTMLAudioElement autoplay policy
+    const ctx = getAudioContext();
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (isIOS && ctx) {
+      try {
+        await ctx.resume();
+        const ab = await blob.arrayBuffer();
+        const decoded = await ctx.decodeAudioData(ab);
+        const src = ctx.createBufferSource();
+        src.buffer = decoded;
+        src.connect(ctx.destination);
+        audioRef.current = { pause: () => { try { src.stop(); } catch {} }, currentTime: 0 };
+        src.start(0);
+        await new Promise(resolve => { src.onended = resolve; });
+        return;
+      } catch { /* fall through to HTMLAudioElement */ }
+    }
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
     audioRef.current = audio;
@@ -218,6 +238,7 @@ export default function LiveTutorScreen({ goBack, award }) {
   // ── TTS: streaming playback ────────────────
   const playTTSStreaming = async (text) => {
     setPlaying(true);
+    setPhase('speaking');
     try {
       const res = await apiFetch("/api/tts", {
         method: "POST",
@@ -228,30 +249,39 @@ export default function LiveTutorScreen({ goBack, award }) {
 
       // Check if browser supports MSE with audio/mpeg
       if (!window.MediaSource || !MediaSource.isTypeSupported('audio/mpeg')) {
-        // Fallback: collect full response then play
+        // Fallback: collect full response then play as blob
         const blob = await res.blob();
         await playBlob(blob);
         setPlaying(false);
+        setPhase('none');
         return;
       }
 
       const mediaSource = new MediaSource();
       const audioEl = new Audio();
-      audioEl.src = URL.createObjectURL(mediaSource);
       audioRef.current = audioEl;
 
+      // Register onended BEFORE assigning src — guarantees we never miss the event
+      // even if audio ends synchronously before we reach the await below.
+      const endedPromise = new Promise(resolve => { audioEl.onended = resolve; });
+      audioEl.src = URL.createObjectURL(mediaSource);
+
       await new Promise(resolve => { mediaSource.addEventListener('sourceopen', resolve, { once: true }); });
-      audioEl.play().catch(() => {}); // Start early — browser buffers while we feed data
+      audioEl.play().catch(() => {}); // Start early — browser buffers while we feed chunks
 
       const sourceBuffer = mediaSource.addSourceBuffer('audio/mpeg');
       const reader = res.body.getReader();
 
-      const appendChunk = (chunk) => new Promise(resolve => {
-        if (sourceBuffer.updating) {
-          sourceBuffer.addEventListener('updateend', () => { sourceBuffer.appendBuffer(chunk); resolve(); }, { once: true });
-        } else {
-          sourceBuffer.appendBuffer(chunk);
+      const appendChunk = (chunk) => new Promise((resolve, reject) => {
+        const doAppend = () => {
+          try { sourceBuffer.appendBuffer(chunk); } catch (e) { reject(e); return; }
           sourceBuffer.addEventListener('updateend', resolve, { once: true });
+        };
+        // If a previous append is still in progress, queue this one after it finishes
+        if (sourceBuffer.updating) {
+          sourceBuffer.addEventListener('updateend', doAppend, { once: true });
+        } else {
+          doAppend();
         }
       });
 
@@ -261,10 +291,15 @@ export default function LiveTutorScreen({ goBack, award }) {
         await appendChunk(value);
       }
 
-      await new Promise(resolve => { sourceBuffer.addEventListener('updateend', resolve, { once: true }); });
+      // Only wait for updateend if a buffer operation is still in progress —
+      // if updating is already false, no further updateend will fire and the
+      // await would hang forever.
+      if (sourceBuffer.updating) {
+        await new Promise(resolve => sourceBuffer.addEventListener('updateend', resolve, { once: true }));
+      }
       mediaSource.endOfStream();
 
-      await new Promise(resolve => { audioEl.onended = resolve; });
+      await endedPromise;
       URL.revokeObjectURL(audioEl.src);
 
     } catch {
@@ -275,11 +310,14 @@ export default function LiveTutorScreen({ goBack, award }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text, slow: false }),
         });
-        const blob = await res2.blob();
-        await playBlob(blob);
+        if (res2.ok) {
+          const blob = await res2.blob();
+          await playBlob(blob);
+        }
       } catch { /* silent fail — text still displayed */ }
     }
     setPlaying(false);
+    setPhase('none');
   };
 
   // ── STT: start recording via MediaRecorder ─

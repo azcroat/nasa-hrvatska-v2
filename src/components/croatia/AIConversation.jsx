@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { speak } from '../../data.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
 import { useStats } from '../../context/StatsContext.jsx';
+import { markPracticed } from '../../hooks/useNotifications.js';
+import { markQuest } from '../../lib/quests.js';
 
 // ── Conversation scenarios ───────────────────────────────────────────────────
 const SCENARIOS = [
@@ -658,6 +660,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
         evalXpFired.current = true;
         const xp = ev.score >= 80 ? 20 : ev.score >= 60 ? 15 : 10;
         award(xp + Math.min(userMsgs.length, 5) * 2, false);
+        markPracticed();
+        markQuest('speak');
       }
       setPhase("result");
     } catch (e) {
@@ -687,6 +691,9 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
         writeXpFired.current = true;
         const xp = result.score >= 80 ? 18 : result.score >= 60 ? 13 : 8;
         award(xp, false);
+        markPracticed();
+        const today = new Date().toISOString().slice(0, 10);
+        localStorage.setItem('nh_quest_grammar_' + today, '1');
       }
       setWritePhase("result");
     } catch (e) {

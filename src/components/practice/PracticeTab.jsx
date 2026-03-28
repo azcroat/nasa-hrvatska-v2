@@ -10,6 +10,7 @@ export default function PracticeTab({
 }) {
   const [weakMsg, setWeakMsg] = useState("");
   const [pFilter, setPFilter] = useState('all');
+  const [showAll, setShowAll] = useState(false);
 
   const pool = () => allCats.flatMap(cc => V[cc]);
 
@@ -328,7 +329,7 @@ export default function PracticeTab({
   })();
 
   return (
-    <React.Fragment>
+    <div role="main">
       {H("🎮 Practice", "Games, exercises & daily review")}
 
       {/* ── QUICK START CTA ─────────────────────────────────────────────── */}
@@ -462,38 +463,80 @@ export default function PracticeTab({
         </div>
       )}
 
-      {/* ── ALL EXERCISES — FILTER PILLS + FLAT GRID ────────────────────── */}
+      {/* ── TODAY'S PICK ─────────────────────────────────────────────────── */}
       <div className="section-hdr">
-        <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>📚</div>
+        <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>⭐</div>
         <div className="section-hdr-text">
-          <div className="section-hdr-title">All Exercises</div>
-          <div className="section-hdr-sub">{visibleCount} exercise{visibleCount !== 1 ? 's' : ''} — grammar, vocabulary, and more</div>
+          <div className="section-hdr-title">Today's Pick</div>
+          <div className="section-hdr-sub">3 exercises chosen for right now</div>
         </div>
       </div>
-
-      {/* Filter pills — sticky so they stay visible while scrolling the grid */}
-      <div role="group" aria-label="Filter exercises" style={{ display:'flex', gap:8, overflowX:'auto', scrollbarWidth:'none', position:'sticky', top:0, zIndex:10, background:'var(--app-bg)', paddingTop:8, paddingBottom:8, marginBottom:0 }}>
-        {[
-          { id:'all',       label:'All' },
-          { id:'grammar',   label:'🧠 Grammar' },
-          { id:'vocab',     label:'📚 Vocab' },
-          { id:'practical', label:'💬 Practical' },
-          { id:'advanced',  label:'⚡ Advanced' },
-        ].map(f => (
-          <button key={f.id} onClick={() => setPFilter(f.id)} aria-pressed={pFilter === f.id} style={{
-            padding:'7px 16px', borderRadius:20, border:'none', flexShrink:0,
-            background: pFilter === f.id ? 'var(--info)' : 'var(--bar-bg)',
-            color: pFilter === f.id ? '#fff' : 'var(--subtext)',
-            fontWeight:700, fontSize:13, cursor:'pointer', whiteSpace:'nowrap',
-            transition:'background 0.2s', fontFamily:"'Outfit',sans-serif",
-          }}>{f.label}</button>
-        ))}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:8, marginTop:4 }}>
+        {EXERCISES.filter(e => todaysPicks.includes(e.id)).map(e => <ExerciseCard key={e.id} {...e} />)}
       </div>
 
-      {/* Flat 2-column exercise grid */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:24, marginTop:12 }}>
-        {visible.map(e => <ExerciseCard key={e.id} {...e} />)}
-      </div>
+      {/* ── BROWSE ALL TOGGLE ────────────────────────────────────────────── */}
+      <button
+        onClick={() => setShowAll(s => !s)}
+        style={{
+          display:'flex', alignItems:'center', justifyContent:'space-between',
+          width:'100%', padding:'12px 16px', marginTop:12,
+          background:'var(--card)', border:'1px solid var(--card-b)',
+          borderRadius:12, cursor:'pointer',
+          fontSize:13, fontWeight:700, color:'var(--text)',
+          fontFamily:"'Outfit',sans-serif",
+        }}
+      >
+        <span>Browse All {EXERCISES.length} Exercises</span>
+        <span style={{fontSize:16, color:'var(--text-2)'}}>{showAll ? '▲' : '▼'}</span>
+      </button>
+
+      {showAll && (
+        <div style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 20,
+          background: 'var(--bg)',
+          paddingTop: 8,
+          paddingBottom: 8,
+          borderBottom: '1px solid var(--card-b)',
+          display: 'flex', gap: 6, overflowX: 'auto',
+          scrollbarWidth: 'none',
+          WebkitOverflowScrolling: 'touch',
+          padding: '8px 0',
+        }}>
+          {['all','grammar','vocab','practical','advanced'].map(f => (
+            <button
+              key={f}
+              onClick={() => setPFilter(f)}
+              style={{
+                flexShrink: 0,
+                padding: '6px 14px',
+                borderRadius: 20,
+                border: pFilter === f ? '1.5px solid var(--info)' : '1px solid var(--card-b)',
+                background: pFilter === f ? 'var(--info-bg)' : 'var(--card)',
+                color: pFilter === f ? 'var(--info)' : 'var(--text-2)',
+                fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                minHeight: 44,
+              }}
+              aria-label={"Filter by " + f}
+              aria-pressed={pFilter === f}
+            >
+              {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {showAll && (
+        <div>
+          {/* Flat 2-column exercise grid */}
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:24, marginTop:12 }}>
+            {visible.map(e => <ExerciseCard key={e.id} {...e} />)}
+          </div>
+        </div>
+      )}
 
       {/* ── QUICK GAMES ─────────────────────────────────────────────────── */}
       <div className="section-hdr">
@@ -620,6 +663,6 @@ export default function PracticeTab({
         </div>
       </div>
 
-    </React.Fragment>
+    </div>
   );
 }

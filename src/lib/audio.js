@@ -2,7 +2,7 @@
 // Audio Engine — Native Croatian Pronunciation
 // ═══════════════════════════════════════════════════════════
 
-let _au=false;let _voices=[];let _voicesLoaded=false;let _currentAudio=null;
+let _au=false;let _voices=[];let _voicesLoaded=false;let _currentAudio=null;let _ctx=null;
 
 // Session-level audio cache: avoids repeat API calls for the same word
 // Key: "text|0" or "text|1" (text + slow flag). Expires after 1 hour.
@@ -18,7 +18,7 @@ function _cacheSet(key, url) {
 }
 
 const _iOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
-function uA(){if(_au)return;_au=true;try{const c=new(window.AudioContext||window.webkitAudioContext)();const b=c.createBuffer(1,1,22050);const s=c.createBufferSource();s.buffer=b;s.connect(c.destination);s.start(0);c.resume()}catch(e){}}
+function uA(){if(_au)return;_au=true;try{_ctx=new(window.AudioContext||window.webkitAudioContext)();const b=_ctx.createBuffer(1,1,22050);const s=_ctx.createBufferSource();s.buffer=b;s.connect(_ctx.destination);s.start(0);_ctx.resume()}catch(e){}}
 ["touchstart","click"].forEach(e=>{document.addEventListener(e,function h(){uA();document.removeEventListener(e,h)},{passive:true,once:true})});
 
 export function loadVoices(){if(window.speechSynthesis){_voices=window.speechSynthesis.getVoices();_voicesLoaded=_voices.length>0}}
@@ -46,7 +46,6 @@ export async function speakAzure(text, slow) {
   const cacheKey = text + '|' + (slow ? '1' : '0');
   const cached = _cacheGet(cacheKey);
 
-  const a = new Audio(); a.volume = 1.0; _currentAudio = a;
   try {
     let url;
     if (cached) {
@@ -66,6 +65,30 @@ export async function speakAzure(text, slow) {
       url = URL.createObjectURL(blob);
       _cacheSet(cacheKey, url);
     }
+
+    // iOS: HTMLAudioElement.play() is blocked after async gaps (user gesture context lost).
+    // Use the pre-unlocked AudioContext (activated on first touch via uA()) to decode and
+    // play the MP3 buffer instead — AudioContext ignores autoplay policy once unlocked.
+    if (_iOS && _ctx) {
+      try {
+        await _ctx.resume();
+        const ab = await fetch(url).then(r2 => r2.arrayBuffer());
+        const decoded = await _ctx.decodeAudioData(ab);
+        const src = _ctx.createBufferSource();
+        src.buffer = decoded;
+        src.connect(_ctx.destination);
+        // Shim so stopAudio() can cancel mid-playback
+        _currentAudio = { pause: () => { try { src.stop(); } catch {} }, currentTime: 0 };
+        src.start(0);
+        await new Promise(resolve => { src.onended = resolve; });
+        return true;
+      } catch (e) {
+        console.error('[TTS iOS] AudioContext fallback failed:', e);
+        // fall through to HTMLAudioElement path
+      }
+    }
+
+    const a = new Audio(); a.volume = 1.0; _currentAudio = a;
     a.src = url; a.load();
     await a.play();
     return true;
@@ -102,17 +125,26 @@ function prepTTS(text) {
   return t;
 }
 
-export function speak(text) {
-  if (!text) return;
+export async function speak(text) {
+  if (!text) return 'none';
   const t = prepTTS(text);
-  speakAzure(t, false).then(ok => { if (!ok) speakSynth(t, 0.9); }).catch(() => speakSynth(t, 0.9));
+  const ok = await speakAzure(t, false).catch(() => false);
+  if (!ok) { speakSynth(t, 0.9); return 'fallback'; }
+  return 'azure';
 }
 
-export function speakSlow(text) {
-  if (!text) return;
+export async function speakSlow(text) {
+  if (!text) return 'none';
   const t = prepTTS(text);
-  speakAzure(t, true).then(ok => { if (!ok) speakSynth(t, 0.6); }).catch(() => speakSynth(t, 0.6));
+  const ok = await speakAzure(t, true).catch(() => false);
+  if (!ok) { speakSynth(t, 0.6); return 'fallback'; }
+  return 'azure';
 }
+
+// Returns the pre-unlocked AudioContext (null if user hasn't interacted yet).
+// Other modules (e.g. LiveTutorScreen) can use this to play audio on iOS
+// without HTMLAudioElement autoplay restrictions.
+export function getAudioContext() { return _ctx; }
 
 export function speakEN(text) {
   if (!text || !window.speechSynthesis) return;

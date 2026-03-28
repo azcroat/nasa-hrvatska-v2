@@ -29,6 +29,8 @@ export default function AIListeningScreen({ goBack, award }) {
   const [score, setScore]               = useState(0);
   const [xpAwarded, setXpAwarded]       = useState(false);
   const [readyVisible, setReadyVisible] = useState(false);
+  const [errorMsg, setErrorMsg]         = useState('');
+  const [audioSource, setAudioSource]   = useState('loading');
 
   const audioRef   = useRef(null);
   const mountedRef = useRef(true);
@@ -43,6 +45,7 @@ export default function AIListeningScreen({ goBack, award }) {
   // ── Generate content + TTS ────────────────────────────────────────────────
   async function generate() {
     if (!selectedTopic) return;
+    setErrorMsg('');
     setPhase('loading');
 
     try {
@@ -52,6 +55,7 @@ export default function AIListeningScreen({ goBack, award }) {
         body: JSON.stringify({ topic: selectedTopic, level, style }),
       });
       if (!mountedRef.current) return;
+      if (!res.ok) throw new Error(`listening API error: ${res.status}`);
       const data = await res.json();
       setContent(data);
 
@@ -73,18 +77,28 @@ export default function AIListeningScreen({ goBack, award }) {
         body: JSON.stringify({ text: fullText.trim(), slow: speed < 1 }),
       });
       if (!mountedRef.current) return;
-      const blob = await ttsRes.blob();
-      const url  = URL.createObjectURL(blob);
-      if (!mountedRef.current) { URL.revokeObjectURL(url); return; }
-
-      setAudioUrl(url);
+      if (!ttsRes.ok) {
+        if (mountedRef.current) setAudioSource('unavailable');
+      } else {
+        const blob = await ttsRes.blob();
+        const url  = URL.createObjectURL(blob);
+        if (!mountedRef.current) { URL.revokeObjectURL(url); return; }
+        setAudioUrl(url);
+        setAudioSource('azure');
+      }
       setPhase('listening');
       setReadyVisible(false);
       readyTimer.current = setTimeout(() => {
         if (mountedRef.current) setReadyVisible(true);
       }, 5000);
     } catch (err) {
-      if (mountedRef.current) setPhase('setup');
+      if (mountedRef.current) {
+        const isNetwork = err instanceof TypeError && err.message.toLowerCase().includes('fetch');
+        setErrorMsg(isNetwork
+          ? 'Connection error — check your internet and try again'
+          : 'Something went wrong — please try again');
+        setPhase('setup');
+      }
     }
   }
 
@@ -104,14 +118,14 @@ export default function AIListeningScreen({ goBack, award }) {
     const a = getAudio();
     if (!a) return;
     if (isPlaying) { a.pause(); setIsPlaying(false); }
-    else           { a.play(); setIsPlaying(true); }
+    else           { a.play().catch(() => setIsPlaying(false)); setIsPlaying(true); }
   }
 
   function replayAudio() {
     const a = getAudio();
     if (!a) return;
     a.currentTime = 0;
-    a.play();
+    a.play().catch(() => setIsPlaying(false));
     setIsPlaying(true);
   }
 
@@ -162,6 +176,7 @@ export default function AIListeningScreen({ goBack, award }) {
     setScore(0);
     setXpAwarded(false);
     setReadyVisible(false);
+    setAudioSource('loading');
   }
 
   // ── Build transcript text ─────────────────────────────────────────────────
@@ -203,6 +218,23 @@ export default function AIListeningScreen({ goBack, award }) {
           </button>
         ))}
       </div>
+
+      {/* Error banner */}
+      {errorMsg && (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.35)',
+          borderRadius: 10, padding: '10px 14px', marginBottom: 16,
+        }}>
+          <span style={{ fontSize: 14, color: '#dc2626', fontWeight: 600, lineHeight: 1.4 }}>
+            ⚠️ {errorMsg}
+          </span>
+          <button onClick={() => setErrorMsg('')} style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: '#dc2626', fontSize: 18, lineHeight: 1, padding: '0 0 0 12px', fontWeight: 700,
+          }} aria-label="Dismiss error">×</button>
+        </div>
+      )}
 
       {/* Topic grid */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
@@ -278,7 +310,7 @@ export default function AIListeningScreen({ goBack, award }) {
 
       {/* Audio controls */}
       <div className="c" style={{ textAlign: 'center', padding: 20 }}>
-        <button onClick={togglePlay} style={{
+        <button onClick={togglePlay} aria-label={isPlaying ? "Pause audio" : "Play audio"} style={{
           width: 64, height: 64, borderRadius: '50%', border: 'none',
           background: '#0e7490', color: '#fff', fontSize: 26, cursor: 'pointer',
           boxShadow: '0 4px 14px rgba(14,116,144,0.35)', marginBottom: 14,
@@ -286,14 +318,23 @@ export default function AIListeningScreen({ goBack, award }) {
           {isPlaying ? '⏸' : '▶'}
         </button>
 
+        {audioSource === 'unavailable' && (
+          <div style={{
+            fontSize: 11, color: 'var(--warning, #d97706)',
+            textAlign: 'center', marginTop: 4, fontStyle: 'italic',
+          }}>
+            Audio unavailable — transcript only
+          </div>
+        )}
+
         <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <button onClick={replayAudio} style={{
+          <button onClick={replayAudio} aria-label="Replay from beginning" style={{
             padding: '6px 14px', borderRadius: 8, border: '1px solid var(--bar-bg)',
             background: 'var(--card)', color: 'var(--heading)', fontSize: 13, cursor: 'pointer',
           }}>🔁 Replay</button>
 
           {[0.75, 1].map(s => (
-            <button key={s} onClick={() => setAudioSpeed(s)} style={{
+            <button key={s} onClick={() => setAudioSpeed(s)} aria-label={"Set speed to " + s + "x"} style={{
               padding: '6px 14px', borderRadius: 8, border: '2px solid',
               borderColor: speed === s ? '#0e7490' : 'var(--bar-bg)',
               background: speed === s ? 'rgba(14,116,144,0.12)' : 'var(--card)',

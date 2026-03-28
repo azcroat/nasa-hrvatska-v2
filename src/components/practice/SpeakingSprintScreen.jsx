@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { H } from '../../data.jsx';
+import { markQuest } from '../../lib/quests.js';
 
 // ─────────────────────────────────────────────
 // KEYFRAME STYLES
@@ -294,6 +295,7 @@ export default function SpeakingSprintScreen({ goBack, award }) {
       finishFired.current = true;
       const totalRounds = rounds + (phase === 'feedback' ? 1 : 0);
       if (award && totalRounds > 0) award(totalRounds * 5);
+      markQuest('speak');
     }
     goBack();
   }

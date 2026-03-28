@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { H, Bar, speak } from '../../data.jsx';
 import { recordTopicResult } from '../../lib/adaptive.js';
+import { markQuest } from '../../lib/quests.js';
 
 export default function GrammarScreen({
   gl, gp, gx, gs, ga, gsl,
@@ -49,7 +50,7 @@ export default function GrammarScreen({
           ))}
           {ga&&<button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{
             if(gx<gl.qs.length-1){sGx(i=>i+1);sGa(false);sGsl(-1);}
-            else{if(resultFired.current)return;resultFired.current=true;award(Math.round((gs/gl.qs.length)*25)+10);setSt(s=>({...s,gc:s.gc+1}));sGp("result");}
+            else{if(resultFired.current)return;resultFired.current=true;award(Math.round((gs/gl.qs.length)*25)+10);markQuest('grammar');if(gs===gl.qs.length)markQuest('perfect');setSt(s=>({...s,gc:s.gc+1}));sGp("result");}
           }}>{gx<gl.qs.length-1?"Next →":"Results"}</button>}
         </div>
       </React.Fragment>}

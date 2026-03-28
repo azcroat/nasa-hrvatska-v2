@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { H, Bar, Spk, srMark, getDueReviews, getSR, sh } from '../../data.jsx';
 import { useHaptic } from '../../hooks/useHaptic.js';
 import { markPracticed } from '../../hooks/useNotifications.js';
+import { markQuest } from '../../lib/quests.js';
 
 export default function ReviewScreen({ goBack, award, allCats, V }) {
   const haptic = useHaptic();
@@ -112,7 +113,7 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
           <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:28,color:"#164e63",marginTop:8}}>Review Complete!</h2>
           <p style={{color:"#78716c",marginTop:8}}>{score}/{questions.length} correct</p>
           <p style={{fontSize:13,color:"#64748b",marginTop:8}}>Your spaced repetition intervals have been updated</p>
-          <button className="b bp" style={{marginTop:24}} onClick={()=>{if(finishFired.current)return;finishFired.current=true;markPracticed();haptic.award();award(score*5+5);goBack();}}>Continue</button>
+          <button className="b bp" style={{marginTop:24}} onClick={()=>{if(finishFired.current)return;finishFired.current=true;markPracticed();haptic.award();award(score*5+5);markQuest('master');goBack();}}>Continue</button>
         </div>
       </div>
     );

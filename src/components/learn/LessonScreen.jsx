@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { H, Bar, speak, srMark, sh, shuffleArr, V } from '../../data.jsx';
 import { playCorrect, playWrong, haptic } from '../../lib/soundSettings.js';
+import { markQuest } from '../../lib/quests.js';
 import CroatianKnight from '../shared/CroatianKnight';
 import { CelebrationScene } from '../illustrations';
 import Flashcards from '../practice/Flashcards';
@@ -10,7 +11,7 @@ const CONFETTI_COLORS = ['var(--info-light, #38bdf8)','var(--gold, #fbbf24)','va
 export default function LessonScreen({
   lt, li, lx, ls, lp, la, lsl, qi, icons,
   sLi, sLx, sLs, sLp, sLa, sLsl, sQi,
-  goBack, award, setSt,
+  goBack, award, setSt, setScr, goToPractice,
 }) {
   const resultFired = useRef(false);
   const [showQuit, setShowQuit] = useState(false);
@@ -269,6 +270,8 @@ export default function LessonScreen({
                 resultFired.current = true;
                 const p = ls / qi.length;
                 awardFn(Math.round(p * 30) + 5);
+                markQuest('grammar');
+                if (p === 1) markQuest('perfect');
                 setSt(s => ({ ...s, lc: s.lc + 1, pf: p === 1 ? s.pf + 1 : s.pf, rs: [...s.rs, p], ct: [...new Set([...s.ct, lt])] }));
                 sLp("result");
               }
@@ -433,23 +436,36 @@ export default function LessonScreen({
           style={{margin:'0 auto 4px', display:'block'}}
         />
 
-        {/* What's Next card */}
+        {/* Practice Path panel */}
         <div style={{
-          marginTop:16, padding:'14px 16px',
-          background:'var(--info-bg, #f0f9ff)',
-          border:'1px solid var(--info-b, #bae6fd)',
+          marginTop:16, padding:'16px',
+          background:'rgba(255,255,255,.08)',
+          border:'1px solid rgba(255,255,255,.15)',
           borderRadius:14, width:'100%', maxWidth:320,
+          backdropFilter:'blur(12px)',
           animation:'fade-up .6s ease .44s both',
         }}>
-          <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--info)', textTransform:'uppercase', letterSpacing:'0.08em'}}>
-            WHAT'S NEXT
+          <div style={{fontSize:13, fontWeight:800, color:'rgba(255,255,255,.9)', marginBottom:12, letterSpacing:'.02em'}}>
+            Practice what you just learned:
           </div>
-          <div style={{fontSize:'var(--text-sm)', fontWeight:700, color:'var(--heading)', marginTop:4, marginBottom:12}}>
-            Practice what you just learned with Flashcards 🃏
-          </div>
-          <button className="b bp" style={{width:'100%', fontSize:'var(--text-sm)'}} onClick={() => setShowFlashcards(true)}>
-            Start Flashcard Practice →
-          </button>
+          {[
+            { icon:'🃏', title:'Flashcards', desc:'Review vocabulary', action: () => setShowFlashcards(true) },
+            { icon:'🔁', title:'SRS Review', desc:'Lock it in long-term', action: () => { goBack(); if (typeof setScr === 'function') setTimeout(() => setScr('review'), 50); } },
+            { icon:'🎯', title:'Quick Quiz', desc:'Test yourself now', action: () => { if (typeof goToPractice === 'function') goToPractice(); else goBack(); } },
+          ].map(ex => (
+            <button key={ex.title} onClick={ex.action} style={{
+              display:'flex', alignItems:'center', gap:10, width:'100%',
+              padding:'10px 12px', marginBottom:8,
+              background:'rgba(255,255,255,.1)', border:'1px solid rgba(255,255,255,.18)',
+              borderRadius:10, cursor:'pointer', textAlign:'left',
+            }}>
+              <span style={{fontSize:20}}>{ex.icon}</span>
+              <div>
+                <div style={{fontSize:13, fontWeight:700, color:'white'}}>{ex.title}</div>
+                <div style={{fontSize:11, color:'rgba(255,255,255,.6)'}}>{ex.desc}</div>
+              </div>
+            </button>
+          ))}
         </div>
 
         {/* CTAs */}

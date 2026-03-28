@@ -39,6 +39,7 @@ import Sidebar from "./components/shared/Sidebar.jsx";
 import CelebrationModal from "./components/shared/CelebrationModal.jsx";
 import StreakMilestoneModal from "./components/shared/StreakMilestoneModal.jsx";
 import CeremonyModal from "./components/shared/CeremonyModal.jsx";
+import LevelUpModal from "./components/shared/LevelUpModal.jsx";
 import OnboardingTour from "./components/shared/OnboardingTour.jsx";
 import OfflineBanner from "./components/shared/OfflineBanner.jsx";
 import WelcomeScreen from "./components/home/WelcomeScreen.jsx";
@@ -301,6 +302,7 @@ function App(){
   const[comebackBonus,setComebackBonus]=useState(false);
   const[streakMilestone,setStreakMilestone]=useState(null); // number (7/30/50/100/365) or null
   const[ceremonyType,setCeremonyType]=useState(null);
+  const[levelUpData,setLevelUpData]=useState(null); // {level:N} or null
   const[freezeUsedToast,setFreezeUsedToast]=useState(false);
   const[pendingJoinCode,setPendingJoinCode]=useState(()=>{try{const c=new URLSearchParams(window.location.search).get('join')||null;return c&&/^[A-Z2-9]{6}$/.test(c)?c:null;}catch{return null;}});
   // Q-6: Sync tab and currentScreen when React Router location changes (browser back/forward)
@@ -531,6 +533,36 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
     for(const lv of LEARN_PATH){for(const it of lv.items){if(it.topic&&recovered.length<stats.lc)recovered.push(it.topic);}}
     if(recovered.length>0)setStats(prev=>({...prev,ct:[...new Set([...prev.ct,...recovered])]}));
   },[authScreen,authUser,stats.lc,stats.ct.length]);// eslint-disable-line react-hooks/exhaustive-deps
+  // Weekly digest trigger — fires once per Sunday per user
+  useEffect(()=>{
+    if(!authUser)return;
+    const today=new Date();
+    if(today.getDay()!==0)return; // 0 = Sunday
+    const digestKey='nh_digest_'+authUser.u+'_'+today.toISOString().slice(0,10);
+    if(localStorage.getItem(digestKey))return; // already triggered today
+    localStorage.setItem(digestKey,'1');
+    // Fire and forget — don't block UI
+    fetch('/api/digest',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        userId:authUser.u,
+        email:authUser.e,
+        name:authUser.d||'Learner',
+      }),
+    }).catch(()=>{}); // ignore errors — digest is non-critical
+  },[authUser]);
+  // Register push notification service worker once auth resolves (best-effort, non-blocking)
+  useEffect(()=>{
+    if(!authUser)return;
+    import('./lib/pushNotifications.js').then(({registerMessagingServiceWorker})=>{
+      registerMessagingServiceWorker().catch(()=>{}); // silent fail
+    });
+  },[authUser?.u]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Page title — updates whenever the active screen changes
+  useEffect(()=>{
+    document.title=currentScreen&&currentScreen!=='home'&&currentScreen!=='dashboard'?`${currentScreen.replace(/_/g,' ')} \u00b7 Na\u0161a Hrvatska`:'Na\u0161a Hrvatska \u2014 Learn Croatian';
+  },[currentScreen]);
   // Synchronous localStorage flush on browser close / tab kill.
   // Firebase is async so this is the only way to guarantee no data loss on close.
   useEffect(()=>{
@@ -580,7 +612,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       const newLevel=lvl(n.xp);
       const nb=BADGES.filter(b=>!s.badges.includes(b.id)&&b.r(n));
       if(nb.length){n.badges=[...s.badges,...nb.map(b=>b.id)];setTimeout(()=>{setNB(nb[0]);setSB(true);setTimeout(()=>setSB(false),3000)},600)}
-      if(newLevel>oldLevel){setTimeout(()=>{setNB({id:'levelup',name:`Level ${newLevel}`,emoji:'⬆️'});setSB(true);setTimeout(()=>setSB(false),3500);},800);}
+      if(newLevel>oldLevel){setTimeout(()=>{setLevelUpData({level:newLevel});},900);}
       return n;
     });
     setTimeout(()=>setShowXP(false),1500);
@@ -772,6 +804,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {showCelebration&&<CelebrationModal xp={celebXP} onClose={onCloseCelebration} />}
       {streakMilestone&&<StreakMilestoneModal days={streakMilestone} onClose={()=>setStreakMilestone(null)} />}
       {ceremonyType&&<CeremonyModal type={ceremonyType} stats={stats} name={name} onClose={()=>setCeremonyType(null)} />}
+      {levelUpData&&<LevelUpModal level={levelUpData.level} onClose={()=>setLevelUpData(null)} />}
       {showFirstWords&&(
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.6)',zIndex:999,display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
           <div style={{background:'var(--card)',borderRadius:24,padding:'32px 24px',maxWidth:400,width:'100%',textAlign:'center',animation:'rise .4s'}}>
@@ -787,7 +820,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
                 </button>
               ))}
             </div>
-            <button className="b bp" style={{width:'100%',fontSize:15,padding:'14px'}} onClick={()=>{setShowFirstWords(false);setScr('dashboard');}}>
+            <button className="b bp" style={{width:'100%',fontSize:15,padding:'14px'}} onClick={()=>{setShowFirstWords(false);setScr('dashboard');setTimeout(()=>setTab('learn'),300);}}>
               Start Learning →
             </button>
           </div>
@@ -830,7 +863,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
         </div>
       </div>}
       {currentScreen==="welcome" && <WelcomeScreen name={name} au={authUser} st={stats} setScr={setScr} setName={setName} sPq={sPq} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} />}
-      {currentScreen==="placement" && <PlacementTest pq={pq} pi={pi} ps={ps} pa={pa} px={px} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} setScr={setScr} setSt={setStats} />}
+      {currentScreen==="placement" && <PlacementTest pq={pq} pi={pi} ps={ps} pa={pa} px={px} sPi={sPi} sPs={sPs} sPa={sPa} sPx={sPx} setScr={setScr} setSt={setStats} setTab={setTab} />}
       {// ═══ DASHBOARD ═══
       currentScreen==="dashboard"&&<div className="dash">
         <div style={{position:"relative",marginBottom:20}}>
@@ -1190,12 +1223,13 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {// ═══ GRAMMAR REFERENCE ═══
       currentScreen==="grammar-ref"&&<GrammarReference onClose={()=>setScr("dashboard")} />}
       {// ═══ NEW PLACEMENT TEST (first-time users) ═══
-      currentScreen==="new-placement"&&<NewPlacementTest onComplete={function(level){localStorage.setItem("placement_done","1");setStats(function(prev){return{...prev,ct:getPlacementCt(level),lc:Math.max(prev.lc,getPlacementCt(level).length)};});setShowFirstWords(true);}} />}
+      currentScreen==="new-placement"&&<NewPlacementTest onComplete={function(level){localStorage.setItem("placement_done","1");setStats(function(prev){return{...prev,ct:getPlacementCt(level),lc:Math.max(prev.lc,getPlacementCt(level).length)};});award(25);setShowFirstWords(true);setTimeout(()=>setTab('learn'),300);}} />}
       {// ═══ VOCABULARY LESSON ═══
       currentScreen==="lesson"&&<LessonScreen
         lt={lt} li={li} lx={lx} ls={ls} lp={lp} la={la} lsl={lsl} qi={qi} icons={icons}
         sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl} sQi={sQi}
-        goBack={goBack} award={award} setSt={setStats}
+        goBack={goBack} award={award} setSt={setStats} setScr={setScr}
+        goToPractice={() => { goBack(); setTimeout(() => setTab('practice'), 50); }}
       />}
       {// ═══ GRAMMAR ═══
       currentScreen==="grammar"&&<GrammarScreen
