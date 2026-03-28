@@ -127,6 +127,7 @@ export async function onRequestPost(context) {
     streak,
   } = body;
   const learnerErrors = body.learnerErrors || [];
+  const stylePreferences = body.stylePreferences || null;
 
   // ── Validate and sanitize inputs ──
   const safeLevel          = sanitizeLevel(level);
@@ -148,6 +149,13 @@ export async function onRequestPost(context) {
       }).filter(Boolean)
     : [];
 
+  // Sanitize stylePreferences
+  const safeStyle = stylePreferences && stylePreferences.dataPoints >= 5 ? {
+    preferred:  (stylePreferences.preferredTypes || []).slice(0, 3).map(t => String(t).slice(0, 30)),
+    avoided:    (stylePreferences.avoidedTypes   || []).slice(0, 3).map(t => String(t).slice(0, 30)),
+    dataPoints: parseInt(stylePreferences.dataPoints) || 0,
+  } : null;
+
   // ── Build prompts ──
   const systemPrompt = "You are a Croatian language learning coach creating a personalized daily practice plan. Return ONLY valid JSON, no markdown.";
 
@@ -157,12 +165,22 @@ export async function onRequestPost(context) {
       `\n\nFor each activity in your plan, if it addresses one of these errors, explain SPECIFICALLY how in the "reason" field. Don't just say "you need practice" — say "this targets your accusative case errors with animate nouns."`
     : '';
 
+  const styleBlock = safeStyle
+    ? `
+LEARNER STYLE PROFILE (based on ${safeStyle.dataPoints} sessions):
+- Preferred activity types: ${safeStyle.preferred.join(', ') || 'not yet determined'}
+- Low completion types: ${safeStyle.avoided.join(', ') || 'none identified'}
+- INSTRUCTION: Prioritize preferred types in your activity selection. For avoided types, only include them if they directly address a critical error pattern — and keep them short (5 min max). Never include more than 1 avoided type per plan.
+`
+    : '';
+
   const userMessage =
     `Create a personalized 15-minute daily Croatian practice plan for a ${safeLevel} learner with goal '${safeGoal}' (${safeStreak} day streak). ` +
     `Their weakest SRS words: ${safeSrWeakWords.join(', ') || 'none yet'}. ` +
     `Maja mistake patterns: ${safeMajaPatterns.join(', ') || 'none'}. ` +
     `Recent activity counts: ${JSON.stringify(safeRecentActivity)}.` +
     learnerErrorsBlock +
+    styleBlock +
     ` Return JSON: { greeting: 'short encouraging Croatian greeting to the user (5-10 words)', activities: [ { id: string (one of: flashcards|srsreview|ai_listening|speaking|writing|grammar_diagnosis|dialogue|shadowing|aspectdrill), title: string, reason: string (why this specifically today, 1 sentence — be specific if addressing a persistent error), duration: number (minutes, 3-7), priority: 'high'|'medium' } ], motivational_note: 'one encouraging sentence about their progress', focus_topic: 'one grammar/vocab area to focus on today', theme: 'one sentence connecting all activities to a single grammar or vocab thread, e.g. Today\\'s thread: perfective aspect in past tense' } — exactly 3 activities totaling ~15 minutes.`;
 
   // ── Call Anthropic ──
@@ -239,5 +257,6 @@ export async function onRequestPost(context) {
     focus_topic,
     theme,
     generatedAt: Date.now(),
+    stylePersonalized: safeStyle !== null,
   }, origin);
 }

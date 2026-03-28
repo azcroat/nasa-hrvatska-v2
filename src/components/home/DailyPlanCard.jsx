@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { getSR, getStreak } from '../../data.jsx';
 import AppContext from '../../context/AppContext.jsx';
 import CroatianGrb from '../shared/CroatianGrb.jsx';
+import { getStyleContextForAPI } from '../../lib/learnerStyle.js';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -119,7 +120,7 @@ export default function DailyPlanCard() {
       const res = await fetch('/api/daily-plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...payload, stylePreferences: getStyleContextForAPI() }),
       });
       if (!res.ok) throw new Error('API error ' + res.status);
       const data = await res.json();
@@ -179,6 +180,15 @@ export default function DailyPlanCard() {
           <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--heading)', letterSpacing: 0.3 }}>
             Dnevni Plan
           </span>
+          {getStyleContextForAPI() !== null && (
+            <span style={{
+              fontSize: 10, fontWeight: 700, color: 'var(--info)',
+              background: 'var(--info-bg)', border: '1px solid var(--info-b)',
+              borderRadius: 6, padding: '2px 6px', marginLeft: 6,
+            }}>
+              ✨ Personalized
+            </span>
+          )}
         </div>
         {streak > 0 && (
           <span style={{

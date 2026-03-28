@@ -6,6 +6,7 @@ import ProgressCharts from './ProgressCharts.jsx';
 import { getWeakTopics } from '../../lib/adaptive.js';
 import JourneyTimeline from './JourneyTimeline.jsx';
 import LearningInsights from './LearningInsights';
+import { getStyleLabel, getStylePreferences } from '../../lib/learnerStyle.js';
 
 // ── Skill Radar Chart ──────────────────────────────────────────────────────
 function SkillRadar({ st }) {
@@ -405,6 +406,9 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
     { icon: "🏆", value: (st.badges||[]).length,  label: "Badges",     color: "var(--warning)", bg: "var(--warning-bg)", border: "var(--warning-b)" },
   ];
 
+  const styleLabel = getStyleLabel();
+  const stylePrefs = getStylePreferences();
+
   return (
     <React.Fragment>
 
@@ -548,6 +552,26 @@ export default function ProfileTab({ name, au, level, st, favs, darkMode, setDar
               );
             })}
           </div>
+
+          {/* ── LEARNING STYLE ── */}
+          {styleLabel && (
+            <div style={{
+              background: 'var(--card)', border: '1px solid var(--card-b)',
+              borderRadius: 12, padding: '12px 14px', marginBottom: 8,
+              display: 'flex', alignItems: 'center', gap: 10,
+            }}>
+              <span style={{fontSize: 24}}>🧠</span>
+              <div>
+                <div style={{fontSize: 12, fontWeight: 800, color: 'var(--text)'}}>
+                  {styleLabel}
+                </div>
+                <div style={{fontSize: 11, color: 'var(--text-2)'}}>
+                  Based on {stylePrefs?.dataPoints || 0} sessions
+                  {stylePrefs?.preferredTypes?.[0] ? ` · Loves ${stylePrefs.preferredTypes[0]}` : ''}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* ── XP ACTIVITY CALENDAR ── */}
           <XPActivityCalendar st={st} />
