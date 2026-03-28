@@ -16,7 +16,7 @@ function isAllowedOrigin(origin, isDev) {
   } catch { return false; }
 }
 
-const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/; // eslint-disable-line no-useless-escape
 
 export async function onRequestPost(ctx) {
   const corsHeaders = {

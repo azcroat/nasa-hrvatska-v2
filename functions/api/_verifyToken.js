@@ -9,14 +9,14 @@ const JWKS_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken
 /** Fetch Firebase's public JWK set, cached for 1 hour via Cloudflare Cache API. */
 async function getJWKS() {
   let cache = null;
-  try { cache = caches.default; } catch {}
+  try { cache = caches.default; } catch { /* cache unavailable — continue without caching */ }
 
   const cacheReq = new Request(JWKS_URL, { method: 'GET' });
   if (cache) {
     try {
       const hit = await cache.match(cacheReq);
       if (hit) return await hit.json();
-    } catch {}
+    } catch { /* cache miss or stale — fall through to network */ }
   }
 
   const res = await fetch(JWKS_URL, { signal: AbortSignal.timeout(5000) });
