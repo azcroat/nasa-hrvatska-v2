@@ -76,11 +76,28 @@ function LoadingDots() {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
+// Track which activities were started today
+const DONE_KEY = 'nh_plan_done_';
+function getTodayDone() {
+  const today = new Date().toISOString().slice(0, 10);
+  try { return new Set(JSON.parse(localStorage.getItem(DONE_KEY + today) || '[]')); }
+  catch { return new Set(); }
+}
+function markDone(idx) {
+  const today = new Date().toISOString().slice(0, 10);
+  try {
+    const done = getTodayDone();
+    done.add(idx);
+    localStorage.setItem(DONE_KEY + today, JSON.stringify([...done]));
+  } catch {}
+}
+
 export default function DailyPlanCard() {
   const { setScr, sCurEx } = useContext(AppContext);
   const [phase, setPhase] = useState('idle'); // 'idle' | 'loading' | 'ready' | 'error'
   const [plan, setPlan]   = useState(null);
   const [streak, setStreak] = useState(0);
+  const [done, setDone]   = useState(() => getTodayDone());
 
   // ── Collect learner data ──
   const collectPayload = useCallback(() => {
@@ -248,11 +265,14 @@ export default function DailyPlanCard() {
         {plan.activities.map((act, i) => {
           const icon   = ACTIVITY_ICONS[act.id] || '📚';
           const screen = ACTIVITY_SCREENS[act.id];
+          const isDone = done.has(i);
           return (
             <div
               key={i}
               onClick={() => {
             if (!screen || !setScr) return;
+            markDone(i);
+            setDone(getTodayDone());
             // Set the current exercise type so XP tracking and session logging work
             if (sCurEx) sCurEx(act.id);
             sessionStorage.setItem('nh_ex_start', Date.now().toString());
@@ -285,7 +305,7 @@ export default function DailyPlanCard() {
                 width: 28,
                 height: 28,
                 borderRadius: '50%',
-                background: 'rgba(14,116,144,0.12)',
+                background: isDone ? 'rgba(22,163,74,0.15)' : 'rgba(14,116,144,0.12)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -293,13 +313,13 @@ export default function DailyPlanCard() {
                 flexShrink: 0,
                 marginTop: 1,
               }}>
-                {icon}
+                {isDone ? '✓' : icon}
               </div>
 
               {/* Text */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 5, flexWrap: 'wrap' }}>
-                  <span style={{ fontWeight: 600, fontSize: 13, color: 'var(--heading)' }}>
+                  <span style={{ fontWeight: 600, fontSize: 13, color: isDone ? 'var(--subtext)' : 'var(--heading)', textDecoration: isDone ? 'line-through' : 'none' }}>
                     {act.title}
                   </span>
                   <span style={{ color: 'var(--subtext)', fontSize: 11 }}>

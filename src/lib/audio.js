@@ -130,6 +130,11 @@ export async function speak(text) {
   const t = prepTTS(text);
   const ok = await speakAzure(t, false).catch(() => false);
   if (!ok) {
+    // Fall back to browser speech synthesis (works in Chrome even when TTS API fails)
+    if (window.speechSynthesis) {
+      speakSynth(t, 0.85);
+      return 'synth';
+    }
     window.dispatchEvent(new CustomEvent('nh:tts-failed'));
     return 'failed';
   }
@@ -141,6 +146,10 @@ export async function speakSlow(text) {
   const t = prepTTS(text);
   const ok = await speakAzure(t, true).catch(() => false);
   if (!ok) {
+    if (window.speechSynthesis) {
+      speakSynth(t, 0.65);
+      return 'synth';
+    }
     window.dispatchEvent(new CustomEvent('nh:tts-failed'));
     return 'failed';
   }
