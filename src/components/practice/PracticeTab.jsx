@@ -335,7 +335,7 @@ export default function PracticeTab({
   })();
 
   return (
-    <div role="main">
+    <div>
       {H("🎮 Practice", "Games, exercises & daily review")}
 
       {/* ── QUICK START CTA ─────────────────────────────────────────────── */}
