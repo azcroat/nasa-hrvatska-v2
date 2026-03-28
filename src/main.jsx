@@ -125,10 +125,14 @@ class ErrorBoundary extends React.Component {
 }
 
 // ─── Service Worker auto-reload ────────────────────────────────────────────
-// When a new SW takes over (after deploy), reload immediately so users
-// always see the latest version without any manual steps.
+// When a new SW takes over (after deploy), reload once so users see the latest
+// version. Guard with sessionStorage to prevent infinite reload loops when
+// multiple deployments are pushed in rapid succession (each new SW would
+// otherwise trigger another reload before the page has a chance to stabilize).
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (sessionStorage.getItem('sw-reloaded')) return;
+    sessionStorage.setItem('sw-reloaded', '1');
     window.location.reload();
   });
 }
