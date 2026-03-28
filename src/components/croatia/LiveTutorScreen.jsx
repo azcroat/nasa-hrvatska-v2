@@ -80,12 +80,11 @@ export default function LiveTutorScreen({ goBack, award }) {
   const [turnCount, setTurnCount] = useState(0);
 
   // ── Mic / STT state ───────────────────────
-  const [listening, setListening] = useState(false);
-  const [interim, setInterim] = useState("");
-  const [sttSupported, setSttSupported] = useState(true);
+  const [isRecording, setIsRecording] = useState(false);
+  const [useFallbackInput, setUseFallbackInput] = useState(false);
   const [textInput, setTextInput] = useState("");
 
-  // ── Loading / error state ─────────────────
+  // ── Loading / error / playback state ─────
   const [thinking, setThinking] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [error, setError] = useState(null);
@@ -94,16 +93,11 @@ export default function LiveTutorScreen({ goBack, award }) {
   const [avatarError, setAvatarError] = useState(false);
 
   // ── Refs ──────────────────────────────────
-  const recognitionRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
   const audioRef = useRef(null);
   const bottomRef = useRef(null);
   const apiMsgsRef = useRef([]);  // mirrors messages but only role+content for API calls
-
-  // ── Check STT support ─────────────────────
-  useEffect(() => {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) setSttSupported(false);
-  }, []);
 
   // ── Auto-scroll ───────────────────────────
   useEffect(() => {
@@ -196,9 +190,9 @@ export default function LiveTutorScreen({ goBack, award }) {
         if (newTurn === 10) award(20);
       }
 
-      // Play TTS
+      // Play TTS (streaming)
       setThinking(false);
-      await playTTS(fullCroatian);
+      await playTTSStreaming(fullCroatian);
 
     } catch (e) {
       setThinking(false);
@@ -210,85 +204,152 @@ export default function LiveTutorScreen({ goBack, award }) {
     }
   }, [level, topic, turnCount, award]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── TTS playback ──────────────────────────
-  const playTTS = async (text) => {
+  // ── TTS: blob fallback helper ──────────────
+  const playBlob = async (blob) => {
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    audioRef.current = audio;
+    await new Promise(resolve => { audio.onended = resolve; audio.play().catch(resolve); });
+    URL.revokeObjectURL(url);
+  };
+
+  // ── TTS: streaming playback ────────────────
+  const playTTSStreaming = async (text) => {
+    setPlaying(true);
     try {
-      setPlaying(true);
       const res = await apiFetch("/api/tts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, slow: false }),
+        body: JSON.stringify({ text, slow: false, stream: true }),
       });
-      if (!res.ok) throw new Error("TTS failed");
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      if (audioRef.current) {
-        audioRef.current.pause();
-        URL.revokeObjectURL(audioRef.current._blobUrl || "");
-      }
-      const audio = new Audio(url);
-      audio._blobUrl = url;
-      audioRef.current = audio;
-      audio.onended = () => {
+      if (!res.ok) throw new Error('tts_failed');
+
+      // Check if browser supports MSE with audio/mpeg
+      if (!window.MediaSource || !MediaSource.isTypeSupported('audio/mpeg')) {
+        // Fallback: collect full response then play
+        const blob = await res.blob();
+        await playBlob(blob);
         setPlaying(false);
-        URL.revokeObjectURL(url);
-      };
-      audio.onerror = () => setPlaying(false);
-      await audio.play();
+        return;
+      }
+
+      const mediaSource = new MediaSource();
+      const audioEl = new Audio();
+      audioEl.src = URL.createObjectURL(mediaSource);
+      audioRef.current = audioEl;
+
+      await new Promise(resolve => { mediaSource.addEventListener('sourceopen', resolve, { once: true }); });
+      audioEl.play().catch(() => {}); // Start early — browser buffers while we feed data
+
+      const sourceBuffer = mediaSource.addSourceBuffer('audio/mpeg');
+      const reader = res.body.getReader();
+
+      const appendChunk = (chunk) => new Promise(resolve => {
+        if (sourceBuffer.updating) {
+          sourceBuffer.addEventListener('updateend', () => { sourceBuffer.appendBuffer(chunk); resolve(); }, { once: true });
+        } else {
+          sourceBuffer.appendBuffer(chunk);
+          sourceBuffer.addEventListener('updateend', resolve, { once: true });
+        }
+      });
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        await appendChunk(value);
+      }
+
+      await new Promise(resolve => { sourceBuffer.addEventListener('updateend', resolve, { once: true }); });
+      mediaSource.endOfStream();
+
+      await new Promise(resolve => { audioEl.onended = resolve; });
+      URL.revokeObjectURL(audioEl.src);
+
     } catch {
-      setPlaying(false);
-      // TTS failure is non-fatal — conversation continues
+      // Any MSE failure: fall back to non-streaming blob approach
+      try {
+        const res2 = await apiFetch("/api/tts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, slow: false }),
+        });
+        const blob = await res2.blob();
+        await playBlob(blob);
+      } catch { /* silent fail — text still displayed */ }
     }
+    setPlaying(false);
   };
 
-  // ── STT: start listening ───────────────────
-  const startListening = useCallback(() => {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) return;
+  // ── STT: start recording via MediaRecorder ─
+  const startRecording = useCallback(async () => {
+    // Don't start if already busy
+    if (isRecording || thinking || playing) return;
 
-    // Stop any existing instance
-    if (recognitionRef.current) {
-      try { recognitionRef.current.abort(); } catch {}
-    }
+    // Stop any currently playing audio
     if (audioRef.current) {
       audioRef.current.pause();
       setPlaying(false);
     }
 
-    const rec = new SR();
-    rec.lang = 'hr-HR';
-    rec.continuous = false;
-    rec.interimResults = false;
-
-    rec.onstart = () => setListening(true);
-    rec.onend   = () => { setListening(false); setInterim(""); };
-    rec.onerror = (e) => {
-      setListening(false);
-      setInterim("");
-      if (e.error !== 'no-speech' && e.error !== 'aborted') {
-        setError("Microphone error: " + e.error);
-      }
-    };
-    rec.onresult = (e) => {
-      const transcript = e.results[0][0].transcript.trim();
-      if (transcript) {
-        sendToTutor(transcript, breakdownCount, sessionHistory);
-      }
-    };
-
-    recognitionRef.current = rec;
     try {
-      rec.start();
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const options = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+        ? { mimeType: 'audio/webm;codecs=opus' }
+        : MediaRecorder.isTypeSupported('audio/webm')
+        ? { mimeType: 'audio/webm' }
+        : {};
+      const recorder = new MediaRecorder(stream, options);
+      audioChunksRef.current = [];
+      recorder.ondataavailable = e => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
+      recorder.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' });
+        if (blob.size < 1000) { setIsRecording(false); return; } // too short, ignore
+        await transcribeAudio(blob, recorder.mimeType || 'audio/webm');
+      };
+      recorder.start();
+      mediaRecorderRef.current = recorder;
+      setIsRecording(true);
     } catch {
-      setError("Could not start microphone. Check browser permissions.");
+      // Mic permission denied or not available — fall back to text input
+      setUseFallbackInput(true);
     }
-  }, [breakdownCount, sessionHistory, sendToTutor]);
+  }, [isRecording, thinking, playing]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const stopListening = useCallback(() => {
-    if (recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch {}
+  // ── STT: stop recording ────────────────────
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
     }
   }, []);
+
+  // ── STT: send audio blob to Deepgram /api/stt ─
+  const transcribeAudio = useCallback(async (blob, mimeType) => {
+    setPhase('thinking'); // show loading state
+    try {
+      const res = await fetch('/api/stt', {
+        method: 'POST',
+        headers: { 'Content-Type': mimeType },
+        body: blob,
+      });
+      const data = await res.json();
+      if (data.fallback) {
+        // Deepgram not configured, fall back to text input
+        setUseFallbackInput(true);
+        setPhase('none');
+        return;
+      }
+      const transcript = data.transcript?.trim();
+      if (transcript) {
+        await sendToTutor(transcript, breakdownCount, sessionHistory);
+      } else {
+        setPhase('none'); // no speech detected, re-enable mic
+      }
+    } catch {
+      setPhase('none');
+    }
+  }, [breakdownCount, sessionHistory, sendToTutor]);
 
   // ── Text input submit ──────────────────────
   const handleTextSubmit = useCallback((e) => {
@@ -302,7 +363,9 @@ export default function LiveTutorScreen({ goBack, award }) {
   // ── Cleanup on unmount ─────────────────────
   useEffect(() => {
     return () => {
-      if (recognitionRef.current) try { recognitionRef.current.abort(); } catch {}
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        try { mediaRecorderRef.current.stop(); } catch {}
+      }
       if (audioRef.current) { audioRef.current.pause(); }
     };
   }, []);
@@ -399,13 +462,6 @@ export default function LiveTutorScreen({ goBack, award }) {
           </div>
         </div>
 
-        {/* STT notice */}
-        {!sttSupported && (
-          <div style={{ margin:'12px 16px', padding:'10px 14px', background:'rgba(245,158,11,.08)', borderRadius:10, border:'1px solid rgba(245,158,11,.2)', fontSize:'var(--text-xs)', color:'#92400e' }}>
-            Your browser doesn't support voice input — you'll use text input instead. Chrome on desktop/Android works best for voice.
-          </div>
-        )}
-
         {/* Start button */}
         <div style={{ padding:'20px 16px 0' }}>
           <button
@@ -431,8 +487,9 @@ export default function LiveTutorScreen({ goBack, award }) {
   // RENDER — Active conversation screen
   // ─────────────────────────────────────────────
   const phaseInfo = PHASE_LABELS[phase] || PHASE_LABELS.none;
-  const canSpeak = !thinking && !playing && sttSupported;
+  const micBusy = phase === 'speaking' || phase === 'thinking' || thinking || playing;
   const canType  = !thinking && !playing;
+  const showMic = !useFallbackInput;
 
   return (
     <div className="c" style={{ minHeight:'100vh', display:'flex', flexDirection:'column' }}>
@@ -618,64 +675,52 @@ export default function LiveTutorScreen({ goBack, award }) {
           </button>
         </div>
 
-        {sttSupported ? (
-          /* ── Mic button layout ── */
-          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-            {/* Mic button */}
+        {showMic ? (
+          /* ── Mic button (push-to-talk via Deepgram) ── */
+          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
             <button
-              onClick={listening ? stopListening : startListening}
-              disabled={thinking || playing}
+              onPointerDown={startRecording}
+              onPointerUp={stopRecording}
+              onPointerLeave={stopRecording}
+              disabled={micBusy}
               style={{
-                width:56, height:56, borderRadius:'50%',
-                background: listening
-                  ? 'linear-gradient(135deg,#D4002D,#b91c1c)'
-                  : canSpeak
-                  ? 'rgba(212,0,45,.1)'
-                  : 'rgba(0,0,0,.05)',
-                border: listening
-                  ? '2px solid #D4002D'
-                  : '2px solid rgba(212,0,45,.3)',
-                color: listening ? 'white' : canSpeak ? '#D4002D' : 'var(--subtext)',
-                fontSize:22, cursor: canSpeak ? 'pointer' : 'not-allowed',
-                display:'flex', alignItems:'center', justifyContent:'center',
-                flexShrink:0, transition:'all .15s',
-                animation: listening ? 'lt-mic-glow 1.4s ease-in-out infinite' : 'none',
-                boxShadow: listening ? '0 4px 18px rgba(212,0,45,.4)' : 'none',
+                flex:1, padding:'14px 20px',
+                borderRadius:14, border:'none',
+                background: isRecording
+                  ? 'var(--error, #D4002D)'
+                  : playing
+                  ? 'var(--subtext, #9ca3af)'
+                  : micBusy
+                  ? 'rgba(0,0,0,.08)'
+                  : 'var(--info, #3b82f6)',
+                color: (isRecording || playing || (!micBusy)) ? 'white' : 'var(--subtext)',
+                fontSize:'var(--text-sm)', fontWeight:800,
+                cursor: micBusy ? 'not-allowed' : 'pointer',
+                transition:'all .15s',
+                animation: isRecording ? 'lt-mic-glow 0.8s ease-in-out infinite' : 'none',
+                userSelect: 'none',
+                WebkitUserSelect: 'none',
+                touchAction: 'none',
               }}
             >
-              {listening ? '⏹' : playing ? '🔊' : thinking ? '⏳' : '🎙️'}
+              {playing
+                ? '🔊 Listening...'
+                : isRecording
+                ? '🔴 Recording...'
+                : thinking || phase === 'thinking'
+                ? '⏳'
+                : '🎙️ Hold to speak'}
             </button>
-
-            <div style={{ flex:1 }}>
-              {listening ? (
-                <div style={{ fontSize:'var(--text-sm)', color:'#D4002D', fontWeight:700, animation:'lt-mic-glow 1.4s ease-in-out infinite' }}>
-                  Listening… tap to stop
-                </div>
-              ) : playing ? (
-                <div style={{ fontSize:'var(--text-sm)', color:'var(--info)', fontWeight:700 }}>
-                  Marija is speaking…
-                </div>
-              ) : thinking ? (
-                <div style={{ fontSize:'var(--text-sm)', color:'var(--subtext)' }}>
-                  Thinking…
-                </div>
-              ) : (
-                <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.4 }}>
-                  Tap the mic to speak in Croatian
-                  <br/>or type below
-                </div>
-              )}
-            </div>
           </div>
         ) : null}
 
         {/* Text input fallback / supplement */}
-        <form onSubmit={handleTextSubmit} style={{ display:'flex', gap:8, marginTop: sttSupported ? 10 : 0 }}>
+        <form onSubmit={handleTextSubmit} style={{ display:'flex', gap:8, marginTop: showMic ? 0 : 0 }}>
           <input
             type="text"
             value={textInput}
             onChange={e => setTextInput(e.target.value)}
-            placeholder={sttSupported ? "Or type your Croatian here…" : "Type your Croatian here…"}
+            placeholder={showMic ? "Or type your Croatian here…" : "Type your Croatian here…"}
             disabled={!canType}
             style={{
               flex:1, padding:'10px 14px',

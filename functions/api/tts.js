@@ -14,7 +14,7 @@ import { checkRateLimit } from './_rateLimit.js';
 // custom voice ID is configured, the operator's choice is trusted and ElevenLabs remains primary.
 const EL_DEFAULT_VOICE = "XB0fDUnXU5powFXDhCwa"; // Charlotte (English/Swedish-trained)
 
-async function tryElevenLabs(text, slow, apiKey, voiceId) {
+async function tryElevenLabs(text, slow, apiKey, voiceId, stream = false) {
   // Only force language_code='hr' when the text contains Croatian-specific diacritics (č,ć,š,ž,đ).
   // For ASCII-only text (English loanwords in Gen Z section, šatrovački without diacritics, etc.)
   // the multilingual model auto-detects correctly — forcing 'hr' on English words like
@@ -58,6 +58,7 @@ async function tryElevenLabs(text, slow, apiKey, voiceId) {
       }
     );
     if (!res.ok) return null;
+    if (stream) return res; // Return Response so body can be piped directly
     return res.arrayBuffer();
   } finally {
     clearTimeout(timeout);
@@ -179,8 +180,26 @@ export async function onRequestPost(context) {
     const body = await request.json();
     const text = body.text;
     const slow = body.slow === true; // explicit boolean check
+    const wantStream = body.stream === true;
     if (typeof text !== 'string' || !text.trim() || text.length > 500) {
       return new Response("Invalid text", { status: 400 });
+    }
+
+    // Streaming path — pipe ElevenLabs response body directly to client (~75ms to first byte)
+    // Azure does not support streaming mode.
+    if (wantStream && ELEVENLABS_KEY) {
+      const elevenLabsRes = await tryElevenLabs(text, slow, ELEVENLABS_KEY, VOICE_ID, true);
+      if (elevenLabsRes) {
+        return new Response(elevenLabsRes.body, {
+          status: 200,
+          headers: {
+            'Content-Type': 'audio/mpeg',
+            'Transfer-Encoding': 'chunked',
+            ...corsHeaders(origin),
+          },
+        });
+      }
+      // If ElevenLabs streaming failed, fall through to buffered path
     }
 
     // Check Cloudflare edge cache first (POST responses aren't auto-cached)
