@@ -245,6 +245,42 @@ function markExerciseDone(exerciseId){
   try{const cd=JSON.parse(localStorage.getItem("xpCooldown")||"{}");const today=localDateStr();cd[exerciseId]=today;const clean={};for(const k in cd){if(cd[k]===today)clean[k]=cd[k]}localStorage.setItem("xpCooldown",JSON.stringify(clean))}catch(e){}
 }
 
+// Session-level guard: comeback bonus can fire at most once per app session,
+// even if award() is called concurrently or before the localStorage write completes.
+let _comebackUsedThisSession = false;
+
+// Prune stale localStorage keys to prevent quota overflow on active users.
+// Runs at most once per day, guarded by a date-stamped flag.
+function pruneStaleLocalStorage() {
+  try {
+    const today = localDateStr();
+    const guardKey = 'nh_pruned_' + today;
+    if (localStorage.getItem(guardKey)) return;
+    localStorage.setItem(guardKey, '1');
+    const toDelete = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (!k) continue;
+      // Quest keys: nh_quest_<id>_YYYY-MM-DD — keep only last 3 days
+      if (/^nh_quest_.+_\d{4}-\d{2}-\d{2}$/.test(k)) {
+        const d = k.slice(-10);
+        if (d < today.slice(0, 8) + String(Math.max(1, parseInt(today.slice(8)) - 3)).padStart(2,'0')) toDelete.push(k);
+      }
+      // Weekly XP keys: nh_week_xp_YYYY-WNN — keep last 8 weeks
+      if (/^nh_week_xp_\d{4}-W\d{2}$/.test(k)) {
+        const yr = parseInt(k.slice(11, 15)); const wn = parseInt(k.slice(17));
+        const cutYr = new Date().getFullYear(); const cutWn = (() => { const d2=new Date();const dy=d2.getDay()||7;d2.setDate(d2.getDate()+4-dy);return Math.ceil(((d2.getTime()-new Date(d2.getFullYear(),0,1).getTime())/86400000+1)/7); })();
+        if (yr < cutYr - 1 || (yr === cutYr && wn < cutWn - 8)) toDelete.push(k);
+      }
+      // Comeback keys: nh_comeback_used_YYYY-MM-DD — keep only today
+      if (/^nh_comeback_used_\d{4}-\d{2}-\d{2}$/.test(k) && k.slice(-10) < today) toDelete.push(k);
+      // Prune guard keys older than 2 days: nh_pruned_YYYY-MM-DD
+      if (/^nh_pruned_\d{4}-\d{2}-\d{2}$/.test(k) && k.slice(-10) < today) toDelete.push(k);
+    }
+    toDelete.forEach(k2 => { try { localStorage.removeItem(k2); } catch {} });
+  } catch {}
+}
+
 // Day 2-10 retention: returns days since first launch for this user (0 = same day they joined)
 function getDaysSinceJoin(authUser) {
   if (!authUser) return null;
@@ -265,7 +301,12 @@ function App(){
   // Runs 500ms after mount (never blocks render), guarded by localStorage flag.
   useEffect(function(){
     const t=setTimeout(bootstrapMistakesFromSRS,500);
-    return function(){clearTimeout(t);};
+    // Prune stale localStorage keys once per day to prevent quota overflow
+    pruneStaleLocalStorage();
+    // TTS failure toast — shown when ElevenLabs/Azure audio is unavailable
+    function onTtsFailed(){setTtsFailedToast(true);setTimeout(()=>setTtsFailedToast(false),2500);}
+    window.addEventListener('nh:tts-failed',onTtsFailed);
+    return function(){clearTimeout(t);window.removeEventListener('nh:tts-failed',onTtsFailed);};
   },[]);
   const ds=DS;
   const[currentScreen,_setCurrentScreen]=useState("welcome");
@@ -315,6 +356,7 @@ function App(){
   const[ceremonyType,setCeremonyType]=useState(null);
   const[levelUpData,setLevelUpData]=useState(null); // {level:N} or null
   const[freezeUsedToast,setFreezeUsedToast]=useState(false);
+  const[ttsFailedToast,setTtsFailedToast]=useState(false);
   const[pendingJoinCode,setPendingJoinCode]=useState(()=>{try{const c=new URLSearchParams(window.location.search).get('join')||null;return c&&/^[A-Z2-9]{6}$/.test(c)?c:null;}catch{return null;}});
   // Q-6: Sync tab and currentScreen when React Router location changes (browser back/forward)
   useEffect(function(){
@@ -615,7 +657,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
     if(curEx)markExerciseDone(curEx);
     let totalAmt=lXPgain(amt);
     const _today=new Date().toISOString().slice(0,10);
-    if(comebackBonus&&amt>0&&!localStorage.getItem('nh_comeback_used_'+_today)){localStorage.setItem('nh_comeback_used_'+_today,'1');totalAmt=lXPgain(amt+50);}
+    if(comebackBonus&&amt>0&&!_comebackUsedThisSession&&!localStorage.getItem('nh_comeback_used_'+_today)){_comebackUsedThisSession=true;localStorage.setItem('nh_comeback_used_'+_today,'1');totalAmt=lXPgain(amt+50);}
     setXpA(totalAmt);setShowXP(true);
     setStats(s=>{
       const oldLevel=lvl(s.xp);
@@ -865,6 +907,7 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
       {!onboarded&&_syncReady&&authScreen==="app"&&currentScreen!=="welcome"&&currentScreen!=="placement"&&<OnboardingTour onDone={()=>setOnboarded(true)} />}
       {comebackBonus&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#f59e0b,#d97706)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.2)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease"}}>🔥 Welcome back! Keep your streak alive!</div>}
       {freezeUsedToast&&<div style={{position:"fixed",top:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"linear-gradient(135deg,#1e40af,#3b82f6)",color:"#fff",borderRadius:16,padding:"14px 24px",boxShadow:"0 8px 32px rgba(0,0,0,.25)",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:10,animation:"slideUp .4s ease",whiteSpace:"nowrap"}}>🛡️ Zaštita niza aktivirana! Tvoj niz je sačuvan.</div>}
+      {ttsFailedToast&&<div style={{position:"fixed",bottom:80,left:"50%",transform:"translateX(-50%)",zIndex:9500,background:"rgba(30,30,30,.92)",color:"#fff",borderRadius:20,padding:"9px 20px",fontSize:13,fontWeight:600,pointerEvents:"none",animation:"slideUp .3s ease",whiteSpace:"nowrap"}}>🔇 Audio unavailable</div>}
       {emailUnverified && (
         <div style={{
           background: '#fef3c7', borderBottom: '2px solid #f59e0b',

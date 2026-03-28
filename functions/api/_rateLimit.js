@@ -25,8 +25,9 @@ export async function checkRateLimit(request, limitPerMinute = 20) {
 
     if (count >= limitPerMinute) return false;
 
-    // Increment (fire-and-forget — intentional, avoids blocking the response)
-    cache.put(
+    // Increment — awaited to prevent race condition where concurrent requests
+    // read the same count and all pass before any write completes.
+    await cache.put(
       cacheKey,
       new Response(String(count + 1), {
         headers: { 'Cache-Control': `max-age=61` },

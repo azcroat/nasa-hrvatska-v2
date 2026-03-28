@@ -2,6 +2,8 @@
 // POST /api/contact { type, subject, description, replyEmail, userName, userLevel, userXp }
 // Sends a formatted support email to the admin (ADMIN_EMAIL env var).
 
+import { checkRateLimit } from './_rateLimit.js';
+
 function CORS(origin) {
   return {
     "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
@@ -43,6 +45,12 @@ export async function onRequestPost(context) {
   const isDev = env.ENVIRONMENT !== "production";
   if (!isAllowedOrigin(origin, isDev)) {
     return new Response("Forbidden", { status: 403 });
+  }
+
+  const allowed = await checkRateLimit(request, 5);
+  if (!allowed) {
+    return new Response(JSON.stringify({ ok: false, error: "Too many requests. Please wait a minute." }),
+      { status: 429, headers: { ...CORS(origin), "Content-Type": "application/json" } });
   }
 
   const RESEND_KEY  = env.RESEND_API_KEY;
