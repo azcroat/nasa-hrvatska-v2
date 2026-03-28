@@ -196,19 +196,18 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
               )}
               {badges && badges[t.id] > 0 && (
                 <span style={{
-                  position: 'absolute', top: 4, right: 4,
-                  background: 'linear-gradient(135deg,#e11d48,#be123c)',
+                  position: 'absolute', top: 2, right: 2,
+                  background: 'linear-gradient(135deg,#6366f1,#8b5cf6)',
                   color: '#fff',
                   fontSize: 9, fontWeight: 800,
                   minWidth: 16, height: 16,
                   borderRadius: 8,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   padding: '0 4px', lineHeight: 1,
-                  boxShadow: '0 2px 8px rgba(225,29,72,0.4)',
+                  boxShadow: '0 2px 8px rgba(99,102,241,0.5)',
                   border: '1.5px solid #fff',
-                  animation: 'heartbeat 2s ease-in-out infinite',
                 }}>
-                  {badges[t.id]}
+                  ✦{badges[t.id]}
                 </span>
               )}
               {/* Local SRS fallback badge — shown on Practice when badges prop has no count */}
@@ -216,13 +215,13 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
                 <div style={{
                   position: 'absolute', top: 2, right: '50%', transform: 'translateX(12px)',
                   minWidth: 16, height: 16, padding: '0 4px',
-                  background: '#dc2626', borderRadius: 8,
+                  background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', borderRadius: 8,
                   fontSize: 9, fontWeight: 900, color: '#fff',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   border: '1.5px solid var(--bg, #fff)',
                   pointerEvents: 'none',
                 }}>
-                  {localDueCount > 9 ? '9+' : localDueCount}
+                  ✦{localDueCount > 9 ? '9+' : localDueCount}
                 </div>
               )}
             </button>

@@ -1266,12 +1266,15 @@ export default function HomeTab({
           {/* ── SRS REVIEW NUDGE ── */}
           {(() => {
             const due = getDueReviews();
-            const dueReviews = due;
-            if (dueReviews.length === 0) return (
+            if (due.length === 0) return (
               <div style={{fontSize:11, color:'var(--text-2)', fontStyle:'italic', textAlign:'center', padding:'4px 0'}}>
                 No reviews due — keep completing lessons to build your deck
               </div>
             );
+            const sr = getSR(); const allR = Object.values(sr);
+            const masteryPct = allR.length > 0
+              ? Math.round(allR.reduce((s,v) => s + (v.r||0)/Math.max((v.r||0)+v.w,1), 0) / allR.length * 100)
+              : 0;
             return (
               <div
                 onClick={() => setScr("review")}
@@ -1296,12 +1299,12 @@ export default function HomeTab({
                     Spaced Repetition · Tap to review now →
                   </div>
                 </div>
-                <div style={{
-                  fontSize: 22, fontWeight: 800, color: "var(--info)",
-                  background: "var(--card)", borderRadius: 12, width: 40, height: 40,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,.08)",
-                }}>{due.length}</div>
+                <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: "var(--info)", lineHeight: 1 }}>{due.length}</div>
+                  <div style={{ fontSize: 9, fontWeight: 800, color: '#fff', background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', borderRadius: 20, padding: '2px 7px', letterSpacing: 0.3, whiteSpace: 'nowrap' }}>
+                    ✦ {masteryPct}% mastered
+                  </div>
+                </div>
               </div>
             );
           })()}
@@ -1335,7 +1338,16 @@ export default function HomeTab({
                     Most missed: <strong>{topMistake?.hr}</strong> · Tap to review →
                   </div>
                 </div>
-                <div style={{ fontSize: 20, color: "var(--warning)", fontWeight: 700, flexShrink: 0 }}>›</div>
+                {(() => {
+                  const worst = mistakes[0];
+                  const conf = Math.max(10, 100 - worst.count * 12);
+                  const chipBg = conf > 60 ? 'linear-gradient(135deg,#d97706,#b45309)' : 'linear-gradient(135deg,#dc2626,#b91c1c)';
+                  return (
+                    <div style={{ fontSize: 9, fontWeight: 800, color: '#fff', background: chipBg, borderRadius: 20, padding: '3px 8px', flexShrink: 0, letterSpacing: 0.3, whiteSpace: 'nowrap' }}>
+                      ✦ {conf}% ready
+                    </div>
+                  );
+                })()}
               </div>
             );
           })()}
