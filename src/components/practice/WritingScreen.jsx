@@ -3,6 +3,7 @@ import { H } from '../../data.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
 import { rnd } from '../../lib/random.js';
 import { useStats } from '../../context/StatsContext.jsx';
+import { logError } from '../../lib/learnerErrors.js';
 
 const PROMPTS = [
   // A2 — simple present, basic vocabulary
@@ -114,6 +115,16 @@ export default function WritingScreen({ goBack, award }) {
       if (!res.ok) throw new Error("API error " + res.status);
       const data = await res.json();
       setResult(data);
+      // After receiving evaluation result with mistakes array
+      if (data.mistakes && Array.isArray(data.mistakes)) {
+        data.mistakes.forEach(mistake => {
+          logError(
+            mistake.type || 'writing_error',
+            mistake.type?.includes('grammar') ? 'grammar' : 'vocabulary',
+            { wrong: mistake.original, correct: mistake.corrected, source: 'writing' }
+          );
+        });
+      }
     } catch (e) {
       setError("Could not connect to AI correction service. Check your connection.");
     }

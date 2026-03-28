@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { H, Bar, speak } from '../../data.jsx';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
+import { logError } from '../../lib/learnerErrors.js';
 
 export default function GrammarScreen({
   gl, gp, gx, gs, ga, gsl,
@@ -44,7 +45,7 @@ export default function GrammarScreen({
           <p style={{fontSize:20,fontWeight:700,marginBottom:20}}>{gl.qs[gx].q}</p>
           {gl.qs[gx].o.map((o,i)=>(
             <button key={i} className={"ob "+(ga?(i===gl.qs[gx].c?"ok":gsl===i?"no":""):"")}
-              onClick={()=>{if(!ga){sGsl(i);sGa(true);const correct=i===gl.qs[gx].c;if(correct)sGs(s=>s+1);recordTopicResult('grammar',correct);}}}>
+              onClick={()=>{if(!ga){sGsl(i);sGa(true);const correct=i===gl.qs[gx].c;if(correct)sGs(s=>s+1);else logError(gl.title||'grammar_general','grammar',{wrong:o,correct:gl.qs[gx].o[gl.qs[gx].c],source:'grammar_screen'});recordTopicResult('grammar',correct);}}}>
               {o}
             </button>
           ))}

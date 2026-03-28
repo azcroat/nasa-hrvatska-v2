@@ -126,6 +126,7 @@ export async function onRequestPost(context) {
     goal,
     streak,
   } = body;
+  const learnerErrors = body.learnerErrors || [];
 
   // ── Validate and sanitize inputs ──
   const safeLevel          = sanitizeLevel(level);
@@ -135,10 +136,34 @@ export async function onRequestPost(context) {
   const safeMajaPatterns   = sanitizeStringArray(majaPatterns, 10, 100);
   const safeRecentActivity = sanitizeRecentActivity(recentActivity);
 
+  // Sanitize learnerErrors — each entry expected: { pattern, category, count }
+  const safeLearnerErrors = Array.isArray(learnerErrors)
+    ? learnerErrors.slice(0, 6).map(e => {
+        if (!e || typeof e !== 'object') return null;
+        const pattern  = sanitizeParam(String(e.pattern  ?? ''), 100);
+        const category = sanitizeParam(String(e.category ?? ''), 60);
+        const count    = (Number.isFinite(Number(e.count)) && Number(e.count) >= 0) ? Math.floor(Number(e.count)) : 0;
+        if (!pattern) return null;
+        return { pattern, category, count };
+      }).filter(Boolean)
+    : [];
+
   // ── Build prompts ──
   const systemPrompt = "You are a Croatian language learning coach creating a personalized daily practice plan. Return ONLY valid JSON, no markdown.";
 
-  const userMessage = `Create a personalized 15-minute daily Croatian practice plan for a ${safeLevel} learner with goal '${safeGoal}' (${safeStreak} day streak). Their weakest SRS words: ${safeSrWeakWords.join(', ') || 'none yet'}. Maja mistake patterns: ${safeMajaPatterns.join(', ') || 'none'}. Recent activity counts: ${JSON.stringify(safeRecentActivity)}. Return JSON: { greeting: 'short encouraging Croatian greeting to the user (5-10 words)', activities: [ { id: string (one of: flashcards|srsreview|ai_listening|speaking|writing|grammar_diagnosis|dialogue|shadowing|aspectdrill), title: string, reason: string (why this specifically today, 1 sentence), duration: number (minutes, 3-7), priority: 'high'|'medium' } ], motivational_note: 'one encouraging sentence about their progress', focus_topic: 'one grammar/vocab area to focus on today' } — exactly 3 activities totaling ~15 minutes.`;
+  const learnerErrorsBlock = safeLearnerErrors.length > 0
+    ? `\nLEARNER'S PERSISTENT ERRORS (prioritize addressing these):\n` +
+      safeLearnerErrors.map(e => `- ${e.pattern} (${e.category}, seen ${e.count} times)`).join('\n') +
+      `\n\nFor each activity in your plan, if it addresses one of these errors, explain SPECIFICALLY how in the "reason" field. Don't just say "you need practice" — say "this targets your accusative case errors with animate nouns."`
+    : '';
+
+  const userMessage =
+    `Create a personalized 15-minute daily Croatian practice plan for a ${safeLevel} learner with goal '${safeGoal}' (${safeStreak} day streak). ` +
+    `Their weakest SRS words: ${safeSrWeakWords.join(', ') || 'none yet'}. ` +
+    `Maja mistake patterns: ${safeMajaPatterns.join(', ') || 'none'}. ` +
+    `Recent activity counts: ${JSON.stringify(safeRecentActivity)}.` +
+    learnerErrorsBlock +
+    ` Return JSON: { greeting: 'short encouraging Croatian greeting to the user (5-10 words)', activities: [ { id: string (one of: flashcards|srsreview|ai_listening|speaking|writing|grammar_diagnosis|dialogue|shadowing|aspectdrill), title: string, reason: string (why this specifically today, 1 sentence — be specific if addressing a persistent error), duration: number (minutes, 3-7), priority: 'high'|'medium' } ], motivational_note: 'one encouraging sentence about their progress', focus_topic: 'one grammar/vocab area to focus on today', theme: 'one sentence connecting all activities to a single grammar or vocab thread, e.g. Today\\'s thread: perfective aspect in past tense' } — exactly 3 activities totaling ~15 minutes.`;
 
   // ── Call Anthropic ──
   let res, data;
@@ -153,7 +178,7 @@ export async function onRequestPost(context) {
       signal: AbortSignal.timeout(20000),
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 600,
+        max_tokens: 700,
         system: systemPrompt,
         messages: [{ role: "user", content: userMessage }],
       }),
@@ -202,15 +227,17 @@ export async function onRequestPost(context) {
     priority: VALID_PRIORITIES.includes(act.priority) ? act.priority : "medium",
   }));
 
-  const greeting         = sanitizeParam(String(parsed.greeting || ""), 150);
+  const greeting          = sanitizeParam(String(parsed.greeting || ""), 150);
   const motivational_note = sanitizeParam(String(parsed.motivational_note || ""), 250);
-  const focus_topic      = sanitizeParam(String(parsed.focus_topic || ""), 100);
+  const focus_topic       = sanitizeParam(String(parsed.focus_topic || ""), 100);
+  const theme             = sanitizeParam(String(parsed.theme || ""), 150);
 
   return ok({
     greeting,
     activities,
     motivational_note,
     focus_topic,
+    theme,
     generatedAt: Date.now(),
   }, origin);
 }

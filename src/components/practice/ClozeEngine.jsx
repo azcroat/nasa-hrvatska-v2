@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { H, speak, srMark } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import { markQuest } from '../../lib/quests.js';
+import { logError } from '../../lib/learnerErrors.js';
 
 // Sentence bank — fill-in-the-blank Croatian sentences covering cases, prepositions, and grammar
 // Format: { sentence: 'full sentence', blank: 'word to hide', options: [correct, wrong1, wrong2, wrong3], translation: 'English', hint: 'grammar note' }
@@ -101,6 +102,7 @@ export default function ClozeEngine({ goBack, award }) {
       setTimeout(() => setFeedbackAnim(null), 500);
     } else {
       srMark(q.blank, false);
+      logError(q.blank, 'grammar', { wrong: opt, correct: q.blank, source: 'cloze_engine' });
       setFeedbackAnim('wrong');
       setTimeout(() => setFeedbackAnim(null), 400);
     }

@@ -88,6 +88,26 @@ function buildMistakeSummary(srMistakes, majaPatterns, writingMistakes) {
   return parts.length > 0 ? parts.join(". ") : "No mistake data available.";
 }
 
+// ── Content validation ─────────────────────────────────────────────────────────
+
+function validateDiagnosis(data) {
+  if (!data.blindSpots || !Array.isArray(data.blindSpots)) {
+    data.blindSpots = [];
+  }
+  // Ensure each blind spot has required fields
+  data.blindSpots = data.blindSpots
+    .filter(bs => bs.name && bs.explanation)
+    .slice(0, 3) // max 3
+    .map(bs => ({
+      name: bs.name,
+      severity: ['high','medium','low'].includes(bs.severity) ? bs.severity : 'medium',
+      explanation: bs.explanation,
+      example: bs.example || null,
+      drills: Array.isArray(bs.drills) ? bs.drills.slice(0, 3) : [],
+    }));
+  return data;
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 export async function onRequestPost({ request, env }) {
@@ -217,9 +237,12 @@ export async function onRequestPost({ request, env }) {
     return err(502, "parse_failed", origin);
   }
 
+  // ── Content validation ──
+  parsed = validateDiagnosis(parsed);
+
   // Validate blindSpots
   if (!Array.isArray(parsed.blindSpots) || parsed.blindSpots.length < 1 || parsed.blindSpots.length > 3) {
-    console.error("grammar-diagnosis.js: blindSpots missing or out of range");
+    console.error("grammar-diagnosis.js: blindSpots missing or out of range after validation");
     return err(502, "parse_failed", origin);
   }
 

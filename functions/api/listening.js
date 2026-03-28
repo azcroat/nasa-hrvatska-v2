@@ -51,6 +51,42 @@ function sanitizeStyle(style) {
   return VALID_STYLES.includes(style) ? style : "dialogue";
 }
 
+// ── Content validation ─────────────────────────────────────────────────────────
+
+function validateCroatianContent(data) {
+  const warnings = [];
+
+  // Check questions have exactly 1 correct answer
+  if (data.questions) {
+    data.questions.forEach((q, i) => {
+      if (typeof q.correct !== 'number' || q.correct < 0 || q.correct >= (q.options?.length || 4)) {
+        warnings.push(`Q${i+1}: invalid correct index`);
+        q.correct = 0; // safe default
+      }
+      if (!q.options || q.options.length < 2) {
+        warnings.push(`Q${i+1}: insufficient options`);
+      }
+    });
+  }
+
+  // Check speakers have content
+  if (data.speakers) {
+    data.speakers.forEach((spk, i) => {
+      if (!spk.lines || spk.lines.length === 0) {
+        warnings.push(`Speaker ${i+1}: no lines`);
+      }
+    });
+  }
+
+  // Check vocabulary has translations
+  if (data.vocabulary) {
+    data.vocabulary = data.vocabulary.filter(v => v.hr && v.en);
+  }
+
+  if (warnings.length > 0) console.warn('[listening] Content warnings:', warnings);
+  return data;
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 export async function onRequestPost({ request, env }) {
@@ -180,6 +216,9 @@ export async function onRequestPost({ request, env }) {
       return err(502, "parse_failed", origin);
     }
   }
+
+  // ── Content validation ──
+  parsed = validateCroatianContent(parsed);
 
   // Build clean response
   const response = {

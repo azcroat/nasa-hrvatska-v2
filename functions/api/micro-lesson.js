@@ -57,6 +57,20 @@ export async function onRequestOptions({ request }) {
   return new Response(null, { status: 204, headers: corsHeaders(origin) });
 }
 
+// ── Content validation ─────────────────────────────────────────────────────────
+
+function validateMicroLesson(data) {
+  if (!data.title || !data.examples || !Array.isArray(data.examples)) return null;
+  // Ensure quiz has valid structure
+  if (data.quiz) {
+    data.quiz = data.quiz.filter(q =>
+      q.question && Array.isArray(q.options) && q.options.length >= 2 &&
+      typeof q.answer === 'number' && q.answer < q.options.length
+    );
+  }
+  return data;
+}
+
 export async function onRequestPost({ request, env }) {
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
 
@@ -159,13 +173,20 @@ Return ONLY valid JSON (no markdown):
     return err(502, "parse_failed", origin);
   }
 
+  // ── Content validation ──
+  const validated = validateMicroLesson(parsed);
+  if (!validated) {
+    console.error("micro-lesson.js: content validation failed — missing title or examples");
+    return err(502, "parse_failed", origin);
+  }
+
   return ok({
-    title: String(parsed.title || "").slice(0, 80),
-    focus: String(parsed.focus || "").slice(0, 150),
-    intro: String(parsed.intro || "").slice(0, 500),
-    examples: Array.isArray(parsed.examples) ? parsed.examples.slice(0, 3) : [],
-    quiz: Array.isArray(parsed.quiz) ? parsed.quiz.slice(0, 3) : [],
-    tip: String(parsed.tip || "").slice(0, 200),
+    title: String(validated.title || "").slice(0, 80),
+    focus: String(validated.focus || "").slice(0, 150),
+    intro: String(validated.intro || "").slice(0, 500),
+    examples: Array.isArray(validated.examples) ? validated.examples.slice(0, 3) : [],
+    quiz: Array.isArray(validated.quiz) ? validated.quiz.slice(0, 3) : [],
+    tip: String(validated.tip || "").slice(0, 200),
     weakWords: topWords,
     generatedAt: Date.now(),
   }, origin);

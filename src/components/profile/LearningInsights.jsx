@@ -43,7 +43,8 @@ function analyzeVocab() {
     const wrong = data.w || 0;
     totalRight += right;
     totalWrong += wrong;
-    if (data.rep >= 4 && data.ef >= 2.0) mastered++;
+    // FSRS: stability ≥ 21 days = mastered; legacy SM-2 fallback: rep ≥ 4 && ef ≥ 2.0
+    if ((data.s != null ? data.s >= 21 : (data.rep >= 4 && (data.ef || 0) >= 2.0))) mastered++;
     else learning++;
     if (wrong > right && (right + wrong) >= 3) weakWords.push({ word, right, wrong });
   });

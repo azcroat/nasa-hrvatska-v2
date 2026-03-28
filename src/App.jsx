@@ -244,6 +244,16 @@ function markExerciseDone(exerciseId){
   try{const cd=JSON.parse(localStorage.getItem("xpCooldown")||"{}");const today=localDateStr();cd[exerciseId]=today;const clean={};for(const k in cd){if(cd[k]===today)clean[k]=cd[k]}localStorage.setItem("xpCooldown",JSON.stringify(clean))}catch(e){}
 }
 
+// Day 2-10 retention: returns days since first launch for this user (0 = same day they joined)
+function getDaysSinceJoin(authUser) {
+  if (!authUser) return null;
+  const joinKey = 'nh_join_date_' + (authUser.u || authUser.uid || '');
+  if (!localStorage.getItem(joinKey)) {
+    localStorage.setItem(joinKey, Date.now().toString());
+  }
+  return Math.floor((Date.now() - parseInt(localStorage.getItem(joinKey))) / 86400000);
+}
+
 function App(){
   useNotifications();
   // Q-6: React Router hooks — replace custom pushUrl + popstate with navigate + useLocation
@@ -712,6 +722,9 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
     if(window.history.length <= 1){ setScr("dashboard"); } else { navigate(-1); }
   }
   const level=useMemo(()=>lvl(stats.xp),[stats.xp]);
+  // Day 2-10 new user retention window
+  const daysSinceJoin = useMemo(() => getDaysSinceJoin(authUser), [authUser]);
+  const isNewUserWindow = daysSinceJoin !== null && daysSinceJoin >= 1 && daysSinceJoin <= 10;
   // Fix 1: these hooks must live above all early returns (Rules of Hooks)
   const badges=useMemo(()=>({home:0,learn:0,practice:getDueReviews().length,croatia:0,profile:0}),[]);
   const onCloseCelebration=useCallback(()=>setShowCelebration(false),[]);
@@ -934,6 +947,8 @@ if(!localStorage.getItem("fbBackupConfirmed")&&!onboarded){setShowBackupBanner(t
           syncReady={_syncReady} onSyncNow={doSyncNow} authUser={authUser}
           comebackBonus={comebackBonus}
           goal={localStorage.getItem('nh_goal')||'fluent'}
+          isNewUserWindow={isNewUserWindow}
+          daysSinceJoin={daysSinceJoin}
         /></ScreenErrorBoundary></div>}
         {// ═══ TAB: LEARN ═══
         tab==="learn"&&<div key="tab-learn" className="screen-enter"><ScreenErrorBoundary name="LearnTab"><LearnTab

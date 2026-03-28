@@ -4,6 +4,7 @@ import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
 import { useStats } from '../../context/StatsContext.jsx';
 import { markPracticed } from '../../hooks/useNotifications.js';
 import { markQuest } from '../../lib/quests.js';
+import { logError, getErrorsForAPI } from '../../lib/learnerErrors.js';
 
 // ── Conversation scenarios ───────────────────────────────────────────────────
 const SCENARIOS = [
@@ -421,7 +422,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
         res = await fetch("/api/ai-chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: msgs, mode, params }),
+          body: JSON.stringify({ messages: msgs, mode, params, learnerErrors: getErrorsForAPI(6) }),
           signal: controller.signal,
         });
       } finally {
@@ -526,6 +527,14 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       const result = parseJSON(raw);
       if (result && result.corrected && isMountedRef.current) {
         setCorrections(prev => ({ ...prev, [msgIndex]: result }));
+        // After receiving a correction from the conversation API
+        if (result.corrected !== userText) {
+          logError(
+            result.errorPatterns?.[0] || 'conversation_grammar',
+            'grammar',
+            { wrong: userText, correct: result.corrected, source: 'conversation' }
+          );
+        }
       }
     } catch {
       // Correction checks are non-critical — silently discard errors
@@ -655,6 +664,16 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       const raw = await callAI([{ role: "user", content: convoText }], { level, scenarioTitle: scenario.title }, "evaluate");
       const ev = parseJSON(raw);
       setEvaluation(ev);
+      // Log mistakes from evaluation to the unified error ledger
+      if (ev && ev.mistakes && Array.isArray(ev.mistakes)) {
+        ev.mistakes.forEach(m => {
+          logError(
+            m.type || 'conversation_grammar',
+            'grammar',
+            { wrong: m.original, correct: m.correction, source: 'conversation' }
+          );
+        });
+      }
       // Award XP based on conversation quality and length
       if (ev && typeof award === "function" && !evalXpFired.current) {
         evalXpFired.current = true;
