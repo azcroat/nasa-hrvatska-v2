@@ -95,10 +95,6 @@ const KF = `
   0%,100%{transform:translate(92px,75px) rotate(0deg) translate(-92px,-75px)}
   50%{transform:translate(92px,75px) rotate(-16deg) translate(-92px,-75px)}
 }
-@keyframes lk-plume {
-  0%,100%{transform:rotate(0deg);transform-origin:78px 14px}
-  50%{transform:rotate(8deg);transform-origin:78px 14px}
-}
 @keyframes lk-confetti {
   0%{transform:translateY(0px) rotate(0deg);opacity:1}
   100%{transform:translateY(30px) rotate(360deg);opacity:0}
@@ -112,21 +108,21 @@ const MOODS = {
     armL:   'lk-aL-up  0.85s ease-in-out infinite',
     armR:   'lk-aR-up  0.85s ease-in-out infinite',
     face:   'celebrate',
-    plume:  'lk-plume  0.85s ease-in-out infinite',
+    plume:  null,
   },
   happy: {
     body:  'lk-float 2.4s ease-in-out infinite',
     armL:  null,
     armR:  null,
     face:  'smile',
-    plume: 'lk-plume 2.4s ease-in-out infinite',
+    plume: null,
   },
   encouraged: {
     body:  'lk-float 2s ease-in-out infinite',
     armL:  'lk-aL-encourage 2s ease-in-out infinite',
     armR:  null,
     face:  'smile',
-    plume: 'lk-plume 2s ease-in-out infinite',
+    plume: null,
   },
   thinking: {
     body:  'lk-tilt 3s ease-in-out infinite',
@@ -154,7 +150,7 @@ const MOODS = {
     armL:  null,
     armR:  null,
     face:  'neutral',
-    plume: 'lk-plume 4s ease-in-out infinite',
+    plume: null,
   },
 };
 
@@ -672,30 +668,7 @@ export default function CroatianKnight({ size = 80, mood = 'happy', className = 
         <ellipse cx="60" cy="7" rx="6" ry="2.5"
           fill={C.ar} stroke={C.blk} strokeWidth="0.8"/>
 
-        {/* ── PLUME — Red feather on right side of helmet ── */}
-        <g style={{ animation: m.plume }}>
-          {/* Main plume sweep */}
-          <path d="M 78,14 Q 96,-8 106,-16 Q 112,-3 104,6 Q 96,14 78,20 Z"
-            fill="url(#lk-rd)" stroke="#7A0010" strokeWidth="0.9"/>
-          {/* Secondary quill (lighter) */}
-          <path d="M 78,15 Q 92,-2 100,-9 Q 104,2 98,9 Q 92,14 78,19 Z"
-            fill={C.redHi} opacity="0.68"/>
-          {/* Feather detail lines */}
-          <path d="M 80,16 Q 90,5 96,-2"
-            stroke="rgba(255,180,180,0.45)" strokeWidth="1.2" fill="none"/>
-          <path d="M 80,18 Q 88,9 93,3"
-            stroke="rgba(255,180,180,0.38)" strokeWidth="0.9" fill="none"/>
-          <path d="M 80,19 Q 86,13 90,8"
-            stroke="rgba(255,180,180,0.3)" strokeWidth="0.7" fill="none"/>
-          {/* Plume tip */}
-          <circle cx="106" cy="-16" r="3.5"
-            fill="#FF4050" opacity="0.82"/>
-          <circle cx="106" cy="-16" r="1.5"
-            fill="rgba(255,255,255,0.5)"/>
-          {/* Plume base attachment to helmet */}
-          <circle cx="78" cy="17" r="4"
-            fill={C.red} stroke={C.blk} strokeWidth="0.8"/>
-        </g>
+        {/* No plume — clean bucket helmet */}
 
       </g>
     </svg>
