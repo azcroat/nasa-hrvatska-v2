@@ -108,12 +108,20 @@ export default function HomeTab({
 
   const questsDone = useMemo(() => {
     const d = new Date().toISOString().slice(0,10);
+    const q = (id) => localStorage.getItem('nh_quest_' + id + '_' + d) === '1';
+    const hasStreak = streak.count > 0;
     return {
-      speak:   localStorage.getItem('nh_quest_speak_'+d) === '1',
-      grammar: localStorage.getItem('nh_quest_grammar_'+d) === '1',
-      master:  localStorage.getItem('nh_quest_master_'+d) === '1',
-      reading: localStorage.getItem('nh_quest_reading_'+d) === '1',
-      streak:  streak.count > 0,
+      speak:        q('speak'),
+      speak2:       q('speak2'),
+      grammar:      q('grammar'),
+      grammar2:     q('grammar2'),
+      master:       q('master'),
+      master2:      q('master2'),
+      reading:      q('reading'),
+      reading2:     q('reading2'),
+      streak:       hasStreak,
+      streak_alive: hasStreak,
+      perfect:      q('perfect'),
     };
   }, [streak]);
   const allQuestsDone = Object.values(questsDone).every(Boolean);

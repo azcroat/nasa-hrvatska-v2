@@ -94,7 +94,7 @@ const PERSONA_CONFIG = {
   baka: {
     name: 'Baka Mara',
     title: 'Baka iz Vinkovaca, Slavonija',
-    avatar: '/images/portraits/baka.jpg',
+    avatar: '/images/portraits/grandmother.webp',
     fallbackEmoji: '👵',
     orbColor: '#b45309',
     thinkingColor: '#92400e',

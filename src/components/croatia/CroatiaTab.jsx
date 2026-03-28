@@ -722,7 +722,7 @@ export default function CroatiaTab({ setScr, sCurEx, award }) {
                     { src:'/images/portraits/tutor-hero.webp', emoji:'👩‍🏫', color:'#D4002D' },
                     { src:'/images/portraits/fisherman.webp',  emoji:'⛵',   color:'#0284c7' },
                     { src:'/images/portraits/secretary.jpg',  emoji:'💼',   color:'#7c3aed' },
-                    { src:'/images/portraits/baka.jpg',       emoji:'👵',   color:'#b45309' },
+                    { src:'/images/portraits/grandmother.webp', emoji:'👵',   color:'#b45309' },
                   ].map(({ src, emoji, color }, i) => (
                     <div
                       key={i}
