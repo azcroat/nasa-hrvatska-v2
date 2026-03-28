@@ -123,7 +123,7 @@ function estimateAbility(messages) {
 
 // ── System prompt builder ──────────────────────────────────────────────────────
 
-function buildConversationSystemPrompt({ level, topic, turnCount, maxTurns, userName, mistakePatterns, abilityShift, learnerErrors }) {
+function buildConversationSystemPrompt({ level, topic, turnCount, maxTurns, userName, mistakePatterns, abilityShift, learnerErrors, isHeritage }) {
 
   const safeLevel = sanitizeLevel(level);
   const sessionMax = maxTurns || MAX_TURNS_BY_LEVEL[safeLevel] || MAX_TURNS_PER_SESSION;
@@ -135,6 +135,11 @@ function buildConversationSystemPrompt({ level, topic, turnCount, maxTurns, user
     ? '\n\nADAPTIVE: Learner is struggling — simplify vocabulary, use shorter sentences, increase scaffolding.'
     : abilityShift === 'higher'
     ? '\n\nADAPTIVE: Learner is performing above stated level — introduce slightly more complex structures naturally.'
+    : '';
+
+  // ── Heritage speaker context ──
+  const heritageNote = isHeritage
+    ? `\n\nHERITAGE SPEAKER CONTEXT: This learner grew up hearing Croatian at home (diaspora community — may be from Australia, USA, Germany, Canada, or similar). They likely speak naturally but have systematic gaps: frozen vocabulary from parents' emigration era, simplified case system (especially genitive plural), possible dialect mixing (Dalmatian/Slavonian forms in otherwise standard Croatian), anglicisms/germanisms. Do NOT treat them as a complete beginner. Meet them at their actual production level. Gently recast archaic or regional forms toward standard Croatian when they occur. Acknowledge their heritage warmly if appropriate — Maja would genuinely respect this connection to Croatian.`
     : '';
 
   // ── Known weak areas injected from frontend error ledger ──
@@ -327,7 +332,7 @@ FIELD RULES:
 - level_demonstrated: your assessment of what CEFR level the learner's message demonstrates: "A1"|"A2"|"B1"|"B2"
 - is_session_end: boolean. True ONLY on the final closing turn.
 - recast_word: string | null. If you did an implicit recast, name the word/form you corrected (e.g. "instrumental case"). Null otherwise.
-- errorPatterns: array of strings. Grammar/vocabulary patterns you explicitly corrected THIS turn (e.g. ["accusative_case", "verb_conjugation"]). Empty array [] if no explicit correction was made.${adaptiveNote}${errorContext}`;
+- errorPatterns: array of strings. Grammar/vocabulary patterns you explicitly corrected THIS turn (e.g. ["accusative_case", "verb_conjugation"]). Empty array [] if no explicit correction was made.${adaptiveNote}${errorContext}${heritageNote}`;
 }
 
 // ── CORS ───────────────────────────────────────────────────────────────────────
@@ -398,6 +403,7 @@ export async function onRequestPost(context) {
     userName,        // optional string
     mistakePatterns, // optional Array<{ pattern: string, count: number }>
     learnerErrors,   // optional Array<{ pattern: string }> — unified error ledger from frontend
+    isHeritage,      // optional boolean — diaspora/heritage Croatian speaker
   } = body;
 
   // Validate turn count — hard cap enforced server-side, level-adjusted
@@ -449,6 +455,7 @@ export async function onRequestPost(context) {
     mistakePatterns,
     abilityShift,
     learnerErrors,
+    isHeritage: isHeritage === true,
   });
 
   // ── Stream from Anthropic API ──────────────────────────────────────────────
