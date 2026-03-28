@@ -4,7 +4,7 @@
 import { checkRateLimit } from './_rateLimit.js';
 
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
-const MODEL = "claude-sonnet-4-6";
+const MODEL = "claude-haiku-4-5-20251001";
 
 // ── Security helpers ──────────────────────────────────────────────────────────
 
@@ -132,7 +132,7 @@ export async function onRequestPost({ request, env }) {
       signal: AbortSignal.timeout(15000),
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 200,
+        max_tokens: 120,
         system: systemPrompt,
         messages: [{ role: "user", content: userMessage }],
       }),

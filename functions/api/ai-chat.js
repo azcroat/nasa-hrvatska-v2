@@ -504,7 +504,7 @@ export async function onRequestPost(context) {
   const isDev = env.ENVIRONMENT !== "production";
   if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden", origin);
 
-  const allowed = await checkRateLimit(request, 20);
+  const allowed = await checkRateLimit(request, 40);
   if (!allowed) {
     return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders(origin) });
   }
