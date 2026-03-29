@@ -36,7 +36,7 @@ export default function CookieConsent() {
         We also use PostHog analytics cookies to understand how the app is used.
         You can decline analytics while keeping essential functionality.{' '}
         <button
-          onClick={() => window.open('#/privacy', '_blank')}
+          onClick={() => window.open('/privacy', '_blank')}
           style={{ background: 'none', border: 'none', color: '#38bdf8', cursor: 'pointer', fontSize: 14, padding: 0, textDecoration: 'underline' }}
         >
           Privacy Policy

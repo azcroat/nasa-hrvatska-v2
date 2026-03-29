@@ -17,6 +17,7 @@ import {
   trackLessonComplete, trackExerciseComplete, trackLevelUp,
   trackBadgeEarned, trackStreakMilestone,
 } from '../lib/analytics.js';
+import { weekKey as _weekKey } from '../lib/dateUtils.js';
 
 // Module-level guard: comeback bonus fires at most once per app session
 // (mirrors _comebackUsedThisSession in App.jsx — must stay in sync if moved)
@@ -58,7 +59,7 @@ export function useAward({ curEx, stats, setStats }) {
     if (curEx && !canEarnXP(curEx)) { setXpA(0); setShowXP(false); return; }
     if (curEx) markExerciseDone(curEx);
     let totalAmt = lXPgain(amt);
-    const _today = new Date().toISOString().slice(0, 10);
+    const _today = _localDateStr();
     if (comebackBonus && amt > 0 && !_awardComebackUsed && !localStorage.getItem('nh_comeback_used_' + _today)) {
       _awardComebackUsed = true;
       localStorage.setItem('nh_comeback_used_' + _today, '1');
@@ -106,7 +107,7 @@ export function useAward({ curEx, stats, setStats }) {
       }
       return s;
     });
-    const _wk = (function () { const d = new Date(); const day = d.getDay() || 7; d.setDate(d.getDate() + 4 - day); const yr = d.getFullYear(); const wk = Math.ceil(((d.getTime() - new Date(yr, 0, 1).getTime()) / 86400000 + 1) / 7); return `${yr}-W${String(wk).padStart(2, '0')}`; })();
+    const _wk = _weekKey();
     const _wkKey = 'nh_week_xp_' + _wk;
     localStorage.setItem(_wkKey, String(Math.max(0, (parseInt(localStorage.getItem(_wkKey) || '0', 10)) + totalAmt)));
     if (!localStorage.getItem('nh_journey_first_lesson') && totalAmt > 0) { localStorage.setItem('nh_journey_first_lesson', '1'); recordJourneyMilestone('first_lesson', {}); }

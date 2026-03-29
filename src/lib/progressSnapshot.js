@@ -8,20 +8,7 @@
  * @returns {object} progress document ready for localStorage / Firestore
  */
 import { getSR, getStreak, getStreakFreezes, gP } from '../data.jsx';
-
-function _todayStr() {
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
-
-function _weekKey() {
-  const d = new Date();
-  const day = d.getDay() || 7;
-  d.setDate(d.getDate() + 4 - day);
-  const yr = d.getFullYear();
-  const wk = Math.ceil(((d.getTime() - new Date(yr, 0, 1).getTime()) / 86400000 + 1) / 7);
-  return `${yr}-W${String(wk).padStart(2, '0')}`;
-}
+import { localDateStr as _todayStr, weekKey as _weekKey } from './dateUtils.js';
 
 /** Merge React dc state with localStorage dcDay3 — truth is the union of answered positions. */
 function _bestDc(dchlA, dchlSl) {

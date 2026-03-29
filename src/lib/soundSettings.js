@@ -8,40 +8,54 @@ const VOICE_KEY  = 'nh_voice_pref';
 //   'gabrijela' — always Azure hr-HR-GabrijelaNeural (native Croatian, slightly robotic)
 //   'charlotte' — always ElevenLabs Charlotte (natural/modern, slight non-native accent)
 export function getVoicePreference() {
-  const v = localStorage.getItem(VOICE_KEY);
-  return (v === 'gabrijela' || v === 'charlotte') ? v : 'auto';
+  try {
+    const v = localStorage.getItem(VOICE_KEY);
+    return (v === 'gabrijela' || v === 'charlotte') ? v : 'auto';
+  } catch { return 'auto'; }
 }
 export function setVoicePreference(val) {
-  if (val === 'gabrijela' || val === 'charlotte') {
-    localStorage.setItem(VOICE_KEY, val);
-  } else {
-    localStorage.removeItem(VOICE_KEY); // 'auto' = use default
-  }
+  try {
+    if (val === 'gabrijela' || val === 'charlotte') {
+      localStorage.setItem(VOICE_KEY, val);
+    } else {
+      localStorage.removeItem(VOICE_KEY);
+    }
+  } catch {}
 }
 
 export function isSoundEnabled() {
-  const v = localStorage.getItem(SOUND_KEY);
-  return v === null ? true : v === 'true'; // default ON
+  try {
+    const v = localStorage.getItem(SOUND_KEY);
+    return v === null ? true : v === 'true';
+  } catch { return true; }
 }
 
 export function setSoundEnabled(val) {
-  localStorage.setItem(SOUND_KEY, String(val));
+  try { localStorage.setItem(SOUND_KEY, String(val)); } catch {}
 }
 
 export function isHapticEnabled() {
-  const v = localStorage.getItem(HAPTIC_KEY);
-  return v === null ? true : v === 'true'; // default ON
+  try {
+    const v = localStorage.getItem(HAPTIC_KEY);
+    return v === null ? true : v === 'true';
+  } catch { return true; }
 }
 
 export function setHapticEnabled(val) {
-  localStorage.setItem(HAPTIC_KEY, String(val));
+  try { localStorage.setItem(HAPTIC_KEY, String(val)); } catch {}
+}
+
+let _audioCtx = null;
+function getAudioCtx() {
+  if (!_audioCtx || _audioCtx.state === 'closed') _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return _audioCtx;
 }
 
 // Play a synthesized tone if sound is enabled
 export function playTone({ freq = 440, type = 'sine', duration = 0.3, gain = 0.18, rampTo = undefined } = {}) {
   if (!isSoundEnabled()) return;
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = getAudioCtx();
     const osc = ctx.createOscillator();
     const gainNode = ctx.createGain();
     osc.connect(gainNode);

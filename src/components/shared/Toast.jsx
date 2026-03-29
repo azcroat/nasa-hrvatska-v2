@@ -1,10 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export default function Toast({ message, type = 'success', onClose }) {
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   useEffect(() => {
-    const t = setTimeout(onClose, 3000);
+    const t = setTimeout(() => onCloseRef.current(), 3000);
     return () => clearTimeout(t);
-  }, [onClose]);
+  }, [message]);
 
   const colors = {
     success: { bg: '#16a34a', border: '#15803d' },
@@ -15,9 +18,11 @@ export default function Toast({ message, type = 'success', onClose }) {
 
   return (
     <div
-      role="alert"
+      role="button"
+      tabIndex={0}
       aria-live="polite"
       onClick={onClose}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClose(); }}
       style={{
         position: 'fixed', bottom: 88, left: '50%', transform: 'translateX(-50%)',
         zIndex: 99990, background: c.bg, color: '#fff',

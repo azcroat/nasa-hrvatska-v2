@@ -140,11 +140,11 @@ function App() {
     if (fp.sr) { const lSR = getSR() || {}; const mSR = { ...lSR }; for (const w in fp.sr) { const r = fp.sr[w]; const l = mSR[w]; if (!l || (r.r||0) > (l.r||0) || (!l.r && (r.s||0) > (l.s||0))) mSR[w] = r; } saveSR(mSR); }
     if (fp.streak) { let lSt = { count:0,last:'' }; try { lSt = JSON.parse(localStorage.getItem('uStreak')||'{"count":0,"last":""}'); } catch (_) {} const mSt = (fp.streak.count||0) >= (lSt.count||0) ? fp.streak : lSt; localStorage.setItem('uStreak', JSON.stringify(mSt)); }
     if (fp.freezes !== undefined) { const lF = parseInt(localStorage.getItem('uFreeze')||'0',10); localStorage.setItem('uFreeze', String(Math.max(lF, Math.max(0, parseInt(fp.freezes,10)||0)))); }
-    if (fp.favs) { let lFv = []; try { lFv = JSON.parse(localStorage.getItem('uFavs')||'[]'); } catch (_) {} const mFv = [...new Set([...lFv,...fp.favs])]; localStorage.setItem('uFavs', JSON.stringify(mFv)); setFavs(mFv); }
+    if (fp.favs) { let lFv = []; try { lFv = JSON.parse(localStorage.getItem('uFavs')||'[]'); } catch (_) {} const favMap = new Map(); [...lFv, ...fp.favs].forEach(f => { if (f && f.hr) favMap.set(f.hr, f); }); const mFv = [...favMap.values()]; localStorage.setItem('uFavs', JSON.stringify(mFv)); setFavs(mFv); }
     if (fp.journal) { let lJ = []; try { lJ = JSON.parse(localStorage.getItem('uJournal')||'[]'); } catch (_) {} const jM = new Map(); lJ.forEach(e => { if (e?.word) jM.set(e.word, e); }); fp.journal.forEach(e => { if (e?.word) jM.set(e.word, e); }); const mJ = Array.from(jM.values()); localStorage.setItem('uJournal', JSON.stringify(mJ)); setJWords(mJ); }
     const today = _localDateStr();
     if (fp.dc?.day === today) { const ans = fp.dc.answered||[false,false,false]; const sel = Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==='string'?fp.dc.selected:['','','']; let lA=[false,false,false]; try { const ld=JSON.parse(localStorage.getItem('dcDay3')||'{}'); if(ld.day===today) lA=ld.answered||lA; } catch(_){} const mA=ans.map((a,i)=>a||lA[i]||false); sDchlA(mA); sDchlSl(sel); localStorage.setItem('dcDay3',JSON.stringify({day:today,answered:mA,selected:sel})); }
-    if (fp.cooldown) { const t = new Date().toISOString().slice(0,10); let cd={}; try{cd=JSON.parse(localStorage.getItem('xpCooldown')||'{}');}catch(_){} for(const k in fp.cooldown){if(fp.cooldown[k]===t)cd[k]=fp.cooldown[k];} localStorage.setItem('xpCooldown',JSON.stringify(cd)); }
+    if (fp.cooldown) { const t = _localDateStr(); let cd={}; try{cd=JSON.parse(localStorage.getItem('xpCooldown')||'{}');}catch(_){} for(const k in fp.cooldown){if(fp.cooldown[k]===t)cd[k]=fp.cooldown[k];} localStorage.setItem('xpCooldown',JSON.stringify(cd)); }
     if (fp.weekXP !== undefined) { const wD=new Date();const wY=wD.getDay()||7;wD.setDate(wD.getDate()+4-wY);const wy=wD.getFullYear();const wn=Math.ceil(((wD.getTime()-new Date(wy,0,1).getTime())/86400000+1)/7);const wk=wy+'-W'+String(wn).padStart(2,'0');const lX=parseInt(localStorage.getItem('nh_week_xp_'+wk)||'0',10);localStorage.setItem('nh_week_xp_'+wk,String(Math.max(lX,fp.weekXP))); }
   }, [setFavs, setJWords, sDchlA, sDchlSl, setOnboarded]);
 
@@ -284,7 +284,10 @@ function App() {
     const k = 'nh_digest_' + authUser.u + '_' + today.toISOString().slice(0,10);
     if (localStorage.getItem(k)) return;
     localStorage.setItem(k, '1');
-    fetch('/api/digest', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ userId:authUser.u, email:authUser.e, name:authUser.d||'Learner' }) }).catch(() => {});
+    const consent = localStorage.getItem('nh_analytics_consent');
+    if (consent === 'true') {
+      fetch('/api/digest', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ userId:authUser.u, email:authUser.e, name:authUser.d||'Learner' }) }).catch(() => {});
+    }
   }, [authUser]);
 
   // Push notifications + free annual grant + uidRef sync
@@ -307,7 +310,7 @@ function App() {
   // Daily snapshot for progress charts
   useEffect(() => {
     if (!authUser || authScreen !== 'app' || stats.xp === 0) return;
-    const today = new Date().toISOString().slice(0,10);
+    const today = _localDateStr();
     try { const h=JSON.parse(localStorage.getItem('progress_history')||'[]');const i=h.findIndex(x=>x.date===today);const s={date:today,xp:stats.xp,lc:stats.lc,gc:stats.gc};if(i>=0)h[i]=s;else h.push(s);localStorage.setItem('progress_history',JSON.stringify(h.slice(-90))); } catch (_) {}
   }, [stats.xp, authUser, authScreen]); // eslint-disable-line
 
@@ -335,7 +338,7 @@ function App() {
   const level = useMemo(() => lvl(stats.xp), [stats.xp]);
   const daysSinceJoin = useMemo(() => getDaysSinceJoin(authUser), [authUser]);
   const isNewUserWindow = daysSinceJoin !== null && daysSinceJoin >= 1 && daysSinceJoin <= 10;
-  const badges = useMemo(() => ({ home:0,learn:0,practice:getDueReviews().length,croatia:0,profile:0 }), []);
+  const badges = useMemo(() => ({ home:0,learn:0,practice:getDueReviews().length,croatia:0,profile:0 }), [stats]);
   const doSidebarSearch = useCallback(() => { if (srchQ.trim()) { doSearch(srchQ); setSrchOpen(true); } }, [srchQ, doSearch, setSrchOpen]);
   const ctxValue = useMemo(() => ({ authScreen,authUser,au:authUser,name,setName,doOut,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx,st:stats,stats,setStats,level,award }), [authScreen,authUser,name,setName,doOut,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx,stats,setStats,level,award]);
   const statsValue = useMemo(() => ({ stats,setStats,award,level }), [stats,setStats,award,level]);

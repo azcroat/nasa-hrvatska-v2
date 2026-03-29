@@ -95,9 +95,9 @@ export default function HomeTab({
   const { name, level, st, award, setScr } = useApp();
   const dc = useMemo(() => getDailyChallenge(), []);
   const ws = useMemo(() => getWeekStats(), [st]);
-  const weekXP = useMemo(() => getWeekXP(), []);
-  const streak = useMemo(() => getStreak(), []);
-  const lastActivity = useMemo(() => getLastActivity(), []);
+  const weekXP = useMemo(() => getWeekXP(), [st]);
+  const streak = useMemo(() => getStreak(), [st]);
+  const lastActivity = useMemo(() => getLastActivity(), [st]);
   const wod = useMemo(() => getWordOfDay(), []);
 
   // Dynamic Croatia Today — AI-generated daily content (lazy-fetched, 6h edge cache)
@@ -132,7 +132,7 @@ export default function HomeTab({
   useEffect(() => {
     const dayIdx = Math.floor(Date.now() / 86400000);
     // Derive key from SCENE_POOL directly — single source of truth (no separate SCENE_KEYS array)
-    const SCENE_POOL_KEYS = ['dubrovnik','dalmatian','plitvice','zagreb','labin','mostar','food'];
+    const SCENE_POOL_KEYS = ['dubrovnik','dalmatian','sibenik','zagreb','labin','mostar','food'];
     const sceneKey = SCENE_POOL_KEYS[dayIdx % SCENE_POOL_KEYS.length];
     const storageKey = `nh_scene_video_${dayIdx}_${sceneKey}`;
     const cached = sessionStorage.getItem(storageKey);
@@ -702,7 +702,7 @@ export default function HomeTab({
         const SCENE_POOL = [
           { key:'dubrovnik', img:'/images/scenes/dubrovnik-hero.webp',  city:'Dubrovnik',        label:'Adriatic Pearl' },
           { key:'dalmatian', img:'/images/scenes/dalmatian-coast.webp', city:'Dalmatian Coast',  label:'The Adriatic Sea' },
-          { key:'plitvice',  img:'/images/scenes/plitvice.webp',        city:'Plitvice Lakes',   label:'UNESCO World Heritage' },
+          { key:'sibenik', img:'https://images.unsplash.com/photo-1602002418082-a4443e081dd1?w=800&q=85&fit=crop&auto=format', city:'\u0160ibenik', label:'City of St. James Cathedral' },
           { key:'zagreb',    img:'/images/scenes/zagreb.webp',          city:'Zagreb',           label:'The Capital' },
           { key:'labin',     img:'/images/scenes/labin.webp',           city:'Labin, Istria',    label:'Medieval Hilltop Town' },
           { key:'mostar',    img:'/images/scenes/mostar.webp',          city:'Mostar',           label:'Stari Most Bridge' },

@@ -7,6 +7,8 @@
 //   VAPID_PRIVATE_KEY = (stored in Cloudflare env var VAPID_PRIVATE_KEY)
 //   Contact email     = mailto:jschreiner75@gmail.com
 
+import { localDateStr } from './dateUtils.js';
+
 const NOTIF_KEY = 'nh_notifications_enabled';
 const SUB_KEY   = 'nh_push_subscription';
 
@@ -132,7 +134,7 @@ export function scheduleLocalReminder(streakDays = 0) {
   if (Notification.permission !== 'granted') return;
 
   let lastPractice = null; try { lastPractice = localStorage.getItem('nh_last_practice_date'); } catch { }
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDateStr();
   if (lastPractice === today) return;
 
   const now = new Date();

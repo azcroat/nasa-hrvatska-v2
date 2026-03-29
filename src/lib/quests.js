@@ -7,11 +7,13 @@
  * the corresponding tier-2 quest is automatically marked as well.
  * e.g. markQuest('speak') called twice → 'speak2' also marked.
  */
+import { localDateStr } from './dateUtils.js';
+
 const TIER2_MAP = { speak: 'speak2', grammar: 'grammar2', master: 'master2', reading: 'reading2' };
 
 export function markQuest(id) {
   try {
-    const d = new Date().toISOString().slice(0, 10);
+    const d = localDateStr();
     localStorage.setItem('nh_quest_' + id + '_' + d, '1');
 
     // Track daily count for this quest type to enable tier-2 promotion

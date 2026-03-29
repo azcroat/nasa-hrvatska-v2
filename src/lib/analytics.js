@@ -13,6 +13,7 @@
  * means the user declined analytics — no events fire.
  */
 import { fbLogEvent } from './firebase.js';
+import { localDateStr } from './dateUtils.js';
 
 /**
  * Returns true only when the user has explicitly accepted analytics cookies.
@@ -41,7 +42,7 @@ const INSTALL_KEY = 'nh_install_date';
 function getInstallDate() {
   let d = localStorage.getItem(INSTALL_KEY);
   if (!d) {
-    d = new Date().toISOString().slice(0, 10);
+    d = localDateStr();
     try { localStorage.setItem(INSTALL_KEY, d); } catch {}
   }
   return d;
