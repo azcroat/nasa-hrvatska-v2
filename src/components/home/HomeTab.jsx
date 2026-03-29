@@ -289,8 +289,6 @@ export default function HomeTab({
       {/* ── KNIGHT MASCOT — persistent companion, always above fold ── */}
       <KnightSpeech
         st={st}
-        nextItem={pathData.nextItem}
-        onLaunchNext={launchPathItem}
         streak={streak.count || 0}
         level={level}
       />
