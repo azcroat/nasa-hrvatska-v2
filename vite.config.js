@@ -50,7 +50,7 @@ export default defineConfig({
         navigationPreload: true,
         skipWaiting: true,
         clientsClaim: true,
-        cacheId: 'nasa-hrvatska-v9',
+        cacheId: 'nasa-hrvatska-v10',
         // Precache only critical app-shell assets: CSS, fonts, favicon/manifest icons.
         // JS chunks (100+ files, ~5MB) and images are handled by runtimeCaching below.
         globPatterns: ['**/*.css', '**/*.woff2', '**/*.ico', '**/icon*.png', '**/apple-touch*.png'],
@@ -61,18 +61,19 @@ export default defineConfig({
             urlPattern: /\/assets\/chunk-data[^/]*\.js$/,
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'data-chunk-cache',
+              cacheName: 'nasa-hrvatska-v10-data',
               expiration: { maxEntries: 3, maxAgeSeconds: 60 * 60 * 24 * 7 },
               cacheableResponse: { statuses: [0, 200] }
             }
           },
           {
             // All JS chunks — stale-while-revalidate so app loads fast on repeat visits
+            // maxEntries raised to 150 to cover all 110+ lazy chunks
             urlPattern: /\.js$/,
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'js-cache',
-              expiration: { maxEntries: 60, maxAgeSeconds: 30 * 24 * 60 * 60 },
+              cacheName: 'nasa-hrvatska-v10-js',
+              expiration: { maxEntries: 150, maxAgeSeconds: 30 * 24 * 60 * 60 },
               cacheableResponse: { statuses: [0, 200] }
             }
           },
@@ -81,7 +82,7 @@ export default defineConfig({
             urlPattern: /\.(svg|png|webp|jpg|jpeg)$/,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'image-cache',
+              cacheName: 'nasa-hrvatska-v10-images',
               expiration: { maxEntries: 100, maxAgeSeconds: 365 * 24 * 60 * 60 },
               cacheableResponse: { statuses: [0, 200] }
             }
@@ -91,7 +92,7 @@ export default defineConfig({
             urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'html-cache',
+              cacheName: 'nasa-hrvatska-v10-html',
               networkTimeoutSeconds: 3,
               cacheableResponse: { statuses: [0, 200] }
             }
@@ -100,7 +101,7 @@ export default defineConfig({
             urlPattern: /\/audio\/.*\.(mp3|ogg|wav)$/i,
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'audio-cache',
+              cacheName: 'nasa-hrvatska-v10-audio',
               expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 },
               rangeRequests: true,
               cacheableResponse: { statuses: [0, 200, 206] }
@@ -110,7 +111,7 @@ export default defineConfig({
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'google-fonts-cache',
+              cacheName: 'nasa-hrvatska-v10-fonts',
               expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
               cacheableResponse: { statuses: [0, 200] }
             }
