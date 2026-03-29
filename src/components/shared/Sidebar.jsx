@@ -195,7 +195,19 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
             {weeklyPct >= 100 && <div style={{ fontSize: 10, color: '#16a34a', fontWeight: 700, marginTop: 4 }}>🏆 Goal reached!</div>}
           </div>
         ) : (
-          <div style={{ fontSize: 11, color: 'var(--subtext)', fontStyle: 'italic' }}>Tap Set to choose a weekly target</div>
+          <button
+            onClick={() => setGoalOpen(true)}
+            style={{
+              width: '100%', padding: '8px 10px', borderRadius: 9,
+              border: '1.5px dashed rgba(14,116,144,.45)',
+              background: 'rgba(14,116,144,.06)', cursor: 'pointer',
+              fontFamily: "'Outfit',sans-serif", textAlign: 'left',
+              display: 'flex', alignItems: 'center', gap: 7,
+            }}
+          >
+            <span style={{ fontSize: 14 }}>🎯</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#0e7490' }}>Set a weekly XP goal</span>
+          </button>
         )}
       </div>
 
