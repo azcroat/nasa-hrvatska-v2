@@ -9,6 +9,7 @@ import {
   bootstrapMistakesFromSRS, recordJourneyMilestone,
 } from "./data.jsx";
 import { buildProgressSnapshot } from "./lib/progressSnapshot.js";
+import { canRepairStreak, repairStreak } from "./lib/streak.js";
 import { trackAppOpen } from "./lib/analytics.js";
 import { fbRegisterFriendCode } from "./lib/firebase.js";
 import AppContext from "./context/AppContext.jsx";
@@ -105,6 +106,7 @@ function App() {
   }, [navigate]);
   const [name, setName] = useState('');
   const [stats, setStats] = useState(ds);
+  const [showStreakRepair, setShowStreakRepair] = useState(false);
   const [onboarded, setOnboarded] = useState(() => localStorage.getItem('onboarded') === 'true');
   const [showFirstWords, setShowFirstWords] = useState(false);
   const [showPremiumWelcome, setShowPremiumWelcome] = useState(false);
@@ -231,6 +233,8 @@ function App() {
     const lastSeen = localStorage.getItem('lastSeen'); const now = Date.now();
     if (lastSeen && stats.xp > 0) { const diff = now - parseInt(lastSeen,10); if (diff > 86400000 && diff < 7*86400000) { setComebackBonus(true); setTimeout(() => setComebackBonus(false), 4000); } }
     localStorage.setItem('lastSeen', String(now));
+    // Streak repair prompt — show when streak broke yesterday and user has enough XP
+    if (canRepairStreak() && stats.xp >= 100) { setTimeout(() => setShowStreakRepair(true), 1500); }
     // Weekly freeze recharge
     (function() { const wk=()=>{const d=new Date();const dy=d.getDay()||7;d.setDate(d.getDate()+4-dy);const yr=d.getFullYear();const w=Math.ceil(((d.getTime()-new Date(yr,0,1).getTime())/86400000+1)/7);return`${yr}-W${String(w).padStart(2,'0')}`;};const tw=wk();const lw=localStorage.getItem('nh_freeze_recharge_wk')||'';if(lw!==tw){const pd=new Date();pd.setDate(pd.getDate()-7);const pdy=pd.getDay()||7;pd.setDate(pd.getDate()+4-pdy);const py=pd.getFullYear();const pw=Math.ceil(((pd.getTime()-new Date(py,0,1).getTime())/86400000+1)/7);const pxp=parseInt(localStorage.getItem('nh_week_xp_'+py+'-W'+String(pw).padStart(2,'0'))||'0',10);if(pxp>0)earnFreeze();localStorage.setItem('nh_freeze_recharge_wk',tw);}})();
     if (pendingJoinCode) { try{const u=new URL(window.location.href);u.searchParams.delete('join');window.history.replaceState({},'',u.pathname);}catch(_){} setFamCode(pendingJoinCode);setFamTab('join');setTimeout(()=>setScr('leaderboard'),600);setPendingJoinCode(null); }
@@ -388,6 +392,19 @@ function App() {
         <AppToasts
           comebackBonus={comebackBonus} freezeUsedToast={freezeUsedToast}
           earnBackPrompt={earnBackPrompt} streakRestoredCount={streakRestoredCount} ttsFailedToast={ttsFailedToast}
+          streakRepairAvailable={showStreakRepair}
+          onRepairStreak={(action) => {
+            if (action === 'dismiss') { setShowStreakRepair(false); return; }
+            if (action === 'repair') {
+              const result = repairStreak(stats.xp);
+              if (result.ok) {
+                setStats(s => ({ ...s, xp: Math.max(0, s.xp - result.xpCost), streak: result.restoredCount }));
+                setStreakRestoredCount(result.restoredCount);
+                setTimeout(() => setStreakRestoredCount(0), 5000);
+              }
+              setShowStreakRepair(false);
+            }
+          }}
           showAndroidInstall={showAndroidInstall} setShowAndroidInstall={setShowAndroidInstall} deferredInstallPrompt={deferredInstallPrompt}
           showPwaInstall={showPwaInstall} setShowPwaInstall={setShowPwaInstall}
           showBackupBanner={showBackupBanner} setShowBackupBanner={setShowBackupBanner}

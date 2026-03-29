@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Bar, V, LEARN_PATH, getStreak, getStreakFreezes, earnFreeze, getDailyChallenge, lXP, nXP, speak, getSR, getDueReviews, getMistakes, DAILY_QUESTS, LEVEL_NARRATIVE, getActiveCampaign } from '../../data.jsx';
+import { getWordOfDay } from '../../lib/wordOfDay.js';
 import { useApp } from '../../context/AppContext.jsx';
 
 // Read last activity saved by App.jsx when exercises are launched
@@ -96,6 +98,7 @@ export default function HomeTab({
   const weekXP = useMemo(() => getWeekXP(), []);
   const streak = useMemo(() => getStreak(), []);
   const lastActivity = useMemo(() => getLastActivity(), []);
+  const wod = useMemo(() => getWordOfDay(), []);
 
   // Dynamic Croatia Today — AI-generated daily content (lazy-fetched, 6h edge cache)
   const [dailyCulture, setDailyCulture] = useState(null);
@@ -324,6 +327,7 @@ export default function HomeTab({
       )}
 
       {/* ── HERO ── */}
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0 }}>
       <div style={{
         background: "linear-gradient(160deg,rgba(6,14,30,0.91) 0%,rgba(10,35,72,0.82) 40%,rgba(12,56,104,0.77) 100%), url('/images/scenes/dubrovnik-hero.webp') center 35% / cover no-repeat",
         position: "relative",
@@ -611,8 +615,10 @@ export default function HomeTab({
         )}
         </div>{/* end padding wrapper */}
       </div>
+      </motion.div>
 
       {/* Daily Goal Progress */}
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.06 }}>
       {(() => {
         const dailyTarget = parseInt(localStorage.getItem('nh_daily_goal_xp') || '50', 10);
         const todayKey = 'nh_day_xp_' + new Date().toISOString().slice(0,10);
@@ -641,8 +647,45 @@ export default function HomeTab({
           </div>
         );
       })()}
+      </motion.div>
+
+      {/* ── WORD OF THE DAY ── */}
+      {wod && (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.08 }}>
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(14,116,144,0.08) 0%, rgba(8,145,178,0.06) 100%)',
+            border: '1px solid rgba(14,116,144,0.2)',
+            borderRadius: 16, padding: '14px 16px', marginBottom: 12,
+          }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: '#0e7490', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 8 }}>
+              📅 Word of the Day
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--heading)', fontFamily: "'Playfair Display',serif" }}>
+                  {wod[0]}
+                </div>
+                {wod[2] && (
+                  <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 2, fontStyle: 'italic' }}>{wod[2]}</div>
+                )}
+                <div style={{ fontSize: 14, color: 'var(--subtext)', marginTop: 4 }}>{wod[1]}</div>
+              </div>
+              <button
+                onClick={() => speak(wod[0])}
+                aria-label="Hear pronunciation"
+                style={{
+                  background: 'rgba(14,116,144,0.1)', border: '1px solid rgba(14,116,144,0.2)',
+                  borderRadius: '50%', width: 44, height: 44, fontSize: 20, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}
+              >🔊</button>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* ── CROATIA POSTCARD — daily scene + phrase (video-first) ── */}
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.12 }}>
       {(() => {
         const SCENE_POOL = [
           { img:'/images/scenes/dubrovnik-hero.webp',  video:'/videos/scenes/dubrovnik.mp4',   city:'Dubrovnik',        label:'Adriatic Pearl' },
@@ -729,6 +772,7 @@ export default function HomeTab({
           </VideoBackground>
         );
       })()}
+      </motion.div>
 
       {/* ── SUB-TAB PILL SELECTOR ── */}
       <div style={{ display:'flex', gap:8, padding:'12px 0 4px', borderBottom:'1px solid var(--bar-bg)', marginBottom:16 }}>

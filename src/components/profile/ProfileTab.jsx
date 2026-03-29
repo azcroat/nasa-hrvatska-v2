@@ -376,12 +376,16 @@ export default function ProfileTab({ syncReady, onSyncNow, onOpenLeaderboard, on
     setSyncing(false);
     doneTimerRef.current = setTimeout(() => { setSyncDone(false); setSyncErr(false); }, 4000);
   }
-  const streak = getStreak();
-  const sr = getSR();
-  const mastered = Object.values(sr).filter(v => v.r > v.w && v.r >= 2).length;
+  const streak = useMemo(() => getStreak(), [st]); // eslint-disable-line react-hooks/exhaustive-deps
+  const sr = useMemo(() => getSR(), [st]); // eslint-disable-line react-hooks/exhaustive-deps
+  const mastered = useMemo(
+    () => Object.values(sr).filter(v => v.r > v.w && v.r >= 2).length,
+    [sr]
+  );
 
-  // Compute last 30 days activity from localStorage
-  const practiceHistory = (() => {
+  // Compute last 30 days activity from localStorage — memoized to avoid 30 localStorage
+  // reads on every render; only re-runs when st changes (i.e. after a lesson completes).
+  const practiceHistory = useMemo(() => {
     const days = [];
     for (let i = 29; i >= 0; i--) {
       const d = new Date();
@@ -398,19 +402,19 @@ export default function ProfileTab({ syncReady, onSyncNow, onOpenLeaderboard, on
       days.push({ date: key, practiced, dayNum: d.getDate(), isToday: i === 0 });
     }
     return days;
-  })();
+  }, [st]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const stats = [
+  const stats = useMemo(() => [
     { icon: "⭐", value: st.xp.toLocaleString(), label: "Total XP",   color: "var(--info)",    bg: "var(--info-bg)",    border: "var(--info-b)" },
     { icon: "🔥", value: streak.count,            label: "Day Streak", color: "var(--warning)", bg: "var(--warning-bg)", border: "var(--warning-b)" },
     { icon: "📚", value: st.lc,                   label: "Lessons",    color: "var(--success)", bg: "var(--success-bg)", border: "var(--success-b)" },
     { icon: "📝", value: st.gc,                   label: "Grammar",    color: "var(--lavender)", bg: "rgba(124,58,237,.1)", border: "rgba(124,58,237,.25)" },
     { icon: "💪", value: mastered,                label: "Mastered",   color: "var(--error)",   bg: "var(--error-bg)",   border: "var(--error-b)" },
     { icon: "🏆", value: (st.badges||[]).length,  label: "Badges",     color: "var(--warning)", bg: "var(--warning-bg)", border: "var(--warning-b)" },
-  ];
+  ], [st, streak.count, mastered]);
 
-  const styleLabel = getStyleLabel();
-  const stylePrefs = getStylePreferences();
+  const styleLabel = useMemo(() => getStyleLabel(), []); // learner style is session-stable
+  const stylePrefs = useMemo(() => getStylePreferences(), []);
 
   return (
     <React.Fragment>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { speak, lXP, srMark } from '../../data.jsx';
 
 const STORAGE_KEY = 'nh_custom_words';
@@ -358,11 +358,11 @@ const S = {
 /* ─── Sub-views ───────────────────────────────────────────────────────── */
 
 function WordList({ words, setWords, setView }) {
-  function deleteWord(idx) {
+  const deleteWord = useCallback((idx) => {
     const updated = words.filter((_, i) => i !== idx);
     setWords(updated);
     saveWords(updated);
-  }
+  }, [words, setWords]);
 
   if (words.length === 0) {
     return (

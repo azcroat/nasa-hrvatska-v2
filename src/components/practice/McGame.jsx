@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { H, Spk, srMark, recordMistake } from '../../data.jsx';
 import { useHaptic } from '../../hooks/useHaptic.js';
 import { getHearts, loseHeart } from '../../lib/lives.js';
@@ -604,7 +605,7 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
           const isGlowing = glowIndex === i && answered && !isCorrect;
           return (
             <div key={i} style={{ position: 'relative' }}>
-              <button
+              <motion.button
                 ref={i === 0 ? firstOptionRef : null}
                 className={
                   'ob' + (isCorrect ? ' ok' : isWrong ? ' no' : '')
@@ -613,6 +614,8 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
                 aria-label={`Option ${i + 1}: ${o}`}
                 onKeyDown={e => handleKey(e, i)}
                 onClick={() => handleAnswer(o, i)}
+                whileTap={!answered ? { scale: 0.97 } : {}}
+                transition={{ type: 'spring', stiffness: 600, damping: 20 }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -667,7 +670,7 @@ export default function McGame({ questions, onComplete, goBack, award, challenge
                 {isCorrect && (
                   <span style={{ fontSize: 18 }}>🎯</span>
                 )}
-              </button>
+              </motion.button>
               <ParticleBurst active={burst === i} />
             </div>
           );

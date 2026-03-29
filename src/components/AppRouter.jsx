@@ -1,4 +1,5 @@
 import React, { lazy } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { V, GRAM, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, sh } from "../data.jsx";
 import { LESSONS as ANIM_LESSONS } from "../data/lessons.js";
 import ScreenErrorBoundary from "./shared/ScreenErrorBoundary.jsx";
@@ -243,8 +244,18 @@ export default function AppRouter(props) {
     doOut,
   } = props;
 
+  const _transKey = currentScreen === "dashboard" ? "dashboard-" + tab : currentScreen;
+
   return (
-    <>
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={_transKey}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        transition={{ duration: 0.18, ease: "easeOut" }}
+        style={{ height: "100%" }}
+      >
       {currentScreen==="welcome" && <WelcomeScreen name={name} au={authUser} st={stats} setScr={setScr} setName={setName} setPlacementQ={setPlacementQ} setPlacementIdx={setPlacementIdx} setPlacementScore={setPlacementScore} setPlacementAnswers={setPlacementAnswers} setPlacementXp={setPlacementXp} />}
       {currentScreen==="placement" && <PlacementTest onComplete={function(level){localStorage.setItem("placement_done","1");setStats(function(prev){return{...prev,ct:getPlacementCt(level),lc:Math.max(prev.lc,getPlacementCt(level).length)};});award(25);setShowFirstWords(true);setTimeout(()=>setTab('learn'),300);}} />}
       {// ═══ DASHBOARD ═══
@@ -640,6 +651,7 @@ export default function AppRouter(props) {
         goBack={goBack} doOut={doOut} setScr={setScr}
       />}
       {currentScreen==="certificate"&&<CertificateScreen name={name} level={level} st={stats} goBack={goBack} />}
-    </>
+      </motion.div>
+    </AnimatePresence>
   );
 }

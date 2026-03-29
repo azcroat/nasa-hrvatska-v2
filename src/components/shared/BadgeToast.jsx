@@ -2,9 +2,12 @@ import React, { useEffect } from 'react';
 import { useHaptic } from '../../hooks/useHaptic.js';
 import BadgeArtwork from './BadgeArtwork.jsx';
 
-export default function BadgeToast({ show, badge }) {
+function BadgeToast({ show, badge }) {
   const haptic = useHaptic();
-  useEffect(() => { haptic.award(); }, []);
+  // Fire haptic only when a new badge is actually shown (badge.id changes).
+  useEffect(() => {
+    if (show && badge) haptic.award();
+  }, [show, badge?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div
       role="status"
@@ -120,3 +123,5 @@ export default function BadgeToast({ show, badge }) {
     </div>
   );
 }
+
+export default React.memo(BadgeToast);

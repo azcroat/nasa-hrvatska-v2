@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function XPPopup({ showXP, xpA }) {
+function XPPopup({ showXP, xpA }) {
   const alreadyEarned = xpA === 0;
 
   const [displayAmt, setDisplayAmt] = useState(0);
@@ -139,3 +139,5 @@ export default function XPPopup({ showXP, xpA }) {
     </div>
   );
 }
+
+export default React.memo(XPPopup);
