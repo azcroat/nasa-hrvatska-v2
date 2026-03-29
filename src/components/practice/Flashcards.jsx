@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { H, Bar, srMark } from '../../data.jsx';
 import CroatianKnight from '../shared/CroatianKnight';
 import confetti from 'canvas-confetti';
@@ -767,9 +768,11 @@ export default function Flashcards({ pool, goBack, award }) {
         <div style={{marginTop:16}}>
         <div style={{fontSize:12,fontWeight:700,color:"var(--subtext)",textAlign:"center",marginBottom:8}}>How well did you know it?</div>
         <div role="group" aria-label="How well did you know it?" style={{display:'flex', gap:10}}>
-          <button
+          <motion.button
             onClick={handleStillLearning}
             aria-label="Still learning — review again soon"
+            whileTap={{ scale: 0.94 }}
+            transition={{ type:'spring', stiffness:400, damping:17 }}
             style={{
               flex:1, height:56, borderRadius:16,
               border:'2px solid #d97706',
@@ -784,11 +787,13 @@ export default function Flashcards({ pool, goBack, award }) {
           >
             🔄 Still Learning
             <span style={{fontSize:10, fontWeight:600, opacity:.7, marginTop:4}}>Review again soon</span>
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             ref={knowBtnRef}
             onClick={handleKnown}
             aria-label="I know it — move to next interval"
+            whileTap={{ scale: 0.94 }}
+            transition={{ type:'spring', stiffness:400, damping:17 }}
             style={{
               flex:1, height:56, borderRadius:16,
               border:'2px solid var(--success-b)',
@@ -803,7 +808,7 @@ export default function Flashcards({ pool, goBack, award }) {
           >
             Perfect ✓
             <span style={{fontSize:10, fontWeight:600, opacity:.7, marginTop:4}}>Move to next interval</span>
-          </button>
+          </motion.button>
         </div>
         </div>
       )}

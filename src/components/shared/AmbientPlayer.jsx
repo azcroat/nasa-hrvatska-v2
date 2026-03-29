@@ -1,0 +1,160 @@
+import React, { useState, useRef, useCallback } from 'react';
+
+const SCENES = [
+  { id: 'kafic',   label: 'Kafić',   icon: '☕', gain: 0.03, filterType: 'lowpass',  filterFreq: 200, lfoFreq: null },
+  { id: 'jadran',  label: 'Jadran',  icon: '🌊', gain: 0.04, filterType: 'lowpass',  filterFreq: 400, lfoFreq: 0.12 },
+  { id: 'trznica', label: 'Tržnica', icon: '🏪', gain: 0.04, filterType: 'bandpass', filterFreq: 600, lfoFreq: 0.3 },
+];
+
+function createNoise(ctx, gain, filterFreq, filterType = 'lowpass') {
+  const bufferSize = ctx.sampleRate * 2;
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+  source.loop = true;
+  const filter = ctx.createBiquadFilter();
+  filter.type = filterType;
+  filter.frequency.value = filterFreq;
+  const gainNode = ctx.createGain();
+  gainNode.gain.value = gain;
+  source.connect(filter);
+  filter.connect(gainNode);
+  gainNode.connect(ctx.destination);
+  source.start();
+  return { source, filter, gainNode };
+}
+
+export default function AmbientPlayer() {
+  const [scene, setScene] = useState('off');
+  const ctxRef = useRef(null);
+  const nodesRef = useRef(null);
+  const lfoRef = useRef(null);
+
+  const stopAll = useCallback(() => {
+    try {
+      if (nodesRef.current) {
+        nodesRef.current.source.stop();
+        nodesRef.current.gainNode.disconnect();
+        nodesRef.current = null;
+      }
+      if (lfoRef.current) {
+        lfoRef.current.lfo.stop();
+        lfoRef.current = null;
+      }
+      if (ctxRef.current) {
+        ctxRef.current.close();
+        ctxRef.current = null;
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  const startScene = useCallback((sceneId) => {
+    stopAll();
+    const cfg = SCENES.find(s => s.id === sceneId);
+    if (!cfg) return;
+
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      ctxRef.current = ctx;
+
+      const nodes = createNoise(ctx, cfg.gain, cfg.filterFreq, cfg.filterType);
+      nodesRef.current = nodes;
+
+      if (cfg.lfoFreq) {
+        const lfo = ctx.createOscillator();
+        const lfoGain = ctx.createGain();
+        lfo.frequency.value = cfg.lfoFreq;
+        lfoGain.gain.value = cfg.gain * 0.7;
+        lfo.connect(lfoGain);
+        lfoGain.connect(nodes.gainNode.gain);
+        lfo.start();
+        lfoRef.current = { lfo, lfoGain };
+      }
+    } catch { /* AudioContext not available */ }
+  }, [stopAll]);
+
+  function handleSceneClick(sceneId) {
+    if (scene === sceneId) {
+      stopAll();
+      setScene('off');
+    } else {
+      startScene(sceneId);
+      setScene(sceneId);
+    }
+  }
+
+  function handleStop() {
+    stopAll();
+    setScene('off');
+  }
+
+  return (
+    <div
+      role="region"
+      aria-label="Ambient soundscape player"
+      style={{
+        position: 'fixed',
+        bottom: 72,
+        right: 12,
+        zIndex: 500,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        gap: 6,
+        pointerEvents: 'none',
+      }}
+    >
+      {/* Scene buttons — always visible as a compact row */}
+      <div style={{
+        display: 'flex',
+        gap: 4,
+        background: 'var(--card)',
+        borderRadius: 30,
+        padding: '5px 8px',
+        border: '1px solid var(--border)',
+        boxShadow: '0 2px 12px rgba(0,0,0,.12)',
+        pointerEvents: 'auto',
+      }}>
+        {SCENES.map(s => (
+          <button
+            key={s.id}
+            onClick={() => handleSceneClick(s.id)}
+            title={s.label}
+            aria-pressed={scene === s.id}
+            style={{
+              background: scene === s.id ? 'var(--info)' : 'transparent',
+              border: 'none',
+              borderRadius: 20,
+              padding: '4px 8px',
+              fontSize: 14,
+              cursor: 'pointer',
+              color: scene === s.id ? '#fff' : 'var(--subtext)',
+              fontWeight: 700,
+              transition: 'background .2s, color .2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+            }}
+          >
+            {s.icon}
+            <span style={{ fontSize: 10, letterSpacing: '.03em' }}>{s.label}</span>
+          </button>
+        ))}
+        {scene !== 'off' && (
+          <button
+            onClick={handleStop}
+            title="Stop ambient sound"
+            aria-label="Stop ambient sound"
+            style={{
+              background: 'transparent', border: 'none', borderRadius: 20,
+              padding: '4px 6px', fontSize: 13, cursor: 'pointer',
+              color: 'var(--subtext)', fontWeight: 900,
+            }}
+          >✕</button>
+        )}
+      </div>
+    </div>
+  );
+}
