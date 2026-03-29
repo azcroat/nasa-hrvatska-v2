@@ -282,32 +282,86 @@ export default function HomeTab({
       {/* ── CITY OF THE DAY teaser ── */}
       {(() => {
         const city = getCityOfDay();
+        const teaser = city.facts?.[0] || city.intro?.slice(0, 90) + '…' || '';
         return (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.1 }}>
             <button
               onClick={() => { incrementCulture('cityCnt'); if (award) award(3); setScr('cityofday'); }}
+              aria-label={`City of the Day: ${city.name}`}
               style={{
                 width: '100%', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left',
-                borderRadius: 16, overflow: 'hidden', marginBottom: 12,
-                boxShadow: '0 2px 12px rgba(0,0,0,.1)',
+                borderRadius: 18, overflow: 'hidden', marginBottom: 12,
+                boxShadow: `0 4px 20px ${city.color}55, 0 1px 4px rgba(0,0,0,.18)`,
               }}
             >
+              {/* Main gradient body */}
               <div style={{
-                background: `linear-gradient(135deg, ${city.color}dd, ${city.color})`,
-                padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14,
+                background: `linear-gradient(135deg, ${city.color}f5 0%, ${city.color}cc 60%, ${city.color}99 100%)`,
+                padding: '16px 16px 0',
+                position: 'relative',
+                overflow: 'hidden',
               }}>
-                <div style={{ fontSize: 32, flexShrink: 0 }}>{city.icon}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,.75)', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 3 }}>
-                    🏙️ City of the Day
+                {/* Subtle dot-grid overlay for texture */}
+                <div style={{
+                  position: 'absolute', inset: 0, opacity: 0.08,
+                  backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)',
+                  backgroundSize: '18px 18px',
+                  pointerEvents: 'none',
+                }} />
+
+                {/* Top row: badge + vocab count */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, position: 'relative' }}>
+                  <div style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                    background: 'rgba(0,0,0,0.22)', borderRadius: 20, padding: '3px 10px',
+                  }}>
+                    <span style={{ fontSize: 10 }}>📅</span>
+                    <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,.9)', letterSpacing: '.08em', textTransform: 'uppercase' }}>City of the Day</span>
                   </div>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: '#fff', lineHeight: 1.2 }}>{city.name}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,.75)', marginTop: 2, fontStyle: 'italic' }}>"{city.tagline}"</div>
+                  <div style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 4,
+                    background: 'rgba(255,255,255,0.18)', borderRadius: 20, padding: '3px 10px',
+                  }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>{city.vocab.length} words</span>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,.8)' }}>→</span>
+                  </div>
                 </div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,.8)', flexShrink: 0 }}>
-                  {city.vocab.length} words →
+
+                {/* City name row */}
+                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginBottom: 10, position: 'relative' }}>
+                  <div style={{
+                    width: 54, height: 54, borderRadius: 14, flexShrink: 0,
+                    background: 'rgba(0,0,0,0.20)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 30,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+                  }}>
+                    {city.icon}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.15, fontFamily: "'Playfair Display', serif", letterSpacing: '-0.01em' }}>
+                      {city.name}
+                    </div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,.8)', marginTop: 2 }}>
+                      {city.region} · <span style={{ fontStyle: 'italic' }}>"{city.tagline}"</span>
+                    </div>
+                  </div>
                 </div>
               </div>
+
+              {/* Teaser strip */}
+              {teaser && (
+                <div style={{
+                  background: 'rgba(0,0,0,0.32)',
+                  padding: '8px 16px',
+                  display: 'flex', alignItems: 'center', gap: 8,
+                }}>
+                  <span style={{ fontSize: 12 }}>💡</span>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,.82)', lineHeight: 1.4, fontStyle: 'italic', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                    {teaser}
+                  </span>
+                </div>
+              )}
             </button>
           </motion.div>
         );

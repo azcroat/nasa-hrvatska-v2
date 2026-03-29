@@ -330,10 +330,14 @@ function Defs() {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'happy', className = '', style = {} }) {
+const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'happy', variant, className = '', style = {} }) {
   const variants = VARIANTS[mood] || VARIANTS.happy;
-  // Pick a random variant on mount — each page/screen gets a different animation
-  const [variantIdx] = useState(() => Math.floor(Math.random() * variants.length));
+  // If a specific variant is provided, use it (purposeful); otherwise pick once on mount via time-of-day
+  const [variantIdx] = useState(() =>
+    (variant !== undefined && variant >= 0 && variant < variants.length)
+      ? variant
+      : new Date().getHours() % variants.length
+  );
   const m = variants[Math.min(variantIdx, variants.length - 1)];
   const isCelebrating = mood === 'celebrating';
 

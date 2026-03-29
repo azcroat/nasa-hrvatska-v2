@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import CroatianKnight from './CroatianKnight';
 
-// Returns a contextual greeting message based on time, streak, stats
+// Returns a contextual greeting message based on time, streak, stats.
+// Each entry now includes a `variant` (0–2) so the knight's animation has
+// a specific, purposeful meaning rather than random selection.
+//
+// Variant semantics per mood:
+//   happy:       0=float(serene), 1=strut+wave(active), 2=glide+wave(relaxed)
+//   thinking:    0=tilt+think(pondering), 1=sway+think(weighing), 2=rock+think(deep focus)
+//   celebrating: 0=bounce+arms-up(milestone), 1=cheer+pump(fresh win), 2=pulse+wave(sustained joy)
+//   encouraged:  0=float+encourage, 1=nod+up, 2=march+encourage
 function getGreeting(st) {
   const hour = new Date().getHours();
   const streak = st?.ss || st?.streak?.count || 0;
@@ -10,36 +18,41 @@ function getGreeting(st) {
 
   const timeGreeting = hour < 12 ? 'Dobro jutro' : hour < 18 ? 'Dobar dan' : 'Dobra večer';
 
-  // Context-aware messages
+  // Long streak — bounce with both arms raised (milestone achievement)
   if (streak >= 30) {
-    return { mood: 'celebrating', text: `${timeGreeting}! 🔥 ${streak} days strong — you're a true Hrvat!` };
+    return { mood: 'celebrating', variant: 0, text: `${timeGreeting}! 🔥 ${streak} days strong — you're a true Hrvat!` };
   }
+  // Weekly streak — strut with arm wave (active, motivated)
   if (streak >= 7) {
-    return { mood: 'happy', text: `${timeGreeting}! 💪 ${streak}-day streak — keep it going!` };
+    return { mood: 'happy', variant: 1, text: `${timeGreeting}! 💪 ${streak}-day streak — keep it going!` };
   }
+  // Experienced learner — glide with wave (relaxed confidence)
   if (xp >= 1000 && lc >= 10) {
-    return { mood: 'happy', text: `${timeGreeting}! You've earned ${xp} XP — impressive dedication! 🎓` };
+    return { mood: 'happy', variant: 2, text: `${timeGreeting}! You've earned ${xp} XP — impressive dedication! 🎓` };
   }
+  // Brand new user — float (welcoming, gentle)
   if (lc === 0) {
-    return { mood: 'happy', text: `${timeGreeting}! Ready to start your Croatian journey? Your first lesson awaits! 🇭🇷` };
+    return { mood: 'happy', variant: 0, text: `${timeGreeting}! Ready to start your Croatian journey? Your first lesson awaits! 🇭🇷` };
   }
+  // Morning — thinking/tilt (contemplative, ready to focus)
   if (hour < 12) {
-    return { mood: 'thinking', text: `${timeGreeting}! Morning practice is the best practice. Ready to learn?` };
+    return { mood: 'thinking', variant: 0, text: `${timeGreeting}! Morning practice is the best practice. Ready to learn?` };
   }
+  // Late evening — glide (relaxed, wind-down energy)
   if (hour >= 20) {
-    return { mood: 'happy', text: `${timeGreeting}! Evening session — great way to end the day. Hajde! 💪` };
+    return { mood: 'happy', variant: 2, text: `${timeGreeting}! Evening session — great way to end the day. Hajde! 💪` };
   }
 
-  // Rotating daily messages based on day of week
+  // Afternoon — day-of-week purposeful rotation
   const day = new Date().getDay();
   const messages = [
-    { mood: 'happy',      text: `${timeGreeting}! Every word you learn brings Croatia closer. Hajde! 🇭🇷` },
-    { mood: 'thinking',   text: `${timeGreeting}! Did you know? Croatian has 7 grammatical cases — let's master them together!` },
-    { mood: 'happy',      text: `${timeGreeting}! Your ancestors spoke this language. Today, you carry it forward. 💙` },
-    { mood: 'celebrating',text: `${timeGreeting}! Language is the soul of culture. Let's learn some today! 🌟` },
-    { mood: 'happy',      text: `${timeGreeting}! Ima li tko tko voli učiti? Ja volim! Let's go! 🎉` },
-    { mood: 'thinking',   text: `${timeGreeting}! Small steps every day. You're building something beautiful. 🏛️` },
-    { mood: 'happy',      text: `${timeGreeting}! Naša Hrvatska čeka! Croatia is waiting — let's learn! 🇭🇷` },
+    { mood: 'happy',      variant: 0, text: `${timeGreeting}! Every word you learn brings Croatia closer. Hajde! 🇭🇷` },       // Sun — float, calm start
+    { mood: 'thinking',   variant: 1, text: `${timeGreeting}! Did you know? Croatian has 7 grammatical cases — let's master them together!` }, // Mon — sway, curious
+    { mood: 'happy',      variant: 1, text: `${timeGreeting}! Your ancestors spoke this language. Today, you carry it forward. 💙` }, // Tue — strut, purposeful
+    { mood: 'celebrating',variant: 1, text: `${timeGreeting}! Language is the soul of culture. Let's learn some today! 🌟` },  // Wed — cheer, mid-week energy
+    { mood: 'encouraged', variant: 0, text: `${timeGreeting}! Ima li tko tko voli učiti? Ja volim! Let's go! 🎉` },            // Thu — encourage, momentum
+    { mood: 'thinking',   variant: 2, text: `${timeGreeting}! Small steps every day. You're building something beautiful. 🏛️` }, // Fri — deep focus, reflect
+    { mood: 'happy',      variant: 2, text: `${timeGreeting}! Naša Hrvatska čeka! Croatia is waiting — let's learn! 🇭🇷` },    // Sat — glide, relaxed
   ];
   return messages[day % messages.length];
 }
@@ -60,7 +73,7 @@ export default function KnightSpeech({ st, sessionKey = 'nh_knight_greeted', onD
 
   if (!visible) return null;
 
-  const { mood, text } = getGreeting(st);
+  const { mood, variant, text } = getGreeting(st);
 
   const dismiss = () => {
     setAnimOut(true);
@@ -89,7 +102,7 @@ export default function KnightSpeech({ st, sessionKey = 'nh_knight_greeted', onD
     >
       {/* Knight */}
       <div style={{ flexShrink: 0 }}>
-        <CroatianKnight size={56} mood={mood} />
+        <CroatianKnight size={56} mood={mood} variant={variant} />
       </div>
 
       {/* Speech bubble */}

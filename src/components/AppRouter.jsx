@@ -7,6 +7,7 @@ import WelcomeScreen from "./home/WelcomeScreen.jsx";
 import PlacementTest from "../components/auth/PlacementTest.jsx";
 import PaywallScreen from "./shared/PaywallScreen.jsx";
 import { useApp } from "../context/AppContext.jsx";
+import { useStats } from "../context/StatsContext.jsx";
 
 // Reload once on stale-chunk errors (happens after deploy when old index.html
 // tries to load chunk files that no longer exist at their old hashed paths).
@@ -200,12 +201,13 @@ const TermsOfService = lazyWithReload(() => import("./shared/TermsOfService.jsx"
 export default function AppRouter(props) {
   // Pull shared state from context
   const ctx = useApp();
+  const { stats, setStats, level, award } = useStats();
   const {
     currentScreen,
     authUser, authScreen, name, setName, doOut,
     favs, toggleFav,
     setScr, goBack, tab, setTab,
-    stats, setStats, level, award, sCurEx,
+    sCurEx,
     jWords, setJWords, famData, setFamData,
     isPremium, refreshSub, requirePremium,
     srchQ, setSrchQ, srchR, srchOpen, setSrchOpen, doSearch,
