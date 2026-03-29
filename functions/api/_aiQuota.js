@@ -50,10 +50,12 @@ export async function checkAIQuota(request, env, uid, cost = 1) {
   const kv      = env.PUSH_SUBSCRIPTIONS
   const resetAt = nextMidnightUTC()
 
-  // Fail closed: if quota KV is unavailable, deny rather than allow unlimited access
+  // Fail open: if quota KV is unavailable (Pages binding not configured), allow requests.
+  // The quota system is a cost guardrail, not a security gate — better to serve users
+  // than block everyone when the KV binding isn't set up in Cloudflare Pages dashboard.
   if (!kv) {
-    console.warn('[AIQuota] PUSH_SUBSCRIPTIONS KV unavailable — denying request (fail-closed)')
-    return { allowed: false, remaining: 0, resetIn: 60 }
+    console.warn('[AIQuota] PUSH_SUBSCRIPTIONS KV unavailable — allowing request (fail-open)')
+    return { allowed: true, remaining: 50, resetAt }
   }
 
   // Per-second burst check: max 3 requests per second per uid/IP
@@ -70,9 +72,8 @@ export async function checkAIQuota(request, env, uid, cost = 1) {
     }
     await kv.put(secondKey, JSON.stringify({ count: burstCount + 1 }), { expirationTtl: 5 })
   } catch (e) {
-    // Fail closed on burst check errors too
-    console.error('[AIQuota] Burst KV error — denying request:', e?.message)
-    return { allowed: false, remaining: 0, resetIn: 60 }
+    // Fail open on burst check errors — don't block legitimate requests due to KV hiccups
+    console.warn('[AIQuota] Burst KV error — allowing request:', e?.message)
   }
 
   // Daily quota window: keyed by UTC date string (YYYY-MM-DD)
@@ -105,9 +106,9 @@ export async function checkAIQuota(request, env, uid, cost = 1) {
 
     return { allowed: true, remaining: Math.max(0, limit - current - cost), resetAt }
   } catch (e) {
-    // Fail closed: if quota KV is unavailable, deny rather than allow unlimited access
-    console.error('[AIQuota] KV error — denying request (fail-closed):', e?.message)
-    return { allowed: false, remaining: 0, resetIn: 60 }
+    // Fail open: KV errors shouldn't block legitimate users
+    console.error('[AIQuota] KV error — allowing request (fail-open):', e?.message)
+    return { allowed: true, remaining: 10, resetAt }
   }
 }
 
@@ -125,7 +126,7 @@ export async function getQuotaStatus(env, uid) {
   const limit   = uid ? limitForUid() : ANON_IP_TURNS_PER_DAY
 
   if (!kv) {
-    console.warn('[AIQuota] PUSH_SUBSCRIPTIONS KV unavailable — returning zero usage')
+    console.warn('[AIQuota] PUSH_SUBSCRIPTIONS KV unavailable in getQuotaStatus — returning full quota')
     return { used: 0, limit, remaining: limit, resetAt }
   }
 
