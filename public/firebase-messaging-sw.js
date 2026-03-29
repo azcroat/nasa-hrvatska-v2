@@ -9,6 +9,19 @@
 // Find them in: Cloudflare Dashboard → Pages → nasa-hrvatska-v2 → Settings → Environment variables
 // Or in Firebase Console → Project Settings → General → Your apps → Firebase SDK snippet
 
+// NOTE: Firebase Web API keys are designed to be public and client-side accessible.
+// They are already present in the main app bundle (src/lib/firebase.js).
+// These keys are restricted to specific domains in the Firebase Console.
+// See: https://firebase.google.com/docs/projects/api-keys
+//
+// To update: change the values below AND update src/lib/firebase.js to match.
+// TODO: Move to build-time injection via vite-plugin-pwa's generateSW or injectManifest.
+
+// SECURITY: Ensure these restrictions are set in Firebase Console:
+// 1. API Key Restrictions → HTTP referrers → add your production domain only
+// 2. Firebase Auth → Authorized domains → remove localhost if not in development
+// 3. Firestore rules → verify authentication is required for all writes
+
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
 

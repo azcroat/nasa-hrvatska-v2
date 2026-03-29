@@ -3,6 +3,7 @@
 // Sends a formatted support email to the admin (ADMIN_EMAIL env var).
 
 import { checkRateLimit } from './_rateLimit.js';
+import { getFirebaseUid } from './_verifyToken.js';
 
 function CORS(origin) {
   return {
@@ -53,6 +54,36 @@ export async function onRequestPost(context) {
       { status: 429, headers: { ...CORS(origin), "Content-Type": "application/json" } });
   }
 
+  // CSRF-style check: require Content-Type: application/json (bots and CSRF attacks often omit this)
+  const ct = request.headers.get('content-type') || '';
+  if (!ct.includes('application/json')) {
+    return new Response(JSON.stringify({ ok: false, error: "Invalid content type." }),
+      { status: 400, headers: { ...CORS(origin), "Content-Type": "application/json" } });
+  }
+
+  // Try to extract the authenticated user's email from the Firebase ID token
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  let authedEmail = null;
+  if (FIREBASE_PROJECT_ID) {
+    try {
+      const uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
+      if (uid) {
+        // Decode the JWT payload to extract the email claim (no crypto — already verified by getFirebaseUid)
+        const authHeader = request.headers.get('authorization') || '';
+        const token = authHeader.replace(/^Bearer\s+/i, '');
+        if (token) {
+          const parts = token.split('.');
+          if (parts.length === 3) {
+            const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+            authedEmail = payload?.email || null;
+          }
+        }
+      }
+    } catch {
+      // Auth is optional for contact form — continue without it
+    }
+  }
+
   const RESEND_KEY  = env.RESEND_API_KEY;
   const ADMIN_EMAIL = env.ADMIN_EMAIL;
   if (!ADMIN_EMAIL) {
@@ -67,16 +98,24 @@ export async function onRequestPost(context) {
       { status: 200, headers: { ...CORS(origin), "Content-Type": "application/json" } });
   }
 
-  const ct = request.headers.get('content-type') || '';
-  if (!ct.includes('application/json')) {
-    return new Response(JSON.stringify({ ok: false, error: "Invalid content type" }), { status: 400, headers: { ...CORS(origin), "Content-Type": "application/json" } });
-  }
-
   let body;
   try { body = await request.json(); }
   catch { return new Response("Bad request", { status: 400 }); }
 
-  const { type, subject, description, replyEmail, userName, userLevel, userXp } = body;
+  const { type, subject, description, replyEmail: rawReplyEmail, userName, userLevel, userXp } = body;
+
+  // If auth is available, enforce that replyEmail matches the authenticated user's email.
+  // If it doesn't match (or is spoofed), use the auth email instead so the ticket
+  // is reliably attributed to the real sender.
+  let replyEmail = rawReplyEmail;
+  if (authedEmail) {
+    if (replyEmail && replyEmail.toLowerCase() !== authedEmail.toLowerCase()) {
+      // Silently override the mismatched email with the verified auth email
+      replyEmail = authedEmail;
+    } else if (!replyEmail) {
+      replyEmail = authedEmail;
+    }
+  }
 
   const VALID_TYPES = ["bug", "feature", "content", "question", "other"];
   if (!VALID_TYPES.includes(type)) {

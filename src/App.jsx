@@ -59,19 +59,23 @@ function getDaysSinceJoin(authUser) {
 }
 function pruneStaleLocalStorage() {
   try {
-    const today = _localDateStr();
-    const gk = 'nh_pruned_' + today;
-    if (localStorage.getItem(gk)) return;
-    localStorage.setItem(gk, '1');
+    const today = new Date().toISOString().slice(0, 10);
     const del = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i); if (!k) continue;
-      if (/^nh_quest_.+_\d{4}-\d{2}-\d{2}$/.test(k)) { const d = k.slice(-10); if (d < today.slice(0,8)+String(Math.max(1,parseInt(today.slice(8))-3)).padStart(2,'0')) del.push(k); }
-      if (/^nh_week_xp_\d{4}-W\d{2}$/.test(k)) { const yr=parseInt(k.slice(11,15));const wn=parseInt(k.slice(17));const cy=new Date().getFullYear();const cw=(()=>{const d2=new Date();const dy=d2.getDay()||7;d2.setDate(d2.getDate()+4-dy);return Math.ceil(((d2.getTime()-new Date(d2.getFullYear(),0,1).getTime())/86400000+1)/7);})(); if(yr<cy-1||(yr===cy&&wn<cw-8))del.push(k); }
-      if (/^nh_comeback_used_\d{4}-\d{2}-\d{2}$/.test(k) && k.slice(-10) < today) del.push(k);
-      if (/^nh_pruned_\d{4}-\d{2}-\d{2}$/.test(k) && k.slice(-10) < today) del.push(k);
+    // Use Object.keys for more efficient iteration
+    const keys = Object.keys(localStorage);
+    for (const k of keys) {
+      if (/^nh_quest_.+_\d{4}-\d{2}-\d{2}$/.test(k) && !k.endsWith(today)) del.push(k);
+      else if (/^nh_week_xp_/.test(k)) {
+        // Keep last 4 weeks
+        const kDate = k.replace('nh_week_xp_', '');
+        const fourWeeksAgo = new Date(); fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
+        if (kDate < fourWeeksAgo.toISOString().slice(0, 10).replace(/-\d{2}$/, '')) del.push(k);
+      }
+      else if (/^nh_comeback_used_\d{4}-\d{2}-\d{2}$/.test(k) && !k.endsWith(today)) del.push(k);
+      else if (/^nh_pruned_\d{4}-\d{2}-\d{2}$/.test(k) && !k.endsWith(today)) del.push(k);
     }
-    del.forEach(k2 => { try { localStorage.removeItem(k2); } catch {} });
+    del.forEach(k => { try { localStorage.removeItem(k); } catch {} });
+    localStorage.setItem('nh_pruned_' + today, '1');
   } catch {}
 }
 
@@ -90,7 +94,12 @@ function App() {
   // Bootstrap + TTS failure toast (must be before useAward declares setTtsFailedToast)
   useEffect(() => {
     const t = setTimeout(bootstrapMistakesFromSRS, 500);
-    pruneStaleLocalStorage();
+    // Defer localStorage cleanup to idle time — don't block app startup
+    if (typeof requestIdleCallback !== 'undefined') {
+      requestIdleCallback(pruneStaleLocalStorage, { timeout: 5000 });
+    } else {
+      setTimeout(pruneStaleLocalStorage, 2000);
+    }
     const onTtsFailed = () => { setTtsFailedToast(true); setTimeout(() => setTtsFailedToast(false), 2500); };
     window.addEventListener('nh:tts-failed', onTtsFailed);
     return () => { clearTimeout(t); window.removeEventListener('nh:tts-failed', onTtsFailed); };
@@ -134,16 +143,16 @@ function App() {
   // Defined before useAuth so it can be passed to onSignedIn.
   const applyRemoteProgress = useCallback((fp) => {
     if (!fp) return;
+    const today = new Date().toISOString().slice(0, 10);
     const apSt = fp.stats || fp.st || {};
     if (fp.onboarded || fp.cp || apSt.xp > 0) { localStorage.setItem('onboarded', 'true'); setOnboarded(true); }
     if (fp.sr) { const lSR = getSR() || {}; const mSR = { ...lSR }; for (const w in fp.sr) { const r = fp.sr[w]; const l = mSR[w]; if (!l || (r.r||0) > (l.r||0) || (!l.r && (r.s||0) > (l.s||0))) mSR[w] = r; } saveSR(mSR); }
     if (fp.streak) { let lSt = { count:0,last:'' }; try { lSt = JSON.parse(localStorage.getItem('uStreak')||'{"count":0,"last":""}'); } catch (_) {} const mSt = (fp.streak.count||0) >= (lSt.count||0) ? fp.streak : lSt; localStorage.setItem('uStreak', JSON.stringify(mSt)); }
     if (fp.freezes !== undefined) { const lF = parseInt(localStorage.getItem('uFreeze')||'0',10); localStorage.setItem('uFreeze', String(Math.max(lF, Math.max(0, parseInt(fp.freezes,10)||0)))); }
-    if (fp.favs) { let lFv = []; try { lFv = JSON.parse(localStorage.getItem('uFavs')||'[]'); } catch (_) {} const favMap = new Map(); [...lFv, ...fp.favs].forEach(f => { if (f && f.hr) favMap.set(f.hr, f); }); const mFv = [...favMap.values()]; localStorage.setItem('uFavs', JSON.stringify(mFv)); setFavs(mFv); }
-    if (fp.journal) { let lJ = []; try { lJ = JSON.parse(localStorage.getItem('uJournal')||'[]'); } catch (_) {} const jM = new Map(); lJ.forEach(e => { if (e?.word) jM.set(e.word, e); }); fp.journal.forEach(e => { if (e?.word) jM.set(e.word, e); }); const mJ = Array.from(jM.values()); localStorage.setItem('uJournal', JSON.stringify(mJ)); setJWords(mJ); }
-    const today = _localDateStr();
+    if (fp.favs) { let lFv = []; try { lFv = JSON.parse(localStorage.getItem('uFavs')||'[]'); } catch (_) {} const favMap = new Map(); [...lFv, ...fp.favs].forEach(f => { if (f && f.hr) favMap.set(f.hr, f); }); const mFv = [...favMap.values()]; try { localStorage.setItem('uFavs', JSON.stringify(mFv)); } catch (e) { if (e && e.name === 'QuotaExceededError') { console.warn('[sync] localStorage quota exceeded — some progress may not persist locally'); } } setFavs(mFv); }
+    if (fp.journal) { let lJ = []; try { lJ = JSON.parse(localStorage.getItem('uJournal')||'[]'); } catch (_) {} const jM = new Map(); lJ.forEach(e => { if (e?.word) jM.set(e.word, e); }); fp.journal.forEach(e => { if (e?.word) jM.set(e.word, e); }); const mJ = Array.from(jM.values()); try { localStorage.setItem('uJournal', JSON.stringify(mJ)); } catch (e) { if (e && e.name === 'QuotaExceededError') { console.warn('[sync] localStorage quota exceeded — some progress may not persist locally'); } } setJWords(mJ); }
     if (fp.dc?.day === today) { const ans = fp.dc.answered||[false,false,false]; const sel = Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==='string'?fp.dc.selected:['','','']; let lA=[false,false,false]; try { const ld=JSON.parse(localStorage.getItem('dcDay3')||'{}'); if(ld.day===today) lA=ld.answered||lA; } catch(_){} const mA=ans.map((a,i)=>a||lA[i]||false); sDchlA(mA); sDchlSl(sel); localStorage.setItem('dcDay3',JSON.stringify({day:today,answered:mA,selected:sel})); }
-    if (fp.cooldown) { const t = _localDateStr(); let cd={}; try{cd=JSON.parse(localStorage.getItem('xpCooldown')||'{}');}catch(_){} for(const k in fp.cooldown){if(fp.cooldown[k]===t)cd[k]=fp.cooldown[k];} localStorage.setItem('xpCooldown',JSON.stringify(cd)); }
+    if (fp.cooldown) { let cd={}; try{cd=JSON.parse(localStorage.getItem('xpCooldown')||'{}');}catch(_){} for(const k in fp.cooldown){if(fp.cooldown[k]===today)cd[k]=fp.cooldown[k];} localStorage.setItem('xpCooldown',JSON.stringify(cd)); }
     if (fp.weekXP !== undefined) { const wD=new Date();const wY=wD.getDay()||7;wD.setDate(wD.getDate()+4-wY);const wy=wD.getFullYear();const wn=Math.ceil(((wD.getTime()-new Date(wy,0,1).getTime())/86400000+1)/7);const wk=wy+'-W'+String(wn).padStart(2,'0');const lX=parseInt(localStorage.getItem('nh_week_xp_'+wk)||'0',10);localStorage.setItem('nh_week_xp_'+wk,String(Math.max(lX,fp.weekXP))); }
   }, [setFavs, setJWords, sDchlA, sDchlSl, setOnboarded]);
 

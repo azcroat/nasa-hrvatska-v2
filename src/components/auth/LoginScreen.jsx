@@ -61,7 +61,7 @@ export default function LoginScreen({
             ))}
           </div>
         </div>
-        <div className="c" style={{padding:28,position:'relative',overflow:'hidden'}}>
+        <form className="c" style={{padding:28,position:'relative',overflow:'hidden'}} onSubmit={(e) => { e.preventDefault(); isR ? doReg() : doLog(); }} noValidate>
           {/* Croatian flag gradient top bar */}
           <div style={{position:'absolute',top:0,left:0,right:0,height:3,background:'linear-gradient(90deg, #D40030, #C8980A, #003087)',borderRadius:'12px 12px 0 0'}} />
           {authError && <div role="alert" aria-live="assertive" style={{background:authError.startsWith("✅")?'var(--success-bg)':'var(--error-bg)',border:authError.startsWith("✅")?'1px solid var(--success-b)':'1px solid var(--error-b)',borderRadius:10,padding:'12px 16px',color:authError.startsWith("✅")?'var(--success)':'var(--error)',fontSize:'var(--text-base)',fontWeight:600,marginBottom:16}}>{authError}</div>}
@@ -119,7 +119,7 @@ export default function LoginScreen({
           {!isR && <div style={{textAlign:'right',marginBottom:12}}>
             <button type="button" style={{fontSize:'var(--text-sm)',color:'var(--info)',cursor:'pointer',fontWeight:600,background:'none',border:'none',padding:0,fontFamily:'inherit'}} onClick={()=>{setAuthScreen("reset");setAuthError("");setRpEm(authEmail||"")}}>Forgot password?</button>
           </div>}
-          <button className="b bp" style={{width:'100%',fontSize:'var(--text-lg)',padding:'14px 24px',marginTop:4}} onClick={isR?doReg:doLog} disabled={authLoading}>
+          <button type="submit" className="b bp" style={{width:'100%',fontSize:'var(--text-lg)',padding:'14px 24px',marginTop:4}} disabled={authLoading}>
             {authLoading?"Loading...":isR?"Create Account":"Sign In"}
           </button>
           <p style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', textAlign:'center', marginTop:12 }}>
@@ -137,7 +137,7 @@ export default function LoginScreen({
               {isR?"Sign in":"Create one"}
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

@@ -24,9 +24,9 @@ export async function onRequestPost(context) {
   const origin = request.headers.get('origin') || request.headers.get('referer') || '';
   const isDev = env.ENVIRONMENT !== 'production';
 
-  // CORS guard — sendBeacon does not send Origin on all browsers, so allow empty origin
-  // (sendBeacon is same-origin by spec; the token check is the real auth gate)
-  if (origin && !isAllowedOrigin(origin, isDev)) {
+  // CORS guard — require a valid Origin from the allowlist.
+  // Empty Origin is rejected (fail-secure); the Firebase token check is a second gate.
+  if (!origin || !isAllowedOrigin(origin, isDev)) {
     return new Response('Forbidden', { status: 403, headers: corsHeaders(origin) });
   }
 

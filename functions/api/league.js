@@ -16,21 +16,35 @@ import { checkRateLimit } from './_rateLimit.js';
 
 const FIREBASE_PROJECT_ID = 'nasa-hrvatska';
 const MAX_GROUP_SIZE = 30;
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
 
-function json(data, status = 200) {
+function isAllowedOrigin(origin, isDev) {
+  try {
+    const hostname = new URL(origin).hostname;
+    if (isDev && hostname === 'localhost') return true;
+    return hostname === 'nasahrvatska.com'
+      || hostname.endsWith('.nasahrvatska.com')
+      || hostname === 'nasa-hrvatska-v2.pages.dev'
+      || hostname.endsWith('.nasa-hrvatska-v2.pages.dev');
+  } catch { return false; }
+}
+
+function corsHeaders(origin) {
+  return {
+    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  };
+}
+
+function json(data, status = 200, origin = '') {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
   });
 }
 
-function err(msg, status = 400) {
-  return json({ error: msg }, status);
+function err(msg, status = 400, origin = '') {
+  return json({ error: msg }, status, origin);
 }
 
 /** Determine tier from previous week's final XP (passed by client or defaulted). */
@@ -121,8 +135,8 @@ async function updateAndGetStandings(kv, weekKey, groupId, uid, name, xp) {
 
   const idx = members.findIndex(m => m.uid === uid);
   if (idx !== -1) {
-    members[idx].xp = xp;
-    if (name) members[idx].name = name;
+    members[idx].xp = xp; // eslint-disable-line security/detect-object-injection
+    if (name) members[idx].name = name; // eslint-disable-line security/detect-object-injection
   } else {
     members.push({ uid, name, xp });
   }
@@ -137,7 +151,7 @@ async function updateAndGetStandings(kv, weekKey, groupId, uid, name, xp) {
 /** Build the response payload. */
 function buildResponse(uid, groupId, ranked, weekKey, xp) {
   const tierId = getTier(xp);
-  const tier = TIER_META[tierId];
+  const tier = TIER_META[tierId]; // eslint-disable-line security/detect-object-injection
 
   // Top 10 for display (Duolingo-style)
   const top10 = ranked.slice(0, 10);
@@ -168,23 +182,31 @@ function buildResponse(uid, groupId, ranked, weekKey, xp) {
 export async function onRequest(context) {
   const { request, env } = context;
 
+  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
+  const isDev = env.ENVIRONMENT !== 'production';
+
   if (request.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: CORS_HEADERS });
+    return new Response(null, { status: 204, headers: corsHeaders(origin) });
+  }
+
+  // Origin allowlist — reject requests from unlisted origins
+  if (!origin || !isAllowedOrigin(origin, isDev)) {
+    return err('Forbidden', 403, origin);
   }
 
   // Rate limit: 30/min for GET, 10/min for POST
   const limit = request.method === 'POST' ? 10 : 30;
   const allowed = await checkRateLimit(request, limit);
-  if (!allowed) return err('Too many requests. Please wait a moment.', 429);
+  if (!allowed) return err('Too many requests. Please wait a moment.', 429, origin);
 
-  // Auth
+  // Auth — required for both GET and POST
   const projectId = env.FIREBASE_PROJECT_ID || FIREBASE_PROJECT_ID;
   const uid = await getFirebaseUid(request, projectId);
-  if (!uid) return err('Authentication required.', 401);
+  if (!uid) return err('Authentication required.', 401, origin);
 
   // KV namespace
   const kv = env.PUSH_SUBSCRIPTIONS;
-  if (!kv) return err('Storage unavailable.', 503);
+  if (!kv) return err('Storage unavailable.', 503, origin);
 
   const url = new URL(request.url);
 
@@ -196,7 +218,7 @@ export async function onRequest(context) {
     const assignment = await kv.get(assignKey, 'json');
 
     if (!assignment) {
-      return json({ notJoined: true, weekKey });
+      return json({ notJoined: true, weekKey }, 200, origin);
     }
 
     const { groupId } = assignment;
@@ -207,7 +229,7 @@ export async function onRequest(context) {
     const myEntry = ranked.find(m => m.uid === uid);
     const xp = myEntry?.xp ?? 0;
 
-    return json(buildResponse(uid, groupId, ranked, weekKey, xp));
+    return json(buildResponse(uid, groupId, ranked, weekKey, xp), 200, origin);
   }
 
   // ── POST — join or update XP ──────────────────────────────────────────────
@@ -216,16 +238,16 @@ export async function onRequest(context) {
     try {
       body = await request.json();
     } catch {
-      return err('Invalid JSON body.');
+      return err('Invalid JSON body.', 400, origin);
     }
 
     const { xp = 0, name = 'Learner', weekKey = getCurrentWeekKey() } = body;
 
     if (typeof xp !== 'number' || xp < 0 || xp > 100000) {
-      return err('Invalid xp value.');
+      return err('Invalid xp value.', 400, origin);
     }
     if (typeof weekKey !== 'string' || !/^\d{4}-W\d{2}$/.test(weekKey)) {
-      return err('Invalid weekKey format. Expected e.g. "2026-W13".');
+      return err('Invalid weekKey format. Expected e.g. "2026-W13".', 400, origin);
     }
     const safeName = String(name).slice(0, 40).replace(/[<>"]/g, '') || 'Learner';
 
@@ -233,12 +255,12 @@ export async function onRequest(context) {
     const groupId = await assignGroup(kv, weekKey, uid, safeName, xp);
 
     // Update XP and get full standings
-    const { ranked, myRank } = await updateAndGetStandings(kv, weekKey, groupId, uid, safeName, xp);
+    const { ranked } = await updateAndGetStandings(kv, weekKey, groupId, uid, safeName, xp);
 
-    return json(buildResponse(uid, groupId, ranked, weekKey, xp));
+    return json(buildResponse(uid, groupId, ranked, weekKey, xp), 200, origin);
   }
 
-  return err('Method not allowed.', 405);
+  return err('Method not allowed.', 405, origin);
 }
 
 /** ISO week key in format "YYYY-Www" (same algorithm used in Leaderboard.jsx). */

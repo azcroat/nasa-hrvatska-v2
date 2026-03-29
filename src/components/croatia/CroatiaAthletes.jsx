@@ -433,7 +433,7 @@ export default function CroatiaAthletes({ goBack }) {
               }}/>
             </div>
           )}
-          {players.map((p, i) => <PlayerCard key={i} p={p} />)}
+          {players.map((p) => <PlayerCard key={p.name} p={p} />)}
         </div>
       ))}
 

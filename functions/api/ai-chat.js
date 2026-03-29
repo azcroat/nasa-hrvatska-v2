@@ -531,6 +531,12 @@ export async function onRequestPost(context) {
   const ct = request.headers.get('content-type') || '';
   if (!ct.includes('application/json')) return err(400, "Invalid content type", origin);
 
+  // Request size guard — reject oversized payloads before parsing
+  const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
+  if (contentLength > 102400) { // 100KB max
+    return err(413, 'Request too large', origin);
+  }
+
   let body;
   try { body = await request.json(); }
   catch { return err(400, "Invalid JSON in request body", origin); }
@@ -561,7 +567,7 @@ export async function onRequestPost(context) {
       const res = await fetch(ANTHROPIC_URL, {
         method: "POST",
         headers: { "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
-        signal: AbortSignal.timeout(28000),
+        signal: AbortSignal.timeout(20000),
         body: JSON.stringify({ model: MODEL, max_tokens: 1200, system: systemPrompt, messages: [{ role: "user", content: `Explain: ${topic}` }] }),
       });
       if (!res.ok) return err(res.status, "Upstream error", origin);
@@ -588,7 +594,7 @@ export async function onRequestPost(context) {
       const res = await fetch(ANTHROPIC_URL, {
         method: "POST",
         headers: { "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
-        signal: AbortSignal.timeout(28000),
+        signal: AbortSignal.timeout(20000),
         body: JSON.stringify({
           model: MODEL,
           max_tokens: (mode === "story" || mode === "heritage") ? 2000 : 1000,
@@ -672,7 +678,9 @@ export async function onRequestPost(context) {
   }
 
   if (!res.ok) {
-    return err(res.status, data?.error?.message || ("Anthropic API error: HTTP " + res.status), origin);
+    const isProduction = (env.ENVIRONMENT || 'production') !== 'development';
+    const clientMsg = isProduction ? 'AI service temporarily unavailable' : (data?.error?.message || ('Anthropic API error: HTTP ' + res.status));
+    return err(res.status, clientMsg, origin);
   }
 
   const text = data?.content?.[0]?.text?.trim() || "";

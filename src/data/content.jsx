@@ -218,7 +218,7 @@ function updateStreak(){
     try{const eb=JSON.parse(localStorage.getItem('nh_earn_back')||'null');if(eb&&eb.date===today){eb.lc=(eb.lc||1)+1;localStorage.setItem('nh_earn_back',JSON.stringify(eb));}}catch{}
     return{...s,milestone:null};
   }
-  const yd=new Date(Date.now()-86400000);const yesterday=yd.getFullYear()+'-'+String(yd.getMonth()+1).padStart(2,'0')+'-'+String(yd.getDate()).padStart(2,'0');
+  const yd=new Date();yd.setDate(yd.getDate()-1);const yesterday=yd.getFullYear()+'-'+String(yd.getMonth()+1).padStart(2,'0')+'-'+String(yd.getDate()).padStart(2,'0');
   let milestone=null;
   let freezeUsed=false;
   if(s.last===yesterday){s.count++;s.last=today;if(STREAK_MILESTONES.includes(s.count))milestone=s.count;}
@@ -227,6 +227,9 @@ function updateStreak(){
     else{
       // Streak broken — save earn-back opportunity if they had ≥2 streak
       if(s.count>=2){try{localStorage.setItem('nh_earn_back',JSON.stringify({prev:s.count,date:today,lc:1}));}catch{}}
+      // Clear ceremony flags so re-achieving milestones shows the celebration again
+      const _prevCount=s.count;
+      [30,50,100].forEach(m=>{if(_prevCount>=m)localStorage.removeItem('nh_ceremony_streak_'+m);});
       s.count=1;s.last=today;
     }
   }

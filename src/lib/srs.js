@@ -99,7 +99,7 @@ function _migrate(card) {
   const intervalVal = card.interval !== undefined ? card.interval : card.iv;
 
   if (easeVal !== undefined || intervalVal !== undefined) {
-    const ease = easeVal    !== undefined ? easeVal    : 2.5;
+    const ease = Math.min(Math.max(easeVal !== undefined ? easeVal : 2.5, 1.3), 2.5);
     const iv   = intervalVal !== undefined ? intervalVal : 1;
 
     // Map ease 1.3–2.5 → difficulty 10–1  (linear)
@@ -223,7 +223,8 @@ export function getSRScore(word, correct, timeMs) {
     // ── Existing card — run through FSRS ────────────────────────────────────
     _migrate(card); // ensure no stale SM-2 fields
 
-    const elapsedDays = Math.max(0, (now - (card.due - _nextInterval(card.s || 1) * 86400000)) / 86400000);
+    const lastScheduledMs = card.due - (card.interval || card.s || 1) * 86400000;
+    const elapsedDays = Math.max(0, (now - lastScheduledMs) / 86400000);
     const R = _R(elapsedDays, card.s || 1);
     const D = card.d || 5;
     const S = card.s || 1;
