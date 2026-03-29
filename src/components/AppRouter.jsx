@@ -386,7 +386,7 @@ export default function AppRouter(props) {
       {currentScreen==="leaderboard_weekly"&&<ScreenErrorBoundary key="leaderboard_weekly" name="leaderboard_weekly"><LeaderboardScreen db={null} user={authUser} weekXP={_weeklyXP} goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="family_group"&&<ScreenErrorBoundary key="family_group" name="family_group"><ProfileFriendsScreen user={authUser} goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="school"&&<ScreenErrorBoundary key="school" name="school"><SchoolScreen goBack={goBack} /></ScreenErrorBoundary>}
-      {currentScreen==="texting"&&<ScreenErrorBoundary key="texting" name="texting"><TextingScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="texting"&&<ScreenErrorBoundary key="texting" name="texting"><TextingScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="friends"&&<ScreenErrorBoundary key="friends" name="friends"><FriendsScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="foodorder"&&<ScreenErrorBoundary key="foodorder" name="foodorder"><FoodOrderScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="transport"&&<ScreenErrorBoundary key="transport" name="transport"><TransportScreen goBack={goBack} /></ScreenErrorBoundary>}
