@@ -125,7 +125,14 @@ function useRecorder() {
 
   function beginCapture(stream) {
     chunksRef.current = [];
-    const recorder = new MediaRecorder(stream);
+    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+      ? 'audio/webm;codecs=opus'
+      : MediaRecorder.isTypeSupported('audio/webm')
+      ? 'audio/webm'
+      : MediaRecorder.isTypeSupported('audio/mp4')
+      ? 'audio/mp4'
+      : '';
+    const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
     recorderRef.current = recorder;
 
     recorder.ondataavailable = e => {
@@ -133,7 +140,7 @@ function useRecorder() {
     };
     recorder.onstop = () => {
       stream.getTracks().forEach(t => t.stop());
-      const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+      const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
       if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
       audioUrlRef.current = URL.createObjectURL(blob);
       setAudioBlob(blob);

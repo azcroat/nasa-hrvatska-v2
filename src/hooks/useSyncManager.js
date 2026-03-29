@@ -127,6 +127,7 @@ export function useSyncManager({
     return () => {
       unsub();
       _watcherUnsubRef.current = null;
+      _mergeInProgressRef.current = false;
       document.removeEventListener('visibilitychange', iosWakeUp);
       window.removeEventListener('pageshow', onPageShow);
       window.removeEventListener('online', onOnline);

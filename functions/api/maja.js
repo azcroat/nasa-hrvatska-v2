@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 // Cloudflare Pages Function — Maja AI Voice Conversation Partner
 // Maja Kovačević: 34-year-old Croatian language teacher from Zadar, lives in Zagreb
 // Keeps the API key server-side; never exposed to the browser
@@ -822,7 +823,7 @@ export async function onRequestPost(context) {
 
   if (!res.ok) {
     console.error("maja.js: Anthropic API error", res.status, data?.error?.message);
-    return err(res.status, data?.error?.message || "Anthropic API error: HTTP " + res.status, origin);
+    return err(res.status, isDev ? (data?.error?.message || "Anthropic API error: HTTP " + res.status) : "AI service error", origin);
   }
 
   const raw = data?.content?.[0]?.text?.trim() || "";

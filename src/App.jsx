@@ -197,6 +197,8 @@ function App() {
       setName('');
       setFamData(null);
       setFamMembers([]);
+      setFavs([]);
+      setJWords([]);
       resetComebackGuard();
       // Clear exercise session state so the next user doesn't see a stale "resume" prompt
       try { sessionStorage.clear(); } catch {}
@@ -296,7 +298,7 @@ function App() {
   }, [stats, currentScreen, name, authUser, authScreen, jWords, favs, dchlA, dchlSl]); // eslint-disable-line
 
   // Sync to Firebase on lesson/grammar completion
-  useEffect(() => { if (!authUser || authScreen !== 'app' || stats.lc === 0) return; doSyncNow(); scheduleStreakReminder(getStreak().count); }, [stats.lc, stats.ct?.length, stats.gc]); // eslint-disable-line
+  useEffect(() => { if (!authUser || authScreen !== 'app' || stats.lc === 0) return; doSyncNow(); scheduleStreakReminder(getStreak().count); }, [stats.lc, stats.ct?.length, stats.gc, stats.sp]); // eslint-disable-line
 
   // Self-healing: reconstruct ct from LEARN_PATH if lost
   useEffect(() => {
@@ -496,7 +498,7 @@ function App() {
             if (action === 'repair') {
               const result = repairStreak(stats.xp);
               if (result.ok) {
-                setStats(s => ({ ...s, xp: Math.max(0, s.xp - result.xpCost), streak: result.restoredCount }));
+                setStats(s => ({ ...s, xp: Math.max(0, s.xp - result.xpCost), str: result.restoredCount }));
                 setStreakRestoredCount(result.restoredCount);
                 setTimeout(() => setStreakRestoredCount(0), 5000);
               }

@@ -42,6 +42,8 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   // Voice recording state
   const mediaRecRef = useRef(null);
   const chunksRef = useRef([]);
+  const recordStreamRef = useRef(null); // keep track of stream to stop on unmount
+  const recordingURLRef = useRef(null); // keep URL for revoke on unmount
   const [recordingURL, setRecordingURL] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
 
@@ -64,9 +66,13 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   // Results summary screen (shown before goBack after all words done)
   const [showSummary, setShowSummary] = useState(false);
 
-  // Cleanup waveform on unmount — must be before early return to satisfy Rules of Hooks
+  // Cleanup on unmount — must be before early return to satisfy Rules of Hooks
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { return () => { stopWaveform(); }; }, []);
+  useEffect(() => { return () => {
+    stopWaveform();
+    if (recordStreamRef.current) { recordStreamRef.current.getTracks().forEach(t => t.stop()); recordStreamRef.current = null; }
+    if (recordingURLRef.current) { URL.revokeObjectURL(recordingURLRef.current); recordingURLRef.current = null; }
+  }; }, []);
 
   if (!sw) return null;
 
@@ -318,7 +324,15 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
     // Start fresh stream for recording
     try {
       const recordStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRec = new MediaRecorder(recordStream);
+      recordStreamRef.current = recordStream;
+      const recMimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+        ? 'audio/webm;codecs=opus'
+        : MediaRecorder.isTypeSupported('audio/webm')
+        ? 'audio/webm'
+        : MediaRecorder.isTypeSupported('audio/mp4')
+        ? 'audio/mp4'
+        : '';
+      const mediaRec = new MediaRecorder(recordStream, recMimeType ? { mimeType: recMimeType } : {});
       mediaRecRef.current = mediaRec;
       setIsRecording(true);
 
@@ -326,9 +340,14 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
         if (e.data.size > 0) chunksRef.current.push(e.data);
       };
       mediaRec.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        setRecordingURL(URL.createObjectURL(blob));
+        const blob = new Blob(chunksRef.current, { type: mediaRec.mimeType || 'audio/webm' });
+        // Revoke any previous recording URL before creating a new one
+        if (recordingURLRef.current) { URL.revokeObjectURL(recordingURLRef.current); }
+        const url = URL.createObjectURL(blob);
+        recordingURLRef.current = url;
+        setRecordingURL(url);
         setIsRecording(false);
+        recordStreamRef.current = null;
         recordStream.getTracks().forEach(t => t.stop());
       };
 
@@ -380,6 +399,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
         onSelfAssess={() => { sSr('ok'); sSsc(s => s + 1); }}
         onAdvanceWord={advanceWord}
         onClearRecording={() => {
+          if (recordingURLRef.current) { URL.revokeObjectURL(recordingURLRef.current); recordingURLRef.current = null; }
           setRecordingURL(null);
           setRecResult(null);
           setRecMsg('');

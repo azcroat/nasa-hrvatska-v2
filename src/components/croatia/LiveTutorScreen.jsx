@@ -372,9 +372,12 @@ export default function LiveTutorScreen({ goBack, award }) {
       const audioEl = new Audio();
       audioRef.current = audioEl;
 
-      // Register onended BEFORE assigning src — guarantees we never miss the event
+      // Register onended/onerror BEFORE assigning src — guarantees we never miss the event
       // even if audio ends synchronously before we reach the await below.
-      const endedPromise = new Promise(resolve => { audioEl.onended = resolve; });
+      const endedPromise = new Promise(resolve => {
+        audioEl.onended = resolve;
+        audioEl.onerror = resolve; // never leave endedPromise unsettled on playback error
+      });
       audioEl.src = URL.createObjectURL(mediaSource);
 
       await new Promise(resolve => { mediaSource.addEventListener('sourceopen', resolve, { once: true }); });
@@ -452,12 +455,14 @@ export default function LiveTutorScreen({ goBack, award }) {
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const options = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-        ? { mimeType: 'audio/webm;codecs=opus' }
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+        ? 'audio/webm;codecs=opus'
         : MediaRecorder.isTypeSupported('audio/webm')
-        ? { mimeType: 'audio/webm' }
-        : {};
-      const recorder = new MediaRecorder(stream, options);
+        ? 'audio/webm'
+        : MediaRecorder.isTypeSupported('audio/mp4')
+        ? 'audio/mp4'
+        : '';
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
       audioChunksRef.current = [];
       recorder.ondataavailable = e => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
       recorder.onstop = async () => {
@@ -532,12 +537,16 @@ export default function LiveTutorScreen({ goBack, award }) {
       ? Math.round((Date.now() - sessionStartRef.current) / 1000)
       : messages.length * 30;
 
+    const summaryAbort = new AbortController();
+    const summaryTimeout = setTimeout(() => summaryAbort.abort(), 20000); // 20s max
     try {
       const res = await apiFetch('/api/live-tutor-summary', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ transcript, level, topic, durationSecs, turnCount }),
+        signal: summaryAbort.signal,
       });
+      clearTimeout(summaryTimeout);
       const data = res.ok ? await res.json() : null;
       setDebrief(data && data.summary ? { ...data, durationSecs } : {
         summary: 'Odličan razgovor! Svaki put kad govoriš, napredak je zagarantiran.',
@@ -547,6 +556,7 @@ export default function LiveTutorScreen({ goBack, award }) {
         durationSecs,
       });
     } catch {
+      clearTimeout(summaryTimeout);
       setDebrief({
         summary: 'Odličan razgovor! Svaki put kad govoriš, napredak je zagarantiran.',
         strength: 'You completed a full conversation session — that takes courage!',

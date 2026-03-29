@@ -186,6 +186,19 @@ service cloud.firestore {
       }
     }
 
+    // ─── Weekly leaderboard subcollection ────────────────────────────────
+    // /leaderboard/{weekKey}/entries/{uid} — per-week XP entries.
+    // Only the owner may write their own entry; any authenticated user may read.
+    match /leaderboard/{weekKey}/entries/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId)
+        && validLbXpCreate()
+        && validLbLcCreate();
+      allow update: if isOwner(userId)
+        && validLbXpUpdate()
+        && validLbLcUpdate();
+    }
+
     // ─── Deny everything else ─────────────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;

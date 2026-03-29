@@ -350,6 +350,14 @@ export default function MajaScreen() {
           }
         }
       } catch {
+        // Finalize any in-progress streaming bubble so it doesn't remain stuck
+        setConversation((prev) =>
+          prev.map((m, i) =>
+            i === prev.length - 1 && m.streaming
+              ? { ...m, streaming: false }
+              : m
+          )
+        );
         if (phaseRef.current !== 'debrief') {
           setErrorMsg('Nešto je pošlo po krivu. Pokušaj ponovo.');
           setPhase('error');
