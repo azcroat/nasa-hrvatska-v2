@@ -43,7 +43,6 @@ import CroatianGrb from "./components/shared/CroatianGrb.jsx";
 import { AppToasts } from "./components/shared/AppToasts.jsx";
 import { AppModals } from "./components/shared/AppModals.jsx";
 import AppRouter from "./components/AppRouter.jsx";
-import AmbientPlayer from "./components/shared/AmbientPlayer.jsx";
 
 // ── Module-level constants ───────────────────────────────────────────────────
 const DS = { xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,authLoading:0,mv:0,hi:0,rs:[],ct:[],vs:[],badges:[] };
@@ -453,7 +452,7 @@ function App() {
           requirePremium={requirePremium}
         />
         {authScreen === 'app' && currentScreen !== 'welcome' && currentScreen !== 'placement' && <TabBar tab={tab} setTab={setTab} setScr={setScr} badges={badges} />}
-        {authScreen === 'app' && <AmbientPlayer />}
+
         <OfflineBanner />
         <CookieConsent />
       </Suspense>
