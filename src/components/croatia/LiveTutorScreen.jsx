@@ -298,11 +298,22 @@ export default function LiveTutorScreen({ goBack, award }) {
 
     } catch (e) {
       setThinking(false);
-      setError(e.message === "rate_limit"
-        ? "Rate limit reached — wait a moment and try again."
-        : e.message === "timeout"
-        ? "Request timed out. Please try again."
-        : "Connection error. Check your internet and try again.");
+      const msg = e.message || "";
+      setError(
+        msg === "rate_limit" || msg.includes("429")
+          ? "Rate limit reached — wait a moment and try again."
+          : msg === "timeout" || msg.includes("504")
+          ? "Request timed out. Please try again."
+          : msg === "daily_quota_exceeded"
+          ? "Daily AI limit reached. Resets at midnight UTC — try again tomorrow!"
+          : msg === "not_configured"
+          ? "AI service not available right now. Please try again later."
+          : msg === "api_error"
+          ? "AI service error. Please try again in a moment."
+          : !navigator.onLine
+          ? "No internet connection — check your network and try again."
+          : "Connection error. Please try again."
+      );
     }
   }, [level, topic, turnCount, award]); // eslint-disable-line react-hooks/exhaustive-deps
 

@@ -197,6 +197,35 @@ export default function HomeTab({
         <GoalSetterModal onComplete={() => setShowGoalModal(false)} />
       )}
 
+      {/* ── FLOATING FEEDBACK BUTTON ── always visible, positioned above tab bar */}
+      <button
+        onClick={() => setScr('contact')}
+        aria-label="Send feedback or report a bug"
+        title="Feedback & Bug Reports"
+        style={{
+          position: 'fixed',
+          bottom: 80,
+          right: 16,
+          width: 52,
+          height: 52,
+          borderRadius: '50%',
+          background: 'var(--card)',
+          border: '1.5px solid var(--card-b)',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 22,
+          zIndex: 99,
+          transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.12)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.22)'; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.15)'; }}
+      >
+        💬
+      </button>
+
       {/* ── GUEST SAVE-PROGRESS BANNER ── */}
       {!authUser && st.xp > 0 && (
         <div style={{
