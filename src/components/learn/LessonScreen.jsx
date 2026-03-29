@@ -335,7 +335,7 @@ export default function LessonScreen({
 
         <CroatianKnight
           size={90}
-          mood={scorePct === 1 ? 'celebrating' : scorePct >= 0.5 ? 'happy' : 'neutral'}
+          mood={scorePct === 1 ? 'victory' : scorePct >= 0.5 ? 'encouraged' : 'thinking'}
           style={{margin:'0 auto 16px', display:'block', animation:'bounce-in .5s ease'}}
         />
 

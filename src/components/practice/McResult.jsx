@@ -95,7 +95,8 @@ export default function McResult({ questions, score, mistakes = [], setScr, goBa
         <CroatianKnight
           size={90}
           mood={
-            score === total ? 'celebrating' :
+            score === total ? 'victory' :
+            score / total >= 0.8 ? 'celebrating' :
             score / total >= 0.6 ? 'happy' :
             'encouraged'
           }

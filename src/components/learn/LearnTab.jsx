@@ -200,7 +200,7 @@ export default function LearnTab({
               }}>🎯</div>
               <div style={{ flex:1, minWidth:0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                  <CroatianKnight size={36} mood="thinking" style={{ flexShrink: 0 }} />
+                  <CroatianKnight size={36} mood="ready" style={{ flexShrink: 0 }} />
                   <div style={{ fontWeight: 700, fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--subtext)' }}>
                     Next Up
                   </div>
@@ -255,7 +255,7 @@ export default function LearnTab({
             <div style={{ textAlign:'center', padding:'8px 0' }}>
               <CroatianKnight
                 size={80}
-                mood="celebrating"
+                mood="victory"
                 style={{ margin: '0 auto 8px', display: 'block' }}
               />
               <div style={{ fontSize:'var(--text-4xl)', marginBottom:6 }}>🏆</div>

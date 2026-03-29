@@ -763,7 +763,7 @@ export default function CroatiaTab({ sCurEx }) {
 
           {/* ── KNIGHT WELCOME BANNER ── */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', background: 'var(--card)', borderRadius: 12, margin: '0 0 12px' }}>
-            <CroatianKnight size={44} mood="happy" style={{ flexShrink: 0 }} />
+            <CroatianKnight size={44} mood="ready" style={{ flexShrink: 0 }} />
             <div style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.5 }}>
               <strong style={{ color: 'var(--heading)', display: 'block', marginBottom: 2 }}>Dobrodošli u Hrvatsku! 🇭🇷</strong>
               Explore culture, music, stories & language from the homeland.
@@ -1431,7 +1431,7 @@ export default function CroatiaTab({ sCurEx }) {
                 <div className="section-hdr-title">Letters from Baka</div>
                 <div className="section-hdr-sub">Read Croatian the way family really writes it</div>
               </div>
-              <CroatianKnight size={40} mood="happy" style={{ flexShrink: 0 }} />
+              <CroatianKnight size={40} mood="thinking" style={{ flexShrink: 0 }} />
             </div>
             <div style={{fontSize:12, color:'var(--subtext)', marginBottom:12, lineHeight:1.5}}>
               Personal letters written in authentic Croatian — perfect for understanding how family members actually speak, including regional expressions and emotional vocabulary.

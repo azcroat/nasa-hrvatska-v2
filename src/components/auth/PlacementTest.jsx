@@ -99,7 +99,7 @@ export default function PlacementTest({ onComplete }) {
         <div style={{ textAlign: 'center', padding: '28px 20px 16px' }}>
           <CroatianKnight
             size={100}
-            mood="happy"
+            mood="ready"
             style={{ margin: '0 auto 12px', display: 'block' }}
           />
           <h2 style={{
@@ -164,7 +164,7 @@ export default function PlacementTest({ onComplete }) {
       <div className="scr-wrap" style={{ paddingBottom: 80, textAlign: 'center' }}>
         <CroatianKnight
           size={90}
-          mood={placedLevel >= 3 ? 'celebrating' : 'happy'}
+          mood={placedLevel >= 4 ? 'victory' : placedLevel >= 3 ? 'celebrating' : 'encouraged'}
           style={{ margin: '0 auto 12px', display: 'block' }}
         />
         <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 26, color: 'var(--heading)', marginBottom: 8 }}>
@@ -264,7 +264,7 @@ export default function PlacementTest({ onComplete }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
               <CroatianKnight
                 size={50}
-                mood={selected === q.answer ? 'happy' : 'encouraged'}
+                mood={selected === q.answer ? 'encouraged' : 'thinking'}
                 style={{ flexShrink: 0 }}
               />
               <div style={{

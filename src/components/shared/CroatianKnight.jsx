@@ -153,6 +153,20 @@ const MOODS = {
     face:  'neutral',
     plume: null,
   },
+  victory: {
+    body:  'lk-bounce 0.6s ease-in-out infinite',
+    armL:  'lk-aL-up 0.6s ease-in-out infinite',
+    armR:  'lk-aR-up 0.6s ease-in-out infinite',
+    face:  'celebrate',
+    plume: 'lk-sheen 1.2s ease-in-out infinite',
+  },
+  ready: {
+    body:  'lk-tilt 4s ease-in-out infinite',
+    armL:  null,
+    armR:  null,
+    face:  'smile',
+    plume: 'lk-sheen 2s ease-in-out infinite',
+  },
 };
 
 // ─── Šahovnica (Croatian checkerboard) ───────────────────────────────────────
