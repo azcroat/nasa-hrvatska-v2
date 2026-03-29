@@ -3,6 +3,7 @@ import confetti from 'canvas-confetti';
 import { rnd } from '../../lib/random.js';
 import { useHaptic } from '../../hooks/useHaptic.js';
 import CroatianKnight from './CroatianKnight.jsx';
+import { getDailyFact } from '../../lib/culturalFacts.js';
 
 const CROATIAN_COLORS = ['#b61800', '#ffffff', '#003087', '#f59e0b', '#16a34a'];
 
@@ -312,6 +313,28 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
             {displayXP > 0 ? `+${displayXP}` : '+0'} XP
           </span>
         </div>
+
+        {/* Did you know? cultural fact */}
+        {(() => {
+          const fact = getDailyFact();
+          return (
+            <div style={{
+              marginTop: 12,
+              padding: '12px 14px',
+              background: 'rgba(14,116,144,0.06)',
+              border: '1px solid rgba(14,116,144,0.15)',
+              borderRadius: 12,
+              textAlign: 'left',
+            }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: '#0e7490', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
+                🇭🇷 Did you know?
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.5 }}>
+                {fact.emoji} {fact.fact}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Difficulty rating */}
         <div style={{ marginTop: 18, marginBottom: 4 }}>

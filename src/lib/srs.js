@@ -350,6 +350,66 @@ export function getSRStats(srMap) {
 }
 
 /**
+ * Return a prioritized review queue from the vocabulary pool.
+ *
+ * Ordering rules (world-class SRS standard):
+ *   1. Overdue cards (due > 1 day ago) — most overdue first
+ *   2. Cards due today — lowest retrievability R first (hardest to recall)
+ *   3. New words (never reviewed) — padded in if queue < 10, up to 5 words
+ *
+ * @param {Array} pool — flat array of vocabulary entries, e.g. Object.values(V).flat()
+ * @returns {Array} ordered vocabulary entries ready for review
+ */
+export function getPrioritizedReviewQueue(pool) {
+  const sr  = getSR();
+  const now = Date.now();
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  const overdue  = [];
+  const dueToday = [];
+
+  for (const [word, state] of Object.entries(sr)) {
+    if (!state.due) continue;
+    const dueMs      = state.due;
+    const daysOverdue = (now - dueMs) / 86400000;
+
+    if (daysOverdue > 1) {
+      // Overdue: past due by more than 1 day
+      overdue.push({ word, state, daysOverdue });
+    } else if (dueMs <= now) {
+      // Due today (or within the last day): rank by retrievability
+      const S = state.s || 1;
+      const t = Math.max(0, daysOverdue);
+      const R = Math.pow(DESIRED_RETENTION, t / S); // lower = harder
+      dueToday.push({ word, state, R });
+    }
+  }
+
+  // Most overdue first; within dueToday lowest R first (hardest)
+  overdue.sort((a, b) => b.daysOverdue - a.daysOverdue);
+  dueToday.sort((a, b) => a.R - b.R);
+
+  const prioritized = [...overdue, ...dueToday];
+
+  // Map to vocabulary entries (pool entries are arrays where index 0 = Croatian word)
+  const result = prioritized
+    .map(({ word }) => pool.find(w => w[0] === word))
+    .filter(Boolean)
+    .slice(0, 20);
+
+  // Pad with new words if queue is thin
+  if (result.length < 10 && pool) {
+    const seenWords = new Set(Object.keys(sr));
+    const newWords  = pool
+      .filter(w => !seenWords.has(w[0]))
+      .slice(0, Math.min(5, 10 - result.length));
+    result.push(...newWords);
+  }
+
+  return result;
+}
+
+/**
  * @deprecated Use _gradeFromResult() logic directly or getSRScore().
  * Maps { correct, timeMs } → SM-2-style quality 0–5.
  */

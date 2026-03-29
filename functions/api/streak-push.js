@@ -3,46 +3,140 @@
 // Authentication: x-cron-secret header must match env.CRON_SECRET (set in Cloudflare dashboard).
 // Called by the scheduled Cloudflare Worker defined in functions/scheduled.js.
 
-function buildNotification(name, streak) {
-  const displayName = (name || 'Učenik').split(' ')[0]; // first name only
+// Deterministic variant picker — uses (streak + seed) % length so the same
+// user gets a different message each day without needing localStorage in a Worker.
+function pickIdx(arr, seed) {
+  return arr[Math.abs(seed) % arr.length];
+}
 
+function buildNotification(name, streak, dueSeed = 0) {
+  const displayName = (name || '').split(' ')[0].trim() || 'Učenik';
+  const nameTag    = `, ${displayName}`;
+  const namePrefix = `${displayName}, `;
+
+  // Seed varies by day so messages rotate daily
+  const daySeed = Math.floor(Date.now() / 86400000) + streak + dueSeed;
+
+  // ── No streak yet ─────────────────────────────────────────────────────────
   if (streak === 0) {
+    const titles = [
+      '🇭🇷 Naša Hrvatska',
+      `📅 Start your streak today${nameTag}!`,
+      `🇭🇷 Croatian is waiting${nameTag}`,
+      `⏰ ${namePrefix}study time!`,
+      `🌟 ${namePrefix}begin your Croatian journey`,
+    ];
+    const bodies = [
+      `${namePrefix}your Croatian streak is waiting. Start today!`,
+      `Even 5 minutes of Croatian builds a habit. Open the app and start! 🇭🇷`,
+      `Dobar dan${nameTag}! Time for today's Croatian lesson.`,
+      `Your Croatian skills are waiting — first lesson is the hardest. Go for it!`,
+      `${namePrefix}language starts with one session. Today's the day! 🇭🇷`,
+    ];
     return {
-      title: '🇭🇷 Naša Hrvatska',
-      body: `${displayName}, your Croatian streak is waiting. Start today!`,
-      icon: '/icon-192.png',
-      badge: '/icon-192.png',
-      tag: 'streak-reminder',
-      data: { url: '/' },
+      title:   pickIdx(titles, daySeed),
+      body:    pickIdx(bodies, daySeed + 1),
+      icon:    '/icons/icon-192x192.png',
+      badge:   '/icons/badge-72.png',
+      tag:     'streak-reminder',
+      renotify: true,
+      data:    { url: '/', action: 'open_lesson' },
+      actions: [
+        { action: 'study',   title: '📚 Study Now' },
+        { action: 'dismiss', title: 'Later'         },
+      ],
     };
   }
+
+  // ── Early streak (1–6 days) ───────────────────────────────────────────────
   if (streak < 7) {
+    const titles = [
+      `🔥 Keep your ${streak}-day streak${nameTag}!`,
+      `⏰ ${namePrefix}your streak is at risk!`,
+      `🇭🇷 ${streak} days strong — don't stop${nameTag}`,
+      `📅 Don't forget your Croatian today${nameTag}`,
+      `🔥 ${namePrefix}${streak} days and counting!`,
+    ];
+    const bodies = [
+      `${namePrefix}don't break your Croatian streak today. Just 5 minutes!`,
+      `Maja is waiting. 5 minutes keeps your ${streak}-day streak alive 🔥`,
+      `Your ${streak}-day streak ends tonight without a quick review.`,
+      `Don't let ${streak} days of hard work slip away — one session saves it.`,
+      `Quick quiz? ~5 minutes. Streak stays alive 🔥`,
+    ];
     return {
-      title: `🔥 Keep your ${streak}-day streak!`,
-      body: `${displayName}, don't break your Croatian streak today.`,
-      icon: '/icon-192.png',
-      badge: '/icon-192.png',
-      tag: 'streak-reminder',
-      data: { url: '/' },
+      title:   pickIdx(titles, daySeed),
+      body:    pickIdx(bodies, daySeed + 1),
+      icon:    '/icons/icon-192x192.png',
+      badge:   '/icons/badge-72.png',
+      tag:     'streak-reminder',
+      renotify: true,
+      data:    { url: '/', action: 'open_lesson' },
+      actions: [
+        { action: 'study',   title: '📚 Study Now' },
+        { action: 'dismiss', title: 'Later'         },
+      ],
     };
   }
+
+  // ── Building habit (7–29 days) ────────────────────────────────────────────
   if (streak < 30) {
+    const titles = [
+      `🔥 ${streak} days of Croatian${nameTag}!`,
+      `⭐ ${namePrefix}${streak}-day habit forming!`,
+      `🇭🇷 ${streak} days strong${nameTag} — keep going!`,
+      `🔥 ${namePrefix}you're building something real`,
+      `📅 Day ${streak} — don't stop now${nameTag}!`,
+    ];
+    const bodies = [
+      `${namePrefix}you're building a real habit. Keep it going today.`,
+      `${streak} days in! You're ${30 - streak} days from a 30-day milestone 🎯`,
+      `Your Croatian is genuinely improving. One more session today!`,
+      `Research shows ${streak}+ day learners reach conversational level 3× faster. You're doing it!`,
+      `Halfway to 30 days? Almost there. Don't quit now${nameTag}! 🔥`,
+    ];
     return {
-      title: `🔥 ${streak} days of Croatian!`,
-      body: `${displayName}, you're building a real habit. Keep it going today.`,
-      icon: '/icon-192.png',
-      badge: '/icon-192.png',
-      tag: 'streak-reminder',
-      data: { url: '/' },
+      title:   pickIdx(titles, daySeed),
+      body:    pickIdx(bodies, daySeed + 1),
+      icon:    '/icons/icon-192x192.png',
+      badge:   '/icons/badge-72.png',
+      tag:     'streak-reminder',
+      renotify: true,
+      data:    { url: '/', action: 'open_lesson' },
+      actions: [
+        { action: 'study',   title: '📚 Study Now' },
+        { action: 'dismiss', title: 'Later'         },
+      ],
     };
   }
+
+  // ── Champion (30+ days) ───────────────────────────────────────────────────
+  const titles = [
+    `⭐ ${streak}-day champion${nameTag}!`,
+    `🏆 ${namePrefix}${streak} days — incredible!`,
+    `🔥 ${streak} days of Croatian mastery${nameTag}`,
+    `⭐ ${namePrefix}you're in the top 1% of learners`,
+    `🇭🇷 ${streak} days — legend${nameTag}!`,
+  ];
+  const bodies = [
+    `${namePrefix}you're on a ${streak}-day streak. Amazing — practice today!`,
+    `${streak} days! Your consistency is extraordinary. One more session?`,
+    `You've studied Croatian for ${streak} days straight. Don't let today be the day it ends.`,
+    `${streak}-day streaks are rare. You're doing something most people only dream about!`,
+    `At ${streak} days, you're not just learning — you're living the language. Keep going${nameTag}!`,
+  ];
   return {
-    title: `⭐ ${streak}-day champion!`,
-    body: `${displayName}, you're on a ${streak}-day streak. Amazing — practice today!`,
-    icon: '/icon-192.png',
-    badge: '/icon-192.png',
-    tag: 'streak-reminder',
-    data: { url: '/' },
+    title:   pickIdx(titles, daySeed),
+    body:    pickIdx(bodies, daySeed + 1),
+    icon:    '/icons/icon-192x192.png',
+    badge:   '/icons/badge-72.png',
+    tag:     'streak-reminder',
+    renotify: true,
+    data:    { url: '/', action: 'open_lesson' },
+    actions: [
+      { action: 'study',   title: '📚 Study Now' },
+      { action: 'dismiss', title: 'Later'         },
+    ],
   };
 }
 
