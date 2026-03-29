@@ -6,6 +6,7 @@ import ScreenErrorBoundary from "./shared/ScreenErrorBoundary.jsx";
 import WelcomeScreen from "./home/WelcomeScreen.jsx";
 import PlacementTest from "../components/auth/PlacementTest.jsx";
 import PaywallScreen from "./shared/PaywallScreen.jsx";
+import { useApp } from "../context/AppContext.jsx";
 
 // Reload once on stale-chunk errors (happens after deploy when old index.html
 // tries to load chunk files that no longer exist at their old hashed paths).
@@ -192,56 +193,58 @@ const TermsOfService = lazyWithReload(() => import("./shared/TermsOfService.jsx"
 /**
  * AppRouter — renders the correct screen component for `currentScreen`.
  * All screen-level lazy imports live here; App.jsx just passes props and renders <AppRouter />.
+ *
+ * Shared app state is pulled from AppContext via useApp().
+ * Only high-frequency lesson/exercise state remains as direct props.
  */
 export default function AppRouter(props) {
+  // Pull shared state from context
+  const ctx = useApp();
   const {
-    // Core navigation
-    currentScreen, goBack, setScr, setTab,
-    // Auth / user
-    authUser, authScreen, name, setName, level, stats, setStats,
-    // Award function
-    award,
-    // Subscription
-    isPremium, refreshSub,
-    // Search
-    srchQ, setSrchQ, srchR, srchOpen, setSrchOpen, doSearch,
-    // Translator
-    tDir, sTDir, tIn, sTIn, tOut, tL, doTr,
-    // Tabs
-    tab,
-    // Family
-    famData, setFamData, famMembers, setFamMembers, famLoading, setFamLoading,
-    famName, setFamName, famCode, setFamCode, famErr, setFamErr, famTab, setFamTab,
-    // Daily challenge
-    dchlA, sDchlA, dchlSl, sDchlSl,
-    // Journal
-    setJWords,
-    // Favs
+    currentScreen,
+    authUser, authScreen, name, setName, doOut,
     favs, toggleFav,
-    // Misc
-    icons, allCats, getWeekStats, isNewUserWindow, daysSinceJoin, comebackBonus,
+    setScr, goBack, tab, setTab,
+    stats, setStats, level, award, sCurEx,
+    jWords, setJWords, famData, setFamData,
+    isPremium, refreshSub, requirePremium,
+    srchQ, setSrchQ, srchR, srchOpen, setSrchOpen, doSearch,
+    tDir, sTDir, tIn, sTIn, tOut, tL, doTr,
+    famMembers, setFamMembers, famLoading, setFamLoading,
+    famName, setFamName, famCode, setFamCode,
+    famErr, setFamErr, famTab, setFamTab,
+    dchlA, sDchlA, dchlSl, sDchlSl,
     resumeLesson, launchPathItem, launchAnimLesson,
     launchMcGame, mcGameComplete, launchFlashcards, launchListening, launchMatch, launchSpeaking,
     _syncReady, doSyncNow,
+    icons, allCats, getWeekStats,
+    isNewUserWindow, daysSinceJoin, comebackBonus,
+    weeklyXP: _weeklyXP,
+  } = ctx;
+
+  // Direct props: high-frequency lesson/exercise screen state
+  const {
     // Placement
     setPlacementQ, setPlacementIdx, setPlacementScore, setPlacementAnswers, setPlacementXp,
     getPlacementCt, setShowFirstWords,
-    // Weekly XP (pre-computed in App.jsx)
-    _weeklyXP,
-    // Screen state (from useAppScreenState)
+    // Lesson screen state
     lt, li, lx, ls, lp, la, lsl, qi,
     sLt, sLi, sLx, sLs, sLp, sLa, sLsl, sQi,
+    // Grammar screen state
     gl, gx, gp, gs, ga, gsl,
     sGl, sGp, sGx, sGs, sGa, sGsl,
+    // Match / MC state
     matchInitPool,
     mcInitQ, mcResultQ, mcResultScore, mcMistakes,
+    // Reading state
     rp, rph, rqi, rsc, ra, rsl, hw,
     sRph, sRqi, sRsc, sRa, sRsl, sHw, sRp,
+    // Speaking state
     sw, si, sx, sr, ssc, sSr, sSx, sSw, sSsc,
+    // Misc exercise state
     animLesson,
     fcInitPool, lsInitQ,
-    curEx, sCurEx,
-    doOut,
+    curEx,
   } = props;
 
   const _transKey = currentScreen === "dashboard" ? "dashboard-" + tab : currentScreen;
