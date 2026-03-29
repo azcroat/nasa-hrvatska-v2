@@ -71,7 +71,7 @@ export default function SearchModal({ setTab, onClose }) {
   const TAB_LABELS = { home:'Home', learn:'Learn', practice:'Practice', croatia:'Croatia', profile:'Profile' };
 
   return (
-    <div role="dialog" aria-modal="true" onKeyDown={handleKeyDown} style={{ position:'fixed', inset:0, zIndex:2000, background:'var(--app-bg)', display:'flex', flexDirection:'column' }}>
+    <div role="dialog" aria-modal="true" aria-label="Search" onKeyDown={handleKeyDown} style={{ position:'fixed', inset:0, zIndex:2000, background:'var(--app-bg)', display:'flex', flexDirection:'column' }}>
       {/* Header */}
       <div style={{ display:'flex', alignItems:'center', gap:12, padding:'12px 16px', borderBottom:'1px solid var(--bar-bg)' }}>
         <span style={{ fontSize:20 }}>🔍</span>
@@ -104,7 +104,7 @@ export default function SearchModal({ setTab, onClose }) {
               {TAB_LABELS[tab]}
             </div>
             {items.map((item, i) => (
-              <button key={i} onClick={() => { setTab(tab); onClose(); }} style={{
+              <button key={i} onClick={() => { setTab(tab); onClose(); }} aria-label={`${item.label} — ${item.desc}`} style={{
                 width:'100%', display:'flex', alignItems:'center', gap:12,
                 padding:'10px 12px', borderRadius:10, border:'none',
                 background:'var(--card)', cursor:'pointer', marginBottom:6,

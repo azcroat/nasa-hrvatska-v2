@@ -2259,3 +2259,13 @@ img, video, canvas, .skeleton, [class*="anim-"], [style*="animation"] {
   z-index: 0;
 }
 .tab-hero-body > * { position: relative; z-index: 1; }
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@keyframes progress-indeterminate {
+  0% { transform: translateX(-100%); width: 40%; }
+  50% { transform: translateX(100%); width: 60%; }
+  100% { transform: translateX(300%); width: 40%; }
+}

@@ -106,6 +106,7 @@ export async function onRequestGet({ request, env }) {
   try {
     const res = await fetch(pexelsUrl, {
       headers: { Authorization: PEXELS_KEY },
+      signal: AbortSignal.timeout(30000),
     });
     if (!res.ok) throw new Error(`Pexels ${res.status}`);
 

@@ -55,18 +55,28 @@ export default function OnboardingTour({ onDone, onLaunchLesson }) {
   const isLast = step === STEPS.length - 1;
   const modalRef = useRef(null);
 
+  // Focus trap (also handles Escape)
   useEffect(() => {
-    const handleKey = (e) => { if (e.key === 'Escape') onDone(); };
-    document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
-  }, [onDone]);
-
-  useEffect(() => {
-    if (modalRef.current) {
-      const firstFocusable = modalRef.current.querySelector('button, [tabindex="0"]');
-      if (firstFocusable) firstFocusable.focus();
+    const modal = modalRef.current;
+    if (!modal) return;
+    const focusable = modal.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    first?.focus();
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') { onDone(); return; }
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last?.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first?.focus(); }
+      }
     }
-  }, []);
+    modal.addEventListener('keydown', handleKeyDown);
+    return () => modal.removeEventListener('keydown', handleKeyDown);
+  }, [onDone, step]);
 
   function finish() {
     localStorage.setItem('onboarded', 'true');

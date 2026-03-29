@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo } from 'react';
+import React, { useEffect, useRef, useState, memo } from 'react';
 
 // Confetti colors — Croatian flag + gold
 const CONFETTI_COLORS = ['#b61800','#ffffff','#003087','#f59e0b','#16a34a'];
@@ -102,6 +102,7 @@ const CEREMONY_CONFIG = {
 function CeremonyModal({ type, stats, name, onClose }) {
   const [showShare, setShowShare] = useState(false);
   const cfg = CEREMONY_CONFIG[type] || CEREMONY_CONFIG['streak_30'];
+  const modalRef = useRef(null);
 
   useEffect(() => {
     // Prevent body scroll while modal is open
@@ -109,10 +110,28 @@ function CeremonyModal({ type, stats, name, onClose }) {
     return () => { document.body.style.overflow = ''; };
   }, []);
 
+  // Focus trap
   useEffect(() => {
-    const firstBtn = /** @type {HTMLElement|null} */ (document.querySelector('[data-modal-focus]'));
-    if (firstBtn) firstBtn.focus();
-  }, []);
+    const modal = modalRef.current;
+    if (!modal) return;
+    const focusable = modal.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    first?.focus();
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') { onClose?.(); return; }
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last?.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first?.focus(); }
+      }
+    }
+    modal.addEventListener('keydown', handleKeyDown);
+    return () => modal.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   const xp = stats?.xp || 0;
   const lc = stats?.lc || 0;
@@ -136,14 +155,15 @@ function CeremonyModal({ type, stats, name, onClose }) {
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={cfg.title}
+        aria-labelledby="ceremony-title"
+        onKeyDown={e => { if (e.key === 'Escape') onClose?.(); }}
         style={{
         position:'fixed', inset:0, zIndex:9999,
         background:'rgba(0,0,0,.75)',
         display:'flex', alignItems:'center', justifyContent:'center',
         padding:20, animation:'fadeIn .3s',
       }}>
-        <div style={{
+        <div ref={modalRef} style={{
           background:'var(--card)', borderRadius:28,
           maxWidth:380, width:'100%',
           textAlign:'center', overflow:'hidden',
@@ -155,7 +175,7 @@ function CeremonyModal({ type, stats, name, onClose }) {
           {/* Header */}
           <div style={{ background: cfg.color, padding:'32px 24px 24px' }}>
             <div style={{ fontSize:64, marginBottom:8, filter:'drop-shadow(0 4px 12px rgba(0,0,0,.3))' }}>{cfg.emoji}</div>
-            <div style={{ fontSize:26, fontFamily:"'Playfair Display',serif", fontWeight:900, color:'#fff', marginBottom:4, lineHeight:1.2 }}>{cfg.title}</div>
+            <div id="ceremony-title" style={{ fontSize:26, fontFamily:"'Playfair Display',serif", fontWeight:900, color:'#fff', marginBottom:4, lineHeight:1.2 }}>{cfg.title}</div>
             <div style={{ fontSize:14, color:'rgba(255,255,255,.85)', fontWeight:600, marginBottom:8 }}>{cfg.titleHr}</div>
             <div style={{ display:'inline-block', background:'rgba(255,255,255,.2)', borderRadius:20, padding:'4px 14px', fontSize:13, color:'#fff', fontWeight:700 }}>{cfg.badge}</div>
           </div>
@@ -206,7 +226,6 @@ function CeremonyModal({ type, stats, name, onClose }) {
             )}
 
             <button
-              data-modal-focus
               onClick={handleShare}
               className="b bp"
               style={{ width:'100%', marginBottom:10 }}

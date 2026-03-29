@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, Spk, speakSlow } from '../../data.jsx';
 import PronunciationScorer from '../shared/PronunciationScorer.jsx';
 import { markQuest } from '../../lib/quests.js';
+import { AIProgressBar } from '../shared/SkeletonLoader.jsx';
 
 const SRSupported = typeof window !== 'undefined' && !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
@@ -596,6 +597,11 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
               <div style={{fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:6}}>
                 Using {currentLang} recognition
               </div>
+            )}
+
+            {/* AI pronunciation score loading indicator */}
+            {recResult && recResult !== 'error' && recResult !== 'timeout' && !pronScore && (
+              <AIProgressBar phase="processing" messages={['Analyzing your pronunciation…', 'Comparing with native Croatian…', 'Almost done…']} />
             )}
 
             {/* AI pronunciation score */}

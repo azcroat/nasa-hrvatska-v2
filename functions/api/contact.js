@@ -177,6 +177,7 @@ export async function onRequestPost(context) {
         subject: `[${typeInfo.label}] ${subject} — #${ticketId}`,
         html,
       }),
+      signal: AbortSignal.timeout(10000),
     });
 
     const data = await res.json().catch(() => ({}));
