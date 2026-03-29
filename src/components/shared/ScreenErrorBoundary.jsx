@@ -1,5 +1,6 @@
 import React from 'react';
 import CroatianKnight from './CroatianKnight.jsx';
+import { reportError } from '../../lib/errorReporter.js';
 
 /**
  * Per-screen error boundary. Catches crashes in individual tabs/screens
@@ -19,6 +20,7 @@ export default class ScreenErrorBoundary extends React.Component {
   componentDidCatch(error, info) {
     const screenName = String(this.props.name || 'Screen');
     console.error('[' + screenName + '] crashed:', error, info);
+    reportError(error, screenName);
   }
 
   render() {

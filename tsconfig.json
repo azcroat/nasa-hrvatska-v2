@@ -20,7 +20,7 @@
     // legacy code. Enable these one by one as files are cleaned up.
     "strict": false,
     "noImplicitAny": false,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
 
     // Catch the class of bug that burned us: accessing undefined props
     "noImplicitReturns": true,

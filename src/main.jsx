@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 import './index.css';
 import App from './App.jsx';
+import { reportError } from './lib/errorReporter.js';
 
 // ─── Sentry error telemetry ────────────────────────────────────────────────
 // Set VITE_SENTRY_DSN in Cloudflare Pages environment variables.
@@ -124,6 +125,17 @@ class ErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
+
+// ─── Global error capture ──────────────────────────────────────────────────
+// Catches errors that escape React's error boundaries (e.g. async callbacks,
+// errors in event handlers, errors in non-React code). Complements Sentry
+// when VITE_SENTRY_DSN is not set, and provides a lightweight fallback.
+window.onerror = function (message, _source, _lineno, _colno, error) {
+  reportError(error ?? new Error(String(message)), 'window.onerror');
+};
+window.onunhandledrejection = function (event) {
+  reportError(event.reason ?? new Error('Unhandled rejection'), 'unhandledrejection');
+};
 
 // ─── Service Worker auto-reload ────────────────────────────────────────────
 // When a new SW takes over (after deploy), reload once so users see the latest

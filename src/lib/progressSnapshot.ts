@@ -3,18 +3,26 @@
  *
  * Previously copy-pasted 3 times across App.jsx (doSyncNow, saveSnapshot, auto-save
  * useEffect). This module is the single source of truth for what gets persisted.
- *
- * @param {{ uid: string, name: string, stats: object, dchlA: boolean[], dchlSl: string[], favs: string[], jWords: object[] }} params
- * @returns {object} progress document ready for localStorage / Firestore
  */
 import { getSR, getStreak, getStreakFreezes, gP } from '../data.jsx';
 import { localDateStr as _todayStr, weekKey as _weekKey } from './dateUtils.js';
+import type { Stats } from '../types/index.js';
+
+interface ProgressSnapshotParams {
+  uid: string;
+  name: string;
+  stats: Stats;
+  dchlA: boolean[];
+  dchlSl: string[];
+  favs: unknown[];
+  jWords: unknown[];
+}
 
 /** Merge React dc state with localStorage dcDay3 — truth is the union of answered positions. */
-function _bestDc(dchlA, dchlSl) {
+function _bestDc(dchlA: boolean[], dchlSl: string[]) {
   const today = _todayStr();
-  let localAns = [false, false, false];
-  let localSel = ['', '', ''];
+  let localAns: boolean[] = [false, false, false];
+  let localSel: string[] = ['', '', ''];
   try {
     const p = JSON.parse(localStorage.getItem('dcDay3') || '{}');
     if (p.day === today) {
@@ -27,7 +35,7 @@ function _bestDc(dchlA, dchlSl) {
   return { day: today, answered: bestAns, selected: bestSel };
 }
 
-export function buildProgressSnapshot({ uid, name, stats, dchlA, dchlSl, favs, jWords }) {
+export function buildProgressSnapshot({ uid, name, stats, dchlA, dchlSl, favs, jWords }: ProgressSnapshotParams) {
   const dc = _bestDc(dchlA, dchlSl);
   const weekXP = parseInt(localStorage.getItem('nh_week_xp_' + _weekKey()) || '0', 10);
   const fbUpdated = (() => { try { const p = gP(uid); return (p && p._fbUpdated) || 0; } catch { return 0; } })();

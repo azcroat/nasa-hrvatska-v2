@@ -3,8 +3,6 @@
  *
  * Extracted from App.jsx to isolate the gamification state machine.
  * Caller must provide curEx (active exercise ID), stats, and setStats.
- *
- * @param {{ curEx: string, stats: object, setStats: Function }} params
  */
 import { useState, useCallback } from 'react';
 import {
@@ -18,6 +16,7 @@ import {
   trackBadgeEarned, trackStreakMilestone,
 } from '../lib/analytics.js';
 import { weekKey as _weekKey } from '../lib/dateUtils.js';
+import type { Stats } from '../types/index.js';
 
 // Module-level guard: comeback bonus fires at most once per app session
 // (mirrors _comebackUsedThisSession in App.jsx — must stay in sync if moved)
@@ -31,30 +30,30 @@ function _localDateStr() {
   const d = new Date();
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
-export function canEarnXP(exerciseId) {
+export function canEarnXP(exerciseId: string): boolean {
   try { const cd = JSON.parse(localStorage.getItem('xpCooldown') || '{}'); return cd[exerciseId] !== _localDateStr(); } catch { return true; }
 }
-export function markExerciseDone(exerciseId) {
-  try { const cd = JSON.parse(localStorage.getItem('xpCooldown') || '{}'); const today = _localDateStr(); cd[exerciseId] = today; const clean = {}; for (const k in cd) { if (cd[k] === today) clean[k] = cd[k]; } localStorage.setItem('xpCooldown', JSON.stringify(clean)); } catch {}
+export function markExerciseDone(exerciseId: string): void {
+  try { const cd = JSON.parse(localStorage.getItem('xpCooldown') || '{}'); const today = _localDateStr(); cd[exerciseId] = today; const clean: Record<string, string> = {}; for (const k in cd) { if (cd[k] === today) clean[k] = cd[k]; } localStorage.setItem('xpCooldown', JSON.stringify(clean)); } catch {}
 }
 
-export function useAward({ curEx, stats, setStats }) {
+export function useAward({ curEx, stats, setStats }: { curEx: string; stats: Stats; setStats: (fn: (prev: Stats) => Stats) => void }) {
   const [comebackBonus, setComebackBonus] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebXP, setCelebXP] = useState(0);
-  const [streakMilestone, setStreakMilestone] = useState(null);
-  const [ceremonyType, setCeremonyType] = useState(null);
-  const [levelUpData, setLevelUpData] = useState(null);
+  const [streakMilestone, setStreakMilestone] = useState<number | null>(null);
+  const [ceremonyType, setCeremonyType] = useState<string | null>(null);
+  const [levelUpData, setLevelUpData] = useState<{ level: number } | null>(null);
   const [freezeUsedToast, setFreezeUsedToast] = useState(false);
-  const [earnBackPrompt, setEarnBackPrompt] = useState(null);
+  const [earnBackPrompt, setEarnBackPrompt] = useState<{ prev: number } | null>(null);
   const [streakRestoredCount, setStreakRestoredCount] = useState(0);
   const [ttsFailedToast, setTtsFailedToast] = useState(false);
   const [showXP, setShowXP] = useState(false);
   const [xpA, setXpA] = useState(0);
-  const [nB, setNB] = useState(null);
+  const [nB, setNB] = useState<unknown>(null);
   const [sB, setSB] = useState(false);
 
-  const award = useCallback((amt, celebrate) => {
+  const award = useCallback((amt: number, celebrate?: boolean) => {
     if (!Number.isFinite(amt) || amt === 0) return;
     if (curEx && !canEarnXP(curEx)) { setXpA(0); setShowXP(false); return; }
     if (curEx) markExerciseDone(curEx);
@@ -67,21 +66,21 @@ export function useAward({ curEx, stats, setStats }) {
     }
     setXpA(totalAmt); setShowXP(true);
     // Capture side-effect data outside the updater — state updaters must be pure
-    let _pendingBadge = null;
-    let _pendingLevelUp = null;
-    setStats(s => {
+    let _pendingBadge: unknown = null;
+    let _pendingLevelUp: number | null = null;
+    setStats((s: Stats) => {
       const oldLevel = lvl(s.xp);
       const n = { ...s, xp: Math.max(0, (s.xp || 0) + totalAmt), streak: (getStreak() || { count: 0 }).count };
       // streak will be updated by updateStreak() below — keep n.streak consistent
       const badges = Array.isArray(s.badges) ? s.badges : [];
-      const nb = BADGES.filter(b => {
+      const nb = BADGES.filter((b: { id: string; r: (s: Stats) => boolean }) => {
         if (badges.includes(b.id)) return false;
         try { return b.r(n); } catch { return false; }
       });
       if (nb.length) {
-        n.badges = [...badges, ...nb.map(b => b.id)];
+        n.badges = [...badges, ...nb.map((b: { id: string }) => b.id)];
         _pendingBadge = nb[0];
-        nb.forEach(b => trackBadgeEarned(b.id));
+        nb.forEach((b: { id: string }) => trackBadgeEarned(b.id));
       }
       const newLevel = lvl(n.xp);
       if (newLevel > oldLevel) {
@@ -96,10 +95,18 @@ export function useAward({ curEx, stats, setStats }) {
       setTimeout(() => { setNB(badge); setSB(true); setTimeout(() => setSB(false), 3000); }, 600);
     }
     if (_pendingLevelUp != null) {
-      setTimeout(() => { setLevelUpData({ level: _pendingLevelUp }); }, 900);
+      setTimeout(() => { setLevelUpData({ level: _pendingLevelUp as number }); }, 900);
     }
     setTimeout(() => setShowXP(false), 1500);
     if (celebrate && totalAmt > 0) { setCelebXP(totalAmt); setTimeout(() => setShowCelebration(true), 400); }
+
+    // Notify the knight mascot on significant XP awards so it expands from mini-mode
+    if (totalAmt >= 20) {
+      window.dispatchEvent(new CustomEvent('knight:celebrate', {
+        detail: { mood: 'celebrating', text: `Sjajno! +${totalAmt} XP! 🎉` },
+      }));
+    }
+
     const sr = updateStreak();
     const restoredCount = applyStreakEarnBack();
     if (restoredCount > 0) { setTimeout(() => { setStreakRestoredCount(restoredCount); setTimeout(() => setStreakRestoredCount(0), 5000); }, 1000); }
@@ -115,7 +122,7 @@ export function useAward({ curEx, stats, setStats }) {
     if (sr.count > 0 && sr.count % 7 === 0) earnFreeze();
     if (sr.freezeUsed) { setFreezeUsedToast(true); setTimeout(() => setFreezeUsedToast(false), 4500); }
     const _stageGates = [5, 11, 22, 34, 45];
-    setStats(function (s) {
+    setStats(function (s: Stats) {
       for (let _si = 1; _si < _stageGates.length; _si++) {
         const _sk = 'nh_stage' + (_si + 1) + '_ceremony';
         if (s.lc >= _stageGates[_si] && !localStorage.getItem(_sk)) { localStorage.setItem(_sk, '1'); setTimeout(() => setCeremonyType('stage_' + (_si + 1)), 100); break; }
@@ -130,7 +137,7 @@ export function useAward({ curEx, stats, setStats }) {
     if (curEx) {
       const _lsStartTs = parseInt(sessionStorage.getItem('nh_ex_start') || '0');
       const _lsDur = _lsStartTs ? Date.now() - _lsStartTs : 0;
-      const _lsTypeMap = { flash: 'flashcards', flashcards: 'flashcards', mcgame: 'quiz', review: 'srs_review', listening: 'listening', ai_listening: 'listening', speaking: 'speaking', speaking_sprint: 'speaking', aiconvo: 'conversation', writing: 'writing', shadowing: 'shadowing', cloze: 'cloze', grammar: 'grammar', match: 'matching', readlist: 'reading' };
+      const _lsTypeMap: Record<string, string> = { flash: 'flashcards', flashcards: 'flashcards', mcgame: 'quiz', review: 'srs_review', listening: 'listening', ai_listening: 'listening', speaking: 'speaking', speaking_sprint: 'speaking', aiconvo: 'conversation', writing: 'writing', shadowing: 'shadowing', cloze: 'cloze', grammar: 'grammar', match: 'matching', readlist: 'reading' };
       const _lsAType = _lsTypeMap[curEx] || (curEx.startsWith('vocab_') ? 'flashcards' : null);
       if (_lsAType) {
         trackComplete(_lsAType, _lsDur);
