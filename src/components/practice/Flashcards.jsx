@@ -109,14 +109,16 @@ export default function Flashcards({ pool, goBack, award }) {
     const key = `img:${word}`;
     if (imgCacheRef.current[key]) { setCardImg(imgCacheRef.current[key]); return undefined; }
     const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
     setCardImg(null);
     setCardImgLoading(true);
     fetchCardImage(word, meaning, imgCacheRef, controller.signal).then(url => {
+      clearTimeout(timeoutId);
       if (!mountedRef.current) return;
       setCardImg(url || null);
       setCardImgLoading(false);
-    });
-    return () => controller.abort();
+    }).catch(() => { clearTimeout(timeoutId); if (mountedRef.current) setCardImgLoading(false); });
+    return () => { controller.abort(); clearTimeout(timeoutId); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx, done]);
 
@@ -137,6 +139,7 @@ export default function Flashcards({ pool, goBack, award }) {
     setAiLoading(true);
     setAiError(false);
     const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
     fetch('/api/flash-context', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -145,6 +148,7 @@ export default function Flashcards({ pool, goBack, award }) {
     })
       .then(r => r.ok ? r.json() : Promise.reject(r.status))
       .then(data => {
+        clearTimeout(timeoutId);
         if (!mountedRef.current) return;
         const sentence = { hr: data.hr, en: data.en, note: data.note || null };
         aiCacheRef.current[word] = sentence;
@@ -152,11 +156,12 @@ export default function Flashcards({ pool, goBack, award }) {
         setAiLoading(false);
       })
       .catch(() => {
+        clearTimeout(timeoutId);
         if (!mountedRef.current) return;
         setAiLoading(false);
         setAiError(true);
       });
-    return () => controller.abort();
+    return () => { controller.abort(); clearTimeout(timeoutId); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flipped, idx, done]);
 

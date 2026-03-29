@@ -115,14 +115,12 @@ export function useAward({ curEx, stats, setStats }: { curEx: string; stats: Sta
     if (sr.count >= 100 && !localStorage.getItem('nh_ceremony_streak_100')) { localStorage.setItem('nh_ceremony_streak_100', '1'); setCeremonyType('streak_100'); }
     if (sr.count > 0 && sr.count % 7 === 0) earnFreeze();
     if (sr.freezeUsed) { setFreezeUsedToast(true); setTimeout(() => setFreezeUsedToast(false), 4500); }
+    // Check stage gate using current stats value directly (side effects must not be in setStats updaters)
     const _stageGates = [5, 11, 22, 34, 45];
-    setStats(function (s: Stats) {
-      for (let _si = 1; _si < _stageGates.length; _si++) {
-        const _sk = 'nh_stage' + (_si + 1) + '_ceremony';
-        if (s.lc >= _stageGates[_si] && !localStorage.getItem(_sk)) { localStorage.setItem(_sk, '1'); setTimeout(() => setCeremonyType('stage_' + (_si + 1)), 100); break; }
-      }
-      return s;
-    });
+    for (let _si = 1; _si < _stageGates.length; _si++) {
+      const _sk = 'nh_stage' + (_si + 1) + '_ceremony';
+      if (stats.lc >= _stageGates[_si] && !localStorage.getItem(_sk)) { localStorage.setItem(_sk, '1'); setTimeout(() => setCeremonyType('stage_' + (_si + 1)), 100); break; }
+    }
     const _wk = _weekKey();
     const _wkKey = 'nh_week_xp_' + _wk;
     localStorage.setItem(_wkKey, String(Math.max(0, (parseInt(localStorage.getItem(_wkKey) || '0', 10)) + totalAmt)));
@@ -143,7 +141,7 @@ export function useAward({ curEx, stats, setStats }: { curEx: string; stats: Sta
         }
       }
     }
-  }, [curEx, comebackBonus, setStats]);
+  }, [curEx, comebackBonus, setStats, stats.lc]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     award,
