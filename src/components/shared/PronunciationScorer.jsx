@@ -182,6 +182,9 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
       return;
     }
 
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 12000); // 12s client timeout — server has 20s Azure timeout
+
     try {
       const res = await fetch('/api/pronunciation-assess', {
         method: 'POST',
@@ -191,17 +194,16 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
           referenceText: targetText,
           locale: 'hr-HR',
         }),
+        signal: controller.signal,
       });
+      clearTimeout(tid);
       const data = await res.json();
 
       if (!res.ok || !data.ok) {
         // Azure not configured or unavailable — fall back to Web Speech API mode.
-        if (data?.error === 'not_configured' || !res.ok) {
-          setMode('webspeech');
-          startWebSpeech();
-          return;
-        }
-        throw new Error(data?.error || 'API error');
+        setMode('webspeech');
+        startWebSpeech();
+        return;
       }
 
       setAzureResult(data);
@@ -209,13 +211,14 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
       // Emit a synthetic onScore event so parent components still get feedback.
       if (onScore) onScore({ spoken: targetText, score: data.overall ?? 0 });
     } catch (fetchErr) {
+      clearTimeout(tid);
       console.warn('PronunciationScorer: Azure assess failed, falling back to Web Speech:', fetchErr?.message);
-      // Graceful fallback: try Web Speech API.
+      // Graceful fallback: try Web Speech API. If unsupported, show error and reset.
       if (webSpeechSupported) {
         setMode('webspeech');
         startWebSpeech();
       } else {
-        setSrErrorMsg('Pronunciation assessment unavailable. Please try again later.');
+        setSrErrorMsg('Pronunciation assessment unavailable. Please try again.');
         setState('idle');
       }
     }
