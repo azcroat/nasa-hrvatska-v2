@@ -1,6 +1,12 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { apiFetch } from '../../lib/apiFetch.js';
 
+// Detect desktop: has fine pointer (mouse) and hover capability
+function isDesktop() {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+}
+
 // ── Keyframe injection (pv-spin for loading spinner) ─────────────────────────
 const PV_SPIN_STYLE = `@keyframes pv-spin { to { transform: rotate(360deg) } }`;
 
@@ -163,6 +169,8 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
   // Inject keyframes on first render
   useEffect(() => { injectKeyframes(); }, []);
 
+  const desktop = isDesktop();
+
   // State machine: 'idle' → 'preview' → 'loading' → 'results' | 'error'
   const [phase, setPhase] = useState('idle');
   const [imageDataUrl, setImageDataUrl] = useState(null);
@@ -171,13 +179,13 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
   const [errorMsg, setErrorMsg] = useState('');
   const [checked, setChecked] = useState({});     // word index → boolean
   const [toast, setToast] = useState(null);
+  const [dragOver, setDragOver] = useState(false);
 
   const fileInputRef = useRef(null);
 
-  // ── File selection ──────────────────────────────────────────────────────────
-  const handleFileChange = useCallback((e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // ── Shared: load a File/Blob as data URL ───────────────────────────────────
+  const loadFile = useCallback((file) => {
+    if (!file || !file.type.startsWith('image/')) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
       setImageDataUrl(ev.target.result);
@@ -187,9 +195,44 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
       setChecked({});
     };
     reader.readAsDataURL(file);
-    // Reset file input so same file can be re-selected if needed
-    e.target.value = '';
   }, []);
+
+  // ── File input change ───────────────────────────────────────────────────────
+  const handleFileChange = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    loadFile(file);
+    // Reset so same file can be re-selected
+    e.target.value = '';
+  }, [loadFile]);
+
+  // ── Drag-and-drop ───────────────────────────────────────────────────────────
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault();
+    setDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    setDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    loadFile(file);
+  }, [loadFile]);
+
+  // ── Clipboard paste (Ctrl+V / Cmd+V) ───────────────────────────────────────
+  useEffect(() => {
+    if (!desktop) return;
+    const handlePaste = (e) => {
+      const item = Array.from(e.clipboardData?.items || []).find(i => i.type.startsWith('image/'));
+      if (item) loadFile(item.getAsFile());
+    };
+    document.addEventListener('paste', handlePaste);
+    return () => document.removeEventListener('paste', handlePaste);
+  }, [desktop, loadFile]);
 
   // ── Scan ────────────────────────────────────────────────────────────────────
   const handleScan = useCallback(async () => {
@@ -229,12 +272,12 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <div className="scr-wrap" style={{ maxWidth: 540, margin: '0 auto' }}>
-      {/* Hidden file input */}
+      {/* Hidden file input — no capture on desktop (it blocks the file picker on some browsers) */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
-        capture="environment"
+        {...(!desktop ? { capture: 'environment' } : {})}
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />
@@ -278,28 +321,67 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
       {/* ── IDLE: pick photo ── */}
       {(phase === 'idle' || phase === 'preview' || phase === 'error') && (
         <div style={{ marginBottom: 16 }}>
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 10,
-              width: '100%',
-              height: 52,
-              background: BRAND_RED,
-              color: '#fff',
-              border: 'none',
-              borderRadius: 14,
-              fontSize: 15,
-              fontWeight: 700,
-              cursor: 'pointer',
-              fontFamily: "'Outfit', sans-serif",
-              marginBottom: 12,
-            }}
-          >
-            📷 Take Photo or Choose Image
-          </button>
+          {desktop ? (
+            /* Desktop: drag-and-drop zone + button */
+            <div
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              role="button"
+              tabIndex={0}
+              aria-label="Drop an image here, paste from clipboard, or click to choose a file"
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click(); }}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                width: '100%',
+                minHeight: 130,
+                background: dragOver ? `rgba(212,0,45,0.07)` : 'var(--card)',
+                border: `2px dashed ${dragOver ? BRAND_RED : 'var(--card-b)'}`,
+                borderRadius: 14,
+                cursor: 'pointer',
+                transition: 'border-color 0.15s, background 0.15s',
+                marginBottom: 12,
+                boxSizing: 'border-box',
+              }}
+            >
+              <div style={{ fontSize: 36, lineHeight: 1 }}>{dragOver ? '📂' : '🖼️'}</div>
+              <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--heading)' }}>
+                {dragOver ? 'Drop to scan' : 'Drop image or click to upload'}
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--subtext)' }}>
+                Also works with Ctrl+V paste from clipboard
+              </div>
+            </div>
+          ) : (
+            /* Mobile: camera / file picker button */
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 10,
+                width: '100%',
+                height: 52,
+                background: BRAND_RED,
+                color: '#fff',
+                border: 'none',
+                borderRadius: 14,
+                fontSize: 15,
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: "'Outfit', sans-serif",
+                marginBottom: 12,
+              }}
+            >
+              📷 Take Photo or Choose Image
+            </button>
+          )}
 
           {/* Context hint */}
           <input
@@ -467,7 +549,7 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
                 fontFamily: "'Outfit', sans-serif",
               }}
             >
-              📷 New Photo
+              {desktop ? '🖼️ New Image' : '📷 New Photo'}
             </button>
           </div>
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 /**
  * CroatianKnight — LEGO Movie–quality minifigure mascot
@@ -271,6 +272,13 @@ export default function CroatianKnight({ size = 80, mood = 'happy', className = 
   ] : [];
 
   return (
+    <motion.div
+      className={className}
+      style={{ display: 'inline-block', lineHeight: 0, ...style }}
+      initial={{ scale: 0.78, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ type: 'spring', stiffness: 380, damping: 22, duration: 0.4 }}
+    >
     <svg
       width={size}
       height={Math.round(size * 1.56)}
@@ -280,8 +288,6 @@ export default function CroatianKnight({ size = 80, mood = 'happy', className = 
       overflow="visible"
       role="img"
       aria-label={`LEGO Croatian knight mascot, ${mood} expression`}
-      className={className}
-      style={style}
     >
       <Defs />
 
@@ -672,5 +678,6 @@ export default function CroatianKnight({ size = 80, mood = 'happy', className = 
 
       </g>
     </svg>
+    </motion.div>
   );
 }

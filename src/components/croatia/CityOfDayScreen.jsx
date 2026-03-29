@@ -34,13 +34,13 @@ function CityOfDayScreen({ goBack }) {
       {/* Photo header */}
       <div style={{
         position: 'relative',
-        height: 200,
-        background: `linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%), url(${photoUrl}) center/cover no-repeat`,
-        borderRadius: '0 0 20px 20px',
+        height: 280,
+        background: `linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.72) 100%), url(${photoUrl}) center/cover no-repeat`,
+        borderRadius: '0 0 24px 24px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-end',
-        padding: '0 16px 16px',
+        padding: '0 20px 20px',
         marginBottom: 16,
         overflow: 'hidden',
       }}>
@@ -54,11 +54,11 @@ function CityOfDayScreen({ goBack }) {
 
         {/* City name overlay */}
         <div style={{color: '#fff'}}>
-          <div style={{fontSize: 11, fontWeight: 600, opacity: 0.8, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4}}>
-            City of the Day
+          <div style={{fontSize: 11, fontWeight: 700, opacity: 0.85, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6}}>
+            🏙️ City of the Day
           </div>
-          <div style={{fontSize: 24, fontWeight: 900}}>{city.icon} {city.name}</div>
-          <div style={{fontSize: 13, opacity: 0.85, marginTop: 2}}>{city.region || city.subtitle || ''}</div>
+          <div style={{fontSize: 30, fontWeight: 900, textShadow: '0 2px 8px rgba(0,0,0,0.4)', lineHeight: 1.1}}>{city.icon} {city.name}</div>
+          <div style={{fontSize: 14, opacity: 0.9, marginTop: 4, fontWeight: 500}}>{city.region || city.subtitle || ''}</div>
         </div>
       </div>
 
