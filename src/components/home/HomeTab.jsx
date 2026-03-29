@@ -25,6 +25,7 @@ import DailyCroatianSection from './DailyCroatianSection.jsx';
 import AITutorCard from './AITutorCard.jsx';
 import ProgressTabContent from './ProgressTabContent.jsx';
 import WelcomeBackBanners from './WelcomeBackBanners.jsx';
+import GoalSetterModal from '../shared/GoalSetterModal.jsx';
 // DalmatianCoast SVG replaced with real AI/CC photography
 // import { DalmatianCoast } from '../illustrations';
 
@@ -97,6 +98,11 @@ export default function HomeTab({
 
   const userGoal = goal || localStorage.getItem('nh_goal') || 'fluent';
   const activeCampaign = useMemo(() => getActiveCampaign(), []);
+
+  // Goal-setter modal: show for new users who haven't set a goal yet
+  const [showGoalModal, setShowGoalModal] = useState(
+    () => st.lc === 0 && !localStorage.getItem('nh_goal_set')
+  );
 
   const [htab, setHTab] = useState('today');
 
@@ -184,6 +190,11 @@ export default function HomeTab({
 
   return (
     <React.Fragment>
+
+      {/* ── GOAL SETTER MODAL (new users only) ── */}
+      {showGoalModal && (
+        <GoalSetterModal onComplete={() => setShowGoalModal(false)} />
+      )}
 
       {/* ── GUEST SAVE-PROGRESS BANNER ── */}
       {!authUser && st.xp > 0 && (
@@ -293,129 +304,6 @@ export default function HomeTab({
       })()}
       </motion.div>
 
-      {/* ── WORD OF THE DAY ── */}
-      {wod && (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.08 }}>
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(14,116,144,0.08) 0%, rgba(8,145,178,0.06) 100%)',
-            border: '1px solid rgba(14,116,144,0.2)',
-            borderRadius: 16, padding: '14px 16px', marginBottom: 12,
-          }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: '#0e7490', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 8 }}>
-              📅 Word of the Day
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--heading)', fontFamily: "'Playfair Display',serif" }}>
-                  {wod[0]}
-                </div>
-                {wod[2] && (
-                  <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 2, fontStyle: 'italic' }}>{wod[2]}</div>
-                )}
-                <div style={{ fontSize: 14, color: 'var(--subtext)', marginTop: 4 }}>{wod[1]}</div>
-              </div>
-              <button
-                onClick={() => speak(wod[0])}
-                aria-label="Hear pronunciation"
-                style={{
-                  background: 'rgba(14,116,144,0.1)', border: '1px solid rgba(14,116,144,0.2)',
-                  borderRadius: '50%', width: 44, height: 44, fontSize: 20, cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                }}
-              >🔊</button>
-            </div>
-          </div>
-        </motion.div>
-      )}
-
-      {/* ── CITY OF THE DAY teaser ── */}
-      {(() => {
-        const city = getCityOfDay();
-        const teaser = city.facts?.[0] || city.intro?.slice(0, 90) + '…' || '';
-        return (
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.1 }}>
-            <button
-              onClick={() => { incrementCulture('cityCnt'); if (award) award(3); setScr('cityofday'); }}
-              aria-label={`City of the Day: ${city.name}`}
-              style={{
-                width: '100%', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left',
-                borderRadius: 18, overflow: 'hidden', marginBottom: 12,
-                boxShadow: `0 4px 20px ${city.color}55, 0 1px 4px rgba(0,0,0,.18)`,
-              }}
-            >
-              {/* Main gradient body */}
-              <div style={{
-                background: `linear-gradient(135deg, ${city.color}f5 0%, ${city.color}cc 60%, ${city.color}99 100%)`,
-                padding: '16px 16px 0',
-                position: 'relative',
-                overflow: 'hidden',
-              }}>
-                {/* Subtle dot-grid overlay for texture */}
-                <div style={{
-                  position: 'absolute', inset: 0, opacity: 0.08,
-                  backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)',
-                  backgroundSize: '18px 18px',
-                  pointerEvents: 'none',
-                }} />
-
-                {/* Top row: badge + vocab count */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, position: 'relative' }}>
-                  <div style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 5,
-                    background: 'rgba(0,0,0,0.22)', borderRadius: 20, padding: '3px 10px',
-                  }}>
-                    <span style={{ fontSize: 10 }}>📅</span>
-                    <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,.9)', letterSpacing: '.08em', textTransform: 'uppercase' }}>City of the Day</span>
-                  </div>
-                  <div style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 4,
-                    background: 'rgba(255,255,255,0.18)', borderRadius: 20, padding: '3px 10px',
-                  }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>{city.vocab.length} words</span>
-                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,.8)' }}>→</span>
-                  </div>
-                </div>
-
-                {/* City name row */}
-                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginBottom: 10, position: 'relative' }}>
-                  <div style={{
-                    width: 54, height: 54, borderRadius: 14, flexShrink: 0,
-                    background: 'rgba(0,0,0,0.20)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 30,
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
-                  }}>
-                    {city.icon}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.15, fontFamily: "'Playfair Display', serif", letterSpacing: '-0.01em' }}>
-                      {city.name}
-                    </div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,.8)', marginTop: 2 }}>
-                      {city.region} · <span style={{ fontStyle: 'italic' }}>"{city.tagline}"</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Teaser strip */}
-              {teaser && (
-                <div style={{
-                  background: 'rgba(0,0,0,0.32)',
-                  padding: '8px 16px',
-                  display: 'flex', alignItems: 'center', gap: 8,
-                }}>
-                  <span style={{ fontSize: 12 }}>💡</span>
-                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,.82)', lineHeight: 1.4, fontStyle: 'italic', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                    {teaser}
-                  </span>
-                </div>
-              )}
-            </button>
-          </motion.div>
-        );
-      })()}
-
       {/* ── SUB-TAB PILL SELECTOR ── */}
       <div style={{ display:'flex', gap:8, padding:'12px 0 4px', borderBottom:'1px solid var(--bar-bg)', marginBottom:16 }}>
         {[
@@ -447,6 +335,96 @@ export default function HomeTab({
             campaignQuestsDone={campaignQuestsDone}
             setTab={setTab}
           />
+
+          {/* ── WORD OF THE DAY ── */}
+          {wod && (
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.04 }}>
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(14,116,144,0.08) 0%, rgba(8,145,178,0.06) 100%)',
+                border: '1px solid rgba(14,116,144,0.2)',
+                borderRadius: 16, padding: '14px 16px', marginBottom: 12,
+              }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: '#0e7490', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 8 }}>
+                  📅 Word of the Day
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--heading)', fontFamily: "'Playfair Display',serif" }}>
+                      {wod[0]}
+                    </div>
+                    {wod[2] && (
+                      <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 2, fontStyle: 'italic' }}>{wod[2]}</div>
+                    )}
+                    <div style={{ fontSize: 14, color: 'var(--subtext)', marginTop: 4 }}>{wod[1]}</div>
+                  </div>
+                  <button
+                    onClick={() => speak(wod[0])}
+                    aria-label="Hear pronunciation"
+                    style={{
+                      background: 'rgba(14,116,144,0.1)', border: '1px solid rgba(14,116,144,0.2)',
+                      borderRadius: '50%', width: 44, height: 44, fontSize: 20, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                    }}
+                  >🔊</button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ── CITY OF THE DAY teaser ── */}
+          {(() => {
+            const city = getCityOfDay();
+            const teaser = city.facts?.[0] || city.intro?.slice(0, 90) + '…' || '';
+            return (
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.06 }}>
+                <button
+                  onClick={() => { incrementCulture('cityCnt'); if (award) award(3); setScr('cityofday'); }}
+                  aria-label={`City of the Day: ${city.name}`}
+                  style={{
+                    width: '100%', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left',
+                    borderRadius: 18, overflow: 'hidden', marginBottom: 12,
+                    boxShadow: `0 4px 20px ${city.color}55, 0 1px 4px rgba(0,0,0,.18)`,
+                  }}
+                >
+                  <div style={{
+                    background: `linear-gradient(135deg, ${city.color}f5 0%, ${city.color}cc 60%, ${city.color}99 100%)`,
+                    padding: '16px 16px 0', position: 'relative', overflow: 'hidden',
+                  }}>
+                    <div style={{
+                      position: 'absolute', inset: 0, opacity: 0.08,
+                      backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)',
+                      backgroundSize: '18px 18px', pointerEvents: 'none',
+                    }} />
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, position: 'relative' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(0,0,0,0.22)', borderRadius: 20, padding: '3px 10px' }}>
+                        <span style={{ fontSize: 10 }}>📅</span>
+                        <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,.9)', letterSpacing: '.08em', textTransform: 'uppercase' }}>City of the Day</span>
+                      </div>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(255,255,255,0.18)', borderRadius: 20, padding: '3px 10px' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>{city.vocab.length} words</span>
+                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,.8)' }}>→</span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginBottom: 10, position: 'relative' }}>
+                      <div style={{ width: 54, height: 54, borderRadius: 14, flexShrink: 0, background: 'rgba(0,0,0,0.20)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, boxShadow: '0 2px 8px rgba(0,0,0,0.25)' }}>
+                        {city.icon}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.15, fontFamily: "'Playfair Display', serif", letterSpacing: '-0.01em' }}>{city.name}</div>
+                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,.8)', marginTop: 2 }}>{city.region} · <span style={{ fontStyle: 'italic' }}>"{city.tagline}"</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  {teaser && (
+                    <div style={{ background: 'rgba(0,0,0,0.32)', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 12 }}>💡</span>
+                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,.82)', lineHeight: 1.4, fontStyle: 'italic', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{teaser}</span>
+                    </div>
+                  )}
+                </button>
+              </motion.div>
+            );
+          })()}
 
           {/* ── TODAY'S FOCUS HEADER ── */}
           <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12, marginTop:24}}>

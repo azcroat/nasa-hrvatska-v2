@@ -76,6 +76,18 @@ export default function HeroSection({
   const [streakRestored, setStreakRestored] = useState(false);
   const [streakRestoreMsg, setStreakRestoreMsg] = useState('');
 
+  // Collapsible hero: new users see full, returning users see compact by default
+  const [heroExpanded, setHeroExpanded] = useState(() => {
+    const saved = localStorage.getItem('nh_hero_expanded');
+    if (saved !== null) return saved === '1';
+    return (st.lc || 0) === 0; // new users: expanded; returning: compact
+  });
+  const toggleHero = () => {
+    const next = !heroExpanded;
+    setHeroExpanded(next);
+    localStorage.setItem('nh_hero_expanded', next ? '1' : '0');
+  };
+
   const xpCur = st.xp - lXP(level);
   const xpNeeded = nXP(level) - lXP(level);
   const xpPct = Math.min(Math.round((xpCur / xpNeeded) * 100), 100);
@@ -114,6 +126,42 @@ export default function HeroSection({
           }}/>
         </div>
 
+        {/* ── COMPACT STRIP (returning users, collapsed state) ── */}
+        {!heroExpanded && (
+          <button
+            onClick={toggleHero}
+            aria-label="Expand hero section"
+            style={{
+              width: '100%', padding: '12px 20px',
+              background: 'none', border: 'none', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 14,
+              fontFamily: "'Outfit', sans-serif",
+            }}
+          >
+            <CroatianGrb size={36} />
+            <div style={{ flex: 1, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4,
+                background: 'rgba(255,255,255,.12)', borderRadius: 10, padding: '4px 10px' }}>
+                <span style={{ fontSize: 14 }}>🔥</span>
+                <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{streak.count}</span>
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,.6)', marginLeft: 2 }}>day streak</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4,
+                background: 'rgba(255,255,255,.12)', borderRadius: 10, padding: '4px 10px' }}>
+                <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Lv {level}</span>
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,.6)' }}>{pathData.activeLv.title}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4,
+                background: 'rgba(255,255,255,.12)', borderRadius: 10, padding: '4px 10px' }}>
+                <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{st.xp.toLocaleString()}</span>
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,.6)' }}>XP</span>
+              </div>
+            </div>
+            <span style={{ fontSize: 18, color: 'rgba(255,255,255,.6)' }}>⌄</span>
+          </button>
+        )}
+
+        {heroExpanded && (
         <div style={{padding:'16px 20px 20px'}}>
 
           {/* Top row: brand — grb + logotype */}
@@ -435,7 +483,23 @@ export default function HeroSection({
               {streakRestoreMsg}
             </div>
           )}
-        </div>{/* end padding wrapper */}
+          {/* Collapse button — bottom of full hero */}
+          <button
+            onClick={toggleHero}
+            aria-label="Collapse hero section"
+            style={{
+              width: '100%', marginTop: 14, padding: '6px 0',
+              background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.12)',
+              borderRadius: 10, cursor: 'pointer', color: 'rgba(255,255,255,.5)',
+              fontSize: 12, fontWeight: 600, fontFamily: "'Outfit',sans-serif",
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+            }}
+          >
+            <span>Hide details</span><span style={{ fontSize: 10 }}>⌃</span>
+          </button>
+
+        </div>
+        )}
       </div>
     </motion.div>
   );
