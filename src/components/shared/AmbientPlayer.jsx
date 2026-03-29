@@ -106,40 +106,41 @@ export default function AmbientPlayer() {
         pointerEvents: 'none',
       }}
     >
-      {/* Scene buttons — always visible as a compact row */}
+      {/* Ambient sound widget — icon-only buttons with label */}
       <div style={{
         display: 'flex',
-        gap: 4,
+        alignItems: 'center',
+        gap: 2,
         background: 'var(--card)',
         borderRadius: 30,
-        padding: '5px 8px',
+        padding: '5px 10px',
         border: '1px solid var(--border)',
         boxShadow: '0 2px 12px rgba(0,0,0,.12)',
         pointerEvents: 'auto',
       }}>
+        <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--subtext)', marginRight: 4, letterSpacing: '.02em' }}>
+          🔊
+        </span>
         {SCENES.map(s => (
           <button
             key={s.id}
             onClick={() => handleSceneClick(s.id)}
-            title={s.label}
+            title={`Play ${s.label} ambient sounds`}
             aria-pressed={scene === s.id}
+            aria-label={`${s.label} ambient sounds`}
             style={{
               background: scene === s.id ? 'var(--info)' : 'transparent',
               border: 'none',
               borderRadius: 20,
-              padding: '4px 8px',
-              fontSize: 14,
+              padding: '4px 7px',
+              fontSize: 16,
               cursor: 'pointer',
-              color: scene === s.id ? '#fff' : 'var(--subtext)',
-              fontWeight: 700,
-              transition: 'background .2s, color .2s',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
+              opacity: scene === s.id ? 1 : 0.6,
+              transition: 'background .2s, opacity .2s',
+              lineHeight: 1,
             }}
           >
             {s.icon}
-            <span style={{ fontSize: 10, letterSpacing: '.03em' }}>{s.label}</span>
           </button>
         ))}
         {scene !== 'off' && (
@@ -149,8 +150,8 @@ export default function AmbientPlayer() {
             aria-label="Stop ambient sound"
             style={{
               background: 'transparent', border: 'none', borderRadius: 20,
-              padding: '4px 6px', fontSize: 13, cursor: 'pointer',
-              color: 'var(--subtext)', fontWeight: 900,
+              padding: '2px 4px', fontSize: 11, cursor: 'pointer',
+              color: 'var(--subtext)', fontWeight: 900, opacity: 0.7,
             }}
           >✕</button>
         )}

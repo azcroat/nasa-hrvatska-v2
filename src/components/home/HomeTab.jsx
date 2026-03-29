@@ -710,10 +710,10 @@ export default function HomeTab({
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
                 <div>
                   <div style={{ fontSize:9, fontWeight:800, color:'rgba(255,255,255,.65)', letterSpacing:'.14em', textTransform:'uppercase', marginBottom:3 }}>
-                    Croatia Today · {dailyCulture ? dailyCulture.region || scene.label : scene.label}
+                    Croatia Today · {scene.label}
                   </div>
                   <div style={{ fontSize:17, fontWeight:900, color:'#fff', fontFamily:"'Playfair Display',serif", textShadow:'0 1px 6px rgba(0,0,0,.5)' }}>
-                    {dailyCulture ? `${dailyCulture.locationEmoji || '🇭🇷'} ${dailyCulture.city}` : scene.city}
+                    🇭🇷 {scene.city}
                   </div>
                 </div>
                 <span style={{ fontSize:22 }}>🇭🇷</span>
