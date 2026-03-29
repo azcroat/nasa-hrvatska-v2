@@ -116,6 +116,7 @@ export default function GrammarExplainer({ goBack, award }) {
           mode: "explain",
           params: { topic: selectedTopic.title, level },
         }),
+        signal: AbortSignal.timeout(25000),
       });
       if (!res.ok) throw new Error("API error " + res.status);
       const data = await res.json();
@@ -174,6 +175,7 @@ export default function GrammarExplainer({ goBack, award }) {
           params: { level, writingPrompt: promptText },
           messages: [{ role: "user", content: writingText.trim() }],
         }),
+        signal: AbortSignal.timeout(25000),
       });
       if (!res.ok) throw new Error("API error " + res.status);
       const data = await res.json();

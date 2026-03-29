@@ -114,6 +114,7 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ weakWords: sorted, level: userLevel, goal }),
+        signal: AbortSignal.timeout(25000),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));

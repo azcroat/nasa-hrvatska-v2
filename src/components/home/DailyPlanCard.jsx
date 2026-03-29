@@ -140,6 +140,7 @@ export default function DailyPlanCard(/** @type {any} */ { level: _level, goal: 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...payload, stylePreferences: getStyleContextForAPI() }),
+        signal: AbortSignal.timeout(25000),
       });
       if (!res.ok) throw new Error('API error ' + res.status);
       const data = await res.json();

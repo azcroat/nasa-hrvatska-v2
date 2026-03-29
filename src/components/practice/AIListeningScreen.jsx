@@ -54,6 +54,7 @@ export default function AIListeningScreen({ goBack, award }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic: selectedTopic, level, style }),
+        signal: AbortSignal.timeout(30000),
       });
       if (!mountedRef.current) return;
       if (!res.ok) throw new Error(`listening API error: ${res.status}`);
@@ -76,6 +77,7 @@ export default function AIListeningScreen({ goBack, award }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: fullText.trim(), slow: speed < 1 }),
+        signal: AbortSignal.timeout(20000),
       });
       if (!mountedRef.current) return;
       if (!ttsRes.ok) {
