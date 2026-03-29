@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
 /**
@@ -37,6 +37,7 @@ const C = {
 // ─── CSS Keyframes ────────────────────────────────────────────────────────────
 // LEGO animations have a satisfying "plastic snap" quality — short, snappy timing
 const KF = `
+/* ── Body animations ── */
 @keyframes lk-bounce {
   0%,100%{transform:translateY(0px)}
   25%{transform:translateY(-15px)}
@@ -70,8 +71,62 @@ const KF = `
   0%,100%{opacity:0.18}
   50%{opacity:0.42}
 }
+@keyframes lk-strut {
+  0%,100%{transform:translateX(0px) rotate(0deg)}
+  25%{transform:translateX(-6px) rotate(-3deg)}
+  75%{transform:translateX(6px) rotate(3deg)}
+}
+@keyframes lk-pulse {
+  0%,100%{transform:scale(1)}
+  35%{transform:scale(1.09) translateY(-3px)}
+  60%{transform:scale(1.04) translateY(-1px)}
+}
+@keyframes lk-spin {
+  0%{transform:rotate(0deg) translateY(-4px)}
+  100%{transform:rotate(360deg) translateY(-4px)}
+}
+@keyframes lk-march {
+  0%,100%{transform:translateY(0px) rotate(0deg)}
+  25%{transform:translateY(-10px) rotate(-2deg)}
+  50%{transform:translateY(0px) rotate(0deg)}
+  75%{transform:translateY(-10px) rotate(2deg)}
+}
+@keyframes lk-nod {
+  0%,100%{transform:translateY(0px) rotate(0deg)}
+  30%{transform:translateY(-6px) rotate(-5deg)}
+  65%{transform:translateY(3px) rotate(2deg)}
+}
+@keyframes lk-cheer {
+  0%,100%{transform:translateY(0px)}
+  18%{transform:translateY(-22px)}
+  36%{transform:translateY(-8px)}
+  54%{transform:translateY(-26px)}
+  72%{transform:translateY(-12px)}
+  90%{transform:translateY(-20px)}
+}
+@keyframes lk-sway {
+  0%,100%{transform:translateX(0px) rotate(0deg)}
+  50%{transform:translateX(-9px) rotate(-5deg)}
+}
+@keyframes lk-stamp {
+  0%,50%,100%{transform:translateY(0px) scaleY(1)}
+  15%{transform:translateY(-14px) scaleY(1.03)}
+  28%{transform:translateY(3px) scaleY(0.95)}
+  65%{transform:translateY(-12px) scaleY(1.03)}
+  78%{transform:translateY(2px) scaleY(0.96)}
+}
+@keyframes lk-rock {
+  0%,100%{transform:rotate(0deg) translateY(0px)}
+  25%{transform:rotate(-9deg) translateY(-2px)}
+  75%{transform:rotate(9deg) translateY(-2px)}
+}
+@keyframes lk-glide {
+  0%,100%{transform:translateY(0px) rotate(0deg)}
+  33%{transform:translateY(-11px) rotate(-2deg)}
+  66%{transform:translateY(-5px) rotate(2deg)}
+}
 
-/* Arm animations — translate-rotate-translate encodes pivot for browser compat */
+/* ── Arm animations — translate-rotate-translate encodes pivot ── */
 @keyframes lk-aL-up {
   0%,100%{transform:translate(28px,75px) rotate(0deg) translate(-28px,-75px)}
   50%{transform:translate(28px,75px) rotate(-72deg) translate(-28px,-75px)}
@@ -96,77 +151,85 @@ const KF = `
   0%,100%{transform:translate(92px,75px) rotate(0deg) translate(-92px,-75px)}
   50%{transform:translate(92px,75px) rotate(-16deg) translate(-92px,-75px)}
 }
+@keyframes lk-aL-wave {
+  0%,100%{transform:translate(28px,75px) rotate(0deg) translate(-28px,-75px)}
+  25%{transform:translate(28px,75px) rotate(-65deg) translate(-28px,-75px)}
+  75%{transform:translate(28px,75px) rotate(-25deg) translate(-28px,-75px)}
+}
+@keyframes lk-aR-wave {
+  0%,100%{transform:translate(92px,75px) rotate(0deg) translate(-92px,-75px)}
+  25%{transform:translate(92px,75px) rotate(65deg) translate(-92px,-75px)}
+  75%{transform:translate(92px,75px) rotate(25deg) translate(-92px,-75px)}
+}
+@keyframes lk-aR-thrust {
+  0%,100%{transform:translate(92px,75px) rotate(0deg) translate(-92px,-75px)}
+  35%{transform:translate(92px,75px) rotate(-85deg) translate(-92px,-75px)}
+  55%{transform:translate(92px,75px) rotate(-75deg) translate(-92px,-75px)}
+}
+@keyframes lk-aL-shield-high {
+  0%,100%{transform:translate(28px,75px) rotate(-28deg) translate(-28px,-75px)}
+  50%{transform:translate(28px,75px) rotate(-52deg) translate(-28px,-75px)}
+}
+@keyframes lk-aR-pump {
+  0%,100%{transform:translate(92px,75px) rotate(0deg) translate(-92px,-75px)}
+  30%{transform:translate(92px,75px) rotate(82deg) translate(-92px,-75px)}
+  60%{transform:translate(92px,75px) rotate(48deg) translate(-92px,-75px)}
+}
 @keyframes lk-confetti {
   0%{transform:translateY(0px) rotate(0deg);opacity:1}
   100%{transform:translateY(30px) rotate(360deg);opacity:0}
 }
 `;
 
-// ─── Mood configuration ───────────────────────────────────────────────────────
-const MOODS = {
-  celebrating: {
-    body:   'lk-bounce 0.85s ease-in-out infinite',
-    armL:   'lk-aL-up  0.85s ease-in-out infinite',
-    armR:   'lk-aR-up  0.85s ease-in-out infinite',
-    face:   'celebrate',
-    plume:  null,
-  },
-  happy: {
-    body:  'lk-float 2.4s ease-in-out infinite',
-    armL:  null,
-    armR:  null,
-    face:  'smile',
-    plume: null,
-  },
-  encouraged: {
-    body:  'lk-float 2s ease-in-out infinite',
-    armL:  'lk-aL-encourage 2s ease-in-out infinite',
-    armR:  null,
-    face:  'smile',
-    plume: null,
-  },
-  thinking: {
-    body:  'lk-tilt 3s ease-in-out infinite',
-    armL:  'lk-aL-think 3s ease-in-out infinite',
-    armR:  null,
-    face:  'think',
-    plume: null,
-  },
-  confused: {
-    body:  'lk-wobble 0.7s ease-in-out 3',
-    armL:  null,
-    armR:  null,
-    face:  'confused',
-    plume: null,
-  },
-  sad: {
-    body:  'lk-droop 3s ease-in-out infinite',
-    armL:  'lk-aL-droop 3s ease-in-out infinite',
-    armR:  'lk-aR-droop 3s ease-in-out infinite',
-    face:  'frown',
-    plume: null,
-  },
-  neutral: {
-    body:  'lk-idle 4s ease-in-out infinite',
-    armL:  null,
-    armR:  null,
-    face:  'neutral',
-    plume: null,
-  },
-  victory: {
-    body:  'lk-bounce 0.6s ease-in-out infinite',
-    armL:  'lk-aL-up 0.6s ease-in-out infinite',
-    armR:  'lk-aR-up 0.6s ease-in-out infinite',
-    face:  'celebrate',
-    plume: 'lk-sheen 1.2s ease-in-out infinite',
-  },
-  ready: {
-    body:  'lk-tilt 4s ease-in-out infinite',
-    armL:  null,
-    armR:  null,
-    face:  'smile',
-    plume: 'lk-sheen 2s ease-in-out infinite',
-  },
+// ─── Mood variants ────────────────────────────────────────────────────────────
+// Each mood has 3 animation variants — picked randomly on mount so the knight
+// never does the exact same thing twice across different screens/pages.
+const VARIANTS = {
+  celebrating: [
+    { body: 'lk-bounce 0.85s ease-in-out infinite', armL: 'lk-aL-up 0.85s ease-in-out infinite',   armR: 'lk-aR-up 0.85s ease-in-out infinite'   },
+    { body: 'lk-cheer  0.60s ease-in-out infinite', armL: 'lk-aL-up 0.60s ease-in-out infinite',   armR: 'lk-aR-pump 0.60s ease-in-out infinite'  },
+    { body: 'lk-pulse  1.20s ease-in-out infinite', armL: 'lk-aL-up 1.20s ease-in-out infinite',   armR: 'lk-aR-wave 1.20s ease-in-out infinite'  },
+  ],
+  happy: [
+    { body: 'lk-float  2.40s ease-in-out infinite', armL: null,                                     armR: null                                      },
+    { body: 'lk-strut  1.80s ease-in-out infinite', armL: 'lk-aL-wave 1.80s ease-in-out infinite', armR: null                                      },
+    { body: 'lk-glide  2.20s ease-in-out infinite', armL: null,                                     armR: 'lk-aR-wave 2.20s ease-in-out infinite'   },
+  ],
+  encouraged: [
+    { body: 'lk-float  2.00s ease-in-out infinite', armL: 'lk-aL-encourage 2.00s ease-in-out infinite', armR: null                                 },
+    { body: 'lk-nod    2.20s ease-in-out infinite', armL: 'lk-aL-up 2.20s ease-in-out infinite',        armR: null                                 },
+    { body: 'lk-march  1.60s ease-in-out infinite', armL: 'lk-aL-encourage 1.60s ease-in-out infinite', armR: null                                 },
+  ],
+  thinking: [
+    { body: 'lk-tilt   3.00s ease-in-out infinite', armL: 'lk-aL-think 3.00s ease-in-out infinite', armR: null },
+    { body: 'lk-sway   2.80s ease-in-out infinite', armL: 'lk-aL-think 2.80s ease-in-out infinite', armR: null },
+    { body: 'lk-rock   3.50s ease-in-out infinite', armL: 'lk-aL-think 3.50s ease-in-out infinite', armR: null },
+  ],
+  confused: [
+    { body: 'lk-wobble 0.70s ease-in-out 3',        armL: null,                                        armR: null                                     },
+    { body: 'lk-rock   0.90s ease-in-out 3',        armL: null,                                        armR: null                                     },
+    { body: 'lk-wobble 1.00s ease-in-out infinite', armL: 'lk-aL-droop 1.00s ease-in-out infinite',   armR: null                                     },
+  ],
+  sad: [
+    { body: 'lk-droop  3.00s ease-in-out infinite', armL: 'lk-aL-droop 3.00s ease-in-out infinite', armR: 'lk-aR-droop 3.00s ease-in-out infinite' },
+    { body: 'lk-sway   4.00s ease-in-out infinite', armL: 'lk-aL-droop 4.00s ease-in-out infinite', armR: 'lk-aR-droop 4.00s ease-in-out infinite' },
+    { body: 'lk-stamp  3.50s ease-in-out infinite', armL: 'lk-aL-droop 3.50s ease-in-out infinite', armR: null                                      },
+  ],
+  neutral: [
+    { body: 'lk-idle   4.00s ease-in-out infinite', armL: null, armR: null },
+    { body: 'lk-sway   5.00s ease-in-out infinite', armL: null, armR: null },
+    { body: 'lk-glide  4.50s ease-in-out infinite', armL: null, armR: null },
+  ],
+  victory: [
+    { body: 'lk-bounce 0.60s ease-in-out infinite', armL: 'lk-aL-up 0.60s ease-in-out infinite',   armR: 'lk-aR-up 0.60s ease-in-out infinite'    },
+    { body: 'lk-cheer  0.50s ease-in-out infinite', armL: 'lk-aL-up 0.50s ease-in-out infinite',   armR: 'lk-aR-thrust 0.50s ease-in-out infinite' },
+    { body: 'lk-spin   2.00s linear infinite',      armL: 'lk-aL-up 2.00s ease-in-out infinite',   armR: 'lk-aR-up 2.00s ease-in-out infinite'    },
+  ],
+  ready: [
+    { body: 'lk-tilt   4.00s ease-in-out infinite', armL: null,                                           armR: null                                    },
+    { body: 'lk-march  2.00s ease-in-out infinite', armL: 'lk-aL-shield-high 2.00s ease-in-out infinite', armR: null                                    },
+    { body: 'lk-pulse  2.50s ease-in-out infinite', armL: 'lk-aL-shield-high 2.50s ease-in-out infinite', armR: 'lk-aR-thrust 2.50s ease-in-out infinite'},
+  ],
 };
 
 // ─── Šahovnica (Croatian checkerboard) ───────────────────────────────────────
@@ -268,7 +331,10 @@ function Defs() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'happy', className = '', style = {} }) {
-  const m = MOODS[mood] || MOODS.happy;
+  const variants = VARIANTS[mood] || VARIANTS.happy;
+  // Pick a random variant on mount — each page/screen gets a different animation
+  const [variantIdx] = useState(() => Math.floor(Math.random() * variants.length));
+  const m = variants[Math.min(variantIdx, variants.length - 1)];
   const isCelebrating = mood === 'celebrating';
 
   // Confetti pieces for celebrating state
