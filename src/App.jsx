@@ -337,7 +337,7 @@ function App() {
   const isNewUserWindow = daysSinceJoin !== null && daysSinceJoin >= 1 && daysSinceJoin <= 10;
   const badges = useMemo(() => ({ home:0,learn:0,practice:getDueReviews().length,croatia:0,profile:0 }), []);
   const doSidebarSearch = useCallback(() => { if (srchQ.trim()) { doSearch(srchQ); setSrchOpen(true); } }, [srchQ, doSearch, setSrchOpen]);
-  const ctxValue = useMemo(() => ({ authScreen,authUser,name,setName,doOut,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx }), [authScreen,authUser,name,setName,doOut,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx]);
+  const ctxValue = useMemo(() => ({ authScreen,authUser,au:authUser,name,setName,doOut,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx,st:stats,stats,setStats,level,award }), [authScreen,authUser,name,setName,doOut,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx,stats,setStats,level,award]);
   const statsValue = useMemo(() => ({ stats,setStats,award,level }), [stats,setStats,award,level]);
   const _weeklyXP = (() => { try{const d=new Date();const dy=d.getDay()||7;d.setDate(d.getDate()+4-dy);const yr=d.getFullYear();const wk=Math.ceil(((d.getTime()-new Date(yr,0,1).getTime())/86400000+1)/7);return parseInt(localStorage.getItem('nh_week_xp_'+yr+'-W'+String(wk).padStart(2,'0'))||'0',10);}catch{return 0;} })();
 
