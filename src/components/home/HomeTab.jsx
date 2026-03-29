@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { LEARN_PATH, getStreak, getDailyChallenge, speak, DAILY_QUESTS, getActiveCampaign, getCityOfDay, incrementCulture } from '../../data.jsx';
+import { LEARN_PATH, getStreak, getDailyChallenge, speak, preloadAudio, DAILY_QUESTS, getActiveCampaign, getCityOfDay, incrementCulture } from '../../data.jsx';
 import { getWordOfDay } from '../../lib/wordOfDay.js';
 import { weekKey, localDateStr } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext.jsx';
@@ -96,6 +96,8 @@ export default function HomeTab({
   const lastActivity = useMemo(() => getLastActivity(), [st]);
   const wod = useMemo(() => getWordOfDay(), []);
 
+  // Preload word-of-the-day audio on mount so first tap plays instantly
+  useEffect(() => { if (wod?.[0]) preloadAudio(wod[0]); }, [wod]);
 
   const userGoal = goal || localStorage.getItem('nh_goal') || 'fluent';
   const activeCampaign = useMemo(() => getActiveCampaign(), []);
