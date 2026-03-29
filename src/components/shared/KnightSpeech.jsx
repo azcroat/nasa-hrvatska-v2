@@ -60,14 +60,14 @@ function getGreeting(st) {
 // Static style objects — defined outside component to avoid re-creation on every render
 const MINI_BUTTON_STYLE = {
   position: 'fixed',
-  bottom: 76,
+  bottom: 80,
   left: 16,
-  width: 48,
-  height: 48,
+  width: 56,
+  height: 56,
   borderRadius: '50%',
   background: 'var(--card)',
-  border: '2px solid var(--card-b)',
-  boxShadow: 'var(--shadow-md, 0 4px 12px rgba(0,0,0,0.15))',
+  border: '2.5px solid var(--info-b)',
+  boxShadow: '0 4px 16px rgba(14,116,144,0.25), 0 2px 6px rgba(0,0,0,0.12)',
   cursor: 'pointer',
   display: 'flex',
   alignItems: 'center',
@@ -92,8 +92,16 @@ const DISMISS_BTN_STYLE = {
   borderRadius: 4,
 };
 
+// Build a date-keyed storage key so the knight greets fresh every calendar day.
+// sessionKey prop overrides the base name (e.g. for placement screens).
+function _todayKey(base) {
+  const d = new Date();
+  const today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  return base + '_' + today;
+}
+
 // Three-state mode machine:
-//   'hidden'  → 'full'  (800ms after mount, once per session)
+//   'hidden'  → 'full'  (800ms after mount, once per calendar day)
 //   'full'    → 'mini'  (on user dismiss — knight persists as floating button)
 //   'mini'    → 'full'  (on mini-button tap, or on knight:celebrate CustomEvent)
 function KnightSpeech({ st, sessionKey = 'nh_knight_greeted', onDismiss = undefined }) {
@@ -101,14 +109,14 @@ function KnightSpeech({ st, sessionKey = 'nh_knight_greeted', onDismiss = undefi
   const [animOut, setAnimOut] = useState(false);
   const [celebGreeting, setCelebGreeting] = useState(null); // override text during celebrations
 
-  // Track if the knight has been shown this session (but now goes mini instead of disappearing)
+  // Greet the user once per calendar day. After dismissal: mini for the rest of today.
   useEffect(() => {
-    // Show once per session; if already greeted this session, start in mini
-    if (!sessionStorage.getItem(sessionKey)) {
-      const t = setTimeout(() => setMode('full'), 800);
+    const dayKey = _todayKey(sessionKey);
+    if (!localStorage.getItem(dayKey)) {
+      const t = setTimeout(() => setMode('full'), 600);
       return () => clearTimeout(t);
     } else {
-      // Was dismissed in a previous greeting this session — go directly to mini
+      // Already greeted today — go directly to mini so knight stays accessible
       setMode('mini');
     }
     return undefined;
@@ -134,7 +142,7 @@ function KnightSpeech({ st, sessionKey = 'nh_knight_greeted', onDismiss = undefi
 
   const dismiss = () => {
     setAnimOut(true);
-    sessionStorage.setItem(sessionKey, '1');
+    localStorage.setItem(_todayKey(sessionKey), '1');
     setTimeout(() => {
       setAnimOut(false);
       setMode('mini');
@@ -172,12 +180,13 @@ function KnightSpeech({ st, sessionKey = 'nh_knight_greeted', onDismiss = undefi
     return (
       <button
         onClick={expandFromMini}
-        aria-label="Open knight greeting"
+        aria-label="Chat with your knight companion"
+        title="Your Croatian knight companion"
         style={MINI_BUTTON_STYLE}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.12)'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(0,0,0,0.2)'; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'var(--shadow-md, 0 4px 12px rgba(0,0,0,0.15))'; }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(14,116,144,0.35)'; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(14,116,144,0.25), 0 2px 6px rgba(0,0,0,0.12)'; }}
       >
-        <CroatianKnight size={32} mood="happy" variant={0} />
+        <CroatianKnight size={38} mood="happy" variant={0} />
       </button>
     );
   }

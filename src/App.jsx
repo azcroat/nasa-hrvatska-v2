@@ -387,6 +387,7 @@ function App() {
   const ctxValue = useMemo(() => ({
     // Auth / user
     authScreen, authUser, au: authUser, name, setName, doOut,
+    doSignUp: () => setAuthScreen('register'),
     // Prefs
     darkMode, setDarkMode, favs, toggleFav, isFav,
     // Navigation
@@ -418,7 +419,7 @@ function App() {
     weeklyXP: _weeklyXP,
     currentScreen,
   }), [
-    authScreen, authUser, name, setName, doOut,
+    authScreen, authUser, name, setName, doOut, setAuthScreen,
     darkMode, setDarkMode, favs, toggleFav, isFav,
     setScr, goBack, tab, setTab,
     sCurEx,

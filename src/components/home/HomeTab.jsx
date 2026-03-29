@@ -85,7 +85,7 @@ export default function HomeTab({
   daysSinceJoin = null,
   resumeLesson = null,
 }) {
-  const { setScr } = useApp();
+  const { setScr, doSignUp } = useApp();
   const { level, stats: st, award } = useStats();
   const dc = useMemo(() => getDailyChallenge(), []);
   const ws = useMemo(() => getWeekStats(), [st]);
@@ -185,6 +185,47 @@ export default function HomeTab({
   return (
     <React.Fragment>
 
+      {/* ── GUEST SAVE-PROGRESS BANNER ── */}
+      {!authUser && st.xp > 0 && (
+        <div style={{
+          background: 'linear-gradient(135deg, #0e7490, #164e63)',
+          borderRadius: 14,
+          padding: '12px 16px',
+          marginBottom: 12,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+        }}>
+          <span style={{ fontSize: 22, flexShrink: 0 }}>💾</span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.75)', letterSpacing: '.04em' }}>
+              Explore mode
+            </div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#fff', lineHeight: 1.4 }}>
+              {st.xp} XP earned — create a free account to save your progress
+            </div>
+          </div>
+          <button
+            onClick={doSignUp}
+            style={{
+              flexShrink: 0,
+              background: '#fff',
+              color: '#0e7490',
+              border: 'none',
+              borderRadius: 10,
+              padding: '8px 14px',
+              fontSize: 12,
+              fontWeight: 800,
+              cursor: 'pointer',
+              fontFamily: "'Outfit',sans-serif",
+              whiteSpace: 'nowrap',
+            }}
+          >
+            Save Now →
+          </button>
+        </div>
+      )}
+
       <WelcomeBackBanners
         comebackBonus={comebackBonus}
         longAbsence={longAbsence}
@@ -203,6 +244,9 @@ export default function HomeTab({
         lastActivity={lastActivity}
         sCurEx={sCurEx}
       />
+
+      {/* ── KNIGHT MASCOT — persistent companion, always above fold ── */}
+      <KnightSpeech st={st} />
 
       {/* ── HERO ── */}
       <HeroSection
@@ -403,8 +447,6 @@ export default function HomeTab({
             campaignQuestsDone={campaignQuestsDone}
             setTab={setTab}
           />
-
-          <KnightSpeech st={st} />
 
           {/* ── TODAY'S FOCUS HEADER ── */}
           <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12, marginTop:24}}>
