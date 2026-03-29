@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { H, MEDIA, getCityOfDay, incrementCulture, getProverbOfDay, getHistFact } from '../../data.jsx';
+import { H, MEDIA, incrementCulture, getProverbOfDay, getHistFact } from '../../data.jsx';
 import { useApp } from '../../context/AppContext.jsx';
 import PhotoHero from '../shared/PhotoHero';
 import { PHOTOS } from '../../lib/photos';
@@ -656,7 +656,6 @@ function SpotifyPlaylists() {
 export default function CroatiaTab({ sCurEx }) {
   const { setScr, award } = useApp();
   const cats = ["tv","music","film","sport","podcast","culture"];
-  const city = getCityOfDay();
   const proverb = getProverbOfDay();
   const histFact = getHistFact();
   const [activeStream, setActiveStream] = useState(null);
@@ -789,25 +788,6 @@ export default function CroatiaTab({ sCurEx }) {
                 <div style={{fontSize:12,color:'rgba(255,255,255,.75)',lineHeight:1.4}}>Point your camera at anything — menus, signs, labels — and learn the Croatian words instantly.</div>
               </div>
               <div style={{fontSize:20,color:'rgba(255,255,255,.7)'}}>→</div>
-            </div>
-          </button>
-
-          {/* ── CITY OF THE DAY ── */}
-          <button style={{marginBottom:16,borderRadius:16,overflow:"hidden",boxShadow:"0 4px 16px rgba(0,0,0,.1)",width:"100%",border:"none",cursor:"pointer",padding:0,textAlign:"left"}} onClick={()=>{ incrementCulture('cityCnt'); if (award) award(3); setScr("cityofday"); }}>
-            <div style={{background:"linear-gradient(135deg,"+city.color+"dd,"+city.color+")",padding:"14px 16px",display:"flex",alignItems:"center",gap:14}}>
-              <div style={{fontSize:36,flexShrink:0}}>{city.icon}</div>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:'var(--text-xs)',fontWeight:800,color:"rgba(255,255,255,.75)",letterSpacing:"0.08em",marginBottom:3}}>🗓️ CITY OF THE DAY</div>
-                <div style={{fontSize:17,fontWeight:900,color:"white",lineHeight:1.2,display:'flex',alignItems:'center',gap:8}}>
-                  <CroatianKnight size={36} mood="thinking" style={{ flexShrink: 0 }} />
-                  {city.name}
-                </div>
-                <div style={{fontSize:'var(--text-xs)',color:"rgba(255,255,255,.75)",marginTop:2}}>{city.region} &nbsp;·&nbsp; <span style={{fontStyle:"italic"}}>"{city.tagline}"</span></div>
-              </div>
-              <div style={{fontSize:20,opacity:.7,color:"white"}}>→</div>
-            </div>
-            <div style={{background:"rgba(0,0,0,.55)",padding:"7px 16px",fontSize:'var(--text-xs)',color:"rgba(255,255,255,.65)"}}>
-              New city every day · {city.facts.length} facts · {city.vocab.length} words to learn
             </div>
           </button>
 
