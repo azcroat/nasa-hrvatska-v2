@@ -17,7 +17,6 @@ import AdaptiveInsightsCard from '../profile/AdaptiveInsightsCard.jsx';
 import HeroSection from './HeroSection.jsx';
 import PathProgressCard from './PathProgressCard.jsx';
 import QuestTracker from './QuestTracker.jsx';
-import CroatiaPostcard from './CroatiaPostcard.jsx';
 import ReviewTabContent from './ReviewTabContent.jsx';
 import CampaignBanner from './CampaignBanner.jsx';
 import DailyCroatianSection from './DailyCroatianSection.jsx';
@@ -100,31 +99,6 @@ export default function HomeTab({
   const lastActivity = useMemo(() => getLastActivity(), [st]);
   const wod = useMemo(() => getWordOfDay(), []);
 
-  // Dynamic Croatia Today — AI-generated daily content (lazy-fetched, 6h edge cache)
-  const [dailyCulture, setDailyCulture] = useState(null);
-  const [dailyCultureLoading, setDailyCultureLoading] = useState(false);
-  useEffect(() => {
-    // Check in-memory session cache (keyed by date) to avoid re-fetching on re-render
-    const today = new Date().toISOString().slice(0, 10);
-    const cached = sessionStorage.getItem('nh_daily_culture');
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached);
-        if (parsed.date === today) { setDailyCulture(parsed); return; }
-      } catch {}
-    }
-    setDailyCultureLoading(true);
-    fetch('/api/daily-culture')
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (data) {
-          setDailyCulture(data);
-          try { sessionStorage.setItem('nh_daily_culture', JSON.stringify(data)); } catch {}
-        }
-      })
-      .catch(() => {})
-      .finally(() => setDailyCultureLoading(false));
-  }, []);
 
   const userGoal = goal || localStorage.getItem('nh_goal') || 'fluent';
   const activeCampaign = useMemo(() => getActiveCampaign(), []);
@@ -336,13 +310,6 @@ export default function HomeTab({
           </motion.div>
         );
       })()}
-
-      {/* ── CROATIA POSTCARD — daily scene + phrase (video-first) ── */}
-      <CroatiaPostcard
-        dailyCulture={dailyCulture}
-        dailyCultureLoading={dailyCultureLoading}
-        todayPhrases={todayPhrases}
-      />
 
       {/* ── SUB-TAB PILL SELECTOR ── */}
       <div style={{ display:'flex', gap:8, padding:'12px 0 4px', borderBottom:'1px solid var(--bar-bg)', marginBottom:16 }}>
