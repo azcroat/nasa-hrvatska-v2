@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { H } from '../../data.jsx';
+import { AIProgressBar } from '../shared/SkeletonLoader.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
 import { rnd } from '../../lib/random.js';
 import { useStats } from '../../context/StatsContext.jsx';
@@ -279,6 +280,10 @@ export default function WritingScreen({ goBack, award }) {
           ) : "🤖 Check with AI"}
         </button>
       </div>
+
+      {loading && !result && (
+        <AIProgressBar phase="processing" messages={['Reading your Croatian…', 'Checking grammar…', 'Finding improvements…', 'Almost done…']} />
+      )}
 
       {result && (
         <div className="c" style={{padding:"20px",marginTop:0,animation:'fadeIn .3s ease'}}>

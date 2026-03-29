@@ -17,13 +17,32 @@ function StreakMilestoneModal({ days, onClose }) {
   const msg = MESSAGES[days] || { emoji: '🔥', title: `${days}-Day Streak!`, sub: 'Keep it up!', tip: 'Every day counts. See you tomorrow!', color: '#f97316' };
   const fired = useRef(false);
   const [copied, setCopied] = useState(false);
+  const modalRef = useRef(null);
 
   useEffect(() => { haptic.award(); }, []);
 
+  // Focus trap
   useEffect(() => {
-    const firstBtn = /** @type {HTMLElement|null} */ (document.querySelector('[data-modal-focus]'));
-    if (firstBtn) firstBtn.focus();
-  }, []);
+    const modal = modalRef.current;
+    if (!modal) return;
+    const focusable = modal.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    first?.focus();
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') { onClose?.(); return; }
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last?.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first?.focus(); }
+      }
+    }
+    modal.addEventListener('keydown', handleKeyDown);
+    return () => modal.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   useEffect(() => {
     if (fired.current) return undefined;
@@ -57,13 +76,13 @@ function StreakMilestoneModal({ days, onClose }) {
   return (
     <div
       role="dialog" aria-modal="true"
-      aria-label={msg.title}
+      aria-labelledby="streak-milestone-title"
       onClick={onClose}
       onKeyDown={e => { if (e.key === 'Escape') { e.preventDefault(); onClose(); } }}
       style={{ position:'fixed', inset:0, zIndex:99999, display:'flex', alignItems:'center', justifyContent:'center',
         background:'rgba(0,0,0,0.6)', backdropFilter:'blur(6px)' }}
     >
-      <div onClick={e=>e.stopPropagation()} style={{
+      <div ref={modalRef} onClick={e=>e.stopPropagation()} style={{
         background:'var(--card)', borderRadius:28, padding:'44px 40px 36px', textAlign:'center',
         maxWidth:320, width:'90%', boxShadow:'var(--card-shadow)',
         border:`3px solid ${msg.color}`, animation:'celebPop .5s cubic-bezier(.34,1.56,.64,1) forwards',
@@ -92,7 +111,7 @@ function StreakMilestoneModal({ days, onClose }) {
             {/* "days" label */}
             <text x="70" y="104" textAnchor="middle" fontSize="11" fontWeight="700" fill={msg.color} opacity="0.7" fontFamily="Outfit,sans-serif" letterSpacing="2">DAYS</text>
           </svg>
-          <div style={{ fontSize:'var(--text-3xl)', fontWeight:900, color:msg.color, fontFamily:'var(--font-serif)', marginBottom:6, textAlign:'center' }}>
+          <div id="streak-milestone-title" style={{ fontSize:'var(--text-3xl)', fontWeight:900, color:msg.color, fontFamily:'var(--font-serif)', marginBottom:6, textAlign:'center' }}>
             {msg.title}
           </div>
           <div style={{ fontSize:'var(--text-base)', color:'var(--subtext)', marginBottom:16, lineHeight:'var(--leading-normal)', textAlign:'center' }}>{msg.sub}</div>
@@ -104,7 +123,7 @@ function StreakMilestoneModal({ days, onClose }) {
         }}>
           {msg.tip}
         </div>
-        <button data-modal-focus onClick={onClose} className="b" style={{
+        <button onClick={onClose} className="b" style={{
           width:'100%', padding:'12px 32px', background:`linear-gradient(135deg,${msg.color},#164e63)`,
           color:'#fff', border:'none', borderRadius:14, fontSize:'var(--text-md)', fontWeight:700, cursor:'pointer',
         }}>Keep Going 💪</button>

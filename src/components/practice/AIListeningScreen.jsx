@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { H } from '../../data.jsx';
+import { AIContentSkeleton, AIProgressBar } from '../shared/SkeletonLoader.jsx';
 
 const TOPICS = [
   { key: 'cafe',       emoji: '☕',  hr: 'U kafiću',   en: 'At the Café' },
@@ -267,31 +268,11 @@ export default function AIListeningScreen({ goBack, award }) {
   // PHASE: LOADING
   // ══════════════════════════════════════════════════════════════════════════
   if (phase === 'loading') return (
-    <div className="scr-wrap" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', textAlign: 'center' }}>
-      {/* Flag stripe animation */}
-      <div style={{ width: '100%', height: 6, borderRadius: 3, background: 'linear-gradient(90deg, #003DA5 33%, #fff 33% 66%, #D4002D 66%)', marginBottom: 32,
-        animation: 'pulse 1.5s ease-in-out infinite', opacity: 0.9 }} />
-
-      <div style={{ fontSize: 56, marginBottom: 12 }}>🇭🇷</div>
-      <h2 style={{ fontFamily: "'Playfair Display',serif", color: 'var(--heading)', marginBottom: 8 }}>
-        Maja priprema vježbu...
-      </h2>
-      <div style={{ color: 'var(--subtext)', fontSize: 14, marginBottom: 20 }}>Generating Croatian audio...</div>
-
-      {/* Bouncing dots */}
-      <div style={{ display: 'flex', gap: 8 }}>
-        {[0, 1, 2].map(i => (
-          <div key={i} style={{
-            width: 10, height: 10, borderRadius: '50%', background: '#0e7490',
-            animation: `bounce 1s ease-in-out ${i * 0.2}s infinite`,
-          }} />
-        ))}
+    <div className="scr-wrap">
+      <div style={{ padding: '0 0 32px' }}>
+        <AIProgressBar phase="thinking" messages={['Generating Croatian dialogue…', 'Writing comprehension questions…', 'Preparing your listening exercise…', 'Almost ready…']} />
+        <AIContentSkeleton message="Preparing your listening exercise" icon="🎧" />
       </div>
-
-      <style>{`
-        @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-12px)} }
-        @keyframes pulse  { 0%,100%{opacity:0.7} 50%{opacity:1} }
-      `}</style>
     </div>
   );
 

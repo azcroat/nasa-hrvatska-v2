@@ -98,6 +98,7 @@ export async function onRequestPost(ctx) {
       subject: `Your Croatian progress this week, ${safeName}! 🇭🇷`,
       html,
     }),
+    signal: AbortSignal.timeout(20000),
   });
 
   const data = await res.json().catch(() => ({}));

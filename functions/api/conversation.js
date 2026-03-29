@@ -501,6 +501,7 @@ export async function onRequestPost(context) {
         system: systemPrompt,
         messages: anthropicMessages,
       }),
+      signal: AbortSignal.timeout(30000),
     });
 
     if (!anthropicRes.ok) {
@@ -512,9 +513,10 @@ export async function onRequestPost(context) {
     }
 
     anthropicStream = anthropicRes.body;
-  } catch {
+  } catch (fetchErr) {
+    const isTimeout = fetchErr?.name === 'TimeoutError' || fetchErr?.name === 'AbortError';
     return new Response(
-      JSON.stringify({ error: "Failed to reach AI service" }),
+      JSON.stringify({ error: isTimeout ? "AI service timed out" : "Failed to reach AI service" }),
       { status: 503, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } }
     );
   }
@@ -587,9 +589,14 @@ export async function onRequestPost(context) {
           }
         }
       }
-    } catch {
-      // Stream read error — send error event
-      await write(`event: error\ndata: ${JSON.stringify({ error: "Stream interrupted" })}\n\n`);
+    } catch (streamErr) {
+      // Stream read error — send error event; surface timeout specifically
+      const isTimeout = streamErr?.name === 'TimeoutError' || streamErr?.name === 'AbortError';
+      if (isTimeout) {
+        await write(`data: ${JSON.stringify({ error: "timeout", done: true })}\n\n`);
+      } else {
+        await write(`event: error\ndata: ${JSON.stringify({ error: "Stream interrupted" })}\n\n`);
+      }
     } finally {
       try { await writer.close(); } catch { /* ignore */ }
     }

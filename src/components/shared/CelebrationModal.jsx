@@ -45,11 +45,30 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
   const [showMomentum, setShowMomentum] = useState(false);
   const [difficulty, setDifficulty] = useState(null); // 'easy' | 'right' | 'hard'
   const haptic = useHaptic();
+  const modalRef = useRef(null);
 
+  // Focus trap
   useEffect(() => {
-    const firstBtn = /** @type {HTMLElement|null} */ (document.querySelector('[data-modal-focus]'));
-    if (firstBtn) firstBtn.focus();
-  }, []);
+    const modal = modalRef.current;
+    if (!modal) return;
+    const focusable = modal.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    first?.focus();
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') { onClose?.(); return; }
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last?.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first?.focus(); }
+      }
+    }
+    modal.addEventListener('keydown', handleKeyDown);
+    return () => modal.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   useEffect(() => {
     playSuccessSound();
@@ -139,7 +158,7 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Lesson complete — Odlično!"
+      aria-labelledby="celebration-title"
       className="anim-bounce-in"
       onClick={onClose}
       onKeyDown={e => { if (e.key === 'Escape') onClose(); }}
@@ -191,6 +210,7 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
 
       {/* ── Main card ─────────────────────────────────────────────────── */}
       <div
+        ref={modalRef}
         onClick={e => e.stopPropagation()}
         style={{
           position: 'relative',
@@ -234,6 +254,7 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
 
         {/* Title */}
         <div
+          id="celebration-title"
           style={{
             fontSize: 28,
             fontWeight: 900,
