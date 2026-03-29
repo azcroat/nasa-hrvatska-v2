@@ -18,9 +18,9 @@ export default function Toast({ message, type = 'success', onClose }) {
 
   return (
     <div
-      role="button"
-      tabIndex={0}
+      role="status"
       aria-live="polite"
+      aria-atomic="true"
       onClick={onClose}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClose(); }}
       style={{

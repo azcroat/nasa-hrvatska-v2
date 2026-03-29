@@ -290,7 +290,10 @@ export function sm2(card, quality) {
              // SM-2 compat fields so callers that read ease/interval don't crash:
              ease: 2.5, interval: intv, reps: 1, nextReview: now + intv * 86400000, lastQuality: quality };
   }
-  const elapsedDays = 0;
+  // Compute actual elapsed days since this card was last scheduled
+  const elapsedDays = card.due && card.interval
+    ? Math.max(0, (now - (card.due - card.interval * 86400000)) / 86400000)
+    : 0;
   const R  = _R(elapsedDays, card.s || 1);
   const D  = card.d || 5;
   const S  = card.s || 1;
@@ -394,6 +397,8 @@ export function getPrioritizedReviewQueue(pool) {
   dueToday.sort((a, b) => a.R - b.R);
 
   const prioritized = [...overdue, ...dueToday];
+
+  if (!pool || !pool.length) return [];
 
   // Map to vocabulary entries (pool entries are arrays where index 0 = Croatian word)
   const poolMap = new Map(pool.map(w => [w[0], w]));

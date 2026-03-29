@@ -66,6 +66,9 @@ export function useAward({ curEx, stats, setStats }) {
       totalAmt = lXPgain(amt + 50);
     }
     setXpA(totalAmt); setShowXP(true);
+    // Capture side-effect data outside the updater — state updaters must be pure
+    let _pendingBadge = null;
+    let _pendingLevelUp = null;
     setStats(s => {
       const oldLevel = lvl(s.xp);
       const n = { ...s, xp: Math.max(0, s.xp + totalAmt), streak: getStreak().count };
@@ -73,16 +76,24 @@ export function useAward({ curEx, stats, setStats }) {
       const nb = BADGES.filter(b => !s.badges.includes(b.id) && b.r(n));
       if (nb.length) {
         n.badges = [...s.badges, ...nb.map(b => b.id)];
-        setTimeout(() => { setNB(nb[0]); setSB(true); setTimeout(() => setSB(false), 3000); }, 600);
+        _pendingBadge = nb[0];
         nb.forEach(b => trackBadgeEarned(b.id));
       }
       const newLevel = lvl(n.xp);
       if (newLevel > oldLevel) {
-        setTimeout(() => { setLevelUpData({ level: newLevel }); }, 900);
+        _pendingLevelUp = newLevel;
         trackLevelUp({ newLevel, totalXP: n.xp });
       }
       return n;
     });
+    // Schedule UI side effects AFTER the state update, outside the updater
+    if (_pendingBadge) {
+      const badge = _pendingBadge;
+      setTimeout(() => { setNB(badge); setSB(true); setTimeout(() => setSB(false), 3000); }, 600);
+    }
+    if (_pendingLevelUp != null) {
+      setTimeout(() => { setLevelUpData({ level: _pendingLevelUp }); }, 900);
+    }
     setTimeout(() => setShowXP(false), 1500);
     if (celebrate && totalAmt > 0) { setCelebXP(totalAmt); setTimeout(() => setShowCelebration(true), 400); }
     const sr = updateStreak();

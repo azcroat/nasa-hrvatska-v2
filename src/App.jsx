@@ -25,7 +25,7 @@ import { useTranslator } from "./hooks/useTranslator.js";
 import { useNotifications, checkNameDay, scheduleStreakReminder } from "./hooks/useNotifications.js";
 import { useSubscription, grantFreeAnnual, getSubscriptionStatus } from "./hooks/useSubscription.js";
 import { useAppScreenState } from "./hooks/useAppScreenState.js";
-import { useAward } from "./hooks/useAward.js";
+import { useAward, resetComebackGuard } from "./hooks/useAward.js";
 import { usePwaInstall } from "./hooks/usePwaInstall.js";
 import { usePlacement } from "./hooks/usePlacement.js";
 import { useSyncManager } from "./hooks/useSyncManager.js";
@@ -55,7 +55,7 @@ function getDaysSinceJoin(authUser) {
   if (!authUser) return null;
   const k = 'nh_join_date_' + (authUser.u || authUser.uid || '');
   if (!localStorage.getItem(k)) localStorage.setItem(k, Date.now().toString());
-  return Math.floor((Date.now() - parseInt(localStorage.getItem(k))) / 86400000);
+  return Math.floor((Date.now() - parseInt(localStorage.getItem(k), 10)) / 86400000);
 }
 function pruneStaleLocalStorage() {
   try {
@@ -109,7 +109,7 @@ function App() {
   const [onboarded, setOnboarded] = useState(() => localStorage.getItem('onboarded') === 'true');
   const [showFirstWords, setShowFirstWords] = useState(false);
   const [showPremiumWelcome, setShowPremiumWelcome] = useState(false);
-  const [pendingJoinCode, setPendingJoinCode] = useState(() => { try { const c = new URLSearchParams(window.location.search).get('join') || null; return c && /^[A-Z2-9]{6}$/.test(c) ? c : null; } catch { return null; } });
+  const [pendingJoinCode, setPendingJoinCode] = useState(() => { try { const c = new URLSearchParams(window.location.search).get('join') || null; if (c && /^[A-Z2-9]{6}$/.test(c)) { const u = new URL(window.location.href); u.searchParams.delete('join'); window.history.replaceState({}, '', u.toString()); return c; } return null; } catch { return null; } });
   const [_syncReady, _setSyncReady] = useState(false);
   const [showBackupBannerLocal, setShowBackupBannerLocal] = useState(false); // fallback if useSyncManager not ready
 
@@ -170,7 +170,7 @@ function App() {
       grantFreeAnnual(user.u);
       refreshSub();
     },
-    onSignedOut() { setStats(ds); setScr('welcome'); setName(''); setFamData(null); setFamMembers([]); },
+    onSignedOut() { setStats(ds); setScr('welcome'); setName(''); setFamData(null); setFamMembers([]); resetComebackGuard(); },
     onBeforeSignOut: async () => { if (_syncNowRef.current) return _syncNowRef.current(); },
     applyRemoteProgress: (fp) => _applyRemoteRef.current?.(fp),
     setFamData,
@@ -337,7 +337,10 @@ function App() {
   const level = useMemo(() => lvl(stats.xp), [stats.xp]);
   const daysSinceJoin = useMemo(() => getDaysSinceJoin(authUser), [authUser]);
   const isNewUserWindow = daysSinceJoin !== null && daysSinceJoin >= 1 && daysSinceJoin <= 10;
-  const badges = useMemo(() => ({ home:0,learn:0,practice:getDueReviews().length,croatia:0,profile:0 }), [stats]);
+  // getDueReviews() reads localStorage — keep it out of useMemo to avoid stale badge count
+  const [dueCount, setDueCount] = useState(() => getDueReviews().length);
+  useEffect(() => { setDueCount(getDueReviews().length); }, [stats]);
+  const badges = useMemo(() => ({ home:0,learn:0,practice:dueCount,croatia:0,profile:0 }), [dueCount]);
   const doSidebarSearch = useCallback(() => { if (srchQ.trim()) { doSearch(srchQ); setSrchOpen(true); } }, [srchQ, doSearch, setSrchOpen]);
   const ctxValue = useMemo(() => ({ authScreen,authUser,au:authUser,name,setName,doOut,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx,st:stats,stats,setStats,level,award }), [authScreen,authUser,name,setName,doOut,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx,stats,setStats,level,award]);
   const statsValue = useMemo(() => ({ stats,setStats,award,level }), [stats,setStats,award,level]);
