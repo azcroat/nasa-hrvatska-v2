@@ -5,7 +5,7 @@ import { scoreColor, scoreEmoji, scoreLabel } from './pronunciationUtils.js';
 export default function WebSpeechResultPanel({ result, coaching, onRetry, onGetCoaching }) {
   return (
     <div style={{
-      background: '#f8fafc', borderRadius: 12, padding: '14px 16px',
+      background: 'var(--card)', borderRadius: 12, padding: '14px 16px',
       border: `2px solid ${scoreColor(result.score)}22`,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>

@@ -100,7 +100,7 @@ export default function PaywallScreen({ onClose, featureName = 'AI Tutor', onSub
       padding: '0',
     }}>
       <div style={{
-        background: 'var(--bg)',
+        background: 'var(--app-bg)',
         borderRadius: '28px 28px 0 0',
         width: '100%',
         maxWidth: 520,

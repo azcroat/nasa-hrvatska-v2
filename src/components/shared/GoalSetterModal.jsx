@@ -74,7 +74,7 @@ export default function GoalSetterModal({ onComplete }) {
     }}>
       <div style={{
         width: '100%', maxWidth: 480,
-        background: 'var(--bg)',
+        background: 'var(--app-bg)',
         borderRadius: '24px 24px 0 0',
         padding: '28px 20px 40px',
         boxShadow: '0 -8px 40px rgba(0,0,0,0.4)',
