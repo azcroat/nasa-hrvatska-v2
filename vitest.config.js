@@ -12,13 +12,38 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
-      include: ['src/**/*.{js,jsx}'],
-      exclude: ['src/tests/**', 'dist/**'],
+      include: [
+        'src/lib/**/*.{js,jsx}',
+        'src/hooks/**/*.{js,jsx}',
+        'src/context/**/*.{js,jsx}',
+      ],
+      exclude: [
+        // Firebase integration — requires live Firestore/Auth (covered by E2E)
+        'src/lib/firebase.js',
+        'src/hooks/useAuth.js',
+        // Browser-only APIs — untestable in jsdom without heavy mocking
+        'src/lib/audio.js',
+        'src/lib/crypto.js',
+        'src/lib/pushNotifications.js',
+        'src/lib/photos.js',
+        'src/lib/haptic.js',
+        'src/hooks/useNotifications.js',
+        'src/hooks/useOnlineStatus.js',
+        'src/hooks/useHaptic.js',
+        // Pure React state (useState only, no business logic to assert)
+        'src/hooks/useAppScreenState.js',
+        // Trivial context wrapper (no business logic)
+        'src/context/StatsContext.jsx',
+        // Barrel re-exports only
+        'src/lib/appData.js',
+        'src/tests/**',
+        'dist/**',
+      ],
       thresholds: {
-        statements: 9,
-        branches: 7,
-        functions: 7,
-        lines: 9,
+        statements: 80,
+        branches: 75,
+        functions: 75,
+        lines: 80,
       },
     },
   },
