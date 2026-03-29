@@ -95,7 +95,20 @@ export function useSyncManager({
         const lp = gP(authUser.u);
         const fpTs = fp._fbUpdated || 0;
         const lpTs = (lp && (lp._fbUpdated || lp.savedAt)) || 0;
-        if (fpTs > lpTs) { lP(authUser.u, { ...fp, savedAt: fpTs }); applyRemoteProgress(fp); }
+        if (fpTs > lpTs) {
+          lP(authUser.u, { ...fp, savedAt: fpTs });
+          const pSt = fp.stats || fp.st || {};
+          setStats(prev => ({
+            ...ds, ...pSt,
+            ct: [...new Set([...(prev.ct || []), ...(pSt.ct || [])])],
+            vs: [...new Set([...(prev.vs || []), ...(pSt.vs || [])])],
+            lc: Math.max(prev.lc || 0, pSt.lc || 0),
+            gc: Math.max(prev.gc || 0, pSt.gc || 0),
+            xp: Math.max(prev.xp || 0, pSt.xp || 0),
+          }));
+          if (fp.name) setName(fp.name);
+          applyRemoteProgress(fp);
+        }
       } catch (_) {}
     };
     const onPageShow = (e) => { if (e.persisted) iosWakeUp(); };
