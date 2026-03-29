@@ -48,6 +48,13 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
   const haptic = useHaptic();
   const modalRef = useRef(null);
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
   // Focus trap
   useEffect(() => {
     const modal = modalRef.current;
@@ -234,15 +241,20 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
           aria-label="Close"
           style={{
             position: 'absolute',
-            top: 12,
-            right: 12,
+            top: 8,
+            right: 8,
             background: 'none',
             border: 'none',
             fontSize: 22,
             lineHeight: 1,
             cursor: 'pointer',
             color: 'var(--subtext)',
-            padding: 4,
+            minWidth: 44,
+            minHeight: 44,
+            padding: 8,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
           ×

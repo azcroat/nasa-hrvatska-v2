@@ -9,7 +9,8 @@
 
 // ── Plan limits ───────────────────────────────────────────────────────────────
 const FREE_ANNUAL_TURNS_PER_DAY = 50
-const PAID_TURNS_PER_DAY        = 200
+// eslint-disable-next-line no-unused-vars
+const _PAID_TURNS_PER_DAY        = 200 // reserved for future paid tier
 const ANON_IP_TURNS_PER_DAY     = 10
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -49,11 +50,32 @@ export async function checkAIQuota(request, env, uid, cost = 1) {
   const kv      = env.PUSH_SUBSCRIPTIONS
   const resetAt = nextMidnightUTC()
 
+  // Fail closed: if quota KV is unavailable, deny rather than allow unlimited access
   if (!kv) {
-    console.warn('[AIQuota] PUSH_SUBSCRIPTIONS KV unavailable — allowing request through')
-    return { allowed: true, remaining: 999, resetAt }
+    console.warn('[AIQuota] PUSH_SUBSCRIPTIONS KV unavailable — denying request (fail-closed)')
+    return { allowed: false, remaining: 0, resetIn: 60 }
   }
 
+  // Per-second burst check: max 3 requests per second per uid/IP
+  const burstSubject = uid
+    ? `quota_burst:${uid}`
+    : `quota_burst:ip:${request.headers.get('cf-connecting-ip') || request.headers.get('x-forwarded-for') || 'unknown'}`
+  const secondKey = `${burstSubject}:${Math.floor(Date.now() / 1000)}`
+  try {
+    const burstRaw = await kv.get(secondKey)
+    const burstCount = burstRaw ? (JSON.parse(burstRaw)?.count ?? 0) : 0
+    if (burstCount >= 3) {
+      console.warn('[AIQuota] Burst limit exceeded for', burstSubject)
+      return { allowed: false, remaining: 0, resetIn: 1 }
+    }
+    await kv.put(secondKey, JSON.stringify({ count: burstCount + 1 }), { expirationTtl: 5 })
+  } catch (e) {
+    // Fail closed on burst check errors too
+    console.error('[AIQuota] Burst KV error — denying request:', e?.message)
+    return { allowed: false, remaining: 0, resetIn: 60 }
+  }
+
+  // Daily quota window: keyed by UTC date string (YYYY-MM-DD)
   const today = todayUTC()
   let kvKey
   let limit
@@ -83,8 +105,9 @@ export async function checkAIQuota(request, env, uid, cost = 1) {
 
     return { allowed: true, remaining: Math.max(0, limit - current - cost), resetAt }
   } catch (e) {
-    console.error('[AIQuota] KV error — allowing request through:', e?.message)
-    return { allowed: true, remaining: 999, resetAt }
+    // Fail closed: if quota KV is unavailable, deny rather than allow unlimited access
+    console.error('[AIQuota] KV error — denying request (fail-closed):', e?.message)
+    return { allowed: false, remaining: 0, resetIn: 60 }
   }
 }
 

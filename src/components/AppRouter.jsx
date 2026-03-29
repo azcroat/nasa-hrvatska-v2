@@ -356,301 +356,212 @@ export default function AppRouter(props) {
           onOpenFriends={() => setScr('family_group')}
         /></ScreenErrorBoundary></div>}
       </div>}
-      {// ═══ MODAL VERBS ═══
-      currentScreen==="modal"&&<ModalScreen goBack={goBack} award={award} setSt={setStats} />}
-      {// ═══ HISTORY ═══
-      currentScreen==="history"&&<CroatiaHistoryScreen goBack={goBack} />}
-      {// ═══ EVENTS CALENDAR ═══
-      currentScreen==="events"&&<EventsCalendar goBack={goBack} />}
-      {// ═══ TRANSLATOR ═══
-      currentScreen==="top100"&&<Top100Screen goBack={goBack} />}
+      {currentScreen==="modal"&&<ScreenErrorBoundary key="modal" screenName="modal"><ModalScreen goBack={goBack} award={award} setSt={setStats} /></ScreenErrorBoundary>}
+      {currentScreen==="history"&&<ScreenErrorBoundary key="history" screenName="history"><CroatiaHistoryScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="events"&&<ScreenErrorBoundary key="events" screenName="events"><EventsCalendar goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="top100"&&<ScreenErrorBoundary key="top100" screenName="top100"><Top100Screen goBack={goBack} /></ScreenErrorBoundary>}
       {// ═══ MULTIPLE CHOICE GAME ═══
-      currentScreen==="mcgame"&&<McGame
+      currentScreen==="mcgame"&&<ScreenErrorBoundary key="mcgame" screenName="mcgame"><McGame
         questions={mcInitQ} onComplete={mcGameComplete} goBack={goBack} award={award}
-      />}
-      {currentScreen==="mcresult"&&<McResult questions={mcResultQ} score={mcResultScore} mistakes={mcMistakes} setScr={setScr} goBack={goBack} onNewGame={launchMcGame} award={award} />}
-      {// ═══ CROATIAN CASES ═══
-      currentScreen==="padezi"&&<PadeziScreen goBack={goBack} award={award} setSt={setStats} />}
-      {// ═══ UNJUMBLE / WORD ORDER ═══
-      currentScreen==="unjumble"&&<Unjumble goBack={goBack} award={award} />}
-      {// ═══ IDIOMS & SLANG ═══
-      currentScreen==="idioms"&&<IdiomsScreen goBack={goBack} />}
-      {currentScreen==="privacy"&&<PrivacyScreen goBack={goBack} />}
-      {currentScreen==="terms"&&<TermsOfService goBack={goBack} />}
-      {currentScreen==="admin"&&<AdminDashboard authUser={authUser} goBack={goBack} />}
-      {// ═══ FLASHCARDS ═══
-      currentScreen==="flashcards"&&<Flashcards pool={fcInitPool} goBack={goBack} award={award} />}
-      {// ═══ LISTENING COMPREHENSION ═══
-      currentScreen==="listening"&&<ListeningScreen questions={lsInitQ} goBack={goBack} award={award} />}
-      {// ═══ STORY SELECT ═══
-      currentScreen==="storyselect"&&<StoryScreens goBack={goBack} award={award} sCurEx={sCurEx} />}
-      {// ═══ NUMBER & TIME DRILLS ═══
-      currentScreen==="numtime"&&<NumTime goBack={goBack} award={award} />}
-      {// ═══ ALL PROVERBS ═══
-      currentScreen==="proverbs"&&<ProverbsScreen goBack={goBack} />}
-      {// ═══ CONTACT / SUPPORT ═══
-      currentScreen==="contact"&&<ContactScreen goBack={goBack} authUser={authUser} name={name} level={level} stats={stats} />}
-      {// ═══ LEADERBOARD ═══
-      currentScreen==="leaderboard"&&<Leaderboard goBack={goBack} authUser={authUser} name={name} stats={stats} famData={famData} setFamData={setFamData} famMembers={famMembers} setFamMembers={setFamMembers} famLoading={famLoading} setFamLoading={setFamLoading} famName={famName} setFamName={setFamName} famCode={famCode} setFamCode={setFamCode} famErr={famErr} setFamErr={setFamErr} famTab={famTab} setFamTab={setFamTab} />}
-      {// ═══ WEEKLY LEADERBOARD SCREEN ═══
-      currentScreen==="leaderboard_weekly"&&<LeaderboardScreen db={null} user={authUser} weekXP={_weeklyXP} goBack={goBack} />}
-      {// ═══ FRIENDS & FAMILY GROUP SCREEN ═══
-      currentScreen==="family_group"&&<ProfileFriendsScreen user={authUser} goBack={goBack} />}
-      {// ═══ SCHOOL KIT ═══
-      currentScreen==="school"&&<SchoolScreen goBack={goBack} />}
-      {currentScreen==="texting"&&<TextingScreen goBack={goBack} />}
-      {currentScreen==="friends"&&<FriendsScreen goBack={goBack} />}
-      {currentScreen==="foodorder"&&<FoodOrderScreen goBack={goBack} />}
-      {currentScreen==="transport"&&<TransportScreen goBack={goBack} />}
-      {currentScreen==="emergency"&&<EmergencyScreen goBack={goBack} />}
-      {currentScreen==="football"&&<HNLScreen goBack={goBack} />}
-      {currentScreen==="croatiaathletes"&&<CroatiaAthletes goBack={goBack} />}
-      {currentScreen==="immersion"&&<ImmersionHub goBack={goBack} setScr={setScr} />}
-      {currentScreen==="lyrics"&&<LyricsScreen goBack={goBack} award={award} />}
-      {currentScreen==="aiconvo"&&(isPremium?<AIConversation goBack={goBack} setScr={setScr} sCurEx={sCurEx} setJWords={setJWords} />:<PaywallScreen featureName="AI Conversation" onClose={goBack} onSubscribed={()=>{refreshSub();}} />)}
-      {currentScreen==="popculture"&&<PopCultureScreen goBack={goBack} />}
-      {currentScreen==="basketball"&&<BasketballScreen goBack={goBack} />}
-      {currentScreen==="gym"&&<GymScreen goBack={goBack} />}
-      {currentScreen==="practical"&&<PracticalScreen goBack={goBack} />}
-      {currentScreen==="region_labin"&&<RegionScreen regionKey="labin" goBack={goBack} />}
-      {currentScreen==="region_bibinje"&&<RegionScreen regionKey="bibinje" goBack={goBack} />}
-      {currentScreen==="region_hercegovina"&&<RegionScreen regionKey="hercegovina" goBack={goBack} />}
-      {currentScreen==="region_vukovar"&&<RegionScreen regionKey="vukovar" goBack={goBack} />}
-      {currentScreen==="region_zagreb"&&<RegionScreen regionKey="zagreb" goBack={goBack} />}
-      {currentScreen==="region_split"&&<RegionScreen regionKey="split" goBack={goBack} />}
-      {currentScreen==="region_mostar"&&<RegionScreen regionKey="mostar" goBack={goBack} />}
-      {currentScreen==="region_tomislavgrad"&&<RegionScreen regionKey="tomislavgrad" goBack={goBack} />}
-      {currentScreen==="region_knin"&&<RegionScreen regionKey="knin" goBack={goBack} />}
-      {currentScreen==="cityofday"&&<CityOfDayScreen goBack={goBack} />}
-      {currentScreen==="region_vinkovci"&&<RegionScreen regionKey="vinkovci" goBack={goBack} />}
-      {// ═══ PADEŽI FULL (SINGULAR & PLURAL) ═══
-      currentScreen==="padezifull"&&<PadezifullScreen goBack={goBack} award={award} />}
-      {// ═══ VERB ASPECT ═══
-      currentScreen==="aspect"&&<AspectScreen goBack={goBack} />}
-      {// ═══ GRAMMAR VIDEOS ═══
-      currentScreen==="grammarvideos"&&<GrammarVideos goBack={goBack} setScr={setScr} />}
-      {// ═══ GRAMMAR EXPLAINER ═══
-      currentScreen==="grammarexplainer"&&<GrammarExplainer goBack={goBack} award={award} />}
-      {// ═══ CASE TRANSFORMER ═══
-      currentScreen==="casetransformer"&&<CaseTransformer goBack={goBack} award={award} />}
-      {// ═══ VOCAB SCENES ═══
-      currentScreen==="vocabscenes"&&<VocabScenes goBack={goBack} award={award} />}
+      /></ScreenErrorBoundary>}
+      {currentScreen==="mcresult"&&<ScreenErrorBoundary key="mcresult" screenName="mcresult"><McResult questions={mcResultQ} score={mcResultScore} mistakes={mcMistakes} setScr={setScr} goBack={goBack} onNewGame={launchMcGame} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="padezi"&&<ScreenErrorBoundary key="padezi" screenName="padezi"><PadeziScreen goBack={goBack} award={award} setSt={setStats} /></ScreenErrorBoundary>}
+      {currentScreen==="unjumble"&&<ScreenErrorBoundary key="unjumble" screenName="unjumble"><Unjumble goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="idioms"&&<ScreenErrorBoundary key="idioms" screenName="idioms"><IdiomsScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="privacy"&&<ScreenErrorBoundary key="privacy" screenName="privacy"><PrivacyScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="terms"&&<ScreenErrorBoundary key="terms" screenName="terms"><TermsOfService goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="admin"&&<ScreenErrorBoundary key="admin" screenName="admin"><AdminDashboard authUser={authUser} goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="flashcards"&&<ScreenErrorBoundary key="flashcards" screenName="flashcards"><Flashcards pool={fcInitPool} goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="listening"&&<ScreenErrorBoundary key="listening" screenName="listening"><ListeningScreen questions={lsInitQ} goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="storyselect"&&<ScreenErrorBoundary key="storyselect" screenName="storyselect"><StoryScreens goBack={goBack} award={award} sCurEx={sCurEx} /></ScreenErrorBoundary>}
+      {currentScreen==="numtime"&&<ScreenErrorBoundary key="numtime" screenName="numtime"><NumTime goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="proverbs"&&<ScreenErrorBoundary key="proverbs" screenName="proverbs"><ProverbsScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="contact"&&<ScreenErrorBoundary key="contact" screenName="contact"><ContactScreen goBack={goBack} authUser={authUser} name={name} level={level} stats={stats} /></ScreenErrorBoundary>}
+      {currentScreen==="leaderboard"&&<ScreenErrorBoundary key="leaderboard" screenName="leaderboard"><Leaderboard goBack={goBack} authUser={authUser} name={name} stats={stats} famData={famData} setFamData={setFamData} famMembers={famMembers} setFamMembers={setFamMembers} famLoading={famLoading} setFamLoading={setFamLoading} famName={famName} setFamName={setFamName} famCode={famCode} setFamCode={setFamCode} famErr={famErr} setFamErr={setFamErr} famTab={famTab} setFamTab={setFamTab} /></ScreenErrorBoundary>}
+      {currentScreen==="leaderboard_weekly"&&<ScreenErrorBoundary key="leaderboard_weekly" screenName="leaderboard_weekly"><LeaderboardScreen db={null} user={authUser} weekXP={_weeklyXP} goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="family_group"&&<ScreenErrorBoundary key="family_group" screenName="family_group"><ProfileFriendsScreen user={authUser} goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="school"&&<ScreenErrorBoundary key="school" screenName="school"><SchoolScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="texting"&&<ScreenErrorBoundary key="texting" screenName="texting"><TextingScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="friends"&&<ScreenErrorBoundary key="friends" screenName="friends"><FriendsScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="foodorder"&&<ScreenErrorBoundary key="foodorder" screenName="foodorder"><FoodOrderScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="transport"&&<ScreenErrorBoundary key="transport" screenName="transport"><TransportScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="emergency"&&<ScreenErrorBoundary key="emergency" screenName="emergency"><EmergencyScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="football"&&<ScreenErrorBoundary key="football" screenName="football"><HNLScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="croatiaathletes"&&<ScreenErrorBoundary key="croatiaathletes" screenName="croatiaathletes"><CroatiaAthletes goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="immersion"&&<ScreenErrorBoundary key="immersion" screenName="immersion"><ImmersionHub goBack={goBack} setScr={setScr} /></ScreenErrorBoundary>}
+      {currentScreen==="lyrics"&&<ScreenErrorBoundary key="lyrics" screenName="lyrics"><LyricsScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="aiconvo"&&<ScreenErrorBoundary key="aiconvo" screenName="aiconvo">{isPremium?<AIConversation goBack={goBack} setScr={setScr} sCurEx={sCurEx} setJWords={setJWords} />:<PaywallScreen featureName="AI Conversation" onClose={goBack} onSubscribed={()=>{refreshSub();}} />}</ScreenErrorBoundary>}
+      {currentScreen==="popculture"&&<ScreenErrorBoundary key="popculture" screenName="popculture"><PopCultureScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="basketball"&&<ScreenErrorBoundary key="basketball" screenName="basketball"><BasketballScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="gym"&&<ScreenErrorBoundary key="gym" screenName="gym"><GymScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="practical"&&<ScreenErrorBoundary key="practical" screenName="practical"><PracticalScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="region_labin"&&<ScreenErrorBoundary key="region_labin" screenName="region_labin"><RegionScreen regionKey="labin" goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="region_bibinje"&&<ScreenErrorBoundary key="region_bibinje" screenName="region_bibinje"><RegionScreen regionKey="bibinje" goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="region_hercegovina"&&<ScreenErrorBoundary key="region_hercegovina" screenName="region_hercegovina"><RegionScreen regionKey="hercegovina" goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="region_vukovar"&&<ScreenErrorBoundary key="region_vukovar" screenName="region_vukovar"><RegionScreen regionKey="vukovar" goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="region_zagreb"&&<ScreenErrorBoundary key="region_zagreb" screenName="region_zagreb"><RegionScreen regionKey="zagreb" goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="region_split"&&<ScreenErrorBoundary key="region_split" screenName="region_split"><RegionScreen regionKey="split" goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="region_mostar"&&<ScreenErrorBoundary key="region_mostar" screenName="region_mostar"><RegionScreen regionKey="mostar" goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="region_tomislavgrad"&&<ScreenErrorBoundary key="region_tomislavgrad" screenName="region_tomislavgrad"><RegionScreen regionKey="tomislavgrad" goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="region_knin"&&<ScreenErrorBoundary key="region_knin" screenName="region_knin"><RegionScreen regionKey="knin" goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="cityofday"&&<ScreenErrorBoundary key="cityofday" screenName="cityofday"><CityOfDayScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="region_vinkovci"&&<ScreenErrorBoundary key="region_vinkovci" screenName="region_vinkovci"><RegionScreen regionKey="vinkovci" goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="padezifull"&&<ScreenErrorBoundary key="padezifull" screenName="padezifull"><PadezifullScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="aspect"&&<ScreenErrorBoundary key="aspect" screenName="aspect"><AspectScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="grammarvideos"&&<ScreenErrorBoundary key="grammarvideos" screenName="grammarvideos"><GrammarVideos goBack={goBack} setScr={setScr} /></ScreenErrorBoundary>}
+      {currentScreen==="grammarexplainer"&&<ScreenErrorBoundary key="grammarexplainer" screenName="grammarexplainer"><GrammarExplainer goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="casetransformer"&&<ScreenErrorBoundary key="casetransformer" screenName="casetransformer"><CaseTransformer goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="vocabscenes"&&<ScreenErrorBoundary key="vocabscenes" screenName="vocabscenes"><VocabScenes goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {// ═══ ANIMATED LESSON ═══
-      currentScreen==="animlesson"&&animLesson&&<AnimatedLesson lesson={animLesson} goBack={goBack} award={award} />}
-      {// ═══ GRAMMAR READER (X-RAY) ═══
-      currentScreen==="grammarreader"&&<GrammarReader goBack={goBack} />}
-      {// ═══ FALSE FRIENDS ═══
-      currentScreen==="falsefr"&&<FalseFriendsScreen goBack={goBack} />}
-      {// ═══ PREPOSITION DRILLS ═══
-      currentScreen==="prepdrill"&&<PrepDrill goBack={goBack} award={award} />}
-      {// ═══ DECLENSION TRAINER ═══
-      currentScreen==="declension"&&<DeclensionScreen goBack={goBack} />}
-      {// ═══ TONGUE TWISTERS ═══
-      currentScreen==="brzalice"&&<BrzaliceScreen goBack={goBack} />}
-      {// ═══ DIALECTS ═══
-      currentScreen==="dialects"&&<DialectsScreen goBack={goBack} />}
-      {// ═══ DIMINUTIVES ═══
-      currentScreen==="diminutives"&&<DiminutivesScreen goBack={goBack} />}
-      {// ═══ WORD FORMATION ═══
-      currentScreen==="wordform"&&<WordFormScreen goBack={goBack} />}
-      {// ═══ COLOR QUIRKS ═══
-      currentScreen==="colorquirk"&&<ColorQuirkScreen goBack={goBack} />}
-      {currentScreen==="svojmoj"&&<SvojMojScreen goBack={goBack} award={award} />}
-      {// ═══ CONDITIONAL MOOD ═══
-      currentScreen==="conditional"&&<ConditionalScreen goBack={goBack} award={award} />}
-      {// ═══ FORMAL vs INFORMAL REGISTER ═══
-      currentScreen==="formalregister"&&<FormalRegisterScreen goBack={goBack} award={award} />}
-      {// ═══ IMPERSONAL CONSTRUCTIONS ═══
-      currentScreen==="impersonal"&&<ImpersonalScreen goBack={goBack} award={award} />}
-      {// ═══ TECHNOLOGY VOCABULARY ═══
-      currentScreen==="techvoc"&&<TechVocScreen goBack={goBack} award={award} />}
-      {// ═══ BUREAUCRATIC / ADMINISTRATIVE ═══
-      currentScreen==="bureaucratic"&&<BureaucraticScreen goBack={goBack} award={award} />}
-      {currentScreen==="countries"&&<CountriesScreen goBack={goBack} />}
-      {currentScreen==="professions"&&<ProfessionsScreen goBack={goBack} />}
-      {currentScreen==="weather"&&<WeatherScreen goBack={goBack} />}
-      {currentScreen==="clothes"&&<ClothesScreen goBack={goBack} />}
-      {currentScreen==="bodydesc"&&<BodyDescScreen goBack={goBack} />}
-      {currentScreen==="phonology"&&<PhonologyScreen goBack={goBack} />}
-      {// ═══ TYPING PRACTICE ═══
-      currentScreen==="typing"&&<TypingScreen goBack={goBack} award={award} />}
-      {// ═══ TENSES & GENDER CONJUGATION ═══
-      currentScreen==="tenses"&&<TensesScreen goBack={goBack} award={award} />}
-      {// ═══ INTERACTIVE MAP ═══
-      currentScreen==="crmap"&&<CrMap goBack={goBack} />}
-      {// ═══ GROCERY SHOPPING ═══
-      currentScreen==="grocery"&&<GroceryScreen goBack={goBack} />}
-      {// ═══ RECIPES ═══
-      currentScreen==="recipes"&&<RecipesScreen goBack={goBack} />}
-      {// ═══ CONVERSATION ROLE-PLAY ═══
-      currentScreen==="roleplay"&&<RoleplayScreen goBack={goBack} />}
-      {// ═══ VOCABULARY JOURNAL ═══
-      currentScreen==="journal"&&<VocabJournal goBack={goBack} />}
-      {// ═══ LEARNING PATH ═══
-      currentScreen==="learnpath"&&<LearnPath st={stats} setScr={setScr} goBack={goBack} />}
+      currentScreen==="animlesson"&&animLesson&&<ScreenErrorBoundary key="animlesson" screenName="animlesson"><AnimatedLesson lesson={animLesson} goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="grammarreader"&&<ScreenErrorBoundary key="grammarreader" screenName="grammarreader"><GrammarReader goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="falsefr"&&<ScreenErrorBoundary key="falsefr" screenName="falsefr"><FalseFriendsScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="prepdrill"&&<ScreenErrorBoundary key="prepdrill" screenName="prepdrill"><PrepDrill goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="declension"&&<ScreenErrorBoundary key="declension" screenName="declension"><DeclensionScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="brzalice"&&<ScreenErrorBoundary key="brzalice" screenName="brzalice"><BrzaliceScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="dialects"&&<ScreenErrorBoundary key="dialects" screenName="dialects"><DialectsScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="diminutives"&&<ScreenErrorBoundary key="diminutives" screenName="diminutives"><DiminutivesScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="wordform"&&<ScreenErrorBoundary key="wordform" screenName="wordform"><WordFormScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="colorquirk"&&<ScreenErrorBoundary key="colorquirk" screenName="colorquirk"><ColorQuirkScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="svojmoj"&&<ScreenErrorBoundary key="svojmoj" screenName="svojmoj"><SvojMojScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="conditional"&&<ScreenErrorBoundary key="conditional" screenName="conditional"><ConditionalScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="formalregister"&&<ScreenErrorBoundary key="formalregister" screenName="formalregister"><FormalRegisterScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="impersonal"&&<ScreenErrorBoundary key="impersonal" screenName="impersonal"><ImpersonalScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="techvoc"&&<ScreenErrorBoundary key="techvoc" screenName="techvoc"><TechVocScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="bureaucratic"&&<ScreenErrorBoundary key="bureaucratic" screenName="bureaucratic"><BureaucraticScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="countries"&&<ScreenErrorBoundary key="countries" screenName="countries"><CountriesScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="professions"&&<ScreenErrorBoundary key="professions" screenName="professions"><ProfessionsScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="weather"&&<ScreenErrorBoundary key="weather" screenName="weather"><WeatherScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="clothes"&&<ScreenErrorBoundary key="clothes" screenName="clothes"><ClothesScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="bodydesc"&&<ScreenErrorBoundary key="bodydesc" screenName="bodydesc"><BodyDescScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="phonology"&&<ScreenErrorBoundary key="phonology" screenName="phonology"><PhonologyScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="typing"&&<ScreenErrorBoundary key="typing" screenName="typing"><TypingScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="tenses"&&<ScreenErrorBoundary key="tenses" screenName="tenses"><TensesScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="crmap"&&<ScreenErrorBoundary key="crmap" screenName="crmap"><CrMap goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="grocery"&&<ScreenErrorBoundary key="grocery" screenName="grocery"><GroceryScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="recipes"&&<ScreenErrorBoundary key="recipes" screenName="recipes"><RecipesScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="roleplay"&&<ScreenErrorBoundary key="roleplay" screenName="roleplay"><RoleplayScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="journal"&&<ScreenErrorBoundary key="journal" screenName="journal"><VocabJournal goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="learnpath"&&<ScreenErrorBoundary key="learnpath" screenName="learnpath"><LearnPath st={stats} setScr={setScr} goBack={goBack} /></ScreenErrorBoundary>}
       {// ═══ FAVORITES ═══
-      currentScreen==="favorites"&&<FavoritesScreen
+      currentScreen==="favorites"&&<ScreenErrorBoundary key="favorites" screenName="favorites"><FavoritesScreen
         favs={favs} toggleFav={toggleFav} setScr={setScr} goBack={goBack}
-      />}
-      {// ═══ REFLEXIVE VERBS ═══
-      currentScreen==="reflexive"&&<ReflexiveScreen goBack={goBack} award={award} />}
-      {// ═══ FILL-IN STORIES ═══
-      currentScreen==="fillstory"&&<FillStoryScreen goBack={goBack} award={award} />}
-      {// ═══ CONVERSATION MATCH ═══
-      currentScreen==="convmatch"&&<ConvMatchScreen goBack={goBack} award={award} />}
-      {// ═══ SCENE DESCRIPTION ═══
-      currentScreen==="scenes"&&<ScenesScreen goBack={goBack} />}
-      {// ═══ PRONOUN CASES ═══
-      currentScreen==="pronouns"&&<PronounsScreen goBack={goBack} award={award} />}
-      {// ═══ GENDER & PLURALS ═══
-      currentScreen==="genderdrill"&&<GenderDrillScreen goBack={goBack} award={award} />}
-      {// ═══ SENTENCE BUILDER ═══
-      currentScreen==="sentbuild"&&<SentenceBuilderScreen goBack={goBack} award={award} />}
-      {// ═══ VERB DRILL ═══
-      currentScreen==="verbdrill"&&<VerbDrillScreen goBack={goBack} />}
-      {// ═══ TENSE TRANSFORMER ═══
-      currentScreen==="tenseflip"&&<TenseFlipScreen goBack={goBack} award={award} />}
-      {// ═══ RIDDLES ═══
-      currentScreen==="riddles"&&<RiddlesScreen goBack={goBack} award={award} />}
-      {// ═══ LOGIC QUIZ ═══
-      currentScreen==="logicquiz"&&<LogicQuizScreen goBack={goBack} award={award} />}
-      {// ═══ ORDINALS & FLOORS ═══
-      currentScreen==="ordinals"&&<OrdinalsScreen goBack={goBack} award={award} />}
-      {// ═══ RELATIVE PRONOUNS ═══
-      currentScreen==="relpron"&&<RelativePronounsScreen goBack={goBack} award={award} />}
-      {// ═══ EMOTIONS & GENDER ═══
-      currentScreen==="emogender"&&<EmotionGenderScreen goBack={goBack} award={award} />}
-      {// ═══ ADJECTIVE OPPOSITES ═══
-      currentScreen==="opposites"&&<OppositesScreen goBack={goBack} award={award} />}
-      {// ═══ CITY & COUNTRY LOCATIVE ═══
-      currentScreen==="cityloc"&&<CityLocativeScreen goBack={goBack} award={award} />}
-      {// ═══ ACCUSATIVE DRILL ═══
-      currentScreen==="akudrill"&&<AccusativeDrillScreen goBack={goBack} award={award} />}
-      {// ═══ COLOR AGREEMENT ═══
-      currentScreen==="coloragree"&&<ColorAgreementScreen goBack={goBack} award={award} />}
-      {// ═══ POSSESSIVE PRONOUNS ═══
-      currentScreen==="possess"&&<PossessivesScreen goBack={goBack} award={award} />}
-      {// ═══ QUESTION WORDS ═══
-      currentScreen==="qwords"&&<QuestionWordsScreen goBack={goBack} award={award} />}
-      {// ═══ NEGATION ═══
-      currentScreen==="negation"&&<NegationScreen goBack={goBack} />}
-      {// ═══ SIBILARIZACIJA ═══
-      currentScreen==="sibil"&&<SibilarizationScreen goBack={goBack} award={award} />}
-      {// ═══ RESTAURANT PRACTICE ═══
-      currentScreen==="restaurant"&&<RestaurantScreen goBack={goBack} />}
-      {// ═══ PROFESSION GENDERS ═══
-      currentScreen==="profgender"&&<ProfessionGenderScreen goBack={goBack} award={award} />}
-      {// ═══ COMPARATIVES ═══
-      currentScreen==="comparatives"&&<ComparativesScreen goBack={goBack} award={award} />}
-      {// ═══ FUTURE TENSE ═══
-      currentScreen==="future"&&<FutureTenseScreen goBack={goBack} award={award} />}
-      {// ═══ CROATIAN KINGS ═══
-      currentScreen==="kings"&&<KingsScreen goBack={goBack} award={award} setSt={setStats} />}
-      {// ═══ CONJUGATION DRILL ═══
-      currentScreen==="conjdrill"&&<ConjugationDrill goBack={goBack} award={award} setSt={setStats} />}
-      {// ═══ ZNAM - NE ZNAM ═══
-      currentScreen==="znam"&&<ZnamGame goBack={goBack} award={award} />}
-      {// ═══ COLORS & GENDER ═══
-      currentScreen==="boje"&&<BojeGame goBack={goBack} award={award} />}
-      {// ═══ MATCH GAME ═══
-      currentScreen==="match"&&<MatchGame initPool={matchInitPool} goBack={goBack} award={award} />}
-      {// ═══ WORD SPRINT ═══
-      currentScreen==="wordsprint"&&<WordSprint sh={sh} award={award} goBack={goBack} />}
-      {// ═══ SPEAKING / PRONUNCIATION ═══
-      currentScreen==="speaking"&&<SpeakingScreen sw={sw} si={si} sx={sx} sr={sr} ssc={ssc} sSr={sSr} sSx={sSx} sSw={sSw} sSsc={sSsc} goBack={goBack} award={award} setSt={setStats} />}
-      {// ═══ SPEAKING SPRINT ═══
-      currentScreen==="speaking_sprint"&&<SpeakingSprintScreen goBack={goBack} award={award} />}
-      {// ═══ PITCH ACCENT ═══
-      currentScreen==="pitchaccent"&&<PitchAccentScreen goBack={goBack} award={award} PITCH_ACCENT={PITCH_ACCENT} />}
-      {// ═══ SHADOWING ═══
-      currentScreen==="shadowing"&&<ShadowingScreen goBack={goBack} award={award} SHADOWING={SHADOWING} />}
-      {// ═══ SPACED REPETITION REVIEW ═══
-      currentScreen==="review"&&<ReviewScreen goBack={goBack} award={award} allCats={allCats} V={V} />}
-      {// ═══ FREE WRITING + AI CORRECTION ═══
-      currentScreen==="writing"&&<WritingScreen goBack={goBack} award={award} />}
-      {// ═══ LISTENING PATH ═══
-      currentScreen==="listeningpath"&&<ListeningPath goBack={goBack} />}
-      {// ═══ VERB ASPECT DRILL ═══
-      currentScreen==="aspectdrill"&&<AspectDrillScreen goBack={goBack} award={award} ASPECT_PAIRS={ASPECT_PAIRS} />}
-      {currentScreen==="clitic"&&<CliticDrill goBack={goBack} award={award} />}
-      {currentScreen==="numcases"&&<NumbersCasesDrill goBack={goBack} award={award} />}
-      {currentScreen==="imperative"&&<ImperativeDrill goBack={goBack} award={award} />}
-      {currentScreen==="neggen"&&<NegationGenDrill goBack={goBack} award={award} />}
-      {currentScreen==="collocations"&&<CollocationsGame goBack={goBack} award={award} />}
-      {currentScreen==="wordfamilies"&&<WordFamilies goBack={goBack} award={award} />}
-      {currentScreen==="dictation"&&<DictationScreen goBack={goBack} award={award} />}
-      {currentScreen==="proncontrast"&&<PronunciationContrast goBack={goBack} award={award} />}
-      {currentScreen==="dialogue"&&<DialogueSim goBack={goBack} award={award} />}
-      {currentScreen==="cefrtest"&&<CefrTest goBack={goBack} award={award} />}
-      {currentScreen==="slang"&&<SlangScreen goBack={goBack} award={award} />}
-      {currentScreen==="baka_summer"&&<BakaSummer goBack={goBack} award={award} />}
-      {currentScreen==="croatia_today"&&<CroatiaToday goBack={goBack} />}
-      {currentScreen==="survival_dinner"&&<SurvivalDinner goBack={goBack} />}
-      {currentScreen==="kafic"&&<KaficScreen goBack={goBack} />}
-      {currentScreen==="diaspora"&&<DiasporaNote goBack={goBack} />}
-      {currentScreen==="tivicompare"&&<TiViScreen goBack={goBack} />}
-      {currentScreen==="lifeevents"&&<LifeEventsScreen goBack={goBack} />}
-      {currentScreen==="civic"&&<CivicScreen goBack={goBack} />}
-      {currentScreen==="easter"&&<EasterScreen onBack={goBack} />}
-      {currentScreen==="postcard"&&<PostcardScreen goBack={goBack} award={award} />}
-      {currentScreen==="storymode"&&<StoryModeScreen goBack={goBack} award={award} />}
-      {currentScreen==="personas"&&<PersonaScreen goBack={goBack} setScr={setScr} />}
-      {currentScreen==="maja"&&(isPremium?<MajaScreen goBack={goBack} award={award} />:<PaywallScreen featureName="Maja AI Tutor" onClose={goBack} onSubscribed={()=>{refreshSub();}} />)}
-      {currentScreen==="live_tutor"&&(isPremium?<LiveTutorScreen goBack={goBack} award={award} />:<PaywallScreen featureName="Live Tutor" onClose={goBack} onSubscribed={()=>{refreshSub();}} />)}
-      {currentScreen==="photo_vocab"&&<PhotoVocabScanner goBack={goBack} level={level} onSaveWords={(words)=>{words.forEach(w=>{if(w.hr&&w.en)setJWords(prev=>[...(prev||[]),{hr:w.hr,en:w.en}]);});}} />}
-      {currentScreen==="ai_listening"&&<AIListeningScreen goBack={goBack} award={award} />}
-      {currentScreen==="ai_story"&&<AIStoryScreen goBack={goBack} award={award} />}
-      {currentScreen==="video_lesson"&&<VideoLessonScreen goBack={goBack} award={award} />}
-      {currentScreen==="grammar_diagnosis"&&<GrammarDiagnosisScreen goBack={goBack} award={award} />}
-      {currentScreen==="micro_lesson"&&<MicroLessonScreen goBack={goBack} award={award} goFlashcards={()=>{launchFlashcards([]);}} />}
-      {currentScreen==="heritage"&&<HeritageStoryScreen goBack={goBack} award={award} />}
-      {currentScreen==="croatianews"&&<CroatianNewsScreen goBack={goBack} award={award} />}
-      {currentScreen==="phraseofday"&&<PhraseOfDayScreen goBack={goBack} award={award} />}
-      {currentScreen==="cloze"&&<ClozeEngine goBack={goBack} award={award} />}
-      {currentScreen==="grammarmap"&&<GrammarConstellation goBack={goBack} award={award} />}
-      {currentScreen==="my_words"&&<MyWordsScreen onBack={goBack} />}
-      {// ═══ MISTAKE REVIEW ═══
-      currentScreen==="mistakes"&&<MistakesScreen goBack={goBack} award={award} />}
-      {// ═══ ANALYTICS ═══
-      currentScreen==="analytics"&&<AnalyticsScreen goBack={goBack} stats={stats} name={name} />}
+      /></ScreenErrorBoundary>}
+      {currentScreen==="reflexive"&&<ScreenErrorBoundary key="reflexive" screenName="reflexive"><ReflexiveScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="fillstory"&&<ScreenErrorBoundary key="fillstory" screenName="fillstory"><FillStoryScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="convmatch"&&<ScreenErrorBoundary key="convmatch" screenName="convmatch"><ConvMatchScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="scenes"&&<ScreenErrorBoundary key="scenes" screenName="scenes"><ScenesScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="pronouns"&&<ScreenErrorBoundary key="pronouns" screenName="pronouns"><PronounsScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="genderdrill"&&<ScreenErrorBoundary key="genderdrill" screenName="genderdrill"><GenderDrillScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="sentbuild"&&<ScreenErrorBoundary key="sentbuild" screenName="sentbuild"><SentenceBuilderScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="verbdrill"&&<ScreenErrorBoundary key="verbdrill" screenName="verbdrill"><VerbDrillScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="tenseflip"&&<ScreenErrorBoundary key="tenseflip" screenName="tenseflip"><TenseFlipScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="riddles"&&<ScreenErrorBoundary key="riddles" screenName="riddles"><RiddlesScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="logicquiz"&&<ScreenErrorBoundary key="logicquiz" screenName="logicquiz"><LogicQuizScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="ordinals"&&<ScreenErrorBoundary key="ordinals" screenName="ordinals"><OrdinalsScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="relpron"&&<ScreenErrorBoundary key="relpron" screenName="relpron"><RelativePronounsScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="emogender"&&<ScreenErrorBoundary key="emogender" screenName="emogender"><EmotionGenderScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="opposites"&&<ScreenErrorBoundary key="opposites" screenName="opposites"><OppositesScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="cityloc"&&<ScreenErrorBoundary key="cityloc" screenName="cityloc"><CityLocativeScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="akudrill"&&<ScreenErrorBoundary key="akudrill" screenName="akudrill"><AccusativeDrillScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="coloragree"&&<ScreenErrorBoundary key="coloragree" screenName="coloragree"><ColorAgreementScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="possess"&&<ScreenErrorBoundary key="possess" screenName="possess"><PossessivesScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="qwords"&&<ScreenErrorBoundary key="qwords" screenName="qwords"><QuestionWordsScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="negation"&&<ScreenErrorBoundary key="negation" screenName="negation"><NegationScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="sibil"&&<ScreenErrorBoundary key="sibil" screenName="sibil"><SibilarizationScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="restaurant"&&<ScreenErrorBoundary key="restaurant" screenName="restaurant"><RestaurantScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="profgender"&&<ScreenErrorBoundary key="profgender" screenName="profgender"><ProfessionGenderScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="comparatives"&&<ScreenErrorBoundary key="comparatives" screenName="comparatives"><ComparativesScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="future"&&<ScreenErrorBoundary key="future" screenName="future"><FutureTenseScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="kings"&&<ScreenErrorBoundary key="kings" screenName="kings"><KingsScreen goBack={goBack} award={award} setSt={setStats} /></ScreenErrorBoundary>}
+      {currentScreen==="conjdrill"&&<ScreenErrorBoundary key="conjdrill" screenName="conjdrill"><ConjugationDrill goBack={goBack} award={award} setSt={setStats} /></ScreenErrorBoundary>}
+      {currentScreen==="znam"&&<ScreenErrorBoundary key="znam" screenName="znam"><ZnamGame goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="boje"&&<ScreenErrorBoundary key="boje" screenName="boje"><BojeGame goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="match"&&<ScreenErrorBoundary key="match" screenName="match"><MatchGame initPool={matchInitPool} goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="wordsprint"&&<ScreenErrorBoundary key="wordsprint" screenName="wordsprint"><WordSprint sh={sh} award={award} goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="speaking"&&<ScreenErrorBoundary key="speaking" screenName="speaking"><SpeakingScreen sw={sw} si={si} sx={sx} sr={sr} ssc={ssc} sSr={sSr} sSx={sSx} sSw={sSw} sSsc={sSsc} goBack={goBack} award={award} setSt={setStats} /></ScreenErrorBoundary>}
+      {currentScreen==="speaking_sprint"&&<ScreenErrorBoundary key="speaking_sprint" screenName="speaking_sprint"><SpeakingSprintScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="pitchaccent"&&<ScreenErrorBoundary key="pitchaccent" screenName="pitchaccent"><PitchAccentScreen goBack={goBack} award={award} PITCH_ACCENT={PITCH_ACCENT} /></ScreenErrorBoundary>}
+      {currentScreen==="shadowing"&&<ScreenErrorBoundary key="shadowing" screenName="shadowing"><ShadowingScreen goBack={goBack} award={award} SHADOWING={SHADOWING} /></ScreenErrorBoundary>}
+      {currentScreen==="review"&&<ScreenErrorBoundary key="review" screenName="review"><ReviewScreen goBack={goBack} award={award} allCats={allCats} V={V} /></ScreenErrorBoundary>}
+      {currentScreen==="writing"&&<ScreenErrorBoundary key="writing" screenName="writing"><WritingScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="listeningpath"&&<ScreenErrorBoundary key="listeningpath" screenName="listeningpath"><ListeningPath goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="aspectdrill"&&<ScreenErrorBoundary key="aspectdrill" screenName="aspectdrill"><AspectDrillScreen goBack={goBack} award={award} ASPECT_PAIRS={ASPECT_PAIRS} /></ScreenErrorBoundary>}
+      {currentScreen==="clitic"&&<ScreenErrorBoundary key="clitic" screenName="clitic"><CliticDrill goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="numcases"&&<ScreenErrorBoundary key="numcases" screenName="numcases"><NumbersCasesDrill goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="imperative"&&<ScreenErrorBoundary key="imperative" screenName="imperative"><ImperativeDrill goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="neggen"&&<ScreenErrorBoundary key="neggen" screenName="neggen"><NegationGenDrill goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="collocations"&&<ScreenErrorBoundary key="collocations" screenName="collocations"><CollocationsGame goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="wordfamilies"&&<ScreenErrorBoundary key="wordfamilies" screenName="wordfamilies"><WordFamilies goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="dictation"&&<ScreenErrorBoundary key="dictation" screenName="dictation"><DictationScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="proncontrast"&&<ScreenErrorBoundary key="proncontrast" screenName="proncontrast"><PronunciationContrast goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="dialogue"&&<ScreenErrorBoundary key="dialogue" screenName="dialogue"><DialogueSim goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="cefrtest"&&<ScreenErrorBoundary key="cefrtest" screenName="cefrtest"><CefrTest goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="slang"&&<ScreenErrorBoundary key="slang" screenName="slang"><SlangScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="baka_summer"&&<ScreenErrorBoundary key="baka_summer" screenName="baka_summer"><BakaSummer goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="croatia_today"&&<ScreenErrorBoundary key="croatia_today" screenName="croatia_today"><CroatiaToday goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="survival_dinner"&&<ScreenErrorBoundary key="survival_dinner" screenName="survival_dinner"><SurvivalDinner goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="kafic"&&<ScreenErrorBoundary key="kafic" screenName="kafic"><KaficScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="diaspora"&&<ScreenErrorBoundary key="diaspora" screenName="diaspora"><DiasporaNote goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="tivicompare"&&<ScreenErrorBoundary key="tivicompare" screenName="tivicompare"><TiViScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="lifeevents"&&<ScreenErrorBoundary key="lifeevents" screenName="lifeevents"><LifeEventsScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="civic"&&<ScreenErrorBoundary key="civic" screenName="civic"><CivicScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="easter"&&<ScreenErrorBoundary key="easter" screenName="easter"><EasterScreen onBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="postcard"&&<ScreenErrorBoundary key="postcard" screenName="postcard"><PostcardScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="storymode"&&<ScreenErrorBoundary key="storymode" screenName="storymode"><StoryModeScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="personas"&&<ScreenErrorBoundary key="personas" screenName="personas"><PersonaScreen goBack={goBack} setScr={setScr} /></ScreenErrorBoundary>}
+      {currentScreen==="maja"&&<ScreenErrorBoundary key="maja" screenName="maja">{isPremium?<MajaScreen goBack={goBack} award={award} />:<PaywallScreen featureName="Maja AI Tutor" onClose={goBack} onSubscribed={()=>{refreshSub();}} />}</ScreenErrorBoundary>}
+      {currentScreen==="live_tutor"&&<ScreenErrorBoundary key="live_tutor" screenName="live_tutor">{isPremium?<LiveTutorScreen goBack={goBack} award={award} />:<PaywallScreen featureName="Live Tutor" onClose={goBack} onSubscribed={()=>{refreshSub();}} />}</ScreenErrorBoundary>}
+      {currentScreen==="photo_vocab"&&<ScreenErrorBoundary key="photo_vocab" screenName="photo_vocab"><PhotoVocabScanner goBack={goBack} level={level} onSaveWords={(words)=>{words.forEach(w=>{if(w.hr&&w.en)setJWords(prev=>[...(prev||[]),{hr:w.hr,en:w.en}]);});}} /></ScreenErrorBoundary>}
+      {currentScreen==="ai_listening"&&<ScreenErrorBoundary key="ai_listening" screenName="ai_listening"><AIListeningScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="ai_story"&&<ScreenErrorBoundary key="ai_story" screenName="ai_story"><AIStoryScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="video_lesson"&&<ScreenErrorBoundary key="video_lesson" screenName="video_lesson"><VideoLessonScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="grammar_diagnosis"&&<ScreenErrorBoundary key="grammar_diagnosis" screenName="grammar_diagnosis"><GrammarDiagnosisScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="micro_lesson"&&<ScreenErrorBoundary key="micro_lesson" screenName="micro_lesson"><MicroLessonScreen goBack={goBack} award={award} goFlashcards={()=>{launchFlashcards([]);}} /></ScreenErrorBoundary>}
+      {currentScreen==="heritage"&&<ScreenErrorBoundary key="heritage" screenName="heritage"><HeritageStoryScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="croatianews"&&<ScreenErrorBoundary key="croatianews" screenName="croatianews"><CroatianNewsScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="phraseofday"&&<ScreenErrorBoundary key="phraseofday" screenName="phraseofday"><PhraseOfDayScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="cloze"&&<ScreenErrorBoundary key="cloze" screenName="cloze"><ClozeEngine goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="grammarmap"&&<ScreenErrorBoundary key="grammarmap" screenName="grammarmap"><GrammarConstellation goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="my_words"&&<ScreenErrorBoundary key="my_words" screenName="my_words"><MyWordsScreen onBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="mistakes"&&<ScreenErrorBoundary key="mistakes" screenName="mistakes"><MistakesScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="analytics"&&<ScreenErrorBoundary key="analytics" screenName="analytics"><AnalyticsScreen goBack={goBack} stats={stats} name={name} /></ScreenErrorBoundary>}
       {// ═══ GRAMMAR REFERENCE ═══
-      currentScreen==="grammar-ref"&&<GrammarReference onClose={()=>setScr("dashboard")} />}
+      currentScreen==="grammar-ref"&&<ScreenErrorBoundary key="grammar-ref" screenName="grammar-ref"><GrammarReference onClose={()=>setScr("dashboard")} /></ScreenErrorBoundary>}
       {// ═══ NEW PLACEMENT TEST (first-time users) ═══
-      currentScreen==="new-placement"&&<PlacementTest onComplete={function(level){localStorage.setItem("placement_done","1");setStats(function(prev){return{...prev,ct:getPlacementCt(level),lc:Math.max(prev.lc,getPlacementCt(level).length)};});award(25);setShowFirstWords(true);setTimeout(()=>setTab('learn'),300);}} />}
+      currentScreen==="new-placement"&&<ScreenErrorBoundary key="new-placement" screenName="new-placement"><PlacementTest onComplete={function(level){localStorage.setItem("placement_done","1");setStats(function(prev){return{...prev,ct:getPlacementCt(level),lc:Math.max(prev.lc,getPlacementCt(level).length)};});award(25);setShowFirstWords(true);setTimeout(()=>setTab('learn'),300);}} /></ScreenErrorBoundary>}
       {// ═══ VOCABULARY LESSON ═══
-      currentScreen==="lesson"&&<LessonScreen
+      currentScreen==="lesson"&&<ScreenErrorBoundary key="lesson" screenName="lesson"><LessonScreen
         lt={lt} li={li} lx={lx} ls={ls} lp={lp} la={la} lsl={lsl} qi={qi} icons={icons}
         sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl} sQi={sQi}
         goBack={goBack} award={award} setSt={setStats} setScr={setScr}
         goToPractice={() => { goBack(); setTimeout(() => setTab('practice'), 50); }}
-      />}
+      /></ScreenErrorBoundary>}
       {// ═══ GRAMMAR ═══
-      currentScreen==="grammar"&&<GrammarScreen
+      currentScreen==="grammar"&&<ScreenErrorBoundary key="grammar" screenName="grammar"><GrammarScreen
         gl={gl||GRAM.beginner[0]} gp={gp} gx={gx} gs={gs} ga={ga} gsl={gsl}
         sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
         goBack={goBack} award={award} setSt={setStats}
-      />}
-      {// ═══ ALPHABET ═══
-      currentScreen==="alphabet"&&<AlphabetScreen goBack={goBack} />}
+      /></ScreenErrorBoundary>}
+      {currentScreen==="alphabet"&&<ScreenErrorBoundary key="alphabet" screenName="alphabet"><AlphabetScreen goBack={goBack} /></ScreenErrorBoundary>}
       {// ═══ READING LIST ═══
-      currentScreen==="readlist"&&<ReadingList
+      currentScreen==="readlist"&&<ScreenErrorBoundary key="readlist" screenName="readlist"><ReadingList
         setScr={setScr} sRp={sRp} sRph={sRph} sRqi={sRqi} sRsc={sRsc}
         sRa={sRa} sRsl={sRsl} sHw={sHw} sCurEx={sCurEx} goBack={goBack}
-      />}
+      /></ScreenErrorBoundary>}
       {// ═══ READING ═══
-      currentScreen==="reading"&&<ReadingScreen
+      currentScreen==="reading"&&<ScreenErrorBoundary key="reading" screenName="reading"><ReadingScreen
         rp={rp} rph={rph} rqi={rqi} rsc={rsc} ra={ra} rsl={rsl} hw={hw}
         sRph={sRph} sRqi={sRqi} sRsc={sRsc} sRa={sRa} sRsl={sRsl} sHw={sHw}
         goBack={goBack} setScr={setScr} award={award} setSt={setStats}
-      />}
-      {// ═══ BADGES ═══
-      currentScreen==="badges"&&<BadgesScreen badges={stats.badges} stats={stats} goBack={goBack} />}
+      /></ScreenErrorBoundary>}
+      {currentScreen==="badges"&&<ScreenErrorBoundary key="badges" screenName="badges"><BadgesScreen badges={stats.badges} stats={stats} goBack={goBack} /></ScreenErrorBoundary>}
       {// ═══ PROFILE ═══
-      currentScreen==="profile"&&<ProfileScreen
+      currentScreen==="profile"&&<ScreenErrorBoundary key="profile" screenName="profile"><ProfileScreen
         name={name} level={level} st={stats} authUser={authUser}
         goBack={goBack} doOut={doOut} setScr={setScr}
-      />}
-      {currentScreen==="certificate"&&<CertificateScreen name={name} level={level} st={stats} goBack={goBack} />}
+      /></ScreenErrorBoundary>}
+      {currentScreen==="certificate"&&<ScreenErrorBoundary key="certificate" screenName="certificate"><CertificateScreen name={name} level={level} st={stats} goBack={goBack} /></ScreenErrorBoundary>}
       </motion.div>
     </AnimatePresence>
   );

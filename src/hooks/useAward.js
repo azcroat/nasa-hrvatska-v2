@@ -63,7 +63,7 @@ export function useAward({ curEx, stats, setStats }) {
     if (comebackBonus && amt > 0 && !_awardComebackUsed && !localStorage.getItem('nh_comeback_used_' + _today)) {
       _awardComebackUsed = true;
       localStorage.setItem('nh_comeback_used_' + _today, '1');
-      totalAmt = lXPgain(amt + 50);
+      totalAmt = lXPgain(amt) + 50; // Bonus is flat, not subject to campaign multiplier
     }
     setXpA(totalAmt); setShowXP(true);
     // Capture side-effect data outside the updater — state updaters must be pure
@@ -71,11 +71,15 @@ export function useAward({ curEx, stats, setStats }) {
     let _pendingLevelUp = null;
     setStats(s => {
       const oldLevel = lvl(s.xp);
-      const n = { ...s, xp: Math.max(0, s.xp + totalAmt), streak: getStreak().count };
+      const n = { ...s, xp: Math.max(0, (s.xp || 0) + totalAmt), streak: (getStreak() || { count: 0 }).count };
       // streak will be updated by updateStreak() below — keep n.streak consistent
-      const nb = BADGES.filter(b => !s.badges.includes(b.id) && b.r(n));
+      const badges = Array.isArray(s.badges) ? s.badges : [];
+      const nb = BADGES.filter(b => {
+        if (badges.includes(b.id)) return false;
+        try { return b.r(n); } catch { return false; }
+      });
       if (nb.length) {
-        n.badges = [...s.badges, ...nb.map(b => b.id)];
+        n.badges = [...badges, ...nb.map(b => b.id)];
         _pendingBadge = nb[0];
         nb.forEach(b => trackBadgeEarned(b.id));
       }

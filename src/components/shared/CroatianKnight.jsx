@@ -253,7 +253,7 @@ function Defs() {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export default function CroatianKnight({ size = 80, mood = 'happy', className = '', style = {} }) {
+const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'happy', className = '', style = {} }) {
   const m = MOODS[mood] || MOODS.happy;
   const isCelebrating = mood === 'celebrating';
 
@@ -680,4 +680,6 @@ export default function CroatianKnight({ size = 80, mood = 'happy', className = 
     </svg>
     </motion.div>
   );
-}
+});
+
+export default CroatianKnight;

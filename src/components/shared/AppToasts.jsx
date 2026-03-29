@@ -103,7 +103,7 @@ export function AppToasts({
       {emailUnverified && (
         <div style={{background:'var(--warning-bg,#fef3c7)',borderBottom:'2px solid var(--warning,#f59e0b)',padding:'10px 20px',display:'flex',alignItems:'center',gap:12,fontFamily:"'Outfit',sans-serif",fontSize:13,fontWeight:600,position:'relative',zIndex:900}}>
           <span style={{color:'var(--warning-text,#92400e)'}}>⚠️ Please verify your email to secure your account.</span>
-          <button onClick={resendVerification} style={{background:'var(--warning,#f59e0b)',color:'#fff',border:'none',borderRadius:6,padding:'4px 12px',cursor:'pointer',fontSize:12,fontWeight:700,fontFamily:"'Outfit',sans-serif",minHeight:36}}>Resend Email</button>
+          <button onClick={resendVerification} style={{background:'var(--warning,#f59e0b)',color:'#fff',border:'none',borderRadius:6,padding:'4px 12px',cursor:'pointer',fontSize:12,fontWeight:700,fontFamily:"'Outfit',sans-serif",minHeight:44}}>Resend Email</button>
           <button onClick={() => setEmailUnverified(false)} style={{marginLeft:'auto',background:'none',border:'none',cursor:'pointer',fontSize:20,color:'var(--warning-text,#92400e)',minWidth:44,minHeight:44,display:'flex',alignItems:'center',justifyContent:'center'}} aria-label="Dismiss">×</button>
         </div>
       )}

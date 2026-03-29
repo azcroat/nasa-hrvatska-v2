@@ -1,13 +1,30 @@
 // Shared utilities for all Cloudflare Pages Functions in /functions/api/
 // Import in each endpoint: import { sanitizeParam, corsHeaders, isAllowedOrigin, ok, err } from './_helpers.js';
 
+/**
+ * Sanitize a structured parameter (name, level, city, etc.) before interpolating
+ * into a system prompt or using as a trusted value.
+ *
+ * IMPORTANT: Free-text user inputs (e.g. the learner's own message) must NEVER be
+ * interpolated into system prompts. Pass them as the user message content instead,
+ * so the model treats them as untrusted input rather than instructions.
+ */
 export function sanitizeParam(value, maxLen = 200) {
   if (value === null || value === undefined) return '';
   return String(value)
+    // Normalize whitespace control characters to a single space
     .replace(/[\r\n\t]/g, ' ')
+    // Remove characters commonly used for prompt/code injection
     .replace(/[`\\]/g, '')
-    .replace(/\b(ignore|disregard|override|forget|system\s+prompt|jailbreak|bypass)\b.*?\b(instruction|rule|above|prompt)\b/gi, '[redacted]')
+    // Broad prompt-injection pattern: catch "ignore/disregard/override/forget … instructions/rules/prompt"
+    // and variations like "ignore all previous" or "disregard the system prompt above"
+    .replace(
+      /\b(ignore|disregard|override|forget|bypass|jailbreak|system\s*prompt|act\s+as|pretend|you\s+are\s+now)\b[\s\S]{0,80}?\b(instruction|rule|above|below|prompt|constraint|boundary|limit)\b/gi,
+      '[redacted]'
+    )
+    // Strip any HTML/XML tags
     .replace(/<[^>]*>/g, '')
+    // Collapse repeated whitespace
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, maxLen);

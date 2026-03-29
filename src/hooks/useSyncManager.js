@@ -39,7 +39,13 @@ export function useSyncManager({
     const snap = buildProgressSnapshot({
       uid: authUser.u, name, stats, dchlA, dchlSl, favs, jWords,
     });
-    localStorage.setItem('uP_' + authUser.u, JSON.stringify(snap));
+    try {
+      localStorage.setItem('uP_' + authUser.u, JSON.stringify(snap));
+    } catch (e) {
+      if (e && e.name === 'QuotaExceededError') {
+        console.warn('[sync] localStorage quota exceeded — some progress may not persist locally');
+      }
+    }
     const result = await fbSaveProgress(authUser.u, snap).catch(() => ({ ok: false }));
     return result && result.ok !== false;
   }, [authUser, name, stats, favs, jWords, dchlA, dchlSl]);
@@ -120,7 +126,13 @@ export function useSyncManager({
       try {
         const snap = buildProgressSnapshot({ uid: u.u, name: nm, stats: st, dchlA: da, dchlSl: dsl, favs: fv, jWords: jw });
         _unloadRef.current._lastSaved = snap;
-        localStorage.setItem('uP_' + u.u, JSON.stringify(snap));
+        try {
+          localStorage.setItem('uP_' + u.u, JSON.stringify(snap));
+        } catch (e) {
+          if (e && e.name === 'QuotaExceededError') {
+            console.warn('[sync] localStorage quota exceeded — some progress may not persist locally');
+          }
+        }
         if (pushToFirebase) fbSaveProgress(u.u, snap).catch(() => {});
       } catch (_) {}
     };
@@ -135,7 +147,7 @@ export function useSyncManager({
     const onPageHide = (e) => {
       saveSnapshot(true);
       sendBeacon(_unloadRef.current.authUser, _unloadRef.current._lastSaved);
-      if (e.persisted && _watcherUnsubRef.current) { _watcherUnsubRef.current(); _watcherUnsubRef.current = null; }
+      if (e.persisted && typeof _watcherUnsubRef.current === 'function') { _watcherUnsubRef.current(); _watcherUnsubRef.current = null; }
     };
     const onVisHide = () => {
       if (document.visibilityState !== 'hidden') return;
