@@ -74,6 +74,7 @@ export default function MajaScreen() {
   const elapsedTimerRef = useRef(null);
   const scrollRef = useRef(null);
   const mediaStreamRef = useRef(null);
+  const streamAbortRef = useRef(null);
 
   // keep phaseRef in sync
   useEffect(() => {
@@ -104,6 +105,7 @@ export default function MajaScreen() {
   // cleanup on unmount
   useEffect(() => {
     return () => {
+      if (streamAbortRef.current) { streamAbortRef.current.abort(); streamAbortRef.current = null; }
       stopMicImmediate();
       stopWaveform();
       clearTimeout(silenceTimerRef.current);
@@ -271,6 +273,7 @@ export default function MajaScreen() {
       try {
         // ── Streaming path ──────────────────────────────────────────────────
         const abortCtrl = new AbortController();
+        streamAbortRef.current = abortCtrl;
         const streamTimeout = setTimeout(() => abortCtrl.abort(), 30000); // 30s max
         const res = await fetch('/api/maja', {
           method: 'POST',

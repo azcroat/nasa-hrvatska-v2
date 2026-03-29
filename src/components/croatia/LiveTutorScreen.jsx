@@ -343,7 +343,11 @@ export default function LiveTutorScreen({ goBack, award }) {
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
     audioRef.current = audio;
-    await new Promise(resolve => { audio.onended = resolve; audio.play().catch(resolve); });
+    await new Promise(resolve => {
+      audio.onended = resolve;
+      audio.onerror = resolve;
+      audio.play().catch(resolve);
+    });
     URL.revokeObjectURL(url);
   };
 
@@ -351,6 +355,7 @@ export default function LiveTutorScreen({ goBack, award }) {
   const playTTSStreaming = async (text) => {
     setPlaying(true);
     setPhase('speaking');
+    let mseUrl = null;
     try {
       const res = await apiFetch("/api/tts", {
         method: "POST",
@@ -381,7 +386,7 @@ export default function LiveTutorScreen({ goBack, award }) {
         audioEl.onended = resolve;
         audioEl.onerror = resolve; // never leave endedPromise unsettled on playback error
       });
-      audioEl.src = URL.createObjectURL(mediaSource);
+      mseUrl = URL.createObjectURL(mediaSource); audioEl.src = mseUrl;
 
       await new Promise(resolve => { mediaSource.addEventListener('sourceopen', resolve, { once: true }); });
       audioEl.play().catch(() => {}); // Start early — browser buffers while we feed chunks
@@ -417,12 +422,13 @@ export default function LiveTutorScreen({ goBack, award }) {
       mediaSource.endOfStream();
 
       await endedPromise;
-      URL.revokeObjectURL(audioEl.src);
+      URL.revokeObjectURL(mseUrl); mseUrl = null;
       ttsFailCountRef.current = 0; // successful streaming — clear warning
       setShowAudioWarning(false);
 
     } catch {
       // Any MSE failure: fall back to non-streaming blob approach
+      if (mseUrl) { try { URL.revokeObjectURL(mseUrl); } catch {} mseUrl = null; }
       let blobOk = false;
       try {
         const res2 = await apiFetch("/api/tts", {

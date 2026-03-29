@@ -207,13 +207,16 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
   }
 
   async function submitToAzure(blob) {
-    // Convert Blob → base64
+    // Convert Blob → base64 using chunked approach (avoids O(n²) concatenation and apply stack overflow)
     let audioBase64;
     try {
       const arrayBuffer = await blob.arrayBuffer();
       const bytes = new Uint8Array(arrayBuffer);
+      const CHUNK = 8192;
       let binary = '';
-      for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+      for (let i = 0; i < bytes.byteLength; i += CHUNK) {
+        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
+      }
       audioBase64 = btoa(binary);
     } catch {
       setSrErrorMsg('Could not process audio. Please try again.');
