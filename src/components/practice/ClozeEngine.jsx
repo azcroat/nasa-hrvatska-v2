@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { H, speak, srMark } from '../../data.jsx';
+import { H, speak, stopAudio, srMark } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import { markQuest } from '../../lib/quests.js';
 import { logError } from '../../lib/learnerErrors.js';
@@ -110,6 +110,7 @@ export default function ClozeEngine({ goBack, award }) {
   }
 
   function handleNext() {
+    stopAudio();
     if (qi + 1 >= questions.length) {
       const earned = Math.round((score / questions.length) * 30) + 10;
       if (award) award(earned);
