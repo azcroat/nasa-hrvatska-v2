@@ -1,4 +1,5 @@
 import React from 'react';
+import CroatianKnight from './CroatianKnight.jsx';
 
 /**
  * Per-screen error boundary. Catches crashes in individual tabs/screens
@@ -22,6 +23,7 @@ export default class ScreenErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
+      const { goBack } = this.props;
       return (
         <div
           role="alert"
@@ -34,20 +36,29 @@ export default class ScreenErrorBoundary extends React.Component {
             gap: 12,
           }}
         >
-          <div style={{ fontSize: 48 }} aria-hidden="true">⚠️</div>
+          <CroatianKnight size={64} mood="droop" style={{ margin: '0 auto 12px', display: 'block' }} />
           <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--heading, #0f172a)' }}>
-            This section hit an error
+            Something went wrong with this screen.
           </p>
           <p style={{ fontSize: 13, color: 'var(--subtext, #64748b)' }}>
-            Your progress is saved. Try going back or reloading.
+            Your progress is saved. Tap Try Again to recover, or go back.
           </p>
-          <button
-            className="b bp"
-            style={{ marginTop: 8 }}
-            onClick={() => this.setState({ hasError: false, error: null })}
-          >
-            Try Again
-          </button>
+          <div style={{ display: 'flex', gap: 10, marginTop: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button
+              className="b bp"
+              onClick={() => this.setState({ hasError: false, error: null })}
+            >
+              Try Again
+            </button>
+            {goBack && (
+              <button
+                className="b bg"
+                onClick={goBack}
+              >
+                Go Back
+              </button>
+            )}
+          </div>
         </div>
       );
     }

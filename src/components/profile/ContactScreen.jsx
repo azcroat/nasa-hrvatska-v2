@@ -88,7 +88,7 @@ export default function ContactScreen({ goBack, authUser, name, level, stats }) 
 
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <button onClick={goBack} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: "#64748b", padding: "4px 2px" }}>←</button>
+        <button onClick={goBack} aria-label="Go back" style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: "#64748b", padding: "4px 2px" }}>←</button>
         <div>
           <h2 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: "#0f172a" }}>Contact Support</h2>
           <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>Report a bug, suggest a feature, or ask a question</div>

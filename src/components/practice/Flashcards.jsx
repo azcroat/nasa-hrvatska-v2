@@ -4,6 +4,7 @@ import { H, Bar, srMark } from '../../data.jsx';
 import CroatianKnight from '../shared/CroatianKnight';
 import confetti from 'canvas-confetti';
 import { speak } from '../../lib/audio.js';
+import { getMemoryHook } from '../../lib/memoryHooks.js';
 
 // Fetch AI-generated contextual image for a vocabulary word via FLUX
 async function fetchCardImage(word, meaning, cacheRef, signal) {
@@ -725,6 +726,26 @@ export default function Flashcards({ pool, goBack, award }) {
                 )}
               </div>
             )}
+
+            {/* Memory hook — shown on back of card */}
+            {(() => {
+              const hook = getMemoryHook(activePool[idx][0]);
+              return hook ? (
+                <div style={{
+                  marginTop: 12,
+                  padding: '8px 12px',
+                  background: 'rgba(245,158,11,0.08)',
+                  border: '1px solid rgba(245,158,11,0.2)',
+                  borderRadius: 10,
+                  fontSize: 12,
+                  color: 'var(--subtext)',
+                  lineHeight: 1.5,
+                  fontStyle: 'italic',
+                }}>
+                  {hook}
+                </div>
+              ) : null;
+            })()}
 
             <div style={{fontSize:12,color:"var(--subtext)",marginTop:10}}>tap to flip back</div>
           </div>
