@@ -85,7 +85,7 @@ function App() {
   const { isPremium, isFreeAnnual, daysLeft, refresh: refreshSub } = useSubscription();
   const [showPaywall, setShowPaywall] = useState(false);
   const [paywallFeature, setPaywallFeature] = useState('AI Tutor');
-  function requirePremium(featureName, action) { if (isPremium) { action(); return; } setPaywallFeature(featureName); setShowPaywall(true); }
+  const requirePremium = useCallback(function requirePremium(featureName, action) { if (isPremium) { action(); return; } setPaywallFeature(featureName); setShowPaywall(true); }, [isPremium, setPaywallFeature, setShowPaywall]);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -351,9 +351,61 @@ function App() {
   useEffect(() => { setDueCount(getDueReviews().length); }, [stats]);
   const badges = useMemo(() => ({ home:0,learn:0,practice:dueCount,croatia:0,profile:0 }), [dueCount]);
   const doSidebarSearch = useCallback(() => { if (srchQ.trim()) { doSearch(srchQ); setSrchOpen(true); } }, [srchQ, doSearch, setSrchOpen]);
-  const ctxValue = useMemo(() => ({ authScreen,authUser,au:authUser,name,setName,doOut,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx,st:stats,stats,setStats,level,award }), [authScreen,authUser,name,setName,doOut,darkMode,setDarkMode,favs,toggleFav,isFav,setScr,goBack,tab,setTab,jWords,setJWords,famData,setFamData,sCurEx,stats,setStats,level,award]);
-  const statsValue = useMemo(() => ({ stats,setStats,award,level }), [stats,setStats,award,level]);
   const _weeklyXP = (() => { try{const d=new Date();const dy=d.getDay()||7;d.setDate(d.getDate()+4-dy);const yr=d.getFullYear();const wk=Math.ceil(((d.getTime()-new Date(yr,0,1).getTime())/86400000+1)/7);return parseInt(localStorage.getItem('nh_week_xp_'+yr+'-W'+String(wk).padStart(2,'0'))||'0',10);}catch{return 0;} })();
+  const ctxValue = useMemo(() => ({
+    // Auth / user
+    authScreen, authUser, au: authUser, name, setName, doOut,
+    // Prefs
+    darkMode, setDarkMode, favs, toggleFav, isFav,
+    // Navigation
+    setScr, goBack, tab, setTab,
+    // Stats / gamification
+    st: stats, stats, setStats, level, award, sCurEx,
+    // Journal / family
+    jWords, setJWords, famData, setFamData,
+    // Subscription
+    isPremium, refreshSub, requirePremium,
+    // Search
+    srchQ, setSrchQ, srchR, srchOpen, setSrchOpen, doSearch,
+    // Translator
+    tDir, sTDir, tIn, sTIn, tOut, tL, doTr,
+    // Family (extended)
+    famMembers, setFamMembers, famLoading, setFamLoading,
+    famName, setFamName, famCode, setFamCode,
+    famErr, setFamErr, famTab, setFamTab,
+    // Daily challenge
+    dchlA, sDchlA, dchlSl, sDchlSl,
+    // Screen launchers
+    resumeLesson, launchPathItem, launchAnimLesson,
+    launchMcGame, mcGameComplete, launchFlashcards, launchListening, launchMatch, launchSpeaking,
+    // Sync
+    _syncReady, doSyncNow,
+    // Misc
+    icons: ICONS, allCats, getWeekStats,
+    isNewUserWindow, daysSinceJoin, comebackBonus,
+    weeklyXP: _weeklyXP,
+    currentScreen,
+  }), [
+    authScreen, authUser, name, setName, doOut,
+    darkMode, setDarkMode, favs, toggleFav, isFav,
+    setScr, goBack, tab, setTab,
+    stats, setStats, level, award, sCurEx,
+    jWords, setJWords, famData, setFamData,
+    isPremium, refreshSub, requirePremium,
+    srchQ, setSrchQ, srchR, srchOpen, setSrchOpen, doSearch,
+    tDir, sTDir, tIn, sTIn, tOut, tL, doTr,
+    famMembers, setFamMembers, famLoading, setFamLoading,
+    famName, setFamName, famCode, setFamCode,
+    famErr, setFamErr, famTab, setFamTab,
+    dchlA, sDchlA, dchlSl, sDchlSl,
+    resumeLesson, launchPathItem, launchAnimLesson,
+    launchMcGame, mcGameComplete, launchFlashcards, launchListening, launchMatch, launchSpeaking,
+    _syncReady, doSyncNow,
+    allCats, getWeekStats,
+    isNewUserWindow, daysSinceJoin, comebackBonus,
+    _weeklyXP, currentScreen,
+  ]);
+  const statsValue = useMemo(() => ({ stats,setStats,award,level }), [stats,setStats,award,level]);
 
   // ── Auth screens ────────────────────────────────────────────────────────────
   if (authScreen === 'loading') return (
@@ -425,30 +477,10 @@ function App() {
           emailUnverified={emailUnverified} setEmailUnverified={setEmailUnverified} resendVerification={resendVerification}
         />
         <AppRouter
-          currentScreen={currentScreen} goBack={goBack} setScr={setScr} setTab={setTab}
-          authUser={authUser} authScreen={authScreen} name={name} setName={setName}
-          level={level} stats={stats} setStats={setStats} award={award}
-          isPremium={isPremium} refreshSub={refreshSub}
-          srchQ={srchQ} setSrchQ={setSrchQ} srchR={srchR} srchOpen={srchOpen} setSrchOpen={setSrchOpen} doSearch={doSearch}
-          tDir={tDir} sTDir={sTDir} tIn={tIn} sTIn={sTIn} tOut={tOut} tL={tL} doTr={doTr}
-          tab={tab}
-          famData={famData} setFamData={setFamData} famMembers={famMembers} setFamMembers={setFamMembers}
-          famLoading={famLoading} setFamLoading={setFamLoading} famName={famName} setFamName={setFamName}
-          famCode={famCode} setFamCode={setFamCode} famErr={famErr} setFamErr={setFamErr}
-          famTab={famTab} setFamTab={setFamTab}
-          dchlA={dchlA} sDchlA={sDchlA} dchlSl={dchlSl} sDchlSl={sDchlSl}
-          setJWords={setJWords} favs={favs} toggleFav={toggleFav}
-          icons={ICONS} allCats={allCats} getWeekStats={getWeekStats}
-          isNewUserWindow={isNewUserWindow} daysSinceJoin={daysSinceJoin} comebackBonus={comebackBonus}
-          resumeLesson={resumeLesson} launchPathItem={launchPathItem} launchAnimLesson={launchAnimLesson}
-          launchMcGame={launchMcGame} mcGameComplete={mcGameComplete}
-          launchFlashcards={launchFlashcards} launchListening={launchListening}
-          launchMatch={launchMatch} launchSpeaking={launchSpeaking}
-          _syncReady={_syncReady} doSyncNow={doSyncNow}
           setPlacementQ={setPlacementQ} setPlacementIdx={setPlacementIdx}
           setPlacementScore={setPlacementScore} setPlacementAnswers={setPlacementAnswers}
           setPlacementXp={setPlacementXp} getPlacementCt={getPlacementCt}
-          setShowFirstWords={setShowFirstWords} _weeklyXP={_weeklyXP}
+          setShowFirstWords={setShowFirstWords}
           lt={lt} li={li} lx={lx} ls={ls} lp={lp} la={la} lsl={lsl} qi={qi}
           sLt={sLt} sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl} sQi={sQi}
           gl={gl} gx={gx} gp={gp} gs={gs} ga={ga} gsl={gsl}
@@ -460,8 +492,7 @@ function App() {
           sw={sw} si={si} sx={sx} sr={sr} ssc={ssc}
           sSw={sSw} sSr={sSr} sSx={sSx} sSi={sSi} sSsc={sSsc}
           animLesson={animLesson} fcInitPool={fcInitPool} lsInitQ={lsInitQ}
-          curEx={curEx} sCurEx={sCurEx} doOut={doOut}
-          requirePremium={requirePremium}
+          curEx={curEx}
         />
         {authScreen === 'app' && currentScreen !== 'welcome' && currentScreen !== 'placement' && <TabBar tab={tab} setTab={setTab} setScr={setScr} badges={badges} />}
 

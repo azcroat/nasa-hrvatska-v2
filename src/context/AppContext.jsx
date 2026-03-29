@@ -15,12 +15,24 @@ const AppContext = createContext(null);
  * useApp() — access shared app state anywhere below AppContext.Provider.
  *
  * Available values (provided by App.jsx):
- *   Navigation : setScr, goBack, tab, setTab
- *   Auth       : authScreen, au (authUser), name, setName, doOut
- *   Stats      : st (stats), setSt, level, award
- *   Prefs      : darkMode, setDarkMode, favs, toggleFav, isFav
- *   Journal    : jWords, setJWords
- *   Family     : famData, setFamData
+ *   Navigation    : currentScreen, setScr, goBack, tab, setTab
+ *   Auth          : authScreen, au/authUser, name, setName, doOut
+ *   Stats         : st/stats, setStats, level, award, sCurEx
+ *   Prefs         : darkMode, setDarkMode, favs, toggleFav, isFav
+ *   Journal       : jWords, setJWords
+ *   Family        : famData, setFamData, famMembers, setFamMembers,
+ *                   famLoading, setFamLoading, famName, setFamName,
+ *                   famCode, setFamCode, famErr, setFamErr, famTab, setFamTab
+ *   Subscription  : isPremium, refreshSub, requirePremium
+ *   Search        : srchQ, setSrchQ, srchR, srchOpen, setSrchOpen, doSearch
+ *   Translator    : tDir, sTDir, tIn, sTIn, tOut, tL, doTr
+ *   Daily         : dchlA, sDchlA, dchlSl, sDchlSl
+ *   Launchers     : resumeLesson, launchPathItem, launchAnimLesson,
+ *                   launchMcGame, mcGameComplete, launchFlashcards,
+ *                   launchListening, launchMatch, launchSpeaking
+ *   Sync          : _syncReady, doSyncNow
+ *   Misc          : icons, allCats, getWeekStats,
+ *                   isNewUserWindow, daysSinceJoin, comebackBonus, weeklyXP
  */
 export function useApp() {
   const ctx = useContext(AppContext);
