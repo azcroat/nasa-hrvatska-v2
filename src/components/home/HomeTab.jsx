@@ -199,10 +199,10 @@ export default function HomeTab({
           <span style={{ fontSize: 22, flexShrink: 0 }}>💾</span>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.75)', letterSpacing: '.04em' }}>
-              Explore mode
+              Explore mode · {st.xp} XP earned
             </div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#fff', lineHeight: 1.4 }}>
-              {st.xp} XP earned — create a free account to save your progress
+            <div style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.85)', lineHeight: 1.4 }}>
+              Create a free account to sync across all your devices
             </div>
           </div>
           <button
@@ -221,7 +221,7 @@ export default function HomeTab({
               whiteSpace: 'nowrap',
             }}
           >
-            Save Now →
+            Save Free →
           </button>
         </div>
       )}

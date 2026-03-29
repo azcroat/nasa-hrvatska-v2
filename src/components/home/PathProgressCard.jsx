@@ -60,9 +60,41 @@ export default function PathProgressCard({
               transition:'width .7s cubic-bezier(.4,0,.2,1)',
             }}/>
           </div>
-          <div style={{fontSize:11,color:'rgba(255,255,255,.7)',fontWeight:500,marginBottom:16}}>
+          <div style={{fontSize:11,color:'rgba(255,255,255,.7)',fontWeight:500,marginBottom:10}}>
             This stage: {pathData.activeLvDone} of {pathData.activeLv.items.length} lessons
           </div>
+
+          {/* Stage progress dots — Zeigarnik effect: users want to complete the row */}
+          {pathData.activeLv.items.length > 0 && (
+            <div style={{display:'flex',gap:5,flexWrap:'wrap',marginBottom:16}}>
+              {pathData.activeLv.items.slice(0, 12).map((item, i) => {
+                const done = i < pathData.activeLvDone;
+                return (
+                  <div key={i} style={{
+                    width:22,height:22,borderRadius:'50%',flexShrink:0,
+                    background: done ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.18)',
+                    border: done ? '2px solid rgba(255,255,255,1)' : '1.5px solid rgba(255,255,255,0.35)',
+                    display:'flex',alignItems:'center',justifyContent:'center',
+                    fontSize:10,fontWeight:900,
+                    color: done ? activePalette.text : 'rgba(255,255,255,0.5)',
+                    transition:'background .3s',
+                  }}>
+                    {done ? '✓' : ''}
+                  </div>
+                );
+              })}
+              {pathData.activeLv.items.length > 12 && (
+                <div style={{
+                  height:22,borderRadius:11,padding:'0 8px',flexShrink:0,
+                  background:'rgba(255,255,255,0.12)',
+                  display:'flex',alignItems:'center',
+                  fontSize:10,fontWeight:700,color:'rgba(255,255,255,.65)',
+                }}>
+                  +{pathData.activeLv.items.length - 12}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Start Now button */}
           <button
