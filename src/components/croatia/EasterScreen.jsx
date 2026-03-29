@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { V, speak, lXP } from '../../data.jsx';
+import { V, speak } from '../../data.jsx';
+
+const KVIZ_DONE_KEY = 'nh_uskrs_kviz_done';
 
 const TRADITIONS = [
   {
@@ -109,15 +111,20 @@ const TABS = [
   { id: 'kviz', label: 'Kviz' },
 ];
 
-export default function EasterScreen({ onBack }) {
+export default function EasterScreen({ onBack, award }) {
+  // Persist completion across sessions — once done, quiz is locked
+  const [kvizPermanentlyDone] = useState(() => {
+    try { return localStorage.getItem(KVIZ_DONE_KEY) === '1'; } catch { return false; }
+  });
+
   const [tab, setTab] = useState('tradicije');
 
   // Quiz state
   const [qIdx, setQIdx] = useState(0);
   const [selected, setSelected] = useState(null);
   const [answers, setAnswers] = useState([]);
-  const [quizDone, setQuizDone] = useState(false);
-  const [xpAwarded, setXpAwarded] = useState(false);
+  const [quizDone, setQuizDone] = useState(kvizPermanentlyDone);
+  const [xpAwarded, setXpAwarded] = useState(kvizPermanentlyDone);
 
   const easterVocab = V.easter || [];
 
@@ -133,9 +140,9 @@ export default function EasterScreen({ onBack }) {
         setQuizDone(true);
         if (!xpAwarded) {
           const correctCount = newAnswers.filter(Boolean).length;
-          if (correctCount > 0) {
-            lXP(correctCount * 10);
-          }
+          const xpEarned = correctCount * 10;
+          if (xpEarned > 0 && award) award(xpEarned);
+          try { localStorage.setItem(KVIZ_DONE_KEY, '1'); } catch {}
           setXpAwarded(true);
         }
       } else {
@@ -143,14 +150,6 @@ export default function EasterScreen({ onBack }) {
         setSelected(null);
       }
     }, 900);
-  }
-
-  function resetQuiz() {
-    setQIdx(0);
-    setSelected(null);
-    setAnswers([]);
-    setQuizDone(false);
-    setXpAwarded(false);
   }
 
   return (
@@ -204,7 +203,7 @@ export default function EasterScreen({ onBack }) {
               transition: 'all .2s',
             }}
           >
-            {t.label}
+            {t.id === 'kviz' && kvizPermanentlyDone ? 'Kviz ✓' : t.label}
           </button>
         ))}
       </div>
@@ -400,54 +399,58 @@ export default function EasterScreen({ onBack }) {
           ) : (
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 48, marginBottom: 12 }}>
-                {answers.filter(Boolean).length === QUIZ_QUESTIONS.length ? '🎉' : '🥚'}
+                {kvizPermanentlyDone && answers.length === 0 ? '🏆' : answers.filter(Boolean).length === QUIZ_QUESTIONS.length ? '🎉' : '🥚'}
               </div>
               <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--heading)', fontFamily: "'Playfair Display',serif", marginBottom: 6 }}>
-                {answers.filter(Boolean).length === QUIZ_QUESTIONS.length ? 'Savršeno!' : 'Kviz završen!'}
+                {kvizPermanentlyDone && answers.length === 0 ? 'Kviz završen!' : answers.filter(Boolean).length === QUIZ_QUESTIONS.length ? 'Savršeno!' : 'Kviz završen!'}
               </div>
-              <div style={{ fontSize: 14, color: 'var(--subtext)', marginBottom: 20 }}>
-                {answers.filter(Boolean).length} / {QUIZ_QUESTIONS.length} correct
-              </div>
+              {answers.length > 0 && (
+                <div style={{ fontSize: 14, color: 'var(--subtext)', marginBottom: 20 }}>
+                  {answers.filter(Boolean).length} / {QUIZ_QUESTIONS.length} correct
+                </div>
+              )}
               <div style={{
                 background: ACCENT_LIGHT, border: `1.5px solid ${ACCENT_BORDER}`,
                 borderRadius: 14, padding: '14px 18px', marginBottom: 20,
-                fontSize: 14, fontWeight: 700, color: ACCENT,
+                fontSize: 13, fontWeight: 700, color: ACCENT,
               }}>
-                +{answers.filter(Boolean).length * 10} XP earned
+                {answers.length > 0
+                  ? `+${answers.filter(Boolean).length * 10} XP earned`
+                  : 'Kviz je već završen — XP je dodijeljen.'}
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-                {QUIZ_QUESTIONS.map((qq, qi) => (
-                  <div key={qi} style={{
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '10px 14px', borderRadius: 10,
-                    background: answers[qi] ? 'rgba(22,163,74,.08)' : 'rgba(239,68,68,.07)',
-                    border: `1px solid ${answers[qi] ? ACCENT_BORDER : 'rgba(239,68,68,.2)'}`,
-                    textAlign: 'left',
-                  }}>
-                    <span style={{ fontSize: 16, flexShrink: 0 }}>{answers[qi] ? '✅' : '❌'}</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 12, color: 'var(--subtext)', fontWeight: 600, lineHeight: 1.3 }}>{qq.q}</div>
-                      {!answers[qi] && (
-                        <div style={{ fontSize: 11, color: ACCENT, fontWeight: 700, marginTop: 2 }}>
-                          {qq.correct}
-                        </div>
-                      )}
+              {answers.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+                  {QUIZ_QUESTIONS.map((qq, qi) => (
+                    <div key={qi} style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '10px 14px', borderRadius: 10,
+                      background: answers[qi] ? 'rgba(22,163,74,.08)' : 'rgba(239,68,68,.07)',
+                      border: `1px solid ${answers[qi] ? ACCENT_BORDER : 'rgba(239,68,68,.2)'}`,
+                      textAlign: 'left',
+                    }}>
+                      <span style={{ fontSize: 16, flexShrink: 0 }}>{answers[qi] ? '✅' : '❌'}</span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 12, color: 'var(--subtext)', fontWeight: 600, lineHeight: 1.3 }}>{qq.q}</div>
+                        {!answers[qi] && (
+                          <div style={{ fontSize: 11, color: ACCENT, fontWeight: 700, marginTop: 2 }}>
+                            {qq.correct}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
 
-              <button
-                onClick={resetQuiz}
-                style={{
-                  padding: '12px 28px', background: ACCENT, border: 'none',
-                  borderRadius: 12, cursor: 'pointer', color: '#fff',
-                  fontFamily: "'Outfit',sans-serif", fontSize: 14, fontWeight: 800,
-                }}
-              >
-                Try Again
-              </button>
+              {/* No Try Again — quiz is one-time only */}
+              <div style={{
+                fontSize: 12, color: 'var(--subtext)', fontStyle: 'italic',
+                padding: '10px 16px', background: 'var(--bar-bg)',
+                borderRadius: 10, marginTop: 8,
+              }}>
+                Ovaj kviz može se riješiti samo jednom. / This quiz can only be completed once.
+              </div>
             </div>
           )}
         </div>

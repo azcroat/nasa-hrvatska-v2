@@ -511,7 +511,7 @@ export default function AppRouter(props) {
       {currentScreen==="tivicompare"&&<ScreenErrorBoundary key="tivicompare" name="tivicompare"><TiViScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="lifeevents"&&<ScreenErrorBoundary key="lifeevents" name="lifeevents"><LifeEventsScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="civic"&&<ScreenErrorBoundary key="civic" name="civic"><CivicScreen goBack={goBack} /></ScreenErrorBoundary>}
-      {currentScreen==="easter"&&<ScreenErrorBoundary key="easter" name="easter"><EasterScreen onBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="easter"&&<ScreenErrorBoundary key="easter" name="easter"><EasterScreen onBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="postcard"&&<ScreenErrorBoundary key="postcard" name="postcard"><PostcardScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="storymode"&&<ScreenErrorBoundary key="storymode" name="storymode"><StoryModeScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="personas"&&<ScreenErrorBoundary key="personas" name="personas"><PersonaScreen goBack={goBack} setScr={setScr} /></ScreenErrorBoundary>}
