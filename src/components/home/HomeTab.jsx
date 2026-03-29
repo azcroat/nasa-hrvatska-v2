@@ -384,92 +384,113 @@ export default function HomeTab({
             setTab={setTab}
           />
 
-          {/* ── WORD OF THE DAY ── */}
-          {wod && (
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.04 }}>
-              <div style={{
-                background: 'linear-gradient(135deg, rgba(14,116,144,0.08) 0%, rgba(8,145,178,0.06) 100%)',
-                border: '1px solid rgba(14,116,144,0.2)',
-                borderRadius: 16, padding: '14px 16px', marginBottom: 12,
-              }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: '#0e7490', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 8 }}>
-                  📅 Word of the Day
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--heading)', fontFamily: "'Playfair Display',serif" }}>
-                      {wod[0]}
-                    </div>
-                    {wod[2] && (
-                      <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 2, fontStyle: 'italic' }}>{wod[2]}</div>
-                    )}
-                    <div style={{ fontSize: 14, color: 'var(--subtext)', marginTop: 4 }}>{wod[1]}</div>
-                  </div>
-                  <button
-                    onClick={() => speak(wod[0])}
-                    aria-label="Hear pronunciation"
-                    style={{
-                      background: 'rgba(14,116,144,0.1)', border: '1px solid rgba(14,116,144,0.2)',
-                      borderRadius: '50%', width: 44, height: 44, fontSize: 20, cursor: 'pointer',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                    }}
-                  >🔊</button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* ── CITY OF THE DAY teaser ── */}
+          {/* ── DAILY DISCOVERY — Word of the Day + City of the Day merged banner ── */}
           {(() => {
             const city = getCityOfDay();
-            const teaser = city.facts?.[0] || city.intro?.slice(0, 90) + '…' || '';
             return (
-              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.06 }}>
-                <button
-                  onClick={() => { incrementCulture('cityCnt'); if (award) award(3); setScr('cityofday'); }}
-                  aria-label={`City of the Day: ${city.name}`}
-                  style={{
-                    width: '100%', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left',
-                    borderRadius: 18, overflow: 'hidden', marginBottom: 12,
-                    boxShadow: `0 4px 20px ${city.color}55, 0 1px 4px rgba(0,0,0,.18)`,
-                  }}
-                >
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.04 }}>
+                <div style={{
+                  borderRadius: 20, overflow: 'hidden', marginBottom: 12,
+                  border: '1px solid var(--card-b)',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.10)',
+                }}>
+                  {/* ── Header label ── */}
                   <div style={{
-                    background: `linear-gradient(135deg, ${city.color}f5 0%, ${city.color}cc 60%, ${city.color}99 100%)`,
-                    padding: '16px 16px 0', position: 'relative', overflow: 'hidden',
+                    background: 'linear-gradient(90deg, #0e7490, #0c4a6e)',
+                    padding: '8px 16px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   }}>
-                    <div style={{
-                      position: 'absolute', inset: 0, opacity: 0.08,
-                      backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)',
-                      backgroundSize: '18px 18px', pointerEvents: 'none',
-                    }} />
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, position: 'relative' }}>
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(0,0,0,0.22)', borderRadius: 20, padding: '3px 10px' }}>
-                        <span style={{ fontSize: 10 }}>📅</span>
-                        <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,.9)', letterSpacing: '.08em', textTransform: 'uppercase' }}>City of the Day</span>
-                      </div>
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(255,255,255,0.18)', borderRadius: 20, padding: '3px 10px' }}>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>{city.vocab.length} words</span>
-                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,.8)' }}>→</span>
-                      </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 14 }}>🇭🇷</span>
+                      <span style={{ fontSize: 11, fontWeight: 900, color: 'rgba(255,255,255,0.95)', textTransform: 'uppercase', letterSpacing: '.08em' }}>Daily Discovery</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginBottom: 10, position: 'relative' }}>
-                      <div style={{ width: 54, height: 54, borderRadius: 14, flexShrink: 0, background: 'rgba(0,0,0,0.20)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, boxShadow: '0 2px 8px rgba(0,0,0,0.25)' }}>
-                        {city.icon}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.15, fontFamily: "'Playfair Display', serif", letterSpacing: '-0.01em' }}>{city.name}</div>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,.8)', marginTop: 2 }}>{city.region} · <span style={{ fontStyle: 'italic' }}>"{city.tagline}"</span></div>
-                      </div>
-                    </div>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', fontWeight: 600 }}>
+                      {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                    </span>
                   </div>
-                  {teaser && (
-                    <div style={{ background: 'rgba(0,0,0,0.32)', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 12 }}>💡</span>
-                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,.82)', lineHeight: 1.4, fontStyle: 'italic', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{teaser}</span>
+
+                  {/* ── Word of the Day section ── */}
+                  {wod && (
+                    <div style={{
+                      background: 'var(--card)',
+                      padding: '14px 16px',
+                      borderBottom: '1px solid var(--card-b)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+                    }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 10, fontWeight: 800, color: '#0e7490', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 4 }}>
+                          Word of the Day
+                        </div>
+                        <div style={{ fontSize: 24, fontWeight: 900, color: 'var(--heading)', fontFamily: "'Playfair Display',serif", lineHeight: 1.1 }}>
+                          {wod[0]}
+                        </div>
+                        {wod[2] && (
+                          <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2, fontStyle: 'italic' }}>{wod[2]}</div>
+                        )}
+                        <div style={{ fontSize: 13, color: 'var(--subtext)', marginTop: 3 }}>{wod[1]}</div>
+                      </div>
+                      <button
+                        onClick={() => speak(wod[0])}
+                        aria-label="Hear pronunciation"
+                        style={{
+                          background: 'linear-gradient(135deg,#0e7490,#0c4a6e)',
+                          border: 'none', borderRadius: '50%', width: 48, height: 48, fontSize: 20,
+                          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          flexShrink: 0, boxShadow: '0 2px 10px rgba(14,116,144,0.35)',
+                        }}
+                      >🔊</button>
                     </div>
                   )}
-                </button>
+
+                  {/* ── City of the Day section ── */}
+                  <button
+                    onClick={() => { incrementCulture('cityCnt'); if (award) award(3); setScr('cityofday'); }}
+                    aria-label={`City of the Day: ${city.name}`}
+                    style={{
+                      width: '100%', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left',
+                      display: 'block',
+                    }}
+                  >
+                    <div style={{
+                      background: `linear-gradient(135deg, ${city.color}ee 0%, ${city.color}bb 100%)`,
+                      padding: '12px 16px',
+                      display: 'flex', alignItems: 'center', gap: 12,
+                      position: 'relative', overflow: 'hidden',
+                    }}>
+                      <div style={{
+                        position: 'absolute', inset: 0, opacity: 0.06,
+                        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)',
+                        backgroundSize: '16px 16px', pointerEvents: 'none',
+                      }} />
+                      <div style={{
+                        width: 48, height: 48, borderRadius: 12, flexShrink: 0,
+                        background: 'rgba(0,0,0,0.18)', display: 'flex', alignItems: 'center',
+                        justifyContent: 'center', fontSize: 26, boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                        position: 'relative',
+                      }}>
+                        {city.icon}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
+                        <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 2 }}>
+                          City of the Day
+                        </div>
+                        <div style={{ fontSize: 18, fontWeight: 900, color: '#fff', fontFamily: "'Playfair Display',serif", lineHeight: 1.2 }}>
+                          {city.name}
+                        </div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', marginTop: 1 }}>
+                          {city.region} · {city.vocab.length} words to learn
+                        </div>
+                      </div>
+                      <div style={{
+                        flexShrink: 0, background: 'rgba(255,255,255,0.2)', borderRadius: 10,
+                        padding: '4px 10px', fontSize: 12, fontWeight: 700, color: '#fff',
+                        position: 'relative',
+                      }}>
+                        Explore →
+                      </div>
+                    </div>
+                  </button>
+                </div>
               </motion.div>
             );
           })()}
