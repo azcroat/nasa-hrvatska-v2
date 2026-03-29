@@ -826,16 +826,11 @@ export default function HomeTab({
             style={{ borderRadius: 18, marginBottom: 16, minHeight: dailyCulture ? 190 : 145, boxShadow: '0 4px 24px rgba(0,0,0,.22)', transition: 'min-height .4s ease' }}
           >
             <div style={{ padding:'18px 18px 16px' }}>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
-                <div>
-                  <div style={{ fontSize:9, fontWeight:800, color:'rgba(255,255,255,.65)', letterSpacing:'.14em', textTransform:'uppercase', marginBottom:3 }}>
-                    Croatia Today · {scene.label}
-                  </div>
-                  <div style={{ fontSize:17, fontWeight:900, color:'#fff', fontFamily:"'Playfair Display',serif", textShadow:'0 1px 6px rgba(0,0,0,.5)' }}>
-                    🇭🇷 {scene.city}
-                  </div>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
+                <div style={{ fontSize:9, fontWeight:800, color:'rgba(255,255,255,.65)', letterSpacing:'.14em', textTransform:'uppercase' }}>
+                  🇭🇷 Croatia Today · {scene.label}
                 </div>
-                <span style={{ fontSize:22 }}>🇭🇷</span>
+                <span style={{ fontSize:18 }}>🇭🇷</span>
               </div>
 
               {/* AI-generated phrase — replaces static when loaded */}

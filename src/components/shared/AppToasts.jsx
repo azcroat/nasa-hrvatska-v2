@@ -101,10 +101,10 @@ export function AppToasts({
 
       {/* Email verification banner */}
       {emailUnverified && (
-        <div style={{background:'#fef3c7',borderBottom:'2px solid #f59e0b',padding:'10px 20px',display:'flex',alignItems:'center',gap:12,fontFamily:"'Outfit',sans-serif",fontSize:13,fontWeight:600,position:'relative',zIndex:900}}>
-          <span>⚠️ Please verify your email to secure your account.</span>
-          <button onClick={resendVerification} style={{background:'#f59e0b',color:'#fff',border:'none',borderRadius:6,padding:'4px 12px',cursor:'pointer',fontSize:12,fontWeight:700,fontFamily:"'Outfit',sans-serif"}}>Resend Email</button>
-          <button onClick={() => setEmailUnverified(false)} style={{marginLeft:'auto',background:'none',border:'none',cursor:'pointer',fontSize:16,color:'#92400e'}} aria-label="Dismiss">×</button>
+        <div style={{background:'var(--warning-bg,#fef3c7)',borderBottom:'2px solid var(--warning,#f59e0b)',padding:'10px 20px',display:'flex',alignItems:'center',gap:12,fontFamily:"'Outfit',sans-serif",fontSize:13,fontWeight:600,position:'relative',zIndex:900}}>
+          <span style={{color:'var(--warning-text,#92400e)'}}>⚠️ Please verify your email to secure your account.</span>
+          <button onClick={resendVerification} style={{background:'var(--warning,#f59e0b)',color:'#fff',border:'none',borderRadius:6,padding:'4px 12px',cursor:'pointer',fontSize:12,fontWeight:700,fontFamily:"'Outfit',sans-serif",minHeight:36}}>Resend Email</button>
+          <button onClick={() => setEmailUnverified(false)} style={{marginLeft:'auto',background:'none',border:'none',cursor:'pointer',fontSize:20,color:'var(--warning-text,#92400e)',minWidth:44,minHeight:44,display:'flex',alignItems:'center',justifyContent:'center'}} aria-label="Dismiss">×</button>
         </div>
       )}
 
@@ -117,7 +117,7 @@ export function AppToasts({
               <div style={{fontSize:15,fontWeight:900,marginBottom:4,lineHeight:1.2}}>Install Naša Hrvatska</div>
               <div style={{fontSize:12,opacity:.9,lineHeight:1.5,fontWeight:500}}>Add to your home screen for instant access and offline lessons.</div>
             </div>
-            <button onClick={() => { localStorage.setItem('nh_pwa_install_dismissed','true'); setShowAndroidInstall(false); }} aria-label="Dismiss" style={{background:'rgba(255,255,255,.2)',border:'none',color:'#fff',borderRadius:10,width:32,height:32,fontSize:18,cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+            <button onClick={() => { localStorage.setItem('nh_pwa_install_dismissed','true'); setShowAndroidInstall(false); }} aria-label="Dismiss" style={{background:'rgba(255,255,255,.2)',border:'none',color:'#fff',borderRadius:10,width:44,height:44,fontSize:18,cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
           </div>
           <div style={{display:'flex',gap:8,marginTop:12}}>
             <button onClick={async () => { if (deferredInstallPrompt) { await deferredInstallPrompt.prompt(); deferredInstallPrompt.userChoice.then(() => { setShowAndroidInstall(false); localStorage.setItem('nh_pwa_install_dismissed','true'); }); } }} style={{flex:1,background:'#fff',color:'#0e7490',border:'none',borderRadius:10,padding:'10px',fontSize:13,fontWeight:800,cursor:'pointer'}}>Install Now</button>
@@ -135,7 +135,7 @@ export function AppToasts({
               <div style={{fontSize:15,fontWeight:900,marginBottom:4,lineHeight:1.2}}>Add to Home Screen to save progress</div>
               <div style={{fontSize:12,opacity:.9,lineHeight:1.5,fontWeight:500}}>Safari erases all data after 7 days without it. Tap <strong>Share ↑</strong> then <strong>"Add to Home Screen"</strong>.</div>
             </div>
-            <button onClick={() => { localStorage.setItem('nh_pwa_install_dismissed','true'); setShowPwaInstall(false); }} aria-label="Dismiss" style={{background:'rgba(255,255,255,.2)',border:'none',color:'#fff',borderRadius:10,width:32,height:32,fontSize:18,cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',lineHeight:1}}>✕</button>
+            <button onClick={() => { localStorage.setItem('nh_pwa_install_dismissed','true'); setShowPwaInstall(false); }} aria-label="Dismiss" style={{background:'rgba(255,255,255,.2)',border:'none',color:'#fff',borderRadius:10,width:44,height:44,fontSize:18,cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',lineHeight:1}}>✕</button>
           </div>
         </div>
       )}
@@ -149,7 +149,7 @@ export function AppToasts({
               <div style={{fontSize:16,fontWeight:900,marginBottom:4,lineHeight:1.2}}>Your progress is now protected!</div>
               <div style={{fontSize:13,opacity:.88,lineHeight:1.5,fontWeight:500}}>Everything you learn is now automatically backed up to the cloud. You will never lose your progress again — on any device, any browser, ever.</div>
             </div>
-            <button onClick={() => { localStorage.setItem('fbBackupConfirmed','true'); setShowBackupBanner(false); }} aria-label="Dismiss" style={{background:'rgba(255,255,255,.2)',border:'none',color:'#fff',borderRadius:10,width:32,height:32,fontSize:18,cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',lineHeight:1}}>✕</button>
+            <button onClick={() => { localStorage.setItem('fbBackupConfirmed','true'); setShowBackupBanner(false); }} aria-label="Dismiss" style={{background:'rgba(255,255,255,.2)',border:'none',color:'#fff',borderRadius:10,width:44,height:44,fontSize:18,cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',lineHeight:1}}>✕</button>
           </div>
           <div style={{marginTop:12,display:'flex',alignItems:'center',gap:8}}>
             <div style={{flex:1,height:3,borderRadius:3,background:'rgba(255,255,255,.2)',overflow:'hidden'}}>
