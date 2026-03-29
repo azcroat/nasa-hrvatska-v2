@@ -1,0 +1,806 @@
+// exercises.js — pure data, no imports needed
+export const PLACE = [
+  // d=1 (beginner) — vocab
+  {q:"What does 'Bog' mean?",o:["Goodbye","Hello","Thank you"],c:1,d:1,skill:"culture"},
+  {q:"How do you say 'Thank you'?",o:["Molim","Hvala","Da"],c:1,d:1,skill:"vocab"},
+  {q:"'Dobar dan' means?",o:["Good night","Good day","Goodbye"],c:1,d:1,skill:"vocab"},
+  {q:"What is 'voda'?",o:["Wine","Milk","Water"],c:2,d:1,skill:"vocab"},
+  {q:"'Pas' means?",o:["Cat","Dog","Bird"],c:1,d:1,skill:"vocab"},
+  {q:"How do you say 'Yes'?",o:["Ne","Da","Ili"],c:1,d:1,skill:"vocab"},
+  {q:"What number is 'tri'?",o:["2","3","4"],c:1,d:1,skill:"vocab"},
+  {q:"'Mama' means?",o:["Father","Sister","Mom"],c:2,d:1,skill:"vocab"},
+  {q:"'Crvena' is which color?",o:["Blue","Red","Green"],c:1,d:1,skill:"vocab"},
+  {q:"How do you say 'Goodbye'?",o:["Bog","Doviđenja","Hvala"],c:1,d:1,skill:"vocab"},
+  {q:"'Kruh' means?",o:["Bread","Butter","Cheese"],c:0,d:1,skill:"vocab"},
+  {q:"What is 'mačka'?",o:["Dog","Fish","Cat"],c:2,d:1,skill:"vocab"},
+  {q:"'Jabuka' means?",o:["Orange","Apple","Banana"],c:1,d:1,skill:"vocab"},
+  {q:"How do you say 'Please'?",o:["Hvala","Oprosti","Molim"],c:2,d:1,skill:"vocab"},
+  {q:"What number is 'pet'?",o:["3","5","7"],c:1,d:1,skill:"vocab"},
+  // d=1 new vocab questions
+  {q:"What does 'hvala' mean?",o:["Thank you","Please","Hello","Goodbye"],c:0,d:1,skill:"vocab"},
+  {q:"Which word means 'water'?",o:["voda","mlijeko","kruh","sol"],c:0,d:1,skill:"vocab"},
+  {q:"What is 'dog' in Croatian?",o:["mačka","pas","ptica","riba"],c:1,d:1,skill:"vocab"},
+  {q:"What does 'dobar dan' mean?",o:["Good morning","Good night","Good afternoon/day","Goodbye"],c:2,d:1,skill:"vocab"},
+  // d=1 new culture questions
+  {q:"In Croatian, 'Bog!' is used as:",o:["A prayer","Casual hello/goodbye","A formal greeting","An exclamation"],c:1,d:1,skill:"culture"},
+  {q:"Croatian belongs to which language family?",o:["Romance","Germanic","Slavic","Baltic"],c:2,d:1,skill:"culture"},
+  // d=2 (intermediate) — grammar + vocab
+  {q:"'Kuća' is which gender?",o:["Masculine","Feminine","Neuter"],c:1,d:2,skill:"grammar"},
+  {q:"Ja ___ (biti)",o:["si","sam","je"],c:1,d:2,skill:"grammar"},
+  {q:"'Volim te' means?",o:["I see you","I love you","I need you"],c:1,d:2,skill:"vocab"},
+  {q:"Plural of 'žena'?",o:["žene","ženi","ženama"],c:0,d:2,skill:"grammar"},
+  {q:"'Idem u školu' means?",o:["I like school","I see school","I go to school"],c:2,d:2,skill:"vocab"},
+  {q:"Which is a day? 'Srijeda'",o:["Month","Wednesday","Season"],c:1,d:2,skill:"vocab"},
+  {q:"'Ne razumijem' means?",o:["I don't know","I don't understand","I don't want"],c:1,d:2,skill:"vocab"},
+  {q:"Accusative of 'knjiga'?",o:["knjige","knjigu","knjizi"],c:1,d:2,skill:"grammar"},
+  {q:"'Mogu li' means?",o:["I must","May I / Can I","I want"],c:1,d:2,skill:"vocab"},
+  {q:"'Koliko košta?' asks about?",o:["Time","Price","Distance"],c:1,d:2,skill:"vocab"},
+  {q:"'Želim naručiti' means?",o:["I want to leave","I want to order","I want to pay"],c:1,d:2,skill:"vocab"},
+  {q:"'Lijevo' means?",o:["Right","Left","Straight"],c:1,d:2,skill:"vocab"},
+  {q:"'Govori li netko engleski?' asks?",o:["Where is English?","Does anyone speak English?","I speak English"],c:1,d:2,skill:"vocab"},
+  {q:"'Trebam' expresses?",o:["Ability","Permission","Need"],c:2,d:2,skill:"grammar"},
+  {q:"Which is correct: 'Ja sam gladan'?",o:["I am tired","I am hungry","I am happy"],c:1,d:2,skill:"grammar"},
+  // d=2 new grammar questions
+  {q:"How do you say 'I am' in Croatian?",o:["on je","ja sam","ti si","mi smo"],c:1,d:2,skill:"grammar"},
+  {q:"What gender is 'knjiga' (book)?",o:["Masculine","Feminine","Neuter","Depends"],c:1,d:2,skill:"grammar"},
+  {q:"Which is correct: 'Ja _____ student'?",o:["sam","si","je","smo"],c:0,d:2,skill:"grammar"},
+  {q:"What does adding '-a' to a verb stem usually indicate?",o:["Past tense","Feminine noun","3rd person","Plural"],c:1,d:2,skill:"grammar"},
+  // d=3 (advanced) — grammar + culture
+  {q:"Past tense: 'She spoke' =",o:["Ona govori","Ona je govorila","Ona govoriti"],c:1,d:3,skill:"grammar"},
+  {q:"How many Croatian cases?",o:["5","6","7"],c:2,d:3,skill:"grammar"},
+  {q:"Dative answers which question?",o:["Gdje?","Komu?","Koga?"],c:1,d:3,skill:"grammar"},
+  {q:"'Conditional' uses which helper?",o:["sam/si/je","ću/ćeš/će","bih/bi/bismo"],c:2,d:3,skill:"grammar"},
+  {q:"Which case always needs a preposition?",o:["Genitiv","Lokativ","Akuzativ"],c:1,d:3,skill:"grammar"},
+  {q:"'Sjećam se' means?",o:["I forget","I remember","I think"],c:1,d:3,skill:"vocab"},
+  {q:"Instrumental of 'prijatelj'?",o:["prijatelja","prijatelju","prijateljem"],c:2,d:3,skill:"grammar"},
+  {q:"'Unatoč' takes which case?",o:["Genitiv","Dativ","Akuzativ"],c:1,d:3,skill:"grammar"},
+  {q:"'Da sam znao, ne bih išao' is?",o:["Past tense","Conditional","Future tense"],c:1,d:3,skill:"grammar"},
+  {q:"First Croatian king?",o:["Zvonimir","Trpimir","Tomislav"],c:2,d:3,skill:"culture"}
+];
+export const READ = {
+  beginner: [
+    {title:"Moja Obitelj",tEn:"My Family",text:"Ja sam Ana. Imam jedanaest godina. Moja mama se zove Marija. Moj tata se zove Ivan. Imam brata. On se zove Luka. Luka ima \u010detrnaest godina. Mi \u017eivimo u Zagrebu. Volimo Hrvatsku.",vocab:[["imam","I have"],["godina","years"],["\u017eivimo","we live"],["volimo","we love"]],qs:[{q:"How old is Ana?",o:["10","11","14"],c:1},{q:"Where do they live?",o:["Split","Zagreb","Rijeka"],c:1},{q:"How old is Luka?",o:["11","12","14"],c:2}]},
+    {title:"Moj Pas Rex",tEn:"My Dog Rex",text:"Imam psa. Moj pas se zove Rex. Rex je veliki i sme\u0111i. On voli tr\u010dati u parku. Svaki dan idemo u \u0161etnju. Rex voli jesti meso i kosti. On je moj najbolji prijatelj.",vocab:[["pas","dog"],["sme\u0111i","brown"],["tr\u010dati","to run"],["najbolji","best"]],qs:[{q:"Dog name?",o:["Max","Rex","Luka"],c:1},{q:"What color?",o:["White","Brown","Black"],c:1},{q:"Rex eats?",o:["Fish","Meat and bones","Bread"],c:1}]},
+    {title:"U \u0160koli",tEn:"At School",text:"Danas je ponedjeljak. Idem u \u0161kolu. Moja \u0161kola je velika. Imam puno prijatelja. U\u010diteljica se zove Ivana. Danas u\u010dimo matematiku i hrvatski jezik. Volim \u0161kolu.",vocab:[["danas","today"],["ponedjeljak","Monday"],["velika","big"],["u\u010dimo","we learn"]],qs:[{q:"What day?",o:["Tuesday","Monday","Friday"],c:1},{q:"Teacher?",o:["Ana","Ivana","Marija"],c:1},{q:"Subjects?",o:["English","Math and Croatian","Science"],c:1}]},
+    {title:"Moja Ku\u0107a",tEn:"My House",text:"Moja ku\u0107a je nova i velika. Imam malu kuhinju i veliku sobu. Moj stol je bijeli. Prozor je mali ali soba je lijepa. Vani je sun\u010dano. Nebo je plavo. Moj pas pije mlijeko. Ja \u010ditam knjige. Ja sam sretna.",vocab:[["ku\u0107a","house"],["kuhinja","kitchen"],["stol","table"],["nebo","sky"],["\u010ditam","I read"]],qs:[{q:"House new or old?",o:["Old","Small","New"],c:2},{q:"Table color?",o:["Brown","White","Black"],c:1},{q:"Weather?",o:["Rainy","Cloudy","Sunny"],c:2}]},
+    {title:"U Gradu",tEn:"In the City",text:"Zagreb je glavni grad Hrvatske. Ima puno lijepih zgrada i parkova. Volim \u0161etati po gradu s prijateljem. Idemo na kavu u centar. Ima puno kafića i restorana. Tramvaj ide brzo. Kupujemo kruh u pekarnici. Zagreb je moj grad.",vocab:[["glavni grad","capital"],["zgrada","building"],["tramvaj","tram"],["pekarnica","bakery"]],qs:[{q:"Zagreb is?",o:["Coastal city","Capital","Village"],c:1},{q:"They go by?",o:["Bus","Car","Tram"],c:2},{q:"Buy what in bakery?",o:["Coffee","Bread","Cake"],c:1}]},
+    {title:"Hrana i Pi\u0107e",tEn:"Food and Drink",text:"Volim hrvatsku hranu. Za doru\u010dak jedem jaja i kruh. Za ru\u010dak jedem juhu i meso. Za ve\u010deru jedem salatu. Pijem vodu i sok. Ponekad pijem kavu s mlijekom. Moja omiljena hrana je pizza. Mama kuha jako dobro.",vocab:[["doru\u010dak","breakfast"],["ru\u010dak","lunch"],["ve\u010dera","dinner"],["omiljena","favourite"]],qs:[{q:"Breakfast?",o:["Soup","Eggs and bread","Salad"],c:1},{q:"Favourite food?",o:["Pasta","Soup","Pizza"],c:2},{q:"Who cooks well?",o:["Dad","Grandma","Mum"],c:2}]},
+    {title:"Godišnja Doba",tEn:"Seasons",text:"Postoje \u010detiri godi\u0161nja doba. Prolje\u0107e je toplo i cvjetovi cvjetaju. Ljeto je vru\u0107e i idemo na more. Jesen je hladnija i li\u0161\u0107e pada. Zima je hladna i pada snijeg. Moje omiljeno godi\u0161nje doba je ljeto jer volim plivati.",vocab:[["godi\u0161nja doba","seasons"],["cvjetovi","flowers"],["li\u0161\u0107e","leaves"],["snijeg","snow"]],qs:[{q:"Favourite season?",o:["Spring","Summer","Winter"],c:1},{q:"Leaves fall in?",o:["Spring","Summer","Autumn"],c:2},{q:"Snow in?",o:["Summer","Autumn","Winter"],c:2}]},
+    {title:"Moji Prijatelji",tEn:"My Friends",text:"Imam tri najbolja prijatelja. Zovu se Ante Maja i Tomislav. Ante voli nogomet. Maja voli glazbu i pjevanje. Tomislav voli \u010ditati knjige. Zajedno idemo u kino i na izlete. Prijatelji su va\u017eni u \u017eivotu.",vocab:[["prijatelji","friends"],["zajedno","together"],["kino","cinema"],["izleti","outings"],["va\u017eni","important"]],qs:[{q:"How many best friends?",o:["Two","Three","Four"],c:1},{q:"Ante likes?",o:["Reading","Football","Music"],c:1},{q:"They go to?",o:["Market","Cinema and outings","Library"],c:1}]},
+    {title:"Boje i Odjeća",tEn:"Colours and Clothes",text:"Danas oblačim crvenu majicu i plave hlače. Moja jakna je žuta. Cipele su mi crne. Moja sestra nosi zelenu haljinu. Brat ima bijelu košulju i sive hlače. Mama kaže da volimo boje. Boje su lijepe.",vocab:[["oblačim","I put on/wear"],["majica","T-shirt"],["haljina","dress"],["cipele","shoes"],["boje","colours"]],qs:[{q:"What colour is the T-shirt?",o:["Blue","Red","Yellow"],c:1},{q:"What colour is the jacket?",o:["Yellow","Green","White"],c:0},{q:"What colour are the shoes?",o:["Brown","Grey","Black"],c:2}]},
+    {title:"Životinje u Zoo-u",tEn:"Animals at the Zoo",text:"Idemo u zoološki vrt. Vidim lava, tigra i slona. Lav je velik i žut. Tigar ima pruge. Slon je siv i sporohodan. Moj omiljeni animal je žirafa jer ima dugi vrat. Majmuni se igraju i skaču. Zoološki vrt je zabavan.",vocab:[["zoološki vrt","zoo"],["lav","lion"],["pruge","stripes"],["žirafa","giraffe"],["vrat","neck"]],qs:[{q:"What colour is the lion?",o:["Grey","Yellow","Brown"],c:1},{q:"Favourite animal?",o:["Tiger","Elephant","Giraffe"],c:2},{q:"What do monkeys do?",o:["Sleep","Play and jump","Eat"],c:1}]},
+    {title:"Sportovi",tEn:"Sports",text:"Volim sport. Igram nogomet s prijateljima u parku. Moj brat igra košarku. Sestra voli plivanje. Tata trči svaki jutro. Mama ide na jogu. Vikendima gledamo tenis na televiziji. Sport je zdrav i zabavan.",vocab:[["igram","I play"],["košarka","basketball"],["plivanje","swimming"],["trči","runs"],["zdrav","healthy"]],qs:[{q:"Where does he play football?",o:["School","Park","Gym"],c:1},{q:"What does dad do?",o:["Swims","Runs","Plays basketball"],c:1},{q:"What do they watch on weekends?",o:["Football","Tennis","Basketball"],c:1}]},
+    {title:"Vrijeme Danas",tEn:"Today's Weather",text:"Danas je sunčano i toplo. Temperatura je dvadeset stupnjeva. Nebo je plavo bez oblaka. Idem van s biciklom. Ponekad puše vjetar. Sutra će biti oblačno i kišovito. Uvijek gledam vremensku prognozu.",vocab:[["sunčano","sunny"],["stupnjeva","degrees"],["oblaci","clouds"],["vjetar","wind"],["prognoza","forecast"]],qs:[{q:"Today's temperature?",o:["15 degrees","20 degrees","25 degrees"],c:1},{q:"Tomorrow will be?",o:["Sunny","Snowy","Cloudy and rainy"],c:2},{q:"How does he travel outside?",o:["On foot","By bike","By tram"],c:1}]},
+    {title:"Hrvatski Gradovi",tEn:"Croatian Cities",text:"Hrvatska ima puno lijepih gradova. Zagreb je glavni grad. Split je na moru. Rijeka je luka. Osijek je u Slavoniji. Dubrovnik je poznat po zidinama. Svaki grad je drugačiji i poseban. Volim putovati po Hrvatskoj.",vocab:[["luka","harbour/port"],["zidine","walls"],["drugačiji","different"],["poseban","special"],["putovati","to travel"]],qs:[{q:"Which city is the capital?",o:["Split","Rijeka","Zagreb"],c:2},{q:"Dubrovnik is known for?",o:["Beach","Walls","Harbour"],c:1},{q:"Osijek is in?",o:["Dalmatia","Slavonia","Istria"],c:1}]},
+    {title:"U Knjižnici",tEn:"At the Library",text:"Idem u knjižnicu svaki tjedan. Knjižnica je tiha i velika. Ima puno knjiga, novina i časopisa. Uzimam knjigu za djecu. Sjedim za stolom i čitam. Knjižničarka mi pomaže pronaći knjige. Mogu posuditi do pet knjiga.",vocab:[["knjižnica","library"],["novina","newspaper"],["časopis","magazine"],["posuditi","to borrow"],["knjižničarka","librarian (f.)"]],qs:[{q:"How often does he go?",o:["Daily","Weekly","Monthly"],c:1},{q:"What does he borrow?",o:["Magazine","Children's book","Newspaper"],c:1},{q:"How many books can be borrowed?",o:["Three","Five","Ten"],c:1}]},
+    {title:"Praznici",tEn:"Public Holidays",text:"Hrvatska ima puno praznika. Božić je u prosincu. Uskrs je u proljeće. Na Novu godinu slavimo ponoć. Na Veliku Gospu idemo u crkvu. Moj omiljeni praznik je Božić jer dobivamo poklone. Obitelj se skuplja za blagdane.",vocab:[["praznici","holidays"],["Uskrs","Easter"],["ponoć","midnight"],["pokloni","gifts/presents"],["skuplja","gathers"]],qs:[{q:"Christmas is in?",o:["November","December","January"],c:1},{q:"Why is Christmas favourite?",o:["Food","Gifts","Fireworks"],c:1},{q:"Easter is in?",o:["Winter","Spring","Summer"],c:1}]},
+    {title:"Glazba i Ples",tEn:"Music and Dance",text:"Volim glazbu. Sviram gitaru i malo klavir. Sestra pjeva u zboru. Brat sluša rap i pop. Mama voli dalmatinske klapske pjesme. Na slavljima uvijek plešemo. Moj omiljeni plesni stil je salsa. Glazba spaja ljude.",vocab:[["sviram","I play (instrument)"],["gitara","guitar"],["zbor","choir"],["slavlje","celebration"],["spaja","unites/connects"]],qs:[{q:"What instruments does he play?",o:["Piano and drums","Guitar and piano","Violin and guitar"],c:1},{q:"Sister sings in?",o:["Band","Choir","School"],c:1},{q:"Mum likes?",o:["Rap","Pop","Klapa songs"],c:2}]},
+    {title:"Dijelovi Tijela",tEn:"Parts of the Body",text:"Imam dvije ruke i dvije noge. Na glavi imam oči, nos i usta. Imam kratku kosu. Prsti su na ruci. Srce je u prsima. Kod liječnika kažem gdje me boli. Danas me boli glava. Pijem čaj i odmaram.",vocab:[["ruke","hands/arms"],["glava","head"],["prsti","fingers"],["srce","heart"],["boli","hurts"]],qs:[{q:"Where is the heart?",o:["Head","Chest","Stomach"],c:1},{q:"What hurts today?",o:["Back","Head","Leg"],c:1},{q:"What does he drink?",o:["Water","Tea","Coffee"],c:1}]},
+    {title:"Na Plaži",tEn:"At the Beach",text:"Ljeto je moje omiljeno godišnje doba. Svaki dan idem na plažu. More je bistro i toplo. Plivam i ronjem uz obalu. Mama čita knjigu u sjeni. Tata peče na suncu. Kupujem sladoled od vanilije. Navečer gledamo zalazak sunca.",vocab:[["plaža","beach"],["bistro","clear"],["ronjem","I snorkel/dive"],["sladoled","ice cream"],["zalazak sunca","sunset"]],qs:[{q:"What is his favourite season?",o:["Spring","Winter","Summer"],c:2},{q:"What does mum do at beach?",o:["Swims","Reads a book","Buys ice cream"],c:1},{q:"What flavour ice cream?",o:["Chocolate","Strawberry","Vanilla"],c:2}]},
+    {title:"Moja Soba",tEn:"My Room",text:"Moja soba je mala ali uredna. Imam krevet uz prozor. Na stolu je računalo i lampa. Na polici su knjige i igračke. Zid je plav. Ima mali tepih na podu. Svaki dan pospremam sobu. Volim svoju sobu.",vocab:[["uredna","tidy"],["krevet","bed"],["polica","shelf"],["tepih","rug/carpet"],["pospremam","I tidy up"]],qs:[{q:"Where is the bed?",o:["By the door","By the window","In the middle"],c:1},{q:"What colour is the wall?",o:["White","Blue","Yellow"],c:1},{q:"What is on the shelf?",o:["Clothes","Books and toys","Shoes"],c:1}]},
+    {title:"Kupujem Hranu",tEn:"Buying Food",text:"Idem u supermarket. Trebam mlijeko, kruh, jaja i sir. Uzimam košaru. Najprije idem u odjelek za voće. Uzimam banane i jabuke. Onda idem na blagajnu i plaćam gotovinom. Prodavač mi daje račun. Nosim vrećice kući.",vocab:[["supermarket","supermarket"],["košara","basket"],["blagajna","checkout/till"],["gotovina","cash"],["vrećice","bags"]],qs:[{q:"How does he pay?",o:["By card","In cash","By phone"],c:1},{q:"First stop in the store?",o:["Dairy","Fruit section","Checkout"],c:1},{q:"What fruit does he buy?",o:["Oranges and grapes","Bananas and apples","Strawberries and pears"],c:1}]},
+    {title:"Moja Baka",tEn:"My Grandmother",text:"Moja baka se zove Marija. Ima sedamdeset godina. Živi u malom selu blizu Karlovca. Svaki vikend je posjećujemo. Baka kuha najbolji grah i sarmu na svijetu. Ima vrt pun cvijeća i povrća. Volim svoju baku jako.",vocab:[["baka","grandmother"],["selo","village"],["posjećujemo","we visit"],["grah","beans"],["sarma","stuffed cabbage rolls"]],qs:[{q:"How old is granny?",o:["60","70","80"],c:1},{q:"Where does she live?",o:["Zagreb","Split","Village near Karlovac"],c:2},{q:"What is her garden full of?",o:["Trees","Flowers and vegetables","Fruit"],c:1}]},
+    {title:"Putujemo Autobusom",tEn:"Travelling by Bus",text:"Svaki dan idem autobusom u školu. Autobusna stanica je blizu moje kuće. Kupujem kartu od vozača. Autobus je uvijek pun ljudi. Sjedim kraj prozora. Vožnja traje petnaest minuta. Izlazim na zadnjoj stanici.",vocab:[["autobus","bus"],["stanica","stop/station"],["vozač","driver"],["karta","ticket"],["vožnja","ride/journey"]],qs:[{q:"Where does he buy the ticket?",o:["At station","From the driver","Online"],c:1},{q:"Where does he sit?",o:["By the door","By the window","In the middle"],c:1},{q:"How long is the ride?",o:["5 minutes","15 minutes","30 minutes"],c:1}]},
+    {title:"Rodni Dan",tEn:"Birthday",text:"Danas je moj rođendan. Imam deset godina. Mama je napravila tortu s jagodama. Prijatelji su donijeli poklone. Puhamo svjećice i pjevamo. Tata fotografira sve. Ja otvaram poklone. Dobivam igračku i knjigu. Sretna sam.",vocab:[["rođendan","birthday"],["torta","cake"],["svjećice","candles"],["pokloni","presents"],["fotografira","photographs/takes photos"]],qs:[{q:"How old today?",o:["8","9","10"],c:2},{q:"What flavour cake?",o:["Chocolate","Strawberry","Vanilla"],c:1},{q:"What presents received?",o:["Clothes and book","Toy and book","Toy and game"],c:1}]},
+    {title:"Škola i Raspored",tEn:"School Timetable",text:"Moj školski dan počinje u osam sati. Imam šest sati nastave. Volim matematiku i prirodu. Teški mi je engleski jezik ali se trudim. U podne je odmor od trideset minuta. Jedemo u školskoj kantini. Nastava završava u dva. Onda idem kući.",vocab:[["raspored","timetable/schedule"],["nastava","lessons/classes"],["priroda","science/nature"],["odmor","break"],["kantina","canteen"]],qs:[{q:"When does school start?",o:["7am","8am","9am"],c:1},{q:"How long is the lunch break?",o:["15 minutes","30 minutes","1 hour"],c:1},{q:"When does school end?",o:["1pm","2pm","3pm"],c:1}]},
+    {title:"Zima i Snijeg",tEn:"Winter and Snow",text:"Zima je stigla. Pada snijeg i sve je bijelo. Oblačim toplu jaknu, kapu i rukavice. Djeca se sankaju na brdu. Pravimo snjegovića ispred kuće. Unutra je toplo i ugodno. Mama kuha toplu juhu. Volim zimske večeri kraj vatre.",vocab:[["snijeg","snow"],["sankaju se","they sledge"],["snjegovića","snowman"],["ugodno","cosy/pleasant"],["vatra","fire"]],qs:[{q:"What do children do on the hill?",o:["Ski","Sledge","Build snowman"],c:1},{q:"Where do they build a snowman?",o:["In the park","In front of the house","At school"],c:1},{q:"What does mum cook?",o:["Tea","Warm soup","Hot chocolate"],c:1}]},
+    {title:"Telefonski Razgovor",tEn:"Phone Conversation",text:"Zovem prijatelja Marka. Telefon zvoni tri puta. Marko se javlja: Halo! Ja kažem: Hej Marko, kako si? On odgovara: Dobro, hvala! Dogovaramo se za sutra. Idemo zajedno u kino. Film počinje u sedam. Vidimo se ispred kina.",vocab:[["zovem","I call"],["zvoni","rings"],["javlja se","answers"],["dogovaramo se","we arrange/agree"],["ispred","in front of"]],qs:[{q:"Who does he call?",o:["Ante","Marko","Tomislav"],c:1},{q:"What do they plan for tomorrow?",o:["Football","Cinema","Museum"],c:1},{q:"When does the film start?",o:["6 o'clock","7 o'clock","8 o'clock"],c:1}]}
+  ],
+  intermediate: [
+    {title:"Ljeto u Dalmaciji",tEn:"Summer in Dalmatia",text:"Prošlog ljeta moja obitelj je putovala u Dalmaciju. Bili smo u Splitu tri dana. Split je prekrasan grad. Svaki dan smo išli na plažu. More je bilo toplo i plavo. Jeli smo svježu ribu. Moj brat je naučio roniti. Bilo je predivno ljeto.",vocab:[["prošlog ljeta","last summer"],["prekrasan","gorgeous"],["svježu","fresh"],["roniti","to dive"]],qs:[{q:"Where?",o:["Istria","Dalmatia","Slavonia"],c:1},{q:"Days in Split?",o:["2","3","5"],c:1},{q:"Brother learned?",o:["Swim","Dive","Surf"],c:1}]},
+    {title:"Na Tržnici",tEn:"At the Market",text:"Svake subote idem na tržnicu s mamom. Tržnica je puna boja i mirisa. Kupujemo svježe voće i povrće. Prodavačica nam uvijek da malo sira za probati. Mama kupuje rajčice krastavce i papriku. Ja biram jabuke i kruške. Volim tržnicu jer je sve svježe i ljudi su ljubazni.",vocab:[["tržnica","market"],["subota","Saturday"],["svježe","fresh"],["ljubazni","kind"]],qs:[{q:"When?",o:["Sundays","Saturdays","Fridays"],c:1},{q:"Seller gives?",o:["Bread","Cheese to try","Fruit"],c:1},{q:"Why like it?",o:["Cheap","Fresh and kind people","Close"],c:1}]},
+    {title:"U Restoranu",tEn:"At the Restaurant",text:"Večeras idemo u restoran. Konobar nam donosi jelovnik. Ja naručujem riblju juhu za predjelo i lignje za glavno jelo. Moj prijatelj naručuje ćevape s ajvarom. Za piće uzimamo gemišt. Na kraju tražimo račun. Ukupno je četrdeset eura. Ostavljamo napojnicu jer je hrana bila izvrsna.",vocab:[["konobar","waiter"],["jelovnik","menu"],["naručujem","I order"],["račun","bill"],["napojnicu","tip"]],qs:[{q:"Appetizer?",o:["Ćevapi","Fish soup","Squid"],c:1},{q:"Gemišt is?",o:["Beer","Wine spritzer","Juice"],c:1},{q:"Bill?",o:["20 euros","40 euros","50 euros"],c:1}]},
+    {title:"Tražim Put",tEn:"Asking Directions",text:"Izgubio sam se u centru Zagreba. Pitam prolaznika gdje je Trg bana Jelačića. On kaže idite ravno ovom ulicom skrenite lijevo kod pošte pa onda desno na semaforu. Trg je odmah tamo. Nakon pet minuta vidim veliki trg s fontanom i kipom.",vocab:[["izgubio sam se","I got lost"],["ravno","straight"],["skrenite","turn"],["lijevo","left"],["desno","right"]],qs:[{q:"Where lost?",o:["Split","Zagreb","Rijeka"],c:1},{q:"Turn at post office?",o:["Right","Left","Straight"],c:1},{q:"On the square?",o:["Church","Fountain and statue","Market"],c:1}]},
+    {title:"Putovanje Vlakom",tEn:"Train Journey",text:"Putujemo vlakom iz Zagreba do Splita. Vlak polazi u sedam ujutro. Na kolodvoru kupujemo karte na blagajni. Vožnja traje šest sati. Prolazimo kroz planine i polja. U vagonu pijemo kavu i jedemo sendviče. Kad stignem u Split vidim more za prvu.",vocab:[["vlak","train"],["kolodvor","railway station"],["karte","tickets"],["vožnja","journey"],["stigne","arrives"]],qs:[{q:"Departure time?",o:["6am","7am","8am"],c:1},{q:"Journey duration?",o:["4 hours","5 hours","6 hours"],c:2},{q:"First sight in Split?",o:["Mountains","Station","Sea"],c:2}]},
+    {title:"U Hotelu",tEn:"At the Hotel",text:"Stigli smo u hotel kasno navečer. Recepcionar nas je lijepo dočekao. Rezervirali smo sobu s pogledom na more. Soba je bila čista i udobna. Ujutro smo doručkovali u restoranu hotela. Imali su bogat bife s raznim jestivima. Ostali smo tri noći.",vocab:[["recepcionar","receptionist"],["rezervirali","reserved"],["udobna","comfortable"],["bogat bife","rich buffet"],["jestiva","foods"]],qs:[{q:"Arrived when?",o:["Morning","Afternoon","Late evening"],c:2},{q:"Room view?",o:["Garden","Sea","Mountains"],c:1},{q:"How many nights?",o:["Two","Three","Four"],c:1}]},
+    {title:"Sport i Rekreacija",tEn:"Sport and Recreation",text:"Hrvati vole sport. Nogomet je najpopularniji sport. Hrvatska reprezentacija je osvajala medalje na velikim natjecanjima. Osim nogometa popularne su i košarka tenis i veslanje. Mnogi Hrvati vole planinariti i plivati. Sport je važan dio hrvatskog identiteta.",vocab:[["predstavljači","representatives"],["natjecanja","competitions"],["planinariti","to hike"],["identitet","identity"]],qs:[{q:"Most popular sport?",o:["Basketball","Tennis","Football"],c:2},{q:"Other sports listed?",o:["Golf","Basketball tennis rowing","Volleyball"],c:1},{q:"Sport is?",o:["New trend","Part of identity","For tourists"],c:1}]},
+    {title:"Kupovina Odjeće",tEn:"Buying Clothes",text:"Trebam kupiti novu odjeću za zimu. Idem u trgovinu s mamom. Probiram jaknu ali je prevelika. Prodavačica mi donosi manji broj. Odgovara mi savršeno. Također kupujem toplu kapu i rukavice. Plaćam karticom. Mama kaže da sam sada spreman za zimu.",vocab:[["odjeća","clothes"],["jakna","jacket"],["prevelika","too big"],["rukavice","gloves"],["plaćam","I pay"]],qs:[{q:"What's too big?",o:["Jumper","Jacket","Trousers"],c:1},{q:"Pay how?",o:["Cash","Card","Phone"],c:1},{q:"Also buys?",o:["Shoes and gloves","Hat and gloves","Scarf and boots"],c:1}]},
+    {title:"Vikend u Slavoniji",tEn:"Weekend in Slavonia",text:"Ovaj vikend putujemo u Osijek posjetiti rodbinu. Slavonija je ravna i zelena, puna polja pšenice i kukuruza. U Osijeku posjećujemo Tvrđu — stari austrijski fortifikacijski kompleks. Rodbina nas lijepo domaćinski gosti. Za večeru jedemo fiš paprikaš uz domaće vino. Sutra idemo na Kopački rit, jedan od najvećih vlažnih staništa u Europi gdje žive bijele rode i divlje svinje. Slavonija ima poseban šarm koji se razlikuje od primorske Hrvatske.",vocab:[["Tvrđa","the Fortress (Osijek)"],["fiš paprikaš","fish paprika stew"],["vlažno stanište","wetland"],["roda","stork"],["šarm","charm"]],qs:[{q:"What is Tvrđa?",o:["Modern shopping mall","Old Austrian fortress complex","Cathedral"],c:1},{q:"What is served for dinner?",o:["Sarma","Fish paprika stew","Grilled meat"],c:1},{q:"What animals live at Kopački rit?",o:["Wolves and bears","White storks and wild boar","Deer and foxes"],c:1}]},
+    {title:"Uskrsni Blagdani",tEn:"Easter Holidays",text:"Uskrs je najvažniji kršćanski blagdan u Hrvatskoj. Tjedan prije Uskrsa je Veliki tjedan. Na Cvjetnicu vjernici nose maslinove i vrijesne grančice u crkvu. Na Veliku subotu djeca ukrašavaju pisanice — jaja oslikan šarenim uzorcima. Uskrsno jutro počinje misom, a zatim slijedi svečani objed. Na stolu su šunka, kobasice, sir i jaja. Čokoladna jaja i zeko donose djeci slatkiše. Cijela obitelj sjedi zajedno za stolom i veseli se.",vocab:[["pisanice","decorated Easter eggs"],["Cvjetnica","Palm Sunday"],["vrijesne grančice","heather branches"],["šunka","ham"],["svečani objed","festive lunch"]],qs:[{q:"What do worshippers carry on Palm Sunday?",o:["Flowers","Olive and heather branches","Crosses"],c:1},{q:"What do children decorate?",o:["Houses","Easter eggs","Gardens"],c:1},{q:"What is on the Easter table?",o:["Turkey and potatoes","Ham, sausages, cheese and eggs","Fish and salad"],c:1}]},
+    {title:"Razgovor s Tatom",tEn:"Conversation with Dad",text:"Večeras razgovaram s tatom o budućnosti. On me pita što bih želio studirati. Kažem da me zanima informatika ili arhitektura. Tata kaže da su oba dobra izbora i da trebam razmisliti što me više veseli. Mama se uključuje u razgovor i predlaže da razgovaramo s profesorom savjetnikom. Tata dodaje da je važno i slušati srce i biti realan. Na kraju zaključujemo da imam još vremena za razmišljanje. Osjećam se bolje nakon razgovora.",vocab:[["budućnost","future"],["informatika","computer science"],["arhitektura","architecture"],["savjetnik","counsellor/advisor"],["zaključujemo","we conclude"]],qs:[{q:"What two fields interest him?",o:["Law and medicine","Computer science and architecture","Economics and marketing"],c:1},{q:"What does mum suggest?",o:["Choosing immediately","Talking to a school counsellor","Going abroad"],c:1},{q:"How does he feel after talking?",o:["Stressed","Better","Confused"],c:1}]},
+    {title:"Na Odmoru — Hvar",tEn:"On Holiday — Hvar",text:"Hvar je jedan od najljepših otoka na Jadranu. Poznato je po lavendovim poljima koja cvjetaju u lipnju. Grad Hvar ima prekrasan renesansni trg, najstarije javno kazalište u Europi i venecijansku tvrđavu Španjola. Na otoku raste puno ružmarina, lavande i kadulje. Turisti dolaze iz cijelog svijeta. Restorani nude svježu ribu, hobotničku salatu i domaće vino. Navečer grad živi — terase su pune, glazba svira i miriše na more.",vocab:[["lavanda","lavender"],["ružmarin","rosemary"],["kadulja","sage"],["tvrđava","fortress"],["hobotnička salata","octopus salad"]],qs:[{q:"What flower fields bloom in June?",o:["Rose","Lavender","Sunflower"],c:1},{q:"What record does Hvar's theatre hold?",o:["Oldest in Croatia","Oldest public theatre in Europe","Largest open-air theatre"],c:1},{q:"What does the town smell like in the evening?",o:["Flowers","Sea","Grilled food"],c:1}]},
+    {title:"Sigurnost na Internetu",tEn:"Internet Safety",text:"Internet je koristan ali nosi i opasnosti. Važno je zaštititi osobne podatke. Nikad ne dijelite lozinku ni s kime, čak ni s prijateljem. Koristite dvofaktorsku autentifikaciju gdje je moguće. Budite pažljivi s phishing porukama koje izgledaju kao da dolaze od banke ili pošte. Provjerite adresu e-pošte pošiljatelja. Ažurirajte software redovito jer nadogradnje često sadrže sigurnosne zakrpe. Djeca trebaju nadzor odraslih pri korištenju interneta.",vocab:[["lozinka","password"],["dvofaktorska autentifikacija","two-factor authentication"],["phishing","phishing"],["zakrpe","patches (software)"],["nadzor","supervision"]],qs:[{q:"With whom should you share a password?",o:["Close friends","Family only","No one"],c:2},{q:"What should you check in a suspicious email?",o:["Attachment","Sender's email address","Subject line"],c:1},{q:"Why update software?",o:["New features","Security patches","Better design"],c:1}]},
+    {title:"Karneval u Rijeci",tEn:"Carnival in Rijeka",text:"Riječki karneval jedan je od najvećih u Europi s tradicijom starom stotinu i pedeset godina. Svake godine u veljači stotine tisuća posjetitelja dolazi gledati povorke. Najpoznatija je internacionalna povorka u kojoj sudjeluju grupe iz cijelog svijeta. Zvončari su posebna riječka tradicija — muškarci iz Kastafštine hodaju u životinjskim kožama i zvone zvonima da prognaju zimu i zlo. Kostimi su maštoviti i šareni. Djeca i odrasli se maskiraju i uživaju u veselju. Karneval završava spaljivanjem Pusta, lutke koja simbolizira sva zla protekle godine.",vocab:[["povorka","procession/parade"],["zvončari","bell-ringers (traditional)"],["maskirati se","to costume/disguise oneself"],["spaljivanje","burning"],["Pust","carnival effigy"]],qs:[{q:"When is the carnival?",o:["January","February","March"],c:1},{q:"What do zvončari wear?",o:["Colourful costumes","Animal skins","Military uniforms"],c:1},{q:"What does burning the Pust symbolise?",o:["Start of summer","Driving away evil from the past year","Thanksgiving"],c:1}]},
+    {title:"Hrvatska Glazbena Scena",tEn:"Croatian Music Scene",text:"Hrvatska ima živahnu glazbenu scenu. Oliver Dragojević zvani Dalmatiner bio je jedan od najvoljenijih pjevača — njegova glas i dalmatinski šarm osvajali su srca diljem Jadrana. Thompson je kontroverzni ali popularni domoljubni pjevač koji puni stadione. Moderna pop scena nudi mnoge mlade talente. Klapa je tradicijski dalmatinski a cappella stil pjevanja koji je upisan na UNESCO listu. Elektronska glazba i festival Ultra u Splitu privlačit su međunarodnu publiku. Hrvatska glazba odražava dušu naroda.",vocab:[["klapa","traditional Dalmatian a cappella group"],["domoljubni","patriotic"],["a cappella","unaccompanied singing"],["glazbena scena","music scene"],["talent","talent"]],qs:[{q:"What was Oliver Dragojević known for?",o:["Rock music","Dalmatian charm and voice","Electronic music"],c:1},{q:"What style is klapa?",o:["Folk dance","A cappella singing","Instrumental music"],c:1},{q:"What international event is held in Split?",o:["Opera festival","Ultra electronic music festival","Jazz festival"],c:1}]},
+    {title:"Cijene u Supermarketu",tEn:"Prices at the Supermarket",text:"Tržna inflacija utječe na sve. Cijene hrane u supermarketu su porasle u zadnje dvije godine. Kilogram govedine košta oko dvanaest eura. Litar mlijeka košta euro i dvadeset centi. Kruh je relativno jeftin — manji bijeli kruh oko osamdeset centi. Voće i povrće varira ovisno o sezoni — ljeti su rajčice jeftine, ali zimi su skuplje. Potrošači sve više biraju robne marke supermarketa umjesto poznatih brandova jer su jeftinije.",vocab:[["inflacija","inflation"],["govedina","beef"],["potrošači","consumers"],["robna marka","store brand"],["varira","varies"]],qs:[{q:"How much does a litre of milk cost?",o:["80 cents","1.20 euros","2 euros"],c:1},{q:"When are tomatoes cheapest?",o:["Winter","Spring","Summer"],c:2},{q:"What do consumers increasingly choose?",o:["Premium brands","Store brands","Organic products"],c:1}]},
+    {title:"Tjelovježba i Zdravlje",tEn:"Exercise and Health",text:"Stručnjaci preporučaju najmanje sto pedeset minuta umjerene tjelovježbe tjedno. Hodanje je odlična i besplatna vježba za srce i noge. Biciklizam je popularan u Zagrebu gdje postoji mreža biciklističkih staza. Plivanje je izvrsno za zglobove jer ne opterećuje tijelo. Yoga poboljšava fleksibilnost i smanjuje stres. Važno je kombinirati aerobne vježbe s vježbama snage. Prehrana i vježbanje idu zajedno — nema smisla vježbati a jesti nezdravo. Redovita tjelovježba smanjuje rizik od bolesti srca i dijabetesa.",vocab:[["tjelovježba","exercise"],["umjerena","moderate"],["biciklizam","cycling"],["zglobovi","joints"],["aerobne vježbe","aerobic exercises"]],qs:[{q:"How many minutes of exercise per week is recommended?",o:["60 minutes","100 minutes","150 minutes"],c:2},{q:"Why is swimming good?",o:["It's fun","It doesn't stress the joints","It's free"],c:1},{q:"What does regular exercise reduce?",o:["Stress only","Risk of heart disease and diabetes","Appetite"],c:1}]},
+    {title:"Priroda i Zaštita Okoliša",tEn:"Nature and Environmental Protection",text:"Hrvatska je zemlja iznimne prirodne ljepote. Osim Plitvičkih jezera postoji sedam nacionalnih parkova i jedanaest parkova prirode. Velebit je najveća planina i stanište rijetkih biljnih i životinjskih vrsta. Zaštita okoliša postaje sve važnija tema. Plastične vrećice su zabranjene u supermarketima od 2019. Recikliranje se uvodi u sve više gradova. Ekološka poljoprivreda raste u popularnosti. Mladi aktivisti organiziraju čišćenja plaža svake sezone. Svi možemo pridonijeti čuvanju prirode za buduće naraštaje.",vocab:[["iznimne","exceptional"],["stanište","habitat"],["recikliranje","recycling"],["ekološka","ecological/organic"],["naraštaji","generations"]],qs:[{q:"How many national parks does Croatia have?",o:["5","7","10"],c:1},{q:"When were plastic bags banned in supermarkets?",o:["2017","2019","2021"],c:1},{q:"What do young activists organise?",o:["Tree planting","Beach clean-ups","Protests only"],c:1}]},
+    {title:"Upoznajemo Susjedu",tEn:"Meeting the Neighbour",text:"U stan pored nas upravo se uselio novi susjed. Zove se Igor i došao je iz Varaždina. Kucam na vrata i donosim mu kolač dobrodošlice. Igor je iznenađen i zahvalan. Pozivam ga na kavu. Razgovaramo sat vremena — priča o svom poslu, o Varaždinu, o planovima za Zagreb. On kaže da mu je teško ostaviti rodni grad ali da je posao zahtijevao preseljenje. Obećavamo da ćemo se opet vidjeti. Dobro susjedstvo je vrijedno.",vocab:[["susjed","neighbour"],["dobrodošlica","welcome"],["zahvalan","grateful"],["preseljenje","relocation"],["vrijedno","worthwhile/valuable"]],qs:[{q:"Where has Igor come from?",o:["Rijeka","Varaždin","Osijek"],c:1},{q:"What does the narrator bring?",o:["Wine","A welcome cake","Flowers"],c:1},{q:"Why did Igor move?",o:["Family","His job required it","Studies"],c:1}]}
+  ],
+  advanced: [
+    {title:"Hrvatska Kultura",tEn:"Croatian Culture",text:"Hrvatska je zemlja bogate kulture i dugih tradicija. Jadransko more planine i ravnice oblikovali su način života različitih regija. U Dalmaciji se ljeti održavaju festivali klapa. U Slavoniji je tamburica simbol regije. Ova raznolikost čini Hrvatsku posebnom — mala zemlja s velikim srcem.",vocab:[["bogate","rich"],["oblikovali","shaped"],["raznolikost","diversity"],["posebnom","special"]],qs:[{q:"Slavonia symbol?",o:["Klapa","Tamburica","Kulen"],c:1},{q:"Croatia described as?",o:["Large country","Small with big heart","Island"],c:1}]},
+    {title:"Dubrovnik",tEn:"Pearl of the Adriatic",text:"Dubrovnik je jedan od najljepših gradova na svijetu. Stare gradske zidine izgrađene u srednjem vijeku okružuju grad pun kamenih ulica i baroknih crkava. Grad je preživio potres 1667 godine i Domovinski rat. Danas je Dubrovnik turistička zvijezda poznat po festivalu prekrasnom Stradunu i pogledu na otoke Elafite.",vocab:[["najljepših","most beautiful"],["zidine","walls"],["srednjem vijeku","Middle Ages"],["preživio","survived"]],qs:[{q:"Walls built?",o:["Roman era","Middle Ages","18th century"],c:1},{q:"1667?",o:["Fire","Earthquake","War"],c:1}]},
+    {title:"Kod Liječnika",tEn:"At the Doctor",text:"Danas se ne osjećam dobro. Imam temperaturu i boli me grlo. Idem kod liječnika. Liječnik me pregleda i kaže da imam anginu. Propisuje mi antibiotik i kaže da trebam piti puno tekućine i odmarati se. Idem u ljekarnu po lijekove. Ljekarnica mi objašnjava kako uzimati tablete — jednu ujutro i jednu navečer nakon jela.",vocab:[["osjećam","I feel"],["temperatura","fever"],["boli me grlo","throat hurts"],["liječnik","doctor"],["propisuje","prescribes"]],qs:[{q:"Symptoms?",o:["Headache","Fever and sore throat","Stomach"],c:1},{q:"Diagnosis?",o:["Cold","Angina","Flu"],c:1},{q:"Pills how?",o:["Two morning","One morning one evening","Three daily"],c:1}]},
+    {title:"Hrvatska u Europskoj Uniji",tEn:"Croatia in the EU",text:"Hrvatska je postala članicom Europske unije 2013. godine. To je bio važan trenutak za zemlju koja je prošla kroz ratna razaranja devedesetih. Članstvo u EU donijelo je Hrvatima slobodu kretanja rada i studiranja u 27 zemalja. Uvođenjem eura 2023. godine Hrvatska je napravila još jedan korak prema srcu Europe. Danas mladi Hrvati rade diljem kontinenta dok se sve više stranaca doseljava u Zagreb i Dalmaciju.",vocab:[["članicom","member (f.)"],["razaranja","devastation"],["kretanja","movement"],["doseljava","moves in"]],qs:[{q:"Croatia joined EU when?",o:["2007","2013","2015"],c:1},{q:"Euro introduced when?",o:["2020","2021","2023"],c:2},{q:"Freedom includes?",o:["Tax exemption","Work and study in 27 countries","Free flights"],c:1}]},
+    {title:"Jadransko More",tEn:"The Adriatic Sea",text:"Jadransko more jedno je od najljepših mora na svijetu. Hrvatska obala duga je gotovo 1800 kilometara a uz nju leži više od tisuću otoka. Najpoznatiji otoci su Krk Hvar Brač i Korkula. More je bistro i toplo ljeti pa privlači milijune turista. Ribarstvo je tradicionalno važno za priobalna mjesta. Osim prirodne ljepote Jadran krije i bogatu povijest — stare rimske luke i mediteranski gradovi svjedoče o stoljetnoj civilizaciji.",vocab:[["priobalna","coastal"],["bistro","clear"],["ribarstvo","fishing"],["svjedoče","testify/witness"]],qs:[{q:"Coast length approx?",o:["800 km","1800 km","3000 km"],c:1},{q:"Best-known island NOT listed?",o:["Krk","Hvar","Vis"],c:2},{q:"Adriatic also rich in?",o:["Oil","History and Roman ports","Freshwater fish"],c:1}]},
+    {title:"Traženje Posla",tEn:"Looking for Work",text:"Ana ima dvadeset šest godina i nedavno je završila fakultet. Studirala je ekonomiju na Sveučilištu u Zagrebu. Sada traži posao. Svaki dan pregledava oglase na internetu i šalje životopise. Prošli tjedan imala je intervju u jednoj marketinškoj agenciji. Morala je pripremiti kratku prezentaciju o sebi i odgovarati na pitanja o svojim iskustvima. Intervju je trajao sat vremena. Na kraju su joj rekli da će se javiti za tjedan dana. Ana je nervozna ali optimistična. Nada se da će dobiti taj posao jer je plaća dobra i radno okruženje izgleda ugodno.",vocab:[["oglas","advertisement/job listing"],["životopis","CV / résumé"],["iskustvo","experience"],["radno okruženje","work environment"],["optimistična","optimistic"]],qs:[{q:"What did Ana study?",o:["Law","Economics","Medicine"],c:1},{q:"How long was the interview?",o:["30 minutes","1 hour","2 hours"],c:1},{q:"When will they contact her?",o:["Tomorrow","In a week","In two weeks"],c:1}]},
+    {title:"Klimatske Promjene i Hrvatska",tEn:"Climate Change and Croatia",text:"Klimatske promjene sve više utječu na Hrvatsku. Temperature su u porastu a suše su sve češće posebno u Dalmaciji i Istri. Šumski požari postali su ozbiljan problem — ljeti vatrogasci rade prekovremeno gaseći požare duž obale. Jadransko more se zagrijava brže od svjetskog prosjeka što ugrožava riblje vrste i koraljne grebene. S druge strane Hrvatska razvija obnovljive izvore energije. Solarne elektrane niču po Slavoniji a vjetroelektrane rade na Velebitu. Hrvatska vlada je potpisala Pariški sporazum i obvezala se smanjiti emisije CO2. Mladi aktivisti organiziraju prosvjede tražeći brže djelovanje. Pitanje okoliša postaje sve važniji politički i društveni tema.",vocab:[["suše","droughts"],["šumski požari","forest fires"],["zagrijava","is warming"],["ugrožava","threatens"],["obnovljivi","renewable"]],qs:[{q:"Where are droughts most common?",o:["Slavonia","Dalmatia and Istria","Zagreb"],c:1},{q:"What threatens coral reefs?",o:["Fishing","Adriatic warming","Tourism"],c:1},{q:"What did Croatia sign?",o:["Kyoto Protocol","Paris Agreement","Vienna Convention"],c:1}]},
+    {title:"Mladi u Modernoj Hrvatskoj",tEn:"Youth in Modern Croatia",text:"Mladi Hrvati suočavaju se s izazovima koji su zajednički cijeloj Europi. Cijena stanova u Zagrebu i na obali drastično je porasla pa si mnogi mladi ne mogu priuštiti nekretninu. Odlazak u inozemstvo još uvijek je čest — mnogi odlaze u Njemačku Irsku i Austriju zbog bolje plaće. Međutim trend se mijenja. Sve više mladih vraća se u Hrvatsku jer je kvaliteta života dobra a digitalna ekonomija nudi poslove koji se ne moraju obavljati u uredu. Zagreb je prepoznat kao jedan od najboljih europskih gradova za digitalne nomade. Kultura kafića i moru blizina čini život ugodnim. Mladi Hrvati su obrazovani motivirani i ponosni na svoju domovinu.",vocab:[["suočavaju se","face/confront"],["priuštiti","to afford"],["nekretnina","property/real estate"],["digitalni nomadi","digital nomads"],["domovina","homeland"]],qs:[{q:"Why do young people leave Croatia?",o:["War","Better pay","Better education"],c:1},{q:"What makes Zagreb attractive to nomads?",o:["Low taxes","Digital economy and lifestyle","Large tech sector"],c:1},{q:"How is the trend changing?",o:["More leaving","Returning trend growing","Same as before"],c:1}]},
+    {title:"Obrazovanje u Hrvatskoj",tEn:"Education in Croatia",text:"Hrvatski obrazovni sustav prolazi kroz reformu. Osnovna škola traje osam godina a potom slijedi srednja škola koja može biti gimnazija ili strukovna škola. Gimnazija priprema učenike za fakultet dok strukovna škola daje praktične vještine za tržište rada. Nakon mature studenti se mogu upisati na jedan od dvadeset sveučilišta u Hrvatskoj. Sveučilište u Zagrebu najstarije je i najveće u ovom dijelu Europe — osnovano je 1669. Školarina je relativno niska u usporedbi sa zapadnom Europom. Sve veći broj stranih studenata dolazi studirati u Hrvatsku privučenih kvalitetom obrazovanja i lijepim životom. Bolonjski process omogućio je lakšu prenosivost diploma između europskih zemalja.",vocab:[["reforma","reform"],["gimnzija","grammar school / high school"],["strukovna škola","vocational school"],["školarina","tuition fees"],["diploma","degree/diploma"]],qs:[{q:"How long is primary school?",o:["6 years","8 years","10 years"],c:1},{q:"When was Zagreb University founded?",o:["1769","1669","1869"],c:1},{q:"What does Bologna Process enable?",o:["Free tuition","Diploma transferability","Mandatory exchange"],c:1}]},
+    {title:"Turizam u Hrvatskoj",tEn:"Tourism in Croatia",text:"Turizam je jedan od stupova hrvatskog gospodarstva. Svake godine više od dvadeset milijuna turista posjeti Hrvatsku privučenih Jadranom, nacionalnim parkovima i kulturnom baštinom. Dubrovnik je toliko popularan da je uveo ograničenja broja turista u staroj gradskoj jezgri. Split je porastao od regionalnog centra do jedne od najpoželjnijih destinacija u Mediteranu. Turizam donosi prihode ali ima i negativne strane — rast cijena stanarina za lokalno stanovništvo i pritisak na okoliš. Hrvatska traži ravnotežu između masovnog i održivog turizma.",vocab:[["stupovi","pillars"],["baština","heritage"],["jezgra","core/nucleus"],["stanarine","rents"],["održivi turizam","sustainable tourism"]],qs:[{q:"How many tourists visit annually?",o:["10 million","20 million","30 million"],c:1},{q:"What has Dubrovnik introduced?",o:["Free admission","Tourist limits in the old town","New hotels"],c:1},{q:"What negative effect is mentioned?",o:["Traffic jams","Rising rents for locals","Water shortages"],c:1}]},
+    {title:"Vinska Kultura Hrvatske",tEn:"Wine Culture of Croatia",text:"Hrvatska ima dugu tradiciju vinogradarstva sežući sve do antičkih Grka i Rimljana koji su uzgajali vinovu lozu na Jadranu. Danas Hrvatska ima više od 130 autohtonih sorti grožđa. Najpoznatije su Plavac mali iz Dalmacije i Graševina iz Slavonije i Kontinentalne Hrvatske. Pelješac je najpoznatija vinska regija — vina Dingač i Postup zaštićena su oznaka izvornosti. Istra je poznata po Malvaziji, bijelom vinu cvjetnog mirisa. Vino je sastavni dio mediteranske kulture prehrane i druže. Sve veći broj boutique vinarija privlači enoturiste iz cijelog svijeta.",vocab:[["vinogradarstvo","viticulture/winemaking"],["autohtone sorte","indigenous varieties"],["zaštićena oznaka","protected designation"],["enoturisti","wine tourists"],["boutique vinarije","boutique wineries"]],qs:[{q:"What is the most famous red variety from Dalmatia?",o:["Graševina","Plavac mali","Malvazija"],c:1},{q:"What is Pelješac famous for?",o:["Olive oil","Wine region — Dingač and Postup","Fish restaurants"],c:1},{q:"What is Istria known for?",o:["Plavac mali","Graševina","Malvazija"],c:2}]},
+    {title:"Čipka — Hrvatska Tradicijska Umjetnost",tEn:"Lace — Croatian Traditional Art",text:"Hrvatska ima dvije tradicije izrade čipke koje su upisane na UNESCO-ov popis: čipka od Lepoglave izrađena iglom i čipka s otoka Paga vezena na jastučiću. Lepoglava je gradić u Zagorju poznat po samostanu i benediktinskim redovnicama koje su čuvale ovu vještinu kroz vjekove. Paška čipka, napravljena od fine konačne niti, bila je privilegija veleposjednika i vladara — nosila se kao ukras na odjeći. Danas i mladi učenici uče ovu vještinu u školama da bi tradicija preživjela. Čipka je simbol strpljenja, preciznosti i ljubavi prema ljepoti.",vocab:[["čipka","lace"],["igla","needle"],["jastučić","pillow (for lace-making)"],["preciznost","precision"],["veleposjednici","landowners/nobility"]],qs:[{q:"How many Croatian lace traditions are on UNESCO list?",o:["One","Two","Three"],c:1},{q:"Where is Lepoglava lace made with?",o:["Pillow","Needle","Crochet hook"],c:1},{q:"What does lace symbolise?",o:["Wealth","Patience, precision and love of beauty","Power"],c:1}]},
+    {title:"Grad Split — Dioklecijanova Palača",tEn:"The City of Split — Diocletian's Palace",text:"Split je drugi najveći grad Hrvatske i jedno od najstarijih živućih antičkih gradova na svijetu. Srce Splita je Dioklecijanova palača, izgrađena između 295. i 305. godine poslije Krista kao rezidencija cara Dioklecijana. Palača nije muzej — unutar njezinih zidina živi oko tri tisuće stanovnika. Ulice su uzane, a na svakom uglu nailazite na rimske stupove, barokne kapele ili mediteranske restorane. Peristil, središnji trg palače, još uvijek se koristi za koncerte i javne skupove. UNESCO je palaču upisao na popis svjetske baštine 1979. godine.",vocab:[["živuće","living (adj.)"],["rezidencija","residence"],["zidine","walls"],["peristil","peristyle"],["javni skupovi","public gatherings"]],qs:[{q:"When was the palace built?",o:["1st century BC","Late 3rd/early 4th century AD","10th century AD"],c:1},{q:"How many people live inside the palace walls?",o:["About 300","About 3,000","About 30,000"],c:1},{q:"What is the Peristyle used for today?",o:["It is closed to public","Concerts and public gatherings","A museum"],c:1}]},
+    {title:"Iliri — Drevni Stanovnici Balkana",tEn:"The Illyrians — Ancient Inhabitants of the Balkans",text:"Prije dolaska Slavena Balkanskim poluotokom vladali su Iliri, narod koji je obitavao u regiji od željeznog doba. Iliri su bili vrsni moreplovci i ratnici koji su kontrolirali jadranski trgovački put. Njihova najsnažnija država bila je Ilirsko kraljevstvo koje je doseglo vrhunac pod kraljicom Teutom u 3. stoljeću prije Krista. Rimljani su postupno pokorili Ilire i stvorili provinciju Ilirik. Znanstvenici raspravljaju o genetskim i jezičnim vezama između starih Ilira i modernih Albanaca. Hrvatska ne tvrdi izravno ilirsko podrijetlo ali ilirska kultura ostavila je trag u toponomiji i arheološkim nalazištima.",vocab:[["Iliri","Illyrians"],["moreplovci","seafarers"],["kraljica","queen"],["pokoriti","to subjugate"],["toponomija","toponymy/place names"]],qs:[{q:"What is Queen Teuta associated with?",o:["Roman alliance","Peak of the Illyrian kingdom","Trade with Greeks"],c:1},{q:"What did Rome do with Illyricum?",o:["Made it an independent kingdom","Created a province","Left it autonomous"],c:1},{q:"What trace did Illyrian culture leave?",o:["Croatian language","Toponymy and archaeological sites","Architecture"],c:1}]},
+    {title:"Peka — Stari Način Kuhanja",tEn:"Peka — The Ancient Cooking Method",text:"Peka je jedan od najdrevnijih načina kuhanja u hrvatskoj tradiciji. Radi se o posudi od lijevanog željeza ili gline ispod koje se stavljaju ugljeni žar i drvo. Meso, krumpiri, povrće i začini stavljaju se u posudu, poklopac se hermetički zatvara, a zatim se prekrije žarom i ostavlja da se lagano kuha dva do četiri sata. Jagnjetina ispod peke považuje se za vrhunski doživljaj za nepce. Morska hobotnica s krumpirom pod pekom dalmatinski je specijalitet. Peka zahtijeva strpljenje, ali rezultat je meso koje se topi u ustima. U suvremenim restoranima peka je postala simbol autentičnog iskustva.",vocab:[["lijevano željezo","cast iron"],["žar","embers"],["hermetički","hermetically"],["jagnjetina","lamb"],["nepce","palate (taste)"]],qs:[{q:"What is peka made of?",o:["Clay or cast iron","Steel or aluminium","Wood only"],c:0},{q:"How long does food cook under peka?",o:["30 minutes","1 hour","2-4 hours"],c:2},{q:"What is considered the ultimate peka experience?",o:["Octopus with potatoes","Lamb under peka","Chicken with vegetables"],c:1}]}
+  ],
+  b2: [
+    {title:"Demokracija i Civilno Društvo u Hrvatskoj",tEn:"Democracy and Civil Society in Croatia",text:"Hrvatska demokracija prolazi kroz period konsolidacije. Od stjecanja neovisnosti 1991. zemlja je izgradila temeljne demokratske institucije — parlament, neovisno sudstvo i slobodne medije — ali neke od tih institucija još uvijek nisu u potpunosti neovisne od politički utjecaja. Korupcija ostaje jedan od ključnih izazova: Transparency International redovito rangira Hrvatsku sredinom europske tablice. Civilno društvo međutim raste. Nevladine organizacije, aktivistički pokreti i slobodni novinari igraju sve važniju ulogu u javnom životu. Prosvjed 'Hrvatska može bolje' 2019. privukao je tisuće građana na ulice tražeći veću odgovornost vlasti. Mladi birači sve češće odbijaju tradicionalne stranke i traže nova politička lica. Europska unija vrši pritisak na vladavinu prava kao uvjet za pristup fondovima. Je li Hrvatska na putu prema zrelijoj demokraciji ili ostaje zarobljena u strukturama s komunističkom prošlosti?",vocab:[["konsolidacija","consolidation"],["korupcija","corruption"],["nevladine organizacije","NGOs"],["vladavina prava","rule of law"],["odgovornost","accountability"]],qs:[{q:"What does Transparency International measure?",o:["Economic growth","Corruption perception","Democratic index"],c:1},{q:"What did the 2019 protest demand?",o:["Lower taxes","Greater government accountability","EU membership"],c:1},{q:"What pressure does the EU apply?",o:["Military alliance","Rule of law as condition for funds","Trade tariffs"],c:1}]},
+    {title:"Medijska Slika Hrvatske",tEn:"The Media Landscape of Croatia",text:"Sloboda medija u Hrvatskoj je zajamčena ustavom, ali u praksi medijski prostor odražava složene interese. HRT, javna televizija, financira se pretplatom i trebala bi biti neovisna, ali urednici su često pod pritiskom vladajuće stranke. Tiskani mediji bilježe pad naklada poput ostatka Europe. Internetski portali kao 24sata, Index i Jutarnji.hr dominiraju online prostorom i privlače mlađe čitatelje. Problem je što senzacionalizam i klikbajtni naslovi potiskuju ozbiljno novinarstvo. Investigativni portali poput BIRN-a ili Telegram.hr pokušavaju popuniti tu rupu. Novinarima koji izvještavaju o organiziranom kriminalu ili korupciji prijeti pritisak i sudski progon. Medijska pismenost postaje ključna vještina u doba dezinformacija.",vocab:[["naklada","circulation (of newspaper)"],["senzacionalizam","sensationalism"],["investigativni","investigative"],["dezinformacije","disinformation"],["medijska pismenost","media literacy"]],qs:[{q:"How is HRT financed?",o:["State budget only","Subscription fee","Advertising only"],c:1},{q:"What problem do online portals have?",o:["Too few readers","Clickbait pushing out serious journalism","Government censorship"],c:1},{q:"What do investigative portals try to do?",o:["Replace HRT","Fill the gap left by serious journalism","Promote political parties"],c:1}]},
+    {title:"Hrvatska Dijaspora",tEn:"The Croatian Diaspora",text:"Procjenjuje se da izvan granica Hrvatske živi između tri i četiri milijuna Hrvata — gotovo toliko koliko i u samoj domovini. Najstarija dijaspora formirala se u Sjevernoj i Južnoj Americi krajem 19. i početkom 20. stoljeća, kad su ekonomski emigranti odlazili trbuhom za kruhom. Politička emigracija uslijedila je nakon Drugoga svjetskog rata — mnogi su se protivnici komunizma sklonili u Argentinu, Australiju i Zapadnu Njemačku. Nakon ulaska u EU unutar-europska migracija ubrzala se: mladi kvalificirani radnici odlaze u Irsku, Austriju i Njemačku. Dijaspora je sačuvala jezik, kulturu i vjeru daleko od domovine. Kulturne udruge, crkve i sportski klubovi vezuju zajednicu. U nekim državama Hrvati iz dijaspore imaju pravo glasa na izborima u Hrvatskoj.",vocab:[["dijaspora","diaspora"],["trbuhom za kruhom","seeking bread (emigrating for economic reasons)"],["politička emigracija","political emigration"],["pravo glasa","right to vote"],["udruge","associations"]],qs:[{q:"How many Croatians live outside Croatia?",o:["About 1 million","About 3-4 million","About 6 million"],c:1},{q:"Why did the first large emigration wave go to the Americas?",o:["Political persecution","Economic reasons"],c:1},{q:"What right do some diaspora Croatians have?",o:["Dual passport automatically","Right to vote in Croatian elections","Free university in Croatia"],c:2}]},
+    {title:"Arhitektura Zadra",tEn:"The Architecture of Zadar",text:"Zadar je jedan od najstarijih kontinuirano naseljenih gradova Mediterana. Njegova poluotokom smještena stara gradska jezgra nudi iznimno bogat sloj arhitektonskih stilova od antike do suvremenosti. Forum, rimski javni trg iz 1. stoljeća, danas je otvoreni arheološki park. Crkva sv. Donata, jedinstvena predromanička rotunda iz 9. stoljeća, gostuje muzičke koncerte zbog iznimne akustike. Mletačke zidine iz 16. stoljeća, izgrađene kao obrana od Osmanlija, upisane su na UNESCO popis. Moderna dodiruje staro u obliku Morskih orgulja, instalacije arhitekta Nikole Bašića koja koristi valove mora za stvaranje glazbe, i Pozdrava suncu, solarnog kružnog skulpture koja simulira kretanje planeta. Zadar je grad gdje prošlost i sadašnjost žive bok uz bok.",vocab:[["kontinuirano naseljen","continuously inhabited"],["predromanička","pre-Romanesque"],["akustika","acoustics"],["Mletačke zidine","Venetian walls"],["Pozdrav suncu","Greeting to the Sun (installation)"]],qs:[{q:"What is the Church of St. Donat known for?",o:["Painted ceiling","Exceptional acoustics","Tallest tower in Croatia"],c:1},{q:"What are the Sea Organs?",o:["A museum","An installation using waves to make music","A ship"],c:1},{q:"What are the Venetian walls a UNESCO site for?",o:["Medieval fortifications","16th century Ottoman-era defence walls","Roman remains"],c:1}]},
+    {title:"Sustav Zdravstva u Hrvatskoj",tEn:"The Healthcare System in Croatia",text:"Hrvatska ima sustav javnog zdravstva koji je u načelu dostupan svim osiguranicima kroz HZZO — Hrvatski zavod za zdravstveno osiguranje. Svaki zaposleni građanin obvezno plaća doprinos koji pokriva osnovnu zdravstvenu zaštitu. Izabrani liječnik opće prakse prva je razina skrbi, a specijalisti su dostupni na uputnice. Bolnice su podijeljene na kliničke bolničke centre u većim gradovima i opće bolnice u manjim mjestima. Problem je dugih lista čekanja — za neke specijaliste čeka se i po nekoliko mjeseci. Privatni zdravstveni sektor raste jer pacijenti žele brži pristup. Pandemia COVID-19 otkrila je slabosti sustava ali i sposobnost prilagodbe. Hrvatska ulaže u digitalizaciju zdravstva.",vocab:[["HZZO","Croatian Health Insurance Fund"],["doprinos","contribution"],["uputnica","referral"],["lista čekanja","waiting list"],["digitalizacija","digitalisation"]],qs:[{q:"What is HZZO?",o:["Health ministry","Croatian Health Insurance Fund","A hospital network"],c:1},{q:"How do you access a specialist?",o:["Directly","Via a referral from GP","Only privately"],c:1},{q:"What is a major problem in the system?",o:["Lack of doctors","Long waiting lists","No private options"],c:1}]},
+    {title:"Generacijski Jaz u Hrvatskoj",tEn:"The Generational Gap in Croatia",text:"Generacijski jaz između starijih i mlađih Hrvata odražava duboke društvene promjene koje je zemlja prošla u posljednjih trideset godina. Starija generacija odrasla u socijalističkoj Jugoslaviji cijeni sigurnost, kolektivizam i državne institucije. Mlađa generacija, digitalno pismenija i globalno povezana, traži individualnu slobodu, transparentnost i meritokraciju. Razlike su vidljive u politici — mladi rjeđe glasaju za HDZ ili SDP, a sve češće za nove liberalne ili zelene stranke. U kulturi, stariji njeguju narodnu glazbu i tradiciju, dok mladi konzumiraju streaming, hip-hop i međunarodne trendove. Obje generacije međutim dijele ponos na domovinu, ljubav prema moru i kulturi kafića. Ta zajednička mjesta važnija su od razlika.",vocab:[["jaz","gap"],["kolektivizam","collectivism"],["meritokracija","meritocracy"],["streaming","streaming"],["transparentnost","transparency"]],qs:[{q:"What does the older generation value from Yugoslav times?",o:["Free market","Security and collectivism","Individual freedom"],c:1},{q:"What do young voters increasingly support?",o:["HDZ","Traditional parties","Liberal or green parties"],c:2},{q:"What do both generations share?",o:["Same music taste","Pride in homeland and café culture","Same political views"],c:1}]},
+    {title:"Reforma Obrazovnog Sustava",tEn:"Education System Reform",text:"Hrvatska je 2019. pokrenula sveobuhvatnu reformu obrazovnog sustava poznatu kao Kurikulum. Cilj je bio smanjiti enciklopedijsko učenje napamet i uvesti kompetencijsko obrazovanje koje potiče kritičko razmišljanje, rješavanje problema i kreativnost. Reforma je naišla na otpor dijela učitelja i roditelja koji su smatrali da umanjuje važnost temeljnih znanja. Implementacija je bila neravnomjerna — neke škole prihvatile su nove metode s entuzijazmom, druge su se oduprijale promjenama. Digitalna transformacija nastave ubrzana je pandemijom COVID-19. Daljnji izazovi uključuju nejednakost između urbanih i ruralnih škola i nedostatak školskog psihologa. Cjeloživotno učenje postaje nužnost u brzorastućem tržištu rada.",vocab:[["sveobuhvatan","comprehensive"],["kompetencijsko obrazovanje","competency-based education"],["otpor","resistance"],["neravnomjerna","uneven"],["cjeloživotno učenje","lifelong learning"]],qs:[{q:"What is the 2019 reform called?",o:["Strategija","Kurikulum","Bolonjski"],c:1},{q:"What does the reform aim to reduce?",o:["School hours","Rote memorisation","Teacher salaries"],c:1},{q:"What accelerated digital teaching transformation?",o:["EU funding","The COVID-19 pandemic","Political decision"],c:1}]},
+    {title:"Okolišni Izazovi Jadranske Obale",tEn:"Environmental Challenges of the Adriatic Coast",text:"Jadransko more suočava se s ozbiljnim ekološkim izazovima koji se ubrzavaju klimatskim promjenama i rastućim turizmom. Temperatura morske vode porasla je za više od stupnja Celzijusa u posljednjih pola stoljeća, što utječe na riblje populacije i morske ekosustave. Invazivne vrste poput ribe fugu ili alge Caulerpa prodiru iz Sredozemlja i narušavaju ravnotežu. Plastični otpad ostaje kronični problem unatoč kampanjama čišćenja. Prekomjerni turizam u ljeto je pritisak na infrastrukturu i podzemne vode na otocima. Neke općine uvele su ograničenja plovidbe radi zaštite morskog dna. Hrvatska ima potencijal biti lider u ekološkoj zaštiti Mediterana ako politička volja prati ekološku svijest.",vocab:[["ekosustav","ecosystem"],["invazivne vrste","invasive species"],["prekomjerni turizam","overtourism"],["podzemne vode","groundwater"],["politička volja","political will"]],qs:[{q:"By how much has Adriatic sea temperature risen?",o:["Half a degree","Over one degree","Two degrees"],c:1},{q:"What are Caulerpa and fugu fish examples of?",o:["Native species","Invasive species","Endangered species"],c:1},{q:"What have some municipalities limited?",o:["Tourist numbers","Navigation to protect the seabed","Hotel construction"],c:1}]},
+    {title:"Hrvatska Književnost — Miroslav Krleža",tEn:"Croatian Literature — Miroslav Krleža",text:"Miroslav Krleža je bez sumnje najznačajniji pisac u povijesti hrvatske književnosti. Rođen u Zagrebu 1893., svjedočio je usponima i padovima tri državna poretka — Austro-Ugarske, Kraljevine Jugoslavije i komunističke Jugoslavije. Krležino djelo obuhvaća romane, drame, eseje i liriku, a prožeto je napetošću između mitteleuropske kulture i slavenskog identiteta. Roman 'Povratak Filipa Latinovicza' istražuje identitet, dekadenciju i nemoć intelektualca. 'Na rubu pameti' satirira međuratno hrvatsko građanstvo. Krleža je bio i politički angažiran — surađivao je s komunistima no nikad potpuno izgubio neovisnost duha. Njegova enciklopedija Jugoslavije bila je monumentalan kulturni projekt. Umro je 1981., ostavivši za sobom opus koji se i danas proučava na sveučilištima.",vocab:[["poredak","order/regime"],["opus","body of work"],["dekadencija","decadence"],["angažiran","engaged/committed"],["satirira","satirises"]],qs:[{q:"In how many political systems did Krleža live?",o:["Two","Three","Four"],c:1},{q:"What does Na rubu pameti satirise?",o:["Communism","Inter-war Croatian bourgeoisie","The Habsburg court"],c:1},{q:"What was the Encyclopaedia of Yugoslavia?",o:["A dictionary","A monumental cultural project","A travel guide"],c:1}]},
+    {title:"Hrvatska i Balkanska Geopolitika",tEn:"Croatia and Balkan Geopolitics",text:"Smještena na razmeđu Srednje Europe, Mediterana i Balkana, Hrvatska zauzima geopolitički osjetljiv položaj. Kao članica NATO-a od 2009. i EU od 2013. Hrvatska je čvrsto u zapadnom taboru, ali susjedstvo s državama koje nisu u EU — Bosnom i Hercegovinom, Srbijom i Crnom Gorom — donosi specifične izazove. Bosna i Hercegovina posebno je kompleksna — Hrvatska podupire interese Hrvata u BiH koji su jedan od tri konstitutivna naroda po Daytonskom sporazumu. Odnosi sa Srbijom poboljšali su se ali ostaju opterećeni pitanjem suočavanja s prošlošću i utvrđivanjem odgovornosti za zločine iz Domovinskog rata. Hrvatska igra aktivnu ulogu u proširenju EU na Zapadni Balkan.",vocab:[["razmede","crossroads"],["konstitutivni narodi","constituent peoples"],["Daytonski sporazum","Dayton Agreement"],["suočavanje s prošlošću","dealing with the past"],["proširenje EU","EU enlargement"]],qs:[{q:"When did Croatia join NATO?",o:["2004","2009","2013"],c:1},{q:"What agreement defines BiH's structure?",o:["Schengen","Dayton Agreement","Lisbon Treaty"],c:1},{q:"What complicates Croatia-Serbia relations?",o:["Trade disputes","Dealing with past war crimes","Language differences"],c:1}]},
+    {title:"Digitalna Transformacija Gospodarstva",tEn:"Digital Transformation of the Economy",text:"Hrvatska digitalna ekonomija raste, potaknuta investicijama, EU fondovima i rastom IT sektora. Zagreb je prepoznat kao središte startupova u regiji — tvrtke poput Infobipa, Rimac Automobilailla i Photomate privukle su međunarodnu pozornost i milijarde eura investicija. Infobip, kompanija za cloud komunikacije, postala je jedna od rijetkih europskih unicorna s procijenjenom vrijednošću iznad milijarde dolara. Rimac razvija električne hipersportske automobile i suradnju s Porscheom i Hyundaijem. Vlada potiče digitalizaciju javnih usluga — e-Građanin portal omogućava pristup stotinama usluga online. Izazovi uključuju nedostatak STEM kadra, odljev mozgova i sporiju digitalizaciju malih i srednih poduzeća.",vocab:[["startup","startup"],["unicorn","unicorn (billion-dollar company)"],["STEM kadar","STEM workforce"],["odljev mozgova","brain drain"],["cloud komunikacije","cloud communications"]],qs:[{q:"What is Infobip?",o:["An electric car company","A cloud communications company","A government portal"],c:1},{q:"What is Rimac known for?",o:["Software development","Electric hypersports cars","Banking technology"],c:1},{q:"What does e-Građanin provide?",o:["Online shopping","Access to hundreds of government services","Social media platform"],c:1}]},
+    {title:"Povijesni Identitet i Moderna Hrvatska",tEn:"Historical Identity and Modern Croatia",text:"Pitanje nacionalnog identiteta u Hrvatskoj nije jednostavno. Zemlja je bila dio brojnih carstava i državnih tvorevina — Ugarske krune, Habsburške Monarhije, Napoleonovih Ilirskih pokrajina, Kraljevine Jugoslavije i komunističke SFRJ. Svako od tih razdoblja ostavilo je trag u kulturi, arhitekturi, pravu i mentalitetu. Domovinski rat 1991.–1995. i obnova neovisnosti stvorili su intenzivan osjećaj nacionalnog identiteta, ali i traumatska sjećanja. Historiografski revizionizam — pokušaj rehabilitacije Ustaškog režima iz Drugoga svjetskog rata — ostaje osjetljiva tema koja dijeli javnost. Moderna Hrvatska želi biti europska zemlja s bogatom i složenom poviješću, bez negiranja mračnih stranica. To je put koji zahtijeva dijalog i zrelost.",vocab:[["tvorevina","creation/entity"],["revizionizam","revisionism"],["Ustaški režim","Ustasha regime"],["rehabilitacija","rehabilitation"],["mračne stranice","dark pages/chapters"]],qs:[{q:"How many different state formations is Croatia mentioned as part of?",o:["Three","Five","More than five"],c:2},{q:"What does historical revisionism refer to in this context?",o:["Rewriting school textbooks","Attempting to rehabilitate the Ustasha regime","Denying Croatia's independence"],c:1},{q:"What does modern Croatia seek?",o:["Isolation from the past","To be European while acknowledging complex history","To reject all Yugoslav legacy"],c:1}]},
+    {title:"Sportski Uspjesi Male Nacije",tEn:"Sporting Success of a Small Nation",text:"Hrvatska je jedna od rijetkih malih zemalja koja redovito postiže izvrsne sportske rezultate na međunarodnoj razini. Osim već poznatih uspjeha u nogometu, hrvatska košarkaška reprezentacija osvajala je olimpijske i europske medalje. Tenis je donijeo Goran Ivanišević, osvajač Wimbledona 2001., a Marin Čilić pobijedio je na US Openu 2014. Skijašica Janica Kostelić postala je legendom osvajanjem četiri olimpijska zlata u Salt Lake Cityju i dva u Torinu. Plivanje, rukomet i veslanje također su dali svjetske prvake i olimpijce. Mnogi analitičari pripisuju ove uspjehe snažnoj lokalnoj sportskoj kulturi, sustavu sportskih društava i mentalitetu koji cijeni borbenost. Mala nacija, veliki duh.",vocab:[["borbenost","fighting spirit/tenacity"],["analitičari","analysts"],["osvajač","winner/conqueror"],["rukomet","handball"],["veslanje","rowing"]],qs:[{q:"Who won Wimbledon in 2001?",o:["Marin Čilić","Goran Ivanišević","Ivan Lendl"],c:1},{q:"How many Olympic golds did Janica Kostelić win overall?",o:["Two","Four","Six"],c:1},{q:"What does success get attributed to?",o:["High GDP and sport investment","Local sports culture and tenacious mentality","Lucky draws in competitions"],c:1}]},
+    {title:"Grad Zagreb — Između Prošlosti i Budućnosti",tEn:"The City of Zagreb — Between Past and Future",text:"Zagreb je grad koji se neprestano mijenja, a opet čuva svoju dušu. Gornji grad s katedralom, Kaptolom i baroknim palačama svjedoči o stoljetnoj prošlosti biskupskoga i kraljevskog centra. Donji grad projektiran po bečkim uzorima u 19. i ranom 20. stoljeću nudi zelene parkove — tzv. Lenucijevu potkovu — i historicističke palače. Trešnjevka i Novi Zagreb svjedoče o socijalističkoj modernizaciji. Potres 2020. ostavio je vidljive ožiljke na fasadama i crkvama koji se i dalje obnavljaju. Mlada kreativna scena transformira zapuštene industrijske zone u art kvartove i startup hubove. Kultura kafića, noćni život i blizina prirode čine Zagreb gradom visoke kvalitete življenja.",vocab:[["Kaptol","Zagreb's cathedral chapter area"],["Lenucijeva potkova","Lenuci's Horseshoe (park ring)"],["historicistički","historicist (architectural style)"],["ožiljci","scars"],["startup hubovi","startup hubs"]],qs:[{q:"What is the 'Horseshoe' in Zagreb?",o:["A tram line","A ring of parks by Lenuci"],c:1},{q:"What affected Zagreb in 2020?",o:["Flooding","An earthquake"],c:1},{q:"What is happening to old industrial zones?",o:["They are demolished","They are transformed into art districts and startup hubs"],c:1}]}
+  ],
+  c1: [
+    {title:"Kratka Priča — Jutro na Hvaru",tEn:"Short Story — Morning on Hvar",text:"Probudio se prije svitanja. More je ležalo nepomično ispod njega, tamno kao tuš, jedva nazirući crtu obzora. Stavio je stopala na hladni kamen terase i udahnuo zrak koji je još nosio trag noći — sol, kadulja, nešto od borovih smola. Otok je spavao. Jedino je daleko neka ribarska svjetlost titrala na vodi kao da se i sama pita treba li još biti budna.\n\nMarko je sjeo na brod tek sutradan, ali tu jutarnju tišinu — tu specifičnu prazninu koja nije praznina nego punoća svega — nosio je sa sobom cijeli ostatak života. Ponekad, usred zimskog Zagreba, zatvorenom bi očima i gotovo čuo: more, kadulja, jutarnje zvono u daljini.",vocab:[["svitanje","dawn"],["nepomično","motionless"],["obzor","horizon"],["titrala","flickered"],["punoća","fullness"]],qs:[{q:"What does Marko smell at dawn?",o:["Coffee and bread","Salt, sage and pine resin","Fish and sea weed"],c:1},{q:"How does the narrator describe the morning silence?",o:["As emptiness","As fullness of everything","As loneliness"],c:1},{q:"When does he remember the morning later?",o:["In Split","In winter Zagreb","On another island"],c:1}]},
+    {title:"Filozofski Dijalog — O Slobodi",tEn:"Philosophical Dialogue — On Freedom",text:"'Misliš li da je sloboda moguća bez odgovornosti?' upitala je Ana, dok su sjedili u starom kafiću na Gornjem gradu. 'Sloboda bez odgovornosti nije sloboda — to je samovolja,' odgovorio je Tomislav. 'Pravi slobodan čovjek bira, a svaki izbor nosi posljedice koje mora biti spreman prihvatiti.' 'Ali tko definira odgovornost?' inzistirala je Ana. 'Svako društvo nalaže drugačije norme. Onaj koji slijedi savjest, a krši konvenciju — je li on slobodan ili nije?' Tomislav je dugo šutio. 'Možda je sloboda uvijek napetost između unutarnjeg glasa i izvanjskog poretka. Niti jedna strana ne može pobijediti. To je egzistencijalna conditio humana.' Ana je nasmijala. 'I za to nam treba još jedna kava.' Naručila je, a Zagreb je šumio ispod njih.",vocab:[["samovolja","arbitrariness/wilfulness"],["savjest","conscience"],["konvencija","convention"],["conditio humana","human condition (Latin)"],["egzistencijalna","existential"]],qs:[{q:"What does Tomislav say freedom without responsibility is?",o:["Impossible","Arbitrariness/wilfulness","A philosophical ideal"],c:1},{q:"What tension does Tomislav describe as the human condition?",o:["Between rich and poor","Between inner voice and external order","Between tradition and modernity"],c:1},{q:"Where does the dialogue take place?",o:["At Zagreb University","In an old café in the Upper Town","In a park"],c:1}]},
+    {title:"Analiza Hrvatskog Identiteta",tEn:"Analysis of Croatian Identity",text:"Pitanje što znači biti Hrvat otvara niz složenih i ponekad proturječnih odgovora. Identitet se ne gradi samo na etničkoj ili jezičnoj osnovi — on je palimpsest u koji su upisani austrougarski administrativni red, mediteranska hedonistička strast, slavenska kolektivna memorija i traume Domovinskog rata. Hrvati su Europa u malom: na prostoru veličine Švicarske susreću se kajkavski govornici Zagorja, štokavska Slavonija, čakavska Istra i dalmatinska obala gdje se latinski šapat osjeća u toponomiji. Ta jezična raznolikost nije slabost nego bogatstvo. Nacionalni identitet koji se gradi isključivo na suprotnosti prema 'drugome' — Srbima, Jugoslije, Osmanlijama — ostaje zarobljen u prošlosti. Zrelost nacije mjeri se sposobnošću da svoju povijest promišlja kritički ne odričući se od nje, nego je integrirajući u složeniji i pošteniji narativ.",vocab:[["palimpsest","palimpsest"],["hedonistički","hedonistic"],["toponomija","toponymy"],["proturječan","contradictory"],["integrirajući","integrating"]],qs:[{q:"What metaphor is used to describe Croatian identity?",o:["A mosaic","A palimpsest","A river"],c:1},{q:"What linguistic diversity is mentioned?",o:["Kajkavian, Štokavian and Čakavian","Only Štokavian","Croatian and Serbian"],c:0},{q:"What does the author say national identity should not be built on?",o:["History","Opposition to 'the other'","Religion"],c:1}]},
+    {title:"Socioekonomska Analiza Primorske Hrvatske",tEn:"Socioeconomic Analysis of Coastal Croatia",text:"Primorska Hrvatska stoji pred paradoksom prosperity bez ekvitabilnosti. Turizam je generirao rekordne prihode — u sezoni 2023. zabilježeni su prihodi od gotovo dvanaest milijardi eura — ali distribucija tih dobrobiti ostaje neravnomjerna. Vlasnici apartmana i hotela koji su na obali posluju desetljećima profitirali su od inflacije cijena nekretnina. Lokalno mlado stanovništvo suočava se s nemogućnošću kupnje ili najma prikladnog stambenog prostora u domicilnom gradu. Sezonalnost ekonomije znači da mnogi radnici rade šest do osam intenzivnih jesenjih ljetnih mjeseci, a ostatak godine su nezaposleni ili poduposleni. Infrastruktura nije pratila rast — prometna zagušenja, nedostatak pitke vode na otocima i prenapučenost komunalne infrastrukture postaju kronični problemi. Politika prostornog planiranja zakazala je u zaštiti obalne krajobrazne baštine.",vocab:[["ekvitabilnost","equity/fairness in distribution"],["distribucija dobrobiti","distribution of benefits"],["sezonalnost","seasonality"],["poduposleni","underemployed"],["prostorno planiranje","spatial planning"]],qs:[{q:"What was the tourism revenue in 2023?",o:["About 5 billion euros","About 12 billion euros","About 20 billion euros"],c:1},{q:"What is the paradox described?",o:["Prosperity without sustainability","Prosperity without equitable distribution","Growth without tourism"],c:1},{q:"What problem does local youth face?",o:["Lack of jobs","Inability to buy or rent housing in their hometown","Poor education"],c:1}]},
+    {title:"Lingvistička Raznolikost Balkana",tEn:"Linguistic Diversity of the Balkans",text:"Balkanski poluotok lingvistički je jedno od najsloženijih područja u Europi. Na relativno malom prostoru susreću se jezici koji pripadaju različitim granama indoeuropske obitelji: slavenski jezici (hrvatski, srpski, bosanski, slovenski, makedonski, bugarski), romanski (rumunjski), helenski (grčki), albanski i turkijski (turski kao manjinski jezik). Balkanski sprachbund — jezični savez — fascinantna je lingvistička pojava: jezici koji nisu u srodstvu dijele zajedničke strukturne crte (poput postpozitivnog člana u rumunjskom, bugarskom i albanskom ili infinitivnog gubitka u balkanskim slavenskim jezicima i albanskom). Sociolingvistički gledano, rasprava o tome jesu li srpski, hrvatski, bosanski i crnogorski jedan ili četiri odvojena standarda ostaje politički nabijenim pitanjem na Zapadnom Balkanu. Lingvisti u pravilu govore o policentričnom jeziku s jednim sustavom i četiri standarda, dok politike identiteta naglašavaju razlike.",vocab:[["sprachbund","language league/union"],["postpozitivni član","postpositional article"],["infinitivni gubitak","infinitive loss"],["policentrični","polycentric"],["sociolingvistika","sociolinguistics"]],qs:[{q:"What is the Balkan Sprachbund?",o:["A political union","A linguistic area where unrelated languages share structural features","A dialect of Greek"],c:1},{q:"What feature do Romanian, Bulgarian and Albanian share?",o:["Same word order","Postpositional definite article","Verb aspect system"],c:1},{q:"How do most linguists describe BCMS?",o:["Four completely separate languages","A polycentric language with four standards","One standard with regional dialects"],c:2}]},
+    {title:"Esej o Moru kao Identitetu",tEn:"Essay on the Sea as Identity",text:"Postoji u Hrvata jedna kolektivna memorija koja ne ovisi o geografiji stanovanja: memorija mora. Čak i Zagorci, koji nikad nisu vidjeli Jadran, odrastaju uz priče o ljetovanjima, ronjenju i dalmatinskim klapama. More nije samo fizičko mjesto — ono je metafora slobode, bjega od kontinentalne tjesnoće, prostora gdje se tijelo i duša otvaraju. Filozofski se to može opisati kao 'maritimni imaginarij' — kolektivna imaginarna geografija koja oblikuje shvaćanje prostora, vremena i identiteta. U modernoj književnosti i kinu ta tema stalno se provlači: od Šenoinih romana do filmova snimljenih na Hvaru. More je za Hrvata ono što je steppe za Rusa ili London za Engleza — arhetipska pozadina na kojoj se odigrava drama nacionalnog bića. Ta veza nije romantičarska iluzija; ona ima ekonomske, demografske i klimatske dimenzije. No u srži — čovjek dođe na more i osjeti da je kod kuće.",vocab:[["maritimni imaginarij","maritime imaginary"],["tjesnoća","constriction/narrowness"],["arhetipska","archetypal"],["kolektivna imaginarna geografija","collective imaginary geography"],["provlači","runs through/recurs"]],qs:[{q:"What does the author say about Zagorci and the sea?",o:["They never think about it","They grow up with stories of the sea despite never seeing it","They dislike the sea"],c:1},{q:"What philosophical concept does the author use?",o:["Collective unconscious","Maritime imaginary","Social imaginary"],c:1},{q:"What comparison does the author make?",o:["The sea is like the Sahara for Africans","The sea is to Croatians what the steppe is to Russians","The sea is a tourist attraction only"],c:1}]},
+    {title:"Književna Kritika — Antun Gustav Matoš",tEn:"Literary Critique — Antun Gustav Matoš",text:"Antun Gustav Matoš (1873.–1914.) jedna je od najkarizmatičnijih figura moderne hrvatske književnosti. Živio je buran život — bježao iz vojske, lutao Europom, živio u bijedi u Parizu i Ženevi — a njegova je proza i lirika obilježena tim iskustvima rubnog i prognanog intelektualca. Matošev stil eklektičan je i virtuozan: proza mu varira od impresionističke putopisne lirske proze do oštrog satiričnog eseja. Utjecaj Baudelairea, Verlainea i ruskog simbolizma vidljiv je u njegovoj lirici. Kritičarski, Matoš je bio nepokolebljiv u obrani estetskih standarda — rezao je i nekompetentne i laskave kritičare podjednako. Njegova čuvena rečenica 'Hrvatska treba Europe, a Europa treba Hrvate' sažima ambivalentni osjećaj perifernog intelektualca koji traži europsku afirmaciju a čuva lokalni ponos. Matoš je umro mlad, ali ostavio opus koji se čita s ne manjom fascinacijom danas nego pred sto godina.",vocab:[["karizmatičan","charismatic"],["prognan","exiled"],["eklektičan","eclectic"],["virtuozan","virtuosic"],["nepokolebljiv","unwavering"]],qs:[{q:"Which European artistic movements influenced Matoš's poetry?",o:["Romanticism and realism","Symbolism (Baudelaire, Verlaine)","Surrealism and cubism"],c:1},{q:"What is his famous quote about?",o:["Croatia's EU membership","The peripheral intellectual's ambivalent relation to Europe","The beauty of Croatian nature"],c:1},{q:"What kind of critic was Matoš?",o:["Gentle and encouraging","Unwavering in defending aesthetic standards","Politically driven"],c:1}]},
+    {title:"Politička Kultura i Tranzicija",tEn:"Political Culture and Transition",text:"Hrvatska politička kultura nosi dubok trag komunističke prošlosti i ratne tranzicije. Istraživanja javnog mnijenja pokazuju da manji udio hrvatskih građana vjeruje parlamentu ili pravosuđu nego što je to slučaj u prosječnoj EU-zemlji. Ta erozija povjerenja nije specifično hrvatska pojava — zahvatila je gotovo sve postkomunističke demokracije — ali njezini uzroci u hrvatskoj varijanti imaju specifičnu boju. Nomenklatura se transformirala u biznis-elitu, tzv. tajkunizacija devedesetih stvorila je oligarhe koji su iskorištenjem privatizacijskih propusta akumulirali kapital. Civilno društvo, iako raste, još uvijek nema strukturnu moć kakvu ima u zapadnoeuropskim demokracijama. Tranzicijska pravda — suočavanje sa zločinima iz rata i komunizma — ostaje nedovršena. No nova generacija birača, digitalno pismena i manje ideološki opterećena, možda nosi klicu dugoočekivane promjene.",vocab:[["tranzicija","transition"],["pravosuđe","judiciary"],["tajkunizacija","tycoonisation (crony capitalism)"],["tranzicijska pravda","transitional justice"],["nomenklatura","nomenklatura (communist elite)"]],qs:[{q:"What does research show about Croatian citizens' trust in institutions?",o:["Higher than EU average","Lower than EU average","Equal to EU average"],c:1},{q:"What is 'tajkunizacija' as described here?",o:["Privatisation of culture","Oligarchs enriching themselves through privatisation loopholes","Foreign investment"],c:1},{q:"What hope does the author see for change?",o:["EU intervention","The new digitally literate generation of voters","Better politicians"],c:1}]},
+    {title:"Arhitektura kao Tekst — Čitanje Prostora",tEn:"Architecture as Text — Reading Space",text:"Svaki grad je knjiga. Tko zna čitati arhitekturu, čita povijest, vlast i duhovnost jednog naroda. U Splitu, Dioklecijanova palača čita se kao rimska imperial volja upisana u kamen — simetrija, monumentalnost, trajnost. No to što su Dalmatinci pretvorili carev mauzolej u katedralu Svete Duje govori o adaptabilnosti i subverzivnoj vitalnosti lokalne kulture. U Zagrebu, sraz između austrougarskog historicizma i socijalističkog brutalizma na savskim obalama tvori narativ ambivalencije — između europskih aspiracija i balkanskog pragmatizma. Suvremena arhitektura doda novu razinu: Muzej Mimara je kontroverzna historicistička zgrada, dok je moderna Knjižnica u Splitu Ivana Štrausa primjer smjelog suvremenog pristupa. Prostor nije neutralan. On uvijek govori.",vocab:[["mauzolej","mausoleum"],["subverzivan","subversive"],["brutalizam","brutalism (architecture)"],["ambivalencija","ambivalence"],["historicizam","historicism"]],qs:[{q:"What subversive cultural act did Dalmatians perform?",o:["Demolished the palace","Converted the emperor's mausoleum into a cathedral","Painted the palace walls"],c:1},{q:"What architectural clash exists in Zagreb?",o:["Gothic vs baroque","Austro-Hungarian historicism vs socialist brutalism","Modern vs ancient"],c:1},{q:"What is the author's main thesis?",o:["Architecture should be functional","Space is not neutral — it always speaks","Modern architecture is better than historic"],c:1}]},
+    {title:"Hrvatska i Europa — Kulturni Dijalog",tEn:"Croatia and Europe — A Cultural Dialogue",text:"Hrvati vole reći da su 'tisućljetni branič kršćanske Europe' — predziđe Antemurale Christianitatis — što je historiografski mit koji u sebi nosi zrno istine i more idealizacije. Istina je da je Hrvatska geografski i kulturno oduvijek bila na sjecištu civilizacija: Rimljani, Avari, Franci, Ugri, Mlečani, Osmanlije, Habsburgovci — svi su ostavili trag. Ta višestruka sjecišnost nije trauma nego privilegij: Hrvatska razumije i Beč i Carigrad, i Veneciju i Beograd, na način koji mono-kulturni narodi ne mogu. Europska integracija nije za Hrvatska samo politički projekt — ona je povratak u kulturni dom koji je Hrvatska oduvijek dijelila s ostatkom kontinenta, ali od kojeg je ratovima i granicama bila odvojena. Ulazak u schengenski prostor 2023. fizički je ukinuo granicu koja je dijelila Jadran od unutrašnjosti Europe. Budućnost je Hrvatska koja ne definira sebe kroz ono čemu se opire, nego kroz ono što gradi.",vocab:[["Antemurale Christianitatis","bulwark of Christendom (Latin)"],["sjecište","crossroads/intersection"],["idealizacija","idealisation"],["schengenski prostor","Schengen area"],["privilegij","privilege"]],qs:[{q:"What does 'Antemurale Christianitatis' mean?",o:["Eastern Orthodox church","Bulwark of Christendom","Gateway to the Balkans"],c:1},{q:"What does the author say Croatia's multicultural crossroads gives it?",o:["Confusion of identity","Ability to understand multiple civilisations","Economic advantage"],c:1},{q:"What physical change happened in 2023?",o:["Croatia joined NATO","Croatia entered the Schengen area","Croatia adopted the euro"],c:1}]}
+  ]
+};
+export const UNJUMBLE = [
+  {words:["Ja","volim","Hrvatsku"],correct:"Ja volim Hrvatsku.",en:"I love Croatia."},
+  {words:["Ana","\u010dita","knjigu"],correct:"Ana \u010dita knjigu.",en:"Ana is reading a book."},
+  {words:["Mi","idemo","u","\u0161kolu"],correct:"Mi idemo u \u0161kolu.",en:"We are going to school."},
+  {words:["Ivan","daje","kavu","Ani"],correct:"Ivan daje kavu Ani.",en:"Ivan gives coffee to Ana."},
+  {words:["Gdje","je","bolnica"],correct:"Gdje je bolnica?",en:"Where is the hospital?"},
+  {words:["Oni","su","iz","Hrvatske"],correct:"Oni su iz Hrvatske.",en:"They are from Croatia."},
+  {words:["Djeca","se","igraju","u","parku"],correct:"Djeca se igraju u parku.",en:"Children are playing in the park."},
+  {words:["Ja","\u0107u","putovati","u","Dubrovnik"],correct:"Ja \u0107u putovati u Dubrovnik.",en:"I will travel to Dubrovnik."},
+  {words:["On","je","govorio","s","prijateljem"],correct:"On je govorio s prijateljem.",en:"He was talking with a friend."},
+  {words:["Mo\u017ee\u0161","li","mi","pomo\u0107i"],correct:"Mo\u017ee\u0161 li mi pomo\u0107i?",en:"Can you help me?"},
+  {words:["Mama","kuha","ru\u010dak","u","kuhinji"],correct:"Mama kuha ru\u010dak u kuhinji.",en:"Mom is cooking lunch in the kitchen."},
+  {words:["Kako","se","zove\u0161"],correct:"Kako se zove\u0161?",en:"What is your name?"},
+  {words:["Lije\u010dnik","je","propisao","lijek"],correct:"Lije\u010dnik je propisao lijek.",en:"The doctor prescribed medicine."},
+  {words:["Sutra","\u0107emo","i\u0107i","na","pla\u017eu"],correct:"Sutra \u0107emo i\u0107i na pla\u017eu.",en:"Tomorrow we will go to the beach."},
+  {words:["Hrvatska","je","lijepa","zemlja"],correct:"Hrvatska je lijepa zemlja.",en:"Croatia is a beautiful country."}
+];
+export const IDIOMS = [
+  {hr:"Nema frke",en:"No worries",lit:"There is no worry",ctx:"Casual reassurance among friends"},
+  {hr:"Ful je dobro",en:"It\u0027s really good",lit:"Full is good",ctx:"Youth slang, very common"},
+  {hr:"Ba\u0161 me briga",en:"I don\u0027t care",lit:"Exactly me care",ctx:"Common dismissive expression"},
+  {hr:"Pada ki\u0161a kao iz kabla",en:"It\u0027s pouring rain",lit:"Rain falls like from a bucket",ctx:"Describing heavy rain"},
+  {hr:"Idi mi-do\u0111i mi",en:"So-so / wishy-washy",lit:"Go me-come me",ctx:"Something inconsistent"},
+  {hr:"Lagati kao pas",en:"To lie through your teeth",lit:"To lie like a dog",ctx:"Someone who lies a lot"},
+  {hr:"Pun kao brod",en:"Stuffed / very full",lit:"Full like a ship",ctx:"After eating too much"},
+  {hr:"Hladan kao led",en:"Ice cold / very cold person",lit:"Cold as ice",ctx:"Unfriendly person or cold weather"},
+  {hr:"Imati putra na glavi",en:"To have a guilty conscience",lit:"To have butter on your head",ctx:"Someone hiding guilt"},
+  {hr:"Biti u banani",en:"To be broke",lit:"To be in banana",ctx:"Having no money, slang"},
+  {hr:"Nemoj me zezati",en:"Don\u0027t mess with me / You\u0027re kidding",lit:"Don\u0027t tease me",ctx:"Disbelief or warning"},
+  {hr:"Raditi kao konj",en:"To work very hard",lit:"To work like a horse",ctx:"Someone who works hard"},
+  {hr:"Imati debelu ko\u017eu",en:"To be thick-skinned",lit:"To have thick skin",ctx:"Not easily offended"},
+  {hr:"Daj ne seri",en:"Come on, stop it",lit:"Don\u0027t [expletive]",ctx:"Very informal, disbelief"},
+  {hr:"Sve pet",en:"Everything\u0027s fine",lit:"All five",ctx:"Like giving a high five \u2014 all good"}
+];
+export const PREPS = [
+  {prep:"u",cases:["Lokativ","Akuzativ"],ex:["\u017divim u Zagrebu. (Lok)","Idem u Zagreb. (Akuz)"],en:"in / into"},
+  {prep:"na",cases:["Lokativ","Akuzativ"],ex:["Sjedim na stolici. (Lok)","Idem na pla\u017eu. (Akuz)"],en:"on / onto"},
+  {prep:"iz",cases:["Genitiv"],ex:["Dolazim iz Splita."],en:"from / out of"},
+  {prep:"od",cases:["Genitiv"],ex:["Knjiga od brata."],en:"from / of"},
+  {prep:"do",cases:["Genitiv"],ex:["Idemo do \u0161kole."],en:"to / until"},
+  {prep:"bez",cases:["Genitiv"],ex:["Kava bez mlijeka."],en:"without"},
+  {prep:"kod",cases:["Genitiv"],ex:["Idem kod lije\u010dnika."],en:"at / to (someone\u0027s place)"},
+  {prep:"s / sa",cases:["Instrumental"],ex:["Idem s mamom."],en:"with"},
+  {prep:"prema",cases:["Dativ"],ex:["Idem prema centru."],en:"towards"},
+  {prep:"o",cases:["Lokativ"],ex:["Pri\u010dam o filmu."],en:"about"},
+  {prep:"ispod",cases:["Genitiv"],ex:["Ma\u010dka je ispod stola."],en:"under"},
+  {prep:"iznad",cases:["Genitiv"],ex:["Lampa je iznad stola."],en:"above"},
+  {prep:"ispred",cases:["Genitiv"],ex:["Auto je ispred ku\u0107e."],en:"in front of"},
+  {prep:"iza",cases:["Genitiv"],ex:["Vrt je iza ku\u0107e."],en:"behind"},
+  {prep:"oko",cases:["Genitiv"],ex:["Oko ku\u0107e je ograda."],en:"around"}
+];
+export const LISTEN = [
+  {hr:"Dobar dan, kako ste?",en:"Good day, how are you?",opts:["Good day, how are you?","Good night, where are you?","Hello, who are you?","Good morning, how old are you?"]},
+  {hr:"Ja sam iz Hrvatske.",en:"I am from Croatia.",opts:["I am from Croatia.","I am in Croatia.","I love Croatia.","I live in Croatia."]},
+  {hr:"Koliko ko\u0161ta kava?",en:"How much is a coffee?",opts:["How much is a coffee?","Where is the coffee?","I want coffee.","Do you have coffee?"]},
+  {hr:"\u017delim naru\u010diti riblju juhu.",en:"I want to order fish soup.",opts:["I want to order fish soup.","I like eating fish soup.","The fish soup is cold.","Do you have fish soup?"]},
+  {hr:"Gdje je najbli\u017ea ljekarna?",en:"Where is the nearest pharmacy?",opts:["Where is the nearest pharmacy?","Where is the hospital?","I need a doctor.","Where is the nearest market?"]},
+  {hr:"Moja djeca u\u010de hrvatski.",en:"My children are learning Croatian.",opts:["My children are learning Croatian.","My children speak Croatian.","My family is Croatian.","My children love Croatia."]},
+  {hr:"Mo\u017eete li mi pomo\u0107i?",en:"Can you help me?",opts:["Can you help me?","Can I help you?","Do you need help?","Where can I find help?"]},
+  {hr:"Sutra idemo na pla\u017eu.",en:"Tomorrow we go to the beach.",opts:["Tomorrow we go to the beach.","Yesterday we went to the beach.","We like the beach.","The beach is beautiful."]},
+  {hr:"Trebam kupiti kruh i mlijeko.",en:"I need to buy bread and milk.",opts:["I need to buy bread and milk.","I like bread and milk.","Bread and milk are expensive.","Where is the bread and milk?"]},
+  {hr:"On je govorio s lije\u010dnikom.",en:"He was talking with the doctor.",opts:["He was talking with the doctor.","He is going to the doctor.","He needs a doctor.","The doctor is talking."]},
+  {hr:"Hrvatska je lijepa zemlja s dugom povije\u0161\u0107u.",en:"Croatia is a beautiful country with a long history.",opts:["Croatia is a beautiful country with a long history.","Croatia is a small country in Europe.","Croatia has beautiful beaches.","I want to visit Croatia."]},
+  {hr:"Ne razumijem, mo\u017eete li ponoviti?",en:"I don\u0027t understand, can you repeat?",opts:["I don\u0027t understand, can you repeat?","I understand everything.","Please speak louder.","I don\u0027t speak Croatian."]},
+  {hr:"Tražim posao u IT sektoru već tri mjeseca.",en:"I have been looking for a job in the IT sector for three months.",opts:["I have been looking for a job in the IT sector for three months.","I work in IT for three years.","I found an IT job last month.","I don't want to work in IT."]},
+  {hr:"Po mom mišljenju, klimatske promjene su najveći problem današnjice.",en:"In my opinion, climate change is the biggest problem of today.",opts:["In my opinion, climate change is the biggest problem of today.","Climate change does not exist.","The weather is getting better.","We need more factories."]},
+  {hr:"Stanarina u Zagrebu je jako visoka za mlade.",en:"Rent in Zagreb is very high for young people.",opts:["Rent in Zagreb is very high for young people.","Zagreb has cheap apartments.","Young people own houses in Zagreb.","Zagreb is the cheapest city."]},
+  {hr:"Slažem se s tobom da trebamo reciklirati više.",en:"I agree with you that we need to recycle more.",opts:["I agree with you that we need to recycle more.","I disagree about recycling.","Recycling is not important.","We recycle enough already."]},
+  {hr:"Kolege su mi rekle da je šef jako zahtjevan.",en:"My colleagues told me that the boss is very demanding.",opts:["My colleagues told me that the boss is very demanding.","The boss is very easy-going.","I have no colleagues.","The boss left the company."]},
+  {hr:"Ne mogu priuštiti taj stan bez suvlasnika.",en:"I can't afford that apartment without a co-tenant.",opts:["I can't afford that apartment without a co-tenant.","I can easily afford the apartment.","I don't need an apartment.","I own a house already."]},
+  {hr:"Hrvatska je postala članica Europske unije 2013. godine.",en:"Croatia became a member of the European Union in 2013.",opts:["Croatia became a member of the European Union in 2013.","Croatia joined the EU in 2004.","Croatia is not in the EU.","Croatia will join the EU soon."]},
+  {hr:"Rekao bih da je važno znati više od jednog jezika.",en:"I would say it's important to know more than one language.",opts:["I would say it's important to know more than one language.","One language is enough.","Languages are too difficult.","I don't care about languages."]},
+  {hr:"Mladi sve češće biraju rad od kuće umjesto ureda.",en:"Young people increasingly choose working from home instead of the office.",opts:["Young people increasingly choose working from home instead of the office.","Young people prefer offices.","No one works from home.","Working from home is banned."]}
+];
+export const NUMTIME = {
+  numbers: [
+    {q:"How do you say 15?",a:"petnaest",al:["trinaest","dvanaest","šesnaest"]},
+    {q:"How do you say 28?",a:"dvadeset osam",al:["dvadeset tri","trideset osam","dvadeset devet"]},
+    {q:"How do you say 50?",a:"pedeset",al:["petdeset","petoset","petnaest"]},
+    {q:"How do you say 73?",a:"sedamdeset tri",al:["šezdeset tri","sedamdeset sedam","osamdeset tri"]},
+    {q:"How do you say 100?",a:"sto",al:["tisuću","deset","dvjesto"]},
+    {q:"How do you say 365?",a:"tristo šezdeset pet",al:["tristo pedeset pet","dvjesto šezdeset pet","tristo šezdeset šest"]},
+    {q:"How do you say 1000?",a:"tisuća",al:["sto","milijun","deset tisuća"]},
+    {q:"Koliko je 12 + 8?",a:"dvadeset",al:["osamnaest","dvadeset dva","devetnaest"]}
+  ],
+  time: [
+    {q:"It\u0027s 3:00 PM =",a:"Petnaest sati",al:["Tri sata","Pet sati","Trinaest sati"]},
+    {q:"It\u0027s 7:30 =",a:"Sedam sati i trideset minuta",al:["Sedam i pol","Šest i trideset","Osam i trideset"]},
+    {q:"It\u0027s noon =",a:"Podne",al:["Ponoć","Jutro","Večer"]},
+    {q:"It\u0027s midnight =",a:"Ponoć",al:["Podne","Noć","Kasno"]},
+    {q:"It\u0027s 9:15 AM =",a:"Devet sati i petnaest minuta",al:["Devet i pol","Deset i petnaest","Osam i petnaest"]},
+    {q:"\u0027Pola pet\u0027 means?",a:"4:30",al:["5:30","5:00","4:00"]},
+    {q:"\u0027Četvrt do šest\u0027 means?",a:"5:45",al:["6:15","6:45","5:15"]},
+    {q:"47 euros in Croatian?",a:"Četrdeset sedam eura",al:["Četrdeset pet eura","Trideset sedam eura","Pedeset sedam eura"]},
+    {q:"Colloquial: 'Pola sedam' means?",a:"6:30",al:["7:30","7:00","6:00"],note:"'Pola' + next hour = half past previous hour. Pola sedam = half to seven = 6:30"},
+    {q:"'Ujutro' means what time of day?",a:"Morning (roughly 6–12)",al:["Afternoon","Evening","Night"]},
+    {q:"Which is colloquial for 'the day after tomorrow'?",a:"prekosutra",al:["jučer","sutra","predjuče"]},
+    {q:"'Uskoro' means?",a:"Soon",al:["Yesterday","Tomorrow","Never"]},
+    {q:"Formal vs colloquial: '15:00' vs colloquial?",a:"Tri sata (popodne)",al:["Petnaest","Tri popodne","Poslijepodne tri"]},
+    {q:"'Tek' in 'Tek sam stigao' means?",a:"Just / only just",al:["Already","Not yet","Always"]}
+  ],
+  colloquial:[
+    {formal:"petnaest sati",colloquial:"tri sata popodne",en:"3:00 PM"},
+    {formal:"trinaest sati",colloquial:"jedan popodne",en:"1:00 PM"},
+    {formal:"dvadeset sati",colloquial:"osam navečer",en:"8:00 PM"},
+    {formal:"pola osam",colloquial:"sedam i trideset",en:"7:30 (lit. half-eight)",note:"'Pola osam' = half past seven (30 min before 8), NOT 8:30!"},
+    {formal:"četvrt do deset",colloquial:"devet i četrdeset pet",en:"9:45"},
+    {formal:"petnaest do pet",colloquial:"četiri i četrdeset pet",en:"4:45"},
+  ]
+};
+export const NUMCOUNT = {
+  title: "Broj + imenica — Number + Noun Agreement",
+  intro: "Croatian nouns change form depending on the number. 1 takes nominative singular; 2–4 take genitive singular; 5 and above take genitive plural. The numeral dva/dvije agrees with the gender of the noun.",
+  rule: [
+    {num:"1",form:"Nominative sg.",rule:"jedan/jedna/jedno + NOM SG",examples:["jedan brat (one brother)","jedna sestra (one sister)","jedno dijete (one child)"]},
+    {num:"2–4",form:"Genitive sg.",rule:"dva/dvije/tri/četiri + GEN SG",examples:["dva brata (two brothers)","dvije sestre (two sisters)","tri prijatelja (three friends)","četiri dana (four days)"]},
+    {num:"5+",form:"Genitive pl.",rule:"pet+ + GEN PL",examples:["pet braće (five brothers)","šest sestara (six sisters)","deset dana (ten days)","tisuća ljudi (a thousand people)"]},
+  ],
+  genderNote: "'Dva' is used with masculine and neuter nouns; 'dvije' with feminine nouns. Errors here are very common for English speakers.",
+  quiz: [
+    {q:"___ prijatelja (2 friends)?",a:"Dva prijatelja",al:["Dva prijatelji","Dvije prijatelja","Pet prijatelja"]},
+    {q:"___ sestre (3 sisters)?",a:"Tri sestre",al:["Tri sestara","Tri sestra","Dvije sestre"]},
+    {q:"___ dana (5 days)?",a:"Pet dana",al:["Pet dan","Pet dani","Pet danu"]},
+    {q:"___ jabuka (1 apple — feminine)?",a:"Jedna jabuka",al:["Jedan jabuka","Jedna jabuke","Jedna jabuku"]},
+    {q:"___ kave (2 coffees — feminine)?",a:"Dvije kave",al:["Dva kave","Dvije kavas","Dva kavama"]},
+    {q:"___ automobila (4 cars — masc.)?",a:"Četiri automobila",al:["Četiri automobili","Četiri automobile","Pet automobila"]},
+    {q:"'Imam deset ___ (euro — gen. pl.)' =?",a:"eura",al:["euro","euros","eure"]},
+    {q:"Which is correct: '2 years'?",a:"dvije godine",al:["dva godine","dvije godina","dva godini"]},
+  ]
+};
+export const FALSEFR = [
+  {hr:"pasta",looks:"pasta (food)",means:"toothpaste",real:"tjestenina = pasta (food)",ex:"Trebam novu pastu za zube. (I need new toothpaste.)"},
+  {hr:"simpati\u010dan",looks:"sympathetic",means:"nice, pleasant, likeable",real:"su\u0107utan = sympathetic",ex:"On je jako simpati\u010dan. (He is very nice.)"},
+  {hr:"kontrolirati",looks:"to control",means:"to check, inspect",real:"upravljati = to control",ex:"Moram kontrolirati zadatak. (I need to check the assignment.)"},
+  {hr:"eventualno",looks:"eventually",means:"possibly, maybe",real:"na kraju = eventually",ex:"Eventualno \u0107u do\u0107i. (I might come.)"},
+  {hr:"magazin",looks:"magazine",means:"warehouse, storage",real:"\u010dasopis = magazine",ex:"Roba je u magazinu. (The goods are in the warehouse.)"},
+  {hr:"prezervativ",looks:"preservative",means:"condom",real:"konzervans = preservative",ex:"Be careful with this one!"},
+  {hr:"direktor",looks:"director (film)",means:"manager, CEO",real:"redatelj = film director",ex:"Direktor tvrtke je u uredu. (The company manager is in the office.)"},
+  {hr:"re\u010denica",looks:"recipe",means:"sentence",real:"recept = recipe",ex:"Napi\u0161i re\u010denicu. (Write a sentence.)"},
+  {hr:"akademik",looks:"academic (professor)",means:"member of Academy of Sciences",real:"sveu\u010dili\u0161ni profesor = academic",ex:"On je akademik. (He is an academy member.)"},
+  {hr:"aktualan",looks:"actual",means:"current, up-to-date",real:"stvaran = actual",ex:"To je aktualna tema. (That is a current topic.)"},
+  {hr:"konkretno",looks:"concretely (material)",means:"specifically",real:"betonski = concrete (material)",ex:"Konkretno, \u0161to misli\u0161? (Specifically, what do you think?)"},
+  {hr:"prospekt",looks:"prospect",means:"brochure, leaflet",real:"mogu\u0107nost = prospect",ex:"Uzmi prospekt hotela. (Take the hotel brochure.)"},
+  {hr:"\u0161ef",looks:"chef (cook)",means:"boss",real:"kuhar = chef/cook",ex:"\u0160ef je u uredu. (The boss is in the office.)"},
+  {hr:"marmelada",looks:"marmalade (citrus)",means:"any jam",real:"specifics don\u0027t matter \u2014 all jam is marmelada",ex:"Volim marmeladu od jagoda. (I like strawberry jam.)"},
+  {hr:"mobitel",looks:"mobile (moving)",means:"mobile phone",real:"pokretno = mobile (adjective)",ex:"Gdje je moj mobitel? (Where is my phone?)"},
+  {hr:"brat",looks:"brat (spoiled child)",means:"brother",real:"razmaženo dijete = brat",ex:"Moj brat ima pet godina. (My brother is five.)"},
+  {hr:"tip",looks:"tip (gratuity)",means:"type, kind",real:"napojnica = tip (money)",ex:"Koji je tip problema? (What type of problem?)"},
+  {hr:"roba",looks:"robe (gown)",means:"goods, merchandise",real:"ogrtač / haljina = robe",ex:"Gdje je roba? (Where are the goods?)"},
+  {hr:"list",looks:"list (enumeration)",means:"leaf; letter (old style)",real:"popis = list (enumeration)",ex:"Jesen — listovi padaju. (Autumn — leaves fall.)"},
+  {hr:"novosti",looks:"novelties",means:"news",real:"noviteti = novelties",ex:"Kakve ima novosti? (Any news?)"}
+];
+export const VOCATIVE = {
+  title: "Vokativ — Direct Address",
+  intro: "Croatian has a vocative case for direct address. English speakers often avoid it by using the nominative, but native speakers always use the vocative when calling someone's name or title. It's one of the most noticeable errors.",
+  rules: [
+    {pattern:"Feminine nouns ending in -a",transform:"-a → -o",examples:[["Marija","Marijo"],["mama","mamo"],["sestra","sestro"],["prijateljica","prijateljice"],["Ivana","Ivano"]]},
+    {pattern:"Masculine nouns ending in consonant",transform:"+ -e",examples:[["drug","druže"],["profesor","profesore"],["brat","brate"],["sin","sine"],["student","studente"]]},
+    {pattern:"Masculine nouns ending in -telj / -alj",transform:"+ -u",examples:[["prijatelj","prijatelju"],["atelj","atelju"],["učitelj","učitelju"]]},
+    {pattern:"Masculine nouns ending in -ar",transform:"+ -u or -e",examples:[["doktor","doktore"],["konobar","konobaru"],["pekar","pekaru"]]},
+    {pattern:"Neuter nouns",transform:"no change",examples:[["dijete","dijete"],["more","more"]]},
+    {pattern:"Irregular / titles",transform:"memorize",examples:[["gospodin","gospodine"],["gospođa","gospođo"],["Bog","Bože"],["tata","tata (same)"]]}
+  ],
+  quiz: [
+    {q:"Calling your friend Marija — what form?",a:"Marijo!",al:["Marija!","Marijam!","Marijeu!"]},
+    {q:"'Hey brother!' in Croatian =",a:"Brate!",al:["Brat!","Bratu!","Bratom!"]},
+    {q:"Addressing your teacher (učitelj) =",a:"Učitelju!",al:["Učitelje!","Učitelj!","Učiteljem!"]},
+    {q:"'Doctor!' (doktor) =",a:"Doktore!",al:["Doktor!","Doktoru!","Doktora!"]},
+    {q:"Calling your mum (mama) =",a:"Mamo!",al:["Mama!","Mami!","Mamu!"]},
+    {q:"'Sir!' (gospodin) =",a:"Gospodine!",al:["Gospodin!","Gospodinu!","Gospodina!"]},
+    {q:"Calling your friend (prijatelj) =",a:"Prijatelju!",al:["Prijatelj!","Prijatelje!","Prijateljem!"]},
+    {q:"'Son!' (sin) =",a:"Sine!",al:["Sin!","Sinu!","Sina!"]},
+    {q:"'Sister!' (sestra) =",a:"Sestro!",al:["Sestra!","Sestri!","Sestrom!"]},
+    {q:"When is vocative = nominative?",a:"Neuter nouns (dijete, more)",al:["Always masculine","All plurals","Feminine -ica nouns"]}
+  ],
+  dialogues: [
+    {ctx:"Calling a friend",wrong:"Petar, dođi!",correct:"Petre, dođi!",note:"Masculine consonant-stem: Petar→Petre"},
+    {ctx:"Addressing a waiter",wrong:"Konobar, molim!",correct:"Konobaru, molim!",note:"Masculine -ar: konobar→konobaru"},
+    {ctx:"Calling mum",wrong:"Mama, gdje si?",correct:"Mamo, gdje si?",note:"Feminine -a: mama→mamo"},
+    {ctx:"Saying 'Oh God!'",wrong:"Bog moj!",correct:"Bože moj!",note:"Irregular: Bog→Bože"},
+  ]
+};
+export const PREPDRILL = [
+  {sentence:"Živim ___ Zagrebu.",answer:"u",opts:["u","na","s","iz"],en:"I live in Zagreb."},
+  {sentence:"Idem ___ posao.",answer:"na",opts:["na","u","za","iz"],en:"I go to work."},
+  {sentence:"Dolazim ___ Hrvatske.",answer:"iz",opts:["iz","od","u","na"],en:"I come from Croatia."},
+  {sentence:"Kava ___ mlijeka.",answer:"bez",opts:["bez","od","sa","iz"],en:"Coffee without milk."},
+  {sentence:"Idem ___ mamom.",answer:"s",opts:["s","na","u","od"],en:"I go with mom."},
+  {sentence:"Knjiga je ___ stolu.",answer:"na",opts:["na","u","po","za"],en:"The book is on the table."},
+  {sentence:"Auto je ___ kuće.",answer:"ispred",opts:["ispred","iznad","ispod","iza"],en:"The car is in front of the house."},
+  {sentence:"Pričam ___ filmu.",answer:"o",opts:["o","u","na","za"],en:"I\u0027m talking about the movie."},
+  {sentence:"Idem ___ liječnika.",answer:"kod",opts:["kod","u","na","za"],en:"I\u0027m going to the doctor."},
+  {sentence:"Mačka je ___ stola.",answer:"ispod",opts:["ispod","na","u","iza"],en:"The cat is under the table."},
+  {sentence:"Radim ___ fakultetu.",answer:"na",opts:["na","u","za","po"],en:"I work at the university."},
+  {sentence:"Šetam ___ parku.",answer:"po",opts:["po","u","na","iz"],en:"I\u0027m walking around the park."},
+  {sentence:"Idem ___ plažu.",answer:"na",opts:["na","u","po","za"],en:"I\u0027m going to the beach."},
+  {sentence:"Ograde ___ kuće.",answer:"oko",opts:["oko","od","u","na"],en:"Fences around the house."},
+  {sentence:"Pao je ___ kreveta.",answer:"s",opts:["s","iz","od","na"],en:"He fell off the bed."}
+];
+export const DECL = {
+  nouns:[
+    {nom:"žena",en:"woman",g:"f",cases:["žena","žene","ženi","ženu","ženo","ženi","ženom"]},
+    {nom:"muškarac",en:"man",g:"m",cases:["muškarac","muškarca","muškarcu","muškarca","muškarče","muškarcu","muškarcem"]},
+    {nom:"dijete",en:"child",g:"n",cases:["dijete","djeteta","djetetu","dijete","dijete","djetetu","djetetom"]},
+    {nom:"kuća",en:"house",g:"f",cases:["kuća","kuće","kući","kuću","kućo","kući","kućom"]},
+    {nom:"grad",en:"city",g:"m",cases:["grad","grada","gradu","grad","grade","gradu","gradom"]},
+    {nom:"more",en:"sea",g:"n",cases:["more","mora","moru","more","more","moru","morem"]},
+    {nom:"knjiga",en:"book",g:"f",cases:["knjiga","knjige","knjizi","knjigu","knjigo","knjizi","knjigom"]},
+    {nom:"prijatelj",en:"friend",g:"m",cases:["prijatelj","prijatelja","prijatelju","prijatelja","prijatelju","prijatelju","prijateljem"]}
+  ],
+  caseNames:["Nominativ","Genitiv","Dativ","Akuzativ","Vokativ","Lokativ","Instrumental"],
+  caseQs:["Tko? Što?","Koga? Čega?","Komu? Čemu?","Koga? Što?","Hej!","Gdje? O čemu?","S kim? Čime?"]
+};
+export const BRZALICE = [
+  {hr:"Na vrh brda vrba mrda.",en:"On the hilltop a willow sways.",focus:"r consonant clusters"},
+  {hr:"Četiri čavčića na čunčiću čučeći ciujuču.",en:"Four little jackdaws sitting on a little boat chirp.",focus:"č/ć sounds"},
+  {hr:"Riba ribi grize rep.",en:"Fish bites fish\u0027s tail.",focus:"r rolling"},
+  {hr:"Petar Petru plete petlju.",en:"Petar weaves a loop for Petar.",focus:"p/t clusters"},
+  {hr:"Svaka ptica svome jatu leti.",en:"Every bird flies to its own flock.",focus:"s/v flow"},
+  {hr:"Tri trice trista trideset i tri.",en:"Three times three hundred thirty-three.",focus:"tr clusters"},
+  {hr:"Griže griže griz grize.",en:"Bite bite, a bite bites.",focus:"ž/z sounds"},
+  {hr:"Šešir mi se sašio za šest šestina.",en:"My hat was sewn for six sixths.",focus:"š sound"},
+  {hr:"Jure juri, juri Jure.",en:"Jure rushes, rushes Jure.",focus:"j/u rhythm"},
+  {hr:"Čvrstčić čvrst cvrče cvrk.",en:"A strong little cricket chirps chirp.",focus:"consonant clusters"}
+];
+export const DIMWORDS = [
+  {base:"kuća",dim:"kućica",en:"house → little house",rule:"-ica"},
+  {base:"pas",dim:"psić",en:"dog → little dog/puppy",rule:"-ić"},
+  {base:"mačka",dim:"mačkica",en:"cat → little cat/kitten",rule:"-ica"},
+  {base:"brat",dim:"bratić",en:"brother → little brother",rule:"-ić"},
+  {base:"sestra",dim:"sestrica",en:"sister → little sister",rule:"-ica"},
+  {base:"mama",dim:"mamica",en:"mom → mommy",rule:"-ica"},
+  {base:"tata",dim:"tatica",en:"dad → daddy",rule:"-ica"},
+  {base:"sunce",dim:"suncašce",en:"sun → little sun",rule:"-ašce"},
+  {base:"cvijet",dim:"cvjetić",en:"flower → little flower",rule:"-ić"},
+  {base:"ruka",dim:"ručica",en:"hand → little hand",rule:"-čica"},
+  {base:"noga",dim:"nožica",en:"leg → little leg",rule:"-žica"},
+  {base:"zvijezda",dim:"zvjezdica",en:"star → little star",rule:"-ica"},
+  {base:"ptica",dim:"ptičica",en:"bird → little bird",rule:"-čica"},
+  {base:"srce",dim:"srcašce",en:"heart → little heart",rule:"-ašce"},
+  {base:"knjiga",dim:"knjižica",en:"book → booklet",rule:"-žica"}
+];
+export const WORDFORM = {
+  base:"ići (to go)",
+  prefixes:[
+    {prefix:"do-",verb:"doći",en:"to come (to arrive at)",ex:"Došao sam kući."},
+    {prefix:"iza-",verb:"izaći",en:"to go out / exit",ex:"Izašao je van."},
+    {prefix:"u-",verb:"ući",en:"to enter",ex:"Ušla je u sobu."},
+    {prefix:"oti-",verb:"otići",en:"to leave / go away",ex:"Otišao je na posao."},
+    {prefix:"pro-",verb:"proći",en:"to pass by",ex:"Prošao je pored mene."},
+    {prefix:"na-",verb:"naći",en:"to find",ex:"Našao sam ključeve."},
+    {prefix:"pri-",verb:"prići",en:"to approach",ex:"Prišla mi je."},
+    {prefix:"pre-",verb:"prijeći",en:"to cross over",ex:"Prešao je cestu."},
+    {prefix:"za-",verb:"zaći",en:"to go behind / set (sun)",ex:"Sunce je zašlo."},
+    {prefix:"ob-",verb:"obići",en:"to go around / visit",ex:"Obišli smo grad."},
+    {prefix:"si-",verb:"sići",en:"to go down / descend",ex:"Sišao sam niz stepenice."},
+    {prefix:"po-",verb:"poći",en:"to set off / start going",ex:"Pošli smo rano."}
+  ],
+  otherBases:[
+    {base:"pisati (write)",pairs:[["napisati","finish writing"],["prepisati","copy/rewrite"],["ispisati","write out"],["dopisati","add in writing"],["potpisati","sign"],["upisati","enroll/register"]]},
+    {base:"raditi (work)",pairs:[["napraviti","make/create"],["preraditi","rework"],["izraditi","produce"],["obraditi","process"],["poraditi","work on"],["zaraditi","earn"]]}
+  ]
+};
+export const COLORQUIRK = [
+  {hr:"crno vino",en:"red wine",lit:"black wine",note:"Croatians see dark wine as black, not red"},
+  {hr:"plava kosa",en:"blonde hair",lit:"blue hair",note:"Plav originally meant light/fair, which became blonde"},
+  {hr:"crni humor",en:"dark humor",lit:"black humor",note:"Same as English here"},
+  {hr:"zelena salata",en:"lettuce",lit:"green salad",note:"The vegetable itself, not a mixed salad"},
+  {hr:"bijeli luk",en:"garlic",lit:"white onion/garlic",note:"Distinguished from regular luk (onion)"},
+  {hr:"plavi čovjek",en:"a shy/timid person",lit:"blue person",note:"Describing someone who blushes easily"},
+  {hr:"crna kronika",en:"crime news",lit:"black chronicle",note:"The crime/accident section of newspapers"},
+  {hr:"zlatna ribica",en:"goldfish",lit:"golden little fish",note:"Uses diminutive ribica"}
+];
+export const RIDDLES = [
+  {clue:"Imam četiri noge, ali ne mogu hodati. Ljudi sjede na meni.",answer:"stolica",en:"chair",opts:["stolica","stol","krevet","pod"]},
+  {clue:"Zimi sam bijel, ali u proljeće se topim. Djeca me vole praviti.",answer:"snjegović",en:"snowman",opts:["snjegović","oblak","led","snijeg"]},
+  {clue:"Imam krila ali nisam ptica. Letim noću i spavam danju.",answer:"šišmiš",en:"bat",opts:["šišmiš","sova","leptir","orao"]},
+  {clue:"Svako jutro izlazim, a navečer se sakrijem. Dajem svijetlo i toplinu.",answer:"sunce",en:"sun",opts:["sunce","mjesec","zvijezda","lampa"]},
+  {clue:"Živim u vodi. Imam peraje ali nemam noge. Ljudi me love.",answer:"riba",en:"fish",opts:["riba","žaba","patka","rak"]},
+  {clue:"Imam tisuću listova ali nisam drvo. Ljudi me čitaju.",answer:"knjiga",en:"book",opts:["knjiga","novine","cvijet","kalendar"]},
+  {clue:"Nosim tešku kuću na leđima. Jako sam spor.",answer:"puž",en:"snail",opts:["puž","kornjača","jež","rak"]},
+  {clue:"Glasno zvonim ujutro. Budim ljude koji spavaju.",answer:"budilica",en:"alarm clock",opts:["budilica","telefon","zvono","radio"]},
+  {clue:"Imam ključ ali ne otključavam vrata. Ljudi me sviraju.",answer:"klavir",en:"piano",opts:["klavir","gitara","violina","flauta"]},
+  {clue:"Živim u šumi. Volim med. Zimi jako dugo spavam.",answer:"medvjed",en:"bear",opts:["medvjed","vuk","lisica","jež"]},
+  {clue:"Živim u vodi i na kopnu. Zelena sam i glasno pjevam navečer.",answer:"žaba",en:"frog",opts:["žaba","kornjača","gušter","zmija"]},
+  {clue:"Imam rep i četiri noge. Lajam kad netko dođe na vrata.",answer:"pas",en:"dog",opts:["pas","mačka","vuk","lisica"]}
+];
+export const LOGICQUIZ = [
+  {q:"Na plaži trebaš:",right:["ručnik","kupaći"],wrong:["jaknu","čizme"]},
+  {q:"Za doručak pijem:",right:["kavu","sok"],wrong:["juhu","vino"]},
+  {q:"Zimi nosim:",right:["kaput","rukavice"],wrong:["kupaći","sandale"]},
+  {q:"U školu nosim:",right:["ruksak","olovku"],wrong:["lonac","jastuk"]},
+  {q:"Kad pada kiša uzimam:",right:["kišobran","čizme"],wrong:["sunčane naočale","kupaći"]},
+  {q:"U kuhinji koristim:",right:["lonac","nož"],wrong:["jastuk","ručnik"]},
+  {q:"Na nogometu trebaš:",right:["loptu","tenisice"],wrong:["kravatu","kišobran"]},
+  {q:"Kad sam bolestan idem:",right:["liječniku"],wrong:["u kino","na plažu","u restoran"]},
+  {q:"Za Božić ukrašavamo:",right:["bor","kuću"],wrong:["auto","ruksak"]},
+  {q:"Ujutro najprije:",right:["perem zube","oblačim se"],wrong:["idem spavati","gledam TV"]},
+  {q:"U supermarketu kupujem:",right:["kruh","mlijeko"],wrong:["krevet","prozor"]},
+  {q:"Kad je vruće želim:",right:["sladoled","plivati"],wrong:["kaput","čaj"]}
+];
+export const ORDINALS = [
+  {num:1,hr:"prvi",en:"first",loc:"prvom"},{num:2,hr:"drugi",en:"second",loc:"drugom"},{num:3,hr:"treći",en:"third",loc:"trećem"},{num:4,hr:"četvrti",en:"fourth",loc:"četvrtom"},{num:5,hr:"peti",en:"fifth",loc:"petom"},{num:6,hr:"šesti",en:"sixth",loc:"šestom"},{num:7,hr:"sedmi",en:"seventh",loc:"sedmom"},{num:8,hr:"osmi",en:"eighth",loc:"osmom"},{num:9,hr:"deveti",en:"ninth",loc:"devetom"},{num:10,hr:"deseti",en:"tenth",loc:"desetom"},{num:11,hr:"jedanaesti",en:"eleventh",loc:"jedanaestom"},{num:12,hr:"dvanaesti",en:"twelfth",loc:"dvanaestom"},{num:13,hr:"trinaesti",en:"thirteenth",loc:"trinaestom"},{num:14,hr:"četrnaesti",en:"fourteenth",loc:"četrnaestom"},{num:15,hr:"petnaesti",en:"fifteenth",loc:"petnaestom"}
+];
+export const ORDQUIZ = [
+  {q:"Marko živi na _____ katu. (1st)",a:"prvom",opts:["prvom","prvi","prvog"]},
+  {q:"Goran živi na _____ katu. (14th)",a:"četrnaestom",opts:["četrnaestom","četrnaesti","četrnaestog"]},
+  {q:"Tamara živi na _____ katu. (9th)",a:"devetom",opts:["devetom","deveti","devetog"]},
+  {q:"Petar živi na _____ katu. (15th)",a:"petnaestom",opts:["petnaestom","petnaesti","petnaestog"]},
+  {q:"Obitelj Horvat živi na _____ katu. (2nd)",a:"drugom",opts:["drugom","drugi","drugog"]},
+  {q:"Domagoj živi na _____ katu. (5th)",a:"petom",opts:["petom","peti","petog"]},
+  {q:"Krešimir živi na _____ katu. (6th)",a:"šestom",opts:["šestom","šesti","šestog"]},
+  {q:"Tomislav živi na _____ katu. (11th)",a:"jedanaestom",opts:["jedanaestom","jedanaesti","jedanaestog"]}
+];
+export const RELPRON = {
+  intro:"koji (m), koja (f), koje (n) = which/that/who. Changes by case and gender.",
+  table:{m:{nom:"koji",gen:"kojeg",dat:"kojem",aku:"koji/kojeg",lok:"kojem"},f:{nom:"koja",gen:"koje",dat:"kojoj",aku:"koju",lok:"kojoj"},n:{nom:"koje",gen:"kojeg",dat:"kojem",aku:"koje",lok:"kojem"}},
+  quiz:[
+    {q:"Ovo je auto _____ je parkiran u garaži. (m, NOM)",a:"koji",opts:["koji","kojeg","kojem"]},
+    {q:"Ovo je pas _____ želim kupiti. (m, AKU animate)",a:"kojeg",opts:["koji","kojeg","kojem"]},
+    {q:"To je ruksak bez _____ ne idem u školu. (m, GEN)",a:"kojeg",opts:["koji","kojeg","kojem"]},
+    {q:"To je crtić o _____ pričam. (m, LOK)",a:"kojem",opts:["koji","kojeg","kojem"]},
+    {q:"Ovo je kuća _____ je velika. (f, NOM)",a:"koja",opts:["koja","koje","koju"]},
+    {q:"To je knjiga _____ čitam. (f, AKU)",a:"koju",opts:["koja","koju","kojoj"]},
+    {q:"To je škola o _____ pričam. (f, LOK)",a:"kojoj",opts:["koja","koju","kojoj"]},
+    {q:"Ovo je dijete _____ plače. (n, NOM)",a:"koje",opts:["koji","koja","koje"]},
+    {q:"Ovo je selo _____ je lijepo. (n, NOM)",a:"koje",opts:["koji","koja","koje"]},
+    {q:"To je more o _____ sanjam. (n, LOK)",a:"kojem",opts:["koji","kojoj","kojem"]}
+  ]
+};
+export const EMOGENDER = [
+  {subj:"Ja sam danas...",gender:"m",pairs:[{m:"sretan",f:"sretna"},{m:"tužan",f:"tužna"},{m:"ljut",f:"ljuta"},{m:"veseo",f:"vesela"},{m:"zabrinut",f:"zabrinuta"},{m:"uplašen",f:"uplašena"},{m:"umoran",f:"umorna"}]},
+  {subj:"Mama je danas...",gender:"f",pairs:[{m:"sretan",f:"sretna"},{m:"tužan",f:"tužna"},{m:"ljut",f:"ljuta"},{m:"veseo",f:"vesela"},{m:"zabrinut",f:"zabrinuta"},{m:"uplašen",f:"uplašena"},{m:"umoran",f:"umorna"}]},
+  {subj:"Tata je danas...",gender:"m",pairs:[{m:"sretan",f:"sretna"},{m:"tužan",f:"tužna"},{m:"ljut",f:"ljuta"},{m:"veseo",f:"vesela"},{m:"zabrinut",f:"zabrinuta"},{m:"uplašen",f:"uplašena"},{m:"umoran",f:"umorna"}]}
+];
+export const QWORDS = [
+  {q:"_____ si ti?",en:"Who are you?",a:"Tko",opts:["Tko","Što","Gdje"]},
+  {q:"_____ radiš sada?",en:"What are you doing?",a:"Što",opts:["Tko","Što","Kad"]},
+  {q:"_____ živiš?",en:"Where do you live?",a:"Gdje",opts:["Gdje","Kad","Kako"]},
+  {q:"_____ učiš hrvatski?",en:"When do you study Croatian?",a:"Kad",opts:["Kad","Kako","Gdje"]},
+  {q:"_____ imaš godina?",en:"How old are you?",a:"Koliko",opts:["Koliko","Kako","Koji"]},
+  {q:"_____ si danas?",en:"How are you today?",a:"Kako",opts:["Kako","Kad","Tko"]},
+  {q:"_____ učiš hrvatski?",en:"Why do you study Croatian?",a:"Zašto",opts:["Zašto","Kako","Kad"]},
+  {q:"_____ je ovo?",en:"Whose is this?",a:"Čiji",opts:["Čiji","Koji","Kakav"]},
+  {q:"_____ je pas?",en:"What kind of dog? (m)",a:"Kakav",opts:["Kakav","Kakva","Kakvo"]},
+  {q:"_____ je kuća?",en:"What kind of house? (f)",a:"Kakva",opts:["Kakav","Kakva","Kakvo"]},
+  {q:"_____ je selo?",en:"What kind of village? (n)",a:"Kakvo",opts:["Kakav","Kakva","Kakvo"]},
+  {q:"_____ ideš?",en:"Where are you going?",a:"Kamo",opts:["Kamo","Gdje","Odakle"]}
+];
+export const NEGATION = [
+  {pos:"Kuham ručak.",neg:"Ne kuham ručak.",en:"I cook lunch. / I don't cook lunch."},
+  {pos:"Idem u park.",neg:"Ne idem u park.",en:"I go to the park. / I don't go to the park."},
+  {pos:"Pijem čaj.",neg:"Ne pijem čaj.",en:"I drink tea. / I don't drink tea."},
+  {pos:"Učim hrvatski.",neg:"Ne učim hrvatski.",en:"I study Croatian. / I don't study Croatian."},
+  {pos:"Vozim bicikl.",neg:"Ne vozim bicikl.",en:"I ride a bike. / I don't ride a bike."},
+  {pos:"Pišem zadaću.",neg:"Ne pišem zadaću.",en:"I write homework. / I don't write homework."},
+  {pos:"Gledam TV.",neg:"Ne gledam TV.",en:"I watch TV. / I don't watch TV."},
+  {pos:"Idem u grad.",neg:"Ne idem u grad.",en:"I go to town. / I don't go to town."},
+  {pos:"Mama radi.",neg:"Mama ne radi.",en:"Mom works. / Mom doesn't work."},
+  {pos:"Tata vozi.",neg:"Tata ne vozi.",en:"Dad drives. / Dad doesn't drive."},
+  {pos:"Sestra spava.",neg:"Sestra ne spava.",en:"Sister sleeps. / Sister doesn't sleep."},
+  {pos:"Mama posprema stan.",neg:"Mama ne posprema stan.",en:"Mom tidies the apartment. / Mom doesn't tidy."},
+  {pos:"Igram nogomet.",neg:"Ne igram nogomet.",en:"I play football. / I don't play football."},
+  {pos:"Imam psa.",neg:"Nemam psa.",en:"I have a dog. / I don't have a dog."},
+  {pos:"Imam auto.",neg:"Nemam auto.",en:"I have a car. / I don't have a car."}
+];
+export const COLORAGREE = {
+  colors:[
+    {m:"crven",f:"crvena",n:"crveno",mpl:"crveni",fpl:"crvene",npl:"crvena",en:"red"},
+    {m:"žut",f:"žuta",n:"žuto",mpl:"žuti",fpl:"žute",npl:"žuta",en:"yellow"},
+    {m:"plav",f:"plava",n:"plavo",mpl:"plavi",fpl:"plave",npl:"plava",en:"blue"},
+    {m:"zelen",f:"zelena",n:"zeleno",mpl:"zeleni",fpl:"zelene",npl:"zelena",en:"green"},
+    {m:"crn",f:"crna",n:"crno",mpl:"crni",fpl:"crne",npl:"crna",en:"black"},
+    {m:"bijel",f:"bijela",n:"bijelo",mpl:"bijeli",fpl:"bijele",npl:"bijela",en:"white"},
+    {m:"smeđ",f:"smeđa",n:"smeđe",mpl:"smeđi",fpl:"smeđe",npl:"smeđa",en:"brown"},
+    {m:"siv",f:"siva",n:"sivo",mpl:"sivi",fpl:"sive",npl:"siva",en:"grey"},
+    {m:"narančast",f:"narančasta",n:"narančasto",mpl:"narančasti",fpl:"narančaste",npl:"narančasta",en:"orange"},
+    {m:"ljubičast",f:"ljubičasta",n:"ljubičasto",mpl:"ljubičasti",fpl:"ljubičaste",npl:"ljubičasta",en:"purple"},
+    {m:"roz",f:"roza",n:"rozo",mpl:"rozi",fpl:"roze",npl:"roza",en:"pink"}
+  ],
+  singQuiz:[
+    {noun:"Knjiga",g:"f",en:"book",color:"crvena",opts:["crven","crvena","crveno"]},
+    {noun:"Sunce",g:"n",en:"sun",color:"žuto",opts:["žut","žuta","žuto"]},
+    {noun:"Grad",g:"m",en:"city",color:"siv",opts:["siv","siva","sivo"]},
+    {noun:"Žaba",g:"f",en:"frog",color:"zelena",opts:["zelen","zelena","zeleno"]},
+    {noun:"More",g:"n",en:"sea",color:"plavo",opts:["plav","plava","plavo"]},
+    {noun:"Sat",g:"m",en:"clock",color:"crn",opts:["crn","crna","crno"]},
+    {noun:"Mačka",g:"f",en:"cat",color:"smeđa",opts:["smeđ","smeđa","smeđe"]},
+    {noun:"Računalo",g:"n",en:"computer",color:"bijelo",opts:["bijel","bijela","bijelo"]},
+    {noun:"Cvijet",g:"m",en:"flower",color:"žut",opts:["žut","žuta","žuto"]},
+    {noun:"Ruža",g:"f",en:"rose",color:"crvena",opts:["crven","crvena","crveno"]}
+  ],
+  plurQuiz:[
+    {noun:"Knjige",g:"f",en:"books",color:"crvene",opts:["crveni","crvene","crvena"]},
+    {noun:"Sunca",g:"n",en:"suns",color:"žuta",opts:["žuti","žute","žuta"]},
+    {noun:"Gradovi",g:"m",en:"cities",color:"sivi",opts:["sivi","sive","siva"]},
+    {noun:"Žabe",g:"f",en:"frogs",color:"zelene",opts:["zeleni","zelene","zelena"]},
+    {noun:"Računala",g:"n",en:"computers",color:"bijela",opts:["bijeli","bijele","bijela"]},
+    {noun:"Satovi",g:"m",en:"clocks",color:"crni",opts:["crni","crne","crna"]},
+    {noun:"Mačke",g:"f",en:"cats",color:"smeđe",opts:["smeđi","smeđe","smeđa"]},
+    {noun:"Cvjetovi",g:"m",en:"flowers",color:"žuti",opts:["žuti","žute","žuta"]}
+  ]
+};
+export const SIBIL = {
+  intro:"Before -i in locative plural, k→c, g→z, h→s. This is called sibilarizacija.",
+  examples:[
+    {nom:"slika",lok:"na slici",rule:"k→c"},{nom:"noga",lok:"na nozi",rule:"g→z"},{nom:"majka",lok:"prema majci",rule:"k→c"},{nom:"bajka",lok:"u bajci",rule:"k→c"},{nom:"Rijeka",lok:"u Rijeci",rule:"k→c"},{nom:"knjiga",lok:"u knjizi",rule:"g→z"},{nom:"ruka",lok:"na ruci",rule:"k→c"},{nom:"juha",lok:"u juhi",rule:"h stays"}
+  ],
+  quiz:[
+    {q:"Pričam o _____. (slika)",a:"slici",opts:["slici","sliki","slikai"]},
+    {q:"Flaster je na _____. (noga)",a:"nozi",opts:["nozi","nogi","nogai"]},
+    {q:"Kuća je na _____. (slika)",a:"slici",opts:["slici","sliki","slikai"]},
+    {q:"Idem prema _____. (majka)",a:"majci",opts:["majci","majki","majkai"]},
+    {q:"To je kao u _____. (bajka)",a:"bajci",opts:["bajci","bajki","bajkai"]},
+    {q:"On živi u _____. (Rijeka)",a:"Rijeci",opts:["Rijeci","Rijeki","Rijeku"]},
+    {q:"Pričam o _____. (knjiga)",a:"knjizi",opts:["knjizi","knjigi","knjigai"]},
+    {q:"Prsten je na _____. (ruka)",a:"ruci",opts:["ruci","ruki","rukai"]}
+  ]
+};
+export const PROFGENDER = [
+  {m:"učitelj",f:"učiteljica",en:"teacher"},{m:"policajac",f:"policajka",en:"police officer"},{m:"medicinski brat",f:"medicinska sestra",en:"nurse"},{m:"poštar",f:"poštarka",en:"postman"},{m:"prodavač",f:"prodavačica",en:"salesperson"},{m:"odvjetnik",f:"odvjetnica",en:"lawyer"},{m:"novinar",f:"novinarka",en:"journalist"},{m:"frizer",f:"frizerka",en:"hairdresser"},{m:"kuhar",f:"kuharica",en:"cook"},{m:"konobar",f:"konobarica",en:"waiter"},{m:"liječnik",f:"liječnica",en:"doctor"},{m:"vozač",f:"vozačica",en:"driver"},{m:"pilot",f:"pilotkinja",en:"pilot"},{m:"glumac",f:"glumica",en:"actor"},{m:"sportaš",f:"sportašica",en:"athlete"}
+];
+export const COMPARE = [
+  {base:"lijep",comp:"ljepši",super:"najljepši",en:"beautiful"},
+  {base:"velik",comp:"veći",super:"najveći",en:"big"},
+  {base:"malen",comp:"manji",super:"najmanji",en:"small"},
+  {base:"dobar",comp:"bolji",super:"najbolji",en:"good"},
+  {base:"loš",comp:"gori",super:"najgori",en:"bad"},
+  {base:"brz",comp:"brži",super:"najbrži",en:"fast"},
+  {base:"spor",comp:"sporiji",super:"najsporiji",en:"slow"},
+  {base:"mlad",comp:"mlađi",super:"najmlađi",en:"young"},
+  {base:"star",comp:"stariji",super:"najstariji",en:"old"},
+  {base:"jak",comp:"jači",super:"najjači",en:"strong"},
+  {base:"slab",comp:"slabiji",super:"najslabiji",en:"weak"},
+  {base:"skup",comp:"skuplji",super:"najskuplji",en:"expensive"},
+  {base:"jeftin",comp:"jeftiniji",super:"najjeftiniji",en:"cheap"},
+  {base:"pametan",comp:"pametniji",super:"najpametniji",en:"smart"},
+  {base:"glup",comp:"gluplji",super:"najgluplji",en:"stupid"}
+];
+export const COMPQUIZ = [
+  {q:"Zagreb je _____ od Labina. (big)",a:"veći",opts:["veći","velik","najveći"]},
+  {q:"Sladoled je _____ od juhe. (good)",a:"bolji",opts:["dobar","bolji","najbolji"]},
+  {q:"Puž je _____ od konja. (slow)",a:"sporiji",opts:["spor","sporiji","najsporiji"]},
+  {q:"Baka peče _____ kolače! (best)",a:"najbolje",opts:["dobre","bolje","najbolje"]},
+  {q:"Mačka je _____ od slona. (small)",a:"manja",opts:["mala","manja","najmanja"]},
+  {q:"Konj je _____ od puža. (fast)",a:"brži",opts:["brz","brži","najbrži"]},
+  {q:"Mama je _____ od bake. (young)",a:"mlađa",opts:["mlada","mlađa","najmlađa"]},
+  {q:"Ovo je _____ haljina u trgovini! (most beautiful)",a:"najljepša",opts:["lijepa","ljepša","najljepša"]}
+];
+export const FUTURE = {
+  intro:"Future = short form of htjeti + infinitive. Ja ću, ti ćeš, on/ona će, mi ćemo, vi ćete, oni/one će.",
+  forms:["ću","ćeš","će","ćemo","ćete","će"],
+  quiz:[
+    {q:"Ja _____ učiti hrvatski. (will)",a:"ću",opts:["ću","ćeš","će"]},
+    {q:"Ti _____ ići u školu. (will)",a:"ćeš",opts:["ću","ćeš","će"]},
+    {q:"On _____ kuhati ručak. (will)",a:"će",opts:["ću","ćeš","će"]},
+    {q:"Mi _____ putovati u Hrvatsku. (will)",a:"ćemo",opts:["ćemo","ćete","će"]},
+    {q:"Vi _____ plivati u moru. (will)",a:"ćete",opts:["ćemo","ćete","će"]},
+    {q:"Oni _____ igrati nogomet. (will)",a:"će",opts:["ćemo","ćete","će"]},
+    {q:"Sutra _____ padati kiša. (will)",a:"će",opts:["ću","ćeš","će"]},
+    {q:"Ja _____ pisati zadaću. (will)",a:"ću",opts:["ću","ćeš","će"]},
+    {q:"Mi _____ jesti pizzu. (will)",a:"ćemo",opts:["ćemo","ćete","će"]},
+    {q:"Ti _____ čitati knjigu. (will)",a:"ćeš",opts:["ću","ćeš","će"]}
+  ]
+};
+export const POSSESS = {
+  table:[
+    {person:"ja",m:"moj",f:"moja",n:"moje",en:"my"},
+    {person:"ti",m:"tvoj",f:"tvoja",n:"tvoje",en:"your (sg)"},
+    {person:"on",m:"njegov",f:"njegova",n:"njegovo",en:"his"},
+    {person:"ona",m:"njezin",f:"njezina",n:"njezino",en:"her"},
+    {person:"mi",m:"naš",f:"naša",n:"naše",en:"our"},
+    {person:"vi",m:"vaš",f:"vaša",n:"vaše",en:"your (pl)"},
+    {person:"oni/one",m:"njihov",f:"njihova",n:"njihovo",en:"their"}
+  ],
+  quiz:[
+    {person:"ja",noun:"kuća",g:"f",a:"moja",opts:["moj","moja","moje"]},
+    {person:"ja",noun:"selo",g:"n",a:"moje",opts:["moj","moja","moje"]},
+    {person:"ja",noun:"stan",g:"m",a:"moj",opts:["moj","moja","moje"]},
+    {person:"ti",noun:"sestra",g:"f",a:"tvoja",opts:["tvoj","tvoja","tvoje"]},
+    {person:"ti",noun:"dijete",g:"n",a:"tvoje",opts:["tvoj","tvoja","tvoje"]},
+    {person:"ti",noun:"brat",g:"m",a:"tvoj",opts:["tvoj","tvoja","tvoje"]},
+    {person:"on",noun:"mačka",g:"f",a:"njegova",opts:["njegov","njegova","njegovo"]},
+    {person:"on",noun:"sunce",g:"n",a:"njegovo",opts:["njegov","njegova","njegovo"]},
+    {person:"on",noun:"sin",g:"m",a:"njegov",opts:["njegov","njegova","njegovo"]},
+    {person:"ona",noun:"kava",g:"f",a:"njezina",opts:["njezin","njezina","njezino"]},
+    {person:"ona",noun:"računalo",g:"n",a:"njezino",opts:["njezin","njezina","njezino"]},
+    {person:"ona",noun:"cvijet",g:"m",a:"njezin",opts:["njezin","njezina","njezino"]},
+    {person:"mi",noun:"kuća",g:"f",a:"naša",opts:["naš","naša","naše"]},
+    {person:"mi",noun:"more",g:"n",a:"naše",opts:["naš","naša","naše"]},
+    {person:"vi",noun:"soba",g:"f",a:"vaša",opts:["vaš","vaša","vaše"]},
+    {person:"oni",noun:"baka",g:"f",a:"njihova",opts:["njihov","njihova","njihovo"]},
+    {person:"oni",noun:"selo",g:"n",a:"njihovo",opts:["njihov","njihova","njihovo"]},
+    {person:"oni",noun:"trajekt",g:"m",a:"njihov",opts:["njihov","njihova","njihovo"]}
+  ]
+};
+export const ADJOPPOSITES = [
+  {a:"velik",b:"malen",ex:{a:"Slon je velik.",b:"Miš je malen."}},
+  {a:"brz",b:"spor",ex:{a:"Konj je brz.",b:"Puž je spor."}},
+  {a:"hrabar",b:"plašljiv",ex:{a:"Lav je hrabar.",b:"Zec je plašljiv."}},
+  {a:"opasan",b:"bezopasan",ex:{a:"Lav je opasan.",b:"Zec je bezopasan."}},
+  {a:"vrijedan",b:"lijen",ex:{a:"Pčela je vrijedna.",b:"Mačka je lijena."}},
+  {a:"ozbiljan",b:"neozbiljan",ex:{a:"Sova je ozbiljna.",b:"Majmun je neozbiljan."}},
+  {a:"zanimljiv",b:"dosadan",ex:{a:"Dupin je zanimljiv.",b:"Puž je dosadan."}},
+  {a:"pametan",b:"glup",ex:{a:"Pas je pametan.",b:"Kokoš je glupa."}},
+  {a:"jak",b:"slab",ex:{a:"Medvjed je jak.",b:"Miš je slab."}},
+  {a:"mlad",b:"star",ex:{a:"Tele je mlado.",b:"Kornjača je stara."}}
+];
+export const PRONOUNCASE = {
+  intro:"Croatian pronouns change form depending on the preposition. Learn the patterns!",
+  table:[
+    {nom:"ja",gen:"mene",dat:"meni",aku:"mene",inst:"mnom",lok:"meni"},
+    {nom:"ti",gen:"tebe",dat:"tebi",aku:"tebe",inst:"tobom",lok:"tebi"},
+    {nom:"on",gen:"njega",dat:"njemu",aku:"njega",inst:"njim",lok:"njemu"},
+    {nom:"ona",gen:"nje",dat:"njoj",aku:"nju",inst:"njom",lok:"njoj"},
+    {nom:"mi",gen:"nas",dat:"nama",aku:"nas",inst:"nama",lok:"nama"},
+    {nom:"vi",gen:"vas",dat:"vama",aku:"vas",inst:"vama",lok:"vama"},
+    {nom:"oni/one",gen:"njih",dat:"njima",aku:"njih",inst:"njima",lok:"njima"}
+  ],
+  quiz:[
+    {q:"Ana ide u kino sa _____. (ja)",a:"mnom",opts:["mene","mnom","meni"]},
+    {q:"Baka je ponosna na _____. (ti)",a:"tebe",opts:["tobom","tebi","tebe"]},
+    {q:"Škola je daleko od _____. (ja)",a:"mene",opts:["mnom","mene","meni"]},
+    {q:"Učiteljica priča o _____. (ti)",a:"tebi",opts:["tebe","tobom","tebi"]},
+    {q:"Hoćeš li sa _____ na kavu? (ja)",a:"mnom",opts:["mnom","mene","meni"]},
+    {q:"Otišli su na more bez _____. (ti)",a:"tebe",opts:["tebi","tebe","tobom"]},
+    {q:"Sestra brine za _____. (ja)",a:"mene",opts:["mnom","meni","mene"]},
+    {q:"Dođi do _____! (ja)",a:"mene",opts:["mnom","mene","meni"]},
+    {q:"Luka se igra s _____. (ti)",a:"tobom",opts:["tebe","tebi","tobom"]},
+    {q:"Baka je _____ skuhala ručak. (ja)",a:"meni",opts:["mene","mnom","meni"]},
+    {q:"Pričamo o _____. (on)",a:"njemu",opts:["njega","njim","njemu"]},
+    {q:"Idem s _____ na izlet. (ona)",a:"njom",opts:["nju","njoj","njom"]},
+    {q:"Ovaj poklon je za _____. (vi)",a:"vas",opts:["vama","vas","vam"]},
+    {q:"Stolica stoji blizu _____. (mi)",a:"nas",opts:["nama","nas","nam"]},
+    {q:"Razgovaraju o _____. (oni)",a:"njima",opts:["njih","njima","njim"]}
+  ]
+};
+export const GENDERDRILL = {
+  sort:[
+    {word:"knjiga",g:"f"},{word:"prijatelj",g:"m"},{word:"olovka",g:"f"},{word:"selo",g:"n"},{word:"more",g:"n"},{word:"stan",g:"m"},{word:"brat",g:"m"},{word:"jutro",g:"n"},{word:"učiteljica",g:"f"},{word:"sin",g:"m"},{word:"sunce",g:"n"},{word:"haljina",g:"f"},{word:"kamion",g:"m"},{word:"sladoled",g:"m"},{word:"vlak",g:"m"},{word:"sestra",g:"f"},{word:"jež",g:"m"},{word:"računalo",g:"n"},{word:"kuća",g:"f"},{word:"grad",g:"m"},{word:"mlijeko",g:"n"},{word:"stolica",g:"f"},{word:"stol",g:"m"},{word:"vrata",g:"n"},{word:"jabuka",g:"f"},{word:"pas",g:"m"},{word:"pismo",g:"n"},{word:"prozor",g:"m"},{word:"škola",g:"f"},{word:"dijete",g:"n"}
+  ],
+  plurals:[
+    {s:"jabuka",p:"jabuke"},{s:"haljina",p:"haljine"},{s:"učiteljica",p:"učiteljice"},{s:"sestra",p:"sestre"},{s:"računalo",p:"računala"},{s:"selo",p:"sela"},{s:"sunce",p:"sunca"},{s:"more",p:"mora"},{s:"kamion",p:"kamioni"},{s:"sladoled",p:"sladoledi"},{s:"vlak",p:"vlakovi"},{s:"jež",p:"ježevi"},{s:"brat",p:"braća"},{s:"prijatelj",p:"prijatelji"},{s:"stan",p:"stanovi"},{s:"grad",p:"gradovi"},{s:"pas",p:"psi"},{s:"stol",p:"stolovi"},{s:"knjiga",p:"knjige"},{s:"olovka",p:"olovke"}
+  ],
+  adjectives:[
+    {noun:"jagoda",adj:"crvena",en:"red strawberry",opts:["crveno","crven","crvena"]},
+    {noun:"selo",adj:"tiho",en:"quiet village",opts:["tih","tiho","tiha"]},
+    {noun:"sunce",adj:"žuto",en:"yellow sun",opts:["žute","žut","žuto"]},
+    {noun:"kamion",adj:"velik",en:"big truck",opts:["veliko","velik","velika"]},
+    {noun:"kuća",adj:"nova",en:"new house",opts:["nova","novo","nov"]},
+    {noun:"more",adj:"plavo",en:"blue sea",opts:["plav","plava","plavo"]},
+    {noun:"pas",adj:"mali",en:"small dog",opts:["mali","mala","malo"]},
+    {noun:"škola",adj:"stara",en:"old school",opts:["stari","staro","stara"]},
+    {noun:"dijete",adj:"malo",en:"small child",opts:["malo","mali","mala"]},
+    {noun:"grad",adj:"lijep",en:"beautiful city",opts:["lijep","lijepa","lijepo"]}
+  ]
+};
+export const SENTBUILD = [
+  {en:"I am hungry.",hr:"Ja sam gladan.",opts:["Ja sam gladan.","Ja sam gladna.","Ja si gladan."]},
+  {en:"I am happy.",hr:"Ja sam sretan.",opts:["Ja sam sretan.","Ja sam sretna.","Ja si sretan."]},
+  {en:"Thank you!",hr:"Hvala!",opts:["Hvala!","Molim!","Oprosti!"]},
+  {en:"Please!",hr:"Molim!",opts:["Molim!","Hvala!","Oprosti!"]},
+  {en:"Sorry!",hr:"Oprosti!",opts:["Oprosti!","Hvala!","Molim!"]},
+  {en:"I am sad.",hr:"Tužan sam.",opts:["Tužan sam.","Tužna sam.","Tužno sam."]},
+  {en:"This is a red apple.",hr:"Ovo je crvena jabuka.",opts:["Ovo je crvena jabuka.","Ovo je crven jabuka.","Ovo je crveno jabuka."]},
+  {en:"Salad is healthy.",hr:"Salata je zdrava.",opts:["Salata je zdrava.","Salata je zdrav.","Salata je zdravo."]},
+  {en:"I don't drink juice.",hr:"Ne pijem sok.",opts:["Ne pijem sok.","Ne pijem soka.","Ja ne piti sok."]},
+  {en:"I am thirsty.",hr:"Žedan sam.",opts:["Žedan sam.","Žedna sam.","Žedno sam."]},
+  {en:"I want orange juice.",hr:"Želim sok od naranče.",opts:["Želim sok od naranče.","Želim naranča sok.","Hoću sok naranča."]},
+  {en:"She eats meat.",hr:"Ona jede meso.",opts:["Ona jede meso.","Ona jesti meso.","Ona jedem meso."]},
+  {en:"My eyes are blue.",hr:"Moje oči su plave.",opts:["Moje oči su plave.","Moji oči su plavi.","Moja oči su plavo."]},
+  {en:"I like to read.",hr:"Volim čitati.",opts:["Volim čitati.","Volim čitat.","Ja voli čitati."]},
+  {en:"I don't eat meat.",hr:"Ne jedem meso.",opts:["Ne jedem meso.","Ne jesti meso.","Ja ne jede meso."]},
+  {en:"Fish is swimming.",hr:"Riba pliva.",opts:["Riba pliva.","Riba plivaju.","Riba plivam."]},
+  {en:"We are running.",hr:"Mi trčimo.",opts:["Mi trčimo.","Mi trčite.","Mi trčim."]},
+  {en:"Dogs are sleeping.",hr:"Psi spavaju.",opts:["Psi spavaju.","Psi spava.","Psi spavamo."]},
+  {en:"Bird is flying.",hr:"Ptica leti.",opts:["Ptica leti.","Ptica letim.","Ptica lete."]},
+  {en:"My window is small.",hr:"Moj prozor je mali.",opts:["Moj prozor je mali.","Moja prozor je mala.","Moje prozor je malo."]},
+  {en:"Sea is blue.",hr:"More je plavo.",opts:["More je plavo.","More je plav.","More je plava."]},
+  {en:"I love to sleep.",hr:"Volim spavati.",opts:["Volim spavati.","Ja voli spavati.","Volim spavam."]},
+  {en:"Sky is blue.",hr:"Nebo je plavo.",opts:["Nebo je plavo.","Nebo je plav.","Nebo je plava."]},
+  {en:"I need coffee.",hr:"Trebam kavu.",opts:["Trebam kavu.","Trebam kava.","Treba kavu."]},
+  {en:"I must drink water.",hr:"Moram piti vodu.",opts:["Moram piti vodu.","Moram pijem vodu.","Mora piti vodu."]},
+  {en:"My dog is sad.",hr:"Moj pas je tužan.",opts:["Moj pas je tužan.","Moja pas je tužna.","Moje pas je tužno."]},
+  {en:"This table is white.",hr:"Ovaj stol je bijeli.",opts:["Ovaj stol je bijeli.","Ova stol je bijela.","Ovo stol je bijelo."]},
+  {en:"I am reading.",hr:"Ja čitam.",opts:["Ja čitam.","Ja čitaš.","Ja čita."]},
+  {en:"He is reading.",hr:"On čita.",opts:["On čita.","On čitam.","On čitaju."]},
+  {en:"We are reading.",hr:"Mi čitamo.",opts:["Mi čitamo.","Mi čitate.","Mi čitam."]}
+,
+  {en:"The cat often sleeps.",hr:"Mačka često spava.",opts:["Mačka često spava.","Mačka često spavam.","Mačka često spavaju."]},
+  {en:"The dog always runs.",hr:"Pas uvijek trči.",opts:["Pas uvijek trči.","Pas uvijek trčim.","Pas uvijek trče."]},
+  {en:"The squirrel never drives.",hr:"Vjeverica nikad ne vozi.",opts:["Vjeverica nikad ne vozi.","Vjeverica nikad ne vozim.","Vjeverica nikad ne voze."]},
+  {en:"We sometimes cook.",hr:"Mi ponekad kuhamo.",opts:["Mi ponekad kuhamo.","Mi ponekad kuham.","Mi ponekad kuhaju."]},
+  {en:"They rarely read.",hr:"Oni rijetko čitaju.",opts:["Oni rijetko čitaju.","Oni rijetko čitam.","Oni rijetko čita."]},
+  {en:"She usually sings.",hr:"Ona obično pjeva.",opts:["Ona obično pjeva.","Ona obično pjevam.","Ona obično pjevaju."]},
+  {en:"I drink coffee every day.",hr:"Pijem kavu svaki dan.",opts:["Pijem kavu svaki dan.","Pijem kava svaki dan.","Pijem kave svaki dan."]},
+  {en:"He never swims.",hr:"On nikad ne pliva.",opts:["On nikad ne pliva.","On nikad ne plivam.","On nikad ne plivaju."]},
+  {en:"You often study.",hr:"Ti često učiš.",opts:["Ti često učiš.","Ti često učim.","Ti često uči."]},
+  {en:"They live in Zagreb.",hr:"Oni žive u Zagrebu.",opts:["Oni žive u Zagrebu.","Oni živim u Zagrebu.","Oni živi u Zagrebu."]},
+  {en:"The bear loves honey.",hr:"Medvjed voli med.",opts:["Medvjed voli med.","Medvjed volim med.","Medvjed vole med."]},
+  {en:"The fox sometimes eats.",hr:"Lisica ponekad jede.",opts:["Lisica ponekad jede.","Lisica ponekad jedem.","Lisica ponekad jedu."]}];
+export const VERBDRILL = [
+  {inf:"raditi",en:"to work",forms:["radim","radiš","radi","radimo","radite","rade"]},
+  {inf:"piti",en:"to drink",forms:["pijem","piješ","pije","pijemo","pijete","piju"]},
+  {inf:"jesti",en:"to eat",forms:["jedem","jedeš","jede","jedemo","jedete","jedu"]},
+  {inf:"hodati",en:"to walk",forms:["hodam","hodaš","hoda","hodamo","hodate","hodaju"]},
+  {inf:"učiti",en:"to learn",forms:["učim","učiš","uči","učimo","učite","uče"]},
+  {inf:"voljeti",en:"to love",forms:["volim","voliš","voli","volimo","volite","vole"]},
+  {inf:"trebati",en:"to need",forms:["trebam","trebaš","treba","trebamo","trebate","trebaju"]},
+  {inf:"plivati",en:"to swim",forms:["plivam","plivaš","pliva","plivamo","plivate","plivaju"]},
+  {inf:"trčati",en:"to run",forms:["trčim","trčiš","trči","trčimo","trčite","trče"]},
+  {inf:"spavati",en:"to sleep",forms:["spavam","spavaš","spava","spavamo","spavate","spavaju"]},
+  {inf:"letjeti",en:"to fly",forms:["letim","letiš","leti","letimo","letite","lete"]},
+  {inf:"pisati",en:"to write",forms:["pišem","pišeš","piše","pišemo","pišete","pišu"]},
+  {inf:"imati",en:"to have",forms:["imam","imaš","ima","imamo","imate","imaju"]},
+  {inf:"živjeti",en:"to live",forms:["živim","živiš","živi","živimo","živite","žive"]},
+  {inf:"voziti",en:"to drive",forms:["vozim","voziš","vozi","vozimo","vozite","voze"]},
+  {inf:"kuhati",en:"to cook",forms:["kuham","kuhaš","kuha","kuhamo","kuhate","kuhaju"]},
+  {inf:"pjevati",en:"to sing",forms:["pjevam","pjevaš","pjeva","pjevamo","pjevate","pjevaju"]},
+  {inf:"čitati",en:"to read",forms:["čitam","čitaš","čita","čitamo","čitate","čitaju"]},
+  {inf:"slušati",en:"to listen",forms:["slušam","slušaš","sluša","slušamo","slušate","slušaju"]},
+  {inf:"gledati",en:"to watch",forms:["gledam","gledaš","gleda","gledamo","gledate","gledaju"]}
+];
+export const VBPERSONS = ["ja","ti","on/ona","mi","vi","oni/one"];
+export const TENSEFLIP = [
+  {prez:"Učim cijeli dan.",perf:"Učila sam cijeli dan.",neg:"Nisam učila cijeli dan."},
+  {prez:"Trčim svako jutro.",perf:"Trčala sam svako jutro.",neg:"Nisam trčala svako jutro."},
+  {prez:"Čitam knjigu.",perf:"Čitala sam knjigu.",neg:"Nisam čitala knjigu."},
+  {prez:"Spavam do 10 sati.",perf:"Spavala sam do 10 sati.",neg:"Nisam spavala do 10 sati."},
+  {prez:"Kuham ručak.",perf:"Kuhala sam ručak.",neg:"Nisam kuhala ručak."},
+  {prez:"Gledam TV.",perf:"Gledala sam TV.",neg:"Nisam gledala TV."},
+  {prez:"Pišem e-mail.",perf:"Pisala sam e-mail.",neg:"Nisam pisala e-mail."},
+  {prez:"Plešem svaku večer.",perf:"Plesala sam svaku večer.",neg:"Nisam plesala svaku večer."},
+  {prez:"Idem u školu.",perf:"Išla sam u školu.",neg:"Nisam išla u školu."},
+  {prez:"Pijem kavu.",perf:"Pila sam kavu.",neg:"Nisam pila kavu."},
+  {prez:"Vozim auto.",perf:"Vozila sam auto.",neg:"Nisam vozila auto."},
+  {prez:"Pjevam pjesmu.",perf:"Pjevala sam pjesmu.",neg:"Nisam pjevala pjesmu."},
+  {prez:"Slušam glazbu.",perf:"Slušala sam glazbu.",neg:"Nisam slušala glazbu."},
+  {prez:"Jedem salatu.",perf:"Jela sam salatu.",neg:"Nisam jela salatu."},
+  {prez:"Učim hrvatski.",perf:"Učila sam hrvatski.",neg:"Nisam učila hrvatski."}
+,
+  {prez:"Čitam knjigu.",perf:"Čitao sam knjigu.",neg:"Nisam čitao knjigu."},
+  {prez:"Kuham ručak.",perf:"Kuhao sam ručak.",neg:"Nisam kuhao ručak."},
+  {prez:"Pjevam pjesmu.",perf:"Pjevao sam pjesmu.",neg:"Nisam pjevao pjesmu."},
+  {prez:"Jedem sladoled.",perf:"Jeo sam sladoled.",neg:"Nisam jeo sladoled."},
+  {prez:"Plivam u bazenu.",perf:"Plivao sam u bazenu.",neg:"Nisam plivao u bazenu."},
+  {prez:"Igram nogomet.",perf:"Igrao sam nogomet.",neg:"Nisam igrao nogomet."},
+  {prez:"Pijem kavu.",perf:"Pio sam kavu.",neg:"Nisam pio kavu."},
+  {prez:"Trčim u parku.",perf:"Trčao sam u parku.",neg:"Nisam trčao u parku."},
+  {prez:"Sviram violinu.",perf:"Svirao sam violinu.",neg:"Nisam svirao violinu."},
+  {prez:"Vozim auto.",perf:"Vozio sam auto.",neg:"Nisam vozio auto."}];
