@@ -99,10 +99,20 @@ function getWordTip(croatianWord, englishMeaning) {
 const XP_PER_KNOWN = 2;
 const XP_COMPLETION_BONUS = 5;
 
+const FLASH_RESUME_KEY = 'nh_flash_resume';
+
 export default function Flashcards({ pool, goBack, award }) {
   const finishFired = useRef(false);
   const [activePool, setActivePool] = useState(pool);
-  const [idx, setIdx] = useState(0);
+  const [idx, setIdx] = useState(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(FLASH_RESUME_KEY) || 'null');
+      if (saved && pool && pool[0] && saved.firstWord === pool[0][0]) {
+        return Math.min(saved.idx, pool.length - 1);
+      }
+    } catch { /* ignore */ }
+    return 0;
+  });
   const [flipped, setFlipped] = useState(false);
   const [known, setKnown] = useState(0);
   const [missed, setMissed] = useState([]);
@@ -121,6 +131,18 @@ export default function Flashcards({ pool, goBack, award }) {
   // Auto-TTS: track last spoken word to prevent double-play
   const lastSpokenRef = useRef(null);
   useEffect(() => () => { mountedRef.current = false; }, []);
+
+  // Persist current card index so the user can resume mid-session
+  useEffect(() => {
+    if (!activePool || !activePool[0]) return;
+    try {
+      sessionStorage.setItem(FLASH_RESUME_KEY, JSON.stringify({
+        idx,
+        firstWord: activePool[0][0],
+        ts: Date.now(),
+      }));
+    } catch { /* ignore */ }
+  }, [idx, activePool]);
 
   const [aiSentence, setAiSentence] = useState(null); // {hr, en, note} or null
   const [aiLoading, setAiLoading] = useState(false);
@@ -234,6 +256,7 @@ export default function Flashcards({ pool, goBack, award }) {
   function finish(finalKnown) {
     if (finishFired.current) return;
     finishFired.current = true;
+    try { sessionStorage.removeItem(FLASH_RESUME_KEY); } catch { /* ignore */ }
     award(finalKnown * XP_PER_KNOWN + XP_COMPLETION_BONUS);
     setDone(true);
     if (finalKnown === activePool.length) {
@@ -249,6 +272,7 @@ export default function Flashcards({ pool, goBack, award }) {
 
   function studyMissedAgain(missedCards) {
     finishFired.current = false;
+    try { sessionStorage.removeItem(FLASH_RESUME_KEY); } catch { /* ignore */ }
     setActivePool(missedCards);
     setIdx(0);
     setFlipped(false);

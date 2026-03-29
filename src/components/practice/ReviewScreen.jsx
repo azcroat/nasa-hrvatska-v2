@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { H, Bar, Spk, srMark, getDueReviews, getSR, sh } from '../../data.jsx';
+import { H, Bar, Spk, srMark, getSR, sh } from '../../data.jsx';
+import { getPrioritizedReviewQueue } from '../../lib/srs.js';
 import { useHaptic } from '../../hooks/useHaptic.js';
 import { markPracticed } from '../../hooks/useNotifications.js';
 import { markQuest } from '../../lib/quests.js';
@@ -11,8 +12,7 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
   const pool = useMemo(() => allCats.flatMap(t => V[t]), [allCats]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const dueWords = useMemo(() => {
-    const due = getDueReviews();
-    return due.map(w => pool.find(x => x[0] === w)).filter(Boolean);
+    return getPrioritizedReviewQueue(pool);
   }, [pool]);
 
   const [idx, setIdx] = useState(0);

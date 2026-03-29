@@ -1,6 +1,28 @@
 import React, { useState } from 'react';
 import { COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, speak } from '../../data.jsx';
 
+// Shows a pronunciation difficulty badge for words with Croatian diacritics
+function PronDifficulty({ word }) {
+  if (!word) return null;
+  const veryHard = /[čć].*[šž]|dž/.test(word);
+  const hard = /[čćšžđ]/.test(word);
+  if (!hard) return null;
+  return (
+    <span
+      title={veryHard ? 'Pronunciation: challenging' : 'Pronunciation: some diacritics'}
+      style={{
+        fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 4, marginLeft: 4,
+        background: veryHard ? 'rgba(220,38,38,0.1)' : 'rgba(245,158,11,0.1)',
+        color: veryHard ? '#dc2626' : '#d97706',
+        verticalAlign: 'middle',
+        display: 'inline-block',
+      }}
+    >
+      {veryHard ? '🔴 hard' : '🟡 diacritics'}
+    </span>
+  );
+}
+
 const BACK_BTN = ({ goBack }) => (
   <button className="b bg" style={{ marginBottom: 16, fontSize: 13 }} onClick={goBack}>← Back</button>
 );
@@ -100,7 +122,7 @@ export function CountriesScreen({ goBack }) {
                 </button>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
-                    <span style={{ fontSize: 15, fontWeight: 800, color: '#0369a1' }}>{c.country}</span>
+                    <span style={{ fontSize: 15, fontWeight: 800, color: '#0369a1' }}>{c.country}<PronDifficulty word={c.country} /></span>
                     <span style={{ fontSize: 11, color: '#78716c' }}>{c.en}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
@@ -171,11 +193,11 @@ export function ProfessionsScreen({ goBack }) {
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 2 }}>
                       <span style={{ fontSize: 14, fontWeight: 800, color: '#1d4ed8', cursor: 'pointer' }} onClick={() => speak(j.m)}>
-                        ♂ {j.m}
+                        ♂ {j.m}<PronDifficulty word={j.m} />
                       </span>
                       <span style={{ color: '#d1d5db', fontSize: 14 }}>/</span>
                       <span style={{ fontSize: 14, fontWeight: 800, color: '#7c3aed', cursor: 'pointer' }} onClick={() => speak(j.f)}>
-                        ♀ {j.f}
+                        ♀ {j.f}<PronDifficulty word={j.f} />
                       </span>
                     </div>
                     <div style={{ fontSize: 12, color: '#78716c' }}>{j.en}</div>
@@ -226,7 +248,7 @@ export function WeatherScreen({ goBack }) {
                 onClick={() => speak(v.hr)}>
                 <div style={{ fontSize: 22, flexShrink: 0 }}>{v.icon}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0891b2' }}>{v.hr}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0891b2' }}>{v.hr}<PronDifficulty word={v.hr} /></div>
                   <div style={{ fontSize: 11, color: '#78716c' }}>{v.en}</div>
                   {v.note && <div style={{ fontSize: 10, color: '#0369a1', fontStyle: 'italic', marginTop: 1 }}>{v.note}</div>}
                 </div>
@@ -315,7 +337,7 @@ export function ClothesScreen({ goBack }) {
             {cat.items.map((item, i) => (
               <div key={i} role="button" tabIndex={0} aria-label={`Play audio: ${item.hr} — ${item.en}`} style={{ background: 'white', borderRadius: 12, padding: '10px 12px', border: '1px solid rgba(0,0,0,.06)', cursor: 'pointer' }}
                 onClick={() => speak(item.hr)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speak(item.hr); } }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#7c3aed', marginBottom: 2 }}>{item.hr}</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#7c3aed', marginBottom: 2 }}>{item.hr}<PronDifficulty word={item.hr} /></div>
                 <div style={{ fontSize: 11, color: '#78716c' }}>{item.en}</div>
                 {item.gen && <div style={{ fontSize: 10, background: '#f3f4f6', color: '#6b7280', padding: '1px 6px', borderRadius: 6, display: 'inline-block', marginTop: 2 }}>{item.gen}</div>}
                 {item.note && <div style={{ fontSize: 10, color: '#0369a1', fontStyle: 'italic', marginTop: 2 }}>{item.note}</div>}
@@ -374,7 +396,7 @@ export function BodyDescScreen({ goBack }) {
                 onClick={() => speak(item.hr)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speak(item.hr); } }}>
                 <div style={{ fontSize: 20, flexShrink: 0 }} aria-hidden="true">🔊</div>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0f766e' }}>{item.hr}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0f766e' }}>{item.hr}<PronDifficulty word={item.hr} /></div>
                   <div style={{ fontSize: 12, color: '#78716c' }}>{item.en}</div>
                   {item.note && <div style={{ fontSize: 11, color: '#0369a1', fontStyle: 'italic', marginTop: 2 }}>{item.note}</div>}
                 </div>
