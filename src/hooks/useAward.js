@@ -13,6 +13,10 @@ import {
   getStreak, recordJourneyMilestone,
 } from '../data.jsx';
 import { trackComplete } from '../lib/learnerStyle.js';
+import {
+  trackLessonComplete, trackExerciseComplete, trackLevelUp,
+  trackBadgeEarned, trackStreakMilestone,
+} from '../lib/analytics.js';
 
 // Module-level guard: comeback bonus fires at most once per app session
 // (mirrors _comebackUsedThisSession in App.jsx — must stay in sync if moved)
@@ -66,9 +70,16 @@ export function useAward({ curEx, stats, setStats }) {
       const n = { ...s, xp: Math.max(0, s.xp + totalAmt), streak: getStreak().count };
       // streak will be updated by updateStreak() below — keep n.streak consistent
       const nb = BADGES.filter(b => !s.badges.includes(b.id) && b.r(n));
-      if (nb.length) { n.badges = [...s.badges, ...nb.map(b => b.id)]; setTimeout(() => { setNB(nb[0]); setSB(true); setTimeout(() => setSB(false), 3000); }, 600); }
+      if (nb.length) {
+        n.badges = [...s.badges, ...nb.map(b => b.id)];
+        setTimeout(() => { setNB(nb[0]); setSB(true); setTimeout(() => setSB(false), 3000); }, 600);
+        nb.forEach(b => trackBadgeEarned(b.id));
+      }
       const newLevel = lvl(n.xp);
-      if (newLevel > oldLevel) { setTimeout(() => { setLevelUpData({ level: newLevel }); }, 900); }
+      if (newLevel > oldLevel) {
+        setTimeout(() => { setLevelUpData({ level: newLevel }); }, 900);
+        trackLevelUp({ newLevel, totalXP: n.xp });
+      }
       return n;
     });
     setTimeout(() => setShowXP(false), 1500);
@@ -77,8 +88,11 @@ export function useAward({ curEx, stats, setStats }) {
     const restoredCount = applyStreakEarnBack();
     if (restoredCount > 0) { setTimeout(() => { setStreakRestoredCount(restoredCount); setTimeout(() => setStreakRestoredCount(0), 5000); }, 1000); }
     else { const eb = getStreakEarnBack(); if (eb && eb.lc === 1) { setEarnBackPrompt({ prev: eb.prev }); setTimeout(() => setEarnBackPrompt(null), 8000); } }
-    if (sr.milestone) setTimeout(() => setStreakMilestone(sr.milestone), 800);
-    if (sr.milestone) recordJourneyMilestone('streak_' + sr.milestone, { count: sr.milestone, allowRepeat: false });
+    if (sr.milestone) {
+      setTimeout(() => setStreakMilestone(sr.milestone), 800);
+      trackStreakMilestone(sr.milestone);
+      recordJourneyMilestone('streak_' + sr.milestone, { count: sr.milestone, allowRepeat: false });
+    }
     if (sr.count >= 30 && !localStorage.getItem('nh_ceremony_streak_30')) { localStorage.setItem('nh_ceremony_streak_30', '1'); setCeremonyType('streak_30'); }
     if (sr.count >= 50 && !localStorage.getItem('nh_ceremony_streak_50')) { localStorage.setItem('nh_ceremony_streak_50', '1'); setCeremonyType('streak_50'); }
     if (sr.count >= 100 && !localStorage.getItem('nh_ceremony_streak_100')) { localStorage.setItem('nh_ceremony_streak_100', '1'); setCeremonyType('streak_100'); }
@@ -102,7 +116,15 @@ export function useAward({ curEx, stats, setStats }) {
       const _lsDur = _lsStartTs ? Date.now() - _lsStartTs : 0;
       const _lsTypeMap = { flash: 'flashcards', flashcards: 'flashcards', mcgame: 'quiz', review: 'srs_review', listening: 'listening', ai_listening: 'listening', speaking: 'speaking', speaking_sprint: 'speaking', aiconvo: 'conversation', writing: 'writing', shadowing: 'shadowing', cloze: 'cloze', grammar: 'grammar', match: 'matching', readlist: 'reading' };
       const _lsAType = _lsTypeMap[curEx] || (curEx.startsWith('vocab_') ? 'flashcards' : null);
-      if (_lsAType) { trackComplete(_lsAType, _lsDur); sessionStorage.removeItem('nh_ex_start'); }
+      if (_lsAType) {
+        trackComplete(_lsAType, _lsDur);
+        sessionStorage.removeItem('nh_ex_start');
+        if (celebrate) {
+          trackLessonComplete({ xpEarned: totalAmt, streak: getStreak().count, lessonType: _lsAType, lessonId: curEx });
+        } else {
+          trackExerciseComplete({ exerciseType: _lsAType, xpEarned: totalAmt });
+        }
+      }
     }
   }, [curEx, comebackBonus, setStats]);
 
