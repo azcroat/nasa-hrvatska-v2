@@ -129,6 +129,30 @@ function prepTTS(text) {
   return t;
 }
 
+// Fetch and cache TTS audio without playing it — eliminates first-tap delay
+// for words shown on screen before the user taps the speaker button.
+export async function preloadAudio(text) {
+  if (!text) return;
+  const t = prepTTS(text);
+  if (!t) return;
+  const voicePref = getVoicePreference();
+  const cacheKey = t + '|0|' + voicePref;
+  if (_cacheGet(cacheKey)) return; // already cached
+  try {
+    const body = { text: t, slow: false };
+    if (voicePref !== 'auto') body.voice = voicePref;
+    const r = await fetch('/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) return;
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    _cacheSet(cacheKey, url);
+  } catch { /* silently ignore — preload is best-effort */ }
+}
+
 export async function speak(text) {
   if (!text) return 'none';
   const t = prepTTS(text);
