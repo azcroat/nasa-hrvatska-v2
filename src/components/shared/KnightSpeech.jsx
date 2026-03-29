@@ -86,19 +86,23 @@ function KnightSpeech({ st, sessionKey = 'nh_knight_greeted', onDismiss = undefi
   }, [sessionKey]);
 
   useEffect(() => {
+    let celebTimer = null;
     const onCelebrate = (e) => {
       const detail = e.detail || {};
       if (detail.text) setCelebGreeting({ mood: detail.mood || 'celebrating', variant: 1, text: detail.text });
       setAnimOut(false);
       setMode('full');
-      const t = setTimeout(() => {
+      clearTimeout(celebTimer); // cancel any previous pending collapse
+      celebTimer = setTimeout(() => {
         setCelebGreeting(null);
         setMode('mini');
       }, 5000);
-      return () => clearTimeout(t);
     };
     window.addEventListener('knight:celebrate', onCelebrate);
-    return () => window.removeEventListener('knight:celebrate', onCelebrate);
+    return () => {
+      window.removeEventListener('knight:celebrate', onCelebrate);
+      clearTimeout(celebTimer);
+    };
   }, []);
 
   const dismiss = () => {

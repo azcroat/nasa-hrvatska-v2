@@ -50,6 +50,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   const analyserRef = useRef(null);
   const animFrameRef = useRef(null);
   const streamRef = useRef(null);
+  const audioCtxRef = useRef(null);
 
   // AI pronunciation feedback state
   const [pronScore, setPronScore] = useState(null);
@@ -124,6 +125,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
       streamRef.current = stream;
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       const audioCtx = new AudioContext();
+      audioCtxRef.current = audioCtx;
       const source = audioCtx.createMediaStreamSource(stream);
       const analyser = audioCtx.createAnalyser();
       analyser.fftSize = 64;
@@ -149,6 +151,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   function stopWaveform() {
     if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
+    if (audioCtxRef.current) { audioCtxRef.current.close().catch(() => {}); audioCtxRef.current = null; }
     setWaveform(new Array(30).fill(0));
   }
 

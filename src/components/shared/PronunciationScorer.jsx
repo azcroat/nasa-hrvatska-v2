@@ -240,16 +240,21 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
   // ── AI Coaching fetch ─────────────────────────────────────────────────────
   const fetchCoaching = useCallback(async (spoken, score) => {
     setCoaching('loading');
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 12000); // 12s max
     try {
       const res = await fetch('/api/pronunciation-coach', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ word: targetText, spoken, score, level }),
+        signal: controller.signal,
       });
+      clearTimeout(tid);
       if (!res.ok) throw new Error('API error');
       const data = await res.json();
       setCoaching(data);
     } catch {
+      clearTimeout(tid);
       setCoaching({ feedback: 'Could not load coaching. Try again later.', issue: '', phonetic_guide: '', drills: [] });
     }
   }, [targetText, level]);

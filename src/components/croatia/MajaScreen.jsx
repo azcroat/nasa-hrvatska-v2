@@ -265,11 +265,15 @@ export default function MajaScreen() {
 
       try {
         // ── Streaming path ──────────────────────────────────────────────────
+        const abortCtrl = new AbortController();
+        const streamTimeout = setTimeout(() => abortCtrl.abort(), 30000); // 30s max
         const res = await fetch('/api/maja', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...payload, stream: true }),
+          signal: abortCtrl.signal,
         });
+        clearTimeout(streamTimeout);
 
         if (!res.ok) throw new Error(`API ${res.status}`);
 

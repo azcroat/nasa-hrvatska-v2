@@ -21,8 +21,13 @@ export function mergeStatsFromRemote(prev: Stats, rawRemoteSt: unknown, ds: Stat
     ...remoteSt,
     ct: [...new Set([...(prev.ct || []), ...(remoteSt.ct || [])])],
     vs: [...new Set([...(prev.vs || []), ...(remoteSt.vs || [])])],
+    badges: [...new Set([...(prev.badges || []), ...(remoteSt.badges || [])])],
     lc: Math.max(prev.lc || 0, remoteSt.lc || 0),
     gc: Math.max(prev.gc || 0, remoteSt.gc || 0),
+    sp: Math.max(prev.sp || 0, remoteSt.sp || 0),
+    de: Math.max(prev.de || 0, remoteSt.de || 0),
+    rc: Math.max(prev.rc || 0, remoteSt.rc || 0),
     xp: Math.max(prev.xp || 0, remoteSt.xp || 0),
+    str: Math.max(prev.str || 0, remoteSt.str || 0),
   };
 }
