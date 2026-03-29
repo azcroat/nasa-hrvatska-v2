@@ -331,10 +331,10 @@ export default function HomeTab({
 
         <div style={{padding:"16px 20px 20px"}}>
 
-        {/* Top row: brand — knight mascot + logotype */}
+        {/* Top row: brand — grb + logotype */}
         <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:24}}>
           <div style={{flexShrink:0,filter:"drop-shadow(0 4px 14px rgba(0,0,0,.6))"}}>
-            <CroatianKnight size={64} mood="happy" />
+            <CroatianGrb size={64} />
           </div>
           <div>
             <div style={{fontSize:22,fontWeight:900,letterSpacing:".01em",lineHeight:1,color:"white",fontFamily:"'Playfair Display',serif",textShadow:"0 2px 12px rgba(0,0,0,.5)"}}>Naša Hrvatska</div>
