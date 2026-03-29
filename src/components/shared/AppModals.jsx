@@ -12,6 +12,7 @@ import LevelUpModal from './LevelUpModal.jsx';
 import OnboardingTour from './OnboardingTour.jsx';
 import PremiumWelcomeBanner from './PremiumWelcomeBanner.jsx';
 import { speak } from '../../data.jsx';
+import { trackOnboardingComplete } from '../../lib/analytics.js';
 
 const PaywallScreen = lazy(() => import('./PaywallScreen.jsx'));
 
@@ -75,7 +76,7 @@ export function AppModals({
       )}
       {!onboarded && _syncReady && authScreen === 'app' && currentScreen !== 'welcome' && currentScreen !== 'placement' && (
         <OnboardingTour
-          onDone={() => setOnboarded(true)}
+          onDone={() => { setOnboarded(true); trackOnboardingComplete(); }}
           onLaunchLesson={() => { setScr('dashboard'); setTimeout(() => setTab('learn'), 400); }}
         />
       )}

@@ -9,6 +9,8 @@ import {
   bootstrapMistakesFromSRS, recordJourneyMilestone,
 } from "./data.jsx";
 import { buildProgressSnapshot } from "./lib/progressSnapshot.js";
+import { trackAppOpen } from "./lib/analytics.js";
+import { fbRegisterFriendCode } from "./lib/firebase.js";
 import AppContext from "./context/AppContext.jsx";
 import { StatsProvider } from "./context/StatsContext.jsx";
 
@@ -198,6 +200,14 @@ function App() {
   });
 
   // ── Effects ─────────────────────────────────────────────────────────────────
+  // Track retention on every app load (D1/D7/D30 buckets in Firebase Analytics)
+  useEffect(() => { trackAppOpen(!!authUser); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Register friend code index once per session when auth is ready
+  useEffect(() => {
+    if (authUser?.u) fbRegisterFriendCode(authUser.u, authUser.d || name);
+  }, [authUser?.u]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Keep _uidRef current so usePreferences.toggleFav fires fbToggleFavorite
   useEffect(() => { _uidRef.current = authUser?.u || null; }, [authUser]);
 

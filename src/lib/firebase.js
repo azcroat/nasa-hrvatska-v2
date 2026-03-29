@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════
 import { initializeApp, getApps } from 'firebase/app';
 import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup, sendEmailVerification, deleteUser } from 'firebase/auth';
-import { initializeFirestore, persistentLocalCache, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, deleteDoc, collection, runTransaction, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { initializeFirestore, persistentLocalCache, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, deleteDoc, collection, runTransaction, onSnapshot, serverTimestamp, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { getAnalytics, logEvent as _fbLogEvent, isSupported as analyticsIsSupported } from 'firebase/analytics';
 
 const FIREBASE_CONFIG = {
@@ -89,10 +89,13 @@ export async function fbSaveProgress(uid,data){
     lessonsCompleted: _st.lc || 0,
     lastActive:       serverTimestamp(),
   };
-  // Write public leaderboard projection alongside the private progress doc
+  // Write public leaderboard projection + public profile alongside the private progress doc
   const _nowMs=Date.now();
   const lbEntry={name:data.name||"",xp:_st.xp||0,lc:_st.lc||0,updated:_nowMs};
+  // Public profile — readable by friends; used for friend leaderboard
+  const profileEntry={name:data.name||"",xp:_st.xp||0,lc:_st.lc||0,streak:_strk,level:_lvl,lastActive:_nowMs};
   try{setDoc(fsDoc(_fbDb,"leaderboard",id),lbEntry,{merge:true}).catch(function(e){console.warn("Leaderboard write failed:",e)});}catch(e){console.warn("Leaderboard write error:",e);}
+  try{setDoc(fsDoc(_fbDb,"profiles",id),profileEntry,{merge:true}).catch(function(e){console.warn("Profile write failed:",e)});}catch(e){console.warn("Profile write error:",e);}
   // Denormalize XP into the family doc so family leaderboard always shows live data
   // without depending on the /leaderboard collection being up-to-date for each member.
   const localFam=getLocalFamily();
@@ -148,11 +151,12 @@ export async function fbRegister(email,password,displayName){
   try{await sendEmailVerification(cred.user)}catch(ve){console.warn("Email verification send failed:",ve)}
   try{const id=email.replace(/[.#$/\[\]]/g,"_");
   await setDoc(fsDoc(_fbDb,"users",id),{displayName:displayName,email:email,created:Date.now()},{merge:true})}catch(fe){console.warn("Firestore profile write failed:",fe)}
+  fbLogEvent('sign_up',{method:'email'});
   return{ok:true,user:cred.user}}catch(e){return{ok:false,err:friendlyError(e.message)}}
 }
 export async function fbLogin(email,password){
   if(!_fbReady||!_fbAuth)return{ok:false,err:"Firebase not configured."};
-  try{const cred=await signInWithEmailAndPassword(_fbAuth,email,password);return{ok:true,user:cred.user}}catch(e){return{ok:false,err:friendlyError(e.message)}}
+  try{const cred=await signInWithEmailAndPassword(_fbAuth,email,password);fbLogEvent('login',{method:'email'});return{ok:true,user:cred.user}}catch(e){return{ok:false,err:friendlyError(e.message)}}
 }
 export async function fbLogout(){if(_fbReady&&_fbAuth)try{await fbSignOut(_fbAuth)}catch(e){}}
 export async function fbLoginGoogle(){
@@ -162,6 +166,7 @@ export async function fbLoginGoogle(){
     // Always show account chooser so users with multiple Google accounts can pick
     provider.setCustomParameters({prompt:"select_account"});
     const cred=await signInWithPopup(_fbAuth,provider);
+    fbLogEvent('login',{method:'google'});
     return{ok:true,user:cred.user};
   }catch(e){
     // Popup blocked or user closed it — not an error worth showing
@@ -336,6 +341,7 @@ export async function fbDeleteAccount(userId){
     await Promise.allSettled([
       deleteDoc(fsDoc(_fbDb,"users",id)),
       deleteDoc(fsDoc(_fbDb,"leaderboard",id)),
+      deleteDoc(fsDoc(_fbDb,"profiles",id)),
     ]);
     if(_fbAuth&&_fbAuth.currentUser)await deleteUser(_fbAuth.currentUser);
     return{ok:true};
@@ -415,4 +421,94 @@ export function fbWatchReactions(familyCode, callback) {
     console.warn('fbWatchReactions setup error:', e);
     return function () {};
   }
+}
+
+// ═══ FRIEND SYSTEM ═══
+// Friend codes: 6-char alphanumeric derived from the safe UID.
+// /friendCodes/{code} → {uid, name} — public lookup index (any auth user can read)
+// /profiles/{uid} → {name, xp, level, streak, lc, lastActive} — public stats for friends
+// /users/{uid}.friendUids → string[] — list of friend UIDs (owner-only)
+
+/** Derives a deterministic 6-char friend code from a safe UID. */
+export function getFriendCode(uid) {
+  return uid.replace(/[^a-zA-Z0-9]/g, '').slice(0, 6).toUpperCase();
+}
+
+/**
+ * Register (or refresh) this user's code in the public lookup index.
+ * Call once after sign-in to ensure the index entry is current.
+ */
+export async function fbRegisterFriendCode(uid, displayName) {
+  if (!_fbReady || !_fbDb || !uid) return;
+  const safeUid = uid.replace(/[.#$/\[\]]/g, '_');
+  const code = getFriendCode(safeUid);
+  try {
+    await setDoc(
+      fsDoc(_fbDb, 'friendCodes', code),
+      { uid: safeUid, name: displayName || 'Learner', updated: Date.now() },
+      { merge: true }
+    );
+  } catch (e) { console.warn('fbRegisterFriendCode error:', e); }
+}
+
+/**
+ * Add a friend by their 6-char code.
+ * Looks up their UID in /friendCodes, then writes bidirectional friend link
+ * using arrayUnion so concurrent adds never clobber each other.
+ */
+export async function fbAddFriend(myUid, myName, theirCode) {
+  if (!_fbReady || !_fbDb) return { ok: false, err: 'Not connected.' };
+  const safeMyUid = myUid.replace(/[.#$/\[\]]/g, '_');
+  const cleanCode = (theirCode || '').toUpperCase().trim();
+  if (!cleanCode) return { ok: false, err: 'Enter a friend code.' };
+  try {
+    const codeSnap = await getDoc(fsDoc(_fbDb, 'friendCodes', cleanCode));
+    if (!codeSnap.exists()) return { ok: false, err: 'No user found with that code.' };
+    const theirUid = codeSnap.data().uid;
+    if (theirUid === safeMyUid) return { ok: false, err: "That's your own code!" };
+    // Bidirectional add — both users see each other
+    await setDoc(fsDoc(_fbDb, 'users', safeMyUid), { friendUids: arrayUnion(theirUid) }, { merge: true });
+    await setDoc(fsDoc(_fbDb, 'users', theirUid), { friendUids: arrayUnion(safeMyUid) }, { merge: true });
+    // Read their public profile for the optimistic UI return
+    const profileSnap = await getDoc(fsDoc(_fbDb, 'profiles', theirUid));
+    const profile = profileSnap.exists() ? profileSnap.data() : { name: codeSnap.data().name };
+    return { ok: true, friend: { uid: theirUid, ...profile } };
+  } catch (e) {
+    console.warn('fbAddFriend error:', e);
+    return { ok: false, err: 'Could not add friend. Try again.' };
+  }
+}
+
+/**
+ * Load all friends' public profiles.
+ * Reads /users/{myUid}.friendUids then batch-reads /profiles/{uid}.
+ */
+export async function fbGetFriends(myUid) {
+  if (!_fbReady || !_fbDb || !myUid) return [];
+  const safeMyUid = myUid.replace(/[.#$/\[\]]/g, '_');
+  try {
+    const snap = await getDoc(fsDoc(_fbDb, 'users', safeMyUid));
+    if (!snap.exists()) return [];
+    const friendUids = snap.data().friendUids || [];
+    if (!friendUids.length) return [];
+    const profiles = await Promise.all(
+      friendUids.map(uid => getDoc(fsDoc(_fbDb, 'profiles', uid)))
+    );
+    return profiles
+      .filter(s => s.exists())
+      .map(s => ({ uid: s.id, ...s.data() }))
+      .sort((a, b) => (b.xp || 0) - (a.xp || 0));
+  } catch (e) { console.warn('fbGetFriends error:', e); return []; }
+}
+
+/**
+ * Remove a friend — removes from both users' friendUids arrays.
+ */
+export async function fbRemoveFriend(myUid, theirUid) {
+  if (!_fbReady || !_fbDb || !myUid || !theirUid) return;
+  const safeMyUid = myUid.replace(/[.#$/\[\]]/g, '_');
+  try {
+    await updateDoc(fsDoc(_fbDb, 'users', safeMyUid), { friendUids: arrayRemove(theirUid) });
+    await updateDoc(fsDoc(_fbDb, 'users', theirUid), { friendUids: arrayRemove(safeMyUid) });
+  } catch (e) { console.warn('fbRemoveFriend error:', e); }
 }

@@ -10,8 +10,9 @@
  *   - 7-day trial already started → show days remaining, not "start trial"
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { redeemPromoCode, activateSubscription } from '../../hooks/useSubscription.js';
+import { trackPaywallShown, trackSubscribed } from '../../lib/analytics.js';
 
 // ── Feature list ──────────────────────────────────────────────────────────────
 const FREE_FEATURES = [
@@ -61,10 +62,14 @@ export default function PaywallScreen({ onClose, featureName = 'AI Tutor', onSub
   const [showPromo, setShowPromo] = useState(false);
   const [loading, setLoading]     = useState(false);
 
+  // Track impression on mount
+  useEffect(() => { trackPaywallShown(featureName); }, [featureName]);
+
   function handlePromo() {
     const result = redeemPromoCode(promoCode);
     setPromoMsg(result.message);
     if (result.ok) {
+      trackSubscribed('promo');
       setTimeout(() => { if (onSubscribed) onSubscribed(); else if (onClose) onClose(); }, 1200);
     }
   }
@@ -76,6 +81,7 @@ export default function PaywallScreen({ onClose, featureName = 'AI Tutor', onSub
     // For now, activate locally so the UI is wired and testable
     setTimeout(() => {
       activateSubscription(selectedPlan, 'stripe');
+      trackSubscribed(selectedPlan);
       setLoading(false);
       if (onSubscribed) onSubscribed();
       else if (onClose) onClose();
