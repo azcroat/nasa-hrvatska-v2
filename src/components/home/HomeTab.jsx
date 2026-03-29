@@ -59,6 +59,48 @@ const LEVEL_PALETTE = [
   { grad: "linear-gradient(135deg,#7f1d1d,#dc2626)", light: "#fee2e2", text: "#7f1d1d", border: "#fca5a5" },
 ];
 
+// ── Knight mascot: contextual message based on user state ─────────────────────
+function getMascotMessage({ streak, level, st, comebackBonus, allQuestsDone }) {
+  const h = new Date().getHours();
+  const lc = st?.lc || 0;
+
+  if (lc === 0) return {
+    mood: 'happy',
+    text: 'Dobrodošli! Ready to start your Croatian journey?',
+    sub: 'Your first lesson awaits 🇭🇷',
+  };
+  if (comebackBonus) return {
+    mood: 'celebrating',
+    text: 'Welcome back! +50 bonus XP on your first lesson!',
+    sub: 'Your Croatian is still here waiting for you 💪',
+  };
+  if (allQuestsDone) return {
+    mood: 'celebrating',
+    text: 'Sve misije završene! All quests done today!',
+    sub: "You're a Croatian champion today 🏆",
+  };
+  if (streak >= 100) return { mood: 'celebrating', text: `${streak}-day streak! Legendarno! 🔥`, sub: 'You are an inspiration.' };
+  if (streak >= 30)  return { mood: 'celebrating', text: `${streak} dana zaredom — unstoppable! 🔥`, sub: 'True dedication to the language 🇭🇷' };
+  if (streak >= 14)  return { mood: 'celebrating', text: `${streak}-day streak — keep the fire burning! 🔥`, sub: 'Sjajno ide!' };
+  if (streak >= 7)   return { mood: 'encouraged',  text: `${streak} days in a row — the habit is forming! 💪`, sub: 'Bravo, hajde dalje!' };
+  if (streak >= 3)   return { mood: 'encouraged',  text: `${streak}-day streak — don't break the chain! 🔥`, sub: 'Svaki dan si bolji!' };
+  if (level >= 10)   return { mood: 'celebrating', text: `Level ${level} — advanced learner! 🎓`, sub: 'Napredak je vidljiv!' };
+  if (level >= 5)    return { mood: 'happy',       text: `Level ${level} — halfway to fluency! 🌟`, sub: "Keep pushing, you've got this!" };
+  if (level >= 3)    return { mood: 'happy',       text: `Level ${level} — real momentum building!`, sub: 'Odlično!' };
+  if (h < 12)  return { mood: 'happy',    text: 'Morning practice is the best practice!', sub: 'Ready for today? Hajde! ☀️' };
+  if (h >= 20) return { mood: 'thinking', text: 'Evening session — great way to end the day!', sub: 'Even 5 minutes counts 💪' };
+  const msgs = [
+    { mood: 'happy',       text: 'Every word you learn brings Croatia closer!',       sub: 'Hajde! 🇭🇷' },
+    { mood: 'thinking',    text: 'Croatian has 7 cases — let\'s master them together!', sub: 'Your ancestors spoke this language' },
+    { mood: 'happy',       text: 'Your ancestors spoke this language. Carry it forward! 💙', sub: null },
+    { mood: 'celebrating', text: 'Language is the soul of culture!',                  sub: 'Naša Hrvatska čeka! 🌟' },
+    { mood: 'happy',       text: 'Ima li tko tko voli učiti? Ja volim! Let\'s go! 🎉', sub: null },
+    { mood: 'thinking',    text: 'Small steps every day — you\'re building something beautiful 🏛️', sub: null },
+    { mood: 'happy',       text: 'Naša Hrvatska čeka! Croatia is waiting for you! 🇭🇷', sub: null },
+  ];
+  return msgs[new Date().getDay() % msgs.length];
+}
+
 function getWeekKey() {
   const d = new Date();
   const day = d.getDay() || 7;
@@ -342,36 +384,88 @@ export default function HomeTab({
           </div>
         </div>
 
-        {/* Greeting — centred, large, prominent */}
-        <div style={{textAlign:"center",marginBottom:6}}>
-          <div style={{
-            fontSize:13,fontWeight:700,
-            color:"rgba(255,255,255,.65)",
-            letterSpacing:".12em",
-            textTransform:"uppercase",
-            marginBottom:4,
-          }}>
-            {greetingByTime()}
-          </div>
-          <div style={{
-            fontSize:24,fontWeight:900,
-            fontFamily:"'Playfair Display',serif",
-            letterSpacing:"-.01em",lineHeight:1.1,
-            textShadow:"0 2px 24px rgba(0,0,0,.5)",
-          }}>
-            {name || "Učenik"} 👋
-          </div>
-          {name && (
-            <p style={{fontSize:12,fontWeight:600,color:"rgba(255,255,255,.7)",marginTop:6,marginBottom:0,lineHeight:1.4}}>
-              {userGoal === 'heritage' ? "Reconnecting with your roots 🇭🇷"
-               : userGoal === 'family'  ? "Learning for the people you love 👨‍👩‍👧"
-               : userGoal === 'partner' ? "Learning for the people you love 💙"
-               : userGoal === 'travel'  ? "Croatia is waiting for you ✈️"
-               : userGoal === 'culture' ? "Immerse yourself in Croatian culture 🎵"
-               : "On the path to fluency 🗣️"}
-            </p>
-          )}
-        </div>
+        {/* ── Knight mascot hero ─────────────────────────────────────── */}
+        {(() => {
+          const mascot = getMascotMessage({ streak: streak.count, level, st, comebackBonus, allQuestsDone });
+          return (
+            <motion.div
+              key={mascot.mood}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}
+            >
+              {/* Knight — the mascot */}
+              <motion.div
+                initial={{ scale: 0.75, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', stiffness: 340, damping: 18, delay: 0.1 }}
+                style={{ flexShrink: 0 }}
+              >
+                <CroatianKnight size={92} mood={mascot.mood} />
+              </motion.div>
+
+              {/* Speech bubble — pointer on left side */}
+              <div style={{ flex: 1, position: 'relative' }}>
+                {/* left-pointing triangle */}
+                <div style={{
+                  position: 'absolute', left: -9, top: 18,
+                  width: 0, height: 0,
+                  borderTop: '8px solid transparent',
+                  borderBottom: '8px solid transparent',
+                  borderRight: '8px solid rgba(255,255,255,0.18)',
+                }} />
+                <div style={{
+                  background: 'rgba(255,255,255,0.14)',
+                  backdropFilter: 'blur(14px)',
+                  WebkitBackdropFilter: 'blur(14px)',
+                  borderRadius: '4px 16px 16px 16px',
+                  padding: '12px 14px',
+                  border: '1px solid rgba(255,255,255,0.22)',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+                }}>
+                  <div style={{
+                    fontSize: 10, fontWeight: 800, letterSpacing: '.1em',
+                    textTransform: 'uppercase', color: 'rgba(200,152,10,0.95)',
+                    marginBottom: 5,
+                  }}>
+                    {greetingByTime()}, {name || 'Učenik'}!
+                  </div>
+                  <div style={{
+                    fontSize: 15, fontWeight: 700, color: '#fff',
+                    lineHeight: 1.45, textShadow: '0 1px 6px rgba(0,0,0,0.3)',
+                  }}>
+                    {mascot.text}
+                  </div>
+                  {mascot.sub && (
+                    <div style={{
+                      fontSize: 12, color: 'rgba(255,255,255,0.72)',
+                      marginTop: 5, lineHeight: 1.4, fontWeight: 500,
+                    }}>
+                      {mascot.sub}
+                    </div>
+                  )}
+                  {/* goal tagline as a small pill */}
+                  <div style={{
+                    display: 'inline-block', marginTop: 8,
+                    fontSize: 10, fontWeight: 700,
+                    color: 'rgba(255,255,255,0.65)',
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: 10, padding: '2px 8px',
+                    letterSpacing: '.04em',
+                  }}>
+                    {userGoal === 'heritage' ? '🇭🇷 Reconnecting with your roots'
+                     : userGoal === 'family'  ? '👨‍👩‍👧 Learning for family'
+                     : userGoal === 'partner' ? '💙 Learning for love'
+                     : userGoal === 'travel'  ? '✈️ Croatia is waiting'
+                     : userGoal === 'culture' ? '🎵 Immersed in Croatian culture'
+                     : '🗣️ On the path to fluency'}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          );
+        })()}
 
         {/* ── Continue Learning CTA ── */}
         {lastActivity && (
