@@ -179,6 +179,7 @@ const HeritageStoryScreen = lazyWithReload(() => import("./croatia/HeritageStory
 const CroatianNewsScreen = lazyWithReload(() => import("./croatia/CroatianNewsScreen.jsx"));
 const PhraseOfDayScreen = lazyWithReload(() => import("./croatia/PhraseOfDayScreen.jsx"));
 const AIListeningScreen = lazyWithReload(() => import("./practice/AIListeningScreen.jsx"));
+const AIStoryScreen = lazyWithReload(() => import("./practice/AIStoryScreen.jsx"));
 const VideoLessonScreen = lazyWithReload(() => import("./practice/VideoLessonScreen.jsx"));
 const GrammarDiagnosisScreen = lazyWithReload(() => import("./home/GrammarDiagnosisScreen.jsx"));
 const MicroLessonScreen = lazyWithReload(() => import("./learn/MicroLessonScreen.jsx"));
@@ -587,6 +588,7 @@ export default function AppRouter(props) {
       {currentScreen==="live_tutor"&&(isPremium?<LiveTutorScreen goBack={goBack} award={award} />:<PaywallScreen featureName="Live Tutor" onClose={goBack} onSubscribed={()=>{refreshSub();}} />)}
       {currentScreen==="photo_vocab"&&<PhotoVocabScanner goBack={goBack} level={level} onSaveWords={(words)=>{words.forEach(w=>{if(w.hr&&w.en)setJWords(prev=>[...(prev||[]),{hr:w.hr,en:w.en}]);});}} />}
       {currentScreen==="ai_listening"&&<AIListeningScreen goBack={goBack} award={award} />}
+      {currentScreen==="ai_story"&&<AIStoryScreen goBack={goBack} award={award} />}
       {currentScreen==="video_lesson"&&<VideoLessonScreen goBack={goBack} award={award} />}
       {currentScreen==="grammar_diagnosis"&&<GrammarDiagnosisScreen goBack={goBack} award={award} />}
       {currentScreen==="micro_lesson"&&<MicroLessonScreen goBack={goBack} award={award} goFlashcards={()=>{launchFlashcards([]);}} />}

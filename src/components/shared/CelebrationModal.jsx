@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, memo } from 'react';
 import confetti from 'canvas-confetti';
 import { rnd } from '../../lib/random.js';
 import { useHaptic } from '../../hooks/useHaptic.js';
+import CroatianKnight from './CroatianKnight.jsx';
 
 const CROATIAN_COLORS = ['#b61800', '#ffffff', '#003087', '#f59e0b', '#16a34a'];
 
@@ -226,18 +227,9 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
           ×
         </button>
 
-        {/* Trophy */}
-        <div
-          style={{
-            fontSize: 72,
-            lineHeight: 1,
-            marginBottom: 4,
-            animation: 'float 2s ease-in-out infinite',
-            display: 'block',
-            filter: 'drop-shadow(0 8px 16px rgba(245,158,11,.3))',
-          }}
-        >
-          🏆
+        {/* LEGO Knight mascot — celebrating mood */}
+        <div style={{ display:'flex', justifyContent:'center', marginBottom:8 }}>
+          <CroatianKnight size={88} mood="celebrating" />
         </div>
 
         {/* Title */}
