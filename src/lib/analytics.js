@@ -6,8 +6,35 @@
  *
  * D1/D7/D30 retention: nh_install_date is set on first app load and never
  * reset, even across sign-outs. This gives true retention from first touch.
+ *
+ * GDPR: events are suppressed when the user has not accepted analytics
+ * cookies. Consent is stored in localStorage under 'cookie_consent_v1'.
+ * Only the value 'accepted' enables analytics; 'essential' (or missing)
+ * means the user declined analytics — no events fire.
  */
 import { fbLogEvent } from './firebase.js';
+
+/**
+ * Returns true only when the user has explicitly accepted analytics cookies.
+ * Defaults to false (opt-in, not opt-out) so new users are never tracked
+ * before they see and respond to the consent banner.
+ */
+function isAnalyticsConsented() {
+  try {
+    return localStorage.getItem('cookie_consent_v1') === 'accepted';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Consent-gated wrapper around fbLogEvent.
+ * Drop-in replacement — all track* functions call this instead of fbLogEvent directly.
+ */
+function safeLog(eventName, params) {
+  if (!isAnalyticsConsented()) return;
+  fbLogEvent(eventName, params || {});
+}
 
 const INSTALL_KEY = 'nh_install_date';
 
@@ -45,7 +72,7 @@ function retentionBucket(days) {
 /** Fire on every app open. Provides D1/D7/D14/D30 retention buckets in Analytics. */
 export function trackAppOpen(isSignedIn) {
   const days = getDaysSinceInstall();
-  fbLogEvent('app_open', {
+  safeLog('app_open', {
     days_since_install: days,
     retention_bucket: retentionBucket(days),
     signed_in: isSignedIn,
@@ -54,7 +81,7 @@ export function trackAppOpen(isSignedIn) {
 
 /** Fire when a lesson (celebrate=true) completes and XP is awarded. */
 export function trackLessonComplete({ xpEarned, streak, lessonType = 'vocab', lessonId = '' }) {
-  fbLogEvent('lesson_complete', {
+  safeLog('lesson_complete', {
     xp_earned: xpEarned,
     streak,
     lesson_type: lessonType,
@@ -64,7 +91,7 @@ export function trackLessonComplete({ xpEarned, streak, lessonType = 'vocab', le
 
 /** Fire when any non-lesson exercise completes. */
 export function trackExerciseComplete({ exerciseType, xpEarned }) {
-  fbLogEvent('exercise_complete', {
+  safeLog('exercise_complete', {
     exercise_type: exerciseType,
     xp_earned: xpEarned,
   });
@@ -72,52 +99,52 @@ export function trackExerciseComplete({ exerciseType, xpEarned }) {
 
 /** Fire when the user's level increases. */
 export function trackLevelUp({ newLevel, totalXP }) {
-  fbLogEvent('level_up', { new_level: newLevel, total_xp: totalXP });
+  safeLog('level_up', { new_level: newLevel, total_xp: totalXP });
 }
 
 /** Fire once per badge unlock. */
 export function trackBadgeEarned(badgeId) {
-  fbLogEvent('badge_earned', { badge_id: badgeId });
+  safeLog('badge_earned', { badge_id: badgeId });
 }
 
 /** Fire on streak milestones (7, 14, 30, etc). */
 export function trackStreakMilestone(days) {
-  fbLogEvent('streak_milestone', { days });
+  safeLog('streak_milestone', { days });
 }
 
 /** Fire when the streak counter resets to 0. */
 export function trackStreakBroken(previousStreak) {
-  fbLogEvent('streak_broken', { previous_streak: previousStreak });
+  safeLog('streak_broken', { previous_streak: previousStreak });
 }
 
 /** Fire on new account registration. */
 export function trackSignUp(method = 'email') {
-  fbLogEvent('sign_up', { method });
+  safeLog('sign_up', { method });
 }
 
 /** Fire on successful sign-in. */
 export function trackLogin(method = 'email') {
-  fbLogEvent('login', { method });
+  safeLog('login', { method });
 }
 
 /** Fire when the paywall is displayed. */
 export function trackPaywallShown(featureName) {
-  fbLogEvent('paywall_shown', { feature: featureName || 'unknown' });
+  safeLog('paywall_shown', { feature: featureName || 'unknown' });
 }
 
 /** Fire when the user completes a purchase / activates a subscription. */
 export function trackSubscribed(plan = 'premium') {
-  fbLogEvent('purchase', { item_name: plan });
+  safeLog('purchase', { item_name: plan });
 }
 
 /** Fire when the onboarding tour is completed or dismissed. */
 export function trackOnboardingComplete() {
-  fbLogEvent('tutorial_complete', {});
+  safeLog('tutorial_complete', {});
 }
 
 /** Fire when the daily challenge 3-question set is finished. */
 export function trackDailyChallengeComplete({ score, total }) {
-  fbLogEvent('daily_challenge_complete', {
+  safeLog('daily_challenge_complete', {
     score,
     total,
     perfect: score === total,
@@ -127,7 +154,7 @@ export function trackDailyChallengeComplete({ score, total }) {
 /** Fire after a spaced-repetition review session. */
 export function trackSRReview({ correct, total }) {
   if (!total) return;
-  fbLogEvent('sr_review_complete', {
+  safeLog('sr_review_complete', {
     correct,
     total,
     accuracy: Math.round((correct / total) * 100),
@@ -136,10 +163,10 @@ export function trackSRReview({ correct, total }) {
 
 /** Fire when the user successfully adds a friend. */
 export function trackFriendAdded() {
-  fbLogEvent('friend_added', {});
+  safeLog('friend_added', {});
 }
 
 /** Fire when the user joins or creates a family group. */
 export function trackFamilyJoined() {
-  fbLogEvent('family_joined', {});
+  safeLog('family_joined', {});
 }

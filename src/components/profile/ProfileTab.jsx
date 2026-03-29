@@ -1,5 +1,6 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
-import { getStreak, getSR, fbDeleteAccount, fbLeaveFamily, getLocalFamily } from '../../data.jsx';
+import { getStreak, getSR, fbDeleteAccount, fbLeaveFamily, getLocalFamily, lXP, nXP } from '../../data.jsx';
+import { fbExportUserData } from '../../lib/firebase.js';
 import { isSoundEnabled, setSoundEnabled, isHapticEnabled, setHapticEnabled, getVoicePreference, setVoicePreference } from '../../lib/soundSettings.js';
 import CroatianKnight from '../shared/CroatianKnight';
 import ProgressCharts from './ProgressCharts.jsx';
@@ -145,99 +146,194 @@ function SkillRadar({ st }) {
   );
 }
 
-// ── XP Activity Calendar ───────────────────────────────────────────────────
+// ── XP Activity Calendar (12-week GitHub-style heatmap) ───────────────────
 function XPActivityCalendar({ st }) {
   const [tooltip, setTooltip] = useState(null);
 
-  const activityLog = useMemo(() => {
+  // Collect all active days from every available localStorage source
+  const activeDays = useMemo(() => {
+    const result = {}; // dateStr → xp (or 1 if unknown)
     try {
-      return JSON.parse(localStorage.getItem('nh_activity_log') || '{}');
-    } catch { return {}; }
-  }, []);
-
-  const days = useMemo(() => {
-    const result = [];
-    const streakCount = st.streak?.count || (typeof st.streak === 'number' ? st.streak : 0);
-    for (let i = 29; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const key = d.toISOString().slice(0, 10);
-      let xp = activityLog[key] !== undefined ? activityLog[key] : 0;
-      // fallback: if no activity log but streak covers this day, give mock xp
-      if (xp === 0 && activityLog && Object.keys(activityLog).length === 0 && i < streakCount) {
-        xp = 50 + Math.floor(Math.random() * 80);
-      }
-      const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-      const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      result.push({
-        key,
-        xp,
-        label: `${monthNames[d.getMonth()]} ${d.getDate()}: ${xp} XP`,
-        dow: dayNames[d.getDay()],
+      // Source 1: nh_activity_log — most precise, stores dateStr → xp
+      const log = JSON.parse(localStorage.getItem('nh_activity_log') || '{}');
+      Object.entries(log).forEach(([d, xp]) => {
+        result[d] = (result[d] || 0) + (typeof xp === 'number' ? xp : 1);
       });
-    }
+      // Source 2: xpCooldown — { exerciseId: 'YYYY-MM-DD' } — proves activity on that date
+      const cd = JSON.parse(localStorage.getItem('xpCooldown') || '{}');
+      Object.values(cd).forEach(dateStr => {
+        if (typeof dateStr === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+          if (!result[dateStr]) result[dateStr] = 1;
+        }
+      });
+      // Source 3: uStreak — { last: 'YYYY-MM-DD' } — at minimum today counts if active
+      const strData = JSON.parse(localStorage.getItem('uStreak') || '{}');
+      if (strData.last && typeof strData.last === 'string') {
+        if (!result[strData.last]) result[strData.last] = 1;
+      }
+      // Source 4: quest/daily keys — presence of any key for a date means activity
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (!k) continue;
+        const m = k.match(/nh_(?:quest|daily)_\w+_(\d{4}-\d{2}-\d{2})$/);
+        if (m) { if (!result[m[1]]) result[m[1]] = 1; }
+      }
+    } catch { /* ignore parse errors */ }
     return result;
-  }, [activityLog, st]);
+  }, [st]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  function xpColor(xp) {
+  // Build 12 weeks × 7 days grid (84 days ending today)
+  const { weeks, todayStr } = useMemo(() => {
+    const today = new Date();
+    const tStr = today.toISOString().slice(0, 10);
+    const allDays = [];
+    for (let i = 83; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      allDays.push(d.toISOString().slice(0, 10));
+    }
+    // Pad front so week 0 starts on Sunday (align with grid)
+    const firstDow = new Date(allDays[0]).getDay(); // 0=Sun
+    const padded = Array(firstDow).fill(null).concat(allDays);
+    // Chunk into weeks of 7
+    const wks = [];
+    for (let w = 0; w < Math.ceil(padded.length / 7); w++) {
+      wks.push(padded.slice(w * 7, (w + 1) * 7));
+    }
+    return { weeks: wks, todayStr: tStr };
+  }, []); // intentionally static — rebuilds only on mount
+
+  function cellColor(dateStr) {
+    if (!dateStr) return 'transparent';
+    const xp = activeDays[dateStr] || 0;
     if (xp === 0) return 'var(--bar-bg)';
-    if (xp <= 50) return '#bbf7d0';
-    if (xp <= 150) return '#4ade80';
-    return '#16a34a';
+    if (xp < 50) return 'rgba(14,116,144,0.35)';
+    if (xp < 150) return 'rgba(14,116,144,0.6)';
+    return '#0e7490';
   }
 
-  const dowLabels = ['M','T','W','T','F','S','S'];
+  const DOW_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  const MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  // Month labels: find first cell in each month
+  const monthMarkers = useMemo(() => {
+    const seen = new Set();
+    const markers = [];
+    weeks.forEach((week, wi) => {
+      week.forEach((dateStr, di) => {
+        if (!dateStr) return;
+        const month = dateStr.slice(5, 7);
+        if (!seen.has(month)) {
+          seen.add(month);
+          markers.push({ wi, label: MONTH_LABELS[parseInt(month, 10) - 1] });
+        }
+      });
+    });
+    return markers;
+  }, [weeks]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const activeDayCount = useMemo(
+    () => Object.keys(activeDays).filter(d => d >= weeks[0]?.[0] && d <= todayStr).length,
+    [activeDays, weeks, todayStr]
+  );
 
   return (
     <div style={{ background: 'var(--card)', border: '1px solid var(--card-b)', borderRadius: 16, padding: '16px', marginBottom: 16 }}>
-      <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 12 }}>
-        📅 Activity
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+        <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '.08em' }}>
+          📅 12-Week Activity
+        </div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--info)' }}>
+          {activeDayCount} day{activeDayCount !== 1 ? 's' : ''} active
+        </div>
       </div>
-      {/* DOW headers — approximate, 6 columns */}
-      <div style={{ display: 'flex', gap: 3, marginBottom: 4 }}>
-        {Array.from({ length: 6 }, (_, ci) => (
-          <div key={ci} style={{ width: 28, textAlign: 'center', fontSize: 9, fontWeight: 700, color: 'var(--subtext)' }}>
-            {dowLabels[ci % 7]}
+
+      {/* Day-of-week row labels on left */}
+      <div style={{ display: 'flex', gap: 2 }}>
+        {/* DOW labels column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginRight: 2, justifyContent: 'flex-start' }}>
+          {DOW_LABELS.map((d, i) => (
+            <div key={i} style={{ height: 11, fontSize: 8, fontWeight: 700, color: 'var(--subtext)', lineHeight: '11px', width: 10 }}>
+              {i % 2 === 1 ? d : ''}
+            </div>
+          ))}
+        </div>
+        {/* Week columns */}
+        <div style={{ flex: 1, overflowX: 'auto' }}>
+          {/* Month labels */}
+          <div style={{ display: 'flex', gap: 2, marginBottom: 3, minWidth: weeks.length * 13 }}>
+            {weeks.map((_, wi) => {
+              const marker = monthMarkers.find(m => m.wi === wi);
+              return (
+                <div key={wi} style={{ width: 11, fontSize: 8, fontWeight: 700, color: 'var(--subtext)', whiteSpace: 'nowrap', overflow: 'visible' }}>
+                  {marker ? marker.label : ''}
+                </div>
+              );
+            })}
           </div>
-        ))}
+          {/* Grid: 7 rows × N week columns */}
+          <div style={{ display: 'flex', gap: 2, minWidth: weeks.length * 13 }}>
+            {weeks.map((week, wi) => (
+              <div key={wi} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {week.map((dateStr, di) => {
+                  const isToday = dateStr === todayStr;
+                  const isFuture = dateStr && dateStr > todayStr;
+                  const label = dateStr
+                    ? `${dateStr}${activeDays[dateStr] ? ` · ${activeDays[dateStr] > 1 ? activeDays[dateStr] + ' XP' : 'Studied'} ✓` : ''}`
+                    : '';
+                  return (
+                    <div
+                      key={di}
+                      title={label}
+                      onMouseEnter={e => dateStr && setTooltip({ label, x: e.clientX, y: e.clientY })}
+                      onMouseLeave={() => setTooltip(null)}
+                      onTouchStart={() => dateStr && setTooltip({ label, x: 0, y: 0 })}
+                      onTouchEnd={() => setTooltip(null)}
+                      style={{
+                        width: 11, height: 11, borderRadius: 2,
+                        background: isFuture ? 'transparent' : cellColor(dateStr),
+                        border: isToday ? '1.5px solid #0e7490' : 'none',
+                        opacity: isFuture ? 0 : 1,
+                        flexShrink: 0,
+                        cursor: dateStr ? 'default' : 'default',
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-      {/* 5 rows × 6 cols = 30 squares */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 28px)', gridTemplateRows: 'repeat(5, 28px)', gap: 3, position: 'relative' }}>
-        {days.map((day, idx) => (
-          <div
-            key={day.key}
-            onMouseEnter={e => setTooltip({ label: day.label, x: e.clientX, y: e.clientY })}
-            onMouseLeave={() => setTooltip(null)}
-            onTouchStart={() => setTooltip({ label: day.label, x: 0, y: 0 })}
-            onTouchEnd={() => setTooltip(null)}
-            style={{
-              width: 28, height: 28, borderRadius: 6,
-              background: xpColor(day.xp),
-              cursor: 'default',
-              transition: 'transform 0.1s',
-              boxShadow: day.xp > 0 ? '0 1px 4px rgba(74,222,128,.3)' : 'none',
-            }}
-          />
-        ))}
-      </div>
+
       {/* Legend */}
-      <div style={{ display: 'flex', gap: 10, marginTop: 10, alignItems: 'center' }}>
-        {[
-          { color: 'var(--bar-bg)', label: 'No activity' },
-          { color: '#bbf7d0',       label: '1–50 XP' },
-          { color: '#4ade80',       label: '51–150 XP' },
-          { color: '#16a34a',       label: '151+ XP' },
-        ].map(l => (
-          <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-            <div style={{ width: 10, height: 10, borderRadius: 2, background: l.color }} />
-            <span style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 600 }}>{l.label}</span>
-          </div>
-        ))}
+      <div style={{ display: 'flex', gap: 8, marginTop: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <div style={{ width: 10, height: 10, borderRadius: 2, background: 'var(--bar-bg)', border: '1px solid var(--card-b)' }} />
+          <span style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 600 }}>No activity</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <div style={{ width: 10, height: 10, borderRadius: 2, background: 'rgba(14,116,144,0.35)' }} />
+          <span style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 600 }}>Light</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <div style={{ width: 10, height: 10, borderRadius: 2, background: 'rgba(14,116,144,0.6)' }} />
+          <span style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 600 }}>Good</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <div style={{ width: 10, height: 10, borderRadius: 2, background: '#0e7490' }} />
+          <span style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 600 }}>Strong</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <div style={{ width: 10, height: 10, borderRadius: 2, border: '1.5px solid #0e7490', background: 'var(--bar-bg)' }} />
+          <span style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 600 }}>Today</span>
+        </div>
       </div>
+
       {/* Tooltip */}
       {tooltip && (
         <div style={{
-          position: 'fixed', top: tooltip.y - 36, left: tooltip.x - 60,
+          position: 'fixed', top: tooltip.y - 36, left: Math.max(8, tooltip.x - 70),
           background: 'var(--heading)', color: 'var(--card)',
           fontSize: 11, fontWeight: 700, borderRadius: 8,
           padding: '4px 10px', pointerEvents: 'none', zIndex: 9999,
@@ -278,6 +374,7 @@ export default function ProfileTab({ syncReady, onSyncNow, onOpenLeaderboard, on
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [exportDone, setExportDone] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [goalOpen, setGoalOpen] = useState(false);
   const [currentGoal, setCurrentGoal] = useState(() => localStorage.getItem('nh_goal') || '');
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
@@ -311,24 +408,51 @@ export default function ProfileTab({ syncReady, onSyncNow, onOpenLeaderboard, on
     { id: 'fluent',   icon: '🗣️',  label: 'Become fluent' },
   ];
 
-  function exportData() {
-    const data = {
-      exportDate: new Date().toISOString(),
-      profile: { name, email: au?.u },
-      stats: st,
-      streak: { current: getStreak() },
-      favourites: favs,
-      journal: jWords,
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `nasa-hrvatska-export-${new Date().toISOString().slice(0,10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    setExportDone(true);
-    setTimeout(() => setExportDone(false), 3000);
+  async function exportData() {
+    if (exporting) return;
+    setExporting(true);
+    try {
+      let data;
+      const uid = au?.u || au?.uid || '';
+      if (uid) {
+        // Full GDPR export: Firestore docs + all localStorage keys
+        data = await fbExportUserData(uid);
+        // Also embed in-memory state not yet flushed to Firestore
+        data.inMemory = {
+          profile: { name, email: au?.e },
+          stats: st,
+          streak: { current: getStreak() },
+          favourites: favs,
+          journal: jWords,
+        };
+      } else {
+        // Not signed in — export localStorage / in-memory only
+        data = {
+          exportDate: new Date().toISOString(),
+          note: 'Signed-out export — no Firestore data included.',
+          inMemory: {
+            profile: { name },
+            stats: st,
+            streak: { current: getStreak() },
+            favourites: favs,
+            journal: jWords,
+          },
+        };
+      }
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `nasa-hrvatska-data-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setExportDone(true);
+      setTimeout(() => setExportDone(false), 4000);
+    } catch {
+      alert('Export failed. Please try again.');
+    } finally {
+      setExporting(false);
+    }
   }
 
   async function handleDeleteAccount() {
@@ -449,7 +573,32 @@ export default function ProfileTab({ syncReady, onSyncNow, onOpenLeaderboard, on
         </h2>
         <CroatianKnight size={50} mood="happy" style={{margin:'8px auto 0', display:'block', position:'relative', zIndex:1}} />
         <div style={{fontSize:'var(--text-sm)',opacity:.75,marginBottom:2,fontWeight:600,position:"relative",zIndex:1,color:"rgba(255,255,255,.8)"}}>Level {level} Learner</div>
-        {au?.e && <div style={{fontSize:'var(--text-sm)',opacity:.45,marginTop:2,position:"relative",zIndex:1}}>{au.e}</div>}
+        {/* ── NEXT LEVEL XP BAR ── */}
+        {(() => {
+          const xpFloor = lXP(level);
+          const xpCeil = nXP(level);
+          const xpInLevel = (st.xp || 0) - xpFloor;
+          const xpNeeded = xpCeil - xpFloor;
+          const pct = xpNeeded > 0 ? Math.min(100, Math.round((xpInLevel / xpNeeded) * 100)) : 100;
+          const xpRemaining = Math.max(0, xpCeil - (st.xp || 0));
+          return (
+            <div style={{width:'80%',maxWidth:260,margin:'6px auto 0',position:'relative',zIndex:1}}>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:10,fontWeight:700,color:'rgba(255,255,255,.6)',marginBottom:4}}>
+                <span>Level {level}</span>
+                <span style={{color:'rgba(255,255,255,.85)'}}>
+                  {xpRemaining > 0 ? xpRemaining + ' XP to Level ' + (level + 1) : 'Max Level!'}
+                </span>
+              </div>
+              <div style={{height:6,borderRadius:3,background:'rgba(255,255,255,.15)',overflow:'hidden'}}>
+                <div style={{height:'100%',borderRadius:3,background:'linear-gradient(90deg,#06b6d4,#0e7490)',width:pct + '%',transition:'width .6s ease'}}/>
+              </div>
+              <div style={{textAlign:'center',fontSize:10,fontWeight:700,color:'rgba(255,255,255,.5)',marginTop:3}}>
+                {xpInLevel} / {xpNeeded} XP · {pct}%
+              </div>
+            </div>
+          );
+        })()}
+        {au?.e && <div style={{fontSize:'var(--text-sm)',opacity:.45,marginTop:6,position:"relative",zIndex:1}}>{au.e}</div>}
       </div>
 
       {/* ── SUB-TAB PILL SELECTOR ── */}
@@ -475,43 +624,8 @@ export default function ProfileTab({ syncReady, onSyncNow, onOpenLeaderboard, on
       {ptab === 'stats' && (
         <React.Fragment>
 
-          {/* ── 30-DAY ACTIVITY CALENDAR ── */}
-          <div style={{
-            background:'var(--card)', border:'1px solid var(--card-b)',
-            borderRadius:16, padding:'16px', marginBottom:16,
-          }}>
-            <div style={{fontSize:12, fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:12}}>
-              📅 30-Day Activity
-            </div>
-            <div style={{display:'flex', gap:4, flexWrap:'wrap'}}>
-              {practiceHistory.map((day, i) => (
-                <div key={i} title={day.date} style={{
-                  width:18, height:18, borderRadius:4,
-                  background: day.isToday
-                    ? (day.practiced ? 'var(--success)' : 'var(--info)')
-                    : day.practiced ? 'var(--success)' : 'var(--bar-bg)',
-                  border: day.isToday ? '2px solid var(--info)' : '1px solid transparent',
-                  boxShadow: day.practiced ? '0 0 4px rgba(74,222,128,.4)' : 'none',
-                  transition:'transform .1s',
-                  flexShrink: 0,
-                }}/>
-              ))}
-            </div>
-            <div style={{display:'flex', gap:12, marginTop:10}}>
-              <div style={{display:'flex', alignItems:'center', gap:4}}>
-                <div style={{width:10, height:10, borderRadius:2, background:'var(--success)'}}/>
-                <span style={{fontSize:10, color:'var(--subtext)', fontWeight:600}}>Practiced</span>
-              </div>
-              <div style={{display:'flex', alignItems:'center', gap:4}}>
-                <div style={{width:10, height:10, borderRadius:2, background:'var(--info)', border:'1.5px solid var(--info)'}}/>
-                <span style={{fontSize:10, color:'var(--subtext)', fontWeight:600}}>Today</span>
-              </div>
-              <div style={{display:'flex', alignItems:'center', gap:4}}>
-                <div style={{width:10, height:10, borderRadius:2, background:'var(--bar-bg)'}}/>
-                <span style={{fontSize:10, color:'var(--subtext)', fontWeight:600}}>Missed</span>
-              </div>
-            </div>
-          </div>
+          {/* ── 12-WEEK ACTIVITY CALENDAR ── */}
+          <XPActivityCalendar st={st} />
 
           {/* ── SKILL RADAR CHART ── */}
           <SkillRadar st={st} />
@@ -1443,16 +1557,17 @@ export default function ProfileTab({ syncReady, onSyncNow, onOpenLeaderboard, on
 
           {/* ── GDPR DATA EXPORT ── */}
           <h3 className="sh">Your Data</h3>
-          <button className="tc" style={{width:"100%",display:"flex",alignItems:"center",gap:14,padding:"16px",marginBottom:10}}
-            onClick={exportData}>
-            <div style={{width:38,height:38,borderRadius:12,background:"linear-gradient(135deg,var(--info),#164e63)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:'var(--text-lg)',flexShrink:0}}>📦</div>
+          <button className="tc" style={{width:"100%",display:"flex",alignItems:"center",gap:14,padding:"16px",marginBottom:10,opacity:exporting?0.6:1,cursor:exporting?"not-allowed":"pointer"}}
+            onClick={exportData}
+            disabled={exporting}>
+            <div style={{width:38,height:38,borderRadius:12,background:"linear-gradient(135deg,var(--info),#164e63)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:'var(--text-lg)',flexShrink:0}}>📥</div>
             <div style={{flex:1,textAlign:"left"}}>
-              <div style={{fontSize:'var(--text-base)',fontWeight:800,color:"var(--heading)"}}>Export My Data</div>
-              <div style={{fontSize:'var(--text-xs)',color:exportDone?"var(--success)":"var(--subtext)",marginTop:1,fontWeight:exportDone?700:500}}>
-                {exportDone ? "✓ Downloaded! Check your downloads folder." : "Download all your progress as JSON"}
+              <div style={{fontSize:'var(--text-base)',fontWeight:800,color:"var(--heading)"}}>Export My Data (GDPR)</div>
+              <div style={{fontSize:'var(--text-xs)',color:exportDone?"var(--success)":exporting?"var(--info)":"var(--subtext)",marginTop:1,fontWeight:(exportDone||exporting)?700:500}}>
+                {exportDone ? "✓ Downloaded! Check your downloads folder." : exporting ? "Exporting…" : "Download all your progress and Firestore data as JSON"}
               </div>
             </div>
-            <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.8}}>›</div>
+            {!exporting && <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.8}}>›</div>}
           </button>
 
           {/* ── SIGN OUT ── */}
