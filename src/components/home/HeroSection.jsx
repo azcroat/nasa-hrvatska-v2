@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { lXP, nXP, earnFreeze, getStreakFreezes, LEVEL_NARRATIVE } from '../../data.jsx';
 import { useApp } from '../../context/AppContext.jsx';
+import { useStats } from '../../context/StatsContext.jsx';
 import CroatianGrb from '../shared/CroatianGrb.jsx';
 import CroatianKnight from '../shared/CroatianKnight';
 
@@ -67,7 +68,8 @@ export default function HeroSection({
   comebackBonus, lastActivity, sCurEx, onSyncNow,
   wsMastered,
 }) {
-  const { name, level, st, award, setScr } = useApp();
+  const { name, setScr } = useApp();
+  const { level, stats: st, award } = useStats();
 
   const [freezes, setFreezes] = useState(getStreakFreezes);
   const [freezeMsg, setFreezeMsg] = useState('');

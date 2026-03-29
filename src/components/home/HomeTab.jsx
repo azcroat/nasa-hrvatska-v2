@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { LEARN_PATH, getStreak, getDailyChallenge, speak, DAILY_QUESTS, getActiveCampaign, getCityOfDay, incrementCulture } from '../../data.jsx';
 import { getWordOfDay } from '../../lib/wordOfDay.js';
 import { useApp } from '../../context/AppContext.jsx';
+import { useStats } from '../../context/StatsContext.jsx';
 import { safeGetItem } from '../../hooks/useLocalStorage.js';
 
 // Read last activity saved by App.jsx when exercises are launched
@@ -91,7 +92,8 @@ export default function HomeTab({
   daysSinceJoin = null,
   resumeLesson = null,
 }) {
-  const { level, st, award, setScr } = useApp();
+  const { setScr } = useApp();
+  const { level, stats: st, award } = useStats();
   const dc = useMemo(() => getDailyChallenge(), []);
   const ws = useMemo(() => getWeekStats(), [st]);
   const weekXP = useMemo(() => getWeekXP(), [st]);

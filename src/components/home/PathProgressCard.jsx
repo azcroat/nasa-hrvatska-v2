@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext.jsx';
+import { useStats } from '../../context/StatsContext.jsx';
 
 const SkeletonBar = ({ w = '100%', h = 16, r = 8, mt = 0 }) => (
   <div style={{width:w, height:h, borderRadius:r, marginTop:mt,
@@ -12,7 +13,8 @@ export default function PathProgressCard({
   launchPathItem, setTab, resumeLesson,
   lastActivity, sCurEx,
 }) {
-  const { st, setScr } = useApp();
+  const { setScr } = useApp();
+  const { stats: st } = useStats();
 
   return (
     <div style={{

@@ -14,6 +14,7 @@ import {
   gP, lP, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbGetIdToken,
 } from '../data.jsx';
 import { buildProgressSnapshot } from '../lib/progressSnapshot.js';
+import { mergeStatsFromRemote } from '../lib/mergeStatsFromRemote.js';
 
 export function useSyncManager({
   authUser, authScreen, name, stats, favs, jWords, dchlA, dchlSl,
@@ -71,14 +72,7 @@ export function useSyncManager({
       if (fpTs > lpTs) {
         lP(authUser.u, { ...fp, savedAt: fpTs });
         const pSt = fp.stats || fp.st || {};
-        setStats(prev => ({
-          ...ds, ...pSt,
-          ct: [...new Set([...(prev.ct || []), ...(pSt.ct || [])])],
-          vs: [...new Set([...(prev.vs || []), ...(pSt.vs || [])])],
-          lc: Math.max(prev.lc || 0, pSt.lc || 0),
-          gc: Math.max(prev.gc || 0, pSt.gc || 0),
-          xp: Math.max(prev.xp || 0, pSt.xp || 0),
-        }));
+        setStats(prev => mergeStatsFromRemote(prev, pSt, ds));
         if (fp.name) setName(fp.name);
         applyRemoteProgress(fp);
       }
@@ -98,14 +92,7 @@ export function useSyncManager({
         if (fpTs > lpTs) {
           lP(authUser.u, { ...fp, savedAt: fpTs });
           const pSt = fp.stats || fp.st || {};
-          setStats(prev => ({
-            ...ds, ...pSt,
-            ct: [...new Set([...(prev.ct || []), ...(pSt.ct || [])])],
-            vs: [...new Set([...(prev.vs || []), ...(pSt.vs || [])])],
-            lc: Math.max(prev.lc || 0, pSt.lc || 0),
-            gc: Math.max(prev.gc || 0, pSt.gc || 0),
-            xp: Math.max(prev.xp || 0, pSt.xp || 0),
-          }));
+          setStats(prev => mergeStatsFromRemote(prev, pSt, ds));
           if (fp.name) setName(fp.name);
           applyRemoteProgress(fp);
         }

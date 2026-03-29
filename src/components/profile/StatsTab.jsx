@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { getStreak, getSR } from '../../data.jsx';
 import { getStyleLabel, getStylePreferences } from '../../lib/learnerStyle.js';
 import { useApp } from '../../context/AppContext.jsx';
+import { useStats } from '../../context/StatsContext.jsx';
 import XPActivityCalendar from './XPActivityCalendar.jsx';
 import SkillRadar from './SkillRadar.jsx';
 
@@ -27,7 +28,8 @@ const STAGE_NAMES_PROFILE = ['Survivor', 'Settler', 'Communicator', 'Explorer', 
 const STAGE_THRESHOLDS = [0, 8, 16, 24, 32];
 
 export default function StatsTab({ onShowPrestigeModal, onSyncNow }) {
-  const { st, favs, setScr } = useApp();
+  const { favs, setScr } = useApp();
+  const { stats: st } = useStats();
 
   const prestigeLevel = parseInt(localStorage.getItem('nh_prestige') || '0', 10);
 
