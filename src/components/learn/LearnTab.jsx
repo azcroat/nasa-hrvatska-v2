@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { H, V, LEARN_PATH } from '../../data.jsx';
 import { useApp } from '../../context/AppContext.jsx';
+import { useStats } from '../../context/StatsContext.jsx';
 import LearnPathWidget from './LearnPathWidget.jsx';
 import BrowseContentModal from './BrowseContentModal.jsx';
 
@@ -31,7 +32,8 @@ export default function LearnTab({
   sGl, sGp, sGx, sGs, sGa, sGsl,
   launchPathItem, launchAnimLesson,
 }) {
-  const { setScr, st, setTab } = useApp();
+  const { setScr, setTab } = useApp();
+  const { stats: st } = useStats();
   const [showBrowse, setShowBrowse] = useState(false);
   const [pendingLesson, setPendingLesson] = useState(null);
 

@@ -9,6 +9,7 @@ import {
   bootstrapMistakesFromSRS, recordJourneyMilestone,
 } from "./data.jsx";
 import { buildProgressSnapshot } from "./lib/progressSnapshot.js";
+import { mergeStatsFromRemote } from "./lib/mergeStatsFromRemote.js";
 import { canRepairStreak, repairStreak } from "./lib/streak.js";
 import { trackAppOpen } from "./lib/analytics.js";
 import { fbRegisterFriendCode } from "./lib/firebase.js";
@@ -143,7 +144,8 @@ function App() {
   // Defined before useAuth so it can be passed to onSignedIn.
   const applyRemoteProgress = useCallback((fp) => {
     if (!fp) return;
-    const today = new Date().toISOString().slice(0, 10);
+    const _d = new Date();
+    const today = _d.getFullYear() + '-' + String(_d.getMonth() + 1).padStart(2, '0') + '-' + String(_d.getDate()).padStart(2, '0');
     const apSt = fp.stats || fp.st || {};
     if (fp.onboarded || fp.cp || apSt.xp > 0) { localStorage.setItem('onboarded', 'true'); setOnboarded(true); }
     if (fp.sr) { const lSR = getSR() || {}; const mSR = { ...lSR }; for (const w in fp.sr) { const r = fp.sr[w]; const l = mSR[w]; if (!l || (r.r||0) > (l.r||0) || (!l.r && (r.s||0) > (l.s||0))) mSR[w] = r; } saveSR(mSR); }
@@ -165,13 +167,13 @@ function App() {
   const { authScreen, setAuthScreen, authUser, authEmail, setAuthEmail, pw, setPw, pc, setPc, displayName, setDisplayName, sp, setSp2, rpEm, setRpEm, authError, setAuthError, authLoading, emailUnverified, setEmailUnverified, resendVerification, doReg, doLog, doOut, doReset, doGoogleLogin } = useAuth({
     onSignedIn({ user, progress, isNew, isHydrate }) {
       if (isHydrate) {
-        if (progress) { const st=progress.stats||progress.st||{}; setStats(prev=>({...ds,...st,ct:[...new Set([...(prev.ct||[]),...(st.ct||[])])],vs:[...new Set([...(prev.vs||[]),...(st.vs||[])])],lc:Math.max(prev.lc||0,st.lc||0),gc:Math.max(prev.gc||0,st.gc||0),xp:Math.max(prev.xp||0,st.xp||0)})); if(progress.name)setName(progress.name); }
+        if (progress) { const st = progress.stats || progress.st || {}; setStats(prev => mergeStatsFromRemote(prev, st, ds)); if (progress.name) setName(progress.name); }
         return;
       }
       if (progress) {
         setName(progress.name || user.d);
         const pSt = progress.stats || progress.st || {};
-        setStats(prev=>({...ds,...pSt,ct:[...new Set([...(prev.ct||[]),...(pSt.ct||[])])],vs:[...new Set([...(prev.vs||[]),...(pSt.vs||[])])],lc:Math.max(prev.lc||0,pSt.lc||0),gc:Math.max(prev.gc||0,pSt.gc||0),xp:Math.max(prev.xp||0,pSt.xp||0)}));
+        setStats(prev => mergeStatsFromRemote(prev, pSt, ds));
         if (!isNew && (progress.onboarded || progress.cp || pSt.xp > 0)) { localStorage.setItem('onboarded','true'); setOnboarded(true); }
       } else { setName(user.d); }
       if (isNew) setScr('welcome');
@@ -360,7 +362,7 @@ function App() {
     // Navigation
     setScr, goBack, tab, setTab,
     // Stats / gamification
-    st: stats, stats, setStats, level, award, sCurEx,
+    sCurEx,
     // Journal / family
     jWords, setJWords, famData, setFamData,
     // Subscription
@@ -389,7 +391,7 @@ function App() {
     authScreen, authUser, name, setName, doOut,
     darkMode, setDarkMode, favs, toggleFav, isFav,
     setScr, goBack, tab, setTab,
-    stats, setStats, level, award, sCurEx,
+    sCurEx,
     jWords, setJWords, famData, setFamData,
     isPremium, refreshSub, requirePremium,
     srchQ, setSrchQ, srchR, srchOpen, setSrchOpen, doSearch,

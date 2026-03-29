@@ -137,6 +137,7 @@ describe('Flashcards', () => {
 
 // ── Tab smoke-render tests ─────────────────────────────────────────────────────
 import AppContext from '../context/AppContext.jsx';
+import { StatsProvider } from '../context/StatsContext.jsx';
 import HomeTab from '../components/home/HomeTab.jsx';
 import LearnTab from '../components/learn/LearnTab.jsx';
 import PracticeTab from '../components/practice/PracticeTab.jsx';
@@ -160,11 +161,6 @@ const mockContextValue = {
   name: 'Test User',
   setName: vi.fn(),
   doOut: vi.fn(),
-  // Stats
-  st: mockSt,
-  setSt: vi.fn(),
-  level: 3,
-  award: vi.fn(),
   // Prefs
   darkMode: false,
   setDarkMode: vi.fn(),
@@ -179,22 +175,31 @@ const mockContextValue = {
   setFamData: vi.fn(),
 };
 
+const mockStatsValue = {
+  stats: mockSt,
+  setStats: vi.fn(),
+  level: 3,
+  award: vi.fn(),
+};
+
 describe('HomeTab smoke render', () => {
   it('renders without crashing', () => {
     render(
       <AppContext.Provider value={mockContextValue}>
-        <HomeTab
-          getWeekStats={() => ({ lessons: 0, grammar: 0, streak: 0, weak: 0, strong: 0 })}
-          sh={arr => arr}
-          allCats={[]}
-          dchlA={[null, null, null]}
-          sDchlA={vi.fn()}
-          dchlSl={[null, null, null]}
-          sDchlSl={vi.fn()}
-          setTab={vi.fn()}
-          sCurEx={vi.fn()}
-          launchPathItem={vi.fn()}
-        />
+        <StatsProvider value={mockStatsValue}>
+          <HomeTab
+            getWeekStats={() => ({ lessons: 0, grammar: 0, streak: 0, weak: 0, strong: 0 })}
+            sh={arr => arr}
+            allCats={[]}
+            dchlA={[null, null, null]}
+            sDchlA={vi.fn()}
+            dchlSl={[null, null, null]}
+            sDchlSl={vi.fn()}
+            setTab={vi.fn()}
+            sCurEx={vi.fn()}
+            launchPathItem={vi.fn()}
+          />
+        </StatsProvider>
       </AppContext.Provider>
     );
   });
@@ -204,7 +209,9 @@ describe('LearnTab smoke render', () => {
   it('renders without crashing', () => {
     render(
       <AppContext.Provider value={mockContextValue}>
-        <LearnTab allCats={[]} icons={{}} sh={arr => arr} />
+        <StatsProvider value={mockStatsValue}>
+          <LearnTab allCats={[]} icons={{}} sh={arr => arr} />
+        </StatsProvider>
       </AppContext.Provider>
     );
   });
@@ -214,16 +221,18 @@ describe('PracticeTab smoke render', () => {
   it('renders without crashing', () => {
     render(
       <AppContext.Provider value={mockContextValue}>
-        <PracticeTab
-          allCats={[]}
-          sh={arr => arr}
-          sCurEx={vi.fn()}
-          onLaunchQuiz={vi.fn()}
-          onLaunchFlash={vi.fn()}
-          onLaunchListen={vi.fn()}
-          onLaunchMatch={vi.fn()}
-          onLaunchSpeaking={vi.fn()}
-        />
+        <StatsProvider value={mockStatsValue}>
+          <PracticeTab
+            allCats={[]}
+            sh={arr => arr}
+            sCurEx={vi.fn()}
+            onLaunchQuiz={vi.fn()}
+            onLaunchFlash={vi.fn()}
+            onLaunchListen={vi.fn()}
+            onLaunchMatch={vi.fn()}
+            onLaunchSpeaking={vi.fn()}
+          />
+        </StatsProvider>
       </AppContext.Provider>
     );
   });
@@ -233,12 +242,14 @@ describe('ProfileTab smoke render', () => {
   it('renders without crashing', () => {
     render(
       <AppContext.Provider value={mockContextValue}>
-        <ProfileTab
-          syncReady={false}
-          onSyncNow={vi.fn()}
-          onOpenLeaderboard={vi.fn()}
-          onOpenFriends={vi.fn()}
-        />
+        <StatsProvider value={mockStatsValue}>
+          <ProfileTab
+            syncReady={false}
+            onSyncNow={vi.fn()}
+            onOpenLeaderboard={vi.fn()}
+            onOpenFriends={vi.fn()}
+          />
+        </StatsProvider>
       </AppContext.Provider>
     );
   });

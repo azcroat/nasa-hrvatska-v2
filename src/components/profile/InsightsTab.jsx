@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { getStreak } from '../../data.jsx';
 import { getWeakTopics } from '../../lib/adaptive.js';
 import { useApp } from '../../context/AppContext.jsx';
+import { useStats } from '../../context/StatsContext.jsx';
 import ProgressCharts from './ProgressCharts.jsx';
 import JourneyTimeline from './JourneyTimeline.jsx';
 import LearningInsights from './LearningInsights';
@@ -58,7 +59,8 @@ const B1_RESOURCES = [
 ];
 
 export default function InsightsTab({ onOpenLeaderboard, onOpenFriends }) {
-  const { st, level, setScr } = useApp();
+  const { setScr } = useApp();
+  const { stats: st, level } = useStats();
   const [imdOpen, setImdOpen] = useState(false);
   const [letterText, setLetterText] = useState(() => localStorage.getItem('nh_letter_to_self') || '');
 

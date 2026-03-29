@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════
 import { initializeApp, getApps } from 'firebase/app';
 import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup, sendEmailVerification, deleteUser } from 'firebase/auth';
-import { initializeFirestore, persistentLocalCache, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, deleteDoc, collection, runTransaction, onSnapshot, serverTimestamp, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { initializeFirestore, persistentLocalCache, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, deleteDoc, collection, runTransaction, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, writeBatch } from 'firebase/firestore';
 import { getAnalytics, logEvent as _fbLogEvent, isSupported as analyticsIsSupported } from 'firebase/analytics';
 
 const FIREBASE_CONFIG = {
@@ -69,35 +69,25 @@ export function isValidEmail(e){return/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)}
 export async function fbSaveProgress(uid,data){
   if(!_fbReady||!_fbDb)return{ok:true};
   const id=uid.replace(/[.#$/\[\]]/g,"_");
-  // Support both current ("stats") and legacy ("st") key formats when extracting XP.
   const _st=data.stats||data.st||{};
-  // Extract streak count — stored in data.streak.count (the full streak object)
   const _strk = (data.streak && typeof data.streak.count === 'number')
     ? data.streak.count
     : (typeof _st.str === 'number' ? _st.str : 0);
-  // Extract CEFR level — prefer data field, fall back to localStorage
   const _lvl = data.level
     || (typeof localStorage !== 'undefined' ? (localStorage.getItem('nh_level') || 'A1') : 'A1');
-  const incoming = {
+  const _nowMs=Date.now();
+  const lbEntry={name:data.name||"",xp:_st.xp||0,lc:_st.lc||0,updated:_nowMs};
+  const profileEntry={name:data.name||"",xp:_st.xp||0,lc:_st.lc||0,streak:_strk,level:_lvl,lastActive:_nowMs};
+  const userEntry = {
     progress:         JSON.stringify(data),
     updated:          serverTimestamp(),
     xp:               _st.xp || 0,
-    // ── Hoisted fields — queryable top-level copies of key progress metrics ───
-    // Kept in sync on every save. Enables Firestore queries without parsing the blob.
     level:            _lvl,
     streak:           _strk,
     lessonsCompleted: _st.lc || 0,
     lastActive:       serverTimestamp(),
   };
-  // Write public leaderboard projection + public profile alongside the private progress doc
-  const _nowMs=Date.now();
-  const lbEntry={name:data.name||"",xp:_st.xp||0,lc:_st.lc||0,updated:_nowMs};
-  // Public profile — readable by friends; used for friend leaderboard
-  const profileEntry={name:data.name||"",xp:_st.xp||0,lc:_st.lc||0,streak:_strk,level:_lvl,lastActive:_nowMs};
-  try{setDoc(fsDoc(_fbDb,"leaderboard",id),lbEntry,{merge:true}).catch(function(e){console.warn("Leaderboard write failed:",e)});}catch(e){console.warn("Leaderboard write error:",e);}
-  try{setDoc(fsDoc(_fbDb,"profiles",id),profileEntry,{merge:true}).catch(function(e){console.warn("Profile write failed:",e)});}catch(e){console.warn("Profile write error:",e);}
-  // Denormalize XP into the family doc so family leaderboard always shows live data
-  // without depending on the /leaderboard collection being up-to-date for each member.
+  // Family XP: fire-and-forget (different collection, can tolerate eventual consistency)
   const localFam=getLocalFamily();
   if(localFam&&localFam.code){
     try{
@@ -106,23 +96,19 @@ export async function fbSaveProgress(uid,data){
       updateDoc(famRef,{["memberXP."+id]:{xp:lbEntry.xp,lc:lbEntry.lc,name:lbEntry.name,weekXP:_famWeekXP,updated:_nowMs}}).catch(function(e){console.warn("Family XP sync failed:",e);});
     }catch(e){console.warn("Family XP sync error:",e);}
   } else if(lbEntry.xp>0){
-    // Family code not cached locally yet — read from the user's OWN doc to find it.
-    // isOwner passes: every user can always read their own /users/{id} doc.
-    // Fire-and-forget so it doesn't block the progress save.
     getDoc(fsDoc(_fbDb,"users",id)).then(function(uSnap){
       const fc=uSnap.exists()?uSnap.data().familyCode:null;
       const _fbWeekXP2=typeof data.weekXP==='number'?data.weekXP:0;
-      if(fc){updateDoc(fsDoc(_fbDb,"families",fc),{["memberXP."+id]:{xp:lbEntry.xp,lc:lbEntry.lc,name:lbEntry.name,weekXP:_fbWeekXP2,updated:incoming.updated}}).catch(function(){});}
+      if(fc){updateDoc(fsDoc(_fbDb,"families",fc),{["memberXP."+id]:{xp:lbEntry.xp,lc:lbEntry.lc,name:lbEntry.name,weekXP:_fbWeekXP2,updated:_nowMs}}).catch(function(){});}
     }).catch(function(){});
   }
-  // Direct write — no transaction read needed.
-  // Previously used runTransaction to skip writes when remote XP was >100 ahead, but that
-  // required two Firestore round-trips (~400-800ms total). If the user closed the browser
-  // during that window after completing a lesson, the write never finished — causing the
-  // "1-2 lessons behind" cross-device gap. Multi-device conflicts are now handled entirely
-  // client-side via MAX/union merging in the fbWatchProgress real-time listener.
+  // Atomic batch: users + leaderboard + profiles written together or not at all
   try{
-    await setDoc(fsDoc(_fbDb,"users",id),incoming,{merge:true});
+    const batch = writeBatch(_fbDb);
+    batch.set(fsDoc(_fbDb,"users",id), userEntry, {merge:true});
+    batch.set(fsDoc(_fbDb,"leaderboard",id), lbEntry, {merge:true});
+    batch.set(fsDoc(_fbDb,"profiles",id), profileEntry, {merge:true});
+    await batch.commit();
     return{ok:true};
   }catch(e){
     console.warn("FB save error:",e);

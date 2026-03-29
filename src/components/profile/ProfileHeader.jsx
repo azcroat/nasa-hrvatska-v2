@@ -2,9 +2,11 @@ import React from 'react';
 import { lXP, nXP } from '../../data.jsx';
 import CroatianKnight from '../shared/CroatianKnight';
 import { useApp } from '../../context/AppContext.jsx';
+import { useStats } from '../../context/StatsContext.jsx';
 
 export default function ProfileHeader() {
-  const { name, au, level, st } = useApp();
+  const { name, au } = useApp();
+  const { level, stats: st } = useStats();
 
   return (
     <div style={{

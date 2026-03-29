@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { H, V, LISTEN, UNJUMBLE, PREPDRILL, NUMTIME, getSR, getDueReviews } from '../../data.jsx';
 import { useApp } from '../../context/AppContext.jsx';
+import { useStats } from '../../context/StatsContext.jsx';
 
 // Q-4: PracticeTab now receives callbacks instead of raw App.jsx state setters.
 // Screens manage their own state; App.jsx only keeps state needed by screen props.
@@ -8,7 +9,8 @@ export default function PracticeTab({
   allCats, sh, sCurEx,
   onLaunchQuiz, onLaunchFlash, onLaunchListen, onLaunchMatch, onLaunchSpeaking,
 }) {
-  const { setScr, st } = useApp();
+  const { setScr } = useApp();
+  const { stats: st } = useStats();
   const lc = st?.lc ?? 0;
   const [weakMsg, setWeakMsg] = useState("");
   const [pFilter, setPFilter] = useState('all');
