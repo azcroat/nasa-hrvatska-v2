@@ -2,46 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { H, Spk, srMark, recordMistake } from '../../data.jsx';
 import { useHaptic } from '../../hooks/useHaptic.js';
+import { playCorrect, playWrong } from '../../lib/soundSettings.js';
 import { getHearts, loseHeart } from '../../lib/lives.js';
 import HeartsBar from '../shared/HeartsBar.jsx';
 
 const XP_PER_CORRECT = 3;
 const XP_COMPLETION_BONUS = 5;
-
-// ── Sound effects ──────────────────────────────────────────────────────────────
-function playCorrect() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(880, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(1100, ctx.currentTime + 0.15);
-    gain.gain.setValueAtTime(0.15, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.35);
-  } catch (e) {}
-}
-
-function playWrong() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(220, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.25);
-    gain.gain.setValueAtTime(0.1, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.3);
-  } catch (e) {}
-}
 
 // ── Particle burst on correct answer ──────────────────────────────────────────
 const PARTICLES = ['⭐','✨','🌟','💫','⚡','✨','⭐','🌟','💥','✨'];
@@ -93,6 +59,22 @@ function ParticleBurst({ active }) {
     </div>
   );
 }
+
+const MC_KEYFRAMES = `
+  @keyframes mcShake {
+    0%,100% { transform: translateX(0); }
+    15%      { transform: translateX(-8px); }
+    30%      { transform: translateX(8px); }
+    45%      { transform: translateX(-6px); }
+    60%      { transform: translateX(6px); }
+    75%      { transform: translateX(-3px); }
+    90%      { transform: translateX(3px); }
+  }
+  @keyframes correctGlow {
+    0%,100% { box-shadow: 0 0 0px rgba(22,163,74,0); }
+    50%     { box-shadow: 0 0 16px 4px rgba(22,163,74,0.7); }
+  }
+`;
 
 const LABELS = ['A', 'B', 'C', 'D'];
 
@@ -335,22 +317,7 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
       className="scr-wrap"
       style={{ animation: shaking ? 'mcShake 0.5s ease' : 'none' }}
     >
-      {/* Change 1: inject mcShake keyframes */}
-      <style>{`
-        @keyframes mcShake {
-          0%,100% { transform: translateX(0); }
-          15%      { transform: translateX(-8px); }
-          30%      { transform: translateX(8px); }
-          45%      { transform: translateX(-6px); }
-          60%      { transform: translateX(6px); }
-          75%      { transform: translateX(-3px); }
-          90%      { transform: translateX(3px); }
-        }
-        @keyframes correctGlow {
-          0%,100% { box-shadow: 0 0 0px rgba(22,163,74,0); }
-          50%     { box-shadow: 0 0 16px 4px rgba(22,163,74,0.7); }
-        }
-      `}</style>
+      <style>{MC_KEYFRAMES}</style>
 
       {/* Header row */}
       <div

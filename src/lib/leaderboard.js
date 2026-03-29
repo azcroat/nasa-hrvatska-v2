@@ -1,6 +1,7 @@
 // leaderboard.js — Weekly XP leaderboard with 5 league tiers
 import { doc, setDoc, getDocs, collection, query, orderBy, limit } from 'firebase/firestore';
 import { getDb } from './firebase.js';
+import { weekKey as _weekKey } from './dateUtils.js';
 
 export const LEAGUES = [
   { id: 'bronze',   name: 'Bronze',   icon: '🥉', color: '#cd7f32', minRank: 41 },
@@ -18,10 +19,7 @@ export function getLeagueForRank(rank) {
 }
 
 export function getWeekKey() {
-  const now = new Date();
-  const jan1 = new Date(now.getFullYear(), 0, 1);
-  const week = Math.ceil(((now.getTime() - jan1.getTime()) / 86400000 + jan1.getDay() + 1) / 7);
-  return `${now.getFullYear()}-W${String(week).padStart(2,'0')}`;
+  return _weekKey();
 }
 
 export async function submitWeeklyXP(db, uid, displayName, xp) {

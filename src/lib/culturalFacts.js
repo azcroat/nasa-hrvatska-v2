@@ -22,6 +22,6 @@ export const CULTURAL_FACTS = [
 ];
 
 export function getDailyFact() {
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 1)) / 86400000);
   return CULTURAL_FACTS[dayOfYear % CULTURAL_FACTS.length];
 }

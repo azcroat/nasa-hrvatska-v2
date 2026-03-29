@@ -2,22 +2,27 @@
  * useTranslator — inline Croatian ↔ English translation state and handler.
  * Uses the MyMemory API (free, no key required). Extracted from App.jsx.
  */
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 export function useTranslator() {
   const [tDir, setTDir] = useState('en-hr');   // translation direction
   const [tIn, setTIn] = useState('');           // input text
   const [tOut, setTOut] = useState('');         // translated output
   const [tL, setTL] = useState(false);          // loading flag
+  const abortRef = useRef(null);
 
   async function doTr() {
     const t = tIn.trim();
     if (!t) return;
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
     setTL(true); setTOut('');
     const [src, tgt] = tDir === 'en-hr' ? ['en', 'hr'] : ['hr', 'en'];
     try {
       const r = await fetch(
-        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(t)}&langpair=${src}|${tgt}`
+        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(t)}&langpair=${src}|${tgt}`,
+        { signal: controller.signal }
       );
       const d = await r.json();
       if (d.responseStatus === 200 && d.responseData?.translatedText) {
@@ -27,7 +32,10 @@ export function useTranslator() {
       } else {
         setTOut('Translation unavailable. Try translate.google.com');
       }
-    } catch (e) { setTOut('Network error — check your connection.'); }
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+      setTOut('Network error — check your connection.');
+    }
     setTL(false);
   }
 

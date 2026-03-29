@@ -396,8 +396,9 @@ export function getPrioritizedReviewQueue(pool) {
   const prioritized = [...overdue, ...dueToday];
 
   // Map to vocabulary entries (pool entries are arrays where index 0 = Croatian word)
+  const poolMap = new Map(pool.map(w => [w[0], w]));
   const result = prioritized
-    .map(({ word }) => pool.find(w => w[0] === word))
+    .map(({ word }) => poolMap.get(word))
     .filter(Boolean)
     .slice(0, 20);
 

@@ -2,6 +2,8 @@
 // 5 hearts per day. Lose 1 on wrong answer. Regen 1 per 4 hours.
 // Hearts reset at midnight.
 
+import { localDateStr } from './dateUtils.js';
+
 const KEY = 'nh_hearts';
 
 function getState() {
@@ -17,7 +19,7 @@ function saveState(s) {
 }
 
 function todayKey() {
-  return new Date().toISOString().slice(0,10); // 'YYYY-MM-DD'
+  return localDateStr();
 }
 
 export function getHearts() {
