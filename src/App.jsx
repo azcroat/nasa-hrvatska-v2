@@ -13,6 +13,7 @@ import { localDateStr, weekKey } from "./lib/dateUtils.js";
 import { canRepairStreak, repairStreak } from "./lib/streak.js";
 import { trackAppOpen } from "./lib/analytics.js";
 import { fbRegisterFriendCode } from "./lib/firebase.js";
+import { submitWeeklyXP } from "./lib/leaderboard.js";
 import AppContext from "./context/AppContext.jsx";
 import { StatsProvider } from "./context/StatsContext.jsx";
 
@@ -299,6 +300,19 @@ function App() {
 
   // Sync to Firebase on lesson/grammar completion
   useEffect(() => { if (!authUser || authScreen !== 'app' || stats.lc === 0) return; doSyncNow(); scheduleStreakReminder(getStreak().count); }, [stats.lc, stats.ct?.length, stats.gc, stats.sp]); // eslint-disable-line
+
+  // Sync weekly XP to leaderboard on every XP change (fire-and-forget)
+  useEffect(() => {
+    if (!authUser || authScreen !== 'app' || stats.xp === 0) return;
+    submitWeeklyXP(null, authUser.u, name, stats.xp).catch(() => {});
+  }, [stats.xp, authUser, authScreen, name]); // eslint-disable-line
+
+  // Periodic Firebase sync every 5 minutes — catches XP from mini-games that don't trigger lesson sync
+  useEffect(() => {
+    if (authScreen !== 'app' || !authUser) return undefined;
+    const iv = setInterval(() => { doSyncNow(); }, 5 * 60 * 1000);
+    return () => clearInterval(iv);
+  }, [authScreen, authUser, doSyncNow]);
 
   // Self-healing: reconstruct ct from LEARN_PATH if lost
   useEffect(() => {
