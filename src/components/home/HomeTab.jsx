@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Bar, V, LEARN_PATH, getStreak, getStreakFreezes, earnFreeze, getDailyChallenge, lXP, nXP, speak, getSR, getDueReviews, getMistakes, DAILY_QUESTS, LEVEL_NARRATIVE, getActiveCampaign } from '../../data.jsx';
+import { Bar, V, LEARN_PATH, getStreak, getStreakFreezes, earnFreeze, getDailyChallenge, lXP, nXP, speak, getSR, getDueReviews, getMistakes, DAILY_QUESTS, LEVEL_NARRATIVE, getActiveCampaign, getCityOfDay, incrementCulture } from '../../data.jsx';
 import { getWordOfDay } from '../../lib/wordOfDay.js';
 import { useApp } from '../../context/AppContext.jsx';
 
@@ -693,6 +693,40 @@ export default function HomeTab({
           </div>
         </motion.div>
       )}
+
+      {/* ── CITY OF THE DAY teaser ── */}
+      {(() => {
+        const city = getCityOfDay();
+        return (
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.1 }}>
+            <button
+              onClick={() => { incrementCulture('cityCnt'); if (award) award(3); setScr('cityofday'); }}
+              style={{
+                width: '100%', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left',
+                borderRadius: 16, overflow: 'hidden', marginBottom: 12,
+                boxShadow: '0 2px 12px rgba(0,0,0,.1)',
+              }}
+            >
+              <div style={{
+                background: `linear-gradient(135deg, ${city.color}dd, ${city.color})`,
+                padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14,
+              }}>
+                <div style={{ fontSize: 32, flexShrink: 0 }}>{city.icon}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,.75)', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 3 }}>
+                    🏙️ City of the Day
+                  </div>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: '#fff', lineHeight: 1.2 }}>{city.name}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,.75)', marginTop: 2, fontStyle: 'italic' }}>"{city.tagline}"</div>
+                </div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,.8)', flexShrink: 0 }}>
+                  {city.vocab.length} words →
+                </div>
+              </div>
+            </button>
+          </motion.div>
+        );
+      })()}
 
       {/* ── CROATIA POSTCARD — daily scene + phrase (video-first) ── */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.12 }}>
