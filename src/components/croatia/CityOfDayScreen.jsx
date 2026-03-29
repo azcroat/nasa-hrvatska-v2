@@ -2,22 +2,37 @@ import React, { useState } from 'react';
 import { speak } from '../../data.jsx';
 import { getCityOfDay } from '../../data.jsx';
 
+// Normalize city name to lookup key — strip diacritics, lowercase, collapse spaces
+// Handles: Šibenik→sibenik, Varaždin→varazdin, Korčula→korcula, Poreč→porec,
+//          Vukovar Grad→vukovar grad, Brač→brac, etc.
+function normKey(s) {
+  return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
+
 const CITY_PHOTOS = {
-  dubrovnik: '/images/scenes/dubrovnik-ai.webp',
-  split:     'https://images.unsplash.com/photo-1559570704-fea2efaf9e79?w=800&q=85&fit=crop&auto=format',
-  zagreb:    '/images/scenes/zagreb.webp',
-  zadar:     'https://images.unsplash.com/photo-1587974928442-77dc3e0dba72?w=800&q=85&fit=crop&auto=format',
-  rovinj:    'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=85&fit=crop&auto=format',
-  plitvice:  '/images/scenes/plitvice.webp',
-  hvar:      'https://images.unsplash.com/photo-1527515637462-cff94edd89b6?w=800&q=85&fit=crop&auto=format',
-  sibenik:   'https://images.unsplash.com/photo-1602002418082-a4443e081dd1?w=800&q=85&fit=crop&auto=format',
-  osijek:    'https://images.unsplash.com/photo-1564594736694-d73f80c4a7fe?w=800&q=85&fit=crop&auto=format',
-  varazdin:  'https://images.unsplash.com/photo-1548268770-66184a21657e?w=800&q=85&fit=crop&auto=format',
-  korcula:   'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?w=800&q=85&fit=crop&auto=format',
-  makarska:  'https://images.unsplash.com/photo-1586161816003-bc944e3c7e27?w=800&q=85&fit=crop&auto=format',
-  mostar:    '/images/scenes/mostar.webp',
-  labin:     '/images/scenes/labin.webp',
-  default:   'https://images.unsplash.com/photo-1555990538-c4c71e9a4bab?w=800&q=85&fit=crop&auto=format',
+  // Dalmatia
+  dubrovnik:    '/images/scenes/dubrovnik-ai.webp',
+  split:        'https://images.unsplash.com/photo-1559570704-fea2efaf9e79?w=800&q=85&fit=crop&auto=format',
+  zadar:        'https://images.unsplash.com/photo-1587974928442-77dc3e0dba72?w=800&q=85&fit=crop&auto=format',
+  sibenik:      'https://images.unsplash.com/photo-1602002418082-a4443e081dd1?w=800&q=85&fit=crop&auto=format',
+  hvar:         'https://images.unsplash.com/photo-1527515637462-cff94edd89b6?w=800&q=85&fit=crop&auto=format',
+  korcula:      'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?w=800&q=85&fit=crop&auto=format',
+  makarska:     'https://images.unsplash.com/photo-1586161816003-bc944e3c7e27?w=800&q=85&fit=crop&auto=format',
+  // Istria & Kvarner
+  rovinj:       'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=85&fit=crop&auto=format',
+  labin:        '/images/scenes/labin.webp',
+  // Continental Croatia
+  zagreb:       '/images/scenes/zagreb.webp',
+  varazdin:     'https://images.unsplash.com/photo-1548268770-66184a21657e?w=800&q=85&fit=crop&auto=format',
+  // Karlovac: four rivers, Central Croatia — use Plitvice greenery (same region/landscape)
+  karlovac:     '/images/scenes/plitvice.webp',
+  // Slavonia
+  osijek:       'https://images.unsplash.com/photo-1564594736694-d73f80c4a7fe?w=800&q=85&fit=crop&auto=format',
+  // National Parks & Herzegovina
+  plitvice:     '/images/scenes/plitvice.webp',
+  mostar:       '/images/scenes/mostar.webp',
+  // Reliable fallback — Dalmatian coast (proven working URL)
+  default:      'https://images.unsplash.com/photo-1559570704-fea2efaf9e79?w=800&q=85&fit=crop&auto=format',
 };
 
 function CityOfDayScreen({ goBack }) {
@@ -26,7 +41,7 @@ function CityOfDayScreen({ goBack }) {
   const tomorrow = (function(){const d=new Date();d.setDate(d.getDate()+1);return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});})();
   const tabs = [{id:"overview",label:"Overview",icon:"📖"},{id:"history",label:"History",icon:"🏛️"},{id:"vocab",label:"Vocabulary",icon:"💬"},{id:"facts",label:"Fast Facts",icon:"⚡"}];
 
-  const cityKey = (city.id || city.name || '').toLowerCase();
+  const cityKey = normKey(city.id || city.name);
   const photoUrl = CITY_PHOTOS[cityKey] || CITY_PHOTOS.default;
 
   return (
