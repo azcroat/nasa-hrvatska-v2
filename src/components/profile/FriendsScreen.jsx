@@ -313,7 +313,7 @@ export default function FriendsScreen({ user, goBack }) {
     <div className="scr-wrap">
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-        <button onClick={goBack} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: 'var(--heading)' }}>←</button>
+        <button onClick={goBack} aria-label="Go back" style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: 'var(--heading)' }}>←</button>
         <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 20, color: 'var(--heading)', margin: 0 }}>Friends & Family</h2>
       </div>
 

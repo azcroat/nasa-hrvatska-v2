@@ -47,6 +47,14 @@ const SEARCH_INDEX = [
   { tab:'profile', label:'Badges & Achievements', icon:'🏆', desc:'Your earned badges' },
 ];
 
+function normDiacritics(s) {
+  return s.toLowerCase()
+    .replace(/[čć]/g, 'c')
+    .replace(/š/g, 's')
+    .replace(/ž/g, 'z')
+    .replace(/đ/g, 'd');
+}
+
 export default function SearchModal({ setTab, onClose }) {
   const [q, setQ] = useState('');
   const inputRef = useRef(null);
@@ -56,10 +64,13 @@ export default function SearchModal({ setTab, onClose }) {
     if (e.key === 'Escape') onClose();
   }
 
-  const results = q.length < 1 ? [] : SEARCH_INDEX.filter(
-    item => item.label.toLowerCase().includes(q.toLowerCase()) ||
-            item.desc.toLowerCase().includes(q.toLowerCase())
-  );
+  const results = q.length < 1 ? [] : SEARCH_INDEX.filter(item => {
+    const nq = normDiacritics(q);
+    return normDiacritics(item.label).includes(nq) ||
+      normDiacritics(item.desc).includes(nq) ||
+      item.label.toLowerCase().includes(q.toLowerCase()) ||
+      item.desc.toLowerCase().includes(q.toLowerCase());
+  });
 
   // Group results by tab
   const grouped = results.reduce((acc, item) => {

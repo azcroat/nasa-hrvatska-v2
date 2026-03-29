@@ -740,6 +740,7 @@ export default function DialogueSim({ award }) {
                 <button
                   onClick={sendAiMessage}
                   disabled={aiLoading || !aiInput.trim()}
+                  aria-label={aiLoading ? "Sending message" : "Send message"}
                   style={{
                     background:'#7c3aed', border:'none', borderRadius:12,
                     padding:'11px 16px', color:'#fff', fontSize:16,

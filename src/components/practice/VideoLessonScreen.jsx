@@ -106,7 +106,12 @@ export default function VideoLessonScreen({ goBack, award }) {
       setShowTranscript(false);
     } catch (e) {
       if (!mountedRef.current) return;
-      setErrorMsg(e.message || 'Failed to generate lesson');
+      const isNetwork = !navigator.onLine || e.message === 'Failed to fetch';
+      setErrorMsg(
+        isNetwork
+          ? "Couldn't reach the server. Check your connection and try again."
+          : "Something went wrong generating this lesson. Please try again."
+      );
       setPhase('setup');
     }
   }
@@ -174,7 +179,7 @@ export default function VideoLessonScreen({ goBack, award }) {
     return (
       <div style={{ padding: '16px', maxWidth: 480, margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-          <button onClick={goBack} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, padding: 4, color: 'var(--subtext)' }}>←</button>
+          <button onClick={goBack} aria-label="Go back" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, padding: 4, color: 'var(--subtext)' }}>←</button>
           <div>
             <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--heading)' }}>🎬 Video Lesson</div>
             <div style={{ fontSize: 12, color: 'var(--subtext)' }}>Watch a Croatian scene · Follow the dialogue · Answer questions</div>
@@ -182,8 +187,16 @@ export default function VideoLessonScreen({ goBack, award }) {
         </div>
 
         {errorMsg && (
-          <div style={{ padding: '10px 14px', borderRadius: 10, background: '#fef2f2', border: '1px solid #fca5a5', color: '#dc2626', fontSize: 13, marginBottom: 16 }}>
-            {errorMsg}
+          <div style={{ padding: '12px 16px', borderRadius: 10, background: '#fef2f2', border: '1px solid #fca5a5', marginBottom: 16, textAlign: 'center' }}>
+            <div style={{ fontSize: 13, color: '#dc2626', marginBottom: 10 }}>{errorMsg}</div>
+            <button
+              className="b bp"
+              disabled={!topic}
+              onClick={generate}
+              style={{ fontSize: 13, padding: '8px 20px' }}
+            >
+              Try Again
+            </button>
           </div>
         )}
 
@@ -287,7 +300,7 @@ export default function VideoLessonScreen({ goBack, award }) {
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,.7)', marginTop: 4 }}>{content.en_summary}</div>
               )}
             </div>
-            <button onClick={goBack} style={{ background: 'rgba(255,255,255,.15)', border: 'none', cursor: 'pointer', borderRadius: 8, padding: '6px 10px', color: '#fff', fontSize: 18, flexShrink: 0 }}>×</button>
+            <button onClick={goBack} aria-label="Close" style={{ background: 'rgba(255,255,255,.15)', border: 'none', cursor: 'pointer', borderRadius: 8, padding: '6px 10px', color: '#fff', fontSize: 18, flexShrink: 0 }}>×</button>
           </div>
         </VideoBackground>
 
