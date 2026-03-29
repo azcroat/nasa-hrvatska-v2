@@ -490,12 +490,16 @@ export default function LiveTutorScreen({ goBack, award }) {
   // ── STT: send audio blob to Deepgram /api/stt ─
   const transcribeAudio = useCallback(async (blob, mimeType) => {
     setPhase('thinking'); // show loading state
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 15000); // 15s max
     try {
       const res = await fetch('/api/stt', {
         method: 'POST',
         headers: { 'Content-Type': mimeType },
         body: blob,
+        signal: controller.signal,
       });
+      clearTimeout(tid);
       const data = await res.json();
       if (data.fallback) {
         // Deepgram not configured, fall back to text input
@@ -510,6 +514,7 @@ export default function LiveTutorScreen({ goBack, award }) {
         setPhase('none'); // no speech detected, re-enable mic
       }
     } catch {
+      clearTimeout(tid);
       setPhase('none');
     }
   }, [breakdownCount, sessionHistory, sendToTutor]);

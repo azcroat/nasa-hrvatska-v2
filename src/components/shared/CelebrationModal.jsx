@@ -24,6 +24,9 @@ function playSuccessSound() {
       osc.start(ctx.currentTime + i * 0.12);
       osc.stop(ctx.currentTime + i * 0.12 + 0.45);
     });
+    // Close context after all notes finish to prevent AudioContext leak
+    const lastNoteEnd = notes.length * 0.12 + 0.5;
+    setTimeout(() => ctx.close().catch(() => {}), lastNoteEnd * 1000);
   } catch (e) {}
 }
 
