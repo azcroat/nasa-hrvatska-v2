@@ -125,14 +125,16 @@ export default function HomeTab({
       .catch(() => {})
       .finally(() => setDailyCultureLoading(false));
   }, []);
-  // Scene video — fetched from Pexels via /api/scene-video (KV-cached 7 days)
-  // Keyed by today's scene index so it re-fetches only when the scene changes
+  // Scene video — fetched from Pexels via /api/scene-video (KV-cached 7 days).
+  // Storage key includes dayIdx so the cache auto-invalidates after midnight —
+  // prevents yesterday's city video playing behind today's city banner.
   const [sceneVideoUrl, setSceneVideoUrl] = useState(null);
   useEffect(() => {
-    const SCENE_KEYS = ['dubrovnik','dalmatian','plitvice','zagreb','labin','mostar','food'];
     const dayIdx = Math.floor(Date.now() / 86400000);
-    const sceneKey = SCENE_KEYS[dayIdx % SCENE_KEYS.length];
-    const storageKey = `nh_scene_video_${sceneKey}`;
+    // Derive key from SCENE_POOL directly — single source of truth (no separate SCENE_KEYS array)
+    const SCENE_POOL_KEYS = ['dubrovnik','dalmatian','plitvice','zagreb','labin','mostar','food'];
+    const sceneKey = SCENE_POOL_KEYS[dayIdx % SCENE_POOL_KEYS.length];
+    const storageKey = `nh_scene_video_${dayIdx}_${sceneKey}`;
     const cached = sessionStorage.getItem(storageKey);
     if (cached) { setSceneVideoUrl(cached); return; }
     fetch(`/api/scene-video?scene=${sceneKey}`)
@@ -182,7 +184,9 @@ export default function HomeTab({
   const questXP = DAILY_QUESTS.filter(q => questsDone[q.id]).reduce((s,q) => s + q.xp, 0);
 
   // Award Daily Mastery +50 XP bonus the first time all quests are done today
-  const today = new Date().toISOString().slice(0,10);
+  // Use local calendar date — UTC ISO string gives wrong date for UTC+ timezones
+  const _td = new Date();
+  const today = _td.getFullYear() + '-' + String(_td.getMonth() + 1).padStart(2, '0') + '-' + String(_td.getDate()).padStart(2, '0');
   const masteryKey = `nh_daily_mastery_${today}`;
   useEffect(() => {
     if (allQuestsDone && !localStorage.getItem(masteryKey)) {
@@ -578,6 +582,12 @@ export default function HomeTab({
                 localStorage.setItem('nh_streak_restored_' + today, '1');
                 // Write streak back to 1 using the uStreak key (same format as getStreak in data.jsx)
                 localStorage.setItem('uStreak', JSON.stringify({ count: 1, last: today }));
+                // Sync with streak.js repair key so canRepairStreak() returns false this session
+                try {
+                  const rd = JSON.parse(localStorage.getItem('nh_streak_repair') || '{}');
+                  rd.lastRepair = today;
+                  localStorage.setItem('nh_streak_repair', JSON.stringify(rd));
+                } catch (_) {}
                 setStreakRestored(true);
                 setStreakRestoreMsg('✓ Streak restored! Keep it alive today 🔥');
                 if (onSyncNow) onSyncNow();
@@ -687,14 +697,16 @@ export default function HomeTab({
       {/* ── CROATIA POSTCARD — daily scene + phrase (video-first) ── */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.12 }}>
       {(() => {
+        // Single source of truth: key drives both the Pexels API call and the displayed scene.
+        // .video paths removed — /videos/scenes/ directory does not exist.
         const SCENE_POOL = [
-          { img:'/images/scenes/dubrovnik-hero.webp',  video:'/videos/scenes/dubrovnik.mp4',   city:'Dubrovnik',        label:'Adriatic Pearl' },
-          { img:'/images/scenes/dalmatian-coast.webp', video:'/videos/scenes/dalmatian.mp4',   city:'Dalmatian Coast',  label:'The Adriatic Sea' },
-          { img:'/images/scenes/plitvice.webp',        video:'/videos/scenes/plitvice.mp4',    city:'Plitvice Lakes',   label:'UNESCO World Heritage' },
-          { img:'/images/scenes/zagreb.webp',          video:'/videos/scenes/zagreb.mp4',      city:'Zagreb',           label:'The Capital' },
-          { img:'/images/scenes/labin.webp',           video:'/videos/scenes/labin.mp4',       city:'Labin, Istria',    label:'Medieval Hilltop Town' },
-          { img:'/images/scenes/mostar.webp',          video:'/videos/scenes/mostar.mp4',      city:'Mostar',           label:'Stari Most Bridge' },
-          { img:'/images/scenes/croatian-food.webp',   video:'/videos/scenes/food.mp4',        city:'Croatian Cuisine', label:'Taste of Croatia' },
+          { key:'dubrovnik', img:'/images/scenes/dubrovnik-hero.webp',  city:'Dubrovnik',        label:'Adriatic Pearl' },
+          { key:'dalmatian', img:'/images/scenes/dalmatian-coast.webp', city:'Dalmatian Coast',  label:'The Adriatic Sea' },
+          { key:'plitvice',  img:'/images/scenes/plitvice.webp',        city:'Plitvice Lakes',   label:'UNESCO World Heritage' },
+          { key:'zagreb',    img:'/images/scenes/zagreb.webp',          city:'Zagreb',           label:'The Capital' },
+          { key:'labin',     img:'/images/scenes/labin.webp',           city:'Labin, Istria',    label:'Medieval Hilltop Town' },
+          { key:'mostar',    img:'/images/scenes/mostar.webp',          city:'Mostar',           label:'Stari Most Bridge' },
+          { key:'food',      img:'/images/scenes/croatian-food.webp',   city:'Croatian Cuisine', label:'Taste of Croatia' },
         ];
         const dayIdx = Math.floor(Date.now() / 86400000);
         const scene = SCENE_POOL[dayIdx % SCENE_POOL.length];

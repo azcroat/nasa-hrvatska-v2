@@ -33,7 +33,7 @@ const PERSONAS = [
     name: 'Ana Perković',
     age: 41,
     location: 'Grad Zagreb',
-    avatar: '/images/portraits/secretary.jpg',
+    avatar: '/images/portraits/mature-woman.webp',
     fallbackEmoji: '💼',
     specialty: '🏛️ Tajnica',
     desc: 'Formalni govor, birokratski Hrvatski, uljudna ustrajnost.',

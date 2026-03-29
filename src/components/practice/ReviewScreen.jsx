@@ -24,8 +24,13 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
   const questions = useMemo(() => {
     if (dueWords.length === 0) return [];
     return dueWords.slice(0, 20).map(w => {
-      const wrong = pool.filter(x => x[1] !== w[1]);
-      const distractors = sh(wrong).slice(0, 3).map(x => x[1]);
+      // Filter to words with a different English meaning, then deduplicate
+      // meanings — prevents synonyms from making the correct answer appear twice.
+      const seen = new Set([w[1]]);
+      const distractors = sh(pool.filter(x => x[1] !== w[1]))
+        .filter(x => { if (seen.has(x[1])) return false; seen.add(x[1]); return true; })
+        .slice(0, 3)
+        .map(x => x[1]);
       const opts = sh([w[1], ...distractors]);
       return { word: w, opts, correct: w[1] };
     });

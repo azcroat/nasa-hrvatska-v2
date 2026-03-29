@@ -50,14 +50,18 @@ export default function VideoLessonScreen({ goBack, award }) {
     clearTimeout(lineTransRef.current);
   }, []);
 
-  // Fetch scene video URL from Pexels API
+  // Fetch scene video URL from Pexels API.
+  // Reset to null on every topic change so no stale video bleeds through,
+  // and abort the previous fetch if the user switches topics mid-request.
   useEffect(() => {
+    setSceneVideoUrl(null);
     if (!topic) return;
     const sceneKey = TOPIC_SCENE[topic.key] || 'zagreb';
     const storageKey = `nh_scene_video_${sceneKey}`;
     const cached = sessionStorage.getItem(storageKey);
     if (cached) { setSceneVideoUrl(cached); return; }
-    fetch(`/api/scene-video?scene=${sceneKey}`)
+    const controller = new AbortController();
+    fetch(`/api/scene-video?scene=${sceneKey}`, { signal: controller.signal })
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data?.ok && data.url) {
@@ -66,6 +70,7 @@ export default function VideoLessonScreen({ goBack, award }) {
         }
       })
       .catch(() => {});
+    return () => controller.abort();
   }, [topic]);
 
   async function generate() {

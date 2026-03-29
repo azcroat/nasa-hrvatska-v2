@@ -363,13 +363,17 @@ export function getSRStats(srMap) {
 export function getPrioritizedReviewQueue(pool) {
   const sr  = getSR();
   const now = Date.now();
-  const todayStr = new Date().toISOString().slice(0, 10);
+
+  // Scope to words that exist in the current pool — prevents words from
+  // other categories consuming priority slots that then get discarded.
+  const poolWords = new Set(pool.map(w => w[0]));
 
   const overdue  = [];
   const dueToday = [];
 
   for (const [word, state] of Object.entries(sr)) {
-    if (!state.due) continue;
+    if (!poolWords.has(word)) continue; // only consider words in current category pool
+    if (!state.due) continue;           // skip corrupted entries (handled as new words below)
     const dueMs      = state.due;
     const daysOverdue = (now - dueMs) / 86400000;
 
@@ -397,10 +401,16 @@ export function getPrioritizedReviewQueue(pool) {
     .filter(Boolean)
     .slice(0, 20);
 
-  // Pad with new words if queue is thin
+  // Pad with new words if queue is thin.
+  // Only words with a valid `due` field are "seen" — corrupted entries
+  // (missing due) are treated as unseen so they re-enter the new-word queue.
   if (result.length < 10 && pool) {
-    const seenWords = new Set(Object.keys(sr));
-    const newWords  = pool
+    const seenWords = new Set(
+      Object.entries(sr)
+        .filter(([w, s]) => poolWords.has(w) && s && s.due)
+        .map(([w]) => w)
+    );
+    const newWords = pool
       .filter(w => !seenWords.has(w[0]))
       .slice(0, Math.min(5, 10 - result.length));
     result.push(...newWords);

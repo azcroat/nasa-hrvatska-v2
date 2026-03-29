@@ -41,7 +41,7 @@ function CityOfDayScreen({ goBack }) {
   const tomorrow = (function(){const d=new Date();d.setDate(d.getDate()+1);return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});})();
   const tabs = [{id:"overview",label:"Overview",icon:"📖"},{id:"history",label:"History",icon:"🏛️"},{id:"vocab",label:"Vocabulary",icon:"💬"},{id:"facts",label:"Fast Facts",icon:"⚡"}];
 
-  const cityKey = normKey(city.id || city.name);
+  const cityKey = normKey(city.name);
   const photoUrl = CITY_PHOTOS[cityKey] || CITY_PHOTOS.default;
 
   return (
