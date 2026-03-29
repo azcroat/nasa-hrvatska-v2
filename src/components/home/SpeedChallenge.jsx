@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useStats } from '../../context/StatsContext.jsx';
-import { getSR } from '../../lib/srs.js';
+import { getSR, getSRScore } from '../../lib/srs.js';
 import { V } from '../../data.jsx';
 
 const DURATION = 60; // seconds
@@ -118,6 +118,9 @@ export default function SpeedChallenge({ onXP }) {
     const responseMs = Date.now() - (questionStartRef.current || Date.now());
     const correct = choice.hr === q.target.hr;
     setAnswered(correct ? 'correct' : 'wrong');
+
+    // Update SRS score so speed challenge contributes to spaced repetition
+    try { getSRScore(q.target.hr, correct, responseMs); } catch (_) {}
 
     if (correct) {
       const xp = XP_CORRECT + (responseMs < 3000 ? XP_FAST_BONUS : 0);

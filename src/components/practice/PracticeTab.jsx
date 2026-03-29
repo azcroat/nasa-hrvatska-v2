@@ -509,7 +509,7 @@ export default function PracticeTab({
           position: 'sticky',
           top: 0,
           zIndex: 20,
-          background: 'var(--bg)',
+          background: 'var(--app-bg)',
           paddingTop: 8,
           paddingBottom: 8,
           borderBottom: '1px solid var(--card-b)',

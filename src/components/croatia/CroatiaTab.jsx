@@ -67,7 +67,7 @@ export default function CroatiaTab({ sCurEx }) {
       </div>
 
       {/* ── SUB-TAB PILL SELECTOR ── */}
-      <div style={{ display:'flex', gap:8, overflowX:'auto', scrollbarWidth:'none', position:'sticky', top:0, zIndex:10, background:'var(--bg)', paddingTop:8, paddingBottom:8, borderBottom:'1px solid var(--card-b)', boxShadow:'0 2px 8px rgba(0,0,0,0.06)' }}>
+      <div style={{ display:'flex', gap:8, overflowX:'auto', scrollbarWidth:'none', position:'sticky', top:0, zIndex:10, background:'var(--app-bg)', paddingTop:8, paddingBottom:8, borderBottom:'1px solid var(--card-b)', boxShadow:'0 2px 8px rgba(0,0,0,0.06)' }}>
         {[
           { id:'discover', label:'🗓️ Discover' },
           { id:'culture',  label:'🏰 Culture' },

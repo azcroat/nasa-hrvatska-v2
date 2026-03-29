@@ -72,9 +72,9 @@ function _nextD(D, grade) {
   return Math.min(Math.max(D - W[6] * (grade - 3), 1), 10);
 }
 
-/** Optimal next interval in days from stability */
+/** Optimal next interval in days from stability (capped at 365 days) */
 function _nextInterval(S) {
-  return Math.max(1, Math.round(S * Math.log(DESIRED_RETENTION) / Math.log(0.9)));
+  return Math.min(365, Math.max(1, Math.round(S * Math.log(DESIRED_RETENTION) / Math.log(0.9))));
 }
 
 // ─── Grade mapping ────────────────────────────────────────────────────────────

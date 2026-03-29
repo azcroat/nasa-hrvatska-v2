@@ -225,7 +225,7 @@ function KnightSpeech({ st, sessionKey = 'nh_knight_greeted', onDismiss = undefi
 
       {/* Speech bubble */}
       <div style={{
-        background: isStreakBroken ? 'rgba(220,38,38,0.06)' : 'var(--bg)',
+        background: isStreakBroken ? 'rgba(220,38,38,0.06)' : 'var(--app-bg)',
         border: isStreakBroken ? '1px solid rgba(220,38,38,0.2)' : '1px solid var(--card-b)',
         borderRadius: 14,
         padding: '12px 16px',
@@ -257,7 +257,7 @@ function KnightSpeech({ st, sessionKey = 'nh_knight_greeted', onDismiss = undefi
           height: 0,
           borderLeft: '7px solid transparent',
           borderRight: '7px solid transparent',
-          borderBottom: isStreakBroken ? '7px solid rgba(220,38,38,0.06)' : '7px solid var(--bg)',
+          borderBottom: isStreakBroken ? '7px solid rgba(220,38,38,0.06)' : '7px solid var(--app-bg)',
         }} />
         {text}
       </div>

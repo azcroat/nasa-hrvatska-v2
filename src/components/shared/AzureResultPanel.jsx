@@ -21,7 +21,7 @@ export default function AzureResultPanel({ azureResult, onRetry }) {
 
   return (
     <div style={{
-      background: '#f8fafc', borderRadius: 12, padding: '14px 16px',
+      background: 'var(--card)', borderRadius: 12, padding: '14px 16px',
       border: `2px solid ${scoreColor(overall)}22`,
     }}>
       {/* Header scores row */}
