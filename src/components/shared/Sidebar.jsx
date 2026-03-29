@@ -117,7 +117,13 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
           </div>
           <CroatianKnight
             size={48}
-            mood={streak.count >= 14 ? 'celebrating' : streak.count >= 3 ? 'encouraged' : 'encouraged'}
+            mood={
+              streak.count >= 30 ? 'victory' :
+              streak.count >= 14 ? 'celebrating' :
+              streak.count >= 7  ? 'encouraged' :
+              streak.count >= 3  ? 'happy' :
+              'ready'
+            }
             key={tab}
             style={{ flexShrink: 0 }}
           />

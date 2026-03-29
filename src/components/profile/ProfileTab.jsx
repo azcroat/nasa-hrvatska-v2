@@ -579,7 +579,7 @@ export default function ProfileTab({ syncReady, onSyncNow, onOpenLeaderboard, on
         <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:'var(--text-xl)',color:"#fff",marginBottom:4,fontWeight:800,letterSpacing:"-.01em",position:"relative",zIndex:1,textShadow:"0 2px 12px rgba(0,0,0,.5)"}}>
           {name || au?.d}
         </h2>
-        <CroatianKnight size={50} mood="happy" style={{margin:'8px auto 0', display:'block', position:'relative', zIndex:1}} />
+        <CroatianKnight size={50} mood="encouraged" style={{margin:'8px auto 0', display:'block', position:'relative', zIndex:1}} />
         <div style={{fontSize:'var(--text-sm)',opacity:.75,marginBottom:2,fontWeight:600,position:"relative",zIndex:1,color:"rgba(255,255,255,.8)"}}>Level {level} Learner</div>
         {/* ── NEXT LEVEL XP BAR ── */}
         {(() => {

@@ -304,7 +304,7 @@ export default function Flashcards({ pool, goBack, award }) {
         <div style={{textAlign:"center",padding:"40px 20px 20px"}}>
           <CroatianKnight
             size={80}
-            mood={missedCount === 0 ? 'celebrating' : 'happy'}
+            mood={missedCount === 0 ? 'victory' : missedCount <= 2 ? 'encouraged' : 'happy'}
             style={{margin:'0 auto 12px', display:'block'}}
           />
           <div style={{fontSize:64}}>{missedCount === 0 ? "🌟" : "🎉"}</div>
