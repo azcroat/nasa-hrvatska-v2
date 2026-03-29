@@ -138,14 +138,15 @@ window.onunhandledrejection = function (event) {
 };
 
 // ─── Service Worker auto-reload ────────────────────────────────────────────
-// When a new SW takes over (after deploy), reload once so users see the latest
-// version. Guard with sessionStorage to prevent infinite reload loops when
-// multiple deployments are pushed in rapid succession (each new SW would
-// otherwise trigger another reload before the page has a chance to stabilize).
+// When a new SW takes over (after deploy), reload so users see the latest version.
+// Guard: only skip the reload if we reloaded in the last 10 seconds — prevents
+// a tight loop if somehow two SW activations fire back-to-back, but allows
+// subsequent deploys in the same tab session to apply normally.
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (sessionStorage.getItem('sw-reloaded')) return;
-    sessionStorage.setItem('sw-reloaded', '1');
+    const lastReload = parseInt(sessionStorage.getItem('sw-reloaded-at') || '0', 10);
+    if (Date.now() - lastReload < 10000) return; // already reloaded within last 10s
+    sessionStorage.setItem('sw-reloaded-at', String(Date.now()));
     window.location.reload();
   });
 }
