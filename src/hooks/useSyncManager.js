@@ -30,6 +30,8 @@ export function useSyncManager({
   const _idTokenRef = useRef('');
   // Keeps latest state available to unload handlers without stale deps
   const _unloadRef = useRef({});
+  // Prevents simultaneous watcher + iosWakeUp from double-applying a remote merge
+  const _mergeInProgressRef = useRef(false);
 
   // Sync latest state into ref on every render (synchronous, before effects)
   _unloadRef.current = { authUser, stats, name, authScreen, favs, jWords, dchlA, dchlSl };
@@ -70,11 +72,14 @@ export function useSyncManager({
       const lp = gP(authUser.u);
       const lpTs = (lp && (lp._fbUpdated || lp.savedAt)) || 0;
       if (fpTs > lpTs) {
+        if (_mergeInProgressRef.current) return;
+        _mergeInProgressRef.current = true;
         lP(authUser.u, { ...fp, savedAt: fpTs });
         const pSt = fp.stats || fp.st || {};
         setStats(prev => mergeStatsFromRemote(prev, pSt, ds));
         if (fp.name) setName(fp.name);
         applyRemoteProgress(fp);
+        setTimeout(() => { _mergeInProgressRef.current = false; }, 200);
       }
       if (setSyncReady) setSyncReady(true);
     });
@@ -90,11 +95,14 @@ export function useSyncManager({
         const fpTs = fp._fbUpdated || 0;
         const lpTs = (lp && (lp._fbUpdated || lp.savedAt)) || 0;
         if (fpTs > lpTs) {
+          if (_mergeInProgressRef.current) return;
+          _mergeInProgressRef.current = true;
           lP(authUser.u, { ...fp, savedAt: fpTs });
           const pSt = fp.stats || fp.st || {};
           setStats(prev => mergeStatsFromRemote(prev, pSt, ds));
           if (fp.name) setName(fp.name);
           applyRemoteProgress(fp);
+          setTimeout(() => { _mergeInProgressRef.current = false; }, 200);
         }
       } catch (_) {}
     };

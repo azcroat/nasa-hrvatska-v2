@@ -11,9 +11,10 @@
  *   - ct, vs: union (never lose completed topics/screens)
  *   - all other fields: take remote value (sanitized), falling back to DS default
  */
+import type { Stats } from '../types/index.js';
 import { sanitizeStats } from './sanitizeStats.js';
 
-export function mergeStatsFromRemote(prev, rawRemoteSt, ds) {
+export function mergeStatsFromRemote(prev: Stats, rawRemoteSt: unknown, ds: Stats): Stats {
   const remoteSt = sanitizeStats(rawRemoteSt);
   return {
     ...ds,

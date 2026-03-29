@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import CroatianKnight from './CroatianKnight';
 
 // Returns a contextual greeting message based on time, streak, stats.
@@ -57,33 +57,99 @@ function getGreeting(st) {
   return messages[day % messages.length];
 }
 
+// Three-state mode machine:
+//   'hidden'  → 'full'  (800ms after mount, once per session)
+//   'full'    → 'mini'  (on user dismiss — knight persists as floating button)
+//   'mini'    → 'full'  (on mini-button tap, or on knight:celebrate CustomEvent)
 export default function KnightSpeech({ st, sessionKey = 'nh_knight_greeted', onDismiss = undefined }) {
-  const [visible, setVisible] = useState(false);
+  const [mode, setMode] = useState('hidden'); // 'hidden' | 'full' | 'mini'
   const [animOut, setAnimOut] = useState(false);
+  const [celebGreeting, setCelebGreeting] = useState(null); // override text during celebrations
 
+  // Track if the knight has been shown this session (but now goes mini instead of disappearing)
   useEffect(() => {
-    // Only show once per session
+    // Show once per session; if already greeted this session, start in mini
     if (!sessionStorage.getItem(sessionKey)) {
-      // Small delay so it doesn't flash on load
-      const t = setTimeout(() => setVisible(true), 800);
+      const t = setTimeout(() => setMode('full'), 800);
       return () => clearTimeout(t);
+    } else {
+      // Was dismissed in a previous greeting this session — go directly to mini
+      setMode('mini');
     }
     return undefined;
   }, [sessionKey]);
 
-  if (!visible) return null;
-
-  const { mood, variant, text } = getGreeting(st);
+  // Listen for knight:celebrate events from useAward (significant XP earn)
+  useEffect(() => {
+    const onCelebrate = (e) => {
+      const detail = e.detail || {};
+      if (detail.text) setCelebGreeting({ mood: detail.mood || 'celebrating', variant: 1, text: detail.text });
+      setAnimOut(false);
+      setMode('full');
+      // Auto-dismiss back to mini after 5 seconds
+      const t = setTimeout(() => {
+        setCelebGreeting(null);
+        setMode('mini');
+      }, 5000);
+      return () => clearTimeout(t);
+    };
+    window.addEventListener('knight:celebrate', onCelebrate);
+    return () => window.removeEventListener('knight:celebrate', onCelebrate);
+  }, []);
 
   const dismiss = () => {
     setAnimOut(true);
     sessionStorage.setItem(sessionKey, '1');
     setTimeout(() => {
-      setVisible(false);
+      setAnimOut(false);
+      setMode('mini');
       if (onDismiss) onDismiss();
     }, 300);
   };
 
+  const expandFromMini = () => {
+    setMode('full');
+  };
+
+  if (mode === 'hidden') return null;
+
+  const greeting = celebGreeting || getGreeting(st);
+  const { mood, variant, text } = greeting;
+
+  // ── Mini mode — floating button above tab bar ──────────────────────────────
+  if (mode === 'mini') {
+    return (
+      <button
+        onClick={expandFromMini}
+        aria-label="Open knight greeting"
+        style={{
+          position: 'fixed',
+          bottom: 76, // above tab bar (tab bar is ~60px)
+          left: 16,
+          width: 48,
+          height: 48,
+          borderRadius: '50%',
+          background: 'var(--card)',
+          border: '2px solid var(--card-b)',
+          boxShadow: 'var(--shadow-md, 0 4px 12px rgba(0,0,0,0.15))',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 0,
+          zIndex: 100,
+          animation: 'spring-in .35s cubic-bezier(0.34,1.56,0.64,1) both',
+          transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.12)'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(0,0,0,0.2)'; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'var(--shadow-md, 0 4px 12px rgba(0,0,0,0.15))'; }}
+      >
+        <CroatianKnight size={32} mood="happy" variant={0} />
+      </button>
+    );
+  }
+
+  // ── Full mode — speech bubble ──────────────────────────────────────────────
   return (
     <div
       style={{

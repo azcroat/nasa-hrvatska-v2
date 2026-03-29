@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, useReducer } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   V, LEARN_PATH,
@@ -9,7 +9,6 @@ import {
   bootstrapMistakesFromSRS, recordJourneyMilestone,
 } from "./data.jsx";
 import { buildProgressSnapshot } from "./lib/progressSnapshot.js";
-import { mergeStatsFromRemote } from "./lib/mergeStatsFromRemote.js";
 import { canRepairStreak, repairStreak } from "./lib/streak.js";
 import { trackAppOpen } from "./lib/analytics.js";
 import { fbRegisterFriendCode } from "./lib/firebase.js";
@@ -27,6 +26,7 @@ import { useNotifications, checkNameDay, scheduleStreakReminder } from "./hooks/
 import { useSubscription, grantFreeAnnual, getSubscriptionStatus } from "./hooks/useSubscription.js";
 import { useAppScreenState } from "./hooks/useAppScreenState.js";
 import { useAward, resetComebackGuard } from "./hooks/useAward.js";
+import { statsReducer } from "./lib/statsReducer.js";
 import { usePwaInstall } from "./hooks/usePwaInstall.js";
 import { usePlacement } from "./hooks/usePlacement.js";
 import { useSyncManager } from "./hooks/useSyncManager.js";
@@ -114,7 +114,13 @@ function App() {
     navigate(s === 'dashboard' ? '/' : `/${s}`, { replace: false });
   }, [navigate]);
   const [name, setName] = useState('');
-  const [stats, setStats] = useState(ds);
+  const [stats, dispatch] = useReducer(statsReducer, DS);
+  const setStats = useCallback(
+    (fnOrValue) => dispatch(typeof fnOrValue === 'function'
+      ? { type: 'APPLY', payload: fnOrValue }
+      : { type: 'RESET', payload: fnOrValue }),
+    []
+  );
   const [showStreakRepair, setShowStreakRepair] = useState(false);
   const [onboarded, setOnboarded] = useState(() => localStorage.getItem('onboarded') === 'true');
   const [showFirstWords, setShowFirstWords] = useState(false);
@@ -167,13 +173,13 @@ function App() {
   const { authScreen, setAuthScreen, authUser, authEmail, setAuthEmail, pw, setPw, pc, setPc, displayName, setDisplayName, sp, setSp2, rpEm, setRpEm, authError, setAuthError, authLoading, emailUnverified, setEmailUnverified, resendVerification, doReg, doLog, doOut, doReset, doGoogleLogin } = useAuth({
     onSignedIn({ user, progress, isNew, isHydrate }) {
       if (isHydrate) {
-        if (progress) { const st = progress.stats || progress.st || {}; setStats(prev => mergeStatsFromRemote(prev, st, ds)); if (progress.name) setName(progress.name); }
+        if (progress) { const st = progress.stats || progress.st || {}; dispatch({ type: 'MERGE_REMOTE', payload: st, ds: DS }); if (progress.name) setName(progress.name); }
         return;
       }
       if (progress) {
         setName(progress.name || user.d);
         const pSt = progress.stats || progress.st || {};
-        setStats(prev => mergeStatsFromRemote(prev, pSt, ds));
+        dispatch({ type: 'MERGE_REMOTE', payload: pSt, ds: DS });
         if (!isNew && (progress.onboarded || progress.cp || pSt.xp > 0)) { localStorage.setItem('onboarded','true'); setOnboarded(true); }
       } else { setName(user.d); }
       if (isNew) setScr('welcome');
@@ -181,7 +187,7 @@ function App() {
       grantFreeAnnual(user.u);
       refreshSub();
     },
-    onSignedOut() { setStats(ds); setScr('welcome'); setName(''); setFamData(null); setFamMembers([]); resetComebackGuard(); },
+    onSignedOut() { dispatch({ type: 'RESET', payload: DS }); setScr('welcome'); setName(''); setFamData(null); setFamMembers([]); resetComebackGuard(); },
     onBeforeSignOut: async () => { if (_syncNowRef.current) return _syncNowRef.current(); },
     applyRemoteProgress: (fp) => _applyRemoteRef.current?.(fp),
     setFamData,
@@ -407,7 +413,7 @@ function App() {
     isNewUserWindow, daysSinceJoin, comebackBonus,
     _weeklyXP, currentScreen,
   ]);
-  const statsValue = useMemo(() => ({ stats,setStats,award,level }), [stats,setStats,award,level]);
+  const statsValue = useMemo(() => ({ stats,setStats,dispatch,award,level }), [stats,setStats,dispatch,award,level]);
 
   // ── Auth screens ────────────────────────────────────────────────────────────
   if (authScreen === 'loading') return (
