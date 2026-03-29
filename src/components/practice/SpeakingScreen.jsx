@@ -153,45 +153,54 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   }
 
   async function analyzePronunciation(transcript, targetWord) {
+    // Fallback score used whenever API is unavailable or returns garbage.
+    // pronScore must ALWAYS be set to a non-null value — leaving it null
+    // keeps the AIProgressBar visible forever.
+    const isClose = transcript.toLowerCase().includes(targetWord.toLowerCase().slice(0, 3));
+    const fallback = {
+      score: isClose ? 68 : 38,
+      match_quality: isClose ? 'close' : 'off',
+      phonetic_tips: [],
+      encouragement: isClose ? 'Blizu! / Close!' : 'Pokušaj još jednom! / Try again!',
+    };
+
     if (!navigator.onLine) {
-      setPronScore({ score: 0, match_quality: 'off', phonetic_tips: [], encouragement: "You're offline — pronunciation analysis needs a connection." });
+      setPronScore({ ...fallback, encouragement: "Offline — pronunciation analysis needs a connection." });
       return;
     }
+
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 7000); // 7s max — never block UI
+
     try {
       const res = await fetch("/api/ai-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           mode: "convo",
-          messages: [
-            {
-              role: "user",
-              content: `Pronunciation analysis task:\nTarget Croatian word/phrase: "${targetWord}"\nWhat the learner said (as recognized by speech-to-text): "${transcript}"\n\nRate their pronunciation accuracy (0-100) and give specific phonetic tips.\nReturn ONLY JSON: {"score": 0-100, "match_quality": "exact|close|partial|off", "phonetic_tips": ["tip1","tip2"], "encouragement": "brief Croatian + English encouragement"}`,
-            },
-          ],
-          params: {
-            level: "B1",
-            aiName: "Maja",
-            aiRole: "pronunciation coach",
-            context: "You are a Croatian pronunciation coach. Respond only with the JSON requested.",
-          },
+          messages: [{
+            role: "user",
+            content: `Pronunciation analysis task:\nTarget Croatian word/phrase: "${targetWord}"\nWhat the learner said (as recognized by speech-to-text): "${transcript}"\n\nRate their pronunciation accuracy (0-100) and give specific phonetic tips.\nReturn ONLY JSON: {"score": 0-100, "match_quality": "exact|close|partial|off", "phonetic_tips": ["tip1","tip2"], "encouragement": "brief Croatian + English encouragement"}`,
+          }],
+          params: { level: "B1", aiName: "Maja", aiRole: "pronunciation coach", context: "You are a Croatian pronunciation coach. Respond only with the JSON requested." },
         }),
+        signal: controller.signal,
       });
+      clearTimeout(tid);
       const data = await res.json();
       try {
         const parsed = JSON.parse(data.text);
-        setPronScore(parsed);
+        if (parsed && typeof parsed.score === 'number') {
+          setPronScore(parsed);
+        } else {
+          setPronScore(fallback);
+        }
       } catch {
-        const isClose = transcript.toLowerCase().includes(targetWord.toLowerCase().slice(0, 3));
-        setPronScore({
-          score: isClose ? 70 : 40,
-          match_quality: isClose ? 'close' : 'off',
-          phonetic_tips: [],
-          encouragement: "Pokušaj još jednom! / Try again!",
-        });
+        setPronScore(fallback);
       }
     } catch {
-      setPronScore(null);
+      clearTimeout(tid);
+      setPronScore(fallback); // network/timeout/abort → always resolve, never hang
     }
   }
 
