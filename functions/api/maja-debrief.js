@@ -4,6 +4,7 @@
 
 import { checkRateLimit } from './_rateLimit.js';
 import { getFirebaseUid } from './_verifyToken.js';
+import { checkAIQuota } from './_aiQuota.js';
 
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-4-6";
@@ -200,6 +201,15 @@ export async function onRequestPost(context) {
   const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
   if (FIREBASE_PROJECT_ID && !uid) {
     return new Response('Unauthorized', { status: 401, headers: corsHeaders(origin) });
+  }
+
+  // Daily AI quota check (cost 2 — Sonnet model; debrief is end-of-session so always allowed if quota remains)
+  const quota = await checkAIQuota(request, env, uid, 2);
+  if (!quota.allowed) {
+    return new Response(
+      JSON.stringify({ error: 'daily_quota_exceeded', message: 'Daily AI limit reached. Resets at midnight UTC.', resetAt: quota.resetAt }),
+      { status: 429, headers: corsHeaders(origin) }
+    );
   }
 
   // API key check

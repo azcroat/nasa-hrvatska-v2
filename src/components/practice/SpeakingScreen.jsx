@@ -69,6 +69,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   // Cleanup on unmount — must be before early return to satisfy Rules of Hooks
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { return () => {
+    clearTimeout(timeoutRef.current);
     stopWaveform();
     if (recordStreamRef.current) { recordStreamRef.current.getTracks().forEach(t => t.stop()); recordStreamRef.current = null; }
     if (recordingURLRef.current) { URL.revokeObjectURL(recordingURLRef.current); recordingURLRef.current = null; }
@@ -214,6 +215,13 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   }
 
   function startRecognition(lIdx) {
+    if (recRef.current) {
+      try { recRef.current.abort(); } catch (_) {}
+      recRef.current.onresult = null;
+      recRef.current.onerror = null;
+      recRef.current.onend = null;
+      recRef.current = null;
+    }
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     const rec = new SpeechRec();
     const lang = LANG_FALLBACKS[lIdx] || 'hr-HR';

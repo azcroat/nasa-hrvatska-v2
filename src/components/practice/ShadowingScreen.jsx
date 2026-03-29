@@ -65,10 +65,15 @@ function useRecorder() {
   const chunksRef = useRef([]);
   const audioUrlRef = useRef(null);
   const countdownTimerRef = useRef(null);
+  const streamRef = useRef(null);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      }
       if (audioUrlRef.current) {
         URL.revokeObjectURL(audioUrlRef.current);
         audioUrlRef.current = null;
@@ -81,6 +86,10 @@ function useRecorder() {
   }, []);
 
   const reset = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+    }
     if (audioUrlRef.current) {
       URL.revokeObjectURL(audioUrlRef.current);
       audioUrlRef.current = null;
@@ -101,6 +110,7 @@ function useRecorder() {
     }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
       setMicAvailable(true);
 
       // Countdown 3→1
@@ -140,6 +150,7 @@ function useRecorder() {
     };
     recorder.onstop = () => {
       stream.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
       const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
       if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
       audioUrlRef.current = URL.createObjectURL(blob);

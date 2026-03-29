@@ -2,6 +2,7 @@
 // Generates a personalized 15-minute daily Croatian learning plan using Claude.
 
 import { checkRateLimit } from './_rateLimit.js';
+import { checkAIQuota } from './_aiQuota.js';
 
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-4-6";
@@ -104,6 +105,15 @@ export async function onRequestPost(context) {
   const allowed = await checkRateLimit(request, 20);
   if (!allowed) {
     return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders(origin) });
+  }
+
+  // Daily AI quota check (cost 2 — Sonnet model)
+  const quota = await checkAIQuota(request, env, null, 2);
+  if (!quota.allowed) {
+    return new Response(
+      JSON.stringify({ error: 'daily_quota_exceeded', message: 'Daily AI limit reached. Resets at midnight UTC.', resetAt: quota.resetAt }),
+      { status: 429, headers: corsHeaders(origin) }
+    );
   }
 
   // API key check

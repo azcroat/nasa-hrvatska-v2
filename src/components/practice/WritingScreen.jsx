@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { H } from '../../data.jsx';
 import { AIProgressBar } from '../shared/SkeletonLoader.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
@@ -144,6 +144,16 @@ export default function WritingScreen({ goBack, award }) {
     });
   }
 
+  // Revoke previous URL and stop previous audio on unmount
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
   async function playTTS(ttsText) {
     setTtsLoading(true);
     try {
@@ -156,8 +166,12 @@ export default function WritingScreen({ goBack, award }) {
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       if (audioRef.current) audioRef.current.pause();
-      audioRef.current = new Audio(url);
-      audioRef.current.play();
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      const cleanup = () => URL.revokeObjectURL(url);
+      audio.addEventListener('ended', cleanup);
+      audio.addEventListener('error', cleanup);
+      audio.play().catch(cleanup);
     } finally {
       setTtsLoading(false);
     }

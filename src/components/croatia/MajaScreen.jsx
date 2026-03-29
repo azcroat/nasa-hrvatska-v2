@@ -223,7 +223,12 @@ export default function MajaScreen() {
   function stopMicImmediate() {
     clearTimeout(silenceTimerRef.current);
     if (recRef.current) {
-      try { recRef.current.stop(); } catch {}
+      try {
+        recRef.current.onresult = null;
+        recRef.current.onerror = null;
+        recRef.current.onend = null;
+        recRef.current.abort();
+      } catch (_) {}
       recRef.current = null;
     }
   }

@@ -175,7 +175,7 @@ export async function onRequestPost(context) {
   try {
     const ct = request.headers.get('content-type') || '';
     if (!ct.includes('application/json')) {
-      return new Response("Invalid content type", { status: 400 });
+      return new Response("Invalid content type", { status: 400, headers: corsHeaders(origin) });
     }
     const body = await request.json();
     const text = body.text;
@@ -184,14 +184,14 @@ export async function onRequestPost(context) {
     // Client voice preference: 'gabrijela' | 'charlotte' | (absent = auto)
     const clientVoice = ['gabrijela', 'charlotte'].includes(body.voice) ? body.voice : 'auto';
     if (typeof text !== 'string' || !text.trim() || text.length > 500) {
-      return new Response("Invalid text", { status: 400 });
+      return new Response("Invalid text", { status: 400, headers: corsHeaders(origin) });
     }
 
     // Streaming path — pipe ElevenLabs response body directly to client (~75ms to first byte)
     // Azure does not support streaming mode.
     if (wantStream && ELEVENLABS_KEY) {
       const elevenLabsRes = await tryElevenLabs(text, slow, ELEVENLABS_KEY, VOICE_ID, true);
-      if (elevenLabsRes) {
+      if (elevenLabsRes && elevenLabsRes.ok) {
         return new Response(elevenLabsRes.body, {
           status: 200,
           headers: {
