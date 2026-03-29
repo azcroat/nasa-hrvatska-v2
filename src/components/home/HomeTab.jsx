@@ -125,28 +125,8 @@ export default function HomeTab({
       .catch(() => {})
       .finally(() => setDailyCultureLoading(false));
   }, []);
-  // Scene video — fetched from Pexels via /api/scene-video (KV-cached 7 days).
-  // Storage key includes dayIdx so the cache auto-invalidates after midnight —
-  // prevents yesterday's city video playing behind today's city banner.
-  const [sceneVideoUrl, setSceneVideoUrl] = useState(null);
-  useEffect(() => {
-    const dayIdx = Math.floor(Date.now() / 86400000);
-    // Derive key from SCENE_POOL directly — single source of truth (no separate SCENE_KEYS array)
-    const SCENE_POOL_KEYS = ['dubrovnik','dalmatian','sibenik','zagreb','labin','mostar','food'];
-    const sceneKey = SCENE_POOL_KEYS[dayIdx % SCENE_POOL_KEYS.length];
-    const storageKey = `nh_scene_video_${dayIdx}_${sceneKey}`;
-    const cached = sessionStorage.getItem(storageKey);
-    if (cached) { setSceneVideoUrl(cached); return; }
-    fetch(`/api/scene-video?scene=${sceneKey}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (data?.ok && data.url) {
-          setSceneVideoUrl(data.url);
-          try { sessionStorage.setItem(storageKey, data.url); } catch {}
-        }
-      })
-      .catch(() => {});
-  }, []);
+  // Scene video removed — static Ken Burns image is used instead.
+  // The Pexels API video added no quality benefit and introduced inconsistency.
 
   const [freezes, setFreezes] = useState(getStreakFreezes);
   const [freezeMsg, setFreezeMsg] = useState('');
@@ -351,10 +331,10 @@ export default function HomeTab({
 
         <div style={{padding:"16px 20px 20px"}}>
 
-        {/* Top row: brand — grb + logotype */}
+        {/* Top row: brand — knight mascot + logotype */}
         <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:24}}>
           <div style={{flexShrink:0,filter:"drop-shadow(0 4px 14px rgba(0,0,0,.6))"}}>
-            <CroatianGrb size={64} />
+            <CroatianKnight size={64} mood="happy" />
           </div>
           <div>
             <div style={{fontSize:22,fontWeight:900,letterSpacing:".01em",lineHeight:1,color:"white",fontFamily:"'Playfair Display',serif",textShadow:"0 2px 12px rgba(0,0,0,.5)"}}>Naša Hrvatska</div>
@@ -747,7 +727,6 @@ export default function HomeTab({
         const phrase = todayPhrases[0];
         return (
           <VideoBackground
-            videoSrc={sceneVideoUrl}
             imageSrc={scene.img}
             overlay="linear-gradient(160deg,rgba(0,0,0,.68) 0%,rgba(0,0,0,.3) 60%,rgba(0,0,0,.58) 100%)"
             style={{ borderRadius: 18, marginBottom: 16, minHeight: dailyCulture ? 190 : 145, boxShadow: '0 4px 24px rgba(0,0,0,.22)', transition: 'min-height .4s ease' }}
