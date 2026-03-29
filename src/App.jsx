@@ -359,9 +359,8 @@ function App() {
           {[0,1,2].map(i => <div key={i} style={{width:8,height:8,borderRadius:'50%',background:'rgba(14,116,144,.85)',animation:`dot-bounce 1.4s ease-in-out ${i*0.18}s infinite`}}/>)}
         </div>
       </div>
-      <div style={{position:'absolute',bottom:0,left:0,right:0,height:4,display:'flex',animation:'stripe-slide .9s ease .3s both'}}>
-        <div style={{flex:1,background:'#D40030'}}/><div style={{flex:1,background:'rgba(255,255,255,.9)'}}/><div style={{flex:1,background:'#003DA5'}}/>
-      </div>
+      <div style={{position:'absolute',bottom:0,left:0,right:0,height:4,background:'linear-gradient(90deg,#C8980A 0%,#FFE070 50%,#C8980A 100%)',animation:'stripe-slide .9s ease .3s both'}}/>
+
     </div>
   );
   if (authScreen === 'login' || authScreen === 'register') return <LoginScreen authScreen={authScreen} authError={authError} authLoading={authLoading} authEmail={authEmail} pw={pw} pc={pc} displayName={displayName} sp={sp} setAuthScreen={setAuthScreen} setAuthError={setAuthError} setAuthEmail={setAuthEmail} setPw={setPw} setPc={setPc} setDisplayName={setDisplayName} setSp2={setSp2} setRpEm={setRpEm} doLog={doLog} doReg={doReg} doGoogleLogin={doGoogleLogin} />;
@@ -377,7 +376,7 @@ function App() {
         <Sidebar tab={tab} setTab={setTab} setScr={setScr} name={name} level={level} st={stats} darkMode={darkMode} setDarkMode={setDarkMode} badges={badges} srchQ={srchQ} setSrchQ={setSrchQ} onSearch={doSidebarSearch} doOut={doOut} />
       )}
       <div className="app-content" id="main-content" role="main">
-      <Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'60vh'}}><div style={{textAlign:'center'}}><div style={{display:'flex',justifyContent:'center',gap:0,marginBottom:16,borderRadius:3,overflow:'hidden',width:54,margin:'0 auto 16px'}}><div style={{height:6,flex:1,background:'#D4002D'}}/><div style={{height:6,flex:1,background:'#F5F5F5'}}/><div style={{height:6,flex:1,background:'#003DA5'}}/></div><div style={{fontSize:13,fontWeight:800,color:'var(--subtext)',letterSpacing:'.1em',textTransform:'uppercase',opacity:.6}}>Naša Hrvatska</div></div></div>}>
+      <Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'60vh'}}><div style={{textAlign:'center'}}><div style={{margin:'0 auto 16px',width:56,display:'flex',justifyContent:'center'}}><CroatianGrb size={56}/></div><div style={{fontSize:13,fontWeight:800,color:'var(--subtext)',letterSpacing:'.1em',textTransform:'uppercase',opacity:.6}}>Naša Hrvatska</div></div></div>}>
         <XPPopup showXP={showXP} xpA={xpA} />
         <BadgeToast show={sB} badge={nB} />
         <AppModals
