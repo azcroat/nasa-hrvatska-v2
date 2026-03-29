@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getAudioContext } from '../../lib/audio.js';
 import { markQuest } from '../../lib/quests.js';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
 import LiveTutorSetup from './LiveTutorSetup.jsx';
 import LiveTutorDebrief from './LiveTutorDebrief.jsx';
 import LiveTutorControls from './LiveTutorControls.jsx';
@@ -71,6 +72,7 @@ function injectCSS() {
 // ─────────────────────────────────────────────
 export default function LiveTutorScreen({ goBack, award }) {
   injectCSS();
+  const isOnline = useOnlineStatus();
 
   // ── Settings ──────────────────────────────
   const [level, setLevel] = useState("A2");
@@ -593,7 +595,13 @@ export default function LiveTutorScreen({ goBack, award }) {
   // ─────────────────────────────────────────────
   if (!started) {
     return (
-      <LiveTutorSetup
+      <>
+        {!isOnline && (
+          <div style={{ background:'#fef2f2', color:'#dc2626', padding:'10px 16px', fontSize:13, fontWeight:600, textAlign:'center', borderBottom:'1px solid #fecaca' }}>
+            No internet connection — connect to start a session.
+          </div>
+        )}
+        <LiveTutorSetup
         goBack={goBack}
         level={level}
         setLevel={setLevel}
@@ -608,6 +616,7 @@ export default function LiveTutorScreen({ goBack, award }) {
         onTestSpeaker={testSpeaker}
         onStart={startSession}
       />
+      </>
     );
   }
 
