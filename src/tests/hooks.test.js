@@ -85,6 +85,9 @@ describe('usePreferences', () => {
 
 // ── useSearch ─────────────────────────────────────────────────────────────────
 describe('useSearch', () => {
+  beforeEach(() => { vi.useFakeTimers(); });
+  afterEach(() => { vi.useRealTimers(); });
+
   it('initialises with empty query and results', () => {
     const { result } = renderHook(() => useSearch());
     expect(result.current.srchQ).toBe('');
@@ -93,17 +96,17 @@ describe('useSearch', () => {
   });
   it('doSearch with empty string clears results', () => {
     const { result } = renderHook(() => useSearch());
-    act(() => { result.current.doSearch(''); });
+    act(() => { result.current.doSearch(''); vi.runAllTimers(); });
     expect(result.current.srchR).toHaveLength(0);
   });
   it('doSearch with known Croatian word returns results', () => {
     const { result } = renderHook(() => useSearch());
-    act(() => { result.current.doSearch('kuća'); });
+    act(() => { result.current.doSearch('kuća'); vi.runAllTimers(); });
     expect(result.current.srchR.length).toBeGreaterThan(0);
   });
   it('doSearch results capped at 15', () => {
     const { result } = renderHook(() => useSearch());
-    act(() => { result.current.doSearch('a'); }); // very common letter
+    act(() => { result.current.doSearch('a'); vi.runAllTimers(); }); // very common letter
     expect(result.current.srchR.length).toBeLessThanOrEqual(15);
   });
   it('setSrchOpen controls open state', () => {

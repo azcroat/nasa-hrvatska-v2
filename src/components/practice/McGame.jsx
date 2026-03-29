@@ -1,64 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { H, Spk, srMark, recordMistake } from '../../data.jsx';
+import { H, srMark, recordMistake } from '../../data.jsx';
 import { useHaptic } from '../../hooks/useHaptic.js';
 import { playCorrect, playWrong } from '../../lib/soundSettings.js';
 import { getHearts, loseHeart } from '../../lib/lives.js';
 import HeartsBar from '../shared/HeartsBar.jsx';
+import McGameOver from './McGameOver.jsx';
+import McQuestionArea from './McQuestionArea.jsx';
 
 const XP_PER_CORRECT = 3;
 const XP_COMPLETION_BONUS = 5;
-
-// ── Particle burst on correct answer ──────────────────────────────────────────
-const PARTICLES = ['⭐','✨','🌟','💫','⚡','✨','⭐','🌟','💥','✨'];
-
-// Starburst positions: [top offset px, left offset px]
-const PARTICLE_POSITIONS = [
-  [-30, -20],   // 0: upper-left
-  [-40,   0],   // 1: top-center
-  [-30,  20],   // 2: upper-right
-  [  0,  30],   // 3: right
-  [  0, -30],   // 4: left
-  [-20,  40],   // 5: upper-far-right diagonal
-  [ 20,  40],   // 6: lower-far-right diagonal
-  [ 30,   0],   // 7: bottom-center
-  [ 20, -40],   // 8: lower-far-left diagonal
-  [-20, -40],   // 9: upper-far-left diagonal
-];
-
-function ParticleBurst({ active }) {
-  if (!active) return null;
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        pointerEvents: 'none',
-        zIndex: 10,
-      }}
-    >
-      {PARTICLES.map((e, i) => {
-        const [topOff, leftOff] = PARTICLE_POSITIONS[i];
-        return (
-          <div
-            key={i}
-            style={{
-              position: 'absolute',
-              fontSize: 14 + (i % 3) * 4,
-              animation: `xpFloat .8s ${i * 0.05}s ease forwards`,
-              top: topOff,
-              left: leftOff,
-              opacity: 0,
-            }}
-          >
-            {e}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
 
 const MC_KEYFRAMES = `
   @keyframes mcShake {
@@ -75,8 +25,6 @@ const MC_KEYFRAMES = `
     50%     { box-shadow: 0 0 16px 4px rgba(22,163,74,0.7); }
   }
 `;
-
-const LABELS = ['A', 'B', 'C', 'D'];
 
 export default function McGame({ questions: rawQuestions, onComplete, goBack, award, challengeMode = false }) {
   // Guard: drop any question where the correct answer isn't present in opts
@@ -260,54 +208,28 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
   // "No hearts left" state — show before gameOver if continueAnyway not chosen
   if (gameOver && !continueAnyway) {
     return (
-      <div className="scr-wrap" style={{textAlign:'center', padding:'40px 20px'}}>
-        <div style={{fontSize:52}}>💔</div>
-        <h3 style={{fontFamily:"'Playfair Display',serif", fontSize:22, color:'var(--heading)', marginTop:12}}>
-          No hearts left!
-        </h3>
-        <p style={{color:'var(--subtext)', marginTop:8, fontSize:14, lineHeight:1.6}}>
-          {challengeMode
-            ? 'Hearts refill over time — 1 per hour.\nCome back to keep going!'
-            : 'Take a break and come back fresh, or keep going anyway.'}
-        </p>
-        <button
-          className="b bp"
-          style={{marginTop:24, width:'100%'}}
-          onClick={() => {
-            setIdx(0);
-            setScore(0);
-            setHearts(5);
-            setAnswered(false);
-            setSelected(-1);
-            setRevealCorrect(false);
-            setStreak(0);
-            setWrongStreak(0);
-            setCorrectStreak(0);
-            setGameOver(false);
-            setMistakes([]);
-            resultFired.current = false;
-          }}
-        >
-          🔄 Try Again
-        </button>
-        {!challengeMode && (
-          <button
-            className="b bg"
-            style={{marginTop:10, width:'100%'}}
-            onClick={() => {
-              setContinueAnyway(true);
-              setGameOver(false);
-            }}
-          >
-            Continue Anyway →
-          </button>
-        )}
-        {challengeMode && (
-          <button className="b bg" style={{marginTop:10, width:'100%'}} onClick={goBack}>
-            ← Back to Practice
-          </button>
-        )}
-      </div>
+      <McGameOver
+        challengeMode={challengeMode}
+        onTryAgain={() => {
+          setIdx(0);
+          setScore(0);
+          setHearts(5);
+          setAnswered(false);
+          setSelected(-1);
+          setRevealCorrect(false);
+          setStreak(0);
+          setWrongStreak(0);
+          setCorrectStreak(0);
+          setGameOver(false);
+          setMistakes([]);
+          resultFired.current = false;
+        }}
+        onContinueAnyway={() => {
+          setContinueAnyway(true);
+          setGameOver(false);
+        }}
+        onBack={goBack}
+      />
     );
   }
 
@@ -499,209 +421,49 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
         </div>
       )}
 
-      {/* Question card */}
-      <div
-        className="c"
-        style={{
-          marginBottom: 20,
-          background:
-            'linear-gradient(145deg,var(--card),var(--card))',
-          borderLeft: '4px solid var(--info)',
-          opacity: qTransition ? 0 : 1,
-          transform: qTransition ? 'translateY(8px)' : 'translateY(0)',
-          transition: 'opacity 0.2s ease, transform 0.2s ease',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 14,
-            marginBottom: 8,
-          }}
-        >
-          {q.hr && <Spk text={q.hr} label="" />}
-          <p
-            style={{
-              fontSize: 26,
-              fontWeight: 900,
-              fontFamily: "'Playfair Display',serif",
-              color: 'var(--heading)',
-              lineHeight: 1.2,
-              flex: 1,
-            }}
-          >
-            {q.hr}
-          </p>
-        </div>
-        <p
-          style={{
-            fontSize: 13,
-            color: 'var(--subtext)',
-            fontWeight: 600,
-          }}
-        >
-          What does this mean in English?
-        </p>
-      </div>
-
-      {/* SR-only announcer */}
-      <div aria-live="polite" aria-atomic="true" className="sr-only">
-        {answered &&
-          (q.opts[selected] === q.correct
-            ? `Correct! Score: ${score} of ${questions.length}.`
-            : `Incorrect. The answer is ${q.correct}. Score: ${score} of ${questions.length}.`)}
-      </div>
-
       {/* Combo toast */}
       {showCombo && (
         <div style={{
-          textAlign: 'center',
-          fontSize: 15,
-          fontWeight: 900,
-          color: '#f59e0b',
+          textAlign: 'center', fontSize: 15, fontWeight: 900, color: '#f59e0b',
           animation: 'bounce-in 0.4s cubic-bezier(0.34,1.56,0.64,1)',
-          marginBottom: 10,
-          letterSpacing: '0.02em',
+          marginBottom: 10, letterSpacing: '0.02em',
         }}>
           {comboMsg}
         </div>
       )}
 
-      {/* Options */}
-      <div style={{ position: 'relative', opacity: qTransition ? 0 : 1, transform: qTransition ? 'translateY(8px)' : 'translateY(0)', transition: 'opacity 0.2s ease, transform 0.2s ease' }}>
-        {q.opts.map((o, i) => {
-          const isCorrect = answered && o === q.correct;
-          const isWrong =
-            answered && selected === i && o !== q.correct;
-          const isRevealedCorrect = revealCorrect && o === q.correct && !isCorrect;
-          const isGlowing = glowIndex === i && answered && !isCorrect;
-          return (
-            <div key={i} style={{ position: 'relative' }}>
-              <motion.button
-                ref={i === 0 ? firstOptionRef : null}
-                className={
-                  'ob' + (isCorrect ? ' ok' : isWrong ? ' no' : '')
-                }
-                aria-pressed={answered && selected === i}
-                aria-label={`Option ${i + 1}: ${o}`}
-                onKeyDown={e => handleKey(e, i)}
-                onClick={() => handleAnswer(o, i)}
-                whileTap={!answered ? { scale: 0.97 } : {}}
-                transition={{ type: 'spring', stiffness: 600, damping: 20 }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 14,
-                  padding: '14px 18px',
-                  borderRadius: 14,
-                  fontSize: 15,
-                  transition: 'background .2s ease, border-color .2s ease, transform .12s ease',
-                  ...(isRevealedCorrect ? {
-                    background: 'var(--success-bg)',
-                    borderColor: 'var(--success-b)',
-                    color: 'var(--success)',
-                  } : {}),
-                  ...(isGlowing ? {
-                    animation: 'correctGlow 0.5s ease infinite',
-                    borderColor: 'var(--success-b)',
-                  } : {}),
-                }}
-              >
-                {/* Letter label */}
-                <span
-                  style={{
-                    width: 30,
-                    height: 30,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 13,
-                    fontWeight: 800,
-                    flexShrink: 0,
-                    background: isCorrect
-                      ? 'var(--success)'
-                      : isWrong
-                      ? 'var(--error)'
-                      : isRevealedCorrect
-                      ? 'var(--success)'
-                      : 'var(--bar-bg)',
-                    color:
-                      isCorrect || isWrong || isRevealedCorrect
-                        ? '#fff'
-                        : 'var(--subtext)',
-                    transition: 'all .2s',
-                  }}
-                >
-                  {isCorrect ? '✓' : isWrong ? '✕' : isRevealedCorrect ? '✓' : LABELS[i]}
-                </span>
-                <span style={{ flex: 1, textAlign: 'left' }}>{o}</span>
-                {isRevealedCorrect && (
-                  <span style={{ fontSize: 11, marginLeft: 4 }}>✓</span>
-                )}
-                {isCorrect && (
-                  <span style={{ fontSize: 18 }}>🎯</span>
-                )}
-              </motion.button>
-              <ParticleBurst active={burst === i} />
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Keyboard hint (desktop only) */}
-      <div style={{ fontSize: 10, color: 'var(--subtext)', textAlign: 'center', marginTop: 6, opacity: 0.6 }}>
-        Tip: Press 1–{q?.opts?.length || 4} to select
-      </div>
-      <span className="sr-only" aria-live="polite">Tip: press 1–4 to choose an answer</span>
-
-      {/* Grammar hint on wrong answer */}
-      {answered && q.opts[selected] !== q.correct && (
-        <div style={{
-          marginTop:8, padding:'10px 14px',
-          background:'var(--info-bg)',
-          border:'1px solid var(--info-b, rgba(14,116,144,0.2))',
-          borderRadius:10, fontSize:12, color:'var(--subtext)', lineHeight:1.5
-        }}>
-          💡 {q.hint || q.explanation || 'Take note of this word — it will appear again in spaced repetition.'}
-        </div>
-      )}
-
-      {/* Next button */}
-      {answered && (
-        <button
-          className="b bp"
-          style={{
-            width: '100%',
-            marginTop: 16,
-            fontSize: 16,
-            padding: '16px',
-          }}
-          onClick={() => {
-            if (!isLast) {
-              setQTransition(true);
-              setTimeout(() => {
-                setIdx(i => i + 1);
-                setAnswered(false);
-                setSelected(-1);
-                setRevealCorrect(false);
-                setQTransition(false);
-              }, 200);
-            } else {
-              if (resultFired.current) return;
-              resultFired.current = true;
-              award(
-                score * XP_PER_CORRECT + XP_COMPLETION_BONUS,
-                true
-              );
-              onComplete(questions, score);
-            }
-          }}
-        >
-          {isLast ? '🏆 See Results' : 'Next →'}
-        </button>
-      )}
+      <McQuestionArea
+        q={q}
+        answered={answered}
+        selected={selected}
+        revealCorrect={revealCorrect}
+        glowIndex={glowIndex}
+        burst={burst}
+        qTransition={qTransition}
+        score={score}
+        questions={questions}
+        isLast={isLast}
+        firstOptionRef={firstOptionRef}
+        onAnswer={handleAnswer}
+        onKey={handleKey}
+        onNext={() => {
+          if (!isLast) {
+            setQTransition(true);
+            setTimeout(() => {
+              setIdx(i => i + 1);
+              setAnswered(false);
+              setSelected(-1);
+              setRevealCorrect(false);
+              setQTransition(false);
+            }, 200);
+          } else {
+            if (resultFired.current) return;
+            resultFired.current = true;
+            award(score * XP_PER_CORRECT + XP_COMPLETION_BONUS, true);
+            onComplete(questions, score);
+          }
+        }}
+      />
     </div>
   );
 }

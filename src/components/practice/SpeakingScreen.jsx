@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { H, Bar, Spk, speakSlow } from '../../data.jsx';
-import PronunciationScorer from '../shared/PronunciationScorer.jsx';
+import { H, Bar } from '../../data.jsx';
 import { markQuest } from '../../lib/quests.js';
-import { AIProgressBar } from '../shared/SkeletonLoader.jsx';
+import SpeakingSummaryScreen from './SpeakingSummaryScreen.jsx';
+import SpeakingPracticePanel from './SpeakingPracticePanel.jsx';
 
 const SRSupported = typeof window !== 'undefined' && !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
@@ -28,20 +28,6 @@ function srError(code) {
     default:
       return `Mic error (${code || 'unknown'}). Try again or use self-assessment below.`;
   }
-}
-
-// Score badge helpers — spec thresholds: 90+ excellent, 70+ good, 50+ keep practicing, <50 try again
-function scoreBadgeColor(s) {
-  if (s >= 90) return { bg: 'var(--success-bg)', border: 'var(--success-b)', text: 'var(--success)' };
-  if (s >= 70) return { bg: '#fff7ed', border: '#fed7aa', text: '#c2410c' };
-  if (s >= 50) return { bg: '#fff7ed', border: '#fed7aa', text: '#ea580c' };
-  return { bg: '#fef2f2', border: '#fecaca', text: 'var(--error)' };
-}
-function scoreBadgeLabel(s) {
-  if (s >= 90) return `🟢 Excellent! ${s}%`;
-  if (s >= 70) return `🟡 Good! ${s}%`;
-  if (s >= 50) return `🟠 Keep practicing ${s}%`;
-  return `🔴 Try again ${s}%`;
 }
 
 export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSsc, goBack, award, setSt }) {
@@ -350,133 +336,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
 
   // ── Summary screen ────────────────────────────────────────────────────────
   if (showSummary) {
-    const scored = wordScores;
-    const avg = scored.length > 0
-      ? Math.round(scored.reduce((sum, ws) => sum + ws.score, 0) / scored.length)
-      : null;
-    const best = scored.length > 0
-      ? scored.reduce((b, ws) => ws.score > b.score ? ws : b, scored[0])
-      : null;
-    const worst = scored.length > 0
-      ? scored.reduce((b, ws) => ws.score < b.score ? ws : b, scored[0])
-      : null;
-
-    return (
-      <div className="scr-wrap">
-        {H('🎤 Pronunciation Results')}
-        <div className="c" style={{ textAlign: 'center', marginTop: 16 }}>
-
-          {/* Average score badge */}
-          {avg !== null && (
-            <div style={{
-              display: 'inline-flex', flexDirection: 'column', alignItems: 'center',
-              marginBottom: 20, padding: '18px 28px',
-              background: avg >= 90 ? 'var(--success-bg)' : avg >= 70 ? '#fff7ed' : avg >= 50 ? '#fff7ed' : '#fef2f2',
-              border: `2px solid ${avg >= 90 ? 'var(--success-b)' : avg >= 70 ? '#fed7aa' : avg >= 50 ? '#fdba74' : '#fecaca'}`,
-              borderRadius: 18,
-            }}>
-              <div style={{
-                fontSize: 'var(--text-4xl)', fontWeight: 900,
-                color: avg >= 90 ? 'var(--success)' : avg >= 70 ? '#c2410c' : avg >= 50 ? '#ea580c' : 'var(--error)',
-              }}>{avg}%</div>
-              <div style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--subtext)', marginTop: 4 }}>
-                Average pronunciation score
-              </div>
-              <div style={{ fontSize: 'var(--text-base)', fontWeight: 800, marginTop: 6 }}>
-                {avg >= 90 ? '🟢 Excellent session!' : avg >= 70 ? '🟡 Good work!' : avg >= 50 ? '🟠 Keep practicing!' : '🔴 Keep at it!'}
-              </div>
-            </div>
-          )}
-
-          {/* Highlights */}
-          {best && worst && best.word !== worst.word && (
-            <div style={{ display: 'flex', gap: 10, marginBottom: 18, flexWrap: 'wrap', justifyContent: 'center' }}>
-              <div style={{
-                flex: 1, minWidth: 130, padding: '12px 14px', borderRadius: 14,
-                background: 'var(--success-bg)', border: '1.5px solid var(--success-b)',
-              }}>
-                <div style={{ fontSize: 'var(--text-xs)', fontWeight: 800, color: 'var(--success)', marginBottom: 4 }}>
-                  ⭐ Best word
-                </div>
-                <div style={{ fontSize: 'var(--text-base)', fontWeight: 800, color: 'var(--heading)' }}>{best.word}</div>
-                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)' }}>{best.meaning}</div>
-                <div style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--success)', marginTop: 4 }}>{best.score}%</div>
-              </div>
-              <div style={{
-                flex: 1, minWidth: 130, padding: '12px 14px', borderRadius: 14,
-                background: '#fef2f2', border: '1.5px solid #fecaca',
-              }}>
-                <div style={{ fontSize: 'var(--text-xs)', fontWeight: 800, color: 'var(--error)', marginBottom: 4 }}>
-                  📚 Needs work
-                </div>
-                <div style={{ fontSize: 'var(--text-base)', fontWeight: 800, color: 'var(--heading)' }}>{worst.word}</div>
-                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)' }}>{worst.meaning}</div>
-                <div style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--error)', marginTop: 4 }}>{worst.score}%</div>
-              </div>
-            </div>
-          )}
-
-          {/* Per-word breakdown */}
-          {scored.length > 0 && (
-            <div style={{
-              background: 'var(--card)', borderRadius: 14, border: '1.5px solid var(--card-b)',
-              overflow: 'hidden', marginBottom: 20, textAlign: 'left',
-            }}>
-              <div style={{
-                padding: '10px 16px', background: 'var(--bar-bg)',
-                fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--heading)',
-                borderBottom: '1px solid var(--card-b)',
-              }}>
-                Word-by-word breakdown
-              </div>
-              {scored.map((ws, idx) => {
-                const colors = scoreBadgeColor(ws.score);
-                return (
-                  <div key={idx} style={{
-                    display: 'flex', alignItems: 'center', gap: 12,
-                    padding: '10px 16px',
-                    borderBottom: idx < scored.length - 1 ? '1px solid var(--card-b)' : 'none',
-                  }}>
-                    <div style={{
-                      width: 44, height: 44, borderRadius: '50%', flexShrink: 0,
-                      background: colors.bg, border: `2px solid ${colors.border}`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 13, fontWeight: 900, color: colors.text,
-                    }}>{ws.score}%</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 800, fontSize: 'var(--text-base)', color: 'var(--heading)' }}>{ws.word}</div>
-                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)' }}>{ws.meaning}</div>
-                    </div>
-                    <div style={{
-                      fontSize: 'var(--text-xs)', fontWeight: 800, color: colors.text,
-                      background: colors.bg, border: `1px solid ${colors.border}`,
-                      borderRadius: 8, padding: '3px 8px', whiteSpace: 'nowrap',
-                    }}>
-                      {scoreBadgeLabel(ws.score)}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* No scores — all self-assessed */}
-          {scored.length === 0 && (
-            <div style={{
-              fontSize: 'var(--text-sm)', color: 'var(--subtext)', marginBottom: 20,
-              padding: '14px', background: 'var(--bar-bg)', borderRadius: 12,
-              border: '1.5px solid var(--card-b)',
-            }}>
-              No pronunciation scores recorded. Use "Test My Pronunciation" on the next session to see your accuracy!
-            </div>
-          )}
-
-          <button className="b bp" onClick={() => goBack()}>
-            Done ✓
-          </button>
-        </div>
-      </div>
-    );
+    return <SpeakingSummaryScreen wordScores={wordScores} onDone={() => goBack()} />;
   }
 
   // ── Main speaking screen ───────────────────────────────────────────────────
@@ -484,221 +344,32 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
     <div className="scr-wrap">
       {H('🎤 Pronunciation Practice')}
       <Bar v={sx + 1} mx={si.length} color="var(--success)" h={6} />
-      <div className="c" style={{textAlign:'center', marginTop:16}}>
-        {/* Tutor portrait — Maja guides the session */}
-        <div style={{display:'flex', alignItems:'center', gap:12, justifyContent:'center', marginBottom:18}}>
-          <div style={{
-            width:52, height:52, borderRadius:'50%', overflow:'hidden', flexShrink:0,
-            border: listening ? '3px solid var(--success)' : '2.5px solid #e0f2fe',
-            boxShadow: listening ? '0 0 0 5px rgba(14,116,144,.18)' : '0 0 0 2px rgba(14,116,144,.1)',
-            transition:'border-color .3s ease, box-shadow .3s ease',
-            background:'linear-gradient(135deg,#0e7490,#0c4a6e)',
-          }}>
-            <img src="/images/portraits/tutor-hero.webp" alt="Maja"
-              loading="lazy"
-              style={{width:'100%', height:'100%', objectFit:'cover'}}
-              onError={e => { e.currentTarget.style.display='none'; }} />
-          </div>
-          <div style={{textAlign:'left'}}>
-            <div style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', lineHeight:1.2}}>Maja</div>
-            <div style={{fontSize:'var(--text-xs)', color:'var(--subtext)'}}>Croatian tutor</div>
-            {listening && <div style={{fontSize:'var(--text-xs)', color:'var(--success)', fontWeight:700, marginTop:2}}>listening…</div>}
-          </div>
-        </div>
-
-        {/* Waveform visualizer */}
-        <div style={{
-          display: 'flex', alignItems: 'flex-end', gap: 3, height: 52,
-          justifyContent: 'center', marginBottom: 12,
-          padding: '0 16px',
-        }}>
-          {waveform.map((h, i) => (
-            <div key={i} style={{
-              width: 6, borderRadius: 3,
-              height: Math.max(4, listening ? h * 0.52 : 4) + 'px',
-              background: listening
-                ? `hsl(${160 + h * 0.5}, 70%, ${40 + h * 0.2}%)`
-                : 'var(--card-b)',
-              transition: 'height 0.05s ease',
-              flexShrink: 0,
-            }} />
-          ))}
-        </div>
-
-        <p style={{fontSize:'var(--text-4xl)', fontWeight:800, fontFamily:"'Playfair Display',serif"}}>{sw[0]}</p>
-        {sw[2] && <p style={{fontSize:'var(--text-base)', color:'var(--subtext)', marginBottom:4}}>/{sw[2]}/</p>}
-        <p style={{fontSize:'var(--text-lg)', color:'var(--body)', marginBottom:16}}>{sw[1]}</p>
-        <div style={{display:'flex', gap:8, justifyContent:'center', marginBottom:16, flexWrap:'wrap'}}>
-          <Spk text={sw[0]} label="Normal" />
-          <button
-            onClick={() => speakSlow(sw[0])}
-            style={{background:'var(--success-bg)', border:'1px solid var(--success-b)', borderRadius:10, padding:'7px 12px', cursor:'pointer', fontSize:'var(--text-sm)', color:'var(--success)', fontWeight:700}}>
-            🐢 Slow
-          </button>
-        </div>
-
-        {/* Pronunciation scorer with onScore wired to session tracking */}
-        {SRSupported ? (
-          <PronunciationScorer targetText={sw[0]} onScore={handleScorerResult} />
-        ) : (
-          <div style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:8, padding:'10px 14px', background:'var(--bar-bg)', borderRadius:12, border:'1.5px solid var(--card-b)'}}>
-            💡 Tap ✓ if you said it correctly
-          </div>
-        )}
-
-        {/* Per-word score badge shown after PronunciationScorer fires */}
-        {currentWordScore !== null && (
-          <div style={{
-            marginTop: 10, padding: '10px 16px', borderRadius: 12,
-            background: scoreBadgeColor(currentWordScore.score).bg,
-            border: `1.5px solid ${scoreBadgeColor(currentWordScore.score).border}`,
-            fontWeight: 800, fontSize: 'var(--text-base)',
-            color: scoreBadgeColor(currentWordScore.score).text,
-          }}>
-            {scoreBadgeLabel(currentWordScore.score)}
-          </div>
-        )}
-
-        {SRSupported ? (
-          <div style={{marginBottom:16, marginTop:16}}>
-            <button
-              onClick={listening ? stopMic : startMic}
-              style={{
-                background: listening ? 'var(--error)' : 'var(--success-bg)',
-                border: `1.5px solid ${listening ? 'var(--error)' : 'var(--success-b)'}`,
-                borderRadius: 12, padding: '10px 20px', cursor: 'pointer', fontSize: 'var(--text-base)',
-                color: listening ? '#fff' : 'var(--success)', fontWeight: 800,
-                animation: listening ? 'pulse 1s infinite' : undefined,
-                boxShadow: listening ? '0 0 0 4px rgba(239,68,68,.2)' : undefined,
-              }}>
-              {listening ? '🔴 Listening… (tap to stop)' : '🎙️ Tap to Speak'}
-            </button>
-            {listening && (
-              <div style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginTop:6, animation:'pulse 1.5s infinite'}}>
-                Speak "{sw[0]}" into your mic…
-              </div>
-            )}
-            {recResult === 'match' && (
-              <div style={{color:'var(--success)', fontSize:'var(--text-md)', fontWeight:800, marginTop:10, padding:'10px', background:'var(--success-bg)', borderRadius:12, border:'1.5px solid var(--success-b)'}}>
-                🎯 Great pronunciation match!
-              </div>
-            )}
-            {recResult === 'nomatch' && (
-              <div style={{color:'var(--warning)', fontSize:'var(--text-base)', fontWeight:600, marginTop:10, padding:'10px', background:'var(--warning-bg)', borderRadius:12, border:'1.5px solid var(--warning-b)'}}>
-                Close! Try again or use self-assessment below.
-              </div>
-            )}
-            {(recResult === 'error' || recResult === 'timeout') && recMsg && (
-              <div style={{color:'var(--subtext)', fontSize:'var(--text-sm)', marginTop:10, padding:'10px 14px', background:'var(--bar-bg)', borderRadius:12, border:'1.5px solid var(--card-b)', textAlign:'left', lineHeight:1.5}}>
-                ⚠️ {recMsg}
-              </div>
-            )}
-            {langIdx > 0 && (
-              <div style={{fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:6}}>
-                Using {currentLang} recognition
-              </div>
-            )}
-
-            {/* AI pronunciation score loading indicator */}
-            {recResult && recResult !== 'error' && recResult !== 'timeout' && !pronScore && (
-              <AIProgressBar phase="processing" messages={['Analyzing your pronunciation…', 'Comparing with native Croatian…', 'Almost done…']} />
-            )}
-
-            {/* AI pronunciation score */}
-            {pronScore && (
-              <div className="c" style={{
-                padding: '12px 16px', marginTop: 8,
-                borderLeft: `4px solid ${pronScore.score >= 80 ? 'var(--success)' : pronScore.score >= 60 ? 'var(--info)' : 'var(--error)'}`,
-                animation: 'fadeIn .3s ease',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <div style={{
-                    width: 44, height: 44, borderRadius: '50%', flexShrink: 0,
-                    background: pronScore.score >= 80 ? 'var(--success-bg)' : pronScore.score >= 60 ? 'var(--info-bg)' : 'var(--error-bg)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 22,
-                  }}>
-                    {pronScore.score >= 80 ? '🌟' : pronScore.score >= 60 ? '👍' : '🎯'}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--heading)' }}>
-                      Pronunciation: {pronScore.score}/100
-                    </div>
-                    <div style={{ fontSize: 12, color: 'var(--subtext)' }}>
-                      {pronScore.match_quality === 'exact' ? 'Perfect match!'
-                       : pronScore.match_quality === 'close' ? 'Very close!'
-                       : pronScore.match_quality === 'partial' ? 'Getting there'
-                       : 'Keep practicing'}
-                    </div>
-                  </div>
-                </div>
-                {pronScore.phonetic_tips?.length > 0 && (
-                  <div style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.6 }}>
-                    💡 {pronScore.phonetic_tips[0]}
-                  </div>
-                )}
-                {pronScore.encouragement && (
-                  <div style={{ fontSize: 13, color: 'var(--success)', fontWeight: 600, marginTop: 6 }}>
-                    {pronScore.encouragement}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {recordingURL && (
-              <div style={{
-                marginTop:16, padding:'14px 16px',
-                background:'var(--card)', borderRadius:14,
-                border:'1.5px solid var(--inp-b)',
-              }}>
-                <div style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', marginBottom:10}}>
-                  🎧 Compare your pronunciation:
-                </div>
-                <div style={{marginBottom:8}}>
-                  <div style={{fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:700, marginBottom:4}}>You:</div>
-                  <audio src={recordingURL} controls style={{width:'100%', height:36}} />
-                </div>
-                <div style={{marginBottom:12}}>
-                  <div style={{fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:700, marginBottom:4}}>Native speaker:</div>
-                  <Spk text={sw[0]} label="▶ Play native" />
-                </div>
-                <button
-                  onClick={() => {
-                    setRecordingURL(null);
-                    setRecResult(null);
-                    setRecMsg('');
-                    setListening(false);
-                  }}
-                  style={{
-                    width:'100%', padding:'8px', borderRadius:10, border:'1.5px solid var(--inp-b)',
-                    background:'none', cursor:'pointer', fontSize:'var(--text-sm)', fontWeight:700,
-                    color:'var(--subtext)', fontFamily:"'Outfit',sans-serif",
-                  }}
-                >
-                  🔄 Record again
-                </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:16, padding:'10px 14px', background:'var(--bar-bg)', borderRadius:12, border:'1.5px solid var(--card-b)'}}>
-            Speech recognition is not supported in this browser. Use the self-assessment button below, or try Chrome on desktop/Android.
-          </div>
-        )}
-
-        <button className="b bs" onClick={() => { sSr('ok'); sSsc(s => s + 1); }}>
-          👍 I Said It Correctly!
-        </button>
-        {sr === 'ok' && <div style={{color:'var(--success)', fontSize:'var(--text-xl)', fontWeight:800, marginTop:12}}>✓ Great pronunciation!</div>}
-        {sr === 'ok' && (
-          <button
-            className="b bp"
-            style={{marginTop:16}}
-            onClick={advanceWord}>
-            {sx < si.length - 1 ? 'Next →' : 'Finish'}
-          </button>
-        )}
-      </div>
+      <SpeakingPracticePanel
+        sw={sw}
+        si={si}
+        sx={sx}
+        sr={sr}
+        listening={listening}
+        recResult={recResult}
+        recMsg={recMsg}
+        langIdx={langIdx}
+        currentLang={currentLang}
+        waveform={waveform}
+        pronScore={pronScore}
+        currentWordScore={currentWordScore}
+        recordingURL={recordingURL}
+        onStartMic={startMic}
+        onStopMic={stopMic}
+        onSelfAssess={() => { sSr('ok'); sSsc(s => s + 1); }}
+        onAdvanceWord={advanceWord}
+        onClearRecording={() => {
+          setRecordingURL(null);
+          setRecResult(null);
+          setRecMsg('');
+          setListening(false);
+        }}
+        onScore={handleScorerResult}
+      />
     </div>
   );
 }

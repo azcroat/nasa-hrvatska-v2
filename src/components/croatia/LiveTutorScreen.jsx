@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getAudioContext } from '../../lib/audio.js';
 import { markQuest } from '../../lib/quests.js';
+import LiveTutorSetup from './LiveTutorSetup.jsx';
+import LiveTutorDebrief from './LiveTutorDebrief.jsx';
+import LiveTutorControls from './LiveTutorControls.jsx';
 
 // ── Keyframe for debrief spinner (injected once alongside TUTOR_CSS) ──
 const DEBRIEF_EXTRA_CSS = `
@@ -16,19 +19,6 @@ const DEBRIEF_EXTRA_CSS = `
 // ─────────────────────────────────────────────
 // CONSTANTS
 // ─────────────────────────────────────────────
-const TOPICS = [
-  "Free conversation",
-  "At the café",
-  "Greetings & introductions",
-  "Family",
-  "Directions",
-  "Shopping",
-  "Food & restaurants",
-  "Weather & seasons",
-];
-
-const LEVELS = ["A1", "A2", "B1", "B2"];
-
 const TUTOR_PERSONA = {
   name: "Marija",
   city: "Split",
@@ -84,7 +74,7 @@ export default function LiveTutorScreen({ goBack, award }) {
 
   // ── Settings ──────────────────────────────
   const [level, setLevel] = useState("A2");
-  const [topic, setTopic] = useState(TOPICS[0]);
+  const [topic, setTopic] = useState("Free conversation");
   const [started, setStarted] = useState(false);
 
   // ── Session debrief ───────────────────────
@@ -577,233 +567,21 @@ export default function LiveTutorScreen({ goBack, award }) {
   // ─────────────────────────────────────────────
   if (!started) {
     return (
-      <div className="c" style={{ minHeight: '100vh', paddingBottom: 80 }}>
-        {/* Header */}
-        <div style={{ display:'flex', alignItems:'center', gap:12, padding:'16px 16px 0' }}>
-          <button onClick={goBack} className="b bp" style={{ padding:'8px 14px', fontSize:'var(--text-sm)', fontWeight:700 }}>
-            ← Back
-          </button>
-          <div>
-            <div style={{ fontSize:'var(--text-lg)', fontWeight:900, color:'var(--heading)' }}>Live Croatian Tutor</div>
-            <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)' }}>Speak Croatian with an adaptive AI tutor</div>
-          </div>
-        </div>
-
-        {/* Avatar */}
-        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', padding:'28px 16px 20px' }}>
-          <div style={{ position:'relative', width:110, height:110, marginBottom:16 }}>
-            <div style={{
-              position:'absolute', inset:0, borderRadius:'50%',
-              background:'rgba(212,0,45,.12)',
-              border:'2px solid rgba(212,0,45,.25)',
-            }}/>
-            {!avatarError
-              ? <img
-                  src="/images/portraits/tutor-hero.webp"
-                  alt="Marija — your Croatian tutor"
-                  onError={() => setAvatarError(true)}
-                  style={{ width:110, height:110, borderRadius:'50%', objectFit:'cover', display:'block' }}
-                />
-              : <div style={{
-                  width:110, height:110, borderRadius:'50%',
-                  background:'rgba(212,0,45,.1)',
-                  display:'flex', alignItems:'center', justifyContent:'center',
-                  fontSize:48,
-                }}>👩‍🏫</div>
-            }
-          </div>
-          <div style={{ fontSize:'var(--text-lg)', fontWeight:900, color:'var(--heading)' }}>Marija</div>
-          <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:2 }}>Native Croatian speaker · Split</div>
-          <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:4, textAlign:'center', maxWidth:260, lineHeight:1.5 }}>
-            I'll speak Croatian with you, adapt to your level, and help you break through comprehension gaps.
-          </div>
-        </div>
-
-        {/* Mic permission banner */}
-        {micPermission === 'denied' && (
-          <div style={{
-            margin:'0 16px 16px',
-            padding:'12px 16px',
-            borderRadius:12,
-            background:'rgba(220,38,38,.07)',
-            border:'1px solid rgba(220,38,38,.25)',
-            display:'flex', alignItems:'flex-start', gap:10,
-          }}>
-            <span style={{ fontSize:18, flexShrink:0 }}>🎙️</span>
-            <div>
-              <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'#b91c1c', marginBottom:2 }}>Microphone blocked</div>
-              <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.5 }}>
-                To speak with Marija, allow microphone access in your browser's site settings, then reload the page. You can still practice by typing below.
-              </div>
-            </div>
-          </div>
-        )}
-        {micPermission === 'unavailable' && (
-          <div style={{
-            margin:'0 16px 16px',
-            padding:'12px 16px',
-            borderRadius:12,
-            background:'rgba(0,0,0,.04)',
-            border:'1px solid var(--card-b)',
-            display:'flex', alignItems:'flex-start', gap:10,
-          }}>
-            <span style={{ fontSize:18, flexShrink:0 }}>🎙️</span>
-            <div>
-              <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--heading)', marginBottom:2 }}>No microphone detected</div>
-              <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.5 }}>
-                Connect a microphone to speak with Marija. You can still practice by typing.
-              </div>
-            </div>
-          </div>
-        )}
-        {micPermission === 'prompt' && (
-          <div style={{
-            margin:'0 16px 16px',
-            padding:'12px 16px',
-            borderRadius:12,
-            background:'rgba(59,130,246,.07)',
-            border:'1px solid rgba(59,130,246,.25)',
-            display:'flex', alignItems:'flex-start', gap:10,
-          }}>
-            <span style={{ fontSize:18, flexShrink:0 }}>🎙️</span>
-            <div>
-              <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'#1d4ed8', marginBottom:2 }}>Microphone needed</div>
-              <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.5 }}>
-                When you start, your browser will ask to use your microphone. Tap <strong>Allow</strong> to speak with Marija.
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Audio output banner + speaker test */}
-        {audioStatus === 'no-output' && (
-          <div style={{
-            margin:'0 16px 16px',
-            padding:'12px 16px',
-            borderRadius:12,
-            background:'rgba(220,38,38,.07)',
-            border:'1px solid rgba(220,38,38,.25)',
-            display:'flex', alignItems:'flex-start', gap:10,
-          }}>
-            <span style={{ fontSize:18, flexShrink:0 }}>🔇</span>
-            <div>
-              <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'#b91c1c', marginBottom:2 }}>No audio output detected</div>
-              <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.5 }}>
-                Check that your speaker or headphones are connected and your device volume is turned up. Marija's voice won't be audible otherwise.
-              </div>
-            </div>
-          </div>
-        )}
-        {audioStatus === 'suspended' && (
-          <div style={{
-            margin:'0 16px 16px',
-            padding:'12px 16px',
-            borderRadius:12,
-            background:'rgba(245,158,11,.07)',
-            border:'1px solid rgba(245,158,11,.3)',
-            display:'flex', alignItems:'flex-start', gap:10,
-          }}>
-            <span style={{ fontSize:18, flexShrink:0 }}>🔈</span>
-            <div>
-              <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'#92400e', marginBottom:2 }}>Audio not yet unlocked</div>
-              <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', lineHeight:1.5 }}>
-                Tap anywhere on the page before starting — your browser requires a tap to enable audio playback.
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Speaker test — always shown so users can verify before starting */}
-        <div style={{ margin:'0 16px 16px', display:'flex', alignItems:'center', gap:10 }}>
-          <button
-            onClick={testSpeaker}
-            disabled={testingAudio}
-            style={{
-              display:'flex', alignItems:'center', gap:6,
-              padding:'8px 14px', borderRadius:10,
-              border:'1.5px solid var(--card-b)',
-              background: audioTestResult === 'ok' ? 'rgba(22,163,74,.08)' : audioTestResult === 'fail' ? 'rgba(220,38,38,.07)' : 'var(--card)',
-              borderColor: audioTestResult === 'ok' ? 'rgba(22,163,74,.35)' : audioTestResult === 'fail' ? 'rgba(220,38,38,.3)' : 'var(--card-b)',
-              color:'var(--heading)', fontSize:'var(--text-xs)', fontWeight:700,
-              cursor: testingAudio ? 'wait' : 'pointer',
-              transition:'all .15s',
-            }}
-          >
-            <span aria-hidden="true">{testingAudio ? '⏳' : audioTestResult === 'ok' ? '✅' : audioTestResult === 'fail' ? '❌' : '🔊'}</span>
-            {testingAudio ? 'Testing…' : audioTestResult === 'ok' ? 'Speaker working' : audioTestResult === 'fail' ? 'No sound — check volume' : 'Test speaker'}
-          </button>
-          <span style={{ fontSize:'var(--text-xs)', color:'var(--subtext)' }}>
-            {audioTestResult === 'ok'
-              ? 'Audio is working — you\'re ready to go'
-              : audioTestResult === 'fail'
-              ? 'Check your volume and headphone connection'
-              : 'Tap to verify your speakers before starting'}
-          </span>
-        </div>
-
-        {/* Settings card */}
-        <div style={{ margin:'0 16px', background:'var(--card)', borderRadius:16, border:'1px solid var(--card-b)', padding:'18px 16px' }}>
-          {/* Level */}
-          <div style={{ marginBottom:18 }}>
-            <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--heading)', marginBottom:8, letterSpacing:'0.04em', textTransform:'uppercase' }}>Your Level</div>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8 }}>
-              {LEVELS.map(l => (
-                <button
-                  key={l}
-                  onClick={() => setLevel(l)}
-                  style={{
-                    padding:'10px 4px',
-                    borderRadius:10,
-                    border: level === l ? '2px solid #D4002D' : '2px solid var(--card-b)',
-                    background: level === l ? 'rgba(212,0,45,.08)' : 'var(--card)',
-                    color: level === l ? '#D4002D' : 'var(--subtext)',
-                    fontWeight: level === l ? 900 : 600,
-                    fontSize:'var(--text-sm)',
-                    cursor:'pointer',
-                    transition:'all .15s',
-                  }}
-                >{l}</button>
-              ))}
-            </div>
-          </div>
-
-          {/* Topic */}
-          <div>
-            <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--heading)', marginBottom:8, letterSpacing:'0.04em', textTransform:'uppercase' }}>Conversation Topic</div>
-            <select
-              value={topic}
-              onChange={e => setTopic(e.target.value)}
-              style={{
-                width:'100%', padding:'10px 12px',
-                borderRadius:10, border:'1.5px solid var(--card-b)',
-                background:'var(--card)', color:'var(--heading)',
-                fontSize:'var(--text-sm)', fontWeight:600,
-                cursor:'pointer',
-              }}
-            >
-              {TOPICS.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
-        </div>
-
-        {/* Start button */}
-        <div style={{ padding:'20px 16px 0' }}>
-          <button
-            onClick={startSession}
-            style={{
-              width:'100%', padding:'16px',
-              borderRadius:14,
-              background:'linear-gradient(135deg,#D4002D,#b91c1c)',
-              color:'white', border:'none',
-              fontSize:'var(--text-sm)', fontWeight:900,
-              cursor:'pointer', letterSpacing:'0.02em',
-              boxShadow:'0 4px 16px rgba(212,0,45,.35)',
-            }}
-          >
-            Start Speaking with Marija
-          </button>
-        </div>
-      </div>
+      <LiveTutorSetup
+        goBack={goBack}
+        level={level}
+        setLevel={setLevel}
+        topic={topic}
+        setTopic={setTopic}
+        micPermission={micPermission}
+        audioStatus={audioStatus}
+        testingAudio={testingAudio}
+        audioTestResult={audioTestResult}
+        avatarError={avatarError}
+        setAvatarError={setAvatarError}
+        onTestSpeaker={testSpeaker}
+        onStart={startSession}
+      />
     );
   }
 
@@ -811,79 +589,23 @@ export default function LiveTutorScreen({ goBack, award }) {
   // RENDER — Session debrief
   // ─────────────────────────────────────────────
   if (debrief) {
-    const fmtDur = (s) => `${Math.floor(s/60)}m ${s%60}s`;
-    const xpEarned = debrief.xpEarned ?? 30;
     return (
-      <div className="c" style={{ minHeight:'100vh', paddingBottom:40 }}>
-        <div style={{ padding:'16px 16px 0', display:'flex', alignItems:'center', gap:12 }}>
-          <button onClick={goBack} className="b bp" style={{ padding:'8px 14px', fontSize:'var(--text-sm)', fontWeight:700 }}>
-            ← Back
-          </button>
-        </div>
-        <div style={{ padding:'0 16px', animation:'lt-debrief-pop 0.5s ease-out both' }}>
-          {/* Confetti row */}
-          <div style={{ display:'flex', justifyContent:'center', gap:8, fontSize:22, margin:'20px 0 8px', height:50, overflow:'hidden', position:'relative' }}>
-            {['🎉','🌟','🗣️','✨','🎊','💫','🇭🇷','🎈'].map((e,i)=>(
-              <span key={i} style={{ display:'inline-block', animation:`maja-confetti-fall 1.8s ease-in ${(i*0.18).toFixed(2)}s both` }}>{e}</span>
-            ))}
-          </div>
-
-          <h2 style={{ textAlign:'center', fontSize:22, fontWeight:800, color:'var(--heading)', margin:'0 0 4px' }}>
-            Session Complete!
-          </h2>
-          <p style={{ textAlign:'center', color:'var(--subtext)', fontSize:13, margin:'0 0 20px' }}>
-            {fmtDur(debrief.durationSecs)} · {turnCount} turns · {topic}
-          </p>
-
-          {/* Marija's personal note */}
-          <div style={{ background:'var(--card)', border:'1px solid var(--card-b)', borderLeft:'3px solid #D4002D', borderRadius:12, padding:16, marginBottom:12, display:'flex', gap:12, alignItems:'flex-start' }}>
-            <div style={{ width:44, height:44, borderRadius:'50%', background:'rgba(212,0,45,.1)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0 }}>
-              👩‍🏫
-            </div>
-            <p style={{ fontSize:14, fontStyle:'italic', lineHeight:1.6, color:'var(--heading)', margin:0 }}>
-              {debrief.summary}
-            </p>
-          </div>
-
-          {/* Stats row */}
-          <div style={{ display:'flex', gap:8, marginBottom:12 }}>
-            {[
-              { label:'Turns', value: turnCount },
-              { label:'Minutes', value: Math.ceil(debrief.durationSecs/60) },
-              { label:'XP', value: `+${xpEarned}` },
-            ].map(({label,value})=>(
-              <div key={label} style={{ flex:1, background:'var(--card)', border:'1px solid var(--card-b)', borderRadius:10, padding:'10px 6px', textAlign:'center' }}>
-                <div style={{ fontSize:20, fontWeight:800, color:'var(--heading)' }}>{value}</div>
-                <div style={{ fontSize:11, color:'var(--subtext)', marginTop:2 }}>{label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Strength */}
-          <div style={{ background:'var(--card)', border:'1px solid var(--card-b)', borderLeft:'3px solid #16a34a', borderRadius:12, padding:'12px 16px', marginBottom:10 }}>
-            <p style={{ margin:0, fontSize:14, color:'var(--heading)', lineHeight:1.5 }}>✅ {debrief.strength}</p>
-          </div>
-
-          {/* Next step */}
-          <div style={{ background:'var(--card)', border:'1px solid var(--card-b)', borderLeft:'3px solid #b45309', borderRadius:12, padding:'12px 16px', marginBottom:20 }}>
-            <p style={{ margin:0, fontSize:14, color:'var(--heading)', lineHeight:1.5 }}>🎯 {debrief.nextStep}</p>
-          </div>
-
-          {/* CTA */}
-          <button
-            onClick={() => { if (award) award(xpEarned); goBack(); }}
-            style={{ width:'100%', height:52, borderRadius:12, background:'#D4002D', color:'#fff', border:'none', fontSize:16, fontWeight:800, cursor:'pointer' }}
-          >
-            +{xpEarned} XP · Back to App
-          </button>
-          <button
-            onClick={() => { setDebrief(null); setStarted(false); setMessages([]); apiMsgsRef.current = []; setBreakdownCount(0); setTurnCount(0); setSessionHistory(''); }}
-            style={{ width:'100%', height:48, borderRadius:12, background:'transparent', color:'var(--heading)', border:'1px solid var(--card-b)', fontSize:15, fontWeight:600, cursor:'pointer', marginTop:10 }}
-          >
-            Practice Again
-          </button>
-        </div>
-      </div>
+      <LiveTutorDebrief
+        goBack={goBack}
+        debrief={debrief}
+        turnCount={turnCount}
+        topic={topic}
+        award={award}
+        onPracticeAgain={() => {
+          setDebrief(null);
+          setStarted(false);
+          setMessages([]);
+          apiMsgsRef.current = [];
+          setBreakdownCount(0);
+          setTurnCount(0);
+          setSessionHistory('');
+        }}
+      />
     );
   }
 
@@ -1103,117 +825,27 @@ export default function LiveTutorScreen({ goBack, award }) {
       )}
 
       {/* ── Controls bar ── */}
-      <div style={{
-        padding:'10px 16px 16px',
-        borderTop:'1px solid var(--card-b)',
-        background:'var(--card)',
-        flexShrink:0,
-      }}>
-        {/* Gloss toggle + End Session */}
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
-          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-            <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)' }}>
-              Turn {turnCount} · Breakdown {breakdownCount}/3
-            </div>
-            {messages.length >= 2 && (
-              <button
-                onClick={endSession}
-                disabled={summaryLoading}
-                style={{
-                  padding:'4px 10px', borderRadius:20,
-                  background:'rgba(212,0,45,.08)',
-                  border:'1px solid rgba(212,0,45,.25)',
-                  color:'#D4002D', fontSize:10, fontWeight:700, cursor:'pointer',
-                }}
-              >
-                End Session
-              </button>
-            )}
-          </div>
-          <button
-            onClick={() => setShowGloss(v => !v)}
-            style={{
-              padding:'4px 10px', borderRadius:20,
-              background: showGloss ? 'rgba(99,102,241,.1)' : 'transparent',
-              border: '1px solid ' + (showGloss ? 'rgba(99,102,241,.25)' : 'var(--card-b)'),
-              color: showGloss ? '#6366f1' : 'var(--subtext)',
-              fontSize:10, fontWeight:700, cursor:'pointer',
-            }}
-          >
-            {showGloss ? '👁️ Gloss ON' : '👁️ Gloss OFF'}
-          </button>
-        </div>
-
-        {showMic ? (
-          /* ── Mic button (push-to-talk via Deepgram) ── */
-          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
-            <button
-              onPointerDown={startRecording}
-              onPointerUp={stopRecording}
-              onPointerLeave={stopRecording}
-              disabled={micBusy}
-              style={{
-                flex:1, padding:'14px 20px',
-                borderRadius:14, border:'none',
-                background: isRecording
-                  ? 'var(--error, #D4002D)'
-                  : playing
-                  ? 'var(--subtext, #9ca3af)'
-                  : micBusy
-                  ? 'rgba(0,0,0,.08)'
-                  : 'var(--info, #3b82f6)',
-                color: (isRecording || playing || (!micBusy)) ? 'white' : 'var(--subtext)',
-                fontSize:'var(--text-sm)', fontWeight:800,
-                cursor: micBusy ? 'not-allowed' : 'pointer',
-                transition:'all .15s',
-                animation: isRecording ? 'lt-mic-glow 0.8s ease-in-out infinite' : 'none',
-                userSelect: 'none',
-                WebkitUserSelect: 'none',
-                touchAction: 'none',
-              }}
-            >
-              {playing
-                ? <><span aria-hidden="true">🔊</span>{' Listening...'}</>
-                : isRecording
-                ? <><span aria-hidden="true">🔴</span>{' Recording...'}</>
-                : thinking || phase === 'thinking'
-                ? <span aria-hidden="true">⏳</span>
-                : <><span aria-hidden="true">🎙️</span>{' Hold to speak'}</>}
-            </button>
-          </div>
-        ) : null}
-
-        {/* Text input fallback / supplement */}
-        <form onSubmit={handleTextSubmit} style={{ display:'flex', gap:8, marginTop: showMic ? 0 : 0 }}>
-          <input
-            type="text"
-            value={textInput}
-            onChange={e => setTextInput(e.target.value)}
-            placeholder={showMic ? "Or type your Croatian here…" : "Type your Croatian here…"}
-            disabled={!canType}
-            style={{
-              flex:1, padding:'10px 14px',
-              borderRadius:12, border:'1.5px solid var(--card-b)',
-              background:'var(--card)', color:'var(--heading)',
-              fontSize:'var(--text-sm)', opacity: canType ? 1 : 0.5,
-            }}
-          />
-          <button
-            type="submit"
-            disabled={!canType || !textInput.trim()}
-            className="b bg"
-            style={{
-              padding:'10px 16px', borderRadius:12,
-              fontSize:'var(--text-sm)', fontWeight:800,
-              opacity: (canType && textInput.trim()) ? 1 : 0.4,
-              cursor: (canType && textInput.trim()) ? 'pointer' : 'not-allowed',
-              flexShrink:0,
-            }}
-          >
-            Send
-          </button>
-        </form>
-      </div>
+      <LiveTutorControls
+        turnCount={turnCount}
+        breakdownCount={breakdownCount}
+        messages={messages}
+        summaryLoading={summaryLoading}
+        showGloss={showGloss}
+        setShowGloss={setShowGloss}
+        showMic={showMic}
+        isRecording={isRecording}
+        playing={playing}
+        thinking={thinking}
+        micBusy={micBusy}
+        phase={phase}
+        textInput={textInput}
+        setTextInput={setTextInput}
+        canType={canType}
+        onStartRecording={startRecording}
+        onStopRecording={stopRecording}
+        onEndSession={endSession}
+        onTextSubmit={handleTextSubmit}
+      />
     </div>
   );
 }
