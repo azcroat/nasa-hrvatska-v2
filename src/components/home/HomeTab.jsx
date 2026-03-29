@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { LEARN_PATH, getStreak, getDailyChallenge, speak, DAILY_QUESTS, getActiveCampaign, getCityOfDay, incrementCulture } from '../../data.jsx';
 import { getWordOfDay } from '../../lib/wordOfDay.js';
+import { weekKey } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import { safeGetItem } from '../../hooks/useLocalStorage.js';
@@ -66,16 +67,8 @@ const LEVEL_PALETTE = [
   { grad: "linear-gradient(135deg,#7f1d1d,#dc2626)", light: "#fee2e2", text: "#7f1d1d", border: "#fca5a5" },
 ];
 
-function getWeekKey() {
-  const d = new Date();
-  const day = d.getDay() || 7;
-  d.setDate(d.getDate() + 4 - day);
-  const year = d.getFullYear();
-  const week = Math.ceil(((d.getTime() - new Date(year, 0, 1).getTime()) / 86400000 + 1) / 7);
-  return `${year}-W${String(week).padStart(2,'0')}`;
-}
 function getWeekXP() {
-  return parseInt(localStorage.getItem('nh_week_xp_' + getWeekKey()) || '0', 10);
+  return safeGetItem('nh_week_xp_' + weekKey(), 0);
 }
 
 export default function HomeTab({

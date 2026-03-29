@@ -9,6 +9,7 @@ import {
   bootstrapMistakesFromSRS, recordJourneyMilestone,
 } from "./data.jsx";
 import { buildProgressSnapshot } from "./lib/progressSnapshot.js";
+import { localDateStr, weekKey } from "./lib/dateUtils.js";
 import { canRepairStreak, repairStreak } from "./lib/streak.js";
 import { trackAppOpen } from "./lib/analytics.js";
 import { fbRegisterFriendCode } from "./lib/firebase.js";
@@ -51,12 +52,15 @@ const ICONS = { greetings:"👋",numbers:"🔢",family:"👨‍👩‍👧‍�
 const TAB_PATHS = { home:"/",learn:"/learn",practice:"/practice",croatia:"/croatia",profile:"/profile" };
 const PATH_TO_TAB = { "/":"home","/learn":"learn","/practice":"practice","/croatia":"croatia","/profile":"profile" };
 
-function _localDateStr() { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function getDaysSinceJoin(authUser) {
   if (!authUser) return null;
-  const k = 'nh_join_date_' + (authUser.u || authUser.uid || '');
-  if (!localStorage.getItem(k)) localStorage.setItem(k, Date.now().toString());
-  return Math.floor((Date.now() - parseInt(localStorage.getItem(k), 10)) / 86400000);
+  try {
+    const k = 'nh_join_date_' + (authUser.u || authUser.uid || '');
+    if (!localStorage.getItem(k)) localStorage.setItem(k, Date.now().toString());
+    return Math.floor((Date.now() - parseInt(localStorage.getItem(k) || '0', 10)) / 86400000);
+  } catch {
+    return null; // private browsing or quota exceeded
+  }
 }
 function pruneStaleLocalStorage() {
   try {
@@ -104,7 +108,7 @@ function App() {
     const onTtsFailed = () => { setTtsFailedToast(true); setTimeout(() => setTtsFailedToast(false), 2500); };
     window.addEventListener('nh:tts-failed', onTtsFailed);
     return () => { clearTimeout(t); window.removeEventListener('nh:tts-failed', onTtsFailed); };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: one-time setup at mount; TTS listener closure is registered fresh each time the event fires
 
   // ── Core state ──────────────────────────────────────────────────────────────
   const [currentScreen, _setCurrentScreen] = useState('welcome');
@@ -187,7 +191,16 @@ function App() {
       grantFreeAnnual(user.u);
       refreshSub();
     },
-    onSignedOut() { dispatch({ type: 'RESET', payload: DS }); setScr('welcome'); setName(''); setFamData(null); setFamMembers([]); resetComebackGuard(); },
+    onSignedOut() {
+      dispatch({ type: 'RESET', payload: DS });
+      setScr('welcome');
+      setName('');
+      setFamData(null);
+      setFamMembers([]);
+      resetComebackGuard();
+      // Clear exercise session state so the next user doesn't see a stale "resume" prompt
+      try { sessionStorage.clear(); } catch {}
+    },
     onBeforeSignOut: async () => { if (_syncNowRef.current) return _syncNowRef.current(); },
     applyRemoteProgress: (fp) => _applyRemoteRef.current?.(fp),
     setFamData,
@@ -220,12 +233,12 @@ function App() {
 
   // ── Effects ─────────────────────────────────────────────────────────────────
   // Track retention on every app load (D1/D7/D30 buckets in Firebase Analytics)
-  useEffect(() => { trackAppOpen(!!authUser); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { trackAppOpen(!!authUser); }, []); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: D1/D7/D30 analytics fires once per session on cold load; authUser at mount time is the correct value
 
   // Register friend code index once per session when auth is ready
   useEffect(() => {
     if (authUser?.u) fbRegisterFriendCode(authUser.u, authUser.d || name);
-  }, [authUser?.u]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [authUser?.u]); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: name is stable by the time authUser.u is set; re-registering on every name change would cause unnecessary network chatter
 
   // Keep _uidRef current so usePreferences.toggleFav fires fbToggleFavorite
   useEffect(() => { _uidRef.current = authUser?.u || null; }, [authUser]);
@@ -251,15 +264,23 @@ function App() {
     localStorage.setItem('lastSeen', String(now));
     // Streak repair prompt — show when streak broke yesterday and user has enough XP
     if (canRepairStreak() && stats.xp >= 100) { setTimeout(() => setShowStreakRepair(true), 1500); }
-    // Weekly freeze recharge
-    (function() { const wk=()=>{const d=new Date();const dy=d.getDay()||7;d.setDate(d.getDate()+4-dy);const yr=d.getFullYear();const w=Math.ceil(((d.getTime()-new Date(yr,0,1).getTime())/86400000+1)/7);return`${yr}-W${String(w).padStart(2,'0')}`;};const tw=wk();const lw=localStorage.getItem('nh_freeze_recharge_wk')||'';if(lw!==tw){const pd=new Date();pd.setDate(pd.getDate()-7);const pdy=pd.getDay()||7;pd.setDate(pd.getDate()+4-pdy);const py=pd.getFullYear();const pw=Math.ceil(((pd.getTime()-new Date(py,0,1).getTime())/86400000+1)/7);const pxp=parseInt(localStorage.getItem('nh_week_xp_'+py+'-W'+String(pw).padStart(2,'0'))||'0',10);if(pxp>0)earnFreeze();localStorage.setItem('nh_freeze_recharge_wk',tw);}})();
+    // Weekly freeze recharge — award a freeze token if the user earned XP last week
+    try {
+      const thisWeek = weekKey();
+      if ((localStorage.getItem('nh_freeze_recharge_wk') || '') !== thisWeek) {
+        const lastWeek = weekKey(new Date(Date.now() - 7 * 86400000));
+        const lastWeekXP = parseInt(localStorage.getItem('nh_week_xp_' + lastWeek) || '0', 10);
+        if (lastWeekXP > 0) earnFreeze();
+        localStorage.setItem('nh_freeze_recharge_wk', thisWeek);
+      }
+    } catch {}
     if (pendingJoinCode) { try{const u=new URL(window.location.href);u.searchParams.delete('join');window.history.replaceState({},'',u.pathname);}catch(_){} setFamCode(pendingJoinCode);setFamTab('join');setTimeout(()=>setScr('leaderboard'),600);setPendingJoinCode(null); }
     checkNameDay(name);
     scheduleStreakReminder(stats.str || getStreak().count);
-  }, [authScreen]); // eslint-disable-line
+  }, [authScreen]); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: runs once per auth transition; inner values (stats, name) are read live at trigger time, not stale
 
   // Session expiry guard
-  useEffect(() => { if (authScreen !== 'app') return undefined; const iv = setInterval(() => { if (isSessionExpired()) doOut(); }, 5*60*1000); return () => clearInterval(iv); }, [authScreen]); // eslint-disable-line
+  useEffect(() => { if (authScreen !== 'app') return undefined; const iv = setInterval(() => { if (isSessionExpired()) doOut(); }, 5*60*1000); return () => clearInterval(iv); }, [authScreen]); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: doOut is stable across renders; only needs to re-register on authScreen change
   // Touch session on user interaction
   useEffect(() => { if (authScreen !== 'app') return undefined; const h = () => touchSession(); window.addEventListener('click',h); window.addEventListener('touchstart',h); window.addEventListener('keydown',h); return () => { window.removeEventListener('click',h); window.removeEventListener('touchstart',h); window.removeEventListener('keydown',h); }; }, [authScreen]);
 
@@ -326,9 +347,9 @@ function App() {
   // Daily snapshot for progress charts
   useEffect(() => {
     if (!authUser || authScreen !== 'app' || stats.xp === 0) return;
-    const today = _localDateStr();
+    const today = localDateStr();
     try { const h=JSON.parse(localStorage.getItem('progress_history')||'[]');const i=h.findIndex(x=>x.date===today);const s={date:today,xp:stats.xp,lc:stats.lc,gc:stats.gc};if(i>=0)h[i]=s;else h.push(s);localStorage.setItem('progress_history',JSON.stringify(h.slice(-90))); } catch (_) {}
-  }, [stats.xp, authUser, authScreen]); // eslint-disable-line
+  }, [stats.xp, authUser, authScreen]); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: authUser and authScreen are identity-stable once set; the key deps are stats.xp changes
 
   // Premium welcome banner
   useEffect(() => {
@@ -336,7 +357,7 @@ function App() {
     if (localStorage.getItem('nh_premium_welcome_shown')) return undefined;
     const t = setTimeout(() => { const {isFreeAnnual} = getSubscriptionStatus(); if (isFreeAnnual) setShowPremiumWelcome(true); }, 2500);
     return () => clearTimeout(t);
-  }, [authScreen, authUser?.u]); // eslint-disable-line
+  }, [authScreen, authUser?.u]); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: premium welcome check is a one-shot side effect gated on a localStorage flag; re-checking on subscription changes would show duplicate banners
 
   // Page title
   useEffect(() => { document.title = currentScreen && currentScreen !== 'home' && currentScreen !== 'dashboard' ? `${currentScreen.replace(/_/g,' ')} · Naša Hrvatska` : 'Naša Hrvatska — Learn Croatian'; }, [currentScreen]);
@@ -359,7 +380,7 @@ function App() {
   useEffect(() => { setDueCount(getDueReviews().length); }, [stats]);
   const badges = useMemo(() => ({ home:0,learn:0,practice:dueCount,croatia:0,profile:0 }), [dueCount]);
   const doSidebarSearch = useCallback(() => { if (srchQ.trim()) { doSearch(srchQ); setSrchOpen(true); } }, [srchQ, doSearch, setSrchOpen]);
-  const _weeklyXP = (() => { try{const d=new Date();const dy=d.getDay()||7;d.setDate(d.getDate()+4-dy);const yr=d.getFullYear();const wk=Math.ceil(((d.getTime()-new Date(yr,0,1).getTime())/86400000+1)/7);return parseInt(localStorage.getItem('nh_week_xp_'+yr+'-W'+String(wk).padStart(2,'0'))||'0',10);}catch{return 0;} })();
+  const _weeklyXP = (() => { try { return parseInt(localStorage.getItem('nh_week_xp_' + weekKey()) || '0', 10); } catch { return 0; } })();
   const ctxValue = useMemo(() => ({
     // Auth / user
     authScreen, authUser, au: authUser, name, setName, doOut,

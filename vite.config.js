@@ -29,22 +29,8 @@ export default defineConfig({
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
           { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml' }
         ],
-        screenshots: [
-          {
-            src: 'screenshots/home-desktop.png',
-            sizes: '1280x720',
-            type: 'image/png',
-            form_factor: 'wide',
-            label: 'Home screen on desktop'
-          },
-          {
-            src: 'screenshots/home-mobile.png',
-            sizes: '390x844',
-            type: 'image/png',
-            form_factor: 'narrow',
-            label: 'Home screen on mobile'
-          }
-        ]
+        // screenshots: [] — placeholder files not present; remove to prevent 404s in PWA install prompt.
+        // Add home-desktop.png (1280x720) and home-mobile.png (390x844) to public/screenshots/ to re-enable.
       },
       workbox: {
         navigationPreload: true,
