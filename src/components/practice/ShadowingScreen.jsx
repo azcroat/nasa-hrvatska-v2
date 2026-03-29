@@ -54,7 +54,7 @@ function WaveformSVG({ bars, color, label, width = 260, height = 70 }) {
 
 // ── recording hook ────────────────────────────────────────────────────────────
 
-const MIC_DURATION = 4000; // ms
+const MIC_DURATION = 8000; // ms — 8s gives learners enough time to shadow longer phrases
 
 function useRecorder() {
   const [micAvailable, setMicAvailable] = useState(null); // null=unchecked, true, false
