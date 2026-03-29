@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import AzureResultPanel from './AzureResultPanel.jsx';
 import WebSpeechResultPanel from './WebSpeechResultPanel.jsx';
 
@@ -54,6 +54,28 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
     const dist = levenshtein(na, nb);
     return Math.round((1 - dist / maxLen) * 100);
   }
+
+  // ── Stream ref for cleanup ────────────────────────────────────────────────
+  const streamRef = useRef(/** @type {MediaStream|null} */ (null));
+
+  // ── Unmount cleanup — stop mic, abort recognition ─────────────────────────
+  useEffect(() => {
+    return () => {
+      if (recRef.current) {
+        try { recRef.current.abort(); } catch (_) {}
+        recRef.current = null;
+      }
+      if (mediaRecRef.current && mediaRecRef.current.state !== 'inactive') {
+        try { mediaRecRef.current.stop(); } catch (_) {}
+        mediaRecRef.current = null;
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      }
+      chunksRef.current = [];
+    };
+  }, []);
 
   // ── Reset helper ──────────────────────────────────────────────────────────
   function resetAll() {
@@ -125,6 +147,7 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
     let stream;
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      streamRef.current = stream;
     } catch (e) {
       const msg = (e?.name === 'NotAllowedError' || e?.name === 'PermissionDeniedError')
         ? 'Microphone permission denied. Please allow mic access in your browser settings.'
@@ -133,21 +156,37 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
       return;
     }
 
-    // Prefer audio/wav; fall back to whatever the browser supports (including audio/mp4 for iOS).
+    // Prefer audio/wav; fall back to whatever the browser supports.
     // Azure Pronunciation Assessment REST API accepts audio/wav and audio/ogg;codecs=opus.
-    const preferredMime = ['audio/wav', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4']
+    const preferredMime = ['audio/wav', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus']
       .find(t => MediaRecorder.isTypeSupported(t)) || '';
 
-    const recorder = new MediaRecorder(stream, preferredMime ? { mimeType: preferredMime } : {});
+    let recorder;
+    try {
+      recorder = new MediaRecorder(stream, preferredMime ? { mimeType: preferredMime } : {});
+    } catch (e) {
+      stream.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+      setSrErrorMsg('Audio recording initialization failed. Please try again.');
+      return;
+    }
     chunksRef.current = [];
 
     recorder.ondataavailable = e => {
       if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
     };
 
+    recorder.onerror = () => {
+      stream.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+      setState('idle');
+      setSrErrorMsg('Recording error — please try again.');
+    };
+
     recorder.onstop = async () => {
       // Stop all tracks so the mic indicator light goes off.
       stream.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
 
       const mimeType = recorder.mimeType || 'audio/webm';
       const blob = new Blob(chunksRef.current, { type: mimeType });

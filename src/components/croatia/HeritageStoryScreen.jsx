@@ -28,8 +28,10 @@ async function playTTS(text) {
   const blob = await res.blob();
   const url = URL.createObjectURL(blob);
   const audio = new Audio(url);
-  audio.play();
-  audio.addEventListener('ended', () => URL.revokeObjectURL(url));
+  const cleanup = () => URL.revokeObjectURL(url);
+  audio.addEventListener('ended', cleanup);
+  audio.addEventListener('error', cleanup);
+  audio.play().catch(cleanup);
   return audio;
 }
 

@@ -169,7 +169,7 @@ function ArticleCard({ article, index, translating, tooltip, onWordTap, onAward,
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
       audio.onended = () => { setPlaying(false); URL.revokeObjectURL(url); };
-      audio.onerror = () => setPlaying(false);
+      audio.onerror = () => { setPlaying(false); URL.revokeObjectURL(url); };
       await audio.play();
     } catch {
       setPlaying(false);

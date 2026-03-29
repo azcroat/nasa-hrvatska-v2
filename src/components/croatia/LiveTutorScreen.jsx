@@ -119,6 +119,7 @@ export default function LiveTutorScreen({ goBack, award }) {
   const audioRef = useRef(null);
   const bottomRef = useRef(null);
   const apiMsgsRef = useRef([]);  // mirrors messages but only role+content for API calls
+  const recordingStreamRef = useRef(null);
 
   // ── Check mic permission on mount ─────────
   useEffect(() => {
@@ -457,6 +458,7 @@ export default function LiveTutorScreen({ goBack, award }) {
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      recordingStreamRef.current = stream;
       const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
         ? 'audio/webm;codecs=opus'
         : MediaRecorder.isTypeSupported('audio/webm')
@@ -469,6 +471,7 @@ export default function LiveTutorScreen({ goBack, award }) {
       recorder.ondataavailable = e => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
       recorder.onstop = async () => {
         stream.getTracks().forEach(t => t.stop());
+        recordingStreamRef.current = null;
         const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' });
         if (blob.size < 1000) { setIsRecording(false); return; } // too short, ignore
         await transcribeAudio(blob, recorder.mimeType || 'audio/webm');
@@ -587,6 +590,10 @@ export default function LiveTutorScreen({ goBack, award }) {
         try { mediaRecorderRef.current.stop(); } catch {}
       }
       if (audioRef.current) { audioRef.current.pause(); }
+      if (recordingStreamRef.current) {
+        recordingStreamRef.current.getTracks().forEach(t => t.stop());
+        recordingStreamRef.current = null;
+      }
     };
   }, []);
 
