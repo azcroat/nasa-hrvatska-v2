@@ -182,15 +182,23 @@ function XPActivityCalendar({ st }) {
     return result;
   }, [st]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Build 12 weeks × 7 days grid (84 days ending today)
-  const { weeks, todayStr } = useMemo(() => {
+  // todayStr computed at render time (local date) so it's never stale after midnight
+  const todayStr = (() => {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  })();
+
+  // Build 12 weeks × 7 days grid (84 days ending today) — keyed by day index so it
+  // rebuilds automatically when the calendar date changes (handles long-running PWA sessions)
+  const dayIndex = Math.floor(Date.now() / 86400000);
+  const weeks = useMemo(() => {
     const today = new Date();
-    const tStr = today.toISOString().slice(0, 10);
     const allDays = [];
     for (let i = 83; i >= 0; i--) {
       const d = new Date(today);
       d.setDate(today.getDate() - i);
-      allDays.push(d.toISOString().slice(0, 10));
+      const ds = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      allDays.push(ds);
     }
     // Pad front so week 0 starts on Sunday (align with grid)
     const firstDow = new Date(allDays[0]).getDay(); // 0=Sun
@@ -200,8 +208,8 @@ function XPActivityCalendar({ st }) {
     for (let w = 0; w < Math.ceil(padded.length / 7); w++) {
       wks.push(padded.slice(w * 7, (w + 1) * 7));
     }
-    return { weeks: wks, todayStr: tStr };
-  }, []); // intentionally static — rebuilds only on mount
+    return wks;
+  }, [dayIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function cellColor(dateStr) {
     if (!dateStr) return 'transparent';

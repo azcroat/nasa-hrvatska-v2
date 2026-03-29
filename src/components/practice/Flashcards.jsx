@@ -107,7 +107,11 @@ export default function Flashcards({ pool, goBack, award }) {
   const [idx, setIdx] = useState(() => {
     try {
       const saved = JSON.parse(sessionStorage.getItem(FLASH_RESUME_KEY) || 'null');
-      if (saved && pool && pool[0] && saved.firstWord === pool[0][0]) {
+      // Validate by both firstWord AND pool length — a different pool with the same
+      // first word must not resume at a stale index.
+      if (saved && pool && pool[0]
+          && saved.firstWord === pool[0][0]
+          && saved.poolLength === pool.length) {
         return Math.min(saved.idx, pool.length - 1);
       }
     } catch { /* ignore */ }
@@ -139,6 +143,7 @@ export default function Flashcards({ pool, goBack, award }) {
       sessionStorage.setItem(FLASH_RESUME_KEY, JSON.stringify({
         idx,
         firstWord: activePool[0][0],
+        poolLength: activePool.length,
         ts: Date.now(),
       }));
     } catch { /* ignore */ }
@@ -272,6 +277,7 @@ export default function Flashcards({ pool, goBack, award }) {
 
   function studyMissedAgain(missedCards) {
     finishFired.current = false;
+    lastSpokenRef.current = null; // clear so the re-studied first card always speaks
     try { sessionStorage.removeItem(FLASH_RESUME_KEY); } catch { /* ignore */ }
     setActivePool(missedCards);
     setIdx(0);

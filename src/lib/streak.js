@@ -15,7 +15,9 @@ function _localDateStr() {
 }
 
 function _yesterdayStr() {
-  const d = new Date(Date.now() - 86400000);
+  // Use setDate arithmetic — DST-safe (avoids the 23/25-hour edge case of Date.now()-86400000)
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 

@@ -86,7 +86,7 @@ const PERSONA_CONFIG = {
   secretary: {
     name: 'Ana Perković',
     title: 'Tajnica, Grad Zagreb',
-    avatar: '/images/portraits/secretary.jpg',
+    avatar: '/images/portraits/mature-woman.webp',
     fallbackEmoji: '💼',
     orbColor: '#7c3aed',
     thinkingColor: '#6d28d9',

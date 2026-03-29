@@ -96,7 +96,13 @@ function ParticleBurst({ active }) {
 
 const LABELS = ['A', 'B', 'C', 'D'];
 
-export default function McGame({ questions, onComplete, goBack, award, challengeMode = false }) {
+export default function McGame({ questions: rawQuestions, onComplete, goBack, award, challengeMode = false }) {
+  // Guard: drop any question where the correct answer isn't present in opts
+  // (can happen when question generators produce degenerate option sets)
+  const questions = React.useMemo(
+    () => (rawQuestions || []).filter(q => q && Array.isArray(q.opts) && q.opts.includes(q.correct)),
+    [rawQuestions]
+  );
   const haptic = useHaptic();
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
