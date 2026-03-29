@@ -26,6 +26,7 @@ export default function DialogueAvatar({ scenarioId }) {
       <img
         src={`/images/portraits/${key}.webp`}
         alt=""
+        loading="lazy"
         onError={() => setErr(true)}
         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
       />

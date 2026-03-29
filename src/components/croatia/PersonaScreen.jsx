@@ -132,6 +132,7 @@ function PersonaCard({ persona, selected, onSelect }) {
               objectFit: 'cover',
               display: 'block',
             }}
+            loading="lazy"
             onError={() => setImgError(true)}
           />
         ) : (

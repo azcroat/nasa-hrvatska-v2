@@ -19,7 +19,7 @@ export default function DailyCroatianSection({ todayPhrases, tDir, sTDir, tIn, s
               width:'100%', height:'100%', objectFit:'cover',
               objectPosition:'center 60%',
               filter:'brightness(1.05) saturate(1.1)',
-            }}
+            }} loading="lazy"
           />
         </picture>
         {/* Animated shimmer overlay — golden hour light sweep */}

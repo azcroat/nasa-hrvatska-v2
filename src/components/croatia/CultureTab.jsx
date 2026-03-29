@@ -209,6 +209,7 @@ export default function CultureTab({ sCurEx }) {
                   <img
                     src={src} alt=""
                     style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }}
+                    loading="lazy"
                     onError={(e) => { e.currentTarget.style.display='none'; const p = /** @type {HTMLElement} */ (e.currentTarget.parentNode); if (p) p.innerText=emoji; }}
                   />
                 </div>
