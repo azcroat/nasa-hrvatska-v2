@@ -347,6 +347,68 @@ export async function fbDeleteAccount(userId){
     return{ok:true};
   }catch(e){return{ok:false,err:friendlyError(e.message)}}
 }
+
+/**
+ * GDPR Article 20 — right to data portability.
+ * Reads all three Firestore docs owned by the user plus the full set of
+ * app-owned localStorage keys and returns a structured JSON-serialisable object.
+ * Strips any field named "password" as a safety precaution before returning.
+ */
+export async function fbExportUserData(uid) {
+  try {
+    const id = uid.replace(/[.#$/\[\]]/g, '_');
+    const [userDoc, lbDoc, profileDoc] = await Promise.all([
+      getDoc(fsDoc(_fbDb, 'users', id)),
+      getDoc(fsDoc(_fbDb, 'leaderboard', id)),
+      getDoc(fsDoc(_fbDb, 'profiles', id)),
+    ]);
+
+    // Gather all app-owned localStorage keys
+    const localData = {};
+    const keysToExport = [
+      'nh_sr', 'xpCooldown', 'uStreak', 'nh_streak_repair',
+      'nh_placement_done', 'nh_level', 'nh_goal', 'nh_onboarded',
+      'nh_favorites', 'nh_dark', 'nh_sound', 'topic_accuracy',
+      'nh_journey', 'nh_install_date', 'nh_letter_to_self',
+      'nh_font_size', 'nh_reduce_motion', 'nh_prestige',
+      'cookie_consent_v1', 'cookieConsent',
+      'uFamily', 'uS',
+    ];
+    keysToExport.forEach(function(key) {
+      const raw = localStorage.getItem(key);
+      if (raw === null) return;
+      try { localData[key] = JSON.parse(raw); } catch { localData[key] = raw; }
+    });
+    // Also include the progress blob stored under the user's own key
+    const progressRaw = localStorage.getItem('uP_' + id);
+    if (progressRaw) {
+      try { localData['uP_' + id] = JSON.parse(progressRaw); } catch { localData['uP_' + id] = progressRaw; }
+    }
+
+    const fsProgress = userDoc.exists() ? userDoc.data({serverTimestamps:'estimate'}) : null;
+    const fsLeaderboard = lbDoc.exists() ? lbDoc.data() : null;
+    const fsProfile = profileDoc.exists() ? profileDoc.data() : null;
+
+    // Safety: strip any field named "password" that should never be stored here
+    if (fsProgress) delete fsProgress.password;
+
+    const exportData = {
+      exportDate: new Date().toISOString(),
+      account: { uid: id },
+      firestore: {
+        progress: fsProgress,
+        leaderboard: fsLeaderboard,
+        profile: fsProfile,
+      },
+      localStorage: localData,
+    };
+
+    return exportData;
+  } catch(err) {
+    console.error('fbExportUserData failed:', err);
+    throw err;
+  }
+}
 // Real-time listener — fires immediately with current data, then on every remote change.
 // Returns an unsubscribe function. Use lP() inside the callback to cache locally
 // without triggering a circular Firestore write.
