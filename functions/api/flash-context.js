@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 // Cloudflare Pages Function — Flash Context
 // Given a Croatian word + English meaning + CEFR level, generate a fresh example sentence.
 
@@ -173,7 +174,7 @@ Return ONLY valid JSON, no markdown.`;
 
   if (!res.ok) {
     console.error("flash-context.js: Anthropic API error", res.status, data?.error?.message);
-    return err(res.status, data?.error?.message || "Anthropic API error: HTTP " + res.status, origin);
+    return err(res.status, isDev ? (data?.error?.message || "Anthropic API error: HTTP " + res.status) : "AI service error", origin);
   }
 
   const raw = data?.content?.[0]?.text?.trim() || "";

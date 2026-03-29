@@ -22,11 +22,24 @@
 import { checkRateLimit } from './_rateLimit.js';
 import { log, logError } from './_logger.js';
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+function isAllowedOrigin(origin, isDev) {
+  try {
+    const hostname = new URL(origin).hostname;
+    if (isDev && hostname === 'localhost') return true;
+    return hostname === 'nasahrvatska.com'
+      || hostname.endsWith('.nasahrvatska.com')
+      || hostname === 'nasa-hrvatska-v2.pages.dev'
+      || hostname.endsWith('.nasa-hrvatska-v2.pages.dev');
+  } catch { return false; }
+}
+
+function corsHeaders(origin) {
+  return {
+    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+}
 
 const SCENE_QUERIES = {
   dubrovnik: 'dubrovnik croatia scenic',
@@ -50,23 +63,31 @@ const WIKIMEDIA_FALLBACKS = {
   // food: no suitable public-domain video — client falls back to Ken Burns image effect
 };
 
-export async function onRequestOptions() {
-  return new Response(null, { status: 204, headers: CORS });
+export async function onRequestOptions({ request }) {
+  const origin = request.headers.get('origin') || '';
+  return new Response(null, { status: 204, headers: corsHeaders(origin) });
 }
 
 export async function onRequestGet({ request, env }) {
+  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
+  const isDev = env.ENVIRONMENT !== 'production';
+  if (origin && !isAllowedOrigin(origin, isDev)) {
+    return new Response(JSON.stringify({ ok: false, error: 'Forbidden' }),
+      { status: 403, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } });
+  }
+
   const url = new URL(request.url);
   const scene = url.searchParams.get('scene')?.toLowerCase();
 
   if (!scene || !SCENE_QUERIES[scene]) {
     return new Response(JSON.stringify({ ok: false, error: 'Unknown scene' }),
-      { status: 400, headers: { ...CORS, 'Content-Type': 'application/json' } });
+      { status: 400, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } });
   }
 
   const allowed = await checkRateLimit(request, 30);
   if (!allowed) {
     return new Response(JSON.stringify({ ok: false, error: 'Rate limit exceeded' }),
-      { status: 429, headers: { ...CORS, 'Content-Type': 'application/json' } });
+      { status: 429, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } });
   }
 
   // Check KV cache first (7-day TTL)
@@ -77,7 +98,7 @@ export async function onRequestGet({ request, env }) {
     if (cached?.url) {
       log('scene-video', 'KV cache hit', { scene });
       return new Response(JSON.stringify({ ok: true, url: cached.url, cached: true }),
-        { status: 200, headers: { ...CORS, 'Content-Type': 'application/json' } });
+        { status: 200, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } });
     }
   }
 
@@ -92,11 +113,11 @@ export async function onRequestGet({ request, env }) {
       }
       log('scene-video', 'Wikimedia fallback served', { scene });
       return new Response(JSON.stringify({ ok: true, url: wikiUrl, source: 'wikimedia' }),
-        { status: 200, headers: { ...CORS, 'Content-Type': 'application/json' } });
+        { status: 200, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } });
     }
     // No fallback available for this scene — client falls back to Ken Burns image effect
     return new Response(JSON.stringify({ ok: false, error: 'Video service not configured' }),
-      { status: 200, headers: { ...CORS, 'Content-Type': 'application/json' } });
+      { status: 200, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } });
   }
 
   const query = SCENE_QUERIES[scene];
@@ -132,12 +153,12 @@ export async function onRequestGet({ request, env }) {
   } catch (e) {
     logError('scene-video', 'Pexels lookup failed', e, { scene });
     return new Response(JSON.stringify({ ok: false, error: 'Video lookup failed' }),
-      { status: 200, headers: { ...CORS, 'Content-Type': 'application/json' } });
+      { status: 200, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } });
   }
 
   if (!videoUrl) {
     return new Response(JSON.stringify({ ok: false, error: 'No suitable video found' }),
-      { status: 200, headers: { ...CORS, 'Content-Type': 'application/json' } });
+      { status: 200, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } });
   }
 
   // Cache in KV for 7 days (604800 seconds)
@@ -146,5 +167,5 @@ export async function onRequestGet({ request, env }) {
   }
 
   return new Response(JSON.stringify({ ok: true, url: videoUrl }),
-    { status: 200, headers: { ...CORS, 'Content-Type': 'application/json' } });
+    { status: 200, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } });
 }

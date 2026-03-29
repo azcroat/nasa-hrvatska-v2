@@ -105,7 +105,7 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
       setState('idle');
     };
     rec.onend = () => {
-      if (recRef.current === rec) setState(s => s === 'listening' ? 'idle' : s);
+      if (recRef.current === rec) setState(s => (s === 'listening' || s === 'processing') ? 'idle' : s);
     };
     recRef.current = rec;
     rec.start();
@@ -133,9 +133,9 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
       return;
     }
 
-    // Prefer audio/wav; fall back to whatever the browser supports.
+    // Prefer audio/wav; fall back to whatever the browser supports (including audio/mp4 for iOS).
     // Azure Pronunciation Assessment REST API accepts audio/wav and audio/ogg;codecs=opus.
-    const preferredMime = ['audio/wav', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus']
+    const preferredMime = ['audio/wav', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4']
       .find(t => MediaRecorder.isTypeSupported(t)) || '';
 
     const recorder = new MediaRecorder(stream, preferredMime ? { mimeType: preferredMime } : {});

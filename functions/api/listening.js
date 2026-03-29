@@ -185,7 +185,7 @@ export async function onRequestPost({ request, env }) {
 
   if (!res.ok) {
     console.error("listening.js: Anthropic API error", res.status, data?.error?.message);
-    return err(res.status, data?.error?.message || "Anthropic API error: HTTP " + res.status, origin);
+    return err(res.status, isDev ? (data?.error?.message || "Anthropic API error: HTTP " + res.status) : "AI service error", origin);
   }
 
   const raw = data?.content?.[0]?.text?.trim() || "";

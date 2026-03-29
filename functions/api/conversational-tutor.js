@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 // Conversational Tutor — live Croatian conversation with comprehension verification
 // Architecture: Claude Haiku generates tutor response, ElevenLabs TTS plays it
 // Breakdown detection: if user struggles 3x on same concept, switch to English explanation
@@ -148,10 +149,19 @@ export async function onRequestPost(context) {
       ? Math.min(breakdownCount + 1, 3)
       : breakdownCount;
 
+    const sanitizePersonaField = (v, max) => v
+      ? String(v).replace(/[\r\n`\\]/g, ' ').replace(/\bignore\b.*\binstruction/gi, '').trim().slice(0, max)
+      : null;
+    const safePersona = persona ? {
+      name:        sanitizePersonaField(persona.name, 50)        || 'Marija',
+      city:        sanitizePersonaField(persona.city, 50)        || 'Split',
+      description: sanitizePersonaField(persona.description, 200) || null,
+    } : null;
+
     const systemPrompt = buildSystemPrompt({
       level: safeLevel,
       topic: topic ? String(topic).slice(0, 100) : null,
-      persona,
+      persona: safePersona,
       breakdownCount: effectiveBreakdown,
       sessionHistory: sessionHistory ? String(sessionHistory).slice(0, 500) : null,
     });

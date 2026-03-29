@@ -279,6 +279,6 @@ export async function onRequestPost(context) {
 
     return new Response("TTS unavailable", { status: 503, headers: corsHeaders(origin) });
   } catch {
-    return new Response("TTS proxy error", { status: 500 });
+    return new Response("TTS proxy error", { status: 500, headers: corsHeaders(origin) });
   }
 }
