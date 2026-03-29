@@ -13,6 +13,9 @@ export function AppToasts({
   earnBackPrompt,
   streakRestoredCount,
   ttsFailedToast,
+  // Streak repair
+  streakRepairAvailable,
+  onRepairStreak,
   // PWA install banners
   showAndroidInstall, setShowAndroidInstall, deferredInstallPrompt,
   showPwaInstall, setShowPwaInstall,
@@ -47,6 +50,44 @@ export function AppToasts({
       {ttsFailedToast && (
         <div role="status" aria-live="polite" aria-atomic="true" style={{position:'fixed',bottom:80,left:'50%',transform:'translateX(-50%)',zIndex:9500,background:'rgba(30,30,30,.92)',color:'#fff',borderRadius:20,padding:'9px 20px',fontSize:13,fontWeight:600,pointerEvents:'none',animation:'slideUp .3s ease',whiteSpace:'nowrap'}}>
           🔇 Audio unavailable
+        </div>
+      )}
+
+      {/* Streak repair prompt */}
+      {streakRepairAvailable && onRepairStreak && (
+        <div role="status" aria-live="polite" style={{
+          position: 'fixed', bottom: 90, left: '50%', transform: 'translateX(-50%)',
+          zIndex: 890, background: 'var(--card)', border: '1.5px solid rgba(245,158,11,0.4)',
+          borderRadius: 16, padding: '14px 20px', maxWidth: 340, width: 'calc(100% - 40px)',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.18)', display: 'flex', flexDirection: 'column', gap: 10,
+          animation: 'slideUp .35s ease',
+        }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--heading)' }}>
+            🔥 Repair your streak for 100 XP?
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--subtext)', lineHeight: 1.5 }}>
+            Your streak broke yesterday. Spend 100 XP to restore it and keep your progress alive.
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => onRepairStreak('dismiss')}
+              style={{
+                flex: 1, padding: '8px 10px', borderRadius: 10,
+                border: '1.5px solid var(--card-b)', background: 'none',
+                color: 'var(--subtext)', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                fontFamily: "'Outfit',sans-serif",
+              }}
+            >Not now</button>
+            <button
+              onClick={() => onRepairStreak('repair')}
+              style={{
+                flex: 2, padding: '8px 10px', borderRadius: 10, border: 'none',
+                background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#fff',
+                fontSize: 12, fontWeight: 800, cursor: 'pointer',
+                fontFamily: "'Outfit',sans-serif",
+              }}
+            >Repair Streak 🔥</button>
+          </div>
         </div>
       )}
 

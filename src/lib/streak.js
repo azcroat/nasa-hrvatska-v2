@@ -1,0 +1,98 @@
+/**
+ * streak.js — Streak repair (Streak Insurance) utilities.
+ *
+ * Augments the core streak logic in src/data/content.jsx without touching it.
+ * Reads/writes the same `uStreak` localStorage key ({count, last}) that
+ * getStreak() / updateStreak() in data.jsx use, so everything stays consistent.
+ */
+
+const STREAK_REPAIR_KEY = 'nh_streak_repair';
+const XP_COST_REPAIR = 100; // XP cost to repair one missed day
+
+function _localDateStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function _yesterdayStr() {
+  const d = new Date(Date.now() - 86400000);
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+/**
+ * Returns true if the user can repair their streak right now.
+ * Conditions:
+ *   1. Streak is currently 0 (broken).
+ *   2. The streak was last active YESTERDAY (broke exactly 1 day ago).
+ *   3. Has not already repaired today.
+ */
+export function canRepairStreak() {
+  try {
+    const repairData = JSON.parse(localStorage.getItem(STREAK_REPAIR_KEY) || '{}');
+    const today = _localDateStr();
+    if (repairData.lastRepair === today) return false; // already repaired today
+
+    const streakRaw = JSON.parse(localStorage.getItem('uStreak') || '{"count":0,"last":""}');
+    if ((streakRaw.count || 0) > 0) return false; // streak is alive, nothing to repair
+
+    const yesterday = _yesterdayStr();
+    return streakRaw.last === yesterday;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Returns the XP cost to repair.
+ */
+export function getRepairCost() {
+  return XP_COST_REPAIR;
+}
+
+/**
+ * Executes the streak repair.
+ * @param {number} currentXP — the user's current XP total
+ * @returns {{ ok: boolean, reason?: string, xpCost?: number, restoredCount?: number }}
+ */
+export function repairStreak(currentXP) {
+  if (!canRepairStreak()) {
+    return { ok: false, reason: 'Cannot repair streak at this time.' };
+  }
+  if (currentXP < XP_COST_REPAIR) {
+    return { ok: false, reason: `Need ${XP_COST_REPAIR} XP to repair your streak.` };
+  }
+
+  try {
+    // Read existing streak data to know what count to restore
+    const streakRaw = JSON.parse(localStorage.getItem('uStreak') || '{"count":0,"last":""}');
+    const today = _localDateStr();
+
+    // The streak was alive yesterday — restore it to its previous count + 1
+    // (previous count is what it was before it broke, which we don't have directly,
+    //  but the earn-back token from data.jsx may have it)
+    let restoredCount = 1;
+    try {
+      const eb = JSON.parse(localStorage.getItem('nh_earn_back') || 'null');
+      if (eb && eb.prev > 0) {
+        restoredCount = eb.prev; // restore to the count that was broken
+      }
+    } catch {}
+
+    // Write the repaired streak
+    streakRaw.count = restoredCount;
+    streakRaw.last = today;
+    localStorage.setItem('uStreak', JSON.stringify(streakRaw));
+
+    // Record that repair was used today
+    const repairData = JSON.parse(localStorage.getItem(STREAK_REPAIR_KEY) || '{}');
+    repairData.lastRepair = today;
+    localStorage.setItem(STREAK_REPAIR_KEY, JSON.stringify(repairData));
+
+    // Clear earn-back token (already consumed)
+    try { localStorage.removeItem('nh_earn_back'); } catch {}
+
+    return { ok: true, xpCost: XP_COST_REPAIR, restoredCount };
+  } catch (e) {
+    return { ok: false, reason: 'Repair failed: ' + e.message };
+  }
+}
