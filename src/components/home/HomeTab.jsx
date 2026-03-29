@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { LEARN_PATH, getStreak, getDailyChallenge, speak, DAILY_QUESTS, getActiveCampaign, getCityOfDay, incrementCulture } from '../../data.jsx';
 import { getWordOfDay } from '../../lib/wordOfDay.js';
-import { weekKey } from '../../lib/dateUtils.js';
+import { weekKey, localDateStr } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import { safeGetItem } from '../../hooks/useLocalStorage.js';
@@ -108,7 +108,7 @@ export default function HomeTab({
   const [htab, setHTab] = useState('today');
 
   const questsDone = useMemo(() => {
-    const d = new Date().toISOString().slice(0,10);
+    const d = localDateStr();
     const q = (id) => localStorage.getItem('nh_quest_' + id + '_' + d) === '1';
     const hasStreak = streak.count > 0;
     return {
@@ -306,7 +306,7 @@ export default function HomeTab({
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.06 }}>
       {(() => {
         const dailyTarget = parseInt(localStorage.getItem('nh_daily_goal_xp') || '50', 10);
-        const todayKey = 'nh_day_xp_' + new Date().toISOString().slice(0,10);
+        const todayKey = 'nh_day_xp_' + localDateStr();
         const todayXp = parseInt(localStorage.getItem(todayKey) || '0', 10);
         const pct = Math.min(1, todayXp / dailyTarget);
         const done = pct >= 1;

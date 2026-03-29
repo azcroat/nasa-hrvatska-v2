@@ -321,7 +321,7 @@ export const ASPECT_PAIRS = [
   {impf:"gledati",pf:"pogledati",en:"to watch/look",rule:"po- prefix for a single glance or viewing",ctx:"Svaki večer gledam vijesti. / Pogledao sam taj film."},
   {impf:"učiti",pf:"naučiti",en:"to learn/study",rule:"na- prefix marks mastery achieved",ctx:"Učim hrvatski godinama. / Naučio sam tu pjesmu."},
   {impf:"govoriti",pf:"reći",en:"to speak/say",rule:"Different root: reći for one-time saying",ctx:"Govori engleski jako dobro. / Rekao je da dolazi."},
-  {impf:"raditi",pf:"napraviti",en:"to do/make",rule:"na- + praviti for completing a task",ctx:"Radim svaki dan od 9 do 17. / Napravio sam kolač."},
+  {impf:"praviti",pf:"napraviti",en:"to make/build",rule:"na- prefix marks completing the making",ctx:"Pravim kolač za goste. / Napravio sam kolač za cijelu obitelj."},
   {impf:"kupovati",pf:"kupiti",en:"to buy",rule:"-ovati→-iti suffix change for completion",ctx:"Kupujem namirnice svaki tjedan. / Kupio sam novi auto."},
   {impf:"davati",pf:"dati",en:"to give",rule:"davati = habitual giving; dati = single act",ctx:"Uvijek daje novac za darove. / Dao sam mu ključeve."},
   {impf:"uzimati",pf:"uzeti",en:"to take",rule:"uzimati = repeated; uzeti = one completed act",ctx:"Uzimam lijekove svaki dan. / Uzeo je moju olovku."},
@@ -342,7 +342,7 @@ export const ASPECT_PAIRS = [
 ];
 export const CONDITIONAL = {
   title:"Kondicionalni — Would/Could/Should",
-  intro:"The conditional expresses what would happen. Formed with: bih/bi/bi/bismo/biste/bi + infinitive. It is also the polite way to ask for things — far more natural than the present tense.",
+  intro:"The conditional expresses what would happen. Formed with: bih/bi/bi/bismo/biste/bi + past participle (e.g. volio, radila, mogao). It is also the polite way to ask for things — far more natural than the present tense.",
   forms:[
     {pro:"ja",form:"bih",en:"I would"},
     {pro:"ti",form:"bi",en:"you would"},
