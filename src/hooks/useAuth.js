@@ -39,6 +39,9 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
   // Set to true just before fbRegister so the auth listener treats the next user as a new account
   const isNewReg = useRef(false);
 
+  // Guest mode — skip Firebase redirect while user is browsing without an account
+  const guestRef = useRef(false);
+
   // Track authScreen in a ref so the auth listener (mounted once) can read the current value.
   // Used to detect re-login after logout: if authScreen was 'login', _goPostAuth must fire
   // even when earlyRestored=true from a prior session.
@@ -111,6 +114,8 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       authFired = true;
       clearTimeout(authFallbackTimer);
       if (!fbUser) {
+        // Guest mode — user is browsing without auth, don't redirect to login
+        if (guestRef.current) { setAuthScreen('app'); return; }
         // Not signed in — clear stale session and go to login
         cS();
         if (watchRef.current) { watchRef.current(); watchRef.current = null; }
@@ -118,6 +123,8 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         setAuthScreen('login');
         return;
       }
+      // Real sign-in — exit guest mode
+      guestRef.current = false;
 
       const k = fbUser.email || fbUser.uid;
       const dn = fbUser.displayName || k;
@@ -411,9 +418,18 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         ]);
       } catch {}
     }
+    guestRef.current = false;
     if (watchRef.current) { watchRef.current(); watchRef.current = null; }
     fbLogout(); cS(); setAuthUser(null); setAuthScreen('login');
     cb.current.onSignedOut();
+  }
+
+  // ── Guest mode ────────────────────────────────────────────────────────────
+  function doGuest() {
+    guestRef.current = true;
+    touchSession();
+    updateStreak();
+    setAuthScreen('app');
   }
 
   return {
@@ -428,6 +444,6 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
     authLoading,
     emailUnverified, setEmailUnverified,
     resendVerification,
-    doReg, doLog, doOut, doReset, doGoogleLogin,
+    doReg, doLog, doOut, doReset, doGoogleLogin, doGuest,
   };
 }

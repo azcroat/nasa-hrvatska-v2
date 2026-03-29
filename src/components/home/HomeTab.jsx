@@ -192,6 +192,18 @@ export default function HomeTab({
         daysSinceJoin={daysSinceJoin}
       />
 
+      {/* ── CONTINUE LEARNING — primary CTA first ── */}
+      <PathProgressCard
+        activePalette={activePalette}
+        pathData={pathData}
+        syncReady={syncReady}
+        launchPathItem={launchPathItem}
+        setTab={setTab}
+        resumeLesson={resumeLesson}
+        lastActivity={lastActivity}
+        sCurEx={sCurEx}
+      />
+
       {/* ── HERO ── */}
       <HeroSection
         streak={streak}
@@ -390,18 +402,6 @@ export default function HomeTab({
             setCampaignDismissed={setCampaignDismissed}
             campaignQuestsDone={campaignQuestsDone}
             setTab={setTab}
-          />
-
-          {/* ── CONTINUE LEARNING ── */}
-          <PathProgressCard
-            activePalette={activePalette}
-            pathData={pathData}
-            syncReady={syncReady}
-            launchPathItem={launchPathItem}
-            setTab={setTab}
-            resumeLesson={resumeLesson}
-            lastActivity={lastActivity}
-            sCurEx={sCurEx}
           />
 
           <KnightSpeech st={st} />

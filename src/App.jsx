@@ -174,7 +174,7 @@ function App() {
   _applyRemoteRef.current = applyRemoteProgress;
 
   // ── Auth ────────────────────────────────────────────────────────────────────
-  const { authScreen, setAuthScreen, authUser, authEmail, setAuthEmail, pw, setPw, pc, setPc, displayName, setDisplayName, sp, setSp2, rpEm, setRpEm, authError, setAuthError, authLoading, emailUnverified, setEmailUnverified, resendVerification, doReg, doLog, doOut, doReset, doGoogleLogin } = useAuth({
+  const { authScreen, setAuthScreen, authUser, authEmail, setAuthEmail, pw, setPw, pc, setPc, displayName, setDisplayName, sp, setSp2, rpEm, setRpEm, authError, setAuthError, authLoading, emailUnverified, setEmailUnverified, resendVerification, doReg, doLog, doOut, doReset, doGoogleLogin, doGuest: _doGuest } = useAuth({
     onSignedIn({ user, progress, isNew, isHydrate }) {
       if (isHydrate) {
         if (progress) { const st = progress.stats || progress.st || {}; dispatch({ type: 'MERGE_REMOTE', payload: st, ds: DS }); if (progress.name) setName(progress.name); }
@@ -207,6 +207,9 @@ function App() {
     setSyncReady: _setSyncReady,
     ds,
   });
+
+  // Guest mode — bypass auth and go straight to dashboard
+  const doGuest = useCallback(() => { _doGuest(); setTimeout(() => setScr('dashboard'), 50); }, [_doGuest, setScr]);
 
   // ── PWA install + sync manager (need authScreen from useAuth) ────────────────
   const { showPwaInstall, setShowPwaInstall, showAndroidInstall, setShowAndroidInstall, deferredInstallPrompt, setDeferredInstallPrompt } = usePwaInstall({ authScreen });
@@ -455,7 +458,7 @@ function App() {
 
     </div>
   );
-  if (authScreen === 'login' || authScreen === 'register') return <LoginScreen authScreen={authScreen} authError={authError} authLoading={authLoading} authEmail={authEmail} pw={pw} pc={pc} displayName={displayName} sp={sp} setAuthScreen={setAuthScreen} setAuthError={setAuthError} setAuthEmail={setAuthEmail} setPw={setPw} setPc={setPc} setDisplayName={setDisplayName} setSp2={setSp2} setRpEm={setRpEm} doLog={doLog} doReg={doReg} doGoogleLogin={doGoogleLogin} />;
+  if (authScreen === 'login' || authScreen === 'register') return <LoginScreen authScreen={authScreen} authError={authError} authLoading={authLoading} authEmail={authEmail} pw={pw} pc={pc} displayName={displayName} sp={sp} setAuthScreen={setAuthScreen} setAuthError={setAuthError} setAuthEmail={setAuthEmail} setPw={setPw} setPc={setPc} setDisplayName={setDisplayName} setSp2={setSp2} setRpEm={setRpEm} doLog={doLog} doReg={doReg} doGoogleLogin={doGoogleLogin} doGuest={doGuest} />;
   if (authScreen === 'reset') return <ResetPassword authError={authError} authLoading={authLoading} rpEm={rpEm} setAuthScreen={setAuthScreen} setAuthError={setAuthError} setRpEm={setRpEm} doReset={doReset} />;
 
   // ── Main app ────────────────────────────────────────────────────────────────

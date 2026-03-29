@@ -18,7 +18,7 @@ export default function LoginScreen({
   authScreen, authError, authLoading, authEmail, pw, pc, displayName, sp,
   setAuthScreen, setAuthError, setAuthEmail, setPw, setPc, setDisplayName, setSp2,
   setRpEm,
-  doLog, doReg, doGoogleLogin,
+  doLog, doReg, doGoogleLogin, doGuest,
 }) {
   const isR = authScreen === "register";
   const strength = isR ? pwStrength(pw) : 0;
@@ -138,6 +138,23 @@ export default function LoginScreen({
             </button>
           </div>
         </form>
+        {doGuest && (
+          <div style={{textAlign:'center',marginTop:16}}>
+            <button
+              type="button"
+              onClick={doGuest}
+              style={{
+                background:'none', border:'none', cursor:'pointer',
+                fontSize:'var(--text-sm)', color:'var(--subtext)', fontWeight:600,
+                fontFamily:"'Outfit',sans-serif", padding:'8px 16px',
+                textDecoration:'underline', textUnderlineOffset:3,
+                opacity:0.75,
+              }}
+            >
+              Continue as Guest — save progress anytime
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
