@@ -93,18 +93,23 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
     }
   }
 
-  // Called by PronunciationScorer when it gets a result
+  // Called by PronunciationScorer when it gets a result.
+  // If score >= 60, auto-mark the word as done so "Next →" appears immediately —
+  // previously users had to also tap "I Said It Correctly!" as a second step.
   function handleScorerResult({ spoken, score }) {
     setCurrentWordScore({ spoken, score });
-    // Record score for the current word
     setWordScores(prev => {
-      // If we already have a score for this word index, update it (keep best)
       const existing = prev.find(ws => ws.word === sw[0]);
       if (existing) {
         return prev.map(ws => ws.word === sw[0] ? { ...ws, score: Math.max(ws.score, score) } : ws);
       }
       return [...prev, { word: sw[0], meaning: sw[1], score }];
     });
+    // Auto-advance sr state when pronunciation is good enough (≥60 = close enough)
+    if (score >= 60 && sr !== 'ok') {
+      sSr('ok');
+      sSsc(s => s + 1);
+    }
   }
 
   function stopRecording() {
