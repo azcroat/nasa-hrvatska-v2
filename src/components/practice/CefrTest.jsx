@@ -116,9 +116,22 @@ function gradeMessage(pct) {
   return { icon:"💪", msg:"Keep practicing! You'll get there." };
 }
 
+// Shuffle one level's questions: randomise question order AND option order,
+// storing the correct answer by value so index checks remain valid.
+function shuffleLevel(levelKey) {
+  const raw = LEVELS[levelKey].questions;
+  return shLocal([...raw]).map(q => {
+    const correctText = q.opts[q.answer];
+    const shuffledOpts = shLocal([...q.opts]);
+    return { ...q, opts: shuffledOpts, answer: shuffledOpts.indexOf(correctText) };
+  });
+}
+
 export default function CefrTest({ award }) {
   const finishFired = useRef(false);
   const [levelKey, setLevelKey] = useState(null);
+  // Shuffled questions for the active level — rebuilt each time a level is started
+  const [shuffledQuestions, setShuffledQuestions] = useState([]);
   const [qIdx, setQIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(false);
@@ -128,6 +141,7 @@ export default function CefrTest({ award }) {
   function startLevel(key) {
     finishFired.current = false;
     setLevelKey(key);
+    setShuffledQuestions(shuffleLevel(key));
     setQIdx(0);
     setScore(0);
     setAnswered(false);
@@ -135,22 +149,27 @@ export default function CefrTest({ award }) {
     setDone(false);
   }
 
+  // Active question list: use shuffled version if available, fall back to raw
+  const activeQuestions = shuffledQuestions.length
+    ? shuffledQuestions
+    : (levelKey ? LEVELS[levelKey].questions : []);
+
   function handleSelect(i) {
     if (answered) return;
     setSelected(i);
     setAnswered(true);
-    if (i === LEVELS[levelKey].questions[qIdx].answer) {
+    if (i === activeQuestions[qIdx].answer) {
       setScore(sc => sc + 1);
     }
   }
 
   function handleNext() {
-    const level = LEVELS[levelKey];
+    const total = activeQuestions.length;
     const nextIdx = qIdx + 1;
-    if (nextIdx >= level.questions.length) {
+    if (nextIdx >= total) {
       if (!finishFired.current) {
         finishFired.current = true;
-        const finalScore = score + (selected === level.questions[qIdx].answer ? 1 : 0);
+        const finalScore = score + (selected === activeQuestions[qIdx].answer ? 1 : 0);
         if (award) award(finalScore * 7);
       }
       setDone(true);
@@ -163,6 +182,7 @@ export default function CefrTest({ award }) {
 
   function goBack() {
     setLevelKey(null);
+    setShuffledQuestions([]);
     setDone(false);
     setAnswered(false);
     setSelected(-1);
@@ -215,7 +235,7 @@ export default function CefrTest({ award }) {
   }
 
   const level = LEVELS[levelKey];
-  const total = level.questions.length;
+  const total = activeQuestions.length;
 
   // --- RESULTS SCREEN ---
   if (done) {
@@ -283,7 +303,7 @@ export default function CefrTest({ award }) {
   }
 
   // --- TEST SCREEN ---
-  const q = level.questions[qIdx];
+  const q = activeQuestions[qIdx];
   const isCorrect = selected === q.answer;
 
   return (

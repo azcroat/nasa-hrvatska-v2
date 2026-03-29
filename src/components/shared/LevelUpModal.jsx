@@ -45,6 +45,10 @@ function playLevelUpSound() {
       osc.start(ctx.currentTime + t);
       osc.stop(ctx.currentTime + t + dur + 0.05);
     });
+    // Close context after all waves finish to prevent AudioContext leak
+    const lastWave = waves[waves.length - 1];
+    const lastEnd = lastWave.t + lastWave.dur + 0.1;
+    setTimeout(() => ctx.close().catch(() => {}), lastEnd * 1000);
   } catch (_) {}
 }
 

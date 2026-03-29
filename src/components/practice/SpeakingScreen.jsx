@@ -70,6 +70,10 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { return () => {
     clearTimeout(timeoutRef.current);
+    if (recRef.current) {
+      try { recRef.current.onresult = null; recRef.current.onerror = null; recRef.current.onend = null; recRef.current.abort(); } catch (_) {}
+      recRef.current = null;
+    }
     stopWaveform();
     if (recordStreamRef.current) { recordStreamRef.current.getTracks().forEach(t => t.stop()); recordStreamRef.current = null; }
     if (recordingURLRef.current) { URL.revokeObjectURL(recordingURLRef.current); recordingURLRef.current = null; }

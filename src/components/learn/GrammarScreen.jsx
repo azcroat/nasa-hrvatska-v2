@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { H, Bar, speak } from '../../data.jsx';
+import React, { useRef, useMemo } from 'react';
+import { H, Bar, speak, sh } from '../../data.jsx';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
 import { logError } from '../../lib/learnerErrors.js';
@@ -10,10 +10,26 @@ export default function GrammarScreen({
   goBack, award, setSt,
 }) {
   const resultFired = useRef(false);
+
+  // Shuffle questions once per lesson (when gl changes) and shuffle each
+  // question's options, storing the correct answer by value rather than index.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const shuffledQs = useMemo(() => {
+    if (!gl?.qs?.length) return [];
+    return sh([...gl.qs]).map(q => {
+      const correctText = q.o[q.c];
+      const shuffledOpts = sh([...q.o]);
+      return { ...q, o: shuffledOpts, c: shuffledOpts.indexOf(correctText) };
+    });
+  }, [gl]);
+
   if (!gl) return null;
+  const qs = shuffledQs.length ? shuffledQs : (gl.qs || []);
+  const currentQ = qs[gx];
+
   return (
     <div className="scr-wrap">
-      
+
       {gp==="learn"&&<React.Fragment>
         {H("📐 "+gl.title)}
         <div className="c" style={{marginBottom:16}}>
@@ -27,8 +43,8 @@ export default function GrammarScreen({
         ))}
         <button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{sGp("ex");sGx(0);sGa(false);sGsl(-1);}}>Practice →</button>
       </React.Fragment>}
-      {gp==="ex"&&gl.qs[gx]&&<React.Fragment>
-        <Bar v={gx+1} mx={gl.qs.length} color="#b45309" h={6} />
+      {gp==="ex"&&currentQ&&<React.Fragment>
+        <Bar v={gx+1} mx={qs.length} color="#b45309" h={6} />
         <div style={{textAlign:'right',marginBottom:4}}>
           <button
             onClick={goBack}
@@ -42,22 +58,22 @@ export default function GrammarScreen({
           </button>
         </div>
         <div className="c" style={{marginTop:8}}>
-          <p style={{fontSize:20,fontWeight:700,marginBottom:20}}>{gl.qs[gx].q}</p>
-          {gl.qs[gx].o.map((o,i)=>(
-            <button key={i} className={"ob "+(ga?(i===gl.qs[gx].c?"ok":gsl===i?"no":""):"")}
-              onClick={()=>{if(!ga){sGsl(i);sGa(true);const correct=i===gl.qs[gx].c;if(correct)sGs(s=>s+1);else logError(gl.title||'grammar_general','grammar',{wrong:o,correct:gl.qs[gx].o[gl.qs[gx].c],source:'grammar_screen'});recordTopicResult('grammar',correct);}}}>
+          <p style={{fontSize:20,fontWeight:700,marginBottom:20}}>{currentQ.q}</p>
+          {currentQ.o.map((o,i)=>(
+            <button key={i} className={"ob "+(ga?(i===currentQ.c?"ok":gsl===i?"no":""):"")}
+              onClick={()=>{if(!ga){sGsl(i);sGa(true);const correct=i===currentQ.c;if(correct)sGs(s=>s+1);else logError(gl.title||'grammar_general','grammar',{wrong:o,correct:currentQ.o[currentQ.c],source:'grammar_screen'});recordTopicResult('grammar',correct);}}}>
               {o}
             </button>
           ))}
           {ga&&<button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{
-            if(gx<gl.qs.length-1){sGx(i=>i+1);sGa(false);sGsl(-1);}
-            else{if(resultFired.current)return;resultFired.current=true;award(Math.round((gs/gl.qs.length)*25)+10);markQuest('grammar');if(gs===gl.qs.length)markQuest('perfect');setSt(s=>({...s,gc:s.gc+1}));sGp("result");}
-          }}>{gx<gl.qs.length-1?"Next →":"Results"}</button>}
+            if(gx<qs.length-1){sGx(i=>i+1);sGa(false);sGsl(-1);}
+            else{if(resultFired.current)return;resultFired.current=true;award(Math.round((gs/qs.length)*25)+10);markQuest('grammar');if(gs===qs.length)markQuest('perfect');setSt(s=>({...s,gc:s.gc+1}));sGp("result");}
+          }}>{gx<qs.length-1?"Next →":"Results"}</button>}
         </div>
       </React.Fragment>}
       {gp==="result"&&<div style={{textAlign:"center",paddingTop:40}}>
         <div style={{fontSize:64}}>📝</div>
-        <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:28,color:"#164e63"}}>Score: {gs}/{gl.qs.length}</h2>
+        <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:28,color:"#164e63"}}>Score: {gs}/{qs.length}</h2>
         <button className="b bp" style={{marginTop:24}} onClick={goBack}>Continue →</button>
       </div>}
     </div>
