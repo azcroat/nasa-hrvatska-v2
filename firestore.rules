@@ -89,10 +89,45 @@ service cloud.firestore {
     // Owner reads/writes their own document only.
     // UPDATE validates the top-level xp field to prevent client-side XP inflation.
     // CREATE is ownership-only (resource.data doesn't exist yet; XP bounded by first UPDATE).
+    // FRIEND EXCEPTION: any authenticated user may update ONLY the friendUids field on
+    // any user document — required for bidirectional friend add/remove (fbAddFriend,
+    // fbRemoveFriend write arrayUnion/arrayRemove to both participants' docs).
     match /users/{userId} {
       allow read: if isOwner(userId);
       allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && validXpUpdate() && validProgressSize();
+      allow update: if isOwner(userId) && validXpUpdate() && validProgressSize()
+        || (isAuthenticated()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['friendUids']));
+      allow delete: if false;
+    }
+
+    // ─── Public profiles ───────────────────────────────────────────────────
+    // Lightweight public stats used by the friend leaderboard.
+    // Written by fbSaveProgress alongside /users/{uid} (owner-only).
+    // Readable by all authenticated users so friends can see each other's stats.
+    // Schema: { name, xp, lc, streak, level, lastActive }
+    match /profiles/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId)
+        && request.resource.data.keys().hasAll(['name', 'xp', 'lc', 'streak', 'level', 'lastActive'])
+        && request.resource.data.xp >= 0
+        && request.resource.data.lc >= 0
+        && request.resource.data.level >= 1;
+      allow delete: if false;
+    }
+
+    // ─── Friend codes ──────────────────────────────────────────────────────
+    // Lookup index: 6-char code → { uid, name, updated }.
+    // Written by fbRegisterFriendCode on every sign-in (upsert).
+    // Read by any authenticated user to resolve a code during friend-add.
+    // A user may only register a code that maps to their own UID.
+    match /friendCodes/{code} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated()
+        && request.resource.data.keys().hasAll(['uid', 'name', 'updated'])
+        && (request.resource.data.uid == request.auth.uid
+            || request.resource.data.uid == emailToId(request.auth.token.email));
       allow delete: if false;
     }
 
