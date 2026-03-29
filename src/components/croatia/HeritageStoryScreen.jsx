@@ -566,6 +566,7 @@ export default function HeritageStoryScreen({ goBack, award }) {
             src={regionImage}
             alt={selectedRegion.name}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            loading="lazy"
             onError={e => { /** @type {HTMLImageElement} */ (e.target).src = '/images/scenes/dalmatian-ai.webp'; }}
           />
           <div style={{

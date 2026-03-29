@@ -652,7 +652,7 @@ export default function LiveTutorScreen({ goBack, award }) {
             }}/>
           )}
           {!avatarError
-            ? <img src="/images/portraits/tutor-hero.webp" alt="Marija" onError={() => setAvatarError(true)}
+            ? <img src="/images/portraits/tutor-hero.webp" alt="Marija" loading="lazy" onError={() => setAvatarError(true)}
                 style={{ width:36, height:36, borderRadius:'50%', objectFit:'cover', position:'relative', zIndex:1 }} />
             : <div style={{ width:36, height:36, borderRadius:'50%', background:'rgba(212,0,45,.1)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, position:'relative', zIndex:1 }}>👩‍🏫</div>
           }
@@ -699,7 +699,7 @@ export default function LiveTutorScreen({ goBack, award }) {
               {/* Avatar dot */}
               {!isUser && (
                 <div style={{ width:28, height:28, borderRadius:'50%', background:'rgba(212,0,45,.1)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, flexShrink:0, marginTop:2 }}>
-                  {avatarError ? '👩‍🏫' : <img src="/images/portraits/tutor-hero.webp" onError={() => setAvatarError(true)} style={{ width:28, height:28, borderRadius:'50%', objectFit:'cover' }} alt="" />}
+                  {avatarError ? '👩‍🏫' : <img src="/images/portraits/tutor-hero.webp" loading="lazy" onError={() => setAvatarError(true)} style={{ width:28, height:28, borderRadius:'50%', objectFit:'cover' }} alt="" />}
                 </div>
               )}
 
@@ -754,7 +754,7 @@ export default function LiveTutorScreen({ goBack, award }) {
         {thinking && (
           <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12, animation:'lt-slide-in .25s ease' }}>
             <div style={{ width:28, height:28, borderRadius:'50%', background:'rgba(212,0,45,.1)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, flexShrink:0 }}>
-              {avatarError ? '👩‍🏫' : <img src="/images/portraits/tutor-hero.webp" onError={() => setAvatarError(true)} style={{ width:28, height:28, borderRadius:'50%', objectFit:'cover' }} alt="" />}
+              {avatarError ? '👩‍🏫' : <img src="/images/portraits/tutor-hero.webp" loading="lazy" onError={() => setAvatarError(true)} style={{ width:28, height:28, borderRadius:'50%', objectFit:'cover' }} alt="" />}
             </div>
             <div style={{ padding:'10px 16px', background:'var(--card)', border:'1px solid var(--card-b)', borderRadius:'4px 16px 16px 16px', display:'flex', alignItems:'center', gap:5 }}>
               {[0,1,2].map(n => (

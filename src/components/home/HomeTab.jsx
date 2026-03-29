@@ -26,6 +26,7 @@ import AITutorCard from './AITutorCard.jsx';
 import ProgressTabContent from './ProgressTabContent.jsx';
 import WelcomeBackBanners from './WelcomeBackBanners.jsx';
 import GoalSetterModal from '../shared/GoalSetterModal.jsx';
+import SpeedChallenge from './SpeedChallenge.jsx';
 // DalmatianCoast SVG replaced with real AI/CC photography
 // import { DalmatianCoast } from '../illustrations';
 
@@ -296,9 +297,27 @@ export default function HomeTab({
                 background: done ? 'var(--success)' : 'linear-gradient(90deg,var(--info),#38bdf8)',
                 transition:'width 0.6s cubic-bezier(0.4,0,0.2,1)'}} />
             </div>
-            {done && <div style={{fontSize:'var(--text-xs)',color:'var(--success)',marginTop:6,fontWeight:600}}>
-              🎉 Goal reached! Every extra XP builds your lead.
-            </div>}
+            {done && (
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:6}}>
+                <div style={{fontSize:'var(--text-xs)',color:'var(--success)',fontWeight:600}}>
+                  🎉 Goal reached! Every extra XP builds your lead.
+                </div>
+                <button
+                  onClick={() => {
+                    const text = `🇭🇷 Daily goal hit! ${todayXp} XP earned learning Croatian on Naša Hrvatska`;
+                    if (navigator.share) {
+                      navigator.share({ title: 'Naša Hrvatska', text, url: 'https://nasahrvatska.com' }).catch(() => {});
+                    } else {
+                      navigator.clipboard?.writeText(text).catch(() => {});
+                    }
+                  }}
+                  style={{background:'none',border:'1px solid var(--success-b)',borderRadius:8,padding:'3px 10px',
+                    fontSize:11,fontWeight:700,color:'var(--success)',cursor:'pointer',flexShrink:0,marginLeft:8}}
+                >
+                  Share 📤
+                </button>
+              </div>
+            )}
           </div>
         );
       })()}
@@ -455,6 +474,9 @@ export default function HomeTab({
             setScr={setScr}
           />
 
+          {/* ── SPEED CHALLENGE — daily timed vocabulary quiz ── */}
+          <SpeedChallenge />
+
           {/* ── TODAY'S CROATIAN + QUICK TRANSLATE ── */}
           <DailyCroatianSection
             todayPhrases={todayPhrases}
@@ -481,6 +503,7 @@ export default function HomeTab({
           weekXP={weekXP}
           nudgeDismissed={nudgeDismissed}
           setNudgeDismissed={setNudgeDismissed}
+          setScr={setScr}
         />
       )}
 

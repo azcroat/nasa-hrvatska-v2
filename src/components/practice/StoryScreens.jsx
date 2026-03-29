@@ -119,7 +119,7 @@ export default function StoryScreens({ goBack, award, sCurEx }) {
                 src={sceneImg}
                 alt=""
                 aria-hidden="true"
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} loading="lazy"
               />
             )}
             {sceneImgLoading && !sceneImg && (

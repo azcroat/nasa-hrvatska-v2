@@ -1,7 +1,8 @@
 import React from 'react';
 import StatsWidget from './StatsWidget.jsx';
+import WeakWordsPanel from './WeakWordsPanel.jsx';
 
-export default function ProgressTabContent({ streak, st, ws, weekXP, nudgeDismissed, setNudgeDismissed }) {
+export default function ProgressTabContent({ streak, st, ws, weekXP, nudgeDismissed, setNudgeDismissed, setScr }) {
   return (
     <React.Fragment>
 
@@ -27,6 +28,9 @@ export default function ProgressTabContent({ streak, st, ws, weekXP, nudgeDismis
 
       {/* ── MILESTONES ── */}
       <StatsWidget streak={streak} st={st} ws={ws} weekXP={weekXP} />
+
+      {/* ── WEAK AREAS ANALYTICS ── */}
+      {st.lc >= 1 && <WeakWordsPanel setScr={setScr} />}
 
       {/* ── ADAPTIVE DAILY GOAL NUDGE ── */}
       {(() => {

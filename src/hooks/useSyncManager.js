@@ -107,13 +107,29 @@ export function useSyncManager({
       } catch (_) {}
     };
     const onPageShow = (e) => { if (e.persisted) iosWakeUp(); };
+    // Reconnect sync: flush any locally-queued progress when network comes back
+    const onOnline = () => {
+      // Small delay so the network stack is stable before we hit Firebase
+      setTimeout(() => {
+        iosWakeUp();
+        // Also push local state → Firebase in case offline edits were made
+        const { authUser: u, stats: st, name: nm, authScreen: as, favs: fv, jWords: jw, dchlA: da, dchlSl: dsl } = _unloadRef.current;
+        if (!u || as !== 'app') return;
+        try {
+          const snap = buildProgressSnapshot({ uid: u.u, name: nm, stats: st, dchlA: da, dchlSl: dsl, favs: fv, jWords: jw });
+          fbSaveProgress(u.u, snap).catch(() => {});
+        } catch (_) {}
+      }, 1500);
+    };
     document.addEventListener('visibilitychange', iosWakeUp);
     window.addEventListener('pageshow', onPageShow);
+    window.addEventListener('online', onOnline);
     return () => {
       unsub();
       _watcherUnsubRef.current = null;
       document.removeEventListener('visibilitychange', iosWakeUp);
       window.removeEventListener('pageshow', onPageShow);
+      window.removeEventListener('online', onOnline);
     };
   }, [authScreen, authUser, applyRemoteProgress, ds, setStats, setName, setSyncReady]);
 

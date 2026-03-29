@@ -67,6 +67,7 @@ export default function MajaIdleCard({
             border: `3px solid ${personaCfg.accentColor}`,
             display: 'block',
           }}
+          loading="lazy"
           onError={(e) => {
             e.currentTarget.style.display = 'none';
             const sib = /** @type {HTMLElement} */ (e.currentTarget.nextSibling);
@@ -179,6 +180,7 @@ export default function MajaIdleCard({
                 objectFit: 'cover',
                 border: `3px solid ${personaCfg.accentColor}`,
               }}
+              loading="lazy"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
                 const sib = /** @type {HTMLElement} */ (e.currentTarget.nextSibling);

@@ -53,6 +53,7 @@ export default function ConversationBubble({ msg, personaCfg }) {
                 border: `2px solid ${cfg.accentColor}`,
                 display: 'block',
               }}
+              loading="lazy"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
                 const sib = /** @type {HTMLElement} */ (e.currentTarget.nextSibling);

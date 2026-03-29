@@ -53,6 +53,7 @@ export default function LiveTutorSetup({
             ? <img
                 src="/images/portraits/tutor-hero.webp"
                 alt="Marija — your Croatian tutor"
+                loading="lazy"
                 onError={() => setAvatarError(true)}
                 style={{ width:110, height:110, borderRadius:'50%', objectFit:'cover', display:'block' }}
               />
