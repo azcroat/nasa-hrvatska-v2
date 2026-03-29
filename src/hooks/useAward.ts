@@ -15,7 +15,7 @@ import {
   trackLessonComplete, trackExerciseComplete, trackLevelUp,
   trackBadgeEarned, trackStreakMilestone,
 } from '../lib/analytics.js';
-import { weekKey as _weekKey } from '../lib/dateUtils.js';
+import { localDateStr as _localDateStr, weekKey as _weekKey } from '../lib/dateUtils.js';
 import type { Stats } from '../types/index.js';
 
 // Module-level guard: comeback bonus fires at most once per app session
@@ -24,12 +24,6 @@ let _awardComebackUsed = false;
 
 // Expose for App.jsx reset on sign-out (if needed)
 export function resetComebackGuard() { _awardComebackUsed = false; }
-
-// Pure XP cooldown helpers — also imported by App.jsx for launch functions
-function _localDateStr() {
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
 export function canEarnXP(exerciseId: string): boolean {
   try { const cd = JSON.parse(localStorage.getItem('xpCooldown') || '{}'); return cd[exerciseId] !== _localDateStr(); } catch { return true; }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import CroatianKnight from './CroatianKnight';
 
 // Returns a contextual greeting message based on time, streak, stats.
@@ -57,11 +57,46 @@ function getGreeting(st) {
   return messages[day % messages.length];
 }
 
+// Static style objects — defined outside component to avoid re-creation on every render
+const MINI_BUTTON_STYLE = {
+  position: 'fixed',
+  bottom: 76,
+  left: 16,
+  width: 48,
+  height: 48,
+  borderRadius: '50%',
+  background: 'var(--card)',
+  border: '2px solid var(--card-b)',
+  boxShadow: 'var(--shadow-md, 0 4px 12px rgba(0,0,0,0.15))',
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: 0,
+  zIndex: 100,
+  animation: 'spring-in .35s cubic-bezier(0.34,1.56,0.64,1) both',
+  transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+};
+
+const DISMISS_BTN_STYLE = {
+  position: 'absolute',
+  top: 8,
+  right: 10,
+  background: 'none',
+  border: 'none',
+  color: 'var(--subtext)',
+  fontSize: 16,
+  cursor: 'pointer',
+  lineHeight: 1,
+  padding: '2px 4px',
+  borderRadius: 4,
+};
+
 // Three-state mode machine:
 //   'hidden'  → 'full'  (800ms after mount, once per session)
 //   'full'    → 'mini'  (on user dismiss — knight persists as floating button)
 //   'mini'    → 'full'  (on mini-button tap, or on knight:celebrate CustomEvent)
-export default function KnightSpeech({ st, sessionKey = 'nh_knight_greeted', onDismiss = undefined }) {
+function KnightSpeech({ st, sessionKey = 'nh_knight_greeted', onDismiss = undefined }) {
   const [mode, setMode] = useState('hidden'); // 'hidden' | 'full' | 'mini'
   const [animOut, setAnimOut] = useState(false);
   const [celebGreeting, setCelebGreeting] = useState(null); // override text during celebrations
@@ -111,6 +146,22 @@ export default function KnightSpeech({ st, sessionKey = 'nh_knight_greeted', onD
     setMode('full');
   };
 
+  // Must be called before any conditional returns (Rules of Hooks)
+  // Only changes when animOut changes — prevents new object on every render
+  const fullModeStyle = useMemo(() => ({
+    display: 'flex',
+    alignItems: 'flex-end',
+    gap: 10,
+    padding: '12px 16px',
+    background: 'var(--card)',
+    borderRadius: 16,
+    border: '1.5px solid var(--card-b)',
+    marginBottom: 14,
+    boxShadow: 'var(--shadow-md, 0 4px 12px rgba(0,0,0,0.1))',
+    animation: animOut ? 'fade-down .3s ease forwards' : 'spring-in .45s cubic-bezier(0.34,1.56,0.64,1) both',
+    position: 'relative',
+  }), [animOut]);
+
   if (mode === 'hidden') return null;
 
   const greeting = celebGreeting || getGreeting(st);
@@ -122,25 +173,7 @@ export default function KnightSpeech({ st, sessionKey = 'nh_knight_greeted', onD
       <button
         onClick={expandFromMini}
         aria-label="Open knight greeting"
-        style={{
-          position: 'fixed',
-          bottom: 76, // above tab bar (tab bar is ~60px)
-          left: 16,
-          width: 48,
-          height: 48,
-          borderRadius: '50%',
-          background: 'var(--card)',
-          border: '2px solid var(--card-b)',
-          boxShadow: 'var(--shadow-md, 0 4px 12px rgba(0,0,0,0.15))',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 0,
-          zIndex: 100,
-          animation: 'spring-in .35s cubic-bezier(0.34,1.56,0.64,1) both',
-          transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-        }}
+        style={MINI_BUTTON_STYLE}
         onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.12)'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(0,0,0,0.2)'; }}
         onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'var(--shadow-md, 0 4px 12px rgba(0,0,0,0.15))'; }}
       >
@@ -151,21 +184,7 @@ export default function KnightSpeech({ st, sessionKey = 'nh_knight_greeted', onD
 
   // ── Full mode — speech bubble ──────────────────────────────────────────────
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'flex-end',
-        gap: 10,
-        padding: '12px 16px',
-        background: 'var(--card)',
-        borderRadius: 16,
-        border: '1.5px solid var(--card-b)',
-        marginBottom: 14,
-        boxShadow: 'var(--shadow-md, 0 4px 12px rgba(0,0,0,0.1))',
-        animation: animOut ? 'fade-down .3s ease forwards' : 'spring-in .45s cubic-bezier(0.34,1.56,0.64,1) both',
-        position: 'relative',
-      }}
-    >
+    <div style={fullModeStyle}>
       {/* Knight */}
       <div style={{ flexShrink: 0 }}>
         <CroatianKnight size={56} mood={mood} variant={variant} />
@@ -197,22 +216,16 @@ export default function KnightSpeech({ st, sessionKey = 'nh_knight_greeted', onD
       <button
         onClick={dismiss}
         aria-label="Dismiss greeting"
-        style={{
-          position: 'absolute',
-          top: 8,
-          right: 10,
-          background: 'none',
-          border: 'none',
-          color: 'var(--subtext)',
-          fontSize: 16,
-          cursor: 'pointer',
-          lineHeight: 1,
-          padding: '2px 4px',
-          borderRadius: 4,
-        }}
+        style={DISMISS_BTN_STYLE}
       >
         ×
       </button>
     </div>
   );
 }
+
+// Memoize: KnightSpeech re-renders only when stats (xp/lc/streak) change.
+// Prevents the CroatianKnight SVG animation from restarting on every parent render.
+export default React.memo(KnightSpeech, (prev, next) =>
+  prev.st === next.st && prev.sessionKey === next.sessionKey
+);
