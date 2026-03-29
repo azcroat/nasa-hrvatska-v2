@@ -75,6 +75,7 @@ export default function ClozeEngine({ goBack, award }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ wrong, correct, context, type: 'cloze', level: level || 'B1' }),
+        signal: AbortSignal.timeout(20000),
       });
       if (!res.ok) throw new Error('API error');
       const data = await res.json();

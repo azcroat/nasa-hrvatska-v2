@@ -220,6 +220,7 @@ export default function PostcardScreen({ goBack, award }) {
       const res = await fetch("/api/ai-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(25000),
         body: JSON.stringify({
           mode: "postcard",
           messages: [{ role: "user", content: userText.trim() }],

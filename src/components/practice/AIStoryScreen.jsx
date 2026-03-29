@@ -51,6 +51,7 @@ export default function AIStoryScreen({ goBack, award }) {
           memory: {},
           history: [],
         }),
+        signal: AbortSignal.timeout(25000),
       });
       if (!res.ok) throw new Error(`API error ${res.status}`);
       const data = await res.json();

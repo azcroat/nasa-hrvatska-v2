@@ -159,6 +159,7 @@ export default function DialogueSim({ award }) {
           history: aiHistory,
           level: userLevel || 'A2',
         }),
+        signal: AbortSignal.timeout(25000),
       });
       if (!res.ok) throw new Error('API error');
       const data = await res.json();

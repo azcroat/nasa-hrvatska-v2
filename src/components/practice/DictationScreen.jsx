@@ -59,6 +59,7 @@ export default function DictationScreen({ goBack, award }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ wrong, correct: correctText, type: 'dictation', level: level || 'A2' }),
+        signal: AbortSignal.timeout(20000),
       });
       if (!res.ok) throw new Error('API error');
       const data = await res.json();
