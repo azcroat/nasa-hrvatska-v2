@@ -20,6 +20,7 @@
 //   food          → "croatian food seafood"
 
 import { checkRateLimit } from './_rateLimit.js';
+import { log, logError } from './_logger.js';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -74,6 +75,7 @@ export async function onRequestGet({ request, env }) {
   if (KV) {
     const cached = await KV.get(cacheKey, { type: 'json' }).catch(() => null);
     if (cached?.url) {
+      log('scene-video', 'KV cache hit', { scene });
       return new Response(JSON.stringify({ ok: true, url: cached.url, cached: true }),
         { status: 200, headers: { ...CORS, 'Content-Type': 'application/json' } });
     }
@@ -88,6 +90,7 @@ export async function onRequestGet({ request, env }) {
       if (KV) {
         await KV.put(cacheKey, JSON.stringify({ url: wikiUrl }), { expirationTtl: 604800 }).catch(() => {});
       }
+      log('scene-video', 'Wikimedia fallback served', { scene });
       return new Response(JSON.stringify({ ok: true, url: wikiUrl, source: 'wikimedia' }),
         { status: 200, headers: { ...CORS, 'Content-Type': 'application/json' } });
     }
@@ -126,7 +129,7 @@ export async function onRequestGet({ request, env }) {
       }
     }
   } catch (e) {
-    console.error(`scene-video Pexels error (${scene}):`, e.message);
+    logError('scene-video', 'Pexels lookup failed', e, { scene });
     return new Response(JSON.stringify({ ok: false, error: 'Video lookup failed' }),
       { status: 200, headers: { ...CORS, 'Content-Type': 'application/json' } });
   }

@@ -1,10 +1,14 @@
+/* eslint-disable no-console */
 /**
- * Cloudflare Pages Middleware — Security & Rate Limiting
+ * Cloudflare Pages Middleware — Security, Rate Limiting & Request Logging
  * Applies to all /api/* routes.
  *
  * Primary rate limiting via Cache API.
  * Fallback: module-level in-memory circuit breaker when Cache API unavailable.
  * When fallback activates, applies 50% of normal limit (multiple isolates may run).
+ *
+ * All requests are logged as structured JSON: { ts, level, endpoint, method, ms, status }.
+ * Use `wrangler tail` or a Cloudflare Log Drain to ingest these in production.
  */
 
 // ── Module-level fallback map ─────────────────────────────────────────────────
@@ -55,6 +59,7 @@ export async function onRequest(context) {
   const { request, next } = context;
   const url = new URL(request.url);
   const pathname = url.pathname;
+  const start = Date.now();
 
   // Only apply to API routes
   if (!pathname.startsWith('/api/')) return next();
@@ -102,5 +107,26 @@ export async function onRequest(context) {
     }
   }
 
-  return next();
+  const response = await next();
+
+  // Structured request log — visible in `wrangler tail` and Cloudflare Log Drains
+  const ms = Date.now() - start;
+  const status = response?.status ?? 0;
+  const logEntry = JSON.stringify({
+    ts: new Date().toISOString(),
+    level: status >= 500 ? 'error' : status >= 400 ? 'warn' : 'info',
+    endpoint: pathname,
+    method: request.method,
+    ms,
+    status,
+  });
+  if (status >= 500) {
+    console.error(logEntry);
+  } else if (status >= 400) {
+    console.warn(logEntry);
+  } else {
+    console.log(logEntry);
+  }
+
+  return response;
 }

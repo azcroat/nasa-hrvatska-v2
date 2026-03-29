@@ -51,6 +51,14 @@ service cloud.firestore {
         && (newXp <= oldXp + 500 || newXp == 0);
     }
 
+    // User-doc UPDATE: progress blob must be ≤ 200 KB to prevent abuse.
+    // The full user progress JSON is typically 2-8 KB; 200 KB is a generous ceiling.
+    // Uses .get() so writes that don't include progress are always allowed.
+    function validProgressSize() {
+      let prog = request.resource.data.get('progress', '');
+      return prog == '' || prog.size() <= 204800;
+    }
+
     // Leaderboard CREATE: first-write caps xp at 1000 and lc at 100.
     function validLbXpCreate() {
       return request.resource.data.xp >= 0
@@ -84,7 +92,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isOwner(userId);
       allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && validXpUpdate();
+      allow update: if isOwner(userId) && validXpUpdate() && validProgressSize();
       allow delete: if false;
     }
 

@@ -14,6 +14,7 @@
 
 import { checkRateLimit } from './_rateLimit.js';
 import { corsHeaders, isAllowedOrigin } from './_helpers.js';
+import { log, logError } from './_logger.js';
 
 const VALID_PORTRAITS = new Set([
   'barista','vendor','mature-woman','young-woman','grandmother',
@@ -74,6 +75,7 @@ export async function onRequestGet({ request, env }) {
   if (KV) {
     const cached = await KV.get(cacheKey, { type: 'json' }).catch(() => null);
     if (cached?.videoUrl) {
+      log('npc-video', 'KV cache hit', { portrait });
       return new Response(JSON.stringify({ ok: true, videoUrl: cached.videoUrl, cached: true }),
         { status: 200, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } });
     }
@@ -115,7 +117,7 @@ export async function onRequestGet({ request, env }) {
 
     if (!createRes.ok) {
       const txt = await createRes.text().catch(() => '');
-      console.error(`[npc-video] D-ID create ${createRes.status}: ${txt.slice(0, 200)}`);
+      logError('npc-video', 'D-ID create failed', new Error(txt.slice(0, 200)), { portrait, status: createRes.status });
       return new Response(JSON.stringify({ ok: false, error: 'D-ID creation failed' }),
         { status: 502, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } });
     }
@@ -138,6 +140,7 @@ export async function onRequestGet({ request, env }) {
 
       if (pd.status === 'done' && pd.result_url) {
         const videoUrl = pd.result_url;
+        log('npc-video', 'D-ID generation complete', { portrait, pollAttempt: i + 1 });
         // Cache in KV for 30 days
         if (KV) {
           await KV.put(cacheKey, JSON.stringify({ videoUrl, portrait, generated: Date.now() }), { expirationTtl: KV_TTL }).catch(() => {});
@@ -147,17 +150,18 @@ export async function onRequestGet({ request, env }) {
       }
 
       if (pd.status === 'error' || pd.status === 'rejected') {
-        console.error('[npc-video] D-ID poll error:', pd.error || pd.status);
+        logError('npc-video', 'D-ID poll returned error status', new Error(pd.error || pd.status), { portrait });
         return new Response(JSON.stringify({ ok: false, error: 'Generation failed' }),
           { status: 502, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } });
       }
     }
 
+    logError('npc-video', 'D-ID generation timed out after 10 polls', new Error('timeout'), { portrait });
     return new Response(JSON.stringify({ ok: false, error: 'Timed out' }),
       { status: 504, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } });
 
   } catch (e) {
-    console.error('[npc-video] error:', e.message);
+    logError('npc-video', 'Unhandled error', e, { portrait });
     return new Response(JSON.stringify({ ok: false, error: 'Server error' }),
       { status: 500, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } });
   }
