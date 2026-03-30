@@ -167,6 +167,12 @@ async function exitScreen(page) {
 }
 
 async function clickQuickGame(page, label) {
+  // Wait 600ms before first dismissAll — CelebrationModal fires after a 400ms setTimeout
+  // so a naive dismissAll immediately after exitScreen will miss it.
+  await page.waitForTimeout(600);
+  await dismissAll(page);
+  // Second pass: any modals that appeared just after the first dismissAll
+  await page.waitForTimeout(300);
   await dismissAll(page);
   await page.waitForSelector('button.practice-card-dark', { timeout: 5000 }).catch(() => {});
   const btn = page.locator('button.practice-card-dark').filter({ hasText: label }).first();
