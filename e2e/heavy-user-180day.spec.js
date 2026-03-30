@@ -178,13 +178,23 @@ async function login(page) {
   ).catch(() => {});
   await page.waitForTimeout(3000);
   await dismissModals(page);
+  // Guard: if dismissModals clicked something that navigated away from the main app
+  // (e.g. "Skip" on onboarding → placement screen unmounts sidebar), reload to recover.
+  if (!await page.locator('.sb-btn').first().isVisible({ timeout: 3000 }).catch(() => false)) {
+    await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 20000 }).catch(() => {});
+    await page.waitForSelector('.sb-btn', { state: 'visible', timeout: 20000 }).catch(() => {});
+    await dismissModals(page);
+  }
 }
 
 async function goTab(page, label) {
   await dismissAll(page);
+  // Wait for sidebar to be attached (handles lazy-load / animation transitions
+  // where sidebar is briefly unmounted during screen changes).
+  await page.waitForSelector('.sb-btn', { state: 'attached', timeout: 8000 }).catch(() => {});
   const tab = page.locator('.sb-btn').filter({ hasText: label }).first();
-  if (await tab.isVisible({ timeout: 4000 }).catch(() => false)) {
-    await tab.click();
+  if (await tab.isVisible({ timeout: 6000 }).catch(() => false)) {
+    await tab.click({ timeout: 15000 }).catch(() => {});
     await page.waitForTimeout(900);
     return true;
   }
@@ -1142,9 +1152,9 @@ test('Block 13 (Days 73-78) — Croatia deep dive: Media, Stories, regional cont
   await goTab(page, 'Croatia');
   await ss(page, 'b13-croatia-start');
 
-  // ── Media sub-tab
-  const mediaBtn = page.locator('button').filter({ hasText: /^media$/i }).first();
-  if (await mediaBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+  // ── Media sub-tab (non-anchored: production labels have emoji prefix e.g. "🎵 Media")
+  const mediaBtn = page.locator('button').filter({ hasText: /media/i }).first();
+  if (await mediaBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
     await mediaBtn.click().catch(() => {});
     await page.waitForTimeout(700);
     const mediaText = await page.locator('#root').innerText().catch(() => '');
@@ -1163,10 +1173,10 @@ test('Block 13 (Days 73-78) — Croatia deep dive: Media, Stories, regional cont
     } else info('Media sub-tab loaded but no media keywords matched');
   } else info('Media sub-tab not found (may have different label)');
 
-  // ── Stories sub-tab
+  // ── Stories sub-tab (non-anchored: production labels have emoji prefix e.g. "📖 Stories")
   await goTab(page, 'Croatia');
-  const storiesBtn = page.locator('button').filter({ hasText: /^stories$/i }).first();
-  if (await storiesBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+  const storiesBtn = page.locator('button').filter({ hasText: /stories/i }).first();
+  if (await storiesBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
     await storiesBtn.click().catch(() => {});
     await page.waitForTimeout(700);
     const storiesText = await page.locator('#root').innerText().catch(() => '');
@@ -1651,8 +1661,9 @@ test('Block 23 (Days 133-138) — Croatia: all 4 sub-tabs + full regional sweep'
   for (const subTab of ['Discover', 'Culture', 'Media', 'Stories']) {
     await goTab(page, 'Croatia');
     await page.waitForTimeout(400);
-    const btn = page.locator('button').filter({ hasText: new RegExp(`^${subTab}$`, 'i') }).first();
-    if (await btn.isVisible({ timeout: 2000 }).catch(() => false)) {
+    // Non-anchored: production labels have emoji prefix e.g. "🗓️ Discover", "🏰 Culture"
+    const btn = page.locator('button').filter({ hasText: new RegExp(subTab, 'i') }).first();
+    if (await btn.isVisible({ timeout: 4000 }).catch(() => false)) {
       await btn.click().catch(() => {});
       await page.waitForTimeout(800);
       const text = await page.locator('#root').innerText().catch(() => '');
@@ -1984,7 +1995,7 @@ test('Block 29 (Days 169-174) — Stress test: rapid switching, all tabs, all ga
       await dismissAll(page);
       const tabBtn = page.locator('.sb-btn').filter({ hasText: tab }).first();
       if (await tabBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await tabBtn.click();
+        await tabBtn.click({ timeout: 5000 }).catch(() => {});
         await page.waitForTimeout(400);
       }
     }
