@@ -177,6 +177,8 @@ async function exitScreen(page) {
 // ── Click a Quick Games card by label (always-visible section) ───────────────
 // Quick Games cards have class "practice-card-dark", text: "[emoji]\n[label]\n[sub]"
 async function clickQuickGame(page, label) {
+  // Dismiss any leftover overlays before checking visibility (celebrations, modals, etc.)
+  await dismissAll(page);
   // Wait for at least one Quick Games card to appear (handles lazy-load + animation)
   await page.waitForSelector('button.practice-card-dark', { timeout: 5000 }).catch(() => {});
   const btn = page.locator('button.practice-card-dark').filter({ hasText: label }).first();
@@ -194,6 +196,8 @@ async function clickQuickGame(page, label) {
 // Exercises like Sentence Cloze, CEFR Test, Case Constellation are behind the
 // "Browse All N Exercises" toggle. Click it first, then find the exercise card.
 async function clickBrowseExercise(page, label) {
+  // Dismiss any leftover overlays (same reason as clickQuickGame)
+  await dismissAll(page);
   // Wait for the Practice tab to be fully rendered (Browse All toggle must exist)
   await page.waitForSelector('button.practice-card-dark', { timeout: 5000 }).catch(() => {});
   // Open the Browse All grid if not already open
@@ -239,7 +243,7 @@ async function clickExercise(page, textPattern) {
 // Strategy: find buttons that appear to be answer options (not navigation controls),
 // click the first one, then click "Next →". Repeat up to maxQ times.
 async function runGenericExercise(page, label, maxQ = 5) {
-  const NAV_RE = /^(next|back|exit|done|continue|results|retry|check|hint|skip|finish|play|start|quit|submit|proceed|see|go|try)/i;
+  const NAV_RE = /^\s*(next|back|exit|done|continue|results|retry|check|hint|skip|finish|play|start|quit|submit|proceed|see|go|try|→|✕|×)/i;
   let answered = 0;
   for (let i = 0; i < maxQ; i++) {
     await page.waitForTimeout(600);
@@ -1383,7 +1387,9 @@ test('Block 10 (Days 28-30) — Stress: rapid nav, XP flow, repeat exercises, aw
       ok(`XP after quiz: ${xpAfter}`);
       if (xpBefore !== null && xpAfter !== null) {
         if (xpAfter > xpBefore) ok(`XP correctly increased: +${xpAfter - xpBefore}`);
-        else if (xpAfter === xpBefore) bug('BUG', 'XP-Award', 'Completed quiz but XP did not increase');
+        // Block 10 is a repeat/stress run — xpCooldown blocks re-earning from the same
+        // exercise in the same day, so unchanged XP is expected here, not a bug
+        else if (xpAfter === xpBefore) info('XP unchanged after quiz — xpCooldown active (exercise already done this session, expected)');
         else bug('BUG', 'XP-Award', `XP dropped after completing quiz: ${xpBefore} → ${xpAfter}`);
       }
     } else {
