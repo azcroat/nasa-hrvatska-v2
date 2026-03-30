@@ -2011,9 +2011,10 @@ test('Block 29 (Days 169-174) — Stress test: rapid switching, all tabs, all ga
   const mobileText = await page.locator('#root').innerText().catch(() => '');
   if (mobileText.match(/\w{10,}/)) ok('App renders on 390px mobile viewport');
   else bug('BUG', 'Mobile', 'App blank on 390px mobile viewport');
-  const mobileTab = page.locator('.sb-btn').first();
+  // On mobile viewport the sidebar (.sb-btn) is hidden; the bottom nav bar (.nav-btn) shows instead
+  const mobileTab = page.locator('.sb-btn, .nav-btn').first();
   if (await mobileTab.isVisible({ timeout: 2000 }).catch(() => false)) ok('Tab bar visible on mobile viewport');
-  else bug('UX', 'Mobile', 'Tab bar not visible on 390px viewport');
+  else bug('UX', 'Mobile', 'Tab bar not visible on 390px viewport (checked .sb-btn + .nav-btn)');
   await ss(page, 'b29-mobile-390');
 
   // ── Tablet viewport check
