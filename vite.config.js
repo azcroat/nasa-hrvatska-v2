@@ -37,35 +37,54 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
-        cacheId: 'nasa-hrvatska-v11',
+        cacheId: 'nasa-hrvatska-v12',
         // Precache only critical app-shell assets: CSS, fonts, favicon/manifest icons.
         // JS chunks (100+ files, ~5MB) and images are handled by runtimeCaching below.
         globPatterns: ['**/*.css', '**/*.woff2', '**/*.ico', '**/icon*.png', '**/apple-touch*.png'],
         globIgnores: ['**/chunk-data*.js', '**/splash/**', '**/screenshots/**'],
         runtimeCaching: [
           {
-            // Data chunk (706KB vocabulary data) — serve stale, revalidate in background
-            // Only cache genuine JS responses (status 200, not the SPA-fallback index.html
-            // which Cloudflare returns for missing assets via /* /index.html 200).
+            // Data chunk (706KB vocabulary data) — serve stale, revalidate in background.
+            // cacheWillUpdate plugin: reject any response with Content-Type: text/html
+            // (the Cloudflare /* /index.html 200 SPA fallback returns status 200 WITH
+            // text/html — so cacheableResponse: {statuses:[200]} alone is not enough).
             urlPattern: /\/assets\/chunk-data[^/]*\.js$/,
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'nasa-hrvatska-v11-data',
+              cacheName: 'nasa-hrvatska-v12-data',
               expiration: { maxEntries: 3, maxAgeSeconds: 60 * 60 * 24 * 7 },
-              cacheableResponse: { statuses: [200] }
+              cacheableResponse: { statuses: [200] },
+              plugins: [
+                {
+                  cacheWillUpdate: async ({ response }) => {
+                    const ct = response && response.headers && response.headers.get('content-type');
+                    if (ct && ct.startsWith('text/html')) return null;
+                    return response;
+                  }
+                }
+              ]
             }
           },
           {
             // All JS chunks — stale-while-revalidate so app loads fast on repeat visits.
-            // IMPORTANT: Only cache status 200 (not opaque/0) to prevent caching the SPA
-            // fallback index.html that Cloudflare returns for non-existent old-hash JS files.
-            // This was causing "MIME type text/html" errors for users present during deploys.
+            // cacheWillUpdate plugin: reject HTML responses (status 200 text/html) that
+            // Cloudflare returns via /* /index.html 200 for non-existent old-hash chunk URLs.
+            // This was causing "MIME type text/html" crashes for all users during every deploy.
             urlPattern: /\.js$/,
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'nasa-hrvatska-v11-js',
+              cacheName: 'nasa-hrvatska-v12-js',
               expiration: { maxEntries: 150, maxAgeSeconds: 30 * 24 * 60 * 60 },
-              cacheableResponse: { statuses: [200] }
+              cacheableResponse: { statuses: [200] },
+              plugins: [
+                {
+                  cacheWillUpdate: async ({ response }) => {
+                    const ct = response && response.headers && response.headers.get('content-type');
+                    if (ct && ct.startsWith('text/html')) return null;
+                    return response;
+                  }
+                }
+              ]
             }
           },
           {
@@ -73,7 +92,7 @@ export default defineConfig({
             urlPattern: /\.(svg|png|webp|jpg|jpeg)$/,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'nasa-hrvatska-v11-images',
+              cacheName: 'nasa-hrvatska-v12-images',
               expiration: { maxEntries: 100, maxAgeSeconds: 365 * 24 * 60 * 60 },
               cacheableResponse: { statuses: [0, 200] }
             }
@@ -84,7 +103,7 @@ export default defineConfig({
             urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'nasa-hrvatska-v11-html',
+              cacheName: 'nasa-hrvatska-v12-html',
               networkTimeoutSeconds: 10,
               cacheableResponse: { statuses: [0, 200] }
             }
@@ -93,7 +112,7 @@ export default defineConfig({
             urlPattern: /\/audio\/.*\.(mp3|ogg|wav)$/i,
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'nasa-hrvatska-v11-audio',
+              cacheName: 'nasa-hrvatska-v12-audio',
               expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 },
               rangeRequests: true,
               cacheableResponse: { statuses: [0, 200, 206] }
@@ -103,7 +122,7 @@ export default defineConfig({
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'nasa-hrvatska-v11-fonts',
+              cacheName: 'nasa-hrvatska-v12-fonts',
               expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
               cacheableResponse: { statuses: [0, 200] }
             }
