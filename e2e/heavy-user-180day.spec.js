@@ -206,17 +206,20 @@ async function exitScreen(page) {
 }
 
 async function clickQuickGame(page, label) {
-  // Wait for CelebrationModal (fires 400ms after XP award) before dismissing
-  await page.waitForTimeout(700);
+  // CelebrationModal fires 400ms after XP award — give it 1200ms to appear then dismiss.
+  // Three-pass dismissAll ensures any sequential modal chain (celebration + level-up) is cleared.
+  await page.waitForTimeout(1200);
+  await dismissAll(page);
+  await page.waitForTimeout(500);
   await dismissAll(page);
   await page.waitForTimeout(300);
   await dismissAll(page);
-  await page.waitForSelector('button.practice-card-dark', { timeout: 5000 }).catch(() => {});
+  await page.waitForSelector('button.practice-card-dark', { timeout: 6000 }).catch(() => {});
   const btn = page.locator('button.practice-card-dark').filter({ hasText: label }).first();
   if (await btn.count().catch(() => 0) === 0) return false;
   await btn.scrollIntoViewIfNeeded().catch(() => {});
-  await page.waitForTimeout(200);
-  if (!await btn.isVisible({ timeout: 3000 }).catch(() => false)) return false;
+  await page.waitForTimeout(300);
+  if (!await btn.isVisible({ timeout: 4000 }).catch(() => false)) return false;
   await btn.click().catch(() => {});
   await page.waitForTimeout(1000);
   await dismissAll(page);
@@ -679,7 +682,8 @@ test('Block 5 (Days 25-30) — Croatia tab: Discover + Culture sub-tabs', async 
 
   // Check sub-tab navigation
   for (const subTab of ['Discover', 'Culture', 'Media', 'Stories']) {
-    const subTabBtn = page.locator('button').filter({ hasText: new RegExp(`^${subTab}$`, 'i') }).first();
+    // Labels have emoji prefix in production: '🗓️ Discover', '🏰 Culture', '🎵 Media', '📖 Stories'
+    const subTabBtn = page.locator('button').filter({ hasText: new RegExp(subTab, 'i') }).first();
     if (await subTabBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
       ok(`Sub-tab "${subTab}" visible`);
       await subTabBtn.click().catch(() => {});
@@ -2006,6 +2010,9 @@ test('Block 29 (Days 169-174) — Stress test: rapid switching, all tabs, all ga
   }
 
   // ── Mobile viewport check
+  // Navigate to Home first to ensure we're on a stable main-tab screen (not mid-game)
+  await goTab(page, 'Home');
+  await page.waitForTimeout(500);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(800);
   const mobileText = await page.locator('#root').innerText().catch(() => '');
