@@ -141,7 +141,7 @@ export function useAward({ curEx, stats, setStats }: { curEx: string; stats: Sta
         }
       }
     }
-  }, [curEx, comebackBonus, setStats, stats.lc]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [curEx, comebackBonus, setStats, stats.lc]);
 
   return {
     award,
