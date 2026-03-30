@@ -188,7 +188,9 @@ async function goTab(page, label) {
 
 async function exitScreen(page) {
   await dismissAll(page);
-  for (const pattern of [/✕\s*Exit/i, /^Exit$/i, /^Done$/i, /^Continue →$/i, /^Back\b/i, /^←$/, /See Results|^Results$/i, /Back to Practice/i, /^Play Again$/i, /^Finish$/i, /^Close$/i]) {
+  // Patterns cover: quiz result "Back to Practice", flashcard result "Continue →" / "← Done for now",
+  // lesson complete "Done" / "Finish", generic screens "Exit" / "Close" / "Back".
+  for (const pattern of [/✕\s*Exit/i, /^Exit$/i, /^Done$/i, /Done for now/i, /^Continue →$/i, /^Back\b/i, /^←$/, /See Results|^Results$/i, /Back to Practice/i, /^Play Again$/i, /^Finish$/i, /^Close$/i]) {
     const btn = page.locator('button').filter({ hasText: pattern }).first();
     if (await btn.isVisible({ timeout: 800 }).catch(() => false)) {
       await btn.click().catch(() => {});
@@ -206,15 +208,29 @@ async function exitScreen(page) {
 }
 
 async function clickQuickGame(page, label) {
-  // CelebrationModal fires 400ms after XP award — give it 1200ms to appear then dismiss.
-  // Three-pass dismissAll ensures any sequential modal chain (celebration + level-up) is cleared.
+  // Dismiss any celebration/modal chain, then wait for Quick Games grid.
+  // Recovery path: if buttons aren't found on first attempt (e.g. mid-game Flashcards
+  // left the screen in a non-Practice state), click the Practice sidebar tab again
+  // and retry — this forces setScr('dashboard') and re-renders PracticeTab.
   await page.waitForTimeout(1200);
   await dismissAll(page);
   await page.waitForTimeout(500);
   await dismissAll(page);
   await page.waitForTimeout(300);
   await dismissAll(page);
-  await page.waitForSelector('button.practice-card-dark', { timeout: 6000 }).catch(() => {});
+
+  const found = await page.waitForSelector('button.practice-card-dark', { timeout: 6000 }).catch(() => null);
+  if (!found) {
+    // Recovery: click Practice tab explicitly to force a clean re-render
+    const practiceTab = page.locator('.sb-btn').filter({ hasText: 'Practice' }).first();
+    if (await practiceTab.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await practiceTab.click().catch(() => {});
+      await page.waitForTimeout(1500);
+      await dismissAll(page);
+    }
+    await page.waitForSelector('button.practice-card-dark', { timeout: 8000 }).catch(() => {});
+  }
+
   const btn = page.locator('button.practice-card-dark').filter({ hasText: label }).first();
   if (await btn.count().catch(() => 0) === 0) return false;
   await btn.scrollIntoViewIfNeeded().catch(() => {});
