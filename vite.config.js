@@ -36,7 +36,8 @@ export default defineConfig({
         navigationPreload: true,
         skipWaiting: true,
         clientsClaim: true,
-        cacheId: 'nasa-hrvatska-v10',
+        cleanupOutdatedCaches: true,
+        cacheId: 'nasa-hrvatska-v11',
         // Precache only critical app-shell assets: CSS, fonts, favicon/manifest icons.
         // JS chunks (100+ files, ~5MB) and images are handled by runtimeCaching below.
         globPatterns: ['**/*.css', '**/*.woff2', '**/*.ico', '**/icon*.png', '**/apple-touch*.png'],
@@ -44,23 +45,27 @@ export default defineConfig({
         runtimeCaching: [
           {
             // Data chunk (706KB vocabulary data) — serve stale, revalidate in background
+            // Only cache genuine JS responses (status 200, not the SPA-fallback index.html
+            // which Cloudflare returns for missing assets via /* /index.html 200).
             urlPattern: /\/assets\/chunk-data[^/]*\.js$/,
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'nasa-hrvatska-v10-data',
+              cacheName: 'nasa-hrvatska-v11-data',
               expiration: { maxEntries: 3, maxAgeSeconds: 60 * 60 * 24 * 7 },
-              cacheableResponse: { statuses: [0, 200] }
+              cacheableResponse: { statuses: [200] }
             }
           },
           {
-            // All JS chunks — stale-while-revalidate so app loads fast on repeat visits
-            // maxEntries raised to 150 to cover all 110+ lazy chunks
+            // All JS chunks — stale-while-revalidate so app loads fast on repeat visits.
+            // IMPORTANT: Only cache status 200 (not opaque/0) to prevent caching the SPA
+            // fallback index.html that Cloudflare returns for non-existent old-hash JS files.
+            // This was causing "MIME type text/html" errors for users present during deploys.
             urlPattern: /\.js$/,
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'nasa-hrvatska-v10-js',
+              cacheName: 'nasa-hrvatska-v11-js',
               expiration: { maxEntries: 150, maxAgeSeconds: 30 * 24 * 60 * 60 },
-              cacheableResponse: { statuses: [0, 200] }
+              cacheableResponse: { statuses: [200] }
             }
           },
           {
@@ -68,18 +73,19 @@ export default defineConfig({
             urlPattern: /\.(svg|png|webp|jpg|jpeg)$/,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'nasa-hrvatska-v10-images',
+              cacheName: 'nasa-hrvatska-v11-images',
               expiration: { maxEntries: 100, maxAgeSeconds: 365 * 24 * 60 * 60 },
               cacheableResponse: { statuses: [0, 200] }
             }
           },
           {
-            // HTML navigation: always fetch fresh from network (3s timeout), fall back to cache offline
+            // HTML navigation: always fetch fresh from network (10s timeout), fall back to cache
+            // offline. 10s (up from 3s) gives CDN enough time during high-traffic deploys.
             urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'nasa-hrvatska-v10-html',
-              networkTimeoutSeconds: 3,
+              cacheName: 'nasa-hrvatska-v11-html',
+              networkTimeoutSeconds: 10,
               cacheableResponse: { statuses: [0, 200] }
             }
           },
@@ -87,7 +93,7 @@ export default defineConfig({
             urlPattern: /\/audio\/.*\.(mp3|ogg|wav)$/i,
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'nasa-hrvatska-v10-audio',
+              cacheName: 'nasa-hrvatska-v11-audio',
               expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 },
               rangeRequests: true,
               cacheableResponse: { statuses: [0, 200, 206] }
@@ -97,7 +103,7 @@ export default defineConfig({
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'nasa-hrvatska-v10-fonts',
+              cacheName: 'nasa-hrvatska-v11-fonts',
               expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
               cacheableResponse: { statuses: [0, 200] }
             }
