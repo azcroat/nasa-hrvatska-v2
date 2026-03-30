@@ -158,7 +158,7 @@ export async function onRequestPost(context) {
     return new Response("Forbidden", { status: 403, headers: corsHeaders(origin) });
   }
 
-  const allowed = await checkRateLimit(request, 30);
+  const allowed = await checkRateLimit(request, 60);
   if (!allowed) {
     return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders(origin) });
   }
