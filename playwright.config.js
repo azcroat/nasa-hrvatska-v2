@@ -2,7 +2,12 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e',
-  testIgnore: ['**/smoke.spec.js'],   // smoke tests use playwright.smoke.config.js (production URL)
+  testIgnore: [
+    '**/smoke.spec.js',          // uses playwright.smoke.config.js (production URL)
+    '**/*-audit.spec.js',        // audit specs run manually against production (not in CI)
+    '**/heavy-user-*.spec.js',   // 60-day heavy user spec — 20+ min, production only
+    '**/live-login.spec.js',     // requires production credentials
+  ],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 1,
