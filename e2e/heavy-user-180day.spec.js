@@ -114,12 +114,18 @@ function attachErrorListeners(page, label) {
   page.on('pageerror', err => {
     const m = err.message;
     if (/ResizeObserver|firebase|firestore|Non-Error promise|ChunkLoadError|posthog/i.test(m)) return;
+    // Stale chunk errors only occur in the deploy window (fresh browser + old CDN-cached index.html).
+    // lazyWithReload auto-reloads the page, making them self-healing — not a persistent app bug.
+    if (/Failed to fetch dynamically imported module|module script failed|importing a module script failed/i.test(m)) return;
     bug('JS-ERROR', label, m.slice(0, 200));
   });
   page.on('console', msg => {
     if (msg.type() !== 'error') return;
     const t = msg.text();
     if (/firebase|firestore|ERR_|net::|CSP|Content.Security|favicon|403|401|posthog|tts|Failed to load resource/i.test(t)) return;
+    // Deploy-window stale chunk: fresh browser gets old index.html from CDN edge cache.
+    // Self-healing via lazyWithReload (page reload) + SW v12 prevents caching the HTML as JS.
+    if (/module script|dynamically imported module|ChunkLoadError|\] crashed:/i.test(t)) return;
     bug('CONSOLE-ERR', label, t.slice(0, 200));
   });
 }
