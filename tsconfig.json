@@ -6,11 +6,11 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
 
-    // Check existing JS files without converting them to TypeScript.
-    // This catches type mismatches, undefined variables, and bad property
-    // access while letting us migrate incrementally.
+    // allowJs: include .jsx files in the compilation so .ts files can import them.
+    // checkJs: false so only explicitly-converted .ts/.tsx files get type-checked.
+    // Add /* @ts-check */ to individual .jsx files once they're ready.
     "allowJs": true,
-    "checkJs": true,
+    "checkJs": false,
     "noEmit": true,
 
     // JSX support

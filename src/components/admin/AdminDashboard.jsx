@@ -4,7 +4,7 @@ import { H } from '../../data.jsx';
 const ADMIN_EMAILS = ['jschreiner75@gmail.com'];
 
 export default function AdminDashboard({ authUser, goBack }) {
-  const [stats, setStats] = useState(null);
+  const [stats, setStats] = useState(/** @type {any} */(null));
   const [loading, setLoading] = useState(true);
 
   const isAdmin = authUser && ADMIN_EMAILS.includes(authUser.u);
