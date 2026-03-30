@@ -113,6 +113,18 @@ export default [
       '@typescript-eslint/consistent-type-imports': ['warn', { prefer: 'type-imports', fixStyle: 'inline-type-imports' }],
     },
   },
+  // React hooks plugin for TypeScript files (mirrors .js/.jsx block above)
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    plugins: {
+      'react-hooks': reactHooks,
+    },
+    rules: {
+      'react-hooks/exhaustive-deps': 'warn',
+      // Downgrade to warn to match .js/.jsx behavior (js.configs.recommended sets 'error')
+      'no-empty': 'warn',
+    },
+  },
 
   // Test files — relax some rules
   {
