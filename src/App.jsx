@@ -48,7 +48,8 @@ import { AppModals } from "./components/shared/AppModals.jsx";
 import AppRouter from "./components/AppRouter.jsx";
 
 // ── Module-level constants ───────────────────────────────────────────────────
-const DS = { xp:0,str:1,diff:"beginner",lc:0,pf:0,gc:0,sp:0,de:0,rc:0,authLoading:0,mv:0,hi:0,rs:[],ct:[],vs:[],badges:[] };
+/** @type {import('./types/index.js').Stats} */
+const DS = { xp:0,str:1,diff:'beginner',lc:0,pf:0,gc:0,sp:0,de:0,rc:0,authLoading:0,mv:0,hi:0,rs:[],ct:[],vs:[],badges:[] };
 const ICONS = { greetings:"👋",numbers:"🔢",family:"👨‍👩‍👧‍👦",food:"🍕",animals:"🐾",body:"🦴","body & face":"🦴",colors:"🎨",home:"🏠","home & rooms":"🏠",clothing:"👔",weather:"☀️","weather & seasons":"☀️",places:"📍",transport:"🚗",verbs:"💬",adjectives:"📏",time:"📅","time & calendar":"📅",months:"🗓️",directions:"🧭",emotions:"💭",professions:"💼",restaurant:"🍽️",shopping:"🛍️",travel:"✈️",health:"🏥",questions:"❓",conjunctions:"🔗",culture:"🏛️","daily routine":"🌅","in the classroom":"📖","commands at home":"🏡","fairy tales":"📜",hobbies:"🎯",zagreb:"🏙️",opposites:"🔄",comparatives:"📊",fruits:"🍎",vegetables:"🥦",sports:"⚽",holidays:"🎄",personality:"😊" };
 const TAB_PATHS = { home:"/",learn:"/learn",practice:"/practice",croatia:"/croatia",profile:"/profile" };
 const PATH_TO_TAB = { "/":"home","/learn":"learn","/practice":"practice","/croatia":"croatia","/profile":"profile" };
@@ -142,7 +143,7 @@ function App() {
   const [tab, _setTab] = useState(() => PATH_TO_TAB[window.location.pathname] || 'home');
   const setTab = useCallback((t) => { _setTab(t); navigate(TAB_PATHS[t] || '/', { replace: false }); }, [navigate]);
   const { jWords, setJWords, jIn, setJIn, jEn, setJEn } = useJournal();
-  const _uidRef = useRef(null);
+  const _uidRef = useRef(/** @type {string | null} */(null));
   const { darkMode, setDarkMode, favs, setFavs, toggleFav, isFav } = usePreferences(_uidRef);
   const { srchQ, setSrchQ, srchR, srchOpen, setSrchOpen, doSearch } = useSearch();
 
@@ -170,8 +171,8 @@ function App() {
   }, [setFavs, setJWords, sDchlA, sDchlSl, setOnboarded]);
 
   // Ref to break the useAuth TDZ cycle for doSyncNow and applyRemoteProgress
-  const _syncNowRef = useRef(null);
-  const _applyRemoteRef = useRef(null);
+  const _syncNowRef = useRef(/** @type {(() => Promise<void>) | null} */(null));
+  const _applyRemoteRef = useRef(/** @type {((fp: any) => void) | null} */(null));
   _applyRemoteRef.current = applyRemoteProgress;
 
   // ── Auth ────────────────────────────────────────────────────────────────────
@@ -208,7 +209,6 @@ function App() {
     applyRemoteProgress: (fp) => _applyRemoteRef.current?.(fp),
     setFamData,
     setSyncReady: _setSyncReady,
-    ds,
   });
 
   // Guest mode — bypass auth and go straight to dashboard
@@ -512,8 +512,8 @@ function App() {
             if (action === 'repair') {
               const result = repairStreak(stats.xp);
               if (result.ok) {
-                setStats(s => ({ ...s, xp: Math.max(0, s.xp - result.xpCost), str: result.restoredCount }));
-                setStreakRestoredCount(result.restoredCount);
+                setStats(s => ({ ...s, xp: Math.max(0, s.xp - (result.xpCost ?? 0)), str: result.restoredCount ?? s.str }));
+                setStreakRestoredCount(result.restoredCount ?? 0);
                 setTimeout(() => setStreakRestoredCount(0), 5000);
               }
               setShowStreakRepair(false);

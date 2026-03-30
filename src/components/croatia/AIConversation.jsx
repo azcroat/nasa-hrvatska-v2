@@ -55,12 +55,12 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
 
   // ── Conversation state ──────────────────────────────────────────────────────
   const [phase,      setPhase]      = useState("setup");
-  const [scenario,   setScenario]   = useState(null);
+  const [scenario,   setScenario]   = useState(/** @type {any} */(null));
   const [level,      setLevel]      = useState(() => {
     const diffMap = { beginner: 'A1', intermediate: 'B1', advanced: 'B2' };
     return diffMap[appSt?.diff] || 'B1';
   });
-  const [messages,   setMessages]   = useState([]);
+  const [messages,   setMessages]   = useState(/** @type {any[]} */([]));
   const [input,      setInput]      = useState("");
   const [loading,    setLoading]    = useState(false);
   const [chatError,  setChatError]  = useState("");
@@ -82,7 +82,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   const [customSceneImg,     setCustomSceneImg]     = useState(null);
   const [customSceneLoading, setCustomSceneLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const speakTimerRef = useRef(null);
+  const speakTimerRef = useRef(/** @type {ReturnType<typeof setTimeout> | null} */(null));
   const [savedWords, setSavedWords] = useState(new Set());
   const translationCacheRef = useRef({});
 
@@ -99,7 +99,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   const [customText,   setCustomText]   = useState("");
   const [showCustom,   setShowCustom]   = useState(false);
 
-  const messagesEndRef = useRef(null);
+  const messagesEndRef = useRef(/** @type {HTMLDivElement | null} */(null));
   const inputRef       = useRef(null);
   const writeTextRef   = useRef(null);
   const isMountedRef   = useRef(true);

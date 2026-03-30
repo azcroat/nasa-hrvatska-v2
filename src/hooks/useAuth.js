@@ -51,7 +51,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
   const [authScreen, _setAuthScreen] = useState('loading');
   // Wrap setAuthScreen so authScreenRef always mirrors the latest value
   function setAuthScreen(s) { authScreenRef.current = s; _setAuthScreen(s); }
-  const [authUser, setAuthUser] = useState(null);
+  const [authUser, setAuthUser] = useState(/** @type {import('../types/index.js').AuthUser | null} */(null));
   const [authEmail, setAuthEmail] = useState('');
   const [pw, setPw] = useState('');
   const [pc, setPc] = useState('');
