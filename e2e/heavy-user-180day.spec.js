@@ -283,6 +283,8 @@ async function clickBrowseExercise(page, label) {
 }
 
 async function runQuiz(page, label, maxQ = 20) {
+  // Wait for quiz to render its first question option before starting the loop
+  await page.waitForSelector('.ob', { timeout: 5000 }).catch(() => {});
   const practiceToggle = page.locator('button[aria-label*="Practice Mode"], button[title*="Practice Mode"]').first();
   if (await practiceToggle.isVisible({ timeout: 1500 }).catch(() => false)) {
     const isActive = await practiceToggle.evaluate(el =>
@@ -2051,10 +2053,11 @@ test('Block 29 (Days 169-174) — Stress test: rapid switching, all tabs, all ga
   const mobileText = await page.locator('#root').innerText().catch(() => '');
   if (mobileText.match(/\w{10,}/)) ok('App renders on 390px mobile viewport');
   else bug('BUG', 'Mobile', 'App blank on 390px mobile viewport');
-  // On mobile viewport the sidebar (.sb-btn) is hidden; the bottom nav bar (.nav-btn) shows instead
-  const mobileTab = page.locator('.sb-btn, .nav-btn').first();
-  if (await mobileTab.isVisible({ timeout: 2000 }).catch(() => false)) ok('Tab bar visible on mobile viewport');
-  else bug('UX', 'Mobile', 'Tab bar not visible on 390px viewport (checked .sb-btn + .nav-btn)');
+  // At 390px, .sidebar has display:none so .sb-btn is hidden; check .nav-btn (bottom tab bar) directly.
+  // Using compound locator '.sb-btn, .nav-btn' picks .sb-btn first (DOM order) which is hidden — wrong.
+  const mobileTab = page.locator('.nav-btn').first();
+  if (await mobileTab.isVisible({ timeout: 3000 }).catch(() => false)) ok('Tab bar visible on mobile viewport');
+  else bug('UX', 'Mobile', 'Tab bar not visible on 390px viewport (checked .nav-btn)');
   await ss(page, 'b29-mobile-390');
 
   // ── Tablet viewport check
