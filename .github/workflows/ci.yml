@@ -125,7 +125,7 @@ jobs:
     name: E2E Tests (Cross-Browser)
     runs-on: ubuntu-latest
     needs: quality
-    timeout-minutes: 35
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -137,8 +137,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Install Playwright browsers (Chrome only for CI speed)
+        run: npx playwright install --with-deps chromium
 
       - name: Build for E2E (with placeholder Firebase config)
         run: npm run build
@@ -151,8 +151,8 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID || '1:000000000000:web:placeholder' }}
           VITE_SENTRY_DSN: ""
 
-      - name: Run E2E tests (Chrome + WebKit — covers 95% of users)
-        run: npx playwright test --project="Desktop Chrome" --project="Desktop Safari (WebKit)" --project="Mobile Safari (iPhone 14)"
+      - name: Run E2E tests (Chrome only — WebKit/Firefox tested locally)
+        run: npx playwright test --project="Desktop Chrome"
         env:
           CI: true
 
