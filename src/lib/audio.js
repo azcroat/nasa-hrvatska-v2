@@ -5,6 +5,18 @@ import { getVoicePreference } from './soundSettings.js';
 
 let _au=false;let _voices=[];let _voicesLoaded=false;let _currentAudio=null;let _ctx=null;
 
+// Client-side TTS rate guard: tracks requests in the last 60 seconds.
+// Mirrors the server limit (60/min) so rapid sequences shed locally before hitting the API.
+const _ttsTimestamps = [];
+function _ttsAllowed() {
+  const now = Date.now();
+  // Drop timestamps older than 60 seconds
+  while (_ttsTimestamps.length && _ttsTimestamps[0] < now - 60000) _ttsTimestamps.shift();
+  if (_ttsTimestamps.length >= 55) return false; // 55 client-side = buffer before server 429
+  _ttsTimestamps.push(now);
+  return true;
+}
+
 // Session-level audio cache: avoids repeat API calls for the same word
 // Key: "text|0" or "text|1" (text + slow flag). Expires after 1 hour.
 const _ttsCache = new Map();
@@ -53,6 +65,7 @@ export async function speakAzure(text, slow) {
     if (cached) {
       url = cached;
     } else {
+      if (!_ttsAllowed()) return false; // client-side rate guard — shed before hitting server 429
       const body = { text, slow: !!slow };
       if (voicePref !== 'auto') body.voice = voicePref;
       const r = await fetch('/api/tts', {
@@ -138,6 +151,7 @@ export async function preloadAudio(text) {
   const voicePref = getVoicePreference();
   const cacheKey = t + '|0|' + voicePref;
   if (_cacheGet(cacheKey)) return; // already cached
+  if (!_ttsAllowed()) return; // client-side rate guard — preload is best-effort, skip if near limit
   try {
     const body = { text: t, slow: false };
     if (voicePref !== 'auto') body.voice = voicePref;
