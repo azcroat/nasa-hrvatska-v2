@@ -22,7 +22,7 @@ export const LOCAL_PHOTOS = {
   adriatic_ai:  '/images/scenes/dalmatian-ai.webp',
   food:         '/images/scenes/croatian-food.webp',  // AI-generated Croatian food table
   mostar:       '/images/scenes/mostar.webp',          // AI-generated Mostar Old Bridge
-  labin:        '/images/scenes/labin.webp',           // AI-generated Labin hilltop town
+  labin:        '/images/scenes/labin.webp',           // CC BY-SA 3.0 © Bjoertvedt via Wikimedia Commons — real photo
 };
 
 export const PHOTOS = {
@@ -65,7 +65,7 @@ export const PHOTOS = {
   // Mostar: AI-generated Stari Most (Old Bridge) at golden hour
   mostar:    '/images/scenes/mostar.webp',
 
-  // Labin: AI-generated Istrian hilltop medieval town
+  // Labin: Real photograph, CC BY-SA 3.0 © Bjoertvedt, Wikimedia Commons
   labin:     '/images/scenes/labin.webp',
 };
 
@@ -77,3 +77,7 @@ export default PHOTOS;
 
 // Photo credit helper
 export const UNSPLASH_CREDIT = 'Photos via Unsplash';
+
+export const PHOTO_CREDITS = {
+  labin: 'Photo © Bjoertvedt, CC BY-SA 3.0, via Wikimedia Commons',
+};

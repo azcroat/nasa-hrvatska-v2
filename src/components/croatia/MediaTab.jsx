@@ -11,7 +11,7 @@ export default function MediaTab() {
   const { setScr, award } = useApp();
   const [activeStream, setActiveStream] = useState(null);
   const [mediaFilter, setMediaFilter] = useState('all');
-  const [learningMode, setLearningMode] = useState(false);
+  const [learningMode, setLearningMode] = useState(true);
   const userGoal = getGoalPersonalization();
 
   return (

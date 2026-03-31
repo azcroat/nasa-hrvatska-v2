@@ -2,6 +2,16 @@ import React, { useState } from 'react';
 import RadioPlayer from './RadioPlayer.jsx';
 import { LEVEL_COLORS, DOMAIN_VOCAB, getDomain, getActionLabel, markImmersionToday } from './MediaPlayerUtils.jsx';
 
+// ── Completion tracking (localStorage) ───────────────────────────────────────
+function getCompletedMedia() {
+  try { return JSON.parse(localStorage.getItem('nh_media_done') || '{}'); } catch { return {}; }
+}
+function markMediaDone(id) {
+  const done = getCompletedMedia();
+  done[id] = Date.now();
+  localStorage.setItem('nh_media_done', JSON.stringify(done));
+}
+
 // ── Learning Mode Toggle ──────────────────────────────────────────────────────
 export function LearningModeToggle({ enabled, onToggle }) {
   return (
@@ -102,6 +112,7 @@ function ComprehensionCard({ cat, itemId }) {
 
 export default function MediaCard({ m, cat, onOpen, activeStream, setActiveStream, learningMode, goalTag }) {
   const [tipOpen, setTipOpen] = useState(false);
+  const [done, setDone] = useState(() => !!getCompletedMedia()[m.name]);
   const lc = LEVEL_COLORS[m.level] || '#78716c';
   const isExternal = !!m.web;
   const isInternal = !!m.scr && !m.web;
@@ -184,6 +195,16 @@ export default function MediaCard({ m, cat, onOpen, activeStream, setActiveStrea
       {/* Learning Mode extras */}
       {learningMode && <VocabPreview cat={cat} />}
       {learningMode && <ComprehensionCard cat={cat} itemId={itemId} />}
+
+      {/* Completion tracker */}
+      {learningMode && (
+        <button
+          onClick={(e) => { e.stopPropagation(); const newDone = !done; setDone(newDone); if (newDone) markMediaDone(m.name); else { const d = getCompletedMedia(); delete d[m.name]; localStorage.setItem('nh_media_done', JSON.stringify(d)); } }}
+          style={{ margin: '8px 12px 12px', padding: '6px 14px', borderRadius: 20, border: `1px solid ${done ? 'var(--success-b,#86efac)' : 'var(--card-b)'}`, background: done ? 'var(--success-bg,#f0fdf4)' : 'var(--bar-bg)', color: done ? 'var(--success,#16a34a)' : 'var(--subtext)', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}
+        >
+          {done ? '✓ Done' : '○ Mark as done'}
+        </button>
+      )}
     </div>
   );
 }

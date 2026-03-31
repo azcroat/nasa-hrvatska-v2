@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { incrementCulture } from '../../data.jsx';
 import { useApp } from '../../context/AppContext.jsx';
 import CroatianKnight from '../shared/CroatianKnight';
+import { knightSpeak } from '../../lib/knightSpeak.js';
 
 const BAKA_LETTERS = [
   {
@@ -54,7 +55,252 @@ Tvoja Baka 💙`,
       { hr: 'kopati', en: 'to dig / to garden' },
     ],
   },
+  {
+    id: 'letter3',
+    from: 'Baka Marija',
+    date: 'Srijeda, 1. svibnja',
+    subject: 'Praznik rada i naš vrt...',
+    preview: 'Danas je Praznik rada, ali djed i ja smo radili cijeli dan...',
+    full: `Drago unuče,
+
+Danas je Praznik rada, ali djed i ja smo radili cijeli dan u vrtu. Tako je to na selu — odmor čeka dok posao čeka.
+
+Posadili smo paradajz, paprike i tikvice. Zemlja je bila vlažna od jutarnje rose i mirisala je jako lijepo. Djed kaže da ove godine bit će dobar urod — nebo je jasno i vjetar je s mora.
+
+Ispekla sam pohanicu od pilećih prsa s krumpirom iz vrta. Susjedica Mara je donijela domaću rakiju od šljive. Sjedili smo vani do zalaska sunca i pričali o starim vremenima.
+
+Jesi li počeo učiti padeže? Moja sestra Kata kaže da je instrumental najteži. Ali nauči prvo nominativ i akuzativ — to je dovoljno za razgovor.
+
+Volim te puno,
+Baka 💙`,
+    words: [
+      { hr: 'praznik', en: 'holiday / feast day' },
+      { hr: 'paradajz', en: 'tomato' },
+      { hr: 'urod', en: 'harvest / crop yield' },
+      { hr: 'pohanjica', en: 'breaded/fried meat' },
+      { hr: 'rakija', en: 'fruit brandy (Croatian spirit)' },
+      { hr: 'zalazak sunca', en: 'sunset' },
+    ],
+  },
+  {
+    id: 'letter4',
+    from: 'Baka Marija',
+    date: 'Subota, 10. svibnja',
+    subject: 'Imendan i naša obitelj...',
+    preview: 'Bio je Stjepanov imendan i svi su došli...',
+    full: `Drago unuče,
+
+Bio je Stjepanov imendan i svi su došli na ručak. Znate li da u Hrvatskoj slavimo imendan jednako kao i rođendan? Svaki dan u godini ima svoje svece, a ti koji nose to ime slave.
+
+Djed je Stjepan, pa je danas njegov dan. Napravio sam burek sa sirom i mesom — dvadeset kilograma tijesta! Djed je bio presretan.
+
+Teta Vesna je dovela svoju djecu — Luku i Maju. Luka je sad visok kao djed. Maja uči engleski u školi i htjela je pričati s tobom. Rekla sam joj da ćeš doći ljeti i da možete pričati.
+
+Kada dođeš, naučit ćemo te napraviti burek. Tijesto traži strpljenje, ali nagrada je ogromna.
+
+Puno pozdrava od cijele obitelji,
+Baka 💙`,
+    words: [
+      { hr: 'imendan', en: 'name day (saint\'s day celebration)' },
+      { hr: 'svetac', en: 'saint' },
+      { hr: 'burek', en: 'flaky pastry with meat or cheese' },
+      { hr: 'tijesto', en: 'dough / pastry' },
+      { hr: 'strpljenje', en: 'patience' },
+      { hr: 'presretan', en: 'overjoyed / extremely happy' },
+    ],
+  },
+  {
+    id: 'letter5',
+    from: 'Baka Marija',
+    date: 'Četvrtak, 19. lipnja',
+    subject: 'Ljeto je stiglo...',
+    preview: 'Temperatura je prošla trideset stupnjeva i more poziva...',
+    full: `Drago unuče,
+
+Ljeto je konačno stiglo u punoj snazi. Temperatura je prošla trideset stupnjeva i more poziva. Djed i ja smo jutros otišli na plažu u pet ujutro — jedino mirno doba.
+
+More je bilo toplo i prozirno. Vidjeli smo ribe kako plivaju ispod nas. Djed je ulovio jednu strigu za večeru. Nije velika, ali svježa riba iz mora nema premca.
+
+Turisti su počeli dolaziti. Ulice su pune stranih jezika — talijanski, njemački, engleski. Ponekad čujem i engleski sa hrvatskim naglaskom — to su naša djeca iz dijaspore koja su došla kući.
+
+Kada dođeš, idi rano ujutro na plažu. To je Hrvatska kakvu turisti ne vide.
+
+S puno ljubavi,
+Baka 💙`,
+    words: [
+      { hr: 'stupanj', en: 'degree (temperature)' },
+      { hr: 'prozirno', en: 'transparent / clear' },
+      { hr: 'uloviti', en: 'to catch (fish/animal)' },
+      { hr: 'nema premca', en: 'has no equal / unbeatable' },
+      { hr: 'dijaspora', en: 'diaspora (Croatians abroad)' },
+      { hr: 'naglas', en: 'accent / intonation' },
+    ],
+  },
+  {
+    id: 'letter6',
+    from: 'Baka Marija',
+    date: 'Ponedjeljak, 4. kolovoza',
+    subject: 'Dan pobjede i naša priča...',
+    preview: 'Obilježavamo Dan pobjede i domovinske zahvalnosti...',
+    full: `Drago unuče,
+
+Danas je 5. kolovoza — Dan pobjede i domovinske zahvalnosti. Ovo je poseban dan za sve Hrvate. Sjećam se kada smo 1995. slušali radio i plakali od sreće.
+
+Djed i ja smo mladi proveli dio rata u podrumu. Nije bilo struje ni vode. Ali imali smo obitelj i jedni druge. To je bilo dovoljno.
+
+Sada gledamo kako Hrvatska raste — EU, NATO, mladi koji putuju, govore jezike, grade karijere. Djed kaže: "Borili smo se da djeca žive slobodno. Uspjeli smo."
+
+Učiš hrvatski — to nam znači puno. Jezik je domovina koja putuje s tobom. Nikad te ne napušta.
+
+S ponosom i ljubavlju,
+Baka 💙`,
+    words: [
+      { hr: 'pobjeda', en: 'victory' },
+      { hr: 'domovina', en: 'homeland / fatherland' },
+      { hr: 'zahvalnost', en: 'gratitude' },
+      { hr: 'sloboda', en: 'freedom / liberty' },
+      { hr: 'ponos', en: 'pride' },
+      { hr: 'pamtiti', en: 'to remember / to keep in memory' },
+    ],
+  },
+  {
+    id: 'letter7',
+    from: 'Baka Marija',
+    date: 'Srijeda, 17. rujna',
+    subject: 'Berba grožđa...',
+    preview: 'Ove godine je odlično grožđe — puno i slatko...',
+    full: `Drago unuče,
+
+Berba grožđa je počela! Ove godine je odlično grožđe — puno i slatko. Susjed Mirko ima vinograd od tri hektara i pozvao nas da pomognemo.
+
+Cijeli dan smo brali grožđe u košare. Djed i ja, teta Vesna, njezin muž i dvoje djece. Ruke su me boljele navečer, ali srce je pjevalo.
+
+Naveče smo jeli peka — janjetina i krumpir ispod peke sat i pol. Mirko je donio mlado vino iz prošle godine. Pili smo, pjevali i pričali do ponoći.
+
+Hrvatska jesen je posebna — nema turista, zrak je svjež, zemlja miriše. Dođi jednom u rujnu ili listopadu. Vidjet ćeš pravu Hrvatsku.
+
+S toplinom,
+Baka 💙`,
+    words: [
+      { hr: 'berba', en: 'harvest (grapes/fruit)' },
+      { hr: 'grožđe', en: 'grapes' },
+      { hr: 'vinograd', en: 'vineyard' },
+      { hr: 'peka', en: 'traditional slow-cooking under an iron bell' },
+      { hr: 'janjetina', en: 'lamb (meat)' },
+      { hr: 'svjež', en: 'fresh / cool (of air)' },
+    ],
+  },
+  {
+    id: 'letter8',
+    from: 'Baka Marija',
+    date: 'Petak, 14. studenog',
+    subject: 'Martinje i mlado vino...',
+    preview: 'Danas je sveti Martin — blagoslov mladog vina...',
+    full: `Drago unuče,
+
+Danas je sveti Martin — 11. studeni, dan kada se mlado vino blagoslivlja i postaje "pravo" vino. U Slavoniji je to veliki praznik, ali i mi u Dalmaciji to slavimo.
+
+Otišli smo k Mirku koji je imao blagoslov vina u podrumo. Župnik je došao i pročitao molitvu. Onda smo svi probali vino zajedno. Mirisalo je na trešnje i šljive. Jako dobro.
+
+Poslije smo jeli gulaš od gusaka — to je tradicionalno za Martinje. Guska je simbol ovog praznika. Djed kaže da je to zato što je Martin pobjegao od biskupa i sakrio se u jato gusaka, koje su ga odalo.
+
+Vidjet ćemo se za Božić, nadam se. Pripremi se na puno hrane!
+
+Tvoja Baka 💙`,
+    words: [
+      { hr: 'blagoslov', en: 'blessing / benediction' },
+      { hr: 'podrum', en: 'cellar / basement' },
+      { hr: 'župnik', en: 'parish priest' },
+      { hr: 'guska', en: 'goose' },
+      { hr: 'odati', en: 'to reveal / to give away (betray)' },
+      { hr: 'gulaš', en: 'goulash (stew)' },
+    ],
+  },
+  {
+    id: 'letter9',
+    from: 'Baka Marija',
+    date: 'Utorak, 23. prosinca',
+    subject: 'Božić se bliži...',
+    preview: 'Kuća miriše na kolače i cimet...',
+    full: `Drago unuče,
+
+Kuća miriše na kolače i cimet. Napravila sam orahnjaču, makovnjaču i medenjake. Djed je rekao da su medenjaci premekani, ali pojeo je pet komada — kaži mu to.
+
+Postavljamo jaslice — figurice koje smo imali otkako sam bila mala. Djed ih je svake godine pažljivo umotavao u novine i čuvao u kutiji. Sada su stare 60 godina ali savršene.
+
+Za Badnjak ćemo ići na misu u ponoć. Crkva je uvijek puna. Pjevamo "Tiha noć" na hrvatskom: "Tiha noć, sveta noć, sve miruje, sve spava..." Naučiš li i ti?
+
+Stavili smo tvoje ime na stol za Božić. Uvijek si s nama, makar i daleko.
+
+Sretno i radosno Božić,
+Baka i Djed 💙🎄`,
+    words: [
+      { hr: 'orahnjača', en: 'walnut roll (Christmas pastry)' },
+      { hr: 'medenjaci', en: 'gingerbread cookies' },
+      { hr: 'jaslice', en: 'nativity scene' },
+      { hr: 'Badnjak', en: 'Christmas Eve' },
+      { hr: 'misa', en: 'Mass (church service)' },
+      { hr: 'makar', en: 'even if / at least' },
+    ],
+  },
+  {
+    id: 'letter10',
+    from: 'Baka Marija',
+    date: 'Ponedjeljak, 6. siječnja',
+    subject: 'Nova godina i planovi...',
+    preview: 'Sretna Nova godina! Što je tvoja odluka za ovu godinu?...',
+    full: `Drago unuče,
+
+Sretna Nova godina! Što je tvoja odluka za ovu godinu? Djed kaže da svake godine odlučuje jesti manje slatkog — i svake godine to traje do Poklada.
+
+Ja imam jednu odluku: naučit ću koristiti mobitel bolje. Vesna mi je kupila novi i sada mogu čitati tvoje poruke bez naočala. To je napredak!
+
+Razmišljam o tebi kako učiš hrvatski. Jezik je živa stvar — mijenja se, raste, pamti. Kada govoriš naš jezik, nosit ćeš u sebi sve naše priče, sve naše generacije.
+
+Djed i ja smo zajedno 52 godine. Sve smo to rekli na hrvatskom — ljubav, svađe, sreće i tuge. Taj jezik nosi sve to.
+
+S bezgraničnom ljubavlju,
+Tvoja Baka 💙`,
+    words: [
+      { hr: 'odluka', en: 'decision / resolution' },
+      { hr: 'Pokladi', en: 'Carnival / Shrovetide (before Lent)' },
+      { hr: 'napredak', en: 'progress / advancement' },
+      { hr: 'generacija', en: 'generation' },
+      { hr: 'svađa', en: 'argument / quarrel' },
+      { hr: 'bezgraničan', en: 'boundless / limitless' },
+    ],
+  },
 ];
+
+function WordTile({ w, award }) {
+  const [saved, setSaved] = useState(() => {
+    try { const j = JSON.parse(localStorage.getItem('uJournal') || '[]'); return j.some(x => x.hr === w.hr); } catch { return false; }
+  });
+  return (
+    <div style={{ background: 'var(--bar-bg)', borderRadius: 8, padding: '8px 10px', position: 'relative' }}>
+      <div style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: '#0e7490' }}>{w.hr}</div>
+      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', marginTop: 2, marginBottom: 4 }}>{w.en}</div>
+      <button
+        onClick={() => {
+          if (saved) return;
+          try {
+            const j = JSON.parse(localStorage.getItem('uJournal') || '[]');
+            if (!j.some(x => x.hr === w.hr)) {
+              j.push({ hr: w.hr, en: w.en });
+              localStorage.setItem('uJournal', JSON.stringify(j));
+            }
+          } catch { /* ignore */ }
+          setSaved(true);
+          if (award) award(1);
+          knightSpeak('happy', `"${w.hr}" saved to My Words! 📚`);
+        }}
+        style={{ fontSize: 9, fontWeight: 700, color: saved ? 'var(--success,#16a34a)' : 'var(--info)', background: 'none', border: 'none', cursor: saved ? 'default' : 'pointer', padding: 0 }}
+      >
+        {saved ? '✓ Saved' : '+ Save word'}
+      </button>
+    </div>
+  );
+}
 
 export default function StoriesTab() {
   const { award } = useApp();
@@ -127,10 +373,7 @@ export default function StoriesTab() {
                   </div>
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
                     {letter.words.map(w => (
-                      <div key={w.hr} style={{ background:'var(--bar-bg)', borderRadius:8, padding:'8px 10px' }}>
-                        <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'#0e7490' }}>{w.hr}</div>
-                        <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:2 }}>{w.en}</div>
-                      </div>
+                      <WordTile key={w.hr} w={w} award={award} />
                     ))}
                   </div>
                 </div>
