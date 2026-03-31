@@ -131,7 +131,7 @@ export default function PracticeTab({
   const goalRecMap = {
     heritage: [
       { icon:'🏛️', title:'Croatian History',   desc:'Explore your roots',              color:'rgba(234,88,12,.08)', border:'rgba(234,88,12,.25)', fn:()=>{setScr("history");sCurEx("history");} },
-      { icon:'🌟', title:'Proverbs',            desc:'Wisdom through generations',      color:'rgba(124,58,237,.08)', border:'rgba(124,58,237,.25)', fn:()=>{setScr("proverbs");sCurEx("proverbs");} },
+      { icon:'🗣️', title:'Idioms',             desc:'Phrases locals actually use',     color:'rgba(234,88,12,.08)', border:'rgba(234,88,12,.25)', fn:()=>{setScr("idioms");sCurEx("idioms");} },
       { icon:'📖', title:'Reading',             desc:'Stories from Croatia',            color:'rgba(22,163,74,.08)', border:'rgba(22,163,74,.25)', fn:()=>{setScr("readlist");sCurEx("readlist");} },
     ],
     family: [
@@ -326,9 +326,8 @@ export default function PracticeTab({
   }
 
   const culturalExtras = [
-    [() => { setScr("proverbs"); sCurEx("proverbs"); }, "🌟","Proverbs","Croatian wisdom & sayings"],
-    [() => { setScr("idioms"); sCurEx("idioms"); },     "🗣️","Idioms",  "Phrases locals actually use"],
-    [() => { setScr("events"); sCurEx("events"); },     "📅","Events",  "Festivals & holidays"],
+    [() => { setScr("idioms"); sCurEx("idioms"); },  "🗣️", "Idioms",  "Phrases locals actually use", "rgba(234,88,12,.08)",  "rgba(234,88,12,.3)"],
+    [() => { setScr("events"); sCurEx("events"); },  "📅", "Events",  "Festivals & holidays",        "rgba(22,163,74,.08)",  "rgba(22,163,74,.3)"],
   ];
 
   // Daily quest progress for Practice tab header
@@ -653,25 +652,30 @@ export default function PracticeTab({
       {/* ── CULTURAL EXTRAS FOOTER ──────────────────────────────────────── */}
       <div style={{ marginTop:8, marginBottom:16 }}>
         <div className="section-hdr">
-          <div className="section-hdr-icon" style={{background:'rgba(124,58,237,.12)'}}>🌟</div>
+          <div className="section-hdr-icon" style={{background:'rgba(124,58,237,.12)'}}>🇭🇷</div>
           <div className="section-hdr-text">
             <div className="section-hdr-title">Cultural Extras</div>
-            <div className="section-hdr-sub">Proverbs, idioms & Croatian traditions</div>
+            <div className="section-hdr-sub">Idioms & traditions locals actually use</div>
           </div>
         </div>
-        <div className="g3">
-          {culturalExtras.map((/** @type {any} */ [fn,icon,label,desc], i) => (
-            <button key={i} className="tc"
-              style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:6, padding:"14px 8px", textAlign:"center" }}
-              onClick={fn}>
-              <div style={{ width:36, height:36, borderRadius:10, background:"var(--bar-bg)", border:"1px solid var(--card-b)",
-                display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, flexShrink:0 }}>
-                {icon}
+        <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+          {culturalExtras.map((/** @type {any} */ [fn,icon,label,desc,bg,border], i) => (
+            <button key={i} onClick={fn} style={{
+              display:'flex', alignItems:'center', gap:14,
+              padding:'16px 18px', borderRadius:16, border:`1.5px solid ${border}`,
+              background:bg, cursor:'pointer', fontFamily:"'Outfit',sans-serif",
+              textAlign:'left', width:'100%',
+            }}>
+              <div style={{
+                width:48, height:48, borderRadius:14, flexShrink:0,
+                background:'var(--card)', border:`1.5px solid ${border}`,
+                display:'flex', alignItems:'center', justifyContent:'center', fontSize:24,
+              }}>{icon}</div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontSize:15, fontWeight:800, color:'var(--heading)', marginBottom:2 }}>{label}</div>
+                <div style={{ fontSize:12, color:'var(--subtext)', lineHeight:1.4 }}>{desc}</div>
               </div>
-              <div style={{ minWidth:0 }}>
-                <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{label}</div>
-                <div style={{ fontSize:9, color:"var(--subtext)", marginTop:2, lineHeight:1.3 }}>{desc}</div>
-              </div>
+              <div style={{ fontSize:20, color:'var(--subtext)', opacity:.5 }}>›</div>
             </button>
           ))}
         </div>
