@@ -67,6 +67,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   const [sendError,  setSendError]  = useState("");
   const [evaluation, setEvaluation] = useState(null);
   const [evalError,  setEvalError]  = useState("");
+  const [convoVocab, setConvoVocab] = useState([]);
   const [weakAreasForSession, setWeakAreasForSession] = useState([]);
   const [corrections, setCorrections] = useState({});
   const [tooltip, setTooltip] = useState(null);
@@ -386,6 +387,22 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
         markPracticed();
         markQuest('speak');
       }
+
+      // Extract vocabulary the learner used or encountered — queue for SRS review
+      try {
+        const syncRes = await fetch('/api/srs-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ conversation: convoText, level }),
+        });
+        if (syncRes.ok) {
+          const syncData = await syncRes.json();
+          if (Array.isArray(syncData.vocabulary) && syncData.vocabulary.length > 0) {
+            setConvoVocab(syncData.vocabulary.slice(0, 8));
+          }
+        }
+      } catch (_) {}
+
       setPhase("result");
     } catch (e) {
       setEvalError(e.message || "Evaluation failed");
@@ -426,7 +443,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   function resetConvo() {
     setPhase("setup"); setMessages([]); setEvaluation(null);
     setEvalError(""); setScenario(null); setChatError(""); setSendError("");
-    setCorrections({}); setTooltip(null);
+    setCorrections({}); setTooltip(null); setConvoVocab([]);
   }
 
   function resetWrite() {
@@ -590,6 +607,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       level={level}
       userCount={userCount}
       weakAreasForSession={weakAreasForSession}
+      convoVocab={convoVocab}
+      setJWords={setJWords}
       setScr={setScr}
       sCurEx={sCurEx}
       onBackToChat={() => setPhase("chat")}

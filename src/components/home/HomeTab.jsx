@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { LEARN_PATH, getStreak, getDailyChallenge, speak, preloadAudio, DAILY_QUESTS, getActiveCampaign, getCityOfDay, incrementCulture } from '../../data.jsx';
+import { LEARN_PATH, getStreak, getDailyChallenge, speak, preloadAudio, DAILY_QUESTS, getActiveCampaign, getCityOfDay, incrementCulture, getDueReviews, getSR } from '../../data.jsx';
 import { getWordOfDay } from '../../lib/wordOfDay.js';
 import { weekKey, localDateStr } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext.jsx';
@@ -373,6 +373,71 @@ export default function HomeTab({
       ══════════════════════════════════════════ */}
       {htab === 'today' && (
         <React.Fragment>
+
+          {/* ── SRS DUE REVIEWS — session-entry banner ── */}
+          {(() => {
+            const due = getDueReviews();
+            if (!due.length) return null;
+            const dismissKey = 'nh_srs_banner_dismissed_' + localDateStr();
+            if (sessionStorage.getItem(dismissKey)) return null;
+            const sr = getSR();
+            const allCards = Object.values(sr);
+            const masteryPct = allCards.length > 0
+              ? Math.round(allCards.reduce((s, v) => s + (v.r || 0) / Math.max((v.r || 0) + (v.w || 0), 1), 0) / allCards.length * 100)
+              : 0;
+            return (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25 }}
+                style={{ marginBottom: 14 }}
+              >
+                <div style={{
+                  background: 'linear-gradient(135deg, #0c4a6e, #0e7490)',
+                  borderRadius: 18, padding: '14px 16px',
+                  display: 'flex', alignItems: 'center', gap: 14,
+                  boxShadow: '0 4px 20px rgba(14,116,144,.3)',
+                  position: 'relative',
+                }}
+                data-srs-banner="1">
+                  <button
+                    aria-label="Dismiss review reminder"
+                    style={{
+                      position: 'absolute', top: 8, right: 8,
+                      background: 'none', border: 'none', color: 'rgba(255,255,255,.5)',
+                      fontSize: 16, cursor: 'pointer', lineHeight: 1, padding: '2px 6px',
+                    }}
+                    onClick={(e) => { e.stopPropagation(); sessionStorage.setItem(dismissKey, '1'); e.currentTarget.closest('[data-srs-banner]').style.display = 'none'; }}
+                  >×</button>
+                  <div style={{
+                    width: 48, height: 48, borderRadius: 14, flexShrink: 0,
+                    background: 'rgba(255,255,255,.15)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 24,
+                  }}>🧠</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 900, color: 'white', marginBottom: 2 }}>
+                      {due.length} word{due.length !== 1 ? 's' : ''} ready to review
+                    </div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,.75)', marginBottom: 10 }}>
+                      Spaced repetition · {masteryPct}% mastered
+                    </div>
+                    <button
+                      onClick={() => setScr('review')}
+                      style={{
+                        background: 'white', color: '#0e7490', border: 'none',
+                        borderRadius: 10, padding: '7px 16px',
+                        fontSize: 13, fontWeight: 800, cursor: 'pointer',
+                        fontFamily: "'Outfit', sans-serif",
+                      }}
+                    >
+                      Review Now →
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })()}
 
           {/* Campaign banner */}
           <CampaignBanner

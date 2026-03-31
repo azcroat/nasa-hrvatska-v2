@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { speak } from '../../data.jsx';
 
 const EXERCISE_MAP = {
@@ -16,11 +16,14 @@ export default function AIConversationResult({
   level,
   userCount,
   weakAreasForSession,
+  convoVocab,
+  setJWords,
   setScr,
   sCurEx,
   onBackToChat,
   onReset,
 }) {
+  const [savedVocab, setSavedVocab] = useState(new Set());
   if (evalError || !evaluation) return (
     <div className="scr-wrap" style={{ textAlign: "center", paddingTop: 40 }}>
       <div style={{ fontSize: 40, marginBottom: 12 }}>⚠️</div>
@@ -159,6 +162,54 @@ export default function AIConversationResult({
           <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 8 }}>
             The AI naturally wove these grammar patterns into the conversation to help you practice.
           </div>
+        </div>
+      )}
+
+      {convoVocab && convoVocab.length > 0 && (
+        <div style={{ background: "var(--card)", border: "1.5px solid var(--card-b)", borderRadius: 18, padding: 18, marginBottom: 14 }}>
+          <div style={{ fontSize: "var(--text-xs)", fontWeight: 800, color: "#7c3aed", letterSpacing: ".08em", textTransform: "uppercase", marginBottom: 12 }}>
+            📚 Vocabulary from This Conversation
+          </div>
+          <div style={{ fontSize: "var(--text-xs)", color: "var(--subtext)", marginBottom: 12 }}>
+            These words appeared in your conversation. Save them to your journal for spaced repetition review.
+          </div>
+          {convoVocab.map((v, i) => (
+            <div key={i} style={{
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              padding: "10px 0",
+              borderBottom: i < convoVocab.length - 1 ? "1px solid var(--card-b)" : "none",
+              gap: 12,
+            }}>
+              <div style={{ flex: 1 }}>
+                <span
+                  role="button" tabIndex={0}
+                  onClick={() => speak(v.word || v.hr || '')}
+                  onKeyDown={e => { if (e.key === 'Enter') speak(v.word || v.hr || ''); }}
+                  style={{ fontWeight: 800, color: "var(--heading)", cursor: "pointer", fontSize: "var(--text-base)" }}
+                >
+                  🔊 {v.word || v.hr}
+                </span>
+                <span style={{ marginLeft: 10, color: "var(--subtext)", fontSize: "var(--text-sm)" }}>{v.english || v.en}</span>
+              </div>
+              <button
+                disabled={savedVocab.has(i)}
+                onClick={() => {
+                  if (typeof setJWords === "function") {
+                    setJWords(prev => [...(prev || []), { hr: v.word || v.hr, en: v.english || v.en }]);
+                  }
+                  setSavedVocab(s => new Set([...s, i]));
+                }}
+                style={{
+                  fontSize: 11, fontWeight: 800, padding: "4px 12px", borderRadius: 20,
+                  border: "1.5px solid #7c3aed",
+                  background: savedVocab.has(i) ? "#7c3aed" : "transparent",
+                  color: savedVocab.has(i) ? "white" : "#7c3aed",
+                  cursor: savedVocab.has(i) ? "default" : "pointer",
+                  flexShrink: 0, transition: "all .15s",
+                }}
+              >{savedVocab.has(i) ? "✓ Saved" : "+ Journal"}</button>
+            </div>
+          ))}
         </div>
       )}
 
