@@ -615,14 +615,24 @@ export default function PracticeTab({
               </div>
             </div>
           )}
-          <div className="g3" style={{ marginBottom:24 }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:24 }}>
             {recommendations.map((r, i) => (
-              <button key={i} className="tc"
-                style={{ textAlign:"center", padding:"16px 10px" }}
-                onClick={r.fn}>
-                <div style={{ fontSize:28, marginBottom:6 }}>{r.icon}</div>
-                <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{r.title}</div>
-                <div style={{ fontSize:10, color:"var(--subtext)", marginTop:4, lineHeight:1.3 }}>{r.desc}</div>
+              <button key={i} onClick={r.fn} style={{
+                display:'flex', alignItems:'center', gap:14,
+                padding:'16px 18px', borderRadius:16, border:`1.5px solid ${r.border}`,
+                background:r.color, cursor:'pointer', fontFamily:"'Outfit',sans-serif",
+                textAlign:'left', width:'100%',
+              }}>
+                <div style={{
+                  width:48, height:48, borderRadius:14, flexShrink:0,
+                  background:'var(--card)', border:`1.5px solid ${r.border}`,
+                  display:'flex', alignItems:'center', justifyContent:'center', fontSize:24,
+                }}>{r.icon}</div>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:15, fontWeight:800, color:'var(--heading)', marginBottom:2 }}>{r.title}</div>
+                  <div style={{ fontSize:12, color:'var(--subtext)', lineHeight:1.4 }}>{r.desc}</div>
+                </div>
+                <div style={{ fontSize:20, color:'var(--subtext)', opacity:.5 }}>›</div>
               </button>
             ))}
           </div>
