@@ -176,8 +176,10 @@ const KF = `
   60%{transform:translate(92px,75px) rotate(48deg) translate(-92px,-75px)}
 }
 @keyframes lk-confetti {
-  0%{transform:translateY(0px) rotate(0deg);opacity:1}
-  100%{transform:translateY(30px) rotate(360deg);opacity:0}
+  0%  {transform:translateY(0px)  translateX(0px)  rotate(0deg)  scale(1);    opacity:1}
+  30% {transform:translateY(-18px) translateX(6px)  rotate(120deg) scale(1.1); opacity:1}
+  70% {transform:translateY(12px)  translateX(-4px) rotate(280deg) scale(0.85);opacity:0.7}
+  100%{transform:translateY(40px)  translateX(8px)  rotate(420deg) scale(0.6); opacity:0}
 }
 `;
 
@@ -355,13 +357,24 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
     { x: 108, y: 138, c: '#38bdf8', r: -22 },
   ] : [];
 
+  // Entry spring: bigger pop for celebration, normal spring otherwise
+  const entryTransition = isCelebrating
+    ? { type: 'spring', stiffness: 520, damping: 16, mass: 0.7 }
+    : { type: 'spring', stiffness: 380, damping: 22 };
+
   return (
     <motion.div
       className={className}
       style={{ display: 'inline-block', lineHeight: 0, ...style }}
-      initial={{ scale: 0.78, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ type: 'spring', stiffness: 380, damping: 22, duration: 0.4 }}
+      initial={{ scale: 0.6, opacity: 0, y: 8 }}
+      animate={isCelebrating
+        ? { scale: [0.6, 1.22, 0.96, 1.06, 1], opacity: 1, y: 0 }
+        : { scale: 1, opacity: 1, y: 0 }
+      }
+      transition={isCelebrating
+        ? { duration: 0.55, ease: [0.22, 1.6, 0.36, 1], times: [0, 0.35, 0.55, 0.75, 1] }
+        : entryTransition
+      }
     >
     <svg
       width={size}
@@ -375,13 +388,17 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
     >
       <Defs />
 
-      {/* Confetti — drawn behind figure */}
+      {/* Confetti — drawn behind figure, staggered fly-out animation */}
       {confetti.map((p, i) => (
         <rect
           key={i}
           x={p.x} y={p.y} width="9" height="4.5" rx="1.5"
           fill={p.c} opacity="0.9"
           transform={`rotate(${p.r} ${p.x + 4.5} ${p.y + 2.25})`}
+          style={{
+            animation: `lk-confetti ${0.65 + (i % 3) * 0.12}s ease-out ${i * 0.07}s both`,
+            transformOrigin: `${p.x + 4.5}px ${p.y + 2.25}px`,
+          }}
         />
       ))}
 
