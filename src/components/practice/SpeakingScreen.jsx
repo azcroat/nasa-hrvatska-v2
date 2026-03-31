@@ -187,29 +187,23 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
     const tid = setTimeout(() => controller.abort(), 7000); // 7s max — never block UI
 
     try {
-      const res = await fetch("/api/ai-chat", {
+      const res = await fetch("/api/pronunciation-coach", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mode: "convo",
-          messages: [{
-            role: "user",
-            content: `Pronunciation analysis task:\nTarget Croatian word/phrase: "${targetWord}"\nWhat the learner said (as recognized by speech-to-text): "${transcript}"\n\nRate their pronunciation accuracy (0-100) and give specific phonetic tips.\nReturn ONLY JSON: {"score": 0-100, "match_quality": "exact|close|partial|off", "phonetic_tips": ["tip1","tip2"], "encouragement": "brief Croatian + English encouragement"}`,
-          }],
-          params: { level: "B1", aiName: "Maja", aiRole: "pronunciation coach", context: "You are a Croatian pronunciation coach. Respond only with the JSON requested." },
-        }),
+        body: JSON.stringify({ word: targetWord, spoken: transcript, score: 50, level: "B1" }),
         signal: controller.signal,
       });
       clearTimeout(tid);
+      if (!res.ok) { setPronScore(fallback); return; }
       const data = await res.json();
-      try {
-        const parsed = JSON.parse(data.text);
-        if (parsed && typeof parsed.score === 'number') {
-          setPronScore(parsed);
-        } else {
-          setPronScore(fallback);
-        }
-      } catch {
+      if (data && data.feedback) {
+        setPronScore({
+          score: 70,
+          match_quality: 'close',
+          phonetic_tips: (data.drills || []).map(d => d.tip).filter(Boolean),
+          encouragement: data.feedback,
+        });
+      } else {
         setPronScore(fallback);
       }
     } catch {

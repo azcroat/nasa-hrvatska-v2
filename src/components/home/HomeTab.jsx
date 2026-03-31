@@ -26,7 +26,6 @@ import ProgressTabContent from './ProgressTabContent.jsx';
 import WelcomeBackBanners from './WelcomeBackBanners.jsx';
 import GoalSetterModal from '../shared/GoalSetterModal.jsx';
 import SpeedChallenge from './SpeedChallenge.jsx';
-import KnightSpeech from '../shared/KnightSpeech.jsx';
 // DalmatianCoast SVG replaced with real AI/CC photography
 // import { DalmatianCoast } from '../illustrations';
 
@@ -301,9 +300,6 @@ export default function HomeTab({
         onSyncNow={onSyncNow}
         wsMastered={ws.strong}
       />
-
-      {/* ── VITEZ HRVOJE — contextual coach with speech bubble ── */}
-      <KnightSpeech st={st} streak={streak.count} level={level} />
 
       {/* Daily Goal Progress */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.06 }}>

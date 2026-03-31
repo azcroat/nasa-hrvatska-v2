@@ -109,6 +109,7 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
       setResult(r);
       setState('scored');
       if (onScore) onScore(r);
+      fetchCoaching(r.spoken, r.score);
     };
     rec.onerror = (/** @type {any} */ e) => {
       const code = e?.error || '';
@@ -250,8 +251,8 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
 
       setAzureResult(data);
       setState('scored');
-      // Emit a synthetic onScore event so parent components still get feedback.
       if (onScore) onScore({ spoken: targetText, score: data.overall ?? 0 });
+      fetchCoaching(targetText, data.overall ?? 0);
     } catch (fetchErr) {
       clearTimeout(tid);
       console.warn('PronunciationScorer: Azure assess failed, falling back to Web Speech:', fetchErr?.message);
