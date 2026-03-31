@@ -75,6 +75,9 @@ export const PHOTOS = {
 
   // Bibinje: CC BY-SA 3.0 marina view of Bibinje © Voilierprovencal, Wikimedia Commons
   bibinje:   '/images/scenes/bibinje.webp',
+
+  // Vinkovci: CC BY 3.0 © Ivvon Tomek via Wikimedia Commons
+  vinkovci:  '/images/scenes/vinkovci.webp',
 };
 
 // Thumbnail versions — local paths serve the same file (browser caches it)
@@ -91,4 +94,5 @@ export const PHOTO_CREDITS = {
   rabac:   'Photo © Czeva, CC BY-SA 3.0, via Wikimedia Commons',
   mostar:  'Photo © Ramirez HUN, CC BY-SA 4.0, via Wikimedia Commons',
   bibinje: 'Photo © Voilierprovencal, CC BY-SA 3.0, via Wikimedia Commons',
+  vinkovci: 'Photo © Ivvon Tomek, CC BY 3.0, via Wikimedia Commons',
 };

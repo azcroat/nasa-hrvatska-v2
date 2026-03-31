@@ -123,6 +123,28 @@ export default function LearnTab({
         <div style={{fontSize:18, color:'#0369a1'}}>→</div>
       </button>
 
+      {/* ── GRAMMAR TRACK ──────────────────────────────────────────── */}
+      <button
+        onClick={() => setScr('grammar_track')}
+        style={{
+          display:'flex', alignItems:'center', gap:14, width:'100%', marginBottom:12,
+          padding:'14px 16px', borderRadius:16, border:'1.5px solid #fde68a',
+          background:'linear-gradient(135deg,#fffbeb,#fef3c7)',
+          cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+        }}
+      >
+        <div style={{
+          width:44, height:44, borderRadius:12, flexShrink:0,
+          background:'linear-gradient(135deg,#d97706,#92400e)',
+          display:'flex', alignItems:'center', justifyContent:'center', fontSize:22,
+        }}>⚙️</div>
+        <div style={{flex:1}}>
+          <div style={{fontSize:14, fontWeight:800, color:'#451a03'}}>Grammar Track A1→B2</div>
+          <div style={{fontSize:12, color:'#92400e', marginTop:2, lineHeight:1.4}}>Structured curriculum · cases, tenses, aspect &amp; more</div>
+        </div>
+        <div style={{fontSize:18, color:'#d97706'}}>→</div>
+      </button>
+
       {/* ── GRADED STORIES + PRONUNCIATION COURSE ───────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
         <button
