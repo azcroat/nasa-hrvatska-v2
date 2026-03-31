@@ -7,8 +7,14 @@
  * @param params All required setters and state from App / hooks
  */
 import { useEffect, useRef, useCallback } from 'react';
-import { V, GRAM, sh } from '../data.jsx';
-import { LESSONS as ANIM_LESSONS } from '../data/lessons.js';
+// V, GRAM, and LESSONS are only needed when launching exercises — lazy import keeps chunk-data
+// out of the startup bundle. sh is a local Fisher-Yates using Math.random().
+function _sh(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
+let _dataCache = null;
+async function _getData() {
+  if (!_dataCache) _dataCache = await import('../data.jsx');
+  return _dataCache;
+}
 import { trackStart, trackAbandon } from '../lib/learnerStyle.js';
 import { markExerciseDone } from './useAward.js';
 
@@ -45,11 +51,13 @@ export function useScreenLauncher({
     }
   }, [currentScreen]);
 
-  const resumeLesson = useCallback(() => {
+  const resumeLesson = useCallback(async () => {
     try {
       const r = JSON.parse(localStorage.getItem('nh_lesson_resume') || 'null');
-      if (!r || !r.topic || !V[r.topic]) return;
-      const items = sh(V[r.topic]);
+      if (!r || !r.topic) return;
+      const { V } = await _getData();
+      if (!V[r.topic]) return;
+      const items = _sh(V[r.topic]);
       sLt(r.topic); sLi(items); sLx(0); sLs(0); sLp('learn'); sLa(false); sLsl(-1); sQi([]);
       sCurEx('vocab_' + r.topic);
       sessionStorage.setItem('nh_ex_start', Date.now().toString());
@@ -57,8 +65,9 @@ export function useScreenLauncher({
     } catch (_) {}
   }, [setScr, sCurEx, sLt, sLi, sLx, sLs, sLp, sLa, sLsl, sQi]);
 
-  const launchAnimLesson = useCallback((lessonId) => {
-    const l = ANIM_LESSONS.find(x => x.id === lessonId);
+  const launchAnimLesson = useCallback(async (lessonId) => {
+    const { LESSONS } = await import('../data/lessons.js');
+    const l = LESSONS.find(x => x.id === lessonId);
     if (l) { setAnimLesson(l); sCurEx('animlesson'); setScr('animlesson'); }
   }, [setScr, sCurEx, setAnimLesson]);
 
@@ -109,24 +118,27 @@ export function useScreenLauncher({
     setScr('speaking');
   }, [setScr, sCurEx, sSi, sSx, sSw, sSr, sSsc]);
 
-  const launchPathItem = useCallback((item) => {
+  const launchPathItem = useCallback(async (item) => {
     if (!item) return;
     if (item.go === 'lesson' && item.topic) {
-      const items = sh(V[item.topic]);
+      const { V } = await _getData();
+      const items = _sh(V[item.topic]);
       sLt(item.topic); sLi(items); sLx(0); sLs(0); sLp('learn'); sLa(false); sLsl(-1);
       sessionStorage.setItem('nh_ex_start', Date.now().toString());
       trackStart('flashcards');
       setScr('lesson'); sCurEx('vocab_' + item.topic);
     } else if (item.go === 'grammar') {
+      const { GRAM } = await _getData();
       sGl(GRAM.beginner[0]); sGp('learn'); sGx(0); sGs(0); sGa(false); sGsl(-1);
       sessionStorage.setItem('nh_ex_start', Date.now().toString());
       trackStart('grammar');
       setScr('grammar'); sCurEx('grammar');
     } else if (item.go === 'mcgame') {
+      const { V } = await _getData();
       const pool = allCats.flatMap(t => V[t]);
-      const qs = sh(pool).slice(0, 10).map(w => {
-        const wr = sh(pool.filter(x => x[1] !== w[1])).slice(0, 3).map(x => x[1]);
-        return { hr: w[0], en: w[1], ph: w[2], opts: sh([w[1]].concat(wr)), correct: w[1] };
+      const qs = _sh(pool).slice(0, 10).map(w => {
+        const wr = _sh(pool.filter(x => x[1] !== w[1])).slice(0, 3).map(x => x[1]);
+        return { hr: w[0], en: w[1], ph: w[2], opts: _sh([w[1]].concat(wr)), correct: w[1] };
       });
       launchMcGame(qs);
     } else {

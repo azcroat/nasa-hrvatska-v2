@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { H, Bar, sh } from '../../data.jsx';
+import { H, Bar, sh, ASPECT_PAIRS } from '../../data.jsx';
 import AspectPhaseBar from './AspectPhaseBar.jsx';
 import AspectRuleCard from './AspectRuleCard.jsx';
 import AspectQuestionPanel from './AspectQuestionPanel.jsx';
@@ -117,7 +117,7 @@ function gapSentence(sentence, target, _wrong) {
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
-export default function AspectDrillScreen({ goBack, award, ASPECT_PAIRS }) {
+export default function AspectDrillScreen({ goBack, award }) {
   const finishFired = useRef(false);
 
   const userLevel = typeof localStorage !== 'undefined' ? (localStorage.getItem('nh_level') || 'A1') : 'A1';

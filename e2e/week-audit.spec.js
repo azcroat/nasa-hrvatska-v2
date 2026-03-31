@@ -304,11 +304,11 @@ test('Day 2 — Learn tab, lesson content, grammar intro', async ({ page }) => {
       await grammarBtn.click();
       await page.waitForTimeout(1000);
       await ss(page, 'day2-grammar-intro');
-      // Start practice portion
-      const practiceBtn = page.locator('button').filter({ hasText: /practice →|practice$/i }).first();
+      // Start practice portion — use exact arrow to avoid matching sidebar "Practice" tab
+      const practiceBtn = page.locator('button').filter({ hasText: /^practice\s*→$/i }).first();
       if (await practiceBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await practiceBtn.click();
-        await page.waitForTimeout(600);
+        await page.waitForTimeout(1000);
         const qs = await runQuiz(page, 'GrammarIntro', 16);
         ok(`Grammar Intro: ${qs} questions answered`);
         if (qs < 3) bug('BUG', 'GrammarIntro-Quiz', `Only ${qs} questions loaded (expect 12+)`);

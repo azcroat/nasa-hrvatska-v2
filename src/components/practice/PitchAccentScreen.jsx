@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { H, Bar, Spk } from '../../data.jsx';
+import { H, Bar, Spk, PITCH_ACCENT } from '../../data.jsx';
 
 const ACCENT_TYPES = [
   {id:"kratkosilazni", label:"Short Falling", symbol:"◌̀", color:"#ef4444", desc:"Pitch drops on a short vowel"},
@@ -8,7 +8,7 @@ const ACCENT_TYPES = [
   {id:"dugouzlazni",   label:"Long Rising",   symbol:"◌̋", color:"#22c55e", desc:"Pitch rises on a long vowel"},
 ];
 
-export default function PitchAccentScreen({ goBack, award, PITCH_ACCENT }) {
+export default function PitchAccentScreen({ goBack, award }) {
   const finishFired = useRef(false);
   const [idx, setIdx] = useState(0);
   const [answered, setAnswered] = useState(false);

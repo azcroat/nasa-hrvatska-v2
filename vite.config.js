@@ -149,7 +149,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 600,    // chunk-data (vocabulary/lesson data) is inherently ~537 KB
     rollupOptions: {
       output: {
-        experimentalMinChunkSize: 10000, // Merge chunks < 10 KB to avoid HTTP/2 overhead
+        experimentalMinChunkSize: 0, // Don't merge tiny chunks into startup bundle — prevents chunk-data becoming a static startup dep
         manualChunks(id) {
           if (id.includes('node_modules/firebase')) return 'vendor-firebase';
           if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) return 'vendor-react';

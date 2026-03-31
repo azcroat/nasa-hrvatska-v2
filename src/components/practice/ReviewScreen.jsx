@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { H, Bar, Spk, srMark, getSR, sh } from '../../data.jsx';
+import { H, Bar, Spk, srMark, getSR, sh, V } from '../../data.jsx';
 import { getPrioritizedReviewQueue } from '../../lib/srs.js';
 import { useHaptic } from '../../hooks/useHaptic.js';
 import { markPracticed } from '../../hooks/useNotifications.js';
@@ -9,10 +9,11 @@ import { playFanfare } from '../../lib/soundSettings.js';
 import CroatianKnight from '../shared/CroatianKnight.jsx';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 
-export default function ReviewScreen({ goBack, award, allCats, V }) {
+export default function ReviewScreen({ goBack, award, allCats }) {
   const haptic = useHaptic();
   const finishFired = useRef(false);
-  const pool = useMemo(() => allCats.flatMap(t => V[t]), [allCats]); // eslint-disable-line react-hooks/exhaustive-deps
+  const _cats = allCats || Object.keys(V);
+  const pool = useMemo(() => _cats.flatMap(t => V[t] || []), [_cats]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const dueWords = useMemo(() => {
     return getPrioritizedReviewQueue(pool);

@@ -13,11 +13,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   gP, sP, lP, gS, sS, cS,
-  touchSession, updateStreak, isValidEmail,
+  touchSession, isValidEmail,
   fbLogin, fbRegister, fbLogout, fbLoginGoogle, fbResetPassword,
   fbLoadProgress, fbLoadUserFamily, fbOnAuthStateChanged,
   initFirebase, getLocalFamily, saveLocalFamily, fbSaveProgress,
-} from '../data.jsx';
+} from '../lib/firebase.js';
+import { updateStreak } from '../lib/appUtils.js';
 
 /**
  * @param {object} opts

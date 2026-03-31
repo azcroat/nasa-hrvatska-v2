@@ -1,10 +1,11 @@
 import React, { lazy } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { V, GRAM, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, sh } from "../data.jsx";
-import { LESSONS as ANIM_LESSONS } from "../data/lessons.js";
+// Local Fisher-Yates shuffle — keeps chunk-data out of AppRouter's startup import.
+// Screens that need data (V, GRAM, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS) import it directly.
+function _sh(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
 import ScreenErrorBoundary from "./shared/ScreenErrorBoundary.jsx";
-import WelcomeScreen from "./home/WelcomeScreen.jsx";
-import PlacementTest from "../components/auth/PlacementTest.jsx";
+const WelcomeScreen = lazyWithReload(() => import("./home/WelcomeScreen.jsx"));
+const PlacementTest = lazyWithReload(() => import("../components/auth/PlacementTest.jsx"));
 import PaywallScreen from "./shared/PaywallScreen.jsx";
 import { useApp } from "../context/AppContext.jsx";
 import { useStats } from "../context/StatsContext.jsx";
@@ -328,7 +329,7 @@ export default function AppRouter(props) {
           dchlA={dchlA} sDchlA={sDchlA} dchlSl={dchlSl} sDchlSl={sDchlSl}
           getWeekStats={getWeekStats}
           setTab={(id)=>{const VALID_TABS={home:1,learn:1,practice:1,croatia:1,profile:1};if(VALID_TABS[id])setTab(id);else setScr(id);}} sCurEx={sCurEx}
-          allCats={allCats} sh={sh}
+          allCats={allCats} sh={_sh}
           launchPathItem={launchPathItem}
           syncReady={_syncReady} onSyncNow={doSyncNow} authUser={authUser}
           comebackBonus={comebackBonus}
@@ -340,14 +341,14 @@ export default function AppRouter(props) {
         {// ═══ TAB: LEARN ═══
         tab==="learn"&&<div key="tab-learn" className="screen-enter"><ScreenErrorBoundary name="LearnTab"><LearnTab
           allCats={allCats} icons={icons} sCurEx={sCurEx}
-          sh={sh} sLt={sLt} sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl}
+          sh={_sh} sLt={sLt} sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl}
           sGl={sGl} sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
           launchPathItem={launchPathItem}
           launchAnimLesson={launchAnimLesson}
         /></ScreenErrorBoundary></div>}
         {// ═══ TAB: PRACTICE ═══
         tab==="practice"&&<div key="tab-practice" className="screen-enter"><ScreenErrorBoundary name="PracticeTab"><PracticeTab
-          allCats={allCats} sh={sh} sCurEx={sCurEx}
+          allCats={allCats} sh={_sh} sCurEx={sCurEx}
           onLaunchQuiz={launchMcGame} onLaunchFlash={launchFlashcards}
           onLaunchListen={launchListening} onLaunchMatch={launchMatch}
           onLaunchSpeaking={launchSpeaking}
@@ -485,15 +486,15 @@ export default function AppRouter(props) {
       {currentScreen==="znam"&&<ScreenErrorBoundary key="znam" name="znam"><ZnamGame goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="boje"&&<ScreenErrorBoundary key="boje" name="boje"><BojeGame goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="match"&&<ScreenErrorBoundary key="match" name="match"><MatchGame initPool={matchInitPool} goBack={goBack} award={award} /></ScreenErrorBoundary>}
-      {currentScreen==="wordsprint"&&<ScreenErrorBoundary key="wordsprint" name="wordsprint"><WordSprint sh={sh} award={award} goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="wordsprint"&&<ScreenErrorBoundary key="wordsprint" name="wordsprint"><WordSprint sh={_sh} award={award} goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="speaking"&&<ScreenErrorBoundary key="speaking" name="speaking"><SpeakingScreen sw={sw} si={si} sx={sx} sr={sr} ssc={ssc} sSr={sSr} sSx={sSx} sSw={sSw} sSsc={sSsc} goBack={goBack} award={award} setSt={setStats} /></ScreenErrorBoundary>}
       {currentScreen==="speaking_sprint"&&<ScreenErrorBoundary key="speaking_sprint" name="speaking_sprint"><SpeakingSprintScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
-      {currentScreen==="pitchaccent"&&<ScreenErrorBoundary key="pitchaccent" name="pitchaccent"><PitchAccentScreen goBack={goBack} award={award} PITCH_ACCENT={PITCH_ACCENT} /></ScreenErrorBoundary>}
-      {currentScreen==="shadowing"&&<ScreenErrorBoundary key="shadowing" name="shadowing"><ShadowingScreen goBack={goBack} award={award} SHADOWING={SHADOWING} /></ScreenErrorBoundary>}
-      {currentScreen==="review"&&<ScreenErrorBoundary key="review" name="review"><ReviewScreen goBack={goBack} award={award} allCats={allCats} V={V} /></ScreenErrorBoundary>}
+      {currentScreen==="pitchaccent"&&<ScreenErrorBoundary key="pitchaccent" name="pitchaccent"><PitchAccentScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="shadowing"&&<ScreenErrorBoundary key="shadowing" name="shadowing"><ShadowingScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="review"&&<ScreenErrorBoundary key="review" name="review"><ReviewScreen goBack={goBack} award={award} allCats={allCats} /></ScreenErrorBoundary>}
       {currentScreen==="writing"&&<ScreenErrorBoundary key="writing" name="writing"><WritingScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="listeningpath"&&<ScreenErrorBoundary key="listeningpath" name="listeningpath"><ListeningPath goBack={goBack} /></ScreenErrorBoundary>}
-      {currentScreen==="aspectdrill"&&<ScreenErrorBoundary key="aspectdrill" name="aspectdrill"><AspectDrillScreen goBack={goBack} award={award} ASPECT_PAIRS={ASPECT_PAIRS} /></ScreenErrorBoundary>}
+      {currentScreen==="aspectdrill"&&<ScreenErrorBoundary key="aspectdrill" name="aspectdrill"><AspectDrillScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="clitic"&&<ScreenErrorBoundary key="clitic" name="clitic"><CliticDrill goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="numcases"&&<ScreenErrorBoundary key="numcases" name="numcases"><NumbersCasesDrill goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="imperative"&&<ScreenErrorBoundary key="imperative" name="imperative"><ImperativeDrill goBack={goBack} award={award} /></ScreenErrorBoundary>}
@@ -548,7 +549,7 @@ export default function AppRouter(props) {
       /></ScreenErrorBoundary>}
       {// ═══ GRAMMAR ═══
       currentScreen==="grammar"&&<ScreenErrorBoundary key="grammar" name="grammar"><GrammarScreen
-        gl={gl||GRAM.beginner[0]} gp={gp} gx={gx} gs={gs} ga={ga} gsl={gsl}
+        gl={gl} gp={gp} gx={gx} gs={gs} ga={ga} gsl={gsl}
         sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
         goBack={goBack} award={award} setSt={setStats}
       /></ScreenErrorBoundary>}

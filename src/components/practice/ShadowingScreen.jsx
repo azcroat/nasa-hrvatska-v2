@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { H, Bar, Spk, speakSlow } from '../../data.jsx';
+import { H, Bar, Spk, speakSlow, SHADOWING } from '../../data.jsx';
 import PronunciationScorer from '../shared/PronunciationScorer.jsx';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -297,7 +297,7 @@ function RecordingPanel({ micAvailable, recordingState, countdown, audioBlob, on
 
 // ── main component ────────────────────────────────────────────────────────────
 
-export default function ShadowingScreen({ goBack, award, SHADOWING }) {
+export default function ShadowingScreen({ goBack, award }) {
   const finishFired = useRef(false);
   const [idx, setIdx] = useState(0);
   const [said, setSaid] = useState(false);

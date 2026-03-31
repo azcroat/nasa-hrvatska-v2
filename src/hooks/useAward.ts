@@ -9,7 +9,7 @@ import {
   lXPgain, lvl, BADGES,
   updateStreak, applyStreakEarnBack, getStreakEarnBack, earnFreeze,
   getStreak, recordJourneyMilestone,
-} from '../data.jsx';
+} from '../lib/appUtils.js';
 import { trackComplete } from '../lib/learnerStyle.js';
 import {
   trackLessonComplete, trackExerciseComplete, trackLevelUp,

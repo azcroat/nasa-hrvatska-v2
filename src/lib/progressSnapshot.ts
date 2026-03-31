@@ -4,7 +4,9 @@
  * Previously copy-pasted 3 times across App.jsx (doSyncNow, saveSnapshot, auto-save
  * useEffect). This module is the single source of truth for what gets persisted.
  */
-import { getSR, getStreak, getStreakFreezes, gP } from '../data.jsx';
+import { getSR } from './srs.js';
+import { getStreak, getStreakFreezes } from './appUtils.js';
+import { gP } from './firebase.js';
 import { localDateStr as _todayStr, weekKey as _weekKey } from './dateUtils.js';
 import type { Stats } from '../types/index.js';
 

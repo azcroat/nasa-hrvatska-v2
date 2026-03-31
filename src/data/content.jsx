@@ -9,6 +9,15 @@ import { _fbReady, initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSession
 import { loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, preloadAudio } from '../lib/audio.js';
 import { getSR, saveSR, getDueReviews, getSRScore } from '../lib/srs.js';
 import { rnd } from '../lib/random.js';
+import {
+  lvl, lXP, nXP, lXPgain, getActiveCampaign, SEASONAL_CAMPAIGNS,
+  getStreak, getStreakFreezes, updateStreak, earnFreeze, spendFreeze,
+  getStreakEarnBack, applyStreakEarnBack,
+  getCultureStats, incrementCulture,
+  BADGES,
+  recordJourneyMilestone, getJourneyMilestones,
+  BG_LIGHT, BG_DARK,
+} from '../lib/appUtils.js';
 import * as _vocab from './vocabulary.js';
 import * as _grammar from './grammar.js';
 import * as _cultural from './cultural.js';
@@ -22,10 +31,7 @@ const { PLACE, READ, UNJUMBLE, IDIOMS, PREPS, LISTEN, NUMTIME, NUMCOUNT, FALSEFR
 const { SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, PRACTICAL, RESTCONV, GROCERY, RECIPES, ROLEPLAY, BASKETBALL, GYM, STORIES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH } = _scenarios;
 
 function sh(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
-function lvl(x){const t=[0,50,150,300,500,800,1200,1800,2500,3500];for(let i=t.length-1;i>=0;i--)if(x>=t[i])return i+1;return 1}
-function lXP(l){return[0,0,50,150,300,500,800,1200,1800,2500,3500][l]??3500}
-function nXP(l){return[0,50,150,300,500,800,1200,1800,2500,3500,5000][l]??5000}
-function lXPgain(xp){const campaign=getActiveCampaign();if(campaign&&campaign.multiplier&&campaign.multiplier>1){return Math.round(xp*campaign.multiplier);}return xp;}
+// lvl, lXP, nXP, lXPgain, getActiveCampaign — imported from ../lib/appUtils.js
 // ═══════════════════════════════════════
 // ═══════════════════════════════════════
 // ═══ TOP 100 WORDS BY SITUATION ═══
@@ -36,85 +42,8 @@ Object.keys(TOP100).forEach(function(k){V[k]=TOP100[k];});
 // ═══ MODAL VERBS ═══
 // ═══ GRAMMAR DATA ═══
 // ═══ PLACEMENT TEST ═══
-// ═══ BADGES ═══
-const BADGES=[
-  // XP milestones
-  {id:"first",n:"First Steps",i:"🌱",d:"Complete 1 lesson",r:s=>s.lc>=1},
-  {id:"x100",n:"Rising Star",i:"⭐",d:"Earn 100 XP",r:s=>s.xp>=100},
-  {id:"x500",n:"Scholar",i:"📚",d:"Earn 500 XP",r:s=>s.xp>=500},
-  {id:"x1k",n:"Master",i:"🏆",d:"Earn 1,000 XP",r:s=>s.xp>=1000},
-  {id:"x2k",n:"Expert",i:"🎓",d:"Earn 2,000 XP",r:s=>s.xp>=2000},
-  {id:"x5k",n:"Champion",i:"🥇",d:"Earn 5,000 XP",r:s=>s.xp>=5000},
-  {id:"x10k",n:"Legend",i:"👑",d:"Earn 10,000 XP",r:s=>s.xp>=10000},
-  // Lesson count
-  {id:"ded",n:"Dedicated",i:"🔥",d:"Complete 5 lessons",r:s=>s.lc>=5},
-  {id:"lc20",n:"Go-Getter",i:"🚀",d:"Complete 20 lessons",r:s=>s.lc>=20},
-  {id:"lc50",n:"Marathoner",i:"🏃",d:"Complete 50 lessons",r:s=>s.lc>=50},
-  {id:"lc100",n:"Centurion",i:"💯",d:"Complete 100 lessons",r:s=>s.lc>=100},
-  // Perfection
-  {id:"perf",n:"Perfectionist",i:"💎",d:"Get 100% on a lesson",r:s=>s.pf>=1},
-  {id:"perf5",n:"Flawless",i:"✨",d:"Get 100% on 5 lessons",r:s=>s.pf>=5},
-  // Skill categories
-  {id:"gram",n:"Grammar Guru",i:"📝",d:"Complete a grammar lesson",r:s=>s.gc>=1},
-  {id:"spk",n:"Voice of Croatia",i:"🎤",d:"Complete a speaking lesson",r:s=>s.sp>=1},
-  {id:"mod",n:"Modal Master",i:"🔮",d:"Complete modal verbs",r:s=>s.mv>=1},
-  {id:"hist",n:"Historian",i:"🏛️",d:"Read a history passage",r:s=>s.hi>=1},
-  // SRS / vocabulary
-  {id:"srs10",n:"Word Collector",i:"📖",d:"Review 10 SRS words",r:s=>(s.srsTotal||0)>=10},
-  {id:"srs50",n:"Polyglot",i:"🌍",d:"Review 50 SRS words",r:s=>(s.srsTotal||0)>=50},
-  // Streak
-  {id:"str3",n:"On a Roll",i:"🔥",d:"3-day streak",r:s=>(s.streak||0)>=3},
-  {id:"str7",n:"Week Warrior",i:"📅",d:"7-day streak",r:s=>(s.streak||0)>=7},
-  {id:"str30",n:"Unstoppable",i:"⚡",d:"30-day streak",r:s=>(s.streak||0)>=30},
-  // Mistakes mastered
-  {id:"fix5",n:"Mistake Crusher",i:"🛠️",d:"Master 5 mistake words",r:s=>(s.mistakesMastered||0)>=5},
-  // Reading
-  {id:"read3",n:"Reading Pro",i:"📰",d:"Complete 3 reading passages",r:s=>(s.readingDone||0)>=3},
-  // Cultural
-  {id:"amb",n:"Cultural Ambassador",i:"🇭🇷",d:"Explore HRT & media",r:s=>(s.mediaVisits||0)>=1},
-  // Cultural content badges
-  {id:"baka1",  n:"Baka's Listener",   i:"💌", d:"Opened your first letter from Baka",       r:()=>(getCultureStats().bakaCnt||0)>=1},
-  {id:"baka5",  n:"Baka's Devotee",    i:"👵", d:"Read 5 letters from Baka",                 r:()=>(getCultureStats().bakaCnt||0)>=5},
-  {id:"city5",  n:"City Explorer",     i:"🏙️",d:"Explored 5 Croatian cities",               r:()=>(getCultureStats().cityCnt||0)>=5},
-  {id:"city15", n:"Wanderer",          i:"🗺️",d:"Discovered 15 Croatian cities",            r:()=>(getCultureStats().cityCnt||0)>=15},
-  {id:"media5", n:"Culture Seeker",    i:"🎵", d:"Explored 5 Croatian media items",          r:()=>(getCultureStats().mediaCnt||0)>=5},
-  {id:"media20",n:"Culture Master",    i:"🇭🇷",d:"Experienced 20 Croatian media items",     r:()=>(getCultureStats().mediaCnt||0)>=20},
-  {id:"region5",n:"Regional Explorer", i:"🏔️",d:"Explored 5 Croatian regions",             r:()=>(getCultureStats().regionCnt||0)>=5},
-  {id:"proverb",n:"Wisdom Seeker",     i:"📜", d:"Read 3 Croatian proverbs",                 r:()=>(getCultureStats().proverbCnt||0)>=3},
-  // Additional streak tiers
-  {id:"str14",n:"Two Weeks Strong",  i:"🔥", d:"14-day streak",                              r:s=>(s.streak||0)>=14},
-  {id:"str21",n:"Three Week Hero",   i:"💪", d:"21-day streak",                              r:s=>(s.streak||0)>=21},
-  {id:"str60",n:"Two Month Titan",   i:"⚡", d:"60-day streak",                              r:s=>(s.streak||0)>=60},
-  {id:"str100",n:"Century Streak",   i:"🏆", d:"100-day streak",                             r:s=>(s.streak||0)>=100},
-  // Additional lesson counts
-  {id:"lc10",n:"Ten Strong",         i:"🎯", d:"Complete 10 lessons",                        r:s=>s.lc>=10},
-  {id:"lc30",n:"Committed",          i:"📘", d:"Complete 30 lessons",                        r:s=>s.lc>=30},
-  {id:"lc75",n:"Dedicated Learner",  i:"🎓", d:"Complete 75 lessons",                        r:s=>s.lc>=75},
-  // Accuracy / performance
-  {id:"sharp3",n:"Sharp Shooter",    i:"🎯", d:"Score 100% on 3 different exercises",        r:s=>(s.pf||0)>=3},
-  {id:"perf10",n:"Perfectionist Pro",i:"💎", d:"Score 100% on 10 exercises total",           r:s=>(s.pf||0)>=10},
-  {id:"nomistake",n:"No Mistakes",   i:"✅", d:"Complete any exercise without a wrong answer",r:s=>(s.pf||0)>=1},
-  // Vocabulary mastery (SRS)
-  {id:"srs25",n:"Word Collector",    i:"📖", d:"Review 25 SRS words",                        r:s=>(s.srsTotal||0)>=25},
-  {id:"srs100",n:"Vocabulary Builder",i:"📚",d:"Review 100 SRS words",                       r:s=>(s.srsTotal||0)>=100},
-  {id:"srs250",n:"Lexicon Master",   i:"🌐", d:"Review 250 SRS words",                       r:s=>(s.srsTotal||0)>=250},
-  // Practice diversity
-  {id:"extype5",n:"Explorer",        i:"🔍", d:"Complete 5 different exercise types",        r:()=>{try{return JSON.parse(localStorage.getItem('nh_ex_types_done')||'[]').length>=5}catch(_){return false}}},
-  {id:"extype10",n:"Polyglot Practice",i:"🗣️",d:"Complete 10 different exercise types",     r:()=>{try{return JSON.parse(localStorage.getItem('nh_ex_types_done')||'[]').length>=10}catch(_){return false}}},
-  {id:"extype15",n:"All-Rounder",    i:"🌟", d:"Complete 15 different exercise types",       r:()=>{try{return JSON.parse(localStorage.getItem('nh_ex_types_done')||'[]').length>=15}catch(_){return false}}},
-  // Time-based
-  {id:"earlybird",n:"Early Bird",    i:"🌅", d:"Practice before 8am",                        r:()=>new Date().getHours()<8},
-  {id:"nightowl",n:"Night Owl",      i:"🦉", d:"Practice after 10pm",                        r:()=>new Date().getHours()>=22},
-  {id:"weekend",n:"Weekend Warrior", i:"🏖️", d:"Practice on both Saturday and Sunday in same weekend", r:()=>{try{const w=JSON.parse(localStorage.getItem('nh_weekend_days')||'{}');return !!(w.sat&&w.sun)}catch(_){return false}}},
-  // Goal-specific
-  {id:"heritage5",n:"Heritage Seeker",i:"🧬",d:"Set heritage goal and complete 5 lessons",  r:s=>{try{const g=localStorage.getItem('nh_goal');return g==='heritage'&&s.lc>=5}catch(_){return false}}},
-  {id:"family5",n:"Family First",    i:"👨‍👩‍👧", d:"Set family goal and complete 5 lessons",     r:s=>{try{const g=localStorage.getItem('nh_goal');return g==='family'&&s.lc>=5}catch(_){return false}}},
-  {id:"travel5",n:"World Traveler",  i:"✈️", d:"Set travel goal and complete 5 lessons",    r:s=>{try{const g=localStorage.getItem('nh_goal');return g==='travel'&&s.lc>=5}catch(_){return false}}},
-  // Cultural
-  {id:"hajduk",n:"Hajduk Fan",       i:"⚽", d:"Complete the football slang exercise",       r:s=>(s.footballDone||0)>=1},
-  {id:"dalmatian",n:"Dalmatian Soul",i:"🌊", d:"Complete the Dalmatian dialect exercise",    r:s=>(s.dialectDone||0)>=1},
-  {id:"zagreb",n:"Zagrepčanin",      i:"🏙️", d:"Complete the Zagreb slang exercise",        r:s=>(s.textingDone||0)>=1},
-];
+// BADGES — imported from ../lib/appUtils.js
+// ═══ DAILY QUESTS ═══
 const DAILY_QUESTS = [
   { id: 'speak',        tier: 1, icon: '🎤', name: 'Speak Quest',        desc: 'Complete 1 speaking exercise',   xp: 25 },
   { id: 'speak2',       tier: 2, icon: '🎤', name: 'Speak Twice',        desc: '2 speaking exercises',           xp: 50 },
@@ -136,15 +65,8 @@ const DAILY_QUESTS = [
 // ═══ SPACED REPETITION ═══
 // getSR / saveSR / getDueReviews are imported from ./lib/srs.js (FSRS-4.5).
 // Re-exported at the bottom of this file so all existing imports keep working.
-// Cultural content tracking
-function getCultureStats() {
-  try { return JSON.parse(localStorage.getItem('nh_culture') || '{}'); } catch { return {}; }
-}
-function incrementCulture(key) {
-  const c = getCultureStats();
-  c[key] = (c[key] || 0) + 1;
-  localStorage.setItem('nh_culture', JSON.stringify(c));
-  return c[key];
+// getCultureStats, incrementCulture — imported from ../lib/appUtils.js
+function _unusedCulturePlaceholder() {
 }
 // srMark — delegates to FSRS-4.5 getSRScore() imported from ./lib/srs.js.
 // Signature preserved: srMark(word, correct) — timeMs defaults to 4000 ms
@@ -205,49 +127,8 @@ function bootstrapMistakesFromSRS(){
 // ═══ PREPOSITIONS WITH CASES ═══
 // ═══ CROATIAN KINGS & MEDIEVAL KINGDOM ═══
 // ═══ DAILY STREAK ═══
-function getStreak(){try{return JSON.parse(localStorage.getItem("uStreak")||'{"count":0,"last":""}');} catch{return{count:0,last:""}}}
-function getStreakFreezes(){try{return parseInt(localStorage.getItem('uFreeze')||'0',10);}catch{return 0}}
-function earnFreeze(){const f=getStreakFreezes();localStorage.setItem('uFreeze',String(Math.min(f+1,2)));}
-function spendFreeze(){const f=getStreakFreezes();if(f<=0)return false;localStorage.setItem('uFreeze',String(f-1));return true;}
-const STREAK_MILESTONES=[7,14,21,30,50,100,365];
-function localDateStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function updateStreak(){
-  const s=getStreak();const today=localDateStr();
-  if(s.last===today){
-    // Same day: increment earn-back lesson count if active
-    try{const eb=JSON.parse(localStorage.getItem('nh_earn_back')||'null');if(eb&&eb.date===today){eb.lc=(eb.lc||1)+1;localStorage.setItem('nh_earn_back',JSON.stringify(eb));}}catch{}
-    return{...s,milestone:null};
-  }
-  const yd=new Date();yd.setDate(yd.getDate()-1);const yesterday=yd.getFullYear()+'-'+String(yd.getMonth()+1).padStart(2,'0')+'-'+String(yd.getDate()).padStart(2,'0');
-  let milestone=null;
-  let freezeUsed=false;
-  if(s.last===yesterday){s.count++;s.last=today;if(STREAK_MILESTONES.includes(s.count))milestone=s.count;}
-  else if(s.last!==today){
-    if(spendFreeze()){s.last=today;s.frozeOn=today;freezeUsed=true;}
-    else{
-      // Streak broken — save earn-back opportunity if they had ≥2 streak
-      if(s.count>=2){try{localStorage.setItem('nh_earn_back',JSON.stringify({prev:s.count,date:today,lc:1}));}catch{}}
-      // Clear ceremony flags so re-achieving milestones shows the celebration again
-      const _prevCount=s.count;
-      [30,50,100].forEach(m=>{if(_prevCount>=m)localStorage.removeItem('nh_ceremony_streak_'+m);});
-      s.count=1;s.last=today;
-    }
-  }
-  localStorage.setItem("uStreak",JSON.stringify(s));
-  return{...s,milestone,freezeUsed};
-}
-// Returns {prev, date, lc} if an earn-back opportunity exists for today, else null
-function getStreakEarnBack(){
-  try{const eb=JSON.parse(localStorage.getItem('nh_earn_back')||'null');if(!eb)return null;if(eb.date!==localDateStr())return null;return eb;}catch{return null;}
-}
-// Restores streak to earned-back count; clears the earn-back token. Returns restored count or 0.
-function applyStreakEarnBack(){
-  const eb=getStreakEarnBack();
-  if(!eb||eb.lc<2)return 0;
-  const s=getStreak();s.count=eb.prev;localStorage.setItem("uStreak",JSON.stringify(s));
-  try{localStorage.removeItem('nh_earn_back');}catch{}
-  return eb.prev;
-}
+// getStreak, getStreakFreezes, earnFreeze, spendFreeze, updateStreak,
+// getStreakEarnBack, applyStreakEarnBack — imported from ../lib/appUtils.js
 // ═══ CROATIAN PROVERBS ═══
 function getProverbOfDay(){
   const n=new Date();
@@ -742,9 +623,7 @@ const screenEntries = [
 screenEntries.forEach(e => idx.push(e));
 _searchIdx=idx;return idx}
 // ═══ THEME OBJECTS (background/color tokens for inline root styles) ═══
-// Global CSS classes are in src/index.css (imported in main.jsx)
-const BG_LIGHT=/** @type {React.CSSProperties} */({minHeight:"100vh",background:"radial-gradient(ellipse 100% 55% at 60% -10%, rgba(14,116,144,.09) 0%, transparent 60%), radial-gradient(ellipse 70% 45% at 0% 100%, rgba(212,0,48,.05) 0%, transparent 55%), radial-gradient(ellipse 60% 40% at 100% 50%, rgba(0,61,165,.04) 0%, transparent 50%), #eef2f7",color:"#1c1917",fontFamily:"'Outfit',sans-serif",position:"relative",overflowX:"hidden"});
-const BG_DARK=/** @type {React.CSSProperties} */({minHeight:"100vh",background:"radial-gradient(ellipse 100% 55% at 50% -10%, rgba(14,116,144,.18) 0%, transparent 55%), radial-gradient(ellipse 60% 40% at 100% 100%, rgba(212,0,48,.1) 0%, transparent 50%), linear-gradient(170deg,#080f1e 0%,#0d1b35 40%,#101828 70%,#0c1520 100%)",color:"#e2e8f0",fontFamily:"'Outfit',sans-serif",position:"relative",overflowX:"hidden"});
+// BG_LIGHT, BG_DARK — imported from ../lib/appUtils.js
 const BG=BG_LIGHT;
 const H=(t,s,back)=><div style={{marginBottom:20,paddingBottom:16,borderBottom:"1px solid rgba(0,0,0,.06)"}}>
   {back&&<button onClick={back} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",cursor:"pointer",fontSize:13,fontWeight:700,color:"var(--subtext)",marginBottom:8,padding:"4px 0",fontFamily:"'Outfit',sans-serif"}}>‹ Back</button>}
@@ -831,53 +710,8 @@ class ErrorBoundary extends React.Component{
 // getDueReviews is already imported above — this comment block keeps the
 // section heading visible for orientation while reading this file.
 
-const SEASONAL_CAMPAIGNS = [
-  { id: 'easter', name: 'Uskrs u Hrvatskoj', icon: '🥚', color: '#16a34a', bg: '#f0fdf4', border: '#86efac',
-    start: [3, 20], end: [4, 30], multiplier: 1.5,
-    blurb: 'Learn Easter traditions — pisanice, lamb, holiday greetings',
-    quests: [
-      { id: 'uskrs_q1', label: 'Learn 5 Easter words', desc: 'Complete the greetings lesson', xp: 30, screen: 'lesson' },
-      { id: 'uskrs_q2', label: 'Practice family vocab', desc: 'Family flashcards', xp: 25, screen: 'flashcards' },
-      { id: 'uskrs_q3', label: 'Easter challenge', desc: 'Score 80%+ on any quiz', xp: 50, screen: 'mcgame' },
-    ] },
-  { id: 'midsummer', name: 'Ivanjdan', icon: '🔥', color: '#ea580c', bg: '#fff7ed', border: '#fed7aa',
-    start: [6, 20], end: [6, 28], multiplier: 1.5,
-    blurb: 'Celebrate Midsummer with bonfire traditions and Croatian folklore',
-    quests: [
-      { id: 'ivanjdan_q1', label: 'Learn bonfire words', desc: 'Complete the culture lesson', xp: 30, screen: 'lesson' },
-      { id: 'ivanjdan_q2', label: 'Explore Croatian folklore', desc: 'Read a Croatian story', xp: 25, screen: 'readlist' },
-      { id: 'ivanjdan_q3', label: 'Midsummer quiz', desc: 'Score 80%+ on any quiz', xp: 50, screen: 'mcgame' },
-    ] },
-  { id: 'domovina', name: 'Dan domovine', icon: '🇭🇷', color: '#b61800', bg: '#fff1f0', border: '#fca5a5',
-    start: [7, 25], end: [8, 10], multiplier: 2.0,
-    blurb: "Honor Croatia's liberation — learn history, heroes, and homeland pride",
-    quests: [
-      { id: 'domovina_q1', label: 'Learn 5 history words', desc: 'Complete the Domovinski Rat lesson', xp: 40, screen: 'history' },
-      { id: 'domovina_q2', label: 'Read about Operation Storm', desc: 'Complete a history reading passage', xp: 35, screen: 'readlist' },
-      { id: 'domovina_q3', label: 'Homeland pride quiz', desc: 'Score 80%+ on the history quiz', xp: 60, screen: 'mcgame' },
-    ] },
-  { id: 'bozic', name: 'Božić', icon: '🎄', color: '#0e7490', bg: '#f0f9ff', border: '#bae6fd',
-    start: [12, 1], end: [12, 31], multiplier: 2.0,
-    blurb: 'Croatian Christmas — fritule, pokloni, carols, and family traditions',
-    quests: [
-      { id: 'bozic_q1', label: 'Learn Christmas vocab', desc: 'Complete the greetings lesson', xp: 30, screen: 'lesson' },
-      { id: 'bozic_q2', label: 'Practice holiday phrases', desc: 'Complete a speaking exercise', xp: 25, screen: 'speaking' },
-      { id: 'bozic_q3', label: 'Christmas challenge', desc: 'Score 80%+ on any quiz', xp: 50, screen: 'mcgame' },
-    ] },
-];
-
-function getActiveCampaign() {
-  const now = new Date();
-  const m = now.getMonth() + 1, d = now.getDate();
-  return SEASONAL_CAMPAIGNS.find(c => {
-    const [sm, sd] = c.start, [em, ed] = c.end;
-    if (sm === em) return m === sm && d >= sd && d <= ed;
-    if (m === sm) return d >= sd;
-    if (m === em) return d <= ed;
-    return m > sm && m < em;
-  }) || null;
-}
-
+// SEASONAL_CAMPAIGNS, getActiveCampaign — imported from ../lib/appUtils.js
+// LEVEL_NARRATIVE is still used only in screen components via data.jsx barrel — keep it here:
 const LEVEL_NARRATIVE = {
   heritage: ['First Words', 'Finding Your Voice', 'Reconnecting', 'Bridging Worlds', 'Coming Home', 'Naš Čovjek', 'Naš Čovjek'],
   family:   ['Hello Family', 'Family Stories', 'Conversations', 'Deep Talks', 'Native Flow', 'Naš Čovjek', 'Naš Čovjek'],
@@ -886,19 +720,7 @@ const LEVEL_NARRATIVE = {
   fluent:   ['Beginner', 'Elementary', 'Intermediate', 'Upper-Int', 'Advanced', 'Fluent', 'Fluent'],
   partner:  ['Curious Spouse', 'Family Observer', 'Dinner Table Survivor', 'Welcome Addition', 'Part of the Family'],
 };
-
-function recordJourneyMilestone(type, meta) {
-  try {
-    const existing = JSON.parse(localStorage.getItem('nh_journey') || '[]');
-    const allowRepeat = meta && meta.allowRepeat;
-    if (!allowRepeat && existing.some(function(m) { return m.type === type; })) return;
-    existing.push(Object.assign({ type, date: new Date().toISOString() }, meta || {}));
-    localStorage.setItem('nh_journey', JSON.stringify(existing.slice(-200)));
-  } catch (_) {}
-}
-function getJourneyMilestones() {
-  try { return JSON.parse(localStorage.getItem('nh_journey') || '[]'); } catch (_) { return []; }
-}
+// recordJourneyMilestone, getJourneyMilestones — imported from ../lib/appUtils.js
 
 export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, DAILY_QUESTS, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, CROATIAN_CITIES, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, NUMCOUNT, ASPECT, FALSEFR, VOCATIVE, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, SEASONAL_CAMPAIGNS, LEVEL_NARRATIVE };
 export { _fbReady };
