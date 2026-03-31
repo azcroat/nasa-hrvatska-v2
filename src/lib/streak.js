@@ -7,7 +7,8 @@
  */
 
 const STREAK_REPAIR_KEY = 'nh_streak_repair';
-const XP_COST_REPAIR = 100; // XP cost to repair one missed day
+const XP_COST_REPAIR = 100;      // XP cost to repair one missed day
+const FREE_REPAIR_KEY = 'nh_used_free_repair'; // one-time free repair for new users
 
 function _localDateStr() {
   const d = new Date();
@@ -46,9 +47,18 @@ export function canRepairStreak() {
 
 /**
  * Returns the XP cost to repair.
+ * New users (< 5 lessons) get their first-ever repair free.
  */
 export function getRepairCost() {
-  return XP_COST_REPAIR;
+  try {
+    if (localStorage.getItem(FREE_REPAIR_KEY)) return XP_COST_REPAIR;
+    const statsKey = Object.keys(localStorage).find(k => k.startsWith('uP_'));
+    const raw = statsKey ? JSON.parse(localStorage.getItem(statsKey) || '{}') : {};
+    const lc = raw?.stats?.lc ?? raw?.st?.lc ?? 0;
+    return lc < 5 ? 0 : XP_COST_REPAIR;
+  } catch {
+    return XP_COST_REPAIR;
+  }
 }
 
 /**
@@ -85,10 +95,13 @@ export function repairStreak(currentXP) {
     streakRaw.last = today;
     localStorage.setItem('uStreak', JSON.stringify(streakRaw));
 
-    // Record that repair was used today
+    // Record that repair was used today; mark free repair as consumed
     const repairData = JSON.parse(localStorage.getItem(STREAK_REPAIR_KEY) || '{}');
     repairData.lastRepair = today;
     localStorage.setItem(STREAK_REPAIR_KEY, JSON.stringify(repairData));
+    if (!localStorage.getItem(FREE_REPAIR_KEY)) {
+      localStorage.setItem(FREE_REPAIR_KEY, '1');
+    }
 
     // Clear earn-back token (already consumed)
     try { localStorage.removeItem('nh_earn_back'); } catch {}

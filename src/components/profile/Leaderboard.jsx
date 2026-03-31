@@ -561,7 +561,22 @@ export default function Leaderboard({
             });
           })()}
           {globalUsers.length === 0 && !globalLoading && !globalError && (
-            <div className="c" style={{textAlign:"center",color:"var(--subtext)",padding:"24px"}}>No data yet.</div>
+            <div className="c" style={{textAlign:"center",padding:"28px 20px"}}>
+              <div style={{fontSize:40,marginBottom:10}}>🌍</div>
+              <div style={{fontSize:15,fontWeight:800,color:"var(--heading)",marginBottom:6}}>Be one of the first!</div>
+              <div style={{fontSize:13,color:"var(--subtext)",marginBottom:16,lineHeight:1.5}}>
+                The global leaderboard fills as more learners join. Invite a friend and claim your spot at the top.
+              </div>
+              <button
+                onClick={() => {
+                  const text = "I'm learning Croatian with Naša Hrvatska — join me! 🇭🇷 https://nasahrvatska.com?ref=invite";
+                  if (navigator.share) { navigator.share({ title: 'Naša Hrvatska', text }).catch(() => {}); }
+                  else { navigator.clipboard.writeText(text).catch(() => {}); }
+                }}
+                style={{padding:'10px 20px',borderRadius:12,border:'none',background:'#0e7490',color:'#fff',fontSize:13,fontWeight:800,cursor:'pointer',fontFamily:"'Outfit',sans-serif"}}>
+                📤 Invite a Friend
+              </button>
+            </div>
           )}
           {globalLoading && <div style={{textAlign:"center",color:"var(--subtext)",padding:"16px"}}>⏳ Loading…</div>}
           {hasMore && !globalLoading && (

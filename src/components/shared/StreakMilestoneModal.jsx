@@ -59,12 +59,12 @@ function StreakMilestoneModal({ days, onClose }) {
     return () => clearTimeout(t);
   }, [onClose, msg.color]);
 
-  const shareText = `🔥 ${days}-day Croatian streak! I'm learning Croatian with Naša Hrvatska. Naša Hrvatska — Croatian for the diaspora.`;
+  const shareText = `🔥 ${days}-day Croatian streak! I'm learning Croatian with Naša Hrvatska — Croatian for the diaspora. https://nasahrvatska.com?ref=streak`;
 
   async function handleShare() {
     if (navigator.share) {
       try {
-        await navigator.share({ title: 'Naša Hrvatska', text: shareText });
+        await navigator.share({ title: 'Naša Hrvatska', text: shareText, url: 'https://nasahrvatska.com?ref=streak' });
       } catch (_) {}
     } else {
       await navigator.clipboard.writeText(shareText).catch(() => {});

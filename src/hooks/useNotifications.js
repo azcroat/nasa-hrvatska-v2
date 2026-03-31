@@ -58,8 +58,8 @@ export function useNotifications() {
     const lastPractice = parseInt(localStorage.getItem(LAST_PRACTICE_KEY) || '0', 10);
     const hoursSince = (Date.now() - lastPractice) / 3600000;
 
-    // Only prompt if user has practiced before (has a history) and it's been > 20 hours
-    if (lastPractice === 0 || hoursSince < 20) return undefined;
+    // Only prompt if user has practiced before (has a history) and it's been > 6 hours
+    if (lastPractice === 0 || hoursSince < 6) return undefined;
 
     if (Notification.permission === 'granted') {
       showReminder();
