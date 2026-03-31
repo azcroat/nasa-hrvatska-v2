@@ -24,6 +24,13 @@ vi.mock('firebase/firestore', () => ({
   collection: vi.fn(), getDocs: vi.fn(),
   query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
 }));
+// Mock data.jsx so useSearch's dynamic import resolves with a minimal search index
+vi.mock('../data.jsx', () => ({
+  buildSearchIndex: () => [
+    { hr: 'kuća', en: 'house', type: 'vocab', go: 'lesson' },
+    { hr: 'auto', en: 'car', type: 'vocab', go: 'lesson' },
+  ],
+}));
 
 import { usePreferences } from '../hooks/usePreferences.js';
 import { useSearch } from '../hooks/useSearch.js';
@@ -99,14 +106,14 @@ describe('useSearch', () => {
     act(() => { result.current.doSearch(''); vi.runAllTimers(); });
     expect(result.current.srchR).toHaveLength(0);
   });
-  it('doSearch with known Croatian word returns results', () => {
+  it('doSearch with known Croatian word returns results', async () => {
     const { result } = renderHook(() => useSearch());
-    act(() => { result.current.doSearch('kuća'); vi.runAllTimers(); });
+    await act(async () => { result.current.doSearch('kuća'); await vi.runAllTimersAsync(); });
     expect(result.current.srchR.length).toBeGreaterThan(0);
   });
-  it('doSearch results capped at 15', () => {
+  it('doSearch results capped at 15', async () => {
     const { result } = renderHook(() => useSearch());
-    act(() => { result.current.doSearch('a'); vi.runAllTimers(); }); // very common letter
+    await act(async () => { result.current.doSearch('a'); await vi.runAllTimersAsync(); }); // very common letter
     expect(result.current.srchR.length).toBeLessThanOrEqual(15);
   });
   it('setSrchOpen controls open state', () => {

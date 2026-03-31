@@ -255,13 +255,84 @@ export async function registerMessagingServiceWorker() {
   }
 }
 
+// KV registration timestamp key — shared by subscribeToPush and registerPushWithServer
+const _REG_TS_KEY = 'nh_push_reg_ts';
+
+// ── subscribeToPush(userId) ───────────────────────────────────────────────────
+// High-level helper: request permission → subscribe to PushManager → register
+// subscription with the server. Safe to call multiple times (guarded by 85-day
+// localStorage timestamp via registerPushWithServer).
+//
+// userId: Firebase UID (string). If omitted, falls back to anonymous registration.
+export async function subscribeToPush(userId = '') {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    return { ok: false, reason: 'unsupported' };
+  }
+
+  const permission = await requestNotificationPermission();
+  if (permission !== 'granted') return { ok: false, reason: permission };
+
+  const { subscription } = await initPushNotifications();
+  if (!subscription) return { ok: false, reason: 'subscription_failed' };
+
+  try {
+    const { apiFetch } = await import('./apiFetch.js');
+    const res = await apiFetch('/api/push-subscribe', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subscription: subscription.toJSON ? subscription.toJSON() : subscription,
+        // Pass userId so the server can store it under the right KV key when
+        // the Firebase auth token isn't available (e.g. anonymous users).
+        userId: String(userId || '').slice(0, 64),
+      }),
+    });
+    if (res.ok) {
+      try { localStorage.setItem(_REG_TS_KEY, String(Date.now())); } catch {}
+      return { ok: true };
+    }
+    return { ok: false, reason: `server_${res.status}` };
+  } catch (e) {
+    console.warn('[Push] subscribeToPush failed:', e.message);
+    return { ok: false, reason: e.message };
+  }
+}
+
+// ── sendTestPush(userId) ──────────────────────────────────────────────────────
+// Debugging helper: triggers a server-side Web Push to the current user.
+// Requires CRON_SECRET to be set server-side; this client call will be rejected
+// without it — use from Cloudflare dashboard or a trusted backend context.
+//
+// In dev, you can test by calling this from the browser console after subscribing:
+//   import('/src/lib/pushNotifications.js').then(m => m.sendTestPush('YOUR_UID'))
+export async function sendTestPush(userId = '') {
+  if (!userId) { console.warn('[Push] sendTestPush: userId required'); return { ok: false }; }
+  try {
+    const { apiFetch } = await import('./apiFetch.js');
+    const res = await apiFetch('/api/push-send', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId,
+        title: '🇭🇷 Test push — Naša Hrvatska',
+        body:  'If you see this, Web Push is working! Bravo! 🎉',
+        url:   '/',
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    console.log('[Push] sendTestPush result:', data);
+    return data;
+  } catch (e) {
+    console.warn('[Push] sendTestPush error:', e.message);
+    return { ok: false, error: e.message };
+  }
+}
+
 // ── Server-side push subscription registration ────────────────────────────────
 // Registers the browser push subscription in Cloudflare KV via /api/push-subscribe.
 // Called after notification permission is granted + user is authenticated.
 // Guards with localStorage timestamp so we re-register at most every 85 days
 // (KV subscriptions expire after 90 days).
-const _REG_TS_KEY = 'nh_push_reg_ts';
-
 export async function registerPushWithServer({ streak = 0, name = '' } = {}) {
   // Skip if not supported
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) return { ok: false };

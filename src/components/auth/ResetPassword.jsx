@@ -1,5 +1,5 @@
 import React from 'react';
-import { BG_LIGHT } from '../../data.jsx';
+import { BG_LIGHT } from '../../lib/appUtils.js';
 
 const BG = BG_LIGHT;
 

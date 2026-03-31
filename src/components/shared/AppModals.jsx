@@ -11,7 +11,8 @@ import CeremonyModal from './CeremonyModal.jsx';
 import LevelUpModal from './LevelUpModal.jsx';
 import OnboardingTour from './OnboardingTour.jsx';
 import PremiumWelcomeBanner from './PremiumWelcomeBanner.jsx';
-import { speak } from '../../data.jsx';
+// speak is lazy-loaded on first use — audio.js lives in chunk-data (loaded with first screen)
+const _speakLazy = (text) => import('../../lib/audio.js').then(m => m.speak(text));
 import { trackOnboardingComplete } from '../../lib/analytics.js';
 
 const PaywallScreen = lazy(() => import('./PaywallScreen.jsx'));
@@ -61,7 +62,7 @@ export function AppModals({
             <p style={{fontSize:13,color:'var(--subtext)',marginBottom:20}}>Tap any word to hear it</p>
             <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:24}}>
               {[['Bog','Hello / Hi'],['Hvala','Thank you'],['Molim','Please'],['Da','Yes'],['Dobar dan','Good day']].map(([hr, en]) => (
-                <button key={hr} onClick={() => speak(hr)} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'12px 16px',borderRadius:12,border:'1.5px solid var(--card-b)',background:'var(--bar-bg)',cursor:'pointer',fontFamily:"'Outfit',sans-serif"}}>
+                <button key={hr} onClick={() => _speakLazy(hr)} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'12px 16px',borderRadius:12,border:'1.5px solid var(--card-b)',background:'var(--bar-bg)',cursor:'pointer',fontFamily:"'Outfit',sans-serif"}}>
                   <span style={{fontSize:16,fontWeight:800,color:'#0e7490'}}>{hr}</span>
                   <span style={{fontSize:14,color:'var(--subtext)'}}>{en}</span>
                   <span style={{fontSize:18}}>🔊</span>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { lXP, nXP, getStreak } from '../../data.jsx';
+import { lXP, nXP, getStreak } from '../../lib/appUtils.js';
 import CroatianGrb from './CroatianGrb.jsx';
 import CroatianKnight from './CroatianKnight.jsx';
 

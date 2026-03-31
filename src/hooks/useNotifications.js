@@ -47,7 +47,9 @@ export function checkNameDay(userName) {
   } catch (_) {}
 }
 
-export function useNotifications() {
+// Optional userId param: pass the Firebase UID so server-push subscriptions are
+// stored under the right KV key. Falls back to anonymous registration if omitted.
+export function useNotifications({ userId = '' } = {}) {
   useEffect(() => {
     if (!('Notification' in window)) return undefined;
 
@@ -64,9 +66,11 @@ export function useNotifications() {
     if (Notification.permission === 'granted') {
       showReminder();
       localStorage.setItem(REMINDER_DISMISSED_KEY, todayStr);
-      // Ensure subscription is registered with server (no-op if recently done)
-      import('../lib/pushNotifications.js').then(({ registerPushWithServer }) => {
-        registerPushWithServer().catch(() => {});
+      // Register for server-sent Web Push (85-day guard prevents redundant calls)
+      import('../lib/pushNotifications.js').then(({ subscribeToPush, registerPushWithServer }) => {
+        // subscribeToPush handles permission + PushManager subscription + server registration
+        // in one call. Fall back to the legacy registerPushWithServer if something fails.
+        subscribeToPush(userId).catch(() => registerPushWithServer().catch(() => {}));
       });
       return undefined;
     } else if (Notification.permission === 'default') {
@@ -77,15 +81,16 @@ export function useNotifications() {
           showReminder();
           localStorage.setItem(REMINDER_DISMISSED_KEY, todayStr);
           // Register with server now that permission is granted
-          import('../lib/pushNotifications.js').then(({ registerPushWithServer }) => {
-            registerPushWithServer().catch(() => {});
+          import('../lib/pushNotifications.js').then(({ subscribeToPush, registerPushWithServer }) => {
+            subscribeToPush(userId).catch(() => registerPushWithServer().catch(() => {}));
           });
         }
       }, 8000);
       return () => clearTimeout(t);
     }
     return undefined;
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 }
 
 // Stores the setTimeout ID for the 8 PM streak reminder so it can be cleared

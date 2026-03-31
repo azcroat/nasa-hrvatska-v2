@@ -3,7 +3,7 @@
  * Extracted from App.jsx. All family-related state lives here.
  */
 import { useState } from 'react';
-import { getLocalFamily } from '../data.jsx';
+import { getLocalFamily } from '../lib/firebase.js';
 
 export function useFamily() {
   const [famData, setFamData] = useState(() => getLocalFamily());

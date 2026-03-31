@@ -1,13 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, useReducer } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import {
-  V, LEARN_PATH,
-  BG_LIGHT, BG_DARK,
-  touchSession, isSessionExpired,
-  lvl, getSR, saveSR, getStreak,
-  earnFreeze, getDueReviews,
-  bootstrapMistakesFromSRS, recordJourneyMilestone,
-} from "./data.jsx";
+import { BG_LIGHT, BG_DARK, lvl, getStreak, earnFreeze, recordJourneyMilestone } from "./lib/appUtils.js";
+import { touchSession, isSessionExpired } from "./lib/firebase.js";
+import { getSR, saveSR, getDueReviews } from "./lib/srs.js";
 import { buildProgressSnapshot } from "./lib/progressSnapshot.js";
 import { localDateStr, weekKey } from "./lib/dateUtils.js";
 import { canRepairStreak, repairStreak } from "./lib/streak.js";
@@ -48,6 +43,9 @@ import KnightCompanion from "./components/shared/KnightCompanion.jsx";
 import AppRouter from "./components/AppRouter.jsx";
 
 // ── Module-level constants ───────────────────────────────────────────────────
+// All vocabulary category keys (V base keys + TOP100 keys from content.jsx).
+// Hardcoded to avoid importing chunk-data at startup — update if vocabulary.js keys change.
+const ALL_CATS = ["greetings","numbers","family","inlaws","colors","months","directions","shopping","conjunctions","culture","daily routine","in the classroom","commands at home","fairy tales","hobbies","health","zagreb","animals","body & face","home & rooms","clothing","weather & seasons","time & calendar","transport","questions","restaurant","places","adjectives","emotions","opposites","comparatives","professions","travel","food","kafic","verbs","fruits","vegetables","sports","holidays","imendan","personality","work","opinions","environment","society","civic","life_events","easter","At the Airport","At the Restaurant","At the Doctor","At the Beach","At the Market","Meeting People","Emergency"];
 /** @type {import('./types/index.js').Stats} */
 const DS = { xp:0,str:1,diff:'beginner',lc:0,pf:0,gc:0,sp:0,de:0,rc:0,authLoading:0,mv:0,hi:0,rs:[],ct:[],vs:[],badges:[] };
 const ICONS = { greetings:"👋",numbers:"🔢",family:"👨‍👩‍👧‍👦",food:"🍕",animals:"🐾",body:"🦴","body & face":"🦴",colors:"🎨",home:"🏠","home & rooms":"🏠",clothing:"👔",weather:"☀️","weather & seasons":"☀️",places:"📍",transport:"🚗",verbs:"💬",adjectives:"📏",time:"📅","time & calendar":"📅",months:"🗓️",directions:"🧭",emotions:"💭",professions:"💼",restaurant:"🍽️",shopping:"🛍️",travel:"✈️",health:"🏥",questions:"❓",conjunctions:"🔗",culture:"🏛️","daily routine":"🌅","in the classroom":"📖","commands at home":"🏡","fairy tales":"📜",hobbies:"🎯",zagreb:"🏙️",opposites:"🔄",comparatives:"📊",fruits:"🍎",vegetables:"🥦",sports:"⚽",holidays:"🎄",personality:"😊" };
@@ -100,7 +98,7 @@ function App() {
 
   // Bootstrap + TTS failure toast (must be before useAward declares setTtsFailedToast)
   useEffect(() => {
-    const t = setTimeout(bootstrapMistakesFromSRS, 500);
+    const t = setTimeout(() => import('./data.jsx').then(m => m.bootstrapMistakesFromSRS()), 500);
     // Defer localStorage cleanup to idle time — don't block app startup
     if (typeof requestIdleCallback !== 'undefined') {
       requestIdleCallback(pruneStaleLocalStorage, { timeout: 5000 });
@@ -222,7 +220,7 @@ function App() {
   });
 
   // ── Screen launchers ────────────────────────────────────────────────────────
-  const allCats = useMemo(() => Object.keys(V), []);
+  const allCats = ALL_CATS;
   const { resumeLesson, launchAnimLesson, launchMcGame, mcGameComplete, launchFlashcards, launchListening, launchMatch, launchSpeaking, launchPathItem, goBack } = useScreenLauncher({
     setScr, navigate, curEx, sCurEx, currentScreen,
     setStats, award,
@@ -312,12 +310,14 @@ function App() {
     return () => clearInterval(iv);
   }, [authScreen, authUser, doSyncNow]);
 
-  // Self-healing: reconstruct ct from LEARN_PATH if lost
+  // Self-healing: reconstruct ct from LEARN_PATH if lost (lazy-import keeps chunk-data off startup)
   useEffect(() => {
     if (!authUser || authScreen !== 'app' || stats.lc === 0 || stats.ct.length > 0) return;
-    const recovered = [];
-    for (const lv of LEARN_PATH) { for (const it of lv.items) { if (it.topic && recovered.length < stats.lc) recovered.push(it.topic); } }
-    if (recovered.length > 0) setStats(prev => ({ ...prev, ct: [...new Set([...prev.ct,...recovered])] }));
+    import('./data.jsx').then(({ LEARN_PATH }) => {
+      const recovered = [];
+      for (const lv of LEARN_PATH) { for (const it of lv.items) { if (it.topic && recovered.length < stats.lc) recovered.push(it.topic); } }
+      if (recovered.length > 0) setStats(prev => ({ ...prev, ct: [...new Set([...prev.ct,...recovered])] }));
+    });
   }, [authScreen, authUser, stats.lc, stats.ct.length]); // eslint-disable-line
 
   // Show new-placement for brand-new zero-progress users.

@@ -184,6 +184,12 @@ export function getDueReviews() {
       due.push(word);
     }
   }
+  // Shuffle so due words appear in a different order each session,
+  // preventing the same first word appearing repeatedly.
+  for (let i = due.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [due[i], due[j]] = [due[j], due[i]];
+  }
   return due;
 }
 

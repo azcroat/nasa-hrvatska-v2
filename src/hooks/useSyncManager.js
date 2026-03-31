@@ -12,7 +12,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   gP, lP, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbGetIdToken,
-} from '../data.jsx';
+} from '../lib/firebase.js';
 import { buildProgressSnapshot } from '../lib/progressSnapshot.js';
 import { mergeStatsFromRemote } from '../lib/mergeStatsFromRemote.js';
 
