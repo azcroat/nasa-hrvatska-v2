@@ -322,16 +322,20 @@ function App() {
     if (recovered.length > 0) setStats(prev => ({ ...prev, ct: [...new Set([...prev.ct,...recovered])] }));
   }, [authScreen, authUser, stats.lc, stats.ct.length]); // eslint-disable-line
 
-  // Show new-placement for brand-new zero-progress users
+  // Show new-placement for brand-new zero-progress users.
+  // CRITICAL: gate on _syncReady so we never redirect before Firebase data has loaded.
+  // Without this guard, returning users on a new browser get sent to placement because
+  // stats start at DS defaults (lc=0) and Firebase may take >1.2s to hydrate.
   useEffect(() => {
     if (authScreen !== 'app') return undefined;
+    if (!_syncReady) return undefined; // wait for Firebase to confirm user state
     if (currentScreen === 'welcome' || currentScreen === 'placement' || currentScreen === 'new-placement') return undefined;
     if (stats.lc === 0 && stats.xp === 0 && !localStorage.getItem('placement_done') && !localStorage.getItem('nh_placement_done') && !localStorage.getItem('onboarded')) {
       const t = setTimeout(() => setScr('new-placement'), 1200);
       return () => clearTimeout(t);
     }
     return undefined;
-  }, [authScreen, stats.lc, stats.xp, currentScreen]); // eslint-disable-line
+  }, [authScreen, _syncReady, stats.lc, stats.xp, currentScreen]); // eslint-disable-line
 
   // Weekly digest (Sunday only)
   useEffect(() => {

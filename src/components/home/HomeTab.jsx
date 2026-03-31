@@ -13,7 +13,6 @@ function getLastActivity() {
   const label = safeGetItem('nh_last_ex_label');
   return ex && label ? { ex, label } : null;
 }
-import KnightSpeech from '../shared/KnightSpeech';
 import DailyPlanCard from './DailyPlanCard.jsx';
 import AdaptiveInsightsCard from '../profile/AdaptiveInsightsCard.jsx';
 import HeroSection from './HeroSection.jsx';
@@ -287,13 +286,6 @@ export default function HomeTab({
         resumeLesson={resumeLesson}
         lastActivity={lastActivity}
         sCurEx={sCurEx}
-      />
-
-      {/* ── KNIGHT MASCOT — persistent companion, always above fold ── */}
-      <KnightSpeech
-        st={st}
-        streak={streak.count || 0}
-        level={level}
       />
 
       {/* ── HERO ── */}
