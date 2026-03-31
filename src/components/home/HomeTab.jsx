@@ -311,44 +311,82 @@ export default function HomeTab({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25 }}
                 style={{ marginBottom: 14 }}
+                data-srs-banner="1"
               >
                 <div style={{
-                  background: 'linear-gradient(135deg, #0c4a6e, #0e7490)',
-                  borderRadius: 18, padding: '14px 16px',
-                  display: 'flex', alignItems: 'center', gap: 14,
-                  boxShadow: '0 4px 20px rgba(14,116,144,.3)',
-                  position: 'relative',
-                }}
-                data-srs-banner="1">
-                  <button
-                    aria-label="Dismiss review reminder"
-                    style={{
-                      position: 'absolute', top: 8, right: 8,
-                      background: 'none', border: 'none', color: 'rgba(255,255,255,.5)',
-                      fontSize: 16, cursor: 'pointer', lineHeight: 1, padding: '2px 6px',
-                    }}
-                    onClick={(e) => { e.stopPropagation(); sessionStorage.setItem(dismissKey, '1'); e.currentTarget.closest('[data-srs-banner]').style.display = 'none'; }}
-                  >×</button>
+                  borderRadius: 18, overflow: 'hidden',
+                  boxShadow: '0 4px 20px rgba(14,116,144,.18)',
+                  border: '1.5px solid rgba(14,116,144,.2)',
+                }}>
+                  {/* ── Gradient header ── */}
                   <div style={{
-                    width: 48, height: 48, borderRadius: 14, flexShrink: 0,
-                    background: 'rgba(255,255,255,.15)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 24,
-                  }}>🧠</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 900, color: 'white', marginBottom: 2 }}>
-                      {due.length} word{due.length !== 1 ? 's' : ''} ready to review
+                    background: 'linear-gradient(135deg, #0c4a6e 0%, #0e7490 60%, #0891b2 100%)',
+                    padding: '14px 18px',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{
+                        width: 44, height: 44, borderRadius: 13, flexShrink: 0,
+                        background: 'rgba(255,255,255,.15)', border: '1.5px solid rgba(255,255,255,.3)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
+                      }}>🧠</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,.7)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 2 }}>
+                          SPACED REPETITION
+                        </div>
+                        <div style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>Words Due for Review</div>
+                      </div>
+                      <div style={{
+                        flexShrink: 0, background: 'rgba(255,255,255,.15)',
+                        border: '1.5px solid rgba(255,255,255,.25)',
+                        borderRadius: 10, padding: '4px 10px',
+                        fontSize: 12, fontWeight: 800, color: '#fff',
+                      }}>
+                        {due.length} word{due.length !== 1 ? 's' : ''}
+                      </div>
+                      <button
+                        aria-label="Dismiss review reminder"
+                        style={{
+                          flexShrink: 0, background: 'none', border: 'none',
+                          color: 'rgba(255,255,255,.5)', fontSize: 18,
+                          cursor: 'pointer', lineHeight: 1, padding: '2px 6px',
+                        }}
+                        onClick={(e) => { e.stopPropagation(); sessionStorage.setItem(dismissKey, '1'); e.currentTarget.closest('[data-srs-banner]').style.display = 'none'; }}
+                      >×</button>
                     </div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,.75)', marginBottom: 10 }}>
-                      Spaced repetition · {masteryPct}% mastered
+
+                    {/* Mastery progress bar */}
+                    <div style={{ marginTop: 10 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,.6)' }}>
+                          Vocabulary mastery
+                        </span>
+                        <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,.8)' }}>
+                          {masteryPct}%
+                        </span>
+                      </div>
+                      <div style={{ height: 5, background: 'rgba(255,255,255,.2)', borderRadius: 3, overflow: 'hidden' }}>
+                        <div style={{
+                          height: '100%', width: masteryPct + '%',
+                          background: 'rgba(255,255,255,.75)',
+                          borderRadius: 3, transition: 'width .4s ease',
+                        }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── Card body ── */}
+                  <div style={{ background: 'var(--card)', padding: '12px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                    <div style={{ fontSize: 12, color: 'var(--subtext)', fontWeight: 600, lineHeight: 1.4 }}>
+                      Review now to lock words into long-term memory.
                     </div>
                     <button
                       onClick={() => setScr('review')}
                       style={{
-                        background: 'white', color: '#0e7490', border: 'none',
-                        borderRadius: 10, padding: '7px 16px',
+                        flexShrink: 0, background: '#0e7490', color: '#fff', border: 'none',
+                        borderRadius: 10, padding: '8px 18px',
                         fontSize: 13, fontWeight: 800, cursor: 'pointer',
                         fontFamily: "'Outfit', sans-serif",
+                        boxShadow: '0 3px 10px rgba(14,116,144,.35)',
                       }}
                     >
                       Review Now →
