@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
 import { PHOTO_CREDITS } from '../../lib/photos';
 import { MAPPLACES } from '../../data/cultural/geography.js';
@@ -82,6 +82,14 @@ const DID_YOU_KNOW = [
   { fact: 'Vinkovci is the oldest continuously inhabited town in Europe — over 8,300 years old.', emoji: '🌍' },
 ];
 
+const KNIGHT_MESSAGES = [
+  { mood: 'happy',       text: 'Dobrodošli! New content rotates every day — a fresh city, phrase, and cultural fact just for you.' },
+  { mood: 'thinking',    text: 'Try the Stories tab — real letters from Baka Marija. Authentic Croatian the way families actually write.' },
+  { mood: 'encouraging', text: 'The Media tab has Croatian music and film. Listening is the fastest path to fluency — don\'t skip it!' },
+  { mood: 'ready',       text: 'You can save any word from Baka\'s letters straight to your vocabulary journal. Tap "+ Save word" on any tile.' },
+  { mood: 'celebrating', text: 'Svaki dan novi grad! Every day reveals a different Croatian city. Keep coming back.' },
+];
+
 export default function DiscoverTab() {
   const { setScr } = useApp();
   const dailyCity = useMemo(getDailyCity, []);
@@ -89,6 +97,22 @@ export default function DiscoverTab() {
   const dailyPhrase = DAILY_PHRASES[dayOfYear % DAILY_PHRASES.length];
   const dailyFact = DID_YOU_KNOW[dayOfYear % DID_YOU_KNOW.length];
   const heroCity = HERO_CITIES[dayOfYear % HERO_CITIES.length];
+
+  // Rotating knight message
+  const [kMsgIdx, setKMsgIdx] = useState(0);
+  const [kMsgVisible, setKMsgVisible] = useState(true);
+  const kTimerRef = useRef(null);
+  useEffect(() => {
+    kTimerRef.current = setInterval(() => {
+      setKMsgVisible(false);
+      setTimeout(() => {
+        setKMsgIdx(i => (i + 1) % KNIGHT_MESSAGES.length);
+        setKMsgVisible(true);
+      }, 350);
+    }, 5500);
+    return () => clearInterval(kTimerRef.current);
+  }, []);
+  const kMsg = KNIGHT_MESSAGES[kMsgIdx];
 
   return (
     <div style={{ paddingBottom: 16 }}>
@@ -167,13 +191,35 @@ export default function DiscoverTab() {
         <div style={{ fontSize: 11, fontWeight: 700, color: '#b45309' }}>Read the full letter → Stories tab ↗</div>
       </div>
 
-      {/* ── KNIGHT + KNIGHT WELCOME ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: 'var(--card)', borderRadius: 12, marginBottom: 12 }}>
-        <CroatianKnight size={46} mood="ready" style={{ flexShrink: 0 }} />
-        <div style={{ fontSize: 12, color: 'var(--subtext)', lineHeight: 1.55 }}>
-          <strong style={{ color: 'var(--heading)', display: 'block', marginBottom: 2 }}>Dobrodošli u Hrvatsku! 🇭🇷</strong>
-          Use the tabs above to explore culture, music, film, and real Croatian stories.
-          New content rotates daily — come back tomorrow for a new city and phrase.
+      {/* ── HRVOJE COMPANION — rotating contextual messages ── */}
+      <div style={{
+        display: 'flex', alignItems: 'flex-start', gap: 14,
+        padding: '14px 16px', background: 'var(--card)',
+        border: '1px solid var(--card-b)', borderRadius: 16, marginBottom: 12,
+      }}>
+        <CroatianKnight size={58} mood={kMsg.mood} style={{ flexShrink: 0, marginTop: 2 }} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 10, fontWeight: 900, color: 'var(--info)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 5 }}>
+            Hrvoje kaže
+          </div>
+          <div style={{
+            fontSize: 12, color: 'var(--body)', lineHeight: 1.65,
+            opacity: kMsgVisible ? 1 : 0,
+            transition: 'opacity .35s ease',
+            minHeight: 38,
+          }}>
+            {kMsg.text}
+          </div>
+          {/* progress dots */}
+          <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
+            {KNIGHT_MESSAGES.map((_, i) => (
+              <div key={i} style={{
+                width: i === kMsgIdx ? 14 : 5, height: 5, borderRadius: 3,
+                background: i === kMsgIdx ? 'var(--info)' : 'var(--card-b)',
+                transition: 'width .35s ease, background .35s ease',
+              }} />
+            ))}
+          </div>
         </div>
       </div>
 
