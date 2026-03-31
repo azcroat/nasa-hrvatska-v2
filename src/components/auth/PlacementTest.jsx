@@ -62,6 +62,8 @@ export default function PlacementTest({ onComplete }) {
     const level = calculatePlacement(lc);
     setPlacedLevel(level);
     setDone(true);
+    // Mark done immediately so a crash/close before the CTA doesn't restart the test
+    localStorage.setItem('nh_placement_done', 'true');
   }
 
   function handleAnswer(i) {

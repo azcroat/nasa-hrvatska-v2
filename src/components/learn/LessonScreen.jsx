@@ -338,7 +338,7 @@ export default function LessonScreen({
                 awardFn(Math.round(p * 30) + 5 + perfectBonus, p >= 0.7);
                 markQuest('grammar');
                 if (p === 1) markQuest('perfect');
-                setSt(s => ({ ...s, lc: s.lc + 1, pf: p === 1 ? s.pf + 1 : s.pf, rs: [...s.rs, p], ct: [...new Set([...s.ct, lt])] }));
+                setSt(s => ({ ...s, lc: s.lc + 1, pf: p === 1 ? s.pf + 1 : s.pf, rs: [...s.rs, String(Math.round(p * 100))], ct: [...new Set([...s.ct, lt])] }));
                 playFanfare();
                 sLp("result");
               }
