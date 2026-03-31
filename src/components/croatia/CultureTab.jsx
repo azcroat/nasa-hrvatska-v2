@@ -24,7 +24,7 @@ export default function CultureTab({ sCurEx }) {
         <div className="section-hdr">
           <div className="section-hdr-icon" style={{background:'rgba(212,0,48,.12)'}}>🏰</div>
           <div className="section-hdr-text">
-            <div className="section-hdr-title">History &amp; Regions</div>
+            <div className="section-hdr-title" role="heading" aria-level="2">History &amp; Regions</div>
             <div className="section-hdr-sub">Journey through Croatia's past and places</div>
           </div>
           <div className="section-hdr-badge">12 entries</div>
@@ -106,7 +106,7 @@ export default function CultureTab({ sCurEx }) {
         <div className="section-hdr">
           <div className="section-hdr-icon" style={{background:'rgba(22,163,74,.12)'}}>🏘️</div>
           <div className="section-hdr-text">
-            <div className="section-hdr-title">Croatian Life</div>
+            <div className="section-hdr-title" role="heading" aria-level="2">Croatian Life</div>
             <div className="section-hdr-sub">Everyday vocabulary for real situations</div>
           </div>
           <div className="section-hdr-badge">12 topics</div>
@@ -165,7 +165,7 @@ export default function CultureTab({ sCurEx }) {
         <div className="section-hdr">
           <div className="section-hdr-icon" style={{background:'rgba(245,158,11,.12)'}}>📰</div>
           <div className="section-hdr-text">
-            <div className="section-hdr-title">Stories &amp; News</div>
+            <div className="section-hdr-title" role="heading" aria-level="2">Stories &amp; News</div>
             <div className="section-hdr-sub">Live the language through real Croatian stories</div>
           </div>
         </div>
@@ -308,7 +308,7 @@ export default function CultureTab({ sCurEx }) {
         <div className="section-hdr">
           <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>🌊</div>
           <div className="section-hdr-text">
-            <div className="section-hdr-title">Immersion</div>
+            <div className="section-hdr-title" role="heading" aria-level="2">Immersion</div>
             <div className="section-hdr-sub">AI conversation + curated media from A1 to C2</div>
           </div>
         </div>
@@ -350,7 +350,7 @@ export default function CultureTab({ sCurEx }) {
         <div className="section-hdr">
           <div className="section-hdr-icon" style={{background:'rgba(124,58,237,.12)'}}>🎭</div>
           <div className="section-hdr-text">
-            <div className="section-hdr-title">Language &amp; Culture</div>
+            <div className="section-hdr-title" role="heading" aria-level="2">Language &amp; Culture</div>
             <div className="section-hdr-sub">Deepen your connection to Croatian identity</div>
           </div>
           <div className="section-hdr-badge">4 topics</div>
@@ -397,7 +397,7 @@ export default function CultureTab({ sCurEx }) {
         <div className="section-hdr">
           <div className="section-hdr-icon" style={{background:'rgba(14,116,144,.12)'}}>🗺️</div>
           <div className="section-hdr-text">
-            <div className="section-hdr-title">Explore Croatia</div>
+            <div className="section-hdr-title" role="heading" aria-level="2">Explore Croatia</div>
             <div className="section-hdr-sub">Cities, parks, beaches &amp; islands</div>
           </div>
         </div>

@@ -53,13 +53,10 @@ export async function blockFirebase(page) {
  * Mock the MyMemory translation API used by Quick Translate.
  */
 export async function mockTranslate(page, translatedText = 'Dobar dan') {
-  await page.route('**/api.mymemory.translated.net/**', route => route.fulfill({
+  await page.route('**/api/translate', route => route.fulfill({
     status: 200,
     contentType: 'application/json',
-    body: JSON.stringify({
-      responseStatus: 200,
-      responseData: { translatedText },
-    }),
+    body: JSON.stringify({ translation: translatedText }),
   }));
 }
 

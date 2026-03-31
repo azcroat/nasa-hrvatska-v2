@@ -1,5 +1,4 @@
 import React from 'react';
-import { getProverbOfDay, getHistFact } from '../../data.jsx';
 import { useApp } from '../../context/AppContext.jsx';
 import PhotoHero from '../shared/PhotoHero';
 import { PHOTOS } from '../../lib/photos';
@@ -7,8 +6,6 @@ import CroatianKnight from '../shared/CroatianKnight';
 
 export default function DiscoverTab() {
   const { setScr } = useApp();
-  const proverb = getProverbOfDay();
-  const histFact = getHistFact();
 
   return (
     <React.Fragment>
@@ -53,27 +50,6 @@ export default function DiscoverTab() {
         </div>
       </button>
 
-      {/* ── PROVERB OF THE DAY ── */}
-      <div style={{
-        background:'var(--card)', border:'1px solid var(--card-b)',
-        borderRadius:14, padding:'14px 16px', marginBottom:12,
-        borderLeft:'3px solid #b45309',
-      }}>
-        <div style={{fontSize:10,fontWeight:900,color:'#b45309',letterSpacing:'.1em',textTransform:'uppercase',marginBottom:6}}>📜 Proverb of the Day</div>
-        <div style={{fontSize:'var(--text-sm)',fontWeight:800,color:'var(--heading)',marginBottom:4,lineHeight:1.4}}>{proverb.hr}</div>
-        <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',fontStyle:'italic',lineHeight:1.4}}>{proverb.en}</div>
-      </div>
-
-      {/* ── HISTORICAL FACT OF THE DAY ── */}
-      <div style={{
-        background:'var(--card)', border:'1px solid var(--card-b)',
-        borderRadius:14, padding:'14px 16px', marginBottom:16,
-        borderLeft:'3px solid var(--lavender, #7c3aed)',
-      }}>
-        <div style={{fontSize:10,fontWeight:900,color:'var(--lavender, #7c3aed)',letterSpacing:'.1em',textTransform:'uppercase',marginBottom:6}}>📅 Did You Know?</div>
-        <div style={{fontSize:'var(--text-sm)',fontWeight:800,color:'var(--heading)',marginBottom:4,lineHeight:1.4}}>{histFact.hr}</div>
-        <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',fontStyle:'italic',lineHeight:1.4}}>{histFact.en}</div>
-      </div>
     </React.Fragment>
   );
 }

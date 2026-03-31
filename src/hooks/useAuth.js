@@ -254,7 +254,38 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         const needsNav = !earlyRestored || authScreenRef.current === 'login' || authScreenRef.current === 'register' || authScreenRef.current === 'loading';
         if (needsNav) {
           earlyRestored = true;
-          cb.current.onSignedIn({ user, progress: fp || localP });
+          // Always merge local + remote so local progress is never discarded when
+          // Firebase has equal or older data (e.g. autosave to Firebase failed during
+          // the session, or the sign-out flush didn't complete before the read).
+          // Without this, fp || localP picks stale Firebase over fresh local data.
+          var navProgress = fp || localP;
+          if (fp && localP) {
+            var _fpSt = fp.stats || fp.st || {};
+            var _lpSt = localP.stats || localP.st || {};
+            var _safeMerged = {
+              xp:  Math.max(_lpSt.xp  || 0, _fpSt.xp  || 0),
+              lc:  Math.max(_lpSt.lc  || 0, _fpSt.lc  || 0),
+              gc:  Math.max(_lpSt.gc  || 0, _fpSt.gc  || 0),
+              sp:  Math.max(_lpSt.sp  || 0, _fpSt.sp  || 0),
+              de:  Math.max(_lpSt.de  || 0, _fpSt.de  || 0),
+              rc:  Math.max(_lpSt.rc  || 0, _fpSt.rc  || 0),
+              str: Math.max(_lpSt.str || 0, _fpSt.str || 0),
+              pf:  Math.max(_lpSt.pf  || 0, _fpSt.pf  || 0),
+              mv:  Math.max(_lpSt.mv  || 0, _fpSt.mv  || 0),
+              hi:  Math.max(_lpSt.hi  || 0, _fpSt.hi  || 0),
+              ct:  [...new Set([...(_lpSt.ct  || []), ...(_fpSt.ct  || [])])],
+              vs:  [...new Set([...(_lpSt.vs  || []), ...(_fpSt.vs  || [])])],
+              badges: [...new Set([...(_lpSt.badges || []), ...(_fpSt.badges || [])])],
+              diff: (function() {
+                var DO = { beginner: 0, intermediate: 1, advanced: 2 };
+                var lo = DO[_lpSt.diff] !== undefined ? DO[_lpSt.diff] : -1;
+                var fo = DO[_fpSt.diff] !== undefined ? DO[_fpSt.diff] : -1;
+                return lo >= fo ? (_lpSt.diff || _fpSt.diff) : (_fpSt.diff || _lpSt.diff);
+              })(),
+            };
+            navProgress = Object.assign({}, fp, { stats: Object.assign({}, _fpSt, _safeMerged) });
+          }
+          cb.current.onSignedIn({ user, progress: navProgress });
         }
         setAuthScreen('app');
 
