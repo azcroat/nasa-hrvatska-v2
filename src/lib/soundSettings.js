@@ -4,20 +4,22 @@ const HAPTIC_KEY = 'nh_haptic_enabled';
 const VOICE_KEY  = 'nh_voice_pref';
 
 // Voice preference options:
-//   'auto'      — server decides (Azure GabrijelaNeural for Croatian, Charlotte otherwise)
-//   'gabrijela' — always Azure hr-HR-GabrijelaNeural (native Croatian, slightly robotic)
-//   'charlotte' — always ElevenLabs Charlotte (natural/modern, slight non-native accent)
+//   'gabrijela' — Azure hr-HR-GabrijelaNeural (native Croatian, phonemically accurate) [DEFAULT]
+//   'charlotte' — ElevenLabs Charlotte (natural/modern, slight non-native accent on Croatian)
+//   'auto'      — legacy: Azure for Croatian diacritics, Charlotte otherwise
 export function getVoicePreference() {
   try {
     const v = localStorage.getItem(VOICE_KEY);
-    return (v === 'gabrijela' || v === 'charlotte') ? v : 'auto';
-  } catch { return 'auto'; }
+    // 'charlotte' is an explicit opt-in; everything else (including 'auto' and unset) → gabrijela
+    return v === 'charlotte' ? 'charlotte' : 'gabrijela';
+  } catch { return 'gabrijela'; }
 }
 export function setVoicePreference(val) {
   try {
-    if (val === 'gabrijela' || val === 'charlotte') {
+    if (val === 'charlotte') {
       localStorage.setItem(VOICE_KEY, val);
     } else {
+      // gabrijela is the default — no need to store it
       localStorage.removeItem(VOICE_KEY);
     }
   } catch {}

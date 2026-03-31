@@ -20,13 +20,13 @@ describe('soundSettings — preferences persistence', () => {
 
   // ── getVoicePreference / setVoicePreference ───────────────────────────────
 
-  it('returns auto when nothing stored', () => {
-    expect(getVoicePreference()).toBe('auto');
+  it('returns gabrijela when nothing stored', () => {
+    expect(getVoicePreference()).toBe('gabrijela');
   });
 
-  it('returns auto for unrecognised stored value', () => {
+  it('returns gabrijela for unrecognised stored value', () => {
     localStorage.setItem('nh_voice_pref', 'unknown_value');
-    expect(getVoicePreference()).toBe('auto');
+    expect(getVoicePreference()).toBe('gabrijela');
   });
 
   it('returns gabrijela after setVoicePreference("gabrijela")', () => {
@@ -39,18 +39,18 @@ describe('soundSettings — preferences persistence', () => {
     expect(getVoicePreference()).toBe('charlotte');
   });
 
-  it('reverts to auto when setVoicePreference called with auto', () => {
-    setVoicePreference('gabrijela');
+  it('reverts to gabrijela when setVoicePreference called with auto', () => {
+    setVoicePreference('charlotte');
     setVoicePreference('auto');
-    // 'auto' removes the key — getVoicePreference returns 'auto' as default
-    expect(getVoicePreference()).toBe('auto');
+    // 'auto' removes the key — getVoicePreference returns 'gabrijela' as default
+    expect(getVoicePreference()).toBe('gabrijela');
     expect(localStorage.getItem('nh_voice_pref')).toBeNull();
   });
 
-  it('reverts to auto when setVoicePreference called with invalid value', () => {
+  it('reverts to gabrijela when setVoicePreference called with invalid value', () => {
     setVoicePreference('charlotte');
     setVoicePreference('invalid');
-    expect(getVoicePreference()).toBe('auto');
+    expect(getVoicePreference()).toBe('gabrijela');
   });
 
   it('persists gabrijela across get calls', () => {
@@ -134,10 +134,10 @@ describe('soundSettings — preferences persistence', () => {
   it('clearLS resets all preferences to defaults', () => {
     setSoundEnabled(false);
     setHapticEnabled(false);
-    setVoicePreference('gabrijela');
+    setVoicePreference('charlotte');
     clearLS();
     expect(isSoundEnabled()).toBe(true);
     expect(isHapticEnabled()).toBe(true);
-    expect(getVoicePreference()).toBe('auto');
+    expect(getVoicePreference()).toBe('gabrijela');
   });
 });
