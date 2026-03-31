@@ -236,9 +236,8 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
         </div>
         <div style={{display:'flex',gap:6}}>
           {[
-            { id:'auto',      label:'Auto',       desc:'Smart — native for Croatian, natural for English' },
-            { id:'gabrijela', label:'Gabrijela',  desc:'Azure neural — native Croatian pronunciation' },
-            { id:'charlotte', label:'Charlotte',  desc:'ElevenLabs — modern natural voice' },
+            { id:'gabrijela', label:'Gabrijela',  desc:'Azure neural — native Croatian pronunciation (default)' },
+            { id:'charlotte', label:'Charlotte',  desc:'ElevenLabs — modern natural voice, slight non-native accent on Croatian' },
           ].map(v => (
             <button
               key={v.id}
@@ -256,9 +255,8 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
           ))}
         </div>
         <div style={{fontSize:10,color:'var(--subtext)',marginTop:6,lineHeight:1.4}}>
-          {voicePref === 'gabrijela' ? '📌 Always uses Azure hr-HR-GabrijelaNeural — phonemically accurate, great for heritage learners' :
-           voicePref === 'charlotte' ? '📌 Always uses ElevenLabs Charlotte — natural modern voice, slight non-native accent on Croatian' :
-           '📌 Auto: Gabrijela for Croatian text, Charlotte for English — best of both worlds'}
+          {voicePref === 'charlotte' ? '📌 ElevenLabs Charlotte — natural modern voice, slight non-native accent on Croatian' :
+           '📌 Azure hr-HR-GabrijelaNeural — native Croatian pronunciation, phonemically accurate'}
         </div>
       </div>
 
