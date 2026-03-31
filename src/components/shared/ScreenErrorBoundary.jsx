@@ -10,7 +10,7 @@ import { reportError } from '../../lib/errorReporter.js';
 export default class ScreenErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, retries: 0 };
   }
 
   static getDerivedStateFromError(error) {
@@ -48,7 +48,13 @@ export default class ScreenErrorBoundary extends React.Component {
           <div style={{ display: 'flex', gap: 10, marginTop: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
             <button
               className="b bp"
-              onClick={() => this.setState({ hasError: false, error: null })}
+              onClick={() => {
+                if (this.state.retries >= 1) {
+                  window.location.reload();
+                } else {
+                  this.setState({ hasError: false, error: null, retries: this.state.retries + 1 });
+                }
+              }}
             >
               Try Again
             </button>
