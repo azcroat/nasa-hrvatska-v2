@@ -76,11 +76,11 @@ export default function HeroSection({
   const [streakRestored, setStreakRestored] = useState(false);
   const [streakRestoreMsg, setStreakRestoreMsg] = useState('');
 
-  // Collapsible hero: new users see full, returning users see compact by default
+  // Hero is always expanded by default — users can still collapse it manually
   const [heroExpanded, setHeroExpanded] = useState(() => {
     const saved = localStorage.getItem('nh_hero_expanded');
     if (saved !== null) return saved === '1';
-    return (st.lc || 0) === 0; // new users: expanded; returning: compact
+    return true; // default expanded for all users
   });
   const toggleHero = () => {
     const next = !heroExpanded;
