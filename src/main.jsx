@@ -33,7 +33,7 @@ if (import.meta.env.VITE_SENTRY_DSN) {
         if (event.contexts) {
           event.contexts = event.contexts.trace ? { trace: event.contexts.trace } : {};
         }
-        if (event.breadcrumbs?.values) {
+        if (Array.isArray(event.breadcrumbs?.values)) {
           const bc = /** @type {any} */ (event.breadcrumbs);
           bc.values = bc.values
             .filter(b => b.category === 'web-vitals' || b.category === 'navigation')
