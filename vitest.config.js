@@ -21,6 +21,7 @@ export default defineConfig({
         // Firebase integration — requires live Firestore/Auth (covered by E2E)
         'src/lib/firebase.js',
         'src/hooks/useAuth.js',
+        'src/hooks/useSyncManager.js',
         // Browser-only APIs — untestable in jsdom without heavy mocking
         'src/lib/audio.js',
         'src/lib/crypto.js',
