@@ -199,33 +199,34 @@ export default function HomeTab({
         <GoalSetterModal onComplete={() => setShowGoalModal(false)} />
       )}
 
-      {/* ── FLOATING FEEDBACK BUTTON ── always visible, positioned above tab bar */}
+      {/* ── FLOATING FEEDBACK PILL ── labeled so users know exactly what it does */}
       <button
         onClick={() => setScr('contact')}
-        aria-label="Send feedback or report a bug"
-        title="Feedback & Bug Reports"
+        aria-label="Report a bug or send feedback"
         style={{
           position: 'fixed',
           bottom: 80,
-          right: 16,
-          width: 52,
-          height: 52,
-          borderRadius: '50%',
+          right: 12,
+          height: 36,
+          paddingLeft: 12,
+          paddingRight: 14,
+          borderRadius: 18,
           background: 'var(--card)',
           border: '1.5px solid var(--card-b)',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.13)',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 22,
+          gap: 6,
           zIndex: 99,
           transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+          fontFamily: "'Outfit', sans-serif",
         }}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.12)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.22)'; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.15)'; }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.06)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.18)'; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.13)'; }}
       >
-        💬
+        <span style={{ fontSize: 15 }}>🐛</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--subtext)', letterSpacing: '.01em' }}>Report a Bug</span>
       </button>
 
       {/* ── GUEST SAVE-PROGRESS BANNER ── */}

@@ -316,6 +316,22 @@ export default function StatsTab({ onShowPrestigeModal, onSyncNow }) {
         ))}
       </div>
 
+      {/* ── REPORT A BUG ── visible shortcut so users don't have to hunt through Settings */}
+      <button onClick={() => setScr('contact')} style={{
+        display: 'flex', alignItems: 'center', gap: 12, width: '100%',
+        padding: '13px 14px', marginTop: 8, marginBottom: 24,
+        background: 'rgba(220,38,38,0.05)',
+        border: '1.5px solid rgba(220,38,38,0.18)',
+        borderRadius: 12, cursor: 'pointer', textAlign: 'left',
+      }}>
+        <span style={{ fontSize: 20 }}>🐛</span>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#dc2626' }}>Report a Bug</div>
+          <div style={{ fontSize: 11, color: 'var(--text-2)' }}>Something not working? Let us know.</div>
+        </div>
+        <span style={{ marginLeft: 'auto', color: 'rgba(220,38,38,0.5)', fontSize: 14 }}>›</span>
+      </button>
+
     </React.Fragment>
   );
 }
