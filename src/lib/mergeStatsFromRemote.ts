@@ -7,18 +7,30 @@
  *   3. App.jsx onSignedIn (isHydrate + normal)
  *
  * Rules:
- *   - xp, lc, gc: take Math.max (never decrease)
- *   - ct, vs: union (never lose completed topics/screens)
+ *   - xp, lc, gc, sp, de, rc, str: take Math.max (never decrease)
+ *   - diff: take the higher ordinal (beginner < intermediate < advanced) — never regress CEFR level
+ *   - ct, vs, badges: union (never lose completed topics/screens)
  *   - all other fields: take remote value (sanitized), falling back to DS default
  */
 import type { Stats } from '../types/index.js';
 import { sanitizeStats } from './sanitizeStats.js';
+
+const DIFF_ORDER: Record<string, number> = { beginner: 0, intermediate: 1, advanced: 2 };
+
+function higherDiff(a: string | undefined, b: string | undefined, fallback: string): Stats['diff'] {
+  const ao = DIFF_ORDER[a ?? ''] ?? -1;
+  const bo = DIFF_ORDER[b ?? ''] ?? -1;
+  const winner = ao >= bo ? a : b;
+  return (winner && winner in DIFF_ORDER ? winner : fallback) as Stats['diff'];
+}
 
 export function mergeStatsFromRemote(prev: Stats, rawRemoteSt: unknown, ds: Stats): Stats {
   const remoteSt = sanitizeStats(rawRemoteSt);
   return {
     ...ds,
     ...remoteSt,
+    // diff: always take the highest level seen — never let a stale remote value regress CEFR
+    diff: higherDiff(prev.diff, remoteSt.diff, ds.diff),
     ct: [...new Set([...(prev.ct || []), ...(remoteSt.ct || [])])],
     vs: [...new Set([...(prev.vs || []), ...(remoteSt.vs || [])])],
     badges: [...new Set([...(prev.badges || []), ...(remoteSt.badges || [])])],
