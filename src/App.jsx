@@ -23,7 +23,6 @@ import { useAuth } from "./hooks/useAuth.js";
 import { useFamily } from "./hooks/useFamily.js";
 import { useJournal } from "./hooks/useJournal.js";
 import { useDaily } from "./hooks/useDaily.js";
-import { useTranslator } from "./hooks/useTranslator.js";
 import { useNotifications, checkNameDay, scheduleStreakReminder } from "./hooks/useNotifications.js";
 import { useSubscription, grantFreeAnnual, getSubscriptionStatus } from "./hooks/useSubscription.js";
 import { useAppScreenState } from "./hooks/useAppScreenState.js";
@@ -150,8 +149,6 @@ function App() {
 
   // ── Award / gamification ────────────────────────────────────────────────────
   const { award, comebackBonus, setComebackBonus, showCelebration, setShowCelebration, celebXP, setCelebXP, streakMilestone, setStreakMilestone, ceremonyType, setCeremonyType, levelUpData, setLevelUpData, freezeUsedToast, setFreezeUsedToast, earnBackPrompt, setEarnBackPrompt, streakRestoredCount, setStreakRestoredCount, ttsFailedToast, setTtsFailedToast, showXP, xpA, nB, sB } = useAward({ curEx, stats, setStats });
-
-  const { tDir, setTDir: sTDir, tIn, setTIn: sTIn, tOut, tL, doTr } = useTranslator();
 
   // ── applyRemoteProgress: merge Firestore snapshot into local state ──────────
   // Defined before useAuth so it can be passed to onSignedIn.
@@ -421,8 +418,6 @@ function App() {
     isPremium, refreshSub, requirePremium,
     // Search
     srchQ, setSrchQ, srchR, srchOpen, setSrchOpen, doSearch,
-    // Translator
-    tDir, sTDir, tIn, sTIn, tOut, tL, doTr,
     // Family (extended)
     famMembers, setFamMembers, famLoading, setFamLoading,
     famName, setFamName, famCode, setFamCode,
@@ -447,7 +442,6 @@ function App() {
     jWords, setJWords, famData, setFamData,
     isPremium, refreshSub, requirePremium,
     srchQ, setSrchQ, srchR, srchOpen, setSrchOpen, doSearch,
-    tDir, sTDir, tIn, sTIn, tOut, tL, doTr,
     famMembers, setFamMembers, famLoading, setFamLoading,
     famName, setFamName, famCode, setFamCode,
     famErr, setFamErr, famTab, setFamTab,
