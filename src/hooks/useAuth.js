@@ -216,8 +216,25 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
           const remoteIsNewer = fpTs > lpTs || (!fpTs && !lpTs && fpXP >= lpXP);
 
           if (remoteIsNewer) {
-            lP(k, fp); // cache locally — lP skips the Firestore write to avoid snapshot loop
-            cb.current.onSignedIn({ user, progress: fp, isHydrate: true });
+            // Merge stats before caching locally — prevents raw Firestore snapshot
+            // from overwriting higher local values (e.g. XP earned since last cloud save).
+            const fpSt = (fp.stats || fp.st || {});
+            const lpSt = (lp && (lp.stats || lp.st)) || {};
+            const mergedStats = {
+              ...fpSt,
+              xp:  Math.max(lpSt.xp  || 0, fpSt.xp  || 0),
+              lc:  Math.max(lpSt.lc  || 0, fpSt.lc  || 0),
+              gc:  Math.max(lpSt.gc  || 0, fpSt.gc  || 0),
+              sp:  Math.max(lpSt.sp  || 0, fpSt.sp  || 0),
+              de:  Math.max(lpSt.de  || 0, fpSt.de  || 0),
+              rc:  Math.max(lpSt.rc  || 0, fpSt.rc  || 0),
+              str: Math.max(lpSt.str || 0, fpSt.str || 0),
+              ct:  [...new Set([...(lpSt.ct  || []), ...(fpSt.ct  || [])])],
+              vs:  [...new Set([...(lpSt.vs  || []), ...(fpSt.vs  || [])])],
+              badges: [...new Set([...(lpSt.badges || []), ...(fpSt.badges || [])])],
+            };
+            lP(k, { ...fp, stats: mergedStats }); // cache locally with merged stats
+            cb.current.onSignedIn({ user, progress: { ...fp, stats: mergedStats }, isHydrate: true });
             cb.current.applyRemoteProgress(fp);
           }
         }
