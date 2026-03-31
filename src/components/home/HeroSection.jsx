@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { lXP, nXP, earnFreeze, getStreakFreezes, LEVEL_NARRATIVE } from '../../data.jsx';
 import { useApp } from '../../context/AppContext.jsx';
@@ -13,6 +13,145 @@ const LEVEL_PALETTE = [
   { grad: 'linear-gradient(135deg,#4c1d95,#6d28d9)', light: '#ede9fe', text: '#4c1d95', border: '#c4b5fd' },
   { grad: 'linear-gradient(135deg,#7f1d1d,#dc2626)', light: '#fee2e2', text: '#7f1d1d', border: '#fca5a5' },
 ];
+
+// ─── Knight speech helpers (merged from KnightSpeech) ────────────────────────
+function _pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function TypewriterText({ text, speed = 13 }) {
+  const [shown, setShown] = useState('');
+  useEffect(() => {
+    setShown('');
+    if (!text) return;
+    let i = 0;
+    const id = setInterval(() => { i++; setShown(text.slice(0, i)); if (i >= text.length) clearInterval(id); }, speed);
+    return () => clearInterval(id);
+  }, [text, speed]);
+  const done = shown.length >= (text?.length || 0);
+  return (
+    <>
+      {shown}
+      {!done && (
+        <span style={{
+          display: 'inline-block', width: 2, height: '0.85em',
+          background: 'rgba(255,255,255,0.85)', verticalAlign: 'text-bottom', marginLeft: 1,
+          animation: 'lk-blink .65s step-end infinite',
+        }} />
+      )}
+    </>
+  );
+}
+
+const QUICK_GRAMMAR = [
+  { mood: 'thinking', text: 'Verb aspect: "piti" (drink, ongoing) vs "popiti" (drink, finished). This one distinction is the heart of Croatian. Master it and you\'ll sound native.' },
+  { mood: 'thinking', text: 'Seven cases — but three do most of the work. Nominative (subject), Accusative (object), Dative (giving to someone). Start there.' },
+  { mood: 'thinking', text: 'Clitic pronouns always land in second position. "Volim te" — never "Te volim." Your brain resists at first. Repetition wins.' },
+  { mood: 'thinking', text: '"Grad" is masculine, "zemlja" is feminine, "more" is neuter. Adjectives change form to match. The patterns click faster than you think.' },
+  { mood: 'thinking', text: 'Infinitives end in -ti or -ći. "Ići" (go), "raditi" (work), "moći" (be able). These three roots unlock hundreds of verb forms.' },
+];
+const QUICK_CULTURE = [
+  { mood: 'happy', text: '"Cravat" comes from "Hrvat" — Croatian soldiers introduced the necktie to Europe in the 17th century. Croatia gave the world fashion.' },
+  { mood: 'happy', text: 'The Pula Arena is one of the six largest Roman amphitheatres still standing — built in 27 BC. Concerts happen inside it every summer.' },
+  { mood: 'happy', text: 'Hvar gets 2,726 sunshine hours per year — more than Barcelona. The lavender fields bloom in June.' },
+  { mood: 'happy', text: 'Nikola Tesla was born in Smiljan, Croatia. He rewired how the entire world uses electricity.' },
+  { mood: 'happy', text: 'The Za Križen procession in Hvar has run every year for 500 years — torchlight, 8 villages, all night. One of Europe\'s oldest living traditions.' },
+];
+const QUICK_MOTIVATE = [
+  { mood: 'encouraged', text: 'Polako, ali sigurno — slowly but surely. Every session compounds. You\'re not where you started.' },
+  { mood: 'victory',    text: 'Luka Modrić grew up in a refugee hotel during the war and won the Ballon d\'Or. Grit beats talent every time.' },
+  { mood: 'ready',      text: 'Janica Kostelić broke her leg twice and still won four Olympic golds. A setback doesn\'t end the story.' },
+  { mood: 'happy',      text: '5 million Croatian speakers worldwide. With every session you get measurably closer to joining them.' },
+  { mood: 'encouraged', text: 'Svaki dan po malo — a little every day. Fluency isn\'t a single moment. It\'s an accumulation. Today just added to yours.' },
+];
+const CONTEXTUAL_POOL = [
+  { mood: 'happy',      text: '"Cravat" — the necktie — comes from "Hrvat" (Croatian). You already gave the world something. Now take the language back.' },
+  { mood: 'thinking',   text: 'Croatian verb aspect — piti vs popiti, učiti vs naučiti. Same action, different lens. Master this and you sound native.' },
+  { mood: 'happy',      text: 'Split, Dubrovnik, Rovinj, Zadar — every city sounds more magical when you understand what the name means.' },
+  { mood: 'encouraged', text: '"Lijepa naša" — Our beautiful homeland. First line of the Croatian anthem. Learn enough and you\'ll mean it when you sing it.' },
+  { mood: 'happy',      text: 'Marco Polo was (probably) born on Korčula. Adventure has always run through Croatian veins. Today, set sail.' },
+  { mood: 'happy',      text: 'The Dalmatian dog is named after Dalmatia. One small region — a breed the whole world knows. Small nation, big footprint.' },
+  { mood: 'thinking',   text: 'Clitic pronouns cluster in a precise order: auxiliary → dative → accusative → se. Tricky to learn, immensely satisfying to master.' },
+  { mood: 'encouraged', text: 'Polako, ali sigurno — slowly but surely. The Croatian phrase for exactly what language learning requires.' },
+  { mood: 'ready',      text: '5 million Croatian speakers worldwide. With every session, you get measurably closer to joining them.' },
+  { mood: 'happy',      text: 'Rakija flows in Dalmatia. Your sessions flow here. Both burn a little at first and get smoother with time.' },
+  { mood: 'celebrating',text: 'Hajduk Split\'s fans are called Torcida — most passionate supporters in the Balkans. Channel that energy into today\'s lesson.' },
+  { mood: 'encouraged', text: 'Croatian diaspora spans six continents. Wherever you are, you\'re part of something bigger than one small country.' },
+  { mood: 'thinking',   text: 'Croatian has been written in the same script since Gaj\'s 1830 reform. One alphabet, perfectly logical. No exceptions.' },
+  { mood: 'happy',      text: 'Diocletian\'s Palace in Split was built in 305 AD — and people still live inside it. Croatians don\'t abandon things that work. Neither should you.' },
+  { mood: 'happy',      text: 'Luka Modrić grew up in a hotel for refugees during the war. Won the Ballon d\'Or. Croatian grit is real. Channel some today.' },
+  { mood: 'thinking',   text: '7 cases. 2 verb aspects. 3 genders. It sounds like a lot — and it is. But it means you can say exactly what you mean. Always.' },
+  { mood: 'encouraged', text: 'Svaki dan po malo — a little every day. That\'s all it takes. Today\'s little bit is right here.' },
+  { mood: 'happy',      text: 'Summer in Croatia: lavender from Hvar, rosemary from stone walls, salt from the Adriatic. Learn the words. Then go live them.' },
+  { mood: 'happy',      text: '"Koliko jezika znaš, toliko vrijediš." You\'re worth as many people as languages you speak.' },
+  { mood: 'thinking',   text: 'The word "cravat" is Croatian. So is the concept of the necktie. So is Nikola Tesla\'s birthplace. Small country, enormous legacy.' },
+];
+
+function getKnightGreeting(st, streakCount, level) {
+  const hour = new Date().getHours();
+  const day  = new Date().getDay();
+  const xp   = st?.xp || 0;
+  const lc   = st?.lc || 0;
+  const gc   = st?.gc || 0;
+  const streakBroken = lc > 0 && streakCount === 0;
+
+  if (lc === 0) return _pick([
+    { mood: 'ready',      text: 'Živjeli! I\'m Vitez Hrvoje, your Croatian knight. Croatia has 1,200 years of history and one of Europe\'s most precise languages. Let\'s start writing yours.' },
+    { mood: 'happy',      text: 'Dobro došli! Whether you have Croatian roots or just fell in love with this corner of Europe — you\'re in the right place. First lesson awaits.' },
+    { mood: 'encouraged', text: 'Seven cases, tricky verbs, verb aspects — Croatian sounds hard. Here\'s the secret: it\'s perfectly phonetic. One letter, one sound, always. Let\'s go!' },
+  ]);
+  if (streakBroken) return _pick([
+    { mood: 'encouraged', text: 'Nema veze. Every serious learner has gaps. The difference is: they showed back up. Your Croatian is still in there.' },
+    { mood: 'encouraged', text: 'Janica Kostelić broke her leg twice and still won four Olympic golds. Your streak broke. Come back and earn it again.' },
+  ]);
+  if (hour >= 21 && streakCount > 0) return _pick([
+    { mood: 'encouraged', text: `Pazi! Your streak expires at midnight. One lesson — even five minutes — keeps the fire alive. Don't let it die tonight.` },
+    { mood: 'ready',      text: `One lesson before bed. That's all it takes. ${streakCount} days — too valuable to lose tonight.` },
+  ]);
+  if (streakCount >= 100) return { mood: 'victory',     text: `${streakCount} days. You're not learning Croatian anymore — you ARE Croatian. Svaka čast, majstore.` };
+  if (streakCount >= 50)  return { mood: 'celebrating', text: `${streakCount}-day streak! Fifty days of showing up. The Adriatic has been waiting for someone with your dedication.` };
+  if (streakCount >= 30)  return { mood: 'celebrating', text: `Trideset dana — 30 days straight! Most people quit long before now. Croatia noticed.` };
+  if (streakCount >= 14)  return { mood: 'happy',       text: `Dva tjedna! Two weeks of Croatian. You've learned more than most diaspora kids will ever try.` };
+  if (streakCount >= 7)   return { mood: 'happy',       text: `${streakCount}-day streak — a full week. Your brain is forming real Croatian pathways now. Sjajno!` };
+  if (streakCount >= 3)   return { mood: 'happy',       text: `${streakCount} days straight. Consistency beats intensity — you're proving it every day. Hajde!` };
+  if (xp >= 5000) return { mood: 'victory',     text: `${xp.toLocaleString()} XP! You've crossed into territory where Croatian conversations start happening by accident.` };
+  if (xp >= 1000) return { mood: 'happy',       text: `${xp.toLocaleString()} XP. At this pace, a Croatian grandmother would understand you. That's a high bar.` };
+  if (xp >= 100)  return { mood: 'encouraged',  text: `Over 100 XP already. The momentum is real — now keep it going.` };
+  if (gc >= 5)    return { mood: 'thinking',    text: `Five grammar sessions in. You've faced Croatian cases and survived. That earns respect, učenik.` };
+  if (lc >= 10)   return { mood: 'happy',       text: `${lc} lessons in. You've crossed from complete beginner to actual learner. That's the hardest crossing.` };
+  if (hour < 9)   return _pick([
+    { mood: 'ready',      text: 'Dobro jutro! Morning practice before the world wakes — this is how fluency is built. Your brain retains more now than any other time.' },
+    { mood: 'encouraged', text: 'Jutarnja kava i lekcija — morning coffee and a lesson. The Croatian way to start a day right.' },
+  ]);
+  if (hour >= 23) return { mood: 'thinking', text: 'Still at it past midnight. Most people are asleep. Most people also don\'t speak Croatian.' };
+  if (day === 0)  return { mood: 'happy',   text: 'Nedjelja — Sunday. No better day to learn something that lasts a lifetime.' };
+  if (day === 6)  return { mood: 'celebrating', text: 'Subota — Saturday! Weekend warriors are the unsung heroes of language learning. Hajde!' };
+  if (day === 1)  return { mood: 'encouraged', text: 'Ponedjeljak — Monday. Fresh week, clean slate. The learners who study on Mondays are the ones who end up fluent.' };
+  return CONTEXTUAL_POOL[(new Date().getDate() + day) % CONTEXTUAL_POOL.length];
+}
+
+function QuickReplyBanner({ label, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        background: 'rgba(255,255,255,0.12)',
+        border: '1px solid rgba(255,255,255,0.22)',
+        borderRadius: 20,
+        padding: '5px 12px',
+        fontSize: 11,
+        fontWeight: 700,
+        color: 'rgba(255,255,255,0.88)',
+        cursor: 'pointer',
+        fontFamily: "'Outfit', sans-serif",
+        transition: 'background .15s ease',
+        flexShrink: 0,
+      }}
+      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.22)'; }}
+      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}
+    >
+      {label}
+    </button>
+  );
+}
 
 function getMascotMessage({ streak, level, st, comebackBonus, allQuestsDone }) {
   const h = new Date().getHours();
@@ -107,6 +246,34 @@ export default function HeroSection({
 
   const mascot = getMascotMessage({ streak: streak.count, level, st, comebackBonus, allQuestsDone });
 
+  // ── Knight speech state ───────────────────────────────────────────────────
+  const [greeting, setGreeting] = useState(() => getKnightGreeting(st, streak.count, level));
+  const poolIdxRef  = useRef(-1);
+  const lastPickRef = useRef({ grammar: -1, culture: -1, motivate: -1 });
+
+  // Listen for knight:celebrate events (big XP awards from anywhere in the app)
+  useEffect(() => {
+    const onCelebrate = (e) => {
+      const d = e.detail || {};
+      if (d.text) setGreeting({ mood: d.mood || 'celebrating', text: d.text });
+    };
+    window.addEventListener('knight:celebrate', onCelebrate);
+    return () => window.removeEventListener('knight:celebrate', onCelebrate);
+  }, []);
+
+  function pickPool(pool, category) {
+    let idx;
+    do { idx = Math.floor(Math.random() * pool.length); }
+    while (idx === lastPickRef.current[category] && pool.length > 1);
+    lastPickRef.current[category] = idx;
+    return pool[idx];
+  }
+
+  const cycleBubble = () => {
+    poolIdxRef.current = (poolIdxRef.current + 1) % CONTEXTUAL_POOL.length;
+    setGreeting(CONTEXTUAL_POOL[poolIdxRef.current]);
+  };
+
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0 }}>
       <div style={{
@@ -175,27 +342,27 @@ export default function HeroSection({
             </div>
           </div>
 
-          {/* ── Knight mascot hero ─────────────────────────────────────── */}
+          {/* ── Knight mascot hero — interactive speech bubble ──────── */}
           <motion.div
-            key={mascot.mood}
+            key={greeting.mood}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
-            style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}
+            style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 10 }}
           >
-            {/* Knight — the mascot */}
+            {/* Knight — primary communicator */}
             <motion.div
               initial={{ scale: 0.75, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: 'spring', stiffness: 340, damping: 18, delay: 0.1 }}
               style={{ flexShrink: 0 }}
             >
-              <CroatianKnight size={92} mood={mascot.mood} />
+              <CroatianKnight size={92} mood={greeting.mood} />
             </motion.div>
 
-            {/* Speech bubble — pointer on left side */}
+            {/* Interactive speech bubble — tap to cycle messages */}
             <div style={{ flex: 1, position: 'relative' }}>
-              {/* left-pointing triangle */}
+              {/* left-pointing triangle toward knight */}
               <div style={{
                 position: 'absolute', left: -9, top: 18,
                 width: 0, height: 0,
@@ -203,15 +370,26 @@ export default function HeroSection({
                 borderBottom: '8px solid transparent',
                 borderRight: '8px solid rgba(255,255,255,0.18)',
               }} />
-              <div style={{
-                background: 'rgba(255,255,255,0.14)',
-                backdropFilter: 'blur(14px)',
-                WebkitBackdropFilter: 'blur(14px)',
-                borderRadius: '4px 16px 16px 16px',
-                padding: '12px 14px',
-                border: '1px solid rgba(255,255,255,0.22)',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
-              }}>
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={cycleBubble}
+                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') cycleBubble(); }}
+                title="Tap to hear something new"
+                style={{
+                  background: 'rgba(255,255,255,0.14)',
+                  backdropFilter: 'blur(14px)',
+                  WebkitBackdropFilter: 'blur(14px)',
+                  borderRadius: '4px 16px 16px 16px',
+                  padding: '12px 14px 10px',
+                  border: '1px solid rgba(255,255,255,0.22)',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+                  cursor: 'pointer',
+                  transition: 'background .15s ease',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.20)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; }}
+              >
                 <div style={{
                   fontSize: 10, fontWeight: 800, letterSpacing: '.1em',
                   textTransform: 'uppercase', color: 'rgba(200,152,10,0.95)',
@@ -220,38 +398,30 @@ export default function HeroSection({
                   {greetingByTime()}, {name || 'Učenik'}!
                 </div>
                 <div style={{
-                  fontSize: 15, fontWeight: 700, color: '#fff',
-                  lineHeight: 1.45, textShadow: '0 1px 6px rgba(0,0,0,0.3)',
+                  fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.95)',
+                  lineHeight: 1.5,
                 }}>
-                  {mascot.text}
+                  <TypewriterText text={greeting.text} />
                 </div>
-                {mascot.sub && (
-                  <div style={{
-                    fontSize: 12, color: 'rgba(255,255,255,0.72)',
-                    marginTop: 5, lineHeight: 1.4, fontWeight: 500,
-                  }}>
-                    {mascot.sub}
-                  </div>
-                )}
-                {/* goal tagline as a small pill */}
                 <div style={{
-                  display: 'inline-block', marginTop: 8,
-                  fontSize: 10, fontWeight: 700,
-                  color: 'rgba(255,255,255,0.65)',
-                  background: 'rgba(255,255,255,0.1)',
-                  borderRadius: 10, padding: '2px 8px',
-                  letterSpacing: '.04em',
+                  display: 'flex', justifyContent: 'flex-end', alignItems: 'center',
+                  gap: 3, marginTop: 6,
                 }}>
-                  {userGoal === 'heritage' ? '🇭🇷 Reconnecting with your roots'
-                   : userGoal === 'family'  ? '👨‍👩‍👧 Learning for family'
-                   : userGoal === 'partner' ? '💙 Learning for love'
-                   : userGoal === 'travel'  ? '✈️ Croatia is waiting'
-                   : userGoal === 'culture' ? '🎵 Immersed in Croatian culture'
-                   : '🗣️ On the path to fluency'}
+                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.38)', fontWeight: 600, letterSpacing: '.04em' }}>
+                    tap for more
+                  </span>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.38)' }}>↺</span>
                 </div>
               </div>
             </div>
           </motion.div>
+
+          {/* Quick-reply pills — Culture / Grammar / Krenimo */}
+          <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+            <QuickReplyBanner label="🏛️ Culture"  onClick={() => setGreeting(pickPool(QUICK_CULTURE,  'culture'))} />
+            <QuickReplyBanner label="📐 Grammar"  onClick={() => setGreeting(pickPool(QUICK_GRAMMAR,  'grammar'))} />
+            <QuickReplyBanner label="💪 Krenimo!" onClick={() => setGreeting(pickPool(QUICK_MOTIVATE, 'motivate'))} />
+          </div>
 
           {/* ── Continue Learning CTA ── */}
           {lastActivity && (
