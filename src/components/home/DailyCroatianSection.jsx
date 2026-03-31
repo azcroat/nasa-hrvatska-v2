@@ -1,7 +1,7 @@
 import React from 'react';
 import { speak } from '../../data.jsx';
 
-export default function DailyCroatianSection({ todayPhrases, tDir, sTDir, tIn, sTIn, tOut, tL, doTr }) {
+export default function DailyCroatianSection({ todayPhrases }) {
   return (
     <>
       {/* ── DISCOVER CROATIAN HEADER — Real Croatia Photography ── */}
@@ -93,67 +93,6 @@ export default function DailyCroatianSection({ todayPhrases, tDir, sTDir, tIn, s
         ))}
       </div>
 
-      {/* ── QUICK TRANSLATE ── */}
-      <div className="section-hdr">
-        <div className="section-hdr-icon" style={{background:'rgba(14,116,144,.12)'}}>⇄</div>
-        <div className="section-hdr-text">
-          <div className="section-hdr-title">Quick Translate</div>
-          <div className="section-hdr-sub">English ↔ Croatian instant lookup</div>
-        </div>
-      </div>
-      <div style={{
-        background:"var(--card)",
-        border:"1.5px solid var(--card-b)",
-        borderRadius:20,padding:"18px",
-        marginBottom:24,
-        boxShadow:"0 4px 16px rgba(0,0,0,.05)",
-      }}>
-        <div style={{display:"flex",justifyContent:"flex-end",marginBottom:12}}>
-          <button
-            style={{
-              background:"var(--bar-bg)",
-              border:"1.5px solid var(--card-b)",
-              borderRadius:10,padding:"6px 14px",
-              fontSize:12,fontWeight:700,color:"var(--body)",
-              cursor:"pointer",fontFamily:"'Outfit',sans-serif",
-              transition:"background .15s",
-            }}
-            onClick={() => sTDir(tDir==="en-hr"?"hr-en":"en-hr")}>
-            {tDir==="en-hr"?"EN → HR ⇄":"HR → EN ⇄"}
-          </button>
-        </div>
-        <div style={{display:"flex",gap:8}}>
-          <input
-            type="text"
-            value={tIn}
-            onChange={e=>sTIn(e.target.value)}
-            onKeyDown={e=>{if(e.key==="Enter")doTr()}}
-            placeholder={tDir==="en-hr"?"Type English…":"Unesite hrvatski…"}
-            style={{flex:1,fontSize:14,padding:"12px 14px"}}
-          />
-          <button className="b bp" style={{fontSize:14,padding:"12px 20px",whiteSpace:"nowrap"}} onClick={doTr} disabled={tL}>
-            {tL ? "⏳" : "Go"}
-          </button>
-        </div>
-        {tOut && (
-          <button
-            style={{
-              width:"100%",marginTop:12,padding:"14px 16px",
-              background:"var(--bar-bg)",borderRadius:14,
-              border:"1.5px solid var(--card-b)",
-              fontSize:16,fontWeight:700,color:"var(--heading)",
-              cursor:"pointer",textAlign:"left",
-              fontFamily:"'Outfit',sans-serif",
-              display:"flex",justifyContent:"space-between",alignItems:"center",
-              boxShadow:"0 2px 8px rgba(14,116,144,.08)",
-            }}
-            aria-label={`Play audio for ${tOut}`}
-            onClick={() => speak(tDir==="en-hr"?tOut:tIn)}>
-            <span>{tOut}</span>
-            <span aria-hidden="true" style={{fontSize:20}}>🔊</span>
-          </button>
-        )}
-      </div>
     </>
   );
 }

@@ -73,7 +73,6 @@ function getWeekXP() {
 }
 
 export default function HomeTab({
-  tDir, sTDir, tIn, sTIn, tOut, tL, doTr,
   dchlA, sDchlA, dchlSl, sDchlSl,
   getWeekStats,
   setTab, sCurEx,
@@ -647,13 +646,6 @@ export default function HomeTab({
           {/* ── TODAY'S CROATIAN + QUICK TRANSLATE ── */}
           <DailyCroatianSection
             todayPhrases={todayPhrases}
-            tDir={tDir}
-            sTDir={sTDir}
-            tIn={tIn}
-            sTIn={sTIn}
-            tOut={tOut}
-            tL={tL}
-            doTr={doTr}
           />
 
         </React.Fragment>

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { lXP, nXP, earnFreeze, getStreakFreezes, LEVEL_NARRATIVE } from '../../data.jsx';
+import { lXP, nXP, earnFreeze, getStreakFreezes, LEVEL_NARRATIVE, speak } from '../../data.jsx';
+import { useTranslator } from '../../hooks/useTranslator.js';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import CroatianGrb from '../shared/CroatianGrb.jsx';
@@ -84,6 +85,24 @@ const CONTEXTUAL_POOL = [
   { mood: 'happy',      text: '"Koliko jezika znaš, toliko vrijediš." You\'re worth as many people as languages you speak.' },
   { mood: 'thinking',   text: 'The word "cravat" is Croatian. So is the concept of the necktie. So is Nikola Tesla\'s birthplace. Small country, enormous legacy.' },
 ];
+
+// ── Daily rotating hero backgrounds ──────────────────────────────────────────
+const HERO_SCENES = [
+  { img: 'dubrovnik-hero',   label: 'Dubrovnik, Hrvatska',  position: '35%' },
+  { img: 'zagreb',           label: 'Zagreb, Hrvatska',     position: '40%' },
+  { img: 'plitvice',         label: 'Plitvička jezera',     position: '50%' },
+  { img: 'dalmatian-coast',  label: 'Dalmatinska obala',    position: '40%' },
+  { img: 'labin',            label: 'Labin, Istra',         position: '45%' },
+  { img: 'croatian-food',    label: 'Hrvatska kuhinja',     position: '40%' },
+  { img: 'dubrovnik-ai',     label: 'Dubrovnik, Hrvatska',  position: '35%' },
+];
+
+function getDailyScene() {
+  const d = new Date();
+  const start = new Date(d.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((d - start) / 86400000);
+  return HERO_SCENES[dayOfYear % HERO_SCENES.length];
+}
 
 function getKnightGreeting(st, streakCount, level) {
   const hour = new Date().getHours();
@@ -233,6 +252,7 @@ export default function HeroSection({
   const cefr = getCEFR(level);
 
   const activePalette = LEVEL_PALETTE[(pathData.activeLv.level - 1) % LEVEL_PALETTE.length];
+  const heroScene = getDailyScene();
 
   const _td = new Date();
   const today = _td.getFullYear() + '-' + String(_td.getMonth() + 1).padStart(2, '0') + '-' + String(_td.getDate()).padStart(2, '0');
@@ -248,6 +268,8 @@ export default function HeroSection({
 
   // ── Knight speech state ───────────────────────────────────────────────────
   const [greeting, setGreeting] = useState(() => getKnightGreeting(st, streak.count, level));
+  const [showTranslate, setShowTranslate] = useState(false);
+  const { tDir, setTDir, tIn, setTIn, tOut, setTOut, tL, doTr } = useTranslator();
   const poolIdxRef  = useRef(-1);
   const lastPickRef = useRef({ grammar: -1, culture: -1, motivate: -1 });
 
@@ -277,7 +299,7 @@ export default function HeroSection({
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0 }}>
       <div style={{
-        background: "linear-gradient(160deg,rgba(6,14,30,0.91) 0%,rgba(10,35,72,0.82) 40%,rgba(12,56,104,0.77) 100%), url('/images/scenes/dubrovnik-hero.webp') center 35% / cover no-repeat",
+        background: `linear-gradient(160deg,rgba(6,14,30,0.91) 0%,rgba(10,35,72,0.82) 40%,rgba(12,56,104,0.77) 100%), url('/images/scenes/${heroScene.img}.webp') center ${heroScene.position} / cover no-repeat`,
         position: 'relative',
         overflow: 'hidden',
         color: 'white',
@@ -416,12 +438,89 @@ export default function HeroSection({
             </div>
           </motion.div>
 
-          {/* Quick-reply pills — Culture / Grammar / Krenimo */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-            <QuickReplyBanner label="🏛️ Culture"  onClick={() => setGreeting(pickPool(QUICK_CULTURE,  'culture'))} />
-            <QuickReplyBanner label="📐 Grammar"  onClick={() => setGreeting(pickPool(QUICK_GRAMMAR,  'grammar'))} />
-            <QuickReplyBanner label="💪 Krenimo!" onClick={() => setGreeting(pickPool(QUICK_MOTIVATE, 'motivate'))} />
+          {/* Quick-reply pills — Culture / Grammar / Krenimo / Translate */}
+          <div style={{ display: 'flex', gap: 8, marginBottom: showTranslate ? 10 : 16, flexWrap: 'wrap' }}>
+            <QuickReplyBanner label="🏛️ Culture"  onClick={() => { setShowTranslate(false); setGreeting(pickPool(QUICK_CULTURE,  'culture')); }} />
+            <QuickReplyBanner label="📐 Grammar"  onClick={() => { setShowTranslate(false); setGreeting(pickPool(QUICK_GRAMMAR,  'grammar')); }} />
+            <QuickReplyBanner label="💪 Krenimo!" onClick={() => { setShowTranslate(false); setGreeting(pickPool(QUICK_MOTIVATE, 'motivate')); }} />
+            <QuickReplyBanner label="⇄ Translate" onClick={() => { setShowTranslate(t => !t); setTOut(''); }} />
           </div>
+
+          {/* ── Inline Translate Panel ── */}
+          {showTranslate && (
+            <div style={{
+              background: 'rgba(0,0,0,0.28)',
+              backdropFilter: 'blur(14px)',
+              WebkitBackdropFilter: 'blur(14px)',
+              borderRadius: 16,
+              padding: '14px 16px',
+              marginBottom: 16,
+              border: '1px solid rgba(255,255,255,0.18)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <button
+                  onClick={() => { setTDir(d => d === 'en-hr' ? 'hr-en' : 'en-hr'); setTOut(''); }}
+                  style={{
+                    background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.28)',
+                    borderRadius: 10, padding: '5px 13px',
+                    fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.92)',
+                    cursor: 'pointer', fontFamily: "'Outfit',sans-serif",
+                  }}
+                >
+                  {tDir === 'en-hr' ? 'EN → HR ⇄' : 'HR → EN ⇄'}
+                </button>
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  type="text"
+                  value={tIn}
+                  onChange={e => setTIn(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') doTr(); }}
+                  placeholder={tDir === 'en-hr' ? 'Type English…' : 'Unesite hrvatski…'}
+                  style={{
+                    flex: 1, fontSize: 13, padding: '10px 12px',
+                    background: 'rgba(255,255,255,0.12)',
+                    border: '1px solid rgba(255,255,255,0.22)',
+                    borderRadius: 10, color: 'white',
+                    fontFamily: "'Outfit',sans-serif",
+                    outline: 'none',
+                  }}
+                />
+                <button
+                  onClick={doTr}
+                  disabled={tL}
+                  style={{
+                    background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)',
+                    borderRadius: 10, padding: '10px 18px',
+                    fontSize: 13, fontWeight: 700, color: 'white',
+                    cursor: 'pointer', fontFamily: "'Outfit',sans-serif",
+                  }}
+                >
+                  {tL ? '⏳' : 'Go'}
+                </button>
+              </div>
+              {tOut && (
+                <button
+                  onClick={() => speak(tDir === 'en-hr' ? tOut : tIn)}
+                  style={{
+                    width: '100%', marginTop: 10,
+                    padding: '10px 14px',
+                    background: 'rgba(255,255,255,0.12)',
+                    border: '1px solid rgba(255,255,255,0.22)',
+                    borderRadius: 12,
+                    fontSize: 14, fontWeight: 700, color: 'white',
+                    cursor: 'pointer', textAlign: 'left',
+                    fontFamily: "'Outfit',sans-serif",
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  }}
+                  aria-label={`Play audio for ${tOut}`}
+                >
+                  <span>{tOut}</span>
+                  <span aria-hidden="true" style={{ fontSize: 18 }}>🔊</span>
+                </button>
+              )}
+            </div>
+          )}
 
           {/* ── Continue Learning CTA ── */}
           {lastActivity && (
