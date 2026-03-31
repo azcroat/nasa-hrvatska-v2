@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { speak } from '../../data.jsx';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { GRADED_STORIES } from '../../data/gradedStories.js';
@@ -137,17 +137,71 @@ function StoryList({ onSelect, goBack }) {
   );
 }
 
+// ─── Pronunciation assessment helper ─────────────────────────────────────────
+async function assessPronunciation(audioBlob, referenceText) {
+  const arrayBuffer = await audioBlob.arrayBuffer();
+  const bytes = new Uint8Array(arrayBuffer);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+  const base64 = btoa(binary);
+
+  const res = await fetch('/api/pronunciation-assess', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ audio: base64, text: referenceText, locale: 'hr-HR' }),
+  });
+  if (!res.ok) throw new Error('Assessment failed');
+  return res.json();
+}
+
 // ─── Reader view ──────────────────────────────────────────────────────────────
 function StoryReader({ story, onStartQuiz, goBack }) {
   const [showEn, setShowEn] = useState(false);
   const [showVocab, setShowVocab] = useState(false);
   const [playingIdx, setPlayingIdx] = useState(null);
+  const [recordingIdx, setRecordingIdx] = useState(null);   // paragraph index being recorded
+  const [assessResults, setAssessResults] = useState({});   // { [paraIdx]: assessResult }
+  const [assessError, setAssessError] = useState(null);
+  const mediaRecorderRef = useRef(null);
   const audioRef = useRef(null);
 
   const handlePlay = useCallback(async (text, idx) => {
     setPlayingIdx(idx);
     await playTTS(text, audioRef);
     setPlayingIdx(null);
+  }, []);
+
+  const startRecording = useCallback(async (paraIdx, paraText) => {
+    setAssessError(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const chunks = [];
+      const mr = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg' });
+      mr.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+      mr.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        const blob = new Blob(chunks, { type: mr.mimeType });
+        try {
+          const result = await assessPronunciation(blob, paraText);
+          setAssessResults(r => ({ ...r, [paraIdx]: result }));
+        } catch (e) {
+          setAssessError('Assessment unavailable — check your connection and try again.');
+        }
+        setRecordingIdx(null);
+      };
+      mediaRecorderRef.current = mr;
+      mr.start();
+      setRecordingIdx(paraIdx);
+    } catch (e) {
+      setAssessError('Microphone access denied. Allow microphone to assess pronunciation.');
+      setRecordingIdx(null);
+    }
+  }, []);
+
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+    }
   }, []);
 
   return (
@@ -222,39 +276,105 @@ function StoryReader({ story, onStartQuiz, goBack }) {
         </div>
       )}
 
+      {/* Assessment error */}
+      {assessError && (
+        <div style={{
+          background: '#fee2e2', border: '1px solid #fca5a5',
+          borderRadius: 10, padding: '10px 14px', marginBottom: 12,
+          fontSize: 12, color: '#b91c1c',
+        }}>{assessError}</div>
+      )}
+
       {/* Paragraphs */}
-      {story.paragraphs.map((para, i) => (
-        <div key={i} style={{
-          background: 'var(--card)', border: '1px solid var(--card-b)',
-          borderRadius: 14, padding: '16px 18px', marginBottom: 12,
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-            <p style={{
-              fontSize: 16, lineHeight: 1.8, color: 'var(--heading)',
-              fontFamily: "'Playfair Display', Georgia, serif",
-              margin: 0, flex: 1, whiteSpace: 'pre-line',
-            }}>{para.hr}</p>
-            <button
-              onClick={() => handlePlay(para.hr, i)}
-              aria-label="Listen to paragraph"
-              style={{
-                width: 36, height: 36, borderRadius: 50, border: 'none',
-                background: playingIdx === i ? '#0e7490' : 'var(--info-bg)',
-                color: playingIdx === i ? 'white' : '#0e7490',
-                fontSize: 16, cursor: 'pointer', flexShrink: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}
-            >{playingIdx === i ? '⏸' : '🔊'}</button>
+      {story.paragraphs.map((para, i) => {
+        const result = assessResults[i];
+        return (
+          <div key={i} style={{
+            background: 'var(--card)', border: '1px solid var(--card-b)',
+            borderRadius: 14, padding: '16px 18px', marginBottom: 12,
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+              <p style={{
+                fontSize: 16, lineHeight: 1.8, color: 'var(--heading)',
+                fontFamily: "'Playfair Display', Georgia, serif",
+                margin: 0, flex: 1, whiteSpace: 'pre-line',
+              }}>{para.hr}</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
+                <button
+                  onClick={() => handlePlay(para.hr, i)}
+                  aria-label="Listen to paragraph"
+                  style={{
+                    width: 36, height: 36, borderRadius: 50, border: 'none',
+                    background: playingIdx === i ? '#0e7490' : 'var(--info-bg)',
+                    color: playingIdx === i ? 'white' : '#0e7490',
+                    fontSize: 16, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
+                >{playingIdx === i ? '⏸' : '🔊'}</button>
+                <button
+                  onClick={() => recordingIdx === i ? stopRecording() : startRecording(i, para.hr)}
+                  aria-label={recordingIdx === i ? 'Stop recording' : 'Record your pronunciation'}
+                  title={recordingIdx === i ? 'Stop recording' : 'Assess your pronunciation'}
+                  style={{
+                    width: 36, height: 36, borderRadius: 50, border: 'none',
+                    background: recordingIdx === i ? '#dc2626' : result ? '#059669' : 'var(--card-b)',
+                    color: recordingIdx === i ? 'white' : result ? 'white' : 'var(--subtext)',
+                    fontSize: 16, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    animation: recordingIdx === i ? 'pulse 1s infinite' : 'none',
+                  }}
+                >{recordingIdx === i ? '⏹' : result ? '✓' : '🎤'}</button>
+              </div>
+            </div>
+
+            {showEn && (
+              <p style={{
+                fontSize: 13, color: 'var(--subtext)', lineHeight: 1.6,
+                marginTop: 10, paddingTop: 10, borderTop: '1px dashed var(--card-b)',
+                margin: '10px 0 0', fontStyle: 'italic', whiteSpace: 'pre-line',
+              }}>{para.en}</p>
+            )}
+
+            {/* Pronunciation score card */}
+            {result && (
+              <div style={{
+                marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--card-b)',
+              }}>
+                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 8 }}>
+                  {[
+                    { label: 'Overall', score: result.overall },
+                    { label: 'Accuracy', score: result.accuracy },
+                    { label: 'Fluency', score: result.fluency },
+                  ].map(({ label, score }) => (
+                    <div key={label} style={{ textAlign: 'center', minWidth: 60 }}>
+                      <div style={{
+                        fontSize: 20, fontWeight: 900,
+                        color: score >= 80 ? '#059669' : score >= 55 ? '#d97706' : '#dc2626',
+                      }}>{score}</div>
+                      <div style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 700 }}>{label}</div>
+                    </div>
+                  ))}
+                </div>
+                {result.word_scores && result.word_scores.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {result.word_scores.map((w, wi) => (
+                      <span key={wi} style={{
+                        fontSize: 13, fontWeight: 700, padding: '3px 8px', borderRadius: 8,
+                        background: w.score >= 80 ? '#dcfce7' : w.score >= 55 ? '#fef3c7' : '#fee2e2',
+                        color: w.score >= 80 ? '#15803d' : w.score >= 55 ? '#92400e' : '#b91c1c',
+                        border: `1px solid ${w.score >= 80 ? '#86efac' : w.score >= 55 ? '#fde68a' : '#fca5a5'}`,
+                      }}>{w.word}</span>
+                    ))}
+                  </div>
+                )}
+                <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 6 }}>
+                  Green = good · Yellow = needs work · Red = practice more
+                </div>
+              </div>
+            )}
           </div>
-          {showEn && (
-            <p style={{
-              fontSize: 13, color: 'var(--subtext)', lineHeight: 1.6,
-              marginTop: 10, paddingTop: 10, borderTop: '1px dashed var(--card-b)',
-              margin: '10px 0 0', fontStyle: 'italic', whiteSpace: 'pre-line',
-            }}>{para.en}</p>
-          )}
-        </div>
-      ))}
+        );
+      })}
 
       <button className="b bp" style={{ width: '100%', marginTop: 8 }} onClick={onStartQuiz}>
         Comprehension Quiz →
