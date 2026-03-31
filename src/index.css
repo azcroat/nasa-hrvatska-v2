@@ -564,6 +564,8 @@ html{
 @keyframes nodeGlow{0%,100%{box-shadow:0 0 0 0 rgba(14,116,144,.4)}50%{box-shadow:0 0 0 12px rgba(14,116,144,0)}}
 @keyframes nodePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 @keyframes pathDraw{0%{stroke-dashoffset:1000}100%{stroke-dashoffset:0}}
+@keyframes bounce-gentle{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes pulse-ring{0%,100%{box-shadow:0 0 0 0 var(--ring-clr,rgba(37,99,235,.35))}50%{box-shadow:0 0 0 6px transparent}}
 
 /* Tooltips / Onboarding */
 @keyframes tooltipIn{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}

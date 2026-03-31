@@ -5,6 +5,124 @@ import CroatianKnight from '../shared/CroatianKnight';
 // Renders the "Next Up" path card block: stage header, progress bar,
 // next lesson row, journey strip, and CEFR track.
 
+// 7 stages → 7 iconic Croatian destinations
+const JOURNEY_STOPS = [
+  { icon: '🏛️', name: 'Zagreb',     tagline: 'Capital city',       color: '#dc2626' },
+  { icon: '🏞️', name: 'Plitvice',   tagline: 'Waterfall paradise', color: '#16a34a' },
+  { icon: '🏛️', name: 'Split',      tagline: 'Dalmatian coast',    color: '#2563eb' },
+  { icon: '🏰', name: 'Dubrovnik',  tagline: 'Pearl of Adriatic',  color: '#d97706' },
+  { icon: '🌊', name: 'Hvar',       tagline: 'Island of lavender', color: '#7c3aed' },
+  { icon: '🎨', name: 'Rovinj',     tagline: 'Istrian jewel',      color: '#0891b2' },
+  { icon: '🗺️', name: 'Krk',        tagline: 'Oldest Croatian',    color: '#be185d' },
+];
+
+function JourneyStrip({ currentLevel }) {
+  return (
+    <div style={{
+      padding: '16px 20px 18px',
+      background: 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)',
+      borderTop: '1px solid var(--card-b)',
+      borderBottom: '1px solid var(--card-b)',
+      overflowX: 'auto',
+      scrollbarWidth: 'none',
+      msOverflowStyle: 'none',
+    }}>
+      <div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.1em', color: '#94a3b8', marginBottom: 12 }}>
+        Your Croatian Journey
+      </div>
+      {/* Nodes + connecting lines */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 0, minWidth: 'max-content' }}>
+        {JOURNEY_STOPS.map((stop, i) => {
+          const stageNum = i + 1;
+          const isDone    = stageNum < currentLevel;
+          const isCurrent = stageNum === currentLevel;
+          const isFuture  = stageNum > currentLevel;
+
+          return (
+            <div key={stop.name} style={{ display: 'flex', alignItems: 'center' }}>
+              {/* Connector line */}
+              {i > 0 && (
+                <div style={{
+                  width: 28, height: 3, borderRadius: 3,
+                  background: isDone || isCurrent
+                    ? `linear-gradient(90deg, ${JOURNEY_STOPS[i-1].color}, ${stop.color})`
+                    : 'rgba(148,163,184,.35)',
+                  transition: 'background .4s ease',
+                  flexShrink: 0,
+                }} />
+              )}
+              {/* Stop node */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 62 }}>
+                {/* Knight indicator above current */}
+                <div style={{ height: 28, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', marginBottom: 2 }}>
+                  {isCurrent && (
+                    <CroatianKnight size={26} mood="ready" style={{ animation: 'bounce-gentle 2s ease-in-out infinite' }} />
+                  )}
+                </div>
+
+                {/* Circle */}
+                <div style={{
+                  width: isCurrent ? 46 : 38,
+                  height: isCurrent ? 46 : 38,
+                  borderRadius: '50%',
+                  background: isFuture
+                    ? 'rgba(148,163,184,.2)'
+                    : isDone
+                      ? `${stop.color}22`
+                      : `${stop.color}18`,
+                  border: isCurrent
+                    ? `2.5px solid ${stop.color}`
+                    : isDone
+                      ? `2px solid ${stop.color}88`
+                      : '2px solid rgba(148,163,184,.3)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: isCurrent ? 20 : 16,
+                  transition: 'all .35s ease',
+                  boxShadow: isCurrent ? `0 0 0 4px ${stop.color}20` : 'none',
+                  animation: isCurrent ? 'pulse-ring 2.5s ease-in-out infinite' : 'none',
+                  position: 'relative',
+                  flexShrink: 0,
+                }}>
+                  <span style={{ filter: isFuture ? 'grayscale(1) opacity(.45)' : 'none', transition: 'filter .35s ease' }}>
+                    {stop.icon}
+                  </span>
+                  {isDone && (
+                    <div style={{
+                      position: 'absolute', bottom: -3, right: -3,
+                      width: 16, height: 16, borderRadius: '50%',
+                      background: stop.color, border: '2px solid white',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 8, color: 'white', fontWeight: 900,
+                    }}>✓</div>
+                  )}
+                </div>
+
+                {/* City name + tagline */}
+                <div style={{
+                  marginTop: 8, textAlign: 'center',
+                  opacity: isFuture ? .4 : 1,
+                  transition: 'opacity .35s ease',
+                }}>
+                  <div style={{
+                    fontSize: 11, fontWeight: isCurrent ? 900 : 700,
+                    color: isCurrent ? stop.color : isDone ? '#475569' : '#94a3b8',
+                    whiteSpace: 'nowrap',
+                  }}>{stop.name}</div>
+                  {isCurrent && (
+                    <div style={{ fontSize: 9, color: stop.color, fontWeight: 600, opacity: .8, whiteSpace: 'nowrap' }}>
+                      {stop.tagline}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function LearnPathWidget({
   sc,
   currentStage,
@@ -48,6 +166,9 @@ export default function LearnPathWidget({
           {currentStageDone} / {currentStage?.items.length} lessons this stage
         </div>
       </div>
+
+      {/* Croatia Journey Strip */}
+      <JourneyStrip currentLevel={currentStage?.level ?? 1} />
 
       {/* Next Up */}
       <div style={{ background:'var(--card)', padding:'16px 20px' }}>

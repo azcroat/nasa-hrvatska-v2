@@ -1,6 +1,6 @@
 import React, { useRef, useState, useMemo } from 'react';
-import { H, Bar, speak, srMark, sh, shuffleArr, V, ASPECT_PAIRS } from '../../data.jsx';
-import { playCorrect, playWrong, haptic } from '../../lib/soundSettings.js';
+import { H, Bar, speak, srMark, sh, shuffleArr, V, ASPECT_PAIRS, CROATIAN_CITIES } from '../../data.jsx';
+import { playCorrect, playWrong, haptic, playFanfare } from '../../lib/soundSettings.js';
 import { markQuest } from '../../lib/quests.js';
 import CroatianKnight from '../shared/CroatianKnight';
 import { CelebrationScene } from '../illustrations';
@@ -28,6 +28,12 @@ export default function LessonScreen({
   ]).filter(row => row[0] && row[1]);
 
   const awardFn = typeof award === 'function' ? award : () => {};
+
+  // Pick a Croatian city for the cultural moment on the result screen
+  const culturalCity = useMemo(() => {
+    if (!CROATIAN_CITIES || !CROATIAN_CITIES.length) return null;
+    return CROATIAN_CITIES[Math.floor(Math.random() * CROATIAN_CITIES.length)];
+  }, []); // stable per lesson session
 
   // Build a lookup from Croatian infinitive → aspect pair info
   const aspectMap = useMemo(() => {
@@ -319,6 +325,7 @@ export default function LessonScreen({
                 markQuest('grammar');
                 if (p === 1) markQuest('perfect');
                 setSt(s => ({ ...s, lc: s.lc + 1, pf: p === 1 ? s.pf + 1 : s.pf, rs: [...s.rs, p], ct: [...new Set([...s.ct, lt])] }));
+                playFanfare();
                 sLp("result");
               }
             }}>{lx < qi.length - 1 ? "Next →" : "See Results"}</button>
@@ -481,6 +488,50 @@ export default function LessonScreen({
           message={scorePct === 1 ? 'Savršeno!' : 'Odlično!'}
           style={{margin:'0 auto 4px', display:'block'}}
         />
+
+        {/* ── Croatian cultural moment ── */}
+        {culturalCity && (
+          <div style={{
+            marginTop: 16, width: '100%', maxWidth: 320,
+            background: 'rgba(255,255,255,.08)',
+            border: '1px solid rgba(255,255,255,.15)',
+            borderRadius: 14, padding: '14px 16px',
+            backdropFilter: 'blur(12px)',
+            animation: 'fade-up .6s ease .55s both',
+          }}>
+            <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,.5)', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 8 }}>
+              🇭🇷 Your next destination
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ fontSize: 36, flexShrink: 0 }}>{culturalCity.icon || '🏔️'}</div>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 900, color: 'white', fontFamily: "'Playfair Display', serif" }}>
+                  {culturalCity.name}
+                </div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2, fontStyle: 'italic' }}>
+                  {culturalCity.tagline || culturalCity.region}
+                </div>
+              </div>
+            </div>
+            {culturalCity.vocab && culturalCity.vocab[0] && (
+              <div style={{
+                marginTop: 10, paddingTop: 10,
+                borderTop: '1px solid rgba(255,255,255,.12)',
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              }}>
+                <span
+                  role="button" tabIndex={0}
+                  onClick={() => speak(culturalCity.vocab[0].hr)}
+                  onKeyDown={e => { if (e.key === 'Enter') speak(culturalCity.vocab[0].hr); }}
+                  style={{ fontSize: 14, fontWeight: 800, color: 'white', cursor: 'pointer' }}
+                >
+                  🔊 {culturalCity.vocab[0].hr}
+                </span>
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,.6)' }}>{culturalCity.vocab[0].en}</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Practice Path panel */}
         <div style={{
