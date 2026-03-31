@@ -158,9 +158,35 @@ export default function DailyPlanCard(/** @type {any} */ { level: _level, goal: 
     else { fetchPlan(); }
   }, [fetchPlan]);
 
-  if (phase === 'error') return null;
   if (phase === 'loading' || phase === 'idle') return <LoadingState />;
-  if (phase !== 'ready' || !plan) return null;
+  if (phase === 'error' || !plan) return (
+    <div style={{ marginBottom: 16, borderRadius: 18, overflow: 'hidden', boxShadow: '0 4px 20px rgba(14,116,144,.18)', border: '1.5px solid rgba(14,116,144,.2)' }}>
+      <div style={{ background: 'linear-gradient(135deg, #0c4a6e 0%, #0e7490 60%, #0891b2 100%)', padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ width: 44, height: 44, borderRadius: 13, flexShrink: 0, background: 'rgba(255,255,255,.15)', border: '1.5px solid rgba(255,255,255,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>📋</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,.7)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 2 }}>DAILY PLAN</div>
+          <div style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>Dnevni Plan</div>
+        </div>
+      </div>
+      <div style={{ background: 'var(--card)', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {[
+          { id: 'review',    icon: '🔁', title: 'Vocabulary Review',      reason: 'Reinforce words with spaced repetition', duration: 5  },
+          { id: 'shadowing', icon: '🗣️', title: 'Shadowing Practice',      reason: 'Train your ear and pronunciation',        duration: 10 },
+          { id: 'writing',   icon: '✍️', title: 'Writing Practice',        reason: 'Build sentence construction skills',     duration: 10 },
+        ].map((act) => (
+          <button key={act.id} onClick={() => setScr && setScr(act.id)}
+            style={{ display:'flex', alignItems:'center', gap:12, padding:'12px 14px', borderRadius:14, width:'100%', border:'1.5px solid var(--card-b)', background:'var(--bar-bg)', cursor:'pointer', fontFamily:"'Outfit',sans-serif", textAlign:'left' }}>
+            <div style={{ width:42, height:42, borderRadius:12, flexShrink:0, background:'rgba(14,116,144,.1)', border:'1.5px solid rgba(14,116,144,.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20 }}>{act.icon}</div>
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ fontSize:14, fontWeight:800, color:'var(--heading)', lineHeight:1.2, marginBottom:2 }}>{act.title}</div>
+              <div style={{ fontSize:11, color:'var(--subtext)', lineHeight:1.35 }}>{act.reason} · {act.duration} min</div>
+            </div>
+            <div style={{ fontSize:18, color:'var(--subtext)', opacity:.4, flexShrink:0 }}>›</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 
   const completedCount = plan.activities.filter((_, i) => done.has(i)).length;
   const allDone = completedCount === plan.activities.length;

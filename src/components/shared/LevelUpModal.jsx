@@ -95,11 +95,11 @@ function LevelUpModal({ level, onClose }) {
     return () => modal.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
-  const shareText = `🇭🇷 Just reached Level ${level} (${meta.cefr} — ${meta.band}) in Croatian! ${meta.emoji} Learning with Naša Hrvatska — Croatian for the diaspora.`;
+  const shareText = `🇭🇷 Just reached Level ${level} (${meta.cefr} — ${meta.band}) in Croatian! ${meta.emoji} Learning with Naša Hrvatska — Croatian for the diaspora. https://nasahrvatska.com?ref=level`;
 
   async function handleShare() {
     if (navigator.share) {
-      try { await navigator.share({ title: 'Naša Hrvatska', text: shareText }); } catch (_) {}
+      try { await navigator.share({ title: 'Naša Hrvatska', text: shareText, url: 'https://nasahrvatska.com?ref=level' }); } catch (_) {}
     } else {
       await navigator.clipboard.writeText(shareText).catch(() => {});
       setCopied(true);

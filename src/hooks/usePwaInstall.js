@@ -10,9 +10,11 @@ export function usePwaInstall({ authScreen }) {
   const [showAndroidInstall, setShowAndroidInstall] = useState(false);
   const [deferredInstallPrompt, setDeferredInstallPrompt] = useState(null);
 
-  // iOS: Safari ITP deletes storage after 7 days unless installed. Show once.
+  // iOS: Safari ITP deletes storage after 7 days unless installed.
+  // Wait until user has practiced at least once (first value moment) before prompting.
   useEffect(() => {
     if (authScreen !== 'app') return;
+    if (!localStorage.getItem('nh_last_practice')) return; // no value experienced yet
     const _isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
     const _isSA = ('standalone' in navigator) && (navigator.standalone === true);
     if (_isIOS && !_isSA && !localStorage.getItem('nh_pwa_install_dismissed')) {
@@ -20,12 +22,13 @@ export function usePwaInstall({ authScreen }) {
     }
   }, [authScreen]);
 
-  // Android/Chrome: capture beforeinstallprompt for custom install banner
+  // Android/Chrome: capture beforeinstallprompt for custom install banner.
+  // Only show after user has practiced at least once.
   useEffect(() => {
     const handler = (e) => {
       e.preventDefault(); // prevent browser's default mini-infobar
       setDeferredInstallPrompt(e);
-      if (!localStorage.getItem('nh_pwa_install_dismissed')) {
+      if (!localStorage.getItem('nh_pwa_install_dismissed') && localStorage.getItem('nh_last_practice')) {
         setShowAndroidInstall(true);
       }
     };
