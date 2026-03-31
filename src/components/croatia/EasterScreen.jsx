@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { V, speak } from '../../data.jsx';
 
 const KVIZ_DONE_KEY = 'nh_uskrs_kviz_done';
+// Campaign quest keys — written on completion so the banner shows them as done
+const CQ_VOCAB_KEY  = 'nh_cq_easter_uskrs_q1'; // "Learn 5 Easter words"
+const CQ_KVIZ_KEY   = 'nh_cq_easter_uskrs_q3'; // "Easter challenge"
 
 const TRADITIONS = [
   {
@@ -128,6 +131,13 @@ export default function EasterScreen({ onBack, award }) {
 
   const easterVocab = V.easter || [];
 
+  // Mark "Learn 5 Easter words" campaign quest when user browses vocab tab
+  useEffect(() => {
+    if (tab === 'pozdravite' && easterVocab.length >= 5) {
+      try { localStorage.setItem(CQ_VOCAB_KEY, '1'); } catch {}
+    }
+  }, [tab, easterVocab.length]);
+
   function handleAnswer(opt) {
     if (selected !== null) return;
     const isCorrect = opt === QUIZ_QUESTIONS[qIdx].correct;
@@ -142,7 +152,10 @@ export default function EasterScreen({ onBack, award }) {
           const correctCount = newAnswers.filter(Boolean).length;
           const xpEarned = correctCount * 10;
           if (xpEarned > 0 && award) award(xpEarned);
-          try { localStorage.setItem(KVIZ_DONE_KEY, '1'); } catch {}
+          try {
+            localStorage.setItem(KVIZ_DONE_KEY, '1');
+            localStorage.setItem(CQ_KVIZ_KEY, '1'); // mark campaign quest done
+          } catch {}
           setXpAwarded(true);
         }
       } else {
