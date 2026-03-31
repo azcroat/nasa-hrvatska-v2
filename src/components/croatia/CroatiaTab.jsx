@@ -8,7 +8,12 @@ import StoriesTab from './StoriesTab.jsx';
 
 // Q-4: Removed dead state setters — target screens manage their own state.
 export default function CroatiaTab({ sCurEx }) {
-  const [ctab, setCTab] = useState('discover');
+  const [ctab, setCTab] = useState(() => sessionStorage.getItem('nh_ctab') || 'discover');
+
+  function changeTab(id) {
+    sessionStorage.setItem('nh_ctab', id);
+    setCTab(id);
+  }
 
   return (
     <React.Fragment>
@@ -51,7 +56,7 @@ export default function CroatiaTab({ sCurEx }) {
         ].map(item => (
           <button
             key={item.label}
-            onClick={() => setCTab(item.tab)}
+            onClick={() => changeTab(item.tab)}
             style={{
               flexShrink: 0, display: 'flex', flexDirection: 'column',
               alignItems: 'center', gap: 4, padding: '10px 14px',
@@ -74,7 +79,7 @@ export default function CroatiaTab({ sCurEx }) {
           { id:'media',    label:'🎵 Media' },
           { id:'stories',  label:'📖 Stories' },
         ].map(t => (
-          <button key={t.id} onClick={() => setCTab(t.id)} style={{
+          <button key={t.id} onClick={() => changeTab(t.id)} style={{
             padding:'7px 16px', borderRadius:20, border:'none', flexShrink:0,
             background: ctab === t.id ? 'var(--info)' : 'var(--bar-bg)',
             color: ctab === t.id ? '#fff' : 'var(--subtext)',

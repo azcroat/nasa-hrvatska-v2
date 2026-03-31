@@ -256,8 +256,20 @@ export default function AIConversationChat({
       <div style={{ background: "var(--card)", borderTop: "1px solid var(--card-b)", padding: "10px 14px 14px", flexShrink: 0,
         paddingBottom: "max(14px,env(safe-area-inset-bottom))" }}>
         {chatError && messages.length === 0 ? (
-          <div style={{ textAlign: "center", fontSize: "var(--text-sm)", color: "var(--subtext)", padding: "8px 0" }}>
-            Resolve the error above to start chatting
+          <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+            <button onClick={onRetryOpener}
+              style={{ flex: 1, padding: "11px 0", borderRadius: 12, border: "none",
+                background: "var(--info)", color: "var(--card)", fontWeight: 700,
+                fontSize: "var(--text-sm)", cursor: "pointer", fontFamily: "'Outfit',sans-serif" }}>
+              Try Again
+            </button>
+            <button onClick={onReset}
+              style={{ flex: 1, padding: "11px 0", borderRadius: 12,
+                border: "1.5px solid var(--card-b)", background: "var(--card)",
+                color: "var(--subtext)", fontWeight: 700, fontSize: "var(--text-sm)",
+                cursor: "pointer", fontFamily: "'Outfit',sans-serif" }}>
+              Change Scenario
+            </button>
           </div>
         ) : (
           <>
