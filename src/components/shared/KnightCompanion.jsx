@@ -36,12 +36,50 @@ const TAP_POOL = [
   { mood: 'happy',      text: 'Croatia: 1,200 years of history, one of Europe\'s most precise languages. You chose well. 🏛️' },
 ];
 
+// ─── Celebration particle burst ───────────────────────────────────────────────
+const PARTY_COLORS = ['#CC0022', '#F4F0E2', '#D4A400', '#EE3042', '#FFDC3C'];
+function CelebrationBurst({ active }) {
+  const [particles, setParticles] = React.useState([]);
+  const [runKey, setRunKey] = React.useState(0);
+  React.useEffect(() => {
+    if (!active) return;
+    setRunKey(k => k + 1);
+    setParticles(Array.from({ length: 10 }, (_, i) => ({
+      id: i,
+      angle: (i / 10) * 360 + (Math.random() * 24 - 12),
+      dist: 32 + Math.random() * 22,
+      color: PARTY_COLORS[i % PARTY_COLORS.length],
+      size: 4 + Math.random() * 4,
+    })));
+  }, [active]);
+  if (!particles.length) return null;
+  return (
+    <div style={{ position: 'absolute', top: '50%', left: '50%', pointerEvents: 'none', zIndex: 5 }}>
+      {particles.map(p => (
+        <motion.div
+          key={`${runKey}-${p.id}`}
+          initial={{ x: 0, y: 0, scale: 1, opacity: 1 }}
+          animate={{
+            x: Math.cos(p.angle * Math.PI / 180) * p.dist,
+            y: Math.sin(p.angle * Math.PI / 180) * p.dist - 8,
+            scale: 0,
+            opacity: 0,
+          }}
+          transition={{ duration: 0.65, ease: 'easeOut', delay: p.id * 0.04 }}
+          style={{ position: 'absolute', width: p.size, height: p.size, borderRadius: '50%', background: p.color, marginLeft: -p.size/2, marginTop: -p.size/2 }}
+        />
+      ))}
+    </div>
+  );
+}
+
 let _tapIdx = 0; // persists across re-renders; rotates through TAP_POOL
 
 export default function KnightCompanion() {
   const { currentScreen } = useApp();
   const [bubble, setBubble]       = useState(null); // { mood, text }
   const [showBubble, setShowBubble] = useState(false);
+  const [celebBurst, setCelebBurst] = useState(false);
   const timerRef = useRef(null);
 
   // Hide on screens where KnightSpeech in HomeTab is active
@@ -65,6 +103,15 @@ export default function KnightCompanion() {
       window.removeEventListener('knight:speak', handler);
       clearTimeout(timerRef.current);
     };
+  }, []);
+
+  useEffect(() => {
+    const onCelebrate = () => {
+      setCelebBurst(false);
+      requestAnimationFrame(() => setCelebBurst(true));
+    };
+    window.addEventListener('knight:celebrate', onCelebrate);
+    return () => window.removeEventListener('knight:celebrate', onCelebrate);
   }, []);
 
   if (isHome) return null;
@@ -168,6 +215,7 @@ export default function KnightCompanion() {
         onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
       >
         <CroatianKnight size={42} mood={bubble?.mood || 'ready'} variant={0} />
+        <CelebrationBurst active={celebBurst} />
       </button>
     </>
   );

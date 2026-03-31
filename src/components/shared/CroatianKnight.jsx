@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 
 /**
@@ -33,6 +33,50 @@ const C = {
   brn:   '#5E3010',  // leather grip
   stl:   '#8898B0',  // blade steel
 };
+
+// ─── Mood → rim glow (CSS drop-shadow filter) ────────────────────────────────
+const MOOD_RIM = {
+  celebrating: 'drop-shadow(0 0 10px rgba(212,164,0,.8)) drop-shadow(0 0 20px rgba(212,164,0,.35))',
+  victory:     'drop-shadow(0 0 12px rgba(180,83,9,.9)) drop-shadow(0 0 22px rgba(255,200,50,.45))',
+  happy:       'drop-shadow(0 0 8px rgba(14,116,144,.5))',
+  encouraged:  'drop-shadow(0 0 8px rgba(22,163,74,.48))',
+  thinking:    'drop-shadow(0 0 8px rgba(124,58,237,.52))',
+  ready:       'drop-shadow(0 0 10px rgba(29,78,216,.58))',
+  marching:    'drop-shadow(0 0 10px rgba(29,78,216,.5))',
+  sad:         'drop-shadow(0 0 7px rgba(220,38,38,.38))',
+  confused:    null,
+  neutral:     null,
+};
+
+// ─── Level-based visual evolution ────────────────────────────────────────────
+function getLevelConfig(level) {
+  if (level >= 100) return {
+    eyeGlow: 'rgba(255,255,255,0.90)', eyeGlowAnim: 'lk-eye-legendary 1.2s ease-in-out infinite',
+    crownColor: '#FFDC3C', crownAnim: 'lk-crown 1.0s ease-in-out infinite', crownWidth: 2.2,
+    goldBands: true, aura: true,
+  };
+  if (level >= 76) return {
+    eyeGlow: 'rgba(96,165,250,0.82)', eyeGlowAnim: 'lk-eye-master 1.8s ease-in-out infinite',
+    crownColor: '#FFDC3C', crownAnim: 'lk-crown 1.6s ease-in-out infinite', crownWidth: 2.0,
+    goldBands: true, aura: false,
+  };
+  if (level >= 51) return {
+    eyeGlow: 'rgba(59,130,246,0.58)', eyeGlowAnim: 'lk-eye-expert 2.2s ease-in-out infinite',
+    crownColor: '#FFDC3C', crownAnim: null, crownWidth: 1.6,
+    goldBands: false, aura: false,
+  };
+  if (level >= 26) return {
+    eyeGlow: null, eyeGlowAnim: null,
+    crownColor: C.gdHi, crownAnim: null, crownWidth: 1.4,
+    goldBands: false, aura: false,
+  };
+  if (level >= 11) return {
+    eyeGlow: null, eyeGlowAnim: null,
+    crownColor: C.gdHi, crownAnim: null, crownWidth: 1.0,
+    goldBands: false, aura: false,
+  };
+  return { eyeGlow: null, eyeGlowAnim: null, crownColor: null, crownAnim: null, crownWidth: 0, goldBands: false, aura: false };
+}
 
 // ─── CSS Keyframes ────────────────────────────────────────────────────────────
 // LEGO animations have a satisfying "plastic snap" quality — short, snappy timing
@@ -207,6 +251,31 @@ const KF = `
   70% {transform:translateY(12px)  translateX(-4px) rotate(280deg) scale(0.85);opacity:0.7}
   100%{transform:translateY(40px)  translateX(8px)  rotate(420deg) scale(0.6); opacity:0}
 }
+/* ── Level-based eye glow animations ── */
+@keyframes lk-eye-expert {
+  0%,100%{opacity:0.45}
+  50%{opacity:0.95}
+}
+@keyframes lk-eye-master {
+  0%,100%{opacity:0.55}
+  35%{opacity:1}
+  65%{opacity:0.8}
+}
+@keyframes lk-eye-legendary {
+  0%,100%{opacity:0.6; transform:scaleX(1)}
+  40%{opacity:1; transform:scaleX(1.03)}
+  80%{opacity:0.75}
+}
+/* ── Crown pulse (level 26+) ── */
+@keyframes lk-crown {
+  0%,100%{opacity:0.6}
+  50%{opacity:1}
+}
+/* ── Legendary aura rings ── */
+@keyframes lk-aura {
+  0%,100%{opacity:0.12; r:58}
+  50%{opacity:0.3; r:62}
+}
 `;
 
 // ─── Mood variants ────────────────────────────────────────────────────────────
@@ -366,7 +435,7 @@ function Defs() {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'happy', variant, className = '', style = {} }) {
+const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'happy', variant, level = 1, className = '', style = {} }) {
   const variants = VARIANTS[mood] || VARIANTS.happy;
   // If a specific variant is provided, use it (purposeful); otherwise pick once on mount via time-of-day
   const [variantIdx] = useState(() =>
@@ -374,7 +443,20 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
       ? variant
       : new Date().getHours() % variants.length
   );
-  const m = variants[Math.min(variantIdx, variants.length - 1)];
+  // Idle rotation: cycle to a different animation variant every 8–10s
+  const [activeVarIdx, setActiveVarIdx] = useState(variantIdx);
+  const idleTimerRef = useRef(null);
+  useEffect(() => {
+    setActiveVarIdx(variantIdx);
+    clearInterval(idleTimerRef.current);
+    idleTimerRef.current = setInterval(
+      () => setActiveVarIdx(v => (v + 1) % variants.length),
+      8000 + Math.floor(Math.random() * 2000)
+    );
+    return () => clearInterval(idleTimerRef.current);
+  }, [mood, variants.length, variantIdx]);
+  const m = variants[Math.min(activeVarIdx, variants.length - 1)];
+  const lvlCfg = getLevelConfig(level);
   const isCelebrating = mood === 'celebrating';
 
   // Confetti pieces for celebrating state
@@ -396,10 +478,11 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
     ? { type: 'spring', stiffness: 520, damping: 16, mass: 0.7 }
     : { type: 'spring', stiffness: 380, damping: 22 };
 
+  const rimFilter = MOOD_RIM[mood];
   return (
     <motion.div
       className={className}
-      style={{ display: 'inline-block', lineHeight: 0, ...style }}
+      style={{ display: 'inline-block', lineHeight: 0, ...(rimFilter ? { filter: rimFilter } : {}), ...style }}
       initial={{ scale: 0.6, opacity: 0, y: 8 }}
       animate={isCelebrating
         ? { scale: [0.6, 1.22, 0.96, 1.06, 1], opacity: 1, y: 0 }
@@ -435,6 +518,18 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
           }}
         />
       ))}
+
+      {/* Level 100+: Legendary aura rings (rendered behind figure) */}
+      {lvlCfg.aura && (
+        <>
+          <ellipse cx="60" cy="95" rx="56" ry="72"
+            fill="none" stroke="rgba(255,220,60,0.28)" strokeWidth="3"
+            style={{ animation: 'lk-pulse 2.0s ease-in-out infinite' }}/>
+          <ellipse cx="60" cy="95" rx="50" ry="65"
+            fill="none" stroke="rgba(255,220,60,0.14)" strokeWidth="2"
+            style={{ animation: 'lk-pulse 2.0s ease-in-out .5s infinite' }}/>
+        </>
+      )}
 
       {/* ══════════════════════════════════════════════════
           MAIN FIGURE — body bounce/float/droop animation
@@ -763,6 +858,19 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
         {/* Right eye slit */}
         <rect rx="2" x="63" y="27" width="15" height="7"
           fill="#0A1525" stroke="#283848" strokeWidth="0.5"/>
+        {/* Visor eye glow — appears at level 51+ */}
+        {lvlCfg.eyeGlow && (
+          <>
+            <rect rx="2.5" x="43" y="28" width="13" height="5"
+              fill={lvlCfg.eyeGlow}
+              style={{ animation: lvlCfg.eyeGlowAnim }}
+            />
+            <rect rx="2.5" x="64" y="28" width="13" height="5"
+              fill={lvlCfg.eyeGlow}
+              style={{ animation: lvlCfg.eyeGlowAnim }}
+            />
+          </>
+        )}
         {/* Nasal bar — vertical center piece of T */}
         <rect rx="2" x="57.5" y="22" width="5" height="22"
           fill="#141E30" opacity="0.92"/>
@@ -809,6 +917,24 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
         <ellipse cx="60" cy="7" rx="6" ry="2.5"
           fill={C.ar} stroke={C.blk} strokeWidth="0.8"/>
 
+        {/* ── LEVEL VISUAL UPGRADES ── */}
+        {/* Level 26+: Crown ring on helmet stud */}
+        {lvlCfg.crownColor && (
+          <ellipse cx="60" cy="-1" rx="7.2" ry="3.4"
+            fill="none" stroke={lvlCfg.crownColor} strokeWidth={lvlCfg.crownWidth}
+            opacity="0.88"
+            style={lvlCfg.crownAnim ? { animation: lvlCfg.crownAnim } : undefined}
+          />
+        )}
+        {/* Level 76+: Gold shoulder accent bands */}
+        {lvlCfg.goldBands && (
+          <>
+            <rect rx="3" x="26" y="62" width="68" height="5" fill="url(#lk-gdV)" opacity="0.45"
+              style={{ animation: 'lk-sheen 2.5s ease-in-out infinite' }}/>
+            <rect rx="3" x="26" y="111" width="68" height="5" fill="url(#lk-gdV)" opacity="0.4"
+              style={{ animation: 'lk-sheen 3.0s ease-in-out .8s infinite' }}/>
+          </>
+        )}
         {/* No plume — clean bucket helmet */}
 
       </g>

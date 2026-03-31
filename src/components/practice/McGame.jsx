@@ -6,6 +6,7 @@ import { getHearts, loseHeart } from '../../lib/lives.js';
 import HeartsBar from '../shared/HeartsBar.jsx';
 import McGameOver from './McGameOver.jsx';
 import McQuestionArea from './McQuestionArea.jsx';
+import { knightSpeak } from '../../lib/knightSpeak.js';
 
 const XP_PER_CORRECT = 3;
 const XP_COMPLETION_BONUS = 5;
@@ -112,6 +113,10 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
         else if (ns === 10) msg = '💥 Unstoppable! 10 streak!';
         else if (ns === 15) msg = '🌟 Legendary!';
         if (msg) {
+          // Knight reacts to combo streaks
+          if (ns === 3) knightSpeak('happy', 'Tri zaredom! Your Croatian memory is firing. 🔥');
+          else if (ns === 5) knightSpeak('celebrating', 'Pet zaredom! Unstoppable! This is what fluency feels like. ⚡');
+          else if (ns === 10) knightSpeak('victory', '10 in a row! Modrić scored less in the World Cup. 🌟');
           setComboMsg(msg);
           setShowCombo(true);
           // Change 3: pulse the streak badge for the combo toast duration
@@ -459,6 +464,14 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
           } else {
             if (resultFired.current) return;
             resultFired.current = true;
+            const pct = Math.round((score / questions.length) * 100);
+            knightSpeak(
+              pct >= 80 ? 'victory' : pct >= 50 ? 'celebrating' : 'encouraged',
+              pct >= 80 ? `${pct}% correct — that quiz didn't stand a chance! ⚔️` :
+              pct >= 50 ? `${score}/${questions.length} — solid. Come back and the remaining ${questions.length - score} will fall. 💪` :
+              `${score}/${questions.length} this time. Every wrong answer is a memory your brain is building. 📐`,
+              300
+            );
             award(score * XP_PER_CORRECT + XP_COMPLETION_BONUS, true);
             onComplete(questions, score);
           }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import CroatianKnight from './CroatianKnight';
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
@@ -31,6 +31,43 @@ function TypewriterText({ text, speed = 13 }) {
         }} />
       )}
     </>
+  );
+}
+
+// ─── Celebration particle burst ───────────────────────────────────────────────
+const PARTY_COLORS = ['#CC0022', '#F4F0E2', '#D4A400', '#EE3042', '#FFDC3C'];
+function CelebrationBurst({ active }) {
+  const [particles, setParticles] = useState([]);
+  const [runKey, setRunKey] = useState(0);
+  useEffect(() => {
+    if (!active) return;
+    setRunKey(k => k + 1);
+    setParticles(Array.from({ length: 10 }, (_, i) => ({
+      id: i,
+      angle: (i / 10) * 360 + (Math.random() * 24 - 12),
+      dist: 32 + Math.random() * 22,
+      color: PARTY_COLORS[i % PARTY_COLORS.length],
+      size: 4 + Math.random() * 4,
+    })));
+  }, [active]);
+  if (!particles.length) return null;
+  return (
+    <div style={{ position: 'absolute', top: '50%', left: '50%', pointerEvents: 'none', zIndex: 5 }}>
+      {particles.map(p => (
+        <motion.div
+          key={`${runKey}-${p.id}`}
+          initial={{ x: 0, y: 0, scale: 1, opacity: 1 }}
+          animate={{
+            x: Math.cos(p.angle * Math.PI / 180) * p.dist,
+            y: Math.sin(p.angle * Math.PI / 180) * p.dist - 8,
+            scale: 0,
+            opacity: 0,
+          }}
+          transition={{ duration: 0.65, ease: 'easeOut', delay: p.id * 0.04 }}
+          style={{ position: 'absolute', width: p.size, height: p.size, borderRadius: '50%', background: p.color, marginLeft: -p.size/2, marginTop: -p.size/2 }}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -238,6 +275,7 @@ export default function KnightSpeech({
   const [mode, setMode]         = useState('hidden');
   const [animOut, setAnimOut]   = useState(false);
   const [greeting, setGreeting] = useState(() => getGreeting(st, streak, level));
+  const [celebBurst, setCelebBurst] = useState(false);
   const poolIdxRef              = useRef(-1);
   const lastPickRef             = useRef({ grammar: -1, culture: -1, motivate: -1 });
   const celebTimerRef           = useRef(null);
@@ -258,6 +296,8 @@ export default function KnightSpeech({
       const d = e.detail || {};
       if (d.text) setGreeting({ mood: d.mood || 'celebrating', text: d.text });
       setAnimOut(false);
+      setCelebBurst(false);
+      requestAnimationFrame(() => setCelebBurst(true));
       setMode('full');
       clearTimeout(celebTimerRef.current);
       celebTimerRef.current = setTimeout(() => setMode('mini'), 5500);
@@ -342,6 +382,7 @@ export default function KnightSpeech({
       animate={{ opacity: animOut ? 0 : 1, y: animOut ? -8 : 0, scale: animOut ? 0.96 : 1 }}
       transition={{ type: 'spring', stiffness: 320, damping: 24 }}
       style={{
+        position: 'relative',
         background: 'var(--card)',
         borderRadius: 18,
         border: '1.5px solid var(--card-b)',
@@ -350,6 +391,7 @@ export default function KnightSpeech({
         boxShadow: `0 2px 14px ${accentColor}18, 0 1px 3px rgba(0,0,0,.06)`,
       }}
     >
+      <CelebrationBurst active={celebBurst} />
       <div style={{ padding: '12px 14px' }}>
 
         {/* ── Header row: name + badges + dismiss ── */}
