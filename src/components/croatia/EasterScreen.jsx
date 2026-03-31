@@ -1,5 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { V, speak } from '../../data.jsx';
+
+function _shuffleOpts(opts) {
+  const a = [...opts];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 const KVIZ_DONE_KEY = 'nh_uskrs_kviz_done';
 // Campaign quest keys — written on completion so the banner shows them as done
@@ -131,6 +140,13 @@ export default function EasterScreen({ onBack, award }) {
 
   const easterVocab = V.easter || [];
 
+  // Shuffle opts once per quiz session so correct answer isn't always first
+  const shuffledQuestions = useMemo(
+    () => QUIZ_QUESTIONS.map(q => ({ ...q, opts: _shuffleOpts(q.opts) })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
   // Mark "Learn 5 Easter words" campaign quest when user browses vocab tab
   useEffect(() => {
     if (tab === 'pozdravite' && easterVocab.length >= 5) {
@@ -140,13 +156,13 @@ export default function EasterScreen({ onBack, award }) {
 
   function handleAnswer(opt) {
     if (selected !== null) return;
-    const isCorrect = opt === QUIZ_QUESTIONS[qIdx].correct;
+    const isCorrect = opt === shuffledQuestions[qIdx].correct;
     const newAnswers = [...answers, isCorrect];
     setSelected(opt);
     setAnswers(newAnswers);
 
     setTimeout(() => {
-      if (qIdx + 1 >= QUIZ_QUESTIONS.length) {
+      if (qIdx + 1 >= shuffledQuestions.length) {
         setQuizDone(true);
         if (!xpAwarded) {
           const correctCount = newAnswers.filter(Boolean).length;
@@ -355,10 +371,10 @@ export default function EasterScreen({ onBack, award }) {
                 marginBottom: 16,
               }}>
                 <div style={{ fontSize: 12, color: 'var(--subtext)', fontWeight: 700 }}>
-                  Question {qIdx + 1} of {QUIZ_QUESTIONS.length}
+                  Question {qIdx + 1} of {shuffledQuestions.length}
                 </div>
                 <div style={{ display: 'flex', gap: 4 }}>
-                  {QUIZ_QUESTIONS.map((_, qi) => (
+                  {shuffledQuestions.map((_, qi) => (
                     <div key={qi} style={{
                       width: 8, height: 8, borderRadius: '50%',
                       background: qi < qIdx
@@ -374,19 +390,19 @@ export default function EasterScreen({ onBack, award }) {
                 borderRadius: 14, padding: '16px 18px', marginBottom: 20,
               }}>
                 <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--heading)', lineHeight: 1.4 }}>
-                  {QUIZ_QUESTIONS[qIdx].q}
+                  {shuffledQuestions[qIdx].q}
                 </div>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {QUIZ_QUESTIONS[qIdx].opts.map((opt, oi) => {
+                {shuffledQuestions[qIdx].opts.map((opt, oi) => {
                   let bg = 'var(--card)';
                   let border = '1px solid var(--card-b)';
                   let color = 'var(--heading)';
                   if (selected !== null) {
-                    if (opt === QUIZ_QUESTIONS[qIdx].correct) {
+                    if (opt === shuffledQuestions[qIdx].correct) {
                       bg = 'rgba(22,163,74,.12)'; border = `1.5px solid ${ACCENT}`; color = ACCENT;
-                    } else if (opt === selected && opt !== QUIZ_QUESTIONS[qIdx].correct) {
+                    } else if (opt === selected && opt !== shuffledQuestions[qIdx].correct) {
                       bg = 'rgba(239,68,68,.1)'; border = '1.5px solid #ef4444'; color = '#ef4444';
                     }
                   }
@@ -412,14 +428,14 @@ export default function EasterScreen({ onBack, award }) {
           ) : (
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 48, marginBottom: 12 }}>
-                {kvizPermanentlyDone && answers.length === 0 ? '🏆' : answers.filter(Boolean).length === QUIZ_QUESTIONS.length ? '🎉' : '🥚'}
+                {kvizPermanentlyDone && answers.length === 0 ? '🏆' : answers.filter(Boolean).length === shuffledQuestions.length ? '🎉' : '🥚'}
               </div>
               <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--heading)', fontFamily: "'Playfair Display',serif", marginBottom: 6 }}>
-                {kvizPermanentlyDone && answers.length === 0 ? 'Kviz završen!' : answers.filter(Boolean).length === QUIZ_QUESTIONS.length ? 'Savršeno!' : 'Kviz završen!'}
+                {kvizPermanentlyDone && answers.length === 0 ? 'Kviz završen!' : answers.filter(Boolean).length === shuffledQuestions.length ? 'Savršeno!' : 'Kviz završen!'}
               </div>
               {answers.length > 0 && (
                 <div style={{ fontSize: 14, color: 'var(--subtext)', marginBottom: 20 }}>
-                  {answers.filter(Boolean).length} / {QUIZ_QUESTIONS.length} correct
+                  {answers.filter(Boolean).length} / {shuffledQuestions.length} correct
                 </div>
               )}
               <div style={{
@@ -434,7 +450,7 @@ export default function EasterScreen({ onBack, award }) {
 
               {answers.length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-                  {QUIZ_QUESTIONS.map((qq, qi) => (
+                  {shuffledQuestions.map((qq, qi) => (
                     <div key={qi} style={{
                       display: 'flex', alignItems: 'center', gap: 10,
                       padding: '10px 14px', borderRadius: 10,

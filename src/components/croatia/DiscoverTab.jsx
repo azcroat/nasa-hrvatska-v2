@@ -4,6 +4,46 @@ import { PHOTO_CREDITS } from '../../lib/photos';
 import { MAPPLACES } from '../../data/cultural/geography.js';
 import CroatianKnight from '../shared/CroatianKnight';
 
+// ── Rotating hero cities — one per day, 4-day cycle ──────────────────────────
+const HERO_CITIES = [
+  {
+    key: 'labin',
+    src: '/images/scenes/labin.webp',
+    alt: 'Labin, Istria — medieval hilltop town',
+    name: '🏰 Labin, Istra',
+    subtitle: 'Medieval hilltop town · first anti-fascist republic in Europe, 1921',
+    credit: PHOTO_CREDITS.labin,
+    pos: 'center 60%',
+  },
+  {
+    key: 'rabac',
+    src: '/images/scenes/rabac.webp',
+    alt: 'Rabac, Istria — crystal-clear harbour',
+    name: '🌊 Rabac, Istra',
+    subtitle: 'The jewel of the Labin Riviera · crystal-clear Adriatic waters',
+    credit: PHOTO_CREDITS.rabac,
+    pos: 'center center',
+  },
+  {
+    key: 'mostar',
+    src: '/images/scenes/mostar.webp',
+    alt: 'Mostar, Bosnia-Herzegovina — Stari Most bridge',
+    name: '🌉 Mostar, Hercegovina',
+    subtitle: 'Stari Most — the Old Bridge rebuilt in 2004 · a symbol of reconciliation',
+    credit: PHOTO_CREDITS.mostar,
+    pos: 'center 55%',
+  },
+  {
+    key: 'bibinje',
+    src: '/images/scenes/bibinje.webp',
+    alt: 'Bibinje, Dalmatia — marina on the Adriatic',
+    name: '⛵ Bibinje, Dalmacija',
+    subtitle: 'Seaside village near Zadar · traditional Dalmatian fishing harbour',
+    credit: PHOTO_CREDITS.bibinje,
+    pos: 'center center',
+  },
+];
+
 // ── Daily city — deterministic from day-of-year ───────────────────────────────
 function getDailyCity() {
   const cities = MAPPLACES.places.filter(p => p.cat === 'city' || p.cat === 'home' || p.cat === 'park');
@@ -48,28 +88,29 @@ export default function DiscoverTab() {
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
   const dailyPhrase = DAILY_PHRASES[dayOfYear % DAILY_PHRASES.length];
   const dailyFact = DID_YOU_KNOW[dayOfYear % DID_YOU_KNOW.length];
+  const heroCity = HERO_CITIES[dayOfYear % HERO_CITIES.length];
 
   return (
     <div style={{ paddingBottom: 16 }}>
 
-      {/* ── HERO — Real Labin photo ── */}
+      {/* ── HERO — Daily rotating city photo ── */}
       <div style={{ position: 'relative', height: 200, overflow: 'hidden', borderRadius: 16, margin: '0 0 16px' }}>
         <img
-          src="/images/scenes/labin.webp"
-          alt="Labin, Istria — medieval hilltop town"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 60%' }}
+          src={heroCity.src}
+          alt={heroCity.alt}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: heroCity.pos }}
         />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(0,0,0,.65) 100%)' }} />
         <div style={{ position: 'absolute', bottom: 12, left: 14, right: 14 }}>
           <div style={{ fontSize: 18, fontWeight: 900, color: 'white', fontFamily: "'Playfair Display',serif", textShadow: '0 2px 8px rgba(0,0,0,.5)', marginBottom: 2 }}>
-            🏰 Labin, Istra
+            {heroCity.name}
           </div>
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,.75)', fontWeight: 500 }}>
-            Medieval hilltop town · first anti-fascist republic in Europe, 1921
+            {heroCity.subtitle}
           </div>
         </div>
         <div style={{ position: 'absolute', top: 10, right: 10, fontSize: 9, color: 'rgba(255,255,255,.45)', background: 'rgba(0,0,0,.35)', borderRadius: 6, padding: '2px 6px' }}>
-          {PHOTO_CREDITS.labin}
+          {heroCity.credit}
         </div>
       </div>
 
