@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { getHearts, loseHeart, hasHearts, getRegenTimeMs } from '../lib/lives.js';
+import { localDateStr } from '../lib/dateUtils.js';
 
 function clearLS() { localStorage.clear(); }
 
@@ -14,20 +15,19 @@ describe('lives — hearts system', () => {
   });
 
   it('returns 5 hearts after midnight (new day key)', () => {
-    // Store state with yesterday's date
-    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-    localStorage.setItem('nh_hearts', JSON.stringify({ date: yesterday, hearts: 2, lastRegen: Date.now() - 3600000 }));
+    // Store state with a clearly stale date (not today) to simulate a new day
+    localStorage.setItem('nh_hearts', JSON.stringify({ date: '2000-01-01', hearts: 2, lastRegen: Date.now() - 3600000 }));
     expect(getHearts()).toBe(5);
   });
 
   it('returns stored hearts within same day', () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDateStr();
     localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 3, lastRegen: Date.now() }));
     expect(getHearts()).toBe(3);
   });
 
   it('returns 0 hearts when stored as 0', () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDateStr();
     localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 0, lastRegen: Date.now() }));
     expect(getHearts()).toBe(0);
   });
@@ -38,7 +38,7 @@ describe('lives — hearts system', () => {
     vi.useFakeTimers();
     const now = Date.now();
     vi.setSystemTime(now);
-    const today = new Date(now).toISOString().slice(0, 10);
+    const today = localDateStr();
     localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 2, lastRegen: now - 4 * 3600001 }));
     expect(getHearts()).toBe(3);
   });
@@ -47,7 +47,7 @@ describe('lives — hearts system', () => {
     vi.useFakeTimers();
     const now = Date.now();
     vi.setSystemTime(now);
-    const today = new Date(now).toISOString().slice(0, 10);
+    const today = localDateStr();
     localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 2, lastRegen: now - 8 * 3600001 }));
     expect(getHearts()).toBe(4);
   });
@@ -56,7 +56,7 @@ describe('lives — hearts system', () => {
     vi.useFakeTimers();
     const now = Date.now();
     vi.setSystemTime(now);
-    const today = new Date(now).toISOString().slice(0, 10);
+    const today = localDateStr();
     localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 4, lastRegen: now - 8 * 3600001 }));
     expect(getHearts()).toBe(5);
   });
@@ -65,7 +65,7 @@ describe('lives — hearts system', () => {
     vi.useFakeTimers();
     const now = Date.now();
     vi.setSystemTime(now);
-    const today = new Date(now).toISOString().slice(0, 10);
+    const today = localDateStr();
     localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 5, lastRegen: now - 8 * 3600001 }));
     expect(getHearts()).toBe(5);
   });
@@ -74,7 +74,7 @@ describe('lives — hearts system', () => {
     vi.useFakeTimers();
     const now = Date.now();
     vi.setSystemTime(now);
-    const today = new Date(now).toISOString().slice(0, 10);
+    const today = localDateStr();
     localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 3, lastRegen: now - 2 * 3600000 }));
     expect(getHearts()).toBe(3);
   });
@@ -82,13 +82,13 @@ describe('lives — hearts system', () => {
   // ── loseHeart ────────────────────────────────────────────────────────────────
 
   it('loseHeart decrements hearts by 1', () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDateStr();
     localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 4, lastRegen: Date.now() }));
     expect(loseHeart()).toBe(3);
   });
 
   it('loseHeart floors at 0', () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDateStr();
     localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 0, lastRegen: Date.now() }));
     expect(loseHeart()).toBe(0);
   });
@@ -98,7 +98,7 @@ describe('lives — hearts system', () => {
   });
 
   it('loseHeart persists to localStorage', () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDateStr();
     localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 3, lastRegen: Date.now() }));
     loseHeart();
     const stored = JSON.parse(localStorage.getItem('nh_hearts'));
@@ -112,7 +112,7 @@ describe('lives — hearts system', () => {
   });
 
   it('hasHearts returns false when hearts === 0', () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDateStr();
     localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 0, lastRegen: Date.now() }));
     expect(hasHearts()).toBe(false);
   });
@@ -132,7 +132,7 @@ describe('lives — hearts system', () => {
     vi.useFakeTimers();
     const now = Date.now();
     vi.setSystemTime(now);
-    const today = new Date(now).toISOString().slice(0, 10);
+    const today = localDateStr();
     const lastRegen = now - 1 * 3600000; // 1 hour ago
     localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 3, lastRegen }));
     const ms = getRegenTimeMs();
@@ -144,7 +144,7 @@ describe('lives — hearts system', () => {
     vi.useFakeTimers();
     const now = Date.now();
     vi.setSystemTime(now);
-    const today = new Date(now).toISOString().slice(0, 10);
+    const today = localDateStr();
     const oneHourAgo = now - 3600000;
     localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 3, lastRegen: oneHourAgo }));
     const ms = getRegenTimeMs();
