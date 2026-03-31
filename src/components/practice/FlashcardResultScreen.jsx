@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import CroatianKnight from '../shared/CroatianKnight';
 
 export default function FlashcardResultScreen({ activePool, known, missed, onGoBack, onStudyMissed }) {
+  // Mark campaign quest uskrs_q2 ("Practice family vocab") done on first flashcard completion
+  useEffect(() => {
+    try {
+      const key = 'nh_cq_easter_uskrs_q2';
+      if (!localStorage.getItem(key)) localStorage.setItem(key, '1');
+    } catch (_) {}
+  }, []);
   const knownCount = activePool.length - missed.length;
   const missedCount = missed.length;
   const totalFlipped = activePool.length;
@@ -35,7 +42,7 @@ export default function FlashcardResultScreen({ activePool, known, missed, onGoB
         <div style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginTop:4}}>
           {missedCount === 0 ?
             '🌟 Perfect! Ready for new words.' :
-            `${missedCount} card${missedCount !== 1 ? 's' : ''} need review — they'll come back tomorrow`
+            `${missedCount} card${missedCount !== 1 ? 's' : ''} scheduled for review — check back tomorrow to reinforce them`
           }
         </div>
         {difficultyRec && (

@@ -21,8 +21,10 @@ export const LOCAL_PHOTOS = {
   dubrovnik_ai: '/images/scenes/dubrovnik-ai.webp',
   adriatic_ai:  '/images/scenes/dalmatian-ai.webp',
   food:         '/images/scenes/croatian-food.webp',  // AI-generated Croatian food table
-  mostar:       '/images/scenes/mostar.webp',          // AI-generated Mostar Old Bridge
-  labin:        '/images/scenes/labin.webp',           // CC BY-SA 3.0 © Bjoertvedt via Wikimedia Commons — real photo
+  mostar:       '/images/scenes/mostar.webp',           // CC BY-SA 4.0 © Ramirez HUN via Wikimedia Commons — Mostar panorama
+  labin:        '/images/scenes/labin.webp',            // CC BY-SA 3.0 © Bjoertvedt via Wikimedia Commons
+  rabac:        '/images/scenes/rabac.webp',            // CC BY-SA 3.0 © Czeva via Wikimedia Commons
+  bibinje:      '/images/scenes/bibinje.webp',          // CC BY-SA 3.0 © Voilierprovencal via Wikimedia Commons
 };
 
 export const PHOTOS = {
@@ -62,11 +64,17 @@ export const PHOTOS = {
   // Rovinj: colorful harbour houses reflected in calm water
   rovinj:    'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1200&q=85&fit=crop&auto=format',
 
-  // Mostar: AI-generated Stari Most (Old Bridge) at golden hour
+  // Mostar: CC BY-SA 4.0 panorama of Stari Most (Old Bridge) area © Ramirez HUN, Wikimedia Commons
   mostar:    '/images/scenes/mostar.webp',
 
-  // Labin: Real photograph, CC BY-SA 3.0 © Bjoertvedt, Wikimedia Commons
+  // Labin: CC BY-SA 3.0 © Bjoertvedt, Wikimedia Commons
   labin:     '/images/scenes/labin.webp',
+
+  // Rabac: CC BY-SA 3.0 aerial view of Rabac harbour © Czeva, Wikimedia Commons
+  rabac:     '/images/scenes/rabac.webp',
+
+  // Bibinje: CC BY-SA 3.0 marina view of Bibinje © Voilierprovencal, Wikimedia Commons
+  bibinje:   '/images/scenes/bibinje.webp',
 };
 
 // Thumbnail versions — local paths serve the same file (browser caches it)
@@ -79,5 +87,8 @@ export default PHOTOS;
 export const UNSPLASH_CREDIT = 'Photos via Unsplash';
 
 export const PHOTO_CREDITS = {
-  labin: 'Photo © Bjoertvedt, CC BY-SA 3.0, via Wikimedia Commons',
+  labin:   'Photo © Bjoertvedt, CC BY-SA 3.0, via Wikimedia Commons',
+  rabac:   'Photo © Czeva, CC BY-SA 3.0, via Wikimedia Commons',
+  mostar:  'Photo © Ramirez HUN, CC BY-SA 4.0, via Wikimedia Commons',
+  bibinje: 'Photo © Voilierprovencal, CC BY-SA 3.0, via Wikimedia Commons',
 };
