@@ -123,6 +123,48 @@ export default function LearnTab({
         <div style={{fontSize:18, color:'#0369a1'}}>→</div>
       </button>
 
+      {/* ── GRADED STORIES + PRONUNCIATION COURSE ───────────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+        <button
+          onClick={() => setScr('graded_input')}
+          style={{
+            display:'flex', flexDirection:'column', alignItems:'flex-start', gap:6,
+            padding:'14px 14px', borderRadius:16, border:'1.5px solid #bbf7d0',
+            background:'linear-gradient(135deg,#f0fdf4,#dcfce7)',
+            cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+          }}
+        >
+          <div style={{
+            width:40, height:40, borderRadius:12, flexShrink:0,
+            background:'linear-gradient(135deg,#059669,#065f46)',
+            display:'flex', alignItems:'center', justifyContent:'center', fontSize:20,
+          }}>📖</div>
+          <div>
+            <div style={{fontSize:13, fontWeight:800, color:'#065f46'}}>Graded Stories</div>
+            <div style={{fontSize:11, color:'#059669', marginTop:2, lineHeight:1.4}}>A1–B1 Croatian texts with audio & quiz</div>
+          </div>
+        </button>
+        <button
+          onClick={() => setScr('pronunciation_course')}
+          style={{
+            display:'flex', flexDirection:'column', alignItems:'flex-start', gap:6,
+            padding:'14px 14px', borderRadius:16, border:'1.5px solid #ddd6fe',
+            background:'linear-gradient(135deg,#faf5ff,#ede9fe)',
+            cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+          }}
+        >
+          <div style={{
+            width:40, height:40, borderRadius:12, flexShrink:0,
+            background:'linear-gradient(135deg,#7c3aed,#5b21b6)',
+            display:'flex', alignItems:'center', justifyContent:'center', fontSize:20,
+          }}>🗣️</div>
+          <div>
+            <div style={{fontSize:13, fontWeight:800, color:'#4c1d95'}}>Pronunciation</div>
+            <div style={{fontSize:11, color:'#7c3aed', marginTop:2, lineHeight:1.4}}>Master Č, Š, Ž, LJ, NJ & more</div>
+          </div>
+        </button>
+      </div>
+
       {/* ── PATH WIDGET ─────────────────────────────────────────────────── */}
       <LearnPathWidget
         sc={sc}

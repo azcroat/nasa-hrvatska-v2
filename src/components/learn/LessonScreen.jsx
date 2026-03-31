@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { H, Bar, speak, srMark, sh, shuffleArr, V } from '../../data.jsx';
+import React, { useRef, useState, useMemo } from 'react';
+import { H, Bar, speak, srMark, sh, shuffleArr, V, ASPECT_PAIRS } from '../../data.jsx';
 import { playCorrect, playWrong, haptic } from '../../lib/soundSettings.js';
 import { markQuest } from '../../lib/quests.js';
 import CroatianKnight from '../shared/CroatianKnight';
@@ -28,6 +28,16 @@ export default function LessonScreen({
   ]).filter(row => row[0] && row[1]);
 
   const awardFn = typeof award === 'function' ? award : () => {};
+
+  // Build a lookup from Croatian infinitive → aspect pair info
+  const aspectMap = useMemo(() => {
+    const map = {};
+    (ASPECT_PAIRS || []).forEach(pair => {
+      if (pair.impf) map[pair.impf] = pair;
+      if (pair.pf) map[pair.pf] = pair;
+    });
+    return map;
+  }, []);
 
   /* ── FLASHCARDS OVERLAY ───────────────────────────────────────── */
   if (showFlashcards) {
@@ -93,6 +103,41 @@ export default function LessonScreen({
                     marginTop: 2, fontFamily: 'monospace', letterSpacing: '.03em',
                   }}>/{w[2]}/</div>
                 )}
+                {/* Example sentence */}
+                {w[3] && (
+                  <div style={{
+                    fontSize: 12, color: 'var(--subtext)', marginTop: 4,
+                    fontStyle: 'italic', lineHeight: 1.4,
+                  }}>{w[3]}</div>
+                )}
+                {/* Aspect pair */}
+                {(() => {
+                  const pair = aspectMap[w[0]];
+                  if (!pair) return null;
+                  const partner = pair.impf === w[0]
+                    ? { label: 'pf', word: pair.pf }
+                    : { label: 'impf', word: pair.impf };
+                  return (
+                    <div style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6,
+                      marginTop: 6, background: 'rgba(14,116,144,.08)',
+                      border: '1px solid rgba(14,116,144,.2)',
+                      borderRadius: 8, padding: '2px 8px', fontSize: 11,
+                    }}>
+                      <span style={{ color: 'var(--info)', fontWeight: 700 }}>
+                        {pair.impf === w[0] ? 'impf' : 'pf'}
+                      </span>
+                      <span style={{ color: 'var(--subtext)' }}>↔</span>
+                      <span
+                        role="button" tabIndex={0}
+                        onClick={e => { e.stopPropagation(); speak(partner.word); }}
+                        onKeyDown={e => { if (e.key === 'Enter') { e.stopPropagation(); speak(partner.word); } }}
+                        style={{ color: 'var(--info)', fontWeight: 700, cursor: 'pointer' }}
+                      >{partner.word}</span>
+                      <span style={{ color: 'var(--subtext)', fontWeight: 600 }}>({partner.label})</span>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
             <div style={{

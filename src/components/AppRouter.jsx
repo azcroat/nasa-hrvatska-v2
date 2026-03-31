@@ -190,6 +190,8 @@ const LiveTutorScreen = lazyWithReload(() => import("./croatia/LiveTutorScreen.j
 const PhotoVocabScanner = lazyWithReload(() => import("./shared/PhotoVocabScanner.jsx"));
 const AdminDashboard = lazyWithReload(() => import("./admin/AdminDashboard.jsx"));
 const TermsOfService = lazyWithReload(() => import("./shared/TermsOfService.jsx"));
+const GradedInputScreen = lazyWithReload(() => import("./learn/GradedInputScreen.jsx"));
+const PronunciationCourse = lazyWithReload(() => import("./learn/PronunciationCourse.jsx"));
 
 /**
  * AppRouter — renders the correct screen component for `currentScreen`.
@@ -527,6 +529,8 @@ export default function AppRouter(props) {
       {currentScreen==="croatianews"&&<ScreenErrorBoundary key="croatianews" name="croatianews"><CroatianNewsScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="phraseofday"&&<ScreenErrorBoundary key="phraseofday" name="phraseofday"><PhraseOfDayScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="cloze"&&<ScreenErrorBoundary key="cloze" name="cloze"><ClozeEngine goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="graded_input"&&<ScreenErrorBoundary key="graded_input" name="graded_input"><GradedInputScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="pronunciation_course"&&<ScreenErrorBoundary key="pronunciation_course" name="pronunciation_course"><PronunciationCourse goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="grammarmap"&&<ScreenErrorBoundary key="grammarmap" name="grammarmap"><GrammarConstellation goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="my_words"&&<ScreenErrorBoundary key="my_words" name="my_words"><MyWordsScreen onBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="mistakes"&&<ScreenErrorBoundary key="mistakes" name="mistakes"><MistakesScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
