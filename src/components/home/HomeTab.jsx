@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { LEARN_PATH, getStreak, getDailyChallenge, speak, preloadAudio, DAILY_QUESTS, getActiveCampaign, getCityOfDay, incrementCulture, getDueReviews, getSR } from '../../data.jsx';
+import { LEARN_PATH, getStreak, getDailyChallenge, speak, preloadAudio, DAILY_QUESTS, getActiveCampaign, getCityOfDay, incrementCulture, getDueReviews, getSR, getProverbOfDay, getHistFact } from '../../data.jsx';
 import { getWordOfDay } from '../../lib/wordOfDay.js';
 import { weekKey, localDateStr } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext.jsx';
@@ -26,6 +26,7 @@ import ProgressTabContent from './ProgressTabContent.jsx';
 import WelcomeBackBanners from './WelcomeBackBanners.jsx';
 import GoalSetterModal from '../shared/GoalSetterModal.jsx';
 import SpeedChallenge from './SpeedChallenge.jsx';
+import KnightSpeech from '../shared/KnightSpeech.jsx';
 // DalmatianCoast SVG replaced with real AI/CC photography
 // import { DalmatianCoast } from '../illustrations';
 
@@ -301,6 +302,9 @@ export default function HomeTab({
         wsMastered={ws.strong}
       />
 
+      {/* ── VITEZ HRVOJE — contextual coach with speech bubble ── */}
+      <KnightSpeech st={st} streak={streak.count} level={level} />
+
       {/* Daily Goal Progress */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.06 }}>
       {(() => {
@@ -554,6 +558,59 @@ export default function HomeTab({
                       </div>
                     </div>
                   </button>
+
+                  {/* ── Proverb of the Day ── */}
+                  {(() => {
+                    const proverb = getProverbOfDay();
+                    return (
+                      <div style={{
+                        padding: '12px 16px',
+                        borderTop: '1px solid var(--card-b)',
+                        background: 'var(--card)',
+                        display: 'flex', alignItems: 'flex-start', gap: 12,
+                      }}>
+                        <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>📜</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 10, fontWeight: 900, color: '#b45309', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 4 }}>
+                            Proverb of the Day
+                          </div>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', lineHeight: 1.45, marginBottom: 3 }}>
+                            {proverb.hr}
+                          </div>
+                          <div style={{ fontSize: 11, color: 'var(--subtext)', fontStyle: 'italic', lineHeight: 1.4 }}>
+                            {proverb.en}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* ── Did You Know? ── */}
+                  {(() => {
+                    const fact = getHistFact();
+                    return (
+                      <div style={{
+                        padding: '12px 16px',
+                        borderTop: '1px solid var(--card-b)',
+                        background: 'var(--card)',
+                        display: 'flex', alignItems: 'flex-start', gap: 12,
+                        borderRadius: '0 0 20px 20px',
+                      }}>
+                        <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>💡</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 10, fontWeight: 900, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 4 }}>
+                            Did You Know?
+                          </div>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', lineHeight: 1.45, marginBottom: 3 }}>
+                            {fact.hr}
+                          </div>
+                          <div style={{ fontSize: 11, color: 'var(--subtext)', fontStyle: 'italic', lineHeight: 1.4 }}>
+                            {fact.en}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </motion.div>
             );
