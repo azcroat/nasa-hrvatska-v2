@@ -260,8 +260,13 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
         </div>
       </div>
 
-      {/* Bottom: dark mode toggle + sign out */}
+      {/* Bottom: report bug + dark mode toggle + sign out */}
       <div style={{ padding: '12px 16px', borderTop: '1px solid var(--nav-b)', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <button onClick={() => setScr('contact')}
+          style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 10px', borderRadius: 10, border: 'none', background: 'var(--bar-bg)', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }}>
+          <span style={{ fontSize: 16 }}>🐛</span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--subtext)' }}>Report a Bug</span>
+        </button>
         <button onClick={() => setDarkMode(d => !d)}
           style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 10px', borderRadius: 10, border: 'none', background: 'var(--bar-bg)', cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }}>
           <span style={{ fontSize: 16 }}>{darkMode ? '☀️' : '🌙'}</span>
