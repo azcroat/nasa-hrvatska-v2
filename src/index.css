@@ -566,6 +566,7 @@ html{
 @keyframes pathDraw{0%{stroke-dashoffset:1000}100%{stroke-dashoffset:0}}
 @keyframes bounce-gentle{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 @keyframes pulse-ring{0%,100%{box-shadow:0 0 0 0 var(--ring-clr,rgba(37,99,235,.35))}50%{box-shadow:0 0 0 6px transparent}}
+@keyframes lk-blink{0%,100%{opacity:1}50%{opacity:0}}
 
 /* Tooltips / Onboarding */
 @keyframes tooltipIn{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
