@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { V, sh } from '../../data.jsx';
 import CroatianKnight from '../shared/CroatianKnight';
+import { knightSpeak } from '../../lib/knightSpeak.js';
 
 export default function McResult({ questions, score, mistakes = [], setScr, goBack, onNewGame, award }) {
   const total = questions.length;
@@ -26,6 +27,19 @@ export default function McResult({ questions, score, mistakes = [], setScr, goBa
     const timer = setTimeout(() => requestAnimationFrame(step), 600);
     return () => clearTimeout(timer);
   }, [targetXP]);
+
+  // ── Knight reacts to result ───────────────────────────────────────────────
+  useEffect(() => {
+    const ratio = score / total;
+    knightSpeak(
+      ratio === 1 ? 'victory' : ratio >= 0.8 ? 'celebrating' : ratio >= 0.5 ? 'encouraged' : 'thinking',
+      ratio === 1 ? 'Savršeno! Perfect quiz — Vitez Hrvoje is impressed. ⚔️' :
+      ratio >= 0.8 ? `${score}/${total} — that's strong work. Almost perfect. 💪` :
+      ratio >= 0.5 ? `${score}/${total} correct. Every session you miss fewer. Keep going. 🛡️` :
+      'Practice makes perfect — "vježba čini majstora." Try again tomorrow. 📐',
+      700
+    );
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Confetti on mount ─────────────────────────────────────────────────────
   useEffect(() => {

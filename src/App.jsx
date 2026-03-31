@@ -45,6 +45,7 @@ import CookieConsent from "./components/shared/CookieConsent.jsx";
 import CroatianGrb from "./components/shared/CroatianGrb.jsx";
 import { AppToasts } from "./components/shared/AppToasts.jsx";
 import { AppModals } from "./components/shared/AppModals.jsx";
+import KnightCompanion from "./components/shared/KnightCompanion.jsx";
 import AppRouter from "./components/AppRouter.jsx";
 
 // ── Module-level constants ───────────────────────────────────────────────────
@@ -549,6 +550,7 @@ function App() {
         />
         {authScreen === 'app' && currentScreen !== 'welcome' && currentScreen !== 'placement' && <TabBar tab={tab} setTab={setTab} setScr={setScr} badges={badges} />}
 
+        <KnightCompanion />
         <OfflineBanner />
         <CookieConsent />
       </Suspense>

@@ -7,6 +7,7 @@ import { markQuest } from '../../lib/quests.js';
 import { logError } from '../../lib/learnerErrors.js';
 import { playFanfare } from '../../lib/soundSettings.js';
 import CroatianKnight from '../shared/CroatianKnight.jsx';
+import { knightSpeak } from '../../lib/knightSpeak.js';
 
 export default function ReviewScreen({ goBack, award, allCats, V }) {
   const haptic = useHaptic();
@@ -22,6 +23,19 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
   const [selected, setSelected] = useState(-1);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
+
+  // Knight reacts when the review session ends
+  useEffect(() => {
+    if (!done || questions.length === 0) return;
+    const pct = Math.round((score / questions.length) * 100);
+    knightSpeak(
+      pct >= 80 ? 'victory' : pct >= 50 ? 'encouraged' : 'thinking',
+      pct >= 80 ? `Review nailed! ${pct}% — your memory is getting sharper. 🧠` :
+      pct >= 50 ? `${score}/${questions.length} correct. The words you missed today won't beat you twice. 💪` :
+      'Review done. Spaced repetition takes time — show up tomorrow and watch the numbers climb. 📈',
+      600
+    );
+  }, [done]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const questions = useMemo(() => {
     if (dueWords.length === 0) return [];

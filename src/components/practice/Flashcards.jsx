@@ -7,6 +7,7 @@ import FlashcardResultScreen from './FlashcardResultScreen.jsx';
 import FlashcardEmptyState from './FlashcardEmptyState.jsx';
 import FlashcardCardFront from './FlashcardCardFront.jsx';
 import FlashcardCardBack from './FlashcardCardBack.jsx';
+import { knightSpeak } from '../../lib/knightSpeak.js';
 
 // Fetch AI-generated contextual image for a vocabulary word via FLUX
 async function fetchCardImage(word, meaning, cacheRef, signal) {
@@ -197,6 +198,13 @@ export default function Flashcards({ pool, goBack, award }) {
     finishFired.current = true;
     try { sessionStorage.removeItem(FLASH_RESUME_KEY); } catch { /* ignore */ }
     award(finalKnown * XP_PER_KNOWN + XP_COMPLETION_BONUS);
+    knightSpeak(
+      finalKnown === activePool.length ? 'victory' : finalKnown >= activePool.length * 0.7 ? 'celebrating' : 'encouraged',
+      finalKnown === activePool.length
+        ? `${finalKnown} words — all known! Your memory is working. 🧠`
+        : `${finalKnown}/${activePool.length} words mastered this session. Spaced repetition is building your foundation. 📚`,
+      500
+    );
     setDone(true);
     if (finalKnown === activePool.length) {
       setTimeout(() => confetti({
