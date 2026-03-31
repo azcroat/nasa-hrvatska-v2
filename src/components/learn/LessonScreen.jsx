@@ -1,8 +1,9 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { H, Bar, speak, srMark, sh, shuffleArr, V, ASPECT_PAIRS, CROATIAN_CITIES } from '../../data.jsx';
 import { playCorrect, playWrong, haptic, playFanfare } from '../../lib/soundSettings.js';
 import { markQuest } from '../../lib/quests.js';
 import CroatianKnight from '../shared/CroatianKnight';
+import { knightSpeak } from '../../lib/knightSpeak.js';
 import { CelebrationScene } from '../illustrations';
 import Flashcards from '../practice/Flashcards';
 
@@ -15,6 +16,19 @@ export default function LessonScreen({
 }) {
   const resultFired = useRef(false);
   const [showQuit, setShowQuit] = useState(false);
+
+  // Knight reacts when the lesson result screen appears
+  useEffect(() => {
+    if (lp !== 'result') return;
+    const pct = qi.length > 0 ? ls / qi.length : 0;
+    knightSpeak(
+      pct === 1 ? 'victory' : pct >= 0.7 ? 'celebrating' : 'encouraged',
+      pct === 1 ? 'Savršeno! That lesson is yours forever now. 🌟' :
+      pct >= 0.7 ? `Odlično! ${Math.round(pct * 100)}% — real Croatian progress. 💪` :
+      'Svaki početak je težak — every beginning is hard. Come back and it gets easier. 🛡️',
+      400
+    );
+  }, [lp]); // eslint-disable-line react-hooks/exhaustive-deps
   const [showFlashcards, setShowFlashcards] = useState(false);
   const earnedXp = qi.length > 0 ? Math.round((ls / qi.length) * 30) + 5 : 5;
   const scorePct = qi.length > 0 ? ls / qi.length : 0;
