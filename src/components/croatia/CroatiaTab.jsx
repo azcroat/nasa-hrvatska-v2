@@ -10,9 +10,19 @@ import StoriesTab from './StoriesTab.jsx';
 export default function CroatiaTab({ sCurEx }) {
   const [ctab, setCTab] = useState(() => sessionStorage.getItem('nh_ctab') || 'discover');
 
+  // Track first-visit per sub-tab so "New" badges dismiss after the user has been there
+  const [visited, setVisited] = useState(() => ({
+    media:   !!localStorage.getItem('nh_visited_media'),
+    stories: !!localStorage.getItem('nh_visited_stories'),
+  }));
+
   function changeTab(id) {
     sessionStorage.setItem('nh_ctab', id);
     setCTab(id);
+    if ((id === 'media' || id === 'stories') && !visited[id]) {
+      try { localStorage.setItem('nh_visited_' + id, '1'); } catch (_) {}
+      setVisited(v => ({ ...v, [id]: true }));
+    }
   }
 
   return (
@@ -41,21 +51,38 @@ export default function CroatiaTab({ sCurEx }) {
       </div>
 
       {/* ── SUB-TAB PILL SELECTOR ── */}
+      <style>{`@keyframes nh-new-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.7}}`}</style>
       <div style={{ display:'flex', gap:8, overflowX:'auto', scrollbarWidth:'none', position:'sticky', top:0, zIndex:10, background:'var(--app-bg)', paddingTop:8, paddingBottom:8, borderBottom:'1px solid var(--card-b)', boxShadow:'0 2px 8px rgba(0,0,0,0.06)' }}>
         {[
           { id:'discover', label:'🗓️ Discover' },
           { id:'culture',  label:'🏰 Culture' },
           { id:'media',    label:'🎵 Media' },
           { id:'stories',  label:'📖 Stories' },
-        ].map(t => (
-          <button key={t.id} data-ctab={t.id} onClick={() => changeTab(t.id)} style={{
-            padding:'7px 16px', borderRadius:20, border:'none', flexShrink:0,
-            background: ctab === t.id ? 'var(--info)' : 'var(--bar-bg)',
-            color: ctab === t.id ? '#fff' : 'var(--subtext)',
-            fontWeight:700, fontSize:13, cursor:'pointer', whiteSpace:'nowrap',
-            transition:'background 0.2s',
-          }}>{t.label}</button>
-        ))}
+        ].map(t => {
+          const isNew = (t.id === 'media' || t.id === 'stories') && !visited[t.id];
+          const isActive = ctab === t.id;
+          return (
+            <button key={t.id} data-ctab={t.id} onClick={() => changeTab(t.id)} style={{
+              position:'relative',
+              padding:'7px 16px', borderRadius:20, border:'none', flexShrink:0,
+              background: isActive ? 'var(--info)' : 'var(--bar-bg)',
+              color: isActive ? '#fff' : 'var(--subtext)',
+              fontWeight:700, fontSize:13, cursor:'pointer', whiteSpace:'nowrap',
+              transition:'background 0.2s',
+            }}>
+              {t.label}
+              {isNew && (
+                <span style={{
+                  position:'absolute', top:2, right:4,
+                  width:8, height:8, borderRadius:'50%',
+                  background:'#ef4444',
+                  border:'1.5px solid var(--app-bg)',
+                  animation:'nh-new-pulse 2s ease-in-out infinite',
+                }} />
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* ── Tab content wrapper with fade transition ── */}
