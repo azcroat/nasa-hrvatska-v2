@@ -56,7 +56,7 @@ function JourneyStrip({ currentLevel }) {
                 {/* Knight indicator above current */}
                 <div style={{ height: 28, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', marginBottom: 2 }}>
                   {isCurrent && (
-                    <CroatianKnight size={26} mood="ready" style={{ animation: 'bounce-gentle 2s ease-in-out infinite' }} />
+                    <CroatianKnight size={26} mood="marching" />
                   )}
                 </div>
 
