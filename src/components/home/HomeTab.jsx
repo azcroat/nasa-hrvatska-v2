@@ -300,58 +300,8 @@ export default function HomeTab({
         wsMastered={ws.strong}
       />
 
-      {/* Daily Goal Progress */}
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.06 }}>
-      {(() => {
-        const dailyTarget = parseInt(localStorage.getItem('nh_daily_goal_xp') || '50', 10);
-        const todayKey = 'nh_day_xp_' + localDateStr();
-        const todayXp = parseInt(localStorage.getItem(todayKey) || '0', 10);
-        const pct = Math.min(1, todayXp / dailyTarget);
-        const done = pct >= 1;
-        return (
-          <div style={{margin:'12px 0 8px', padding:'12px 16px', background:'var(--card)',
-            borderRadius:14, border:'1px solid var(--card-b)'}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
-              <span style={{fontSize:'var(--text-xs)',fontWeight:700,color:'var(--subtext)',textTransform:'uppercase',letterSpacing:'.08em'}}>
-                Daily Goal
-              </span>
-              <span style={{fontSize:'var(--text-xs)',fontWeight:700,color: done ? 'var(--success)' : 'var(--info)'}}>
-                {done ? '✅ Complete!' : `${todayXp} / ${dailyTarget} XP`}
-              </span>
-            </div>
-            <div style={{height:8,borderRadius:4,background:'var(--bar-bg)',overflow:'hidden'}}>
-              <div style={{height:'100%',borderRadius:4,width:`${pct*100}%`,
-                background: done ? 'var(--success)' : 'linear-gradient(90deg,var(--info),#38bdf8)',
-                transition:'width 0.6s cubic-bezier(0.4,0,0.2,1)'}} />
-            </div>
-            {done && (
-              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:6}}>
-                <div style={{fontSize:'var(--text-xs)',color:'var(--success)',fontWeight:600}}>
-                  🎉 Goal reached! Every extra XP builds your lead.
-                </div>
-                <button
-                  onClick={() => {
-                    const text = `🇭🇷 Daily goal hit! ${todayXp} XP earned learning Croatian on Naša Hrvatska`;
-                    if (navigator.share) {
-                      navigator.share({ title: 'Naša Hrvatska', text, url: 'https://nasahrvatska.com' }).catch(() => {});
-                    } else {
-                      navigator.clipboard?.writeText(text).catch(() => {});
-                    }
-                  }}
-                  style={{background:'none',border:'1px solid var(--success-b)',borderRadius:8,padding:'3px 10px',
-                    fontSize:11,fontWeight:700,color:'var(--success)',cursor:'pointer',flexShrink:0,marginLeft:8}}
-                >
-                  Share 📤
-                </button>
-              </div>
-            )}
-          </div>
-        );
-      })()}
-      </motion.div>
-
       {/* ── SUB-TAB PILL SELECTOR ── */}
-      <div style={{ display:'flex', gap:8, padding:'12px 0 4px', borderBottom:'1px solid var(--bar-bg)', marginBottom:16 }}>
+      <div style={{ display:'flex', gap:8, padding:'20px 0 4px', borderBottom:'1px solid var(--bar-bg)', marginBottom:16 }}>
         {[
           { id:'today',    label:'⚡ Today' },
           { id:'progress', label:'📈 Progress' },
