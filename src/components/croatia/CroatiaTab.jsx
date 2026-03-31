@@ -40,37 +40,6 @@ export default function CroatiaTab({ sCurEx }) {
         </div>
       </div>
 
-      {/* Quick Access — horizontal scroll category cards */}
-      <div style={{
-        display: 'flex', gap: 10, overflowX: 'auto', padding: '12px 16px 4px',
-        scrollbarWidth: 'none', msOverflowStyle: 'none',
-        WebkitOverflowScrolling: 'touch',
-      }}>
-        {[
-          { icon: '🏛️', label: 'History',   tab: 'culture'  },
-          { icon: '🗺️', label: 'Regions',   tab: 'culture'  },
-          { icon: '🎵', label: 'Music',      tab: 'media'    },
-          { icon: '📺', label: 'TV & Film',  tab: 'media'    },
-          { icon: '📖', label: 'Stories',    tab: 'stories'  },
-          { icon: '🌊', label: 'Discover',   tab: 'discover' },
-        ].map(item => (
-          <button
-            key={item.label}
-            onClick={() => changeTab(item.tab)}
-            style={{
-              flexShrink: 0, display: 'flex', flexDirection: 'column',
-              alignItems: 'center', gap: 4, padding: '10px 14px',
-              background: ctab === item.tab ? 'var(--info-bg, #f0f9ff)' : 'var(--card)',
-              border: ctab === item.tab ? '1.5px solid var(--info-b, #bae6fd)' : '1px solid var(--card-b)',
-              borderRadius: 12, cursor: 'pointer', minWidth: 64,
-            }}
-          >
-            <span style={{fontSize: 22}}>{item.icon}</span>
-            <span style={{fontSize: 11, fontWeight: 700, color: 'var(--text-2)', whiteSpace: 'nowrap'}}>{item.label}</span>
-          </button>
-        ))}
-      </div>
-
       {/* ── SUB-TAB PILL SELECTOR ── */}
       <div style={{ display:'flex', gap:8, overflowX:'auto', scrollbarWidth:'none', position:'sticky', top:0, zIndex:10, background:'var(--app-bg)', paddingTop:8, paddingBottom:8, borderBottom:'1px solid var(--card-b)', boxShadow:'0 2px 8px rgba(0,0,0,0.06)' }}>
         {[
@@ -79,7 +48,7 @@ export default function CroatiaTab({ sCurEx }) {
           { id:'media',    label:'🎵 Media' },
           { id:'stories',  label:'📖 Stories' },
         ].map(t => (
-          <button key={t.id} onClick={() => changeTab(t.id)} style={{
+          <button key={t.id} data-ctab={t.id} onClick={() => changeTab(t.id)} style={{
             padding:'7px 16px', borderRadius:20, border:'none', flexShrink:0,
             background: ctab === t.id ? 'var(--info)' : 'var(--bar-bg)',
             color: ctab === t.id ? '#fff' : 'var(--subtext)',

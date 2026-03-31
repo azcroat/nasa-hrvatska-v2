@@ -1,55 +1,157 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
-import PhotoHero from '../shared/PhotoHero';
-import { PHOTOS } from '../../lib/photos';
+import { PHOTO_CREDITS } from '../../lib/photos';
+import { MAPPLACES } from '../../data/cultural/geography.js';
 import CroatianKnight from '../shared/CroatianKnight';
+
+// ── Daily city — deterministic from day-of-year ───────────────────────────────
+function getDailyCity() {
+  const cities = MAPPLACES.places.filter(p => p.cat === 'city' || p.cat === 'home' || p.cat === 'park');
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+  return cities[dayOfYear % cities.length];
+}
+
+// ── Daily Croatian phrases ────────────────────────────────────────────────────
+const DAILY_PHRASES = [
+  { hr: 'Kako si?', en: 'How are you?', note: 'Informal — use with friends and family' },
+  { hr: 'Hvala lijepa!', en: 'Thank you very much!', note: 'Warmer than plain "hvala"' },
+  { hr: 'Gdje je more?', en: 'Where is the sea?', note: 'Essential for any trip to Dalmatia' },
+  { hr: 'Koliko košta?', en: 'How much does it cost?', note: 'Markets, restaurants, everywhere' },
+  { hr: 'Jedna kava, molim.', en: 'One coffee, please.', note: 'The most Croatian sentence there is' },
+  { hr: 'Lijepo je ovdje.', en: 'It\'s beautiful here.', note: 'You\'ll say this constantly in Croatia' },
+  { hr: 'Idemo na plažu!', en: 'Let\'s go to the beach!', note: 'Summer vocabulary — critical' },
+  { hr: 'Dobar tek!', en: 'Enjoy your meal!', note: 'Said before eating — like "bon appétit"' },
+  { hr: 'Živjeli!', en: 'Cheers!', note: 'For rakija, wine, or pivo (beer)' },
+  { hr: 'Nema problema.', en: 'No problem.', note: 'The Croatian spirit in two words' },
+  { hr: 'Polako, ali sigurno.', en: 'Slowly but surely.', note: 'A saying — and a way of life' },
+  { hr: 'Stvarno lijepo.', en: 'Truly beautiful.', note: 'Genuine appreciation, not just polite' },
+  { hr: 'Gdje stanujete?', en: 'Where do you live?', note: 'Formal — for new acquaintances' },
+  { hr: 'Učim hrvatski.', en: 'I am learning Croatian.', note: 'Guaranteed to make any Croatian smile' },
+];
+
+const DID_YOU_KNOW = [
+  { fact: 'The necktie was invented in Croatia. The word "cravat" comes from "Hrvat" — Croatian.', emoji: '👔' },
+  { fact: 'Labin declared itself an independent republic in 1921 — the first anti-fascist uprising in Europe.', emoji: '✊' },
+  { fact: 'Nikola Tesla was born in Smiljan, Croatia. He rewired how the entire world uses electricity.', emoji: '⚡' },
+  { fact: 'The Pula Arena is one of the six largest Roman amphitheatres still standing, built in 27 BC.', emoji: '🏛️' },
+  { fact: 'Hvar gets 2,726 sunshine hours per year — more than anywhere else in Europe.', emoji: '☀️' },
+  { fact: 'The Dalmatian dog breed is named after Dalmatia, the Croatian coastal region.', emoji: '🐾' },
+  { fact: 'Marco Polo was (most likely) born on the island of Korčula, Croatia.', emoji: '⛵' },
+  { fact: 'Croatian has been written in the same Gaj script since 1830 — one letter, one sound, always.', emoji: '📜' },
+  { fact: 'The Stradun in Dubrovnik was paved in the 13th century and is still the main street today.', emoji: '🏰' },
+  { fact: 'Vinkovci is the oldest continuously inhabited town in Europe — over 8,300 years old.', emoji: '🌍' },
+];
 
 export default function DiscoverTab() {
   const { setScr } = useApp();
+  const dailyCity = useMemo(getDailyCity, []);
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+  const dailyPhrase = DAILY_PHRASES[dayOfYear % DAILY_PHRASES.length];
+  const dailyFact = DID_YOU_KNOW[dayOfYear % DID_YOU_KNOW.length];
 
   return (
-    <React.Fragment>
-      {/* ── PHOTO HERO ── */}
-      <PhotoHero
-        src={PHOTOS.labin}
-        alt="Labin hilltop town, Istria"
-        title="Naša Hrvatska"
-        subtitle="Culture, history & language — all in one place"
-        height={180}
-        style={{marginBottom: 20}}
-        priority={true}
-      />
+    <div style={{ paddingBottom: 16 }}>
 
-      {/* ── KNIGHT WELCOME BANNER ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', background: 'var(--card)', borderRadius: 12, margin: '0 0 12px' }}>
-        <CroatianKnight size={44} mood="ready" style={{ flexShrink: 0 }} />
-        <div style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.5 }}>
+      {/* ── HERO — Real Labin photo ── */}
+      <div style={{ position: 'relative', height: 200, overflow: 'hidden', borderRadius: 16, margin: '0 0 16px' }}>
+        <img
+          src="/images/scenes/labin.webp"
+          alt="Labin, Istria — medieval hilltop town"
+          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 60%' }}
+        />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(0,0,0,.65) 100%)' }} />
+        <div style={{ position: 'absolute', bottom: 12, left: 14, right: 14 }}>
+          <div style={{ fontSize: 18, fontWeight: 900, color: 'white', fontFamily: "'Playfair Display',serif", textShadow: '0 2px 8px rgba(0,0,0,.5)', marginBottom: 2 }}>
+            🏰 Labin, Istra
+          </div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,.75)', fontWeight: 500 }}>
+            Medieval hilltop town · first anti-fascist republic in Europe, 1921
+          </div>
+        </div>
+        <div style={{ position: 'absolute', top: 10, right: 10, fontSize: 9, color: 'rgba(255,255,255,.45)', background: 'rgba(0,0,0,.35)', borderRadius: 6, padding: '2px 6px' }}>
+          {PHOTO_CREDITS.labin}
+        </div>
+      </div>
+
+      {/* ── DAILY PHRASE ── */}
+      <div style={{ background: 'var(--card)', border: '1.5px solid var(--card-b)', borderRadius: 14, padding: '14px 16px', marginBottom: 12 }}>
+        <div style={{ fontSize: 10, fontWeight: 900, color: 'var(--info)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 8 }}>
+          🗓️ Phrase of the Day
+        </div>
+        <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--heading)', fontFamily: "'Playfair Display',serif", marginBottom: 4 }}>
+          "{dailyPhrase.hr}"
+        </div>
+        <div style={{ fontSize: 14, color: 'var(--subtext)', marginBottom: 6 }}>{dailyPhrase.en}</div>
+        <div style={{ fontSize: 11, color: 'var(--subtext)', fontStyle: 'italic', opacity: 0.75 }}>{dailyPhrase.note}</div>
+      </div>
+
+      {/* ── CITY OF THE DAY ── */}
+      {dailyCity && (
+        <div style={{ background: 'linear-gradient(135deg, #0e7490, #164e63)', borderRadius: 14, padding: '14px 16px', marginBottom: 12 }}>
+          <div style={{ fontSize: 10, fontWeight: 900, color: 'rgba(255,255,255,.55)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 6 }}>
+            🏙️ City of the Day
+          </div>
+          <div style={{ fontSize: 20, fontWeight: 900, color: 'white', fontFamily: "'Playfair Display',serif", marginBottom: 4 }}>
+            {dailyCity.name}
+          </div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', lineHeight: 1.5 }}>{dailyCity.desc}</div>
+        </div>
+      )}
+
+      {/* ── DID YOU KNOW ── */}
+      <div style={{ background: 'var(--card)', border: '1px solid var(--card-b)', borderRadius: 14, padding: '14px 16px', marginBottom: 12 }}>
+        <div style={{ fontSize: 10, fontWeight: 900, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 8 }}>
+          💡 Did You Know?
+        </div>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+          <span style={{ fontSize: 28, flexShrink: 0 }}>{dailyFact.emoji}</span>
+          <div style={{ fontSize: 13, color: 'var(--body)', lineHeight: 1.6 }}>{dailyFact.fact}</div>
+        </div>
+      </div>
+
+      {/* ── FEATURED STORY PREVIEW ── */}
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => { const el = document.querySelector('[data-ctab="stories"]'); if (el) el.click(); }}
+        style={{ background: 'linear-gradient(135deg, #fffbeb, #fef3c7)', border: '1.5px solid #fde68a', borderRadius: 14, padding: '14px 16px', marginBottom: 12, cursor: 'pointer' }}
+      >
+        <div style={{ fontSize: 10, fontWeight: 900, color: '#b45309', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 8 }}>
+          💌 Letters from Baka
+        </div>
+        <div style={{ fontSize: 14, fontWeight: 800, color: '#451a03', marginBottom: 4 }}>Baka Marija piše...</div>
+        <div style={{ fontSize: 12, color: '#78350f', lineHeight: 1.5, marginBottom: 8, fontStyle: 'italic' }}>
+          "Drago moje unuče, kako si ti? Ovdje je lijepo proljetno vrijeme. Cvjetovi su procvjetali u vrtu..."
+        </div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: '#b45309' }}>Read the full letter → Stories tab ↗</div>
+      </div>
+
+      {/* ── KNIGHT + KNIGHT WELCOME ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: 'var(--card)', borderRadius: 12, marginBottom: 12 }}>
+        <CroatianKnight size={46} mood="ready" style={{ flexShrink: 0 }} />
+        <div style={{ fontSize: 12, color: 'var(--subtext)', lineHeight: 1.55 }}>
           <strong style={{ color: 'var(--heading)', display: 'block', marginBottom: 2 }}>Dobrodošli u Hrvatsku! 🇭🇷</strong>
-          Explore culture, music, stories & language from the homeland.
+          Use the tabs above to explore culture, music, film, and real Croatian stories.
+          New content rotates daily — come back tomorrow for a new city and phrase.
         </div>
       </div>
 
       {/* ── PHOTO VOCAB SCANNER ── */}
       <button
         onClick={() => setScr('photo_vocab')}
-        style={{
-          marginBottom:12, width:'100%', border:'none', cursor:'pointer', padding:0,
-          borderRadius:16, overflow:'hidden',
-          background:'linear-gradient(135deg,#164e63,#0e7490)',
-          boxShadow:'0 4px 16px rgba(14,116,144,.35)',
-        }}
+        style={{ width: '100%', border: 'none', cursor: 'pointer', padding: 0, borderRadius: 14, overflow: 'hidden', background: 'linear-gradient(135deg,#164e63,#0e7490)', boxShadow: '0 4px 16px rgba(14,116,144,.3)' }}
       >
-        <div style={{padding:'14px 16px',display:'flex',alignItems:'center',gap:14}}>
-          <div style={{fontSize:36,flexShrink:0}}>📷</div>
-          <div style={{flex:1,textAlign:'left'}}>
-            <div style={{fontSize:10,fontWeight:900,color:'rgba(255,255,255,.7)',letterSpacing:'.1em',textTransform:'uppercase',marginBottom:3}}>NEW · AI FEATURE</div>
-            <div style={{fontSize:16,fontWeight:900,color:'#fff',marginBottom:2}}>Photo Vocabulary Scanner</div>
-            <div style={{fontSize:12,color:'rgba(255,255,255,.75)',lineHeight:1.4}}>Point your camera at anything — menus, signs, labels — and learn the Croatian words instantly.</div>
+        <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{ fontSize: 32, flexShrink: 0 }}>📷</div>
+          <div style={{ flex: 1, textAlign: 'left' }}>
+            <div style={{ fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,.65)', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 2 }}>AI · CAMERA</div>
+            <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', marginBottom: 2 }}>Photo Vocabulary Scanner</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,.7)', lineHeight: 1.4 }}>Point your camera at menus, signs or labels — learn the Croatian words instantly.</div>
           </div>
-          <div style={{fontSize:20,color:'rgba(255,255,255,.7)'}}>→</div>
+          <div style={{ fontSize: 18, color: 'rgba(255,255,255,.6)' }}>→</div>
         </div>
       </button>
 
-    </React.Fragment>
+    </div>
   );
 }
