@@ -42,6 +42,15 @@ const HERO_CITIES = [
     credit: PHOTO_CREDITS.bibinje,
     pos: 'center center',
   },
+  {
+    key: 'vinkovci',
+    src: '/images/scenes/vinkovci.webp',
+    alt: 'Vinkovci, Slavonia — central square',
+    name: '🏛️ Vinkovci, Slavonija',
+    subtitle: 'Oldest continuously inhabited city in Europe · 8,300+ years of history',
+    credit: PHOTO_CREDITS.vinkovci,
+    pos: 'center 45%',
+  },
 ];
 
 // ── Daily city — deterministic from day-of-year ───────────────────────────────

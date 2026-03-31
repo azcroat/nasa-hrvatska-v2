@@ -469,6 +469,28 @@ export default function PracticeTab({
         </div>
       )}
 
+      {/* ── LISTENING COMPREHENSION TRACK ───────────────────────────────── */}
+      <button
+        onClick={() => { setScr('listening_comprehension'); sCurEx('listening_comprehension'); }}
+        style={{
+          width:'100%', display:'flex', alignItems:'center', gap:14,
+          padding:'14px 16px', borderRadius:16, marginBottom:12,
+          border:'1.5px solid #ddd6fe', background:'linear-gradient(135deg,#faf5ff,#ede9fe)',
+          cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+        }}
+      >
+        <div style={{
+          width:44, height:44, borderRadius:12, flexShrink:0,
+          background:'linear-gradient(135deg,#7c3aed,#5b21b6)',
+          display:'flex', alignItems:'center', justifyContent:'center', fontSize:22,
+        }}>🎧</div>
+        <div style={{flex:1}}>
+          <div style={{fontSize:14, fontWeight:800, color:'#4c1d95'}}>Listening Comprehension</div>
+          <div style={{fontSize:12, color:'#7c3aed', marginTop:2, lineHeight:1.4}}>A1→B2 curriculum · read Croatian · choose the meaning</div>
+        </div>
+        <div style={{fontSize:18, color:'#7c3aed'}}>→</div>
+      </button>
+
       {/* ── TODAY'S PICK ─────────────────────────────────────────────────── */}
       <div className="section-hdr">
         <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>⭐</div>

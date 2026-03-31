@@ -193,6 +193,8 @@ const AdminDashboard = lazyWithReload(() => import("./admin/AdminDashboard.jsx")
 const TermsOfService = lazyWithReload(() => import("./shared/TermsOfService.jsx"));
 const GradedInputScreen = lazyWithReload(() => import("./learn/GradedInputScreen.jsx"));
 const PronunciationCourse = lazyWithReload(() => import("./learn/PronunciationCourse.jsx"));
+const GrammarTrackScreen = lazyWithReload(() => import("./learn/GrammarTrackScreen.jsx"));
+const ListeningComprehensionScreen = lazyWithReload(() => import("./practice/ListeningComprehensionScreen.jsx"));
 
 /**
  * AppRouter — renders the correct screen component for `currentScreen`.
@@ -533,6 +535,8 @@ export default function AppRouter(props) {
       {currentScreen==="graded_input"&&<ScreenErrorBoundary key="graded_input" name="graded_input"><GradedInputScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="pronunciation_course"&&<ScreenErrorBoundary key="pronunciation_course" name="pronunciation_course"><PronunciationCourse goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="grammarmap"&&<ScreenErrorBoundary key="grammarmap" name="grammarmap"><GrammarConstellation goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="grammar_track"&&<ScreenErrorBoundary key="grammar_track" name="grammar_track"><GrammarTrackScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="listening_comprehension"&&<ScreenErrorBoundary key="listening_comprehension" name="listening_comprehension"><ListeningComprehensionScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="my_words"&&<ScreenErrorBoundary key="my_words" name="my_words"><MyWordsScreen onBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="mistakes"&&<ScreenErrorBoundary key="mistakes" name="mistakes"><MistakesScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="analytics"&&<ScreenErrorBoundary key="analytics" name="analytics"><AnalyticsScreen goBack={goBack} stats={stats} name={name} /></ScreenErrorBoundary>}
