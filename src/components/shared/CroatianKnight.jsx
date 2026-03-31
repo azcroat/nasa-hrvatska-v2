@@ -125,6 +125,17 @@ const KF = `
   33%{transform:translateY(-11px) rotate(-2deg)}
   66%{transform:translateY(-5px) rotate(2deg)}
 }
+@keyframes lk-parade {
+  0%   {transform:translateY(0px)   translateX(0px)  rotate(0deg)   scaleX(1)   }
+  12%  {transform:translateY(-7px)  translateX(-3px) rotate(-1.5deg) scaleX(1.01)}
+  25%  {transform:translateY(-13px) translateX(-5px) rotate(-2.5deg) scaleX(1.02)}
+  38%  {transform:translateY(-5px)  translateX(-2px) rotate(-0.8deg) scaleX(1)   }
+  50%  {transform:translateY(0px)   translateX(0px)  rotate(0deg)   scaleX(1)   }
+  62%  {transform:translateY(-7px)  translateX(3px)  rotate(1.5deg) scaleX(1.01)}
+  75%  {transform:translateY(-13px) translateX(5px)  rotate(2.5deg) scaleX(1.02)}
+  88%  {transform:translateY(-5px)  translateX(2px)  rotate(0.8deg) scaleX(1)   }
+  100% {transform:translateY(0px)   translateX(0px)  rotate(0deg)   scaleX(1)   }
+}
 
 /* ── Arm animations — translate-rotate-translate encodes pivot ── */
 @keyframes lk-aL-up {
@@ -174,6 +185,21 @@ const KF = `
   0%,100%{transform:translate(92px,75px) rotate(0deg) translate(-92px,-75px)}
   30%{transform:translate(92px,75px) rotate(82deg) translate(-92px,-75px)}
   60%{transform:translate(92px,75px) rotate(48deg) translate(-92px,-75px)}
+}
+@keyframes lk-aR-sword-arc {
+  0%   {transform:translate(92px,75px) rotate(18deg)   translate(-92px,-75px)}
+  18%  {transform:translate(92px,75px) rotate(5deg)    translate(-92px,-75px)}
+  44%  {transform:translate(92px,75px) rotate(-102deg) translate(-92px,-75px)}
+  58%  {transform:translate(92px,75px) rotate(-115deg) translate(-92px,-75px)}
+  75%  {transform:translate(92px,75px) rotate(-68deg)  translate(-92px,-75px)}
+  90%  {transform:translate(92px,75px) rotate(10deg)   translate(-92px,-75px)}
+  100% {transform:translate(92px,75px) rotate(18deg)   translate(-92px,-75px)}
+}
+@keyframes lk-aL-sword-guard {
+  0%,100%{transform:translate(28px,75px) rotate(-30deg) translate(-28px,-75px)}
+  30%    {transform:translate(28px,75px) rotate(-22deg) translate(-28px,-75px)}
+  55%    {transform:translate(28px,75px) rotate(-48deg) translate(-28px,-75px)}
+  75%    {transform:translate(28px,75px) rotate(-40deg) translate(-28px,-75px)}
 }
 @keyframes lk-confetti {
   0%  {transform:translateY(0px)  translateX(0px)  rotate(0deg)  scale(1);    opacity:1}
@@ -228,9 +254,17 @@ const VARIANTS = {
     { body: 'lk-spin   2.00s linear infinite',      armL: 'lk-aL-up 2.00s ease-in-out infinite',   armR: 'lk-aR-up 2.00s ease-in-out infinite'    },
   ],
   ready: [
-    { body: 'lk-tilt   4.00s ease-in-out infinite', armL: null,                                           armR: null                                    },
-    { body: 'lk-march  2.00s ease-in-out infinite', armL: 'lk-aL-shield-high 2.00s ease-in-out infinite', armR: null                                    },
-    { body: 'lk-pulse  2.50s ease-in-out infinite', armL: 'lk-aL-shield-high 2.50s ease-in-out infinite', armR: 'lk-aR-thrust 2.50s ease-in-out infinite'},
+    { body: 'lk-tilt    4.00s ease-in-out infinite', armL: null,                                            armR: null                                       },
+    { body: 'lk-march   2.00s ease-in-out infinite', armL: 'lk-aL-shield-high 2.00s ease-in-out infinite',  armR: null                                       },
+    { body: 'lk-parade  0.96s ease-in-out infinite', armL: 'lk-aL-sword-guard 1.92s ease-in-out infinite',  armR: 'lk-aR-sword-arc 1.92s ease-in-out infinite'},
+  ],
+  marching: [
+    // Parade march: weight-shifting body + elegant sword arc (sword period = 2× step period)
+    { body: 'lk-parade  0.90s ease-in-out infinite', armL: 'lk-aL-sword-guard 1.80s ease-in-out infinite',  armR: 'lk-aR-sword-arc 1.80s ease-in-out infinite'},
+    // Crisp march + high shield guard — ceremonial
+    { body: 'lk-march   0.95s ease-in-out infinite', armL: 'lk-aL-shield-high 1.90s ease-in-out infinite',  armR: 'lk-aR-sword-arc 1.90s ease-in-out infinite'},
+    // Faster parade with wave — relaxed march after victory
+    { body: 'lk-parade  0.80s ease-in-out infinite', armL: 'lk-aL-wave       1.60s ease-in-out infinite',   armR: 'lk-aR-sword-arc 1.60s ease-in-out infinite'},
   ],
 };
 
