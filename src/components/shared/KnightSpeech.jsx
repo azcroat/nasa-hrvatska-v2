@@ -394,56 +394,43 @@ export default function KnightSpeech({
           >×</button>
         </div>
 
-        {/* ── Knight + speech bubble row ── */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+        {/* ── Speech bubble (full-width — knight is already in the hero banner above) ── */}
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={cycleBubble}
+          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') cycleBubble(); }}
+          title="Tap to hear something new"
+          style={{
+            position: 'relative',
+            background: 'var(--card)',
+            border: `1.5px solid ${accentColor}33`,
+            borderRadius: 14,
+            padding: '10px 14px 8px',
+            cursor: 'pointer',
+            boxShadow: `0 2px 10px ${accentColor}14`,
+            transition: 'border-color .2s ease',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = `${accentColor}66`; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = `${accentColor}33`; }}
+        >
+          {/* Message text with typewriter */}
+          <p style={{
+            margin: 0, fontSize: 13, color: 'var(--subtext)',
+            lineHeight: 1.6, fontWeight: 500, minHeight: 36,
+          }}>
+            <TypewriterText text={text} />
+          </p>
 
-          {/* Knight — smaller than before for compactness */}
-          <div style={{ flexShrink: 0, marginTop: 2 }}>
-            <CroatianKnight size={48} mood={mood} />
-          </div>
-
-          {/* Speech bubble */}
-          <div
-            role="button"
-            tabIndex={0}
-            onClick={cycleBubble}
-            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') cycleBubble(); }}
-            title="Tap to hear something new"
-            style={{
-              position: 'relative',
-              flex: 1, minWidth: 0,
-              background: 'var(--card)',
-              border: `1.5px solid ${accentColor}33`,
-              borderRadius: 14,
-              padding: '10px 12px 8px',
-              cursor: 'pointer',
-              boxShadow: `0 2px 10px ${accentColor}14`,
-              transition: 'border-color .2s ease',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = `${accentColor}66`; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = `${accentColor}33`; }}
-          >
-            {/* Left-pointing tail toward knight */}
-            <BubbleTail color={`${accentColor}33`} />
-
-            {/* Message text with typewriter */}
-            <p style={{
-              margin: 0, fontSize: 12.5, color: 'var(--subtext)',
-              lineHeight: 1.6, fontWeight: 500, minHeight: 40,
-            }}>
-              <TypewriterText text={text} />
-            </p>
-
-            {/* Tap hint */}
-            <div style={{
-              display: 'flex', justifyContent: 'flex-end', alignItems: 'center',
-              gap: 3, marginTop: 6,
-            }}>
-              <span style={{ fontSize: 9, color: `${accentColor}77`, fontWeight: 600, letterSpacing: '.04em' }}>
-                tap for more
-              </span>
-              <span style={{ fontSize: 11, color: `${accentColor}77` }}>↺</span>
-            </div>
+          {/* Tap hint */}
+          <div style={{
+            display: 'flex', justifyContent: 'flex-end', alignItems: 'center',
+            gap: 3, marginTop: 6,
+          }}>
+            <span style={{ fontSize: 9, color: `${accentColor}77`, fontWeight: 600, letterSpacing: '.04em' }}>
+              tap for more
+            </span>
+            <span style={{ fontSize: 11, color: `${accentColor}77` }}>↺</span>
           </div>
         </div>
 
