@@ -4,9 +4,11 @@ import { useTranslator } from '../hooks/useTranslator.js';
 
 const originalFetch = globalThis.fetch;
 
-function mockFetch(responseData) {
+function mockFetch(responseData, status = 200) {
   globalThis.fetch = vi.fn(() =>
     Promise.resolve({
+      status,
+      ok: status >= 200 && status < 300,
       json: () => Promise.resolve(responseData),
     })
   );
@@ -60,43 +62,48 @@ describe('useTranslator — state and fetch logic', () => {
   // ── doTr — successful translation ─────────────────────────────────────────
 
   it('sets translated output on successful response', async () => {
-    mockFetch({ responseStatus: 200, responseData: { translatedText: 'kruh' } });
+    mockFetch({ translation: 'kruh' });
     const { result } = renderHook(() => useTranslator());
     await setInputAndTranslate(result, 'bread');
     expect(result.current.tOut).toBe('kruh');
     expect(result.current.tL).toBe(false);
   });
 
-  it('calls fetch with encoded input text', async () => {
-    mockFetch({ responseStatus: 200, responseData: { translatedText: 'lijepa' } });
+  it('calls /api/translate with encoded input text and en→hr direction', async () => {
+    mockFetch({ translation: 'lijepa' });
     const { result } = renderHook(() => useTranslator());
     await setInputAndTranslate(result, 'beautiful');
-    const [url] = globalThis.fetch.mock.calls[0];
-    expect(url).toContain('beautiful');
-    expect(url).toContain('en|hr');
+    const [url, opts] = globalThis.fetch.mock.calls[0];
+    expect(url).toBe('/api/translate');
+    const body = JSON.parse(opts.body);
+    expect(body.text).toBe('beautiful');
+    expect(body.from).toBe('en');
+    expect(body.to).toBe('hr');
   });
 
   it('uses hr→en pair when direction is hr-en', async () => {
-    mockFetch({ responseStatus: 200, responseData: { translatedText: 'bread' } });
+    mockFetch({ translation: 'bread' });
     const { result } = renderHook(() => useTranslator());
     await act(async () => { result.current.setTDir('hr-en'); });
     await setInputAndTranslate(result, 'kruh');
-    const [url] = globalThis.fetch.mock.calls[0];
-    expect(url).toContain('hr|en');
+    const [, opts] = globalThis.fetch.mock.calls[0];
+    const body = JSON.parse(opts.body);
+    expect(body.from).toBe('hr');
+    expect(body.to).toBe('en');
   });
 
   // ── doTr — rate limit ─────────────────────────────────────────────────────
 
   it('shows rate-limit message on 429 status', async () => {
-    mockFetch({ responseStatus: 429, responseDetails: 'Daily limit reached' });
+    mockFetch({ error: 'rate_limit' }, 429);
     const { result } = renderHook(() => useTranslator());
     await setInputAndTranslate(result, 'word');
     expect(result.current.tOut).toMatch(/limit/i);
     expect(result.current.tL).toBe(false);
   });
 
-  it('shows rate-limit message when responseDetails contains "limit"', async () => {
-    mockFetch({ responseStatus: 200, responseData: { translatedText: '' }, responseDetails: 'Limit exceeded for today' });
+  it('shows rate-limit message when response body has error: rate_limit', async () => {
+    mockFetch({ error: 'rate_limit' });
     const { result } = renderHook(() => useTranslator());
     await setInputAndTranslate(result, 'word');
     expect(result.current.tOut).toMatch(/limit/i);
@@ -105,7 +112,7 @@ describe('useTranslator — state and fetch logic', () => {
   // ── doTr — generic API error ──────────────────────────────────────────────
 
   it('shows unavailable message when API returns non-200 without limit error', async () => {
-    mockFetch({ responseStatus: 500, responseDetails: 'Server error' });
+    mockFetch({ error: 'unavailable' }, 502);
     const { result } = renderHook(() => useTranslator());
     await setInputAndTranslate(result, 'word');
     expect(result.current.tOut).toMatch(/unavailable/i);
@@ -114,11 +121,11 @@ describe('useTranslator — state and fetch logic', () => {
 
   // ── doTr — network error ──────────────────────────────────────────────────
 
-  it('shows network error message when fetch throws', async () => {
+  it('shows unavailable message when fetch throws', async () => {
     globalThis.fetch = vi.fn(() => Promise.reject(new Error('network down')));
     const { result } = renderHook(() => useTranslator());
     await setInputAndTranslate(result, 'hello');
-    expect(result.current.tOut).toMatch(/network/i);
+    expect(result.current.tOut).toMatch(/unavailable/i);
     expect(result.current.tL).toBe(false);
   });
 
