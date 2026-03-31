@@ -439,7 +439,15 @@ export default function HeroSection({
           </motion.div>
 
           {/* Quick-reply pills — Culture / Grammar / Krenimo / Translate */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: showTranslate ? 10 : 16, flexWrap: 'wrap' }}>
+          <div style={{
+            display: 'flex', gap: 8,
+            marginBottom: showTranslate ? 10 : 16,
+            overflowX: 'auto', flexWrap: 'nowrap',
+            WebkitOverflowScrolling: 'touch',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            paddingBottom: 2,
+          }}>
             <QuickReplyBanner label="🏛️ Culture"  onClick={() => { setShowTranslate(false); setGreeting(pickPool(QUICK_CULTURE,  'culture')); }} />
             <QuickReplyBanner label="📐 Grammar"  onClick={() => { setShowTranslate(false); setGreeting(pickPool(QUICK_GRAMMAR,  'grammar')); }} />
             <QuickReplyBanner label="💪 Krenimo!" onClick={() => { setShowTranslate(false); setGreeting(pickPool(QUICK_MOTIVATE, 'motivate')); }} />
