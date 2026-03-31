@@ -115,15 +115,8 @@ export default function PracticeTab({
   const showGoalReminder = userGoal && daysSinceGoalSet > 30 && !isNewUser;
 
   const recommendations = [
-    weakCount >= 3
-      ? { icon:'🧠', title:'Fix Weak Words', desc:`✦ AI: ${avgAcc}% avg accuracy · needs work`, color:'rgba(99,102,241,.08)', border:'rgba(99,102,241,.3)', fn: () => { setWeakMsg(""); startWeakWords(); } }
-      : { icon:'🎯', title:'Quick Quiz',      desc:'Test your vocabulary',             color:'rgba(234,88,12,.08)', border:'rgba(234,88,12,.25)', fn: startQuiz },
-    h < 12
-      ? { icon:'🃏', title:'Flashcards',   desc:'Start the day strong',     color:'rgba(124,58,237,.08)', border:'rgba(124,58,237,.25)', fn: startFlashcards }
-      : h < 18
-      ? { icon:'🎧', title:'AI Listening',  desc:'AI dialogue + comprehension', color:'rgba(220,38,38,.08)', border:'rgba(220,38,38,.25)', fn: startAIListening }
-      : { icon:'⚡', title:'Word Sprint',  desc:'End the day with speed',    color:'rgba(245,158,11,.08)', border:'rgba(245,158,11,.25)', fn: () => { setScr("wordsprint"); sCurEx("wordsprint"); } },
-    { icon:'🔗', title:'Match Pairs', desc:'Quick memory game', color:'rgba(22,163,74,.08)', border:'rgba(22,163,74,.25)', fn: startMatch },
+    { icon:'🃏', title:'Flashcards',  desc:'Spaced repetition review',  color:'rgba(124,58,237,.08)', border:'rgba(124,58,237,.25)', fn: startFlashcards },
+    { icon:'🔗', title:'Match Pairs', desc:'Quick memory game',          color:'rgba(22,163,74,.08)',  border:'rgba(22,163,74,.25)',  fn: startMatch },
   ];
 
   // Goal-based recommendations — shown when nh_goal is set, giving the
