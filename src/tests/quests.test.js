@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { markQuest } from '../lib/quests.js';
+import { localDateStr } from '../lib/dateUtils.js';
 
 function clearLS() { localStorage.clear(); }
 
 function todayKey() {
-  return new Date().toISOString().slice(0, 10);
+  return localDateStr();
 }
 
 describe('quests — daily quest tracking', () => {
