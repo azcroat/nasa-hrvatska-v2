@@ -5,6 +5,8 @@ import { useHaptic } from '../../hooks/useHaptic.js';
 import { markPracticed } from '../../hooks/useNotifications.js';
 import { markQuest } from '../../lib/quests.js';
 import { logError } from '../../lib/learnerErrors.js';
+import { playFanfare } from '../../lib/soundSettings.js';
+import CroatianKnight from '../shared/CroatianKnight.jsx';
 
 export default function ReviewScreen({ goBack, award, allCats, V }) {
   const haptic = useHaptic();
@@ -111,15 +113,52 @@ export default function ReviewScreen({ goBack, award, allCats, V }) {
 
   if (done) {
     const pct = Math.round((score / questions.length) * 100);
+    const mood = pct >= 80 ? 'victory' : pct >= 50 ? 'encouraged' : 'thinking';
     return (
-      <div className="scr-wrap">
-        {H("🔁 Review Due")}
-        <div style={{textAlign:"center",paddingTop:32}}>
-          <div style={{fontSize:64}}>{pct>=80?"🌟":"🎉"}</div>
-          <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:28,color:"#164e63",marginTop:8}}>Review Complete!</h2>
-          <p style={{color:"#78716c",marginTop:8}}>{score}/{questions.length} correct</p>
-          <p style={{fontSize:13,color:"#64748b",marginTop:8}}>Your spaced repetition intervals have been updated</p>
-          <button className="b bp" style={{marginTop:24}} onClick={()=>{if(finishFired.current)return;finishFired.current=true;markPracticed();haptic.award();award(score*5+5);markQuest('master');goBack();}}>Continue</button>
+      <div style={{
+        minHeight: '70vh',
+        background: 'linear-gradient(160deg, #060e1e 0%, #0a1f3a 50%, #0c3060 100%)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center', padding: '40px 24px 52px',
+        borderRadius: 20, margin: '0 -16px', position: 'relative', overflow: 'hidden',
+      }}>
+        {/* Shimmer */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(105deg, transparent 25%, rgba(255,255,255,.03) 50%, transparent 75%)',
+          backgroundSize: '200% 100%', animation: 'shimmer 4s linear infinite', pointerEvents: 'none',
+        }} />
+
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+          <CroatianKnight size={90} mood={mood} style={{ marginBottom: 8, animation: 'bounce-in .5s ease' }} />
+
+          <div style={{ fontSize: 56, marginBottom: 8, animation: 'bounce-in .5s ease .1s both' }}>
+            {pct >= 80 ? '🌟' : pct >= 50 ? '🎉' : '💪'}
+          </div>
+
+          <div style={{ fontSize: 28, fontWeight: 900, color: 'white', fontFamily: "'Playfair Display', serif", marginBottom: 6, animation: 'fade-up .5s ease .2s both' }}>
+            {pct >= 80 ? 'Sjajno!' : pct >= 50 ? 'Bravo!' : 'Nastavi!'}
+          </div>
+          <div style={{ fontSize: 14, color: 'rgba(255,255,255,.7)', marginBottom: 4, animation: 'fade-up .5s ease .28s both' }}>
+            {score}/{questions.length} correct · {pct}%
+          </div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,.45)', marginBottom: 28, animation: 'fade-up .5s ease .34s both' }}>
+            Spaced repetition intervals updated
+          </div>
+
+          <button
+            className="b bp"
+            style={{ animation: 'fade-up .5s ease .42s both' }}
+            onClick={() => {
+              if (finishFired.current) return;
+              finishFired.current = true;
+              markPracticed();
+              haptic.award();
+              award(score * 5 + 5);
+              markQuest('master');
+              goBack();
+            }}
+          >Continue →</button>
         </div>
       </div>
     );

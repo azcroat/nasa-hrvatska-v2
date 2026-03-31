@@ -5,6 +5,7 @@
  * Each toast is conditionally rendered; none affect layout (all fixed-position).
  */
 import React from 'react';
+import KnightToast from './KnightToast.jsx';
 
 export function AppToasts({
   // Gamification toasts
@@ -27,6 +28,9 @@ export function AppToasts({
 }) {
   return (
     <>
+      {/* Knight celebration overlay — listens to knight:celebrate event from useAward */}
+      <KnightToast />
+
       {comebackBonus && (
         <div role="status" aria-live="polite" aria-atomic="true" style={{position:'fixed',top:80,left:'50%',transform:'translateX(-50%)',zIndex:9500,background:'linear-gradient(135deg,#f59e0b,#d97706)',color:'#fff',borderRadius:16,padding:'14px 24px',boxShadow:'0 8px 32px rgba(0,0,0,.2)',fontSize:14,fontWeight:800,display:'flex',alignItems:'center',gap:10,animation:'slideUp .4s ease'}}>
           🔥 Welcome back! Keep your streak alive!

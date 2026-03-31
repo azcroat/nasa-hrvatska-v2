@@ -79,6 +79,70 @@ export function playWrong() {
   playTone({ freq: 220, type: 'sawtooth', rampTo: 150, duration: 0.3, gain: 0.12 });
 }
 
+// Three-note ascending fanfare — lesson / review completion
+export function playFanfare() {
+  if (!isSoundEnabled()) return;
+  try {
+    const ctx = getAudioCtx();
+    const notes = [523, 659, 784, 1047]; // C5 E5 G5 C6
+    const t0 = ctx.currentTime;
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const g   = ctx.createGain();
+      osc.connect(g); g.connect(ctx.destination);
+      osc.type = 'sine';
+      const t = t0 + i * 0.14;
+      osc.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(0.001, t);
+      g.gain.linearRampToValueAtTime(0.16, t + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+      osc.start(t); osc.stop(t + 0.5);
+    });
+  } catch (_) {}
+}
+
+// Five-note ascending scale — badge / level-up reward
+export function playLevelUp() {
+  if (!isSoundEnabled()) return;
+  try {
+    const ctx = getAudioCtx();
+    const notes = [392, 494, 587, 740, 988]; // G4 B4 D5 F#5 B5
+    const t0 = ctx.currentTime;
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const g   = ctx.createGain();
+      osc.connect(g); g.connect(ctx.destination);
+      osc.type = 'triangle';
+      const t = t0 + i * 0.11;
+      osc.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(0.001, t);
+      g.gain.linearRampToValueAtTime(0.14, t + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
+      osc.start(t); osc.stop(t + 0.42);
+    });
+  } catch (_) {}
+}
+
+// Bright double-ding — streak continuation or correct streak
+export function playStreak() {
+  if (!isSoundEnabled()) return;
+  try {
+    const ctx = getAudioCtx();
+    [880, 1320].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const g   = ctx.createGain();
+      osc.connect(g); g.connect(ctx.destination);
+      osc.type = 'sine';
+      const t = ctx.currentTime + i * 0.18;
+      osc.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(0.001, t);
+      g.gain.linearRampToValueAtTime(0.13, t + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+      osc.start(t); osc.stop(t + 0.35);
+    });
+  } catch (_) {}
+}
+
 export function haptic(pattern) {
   if (!isHapticEnabled()) return;
   try { navigator.vibrate?.(pattern); } catch (e) {}
