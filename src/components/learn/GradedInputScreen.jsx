@@ -1,7 +1,8 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { speak } from '../../data.jsx';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { GRADED_STORIES } from '../../data/gradedStories.js';
+import { markQuest } from '../../lib/quests.js';
 
 const LEVELS = ['All', 'A1', 'A2', 'B1'];
 const LEVEL_COLOR = { A1: '#166534', A2: '#1e40af', B1: '#92400e' };
@@ -525,6 +526,7 @@ export default function GradedInputScreen({ goBack, award }) {
   function complete(xp) {
     if (story) markDone(story.id);
     if (typeof award === 'function') award(xp);
+    markQuest('reading');
     goBack();
   }
 

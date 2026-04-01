@@ -1,24 +1,35 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, speak, speakSlow, sh } from '../../data.jsx';
+import { markQuest } from '../../lib/quests.js';
 
 export default function ListeningScreen({ questions, goBack, award }) {
   const finishFired = useRef(false);
+  const questFired = useRef(false);
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [selected, setSelected] = useState(-1);
   const [options, setOptions] = useState(() => questions.length > 0 ? sh(questions[0].opts) : []);
+  const [replayed, setReplayed] = useState(false);
 
   const total = questions.length;
 
   if (idx >= total) return (
     <div className="scr-wrap">
-      <div style={{textAlign:"center"}}>
-        <div style={{fontSize:64}}>{score>=total*0.7?"🏆":"👍"}</div>
-        <h2 style={{fontFamily:"'Playfair Display',serif",color:"#164e63"}}>Listening Complete!</h2>
-        <div style={{fontSize:32,fontWeight:800,color:"#0e7490"}}>{score} / {total}</div>
-        <div style={{fontSize:24,fontWeight:900,color:"#d97706",margin:"8px 0 16px"}}>+{score*4+10} XP</div>
-        <button className="b bp" style={{marginTop:0}} onClick={()=>{if(finishFired.current)return;finishFired.current=true;award(score*4+10);goBack();}}>Finish!</button>
+      <div style={{textAlign:"center",paddingTop:40}}>
+        <div style={{fontSize:64,marginBottom:8}}>{score>=total*0.8?"🏆":score>=total*0.6?"⭐":"💪"}</div>
+        <h2 style={{fontFamily:"'Playfair Display',serif",color:"#164e63",marginBottom:4}}>Listening Complete!</h2>
+        <div style={{fontSize:32,fontWeight:800,color:"#0e7490",marginBottom:4}}>{score} / {total}</div>
+        <div style={{fontSize:13,color:"#78716c",marginBottom:16}}>
+          {score===total?"Perfect ear! You caught every sentence.":score>=Math.ceil(total*0.7)?"Great listening! Keep it up.":"Try again — focus on the first word of each sentence."}
+        </div>
+        <div style={{fontSize:24,fontWeight:900,color:"#d97706",marginBottom:20}}>+{score*4+10} XP</div>
+        <button className="b bp" style={{width:"100%"}} onClick={()=>{
+          if(finishFired.current)return;
+          finishFired.current=true;
+          award(score*4+10);
+          goBack();
+        }}>Finish!</button>
       </div>
     </div>
   );
@@ -26,28 +37,87 @@ export default function ListeningScreen({ questions, goBack, award }) {
   const q = questions[idx];
   if (!q) return null;
   const correct = q.en;
+  const isCorrect = options[selected] === correct;
+
+  function handleAnswer(oi) {
+    if (answered) return;
+    setSelected(oi);
+    setAnswered(true);
+    if (options[oi] === correct) setScore(s => s + 1);
+    // Play the sentence again after answering so the sound-meaning connection forms
+    setTimeout(() => { speak(q.hr); setReplayed(true); }, 400);
+  }
+
+  function next() {
+    if (idx < total - 1) {
+      const n = questions[idx + 1];
+      setOptions(sh(n.opts));
+      setIdx(i => i + 1);
+      setAnswered(false);
+      setSelected(-1);
+      setReplayed(false);
+    } else {
+      if (!questFired.current) { questFired.current = true; markQuest('speak'); }
+      setIdx(total);
+    }
+  }
 
   return (
     <div className="scr-wrap">
-      {H("🎧 Listening Comprehension","Listen, then pick what you heard")}
+      {H("🎧 Listening Comprehension","Listen, then pick what you heard",goBack)}
       <Bar v={idx+1} mx={total} h={6} />
-      <div className="c" style={{marginTop:16,textAlign:"center"}}>
-        <div style={{fontSize:14,color:"#78716c",marginBottom:12}}>Listen carefully, then choose what the sentence means:</div>
-        <button aria-label="Play sentence audio" className="b bp" style={{fontSize:16,padding:"14px 32px"}} onClick={()=>speak(q.hr)}><span aria-hidden="true">🔊</span> Play Sentence</button>
-        <button aria-label="Play sentence slowly" className="b bg" style={{fontSize:13,marginLeft:8,padding:"14px 16px"}} onClick={()=>speakSlow(q.hr)}><span aria-hidden="true">🐢</span> Slow</button>
+
+      {/* Audio controls */}
+      <div className="c" style={{marginTop:16,textAlign:"center",padding:"20px 16px"}}>
+        <div style={{fontSize:13,color:"#78716c",marginBottom:12}}>Listen carefully, then choose what the sentence means:</div>
+        <div style={{display:"flex",gap:8,justifyContent:"center"}}>
+          <button aria-label="Play sentence audio" className="b bp" style={{fontSize:16,padding:"14px 24px"}} onClick={()=>speak(q.hr)}><span aria-hidden="true">🔊</span> Play</button>
+          <button aria-label="Play sentence slowly" className="b bg" style={{fontSize:13,padding:"14px 16px"}} onClick={()=>speakSlow(q.hr)}><span aria-hidden="true">🐢</span> Slow</button>
+        </div>
       </div>
-      <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:16}}>
+
+      {/* Options */}
+      <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:8}}>
         {options.map((o,oi)=>(
           <button key={oi} className={"ob "+(answered?(o===correct?"ok":selected===oi?"no":""):"")}
-            onClick={()=>{if(!answered){setSelected(oi);setAnswered(true);if(o===correct)setScore(s=>s+1);}}}>
+            onClick={()=>handleAnswer(oi)}>
             {o}
           </button>
         ))}
       </div>
-      {answered&&<button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{
-        if(idx<total-1){const n=questions[idx+1];setOptions(sh(n.opts));setIdx(i=>i+1);setAnswered(false);setSelected(-1);}
-        else setIdx(total);
-      }}>{idx<total-1?"Next →":"See Results"}</button>}
+
+      {/* Post-answer: show the Croatian + explanation */}
+      {answered && (
+        <div style={{marginTop:12,padding:"12px 16px",borderRadius:12,
+          background: isCorrect ? "rgba(22,163,74,.07)" : "rgba(220,38,38,.06)",
+          border: `1px solid ${isCorrect?"rgba(22,163,74,.2)":"rgba(220,38,38,.15)"}`,
+        }}>
+          <div style={{fontSize:13,fontWeight:700,color:isCorrect?"#15803d":"#b91c1c",marginBottom:6}}>
+            {isCorrect ? "✓ Correct!" : "✗ The answer was: "+correct}
+          </div>
+          {/* Show the Croatian sentence so brain connects sound → meaning */}
+          <div style={{fontSize:13,color:"#44403c",marginBottom:4}}>
+            <span style={{fontWeight:700,color:"#0e7490"}}>🇭🇷 </span>{q.hr}
+          </div>
+          <div style={{fontSize:12,color:"#78716c"}}>
+            <span style={{fontWeight:700}}>🇬🇧 </span>{correct}
+          </div>
+          {q.tip && (
+            <div style={{fontSize:11,color:"#b45309",marginTop:6,padding:"6px 10px",background:"rgba(245,158,11,.08)",borderRadius:8}}>
+              💡 {q.tip}
+            </div>
+          )}
+          {replayed && !isCorrect && (
+            <div style={{fontSize:11,color:"#0e7490",marginTop:4}}>🔊 Listen again — the sentence just replayed</div>
+          )}
+        </div>
+      )}
+
+      {answered && (
+        <button className="b bp" style={{width:"100%",marginTop:12}} onClick={next}>
+          {idx<total-1?"Next →":"See Results"}
+        </button>
+      )}
     </div>
   );
 }

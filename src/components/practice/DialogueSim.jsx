@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, speak } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import { rnd } from '../../lib/random.js';
+import { markQuest } from '../../lib/quests.js';
 
 import DialogueScenarioMenu from './DialogueScenarioMenu.jsx';
 import DialogueResultsScreen from './DialogueResultsScreen.jsx';
@@ -110,6 +111,7 @@ export default function DialogueSim({ award }) {
             : (selected === shuffledTurns[turnIdx].correctIdx ? 1 : 0);
           award((score + lastCorrect) * 6);
         }
+        markQuest('speak');
       }
       setDone(true);
     } else {
