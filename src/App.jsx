@@ -96,7 +96,6 @@ function pruneStaleLocalStorage() {
 
 // ── App component ────────────────────────────────────────────────────────────
 function App() {
-  useNotifications();
   const { isPremium, isFreeAnnual, daysLeft, refresh: refreshSub } = useSubscription();
   const [showPaywall, setShowPaywall] = useState(false);
   const [paywallFeature, setPaywallFeature] = useState('AI Tutor');
@@ -222,6 +221,9 @@ function App() {
     setFamData,
     setSyncReady: _setSyncReady,
   });
+
+  // ── Push notifications (must be after useAuth so authUser.u is available) ─────
+  useNotifications({ userId: authUser?.u || '' });
 
   // Guest mode — bypass auth and go straight to dashboard
   const doGuest = useCallback(() => { _doGuest(); setTimeout(() => setScr('dashboard'), 50); }, [_doGuest, setScr]);

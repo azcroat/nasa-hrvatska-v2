@@ -15,7 +15,7 @@ import {
   trackLessonComplete, trackExerciseComplete, trackLevelUp,
   trackBadgeEarned, trackStreakMilestone,
 } from '../lib/analytics.js';
-import { localDateStr as _localDateStr, weekKey as _weekKey } from '../lib/dateUtils.js';
+import { localDateStr as _localDateStr, weekKey as _weekKey, getServerDateStr as _getServerDateStr } from '../lib/dateUtils.js';
 import type { Stats } from '../types/index.js';
 
 // Module-level guard: comeback bonus fires at most once per app session
@@ -47,7 +47,7 @@ export function useAward({ curEx, stats, setStats }: { curEx: string; stats: Sta
   const [nB, setNB] = useState<unknown>(null);
   const [sB, setSB] = useState(false);
 
-  const award = useCallback((amt: number, celebrate?: boolean) => {
+  const award = useCallback(async (amt: number, celebrate?: boolean) => {
     if (!Number.isFinite(amt) || amt === 0) return;
     if (curEx && !canEarnXP(curEx)) { setXpA(0); setShowXP(false); return; }
     if (curEx) markExerciseDone(curEx);
@@ -101,7 +101,8 @@ export function useAward({ curEx, stats, setStats }: { curEx: string; stats: Sta
       }));
     }
 
-    const sr = updateStreak();
+    const _serverToday = await _getServerDateStr();
+    const sr = updateStreak(_serverToday);
     const restoredCount = applyStreakEarnBack();
     if (restoredCount > 0) { setTimeout(() => { setStreakRestoredCount(restoredCount); setTimeout(() => setStreakRestoredCount(0), 5000); }, 1000); }
     else { const eb = getStreakEarnBack(); if (eb && eb.lc === 1) { setEarnBackPrompt({ prev: eb.prev }); setTimeout(() => setEarnBackPrompt(null), 8000); } }
