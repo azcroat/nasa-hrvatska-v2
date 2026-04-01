@@ -610,8 +610,13 @@ export default function LiveTutorScreen({ goBack, award }) {
     return (
       <>
         {!isOnline && (
-          <div style={{ background:'#fef2f2', color:'#dc2626', padding:'10px 16px', fontSize:13, fontWeight:600, textAlign:'center', borderBottom:'1px solid #fecaca' }}>
-            No internet connection — connect to start a session.
+          <div style={{
+            background:'#fef3c7', border:'1px solid #f59e0b', borderRadius:10,
+            padding:'12px 16px', marginBottom:16, fontSize:13, fontWeight:600,
+            color:'#92400e', display:'flex', alignItems:'center', gap:8
+          }}>
+            <span>📡</span>
+            <span>You're offline. AI features need an internet connection. Your progress is saved locally.</span>
           </div>
         )}
         <LiveTutorSetup
@@ -723,6 +728,18 @@ export default function LiveTutorScreen({ goBack, award }) {
           <span style={{ fontSize:10, fontWeight:700, color:'var(--subtext)' }}>{phaseInfo.label}</span>
         </div>
       </div>
+
+      {/* ── Offline banner ── */}
+      {!isOnline && (
+        <div style={{
+          background:'#fef3c7', border:'1px solid #f59e0b', borderRadius:0,
+          padding:'12px 16px', fontSize:13, fontWeight:600,
+          color:'#92400e', display:'flex', alignItems:'center', gap:8, flexShrink:0,
+        }}>
+          <span>📡</span>
+          <span>You're offline. AI features need an internet connection. Your progress is saved locally.</span>
+        </div>
+      )}
 
       {/* ── Conversation feed ── */}
       <div style={{ flex:1, overflowY:'auto', padding:'16px 16px 8px' }}>

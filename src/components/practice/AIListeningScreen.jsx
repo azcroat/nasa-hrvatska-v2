@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { H } from '../../data.jsx';
 import { markQuest } from '../../lib/quests.js';
 import { AIContentSkeleton, AIProgressBar } from '../shared/SkeletonLoader.jsx';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
 
 const TOPICS = [
   { key: 'cafe',       emoji: '☕',  hr: 'U kafiću',   en: 'At the Café' },
@@ -17,6 +18,7 @@ const TOPICS = [
 ];
 
 export default function AIListeningScreen({ goBack, award }) {
+  const isOnline = useOnlineStatus();
   const [phase, setPhase]               = useState('setup');
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [style, setStyle]               = useState('dialogue');
@@ -101,7 +103,9 @@ export default function AIListeningScreen({ goBack, award }) {
     } catch (err) {
       if (mountedRef.current) {
         const isNetwork = err instanceof TypeError && err.message.toLowerCase().includes('fetch');
-        setErrorMsg(isNetwork
+        setErrorMsg(!isOnline
+          ? 'No connection — reconnect to generate listening exercises'
+          : isNetwork
           ? 'Connection error — check your internet and try again'
           : 'Something went wrong — please try again');
         setPhase('setup');
@@ -203,6 +207,17 @@ export default function AIListeningScreen({ goBack, award }) {
     <div className="scr-wrap">
       {H('🎧 AI Listening', 'Dynamically generated Croatian audio', goBack)}
 
+      {!isOnline && (
+        <div style={{
+          background:'#fef3c7', border:'1px solid #f59e0b', borderRadius:10,
+          padding:'12px 16px', marginBottom:16, fontSize:13, fontWeight:600,
+          color:'#92400e', display:'flex', alignItems:'center', gap:8
+        }}>
+          <span>📡</span>
+          <span>You're offline. AI features need an internet connection. Your progress is saved locally.</span>
+        </div>
+      )}
+
       {/* Level badge */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
         <span style={{ background: '#0e7490', color: '#fff', borderRadius: 20, padding: '3px 12px', fontSize: 12, fontWeight: 700 }}>
@@ -264,9 +279,9 @@ export default function AIListeningScreen({ goBack, award }) {
         })}
       </div>
 
-      <button className="b bp" style={{ width: '100%', opacity: selectedTopic ? 1 : 0.4, cursor: selectedTopic ? 'pointer' : 'not-allowed' }}
-        disabled={!selectedTopic} onClick={generate}>
-        Generate →
+      <button className="b bp" style={{ width: '100%', opacity: (selectedTopic && isOnline) ? 1 : 0.4, cursor: (selectedTopic && isOnline) ? 'pointer' : 'not-allowed' }}
+        disabled={!selectedTopic || !isOnline} onClick={generate}>
+        {!isOnline ? '📶 Offline — connect to generate' : 'Generate →'}
       </button>
     </div>
   );

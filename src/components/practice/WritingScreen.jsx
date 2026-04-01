@@ -127,7 +127,7 @@ export default function WritingScreen({ goBack, award }) {
         });
       }
     } catch (e) {
-      setError("Could not connect to AI correction service. Check your connection.");
+      setError(!isOnline ? "No connection — please reconnect to use AI feedback." : "Could not connect to AI correction service. Check your connection.");
     }
     setLoading(false);
   }
@@ -180,6 +180,17 @@ export default function WritingScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
       {H("✍️ Free Writing", "Write in Croatian — get AI feedback", goBack)}
+
+      {!isOnline && (
+        <div style={{
+          background:'#fef3c7', border:'1px solid #f59e0b', borderRadius:10,
+          padding:'12px 16px', marginBottom:16, fontSize:13, fontWeight:600,
+          color:'#92400e', display:'flex', alignItems:'center', gap:8
+        }}>
+          <span>📡</span>
+          <span>You're offline. AI features need an internet connection. Your progress is saved locally.</span>
+        </div>
+      )}
 
       {/* Mode toggle */}
       <div style={{ display: "flex", gap: 8, marginBottom: 12, padding: "0 2px" }}>
