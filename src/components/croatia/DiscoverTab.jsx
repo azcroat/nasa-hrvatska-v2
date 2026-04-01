@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
 import { PHOTO_CREDITS } from '../../lib/photos';
 import CroatianKnight from '../shared/CroatianKnight';
@@ -52,24 +52,6 @@ const HERO_CITIES = [
   },
 ];
 
-// ── Daily Croatian phrases ────────────────────────────────────────────────────
-const DAILY_PHRASES = [
-  { hr: 'Kako si?', en: 'How are you?', note: 'Informal — use with friends and family' },
-  { hr: 'Hvala lijepa!', en: 'Thank you very much!', note: 'Warmer than plain "hvala"' },
-  { hr: 'Gdje je more?', en: 'Where is the sea?', note: 'Essential for any trip to Dalmatia' },
-  { hr: 'Koliko košta?', en: 'How much does it cost?', note: 'Markets, restaurants, everywhere' },
-  { hr: 'Jedna kava, molim.', en: 'One coffee, please.', note: 'The most Croatian sentence there is' },
-  { hr: 'Lijepo je ovdje.', en: 'It\'s beautiful here.', note: 'You\'ll say this constantly in Croatia' },
-  { hr: 'Idemo na plažu!', en: 'Let\'s go to the beach!', note: 'Summer vocabulary — critical' },
-  { hr: 'Dobar tek!', en: 'Enjoy your meal!', note: 'Said before eating — like "bon appétit"' },
-  { hr: 'Živjeli!', en: 'Cheers!', note: 'For rakija, wine, or pivo (beer)' },
-  { hr: 'Nema problema.', en: 'No problem.', note: 'The Croatian spirit in two words' },
-  { hr: 'Polako, ali sigurno.', en: 'Slowly but surely.', note: 'A saying — and a way of life' },
-  { hr: 'Stvarno lijepo.', en: 'Truly beautiful.', note: 'Genuine appreciation, not just polite' },
-  { hr: 'Gdje stanujete?', en: 'Where do you live?', note: 'Formal — for new acquaintances' },
-  { hr: 'Učim hrvatski.', en: 'I am learning Croatian.', note: 'Guaranteed to make any Croatian smile' },
-];
-
 const DID_YOU_KNOW = [
   { fact: 'The necktie was invented in Croatia. The word "cravat" comes from "Hrvat" — Croatian.', emoji: '👔' },
   { fact: 'Labin declared itself an independent republic in 1921 — the first anti-fascist uprising in Europe.', emoji: '✊' },
@@ -94,7 +76,6 @@ const KNIGHT_MESSAGES = [
 export default function DiscoverTab() {
   const { setScr } = useApp();
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-  const dailyPhrase = DAILY_PHRASES[dayOfYear % DAILY_PHRASES.length];
   const dailyFact = DID_YOU_KNOW[dayOfYear % DID_YOU_KNOW.length];
   const heroCity = HERO_CITIES[dayOfYear % HERO_CITIES.length];
 
@@ -112,6 +93,7 @@ export default function DiscoverTab() {
     }, 5500);
     return () => clearInterval(kTimerRef.current);
   }, []);
+  // eslint-disable-next-line security/detect-object-injection
   const kMsg = KNIGHT_MESSAGES[kMsgIdx];
 
   return (
@@ -138,18 +120,6 @@ export default function DiscoverTab() {
         </div>
       </div>
 
-      {/* ── DAILY PHRASE ── */}
-      <div style={{ background: 'var(--card)', border: '1.5px solid var(--card-b)', borderRadius: 14, padding: '14px 16px', marginBottom: 12 }}>
-        <div style={{ fontSize: 10, fontWeight: 900, color: 'var(--info)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 8 }}>
-          🗓️ Phrase of the Day
-        </div>
-        <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--heading)', fontFamily: "'Playfair Display',serif", marginBottom: 4 }}>
-          "{dailyPhrase.hr}"
-        </div>
-        <div style={{ fontSize: 14, color: 'var(--subtext)', marginBottom: 6 }}>{dailyPhrase.en}</div>
-        <div style={{ fontSize: 11, color: 'var(--subtext)', fontStyle: 'italic', opacity: 0.75 }}>{dailyPhrase.note}</div>
-      </div>
-
       {/* ── DID YOU KNOW ── */}
       <div style={{ background: 'var(--card)', border: '1px solid var(--card-b)', borderRadius: 14, padding: '14px 16px', marginBottom: 12 }}>
         <div style={{ fontSize: 10, fontWeight: 900, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 8 }}>
@@ -173,7 +143,7 @@ export default function DiscoverTab() {
         </div>
         <div style={{ fontSize: 14, fontWeight: 800, color: '#451a03', marginBottom: 4 }}>Baka Marija piše...</div>
         <div style={{ fontSize: 12, color: '#78350f', lineHeight: 1.5, marginBottom: 8, fontStyle: 'italic' }}>
-          "Drago moje unuče, kako si ti? Ovdje je lijepo proljetno vrijeme. Cvjetovi su procvjetali u vrtu..."
+          &ldquo;Drago moje unuče, kako si ti? Ovdje je lijepo proljetno vrijeme. Cvjetovi su procvjetali u vrtu...&rdquo;
         </div>
         <div style={{ fontSize: 11, fontWeight: 700, color: '#b45309' }}>Read the full letter → Stories tab ↗</div>
       </div>
@@ -199,6 +169,7 @@ export default function DiscoverTab() {
           </div>
           {/* progress dots */}
           <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
+            {/* eslint-disable-next-line react/no-array-index-key */}
             {KNIGHT_MESSAGES.map((_, i) => (
               <div key={i} style={{
                 width: i === kMsgIdx ? 14 : 5, height: 5, borderRadius: 3,
