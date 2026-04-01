@@ -17,8 +17,19 @@ export default function LessonScreen({
   const resultFired = useRef(false);
   const [showQuit, setShowQuit] = useState(false);
 
-  // Knight reacts when the lesson result screen appears
+  // Knight reacts across all lesson phases
   useEffect(() => {
+    if (lp === 'learn') {
+      const tips = [
+        { mood: 'happy',       text: 'New words! Tap each one to hear the pronunciation — then say it back out loud. Hearing yourself is the shortcut. 🔊' },
+        { mood: 'ready',       text: 'Vocabulary is the bricks of language. Learn these words and your Croatian conversations open up. 🏰' },
+        { mood: 'thinking',    text: 'Pro tip: connect each word to a vivid image. "Kuća" — picture a house you know. Croatian sticks when it has meaning. 🧠' },
+        { mood: 'encouraging', text: 'Polako! Take your time with each word. Speed comes naturally — depth comes from attention. ⚔️' },
+      ];
+      const tip = tips[Math.floor(Math.random() * tips.length)];
+      knightSpeak(tip.mood, tip.text, 900);
+      return;
+    }
     if (lp !== 'result') return;
     const pct = qi.length > 0 ? ls / qi.length : 0;
     knightSpeak(

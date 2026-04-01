@@ -3,8 +3,16 @@ import { H, Bar } from '../../data.jsx';
 import { markQuest } from '../../lib/quests.js';
 import SpeakingSummaryScreen from './SpeakingSummaryScreen.jsx';
 import SpeakingPracticePanel from './SpeakingPracticePanel.jsx';
+import { knightSpeak } from '../../lib/knightSpeak.js';
 
 const SRSupported = typeof window !== 'undefined' && !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+
+const SPEAKING_TIPS = [
+  { mood: 'encouraging', text: 'Your accent doesn\'t need to be perfect — it needs to be understood. Speak boldly. 🎙️' },
+  { mood: 'happy',       text: 'Every Croatian will appreciate you trying. Speak, don\'t overthink. ⚔️' },
+  { mood: 'ready',       text: 'Croats speak with passion. Match that energy — say each phrase like you mean it. 🇭🇷' },
+  { mood: 'thinking',    text: 'Speaking tip: exhale slightly before each phrase. Relaxed breath, cleaner sound. 🌊' },
+];
 
 // Language codes to try in order — hr-HR is most accurate but least supported
 const LANG_FALLBACKS = ['hr-HR', 'hr', 'en-US'];
@@ -65,6 +73,12 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
 
   // Results summary screen (shown before goBack after all words done)
   const [showSummary, setShowSummary] = useState(false);
+
+  // Knight coaching — entry tip on mount
+  useEffect(() => {
+    const tip = SPEAKING_TIPS[Math.floor(Math.random() * SPEAKING_TIPS.length)];
+    knightSpeak(tip.mood, tip.text, 1000);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Cleanup on unmount — must be before early return to satisfy Rules of Hooks
   // eslint-disable-next-line react-hooks/exhaustive-deps

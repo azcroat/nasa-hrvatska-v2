@@ -1,8 +1,16 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useEffect } from 'react';
 import { H, Bar, speak, sh } from '../../data.jsx';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
 import { logError } from '../../lib/learnerErrors.js';
+import { knightSpeak } from '../../lib/knightSpeak.js';
+
+const GRAMMAR_ENTRY_TIPS = [
+  { mood: 'thinking',    text: 'Read the rule first — understand the *why*, and the practice questions answer themselves. 📐' },
+  { mood: 'ready',       text: 'Gramatika! Master this one pattern and dozens of sentences unlock instantly. ⚔️' },
+  { mood: 'happy',       text: 'Croatian grammar is perfectly logical — every ending tells a story. One rule at a time. 🧩' },
+  { mood: 'encouraging', text: 'Read each example sentence aloud before clicking Practice. Your ears remember what eyes forget. 🗣️' },
+];
 
 export default function GrammarScreen({
   gl, gp, gx, gs, ga, gsl,
@@ -10,6 +18,29 @@ export default function GrammarScreen({
   goBack, award, setSt,
 }) {
   const resultFired = useRef(false);
+
+  // Knight coaching — entry tip on learn phase
+  useEffect(() => {
+    const tip = GRAMMAR_ENTRY_TIPS[Math.floor(Math.random() * GRAMMAR_ENTRY_TIPS.length)];
+    knightSpeak(tip.mood, tip.text, 900);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Knight coaching — phase transitions
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (gp === 'ex' && gx === 0) {
+      knightSpeak('ready', 'Quiz time! Trust the pattern you just read — your brain already knows the answer. 🎯', 400);
+    } else if (gp === 'result') {
+      const pct = (gl?.qs?.length ?? 1) > 0 ? gs / (gl?.qs?.length ?? 1) : 0;
+      knightSpeak(
+        pct === 1 ? 'victory' : pct >= 0.7 ? 'celebrating' : 'encouraged',
+        pct === 1 ? 'Savršeno! Perfect grammar score — this rule is yours forever. 🌟' :
+        pct >= 0.7 ? `Odlično! ${Math.round(pct * 100)}% — solid Croatian grammar. 💪` :
+        'Grammar takes repetition. Come back tomorrow — you\'ll score higher. 🛡️',
+        500
+      );
+    }
+  }, [gp]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Shuffle questions once per lesson (when gl changes) and shuffle each
   // question's options, storing the correct answer by value rather than index.
