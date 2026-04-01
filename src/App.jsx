@@ -243,6 +243,7 @@ function App() {
     setScr, navigate, curEx, sCurEx, currentScreen,
     setStats, award,
     allCats,
+    tab, setTab,
     sLt, sLi, sLx, sLs, sLp, sLa, sLsl, sQi,
     sGl, sGp, sGx, sGs, sGa, sGsl,
     setMcInitQ, setMcResultQ, setMcResultScore, setMcMistakes,
