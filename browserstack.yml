@@ -13,15 +13,14 @@ consoleLogs: errors
 testRunnerOptions: --config=browserstack.playwright.config.js
 
 platforms:
-  # ── YOUR DEVICE ────────────────────────────────────────────────────────────
-  - deviceName: iPhone 17 Pro Max
-    osVersion: 26
+  # ── iOS real devices ───────────────────────────────────────────────────────
+  - deviceName: iPhone 15
+    osVersion: 17
     browserName: safari
     browserVersion: latest
 
-  # ── iOS real devices ───────────────────────────────────────────────────────
-  - deviceName: iPhone 17
-    osVersion: 26
+  - deviceName: iPhone 14
+    osVersion: 16
     browserName: safari
     browserVersion: latest
 
@@ -36,17 +35,12 @@ platforms:
     browserName: chrome
     browserVersion: latest
 
-  - deviceName: Samsung Galaxy A54
-    osVersion: 13.0
-    browserName: chrome
-    browserVersion: latest
-
   - deviceName: Google Pixel 7
     osVersion: 13.0
     browserName: chrome
     browserVersion: latest
 
-  - deviceName: OnePlus 11R
+  - deviceName: Samsung Galaxy A54
     osVersion: 13.0
     browserName: chrome
     browserVersion: latest
