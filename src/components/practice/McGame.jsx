@@ -67,6 +67,10 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
   const [mistakes, setMistakes] = useState([]);
   const firstOptionRef = useRef(null);
   const resultFired = useRef(false);
+  const timersRef = useRef([]);
+
+  // Clear all pending timers on unmount to prevent setState-after-teardown errors
+  useEffect(() => () => { timersRef.current.forEach(clearTimeout); }, []);
 
   useEffect(() => {
     if (firstOptionRef.current) firstOptionRef.current.focus();
@@ -100,7 +104,7 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
       haptic.correct();
       playCorrect();
       setBurst(i);
-      setTimeout(() => setBurst(-1), 900);
+      timersRef.current.push(setTimeout(() => setBurst(-1), 900));
       setScore(s => s + 1);
       setWrongStreak(0);
       setStreak(s => {
@@ -121,10 +125,10 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
           setShowCombo(true);
           // Change 3: pulse the streak badge for the combo toast duration
           setStreakPulse(true);
-          setTimeout(() => {
+          timersRef.current.push(setTimeout(() => {
             setShowCombo(false);
             setStreakPulse(false);
-          }, 1500);
+          }, 1500));
         }
         return ns;
       });
@@ -132,7 +136,7 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
         const newCs = cs + 1;
         if (newCs === 5) {
           setShowOnARoll(true);
-          setTimeout(() => setShowOnARoll(false), 2000);
+          timersRef.current.push(setTimeout(() => setShowOnARoll(false), 2000));
         }
         return newCs;
       });
@@ -141,7 +145,7 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
       playWrong();
       // Change 1: trigger screen shake
       setShaking(true);
-      setTimeout(() => setShaking(false), 500);
+      timersRef.current.push(setTimeout(() => setShaking(false), 500));
       setStreak(0);
       setCorrectStreak(0);
       setRevealCorrect(true);
@@ -164,7 +168,7 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
           const correctIdx = q.opts.indexOf(q.correct);
           if (correctIdx !== -1) {
             setGlowIndex(correctIdx);
-            setTimeout(() => setGlowIndex(-1), 1500);
+            timersRef.current.push(setTimeout(() => setGlowIndex(-1), 1500));
           }
         }
         return newWs;
@@ -175,14 +179,14 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
         const remaining = loseHeart();
         setHearts(remaining);
         if (remaining === 0) {
-          setTimeout(() => setGameOver(true), 600); // let animation finish
+          timersRef.current.push(setTimeout(() => setGameOver(true), 600)); // let animation finish
         }
       } else if (!practiceMode) {
         // Regular mode hearts deduction
         setHearts(h => {
           const newH = Math.max(0, h - 1);
           if (newH === 0) {
-            setTimeout(() => setGameOver(true), 600);
+            timersRef.current.push(setTimeout(() => setGameOver(true), 600));
           }
           return newH;
         });
@@ -454,13 +458,13 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
         onNext={() => {
           if (!isLast) {
             setQTransition(true);
-            setTimeout(() => {
+            timersRef.current.push(setTimeout(() => {
               setIdx(i => i + 1);
               setAnswered(false);
               setSelected(-1);
               setRevealCorrect(false);
               setQTransition(false);
-            }, 200);
+            }, 200));
           } else {
             if (resultFired.current) return;
             resultFired.current = true;
