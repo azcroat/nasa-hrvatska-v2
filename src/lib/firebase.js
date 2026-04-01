@@ -73,8 +73,11 @@ export async function fbSaveProgress(uid,data){
   const _strk = (data.streak && typeof data.streak.count === 'number')
     ? data.streak.count
     : (typeof _st.str === 'number' ? _st.str : 0);
-  const _lvl = data.level
-    || (typeof localStorage !== 'undefined' ? (localStorage.getItem('nh_level') || 'A1') : 'A1');
+  // _lvl must be a number >= 1 for the Firestore profiles rule (level >= 1).
+  // localStorage stores CEFR strings like 'A1','B2'; map to 1-6 so the rule passes.
+  const _lvlRaw = data.level || (typeof localStorage !== 'undefined' ? (localStorage.getItem('nh_level') || 'A1') : 'A1');
+  const _CEFR_NUM = { A1:1, A2:2, B1:3, B2:4, C1:5, C2:6 };
+  const _lvl = (typeof _lvlRaw === 'number' && _lvlRaw >= 1) ? _lvlRaw : (_CEFR_NUM[_lvlRaw] || 1);
   const _nowMs=Date.now();
   const lbEntry={name:data.name||"",xp:_st.xp||0,lc:_st.lc||0,updated:_nowMs};
   const profileEntry={name:data.name||"",xp:_st.xp||0,lc:_st.lc||0,streak:_strk,level:_lvl,lastActive:_nowMs};

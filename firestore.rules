@@ -122,7 +122,11 @@ service cloud.firestore {
         && request.resource.data.keys().hasAll(['name', 'xp', 'lc', 'streak', 'level', 'lastActive'])
         && request.resource.data.xp >= 0
         && request.resource.data.lc >= 0
-        && request.resource.data.level >= 1;
+        // level is always a number 1-6 (A1→1 … C2→6) after the CEFR mapping in fbSaveProgress.
+        // Accept int >= 1 OR string (belt-and-suspenders for legacy writes).
+        && (request.resource.data.level is int
+            ? request.resource.data.level >= 1
+            : request.resource.data.level is string);
       allow delete: if false;
     }
 
