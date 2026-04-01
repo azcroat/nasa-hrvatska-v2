@@ -40,15 +40,20 @@ service cloud.firestore {
 
     // ─── XP validation helpers ─────────────────────────────────────────────
 
-    // User-doc UPDATE: top-level xp field must be non-negative integer, max +500
-    // per write, or exactly 0 (account reset). Uses .get() to handle old docs
-    // written before the xp field was added (fbRegister omits it).
+    // User-doc UPDATE: top-level xp field must be non-negative integer.
+    // No per-write increment cap — a user may sync accumulated offline XP in one
+    // batch (e.g. 20 lessons × 50 XP = 1000 XP). The cap was silently blocking
+    // legitimate cross-device sync writes, causing divergent state across devices.
+    // Anti-cheat protection: XP can never decrease (except an explicit reset to 0),
+    // total cap enforced at 100,000 XP (well above any legitimate learner), and the
+    // progress blob size is separately capped at 200 KB.
     function validXpUpdate() {
       let oldXp = resource.data.get('xp', 0);
       let newXp = request.resource.data.get('xp', oldXp);
       return newXp >= 0
         && newXp == int(newXp)
-        && (newXp <= oldXp + 500 || newXp == 0);
+        && (newXp >= oldXp || newXp == 0)
+        && newXp <= 100000;
     }
 
     // User-doc UPDATE: progress blob must be ≤ 200 KB to prevent abuse.
@@ -69,20 +74,23 @@ service cloud.firestore {
         && request.resource.data.lc <= 100;
     }
 
-    // Leaderboard UPDATE: xp max +500 per write; lc may only increase by ≤10.
+    // Leaderboard UPDATE: XP must never decrease (except reset to 0); no per-write cap.
+    // Removing the +500/+10 increment caps — same reasoning as validXpUpdate above:
+    // offline sync can accumulate large increments that must be written in one batch.
     function validLbXpUpdate() {
       let oldXp = resource.data.get('xp', 0);
       let newXp = request.resource.data.xp;
       return newXp >= 0
         && newXp == int(newXp)
-        && (newXp <= oldXp + 500 || newXp == 0);
+        && (newXp >= oldXp || newXp == 0)
+        && newXp <= 100000;
     }
     function validLbLcUpdate() {
       let oldLc = resource.data.get('lc', 0);
       let newLc = request.resource.data.lc;
       return newLc >= 0
         && newLc >= oldLc
-        && newLc <= oldLc + 10;
+        && newLc <= 10000;
     }
 
     // ─── User documents ────────────────────────────────────────────────────
