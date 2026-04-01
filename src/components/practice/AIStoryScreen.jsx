@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import CroatianKnight from '../shared/CroatianKnight.jsx';
 import { speak } from '../../lib/audio.js';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
 
 function getWeakWords() {
   try {
@@ -18,6 +19,7 @@ function getWeakWords() {
 }
 
 export default function AIStoryScreen({ goBack, award }) {
+  const isOnline = useOnlineStatus();
   const [loading, setLoading] = useState(false);
   const [story, setStory] = useState(null);
   const [translation, setTranslation] = useState(null);
@@ -135,6 +137,17 @@ export default function AIStoryScreen({ goBack, award }) {
         </div>
       </div>
 
+      {!isOnline && (
+        <div style={{
+          background:'#fef3c7', border:'1px solid #f59e0b', borderRadius:10,
+          padding:'12px 16px', marginBottom:16, fontSize:13, fontWeight:600,
+          color:'#92400e', display:'flex', alignItems:'center', gap:8
+        }}>
+          <span>📡</span>
+          <span>You're offline. AI features need an internet connection. Your progress is saved locally.</span>
+        </div>
+      )}
+
       {/* Knight mascot */}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
         <CroatianKnight size={60} mood={loading ? 'thinking' : done ? 'celebrating' : 'happy'} />
@@ -164,7 +177,9 @@ export default function AIStoryScreen({ goBack, award }) {
           background: 'rgba(220,38,38,.08)', border: '1px solid rgba(220,38,38,.25)',
           borderRadius: 14, padding: '16px 20px', marginBottom: 16, textAlign: 'center',
         }}>
-          <div style={{ fontSize: 14, color: 'var(--error)', fontWeight: 700, marginBottom: 8 }}>{error}</div>
+          <div style={{ fontSize: 14, color: 'var(--error)', fontWeight: 700, marginBottom: 8 }}>
+            {!isOnline ? 'No connection — reconnect to generate a story.' : error}
+          </div>
           <button className="b bp" onClick={generateStory} style={{ width: '100%' }}>
             Try Again
           </button>

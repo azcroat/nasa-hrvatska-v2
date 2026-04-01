@@ -496,6 +496,17 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   if (appMode === "write" && writePhase === "writing") return (
     <div style={{ position: "fixed", inset: 0, zIndex: 9100, background: "var(--app-bg)",
       display: "flex", flexDirection: "column", fontFamily: "'Outfit',sans-serif" }}>
+      {!isOnline && (
+        <div style={{
+          background:'#fef3c7', border:'1px solid #f59e0b', borderRadius:0,
+          padding:'12px 16px', fontSize:13, fontWeight:600,
+          color:'#92400e', display:'flex', alignItems:'center', gap:8,
+          flexShrink:0,
+        }}>
+          <span>📡</span>
+          <span>You're offline. AI features need an internet connection. Your progress is saved locally.</span>
+        </div>
+      )}
       {/* Header */}
       <div style={{ background: "var(--card)", borderBottom: "1px solid var(--card-b)", padding: "12px 16px",
         display: "flex", alignItems: "center", gap: 10, flexShrink: 0, boxShadow: "0 1px 4px rgba(0,0,0,.06)" }}>
@@ -544,12 +555,24 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
 
   // ── FREE WRITE — EVALUATING ──────────────────────────────────────────────────
   if (appMode === "write" && writePhase === "evaluating") return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      minHeight: "80vh", textAlign: "center", padding: "24px" }}>
-      <div style={{ fontSize: 56, marginBottom: 16, animation: "pulse 1.4s ease-in-out infinite" }}>📝</div>
-      <div style={{ fontSize: "var(--text-xl)", fontWeight: 800, color: "var(--heading)", marginBottom: 8 }}>Marking your writing…</div>
-      <div style={{ fontSize: "var(--text-base)", color: "var(--subtext)", maxWidth: 280, lineHeight: 1.6 }}>
-        Checking grammar, vocabulary range, and style
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "80vh" }}>
+      {!isOnline && (
+        <div style={{
+          background:'#fef3c7', border:'1px solid #f59e0b', borderRadius:10,
+          padding:'12px 16px', margin:'16px 16px 0', fontSize:13, fontWeight:600,
+          color:'#92400e', display:'flex', alignItems:'center', gap:8
+        }}>
+          <span>📡</span>
+          <span>You're offline. AI features need an internet connection. Your progress is saved locally.</span>
+        </div>
+      )}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+        flex: 1, textAlign: "center", padding: "24px" }}>
+        <div style={{ fontSize: 56, marginBottom: 16, animation: "pulse 1.4s ease-in-out infinite" }}>📝</div>
+        <div style={{ fontSize: "var(--text-xl)", fontWeight: 800, color: "var(--heading)", marginBottom: 8 }}>Marking your writing…</div>
+        <div style={{ fontSize: "var(--text-base)", color: "var(--subtext)", maxWidth: 280, lineHeight: 1.6 }}>
+          Checking grammar, vocabulary range, and style
+        </div>
       </div>
     </div>
   );
@@ -589,13 +612,25 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
 
   // ── CONVERSATION — EVALUATING ────────────────────────────────────────────────
   if (phase === "evaluating") return (
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "80vh", padding: "0" }}>
+      {!isOnline && (
+        <div style={{
+          background:'#fef3c7', border:'1px solid #f59e0b', borderRadius:10,
+          padding:'12px 16px', margin:'16px 16px 0', fontSize:13, fontWeight:600,
+          color:'#92400e', display:'flex', alignItems:'center', gap:8
+        }}>
+          <span>📡</span>
+          <span>You're offline. AI features need an internet connection. Your progress is saved locally.</span>
+        </div>
+      )}
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      minHeight: "80vh", textAlign: "center", padding: "24px" }}>
+      flex: 1, textAlign: "center", padding: "24px" }}>
       <div style={{ fontSize: 56, marginBottom: 16, animation: "pulse 1.4s ease-in-out infinite" }}>🧠</div>
       <div style={{ fontSize: "var(--text-xl)", fontWeight: 800, color: "var(--heading)", marginBottom: 8 }}>Analysing your conversation…</div>
       <div style={{ fontSize: "var(--text-base)", color: "var(--subtext)", maxWidth: 280, lineHeight: 1.6 }}>
         Reviewing grammar, vocabulary range, and fluency across your {userCount} exchanges
       </div>
+    </div>
     </div>
   );
 
