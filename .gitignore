@@ -8,3 +8,7 @@ test-results/
 .claude/
 coverage/
 UsersjschrAppDataLocalGoogleChromeUser Data/
+
+# Build artifacts — contain internal URLs, DSN keys, performance data
+lighthouse-report.json
+e2e/sync-proof-report/
