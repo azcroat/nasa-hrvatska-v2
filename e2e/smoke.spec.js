@@ -54,13 +54,17 @@ test.describe('Production smoke — site availability', () => {
 test.describe('Production smoke — PWA assets', () => {
   test('service worker is registered after page load', async ({ page }) => {
     await page.goto('/');
-    // Wait for full network idle — Firebase + React + SW registration all need time
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
-    const registered = await page.evaluate(() =>
-      'serviceWorker' in navigator
-        ? navigator.serviceWorker.getRegistrations().then(r => r.length > 0)
-        : Promise.resolve(false)
-    );
+    // SW registers asynchronously after React boots — poll up to 15s
+    const registered = await page.evaluate(async () => {
+      if (!('serviceWorker' in navigator)) return false;
+      for (let i = 0; i < 30; i++) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        if (regs.length > 0) return true;
+        await new Promise(r => setTimeout(r, 500));
+      }
+      return false;
+    });
     expect(registered, 'Service worker must be registered').toBe(true);
   });
 
