@@ -107,14 +107,22 @@ describe('useSearch', () => {
     expect(result.current.srchR).toHaveLength(0);
   });
   it('doSearch with known Croatian word returns results', async () => {
+    // Must use real timers — the debounce callback does a dynamic import whose Promise
+    // resolution is not driven by fake-timer microtask flushing in this environment.
+    vi.useRealTimers();
     const { result } = renderHook(() => useSearch());
-    await act(async () => { result.current.doSearch('kuća'); await vi.runAllTimersAsync(); });
+    result.current.doSearch('kuća');
+    await act(async () => { await new Promise(r => setTimeout(r, 300)); });
     expect(result.current.srchR.length).toBeGreaterThan(0);
+    vi.useFakeTimers(); // restore for remaining tests in describe block
   });
   it('doSearch results capped at 15', async () => {
+    vi.useRealTimers();
     const { result } = renderHook(() => useSearch());
-    await act(async () => { result.current.doSearch('a'); await vi.runAllTimersAsync(); }); // very common letter
+    result.current.doSearch('a'); // very common letter
+    await act(async () => { await new Promise(r => setTimeout(r, 300)); });
     expect(result.current.srchR.length).toBeLessThanOrEqual(15);
+    vi.useFakeTimers();
   });
   it('setSrchOpen controls open state', () => {
     const { result } = renderHook(() => useSearch());

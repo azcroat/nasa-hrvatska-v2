@@ -91,7 +91,7 @@ function markDone(unitId) {
     if (!done.includes(unitId)) {
       localStorage.setItem(PROGRESS_KEY + 'done', JSON.stringify([...done, unitId]));
     }
-  } catch (_) {}
+  } catch (_e) {}
 }
 
 export default function GrammarTrackScreen({ goBack }) {
@@ -194,7 +194,7 @@ export default function GrammarTrackScreen({ goBack }) {
 
       {/* ── UNITS LIST ── */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {level.units.map((unit, idx) => {
+        {level.units.map((unit) => {
           const isDone = done.includes(unit.id);
           return (
             <button
