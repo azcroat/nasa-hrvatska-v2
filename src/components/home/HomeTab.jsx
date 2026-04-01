@@ -29,6 +29,23 @@ import SpeedChallenge from './SpeedChallenge.jsx';
 // DalmatianCoast SVG replaced with real AI/CC photography
 // import { DalmatianCoast } from '../illustrations';
 
+const PHRASE_OF_DAY_POOL = [
+  { hr: 'Kako si?',              en: 'How are you?',             note: 'Informal — use with friends and family' },
+  { hr: 'Hvala lijepa!',         en: 'Thank you very much!',     note: 'Warmer than plain "hvala"' },
+  { hr: 'Gdje je more?',         en: 'Where is the sea?',        note: 'Essential for any trip to Dalmatia' },
+  { hr: 'Koliko košta?',         en: 'How much does it cost?',   note: 'Markets, restaurants, everywhere' },
+  { hr: 'Jedna kava, molim.',    en: 'One coffee, please.',      note: 'The most Croatian sentence there is' },
+  { hr: 'Lijepo je ovdje.',      en: "It's beautiful here.",     note: "You'll say this constantly in Croatia" },
+  { hr: 'Idemo na plažu!',       en: "Let's go to the beach!",   note: 'Summer vocabulary — critical' },
+  { hr: 'Dobar tek!',            en: 'Enjoy your meal!',         note: 'Said before eating — like "bon appétit"' },
+  { hr: 'Živjeli!',              en: 'Cheers!',                  note: 'For rakija, wine, or pivo (beer)' },
+  { hr: 'Nema problema.',        en: 'No problem.',              note: 'The Croatian spirit in two words' },
+  { hr: 'Polako, ali sigurno.',  en: 'Slowly but surely.',       note: 'A saying — and a way of life' },
+  { hr: 'Učim hrvatski.',        en: 'I am learning Croatian.',  note: 'Guaranteed to make any Croatian smile' },
+  { hr: 'Gdje stanujete?',       en: 'Where do you live?',       note: 'Formal — for new acquaintances' },
+  { hr: 'Stvarno lijepo.',       en: 'Truly beautiful.',         note: 'Genuine appreciation, not just polite' },
+];
+
 const DAILY_PHRASES = [
   { hr: "Dobar dan!", en: "Good day!", cat: "Greetings" },
   { hr: "Kako ste?", en: "How are you?", cat: "Greetings" },
@@ -73,10 +90,10 @@ function getWeekXP() {
 }
 
 export default function HomeTab({
-  dchlA, sDchlA, dchlSl, sDchlSl,
+  dchlA, sDchlA: _sDchlA, dchlSl: _dchlSl, sDchlSl: _sDchlSl,
   getWeekStats,
   setTab, sCurEx,
-  allCats, sh,
+  allCats: _allCats, sh: _sh,
   launchPathItem,
   syncReady, onSyncNow, authUser,
   comebackBonus,
@@ -88,9 +105,13 @@ export default function HomeTab({
   const { setScr, doSignUp } = useApp();
   const { level, stats: st, award } = useStats();
   const dc = useMemo(() => getDailyChallenge(), []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const ws = useMemo(() => getWeekStats(), [st]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const weekXP = useMemo(() => getWeekXP(), [st]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const streak = useMemo(() => getStreak(), [st]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const lastActivity = useMemo(() => getLastActivity(), [st]);
   const wod = useMemo(() => getWordOfDay(), []);
 
@@ -126,7 +147,7 @@ export default function HomeTab({
     };
   }, [streak]);
   const allQuestsDone = Object.values(questsDone).every(Boolean);
-  const questXP = DAILY_QUESTS.filter(q => questsDone[q.id]).reduce((s,q) => s + q.xp, 0);
+  const _questXP = DAILY_QUESTS.filter(q => questsDone[q.id]).reduce((s,q) => s + q.xp, 0); void _questXP;
 
   // Award Daily Mastery +50 XP bonus the first time all quests are done today
   // Use local calendar date — UTC ISO string gives wrong date for UTC+ timezones
@@ -140,11 +161,11 @@ export default function HomeTab({
     }
   }, [allQuestsDone, masteryKey, award]);
 
-  const allOpts = useMemo(() => dc.challenges?.map(ch => ch.opts || [ch.a]) || [], [dc.challenges]);
+  const _allOpts = useMemo(() => dc.challenges?.map(ch => ch.opts || [ch.a]) || [], [dc.challenges]); void _allOpts;
   const doneCount = dchlA.filter(Boolean).length;
-  const allDone = doneCount === 3;
+  const _allDone = doneCount === 3; void _allDone;
 
-  const [dcOpen, setDcOpen] = useState(doneCount === 0);
+  const [_dcOpen, _setDcOpen] = useState(doneCount === 0); void _dcOpen; void _setDcOpen;
   const [campaignDismissed, setCampaignDismissed] = useState(false);
   const [nudgeDismissed, setNudgeDismissed] = useState(false);
 
@@ -183,6 +204,11 @@ export default function HomeTab({
   const activePalette = LEVEL_PALETTE[(pathData.activeLv.level - 1) % LEVEL_PALETTE.length];
 
   // Daily rotating phrases — 4 new phrases per day, cycles through the full pool
+  const phraseOfDay = useMemo(() => {
+    const dayIdx = Math.floor(Date.now() / 86400000);
+    return PHRASE_OF_DAY_POOL[dayIdx % PHRASE_OF_DAY_POOL.length];
+  }, []);
+
   const todayPhrases = useMemo(() => {
     const dayIdx = Math.floor(Date.now() / 86400000);
     const start = (dayIdx * 4) % DAILY_PHRASES.length;
@@ -471,6 +497,37 @@ export default function HomeTab({
                     </div>
                   )}
 
+                  {/* ── Phrase of the Day section ── */}
+                  <div style={{
+                    background: 'var(--card)',
+                    padding: '12px 16px',
+                    borderTop: '1px solid var(--card-b)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+                  }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: '#b45309', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 4 }}>
+                        🗓️ Phrase of the Day
+                      </div>
+                      <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--heading)', fontFamily: "'Playfair Display',serif", lineHeight: 1.2 }}>
+                        &ldquo;{phraseOfDay.hr}&rdquo;
+                      </div>
+                      <div style={{ fontSize: 13, color: 'var(--subtext)', marginTop: 3 }}>{phraseOfDay.en}</div>
+                      {phraseOfDay.note && (
+                        <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2, fontStyle: 'italic', opacity: 0.75 }}>{phraseOfDay.note}</div>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => speak(phraseOfDay.hr)}
+                      aria-label="Hear pronunciation"
+                      style={{
+                        background: 'linear-gradient(135deg,#b45309,#92400e)',
+                        border: 'none', borderRadius: '50%', width: 44, height: 44, fontSize: 18,
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        flexShrink: 0, boxShadow: '0 2px 10px rgba(180,83,9,0.35)',
+                      }}
+                    >🔊</button>
+                  </div>
+
                   {/* ── City of the Day section ── */}
                   <button
                     onClick={() => { incrementCulture('cityCnt'); if (award) award(3); setScr('cityofday'); }}
@@ -580,7 +637,7 @@ export default function HomeTab({
           {/* ── TODAY'S FOCUS HEADER ── */}
           <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12, marginTop:24}}>
             <div style={{width:3, height:20, background:'var(--info)', borderRadius:2}}/>
-            <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Today's Focus</span>
+            <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Today&apos;s Focus</span>
           </div>
 
           {/* ── AI DAILY PLAN ── */}
