@@ -6,7 +6,7 @@ function _sh(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { con
 import ScreenErrorBoundary from "./shared/ScreenErrorBoundary.jsx";
 const WelcomeScreen = lazyWithReload(() => import("./home/WelcomeScreen.jsx"));
 const PlacementTest = lazyWithReload(() => import("../components/auth/PlacementTest.jsx"));
-import PaywallScreen from "./shared/PaywallScreen.jsx";
+const PaywallScreen = lazyWithReload(() => import("./shared/PaywallScreen.jsx"));
 import { useApp } from "../context/AppContext.jsx";
 import { useStats } from "../context/StatsContext.jsx";
 
