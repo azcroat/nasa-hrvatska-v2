@@ -6,7 +6,7 @@ function ScenesScreen({ goBack }) {
   return (
     <div className="scr-wrap">
 
-      {H("🖼️ Describe the Scene","Answer questions about everyday situations")}
+      {H("🖼️ Describe the Scene","Answer questions about everyday situations",goBack)}
       {SCENES.map(function(scene,si){return (
         <div key={si} className="c" style={{marginBottom:16}}>
           <div style={{fontSize:16,fontWeight:800,color:"#164e63",marginBottom:4}}>{scene.title}</div>

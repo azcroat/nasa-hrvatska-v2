@@ -6,7 +6,7 @@ function OppositesScreen({ goBack }) {
   return (
     <div className="scr-wrap">
 
-      {H("↔️ Opposites","Learn adjective pairs with animals")}
+      {H("↔️ Opposites","Learn adjective pairs with animals",goBack)}
       {shMemo("ao",ADJOPPOSITES).map(function(p,i){return (
         <div key={i} className="c" style={{marginBottom:10,padding:"10px 14px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div style={{flex:1,textAlign:"center",cursor:"pointer"}} onClick={function(){speak(p.ex.a)}}>
