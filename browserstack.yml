@@ -14,19 +14,14 @@ testRunnerOptions: --config=browserstack.playwright.config.js
 
 platforms:
 
-  # ── iPhone — latest OS (iOS 26) ────────────────────────────────────────────
-  - deviceName: iPhone 17 Pro Max
-    osVersion: 26
+  # ── iPhone — iOS 18 (latest available on BrowserStack) ───────────────────
+  - deviceName: iPhone 16 Pro Max
+    osVersion: 18
     browserName: safari
     browserVersion: latest
 
-  - deviceName: iPhone 17
-    osVersion: 26
-    browserName: safari
-    browserVersion: latest
-
-  - deviceName: iPhone Air
-    osVersion: 26
+  - deviceName: iPhone 16
+    osVersion: 18
     browserName: safari
     browserVersion: latest
 
@@ -70,8 +65,8 @@ platforms:
     browserVersion: latest
 
   # ── iPad ───────────────────────────────────────────────────────────────────
-  - deviceName: iPad Pro 13 2025
-    osVersion: 26
+  - deviceName: iPad Pro 12.9 2022
+    osVersion: 18
     browserName: safari
     browserVersion: latest
 
@@ -91,8 +86,8 @@ platforms:
     browserVersion: latest
 
   # ── Android flagship ───────────────────────────────────────────────────────
-  - deviceName: Samsung Galaxy S26
-    osVersion: 16.0
+  - deviceName: Samsung Galaxy S24
+    osVersion: 14.0
     browserName: chrome
     browserVersion: latest
 
@@ -101,8 +96,8 @@ platforms:
     browserName: chrome
     browserVersion: latest
 
-  - deviceName: Google Pixel 10 Pro
-    osVersion: 16.0
+  - deviceName: Google Pixel 9 Pro
+    osVersion: 15.0
     browserName: chrome
     browserVersion: latest
 
