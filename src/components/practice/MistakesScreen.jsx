@@ -185,7 +185,7 @@ export default function MistakesScreen({ goBack, award }) {
   if (mode === 'done') {
     return (
       <div className="scr-wrap">
-        {H('📚 Review Complete!', 'Great work!')}
+        {H('📚 Review Complete!', 'Great work!', goBack)}
         <div className="c" style={{ textAlign: 'center', padding: '32px 20px' }}>
           <div style={{ fontSize: 64, marginBottom: 16 }}>🎉</div>
           <h3 style={{ color: '#15803d', marginBottom: 8 }}>Session Complete!</h3>

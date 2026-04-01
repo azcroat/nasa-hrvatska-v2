@@ -373,7 +373,7 @@ export default function AspectDrillScreen({ goBack, award }) {
     return (
       <div className="scr-wrap">
         <style>{ASPECT_KEYFRAMES}</style>
-        {H('🔄 Verb Aspects')}
+        {H('🔄 Verb Aspects', 'Perfective vs imperfective', goBack)}
         <div style={{ textAlign: 'center', paddingTop: 32 }}>
           <div style={{ fontSize: 64 }}>{emoji}</div>
           <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 28, color: '#164e63', marginTop: 8 }}>
@@ -427,7 +427,7 @@ export default function AspectDrillScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
       <style>{ASPECT_KEYFRAMES}</style>
-      {H('🔄 Verb Aspect Drill')}
+      {H('🔄 Verb Aspect Drill', 'Perfective vs imperfective', goBack)}
 
       {/* ── Top controls ── */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>

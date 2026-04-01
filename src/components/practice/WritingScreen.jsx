@@ -179,7 +179,7 @@ export default function WritingScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H("✍️ Free Writing")}
+      {H("✍️ Free Writing", "Write in Croatian — get AI feedback", goBack)}
 
       {/* Mode toggle */}
       <div style={{ display: "flex", gap: 8, marginBottom: 12, padding: "0 2px" }}>

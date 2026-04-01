@@ -42,7 +42,7 @@ export default function WordFamilies({ goBack, award }) {
   if (idx >= total) {
     return (
       <div className="scr-wrap">
-        {H("🌱 Word Families", "Learn one root, understand a hundred words")}
+        {H("🌱 Word Families", "Learn one root, understand a hundred words", goBack)}
         <div style={{textAlign:"center"}}>
           <div style={{fontSize:64}}>{score >= total * 0.8 ? "🏆" : "📚"}</div>
           <h2>{score} / {total}</h2>
@@ -57,7 +57,7 @@ export default function WordFamilies({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H("🌱 Word Families", "Learn one root, understand a hundred words")}
+      {H("🌱 Word Families", "Learn one root, understand a hundred words", goBack)}
       <div style={{display:"flex",justifyContent:"space-between"}}>
         <span>{idx + 1} / {total}</span>
         <span style={{color:"#0e7490",fontWeight:700}}>Score: {score}</span>

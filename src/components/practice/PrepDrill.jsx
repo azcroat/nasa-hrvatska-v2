@@ -17,7 +17,7 @@ export default function PrepDrill({ goBack, award }) {
     return (
       <div className="scr-wrap">
 
-        {H("📍 Preposition Drills","Fill in the correct preposition")}
+        {H("📍 Preposition Drills","Fill in the correct preposition", goBack)}
         <div style={{textAlign:"center"}}>
           <div style={{fontSize:64}}>{ppS >= total * 0.8 ? "🏆" : "📚"}</div>
           <h2>{ppS} / {total}</h2>
@@ -33,7 +33,7 @@ export default function PrepDrill({ goBack, award }) {
   return (
     <div className="scr-wrap">
 
-      {H("📍 Preposition Drills","Fill in the correct preposition")}
+      {H("📍 Preposition Drills","Fill in the correct preposition", goBack)}
       <div style={{display:"flex",justifyContent:"space-between"}}>
         <span>{ppI + 1} / {total}</span>
         <span style={{color:"#0e7490",fontWeight:700}}>Score: {ppS}</span>

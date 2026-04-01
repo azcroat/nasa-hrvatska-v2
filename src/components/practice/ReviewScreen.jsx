@@ -98,7 +98,7 @@ export default function ReviewScreen({ goBack, award, allCats }) {
   if (dueWords.length === 0) {
     return (
       <div className="scr-wrap">
-        {H("🔁 Review Due")}
+        {H("🔁 Review Due", "Your spaced repetition cards", goBack)}
         <div style={{textAlign:"center",paddingTop:40}}>
           <div style={{fontSize:64}}>✅</div>
           <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:24,color:"#164e63",marginTop:12}}>All caught up!</h2>
@@ -184,7 +184,7 @@ export default function ReviewScreen({ goBack, award, allCats }) {
 
   return (
     <div className="scr-wrap">
-      {H("🔁 Review Due")}
+      {H("🔁 Review Due", "Your spaced repetition cards", goBack)}
       <p style={{fontSize:12,color:"#78716c",marginBottom:8,fontWeight:500}}>{dueWords.length} words due · <span style={{opacity:.6}}>keys 1-4 to answer, Space to continue</span></p>
       <Bar v={idx+1} mx={questions.length} color="#7c3aed" h={6} />
       <div className="c" style={{marginTop:16,padding:"20px"}}>

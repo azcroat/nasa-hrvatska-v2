@@ -60,7 +60,7 @@ export default function ImperativeDrill({ goBack, award }) {
   if (done) {
     return (
       <div className="scr-wrap">
-        {H("⚡ Imperative Drill", "Commands — the essential production skill")}
+        {H("⚡ Imperative Drill", "Commands — the essential production skill", goBack)}
         <div className="c" style={{ marginTop: 16, textAlign: "center" }}>
           <div style={{ fontSize: 48, marginBottom: 8 }}>🎉</div>
           <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>{score} / {total}</div>

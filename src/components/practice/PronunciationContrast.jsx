@@ -113,7 +113,7 @@ export default function PronunciationContrast({ goBack, award }) {
   if (idx >= total) {
     return (
       <div className="scr-wrap">
-        {H("🔤 Sound Contrast", "Master č/ć, š/ž, đ/dž and more")}
+        {H("🔤 Sound Contrast", "Master č/ć, š/ž, đ/dž and more", goBack)}
         <div style={{textAlign:"center"}}>
           <div style={{fontSize:64}}>{score >= total * 0.8 ? "🏆" : "📚"}</div>
           <h2>{score} / {total}</h2>
@@ -128,7 +128,7 @@ export default function PronunciationContrast({ goBack, award }) {
   return (
     <div className="scr-wrap">
       <style>{VIZ_KEYFRAMES}</style>
-      {H("🔤 Sound Contrast", "Master č/ć, š/ž, đ/dž and more")}
+      {H("🔤 Sound Contrast", "Master č/ć, š/ž, đ/dž and more", goBack)}
       <div style={{display:"flex",justifyContent:"space-between"}}>
         <span>{idx + 1} / {total}</span>
         <span style={{color:"#0e7490",fontWeight:700}}>Score: {score}</span>

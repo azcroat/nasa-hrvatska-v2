@@ -23,7 +23,7 @@ export default function TypingScreen({ goBack, award }) {
     return (
       <div className="scr-wrap">
         
-        {H("⌨️ Typing Practice","Type Croatian words with special characters")}
+        {H("⌨️ Typing Practice","Type Croatian words with special characters", goBack)}
         <div style={{textAlign:"center"}}>
           <div style={{fontSize:64}}>{tyS >= tyPool.length * 0.8 ? "🏆" : "📚"}</div>
           <h2>{tyS} / {tyPool.length}</h2>
@@ -48,7 +48,7 @@ export default function TypingScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
       
-      {H("⌨️ Typing Practice","Type Croatian words with special characters")}
+      {H("⌨️ Typing Practice","Type Croatian words with special characters", goBack)}
       <Bar v={tyI + 1} mx={tyPool.length} />
       <div className="c" style={{textAlign:"center",marginTop:16}}>
         <div style={{fontSize:13,color:"#78716c"}}>Type this word in Croatian:</div>

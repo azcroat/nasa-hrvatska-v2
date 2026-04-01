@@ -18,7 +18,7 @@ export function ReflexiveScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H("🧲 "+REFLEXIVE.title,"SE verbs — essential for daily Croatian")}
+      {H("🧲 "+REFLEXIVE.title,"SE verbs — essential for daily Croatian", goBack)}
       <div style={{marginBottom:16,padding:"12px 16px",background:"rgba(14,116,144,.06)",borderRadius:12,borderLeft:"3px solid #0e7490"}}>
         <div style={{fontSize:13,color:"#164e63",lineHeight:1.6}}>{REFLEXIVE.intro}</div>
       </div>
@@ -168,7 +168,7 @@ export function FillStoryScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
       
-      {H("📝 Story Builder","Read and fill the blanks")}
+      {H("📝 Story Builder","Read and fill the blanks", goBack)}
       {FILL_STORIES.map(function(story,si){return (
         <div key={si} className="c" style={{marginBottom:20}}>
           <div style={{fontSize:16,fontWeight:800,color:"#164e63",marginBottom:10}}>{"📖 "}{story.title}</div>
@@ -196,7 +196,7 @@ export function ConvMatchScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
       
-      {H("💬 Conversation Match","Pick the right response")}
+      {H("💬 Conversation Match","Pick the right response", goBack)}
       {CONVMATCH.map(function(conv,ci){return (
         <div key={ci} className="c" style={{marginBottom:20}}>
           <div style={{fontSize:16,fontWeight:800,color:"#164e63",marginBottom:10}}>{"🗣️ "}{conv.title}</div>
@@ -219,7 +219,7 @@ export function ScenesScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("🖼️ Describe the Scene","Answer questions about everyday situations")}
+      {H("🖼️ Describe the Scene","Answer questions about everyday situations", goBack)}
       {SCENES.map(function(scene,si){return (
         <div key={si} className="c" style={{marginBottom:16}}>
           <div style={{fontSize:16,fontWeight:800,color:"#164e63",marginBottom:4}}>{scene.title}</div>
@@ -240,7 +240,7 @@ export function PronounsScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
       
-      {H("🎯 Pronoun Cases","How ja/ti/on/ona change with prepositions")}
+      {H("🎯 Pronoun Cases","How ja/ti/on/ona change with prepositions", goBack)}
       <div className="c" style={{marginBottom:16,padding:"12px",fontSize:12,background:"rgba(14,116,144,.06)"}}>{PRONOUNCASE.intro}</div>
       <div style={{overflowX:"auto",marginBottom:20}}>
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
@@ -281,7 +281,7 @@ export function GenderDrillScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
 
-      {H("♂️♀️ Gender, Plurals & Adjectives","Master noun genders and endings")}
+      {H("♂️♀️ Gender, Plurals & Adjectives","Master noun genders and endings", goBack)}
       <h3 className="sh">📦 Sort by Gender — tap a word, then tap M / F / N</h3>
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:20,pointerEvents:Object.keys(revealedGenders).length===words.length?"none":"auto"}}>
         {words.map(function(w,i){
@@ -328,7 +328,7 @@ export function SentenceBuilderScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
       
-      {H("🏗️ Build the Sentence","Translate English to Croatian")}
+      {H("🏗️ Build the Sentence","Translate English to Croatian", goBack)}
       <div className="c" style={{marginBottom:12,padding:"10px 14px",background:"rgba(14,116,144,.06)",fontSize:12,color:"#164e63"}}>🇬🇧 Read the English sentence, then pick the correct Croatian translation.</div>
       {shMemo("sb",SENTBUILD,15).map(function(s,i){return (
         <div key={i} className="c" style={{marginBottom:10,padding:"10px 14px"}}>
@@ -349,7 +349,7 @@ export function VerbDrillScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("💪 20 Essential Verbs","Full present tense conjugation")}
+      {H("💪 20 Essential Verbs","Full present tense conjugation", goBack)}
       <div className="c" style={{marginBottom:12,padding:"10px 14px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 Tap any form to hear it. Learn all 6 persons for each verb.</div>
       {shMemo("vd",VERBDRILL).map(function(v,vi){return (
         <div key={vi} className="c" style={{marginBottom:10,padding:0,overflow:"hidden"}}>

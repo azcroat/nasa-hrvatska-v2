@@ -17,7 +17,7 @@ export default function Unjumble({ goBack, award }) {
     return (
       <div className="scr-wrap">
 
-        {H("🧩 Word Order","Arrange words to form correct Croatian sentences")}
+        {H("🧩 Word Order","Arrange words to form correct Croatian sentences", goBack)}
         <div style={{textAlign:"center",padding:40}}>
           <div style={{fontSize:64}}>{ujS >= total * 0.8 ? "🌟" : "👍"}</div>
           <h2 style={{fontFamily:"'Playfair Display',serif",color:"#164e63"}}>Word Order Complete!</h2>
@@ -34,7 +34,7 @@ export default function Unjumble({ goBack, award }) {
   return (
     <div className="scr-wrap">
       
-      {H("🧩 Word Order","Arrange words to form correct Croatian sentences")}
+      {H("🧩 Word Order","Arrange words to form correct Croatian sentences", goBack)}
       <Bar v={ujI + 1} mx={total} h={6} />
       <div className="c" style={{marginTop:16}}>
         <div style={{fontSize:13,color:"#78716c",marginBottom:8}}>Translate to Croatian:</div>

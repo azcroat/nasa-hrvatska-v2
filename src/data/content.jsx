@@ -335,7 +335,7 @@ function getDailyChallenge(){
 let _cotdCache={key:'',city:null};
 function getCityOfDay(){
   const n=new Date();
-  const dateKey=n.getFullYear()+'-'+n.getMonth()+'-'+n.getDate();
+  const dateKey=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
   if(_cotdCache.key===dateKey)return _cotdCache.city;
   const year=n.getFullYear();
   const dayOfYear=Math.floor((Number(n)-Number(new Date(year,0,1)))/86400000);

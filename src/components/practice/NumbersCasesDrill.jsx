@@ -62,7 +62,7 @@ export default function NumbersCasesDrill({ goBack, award }) {
   if (done) {
     return (
       <div className="scr-wrap">
-        {H("🔢 Numbers + Cases", "The rule every learner must master")}
+        {H("🔢 Numbers + Cases", "The rule every learner must master", goBack)}
         <div className="c" style={{ marginTop: 16, textAlign: "center" }}>
           <div style={{ fontSize: 48, marginBottom: 8 }}>🎉</div>
           <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>{score} / {total}</div>
@@ -77,7 +77,7 @@ export default function NumbersCasesDrill({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H("🔢 Numbers + Cases", "The rule every learner must master")}
+      {H("🔢 Numbers + Cases", "The rule every learner must master", goBack)}
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
         <span style={{ fontSize: 13, color: "#64748b", whiteSpace: "nowrap" }}>{idx + 1} / {total}</span>
         <Bar v={idx + 1} mx={total} />

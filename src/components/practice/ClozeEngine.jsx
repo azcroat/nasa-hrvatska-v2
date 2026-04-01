@@ -161,7 +161,7 @@ export default function ClozeEngine({ goBack, award }) {
     const pct = Math.round((score / questions.length) * 100);
     return (
       <div>
-        {H('✅ Cloze Complete!', 'Sentence completion results')}
+        {H('✅ Cloze Complete!', 'Sentence completion results', goBack)}
         <div style={{
           textAlign: 'center', padding: '40px 24px',
           background: 'linear-gradient(135deg,#0e7490,#164e63)',
@@ -201,7 +201,7 @@ export default function ClozeEngine({ goBack, award }) {
 
   return (
     <div>
-      {H('🧩 Sentence Cloze', 'Complete the Croatian sentence')}
+      {H('🧩 Sentence Cloze', 'Complete the Croatian sentence', goBack)}
 
       {/* Progress */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
