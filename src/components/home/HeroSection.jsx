@@ -94,7 +94,7 @@ const HERO_SCENES = [
   { img: 'dalmatian-coast',  label: 'Dalmatinska obala',    position: '40%' },
   { img: 'labin',            label: 'Labin, Istra',         position: '45%' },
   { img: 'croatian-food',    label: 'Hrvatska kuhinja',     position: '40%' },
-  { img: 'dubrovnik-ai',     label: 'Dubrovnik, Hrvatska',  position: '35%' },
+  { img: 'rabac',            label: 'Rabac, Istra',         position: '45%' },
 ];
 
 function getDailyScene() {

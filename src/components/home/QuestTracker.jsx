@@ -1,7 +1,7 @@
 import React from 'react';
 import { DAILY_QUESTS } from '../../data.jsx';
 
-export default function QuestTracker({ questsDone, allQuestsDone, setScr }) {
+export default function QuestTracker({ questsDone, allQuestsDone, onQuestStart }) {
   const QUEST_COLORS = {
     speak:        { bg:'#7c3aed', shadow:'rgba(124,58,237,.35)', border:'rgba(124,58,237,.3)' },
     speak2:       { bg:'#7c3aed', shadow:'rgba(124,58,237,.35)', border:'rgba(124,58,237,.3)' },
@@ -112,7 +112,7 @@ export default function QuestTracker({ questsDone, allQuestsDone, setScr }) {
                 ? <div style={{ fontSize: 11, color: 'var(--success)', fontWeight: 800 }}>+{q.xp} XP earned</div>
                 : <>
                     <button
-                      onClick={() => setScr(questScreenMap[q.id])}
+                      onClick={() => onQuestStart(q.id, questScreenMap[q.id])}
                       style={{
                         marginTop: 'auto', fontSize: 11, fontWeight: 800,
                         color: '#fff', background: qc.bg, border: 'none',

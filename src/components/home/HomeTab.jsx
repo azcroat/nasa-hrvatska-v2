@@ -404,6 +404,13 @@ export default function HomeTab({
             setCampaignDismissed={setCampaignDismissed}
             campaignQuestsDone={campaignQuestsDone}
             setTab={setTab}
+            onQuestTap={(quest) => {
+              if (quest.screen === 'flashcards') {
+                launchPathItem({ go: 'lesson', topic: quest.vocab || 'family' });
+              } else {
+                setScr(quest.screen);
+              }
+            }}
           />
 
           {/* ── DAILY DISCOVERY — Word of the Day + City of the Day merged banner ── */}
@@ -596,7 +603,13 @@ export default function HomeTab({
           <QuestTracker
             questsDone={questsDone}
             allQuestsDone={allQuestsDone}
-            setScr={setScr}
+            onQuestStart={(questId, screen) => {
+              if (questId === 'grammar' || questId === 'grammar2') {
+                launchPathItem({ go: 'grammar' });
+              } else {
+                setScr(screen);
+              }
+            }}
           />
 
           {/* ── SPEED CHALLENGE — daily timed vocabulary quiz ── */}
