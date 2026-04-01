@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { H, speak, shMemo } from '../../../data.jsx';
+import { H, speak, sh, shMemo } from '../../../data.jsx';
 import { QWORDS } from '../../../data.jsx';
 
 function QuestionWordsScreen({ goBack, award }) {
   const questions = useMemo(() => shMemo("qw", QWORDS), []);
+  const shuffledOpts = useMemo(() => questions.map(q => sh([...q.opts])), [questions]);
   const total = questions.length;
   const [answers, setAnswers] = useState(() => new Array(total).fill(null));
   const [selected, setSelected] = useState(() => new Array(total).fill(null));
@@ -23,7 +24,7 @@ function QuestionWordsScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H("❓ Question Words","Tko? Što? Gdje? Kad? Koliko? Kako? Zašto?")}
+      {H("❓ Question Words","Tko? Što? Gdje? Kad? Koliko? Kako? Zašto?",goBack)}
       <div className="c" style={{marginBottom:16,padding:"12px",background:"rgba(14,116,144,.06)",fontSize:12}}>
         💡 Croatian has specific question words for each type of information. Gender matters for 'what kind of' — Kakav (m), Kakva (f), Kakvo (n).
       </div>
@@ -44,7 +45,7 @@ function QuestionWordsScreen({ goBack, award }) {
               {q.q}{" — "}<span style={{color:"#78716c",fontStyle:"italic"}}>{q.en}</span>
             </div>
             <div style={{display:"flex",gap:6,alignItems:"center"}}>
-              {q.opts.map(function(o, oi) {
+              {shuffledOpts[qi].map(function(o, oi) {
                 let bg = "white", border = "#d6d3d1";
                 if (state !== null) {
                   if (o === q.a) { bg = "#dcfce7"; border = "#16a34a"; }

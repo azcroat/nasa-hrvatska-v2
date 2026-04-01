@@ -6,7 +6,7 @@ function AccusativeDrillScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
 
-      {H("🍽️ Accusative Case","How nouns change after Voliš li / Nosiš li / Jedeš li")}
+      {H("🍽️ Accusative Case","How nouns change after Voliš li / Nosiš li / Jedeš li",goBack)}
       <div className="c" style={{marginBottom:12,padding:"10px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 Feminine nouns ending in -a change to -u in accusative. Masculine/neuter nouns usually stay the same.</div>
       <h3 className="sh">🍔 Hrana (Food)</h3>
       {shMemo("af",AKUFOOD).map(function(f,i){return (

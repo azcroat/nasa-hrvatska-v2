@@ -1,12 +1,12 @@
 import React from 'react';
-import { H, speak, shMemo } from '../../../data.jsx';
+import { H, speak, sh, shMemo } from '../../../data.jsx';
 import { COMPARE, COMPQUIZ } from '../../../data.jsx';
 
 function ComparativesScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
 
-      {H("📈 Lijep, Ljepši, Najljepši","Adjective → Comparative → Superlative")}
+      {H("📈 Lijep, Ljepši, Najljepši","Adjective → Comparative → Superlative",goBack)}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:0,marginBottom:20}}>
         <div style={{padding:"6px",background:"#0e7490",color:"white",fontWeight:700,fontSize:12,textAlign:"center"}}>Base</div>
         <div style={{padding:"6px",background:"#b45309",color:"white",fontWeight:700,fontSize:12,textAlign:"center"}}>Comparative</div>
@@ -22,7 +22,7 @@ function ComparativesScreen({ goBack, award }) {
         <div key={qi} className="c" style={{marginBottom:8,padding:"10px 14px"}}>
           <div style={{fontSize:13,fontWeight:600,marginBottom:6}}>{q.q}</div>
           <div style={{display:"flex",gap:6}}>
-            {q.opts.map(function(o,oi){return (
+            {sh(q.opts).map(function(o,oi){return (
               <button key={oi} style={{padding:"6px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,fontWeight:600,cursor:"pointer"}}
                 onClick={function(/** @type {any} */ e){e.target.style.background=o===q.a?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.a?"#16a34a":"#dc2626";if(o===q.a)award(3);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>{o}</button>
             );})}

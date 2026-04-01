@@ -329,8 +329,14 @@ function getDailyChallenge(){
 // ═══ SCHOOL SURVIVAL KIT ═══
 // ═══ REGIONAL HISTORY ═══
 // ═══ CITY OF THE DAY ═══
+// Module-level cache keyed by "YYYY-M-D" — guarantees every call within the same
+// calendar day returns the identical city object, regardless of render order or
+// which component (HomeTab vs CityOfDayScreen vs CroatiaTab) calls first.
+let _cotdCache={key:'',city:null};
 function getCityOfDay(){
   const n=new Date();
+  const dateKey=n.getFullYear()+'-'+n.getMonth()+'-'+n.getDate();
+  if(_cotdCache.key===dateKey)return _cotdCache.city;
   const year=n.getFullYear();
   const dayOfYear=Math.floor((Number(n)-Number(new Date(year,0,1)))/86400000);
   // Fisher-Yates shuffle seeded by year — every city appears once before any repeats
@@ -338,7 +344,9 @@ function getCityOfDay(){
   let seed=(year*2654435761)>>>0;
   function rng(){seed=((seed*1664525+1013904223)>>>0);return seed/4294967296}
   for(let i=idx.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));const t=idx[i];idx[i]=idx[j];idx[j]=t}
-  return CROATIAN_CITIES[idx[dayOfYear%idx.length]];
+  const city=CROATIAN_CITIES[idx[dayOfYear%idx.length]];
+  _cotdCache={key:dateKey,city};
+  return city;
 }
 // ═══ TENSE & GENDER CONJUGATION SYSTEM ═══
 // ═══ INTERACTIVE MAP DATA ═══

@@ -6,7 +6,7 @@ function NegationScreen({ goBack }) {
   return (
     <div className="scr-wrap">
 
-      {H("❌ Positive ↔ Negative","Radim → Ne radim • Imam → Nemam")}
+      {H("❌ Positive ↔ Negative","Radim → Ne radim • Imam → Nemam",goBack)}
       <div className="c" style={{marginBottom:12,padding:"10px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 Most verbs: add NE before the verb. Exception: imam → nemam, znam → ne znam.</div>
       {shMemo("ng",NEGATION).map(function(n,ni){return (
         <div key={ni} className="c" style={{marginBottom:8,padding:"10px 14px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>

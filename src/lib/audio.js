@@ -4,6 +4,9 @@
 import { getVoicePreference } from './soundSettings.js';
 
 let _au=false;let _voices=[];let _voicesLoaded=false;let _currentAudio=null;let _ctx=null;
+// Monotonically increasing generation counter — every speakAzure call gets a unique ID.
+// Checked after every await to abort playback if a newer speak() superseded this one.
+let _speakGen=0;
 
 // Client-side TTS rate guard: tracks requests in the last 60 seconds.
 // Mirrors the server limit (60/min) so rapid sequences shed locally before hitting the API.
@@ -56,6 +59,10 @@ export function stopAudio(){
 
 export async function speakAzure(text, slow) {
   stopAudio();
+  // Claim this generation — any awaits that follow check myGen === _speakGen.
+  // If another speak() fires during an await, _speakGen increments and we abort
+  // before starting playback, preventing double-audio / echo on rapid taps.
+  const myGen = ++_speakGen;
   const voicePref = getVoicePreference();
   const cacheKey = text + '|' + (slow ? '1' : '0') + '|' + voicePref;
   const cached = _cacheGet(cacheKey);
@@ -73,12 +80,14 @@ export async function speakAzure(text, slow) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
+      if (_speakGen !== myGen) return false; // superseded while fetching
       if (!r.ok) {
         const rb = await r.text().catch(() => '');
         console.error('[TTS] HTTP ' + r.status + ' body:' + rb);
         return false;
       }
       const blob = await r.blob();
+      if (_speakGen !== myGen) return false; // superseded while reading blob
       url = URL.createObjectURL(blob);
       _cacheSet(cacheKey, url);
     }
@@ -89,8 +98,11 @@ export async function speakAzure(text, slow) {
     if (_iOS && _ctx) {
       try {
         await _ctx.resume();
+        if (_speakGen !== myGen) return false; // superseded during resume
         const ab = await fetch(url).then(r2 => r2.arrayBuffer());
+        if (_speakGen !== myGen) return false; // superseded during buffer fetch
         const decoded = await _ctx.decodeAudioData(ab);
+        if (_speakGen !== myGen) return false; // superseded during decode
         const src = _ctx.createBufferSource();
         src.buffer = decoded;
         src.connect(_ctx.destination);
@@ -101,10 +113,12 @@ export async function speakAzure(text, slow) {
         return true;
       } catch (e) {
         console.error('[TTS iOS] AudioContext fallback failed:', e);
+        if (_speakGen !== myGen) return false; // superseded while handling error
         // fall through to HTMLAudioElement path
       }
     }
 
+    if (_speakGen !== myGen) return false; // superseded before HTMLAudio
     const a = new Audio(); a.volume = 1.0; _currentAudio = a;
     a.src = url; a.load();
     await a.play();

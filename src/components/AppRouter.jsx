@@ -462,7 +462,7 @@ export default function AppRouter(props) {
       {currentScreen==="convmatch"&&<ScreenErrorBoundary key="convmatch" name="convmatch"><ConvMatchScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="scenes"&&<ScreenErrorBoundary key="scenes" name="scenes"><ScenesScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="pronouns"&&<ScreenErrorBoundary key="pronouns" name="pronouns"><PronounsScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
-      {currentScreen==="genderdrill"&&<ScreenErrorBoundary key="genderdrill" name="genderdrill"><GenderDrillScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="genderdrill"&&<ScreenErrorBoundary key="genderdrill" name="genderdrill"><GenderDrillScreen goBack={goBack} award={award} setSt={setStats} /></ScreenErrorBoundary>}
       {currentScreen==="sentbuild"&&<ScreenErrorBoundary key="sentbuild" name="sentbuild"><SentenceBuilderScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="verbdrill"&&<ScreenErrorBoundary key="verbdrill" name="verbdrill"><VerbDrillScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="tenseflip"&&<ScreenErrorBoundary key="tenseflip" name="tenseflip"><TenseFlipScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}

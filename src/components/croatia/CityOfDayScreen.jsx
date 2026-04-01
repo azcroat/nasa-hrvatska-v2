@@ -18,9 +18,18 @@ const CITY_PHOTOS = {
   hvar:         'https://images.unsplash.com/photo-1527515637462-cff94edd89b6?w=800&q=85&fit=crop&auto=format',
   korcula:      'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?w=800&q=85&fit=crop&auto=format',
   makarska:     'https://images.unsplash.com/photo-1586161816003-bc944e3c7e27?w=800&q=85&fit=crop&auto=format',
+  // Murter — Kornati gateway island, Dalmatia (Šibenik-Knin county)
+  murter:       'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=85&fit=crop&auto=format',
+  trogir:       'https://images.unsplash.com/photo-1588354918778-9e9f05701f90?w=800&q=85&fit=crop&auto=format',
+  omis:         'https://images.unsplash.com/photo-1586351012937-aca69ef41261?w=800&q=85&fit=crop&auto=format',
+  brac:         'https://images.unsplash.com/photo-1565116175827-965e73c9be0e?w=800&q=85&fit=crop&auto=format',
+  vis:          'https://images.unsplash.com/photo-1601409434818-c2e87a98cac3?w=800&q=85&fit=crop&auto=format',
   // Istria & Kvarner
   rovinj:       'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=85&fit=crop&auto=format',
+  pula:         'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&q=85&fit=crop&auto=format',
+  porec:        'https://images.unsplash.com/photo-1576769562804-455efac32a2e?w=800&q=85&fit=crop&auto=format',
   labin:        '/images/scenes/labin.webp',
+  rijeka:       'https://images.unsplash.com/photo-1549421263-6064833b071b?w=800&q=85&fit=crop&auto=format',
   // Continental Croatia
   zagreb:       '/images/scenes/zagreb.webp',
   varazdin:     'https://images.unsplash.com/photo-1548268770-66184a21657e?w=800&q=85&fit=crop&auto=format',
@@ -28,6 +37,7 @@ const CITY_PHOTOS = {
   karlovac:     '/images/scenes/plitvice.webp',
   // Slavonia
   osijek:       'https://images.unsplash.com/photo-1564594736694-d73f80c4a7fe?w=800&q=85&fit=crop&auto=format',
+  vukovar:      'https://images.unsplash.com/photo-1585999659523-6e2a2a4c5d59?w=800&q=85&fit=crop&auto=format',
   // National Parks & Herzegovina
   plitvice:     '/images/scenes/plitvice.webp',
   mostar:       '/images/scenes/mostar.webp',
