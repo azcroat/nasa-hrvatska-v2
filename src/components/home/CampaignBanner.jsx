@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext.jsx';
 
-export default function CampaignBanner({ activeCampaign, campaignDismissed, setCampaignDismissed, campaignQuestsDone, setTab }) {
+export default function CampaignBanner({ activeCampaign, campaignDismissed, setCampaignDismissed, campaignQuestsDone, setTab, onQuestTap }) {
   const { setScr } = useApp();
 
   if (!activeCampaign || campaignDismissed || localStorage.getItem('nh_campaign_dismissed_' + activeCampaign.id) === '1') {
@@ -133,7 +133,7 @@ export default function CampaignBanner({ activeCampaign, campaignDismissed, setC
                   return (
                     <div
                       key={q.id}
-                      onClick={() => !done && (setScr ? setScr(q.screen) : setTab && setTab(q.screen))}
+                      onClick={() => !done && (onQuestTap ? onQuestTap(q) : setScr && setScr(q.screen))}
                       style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 0', cursor: done ? 'default' : 'pointer' }}
                     >
                       <span style={{ fontSize: 14, color: done ? baseColor : 'var(--subtext)', flexShrink: 0 }}>
@@ -165,7 +165,7 @@ export default function CampaignBanner({ activeCampaign, campaignDismissed, setC
 
         {/* CTA button */}
         <button
-          onClick={() => setTab && setTab(activeCampaign.id)}
+          onClick={() => setScr && setScr(activeCampaign.id)}
           style={{
             width: '100%', padding: '11px 16px',
             background: `linear-gradient(135deg, ${baseColor} 0%, ${baseColor}cc 100%)`,
