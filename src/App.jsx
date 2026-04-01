@@ -307,11 +307,14 @@ function App() {
   // push the fully-merged snapshot back to Firebase so ALL devices see the best combined data.
   // This is the critical step that was missing: without it, merged streak/SRS/favs/journal
   // only lived in localStorage on this device and never propagated to other devices.
-  const _postSyncFiredRef = useRef(false);
+  // Tracks the last authUser.u for which the post-sync write-back fired.
+  // Using the uid (not a boolean) means this fires once per user per page load,
+  // and resets correctly when the user signs out and signs back in.
+  const _postSyncUserRef = useRef(null);
   useEffect(() => {
     if (!_syncReady || !authUser || authScreen !== 'app') return;
-    if (_postSyncFiredRef.current) return;
-    _postSyncFiredRef.current = true;
+    if (_postSyncUserRef.current === authUser.u) return; // already fired for this user
+    _postSyncUserRef.current = authUser.u;
     // 2s delay: lets applyRemoteProgress (streak/SRS/favs) finish writing to localStorage
     // before doSyncNow reads those values for the Firebase payload
     const t = setTimeout(() => { doSyncNow(); }, 2000);
