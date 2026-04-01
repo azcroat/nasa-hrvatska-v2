@@ -8,6 +8,7 @@ function SentenceBuilderScreen({ goBack, award }) {
   const answeredRef = useRef(0);
   const correctRef = useRef(0);
   const [done, setDone] = useState(false);
+  const [answeredCount, setAnsweredCount] = useState(0);
 
   function handleAnswer(e, isCorrect) {
     e.target.style.background = isCorrect ? "#dcfce7" : "#fee2e2";
@@ -16,6 +17,7 @@ function SentenceBuilderScreen({ goBack, award }) {
     if (e.target.closest && e.target.closest("div")) e.target.closest("div").style.pointerEvents = "none";
     if (isCorrect) correctRef.current++;
     answeredRef.current++;
+    setAnsweredCount(answeredRef.current);
     if (answeredRef.current >= questions.length && !done) {
       markQuest('grammar');
       setDone(true);
@@ -25,6 +27,11 @@ function SentenceBuilderScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
       {H("🏗️ Build the Sentence","Translate English to Croatian",goBack)}
+      {answeredCount > 0 && !done && (
+        <div style={{height:5,borderRadius:99,background:"rgba(14,116,144,.12)",marginBottom:12,overflow:"hidden"}}>
+          <div style={{height:"100%",width:`${Math.round(answeredCount/questions.length*100)}%`,borderRadius:99,background:"linear-gradient(90deg,#0e7490,#06b6d4)",transition:"width .3s"}}/>
+        </div>
+      )}
       <div className="c" style={{marginBottom:12,padding:"10px 14px",background:"rgba(14,116,144,.06)",fontSize:12,color:"#164e63"}}>🇬🇧 Read the English sentence, then pick the correct Croatian translation.</div>
       {questions.map(function(s,i){return (
         <div key={i} className="c" style={{marginBottom:10,padding:"10px 14px"}}>

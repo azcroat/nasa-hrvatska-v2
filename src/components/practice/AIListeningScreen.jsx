@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { H } from '../../data.jsx';
+import { markQuest } from '../../lib/quests.js';
 import { AIContentSkeleton, AIProgressBar } from '../shared/SkeletonLoader.jsx';
 
 const TOPICS = [
@@ -160,6 +161,7 @@ export default function AIListeningScreen({ goBack, award }) {
     if (phase === 'results' && !xpAwarded) {
       const xp = 10 + score * 5;
       award(xp);
+      markQuest('speak');
       setXpAwarded(true);
     }
   }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps

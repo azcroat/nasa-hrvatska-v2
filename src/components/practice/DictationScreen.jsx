@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { H, Bar, speak } from '../../data.jsx';
-
+import { markQuest } from '../../lib/quests.js';
 import { rnd } from '../../lib/random.js';
 function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;}
 
@@ -74,13 +74,19 @@ export default function DictationScreen({ goBack, award }) {
   if (!qs.length) return null;
 
   if (idx >= total) {
+    const pct = score / total;
+    const xp = score * 8;
     return (
       <div className="scr-wrap">
-        {H("🎧 Dictation", "Listen and type what you hear")}
-        <div style={{textAlign:"center"}}>
-          <div style={{fontSize:64}}>{score >= total * 0.8 ? "🏆" : "📚"}</div>
-          <h2>{score} / {total}</h2>
-          <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; award(score * 8); goBack(); }} style={{width:"100%",marginTop:16}}>🏠 Done</button>
+        {H("🎧 Dictation", "Listen and type what you hear", goBack)}
+        <div style={{textAlign:"center",padding:"32px 16px"}}>
+          <div style={{fontSize:52,marginBottom:8}}>{pct>=0.8?"🏆":pct>=0.6?"⭐":"💪"}</div>
+          <div style={{fontSize:22,fontWeight:800,color:"#164e63",marginBottom:4}}>{score} / {total} correct</div>
+          <div style={{fontSize:13,color:"#78716c",marginBottom:16}}>
+            {pct>=0.8?"Excellent ear! Your Croatian listening is sharp.":pct>=0.6?"Good progress! Keep listening to build fluency.":"Try again — listening improves faster than you think!"}
+          </div>
+          <div style={{fontSize:22,fontWeight:900,color:"#d97706",marginBottom:24}}>+{xp} XP</div>
+          <button className="b bp" style={{width:"100%"}} onClick={() => { if(finishFired.current)return; finishFired.current=true; markQuest('speak'); award(xp); goBack(); }}>✓ Done</button>
         </div>
       </div>
     );
@@ -128,7 +134,7 @@ export default function DictationScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H("🎧 Dictation", "Listen and type what you hear")}
+      {H("🎧 Dictation", "Listen and type what you hear", goBack)}
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <span>{idx + 1} / {total}</span>
         <div style={{display:"flex",alignItems:"center",gap:8}}>

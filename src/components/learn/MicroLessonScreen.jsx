@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { H, speak, getMistakes } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
+import { markQuest } from '../../lib/quests.js';
 
 // Render a Croatian sentence with one word bolded in the brand teal
 function HighlightedSentence({ text, highlight }) {
@@ -74,6 +75,7 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
       const total = (lesson.quiz || []).length;
       const xpEarned = 10 + correctCount * 5;
       awardFn(xpEarned);
+      markQuest('grammar');
       void total; // suppress unused warning
     }
   }, [phase, lesson, correctCount, awardFn]);
