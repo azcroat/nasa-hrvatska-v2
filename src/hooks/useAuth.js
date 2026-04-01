@@ -207,43 +207,48 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         const lpXP = (lp && ((lp.stats && lp.stats.xp) || (lp.st && lp.st.xp))) || 0;
 
         if (fp) {
-          const fpTs = fp._fbUpdated || fp.savedAt || 0;
-          // Use the pre-captured savedAt (before autosave raced ahead) when available.
-          // origLocalSavedAt is set during early-restore, before React effects run.
-          // After first use, reset to 0 so subsequent polling uses current localStorage.
-          const lpTs = origLocalFbUpdated > 0 ? origLocalFbUpdated : (origLocalSavedAt > 0 ? origLocalSavedAt : ((lp && (lp._fbUpdated || lp.savedAt)) || 0));
+          // Always merge Firebase + local additively — Math.max for counts, union for arrays.
+          // No timestamp gate: the old `remoteIsNewer` check (fpTs > lpTs) was unreliable
+          // because local savedAt gets bumped by autosave every 30s, making local appear
+          // "newer" than Firebase even when Firebase has data from a different device.
           origLocalSavedAt = 0;
           origLocalFbUpdated = 0;
-          const remoteIsNewer = fpTs > lpTs || (!fpTs && !lpTs && fpXP >= lpXP);
-
-          if (remoteIsNewer) {
-            // Merge stats before caching locally — prevents raw Firestore snapshot
-            // from overwriting higher local values (e.g. XP earned since last cloud save).
-            const fpSt = (fp.stats || fp.st || {});
-            const lpSt = (lp && (lp.stats || lp.st)) || {};
-            const mergedStats = {
-              ...fpSt,
-              xp:  Math.max(lpSt.xp  || 0, fpSt.xp  || 0),
-              lc:  Math.max(lpSt.lc  || 0, fpSt.lc  || 0),
-              gc:  Math.max(lpSt.gc  || 0, fpSt.gc  || 0),
-              sp:  Math.max(lpSt.sp  || 0, fpSt.sp  || 0),
-              de:  Math.max(lpSt.de  || 0, fpSt.de  || 0),
-              rc:  Math.max(lpSt.rc  || 0, fpSt.rc  || 0),
-              str: Math.max(lpSt.str || 0, fpSt.str || 0),
-              ct:  [...new Set([...(lpSt.ct  || []), ...(fpSt.ct  || [])])],
-              vs:  [...new Set([...(lpSt.vs  || []), ...(fpSt.vs  || [])])],
-              badges: [...new Set([...(lpSt.badges || []), ...(fpSt.badges || [])])],
-            };
-            lP(k, { ...fp, stats: mergedStats }); // cache locally with merged stats
-            cb.current.onSignedIn({ user, progress: { ...fp, stats: mergedStats }, isHydrate: true });
-            cb.current.applyRemoteProgress(fp);
-          }
+          const fpSt = (fp.stats || fp.st || {});
+          const lpSt = (lp && (lp.stats || lp.st)) || {};
+          const mergedStats = {
+            ...fpSt,
+            xp:  Math.max(lpSt.xp  || 0, fpSt.xp  || 0),
+            lc:  Math.max(lpSt.lc  || 0, fpSt.lc  || 0),
+            gc:  Math.max(lpSt.gc  || 0, fpSt.gc  || 0),
+            sp:  Math.max(lpSt.sp  || 0, fpSt.sp  || 0),
+            de:  Math.max(lpSt.de  || 0, fpSt.de  || 0),
+            rc:  Math.max(lpSt.rc  || 0, fpSt.rc  || 0),
+            str: Math.max(lpSt.str || 0, fpSt.str || 0),
+            pf:  Math.max(lpSt.pf  || 0, fpSt.pf  || 0),
+            mv:  Math.max(lpSt.mv  || 0, fpSt.mv  || 0),
+            hi:  Math.max(lpSt.hi  || 0, fpSt.hi  || 0),
+            ct:  [...new Set([...(lpSt.ct  || []), ...(fpSt.ct  || [])])],
+            vs:  [...new Set([...(lpSt.vs  || []), ...(fpSt.vs  || [])])],
+            badges: [...new Set([...(lpSt.badges || []), ...(fpSt.badges || [])])],
+            diff: (function() {
+              var DO = { beginner: 0, intermediate: 1, advanced: 2 };
+              var lo = DO[lpSt.diff] !== undefined ? DO[lpSt.diff] : -1;
+              var fo = DO[fpSt.diff] !== undefined ? DO[fpSt.diff] : -1;
+              return lo >= fo ? (lpSt.diff || fpSt.diff) : (fpSt.diff || lpSt.diff);
+            })(),
+          };
+          lP(k, { ...fp, stats: mergedStats }); // cache locally with merged stats
+          cb.current.onSignedIn({ user, progress: { ...fp, stats: mergedStats }, isHydrate: true });
+          // Always apply remote progress (streak, SRS, favs, journal) — additive merge,
+          // safe to call regardless of which device is "newer".
+          cb.current.applyRemoteProgress(fp);
+        } else {
+          origLocalSavedAt = 0;
+          origLocalFbUpdated = 0;
         }
 
-        // Recovery push: if local storage has more XP than Firestore, the user's data
-        // is ahead of what's synced — push it now so other devices see the latest progress.
-        // Covers: Firestore rules outage, network failures, or clock-skew skips where
-        // the write was blocked and the local device kept earning XP offline.
+        // Recovery push: local has more XP than Firestore (e.g. offline session, failed write).
+        // Push the local snapshot so other devices get this device's progress.
         if (lpXP > fpXP) {
           fbSaveProgress(k, lp).catch(function() {});
         }

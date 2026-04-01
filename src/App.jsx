@@ -157,7 +157,7 @@ function App() {
     const apSt = fp.stats || fp.st || {};
     if (fp.onboarded || fp.cp || apSt.xp > 0) { localStorage.setItem('onboarded', 'true'); setOnboarded(true); }
     if (fp.sr) { const lSR = getSR() || {}; const mSR = { ...lSR }; for (const w in fp.sr) { const r = fp.sr[w]; const l = mSR[w]; if (!l || (r.r||0) > (l.r||0) || (!l.r && (r.s||0) > (l.s||0))) mSR[w] = r; } saveSR(mSR); }
-    if (fp.streak) { let lSt = { count:0,last:'' }; try { lSt = JSON.parse(localStorage.getItem('uStreak')||'{"count":0,"last":""}'); } catch (_) {} const mSt = (fp.streak.count||0) >= (lSt.count||0) ? fp.streak : lSt; localStorage.setItem('uStreak', JSON.stringify(mSt)); }
+    if (fp.streak) { let lSt = { count:0,last:'' }; try { lSt = JSON.parse(localStorage.getItem('uStreak')||'{"count":0,"last":""}'); } catch (_) {} const _yd=new Date();_yd.setDate(_yd.getDate()-1);const yesterday=_yd.getFullYear()+'-'+String(_yd.getMonth()+1).padStart(2,'0')+'-'+String(_yd.getDate()).padStart(2,'0'); const fpLast=fp.streak.last||''; const fpStreakActive=fpLast===today||fpLast===yesterday; if(fpStreakActive&&(fp.streak.count||0)>(lSt.count||0)){localStorage.setItem('uStreak',JSON.stringify(fp.streak));} /* Expired Firebase streaks are never restored — prevents months-old streak appearing active */ }
     if (fp.freezes !== undefined) { const lF = parseInt(localStorage.getItem('uFreeze')||'0',10); localStorage.setItem('uFreeze', String(Math.max(lF, Math.max(0, parseInt(fp.freezes,10)||0)))); }
     if (fp.favs) { let lFv = []; try { lFv = JSON.parse(localStorage.getItem('uFavs')||'[]'); } catch (_) {} const favMap = new Map(); [...lFv, ...fp.favs].forEach(f => { if (f && f.hr) favMap.set(f.hr, f); }); const mFv = [...favMap.values()]; try { localStorage.setItem('uFavs', JSON.stringify(mFv)); } catch (e) { if (e && e.name === 'QuotaExceededError') { console.warn('[sync] localStorage quota exceeded — some progress may not persist locally'); } } setFavs(mFv); }
     if (fp.journal) { let lJ = []; try { lJ = JSON.parse(localStorage.getItem('uJournal')||'[]'); } catch (_) {} const jM = new Map(); lJ.forEach(e => { if (e?.word) jM.set(e.word, e); }); fp.journal.forEach(e => { if (e?.word) jM.set(e.word, e); }); const mJ = Array.from(jM.values()); try { localStorage.setItem('uJournal', JSON.stringify(mJ)); } catch (e) { if (e && e.name === 'QuotaExceededError') { console.warn('[sync] localStorage quota exceeded — some progress may not persist locally'); } } setJWords(mJ); }
@@ -296,6 +296,21 @@ function App() {
 
   // Sync to Firebase on lesson/grammar completion
   useEffect(() => { if (!authUser || authScreen !== 'app' || stats.lc === 0) return; doSyncNow(); scheduleStreakReminder(getStreak().count); }, [stats.lc, stats.ct?.length, stats.gc, stats.sp]); // eslint-disable-line
+
+  // Post-sync write-back: after _syncReady fires (Firebase data loaded + merged into local state),
+  // push the fully-merged snapshot back to Firebase so ALL devices see the best combined data.
+  // This is the critical step that was missing: without it, merged streak/SRS/favs/journal
+  // only lived in localStorage on this device and never propagated to other devices.
+  const _postSyncFiredRef = useRef(false);
+  useEffect(() => {
+    if (!_syncReady || !authUser || authScreen !== 'app') return;
+    if (_postSyncFiredRef.current) return;
+    _postSyncFiredRef.current = true;
+    // 2s delay: lets applyRemoteProgress (streak/SRS/favs) finish writing to localStorage
+    // before doSyncNow reads those values for the Firebase payload
+    const t = setTimeout(() => { doSyncNow(); }, 2000);
+    return () => clearTimeout(t);
+  }, [_syncReady, authUser, authScreen, doSyncNow]); // eslint-disable-line
 
   // Sync weekly XP to leaderboard on every XP change (fire-and-forget)
   useEffect(() => {
