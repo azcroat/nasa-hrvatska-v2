@@ -1,12 +1,12 @@
 import React from 'react';
-import { H, speak, shMemo } from '../../../data.jsx';
+import { H, speak, sh, shMemo } from '../../../data.jsx';
 import { PRONOUNCASE } from '../../../data.jsx';
 
 function PronounsScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
 
-      {H("🎯 Pronoun Cases","How ja/ti/on/ona change with prepositions")}
+      {H("🎯 Pronoun Cases","How ja/ti/on/ona change with prepositions",goBack)}
       <div className="c" style={{marginBottom:16,padding:"12px",fontSize:12,background:"rgba(14,116,144,.06)"}}>{PRONOUNCASE.intro}</div>
       <div style={{overflowX:"auto",marginBottom:20}}>
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
@@ -27,7 +27,7 @@ function PronounsScreen({ goBack, award }) {
         <div key={qi} className="c" style={{marginBottom:10,padding:"10px 14px"}}>
           <div role="button" tabIndex={0} aria-label={`Play audio for ${q.q}`} style={{fontSize:13,fontWeight:600,marginBottom:6,cursor:"pointer"}} onClick={function(){speak(q.q.replace("_____",q.a))}} onKeyDown={function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();speak(q.q.replace("_____",q.a));}}}><span aria-hidden="true">🔊</span>{" "}{q.q}</div>
           <div style={{display:"flex",gap:6}}>
-            {q.opts.map(function(o,oi){return (
+            {sh(q.opts).map(function(o,oi){return (
               <button key={oi} style={{padding:"6px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,fontWeight:600,cursor:"pointer"}}
                 onClick={function(/** @type {any} */ e){e.target.style.background=o===q.a?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.a?"#16a34a":"#dc2626";if(o===q.a)award(3);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
                 {o}

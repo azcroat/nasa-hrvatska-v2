@@ -6,7 +6,7 @@ function ConvMatchScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
 
-      {H("💬 Conversation Match","Pick the right response")}
+      {H("💬 Conversation Match","Pick the right response",goBack)}
       {CONVMATCH.map(function(conv,ci){return (
         <div key={ci} className="c" style={{marginBottom:20}}>
           <div style={{fontSize:16,fontWeight:800,color:"#164e63",marginBottom:10}}>{"🗣️ "}{conv.title}</div>

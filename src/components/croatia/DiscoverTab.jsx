@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
 import { PHOTO_CREDITS } from '../../lib/photos';
-import { MAPPLACES } from '../../data/cultural/geography.js';
 import CroatianKnight from '../shared/CroatianKnight';
 
 // ── Rotating hero cities — one per day, 4-day cycle ──────────────────────────
@@ -53,13 +52,6 @@ const HERO_CITIES = [
   },
 ];
 
-// ── Daily city — deterministic from day-of-year ───────────────────────────────
-function getDailyCity() {
-  const cities = MAPPLACES.places.filter(p => p.cat === 'city' || p.cat === 'home' || p.cat === 'park');
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-  return cities[dayOfYear % cities.length];
-}
-
 // ── Daily Croatian phrases ────────────────────────────────────────────────────
 const DAILY_PHRASES = [
   { hr: 'Kako si?', en: 'How are you?', note: 'Informal — use with friends and family' },
@@ -101,7 +93,6 @@ const KNIGHT_MESSAGES = [
 
 export default function DiscoverTab() {
   const { setScr } = useApp();
-  const dailyCity = useMemo(getDailyCity, []);
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
   const dailyPhrase = DAILY_PHRASES[dayOfYear % DAILY_PHRASES.length];
   const dailyFact = DID_YOU_KNOW[dayOfYear % DID_YOU_KNOW.length];
@@ -158,19 +149,6 @@ export default function DiscoverTab() {
         <div style={{ fontSize: 14, color: 'var(--subtext)', marginBottom: 6 }}>{dailyPhrase.en}</div>
         <div style={{ fontSize: 11, color: 'var(--subtext)', fontStyle: 'italic', opacity: 0.75 }}>{dailyPhrase.note}</div>
       </div>
-
-      {/* ── CITY OF THE DAY ── */}
-      {dailyCity && (
-        <div style={{ background: 'linear-gradient(135deg, #0e7490, #164e63)', borderRadius: 14, padding: '14px 16px', marginBottom: 12 }}>
-          <div style={{ fontSize: 10, fontWeight: 900, color: 'rgba(255,255,255,.55)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 6 }}>
-            🏙️ City of the Day
-          </div>
-          <div style={{ fontSize: 20, fontWeight: 900, color: 'white', fontFamily: "'Playfair Display',serif", marginBottom: 4 }}>
-            {dailyCity.name}
-          </div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', lineHeight: 1.5 }}>{dailyCity.desc}</div>
-        </div>
-      )}
 
       {/* ── DID YOU KNOW ── */}
       <div style={{ background: 'var(--card)', border: '1px solid var(--card-b)', borderRadius: 14, padding: '14px 16px', marginBottom: 12 }}>

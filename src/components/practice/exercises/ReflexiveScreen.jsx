@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { H, speak, shMemo } from '../../../data.jsx';
+import React, { useState, useMemo } from 'react';
+import { H, speak, sh, shMemo } from '../../../data.jsx';
 import { REFLEXIVE } from '../../../data.jsx';
 import { rnd } from '../../../lib/random.js';
 
@@ -10,6 +10,8 @@ function ReflexiveScreen({ goBack, award }) {
   const tabs = [{id:"rules",label:"SE Rules"},{id:"tenses",label:"All Tenses"},{id:"verbs",label:"Verbs"},{id:"quiz",label:"Quiz"}];
   const TENSE_COLORS = {present:"#0e7490",past:"#7c3aed",future:"#16a34a",negative:"#dc2626"};
 
+  const shuffledQuizOpts = useMemo(() => REFLEXIVE.quiz.map(q => sh([...q.opts])), []);
+
   function handleQuiz(qi, o, a) {
     if(answers[qi]!==undefined) return;
     setAnswers(prev=>({...prev,[qi]:o}));
@@ -18,7 +20,7 @@ function ReflexiveScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H("🧲 "+REFLEXIVE.title,"SE verbs — essential for daily Croatian")}
+      {H("🧲 "+REFLEXIVE.title,"SE verbs — essential for daily Croatian",goBack)}
       <div style={{marginBottom:16,padding:"12px 16px",background:"rgba(14,116,144,.06)",borderRadius:12,borderLeft:"3px solid #0e7490"}}>
         <div style={{fontSize:13,color:"#164e63",lineHeight:1.6}}>{REFLEXIVE.intro}</div>
       </div>
@@ -137,7 +139,7 @@ function ReflexiveScreen({ goBack, award }) {
           {REFLEXIVE.quiz.map(function(q,qi){return (
             <div key={qi} className="c" style={{marginBottom:12}}>
               <div style={{fontSize:14,fontWeight:700,marginBottom:10,color:"#1c1917"}}>{"🇬🇧 "}{q.q}</div>
-              {q.opts.map(function(o,oi){
+              {shuffledQuizOpts[qi].map(function(o,oi){
                 const chosen = answers[qi];
                 let bg="white",bc="#e7e5e4",col="#1c1917";
                 if(chosen!==undefined){

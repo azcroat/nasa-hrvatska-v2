@@ -1,12 +1,12 @@
 import React from 'react';
-import { H, speak, shMemo } from '../../../data.jsx';
+import { H, speak, sh, shMemo } from '../../../data.jsx';
 import { COLORAGREE } from '../../../data.jsx';
 
 function ColorAgreementScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
 
-      {H("🎨 Color + Gender Agreement","Colors change endings by noun gender — singular AND plural")}
+      {H("🎨 Color + Gender Agreement","Colors change endings by noun gender — singular AND plural",goBack)}
       <div style={{overflowX:"auto",marginBottom:20}}>
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
           <thead><tr>{["Color","M","F","N","M pl","F pl","N pl"].map(function(h,i){return (<th key={i} style={{padding:"6px 4px",background:"#0e7490",color:"white"}}>{h}</th>);})}</tr></thead>
@@ -25,7 +25,7 @@ function ColorAgreementScreen({ goBack, award }) {
         <div key={qi} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
           <div style={{flex:1,fontSize:13}}><span style={{fontWeight:700}}>{q.noun}</span>{" ("}{q.en}{") je _____"}</div>
           <div style={{display:"flex",gap:4}}>
-            {q.opts.map(function(o,oi){return (
+            {sh(q.opts).map(function(o,oi){return (
               <button key={oi} style={{padding:"8px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:11,cursor:"pointer"}}
                 onClick={function(/** @type {any} */ e){e.target.style.background=o===q.color?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.color?"#16a34a":"#dc2626";if(o===q.color){award(3);speak(q.noun+" je "+q.color);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
                 {o}
@@ -39,7 +39,7 @@ function ColorAgreementScreen({ goBack, award }) {
         <div key={qi} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
           <div style={{flex:1,fontSize:13}}><span style={{fontWeight:700}}>{q.noun}</span>{" ("}{q.en}{") su _____"}</div>
           <div style={{display:"flex",gap:4}}>
-            {q.opts.map(function(o,oi){return (
+            {sh(q.opts).map(function(o,oi){return (
               <button key={oi} style={{padding:"8px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:11,cursor:"pointer"}}
                 onClick={function(/** @type {any} */ e){e.target.style.background=o===q.color?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.color?"#16a34a":"#dc2626";if(o===q.color){award(3);speak(q.noun+" su "+q.color);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
                 {o}

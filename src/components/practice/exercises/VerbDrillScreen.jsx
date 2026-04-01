@@ -6,7 +6,7 @@ function VerbDrillScreen({ goBack }) {
   return (
     <div className="scr-wrap">
 
-      {H("💪 20 Essential Verbs","Full present tense conjugation")}
+      {H("💪 20 Essential Verbs","Full present tense conjugation",goBack)}
       <div className="c" style={{marginBottom:12,padding:"10px 14px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 Tap any form to hear it. Learn all 6 persons for each verb.</div>
       {shMemo("vd",VERBDRILL).map(function(v,vi){return (
         <div key={vi} className="c" style={{marginBottom:10,padding:0,overflow:"hidden"}}>
