@@ -86,7 +86,7 @@ export default function PadeziScreen({ goBack, award, setSt }) {
               <div style={{fontSize:32,fontWeight:800,color:"#0e7490"}}>{czS} / {total}</div>
               <div style={{display:"flex",gap:10,justifyContent:"center",marginTop:16}}>
                 <button className="b bg" onClick={() => sCzMode("learn")}>📖 Review</button>
-                <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; markQuest('grammar'); award(czS * 3 + 15); setSt(s => ({...s, gc: s.gc + 1})); goBack(); }}>🏠 Finish!</button>
+                <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; markQuest('grammar'); if (typeof award === 'function') award(czS * 3 + 15); setSt(s => ({...s, gc: s.gc + 1})); goBack(); }}>🏠 Finish!</button>
               </div>
             </div>
           );
@@ -104,7 +104,7 @@ export default function PadeziScreen({ goBack, award, setSt }) {
                 <button
                   key={oi}
                   className={"ob " + (czA ? (oi === ci ? "ok" : czSl === oi ? "no" : "") : "")}
-                  onClick={() => { if (!czA) { sCzSl(oi); sCzA(true); const correct=oi===ci; if (correct) { sCzS(s => s + 1); award(4); } recordTopicResult('padezi',correct); } }}>
+                  onClick={() => { if (!czA) { sCzSl(oi); sCzA(true); const correct=oi===ci; if (correct) { sCzS(s => s + 1); if (typeof award === 'function') award(4); } recordTopicResult('padezi',correct); } }}>
                   {o}
                 </button>
               ))}
