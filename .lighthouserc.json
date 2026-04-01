@@ -17,6 +17,7 @@
 
         "first-contentful-paint":     ["warn",  { "maxNumericValue": 3000 }],
         "largest-contentful-paint":   ["warn",  { "maxNumericValue": 4500 }],
+        "interactive":                ["warn",  { "maxNumericValue": 8000 }],
         "total-blocking-time":        ["warn",  { "maxNumericValue": 500  }],
         "cumulative-layout-shift":    ["warn",  { "maxNumericValue": 0.10 }],
         "speed-index":                ["warn",  { "maxNumericValue": 5000 }],
