@@ -193,6 +193,8 @@ const AdminDashboard = lazyWithReload(() => import("./admin/AdminDashboard.jsx")
 const TermsOfService = lazyWithReload(() => import("./shared/TermsOfService.jsx"));
 const GradedInputScreen = lazyWithReload(() => import("./learn/GradedInputScreen.jsx"));
 const PronunciationCourse = lazyWithReload(() => import("./learn/PronunciationCourse.jsx"));
+const PitchAccentMastery = lazyWithReload(() => import("./learn/PitchAccentMastery.jsx"));
+const HeritagePathScreen = lazyWithReload(() => import("./croatia/HeritagePathScreen.jsx"));
 const GrammarTrackScreen = lazyWithReload(() => import("./learn/GrammarTrackScreen.jsx"));
 const ListeningComprehensionScreen = lazyWithReload(() => import("./practice/ListeningComprehensionScreen.jsx"));
 
@@ -400,7 +402,7 @@ export default function AppRouter(props) {
       {currentScreen==="croatiaathletes"&&<ScreenErrorBoundary key="croatiaathletes" name="croatiaathletes"><CroatiaAthletes goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="immersion"&&<ScreenErrorBoundary key="immersion" name="immersion"><ImmersionHub goBack={goBack} setScr={setScr} /></ScreenErrorBoundary>}
       {currentScreen==="lyrics"&&<ScreenErrorBoundary key="lyrics" name="lyrics"><LyricsScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
-      {currentScreen==="aiconvo"&&<ScreenErrorBoundary key="aiconvo" name="aiconvo">{isPremium?<AIConversation goBack={goBack} setScr={setScr} sCurEx={sCurEx} setJWords={setJWords} />:<PaywallScreen featureName="AI Conversation" onClose={goBack} onSubscribed={()=>{refreshSub();}} />}</ScreenErrorBoundary>}
+      {currentScreen==="aiconvo"&&<ScreenErrorBoundary key="aiconvo" name="aiconvo"><AIConversation goBack={goBack} setScr={setScr} sCurEx={sCurEx} setJWords={setJWords} /></ScreenErrorBoundary>}
       {currentScreen==="popculture"&&<ScreenErrorBoundary key="popculture" name="popculture"><PopCultureScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="basketball"&&<ScreenErrorBoundary key="basketball" name="basketball"><BasketballScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="gym"&&<ScreenErrorBoundary key="gym" name="gym"><GymScreen goBack={goBack} /></ScreenErrorBoundary>}
@@ -534,6 +536,8 @@ export default function AppRouter(props) {
       {currentScreen==="cloze"&&<ScreenErrorBoundary key="cloze" name="cloze"><ClozeEngine goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="graded_input"&&<ScreenErrorBoundary key="graded_input" name="graded_input"><GradedInputScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="pronunciation_course"&&<ScreenErrorBoundary key="pronunciation_course" name="pronunciation_course"><PronunciationCourse goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="pitch_accent"&&<ScreenErrorBoundary key="pitch_accent" name="pitch_accent"><PitchAccentMastery goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="heritage_path"&&<ScreenErrorBoundary key="heritage_path" name="heritage_path"><HeritagePathScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="grammarmap"&&<ScreenErrorBoundary key="grammarmap" name="grammarmap"><GrammarConstellation goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="grammar_track"&&<ScreenErrorBoundary key="grammar_track" name="grammar_track"><GrammarTrackScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="listening_comprehension"&&<ScreenErrorBoundary key="listening_comprehension" name="listening_comprehension"><ListeningComprehensionScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}

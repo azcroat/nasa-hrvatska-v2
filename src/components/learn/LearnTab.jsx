@@ -146,7 +146,7 @@ export default function LearnTab({
       </button>
 
       {/* ── GRADED STORIES + PRONUNCIATION COURSE ───────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
         <button
           onClick={() => setScr('graded_input')}
           style={{
@@ -163,7 +163,7 @@ export default function LearnTab({
           }}>📖</div>
           <div>
             <div style={{fontSize:13, fontWeight:800, color:'#065f46'}}>Graded Stories</div>
-            <div style={{fontSize:11, color:'#059669', marginTop:2, lineHeight:1.4}}>A1–B1 Croatian texts with audio & quiz</div>
+            <div style={{fontSize:11, color:'#059669', marginTop:2, lineHeight:1.4}}>A1–B2 Croatian texts with audio & quiz</div>
           </div>
         </button>
         <button
@@ -183,6 +183,42 @@ export default function LearnTab({
           <div>
             <div style={{fontSize:13, fontWeight:800, color:'#4c1d95'}}>Pronunciation</div>
             <div style={{fontSize:11, color:'#7c3aed', marginTop:2, lineHeight:1.4}}>Master Č, Š, Ž, LJ, NJ & more</div>
+          </div>
+        </button>
+      </div>
+
+      {/* ── PITCH ACCENT + HERITAGE PATH ────────────────────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+        <button
+          onClick={() => setScr('pitch_accent')}
+          style={{
+            display:'flex', flexDirection:'column', alignItems:'flex-start', gap:6,
+            padding:'14px 14px', borderRadius:16, border:'none',
+            background:'linear-gradient(135deg,#4c1d95,#7c3aed)',
+            cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+            boxShadow:'0 4px 14px rgba(124,58,237,.3)',
+          }}
+        >
+          <div style={{ fontSize: 28 }}>🎵</div>
+          <div>
+            <div style={{fontSize:13, fontWeight:900, color:'#fff'}}>Pitch Accent</div>
+            <div style={{fontSize:10, color:'rgba(255,255,255,.8)', marginTop:2, lineHeight:1.4}}>4 accents · What no other app teaches</div>
+          </div>
+        </button>
+        <button
+          onClick={() => setScr('heritage_path')}
+          style={{
+            display:'flex', flexDirection:'column', alignItems:'flex-start', gap:6,
+            padding:'14px 14px', borderRadius:16, border:'none',
+            background:'linear-gradient(135deg,#7c2d12,#c2410c)',
+            cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+            boxShadow:'0 4px 14px rgba(194,65,12,.3)',
+          }}
+        >
+          <div style={{ fontSize: 28 }}>🧬</div>
+          <div>
+            <div style={{fontSize:13, fontWeight:900, color:'#fff'}}>Heritage Path</div>
+            <div style={{fontSize:10, color:'rgba(255,255,255,.8)', marginTop:2, lineHeight:1.4}}>Grew up hearing Croatian? Start here.</div>
           </div>
         </button>
       </div>
