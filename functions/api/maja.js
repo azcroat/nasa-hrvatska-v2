@@ -696,11 +696,12 @@ export async function onRequestPost(context) {
   const safePersona = sanitizePersona(persona);
 
   // ── Validate message ──
-  if (typeof message !== "string" || !message.trim()) {
+  // isSessionStart sends an intentionally empty message to get Maja's opening line
+  if (!isSessionStart && (typeof message !== "string" || !message.trim())) {
     return err(400, "Missing or invalid message", origin);
   }
-  const safeMessage = sanitizeParam(message, 500);
-  if (!safeMessage) return err(400, "Message is empty after sanitization", origin);
+  const safeMessage = isSessionStart ? '' : sanitizeParam(message, 500);
+  if (!isSessionStart && !safeMessage) return err(400, "Message is empty after sanitization", origin);
 
   // ── Validate userLevel ──
   const safeLevel = sanitizeLevel(userLevel);
@@ -741,9 +742,11 @@ export async function onRequestPost(context) {
   while (merged.length > 0 && merged[0].role !== "user") merged.shift();
 
   // Append the current user message
-  const currentUserMsg = { role: "user", content: safeMessage };
+  // For session start, use a neutral trigger so Anthropic never sees an empty content field
+  const effectiveMessage = (isSessionStart && !safeMessage) ? "[Start the conversation]" : safeMessage;
+  const currentUserMsg = { role: "user", content: effectiveMessage };
   if (merged.length > 0 && merged[merged.length - 1].role === "user") {
-    merged[merged.length - 1].content += "\n" + safeMessage;
+    merged[merged.length - 1].content += "\n" + effectiveMessage;
   } else {
     merged.push(currentUserMsg);
   }

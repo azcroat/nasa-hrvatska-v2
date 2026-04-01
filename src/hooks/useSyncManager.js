@@ -32,6 +32,12 @@ export function useSyncManager({
   const _unloadRef = useRef({});
   // Prevents simultaneous watcher + iosWakeUp from double-applying a remote merge
   const _mergeInProgressRef = useRef(false);
+  // Tracks the last Firebase server-timestamp we successfully merged.
+  // Replaces the old `fpTs > lpTs` comparison which broke when autosave inflated
+  // the local `savedAt` timestamp, falsely making local appear "newer" than Firebase.
+  // Now we merge any Firebase snapshot that has a different (new) server timestamp,
+  // regardless of what the local savedAt says.
+  const _lastMergedFbTs = useRef(0);
 
   // Sync latest state into ref on every render (synchronous, before effects)
   _unloadRef.current = { authUser, stats, name, authScreen, favs, jWords, dchlA, dchlSl };
@@ -69,40 +75,42 @@ export function useSyncManager({
   useEffect(() => {
     if (authScreen !== 'app' || !authUser) return undefined;
     const unsub = fbWatchProgress(authUser.u, (fp, fpTs) => {
-      const lp = gP(authUser.u);
-      const lpTs = (lp && (lp._fbUpdated || lp.savedAt)) || 0;
-      if (fpTs > lpTs) {
-        if (_mergeInProgressRef.current) return;
-        _mergeInProgressRef.current = true;
-        const pSt = fp.stats || fp.st || {};
-        // Merge stats before writing to localStorage so a refresh before the next
-        // doSyncNow doesn't serve the raw (possibly lower) Firestore snapshot.
-        // Without this, lP() overwrites localStorage with stale cloud values,
-        // and the early-restore on next load re-applies those lower numbers.
-        const lpSt = lp ? (lp.stats || lp.st || {}) : {};
-        const mergedStats = {
-          ...pSt,
-          xp:  Math.max(lpSt.xp  || 0, pSt.xp  || 0),
-          lc:  Math.max(lpSt.lc  || 0, pSt.lc  || 0),
-          gc:  Math.max(lpSt.gc  || 0, pSt.gc  || 0),
-          sp:  Math.max(lpSt.sp  || 0, pSt.sp  || 0),
-          de:  Math.max(lpSt.de  || 0, pSt.de  || 0),
-          rc:  Math.max(lpSt.rc  || 0, pSt.rc  || 0),
-          str: Math.max(lpSt.str || 0, pSt.str || 0),
-          pf:  Math.max(lpSt.pf  || 0, pSt.pf  || 0),
-          mv:  Math.max(lpSt.mv  || 0, pSt.mv  || 0),
-          hi:  Math.max(lpSt.hi  || 0, pSt.hi  || 0),
-          ct:  [...new Set([...(lpSt.ct  || []), ...(pSt.ct  || [])])],
-          vs:  [...new Set([...(lpSt.vs  || []), ...(pSt.vs  || [])])],
-          badges: [...new Set([...(lpSt.badges || []), ...(pSt.badges || [])])],
-        };
-        lP(authUser.u, { ...fp, savedAt: fpTs, stats: mergedStats });
-        setStats(prev => mergeStatsFromRemote(prev, pSt, ds));
-        if (fp.name) setName(fp.name);
-        applyRemoteProgress(fp);
-        setTimeout(() => { _mergeInProgressRef.current = false; }, 200);
-      }
       if (setSyncReady) setSyncReady(true);
+      // Merge whenever Firebase has a new server timestamp we haven't processed yet.
+      // This replaces the old `fpTs > lpTs` check: comparing against the local savedAt
+      // (which autosave bumps every 30s) caused Firebase data to be rejected when the
+      // local clock appeared "newer" — the primary cause of divergent multi-device state.
+      const isNewSnapshot = fpTs > 0 && fpTs !== _lastMergedFbTs.current;
+      if (!isNewSnapshot) return;
+      if (_mergeInProgressRef.current) return;
+      _mergeInProgressRef.current = true;
+      _lastMergedFbTs.current = fpTs;
+      const lp = gP(authUser.u);
+      const pSt = fp.stats || fp.st || {};
+      // Always merge additive: take max of local + remote, union arrays.
+      // Safe even when local is "newer" — Math.max/union can never decrease values.
+      const lpSt = lp ? (lp.stats || lp.st || {}) : {};
+      const mergedStats = {
+        ...pSt,
+        xp:  Math.max(lpSt.xp  || 0, pSt.xp  || 0),
+        lc:  Math.max(lpSt.lc  || 0, pSt.lc  || 0),
+        gc:  Math.max(lpSt.gc  || 0, pSt.gc  || 0),
+        sp:  Math.max(lpSt.sp  || 0, pSt.sp  || 0),
+        de:  Math.max(lpSt.de  || 0, pSt.de  || 0),
+        rc:  Math.max(lpSt.rc  || 0, pSt.rc  || 0),
+        str: Math.max(lpSt.str || 0, pSt.str || 0),
+        pf:  Math.max(lpSt.pf  || 0, pSt.pf  || 0),
+        mv:  Math.max(lpSt.mv  || 0, pSt.mv  || 0),
+        hi:  Math.max(lpSt.hi  || 0, pSt.hi  || 0),
+        ct:  [...new Set([...(lpSt.ct  || []), ...(pSt.ct  || [])])],
+        vs:  [...new Set([...(lpSt.vs  || []), ...(pSt.vs  || [])])],
+        badges: [...new Set([...(lpSt.badges || []), ...(pSt.badges || [])])],
+      };
+      lP(authUser.u, { ...fp, savedAt: fpTs, stats: mergedStats });
+      setStats(prev => mergeStatsFromRemote(prev, pSt, ds));
+      if (fp.name) setName(fp.name);
+      applyRemoteProgress(fp);
+      setTimeout(() => { _mergeInProgressRef.current = false; }, 200);
     });
     _watcherUnsubRef.current = unsub;
 
@@ -112,36 +120,37 @@ export function useSyncManager({
       try {
         const fp = await fbLoadProgress(authUser.u);
         if (!fp) return;
-        const lp = gP(authUser.u);
         const fpTs = fp._fbUpdated || 0;
-        const lpTs = (lp && (lp._fbUpdated || lp.savedAt)) || 0;
-        if (fpTs > lpTs) {
-          if (_mergeInProgressRef.current) return;
-          _mergeInProgressRef.current = true;
-          const pSt = fp.stats || fp.st || {};
-          const lpSt2 = lp ? (lp.stats || lp.st || {}) : {};
-          const mergedStats2 = {
-            ...pSt,
-            xp:  Math.max(lpSt2.xp  || 0, pSt.xp  || 0),
-            lc:  Math.max(lpSt2.lc  || 0, pSt.lc  || 0),
-            gc:  Math.max(lpSt2.gc  || 0, pSt.gc  || 0),
-            sp:  Math.max(lpSt2.sp  || 0, pSt.sp  || 0),
-            de:  Math.max(lpSt2.de  || 0, pSt.de  || 0),
-            rc:  Math.max(lpSt2.rc  || 0, pSt.rc  || 0),
-            str: Math.max(lpSt2.str || 0, pSt.str || 0),
-            pf:  Math.max(lpSt2.pf  || 0, pSt.pf  || 0),
-            mv:  Math.max(lpSt2.mv  || 0, pSt.mv  || 0),
-            hi:  Math.max(lpSt2.hi  || 0, pSt.hi  || 0),
-            ct:  [...new Set([...(lpSt2.ct  || []), ...(pSt.ct  || [])])],
-            vs:  [...new Set([...(lpSt2.vs  || []), ...(pSt.vs  || [])])],
-            badges: [...new Set([...(lpSt2.badges || []), ...(pSt.badges || [])])],
-          };
-          lP(authUser.u, { ...fp, savedAt: fpTs, stats: mergedStats2 });
-          setStats(prev => mergeStatsFromRemote(prev, pSt, ds));
-          if (fp.name) setName(fp.name);
-          applyRemoteProgress(fp);
-          setTimeout(() => { _mergeInProgressRef.current = false; }, 200);
-        }
+        // Use same _lastMergedFbTs tracking as the watcher — skip if we already
+        // processed this exact Firebase snapshot in this session.
+        if (fpTs > 0 && fpTs === _lastMergedFbTs.current) return;
+        if (_mergeInProgressRef.current) return;
+        _mergeInProgressRef.current = true;
+        _lastMergedFbTs.current = fpTs || (_lastMergedFbTs.current + 1);
+        const lp = gP(authUser.u);
+        const pSt = fp.stats || fp.st || {};
+        const lpSt2 = lp ? (lp.stats || lp.st || {}) : {};
+        const mergedStats2 = {
+          ...pSt,
+          xp:  Math.max(lpSt2.xp  || 0, pSt.xp  || 0),
+          lc:  Math.max(lpSt2.lc  || 0, pSt.lc  || 0),
+          gc:  Math.max(lpSt2.gc  || 0, pSt.gc  || 0),
+          sp:  Math.max(lpSt2.sp  || 0, pSt.sp  || 0),
+          de:  Math.max(lpSt2.de  || 0, pSt.de  || 0),
+          rc:  Math.max(lpSt2.rc  || 0, pSt.rc  || 0),
+          str: Math.max(lpSt2.str || 0, pSt.str || 0),
+          pf:  Math.max(lpSt2.pf  || 0, pSt.pf  || 0),
+          mv:  Math.max(lpSt2.mv  || 0, pSt.mv  || 0),
+          hi:  Math.max(lpSt2.hi  || 0, pSt.hi  || 0),
+          ct:  [...new Set([...(lpSt2.ct  || []), ...(pSt.ct  || [])])],
+          vs:  [...new Set([...(lpSt2.vs  || []), ...(pSt.vs  || [])])],
+          badges: [...new Set([...(lpSt2.badges || []), ...(pSt.badges || [])])],
+        };
+        lP(authUser.u, { ...fp, savedAt: fpTs, stats: mergedStats2 });
+        setStats(prev => mergeStatsFromRemote(prev, pSt, ds));
+        if (fp.name) setName(fp.name);
+        applyRemoteProgress(fp);
+        setTimeout(() => { _mergeInProgressRef.current = false; }, 200);
       } catch (_) {}
     };
     const onPageShow = (e) => { if (e.persisted) iosWakeUp(); };
