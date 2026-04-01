@@ -6,7 +6,7 @@ const TABS = [
   { id: "learn",    label: "Learn" },
   { id: "practice", label: "Practice" },
   { id: "croatia",  label: "Culture" },
-  { id: "profile",  label: "Profile" },
+  { id: "profile",  label: "Me" },
 ];
 
 function NavIcon({ id, active }) {
@@ -119,8 +119,8 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
         pointerEvents: 'none',
       }} />
 
-      {/* Tab buttons — paddingRight reserves space so the Profile tab doesn't hide under the search button */}
-      <div style={{ display:'flex', paddingRight: 50 }}>
+      {/* Tab buttons — paddingRight reserves space for the absolute-positioned search button */}
+      <div style={{ display:'flex', width:'100%', paddingRight: 56 }}>
         {TABS.map((t) => {
           const isActive = tab === t.id;
           return (
@@ -253,6 +253,7 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
           fontSize:15, cursor:'pointer',
           color:'var(--subtext)',
           flexShrink:0,
+          zIndex: 1,
         }}
       ><span aria-hidden="true">🔍</span></button>
 
