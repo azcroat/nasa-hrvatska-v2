@@ -1,7 +1,25 @@
 /** Returns local date as YYYY-MM-DD string (never UTC). */
-export function localDateStr() {
-  const d = new Date();
+export function localDateStr(d = new Date()) {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+/**
+ * Fetches the server's current date as YYYY-MM-DD.
+ * Uses a 3-second timeout; falls back to local date on any error so offline
+ * functionality is fully preserved.
+ */
+export async function getServerDateStr() {
+  try {
+    const ctrl = new AbortController();
+    const id = setTimeout(() => ctrl.abort(), 3000);
+    const res = await fetch('/api/server-time', { signal: ctrl.signal });
+    clearTimeout(id);
+    if (!res.ok) throw new Error('non-ok');
+    const { ts } = await res.json();
+    return localDateStr(new Date(ts));
+  } catch {
+    return localDateStr(new Date());
+  }
 }
 
 /** Returns ISO 8601 week key e.g. "2026-W13". DST-safe via UTC arithmetic. */
