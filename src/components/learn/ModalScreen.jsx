@@ -161,7 +161,7 @@ export default function ModalScreen({ goBack, award, setSt }) {
                 <button
                   key={oi}
                   className={"ob " + (m7a ? (oi === ci ? "ok" : m7sl === oi ? "no" : "") : "")}
-                  onClick={() => { if (!m7a) { sM7sl(oi); sM7a(true); if (oi === ci) { sM7s(s => s + 1); award(5); } } }}>
+                  onClick={() => { if (!m7a) { sM7sl(oi); sM7a(true); if (oi === ci) { sM7s(s => s + 1); if (typeof award === 'function') award(5); } } }}>
                   {o}
                 </button>
               ))}
@@ -172,7 +172,7 @@ export default function ModalScreen({ goBack, award, setSt }) {
                 style={{width:"100%",marginTop:16}}
                 onClick={() => {
                   if (m7i < total - 1) { const n = m7q[m7i + 1]; sM7o(sh([n.a, ...n.al])); sM7i(i => i + 1); sM7a(false); sM7sl(-1); }
-                  else { award(m7s * 3); sM7i(total); }
+                  else { if (typeof award === 'function') award(m7s * 3); sM7i(total); }
                 }}>
                 {m7i < total - 1 ? "Next →" : "See Results"}
               </button>
@@ -198,7 +198,7 @@ export default function ModalScreen({ goBack, award, setSt }) {
               {pct >= 70 && <div style={{padding:12,background:"#dcfce7",borderRadius:12,marginTop:12,fontSize:14,color:"#16a34a",fontWeight:700}}>🏅 Modal Verbs Badge Earned!</div>}
               <div style={{display:"flex",gap:10,justifyContent:"center",marginTop:16}}>
                 <button className="b bg" onClick={() => { sM7q([]); sM7i(0); sM7s(0); sM7a(false); sM7sl(-1); }}>🔄 Retry</button>
-                <button className="b bv" onClick={() => { if(finishFired.current)return; finishFired.current=true; setSt(s => ({...s, mv: s.mv + 1, gc: s.gc + 1})); award(m7s * 3 + 20); goBack(); }}>🏠 Finish!</button>
+                <button className="b bv" onClick={() => { if(finishFired.current)return; finishFired.current=true; setSt(s => ({...s, mv: s.mv + 1, gc: s.gc + 1})); if (typeof award === 'function') award(m7s * 3 + 20); goBack(); }}>🏠 Finish!</button>
               </div>
             </div>
           );
@@ -220,7 +220,7 @@ export default function ModalScreen({ goBack, award, setSt }) {
                 <button
                   key={oi}
                   className={"ob " + (m7a ? (oi === ci ? "ok" : m7sl === oi ? "no" : "") : "")}
-                  onClick={() => { if (!m7a) { sM7sl(oi); sM7a(true); if (oi === ci) { sM7s(s => s + 1); award(5); } } }}>
+                  onClick={() => { if (!m7a) { sM7sl(oi); sM7a(true); if (oi === ci) { sM7s(s => s + 1); if (typeof award === 'function') award(5); } } }}>
                   {o}
                 </button>
               ))}

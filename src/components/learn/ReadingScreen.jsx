@@ -94,7 +94,7 @@ export default function ReadingScreen({
             } else {
               if (resultFired.current) return;
               resultFired.current = true;
-              award(Math.round((rsc / rp.qs.length) * 35) + 10);
+              if (typeof award === 'function') award(Math.round((rsc / rp.qs.length) * 35) + 10);
               markQuest('reading');
               if (rsc === rp.qs.length) markQuest('perfect');
               setSt(s => ({...s, rc: s.rc+1}));

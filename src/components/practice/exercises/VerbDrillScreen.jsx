@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef } from 'react';
 import { H, speak, sh, shMemo } from '../../../data.jsx';
 import { VERBDRILL, VBPERSONS } from '../../../data.jsx';
 import { markQuest } from '../../../lib/quests.js';
+import { addWordToSRS } from '../../../lib/srs.js';
 
 // Generate 12 conjugation quiz questions from the verb list
 function buildQuiz(verbs) {
@@ -31,10 +32,11 @@ export default function VerbDrillScreen({ goBack, award }) {
 
   function handleAnswer(opt) {
     if (answered) return;
-    const isCorrect = opt === questions[qi].correct;
+    const q = questions[qi];
+    const isCorrect = opt === q.correct;
     setSelected(opt);
     setAnswered(true);
-    if (isCorrect) { setScore(s => s + 1); speak(opt); }
+    if (isCorrect) { setScore(s => s + 1); speak(opt); addWordToSRS(q.verb); }
   }
 
   function next() {

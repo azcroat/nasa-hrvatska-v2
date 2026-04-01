@@ -167,6 +167,29 @@ export function saveSR(data) {
 }
 
 /**
+ * Silently add a word to SRS as a brand-new card if it isn't already tracked.
+ * Called when a user demonstrates knowledge of a word during exercises —
+ * schedules it for review in 1 day without marking it as reviewed yet.
+ * No-op if the word is already in SRS.
+ *
+ * @param {string} word — Croatian word or infinitive to seed
+ */
+export function addWordToSRS(word) {
+  if (!word || typeof word !== 'string') return;
+  const w = word.trim();
+  if (!w) return;
+  try {
+    const sr = getSR();
+    if (sr[w]) return; // already tracked — don't disturb existing progress
+    const s = _initS(3); // grade 3 = "good" first exposure
+    const d = _initD(3);
+    const due = Date.now() + 86400000; // schedule review in 1 day
+    sr[w] = { s, d, r: 0, w: 0, l: 0, b: 1, due, nextDue: due };
+    saveSR(sr);
+  } catch (_) {}
+}
+
+/**
  * Return an array of Croatian word strings that are due for review right now.
  * Matches the signature used by data.jsx getDueReviews().
  */
