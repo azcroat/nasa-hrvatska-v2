@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
 
 // ── Built-in Comprehension Exercises by CEFR Level ───────────────────────────
@@ -146,7 +146,7 @@ function shuffle(arr) {
 }
 
 export default function ListeningComprehensionScreen({ goBack, award }) {
-  const { setScr } = useApp();
+  useApp(); // context required for future navigation; no screen-level nav needed here
   const [selectedLevel, setSelectedLevel] = useState(null);
   const [selectedSet, setSelectedSet] = useState(null);
   const [questionIdx, setQuestionIdx] = useState(0);
@@ -200,9 +200,8 @@ export default function ListeningComprehensionScreen({ goBack, award }) {
   // ── Finished screen ──────────────────────────────────────────────────────
   if (finished && shuffledQuestions) {
     const total = shuffledQuestions.length;
-    const finalScore = chosen === shuffledQuestions[total - 1]?.en ? score + 1 : score; // already counted via handleAnswer
-    // Recalculate: score is accumulated via handleAnswer before final answer, then we add 1 if last was correct
-    const displayScore = score; // score was incremented in handleAnswer for each correct answer
+    // score is accumulated in handleAnswer (incremented on each correct answer before moving to next)
+    const displayScore = score;
     const pct = Math.round(displayScore / total * 100);
     return (
       <div className="scr-wrap">
@@ -251,7 +250,7 @@ export default function ListeningComprehensionScreen({ goBack, award }) {
             🎧 Listen & understand
           </div>
           <div style={{ fontSize: 20, fontWeight: 900, color: 'var(--heading)', fontFamily: "'Playfair Display',serif", lineHeight: 1.4, marginBottom: 8 }}>
-            "{q.hr}"
+            &ldquo;{q.hr}&rdquo;
           </div>
           <div style={{ fontSize: 11, color: 'var(--subtext)', fontStyle: 'italic' }}>
             What does this mean in English?
@@ -259,7 +258,7 @@ export default function ListeningComprehensionScreen({ goBack, award }) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {q.opts.map((opt, i) => {
+          {q.opts.map((opt) => {
             const isCorrect = opt === q.en;
             const isChosen = opt === chosen;
             let bg = 'var(--card)', border = '1.5px solid var(--card-b)', color = 'var(--body)';
@@ -269,7 +268,7 @@ export default function ListeningComprehensionScreen({ goBack, award }) {
             }
             return (
               <button
-                key={i}
+                key={opt}
                 onClick={() => handleAnswer(opt)}
                 style={{
                   padding: '14px 16px', borderRadius: 12, border, background: bg,
@@ -311,9 +310,9 @@ export default function ListeningComprehensionScreen({ goBack, award }) {
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,.7)' }}>{levelData.desc}</div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {levelData.sets.map((set, i) => (
+          {levelData.sets.map((set) => (
             <button
-              key={i}
+              key={set.title}
               onClick={() => startSet(set)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 14,
