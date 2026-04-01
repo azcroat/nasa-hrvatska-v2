@@ -64,14 +64,15 @@ service cloud.firestore {
       return prog == '' || prog.size() <= 204800;
     }
 
-    // Leaderboard CREATE: first-write caps xp at 1000 and lc at 100.
+    // Leaderboard CREATE: caps match UPDATE caps — a user syncing accumulated offline
+    // XP on their first leaderboard write must not be blocked by an artificial low cap.
     function validLbXpCreate() {
       return request.resource.data.xp >= 0
-        && request.resource.data.xp <= 1000;
+        && request.resource.data.xp <= 100000;
     }
     function validLbLcCreate() {
       return request.resource.data.lc >= 0
-        && request.resource.data.lc <= 100;
+        && request.resource.data.lc <= 10000;
     }
 
     // Leaderboard UPDATE: XP must never decrease (except reset to 0); no per-write cap.

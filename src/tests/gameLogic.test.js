@@ -24,6 +24,14 @@ vi.mock('firebase/auth', () => ({
   sendPasswordResetEmail: vi.fn(),
   onAuthStateChanged: vi.fn(() => () => {}),
   updateProfile: vi.fn(),
+  initializeAuth: vi.fn(() => ({})),
+  indexedDBLocalPersistence: {},
+  browserSessionPersistence: {},
+  inMemoryPersistence: {},
+  GoogleAuthProvider: vi.fn(() => ({})),
+  signInWithPopup: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
   getFirestore: vi.fn(() => ({})),

@@ -58,5 +58,11 @@ export function buildProgressSnapshot({ uid, name, stats, dchlA, dchlSl, favs, j
     dc,
     cooldown,
     weekXP,
+    // User settings — must sync so all devices share the same preferences
+    nh_level: localStorage.getItem('nh_level') || '',
+    nh_goal: localStorage.getItem('nh_goal') || '',
+    nh_culture: localStorage.getItem('nh_culture') || '',
+    nh_placement_done: localStorage.getItem('nh_placement_done') === 'true' || localStorage.getItem('placement_done') === 'true',
+    nh_grammar_track_done: localStorage.getItem('nh_grammar_track_done') === 'true',
   };
 }
