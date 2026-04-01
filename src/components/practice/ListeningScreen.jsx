@@ -1,11 +1,25 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, speak, speakSlow, sh } from '../../data.jsx';
 import { markQuest } from '../../lib/quests.js';
+import { knightSpeak } from '../../lib/knightSpeak.js';
+
+const LISTENING_TIPS = [
+  { mood: 'thinking',    text: 'Close your eyes and let the Croatian sounds wash over you. Meaning before words. 🎧' },
+  { mood: 'encouraging', text: 'Real listening means catching the meaning, not every syllable. Don\'t panic — focus on what you know. 🌊' },
+  { mood: 'happy',       text: 'Croatian is perfectly phonetic — once you know the sounds, every sentence you\'ve ever heard clicks. 🔑' },
+  { mood: 'ready',       text: 'Listen twice if you need to. The slow button is your friend, not a cheat. ⚔️' },
+];
 
 export default function ListeningScreen({ questions, goBack, award }) {
   const finishFired = useRef(false);
   const questFired = useRef(false);
   const [idx, setIdx] = useState(0);
+
+  // Knight coaching — entry tip on mount
+  useEffect(() => {
+    const tip = LISTENING_TIPS[Math.floor(Math.random() * LISTENING_TIPS.length)];
+    knightSpeak(tip.mood, tip.text, 900);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [selected, setSelected] = useState(-1);

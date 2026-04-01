@@ -76,6 +76,18 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
     if (firstOptionRef.current) firstOptionRef.current.focus();
   }, [idx]);
 
+  // Knight coaching — entry tip on mount
+  useEffect(() => {
+    const tips = [
+      { mood: 'ready',       text: 'Hajdemo! Think fast — your Croatian intuition is stronger than you know. ⚔️' },
+      { mood: 'happy',       text: 'Multiple choice: eliminate the wrong answers first. Croatian patterns will guide you. 🎯' },
+      { mood: 'celebrating', text: 'Build a streak! Three in a row and vocabulary shifts from memory to instinct. That\'s fluency. 🔥' },
+      { mood: 'encouraging', text: 'Don\'t second-guess your first instinct — it\'s usually the language brain speaking. 🧠' },
+    ];
+    const tip = tips[Math.floor(Math.random() * tips.length)];
+    knightSpeak(tip.mood, tip.text, 800);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Keyboard shortcuts 1–4 to select options
   useEffect(() => {
     if (answered) return undefined;
