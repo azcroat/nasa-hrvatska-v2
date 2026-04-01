@@ -142,11 +142,18 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       sS({ u: k, d: dn });
       touchSession(); updateStreak();
 
-      // ── New registration: no remote progress yet ──
+      // ── New registration: preserve any offline progress earned before sign-up ──
       if (isNew) {
-        cb.current.onSignedIn({ user, progress: null, isNew: true });
+        // A user may complete lessons offline before creating an account.
+        // Pass local progress (if any) so that work is not discarded.
+        const offlineProgress = gP(k);
+        cb.current.onSignedIn({ user, progress: offlineProgress, isNew: true });
         cb.current.setSyncReady(true);
         setAuthScreen('app');
+        // Immediately push offline progress to Firebase so other devices get it
+        if (offlineProgress) {
+          fbSaveProgress(k, offlineProgress).catch(function() {});
+        }
         // Show email verification banner for email/password registrations (Google is pre-verified)
         if (fbUser && !fbUser.emailVerified && fbUser.providerData && fbUser.providerData[0] && fbUser.providerData[0].providerId !== 'google.com') {
           setEmailUnverified(true);
