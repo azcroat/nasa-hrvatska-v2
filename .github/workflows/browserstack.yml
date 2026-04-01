@@ -1,0 +1,40 @@
+name: BrowserStack Cross-Device Tests
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:   # allow manual runs from GitHub Actions UI
+
+jobs:
+  browserstack:
+    name: BrowserStack Real Devices
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers (local fallback)
+        run: npx playwright install chromium --with-deps
+
+      - name: Run BrowserStack Automate
+        env:
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+        run: npx browserstack-node-sdk npx playwright test --config=browserstack.playwright.config.js
+
+      - name: Upload BrowserStack report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browserstack-report
+          path: browserstack-report/
+          retention-days: 14
