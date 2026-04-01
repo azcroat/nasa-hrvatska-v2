@@ -42,7 +42,7 @@ export default function PitchAccentScreen({ goBack, award }) {
           </div>
           <div style={{display:"flex",gap:12,justifyContent:"center",marginTop:24}}>
             <button className="b bg" onClick={()=>{setIdx(0);setAnswered(false);setSelected(null);setScore(0);setDone(false);}}>Retry</button>
-            <button className="b bp" onClick={()=>{if(finishFired.current)return;finishFired.current=true;award(score*5+5);goBack();}}>Finish</button>
+            <button className="b bp" onClick={()=>{if(finishFired.current)return;finishFired.current=true;if(typeof award==='function')award(score*5+5);goBack();}}>Finish</button>
           </div>
         </div>
       </div>

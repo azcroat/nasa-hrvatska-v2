@@ -19,7 +19,7 @@ export default function ZnamGame({ goBack, award }) {
   return (
     <div className="scr-wrap">
       
-      {H("🇭🇷 " + ZNAM.title,"Translate English to Croatian")}
+      {H("🇭🇷 " + ZNAM.title,"Translate English to Croatian", goBack)}
 
       {znMode === "menu" && (
         <React.Fragment>
@@ -69,7 +69,7 @@ export default function ZnamGame({ goBack, award }) {
                     sZnSel(oi); sZnAns(true);
                     const isCorrect = o === correct;
                     srMark(correct, isCorrect);
-                    if (isCorrect) { sZnSc(s => s + 1); award(5); }
+                    if (isCorrect) { sZnSc(s => s + 1); if (typeof award === 'function') award(5); }
                   }}>
                   {o}
                 </button>

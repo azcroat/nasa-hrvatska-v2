@@ -14,7 +14,7 @@ export default function MatchGame({ initPool, goBack, award }) {
   return (
     <div className="scr-wrap">
 
-      {H("🃏 Match Pairs")}
+      {H("🃏 Match Pairs", "", goBack)}
       {gph === "play" && (
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
           <div style={{fontSize:13,fontWeight:700,color:"var(--subtext)"}}>
@@ -50,7 +50,7 @@ export default function MatchGame({ initPool, goBack, award }) {
                   const hrWord = f.tp === 'hr' ? f.t : c.t;
                   srMark(hrWord, true);
                   sMm(m => [...m, c.p]); sGsc(s => s + 1); sMsl([]);
-                  if (mm.length + 1 === mp.length / 2) setTimeout(() => { award(20); sGph("done"); knightSpeak('celebrating', 'Sve upareno! You just matched every word. Neural pathways reinforced. 🧠⚔️', 800); }, 500);
+                  if (mm.length + 1 === mp.length / 2) setTimeout(() => { if (typeof award === 'function') award(20); sGph("done"); knightSpeak('celebrating', 'Sve upareno! You just matched every word. Neural pathways reinforced. 🧠⚔️', 800); }, 500);
                 } else {
                   const hrWord = f.tp === 'hr' ? f.t : (c.tp === 'hr' ? c.t : null);
                   if (hrWord) srMark(hrWord, false);
@@ -68,7 +68,7 @@ export default function MatchGame({ initPool, goBack, award }) {
                     const hrWord = f.tp === 'hr' ? f.t : c.t;
                     srMark(hrWord, true);
                     sMm(m => [...m, c.p]); sGsc(s => s + 1); sMsl([]);
-                    if (mm.length + 1 === mp.length / 2) setTimeout(() => { award(20); sGph("done"); knightSpeak('celebrating', 'Sve upareno! You just matched every word. Neural pathways reinforced. 🧠⚔️', 800); }, 500);
+                    if (mm.length + 1 === mp.length / 2) setTimeout(() => { if (typeof award === 'function') award(20); sGph("done"); knightSpeak('celebrating', 'Sve upareno! You just matched every word. Neural pathways reinforced. 🧠⚔️', 800); }, 500);
                   } else {
                     const hrWord = f.tp === 'hr' ? f.t : (c.tp === 'hr' ? c.t : null);
                     if (hrWord) srMark(hrWord, false);

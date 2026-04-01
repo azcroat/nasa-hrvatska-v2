@@ -291,7 +291,7 @@ function ReadingPane({ text, title, english, level, levelColor, levelBg, cache, 
   return (
     <div className="scr-wrap">
       <style>{STYLE}</style>
-      {H('🔍 Grammar X-Ray')}
+      {H('🔍 Grammar X-Ray', '', goBack)}
 
       <p style={{ margin: '0 0 16px', fontSize: 'var(--text-sm)', color: 'var(--subtext)', lineHeight: 1.6 }}>
         Tap any word to see its full grammatical analysis — case, gender, tense, aspect, and more.
@@ -365,7 +365,7 @@ function TextPicker({ onSelect, goBack }) {
   return (
     <div className="scr-wrap">
       <style>{STYLE}</style>
-      {H('🔍 Grammar X-Ray')}
+      {H('🔍 Grammar X-Ray', '', goBack)}
       <p style={{ margin: '0 0 18px', fontSize: 'var(--text-sm)', color: 'var(--subtext)', lineHeight: 1.6 }}>
         Choose a text to read. Tap any word to instantly see its grammatical breakdown — case, gender, tense, aspect, and more — powered by AI.
       </p>

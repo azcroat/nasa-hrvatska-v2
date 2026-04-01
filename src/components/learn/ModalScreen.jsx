@@ -19,7 +19,7 @@ export default function ModalScreen({ goBack, award, setSt }) {
   return (
     <div className="scr-wrap">
       
-      {H("🔮 Modalni Glagoli","Modal Verbs — željeti · htjeti · morati · trebati · moći · smjeti")}
+      {H("🔮 Modalni Glagoli","Modal Verbs — željeti · htjeti · morati · trebati · moći · smjeti", goBack)}
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:20}}>
         {["menu","learn","fill","quiz"].map(m => (
           <button

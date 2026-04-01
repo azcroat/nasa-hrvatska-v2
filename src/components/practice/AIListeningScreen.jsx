@@ -163,7 +163,7 @@ export default function AIListeningScreen({ goBack, award }) {
   useEffect(() => {
     if (phase === 'results' && !xpAwarded) {
       const xp = 10 + score * 5;
-      award(xp);
+      if (typeof award === 'function') award(xp);
       markQuest('speak');
       setXpAwarded(true);
     }
@@ -201,7 +201,7 @@ export default function AIListeningScreen({ goBack, award }) {
   // ══════════════════════════════════════════════════════════════════════════
   if (phase === 'setup') return (
     <div className="scr-wrap">
-      {H('🎧 AI Listening', 'Dynamically generated Croatian audio')}
+      {H('🎧 AI Listening', 'Dynamically generated Croatian audio', goBack)}
 
       {/* Level badge */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
@@ -288,7 +288,7 @@ export default function AIListeningScreen({ goBack, award }) {
   // ══════════════════════════════════════════════════════════════════════════
   if (phase === 'listening' && content) return (
     <div className="scr-wrap">
-      {H('🎧 ' + content.title, TOPICS.find(t => t.key === selectedTopic)?.en || '')}
+      {H('🎧 ' + content.title, TOPICS.find(t => t.key === selectedTopic)?.en || '', goBack)}
 
       {/* English summary */}
       <div style={{ background: 'rgba(14,116,144,0.08)', border: '1px solid rgba(14,116,144,0.25)', borderRadius: 10, padding: '12px 14px', marginBottom: 16 }}>
@@ -385,7 +385,7 @@ export default function AIListeningScreen({ goBack, award }) {
 
     return (
       <div className="scr-wrap">
-        {H('🧠 Comprehension', `Question ${qIndex + 1} of ${content.questions.length}`)}
+        {H('🧠 Comprehension', `Question ${qIndex + 1} of ${content.questions.length}`, goBack)}
 
         {/* Progress dots */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
@@ -453,7 +453,7 @@ export default function AIListeningScreen({ goBack, award }) {
 
     return (
       <div className="scr-wrap">
-        {H('📊 Results', 'AI Listening Exercise')}
+        {H('📊 Results', 'AI Listening Exercise', goBack)}
 
         <div className="c" style={{ textAlign: 'center', padding: '24px 16px', marginBottom: 16 }}>
           <div style={{ fontSize: 52, marginBottom: 8 }}>{emoji}</div>

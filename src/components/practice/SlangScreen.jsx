@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import { sh } from '../../data.jsx';
 import { SECTIONS } from './slangData.js';
+import { markQuest } from '../../lib/quests.js';
 import SlangAgeGate from './SlangAgeGate.jsx';
 import SlangEntryCard from './SlangEntryCard.jsx';
 import SlangQuizPanel from './SlangQuizPanel.jsx';
@@ -94,6 +95,7 @@ export default function SlangScreen({ goBack, award }) {
 
   function finishQuiz() {
     const xp = quizScore * 3;
+    markQuest('speak');
     if (award && !quizXpGiven && xp > 0) { award(xp); setQuizXpGiven(true); }
   }
 

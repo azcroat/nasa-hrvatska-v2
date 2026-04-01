@@ -75,7 +75,7 @@ export default function ImperativeDrill({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H("⚡ Imperative Drill", "Commands — the essential production skill")}
+      {H("⚡ Imperative Drill", "Commands — the essential production skill", goBack)}
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
         <span style={{ fontSize: 13, color: "#64748b", whiteSpace: "nowrap" }}>{idx + 1} / {total}</span>
         <Bar v={idx + 1} mx={total} />

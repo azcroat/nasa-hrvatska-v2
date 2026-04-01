@@ -89,7 +89,7 @@ export default function StoryScreens({ goBack, award, sCurEx }) {
         onClick={() => sStSt(null)}>
         ← Back
       </button>
-      {H("📖 " + stSt.title, stSt.tEn)}
+      {H("📖 " + stSt.title, stSt.tEn, goBack)}
       {!scene ? (
         <div style={{textAlign:"center"}}>
           <div style={{fontSize:64}}>🌟</div>
@@ -97,7 +97,7 @@ export default function StoryScreens({ goBack, award, sCurEx }) {
           <button
             className="b bp"
             style={{marginTop:16}}
-            onClick={() => { if(finishFired.current)return; finishFired.current=true; award(15); sStSt(null); }}>
+            onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(15); sStSt(null); }}>
             Back to Stories
           </button>
         </div>
@@ -199,7 +199,7 @@ export default function StoryScreens({ goBack, award, sCurEx }) {
             <button
               className="b bp"
               style={{width:"100%",marginTop:20}}
-              onClick={() => { if(finishFired.current)return; finishFired.current=true; award(15); sStSt(null); }}>
+              onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(15); sStSt(null); }}>
               ✅ Story Complete!
             </button>
           )}

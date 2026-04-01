@@ -43,7 +43,7 @@ export default function KaficScreen({ goBack }) {
 
   return (
     <div>
-      {H('☕ U Kafiću', 'Croatia\'s most important social institution')}
+      {H('☕ U Kafiću', 'Croatia\'s most important social institution', goBack)}
 
       {/* Intro */}
       <div style={{

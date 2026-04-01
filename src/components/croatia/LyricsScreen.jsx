@@ -208,8 +208,8 @@ export default function LyricsScreen({ goBack, award }) {
     }));
     setChecked(true);
     setScore(correct);
-    if (correct === total) award(30, true);
-    else if (correct >= total * 0.7) award(15);
+    if (correct === total) { if (typeof award === 'function') award(30, true); }
+    else if (correct >= total * 0.7) { if (typeof award === 'function') award(15); }
   }
 
   function reset() {
@@ -291,7 +291,7 @@ export default function LyricsScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap" onClick={activeWord ? closeTooltip : undefined}>
-      {H('🎵 Song Lyrics', mode === 'fillin' ? 'Fill in the missing words' : 'Read Along')}
+      {H('🎵 Song Lyrics', mode === 'fillin' ? 'Fill in the missing words' : 'Read Along', goBack)}
 
       {/* Enhancement 3: Vocab saved counter */}
       {songVocabCount > 0 && (

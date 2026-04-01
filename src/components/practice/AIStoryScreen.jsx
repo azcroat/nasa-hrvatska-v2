@@ -87,7 +87,7 @@ export default function AIStoryScreen({ goBack, award }) {
   useEffect(() => { generateStory(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleDone() {
-    award(15);
+    if (typeof award === 'function') award(15);
     setDone(true);
     setTimeout(goBack, 400);
   }

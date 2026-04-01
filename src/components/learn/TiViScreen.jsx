@@ -96,7 +96,7 @@ export default function TiViScreen({ goBack }) {
 
   return (
     <div>
-      {H('🎭 Ti vs Vi', 'Formal & informal Croatian side by side')}
+      {H('🎭 Ti vs Vi', 'Formal & informal Croatian side by side', goBack)}
 
       {/* Explanation */}
       <div style={{

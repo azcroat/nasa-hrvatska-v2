@@ -124,14 +124,14 @@ export default function WordSprint({ sh, award, goBack }) {
       setBestStreak(b => Math.max(b, newStreak));
       const pts = newStreak >= 5 ? 3 : newStreak >= 3 ? 2 : 1;
       setScore(s => s + pts);
-      if (newStreak % 5 === 0) award(15);
+      if (newStreak % 5 === 0) { if (typeof award === 'function') award(15); }
     } else {
       setStreak(0);
     }
   }
 
   useEffect(() => {
-    if (phase === 'result' && score > 0) award(Math.min(score * 2, 50));
+    if (phase === 'result' && score > 0) { if (typeof award === 'function') award(Math.min(score * 2, 50)); }
   }, [phase]); // eslint-disable-line
 
   const toggleCat = (c) =>
@@ -144,7 +144,7 @@ export default function WordSprint({ sh, award, goBack }) {
   // ── MENU ──
   if (phase === 'menu') return (
     <div className="scr-wrap">
-      {H("⚡ Word Sprint", "Race the clock — 30 seconds, 15 words. Streaks earn bonus points!")}
+      {H("⚡ Word Sprint", "Race the clock — 30 seconds, 15 words. Streaks earn bonus points!", goBack)}
 
       <div className="g3" style={{marginBottom:20}}>
         {[{i:'⏱️',l:'30 sec',d:'Per round'},{i:'🔥',l:'Streaks',d:'+2/+3 pts'},{i:'🎯',l:'15 words',d:'Per game'}].map((s,i)=>(
@@ -184,7 +184,7 @@ export default function WordSprint({ sh, award, goBack }) {
     if (!q) return null;
     return (
       <div className="scr-wrap">
-        {H("⚡ Word Sprint", null)}
+        {H("⚡ Word Sprint", null, goBack)}
 
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
           <div style={{fontSize:'var(--text-sm)',fontWeight:700,color:'var(--subtext)'}}>{qi+1} / {questions.length}</div>

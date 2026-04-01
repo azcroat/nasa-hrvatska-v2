@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { V, speak } from '../../data.jsx';
+import { markQuest } from '../../lib/quests.js';
 
 function _shuffleOpts(opts) {
   const a = [...opts];
@@ -167,6 +168,7 @@ export default function EasterScreen({ onBack, award }) {
         if (!xpAwarded) {
           const correctCount = newAnswers.filter(Boolean).length;
           const xpEarned = correctCount * 10;
+          markQuest('grammar');
           if (xpEarned > 0 && award) award(xpEarned);
           try {
             localStorage.setItem(KVIZ_DONE_KEY, '1');

@@ -94,7 +94,7 @@ export default function VocabJournal({ goBack }) {
 
   return (
     <div className="scr-wrap">
-      {H("📓 My Vocabulary Journal", "Save words you discover in real life")}
+      {H("📓 My Vocabulary Journal", "Save words you discover in real life", goBack)}
       <div className="c" style={{ marginBottom: 16, padding: 16 }}>
         <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
           <input type="text" value={jIn} onChange={e => setJIn(e.target.value)} placeholder="Croatian word..."

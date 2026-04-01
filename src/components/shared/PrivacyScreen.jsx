@@ -4,7 +4,7 @@ import { H } from '../../data.jsx';
 export default function PrivacyScreen({ goBack }) {
   return (
     <div className="scr-wrap">
-      {H("Privacy & Terms", "Last updated: March 2026")}
+      {H("Privacy & Terms", "Last updated: March 2026", goBack)}
 
       <div className="c" style={{marginBottom:16}}>
         <h3 style={{fontSize:15,fontWeight:800,color:"var(--heading)",marginBottom:8}}>Privacy Policy</h3>

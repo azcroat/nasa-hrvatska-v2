@@ -18,7 +18,7 @@ function ReflexiveScreen({ goBack, award }) {
     if(answers[qi]!==undefined) return;
     const newAnswers = {...answers,[qi]:o};
     setAnswers(newAnswers);
-    if(o===a) award(5);
+    if(o===a) { if (typeof award === 'function') award(5); }
     if(Object.keys(newAnswers).length===REFLEXIVE.quiz.length&&!questFiredRef.current){
       questFiredRef.current=true; markQuest('grammar');
     }

@@ -8,7 +8,7 @@ export default function CrMap({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("🗺️ Interactive Map","Explore Croatia & get directions")}
+      {H("🗺️ Interactive Map","Explore Croatia & get directions", goBack)}
       <div style={{borderRadius:14,overflow:"hidden",marginBottom:16,border:"2px solid rgba(14,116,144,.12)"}}>
         <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d2800000!2d16.0!3d44.5!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2shr"
           width="100%" height="300" style={{border:"none",display:"block"}} loading="lazy" allowFullScreen={true} referrerPolicy="no-referrer-when-downgrade" />

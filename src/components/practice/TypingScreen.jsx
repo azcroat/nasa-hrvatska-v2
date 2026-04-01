@@ -28,7 +28,7 @@ export default function TypingScreen({ goBack, award }) {
           <div style={{fontSize:64}}>{tyS >= tyPool.length * 0.8 ? "🏆" : "📚"}</div>
           <h2>{tyS} / {tyPool.length}</h2>
           <div style={{fontSize:24,fontWeight:900,color:"#d97706",margin:"8px 0 16px"}}>+{tyS * 5} XP</div>
-          <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; award(tyS * 5); goBack(); }}>🏠 Done</button>
+          <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(tyS * 5); goBack(); }}>🏠 Done</button>
         </div>
       </div>
     );

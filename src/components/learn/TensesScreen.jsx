@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh, TENSES } from '../../data.jsx';
 import { rnd } from '../../lib/random.js';
+import { markQuest } from '../../lib/quests.js';
 
 export default function TensesScreen({ goBack, award }) {
   const finishFired = useRef(false);
@@ -39,7 +40,7 @@ export default function TensesScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
       
-      {H("🔄 Tenses & Gender","Past / Present / Future — How men & women speak differently")}
+      {H("🔄 Tenses & Gender","Past / Present / Future — How men & women speak differently", goBack)}
       <div style={{display:"flex",gap:6,marginBottom:16}}>
         {["learn","rules","quiz"].map(m => (
           <button
@@ -160,7 +161,7 @@ export default function TensesScreen({ goBack, award }) {
               <div style={{fontSize:64}}>{pct >= 80 ? "🏆" : pct >= 50 ? "👍" : "📚"}</div>
               <h2 style={{fontFamily:"'Playfair Display',serif",color:"#164e63"}}>Tense Quiz Complete!</h2>
               <div style={{fontSize:32,fontWeight:800,color:"#0e7490"}}>{tnS} / {total}</div>
-              <button className="b bp" style={{marginTop:16}} onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(tnS * 5); goBack(); }}>🏠 Finish</button>
+              <button className="b bp" style={{marginTop:16}} onClick={() => { if(finishFired.current)return; finishFired.current=true; markQuest('grammar'); if (typeof award === 'function') award(tnS * 5); goBack(); }}>🏠 Finish</button>
             </div>
           );
         }

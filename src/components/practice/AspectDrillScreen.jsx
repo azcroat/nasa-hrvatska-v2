@@ -411,7 +411,7 @@ export default function AspectDrillScreen({ goBack, award }) {
             <button className="b bp" onClick={() => {
               if (finishFired.current) return;
               finishFired.current = true;
-              award(score * 4 + 10);
+              if (typeof award === 'function') award(score * 4 + 10);
               goBack();
             }}>Finish</button>
           </div>

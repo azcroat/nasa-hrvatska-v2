@@ -418,7 +418,7 @@ export default function CroatianNewsScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H('📰 Croatian News', 'Real Croatian news, simplified to your level by AI')}
+      {H('📰 Croatian News', 'Real Croatian news, simplified to your level by AI', goBack)}
 
       {/* Level selector */}
       <div style={{

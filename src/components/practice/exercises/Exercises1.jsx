@@ -13,7 +13,7 @@ export function ReflexiveScreen({ goBack, award }) {
   function handleQuiz(qi, o, a) {
     if(answers[qi]!==undefined) return;
     setAnswers(prev=>({...prev,[qi]:o}));
-    if(o===a) award(5);
+    if(o===a) { if (typeof award === 'function') award(5); }
   }
 
   return (
@@ -178,7 +178,7 @@ export function FillStoryScreen({ goBack, award }) {
               <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                 {s.opts.map(function(o,oi){return (
                   <button key={oi} style={{padding:"6px 12px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,fontWeight:600,cursor:"pointer"}}
-                    onClick={function(/** @type {any} */ e){const btns=e.target.parentNode.children;for(let i=0;i<btns.length;i++){btns[i].style.background="white";btns[i].style.borderColor="#d6d3d1"}e.target.style.background=o===s.blank?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===s.blank?"#16a34a":"#dc2626";if(o===s.blank)award(3);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
+                    onClick={function(/** @type {any} */ e){const btns=e.target.parentNode.children;for(let i=0;i<btns.length;i++){btns[i].style.background="white";btns[i].style.borderColor="#d6d3d1"}e.target.style.background=o===s.blank?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===s.blank?"#16a34a":"#dc2626";if(o===s.blank){if(typeof award==='function')award(3);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
                     {o}
                   </button>
                 );})}
@@ -205,7 +205,7 @@ export function ConvMatchScreen({ goBack, award }) {
               <div style={{fontSize:13,fontWeight:700,color:"#164e63",marginBottom:6,cursor:"pointer"}} onClick={function(){speak(p.q)}}>{"🗣️ "}{p.q}</div>
               {sh([p.a,p.wrong]).map(function(o,oi){return (
                 <button key={oi} style={{display:"block",width:"100%",padding:"8px 12px",marginBottom:4,border:"2px solid #e7e5e4",borderRadius:10,background:"white",fontSize:12,textAlign:"left",cursor:"pointer"}}
-                  onClick={function(/** @type {any} */ e){e.target.style.background=o===p.a?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===p.a?"#16a34a":"#dc2626";if(o===p.a){award(5);speak(p.a);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>{o}</button>
+                  onClick={function(/** @type {any} */ e){e.target.style.background=o===p.a?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===p.a?"#16a34a":"#dc2626";if(o===p.a){if(typeof award==='function')award(5);speak(p.a);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>{o}</button>
               );})}
             </div>
           );})}
@@ -263,7 +263,7 @@ export function PronounsScreen({ goBack, award }) {
           <div style={{display:"flex",gap:6}}>
             {q.opts.map(function(o,oi){return (
               <button key={oi} style={{padding:"6px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,fontWeight:600,cursor:"pointer"}}
-                onClick={function(/** @type {any} */ e){e.target.style.background=o===q.a?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.a?"#16a34a":"#dc2626";if(o===q.a)award(3);e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
+                onClick={function(/** @type {any} */ e){e.target.style.background=o===q.a?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.a?"#16a34a":"#dc2626";if(o===q.a){if(typeof award==='function')award(3);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
                 {o}
               </button>
             );})}
@@ -291,7 +291,7 @@ export function GenderDrillScreen({ goBack, award }) {
           const label = revealed ? w.word+" ("+(w.g==="m"?"♂ M":w.g==="f"?"♀ F":"⚧ N")+")" : w.word;
           return (
             <button key={i} style={{padding:"8px 14px",border:"2px solid "+bc,borderRadius:10,background:bg,fontSize:13,fontWeight:600,cursor:revealed?"default":"pointer"}}
-              onClick={function(){if(!revealed){setRevealedGenders(function(prev){return{...prev,[i]:true}});award(2);}}}
+              onClick={function(){if(!revealed){setRevealedGenders(function(prev){return{...prev,[i]:true}});if(typeof award==='function')award(2);}}}
             >{label}</button>
           );
         })}
@@ -303,7 +303,7 @@ export function GenderDrillScreen({ goBack, award }) {
           {revealedPlurals[i]
             ? <span style={{padding:"6px 12px",border:"2px solid #16a34a",borderRadius:10,background:"#dcfce7",fontSize:12,fontWeight:600}}>{p.p}</span>
             : <button style={{padding:"6px 12px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,cursor:"pointer"}}
-                onClick={function(){setRevealedPlurals(function(prev){return{...prev,[i]:true}});speak(p.p);award(2);}}>Show</button>}
+                onClick={function(){setRevealedPlurals(function(prev){return{...prev,[i]:true}});speak(p.p);if(typeof award==='function')award(2);}}>Show</button>}
         </div>
       );})}
       <h3 className="sh" style={{marginTop:16}}>🎨 Pick the Right Adjective</h3>
@@ -313,7 +313,7 @@ export function GenderDrillScreen({ goBack, award }) {
           <div style={{display:"flex",gap:6}}>
             {a.opts.map(function(o,oi){return (
               <button key={oi} style={{padding:"6px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:12,fontWeight:600,cursor:"pointer"}}
-                onClick={function(/** @type {any} */ e){e.target.style.background=o===a.adj?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===a.adj?"#16a34a":"#dc2626";if(o===a.adj){award(3);speak(a.adj+" "+a.noun);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
+                onClick={function(/** @type {any} */ e){e.target.style.background=o===a.adj?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===a.adj?"#16a34a":"#dc2626";if(o===a.adj){if(typeof award==='function')award(3);speak(a.adj+" "+a.noun);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
                 {o}
               </button>
             );})}
@@ -335,7 +335,7 @@ export function SentenceBuilderScreen({ goBack, award }) {
           <div style={{fontSize:14,fontWeight:700,color:"#164e63",marginBottom:6}}>{"🇬🇧 "}{s.en}</div>
           {s.opts.map(function(o,oi){return (
             <button key={oi} style={{display:"block",width:"100%",padding:"8px 12px",marginBottom:4,border:"2px solid #e7e5e4",borderRadius:10,background:"white",fontSize:13,textAlign:"left",cursor:"pointer"}}
-              onClick={function(/** @type {any} */ e){e.target.style.background=o===s.hr?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===s.hr?"#16a34a":"#dc2626";if(o===s.hr){award(5);speak(s.hr);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
+              onClick={function(/** @type {any} */ e){e.target.style.background=o===s.hr?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===s.hr?"#16a34a":"#dc2626";if(o===s.hr){if(typeof award==='function')award(5);speak(s.hr);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
               {"🇭🇷 "}{o}
             </button>
           );})}

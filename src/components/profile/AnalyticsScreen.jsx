@@ -78,7 +78,7 @@ export default function AnalyticsScreen({ goBack, stats, name }) {
 
   return (
     <div className="scr-wrap">
-      {H('📊 My Analytics', `Keep pushing, ${name || 'learner'}!`)}
+      {H('📊 My Analytics', `Keep pushing, ${name || 'learner'}!`, goBack)}
 
       {/* Top stats row */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>

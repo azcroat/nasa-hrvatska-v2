@@ -11,7 +11,7 @@ function LogicQuizScreen({ goBack, award }) {
   function handleOptionClick(e, isRight, o, onQuestionDone) {
     e.target.style.background = isRight ? "#dcfce7" : "#fee2e2";
     e.target.style.borderColor = isRight ? "#16a34a" : "#dc2626";
-    if (isRight) { award(3); speak(o); }
+    if (isRight) { if (typeof award === 'function') award(3); speak(o); }
     if (e.target.closest && e.target.closest("div")) e.target.closest("div").style.pointerEvents = "none";
     onQuestionDone();
   }

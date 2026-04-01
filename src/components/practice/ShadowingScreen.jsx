@@ -348,7 +348,7 @@ export default function ShadowingScreen({ goBack, award }) {
           </div>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 24 }}>
             <button className="b bg" onClick={() => { setIdx(0); setSaid(false); setPlays(0); setDone(false); setReps(0); resetRecorder(); setShowWaveform(false); }}>Retry</button>
-            <button className="b bp" onClick={() => { if (finishFired.current) return; finishFired.current = true; award(items.length * 3 + 5); goBack(); }}>Finish</button>
+            <button className="b bp" onClick={() => { if (finishFired.current) return; finishFired.current = true; if (typeof award === 'function') award(items.length * 3 + 5); goBack(); }}>Finish</button>
           </div>
         </div>
       </div>

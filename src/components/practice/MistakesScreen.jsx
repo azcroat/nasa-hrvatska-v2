@@ -159,7 +159,7 @@ export default function MistakesScreen({ goBack, award }) {
     const progress = ((reviewIdx) / reviewDeck.length) * 100;
     return (
       <div className="scr-wrap">
-        {H('📚 Review Mistakes', `Card ${reviewIdx + 1} of ${reviewDeck.length}`)}
+        {H('📚 Review Mistakes', `Card ${reviewIdx + 1} of ${reviewDeck.length}`, goBack)}
         {/* Progress bar */}
         <div style={{ height: 6, background: '#e2e8f0', borderRadius: 3, marginBottom: 20, overflow: 'hidden' }}>
           <div style={{ width: `${progress}%`, height: '100%', background: 'linear-gradient(90deg,#3b82f6,#6366f1)', borderRadius: 3, transition: 'width .3s' }} />
@@ -210,7 +210,7 @@ export default function MistakesScreen({ goBack, award }) {
   // ── LIST MODE ────────────────────────────────────────────────────────────────
   return (
     <div className="scr-wrap">
-      {H('📚 Mistake Review', 'Words you got wrong — let\'s master them!')}
+      {H('📚 Mistake Review', 'Words you got wrong — let\'s master them!', goBack)}
 
       {mistakes.length === 0 ? (
         <div className="c" style={{ textAlign: 'center', padding: '40px 20px' }}>

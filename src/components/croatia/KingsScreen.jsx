@@ -8,7 +8,7 @@ export default function KingsScreen({ goBack, award, setSt }) {
   return (
     <div className="scr-wrap">
       
-      {H("👑 "+KINGS.title, KINGS.subtitle)}
+      {H("👑 "+KINGS.title, KINGS.subtitle, goBack)}
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:20}}>
         {["timeline","dukes","kings","cities","vocab"].map(function(t){return (
           <button key={t} className={"b "+(kgTab===t?"bw":"bg")} style={{fontSize:12,padding:"6px 12px"}} onClick={function(){sKgTab(t)}}>
@@ -93,7 +93,7 @@ export default function KingsScreen({ goBack, award, setSt }) {
           );})}
         </div>
         <button className="b bp" style={{width:"100%",marginTop:20}}
-          onClick={function(){if(finishFired.current)return;finishFired.current=true;setSt(function(s){return Object.assign({},s,{hi:(s.hi||0)+1})});award(25);goBack()}}>
+          onClick={function(){if(finishFired.current)return;finishFired.current=true;setSt(function(s){return Object.assign({},s,{hi:(s.hi||0)+1})});if(typeof award==='function')award(25);goBack()}}>
           ✅ Mark as Read (+25 XP)
         </button>
       </React.Fragment>}

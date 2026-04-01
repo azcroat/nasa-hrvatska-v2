@@ -117,7 +117,7 @@ export default function PronunciationContrast({ goBack, award }) {
         <div style={{textAlign:"center"}}>
           <div style={{fontSize:64}}>{score >= total * 0.8 ? "🏆" : "📚"}</div>
           <h2>{score} / {total}</h2>
-          <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; award(score * 5); goBack(); }} style={{width:"100%",marginTop:16}}>🏠 Done</button>
+          <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(score * 5); goBack(); }} style={{width:"100%",marginTop:16}}>🏠 Done</button>
         </div>
       </div>
     );

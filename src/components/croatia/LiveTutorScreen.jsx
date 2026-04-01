@@ -290,7 +290,7 @@ export default function LiveTutorScreen({ goBack, award }) {
       // Award XP
       const newTurn = turnCount + 1;
       setTurnCount(newTurn);
-      if (award) {
+      if (typeof award === 'function') {
         award(5);
         if (newTurn === 10) { award(20); markQuest('speak'); }
       }

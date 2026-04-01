@@ -7,7 +7,7 @@ export function EventsCalendar({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("📅 Croatian Events & Holidays","Traditional celebrations throughout the year")}
+      {H("📅 Croatian Events & Holidays","Traditional celebrations throughout the year", goBack)}
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:20}}>
         {[1,2,3,4,5,6,7,8,9,10,11,12].map(function(m){return (
           <button key={m} className={"b "+(evM===m?"bp":"bg")} style={{fontSize:12,padding:"6px 10px"}} onClick={function(){sEvM(m)}}>
@@ -34,7 +34,7 @@ export function Top100Screen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("💯 Top 100 Words","Essential words for real-world situations")}
+      {H("💯 Top 100 Words","Essential words for real-world situations", goBack)}
       {!t1k?<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
         {Object.keys(TOP100).map(function(k){return (
           <button key={k} className="tc" style={{textAlign:"center"}} onClick={function(){sT1k(k)}}>

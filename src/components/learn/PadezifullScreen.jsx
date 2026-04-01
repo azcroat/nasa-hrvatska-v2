@@ -26,7 +26,7 @@ export default function PadezifullScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
       
-      {H("📚 " + PADEZI_FULL.title, PADEZI_FULL.subtitle)}
+      {H("📚 " + PADEZI_FULL.title, PADEZI_FULL.subtitle, goBack)}
       <div style={{display:"flex",gap:6,marginBottom:16}}>
         {["sing","plur","quiz"].map(t => (
           <button
@@ -127,7 +127,7 @@ export default function PadezifullScreen({ goBack, award }) {
             <div style={{textAlign:"center"}}>
               <div style={{fontSize:64}}>{pct >= 80 ? "🏆" : "📚"}</div>
               <h2>{pfS} / {total}</h2>
-              <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; award(pfS * 5); goBack(); }}>🏠 Finish</button>
+              <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(pfS * 5); goBack(); }}>🏠 Finish</button>
             </div>
           );
         }

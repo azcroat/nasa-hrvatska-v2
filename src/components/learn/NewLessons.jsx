@@ -63,7 +63,7 @@ export function ConditionalScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H('🔀 ' + CONDITIONAL.title, CONDITIONAL.intro)}
+      {H('🔀 ' + CONDITIONAL.title, CONDITIONAL.intro, goBack)}
 
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
         {tabs.map(t => (
@@ -164,7 +164,7 @@ export function FormalRegisterScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H('🤝 ' + FORMAL_REGISTER.title, FORMAL_REGISTER.intro)}
+      {H('🤝 ' + FORMAL_REGISTER.title, FORMAL_REGISTER.intro, goBack)}
 
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
         {tabs.map(t => (
@@ -288,7 +288,7 @@ export function ImpersonalScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H('🔁 ' + IMPERSONAL.title, IMPERSONAL.intro)}
+      {H('🔁 ' + IMPERSONAL.title, IMPERSONAL.intro, goBack)}
 
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
         {tabs.map(t => (
@@ -350,7 +350,7 @@ export function TechVocScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H('💻 ' + TECH_VOC.title, TECH_VOC.intro)}
+      {H('💻 ' + TECH_VOC.title, TECH_VOC.intro, goBack)}
 
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
         <button className={'b ' + (tab === 'vocab' ? 'bp' : 'bg')} style={{ fontSize: 13 }} onClick={() => setTab('vocab')}>Vocabulary</button>
@@ -409,7 +409,7 @@ export function BureaucraticScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H('🏛️ ' + BUREAUCRATIC.title, BUREAUCRATIC.intro)}
+      {H('🏛️ ' + BUREAUCRATIC.title, BUREAUCRATIC.intro, goBack)}
 
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
         <button className={'b ' + (tab === 'vocab' ? 'bp' : 'bg')} style={{ fontSize: 13 }} onClick={() => setTab('vocab')}>Vocabulary</button>

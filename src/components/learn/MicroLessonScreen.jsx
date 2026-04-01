@@ -147,7 +147,7 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
   if (phase === 'loading') {
     return (
       <div className="scr-wrap">
-        {H('🎯 Personalized Lesson', 'Analyzing your weak spots...')}
+        {H('🎯 Personalized Lesson', 'Analyzing your weak spots...', goBack)}
 
         <div style={{
           display: 'flex', flexDirection: 'column', alignItems: 'center',
@@ -199,7 +199,7 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
   if (phase === 'error') {
     return (
       <div className="scr-wrap">
-        {H('🎯 Personalized Lesson')}
+        {H('🎯 Personalized Lesson', '', goBack)}
         <div style={{
           background: 'var(--card)', border: '1.5px solid var(--card-b)',
           borderRadius: 16, padding: '28px 20px', textAlign: 'center',

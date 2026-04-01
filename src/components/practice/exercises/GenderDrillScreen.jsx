@@ -41,7 +41,7 @@ function GenderDrillScreen({ goBack, award, setSt }) {
   function handleFinish() {
     if (completionFired.current) return;
     completionFired.current = true;
-    award(15);
+    if (typeof award === 'function') award(15);
     if (setSt) setSt(s => ({...s, gc: s.gc + 1}));
     markQuest('grammar');
     goBack();
@@ -84,7 +84,7 @@ function GenderDrillScreen({ goBack, award, setSt }) {
                   const correct = g === words[selectedGenderIdx].g;
                   setRevealedGenders(prev => ({...prev, [selectedGenderIdx]: {guess:g, correct}}));
                   setSelectedGenderIdx(null);
-                  if (correct) award(3);
+                  if (correct) { if (typeof award === 'function') award(3); }
                 }}>
                 {gLabel[g]}
               </button>
@@ -148,7 +148,7 @@ function GenderDrillScreen({ goBack, award, setSt }) {
                       if (answered) return;
                       const correct = opt === p.p;
                       setPluralAnswered(prev => ({...prev, [i]: {guess:opt, correct}}));
-                      if (correct) { award(4); speak(p.p); }
+                      if (correct) { if (typeof award === 'function') award(4); speak(p.p); }
                     }}>
                     {answered && opt === p.p ? "✓ " : answered && opt === answered.guess && !answered.correct ? "✗ " : ""}{opt}
                   </button>
@@ -189,7 +189,7 @@ function GenderDrillScreen({ goBack, award, setSt }) {
                       if (answered) return;
                       const correct = o === a.adj;
                       setAdjAnswered(prev => ({...prev, [i]: {guess:o, correct}}));
-                      if (correct) { award(3); speak(a.adj+" "+a.noun); }
+                      if (correct) { if (typeof award === 'function') award(3); speak(a.adj+" "+a.noun); }
                     }}>
                     {answered && o === a.adj ? "✓ " : answered && o === answered.guess && !answered.correct ? "✗ " : ""}{o}
                   </button>

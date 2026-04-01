@@ -203,7 +203,7 @@ export default function HeritageStoryScreen({ goBack, award }) {
     readParts.current.add(index);
     if (readParts.current.size >= 3 && !awardFired.current) {
       awardFired.current = true;
-      award(20);
+      if (typeof award === 'function') award(20);
     }
   }, [award]);
 
@@ -298,7 +298,7 @@ export default function HeritageStoryScreen({ goBack, award }) {
           .era-btn:hover { transform: scale(1.03); }
         `}</style>
 
-        {H('🧬 Your Croatian Heritage', 'Discover the story of your roots — AI-crafted from history, culture, and your family\'s region')}
+        {H('🧬 Your Croatian Heritage', 'Discover the story of your roots — AI-crafted from history, culture, and your family\'s region', goBack)}
 
         {/* Region selector */}
         <div style={{ marginBottom: 16 }}>

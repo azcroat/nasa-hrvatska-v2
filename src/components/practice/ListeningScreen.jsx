@@ -27,7 +27,7 @@ export default function ListeningScreen({ questions, goBack, award }) {
         <button className="b bp" style={{width:"100%"}} onClick={()=>{
           if(finishFired.current)return;
           finishFired.current=true;
-          award(score*4+10);
+          if (typeof award === 'function') award(score*4+10);
           goBack();
         }}>Finish!</button>
       </div>

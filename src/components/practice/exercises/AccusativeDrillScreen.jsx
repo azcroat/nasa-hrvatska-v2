@@ -15,7 +15,7 @@ function AccusativeDrillScreen({ goBack, award }) {
     e.target.style.background = "#dcfce7";
     e.target.style.borderColor = "#16a34a";
     speak(f.q.replace("_____", f.aku));
-    award(2);
+    if (typeof award === 'function') award(2);
     if (e.target.closest && e.target.closest("div")) e.target.closest("div").style.pointerEvents = "none";
     revealedRef.current++;
     if (revealedRef.current >= total && !done) {

@@ -86,7 +86,7 @@ export default function DictationScreen({ goBack, award }) {
             {pct>=0.8?"Excellent ear! Your Croatian listening is sharp.":pct>=0.6?"Good progress! Keep listening to build fluency.":"Try again — listening improves faster than you think!"}
           </div>
           <div style={{fontSize:22,fontWeight:900,color:"#d97706",marginBottom:24}}>+{xp} XP</div>
-          <button className="b bp" style={{width:"100%"}} onClick={() => { if(finishFired.current)return; finishFired.current=true; markQuest('speak'); award(xp); goBack(); }}>✓ Done</button>
+          <button className="b bp" style={{width:"100%"}} onClick={() => { if(finishFired.current)return; finishFired.current=true; markQuest('speak'); if (typeof award === 'function') award(xp); goBack(); }}>✓ Done</button>
         </div>
       </div>
     );

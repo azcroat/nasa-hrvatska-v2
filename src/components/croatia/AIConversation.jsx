@@ -380,7 +380,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
           logError(m.type || 'conversation_grammar', 'grammar', { wrong: m.original, correct: m.correction, source: 'conversation' });
         });
       }
-      if (ev && typeof award === "function" && !evalXpFired.current) {
+      if (ev && !evalXpFired.current && typeof award === "function") {
         evalXpFired.current = true;
         const xp = ev.score >= 80 ? 20 : ev.score >= 60 ? 15 : 10;
         award(xp + Math.min(userMsgs.length, 5) * 2, false);
