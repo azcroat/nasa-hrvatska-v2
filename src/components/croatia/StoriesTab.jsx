@@ -270,6 +270,157 @@ Tvoja Baka 💙`,
       { hr: 'bezgraničan', en: 'boundless / limitless' },
     ],
   },
+
+  // ── DJED IVAN ─────────────────────────────────────────────────────────────
+  {
+    id: 'djed1',
+    from: 'Djed Ivan',
+    date: 'Nedjelja, 20. travnja',
+    subject: 'Naša povijest i tko smo mi...',
+    preview: 'Baka mi je rekla da učiš hrvatski. Nisam čovjek koji puno piše, ali ovo moram...',
+    icon: '📜',
+    iconBg: 'linear-gradient(135deg,#1e3a5f,#2d5986)',
+    iconBorder: '#93c5fd',
+    letterBg: '#f0f9ff',
+    letterBorder: '#bae6fd',
+    letterColor: '#0c2d48',
+    full: `Drago unuče,
+
+Baka mi je rekla da učiš hrvatski. Nisam čovjek koji puno piše, ali ovo moram.
+
+Naša obitelj dolazi iz Labina — malog grada na vrhu brda u Istri. Pradjed Ante je radio u ugljenokopima, kao i svi muškarci tada. Bio je težak život, ali častan. Moja majka mi je pričala da su pjevali dok su se spuštali u jamu. To je vrsta hrabrosti koju razumiješ tek kada postaneš star.
+
+1991. je počeo rat. Bio sam 43 godine. Moji sinovi — tvoj otac i stric Josip — bili su mladi. Svaki dan sam molio da rat završi prije nego što moraju ići. Završio je, Bogu hvala.
+
+Hrvatska je slobodna zemlja jer su mladi dali sve što su imali. Nikad to ne zaboravi.
+
+Kada dođeš, sjednut ćemo na terasu. Imam staru knjigu pisanu glagoljicom — naučit ću te prepisati svoje ime. To je naše pismo, nije ga nitko drugi imao. Naše.
+
+S ponosom,
+Tvoj Djed Ivan 🇭🇷`,
+    words: [
+      { hr: 'ugljenokop', en: 'coal mine' },
+      { hr: 'častan', en: 'honourable / dignified' },
+      { hr: 'hrabrost', en: 'courage / bravery' },
+      { hr: 'glagoljica', en: 'Glagolitic script (Croatia\'s medieval alphabet)' },
+      { hr: 'slobodan', en: 'free / independent' },
+      { hr: 'ponos', en: 'pride' },
+    ],
+  },
+
+  // ── LUKA (teenage cousin) ─────────────────────────────────────────────────
+  {
+    id: 'luka1',
+    from: 'Luka (bratić)',
+    date: 'Srijeda, 12. ožujka',
+    subject: 'Što ima, roćko!',
+    preview: 'Baka mi rekla da učiš hrvatski. Respect! Svi smo se iznenadili...',
+    icon: '📱',
+    iconBg: 'linear-gradient(135deg,#065f46,#047857)',
+    iconBorder: '#6ee7b7',
+    letterBg: '#f0fdf4',
+    letterBorder: '#bbf7d0',
+    letterColor: '#064e3b',
+    full: `Ej roćko,
+
+Baka mi rekla da učiš hrv. Respect! Ozbiljno, svi smo se iznenadili na dobro.
+
+Evo što ima ovdje — Dinamo je prošle subote razbio Hajduk 3:1 na Maksimiru. Bio sam tamo s tatom i Markom. Atmosfera je bila luda, cijelo gledalište je pjevalo od prve minute. Marka su uhvatile emocije i plakao je malo — al to ostaje između nas, ok?
+
+U školi je okej, uglavnom. Imam tešku godinu, puno ispita u lipnju. Ali vikendom igramo košarku u dvorani i to je cura svega. Imam šut koji nitko ne može blokirati, što reći.
+
+Jesi li gledao Vatrene ikad? Sljedeći put kad igraju, prati utakmicu pa mi piši na hrvatskom što misliš. To bi bio dobar trening za tebe i zabava za mene.
+
+Kad dođeš u Vinkovce, javi se unaprijed. Pokazat ću ti svaki kutak — i klupicu gdje smo kao klinci krali jabuke od susjeda. Nema šanse da te pustimo spavati dulje od sedam ujutro.
+
+Luka 👊`,
+    words: [
+      { hr: 'roćko', en: 'buddy / bro (casual Slavonian address)' },
+      { hr: 'razbiti', en: 'to crush / to thrash (in sport)' },
+      { hr: 'cura svega', en: 'the best part / the highlight (idiom)' },
+      { hr: 'Vatreni', en: 'The Blazers — nickname of Croatia\'s national football team' },
+      { hr: 'kutak', en: 'corner / nook / spot' },
+      { hr: 'unaprijed', en: 'in advance / ahead of time' },
+    ],
+  },
+
+  // ── BAKA RECIPE LETTER ────────────────────────────────────────────────────
+  {
+    id: 'recipe1',
+    from: 'Baka Marija — Recept',
+    date: 'Četvrtak, 28. studenog',
+    subject: 'Recept za sarmu — čuvaj ovo!',
+    preview: 'Slušaj pažljivo — ovo je recept koji je moja baka meni dala, a njena baka njoj...',
+    icon: '🍲',
+    iconBg: 'linear-gradient(135deg,#7c2d12,#9a3412)',
+    iconBorder: '#fdba74',
+    letterBg: '#fff7ed',
+    letterBorder: '#fed7aa',
+    letterColor: '#431407',
+    full: `Drago unuče,
+
+Slušaj pažljivo — ovo je recept za sarmu koji je moja baka meni dala, a njena baka njoj. Čuvaj ga.
+
+Uzmi kilogram mljevenog mesa — pola govedine, pola svinjetine. Dodaj šalicu riže, jedno jaje, sol, papar i puno crvene paprike u prahu. Pomiješaj sve rukama — ne žlicom, rukama. Osjeti meso.
+
+Uzmi kiseli kupus i pažljivo odvoji listove — ne cijepi ih. Stavi punu žlicu nadjeva na sredinu lista i zamotaj čvrsto. Čvrsto — inače se raspadne u loncu.
+
+Složi sarme u redove na dno lonca. Između redova stavi rezance slanine i malo dimljene kobasice. Prelij vodom tek toliko da pokrije. Kuhaj na laganoj vatri tri sata. Ne diži poklopac svako pet minuta — sarma treba mir da postane ono što jest.
+
+Kada po kući poteče miris koji te vraća kući — gotova je.
+
+Nauči ovo. Tko zna sarmu napraviti, uvijek je dobrodošao za Božić.
+
+Tvoja Baka 💙`,
+    words: [
+      { hr: 'mljeveno meso', en: 'minced meat' },
+      { hr: 'kiseli kupus', en: 'sauerkraut / pickled cabbage' },
+      { hr: 'nadjev', en: 'stuffing / filling' },
+      { hr: 'zamotati', en: 'to wrap / to roll up' },
+      { hr: 'slanina', en: 'bacon / smoked pork belly' },
+      { hr: 'lagana vatra', en: 'low heat / gentle flame' },
+    ],
+  },
+
+  // ── FAMILY NAMEDAY LETTER ─────────────────────────────────────────────────
+  {
+    id: 'imendan1',
+    from: 'Cijela obitelj',
+    date: 'Subota, 4. listopada',
+    subject: 'Sretan imendan od svih nas!',
+    preview: 'Sva obitelj se skupila za večerom i pišemo zajedno. Djed drži pero — Baka ga natjerala...',
+    icon: '🎂',
+    iconBg: 'linear-gradient(135deg,#4c1d95,#6d28d9)',
+    iconBorder: '#c4b5fd',
+    letterBg: '#faf5ff',
+    letterBorder: '#ddd6fe',
+    letterColor: '#2e1065',
+    full: `Drago naše,
+
+Cijela obitelj se skupila za večerom i pišemo zajedno. Djed Ivan drži pero — Baka ga natjerala jer kaže da mu rukopis "još nije sasvim nečitljiv."
+
+Sretan imendan! Na tvoj poseban dan želi ti sva obitelj zdravlje, sreću i što više vremena u Hrvatskoj.
+
+Baka kaže: "Nauči dobro jezik i dođi što prije."
+Djed kaže: "Dođi i pijmo zajedno. Imam rakiju čekam tri godine."
+Teta Vesna kaže: "Donesi Milka čokoladu — ovdje je skuplja."
+Luka kaže: "Prati Dinamo i nauči navijati."
+Maja kaže: "Hvala što učiš — jedva čekam da razgovaramo."
+
+A mi svi zajedno kažemo: volimo te, nedostaje nam, i svaki put kada čujemo tvoje ime, srce nam se nasmije.
+
+Obitelj te čeka kući.
+
+Tvoja familia 💙🇭🇷`,
+    words: [
+      { hr: 'imendan', en: 'name day — the feast day of your patron saint' },
+      { hr: 'pero', en: 'pen / feather (old word for pen)' },
+      { hr: 'nečitljiv', en: 'illegible / unreadable' },
+      { hr: 'navijati', en: 'to cheer / to support a team' },
+      { hr: 'nedostajati', en: 'to be missed / "we miss you"' },
+      { hr: 'nasmijati se', en: 'to smile / to break into a smile' },
+    ],
+  },
 ];
 
 function WordTile({ w, award }) {
@@ -349,8 +500,8 @@ export default function StoriesTab() {
                 onClick={() => { const opening = openLetter !== letter.id; setOpenLetter(opening ? letter.id : null); if (opening) { incrementCulture('bakaCnt'); if (award) award(5); } }}
                 style={{ width:'100%', padding:'14px 16px', background:'none', border:'none', cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif" }}>
                 <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                  <div style={{ width:40, height:40, borderRadius:10, background:'linear-gradient(135deg,#fef3c7,#fde68a)', border:'1px solid #fde68a',
-                    display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0 }}>💌</div>
+                  <div style={{ width:40, height:40, borderRadius:10, background: letter.iconBg || 'linear-gradient(135deg,#fef3c7,#fde68a)', border:`1px solid ${letter.iconBorder || '#fde68a'}`,
+                    display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0 }}>{letter.icon || '💌'}</div>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)' }}>{letter.from}</div>
                     <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:1 }}>{letter.subject} · {letter.date}</div>
@@ -361,9 +512,9 @@ export default function StoriesTab() {
               {openLetter === letter.id && (
                 <div style={{ borderTop:'1px solid var(--card-b)', padding:'16px' }}>
                   <div style={{
-                    background:'#fffbeb', border:'1px solid #fde68a',
+                    background: letter.letterBg || '#fffbeb', border:`1px solid ${letter.letterBorder || '#fde68a'}`,
                     borderRadius:10, padding:'14px 16px', marginBottom:14,
-                    fontFamily:"Georgia, serif", fontSize:'var(--text-sm)', lineHeight:1.8, color:'#451a03',
+                    fontFamily:"Georgia, serif", fontSize:'var(--text-sm)', lineHeight:1.8, color: letter.letterColor || '#451a03',
                     whiteSpace:'pre-line',
                   }}>
                     {letter.full}
