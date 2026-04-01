@@ -28,6 +28,8 @@ const BLACK_HOLE_SCREENS = {
 export function useScreenLauncher({
   setScr, navigate, curEx, sCurEx, currentScreen,
   setStats, award, allCats,
+  // Tab routing (for smart post-completion navigation)
+  tab, setTab,
   // Lesson state
   sLt, sLi, sLx, sLs, sLp, sLa, sLsl, sQi,
   // Grammar state
@@ -41,6 +43,10 @@ export function useScreenLauncher({
   setAnimLesson,
 }) {
   const lpDwellRef = useRef(null);
+  // Captures where the user was when an exercise launched so goBack() can
+  // return them to the right place instead of relying on browser history.
+  // { tab: 'practice'|'learn'|'home'|..., screen: 'greetings'|'dashboard'|... }
+  const returnContextRef = useRef(null);
 
   // Cancel dwell timer when user navigates away from tracked screen
   useEffect(() => {
@@ -58,6 +64,7 @@ export function useScreenLauncher({
       const { V } = await _getData();
       if (!V[r.topic]) return;
       const items = _sh(V[r.topic]);
+      returnContextRef.current = { tab: 'learn', screen: 'dashboard' };
       sLt(r.topic); sLi(items); sLx(0); sLs(0); sLp('learn'); sLa(false); sLsl(-1); sQi([]);
       sCurEx('vocab_' + r.topic);
       sessionStorage.setItem('nh_ex_start', Date.now().toString());
@@ -68,16 +75,20 @@ export function useScreenLauncher({
   const launchAnimLesson = useCallback(async (lessonId) => {
     const { LESSONS } = await import('../data/lessons.js');
     const l = LESSONS.find(x => x.id === lessonId);
-    if (l) { setAnimLesson(l); sCurEx('animlesson'); setScr('animlesson'); }
-  }, [setScr, sCurEx, setAnimLesson]);
+    if (l) {
+      returnContextRef.current = { tab: tab || 'learn', screen: currentScreen || 'dashboard' };
+      setAnimLesson(l); sCurEx('animlesson'); setScr('animlesson');
+    }
+  }, [setScr, sCurEx, setAnimLesson, tab, currentScreen]);
 
   const launchMcGame = useCallback((questions) => {
+    returnContextRef.current = { tab: tab || 'practice', screen: currentScreen || 'dashboard' };
     setMcInitQ(questions);
     sCurEx('mcgame');
     sessionStorage.setItem('nh_ex_start', Date.now().toString());
     trackStart('quiz');
     setScr('mcgame');
-  }, [setScr, sCurEx, setMcInitQ]);
+  }, [setScr, sCurEx, setMcInitQ, tab, currentScreen]);
 
   const mcGameComplete = useCallback((questions, score, mistakes) => {
     setMcResultQ(questions);
@@ -87,42 +98,50 @@ export function useScreenLauncher({
   }, [setScr, setMcResultQ, setMcResultScore, setMcMistakes]);
 
   const launchFlashcards = useCallback((pool) => {
+    returnContextRef.current = { tab: tab || 'practice', screen: currentScreen || 'dashboard' };
     setFcInitPool(pool);
     sCurEx('flashcards');
     sessionStorage.setItem('nh_ex_start', Date.now().toString());
     trackStart('flashcards');
     setScr('flashcards');
-  }, [setScr, sCurEx, setFcInitPool]);
+  }, [setScr, sCurEx, setFcInitPool, tab, currentScreen]);
 
   const launchListening = useCallback((questions) => {
+    returnContextRef.current = { tab: tab || 'practice', screen: currentScreen || 'dashboard' };
     setLsInitQ(questions);
     sCurEx('listening');
     sessionStorage.setItem('nh_ex_start', Date.now().toString());
     trackStart('listening');
     setScr('listening');
-  }, [setScr, sCurEx, setLsInitQ]);
+  }, [setScr, sCurEx, setLsInitQ, tab, currentScreen]);
 
   const launchMatch = useCallback((pool) => {
+    returnContextRef.current = { tab: tab || 'practice', screen: currentScreen || 'dashboard' };
     setMatchInitPool(pool);
     sCurEx('match');
     sessionStorage.setItem('nh_ex_start', Date.now().toString());
     trackStart('matching');
     setScr('match');
-  }, [setScr, sCurEx, setMatchInitPool]);
+  }, [setScr, sCurEx, setMatchInitPool, tab, currentScreen]);
 
   const launchSpeaking = useCallback((items) => {
+    returnContextRef.current = { tab: tab || 'practice', screen: currentScreen || 'dashboard' };
     sSi(items); sSx(0); sSw(items[0]); sSr(null); sSsc(0);
     sCurEx('speaking');
     sessionStorage.setItem('nh_ex_start', Date.now().toString());
     trackStart('speaking');
     setScr('speaking');
-  }, [setScr, sCurEx, sSi, sSx, sSw, sSr, sSsc]);
+  }, [setScr, sCurEx, sSi, sSx, sSw, sSr, sSsc, tab, currentScreen]);
 
   const launchPathItem = useCallback(async (item) => {
     if (!item) return;
     if (item.go === 'lesson' && item.topic) {
       const { V } = await _getData();
       const items = _sh(V[item.topic]);
+      // Return to the Learn tab. If launched from a category screen (not dashboard),
+      // preserve that screen so the back button lands on the category, not the tab root.
+      const returnScreen = (currentScreen && currentScreen !== 'dashboard') ? currentScreen : 'dashboard';
+      returnContextRef.current = { tab: 'learn', screen: returnScreen };
       sLt(item.topic); sLi(items); sLx(0); sLs(0); sLp('learn'); sLa(false); sLsl(-1);
       sessionStorage.setItem('nh_ex_start', Date.now().toString());
       trackStart('flashcards');
@@ -186,8 +205,26 @@ export function useScreenLauncher({
     }
     sessionStorage.removeItem('nh_ex_start');
     sCurEx('');
-    if (window.history.length <= 1) { setScr('dashboard'); } else { navigate(-1); }
-  }, [curEx, sCurEx, setScr, navigate]);
+
+    // Smart return: route back to where the exercise was launched from rather than
+    // relying on browser history, which sends users to Home when launched from the
+    // dashboard's recommended section or any cross-tab shortcut.
+    const ctx = returnContextRef.current;
+    returnContextRef.current = null;
+    if (ctx) {
+      if (ctx.screen && ctx.screen !== 'dashboard') {
+        // Return to the specific screen they came from (e.g. a Learn category)
+        setScr(ctx.screen);
+      } else {
+        // Return to the tab root
+        setTab(ctx.tab || 'learn');
+      }
+    } else if (window.history.length <= 1) {
+      setScr('dashboard');
+    } else {
+      navigate(-1);
+    }
+  }, [curEx, sCurEx, setScr, setTab, navigate]);
 
   return {
     resumeLesson,
