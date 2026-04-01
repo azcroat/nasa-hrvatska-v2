@@ -10,6 +10,15 @@ import { speak } from '../../data.jsx';
 import { markQuest } from '../../lib/quests.js';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 import CroatianKnight from '../shared/CroatianKnight';
+import { PITCH_ACCENT_LESSONS } from '../../data/pitchAccentContent.js';
+
+// Map accent id → rich lesson data
+const LESSON_BY_ACCENT = {
+  kratkosilazni: PITCH_ACCENT_LESSONS.find(l => l.id === 'short_falling'),
+  kratkouzlazni: PITCH_ACCENT_LESSONS.find(l => l.id === 'short_rising'),
+  dugosilazni:   PITCH_ACCENT_LESSONS.find(l => l.id === 'long_falling'),
+  dugouzlazni:   PITCH_ACCENT_LESSONS.find(l => l.id === 'long_rising'),
+};
 
 // ── Accent system data ────────────────────────────────────────────────────────
 const ACCENTS = [
@@ -351,17 +360,33 @@ export default function PitchAccentMastery({ goBack, award }) {
         </div>
 
         {/* THEORY */}
-        {lessonPhase === 'theory' && (
-          <div>
-            <div style={{ background: 'var(--card)', border: '1px solid var(--card-b)', borderRadius: 16, padding: '16px', marginBottom: 16, fontSize: 14, color: 'var(--body)', lineHeight: 1.75 }}>
-              {accent.desc}
+        {lessonPhase === 'theory' && (() => {
+          const lesson = LESSON_BY_ACCENT[accent.id];
+          return (
+            <div>
+              <div style={{ background: 'var(--card)', border: '1px solid var(--card-b)', borderRadius: 16, padding: '16px', marginBottom: 12, fontSize: 14, color: 'var(--body)', lineHeight: 1.8 }}>
+                {(lesson?.theory || accent.desc).split('\n\n').map((para, i) => (
+                  <p key={i} style={{ margin: i === 0 ? 0 : '12px 0 0' }}>{para}</p>
+                ))}
+              </div>
+              {lesson?.keyPoints?.length > 0 && (
+                <div style={{ background: `${accent.bg}`, border: `1px solid ${accent.border}`, borderRadius: 14, padding: '14px 16px', marginBottom: 14 }}>
+                  <div style={{ fontSize: 11, fontWeight: 900, color: accent.color, textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 10 }}>Key Points</div>
+                  {lesson.keyPoints.map((pt, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 10, marginBottom: i < lesson.keyPoints.length - 1 ? 8 : 0, alignItems: 'flex-start' }}>
+                      <div style={{ fontSize: 14, color: accent.color, flexShrink: 0, marginTop: 1 }}>•</div>
+                      <div style={{ fontSize: 13, color: 'var(--body)', lineHeight: 1.55 }}>{pt}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <button onClick={() => setLessonPhase('examples')}
+                style={{ width: '100%', padding: '13px', background: accent.color, color: '#fff', border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }}>
+                Hear Examples →
+              </button>
             </div>
-            <button onClick={() => setLessonPhase('examples')}
-              style={{ width: '100%', padding: '13px', background: accent.color, color: '#fff', border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }}>
-              Hear Examples →
-            </button>
-          </div>
-        )}
+          );
+        })()}
 
         {/* EXAMPLES */}
         {lessonPhase === 'examples' && (
