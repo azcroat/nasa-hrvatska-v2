@@ -1,12 +1,14 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { H, speak, sh, shMemo } from '../../../data.jsx';
 import { REFLEXIVE } from '../../../data.jsx';
 import { rnd } from '../../../lib/random.js';
+import { markQuest } from '../../../lib/quests.js';
 
 function ReflexiveScreen({ goBack, award }) {
   const [tab, setTab] = useState("rules");
   const [qIdx] = useState(()=>Math.floor(rnd()*REFLEXIVE.quiz.length));
   const [answers, setAnswers] = useState({});
+  const questFiredRef = useRef(false);
   const tabs = [{id:"rules",label:"SE Rules"},{id:"tenses",label:"All Tenses"},{id:"verbs",label:"Verbs"},{id:"quiz",label:"Quiz"}];
   const TENSE_COLORS = {present:"#0e7490",past:"#7c3aed",future:"#16a34a",negative:"#dc2626"};
 
@@ -14,8 +16,12 @@ function ReflexiveScreen({ goBack, award }) {
 
   function handleQuiz(qi, o, a) {
     if(answers[qi]!==undefined) return;
-    setAnswers(prev=>({...prev,[qi]:o}));
+    const newAnswers = {...answers,[qi]:o};
+    setAnswers(newAnswers);
     if(o===a) award(5);
+    if(Object.keys(newAnswers).length===REFLEXIVE.quiz.length&&!questFiredRef.current){
+      questFiredRef.current=true; markQuest('grammar');
+    }
   }
 
   return (
@@ -160,6 +166,13 @@ function ReflexiveScreen({ goBack, award }) {
               )}
             </div>
           );})}
+          {Object.keys(answers).length===REFLEXIVE.quiz.length && (
+            <div className="c" style={{marginTop:16,padding:"20px 16px",textAlign:"center"}}>
+              <div style={{fontSize:40,marginBottom:8}}>{Object.values(answers).filter((v,i)=>v===REFLEXIVE.quiz[i].a).length/REFLEXIVE.quiz.length>=0.8?"🏆":Object.values(answers).filter((v,i)=>v===REFLEXIVE.quiz[i].a).length/REFLEXIVE.quiz.length>=0.6?"⭐":"💪"}</div>
+              <div style={{fontSize:18,fontWeight:800,color:"#164e63",marginBottom:4}}>{Object.values(answers).filter((v,i)=>v===REFLEXIVE.quiz[i].a).length}/{REFLEXIVE.quiz.length} correct</div>
+              <button className="b bp" style={{marginTop:12}} onClick={goBack}>✓ Done</button>
+            </div>
+          )}
         </div>
       )}
     </div>

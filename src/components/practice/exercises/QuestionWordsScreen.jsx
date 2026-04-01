@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { H, speak, sh, shMemo } from '../../../data.jsx';
 import { QWORDS } from '../../../data.jsx';
+import { markQuest } from '../../../lib/quests.js';
 
 function QuestionWordsScreen({ goBack, award }) {
   const questions = useMemo(() => shMemo("qw", QWORDS), []);
@@ -9,10 +10,12 @@ function QuestionWordsScreen({ goBack, award }) {
   const [answers, setAnswers] = useState(() => new Array(total).fill(null));
   const [selected, setSelected] = useState(() => new Array(total).fill(null));
 
+  const questFiredRef = useRef(false);
   const correctCount = answers.filter(a => a === 'correct').length;
   const answeredCount = answers.filter(a => a !== null).length;
   const allDone = answeredCount === total;
   const xpEarned = correctCount * 3;
+  if (allDone && !questFiredRef.current) { questFiredRef.current = true; markQuest('grammar'); }
 
   function handleAnswer(qi, o, q) {
     if (answers[qi] !== null) return;

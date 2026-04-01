@@ -1,11 +1,31 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { H, speak, sh, shMemo } from '../../../data.jsx';
 import { COLORAGREE } from '../../../data.jsx';
+import { markQuest } from '../../../lib/quests.js';
 
 function ColorAgreementScreen({ goBack, award }) {
+  const singQuestions = shMemo("cs",COLORAGREE.singQuiz);
+  const plurQuestions = shMemo("cp",COLORAGREE.plurQuiz);
+  const total = singQuestions.length + plurQuestions.length;
+  const answeredRef = useRef(0);
+  const correctRef = useRef(0);
+  const [done, setDone] = useState(false);
+
+  function handleAnswer(e, isCorrect, spoken) {
+    e.target.style.background = isCorrect ? "#dcfce7" : "#fee2e2";
+    e.target.style.borderColor = isCorrect ? "#16a34a" : "#dc2626";
+    if (isCorrect) { award(3); speak(spoken); }
+    if (e.target.closest && e.target.closest("div")) e.target.closest("div").style.pointerEvents = "none";
+    if (isCorrect) correctRef.current++;
+    answeredRef.current++;
+    if (answeredRef.current >= total && !done) {
+      markQuest('grammar');
+      setDone(true);
+    }
+  }
+
   return (
     <div className="scr-wrap">
-
       {H("🎨 Color + Gender Agreement","Colors change endings by noun gender — singular AND plural",goBack)}
       <div style={{overflowX:"auto",marginBottom:20}}>
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
@@ -21,13 +41,13 @@ function ColorAgreementScreen({ goBack, award }) {
         </table>
       </div>
       <h3 className="sh">🎯 Singular: Pick the right color form</h3>
-      {shMemo("cs",COLORAGREE.singQuiz).map(function(q,qi){return (
+      {singQuestions.map(function(q,qi){return (
         <div key={qi} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
           <div style={{flex:1,fontSize:13}}><span style={{fontWeight:700}}>{q.noun}</span>{" ("}{q.en}{") je _____"}</div>
           <div style={{display:"flex",gap:4}}>
             {sh(q.opts).map(function(o,oi){return (
               <button key={oi} style={{padding:"8px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:11,cursor:"pointer"}}
-                onClick={function(/** @type {any} */ e){e.target.style.background=o===q.color?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.color?"#16a34a":"#dc2626";if(o===q.color){award(3);speak(q.noun+" je "+q.color);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
+                onClick={function(e){handleAnswer(e, o===q.color, q.noun+" je "+q.color);}}>
                 {o}
               </button>
             );})}
@@ -35,19 +55,26 @@ function ColorAgreementScreen({ goBack, award }) {
         </div>
       );})}
       <h3 className="sh" style={{marginTop:16}}>🎯 Plural: Pick the right color form</h3>
-      {shMemo("cp",COLORAGREE.plurQuiz).map(function(q,qi){return (
+      {plurQuestions.map(function(q,qi){return (
         <div key={qi} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
           <div style={{flex:1,fontSize:13}}><span style={{fontWeight:700}}>{q.noun}</span>{" ("}{q.en}{") su _____"}</div>
           <div style={{display:"flex",gap:4}}>
             {sh(q.opts).map(function(o,oi){return (
               <button key={oi} style={{padding:"8px 14px",border:"2px solid #d6d3d1",borderRadius:10,background:"white",fontSize:11,cursor:"pointer"}}
-                onClick={function(/** @type {any} */ e){e.target.style.background=o===q.color?"#dcfce7":"#fee2e2";e.target.style.borderColor=o===q.color?"#16a34a":"#dc2626";if(o===q.color){award(3);speak(q.noun+" su "+q.color);}e.target.closest&&e.target.closest("div")&&(e.target.closest("div").style.pointerEvents="none")}}>
+                onClick={function(e){handleAnswer(e, o===q.color, q.noun+" su "+q.color);}}>
                 {o}
               </button>
             );})}
           </div>
         </div>
       );})}
+      {done && (
+        <div className="c" style={{marginTop:16,padding:"20px 16px",textAlign:"center"}}>
+          <div style={{fontSize:40,marginBottom:8}}>{correctRef.current/total>=0.8?"🏆":correctRef.current/total>=0.6?"⭐":"💪"}</div>
+          <div style={{fontSize:18,fontWeight:800,color:"#164e63",marginBottom:4}}>{correctRef.current}/{total} correct</div>
+          <button className="b bp" style={{marginTop:12}} onClick={goBack}>✓ Done</button>
+        </div>
+      )}
     </div>
   );
 }

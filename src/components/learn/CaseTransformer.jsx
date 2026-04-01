@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { NOUN_LIBRARY, CASE_INFO, declineNoun } from './CaseTransformerData.js';
+import { markQuest } from '../../lib/quests.js';
 import CaseTransformerPicker from './CaseTransformerPicker.jsx';
 import CaseTransformerDeclension from './CaseTransformerDeclension.jsx';
 import CaseTransformerQuiz from './CaseTransformerQuiz.jsx';
@@ -94,6 +95,7 @@ export default function CaseTransformer({ goBack, award }) {
     } else {
       setQuizDone(true);
       if (!xpAwarded && award) {
+        markQuest('grammar');
         award(10);
         setXpAwarded(true);
       }

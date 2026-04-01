@@ -6,7 +6,7 @@ function RestaurantScreen({ goBack }) {
   return (
     <div className="scr-wrap">
 
-      {H("🍽️ At the Restaurant","Practice ordering food in Croatian")}
+      {H("🍽️ At the Restaurant","Practice ordering food in Croatian",goBack)}
       <div className="c" style={{marginBottom:16,padding:"12px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 Tap any line to hear it spoken. Practice the waiter-customer dialogue until it feels natural.</div>
       {RESTCONV.map(function(r,ri){return (
         <div key={ri} style={{marginBottom:12}}>
