@@ -80,6 +80,16 @@ function pruneStaleLocalStorage() {
       else if (/^nh_pruned_\d{4}-\d{2}-\d{2}$/.test(k) && !k.endsWith(today)) del.push(k);
     }
     del.forEach(k => { try { localStorage.removeItem(k); } catch {} });
+    // Prune SRS cards with due timestamps > 2 years in the past (abandoned words)
+    try {
+      const sr = JSON.parse(localStorage.getItem('nh_sr') || '{}');
+      const twoYearsAgo = Date.now() - 730 * 86400000;
+      let pruned = false;
+      for (const word in sr) {
+        if (sr[word].due && sr[word].due < twoYearsAgo) { delete sr[word]; pruned = true; }
+      }
+      if (pruned) localStorage.setItem('nh_sr', JSON.stringify(sr));
+    } catch {}
     localStorage.setItem('nh_pruned_' + today, '1');
   } catch {}
 }

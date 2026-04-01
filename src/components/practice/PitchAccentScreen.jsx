@@ -23,7 +23,7 @@ export default function PitchAccentScreen({ goBack, award }) {
     const pct = Math.round((score / items.length) * 100);
     return (
       <div className="scr-wrap">
-        {H("🎵 Pitch Accent")}
+        {H("🎵 Pitch Accent", "Master Croatian pitch stress", goBack)}
         <div style={{textAlign:"center",paddingTop:32}}>
           <div style={{fontSize:64}}>{pct===100?"🌟":pct>=70?"🎉":"💪"}</div>
           <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:28,color:"#164e63",marginTop:8}}>
@@ -55,7 +55,7 @@ export default function PitchAccentScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H("🎵 Pitch Accent Practice")}
+      {H("🎵 Pitch Accent Practice", "Master Croatian pitch stress", goBack)}
       <Bar v={idx+1} mx={items.length} color="#7c3aed" h={6} />
       <div className="c" style={{textAlign:"center",marginTop:16,padding:"24px 20px"}}>
         <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:12,marginBottom:8}}>

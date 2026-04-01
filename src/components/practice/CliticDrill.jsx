@@ -60,7 +60,7 @@ export default function CliticDrill({ goBack, award }) {
   if (done) {
     return (
       <div className="scr-wrap">
-        {H("🔗 Clitic Drill", "Master the hardest rule in Croatian")}
+        {H("🔗 Clitic Drill", "Master the hardest rule in Croatian", goBack)}
         <div className="c" style={{ marginTop: 16, textAlign: "center" }}>
           <div style={{ fontSize: 48, marginBottom: 8 }}>🎉</div>
           <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>{score} / {total}</div>

@@ -18,7 +18,7 @@ export default function ListeningPath({ goBack }) {
 
   return (
     <div className="scr-wrap">
-      {H("🎧 Listening Path", "A1 → C1 scaffolded listening")}
+      {H("🎧 Listening Path", "A1 → C1 scaffolded listening", goBack)}
 
       <div style={{display:"flex",gap:6,marginBottom:16}}>
         {LEVELS.map(function(lv) {

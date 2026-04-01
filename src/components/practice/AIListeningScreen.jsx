@@ -40,7 +40,10 @@ export default function AIListeningScreen({ goBack, award }) {
 
   const level = localStorage.getItem('nh_level') || 'B1';
 
-  useEffect(() => () => { mountedRef.current = false; }, []);
+  useEffect(() => () => {
+    mountedRef.current = false;
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+  }, []);
   useEffect(() => () => { if (audioUrl) URL.revokeObjectURL(audioUrl); }, [audioUrl]);
   useEffect(() => () => { clearTimeout(readyTimer.current); }, []);
 

@@ -29,7 +29,7 @@ export default function ConjugationDrill({ goBack, award, setSt }) {
   return (
     <div className="scr-wrap">
       
-      {H("🔄 Verb Conjugation Drill","Present, past & future tense")}
+      {H("🔄 Verb Conjugation Drill","Present, past & future tense", goBack)}
 
       {cjMode === "menu" && (
         <React.Fragment>

@@ -59,7 +59,7 @@ export default function StoryScreens({ goBack, award, sCurEx }) {
     return (
       <div className="scr-wrap">
 
-        {H("📖 Mini Stories","Interactive stories where YOU choose what happens")}
+        {H("📖 Mini Stories","Interactive stories where YOU choose what happens", goBack)}
         {STORIES.map((s, i) => (
           <div
             key={i}

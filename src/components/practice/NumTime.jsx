@@ -20,7 +20,7 @@ export default function NumTime({ goBack, award }) {
     return (
       <div className="scr-wrap">
         
-        {H("🔢 Numbers & Time","Practice numbers, time, and currency in Croatian")}
+        {H("🔢 Numbers & Time","Practice numbers, time, and currency in Croatian", goBack)}
         <div style={{textAlign:"center"}}>
           <div style={{fontSize:64}}>{ntS >= total * 0.7 ? "🏆" : "👍"}</div>
           <h2 style={{fontFamily:"'Playfair Display',serif",color:"#164e63"}}>Numbers Complete!</h2>
@@ -40,7 +40,7 @@ export default function NumTime({ goBack, award }) {
   return (
     <div className="scr-wrap">
       
-      {H("🔢 Numbers & Time","Practice numbers, time, and currency in Croatian")}
+      {H("🔢 Numbers & Time","Practice numbers, time, and currency in Croatian", goBack)}
       <React.Fragment>
         <Bar v={ntI + 1} mx={total} h={6} />
         <div className="c" style={{marginTop:16}}>

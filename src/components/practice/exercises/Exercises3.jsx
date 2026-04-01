@@ -6,7 +6,7 @@ export function ColorAgreementScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
       
-      {H("🎨 Color + Gender Agreement","Colors change endings by noun gender — singular AND plural")}
+      {H("🎨 Color + Gender Agreement","Colors change endings by noun gender — singular AND plural", goBack)}
       <div style={{overflowX:"auto",marginBottom:20}}>
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
           <thead><tr>{["Color","M","F","N","M pl","F pl","N pl"].map(function(h,i){return (<th key={i} style={{padding:"6px 4px",background:"#0e7490",color:"white"}}>{h}</th>);})}</tr></thead>
@@ -56,7 +56,7 @@ export function PossessivesScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
       
-      {H("👤 Possessive Pronouns","moj/moja/moje — changes by noun gender")}
+      {H("👤 Possessive Pronouns","moj/moja/moje — changes by noun gender", goBack)}
       <div style={{overflowX:"auto",marginBottom:20}}>
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
           <thead><tr>{["Person","M","F","N","English"].map(function(h,i){return (<th key={i} style={{padding:"6px",background:"#0e7490",color:"white"}}>{h}</th>);})}</tr></thead>
@@ -110,7 +110,7 @@ export function QuestionWordsScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H("❓ Question Words","Tko? Što? Gdje? Kad? Koliko? Kako? Zašto?")}
+      {H("❓ Question Words","Tko? Što? Gdje? Kad? Koliko? Kako? Zašto?", goBack)}
       <div className="c" style={{marginBottom:16,padding:"12px",background:"rgba(14,116,144,.06)",fontSize:12}}>
         💡 Croatian has specific question words for each type of information. Gender matters for 'what kind of' — Kakav (m), Kakva (f), Kakvo (n).
       </div>
@@ -185,9 +185,9 @@ export function NegationScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("❌ Positive ↔ Negative","Radim → Ne radim • Imam → Nemam")}
+      {H("❌ Positive ↔ Negative","Radim → Ne radim • Imam → Nemam", goBack)}
       <div className="c" style={{marginBottom:12,padding:"10px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 Most verbs: add NE before the verb. Exception: imam → nemam, znam → ne znam.</div>
-      {shMemo("ng",NEGATION).map(function(n,ni){return (
+      {shMemo("ng2",NEGATION).map(function(n,ni){return (
         <div key={ni} className="c" style={{marginBottom:8,padding:"10px 14px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div style={{flex:1}}>
             <button style={{background:"none",border:"none",cursor:"pointer",textAlign:"left",padding:0,fontFamily:"'Outfit',sans-serif",fontSize:13,fontWeight:700,color:"#16a34a",marginBottom:2,display:"block"}} onClick={function(){speak(n.pos)}}>{"✅ "}{n.pos}</button>
@@ -204,7 +204,7 @@ export function SibilarizationScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
       
-      {H("🔄 Sibilarizacija","k→c, g→z, h→s before -i")}
+      {H("🔄 Sibilarizacija","k→c, g→z, h→s before -i", goBack)}
       <div className="c" style={{marginBottom:16,padding:"12px",background:"rgba(245,158,11,.06)",fontSize:13}}>{SIBIL.intro}</div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:20}}>
         {SIBIL.examples.map(function(ex,i){return (
@@ -236,7 +236,7 @@ export function RestaurantScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("🍽️ At the Restaurant","Practice ordering food in Croatian")}
+      {H("🍽️ At the Restaurant","Practice ordering food in Croatian", goBack)}
       <div className="c" style={{marginBottom:16,padding:"12px",background:"rgba(14,116,144,.06)",fontSize:12}}>💡 Tap any line to hear it spoken. Practice the waiter-customer dialogue until it feels natural.</div>
       {RESTCONV.map(function(r,ri){return (
         <div key={ri} style={{marginBottom:12}}>
@@ -258,7 +258,7 @@ export function ProfessionGenderScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("👨‍⚖️👩‍⚖️ Profession Pairs","Every job has a masculine AND feminine form")}
+      {H("👨‍⚖️👩‍⚖️ Profession Pairs","Every job has a masculine AND feminine form", goBack)}
       {shMemo("pg",PROFGENDER).map(function(p,i){return (
         <div key={i} className="c" style={{marginBottom:6,padding:"10px 14px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <button style={{flex:1,textAlign:"center",background:"none",border:"none",cursor:"pointer",fontFamily:"'Outfit',sans-serif",padding:0}} onClick={function(){speak(p.m)}}><div style={{fontSize:14,fontWeight:700,color:"#1e40af"}}>{"👨 "}{p.m}</div></button>
@@ -274,7 +274,7 @@ export function ComparativesScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
       
-      {H("📈 Lijep, Ljepši, Najljepši","Adjective → Comparative → Superlative")}
+      {H("📈 Lijep, Ljepši, Najljepši","Adjective → Comparative → Superlative", goBack)}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:0,marginBottom:20}}>
         <div style={{padding:"6px",background:"#0e7490",color:"white",fontWeight:700,fontSize:12,textAlign:"center"}}>Base</div>
         <div style={{padding:"6px",background:"#b45309",color:"white",fontWeight:700,fontSize:12,textAlign:"center"}}>Comparative</div>
@@ -305,7 +305,7 @@ export function FutureTenseScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
       
-      {H("🚀 Future Tense","ću, ćeš, će, ćemo, ćete, će + infinitive")}
+      {H("🚀 Future Tense","ću, ćeš, će, ćemo, ćete, će + infinitive", goBack)}
       <div className="c" style={{marginBottom:16,padding:"12px",background:"rgba(14,116,144,.06)",fontSize:13}}>{FUTURE.intro}</div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:20}}>
         {["ja ću","ti ćeš","on/ona će","mi ćemo","vi ćete","oni/one će"].map(function(f,i){return (

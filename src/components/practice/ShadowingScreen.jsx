@@ -331,7 +331,7 @@ export default function ShadowingScreen({ goBack, award }) {
   if (done) {
     return (
       <div className="scr-wrap">
-        {H("🗣️ Shadowing")}
+        {H("🗣️ Shadowing", "Listen and repeat", goBack)}
         <div style={{ textAlign: 'center', paddingTop: 32 }}>
           <div style={{ fontSize: 64 }}>🎤</div>
           <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 28, color: '#164e63', marginTop: 8 }}>Session Complete!</h2>
@@ -364,7 +364,7 @@ export default function ShadowingScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H("🗣️ Shadowing Practice")}
+      {H("🗣️ Shadowing Practice", "Listen and repeat", goBack)}
       <Bar v={idx + 1} mx={items.length} color="#0891b2" h={6} />
       <div className="c" style={{ textAlign: 'center', marginTop: 16, padding: '24px 20px' }}>
         <div style={{ background: '#f0f9ff', border: '1.5px solid #bae6fd', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: 12, color: '#0369a1', fontWeight: 600 }}>

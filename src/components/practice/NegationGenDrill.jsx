@@ -58,7 +58,7 @@ export default function NegationGenDrill({ goBack, award }) {
   if (done) {
     return (
       <div className="scr-wrap">
-        {H("❌ Genitive of Negation", "Negate correctly — accusative shifts to genitive")}
+        {H("❌ Genitive of Negation", "Negate correctly — accusative shifts to genitive", goBack)}
         <div className="c" style={{ marginTop: 16, textAlign: "center" }}>
           <div style={{ fontSize: 48, marginBottom: 8 }}>🎉</div>
           <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>{score} / {total}</div>
@@ -73,7 +73,7 @@ export default function NegationGenDrill({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H("❌ Genitive of Negation", "Negate correctly — accusative shifts to genitive")}
+      {H("❌ Genitive of Negation", "Negate correctly — accusative shifts to genitive", goBack)}
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
         <span style={{ fontSize: 13, color: "#64748b", whiteSpace: "nowrap" }}>{idx + 1} / {total}</span>
         <Bar v={idx + 1} mx={total} />
