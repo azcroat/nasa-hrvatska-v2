@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { LEARN_PATH, getStreak, getDailyChallenge, speak, preloadAudio, DAILY_QUESTS, getActiveCampaign, getCityOfDay, incrementCulture, getDueReviews, getSR, getProverbOfDay, getHistFact } from '../../data.jsx';
 import { getWordOfDay } from '../../lib/wordOfDay.js';
+import { PHRASE_OF_DAY_POOL as PHRASES_365 } from '../../data/daily-content.js';
 import { weekKey, localDateStr } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
@@ -203,10 +204,11 @@ export default function HomeTab({
 
   const activePalette = LEVEL_PALETTE[(pathData.activeLv.level - 1) % LEVEL_PALETTE.length];
 
-  // Daily rotating phrases — 4 new phrases per day, cycles through the full pool
+  // Daily rotating phrases — uses 365-entry curated pool so every day of the year is unique
   const phraseOfDay = useMemo(() => {
     const dayIdx = Math.floor(Date.now() / 86400000);
-    return PHRASE_OF_DAY_POOL[dayIdx % PHRASE_OF_DAY_POOL.length];
+    const pool = PHRASES_365?.length ? PHRASES_365 : PHRASE_OF_DAY_POOL;
+    return pool[dayIdx % pool.length];
   }, []);
 
   const todayPhrases = useMemo(() => {
@@ -634,8 +636,62 @@ export default function HomeTab({
             );
           })()}
 
+          {/* ── IMMERSE YOURSELF — 5 flagship feature cards ── */}
+          <div style={{ marginBottom: 20, marginTop: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <div style={{ width: 3, height: 20, background: '#7c3aed', borderRadius: 2 }} />
+              <span style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--heading)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Immerse Yourself</span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+              {/* AI Conversation */}
+              <button onClick={() => setScr('aiconvo')} style={{ border: 'none', cursor: 'pointer', padding: 0, borderRadius: 16, overflow: 'hidden', background: 'linear-gradient(135deg,#1e1b4b,#3730a3)', boxShadow: '0 4px 16px rgba(55,48,163,.3)' }}>
+                <div style={{ padding: '14px 12px' }}>
+                  <div style={{ fontSize: 28, marginBottom: 6 }}>🤖</div>
+                  <div style={{ fontSize: 13, fontWeight: 900, color: '#fff', marginBottom: 2, textAlign: 'left' }}>AI Conversation</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,.7)', textAlign: 'left', lineHeight: 1.4 }}>47 real-life scenarios</div>
+                </div>
+              </button>
+              {/* Graded Stories */}
+              <button onClick={() => setScr('graded_input')} style={{ border: 'none', cursor: 'pointer', padding: 0, borderRadius: 16, overflow: 'hidden', background: 'linear-gradient(135deg,#065f46,#047857)', boxShadow: '0 4px 16px rgba(6,95,70,.3)' }}>
+                <div style={{ padding: '14px 12px' }}>
+                  <div style={{ fontSize: 28, marginBottom: 6 }}>📚</div>
+                  <div style={{ fontSize: 13, fontWeight: 900, color: '#fff', marginBottom: 2, textAlign: 'left' }}>Graded Stories</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,.7)', textAlign: 'left', lineHeight: 1.4 }}>A1 → B2 reading</div>
+                </div>
+              </button>
+              {/* Pitch Accent */}
+              <button onClick={() => setScr('pitch_accent')} style={{ border: 'none', cursor: 'pointer', padding: 0, borderRadius: 16, overflow: 'hidden', background: 'linear-gradient(135deg,#4c1d95,#7c3aed)', boxShadow: '0 4px 16px rgba(124,58,237,.3)' }}>
+                <div style={{ padding: '14px 12px' }}>
+                  <div style={{ fontSize: 28, marginBottom: 6 }}>🎵</div>
+                  <div style={{ fontSize: 13, fontWeight: 900, color: '#fff', marginBottom: 2, textAlign: 'left' }}>Pitch Accent</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,.7)', textAlign: 'left', lineHeight: 1.4 }}>4 accents, 4 lessons</div>
+                </div>
+              </button>
+              {/* Songs & Lyrics */}
+              <button onClick={() => setScr('lyrics')} style={{ border: 'none', cursor: 'pointer', padding: 0, borderRadius: 16, overflow: 'hidden', background: 'linear-gradient(135deg,#831843,#9d174d)', boxShadow: '0 4px 16px rgba(157,23,77,.3)' }}>
+                <div style={{ padding: '14px 12px' }}>
+                  <div style={{ fontSize: 28, marginBottom: 6 }}>🎶</div>
+                  <div style={{ fontSize: 13, fontWeight: 900, color: '#fff', marginBottom: 2, textAlign: 'left' }}>Songs & Lyrics</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,.7)', textAlign: 'left', lineHeight: 1.4 }}>Klapa · Folk · Pop</div>
+                </div>
+              </button>
+            </div>
+            {/* Heritage Track — full width */}
+            <button onClick={() => setScr('heritage_path')} style={{ width: '100%', border: 'none', cursor: 'pointer', padding: 0, borderRadius: 16, overflow: 'hidden', background: 'linear-gradient(135deg,#7c2d12,#9a3412)', boxShadow: '0 4px 16px rgba(124,45,18,.3)', marginTop: 10 }}>
+              <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ fontSize: 32, flexShrink: 0 }}>🧬</div>
+                <div style={{ flex: 1, textAlign: 'left' }}>
+                  <div style={{ fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,.65)', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 2 }}>Heritage Speakers</div>
+                  <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', marginBottom: 2 }}>The Croatian You Already Know</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,.7)', lineHeight: 1.4 }}>Activate passive knowledge · Dialects · Family language</div>
+                </div>
+                <div style={{ fontSize: 18, color: 'rgba(255,255,255,.6)' }}>→</div>
+              </div>
+            </button>
+          </div>
+
           {/* ── TODAY'S FOCUS HEADER ── */}
-          <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12, marginTop:24}}>
+          <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12}}>
             <div style={{width:3, height:20, background:'var(--info)', borderRadius:2}}/>
             <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Today&apos;s Focus</span>
           </div>

@@ -584,4 +584,775 @@ export const GRADED_STORIES = [
       },
     ],
   },
+
+  // ═══════════════════════════════════════════════════════
+  // A1 — continued (gs_a1_4 – gs_a1_6)
+  // ═══════════════════════════════════════════════════════
+
+  {
+    id: 'gs_a1_4',
+    level: 'A1',
+    levelColor: '#166534',
+    levelBg: '#dcfce7',
+    icon: '☕',
+    title: 'U kafiću',
+    titleEn: 'At the Café',
+    duration: 3,
+    focus: 'Ordering drinks • Polite phrases • Numbers',
+    intro: 'Ivan orders coffee with a friend in a Zagreb café. Practice polite café conversation and drink vocabulary.',
+    paragraphs: [
+      {
+        hr: 'Ivan i Maja sjede u malom kafiću u centru Zagreba. Kafić se zove "Stari grad". Vani je sunčano i toplo.',
+        en: 'Ivan and Maja are sitting in a small café in the centre of Zagreb. The café is called "Stari grad". Outside it is sunny and warm.',
+      },
+      {
+        hr: 'Konobarica dolazi do stola. "Izvolite, što želite?" pita ona.\n"Ja bih jednu kavu, molim," kaže Ivan.\n"A ja bih jednu limunadu i jedan kroasan," kaže Maja.\n"Sve je to," kaže konobarica. "Odmah dolazi."',
+        en: 'The waitress comes to the table. "What would you like?" she asks.\n"I\'d like a coffee, please," says Ivan.\n"And I\'d like a lemonade and a croissant," says Maja.\n"Is that everything?" says the waitress. "Coming right away."',
+      },
+      {
+        hr: 'Kava i limonada su ukusni. Ivan i Maja razgovaraju o vikend planovima. Plaćaju zajedno — kava košta jedan euro i pedeset centi, limonada dva eura, a kroasan jedan euro i dvadeset centi.',
+        en: 'The coffee and lemonade are delicious. Ivan and Maja talk about weekend plans. They pay together — the coffee costs one euro fifty, the lemonade two euros, and the croissant one euro twenty.',
+      },
+    ],
+    vocabulary: [
+      { hr: 'kafić', en: 'café', ex: 'Sjedimo u kafiću.' },
+      { hr: 'konobarica', en: 'waitress', ex: 'Konobarica donosi kavu.' },
+      { hr: 'kava', en: 'coffee', ex: 'Ja bih jednu kavu.' },
+      { hr: 'limonada', en: 'lemonade', ex: 'Limonada je hladna.' },
+      { hr: 'kroasan', en: 'croissant', ex: 'Kroasan je ukusan.' },
+      { hr: 'plaćati', en: 'to pay', ex: 'Plaćamo zajedno.' },
+      { hr: 'ukusan', en: 'delicious / tasty', ex: 'Kava je ukusna.' },
+      { hr: 'odmah', en: 'immediately / right away', ex: 'Dolazim odmah.' },
+      { hr: 'vani', en: 'outside', ex: 'Vani je lijepo.' },
+    ],
+    quiz: [
+      {
+        q: 'Gdje se nalazi kafić?',
+        qEn: 'Where is the café located?',
+        opts: ['U Splitu', 'Na plaži', 'U centru Zagreba', 'Blizu tržnice'],
+        correct: 2,
+      },
+      {
+        q: 'Što naručuje Maja?',
+        qEn: 'What does Maja order?',
+        opts: ['Kavu i kroasan', 'Limunadu i kroasan', 'Samo kavu', 'Čaj i kolač'],
+        correct: 1,
+      },
+      {
+        q: 'Koliko košta kava?',
+        qEn: 'How much does the coffee cost?',
+        opts: ['Dva eura', 'Jedan euro i dvadeset centi', 'Jedan euro i pedeset centi', 'Tri eura'],
+        correct: 2,
+      },
+    ],
+  },
+
+  {
+    id: 'gs_a1_5',
+    level: 'A1',
+    levelColor: '#166534',
+    levelBg: '#dcfce7',
+    icon: '🚌',
+    title: 'Na autobusnoj stanici',
+    titleEn: 'At the Bus Station',
+    duration: 3,
+    focus: 'Transport vocabulary • Asking for information • Time',
+    intro: 'Ante needs to get to Rijeka. Practice buying bus tickets and asking for travel information.',
+    paragraphs: [
+      {
+        hr: 'Ante stoji na autobusnoj stanici u Zagrebu. On treba ići u Rijeku. Putuje autobusom jer nema auto.',
+        en: 'Ante is standing at the bus station in Zagreb. He needs to go to Rijeka. He travels by bus because he does not have a car.',
+      },
+      {
+        hr: '"Oprostite, kada ide sljedeći autobus za Rijeku?" pita Ante na blagajni.\n"Sljedeći autobus ide u dvanaest i trideset," kaže blagajnik.\n"Jedna karta, molim vas. Koliko košta?"\n"Petnaest eura. Imate li studentsku iskaznicu?"\n"Da, imam." Ante plati trinaest eura.',
+        en: '"Excuse me, when does the next bus to Rijeka go?" asks Ante at the ticket office.\n"The next bus goes at twelve thirty," says the clerk.\n"One ticket, please. How much does it cost?"\n"Fifteen euros. Do you have a student card?"\n"Yes, I do." Ante pays thirteen euros.',
+      },
+      {
+        hr: 'Ante sjedne na klupu i čeka. Autobus dolazi na vrijeme. Vožnja traje oko dva sata. Ante gleda kroz prozor i sluša glazbu na slušalicama.',
+        en: 'Ante sits on a bench and waits. The bus arrives on time. The journey takes about two hours. Ante looks out of the window and listens to music on headphones.',
+      },
+    ],
+    vocabulary: [
+      { hr: 'autobusna stanica', en: 'bus station', ex: 'Čekam na autobusnoj stanici.' },
+      { hr: 'karta', en: 'ticket', ex: 'Kupujem kartu za Rijeku.' },
+      { hr: 'blagajnik', en: 'ticket clerk (male)', ex: 'Blagajnik prodaje karte.' },
+      { hr: 'studentska iskaznica', en: 'student card', ex: 'Imam studentsku iskaznicu.' },
+      { hr: 'vožnja', en: 'journey / ride', ex: 'Vožnja traje dva sata.' },
+      { hr: 'čekati', en: 'to wait', ex: 'Čekam autobus.' },
+      { hr: 'na vrijeme', en: 'on time', ex: 'Autobus dolazi na vrijeme.' },
+      { hr: 'prozor', en: 'window', ex: 'Gledam kroz prozor.' },
+      { hr: 'slušalice', en: 'headphones', ex: 'Slušam glazbu na slušalicama.' },
+    ],
+    quiz: [
+      {
+        q: 'Zašto Ante putuje autobusom?',
+        qEn: 'Why does Ante travel by bus?',
+        opts: ['Jer voli autobuse', 'Jer nema auto', 'Jer je jeftinije', 'Jer je stanica blizu'],
+        correct: 1,
+      },
+      {
+        q: 'U koliko sati ide sljedeći autobus?',
+        qEn: 'What time does the next bus go?',
+        opts: ['U jedanaest i trideset', 'U dvanaest i trideset', 'U trinaest', 'U deset'],
+        correct: 1,
+      },
+      {
+        q: 'Koliko Ante plati za kartu?',
+        qEn: 'How much does Ante pay for the ticket?',
+        opts: ['Petnaest eura', 'Deset eura', 'Trinaest eura', 'Dvanaest eura'],
+        correct: 2,
+      },
+    ],
+  },
+
+  {
+    id: 'gs_a1_6',
+    level: 'A1',
+    levelColor: '#166534',
+    levelBg: '#dcfce7',
+    icon: '🏖️',
+    title: 'Na plaži',
+    titleEn: 'At the Beach',
+    duration: 3,
+    focus: 'Weather vocabulary • Body parts • Simple descriptions',
+    intro: 'Ana and her sister spend a summer day on a Croatian beach. Practice describing weather and beach activities.',
+    paragraphs: [
+      {
+        hr: 'Ana i njena sestra Ivana su na plaži u Zadru. More je plavo i mirno. Sunce sjaji i nije vjetrovito. Savršen je dan za plažu!',
+        en: 'Ana and her sister Ivana are at the beach in Zadar. The sea is blue and calm. The sun is shining and it is not windy. It is a perfect day for the beach!',
+      },
+      {
+        hr: 'Ana pliva u moru. Voda je hladna ali osvježavajuća. Ivana leži na ručniku i čita knjigu. Ona ne voli plivati ali voli sunčati se.',
+        en: 'Ana swims in the sea. The water is cold but refreshing. Ivana lies on a towel and reads a book. She does not like swimming but she likes sunbathing.',
+      },
+      {
+        hr: 'Poslije plivanja, Ana i Ivana jedu sladoled. Sladoled je od čokolade i vanilije. Ukusan je! Ostaju na plaži do šest sati navečer.',
+        en: 'After swimming, Ana and Ivana eat ice cream. The ice cream is chocolate and vanilla flavour. It is delicious! They stay at the beach until six o\'clock in the evening.',
+      },
+    ],
+    vocabulary: [
+      { hr: 'plaža', en: 'beach', ex: 'Idemo na plažu.' },
+      { hr: 'more', en: 'sea', ex: 'More je plavo.' },
+      { hr: 'plivati', en: 'to swim', ex: 'Ana pliva svaki dan.' },
+      { hr: 'ručnik', en: 'towel', ex: 'Ležim na ručniku.' },
+      { hr: 'sunčati se', en: 'to sunbathe', ex: 'Volim sunčati se.' },
+      { hr: 'sladoled', en: 'ice cream', ex: 'Jedem sladoled od jagode.' },
+      { hr: 'osvježavajuć', en: 'refreshing', ex: 'Voda je osvježavajuća.' },
+      { hr: 'mirno', en: 'calm / peaceful', ex: 'More je mirno danas.' },
+      { hr: 'navečer', en: 'in the evening', ex: 'Idemo kući navečer.' },
+    ],
+    quiz: [
+      {
+        q: 'Gdje su Ana i Ivana?',
+        qEn: 'Where are Ana and Ivana?',
+        opts: ['U Splitu', 'U Dubrovniku', 'U Zadru', 'U Šibeniku'],
+        correct: 2,
+      },
+      {
+        q: 'Što radi Ivana na plaži?',
+        qEn: 'What does Ivana do at the beach?',
+        opts: ['Pliva u moru', 'Leži i čita knjigu', 'Jede burek', 'Spava'],
+        correct: 1,
+      },
+      {
+        q: 'Kada Ana i Ivana odlaze s plaže?',
+        qEn: 'When do Ana and Ivana leave the beach?',
+        opts: ['U četiri sata', 'U pet sati', 'U šest sati navečer', 'U sedam sati navečer'],
+        correct: 2,
+      },
+    ],
+  },
+
+  // ═══════════════════════════════════════════════════════
+  // A2 — continued (gs_a2_4 – gs_a2_6)
+  // ═══════════════════════════════════════════════════════
+
+  {
+    id: 'gs_a2_4',
+    level: 'A2',
+    levelColor: '#1e40af',
+    levelBg: '#dbeafe',
+    icon: '🍕',
+    title: 'Večera u restoranu',
+    titleEn: 'Dinner at the Restaurant',
+    duration: 3,
+    focus: 'Past tense (jesam + participle) • Food vocabulary • Expressing opinions',
+    intro: 'Marko took his girlfriend Petra to a restaurant in Dubrovnik for her birthday. Practice restaurant language and past tense.',
+    paragraphs: [
+      {
+        hr: 'Juče navečer, Marko je odveo svoju djevojku Petru u restoran u Dubrovniku. Bio je njezin rođendan. Restoran se zove "Konoba Dalmatia" i nalazi se blizu Stare gradske jezgre.',
+        en: 'Yesterday evening, Marko took his girlfriend Petra to a restaurant in Dubrovnik. It was her birthday. The restaurant is called "Konoba Dalmatia" and is located near the Old Town.',
+      },
+      {
+        hr: 'Naručili su dalmatinske specijalitete. Petra je jela prstace na buzaru — to su dagnje kuhane s češnjakom i vinom. Marko je naručio brancina na žaru s blitvom i krumpirom. Za desert, dijelili su fritule — male dalmatinske krofne posute šećerom.',
+        en: 'They ordered Dalmatian specialities. Petra ate date mussels in buzara sauce — these are mussels cooked with garlic and wine. Marko ordered grilled sea bass with chard and potatoes. For dessert, they shared fritule — small Dalmatian doughnuts dusted with sugar.',
+      },
+      {
+        hr: 'Večera je bila odlična. Petra je rekla da su fritule bile najbolji desert koji je ikada jela. Marko se smiješio i bio je sretan što je odabrao taj restoran. Platili su sto dvadeset eura, ali vrijelo je svake lipe.',
+        en: 'The dinner was excellent. Petra said the fritule were the best dessert she had ever eaten. Marko smiled and was happy that he had chosen that restaurant. They paid one hundred and twenty euros, but it was worth every cent.',
+      },
+    ],
+    vocabulary: [
+      { hr: 'konoba', en: 'traditional Croatian restaurant / tavern', ex: 'Volim večerati u konobi.' },
+      { hr: 'prstaci', en: 'date mussels (shellfish)', ex: 'Prstaci su dalmatinski specijalitet.' },
+      { hr: 'brancin', en: 'sea bass', ex: 'Brancin na žaru je ukusan.' },
+      { hr: 'blitva', en: 'Swiss chard', ex: 'Blitva s krumpirom je prilog.' },
+      { hr: 'fritule', en: 'small Dalmatian doughnuts', ex: 'Fritule su slatke i ukusne.' },
+      { hr: 'naručiti', en: 'to order (food)', ex: 'Naručio sam brancina.' },
+      { hr: 'dijeliti', en: 'to share', ex: 'Dijelimo desert.' },
+      { hr: 'vrijediti', en: 'to be worth', ex: 'To vrijedi svake lipe.' },
+      { hr: 'odabrati', en: 'to choose / select', ex: 'Odabrali smo dobar restoran.' },
+    ],
+    quiz: [
+      {
+        q: 'Zašto su Marko i Petra otišli u restoran?',
+        qEn: 'Why did Marko and Petra go to the restaurant?',
+        opts: ['Jer su bili gladni', 'Jer je bio Petrin rođendan', 'Jer je bio Markov rođendan', 'Jer su slavili posao'],
+        correct: 1,
+      },
+      {
+        q: 'Što je Petra jela za glavno jelo?',
+        qEn: 'What did Petra eat for the main course?',
+        opts: ['Brancina na žaru', 'Prstace na buzaru', 'Fritule', 'Pastu'],
+        correct: 1,
+      },
+      {
+        q: 'Što je Petra rekla o fritulama?',
+        qEn: 'What did Petra say about the fritule?',
+        opts: ['Da su bile preskupe', 'Da su bile premale', 'Da su bile najbolji desert koji je ikada jela', 'Da su bile premasne'],
+        correct: 2,
+      },
+    ],
+  },
+
+  {
+    id: 'gs_a2_5',
+    level: 'A2',
+    levelColor: '#1e40af',
+    levelBg: '#dbeafe',
+    icon: '⚽',
+    title: 'Utakmica Dinama',
+    titleEn: 'A Dinamo Match',
+    duration: 3,
+    focus: 'Past tense • Sports vocabulary • Expressing excitement',
+    intro: 'Josip went to see his favourite football club, Dinamo Zagreb, play at Maksimir stadium. Practice sports language and narrating past events.',
+    paragraphs: [
+      {
+        hr: 'Prošle subote, Josip je otišao na stadion Maksimir gledati utakmicu Dinama. Dinamo je igrao protiv Hajduka iz Splita — to je najveći derbi u hrvatskom nogometu. Josip je kupio kartu tjedan dana ranije jer su karte brzo rasprodane.',
+        en: 'Last Saturday, Josip went to the Maksimir stadium to watch a Dinamo match. Dinamo played against Hajduk from Split — this is the biggest derby in Croatian football. Josip bought his ticket a week earlier because tickets sell out quickly.',
+      },
+      {
+        hr: 'Atmosfera na stadionu bila je nevjerojatna. Navijači su pjevali i vikali cijelu utakmicu. U dvadeset i petoj minuti, Dinamo je zabio gol i svi su skočili na noge. Na kraju prve poluvremena rezultat je bio jedan nula za Dinamo.',
+        en: 'The atmosphere at the stadium was incredible. The fans sang and shouted throughout the match. In the twenty-fifth minute, Dinamo scored a goal and everyone jumped to their feet. At the end of the first half the score was one-nil to Dinamo.',
+      },
+      {
+        hr: 'U drugom poluvremenu, Hajduk je izjednačio. Ali u devedeset i drugoj minuti, Dinamo je zabio pobjednički gol! Josip je bio presretan. Vratio se kući kasno navečer, ali nije mogao zaspati od uzbuđenja.',
+        en: 'In the second half, Hajduk equalised. But in the ninety-second minute, Dinamo scored the winning goal! Josip was overjoyed. He got home late in the evening, but he could not fall asleep from excitement.',
+      },
+    ],
+    vocabulary: [
+      { hr: 'utakmica', en: 'match / game', ex: 'Idemo gledati utakmicu.' },
+      { hr: 'stadion', en: 'stadium', ex: 'Maksimir je veliki stadion.' },
+      { hr: 'navijač', en: 'fan / supporter', ex: 'Josip je navijač Dinama.' },
+      { hr: 'zabiti gol', en: 'to score a goal', ex: 'Dinamo je zabio gol.' },
+      { hr: 'derbi', en: 'derby (big local rivalry match)', ex: 'Dinamo-Hajduk derbi je poseban.' },
+      { hr: 'izjednačiti', en: 'to equalise', ex: 'Hajduk je izjednačio u drugom poluvremenu.' },
+      { hr: 'poluvrijeme', en: 'half time / half', ex: 'Rezultat na poluvremenu bio je 1:0.' },
+      { hr: 'uzbuđenje', en: 'excitement', ex: 'Nije mogao spavati od uzbuđenja.' },
+      { hr: 'rasprodati', en: 'to sell out', ex: 'Karte su rasprodane.' },
+    ],
+    quiz: [
+      {
+        q: 'Tko je igrao u utakmici?',
+        qEn: 'Who played in the match?',
+        opts: ['Dinamo i Rijeka', 'Dinamo i Hajduk', 'Hajduk i Osijek', 'Dinamo i Šibenik'],
+        correct: 1,
+      },
+      {
+        q: 'Koji je bio rezultat na poluvremenu?',
+        qEn: 'What was the score at half time?',
+        opts: ['Dva nula za Dinamo', 'Jedan jedan', 'Jedan nula za Dinamo', 'Nula nula'],
+        correct: 2,
+      },
+      {
+        q: 'Kada je Dinamo zabio pobjednički gol?',
+        qEn: 'When did Dinamo score the winning goal?',
+        opts: ['U dvadeset i petoj minuti', 'Na poluvremenu', 'U devedeset i drugoj minuti', 'Na početku utakmice'],
+        correct: 2,
+      },
+    ],
+  },
+
+  {
+    id: 'gs_a2_6',
+    level: 'A2',
+    levelColor: '#1e40af',
+    levelBg: '#dbeafe',
+    icon: '🎶',
+    title: 'Klapa na rivi',
+    titleEn: 'Klapa on the Promenade',
+    duration: 3,
+    focus: 'Past + present tense • Music vocabulary • Cultural descriptions',
+    intro: 'Katarina heard a klapa group singing on the Šibenik waterfront. Practice describing cultural experiences and using mixed tenses.',
+    paragraphs: [
+      {
+        hr: 'Katarina je šetala rivom u Šibeniku jedne ljetne večeri. Bila je topla noć i grad je bio pun turista i mještana. Odjednom je čula pjevanje — grupu muškaraca koji su pjevali bez instrumenta.',
+        en: 'Katarina was walking along the promenade in Šibenik one summer evening. It was a warm night and the town was full of tourists and locals. Suddenly she heard singing — a group of men singing without instruments.',
+      },
+      {
+        hr: 'To je bila klapa — tradicionalni dalmatinski oblik pjevanja. Klapa se sastoji od muških glasova koji pjevaju u harmoniji. Pjesme su često o moru, ljubavi i zavičaju. Katarina je stala i slušala. Svi oko nje su također stali.',
+        en: 'It was a klapa — the traditional Dalmatian form of singing. A klapa consists of male voices singing in harmony. The songs are often about the sea, love and homeland. Katarina stopped and listened. Everyone around her stopped too.',
+      },
+      {
+        hr: 'Nakon nastupa, Katarina je prišla vođi klape i pitala ga o grupi. Rekao joj je da klapa postoji već dvadeset godina i da nastupaju svako ljeto na Šibenskoj rivi. UNESCO je 2012. godine proglasio klapu nematerijalnom kulturnom baštinom čovječanstva.',
+        en: 'After the performance, Katarina approached the klapa leader and asked him about the group. He told her the klapa had existed for twenty years and that they perform every summer on the Šibenik waterfront. In 2012 UNESCO declared klapa an intangible cultural heritage of humanity.',
+      },
+    ],
+    vocabulary: [
+      { hr: 'riva', en: 'waterfront promenade', ex: 'Šetamo po rivi.' },
+      { hr: 'klapa', en: 'klapa (traditional Dalmatian a cappella singing group)', ex: 'Klapa pjeva na rivi.' },
+      { hr: 'harmonija', en: 'harmony', ex: 'Glasovi pjevaju u harmoniji.' },
+      { hr: 'zavičaj', en: 'homeland / native region', ex: 'Pjesme su o zavičaju.' },
+      { hr: 'nastup', en: 'performance', ex: 'Nastup klape bio je predivan.' },
+      { hr: 'mještanin', en: 'local resident', ex: 'Mještani vole klapu.' },
+      { hr: 'baština', en: 'heritage', ex: 'Klapa je kulturna baština.' },
+      { hr: 'UNESCO', en: 'UNESCO', ex: 'UNESCO je proglasio klapu baštinom.' },
+      { hr: 'odjednom', en: 'suddenly', ex: 'Odjednom je počela kiša.' },
+    ],
+    quiz: [
+      {
+        q: 'Gdje je Katarina čula klapu?',
+        qEn: 'Where did Katarina hear the klapa?',
+        opts: ['Na plaži u Splitu', 'Na rivi u Šibeniku', 'U kafiću u Zadru', 'Na stadionu u Zagrebu'],
+        correct: 1,
+      },
+      {
+        q: 'Što je klapa?',
+        qEn: 'What is a klapa?',
+        opts: ['Vrsta dalmatinske hrane', 'Tradicionalni ples', 'Tradicijski oblik a cappella pjevanja', 'Glazbeni instrument'],
+        correct: 2,
+      },
+      {
+        q: 'Kada je UNESCO proglasio klapu kulturnom baštinom?',
+        qEn: 'When did UNESCO declare klapa cultural heritage?',
+        opts: ['2000. godine', '2008. godine', '2012. godine', '2020. godine'],
+        correct: 2,
+      },
+    ],
+  },
+
+  // ═══════════════════════════════════════════════════════
+  // B1 — continued (gs_b1_4 – gs_b1_6)
+  // ═══════════════════════════════════════════════════════
+
+  {
+    id: 'gs_b1_4',
+    level: 'B1',
+    levelColor: '#92400e',
+    levelBg: '#fef3c7',
+    icon: '🫙',
+    title: 'Peka — drevna tradicija',
+    titleEn: 'Peka — Ancient Tradition',
+    duration: 4,
+    focus: 'Passive constructions • Cultural vocabulary • Instrumental case',
+    intro: 'Learn about peka, one of Croatia\'s most beloved cooking traditions, while practising passive voice and cultural description.',
+    paragraphs: [
+      {
+        hr: 'Peka je jedan od najstarijih načina kuhanja u Dalmaciji i Istri. Radi se o metalnom poklopcu, koji se naziva peka ili čripnja, koji se stavlja iznad hrane dok se ona polako peče ispod žara od drvenog ugljena. Ovaj način kuhanja koristi se stoljećima i danas je simbolom dalmatinske kuhinje.',
+        en: 'Peka is one of the oldest cooking methods in Dalmatia and Istria. It involves a metal lid, called peka or čripnja, which is placed over the food while it slowly cooks under the embers of charcoal. This cooking method has been used for centuries and today is a symbol of Dalmatian cuisine.',
+      },
+      {
+        hr: 'Najčešće se pod pekom priprema janjetina, teletina ili piletina, obično s povrćem kao što su krumpiri, mrkva i luk. Meso se marinira nekoliko sati u maslinovom ulju, češnjaku i ružmarinu. Zatim se sve složi u plitku metalnu posudu, pokrije pekovim poklopcem i zaspe žarom. Jelo se priprema dva do tri sata.',
+        en: 'Most often lamb, veal or chicken is prepared under the peka, usually with vegetables such as potatoes, carrots and onion. The meat is marinated for several hours in olive oil, garlic and rosemary. Then everything is arranged in a shallow metal dish, covered with the peka lid and buried under embers. The dish takes two to three hours to prepare.',
+      },
+      {
+        hr: 'Ono što peku čini posebnom nije samo okus — to je cijeli ritual koji je oko nje nastao. U dalmatinskim obiteljima, priprema peke povod je za obiteljsko okupljanje. Dok jelo polako dozrijeva ispod žara, obitelj sjedi vani, razgovara i pije domaće vino. Gosti su uvijek dobrodošli. Kažu da je hrana pod pekon kuhana ljubavlju — i to se može osjetiti u svakom zalogaju.',
+        en: 'What makes peka special is not just the flavour — it is the whole ritual that has grown up around it. In Dalmatian families, preparing a peka is an occasion for family gathering. While the dish slowly matures under the embers, the family sits outside, talks and drinks homemade wine. Guests are always welcome. They say food cooked under the peka is cooked with love — and you can taste it in every bite.',
+      },
+    ],
+    vocabulary: [
+      { hr: 'peka', en: 'peka (traditional Croatian domed cooking lid)', ex: 'Janjetina pod pekon je ukusna.' },
+      { hr: 'žar', en: 'embers / hot coals', ex: 'Jelo se peče ispod žara.' },
+      { hr: 'janjetina', en: 'lamb meat', ex: 'Janjetina pod pekon je specijalitet.' },
+      { hr: 'marinirati', en: 'to marinate', ex: 'Mariniram meso u maslinovom ulju.' },
+      { hr: 'maslinovo ulje', en: 'olive oil', ex: 'Dalmatinska kuhinja koristi maslinovo ulje.' },
+      { hr: 'ružmarin', en: 'rosemary', ex: 'Ružmarin daje poseban okus mesu.' },
+      { hr: 'ritual', en: 'ritual', ex: 'Peka je obiteljski ritual.' },
+      { hr: 'zalogaj', en: 'bite / mouthful', ex: 'Svaki zalogaj je ukusan.' },
+      { hr: 'dozrijevati', en: 'to mature / to slowly cook through', ex: 'Jelo dozrijeva ispod žara.' },
+    ],
+    quiz: [
+      {
+        q: 'Što je peka?',
+        qEn: 'What is peka?',
+        opts: ['Vrsta kruha', 'Metalni poklopac za kuhanje', 'Dalmatinski ples', 'Vrsta sira'],
+        correct: 1,
+      },
+      {
+        q: 'Koliko dugo se priprema jelo pod pekon?',
+        qEn: 'How long does a peka dish take to prepare?',
+        opts: ['Pola sata', 'Jedan sat', 'Dva do tri sata', 'Pet sati'],
+        correct: 2,
+      },
+      {
+        q: 'Što obitelj radi dok jelo dozrijeva ispod žara?',
+        qEn: 'What does the family do while the dish matures under the embers?',
+        opts: ['Spava', 'Ide u crkvu', 'Sjedi vani, razgovara i pije vino', 'Ide na plažu'],
+        correct: 2,
+      },
+    ],
+  },
+
+  {
+    id: 'gs_b1_5',
+    level: 'B1',
+    levelColor: '#92400e',
+    levelBg: '#fef3c7',
+    icon: '🏰',
+    title: 'Dubrovnik: grad i zidine',
+    titleEn: 'Dubrovnik: the City and its Walls',
+    duration: 4,
+    focus: 'Historical present • Genitive of possession • Describing places',
+    intro: 'Explore the history and architecture of Dubrovnik\'s famous Old Town. Practice describing places, using the genitive case, and narrating historical facts.',
+    paragraphs: [
+      {
+        hr: 'Dubrovnik je jedan od najočuvanijih primjera gotičko-renesansne arhitekture na Mediteranu. Stari grad okružen je moćnim kamenim zidinama dugim gotovo dva kilometra, koje su građene i pojačavane od 13. do 17. stoljeća. Dubrovnik je 1979. uvršten na UNESCO-ov popis mjesta Svjetske baštine.',
+        en: 'Dubrovnik is one of the best-preserved examples of Gothic-Renaissance architecture in the Mediterranean. The Old Town is surrounded by mighty stone walls almost two kilometres long, which were built and reinforced from the 13th to the 17th century. In 1979 Dubrovnik was placed on UNESCO\'s World Heritage list.',
+      },
+      {
+        hr: 'Šetnja po zidinama traje otprilike sat i pol i nudi nevjerojatne poglede na Jadransko more i crvene krovove staroga grada. Duž zidina smješteno je nekoliko tvrđava: Lovrijenac, Minčeta i Revelin. Lovrijenac, koji stoji na 37 metara visokoj stijeni izvan zidina, posebno je impresivan. Na njemu piše natpis: "Non bene pro toto libertas venditur auro" — "Sloboda se ne prodaje ni za sve zlato na svijetu."',
+        en: 'Walking the walls takes about an hour and a half and offers incredible views of the Adriatic Sea and the red rooftops of the old town. Along the walls several fortresses are positioned: Lovrijenac, Minčeta and Revelin. Lovrijenac, which stands on a 37-metre-high rock outside the walls, is particularly impressive. It bears the inscription: "Non bene pro toto libertas venditur auro" — "Freedom is not sold for all the gold in the world."',
+      },
+      {
+        hr: 'Dubrovnik je bio slobodna republika — Dubrovačka Republika — od 1358. do 1808. godine. U tom razdoblju, grad je bio jedno od najvažnijih trgovačkih središta Mediterana, poznato po svojoj vještoj diplomaciji i bogatim trgovcima. Danas je Dubrovnik jedan od najpopularnijih turističkih odredišta u Europi i prima više od milijun posjetitelja godišnje.',
+        en: 'Dubrovnik was a free republic — the Republic of Ragusa — from 1358 to 1808. During that period, the city was one of the most important trading centres of the Mediterranean, known for its skilled diplomacy and wealthy merchants. Today Dubrovnik is one of the most popular tourist destinations in Europe, receiving more than a million visitors a year.',
+      },
+    ],
+    vocabulary: [
+      { hr: 'zidine', en: 'city walls', ex: 'Šetamo po zidinama Dubrovnika.' },
+      { hr: 'tvrđava', en: 'fortress', ex: 'Lovrijenac je stara tvrđava.' },
+      { hr: 'baština', en: 'heritage', ex: 'Dubrovnik je Svjetska baština.' },
+      { hr: 'arhitektura', en: 'architecture', ex: 'Dubrovnik ima prekrasnu arhitekturu.' },
+      { hr: 'republika', en: 'republic', ex: 'Dubrovačka Republika bila je slobodna.' },
+      { hr: 'diplomacija', en: 'diplomacy', ex: 'Grad je bio poznat po diplomaciji.' },
+      { hr: 'trgovac', en: 'merchant / trader', ex: 'Bogati trgovci živjeli su u gradu.' },
+      { hr: 'okružen', en: 'surrounded', ex: 'Grad je okružen zidinama.' },
+      { hr: 'natpis', en: 'inscription', ex: 'Na tvrđavi je latinski natpis.' },
+    ],
+    quiz: [
+      {
+        q: 'Koliko je duga dubrovačka zidina?',
+        qEn: 'How long are the Dubrovnik walls?',
+        opts: ['Pola kilometra', 'Jedan kilometar', 'Gotovo dva kilometra', 'Tri kilometra'],
+        correct: 2,
+      },
+      {
+        q: 'Što znači natpis na tvrđavi Lovrijenac?',
+        qEn: 'What does the inscription on fortress Lovrijenac mean?',
+        opts: ['Dobrodošli u Dubrovnik', 'Sloboda se ne prodaje ni za sve zlato na svijetu', 'Bog i Hrvati', 'Mir i ljubav'],
+        correct: 1,
+      },
+      {
+        q: 'Koliko dugo je Dubrovnik bio slobodna republika?',
+        qEn: 'How long was Dubrovnik a free republic?',
+        opts: ['Oko sto godina', 'Od 1358. do 1808.', 'Od 1200. do 1500.', 'Samo pedeset godina'],
+        correct: 1,
+      },
+    ],
+  },
+
+  {
+    id: 'gs_b1_6',
+    level: 'B1',
+    levelColor: '#92400e',
+    levelBg: '#fef3c7',
+    icon: '🌿',
+    title: 'Istra: vino, tartufi i masline',
+    titleEn: 'Istria: Wine, Truffles and Olives',
+    duration: 4,
+    focus: 'Relative clauses • Impersonal constructions • Agricultural vocabulary',
+    intro: 'Discover Istria\'s famous gastronomic landscape. Practice relative clauses, impersonal constructions, and vocabulary related to food and agriculture.',
+    paragraphs: [
+      {
+        hr: 'Istra je poluotok koji se smatra kulinarskom prijestolnicom Hrvatske. Tlo Istre bogato je crvenom "terra rossa" zemljom, koja je idealna za uzgoj masline, vinove loze i mnogih aromatičnih biljaka. Upravo zbog tog jedinstvenog tla, istarsko vino i maslinovo ulje poznati su diljem Europe.',
+        en: 'Istria is a peninsula that is considered the culinary capital of Croatia. Istrian soil is rich in red "terra rossa" earth, which is ideal for growing olives, vines and many aromatic plants. It is precisely because of this unique soil that Istrian wine and olive oil are well known throughout Europe.',
+      },
+      {
+        hr: 'Posebno mjesto u istarskoj gastronomiji zauzima tartuf — gljiva koja raste skrivena pod zemljom u hrastovim šumama. Istra ima neke od najvrjednijih vrsta tartufa na svijetu: bijeli tartuf, koji se bere u jesen, smatra se "dijamantom kuhinje". Jedan kilogram bijelog tartufa može koštati nekoliko tisuća eura. Lovci na tartufe, poznati kao tartufari, obučavaju posebne pse koji njuhom pronalaze skrivena blaga pod lišćem i korijenjem.',
+        en: 'A special place in Istrian gastronomy is held by the truffle — a fungus that grows hidden underground in oak forests. Istria has some of the most valuable species of truffles in the world: the white truffle, which is harvested in autumn, is considered the "diamond of cuisine". One kilogram of white truffle can cost several thousand euros. Truffle hunters, known as tartufari, train special dogs that use their sense of smell to find hidden treasures beneath leaves and roots.',
+      },
+      {
+        hr: 'Istra nije samo poznata po tartufu i vinu. Rovinj i Pula privlače milhune turista, a unutrašnjost poluotoka nudi mirna sela s kamenim kućama i izvorne okuse koji se sve teže nalaze drugdje. Posebno se preporučuje posjetiti istarsku konferenci — međunarodni sajam tartufa koji se svake godine održava u Livadama kod Buzeta. Tko jednom proba istarsku kuhinju, teško je zaboravi.',
+        en: 'Istria is not only famous for truffles and wine. Rovinj and Pula attract millions of tourists, while the interior of the peninsula offers quiet villages with stone houses and authentic flavours that are increasingly hard to find elsewhere. A visit to the Istrian truffle fair — an international truffle festival held each year in Livade near Buzet — is particularly recommended. Anyone who tries Istrian cuisine once can hardly forget it.',
+      },
+    ],
+    vocabulary: [
+      { hr: 'tartuf', en: 'truffle', ex: 'Bijeli tartuf je jako skup.' },
+      { hr: 'tartufar', en: 'truffle hunter', ex: 'Tartufari obučavaju pse.' },
+      { hr: 'poluotok', en: 'peninsula', ex: 'Istra je poluotok na Jadranu.' },
+      { hr: 'tlo', en: 'soil / ground', ex: 'Istarsko tlo je bogato i crveno.' },
+      { hr: 'uzgoj', en: 'cultivation / growing', ex: 'Uzgoj masline je važan u Istri.' },
+      { hr: 'gljiva', en: 'mushroom / fungus', ex: 'Tartuf je vrsta gljive.' },
+      { hr: 'loza', en: 'grapevine', ex: 'Na brežuljcima rastu vinove loze.' },
+      { hr: 'njuh', en: 'sense of smell', ex: 'Psi imaju odličan njuh.' },
+      { hr: 'sajam', en: 'fair / trade show', ex: 'Sajam tartufa je svake godine u Buzetu.' },
+    ],
+    quiz: [
+      {
+        q: 'Zašto je istarsko tlo posebno?',
+        qEn: 'Why is Istrian soil special?',
+        opts: ['Jer je plavo', 'Jer je bogata crvena "terra rossa" zemlja idealna za uzgoj', 'Jer je uvijek mokro', 'Jer nema minerala'],
+        correct: 1,
+      },
+      {
+        q: 'Kada se bere bijeli tartuf?',
+        qEn: 'When is the white truffle harvested?',
+        opts: ['U proljeće', 'Ljeti', 'U jesen', 'Zimi'],
+        correct: 2,
+      },
+      {
+        q: 'Kako tartufari pronalaze tartufe?',
+        qEn: 'How do tartufari find truffles?',
+        opts: ['Uz pomoć posebno obučenih pasa', 'Metal detektorom', 'Kopanjem na slijepo', 'Uz pomoć satelita'],
+        correct: 0,
+      },
+    ],
+  },
+
+  // ═══════════════════════════════════════════════════════
+  // B2 — Advanced (gs_b2_1 – gs_b2_4)
+  // ═══════════════════════════════════════════════════════
+
+  {
+    id: 'gs_b2_1',
+    level: 'B2',
+    levelColor: '#6b21a8',
+    levelBg: '#f3e8ff',
+    icon: '📖',
+    title: 'Miroslav Krleža i hrvatska književnost',
+    titleEn: 'Miroslav Krleža and Croatian Literature',
+    duration: 5,
+    focus: 'Literary register • Subordinate clauses • Imperfect & pluperfect',
+    intro: 'Explore the life and legacy of Croatia\'s greatest 20th-century writer, Miroslav Krleža. Practice formal literary register and complex sentence structures.',
+    paragraphs: [
+      {
+        hr: 'Miroslav Krleža — književnik, dramatičar, esejist i enciklopedist — najznačajnija je figura moderne hrvatske književnosti. Rođen je 1893. u Zagrebu, u doba kada je Hrvatska još uvijek bila dio Austro-Ugarske Monarhije, a umro je 1981. kao državno priznat velikan socijalističke Jugoslavije. Paradoks njegova položaja — neprilagodljivi buntovnik koji je istovremeno bio blizak vlastima — obilježava svu složenost njegova opusa i njegova vremena.',
+        en: 'Miroslav Krleža — writer, playwright, essayist and encyclopaedist — is the most significant figure of modern Croatian literature. He was born in 1893 in Zagreb, at a time when Croatia was still part of the Austro-Hungarian Monarchy, and died in 1981 as a state-recognised giant of socialist Yugoslavia. The paradox of his position — an uncompromising rebel who was at the same time close to the authorities — marks all the complexity of his body of work and his era.',
+      },
+      {
+        hr: 'Krležin književni opus je golem i raznovrstan. U dramama kao što su "Gospoda Glembajevi" i "U agoniji", Krleža razotkriva moralnu trulost građanske klase u predratnoj Hrvatskoj. U romanima "Na rubu pameti" i "Povratak Filipa Latinovicza" propituje ulogu intelektualca u društvu koje ga ne razumije i ne trpi. Njegova poezija, posebice zbirka "Balade Petrice Kerempuha" pisana čakavsko-kajkavskim jezičnim slojevima, postiže izniman lirski učinak koji se opire jednostavnom prevođenju.',
+        en: 'Krleža\'s literary output is vast and varied. In plays such as "The Glembay Family" and "In Agony", Krleža exposes the moral rot of the bourgeois class in pre-war Croatia. In the novels "On the Edge of Reason" and "The Return of Philip Latinovicz", he interrogates the role of the intellectual in a society that neither understands nor tolerates him. His poetry, especially the collection "The Ballads of Petrica Kerempuh" written in Chakavian-Kajkavian linguistic layers, achieves an exceptional lyrical effect that resists simple translation.',
+      },
+      {
+        hr: 'Uz književni rad, Krleža je bio glavni urednik Enciklopedije Jugoslavije, monumentalnog projekta koji je obilježio zlatno doba jugoslavenske leksikografije. Kao predsjednik Društva hrvatskih književnika, 1967. potpisao je "Deklaraciju o nazivu i položaju hrvatskog književnog jezika" — dokument koji je zahtijevao ravnopravnost hrvatskog jezika u odnosu na srpski, što mu je donijelo sukob s vlastima. Krleža je ostao kontroverzna figura: na Zapadu cijenjen kao autor europskog formata, u Hrvatskoj poštovan i osporavan istovremeno. Njegova djela i danas se čitaju, igraju i tumače na novim načinima, svjedočeći o njihovoj trajnoj aktualnosti.',
+        en: 'Alongside his literary work, Krleža was chief editor of the Encyclopaedia of Yugoslavia, a monumental project that marked the golden age of Yugoslav lexicography. As president of the Society of Croatian Writers, in 1967 he signed the "Declaration on the Name and Status of the Croatian Literary Language" — a document demanding equal status for Croatian in relation to Serbian, which brought him into conflict with the authorities. Krleža remains a controversial figure: valued in the West as a writer of European stature, simultaneously revered and contested in Croatia. His works are still read, performed and interpreted in new ways today, testifying to their enduring relevance.',
+      },
+    ],
+    vocabulary: [
+      { hr: 'dramatičar', en: 'playwright', ex: 'Krleža je bio pisac i dramatičar.' },
+      { hr: 'enciklopedist', en: 'encyclopaedist', ex: 'Radio je kao enciklopedist.' },
+      { hr: 'buntovnik', en: 'rebel', ex: 'Bio je neprilagodljivi buntovnik.' },
+      { hr: 'opus', en: 'body of work / oeuvre', ex: 'Krležin opus je golem.' },
+      { hr: 'razotkrivati', en: 'to expose / reveal', ex: 'Drama razotkriva moralnu trulost.' },
+      { hr: 'propitivati', en: 'to interrogate / question', ex: 'Roman propituje ulogu intelektualca.' },
+      { hr: 'leksikografija', en: 'lexicography', ex: 'Bio je veliki doprinos leksikografiji.' },
+      { hr: 'osporavati', en: 'to contest / dispute', ex: 'Krleža je i danas osporavan.' },
+      { hr: 'aktualnost', en: 'relevance / topicality', ex: 'Njegova dijela imaju trajnu aktualnost.' },
+    ],
+    quiz: [
+      {
+        q: 'Kada je i gdje je rođen Miroslav Krleža?',
+        qEn: 'When and where was Miroslav Krleža born?',
+        opts: ['1893. u Splitu', '1893. u Zagrebu', '1900. u Dubrovniku', '1881. u Osijeku'],
+        correct: 1,
+      },
+      {
+        q: 'Što je Krleža potpisao 1967. godine?',
+        qEn: 'What did Krleža sign in 1967?',
+        opts: ['Ustav Jugoslavije', 'Deklaraciju o nazivu i položaju hrvatskog književnog jezika', 'Sporazum o miru', 'Statut Dinama'],
+        correct: 1,
+      },
+      {
+        q: 'Čemu svjedoče Krležina dijela koja se i danas čitaju i igraju?',
+        qEn: 'What do Krleža\'s works being read and performed today testify to?',
+        opts: ['Nedostatku novih pisaca', 'Njihovoj trajnoj aktualnosti', 'Lošem ukusu publike', 'Državnoj cenzuri'],
+        correct: 1,
+      },
+    ],
+  },
+
+  {
+    id: 'gs_b2_2',
+    level: 'B2',
+    levelColor: '#6b21a8',
+    levelBg: '#f3e8ff',
+    icon: '🌊',
+    title: 'Domovinski rat i sjećanje',
+    titleEn: 'The Homeland War and Memory',
+    duration: 5,
+    focus: 'Complex past constructions • Abstract nouns • Sensitive historical register',
+    intro: 'A thoughtful exploration of how Croatia commemorates the 1990s Homeland War. Practise advanced past tense constructions, abstract vocabulary, and handling sensitive historical topics.',
+    paragraphs: [
+      {
+        hr: 'Domovinski rat — koji je trajao od 1991. do 1995. — temeljni je događaj suvremene hrvatske identifikacije. Hrvatska je 25. lipnja 1991. proglasila neovisnost, no agresija Jugoslavenske narodne armije i srpskih paravojnih postrojbi uskoro je eskalirala u oružani sukob koji je obilježio čitavo desetljeće. Gradovi kao Vukovar, Dubrovnik i Šibenik postali su simboli otpora i patnje.',
+        en: 'The Homeland War — which lasted from 1991 to 1995 — is the foundational event of contemporary Croatian identity. Croatia declared independence on 25 June 1991, but the aggression of the Yugoslav People\'s Army and Serbian paramilitary formations soon escalated into an armed conflict that marked an entire decade. Cities such as Vukovar, Dubrovnik and Šibenik became symbols of resistance and suffering.',
+      },
+      {
+        hr: 'Vukovar je posebno mjesto u kolektivnoj memoriji. Opsada Vukovara trajala je od kolovoza do studenog 1991. Branitelji grada — vojnici i civili ramena uz rame — odolijevali su znatno nadmoćnijem neprijatelju 87 dana. Grad je na kraju pao 18. studenog 1991. Slika voduške vodotornja, izbucanog ali uspravnog usred razrušenoga grada, postala je jedan od najprepoznatljivijih simbola rata i otpora.',
+        en: 'Vukovar holds a special place in collective memory. The siege of Vukovar lasted from August to November 1991. The city\'s defenders — soldiers and civilians side by side — held out against a vastly superior enemy for 87 days. The city finally fell on 18 November 1991. The image of the Vukovar water tower, riddled with bullets yet standing upright amid the ruined city, became one of the most recognisable symbols of the war and of resistance.',
+      },
+      {
+        hr: 'Pitanje sjećanja na Domovinski rat ostaje složeno i politički osjetljivo. Hrvatska društvo suočava se s izazovom koji je zajednički mnogim poslijeratnim društvima: kako kolektivno sjećanje učiniti mjestom pomirenja, a ne trajnog sukoba. Vukovar danas živi sporo gospodarsko oporavak, a demografski se nije vratio na predratnu razinu. Ipak, svake godine na Obljetnici pada Vukovara, 18. studenog, tisuće hodočasnika hodaju ulicama grada u tišini, noseći cvijeće i upaljene lampione. Taj šutljivi mimohod — kolona sjećanja — najmoćniji je odgovor na sve pokušaje brisanja prošlosti.',
+        en: 'The question of memory of the Homeland War remains complex and politically sensitive. Croatian society faces a challenge common to many post-war societies: how to make collective memory a place of reconciliation rather than perpetual conflict. Vukovar today lives through a slow economic recovery, and demographically has not returned to pre-war levels. Yet every year on the Anniversary of the Fall of Vukovar, 18 November, thousands of pilgrims walk the city streets in silence, carrying flowers and lit lanterns. This silent march — the column of remembrance — is the most powerful response to all attempts to erase the past.',
+      },
+    ],
+    vocabulary: [
+      { hr: 'neovisnost', en: 'independence', ex: 'Hrvatska je proglasila neovisnost 1991.' },
+      { hr: 'opsada', en: 'siege', ex: 'Opsada Vukovara trajala je 87 dana.' },
+      { hr: 'branitelj', en: 'defender (of homeland)', ex: 'Branitelji su čuvali grad.' },
+      { hr: 'vodotoranj', en: 'water tower', ex: 'Vukovarski vodotoranj je simbol otpora.' },
+      { hr: 'pomirenje', en: 'reconciliation', ex: 'Pomirenje je dug i težak proces.' },
+      { hr: 'hodočasnik', en: 'pilgrim', ex: 'Tisuće hodočasnika hodaju 18. studenog.' },
+      { hr: 'lampion', en: 'lantern / paper lantern', ex: 'Nose upaljene lampione u sjećanje.' },
+      { hr: 'oporavak', en: 'recovery', ex: 'Grad prolazi sporo gospodarski oporavak.' },
+      { hr: 'mimohod', en: 'march / procession', ex: 'Šutljivi mimohod traje cijelo jutro.' },
+    ],
+    quiz: [
+      {
+        q: 'Koliko je dana trajala opsada Vukovara?',
+        qEn: 'How many days did the siege of Vukovar last?',
+        opts: ['50 dana', '87 dana', '120 dana', '200 dana'],
+        correct: 1,
+      },
+      {
+        q: 'Što je simbol otpora iz Vukovara?',
+        qEn: 'What is the symbol of resistance from Vukovar?',
+        opts: ['Stara crkva', 'Vodotoranj', 'Gradska vijećnica', 'Tvrđava'],
+        correct: 1,
+      },
+      {
+        q: 'Što se svake godine događa 18. studenog u Vukovaru?',
+        qEn: 'What happens every year on 18 November in Vukovar?',
+        opts: ['Sportski maraton', 'Glazbeni festival', 'Šutljivi mimohod tisuća hodočasnika', 'Vojska parade'],
+        correct: 2,
+      },
+    ],
+  },
+
+  {
+    id: 'gs_b2_3',
+    level: 'B2',
+    levelColor: '#6b21a8',
+    levelBg: '#f3e8ff',
+    icon: '🏙️',
+    title: 'Zagreb između tradicije i suvremenosti',
+    titleEn: 'Zagreb between Tradition and Modernity',
+    duration: 5,
+    focus: 'Contrast structures • Urban sociology vocabulary • Gerunds and verbal nouns',
+    intro: 'Explore the tensions and harmonies between Zagreb\'s historic character and its contemporary urban life. Practise contrast structures, complex subordination, and urban vocabulary.',
+    paragraphs: [
+      {
+        hr: 'Zagreb je grad koji živi u produktivnoj napetosti između starog i novog. Gornji grad — s Kaptolom, katedralom i labirintom uskih kamenih ulica — svjedok je tisućljetne prošlosti, dok se samo petnaest minuta hoda dalje, na Savici i Novom Zagrebu, rasprostire sasvim drukčiji urbani pejzaž: betonski blokovi nastali u doba socijalizma, danas sve češće okruženi niklim kavarnama, coworking prostorima i kreativnim industrijama.',
+        en: 'Zagreb is a city that lives in productive tension between the old and the new. The Upper Town — with Kaptol, the cathedral and a labyrinth of narrow stone streets — is a witness to a millennia-long past, while just fifteen minutes\' walk away, in Savica and New Zagreb, an entirely different urban landscape spreads out: concrete blocks built in the socialist era, today increasingly surrounded by new cafés, coworking spaces and creative industries.',
+      },
+      {
+        hr: 'Potres koji je pogodio Zagreb u ožujku 2020. — jačine 5,5 po Richteru — razgolitio je dublje strukturne probleme: tisuće zgrada u gradskoj jezgri bile su oštećene, a u nekim dijelovima Gornjeg i Donjeg grada sanacija još uvijek nije završena. Potres je međutim potaknuo i širu javnu raspravu o urbanom planiranju, zaštiti kulturne baštine i položaju stanara u sve skupljim privatnim najmovima. Mnogi mladi Zagrepčani, suočeni s nemogućnošću kupnje stana u centru, sele se u prigradska naselja ili odlaze u inozemstvo.',
+        en: 'The earthquake that struck Zagreb in March 2020 — measuring 5.5 on the Richter scale — laid bare deeper structural problems: thousands of buildings in the city centre were damaged, and in some parts of the Upper and Lower Town reconstruction is still not complete. The earthquake, however, also prompted a broader public debate about urban planning, the protection of cultural heritage and the situation of tenants in increasingly expensive private rentals. Many young Zagrebians, faced with the impossibility of buying a flat in the centre, are moving to suburban settlements or leaving for abroad.',
+      },
+      {
+        hr: 'Unatoč tim izazovima, Zagreb se nameće kao regionalno kulturno središte. Muzej suvremene umjetnosti, Muzej prekinutih veza — koji je stekao međunarodnu slavu — i sve bogatija scena neovisnih kazališta i glazbenih festivala svjedoče o živoj kulturnoj energiji. Advent u Zagrebu proglašen je više puta najboljim božićnim tržištem u Europi, privlačeći posjetitelje iz cijeloga svijeta. Grad koji se gradi između trauma i nade, između nostalgije i inovacije, možda je upravo zbog te napetosti toliko živ.',
+        en: 'Despite these challenges, Zagreb asserts itself as a regional cultural centre. The Museum of Contemporary Art, the Museum of Broken Relationships — which has gained international fame — and an increasingly rich scene of independent theatres and music festivals attest to a vibrant cultural energy. Zagreb Advent has been named the best Christmas market in Europe on multiple occasions, attracting visitors from all over the world. A city building itself between trauma and hope, between nostalgia and innovation, is perhaps precisely because of that tension so alive.',
+      },
+    ],
+    vocabulary: [
+      { hr: 'napetost', en: 'tension', ex: 'Zagreb živi u napetosti između starog i novog.' },
+      { hr: 'pejzaž', en: 'landscape / cityscape', ex: 'Urbani pejzaž Novog Zagreba je drukčiji.' },
+      { hr: 'sanacija', en: 'reconstruction / remediation', ex: 'Sanacija zgrada još nije završena.' },
+      { hr: 'najam', en: 'rent / rental', ex: 'Privatni najam je sve skuplji.' },
+      { hr: 'prigradski', en: 'suburban', ex: 'Mladi sele u prigradska naselja.' },
+      { hr: 'kazalište', en: 'theatre', ex: 'Volim ići u kazalište.' },
+      { hr: 'nostalgia', en: 'nostalgia', ex: 'Grad živi između nostalgije i inovacije.' },
+      { hr: 'razgolititi', en: 'to lay bare / expose', ex: 'Potres je razgolitio strukturne probleme.' },
+      { hr: 'nametnuti se', en: 'to assert itself / impose itself', ex: 'Zagreb se nameće kao kulturno središte.' },
+    ],
+    quiz: [
+      {
+        q: 'Kada je Zagreb pogodio potres opisan u tekstu?',
+        qEn: 'When did the earthquake described in the text hit Zagreb?',
+        opts: ['U siječnju 2019.', 'U prosincu 2020.', 'U ožujku 2020.', 'U lipnju 2021.'],
+        correct: 2,
+      },
+      {
+        q: 'Čime se Muzej prekinutih veza posebno ističe?',
+        qEn: 'What is the Museum of Broken Relationships particularly noted for?',
+        opts: ['Svojom veličinom', 'Međunarodnom slavom', 'Izložbom o ratu', 'Interaktivnim eksponatima'],
+        correct: 1,
+      },
+      {
+        q: 'Što mnogi mladi Zagrepčani rade zbog visokih cijena stanova u centru?',
+        qEn: 'What do many young Zagrebians do because of high flat prices in the centre?',
+        opts: ['Kupuju stanove na kredit', 'Ostaju s roditeljima', 'Sele se u prigradska naselja ili odlaze u inozemstvo', 'Renoviraju stare zgrade'],
+        correct: 2,
+      },
+    ],
+  },
+
+  {
+    id: 'gs_b2_4',
+    level: 'B2',
+    levelColor: '#6b21a8',
+    levelBg: '#f3e8ff',
+    icon: '🌍',
+    title: 'Hrvatska dijaspora i identitet',
+    titleEn: 'The Croatian Diaspora and Identity',
+    duration: 5,
+    focus: 'Conditional and subjunctive-like constructions • Identity vocabulary • Complex argumentation',
+    intro: 'An analytical text on Croatian identity, emigration, and the diaspora\'s relationship with the homeland. Practise advanced vocabulary, argumentation structures, and conditional constructions.',
+    paragraphs: [
+      {
+        hr: 'Procjenjuje se da između tri i četiri milijuna Hrvata i osoba hrvatskog porijekla živi izvan granica Republike Hrvatske — broj koji je gotovo usporediv s ukupnim brojem stanovnika same države. Hrvatska dijaspora koncentrirana je ponajprije u Njemačkoj, Australiji, Kanadi, Sjedinjenim Državama i u susjednim državama, ali i u Južnoj Americi, gdje postoje snažne zajednice u Argentini i Čileu, potomci emigrantskih valova s kraja 19. i početka 20. stoljeća.',
+        en: 'It is estimated that between three and four million Croatians and persons of Croatian origin live outside the borders of the Republic of Croatia — a number almost comparable with the total number of inhabitants of the state itself. The Croatian diaspora is concentrated primarily in Germany, Australia, Canada, the United States and neighbouring countries, but also in South America, where there are strong communities in Argentina and Chile, descendants of emigrant waves from the late 19th and early 20th centuries.',
+      },
+      {
+        hr: 'Odnos dijaspore prema domovini složen je i mijenja se iz generacije u generaciju. Za prve generacije emigranata, odlazak je bio traumatičan raskid, a čuvanje jezika, vjere i običaja postajalo je egzistencijalnim pitanjem identiteta. Druhge i treće generacije često govore o tzv. "dvostrukom identitetu" — osjećaju da ne pripadaju sasvim ni ovdje ni tamo. Zanimljivo je da su upravo Hrvati iz dijaspore imali ključnu ulogu u međunarodnom priznavanju hrvatske neovisnosti 1991. i 1992. godine, lobirajeći u parlamentima i vladama zemalja primitka.',
+        en: 'The diaspora\'s relationship with the homeland is complex and changes from generation to generation. For first-generation emigrants, departure was a traumatic rupture, and the preservation of language, faith and customs became an existential question of identity. Second and third generations often speak of a so-called "dual identity" — the feeling of not belonging entirely either here or there. Interestingly, it was precisely Croatians from the diaspora who played a key role in the international recognition of Croatian independence in 1991 and 1992, lobbying in the parliaments and governments of their host countries.',
+      },
+      {
+        hr: 'Suvremena emigracija iz Hrvatske — koja se posebno ubrzala ulaskom u Europsku uniju 2013. godine — donosi nova pitanja. Mladi, obrazovani Hrvati odlaze zbog boljih ekonomskih mogućnosti, niže birokratske opterećenosti i veće kvalitete javnih usluga u zapadnoj Europi. Demografska erozija, koja je jedna od najozbiljnijih prijetnji dugoročnoj stabilnosti Hrvatske, teško se može zaustaviti bez sustavnih strukturnih reformi. Hrvatska vlada pokušava privući povratnike posebnim poreznim olakšicama, ali uspjeh tih mjera ostaje skroman. Pitanje dijaspore nije samo sentimentalno — ono je usko vezano uz budućnost cijele nacije.',
+        en: 'Contemporary emigration from Croatia — which accelerated particularly after EU accession in 2013 — raises new questions. Young, educated Croatians leave for better economic opportunities, lower bureaucratic burden and higher quality of public services in Western Europe. Demographic erosion, which is one of the most serious threats to Croatia\'s long-term stability, cannot easily be stopped without systematic structural reforms. The Croatian government attempts to attract returnees with special tax incentives, but the success of these measures remains modest. The diaspora question is not merely sentimental — it is closely tied to the future of the entire nation.',
+      },
+    ],
+    vocabulary: [
+      { hr: 'dijaspora', en: 'diaspora', ex: 'Hrvatska dijaspora je brojna.' },
+      { hr: 'porijeklo', en: 'origin / descent', ex: 'Ona je hrvatskog porijekla.' },
+      { hr: 'emigrant', en: 'emigrant', ex: 'Prve generacije emigranata čuvale su jezik.' },
+      { hr: 'raskid', en: 'rupture / break', ex: 'Odlazak je bio traumatičan raskid.' },
+      { hr: 'lobirati', en: 'to lobby', ex: 'Lobirali su za neovisnost.' },
+      { hr: 'demografski', en: 'demographic (adj.)', ex: 'Demografska erozija je ozbiljan problem.' },
+      { hr: 'porezna olakšica', en: 'tax incentive / relief', ex: 'Vlada nudi porezne olakšice povratnicima.' },
+      { hr: 'povratnik', en: 'returnee', ex: 'Mnogi povratnici donose nova znanja.' },
+      { hr: 'erozija', en: 'erosion', ex: 'Demografska erozija ugrožava budućnost.' },
+    ],
+    quiz: [
+      {
+        q: 'Koliko se Hrvata i osoba hrvatskog porijekla procjenjuje da živi izvan Hrvatske?',
+        qEn: 'How many Croatians and persons of Croatian origin are estimated to live outside Croatia?',
+        opts: ['Oko milijun', 'Između tri i četiri milijuna', 'Oko pet milijuna', 'Manje od pola milijuna'],
+        correct: 1,
+      },
+      {
+        q: 'Kakvu su ulogu imali Hrvati iz dijaspore 1991. i 1992. godine?',
+        qEn: 'What role did Croatians from the diaspora play in 1991 and 1992?',
+        opts: ['Slali su humanitarnu pomoć', 'Lobiranje za međunarodno priznavanje neovisnosti', 'Osnivali su nove političke stranke', 'Vraćali su se u Hrvatsku masovno'],
+        correct: 1,
+      },
+      {
+        q: 'Što hrvatska vlada čini kako bi privukla povratnike?',
+        qEn: 'What does the Croatian government do to attract returnees?',
+        opts: ['Gradi nove stanove', 'Nudi posebne porezne olakšice', 'Plaća putne troškove', 'Daje besplatne tečajeve'],
+        correct: 1,
+      },
+    ],
+  },
+
 ];

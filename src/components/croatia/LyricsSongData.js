@@ -218,6 +218,428 @@ export const SONGS = [
     ],
     cultural: 'Prljavo Kazalište (Dirty Theatre) is one of Croatia\'s most beloved rock bands, famous since the 1980s.',
   },
+
+  // --- 18 NEW SONGS ---
+
+  // KLAPA 1
+  {
+    id: 'more_se_budi',
+    title: 'More se budi',
+    artist: 'Klapa Šufit',
+    level: 'A2',
+    genre: 'Klapa',
+    lines: [
+      { text: 'More se budi u zoru tihu', blanks: ['budi', 'tihu'] },
+      { text: 'Valovi nježni ljube žal', blanks: ['Valovi', 'ljube', 'žal'] },
+      { text: 'Ribari pjevaju staru pjesmu', blanks: ['pjevaju', 'staru', 'pjesmu'] },
+      { text: 'I vjetar nosi miris mora', blanks: ['vjetar', 'miris'] },
+      { text: 'Dalmacijo, zemlja moja draga', blanks: ['zemlja', 'draga'] },
+    ],
+    vocab: [
+      { hr: 'buditi se', en: 'to wake up' }, { hr: 'zora', en: 'dawn' },
+      { hr: 'val', en: 'wave' }, { hr: 'žal', en: 'shore/beach (poetic)' },
+      { hr: 'ribar', en: 'fisherman' }, { hr: 'miris', en: 'scent/smell' },
+      { hr: 'nježan', en: 'gentle/tender' },
+    ],
+    cultural: 'Klapa Šufit from Split is one of Croatia\'s most celebrated klapa ensembles. Klapa (meaning "group of friends") is a form of unaccompanied male polyphonic singing rooted in Dalmatian coastal towns, inscribed on UNESCO\'s Intangible Cultural Heritage list in 2012.',
+  },
+
+  // KLAPA 2
+  {
+    id: 'vino_i_more',
+    title: 'Vino i more',
+    artist: 'Klapa Cambi',
+    level: 'B1',
+    genre: 'Klapa',
+    lines: [
+      { text: 'Natoči vino, prijatelju moj', blanks: ['Natoči', 'vino', 'prijatelju'] },
+      { text: 'Večer je lijepa, more je mirno', blanks: ['Večer', 'mirno'] },
+      { text: 'Pijmo za ljubav i za slobodu', blanks: ['ljubav', 'slobodu'] },
+      { text: 'Za sve što smo izgubili nekad', blanks: ['izgubili', 'nekad'] },
+      { text: 'Klapa pjeva, srce plače', blanks: ['pjeva', 'plače'] },
+      { text: 'A more čuva naše tajne', blanks: ['čuva', 'tajne'] },
+    ],
+    vocab: [
+      { hr: 'natočiti', en: 'to pour (a drink)' }, { hr: 'prijatelj', en: 'friend' },
+      { hr: 'miran', en: 'calm/peaceful' }, { hr: 'sloboda', en: 'freedom' },
+      { hr: 'izgubiti', en: 'to lose' }, { hr: 'plakati', en: 'to cry/weep' },
+      { hr: 'čuvati', en: 'to guard/keep' }, { hr: 'tajna', en: 'secret' },
+    ],
+    cultural: 'Klapa Cambi from Split is named after the old Dalmatian word for "friends." Wine (especially plavac mali grape) and the sea are inseparable from klapa\'s lyrical world. Klapa gatherings traditionally happen on warm evenings in stone-paved town squares.',
+  },
+
+  // KLAPA 3
+  {
+    id: 'oj_ti_vilo',
+    title: 'Oj ti vilo, vilo moja',
+    artist: 'Klapa Intrade',
+    level: 'B2',
+    genre: 'Klapa',
+    lines: [
+      { text: 'Oj ti vilo, vilo moja', blanks: ['vilo'] },
+      { text: 'Zašto bježiš od mene', blanks: ['bježiš'] },
+      { text: 'Srce moje tuguje sada', blanks: ['tuguje'] },
+      { text: 'Jer te voljeh ko i svog života', blanks: ['voljeh', 'života'] },
+      { text: 'Neka suze teku niz lice', blanks: ['suze', 'teku', 'lice'] },
+      { text: 'Ljubav istinska ne umire', blanks: ['istinska', 'umire'] },
+    ],
+    vocab: [
+      { hr: 'vila', en: 'fairy/nymph (poetic for beloved)' }, { hr: 'bježati', en: 'to flee/run away' },
+      { hr: 'tugovati', en: 'to grieve/sorrow' }, { hr: 'voljeti', en: 'to love' },
+      { hr: 'suza', en: 'tear (drop)' }, { hr: 'lice', en: 'face' },
+      { hr: 'istinski', en: 'true/genuine' }, { hr: 'umirati', en: 'to die' },
+    ],
+    cultural: 'The word "vila" (fairy) is a common poetic term for a beloved woman in traditional Croatian and South Slavic poetry. Klapa Intrade from Zagreb blends continental and coastal klapa styles. Their harmonies often feature three to six voices in close voicing typical of the old Dalmatian school.',
+  },
+
+  // KLAPA 4
+  {
+    id: 'pisme_moje_stare',
+    title: 'Pisme moje stare',
+    artist: 'Klapa Četiri tenora',
+    level: 'B1',
+    genre: 'Klapa',
+    lines: [
+      { text: 'Pisme moje stare, pisme o moru', blanks: ['stare', 'moru'] },
+      { text: 'Otac mi ih pjevao u djetinjstvu', blanks: ['pjevao', 'djetinjstvu'] },
+      { text: 'Sada ih ja učim svoju djecu', blanks: ['učim', 'djecu'] },
+      { text: 'Da pamte tko su i odakle su', blanks: ['pamte', 'odakle'] },
+      { text: 'Klapa živi dok god pjeva narod', blanks: ['živi', 'pjeva', 'narod'] },
+    ],
+    vocab: [
+      { hr: 'pisma/pjesma', en: 'song (Dalmatian dialect)' }, { hr: 'djetinjstvo', en: 'childhood' },
+      { hr: 'učiti', en: 'to teach/to learn' }, { hr: 'djeca', en: 'children' },
+      { hr: 'pamtiti', en: 'to remember' }, { hr: 'narod', en: 'people/nation' },
+      { hr: 'živjeti', en: 'to live' },
+    ],
+    cultural: 'Klapa Četiri tenora (Four Tenors) are known for their precise harmonics and repertoire that bridges classical klapa and modern arrangements. The word "pisma" (instead of standard "pjesma") is the characteristic Dalmatian Čakavian dialect form, preserving the old Slavic vowel shift.',
+  },
+
+  // KLAPA 5
+  {
+    id: 'trogirska_romanca',
+    title: 'Trogirska romanca',
+    artist: 'Klapa Trogir',
+    level: 'B1',
+    genre: 'Klapa',
+    lines: [
+      { text: 'Na kamenoj rivi sjediš sama', blanks: ['kamenoj', 'sama'] },
+      { text: 'I gledaš u more bez dna', blanks: ['gledaš', 'dna'] },
+      { text: 'Trogir spava, noć je tiha', blanks: ['spava', 'tiha'] },
+      { text: 'Samo zvijezde čuvaju tvoj san', blanks: ['zvijezde', 'san'] },
+      { text: 'Vrati se, moja jedina', blanks: ['Vrati', 'jedina'] },
+    ],
+    vocab: [
+      { hr: 'riva', en: 'seafront promenade' }, { hr: 'bez dna', en: 'bottomless/fathomless' },
+      { hr: 'tiho', en: 'quietly/silently' }, { hr: 'zvijezda', en: 'star' },
+      { hr: 'san', en: 'dream/sleep' }, { hr: 'jedini/jedina', en: 'the only one' },
+      { hr: 'vratiti se', en: 'to return' },
+    ],
+    cultural: 'Trogir is a UNESCO World Heritage City on the Dalmatian coast, famous for its intact medieval old town on a small island. The "riva" (seafront promenade) is the social heart of every Dalmatian town where klapa singers often perform spontaneously on warm summer evenings.',
+  },
+
+  // KLAPA 6
+  {
+    id: 'sinj_i_cetina',
+    title: 'Sinj i Cetina',
+    artist: 'Klapa Cambi',
+    level: 'B2',
+    genre: 'Klapa',
+    lines: [
+      { text: 'Uz Cetinu teku vode bistre', blanks: ['teku', 'bistre'] },
+      { text: 'Sinj se diči vitezovima svim', blanks: ['diči', 'vitezovima'] },
+      { text: 'Alka zvoni, konji rže gromko', blanks: ['zvoni', 'rže', 'gromko'] },
+      { text: 'Čast i slava Sinjske krajine', blanks: ['Čast', 'slava', 'krajine'] },
+      { text: 'Gospa Sinjska, štiti narod tvoj', blanks: ['štiti', 'narod'] },
+      { text: 'Kroz vjekove čuvaj Sinjane sve', blanks: ['vjekove', 'čuvaj'] },
+    ],
+    vocab: [
+      { hr: 'bistar', en: 'clear/crystal (water)' }, { hr: 'dičiti se', en: 'to take pride in' },
+      { hr: 'vitez', en: 'knight/horseman' }, { hr: 'ržati', en: 'to neigh (horse)' },
+      { hr: 'čast', en: 'honour' }, { hr: 'vjekovi', en: 'centuries/ages' },
+      { hr: 'Gospa', en: 'Our Lady (Virgin Mary)' }, { hr: 'štititi', en: 'to protect' },
+    ],
+    cultural: 'The Sinjska alka is a UNESCO-listed knightly equestrian competition held annually in Sinj since 1715, commemorating the victory over the Ottoman army. The Cetina River runs through the Dalmatian hinterland. The Virgin Mary of Sinj (Gospa Sinjska) is one of the most venerated Marian shrines in Croatia.',
+  },
+
+  // FOLK/TRADITIONAL 1 — Slavonia, tamburica
+  {
+    id: 'slavonska_ravnica',
+    title: 'Slavonska ravnica',
+    artist: 'Zlatni dukati',
+    level: 'A2',
+    genre: 'Folk',
+    lines: [
+      { text: 'Ravna Slavonija, zlatna zemlja moja', blanks: ['Ravna', 'zlatna'] },
+      { text: 'Tambura svira, srce igra', blanks: ['Tambura', 'svira', 'igra'] },
+      { text: 'Kukuruz raste visoko na polju', blanks: ['Kukuruz', 'raste', 'polju'] },
+      { text: 'A Drava teče kroz šume zelene', blanks: ['teče', 'zelene'] },
+      { text: 'Oj Slavonijo, radosti moja', blanks: ['radosti'] },
+    ],
+    vocab: [
+      { hr: 'ravan/ravna', en: 'flat/level (also: plain)' }, { hr: 'tambura', en: 'tamburica (plucked folk instrument)' },
+      { hr: 'svirati', en: 'to play (an instrument)' }, { hr: 'kukuruz', en: 'corn/maize' },
+      { hr: 'polje', en: 'field' }, { hr: 'teći', en: 'to flow' },
+      { hr: 'radost', en: 'joy' },
+    ],
+    cultural: 'Slavonia (eastern Croatia) is famous for its flat fertile plains (ravnica), the Drava River, and tamburica music. Zlatni dukati (Golden Ducats) are one of the most beloved Slavonian folk ensembles. The tamburica is a family of plucked string instruments that became the symbol of Croatian national identity in the 19th century.',
+  },
+
+  // FOLK/TRADITIONAL 2 — Zagorje
+  {
+    id: 'zagorsko_jutro',
+    title: 'Zagorsko jutro',
+    artist: 'Narodni napjev — Zagorje',
+    level: 'A1',
+    genre: 'Folk',
+    lines: [
+      { text: 'Lepa naša Zagorija', blanks: ['Lepa', 'Zagorija'] },
+      { text: 'Bregi zeleni, doline mile', blanks: ['zeleni', 'mile'] },
+      { text: 'Jutro je, pevci poju', blanks: ['Jutro', 'pevci', 'poju'] },
+      { text: 'Mamica kuha, tata radi', blanks: ['kuha', 'radi'] },
+      { text: 'To je moj dom, srce moje', blanks: ['dom', 'srce'] },
+    ],
+    vocab: [
+      { hr: 'breg', en: 'hill (Kajkavian dialect)' }, { hr: 'dolina', en: 'valley' },
+      { hr: 'pijevac/pevec', en: 'rooster (Kajkavian: pevec)' }, { hr: 'peti/pojati', en: 'to crow/sing' },
+      { hr: 'kuhati', en: 'to cook' }, { hr: 'dom', en: 'home' },
+      { hr: 'mio/mila', en: 'dear/sweet' },
+    ],
+    cultural: 'Zagorje is the hilly region north of Zagreb, famous for its medieval castles, vineyards, and Kajkavian dialect. In Kajkavian speech (spoken in Zagreb and northern Croatia), "breg" means hill, "lepa" means beautiful, and "pevec" means rooster — words that differ from standard Croatian. This linguistic diversity is an important part of Croatian identity.',
+  },
+
+  // FOLK/TRADITIONAL 3 — Lika
+  {
+    id: 'oj_liko_moja',
+    title: 'Oj, Liko, moja Liko',
+    artist: 'Narodni napjev — Lika',
+    level: 'A2',
+    genre: 'Folk',
+    lines: [
+      { text: 'Oj, Liko, moja Liko planinska', blanks: ['planinska'] },
+      { text: 'Gdje je gora visoka i šuma gusta', blanks: ['visoka', 'gusta'] },
+      { text: 'Tu sam odrastao, tu mi je rodno', blanks: ['odrastao', 'rodno'] },
+      { text: 'Velebit se diže do neba modrog', blanks: ['diže', 'modrog'] },
+      { text: 'Nikad neću zaboravit tebe', blanks: ['zaboravit'] },
+    ],
+    vocab: [
+      { hr: 'planinski', en: 'mountain (adjective)' }, { hr: 'gora', en: 'mountain/forest' },
+      { hr: 'gust', en: 'dense/thick' }, { hr: 'rodni kraj', en: 'homeland/birthplace' },
+      { hr: 'dizati se', en: 'to rise' }, { hr: 'modar', en: 'blue (poetic/archaic)' },
+      { hr: 'zaboraviti', en: 'to forget' },
+    ],
+    cultural: 'Lika is a mountainous region in central Croatia beneath the Velebit mountain range — Croatia\'s largest mountain massif and a UNESCO Biosphere Reserve. The region\'s harsh but beautiful landscape has inspired generations of folk poetry. Nikola Tesla was born in the Lika village of Smiljan.',
+  },
+
+  // FOLK/TRADITIONAL 4 — traditional tambura
+  {
+    id: 'uz_tamburu',
+    title: 'Uz tamburicu',
+    artist: 'Narodni napjev',
+    level: 'A2',
+    genre: 'Folk',
+    lines: [
+      { text: 'Zasvira tamburica mala', blanks: ['tamburica'] },
+      { text: 'I srce mi radosno zaplaka', blanks: ['radosno', 'zaplaka'] },
+      { text: 'Sijelo je, svi se skupili', blanks: ['Sijelo', 'skupili'] },
+      { text: 'Pjevamo pjesme do zore', blanks: ['Pjevamo', 'zore'] },
+      { text: 'Tko zna svirat, nije sam', blanks: ['svirat', 'sam'] },
+    ],
+    vocab: [
+      { hr: 'tamburica', en: 'small tamburica (diminutive)' }, { hr: 'radostan', en: 'joyful/glad' },
+      { hr: 'zaplakati', en: 'to burst into tears (also: to burst into song, poetic)' },
+      { hr: 'sijelo', en: 'village gathering/evening social' }, { hr: 'skupiti se', en: 'to gather together' },
+      { hr: 'svirati', en: 'to play an instrument' }, { hr: 'sam', en: 'alone' },
+    ],
+    cultural: 'The "sijelo" is a traditional Croatian village gathering where neighbours meet in the evening to sing, play tamburica, and socialize. The tamburica arrived in Croatia via Ottoman influences and was later promoted as a national instrument in the 19th-century Croatian National Revival (Illyrian Movement).',
+  },
+
+  // POP 1 — Gibonni
+  {
+    id: 'golube_moj',
+    title: 'Golube moj',
+    artist: 'Gibonni',
+    level: 'B1',
+    genre: 'Pop',
+    lines: [
+      { text: 'Golube moj, leti prema nebu', blanks: ['leti', 'nebu'] },
+      { text: 'Odnesi moje pozdrave njoj', blanks: ['Odnesi', 'pozdrave'] },
+      { text: 'Reci joj da je ne zaboravljam', blanks: ['Reci', 'zaboravljam'] },
+      { text: 'Da svaki dan mislim na nju', blanks: ['mislim'] },
+      { text: 'Ljubav ne poznaje granice', blanks: ['poznaje', 'granice'] },
+      { text: 'Ni more, ni planine visoke', blanks: ['planine', 'visoke'] },
+    ],
+    vocab: [
+      { hr: 'golub', en: 'dove/pigeon' }, { hr: 'letjeti', en: 'to fly' },
+      { hr: 'odnijeti', en: 'to carry away/deliver' }, { hr: 'pozdrav', en: 'greeting/regards' },
+      { hr: 'zaboravljati', en: 'to forget (imperfective)' }, { hr: 'granica', en: 'border/limit' },
+      { hr: 'poznavati', en: 'to know/be acquainted with' },
+    ],
+    cultural: 'Gibonni (Zlatan Stipišić) is one of Croatia\'s most artistically respected singer-songwriters, born in Split. His music blends Mediterranean melodies with poetic lyrics drawing on Dalmatian folklore and universal themes of love and longing. He has collaborated with Oliver Dragojević and is celebrated across the former Yugoslav region.',
+  },
+
+  // POP 2 — Oliver Dragojević
+  {
+    id: 'cesarica',
+    title: 'Cesarica',
+    artist: 'Oliver Dragojević',
+    level: 'B1',
+    genre: 'Pop',
+    lines: [
+      { text: 'Cesarice, care moga srca', blanks: ['Cesarice', 'srca'] },
+      { text: 'Ti si sve što imam na ovom svijetu', blanks: ['sve', 'svijetu'] },
+      { text: 'Oči tvoje sjaju ko zvijezde', blanks: ['sjaju', 'zvijezde'] },
+      { text: 'A osmijeh tvoj grije ko sunce', blanks: ['osmijeh', 'grije'] },
+      { text: 'Ne mogu bez tebe, ne mogu', blanks: ['mogu'] },
+    ],
+    vocab: [
+      { hr: 'cesarica', en: 'empress/queen (poetic endearment)' }, { hr: 'car', en: 'emperor (here: emperor of my heart)' },
+      { hr: 'sjati', en: 'to shine/gleam' }, { hr: 'osmijeh', en: 'smile' },
+      { hr: 'grijati', en: 'to warm/heat' }, { hr: 'moći', en: 'to be able to/can' },
+    ],
+    cultural: 'Oliver Dragojević (1947–2018) was the undisputed king of Croatian Mediterranean pop, known simply as "Oliver." Born in Vela Luka on Korčula island, his warm baritone and deeply Dalmatian style made him a beloved icon across Yugoslavia and the Croatian diaspora. "Cesarica" uses the word for empress as the ultimate term of romantic adoration.',
+  },
+
+  // POP 3 — Mišo Kovač
+  {
+    id: 'nisi_prva',
+    title: 'Nisi prva, nisi zadnja',
+    artist: 'Mišo Kovač',
+    level: 'B1',
+    genre: 'Pop',
+    lines: [
+      { text: 'Nisi prva koja me je volila', blanks: ['prva', 'volila'] },
+      { text: 'Nisi zadnja koja će me ostat', blanks: ['zadnja', 'ostat'] },
+      { text: 'Ali si jedina koja boli', blanks: ['jedina', 'boli'] },
+      { text: 'Jedina koja mi ne da mira', blanks: ['mira'] },
+      { text: 'Sjećam se tvojih ruku, tvojih usana', blanks: ['ruku', 'usana'] },
+      { text: 'I suze te koje nismo plakali', blanks: ['suze', 'plakali'] },
+    ],
+    vocab: [
+      { hr: 'prvi/prva', en: 'first' }, { hr: 'zadnji/zadnja', en: 'last' },
+      { hr: 'jedini/jedina', en: 'the only one' }, { hr: 'boljeti', en: 'to hurt/ache' },
+      { hr: 'mir', en: 'peace' }, { hr: 'usne', en: 'lips' },
+      { hr: 'suza', en: 'tear' },
+    ],
+    cultural: 'Mišo Kovač is one of Croatia\'s most enduring pop legends, performing for over five decades. Born in Šibenik, his melodramatic baritone and Mediterranean soul (known as "dalmatinska melankolija") made him a superstar across Yugoslavia. His concerts still draw thousands from the diaspora who grew up listening to his voice on the radio.',
+  },
+
+  // POP 4 — Magazin
+  {
+    id: 'hajde_da_ludujemo',
+    title: 'Hajde da ludujemo',
+    artist: 'Magazin',
+    level: 'A2',
+    genre: 'Pop',
+    lines: [
+      { text: 'Hajde da ludujemo večeras', blanks: ['ludujemo', 'večeras'] },
+      { text: 'Zabava je tek počela', blanks: ['Zabava', 'počela'] },
+      { text: 'Ples i muzika do zore', blanks: ['Ples', 'zore'] },
+      { text: 'Zaboravi sve probleme svoje', blanks: ['Zaboravi', 'probleme'] },
+      { text: 'Samo noćas budi sretna', blanks: ['noćas', 'sretna'] },
+    ],
+    vocab: [
+      { hr: 'ludovati', en: 'to go wild/party hard' }, { hr: 'večeras', en: 'tonight' },
+      { hr: 'zabava', en: 'party/fun' }, { hr: 'ples', en: 'dance' },
+      { hr: 'zaboraviti', en: 'to forget' }, { hr: 'problem', en: 'problem' },
+      { hr: 'sretan/sretna', en: 'happy' },
+    ],
+    cultural: 'Magazin is a Split-based pop group founded in 1981, best known for their upbeat dancefloor hits and their long-running lead singer Vjekoslava Huljić (Vanna). They represent the cheerful, summer-festival side of Croatian pop — a genre known as "zabavna glazba" (entertainment music) that dominated Yugoslav radio and festivals like Split\'s Festival zabavne glazbe.',
+  },
+
+  // ROCK 1 — Prljavo Kazalište
+  {
+    id: 'mojoj_majci',
+    title: 'Mojoj majci',
+    artist: 'Prljavo Kazalište',
+    level: 'B2',
+    genre: 'Rock',
+    lines: [
+      { text: 'Oprosti mi, majko, što sam daleko', blanks: ['Oprosti', 'daleko'] },
+      { text: 'Što nisam tu kad ti treba netko', blanks: ['nisam', 'treba', 'netko'] },
+      { text: 'Znam da si čekala kraj prozora', blanks: ['čekala', 'prozora'] },
+      { text: 'I gledala ulicu praznom noću', blanks: ['gledala', 'praznom'] },
+      { text: 'Tvoje ruke bile su mi dom', blanks: ['ruke', 'dom'] },
+      { text: 'I tvoj glas jedini lijeka znam', blanks: ['glas', 'lijeka'] },
+    ],
+    vocab: [
+      { hr: 'oprostiti', en: 'to forgive/excuse' }, { hr: 'daleko', en: 'far away' },
+      { hr: 'trebati', en: 'to need' }, { hr: 'čekati', en: 'to wait' },
+      { hr: 'prazan', en: 'empty' }, { hr: 'lijek', en: 'medicine/remedy' },
+      { hr: 'jedini', en: 'the only one' },
+    ],
+    cultural: 'Prljavo Kazalište (Dirty Theatre) formed in Zagreb in 1977 and became one of the defining bands of the Yugoslav new wave. Their emotional rock ballads about working-class life, family separation, and longing resonated deeply during the social upheaval of the 1980s and 1990s. Songs about mothers are a recurring theme in Croatian rock, reflecting the culture\'s strong family bonds.',
+  },
+
+  // ROCK 2 — Hladno Pivo / TBF
+  {
+    id: 'dalmacija',
+    title: 'Dalmacija',
+    artist: 'TBF',
+    level: 'B2',
+    genre: 'Rock',
+    lines: [
+      { text: 'Rojen san u gradu kraj mora', blanks: ['Rojen', 'gradu', 'mora'] },
+      { text: 'Di sunce žari svaki dan', blanks: ['žari'] },
+      { text: 'Naš jezik je muzika sama', blanks: ['jezik', 'muzika'] },
+      { text: 'Svaka rič je pisma stara', blanks: ['rič', 'pisma'] },
+      { text: 'Nećemo zaboravit ko smo', blanks: ['zaboravit', 'smo'] },
+      { text: 'Dalmacija u srcu živi', blanks: ['Dalmacija', 'srcu', 'živi'] },
+    ],
+    vocab: [
+      { hr: 'rojen (Čakavian)', en: 'born (= standard: rođen)' }, { hr: 'di (Čakavian)', en: 'where (= standard: gdje)' },
+      { hr: 'žariti', en: 'to blaze/scorch (sun)' }, { hr: 'rič (Čakavian)', en: 'word (= standard: riječ)' },
+      { hr: 'pisma (Čakavian)', en: 'song (= standard: pjesma)' }, { hr: 'muzika', en: 'music' },
+      { hr: 'živjeti', en: 'to live' },
+    ],
+    cultural: 'TBF (The Beat Fleet) from Split mixes rap, reggae and rock with lyrics saturated in Čakavian dialect, the old coastal Croatian vernacular. Their use of dialect words like "rojen" (born), "di" (where), and "rič" (word) is a deliberate cultural statement. B2-level learners encountering Čakavian for the first time discover how Croatian dialects preserve medieval Slavic forms lost in standard speech.',
+  },
+
+  // CHILDREN'S/TRADITIONAL 1
+  {
+    id: 'plovi_plovi_ladice',
+    title: 'Plovi, plovi, lađice',
+    artist: 'Dječja pjesma',
+    level: 'A1',
+    genre: 'Traditional',
+    lines: [
+      { text: 'Plovi, plovi, lađice moja', blanks: ['lađice'] },
+      { text: 'Po moru po mirnom', blanks: ['moru', 'mirnom'] },
+      { text: 'Vjetar pušu lako', blanks: ['Vjetar', 'pušu'] },
+      { text: 'Jedra bijela šire', blanks: ['Jedra', 'bijela', 'šire'] },
+      { text: 'Kući idem doma', blanks: ['Kući'] },
+    ],
+    vocab: [
+      { hr: 'ploviti', en: 'to sail' }, { hr: 'lađica', en: 'little boat (diminutive of lađa)' },
+      { hr: 'miran', en: 'calm/peaceful' }, { hr: 'puhati', en: 'to blow (wind)' },
+      { hr: 'jedro', en: 'sail' }, { hr: 'bijel', en: 'white' },
+      { hr: 'širit se', en: 'to spread/unfurl' },
+    ],
+    cultural: 'This traditional children\'s song is sung throughout Croatia and teaches children to love the sea from an early age. The Adriatic coast and seafaring life have shaped Croatian culture for millennia. Diminutive forms like "lađica" (little boat), "ribica" (little fish), and "mišić" (little mouse) are a beloved feature of the Croatian language used especially with children.',
+  },
+
+  // CHILDREN'S/TRADITIONAL 2
+  {
+    id: 'spavaj_malo',
+    title: 'Spavaj, malo dijete',
+    artist: 'Uspavanka — tradicijska',
+    level: 'A1',
+    genre: 'Traditional',
+    lines: [
+      { text: 'Spavaj, malo dijete moje', blanks: ['dijete'] },
+      { text: 'Mama te čuva i voli', blanks: ['čuva', 'voli'] },
+      { text: 'Noć je tiha, zvijezde sjaju', blanks: ['tiha', 'sjaju'] },
+      { text: 'Anđeli čuvaju tvoj san', blanks: ['anđeli', 'san'] },
+      { text: 'Laku noć, laku noć', blanks: ['noć'] },
+    ],
+    vocab: [
+      { hr: 'spavati', en: 'to sleep' }, { hr: 'dijete', en: 'child' },
+      { hr: 'čuvati', en: 'to guard/watch over' }, { hr: 'voljeti', en: 'to love' },
+      { hr: 'tih', en: 'quiet/still' }, { hr: 'sjati', en: 'to shine' },
+      { hr: 'laku noć', en: 'good night' },
+    ],
+    cultural: 'Lullabies (uspavanke) are among the oldest forms of Croatian folk music. This example features the classic structure of Croatian lullabies: the sleeping child, the watching mother, stars, and guardian angels. The phrase "laku noć" (good night, literally "light night") is used throughout Croatia and is one of the first phrases children learn.',
+  },
 ];
 
 // English translations for read-along mode (per song id, per line index)
@@ -293,5 +715,140 @@ export const LINE_TRANSLATIONS = {
     'Along streets of red umbrellas',
     'And I remember you in that fog',
     'While the tram rings in the distance',
+  ],
+
+  // --- 18 NEW SONGS ---
+  more_se_budi: [
+    'The sea wakes in the quiet dawn',
+    'Gentle waves kiss the shore',
+    'The fishermen sing an old song',
+    'And the wind carries the scent of the sea',
+    'Dalmatia, my dear land',
+  ],
+  vino_i_more: [
+    'Pour the wine, my friend',
+    'The evening is beautiful, the sea is calm',
+    'Let us drink to love and freedom',
+    'To all that we once lost',
+    'The klapa sings, the heart weeps',
+    'And the sea keeps our secrets',
+  ],
+  oj_ti_vilo: [
+    'Oh you fairy, my fairy',
+    'Why do you flee from me',
+    'My heart grieves now',
+    'For I loved you as my own life',
+    'Let the tears flow down my face',
+    'True love does not die',
+  ],
+  pisme_moje_stare: [
+    'My old songs, songs of the sea',
+    'My father sang them to me in childhood',
+    'Now I teach them to my children',
+    'So they remember who they are and where they come from',
+    'Klapa lives as long as the people sing',
+  ],
+  trogirska_romanca: [
+    'On the stone promenade you sit alone',
+    'And gaze into the fathomless sea',
+    'Trogir sleeps, the night is still',
+    'Only the stars watch over your dream',
+    'Come back, my only one',
+  ],
+  sinj_i_cetina: [
+    'Along the Cetina flow clear waters',
+    'Sinj takes pride in all its horsemen',
+    'The alka rings, horses neigh loudly',
+    'Honour and glory of the Sinj frontier',
+    'Our Lady of Sinj, protect your people',
+    'Guard all Sinj folk through the ages',
+  ],
+  slavonska_ravnica: [
+    'Flat Slavonia, my golden land',
+    'The tamburica plays, the heart dances',
+    'Corn grows tall in the field',
+    'And the Drava flows through green forests',
+    'Oh Slavonia, my joy',
+  ],
+  zagorsko_jutro: [
+    'Beautiful our Zagorje',
+    'Green hills, sweet valleys',
+    'Morning has come, the roosters crow',
+    'Mother cooks, father works',
+    'This is my home, my heart',
+  ],
+  oj_liko_moja: [
+    'Oh Lika, my mountain Lika',
+    'Where the mountain is high and the forest dense',
+    'Here I grew up, here is my birthplace',
+    'Velebit rises to the blue sky',
+    'I will never forget you',
+  ],
+  uz_tamburu: [
+    'A little tamburica began to play',
+    'And my heart joyfully burst into song',
+    'The gathering began, everyone assembled',
+    'We sing songs until dawn',
+    'Whoever can play is never alone',
+  ],
+  golube_moj: [
+    'My dove, fly toward the sky',
+    'Carry my regards to her',
+    'Tell her I do not forget her',
+    'That every day I think of her',
+    'Love knows no borders',
+    'Neither sea nor high mountains',
+  ],
+  cesarica: [
+    'My empress, emperor of my heart',
+    'You are all I have in this world',
+    'Your eyes shine like stars',
+    'And your smile warms like the sun',
+    'I cannot do without you, I cannot',
+  ],
+  nisi_prva: [
+    'You are not the first who loved me',
+    'Not the last who will stay with me',
+    'But you are the only one who hurts',
+    'The only one who gives me no peace',
+    'I remember your hands, your lips',
+    'And the tears we never cried',
+  ],
+  hajde_da_ludujemo: [
+    'Come on, let us go wild tonight',
+    'The party has only just begun',
+    'Dancing and music until dawn',
+    'Forget all your troubles',
+    'Just be happy tonight',
+  ],
+  mojoj_majci: [
+    'Forgive me, Mother, for being far away',
+    'For not being there when someone is needed',
+    'I know you waited by the window',
+    'And looked out at the street on empty nights',
+    'Your hands were my home',
+    'And your voice is the only remedy I know',
+  ],
+  dalmacija: [
+    'I was born in a city by the sea',
+    'Where the sun blazes every day',
+    'Our language is music itself',
+    'Every word is an old song',
+    'We will not forget who we are',
+    'Dalmatia lives in the heart',
+  ],
+  plovi_plovi_ladice: [
+    'Sail, sail, my little boat',
+    'Across the calm sea',
+    'The wind blows lightly',
+    'The white sails spread wide',
+    'I am going home',
+  ],
+  spavaj_malo: [
+    'Sleep, my little child',
+    'Mother watches over you and loves you',
+    'The night is still, the stars shine',
+    'Angels guard your dream',
+    'Good night, good night',
   ],
 };
