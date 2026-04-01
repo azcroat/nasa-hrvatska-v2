@@ -49,7 +49,7 @@ export default function BadgesScreen({ badges, stats, goBack }) {
 
   return (
     <div className="scr-wrap">
-      {H("🏆 Achievements")}
+      {H("🏆 Achievements", undefined, goBack)}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
         {BADGES.map(b => {
           const u = earned.includes(b.id);

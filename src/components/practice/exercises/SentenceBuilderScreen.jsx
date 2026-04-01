@@ -13,7 +13,7 @@ function SentenceBuilderScreen({ goBack, award }) {
   function handleAnswer(e, isCorrect) {
     e.target.style.background = isCorrect ? "#dcfce7" : "#fee2e2";
     e.target.style.borderColor = isCorrect ? "#16a34a" : "#dc2626";
-    if (isCorrect) award(5);
+    if (isCorrect) { if (typeof award === 'function') award(5); }
     if (e.target.closest && e.target.closest("div")) e.target.closest("div").style.pointerEvents = "none";
     if (isCorrect) correctRef.current++;
     answeredRef.current++;

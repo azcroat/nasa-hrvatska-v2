@@ -197,7 +197,7 @@ export default function Flashcards({ pool, goBack, award }) {
     if (finishFired.current) return;
     finishFired.current = true;
     try { sessionStorage.removeItem(FLASH_RESUME_KEY); } catch { /* ignore */ }
-    award(finalKnown * XP_PER_KNOWN + XP_COMPLETION_BONUS);
+    if (typeof award === 'function') award(finalKnown * XP_PER_KNOWN + XP_COMPLETION_BONUS);
     knightSpeak(
       finalKnown === activePool.length ? 'victory' : finalKnown >= activePool.length * 0.7 ? 'celebrating' : 'encouraged',
       finalKnown === activePool.length
@@ -326,7 +326,7 @@ export default function Flashcards({ pool, goBack, award }) {
 
   return (
     <div className="scr-wrap" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-      {H("🃏 Flashcards","Tap card to flip, then choose below.")}
+      {H("🃏 Flashcards","Tap card to flip, then choose below.", goBack)}
       <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>
         <span key={idx} className="anim-fade-up" style={{fontSize:14,fontWeight:700}}>{idx+1} / {activePool.length}</span>
         <div style={{fontSize:14,fontWeight:700,color:"var(--success)"}}>✅ Know: {known}</div>

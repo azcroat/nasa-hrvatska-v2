@@ -87,7 +87,7 @@ export default function CivicScreen({ goBack }) {
   if (active) {
     return (
       <div>
-        {H(`${active.icon} ${active.title}`, 'Civic vocabulary')}
+        {H(`${active.icon} ${active.title}`, 'Civic vocabulary', goBack)}
         <button onClick={() => setActiveSection(null)} style={{
           display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none',
           cursor: 'pointer', fontSize: 13, color: 'var(--subtext)', fontWeight: 700,
@@ -126,7 +126,7 @@ export default function CivicScreen({ goBack }) {
 
   return (
     <div>
-      {H('🏛️ Civic Croatian', 'Language to follow Croatian news')}
+      {H('🏛️ Civic Croatian', 'Language to follow Croatian news', goBack)}
 
       <div style={{
         background: 'var(--card)', border: '1px solid var(--card-b)',

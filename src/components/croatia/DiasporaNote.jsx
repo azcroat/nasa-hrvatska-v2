@@ -62,7 +62,7 @@ export default function DiasporaNote({ goBack }) {
 
   return (
     <div>
-      {H('💙 Diaspora Croatian', 'Your heritage language is real language')}
+      {H('💙 Diaspora Croatian', 'Your heritage language is real language', goBack)}
 
       {/* Hero statement */}
       <div style={{

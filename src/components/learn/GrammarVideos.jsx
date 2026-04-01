@@ -272,7 +272,7 @@ export default function GrammarVideos({ goBack, setScr }) {
 
   return (
     <div className="scr-wrap">
-      {H("🎥 Grammar Videos")}
+      {H("🎥 Grammar Videos", "", goBack)}
 
       {/* Subtitle */}
       <p style={{

@@ -340,7 +340,7 @@ export default function PhraseOfDayScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H('🗓️ Fraza Dana', 'Daily Croatian phrase with cultural context')}
+      {H('🗓️ Fraza Dana', 'Daily Croatian phrase with cultural context', goBack)}
 
       {/* Category selector — horizontally scrollable */}
       <div style={{

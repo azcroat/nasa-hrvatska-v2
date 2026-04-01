@@ -86,7 +86,7 @@ export default function StoryModeScreen({ goBack, award }) {
       const { scrollTop, scrollHeight, clientHeight } = el;
       if (scrollTop + clientHeight >= scrollHeight - 80 && tappedWordsRef.current >= 5 && !awardFired.current) {
         awardFired.current = true;
-        award(15);
+        if (typeof award === 'function') award(15);
       }
     };
     el.addEventListener('scroll', check, { passive: true });

@@ -297,7 +297,7 @@ export default function BakaSummer({ goBack, award }) {
   // Award completion bonus if all done and not yet awarded
   useEffect(() => {
     if (chaptersDone.size === 16 && !bonusAwarded) {
-      award(100);
+      if (typeof award === 'function') award(100);
       localStorage.setItem('nh_baka_done_bonus', '1');
       setBonusAwarded(true);
     }
@@ -314,7 +314,7 @@ export default function BakaSummer({ goBack, award }) {
     updated.add(chapter);
     setChaptersDone(updated);
     localStorage.setItem('nh_baka_done', JSON.stringify([...updated]));
-    award(20);
+    if (typeof award === 'function') award(20);
     if (chapter < 15) {
       const next = chapter + 1;
       setChapter(next);
@@ -353,7 +353,7 @@ export default function BakaSummer({ goBack, award }) {
           ←
         </button>
         <div style={{ flex: 1 }}>
-          {H("📖 Bakino Ljeto", "Baka's Summer — A Serialized Story")}
+          {H("📖 Bakino Ljeto", "Baka's Summer — A Serialized Story", goBack)}
         </div>
       </div>
 

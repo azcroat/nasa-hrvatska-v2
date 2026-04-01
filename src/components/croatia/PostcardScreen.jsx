@@ -250,7 +250,7 @@ export default function PostcardScreen({ goBack, award }) {
     link.download = `postcard-${selectedCity.name.toLowerCase().replace(/\s+/g, '-')}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
-    if (!awardFired) { setAwardFired(true); award(15); }
+    if (!awardFired) { setAwardFired(true); if (typeof award === 'function') award(15); }
   }
 
   // ─── Share / Copy ─────────────────────────────────────────────────────────
@@ -267,7 +267,7 @@ export default function PostcardScreen({ goBack, award }) {
             text: correctedText,
             files: [file],
           });
-          if (!awardFired) { setAwardFired(true); award(15); }
+          if (!awardFired) { setAwardFired(true); if (typeof award === 'function') award(15); }
           return;
         }
       } catch (_) { /* fall through to clipboard */ }
@@ -276,7 +276,7 @@ export default function PostcardScreen({ goBack, award }) {
         await navigator.clipboard.writeText(`${correctedText}\n— Naša Hrvatska 🇭🇷`);
         setCopied(true);
         setTimeout(() => setCopied(false), 2500);
-        if (!awardFired) { setAwardFired(true); award(15); }
+        if (!awardFired) { setAwardFired(true); if (typeof award === 'function') award(15); }
       } catch (_) {
         setError("Could not copy to clipboard. Try downloading instead.");
       }
@@ -292,7 +292,7 @@ export default function PostcardScreen({ goBack, award }) {
   // ─────────────────────────────────────────────────────────────────────────
   return (
     <div className="scr-wrap">
-      {H('📮 Croatian Postcard', 'Write in Croatian, get it corrected, and create a beautiful shareable postcard')}
+      {H('📮 Croatian Postcard', 'Write in Croatian, get it corrected, and create a beautiful shareable postcard', goBack)}
 
       {/* ── STEP INDICATOR ── */}
       <div style={{ display: 'flex', gap: 0, marginBottom: 24, position: 'relative' }}>

@@ -169,7 +169,7 @@ export default function ReviewScreen({ goBack, award, allCats }) {
               finishFired.current = true;
               markPracticed();
               haptic.award();
-              award(score * 5 + 5);
+              if (typeof award === 'function') award(score * 5 + 5);
               markQuest('master');
               goBack();
             }}

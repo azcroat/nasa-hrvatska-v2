@@ -138,7 +138,7 @@ export default function GrammarExplainer({ goBack, award }) {
 
   function handleQuizSubmit() {
     setQuizSubmitted(true);
-    if (!xpAwarded && award) {
+    if (!xpAwarded && typeof award === 'function') {
       award(20);
       setXpAwarded(true);
       setPhase("done");
@@ -557,7 +557,7 @@ export default function GrammarExplainer({ goBack, award }) {
         </button>
       </div>
       <div style={{ maxWidth: 680, margin: "0 auto", padding: "16px 16px 0" }}>
-        <div style={{ marginBottom: 4 }}>{H("🧠 Grammar Explainer")}</div>
+        <div style={{ marginBottom: 4 }}>{H("🧠 Grammar Explainer", "", goBack)}</div>
         <p style={{ color: "var(--subtext)", fontSize: "var(--text-sm)", margin: "4px 0 20px" }}>
           Pick a topic — Claude will generate a personalized lesson for your level
         </p>

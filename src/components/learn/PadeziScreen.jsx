@@ -22,7 +22,7 @@ export default function PadeziScreen({ goBack, award, setSt }) {
   return (
     <div className="scr-wrap">
       
-      {H("📚 Padeži — 7 Croatian Cases","Master noun endings for every situation")}
+      {H("📚 Padeži — 7 Croatian Cases","Master noun endings for every situation", goBack)}
       <div style={{display:"flex",gap:8,marginBottom:20}}>
         {["learn","quiz"].map(m => (
           <button

@@ -105,7 +105,7 @@ export default function SurvivalDinner({ goBack }) {
     const sc = SCENARIOS.find(s => s.id === activeScenario);
     return (
       <div>
-        {H(`${sc.icon} ${sc.title}`, 'Tap any phrase to hear it')}
+        {H(`${sc.icon} ${sc.title}`, 'Tap any phrase to hear it', goBack)}
         <button onClick={() => setActiveScenario(null)} style={{
           display:'flex', alignItems:'center', gap:8, background:'none', border:'none',
           cursor:'pointer', fontSize:13, color:'var(--subtext)', fontWeight:700,
@@ -174,7 +174,7 @@ export default function SurvivalDinner({ goBack }) {
 
   return (
     <div>
-      {H('🍽️ Survival at the Table', 'Essential phrases for family dinners')}
+      {H('🍽️ Survival at the Table', 'Essential phrases for family dinners', goBack)}
 
       <div style={{
         background:'linear-gradient(135deg,rgba(182,24,0,.08),rgba(0,48,135,.06))',

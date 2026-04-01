@@ -23,7 +23,7 @@ export default function Unjumble({ goBack, award }) {
           <h2 style={{fontFamily:"'Playfair Display',serif",color:"#164e63"}}>Word Order Complete!</h2>
           <div style={{fontSize:32,fontWeight:800,color:"#0e7490"}}>{ujS} / {ujQ.length}</div>
           <div style={{fontSize:24,fontWeight:900,color:"#d97706",margin:"12px 0 20px"}}>+{xp} XP</div>
-          <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; award(xp); goBack(); }}>Continue →</button>
+          <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(xp); goBack(); }}>Continue →</button>
         </div>
       </div>
     );

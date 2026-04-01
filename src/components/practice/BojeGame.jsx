@@ -33,7 +33,7 @@ export default function BojeGame({ goBack, award }) {
   return (
     <div className="scr-wrap">
       
-      {H("🎨 " + BOJE.title,"Color adjectives change to match noun gender")}
+      {H("🎨 " + BOJE.title,"Color adjectives change to match noun gender", goBack)}
       <div style={{display:"flex",gap:8,marginBottom:20}}>
         {["learn","quiz"].map(m => (
           <button
@@ -136,7 +136,7 @@ export default function BojeGame({ goBack, award }) {
                   onClick={() => {
                     if (bjAns) return;
                     sBjSel(oi); sBjAns(true);
-                    if (o === q.answer) { sBjSc(s => s + 1); award(5); }
+                    if (o === q.answer) { sBjSc(s => s + 1); if (typeof award === 'function') award(5); }
                   }}>
                   {o}
                 </button>
@@ -154,7 +154,7 @@ export default function BojeGame({ goBack, award }) {
                     sBjAns(false);
                     sBjSel(-1);
                   } else {
-                    if (!finishFired.current) { finishFired.current = true; award(bjSc * 2); }
+                    if (!finishFired.current) { finishFired.current = true; if (typeof award === 'function') award(bjSc * 2); }
                     sBjIdx(total);
                   }
                 }}>

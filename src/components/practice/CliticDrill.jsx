@@ -75,7 +75,7 @@ export default function CliticDrill({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H("🔗 Clitic Drill", "Master the hardest rule in Croatian")}
+      {H("🔗 Clitic Drill", "Master the hardest rule in Croatian", goBack)}
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
         <span style={{ fontSize: 13, color: "#64748b", whiteSpace: "nowrap" }}>{idx + 1} / {total}</span>
         <Bar v={idx + 1} mx={total} />

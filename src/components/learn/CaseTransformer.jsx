@@ -94,7 +94,7 @@ export default function CaseTransformer({ goBack, award }) {
       setQuizChosen(null);
     } else {
       setQuizDone(true);
-      if (!xpAwarded && award) {
+      if (!xpAwarded && typeof award === 'function') {
         markQuest('grammar');
         award(10);
         setXpAwarded(true);

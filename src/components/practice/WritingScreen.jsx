@@ -393,7 +393,7 @@ export default function WritingScreen({ goBack, award }) {
             </div>
           )}
 
-          <button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{if(finishFired.current)return;finishFired.current=true;award(result.score>0?Math.round(result.score/10)+5:5);setText("");setResult(null);}}>
+          <button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{if(finishFired.current)return;finishFired.current=true;if(typeof award==='function')award(result.score>0?Math.round(result.score/10)+5:5);setText("");setResult(null);}}>
             ✨ New Prompt
           </button>
         </div>

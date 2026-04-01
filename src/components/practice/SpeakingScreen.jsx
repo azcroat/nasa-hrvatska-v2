@@ -98,7 +98,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
       // All words done — show summary before awarding
       if (finishFired.current) return;
       finishFired.current = true;
-      award(ssc * 5 + 5);
+      if (typeof award === 'function') award(ssc * 5 + 5);
       markQuest('speak');
       setSt(s => ({ ...s, sp: s.sp + 1 }));
       setShowSummary(true);
@@ -384,7 +384,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   // ── Main speaking screen ───────────────────────────────────────────────────
   return (
     <div className="scr-wrap">
-      {H('🎤 Pronunciation Practice')}
+      {H('🎤 Pronunciation Practice', '', goBack)}
       <Bar v={sx + 1} mx={si.length} color="var(--success)" h={6} />
       <SpeakingPracticePanel
         sw={sw}

@@ -83,7 +83,7 @@ export default function ConjugationDrill({ goBack, award, setSt }) {
               <div style={{fontSize:32,fontWeight:800,color:"#0e7490"}}>{cjS} / {total}</div>
               <div style={{display:"flex",gap:10,justifyContent:"center",marginTop:16}}>
                 <button className="b bg" onClick={() => sCjMode("menu")}>📋 Menu</button>
-                <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; award(cjS * 2 + 10); setSt(s => ({...s, gc: s.gc + 1})); goBack(); }}>🏠 Finish!</button>
+                <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(cjS * 2 + 10); setSt(s => ({...s, gc: s.gc + 1})); goBack(); }}>🏠 Finish!</button>
               </div>
             </div>
           );
@@ -109,7 +109,7 @@ export default function ConjugationDrill({ goBack, award, setSt }) {
                 <button
                   key={oi}
                   className={"ob " + (cjA ? (oi === ci ? "ok" : cjSl === oi ? "no" : "") : "")}
-                  onClick={() => { if (!cjA) { sCjSl(oi); sCjA(true); const correct=oi===ci; if (correct) { sCjS(s => s + 1); award(3); } recordTopicResult('conjugation',correct); } }}>
+                  onClick={() => { if (!cjA) { sCjSl(oi); sCjA(true); const correct=oi===ci; if (correct) { sCjS(s => s + 1); if (typeof award === 'function') award(3); } recordTopicResult('conjugation',correct); } }}>
                   {q.person} {o}
                 </button>
               ))}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { H, speak, sh } from '../../data.jsx';
 import { REGIONS, ROLEPLAY, RECIPES, CROATIAN_CITIES } from '../../data.jsx';
+import { markQuest } from '../../lib/quests.js';
 
 export function RegionScreen({ regionKey, goBack }) {
   const [tab, setTab] = useState("overview");
@@ -30,7 +31,7 @@ export function RegionScreen({ regionKey, goBack }) {
     if (correct) setQuizScore(s => s + 1);
     setTimeout(() => {
       if (quizI < r.quiz.length - 1) { setQuizI(i => i + 1); setQuizSel(null); }
-      else setQuizDone(true);
+      else { markQuest('grammar'); setQuizDone(true); }
     }, 1400);
   }
 
@@ -203,7 +204,7 @@ export function RoleplayScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("🎭 Conversation Role-Play","Practice real-life dialogues")}
+      {H("🎭 Conversation Role-Play","Practice real-life dialogues", goBack)}
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:16}}>
         {ROLEPLAY.map(function(rp,i){return (
           <button key={i} className={"b "+(rpIdx===i?"bp":"bg")} style={{fontSize:12}}
@@ -245,7 +246,7 @@ export function RecipesScreen({ goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("🍳 Croatian Recipes","Cook & learn vocabulary")}
+      {H("🍳 Croatian Recipes","Cook & learn vocabulary", goBack)}
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:16}}>
         {RECIPES.map(function(rec,i){return (
           <button key={i} className={"b "+(rcIdx===i?"bp":"bg")} style={{fontSize:13}}

@@ -22,7 +22,7 @@ function QuestionWordsScreen({ goBack, award }) {
     const isCorrect = o === q.a;
     setAnswers(prev => { const n = [...prev]; n[qi] = isCorrect ? 'correct' : 'wrong'; return n; });
     setSelected(prev => { const n = [...prev]; n[qi] = o; return n; });
-    if (isCorrect) { award(3); speak(q.q.replace("_____", q.a)); }
+    if (isCorrect) { if (typeof award === 'function') award(3); speak(q.q.replace("_____", q.a)); }
   }
 
   return (

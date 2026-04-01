@@ -16,7 +16,7 @@ export default function ReadingList({ setScr, sRp, sRph, sRqi, sRsc, sRa, sRsl, 
 
   return (
     <div className="scr-wrap">
-      {H("📖 Reading Passages")}
+      {H("📖 Reading Passages", "", goBack)}
       <div style={{textAlign:"center",fontSize:13,color:"#78716c",marginBottom:16}}>
         {totalPassages} passages across {levelCount} levels
       </div>

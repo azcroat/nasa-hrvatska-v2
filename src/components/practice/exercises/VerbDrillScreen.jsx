@@ -48,7 +48,7 @@ export default function VerbDrillScreen({ goBack, award }) {
       if (!awardFired.current) {
         awardFired.current = true;
         markQuest('grammar');
-        award(score * 3 + 10);
+        if (typeof award === 'function') award(score * 3 + 10);
       }
       setQuizDone(true);
     }

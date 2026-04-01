@@ -11,7 +11,7 @@ function TenseFlipScreen({ goBack, award }) {
 
   function handleReveal(e, spoken) {
     speak(spoken);
-    award(3);
+    if (typeof award === 'function') award(3);
     if (e.target.closest && e.target.closest("div")) e.target.closest("div").style.pointerEvents = "none";
     revealedRef.current++;
     if (revealedRef.current >= total && !done) {

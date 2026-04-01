@@ -5,7 +5,7 @@ export default function FavoritesScreen({ favs, toggleFav, setScr, goBack }) {
   return (
     <div className="scr-wrap">
       
-      {H("⭐ My Favorites","Saved words, phrases & screens")}
+      {H("⭐ My Favorites","Saved words, phrases & screens", goBack)}
       {favs.length===0
         ? <div className="c" style={{textAlign:"center",padding:"32px"}}>
             <div style={{fontSize:48}}>⭐</div>

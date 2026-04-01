@@ -472,7 +472,7 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
               `${score}/${questions.length} this time. Every wrong answer is a memory your brain is building. 📐`,
               300
             );
-            award(score * XP_PER_CORRECT + XP_COMPLETION_BONUS, true);
+            if (typeof award === 'function') award(score * XP_PER_CORRECT + XP_COMPLETION_BONUS, true);
             onComplete(questions, score);
           }
         }}

@@ -602,7 +602,7 @@ export default function MajaScreen() {
   const handleDebriefBack = useCallback(() => {
     if (debrief && !debriefXpFired.current) {
       debriefXpFired.current = true;
-      award(debrief.xpEarned ?? 30);
+      if (typeof award === 'function') award(debrief.xpEarned ?? 30);
     }
     goBack();
   }, [debrief, award, goBack]);

@@ -14,7 +14,7 @@ function FillStoryScreen({ goBack, award }) {
     for (let i = 0; i < btns.length; i++) { btns[i].style.background = "white"; btns[i].style.borderColor = "#d6d3d1"; }
     e.target.style.background = isCorrect ? "#dcfce7" : "#fee2e2";
     e.target.style.borderColor = isCorrect ? "#16a34a" : "#dc2626";
-    if (isCorrect) award(3);
+    if (isCorrect) { if (typeof award === 'function') award(3); }
     if (e.target.closest && e.target.closest("div")) e.target.closest("div").style.pointerEvents = "none";
     if (isCorrect) correctRef.current++;
     answeredRef.current++;

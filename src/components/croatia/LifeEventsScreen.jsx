@@ -136,7 +136,7 @@ export default function LifeEventsScreen({ goBack }) {
   if (ev) {
     return (
       <div>
-        {H(`${ev.icon} ${ev.title}`, ev.subtitle)}
+        {H(`${ev.icon} ${ev.title}`, ev.subtitle, goBack)}
         <button onClick={() => setActiveEvent(null)} style={{
           display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none',
           cursor: 'pointer', fontSize: 13, color: 'var(--subtext)', fontWeight: 700,
@@ -188,7 +188,7 @@ export default function LifeEventsScreen({ goBack }) {
 
   return (
     <div>
-      {H('🎊 Životni Trenuci', 'Language for life\'s big moments')}
+      {H('🎊 Životni Trenuci', 'Language for life\'s big moments', goBack)}
 
       <div style={{
         background: 'linear-gradient(135deg,rgba(182,24,0,.07),rgba(0,48,135,.05))',

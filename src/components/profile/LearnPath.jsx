@@ -42,7 +42,7 @@ export default function LearnPath({ st, setScr, goBack }) {
 
   return (
     <div className="scr-wrap" style={{ paddingBottom: 100 }}>
-      {H("🗺️ My Learning Path", "From zero to fluency — one step at a time")}
+      {H("🗺️ My Learning Path", "From zero to fluency — one step at a time", goBack)}
 
       {/* ── Global progress ring ────────────────────────────────────────── */}
       <div className="c" style={{
