@@ -2,7 +2,7 @@ userName: jeffreyschreiner_czsTS4
 accessKey: 2FYsk4RAEufxaeyopEyd
 
 projectName: Nasa Hrvatska
-buildName: "Full E2E Suite"
+buildName: "Full Device Matrix"
 buildIdentifier: "#${BUILD_NUMBER}"
 
 testObservability: true
@@ -13,9 +13,37 @@ consoleLogs: errors
 testRunnerOptions: --config=browserstack.playwright.config.js
 
 platforms:
-  # ── iOS real devices ───────────────────────────────────────────────────────
+
+  # ── iPhone — latest OS (iOS 26) ────────────────────────────────────────────
+  - deviceName: iPhone 17 Pro Max
+    osVersion: 26
+    browserName: safari
+    browserVersion: latest
+
+  - deviceName: iPhone 17
+    osVersion: 26
+    browserName: safari
+    browserVersion: latest
+
+  - deviceName: iPhone Air
+    osVersion: 26
+    browserName: safari
+    browserVersion: latest
+
+  # ── iPhone — iOS 17 ────────────────────────────────────────────────────────
+  - deviceName: iPhone 15 Pro Max
+    osVersion: 17
+    browserName: safari
+    browserVersion: latest
+
   - deviceName: iPhone 15
     osVersion: 17
+    browserName: safari
+    browserVersion: latest
+
+  # ── iPhone — iOS 16 ────────────────────────────────────────────────────────
+  - deviceName: iPhone 14 Pro Max
+    osVersion: 16
     browserName: safari
     browserVersion: latest
 
@@ -24,12 +52,66 @@ platforms:
     browserName: safari
     browserVersion: latest
 
+  # ── iPhone — iOS 15 (small screen + budget) ────────────────────────────────
+  - deviceName: iPhone 13 Mini
+    osVersion: 15
+    browserName: safari
+    browserVersion: latest
+
   - deviceName: iPhone SE 2022
     osVersion: 15
     browserName: safari
     browserVersion: latest
 
-  # ── Android real devices ───────────────────────────────────────────────────
+  # ── iPhone — iOS 13 (older) ────────────────────────────────────────────────
+  - deviceName: iPhone 11
+    osVersion: 13
+    browserName: safari
+    browserVersion: latest
+
+  # ── iPad ───────────────────────────────────────────────────────────────────
+  - deviceName: iPad Pro 13 2025
+    osVersion: 26
+    browserName: safari
+    browserVersion: latest
+
+  - deviceName: iPad Pro 12.9 2022
+    osVersion: 16
+    browserName: safari
+    browserVersion: latest
+
+  - deviceName: iPad Air 5
+    osVersion: 15
+    browserName: safari
+    browserVersion: latest
+
+  - deviceName: iPad 9th
+    osVersion: 15
+    browserName: safari
+    browserVersion: latest
+
+  # ── Android flagship ───────────────────────────────────────────────────────
+  - deviceName: Samsung Galaxy S26
+    osVersion: 16.0
+    browserName: chrome
+    browserVersion: latest
+
+  - deviceName: Samsung Galaxy S25
+    osVersion: 15.0
+    browserName: chrome
+    browserVersion: latest
+
+  - deviceName: Google Pixel 10 Pro
+    osVersion: 16.0
+    browserName: chrome
+    browserVersion: latest
+
+  - deviceName: Google Pixel 9
+    osVersion: 15.0
+    browserName: chrome
+    browserVersion: latest
+
+  # ── Android mid-range ──────────────────────────────────────────────────────
   - deviceName: Samsung Galaxy S23
     osVersion: 13.0
     browserName: chrome
@@ -40,14 +122,52 @@ platforms:
     browserName: chrome
     browserVersion: latest
 
-  - deviceName: Samsung Galaxy A54
+  - deviceName: OnePlus 13R
+    osVersion: 15.0
+    browserName: chrome
+    browserVersion: latest
+
+  # ── Android budget ─────────────────────────────────────────────────────────
+  - deviceName: Samsung Galaxy A51
+    osVersion: 10.0
+    browserName: chrome
+    browserVersion: latest
+
+  # ── Android tablet ─────────────────────────────────────────────────────────
+  - deviceName: Samsung Galaxy Tab S11
+    osVersion: 15.0
+    browserName: chrome
+    browserVersion: latest
+
+  - deviceName: Samsung Galaxy Tab S9
     osVersion: 13.0
     browserName: chrome
     browserVersion: latest
 
-  # ── Desktop browsers ───────────────────────────────────────────────────────
+  # ── Desktop — Windows 11 ───────────────────────────────────────────────────
   - os: Windows
     osVersion: 11
+    browserName: chrome
+    browserVersion: latest
+
+  - os: Windows
+    osVersion: 11
+    browserName: firefox
+    browserVersion: latest
+
+  - os: Windows
+    osVersion: 11
+    browserName: edge
+    browserVersion: latest
+
+  # ── Desktop — macOS ────────────────────────────────────────────────────────
+  - os: OS X
+    osVersion: Sequoia
+    browserName: safari
+    browserVersion: latest
+
+  - os: OS X
+    osVersion: Sequoia
     browserName: chrome
     browserVersion: latest
 
