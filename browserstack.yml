@@ -10,10 +10,26 @@ debug: true
 networkLogs: true
 consoleLogs: errors
 
-# Run against the live production URL — BrowserStack devices can't reach localhost
 testRunnerOptions: --config=browserstack.playwright.config.js
 
 platforms:
+  # ── YOUR DEVICE ────────────────────────────────────────────────────────────
+  - deviceName: iPhone 17 Pro Max
+    osVersion: 26
+    browserName: safari
+    browserVersion: latest
+
+  # ── iOS real devices ───────────────────────────────────────────────────────
+  - deviceName: iPhone 17
+    osVersion: 26
+    browserName: safari
+    browserVersion: latest
+
+  - deviceName: iPhone SE 2022
+    osVersion: 15
+    browserName: safari
+    browserVersion: latest
+
   # ── Android real devices ───────────────────────────────────────────────────
   - deviceName: Samsung Galaxy S23
     osVersion: 13.0
@@ -33,17 +49,6 @@ platforms:
   - deviceName: OnePlus 11R
     osVersion: 13.0
     browserName: chrome
-    browserVersion: latest
-
-  # ── iOS real devices ───────────────────────────────────────────────────────
-  - deviceName: iPhone 15
-    osVersion: 17
-    browserName: safari
-    browserVersion: latest
-
-  - deviceName: iPhone SE 3rd
-    osVersion: 16
-    browserName: safari
     browserVersion: latest
 
   # ── Desktop browsers ───────────────────────────────────────────────────────
