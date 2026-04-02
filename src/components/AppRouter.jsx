@@ -295,7 +295,7 @@ export default function AppRouter(props) {
         style={{ height: "100%" }}
       >
       {currentScreen==="welcome" && <WelcomeScreen name={name} au={authUser} st={stats} setScr={setScr} setName={setName} setPlacementQ={setPlacementQ} setPlacementIdx={setPlacementIdx} setPlacementScore={setPlacementScore} setPlacementAnswers={setPlacementAnswers} setPlacementXp={setPlacementXp} />}
-      {currentScreen==="placement" && <PlacementTest onComplete={function(level){localStorage.setItem("placement_done","1");setStats(function(prev){return{...prev,ct:getPlacementCt(level),lc:Math.max(prev.lc,getPlacementCt(level).length)};});if(typeof award==='function')award(25);setShowFirstWords(true);setTimeout(()=>setTab('learn'),300);}} />}
+      {currentScreen==="placement" && <PlacementTest onComplete={function(level){localStorage.setItem("placement_done","1");setStats(function(prev){return{...prev,ct:getPlacementCt(level),lc:Math.max(prev.lc,getPlacementCt(level).length)};});if(typeof award==='function')award(25);setShowFirstWords(true);setTab('learn');}} />}
       {// ═══ DASHBOARD ═══
       currentScreen==="dashboard"&&<div className="dash">
         <div style={{position:"relative",marginBottom:20}}>
@@ -567,7 +567,7 @@ export default function AppRouter(props) {
       {currentScreen==="grammarmap"&&<ScreenErrorBoundary key="grammarmap" name="grammarmap"><GrammarConstellation goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="grammar_track"&&<ScreenErrorBoundary key="grammar_track" name="grammar_track"><GrammarTrackScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="listening_comprehension"&&<ScreenErrorBoundary key="listening_comprehension" name="listening_comprehension"><ListeningComprehensionScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
-      {currentScreen==="my_words"&&<ScreenErrorBoundary key="my_words" name="my_words"><MyWordsScreen onBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="my_words"&&<ScreenErrorBoundary key="my_words" name="my_words"><MyWordsScreen onBack={goBack} award={typeof award==='function'?award:undefined} /></ScreenErrorBoundary>}
       {currentScreen==="mistakes"&&<ScreenErrorBoundary key="mistakes" name="mistakes"><MistakesScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="analytics"&&<ScreenErrorBoundary key="analytics" name="analytics"><AnalyticsScreen goBack={goBack} stats={stats} name={name} /></ScreenErrorBoundary>}
       {// ═══ GRAMMAR REFERENCE ═══

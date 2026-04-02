@@ -56,7 +56,7 @@ export function useAward({ curEx, stats, setStats }: { curEx: string; stats: Sta
     if (comebackBonus && amt > 0 && !_awardComebackUsed && !localStorage.getItem('nh_comeback_used_' + _today)) {
       _awardComebackUsed = true;
       localStorage.setItem('nh_comeback_used_' + _today, '1');
-      totalAmt = lXPgain(amt) + 50; // Bonus is flat, not subject to campaign multiplier
+      totalAmt = totalAmt + 50; // Bonus is flat, not subject to campaign multiplier
     }
     setXpA(totalAmt); setShowXP(true);
     // Capture side-effect data outside the updater — state updaters must be pure

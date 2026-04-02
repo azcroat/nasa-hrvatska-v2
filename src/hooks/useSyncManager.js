@@ -85,32 +85,35 @@ export function useSyncManager({
       if (_mergeInProgressRef.current) return;
       _mergeInProgressRef.current = true;
       _lastMergedFbTs.current = fpTs;
-      const lp = gP(authUser.u);
-      const pSt = fp.stats || fp.st || {};
-      // Always merge additive: take max of local + remote, union arrays.
-      // Safe even when local is "newer" — Math.max/union can never decrease values.
-      const lpSt = lp ? (lp.stats || lp.st || {}) : {};
-      const mergedStats = {
-        ...pSt,
-        xp:  Math.max(lpSt.xp  || 0, pSt.xp  || 0),
-        lc:  Math.max(lpSt.lc  || 0, pSt.lc  || 0),
-        gc:  Math.max(lpSt.gc  || 0, pSt.gc  || 0),
-        sp:  Math.max(lpSt.sp  || 0, pSt.sp  || 0),
-        de:  Math.max(lpSt.de  || 0, pSt.de  || 0),
-        rc:  Math.max(lpSt.rc  || 0, pSt.rc  || 0),
-        str: Math.max(lpSt.str || 0, pSt.str || 0),
-        pf:  Math.max(lpSt.pf  || 0, pSt.pf  || 0),
-        mv:  Math.max(lpSt.mv  || 0, pSt.mv  || 0),
-        hi:  Math.max(lpSt.hi  || 0, pSt.hi  || 0),
-        ct:  [...new Set([...(lpSt.ct  || []), ...(pSt.ct  || [])])],
-        vs:  [...new Set([...(lpSt.vs  || []), ...(pSt.vs  || [])])],
-        badges: [...new Set([...(lpSt.badges || []), ...(pSt.badges || [])])],
-      };
-      lP(authUser.u, { ...fp, savedAt: fpTs, stats: mergedStats });
-      setStats(prev => mergeStatsFromRemote(prev, pSt, ds));
-      if (fp.name) setName(fp.name);
-      applyRemoteProgress(fp);
-      setTimeout(() => { _mergeInProgressRef.current = false; }, 200);
+      try {
+        const lp = gP(authUser.u);
+        const pSt = fp.stats || fp.st || {};
+        // Always merge additive: take max of local + remote, union arrays.
+        // Safe even when local is "newer" — Math.max/union can never decrease values.
+        const lpSt = lp ? (lp.stats || lp.st || {}) : {};
+        const mergedStats = {
+          ...pSt,
+          xp:  Math.max(lpSt.xp  || 0, pSt.xp  || 0),
+          lc:  Math.max(lpSt.lc  || 0, pSt.lc  || 0),
+          gc:  Math.max(lpSt.gc  || 0, pSt.gc  || 0),
+          sp:  Math.max(lpSt.sp  || 0, pSt.sp  || 0),
+          de:  Math.max(lpSt.de  || 0, pSt.de  || 0),
+          rc:  Math.max(lpSt.rc  || 0, pSt.rc  || 0),
+          str: Math.max(lpSt.str || 0, pSt.str || 0),
+          pf:  Math.max(lpSt.pf  || 0, pSt.pf  || 0),
+          mv:  Math.max(lpSt.mv  || 0, pSt.mv  || 0),
+          hi:  Math.max(lpSt.hi  || 0, pSt.hi  || 0),
+          ct:  [...new Set([...(lpSt.ct  || []), ...(pSt.ct  || [])])],
+          vs:  [...new Set([...(lpSt.vs  || []), ...(pSt.vs  || [])])],
+          badges: [...new Set([...(lpSt.badges || []), ...(pSt.badges || [])])],
+        };
+        lP(authUser.u, { ...fp, savedAt: fpTs, stats: mergedStats });
+        setStats(prev => mergeStatsFromRemote(prev, pSt, ds));
+        if (fp.name) setName(fp.name);
+        applyRemoteProgress(fp);
+      } finally {
+        setTimeout(() => { _mergeInProgressRef.current = false; }, 200);
+      }
     });
     _watcherUnsubRef.current = unsub;
 
@@ -127,30 +130,33 @@ export function useSyncManager({
         if (_mergeInProgressRef.current) return;
         _mergeInProgressRef.current = true;
         _lastMergedFbTs.current = fpTs || (_lastMergedFbTs.current + 1);
-        const lp = gP(authUser.u);
-        const pSt = fp.stats || fp.st || {};
-        const lpSt2 = lp ? (lp.stats || lp.st || {}) : {};
-        const mergedStats2 = {
-          ...pSt,
-          xp:  Math.max(lpSt2.xp  || 0, pSt.xp  || 0),
-          lc:  Math.max(lpSt2.lc  || 0, pSt.lc  || 0),
-          gc:  Math.max(lpSt2.gc  || 0, pSt.gc  || 0),
-          sp:  Math.max(lpSt2.sp  || 0, pSt.sp  || 0),
-          de:  Math.max(lpSt2.de  || 0, pSt.de  || 0),
-          rc:  Math.max(lpSt2.rc  || 0, pSt.rc  || 0),
-          str: Math.max(lpSt2.str || 0, pSt.str || 0),
-          pf:  Math.max(lpSt2.pf  || 0, pSt.pf  || 0),
-          mv:  Math.max(lpSt2.mv  || 0, pSt.mv  || 0),
-          hi:  Math.max(lpSt2.hi  || 0, pSt.hi  || 0),
-          ct:  [...new Set([...(lpSt2.ct  || []), ...(pSt.ct  || [])])],
-          vs:  [...new Set([...(lpSt2.vs  || []), ...(pSt.vs  || [])])],
-          badges: [...new Set([...(lpSt2.badges || []), ...(pSt.badges || [])])],
-        };
-        lP(authUser.u, { ...fp, savedAt: fpTs, stats: mergedStats2 });
-        setStats(prev => mergeStatsFromRemote(prev, pSt, ds));
-        if (fp.name) setName(fp.name);
-        applyRemoteProgress(fp);
-        setTimeout(() => { _mergeInProgressRef.current = false; }, 200);
+        try {
+          const lp = gP(authUser.u);
+          const pSt = fp.stats || fp.st || {};
+          const lpSt2 = lp ? (lp.stats || lp.st || {}) : {};
+          const mergedStats2 = {
+            ...pSt,
+            xp:  Math.max(lpSt2.xp  || 0, pSt.xp  || 0),
+            lc:  Math.max(lpSt2.lc  || 0, pSt.lc  || 0),
+            gc:  Math.max(lpSt2.gc  || 0, pSt.gc  || 0),
+            sp:  Math.max(lpSt2.sp  || 0, pSt.sp  || 0),
+            de:  Math.max(lpSt2.de  || 0, pSt.de  || 0),
+            rc:  Math.max(lpSt2.rc  || 0, pSt.rc  || 0),
+            str: Math.max(lpSt2.str || 0, pSt.str || 0),
+            pf:  Math.max(lpSt2.pf  || 0, pSt.pf  || 0),
+            mv:  Math.max(lpSt2.mv  || 0, pSt.mv  || 0),
+            hi:  Math.max(lpSt2.hi  || 0, pSt.hi  || 0),
+            ct:  [...new Set([...(lpSt2.ct  || []), ...(pSt.ct  || [])])],
+            vs:  [...new Set([...(lpSt2.vs  || []), ...(pSt.vs  || [])])],
+            badges: [...new Set([...(lpSt2.badges || []), ...(pSt.badges || [])])],
+          };
+          lP(authUser.u, { ...fp, savedAt: fpTs, stats: mergedStats2 });
+          setStats(prev => mergeStatsFromRemote(prev, pSt, ds));
+          if (fp.name) setName(fp.name);
+          applyRemoteProgress(fp);
+        } finally {
+          setTimeout(() => { _mergeInProgressRef.current = false; }, 200);
+        }
       } catch (_) {}
     };
     const onPageShow = (e) => { if (e.persisted) iosWakeUp(); };

@@ -120,7 +120,7 @@ export default function HomeTab({
   useEffect(() => { if (wod?.[0]) preloadAudio(wod[0]); }, [wod]);
 
   const userGoal = goal || localStorage.getItem('nh_goal') || 'fluent';
-  const activeCampaign = useMemo(() => getActiveCampaign(), []);
+  const activeCampaign = useMemo(() => getActiveCampaign(), [st.lc]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Goal-setter modal: show for new users who haven't set a goal yet
   const [showGoalModal, setShowGoalModal] = useState(
@@ -402,7 +402,7 @@ export default function HomeTab({
                           color: 'rgba(255,255,255,.5)', fontSize: 18,
                           cursor: 'pointer', lineHeight: 1, padding: '2px 6px',
                         }}
-                        onClick={(e) => { e.stopPropagation(); sessionStorage.setItem(dismissKey, '1'); e.currentTarget.closest('[data-srs-banner]').style.display = 'none'; }}
+                        onClick={(e) => { e.stopPropagation(); sessionStorage.setItem(dismissKey, '1'); const banner = e.currentTarget.closest('[data-srs-banner]'); if (banner) banner.style.display = 'none'; }}
                       >×</button>
                     </div>
 

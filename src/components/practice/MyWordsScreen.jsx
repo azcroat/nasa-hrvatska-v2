@@ -502,7 +502,7 @@ function AddWordForm({ words, setWords, setView }) {
   );
 }
 
-function DrillMode({ words, setView }) {
+function DrillMode({ words, setView, onComplete }) {
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [correct, setCorrect] = useState(0);
@@ -536,10 +536,12 @@ function DrillMode({ words, setView }) {
 
   function handleResult(gotIt) {
     srMark(word.hr, gotIt);
-    if (gotIt) setCorrect(c => c + 1);
+    const newCorrect = gotIt ? correct + 1 : correct;
+    if (gotIt) setCorrect(newCorrect);
     setFlipped(false);
     if (idx + 1 >= words.length) {
       setDone(true);
+      if (typeof onComplete === 'function') onComplete(newCorrect, words.length);
     } else {
       setIdx(i => i + 1);
     }
@@ -595,7 +597,7 @@ function DrillMode({ words, setView }) {
 
 /* ─── Main Component ─────────────────────────────────────────────────── */
 
-export default function MyWordsScreen({ onBack }) {
+export default function MyWordsScreen({ onBack, award }) {
   const [view, setView] = useState('list');
   const [words, setWords] = useState(() => loadWords());
 
@@ -632,7 +634,9 @@ export default function MyWordsScreen({ onBack }) {
           <AddWordForm words={words} setWords={setWords} setView={setView} />
         )}
         {view === 'drill' && (
-          <DrillMode words={words} setView={setView} />
+          <DrillMode words={words} setView={setView} onComplete={(correct, total) => {
+            if (typeof award === 'function' && correct > 0) award(correct * 5);
+          }} />
         )}
       </div>
     </div>

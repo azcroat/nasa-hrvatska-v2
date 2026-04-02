@@ -53,10 +53,12 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
     return Notification.permission;
   });
   const [notifLoading, setNotifLoading] = useState(false);
+  const [notifError, setNotifError] = useState('');
 
   const handleEnableNotifications = useCallback(async () => {
     if (notifLoading) return;
     setNotifLoading(true);
+    setNotifError('');
     try {
       const { subscribeToPush } = await import('../../lib/pushNotifications.js');
       const result = await subscribeToPush(au?.u || '');
@@ -65,11 +67,14 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
       );
       if (result.ok) {
         try { localStorage.setItem('nh_notifications_enabled', 'true'); } catch {}
+      } else {
+        setNotifError('Could not enable notifications. Please check your browser settings.');
       }
-    } catch {
+    } catch (err) {
       setNotifPermission(
         typeof Notification !== 'undefined' ? Notification.permission : 'unsupported'
       );
+      setNotifError('Notifications unavailable. Please try again or check browser permissions.');
     } finally {
       setNotifLoading(false);
     }
@@ -428,6 +433,11 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
             </button>
           )}
         </div>
+        {notifError && (
+          <div style={{ marginTop: 8, fontSize: 'var(--text-xs)', color: 'var(--error, #ef4444)', fontWeight: 600 }}>
+            {notifError}
+          </div>
+        )}
         {notifPermission === 'granted' && (
           <div style={{ marginTop: 10, fontSize: 'var(--text-xs)', color: 'var(--subtext)', lineHeight: 1.5 }}>
             ✓ Streak reminders at 8PM · ✓ SRS review alerts · ✓ Daily motivation
