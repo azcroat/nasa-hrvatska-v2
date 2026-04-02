@@ -6,13 +6,20 @@ import { useState, useEffect, useRef } from 'react';
  * reconnection (so UI can show a "back online" confirmation before clearing).
  */
 export function useOnlineStatus() {
-  const [isOnline, setIsOnline] = useState(() =>
-    typeof navigator !== 'undefined' ? navigator.onLine : true
-  );
+  // Default to true — assume online until proven otherwise.
+  // navigator.onLine can return false briefly during a service-worker-triggered
+  // page reload (controllerchange → window.location.reload()) even when the
+  // device is connected. Starting optimistically and correcting on first effect
+  // prevents the offline banner from getting stuck visible on connected devices.
+  const [isOnline, setIsOnline] = useState(true);
   const [backOnline, setBackOnline] = useState(false);
   const timerRef = useRef(null);
 
   useEffect(() => {
+    // Re-read the real value now that the page has fully loaded.
+    // This corrects any false-negative from the SW reload cycle.
+    setIsOnline(typeof navigator !== 'undefined' ? navigator.onLine : true);
+
     function handleOnline() {
       setIsOnline(true);
       setBackOnline(true);
