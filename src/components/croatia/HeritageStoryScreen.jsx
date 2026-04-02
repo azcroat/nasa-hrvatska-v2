@@ -198,6 +198,7 @@ export default function HeritageStoryScreen({ goBack, award }) {
   const audioRef = useRef(null);
   const readParts = useRef(new Set());
   const awardFired = useRef(false);
+  const _unmountedRef = useRef(false);
 
   const handlePartRead = useCallback((index) => {
     readParts.current.add(index);
@@ -245,11 +246,12 @@ export default function HeritageStoryScreen({ goBack, award }) {
     try {
       const fullText = (heritageData.parts || []).map(p => p.text).join(' ');
       const audio = await playTTS(fullText);
+      if (_unmountedRef.current) return;
       audioRef.current = audio;
-      audio.addEventListener('ended', () => setTtsPlaying(false));
-      audio.addEventListener('error', () => setTtsPlaying(false));
+      audio.addEventListener('ended', () => { if (!_unmountedRef.current) setTtsPlaying(false); });
+      audio.addEventListener('error', () => { if (!_unmountedRef.current) setTtsPlaying(false); });
     } catch {
-      setTtsPlaying(false);
+      if (!_unmountedRef.current) setTtsPlaying(false);
     }
   }, [heritageData, ttsPlaying]);
 
@@ -257,6 +259,8 @@ export default function HeritageStoryScreen({ goBack, award }) {
     if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
     setTtsPlaying(false);
   }, []);
+
+  useEffect(() => { return () => { _unmountedRef.current = true; }; }, []);
 
   const saveToProfile = useCallback(() => {
     if (!heritageData) return;
