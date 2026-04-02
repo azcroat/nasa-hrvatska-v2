@@ -26,6 +26,8 @@ export function AppToasts({
   isFreeAnnual, daysLeft, setShowPaywall,
   // Email verification
   emailUnverified, setEmailUnverified, resendVerification,
+  // One-time apology for data incident
+  showApology, onDismissApology,
 }) {
   return (
     <>
@@ -155,6 +157,44 @@ export function AppToasts({
               <div style={{fontSize:12,opacity:.9,lineHeight:1.5,fontWeight:500}}>Your progress is saved locally but cannot reach the cloud right now. Check your connection. Do not clear browser data until this is resolved.</div>
             </div>
             <button onClick={() => setSyncError(false)} aria-label="Dismiss" style={{background:'rgba(255,255,255,.2)',border:'none',color:'#fff',borderRadius:10,width:44,height:44,fontSize:18,cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',lineHeight:1}}>✕</button>
+          </div>
+        </div>
+      )}
+
+      {/* One-time apology for April 2026 data incident — shown exactly once to existing users */}
+      {showApology && (
+        <div role="alertdialog" aria-modal="true" aria-labelledby="apology-title" style={{
+          position: 'fixed', inset: 0, zIndex: 99999,
+          background: 'rgba(0,0,0,0.72)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '20px',
+        }}>
+          <div style={{
+            background: 'var(--card)', borderRadius: 24, padding: '32px 28px', maxWidth: 400, width: '100%',
+            boxShadow: '0 24px 80px rgba(0,0,0,0.5)', textAlign: 'center', fontFamily: "'Outfit', sans-serif",
+          }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>🇭🇷</div>
+            <div id="apology-title" style={{ fontSize: 20, fontWeight: 900, color: 'var(--heading)', marginBottom: 12, lineHeight: 1.3 }}>
+              A sincere apology
+            </div>
+            <div style={{ fontSize: 14, color: 'var(--subtext)', lineHeight: 1.7, marginBottom: 20 }}>
+              On April 2nd, 2026, an error in our application caused some users' locally-stored progress to be lost. We are deeply sorry — this should never have happened, and it is entirely our fault.
+            </div>
+            <div style={{ fontSize: 14, color: 'var(--subtext)', lineHeight: 1.7, marginBottom: 24 }}>
+              We have taken the following steps to ensure this <strong style={{ color: 'var(--heading)' }}>never happens again</strong>: your progress now syncs to our secure cloud servers every 2 minutes, and we have removed any troubleshooting steps that could ever touch your saved data. Your progress is fully protected.
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--subtext)', fontStyle: 'italic', marginBottom: 28, lineHeight: 1.6 }}>
+              We value your time and trust more than anything. Hvala na razumijevanju — thank you for understanding.
+            </div>
+            <button
+              onClick={onDismissApology}
+              style={{
+                width: '100%', padding: '14px', borderRadius: 14, border: 'none',
+                background: 'linear-gradient(135deg,#0e7490,#164e63)', color: '#fff',
+                fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: "'Outfit', sans-serif",
+              }}
+            >
+              I understand — continue learning 🇭🇷
+            </button>
           </div>
         </div>
       )}

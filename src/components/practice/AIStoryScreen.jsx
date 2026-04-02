@@ -97,10 +97,12 @@ export default function AIStoryScreen({ goBack, award }) {
   // Highlight weak words in the story text
   function renderHighlightedStory(text, words) {
     if (!words || words.length === 0) return <span>{text}</span>;
-    const pattern = new RegExp(`(${words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi');
+    const safeWords = words.filter(w => w != null && typeof w === 'string');
+    if (safeWords.length === 0) return <span>{text}</span>;
+    const pattern = new RegExp(`(${safeWords.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi');
     const parts = text.split(pattern);
     return parts.map((part, i) => {
-      const isWord = words.some(w => w.toLowerCase() === part.toLowerCase());
+      const isWord = safeWords.some(w => w.toLowerCase() === part.toLowerCase());
       if (isWord) {
         return (
           <strong

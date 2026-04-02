@@ -556,7 +556,7 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
           {/* Vocab cards */}
           {(results.words || []).map((item, i) => (
             <VocabCard
-              key={i}
+              key={item.word ? `${item.word}-${i}` : i}
               item={item}
               checked={!!checked[i]}
               onToggle={() => setChecked(prev => ({ ...prev, [i]: !prev[i] }))}

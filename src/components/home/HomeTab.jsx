@@ -119,7 +119,7 @@ export default function HomeTab({
   // Preload word-of-the-day audio on mount so first tap plays instantly
   useEffect(() => { if (wod?.[0]) preloadAudio(wod[0]); }, [wod]);
 
-  const userGoal = goal || localStorage.getItem('nh_goal') || 'fluent';
+  const userGoal = goal || (() => { try { return localStorage.getItem('nh_goal'); } catch { return null; } })() || 'fluent';
   const activeCampaign = useMemo(() => getActiveCampaign(), [st.lc]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Goal-setter modal: show for new users who haven't set a goal yet
