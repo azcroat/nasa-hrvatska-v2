@@ -26,6 +26,8 @@ export function useSyncManager({
   setSyncReady,
 }) {
   const [showBackupBanner, setShowBackupBanner] = useState(false);
+  const [syncError, setSyncError] = useState(false);
+  const _syncFailCount = useRef(0);
   const _watcherUnsubRef = useRef(null);
   const _idTokenRef = useRef('');
   // Keeps latest state available to unload handlers without stale deps
@@ -199,13 +201,22 @@ export function useSyncManager({
   // Periodic Firebase push every 2 minutes — ensures progress reaches Firestore
   // even if the user never triggers pagehide/visibilitychange (e.g. browser crash,
   // power loss, or clearing browser data between sessions).
+  // Tracks consecutive failures and surfaces a visible warning after 2 failed attempts
+  // so sync failures are NEVER silent.
   useEffect(() => {
     if (!authUser || authScreen !== 'app') return undefined;
-    const iv = setInterval(() => {
+    const iv = setInterval(async () => {
       const { authUser: u, stats: st, name: nm, authScreen: as, favs: fv, jWords: jw, dchlA: da, dchlSl: dsl } = _unloadRef.current;
       if (!u || as !== 'app') return;
       const snap = buildProgressSnapshot({ uid: u.u, name: nm, stats: st, dchlA: da, dchlSl: dsl, favs: fv, jWords: jw });
-      fbSaveProgress(u.u, snap).catch(() => {});
+      const result = await fbSaveProgress(u.u, snap).catch(() => ({ ok: false }));
+      if (result && result.ok !== false) {
+        _syncFailCount.current = 0;
+        setSyncError(false);
+      } else {
+        _syncFailCount.current += 1;
+        if (_syncFailCount.current >= 2) setSyncError(true);
+      }
     }, 2 * 60 * 1000);
     return () => clearInterval(iv);
   }, [authUser, authScreen]);
@@ -256,5 +267,5 @@ export function useSyncManager({
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return { doSyncNow, showBackupBanner, setShowBackupBanner };
+  return { doSyncNow, showBackupBanner, setShowBackupBanner, syncError, setSyncError };
 }
