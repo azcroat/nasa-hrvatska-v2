@@ -3,7 +3,8 @@ import { useApp } from '../../context/AppContext.jsx';
 import { PHOTO_CREDITS } from '../../lib/photos';
 import CroatianKnight from '../shared/CroatianKnight';
 
-// ── Rotating hero cities — one per day, 4-day cycle ──────────────────────────
+// ── Rotating hero cities — one per day, 5-day cycle ──────────────────────────
+// Each city carries its own "Did You Know" fact so the card always matches the photo.
 const HERO_CITIES = [
   {
     key: 'labin',
@@ -13,6 +14,7 @@ const HERO_CITIES = [
     subtitle: 'Medieval hilltop town · first anti-fascist republic in Europe, 1921',
     credit: PHOTO_CREDITS.labin,
     pos: 'center 60%',
+    didYouKnow: { emoji: '✊', fact: 'In 1921, miners in Labin declared an independent republic and seized control of the local mine for 36 days — the first anti-fascist uprising in Europe, months before Mussolini\'s march on Rome.' },
   },
   {
     key: 'rabac',
@@ -22,6 +24,7 @@ const HERO_CITIES = [
     subtitle: 'The jewel of the Labin Riviera · crystal-clear Adriatic waters',
     credit: PHOTO_CREDITS.rabac,
     pos: 'center center',
+    didYouKnow: { emoji: '🫒', fact: 'The Labin-Rabac area produces some of Istria\'s finest olive oil. Istrian extra-virgin olive oils have repeatedly been ranked among the best in the world at international competitions.' },
   },
   {
     key: 'mostar',
@@ -31,6 +34,7 @@ const HERO_CITIES = [
     subtitle: 'Stari Most — the Old Bridge rebuilt in 2004 · a symbol of reconciliation',
     credit: PHOTO_CREDITS.mostar,
     pos: 'center 55%',
+    didYouKnow: { emoji: '🌉', fact: 'Mostar\'s Stari Most divers (mostari) have leapt from the 21-metre bridge into the Neretva River since 1664. Earning the title of "mostari" requires years of apprenticeship under a master diver.' },
   },
   {
     key: 'bibinje',
@@ -40,6 +44,7 @@ const HERO_CITIES = [
     subtitle: 'Seaside village near Zadar · traditional Dalmatian fishing harbour',
     credit: PHOTO_CREDITS.bibinje,
     pos: 'center center',
+    didYouKnow: { emoji: '🎵', fact: 'Bibinje is home to a living klapa tradition — the unaccompanied male vocal harmony unique to Dalmatia. UNESCO recognised klapa singing as an Intangible Cultural Heritage in 2012.' },
   },
   {
     key: 'vinkovci',
@@ -49,20 +54,8 @@ const HERO_CITIES = [
     subtitle: 'Oldest continuously inhabited city in Europe · 8,300+ years of history',
     credit: PHOTO_CREDITS.vinkovci,
     pos: 'center 45%',
+    didYouKnow: { emoji: '🕊️', fact: 'The Vučedol Dove — a 4,800-year-old ceramic vessel unearthed near Vinkovci — is the symbol on Croatia\'s €1 coin, making this Slavonian town the unlikely birthplace of Croatia\'s most recognised icon.' },
   },
-];
-
-const DID_YOU_KNOW = [
-  { fact: 'The necktie was invented in Croatia. The word "cravat" comes from "Hrvat" — Croatian.', emoji: '👔' },
-  { fact: 'Labin declared itself an independent republic in 1921 — the first anti-fascist uprising in Europe.', emoji: '✊' },
-  { fact: 'Nikola Tesla was born in Smiljan, Croatia. He rewired how the entire world uses electricity.', emoji: '⚡' },
-  { fact: 'The Pula Arena is one of the six largest Roman amphitheatres still standing, built in 27 BC.', emoji: '🏛️' },
-  { fact: 'Hvar gets 2,726 sunshine hours per year — more than anywhere else in Europe.', emoji: '☀️' },
-  { fact: 'The Dalmatian dog breed is named after Dalmatia, the Croatian coastal region.', emoji: '🐾' },
-  { fact: 'Marco Polo was (most likely) born on the island of Korčula, Croatia.', emoji: '⛵' },
-  { fact: 'Croatian has been written in the same Gaj script since 1830 — one letter, one sound, always.', emoji: '📜' },
-  { fact: 'The Stradun in Dubrovnik was paved in the 13th century and is still the main street today.', emoji: '🏰' },
-  { fact: 'Vinkovci is the oldest continuously inhabited town in Europe — over 8,300 years old.', emoji: '🌍' },
 ];
 
 const KNIGHT_MESSAGES = [
@@ -76,8 +69,8 @@ const KNIGHT_MESSAGES = [
 export default function DiscoverTab() {
   const { setScr } = useApp();
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-  const dailyFact = DID_YOU_KNOW[dayOfYear % DID_YOU_KNOW.length];
   const heroCity = HERO_CITIES[dayOfYear % HERO_CITIES.length];
+  const dailyFact = heroCity.didYouKnow;
 
   // Rotating knight message
   const [kMsgIdx, setKMsgIdx] = useState(0);
