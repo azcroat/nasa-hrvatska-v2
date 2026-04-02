@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useCallback } from 'react';
 import { fbDeleteAccount, fbLeaveFamily, getLocalFamily } from '../../data.jsx';
 import { fbExportUserData } from '../../lib/firebase.js';
 import { isSoundEnabled, setSoundEnabled, isHapticEnabled, setHapticEnabled, getVoicePreference, setVoicePreference } from '../../lib/soundSettings.js';
@@ -46,6 +46,34 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
   const [syncDone, setSyncDone] = useState(false);
   const [syncErr, setSyncErr] = useState(false);
   const doneTimerRef = useRef(null);
+
+  // Push notification state
+  const [notifPermission, setNotifPermission] = useState(() => {
+    if (typeof Notification === 'undefined') return 'unsupported';
+    return Notification.permission;
+  });
+  const [notifLoading, setNotifLoading] = useState(false);
+
+  const handleEnableNotifications = useCallback(async () => {
+    if (notifLoading) return;
+    setNotifLoading(true);
+    try {
+      const { subscribeToPush } = await import('../../lib/pushNotifications.js');
+      const result = await subscribeToPush(au?.u || '');
+      setNotifPermission(
+        typeof Notification !== 'undefined' ? Notification.permission : 'unsupported'
+      );
+      if (result.ok) {
+        try { localStorage.setItem('nh_notifications_enabled', 'true'); } catch {}
+      }
+    } catch {
+      setNotifPermission(
+        typeof Notification !== 'undefined' ? Notification.permission : 'unsupported'
+      );
+    } finally {
+      setNotifLoading(false);
+    }
+  }, [notifLoading, au]);
 
   const lastSaved = useMemo(() => {
     if (!au || !au.u) return null;
@@ -349,6 +377,63 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
            'Select a goal to personalize your learning path'}
         </div>
       )}
+
+      {/* ── NOTIFICATIONS ── */}
+      <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.1em', marginTop:24, marginBottom:10, paddingLeft:4}}>
+        🔔 Notifications
+      </div>
+      <div style={{
+        background: notifPermission === 'granted' ? 'linear-gradient(135deg,var(--success-bg),rgba(22,163,74,.15))' : 'var(--card)',
+        border: `1.5px solid ${notifPermission === 'granted' ? 'var(--success-b)' : 'var(--card-b)'}`,
+        borderRadius: 16, padding: '14px 16px', marginBottom: 12,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 42, height: 42, borderRadius: 12, flexShrink: 0,
+            background: notifPermission === 'granted' ? 'linear-gradient(135deg,var(--success),#15803d)'
+              : notifPermission === 'denied' ? 'linear-gradient(135deg,var(--error),#b91c1c)'
+              : 'linear-gradient(135deg,#f59e0b,#d97706)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20,
+          }}>
+            {notifPermission === 'granted' ? '🔔' : notifPermission === 'denied' ? '🔕' : '🔔'}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: notifPermission === 'granted' ? 'var(--success)' : 'var(--heading)' }}>
+              {notifPermission === 'granted' ? 'Notifications enabled' :
+               notifPermission === 'denied' ? 'Notifications blocked' :
+               notifPermission === 'unsupported' ? 'Not supported on this browser' :
+               'Daily reminders off'}
+            </div>
+            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', marginTop: 2, lineHeight: 1.4 }}>
+              {notifPermission === 'granted' ? 'Daily streak reminders + SRS review alerts' :
+               notifPermission === 'denied' ? 'Enable in browser Settings → Site permissions' :
+               notifPermission === 'unsupported' ? 'Install as PWA for notification support' :
+               'Enable for daily streak + SRS reminders'}
+            </div>
+          </div>
+          {notifPermission === 'default' && (
+            <button
+              onClick={handleEnableNotifications}
+              disabled={notifLoading}
+              style={{
+                padding: '10px 16px', borderRadius: 10, border: 'none',
+                cursor: notifLoading ? 'default' : 'pointer',
+                background: notifLoading ? 'var(--bar-bg)' : 'linear-gradient(135deg,#f59e0b,#d97706)',
+                color: notifLoading ? 'var(--subtext)' : 'white',
+                fontSize: 'var(--text-xs)', fontWeight: 800,
+                fontFamily: "'Outfit',sans-serif", flexShrink: 0, minHeight: 40,
+              }}
+            >
+              {notifLoading ? '…' : 'Enable'}
+            </button>
+          )}
+        </div>
+        {notifPermission === 'granted' && (
+          <div style={{ marginTop: 10, fontSize: 'var(--text-xs)', color: 'var(--subtext)', lineHeight: 1.5 }}>
+            ✓ Streak reminders at 8PM · ✓ SRS review alerts · ✓ Daily motivation
+          </div>
+        )}
+      </div>
 
       {/* ── CLOUD SYNC STATUS ── */}
       <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.1em', marginTop:24, marginBottom:10, paddingLeft:4}}>

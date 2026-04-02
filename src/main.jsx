@@ -73,6 +73,8 @@ export function initPostHog() {
         disable_session_recording: true,
         persistence: 'localStorage+cookie',
       });
+      // Make posthog accessible for funnel analytics throughout the app
+      window.__posthog = posthog;
     });
   }
 }

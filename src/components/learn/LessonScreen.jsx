@@ -71,6 +71,44 @@ export default function LessonScreen({
     return map;
   }, []);
 
+  // ── Quiz keyboard shortcuts ────────────────────────────────────────────────
+  // Press 1–4 to select an answer; Enter or Space to advance after answering.
+  useEffect(() => {
+    if (lp !== 'quiz' || !qi[lx]) return;
+    function handleKey(e) {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      const num = { '1': 0, '2': 1, '3': 2, '4': 3 }[e.key];
+      if (num !== undefined && !la && num < qi[lx].opts.length) {
+        e.preventDefault();
+        sLsl(num); sLa(true);
+        const ok = num === qi[lx].ci;
+        if (ok) { playCorrect(); haptic(40); sLs(s => s + 1); }
+        else { playWrong(); haptic([40, 30, 40]); }
+        srMark(qi[lx][0], ok);
+      }
+      if ((e.key === 'Enter' || e.key === ' ') && la) {
+        e.preventDefault();
+        if (lx < qi.length - 1) {
+          sLx(i => i + 1); sLa(false); sLsl(-1);
+        } else {
+          if (resultFired.current) return;
+          resultFired.current = true;
+          const p = ls / qi.length;
+          const perfectBonus = p === 1 ? 10 : 0;
+          awardFn(Math.round(p * 30) + 5 + perfectBonus, p >= 0.7);
+          markPracticed();
+          markQuest('grammar');
+          if (p === 1) markQuest('perfect');
+          setSt(s => ({ ...s, lc: s.lc + 1, pf: p === 1 ? s.pf + 1 : s.pf, rs: [...s.rs, String(Math.round(p * 100))], ct: [...new Set([...s.ct, lt])] }));
+          playFanfare();
+          sLp('result');
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [lp, lx, la, ls, qi]); // eslint-disable-line react-hooks/exhaustive-deps
+
   /* ── FLASHCARDS OVERLAY ───────────────────────────────────────── */
   if (showFlashcards) {
     return (
@@ -279,7 +317,9 @@ export default function LessonScreen({
               className={"ob " + (la ? (i === qi[lx].ci ? "ok" : lsl === i ? "no" : "") : "")}
               style={{
                 animation: la && i === qi[lx].ci ? 'correct-flash .5s ease' : la && lsl === i ? 'wrong-shake .4s ease' : undefined,
+                position: 'relative',
               }}
+              aria-label={`Option ${i + 1}: ${o}`}
               onClick={() => {
                 if (!la) {
                   sLsl(i); sLa(true);
@@ -289,6 +329,11 @@ export default function LessonScreen({
                   srMark(qi[lx][0], ok);
                 }
               }}>
+              <span style={{
+                position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
+                fontSize: 10, fontWeight: 800, color: 'var(--subtext)', opacity: 0.5,
+                fontFamily: 'monospace', pointerEvents: 'none',
+              }} aria-hidden="true">{i + 1}</span>
               {o}
             </button>
           ))}
