@@ -230,7 +230,7 @@ function App() {
 
   // ── PWA install + sync manager (need authScreen from useAuth) ────────────────
   const { showPwaInstall, setShowPwaInstall, showAndroidInstall, setShowAndroidInstall, deferredInstallPrompt, setDeferredInstallPrompt: _setDeferredInstallPrompt } = usePwaInstall({ authScreen });
-  const { doSyncNow, showBackupBanner, setShowBackupBanner, syncError, setSyncError } = useSyncManager({
+  const { doSyncNow, showBackupBanner, setShowBackupBanner, syncError, setSyncError, syncErrorCode } = useSyncManager({
     authUser, authScreen, name, stats, favs, jWords, dchlA, dchlSl,
     setStats, setName, applyRemoteProgress, ds,
     syncNowRef: _syncNowRef,
@@ -584,7 +584,7 @@ function App() {
           showAndroidInstall={showAndroidInstall} setShowAndroidInstall={setShowAndroidInstall} deferredInstallPrompt={deferredInstallPrompt}
           showPwaInstall={showPwaInstall} setShowPwaInstall={setShowPwaInstall}
           showBackupBanner={showBackupBanner} setShowBackupBanner={setShowBackupBanner}
-          syncError={syncError} setSyncError={setSyncError}
+          syncError={syncError} setSyncError={setSyncError} syncErrorCode={syncErrorCode}
           isFreeAnnual={isFreeAnnual} daysLeft={daysLeft} setShowPaywall={setShowPaywall}
           emailUnverified={emailUnverified} setEmailUnverified={setEmailUnverified} resendVerification={resendVerification}
           showApology={showApology} onDismissApology={dismissApology}

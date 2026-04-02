@@ -21,7 +21,7 @@ export function AppToasts({
   showAndroidInstall, setShowAndroidInstall, deferredInstallPrompt,
   showPwaInstall, setShowPwaInstall,
   showBackupBanner, setShowBackupBanner,
-  syncError, setSyncError,
+  syncError, setSyncError, syncErrorCode,
   // Subscription
   isFreeAnnual, daysLeft, setShowPaywall,
   // Email verification
@@ -154,7 +154,7 @@ export function AppToasts({
             <div style={{fontSize:30,flexShrink:0,lineHeight:1}}>⚠️</div>
             <div style={{flex:1,minWidth:0}}>
               <div style={{fontSize:15,fontWeight:900,marginBottom:4,lineHeight:1.2}}>Progress not saving to cloud</div>
-              <div style={{fontSize:12,opacity:.9,lineHeight:1.5,fontWeight:500}}>Your progress is saved locally but cannot reach the cloud right now. Check your connection. Do not clear browser data until this is resolved.</div>
+              <div style={{fontSize:12,opacity:.9,lineHeight:1.5,fontWeight:500}}>Your progress is saved locally but cannot reach the cloud right now. Check your connection. Do not clear browser data until this is resolved.{syncErrorCode ? <span style={{display:'block',marginTop:4,fontFamily:'monospace',fontSize:10,opacity:.7}}>{syncErrorCode}</span> : null}</div>
             </div>
             <button onClick={() => setSyncError(false)} aria-label="Dismiss" style={{background:'rgba(255,255,255,.2)',border:'none',color:'#fff',borderRadius:10,width:44,height:44,fontSize:18,cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',lineHeight:1}}>✕</button>
           </div>
