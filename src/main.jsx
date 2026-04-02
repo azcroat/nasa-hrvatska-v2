@@ -82,7 +82,7 @@ export function initPostHog() {
 // Only initialize PostHog if the user has already accepted analytics cookies
 // (i.e. they accepted on a previous visit). On first visit this is skipped and
 // CookieConsent will call initPostHog() when the user clicks "Accept all".
-if (localStorage.getItem('cookieConsent') === 'accepted') {
+if (localStorage.getItem('cookie_consent_v1') === 'accepted') {
   initPostHog();
 }
 

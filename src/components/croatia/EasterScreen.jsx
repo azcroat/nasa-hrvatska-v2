@@ -173,7 +173,7 @@ export default function EasterScreen({ onBack, award }) {
         if (!xpAwarded) {
           const correctCount = newAnswers.filter(Boolean).length;
           const xpEarned = correctCount * 10;
-          markQuest('grammar');
+          markQuest('reading');
           if (xpEarned > 0 && award) award(xpEarned);
           try {
             localStorage.setItem(KVIZ_DONE_KEY, '1');

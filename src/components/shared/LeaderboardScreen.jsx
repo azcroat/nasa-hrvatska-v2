@@ -37,16 +37,19 @@ export default function LeaderboardScreen({ db, user, weekXP = 0, goBack }) {
   const uid = user?.u;
 
   useEffect(() => {
+    let mounted = true;
     setLoading(true);
 
     // Real-time subscription — updates arrive within 1-2s when any user earns XP
     const unsub = subscribeToLeaderboard(db, 50, (data) => {
+      if (!mounted) return;
       setEntries(data);
       setLoading(false);
     });
 
     // Rank is derived from a broader query (top 200) so keep as one-time call
     getMyRank(db, uid).then(rank => {
+      if (!mounted) return;
       setMyRank(rank);
 
       if (rank) {
@@ -78,7 +81,7 @@ export default function LeaderboardScreen({ db, user, weekXP = 0, goBack }) {
       }
     });
 
-    return unsub;
+    return () => { mounted = false; unsub(); };
   }, [db, uid]);
 
   const myEntry = { uid, displayName: user?.d || 'You', xp: weekXP, rank: myRank };

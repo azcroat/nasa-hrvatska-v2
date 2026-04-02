@@ -18,6 +18,11 @@ export default function LessonScreen({
   const resultFired = useRef(false);
   const [showQuit, setShowQuit] = useState(false);
 
+  // Reset resultFired whenever the lesson enters 'learn' phase (new lesson or Study Again)
+  useEffect(() => {
+    if (lp === 'learn') resultFired.current = false;
+  }, [lp]);
+
   // Knight reacts across all lesson phases
   useEffect(() => {
     if (lp === 'learn') {
