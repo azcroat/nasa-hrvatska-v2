@@ -10,8 +10,10 @@
  *   knightSpeak('victory', 'Savršeno! Perfect score! 🌟');
  */
 export function knightSpeak(mood, text, delay = 0) {
-  const fire = () =>
+  const fire = () => {
+    if (typeof window === 'undefined') return;
     window.dispatchEvent(new CustomEvent('knight:speak', { detail: { mood, text } }));
+  };
   if (delay > 0) setTimeout(fire, delay);
   else fire();
 }
