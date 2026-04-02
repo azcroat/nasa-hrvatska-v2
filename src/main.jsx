@@ -6,6 +6,18 @@ import './index.css';
 import App from './App.jsx';
 import { reportError } from './lib/errorReporter.js';
 
+// ─── Production console suppression ───────────────────────────────────────
+// Silence log/debug/info/warn in production — reduces noise in App Store review
+// sessions and prevents accidental PII leakage via console. Errors are kept
+// so Sentry / onerror handlers still receive them.
+if (import.meta.env.PROD) {
+  const noop = () => {};
+  console.log = noop;
+  console.debug = noop;
+  console.info = noop;
+  console.warn = noop;
+}
+
 // ─── Sentry error telemetry ────────────────────────────────────────────────
 // Set VITE_SENTRY_DSN in Cloudflare Pages environment variables.
 // The app works fully without it — telemetry is opt-in via env var.

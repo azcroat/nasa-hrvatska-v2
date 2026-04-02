@@ -393,8 +393,39 @@ function StoryQuiz({ story, onComplete, goBack }) {
   const [done, setDone] = useState(false);
   const resultFired = useRef(false);
 
-  const q = story.quiz[qi];
-  const isLast = qi === story.quiz.length - 1;
+  // Guard: validate quiz data before rendering
+  let q, isLast, quizDataError;
+  try {
+    if (!Array.isArray(story.quiz) || story.quiz.length === 0) throw new Error('no quiz');
+    q = story.quiz[qi];
+    if (!q || !Array.isArray(q.opts) || q.opts.length === 0 || q.correct == null) throw new Error('malformed item');
+    isLast = qi === story.quiz.length - 1;
+  } catch {
+    quizDataError = true;
+  }
+
+  if (quizDataError) {
+    return (
+      <div className="scr-wrap">
+        <BackBtn onClick={goBack} />
+        <div style={{
+          background: 'var(--card)', border: '1px solid var(--card-b)',
+          borderRadius: 16, padding: '32px 20px', textAlign: 'center', marginTop: 20,
+        }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>📚</div>
+          <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--heading)', marginBottom: 8 }}>
+            Quiz unavailable for this story
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.6 }}>
+            The quiz content for this story couldn&#39;t be loaded. Try another story or come back later.
+          </div>
+          <button className="b bg" style={{ marginTop: 20 }} onClick={goBack}>
+            ← Back to Story
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   function choose(idx) {
     if (answered) return;
