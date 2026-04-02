@@ -633,13 +633,30 @@ _searchIdx=idx;return idx}
 // ═══ THEME OBJECTS (background/color tokens for inline root styles) ═══
 // BG_LIGHT, BG_DARK — imported from ../lib/appUtils.js
 const BG=BG_LIGHT;
-const H=(t,s,back)=><div style={{marginBottom:20,paddingBottom:16,borderBottom:"1px solid rgba(0,0,0,.06)"}}>
-  {back&&<button onClick={back} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",cursor:"pointer",fontSize:13,fontWeight:700,color:"var(--subtext)",marginBottom:8,padding:"4px 0",fontFamily:"'Outfit',sans-serif"}}>‹ Back</button>}
+const H=(t,s,back)=><div style={{marginBottom:22,paddingBottom:18,borderBottom:"1px solid var(--card-b)"}}>
+  {back&&<button onClick={back} style={{
+    display:"inline-flex",alignItems:"center",gap:6,
+    background:"var(--bar-bg)",
+    border:"1px solid var(--card-b)",
+    borderRadius:20,cursor:"pointer",
+    fontSize:13,fontWeight:700,color:"var(--subtext)",
+    marginBottom:12,padding:"6px 14px 6px 10px",
+    fontFamily:"'Outfit',sans-serif",
+    transition:"background .15s,color .15s,box-shadow .15s",
+    minHeight:36,
+    lineHeight:1,
+  }}
+  onMouseEnter={e=>{e.currentTarget.style.background='var(--accent-light,rgba(14,116,144,.1))';e.currentTarget.style.color='var(--accent,#0e7490)';e.currentTarget.style.boxShadow='0 2px 8px rgba(14,116,144,.12)'}}
+  onMouseLeave={e=>{e.currentTarget.style.background='var(--bar-bg)';e.currentTarget.style.color='var(--subtext)';e.currentTarget.style.boxShadow='none'}}
+  >
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    Back
+  </button>}
   <h2
     style={{fontFamily:"'Playfair Display',serif",fontSize:24,color:"var(--heading)",fontWeight:800,letterSpacing:"-.02em",lineHeight:1.2}}>
     {t}
   </h2>
-  {s&&<p style={{color:"var(--subtext)",fontSize:13,marginTop:5,fontWeight:500}}>
+  {s&&<p style={{color:"var(--subtext)",fontSize:13,marginTop:6,fontWeight:500,lineHeight:1.5}}>
     {s}
   </p>}
 </div>;
