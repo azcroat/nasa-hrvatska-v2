@@ -111,7 +111,9 @@ export default function MistakesScreen({ goBack, award }) {
   const [reviewDeck, setReviewDeck] = useState([]);
 
   function startReview() {
-    const deck = [...mistakes].sort(() => Math.random() - 0.5);
+    const arr = [...mistakes];
+    for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+    const deck = arr;
     setReviewDeck(deck);
     setReviewIdx(0);
     setMastered(0);

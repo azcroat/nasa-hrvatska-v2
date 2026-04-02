@@ -323,27 +323,24 @@ function shuffleOpts(arr) {
   return a;
 }
 
+function _fySample(arr, n) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a.slice(0, n);
+}
+
 function getWrongIpa(current, all) {
-  return all
-    .filter(l => l.letter !== current.letter && l.ipa !== current.ipa)
-    .sort(() => Math.random() - .5)
-    .slice(0, 3)
+  return _fySample(all.filter(l => l.letter !== current.letter && l.ipa !== current.ipa), 3)
     .map(l => l.ipa);
 }
 
 function getWrongLike(current, all) {
-  return all
-    .filter(l => l.letter !== current.letter)
-    .sort(() => Math.random() - .5)
-    .slice(0, 3)
+  return _fySample(all.filter(l => l.letter !== current.letter), 3)
     .map(l => l.like.split('—')[0].replace(/like ['"]?/i, '').split(' or ')[0].trim());
 }
 
 function getWrongExample(current, all) {
-  return all
-    .filter(l => l.letter !== current.letter)
-    .sort(() => Math.random() - .5)
-    .slice(0, 3)
+  return _fySample(all.filter(l => l.letter !== current.letter), 3)
     .map(l => l.examples[0].hr + ' (' + l.examples[0].en + ')');
 }
 

@@ -182,7 +182,9 @@ export default function HomeTab({
   const longAbsence = useMemo(() => {
     const ls = localStorage.getItem('nh_last_seen');
     if (!ls) return false;
-    const diff = Date.now() - parseInt(ls);
+    const parsed = parseInt(ls, 10);
+    if (isNaN(parsed)) return false;
+    const diff = Date.now() - parsed;
     return diff > 7 * 86400000; // more than 7 days
   }, []);
 
