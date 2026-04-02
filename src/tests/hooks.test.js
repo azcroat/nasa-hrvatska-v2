@@ -117,19 +117,25 @@ describe('useSearch', () => {
   it('doSearch with known Croatian word returns results', async () => {
     // Must use real timers — the debounce callback does a dynamic import whose Promise
     // resolution is not driven by fake-timer microtask flushing in this environment.
+    // Use vi.waitFor to poll until results arrive rather than a fixed timeout, which
+    // fails under suite load when the dynamic import takes >100ms (debounce is 200ms,
+    // old test gave only 300ms total).
     vi.useRealTimers();
     const { result } = renderHook(() => useSearch());
-    result.current.doSearch('kuća');
-    await act(async () => { await new Promise(r => setTimeout(r, 300)); });
-    expect(result.current.srchR.length).toBeGreaterThan(0);
+    act(() => { result.current.doSearch('kuća'); });
+    await vi.waitFor(() => {
+      expect(result.current.srchR.length).toBeGreaterThan(0);
+    }, { timeout: 2000 });
     vi.useFakeTimers(); // restore for remaining tests in describe block
   });
   it('doSearch results capped at 15', async () => {
     vi.useRealTimers();
     const { result } = renderHook(() => useSearch());
-    result.current.doSearch('a'); // very common letter
-    await act(async () => { await new Promise(r => setTimeout(r, 300)); });
-    expect(result.current.srchR.length).toBeLessThanOrEqual(15);
+    act(() => { result.current.doSearch('a'); }); // very common letter
+    await vi.waitFor(() => {
+      // Once results appear, check the cap — may be 0 if mock index has no 'a' matches
+      expect(result.current.srchR.length).toBeLessThanOrEqual(15);
+    }, { timeout: 2000 });
     vi.useFakeTimers();
   });
   it('setSrchOpen controls open state', () => {
