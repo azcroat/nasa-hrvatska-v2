@@ -87,6 +87,8 @@ export function useAward({ curEx, stats, setStats }: { curEx: string; stats: Sta
     if (_pendingBadge) {
       const badge = _pendingBadge;
       setTimeout(() => { setNB(badge); setSB(true); setTimeout(() => setSB(false), 3000); }, 600);
+      // Notify knight mascot — expands from mini and shows badge reaction
+      setTimeout(() => { window.dispatchEvent(new CustomEvent('knight:badge')); }, 1200);
     }
     if (_pendingLevelUp != null) {
       setTimeout(() => { setLevelUpData({ level: _pendingLevelUp as number }); }, 900);

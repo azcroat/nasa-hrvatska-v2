@@ -98,26 +98,47 @@ const QUICK_MOTIVATE = [
 
 // Rotating pool used when user taps the bubble body
 const CONTEXTUAL_POOL = [
-  { mood: 'happy',     text: '"Cravat" — the necktie — comes from "Hrvat" (Croatian). You already gave the world something. Now take the language back. 👔' },
-  { mood: 'thinking',  text: 'Croatian verb aspect — piti vs popiti, učiti vs naučiti. Same action, different lens. Master this and you sound native. 📐' },
-  { mood: 'happy',     text: 'Split, Dubrovnik, Rovinj, Zadar — every city sounds more magical when you understand what the name means. 🏛️' },
-  { mood: 'encouraged',text: '"Lijepa naša" — Our beautiful homeland. First line of the Croatian anthem. Learn enough and you\'ll mean it when you sing it. 🎵' },
-  { mood: 'happy',     text: 'Marco Polo was (probably) born on Korčula. Adventure has always run through Croatian veins. Today, set sail. ⛵' },
-  { mood: 'happy',     text: 'The Dalmatian dog is named after Dalmatia. One small region — a breed the whole world knows. Small nation, big footprint. 🐾' },
-  { mood: 'thinking',  text: 'Clitic pronouns cluster in a precise order: auxiliary → dative → accusative → se. Tricky to learn, immensely satisfying to master. 🎓' },
-  { mood: 'encouraged',text: 'Polako, ali sigurno — slowly but surely. The Croatian phrase for exactly what language learning requires. 🛡️' },
-  { mood: 'ready',     text: '5 million Croatian speakers worldwide. With every session, you get measurably closer to joining them. ⚔️' },
-  { mood: 'happy',     text: 'Rakija flows in Dalmatia. Your sessions flow here. Both burn a little at first and get smoother with time. 🥃' },
+  { mood: 'happy',      text: '"Cravat" — the necktie — comes from "Hrvat" (Croatian). You already gave the world something. Now take the language back. 👔' },
+  { mood: 'thinking',   text: 'Croatian verb aspect — piti vs popiti, učiti vs naučiti. Same action, different lens. Master this and you sound native. 📐' },
+  { mood: 'happy',      text: 'Split, Dubrovnik, Rovinj, Zadar — every city sounds more magical when you understand what the name means. 🏛️' },
+  { mood: 'encouraged', text: '"Lijepa naša" — Our beautiful homeland. First line of the Croatian anthem. Learn enough and you\'ll mean it when you sing it. 🎵' },
+  { mood: 'happy',      text: 'Marco Polo was (probably) born on Korčula. Adventure has always run through Croatian veins. Today, set sail. ⛵' },
+  { mood: 'happy',      text: 'The Dalmatian dog is named after Dalmatia. One small region — a breed the whole world knows. Small nation, big footprint. 🐾' },
+  { mood: 'thinking',   text: 'Clitic pronouns cluster in a precise order: auxiliary → dative → accusative → se. Tricky to learn, immensely satisfying to master. 🎓' },
+  { mood: 'encouraged', text: 'Polako, ali sigurno — slowly but surely. The Croatian phrase for exactly what language learning requires. 🛡️' },
+  { mood: 'ready',      text: '5 million Croatian speakers worldwide. With every session, you get measurably closer to joining them. ⚔️' },
+  { mood: 'happy',      text: 'Rakija flows in Dalmatia. Your sessions flow here. Both burn a little at first and get smoother with time. 🥃' },
   { mood: 'celebrating',text: 'Hajduk Split\'s fans are called Torcida — most passionate supporters in the Balkans. Channel that energy into today\'s lesson. ⚽' },
-  { mood: 'encouraged',text: 'Croatian diaspora spans six continents. Wherever you are, you\'re part of something bigger than one small country. 🌍' },
-  { mood: 'thinking',  text: 'Croatian has been written in the same script since Gaj\'s 1830 reform. One alphabet, perfectly logical. No exceptions. 📜' },
-  { mood: 'happy',     text: 'Diocletian\'s Palace in Split was built in 305 AD — and people still live inside it. Croatians don\'t abandon things that work. Neither should you. 🏰' },
-  { mood: 'happy',     text: 'Luka Modrić grew up in a hotel for refugees during the war. Won the Ballon d\'Or. Croatian grit is real. Channel some today. ⚽' },
-  { mood: 'thinking',  text: '7 cases. 2 verb aspects. 3 genders. It sounds like a lot — and it is. But it means you can say exactly what you mean. Always. 📐' },
-  { mood: 'encouraged',text: 'Svaki dan po malo — a little every day. That\'s all it takes. Today\'s little bit is right here. 🔥' },
-  { mood: 'happy',     text: 'Summer in Croatia: lavender from Hvar, rosemary from stone walls, salt from the Adriatic. Learn the words. Then go live them. 🌿' },
-  { mood: 'happy',     text: '"Koliko jezika znaš, toliko vrijediš." You\'re worth as many people as languages you speak. 🌐' },
-  { mood: 'thinking',  text: 'The word "cravat" is Croatian. So is the concept of the necktie. So is Nikola Tesla\'s birthplace. Small country, enormous legacy. ⚡' },
+  { mood: 'encouraged', text: 'Croatian diaspora spans six continents. Wherever you are, you\'re part of something bigger than one small country. 🌍' },
+  { mood: 'thinking',   text: 'Croatian has been written in the same script since Gaj\'s 1830 reform. One alphabet, perfectly logical. No exceptions. 📜' },
+  { mood: 'happy',      text: 'Diocletian\'s Palace in Split was built in 305 AD — and people still live inside it. Croatians don\'t abandon things that work. Neither should you. 🏰' },
+  { mood: 'happy',      text: 'Luka Modrić grew up in a hotel for refugees during the war. Won the Ballon d\'Or. Croatian grit is real. Channel some today. ⚽' },
+  { mood: 'thinking',   text: '7 cases. 2 verb aspects. 3 genders. It sounds like a lot — and it is. But it means you can say exactly what you mean. Always. 📐' },
+  { mood: 'encouraged', text: 'Svaki dan po malo — a little every day. That\'s all it takes. Today\'s little bit is right here. 🔥' },
+  { mood: 'happy',      text: 'Summer in Croatia: lavender from Hvar, rosemary from stone walls, salt from the Adriatic. Learn the words. Then go live them. 🌿' },
+  { mood: 'happy',      text: '"Koliko jezika znaš, toliko vrijediš." You\'re worth as many people as languages you speak. 🌐' },
+  { mood: 'thinking',   text: 'The word "cravat" is Croatian. So is the concept of the necktie. So is Nikola Tesla\'s birthplace. Small country, enormous legacy. ⚡' },
+  // Cultural depth — 20 additional entries
+  { mood: 'happy',      text: 'The Baška Tablet, carved in 1100 AD on Krk Island, is one of the oldest surviving texts in Croatian. Your language has a thousand-year paper trail. 📜' },
+  { mood: 'thinking',   text: '"Bok" is used only in Zagreb. "Čao" covers Dalmatia. "Hej" is Slavonia. One language, three ways to say hello — and each one tells you where someone is from. 🗺️' },
+  { mood: 'happy',      text: 'Goran Ivanišević was a wildcard entry at Wimbledon 2001. He won it anyway. You\'re learning Croatian against the odds too — and the odds don\'t matter. 🎾' },
+  { mood: 'thinking',   text: 'The vocative case — "Marija" becomes "Marijo" when you call out to her. Croatian marks the difference between talking about someone and talking to them. 📐' },
+  { mood: 'happy',      text: 'Rovinj is built on an island that was connected to the mainland in 1763. Every street leads to the sea. Every word leads to a culture. Start walking. 🌊' },
+  { mood: 'encouraged', text: 'Moreška is a sword dance performed in Korčula for 400 years. Two kings, two armies, one beautiful woman. Same drama as Croatian grammar — worth learning. ⚔️' },
+  { mood: 'happy',      text: 'The oldest continuously inhabited building in the world is in Vinkovci, Slavonia — 8,300 years of human life in one town. Learn Croatian and you join that thread. 🏺' },
+  { mood: 'thinking',   text: '"Trebati" can mean "to need" or "should" depending on the case. Trebaš — you need. Treba ti — it\'s needed to you. The precision is the point. 📐' },
+  { mood: 'happy',      text: 'Klapa singing — four to eight voices, no instruments, harmonies that ring off stone walls. When you understand the words, the emotion doubles. 🎶' },
+  { mood: 'encouraging',text: 'Ivan Meštrović was offered a villa by Mussolini and refused it. He carved marble into monuments that outlast empires. The same principle applies to vocab: build it to last. 🗿' },
+  { mood: 'happy',      text: '"Fala" is the Dalmatian slang for "hvala" — thank you. Dialects aren\'t wrong Croatian. They\'re Croatian with history attached. 🌊' },
+  { mood: 'thinking',   text: 'Future tense in Croatian: "Ići ću" or "Idem" — the present can carry future meaning. Context carries a lot of weight in this language. 📐' },
+  { mood: 'happy',      text: 'Pag Island produces cheese so hard it\'s like stone, and lace so fine it\'s UNESCO heritage. One small island — two extremes of craft. 🧀' },
+  { mood: 'ready',      text: 'Šibenik\'s Cathedral of St. James took 105 years to build. The builders knew they\'d never see it finished — and they built it anyway. Play the long game. ⛪' },
+  { mood: 'encouraged', text: '"Nema problema" flows off the tongue in Dalmatia. Life\'s too short for problems that can\'t be solved over coffee. Learn the phrase — use the philosophy. ☕' },
+  { mood: 'thinking',   text: 'Croatian diminutives are everywhere: "kava" → "kavica," "kuća" → "kućica." When you hear the suffix -ica or -ić, someone is being affectionate. 💙' },
+  { mood: 'happy',      text: 'The Adriatic is the cleanest sea in Europe. Croatia has 1,246 islands. The word for island — "otok" — literally means "surrounded by water." 🏝️' },
+  { mood: 'celebrating',text: 'Croatia qualified for the 2018 World Cup Final. A country of 4 million — against nations of hundreds of millions. Size has nothing to do with what you can achieve. 🥈' },
+  { mood: 'thinking',   text: '"Doći" (to come/arrive) vs "dolaziti" (to be coming, ongoing). The perfective/imperfective split is a camera lens: close-up or wide angle on the same action. 🎬' },
+  { mood: 'happy',      text: 'Plitvice Lakes — 16 terraced lakes, emerald waterfalls, a UNESCO site. The Croatian word "voda" (water) is one of the oldest words in the Indo-European family. 💧' },
 ];
 
 // ─── Contextual greeting engine ───────────────────────────────────────────────
@@ -165,9 +186,13 @@ function getGreeting(st, streakCount, level) {
 
   if (xp >= 5000) return { mood: 'victory',     text: `${xp.toLocaleString()} XP! You've crossed into territory where Croatian conversations start happening by accident. 🗣️` };
   if (xp >= 2500) return { mood: 'celebrating', text: `${xp.toLocaleString()} XP — you could order food, argue about football, and apologize in Croatian. Not bad at all. 🍽️` };
+  if (xp >= 1500) return { mood: 'celebrating', text: `${xp.toLocaleString()} XP! A short real conversation is within reach now. Keep going — the jump from here to fluent is smaller than it looks. 🌊` };
   if (xp >= 1000) return { mood: 'happy',       text: `${xp.toLocaleString()} XP. At this pace, a Croatian grandmother would understand you. That's a high bar. 👵` };
+  if (xp >= 750)  return { mood: 'happy',       text: `${xp.toLocaleString()} XP. You're well past basic tourist phrases now — you can navigate markets, ask directions, and understand answers. 🏛️` };
   if (xp >= 500)  return { mood: 'happy',       text: `500+ XP! You've moved past tourist Croatian into something real. A local would actually be impressed. 🇭🇷` };
+  if (xp >= 200)  return { mood: 'encouraged',  text: `${xp.toLocaleString()} XP — the words are starting to stick. The early phase is the hardest, and you're past it. 💪` };
   if (xp >= 100)  return { mood: 'encouraged',  text: `Over 100 XP already. The momentum is real — now keep it going. 🔥` };
+  if (xp >= 50)   return { mood: 'encouraged',  text: `${xp} XP! Every expert started exactly here. You're not at the beginning — you're already past it. ⚔️` };
 
   if (gc >= 10) return { mood: 'thinking', text: `${gc} grammar sessions. You're building the skeleton of Croatian — cases, aspect, everything. Most learners skip this. You didn't. 📐` };
   if (gc >= 5)  return { mood: 'thinking', text: `Five grammar sessions in. You've faced Croatian cases and survived. That earns respect, učenik. 📐` };
@@ -296,7 +321,7 @@ export default function KnightSpeech({
     return () => clearTimeout(t);
   }, [sessionKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Listen for celebration events from useAward
+  // Listen for celebration events from useAward and badge awards
   useEffect(() => {
     const onCelebrate = (e) => {
       const d = e.detail || {};
@@ -308,8 +333,28 @@ export default function KnightSpeech({
       clearTimeout(celebTimerRef.current);
       celebTimerRef.current = setTimeout(() => setMode('mini'), 5500);
     };
+    const BADGE_REACTIONS = [
+      { mood: 'celebrating', text: 'Čestitam! A new badge earned. Badges don\'t come easy — you put in the work. Svaka čast! 🏅' },
+      { mood: 'victory',     text: 'Badge unlocked! Every great Croatian soldier earned their insignia through action, not words. Today you did both. ⚔️' },
+      { mood: 'celebrating', text: 'Novo odlikovanje! Another badge to your name. The Habsburgs gave Croatia medals. I give you this one. Well earned. 🎖️' },
+    ];
+    const onBadge = () => {
+      const reaction = BADGE_REACTIONS[Math.floor(Math.random() * BADGE_REACTIONS.length)];
+      setGreeting(reaction);
+      setAnimOut(false);
+      setCelebBurst(false);
+      requestAnimationFrame(() => setCelebBurst(true));
+      setMode('full');
+      clearTimeout(celebTimerRef.current);
+      celebTimerRef.current = setTimeout(() => setMode('mini'), 6000);
+    };
     window.addEventListener('knight:celebrate', onCelebrate);
-    return () => { window.removeEventListener('knight:celebrate', onCelebrate); clearTimeout(celebTimerRef.current); };
+    window.addEventListener('knight:badge', onBadge);
+    return () => {
+      window.removeEventListener('knight:celebrate', onCelebrate);
+      window.removeEventListener('knight:badge', onBadge);
+      clearTimeout(celebTimerRef.current);
+    };
   }, []);
 
   const dismiss = () => {
@@ -461,17 +506,18 @@ export default function KnightSpeech({
           <div style={{ flex: 1 }} />
           <button
             onClick={dismiss}
-            aria-label="Dismiss"
+            aria-label="Dismiss Hrvoje"
             style={{
-              background: 'none', border: 'none', color: 'var(--subtext)',
-              fontSize: 17, cursor: 'pointer', lineHeight: 1,
-              padding: '4px 6px', borderRadius: 'var(--radius-sm)', opacity: .55,
-              fontFamily: 'var(--font-sans)',
-              transition: 'opacity .15s ease, background .15s ease',
+              background: 'var(--bar-bg)', border: '1px solid var(--card-b)',
+              color: 'var(--subtext)', fontSize: 11, fontWeight: 700,
+              cursor: 'pointer', lineHeight: 1,
+              padding: '4px 10px', borderRadius: 20,
+              fontFamily: 'var(--font-sans)', letterSpacing: '.02em',
+              transition: 'background .15s ease, color .15s ease, border-color .15s ease',
             }}
-            onMouseEnter={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.background = 'var(--bar-bg)'; }}
-            onMouseLeave={e => { e.currentTarget.style.opacity = '.55'; e.currentTarget.style.background = 'none'; }}
-          >×</button>
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--card-b)'; e.currentTarget.style.color = 'var(--heading)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'var(--bar-bg)'; e.currentTarget.style.color = 'var(--subtext)'; }}
+          >Dismiss</button>
         </div>
 
         {/* ── Speech bubble (full-width — knight is already in the hero banner above) ── */}
