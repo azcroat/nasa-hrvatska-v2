@@ -217,7 +217,7 @@ export function useSyncManager({
         _syncFailCount.current += 1;
         if (_syncFailCount.current >= 2) setSyncError(true);
       }
-    }, 2 * 60 * 1000);
+    }, 60 * 1000);
     return () => clearInterval(iv);
   }, [authUser, authScreen]);
 

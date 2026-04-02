@@ -413,9 +413,20 @@ function App() {
   useEffect(() => {
     if (authScreen !== 'app' || !authUser) return undefined;
     if (localStorage.getItem('nh_premium_welcome_shown')) return undefined;
-    const t = setTimeout(() => { const {isFreeAnnual} = getSubscriptionStatus(); if (isFreeAnnual) setShowPremiumWelcome(true); }, 2500);
+    const t = setTimeout(() => { const {isFreeAnnual} = getSubscriptionStatus(); if (isFreeAnnual && stats.lc === 0) setShowPremiumWelcome(true); }, 2500);
     return () => clearTimeout(t);
   }, [authScreen, authUser?.u]); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: premium welcome check is a one-shot side effect gated on a localStorage flag; re-checking on subscription changes would show duplicate banners
+
+  // One-time apology modal for April 2026 data incident — shown once to any existing user with progress
+  const [showApology, setShowApology] = useState(false);
+  useEffect(() => {
+    if (authScreen !== 'app' || stats.lc === 0) return;
+    try { if (!localStorage.getItem('nh_apology_2026_04')) setShowApology(true); } catch {}
+  }, [authScreen, stats.lc]);
+  const dismissApology = useCallback(() => {
+    try { localStorage.setItem('nh_apology_2026_04', '1'); } catch {}
+    setShowApology(false);
+  }, []);
 
   // Page title
   useEffect(() => { document.title = currentScreen && currentScreen !== 'home' && currentScreen !== 'dashboard' ? `${currentScreen.replace(/_/g,' ')} · Naša Hrvatska` : 'Naša Hrvatska — Learn Croatian'; }, [currentScreen]);
@@ -561,6 +572,7 @@ function App() {
           syncError={syncError} setSyncError={setSyncError}
           isFreeAnnual={isFreeAnnual} daysLeft={daysLeft} setShowPaywall={setShowPaywall}
           emailUnverified={emailUnverified} setEmailUnverified={setEmailUnverified} resendVerification={resendVerification}
+          showApology={showApology} onDismissApology={dismissApology}
         />
         <AppRouter
           setPlacementQ={setPlacementQ} setPlacementIdx={setPlacementIdx}
