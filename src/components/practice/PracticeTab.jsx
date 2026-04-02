@@ -381,49 +381,48 @@ export default function PracticeTab({
 
       {/* ── DAILY QUEST PROGRESS ────────────────────────────────────────── */}
       <div style={{
-        display:'flex', gap:6, marginBottom:12, padding:'8px 12px',
-        background:'var(--card)', border:'1px solid var(--card-b)', borderRadius:12,
-        alignItems:'center',
+        marginBottom:12, padding:'10px 14px',
+        background:'var(--card)', border:'1px solid var(--card-b)', borderRadius:14,
+        boxShadow:'var(--card-shadow)',
       }}>
-        <span style={{fontSize:12, fontWeight:700, color:'var(--subtext)', marginRight:2}}>Today:</span>
-        {[
-          { key:'speak',   icon:'🎤', label:'Speak'   },
-          { key:'grammar', icon:'📝', label:'Grammar' },
-          { key:'master',  icon:'🃏', label:'Words'   },
-          { key:'reading', icon:'📖', label:'Read'    },
-        ].map(q => (
-          <div key={q.key} style={{
-            display:'flex', alignItems:'center', gap:3,
-            padding:'3px 8px', borderRadius:8,
-            background: practiceQuestsDone[q.key] ? 'var(--success-bg)' : 'var(--bar-bg)',
-            border: `1px solid ${practiceQuestsDone[q.key] ? 'var(--success-b)' : 'var(--card-b)'}`,
-          }}>
-            <span style={{fontSize:12}}>{q.icon}</span>
-            <span style={{fontSize:11, fontWeight:700, color: practiceQuestsDone[q.key] ? 'var(--success)' : 'var(--subtext)'}}>
-              {practiceQuestsDone[q.key] ? '✓' : q.label}
-            </span>
-          </div>
-        ))}
-        <span style={{fontSize:11, color:'var(--subtext)', marginLeft:'auto', fontWeight:600}}>
-          {practiceQuestsDone.done}/4
-        </span>
+        <div style={{display:'flex', alignItems:'center', marginBottom:8}}>
+          <span style={{fontSize:11, fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'.08em', flex:1}}>Daily Quests</span>
+          <span style={{
+            fontSize:11, fontWeight:800, color: practiceQuestsDone.done === 4 ? 'var(--success)' : 'var(--info)',
+            background: practiceQuestsDone.done === 4 ? 'var(--success-bg)' : 'var(--info-bg)',
+            border: `1px solid ${practiceQuestsDone.done === 4 ? 'var(--success-b)' : 'var(--info-b)'}`,
+            borderRadius:20, padding:'2px 8px',
+          }}>{practiceQuestsDone.done}/4 done</span>
+        </div>
+        <div style={{display:'flex', gap:6}}>
+          {[
+            { key:'speak',   icon:'🎤', label:'Speak'   },
+            { key:'grammar', icon:'📝', label:'Grammar' },
+            { key:'master',  icon:'🃏', label:'Words'   },
+            { key:'reading', icon:'📖', label:'Read'    },
+          ].map(q => (
+            <div key={q.key} style={{
+              flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:2,
+              padding:'6px 4px', borderRadius:10,
+              background: practiceQuestsDone[q.key] ? 'var(--success-bg)' : 'var(--bar-bg)',
+              border: `1.5px solid ${practiceQuestsDone[q.key] ? 'var(--success-b)' : 'var(--card-b)'}`,
+              transition:'all .2s',
+            }}>
+              <span style={{fontSize:16}}>{practiceQuestsDone[q.key] ? '✅' : q.icon}</span>
+              <span style={{fontSize:10, fontWeight:700, color: practiceQuestsDone[q.key] ? 'var(--success)' : 'var(--subtext)'}}>
+                {q.label}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* ── SRS DUE BANNER ──────────────────────────────────────────────── */}
       {Object.keys(sr).length > 0 && dueReviews.length === 0 && (
-        <div style={{
-          background: 'var(--success-bg)',
-          border: '1.5px solid var(--success-b, rgba(22,163,74,0.3))',
-          borderRadius: 14,
-          padding: '12px 16px',
-          marginBottom: 14,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-        }}>
+        <div className="tip-box-success" style={{ marginBottom:14, display:'flex', alignItems:'center', gap:10 }}>
           <span style={{ fontSize: 22 }}>✅</span>
           <div>
-            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--success)' }}>
+            <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--success)' }}>
               All caught up!
             </div>
             <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 2 }}>
@@ -435,28 +434,30 @@ export default function PracticeTab({
       {dueReviews.length > 0 && (
         <button
           onClick={startReview}
+          className="milestone-card"
           style={{
             width:"100%", display:"flex", alignItems:"center", gap:14,
-            padding:"14px 16px", borderRadius:14, marginBottom:16, border:"none", cursor:"pointer",
-            background:"linear-gradient(135deg,#312e81,#4338ca)",
-            boxShadow:"0 4px 16px rgba(67,56,202,.35)",
-            fontFamily:"'Outfit',sans-serif",
+            padding:"16px 18px", marginBottom:16, border:"none", cursor:"pointer",
+            fontFamily:"'Outfit',sans-serif", textAlign:'left',
           }}
         >
           <div style={{
-            width:42, height:42, borderRadius:12, flexShrink:0,
-            background:"rgba(255,255,255,.15)", border:"1.5px solid rgba(255,255,255,.3)",
-            display:"flex", alignItems:"center", justifyContent:"center", fontSize:22,
+            width:46, height:46, borderRadius:14, flexShrink:0,
+            background:"rgba(255,255,255,.18)", border:"2px solid rgba(255,255,255,.35)",
+            display:"flex", alignItems:"center", justifyContent:"center", fontSize:24,
           }}>📅</div>
-          <div style={{ flex:1, textAlign:"left" }}>
-            <div style={{ fontSize:'var(--text-base)', fontWeight:900, color:"#fff" }}>
-              {dueReviews.length} word{dueReviews.length !== 1 ? "s" : ""} due for review
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:11, fontWeight:800, color:"rgba(255,255,255,.65)", textTransform:'uppercase', letterSpacing:'.1em', marginBottom:2 }}>
+              SRS REVIEW DUE
             </div>
-            <div style={{ fontSize:'var(--text-xs)', color:"rgba(255,255,255,.75)", marginTop:1, fontWeight:600 }}>
-              Tap to review now — spaced repetition keeps words in memory
+            <div style={{ fontSize:16, fontWeight:900, color:"#fff" }}>
+              {dueReviews.length} word{dueReviews.length !== 1 ? "s" : ""} waiting
+            </div>
+            <div style={{ fontSize:12, color:"rgba(255,255,255,.7)", marginTop:1 }}>
+              Tap to review — spaced repetition keeps words in memory
             </div>
           </div>
-          <div style={{ fontSize:18, color:"rgba(255,255,255,.8)", fontWeight:300 }}>›</div>
+          <div style={{ fontSize:22, color:"rgba(255,255,255,.85)", fontWeight:300 }}>›</div>
         </button>
       )}
 
@@ -472,23 +473,27 @@ export default function PracticeTab({
       {/* ── LISTENING COMPREHENSION TRACK ───────────────────────────────── */}
       <button
         onClick={() => { setScr('listening_comprehension'); sCurEx('listening_comprehension'); }}
+        className="tc"
         style={{
           width:'100%', display:'flex', alignItems:'center', gap:14,
-          padding:'14px 16px', borderRadius:16, marginBottom:12,
-          border:'1.5px solid #ddd6fe', background:'linear-gradient(135deg,#faf5ff,#ede9fe)',
+          padding:'16px 18px', marginBottom:12,
+          border:'1.5px solid rgba(124,58,237,.25)',
+          background:'linear-gradient(135deg,rgba(124,58,237,.07),rgba(91,33,182,.04))',
           cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
         }}
       >
         <div style={{
-          width:44, height:44, borderRadius:12, flexShrink:0,
+          width:48, height:48, borderRadius:14, flexShrink:0,
           background:'linear-gradient(135deg,#7c3aed,#5b21b6)',
-          display:'flex', alignItems:'center', justifyContent:'center', fontSize:22,
+          display:'flex', alignItems:'center', justifyContent:'center', fontSize:24,
+          boxShadow:'0 4px 12px rgba(124,58,237,.3)',
         }}>🎧</div>
         <div style={{flex:1}}>
-          <div style={{fontSize:14, fontWeight:800, color:'#4c1d95'}}>Listening Comprehension</div>
-          <div style={{fontSize:12, color:'#7c3aed', marginTop:2, lineHeight:1.4}}>A1→B2 curriculum · read Croatian · choose the meaning</div>
+          <div style={{fontSize:11, fontWeight:800, color:'var(--lavender)', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:2}}>A1 → B2 Curriculum</div>
+          <div style={{fontSize:14, fontWeight:800, color:'var(--heading)'}}>Listening Comprehension</div>
+          <div style={{fontSize:12, color:'var(--subtext)', marginTop:1, lineHeight:1.4}}>Read Croatian · choose the meaning · track your progress</div>
         </div>
-        <div style={{fontSize:18, color:'#7c3aed'}}>→</div>
+        <div style={{fontSize:18, color:'var(--lavender)', fontWeight:300}}>›</div>
       </button>
 
       {/* ── TODAY'S PICK ─────────────────────────────────────────────────── */}
@@ -596,7 +601,7 @@ export default function PracticeTab({
 
       {/* ── RECOMMENDED FOR YOU (moved below exercises) ──────────────────── */}
       <div className="section-hdr">
-        <div className="section-hdr-icon" style={{background:'rgba(245,158,11,.12)'}}>✨</div>
+        <div className="section-hdr-icon" style={{background:'linear-gradient(135deg,rgba(245,158,11,.2),rgba(234,88,12,.15))'}}>✨</div>
         <div className="section-hdr-text">
           <div className="section-hdr-title">Recommended for You</div>
           <div className="section-hdr-sub">Picked based on your progress today</div>
@@ -621,15 +626,24 @@ export default function PracticeTab({
         <>
           {goalItems && (
             <div style={{ marginBottom:16 }}>
-              <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', letterSpacing:'.06em', textTransform:'uppercase', marginBottom:'var(--space-sm)' }}>
-                🎯 For your goal: {goalLabels[userGoal]}
+              <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
+                <span style={{ fontSize:11, fontWeight:800, color:'var(--info)', textTransform:'uppercase', letterSpacing:'.08em' }}>🎯 For your goal</span>
+                <span style={{
+                  fontSize:11, fontWeight:700, color:'var(--info)',
+                  background:'var(--info-bg)', border:'1px solid var(--info-b)',
+                  borderRadius:20, padding:'2px 10px',
+                }}>{goalLabels[userGoal]}</span>
               </div>
               <div className="g3" style={{ marginBottom:16 }}>
                 {goalItems.map((r, i) => (
                   <button key={i} className="tc"
-                    style={{ textAlign:"center", padding:"16px 10px" }}
+                    style={{ textAlign:"center", padding:"18px 10px", border:`1.5px solid ${r.border}`, background:r.color }}
                     onClick={r.fn}>
-                    <div style={{ fontSize:28, marginBottom:6 }}>{r.icon}</div>
+                    <div style={{
+                      width:44, height:44, borderRadius:13, margin:'0 auto 8px',
+                      background:'var(--card)', border:`1px solid ${r.border}`,
+                      display:'flex', alignItems:'center', justifyContent:'center', fontSize:22,
+                    }}>{r.icon}</div>
                     <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{r.title}</div>
                     <div style={{ fontSize:10, color:"var(--subtext)", marginTop:4, lineHeight:1.3 }}>{r.desc}</div>
                   </button>
@@ -639,22 +653,23 @@ export default function PracticeTab({
           )}
           <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:24 }}>
             {recommendations.map((r, i) => (
-              <button key={i} onClick={r.fn} style={{
+              <button key={i} onClick={r.fn} className="tc" style={{
                 display:'flex', alignItems:'center', gap:14,
-                padding:'16px 18px', borderRadius:16, border:`1.5px solid ${r.border}`,
+                padding:'16px 18px', border:`1.5px solid ${r.border}`,
                 background:r.color, cursor:'pointer', fontFamily:"'Outfit',sans-serif",
                 textAlign:'left', width:'100%',
               }}>
                 <div style={{
-                  width:48, height:48, borderRadius:14, flexShrink:0,
+                  width:50, height:50, borderRadius:14, flexShrink:0,
                   background:'var(--card)', border:`1.5px solid ${r.border}`,
-                  display:'flex', alignItems:'center', justifyContent:'center', fontSize:24,
+                  display:'flex', alignItems:'center', justifyContent:'center', fontSize:26,
+                  boxShadow:'0 2px 8px rgba(0,0,0,.06)',
                 }}>{r.icon}</div>
                 <div style={{ flex:1, minWidth:0 }}>
                   <div style={{ fontSize:15, fontWeight:800, color:'var(--heading)', marginBottom:2 }}>{r.title}</div>
                   <div style={{ fontSize:12, color:'var(--subtext)', lineHeight:1.4 }}>{r.desc}</div>
                 </div>
-                <div style={{ fontSize:20, color:'var(--subtext)', opacity:.5 }}>›</div>
+                <div style={{ fontSize:20, color:'var(--subtext)', opacity:.6, fontWeight:300 }}>›</div>
               </button>
             ))}
           </div>
@@ -685,22 +700,23 @@ export default function PracticeTab({
         </div>
         <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
           {culturalExtras.map((/** @type {any} */ [fn,icon,label,desc,bg,border], i) => (
-            <button key={i} onClick={fn} style={{
+            <button key={i} onClick={fn} className="tc" style={{
               display:'flex', alignItems:'center', gap:14,
-              padding:'16px 18px', borderRadius:16, border:`1.5px solid ${border}`,
+              padding:'16px 18px', border:`1.5px solid ${border}`,
               background:bg, cursor:'pointer', fontFamily:"'Outfit',sans-serif",
               textAlign:'left', width:'100%',
             }}>
               <div style={{
-                width:48, height:48, borderRadius:14, flexShrink:0,
+                width:50, height:50, borderRadius:14, flexShrink:0,
                 background:'var(--card)', border:`1.5px solid ${border}`,
-                display:'flex', alignItems:'center', justifyContent:'center', fontSize:24,
+                display:'flex', alignItems:'center', justifyContent:'center', fontSize:26,
+                boxShadow:'0 2px 8px rgba(0,0,0,.06)',
               }}>{icon}</div>
               <div style={{ flex:1, minWidth:0 }}>
                 <div style={{ fontSize:15, fontWeight:800, color:'var(--heading)', marginBottom:2 }}>{label}</div>
                 <div style={{ fontSize:12, color:'var(--subtext)', lineHeight:1.4 }}>{desc}</div>
               </div>
-              <div style={{ fontSize:20, color:'var(--subtext)', opacity:.5 }}>›</div>
+              <div style={{ fontSize:20, color:'var(--subtext)', opacity:.6, fontWeight:300 }}>›</div>
             </button>
           ))}
         </div>

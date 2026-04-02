@@ -48,8 +48,8 @@ export default function DailyCroatianSection({ todayPhrases }) {
         </div>
       </div>
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12, marginTop:24}}>
-        <div style={{width:3, height:20, background:'var(--color-croatian, #b61800)', borderRadius:2}}/>
-        <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Discover Croatian</span>
+        <div style={{width:3, height:20, background:'var(--color-croatian,#D40030)', borderRadius:2, flexShrink:0}}/>
+        <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase', fontFamily:'var(--font-sans)'}}>Discover Croatian</span>
       </div>
 
       {/* ── TODAY'S CROATIAN ── */}
@@ -69,26 +69,60 @@ export default function DailyCroatianSection({ todayPhrases }) {
             style={{
               background:'var(--card)',
               border:'1.5px solid var(--card-b)',
-              borderRadius:16,
+              borderRadius:'var(--radius-lg)',
               padding:'14px 12px',
               textAlign:'left',
               cursor:'pointer',
-              boxShadow:'0 2px 8px rgba(0,0,0,.05)',
-              fontFamily:"'Outfit',sans-serif",
-              transition:'transform .12s, box-shadow .12s',
+              boxShadow:'var(--card-shadow)',
+              fontFamily:'var(--font-sans)',
+              transition:'transform .15s ease, box-shadow .15s ease, border-color .15s ease',
               WebkitTapHighlightColor:'transparent',
               display:'flex',
               flexDirection:'column',
               gap:4,
             }}
-            onPointerDown={e => e.currentTarget.style.transform='scale(0.97)'}
-            onPointerUp={e => e.currentTarget.style.transform=''}
-            onPointerLeave={e => e.currentTarget.style.transform=''}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = 'var(--card-shadow-hover)';
+              e.currentTarget.style.borderColor = 'rgba(14,116,144,.2)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = '';
+              e.currentTarget.style.boxShadow = 'var(--card-shadow)';
+              e.currentTarget.style.borderColor = 'var(--card-b)';
+            }}
+            onPointerDown={e => { e.currentTarget.style.transform = 'scale(0.97)'; }}
+            onPointerUp={e => { e.currentTarget.style.transform = ''; }}
+            onPointerLeave={e => { e.currentTarget.style.transform = ''; }}
           >
-            <span style={{fontSize:11, fontWeight:800, color:'var(--color-croatian,#b61800)', textTransform:'uppercase', letterSpacing:'.05em'}}>{p.cat}</span>
-            <span style={{fontSize:15, fontWeight:800, color:'var(--heading)', lineHeight:1.3}}>{p.hr}</span>
-            <span style={{fontSize:12, color:'var(--subtext)', fontWeight:500}}>{p.en}</span>
-            <span aria-hidden="true" style={{marginTop:4, fontSize:16}}>🔊</span>
+            <span style={{
+              fontSize:10, fontWeight:800,
+              color:'var(--color-croatian,#D40030)',
+              textTransform:'uppercase', letterSpacing:'.07em',
+              fontFamily:'var(--font-sans)',
+              background:'rgba(212,0,48,.07)',
+              borderRadius:'var(--radius-sm)',
+              padding:'2px 6px',
+              display:'inline-block',
+              marginBottom:2,
+            }}>{p.cat}</span>
+            <span style={{
+              fontSize:16, fontWeight:700,
+              color:'var(--heading)', lineHeight:1.25,
+              fontFamily:'var(--font-serif)',
+              fontStyle:'italic',
+            }}>{p.hr}</span>
+            <span style={{fontSize:12, color:'var(--subtext)', fontWeight:500, fontFamily:'var(--font-sans)'}}>{p.en}</span>
+            <div style={{
+              display:'flex', alignItems:'center', gap:5, marginTop:6,
+              padding:'4px 8px',
+              background:'var(--accent-light)',
+              borderRadius:'var(--radius-full)',
+              alignSelf:'flex-start',
+            }}>
+              <span aria-hidden="true" style={{fontSize:12}}>🔊</span>
+              <span style={{fontSize:10, fontWeight:700, color:'var(--accent)', fontFamily:'var(--font-sans)', letterSpacing:'.03em'}}>Slušaj</span>
+            </div>
           </button>
         ))}
       </div>

@@ -100,34 +100,48 @@ export default function DiscoverTab() {
     <div style={{ paddingBottom: 16 }}>
 
       {/* ── HERO — Daily rotating city photo ── */}
-      <div style={{ position: 'relative', height: 200, overflow: 'hidden', borderRadius: 16, margin: '0 0 16px' }}>
+      <div style={{ position: 'relative', height: 210, overflow: 'hidden', borderRadius: 18, margin: '0 0 16px', boxShadow: '0 6px 24px rgba(0,0,0,.18)' }}>
         <img
           src={heroCity.src}
           alt={heroCity.alt}
           style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: heroCity.pos }}
         />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(0,0,0,.65) 100%)' }} />
-        <div style={{ position: 'absolute', bottom: 12, left: 14, right: 14 }}>
-          <div style={{ fontSize: 18, fontWeight: 900, color: 'white', fontFamily: "'Playfair Display',serif", textShadow: '0 2px 8px rgba(0,0,0,.5)', marginBottom: 2 }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,.1) 30%, rgba(0,0,0,.7) 100%)' }} />
+        {/* Daily badge */}
+        <div style={{
+          position: 'absolute', top: 12, left: 14,
+          fontSize: 10, fontWeight: 800, color: 'white',
+          background: 'rgba(14,116,144,.85)', backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255,255,255,.2)',
+          borderRadius: 20, padding: '4px 10px', letterSpacing: '.08em', textTransform: 'uppercase',
+        }}>🗓️ Today's City</div>
+        <div style={{ position: 'absolute', bottom: 14, left: 14, right: 14 }}>
+          <div style={{ fontSize: 20, fontWeight: 900, color: 'white', fontFamily: "'Playfair Display',serif", textShadow: '0 2px 12px rgba(0,0,0,.6)', marginBottom: 4 }}>
             {heroCity.name}
           </div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,.75)', fontWeight: 500 }}>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,.8)', fontWeight: 500, lineHeight: 1.4 }}>
             {heroCity.subtitle}
           </div>
         </div>
-        <div style={{ position: 'absolute', top: 10, right: 10, fontSize: 9, color: 'rgba(255,255,255,.45)', background: 'rgba(0,0,0,.35)', borderRadius: 6, padding: '2px 6px' }}>
+        <div style={{ position: 'absolute', top: 12, right: 12, fontSize: 9, color: 'rgba(255,255,255,.45)', background: 'rgba(0,0,0,.4)', borderRadius: 6, padding: '2px 6px' }}>
           {heroCity.credit}
         </div>
       </div>
 
       {/* ── DID YOU KNOW ── */}
-      <div style={{ background: 'var(--card)', border: '1px solid var(--card-b)', borderRadius: 14, padding: '14px 16px', marginBottom: 12 }}>
-        <div style={{ fontSize: 10, fontWeight: 900, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 8 }}>
-          💡 Did You Know?
+      <div style={{
+        background: 'linear-gradient(135deg,rgba(124,58,237,.07),rgba(91,33,182,.04))',
+        border: '1.5px solid rgba(124,58,237,.2)',
+        borderRadius: 16, padding: '14px 16px', marginBottom: 12,
+        boxShadow: 'var(--card-shadow)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+          <span style={{ fontSize: 14 }}>💡</span>
+          <span style={{ fontSize: 10, fontWeight: 900, color: 'var(--lavender,#7c3aed)', textTransform: 'uppercase', letterSpacing: '.1em' }}>Did You Know?</span>
         </div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-          <span style={{ fontSize: 28, flexShrink: 0 }}>{dailyFact.emoji}</span>
-          <div style={{ fontSize: 13, color: 'var(--body)', lineHeight: 1.6 }}>{dailyFact.fact}</div>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+          <span style={{ fontSize: 30, flexShrink: 0, lineHeight: 1 }}>{dailyFact.emoji}</span>
+          <div style={{ fontSize: 13, color: 'var(--body)', lineHeight: 1.65, fontWeight: 500 }}>{dailyFact.fact}</div>
         </div>
       </div>
 
@@ -136,23 +150,35 @@ export default function DiscoverTab() {
         role="button"
         tabIndex={0}
         onClick={() => { const el = document.querySelector('[data-ctab="stories"]'); if (el) el.click(); }}
-        style={{ background: 'linear-gradient(135deg, #fffbeb, #fef3c7)', border: '1.5px solid #fde68a', borderRadius: 14, padding: '14px 16px', marginBottom: 12, cursor: 'pointer' }}
+        style={{
+          background: 'linear-gradient(135deg,var(--warning-bg,#fffbeb),rgba(251,191,36,.08))',
+          border: '1.5px solid var(--warning-b,#fde68a)',
+          borderRadius: 16, padding: '16px 18px', marginBottom: 12, cursor: 'pointer',
+          boxShadow: 'var(--card-shadow)',
+          transition: 'transform .15s, box-shadow .15s',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.transform='translateY(-1px)'; e.currentTarget.style.boxShadow='0 6px 20px rgba(180,83,9,.15)'; }}
+        onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='var(--card-shadow)'; }}
       >
-        <div style={{ fontSize: 10, fontWeight: 900, color: '#b45309', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 8 }}>
-          💌 Letters from Baka
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+          <span style={{ fontSize: 14 }}>💌</span>
+          <span style={{ fontSize: 10, fontWeight: 900, color: 'var(--warning,#b45309)', textTransform: 'uppercase', letterSpacing: '.1em' }}>Letters from Baka</span>
+          <span style={{
+            marginLeft: 'auto', fontSize: 10, fontWeight: 700,
+            color: 'var(--warning,#b45309)', background: 'var(--warning-bg,#fffbeb)',
+            border: '1px solid var(--warning-b,#fde68a)', borderRadius: 20, padding: '2px 8px',
+          }}>Stories tab →</span>
         </div>
-        <div style={{ fontSize: 14, fontWeight: 800, color: '#451a03', marginBottom: 4 }}>Baka Marija piše...</div>
-        <div style={{ fontSize: 12, color: '#78350f', lineHeight: 1.5, marginBottom: 8, fontStyle: 'italic' }}>
+        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', marginBottom: 6, fontFamily: "'Playfair Display',serif" }}>Baka Marija piše...</div>
+        <div style={{ fontSize: 12, color: 'var(--subtext)', lineHeight: 1.6, fontStyle: 'italic', borderLeft: '3px solid var(--warning-b,#fde68a)', paddingLeft: 12 }}>
           &ldquo;Drago moje unuče, kako si ti? Ovdje je lijepo proljetno vrijeme. Cvjetovi su procvjetali u vrtu...&rdquo;
         </div>
-        <div style={{ fontSize: 11, fontWeight: 700, color: '#b45309' }}>Read the full letter → Stories tab ↗</div>
       </div>
 
       {/* ── HRVOJE COMPANION — rotating contextual messages ── */}
-      <div style={{
+      <div className="c" style={{
         display: 'flex', alignItems: 'flex-start', gap: 14,
-        padding: '14px 16px', background: 'var(--card)',
-        border: '1px solid var(--card-b)', borderRadius: 16, marginBottom: 12,
+        padding: '14px 16px', marginBottom: 12,
       }}>
         <CroatianKnight size={58} mood={kMsg.mood} style={{ flexShrink: 0, marginTop: 2 }} />
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -184,33 +210,57 @@ export default function DiscoverTab() {
       {/* ── DIALECT AWARENESS ── */}
       <button
         onClick={() => setScr('dialect_awareness')}
-        style={{ width: '100%', border: 'none', cursor: 'pointer', padding: 0, borderRadius: 14, overflow: 'hidden', background: 'linear-gradient(135deg,#1e3a5f,#2563eb)', boxShadow: '0 4px 16px rgba(37,99,235,.3)', marginBottom: 12 }}
+        style={{
+          width: '100%', border: 'none', cursor: 'pointer', padding: '16px 18px',
+          borderRadius: 18, overflow: 'hidden',
+          background: 'linear-gradient(135deg,#1e3a5f,#2563eb)',
+          boxShadow: '0 4px 20px rgba(37,99,235,.35)', marginBottom: 12,
+          display: 'flex', alignItems: 'center', gap: 16,
+          transition: 'transform .15s, box-shadow .15s',
+          fontFamily: "'Outfit',sans-serif",
+        }}
+        onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 8px 28px rgba(37,99,235,.45)'; }}
+        onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='0 4px 20px rgba(37,99,235,.35)'; }}
       >
-        <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ fontSize: 32, flexShrink: 0 }}>🗣️</div>
-          <div style={{ flex: 1, textAlign: 'left' }}>
-            <div style={{ fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,.65)', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 2 }}>LINGUISTICS · CULTURE</div>
-            <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', marginBottom: 2 }}>Croatian Dialect Explorer</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,.7)', lineHeight: 1.4 }}>Što vs Ča vs Kaj — discover the three dialects and where they come from.</div>
-          </div>
-          <div style={{ fontSize: 18, color: 'rgba(255,255,255,.6)' }}>→</div>
+        <div style={{
+          width: 50, height: 50, borderRadius: 14, flexShrink: 0,
+          background: 'rgba(255,255,255,.12)', border: '1.5px solid rgba(255,255,255,.2)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26,
+        }}>🗣️</div>
+        <div style={{ flex: 1, textAlign: 'left' }}>
+          <div style={{ fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,.6)', letterSpacing: '.12em', textTransform: 'uppercase', marginBottom: 4 }}>Linguistics · Culture</div>
+          <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', marginBottom: 3 }}>Croatian Dialect Explorer</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,.72)', lineHeight: 1.4 }}>Što vs Ča vs Kaj — discover the three dialects and where they come from.</div>
         </div>
+        <div style={{ fontSize: 20, color: 'rgba(255,255,255,.7)', fontWeight: 300 }}>›</div>
       </button>
 
       {/* ── PHOTO VOCAB SCANNER ── */}
       <button
         onClick={() => setScr('photo_vocab')}
-        style={{ width: '100%', border: 'none', cursor: 'pointer', padding: 0, borderRadius: 14, overflow: 'hidden', background: 'linear-gradient(135deg,#164e63,#0e7490)', boxShadow: '0 4px 16px rgba(14,116,144,.3)' }}
+        style={{
+          width: '100%', border: 'none', cursor: 'pointer', padding: '16px 18px',
+          borderRadius: 18, overflow: 'hidden',
+          background: 'linear-gradient(135deg,#164e63,#0e7490)',
+          boxShadow: '0 4px 20px rgba(14,116,144,.35)',
+          display: 'flex', alignItems: 'center', gap: 16,
+          transition: 'transform .15s, box-shadow .15s',
+          fontFamily: "'Outfit',sans-serif",
+        }}
+        onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 8px 28px rgba(14,116,144,.45)'; }}
+        onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='0 4px 20px rgba(14,116,144,.35)'; }}
       >
-        <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ fontSize: 32, flexShrink: 0 }}>📷</div>
-          <div style={{ flex: 1, textAlign: 'left' }}>
-            <div style={{ fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,.65)', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 2 }}>AI · CAMERA</div>
-            <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', marginBottom: 2 }}>Photo Vocabulary Scanner</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,.7)', lineHeight: 1.4 }}>Point your camera at menus, signs or labels — learn the Croatian words instantly.</div>
-          </div>
-          <div style={{ fontSize: 18, color: 'rgba(255,255,255,.6)' }}>→</div>
+        <div style={{
+          width: 50, height: 50, borderRadius: 14, flexShrink: 0,
+          background: 'rgba(255,255,255,.12)', border: '1.5px solid rgba(255,255,255,.2)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26,
+        }}>📷</div>
+        <div style={{ flex: 1, textAlign: 'left' }}>
+          <div style={{ fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,.6)', letterSpacing: '.12em', textTransform: 'uppercase', marginBottom: 4 }}>AI · Camera</div>
+          <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', marginBottom: 3 }}>Photo Vocabulary Scanner</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,.72)', lineHeight: 1.4 }}>Point your camera at menus, signs or labels — learn the Croatian words instantly.</div>
         </div>
+        <div style={{ fontSize: 20, color: 'rgba(255,255,255,.7)', fontWeight: 300 }}>›</div>
       </button>
 
     </div>
