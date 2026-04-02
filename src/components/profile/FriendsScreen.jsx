@@ -70,12 +70,15 @@ function FamilyTab({ user }) {
 
   useEffect(() => {
     if (!email) return;
+    let mounted = true;
     fbLoadUserFamily(email).then(fam => {
+      if (!mounted) return;
       if (fam) {
         setFamily(fam);
-        fbGetFamilyMembers(fam.code).then(setMembers).catch(() => {});
+        fbGetFamilyMembers(fam.code).then(m => { if (mounted) setMembers(m); }).catch(() => {});
       }
     }).catch(() => {});
+    return () => { mounted = false; };
   }, [email]);
 
   async function handleCreate() {

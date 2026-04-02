@@ -4,6 +4,7 @@ import { fbExportUserData } from '../../lib/firebase.js';
 import { isSoundEnabled, setSoundEnabled, isHapticEnabled, setHapticEnabled, getVoicePreference, setVoicePreference } from '../../lib/soundSettings.js';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.tsx';
+import { getFreezesStored, purchaseFreeze, FREEZE_COST_XP } from '../../lib/streakFreeze.js';
 
 const GOALS = [
   { id: 'heritage', icon: '🇭🇷', label: 'My heritage & roots' },
@@ -29,6 +30,21 @@ const GOAL_FOCUS = {
 export default function SettingsTab({ syncReady, onSyncNow }) {
   const { au, darkMode, setDarkMode, setScr, doOut, name, st, favs, jWords } = useApp();
   const { stats: statsCtx, setStats } = useStats();
+
+  const [freezesStored, setFreezesStored] = useState(() => getFreezesStored());
+  const [freezeMsg, setFreezeMsg] = useState('');
+
+  function handleBuyFreeze() {
+    const result = purchaseFreeze(statsCtx.xp || 0, setStats);
+    if (result.ok) {
+      setFreezesStored(result.stored);
+      setFreezeMsg(`❄️ Freeze purchased! ${result.stored}/2 stored.`);
+      setTimeout(() => setFreezeMsg(''), 3000);
+    } else {
+      setFreezeMsg(result.reason);
+      setTimeout(() => setFreezeMsg(''), 3000);
+    }
+  }
 
   const [confirmOut, setConfirmOut] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -382,6 +398,73 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
            'Select a goal to personalize your learning path'}
         </div>
       )}
+
+      {/* ── HERITAGE MODE ENTRY POINT ── */}
+      <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.1em', marginTop:24, marginBottom:10, paddingLeft:4}}>
+        🇭🇷 Heritage Learner
+      </div>
+      <button className="tc" style={{width:'100%',display:'flex',alignItems:'center',gap:14,padding:'16px',marginBottom:10}}
+        onClick={() => setScr('heritage_mode')}>
+        <div style={{width:44,height:44,borderRadius:13,
+          background: localStorage.getItem('nh_heritage_mode') === 'true'
+            ? 'linear-gradient(135deg,#7c2d12,#c2410c)'
+            : 'linear-gradient(135deg,#9a3412,#ea580c)',
+          display:'flex',alignItems:'center',justifyContent:'center',fontSize:'var(--text-xl)',flexShrink:0}}>🇭🇷</div>
+        <div style={{flex:1,textAlign:'left'}}>
+          <div style={{fontSize:'var(--text-base)',fontWeight:800,color:'var(--heading)'}}>
+            {localStorage.getItem('nh_heritage_mode') === 'true' ? 'Heritage Mode Active' : 'I grew up hearing Croatian at home →'}
+          </div>
+          <div style={{fontSize:'var(--text-xs)',color:localStorage.getItem('nh_heritage_mode') === 'true' ? 'var(--success)' : 'var(--subtext)',marginTop:1}}>
+            {localStorage.getItem('nh_heritage_mode') === 'true'
+              ? '✓ Dialect set · Gap analysis complete · Baka phrases saved'
+              : 'Diaspora-specific path: dialect check, gap analysis, family phrases'}
+          </div>
+        </div>
+        <div style={{fontSize:'var(--text-xl)',color:'var(--subtext)',opacity:.8}}>›</div>
+      </button>
+
+      {/* ── STREAK PROTECTION ── */}
+      <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.1em', marginTop:24, marginBottom:10, paddingLeft:4}}>
+        ❄️ Streak Protection
+      </div>
+      <div style={{ background: 'var(--card)', borderRadius: 16, padding: 16, marginBottom: 12, border: '1px solid var(--card-b)' }}>
+        <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>❄️ Streak Protection</div>
+        <div style={{ fontSize: 12, color: 'var(--subtext)', marginBottom: 12 }}>
+          Freezes automatically protect your streak if you miss a day. Max 2 stored.
+        </div>
+        {/* Freeze slots */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+          {[0, 1].map(i => (
+            <div key={i} style={{
+              width: 48, height: 48, borderRadius: 12,
+              background: i < freezesStored ? 'rgba(56,189,248,0.15)' : 'var(--bg)',
+              border: `2px solid ${i < freezesStored ? '#38bdf8' : 'var(--card-b)'}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 24,
+            }}>
+              {i < freezesStored ? '❄️' : '○'}
+            </div>
+          ))}
+          <div style={{ flex: 1, fontSize: 12, color: 'var(--subtext)', alignSelf: 'center' }}>
+            {freezesStored}/2 freezes stored
+          </div>
+        </div>
+        <button
+          disabled={freezesStored >= 2 || (statsCtx?.xp || 0) < FREEZE_COST_XP}
+          onClick={handleBuyFreeze}
+          style={{
+            width: '100%', padding: '10px', borderRadius: 10,
+            background: freezesStored >= 2 || (statsCtx?.xp || 0) < FREEZE_COST_XP ? 'var(--card-b)' : 'var(--info)',
+            color: freezesStored >= 2 || (statsCtx?.xp || 0) < FREEZE_COST_XP ? 'var(--subtext)' : '#fff',
+            border: 'none', fontWeight: 700, fontSize: 13,
+            cursor: freezesStored >= 2 || (statsCtx?.xp || 0) < FREEZE_COST_XP ? 'not-allowed' : 'pointer',
+            fontFamily: "'Outfit',sans-serif",
+          }}
+        >
+          {freezesStored >= 2 ? '✓ Freeze slots full' : `Buy Freeze — 50 XP (you have ${statsCtx?.xp || 0})`}
+        </button>
+        {freezeMsg && <div style={{ marginTop: 8, fontSize: 12, color: 'var(--success)', fontWeight: 600 }}>{freezeMsg}</div>}
+      </div>
 
       {/* ── NOTIFICATIONS ── */}
       <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.1em', marginTop:24, marginBottom:10, paddingLeft:4}}>
