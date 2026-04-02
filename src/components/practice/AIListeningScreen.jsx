@@ -121,6 +121,10 @@ export default function AIListeningScreen({ goBack, award }) {
       audioRef.current.onended = () => {
         if (mountedRef.current) { setIsPlaying(false); setHasPlayed(true); setReadyVisible(true); }
       };
+      // Sync UI if audio is interrupted by system (Android screen lock, incoming call)
+      audioRef.current.onpause = () => {
+        if (mountedRef.current && !audioRef.current?.ended) setIsPlaying(false);
+      };
     }
     return audioRef.current;
   }

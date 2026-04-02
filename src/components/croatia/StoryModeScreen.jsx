@@ -2,11 +2,15 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useStats } from '../../context/StatsContext.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { getAudioContext } from '../../lib/audio.js';
 import { STORY_CITIES, GOAL_META } from './StoryModeData.js';
 import StorySetupPanel from './StorySetupPanel.jsx';
 import StoryViewPanel from './StoryViewPanel.jsx';
 
 // ── TTS helper ────────────────────────────────────────────────────────────────
+const _iosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
 async function playTTS(text) {
   const res = await fetch('/api/tts', {
     method: 'POST',
@@ -16,11 +20,33 @@ async function playTTS(text) {
   if (!res.ok) throw new Error('TTS failed');
   const blob = await res.blob();
   const url = URL.createObjectURL(blob);
+
+  const ctx = _iosDevice ? getAudioContext() : null;
+  if (ctx) {
+    try {
+      await ctx.resume();
+      const ab = await fetch(url).then(r => r.arrayBuffer());
+      URL.revokeObjectURL(url);
+      const decoded = await ctx.decodeAudioData(ab);
+      const src = ctx.createBufferSource();
+      src.buffer = decoded;
+      src.connect(ctx.destination);
+      src.start(0);
+      return {
+        pause() { try { src.stop(); } catch {} },
+        addEventListener(ev, fn) { if (ev === 'ended') src.onended = fn; },
+      };
+    } catch {
+      URL.revokeObjectURL(url);
+      throw new Error('TTS playback failed');
+    }
+  }
+
   const audio = new Audio(url);
   const cleanup = () => URL.revokeObjectURL(url);
   audio.addEventListener('ended', cleanup);
   audio.addEventListener('error', cleanup);
-  audio.play().catch(cleanup);
+  try { await audio.play(); } catch { cleanup(); throw new Error('play() blocked'); }
   return audio;
 }
 
@@ -136,6 +162,7 @@ export default function StoryModeScreen({ goBack, award }) {
       audioRef.current = audio;
       audio.addEventListener('ended', () => { if (!_unmountedRef.current) setTtsPlaying(false); });
       audio.addEventListener('error', () => { if (!_unmountedRef.current) setTtsPlaying(false); });
+      audio.addEventListener('pause', () => { if (!_unmountedRef.current) setTtsPlaying(false); });
     } catch {
       if (!_unmountedRef.current) setTtsPlaying(false);
     }

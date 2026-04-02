@@ -23,7 +23,7 @@ export const SEASONAL_CAMPAIGNS = [
     start: [3, 20], end: [4, 30], multiplier: 1.5,
     blurb: 'Learn Easter traditions — pisanice, lamb, holiday greetings',
     quests: [
-      { id: 'uskrs_q1', label: 'Learn 5 Easter words', desc: 'Complete the greetings lesson', xp: 30, screen: 'lesson' },
+      { id: 'uskrs_q1', label: 'Learn 5 Easter words', desc: 'Browse the Easter vocabulary', xp: 30, screen: 'easter' },
       { id: 'uskrs_q2', label: 'Practice family vocab', desc: 'Family flashcards', xp: 25, screen: 'flashcards' },
       { id: 'uskrs_q3', label: 'Easter challenge', desc: 'Score 80%+ on any quiz', xp: 50, screen: 'mcgame' },
     ] },
