@@ -169,6 +169,8 @@ export default function HomeTab({
   const [_dcOpen, _setDcOpen] = useState(doneCount === 0); void _dcOpen; void _setDcOpen;
   const [campaignDismissed, setCampaignDismissed] = useState(false);
   const [nudgeDismissed, setNudgeDismissed] = useState(false);
+  // Incremented when a campaign quest is marked done locally — forces campaignQuestsDone to re-read localStorage.
+  const [campaignQuestVersion, setCampaignQuestVersion] = useState(0);
 
   const campaignQuestsDone = useMemo(() => {
     if (!activeCampaign || !activeCampaign.quests || activeCampaign.quests.length === 0) return {};
@@ -177,7 +179,8 @@ export default function HomeTab({
       result[q.id] = localStorage.getItem(`nh_cq_${activeCampaign.id}_${q.id}`) === '1';
     }
     return result;
-  }, [activeCampaign]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeCampaign, campaignQuestVersion]);
 
   const longAbsence = useMemo(() => {
     const ls = localStorage.getItem('nh_last_seen');
@@ -436,6 +439,14 @@ export default function HomeTab({
             setTab={setTab}
             onQuestTap={(quest) => {
               if (quest.screen === 'flashcards') {
+                // Mark the campaign quest done immediately: the user IS doing the activity.
+                // Flashcard screens don't have a campaign-quest callback, so we mark on launch.
+                if (activeCampaign) {
+                  try {
+                    localStorage.setItem(`nh_cq_${activeCampaign.id}_${quest.id}`, '1');
+                    setCampaignQuestVersion(v => v + 1);
+                  } catch (_) {}
+                }
                 launchPathItem({ go: 'lesson', topic: quest.vocab || 'family' });
               } else {
                 setScr(quest.screen);

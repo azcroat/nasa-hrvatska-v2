@@ -143,11 +143,17 @@ function getGreeting(st, streakCount, level) {
     { mood: 'encouraged', text: 'Nema veze. Every serious learner has gaps. The difference is: they showed back up. Your Croatian is still in there. 🔥' },
   ]);
 
-  if (hour >= 21 && streakCount > 0) return pick([
-    { mood: 'encouraged', text: `Pazi! Your streak expires at midnight. One lesson — even five minutes — keeps the fire alive. Don't let it die tonight. 🕛` },
-    { mood: 'ready',      text: 'Late night in Zagreb, the kafići are still full — and so is your next lesson. Don\'t lose the streak. ☕' },
-    { mood: 'ready',      text: `One lesson before bed. That's all it takes. ${streakCount} days — too valuable to lose tonight. ⚔️` },
-  ]);
+  if (hour >= 21 && streakCount > 0) {
+    // Only warn if the user hasn't already practiced today — no need to nag after they've done their session.
+    const lastPractice = parseInt(localStorage.getItem('nh_last_practice') || '0', 10);
+    const practicedToday = !isNaN(lastPractice) && lastPractice > 0 &&
+      new Date(lastPractice).toDateString() === new Date().toDateString();
+    if (!practicedToday) return pick([
+      { mood: 'encouraged', text: `Pazi! Your streak expires at midnight. One lesson — even five minutes — keeps the fire alive. Don't let it die tonight. 🕛` },
+      { mood: 'ready',      text: 'Late night in Zagreb, the kafići are still full — and so is your next lesson. Don\'t lose the streak. ☕' },
+      { mood: 'ready',      text: `One lesson before bed. That's all it takes. ${streakCount} days — too valuable to lose tonight. ⚔️` },
+    ]);
+  }
 
   if (streakCount >= 100) return { mood: 'victory',     text: `${streakCount} days. You're not learning Croatian anymore — you ARE Croatian. Svaka čast, majstore. 🏆` };
   if (streakCount >= 50)  return { mood: 'celebrating', text: `${streakCount}-day streak! Fifty days of showing up. The Adriatic has been waiting for someone with your dedication. 🌊` };
