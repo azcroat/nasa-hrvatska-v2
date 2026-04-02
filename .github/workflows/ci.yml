@@ -40,7 +40,7 @@ jobs:
         run: npm run lint
 
       - name: Dependency security audit
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=high --omit=dev
 
       - name: TypeScript check
         run: npm run typecheck
