@@ -75,10 +75,26 @@ async function sendWebPush(subscription, payload, env) {
   return res.status;
 }
 
+// Constant-time string comparison — prevents timing attacks on secret comparison.
+// Always iterates the full length regardless of match/mismatch position.
+function timingSafeEqual(a, b) {
+  const enc = new TextEncoder();
+  const aBytes = enc.encode(String(a));
+  const bBytes = enc.encode(String(b));
+  const len = Math.max(aBytes.length, bBytes.length);
+  // Seed diff=1 when lengths differ so unequal-length strings always fail
+  let diff = aBytes.length === bBytes.length ? 0 : 1;
+  for (let i = 0; i < len; i++) {
+    // eslint-disable-next-line security/detect-object-injection
+    diff |= (aBytes[i] || 0) ^ (bBytes[i] || 0);
+  }
+  return diff === 0;
+}
+
 // ── Auth: accept either CRON_SECRET or a valid Firebase ID token ───────────────
 async function isAuthorized(request, env) {
   const cronSecret = request.headers.get('x-cron-secret') || '';
-  if (env.CRON_SECRET && cronSecret === env.CRON_SECRET) return true;
+  if (env.CRON_SECRET && timingSafeEqual(cronSecret, env.CRON_SECRET)) return true;
 
   const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
   if (FIREBASE_PROJECT_ID) {

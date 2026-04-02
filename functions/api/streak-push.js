@@ -198,10 +198,25 @@ async function sendWebPush(subscription, payload, env) {
   return res.status;
 }
 
+// Constant-time string comparison — prevents timing attacks on secret comparison.
+// Always iterates the full length regardless of match/mismatch position.
+function timingSafeEqual(a, b) {
+  const enc = new TextEncoder();
+  const aBytes = enc.encode(String(a));
+  const bBytes = enc.encode(String(b));
+  const len = Math.max(aBytes.length, bBytes.length);
+  let diff = aBytes.length === bBytes.length ? 0 : 1;
+  for (let i = 0; i < len; i++) {
+    // eslint-disable-next-line security/detect-object-injection
+    diff |= (aBytes[i] || 0) ^ (bBytes[i] || 0);
+  }
+  return diff === 0;
+}
+
 export async function onRequestPost({ request, env }) {
   // Internal-only: require CRON_SECRET
   const secret = request.headers.get('x-cron-secret') || '';
-  if (!env.CRON_SECRET || secret !== env.CRON_SECRET) {
+  if (!env.CRON_SECRET || !timingSafeEqual(secret, env.CRON_SECRET)) {
     return new Response('Unauthorized', { status: 401 });
   }
 
