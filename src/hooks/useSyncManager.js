@@ -196,6 +196,20 @@ export function useSyncManager({
     return () => { clearInterval(iv); _idTokenRef.current = ''; };
   }, [authUser, authScreen]);
 
+  // Periodic Firebase push every 2 minutes — ensures progress reaches Firestore
+  // even if the user never triggers pagehide/visibilitychange (e.g. browser crash,
+  // power loss, or clearing browser data between sessions).
+  useEffect(() => {
+    if (!authUser || authScreen !== 'app') return undefined;
+    const iv = setInterval(() => {
+      const { authUser: u, stats: st, name: nm, authScreen: as, favs: fv, jWords: jw, dchlA: da, dchlSl: dsl } = _unloadRef.current;
+      if (!u || as !== 'app') return;
+      const snap = buildProgressSnapshot({ uid: u.u, name: nm, stats: st, dchlA: da, dchlSl: dsl, favs: fv, jWords: jw });
+      fbSaveProgress(u.u, snap).catch(() => {});
+    }, 2 * 60 * 1000);
+    return () => clearInterval(iv);
+  }, [authUser, authScreen]);
+
   // Synchronous localStorage flush + best-effort Firebase push on tab close / page kill
   useEffect(() => {
     const saveSnapshot = (pushToFirebase) => {
