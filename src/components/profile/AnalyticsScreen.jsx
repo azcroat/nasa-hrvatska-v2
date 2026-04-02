@@ -51,8 +51,9 @@ function BadgeRow({ badge, earned }) {
 // ── Main screen ────────────────────────────────────────────────────────────────
 export default function AnalyticsScreen({ goBack, stats, name }) {
   const s = stats || {};
-  const mistakes = useMemo(() => getMistakes(), []);
-  const dueWords = useMemo(() => getDueReviews(), []);
+  // Not memoised — reads localStorage; must reflect current data when stats prop updates
+  const mistakes = getMistakes();
+  const dueWords = getDueReviews();
 
   const earnedBadges = useMemo(() => {
     if (!s) return new Set();

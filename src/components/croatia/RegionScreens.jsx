@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { H, speak, sh } from '../../data.jsx';
 import { REGIONS, ROLEPLAY, RECIPES, CROATIAN_CITIES } from '../../data.jsx';
 import { markQuest } from '../../lib/quests.js';
+import { useApp } from '../../context/AppContext.jsx';
 
 export function RegionScreen({ regionKey, goBack }) {
+  const { award } = useApp();
   const [tab, setTab] = useState("overview");
   const [quizI, setQuizI] = useState(0);
   const [quizSel, setQuizSel] = useState(null);
@@ -31,7 +33,7 @@ export function RegionScreen({ regionKey, goBack }) {
     if (correct) setQuizScore(s => s + 1);
     setTimeout(() => {
       if (quizI < r.quiz.length - 1) { setQuizI(i => i + 1); setQuizSel(null); }
-      else { markQuest('grammar'); setQuizDone(true); }
+      else { const finalScore = correct ? quizScore + 1 : quizScore; markQuest('culture'); if (typeof award === 'function') award(finalScore * 5 + 10); setQuizDone(true); }
     }, 1400);
   }
 

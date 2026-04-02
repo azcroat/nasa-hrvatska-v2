@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { H, V, LISTEN, UNJUMBLE, PREPDRILL, NUMTIME, getSR, getDueReviews } from '../../data.jsx';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
@@ -99,7 +99,7 @@ export default function PracticeTab({
   };
 
   // ── SMART RECOMMENDATIONS ─────────────────────────────────────────────
-  const dueReviews = useMemo(getDueReviews, []);
+  const dueReviews = getDueReviews(); // intentionally not memoised — reads localStorage on every render so count stays current after completing reviews
   const sr = getSR();
   const weakWords = Object.values(sr).filter(v => v.w > 0);
   const weakCount = weakWords.length;

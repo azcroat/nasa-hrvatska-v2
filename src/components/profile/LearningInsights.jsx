@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 
 // Helper to get SRS data
 function getSRData() {
@@ -68,9 +68,10 @@ function getJourney() {
 }
 
 export default function LearningInsights({ st }) {
-  const vocab = useMemo(() => analyzeVocab(), []);
-  const weeklyXP = useMemo(() => getWeeklyXP(), []);
-  const journey = useMemo(() => getJourney().slice(-5).reverse(), []); // last 5 milestones
+  // Not memoised — these read localStorage so they must re-run when st changes to stay current
+  const vocab = analyzeVocab();
+  const weeklyXP = getWeeklyXP();
+  const journey = getJourney().slice(-5).reverse(); // last 5 milestones
 
   const streak = st?.ss || 0;
   const totalXP = st?.xp || 0;
