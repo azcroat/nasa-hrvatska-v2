@@ -49,12 +49,16 @@ function limitForUid(/* uid, source */) {
 export async function checkAIQuota(request, env, uid, cost = 1) {
   const kv      = env.PUSH_SUBSCRIPTIONS
   const resetAt = nextMidnightUTC()
+  const isProd  = env.ENVIRONMENT === 'production'
 
-  // Fail open: if quota KV is unavailable (Pages binding not configured), allow requests.
-  // The quota system is a cost guardrail, not a security gate — better to serve users
-  // than block everyone when the KV binding isn't set up in Cloudflare Pages dashboard.
+  // KV unavailable: fail-closed in production (prevent unmetered AI spend),
+  // fail-open in development (allow local testing without KV binding).
   if (!kv) {
-    console.warn('[AIQuota] PUSH_SUBSCRIPTIONS KV unavailable — allowing request (fail-open)')
+    if (isProd) {
+      console.error('[AIQuota] PUSH_SUBSCRIPTIONS KV unavailable in production — denying request to prevent unmetered AI spend')
+      return { allowed: false, remaining: 0, resetAt }
+    }
+    console.warn('[AIQuota] PUSH_SUBSCRIPTIONS KV unavailable — allowing request in non-production environment')
     return { allowed: true, remaining: 50, resetAt }
   }
 

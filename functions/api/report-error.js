@@ -15,6 +15,7 @@
  */
 
 import { corsHeaders, isAllowedOrigin } from './_helpers.js';
+import { checkRateLimit } from './_rateLimit.js';
 
 // In-memory deduplication per Worker instance (resets on restart, ~a few minutes).
 // Prevents log storms from a single browser hammering the endpoint.
@@ -97,6 +98,15 @@ export async function onRequestPost(context) {
   // Allow same-origin sendBeacon (no Origin header) or known origins
   if (origin && !isAllowedOrigin(origin, isDev)) {
     return new Response('Forbidden', { status: 403, headers: corsHeaders(origin) });
+  }
+
+  // 30 reports/min per IP — prevents log-flood abuse
+  const allowed = await checkRateLimit(request, 30);
+  if (!allowed) {
+    return new Response(JSON.stringify({ ok: true }), {
+      status: 200, // Return 200 so sendBeacon doesn't retry
+      headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+    });
   }
 
   try {

@@ -14,7 +14,7 @@
 import { getFirebaseUid } from './_verifyToken.js';
 import { checkRateLimit } from './_rateLimit.js';
 
-const FIREBASE_PROJECT_ID = 'nasa-hrvatska';
+// FIREBASE_PROJECT_ID is read from env only — no hardcoded fallback
 const MAX_GROUP_SIZE = 30;
 
 function isAllowedOrigin(origin, isDev) {
@@ -200,7 +200,8 @@ export async function onRequest(context) {
   if (!allowed) return err('Too many requests. Please wait a moment.', 429, origin);
 
   // Auth — required for both GET and POST
-  const projectId = env.FIREBASE_PROJECT_ID || FIREBASE_PROJECT_ID;
+  const projectId = env.FIREBASE_PROJECT_ID || env.VITE_FIREBASE_PROJECT_ID || '';
+  if (!projectId) return err('Server misconfigured.', 500, origin);
   const uid = await getFirebaseUid(request, projectId);
   if (!uid) return err('Authentication required.', 401, origin);
 
@@ -249,7 +250,7 @@ export async function onRequest(context) {
     if (typeof weekKey !== 'string' || !/^\d{4}-W\d{2}$/.test(weekKey)) {
       return err('Invalid weekKey format. Expected e.g. "2026-W13".', 400, origin);
     }
-    const safeName = String(name).slice(0, 40).replace(/[<>"]/g, '') || 'Learner';
+    const safeName = String(name).slice(0, 40).replace(/[^\p{L}\p{N} '-]/gu, '').trim() || 'Learner';
 
     // Assign group (idempotent — returns existing group if already assigned)
     const groupId = await assignGroup(kv, weekKey, uid, safeName, xp);
