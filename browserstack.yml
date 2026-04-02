@@ -168,7 +168,7 @@ platforms:
 
   - os: OS X
     osVersion: Ventura
-    browserName: playwright-webkit
+    browserName: safari
     browserVersion: latest
 
 parallelsPerPlatform: 1
