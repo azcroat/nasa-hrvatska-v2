@@ -2,6 +2,7 @@ import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { H, Bar, speak, srMark, sh, shuffleArr, V, ASPECT_PAIRS, CROATIAN_CITIES } from '../../data.jsx';
 import { playCorrect, playWrong, haptic, playFanfare } from '../../lib/soundSettings.js';
 import { markQuest } from '../../lib/quests.js';
+import { markPracticed } from '../../hooks/useNotifications.js';
 import CroatianKnight from '../shared/CroatianKnight';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 import { CelebrationScene } from '../illustrations';
@@ -347,6 +348,7 @@ export default function LessonScreen({
                 const p = ls / qi.length;
                 const perfectBonus = p === 1 ? 10 : 0;
                 awardFn(Math.round(p * 30) + 5 + perfectBonus, p >= 0.7);
+                markPracticed();
                 markQuest('grammar');
                 if (p === 1) markQuest('perfect');
                 setSt(s => ({ ...s, lc: s.lc + 1, pf: p === 1 ? s.pf + 1 : s.pf, rs: [...s.rs, String(Math.round(p * 100))], ct: [...new Set([...s.ct, lt])] }));

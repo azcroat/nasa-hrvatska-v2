@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import CroatianKnight from '../shared/CroatianKnight';
+import { markPracticed } from '../../hooks/useNotifications.js';
 
 export default function FlashcardResultScreen({ activePool, known, missed, onGoBack, onStudyMissed }) {
-  // Mark campaign quest uskrs_q2 ("Practice family vocab") done on first flashcard completion
+  // Mark practiced + campaign quest uskrs_q2 ("Practice family vocab") done on first flashcard completion
   useEffect(() => {
+    markPracticed();
     try {
       const key = 'nh_cq_easter_uskrs_q2';
       if (!localStorage.getItem(key)) localStorage.setItem(key, '1');
