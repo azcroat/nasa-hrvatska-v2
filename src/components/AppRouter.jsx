@@ -10,14 +10,30 @@ const PaywallScreen = lazyWithReload(() => import("./shared/PaywallScreen.jsx"))
 import { useApp } from "../context/AppContext.jsx";
 import { useStats } from "../context/StatsContext.jsx";
 
-// Reload once on stale-chunk errors (happens after deploy when old index.html
-// tries to load chunk files that no longer exist at their old hashed paths).
-// Uses sessionStorage to cap at 2 attempts — prevents infinite reload loops
-// when the SW is stuck serving a stale cache that keeps failing.
+// Reload on stale-chunk errors (happens after deploy when old index.html tries to
+// load chunk files that no longer exist at their old hashed paths, and the SW
+// returns the SPA fallback index.html causing a MIME-type or fetch failure).
+//
+// Error patterns covered:
+//   Chrome:  "Expected a JavaScript module script but the server responded with a MIME type of 'text/html'"
+//   Chrome:  "Failed to fetch"
+//   Safari:  "importing a module script failed"
+//   Firefox: "error loading dynamically imported module"
+//
+// Uses sessionStorage to cap at 2 attempts — prevents infinite loops when the
+// SW is stuck (e.g. offline, or Cloudflare down). After 2 attempts, lets
+// ScreenErrorBoundary show a stable error rather than looping forever.
 function lazyWithReload(fn) {
   return lazy(() => fn().catch((e) => {
-    const msg = e?.message || '';
-    if (msg.includes('importing a module script failed') || msg.includes('Failed to fetch')) {
+    const msg = (e?.message || '') + (e?.name || '');
+    const isChunkError =
+      msg.includes('Failed to fetch') ||
+      msg.includes('importing a module script failed') ||
+      msg.includes('dynamically imported module') ||
+      msg.includes('Expected a JavaScript module script') ||
+      msg.includes('MIME type') ||
+      msg.includes('Loading chunk');
+    if (isChunkError) {
       try {
         const key = 'nh_reload_attempt';
         const n = parseInt(sessionStorage.getItem(key) || '0', 10);
