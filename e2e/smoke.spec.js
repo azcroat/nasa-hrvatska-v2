@@ -54,11 +54,17 @@ test.describe('Production smoke — site availability', () => {
 test.describe('Production smoke — PWA assets', () => {
   test('service worker is registered after page load', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
-    // SW registers asynchronously after React boots — poll up to 15s
+    // The app uses skipWaiting + clientsClaim. On first load in a fresh browser context
+    // the SW installs, activates, claims the client, and fires controllerchange →
+    // window.location.reload(). We must wait for that reload to settle before
+    // checking registrations, otherwise the evaluate context is destroyed mid-poll.
+    // waitForNavigation() set up immediately after goto() catches the reload if it fires.
+    // If no reload occurs (SW already installed), it times out quietly.
+    await page.waitForNavigation({ timeout: 10_000, waitUntil: 'load' }).catch(() => {});
+    // Now the page is stable. Poll for SW registration for up to 20s.
     const registered = await page.evaluate(async () => {
       if (!('serviceWorker' in navigator)) return false;
-      for (let i = 0; i < 30; i++) {
+      for (let i = 0; i < 40; i++) {
         const regs = await navigator.serviceWorker.getRegistrations();
         if (regs.length > 0) return true;
         await new Promise(r => setTimeout(r, 500));
