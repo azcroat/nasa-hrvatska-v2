@@ -181,6 +181,22 @@ export default function DiscoverTab() {
         </div>
       </div>
 
+      {/* ── DIALECT AWARENESS ── */}
+      <button
+        onClick={() => setScr('dialect_awareness')}
+        style={{ width: '100%', border: 'none', cursor: 'pointer', padding: 0, borderRadius: 14, overflow: 'hidden', background: 'linear-gradient(135deg,#1e3a5f,#2563eb)', boxShadow: '0 4px 16px rgba(37,99,235,.3)', marginBottom: 12 }}
+      >
+        <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{ fontSize: 32, flexShrink: 0 }}>🗣️</div>
+          <div style={{ flex: 1, textAlign: 'left' }}>
+            <div style={{ fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,.65)', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 2 }}>LINGUISTICS · CULTURE</div>
+            <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', marginBottom: 2 }}>Croatian Dialect Explorer</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,.7)', lineHeight: 1.4 }}>Što vs Ča vs Kaj — discover the three dialects and where they come from.</div>
+          </div>
+          <div style={{ fontSize: 18, color: 'rgba(255,255,255,.6)' }}>→</div>
+        </div>
+      </button>
+
       {/* ── PHOTO VOCAB SCANNER ── */}
       <button
         onClick={() => setScr('photo_vocab')}
