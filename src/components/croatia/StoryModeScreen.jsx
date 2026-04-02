@@ -72,6 +72,7 @@ export default function StoryModeScreen({ goBack, award }) {
   const [ttsPlaying, setTtsPlaying] = useState(false);
   const audioRef = useRef(null);
   const awardFired = useRef(false);
+  const _unmountedRef = useRef(false);
   const storyRef = useRef(null);
   const tappedWordsRef = useRef(0);
 
@@ -131,13 +132,16 @@ export default function StoryModeScreen({ goBack, award }) {
     setTtsPlaying(true);
     try {
       const audio = await playTTS(storyData.story);
+      if (_unmountedRef.current) return;
       audioRef.current = audio;
-      audio.addEventListener('ended', () => setTtsPlaying(false));
-      audio.addEventListener('error', () => setTtsPlaying(false));
+      audio.addEventListener('ended', () => { if (!_unmountedRef.current) setTtsPlaying(false); });
+      audio.addEventListener('error', () => { if (!_unmountedRef.current) setTtsPlaying(false); });
     } catch {
-      setTtsPlaying(false);
+      if (!_unmountedRef.current) setTtsPlaying(false);
     }
   }, [storyData, ttsPlaying]);
+
+  useEffect(() => { return () => { _unmountedRef.current = true; }; }, []);
 
   const stopTTS = useCallback(() => {
     if (audioRef.current) {
