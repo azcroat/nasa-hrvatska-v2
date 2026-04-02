@@ -30,42 +30,83 @@ export default class ScreenErrorBoundary extends React.Component {
         <div
           role="alert"
           style={{
-            padding: '40px 24px',
+            padding: '40px 20px 48px',
             textAlign: 'center',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: 12,
+            gap: 0,
+            minHeight: 320,
+            justifyContent: 'center',
           }}
         >
-          <CroatianKnight size={64} mood="droop" style={{ margin: '0 auto 12px', display: 'block' }} />
-          <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--heading, #0f172a)' }}>
-            Something went wrong with this screen.
-          </p>
-          <p style={{ fontSize: 13, color: 'var(--subtext, #64748b)' }}>
-            Your progress is saved. Tap Try Again to recover, or go back.
-          </p>
-          <div style={{ display: 'flex', gap: 10, marginTop: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-            <button
-              className="b bp"
-              onClick={() => {
-                if (this.state.retries >= 1) {
-                  window.location.reload();
-                } else {
-                  this.setState({ hasError: false, error: null, retries: this.state.retries + 1 });
-                }
-              }}
-            >
-              Try Again
-            </button>
-            {goBack && (
+          {/* Croatian flag accent bar */}
+          <div style={{
+            display: 'flex',
+            height: 4,
+            borderRadius: 'var(--radius-full)',
+            overflow: 'hidden',
+            width: 48,
+            marginBottom: 24,
+            flexShrink: 0,
+          }}>
+            <div style={{ flex: 1, background: '#D40030' }} />
+            <div style={{ flex: 1, background: '#fff', border: '0.5px solid rgba(0,0,0,.08)' }} />
+            <div style={{ flex: 1, background: '#003DA5' }} />
+          </div>
+
+          <CroatianKnight size={72} mood="droop" style={{ margin: '0 auto', display: 'block' }} />
+
+          <div style={{
+            marginTop: 20,
+            background: 'var(--card)',
+            border: '1.5px solid var(--card-b)',
+            borderRadius: 'var(--radius-xl)',
+            padding: '20px 24px',
+            boxShadow: 'var(--card-shadow)',
+            maxWidth: 320,
+            width: '100%',
+          }}>
+            <p style={{
+              fontSize: 16, fontWeight: 800,
+              color: 'var(--heading,#0f172a)',
+              fontFamily: 'var(--font-sans)',
+              marginBottom: 8,
+              lineHeight: 1.3,
+            }}>
+              Nema veze — something slipped.
+            </p>
+            <p style={{
+              fontSize: 13, color: 'var(--subtext,#64748b)',
+              fontFamily: 'var(--font-sans)',
+              fontWeight: 500,
+              lineHeight: 1.6,
+              marginBottom: 20,
+            }}>
+              Your progress is saved. Tap <strong>Try Again</strong> and the knight will get you back on track.
+            </p>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
               <button
-                className="b bg"
-                onClick={goBack}
+                className="b bp"
+                onClick={() => {
+                  if (this.state.retries >= 1) {
+                    window.location.reload();
+                  } else {
+                    this.setState({ hasError: false, error: null, retries: this.state.retries + 1 });
+                  }
+                }}
               >
-                Go Back
+                {this.state.retries >= 1 ? 'Reload App' : 'Try Again'}
               </button>
-            )}
+              {goBack && (
+                <button
+                  className="b bg"
+                  onClick={goBack}
+                >
+                  Go Back
+                </button>
+              )}
+            </div>
           </div>
         </div>
       );

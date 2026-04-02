@@ -345,27 +345,39 @@ export default function KnightSpeech({
   // ── Mini mode — floating knigh button ─────────────────────────────────────
   if (mode === 'mini') {
     return (
+      <div style={{ position: 'fixed', bottom: 68, left: 16, zIndex: 100, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <button
         onClick={() => { setGreeting(getGreeting(st, streak, level)); setMode('full'); }}
         aria-label="Chat with Vitez Hrvoje, your Croatian coach"
         title="Vitez Hrvoje — tap to chat"
         style={{
-          position: 'fixed', bottom: 80, left: 16,
-          width: 60, height: 60, borderRadius: '50%',
-          background: 'var(--card)',
-          border: showUrgency ? '2.5px solid rgba(220,38,38,.6)' : `2.5px solid ${accentColor}55`,
+          width: 62, height: 62, borderRadius: '50%',
+          background: showUrgency
+            ? 'linear-gradient(135deg, var(--card) 0%, rgba(220,38,38,.06) 100%)'
+            : `linear-gradient(135deg, var(--card) 0%, ${accentColor}08 100%)`,
+          border: showUrgency ? '2.5px solid rgba(220,38,38,.55)' : `2.5px solid ${accentColor}50`,
           boxShadow: showUrgency
-            ? '0 4px 18px rgba(220,38,38,.3), 0 2px 6px rgba(0,0,0,.12)'
-            : `0 4px 18px ${accentColor}28, 0 2px 6px rgba(0,0,0,.10)`,
+            ? '0 6px 24px rgba(220,38,38,.28), 0 2px 8px rgba(0,0,0,.12)'
+            : `0 6px 24px ${accentColor}28, var(--card-shadow)`,
           cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: 0, zIndex: 100,
+          padding: 0,
           animation: showUrgency
             ? 'spring-in .35s cubic-bezier(0.34,1.56,0.64,1) both, lk-pulse 1.8s ease-in-out infinite'
             : 'spring-in .35s cubic-bezier(0.34,1.56,0.64,1) both',
           transition: 'transform .15s ease, box-shadow .15s ease',
         }}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.13)'; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+        onMouseEnter={e => {
+          e.currentTarget.style.transform = 'scale(1.14)';
+          e.currentTarget.style.boxShadow = showUrgency
+            ? '0 8px 28px rgba(220,38,38,.35), 0 2px 8px rgba(0,0,0,.12)'
+            : `0 8px 28px ${accentColor}38, var(--card-shadow-hover)`;
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.boxShadow = showUrgency
+            ? '0 6px 24px rgba(220,38,38,.28), 0 2px 8px rgba(0,0,0,.12)'
+            : `0 6px 24px ${accentColor}28, var(--card-shadow)`;
+        }}
       >
         <CroatianKnight size={42} mood={isStreakRisk ? 'sad' : mood} variant={0} />
         {showUrgency && (
@@ -374,9 +386,25 @@ export default function KnightSpeech({
             width: 12, height: 12, borderRadius: '50%',
             background: '#dc2626', border: '2px solid var(--card)',
             boxShadow: '0 0 6px rgba(220,38,38,.6)',
+            animation: 'pulse 1.4s ease-in-out infinite',
           }} />
         )}
       </button>
+      {/* Name label — helps users identify and build a bond with the mascot */}
+      <div style={{
+        fontSize: 10, fontWeight: 800,
+        color: showUrgency ? '#dc2626' : 'var(--subtext)',
+        fontFamily: "'Outfit', sans-serif", letterSpacing: '.03em',
+        background: 'var(--card)', borderRadius: 10,
+        padding: '2px 8px',
+        border: `1px solid ${showUrgency ? 'rgba(220,38,38,.3)' : 'var(--card-b)'}`,
+        boxShadow: '0 1px 4px rgba(0,0,0,.08)',
+        whiteSpace: 'nowrap', transition: 'color .2s',
+        marginTop: 2,
+      }}>
+        {showUrgency ? '⚠️ Hrvoje' : 'Hrvoje'}
+      </div>
+    </div>
     );
   }
 
@@ -390,11 +418,11 @@ export default function KnightSpeech({
       style={{
         position: 'relative',
         background: 'var(--card)',
-        borderRadius: 18,
-        border: '1.5px solid var(--card-b)',
+        borderRadius: 'var(--radius-xl)',
+        border: `1.5px solid ${accentColor}22`,
         marginBottom: 14,
         overflow: 'visible',
-        boxShadow: `0 2px 14px ${accentColor}18, 0 1px 3px rgba(0,0,0,.06)`,
+        boxShadow: `0 4px 20px ${accentColor}18, var(--card-shadow)`,
       }}
     >
       <CelebrationBurst active={celebBurst} />
@@ -402,7 +430,7 @@ export default function KnightSpeech({
 
         {/* ── Header row: name + badges + dismiss ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-          <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', fontFamily: "'Outfit',sans-serif" }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--heading)', fontFamily: 'var(--font-serif)', letterSpacing: '.01em' }}>
             Vitez Hrvoje
           </span>
           <span style={{
@@ -437,8 +465,12 @@ export default function KnightSpeech({
             style={{
               background: 'none', border: 'none', color: 'var(--subtext)',
               fontSize: 17, cursor: 'pointer', lineHeight: 1,
-              padding: '2px 4px', borderRadius: 4, opacity: .5,
+              padding: '4px 6px', borderRadius: 'var(--radius-sm)', opacity: .55,
+              fontFamily: 'var(--font-sans)',
+              transition: 'opacity .15s ease, background .15s ease',
             }}
+            onMouseEnter={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.background = 'var(--bar-bg)'; }}
+            onMouseLeave={e => { e.currentTarget.style.opacity = '.55'; e.currentTarget.style.background = 'none'; }}
           >×</button>
         </div>
 
@@ -466,6 +498,7 @@ export default function KnightSpeech({
           <p style={{
             margin: 0, fontSize: 13, color: 'var(--subtext)',
             lineHeight: 1.6, fontWeight: 500, minHeight: 36,
+            fontFamily: 'var(--font-sans)',
           }}>
             <TypewriterText text={text} />
           </p>

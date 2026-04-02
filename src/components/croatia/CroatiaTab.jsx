@@ -30,21 +30,37 @@ export default function CroatiaTab({ sCurEx }) {
       {/* ── TAB HERO — always visible ── */}
       <div className="tab-hero">
         <div className="tab-hero-stripe" />
-        <div style={{position:'absolute',top:0,left:0,right:0,bottom:0,background:'linear-gradient(105deg,transparent 30%,rgba(255,255,255,.025) 50%,transparent 70%)',backgroundSize:'200% 100%',animation:'shimmer 8s linear infinite',pointerEvents:'none'}} />
+        <div style={{position:'absolute',top:0,left:0,right:0,bottom:0,background:'linear-gradient(105deg,transparent 30%,rgba(255,255,255,.035) 50%,transparent 70%)',backgroundSize:'200% 100%',animation:'shimmer 8s linear infinite',pointerEvents:'none'}} />
         <div className="tab-hero-body">
-          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
-            <span style={{fontSize:36,lineHeight:1}}>🇭🇷</span>
+          <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
+            <div style={{
+              width:52,height:52,borderRadius:16,flexShrink:0,
+              background:'rgba(255,255,255,.1)',border:'1.5px solid rgba(255,255,255,.2)',
+              display:'flex',alignItems:'center',justifyContent:'center',fontSize:30,
+              boxShadow:'0 4px 16px rgba(0,0,0,.2)',
+            }}>🇭🇷</div>
             <div>
-              <div style={{fontSize:10,fontWeight:800,color:'rgba(255,255,255,.45)',letterSpacing:'.16em',textTransform:'uppercase',marginBottom:3}}>Life in Croatia</div>
-              <div style={{fontSize:26,fontWeight:900,color:'white',fontFamily:"'Playfair Display',serif",lineHeight:1.1,textShadow:'0 2px 16px rgba(0,0,0,.4)'}}>Naša Hrvatska</div>
+              <div style={{fontSize:10,fontWeight:800,color:'rgba(255,255,255,.5)',letterSpacing:'.18em',textTransform:'uppercase',marginBottom:4}}>Life in Croatia</div>
+              <div style={{fontSize:27,fontWeight:900,color:'white',fontFamily:"'Playfair Display',serif",lineHeight:1.1,textShadow:'0 2px 20px rgba(0,0,0,.45)'}}>Naša Hrvatska</div>
             </div>
           </div>
-          <div style={{fontSize:'var(--text-sm)',color:'rgba(255,255,255,.58)',lineHeight:1.5,fontWeight:500}}>
+          <div style={{fontSize:'var(--text-sm)',color:'rgba(255,255,255,.62)',lineHeight:1.5,fontWeight:500,marginBottom:14}}>
             Culture, history, daily life &amp; immersion
           </div>
-          <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:12}}>
-            {['🏰 History','🎵 Culture','📰 Stories','🌊 Immersion'].map(t=>(
-              <span key={t} style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.55)',background:'rgba(255,255,255,.07)',border:'1px solid rgba(255,255,255,.1)',borderRadius:20,padding:'4px 10px'}}>{t}</span>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+            {[
+              {label:'🏰 History', color:'rgba(194,65,12,.45)'},
+              {label:'🎵 Culture', color:'rgba(14,116,144,.45)'},
+              {label:'📰 Stories', color:'rgba(22,163,74,.35)'},
+              {label:'🌊 Immersion', color:'rgba(124,58,237,.35)'},
+            ].map(t=>(
+              <span key={t.label} style={{
+                fontSize:11,fontWeight:700,color:'rgba(255,255,255,.75)',
+                background:t.color,
+                border:'1px solid rgba(255,255,255,.15)',
+                borderRadius:20,padding:'4px 12px',
+                backdropFilter:'blur(4px)',
+              }}>{t.label}</span>
             ))}
           </div>
         </div>
@@ -52,7 +68,13 @@ export default function CroatiaTab({ sCurEx }) {
 
       {/* ── SUB-TAB PILL SELECTOR ── */}
       <style>{`@keyframes nh-new-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.7}}`}</style>
-      <div style={{ display:'flex', gap:8, overflowX:'auto', scrollbarWidth:'none', position:'sticky', top:0, zIndex:10, background:'var(--app-bg)', paddingTop:8, paddingBottom:8, borderBottom:'1px solid var(--card-b)', boxShadow:'0 2px 8px rgba(0,0,0,0.06)' }}>
+      <div style={{
+        display:'flex', gap:6, overflowX:'auto', scrollbarWidth:'none',
+        position:'sticky', top:0, zIndex:10,
+        background:'var(--app-bg)', padding:'10px 0',
+        borderBottom:'1px solid var(--card-b)',
+        boxShadow:'0 2px 10px rgba(0,0,0,0.07)',
+      }}>
         {[
           { id:'discover', label:'🗓️ Discover' },
           { id:'culture',  label:'🏰 Culture' },
@@ -64,11 +86,13 @@ export default function CroatiaTab({ sCurEx }) {
           return (
             <button key={t.id} data-ctab={t.id} onClick={() => changeTab(t.id)} style={{
               position:'relative',
-              padding:'7px 16px', borderRadius:20, border:'none', flexShrink:0,
-              background: isActive ? 'var(--info)' : 'var(--bar-bg)',
+              padding:'8px 18px', borderRadius:22, flexShrink:0,
+              border: isActive ? 'none' : '1px solid var(--card-b)',
+              background: isActive ? 'var(--info)' : 'var(--card)',
               color: isActive ? '#fff' : 'var(--subtext)',
               fontWeight:700, fontSize:13, cursor:'pointer', whiteSpace:'nowrap',
-              transition:'background 0.2s',
+              transition:'all 0.2s',
+              boxShadow: isActive ? '0 2px 8px rgba(14,116,144,.3)' : 'var(--card-shadow)',
             }}>
               {t.label}
               {isNew && (

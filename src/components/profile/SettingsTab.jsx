@@ -186,25 +186,23 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
         if (!gf) return null;
         return (
           <React.Fragment>
-            <h3 className="sh">Goal Focus</h3>
-            <div style={{ background:gf.bg, border:`1.5px solid ${gf.border}`, borderRadius:16, padding:'16px', marginBottom:20 }}>
-              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
-                <span style={{ fontSize:'var(--text-xl)' }}>{gf.icon}</span>
-                <div>
-                  <div style={{ fontSize:'var(--text-sm)', fontWeight:900, color:gf.color }}>{gf.label}</div>
-                  <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:1 }}>Your recommended exercises</div>
-                </div>
+            <div className="section-hdr">
+              <div className="section-hdr-icon" style={{background:gf.bg, border:`1px solid ${gf.border}`}}>{gf.icon}</div>
+              <div className="section-hdr-text">
+                <div className="section-hdr-title">Goal Focus</div>
+                <div className="section-hdr-sub">{gf.label}</div>
               </div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8 }}>
-                {gf.items.map(it => (
-                  <button key={it.scr}
-                    onClick={() => setScr(it.scr)}
-                    style={{ background:'var(--card)', border:`1px solid ${gf.border}`, borderRadius:10, padding:'10px 6px', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
-                    <div style={{ fontSize:'var(--text-xl)' }}>{it.icon}</div>
-                    <div style={{ fontSize:'var(--text-xs)', fontWeight:700, color:'var(--heading)', marginTop:4, lineHeight:1.2 }}>{it.label}</div>
-                  </button>
-                ))}
-              </div>
+            </div>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, marginBottom:20 }}>
+              {gf.items.map(it => (
+                <button key={it.scr}
+                  onClick={() => setScr(it.scr)}
+                  className="tc"
+                  style={{ background:gf.bg, border:`1.5px solid ${gf.border}`, padding:'14px 8px', textAlign:'center', cursor:'pointer', fontFamily:"'Outfit',sans-serif" }}>
+                  <div style={{ fontSize:'var(--text-xl)', marginBottom:4 }}>{it.icon}</div>
+                  <div style={{ fontSize:'var(--text-xs)', fontWeight:700, color:gf.color, lineHeight:1.2 }}>{it.label}</div>
+                </button>
+              ))}
             </div>
           </React.Fragment>
         );
@@ -237,8 +235,12 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
       )}
 
       {/* ── LEARNING PREFERENCES ── */}
-      <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.1em', marginTop:8, marginBottom:10, paddingLeft:4}}>
-        ⚙️ Learning Preferences
+      <div className="section-hdr" style={{marginTop:8}}>
+        <div className="section-hdr-icon" style={{background:'rgba(14,116,144,.12)'}}>⚙️</div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">Learning Preferences</div>
+          <div className="section-hdr-sub">Customize how you learn</div>
+        </div>
       </div>
 
       {/* Sound toggle */}
@@ -400,8 +402,12 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
       )}
 
       {/* ── HERITAGE MODE ENTRY POINT ── */}
-      <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.1em', marginTop:24, marginBottom:10, paddingLeft:4}}>
-        🇭🇷 Heritage Learner
+      <div className="section-hdr" style={{marginTop:24}}>
+        <div className="section-hdr-icon" style={{background:'linear-gradient(135deg,rgba(194,65,12,.15),rgba(234,88,12,.1))'}}>🇭🇷</div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">Heritage Learner</div>
+          <div className="section-hdr-sub">Diaspora-specific learning path</div>
+        </div>
       </div>
       <button className="tc" style={{width:'100%',display:'flex',alignItems:'center',gap:14,padding:'16px',marginBottom:10}}
         onClick={() => setScr('heritage_mode')}>
@@ -424,37 +430,50 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
       </button>
 
       {/* ── STREAK PROTECTION ── */}
-      <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.1em', marginTop:24, marginBottom:10, paddingLeft:4}}>
-        ❄️ Streak Protection
+      <div className="section-hdr" style={{marginTop:24}}>
+        <div className="section-hdr-icon" style={{background:'rgba(56,189,248,.12)'}}>❄️</div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">Streak Protection</div>
+          <div className="section-hdr-sub">Keep your streak safe on miss days</div>
+        </div>
       </div>
-      <div style={{ background: 'var(--card)', borderRadius: 16, padding: 16, marginBottom: 12, border: '1px solid var(--card-b)' }}>
-        <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>❄️ Streak Protection</div>
-        <div style={{ fontSize: 12, color: 'var(--subtext)', marginBottom: 12 }}>
+      <div style={{
+        background: 'linear-gradient(135deg,rgba(56,189,248,.06),rgba(14,116,144,.04))',
+        borderRadius: 16, padding: 16, marginBottom: 12,
+        border: '1.5px solid rgba(56,189,248,.2)',
+        boxShadow: 'var(--card-shadow)',
+      }}>
+        <div style={{ fontSize: 12, color: 'var(--subtext)', marginBottom: 14, lineHeight: 1.5 }}>
           Freezes automatically protect your streak if you miss a day. Max 2 stored.
         </div>
         {/* Freeze slots */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+        <div style={{ display: 'flex', gap: 10, marginBottom: 14, alignItems: 'center' }}>
           {[0, 1].map(i => (
             <div key={i} style={{
-              width: 48, height: 48, borderRadius: 12,
-              background: i < freezesStored ? 'rgba(56,189,248,0.15)' : 'var(--bg)',
+              width: 52, height: 52, borderRadius: 14,
+              background: i < freezesStored ? 'rgba(56,189,248,0.15)' : 'var(--bar-bg)',
               border: `2px solid ${i < freezesStored ? '#38bdf8' : 'var(--card-b)'}`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 24,
+              fontSize: i < freezesStored ? 26 : 18,
+              boxShadow: i < freezesStored ? '0 2px 8px rgba(56,189,248,.25)' : 'none',
+              transition: 'all .2s',
             }}>
               {i < freezesStored ? '❄️' : '○'}
             </div>
           ))}
-          <div style={{ flex: 1, fontSize: 12, color: 'var(--subtext)', alignSelf: 'center' }}>
-            {freezesStored}/2 freezes stored
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--heading)' }}>{freezesStored}/2 stored</div>
+            <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2 }}>
+              {freezesStored === 2 ? 'Fully stocked — you\'re protected!' : `${2 - freezesStored} slot${2 - freezesStored > 1 ? 's' : ''} available`}
+            </div>
           </div>
         </div>
         <button
           disabled={freezesStored >= 2 || (statsCtx?.xp || 0) < FREEZE_COST_XP}
           onClick={handleBuyFreeze}
           style={{
-            width: '100%', padding: '10px', borderRadius: 10,
-            background: freezesStored >= 2 || (statsCtx?.xp || 0) < FREEZE_COST_XP ? 'var(--card-b)' : 'var(--info)',
+            width: '100%', padding: '11px', borderRadius: 12,
+            background: freezesStored >= 2 || (statsCtx?.xp || 0) < FREEZE_COST_XP ? 'var(--bar-bg)' : 'linear-gradient(135deg,#38bdf8,#0e7490)',
             color: freezesStored >= 2 || (statsCtx?.xp || 0) < FREEZE_COST_XP ? 'var(--subtext)' : '#fff',
             border: 'none', fontWeight: 700, fontSize: 13,
             cursor: freezesStored >= 2 || (statsCtx?.xp || 0) < FREEZE_COST_XP ? 'not-allowed' : 'pointer',
@@ -463,12 +482,16 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
         >
           {freezesStored >= 2 ? '✓ Freeze slots full' : `Buy Freeze — 50 XP (you have ${statsCtx?.xp || 0})`}
         </button>
-        {freezeMsg && <div style={{ marginTop: 8, fontSize: 12, color: 'var(--success)', fontWeight: 600 }}>{freezeMsg}</div>}
+        {freezeMsg && <div style={{ marginTop: 8, fontSize: 12, color: 'var(--success)', fontWeight: 700 }}>{freezeMsg}</div>}
       </div>
 
       {/* ── NOTIFICATIONS ── */}
-      <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.1em', marginTop:24, marginBottom:10, paddingLeft:4}}>
-        🔔 Notifications
+      <div className="section-hdr" style={{marginTop:24}}>
+        <div className="section-hdr-icon" style={{background:'rgba(245,158,11,.12)'}}>🔔</div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">Notifications</div>
+          <div className="section-hdr-sub">Daily reminders & SRS alerts</div>
+        </div>
       </div>
       <div style={{
         background: notifPermission === 'granted' ? 'linear-gradient(135deg,var(--success-bg),rgba(22,163,74,.15))' : 'var(--card)',
@@ -529,8 +552,12 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
       </div>
 
       {/* ── CLOUD SYNC STATUS ── */}
-      <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.1em', marginTop:24, marginBottom:10, paddingLeft:4}}>
-        ☁️ Cloud Sync
+      <div className="section-hdr" style={{marginTop:24}}>
+        <div className="section-hdr-icon" style={{background:'rgba(22,163,74,.12)'}}>☁️</div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">Cloud Sync</div>
+          <div className="section-hdr-sub">Your progress backed up automatically</div>
+        </div>
       </div>
       <div style={{
         background: syncErr ? "linear-gradient(135deg,var(--error-bg),rgba(220,38,38,.15))" : syncReady ? "linear-gradient(135deg,var(--success-bg),rgba(22,163,74,.15))" : "linear-gradient(135deg,var(--bar-bg),var(--bar-bg))",
@@ -567,8 +594,12 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
       </div>
 
       {/* ── APPEARANCE ── */}
-      <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.1em', marginTop:24, marginBottom:10, paddingLeft:4}}>
-        🎨 Appearance
+      <div className="section-hdr" style={{marginTop:24}}>
+        <div className="section-hdr-icon" style={{background:'rgba(124,58,237,.12)'}}>🎨</div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">Appearance</div>
+          <div className="section-hdr-sub">Theme, font size, and motion</div>
+        </div>
       </div>
 
       <button className="tc" style={{width:"100%",display:"flex",alignItems:"center",gap:14,padding:"16px",marginBottom:10}}
@@ -651,8 +682,12 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
       </div>
 
       {/* ── DATA & ACCOUNT ── */}
-      <div style={{fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'0.1em', marginTop:24, marginBottom:10, paddingLeft:4}}>
-        📊 Data &amp; Account
+      <div className="section-hdr" style={{marginTop:24}}>
+        <div className="section-hdr-icon" style={{background:'rgba(14,116,144,.12)'}}>📊</div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">Data &amp; Account</div>
+          <div className="section-hdr-sub">Help, privacy and account actions</div>
+        </div>
       </div>
 
       <button className="tc" style={{display:"flex",alignItems:"center",gap:14,padding:"16px",marginBottom:10}} onClick={() => setScr("contact")}>
