@@ -223,6 +223,7 @@ const PitchAccentMastery = lazyWithReload(() => import("./learn/PitchAccentMaste
 const HeritagePathScreen = lazyWithReload(() => import("./croatia/HeritagePathScreen.jsx"));
 const HeritageModeScreen = lazyWithReload(() => import("./learn/HeritageModeScreen.jsx"));
 const PhonemePracticeScreen = lazyWithReload(() => import("./learn/PhonemePracticeScreen.jsx"));
+const PracticalCroatianScreen = lazyWithReload(() => import("./learn/PracticalCroatianScreen.jsx"));
 const GrammarTrackScreen = lazyWithReload(() => import("./learn/GrammarTrackScreen.jsx"));
 const ListeningComprehensionScreen = lazyWithReload(() => import("./practice/ListeningComprehensionScreen.jsx"));
 
@@ -568,6 +569,7 @@ export default function AppRouter(props) {
       {currentScreen==="heritage_path"&&<ScreenErrorBoundary key="heritage_path" name="heritage_path"><HeritagePathScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="heritage_mode"&&<ScreenErrorBoundary key="heritage_mode" name="heritage_mode"><HeritageModeScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="phoneme_practice"&&<ScreenErrorBoundary key="phoneme_practice" name="phoneme_practice"><PhonemePracticeScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="practical_croatian"&&<ScreenErrorBoundary key="practical_croatian" name="practical_croatian"><PracticalCroatianScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="grammarmap"&&<ScreenErrorBoundary key="grammarmap" name="grammarmap"><GrammarConstellation goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="grammar_track"&&<ScreenErrorBoundary key="grammar_track" name="grammar_track"><GrammarTrackScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="listening_comprehension"&&<ScreenErrorBoundary key="listening_comprehension" name="listening_comprehension"><ListeningComprehensionScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}

@@ -259,6 +259,26 @@ export default function LearnTab({
         </button>
       </div>
 
+      {/* ── PRACTICAL CROATIAN ──────────────────────────────────────────── */}
+      <button
+        onClick={() => setScr('practical_croatian')}
+        style={{
+          display:'flex', alignItems:'center', gap:14,
+          padding:'14px 16px', borderRadius:16, border:'none',
+          background:'linear-gradient(135deg,#065f46,#059669)',
+          cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+          boxShadow:'0 4px 14px rgba(5,150,105,.3)',
+          width:'100%', marginBottom:20,
+        }}
+      >
+        <div style={{ fontSize: 32, flexShrink:0 }}>🗺️</div>
+        <div>
+          <div style={{fontSize:14, fontWeight:900, color:'#fff'}}>Practical Croatian</div>
+          <div style={{fontSize:11, color:'rgba(255,255,255,.8)', marginTop:2, lineHeight:1.4}}>Shop · Doctor · Immigration office · Family visit — 4 real scenarios</div>
+        </div>
+        <div style={{marginLeft:'auto', color:'rgba(255,255,255,.7)', fontSize:18}}>›</div>
+      </button>
+
       {/* ── PATH WIDGET ─────────────────────────────────────────────────── */}
       <LearnPathWidget
         sc={sc}
