@@ -1,5 +1,5 @@
 // leaderboard.js — Weekly XP leaderboard with 5 league tiers
-import { doc, setDoc, getDocs, collection, query, orderBy, limit } from 'firebase/firestore';
+import { doc, setDoc, getDocs, onSnapshot, collection, query, orderBy, limit } from 'firebase/firestore';
 import { getDb } from './firebase.js';
 import { weekKey as _weekKey } from './dateUtils.js';
 
@@ -47,4 +47,41 @@ export async function getMyRank(db, uid) {
   const entries = await getLeaderboard(db, 200);
   const idx = entries.findIndex(e => e.uid === uid);
   return idx >= 0 ? idx + 1 : null;
+}
+
+/**
+ * Subscribe to real-time leaderboard updates via Firestore onSnapshot.
+ * Replaces the one-shot getDocs call with a live listener — updates arrive
+ * automatically when any user earns XP, typically within 1–2 seconds.
+ *
+ * @param {import('firebase/firestore').Firestore | null} db
+ * @param {number} limitCount
+ * @param {(entries: object[]) => void} onUpdate  — called with ranked entries on every change
+ * @returns {() => void}  — unsubscribe function; call on component unmount
+ */
+export function subscribeToLeaderboard(db, limitCount = 50, onUpdate) {
+  const _db = db || getDb();
+  if (!_db) { onUpdate([]); return () => {}; }
+  try {
+    const weekKey = getWeekKey();
+    const q = query(
+      collection(_db, 'leaderboard', weekKey, 'entries'),
+      orderBy('xp', 'desc'),
+      limit(limitCount)
+    );
+    return onSnapshot(
+      q,
+      (snap) => {
+        const entries = snap.docs.map((d, i) => ({ rank: i + 1, ...d.data() }));
+        onUpdate(entries);
+      },
+      (_err) => {
+        // On permission error or offline: fall back gracefully with empty list
+        onUpdate([]);
+      }
+    );
+  } catch {
+    onUpdate([]);
+    return () => {};
+  }
 }

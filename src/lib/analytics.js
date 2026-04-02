@@ -37,6 +37,20 @@ function safeLog(eventName, params) {
   fbLogEvent(eventName, params || {});
 }
 
+/**
+ * PostHog funnel analytics — fires only when PostHog is loaded and user consented.
+ * Uses window.__posthog set by main.jsx after posthog.init().
+ * Safe to call before init — events queue until PostHog is ready.
+ */
+function phCapture(eventName, props) {
+  try {
+    const ph = /** @type {any} */ (window).__posthog;
+    if (ph && typeof ph.capture === 'function') {
+      ph.capture(eventName, props || {});
+    }
+  } catch {}
+}
+
 const INSTALL_KEY = 'nh_install_date';
 
 function getInstallDate() {
@@ -78,6 +92,11 @@ export function trackAppOpen(isSignedIn) {
     retention_bucket: retentionBucket(days),
     signed_in: isSignedIn,
   });
+  phCapture('app_open', {
+    days_since_install: days,
+    retention_bucket: retentionBucket(days),
+    signed_in: isSignedIn,
+  });
 }
 
 /** Fire when a lesson (celebrate=true) completes and XP is awarded. */
@@ -87,6 +106,13 @@ export function trackLessonComplete({ xpEarned, streak, lessonType = 'vocab', le
     streak,
     lesson_type: lessonType,
     lesson_id: lessonId,
+  });
+  phCapture('lesson_complete', {
+    xp_earned: xpEarned,
+    streak,
+    lesson_type: lessonType,
+    lesson_id: lessonId,
+    days_since_install: getDaysSinceInstall(),
   });
 }
 
@@ -111,36 +137,43 @@ export function trackBadgeEarned(badgeId) {
 /** Fire on streak milestones (7, 14, 30, etc). */
 export function trackStreakMilestone(days) {
   safeLog('streak_milestone', { days });
+  phCapture('streak_milestone', { days });
 }
 
 /** Fire when the streak counter resets to 0. */
 export function trackStreakBroken(previousStreak) {
   safeLog('streak_broken', { previous_streak: previousStreak });
+  phCapture('streak_broken', { previous_streak: previousStreak });
 }
 
 /** Fire on new account registration. */
 export function trackSignUp(method = 'email') {
   safeLog('sign_up', { method });
+  phCapture('sign_up', { method, days_since_install: getDaysSinceInstall() });
 }
 
 /** Fire on successful sign-in. */
 export function trackLogin(method = 'email') {
   safeLog('login', { method });
+  phCapture('login', { method });
 }
 
 /** Fire when the paywall is displayed. */
 export function trackPaywallShown(featureName) {
   safeLog('paywall_shown', { feature: featureName || 'unknown' });
+  phCapture('paywall_shown', { feature: featureName || 'unknown' });
 }
 
 /** Fire when the user completes a purchase / activates a subscription. */
 export function trackSubscribed(plan = 'premium') {
   safeLog('purchase', { item_name: plan });
+  phCapture('subscribed', { plan, days_since_install: getDaysSinceInstall() });
 }
 
 /** Fire when the onboarding tour is completed or dismissed. */
 export function trackOnboardingComplete() {
   safeLog('tutorial_complete', {});
+  phCapture('onboarding_complete', { days_since_install: getDaysSinceInstall() });
 }
 
 /** Fire when the daily challenge 3-question set is finished. */

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getLeaderboard, getMyRank, getLeagueForRank, LEAGUES, getWeekKey } from '../../lib/leaderboard.js';
+import { subscribeToLeaderboard, getMyRank, getLeagueForRank, LEAGUES, getWeekKey } from '../../lib/leaderboard.js';
 
 // ── Tier order for promotion comparison (lower index = worse tier) ──
 const TIER_ORDER = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
@@ -37,11 +37,16 @@ export default function LeaderboardScreen({ db, user, weekXP = 0, goBack }) {
   const uid = user?.u;
 
   useEffect(() => {
-    async function load() {
-      setLoading(true);
-      const data = await getLeaderboard(db, 50);
+    setLoading(true);
+
+    // Real-time subscription — updates arrive within 1-2s when any user earns XP
+    const unsub = subscribeToLeaderboard(db, 50, (data) => {
       setEntries(data);
-      const rank = await getMyRank(db, uid);
+      setLoading(false);
+    });
+
+    // Rank is derived from a broader query (top 200) so keep as one-time call
+    getMyRank(db, uid).then(rank => {
       setMyRank(rank);
 
       if (rank) {
@@ -66,17 +71,14 @@ export default function LeaderboardScreen({ db, user, weekXP = 0, goBack }) {
           const lastIdx = TIER_ORDER.indexOf(lastTier);
           const currIdx = TIER_ORDER.indexOf(currentLeague.id);
           if (currIdx > lastIdx) {
-            // User moved up to a better tier
             setPromotionTier(currentLeague.name);
           }
         }
-        // Update stored tier
         localStorage.setItem('nh_last_league_tier', currentLeague.id);
       }
+    });
 
-      setLoading(false);
-    }
-    load();
+    return unsub;
   }, [db, uid]);
 
   const myEntry = { uid, displayName: user?.d || 'You', xp: weekXP, rank: myRank };

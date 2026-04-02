@@ -29,8 +29,22 @@ export default defineConfig({
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
           { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml' }
         ],
-        // screenshots: [] — placeholder files not present; remove to prevent 404s in PWA install prompt.
-        // Add home-desktop.png (1280x720) and home-mobile.png (390x844) to public/screenshots/ to re-enable.
+        screenshots: [
+          {
+            src: 'screenshots/home-mobile.svg',
+            sizes: '390x844',
+            type: 'image/svg+xml',
+            form_factor: 'narrow',
+            label: 'Home screen — streak, daily lesson, and SRS review',
+          },
+          {
+            src: 'screenshots/home-desktop.svg',
+            sizes: '1280x720',
+            type: 'image/svg+xml',
+            form_factor: 'wide',
+            label: 'Desktop — full learning dashboard',
+          },
+        ],
       },
       workbox: {
         navigationPreload: true,
@@ -38,9 +52,12 @@ export default defineConfig({
         clientsClaim: true,
         cleanupOutdatedCaches: true,
         cacheId: 'nasa-hrvatska-v13',
+        // Offline fallback: serve /offline.html when navigation fails and there's no cached page.
+        navigateFallback: '/offline.html',
+        navigateFallbackDenylist: [/^\/api\//, /^\/functions\//, /^\/_headers/, /^\/offline\.html$/],
         // Precache only critical app-shell assets: CSS, fonts, favicon/manifest icons.
         // JS chunks (100+ files, ~5MB) and images are handled by runtimeCaching below.
-        globPatterns: ['**/*.css', '**/*.woff2', '**/*.ico', '**/icon*.png', '**/apple-touch*.png'],
+        globPatterns: ['**/*.css', '**/*.woff2', '**/*.ico', '**/icon*.png', '**/apple-touch*.png', 'offline.html'],
         globIgnores: ['**/chunk-data*.js', '**/splash/**', '**/screenshots/**'],
         runtimeCaching: [
           {
