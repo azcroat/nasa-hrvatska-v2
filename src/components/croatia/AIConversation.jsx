@@ -411,10 +411,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   }
 
   async function submitWriting() {
-    if (!writeText.trim() || writeText.trim().split(/\s+/).length < 5) {
-      alert("Please write at least a few sentences before submitting.");
-      return;
-    }
+    if (!writeText.trim() || writeText.trim().split(/\s+/).length < 5) return;
     setWritePhase("evaluating");
     try {
       const raw = await callAI(

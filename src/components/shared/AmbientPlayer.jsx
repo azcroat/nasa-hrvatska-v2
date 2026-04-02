@@ -33,21 +33,19 @@ export default function AmbientPlayer() {
   const lfoRef = useRef(null);
 
   const stopAll = useCallback(() => {
-    try {
-      if (nodesRef.current) {
-        nodesRef.current.source.stop();
-        nodesRef.current.gainNode.disconnect();
-        nodesRef.current = null;
-      }
-      if (lfoRef.current) {
-        lfoRef.current.lfo.stop();
-        lfoRef.current = null;
-      }
-      if (ctxRef.current) {
-        ctxRef.current.close();
-        ctxRef.current = null;
-      }
-    } catch { /* ignore */ }
+    if (nodesRef.current) {
+      try { nodesRef.current.source.stop(); } catch {}
+      try { nodesRef.current.gainNode.disconnect(); } catch {}
+      nodesRef.current = null;
+    }
+    if (lfoRef.current) {
+      try { lfoRef.current.lfo.stop(); } catch {}
+      lfoRef.current = null;
+    }
+    if (ctxRef.current) {
+      try { ctxRef.current.close(); } catch {}
+      ctxRef.current = null;
+    }
   }, []);
 
   const startScene = useCallback((sceneId) => {
