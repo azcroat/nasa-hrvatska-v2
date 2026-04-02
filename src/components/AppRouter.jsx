@@ -221,6 +221,7 @@ const GradedInputScreen = lazyWithReload(() => import("./learn/GradedInputScreen
 const PronunciationCourse = lazyWithReload(() => import("./learn/PronunciationCourse.jsx"));
 const PitchAccentMastery = lazyWithReload(() => import("./learn/PitchAccentMastery.jsx"));
 const HeritagePathScreen = lazyWithReload(() => import("./croatia/HeritagePathScreen.jsx"));
+const DialectAwarenessScreen = lazyWithReload(() => import("./croatia/DialectAwarenessScreen.jsx"));
 const HeritageModeScreen = lazyWithReload(() => import("./learn/HeritageModeScreen.jsx"));
 const PhonemePracticeScreen = lazyWithReload(() => import("./learn/PhonemePracticeScreen.jsx"));
 const PracticalCroatianScreen = lazyWithReload(() => import("./learn/PracticalCroatianScreen.jsx"));
@@ -567,6 +568,7 @@ export default function AppRouter(props) {
       {currentScreen==="pronunciation_course"&&<ScreenErrorBoundary key="pronunciation_course" name="pronunciation_course"><PronunciationCourse goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="pitch_accent"&&<ScreenErrorBoundary key="pitch_accent" name="pitch_accent"><PitchAccentMastery goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="heritage_path"&&<ScreenErrorBoundary key="heritage_path" name="heritage_path"><HeritagePathScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="dialect_awareness"&&<ScreenErrorBoundary key="dialect_awareness" name="dialect_awareness"><DialectAwarenessScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="heritage_mode"&&<ScreenErrorBoundary key="heritage_mode" name="heritage_mode"><HeritageModeScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="phoneme_practice"&&<ScreenErrorBoundary key="phoneme_practice" name="phoneme_practice"><PhonemePracticeScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="practical_croatian"&&<ScreenErrorBoundary key="practical_croatian" name="practical_croatian"><PracticalCroatianScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
