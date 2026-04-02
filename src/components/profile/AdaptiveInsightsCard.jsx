@@ -71,7 +71,7 @@ function Skeleton() {
     <div style={{ padding: '2px 0' }}>
       {[80, 100, 65].map((w, i) => (
         <div
-          key={i}
+          key={`skeleton-${w}`}
           style={{
             height: 13,
             width: `${w}%`,

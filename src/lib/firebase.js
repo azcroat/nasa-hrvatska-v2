@@ -3,7 +3,7 @@
 // Extracted from data.jsx as part of Sprint 1 architectural split
 // ═══════════════════════════════════════════════════════════
 import { initializeApp, getApps } from 'firebase/app';
-import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup, sendEmailVerification, deleteUser } from 'firebase/auth';
+import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup, sendEmailVerification, deleteUser } from 'firebase/auth';
 import { initializeFirestore, persistentLocalCache, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, deleteDoc, collection, runTransaction, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, writeBatch } from 'firebase/firestore';
 import { getAnalytics, logEvent as _fbLogEvent, isSupported as analyticsIsSupported } from 'firebase/analytics';
 
@@ -22,9 +22,10 @@ export function initFirebase(){
   if(_fbReady)return false;
   try{
     const app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);
-    // initializeAuth with full persistence fallback chain — declared before first use, never chained.
-    // IndexedDB → localStorage → sessionStorage → in-memory (handles all browser modes including private).
-    _fbAuth=initializeAuth(app,{persistence:[indexedDBLocalPersistence,browserLocalPersistence,browserSessionPersistence,inMemoryPersistence]});
+    // initializeAuth with persistent fallback chain — IndexedDB → localStorage → sessionStorage.
+    // inMemoryPersistence intentionally excluded: it loses auth on page refresh, which would
+    // cause logged-in users to appear signed out and lose progress sync on next load.
+    _fbAuth=initializeAuth(app,{persistence:[indexedDBLocalPersistence,browserLocalPersistence,browserSessionPersistence]});
     // persistentLocalCache enables Firestore offline write buffering — writes queue in IndexedDB
     // while offline and flush automatically when the connection is restored.
     _fbDb=initializeFirestore(app,{localCache:persistentLocalCache()});

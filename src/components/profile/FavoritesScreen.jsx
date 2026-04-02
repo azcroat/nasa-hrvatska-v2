@@ -12,7 +12,7 @@ export default function FavoritesScreen({ favs, toggleFav, setScr, goBack }) {
             <div style={{fontSize:14,color:"#78716c",marginTop:8}}>No favorites yet! Search for a word and tap it to navigate.</div>
           </div>
         : favs.map((f,i)=>(
-          <div key={i} className="c" style={{marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px"}}>
+          <div key={f.hr || `fav-${i}`} className="c" style={{marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px"}}>
             <button style={{background:"none",border:"none",cursor:"pointer",textAlign:"left",padding:0,flex:1,fontFamily:"'Outfit',sans-serif"}} onClick={()=>{if(f.go)setScr(f.go);}}>
               <div style={{fontSize:15,fontWeight:700,color:"var(--heading)"}}>{f.hr}</div>
               <div style={{fontSize:13,color:"var(--subtext)"}}>{f.en}</div>
