@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { H } from '../../data.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { getAudioContext } from '../../lib/audio.js';
 
 // ── Region data ───────────────────────────────────────────────────────────────
 const REGIONS = [
@@ -18,6 +19,12 @@ const REGIONS = [
 const ERAS = ['Early 1900s', 'Mid 1900s', 'Late 1800s', 'Any era'];
 
 // ── TTS helper ────────────────────────────────────────────────────────────────
+// iOS detection — HTMLAudioElement.play() is blocked after async gaps (the fetch
+// and blob conversion lose the user gesture context). Use the pre-unlocked
+// AudioContext from audio.js instead, which ignores autoplay policy once unlocked.
+const _iosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
 async function playTTS(text) {
   const res = await fetch('/api/tts', {
     method: 'POST',
@@ -27,11 +34,36 @@ async function playTTS(text) {
   if (!res.ok) throw new Error('TTS failed');
   const blob = await res.blob();
   const url = URL.createObjectURL(blob);
+
+  // iOS path: decode via AudioContext (activated on first touch via audio.js)
+  const ctx = _iosDevice ? getAudioContext() : null;
+  if (ctx) {
+    try {
+      await ctx.resume();
+      const ab = await fetch(url).then(r => r.arrayBuffer());
+      URL.revokeObjectURL(url);
+      const decoded = await ctx.decodeAudioData(ab);
+      const src = ctx.createBufferSource();
+      src.buffer = decoded;
+      src.connect(ctx.destination);
+      src.start(0);
+      // Return a control shim matching the HTMLAudioElement interface used by handleTTS
+      return {
+        pause() { try { src.stop(); } catch {} },
+        addEventListener(ev, fn) { if (ev === 'ended') src.onended = fn; },
+      };
+    } catch {
+      URL.revokeObjectURL(url);
+      throw new Error('TTS playback failed');
+    }
+  }
+
+  // Non-iOS: await play() so rejections (autoplay blocked) propagate to handleTTS catch
   const audio = new Audio(url);
   const cleanup = () => URL.revokeObjectURL(url);
   audio.addEventListener('ended', cleanup);
   audio.addEventListener('error', cleanup);
-  audio.play().catch(cleanup);
+  try { await audio.play(); } catch { cleanup(); throw new Error('play() blocked'); }
   return audio;
 }
 
@@ -250,6 +282,8 @@ export default function HeritageStoryScreen({ goBack, award }) {
       audioRef.current = audio;
       audio.addEventListener('ended', () => { if (!_unmountedRef.current) setTtsPlaying(false); });
       audio.addEventListener('error', () => { if (!_unmountedRef.current) setTtsPlaying(false); });
+      // Android: sync UI if system interrupts audio (screen lock, incoming call)
+      audio.addEventListener('pause', () => { if (!_unmountedRef.current) setTtsPlaying(false); });
     } catch {
       if (!_unmountedRef.current) setTtsPlaying(false);
     }
