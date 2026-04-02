@@ -2291,3 +2291,112 @@ img, video, canvas, .skeleton, [class*="anim-"], [style*="animation"] {
   50% { transform: translateX(100%); width: 60%; }
   100% { transform: translateX(300%); width: 40%; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   PROFESSIONAL POLISH — Sprint 2026-04-02
+   Elevates every screen from indie to premium.
+════════════════════════════════════════════════════════════ */
+
+/* ── Skeleton loading — premium fade ────────────────────── */
+.sk {
+  background: linear-gradient(90deg, var(--bar-bg) 25%, rgba(255,255,255,.6) 50%, var(--bar-bg) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+.dark .sk {
+  background: linear-gradient(90deg, rgba(255,255,255,.06) 25%, rgba(255,255,255,.12) 50%, rgba(255,255,255,.06) 75%);
+  background-size: 200% 100%;
+}
+
+/* ── Premium stat tiles ──────────────────────────────────── */
+.stat-tile {
+  flex: 1;
+  background: var(--card);
+  border-radius: 18px;
+  padding: 16px 12px;
+  text-align: center;
+  border: 1.5px solid var(--card-b);
+  box-shadow: var(--card-shadow);
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;
+}
+.stat-tile:hover { transform: translateY(-3px); box-shadow: var(--card-shadow-hover); }
+.stat-tile-value { font-size: 26px; font-weight: 900; line-height: 1; margin-bottom: 4px; font-family: var(--font-sans); }
+.stat-tile-label { font-size: 10px; font-weight: 700; color: var(--subtext); text-transform: uppercase; letter-spacing: .07em; }
+
+/* ── Achievement / milestone card ───────────────────────── */
+.milestone-card {
+  background: linear-gradient(135deg, var(--card) 0%, rgba(245,158,11,.04) 100%);
+  border: 1.5px solid rgba(245,158,11,.25);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(245,158,11,.08), var(--card-shadow);
+  position: relative;
+  overflow: hidden;
+}
+.milestone-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 100px; height: 100px;
+  background: radial-gradient(circle, rgba(245,158,11,.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── Section separator with gradient line ────────────────── */
+.section-sep {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--card-b) 20%, var(--card-b) 80%, transparent);
+  margin: var(--space-xl) 0;
+}
+
+/* ── XP badge — used inline in text ─────────────────────── */
+.xp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(245,158,11,.35);
+  vertical-align: middle;
+}
+
+/* ── Screen content fade-up entrance ────────────────────── */
+.screen-section { animation: fade-up .3s cubic-bezier(.4,0,.2,1) both; }
+.screen-section:nth-child(2) { animation-delay: .04s; }
+.screen-section:nth-child(3) { animation-delay: .08s; }
+.screen-section:nth-child(4) { animation-delay: .12s; }
+.screen-section:nth-child(5) { animation-delay: .16s; }
+
+/* ── Dialogue bubble system ──────────────────────────────── */
+.bubble-wrap { display: flex; flex-direction: column; gap: 10px; }
+.bubble { max-width: 88%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.5; font-family: var(--font-sans); box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.bubble-a { align-self: flex-end; background: linear-gradient(135deg, var(--info), #0284c7); color: #fff; border-bottom-right-radius: 4px; }
+.bubble-b { align-self: flex-start; background: var(--card); color: var(--heading); border: 1px solid var(--card-b); border-bottom-left-radius: 4px; }
+.bubble-trans { font-size: 12px; opacity: .75; margin-top: 4px; font-style: italic; }
+
+/* ── Info / tip boxes ────────────────────────────────────── */
+.tip-box { background: var(--info-bg, #f0f9ff); border: 1px solid var(--info-b, #bae6fd); border-left: 4px solid var(--info, #0e7490); border-radius: var(--radius-md); padding: var(--space-md) var(--space-lg); font-size: 13px; color: var(--heading); line-height: 1.5; font-family: var(--font-sans); }
+.tip-box-amber { background: var(--warning-bg, #fffbeb); border: 1px solid var(--warning-b, #fcd34d); border-left: 4px solid var(--warning, #d97706); border-radius: var(--radius-md); padding: var(--space-md) var(--space-lg); font-size: 13px; color: var(--heading); line-height: 1.5; font-family: var(--font-sans); }
+.tip-box-success { background: var(--success-bg, #f0fdf4); border: 1px solid var(--success-b, #86efac); border-left: 4px solid var(--success, #16a34a); border-radius: var(--radius-md); padding: var(--space-md) var(--space-lg); font-size: 13px; color: var(--heading); line-height: 1.5; font-family: var(--font-sans); }
+
+/* ── Comparison table ────────────────────────────────────── */
+.compare-table { width: 100%; border-collapse: collapse; font-family: var(--font-sans); font-size: 13px; }
+.compare-table th { font-size: 11px; font-weight: 700; color: var(--subtext); text-transform: uppercase; letter-spacing: .07em; padding: 6px 10px; text-align: left; border-bottom: 2px solid var(--card-b); }
+.compare-table td { padding: 9px 10px; border-bottom: 1px solid var(--card-b); vertical-align: middle; color: var(--heading); }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tr:nth-child(even) td { background: var(--bar-bg); }
+.compare-table .dialect-word { font-family: var(--font-serif); font-weight: 700; font-size: 15px; color: var(--info, #0e7490); }
+
+/* ── Nav bar: iOS/Android safe area support ──────────────── */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .nav-bar { padding-bottom: env(safe-area-inset-bottom); }
+  .scr-wrap { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
+}
+
+/* ── Smooth scroll for screen content ───────────────────── */
+.scr-wrap { scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
