@@ -235,6 +235,7 @@ function App() {
     setStats, setName, applyRemoteProgress, ds,
     syncNowRef: _syncNowRef,
     setSyncReady: _setSyncReady,
+    syncReady: _syncReady,
   });
 
   // ── Screen launchers ────────────────────────────────────────────────────────

@@ -24,6 +24,9 @@ export function useSyncManager({
   syncNowRef,
   // Caller-owned setter so useAuth can also mark sync ready on sign-in.
   setSyncReady,
+  // Whether Firebase has delivered the first snapshot — gates periodic writes
+  // so we never overwrite with stale local data before remote merge completes.
+  syncReady,
 }) {
   const [showBackupBanner, setShowBackupBanner] = useState(false);
   const [syncError, setSyncError] = useState(false);
@@ -43,7 +46,7 @@ export function useSyncManager({
   const _lastMergedFbTs = useRef(0);
 
   // Sync latest state into ref on every render (synchronous, before effects)
-  _unloadRef.current = { authUser, stats, name, authScreen, favs, jWords, dchlA, dchlSl };
+  _unloadRef.current = { authUser, stats, name, authScreen, favs, jWords, dchlA, dchlSl, syncReady };
 
   // doSyncNow: persist current state to localStorage + Firebase.
   // Reads from _unloadRef.current so it always captures the latest React state,
@@ -82,6 +85,10 @@ export function useSyncManager({
     if (authScreen !== 'app' || !authUser) return undefined;
     const unsub = fbWatchProgress(authUser.u, (fp, fpTs) => {
       if (setSyncReady) setSyncReady(true);
+      // Reset fail counter — we have a live connection, so any prior banner was premature
+      _syncFailCount.current = 0;
+      setSyncError(false);
+      setSyncErrorCode('');
       // Merge whenever Firebase has a new server timestamp we haven't processed yet.
       // This replaces the old `fpTs > lpTs` check: comparing against the local savedAt
       // (which autosave bumps every 30s) caused Firebase data to be rejected when the
@@ -210,8 +217,13 @@ export function useSyncManager({
   useEffect(() => {
     if (!authUser || authScreen !== 'app') return undefined;
     const iv = setInterval(async () => {
-      const { authUser: u, stats: st, name: nm, authScreen: as, favs: fv, jWords: jw, dchlA: da, dchlSl: dsl } = _unloadRef.current;
+      const { authUser: u, stats: st, name: nm, authScreen: as, favs: fv, jWords: jw, dchlA: da, dchlSl: dsl, syncReady: sr } = _unloadRef.current;
       if (!u || as !== 'app') return;
+      // Gate: do not write until Firestore has delivered at least one snapshot.
+      // Without this, a fresh sign-in writes lc:0/xp:0 before remote data merges,
+      // violating the lc >= oldLc / xp >= oldXp Firestore rules and causing a
+      // permanent permission-denied loop on all devices.
+      if (!sr) return;
       const snap = buildProgressSnapshot({ uid: u.u, name: nm, stats: st, dchlA: da, dchlSl: dsl, favs: fv, jWords: jw });
       const result = await fbSaveProgress(u.u, snap).catch((e) => ({ ok: false, code: e?.code, err: e?.message }));
       if (result && result.ok !== false) {
