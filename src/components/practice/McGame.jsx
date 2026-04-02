@@ -51,7 +51,10 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
   // Change 3: streak badge pulse state
   const [streakPulse, setStreakPulse] = useState(false);
   // Hearts system
-  const [hearts, setHearts] = useState(() => challengeMode ? getHearts() : 5);
+  const [hearts, setHearts] = useState(() => {
+    const h = challengeMode ? getHearts() : 5;
+    return Math.min(5, Math.max(0, Number.isFinite(h) ? Math.floor(h) : 5));
+  });
   const [gameOver, setGameOver] = useState(false);
   const [continueAnyway, setContinueAnyway] = useState(false);
   // Practice Mode toggle — disables heart deduction when active

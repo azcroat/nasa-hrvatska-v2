@@ -65,7 +65,7 @@ export default function ListeningScreen({ questions, goBack, award }) {
   function next() {
     if (idx < total - 1) {
       const n = questions[idx + 1];
-      setOptions(sh(n.opts));
+      setOptions(n && Array.isArray(n.opts) ? sh(n.opts) : []);
       setIdx(i => i + 1);
       setAnswered(false);
       setSelected(-1);

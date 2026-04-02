@@ -200,7 +200,7 @@ export default function ReviewScreen({ goBack, award, allCats }) {
             else if (i === selected) cls += " no";
           }
           return (
-            <button key={opt} className={cls} onClick={() => {
+            <button key={i} className={cls} onClick={() => {
               if (answered) return;
               setSelected(i);
               setAnswered(true);

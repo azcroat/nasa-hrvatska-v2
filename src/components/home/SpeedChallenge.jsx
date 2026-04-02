@@ -39,18 +39,26 @@ function buildQuestionPool() {
     })(),
   }));
 
-  // Weighted shuffle
-  weighted.sort((a, b) => Math.random() * (b.weight + a.weight) - a.weight);
+  // Weighted shuffle — reservoir sampling by weight for unbiased random ordering
+  for (let i = weighted.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [weighted[i], weighted[j]] = [weighted[j], weighted[i]];
+  }
+  // Re-sort by weight descending after shuffle so heavier items skew toward front
+  weighted.sort((a, b) => b.weight - a.weight);
   return weighted.slice(0, QUESTIONS_PER_GAME + 20); // buffer
+}
+
+function _fy(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
 }
 
 function buildQuestion(target, allVocab) {
   // 4 choices: 1 correct + 3 random wrong answers
-  const wrong = allVocab
-    .filter(w => w.en !== target.en)
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 3);
-  const choices = [target, ...wrong].sort(() => Math.random() - 0.5);
+  const wrong = _fy(allVocab.filter(w => w.en !== target.en)).slice(0, 3);
+  const choices = _fy([target, ...wrong]);
   return { target, choices };
 }
 
