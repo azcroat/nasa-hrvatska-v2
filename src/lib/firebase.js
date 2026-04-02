@@ -115,8 +115,9 @@ export async function fbSaveProgress(uid,data){
     await batch.commit();
     return{ok:true};
   }catch(e){
-    console.warn("FB save error:",e);
-    return{ok:false,err:"Progress could not be saved. Check your connection."};
+    // Log full error to console.error (NOT suppressed in production) so we can diagnose
+    console.error("FB save error:",e?.code,e?.message,e);
+    return{ok:false,err:e?.message||"Progress could not be saved. Check your connection.",code:e?.code};
   }
 }
 export async function fbLoadProgress(uid){

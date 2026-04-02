@@ -27,6 +27,7 @@ export function useSyncManager({
 }) {
   const [showBackupBanner, setShowBackupBanner] = useState(false);
   const [syncError, setSyncError] = useState(false);
+  const [syncErrorCode, setSyncErrorCode] = useState('');
   const _syncFailCount = useRef(0);
   const _watcherUnsubRef = useRef(null);
   const _idTokenRef = useRef('');
@@ -212,13 +213,17 @@ export function useSyncManager({
       const { authUser: u, stats: st, name: nm, authScreen: as, favs: fv, jWords: jw, dchlA: da, dchlSl: dsl } = _unloadRef.current;
       if (!u || as !== 'app') return;
       const snap = buildProgressSnapshot({ uid: u.u, name: nm, stats: st, dchlA: da, dchlSl: dsl, favs: fv, jWords: jw });
-      const result = await fbSaveProgress(u.u, snap).catch(() => ({ ok: false }));
+      const result = await fbSaveProgress(u.u, snap).catch((e) => ({ ok: false, code: e?.code, err: e?.message }));
       if (result && result.ok !== false) {
         _syncFailCount.current = 0;
         setSyncError(false);
+        setSyncErrorCode('');
       } else {
         _syncFailCount.current += 1;
-        if (_syncFailCount.current >= 2) setSyncError(true);
+        if (_syncFailCount.current >= 2) {
+          setSyncError(true);
+          setSyncErrorCode(result?.code || result?.err || 'unknown');
+        }
       }
     }, 60 * 1000);
     return () => clearInterval(iv);
@@ -270,5 +275,5 @@ export function useSyncManager({
     };
   }, []);  
 
-  return { doSyncNow, showBackupBanner, setShowBackupBanner, syncError, setSyncError };
+  return { doSyncNow, showBackupBanner, setShowBackupBanner, syncError, setSyncError, syncErrorCode };
 }
