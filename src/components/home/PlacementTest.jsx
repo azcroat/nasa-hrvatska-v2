@@ -187,7 +187,7 @@ export default function PlacementTest({ pq, pi, ps, pa, px, sPi, sPs, sPa, sPx, 
         <p style={{ fontSize: 20, fontWeight: 700, marginBottom: 24 }}>{pq[pi].q}</p>
         {pq[pi].o.map((o, i) => (
           <button
-            key={i}
+            key={`opt-${pi}-${o}`}
             className={'ob ' + (pa ? (i === pq[pi].c ? 'ok' : px === i ? 'no' : '') : '')}
             onClick={() => handleAnswer(i)}>
             {o}

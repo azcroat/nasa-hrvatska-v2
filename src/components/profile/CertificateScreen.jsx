@@ -134,7 +134,7 @@ export default function CertificateScreen({ name, level, st, goBack }) {
               { icon: '🔥', label: 'Best Streak', val: `${streak.count} days` },
               { icon: '📝', label: 'Proficiency', val: levelLabel },
             ].map((s, i) => (
-              <div key={i} style={{
+              <div key={s.label} style={{
                 background: '#f8fafc', borderRadius: 14, padding: '14px 10px',
                 border: '1px solid #e2e8f0',
               }}>

@@ -473,8 +473,8 @@ function App() {
     darkMode, setDarkMode, favs, toggleFav, isFav,
     // Navigation
     setScr, goBack, tab, setTab,
-    // Stats / gamification
-    sCurEx,
+    // Stats / gamification — award exposed here so croatia/learn screens using useApp() work
+    sCurEx, award,
     // Journal / family
     jWords, setJWords, famData, setFamData,
     // Subscription
@@ -501,7 +501,7 @@ function App() {
     authScreen, authUser, name, setName, doOut, setAuthScreen,
     darkMode, setDarkMode, favs, toggleFav, isFav,
     setScr, goBack, tab, setTab,
-    sCurEx,
+    sCurEx, award,
     jWords, setJWords, famData, setFamData,
     isPremium, refreshSub, requirePremium,
     srchQ, setSrchQ, srchR, srchOpen, setSrchOpen, doSearch,

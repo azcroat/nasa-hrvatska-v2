@@ -176,7 +176,7 @@ export default defineConfig({
   build: {
     target: 'es2020',              // Modern target — native async/await, smaller output
     outDir: 'dist',
-    sourcemap: 'hidden',
+    sourcemap: false,
     minify: 'esbuild',
     cssCodeSplit: true,            // CSS per chunk (avoids one monolithic stylesheet)
     reportCompressedSize: false,   // Skip gzip-size computation at build time for faster builds

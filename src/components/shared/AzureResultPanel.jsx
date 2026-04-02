@@ -62,7 +62,7 @@ export default function AzureResultPanel({ azureResult, onRetry }) {
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {azureResult.word_scores.map((w, i) => (
-              <div key={i} style={{
+              <div key={w.word || `score-${w.score}`} style={{
                 background: '#fff', borderRadius: 10,
                 border: `2px solid ${scoreColor(w.score)}40`,
                 padding: '6px 10px', minWidth: 60,

@@ -249,7 +249,7 @@ export default function AppRouter(props) {
     jWords, setJWords, famData, setFamData,
     isPremium, refreshSub, requirePremium,
     srchQ, setSrchQ, srchR, srchOpen, setSrchOpen, doSearch,
-    tDir, sTDir, tIn, sTIn, tOut, tL, doTr,
+
     famMembers, setFamMembers, famLoading, setFamLoading,
     famName, setFamName, famCode, setFamCode,
     famErr, setFamErr, famTab, setFamTab,
@@ -360,7 +360,6 @@ export default function AppRouter(props) {
         </div>
         {// ═══ TAB: HOME ═══
         tab==="home"&&<div key="tab-home" className="screen-enter"><ScreenErrorBoundary name="HomeTab"><HomeTab
-          tDir={tDir} sTDir={sTDir} tIn={tIn} sTIn={sTIn} tOut={tOut} tL={tL} doTr={doTr}
           dchlA={dchlA} sDchlA={sDchlA} dchlSl={dchlSl} sDchlSl={sDchlSl}
           getWeekStats={getWeekStats}
           setTab={(id)=>{const VALID_TABS={home:1,learn:1,practice:1,croatia:1,profile:1};if(VALID_TABS[id])setTab(id);else setScr(id);}} sCurEx={sCurEx}

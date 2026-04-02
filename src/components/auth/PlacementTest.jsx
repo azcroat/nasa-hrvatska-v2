@@ -253,7 +253,7 @@ export default function PlacementTest({ onComplete }) {
         </p>
         {q.options.map((o, i) => (
           <button
-            key={i}
+            key={`opt-${o}`}
             className={'ob ' + (answered ? (i === q.answer ? 'ok' : selected === i ? 'no' : '') : '')}
             onClick={() => handleAnswer(i)}
             style={{ marginBottom: 10 }}
