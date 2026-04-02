@@ -44,22 +44,25 @@ export function useSyncManager({
   // Sync latest state into ref on every render (synchronous, before effects)
   _unloadRef.current = { authUser, stats, name, authScreen, favs, jWords, dchlA, dchlSl };
 
-  // doSyncNow: persist current state to localStorage + Firebase
+  // doSyncNow: persist current state to localStorage + Firebase.
+  // Reads from _unloadRef.current so it always captures the latest React state,
+  // even when called immediately after setStats() before the next re-render lands.
   const doSyncNow = useCallback(async () => {
-    if (!authUser) return false;
+    const { authUser: u, stats: st, name: nm, authScreen: as, favs: fv, jWords: jw, dchlA: da, dchlSl: dsl } = _unloadRef.current;
+    if (!u || as !== 'app') return false;
     const snap = buildProgressSnapshot({
-      uid: authUser.u, name, stats, dchlA, dchlSl, favs, jWords,
+      uid: u.u, name: nm, stats: st, dchlA: da, dchlSl: dsl, favs: fv, jWords: jw,
     });
     try {
-      localStorage.setItem('uP_' + authUser.u, JSON.stringify(snap));
+      localStorage.setItem('uP_' + u.u, JSON.stringify(snap));
     } catch (e) {
       if (e && e.name === 'QuotaExceededError') {
         console.warn('[sync] localStorage quota exceeded — some progress may not persist locally');
       }
     }
-    const result = await fbSaveProgress(authUser.u, snap).catch(() => ({ ok: false }));
+    const result = await fbSaveProgress(u.u, snap).catch(() => ({ ok: false }));
     return result && result.ok !== false;
-  }, [authUser, name, stats, favs, jWords, dchlA, dchlSl]);
+  }, [authUser]);
 
   // Keep caller ref current so onBeforeSignOut always calls latest doSyncNow
   if (syncNowRef) syncNowRef.current = doSyncNow;

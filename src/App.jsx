@@ -409,6 +409,21 @@ function App() {
     try { const h=JSON.parse(localStorage.getItem('progress_history')||'[]');const i=h.findIndex(x=>x.date===today);const s={date:today,xp:stats.xp,lc:stats.lc,gc:stats.gc};if(i>=0)h[i]=s;else h.push(s);localStorage.setItem('progress_history',JSON.stringify(h.slice(-90))); } catch (_) {}
   }, [stats.xp, authUser, authScreen]); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: authUser and authScreen are identity-stable once set; the key deps are stats.xp changes
 
+  // Immediate Firebase push whenever a lesson or grammar exercise completes.
+  // doSyncNow reads from _unloadRef.current so it always captures the latest state,
+  // guaranteeing zero data loss even if the user closes the app within seconds of finishing.
+  const _prevLcRef = useRef(stats.lc);
+  const _prevGcRef = useRef(stats.gc);
+  useEffect(() => {
+    const lcIncreased = stats.lc > _prevLcRef.current;
+    const gcIncreased = stats.gc > _prevGcRef.current;
+    _prevLcRef.current = stats.lc;
+    _prevGcRef.current = stats.gc;
+    if ((lcIncreased || gcIncreased) && authUser && authScreen === 'app') {
+      doSyncNow();
+    }
+  }, [stats.lc, stats.gc]); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: only fire on completion counts changing
+
   // Premium welcome banner
   useEffect(() => {
     if (authScreen !== 'app' || !authUser) return undefined;
