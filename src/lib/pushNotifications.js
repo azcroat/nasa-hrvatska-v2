@@ -145,8 +145,8 @@ export function scheduleLocalReminder(streakDays = 0) {
   const lastHour = lastHourRaw !== null ? parseInt(lastHourRaw, 10) : NaN;
 
   if (!isNaN(lastHour) && lastHour >= 6 && lastHour <= 22) {
-    const reminderHour = lastHour;
-    const reminderMinute = 30; // 30 min before the hour they usually practice
+    const _reminderHour = lastHour;
+    const _reminderMinute = 30; // 30 min before the hour they usually practice
     // Actually: schedule reminder 30 minutes BEFORE lastHour
     const adjustedHour = lastHour === 0 ? 0 : lastHour;
     // Set to (lastHour - 1) hours and 30 minutes as "30 min before lastHour"
@@ -320,7 +320,7 @@ export async function sendTestPush(userId = '') {
       }),
     });
     const data = await res.json().catch(() => ({}));
-    console.log('[Push] sendTestPush result:', data);
+    console.warn('[Push] sendTestPush result:', data);
     return data;
   } catch (e) {
     console.warn('[Push] sendTestPush error:', e.message);

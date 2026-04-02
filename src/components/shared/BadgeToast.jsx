@@ -7,7 +7,7 @@ function BadgeToast({ show, badge }) {
   // Fire haptic only when a new badge is actually shown (badge.id changes).
   useEffect(() => {
     if (show && badge) haptic.award();
-  }, [show, badge?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [show, badge?.id]);  
   return (
     <div
       role="status"

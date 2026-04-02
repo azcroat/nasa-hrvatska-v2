@@ -1,4 +1,4 @@
-/* eslint-disable security/detect-object-injection */
+ 
 // Cloudflare Pages Function — Flash Context
 // Given a Croatian word + English meaning + CEFR level, generate a fresh example sentence.
 

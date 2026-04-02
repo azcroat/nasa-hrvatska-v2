@@ -60,7 +60,7 @@ export default function AnalyticsScreen({ goBack, stats, name }) {
     const earned = new Set();
     BADGES.forEach(b => { try { if (b.r(s)) earned.add(b.id); } catch {} });
     return earned;
-  }, [stats]); // eslint-disable-line react-hooks/exhaustive-deps -- s is derived from stats; use stats (stable prop) to avoid re-running on every render
+  }, [stats]);  
 
   // XP breakdown by category (derived from stats flags)
   const categoryBreakdown = [

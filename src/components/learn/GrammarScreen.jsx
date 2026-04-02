@@ -23,10 +23,10 @@ export default function GrammarScreen({
   useEffect(() => {
     const tip = GRAMMAR_ENTRY_TIPS[Math.floor(Math.random() * GRAMMAR_ENTRY_TIPS.length)];
     knightSpeak(tip.mood, tip.text, 900);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);  
 
   // Knight coaching — phase transitions
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   useEffect(() => {
     if (gp === 'ex' && gx === 0) {
       knightSpeak('ready', 'Quiz time! Trust the pattern you just read — your brain already knows the answer. 🎯', 400);
@@ -40,11 +40,11 @@ export default function GrammarScreen({
         500
       );
     }
-  }, [gp]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [gp]);  
 
   // Shuffle questions once per lesson (when gl changes) and shuffle each
   // question's options, storing the correct answer by value rather than index.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   const shuffledQs = useMemo(() => {
     if (!gl?.qs?.length) return [];
     return sh([...gl.qs]).map(q => {

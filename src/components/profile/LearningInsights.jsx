@@ -71,7 +71,7 @@ export default function LearningInsights({ st }) {
   // Not memoised — these read localStorage so they must re-run when st changes to stay current
   const vocab = analyzeVocab();
   const weeklyXP = getWeeklyXP();
-  const journey = getJourney().slice(-5).reverse(); // last 5 milestones
+  const _journey = getJourney().slice(-5).reverse(); // last 5 milestones
 
   const streak = st?.ss || 0;
   const totalXP = st?.xp || 0;

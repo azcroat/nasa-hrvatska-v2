@@ -1,4 +1,4 @@
-/* eslint-disable security/detect-object-injection */
+ 
 // Scene video endpoint — Cloudflare Pages Function
 // GET /api/scene-video?scene=dubrovnik
 //

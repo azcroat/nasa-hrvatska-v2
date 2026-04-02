@@ -1,4 +1,4 @@
-/* eslint-disable security/detect-object-injection */
+ 
 // Conversational Tutor — live Croatian conversation with comprehension verification
 // Architecture: Claude Haiku generates tutor response, ElevenLabs TTS plays it
 // Breakdown detection: if user struggles 3x on same concept, switch to English explanation

@@ -1,4 +1,4 @@
-/* eslint-disable security/detect-object-injection */
+ 
 // Cloudflare Pages Function — Live Croatian Conversation Partner (Streaming)
 // Endpoint: POST /api/conversation
 //

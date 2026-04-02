@@ -93,7 +93,7 @@ export default function DiscoverTab() {
     }, 5500);
     return () => clearInterval(kTimerRef.current);
   }, []);
-  // eslint-disable-next-line security/detect-object-injection
+   
   const kMsg = KNIGHT_MESSAGES[kMsgIdx];
 
   return (
@@ -195,7 +195,7 @@ export default function DiscoverTab() {
           </div>
           {/* progress dots */}
           <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
-            {/* eslint-disable-next-line react/no-array-index-key */}
+            { }
             {KNIGHT_MESSAGES.map((_, i) => (
               <div key={i} style={{
                 width: i === kMsgIdx ? 14 : 5, height: 5, borderRadius: 3,

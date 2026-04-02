@@ -223,7 +223,7 @@ export default function LiveTutorScreen({ goBack, award }) {
     // Prime the tutor with a system-style user message
     const opener = `Zdravo! Htio/htjela bih vježbati hrvatski. Tema: ${topic}. Razina: ${level}.`;
     await sendToTutor(opener, 0, "");
-  }, [topic, level]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [topic, level]);  
 
   // ── Core: send user text → tutor API → TTS ──
   const sendToTutor = useCallback(async (userText, currentBreakdown, currentHistory) => {
@@ -318,7 +318,7 @@ export default function LiveTutorScreen({ goBack, award }) {
           : "Connection error. Please try again."
       );
     }
-  }, [level, topic, turnCount, award]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [level, topic, turnCount, award]);  
 
   // ── TTS: blob fallback helper ──────────────
   const playBlob = async (blob) => {
@@ -493,7 +493,7 @@ export default function LiveTutorScreen({ goBack, award }) {
       }
       setUseFallbackInput(true);
     }
-  }, [isRecording, thinking, playing]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isRecording, thinking, playing]);  
 
   // ── STT: stop recording ────────────────────
   const stopRecording = useCallback(() => {

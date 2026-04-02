@@ -340,7 +340,7 @@ const VARIANTS = {
 // ─── Šahovnica (Croatian checkerboard) ───────────────────────────────────────
 // 5×5 grid, WHITE (argent) in top-left — the correct heraldic blazon:
 // "checky of 25, argent and gules" (argent = white first)
-function Sahov({ x = 0, y = 0, sq = 6.8 }) {
+function _Sahov({ x = 0, y = 0, sq = 6.8 }) {
   return (
     <>
       {Array.from({ length: 5 }).flatMap((_, r) =>

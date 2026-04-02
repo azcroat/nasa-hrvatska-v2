@@ -93,11 +93,13 @@ export async function onRequestPost({ request, env }) {
   const safeCtx = sanitizeParam(ctx || "", 300);
   const safeLevel = VALID_LEVELS.includes(level) ? level : "B1";
 
-  const typeDesc = {
+  const TYPE_DESCS = {
     cloze: "fill-in-the-blank grammar exercise",
     dictation: "listening dictation exercise",
     flashcard: "vocabulary flashcard",
-  }[type];
+  };
+   
+  const typeDesc = TYPE_DESCS[type];
 
   const userMsg = safeCtx
     ? `Croatian ${typeDesc} at CEFR ${safeLevel} level.

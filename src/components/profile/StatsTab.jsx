@@ -33,8 +33,8 @@ export default function StatsTab({ onShowPrestigeModal, onSyncNow }) {
 
   const prestigeLevel = parseInt(localStorage.getItem('nh_prestige') || '0', 10);
 
-  const streak = useMemo(() => getStreak(), [st]); // eslint-disable-line react-hooks/exhaustive-deps
-  const sr = useMemo(() => getSR(), [st]); // eslint-disable-line react-hooks/exhaustive-deps
+  const streak = useMemo(() => getStreak(), [st]);  
+  const sr = useMemo(() => getSR(), [st]);  
   const mastered = useMemo(
     () => Object.values(sr).filter(v => v.r > v.w && v.r >= 2).length,
     [sr]

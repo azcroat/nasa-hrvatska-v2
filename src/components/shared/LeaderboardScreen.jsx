@@ -84,7 +84,7 @@ export default function LeaderboardScreen({ db, user, weekXP = 0, goBack }) {
     return () => { mounted = false; unsub(); };
   }, [db, uid]);
 
-  const myEntry = { uid, displayName: user?.d || 'You', xp: weekXP, rank: myRank };
+  const _myEntry = { uid, displayName: user?.d || 'You', xp: weekXP, rank: myRank };
 
   // ── Nearby rivals ──
   // Find user's index in the top-50 list

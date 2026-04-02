@@ -1,4 +1,4 @@
-/* eslint-disable security/detect-object-injection */
+ 
 // NPC greeting video — self-healing KV cache backed by D-ID
 // GET /api/npc-video?portrait=barista
 //

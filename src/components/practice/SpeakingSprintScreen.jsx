@@ -126,7 +126,7 @@ export default function SpeakingSprintScreen({ goBack, award }) {
       if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
       if (audioUrlRef.current) { URL.revokeObjectURL(audioUrlRef.current); audioUrlRef.current = null; }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   // ── Countdown phase ─────────────────────────
@@ -145,7 +145,7 @@ export default function SpeakingSprintScreen({ goBack, award }) {
     }
     const t = setTimeout(() => setCountdown(c => c - 1), 1000);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [phase, countdown]);
 
   function stopMic() {

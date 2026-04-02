@@ -19,7 +19,7 @@
 
 export default {
   // fetch handler is required even for scheduled-only workers
-  async fetch(request, env) {
+  async fetch(request, _env) {
     // Health check endpoint
     if (new URL(request.url).pathname === '/health') {
       return new Response(JSON.stringify({ ok: true, worker: 'nasa-hrvatska-scheduler' }), {
@@ -29,9 +29,9 @@ export default {
     return new Response('Naša Hrvatska Scheduler', { status: 200 });
   },
 
-  async scheduled(event, env, ctx) {
+  async scheduled(event, env, _ctx) {
     const cronTime = new Date(event.scheduledTime).toISOString();
-    console.log(`[Scheduled] Cron triggered: ${event.cron} at ${cronTime}`);
+    console.warn(`[Scheduled] Cron triggered: ${event.cron} at ${cronTime}`);
 
     if (!env.PUSH_SUBSCRIPTIONS) {
       console.warn('[Scheduled] PUSH_SUBSCRIPTIONS KV not configured — skipping');
@@ -107,6 +107,6 @@ export default {
       cursor = listResult.cursor;
     } while (cursor);
 
-    console.log(`[Scheduled] Complete — sent: ${sent}, skipped: ${skipped}, failed: ${failed}, expired: ${expired}`);
+    console.warn(`[Scheduled] Complete — sent: ${sent}, skipped: ${skipped}, failed: ${failed}, expired: ${expired}`);
   },
 };

@@ -84,9 +84,9 @@ export default function AIStoryScreen({ goBack, award }) {
     } finally {
       setLoading(false);
     }
-  }, [weakWords, loading]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [weakWords, loading]);  
 
-  useEffect(() => { generateStory(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { generateStory(); }, []);  
 
   function handleDone() {
     if (typeof award === 'function') award(15);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbLeaveFamily, fbLoadUserFamily,
-  getFriendCode, fbRegisterFriendCode, fbAddFriend, fbGetFriends, fbRemoveFriend,
+  getFriendCode, fbAddFriend, fbGetFriends, fbRemoveFriend,
 } from '../../lib/firebase.js';
 import { trackFriendAdded, trackFamilyJoined } from '../../lib/analytics.js';
 

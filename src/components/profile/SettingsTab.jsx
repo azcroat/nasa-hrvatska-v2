@@ -86,7 +86,7 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
       } else {
         setNotifError('Could not enable notifications. Please check your browser settings.');
       }
-    } catch (err) {
+    } catch (_err) {
       setNotifPermission(
         typeof Notification !== 'undefined' ? Notification.permission : 'unsupported'
       );
@@ -102,7 +102,7 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
       const p = JSON.parse(localStorage.getItem('uP_' + au.u) || 'null');
       return p && p.savedAt ? new Date(p.savedAt) : null;
     } catch { return null; }
-  }, [au, syncDone]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [au, syncDone]);  
 
   async function handleSyncNow() {
     if (syncing) return;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { H, srMark, recordMistake } from '../../data.jsx';
+import { srMark, recordMistake } from '../../data.jsx';
 import { useHaptic } from '../../hooks/useHaptic.js';
 import { playCorrect, playWrong } from '../../lib/soundSettings.js';
 import { getHearts, loseHeart } from '../../lib/lives.js';
@@ -40,7 +40,7 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
   const [answered, setAnswered] = useState(false);
   const [selected, setSelected] = useState(-1);
   const [streak, setStreak] = useState(0);
-  const [bestStreak, setBestStreak] = useState(0);
+  const [_bestStreak, setBestStreak] = useState(0);
   const [burst, setBurst] = useState(-1);
   const [confirmQuit, setConfirmQuit] = useState(false);
   const [revealCorrect, setRevealCorrect] = useState(false);
@@ -61,13 +61,13 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
   const [practiceMode, setPracticeMode] = useState(false);
   // Adaptive difficulty: wrong streak and correct streak
   const [wrongStreak, setWrongStreak] = useState(0);
-  const [correctStreak, setCorrectStreak] = useState(0);
+  const [_correctStreak, setCorrectStreak] = useState(0);
   const [glowIndex, setGlowIndex] = useState(-1);
   const [showOnARoll, setShowOnARoll] = useState(false);
   // Question transition
   const [qTransition, setQTransition] = useState(false);
   // Mistake tracking for post-game review drill
-  const [mistakes, setMistakes] = useState([]);
+  const [_mistakes, setMistakes] = useState([]);
   const firstOptionRef = useRef(null);
   const resultFired = useRef(false);
   const timersRef = useRef([]);
@@ -89,7 +89,7 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
     ];
     const tip = tips[Math.floor(Math.random() * tips.length)];
     knightSpeak(tip.mood, tip.text, 800);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);  
 
   // Keyboard shortcuts 1–4 to select options
   useEffect(() => {
@@ -105,7 +105,7 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
     };
     window.addEventListener('keydown', handleKeyNum);
     return () => window.removeEventListener('keydown', handleKeyNum);
-  }, [answered, idx]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [answered, idx]);  
 
   const q = questions[idx];
   if (!q) return null;

@@ -379,7 +379,7 @@ export default function CroatiaAthletes({ goBack }) {
       <div style={{ display:"flex", gap:6, overflowX:"auto", paddingBottom:4, marginBottom:16, scrollbarWidth:"none" }}>
         {divTabs.map(t => {
           const active = divFilter === t.key;
-          const dc = t.key !== "all" ? DIV_COLORS[t.key] : null;
+          const _dc = t.key !== "all" ? DIV_COLORS[t.key] : null;
           return (
             <button key={t.key} onClick={() => setDivFilter(t.key)} style={{
               flexShrink: 0, padding: "7px 14px", borderRadius: 20,

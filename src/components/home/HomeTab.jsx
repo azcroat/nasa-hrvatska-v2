@@ -106,13 +106,13 @@ export default function HomeTab({
   const { setScr, doSignUp } = useApp();
   const { level, stats: st, award } = useStats();
   const dc = useMemo(() => getDailyChallenge(), []);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   const ws = useMemo(() => getWeekStats(), [st]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   const weekXP = useMemo(() => getWeekXP(), [st]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   const streak = useMemo(() => getStreak(), [st]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   const lastActivity = useMemo(() => getLastActivity(), [st]);
   const wod = useMemo(() => getWordOfDay(), []);
 
@@ -120,7 +120,7 @@ export default function HomeTab({
   useEffect(() => { if (wod?.[0]) preloadAudio(wod[0]); }, [wod]);
 
   const userGoal = goal || (() => { try { return localStorage.getItem('nh_goal'); } catch { return null; } })() || 'fluent';
-  const activeCampaign = useMemo(() => getActiveCampaign(), [st.lc]); // eslint-disable-line react-hooks/exhaustive-deps
+  const activeCampaign = useMemo(() => getActiveCampaign(), [st.lc]);  
 
   // Goal-setter modal: show for new users who haven't set a goal yet
   const [showGoalModal, setShowGoalModal] = useState(

@@ -45,7 +45,7 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
   // DOM particle layer removed — canvas-confetti handles all particles (better perf)
   const stars = useRef(makeStars(12)).current;
   const [displayXP, setDisplayXP] = useState(0);
-  const [phase, setPhase] = useState('burst'); // burst → reveal → done
+  const [_phase, setPhase] = useState('burst'); // burst → reveal → done
   const [showMomentum, setShowMomentum] = useState(false);
   const [difficulty, setDifficulty] = useState(null); // 'easy' | 'right' | 'hard'
   const haptic = useHaptic();

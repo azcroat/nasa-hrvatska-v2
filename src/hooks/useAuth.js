@@ -10,9 +10,9 @@
  *  - Fresh device (no local cache): holds at 'loading' until Firebase responds,
  *    so the hero banner never shows stale/empty stats.
  */
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
-  gP, sP, lP, gS, sS, cS,
+  gP, lP, gS, sS, cS,
   touchSession, isValidEmail,
   fbLogin, fbRegister, fbLogout, fbLoginGoogle, fbResetPassword,
   fbLoadProgress, fbLoadUserFamily, fbOnAuthStateChanged,
@@ -83,13 +83,13 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
     // becomes "app"), which happens before fbOnAuthStateChanged resolves its async
     // fbLoadProgress call. Without this capture, lpTs = Date.now() and Firebase data
     // from our last patch (fpTs = older timestamp) is incorrectly rejected.
-    let origLocalSavedAt = 0;
-    let origLocalFbUpdated = 0;
+    let _origLocalSavedAt = 0;
+    let _origLocalFbUpdated = 0;
     if (s && s.u) {
       const cached = gP(s.u);
       if (cached) {
-        origLocalSavedAt = cached.savedAt || 0;
-        origLocalFbUpdated = cached._fbUpdated || 0;
+        _origLocalSavedAt = cached.savedAt || 0;
+        _origLocalFbUpdated = cached._fbUpdated || 0;
         earlyRestored = true;
         const user = { u: s.u, d: s.d || s.u, e: s.u };
         setAuthUser(user);
@@ -171,8 +171,8 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       if (!earlyRestored && localP) {
         // Local data exists but wasn't used for early restore (e.g., key mismatch).
         // Show app now and let Firebase update via isHydrate.
-        origLocalSavedAt = localP.savedAt || 0;
-        origLocalFbUpdated = localP._fbUpdated || 0;
+        _origLocalSavedAt = localP.savedAt || 0;
+        _origLocalFbUpdated = localP._fbUpdated || 0;
         earlyRestored = true;
         cb.current.onSignedIn({ user, progress: localP });
         setAuthScreen('app');
@@ -218,8 +218,8 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
           // No timestamp gate: the old `remoteIsNewer` check (fpTs > lpTs) was unreliable
           // because local savedAt gets bumped by autosave every 30s, making local appear
           // "newer" than Firebase even when Firebase has data from a different device.
-          origLocalSavedAt = 0;
-          origLocalFbUpdated = 0;
+          _origLocalSavedAt = 0;
+          _origLocalFbUpdated = 0;
           const fpSt = (fp.stats || fp.st || {});
           const lpSt = (lp && (lp.stats || lp.st)) || {};
           const mergedStats = {
@@ -238,9 +238,9 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
             vs:  [...new Set([...(lpSt.vs  || []), ...(fpSt.vs  || [])])],
             badges: [...new Set([...(lpSt.badges || []), ...(fpSt.badges || [])])],
             diff: (function() {
-              var DO = { beginner: 0, intermediate: 1, advanced: 2 };
-              var lo = DO[lpSt.diff] !== undefined ? DO[lpSt.diff] : -1;
-              var fo = DO[fpSt.diff] !== undefined ? DO[fpSt.diff] : -1;
+              const DO = { beginner: 0, intermediate: 1, advanced: 2 };
+              const lo = DO[lpSt.diff] !== undefined ? DO[lpSt.diff] : -1;
+              const fo = DO[fpSt.diff] !== undefined ? DO[fpSt.diff] : -1;
               return lo >= fo ? (lpSt.diff || fpSt.diff) : (fpSt.diff || lpSt.diff);
             })(),
           };
@@ -250,8 +250,8 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
           // safe to call regardless of which device is "newer".
           cb.current.applyRemoteProgress(fp);
         } else {
-          origLocalSavedAt = 0;
-          origLocalFbUpdated = 0;
+          _origLocalSavedAt = 0;
+          _origLocalFbUpdated = 0;
         }
 
         // Recovery push: local has more XP than Firestore (e.g. offline session, failed write).
@@ -271,11 +271,11 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
           // Firebase has equal or older data (e.g. autosave to Firebase failed during
           // the session, or the sign-out flush didn't complete before the read).
           // Without this, fp || localP picks stale Firebase over fresh local data.
-          var navProgress = fp || localP;
+          let navProgress = fp || localP;
           if (fp && localP) {
-            var _fpSt = fp.stats || fp.st || {};
-            var _lpSt = localP.stats || localP.st || {};
-            var _safeMerged = {
+            const _fpSt = fp.stats || fp.st || {};
+            const _lpSt = localP.stats || localP.st || {};
+            const _safeMerged = {
               xp:  Math.max(_lpSt.xp  || 0, _fpSt.xp  || 0),
               lc:  Math.max(_lpSt.lc  || 0, _fpSt.lc  || 0),
               gc:  Math.max(_lpSt.gc  || 0, _fpSt.gc  || 0),
@@ -290,9 +290,9 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
               vs:  [...new Set([...(_lpSt.vs  || []), ...(_fpSt.vs  || [])])],
               badges: [...new Set([...(_lpSt.badges || []), ...(_fpSt.badges || [])])],
               diff: (function() {
-                var DO = { beginner: 0, intermediate: 1, advanced: 2 };
-                var lo = DO[_lpSt.diff] !== undefined ? DO[_lpSt.diff] : -1;
-                var fo = DO[_fpSt.diff] !== undefined ? DO[_fpSt.diff] : -1;
+                const DO = { beginner: 0, intermediate: 1, advanced: 2 };
+                const lo = DO[_lpSt.diff] !== undefined ? DO[_lpSt.diff] : -1;
+                const fo = DO[_fpSt.diff] !== undefined ? DO[_fpSt.diff] : -1;
                 return lo >= fo ? (_lpSt.diff || _fpSt.diff) : (_fpSt.diff || _lpSt.diff);
               })(),
             };

@@ -1,5 +1,4 @@
 import React from 'react';
-import { H, Bar } from '../../data.jsx';
 import TipContent from './DialogueTipContent.jsx';
 import DialogueAvatar from './DialogueAvatar.jsx';
 

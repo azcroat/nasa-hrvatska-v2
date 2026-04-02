@@ -48,8 +48,10 @@ function parseRSS(rawXml, sourceName) {
       // Two separate bounded regexes — avoids catastrophic backtracking from alternation.
       // CDATA: content bounded to 2000 chars. Plain: [^<]* stops at any tag boundary.
       const safeTag = tag.replace(/[^a-zA-Z]/g, '');
+       
       const cdataM = item.match(new RegExp(`<${safeTag}[^>]{0,200}><!\\[CDATA\\[(.{0,2000}?)\\]\\]><\\/${safeTag}>`, 'i'));
       if (cdataM) return cdataM[1].trim();
+       
       const plainM = item.match(new RegExp(`<${safeTag}[^>]{0,200}>([^<]{0,2000})<\\/${safeTag}>`, 'i'));
       return plainM ? plainM[1].trim() : '';
     };
@@ -74,7 +76,7 @@ async function simplifyArticle(article, level, anthropicKey) {
     C1: "Keep close to original. Simplify only highly specialized terms.",
   };
   const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
-  // eslint-disable-next-line security/detect-object-injection
+   
   const rule = complexity[safeLevel] || complexity["B1"];
 
   const systemPrompt = `You are a Croatian language teacher simplifying news for a ${safeLevel} learner.

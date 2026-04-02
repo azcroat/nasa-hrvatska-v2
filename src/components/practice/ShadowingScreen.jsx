@@ -131,7 +131,7 @@ function useRecorder() {
     } catch (_) {
       setMicAvailable(false);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);  
 
   function beginCapture(stream) {
     chunksRef.current = [];

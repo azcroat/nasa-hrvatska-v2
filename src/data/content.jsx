@@ -632,7 +632,7 @@ screenEntries.forEach(e => idx.push(e));
 _searchIdx=idx;return idx}
 // ═══ THEME OBJECTS (background/color tokens for inline root styles) ═══
 // BG_LIGHT, BG_DARK — imported from ../lib/appUtils.js
-const BG=BG_LIGHT;
+const _BG=BG_LIGHT;
 const H=(t,s,back)=><div style={{marginBottom:22,paddingBottom:18,borderBottom:"1px solid var(--card-b)"}}>
   {back&&<button onClick={back} style={{
     display:"inline-flex",alignItems:"center",gap:6,
@@ -675,7 +675,7 @@ const Spk=({text,label})=><button
 </button>;
 // ═══ MAIN APP ═══
 // ═══ ERROR BOUNDARY — Prevents white screen of death ═══
-class ErrorBoundary extends React.Component{
+class _ErrorBoundary extends React.Component{
   constructor(props){super(props);this.state={hasError:false,error:null}}
   static getDerivedStateFromError(error){return{hasError:true,error:error}}
   componentDidCatch(error,info){console.error("App crash caught:",error,info)}

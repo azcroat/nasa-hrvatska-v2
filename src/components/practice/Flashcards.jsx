@@ -120,7 +120,7 @@ export default function Flashcards({ pool, goBack, award }) {
       setCardImgLoading(false);
     }).catch(() => { clearTimeout(timeoutId); if (mountedRef.current) setCardImgLoading(false); });
     return () => { controller.abort(); clearTimeout(timeoutId); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [idx, done]);
 
   // Fetch AI example sentence when card is flipped and no static example exists
@@ -163,7 +163,7 @@ export default function Flashcards({ pool, goBack, award }) {
         setAiError(true);
       });
     return () => { controller.abort(); clearTimeout(timeoutId); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [flipped, idx, done]);
 
   // When buttons appear (card flipped), focus "I Know It" so keyboard users can act
@@ -190,7 +190,7 @@ export default function Flashcards({ pool, goBack, award }) {
       if (mountedRef.current) speak(word);
     }, 300);
     return () => clearTimeout(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [flipped, idx]);
 
   function finish(finalKnown) {

@@ -264,7 +264,7 @@ export default function HeroSection({
     return 'Dobra večer';
   };
 
-  const mascot = getMascotMessage({ streak: streak.count, level, st, comebackBonus, allQuestsDone });
+  const _mascot = getMascotMessage({ streak: streak.count, level, st, comebackBonus, allQuestsDone });
 
   // ── Knight speech state ───────────────────────────────────────────────────
   const [greeting, setGreeting] = useState(() => getKnightGreeting(st, streak.count, level));

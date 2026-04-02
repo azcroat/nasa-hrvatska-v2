@@ -41,7 +41,7 @@ export default function Leaderboard({
   const [liveStatus, setLiveStatus] = useState(null); // null | 'connecting' | 'live' | 'offline'
   const [view, setView] = useState('total'); // 'total' or 'week'
   const [generation, setGeneration] = useState(() => localStorage.getItem('nh_generation') || '');
-  const [reactionTick, setReactionTick] = useState(0);
+  const [_reactionTick, setReactionTick] = useState(0);
   const [firestoreReactions, setFirestoreReactions] = useState({});
 
   function getWeekKey() {
@@ -105,7 +105,7 @@ export default function Leaderboard({
     if (famTab === 'global' && globalUsers.length === 0 && !globalLoading) {
       loadGlobal(null);
     }
-  }, [famTab]); // eslint-disable-line
+  }, [famTab]);  
 
   // Real-time listener — starts when user is in a family and on the main tab,
   // fires immediately with current data and then on every remote change.
@@ -142,7 +142,7 @@ export default function Leaderboard({
     }
 
     return () => { if (watchRef.current) { watchRef.current(); watchRef.current = null; } };
-  }, [famData, famTab]); // eslint-disable-line
+  }, [famData, famTab]);  
 
   // Watch Firestore reactions for the family so other members' reactions appear live
   useEffect(() => {

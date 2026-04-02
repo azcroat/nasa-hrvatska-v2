@@ -21,7 +21,7 @@ function injectKeyframes() {
 
 // ── Severity color for a vocab card accent ────────────────────────────────────
 const BRAND_RED = '#D4002D';
-const BRAND_TEAL = '#0e7490';
+const _BRAND_TEAL = '#0e7490';
 
 // ── VocabCard ─────────────────────────────────────────────────────────────────
 function VocabCard({ item, checked, onToggle }) {

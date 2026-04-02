@@ -53,7 +53,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   const recordStreamRef = useRef(null); // keep track of stream to stop on unmount
   const recordingURLRef = useRef(null); // keep URL for revoke on unmount
   const [recordingURL, setRecordingURL] = useState(null);
-  const [isRecording, setIsRecording] = useState(false);
+  const [_isRecording, setIsRecording] = useState(false);
 
   // Waveform visualization state
   const [waveform, setWaveform] = useState(new Array(30).fill(0));
@@ -78,10 +78,10 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   useEffect(() => {
     const tip = SPEAKING_TIPS[Math.floor(Math.random() * SPEAKING_TIPS.length)];
     knightSpeak(tip.mood, tip.text, 1000);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);  
 
   // Cleanup on unmount — must be before early return to satisfy Rules of Hooks
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   useEffect(() => { return () => {
     clearTimeout(timeoutRef.current);
     if (recRef.current) {

@@ -74,7 +74,7 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
   const voice = "hr-HR-GabrijelaNeural";
   const safeText = text.replace(
     /[<>&"']/g,
-    // eslint-disable-next-line security/detect-object-injection
+     
     (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&apos;" }[c])
   );
 

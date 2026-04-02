@@ -84,7 +84,7 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
   const indicatorWidth = `${(1 / tabCount) * 100}%`;
 
   // Croatia tab uses Croatian red; all others use teal
-  const activeColor = tab === 'croatia' ? 'var(--color-croatian, #b61800)' : 'var(--info, #0e7490)';
+  const _activeColor = tab === 'croatia' ? 'var(--color-croatian, #b61800)' : 'var(--info, #0e7490)';
   const indicatorGradient = tab === 'croatia'
     ? 'linear-gradient(90deg,var(--color-croatian,#b61800),#e53e3e)'
     : 'linear-gradient(90deg,#0e7490,#06b6d4)';

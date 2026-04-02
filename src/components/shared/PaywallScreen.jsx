@@ -15,7 +15,7 @@ import { redeemPromoCode, activateSubscription } from '../../hooks/useSubscripti
 import { trackPaywallShown, trackSubscribed } from '../../lib/analytics.js';
 
 // ── Feature list ──────────────────────────────────────────────────────────────
-const FREE_FEATURES = [
+const _FREE_FEATURES = [
   'All A1 vocabulary & grammar',
   'Flashcards & spaced repetition',
   'Daily quests & streak tracking',

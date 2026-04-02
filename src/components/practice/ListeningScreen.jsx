@@ -19,7 +19,7 @@ export default function ListeningScreen({ questions, goBack, award }) {
   useEffect(() => {
     const tip = LISTENING_TIPS[Math.floor(Math.random() * LISTENING_TIPS.length)];
     knightSpeak(tip.mood, tip.text, 900);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);  
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [selected, setSelected] = useState(-1);

@@ -46,7 +46,7 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
   const [quizAnswers, setQuizAnswers] = useState({});
   const [quizResults, setQuizResults] = useState({});
   const [score, setScore] = useState(0);
-  const [done, setDone] = useState(false);
+  const [_done, setDone] = useState(false);
   const [autoTTS, setAutoTTS] = useState(() => LS_GET('nh_autotts', true));
   const [ttsAvailable] = useState(() => typeof window !== 'undefined');
   const [xpAwarded, setXpAwarded] = useState(false);
@@ -72,7 +72,7 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
       return () => clearTimeout(timer);
     }
     return undefined;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [slide]);
 
   // Award XP when summary slide reached
@@ -84,7 +84,7 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
         markQuest('grammar');
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [slide]);
 
   function handleToggleTTS() {

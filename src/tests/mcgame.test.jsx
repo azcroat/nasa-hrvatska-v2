@@ -9,7 +9,7 @@
  *   - onComplete receives correct final score
  *   - goBack is callable without crashing
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 
@@ -215,7 +215,7 @@ describe('McGame — XP double-award prevention', () => {
 describe('McGame — streak', () => {
   it('streak badge appears after 2 consecutive correct answers', async () => {
     const questions = makeQuestions(3);
-    const { props } = renderGame({ questions });
+    const { props: _props } = renderGame({ questions });
 
     answerCurrent(true, 0);
     fireEvent.click(screen.getByText(/Next/i));

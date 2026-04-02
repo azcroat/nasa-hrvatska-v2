@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { speak, lXP, srMark } from '../../data.jsx';
+import { speak, srMark } from '../../data.jsx';
 
 const STORAGE_KEY = 'nh_custom_words';
 

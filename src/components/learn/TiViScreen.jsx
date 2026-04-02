@@ -90,7 +90,7 @@ const SITUATIONS = [
 
 export default function TiViScreen({ goBack }) {
   const [selected, setSelected] = useState(null);
-  const [showFormal, setShowFormal] = useState(null); // null = show both, 'formal'/'informal' = filter
+  const [_showFormal, _setShowFormal] = useState(null); // null = show both, 'formal'/'informal' = filter
 
   const displayed = SITUATIONS;
 

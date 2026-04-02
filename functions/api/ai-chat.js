@@ -70,7 +70,7 @@ function buildConvoPrompt(params) {
     C2: "Full native speaker register. Regional expressions, idiomatic speech, cultural references are welcome.",
   };
   const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
-  // eslint-disable-next-line security/detect-object-injection
+   
   const complexityRule = complexity[safeLevel] || complexity["B1"];
   return `You are ${aiName}, a native Croatian speaker. Role: ${aiRole}.
 ${context}
@@ -223,7 +223,7 @@ function buildStoryPrompt(params) {
     C1: "Write literary Croatian. Complex sentences, subordinate clauses, all tenses, idiomatic expressions. Rich and authentic.",
     C2: "Write like a published Croatian author. Use regional color, colloquialisms, literary devices. Completely authentic native-level Croatian.",
   };
-  // eslint-disable-next-line security/detect-object-injection
+   
   const complexityRule = complexity[safeLevel] || complexity["B1"];
   const goalLine = goal_theme
     ? `\nPersonalization theme: The story should weave in themes of ${goal_theme}. Let this shape the plot, setting details, and emotional arc naturally.`
@@ -309,7 +309,7 @@ function buildPhraseOfDayPrompt(params) {
     sports: "Croatian sports culture — football, basketball, cheering, sports talk",
     family: "Croatian family vocabulary and expressions — terms of endearment, family dynamics",
   };
-  // eslint-disable-next-line security/detect-object-injection
+   
   const catDesc = categoryDesc[category] || categoryDesc["greeting"];
 
   return `You are a Croatian language and culture expert creating a "Phrase of the Day" for a learner at CEFR level ${safeLevel}.
@@ -368,7 +368,7 @@ function buildAdaptiveConvoPrompt(params) {
     C1: "Speak exactly as you would to a native speaker. Rich vocabulary, idioms, subordinate clauses, all tenses.",
     C2: "Full native speaker register. Regional expressions, idiomatic speech, cultural references are welcome.",
   };
-  // eslint-disable-next-line security/detect-object-injection
+   
   const complexityRule = complexity[safeLevel] || complexity["B1"];
 
   const weakAreasText = weak_areas.length > 0
@@ -404,7 +404,7 @@ function buildNewsSimplifyPrompt(params) {
     B2: "Natural Croatian. Full complexity of the original, but simplify any bureaucratic or highly technical language.",
     C1: "Keep close to original Croatian. Simplify only jargon or highly specialized terms.",
   };
-  // eslint-disable-next-line security/detect-object-injection
+   
   const complexityRule = complexity[safeLevel] || complexity["B1"];
 
   return `You are a Croatian language teacher simplifying a news article for a language learner at CEFR level ${safeLevel}.

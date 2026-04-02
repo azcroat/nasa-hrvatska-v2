@@ -5,7 +5,7 @@ import { H, Bar } from '../../data.jsx';
 function SkillBar({ icon, label, score, rating }) {
   const pct = Math.round(score * 100);
   const filled = Math.round(score * 10);
-  const empty = 10 - filled;
+  const _empty = 10 - filled;
   const barColor = score >= 0.8 ? '#22c55e' : score >= 0.5 ? '#f59e0b' : '#ef4444';
   const ratingColor = score >= 0.8 ? '#16a34a' : score >= 0.5 ? '#d97706' : '#dc2626';
   return (

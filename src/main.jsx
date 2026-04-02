@@ -12,9 +12,6 @@ import { reportError } from './lib/errorReporter.js';
 // so Sentry / onerror handlers still receive them.
 if (import.meta.env.PROD) {
   const noop = () => {};
-  console.log = noop;
-  console.debug = noop;
-  console.info = noop;
   console.warn = noop;
 }
 

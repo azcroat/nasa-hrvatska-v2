@@ -1,6 +1,6 @@
 import React from 'react';
 import { H } from '../../data.jsx';
-import { NOUN_LIBRARY, GENDER_COLOR, GENDER_BG, GENDER_LABEL, CT_STYLES } from './CaseTransformerData.js';
+import { GENDER_COLOR, GENDER_BG, GENDER_LABEL, CT_STYLES } from './CaseTransformerData.js';
 
 export default function CaseTransformerPicker({ goBack, filteredNouns, search, setSearch, genderFilter, setGenderFilter, onPickNoun }) {
   return (

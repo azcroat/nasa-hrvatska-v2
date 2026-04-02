@@ -135,7 +135,7 @@ export default function LyricsScreen({ goBack, award }) {
   const [activeWord, setActiveWord] = useState(null);      // word string currently shown in tooltip
   const [loadingWord, setLoadingWord] = useState(null);
   const [tooltipData, setTooltipData] = useState(null);
-  const [tooltipError, setTooltipError] = useState(false);
+  const [_tooltipError, setTooltipError] = useState(false);
   const [vocabList, setVocabList] = useState(() => loadVocab());
 
   // ── Enhancement 2: Karaoke mode state ────────────────────────────────────
@@ -411,7 +411,7 @@ export default function LyricsScreen({ goBack, award }) {
             {song.lines.map((line, li) => {
               const isCurrent = karaokeOn && li === karaokeLineIdx;
               const isPast = karaokeOn && li < karaokeLineIdx;
-              const isFuture = karaokeOn && li > karaokeLineIdx;
+              const _isFuture = karaokeOn && li > karaokeLineIdx;
               return (
                 <div
                   key={li}

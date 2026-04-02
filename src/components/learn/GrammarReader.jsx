@@ -141,7 +141,7 @@ const CASE_ABBR = {
 
 // Strip punctuation for lookup key but keep original for display
 function stripPunct(w) { return w.replace(/[.,!?;:"""'()–-]/g, '').toLowerCase(); }
-function hasPunct(w) { return /[.,!?;:"""'()]$/.test(w); }
+function _hasPunct(w) { return /[.,!?;:"""'()]$/.test(w); }
 
 // ─── Inline style tag ─────────────────────────────────────────────────────────
 const STYLE = `

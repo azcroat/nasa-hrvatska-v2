@@ -62,7 +62,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, setPlacem
       const trigger = step === 2 ? triggerRefStep2.current : triggerRefStep3.current;
       if (trigger) trigger.focus();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [showSpeakModal]);
 
   function startPlacement() {

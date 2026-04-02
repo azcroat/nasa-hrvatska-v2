@@ -39,7 +39,7 @@ export default function McResult({ questions, score, mistakes = [], setScr, goBa
       'Practice makes perfect — "vježba čini majstora." Try again tomorrow. 📐',
       700
     );
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);  
 
   // ── Confetti on mount ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -66,7 +66,7 @@ export default function McResult({ questions, score, mistakes = [], setScr, goBa
   const [reviewPhase, setReviewPhase] = useState('idle');
   const [reviewIdx, setReviewIdx] = useState(0);
   const [reviewFlipped, setReviewFlipped] = useState(false);
-  const [knownCount, setKnownCount] = useState(0);
+  const [_knownCount, setKnownCount] = useState(0);
   const [reviewDismissed, setReviewDismissed] = useState(false);
 
   const showReviewPrompt = mistakes.length >= 2 && !reviewDismissed && reviewPhase === 'idle';

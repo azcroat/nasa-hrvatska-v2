@@ -117,7 +117,7 @@ function App() {
     const onTtsFailed = () => { setTtsFailedToast(true); setTimeout(() => setTtsFailedToast(false), 2500); };
     window.addEventListener('nh:tts-failed', onTtsFailed);
     return () => { clearTimeout(t); window.removeEventListener('nh:tts-failed', onTtsFailed); };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: one-time setup at mount; TTS listener closure is registered fresh each time the event fires
+  }, []);  
 
   // ── Core state ──────────────────────────────────────────────────────────────
   const [currentScreen, _setCurrentScreen] = useState('welcome');
@@ -140,22 +140,22 @@ function App() {
   const [showPremiumWelcome, setShowPremiumWelcome] = useState(false);
   const [pendingJoinCode, setPendingJoinCode] = useState(() => { try { const c = new URLSearchParams(window.location.search).get('join') || null; if (c && /^[A-Z2-9]{6}$/.test(c)) { const u = new URL(window.location.href); u.searchParams.delete('join'); window.history.replaceState({}, '', u.toString()); return c; } return null; } catch { return null; } });
   const [_syncReady, _setSyncReady] = useState(false);
-  const [showBackupBannerLocal, setShowBackupBannerLocal] = useState(false); // fallback if useSyncManager not ready
+  const [_showBackupBannerLocal, _setShowBackupBannerLocal] = useState(false); // fallback if useSyncManager not ready
 
   // ── Screen + exercise state ─────────────────────────────────────────────────
-  const { placementIdx, setPlacementIdx, placementScore, setPlacementScore, placementAnswers, setPlacementAnswers, placementXp, setPlacementXp, placementQ, setPlacementQ, getPlacementCt } = usePlacement();
+  const { placementIdx: _pIdx, setPlacementIdx, placementScore: _pScore, setPlacementScore, placementAnswers: _pAnswers, setPlacementAnswers, placementXp: _pXp, setPlacementXp, placementQ: _pQ, setPlacementQ, getPlacementCt } = usePlacement();
   const { lt, sLt, li, sLi, lx, sLx, ls, sLs, lp, sLp, la, sLa, lsl, sLsl, qi, sQi, gl, sGl, gx, sGx, gp, sGp, gs, sGs, ga, sGa, gsl, sGsl, matchInitPool, setMatchInitPool, mcInitQ, setMcInitQ, mcResultQ, setMcResultQ, mcResultScore, setMcResultScore, mcMistakes, setMcMistakes, rp, sRp, rph, sRph, rqi, sRqi, rsc, sRsc, ra, sRa, rsl, sRsl, hw, sHw, sw, sSw, sr, sSr, sx, sSx, si, sSi, ssc, sSsc, animLesson, setAnimLesson, fcInitPool, setFcInitPool, lsInitQ, setLsInitQ, curEx, sCurEx } = useAppScreenState();
   const { dchlA, sDchlA, dchlSl, sDchlSl } = useDaily();
   const { famData, setFamData, famMembers, setFamMembers, famLoading, setFamLoading, famName, setFamName, famCode, setFamCode, famErr, setFamErr, famTab, setFamTab } = useFamily();
   const [tab, _setTab] = useState(() => PATH_TO_TAB[window.location.pathname] || 'home');
   const setTab = useCallback((t) => { _setTab(t); navigate(TAB_PATHS[t] || '/', { replace: false }); }, [navigate]);
-  const { jWords, setJWords, jIn, setJIn, jEn, setJEn } = useJournal();
+  const { jWords, setJWords, jIn: _jIn, setJIn: _setJIn, jEn: _jEn, setJEn: _setJEn } = useJournal();
   const _uidRef = useRef(/** @type {string | null} */(null));
   const { darkMode, setDarkMode, favs, setFavs, toggleFav, isFav } = usePreferences(_uidRef);
   const { srchQ, setSrchQ, srchR, srchOpen, setSrchOpen, doSearch } = useSearch();
 
   // ── Award / gamification ────────────────────────────────────────────────────
-  const { award, comebackBonus, setComebackBonus, showCelebration, setShowCelebration, celebXP, setCelebXP, streakMilestone, setStreakMilestone, ceremonyType, setCeremonyType, levelUpData, setLevelUpData, freezeUsedToast, setFreezeUsedToast, earnBackPrompt, setEarnBackPrompt, streakRestoredCount, setStreakRestoredCount, ttsFailedToast, setTtsFailedToast, showXP, xpA, nB, sB } = useAward({ curEx, stats, setStats });
+  const { award, comebackBonus, setComebackBonus, showCelebration, setShowCelebration, celebXP, setCelebXP: _setCelebXP, streakMilestone, setStreakMilestone, ceremonyType, setCeremonyType, levelUpData, setLevelUpData, freezeUsedToast, setFreezeUsedToast: _setFreezeUsedToast, earnBackPrompt, setEarnBackPrompt: _setEarnBackPrompt, streakRestoredCount, setStreakRestoredCount, ttsFailedToast, setTtsFailedToast, showXP, xpA, nB, sB } = useAward({ curEx, stats, setStats });
 
   // ── applyRemoteProgress: merge Firestore snapshot into local state ──────────
   // Defined before useAuth so it can be passed to onSignedIn.
@@ -229,7 +229,7 @@ function App() {
   const doGuest = useCallback(() => { _doGuest(); setTimeout(() => setScr('dashboard'), 50); }, [_doGuest, setScr]);
 
   // ── PWA install + sync manager (need authScreen from useAuth) ────────────────
-  const { showPwaInstall, setShowPwaInstall, showAndroidInstall, setShowAndroidInstall, deferredInstallPrompt, setDeferredInstallPrompt } = usePwaInstall({ authScreen });
+  const { showPwaInstall, setShowPwaInstall, showAndroidInstall, setShowAndroidInstall, deferredInstallPrompt, setDeferredInstallPrompt: _setDeferredInstallPrompt } = usePwaInstall({ authScreen });
   const { doSyncNow, showBackupBanner, setShowBackupBanner, syncError, setSyncError } = useSyncManager({
     authUser, authScreen, name, stats, favs, jWords, dchlA, dchlSl,
     setStats, setName, applyRemoteProgress, ds,
@@ -254,12 +254,12 @@ function App() {
 
   // ── Effects ─────────────────────────────────────────────────────────────────
   // Track retention on every app load (D1/D7/D30 buckets in Firebase Analytics)
-  useEffect(() => { trackAppOpen(!!authUser); }, []); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: D1/D7/D30 analytics fires once per session on cold load; authUser at mount time is the correct value
+  useEffect(() => { trackAppOpen(!!authUser); }, []);  
 
   // Register friend code index once per session when auth is ready
   useEffect(() => {
     if (authUser?.u) fbRegisterFriendCode(authUser.u, authUser.d || name);
-  }, [authUser?.u]); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: name is stable by the time authUser.u is set; re-registering on every name change would cause unnecessary network chatter
+  }, [authUser?.u]);  
 
   // Keep _uidRef current so usePreferences.toggleFav fires fbToggleFavorite
   useEffect(() => { _uidRef.current = authUser?.u || null; }, [authUser]);
@@ -298,10 +298,10 @@ function App() {
     if (pendingJoinCode) { try{const u=new URL(window.location.href);u.searchParams.delete('join');window.history.replaceState({},'',u.pathname);}catch(_){} setFamCode(pendingJoinCode);setFamTab('join');setTimeout(()=>setScr('leaderboard'),600);setPendingJoinCode(null); }
     checkNameDay(name);
     scheduleStreakReminder(stats.str || getStreak().count);
-  }, [authScreen]); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: runs once per auth transition; inner values (stats, name) are read live at trigger time, not stale
+  }, [authScreen]);  
 
   // Session expiry guard
-  useEffect(() => { if (authScreen !== 'app') return undefined; const iv = setInterval(() => { if (isSessionExpired()) doOut(); }, 5*60*1000); return () => clearInterval(iv); }, [authScreen]); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: doOut is stable across renders; only needs to re-register on authScreen change
+  useEffect(() => { if (authScreen !== 'app') return undefined; const iv = setInterval(() => { if (isSessionExpired()) doOut(); }, 5*60*1000); return () => clearInterval(iv); }, [authScreen]);  
   // Touch session on user interaction
   useEffect(() => { if (authScreen !== 'app') return undefined; const h = () => touchSession(); window.addEventListener('click',h); window.addEventListener('touchstart',h); window.addEventListener('keydown',h); return () => { window.removeEventListener('click',h); window.removeEventListener('touchstart',h); window.removeEventListener('keydown',h); }; }, [authScreen]);
 
@@ -311,10 +311,10 @@ function App() {
     const snap = buildProgressSnapshot({ uid: authUser.u, name, stats, dchlA, dchlSl, favs, jWords });
     try { localStorage.setItem('uP_' + authUser.u, JSON.stringify(snap)); } catch (e) { console.warn('localStorage quota:', e); }
     touchSession();
-  }, [stats, currentScreen, name, authUser, authScreen, jWords, favs, dchlA, dchlSl]); // eslint-disable-line
+  }, [stats, currentScreen, name, authUser, authScreen, jWords, favs, dchlA, dchlSl]);  
 
   // Sync to Firebase on lesson/grammar completion
-  useEffect(() => { if (!authUser || authScreen !== 'app' || stats.lc === 0) return; doSyncNow(); scheduleStreakReminder(getStreak().count); }, [stats.lc, stats.ct?.length, stats.gc, stats.sp]); // eslint-disable-line
+  useEffect(() => { if (!authUser || authScreen !== 'app' || stats.lc === 0) return; doSyncNow(); scheduleStreakReminder(getStreak().count); }, [stats.lc, stats.ct?.length, stats.gc, stats.sp]);  
 
   // Post-sync write-back: after _syncReady fires (Firebase data loaded + merged into local state),
   // push the fully-merged snapshot back to Firebase so ALL devices see the best combined data.
@@ -332,13 +332,13 @@ function App() {
     // before doSyncNow reads those values for the Firebase payload
     const t = setTimeout(() => { doSyncNow(); }, 2000);
     return () => clearTimeout(t);
-  }, [_syncReady, authUser, authScreen, doSyncNow]); // eslint-disable-line
+  }, [_syncReady, authUser, authScreen, doSyncNow]);  
 
   // Sync weekly XP to leaderboard on every XP change (fire-and-forget)
   useEffect(() => {
     if (!authUser || authScreen !== 'app' || stats.xp === 0) return;
     submitWeeklyXP(null, authUser.u, name, stats.xp).catch(() => {});
-  }, [stats.xp, authUser, authScreen, name]); // eslint-disable-line
+  }, [stats.xp, authUser, authScreen, name]);  
 
   // Periodic Firebase sync every 5 minutes — catches XP from mini-games that don't trigger lesson sync
   useEffect(() => {
@@ -355,7 +355,7 @@ function App() {
       for (const lv of LEARN_PATH) { for (const it of lv.items) { if (it.topic && recovered.length < stats.lc) recovered.push(it.topic); } }
       if (recovered.length > 0) setStats(prev => ({ ...prev, ct: [...new Set([...prev.ct,...recovered])] }));
     });
-  }, [authScreen, authUser, stats.lc, stats.ct.length]); // eslint-disable-line
+  }, [authScreen, authUser, stats.lc, stats.ct.length]);  
 
   // Show new-placement for brand-new zero-progress users.
   // CRITICAL: gate on _syncReady so we never redirect before Firebase data has loaded.
@@ -370,7 +370,7 @@ function App() {
       return () => clearTimeout(t);
     }
     return undefined;
-  }, [authScreen, _syncReady, stats.lc, stats.xp, currentScreen]); // eslint-disable-line
+  }, [authScreen, _syncReady, stats.lc, stats.xp, currentScreen]);  
 
   // Weekly digest (Sunday only)
   useEffect(() => {
@@ -386,8 +386,8 @@ function App() {
   }, [authUser]);
 
   // Push notifications + free annual grant + uidRef sync
-  useEffect(() => { if (!authUser) return; import('./lib/pushNotifications.js').then(({registerMessagingServiceWorker,registerPushWithServer}) => { registerMessagingServiceWorker().catch(()=>{}); if(typeof Notification!=='undefined'&&Notification.permission==='granted')registerPushWithServer({streak:getStreak().count,name:name||authUser.d||''}).catch(()=>{}); }); }, [authUser?.u]); // eslint-disable-line
-  useEffect(() => { if (authUser?.u) grantFreeAnnual(authUser.u); }, [authUser?.u]); // eslint-disable-line
+  useEffect(() => { if (!authUser) return; import('./lib/pushNotifications.js').then(({registerMessagingServiceWorker,registerPushWithServer}) => { registerMessagingServiceWorker().catch(()=>{}); if(typeof Notification!=='undefined'&&Notification.permission==='granted')registerPushWithServer({streak:getStreak().count,name:name||authUser.d||''}).catch(()=>{}); }); }, [authUser?.u]);  
+  useEffect(() => { if (authUser?.u) grantFreeAnnual(authUser.u); }, [authUser?.u]);  
 
   // Lesson resume persistence
   useEffect(() => { if (currentScreen !== 'lesson' || !lt) return; try { localStorage.setItem('nh_lesson_resume', JSON.stringify({ topic:lt, phase:lp, ts:Date.now() })); } catch (_) {} }, [currentScreen, lt, lp]);
@@ -407,7 +407,7 @@ function App() {
     if (!authUser || authScreen !== 'app' || stats.xp === 0) return;
     const today = localDateStr();
     try { const h=JSON.parse(localStorage.getItem('progress_history')||'[]');const i=h.findIndex(x=>x.date===today);const s={date:today,xp:stats.xp,lc:stats.lc,gc:stats.gc};if(i>=0)h[i]=s;else h.push(s);localStorage.setItem('progress_history',JSON.stringify(h.slice(-90))); } catch (_) {}
-  }, [stats.xp, authUser, authScreen]); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: authUser and authScreen are identity-stable once set; the key deps are stats.xp changes
+  }, [stats.xp, authUser, authScreen]);  
 
   // Immediate Firebase push whenever a lesson or grammar exercise completes.
   // doSyncNow reads from _unloadRef.current so it always captures the latest state,
@@ -422,7 +422,7 @@ function App() {
     if ((lcIncreased || gcIncreased) && authUser && authScreen === 'app') {
       doSyncNow();
     }
-  }, [stats.lc, stats.gc]); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: only fire on completion counts changing
+  }, [stats.lc, stats.gc]);  
 
   // Premium welcome banner
   useEffect(() => {
@@ -430,7 +430,7 @@ function App() {
     if (localStorage.getItem('nh_premium_welcome_shown')) return undefined;
     const t = setTimeout(() => { const {isFreeAnnual} = getSubscriptionStatus(); if (isFreeAnnual && stats.lc === 0) setShowPremiumWelcome(true); }, 2500);
     return () => clearTimeout(t);
-  }, [authScreen, authUser?.u]); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: premium welcome check is a one-shot side effect gated on a localStorage flag; re-checking on subscription changes would show duplicate banners
+  }, [authScreen, authUser?.u]);  
 
   // One-time apology modal for April 2026 data incident — shown once to any existing user with progress
   const [showApology, setShowApology] = useState(false);

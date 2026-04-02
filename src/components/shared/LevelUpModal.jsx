@@ -67,7 +67,7 @@ function makeOrbitParticles(n = 16) {
 function LevelUpModal({ level, onClose }) {
   const meta = LEVEL_META[level] || LEVEL_META[10];
   const particles = useRef(makeOrbitParticles(16)).current;
-  const [phase, setPhase] = useState('burst'); // burst → reveal
+  const [_phase, setPhase] = useState('burst'); // burst → reveal
   const [copied, setCopied] = useState(false);
   const haptic = useHaptic();
   const modalRef = useRef(null);

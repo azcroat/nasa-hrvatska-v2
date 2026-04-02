@@ -135,8 +135,8 @@ async function updateAndGetStandings(kv, weekKey, groupId, uid, name, xp) {
 
   const idx = members.findIndex(m => m.uid === uid);
   if (idx !== -1) {
-    members[idx].xp = xp; // eslint-disable-line security/detect-object-injection
-    if (name) members[idx].name = name; // eslint-disable-line security/detect-object-injection
+    members[idx].xp = xp;  
+    if (name) members[idx].name = name;  
   } else {
     members.push({ uid, name, xp });
   }
@@ -151,7 +151,7 @@ async function updateAndGetStandings(kv, weekKey, groupId, uid, name, xp) {
 /** Build the response payload. */
 function buildResponse(uid, groupId, ranked, weekKey, xp) {
   const tierId = getTier(xp);
-  const tier = TIER_META[tierId]; // eslint-disable-line security/detect-object-injection
+  const tier = TIER_META[tierId];  
 
   // Top 10 for display (Duolingo-style)
   const top10 = ranked.slice(0, 10);

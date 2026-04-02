@@ -3,7 +3,6 @@ import React, {
   useEffect,
   useRef,
   useCallback,
-  useMemo,
 } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext.jsx';
@@ -17,13 +16,10 @@ import {
   PERSONA_CONFIG,
   getPersona,
   SR_SUPPORTED,
-  DEFAULT_MEMORY,
   SILENCE_DELAY_MS,
   loadMemory,
   saveMemory,
-  fmtDuration,
   fmtElapsed,
-  relationshipLabel,
   computeRelationshipLevel,
 } from './MajaScreenUtils.js';
 
@@ -99,7 +95,7 @@ export default function MajaScreen() {
       clearInterval(elapsedTimerRef.current);
     }
     return () => clearInterval(elapsedTimerRef.current);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [sessionActive]);
 
   // cleanup on unmount
@@ -119,7 +115,7 @@ export default function MajaScreen() {
         audioUrlRef.current = null;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   // ── waveform helpers ───────────────────────
@@ -372,7 +368,7 @@ export default function MajaScreen() {
         }
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     [conversation, session, level, name, playTTS]
   );
 
@@ -436,7 +432,7 @@ export default function MajaScreen() {
     } catch {
       // rec already started — ignore
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [startWaveform, stopMic, sendMessage]);
 
   // ── start session ──────────────────────────
@@ -504,7 +500,7 @@ export default function MajaScreen() {
       setPhase('error');
       setSessionActive(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [level, name, playTTS, startListening]);
 
   // ── end session ────────────────────────────
@@ -586,7 +582,7 @@ export default function MajaScreen() {
       });
       setPhase('debrief');
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [conversation, elapsedSecs, level, name, session, stopMic]);
 
   // ── continue conversation ──────────────────

@@ -78,7 +78,7 @@ export default function WordSprint({ sh, award, goBack }) {
     if (phase !== 'playing' || !questions[qi]) return;
     const q = questions[qi];
     if (q.prompt === q.word.hr) speak(q.word.hr);
-  }, [qi, phase]); // eslint-disable-line
+  }, [qi, phase]);  
 
   useEffect(() => {
     if (phase !== 'playing') return undefined;
@@ -132,7 +132,7 @@ export default function WordSprint({ sh, award, goBack }) {
 
   useEffect(() => {
     if (phase === 'result' && score > 0) { if (typeof award === 'function') award(Math.min(score * 2, 50)); }
-  }, [phase]); // eslint-disable-line
+  }, [phase]);  
 
   const toggleCat = (c) =>
     setSelectedCats(prev =>

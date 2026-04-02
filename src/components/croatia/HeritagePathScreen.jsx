@@ -192,7 +192,7 @@ export default function HeritagePathScreen({ goBack, award }) {
 
   useEffect(() => {
     knightSpeak('happy', '"Koliko jezika znaš, toliko vrijediš." You already know Croatian in your heart — this path brings it to your tongue. 🇭🇷', 800);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);  
 
   function completeModule(id) {
     setCompleted(prev => {

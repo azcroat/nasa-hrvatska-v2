@@ -13,7 +13,7 @@ export default function ConstellationQuizMode({
   onNext,
 }) {
   const currentQ = QUIZ[quizIdx];
-  const shuffledOptions = useMemo(() => sh([...currentQ.options]), [quizIdx]); // eslint-disable-line react-hooks/exhaustive-deps
+  const shuffledOptions = useMemo(() => sh([...currentQ.options]), [quizIdx]);  
 
   return (
     <>

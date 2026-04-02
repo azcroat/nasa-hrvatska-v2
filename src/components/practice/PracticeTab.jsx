@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { H, V, LISTEN, UNJUMBLE, PREPDRILL, NUMTIME, getSR, getDueReviews } from '../../data.jsx';
+import { H, V, LISTEN, getSR, getDueReviews } from '../../data.jsx';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 
@@ -44,7 +44,7 @@ export default function PracticeTab({
     const items = sh(p).slice(0,6);
     onLaunchSpeaking(items);
   }
-  function startWeakWords() {
+  function _startWeakWords() {
     const d = getSR();
     const p = pool();
     const weak = Object.entries(d).filter(e=>e[1].w>0).sort((a,b)=>(b[1].w/(b[1].r+1))-(a[1].w/(a[1].r+1)));
@@ -103,10 +103,10 @@ export default function PracticeTab({
   const sr = getSR();
   const weakWords = Object.values(sr).filter(v => v.w > 0);
   const weakCount = weakWords.length;
-  const avgAcc = weakCount > 0
+  const _avgAcc = weakCount > 0
     ? Math.round(weakWords.reduce((s, v) => s + (v.r || 0) / ((v.r || 0) + v.w), 0) / weakCount * 100)
     : 0;
-  const h = new Date().getHours();
+  const _h = new Date().getHours();
   const placementDone = !!localStorage.getItem('nh_placement_done');
   const isNewUser = lc === 0 && !placementDone;
   const userGoal = localStorage.getItem('nh_goal');
@@ -234,7 +234,7 @@ export default function PracticeTab({
   ];
 
   const visible = EXERCISES.filter(e => pFilter === 'all' || e.category === pFilter);
-  const visibleCount = pFilter === 'all' ? EXERCISES.length : EXERCISES.filter(e => e.category === pFilter).length;
+  const _visibleCount = pFilter === 'all' ? EXERCISES.length : EXERCISES.filter(e => e.category === pFilter).length;
 
   const CATEGORY_COLORS = {
     grammar:   '#7c3aed',

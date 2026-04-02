@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { H, Bar, LEARN_PATH } from '../../data.jsx';
+import { H, LEARN_PATH } from '../../data.jsx';
 
 const LEVEL_COLORS = [
   { bg:'linear-gradient(135deg,#16a34a,#15803d)', text:'#fff', glow:'rgba(22,163,74,.4)', light:'#f0fdf4', border:'#86efac' },
