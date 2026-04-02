@@ -1,12 +1,12 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { H, speak, sh, shMemo } from '../../../data.jsx';
+import { H, speak, sh } from '../../../data.jsx';
 import { REFLEXIVE } from '../../../data.jsx';
 import { rnd } from '../../../lib/random.js';
 import { markQuest } from '../../../lib/quests.js';
 
 function ReflexiveScreen({ goBack, award }) {
   const [tab, setTab] = useState("rules");
-  const [qIdx] = useState(()=>Math.floor(rnd()*REFLEXIVE.quiz.length));
+  const [_qIdx] = useState(()=>Math.floor(rnd()*REFLEXIVE.quiz.length));
   const [answers, setAnswers] = useState({});
   const questFiredRef = useRef(false);
   const tabs = [{id:"rules",label:"SE Rules"},{id:"tenses",label:"All Tenses"},{id:"verbs",label:"Verbs"},{id:"quiz",label:"Quiz"}];

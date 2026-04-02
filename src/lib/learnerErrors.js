@@ -6,7 +6,7 @@
 
 const STORAGE_KEY = 'nh_learner_errors';
 const MAX_ERRORS = 200; // cap to prevent localStorage bloat
-const DECAY_DAYS = 90;  // errors older than 90 days lose weight
+const _DECAY_DAYS = 90;  // errors older than 90 days lose weight
 
 function _load() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }

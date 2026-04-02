@@ -48,7 +48,7 @@ const CITY_PHOTOS = {
 function CityOfDayScreen({ goBack }) {
   const [tab, setTab] = useState("overview");
   const city = getCityOfDay();
-  const tomorrow = (function(){const d=new Date();d.setDate(d.getDate()+1);return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});})();
+  const _tomorrow = (function(){const d=new Date();d.setDate(d.getDate()+1);return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});})();
   const tabs = [{id:"overview",label:"Overview",icon:"📖"},{id:"history",label:"History",icon:"🏛️"},{id:"vocab",label:"Vocabulary",icon:"💬"},{id:"facts",label:"Fast Facts",icon:"⚡"}];
 
   const cityKey = normKey(city.name);

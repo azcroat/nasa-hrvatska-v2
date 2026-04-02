@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { H, V, LEARN_PATH } from '../../data.jsx';
+import { V, LEARN_PATH } from '../../data.jsx';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import LearnPathWidget from './LearnPathWidget.jsx';

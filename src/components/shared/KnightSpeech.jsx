@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import CroatianKnight from './CroatianKnight';
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
@@ -246,7 +246,7 @@ const MOOD_COLOR = {
 };
 
 // ─── Speech bubble tail (points left toward the knight) ───────────────────────
-function BubbleTail({ color }) {
+function _BubbleTail({ color }) {
   return (
     <>
       {/* Outer — acts as border */}
@@ -319,7 +319,7 @@ export default function KnightSpeech({
       setGreeting(getGreeting(st, streak, level));
     }, 600);
     return () => clearTimeout(t);
-  }, [sessionKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sessionKey]);  
 
   // Listen for celebration events from useAward and badge awards
   useEffect(() => {

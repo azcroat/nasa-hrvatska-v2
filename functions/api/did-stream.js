@@ -52,6 +52,7 @@ export async function onRequestPost(context) {
   }
 
   const safeText = sanitizeParam(text, 400);
+   
   const voiceId = CROATIAN_VOICES[gender] || CROATIAN_VOICES.female;
 
   // D-ID uses Basic auth: base64(apiKey:)

@@ -13,7 +13,7 @@ export default function PadezifullScreen({ goBack, award }) {
   const [pfSl, sPfSl] = useState(-1);
   const [pfO, sPfO] = useState([]);
   const [pfCaseA, sPfCaseA] = useState(false);
-  const [pfCaseSl, sPfCaseSl] = useState(-1);
+  const [_pfCaseSl, sPfCaseSl] = useState(-1);
 
   function startQuiz() {
     const q = sh(PADEZI_FULL.quiz);

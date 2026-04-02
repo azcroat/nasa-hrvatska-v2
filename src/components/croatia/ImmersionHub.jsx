@@ -64,7 +64,7 @@ export default function ImmersionHub({ goBack, setScr }) {
     return true;
   });
 
-  const LevelBadge = ({level, small}) => (
+  const _LevelBadge = ({level, small}) => (
     <span style={{background:LEVEL_COLORS[level]+'22',color:LEVEL_COLORS[level],fontWeight:800,fontSize:small?10:11,padding:small?'2px 6px':'3px 8px',borderRadius:20,border:`1px solid ${LEVEL_COLORS[level]}44`,whiteSpace:'nowrap'}}>
       {level}
     </span>

@@ -33,7 +33,7 @@ export default function XPActivityCalendar({ st }) {
       }
     } catch { /* ignore parse errors */ }
     return result;
-  }, [st]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [st]);  
 
   // todayStr computed at render time (local date) so it's never stale after midnight
   const todayStr = (() => {
@@ -62,7 +62,7 @@ export default function XPActivityCalendar({ st }) {
       wks.push(padded.slice(w * 7, (w + 1) * 7));
     }
     return wks;
-  }, [dayIndex]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [dayIndex]);  
 
   function cellColor(dateStr) {
     if (!dateStr) return 'transparent';
@@ -91,7 +91,7 @@ export default function XPActivityCalendar({ st }) {
       });
     });
     return markers;
-  }, [weeks]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [weeks]);  
 
   const activeDayCount = useMemo(
     () => Object.keys(activeDays).filter(d => d >= weeks[0]?.[0] && d <= todayStr).length,

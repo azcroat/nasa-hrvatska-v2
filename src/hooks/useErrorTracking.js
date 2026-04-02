@@ -136,12 +136,12 @@ export function useErrorTracking(uid) {
   const errorCount = useMemo(() => {
     if (!uid) return 0;
     try { return _load(uid).length; } catch { return 0; }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [uid, tick]);
 
   const weakAreas = useMemo(() => {
     return getWeakAreas(uid);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [uid, tick]);
 
   const boundRecordError = useCallback((type, context = '') => {

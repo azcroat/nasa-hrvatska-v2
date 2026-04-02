@@ -189,7 +189,7 @@ export default function HeritageModeScreen({ goBack, award }) {
     );
     // Activate heritage mode
     try { localStorage.setItem('nh_heritage_mode', 'true'); } catch {}
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);  
 
   function visitSection(id) {
     setSection(id);

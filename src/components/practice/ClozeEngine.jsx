@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { H, speak, stopAudio, srMark } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import { markQuest } from '../../lib/quests.js';

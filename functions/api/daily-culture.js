@@ -7,7 +7,7 @@
 // Response is cached at the Cloudflare edge for 6 hours.
 
 import { checkRateLimit } from './_rateLimit.js';
-import { corsHeaders, isAllowedOrigin, ok, err } from './_helpers.js';
+import { corsHeaders, isAllowedOrigin, err } from './_helpers.js';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-haiku-4-5-20251001';

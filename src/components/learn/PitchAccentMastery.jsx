@@ -190,14 +190,14 @@ export default function PitchAccentMastery({ goBack, award }) {
   const [quizSelected, setQuizSelected] = useState(-1);
   const [quizAnswered, setQuizAnswered] = useState(false);
   const [quizScore, setQuizScore] = useState(0);
-  const [completedAccents, setCompletedAccents] = useState(new Set());
+  const [_completedAccents, setCompletedAccents] = useState(new Set());
   const awardFired = useRef(false);
 
   const accent = ACCENTS[accentIdx];
 
   useEffect(() => {
     knightSpeak('thinking', 'Croatian pitch accent — one of Europe\'s last living tonal systems. Most learners never study this. You\'re about to go deeper than 99% of Croatian students. 🎵', 800);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);  
 
   function nextAccent() {
     setCompletedAccents(prev => new Set([...prev, accent.id]));

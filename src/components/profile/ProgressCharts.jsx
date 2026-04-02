@@ -44,7 +44,7 @@ const ProgressCharts = React.memo(/** @param {{ stats: any }} props */ function 
     }
     days[0].delta = 0;
     return days;
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);  
 
   const thisWeek = history.slice(-7).reduce((s, d) => s + d.delta, 0);
   const lastWeek = history.slice(-14, -7).reduce((s, d) => s + d.delta, 0);

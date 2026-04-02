@@ -242,12 +242,12 @@ export default function AppRouter(props) {
   const { stats, setStats, level, award } = useStats();
   const {
     currentScreen,
-    authUser, authScreen, name, setName, doOut,
+    authUser, authScreen: _authScreen, name, setName, doOut,
     favs, toggleFav,
     setScr, goBack, tab, setTab,
     sCurEx,
-    jWords, setJWords, famData, setFamData,
-    isPremium, refreshSub, requirePremium,
+    jWords: _jWords, setJWords, famData, setFamData,
+    isPremium, refreshSub, requirePremium: _requirePremium,
     srchQ, setSrchQ, srchR, srchOpen, setSrchOpen, doSearch,
 
     famMembers, setFamMembers, famLoading, setFamLoading,
@@ -284,7 +284,7 @@ export default function AppRouter(props) {
     // Misc exercise state
     animLesson,
     fcInitPool, lsInitQ,
-    curEx,
+    curEx: _curEx,
   } = props;
 
   const _transKey = currentScreen === "dashboard" ? "dashboard-" + tab : currentScreen;

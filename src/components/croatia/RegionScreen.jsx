@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { H, speak, sh } from '../../data.jsx';
+import { sh } from '../../data.jsx';
 import { REGIONS } from '../../data.jsx';
 
 function RegionScreen({ regionKey, goBack }) {

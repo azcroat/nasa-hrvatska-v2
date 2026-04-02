@@ -1,4 +1,4 @@
-/* eslint-disable security/detect-object-injection */
+ 
 // Cloudflare Pages Function — Maja AI Voice Conversation Partner
 // Maja Kovačević: 34-year-old Croatian language teacher from Zadar, lives in Zagreb
 // Keeps the API key server-side; never exposed to the browser

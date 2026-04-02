@@ -205,7 +205,7 @@ export default function MediaTab() {
       .slice(0, 5)
       .map(([name]) => MEDIA.find(m => m.name === name))
       .filter(Boolean);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [recentVersion]);
 
   const todaysPicks = useMemo(() => getTodaysPicks(userGoal), [userGoal]);

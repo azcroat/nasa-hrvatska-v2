@@ -447,7 +447,7 @@ function StoryQuiz({ story, onComplete, goBack }) {
   }
 
   if (done) {
-    const finalScore = score + (selected === q.correct ? 0 : 0); // already counted
+    const _finalScore = score + (selected === q.correct ? 0 : 0); // already counted
     const xp = Math.round((score / story.quiz.length) * 25) + 10;
     return (
       <div className="scr-wrap" style={{ textAlign: 'center' }}>

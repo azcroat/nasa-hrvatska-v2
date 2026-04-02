@@ -122,6 +122,7 @@ export async function onRequestPost({ request, env }) {
 
   if (topWords.length === 0) return err(400, "No valid weak words", origin);
 
+   
   const goalDesc = GOAL_CONTEXT[safeGoal];
   const wordsList = topWords.map(w => `- ${w.hr} (${w.en}) — missed ${w.missCount}×`).join("\n");
 

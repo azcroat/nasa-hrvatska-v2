@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { H } from "../../data.jsx";
 import { speak } from "../../lib/audio.js";
 
@@ -224,7 +224,7 @@ export default function GrammarExplainer({ goBack, award }) {
 
   // ── PHASE: lesson ─────────────────────────────────────────────────────────
   if (phase === "lesson" && lesson) {
-    const lc = LEVEL_COLORS[level] || LEVEL_COLORS["A2"];
+    const _lc = LEVEL_COLORS[level] || LEVEL_COLORS["A2"];
     const score = quizSubmitted ? (lesson.quiz || []).filter((q, i) => quizAnswers[i] === q.correct).length : null;
     const scoreColor = score === 3 ? "#16a34a" : score === 2 ? "#d97706" : "#dc2626";
 
@@ -331,8 +331,8 @@ export default function GrammarExplainer({ goBack, award }) {
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               {(lesson.quiz || []).map((q, qi) => {
                 const answered = quizAnswers[qi];
-                const isCorrect = quizSubmitted && answered === q.correct;
-                const isWrong = quizSubmitted && answered !== null && answered !== q.correct;
+                const _isCorrect = quizSubmitted && answered === q.correct;
+                const _isWrong = quizSubmitted && answered !== null && answered !== q.correct;
                 return (
                   <div key={qi}>
                     <div style={{ fontSize: "var(--text-base)", fontWeight: 600, color: "var(--heading)", marginBottom: 10 }}>

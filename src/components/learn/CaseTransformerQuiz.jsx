@@ -1,5 +1,5 @@
 import React from 'react';
-import { CASE_INFO, CT_STYLES } from './CaseTransformerData.js';
+import { CT_STYLES } from './CaseTransformerData.js';
 
 export default function CaseTransformerQuiz({
   selectedNoun,

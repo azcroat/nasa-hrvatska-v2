@@ -107,16 +107,19 @@ export async function onRequestPost({ request, env }) {
   const safeLevel = VALID_LEVELS.includes(level) ? level : "A2";
   const safeHistory = Array.isArray(history) ? history.slice(-16) : [];
 
+   
   const ctx = SCENARIO_CONTEXTS[scenario_id];
 
-  const levelGuidance = {
+  const LEVEL_GUIDANCE = {
     A1: "Use very simple present tense, basic vocabulary only. Max 10 words per sentence.",
     A2: "Use simple present and past tense. Keep vocabulary everyday and common.",
     B1: "Use varied tenses naturally. Intermediate vocabulary is fine.",
     B2: "Use rich natural Croatian. All tenses and connectives appropriate.",
     C1: "Use sophisticated, idiomatic Croatian with complex structures.",
     C2: "Use fully natural, native-level Croatian.",
-  }[safeLevel] || "";
+  };
+   
+  const levelGuidance = LEVEL_GUIDANCE[safeLevel] || "";
 
   const systemPrompt = `You are ${ctx.character} in ${ctx.setting}. ${ctx.role}
 
@@ -154,7 +157,7 @@ COACHING: [one coaching tip in English, max 80 chars, ONLY if there's a clear gr
       signal: AbortSignal.timeout(20000),
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: { A1: 200, A2: 200, B1: 320, B2: 400, C1: 400, C2: 400 }[safeLevel] || 280,
+        max_tokens: (/** @type {Record<string,number>} */ { A1: 200, A2: 200, B1: 320, B2: 400, C1: 400, C2: 400 })[safeLevel] || 280,  
         system: systemPrompt,
         messages,
       }),

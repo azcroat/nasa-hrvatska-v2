@@ -207,7 +207,7 @@ function timingSafeEqual(a, b) {
   const len = Math.max(aBytes.length, bBytes.length);
   let diff = aBytes.length === bBytes.length ? 0 : 1;
   for (let i = 0; i < len; i++) {
-    // eslint-disable-next-line security/detect-object-injection
+     
     diff |= (aBytes[i] || 0) ^ (bBytes[i] || 0);
   }
   return diff === 0;

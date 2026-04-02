@@ -37,7 +37,7 @@ export async function getLeaderboard(db, limitCount = 50) {
     const weekKey = getWeekKey();
     const q = query(collection(_db, 'leaderboard', weekKey, 'entries'), orderBy('xp', 'desc'), limit(limitCount));
     const snap = await getDocs(q);
-    // eslint-disable-next-line
+     
     return snap.docs.map((d, i) => /** @type {any} */ ({ rank: i + 1, ...d.data() }));
   } catch { return []; }
 }

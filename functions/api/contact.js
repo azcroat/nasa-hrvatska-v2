@@ -141,7 +141,7 @@ export async function onRequestPost(context) {
 
   function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
 
-  // eslint-disable-next-line security/detect-object-injection
+   
   const typeInfo = TYPE_COLORS[type] || TYPE_COLORS.other;
   const timestamp = new Date().toISOString().replace("T", " ").slice(0, 19) + " UTC";
   const ticketId = Date.now().toString(36).toUpperCase();

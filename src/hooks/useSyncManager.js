@@ -268,7 +268,7 @@ export function useSyncManager({
       window.removeEventListener('pagehide', onPageHide);
       document.removeEventListener('visibilitychange', onVisHide);
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);  
 
   return { doSyncNow, showBackupBanner, setShowBackupBanner, syncError, setSyncError };
 }

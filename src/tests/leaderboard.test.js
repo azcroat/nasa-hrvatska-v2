@@ -15,7 +15,7 @@ vi.mock('../lib/firebase.js', () => ({
 }));
 
 import { getLeagueForRank, getWeekKey, LEAGUES, submitWeeklyXP, getLeaderboard, getMyRank } from '../lib/leaderboard.js';
-import { doc, setDoc, getDocs } from 'firebase/firestore';
+import { setDoc, getDocs } from 'firebase/firestore';
 
 describe('leaderboard — pure functions', () => {
 

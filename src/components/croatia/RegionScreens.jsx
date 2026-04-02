@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { H, speak, sh } from '../../data.jsx';
-import { REGIONS, ROLEPLAY, RECIPES, CROATIAN_CITIES } from '../../data.jsx';
+import { REGIONS, ROLEPLAY, RECIPES } from '../../data.jsx';
 import { markQuest } from '../../lib/quests.js';
 import { useApp } from '../../context/AppContext.jsx';
 

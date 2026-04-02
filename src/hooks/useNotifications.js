@@ -89,7 +89,7 @@ export function useNotifications({ userId = '' } = {}) {
       return () => clearTimeout(t);
     }
     return undefined;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [userId]);
 }
 
@@ -104,7 +104,7 @@ export function scheduleStreakReminder(streakDays) {
   const now = new Date();
   const target = new Date(now);
   target.setHours(20, 0, 0, 0); // 8 PM local time
-  let delay = target.getTime() - now.getTime();
+  const delay = target.getTime() - now.getTime();
   if (delay <= 0) return; // already past 8 PM today — skip
   _streakReminderTimer = setTimeout(() => {
     _streakReminderTimer = null;

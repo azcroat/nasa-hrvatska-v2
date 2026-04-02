@@ -54,7 +54,7 @@ export default function DialogueSim({ award }) {
     if (!scenario || !scenario.turns[turnIdx] || aiMode) return;
     const line = scenario.turns[turnIdx].line;
     if (line && !line.startsWith('[')) speak(line);
-  }, [scenario, turnIdx, aiMode]); // eslint-disable-line
+  }, [scenario, turnIdx, aiMode]);  
 
   function startScenario(s) {
     finishFired.current = false;

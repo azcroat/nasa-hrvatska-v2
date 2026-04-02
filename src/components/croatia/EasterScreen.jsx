@@ -144,7 +144,7 @@ export default function EasterScreen({ onBack, award }) {
   // Shuffle opts once per quiz session so correct answer isn't always first
   const shuffledQuestions = useMemo(
     () => QUIZ_QUESTIONS.map(q => ({ ...q, opts: _shuffleOpts(q.opts) })),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     []
   );
 

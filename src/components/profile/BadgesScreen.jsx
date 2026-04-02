@@ -7,7 +7,7 @@ import BadgeArtwork from '../shared/BadgeArtwork.jsx';
 function getBadgeProgress(b, stats) {
   const streak = getStreak().count || 0;
   const sr = getSR();
-  const mastered = Object.values(sr).filter(v => v.r > v.w && v.r >= 2).length;
+  const _mastered = Object.values(sr).filter(v => v.r > v.w && v.r >= 2).length;
 
   const map = {
     // XP

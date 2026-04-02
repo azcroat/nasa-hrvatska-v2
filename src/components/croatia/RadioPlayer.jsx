@@ -29,7 +29,7 @@ export default function RadioPlayer({ src, color, streamId, activeStream, setAct
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [isActive, playing, buffering]);
 
   function toggle() {

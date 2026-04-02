@@ -45,7 +45,7 @@ export default function LessonScreen({
       'Svaki početak je težak — every beginning is hard. Come back and it gets easier. 🛡️',
       400
     );
-  }, [lp]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [lp]);  
   const [showFlashcards, setShowFlashcards] = useState(false);
   const earnedXp = qi.length > 0 ? Math.round((ls / qi.length) * 30) + 5 : 5;
   const scorePct = qi.length > 0 ? ls / qi.length : 0;
@@ -112,7 +112,7 @@ export default function LessonScreen({
     }
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [lp, lx, la, ls, qi]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [lp, lx, la, ls, qi]);  
 
   /* ── FLASHCARDS OVERLAY ───────────────────────────────────────── */
   if (showFlashcards) {

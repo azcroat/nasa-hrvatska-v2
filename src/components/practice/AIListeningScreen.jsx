@@ -171,7 +171,7 @@ export default function AIListeningScreen({ goBack, award }) {
       markQuest('speak');
       setXpAwarded(true);
     }
-  }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [phase]);  
 
   function resetToSetup() {
     if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }

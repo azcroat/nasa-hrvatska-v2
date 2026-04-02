@@ -101,7 +101,7 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
     setGoalOpen(false);
   }
 
-  const isDark = darkMode;
+  const _isDark = darkMode;
 
   return (
     <aside className="sidebar" aria-label="Sidebar navigation">
