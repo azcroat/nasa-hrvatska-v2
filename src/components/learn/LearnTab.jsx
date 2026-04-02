@@ -188,7 +188,7 @@ export default function LearnTab({
       </div>
 
       {/* ── PITCH ACCENT + HERITAGE PATH ────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
         <button
           onClick={() => setScr('pitch_accent')}
           style={{
@@ -219,6 +219,42 @@ export default function LearnTab({
           <div>
             <div style={{fontSize:13, fontWeight:900, color:'#fff'}}>Heritage Path</div>
             <div style={{fontSize:10, color:'rgba(255,255,255,.8)', marginTop:2, lineHeight:1.4}}>Grew up hearing Croatian? Start here.</div>
+          </div>
+        </button>
+      </div>
+
+      {/* ── PHONEME TRAINER + HERITAGE MODE ─────────────────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+        <button
+          onClick={() => setScr('phoneme_practice')}
+          style={{
+            display:'flex', flexDirection:'column', alignItems:'flex-start', gap:6,
+            padding:'14px 14px', borderRadius:16, border:'none',
+            background:'linear-gradient(135deg,#0e7490,#0891b2)',
+            cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+            boxShadow:'0 4px 14px rgba(14,116,144,.3)',
+          }}
+        >
+          <div style={{ fontSize: 28 }}>🔤</div>
+          <div>
+            <div style={{fontSize:13, fontWeight:900, color:'#fff'}}>Phoneme Trainer</div>
+            <div style={{fontSize:10, color:'rgba(255,255,255,.8)', marginTop:2, lineHeight:1.4}}>Č vs Ć · Š Ž LJ NJ · Sound right</div>
+          </div>
+        </button>
+        <button
+          onClick={() => setScr('heritage_mode')}
+          style={{
+            display:'flex', flexDirection:'column', alignItems:'flex-start', gap:6,
+            padding:'14px 14px', borderRadius:16, border:'none',
+            background:'linear-gradient(135deg,#1e3a5f,#2563eb)',
+            cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+            boxShadow:'0 4px 14px rgba(37,99,235,.3)',
+          }}
+        >
+          <div style={{ fontSize: 28 }}>🌍</div>
+          <div>
+            <div style={{fontSize:13, fontWeight:900, color:'#fff'}}>Heritage Mode</div>
+            <div style={{fontSize:10, color:'rgba(255,255,255,.8)', marginTop:2, lineHeight:1.4}}>Diaspora learner? Identify your gaps</div>
           </div>
         </button>
       </div>
