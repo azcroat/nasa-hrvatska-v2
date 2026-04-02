@@ -51,10 +51,11 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
-        cacheId: 'nasa-hrvatska-v13',
-        // Offline fallback: serve /offline.html when navigation fails and there's no cached page.
-        navigateFallback: '/offline.html',
-        navigateFallbackDenylist: [/^\/api\//, /^\/functions\//, /^\/_headers/, /^\/offline\.html$/],
+        cacheId: 'nasa-hrvatska-v14',
+        // No navigateFallback — Workbox's NavigationRoute + navigateFallback intercepts ALL
+        // navigation requests and serves the cached fallback immediately, even when online.
+        // The NetworkFirst handler below already manages navigation with a 10s timeout and
+        // proper cache fallback. offline.html is still precached and referenced there.
         // Precache only critical app-shell assets: CSS, fonts, favicon/manifest icons.
         // JS chunks (100+ files, ~5MB) and images are handled by runtimeCaching below.
         globPatterns: ['**/*.css', '**/*.woff2', '**/*.ico', '**/icon*.png', '**/apple-touch*.png', 'offline.html'],
