@@ -8,7 +8,11 @@ export default function FlashcardResultScreen({ activePool, known, missed, onGoB
     markPracticed();
     try {
       const key = 'nh_cq_easter_uskrs_q2';
-      if (!localStorage.getItem(key)) localStorage.setItem(key, '1');
+      if (!localStorage.getItem(key)) {
+        localStorage.setItem(key, '1');
+        // Notify HomeTab to re-read campaign quest state from localStorage
+        window.dispatchEvent(new CustomEvent('nh-campaign-quest-done'));
+      }
     } catch (_) {}
   }, []);
   const knownCount = activePool.length - missed.length;

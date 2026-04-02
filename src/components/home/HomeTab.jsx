@@ -180,15 +180,18 @@ export default function HomeTab({
   }
   const [campaignQuestsDone, setCampaignQuestsDone] = useState(() => _readCampaignQuestsDone(activeCampaign));
 
-  // Re-sync from localStorage when the user navigates back (window focus / visibility change).
-  // This covers: returning from a lesson screen, switching tabs, and cross-component writes.
+  // Re-sync from localStorage when the user navigates back (window focus / visibility change)
+  // OR when any component signals a campaign quest was completed via a custom event.
+  // The custom event covers same-tab navigation where focus/visibilitychange never fire.
   useEffect(() => {
     const resync = () => setCampaignQuestsDone(_readCampaignQuestsDone(activeCampaign));
     window.addEventListener('focus', resync);
     document.addEventListener('visibilitychange', resync);
+    window.addEventListener('nh-campaign-quest-done', resync);
     return () => {
       window.removeEventListener('focus', resync);
       document.removeEventListener('visibilitychange', resync);
+      window.removeEventListener('nh-campaign-quest-done', resync);
     };
   }, [activeCampaign]);
 
