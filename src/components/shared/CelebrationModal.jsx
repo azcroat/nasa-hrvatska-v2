@@ -179,8 +179,10 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
         zIndex: 99999,
         pointerEvents: 'all',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
+        padding: '16px 16px env(safe-area-inset-bottom, 16px)',
+        overflowY: 'auto',
         background:
           'radial-gradient(ellipse at center, rgba(14,116,144,0.18) 0%, rgba(0,0,0,0.55) 100%)',
         backdropFilter: 'blur(4px)',
@@ -227,7 +229,7 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
           position: 'relative',
           background: 'var(--card)',
           borderRadius: 28,
-          padding: '40px 44px 36px',
+          padding: '28px 32px 24px',
           textAlign: 'center',
           boxShadow:
             '0 40px 90px rgba(0,0,0,.35), 0 16px 40px rgba(14,116,144,.2), 0 0 0 1px var(--card-b) inset, 0 4px 0 rgba(14,116,144,.2)',
@@ -235,7 +237,10 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
             'celebPop .5s cubic-bezier(.34,1.56,.64,1) forwards',
           minWidth: 280,
           maxWidth: 340,
+          width: '100%',
+          margin: 'auto',
           border: '2px solid var(--info-b)',
+          flexShrink: 0,
         }}
       >
         {/* Close button */}
@@ -264,8 +269,8 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
         </button>
 
         {/* LEGO Knight mascot — celebrating mood */}
-        <div style={{ display:'flex', justifyContent:'center', marginBottom:8 }}>
-          <CroatianKnight size={88} mood="celebrating" />
+        <div style={{ display:'flex', justifyContent:'center', marginBottom:4 }}>
+          <CroatianKnight size={72} mood="celebrating" />
         </div>
 
         {/* Title */}
