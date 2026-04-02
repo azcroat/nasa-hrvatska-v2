@@ -83,7 +83,7 @@ export async function onRequestPost(context) {
   const firestoreUrl = [
     `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}`,
     `/databases/(default)/documents/users/${docId}`,
-    `?updateMask.fieldPaths=progress&updateMask.fieldPaths=updated`,
+    `?updateMask.fieldPaths=progress&updateMask.fieldPaths=updated&updateMask.fieldPaths=xp`,
   ].join('');
 
   const xp = ((parsedData.stats || parsedData.st || {}).xp) || 0;
