@@ -225,6 +225,7 @@ const DialectAwarenessScreen = lazyWithReload(() => import("./croatia/DialectAwa
 const HeritageModeScreen = lazyWithReload(() => import("./learn/HeritageModeScreen.jsx"));
 const PhonemePracticeScreen = lazyWithReload(() => import("./learn/PhonemePracticeScreen.jsx"));
 const PracticalCroatianScreen = lazyWithReload(() => import("./learn/PracticalCroatianScreen.jsx"));
+const FrequencyTrackScreen = lazyWithReload(() => import("./learn/FrequencyTrackScreen.jsx"));
 const GrammarTrackScreen = lazyWithReload(() => import("./learn/GrammarTrackScreen.jsx"));
 const ListeningComprehensionScreen = lazyWithReload(() => import("./practice/ListeningComprehensionScreen.jsx"));
 
@@ -571,6 +572,7 @@ export default function AppRouter(props) {
       {currentScreen==="dialect_awareness"&&<ScreenErrorBoundary key="dialect_awareness" name="dialect_awareness"><DialectAwarenessScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="heritage_mode"&&<ScreenErrorBoundary key="heritage_mode" name="heritage_mode"><HeritageModeScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="phoneme_practice"&&<ScreenErrorBoundary key="phoneme_practice" name="phoneme_practice"><PhonemePracticeScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="frequency_track"&&<ScreenErrorBoundary key="frequency_track" name="frequency_track"><FrequencyTrackScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="practical_croatian"&&<ScreenErrorBoundary key="practical_croatian" name="practical_croatian"><PracticalCroatianScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="grammarmap"&&<ScreenErrorBoundary key="grammarmap" name="grammarmap"><GrammarConstellation goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="grammar_track"&&<ScreenErrorBoundary key="grammar_track" name="grammar_track"><GrammarTrackScreen goBack={goBack} /></ScreenErrorBoundary>}

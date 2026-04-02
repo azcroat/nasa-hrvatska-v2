@@ -279,6 +279,26 @@ export default function LearnTab({
         <div style={{marginLeft:'auto', color:'rgba(255,255,255,.7)', fontSize:18}}>›</div>
       </button>
 
+      {/* ── TOP 500 WORDS ───────────────────────────────────────────────── */}
+      <button
+        onClick={() => setScr('frequency_track')}
+        style={{
+          display:'flex', alignItems:'center', gap:14,
+          padding:'14px 16px', borderRadius:16, border:'none',
+          background:'linear-gradient(135deg,#1e3a5f,#0e7490)',
+          cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+          boxShadow:'0 4px 14px rgba(14,116,144,.3)',
+          width:'100%', marginBottom:20,
+        }}
+      >
+        <div style={{ fontSize: 32, flexShrink:0 }}>📊</div>
+        <div>
+          <div style={{fontSize:14, fontWeight:900, color:'#fff'}}>Top 500 Croatian Words</div>
+          <div style={{fontSize:11, color:'rgba(255,255,255,.8)', marginTop:2, lineHeight:1.4}}>Master the words that make up 80% of everyday speech</div>
+        </div>
+        <div style={{marginLeft:'auto', color:'rgba(255,255,255,.7)', fontSize:18}}>›</div>
+      </button>
+
       {/* ── PATH WIDGET ─────────────────────────────────────────────────── */}
       <LearnPathWidget
         sc={sc}
