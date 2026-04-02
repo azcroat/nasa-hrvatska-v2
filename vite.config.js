@@ -67,9 +67,15 @@ export default defineConfig({
           },
           {
             // All JS chunks — stale-while-revalidate so app loads fast on repeat visits.
-            // cacheWillUpdate plugin: reject HTML responses (status 200 text/html) that
-            // Cloudflare returns via /* /index.html 200 for non-existent old-hash chunk URLs.
-            // This was causing "MIME type text/html" crashes for all users during every deploy.
+            // IMPORTANT: Two plugins work together to handle stale-chunk crashes after deploy:
+            //
+            // 1. fetchDidSucceed — runs before the response is returned to the caller.
+            //    Throws "Failed to fetch" when Cloudflare returns the SPA fallback index.html
+            //    (text/html, status 200) for non-existent old-hash chunk URLs. This converts
+            //    a silent MIME-type crash into a proper fetch failure that lazyWithReload catches.
+            //
+            // 2. cacheWillUpdate — prevents the HTML response from ever entering the cache,
+            //    so future requests for the same (stale) hash also go to network.
             urlPattern: /\.js$/,
             handler: 'StaleWhileRevalidate',
             options: {
@@ -78,6 +84,16 @@ export default defineConfig({
               cacheableResponse: { statuses: [200] },
               plugins: [
                 {
+                  fetchDidSucceed: async ({ response }) => {
+                    const ct = response && response.headers && response.headers.get('content-type');
+                    if (ct && ct.startsWith('text/html')) {
+                      // Cloudflare SPA fallback returned HTML instead of JS.
+                      // Throw so the dynamic import rejects with "Failed to fetch",
+                      // which lazyWithReload catches and handles with a page reload.
+                      throw new Error('Failed to fetch');
+                    }
+                    return response;
+                  },
                   cacheWillUpdate: async ({ response }) => {
                     const ct = response && response.headers && response.headers.get('content-type');
                     if (ct && ct.startsWith('text/html')) return null;
