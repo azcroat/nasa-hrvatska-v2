@@ -151,7 +151,12 @@ export default function EasterScreen({ onBack, award }) {
   // Mark "Learn 5 Easter words" campaign quest when user browses vocab tab
   useEffect(() => {
     if (tab === 'pozdravite' && easterVocab.length >= 5) {
-      try { localStorage.setItem(CQ_VOCAB_KEY, '1'); } catch {}
+      try {
+        if (!localStorage.getItem(CQ_VOCAB_KEY)) {
+          localStorage.setItem(CQ_VOCAB_KEY, '1');
+          window.dispatchEvent(new CustomEvent('nh-campaign-quest-done'));
+        }
+      } catch {}
     }
   }, [tab, easterVocab.length]);
 
@@ -172,7 +177,10 @@ export default function EasterScreen({ onBack, award }) {
           if (xpEarned > 0 && award) award(xpEarned);
           try {
             localStorage.setItem(KVIZ_DONE_KEY, '1');
-            localStorage.setItem(CQ_KVIZ_KEY, '1'); // mark campaign quest done
+            if (!localStorage.getItem(CQ_KVIZ_KEY)) {
+              localStorage.setItem(CQ_KVIZ_KEY, '1');
+              window.dispatchEvent(new CustomEvent('nh-campaign-quest-done'));
+            }
           } catch {}
           setXpAwarded(true);
         }
