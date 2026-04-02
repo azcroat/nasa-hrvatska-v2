@@ -488,7 +488,7 @@ function QuizView({ scenario, onBack }) {
     const updated = [...answers, selected];
     if (qIdx + 1 >= questions.length) {
       const correct = updated.filter((a, i) => a === questions[i].ans).length;
-      award(correct * 5);
+      if (typeof award === 'function') award(correct * 5);
       setAnswers(updated);
       setDone(true);
     } else {
@@ -807,7 +807,7 @@ export default function PracticalCroatianScreen({ goBack, stats }) {
     // Award 10 XP for studying — once per scenario
     const studied = getStudied();
     if (!studied.has(scenario.id)) {
-      award(10);
+      if (typeof award === 'function') award(10);
       markStudied(scenario.id);
     }
     setView('quiz');
