@@ -37,21 +37,21 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
-        cacheId: 'nasa-hrvatska-v12',
+        cacheId: 'nasa-hrvatska-v13',
         // Precache only critical app-shell assets: CSS, fonts, favicon/manifest icons.
         // JS chunks (100+ files, ~5MB) and images are handled by runtimeCaching below.
         globPatterns: ['**/*.css', '**/*.woff2', '**/*.ico', '**/icon*.png', '**/apple-touch*.png'],
         globIgnores: ['**/chunk-data*.js', '**/splash/**', '**/screenshots/**'],
         runtimeCaching: [
           {
-            // Data chunk (706KB vocabulary data) — serve stale, revalidate in background.
+            // Data chunks (vocab, stories, songs, pitch, daily content) — stale-while-revalidate.
             // cacheWillUpdate plugin: reject any response with Content-Type: text/html
             // (the Cloudflare /* /index.html 200 SPA fallback returns status 200 WITH
             // text/html — so cacheableResponse: {statuses:[200]} alone is not enough).
-            urlPattern: /\/assets\/chunk-data[^/]*\.js$/,
+            urlPattern: /\/assets\/chunk-(data|stories|pitch-data|daily|songs)[^/]*\.js$/,
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'nasa-hrvatska-v12-data',
+              cacheName: 'nasa-hrvatska-v13-data',
               expiration: { maxEntries: 3, maxAgeSeconds: 60 * 60 * 24 * 7 },
               cacheableResponse: { statuses: [200] },
               plugins: [
@@ -73,7 +73,7 @@ export default defineConfig({
             urlPattern: /\.js$/,
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'nasa-hrvatska-v12-js',
+              cacheName: 'nasa-hrvatska-v13-js',
               expiration: { maxEntries: 150, maxAgeSeconds: 30 * 24 * 60 * 60 },
               cacheableResponse: { statuses: [200] },
               plugins: [
@@ -92,7 +92,7 @@ export default defineConfig({
             urlPattern: /\.(svg|png|webp|jpg|jpeg)$/,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'nasa-hrvatska-v12-images',
+              cacheName: 'nasa-hrvatska-v13-images',
               expiration: { maxEntries: 100, maxAgeSeconds: 365 * 24 * 60 * 60 },
               cacheableResponse: { statuses: [0, 200] }
             }
@@ -103,7 +103,7 @@ export default defineConfig({
             urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'nasa-hrvatska-v12-html',
+              cacheName: 'nasa-hrvatska-v13-html',
               networkTimeoutSeconds: 10,
               cacheableResponse: { statuses: [0, 200] }
             }
@@ -112,7 +112,7 @@ export default defineConfig({
             urlPattern: /\/audio\/.*\.(mp3|ogg|wav)$/i,
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'nasa-hrvatska-v12-audio',
+              cacheName: 'nasa-hrvatska-v13-audio',
               expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 },
               rangeRequests: true,
               cacheableResponse: { statuses: [0, 200, 206] }
@@ -122,7 +122,7 @@ export default defineConfig({
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'nasa-hrvatska-v12-fonts',
+              cacheName: 'nasa-hrvatska-v13-fonts',
               expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
               cacheableResponse: { statuses: [0, 200] }
             }
@@ -156,11 +156,14 @@ export default defineConfig({
           if (id.includes('node_modules/@sentry')) return 'vendor-sentry';
           if (id.includes('node_modules/posthog-js')) return 'vendor-posthog';
           if (id.includes('node_modules/dexie')) return 'vendor-dexie';
+          // Large agent-generated data files — each in its own lazy chunk so they don't
+          // bloat the main chunk-data that screens always pull on first render.
+          if (id.includes('src/data/gradedStories')) return 'chunk-stories';
+          if (id.includes('src/data/pitchAccentContent')) return 'chunk-pitch-data';
+          if (id.includes('src/data/daily-content')) return 'chunk-daily';
+          if (id.includes('croatia/LyricsSongData')) return 'chunk-songs';
           // data.jsx (~700 KB) contains all vocabulary/lesson data — isolate it so other chunks
-          // stay small. App.jsx now imports only the ~20 symbols it actually uses directly;
-          // the remaining ~80 data exports are pulled in only by lazy-loaded screen components.
-          // Next optimization step: move heavy data arrays to src/lib/appData.js and use
-          // dynamic import() in App.jsx so chunk-data is no longer a static startup dep.
+          // stay small. App.jsx now imports only the ~20 symbols it actually uses directly.
           if (id.includes('src/data') || id.includes('src/lib/appData')) return 'chunk-data';
           // Context and hooks — break circular deps between croatia/practice/learn chunks
           if (id.includes('src/context')) return 'chunk-context';

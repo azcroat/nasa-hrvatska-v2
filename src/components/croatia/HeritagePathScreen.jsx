@@ -170,6 +170,14 @@ const DIASPORA_VOCAB = [
   { heritage: 'bejzbol', standard: 'bejzbol', en: 'baseball', note: 'No Croatian equivalent — Croatian doesn\'t play it. This one\'s fine.' },
 ];
 
+const HERITAGE_PROGRESS_KEY = 'nh_heritage_progress';
+function loadProgress() {
+  try { return new Set(JSON.parse(localStorage.getItem(HERITAGE_PROGRESS_KEY) || '[]')); } catch { return new Set(); }
+}
+function saveProgress(set) {
+  try { localStorage.setItem(HERITAGE_PROGRESS_KEY, JSON.stringify([...set])); } catch {}
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function HeritagePathScreen({ goBack, award }) {
   const [section, setSection] = useState('home'); // home | dialects | passive | grammar | diaspora | done
@@ -179,7 +187,7 @@ export default function HeritagePathScreen({ goBack, award }) {
   const [grammarModule, setGrammarModule] = useState(0);
   const [grammarExIdx, setGrammarExIdx] = useState(0);
   const [showGrammarAnswer, setShowGrammarAnswer] = useState(false);
-  const [completed, setCompleted] = useState(new Set());
+  const [completed, setCompleted] = useState(() => loadProgress());
   const awardFired = useRef(false);
 
   useEffect(() => {
@@ -187,7 +195,11 @@ export default function HeritagePathScreen({ goBack, award }) {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   function completeModule(id) {
-    setCompleted(prev => new Set([...prev, id]));
+    setCompleted(prev => {
+      const next = new Set([...prev, id]);
+      saveProgress(next);
+      return next;
+    });
   }
 
   function awardOnce(amt) {

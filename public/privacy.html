@@ -3,106 +3,230 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Privacy Policy &amp; Terms of Use — Naša Hrvatska</title>
+  <title>Privacy Policy — Naša Hrvatska</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.7; padding: 0 0 60px; }
-    .header { background: linear-gradient(135deg, #0c4a6e 0%, #0e7490 100%); padding: 32px 24px 28px; text-align: center; color: #fff; }
-    .header h1 { font-size: 22px; font-weight: 800; letter-spacing: -.01em; margin-bottom: 4px; }
-    .header p { font-size: 13px; opacity: .7; }
-    .wrap { max-width: 640px; margin: 0 auto; padding: 0 20px; }
-    .card { background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; padding: 24px; margin-top: 20px; }
-    h2 { font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
-    h3 { font-size: 14px; font-weight: 700; color: #0f172a; margin: 16px 0 6px; }
-    p { font-size: 13px; color: #475569; margin-bottom: 12px; }
-    a { color: #0e7490; text-decoration: none; }
+
+    body {
+      font-family: 'Outfit', 'Helvetica Neue', Arial, sans-serif;
+      background: #f8fafc;
+      color: #1c1917;
+      line-height: 1.7;
+      padding: 0 0 60px;
+    }
+
+    .top-bar {
+      background: #0e7490;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .top-bar a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .top-bar a:hover { text-decoration: underline; }
+
+    .top-bar .brand {
+      font-size: 15px;
+      font-weight: 900;
+      color: rgba(255,255,255,0.65);
+      margin-left: auto;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #0e7490, #0369a1);
+      border-radius: 18px;
+      padding: 28px 28px;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-size: 26px;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .hero p {
+      font-size: 14px;
+      opacity: 0.85;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e7e5e4;
+      border-radius: 16px;
+      padding: 22px 24px;
+      margin-bottom: 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    }
+
+    .card h2 {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0e7490;
+      margin-bottom: 12px;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: #44403c;
+      margin-bottom: 10px;
+    }
+
+    .card p:last-child { margin-bottom: 0; }
+
+    .card ul {
+      margin: 6px 0 10px 20px;
+      font-size: 14px;
+      color: #44403c;
+    }
+
+    .card ul li { margin-bottom: 5px; }
+
+    .info-box {
+      background: #ecfeff;
+      border: 1px solid #a5f3fc;
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: 13px;
+      color: #0e7490;
+      margin-top: 10px;
+    }
+
+    .amber-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: 13px;
+      color: #92400e;
+      margin-top: 10px;
+    }
+
+    a { color: #0e7490; text-decoration: none; font-weight: 600; }
     a:hover { text-decoration: underline; }
-    .badge { display: inline-block; background: #f0fdf4; border: 1px solid #86efac; color: #15803d; font-size: 11px; font-weight: 700; border-radius: 20px; padding: 3px 10px; margin-bottom: 14px; }
-    .footer { text-align: center; font-size: 12px; color: #94a3b8; margin-top: 28px; }
-    .back { display: inline-block; margin: 20px 0 0; padding: 10px 22px; background: #0e7490; color: #fff; border-radius: 10px; font-size: 13px; font-weight: 700; text-decoration: none; }
+
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: #a8a29e;
+      margin-top: 28px;
+    }
+
     @media (prefers-color-scheme: dark) {
       body { background: #0f172a; color: #e2e8f0; }
       .card { background: #1e293b; border-color: #334155; }
-      h2, h3 { color: #f1f5f9; }
-      p { color: #94a3b8; }
+      .card h2 { color: #38bdf8; }
+      .card p, .card ul { color: #94a3b8; }
+      .info-box { background: #0c4a6e; border-color: #0e7490; color: #7dd3fc; }
+      .amber-box { background: #451a03; border-color: #92400e; color: #fcd34d; }
     }
   </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>Naša Hrvatska</h1>
-  <p>Privacy Policy &amp; Terms of Use &mdash; Last updated: March 2026</p>
-</div>
-
-<div class="wrap">
-  <a class="back" href="/">← Back to App</a>
-
-  <div class="card">
-    <h2>Privacy Policy</h2>
-    <span class="badge">Accessible before sign-in as required by Apple &amp; Google app store guidelines</span>
-
-    <h3>What we collect</h3>
-    <p>Your email address and display name (used to identify your account). Your learning progress — XP, lesson completions, streak data, spaced-repetition records, favorites, and vocabulary journal — stored securely in Firebase Firestore and cached locally on your device for offline access. No browsing data, no device fingerprinting, no advertising identifiers.</p>
-
-    <h3>Family groups (parent-managed)</h3>
-    <p>The family leaderboard feature is designed to be created and managed by a parent or legal guardian. By creating a family group that includes minor children, the parent or guardian confirms they have authority to enroll those children and consents to their display name and learning progress (XP, lesson count) being shared within the family group. Member email addresses are visible to other members of the same family group in order to support the invite and management flow. Family data is stored in Firebase Firestore and is not accessible to users outside the group.</p>
-
-    <h3>Text-to-speech</h3>
-    <p>Words and phrases you choose to hear aloud are sent to ElevenLabs (primary) or Microsoft Azure Speech Services (fallback) to generate audio. These requests are proxied through our server and are not stored or retained by us after the audio is delivered.</p>
-
-    <h3>AI writing assistance</h3>
-    <p>When you use the AI Conversation or writing correction features, the text you write (up to 1,000 characters) and the current conversation context are sent to Anthropic's Claude API to generate feedback and corrections. This content is not stored by us after the response is returned. Anthropic's data practices are governed by their <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener noreferrer">privacy policy</a>.</p>
-
-    <h3>Support tickets</h3>
-    <p>When you submit a help request through the Contact Support form, the contents of your message (type, subject, description, and optional reply email) along with your display name, level, and XP are sent to our administrator via Resend, a transactional email service. This data is used solely to respond to your request.</p>
-
-    <h3>Analytics</h3>
-    <p>We use Plausible Analytics, a privacy-first, cookie-free service. Plausible does not track individuals, set cookies, or sell data. We may also use PostHog for product analytics and Sentry for error monitoring — both configured to minimize personal data collection, disable session recording, and scrub sensitive fields.</p>
-
-    <h3>Data processors</h3>
-    <p>The following third-party services process data on our behalf under their respective data processing agreements: Google Firebase (authentication and database), ElevenLabs (text-to-speech), Microsoft Azure Speech Services (text-to-speech fallback), Anthropic (AI writing assistance), Resend (support email delivery), Plausible Analytics (privacy-first analytics). We do not sell, rent, or share your personal data with third parties for commercial purposes.</p>
-
-    <h3>Data retention</h3>
-    <p>Your account data is retained until you request deletion. Local device data (localStorage) persists until you clear your browser storage or uninstall the app. Cached family leaderboard data is stored locally for offline access and refreshed automatically.</p>
-
-    <h3>Cross-device sync</h3>
-    <p>Your learning progress is automatically synchronized across your devices via Firebase Firestore. When you sign in on a new device, your progress is downloaded and the most recent version is applied.</p>
-
-    <h3>Your rights</h3>
-    <p>You may request access to, correction of, or deletion of your personal data at any time. To exercise these rights, email <a href="mailto:privacy@nasahrvatska.com">privacy@nasahrvatska.com</a>. We will process your request within 30 days.</p>
-
-    <h3>Children and family accounts</h3>
-    <p>The app is designed for use by families under parental supervision. The family leaderboard is a parent-managed feature — a parent or guardian must create the group and is responsible for enrolling minor members. We do not knowingly collect data from children under 13 outside of a parent-managed family group. If you believe a child under 13 has registered independently without parental consent, contact us at <a href="mailto:privacy@nasahrvatska.com">privacy@nasahrvatska.com</a> and we will promptly delete the account.</p>
+  <div class="top-bar">
+    <a href="/">&#8592; Back to App</a>
+    <span class="brand">Naša Hrvatska</span>
   </div>
 
-  <div class="card" id="terms">
-    <h2>Terms of Use</h2>
+  <div class="container">
 
-    <h3>Free to use</h3>
-    <p>Naša Hrvatska is provided free of charge, with no ads. You may use the app for personal, non-commercial language learning.</p>
+    <div class="hero">
+      <h1>Privacy Policy</h1>
+      <p>We believe in transparency. Here is exactly what data we collect, why, and how you can control it.</p>
+    </div>
 
-    <h3>Account responsibility</h3>
-    <p>You are responsible for keeping your password secure. Do not share your account. We reserve the right to suspend accounts engaged in abuse.</p>
+    <div class="card">
+      <h2>&#128272; What Data We Collect</h2>
+      <p>We collect only what is necessary to deliver the app experience:</p>
+      <ul>
+        <li><strong>Email address</strong> — used to create and identify your account via Firebase Authentication.</li>
+        <li><strong>Learning progress</strong> — XP earned, lessons completed, CEFR level, streak data, and quiz scores.</li>
+        <li><strong>Favourite words and SRS data</strong> — words you save and their spaced-repetition scheduling metadata.</li>
+        <li><strong>Journal entries</strong> — text you write in the in-app Croatian journal feature.</li>
+        <li><strong>Device/browser type</strong> — collected automatically by Firebase for crash reporting and performance monitoring.</li>
+      </ul>
+      <div class="info-box">
+        We do <strong>not</strong> collect your full name, phone number, postal address, payment details, or any other personal data beyond your email address.
+      </div>
+    </div>
 
-    <h3>Family group responsibility</h3>
-    <p>The adult who creates a family group is responsible for managing membership and ensuring that any minor members have parental or guardian consent to participate. The group creator agrees to our privacy policy on behalf of all minor members they enroll.</p>
+    <div class="card">
+      <h2>&#128257; How We Use Your Data</h2>
+      <p>Your data is used exclusively to operate the app:</p>
+      <ul>
+        <li><strong>Cross-device sync</strong> — progress is saved to Firebase Firestore so it appears on any device you sign in to.</li>
+        <li><strong>Personalisation</strong> — your CEFR level and completed lessons determine which content is shown.</li>
+        <li><strong>Streak and XP tracking</strong> — powers gamification features that help you stay motivated.</li>
+        <li><strong>App improvement</strong> — anonymised aggregate usage data (e.g. which lessons are most used) helps us improve content and fix bugs.</li>
+      </ul>
+    </div>
 
-    <h3>Content</h3>
-    <p>All Croatian language content, exercises, and cultural material in this app is owned by Naša Hrvatska. You may not reproduce or redistribute it without permission.</p>
+    <div class="card">
+      <h2>&#9729; Firebase &amp; Data Storage</h2>
+      <p>Naša Hrvatska is built on <strong>Google Firebase</strong> (Google LLC). Your data is stored in Firebase Firestore and Firebase Authentication, hosted on Google&#8217;s infrastructure.</p>
+      <p>Google Firebase complies with GDPR and participates in the EU-US Data Privacy Framework. For details, see <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">firebase.google.com/support/privacy</a>.</p>
+      <div class="amber-box">
+        Firebase may store data on servers outside the European Economic Area. By using the app you acknowledge this transfer. Standard Contractual Clauses apply as required by GDPR Art.&#160;46.
+      </div>
+    </div>
 
-    <h3>Disclaimer</h3>
-    <p>This app is an educational tool. While we strive for accuracy, we make no guarantee that all language content is error-free. For professional or medical translation, consult a qualified translator.</p>
+    <div class="card">
+      <h2>&#128683; We Do Not Sell Your Data</h2>
+      <p>We do not sell, rent, trade, or otherwise disclose your personal data to third parties for commercial purposes — ever.</p>
+      <p>We do not run advertising. We do not share your data with advertising networks or data brokers.</p>
+    </div>
 
-    <h3>Changes</h3>
-    <p>We may update these terms. Continued use of the app after changes constitutes acceptance of the updated terms.</p>
+    <div class="card">
+      <h2>&#128100; Your Rights (GDPR)</h2>
+      <p>If you are in the EU or EEA you have the following rights:</p>
+      <ul>
+        <li><strong>Access</strong> — request a copy of the data we hold about you.</li>
+        <li><strong>Rectification</strong> — ask us to correct inaccurate data.</li>
+        <li><strong>Erasure (&#8220;right to be forgotten&#8221;)</strong> — request deletion of your account and all associated data.</li>
+        <li><strong>Portability</strong> — request your data in a machine-readable format.</li>
+        <li><strong>Restriction / Objection</strong> — ask us to limit or stop processing in certain circumstances.</li>
+        <li><strong>Lodge a complaint</strong> — with your national data protection authority (e.g. AZOP in Croatia).</li>
+      </ul>
+      <div class="info-box">
+        To delete your account and all data, go to <strong>Settings &#8594; Delete Account</strong> in the app, or email <a href="mailto:support@nasahrvatska.com">support@nasahrvatska.com</a>. We will process requests within 30&#160;days.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>&#128274; Security</h2>
+      <p>Your data is protected by Firebase security rules, which ensure users can only access their own data. All data is transmitted over HTTPS/TLS. We do not store passwords — authentication is handled entirely by Firebase Auth.</p>
+    </div>
+
+    <div class="card">
+      <h2>&#128231; Contact</h2>
+      <p>For privacy questions or data requests, contact: <a href="mailto:support@nasahrvatska.com">support@nasahrvatska.com</a></p>
+      <p>See also our <a href="/terms.html">Terms of Service</a>.</p>
+    </div>
+
+    <div class="footer">
+      Last updated: April 2026. We will notify users of material changes via an in-app notice.<br />
+      &copy; 2026 Naša Hrvatska
+    </div>
+
   </div>
-
-  <div class="footer">
-    Questions? Email <a href="mailto:privacy@nasahrvatska.com">privacy@nasahrvatska.com</a><br/>
-    &copy; 2026 Naša Hrvatska &mdash; <a href="/">nasahrvatska.com</a>
-  </div>
-</div>
-
 </body>
 </html>

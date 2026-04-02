@@ -1,9 +1,9 @@
 name: BrowserStack Cross-Device Tests
 
 on:
-  push:
-    branches: [master]
   workflow_dispatch:
+  # push trigger removed — BrowserStack has 10k/month execution cap.
+  # Trigger manually before releases: Actions → BrowserStack Cross-Device Tests → Run workflow.
 
 jobs:
   browserstack:

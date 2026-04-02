@@ -58,8 +58,8 @@ export default function ListeningScreen({ questions, goBack, award }) {
     setSelected(oi);
     setAnswered(true);
     if (options[oi] === correct) setScore(s => s + 1);
-    // Play the sentence again after answering so the sound-meaning connection forms
-    setTimeout(() => { speak(q.hr); setReplayed(true); }, 400);
+    // NOTE: auto-play removed — iOS Safari blocks speechSynthesis outside direct user gesture.
+    // The "🔊 Listen again" button below lets users replay with a direct tap.
   }
 
   function next() {
@@ -121,8 +121,15 @@ export default function ListeningScreen({ questions, goBack, award }) {
               💡 {q.tip}
             </div>
           )}
+          <button
+            aria-label="Listen to sentence again"
+            onClick={() => { speak(q.hr); setReplayed(true); }}
+            style={{marginTop:8,padding:"8px 14px",fontSize:12,fontWeight:700,background:"rgba(14,116,144,.1)",border:"1px solid rgba(14,116,144,.25)",borderRadius:8,color:"#0e7490",cursor:"pointer",width:"100%"}}
+          >
+            🔊 Listen again
+          </button>
           {replayed && !isCorrect && (
-            <div style={{fontSize:11,color:"#0e7490",marginTop:4}}>🔊 Listen again — the sentence just replayed</div>
+            <div style={{fontSize:11,color:"#0e7490",marginTop:4}}>Focus on the sound — then tap Next when ready</div>
           )}
         </div>
       )}
