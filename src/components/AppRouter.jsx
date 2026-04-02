@@ -222,6 +222,7 @@ const PronunciationCourse = lazyWithReload(() => import("./learn/PronunciationCo
 const PitchAccentMastery = lazyWithReload(() => import("./learn/PitchAccentMastery.jsx"));
 const HeritagePathScreen = lazyWithReload(() => import("./croatia/HeritagePathScreen.jsx"));
 const HeritageModeScreen = lazyWithReload(() => import("./learn/HeritageModeScreen.jsx"));
+const PhonemePracticeScreen = lazyWithReload(() => import("./learn/PhonemePracticeScreen.jsx"));
 const GrammarTrackScreen = lazyWithReload(() => import("./learn/GrammarTrackScreen.jsx"));
 const ListeningComprehensionScreen = lazyWithReload(() => import("./practice/ListeningComprehensionScreen.jsx"));
 
@@ -566,6 +567,7 @@ export default function AppRouter(props) {
       {currentScreen==="pitch_accent"&&<ScreenErrorBoundary key="pitch_accent" name="pitch_accent"><PitchAccentMastery goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="heritage_path"&&<ScreenErrorBoundary key="heritage_path" name="heritage_path"><HeritagePathScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="heritage_mode"&&<ScreenErrorBoundary key="heritage_mode" name="heritage_mode"><HeritageModeScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="phoneme_practice"&&<ScreenErrorBoundary key="phoneme_practice" name="phoneme_practice"><PhonemePracticeScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="grammarmap"&&<ScreenErrorBoundary key="grammarmap" name="grammarmap"><GrammarConstellation goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="grammar_track"&&<ScreenErrorBoundary key="grammar_track" name="grammar_track"><GrammarTrackScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="listening_comprehension"&&<ScreenErrorBoundary key="listening_comprehension" name="listening_comprehension"><ListeningComprehensionScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
