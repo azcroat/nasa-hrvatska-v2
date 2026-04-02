@@ -1,47 +1,23 @@
 /**
  * usePwaInstall — PWA install prompt state for iOS and Android/Chrome.
  *
+ * Install prompts are disabled until the app is listed in the Google Play
+ * Store and Apple App Store. Re-enable by removing the early return below.
+ *
  * @param {{ authScreen: string }} params
  */
 import { useState, useEffect } from 'react';
 
-export function usePwaInstall({ authScreen }) {
+export function usePwaInstall({ authScreen: _authScreen }) {
   const [showPwaInstall, setShowPwaInstall] = useState(false);
   const [showAndroidInstall, setShowAndroidInstall] = useState(false);
   const [deferredInstallPrompt, setDeferredInstallPrompt] = useState(null);
 
-  // iOS: Safari ITP deletes storage after 7 days unless installed.
-  // Wait until user has practiced at least once (first value moment) before prompting.
+  // DISABLED: suppress the browser's default mini-infobar even while prompts are off
   useEffect(() => {
-    if (authScreen !== 'app') return;
-    if (!localStorage.getItem('nh_last_practice')) return; // no value experienced yet
-    const _isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    const _isSA = ('standalone' in navigator) && (navigator.standalone === true);
-    if (_isIOS && !_isSA && !localStorage.getItem('nh_pwa_install_dismissed')) {
-      setShowPwaInstall(true);
-    }
-  }, [authScreen]);
-
-  // Android/Chrome: capture beforeinstallprompt for custom install banner.
-  // Only show after user has practiced at least once.
-  useEffect(() => {
-    const handler = (e) => {
-      e.preventDefault(); // prevent browser's default mini-infobar
-      setDeferredInstallPrompt(e);
-      if (!localStorage.getItem('nh_pwa_install_dismissed') && localStorage.getItem('nh_last_practice')) {
-        setShowAndroidInstall(true);
-      }
-    };
-    const installedHandler = () => {
-      setShowAndroidInstall(false);
-      setShowPwaInstall(false);
-    };
+    const handler = (e) => { e.preventDefault(); setDeferredInstallPrompt(e); };
     window.addEventListener('beforeinstallprompt', handler);
-    window.addEventListener('appinstalled', installedHandler);
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handler);
-      window.removeEventListener('appinstalled', installedHandler);
-    };
+    return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
   return {
