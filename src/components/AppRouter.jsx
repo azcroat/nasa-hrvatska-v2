@@ -12,11 +12,21 @@ import { useStats } from "../context/StatsContext.jsx";
 
 // Reload once on stale-chunk errors (happens after deploy when old index.html
 // tries to load chunk files that no longer exist at their old hashed paths).
+// Uses sessionStorage to cap at 2 attempts — prevents infinite reload loops
+// when the SW is stuck serving a stale cache that keeps failing.
 function lazyWithReload(fn) {
   return lazy(() => fn().catch((e) => {
     const msg = e?.message || '';
     if (msg.includes('importing a module script failed') || msg.includes('Failed to fetch')) {
-      window.location.reload();
+      try {
+        const key = 'nh_reload_attempt';
+        const n = parseInt(sessionStorage.getItem(key) || '0', 10);
+        if (n < 2) {
+          sessionStorage.setItem(key, String(n + 1));
+          window.location.reload();
+          return; // Abort throw so ScreenErrorBoundary doesn't flash before reload
+        }
+      } catch (_) {}
     }
     throw e;
   }));
