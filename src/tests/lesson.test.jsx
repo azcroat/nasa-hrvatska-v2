@@ -33,6 +33,14 @@ vi.mock('firebase/auth', () => ({
 vi.mock('firebase/firestore', () => ({
   getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
   collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  initializeFirestore: vi.fn(() => ({})), persistentLocalCache: vi.fn(() => ({})),
+  persistentMultipleTabManager: vi.fn(() => ({})),
+}));
+
+// Mock StatsContext so LessonScreen can call useStats() without a provider
+vi.mock('../context/StatsContext.tsx', () => ({
+  useStats: () => ({ writeDelta: vi.fn(), stats: {}, setStats: vi.fn(), dispatch: vi.fn(), award: vi.fn(), level: 1 }),
+  StatsProvider: ({ children }) => children,
 }));
 
 vi.mock('../data.jsx', async (importOriginal) => {

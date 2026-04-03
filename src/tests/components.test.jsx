@@ -186,8 +186,10 @@ const mockContextValue = {
 const mockStatsValue = {
   stats: mockSt,
   setStats: vi.fn(),
+  dispatch: vi.fn(),
   level: 3,
   award: vi.fn(),
+  writeDelta: vi.fn(),
 };
 
 describe('HomeTab smoke render', () => {
