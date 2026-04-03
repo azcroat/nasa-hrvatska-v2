@@ -64,5 +64,18 @@ export function buildProgressSnapshot({ uid, name, stats, dchlA, dchlSl, favs, j
     nh_culture: localStorage.getItem('nh_culture') || '',
     nh_placement_done: localStorage.getItem('nh_placement_done') === 'true' || localStorage.getItem('placement_done') === 'true',
     nh_grammar_track_done: localStorage.getItem('nh_grammar_track_done') === 'true',
+    // UI / accessibility preferences — null means "never explicitly set; use system default"
+    // Storing the raw string (null | 'true' | 'false') preserves the three-state semantic.
+    darkMode: localStorage.getItem('darkMode'),
+    nh_dm_explicit: localStorage.getItem('nh_dm_explicit') === '1',
+    nh_sound_enabled: localStorage.getItem('nh_sound_enabled'),
+    nh_haptic_enabled: localStorage.getItem('nh_haptic_enabled'),
+    nh_voice_pref: localStorage.getItem('nh_voice_pref'),
+    nh_font_size: localStorage.getItem('nh_font_size') || 'medium',
+    nh_reduce_motion: localStorage.getItem('nh_reduce_motion') === 'true',
+    // Journey milestones — additive union on merge; never truncated below 200 entries
+    nh_journey: (() => { try { return JSON.parse(localStorage.getItem('nh_journey') || '[]'); } catch { return []; } })(),
+    // Weekend warrior tracking — object { sat?: 'YYYY-MM-DD', sun?: 'YYYY-MM-DD' }
+    nh_weekend_days: (() => { try { return JSON.parse(localStorage.getItem('nh_weekend_days') || '{}'); } catch { return {}; } })(),
   };
 }
