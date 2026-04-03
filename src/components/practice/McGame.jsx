@@ -250,6 +250,51 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
     if (q.hr) srMark(q.hr, ok);
   }
 
+  function handleNext() {
+    const wasCorrect = selected !== -1 && q.opts[selected] === q.correct;
+    if (wasCorrect) {
+      if (!clearedIndicesRef.current.has(q._qIdx)) {
+        clearedIndicesRef.current.add(q._qIdx);
+        setClearedCount(c => c + 1);
+      }
+      if (queue.length === 1) {
+        if (resultFired.current) return;
+        resultFired.current = true;
+        const finalScore = score;
+        const pct = Math.round((finalScore / questions.length) * 100);
+        knightSpeak(
+          pct >= 80 ? 'victory' : pct >= 50 ? 'celebrating' : 'encouraged',
+          pct >= 80 ? `${pct}% correct — that quiz didn't stand a chance! ⚔️` :
+          pct >= 50 ? `${finalScore}/${questions.length} — solid. Come back and the remaining ${questions.length - finalScore} will fall. 💪` :
+          `${finalScore}/${questions.length} this time. Every wrong answer is a memory your brain is building. 📐`,
+          300
+        );
+        if (typeof award === 'function') award(finalScore * XP_PER_CORRECT + XP_COMPLETION_BONUS, true);
+        onComplete(questions, finalScore);
+      } else {
+        setQTransition(true);
+        timersRef.current.push(setTimeout(() => {
+          setQueue(prev => prev.slice(1));
+          setAnswered(false);
+          setSelected(-1);
+          setRevealCorrect(false);
+          setGrammarTip(null);
+          setQTransition(false);
+        }, 200));
+      }
+    } else {
+      setQTransition(true);
+      timersRef.current.push(setTimeout(() => {
+        setQueue(prev => [...prev.slice(1), { ...q, _isRetry: true }]);
+        setAnswered(false);
+        setSelected(-1);
+        setRevealCorrect(false);
+        setGrammarTip(null);
+        setQTransition(false);
+      }, 200));
+    }
+  }
+
   function handleKey(e, i) {
     if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
       e.preventDefault();
@@ -305,9 +350,9 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
   }
 
   return (
-    // Change 1: apply shake animation to outer wrapper
+    // Change 1: apply shake animation to outer wrapper; has-cta adds bottom padding for sticky CTA
     <div
-      className="scr-wrap"
+      className={answered ? 'scr-wrap has-cta' : 'scr-wrap'}
       style={{ animation: shaking ? 'mcShake 0.5s ease' : 'none' }}
     >
       <style>{MC_KEYFRAMES}</style>
@@ -537,56 +582,20 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
         firstOptionRef={firstOptionRef}
         onAnswer={handleAnswer}
         onKey={handleKey}
-        onNext={() => {
-          const wasCorrect = selected !== -1 && q.opts[selected] === q.correct;
-          if (wasCorrect) {
-            // Mark this original question as cleared (only once)
-            if (!clearedIndicesRef.current.has(q._qIdx)) {
-              clearedIndicesRef.current.add(q._qIdx);
-              setClearedCount(c => c + 1);
-            }
-            if (queue.length === 1) {
-              // Queue will be empty — session complete
-              if (resultFired.current) return;
-              resultFired.current = true;
-              const finalScore = score;
-              const pct = Math.round((finalScore / questions.length) * 100);
-              knightSpeak(
-                pct >= 80 ? 'victory' : pct >= 50 ? 'celebrating' : 'encouraged',
-                pct >= 80 ? `${pct}% correct — that quiz didn't stand a chance! ⚔️` :
-                pct >= 50 ? `${finalScore}/${questions.length} — solid. Come back and the remaining ${questions.length - finalScore} will fall. 💪` :
-                `${finalScore}/${questions.length} this time. Every wrong answer is a memory your brain is building. 📐`,
-                300
-              );
-              if (typeof award === 'function') award(finalScore * XP_PER_CORRECT + XP_COMPLETION_BONUS, true);
-              onComplete(questions, finalScore);
-            } else {
-              // More questions remain — pop front and advance
-              setQTransition(true);
-              timersRef.current.push(setTimeout(() => {
-                setQueue(prev => prev.slice(1));
-                setAnswered(false);
-                setSelected(-1);
-                setRevealCorrect(false);
-                setGrammarTip(null);
-                setQTransition(false);
-              }, 200));
-            }
-          } else {
-            // Wrong answer — re-queue current question to end of queue with retry flag.
-            // DuoLingo mechanic: learner must get every item correct before session ends.
-            setQTransition(true);
-            timersRef.current.push(setTimeout(() => {
-              setQueue(prev => [...prev.slice(1), { ...q, _isRetry: true }]);
-              setAnswered(false);
-              setSelected(-1);
-              setRevealCorrect(false);
-              setGrammarTip(null);
-              setQTransition(false);
-            }, 200));
-          }
-        }}
       />
+
+      {/* Sticky CTA bar — positioned fixed above nav */}
+      {answered && (
+        <div className="cta-bar">
+          <button
+            className="b bp"
+            style={{ fontSize: 16, padding: '14px', fontFamily: "'Outfit',sans-serif", cursor: 'pointer' }}
+            onClick={handleNext}
+          >
+            {isLast ? '🏆 See Results' : wasCurrentCorrect ? 'Next →' : 'Got it →'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

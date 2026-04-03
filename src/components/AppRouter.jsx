@@ -1,5 +1,6 @@
-import React, { lazy } from "react";
+import React, { lazy, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useSwipeBack } from "../hooks/useSwipeBack.js";
 // Local Fisher-Yates shuffle — keeps chunk-data out of AppRouter's startup import.
 // Screens that need data (V, GRAM, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS) import it directly.
 function _sh(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
@@ -302,6 +303,24 @@ export default function AppRouter(props) {
 
   const _transKey = currentScreen === "dashboard" ? "dashboard-" + tab : currentScreen;
 
+  // Tab directional transitions — slide direction based on tab order
+  const TAB_ORDER = ['home', 'learn', 'practice', 'croatia', 'profile'];
+  const prevTabRef = useRef(tab);
+  const tabDirection = useRef(0); // -1 = left (going back), 1 = right (going forward)
+  useEffect(() => {
+    const prev = prevTabRef.current;
+    if (prev !== tab) {
+      const prevIdx = TAB_ORDER.indexOf(prev);
+      const nextIdx = TAB_ORDER.indexOf(tab);
+      tabDirection.current = nextIdx > prevIdx ? 1 : -1;
+      prevTabRef.current = tab;
+    }
+  }, [tab]);
+
+  // Swipe-back: disabled on flashcards (has its own swipe handling)
+  const swipeEnabled = currentScreen !== 'flashcards';
+  useSwipeBack(goBack, swipeEnabled);
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -372,7 +391,7 @@ export default function AppRouter(props) {
           </div>}
         </div>
         {// ═══ TAB: HOME ═══
-        tab==="home"&&<div key="tab-home" className="screen-enter"><ScreenErrorBoundary name="HomeTab"><HomeTab
+        tab==="home"&&<div key="tab-home" className={tabDirection.current > 0 ? "slide-in-left" : "slide-in-right"}><ScreenErrorBoundary name="HomeTab"><HomeTab
           dchlA={dchlA} sDchlA={sDchlA} dchlSl={dchlSl} sDchlSl={sDchlSl}
           getWeekStats={getWeekStats}
           setTab={(id)=>{const VALID_TABS={home:1,learn:1,practice:1,croatia:1,profile:1};if(VALID_TABS[id])setTab(id);else setScr(id);}} sCurEx={sCurEx}
@@ -386,7 +405,7 @@ export default function AppRouter(props) {
           resumeLesson={resumeLesson}
         /></ScreenErrorBoundary></div>}
         {// ═══ TAB: LEARN ═══
-        tab==="learn"&&<div key="tab-learn" className="screen-enter"><ScreenErrorBoundary name="LearnTab"><LearnTab
+        tab==="learn"&&<div key="tab-learn" className={tabDirection.current > 0 ? "slide-in-right" : "slide-in-left"}><ScreenErrorBoundary name="LearnTab"><LearnTab
           allCats={allCats} icons={icons} sCurEx={sCurEx}
           sh={_sh} sLt={sLt} sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl}
           sGl={sGl} sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
@@ -394,18 +413,18 @@ export default function AppRouter(props) {
           launchAnimLesson={launchAnimLesson}
         /></ScreenErrorBoundary></div>}
         {// ═══ TAB: PRACTICE ═══
-        tab==="practice"&&<div key="tab-practice" className="screen-enter"><ScreenErrorBoundary name="PracticeTab"><PracticeTab
+        tab==="practice"&&<div key="tab-practice" className={tabDirection.current > 0 ? "slide-in-right" : "slide-in-left"}><ScreenErrorBoundary name="PracticeTab"><PracticeTab
           allCats={allCats} sh={_sh} sCurEx={sCurEx}
           onLaunchQuiz={launchMcGame} onLaunchFlash={launchFlashcards}
           onLaunchListen={launchListening} onLaunchMatch={launchMatch}
           onLaunchSpeaking={launchSpeaking}
         /></ScreenErrorBoundary></div>}
         {// ═══ TAB: CROATIA ═══
-        tab==="croatia"&&<div key="tab-croatia" className="screen-enter"><ScreenErrorBoundary name="CroatiaTab"><CroatiaTab
+        tab==="croatia"&&<div key="tab-croatia" className={tabDirection.current > 0 ? "slide-in-right" : "slide-in-left"}><ScreenErrorBoundary name="CroatiaTab"><CroatiaTab
           sCurEx={sCurEx}
         /></ScreenErrorBoundary></div>}
         {// ═══ TAB: PROFILE ═══
-        tab==="profile"&&<div key="tab-profile" className="screen-enter"><ScreenErrorBoundary name="ProfileTab"><ProfileTab
+        tab==="profile"&&<div key="tab-profile" className={tabDirection.current > 0 ? "slide-in-right" : "slide-in-left"}><ScreenErrorBoundary name="ProfileTab"><ProfileTab
           syncReady={_syncReady} onSyncNow={doSyncNow}
           onOpenLeaderboard={() => setScr('leaderboard_weekly')}
           onOpenFriends={() => setScr('family_group')}

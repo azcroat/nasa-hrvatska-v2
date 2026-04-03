@@ -41,6 +41,7 @@ import { AppToasts } from "./components/shared/AppToasts.jsx";
 import { AppModals } from "./components/shared/AppModals.jsx";
 import KnightCompanion from "./components/shared/KnightCompanion.jsx";
 import AppRouter from "./components/AppRouter.jsx";
+import DesktopPanel from "./components/shared/DesktopPanel.jsx";
 
 // ── Module-level constants ───────────────────────────────────────────────────
 // All vocabulary category keys (V base keys + TOP100 keys from content.jsx).
@@ -627,24 +628,29 @@ function App() {
           emailUnverified={emailUnverified} setEmailUnverified={setEmailUnverified} resendVerification={resendVerification}
           showApology={showApology} onDismissApology={dismissApology}
         />
-        <AppRouter
-          setPlacementQ={setPlacementQ} setPlacementIdx={setPlacementIdx}
-          setPlacementScore={setPlacementScore} setPlacementAnswers={setPlacementAnswers}
-          setPlacementXp={setPlacementXp} getPlacementCt={getPlacementCt}
-          setShowFirstWords={setShowFirstWords}
-          lt={lt} li={li} lx={lx} ls={ls} lp={lp} la={la} lsl={lsl} qi={qi}
-          sLt={sLt} sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl} sQi={sQi}
-          gl={gl} gx={gx} gp={gp} gs={gs} ga={ga} gsl={gsl}
-          sGl={sGl} sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
-          matchInitPool={matchInitPool}
-          mcInitQ={mcInitQ} mcResultQ={mcResultQ} mcResultScore={mcResultScore} mcMistakes={mcMistakes}
-          rp={rp} rph={rph} rqi={rqi} rsc={rsc} ra={ra} rsl={rsl} hw={hw}
-          sRp={sRp} sRph={sRph} sRqi={sRqi} sRsc={sRsc} sRa={sRa} sRsl={sRsl} sHw={sHw}
-          sw={sw} si={si} sx={sx} sr={sr} ssc={ssc}
-          sSw={sSw} sSr={sSr} sSx={sSx} sSi={sSi} sSsc={sSsc}
-          animLesson={animLesson} fcInitPool={fcInitPool} lsInitQ={lsInitQ}
-          curEx={curEx}
-        />
+        <div className="app-layout">
+          <AppRouter
+            setPlacementQ={setPlacementQ} setPlacementIdx={setPlacementIdx}
+            setPlacementScore={setPlacementScore} setPlacementAnswers={setPlacementAnswers}
+            setPlacementXp={setPlacementXp} getPlacementCt={getPlacementCt}
+            setShowFirstWords={setShowFirstWords}
+            lt={lt} li={li} lx={lx} ls={ls} lp={lp} la={la} lsl={lsl} qi={qi}
+            sLt={sLt} sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl} sQi={sQi}
+            gl={gl} gx={gx} gp={gp} gs={gs} ga={ga} gsl={gsl}
+            sGl={sGl} sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
+            matchInitPool={matchInitPool}
+            mcInitQ={mcInitQ} mcResultQ={mcResultQ} mcResultScore={mcResultScore} mcMistakes={mcMistakes}
+            rp={rp} rph={rph} rqi={rqi} rsc={rsc} ra={ra} rsl={rsl} hw={hw}
+            sRp={sRp} sRph={sRph} sRqi={sRqi} sRsc={sRsc} sRa={sRa} sRsl={sRsl} sHw={sHw}
+            sw={sw} si={si} sx={sx} sr={sr} ssc={ssc}
+            sSw={sSw} sSr={sSr} sSx={sSx} sSi={sSi} sSsc={sSsc}
+            animLesson={animLesson} fcInitPool={fcInitPool} lsInitQ={lsInitQ}
+            curEx={curEx}
+          />
+          {authScreen === 'app' && currentScreen !== 'welcome' && currentScreen !== 'placement' && (
+            <DesktopPanel />
+          )}
+        </div>
         {authScreen === 'app' && currentScreen !== 'welcome' && currentScreen !== 'placement' && <TabBar tab={tab} setTab={setTab} setScr={setScr} badges={badges} />}
 
         <KnightCompanion />
