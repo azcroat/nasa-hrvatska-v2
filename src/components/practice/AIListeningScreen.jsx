@@ -167,7 +167,8 @@ export default function AIListeningScreen({ goBack, award }) {
     setPhase('results');
   }
 
-  // Award XP exactly once on results mount
+  // Award XP exactly once on results mount.
+  // All consumed values in deps — xpAwarded guard prevents double-award on re-runs.
   useEffect(() => {
     if (phase === 'results' && !xpAwarded) {
       const xp = 10 + score * 5;
@@ -175,7 +176,7 @@ export default function AIListeningScreen({ goBack, award }) {
       markQuest('speak');
       setXpAwarded(true);
     }
-  }, [phase]);  
+  }, [phase, xpAwarded, score, award]);
 
   function resetToSetup() {
     if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }

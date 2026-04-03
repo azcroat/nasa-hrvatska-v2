@@ -321,7 +321,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     r.interimResults = false;
     r.onstart = () => setListening(true);
     r.onresult = e => {
-      const transcript = e.results[0][0].transcript;
+      const transcript = e.results?.[0]?.[0]?.transcript;
+      if (!transcript) return;
       setInput(prev => (prev ? prev + " " + transcript : transcript));
     };
     r.onerror = () => setListening(false);

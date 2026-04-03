@@ -126,7 +126,16 @@ export async function fbLoadProgress(uid){
   for(let attempt=0;attempt<3;attempt++){
     try{
       const snap=await getDoc(fsDoc(_fbDb,"users",id));
-      if(snap.exists()){const _sd=snap.data({serverTimestamps:'estimate'});if(_sd.progress){const p=JSON.parse(_sd.progress);const _upd=_sd.updated;if(_upd)p._fbUpdated=_upd.toMillis?_upd.toMillis():Number(_upd);return p}}
+      if(snap.exists()){
+        const _sd=snap.data({serverTimestamps:'estimate'});
+        if(_sd.progress){
+          let p;
+          try { p=JSON.parse(_sd.progress); } catch(pe){ console.warn('fbLoadProgress: corrupted progress JSON',pe); return null; }
+          const _upd=_sd.updated;
+          if(_upd)p._fbUpdated=_upd.toMillis?_upd.toMillis():Number(_upd);
+          return p;
+        }
+      }
       return null; // doc exists but no progress field, or doc missing — no retry needed
     }catch(e){
       console.warn(`fbLoadProgress attempt ${attempt+1}/3 failed:`,e);
