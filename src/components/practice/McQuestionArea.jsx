@@ -151,14 +151,19 @@ export default function McQuestionArea({
         </div>
       )}
 
-      {/* Next button */}
+      {/* Next / Got it / See Results button */}
       {answered && (
         <button
           className="b bp"
           style={{ width: '100%', marginTop: 16, fontSize: 16, padding: '16px' }}
           onClick={onNext}
         >
-          {isLast ? '🏆 See Results' : 'Next →'}
+          {(() => {
+            const wasCorrect = selected !== -1 && q.opts[selected] === q.correct;
+            if (isLast) return '🏆 See Results';
+            if (wasCorrect) return 'Next →';
+            return 'Got it →';
+          })()}
         </button>
       )}
     </>

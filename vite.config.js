@@ -59,14 +59,14 @@ export default defineConfig({
         // Precache critical app-shell assets: index.html (required by NavigationRoute),
         // CSS, fonts, favicon/manifest icons. JS chunks handled by runtimeCaching below.
         globPatterns: ['index.html', '**/*.css', '**/*.woff2', '**/*.ico', '**/icon*.png', '**/apple-touch*.png', 'offline.html'],
-        globIgnores: ['**/chunk-data*.js', '**/splash/**', '**/screenshots/**'],
+        globIgnores: ['**/chunk-data*.js', '**/chunk-vocabulary*.js', '**/chunk-grammar*.js', '**/chunk-exercises*.js', '**/chunk-lessons*.js', '**/chunk-scenarios*.js', '**/chunk-cultural*.js', '**/splash/**', '**/screenshots/**'],
         runtimeCaching: [
           {
             // Data chunks (vocab, stories, songs, pitch, daily content) — stale-while-revalidate.
             // cacheWillUpdate plugin: reject any response with Content-Type: text/html
             // (the Cloudflare /* /index.html 200 SPA fallback returns status 200 WITH
             // text/html — so cacheableResponse: {statuses:[200]} alone is not enough).
-            urlPattern: /\/assets\/chunk-(data|stories|pitch-data|daily|songs)[^/]*\.js$/,
+            urlPattern: /\/assets\/chunk-(data|vocabulary|grammar|exercises|lessons|scenarios|cultural|stories|pitch-data|daily|songs)[^/]*\.js$/,
             handler: 'StaleWhileRevalidate',
             options: {
               cacheName: 'nasa-hrvatska-v15-data',
@@ -180,24 +180,35 @@ export default defineConfig({
     minify: 'esbuild',
     cssCodeSplit: true,            // CSS per chunk (avoids one monolithic stylesheet)
     reportCompressedSize: false,   // Skip gzip-size computation at build time for faster builds
-    chunkSizeWarningLimit: 600,    // chunk-data (vocabulary/lesson data) is inherently ~537 KB
+    chunkSizeWarningLimit: 800,    // src/data.jsx (root vocab file) is ~700 KB and cannot be split without a full data-layer refactor
     rollupOptions: {
       output: {
         experimentalMinChunkSize: 0, // Don't merge tiny chunks into startup bundle — prevents chunk-data becoming a static startup dep
         manualChunks(id) {
-          if (id.includes('node_modules/firebase')) return 'vendor-firebase';
+          // Firebase split: firestore and auth are the two large sub-packages (~350 KB + ~150 KB).
+          // Splitting them from vendor-firebase-core (~220 KB) keeps all three under 600 KB.
+          if (id.includes('node_modules/@firebase/firestore')) return 'vendor-firebase-firestore';
+          if (id.includes('node_modules/@firebase/auth')) return 'vendor-firebase-auth';
+          if (id.includes('node_modules/firebase') || id.includes('node_modules/@firebase')) return 'vendor-firebase-core';
           if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) return 'vendor-react';
           if (id.includes('node_modules/@sentry')) return 'vendor-sentry';
           if (id.includes('node_modules/posthog-js')) return 'vendor-posthog';
           if (id.includes('node_modules/dexie')) return 'vendor-dexie';
-          // Large agent-generated data files — each in its own lazy chunk so they don't
-          // bloat the main chunk-data that screens always pull on first render.
+          // Large agent-generated data files — each in its own lazy chunk.
           if (id.includes('src/data/gradedStories')) return 'chunk-stories';
           if (id.includes('src/data/pitchAccentContent')) return 'chunk-pitch-data';
           if (id.includes('src/data/daily-content')) return 'chunk-daily';
           if (id.includes('croatia/LyricsSongData')) return 'chunk-songs';
-          // data.jsx (~700 KB) contains all vocabulary/lesson data — isolate it so other chunks
-          // stay small. App.jsx now imports only the ~20 symbols it actually uses directly.
+          // Data subdirectory splits — each module into its own lazy chunk to reduce chunk-data.
+          // Order matters: more specific paths must appear before the catch-all 'src/data' rule.
+          if (id.includes('src/data/vocabulary')) return 'chunk-vocabulary';
+          if (id.includes('src/data/grammar')) return 'chunk-grammar';
+          if (id.includes('src/data/exercises')) return 'chunk-exercises';
+          if (id.includes('src/data/lessons')) return 'chunk-lessons';
+          if (id.includes('src/data/scenarios')) return 'chunk-scenarios';
+          if (id.includes('src/data/cultural')) return 'chunk-cultural';
+          // data.jsx (root vocabulary file) + content.jsx stay in chunk-data (~700 KB).
+          // src/data.jsx alone is ~700 KB and cannot be split without a major refactor.
           if (id.includes('src/data') || id.includes('src/lib/appData')) return 'chunk-data';
           // Context and hooks — break circular deps between croatia/practice/learn chunks
           if (id.includes('src/context')) return 'chunk-context';
