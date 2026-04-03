@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useStats } from '../../context/StatsContext.tsx';
 import { H, Bar } from '../../data.jsx';
 import { markQuest } from '../../lib/quests.js';
 import SpeakingSummaryScreen from './SpeakingSummaryScreen.jsx';
@@ -39,6 +40,7 @@ function srError(code) {
 }
 
 export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSsc, goBack, award, setSt }) {
+  const { writeDelta } = useStats();
   const [listening, setListening] = useState(false);
   const [recResult, setRecResult] = useState(null);
   const [recMsg, setRecMsg] = useState('');
@@ -115,6 +117,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
       if (typeof award === 'function') award(ssc * 5 + 5);
       markQuest('speak');
       setSt(s => ({ ...s, sp: s.sp + 1 }));
+      writeDelta({sp:1});
       setShowSummary(true);
     }
   }

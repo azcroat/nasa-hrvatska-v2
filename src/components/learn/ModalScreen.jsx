@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
+import { useStats } from '../../context/StatsContext.tsx';
 import { H, Bar, Spk, speak, sh, MODAL } from '../../data.jsx';
 
 export default function ModalScreen({ goBack, award, setSt }) {
+  const { writeDelta } = useStats();
   const finishFired = useRef(false);
   const [m7, sM7] = useState("menu");
   const [m7v, sM7v] = useState(0);
@@ -198,7 +200,7 @@ export default function ModalScreen({ goBack, award, setSt }) {
               {pct >= 70 && <div style={{padding:12,background:"#dcfce7",borderRadius:12,marginTop:12,fontSize:14,color:"#16a34a",fontWeight:700}}>🏅 Modal Verbs Badge Earned!</div>}
               <div style={{display:"flex",gap:10,justifyContent:"center",marginTop:16}}>
                 <button className="b bg" onClick={() => { sM7q([]); sM7i(0); sM7s(0); sM7a(false); sM7sl(-1); }}>🔄 Retry</button>
-                <button className="b bv" onClick={() => { if(finishFired.current)return; finishFired.current=true; setSt(s => ({...s, mv: s.mv + 1, gc: s.gc + 1})); if (typeof award === 'function') award(m7s * 3 + 20); goBack(); }}>🏠 Finish!</button>
+                <button className="b bv" onClick={() => { if(finishFired.current)return; finishFired.current=true; setSt(s => ({...s, mv: s.mv + 1, gc: s.gc + 1})); writeDelta({mv:1,gc:1}); if (typeof award === 'function') award(m7s * 3 + 20); goBack(); }}>🏠 Finish!</button>
               </div>
             </div>
           );

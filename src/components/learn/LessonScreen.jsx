@@ -1,4 +1,5 @@
 import React, { useRef, useState, useMemo, useEffect } from 'react';
+import { useStats } from '../../context/StatsContext.tsx';
 import { H, Bar, speak, srMark, sh, shuffleArr, V, ASPECT_PAIRS, CROATIAN_CITIES } from '../../data.jsx';
 import { playCorrect, playWrong, haptic, playFanfare } from '../../lib/soundSettings.js';
 import { markQuest } from '../../lib/quests.js';
@@ -58,6 +59,7 @@ export default function LessonScreen({
     w.ex || w[3],
   ]).filter(row => row[0] && row[1]);
 
+  const { writeDelta } = useStats();
   const awardFn = typeof award === 'function' ? award : () => {};
 
   // Pick a Croatian city for the cultural moment on the result screen
@@ -105,6 +107,7 @@ export default function LessonScreen({
           markQuest('grammar');
           if (p === 1) markQuest('perfect');
           setSt(s => ({ ...s, lc: s.lc + 1, pf: p === 1 ? s.pf + 1 : s.pf, rs: [...s.rs, String(Math.round(p * 100))], ct: [...new Set([...s.ct, lt])] }));
+          writeDelta({ lc: 1, ...(p === 1 ? { pf: 1 } : {}), ct: [lt] });
           playFanfare();
           sLp('result');
         }
@@ -402,6 +405,7 @@ export default function LessonScreen({
                 markQuest('grammar');
                 if (p === 1) markQuest('perfect');
                 setSt(s => ({ ...s, lc: s.lc + 1, pf: p === 1 ? s.pf + 1 : s.pf, rs: [...s.rs, String(Math.round(p * 100))], ct: [...new Set([...s.ct, lt])] }));
+          writeDelta({ lc: 1, ...(p === 1 ? { pf: 1 } : {}), ct: [lt] });
                 playFanfare();
                 sLp("result");
               }

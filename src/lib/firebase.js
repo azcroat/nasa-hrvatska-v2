@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════
 import { initializeApp, getApps } from 'firebase/app';
 import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup, sendEmailVerification, deleteUser } from 'firebase/auth';
-import { initializeFirestore, persistentLocalCache, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, deleteDoc, collection, runTransaction, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, writeBatch } from 'firebase/firestore';
+import { initializeFirestore, persistentLocalCache, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, deleteDoc, collection, runTransaction, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, writeBatch, increment } from 'firebase/firestore';
 import { getAnalytics, logEvent as _fbLogEvent, isSupported as analyticsIsSupported } from 'firebase/analytics';
 
 const FIREBASE_CONFIG = {
@@ -120,6 +120,60 @@ export async function fbSaveProgress(uid,data){
     return{ok:false,err:e?.message||"Progress could not be saved. Check your connection.",code:e?.code};
   }
 }
+/**
+ * fbApplyDelta — atomic, conflict-free stat update using Firestore primitives.
+ *
+ * Uses FieldValue.increment() for numeric counters and arrayUnion() for arrays.
+ * Two devices calling fbApplyDelta simultaneously will BOTH succeed: no last-write-wins,
+ * no snapshot overwrite, no XP lost. This is the core mechanism that prevents multi-device
+ * progress divergence for user-initiated stat changes.
+ *
+ * @param {string} uid
+ * @param {{ xp?:number, lc?:number, gc?:number, sp?:number, de?:number,
+ *           rc?:number, pf?:number, mv?:number, hi?:number,
+ *           ct?:string[], vs?:string[], badges?:string[] }} delta
+ */
+export async function fbApplyDelta(uid, delta){
+  if(!_fbReady||!_fbDb||!uid||!delta)return;
+  const _NUMERIC=['xp','lc','gc','sp','de','rc','pf','mv','hi'];
+  const _ARRAYS=['ct','vs','badges'];
+  const id=uid.replace(/[.#$/\[\]]/g,"_");
+  const update={};
+  let hasUpdate=false;
+  for(const k of _NUMERIC){
+    const v=delta[k];
+    if(typeof v==='number'&&v>0){
+      update['stats.'+k]=increment(v);
+      if(k==='xp')update.xp=increment(v);            // keep top-level in sync for leaderboard queries
+      if(k==='lc')update.lessonsCompleted=increment(v);
+      hasUpdate=true;
+    }
+  }
+  for(const k of _ARRAYS){
+    const arr=delta[k];
+    if(Array.isArray(arr)&&arr.length>0){
+      update['stats.'+k]=arrayUnion(...arr);
+      hasUpdate=true;
+    }
+  }
+  if(!hasUpdate)return;
+  try{
+    await updateDoc(fsDoc(_fbDb,'users',id),update);
+  }catch(e){
+    // If doc doesn't exist yet (brand-new user before first snapshot save), create it
+    if(e?.code==='not-found'){
+      try{
+        const seed={};
+        for(const k of _NUMERIC){if(typeof delta[k]==='number'&&delta[k]>0)seed[k]=delta[k];}
+        for(const k of _ARRAYS){if(Array.isArray(delta[k])&&delta[k].length>0)seed[k]=delta[k];}
+        await setDoc(fsDoc(_fbDb,'users',id),{stats:seed},{merge:true});
+      }catch(e2){console.warn('[sync] fbApplyDelta setDoc fallback failed:',e2?.code);}
+    }else{
+      console.warn('[sync] fbApplyDelta failed:',e?.code,e?.message);
+    }
+  }
+}
+
 export async function fbLoadProgress(uid){
   if(!_fbReady||!_fbDb)return null;
   const id=uid.replace(/[.#$/\[\]]/g,"_");
@@ -133,6 +187,26 @@ export async function fbLoadProgress(uid){
           try { p=JSON.parse(_sd.progress); } catch(pe){ console.warn('fbLoadProgress: corrupted progress JSON',pe); return null; }
           const _upd=_sd.updated;
           if(_upd)p._fbUpdated=_upd.toMillis?_upd.toMillis():Number(_upd);
+          // Overlay atomic stats map — these are always at least as current as the snapshot blob
+          // because fbApplyDelta writes them on every user action, not just on periodic saves.
+          if(_sd.stats){
+            const _as=_sd.stats; const _bs=p.stats||p.st||{};
+            p.stats={
+              ..._bs,..._as,
+              xp:    Math.max(_bs.xp    ||0,_as.xp    ||0),
+              lc:    Math.max(_bs.lc    ||0,_as.lc    ||0),
+              gc:    Math.max(_bs.gc    ||0,_as.gc    ||0),
+              sp:    Math.max(_bs.sp    ||0,_as.sp    ||0),
+              de:    Math.max(_bs.de    ||0,_as.de    ||0),
+              rc:    Math.max(_bs.rc    ||0,_as.rc    ||0),
+              pf:    Math.max(_bs.pf    ||0,_as.pf    ||0),
+              mv:    Math.max(_bs.mv    ||0,_as.mv    ||0),
+              hi:    Math.max(_bs.hi    ||0,_as.hi    ||0),
+              ct:    [...new Set([...(_bs.ct    ||[]),...(_as.ct    ||[])])],
+              vs:    [...new Set([...(_bs.vs    ||[]),...(_as.vs    ||[])])],
+              badges:[...new Set([...(_bs.badges||[]),...(_as.badges||[])])],
+            };
+          }
           return p;
         }
       }
@@ -419,7 +493,32 @@ export function fbWatchProgress(uid,callback){
     fsDoc(_fbDb,"users",id),
     function(snap){
       if(!snap.exists())return;const _wd=snap.data({serverTimestamps:'estimate'});if(!_wd.progress)return;
-      try{const p=JSON.parse(_wd.progress);const _wu=_wd.updated;p._fbUpdated=_wu?(_wu.toMillis?_wu.toMillis():Number(_wu)):0;if(_wd.favs_live){try{const _lf=JSON.parse(_wd.favs_live);const _lts=_wd.favs_live_ts?(_wd.favs_live_ts.toMillis?_wd.favs_live_ts.toMillis():Number(_wd.favs_live_ts)):0;const _bts=p._fbUpdated||0;const _bk=new Set((p.favs||[]).map(function(f){return f.hr||f.name;}));for(const _f of _lf){if(!_bk.has(_f.hr||_f.name)){(p.favs=p.favs||[]).push(_f);_bk.add(_f.hr||_f.name);}}if(_lts>_bts){const _lk=new Set(_lf.map(function(f){return f.hr||f.name;}));p.favs=(p.favs||[]).filter(function(f){return _lk.has(f.hr||f.name);});}}catch(_){}}callback(p,p._fbUpdated);}
+      try{
+        const p=JSON.parse(_wd.progress);
+        const _wu=_wd.updated;
+        p._fbUpdated=_wu?(_wu.toMillis?_wu.toMillis():Number(_wu)):0;
+        // Overlay atomic stats map — same logic as fbLoadProgress
+        if(_wd.stats){
+          const _as=_wd.stats; const _bs=p.stats||p.st||{};
+          p.stats={
+            ..._bs,..._as,
+            xp:    Math.max(_bs.xp    ||0,_as.xp    ||0),
+            lc:    Math.max(_bs.lc    ||0,_as.lc    ||0),
+            gc:    Math.max(_bs.gc    ||0,_as.gc    ||0),
+            sp:    Math.max(_bs.sp    ||0,_as.sp    ||0),
+            de:    Math.max(_bs.de    ||0,_as.de    ||0),
+            rc:    Math.max(_bs.rc    ||0,_as.rc    ||0),
+            pf:    Math.max(_bs.pf    ||0,_as.pf    ||0),
+            mv:    Math.max(_bs.mv    ||0,_as.mv    ||0),
+            hi:    Math.max(_bs.hi    ||0,_as.hi    ||0),
+            ct:    [...new Set([...(_bs.ct    ||[]),...(_as.ct    ||[])])],
+            vs:    [...new Set([...(_bs.vs    ||[]),...(_as.vs    ||[])])],
+            badges:[...new Set([...(_bs.badges||[]),...(_as.badges||[])])],
+          };
+        }
+        if(_wd.favs_live){try{const _lf=JSON.parse(_wd.favs_live);const _lts=_wd.favs_live_ts?(_wd.favs_live_ts.toMillis?_wd.favs_live_ts.toMillis():Number(_wd.favs_live_ts)):0;const _bts=p._fbUpdated||0;const _bk=new Set((p.favs||[]).map(function(f){return f.hr||f.name;}));for(const _f of _lf){if(!_bk.has(_f.hr||_f.name)){(p.favs=p.favs||[]).push(_f);_bk.add(_f.hr||_f.name);}}if(_lts>_bts){const _lk=new Set(_lf.map(function(f){return f.hr||f.name;}));p.favs=(p.favs||[]).filter(function(f){return _lk.has(f.hr||f.name);});}}catch(_){}}
+        callback(p,p._fbUpdated);
+      }
       catch(e){console.warn("fbWatchProgress parse error:",e);}
     },
     function(err){console.warn("fbWatchProgress error:",err);}

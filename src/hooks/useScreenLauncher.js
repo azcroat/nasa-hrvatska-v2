@@ -27,7 +27,7 @@ const BLACK_HOLE_SCREENS = {
 
 export function useScreenLauncher({
   setScr, navigate, curEx, sCurEx, currentScreen,
-  setStats, award, allCats,
+  setStats, award, writeDelta, allCats,
   // Tab routing (for smart post-completion navigation)
   tab, setTab,
   // Lesson state
@@ -173,20 +173,27 @@ export function useScreenLauncher({
       if (bhStat) {
         if (lpDwellRef.current?.timer) clearTimeout(lpDwellRef.current.timer);
         const timer = setTimeout(() => {
+          let alreadyVisited = false;
           setStats(prev => {
-            if (prev.vs?.includes(item.go)) return prev;
+            if (prev.vs?.includes(item.go)) { alreadyVisited = true; return prev; }
             const newVs = [...(prev.vs || []), item.go];
             if (bhStat === 'lc') return { ...prev, lc: prev.lc + 1, vs: newVs };
             if (bhStat === 'gc') return { ...prev, gc: prev.gc + 1, vs: newVs };
             return { ...prev, vs: newVs };
           });
+          if (!alreadyVisited && writeDelta) {
+            const delta = { vs: [item.go] };
+            if (bhStat === 'lc') delta.lc = 1;
+            if (bhStat === 'gc') delta.gc = 1;
+            writeDelta(delta);
+          }
           award(15);
         }, 20000);
         lpDwellRef.current = { screen: item.go, statType: bhStat, timer };
       }
       setScr(item.go); sCurEx(item.go);
     }
-  }, [setScr, sCurEx, setStats, award, allCats, launchMcGame,
+  }, [setScr, sCurEx, setStats, award, writeDelta, allCats, launchMcGame,
       sLt, sLi, sLx, sLs, sLp, sLa, sLsl, sGl, sGp, sGx, sGs, sGa, sGsl]);
 
   const goBack = useCallback(() => {
