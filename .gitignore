@@ -20,3 +20,4 @@ scripts/backfill-run.cjs
 *.jks
 *.keystore
 android/local.properties
+scripts/keystore-credentials.txt
