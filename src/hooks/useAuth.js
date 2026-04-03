@@ -249,15 +249,20 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
           // Always apply remote progress (streak, SRS, favs, journal) — additive merge,
           // safe to call regardless of which device is "newer".
           cb.current.applyRemoteProgress(fp);
+          // Recovery push: local has more XP than Firestore (e.g. offline session, failed write).
+          // CRITICAL: push the MERGED snapshot (not raw lp) so other devices receive the
+          // additive-max of local + remote. Pushing raw lp could overwrite Firebase's higher
+          // lc/gc/ct values from other devices with this device's lower stale values.
+          if (lpXP > fpXP) {
+            fbSaveProgress(k, { ...fp, stats: mergedStats }).catch(function() {});
+          }
         } else {
           _origLocalSavedAt = 0;
           _origLocalFbUpdated = 0;
-        }
-
-        // Recovery push: local has more XP than Firestore (e.g. offline session, failed write).
-        // Push the local snapshot so other devices get this device's progress.
-        if (lpXP > fpXP) {
-          fbSaveProgress(k, lp).catch(function() {});
+          // No Firebase data but local has XP — push local so other devices get it
+          if (lpXP > 0 && lp) {
+            fbSaveProgress(k, lp).catch(function() {});
+          }
         }
 
         // Call onSignedIn (which triggers _goPostAuth navigation) if:
