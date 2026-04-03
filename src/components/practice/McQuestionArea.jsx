@@ -114,7 +114,6 @@ export default function McQuestionArea({
   firstOptionRef,
   onAnswer,
   onKey,
-  onNext,
 }) {
   return (
     <>
@@ -202,9 +201,13 @@ export default function McQuestionArea({
         })}
       </div>
 
-      {/* Keyboard hint */}
-      <div style={{ fontSize: 10, color: 'var(--subtext)', textAlign: 'center', marginTop: 6, opacity: 0.6 }}>
-        Tip: Press 1–{q?.opts?.length || 4} to select
+      {/* Keyboard hint — desktop only via CSS .kb-hints */}
+      <div className="kb-hints" aria-hidden="true" style={{ marginTop: 8, justifyContent: 'center' }}>
+        <span>Select:</span>
+        {(q?.opts || []).map((_, i) => (
+          <span key={i}><span className="kb-key" data-key={i + 1} /></span>
+        ))}
+        <span style={{ marginLeft: 4 }}>Confirm: <span className="kb-key">↵</span></span>
       </div>
       <span className="sr-only" aria-live="polite">Tip: press 1–4 to choose an answer</span>
 
@@ -220,21 +223,7 @@ export default function McQuestionArea({
         </div>
       )}
 
-      {/* Next / Got it / See Results button */}
-      {answered && (
-        <button
-          className="b bp"
-          style={{ width: '100%', marginTop: 16, fontSize: 16, padding: '16px' }}
-          onClick={onNext}
-        >
-          {(() => {
-            const wasCorrect = selected !== -1 && q.opts[selected] === q.correct;
-            if (isLast) return '🏆 See Results';
-            if (wasCorrect) return 'Next →';
-            return 'Got it →';
-          })()}
-        </button>
-      )}
+      {/* CTA button rendered by parent McGame as sticky .cta-bar */}
     </>
   );
 }

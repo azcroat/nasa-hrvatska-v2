@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { H, Bar, speak, speakSlow, sh } from '../../data.jsx';
+import { Bar, speak, speakSlow, sh } from '../../data.jsx';
+import ScreenHeader from '../shared/ScreenHeader.jsx';
 import { markQuest } from '../../lib/quests.js';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 
@@ -77,8 +78,8 @@ export default function ListeningScreen({ questions, goBack, award }) {
   }
 
   return (
-    <div className="scr-wrap">
-      {H("🎧 Listening Comprehension","Listen, then pick what you heard",goBack)}
+    <div className={answered ? 'scr-wrap has-cta' : 'scr-wrap'}>
+      <ScreenHeader title="🎧 Listening" goBack={goBack} pill={`${idx + 1}/${total}`} />
       <Bar v={idx+1} mx={total} h={6} />
 
       {/* Audio controls */}
@@ -135,9 +136,11 @@ export default function ListeningScreen({ questions, goBack, award }) {
       )}
 
       {answered && (
-        <button className="b bp" style={{width:"100%",marginTop:12}} onClick={next}>
-          {idx<total-1?"Next →":"See Results"}
-        </button>
+        <div className="cta-bar">
+          <button className="b bp" onClick={next}>
+            {idx < total - 1 ? 'Next →' : 'See Results'}
+          </button>
+        </div>
       )}
     </div>
   );

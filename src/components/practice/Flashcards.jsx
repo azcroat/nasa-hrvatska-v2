@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { H, Bar, srMark } from '../../data.jsx';
+import { Bar, srMark } from '../../data.jsx';
+import ScreenHeader from '../shared/ScreenHeader.jsx';
 import confetti from 'canvas-confetti';
 import { speak } from '../../lib/audio.js';
 import FlashcardResultScreen from './FlashcardResultScreen.jsx';
@@ -345,8 +346,8 @@ export default function Flashcards({ pool, goBack, award }) {
   const card = activePool[idx];
 
   return (
-    <div className="scr-wrap" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-      {H("🃏 Flashcards","Tap card to flip, then choose below.", goBack)}
+    <div className={flipped ? 'scr-wrap has-cta' : 'scr-wrap'} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+      <ScreenHeader title="🃏 Flashcards" goBack={goBack} pill={`${idx + 1}/${activePool.length}`} />
       <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>
         <span key={idx} className="anim-fade-up" style={{fontSize:14,fontWeight:700}}>{idx+1} / {activePool.length}</span>
         <div style={{fontSize:14,fontWeight:700,color:"var(--success)"}}>✅ Know: {known}</div>
@@ -410,29 +411,29 @@ export default function Flashcards({ pool, goBack, award }) {
           ← swipe left · swipe right → &nbsp;·&nbsp; S / → Still learning &nbsp;·&nbsp; K / → Know it
         </div>
       )}
-      {flipped&&(
-        <div style={{marginTop:16}}>
-        <div style={{fontSize:12,fontWeight:700,color:"var(--subtext)",textAlign:"center",marginBottom:8}}>How well did you know it?</div>
-        <div role="group" aria-label="How well did you know it?" style={{display:'flex', gap:10}}>
+      {/* CTA rendered as sticky bar when card is flipped */}
+      {flipped && (
+        <div className="cta-bar" style={{ flexDirection: 'column', gap: 6, paddingTop: 8 }} role="group" aria-label="How well did you know it?">
+          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--subtext)', textAlign: 'center' }}>How well did you know it?</span>
+          <div style={{ display: 'flex', gap: 10, width: '100%' }}>
           <motion.button
             onClick={handleStillLearning}
             aria-label="Still learning — review again soon"
             whileTap={{ scale: 0.94 }}
             transition={{ type:'spring', stiffness:400, damping:17 }}
             style={{
-              flex:1, height:56, borderRadius:16,
+              flex:1, height:52, borderRadius:14,
               border:'2px solid #d97706',
               background:'rgba(217,119,6,0.08)',
               color:'#d97706',
               fontFamily:"'Outfit',sans-serif",
-              fontSize:15, fontWeight:900,
+              fontSize:14, fontWeight:900,
               display:'flex', flexDirection:'column',
               alignItems:'center', justifyContent:'center',
               cursor:'pointer',
             }}
           >
             🔄 Still Learning
-            <span style={{fontSize:10, fontWeight:600, opacity:.7, marginTop:4}}>Review again soon</span>
           </motion.button>
           <motion.button
             ref={knowBtnRef}
@@ -441,21 +442,20 @@ export default function Flashcards({ pool, goBack, award }) {
             whileTap={{ scale: 0.94 }}
             transition={{ type:'spring', stiffness:400, damping:17 }}
             style={{
-              flex:1, height:56, borderRadius:16,
+              flex:1, height:52, borderRadius:14,
               border:'2px solid var(--success-b)',
               background:'var(--success-bg)',
               color:'var(--success)',
               fontFamily:"'Outfit',sans-serif",
-              fontSize:15, fontWeight:900,
+              fontSize:14, fontWeight:900,
               display:'flex', flexDirection:'column',
               alignItems:'center', justifyContent:'center',
               cursor:'pointer',
             }}
           >
             Perfect ✓
-            <span style={{fontSize:10, fontWeight:600, opacity:.7, marginTop:4}}>Move to next interval</span>
           </motion.button>
-        </div>
+          </div>
         </div>
       )}
     </div>

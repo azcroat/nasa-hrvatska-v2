@@ -526,38 +526,22 @@ export default function PracticeTab({
       </button>
 
       {showAll && (
-        <div style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 20,
-          background: 'var(--app-bg)',
-          paddingTop: 8,
-          paddingBottom: 8,
-          borderBottom: '1px solid var(--card-b)',
-          display: 'flex', gap: 6, overflowX: 'auto',
-          scrollbarWidth: 'none',
-          WebkitOverflowScrolling: 'touch',
-          padding: '8px 0',
-        }}>
-          {['all','grammar','vocab','practical','advanced'].map(f => (
+        <div className="pill-row" style={{ position:'sticky', top:0, zIndex:20, background:'var(--app-bg)', paddingTop:8, paddingBottom:8, borderBottom:'1px solid var(--card-b)' }}>
+          {[
+            { id:'all',       label:'All',        emoji:'✨' },
+            { id:'grammar',   label:'Grammar',    emoji:'📝' },
+            { id:'vocab',     label:'Vocabulary', emoji:'🇭🇷' },
+            { id:'practical', label:'Practical',  emoji:'🌍' },
+            { id:'advanced',  label:'Advanced',   emoji:'🎓' },
+          ].map(f => (
             <button
-              key={f}
-              onClick={() => setPFilter(f)}
-              style={{
-                flexShrink: 0,
-                padding: '6px 14px',
-                borderRadius: 20,
-                border: pFilter === f ? '1.5px solid var(--info)' : '1px solid var(--card-b)',
-                background: pFilter === f ? 'var(--info-bg)' : 'var(--card)',
-                color: pFilter === f ? 'var(--info)' : 'var(--text-2)',
-                fontSize: 12, fontWeight: 700, cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                minHeight: 44,
-              }}
-              aria-label={"Filter by " + f}
-              aria-pressed={pFilter === f}
+              key={f.id}
+              onClick={() => setPFilter(f.id)}
+              className={'pill-filter' + (pFilter === f.id ? ' active' : '')}
+              aria-label={'Filter by ' + f.label}
+              aria-pressed={pFilter === f.id}
             >
-              {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+              {f.emoji} {f.label}
             </button>
           ))}
         </div>
