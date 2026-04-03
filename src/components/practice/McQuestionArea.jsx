@@ -4,6 +4,75 @@ import { Spk } from '../../data.jsx';
 
 const LABELS = ['A', 'B', 'C', 'D'];
 
+// ── DuoLingo-style grammar hint engine ───────────────────────────────────────
+// Returns a specific grammar explanation based on the question's Croatian word
+// or category, rather than the generic "take note of this word" fallback.
+const CATEGORY_HINTS = {
+  greetings:  'Croatian greetings change based on time of day: "Dobro jutro" (morning), "Dobar dan" (afternoon), "Dobra večer" (evening).',
+  farewells:  '"Doviđenja" is formal; "Bok" and "Poka" are casual. Match the formality to your context.',
+  food:       'Food nouns: feminine nouns end in -a (kava, pizza), neuter nouns end in -o or -e (meso, vino).',
+  verbs:      'Croatian infinitives end in -ti or -ći. The present tense drops that ending and adds personal endings (-m, -š, -ø, -mo, -te, -ju/-e).',
+  numbers:    'Numbers 1–4 take special case agreement with nouns. From 5 onward, nouns take the genitive plural.',
+  colours:    'Colours in Croatian are adjectives — they agree with the noun\'s gender: crveni (m), crvena (f), crveno (n).',
+  family:     'Croatian family terms distinguish gender strictly: "brat" (brother), "sestra" (sister). There\'s no gender-neutral equivalent.',
+  body:       'Body parts are mostly feminine (-a ending: ruka, noga) or masculine (nos, prst). Gender determines adjective endings.',
+  nature:     'Nature vocabulary often reflects gender by ending: more (n), rijeka (f), brijeg (m).',
+  travel:     'Travel phrases often use the locative case for locations: "u gradu" (in the city), "na plaži" (at the beach).',
+  time:       '"Sada" (now), "jučer" (yesterday), "sutra" (tomorrow). Croatian doesn\'t use articles — no "the" or "a".',
+  emotions:   'Emotion words often use the verb "biti" (to be) with an adjective: "Sretan sam" (I am happy). Adjective agrees with subject gender.',
+  phrases:    'Common phrases often use the dative case for indirect objects: "Daj mi" (give me), "Reci mi" (tell me).',
+  grammar:    'Remember: in Croatian every letter is pronounced exactly as written — one letter, one sound, always.',
+};
+
+// Pattern-based hints derived from the Croatian word itself
+function _detectHintFromWord(hr) {
+  if (!hr) return null;
+  const w = hr.trim().toLowerCase();
+  // Verb infinitives
+  if (/[a-zčćšžđ]ti$/.test(w) || /[a-zčćšžđ]ći$/.test(w)) {
+    return `"${hr}" is a verb infinitive (ends in -ti/-ći). Present tense: drop the ending and add -m / -š / - / -mo / -te / -ju.`;
+  }
+  // Feminine nouns (-a ending)
+  if (/[aeiouaeiou]$/.test(w) && w.endsWith('a') && w.length > 2) {
+    return `"${hr}" ends in -a — likely a feminine noun. Its accusative singular also ends in -u: "${hr.slice(0, -1)}u".`;
+  }
+  // Neuter nouns (-o / -e ending)
+  if (w.endsWith('o') || w.endsWith('e')) {
+    return `"${hr}" ends in -o/-e — likely a neuter noun. Neuter nouns have the same form in nominative and accusative singular.`;
+  }
+  // Past tense -ao/-la/-lo
+  if (w.endsWith('ao') || w.endsWith('la') || w.endsWith('lo')) {
+    return `This looks like a past tense form. Croatian past tense uses "bio/bila/bilo" for "to be" and -ao/-la/-lo endings for other verbs.`;
+  }
+  return null;
+}
+
+function getGrammarHint(q) {
+  // 1. Use question-specific hint/explanation if present
+  if (q.hint) return q.hint;
+  if (q.explanation) return q.explanation;
+  // 2. Category-based hint
+  const cat = (q.category || q.cat || '').toLowerCase();
+  for (const [key, hint] of Object.entries(CATEGORY_HINTS)) {
+    if (cat.includes(key)) return hint;
+  }
+  // 3. Word-pattern detection
+  const wordHint = _detectHintFromWord(q.hr);
+  if (wordHint) return wordHint;
+  // 4. Rotating pool of general tips (keyed by question index to stay stable during session)
+  const GENERAL_TIPS = [
+    'Croatian is fully phonetic — every letter makes exactly one sound, always. Once you know the 30-letter alphabet, you can read anything.',
+    'Croatian nouns have 7 grammatical cases. The most common are: nominative (subject), accusative (direct object), and genitive (possession/negation).',
+    'Verb aspect is key in Croatian: imperfective verbs describe ongoing actions; perfective verbs describe completed ones. "Pisati" vs "napisati".',
+    'Word order in Croatian is flexible but clitics (short unstressed pronouns) must appear in second position: "Vidim te" not "Te vidim".',
+    'Croatian adjectives agree with the noun they describe in gender, number, and case. Master this and sentences click into place.',
+    'The letter "č" sounds like "ch" in "church"; "š" like "sh" in "shoe"; "ž" like "zh" in "measure". All consistent, no exceptions.',
+    'Tip: words you miss here are automatically added to your Spaced Repetition queue for targeted review later.',
+  ];
+  const idx = (q._qIdx ?? 0) % GENERAL_TIPS.length;
+  return GENERAL_TIPS[idx];
+}
+
 // ── Particle burst on correct answer ─────────────────────────────────────────
 const PARTICLES = ['⭐','✨','🌟','💫','⚡','✨','⭐','🌟','💥','✨'];
 const PARTICLE_POSITIONS = [
@@ -147,7 +216,7 @@ export default function McQuestionArea({
           border: '1px solid var(--info-b, rgba(14,116,144,0.2))',
           borderRadius: 10, fontSize: 12, color: 'var(--subtext)', lineHeight: 1.5,
         }}>
-          💡 {q.hint || q.explanation || 'Take note of this word — it will appear again in spaced repetition.'}
+          💡 {getGrammarHint(q)}
         </div>
       )}
 
