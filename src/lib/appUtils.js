@@ -8,6 +8,12 @@
  */
 import { localDateStr } from './dateUtils.js';
 
+// ─── Daily XP goal ───────────────────────────────────────────────────────────
+export const DAILY_XP_GOAL = 50;
+export function getDailyXP() {
+  try { return parseInt(localStorage.getItem('nh_daily_xp_' + localDateStr()) || '0', 10); } catch { return 0; }
+}
+
 // ─── XP / Level ──────────────────────────────────────────────────────────────
 export function lvl(x) {
   const t = [0, 50, 150, 300, 500, 800, 1200, 1800, 2500, 3500];

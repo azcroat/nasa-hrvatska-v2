@@ -139,6 +139,11 @@ export function useAward({ curEx, stats, setStats, writeDelta }: { curEx: string
     const _wk = _weekKey();
     const _wkKey = 'nh_week_xp_' + _wk;
     localStorage.setItem(_wkKey, String(Math.max(0, (parseInt(localStorage.getItem(_wkKey) || '0', 10)) + totalAmt)));
+    // Daily XP goal tracking — same pattern as weekly; key resets each calendar day
+    if (totalAmt > 0) {
+      const _dkKey = 'nh_daily_xp_' + _localDateStr();
+      localStorage.setItem(_dkKey, String((parseInt(localStorage.getItem(_dkKey) || '0', 10)) + totalAmt));
+    }
     if (!localStorage.getItem('nh_journey_first_lesson') && totalAmt > 0) { localStorage.setItem('nh_journey_first_lesson', '1'); recordJourneyMilestone('first_lesson', {}); }
     if (celebrate && curEx && curEx.startsWith('vocab_')) { try { localStorage.removeItem('nh_lesson_resume'); } catch (_) {} }
     if (curEx) {
