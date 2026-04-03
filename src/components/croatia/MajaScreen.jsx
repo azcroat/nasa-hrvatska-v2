@@ -405,7 +405,7 @@ export default function MajaScreen() {
     rec.onresult = (e) => {
       let full = '';
       for (let i = 0; i < e.results.length; i++) {
-        full += e.results[i][0].transcript;
+        if (e.results[i]?.[0]) full += e.results[i][0].transcript;
       }
       transcriptRef.current = full;
       setLiveTranscript(full);

@@ -100,7 +100,9 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
     rec.interimResults = false;
     rec.maxAlternatives = 3;
     rec.onresult = (/** @type {any} */ e) => {
+      if (!e.results?.[0]) return;
       const transcripts = Array.from(e.results[0]).map((/** @type {any} */ r) => r.transcript);
+      if (!transcripts.length) return;
       const best = /** @type {string[]} */ (transcripts).reduce((/** @type {{text:string,score:number}} */ best, t) => {
         const s = similarity(t, targetText);
         return s > best.score ? { text: t, score: s } : best;

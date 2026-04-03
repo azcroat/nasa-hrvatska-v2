@@ -262,6 +262,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
       clearTimeout(timeoutRef.current);
       stopRecording();
       stopWaveform();
+      if (!e.results || !e.results.length) return;
       const alts = Array.from(e.results[0]).map(r => r.transcript.toLowerCase().trim());
       const target = sw[0].toLowerCase().trim();
       // Generous matching: exact, contains, or at least 60% character overlap
