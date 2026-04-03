@@ -35,3 +35,10 @@ id         = "4652e2388967424db09395a2be0aad81"
 # Set actual values in Cloudflare dashboard — never commit secrets here
 [vars]
 ENVIRONMENT = "production"
+
+# ── Additional env vars required for /api/backfill (Pages Functions) ─────────
+# Add these in Cloudflare Pages → Settings → Environment Variables:
+#   FIREBASE_SERVICE_ACCOUNT_JSON  — full JSON from Firebase console →
+#                                    Project Settings → Service Accounts → Generate new private key
+#   (CRON_SECRET already required by /api/streak-push — reuse the same value)
+#   (VITE_FIREBASE_PROJECT_ID already set for the app build — also available to Functions)

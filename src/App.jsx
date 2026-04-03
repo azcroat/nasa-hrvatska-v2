@@ -189,6 +189,29 @@ function App() {
     if (fp.nh_culture) localStorage.setItem('nh_culture', fp.nh_culture);
     if (fp.nh_placement_done) { localStorage.setItem('nh_placement_done', 'true'); localStorage.setItem('placement_done', 'true'); }
     if (fp.nh_grammar_track_done) localStorage.setItem('nh_grammar_track_done', 'true');
+    // UI/accessibility preferences — restore cross-device.
+    // Three-state values (null | 'true' | 'false'): only write when remote is non-null
+    // so a device that never set a preference keeps its system-default behaviour.
+    if (fp.darkMode !== null && fp.darkMode !== undefined) localStorage.setItem('darkMode', fp.darkMode);
+    if (fp.nh_dm_explicit) localStorage.setItem('nh_dm_explicit', '1');
+    if (fp.nh_sound_enabled !== null && fp.nh_sound_enabled !== undefined) localStorage.setItem('nh_sound_enabled', fp.nh_sound_enabled);
+    if (fp.nh_haptic_enabled !== null && fp.nh_haptic_enabled !== undefined) localStorage.setItem('nh_haptic_enabled', fp.nh_haptic_enabled);
+    if (fp.nh_voice_pref) localStorage.setItem('nh_voice_pref', fp.nh_voice_pref);
+    if (fp.nh_font_size && fp.nh_font_size !== 'medium') localStorage.setItem('nh_font_size', fp.nh_font_size);
+    if (fp.nh_reduce_motion === true) localStorage.setItem('nh_reduce_motion', 'true');
+    // Journey milestones — additive union: never discard history from either device
+    if (Array.isArray(fp.nh_journey) && fp.nh_journey.length > 0) {
+      let lJ = []; try { lJ = JSON.parse(localStorage.getItem('nh_journey') || '[]'); } catch (_) {}
+      const seen = new Set(lJ.map(m => m.type + '|' + m.date));
+      const incoming = fp.nh_journey.filter(m => m && m.type && m.date && !seen.has(m.type + '|' + m.date));
+      if (incoming.length) { try { localStorage.setItem('nh_journey', JSON.stringify([...lJ, ...incoming].slice(-200))); } catch (_) {} }
+    }
+    // Weekend activity — merge sat/sun independently so cross-device weekend earns badge correctly
+    if (fp.nh_weekend_days && typeof fp.nh_weekend_days === 'object') {
+      let lWD = {}; try { lWD = JSON.parse(localStorage.getItem('nh_weekend_days') || '{}'); } catch (_) {}
+      const merged = { ...fp.nh_weekend_days, ...lWD }; // local wins for shared keys (more recent)
+      if (merged.sat || merged.sun) { try { localStorage.setItem('nh_weekend_days', JSON.stringify(merged)); } catch (_) {} }
+    }
   }, [setFavs, setJWords, sDchlA, sDchlSl, setOnboarded]);
 
   // Ref to break the useAuth TDZ cycle for doSyncNow and applyRemoteProgress
