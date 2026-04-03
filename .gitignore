@@ -13,3 +13,5 @@ UsersjschrAppDataLocalGoogleChromeUser Data/
 lighthouse-report.json
 e2e/sync-proof-report/
 browserstack-report/
+scripts/sa_key_temp.json
+scripts/backfill-run.cjs
