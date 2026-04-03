@@ -21,7 +21,8 @@ export function useSwipeBack(goBack, enabled = true) {
 
     function onTouchEnd(e) {
       if (startX.current === null) return;
-      const t = e.changedTouches[0];
+      const t = e.changedTouches?.[0];
+      if (!t) { startX.current = null; startY.current = null; return; }
       const dx = t.clientX - startX.current;
       const dy = Math.abs(t.clientY - (startY.current ?? 0));
       // Must start from left edge, move right significantly, and not be primarily vertical

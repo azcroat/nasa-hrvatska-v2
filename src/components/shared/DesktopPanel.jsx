@@ -42,7 +42,7 @@ const LEVEL_LABELS = { A1: 'Beginner', A2: 'Elementary', B1: 'Intermediate', B2:
 
 export default function DesktopPanel() {
   const { stats } = useStats();
-  const { tab, setTab } = useApp();
+  const { setTab } = useApp();
 
   const streak = stats?.str ?? 0;
   const xp = stats?.xp ?? 0;

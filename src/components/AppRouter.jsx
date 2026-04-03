@@ -1,4 +1,4 @@
-import React, { lazy, useRef, useEffect } from "react";
+import React, { lazy, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSwipeBack } from "../hooks/useSwipeBack.js";
 // Local Fisher-Yates shuffle — keeps chunk-data out of AppRouter's startup import.
@@ -243,6 +243,10 @@ const FrequencyTrackScreen = lazyWithReload(() => import("./learn/FrequencyTrack
 const GrammarTrackScreen = lazyWithReload(() => import("./learn/GrammarTrackScreen.jsx"));
 const ListeningComprehensionScreen = lazyWithReload(() => import("./practice/ListeningComprehensionScreen.jsx"));
 
+// Tab order used for slide direction. Defined at module scope so it's not
+// recreated on every render.
+const TAB_ORDER = ['home', 'learn', 'practice', 'croatia', 'profile'];
+
 /**
  * AppRouter — renders the correct screen component for `currentScreen`.
  * All screen-level lazy imports live here; App.jsx just passes props and renders <AppRouter />.
@@ -303,19 +307,18 @@ export default function AppRouter(props) {
 
   const _transKey = currentScreen === "dashboard" ? "dashboard-" + tab : currentScreen;
 
-  // Tab directional transitions — slide direction based on tab order
-  const TAB_ORDER = ['home', 'learn', 'practice', 'croatia', 'profile'];
+  // Tab directional transitions — computed synchronously during render so the
+  // className is correct on the same frame the animation plays.
+  // MUST NOT use useEffect here: effects run after paint, making tabDirection
+  // always one render late (the animation would fire before direction is updated).
   const prevTabRef = useRef(tab);
-  const tabDirection = useRef(0); // -1 = left (going back), 1 = right (going forward)
-  useEffect(() => {
-    const prev = prevTabRef.current;
-    if (prev !== tab) {
-      const prevIdx = TAB_ORDER.indexOf(prev);
-      const nextIdx = TAB_ORDER.indexOf(tab);
-      tabDirection.current = nextIdx > prevIdx ? 1 : -1;
-      prevTabRef.current = tab;
-    }
-  }, [tab]);
+  let tabSlideClass = 'tab-enter'; // default for first render
+  if (prevTabRef.current !== tab) {
+    const prevIdx = TAB_ORDER.indexOf(prevTabRef.current);
+    const nextIdx = TAB_ORDER.indexOf(tab);
+    tabSlideClass = nextIdx > prevIdx ? 'slide-in-right' : 'slide-in-left';
+    prevTabRef.current = tab; // update synchronously — safe inside render when the value derives from props
+  }
 
   // Swipe-back: disabled on flashcards (has its own swipe handling)
   const swipeEnabled = currentScreen !== 'flashcards';
@@ -391,7 +394,7 @@ export default function AppRouter(props) {
           </div>}
         </div>
         {// ═══ TAB: HOME ═══
-        tab==="home"&&<div key="tab-home" className={tabDirection.current > 0 ? "slide-in-left" : "slide-in-right"}><ScreenErrorBoundary name="HomeTab"><HomeTab
+        tab==="home"&&<div key="tab-home" className={tabSlideClass}><ScreenErrorBoundary name="HomeTab"><HomeTab
           dchlA={dchlA} sDchlA={sDchlA} dchlSl={dchlSl} sDchlSl={sDchlSl}
           getWeekStats={getWeekStats}
           setTab={(id)=>{const VALID_TABS={home:1,learn:1,practice:1,croatia:1,profile:1};if(VALID_TABS[id])setTab(id);else setScr(id);}} sCurEx={sCurEx}
@@ -405,7 +408,7 @@ export default function AppRouter(props) {
           resumeLesson={resumeLesson}
         /></ScreenErrorBoundary></div>}
         {// ═══ TAB: LEARN ═══
-        tab==="learn"&&<div key="tab-learn" className={tabDirection.current > 0 ? "slide-in-right" : "slide-in-left"}><ScreenErrorBoundary name="LearnTab"><LearnTab
+        tab==="learn"&&<div key="tab-learn" className={tabSlideClass}><ScreenErrorBoundary name="LearnTab"><LearnTab
           allCats={allCats} icons={icons} sCurEx={sCurEx}
           sh={_sh} sLt={sLt} sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl}
           sGl={sGl} sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
@@ -413,18 +416,18 @@ export default function AppRouter(props) {
           launchAnimLesson={launchAnimLesson}
         /></ScreenErrorBoundary></div>}
         {// ═══ TAB: PRACTICE ═══
-        tab==="practice"&&<div key="tab-practice" className={tabDirection.current > 0 ? "slide-in-right" : "slide-in-left"}><ScreenErrorBoundary name="PracticeTab"><PracticeTab
+        tab==="practice"&&<div key="tab-practice" className={tabSlideClass}><ScreenErrorBoundary name="PracticeTab"><PracticeTab
           allCats={allCats} sh={_sh} sCurEx={sCurEx}
           onLaunchQuiz={launchMcGame} onLaunchFlash={launchFlashcards}
           onLaunchListen={launchListening} onLaunchMatch={launchMatch}
           onLaunchSpeaking={launchSpeaking}
         /></ScreenErrorBoundary></div>}
         {// ═══ TAB: CROATIA ═══
-        tab==="croatia"&&<div key="tab-croatia" className={tabDirection.current > 0 ? "slide-in-right" : "slide-in-left"}><ScreenErrorBoundary name="CroatiaTab"><CroatiaTab
+        tab==="croatia"&&<div key="tab-croatia" className={tabSlideClass}><ScreenErrorBoundary name="CroatiaTab"><CroatiaTab
           sCurEx={sCurEx}
         /></ScreenErrorBoundary></div>}
         {// ═══ TAB: PROFILE ═══
-        tab==="profile"&&<div key="tab-profile" className={tabDirection.current > 0 ? "slide-in-right" : "slide-in-left"}><ScreenErrorBoundary name="ProfileTab"><ProfileTab
+        tab==="profile"&&<div key="tab-profile" className={tabSlideClass}><ScreenErrorBoundary name="ProfileTab"><ProfileTab
           syncReady={_syncReady} onSyncNow={doSyncNow}
           onOpenLeaderboard={() => setScr('leaderboard_weekly')}
           onOpenFriends={() => setScr('family_group')}
