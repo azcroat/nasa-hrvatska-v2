@@ -241,6 +241,38 @@ export function useSyncManager({
     return () => clearInterval(iv);
   }, [authUser, authScreen]);
 
+  // Periodic Firebase PULL every 3 minutes — failsafe for when the real-time gRPC-Web
+  // listener silently dies (common on iOS Chrome / WKWebView and poor mobile networks).
+  // Without this, a device whose listener dropped never gets updates from other devices
+  // until the user backgrounds/foregrounds the app. This guarantees convergence even
+  // when the user sits on one screen for an extended period.
+  useEffect(() => {
+    if (!authUser || authScreen !== 'app') return undefined;
+    const iv = setInterval(async () => {
+      const { authUser: u, authScreen: as } = _unloadRef.current;
+      if (!u || as !== 'app') return;
+      try {
+        const fp = await fbLoadProgress(u.u);
+        if (!fp) return;
+        const fpTs = fp._fbUpdated || 0;
+        // Skip if this is the same snapshot we already merged (watcher or iosWakeUp got it)
+        if (fpTs > 0 && fpTs === _lastMergedFbTs.current) return;
+        if (_mergeInProgressRef.current) return;
+        _mergeInProgressRef.current = true;
+        _lastMergedFbTs.current = fpTs || (_lastMergedFbTs.current + 1);
+        try {
+          const pSt = fp.stats || fp.st || {};
+          setStats(prev => mergeStatsFromRemote(prev, pSt, ds));
+          if (fp.name) setName(fp.name);
+          applyRemoteProgress(fp);
+        } finally {
+          setTimeout(() => { _mergeInProgressRef.current = false; }, 200);
+        }
+      } catch (_) {}
+    }, 3 * 60 * 1000); // every 3 minutes
+    return () => clearInterval(iv);
+  }, [authUser, authScreen, applyRemoteProgress, ds, setStats, setName]);
+
   // Synchronous localStorage flush + best-effort Firebase push on tab close / page kill
   useEffect(() => {
     const saveSnapshot = (pushToFirebase) => {
