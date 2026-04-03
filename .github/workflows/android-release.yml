@@ -31,6 +31,9 @@ on:
           - beta
           - production
 
+permissions:
+  contents: write   # required to create GitHub Releases and upload artifacts
+
 concurrency:
   group: android-release
   cancel-in-progress: false  # never cancel a release build mid-flight
