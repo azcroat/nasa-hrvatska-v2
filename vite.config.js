@@ -59,14 +59,14 @@ export default defineConfig({
         // Precache critical app-shell assets: index.html (required by NavigationRoute),
         // CSS, fonts, favicon/manifest icons. JS chunks handled by runtimeCaching below.
         globPatterns: ['index.html', '**/*.css', '**/*.woff2', '**/*.ico', '**/icon*.png', '**/apple-touch*.png', 'offline.html'],
-        globIgnores: ['**/chunk-data*.js', '**/chunk-vocabulary*.js', '**/chunk-grammar*.js', '**/chunk-exercises*.js', '**/chunk-lessons*.js', '**/chunk-scenarios*.js', '**/chunk-cultural*.js', '**/splash/**', '**/screenshots/**'],
+        globIgnores: ['**/chunk-data*.js', '**/chunk-vocabulary*.js', '**/chunk-grammar*.js', '**/chunk-exercises*.js', '**/chunk-lessons*.js', '**/chunk-scenarios*.js', '**/chunk-cultural*.js', '**/chunk-geo*.js', '**/splash/**', '**/screenshots/**'],
         runtimeCaching: [
           {
             // Data chunks (vocab, stories, songs, pitch, daily content) — stale-while-revalidate.
             // cacheWillUpdate plugin: reject any response with Content-Type: text/html
             // (the Cloudflare /* /index.html 200 SPA fallback returns status 200 WITH
             // text/html — so cacheableResponse: {statuses:[200]} alone is not enough).
-            urlPattern: /\/assets\/chunk-(data|vocabulary|grammar|exercises|lessons|scenarios|cultural|stories|pitch-data|daily|songs)[^/]*\.js$/,
+            urlPattern: /\/assets\/chunk-(data|vocabulary|grammar|exercises|lessons|scenarios|cultural|geo|stories|pitch-data|daily|songs)[^/]*\.js$/,
             handler: 'StaleWhileRevalidate',
             options: {
               cacheName: 'nasa-hrvatska-v15-data',
@@ -185,11 +185,10 @@ export default defineConfig({
       output: {
         experimentalMinChunkSize: 0, // Don't merge tiny chunks into startup bundle — prevents chunk-data becoming a static startup dep
         manualChunks(id) {
-          // Firebase split: firestore and auth are the two large sub-packages (~350 KB + ~150 KB).
-          // Splitting them from vendor-firebase-core (~220 KB) keeps all three under 600 KB.
-          if (id.includes('node_modules/@firebase/firestore')) return 'vendor-firebase-firestore';
-          if (id.includes('node_modules/@firebase/auth')) return 'vendor-firebase-auth';
-          if (id.includes('node_modules/firebase') || id.includes('node_modules/@firebase')) return 'vendor-firebase-core';
+          // Firebase must stay as ONE chunk — the SDK uses shared internal state and
+          // circular dependencies across @firebase/* packages. Splitting it causes
+          // module initialization order failures (app crashes with blank screen / NO_FCP).
+          if (id.includes('node_modules/firebase') || id.includes('node_modules/@firebase')) return 'vendor-firebase';
           if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) return 'vendor-react';
           if (id.includes('node_modules/@sentry')) return 'vendor-sentry';
           if (id.includes('node_modules/posthog-js')) return 'vendor-posthog';
@@ -206,6 +205,7 @@ export default defineConfig({
           if (id.includes('src/data/exercises')) return 'chunk-exercises';
           if (id.includes('src/data/lessons')) return 'chunk-lessons';
           if (id.includes('src/data/scenarios')) return 'chunk-scenarios';
+          if (id.includes('src/data/cultural/geography')) return 'chunk-geo';  // 557 kB 365-city file — isolated
           if (id.includes('src/data/cultural')) return 'chunk-cultural';
           // data.jsx (root vocabulary file) + content.jsx stay in chunk-data (~700 KB).
           // src/data.jsx alone is ~700 KB and cannot be split without a major refactor.
