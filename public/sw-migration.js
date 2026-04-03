@@ -4,7 +4,8 @@
 // Only caches with a completely different naming scheme are removed.
 // NOTE: SW unregister removed — it was killing v13+ SWs and causing a
 // blank-white-screen infinite reload loop for all users.
-if ('serviceWorker' in navigator) {
+// Skip in Capacitor native shell — SW and Cache API are unavailable in WebView.
+if ('serviceWorker' in navigator && !window.Capacitor?.isNativePlatform?.()) {
   var CURRENT_CACHE_PREFIX = 'nasa-hrvatska-v';
   caches.keys().then(function(keys) {
     keys.forEach(function(k) {

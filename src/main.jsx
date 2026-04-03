@@ -6,6 +6,7 @@ import './index.css';
 import App from './App.jsx';
 import { reportError } from './lib/errorReporter.js';
 import { isNative, isAndroid } from './lib/platform.js';
+import { registerSW } from 'virtual:pwa-register';
 
 // ─── Capacitor native plugin initialisation ────────────────────────────────
 // Runs only inside the Android / iOS shell; is a no-op in the browser.
@@ -218,20 +219,27 @@ window.onunhandledrejection = function (event) {
   reportError(reason ?? new Error('Unhandled rejection'), 'unhandledrejection');
 };
 
-// ─── Service Worker auto-reload ────────────────────────────────────────────
-// When a new SW takes over (after deploy), reload so users see the latest version.
-// Guard: 30s window prevents reload loop on rapid back-to-back activations.
-// Hard limit: max 3 reloads per page session prevents infinite loop on bad deploys.
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    const lastReload = parseInt(sessionStorage.getItem('sw-reloaded-at') || '0', 10);
-    const reloadCount = parseInt(sessionStorage.getItem('sw-reload-count') || '0', 10);
-    if (Date.now() - lastReload < 30000) return; // 30s guard
-    if (reloadCount >= 3) return; // hard limit: max 3 reloads per session
-    sessionStorage.setItem('sw-reloaded-at', String(Date.now()));
-    sessionStorage.setItem('sw-reload-count', String(reloadCount + 1));
-    window.location.reload();
-  });
+// ─── Service Worker registration ──────────────────────────────────────────
+// Skip entirely inside Capacitor Android/iOS — WebView does not support SW
+// registration from https://localhost/ and the attempt throws an unhandled
+// rejection that pollutes Sentry. Web browsers get the full PWA experience.
+if (!isNative()) {
+  registerSW({ immediate: true });
+
+  // When a new SW takes over (after deploy), reload so users see the latest version.
+  // Guard: 30s window prevents reload loop on rapid back-to-back activations.
+  // Hard limit: max 3 reloads per page session prevents infinite loop on bad deploys.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      const lastReload = parseInt(sessionStorage.getItem('sw-reloaded-at') || '0', 10);
+      const reloadCount = parseInt(sessionStorage.getItem('sw-reload-count') || '0', 10);
+      if (Date.now() - lastReload < 30000) return; // 30s guard
+      if (reloadCount >= 3) return; // hard limit: max 3 reloads per session
+      sessionStorage.setItem('sw-reloaded-at', String(Date.now()));
+      sessionStorage.setItem('sw-reload-count', String(reloadCount + 1));
+      window.location.reload();
+    });
+  }
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
