@@ -5,8 +5,10 @@ import { markQuest } from '../../lib/quests.js';
 import SpeakingSummaryScreen from './SpeakingSummaryScreen.jsx';
 import SpeakingPracticePanel from './SpeakingPracticePanel.jsx';
 import { knightSpeak } from '../../lib/knightSpeak.js';
+import { useAndroidMicPermission } from '../../hooks/useAndroidMicPermission.js';
+import { isSpeechRecognitionSupported } from '../../lib/platform.js';
 
-const SRSupported = typeof window !== 'undefined' && !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+const SRSupported = isSpeechRecognitionSupported();
 
 const SPEAKING_TIPS = [
   { mood: 'encouraging', text: 'Your accent doesn\'t need to be perfect — it needs to be understood. Speak boldly. 🎙️' },
@@ -41,6 +43,7 @@ function srError(code) {
 
 export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSsc, goBack, award, setSt }) {
   const { writeDelta } = useStats();
+  const { needsRationale, dismissRationale } = useAndroidMicPermission();
   const [listening, setListening] = useState(false);
   const [recResult, setRecResult] = useState(null);
   const [recMsg, setRecMsg] = useState('');
@@ -397,6 +400,36 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   // ── Summary screen ────────────────────────────────────────────────────────
   if (showSummary) {
     return <SpeakingSummaryScreen wordScores={wordScores} onDone={() => goBack()} />;
+  }
+
+  // ── Android mic rationale gate ─────────────────────────────────────────────
+  // On Android, show an explanation before the OS mic permission dialog fires.
+  // Only shown once — dismissRationale() marks it as seen in localStorage.
+  if (needsRationale) {
+    return (
+      <div className="scr-wrap" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '70vh', padding: '24px 20px', textAlign: 'center' }}>
+        <div style={{ fontSize: 56, marginBottom: 16 }}>🎤</div>
+        <h2 style={{ fontSize: 22, fontWeight: 900, color: 'var(--heading)', marginBottom: 12 }}>
+          Microphone Access
+        </h2>
+        <p style={{ fontSize: 15, color: 'var(--subtext)', lineHeight: 1.6, marginBottom: 8 }}>
+          Pronunciation Practice uses your microphone to visualise your speech and record your answers for self-comparison.
+        </p>
+        <p style={{ fontSize: 14, color: 'var(--subtext)', lineHeight: 1.6, marginBottom: 28 }}>
+          Your audio is <strong>never uploaded or stored</strong> — everything stays on your device.
+        </p>
+        <button
+          onClick={dismissRationale}
+          className="b bp"
+          style={{ width: '100%', maxWidth: 320, marginBottom: 12 }}
+        >
+          Got it — allow microphone
+        </button>
+        <button onClick={goBack} style={{ background: 'none', border: 'none', color: 'var(--subtext)', fontSize: 14, cursor: 'pointer' }}>
+          Not now
+        </button>
+      </div>
+    );
   }
 
   // ── Main speaking screen ───────────────────────────────────────────────────
