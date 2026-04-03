@@ -228,10 +228,20 @@ export default function LessonScreen({
       {li.length >= 4 && (
         <button className="b bp" style={{ width: "100%", marginTop: 8 }} onClick={() => {
           const qPool = sh(li).slice(0, Math.min(li.length, 15));
-          const q = qPool.map(w => {
-            const wr = sh(li.filter(x => x[1] !== w[1])).slice(0, 3).map(x => x[1]);
-            const o = sh([w[1], ...wr]);
-            return { ...w, opts: o, ci: o.indexOf(w[1]) };
+          // DuoLingo-style: alternate CR→EN and EN→CR questions for exercise variety
+          const q = qPool.map((w, i) => {
+            const isCrToEn = i % 2 === 0;
+            if (isCrToEn) {
+              // CR → EN: show Croatian word, pick English translation (existing)
+              const wr = sh(li.filter(x => x[1] !== w[1])).slice(0, 3).map(x => x[1]);
+              const o = sh([w[1], ...wr]);
+              return { ...w, opts: o, ci: o.indexOf(w[1]), direction: 'cr-en' };
+            } else {
+              // EN → CR: show English word, pick Croatian translation (new)
+              const wr = sh(li.filter(x => x[0] !== w[0])).slice(0, 3).map(x => x[0]);
+              const o = sh([w[0], ...wr]);
+              return { ...w, opts: o, ci: o.indexOf(w[0]), direction: 'en-cr' };
+            }
           });
           sQi(q); sLx(0); sLp("quiz"); sLa(false); sLsl(-1);
         }}>Quiz Me! →</button>
@@ -297,28 +307,45 @@ export default function LessonScreen({
         <Bar v={lx + 1} mx={qi.length} h={6} />
 
         <div className="c" style={{ marginTop: 16 }}>
-          <div
-            role="button" tabIndex={0}
-            onClick={() => speak(qi[lx][0])}
-            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speak(qi[lx][0]); } }}
-            aria-label={"Hear pronunciation of " + qi[lx][0]}
-            style={{
-              display: "flex", alignItems: "center", gap: 14,
-              marginBottom: 24, cursor: "pointer",
-              padding: '12px 0',
-            }}>
-            <div style={{
-              width: 48, height: 48, borderRadius: 14,
-              background: 'var(--info-bg)', flexShrink: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: '1px solid var(--info-b)', fontSize: 20,
-            }} aria-hidden="true">🔊</div>
-            <p style={{
-              fontSize: 28, fontWeight: 900, margin: 0,
-              fontFamily: "'Playfair Display',serif",
-              color: 'var(--heading)',
-            }}>{qi[lx][0]}</p>
+          {/* Direction label — mirrors DuoLingo's exercise-type header */}
+          <div style={{
+            fontSize: 11, fontWeight: 700, color: 'var(--subtext)',
+            marginBottom: 10, letterSpacing: '.06em', textTransform: 'uppercase',
+          }}>
+            {qi[lx].direction === 'en-cr' ? 'Translate to Croatian' : 'What does this mean in English?'}
           </div>
+
+          {qi[lx].direction === 'en-cr' ? (
+            /* EN → CR: show English word as prompt (no speaker — it's English) */
+            <div style={{ marginBottom: 24, padding: '12px 0' }}>
+              <p style={{
+                fontSize: 28, fontWeight: 900, margin: 0,
+                fontFamily: "'Playfair Display',serif", color: 'var(--heading)',
+              }}>{qi[lx][1]}</p>
+            </div>
+          ) : (
+            /* CR → EN: show Croatian word with speaker icon (existing behavior) */
+            <div
+              role="button" tabIndex={0}
+              onClick={() => speak(qi[lx][0])}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speak(qi[lx][0]); } }}
+              aria-label={"Hear pronunciation of " + qi[lx][0]}
+              style={{
+                display: "flex", alignItems: "center", gap: 14,
+                marginBottom: 24, cursor: "pointer", padding: '12px 0',
+              }}>
+              <div style={{
+                width: 48, height: 48, borderRadius: 14,
+                background: 'var(--info-bg)', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: '1px solid var(--info-b)', fontSize: 20,
+              }} aria-hidden="true">🔊</div>
+              <p style={{
+                fontSize: 28, fontWeight: 900, margin: 0,
+                fontFamily: "'Playfair Display',serif", color: 'var(--heading)',
+              }}>{qi[lx][0]}</p>
+            </div>
+          )}
 
           {qi[lx].opts.map((o, i) => (
             <button key={i}
@@ -326,6 +353,7 @@ export default function LessonScreen({
               style={{
                 animation: la && i === qi[lx].ci ? 'correct-flash .5s ease' : la && lsl === i ? 'wrong-shake .4s ease' : undefined,
                 position: 'relative',
+                display: 'flex', alignItems: 'center', gap: 10,
               }}
               aria-label={`Option ${i + 1}: ${o}`}
               onClick={() => {
@@ -342,7 +370,17 @@ export default function LessonScreen({
                 fontSize: 10, fontWeight: 800, color: 'var(--subtext)', opacity: 0.5,
                 fontFamily: 'monospace', pointerEvents: 'none',
               }} aria-hidden="true">{i + 1}</span>
-              {o}
+              <span style={{ flex: 1, paddingLeft: 24 }}>{o}</span>
+              {/* EN→CR: tap any Croatian option to hear its pronunciation */}
+              {qi[lx].direction === 'en-cr' && (
+                <span
+                  role="button"
+                  tabIndex={-1}
+                  onClick={e => { e.stopPropagation(); speak(o); }}
+                  style={{ fontSize: 14, opacity: 0.5, flexShrink: 0, padding: '2px 4px' }}
+                  aria-label={`Hear ${o}`}
+                >🔊</span>
+              )}
             </button>
           ))}
 
@@ -387,7 +425,7 @@ export default function LessonScreen({
               borderRadius:10, fontSize:13, color:'var(--subtext)', lineHeight:1.6
             }}>
               💡 <strong style={{color:'var(--heading)'}}>Tip:</strong>{' '}
-              {qi?.[lx]?.hint || qi?.[lx]?.explanation || 'Review this word in your vocabulary journal to remember it better.'}
+              {qi?.[lx]?.hint || qi?.[lx]?.explanation || (qi[lx].direction === 'en-cr' ? `"${qi[lx][1]}" translates to "${qi[lx][0]}" in Croatian.` : 'Review this word — it will come up again in spaced repetition.')}
             </div>
           )}
 
