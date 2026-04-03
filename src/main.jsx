@@ -141,11 +141,46 @@ class ErrorBoundary extends React.Component {
 // Catches errors that escape React's error boundaries (e.g. async callbacks,
 // errors in event handlers, errors in non-React code). Complements Sentry
 // when VITE_SENTRY_DSN is not set, and provides a lightweight fallback.
+//
+// Also handles WebKit's "Importing binding name 'X' is not found" SyntaxError
+// which fires when a stale SW-cached chunk tries to resolve a named import
+// that no longer exists in the freshly-deployed chunk (minifier renamed it).
+// In this case we purge the JS cache and reload — same recovery path as
+// lazyWithReload in AppRouter.jsx but for eagerly-loaded / static imports.
+function _isStaleBindingError(msg) {
+  return typeof msg === 'string' && msg.includes('Importing binding name');
+}
+function _reloadWithCachePurge(storageKey) {
+  try {
+    const n = parseInt(sessionStorage.getItem(storageKey) || '0', 10);
+    if (n >= 2) return false; // stop after 2 attempts — don't loop forever
+    sessionStorage.setItem(storageKey, String(n + 1));
+    if ('caches' in window) {
+      caches.keys()
+        .then(names => names.forEach(name => { if (name.includes('nasa-hrvatska') && name.includes('-js')) caches.delete(name); }))
+        .catch(() => {})
+        .finally(() => window.location.reload());
+    } else {
+      window.location.reload();
+    }
+    return true;
+  } catch (_) { return false; }
+}
+
 window.onerror = function (message, _source, _lineno, _colno, error) {
+  const msg = (error?.message || '') + String(message || '');
+  if (_isStaleBindingError(msg)) {
+    if (_reloadWithCachePurge('nh_binding_reload')) return true; // suppress Sentry noise
+  }
   reportError(error ?? new Error(String(message)), 'window.onerror');
 };
 window.onunhandledrejection = function (event) {
-  reportError(event.reason ?? new Error('Unhandled rejection'), 'unhandledrejection');
+  const reason = event.reason;
+  const msg = (reason?.message || '') + (reason?.name || '');
+  if (_isStaleBindingError(msg)) {
+    if (_reloadWithCachePurge('nh_binding_reload')) return;
+  }
+  reportError(reason ?? new Error('Unhandled rejection'), 'unhandledrejection');
 };
 
 // ─── Service Worker auto-reload ────────────────────────────────────────────
