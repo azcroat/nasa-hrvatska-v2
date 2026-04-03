@@ -101,11 +101,18 @@ export function scheduleStreakReminder(streakDays) {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   // Clear any previously scheduled reminder
   if (_streakReminderTimer !== null) { clearTimeout(_streakReminderTimer); _streakReminderTimer = null; }
+  // Read user's preferred reminder time (default 8pm). Format: "HH:MM"
+  let reminderHour = 20;
+  try {
+    const pref = localStorage.getItem('nh_reminder_time') || '20:00';
+    reminderHour = parseInt(pref.split(':')[0], 10);
+    if (!Number.isFinite(reminderHour) || reminderHour < 0 || reminderHour > 23) reminderHour = 20;
+  } catch (_) { reminderHour = 20; }
   const now = new Date();
   const target = new Date(now);
-  target.setHours(20, 0, 0, 0); // 8 PM local time
+  target.setHours(reminderHour, 0, 0, 0);
   const delay = target.getTime() - now.getTime();
-  if (delay <= 0) return; // already past 8 PM today — skip
+  if (delay <= 0) return; // already past reminder time today — skip
   _streakReminderTimer = setTimeout(() => {
     _streakReminderTimer = null;
     // Check if user has practiced today before firing
