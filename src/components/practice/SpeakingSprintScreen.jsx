@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { markQuest } from '../../lib/quests.js';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
+import { isSpeechRecognitionSupported } from '../../lib/platform.js';
 import SprintSetupScreen from './SprintSetupScreen.jsx';
 import SprintCountdownScreen from './SprintCountdownScreen.jsx';
 import SprintSpeakingPhase from './SprintSpeakingPhase.jsx';
@@ -68,9 +69,7 @@ const PROMPTS = {
 // ─────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────
-const SR_SUPPORTED =
-  typeof window !== 'undefined' &&
-  !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+const SR_SUPPORTED = isSpeechRecognitionSupported();
 
 function pickPrompt() {
   const level = localStorage.getItem('nh_level') || 'B1';

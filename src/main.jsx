@@ -5,6 +5,41 @@ import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 import './index.css';
 import App from './App.jsx';
 import { reportError } from './lib/errorReporter.js';
+import { isNative, isAndroid } from './lib/platform.js';
+
+// ─── Capacitor native plugin initialisation ────────────────────────────────
+// Runs only inside the Android / iOS shell; is a no-op in the browser.
+// StatusBar: transparent overlay so our gradient header fills edge-to-edge.
+// SplashScreen: hidden after React has painted, preventing a white flash.
+// Keyboard: resize only the webview body — avoids layout shifts on iOS.
+if (isNative()) {
+  (async () => {
+    try {
+      const [{ StatusBar, Style }, { SplashScreen }, { Keyboard }] = await Promise.all([
+        import('@capacitor/status-bar'),
+        import('@capacitor/splash-screen'),
+        import('@capacitor/keyboard'),
+      ]);
+
+      // Transparent status bar — our CSS gradient extends beneath it
+      await StatusBar.setOverlaysWebView({ overlay: true });
+      await StatusBar.setStyle({ style: Style.Dark });
+
+      // Android: set status-bar background to match our dark teal
+      if (isAndroid()) {
+        await StatusBar.setBackgroundColor({ color: '#0e7490' });
+      }
+
+      // Hide the native splash after first paint
+      await SplashScreen.hide({ fadeOutDuration: 300 });
+
+      // Keyboard resizes only the body — prevents the entire app shifting up on iOS
+      await Keyboard.setResizeMode({ mode: 'body' });
+    } catch (_) {
+      // Plugin bootstrap errors must never crash the app
+    }
+  })();
+}
 
 // ─── Production console suppression ───────────────────────────────────────
 // Silence log/debug/info/warn in production — reduces noise in App Store review

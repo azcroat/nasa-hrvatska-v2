@@ -1,8 +1,9 @@
 import React from 'react';
+import { isSpeechRecognitionSupported } from '../../lib/platform.js';
 
-const SR_SUPPORTED =
-  typeof window !== 'undefined' &&
-  !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+// Evaluate once at module load — avoids re-checking on every render.
+// Android WebView returns false here; Chrome desktop and Safari return true.
+const SR_SUPPORTED = isSpeechRecognitionSupported();
 
 export default function SprintSpeakingPhase({
   rounds,

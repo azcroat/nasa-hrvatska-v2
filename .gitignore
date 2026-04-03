@@ -15,3 +15,8 @@ e2e/sync-proof-report/
 browserstack-report/
 scripts/sa_key_temp.json
 scripts/backfill-run.cjs
+
+# Android release keystore — never commit; back up to Dropbox / 1Password
+*.jks
+*.keystore
+android/local.properties

@@ -1,10 +1,25 @@
 import React from 'react';
 import { H } from '../../data.jsx';
+import { isAndroid, isSpeechRecognitionSupported } from '../../lib/platform.js';
 
 export default function SprintSetupScreen({ level, onStart, onBack, isOnline = true }) {
+  const srSupported = isSpeechRecognitionSupported();
   return (
     <div className="scr-wrap" style={{ padding: '0 16px 32px', maxWidth: 600, margin: '0 auto' }}>
       {H('🎤 Speaking Sprint', 'Listen · Speak · Compare')}
+
+      {/* Android WebView — microphone / speech recognition not supported */}
+      {isAndroid() && !srSupported && (
+        <div style={{
+          marginBottom: 16, padding: '12px 16px',
+          background: 'rgba(14,116,144,.08)', border: '1.5px solid rgba(14,116,144,.3)',
+          borderRadius: 12, fontSize: 13, fontWeight: 600, color: '#0e4f5c',
+          display: 'flex', gap: 10, alignItems: 'center',
+        }}>
+          <span>📝</span>
+          <span>Speech recognition isn't available in this app view — you can still type your Croatian responses to compare with the model answer.</span>
+        </div>
+      )}
 
       {/* Offline warning */}
       {!isOnline && (
