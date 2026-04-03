@@ -2,39 +2,42 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 
 /**
- * CroatianKnight — LEGO Movie–quality minifigure mascot
+ * CroatianKnight — LEGO Movie–quality minifigure mascot (v3)
  *
- * Authentic LEGO minifigure proportions:
- *  - Round stud on bucket visor helmet
- *  - T-visor with dual eye slits
- *  - Visible shoulder disk joints
- *  - Iconic C-clamp hands
- *  - H-shaped hip connector
- *  - Šahovnica shield — 5×5, WHITE (argent) first (correct Croatian heraldry)
- *  - LEGO sword with pommel/guard/blade
- *  - Red plume
- *  - Per-mood body + arm animations with LEGO stop-motion feel
+ * LEGO Movie animation principles implemented:
+ *  1. Stop-motion jitter — sub-pixel steps(1) displacement at 12fps
+ *  2. Squash & stretch — scaleY/scaleX on bounce landing/peak
+ *  3. Anticipation — slight dip before jumps
+ *  4. Independent head group — nods, shakes, bobs separately from body
+ *  5. Secondary plume motion — follow-through with phase delay
+ *  6. Dynamic ground shadow — shrinks as figure rises
+ *  7. Mood eye-slit glow — all moods (not level-gated)
+ *  8. Blink — stepped, natural cadence
+ *  9. Hold poses — stepped() timing on key frames for snap feel
+ * 10. Arm secondary motion — shield/sword lag follow-through
  */
 
 // ─── Palette ─────────────────────────────────────────────────────────────────
 const C = {
-  ar:    '#A4B4C8',  // armor (classic LEGO castle blue-gray)
-  arHi:  '#D2E2F4',  // armor highlight
-  arSh:  '#5A6A84',  // armor shadow
-  arDk:  '#343C50',  // armor deep shadow
-  red:   '#CC0022',  // Croatian red
+  ar:    '#A4B4C8',
+  arHi:  '#D2E2F4',
+  arSh:  '#5A6A84',
+  arDk:  '#343C50',
+  red:   '#CC0022',
   redHi: '#EE3042',
-  gd:    '#D4A400',  // gold
+  gd:    '#D4A400',
   gdHi:  '#FFDC3C',
-  sk:    '#F0CC70',  // LEGO classic yellow skin
+  sk:    '#F0CC70',
   skHi:  '#FFE490',
-  blk:   '#181828',  // near-black outline
-  wht:   '#F4F0E2',  // parchment white (shield)
-  brn:   '#5E3010',  // leather grip
-  stl:   '#8898B0',  // blade steel
+  blk:   '#181828',
+  wht:   '#F4F0E2',
+  brn:   '#5E3010',
+  stl:   '#8898B0',
+  plumeR:'#C8001A',     // plume red
+  plumeP:'#FF2040',     // plume highlight
 };
 
-// ─── Mood → rim glow (CSS drop-shadow filter) ────────────────────────────────
+// ─── Mood → rim glow ─────────────────────────────────────────────────────────
 const MOOD_RIM = {
   celebrating: 'drop-shadow(0 0 10px rgba(212,164,0,.8)) drop-shadow(0 0 20px rgba(212,164,0,.35))',
   victory:     'drop-shadow(0 0 12px rgba(180,83,9,.9)) drop-shadow(0 0 22px rgba(255,200,50,.45))',
@@ -46,6 +49,20 @@ const MOOD_RIM = {
   sad:         'drop-shadow(0 0 7px rgba(220,38,38,.38))',
   confused:    null,
   neutral:     null,
+};
+
+// ─── Mood → eye slit color + animation ───────────────────────────────────────
+const MOOD_EYE = {
+  celebrating: { fill: '#FFDC3C', anim: 'lk-eye-gold 0.35s ease-in-out infinite',    op: 0.90 },
+  victory:     { fill: '#FF9800', anim: 'lk-eye-gold 0.28s ease-in-out infinite',    op: 0.92 },
+  happy:       { fill: '#38BDF8', anim: 'lk-eye-soft 2.0s ease-in-out infinite',     op: 0.78 },
+  encouraged:  { fill: '#4ADE80', anim: 'lk-eye-soft 2.2s ease-in-out infinite',     op: 0.72 },
+  thinking:    { fill: '#A78BFA', anim: 'lk-eye-think 3.0s ease-in-out infinite',    op: 0.68 },
+  ready:       { fill: '#93C5FD', anim: 'lk-eye-soft 2.5s ease-in-out infinite',     op: 0.70 },
+  marching:    { fill: '#60A5FA', anim: 'lk-eye-march 0.92s ease-in-out infinite',   op: 0.72 },
+  sad:         { fill: '#FCA5A5', anim: 'lk-eye-sad 3.8s ease-in-out infinite',      op: 0.52 },
+  confused:    { fill: '#FDE68A', anim: 'lk-eye-confused 0.6s steps(1) infinite',    op: 0.60 },
+  neutral:     { fill: '#CBD5E1', anim: 'lk-eye-idle 4.5s ease-in-out infinite',     op: 0.42 },
 };
 
 // ─── Level-based visual evolution ────────────────────────────────────────────
@@ -79,285 +96,473 @@ function getLevelConfig(level) {
 }
 
 // ─── CSS Keyframes ────────────────────────────────────────────────────────────
-// LEGO animations have a satisfying "plastic snap" quality — short, snappy timing
 const KF = `
-/* ── Body animations ── */
+
+/* ═══════════════════════════════════════════════════
+   LEGO MOVIE PRINCIPLE 1: STOP-MOTION JITTER
+   steps(1) = frame-snapping, not smooth vibration
+   12fps cadence (0.083s) — sub-pixel displacement
+   Creates the "physically moved between frames" feel
+═══════════════════════════════════════════════════ */
+@keyframes lk-jitter {
+  0%   { transform: translate( 0px,  0px)  }
+  8%   { transform: translate( 0.4px,-0.3px) }
+  17%  { transform: translate(-0.3px, 0.4px) }
+  25%  { transform: translate( 0px,  0.3px) }
+  33%  { transform: translate(-0.4px,-0.3px) }
+  42%  { transform: translate( 0.3px, 0px) }
+  50%  { transform: translate( 0px,  0px)  }
+  58%  { transform: translate(-0.3px, 0.4px) }
+  67%  { transform: translate( 0.4px,-0.4px) }
+  75%  { transform: translate( 0px, -0.3px) }
+  83%  { transform: translate(-0.4px, 0px) }
+  92%  { transform: translate( 0.3px, 0.3px) }
+  100% { transform: translate( 0px,  0px)  }
+}
+
+/* ═══════════════════════════════════════════════════
+   LEGO MOVIE PRINCIPLE 2: SQUASH & STRETCH
+   Body animations with proper weight physics
+═══════════════════════════════════════════════════ */
 @keyframes lk-bounce {
-  0%,100%{transform:translateY(0px)}
-  25%{transform:translateY(-15px)}
-  50%{transform:translateY(-10px)}
-  75%{transform:translateY(-18px)}
-}
-@keyframes lk-float {
-  0%,100%{transform:translateY(0px)}
-  50%{transform:translateY(-7px)}
-}
-@keyframes lk-tilt {
-  0%,100%{transform:rotate(0deg) translateY(0px)}
-  50%{transform:rotate(-6deg) translateY(-2px)}
-}
-@keyframes lk-wobble {
-  0%,100%{transform:rotate(0deg)}
-  15%{transform:rotate(-7deg)}
-  45%{transform:rotate(7deg)}
-  75%{transform:rotate(-5deg)}
-  90%{transform:rotate(3deg)}
-}
-@keyframes lk-droop {
-  0%,100%{transform:translateY(0px) scaleY(1)}
-  50%{transform:translateY(5px) scaleY(0.965)}
-}
-@keyframes lk-idle {
-  0%,100%{transform:translateY(0px)}
-  50%{transform:translateY(-3px)}
-}
-@keyframes lk-sheen {
-  0%,100%{opacity:0.18}
-  50%{opacity:0.42}
-}
-@keyframes lk-strut {
-  0%,100%{transform:translateX(0px) rotate(0deg)}
-  25%{transform:translateX(-6px) rotate(-3deg)}
-  75%{transform:translateX(6px) rotate(3deg)}
-}
-@keyframes lk-pulse {
-  0%,100%{transform:scale(1)}
-  35%{transform:scale(1.09) translateY(-3px)}
-  60%{transform:scale(1.04) translateY(-1px)}
-}
-@keyframes lk-spin {
-  0%{transform:rotate(0deg) translateY(-4px)}
-  100%{transform:rotate(360deg) translateY(-4px)}
-}
-@keyframes lk-march {
-  0%,100%{transform:translateY(0px) rotate(0deg)}
-  25%{transform:translateY(-10px) rotate(-2deg)}
-  50%{transform:translateY(0px) rotate(0deg)}
-  75%{transform:translateY(-10px) rotate(2deg)}
-}
-@keyframes lk-nod {
-  0%,100%{transform:translateY(0px) rotate(0deg)}
-  30%{transform:translateY(-6px) rotate(-5deg)}
-  65%{transform:translateY(3px) rotate(2deg)}
+  /* Anticipation dip → stretch up → squash on land */
+  0%   { transform: translateY(0px)   scaleY(1.00) scaleX(1.00) }
+  8%   { transform: translateY(2px)   scaleY(0.96) scaleX(1.03) }
+  22%  { transform: translateY(-12px) scaleY(1.09) scaleX(0.94) }
+  38%  { transform: translateY(-8px)  scaleY(1.06) scaleX(0.96) }
+  52%  { transform: translateY(-19px) scaleY(1.12) scaleX(0.91) }
+  70%  { transform: translateY(-9px)  scaleY(1.07) scaleX(0.95) }
+  84%  { transform: translateY(-1px)  scaleY(0.90) scaleX(1.08) }
+  92%  { transform: translateY(0px)   scaleY(1.02) scaleX(0.99) }
+  100% { transform: translateY(0px)   scaleY(1.00) scaleX(1.00) }
 }
 @keyframes lk-cheer {
-  0%,100%{transform:translateY(0px)}
-  18%{transform:translateY(-22px)}
-  36%{transform:translateY(-8px)}
-  54%{transform:translateY(-26px)}
-  72%{transform:translateY(-12px)}
-  90%{transform:translateY(-20px)}
-}
-@keyframes lk-sway {
-  0%,100%{transform:translateX(0px) rotate(0deg)}
-  50%{transform:translateX(-9px) rotate(-5deg)}
+  0%   { transform: translateY(0px)   scaleY(1.00) scaleX(1.00) }
+  6%   { transform: translateY(3px)   scaleY(0.94) scaleX(1.05) }
+  20%  { transform: translateY(-22px) scaleY(1.11) scaleX(0.92) }
+  34%  { transform: translateY(-3px)  scaleY(0.91) scaleX(1.07) }
+  40%  { transform: translateY(2px)   scaleY(0.94) scaleX(1.04) }
+  52%  { transform: translateY(-26px) scaleY(1.13) scaleX(0.90) }
+  68%  { transform: translateY(-4px)  scaleY(0.89) scaleX(1.09) }
+  76%  { transform: translateY(1px)   scaleY(0.95) scaleX(1.03) }
+  84%  { transform: translateY(-20px) scaleY(1.10) scaleX(0.93) }
+  94%  { transform: translateY(-2px)  scaleY(0.92) scaleX(1.06) }
+  100% { transform: translateY(0px)   scaleY(1.00) scaleX(1.00) }
 }
 @keyframes lk-stamp {
-  0%,50%,100%{transform:translateY(0px) scaleY(1)}
-  15%{transform:translateY(-14px) scaleY(1.03)}
-  28%{transform:translateY(3px) scaleY(0.95)}
-  65%{transform:translateY(-12px) scaleY(1.03)}
-  78%{transform:translateY(2px) scaleY(0.96)}
+  0%,100% { transform: translateY(0px)   scaleY(1.00) scaleX(1.00) }
+  14%     { transform: translateY(-14px) scaleY(1.07) scaleX(0.95) }
+  26%     { transform: translateY(0px)   scaleY(0.91) scaleX(1.08) }
+  34%     { transform: translateY(2px)   scaleY(0.94) scaleX(1.05) }
+  60%     { transform: translateY(-12px) scaleY(1.06) scaleX(0.96) }
+  74%     { transform: translateY(0px)   scaleY(0.92) scaleX(1.07) }
+  82%     { transform: translateY(1px)   scaleY(0.95) scaleX(1.04) }
+}
+@keyframes lk-pulse {
+  0%,100% { transform: scale(1)    translateY(0px) }
+  30%     { transform: scale(1.10) translateY(-4px) }
+  60%     { transform: scale(1.05) translateY(-2px) }
+}
+@keyframes lk-float {
+  0%,100% { transform: translateY(0px) }
+  50%     { transform: translateY(-7px) }
+}
+@keyframes lk-tilt {
+  0%,100% { transform: rotate(0deg)  translateY(0px) }
+  50%     { transform: rotate(-6deg) translateY(-2px) }
+}
+@keyframes lk-wobble {
+  0%,100% { transform: rotate(0deg) }
+  15%     { transform: rotate(-7deg) }
+  45%     { transform: rotate(7deg) }
+  75%     { transform: rotate(-5deg) }
+  90%     { transform: rotate(3deg) }
+}
+@keyframes lk-droop {
+  0%,100% { transform: translateY(0px) scaleY(1) }
+  50%     { transform: translateY(5px) scaleY(0.965) }
+}
+@keyframes lk-idle {
+  0%,100% { transform: translateY(0px) }
+  50%     { transform: translateY(-3px) }
+}
+@keyframes lk-sheen {
+  0%,100% { opacity: 0.18 }
+  50%     { opacity: 0.42 }
+}
+@keyframes lk-strut {
+  0%,100% { transform: translateX(0px) rotate(0deg) }
+  25%     { transform: translateX(-6px) rotate(-3deg) }
+  75%     { transform: translateX(6px)  rotate(3deg) }
+}
+@keyframes lk-spin {
+  0%   { transform: rotate(0deg)   translateY(-4px) }
+  100% { transform: rotate(360deg) translateY(-4px) }
+}
+@keyframes lk-march {
+  0%,100% { transform: translateY(0px)   rotate(0deg) }
+  25%     { transform: translateY(-10px) rotate(-2deg) }
+  50%     { transform: translateY(0px)   rotate(0deg) }
+  75%     { transform: translateY(-10px) rotate(2deg) }
+}
+@keyframes lk-nod {
+  0%,100% { transform: translateY(0px)  rotate(0deg) }
+  30%     { transform: translateY(-6px) rotate(-5deg) }
+  65%     { transform: translateY(3px)  rotate(2deg) }
+}
+@keyframes lk-sway {
+  0%,100% { transform: translateX(0px)  rotate(0deg) }
+  50%     { transform: translateX(-9px) rotate(-5deg) }
 }
 @keyframes lk-rock {
-  0%,100%{transform:rotate(0deg) translateY(0px)}
-  25%{transform:rotate(-9deg) translateY(-2px)}
-  75%{transform:rotate(9deg) translateY(-2px)}
+  0%,100% { transform: rotate(0deg)  translateY(0px) }
+  25%     { transform: rotate(-9deg) translateY(-2px) }
+  75%     { transform: rotate(9deg)  translateY(-2px) }
 }
 @keyframes lk-glide {
-  0%,100%{transform:translateY(0px) rotate(0deg)}
-  33%{transform:translateY(-11px) rotate(-2deg)}
-  66%{transform:translateY(-5px) rotate(2deg)}
+  0%,100% { transform: translateY(0px)   rotate(0deg) }
+  33%     { transform: translateY(-11px) rotate(-2deg) }
+  66%     { transform: translateY(-5px)  rotate(2deg) }
 }
 @keyframes lk-parade {
-  0%   {transform:translateY(0px)   translateX(0px)  rotate(0deg)   scaleX(1)   }
-  12%  {transform:translateY(-7px)  translateX(-3px) rotate(-1.5deg) scaleX(1.01)}
-  25%  {transform:translateY(-13px) translateX(-5px) rotate(-2.5deg) scaleX(1.02)}
-  38%  {transform:translateY(-5px)  translateX(-2px) rotate(-0.8deg) scaleX(1)   }
-  50%  {transform:translateY(0px)   translateX(0px)  rotate(0deg)   scaleX(1)   }
-  62%  {transform:translateY(-7px)  translateX(3px)  rotate(1.5deg) scaleX(1.01)}
-  75%  {transform:translateY(-13px) translateX(5px)  rotate(2.5deg) scaleX(1.02)}
-  88%  {transform:translateY(-5px)  translateX(2px)  rotate(0.8deg) scaleX(1)   }
-  100% {transform:translateY(0px)   translateX(0px)  rotate(0deg)   scaleX(1)   }
+  0%   { transform: translateY(0px)   translateX(0px)  rotate(0deg)    scaleX(1)    }
+  12%  { transform: translateY(-7px)  translateX(-3px) rotate(-1.5deg) scaleX(1.01) }
+  25%  { transform: translateY(-13px) translateX(-5px) rotate(-2.5deg) scaleX(1.02) }
+  38%  { transform: translateY(-5px)  translateX(-2px) rotate(-0.8deg) scaleX(1)    }
+  50%  { transform: translateY(0px)   translateX(0px)  rotate(0deg)    scaleX(1)    }
+  62%  { transform: translateY(-7px)  translateX(3px)  rotate(1.5deg)  scaleX(1.01) }
+  75%  { transform: translateY(-13px) translateX(5px)  rotate(2.5deg)  scaleX(1.02) }
+  88%  { transform: translateY(-5px)  translateX(2px)  rotate(0.8deg)  scaleX(1)    }
+  100% { transform: translateY(0px)   translateX(0px)  rotate(0deg)    scaleX(1)    }
 }
 
-/* ── Arm animations — translate-rotate-translate encodes pivot ── */
+/* ═══════════════════════════════════════════════════
+   LEGO MOVIE PRINCIPLE 3: HEAD INDEPENDENT MOTION
+   Head group pivots at neck (cx 60, cy 62)
+═══════════════════════════════════════════════════ */
+@keyframes lk-hd-bob {
+  0%,100% { transform: translateY(0px)   rotate(0deg) }
+  50%     { transform: translateY(-2.5px) rotate(0.5deg) }
+}
+@keyframes lk-hd-nod {
+  /* Deliberate, encouraging nod */
+  0%,100% { transform: translateY(0px)  rotate(0deg) }
+  18%     { transform: translateY(-3px) rotate(-8deg) }
+  36%     { transform: translateY(1px)  rotate(4deg) }
+  54%     { transform: translateY(-2px) rotate(-5deg) }
+  72%     { transform: translateY(1px)  rotate(2deg) }
+}
+@keyframes lk-hd-happy {
+  /* Gentle happy tilt side to side */
+  0%,100% { transform: rotate(0deg) }
+  30%     { transform: rotate(-6deg) }
+  65%     { transform: rotate(4deg) }
+}
+@keyframes lk-hd-think {
+  /* Head tilts left — the classic thinker pose */
+  0%,100% { transform: rotate(0deg) }
+  50%     { transform: rotate(-10deg) translateX(-2px) }
+}
+@keyframes lk-hd-shake {
+  /* Fast confused head shake */
+  0%,100% { transform: rotate(0deg) }
+  12%     { transform: rotate(-12deg) }
+  24%     { transform: rotate(12deg) }
+  36%     { transform: rotate(-10deg) }
+  48%     { transform: rotate(10deg) }
+  60%     { transform: rotate(-6deg) }
+  72%     { transform: rotate(6deg) }
+  86%     { transform: rotate(-2deg) }
+}
+@keyframes lk-hd-droop {
+  /* Sad slow hang */
+  0%,100% { transform: rotate(0deg)   translateY(0px) }
+  50%     { transform: rotate(9deg)  translateY(2px) }
+}
+@keyframes lk-hd-victory {
+  /* Head back + snap forward — triumphant */
+  0%,100% { transform: rotate(0deg)   translateY(0px) }
+  20%     { transform: rotate(-12deg) translateY(-4px) }
+  40%     { transform: rotate(-8deg)  translateY(-3px) }
+  60%     { transform: rotate(-14deg) translateY(-5px) }
+  80%     { transform: rotate(-5deg)  translateY(-2px) }
+}
+@keyframes lk-hd-march {
+  /* Rhythmic head bob in sync with march step */
+  0%,50%,100% { transform: translateY(0px)  rotate(0deg) }
+  25%         { transform: translateY(-4px) rotate(-2deg) }
+  75%         { transform: translateY(-4px) rotate(2deg) }
+}
+@keyframes lk-hd-lookup {
+  /* Ready/battle stance — scanning the horizon */
+  0%,100% { transform: rotate(0deg) }
+  50%     { transform: rotate(-5deg) }
+}
+
+/* ═══════════════════════════════════════════════════
+   LEGO MOVIE PRINCIPLE 4: BLINK
+   Stepped timing = instant close, not smooth
+   Natural cadence: 1 blink every ~4 seconds
+═══════════════════════════════════════════════════ */
+@keyframes lk-blink {
+  0%, 90%, 100%  { transform: scaleY(1) }
+  92%            { transform: scaleY(0.08) }
+  94%            { transform: scaleY(1) }
+  96%            { transform: scaleY(0.15) }
+  98%            { transform: scaleY(1) }
+}
+
+/* ═══════════════════════════════════════════════════
+   LEGO MOVIE PRINCIPLE 5: SECONDARY PLUME MOTION
+   Plume lags behind head with 0.15s phase delay
+   Follow-through — keep moving after head stops
+═══════════════════════════════════════════════════ */
+@keyframes lk-plume-idle {
+  0%,100% { transform-origin: 60px 0px; transform: rotate(0deg) }
+  30%     { transform-origin: 60px 0px; transform: rotate(-4deg) }
+  70%     { transform-origin: 60px 0px; transform: rotate(2deg) }
+}
+@keyframes lk-plume-bounce {
+  0%,100% { transform-origin: 60px 0px; transform: rotate(0deg)    scaleY(1) }
+  22%     { transform-origin: 60px 0px; transform: rotate(-8deg)   scaleY(1.06) }
+  52%     { transform-origin: 60px 0px; transform: rotate(-12deg)  scaleY(1.10) }
+  70%     { transform-origin: 60px 0px; transform: rotate(5deg)    scaleY(0.94) }
+  88%     { transform-origin: 60px 0px; transform: rotate(-3deg)   scaleY(1.02) }
+}
+@keyframes lk-plume-shake {
+  0%,100% { transform-origin: 60px 0px; transform: rotate(0deg) }
+  15%     { transform-origin: 60px 0px; transform: rotate(14deg) }
+  30%     { transform-origin: 60px 0px; transform: rotate(-14deg) }
+  45%     { transform-origin: 60px 0px; transform: rotate(10deg) }
+  60%     { transform-origin: 60px 0px; transform: rotate(-8deg) }
+  80%     { transform-origin: 60px 0px; transform: rotate(4deg) }
+}
+@keyframes lk-plume-march {
+  0%,50%,100% { transform-origin: 60px 0px; transform: rotate(0deg) }
+  25%         { transform-origin: 60px 0px; transform: rotate(-9deg) }
+  75%         { transform-origin: 60px 0px; transform: rotate(9deg) }
+}
+@keyframes lk-plume-think {
+  0%,100% { transform-origin: 60px 0px; transform: rotate(0deg) }
+  50%     { transform-origin: 60px 0px; transform: rotate(14deg) }
+}
+@keyframes lk-plume-droop {
+  0%,100% { transform-origin: 60px 0px; transform: rotate(0deg) }
+  50%     { transform-origin: 60px 0px; transform: rotate(-14deg) translateX(-2px) }
+}
+
+/* ═══════════════════════════════════════════════════
+   LEGO MOVIE PRINCIPLE 6: DYNAMIC GROUND SHADOW
+   Shadow is INVERSE of body height (shrinks when up)
+═══════════════════════════════════════════════════ */
+@keyframes lk-shadow-bounce {
+  0%   { transform: scaleX(1.00) scaleY(1.00); opacity: 0.60 }
+  22%  { transform: scaleX(0.72) scaleY(0.68); opacity: 0.28 }
+  52%  { transform: scaleX(0.60) scaleY(0.55); opacity: 0.22 }
+  84%  { transform: scaleX(1.10) scaleY(1.15); opacity: 0.80 }
+  100% { transform: scaleX(1.00) scaleY(1.00); opacity: 0.60 }
+}
+@keyframes lk-shadow-cheer {
+  0%   { transform: scaleX(1.00) scaleY(1.00); opacity: 0.60 }
+  20%  { transform: scaleX(0.62) scaleY(0.50); opacity: 0.20 }
+  35%  { transform: scaleX(1.12) scaleY(1.18); opacity: 0.85 }
+  52%  { transform: scaleX(0.55) scaleY(0.42); opacity: 0.18 }
+  68%  { transform: scaleX(1.14) scaleY(1.20); opacity: 0.88 }
+  84%  { transform: scaleX(0.60) scaleY(0.48); opacity: 0.22 }
+  100% { transform: scaleX(1.00) scaleY(1.00); opacity: 0.60 }
+}
+@keyframes lk-shadow-idle {
+  0%,100% { transform: scaleX(1.00) scaleY(1.00); opacity: 0.55 }
+  50%     { transform: scaleX(0.88) scaleY(0.82); opacity: 0.38 }
+}
+@keyframes lk-shadow-march {
+  0%,50%,100% { transform: scaleX(1.00); opacity: 0.55 }
+  25%         { transform: scaleX(0.80); opacity: 0.38 }
+  75%         { transform: scaleX(0.80); opacity: 0.38 }
+}
+@keyframes lk-shadow-stamp {
+  0%,100%  { transform: scaleX(1.00) scaleY(1.00); opacity: 0.55 }
+  26%      { transform: scaleX(1.18) scaleY(1.25); opacity: 0.88 }
+  74%      { transform: scaleX(1.16) scaleY(1.22); opacity: 0.85 }
+}
+
+/* ═══════════════════════════════════════════════════
+   ARM ANIMATIONS — translate-rotate-translate pivot
+═══════════════════════════════════════════════════ */
 @keyframes lk-aL-up {
-  0%,100%{transform:translate(28px,75px) rotate(0deg) translate(-28px,-75px)}
-  50%{transform:translate(28px,75px) rotate(-72deg) translate(-28px,-75px)}
+  0%,100% { transform: translate(28px,75px) rotate(0deg)   translate(-28px,-75px) }
+  50%     { transform: translate(28px,75px) rotate(-72deg) translate(-28px,-75px) }
 }
 @keyframes lk-aR-up {
-  0%,100%{transform:translate(92px,75px) rotate(0deg) translate(-92px,-75px)}
-  50%{transform:translate(92px,75px) rotate(72deg) translate(-92px,-75px)}
+  0%,100% { transform: translate(92px,75px) rotate(0deg)  translate(-92px,-75px) }
+  50%     { transform: translate(92px,75px) rotate(72deg) translate(-92px,-75px) }
 }
 @keyframes lk-aL-think {
-  0%,100%{transform:translate(28px,75px) rotate(0deg) translate(-28px,-75px)}
-  50%{transform:translate(28px,75px) rotate(-44deg) translate(-28px,-75px)}
+  0%,100% { transform: translate(28px,75px) rotate(0deg)   translate(-28px,-75px) }
+  50%     { transform: translate(28px,75px) rotate(-44deg) translate(-28px,-75px) }
 }
 @keyframes lk-aL-encourage {
-  0%,100%{transform:translate(28px,75px) rotate(0deg) translate(-28px,-75px)}
-  50%{transform:translate(28px,75px) rotate(-55deg) translate(-28px,-75px)}
+  0%,100% { transform: translate(28px,75px) rotate(0deg)   translate(-28px,-75px) }
+  50%     { transform: translate(28px,75px) rotate(-55deg) translate(-28px,-75px) }
 }
 @keyframes lk-aL-droop {
-  0%,100%{transform:translate(28px,75px) rotate(0deg) translate(-28px,-75px)}
-  50%{transform:translate(28px,75px) rotate(16deg) translate(-28px,-75px)}
+  0%,100% { transform: translate(28px,75px) rotate(0deg)  translate(-28px,-75px) }
+  50%     { transform: translate(28px,75px) rotate(16deg) translate(-28px,-75px) }
 }
 @keyframes lk-aR-droop {
-  0%,100%{transform:translate(92px,75px) rotate(0deg) translate(-92px,-75px)}
-  50%{transform:translate(92px,75px) rotate(-16deg) translate(-92px,-75px)}
+  0%,100% { transform: translate(92px,75px) rotate(0deg)   translate(-92px,-75px) }
+  50%     { transform: translate(92px,75px) rotate(-16deg) translate(-92px,-75px) }
 }
 @keyframes lk-aL-wave {
-  0%,100%{transform:translate(28px,75px) rotate(0deg) translate(-28px,-75px)}
-  25%{transform:translate(28px,75px) rotate(-65deg) translate(-28px,-75px)}
-  75%{transform:translate(28px,75px) rotate(-25deg) translate(-28px,-75px)}
+  0%,100% { transform: translate(28px,75px) rotate(0deg)   translate(-28px,-75px) }
+  25%     { transform: translate(28px,75px) rotate(-65deg) translate(-28px,-75px) }
+  75%     { transform: translate(28px,75px) rotate(-25deg) translate(-28px,-75px) }
 }
 @keyframes lk-aR-wave {
-  0%,100%{transform:translate(92px,75px) rotate(0deg) translate(-92px,-75px)}
-  25%{transform:translate(92px,75px) rotate(65deg) translate(-92px,-75px)}
-  75%{transform:translate(92px,75px) rotate(25deg) translate(-92px,-75px)}
+  0%,100% { transform: translate(92px,75px) rotate(0deg)  translate(-92px,-75px) }
+  25%     { transform: translate(92px,75px) rotate(65deg) translate(-92px,-75px) }
+  75%     { transform: translate(92px,75px) rotate(25deg) translate(-92px,-75px) }
 }
 @keyframes lk-aR-thrust {
-  0%,100%{transform:translate(92px,75px) rotate(0deg) translate(-92px,-75px)}
-  35%{transform:translate(92px,75px) rotate(-85deg) translate(-92px,-75px)}
-  55%{transform:translate(92px,75px) rotate(-75deg) translate(-92px,-75px)}
+  0%,100% { transform: translate(92px,75px) rotate(0deg)   translate(-92px,-75px) }
+  35%     { transform: translate(92px,75px) rotate(-85deg) translate(-92px,-75px) }
+  55%     { transform: translate(92px,75px) rotate(-75deg) translate(-92px,-75px) }
 }
 @keyframes lk-aL-shield-high {
-  0%,100%{transform:translate(28px,75px) rotate(-28deg) translate(-28px,-75px)}
-  50%{transform:translate(28px,75px) rotate(-52deg) translate(-28px,-75px)}
+  0%,100% { transform: translate(28px,75px) rotate(-28deg) translate(-28px,-75px) }
+  50%     { transform: translate(28px,75px) rotate(-52deg) translate(-28px,-75px) }
 }
 @keyframes lk-aR-pump {
-  0%,100%{transform:translate(92px,75px) rotate(0deg) translate(-92px,-75px)}
-  30%{transform:translate(92px,75px) rotate(82deg) translate(-92px,-75px)}
-  60%{transform:translate(92px,75px) rotate(48deg) translate(-92px,-75px)}
+  0%,100% { transform: translate(92px,75px) rotate(0deg)  translate(-92px,-75px) }
+  30%     { transform: translate(92px,75px) rotate(82deg) translate(-92px,-75px) }
+  60%     { transform: translate(92px,75px) rotate(48deg) translate(-92px,-75px) }
 }
 @keyframes lk-aR-sword-arc {
-  0%   {transform:translate(92px,75px) rotate(18deg)   translate(-92px,-75px)}
-  18%  {transform:translate(92px,75px) rotate(5deg)    translate(-92px,-75px)}
-  44%  {transform:translate(92px,75px) rotate(-102deg) translate(-92px,-75px)}
-  58%  {transform:translate(92px,75px) rotate(-115deg) translate(-92px,-75px)}
-  75%  {transform:translate(92px,75px) rotate(-68deg)  translate(-92px,-75px)}
-  90%  {transform:translate(92px,75px) rotate(10deg)   translate(-92px,-75px)}
-  100% {transform:translate(92px,75px) rotate(18deg)   translate(-92px,-75px)}
+  0%   { transform: translate(92px,75px) rotate(18deg)    translate(-92px,-75px) }
+  18%  { transform: translate(92px,75px) rotate(5deg)     translate(-92px,-75px) }
+  44%  { transform: translate(92px,75px) rotate(-102deg)  translate(-92px,-75px) }
+  58%  { transform: translate(92px,75px) rotate(-115deg)  translate(-92px,-75px) }
+  75%  { transform: translate(92px,75px) rotate(-68deg)   translate(-92px,-75px) }
+  90%  { transform: translate(92px,75px) rotate(10deg)    translate(-92px,-75px) }
+  100% { transform: translate(92px,75px) rotate(18deg)    translate(-92px,-75px) }
 }
 @keyframes lk-aL-sword-guard {
-  0%,100%{transform:translate(28px,75px) rotate(-30deg) translate(-28px,-75px)}
-  30%    {transform:translate(28px,75px) rotate(-22deg) translate(-28px,-75px)}
-  55%    {transform:translate(28px,75px) rotate(-48deg) translate(-28px,-75px)}
-  75%    {transform:translate(28px,75px) rotate(-40deg) translate(-28px,-75px)}
+  0%,100% { transform: translate(28px,75px) rotate(-30deg) translate(-28px,-75px) }
+  30%     { transform: translate(28px,75px) rotate(-22deg) translate(-28px,-75px) }
+  55%     { transform: translate(28px,75px) rotate(-48deg) translate(-28px,-75px) }
+  75%     { transform: translate(28px,75px) rotate(-40deg) translate(-28px,-75px) }
 }
-@keyframes lk-confetti {
-  0%  {transform:translateY(0px)  translateX(0px)  rotate(0deg)  scale(1);    opacity:1}
-  30% {transform:translateY(-18px) translateX(6px)  rotate(120deg) scale(1.1); opacity:1}
-  70% {transform:translateY(12px)  translateX(-4px) rotate(280deg) scale(0.85);opacity:0.7}
-  100%{transform:translateY(40px)  translateX(8px)  rotate(420deg) scale(0.6); opacity:0}
+
+/* ═══════════════════════════════════════════════════
+   MOOD EYE SLIT ANIMATIONS
+═══════════════════════════════════════════════════ */
+@keyframes lk-eye-gold    { 0%,100%{opacity:0.80} 40%{opacity:1.0} 80%{opacity:0.88} }
+@keyframes lk-eye-soft    { 0%,100%{opacity:0.60} 50%{opacity:0.90} }
+@keyframes lk-eye-think   { 0%,100%{opacity:0.50} 35%{opacity:0.85} 70%{opacity:0.55} }
+@keyframes lk-eye-sad     { 0%,100%{opacity:0.45} 50%{opacity:0.20} }
+@keyframes lk-eye-confused{ 0%,50%,100%{opacity:0.65} 25%,75%{opacity:0.20} }
+@keyframes lk-eye-idle    { 0%,100%{opacity:0.35} 50%{opacity:0.55} }
+@keyframes lk-eye-march   { 0%,50%,100%{opacity:0.55} 25%{opacity:0.82} 75%{opacity:0.82} }
+@keyframes lk-confetti    {
+  0%  { transform:translateY(0px)   translateX(0px)   rotate(0deg)   scale(1);    opacity:1 }
+  30% { transform:translateY(-18px) translateX(6px)   rotate(120deg) scale(1.1);  opacity:1 }
+  70% { transform:translateY(12px)  translateX(-4px)  rotate(280deg) scale(0.85); opacity:0.7 }
+  100%{ transform:translateY(40px)  translateX(8px)   rotate(420deg) scale(0.6);  opacity:0 }
 }
-/* ── Level-based eye glow animations ── */
-@keyframes lk-eye-expert {
-  0%,100%{opacity:0.45}
-  50%{opacity:0.95}
-}
-@keyframes lk-eye-master {
-  0%,100%{opacity:0.55}
-  35%{opacity:1}
-  65%{opacity:0.8}
-}
-@keyframes lk-eye-legendary {
-  0%,100%{opacity:0.6; transform:scaleX(1)}
-  40%{opacity:1; transform:scaleX(1.03)}
-  80%{opacity:0.75}
-}
-/* ── Crown pulse (level 26+) ── */
-@keyframes lk-crown {
-  0%,100%{opacity:0.6}
-  50%{opacity:1}
-}
-/* ── Legendary aura rings ── */
-@keyframes lk-aura {
-  0%,100%{opacity:0.12; r:58}
-  50%{opacity:0.3; r:62}
-}
+
+/* ─── Level-based eye glow ── */
+@keyframes lk-eye-expert    { 0%,100%{opacity:0.45} 50%{opacity:0.95} }
+@keyframes lk-eye-master    { 0%,100%{opacity:0.55} 35%{opacity:1} 65%{opacity:0.8} }
+@keyframes lk-eye-legendary { 0%,100%{opacity:0.6; transform:scaleX(1)} 40%{opacity:1; transform:scaleX(1.03)} 80%{opacity:0.75} }
+@keyframes lk-crown         { 0%,100%{opacity:0.6} 50%{opacity:1} }
+@keyframes lk-aura          { 0%,100%{opacity:0.12} 50%{opacity:0.3} }
 `;
 
-// ─── Mood variants ────────────────────────────────────────────────────────────
-// Each mood has 3 animation variants — picked randomly on mount so the knight
-// never does the exact same thing twice across different screens/pages.
+// ─── Mood variants (body + armL + armR + head + plume + shadow) ───────────────
 const VARIANTS = {
   celebrating: [
-    { body: 'lk-bounce 0.85s ease-in-out infinite', armL: 'lk-aL-up 0.85s ease-in-out infinite',   armR: 'lk-aR-up 0.85s ease-in-out infinite'   },
-    { body: 'lk-cheer  0.60s ease-in-out infinite', armL: 'lk-aL-up 0.60s ease-in-out infinite',   armR: 'lk-aR-pump 0.60s ease-in-out infinite'  },
-    { body: 'lk-pulse  1.20s ease-in-out infinite', armL: 'lk-aL-up 1.20s ease-in-out infinite',   armR: 'lk-aR-wave 1.20s ease-in-out infinite'  },
+    { body: 'lk-bounce 0.80s ease-in-out infinite', armL: 'lk-aL-up 0.80s ease-in-out infinite',   armR: 'lk-aR-up 0.80s ease-in-out infinite',
+      head: 'lk-hd-victory 0.80s ease-in-out infinite', plume: 'lk-plume-bounce 0.80s 0.12s ease-in-out infinite', shadow: 'lk-shadow-bounce 0.80s ease-in-out infinite' },
+    { body: 'lk-cheer 0.58s ease-in-out infinite',  armL: 'lk-aL-up 0.58s ease-in-out infinite',   armR: 'lk-aR-pump 0.58s ease-in-out infinite',
+      head: 'lk-hd-victory 0.58s ease-in-out infinite', plume: 'lk-plume-bounce 0.58s 0.10s ease-in-out infinite', shadow: 'lk-shadow-cheer 0.58s ease-in-out infinite' },
+    { body: 'lk-pulse 1.20s ease-in-out infinite',  armL: 'lk-aL-up 1.20s ease-in-out infinite',   armR: 'lk-aR-wave 1.20s ease-in-out infinite',
+      head: 'lk-hd-happy 1.20s ease-in-out infinite', plume: 'lk-plume-bounce 1.20s 0.18s ease-in-out infinite', shadow: 'lk-shadow-idle 1.20s ease-in-out infinite' },
   ],
   happy: [
-    { body: 'lk-float  2.40s ease-in-out infinite', armL: null,                                     armR: null                                      },
-    { body: 'lk-strut  1.80s ease-in-out infinite', armL: 'lk-aL-wave 1.80s ease-in-out infinite', armR: null                                      },
-    { body: 'lk-glide  2.20s ease-in-out infinite', armL: null,                                     armR: 'lk-aR-wave 2.20s ease-in-out infinite'   },
+    { body: 'lk-float 2.40s ease-in-out infinite',  armL: null, armR: null,
+      head: 'lk-hd-happy 2.40s ease-in-out infinite', plume: 'lk-plume-idle 2.40s 0.30s ease-in-out infinite', shadow: 'lk-shadow-idle 2.40s ease-in-out infinite' },
+    { body: 'lk-strut 1.80s ease-in-out infinite',  armL: 'lk-aL-wave 1.80s ease-in-out infinite', armR: null,
+      head: 'lk-hd-happy 1.80s ease-in-out infinite', plume: 'lk-plume-idle 1.80s 0.25s ease-in-out infinite', shadow: 'lk-shadow-idle 1.80s ease-in-out infinite' },
+    { body: 'lk-glide 2.20s ease-in-out infinite',  armL: null, armR: 'lk-aR-wave 2.20s ease-in-out infinite',
+      head: 'lk-hd-bob 2.20s ease-in-out infinite',   plume: 'lk-plume-idle 2.20s 0.28s ease-in-out infinite', shadow: 'lk-shadow-idle 2.20s ease-in-out infinite' },
   ],
   encouraged: [
-    { body: 'lk-float  2.00s ease-in-out infinite', armL: 'lk-aL-encourage 2.00s ease-in-out infinite', armR: null                                 },
-    { body: 'lk-nod    2.20s ease-in-out infinite', armL: 'lk-aL-up 2.20s ease-in-out infinite',        armR: null                                 },
-    { body: 'lk-march  1.60s ease-in-out infinite', armL: 'lk-aL-encourage 1.60s ease-in-out infinite', armR: null                                 },
+    { body: 'lk-float 2.00s ease-in-out infinite',  armL: 'lk-aL-encourage 2.00s ease-in-out infinite', armR: null,
+      head: 'lk-hd-nod 2.00s ease-in-out infinite', plume: 'lk-plume-idle 2.00s 0.22s ease-in-out infinite', shadow: 'lk-shadow-idle 2.00s ease-in-out infinite' },
+    { body: 'lk-nod 2.20s ease-in-out infinite',    armL: 'lk-aL-up 2.20s ease-in-out infinite', armR: null,
+      head: 'lk-hd-nod 2.20s ease-in-out infinite', plume: 'lk-plume-idle 2.20s 0.28s ease-in-out infinite', shadow: 'lk-shadow-idle 2.20s ease-in-out infinite' },
+    { body: 'lk-march 1.60s ease-in-out infinite',  armL: 'lk-aL-encourage 1.60s ease-in-out infinite', armR: null,
+      head: 'lk-hd-nod 1.60s ease-in-out infinite', plume: 'lk-plume-march 1.60s 0.20s ease-in-out infinite', shadow: 'lk-shadow-march 1.60s ease-in-out infinite' },
   ],
   thinking: [
-    { body: 'lk-tilt   3.00s ease-in-out infinite', armL: 'lk-aL-think 3.00s ease-in-out infinite', armR: null },
-    { body: 'lk-sway   2.80s ease-in-out infinite', armL: 'lk-aL-think 2.80s ease-in-out infinite', armR: null },
-    { body: 'lk-rock   3.50s ease-in-out infinite', armL: 'lk-aL-think 3.50s ease-in-out infinite', armR: null },
+    { body: 'lk-tilt 3.00s ease-in-out infinite',   armL: 'lk-aL-think 3.00s ease-in-out infinite', armR: null,
+      head: 'lk-hd-think 3.00s ease-in-out infinite', plume: 'lk-plume-think 3.00s 0.40s ease-in-out infinite', shadow: 'lk-shadow-idle 3.00s ease-in-out infinite' },
+    { body: 'lk-sway 2.80s ease-in-out infinite',   armL: 'lk-aL-think 2.80s ease-in-out infinite', armR: null,
+      head: 'lk-hd-think 2.80s ease-in-out infinite', plume: 'lk-plume-think 2.80s 0.38s ease-in-out infinite', shadow: 'lk-shadow-idle 2.80s ease-in-out infinite' },
+    { body: 'lk-rock 3.50s ease-in-out infinite',   armL: 'lk-aL-think 3.50s ease-in-out infinite', armR: null,
+      head: 'lk-hd-think 3.50s ease-in-out infinite', plume: 'lk-plume-think 3.50s 0.45s ease-in-out infinite', shadow: 'lk-shadow-idle 3.50s ease-in-out infinite' },
   ],
   confused: [
-    { body: 'lk-wobble 0.70s ease-in-out 3',        armL: null,                                        armR: null                                     },
-    { body: 'lk-rock   0.90s ease-in-out 3',        armL: null,                                        armR: null                                     },
-    { body: 'lk-wobble 1.00s ease-in-out infinite', armL: 'lk-aL-droop 1.00s ease-in-out infinite',   armR: null                                     },
+    { body: 'lk-wobble 0.70s ease-in-out 3', armL: null, armR: null,
+      head: 'lk-hd-shake 0.70s ease-in-out 3', plume: 'lk-plume-shake 0.70s 0.08s ease-in-out 3', shadow: 'lk-shadow-idle 2.0s ease-in-out infinite' },
+    { body: 'lk-rock 0.90s ease-in-out 3',   armL: null, armR: null,
+      head: 'lk-hd-shake 0.90s ease-in-out 3', plume: 'lk-plume-shake 0.90s 0.10s ease-in-out 3', shadow: 'lk-shadow-idle 2.0s ease-in-out infinite' },
+    { body: 'lk-wobble 1.00s ease-in-out infinite', armL: 'lk-aL-droop 1.00s ease-in-out infinite', armR: null,
+      head: 'lk-hd-shake 0.90s ease-in-out infinite', plume: 'lk-plume-shake 0.90s 0.10s ease-in-out infinite', shadow: 'lk-shadow-idle 1.80s ease-in-out infinite' },
   ],
   sad: [
-    { body: 'lk-droop  3.00s ease-in-out infinite', armL: 'lk-aL-droop 3.00s ease-in-out infinite', armR: 'lk-aR-droop 3.00s ease-in-out infinite' },
-    { body: 'lk-sway   4.00s ease-in-out infinite', armL: 'lk-aL-droop 4.00s ease-in-out infinite', armR: 'lk-aR-droop 4.00s ease-in-out infinite' },
-    { body: 'lk-stamp  3.50s ease-in-out infinite', armL: 'lk-aL-droop 3.50s ease-in-out infinite', armR: null                                      },
+    { body: 'lk-droop 3.00s ease-in-out infinite', armL: 'lk-aL-droop 3.00s ease-in-out infinite', armR: 'lk-aR-droop 3.00s ease-in-out infinite',
+      head: 'lk-hd-droop 3.00s ease-in-out infinite', plume: 'lk-plume-droop 3.00s 0.40s ease-in-out infinite', shadow: 'lk-shadow-idle 3.00s ease-in-out infinite' },
+    { body: 'lk-sway 4.00s ease-in-out infinite',  armL: 'lk-aL-droop 4.00s ease-in-out infinite', armR: 'lk-aR-droop 4.00s ease-in-out infinite',
+      head: 'lk-hd-droop 4.00s ease-in-out infinite', plume: 'lk-plume-droop 4.00s 0.50s ease-in-out infinite', shadow: 'lk-shadow-idle 4.00s ease-in-out infinite' },
+    { body: 'lk-stamp 3.50s ease-in-out infinite', armL: 'lk-aL-droop 3.50s ease-in-out infinite', armR: null,
+      head: 'lk-hd-droop 3.50s ease-in-out infinite', plume: 'lk-plume-droop 3.50s 0.45s ease-in-out infinite', shadow: 'lk-shadow-stamp 3.50s ease-in-out infinite' },
   ],
   neutral: [
-    { body: 'lk-idle   4.00s ease-in-out infinite', armL: null, armR: null },
-    { body: 'lk-sway   5.00s ease-in-out infinite', armL: null, armR: null },
-    { body: 'lk-glide  4.50s ease-in-out infinite', armL: null, armR: null },
+    { body: 'lk-idle 4.00s ease-in-out infinite',  armL: null, armR: null,
+      head: 'lk-hd-bob 4.00s ease-in-out infinite', plume: 'lk-plume-idle 4.00s 0.50s ease-in-out infinite', shadow: 'lk-shadow-idle 4.00s ease-in-out infinite' },
+    { body: 'lk-sway 5.00s ease-in-out infinite',  armL: null, armR: null,
+      head: 'lk-hd-bob 5.00s ease-in-out infinite', plume: 'lk-plume-idle 5.00s 0.65s ease-in-out infinite', shadow: 'lk-shadow-idle 5.00s ease-in-out infinite' },
+    { body: 'lk-glide 4.50s ease-in-out infinite', armL: null, armR: null,
+      head: 'lk-hd-bob 4.50s ease-in-out infinite', plume: 'lk-plume-idle 4.50s 0.58s ease-in-out infinite', shadow: 'lk-shadow-idle 4.50s ease-in-out infinite' },
   ],
   victory: [
-    { body: 'lk-bounce 0.60s ease-in-out infinite', armL: 'lk-aL-up 0.60s ease-in-out infinite',   armR: 'lk-aR-up 0.60s ease-in-out infinite'    },
-    { body: 'lk-cheer  0.50s ease-in-out infinite', armL: 'lk-aL-up 0.50s ease-in-out infinite',   armR: 'lk-aR-thrust 0.50s ease-in-out infinite' },
-    { body: 'lk-spin   2.00s linear infinite',      armL: 'lk-aL-up 2.00s ease-in-out infinite',   armR: 'lk-aR-up 2.00s ease-in-out infinite'    },
+    { body: 'lk-bounce 0.60s ease-in-out infinite', armL: 'lk-aL-up 0.60s ease-in-out infinite', armR: 'lk-aR-up 0.60s ease-in-out infinite',
+      head: 'lk-hd-victory 0.60s ease-in-out infinite', plume: 'lk-plume-bounce 0.60s 0.10s ease-in-out infinite', shadow: 'lk-shadow-bounce 0.60s ease-in-out infinite' },
+    { body: 'lk-cheer 0.50s ease-in-out infinite',  armL: 'lk-aL-up 0.50s ease-in-out infinite', armR: 'lk-aR-thrust 0.50s ease-in-out infinite',
+      head: 'lk-hd-victory 0.50s ease-in-out infinite', plume: 'lk-plume-bounce 0.50s 0.08s ease-in-out infinite', shadow: 'lk-shadow-cheer 0.50s ease-in-out infinite' },
+    { body: 'lk-spin 2.00s linear infinite',        armL: 'lk-aL-up 2.00s ease-in-out infinite', armR: 'lk-aR-up 2.00s ease-in-out infinite',
+      head: 'lk-hd-bob 2.00s ease-in-out infinite',    plume: 'lk-plume-bounce 2.00s 0.25s ease-in-out infinite', shadow: 'lk-shadow-idle 2.00s ease-in-out infinite' },
   ],
   ready: [
-    { body: 'lk-tilt    4.00s ease-in-out infinite', armL: null,                                            armR: null                                       },
-    { body: 'lk-march   2.00s ease-in-out infinite', armL: 'lk-aL-shield-high 2.00s ease-in-out infinite',  armR: null                                       },
-    { body: 'lk-parade  0.96s ease-in-out infinite', armL: 'lk-aL-sword-guard 1.92s ease-in-out infinite',  armR: 'lk-aR-sword-arc 1.92s ease-in-out infinite'},
+    { body: 'lk-tilt 4.00s ease-in-out infinite',   armL: null, armR: null,
+      head: 'lk-hd-lookup 4.00s ease-in-out infinite', plume: 'lk-plume-idle 4.00s 0.50s ease-in-out infinite', shadow: 'lk-shadow-idle 4.00s ease-in-out infinite' },
+    { body: 'lk-march 2.00s ease-in-out infinite',  armL: 'lk-aL-shield-high 2.00s ease-in-out infinite', armR: null,
+      head: 'lk-hd-march 2.00s ease-in-out infinite', plume: 'lk-plume-march 2.00s 0.24s ease-in-out infinite', shadow: 'lk-shadow-march 2.00s ease-in-out infinite' },
+    { body: 'lk-parade 0.96s ease-in-out infinite', armL: 'lk-aL-sword-guard 1.92s ease-in-out infinite', armR: 'lk-aR-sword-arc 1.92s ease-in-out infinite',
+      head: 'lk-hd-march 0.96s ease-in-out infinite', plume: 'lk-plume-march 0.96s 0.12s ease-in-out infinite', shadow: 'lk-shadow-march 0.96s ease-in-out infinite' },
   ],
   marching: [
-    // Parade march: weight-shifting body + elegant sword arc (sword period = 2× step period)
-    { body: 'lk-parade  0.90s ease-in-out infinite', armL: 'lk-aL-sword-guard 1.80s ease-in-out infinite',  armR: 'lk-aR-sword-arc 1.80s ease-in-out infinite'},
-    // Crisp march + high shield guard — ceremonial
-    { body: 'lk-march   0.95s ease-in-out infinite', armL: 'lk-aL-shield-high 1.90s ease-in-out infinite',  armR: 'lk-aR-sword-arc 1.90s ease-in-out infinite'},
-    // Faster parade with wave — relaxed march after victory
-    { body: 'lk-parade  0.80s ease-in-out infinite', armL: 'lk-aL-wave       1.60s ease-in-out infinite',   armR: 'lk-aR-sword-arc 1.60s ease-in-out infinite'},
+    { body: 'lk-parade 0.90s ease-in-out infinite', armL: 'lk-aL-sword-guard 1.80s ease-in-out infinite', armR: 'lk-aR-sword-arc 1.80s ease-in-out infinite',
+      head: 'lk-hd-march 0.90s ease-in-out infinite', plume: 'lk-plume-march 0.90s 0.11s ease-in-out infinite', shadow: 'lk-shadow-march 0.90s ease-in-out infinite' },
+    { body: 'lk-march 0.95s ease-in-out infinite',  armL: 'lk-aL-shield-high 1.90s ease-in-out infinite', armR: 'lk-aR-sword-arc 1.90s ease-in-out infinite',
+      head: 'lk-hd-march 0.95s ease-in-out infinite', plume: 'lk-plume-march 0.95s 0.12s ease-in-out infinite', shadow: 'lk-shadow-march 0.95s ease-in-out infinite' },
+    { body: 'lk-parade 0.80s ease-in-out infinite', armL: 'lk-aL-wave 1.60s ease-in-out infinite',        armR: 'lk-aR-sword-arc 1.60s ease-in-out infinite',
+      head: 'lk-hd-march 0.80s ease-in-out infinite', plume: 'lk-plume-march 0.80s 0.10s ease-in-out infinite', shadow: 'lk-shadow-march 0.80s ease-in-out infinite' },
   ],
 };
 
-// ─── Šahovnica (Croatian checkerboard) ───────────────────────────────────────
-// 5×5 grid, WHITE (argent) in top-left — the correct heraldic blazon:
-// "checky of 25, argent and gules" (argent = white first)
-function _Sahov({ x = 0, y = 0, sq = 6.8 }) {
-  return (
-    <>
-      {Array.from({ length: 5 }).flatMap((_, r) =>
-        Array.from({ length: 5 }).map((_, c) => (
-          <rect
-            key={`${r}-${c}`}
-            x={x + c * sq} y={y + r * sq}
-            width={sq} height={sq}
-            fill={(r + c) % 2 === 0 ? C.wht : C.red}
-          />
-        ))
-      )}
-    </>
-  );
-}
-
-// ─── SVG gradient / filter helpers ───────────────────────────────────────────
+// ─── SVG gradient + filter defs ──────────────────────────────────────────────
 function Defs() {
   return (
     <defs>
@@ -375,11 +580,11 @@ function Defs() {
         <stop offset="100%" stopColor={C.arDk}/>
       </linearGradient>
 
-      {/* Plastic sheen (overlay) */}
+      {/* Plastic sheen overlay */}
       <linearGradient id="lk-sh" x1="0%" y1="0%" x2="55%" y2="100%">
-        <stop offset="0%"   stopColor="rgba(255,255,255,0.58)"/>
-        <stop offset="28%"  stopColor="rgba(255,255,255,0.12)"/>
-        <stop offset="100%" stopColor="rgba(0,0,0,0.20)"/>
+        <stop offset="0%"   stopColor="rgba(255,255,255,0.60)"/>
+        <stop offset="28%"  stopColor="rgba(255,255,255,0.13)"/>
+        <stop offset="100%" stopColor="rgba(0,0,0,0.18)"/>
       </linearGradient>
 
       {/* Red — Croatian red with depth */}
@@ -387,6 +592,13 @@ function Defs() {
         <stop offset="0%"   stopColor={C.redHi}/>
         <stop offset="55%"  stopColor={C.red}/>
         <stop offset="100%" stopColor="#860015"/>
+      </linearGradient>
+
+      {/* Plume red gradient */}
+      <linearGradient id="lk-plume" x1="50%" y1="100%" x2="50%" y2="0%">
+        <stop offset="0%"   stopColor={C.plumeR}/>
+        <stop offset="40%"  stopColor={C.plumeP}/>
+        <stop offset="100%" stopColor="#FF6080"/>
       </linearGradient>
 
       {/* Gold */}
@@ -421,12 +633,12 @@ function Defs() {
         <stop offset="100%" stopColor="#C8C4B0"/>
       </linearGradient>
 
-      {/* Drop shadow */}
+      {/* Drop shadow filter */}
       <filter id="lk-drop" x="-22%" y="-10%" width="155%" height="145%">
         <feDropShadow dx="2.5" dy="7" stdDeviation="5.5" floodColor="rgba(0,0,0,0.48)"/>
       </filter>
 
-      {/* Subtle ambient shadow on side pieces */}
+      {/* Subtle side-piece ambient shadow */}
       <filter id="lk-soft" x="-10%" y="-10%" width="125%" height="125%">
         <feDropShadow dx="1" dy="2" stdDeviation="2" floodColor="rgba(0,0,0,0.3)"/>
       </filter>
@@ -437,15 +649,14 @@ function Defs() {
 // ─── Main component ───────────────────────────────────────────────────────────
 const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'happy', variant, level = 1, className = '', style = {} }) {
   const variants = VARIANTS[mood] || VARIANTS.happy;
-  // If a specific variant is provided, use it (purposeful); otherwise pick once on mount via time-of-day
   const [variantIdx] = useState(() =>
     (variant !== undefined && variant >= 0 && variant < variants.length)
       ? variant
       : new Date().getHours() % variants.length
   );
-  // Idle rotation: cycle to a different animation variant every 8–10s
   const [activeVarIdx, setActiveVarIdx] = useState(variantIdx);
   const idleTimerRef = useRef(null);
+
   useEffect(() => {
     setActiveVarIdx(variantIdx);
     clearInterval(idleTimerRef.current);
@@ -455,30 +666,35 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
     );
     return () => clearInterval(idleTimerRef.current);
   }, [mood, variants.length, variantIdx]);
+
   const m = variants[Math.min(activeVarIdx, variants.length - 1)];
   const lvlCfg = getLevelConfig(level);
   const isCelebrating = mood === 'celebrating';
+  const eyeSlit = MOOD_EYE[mood] || MOOD_EYE.neutral;
 
-  // Confetti pieces for celebrating state
+  // Is this an active (not calm idle) mood?
+  const isActive = !['neutral', 'sad', 'thinking'].includes(mood);
+
+  // Confetti for celebrating
   const confetti = isCelebrating ? [
-    { x: 4,   y: 26,  c: C.red,   r: 24  },
-    { x: 110, y: 16,  c: C.gdHi,  r: -18 },
-    { x: 2,   y: 72,  c: '#38bdf8', r: 40 },
-    { x: 114, y: 66,  c: C.red,   r: -35 },
-    { x: 6,   y: 118, c: C.gdHi,  r: 15  },
-    { x: 113, y: 112, c: '#16a34a', r: -28 },
-    { x: 1,   y: 94,  c: '#a78bfa', r: 52 },
-    { x: 115, y: 88,  c: '#f59e0b', r: -44 },
-    { x: 10,  y: 142, c: C.red,   r: 8   },
-    { x: 108, y: 138, c: '#38bdf8', r: -22 },
+    { x:4,   y:26,  c:C.red,     r:24  },
+    { x:110, y:16,  c:C.gdHi,    r:-18 },
+    { x:2,   y:72,  c:'#38bdf8', r:40  },
+    { x:114, y:66,  c:C.red,     r:-35 },
+    { x:6,   y:118, c:C.gdHi,    r:15  },
+    { x:113, y:112, c:'#16a34a', r:-28 },
+    { x:1,   y:94,  c:'#a78bfa', r:52  },
+    { x:115, y:88,  c:'#f59e0b', r:-44 },
+    { x:10,  y:142, c:C.red,     r:8   },
+    { x:108, y:138, c:'#38bdf8', r:-22 },
   ] : [];
 
-  // Entry spring: bigger pop for celebration, normal spring otherwise
   const entryTransition = isCelebrating
     ? { type: 'spring', stiffness: 520, damping: 16, mass: 0.7 }
     : { type: 'spring', stiffness: 380, damping: 22 };
 
   const rimFilter = MOOD_RIM[mood];
+
   return (
     <motion.div
       className={className}
@@ -493,10 +709,16 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
         : entryTransition
       }
     >
+    {/* ── LEGO MOVIE PRINCIPLE 1: Stop-motion jitter wrapper ── */}
+    {/* steps(1) snaps between positions — no smooth interpolation */}
+    <g style={isActive
+      ? { animation: 'lk-jitter 0.083s steps(1) infinite' }
+      : undefined
+    }>
     <svg
       width={size}
       height={Math.round(size * 1.56)}
-      viewBox="0 0 120 188"
+      viewBox="0 0 120 192"
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       overflow="visible"
@@ -505,11 +727,10 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
     >
       <Defs />
 
-      {/* Confetti — drawn behind figure, staggered fly-out animation */}
+      {/* Confetti — drawn behind figure */}
       {confetti.map((p, i) => (
         <rect
-          key={i}
-          x={p.x} y={p.y} width="9" height="4.5" rx="1.5"
+          key={i} x={p.x} y={p.y} width="9" height="4.5" rx="1.5"
           fill={p.c} opacity="0.9"
           transform={`rotate(${p.r} ${p.x + 4.5} ${p.y + 2.25})`}
           style={{
@@ -519,7 +740,7 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
         />
       ))}
 
-      {/* Level 100+: Legendary aura rings (rendered behind figure) */}
+      {/* Level 100+: Legendary aura rings */}
       {lvlCfg.aura && (
         <>
           <ellipse cx="60" cy="95" rx="56" ry="72"
@@ -531,83 +752,76 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
         </>
       )}
 
-      {/* ══════════════════════════════════════════════════
-          MAIN FIGURE — body bounce/float/droop animation
+      {/* ═══════════════════════════════════════════════════
+          MAIN FIGURE — body squash+stretch animation
           transformOrigin at foot level keeps figure grounded
-          ══════════════════════════════════════════════════ */}
+          ═══════════════════════════════════════════════════ */}
       <g
         filter="url(#lk-drop)"
-        style={{ animation: m.body, transformOrigin: '60px 186px' }}
+        style={{ animation: m.body, transformOrigin: '60px 188px' }}
       >
 
-        {/* ───────────── GROUND SHADOW ───────────── */}
-        <ellipse cx="60" cy="185" rx="28" ry="3.5"
-          fill="rgba(0,0,0,0.28)" opacity="0.7"/>
+        {/* ── LEGO MOVIE PRINCIPLE 6: Dynamic ground shadow ── */}
+        {/* Shadow is its own animation — inversely scaled to body height */}
+        <ellipse cx="60" cy="188" rx="28" ry="3.5"
+          fill="rgba(0,0,0,0.30)"
+          style={{
+            animation: m.shadow || 'lk-shadow-idle 3s ease-in-out infinite',
+            transformOrigin: '60px 188px',
+          }}
+        />
 
         {/* ───────────── FEET ───────────── */}
-        {/* Left foot */}
-        <rect rx="7" x="18" y="164" width="38" height="20"
+        <rect rx="7" x="18" y="166" width="38" height="20"
           fill="url(#lk-arV)" stroke={C.blk} strokeWidth="1.2"/>
-        <rect rx="5" x="20" y="165" width="16" height="5"
+        <rect rx="5" x="20" y="167" width="16" height="5"
           fill="url(#lk-sh)" opacity="0.55"/>
-        {/* Right foot */}
-        <rect rx="7" x="64" y="164" width="38" height="20"
+        <rect rx="7" x="64" y="166" width="38" height="20"
           fill="url(#lk-arV)" stroke={C.blk} strokeWidth="1.2"/>
-        <rect rx="5" x="66" y="165" width="16" height="5"
+        <rect rx="5" x="66" y="167" width="16" height="5"
           fill="url(#lk-sh)" opacity="0.55"/>
-        {/* Foot gold toe cap trim */}
-        <rect rx="4" x="20" y="180" width="34" height="4" fill="url(#lk-gd)" opacity="0.6"/>
-        <rect rx="4" x="66" y="180" width="34" height="4" fill="url(#lk-gd)" opacity="0.6"/>
+        {/* Foot gold toe cap */}
+        <rect rx="4" x="20" y="182" width="34" height="4" fill="url(#lk-gd)" opacity="0.6"/>
+        <rect rx="4" x="66" y="182" width="34" height="4" fill="url(#lk-gd)" opacity="0.6"/>
 
         {/* ───────────── LEGS ───────────── */}
-        {/* Left leg */}
-        <rect rx="7" x="20" y="120" width="34" height="50"
+        <rect rx="7" x="20" y="122" width="34" height="50"
           fill="url(#lk-arV)" stroke={C.blk} strokeWidth="1.2"/>
-        <rect rx="4" x="22" y="122" width="14" height="22"
+        <rect rx="4" x="22" y="124" width="14" height="22"
           fill="url(#lk-sh)" opacity="0.45"/>
-        {/* Right leg */}
-        <rect rx="7" x="66" y="120" width="34" height="50"
+        <rect rx="7" x="66" y="122" width="34" height="50"
           fill="url(#lk-arV)" stroke={C.blk} strokeWidth="1.2"/>
-        <rect rx="4" x="68" y="122" width="14" height="22"
+        <rect rx="4" x="68" y="124" width="14" height="22"
           fill="url(#lk-sh)" opacity="0.45"/>
-        {/* Knee plates (poleyne) — each leg */}
-        <ellipse cx="37" cy="149" rx="10.5" ry="6.5"
+        {/* Knee plates */}
+        <ellipse cx="37" cy="151" rx="10.5" ry="6.5"
           fill={C.arHi} stroke={C.blk} strokeWidth="1"/>
-        <ellipse cx="83" cy="149" rx="10.5" ry="6.5"
+        <ellipse cx="83" cy="151" rx="10.5" ry="6.5"
           fill={C.arHi} stroke={C.blk} strokeWidth="1"/>
-        {/* Knee boss (center rivet) */}
-        <circle cx="37" cy="149" r="3.5" fill="url(#lk-gd)" stroke={C.blk} strokeWidth="0.8"/>
-        <circle cx="83" cy="149" r="3.5" fill="url(#lk-gd)" stroke={C.blk} strokeWidth="0.8"/>
-        {/* Leg gap groove */}
-        <rect x="54" y="118" width="12" height="52" fill="rgba(0,0,0,0.3)"/>
+        <circle cx="37" cy="151" r="3.5" fill="url(#lk-gd)" stroke={C.blk} strokeWidth="0.8"/>
+        <circle cx="83" cy="151" r="3.5" fill="url(#lk-gd)" stroke={C.blk} strokeWidth="0.8"/>
+        <rect x="54" y="120" width="12" height="52" fill="rgba(0,0,0,0.3)"/>
 
-        {/* ───────────── HIP / BELT PIECE ───────────── */}
-        {/* LEGO H-piece hip connector */}
-        <rect rx="5" x="20" y="114" width="80" height="12"
+        {/* ───────────── HIP / BELT ───────────── */}
+        <rect rx="5" x="20" y="116" width="80" height="12"
           fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1.2"/>
-        {/* Belt center buckle */}
-        <rect rx="3" x="51" y="115" width="18" height="10"
+        <rect rx="3" x="51" y="117" width="18" height="10"
           fill="url(#lk-gd)" stroke={C.blk} strokeWidth="0.9"/>
-        <circle cx="60" cy="120" r="3" fill={C.gdHi} opacity="0.7"/>
-        {/* Red surcoat hem at belt */}
-        <rect rx="2" x="24" y="122" width="72" height="5"
+        <circle cx="60" cy="122" r="3" fill={C.gdHi} opacity="0.7"/>
+        <rect rx="2" x="24" y="124" width="72" height="5"
           fill="url(#lk-rd)" opacity="0.75"/>
 
         {/* ───────────── TORSO ───────────── */}
-        {/* Main torso block */}
-        <rect rx="8" x="26" y="62" width="68" height="56"
+        <rect rx="8" x="26" y="64" width="68" height="56"
           fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1.3"/>
-
-        {/* Breastplate center keel / ridge */}
-        <rect rx="3" x="56" y="68" width="8" height="42"
+        <rect rx="3" x="56" y="70" width="8" height="42"
           fill={C.arHi} stroke={C.arSh} strokeWidth="0.6" opacity="0.5"/>
 
-        {/* ŠAHOVNICA on chest — 4×4 version (5×5 is too small at torso scale) */}
-        {/* Croatian coat of arms: white (argent) first — row 0 starts W R W R */}
+        {/* ŠAHOVNICA on chest */}
         {(() => {
           const sq = 7; const cols = 4; const rows = 4;
           const sx = 60 - (cols * sq) / 2;
-          const sy = 72;
+          const sy = 74;
           return Array.from({ length: rows }).flatMap((_, r) =>
             Array.from({ length: cols }).map((_, c) => (
               <rect
@@ -621,324 +835,354 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
           );
         })()}
 
-        {/* Torso gold trim — top pauldron line */}
-        <rect rx="4" x="26" y="62" width="68" height="7"
+        {/* Torso gold trim */}
+        <rect rx="4" x="26" y="64" width="68" height="7"
           fill="url(#lk-gdV)" opacity="0.92"/>
-        {/* Torso gold trim — bottom */}
-        <rect rx="0" x="26" y="111" width="68" height="7"
+        <rect rx="0" x="26" y="113" width="68" height="7"
           fill="url(#lk-gdV)" opacity="0.85"/>
-        {/* Plastic sheen overlay on torso (left half highlight) */}
-        <rect rx="8" x="26" y="62" width="34" height="56"
+        {/* Plastic sheen overlay */}
+        <rect rx="8" x="26" y="64" width="34" height="56"
           fill="url(#lk-sh)" opacity="0.38"/>
-        {/* Side seam lines (LEGO mold lines) */}
-        <line x1="26" y1="68" x2="26" y2="116"
+        {/* LEGO mold seam lines */}
+        <line x1="26" y1="70" x2="26" y2="118"
           stroke={C.arDk} strokeWidth="0.8" opacity="0.4"/>
-        <line x1="94" y1="68" x2="94" y2="116"
+        <line x1="94" y1="70" x2="94" y2="118"
           stroke={C.arDk} strokeWidth="0.8" opacity="0.4"/>
 
-        {/* ───────────── LEFT ARM GROUP — shield arm ───────────── */}
-        {/* Pivot point: (28, 75) — left shoulder joint */}
+        {/* ───────────── LEFT ARM — shield arm ───────────── */}
         <g style={{ animation: m.armL }}>
-          {/* Shoulder disk joint (the visible circular pivot — very LEGO) */}
-          <circle cx="28" cy="75" r="13"
+          <circle cx="28" cy="77" r="13"
             fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1.2"/>
-          <circle cx="28" cy="75" r="8"
+          <circle cx="28" cy="77" r="8"
             fill={C.arHi} stroke={C.arSh} strokeWidth="0.8"/>
-          <circle cx="25" cy="72" r="2.5"
+          <circle cx="25" cy="74" r="2.5"
             fill="rgba(255,255,255,0.45)"/>
-
-          {/* Upper arm */}
-          <rect rx="7" x="5" y="65" width="23" height="38"
+          <rect rx="7" x="5" y="67" width="23" height="38"
             fill="url(#lk-arV)" stroke={C.blk} strokeWidth="1.2"/>
-          <rect rx="4" x="7" y="67" width="9" height="18"
+          <rect rx="4" x="7" y="69" width="9" height="18"
             fill="url(#lk-sh)" opacity="0.48"/>
-
-          {/* Elbow joint disk */}
-          <circle cx="16.5" cy="105" r="9"
+          <circle cx="16.5" cy="107" r="9"
             fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1"/>
-          <circle cx="14" cy="103" r="3" fill="rgba(255,255,255,0.3)"/>
-
-          {/* Forearm */}
-          <rect rx="6" x="7" y="103" width="19" height="22"
+          <circle cx="14" cy="105" r="3" fill="rgba(255,255,255,0.3)"/>
+          <rect rx="6" x="7" y="105" width="19" height="22"
             fill="url(#lk-arV)" stroke={C.blk} strokeWidth="1.1"/>
-
-          {/* C-clamp hand — the most iconic LEGO element */}
-          {/* Outer shell */}
-          <rect rx="6" x="8" y="125" width="17" height="13"
+          {/* C-clamp hand */}
+          <rect rx="6" x="8" y="127" width="17" height="13"
             fill="url(#lk-sk)" stroke={C.blk} strokeWidth="1.1"/>
-          {/* Grip hollow (shadow) */}
-          <ellipse cx="16.5" cy="131.5" rx="4.5" ry="3.5"
+          <ellipse cx="16.5" cy="133.5" rx="4.5" ry="3.5"
             fill="rgba(0,0,0,0.18)"/>
-          {/* Hand sheen */}
-          <rect rx="3" x="10" y="126" width="7" height="4"
+          <rect rx="3" x="10" y="128" width="7" height="4"
             fill="rgba(255,255,255,0.35)"/>
 
-          {/* ══ SHIELD ══
-              Heater-shape shield — pure 5×5 šahovnica, white (argent) first.
-              This is the historic Croatian coat of arms: "checky of 25,
-              argent and gules" — no added emblem, no boss.
-              5 cols × 7.4px = 37px fills the shield width cleanly.
-              7 rows shown; bottom point is red continuation of the pattern.
-          */}
-          <g transform="translate(-16, 76)">
-            {/* Arm strap behind shield */}
+          {/* ══ SHIELD ══ */}
+          <g transform="translate(-16, 78)">
             <rect rx="3" x="22" y="14" width="7" height="26"
               fill={C.brn} stroke={C.blk} strokeWidth="0.8" opacity="0.85"/>
-
-            {/* Shield background — filled with šahovnica squares */}
-            {/* 5 cols × 7.4px = 37px; 7 rows × 7.4px = 51.8px; sq=7.4 */}
             {Array.from({ length: 7 }).flatMap((_, r) =>
               Array.from({ length: 5 }).map((_, c) => (
-                <rect
-                  key={`sh-${r}-${c}`}
+                <rect key={`sh-${r}-${c}`}
                   x={1 + c * 7.4} y={1 + r * 7.4}
                   width={7.4} height={7.4}
                   fill={(r + c) % 2 === 0 ? C.wht : C.red}
                 />
               ))
             )}
-            {/* Bottom point — red fill (continues the pattern) */}
             <path d="M 1,53 L 19,68 L 37,53 Z" fill={C.red}/>
-            {/* White triangle for argent continuation in point */}
             <path d="M 8.4,53 L 19,64 L 29.6,53 Z" fill={C.wht}/>
-
-            {/* Shield outline — drawn on top to frame the šahovnica cleanly */}
             <path d="M 19,0 Q 38,0 38,13 L 38,53 L 19,70 L 0,53 L 0,13 Q 0,0 19,0 Z"
               fill="none" stroke={C.blk} strokeWidth="2.0"/>
-            {/* Gold trim border */}
             <path d="M 19,0 Q 38,0 38,13 L 38,53 L 19,70 L 0,53 L 0,13 Q 0,0 19,0 Z"
               fill="none" stroke="url(#lk-gd)" strokeWidth="1.4"/>
-
-            {/* Surface highlight — top-left sheen (LEGO plastic quality) */}
             <path d="M 5,3 Q 9,3 9,7"
               stroke="rgba(255,255,255,0.6)" strokeWidth="2.2" strokeLinecap="round"/>
           </g>
         </g>
 
-        {/* ───────────── RIGHT ARM GROUP — sword arm ───────────── */}
-        {/* Pivot point: (92, 75) — right shoulder joint */}
+        {/* ───────────── RIGHT ARM — sword arm ───────────── */}
         <g style={{ animation: m.armR }}>
-          {/* Shoulder disk joint */}
-          <circle cx="92" cy="75" r="13"
+          <circle cx="92" cy="77" r="13"
             fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1.2"/>
-          <circle cx="92" cy="75" r="8"
+          <circle cx="92" cy="77" r="8"
             fill={C.arHi} stroke={C.arSh} strokeWidth="0.8"/>
-          <circle cx="89" cy="72" r="2.5"
+          <circle cx="89" cy="74" r="2.5"
             fill="rgba(255,255,255,0.45)"/>
-
-          {/* Upper arm */}
-          <rect rx="7" x="92" y="65" width="23" height="38"
+          <rect rx="7" x="92" y="67" width="23" height="38"
             fill="url(#lk-arV)" stroke={C.blk} strokeWidth="1.2"/>
-          <rect rx="4" x="94" y="67" width="9" height="18"
+          <rect rx="4" x="94" y="69" width="9" height="18"
             fill="url(#lk-sh)" opacity="0.48"/>
-
-          {/* Elbow joint disk */}
-          <circle cx="103.5" cy="105" r="9"
+          <circle cx="103.5" cy="107" r="9"
             fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1"/>
-          <circle cx="101" cy="103" r="3" fill="rgba(255,255,255,0.3)"/>
-
-          {/* Forearm */}
-          <rect rx="6" x="94" y="103" width="19" height="22"
+          <circle cx="101" cy="105" r="3" fill="rgba(255,255,255,0.3)"/>
+          <rect rx="6" x="94" y="105" width="19" height="22"
             fill="url(#lk-arV)" stroke={C.blk} strokeWidth="1.1"/>
-
           {/* C-clamp hand */}
-          <rect rx="6" x="95" y="125" width="17" height="13"
+          <rect rx="6" x="95" y="127" width="17" height="13"
             fill="url(#lk-sk)" stroke={C.blk} strokeWidth="1.1"/>
-          <ellipse cx="103.5" cy="131.5" rx="4.5" ry="3.5"
+          <ellipse cx="103.5" cy="133.5" rx="4.5" ry="3.5"
             fill="rgba(0,0,0,0.18)"/>
-          <rect rx="3" x="97" y="126" width="7" height="4"
+          <rect rx="3" x="97" y="128" width="7" height="4"
             fill="rgba(255,255,255,0.35)"/>
 
           {/* ══ SWORD ══ */}
-          {/* Pommel */}
-          <circle cx="103.5" cy="138" r="7"
+          <circle cx="103.5" cy="140" r="7"
             fill="url(#lk-gd)" stroke={C.blk} strokeWidth="1.2"/>
-          <circle cx="103.5" cy="138" r="4"
+          <circle cx="103.5" cy="140" r="4"
             fill={C.gdHi} opacity="0.55"/>
-          <circle cx="101.5" cy="136" r="1.5"
+          <circle cx="101.5" cy="138" r="1.5"
             fill="rgba(255,255,255,0.7)"/>
-
-          {/* Grip */}
-          <rect rx="3" x="99.5" y="145" width="8" height="17"
+          <rect rx="3" x="99.5" y="147" width="8" height="17"
             fill={C.brn} stroke={C.blk} strokeWidth="1"/>
-          {/* Leather wrap */}
-          <line x1="100" y1="149" x2="107" y2="149" stroke="rgba(255,255,255,0.2)" strokeWidth="1"/>
-          <line x1="100" y1="153" x2="107" y2="153" stroke="rgba(255,255,255,0.2)" strokeWidth="1"/>
-          <line x1="100" y1="157" x2="107" y2="157" stroke="rgba(255,255,255,0.2)" strokeWidth="1"/>
-
-          {/* Crossguard */}
-          <rect rx="3" x="91" y="162" width="25" height="7"
+          <line x1="100" y1="151" x2="107" y2="151" stroke="rgba(255,255,255,0.2)" strokeWidth="1"/>
+          <line x1="100" y1="155" x2="107" y2="155" stroke="rgba(255,255,255,0.2)" strokeWidth="1"/>
+          <line x1="100" y1="159" x2="107" y2="159" stroke="rgba(255,255,255,0.2)" strokeWidth="1"/>
+          <rect rx="3" x="91" y="164" width="25" height="7"
             fill="url(#lk-gd)" stroke={C.blk} strokeWidth="1.1"/>
-          {/* Guard tips (knobs) */}
-          <circle cx="91" cy="165.5" r="3.5"
+          <circle cx="91"  cy="167.5" r="3.5"
             fill="url(#lk-gd)" stroke={C.blk} strokeWidth="0.9"/>
-          <circle cx="116" cy="165.5" r="3.5"
+          <circle cx="116" cy="167.5" r="3.5"
             fill="url(#lk-gd)" stroke={C.blk} strokeWidth="0.9"/>
-
-          {/* Blade */}
-          <path
-            d="M 100.5,169 L 100.5,179 L 103.5,188 L 106.5,179 L 106.5,169 Z"
+          <path d="M 100.5,171 L 100.5,181 L 103.5,190 L 106.5,181 L 106.5,171 Z"
             fill="url(#lk-bl)" stroke={C.stl} strokeWidth="0.9"/>
-          <rect rx="0.5" x="101" y="169" width="5" height="19"
+          <rect rx="0.5" x="101" y="171" width="5" height="19"
             fill="url(#lk-bl)" stroke={C.stl} strokeWidth="0.9"/>
-          {/* Fuller (center mirror line on blade) */}
-          <line x1="103.5" y1="171" x2="103.5" y2="184"
+          <line x1="103.5" y1="173" x2="103.5" y2="186"
             stroke="rgba(255,255,255,0.72)" strokeWidth="1.4"/>
         </g>
 
         {/* ───────────── NECK CONNECTOR ───────────── */}
-        <rect rx="5" x="50" y="54" width="20" height="10"
+        <rect rx="5" x="50" y="56" width="20" height="10"
           fill={C.ar} stroke={C.blk} strokeWidth="1.2"/>
-        {/* Neck seam line */}
-        <line x1="52" y1="58" x2="68" y2="58"
+        <line x1="52" y1="60" x2="68" y2="60"
           stroke={C.arDk} strokeWidth="0.7" opacity="0.4"/>
 
-        {/* ───────────── HEAD + FACE + HELMET ───────────── */}
+        {/* ═══════════════════════════════════════════════════
+            LEGO MOVIE PRINCIPLE 3: HEAD GROUP
+            Animates independently from body.
+            transformOrigin at neck connection point (60, 62).
+            ═══════════════════════════════════════════════════ */}
+        <g
+          style={{
+            animation: m.head,
+            transformOrigin: '60px 62px',
+          }}
+        >
+          {/* LEGO head (classic yellow cylinder) */}
+          <rect rx="11" x="38" y="6" width="44" height="50"
+            fill="url(#lk-sk)" stroke={C.blk} strokeWidth="1.3"/>
 
-        {/* LEGO head (classic yellow cylinder) */}
-        <rect rx="11" x="38" y="6" width="44" height="50"
-          fill="url(#lk-sk)" stroke={C.blk} strokeWidth="1.3"/>
+          {/* Face — visible in chin gap */}
+          <circle cx="52" cy="24" r="4.8" fill={C.blk}/>
+          <circle cx="68" cy="24" r="4.8" fill={C.blk}/>
+          <circle cx="53.6" cy="22.5" r="1.6" fill="white" opacity="0.88"/>
+          <circle cx="69.6" cy="22.5" r="1.6" fill="white" opacity="0.88"/>
 
-        {/* FACE (behind helmet — visible at chin gap) */}
-        {/* Eyes */}
-        <circle cx="52" cy="24" r="4.8" fill={C.blk}/>
-        <circle cx="68" cy="24" r="4.8" fill={C.blk}/>
-        {/* Eye highlights */}
-        <circle cx="53.6" cy="22.5" r="1.6" fill="white" opacity="0.88"/>
-        <circle cx="69.6" cy="22.5" r="1.6" fill="white" opacity="0.88"/>
+          {/* Mouth expressions */}
+          {mood === 'celebrating' && (
+            <path d="M 48,40 Q 60,54 72,40"
+              stroke={C.blk} strokeWidth="2.8" fill="none" strokeLinecap="round"/>
+          )}
+          {(mood === 'happy' || mood === 'encouraged') && (
+            <path d="M 49,39 Q 60,50 71,39"
+              stroke={C.blk} strokeWidth="2.8" fill="none" strokeLinecap="round"/>
+          )}
+          {mood === 'thinking' && (
+            <path d="M 50,41 Q 60,45 70,41"
+              stroke={C.blk} strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+          )}
+          {mood === 'confused' && (
+            <path d="M 50,41 Q 55,37 60,41 Q 65,45 70,41"
+              stroke={C.blk} strokeWidth="2.2" fill="none" strokeLinecap="round"/>
+          )}
+          {mood === 'sad' && (
+            <path d="M 50,46 Q 60,37 70,46"
+              stroke={C.blk} strokeWidth="2.8" fill="none" strokeLinecap="round"/>
+          )}
+          {mood === 'victory' && (
+            <path d="M 47,40 Q 60,56 73,40"
+              stroke={C.blk} strokeWidth="3.0" fill="none" strokeLinecap="round"/>
+          )}
+          {(mood === 'neutral' || mood === 'ready' || mood === 'marching') && (
+            <line x1="51" y1="41" x2="69" y2="41"
+              stroke={C.blk} strokeWidth="2.6" strokeLinecap="round"/>
+          )}
 
-        {/* Expressions */}
-        {mood === 'celebrating' && (
-          /* Big open LEGO smile */
-          <path d="M 48,40 Q 60,54 72,40"
-            stroke={C.blk} strokeWidth="2.8" fill="none" strokeLinecap="round"/>
-        )}
-        {(mood === 'happy' || mood === 'encouraged') && (
-          <path d="M 49,39 Q 60,50 71,39"
-            stroke={C.blk} strokeWidth="2.8" fill="none" strokeLinecap="round"/>
-        )}
-        {mood === 'thinking' && (
-          <path d="M 50,41 Q 60,45 70,41"
-            stroke={C.blk} strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-        )}
-        {mood === 'confused' && (
-          <path d="M 50,41 Q 55,37 60,41 Q 65,45 70,41"
-            stroke={C.blk} strokeWidth="2.2" fill="none" strokeLinecap="round"/>
-        )}
-        {mood === 'sad' && (
-          <path d="M 50,46 Q 60,37 70,46"
-            stroke={C.blk} strokeWidth="2.8" fill="none" strokeLinecap="round"/>
-        )}
-        {mood === 'neutral' && (
-          <line x1="51" y1="41" x2="69" y2="41"
-            stroke={C.blk} strokeWidth="2.6" strokeLinecap="round"/>
-        )}
+          {/* ─── LEGO CASTLE BUCKET VISOR HELMET ─── */}
+          <rect rx="11" x="38" y="6" width="44" height="36"
+            fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1.3"/>
+          <rect rx="9" x="40" y="7" width="40" height="10"
+            fill={C.arHi} opacity="0.5"/>
 
-        {/* ─────────────────────────────────────────────
-            LEGO CASTLE BUCKET VISOR HELMET
-            (classic part #2786 — the enclosed knight helmet)
-            Covers head except chin gap where face shows
-            ───────────────────────────────────────────── */}
+          {/* T-VISOR */}
+          <rect rx="4" x="40" y="22" width="40" height="22"
+            fill={C.blk} stroke={C.arSh} strokeWidth="0.9"/>
 
-        {/* Helmet body — covers top 60% of head */}
-        <rect rx="11" x="38" y="6" width="44" height="36"
-          fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1.3"/>
+          {/* Eye slits */}
+          <rect rx="2" x="42" y="27" width="15" height="7"
+            fill="#0A1525" stroke="#283848" strokeWidth="0.5"/>
+          <rect rx="2" x="63" y="27" width="15" height="7"
+            fill="#0A1525" stroke="#283848" strokeWidth="0.5"/>
 
-        {/* Helmet crown bevel */}
-        <rect rx="9" x="40" y="7" width="40" height="10"
-          fill={C.arHi} opacity="0.5"/>
-
-        {/* ── T-VISOR ── */}
-        {/* Visor recess — dark rectangular inset */}
-        <rect rx="4" x="40" y="22" width="40" height="22"
-          fill={C.blk} stroke={C.arSh} strokeWidth="0.9"/>
-        {/* Left eye slit */}
-        <rect rx="2" x="42" y="27" width="15" height="7"
-          fill="#0A1525" stroke="#283848" strokeWidth="0.5"/>
-        {/* Right eye slit */}
-        <rect rx="2" x="63" y="27" width="15" height="7"
-          fill="#0A1525" stroke="#283848" strokeWidth="0.5"/>
-        {/* Visor eye glow — appears at level 51+ */}
-        {lvlCfg.eyeGlow && (
-          <>
-            <rect rx="2.5" x="43" y="28" width="13" height="5"
-              fill={lvlCfg.eyeGlow}
-              style={{ animation: lvlCfg.eyeGlowAnim }}
-            />
-            <rect rx="2.5" x="64" y="28" width="13" height="5"
-              fill={lvlCfg.eyeGlow}
-              style={{ animation: lvlCfg.eyeGlowAnim }}
-            />
-          </>
-        )}
-        {/* Nasal bar — vertical center piece of T */}
-        <rect rx="2" x="57.5" y="22" width="5" height="22"
-          fill="#141E30" opacity="0.92"/>
-        {/* Visor surface highlights (plastic glint) */}
-        <rect rx="2" x="42" y="23" width="11" height="3"
-          fill="rgba(255,255,255,0.22)"/>
-        <rect rx="2" x="63" y="23" width="11" height="3"
-          fill="rgba(255,255,255,0.22)"/>
-
-        {/* Cheek guards — side panels */}
-        <rect rx="5" x="38" y="26" width="8" height="20"
-          fill={C.arSh} stroke={C.blk} strokeWidth="1"/>
-        <rect rx="5" x="74" y="26" width="8" height="20"
-          fill={C.arSh} stroke={C.blk} strokeWidth="1"/>
-        {/* Cheek guard highlights */}
-        <rect rx="3" x="39" y="27" width="4" height="8"
-          fill="rgba(255,255,255,0.2)"/>
-        <rect rx="3" x="75" y="27" width="4" height="8"
-          fill="rgba(255,255,255,0.2)"/>
-
-        {/* Neck guard / aventail (covers lower face / neck) */}
-        <rect rx="5" x="40" y="42" width="40" height="14"
-          fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1.1"/>
-        <rect rx="3" x="42" y="43" width="17" height="5"
-          fill="rgba(255,255,255,0.22)"/>
-
-        {/* Gold trim lines on helmet */}
-        <rect rx="2" x="38" y="20" width="44" height="4.5"
-          fill="url(#lk-gdV)" opacity="0.88"/>
-        <rect rx="2" x="38" y="40" width="44" height="4.5"
-          fill="url(#lk-gdV)" opacity="0.82"/>
-
-        {/* ── LEGO STUD ON HELMET TOP ── */}
-        {/* Cylinder body */}
-        <rect rx="6" x="54" y="-1" width="12" height="8"
-          fill={C.ar} stroke={C.blk} strokeWidth="1"/>
-        {/* Stud top cap (ellipse for 3D cylinder look) */}
-        <ellipse cx="60" cy="-1" rx="6" ry="2.8"
-          fill={C.arHi} stroke={C.blk} strokeWidth="0.9"/>
-        {/* Stud highlight */}
-        <ellipse cx="58" cy="-2" rx="2.5" ry="1"
-          fill="rgba(255,255,255,0.5)"/>
-        {/* Stud-to-head ring */}
-        <ellipse cx="60" cy="7" rx="6" ry="2.5"
-          fill={C.ar} stroke={C.blk} strokeWidth="0.8"/>
-
-        {/* ── LEVEL VISUAL UPGRADES ── */}
-        {/* Level 26+: Crown ring on helmet stud */}
-        {lvlCfg.crownColor && (
-          <ellipse cx="60" cy="-1" rx="7.2" ry="3.4"
-            fill="none" stroke={lvlCfg.crownColor} strokeWidth={lvlCfg.crownWidth}
-            opacity="0.88"
-            style={lvlCfg.crownAnim ? { animation: lvlCfg.crownAnim } : undefined}
+          {/* ══ LEGO MOVIE PRINCIPLE 7: MOOD EYE SLIT GLOW ══ */}
+          {/* All moods get colored visor glow — expressiveness without face change */}
+          <rect rx="2.5" x="43" y="28" width="13" height="5"
+            fill={eyeSlit.fill}
+            opacity={eyeSlit.op}
+            style={{ animation: eyeSlit.anim }}
           />
-        )}
-        {/* Level 76+: Gold shoulder accent bands */}
-        {lvlCfg.goldBands && (
-          <>
-            <rect rx="3" x="26" y="62" width="68" height="5" fill="url(#lk-gdV)" opacity="0.45"
-              style={{ animation: 'lk-sheen 2.5s ease-in-out infinite' }}/>
-            <rect rx="3" x="26" y="111" width="68" height="5" fill="url(#lk-gdV)" opacity="0.4"
-              style={{ animation: 'lk-sheen 3.0s ease-in-out .8s infinite' }}/>
-          </>
-        )}
-        {/* No plume — clean bucket helmet */}
+          <rect rx="2.5" x="64" y="28" width="13" height="5"
+            fill={eyeSlit.fill}
+            opacity={eyeSlit.op}
+            style={{ animation: eyeSlit.anim }}
+          />
+
+          {/* ══ LEGO MOVIE PRINCIPLE 8: BLINK ══ */}
+          {/* Stepped timing — snaps closed, doesn't ease */}
+          <rect rx="2" x="42" y="27" width="15" height="7"
+            fill="#0A1525"
+            style={{
+              animation: 'lk-blink 3.8s steps(1) infinite',
+              transformOrigin: '49.5px 30.5px',
+            }}
+          />
+          <rect rx="2" x="63" y="27" width="15" height="7"
+            fill="#0A1525"
+            style={{
+              animation: 'lk-blink 3.8s steps(1) 0.04s infinite',
+              transformOrigin: '70.5px 30.5px',
+            }}
+          />
+
+          {/* Level-gated enhanced eye glow (on top of mood glow) */}
+          {lvlCfg.eyeGlow && (
+            <>
+              <rect rx="2.5" x="43" y="28" width="13" height="5"
+                fill={lvlCfg.eyeGlow}
+                style={{ animation: lvlCfg.eyeGlowAnim }}
+              />
+              <rect rx="2.5" x="64" y="28" width="13" height="5"
+                fill={lvlCfg.eyeGlow}
+                style={{ animation: lvlCfg.eyeGlowAnim }}
+              />
+            </>
+          )}
+
+          {/* Nasal bar */}
+          <rect rx="2" x="57.5" y="22" width="5" height="22"
+            fill="#141E30" opacity="0.92"/>
+
+          {/* Visor glint highlights */}
+          <rect rx="2" x="42" y="23" width="11" height="3"
+            fill="rgba(255,255,255,0.22)"/>
+          <rect rx="2" x="63" y="23" width="11" height="3"
+            fill="rgba(255,255,255,0.22)"/>
+
+          {/* Cheek guards */}
+          <rect rx="5" x="38" y="26" width="8" height="20"
+            fill={C.arSh} stroke={C.blk} strokeWidth="1"/>
+          <rect rx="5" x="74" y="26" width="8" height="20"
+            fill={C.arSh} stroke={C.blk} strokeWidth="1"/>
+          <rect rx="3" x="39" y="27" width="4" height="8"
+            fill="rgba(255,255,255,0.2)"/>
+          <rect rx="3" x="75" y="27" width="4" height="8"
+            fill="rgba(255,255,255,0.2)"/>
+
+          {/* Aventail (neck guard) */}
+          <rect rx="5" x="40" y="42" width="40" height="14"
+            fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1.1"/>
+          <rect rx="3" x="42" y="43" width="17" height="5"
+            fill="rgba(255,255,255,0.22)"/>
+
+          {/* Gold trim lines on helmet */}
+          <rect rx="2" x="38" y="20" width="44" height="4.5"
+            fill="url(#lk-gdV)" opacity="0.88"/>
+          <rect rx="2" x="38" y="40" width="44" height="4.5"
+            fill="url(#lk-gdV)" opacity="0.82"/>
+
+          {/* LEGO stud on helmet top */}
+          <rect rx="6" x="54" y="-1" width="12" height="8"
+            fill={C.ar} stroke={C.blk} strokeWidth="1"/>
+          <ellipse cx="60" cy="-1" rx="6" ry="2.8"
+            fill={C.arHi} stroke={C.blk} strokeWidth="0.9"/>
+          <ellipse cx="58" cy="-2" rx="2.5" ry="1"
+            fill="rgba(255,255,255,0.5)"/>
+          <ellipse cx="60" cy="7" rx="6" ry="2.5"
+            fill={C.ar} stroke={C.blk} strokeWidth="0.8"/>
+
+          {/* Level 26+: Crown ring */}
+          {lvlCfg.crownColor && (
+            <ellipse cx="60" cy="-1" rx="7.2" ry="3.4"
+              fill="none" stroke={lvlCfg.crownColor} strokeWidth={lvlCfg.crownWidth}
+              opacity="0.88"
+              style={lvlCfg.crownAnim ? { animation: lvlCfg.crownAnim } : undefined}
+            />
+          )}
+
+          {/* ═══════════════════════════════════════════════════
+              LEGO MOVIE PRINCIPLE 5: RED PLUME
+              Follow-through: plume animates with phase delay.
+              Mounted on helmet stud — sways behind head motion.
+              ═══════════════════════════════════════════════════ */}
+          <g style={{ animation: m.plume }}>
+            {/* Plume base socket — gold ring where quill meets stud */}
+            <ellipse cx="60" cy="-1" rx="4" ry="1.8"
+              fill="url(#lk-gd)" stroke={C.blk} strokeWidth="0.7" opacity="0.9"/>
+
+            {/* Main quill shaft */}
+            <path
+              d="M 60,-1 C 59,-12 56,-24 53,-36 C 51,-45 52,-52 56,-56 C 58,-58 60,-58 60,-58"
+              fill="none" stroke={C.plumeR} strokeWidth="2.4" strokeLinecap="round"
+              opacity="0.92"
+            />
+
+            {/* Right vane — feather barbs flowing right */}
+            <path
+              d="M 59,-8  C 64,-11 70,-12 72,-16"
+              fill="none" stroke={C.plumeP} strokeWidth="1.8" strokeLinecap="round" opacity="0.80"/>
+            <path
+              d="M 57,-16 C 63,-19 70,-20 72,-25"
+              fill="none" stroke={C.plumeP} strokeWidth="1.6" strokeLinecap="round" opacity="0.75"/>
+            <path
+              d="M 55,-24 C 61,-27 67,-29 68,-34"
+              fill="none" stroke={C.plumeP} strokeWidth="1.4" strokeLinecap="round" opacity="0.68"/>
+            <path
+              d="M 53,-32 C 58,-35 63,-37 63,-42"
+              fill="none" stroke={C.plumeP} strokeWidth="1.2" strokeLinecap="round" opacity="0.58"/>
+
+            {/* Left vane — feather barbs flowing left */}
+            <path
+              d="M 59,-8  C 54,-11 48,-12 46,-16"
+              fill="none" stroke={C.plumeR} strokeWidth="1.6" strokeLinecap="round" opacity="0.70"/>
+            <path
+              d="M 57,-16 C 52,-19 46,-21 44,-26"
+              fill="none" stroke={C.plumeR} strokeWidth="1.4" strokeLinecap="round" opacity="0.62"/>
+            <path
+              d="M 55,-24 C 51,-27 46,-30 45,-35"
+              fill="none" stroke={C.plumeR} strokeWidth="1.2" strokeLinecap="round" opacity="0.55"/>
+
+            {/* Plume tip */}
+            <circle cx="60" cy="-58" r="2.5"
+              fill={C.plumeP} stroke={C.plumeR} strokeWidth="0.8" opacity="0.88"/>
+          </g>
+
+          {/* Level 76+: Gold shoulder accent bands */}
+          {lvlCfg.goldBands && (
+            <>
+              <rect rx="3" x="26" y="64" width="68" height="5" fill="url(#lk-gdV)" opacity="0.45"
+                style={{ animation: 'lk-sheen 2.5s ease-in-out infinite' }}/>
+              <rect rx="3" x="26" y="113" width="68" height="5" fill="url(#lk-gdV)" opacity="0.4"
+                style={{ animation: 'lk-sheen 3.0s ease-in-out .8s infinite' }}/>
+            </>
+          )}
+
+        </g>
+        {/* ── end head group ── */}
 
       </g>
+      {/* ── end main figure group ── */}
+
     </svg>
+    </g>
+    {/* ── end jitter wrapper ── */}
     </motion.div>
   );
 });
