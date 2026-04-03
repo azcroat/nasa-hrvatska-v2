@@ -15,10 +15,13 @@ import { useStats } from "../context/StatsContext.jsx";
 // returns the SPA fallback index.html causing a MIME-type or fetch failure).
 //
 // Error patterns covered:
-//   Chrome:  "Expected a JavaScript module script but the server responded with a MIME type of 'text/html'"
-//   Chrome:  "Failed to fetch"
-//   Safari:  "importing a module script failed"
-//   Firefox: "error loading dynamically imported module"
+//   Chrome:       "Expected a JavaScript module script but the server responded with a MIME type of 'text/html'"
+//   Chrome:       "Failed to fetch"
+//   Safari/WebKit:"importing a module script failed"
+//   Firefox:      "error loading dynamically imported module"
+//   WebKit iOS:   "Importing binding name 'X' is not found." ← stale cached chunk has
+//                 a named import that no longer exists after redeployment / minification
+//                 rename (e.g. 'g' was renamed in the new build).
 //
 // Uses sessionStorage to cap at 2 attempts — prevents infinite loops when the
 // SW is stuck (e.g. offline, or Cloudflare down). After 2 attempts, lets
@@ -32,15 +35,24 @@ function lazyWithReload(fn) {
       msg.includes('dynamically imported module') ||
       msg.includes('Expected a JavaScript module script') ||
       msg.includes('MIME type') ||
-      msg.includes('Loading chunk');
+      msg.includes('Loading chunk') ||
+      msg.includes('Importing binding name');   // WebKit: stale cross-chunk binding mismatch
     if (isChunkError) {
       try {
         const key = 'nh_reload_attempt';
         const n = parseInt(sessionStorage.getItem(key) || '0', 10);
         if (n < 2) {
           sessionStorage.setItem(key, String(n + 1));
-          window.location.reload();
-          return; // Abort throw so ScreenErrorBoundary doesn't flash before reload
+          // Purge the JS runtime cache so the reload fetches fresh chunks from network.
+          // Without this, StaleWhileRevalidate serves the same stale chunk again.
+          if ('caches' in window) {
+            caches.keys().then(names => {
+              names.forEach(name => { if (name.includes('nasa-hrvatska') && name.includes('-js')) caches.delete(name); });
+            }).catch(() => {}).finally(() => window.location.reload());
+          } else {
+            window.location.reload();
+          }
+          return new Promise(() => {}); // keep the promise pending so React doesn't render an error state
         }
       } catch (_) {}
     }
