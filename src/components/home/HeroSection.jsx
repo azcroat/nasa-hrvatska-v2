@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { lXP, nXP, earnFreeze, getStreakFreezes, LEVEL_NARRATIVE, speak } from '../../data.jsx';
-import { getDailyXP, DAILY_XP_GOAL } from '../../lib/appUtils.js';
+import { getDailyXP, DAILY_XP_GOAL, getXPBoost, activateXPBoost, XP_BOOST_COST } from '../../lib/appUtils.js';
 import { useTranslator } from '../../hooks/useTranslator.js';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
@@ -228,10 +228,23 @@ export default function HeroSection({
   wsMastered,
 }) {
   const { name, setScr } = useApp();
-  const { level, stats: st, award } = useStats();
+  const { level, stats: st, award, setStats } = useStats();
 
   const [freezes, setFreezes] = useState(getStreakFreezes);
   const [freezeMsg, setFreezeMsg] = useState('');
+  const [boost, setBoost] = useState(() => getXPBoost());
+  const [boostMsg, setBoostMsg] = useState('');
+
+  // Refresh boost countdown every 10 s while active
+  useEffect(() => {
+    if (!boost.active) return undefined;
+    const id = setInterval(() => {
+      const b = getXPBoost();
+      setBoost(b);
+      if (!b.active) clearInterval(id);
+    }, 10000);
+    return () => clearInterval(id);
+  }, [boost.active]);
   const [streakRestored, setStreakRestored] = useState(false);
   const [streakRestoreMsg, setStreakRestoreMsg] = useState('');
 
@@ -734,6 +747,62 @@ export default function HeroSection({
               </div>
             );
           })()}
+
+          {/* ── XP BOOST — DuoLingo best practice: session 2× multiplier ── */}
+          {boost.active ? (
+            <div style={{
+              marginBottom: 12,
+              background: 'linear-gradient(135deg,rgba(251,191,36,.22),rgba(245,158,11,.14))',
+              border: '1.5px solid rgba(251,191,36,.42)',
+              borderRadius: 12, padding: '9px 14px',
+              display: 'flex', alignItems: 'center', gap: 10,
+            }}>
+              <span style={{ fontSize: 20, lineHeight: 1 }}>⚡</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 12, fontWeight: 900, color: '#fbbf24', letterSpacing: '.04em' }}>
+                  2× XP BOOST ACTIVE
+                </div>
+                <div style={{ fontSize: 10, color: 'rgba(251,191,36,.75)', marginTop: 1, fontWeight: 600 }}>
+                  {Math.ceil(boost.msRemaining / 60000)} min remaining · all XP doubled
+                </div>
+              </div>
+              <span style={{ fontSize: 18 }}>🔥</span>
+            </div>
+          ) : (
+            <div style={{ marginBottom: 12 }}>
+              <button
+                onClick={() => {
+                  if (st.xp < XP_BOOST_COST) {
+                    setBoostMsg(`Need ${XP_BOOST_COST} XP to activate boost`);
+                    setTimeout(() => setBoostMsg(''), 3000);
+                    return;
+                  }
+                  setStats(s => ({ ...s, xp: Math.max(0, s.xp - XP_BOOST_COST) }));
+                  activateXPBoost();
+                  setBoost(getXPBoost());
+                }}
+                style={{
+                  background: 'rgba(251,191,36,0.10)', border: '1.5px solid rgba(251,191,36,0.28)',
+                  borderRadius: 12, padding: '9px 14px', fontSize: 11,
+                  color: 'rgba(251,191,36,0.88)', fontWeight: 800,
+                  cursor: 'pointer', width: '100%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  minHeight: 40, fontFamily: "'Outfit',sans-serif",
+                  transition: 'background .15s ease',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(251,191,36,0.18)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(251,191,36,0.10)'; }}
+              >
+                <span>⚡</span>
+                <span>2× XP Boost · {XP_BOOST_COST} XP · 30 min</span>
+              </button>
+              {boostMsg && (
+                <div style={{ fontSize: 10, color: 'rgba(251,191,36,.8)', marginTop: 5, fontWeight: 600, textAlign: 'center' }}>
+                  {boostMsg}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Streak freeze — compact */}
           {freezes===0 && (
