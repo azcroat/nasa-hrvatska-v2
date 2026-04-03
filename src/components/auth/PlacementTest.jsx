@@ -3,25 +3,35 @@ import { Bar } from '../../data.jsx';
 import CroatianKnight from '../shared/CroatianKnight';
 
 const PLACEMENT_QUESTIONS = [
-  // Level 1 — A1 Survival
+  // Level 1 — A1 Survival (4 questions)
   { level: 1, q: 'What does "Dobar dan" mean?', options: ['Good morning', 'Good afternoon', 'Good night', 'Goodbye'], answer: 1 },
   { level: 1, q: 'How do you say "thank you" in Croatian?', options: ['Molim', 'Hvala', 'Oprosti', 'Zdravo'], answer: 1 },
+  { level: 1, q: '"One coffee, please" in Croatian:', options: ['Jedna kava, molim.', 'Jednu kava, molim.', 'Kava jedna molim.', 'Molim jedna kava.'], answer: 0 },
+  { level: 1, q: 'What does "Ne razumijem" mean?', options: ['I understand', "I don't understand", "I don't know", 'Repeat please'], answer: 1 },
 
-  // Level 2 — A2 Settler
+  // Level 2 — A2 Settler (4 questions)
   { level: 2, q: '"Koliko košta?" means:', options: ['Where is it?', 'How much does it cost?', 'What time is it?', 'How far is it?'], answer: 1 },
   { level: 2, q: 'Complete: "Ja ___ student." (I am a student)', options: ['je', 'sam', 'si', 'smo'], answer: 1 },
+  { level: 2, q: '"I went to Zagreb" — best Croatian translation:', options: ['Ja idem u Zagreb.', 'Ja idu u Zagreb.', 'Otišao/Otišla sam u Zagreb.', 'Ja otišao Zagreb.'], answer: 2 },
+  { level: 2, q: '"I don\'t have a car" — correct Croatian (note case):', options: ['Nemam auto.', 'Nemam auta.', 'Ne imam auto.', 'Nemam autom.'], answer: 1 },
 
-  // Level 3 — B1 Communicator
+  // Level 3 — B1 Communicator (4 questions)
   { level: 3, q: 'Which is the correct past tense? "She went to school"', options: ['Ona ide u školu', 'Ona je išla u školu', 'Ona će ići u školu', 'Ona bi išla u školu'], answer: 1 },
   { level: 3, q: '"Pišem" vs "napisati" — what is the difference?', options: ['Pišem is past, napisati is present', 'Pišem is imperfective (ongoing), napisati is perfective (completed)', 'They mean the same thing', 'Pišem is formal, napisati is informal'], answer: 1 },
+  { level: 3, q: '"I have never been to Dubrovnik" in Croatian:', options: ['Nikad nisam bio/bila u Dubrovniku.', 'Nikad ne bio u Dubrovniku.', 'Nisam nikad u Dubrovnik.', 'Nikad nisam bio Dubrovnik.'], answer: 0 },
+  { level: 3, q: '"The book that I am reading" in Croatian:', options: ['knjiga koju čitam', 'knjiga koji čitam', 'knjiga koje čitam', 'knjiga što čitam'], answer: 0 },
 
-  // Level 4 — B2 Explorer
+  // Level 4 — B2 Explorer (4 questions)
   { level: 4, q: 'Choose the correct genitive plural: "a lot of books"', options: ['puno knjiga', 'puno knjige', 'puno knjizi', 'puno knjigama'], answer: 0 },
   { level: 4, q: '"Kad bih imao novca, putovao bih." This uses:', options: ['Present tense', 'Future tense', 'Conditional mood', 'Imperative'], answer: 2 },
+  { level: 4, q: '"Despite the rain, we went" in Croatian:', options: ['Usprkos kiši, otišli smo.', 'Unatoč kiša, otišli smo.', 'Bez kiše, otišli smo.', 'Zbog kiše, otišli smo.'], answer: 0 },
+  { level: 4, q: '"He turned out to be right" in natural Croatian:', options: ['Ispostavilo se da je bio u pravu.', 'On se pokazao da je pravo.', 'Ispostavilo da je u pravu.', 'On je bio u pravu se ispostavilo.'], answer: 0 },
 
-  // Level 5 — C1 Hrvat
+  // Level 5 — C1 Hrvat (4 questions)
   { level: 5, q: '"Da + present" construction expresses:', options: ['A wish or necessity (subjunctive-like)', 'Simple future', 'Past habit', 'Passive voice'], answer: 0 },
   { level: 5, q: 'Which is the correct reflexive passive? "Croatian is spoken here"', options: ['Hrvatska se govori ovdje', 'Ovdje se govori hrvatski', 'Ovdje govori se hrvatski', 'Se govori ovdje hrvatski'], answer: 1 },
+  { level: 5, q: '"Not to mention..." — most idiomatic Croatian equivalent:', options: ['A kamoli...', 'Da ne govorimo o tome...', 'Nekmoli...', 'Pa čak i...'], answer: 0 },
+  { level: 5, q: 'Which correctly uses the present verbal adverb (glagolski prilog sadašnji)?', options: ['Čitajući novine, pronašao sam zanimljiv članak.', 'Čitao novine, pronašao sam.', 'Dok čitam novine, pronašao sam.', 'Čitanje novina, pronašao sam.'], answer: 0 },
 ];
 
 const LEVEL_NAMES = ['', 'A1 Survival', 'A2 Settler', 'B1 Communicator', 'B2 Explorer', 'C1 Hrvat'];
@@ -36,12 +46,16 @@ const LEVEL_DESC = [
 ];
 
 function calculatePlacement(levelCorrect) {
-  // levelCorrect: { 1: [true, false, true], 2: [...], ... }
+  // levelCorrect: { 1: [bool, ...], 2: [...], ... }
+  // With 4 questions per level, pass threshold = 75% (3/4 correct).
+  // For levels with fewer answers (early exit), use 50% (≥ half correct).
   let placed = 1;
   for (let lv = 1; lv <= 5; lv++) {
     const answers = levelCorrect[lv] || [];
     const correct = answers.filter(Boolean).length;
-    if (correct >= 2) placed = lv;
+    const total = answers.length;
+    const threshold = total >= 4 ? 3 : Math.ceil(total / 2);
+    if (total > 0 && correct >= threshold) placed = lv;
   }
   return placed;
 }
@@ -118,8 +132,8 @@ export default function PlacementTest({ onComplete }) {
             lineHeight: 1.6,
             marginBottom: 6,
           }}>
-            A few quick questions — about 2 minutes.
-            The test adapts as you go and stops early if needed. 🧠
+            20 adaptive questions — about 3-4 minutes.
+            The test adjusts as you go and stops early if needed. 🧠
           </p>
           <p style={{
             color: 'var(--subtext)',
