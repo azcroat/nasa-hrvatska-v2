@@ -60,7 +60,7 @@ export function getRegenTimeMs() {
   // Returns ms until next heart regen
   const s = getState();
   if (!s || s.hearts >= 5) return 0;
-  const elapsed = Date.now() - (s.lastRegen || 0);
-  const nextRegen = 14400000 - (elapsed % 14400000);
-  return nextRegen;
+  const elapsed = Math.max(0, Date.now() - (s.lastRegen || 0));
+  const rem = elapsed % 14400000;
+  return rem === 0 ? 0 : 14400000 - rem;
 }

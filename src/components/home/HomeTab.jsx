@@ -247,7 +247,7 @@ export default function HomeTab({
       }
     }
     prevLvRef.current = pathData.activeLv;
-  }, [pathData.activeLv.level]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [pathData.activeLv.level]);
 
   // Daily rotating phrases — uses 365-entry curated pool so every day of the year is unique
   const phraseOfDay = useMemo(() => {

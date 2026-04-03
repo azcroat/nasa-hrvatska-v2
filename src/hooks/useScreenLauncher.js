@@ -110,6 +110,7 @@ export function useScreenLauncher({
   }, [setScr, sCurEx, setAnimLesson, tab, currentScreen]);
 
   const launchMcGame = useCallback((questions) => {
+    if (!questions || questions.length === 0) return; // guard: never launch an empty game
     returnContextRef.current = { tab: tab || 'practice', screen: currentScreen || 'dashboard' };
     setMcInitQ(questions);
     sCurEx('mcgame');

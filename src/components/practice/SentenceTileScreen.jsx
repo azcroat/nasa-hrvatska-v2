@@ -72,7 +72,7 @@ export default function SentenceTileScreen({ goBack, award }) {
 
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
-  const [bank, setBank] = useState(() => buildBank(questions[0]));
+  const [bank, setBank] = useState(() => questions.length > 0 ? buildBank(questions[0]) : []);
   const [tray, setTray] = useState([]);
   const [feedback, setFeedback] = useState(null); // null | 'correct' | 'wrong'
   const [done, setDone] = useState(false);

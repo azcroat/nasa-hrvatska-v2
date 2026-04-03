@@ -278,9 +278,7 @@ export default function Flashcards({ pool, goBack, award }) {
   }
 
   function handleStillLearning() {
-    const q = 2;
-    const correct = q >= 3;
-    srMark(activePool[idx][0], correct);
+    srMark(activePool[idx][0], false); // "Still Learning" = wrong for SRS scheduling
     setWrongAnim(true);
     setTimeout(() => { if (mountedRef.current) setWrongAnim(false); }, 400);
     setShowStillLearning(true);
@@ -299,9 +297,7 @@ export default function Flashcards({ pool, goBack, award }) {
   function handleKnown() {
     setSparkPos({ x: 50, y: 50 });
     setTimeout(() => { if (mountedRef.current) setSparkPos(null); }, 700);
-    const q = 4;
-    const correct = q >= 3;
-    srMark(activePool[idx][0], correct);
+    srMark(activePool[idx][0], true); // "Know It" = correct for SRS scheduling
     setCorrectAnim(true);
     setTimeout(() => { if (mountedRef.current) setCorrectAnim(false); }, 500);
     const newKnown = known + 1;
