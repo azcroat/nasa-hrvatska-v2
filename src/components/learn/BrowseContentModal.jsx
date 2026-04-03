@@ -1,6 +1,31 @@
 import React from 'react';
 import { V, GRAM } from '../../data.jsx';
 
+// CEFR mapping for vocabulary categories — mirrors DuoLingo's level-aware content labels
+const VOCAB_CEFR = {
+  greetings: 'A1', numbers: 'A1', family: 'A1', colours: 'A1', colors: 'A1',
+  body: 'A1', animals: 'A1', house: 'A1',
+  food: 'A2', drink: 'A2', travel: 'A2', transport: 'A2', time: 'A2',
+  nature: 'A2', weather: 'A2', shopping: 'A2', clothing: 'A2', clothes: 'A2',
+  emotions: 'A2', feelings: 'A2', hobbies: 'A2', sports: 'A2',
+  verbs: 'B1', phrases: 'B1', health: 'B1', work: 'B1', professions: 'B1',
+  technology: 'B1', tech: 'B1', school: 'B1', education: 'B1',
+  grammar: 'B1', politics: 'B2', business: 'B2', law: 'B2', science: 'B2',
+};
+const CEFR_STYLE = {
+  A1: { color: 'var(--success)', bg: 'var(--success-bg)' },
+  A2: { color: 'var(--info)', bg: 'var(--info-bg)' },
+  B1: { color: 'var(--warning,#d97706)', bg: 'var(--warning-bg,rgba(217,119,6,.1))' },
+  B2: { color: 'var(--lavender,#7c3aed)', bg: 'var(--bar-bg)' },
+};
+function getVocabCEFR(cat, wordCount) {
+  const key = (cat || '').toLowerCase();
+  if (VOCAB_CEFR[key]) return VOCAB_CEFR[key];
+  if (wordCount < 15) return 'A1';
+  if (wordCount < 25) return 'A2';
+  return 'B1';
+}
+
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
 function LevelBadge({ label, color, bg }) {
@@ -93,9 +118,9 @@ export default function BrowseContentModal({
                       {(V[t]||[]).slice(0,2).map(w=>w[0]).join(' · ')}
                     </div>
                     {(() => {
-                      const count = V[t].length;
-                      const [badge, color, bg] = count < 15 ? ['Essential','var(--success)','var(--success-bg)'] : count < 25 ? ['Core','var(--info)','var(--info-bg)'] : ['Extended','var(--lavender)','var(--bar-bg)'];
-                      return <span style={{fontSize:'var(--text-xs)',fontWeight:800,color,background:bg,borderRadius:6,padding:'2px 5px',marginTop:3,letterSpacing:'.04em'}}>{badge}</span>;
+                      const cefr = getVocabCEFR(t, (V[t] || []).length);
+                      const { color, bg } = CEFR_STYLE[cefr] || CEFR_STYLE.A2;
+                      return <span style={{fontSize:'var(--text-xs)',fontWeight:800,color,background:bg,borderRadius:6,padding:'2px 5px',marginTop:3,letterSpacing:'.04em'}}>{cefr}</span>;
                     })()}
                   </button>
                 );
