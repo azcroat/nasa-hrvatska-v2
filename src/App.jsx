@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, useReducer } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { BG_LIGHT, BG_DARK, lvl, getStreak, earnFreeze, recordJourneyMilestone } from "./lib/appUtils.js";
-import { touchSession, isSessionExpired } from "./lib/firebase.js";
+import { touchSession, isSessionExpired, fbApplyDelta } from "./lib/firebase.js";
 import { getSR, saveSR, getDueReviews } from "./lib/srs.js";
 import { buildProgressSnapshot } from "./lib/progressSnapshot.js";
 import { localDateStr, weekKey } from "./lib/dateUtils.js";
@@ -154,8 +154,18 @@ function App() {
   const { darkMode, setDarkMode, favs, setFavs, toggleFav, isFav } = usePreferences(_uidRef);
   const { srchQ, setSrchQ, srchR, srchOpen, setSrchOpen, doSearch } = useSearch();
 
+  // ── writeDelta — atomic Firestore increment for every user-initiated stat change ──
+  // Reads authUser from a ref so it works as a stable callback regardless of render order.
+  // The ref is updated synchronously after useAuth (below) on every render.
+  const _writeDeltaAuthRef = useRef(/** @type {import('./types/index.js').AuthUser | null} */(null));
+  const writeDelta = useCallback((delta) => {
+    const u = _writeDeltaAuthRef.current;
+    if (!u) return;
+    fbApplyDelta(u.u, delta).catch((e) => console.warn('[sync] writeDelta failed:', e?.code));
+  }, []); // stable — reads only from ref, never re-created
+
   // ── Award / gamification ────────────────────────────────────────────────────
-  const { award, comebackBonus, setComebackBonus, showCelebration, setShowCelebration, celebXP, setCelebXP: _setCelebXP, streakMilestone, setStreakMilestone, ceremonyType, setCeremonyType, levelUpData, setLevelUpData, freezeUsedToast, setFreezeUsedToast: _setFreezeUsedToast, earnBackPrompt, setEarnBackPrompt: _setEarnBackPrompt, streakRestoredCount, setStreakRestoredCount, ttsFailedToast, setTtsFailedToast, showXP, xpA, nB, sB } = useAward({ curEx, stats, setStats });
+  const { award, comebackBonus, setComebackBonus, showCelebration, setShowCelebration, celebXP, setCelebXP: _setCelebXP, streakMilestone, setStreakMilestone, ceremonyType, setCeremonyType, levelUpData, setLevelUpData, freezeUsedToast, setFreezeUsedToast: _setFreezeUsedToast, earnBackPrompt, setEarnBackPrompt: _setEarnBackPrompt, streakRestoredCount, setStreakRestoredCount, ttsFailedToast, setTtsFailedToast, showXP, xpA, nB, sB } = useAward({ curEx, stats, setStats, writeDelta });
 
   // ── applyRemoteProgress: merge Firestore snapshot into local state ──────────
   // Defined before useAuth so it can be passed to onSignedIn.
@@ -222,6 +232,10 @@ function App() {
     setSyncReady: _setSyncReady,
   });
 
+  // Keep writeDelta ref current — authUser comes from useAuth above, updated each render.
+  // Must be a synchronous assignment (not useEffect) so it's set before any event handler fires.
+  _writeDeltaAuthRef.current = authScreen === 'app' ? (authUser || null) : null;
+
   // ── Push notifications (must be after useAuth so authUser.u is available) ─────
   useNotifications({ userId: authUser?.u || '' });
 
@@ -242,7 +256,7 @@ function App() {
   const allCats = ALL_CATS;
   const { resumeLesson, launchAnimLesson, launchMcGame, mcGameComplete, launchFlashcards, launchListening, launchMatch, launchSpeaking, launchPathItem, goBack } = useScreenLauncher({
     setScr, navigate, curEx, sCurEx, currentScreen,
-    setStats, award,
+    setStats, award, writeDelta,
     allCats,
     tab, setTab,
     sLt, sLi, sLx, sLs, sLp, sLa, sLsl, sQi,
@@ -517,7 +531,7 @@ function App() {
     isNewUserWindow, daysSinceJoin, comebackBonus,
     _weeklyXP, currentScreen,
   ]);
-  const statsValue = useMemo(() => ({ stats,setStats,dispatch,award,level }), [stats,setStats,dispatch,award,level]);
+  const statsValue = useMemo(() => ({ stats,setStats,dispatch,award,level,writeDelta }), [stats,setStats,dispatch,award,level,writeDelta]);
 
   // ── Auth screens ────────────────────────────────────────────────────────────
   if (authScreen === 'loading') return (

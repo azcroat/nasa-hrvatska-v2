@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { useStats } from '../../context/StatsContext.tsx';
 import { H, Bar, Spk, speak } from '../../data.jsx';
 import { markQuest } from '../../lib/quests.js';
 
@@ -7,6 +8,7 @@ export default function ReadingScreen({
   sRph, sRqi, sRsc, sRa, sRsl, sHw,
   goBack, setScr, award, setSt,
 }) {
+  const { writeDelta } = useStats();
   const resultFired = useRef(false);
   const [passageOpen, setPassageOpen] = useState(true);
 
@@ -98,6 +100,7 @@ export default function ReadingScreen({
               markQuest('reading');
               if (rsc === rp.qs.length) markQuest('perfect');
               setSt(s => ({...s, rc: s.rc+1}));
+              writeDelta({rc:1});
               sRph("result");
             }
           }}>{rqi < rp.qs.length-1 ? "Next →" : "Results"}</button>}

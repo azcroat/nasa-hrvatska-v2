@@ -31,7 +31,7 @@ export function markExerciseDone(exerciseId: string): void {
   try { const cd = JSON.parse(localStorage.getItem('xpCooldown') || '{}'); const today = _localDateStr(); cd[exerciseId] = today; const clean: Record<string, string> = {}; for (const k in cd) { if (cd[k] === today) clean[k] = cd[k]; } localStorage.setItem('xpCooldown', JSON.stringify(clean)); } catch {}
 }
 
-export function useAward({ curEx, stats, setStats }: { curEx: string; stats: Stats; setStats: (fn: (prev: Stats) => Stats) => void }) {
+export function useAward({ curEx, stats, setStats, writeDelta }: { curEx: string; stats: Stats; setStats: (fn: (prev: Stats) => Stats) => void; writeDelta?: (delta: Record<string, unknown>) => void }) {
   const [comebackBonus, setComebackBonus] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebXP, setCelebXP] = useState(0);
@@ -83,6 +83,18 @@ export function useAward({ curEx, stats, setStats }: { curEx: string; stats: Sta
       }
       return n;
     });
+    // Atomic Firebase increment — fires immediately, conflict-free across devices.
+    // XP: every device's increment is applied additively by the server.
+    // badges: arrayUnion ensures no device can lose a badge earned on another device.
+    if (writeDelta && totalAmt > 0) {
+      const _deltaPayload: Record<string, unknown> = { xp: totalAmt };
+      if (_pendingBadge) {
+        const _pendingBadgeObj = _pendingBadge as { id: string };
+        _deltaPayload.badges = [_pendingBadgeObj.id];
+      }
+      writeDelta(_deltaPayload);
+    }
+
     // Schedule UI side effects AFTER the state update, outside the updater
     if (_pendingBadge) {
       const badge = _pendingBadge;

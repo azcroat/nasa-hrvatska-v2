@@ -1,9 +1,11 @@
 import React, { useState, useRef } from 'react';
+import { useStats } from '../../../context/StatsContext.tsx';
 import { H, speak, sh } from '../../../data.jsx';
 import { GENDERDRILL } from '../../../data.jsx';
 import { markQuest } from '../../../lib/quests.js';
 
 function GenderDrillScreen({ goBack, award, setSt }) {
+  const { writeDelta } = useStats();
   // ─── Sort by Gender state ──────────────────────────────────────────────────
   // revealedGenders: { [i]: { guess: 'm'|'f'|'n', correct: bool } }
   const [revealedGenders, setRevealedGenders] = useState({});
@@ -42,7 +44,7 @@ function GenderDrillScreen({ goBack, award, setSt }) {
     if (completionFired.current) return;
     completionFired.current = true;
     if (typeof award === 'function') award(15);
-    if (setSt) setSt(s => ({...s, gc: s.gc + 1}));
+    if (setSt) { setSt(s => ({...s, gc: s.gc + 1})); writeDelta({gc:1}); }
     markQuest('grammar');
     goBack();
   }

@@ -1,4 +1,5 @@
 import React, { useRef, useMemo, useEffect } from 'react';
+import { useStats } from '../../context/StatsContext.tsx';
 import { H, Bar, speak, sh } from '../../data.jsx';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
@@ -17,6 +18,7 @@ export default function GrammarScreen({
   sGp, sGx, sGs, sGa, sGsl,
   goBack, award, setSt,
 }) {
+  const { writeDelta } = useStats();
   const resultFired = useRef(false);
 
   // Knight coaching — entry tip on learn phase
@@ -98,7 +100,7 @@ export default function GrammarScreen({
           ))}
           {ga&&<button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{
             if(gx<qs.length-1){sGx(i=>i+1);sGa(false);sGsl(-1);}
-            else{if(resultFired.current)return;resultFired.current=true;if(typeof award==='function')award(Math.round((gs/qs.length)*25)+10);markQuest('grammar');if(gs===qs.length)markQuest('perfect');setSt(s=>({...s,gc:s.gc+1}));sGp("result");}
+            else{if(resultFired.current)return;resultFired.current=true;if(typeof award==='function')award(Math.round((gs/qs.length)*25)+10);markQuest('grammar');if(gs===qs.length)markQuest('perfect');setSt(s=>({...s,gc:s.gc+1}));writeDelta({gc:1});sGp("result");}
           }}>{gx<qs.length-1?"Next →":"Results"}</button>}
         </div>
       </React.Fragment>}

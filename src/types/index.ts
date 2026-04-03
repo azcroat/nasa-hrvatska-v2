@@ -27,10 +27,18 @@ export interface AuthUser {
   d: string;
 }
 
+export interface StatsDelta {
+  xp?: number; lc?: number; gc?: number; sp?: number; de?: number;
+  rc?: number; pf?: number; mv?: number; hi?: number;
+  ct?: string[]; vs?: string[]; badges?: string[];
+}
+
 export interface StatsContextValue {
   stats: Stats;
   setStats: (fn: ((prev: Stats) => Stats) | Stats) => void;
   dispatch: Dispatch<StatsAction>;
   award: (amt: number, celebrate?: boolean) => void;
   level: number;
+  /** Fire an atomic Firestore increment for this delta — conflict-free across devices. */
+  writeDelta: (delta: StatsDelta) => void;
 }
