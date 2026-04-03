@@ -171,6 +171,26 @@ export default function Flashcards({ pool, goBack, award }) {
     if (flipped && knowBtnRef.current) knowBtnRef.current.focus();
   }, [flipped]);
 
+  // Global keyboard shortcuts: Space/Enter = flip, ArrowRight/K = Know it, ArrowLeft/S = Still learning
+  useEffect(() => {
+    if (done) return undefined;
+    function handleKey(e) {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if ((e.key === ' ' || e.key === 'Enter') && !flipped) {
+        e.preventDefault();
+        setFlipped(true);
+      } else if ((e.key === 'ArrowRight' || e.key === 'k' || e.key === 'K') && flipped) {
+        e.preventDefault();
+        handleKnown();
+      } else if ((e.key === 'ArrowLeft' || e.key === 's' || e.key === 'S') && flipped) {
+        e.preventDefault();
+        handleStillLearning();
+      }
+    }
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [flipped, done, idx]);
+
   // When a new card loads, return focus to the card
   useEffect(() => {
     if (!flipped && !done && cardRef.current) cardRef.current.focus();
@@ -387,7 +407,7 @@ export default function Flashcards({ pool, goBack, award }) {
           marginTop: 2,
           opacity: 0.65,
         }}>
-          ← swipe left · swipe right →
+          ← swipe left · swipe right → &nbsp;·&nbsp; S / → Still learning &nbsp;·&nbsp; K / → Know it
         </div>
       )}
       {flipped&&(

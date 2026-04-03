@@ -27,6 +27,7 @@ import ProgressTabContent from './ProgressTabContent.jsx';
 import WelcomeBackBanners from './WelcomeBackBanners.jsx';
 import GoalSetterModal from '../shared/GoalSetterModal.jsx';
 import SpeedChallenge from './SpeedChallenge.jsx';
+import WeeklyRecapModal, { shouldShowWeeklyRecap, markRecapShown } from './WeeklyRecapModal.jsx';
 // DalmatianCoast SVG replaced with real AI/CC photography
 // import { DalmatianCoast } from '../illustrations';
 
@@ -126,6 +127,9 @@ export default function HomeTab({
   const [showGoalModal, setShowGoalModal] = useState(
     () => st.lc === 0 && !localStorage.getItem('nh_goal_set')
   );
+
+  // Weekly recap modal — DuoLingo best practice: show weekly report on Monday mornings
+  const [showWeeklyRecap, setShowWeeklyRecap] = useState(() => shouldShowWeeklyRecap());
 
   const [htab, setHTab] = useState('today');
 
@@ -247,6 +251,11 @@ export default function HomeTab({
       {/* ── GOAL SETTER MODAL (new users only) ── */}
       {showGoalModal && (
         <GoalSetterModal onComplete={() => setShowGoalModal(false)} />
+      )}
+
+      {/* ── WEEKLY RECAP MODAL (Monday mornings — DuoLingo best practice) ── */}
+      {showWeeklyRecap && (
+        <WeeklyRecapModal onClose={() => { markRecapShown(); setShowWeeklyRecap(false); }} />
       )}
 
 
