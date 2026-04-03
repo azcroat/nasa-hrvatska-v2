@@ -29,6 +29,7 @@ import GoalSetterModal from '../shared/GoalSetterModal.jsx';
 import SpeedChallenge from './SpeedChallenge.jsx';
 import WeeklyRecapModal, { shouldShowWeeklyRecap, markRecapShown } from './WeeklyRecapModal.jsx';
 import WeakWordsPanel from './WeakWordsPanel.jsx';
+import UnitCompleteBanner from './UnitCompleteBanner.jsx';
 // DalmatianCoast SVG replaced with real AI/CC photography
 // import { DalmatianCoast } from '../illustrations';
 
@@ -233,6 +234,21 @@ export default function HomeTab({
 
   const activePalette = LEVEL_PALETTE[(pathData.activeLv.level - 1) % LEVEL_PALETTE.length];
 
+  // ── Unit completion detection — show banner when user advances to next level ──
+  const prevLvRef = React.useRef(pathData.activeLv);
+  const [completedLevel, setCompletedLevel] = useState(null);
+  useEffect(() => {
+    const prev = prevLvRef.current;
+    if (pathData.activeLv.level > prev.level) {
+      const shownKey = 'nh_unit_banner_L' + prev.level;
+      if (!localStorage.getItem(shownKey)) {
+        localStorage.setItem(shownKey, '1');
+        setCompletedLevel(prev);
+      }
+    }
+    prevLvRef.current = pathData.activeLv;
+  }, [pathData.activeLv.level]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Daily rotating phrases — uses 365-entry curated pool so every day of the year is unique
   const phraseOfDay = useMemo(() => {
     const dayIdx = Math.floor(Date.now() / 86400000);
@@ -257,6 +273,15 @@ export default function HomeTab({
       {/* ── WEEKLY RECAP MODAL (Monday mornings — DuoLingo best practice) ── */}
       {showWeeklyRecap && (
         <WeeklyRecapModal onClose={() => { markRecapShown(); setShowWeeklyRecap(false); }} />
+      )}
+
+      {/* ── UNIT COMPLETE BANNER (fires once when user finishes a learning path level) ── */}
+      {completedLevel && (
+        <UnitCompleteBanner
+          completedLevel={completedLevel}
+          award={award}
+          onClose={() => setCompletedLevel(null)}
+        />
       )}
 
 

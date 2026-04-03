@@ -71,10 +71,37 @@ export function getActiveCampaign() {
   }) || null;
 }
 
+// ─── XP Boost ────────────────────────────────────────────────────────────────
+export const XP_BOOST_COST = 100;
+export const XP_BOOST_DURATION_MS = 30 * 60 * 1000; // 30 minutes
+export const XP_BOOST_MULTIPLIER = 2;
+
+export function getXPBoost() {
+  try {
+    const exp = parseInt(localStorage.getItem('nh_xp_boost_expires') || '0', 10);
+    if (exp > Date.now()) return { active: true, expiresAt: exp, msRemaining: exp - Date.now() };
+  } catch {}
+  return { active: false, expiresAt: 0, msRemaining: 0 };
+}
+
+export function activateXPBoost() {
+  const expires = Date.now() + XP_BOOST_DURATION_MS;
+  try { localStorage.setItem('nh_xp_boost_expires', String(expires)); } catch {}
+  return expires;
+}
+
 export function lXPgain(xp) {
+  let result = xp;
   const campaign = getActiveCampaign();
-  if (campaign && campaign.multiplier && campaign.multiplier > 1) return Math.round(xp * campaign.multiplier);
-  return xp;
+  if (campaign && campaign.multiplier && campaign.multiplier > 1) result = Math.round(result * campaign.multiplier);
+  // XP Boost — only applied to positive awards, never amplifies costs
+  if (xp > 0) {
+    try {
+      const boostExp = parseInt(localStorage.getItem('nh_xp_boost_expires') || '0', 10);
+      if (boostExp > Date.now()) result = Math.round(result * XP_BOOST_MULTIPLIER);
+    } catch {}
+  }
+  return result;
 }
 
 // ─── Streak & freeze ─────────────────────────────────────────────────────────
