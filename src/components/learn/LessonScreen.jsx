@@ -24,6 +24,13 @@ export default function LessonScreen({
     if (lp === 'learn') resultFired.current = false;
   }, [lp]);
 
+  // Auto-play first word audio when lesson enters learn phase — DuoLingo best practice
+  useEffect(() => {
+    if (lp !== 'learn' || !li || !li[0]) return undefined;
+    const t = setTimeout(() => { speak(li[0][0]); }, 600);
+    return () => clearTimeout(t);
+  }, [lp]);
+
   // Knight reacts across all lesson phases
   useEffect(() => {
     if (lp === 'learn') {

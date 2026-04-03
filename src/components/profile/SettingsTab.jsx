@@ -55,6 +55,7 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
   const [currentGoal, setCurrentGoal] = useState(() => localStorage.getItem('nh_goal') || '');
   const [soundOn, setSoundOn] = useState(() => isSoundEnabled());
   const [hapticOn, setHapticOn] = useState(() => isHapticEnabled());
+  const [heartsAlways, setHeartsAlways] = useState(() => localStorage.getItem('nh_hearts_always_on') === 'true');
   const [voicePref, setVoicePref] = useState(() => getVoicePreference());
   const [fontSize, setFontSize] = useState(() => localStorage.getItem('nh_font_size') || 'medium');
   const [reduceMotion, setReduceMotion] = useState(() => localStorage.getItem('nh_reduce_motion') === 'true');
@@ -276,6 +277,24 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
             background: hapticOn ? 'var(--success)' : 'var(--bar-bg)', position:'relative', flexShrink:0}}
         >
           <span style={{position:'absolute',top:3,left: hapticOn ? 21 : 3,width:20,height:20,borderRadius:'50%',
+            background:'white',transition:'left .2s',boxShadow:'0 1px 4px rgba(0,0,0,.2)'}} />
+        </button>
+      </div>
+
+      {/* Hearts mode toggle — DuoLingo best practice: always-on hearts */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 0',borderBottom:'1px solid var(--card-b)'}}>
+        <div>
+          <div style={{fontWeight:700,fontSize:'var(--text-sm)'}}>❤️ Always-On Hearts</div>
+          <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',marginTop:2}}>Lose lives in all practice modes, not just Challenge</div>
+        </div>
+        <button
+          role="switch"
+          aria-checked={heartsAlways ? 'true' : 'false'}
+          onClick={() => { const v = !heartsAlways; setHeartsAlways(v); try { localStorage.setItem('nh_hearts_always_on', v ? 'true' : 'false'); } catch (_) {} }}
+          style={{width:44,height:26,borderRadius:13,border:'none',cursor:'pointer',transition:'background .2s',
+            background: heartsAlways ? 'var(--error,#ef4444)' : 'var(--bar-bg)', position:'relative', flexShrink:0}}
+        >
+          <span style={{position:'absolute',top:3,left: heartsAlways ? 21 : 3,width:20,height:20,borderRadius:'50%',
             background:'white',transition:'left .2s',boxShadow:'0 1px 4px rgba(0,0,0,.2)'}} />
         </button>
       </div>

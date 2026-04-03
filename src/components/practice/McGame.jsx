@@ -34,6 +34,8 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
     () => (rawQuestions || []).filter(q => q && Array.isArray(q.opts) && q.opts.includes(q.correct)),
     [rawQuestions]
   );
+  const heartsAlwaysOn = (() => { try { return localStorage.getItem('nh_hearts_always_on') === 'true'; } catch { return false; } })();
+  const isHeartsMode = challengeMode || heartsAlwaysOn;
   const haptic = useHaptic();
   // DuoLingo-style re-queue: wrong answers are appended to the back of the queue
   // so the learner must answer every question correctly before the session ends.
@@ -60,7 +62,7 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
   const [streakPulse, setStreakPulse] = useState(false);
   // Hearts system
   const [hearts, setHearts] = useState(() => {
-    const h = challengeMode ? getHearts() : 5;
+    const h = isHeartsMode ? getHearts() : 5;
     return Math.min(5, Math.max(0, Number.isFinite(h) ? Math.floor(h) : 5));
   });
   const [gameOver, setGameOver] = useState(false);
@@ -199,8 +201,9 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
         return newWs;
       });
 
-      // Heart deduction: only in challengeMode OR if not in practiceMode (regular mode)
-      if (challengeMode) {
+      // Heart deduction: in heartsMode (challengeMode or nh_hearts_always_on) use persistent hearts;
+      // otherwise deplete session hearts unless practice mode is active.
+      if (isHeartsMode) {
         const remaining = loseHeart();
         setHearts(remaining);
         if (remaining === 0) {

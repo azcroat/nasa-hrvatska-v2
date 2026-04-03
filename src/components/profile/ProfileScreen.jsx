@@ -3,11 +3,15 @@ import { Bar, lXP, nXP } from '../../data.jsx';
 import { fbDeleteAccount } from '../../lib/firebase.js';
 import { getSubscriptionStatus, cancelFreeAnnual } from '../../hooks/useSubscription.js';
 
+const AVATAR_EMOJIS = ['😊','😎','🤩','🧠','🎯','🦁','🐉','⚡','🌊','🏔️','🎨','🦅','🌟','🔥','💎','🇭🇷','⚔️','🏰','🎭','🌺'];
+
 export default function ProfileScreen({ name, level, st, au, goBack, doOut, setScr }) {
   const [deleteStep, setDeleteStep] = useState(0); // 0=idle, 1=confirm, 2=deleting
   const [deleteError, setDeleteError] = useState('');
   const [cancelStep, setCancelStep] = useState(0); // 0=idle, 1=friction, 2=cancelled
   const sub = getSubscriptionStatus();
+  const [avatarEmoji, setAvatarEmoji] = useState(() => { try { return localStorage.getItem('nh_avatar_emoji') || ''; } catch { return ''; } });
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   async function handleDeleteAccount() {
     if (deleteStep === 0) { setDeleteStep(1); return; }
@@ -34,9 +38,35 @@ export default function ProfileScreen({ name, level, st, au, goBack, doOut, setS
     <div className="scr-wrap">
 
       <div style={{textAlign:"center",marginBottom:24}}>
-        <div style={{width:80,height:80,borderRadius:"50%",background:"linear-gradient(135deg,#0e7490,#164e63)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px",fontSize:36,color:"#fff",fontWeight:800}}>
-          {name.charAt(0).toUpperCase()}
-        </div>
+        <button
+          onClick={() => setShowEmojiPicker(p => !p)}
+          aria-label="Change avatar"
+          title="Tap to change avatar"
+          style={{width:80,height:80,borderRadius:"50%",background:"linear-gradient(135deg,#0e7490,#164e63)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 8px",fontSize:avatarEmoji ? 42 : 36,color:"#fff",fontWeight:800,border:"none",cursor:"pointer",position:"relative"}}
+        >
+          {avatarEmoji || name.charAt(0).toUpperCase()}
+          <span style={{position:"absolute",bottom:0,right:0,width:22,height:22,borderRadius:"50%",background:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,boxShadow:"0 1px 4px rgba(0,0,0,.2)"}}>✏️</span>
+        </button>
+        {showEmojiPicker && (
+          <div style={{background:"var(--card)",border:"1px solid var(--card-b)",borderRadius:16,padding:"12px",marginBottom:10,boxShadow:"0 8px 32px rgba(0,0,0,.15)"}}>
+            <div style={{fontSize:11,fontWeight:700,color:"var(--subtext)",marginBottom:8,textTransform:"uppercase",letterSpacing:".06em"}}>Choose your avatar</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:8,justifyContent:"center",marginBottom:10}}>
+              {AVATAR_EMOJIS.map(em => (
+                <button
+                  key={em}
+                  onClick={() => { setAvatarEmoji(em); try { localStorage.setItem('nh_avatar_emoji', em); } catch {} setShowEmojiPicker(false); }}
+                  style={{fontSize:28,background:avatarEmoji===em?"var(--info-bg)":"var(--bar-bg)",border:avatarEmoji===em?"2px solid var(--info)":"2px solid transparent",borderRadius:10,width:44,height:44,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}
+                >{em}</button>
+              ))}
+            </div>
+            {avatarEmoji && (
+              <button onClick={() => { setAvatarEmoji(''); try { localStorage.removeItem('nh_avatar_emoji'); } catch {} setShowEmojiPicker(false); }}
+                style={{fontSize:11,color:"var(--subtext)",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"}}>
+                Reset to initials
+              </button>
+            )}
+          </div>
+        )}
         <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:26,color:"#164e63"}}>{name}</h2>
         <p style={{color:"#78716c",fontSize:14}}>Level {level}{st.diff ? ` · ${st.diff.charAt(0).toUpperCase()}${st.diff.slice(1)}` : ''}</p>
         {au&&au.e&&<p style={{color:"#a8a29e",fontSize:12,marginTop:4}}>{au.e}</p>}
