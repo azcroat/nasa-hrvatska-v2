@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Naša Hrvatska</string>
+    <string name="title_activity_main">Naša Hrvatska</string>
+    <string name="package_name">com.nasahrvatska.app</string>
+    <string name="custom_url_scheme">com.nasahrvatska.app</string>
+</resources>

@@ -27,6 +27,7 @@ import { usePwaInstall } from "./hooks/usePwaInstall.js";
 import { usePlacement } from "./hooks/usePlacement.js";
 import { useSyncManager } from "./hooks/useSyncManager.js";
 import { useScreenLauncher } from "./hooks/useScreenLauncher.js";
+import { useAndroidBackButton } from "./hooks/useAndroidBackButton.js";
 
 import LoginScreen from "./components/auth/LoginScreen.jsx";
 import ResetPassword from "./components/auth/ResetPassword.jsx";
@@ -291,9 +292,17 @@ function App() {
     setAnimLesson,
   });
 
+  // ── Android hardware back button ─────────────────────────────────────────────
+  // Delegates to goBack() when a sub-screen is open; minimises the app otherwise.
+  // No-op in browser and iOS — safe to call unconditionally.
+  useAndroidBackButton(
+    () => currentScreen !== 'home' && currentScreen !== 'dashboard',
+    goBack,
+  );
+
   // ── Effects ─────────────────────────────────────────────────────────────────
   // Track retention on every app load (D1/D7/D30 buckets in Firebase Analytics)
-  useEffect(() => { trackAppOpen(!!authUser); }, []);  
+  useEffect(() => { trackAppOpen(!!authUser); }, []);
 
   // Register friend code index once per session when auth is ready
   useEffect(() => {
