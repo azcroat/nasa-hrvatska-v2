@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { markQuest } from '../../lib/quests.js';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
 import SprintSetupScreen from './SprintSetupScreen.jsx';
 import SprintCountdownScreen from './SprintCountdownScreen.jsx';
 import SprintSpeakingPhase from './SprintSpeakingPhase.jsx';
@@ -87,6 +88,7 @@ function getUserLevel() {
 // MAIN COMPONENT
 // ─────────────────────────────────────────────
 export default function SpeakingSprintScreen({ goBack, award }) {
+  const { isOnline } = useOnlineStatus();
   const [phase, setPhase] = useState('setup');
   const [currentPrompt, setCurrentPrompt] = useState(null);
   const [userTranscript, setUserTranscript] = useState('');
@@ -282,7 +284,7 @@ export default function SpeakingSprintScreen({ goBack, award }) {
 
   // ── Setup phase ──────────────────────────────
   if (phase === 'setup') {
-    return <SprintSetupScreen level={level} onStart={startRound} onBack={goBack} />;
+    return <SprintSetupScreen level={level} onStart={startRound} onBack={goBack} isOnline={isOnline} />;
   }
 
   // ── Countdown phase ──────────────────────────

@@ -9,13 +9,100 @@ function pickIdx(arr, seed) {
   return arr[Math.abs(seed) % arr.length];
 }
 
-function buildNotification(name, streak, dueSeed = 0) {
+function buildNotification(name, streak, dueSeed = 0, daysSince = 0) {
   const displayName = (name || '').split(' ')[0].trim() || 'Učenik';
   const nameTag    = `, ${displayName}`;
   const namePrefix = `${displayName}, `;
 
   // Seed varies by day so messages rotate daily
   const daySeed = Math.floor(Date.now() / 86400000) + streak + dueSeed;
+
+  // ── Win-back: user had a streak but hasn't studied in 2+ days ────────────
+  // DuoLingo best-practice: escalate urgency gradually; never shame at day 14+.
+  if (daysSince >= 2 && streak > 0) {
+    if (daysSince >= 14) {
+      // Long lapse — low pressure, fresh-start framing
+      const titles = [
+        `🌱 ${namePrefix}ready for a fresh start?`,
+        `🇭🇷 Croatian is still here for you${nameTag}`,
+        `🤝 No pressure${nameTag} — just one word today`,
+        `✨ ${namePrefix}your Croatian knowledge hasn't gone anywhere`,
+      ];
+      const bodies = [
+        `It's been a while! No worries — pick up where you left off. One word at a time. 🌱`,
+        `Languages wait for you. Your ${streak}-day streak may be gone, but your skills aren't. Start fresh today!`,
+        `${namePrefix}even 2 minutes reconnects your brain to Croatian. No pressure. Just open the app. 🇭🇷`,
+        `You learned ${streak} days worth of Croatian. That knowledge is permanent. Let's build on it today! ✨`,
+      ];
+      return {
+        title:   pickIdx(titles, daySeed),
+        body:    pickIdx(bodies, daySeed + 1),
+        icon:    '/icons/icon-192x192.png',
+        badge:   '/icons/badge-72.png',
+        tag:     'streak-reminder',
+        renotify: true,
+        data:    { url: '/', action: 'open_lesson' },
+        actions: [
+          { action: 'study',   title: '🌱 Start Fresh' },
+          { action: 'dismiss', title: 'Not Today'       },
+        ],
+      };
+    }
+    if (daysSince >= 7) {
+      // Week lapse — concerned, streak-loss reminder
+      const titles = [
+        `⚠️ ${namePrefix}your streak ended ${daysSince} days ago`,
+        `😟 ${daysSince} days without Croatian${nameTag}…`,
+        `🔥 Your ${streak}-day streak is gone — rebuild it${nameTag}`,
+        `📉 ${namePrefix}your skills are fading without practice`,
+      ];
+      const bodies = [
+        `${namePrefix}it's been ${daysSince} days. Your vocabulary fades without practice. 5 minutes saves it!`,
+        `Your ${streak}-day streak ended. But you can start a new one today — and this time go further! 💪`,
+        `Without review, you forget ~80% of new vocabulary in a week. A quick quiz fixes this now!`,
+        `${namePrefix}FSRS says your words are overdue. Quick review before they fade? ⏰`,
+      ];
+      return {
+        title:   pickIdx(titles, daySeed),
+        body:    pickIdx(bodies, daySeed + 1),
+        icon:    '/icons/icon-192x192.png',
+        badge:   '/icons/badge-72.png',
+        tag:     'streak-reminder',
+        renotify: true,
+        data:    { url: '/', action: 'open_lesson' },
+        actions: [
+          { action: 'study',   title: '🔄 Rebuild Streak' },
+          { action: 'dismiss', title: 'Later'              },
+        ],
+      };
+    }
+    // 2–6 days — gentle urgency
+    const titles = [
+      `⏰ ${namePrefix}${daysSince} days without Croatian`,
+      `🔥 Don't lose your ${streak}-day progress${nameTag}!`,
+      `📅 ${namePrefix}it's been ${daysSince} days — come back!`,
+      `🇭🇷 ${streak} days of work${nameTag} — don't let it fade`,
+    ];
+    const bodies = [
+      `${namePrefix}you haven't studied in ${daysSince} days. Your words are starting to fade — 5 min keeps them fresh!`,
+      `Your ${streak}-day streak is waiting. One quick session brings it back stronger. 🔥`,
+      `Without review, Croatian vocabulary fades fast. You're ${daysSince} days in — catch up now before it's hard!`,
+      `${namePrefix}${daysSince} days off is totally fine. But let's not make it ${daysSince + 1}! 😅`,
+    ];
+    return {
+      title:   pickIdx(titles, daySeed),
+      body:    pickIdx(bodies, daySeed + 1),
+      icon:    '/icons/icon-192x192.png',
+      badge:   '/icons/badge-72.png',
+      tag:     'streak-reminder',
+      renotify: true,
+      data:    { url: '/', action: 'open_lesson' },
+      actions: [
+        { action: 'study',   title: '📚 Study Now' },
+        { action: 'dismiss', title: 'Later'         },
+      ],
+    };
+  }
 
   // ── No streak yet ─────────────────────────────────────────────────────────
   if (streak === 0) {
@@ -229,7 +316,7 @@ export async function onRequestPost({ request, env }) {
   try { body = await request.json(); }
   catch { return new Response('Invalid JSON', { status: 400 }); }
 
-  const { subscription, streak = 0, name = '' } = body;
+  const { subscription, streak = 0, name = '', daysSince = 0 } = body;
   if (!subscription?.endpoint) {
     return new Response(JSON.stringify({ error: 'Missing subscription.endpoint' }), {
       status: 400,
@@ -237,7 +324,7 @@ export async function onRequestPost({ request, env }) {
     });
   }
 
-  const notification = buildNotification(name, streak);
+  const notification = buildNotification(name, streak, 0, daysSince);
 
   try {
     const status = await sendWebPush(subscription, notification, env);

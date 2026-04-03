@@ -82,6 +82,7 @@ const ProfileScreen = lazyWithReload(() => import("./profile/ProfileScreen.jsx")
 const VocabJournal = lazyWithReload(() => import("./profile/VocabJournal.jsx"));
 const FavoritesScreen = lazyWithReload(() => import("./profile/FavoritesScreen.jsx"));
 const LearnPath = lazyWithReload(() => import("./profile/LearnPath.jsx"));
+const SentenceTileScreen = lazyWithReload(() => import("./practice/SentenceTileScreen.jsx"));
 const ProverbsScreen = lazyWithReload(() => import("./croatia/ProverbsScreen.jsx"));
 const Flashcards = lazyWithReload(() => import("./practice/Flashcards.jsx"));
 const ListeningScreen = lazyWithReload(() => import("./practice/ListeningScreen.jsx"));
@@ -267,7 +268,7 @@ export default function AppRouter(props) {
     famErr, setFamErr, famTab, setFamTab,
     dchlA, sDchlA, dchlSl, sDchlSl,
     resumeLesson, launchPathItem, launchAnimLesson,
-    launchMcGame, mcGameComplete, launchFlashcards, launchListening, launchMatch, launchSpeaking,
+    launchMcGame, launchLegendary, launchCheckpoint, mcGameComplete, launchFlashcards, launchListening, launchMatch, launchSpeaking,
     _syncReady, doSyncNow,
     icons, allCats, getWeekStats,
     isNewUserWindow, daysSinceJoin, comebackBonus,
@@ -496,7 +497,7 @@ export default function AppRouter(props) {
       {currentScreen==="recipes"&&<ScreenErrorBoundary key="recipes" name="recipes"><RecipesScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="roleplay"&&<ScreenErrorBoundary key="roleplay" name="roleplay"><RoleplayScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="journal"&&<ScreenErrorBoundary key="journal" name="journal"><VocabJournal goBack={goBack} /></ScreenErrorBoundary>}
-      {currentScreen==="learnpath"&&<ScreenErrorBoundary key="learnpath" name="learnpath"><LearnPath st={stats} setScr={setScr} goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="learnpath"&&<ScreenErrorBoundary key="learnpath" name="learnpath"><LearnPath st={stats} setScr={setScr} goBack={goBack} onLaunchLegendary={launchLegendary} onLaunchCheckpoint={launchCheckpoint} /></ScreenErrorBoundary>}
       {// ═══ FAVORITES ═══
       currentScreen==="favorites"&&<ScreenErrorBoundary key="favorites" name="favorites"><FavoritesScreen
         favs={favs} toggleFav={toggleFav} setScr={setScr} goBack={goBack}
@@ -508,6 +509,7 @@ export default function AppRouter(props) {
       {currentScreen==="pronouns"&&<ScreenErrorBoundary key="pronouns" name="pronouns"><PronounsScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="genderdrill"&&<ScreenErrorBoundary key="genderdrill" name="genderdrill"><GenderDrillScreen goBack={goBack} award={award} setSt={setStats} /></ScreenErrorBoundary>}
       {currentScreen==="sentbuild"&&<ScreenErrorBoundary key="sentbuild" name="sentbuild"><SentenceBuilderScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="sentencetiles"&&<ScreenErrorBoundary key="sentencetiles" name="sentencetiles"><SentenceTileScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="verbdrill"&&<ScreenErrorBoundary key="verbdrill" name="verbdrill"><VerbDrillScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="tenseflip"&&<ScreenErrorBoundary key="tenseflip" name="tenseflip"><TenseFlipScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="riddles"&&<ScreenErrorBoundary key="riddles" name="riddles"><RiddlesScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}

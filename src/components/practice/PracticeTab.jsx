@@ -177,6 +177,7 @@ export default function PracticeTab({
     { id:'relpron',      label:'Koji/Koja',            icon:'🔗', desc:'Relative pronouns',                     category:'grammar',  cefr:'B1',   duration:'~8 min',  action: go('relpron') },
     { id:'reflexive',    label:'SE Verbs',             icon:'🧲', desc:'Reflexive verbs with se/si',            category:'grammar',  cefr:'B1',   duration:'~10 min', action: go('reflexive') },
     { id:'sentbuild',    label:'Build Sentences',      icon:'🏗️', desc:'Arrange the building blocks',          category:'grammar',  cefr:'A2',   duration:'~8 min',  action: go('sentbuild') },
+    { id:'sentencetiles', label:'Tile Assembly',       icon:'🧱', desc:'Tap tiles to assemble Croatian sentences', category:'grammar', cefr:'A2',  duration:'~8 min',  action: go('sentencetiles') },
     { id:'clitic',       label:'Clitic Drill',         icon:'🔗', desc:'The #1 hardest rule in Croatian',       category:'grammar',  cefr:'B1+',  duration:'~10 min', action: go('clitic') },
     { id:'numcases',     label:'Numbers+Cases',        icon:'🔢', desc:'1/2-4/5+ — never wrong again',          category:'grammar',  cefr:'B1',   duration:'~10 min', action: go('numcases') },
     { id:'imperative',   label:'Imperative',           icon:'⚡', desc:'Commands — essential production',       category:'grammar',  cefr:'B1',   duration:'~8 min',  action: go('imperative') },

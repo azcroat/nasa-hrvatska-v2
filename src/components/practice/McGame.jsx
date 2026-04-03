@@ -11,6 +11,28 @@ import { knightSpeak } from '../../lib/knightSpeak.js';
 const XP_PER_CORRECT = 3;
 const XP_COMPLETION_BONUS = 5;
 
+// Grammar tips shown after a wrong answer when the question has a known category.
+// Surfacing the underlying grammar rule (DuoLingo best-practice: error → insight, not just "wrong").
+const GRAMMAR_TIPS = {
+  numbers:    '💡 After 2–4 use genitive singular (dva stola). After 5+ use genitive plural (pet stolova).',
+  greetings:  '💡 Croatian has formal "Vi" (strangers/elders) and informal "ti" (friends/family). When unsure, use Vi.',
+  verbs:      '💡 Croatian verbs have two aspects: imperfective (ongoing action) vs perfective (completed). e.g., pisati vs napisati.',
+  time:       '💡 Croatian uses "u pola" for half-past: u pola tri = 2:30 (half to 3, not half past 2!).',
+  family:     '💡 Nouns change endings by gender: -a for feminine, consonant for masculine, -o/-e for neuter.',
+  food:       '💡 Quantities use genitive: čaša vode (glass of water), komad kruha (piece of bread).',
+  adjectives: '💡 Adjectives agree with the noun in gender, case, and number. e.g., dobar čovjek / dobra žena.',
+  pronouns:   '💡 Croatian has short clitic pronouns (me, te, ga, mu, joj) that must follow the first stressed word.',
+  questions:  '💡 Yes/no questions: add "li" after the verb. e.g., Govoriš li hrvatski? (Do you speak Croatian?)',
+  negation:   '💡 Negation fuses with "have" and "be": imam → nemam, je → nije. Other verbs: ne + verb.',
+  travel:     '💡 Locations use locative case: u gradu (in the city), na plaži (at the beach), kod kuće (at home).',
+  colors:     '💡 Colors are adjectives and agree with the noun: crvena kuća (f), crveni auto (m), crveno more (n).',
+  body:       '💡 "Boli me glava" = My head hurts. Croatian body-pain uses accusative of the sufferer.',
+  animals:    '💡 Animal gender determines endings: pas (m), mačka (f), pile (n). Gender changes all adjectives agreeing with it.',
+  weather:    '💡 Weather uses impersonal verbs: Pada kiša (It rains), Puše vjetar (Wind blows). No subject needed.',
+  clothes:    '💡 Oblačiti = to put on (action). Nositi = to wear (state). Different verbs for the same English "to wear".',
+  grammar:    '💡 Croatian has 7 cases. Each tells you the noun\'s role: nominative (subject), accusative (object), genitive (possession)…',
+};
+
 const MC_KEYFRAMES = `
   @keyframes mcShake {
     0%,100% { transform: translateX(0); }
@@ -78,6 +100,8 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
   const [qTransition, setQTransition] = useState(false);
   // Mistake tracking for post-game review drill
   const [_mistakes, setMistakes] = useState([]);
+  // Grammar tip shown after a category-matched wrong answer
+  const [grammarTip, setGrammarTip] = useState(null);
   const firstOptionRef = useRef(null);
   const resultFired = useRef(false);
   const timersRef = useRef([]);
@@ -179,7 +203,10 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
       setShowCombo(false);
       setComboMsg('');
       setStreakPulse(false);
+      setGrammarTip(null); // will be set below if category tip exists
       if (q.hr) recordMistake(q.hr, q.en || q.correct || '', q.q || q.prompt || '', q.category || '');
+      const tip = GRAMMAR_TIPS[(q.category || '').toLowerCase()];
+      if (tip) setGrammarTip(tip); else setGrammarTip(null);
       // Track unique mistakes for post-game review drill
       setMistakes(prev => {
         const key = q.hr || q.q || q.correct;
@@ -467,6 +494,24 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
         </div>
       )}
 
+      {/* Grammar tip — shown after category-matched wrong answer */}
+      {grammarTip && answered && !wasCurrentCorrect && (
+        <div style={{
+          marginBottom: 10,
+          padding: '10px 14px',
+          background: 'rgba(99,102,241,0.08)',
+          border: '1.5px solid rgba(99,102,241,0.25)',
+          borderRadius: 12,
+          fontSize: 12,
+          color: '#3730a3',
+          fontWeight: 600,
+          lineHeight: 1.5,
+          animation: 'bounce-in 0.3s cubic-bezier(0.34,1.56,0.64,1)',
+        }}>
+          {grammarTip}
+        </div>
+      )}
+
       {/* Combo toast */}
       {showCombo && (
         <div style={{
@@ -523,6 +568,7 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
                 setAnswered(false);
                 setSelected(-1);
                 setRevealCorrect(false);
+                setGrammarTip(null);
                 setQTransition(false);
               }, 200));
             }
@@ -535,6 +581,7 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
               setAnswered(false);
               setSelected(-1);
               setRevealCorrect(false);
+              setGrammarTip(null);
               setQTransition(false);
             }, 200));
           }

@@ -1,10 +1,23 @@
 import React from 'react';
 import { H } from '../../data.jsx';
 
-export default function SprintSetupScreen({ level, onStart, onBack }) {
+export default function SprintSetupScreen({ level, onStart, onBack, isOnline = true }) {
   return (
     <div className="scr-wrap" style={{ padding: '0 16px 32px', maxWidth: 600, margin: '0 auto' }}>
       {H('🎤 Speaking Sprint', 'Listen · Speak · Compare')}
+
+      {/* Offline warning */}
+      {!isOnline && (
+        <div style={{
+          marginBottom: 16, padding: '12px 16px',
+          background: 'rgba(245,158,11,.1)', border: '1.5px solid rgba(245,158,11,.4)',
+          borderRadius: 12, fontSize: 13, fontWeight: 600, color: '#92400e',
+          display: 'flex', gap: 10, alignItems: 'center',
+        }}>
+          <span>📡</span>
+          <span>You're offline. TTS audio and transcription need an internet connection. You can still type your responses.</span>
+        </div>
+      )}
 
       {/* Level pill */}
       <div style={{ textAlign: 'center', marginBottom: 24 }}>

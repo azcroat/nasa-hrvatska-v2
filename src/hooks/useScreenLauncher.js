@@ -10,6 +10,34 @@ import { useEffect, useRef, useCallback } from 'react';
 // V, GRAM, and LESSONS are only needed when launching exercises — lazy import keeps chunk-data
 // out of the startup bundle. sh is a local Fisher-Yates using Math.random().
 function _sh(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
+
+/**
+ * _buildAdaptivePool — weights vocabulary by FSRS stability so weaker words
+ * appear more often in quiz pools. DuoLingo best-practice: surface the word
+ * just before the learner would forget it, not randomly.
+ *
+ * Weights (words can appear multiple times in the pool):
+ *   overdue (due < now)         → 4× — forgotten / at risk
+ *   due soon (< 7 days)         → 2× — reinforcement window
+ *   new (no card yet)           → 2× — first exposure deserves priority
+ *   stable (7+ days remaining)  → 1× — already solid
+ */
+function _buildAdaptivePool(pool) {
+  let srData = {};
+  try { srData = JSON.parse(localStorage.getItem('nh_sr') || '{}'); } catch (_) {}
+  const now = Date.now();
+  const weighted = [];
+  for (const w of pool) {
+    const key = w[0]; // Croatian word is index 0
+    const card = srData[key];
+    if (!card) { weighted.push(w, w); continue; } // new word → 2×
+    const msRemaining = (card.due || card.nextDue || 0) - now;
+    if (msRemaining < 0) { weighted.push(w, w, w, w); } // overdue → 4×
+    else if (msRemaining < 7 * 86400000) { weighted.push(w, w); } // due soon → 2×
+    else { weighted.push(w); } // stable → 1×
+  }
+  return weighted;
+}
 let _dataCache = null;
 async function _getData() {
   if (!_dataCache) _dataCache = await import('../data.jsx');
@@ -90,7 +118,81 @@ export function useScreenLauncher({
     setScr('mcgame');
   }, [setScr, sCurEx, setMcInitQ, tab, currentScreen]);
 
+  /**
+   * launchLegendary — launches McGame in hard/challenge mode for a completed item.
+   * DuoLingo best-practice: let advanced learners replay completed units at higher
+   * difficulty (more distractors, all hearts active, no glow hints).
+   * Adaptive pool ensures the weakest words from that topic are prioritised.
+   */
+  /**
+   * launchCheckpoint — comprehensive quiz covering all topics from a LearnPath level.
+   * DuoLingo best-practice: checkpoint tests ensure learners can recall everything
+   * from a unit before they consider themselves "done" with it.
+   * Pass condition (≥70%) is stored in localStorage nh_checkpoints as { levelIndex: true }.
+   */
+  const launchCheckpoint = useCallback(async (levelIndex, levelItems) => {
+    const { V } = await _getData();
+    const topics = levelItems.map(it => it.topic).filter(Boolean);
+    const pool = topics.length > 0
+      ? topics.flatMap(t => V[t] || []).filter(w => w && w[0] && w[1])
+      : allCats.flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
+    if (pool.length === 0) return;
+    const adaptivePool = _buildAdaptivePool(pool);
+    const seen = new Set();
+    const deduped = _sh(adaptivePool).filter(w => { if (seen.has(w[0])) return false; seen.add(w[0]); return true; });
+    const globalPool = allCats.flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
+    const qs = deduped.slice(0, 15).map(w => {
+      const wr = _sh(globalPool.filter(x => x[1] !== w[1])).slice(0, 3).map(x => x[1]);
+      return { hr: w[0], en: w[1], ph: w[2], opts: _sh([w[1]].concat(wr)), correct: w[1] };
+    });
+    sessionStorage.setItem('nh_checkpoint_level', String(levelIndex));
+    returnContextRef.current = { tab: 'learn', screen: 'learnpath' };
+    setMcInitQ(qs);
+    sCurEx('mcgame');
+    sessionStorage.setItem('nh_ex_start', Date.now().toString());
+    trackStart('quiz');
+    setScr('mcgame');
+  }, [setScr, sCurEx, setMcInitQ, allCats]);
+
+  const launchLegendary = useCallback(async (item) => {
+    const { V } = await _getData();
+    const topicPool = item.topic ? (V[item.topic] || []) : [];
+    const globalPool = allCats.flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
+    const basePool = topicPool.length >= 5
+      ? [...topicPool, ...globalPool.slice(0, Math.ceil(globalPool.length * 0.2))]
+      : globalPool;
+    const adaptivePool = _buildAdaptivePool(basePool.filter(w => w && w[0] && w[1]));
+    const seen = new Set();
+    const deduped = _sh(adaptivePool).filter(w => {
+      if (seen.has(w[0])) return false; seen.add(w[0]); return true;
+    });
+    const qs = deduped.slice(0, 15).map(w => {
+      const wr = _sh(globalPool.filter(x => x[1] !== w[1])).slice(0, 4).map(x => x[1]);
+      return { hr: w[0], en: w[1], ph: w[2], opts: _sh([w[1]].concat(wr)), correct: w[1] };
+    });
+    returnContextRef.current = { tab: 'learn', screen: 'learnpath' };
+    setMcInitQ(qs);
+    sessionStorage.setItem('nh_legendary_mode', '1');
+    sCurEx('mcgame');
+    sessionStorage.setItem('nh_ex_start', Date.now().toString());
+    trackStart('quiz');
+    setScr('mcgame');
+  }, [setScr, sCurEx, setMcInitQ, allCats]);
+
   const mcGameComplete = useCallback((questions, score, mistakes) => {
+    // Checkpoint: if this was a checkpoint quiz, store pass/fail result
+    const cpLevel = sessionStorage.getItem('nh_checkpoint_level');
+    if (cpLevel !== null) {
+      const pct = questions.length > 0 ? score / questions.length : 0;
+      if (pct >= 0.7) {
+        try {
+          const checkpoints = JSON.parse(localStorage.getItem('nh_checkpoints') || '{}');
+          checkpoints[cpLevel] = true;
+          localStorage.setItem('nh_checkpoints', JSON.stringify(checkpoints));
+        } catch (_) {}
+      }
+      sessionStorage.removeItem('nh_checkpoint_level');
+    }
     setMcResultQ(questions);
     setMcResultScore(score);
     setMcMistakes(mistakes || []);
@@ -154,8 +256,12 @@ export function useScreenLauncher({
       setScr('grammar'); sCurEx('grammar');
     } else if (item.go === 'mcgame') {
       const { V } = await _getData();
-      const pool = allCats.flatMap(t => V[t]);
-      const qs = _sh(pool).slice(0, 10).map(w => {
+      const pool = allCats.flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
+      // Use FSRS-weighted pool so weaker/forgotten words appear more often
+      const adaptivePool = _buildAdaptivePool(pool);
+      const seen = new Set();
+      const deduped = _sh(adaptivePool).filter(w => { if (seen.has(w[0])) return false; seen.add(w[0]); return true; });
+      const qs = deduped.slice(0, 10).map(w => {
         const wr = _sh(pool.filter(x => x[1] !== w[1])).slice(0, 3).map(x => x[1]);
         return { hr: w[0], en: w[1], ph: w[2], opts: _sh([w[1]].concat(wr)), correct: w[1] };
       });
@@ -237,6 +343,8 @@ export function useScreenLauncher({
     resumeLesson,
     launchAnimLesson,
     launchMcGame,
+    launchLegendary,
+    launchCheckpoint,
     mcGameComplete,
     launchFlashcards,
     launchListening,

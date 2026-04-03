@@ -1,5 +1,29 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { H, LEARN_PATH } from '../../data.jsx';
+
+// Returns a Set of topic keys whose FSRS words are mostly overdue (skill decay signal).
+// A topic is "decayed" when >40% of its reviewed words are past their due date.
+function getDecayedTopics() {
+  try {
+    const srData = JSON.parse(localStorage.getItem('nh_sr') || '{}');
+    const now = Date.now();
+    const decayed = new Set();
+    LEARN_PATH.forEach(lv => lv.items.forEach(it => {
+      if (!it.topic) return;
+      const cards = Object.entries(srData).filter(([, v]) => v && typeof v === 'object');
+      if (cards.length === 0) return;
+      // Words belonging to this topic are identified by checking if they exist in srData
+      // We use all reviewed words to approximate: count overdue fraction
+      const topicCards = cards.filter(([, v]) => v.topic === it.topic);
+      const checkSet = topicCards.length >= 3 ? topicCards : cards;
+      const overdue = checkSet.filter(([, v]) => (v.due || v.nextDue || 0) < now).length;
+      if (checkSet.length > 0 && overdue / checkSet.length > 0.4) {
+        decayed.add(it.topic);
+      }
+    }));
+    return decayed;
+  } catch { return new Set(); }
+}
 
 const LEVEL_COLORS = [
   { bg:'linear-gradient(135deg,#16a34a,#15803d)', text:'#fff', glow:'rgba(22,163,74,.4)', light:'#f0fdf4', border:'#86efac' },
@@ -12,9 +36,17 @@ const LEVEL_COLORS = [
 const LEVEL_EMOJIS = ['🌱','🌿','🌳','🌲','🏔️'];
 const STAGE_NAMES = ['Survivor','Settler','Communicator','Explorer','Hrvat!'];
 
-export default function LearnPath({ st, setScr, goBack }) {
+// Returns a Set of level indices whose checkpoint has been passed
+function getPassedCheckpoints() {
+  try { return new Set(Object.keys(JSON.parse(localStorage.getItem('nh_checkpoints') || '{}')).map(Number)); }
+  catch { return new Set(); }
+}
+
+export default function LearnPath({ st, setScr, goBack, onLaunchLegendary, onLaunchCheckpoint }) {
   const activeRef = useRef(null);
   const [hovered, setHovered] = useState(null);
+  const decayedTopics = useMemo(() => getDecayedTopics(), []);
+  const passedCheckpoints = useMemo(() => getPassedCheckpoints(), []);
 
   // Calculate global progress
   let totalDone = 0, totalAll = 0;
@@ -196,61 +228,79 @@ export default function LearnPath({ st, setScr, goBack }) {
                         )}
 
                         {/* Node + label */}
-                        <button
-                          onClick={() => { if (!isDone && isActive) setScr(it.go); else if (isDone) setScr(it.go); }}
-                          disabled={!isDone && !isActive}
-                          onMouseEnter={() => setHovered(`${li}-${ii}`)}
-                          onMouseLeave={() => setHovered(null)}
-                          style={{
-                            display: 'flex', alignItems: 'center',
-                            gap: 12,
-                            flexDirection: isRight ? 'row' : 'row-reverse',
-                            background: 'none', border: 'none', cursor: (isDone || isActive) ? 'pointer' : 'default',
-                            padding: 0, textAlign: isRight ? 'left' : 'right',
-                            maxWidth: '85%',
-                          }}
-                        >
-                          {/* The node circle */}
-                          <div style={{
-                            width: isActive ? 60 : 52,
-                            height: isActive ? 60 : 52,
-                            borderRadius: '50%',
-                            background: isDone
-                              ? col.bg
-                              : isActive
+                        <div style={{
+                          display: 'flex', alignItems: 'center',
+                          gap: 12,
+                          flexDirection: isRight ? 'row' : 'row-reverse',
+                          maxWidth: '85%',
+                        }}>
+                          <button
+                            onClick={() => { if (!isDone && isActive) setScr(it.go); else if (isDone) setScr(it.go); }}
+                            disabled={!isDone && !isActive}
+                            onMouseEnter={() => setHovered(`${li}-${ii}`)}
+                            onMouseLeave={() => setHovered(null)}
+                            style={{
+                              background: 'none', border: 'none', cursor: (isDone || isActive) ? 'pointer' : 'default',
+                              padding: 0,
+                            }}
+                          >
+                            {/* The node circle */}
+                            <div style={{
+                              width: isActive ? 60 : 52,
+                              height: isActive ? 60 : 52,
+                              borderRadius: '50%',
+                              background: isDone
                                 ? col.bg
-                                : 'var(--card)',
-                            border: isDone ? 'none' : isActive ? 'none' : '2px solid var(--card-b)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: isActive ? 24 : 20,
-                            color: (isDone || isActive) ? '#fff' : 'var(--subtext)',
-                            boxShadow: isDone
-                              ? `0 4px 16px ${col.glow}`
-                              : isActive
-                                ? `0 0 0 6px ${col.glow.replace('.4)',',.15)')}, 0 4px 16px ${col.glow}`
-                                : '0 2px 6px rgba(0,0,0,.06)',
-                            animation: isActive ? 'nodeGlow 2s ease-in-out infinite, nodePulse 2s ease-in-out infinite' : 'none',
-                            transition: 'transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s',
-                            transform: (hovered === `${li}-${ii}` && (isDone || isActive)) ? 'scale(1.1)' : 'scale(1)',
-                            flexShrink: 0,
-                            position: 'relative',
-                            zIndex: 2,
-                          }}>
-                            {isDone ? '✓' : isActive ? '▶' : '🔒'}
+                                : isActive
+                                  ? col.bg
+                                  : 'var(--card)',
+                              border: isDone ? 'none' : isActive ? 'none' : '2px solid var(--card-b)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontSize: isActive ? 24 : 20,
+                              color: (isDone || isActive) ? '#fff' : 'var(--subtext)',
+                              boxShadow: isDone
+                                ? `0 4px 16px ${col.glow}`
+                                : isActive
+                                  ? `0 0 0 6px ${col.glow.replace('.4)',',.15)')}, 0 4px 16px ${col.glow}`
+                                  : '0 2px 6px rgba(0,0,0,.06)',
+                              animation: isActive ? 'nodeGlow 2s ease-in-out infinite, nodePulse 2s ease-in-out infinite' : 'none',
+                              transition: 'transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s',
+                              transform: (hovered === `${li}-${ii}` && (isDone || isActive)) ? 'scale(1.1)' : 'scale(1)',
+                              flexShrink: 0,
+                              position: 'relative',
+                              zIndex: 2,
+                            }}>
+                              {isDone ? '✓' : isActive ? '▶' : '🔒'}
 
-                            {/* Active pulse ring */}
-                            {isActive && (
-                              <div style={{
-                                position: 'absolute', inset: -8,
-                                borderRadius: '50%',
-                                border: `2px solid ${col.glow}`,
-                                animation: 'nodeGlow 2s ease-in-out infinite',
-                              }} />
-                            )}
-                          </div>
+                              {/* Skill decay badge */}
+                              {isDone && it.topic && decayedTopics.has(it.topic) && (
+                                <div style={{
+                                  position: 'absolute', top: -4, right: -4,
+                                  width: 18, height: 18, borderRadius: '50%',
+                                  background: '#f59e0b',
+                                  border: '2px solid #fff',
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  fontSize: 9, fontWeight: 900, color: '#fff',
+                                  zIndex: 3,
+                                }} title="Words due for review">
+                                  ⏰
+                                </div>
+                              )}
 
-                          {/* Label */}
-                          <div style={{ minWidth: 0 }}>
+                              {/* Active pulse ring */}
+                              {isActive && (
+                                <div style={{
+                                  position: 'absolute', inset: -8,
+                                  borderRadius: '50%',
+                                  border: `2px solid ${col.glow}`,
+                                  animation: 'nodeGlow 2s ease-in-out infinite',
+                                }} />
+                              )}
+                            </div>
+                          </button>
+
+                          {/* Label + Legendary button */}
+                          <div style={{ minWidth: 0, textAlign: isRight ? 'left' : 'right' }}>
                             {isActive && (
                               <div style={{
                                 fontSize: 10, fontWeight: 800, textTransform: 'uppercase',
@@ -273,12 +323,32 @@ export default function LearnPath({ st, setScr, goBack }) {
                               <div style={{
                                 fontSize: 11, color: '#0e7490', fontWeight: 700, marginTop: 3,
                                 display: 'flex', alignItems: 'center', gap: 4,
+                                justifyContent: isRight ? 'flex-start' : 'flex-end',
                               }}>
                                 Tap to start →
                               </div>
                             )}
+                            {isDone && onLaunchLegendary && (
+                              <button
+                                onClick={(e) => { e.stopPropagation(); onLaunchLegendary(it); }}
+                                style={{
+                                  marginTop: 5,
+                                  background: 'linear-gradient(135deg,#f59e0b,#d97706)',
+                                  border: 'none', borderRadius: 20,
+                                  color: '#fff', fontSize: 10, fontWeight: 800,
+                                  padding: '3px 10px', cursor: 'pointer',
+                                  letterSpacing: '.04em',
+                                  boxShadow: '0 2px 8px rgba(217,119,6,.35)',
+                                  transition: 'transform .15s, box-shadow .15s',
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.transform='scale(1.08)'; e.currentTarget.style.boxShadow='0 4px 12px rgba(217,119,6,.5)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.transform='scale(1)'; e.currentTarget.style.boxShadow='0 2px 8px rgba(217,119,6,.35)'; }}
+                              >
+                                ⚔️ Legendary
+                              </button>
+                            )}
                           </div>
-                        </button>
+                        </div>
                       </div>
                     );
                   })}
@@ -296,6 +366,47 @@ export default function LearnPath({ st, setScr, goBack }) {
                 <div style={{ fontSize: 13, color: 'var(--subtext)', fontWeight: 600 }}>
                   Complete 60% of {LEARN_PATH[li-1]?.title} to unlock
                 </div>
+              </div>
+            )}
+
+            {/* ── Checkpoint banner after completed level ───────────────── */}
+            {isUnlocked && levelPct === 100 && onLaunchCheckpoint && li < LEARN_PATH.length - 1 && (
+              <div style={{
+                marginBottom: 20,
+                padding: '14px 18px',
+                borderRadius: 16,
+                background: passedCheckpoints.has(li)
+                  ? 'linear-gradient(135deg,#f0fdf4,#dcfce7)'
+                  : 'linear-gradient(135deg,#fef9c3,#fef3c7)',
+                border: passedCheckpoints.has(li) ? '2px solid #86efac' : '2px solid #fcd34d',
+                display: 'flex', alignItems: 'center', gap: 14,
+              }}>
+                <div style={{ fontSize: 32, flexShrink: 0 }}>
+                  {passedCheckpoints.has(li) ? '🏆' : '📝'}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: passedCheckpoints.has(li) ? '#166534' : '#92400e' }}>
+                    {passedCheckpoints.has(li) ? `Stage ${li + 1} Checkpoint — Passed! ✓` : `Stage ${li + 1} Checkpoint Quiz`}
+                  </div>
+                  <div style={{ fontSize: 11, color: passedCheckpoints.has(li) ? '#166534' : '#78716c', marginTop: 2, fontWeight: 500 }}>
+                    {passedCheckpoints.has(li) ? 'You mastered this stage.' : 'Test your knowledge from this stage — 15 questions, 70% to pass.'}
+                  </div>
+                </div>
+                {!passedCheckpoints.has(li) && (
+                  <button
+                    onClick={() => onLaunchCheckpoint(li, lv.items)}
+                    style={{
+                      background: 'linear-gradient(135deg,#d97706,#f59e0b)',
+                      border: 'none', borderRadius: 12,
+                      color: '#fff', fontSize: 12, fontWeight: 800,
+                      padding: '8px 16px', cursor: 'pointer',
+                      boxShadow: '0 2px 8px rgba(217,119,6,.3)',
+                      flexShrink: 0,
+                    }}
+                  >
+                    Start →
+                  </button>
+                )}
               </div>
             )}
           </div>

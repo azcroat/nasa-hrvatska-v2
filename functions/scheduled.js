@@ -69,6 +69,11 @@ export default {
           // Skip if already notified today
           if (lastNotified === today) { skipped++; continue; }
 
+          // Calculate how many days since last practice session (for win-back messaging)
+          const daysSince = lastPracticed
+            ? Math.round((Date.now() - new Date(lastPracticed).getTime()) / 86400000)
+            : 0;
+
           const res = await fetch(`${PAGES_URL}/api/streak-push`, {
             method:  'POST',
             headers: {
@@ -77,8 +82,9 @@ export default {
             },
             body: JSON.stringify({
               subscription,
-              streak: streak || 0,
-              name:   name || '',
+              streak:    streak || 0,
+              name:      name || '',
+              daysSince: daysSince || 0,
             }),
             signal: AbortSignal.timeout(15000),
           });
