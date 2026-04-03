@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { lXP, nXP, earnFreeze, getStreakFreezes, LEVEL_NARRATIVE, speak } from '../../data.jsx';
+import { getDailyXP, DAILY_XP_GOAL } from '../../lib/appUtils.js';
 import { useTranslator } from '../../hooks/useTranslator.js';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
@@ -250,6 +251,7 @@ export default function HeroSection({
   const xpNeeded = nXP(level) - lXP(level);
   const xpPct = Math.min(Math.round((xpCur / xpNeeded) * 100), 100);
   const cefr = getCEFR(level);
+  const dailyXP = getDailyXP();
 
   const activePalette = LEVEL_PALETTE[(pathData.activeLv.level - 1) % LEVEL_PALETTE.length];
   const heroScene = getDailyScene();
@@ -692,6 +694,46 @@ export default function HeroSection({
               </div>
             ))}
           </div>
+
+          {/* ── DAILY XP GOAL — DuoLingo-style progress bar ── */}
+          {(() => {
+            const goalXP = Math.min(dailyXP, DAILY_XP_GOAL);
+            const goalPct = Math.min(Math.round((goalXP / DAILY_XP_GOAL) * 100), 100);
+            const goalDone = dailyXP >= DAILY_XP_GOAL;
+            return (
+              <div style={{
+                background: goalDone ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.07)',
+                border: goalDone ? '1px solid rgba(34,197,94,0.35)' : '1px solid rgba(255,255,255,0.10)',
+                borderRadius: 14,
+                padding: '10px 14px',
+                marginBottom: 12,
+              }}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+                  <div style={{display:'flex',alignItems:'center',gap:6}}>
+                    <span style={{fontSize:13}}>{goalDone ? '🎯' : '⚡'}</span>
+                    <span style={{fontSize:11,fontWeight:800,color: goalDone ? 'rgba(134,239,172,0.95)' : 'rgba(255,255,255,0.75)',letterSpacing:'.04em',textTransform:'uppercase'}}>
+                      {goalDone ? "Today's goal — complete!" : "Today's goal"}
+                    </span>
+                  </div>
+                  <span style={{fontSize:12,fontWeight:900,color: goalDone ? 'rgba(134,239,172,0.95)' : 'rgba(255,255,255,0.9)',fontVariantNumeric:'tabular-nums'}}>
+                    {goalXP} / {DAILY_XP_GOAL} XP
+                  </span>
+                </div>
+                <div style={{height:6,background:'rgba(255,255,255,0.12)',borderRadius:6,overflow:'hidden'}}>
+                  <div style={{
+                    height:'100%',
+                    width: goalPct + '%',
+                    background: goalDone
+                      ? 'linear-gradient(90deg,#22c55e,#4ade80)'
+                      : 'linear-gradient(90deg,#38bdf8,#818cf8)',
+                    borderRadius:6,
+                    transition:'width 0.6s ease',
+                    boxShadow: goalDone ? '0 0 8px rgba(34,197,94,0.6)' : '0 0 6px rgba(56,189,248,0.5)',
+                  }}/>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Streak freeze — compact */}
           {freezes===0 && (
