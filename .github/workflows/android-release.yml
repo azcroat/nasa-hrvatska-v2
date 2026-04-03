@@ -93,6 +93,10 @@ jobs:
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > ${{ runner.temp }}/nasa-hrvatska-release.jks
 
       # ── 9. Build release AAB ─────────────────────────────────────────────────
+      # ── 9a. Make gradlew executable (not preserved by git on Windows) ──────────
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
       - name: Build release AAB
         working-directory: android
         run: ./gradlew bundleRelease --no-daemon
