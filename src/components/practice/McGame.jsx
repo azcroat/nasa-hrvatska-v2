@@ -35,7 +35,15 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
     [rawQuestions]
   );
   const haptic = useHaptic();
-  const [idx, setIdx] = useState(0);
+  // DuoLingo-style re-queue: wrong answers are appended to the back of the queue
+  // so the learner must answer every question correctly before the session ends.
+  const [queue, setQueue] = useState(() =>
+    questions.map((q, i) => ({ ...q, _qIdx: i, _isRetry: false }))
+  );
+  // clearedCount tracks how many original questions have been answered correctly
+  // (used for progress bar and "Question X of Y" header).
+  const [clearedCount, setClearedCount] = useState(0);
+  const clearedIndicesRef = useRef(new Set());
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [selected, setSelected] = useState(-1);
@@ -72,12 +80,15 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
   const resultFired = useRef(false);
   const timersRef = useRef([]);
 
+  // Derive current question before hooks so dep arrays can reference q._qIdx
+  const q = queue[0] || null;
+
   // Clear all pending timers on unmount to prevent setState-after-teardown errors
   useEffect(() => () => { timersRef.current.forEach(clearTimeout); }, []);
 
   useEffect(() => {
     if (firstOptionRef.current) firstOptionRef.current.focus();
-  }, [idx]);
+  }, [q?._qIdx]);
 
   // Knight coaching — entry tip on mount
   useEffect(() => {
@@ -105,9 +116,8 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
     };
     window.addEventListener('keydown', handleKeyNum);
     return () => window.removeEventListener('keydown', handleKeyNum);
-  }, [answered, idx]);  
+  }, [answered, q?._qIdx]);
 
-  const q = questions[idx];
   if (!q) return null;
 
   function handleAnswer(o, i) {
@@ -226,8 +236,13 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
     }
   }
 
-  const progress = (idx / questions.length) * 100;
-  const isLast = idx === questions.length - 1;
+  // Progress = fraction of original questions cleared (answered correctly, any attempt).
+  const progress = questions.length ? (clearedCount / questions.length) * 100 : 0;
+  // isLast: true only when current question is last in queue AND user answered correctly.
+  // This triggers "See Results" in McQuestionArea. Wrong answer on last item re-queues it
+  // back to position 0 (queue of 1), so isLast stays true but wasCorrect = false → "Got it →".
+  const wasCurrentCorrect = answered && selected !== -1 && q.opts[selected] === q.correct;
+  const isLast = queue.length === 1 && wasCurrentCorrect;
 
   // "No hearts left" state — show before gameOver if continueAnyway not chosen
   if (gameOver && !continueAnyway) {
@@ -235,7 +250,9 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
       <McGameOver
         challengeMode={challengeMode}
         onTryAgain={() => {
-          setIdx(0);
+          setQueue(questions.map((q, i) => ({ ...q, _qIdx: i, _isRetry: false })));
+          setClearedCount(0);
+          clearedIndicesRef.current = new Set();
           setScore(0);
           setHearts(5);
           setAnswered(false);
@@ -282,7 +299,7 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
           </div>
         ) : (
           <button
-            onClick={() => { if (idx === 0 && !answered) { goBack(); } else { setConfirmQuit(true); } }}
+            onClick={() => { if (clearedCount === 0 && !answered) { goBack(); } else { setConfirmQuit(true); } }}
             style={{
               background: 'none',
               border: 'none',
@@ -405,7 +422,9 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
           letterSpacing: '.05em',
         }}
       >
-        Question {idx + 1} of {questions.length} · {score} correct
+        {q._isRetry
+          ? `🔄 Retry · ${score} correct`
+          : `Question ${clearedCount + 1} of ${questions.length} · ${score} correct`}
       </div>
 
       {/* Hearts bar — always show, right-aligned */}
@@ -471,28 +490,50 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
         onAnswer={handleAnswer}
         onKey={handleKey}
         onNext={() => {
-          if (!isLast) {
+          const wasCorrect = selected !== -1 && q.opts[selected] === q.correct;
+          if (wasCorrect) {
+            // Mark this original question as cleared (only once)
+            if (!clearedIndicesRef.current.has(q._qIdx)) {
+              clearedIndicesRef.current.add(q._qIdx);
+              setClearedCount(c => c + 1);
+            }
+            if (queue.length === 1) {
+              // Queue will be empty — session complete
+              if (resultFired.current) return;
+              resultFired.current = true;
+              const finalScore = score;
+              const pct = Math.round((finalScore / questions.length) * 100);
+              knightSpeak(
+                pct >= 80 ? 'victory' : pct >= 50 ? 'celebrating' : 'encouraged',
+                pct >= 80 ? `${pct}% correct — that quiz didn't stand a chance! ⚔️` :
+                pct >= 50 ? `${finalScore}/${questions.length} — solid. Come back and the remaining ${questions.length - finalScore} will fall. 💪` :
+                `${finalScore}/${questions.length} this time. Every wrong answer is a memory your brain is building. 📐`,
+                300
+              );
+              if (typeof award === 'function') award(finalScore * XP_PER_CORRECT + XP_COMPLETION_BONUS, true);
+              onComplete(questions, finalScore);
+            } else {
+              // More questions remain — pop front and advance
+              setQTransition(true);
+              timersRef.current.push(setTimeout(() => {
+                setQueue(prev => prev.slice(1));
+                setAnswered(false);
+                setSelected(-1);
+                setRevealCorrect(false);
+                setQTransition(false);
+              }, 200));
+            }
+          } else {
+            // Wrong answer — re-queue current question to end of queue with retry flag.
+            // DuoLingo mechanic: learner must get every item correct before session ends.
             setQTransition(true);
             timersRef.current.push(setTimeout(() => {
-              setIdx(i => i + 1);
+              setQueue(prev => [...prev.slice(1), { ...q, _isRetry: true }]);
               setAnswered(false);
               setSelected(-1);
               setRevealCorrect(false);
               setQTransition(false);
             }, 200));
-          } else {
-            if (resultFired.current) return;
-            resultFired.current = true;
-            const pct = Math.round((score / questions.length) * 100);
-            knightSpeak(
-              pct >= 80 ? 'victory' : pct >= 50 ? 'celebrating' : 'encouraged',
-              pct >= 80 ? `${pct}% correct — that quiz didn't stand a chance! ⚔️` :
-              pct >= 50 ? `${score}/${questions.length} — solid. Come back and the remaining ${questions.length - score} will fall. 💪` :
-              `${score}/${questions.length} this time. Every wrong answer is a memory your brain is building. 📐`,
-              300
-            );
-            if (typeof award === 'function') award(score * XP_PER_CORRECT + XP_COMPLETION_BONUS, true);
-            onComplete(questions, score);
           }
         }}
       />
