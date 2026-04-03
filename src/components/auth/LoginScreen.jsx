@@ -124,10 +124,10 @@ export default function LoginScreen({
           </button>
           <p style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', textAlign:'center', marginTop:12 }}>
             By continuing you agree to our{' '}
-            <button onClick={() => window.open('#/terms', '_blank')} style={{ background:'none', border:'none', color:'var(--info)', cursor:'pointer', fontSize:'var(--text-xs)', padding:0, textDecoration:'underline' }}>
+            <button onClick={() => window.open('https://nasa-hrvatska.pages.dev/privacy.html#terms', '_blank', 'noopener,noreferrer')} style={{ background:'none', border:'none', color:'var(--info)', cursor:'pointer', fontSize:'var(--text-xs)', padding:0, textDecoration:'underline' }}>
               Terms of Service
             </button>{' '}and{' '}
-            <button onClick={() => window.open('#/privacy', '_blank')} style={{ background:'none', border:'none', color:'var(--info)', cursor:'pointer', fontSize:'var(--text-xs)', padding:0, textDecoration:'underline' }}>
+            <button onClick={() => window.open('https://nasa-hrvatska.pages.dev/privacy.html', '_blank', 'noopener,noreferrer')} style={{ background:'none', border:'none', color:'var(--info)', cursor:'pointer', fontSize:'var(--text-xs)', padding:0, textDecoration:'underline' }}>
               Privacy Policy
             </button>
           </p>

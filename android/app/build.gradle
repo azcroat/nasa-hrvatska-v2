@@ -3,6 +3,28 @@ apply plugin: 'com.android.application'
 android {
     namespace = "com.nasahrvatska.app"
     compileSdk = rootProject.ext.compileSdkVersion
+
+    // ── Release signing ──────────────────────────────────────────────────────
+    // Reads credentials from environment variables — never hardcode credentials.
+    // Set these before running `./gradlew bundleRelease`:
+    //   KEYSTORE_PATH   — absolute path to nasa-hrvatska-release.jks
+    //   KEYSTORE_PASS   — keystore password
+    //   KEY_ALIAS       — key alias (default: nasa-hrvatska)
+    //   KEY_PASS        — key password
+    //
+    // In GitHub Actions, set these as repository Secrets (Settings → Secrets).
+    // See ANDROID_BUILD.md for full instructions.
+    if (System.getenv("KEYSTORE_PATH")) {
+        signingConfigs {
+            release {
+                storeFile file(System.getenv("KEYSTORE_PATH"))
+                storePassword System.getenv("KEYSTORE_PASS") ?: ""
+                keyAlias System.getenv("KEY_ALIAS") ?: "nasa-hrvatska"
+                keyPassword System.getenv("KEY_PASS") ?: ""
+            }
+        }
+    }
+
     defaultConfig {
         applicationId "com.nasahrvatska.app"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -18,14 +40,19 @@ android {
     }
     buildTypes {
         release {
-            // Enable R8 shrinking and obfuscation for smaller, faster release APK/AAB
+            // Enable R8 shrinking and obfuscation for smaller, faster release AAB
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // Wire in signing config when env vars are present
+            if (android.signingConfigs.hasProperty('release')) {
+                signingConfig signingConfigs.release
+            }
         }
         debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // Debug builds are signed with the default debug keystore automatically
         }
     }
 
