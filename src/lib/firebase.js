@@ -392,11 +392,14 @@ export async function fbGetFamilyMembers(code){
     const data=famSnap2.data();const members=data.members||[];
     const memberXP=data.memberXP||{};
     // Read XP from the family doc's memberXP map — written by fbSaveProgress on every save.
+    // memberXP keys are Firebase Auth UIDs (written by fbSaveProgress). Try uid first,
+    // then fall back to sanitized email for legacy entries written before this fix.
     // Never reads /leaderboard for other users; that collection is now owner-only.
     return members.map(function(m){
-      const id=(m.email||m.uid||"").replace(/[.#$/\[\]]/g,"_");
-      const xpData=(id&&memberXP[id])||{};
-      return{name:xpData.name||m.name,email:m.email||"",role:m.role,xp:xpData.xp||0,lc:xpData.lc||0,joined:m.joined};
+      const uidId=(m.uid||"").replace(/[.#$/\[\]]/g,"_");
+      const emailId=(m.email||"").replace(/[.#$/\[\]]/g,"_");
+      const xpData=(uidId&&memberXP[uidId])||(emailId&&memberXP[emailId])||{};
+      return{name:xpData.name||m.name,email:m.email||"",role:m.role,xp:xpData.xp||0,lc:xpData.lc||0,weekXP:xpData.weekXP||0,joined:m.joined};
     }).sort(function(a,b){return b.xp-a.xp});
   }catch(e){return[]}
 }
@@ -413,8 +416,9 @@ export function fbWatchFamilyMembers(code,callback){
       const data=snap.data();const members=data.members||[];
       const memberXP=data.memberXP||{};
       const results=members.map(function(m){
-        const id=(m.email||m.uid||"").replace(/[.#$/\[\]]/g,"_");
-        const xpData=(id&&memberXP[id])||{};
+        const uidId=(m.uid||"").replace(/[.#$/\[\]]/g,"_");
+        const emailId=(m.email||"").replace(/[.#$/\[\]]/g,"_");
+        const xpData=(uidId&&memberXP[uidId])||(emailId&&memberXP[emailId])||{};
         return{name:xpData.name||m.name,email:m.email||"",role:m.role,xp:xpData.xp||0,lc:xpData.lc||0,weekXP:xpData.weekXP||0,joined:m.joined};
       });
       callback(results.sort(function(a,b){return b.xp-a.xp;}));

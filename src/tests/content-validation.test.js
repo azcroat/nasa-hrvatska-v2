@@ -56,6 +56,9 @@ import {
   PREPDRILL,
   UNJUMBLE,
 } from '../lib/appData.js';
+import { TRANSLATE_DRILLS } from '../data/exercises.js';
+import { V_B2 } from '../data/vocabulary.js';
+import { LESSONS } from '../data/lessons.js';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // V — Vocabulary object (keys → arrays of [hr, en, ...optional] tuples)
@@ -696,5 +699,127 @@ describe('Cross-cutting integrity checks', () => {
     const sentences = PREPDRILL.map(d => d.sentence.trim());
     const unique = new Set(sentences);
     expect(unique.size).toBe(sentences.length);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TRANSLATE_DRILLS — EN→HR production drills
+// ═══════════════════════════════════════════════════════════════════════════════
+describe('TRANSLATE_DRILLS', () => {
+  it('is a non-empty array', () => {
+    expect(Array.isArray(TRANSLATE_DRILLS)).toBe(true);
+    expect(TRANSLATE_DRILLS.length).toBeGreaterThan(0);
+  });
+
+  it('every drill has en, hr, opts, level fields', () => {
+    for (const d of TRANSLATE_DRILLS) {
+      expect(typeof d.en).toBe('string');
+      expect(typeof d.hr).toBe('string');
+      expect(Array.isArray(d.opts)).toBe(true);
+      expect(['A2','B1','B2']).toContain(d.level);
+    }
+  });
+
+  it('every drill has exactly 4 options', () => {
+    for (const d of TRANSLATE_DRILLS) {
+      expect(d.opts.length).toBe(4);
+    }
+  });
+
+  it('correct answer is always one of the options', () => {
+    for (const d of TRANSLATE_DRILLS) {
+      expect(d.opts).toContain(d.hr);
+    }
+  });
+
+  it('no duplicate correct answers (hr values are unique within drills)', () => {
+    const hrs = TRANSLATE_DRILLS.map(d => d.hr);
+    const unique = new Set(hrs);
+    expect(unique.size).toBe(hrs.length);
+  });
+
+  it('options within each drill are unique', () => {
+    for (const d of TRANSLATE_DRILLS) {
+      const unique = new Set(d.opts);
+      expect(unique.size).toBe(d.opts.length);
+    }
+  });
+
+  it('has drills at each level: A2, B1, B2', () => {
+    const levels = new Set(TRANSLATE_DRILLS.map(d => d.level));
+    expect(levels.has('A2')).toBe(true);
+    expect(levels.has('B1')).toBe(true);
+    expect(levels.has('B2')).toBe(true);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// V_B2 — B2/C1 vocabulary module
+// ═══════════════════════════════════════════════════════════════════════════════
+describe('V_B2', () => {
+  it('is a non-null object with topic keys', () => {
+    expect(V_B2).toBeDefined();
+    expect(typeof V_B2).toBe('object');
+    expect(Object.keys(V_B2).length).toBeGreaterThan(0);
+  });
+
+  it('every topic is a non-empty array of entries', () => {
+    for (const [topic, entries] of Object.entries(V_B2)) {
+      expect(Array.isArray(entries), `${topic} should be array`).toBe(true);
+      expect(entries.length, `${topic} should be non-empty`).toBeGreaterThan(0);
+    }
+  });
+
+  it('every entry has at least 2 elements (Croatian and English)', () => {
+    for (const [topic, entries] of Object.entries(V_B2)) {
+      for (const entry of entries) {
+        expect(Array.isArray(entry), `entry in ${topic} should be array`).toBe(true);
+        expect(entry.length, `entry in ${topic} needs hr+en`).toBeGreaterThanOrEqual(2);
+        expect(typeof entry[0]).toBe('string');
+        expect(typeof entry[1]).toBe('string');
+      }
+    }
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LESSONS — animated lesson definitions
+// ═══════════════════════════════════════════════════════════════════════════════
+describe('LESSONS', () => {
+  it('is a non-empty array', () => {
+    expect(Array.isArray(LESSONS)).toBe(true);
+    expect(LESSONS.length).toBeGreaterThan(0);
+  });
+
+  it('every lesson has required fields: id, title, level, slides', () => {
+    for (const lesson of LESSONS) {
+      expect(typeof lesson.id).toBe('string');
+      expect(typeof lesson.title).toBe('string');
+      expect(typeof lesson.level).toBe('string');
+      expect(Array.isArray(lesson.slides)).toBe(true);
+      expect(lesson.slides.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('lesson IDs are unique', () => {
+    const ids = LESSONS.map(l => l.id);
+    const unique = new Set(ids);
+    expect(unique.size).toBe(ids.length);
+  });
+
+  it('expected lessons exist: alphabet, past-tense, future-tense, vi-vs-ti', () => {
+    const ids = LESSONS.map(l => l.id);
+    expect(ids).toContain('alphabet');
+    expect(ids).toContain('past-tense');
+    expect(ids).toContain('future-tense');
+    expect(ids).toContain('vi-vs-ti');
+  });
+
+  it('every slide has a type field', () => {
+    for (const lesson of LESSONS) {
+      for (const slide of lesson.slides) {
+        expect(typeof slide.type).toBe('string');
+      }
+    }
   });
 });
