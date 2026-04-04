@@ -359,39 +359,45 @@ export default function LearnTab({
         handleLaunchPathItem={handleLaunchPathItem}
       />
 
-      {/* Quick Jump — horizontal scroll category shortcuts */}
-      <div style={{
-        display: 'flex', gap: 8, overflowX: 'auto', padding: '0 0 8px',
-        scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch',
-        marginBottom: 8,
-      }}>
-        {[
-          { icon: '📚', label: 'Vocabulary', color: '#0e7490' },
-          { icon: '⚙️', label: 'Grammar',   color: '#7c3aed' },
-          { icon: '📖', label: 'Reading',    color: '#059669' },
-          { icon: '🎬', label: 'Videos',     color: '#dc2626' },
-          { icon: '🎮', label: 'Interactive',color: '#d97706' },
-        ].map(item => (
-          <button
-            key={item.label}
-            onClick={() => {
-              if (!showBrowse) setShowBrowse(true);
-              setTimeout(() => {
-                const el = document.getElementById('learn-section-' + item.label.toLowerCase());
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }, 50);
-            }}
-            style={{
-              flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6,
-              padding: '8px 14px', borderRadius: 20,
-              background: 'var(--card)', border: '1px solid var(--card-b)',
-              cursor: 'pointer', minHeight: 44,
-            }}
-          >
-            <span style={{fontSize: 16}}>{item.icon}</span>
-            <span style={{fontSize: 12, fontWeight: 700, color: item.color, whiteSpace: 'nowrap'}}>{item.label}</span>
-          </button>
-        ))}
+      {/* ── VOCABULARY QUICK ACCESS ─────────────────────────────────────── */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 8 }}>
+          Quick Vocab — Tap to start
+        </div>
+        <div style={{
+          display: 'flex', gap: 8, overflowX: 'auto', padding: '0 0 6px',
+          scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch',
+        }}>
+          {[
+            { cat: 'greetings', icon: '👋', label: 'Greetings',  color: '#0e7490', bg: 'rgba(14,116,144,.1)',  border: 'rgba(14,116,144,.3)'  },
+            { cat: 'family',    icon: '👨‍👩‍👧', label: 'Family',     color: '#059669', bg: 'rgba(5,150,105,.1)',   border: 'rgba(5,150,105,.3)'   },
+            { cat: 'food',      icon: '🍽️', label: 'Food',       color: '#d97706', bg: 'rgba(217,119,6,.1)',   border: 'rgba(217,119,6,.3)'   },
+            { cat: 'travel',    icon: '✈️', label: 'Travel',     color: '#7c3aed', bg: 'rgba(124,58,237,.1)',  border: 'rgba(124,58,237,.3)'  },
+            { cat: 'numbers',   icon: '🔢', label: 'Numbers',    color: '#dc2626', bg: 'rgba(220,38,38,.1)',   border: 'rgba(220,38,38,.3)'   },
+            { cat: 'body',      icon: '🫀', label: 'Body',       color: '#0891b2', bg: 'rgba(8,145,178,.1)',   border: 'rgba(8,145,178,.3)'   },
+            { cat: 'colors',    icon: '🎨', label: 'Colors',     color: '#7c3aed', bg: 'rgba(124,58,237,.1)',  border: 'rgba(124,58,237,.3)'  },
+            { cat: 'nature',    icon: '🌿', label: 'Nature',     color: '#059669', bg: 'rgba(5,150,105,.1)',   border: 'rgba(5,150,105,.3)'   },
+            { cat: 'verbs',     icon: '💪', label: 'Verbs',      color: '#d97706', bg: 'rgba(217,119,6,.1)',   border: 'rgba(217,119,6,.3)'   },
+            { cat: 'emotions',  icon: '😊', label: 'Emotions',   color: '#dc2626', bg: 'rgba(220,38,38,.1)',   border: 'rgba(220,38,38,.3)'   },
+          ].filter(item => (V[item.cat] || []).length > 0).map(item => (
+            <button
+              key={item.cat}
+              onClick={() => launchVocab(item.cat)}
+              style={{
+                flexShrink: 0, display: 'flex', alignItems: 'center', gap: 7,
+                padding: '9px 14px', borderRadius: 22,
+                background: item.bg, border: `1.5px solid ${item.border}`,
+                cursor: 'pointer', minHeight: 44, fontFamily: "'Outfit',sans-serif",
+              }}
+            >
+              <span style={{fontSize: 16}}>{item.icon}</span>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{fontSize: 12, fontWeight: 800, color: item.color, whiteSpace: 'nowrap'}}>{item.label}</div>
+                <div style={{fontSize: 10, color: 'var(--subtext)', whiteSpace: 'nowrap'}}>{(V[item.cat] || []).length} words</div>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ── GOAL-BASED STAGE 1 FOCUS ────────────────────────────────── */}

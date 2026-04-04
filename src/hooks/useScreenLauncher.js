@@ -350,7 +350,8 @@ export function useScreenLauncher({
         setTab(ctx.tab || 'learn');
       }
     } else if (window.history.length <= 1) {
-      setScr('dashboard');
+      // No browser history — stay in the current tab rather than drifting to Home.
+      setTab(tab || 'home');
     } else {
       navigate(-1);
     }

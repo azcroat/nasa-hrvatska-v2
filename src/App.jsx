@@ -124,9 +124,18 @@ function App() {
 
   // ── Core state ──────────────────────────────────────────────────────────────
   const [currentScreen, _setCurrentScreen] = useState('welcome');
+  // Screens safe to restore when returning to a tab via browser back / tab-bar press.
+  // Exercise screens are excluded — they need launch-time state that a back-nav can't provide.
+  const _RESTORE_SAFE = new Set(['dashboard','learnpath','grammar_track','grammar-ref','grammarmap','favorites','journal','analytics','badges','certificate']);
+  const _TAB_FOR_SCR = { lesson:'learn',grammar:'learn',padezi:'learn',padezifull:'learn',modal:'learn',tenses:'learn',alphabet:'learn',reading:'learn',read:'learn',readinglist:'learn',readlist:'learn',aspect:'learn',falsefr:'learn',declension:'learn',brzalice:'learn',dialects:'learn',diminutives:'learn',wordform:'learn',colorquirk:'learn',svojmoj:'learn',countries:'learn',professions:'learn',weather:'learn',clothes:'learn',bodydesc:'learn',phonology:'learn',learnpath:'learn',grammar_track:'learn','grammar-ref':'learn',grammarmap:'learn',micro_lesson:'learn',grammar_diagnosis:'learn',animlesson:'learn',grammarreader:'learn',grammarvideos:'learn',grammarexplainer:'learn',casetransformer:'learn',vocabscenes:'learn',journal:'profile',favorites:'profile',analytics:'profile',badges:'profile',certificate:'profile',leaderboard:'profile',profile:'profile' };
   const setScr = useCallback((s) => {
     _setCurrentScreen(s);
     if (s === 'welcome' || s === 'placement' || s === 'new-placement') return;
+    // Persist restorable screens per tab so browser-back / no-history goBack() can resume them.
+    if (_RESTORE_SAFE.has(s)) {
+      const t = _TAB_FOR_SCR[s];
+      if (t) { try { sessionStorage.setItem('nh_last_scr_' + t, s); } catch {} }
+    }
     navigate(s === 'dashboard' ? '/' : `/${s}`, { replace: false });
   }, [navigate]);
   const [name, setName] = useState('');
@@ -348,11 +357,22 @@ function App() {
   // Keep _uidRef current so usePreferences.toggleFav fires fbToggleFavorite
   useEffect(() => { _uidRef.current = authUser?.u || null; }, [authUser]);
 
-  // Q-6: Sync tab + currentScreen on React Router location changes (back/forward)
+  // Q-6: Sync tab + currentScreen on React Router location changes (back/forward).
+  // When the URL resolves to a tab root (e.g. /practice), restore the last non-exercise
+  // screen the user was browsing in that tab (sessionStorage), so that pressing the tab
+  // bar or browser back doesn't wipe browsing context — only fresh tab-bar taps do.
   useEffect(() => {
     const p = location.pathname;
     const tabForPath = PATH_TO_TAB[p];
-    if (tabForPath) { _setTab(tabForPath); _setCurrentScreen('dashboard'); return; }
+    if (tabForPath) {
+      _setTab(tabForPath);
+      // Restore last browsed screen for this tab (set by setScr when user navigates within a tab).
+      // Only safe to restore "dashboard-equivalent" screens — exercise screens need launch-time state.
+      const SAFE_RESTORE = new Set(['dashboard','learnpath','grammar_track','grammar-ref','grammarmap','favorites','journal','analytics','badges','certificate']);
+      const last = sessionStorage.getItem('nh_last_scr_' + tabForPath);
+      _setCurrentScreen((last && SAFE_RESTORE.has(last)) ? last : 'dashboard');
+      return;
+    }
     if (p && p !== '/' && p !== '/welcome' && p !== '/placement') {
       const scr = p.slice(1);
       const stm = { lesson:'learn',grammar:'learn',padezi:'learn',padezifull:'learn',modal:'learn',tenses:'learn',alphabet:'learn',reading:'learn',read:'learn',readinglist:'learn',readlist:'learn',aspect:'learn',falsefr:'learn',declension:'learn',brzalice:'learn',dialects:'learn',diminutives:'learn',wordform:'learn',colorquirk:'learn',svojmoj:'learn',countries:'learn',professions:'learn',weather:'learn',clothes:'learn',bodydesc:'learn',phonology:'learn',mcgame:'practice',mcresult:'practice',flashcards:'practice',match:'practice',typing:'practice',listening:'practice',speaking:'practice',znam:'practice',boje:'practice',conj:'practice',conjdrill:'practice',unjumble:'practice',prepdrill:'practice',numtime:'practice',wordsprint:'practice',profgender:'practice',comparatives:'practice',future:'practice',sibil:'practice',restaurant:'practice',qwords:'practice',negation:'practice',possess:'practice',coloragree:'practice',opposites:'practice',cityloc:'practice',akudrill:'practice',ordinals:'practice',relpron:'practice',emogender:'practice',verbdrill:'practice',tenseflip:'practice',riddles:'practice',logicquiz:'practice',pronouns:'practice',genderdrill:'practice',sentbuild:'practice',reflexive:'practice',fillstory:'practice',convmatch:'practice',scenes:'practice',storyselect:'practice',story:'practice',proverbs:'practice',idioms:'practice',pitchaccent:'practice',shadowing:'practice',review:'practice',writing:'practice',aspectdrill:'practice',clitic:'practice',numcases:'practice',imperative:'practice',neggen:'practice',collocations:'practice',wordfamilies:'practice',dictation:'practice',proncontrast:'practice',dialogue:'practice',cefrtest:'practice',slang:'practice',region_labin:'croatia',region_bibinje:'croatia',region_hercegovina:'croatia',region_vukovar:'croatia',region_vinkovci:'croatia',region_zagreb:'croatia',region_split:'croatia',region_mostar:'croatia',region_tomislavgrad:'croatia',region_knin:'croatia',cityofday:'croatia',immersion:'croatia',aiconvo:'croatia',crmap:'croatia',history:'croatia',kings:'croatia',grocery:'croatia',recipes:'croatia',roleplay:'croatia',texting:'croatia',friends:'croatia',foodorder:'croatia',transport:'croatia',emergency:'croatia',football:'croatia',popculture:'croatia',practical:'croatia',school:'croatia',basketball:'croatia',gym:'croatia',top100:'croatia',events:'croatia',croatiaathletes:'croatia',baka_summer:'croatia',croatia_today:'croatia',survival_dinner:'croatia',kafic:'croatia',diaspora:'croatia',postcard:'croatia',storymode:'croatia',heritage:'croatia',croatianews:'croatia',phraseofday:'croatia',maja:'croatia',tivicompare:'learn',grammarvideos:'learn',grammarexplainer:'learn',casetransformer:'learn',vocabscenes:'learn',animlesson:'learn',grammarreader:'learn',lifeevents:'croatia',civic:'croatia',easter:'croatia',midsummer:'croatia',domovina:'croatia',bozic:'croatia',cloze:'practice',badges:'profile',leaderboard:'profile',leaderboard_weekly:'profile',family_group:'profile',journal:'profile',favorites:'profile',learnpath:'profile',contact:'profile',certificate:'profile',analytics:'profile',profile:'profile',admin:'profile',privacy:'profile',terms:'profile','grammar-ref':'learn',mistakes:'practice',listeningpath:'practice',grammarmap:'practice',my_words:'practice',speaking_sprint:'practice',ai_listening:'practice',ai_story:'practice',grammar_diagnosis:'learn',micro_lesson:'learn',personas:'croatia',live_tutor:'croatia',grammar_track:'learn',listening_comprehension:'practice',translate_drills:'practice' };
