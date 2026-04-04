@@ -719,7 +719,7 @@ export default function LessonScreen({
             }}
             onClick={() => {
               resultFired.current = false;
-              sLi(shuffleArr(V[lt])); sLx(0); sLs(0); sLp("learn"); sLa(false);
+              sLi(shuffleArr(V[lt] || [])); sLx(0); sLs(0); sLp("learn"); sLa(false);
             }}>
             ↩ Study Again
           </button>

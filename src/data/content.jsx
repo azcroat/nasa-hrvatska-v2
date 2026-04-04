@@ -37,6 +37,16 @@ function sh(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(r
 // ═══ TOP 100 WORDS BY SITUATION ═══
 // Make all TOP100 situational topics available as quizzable vocabulary
 Object.keys(TOP100).forEach(function(k){V[k]=TOP100[k];});
+// ─── LEARN_PATH vocabulary aliases ────────────────────────────────────────────
+// Several LEARN_PATH lesson topics use short keys that don't match TOP100 keys.
+// Map them to the closest existing vocabulary set so launchPathItem never crashes.
+V["journalism"]  = V["media & journalism"]  || [];   // lp68
+V["philosophy"]  = V["philosophy & ethics"] || [];   // lp67
+V["politics"]    = V["civic"]               || [];   // lp58 — civic = government/law/politics
+V["law"]         = V["civic"]               || [];   // lp69 — civic includes legal terms
+V["arts"]        = V["culture"]             || [];   // lp59 — culture = klapa/tamburica/dance/art
+V["literature"]  = V["academic language"]   || [];   // lp64 — academic language = scholarly/literary
+// ── end LEARN_PATH aliases ────────────────────────────────────────────────────
 // ═══ CROATIAN HISTORY — DOMOVINSKI RAT ═══
 // ═══ CROATIAN EVENTS CALENDAR ═══
 // ═══ MODAL VERBS ═══
