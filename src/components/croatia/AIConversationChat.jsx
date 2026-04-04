@@ -2,19 +2,7 @@ import React from 'react';
 import SpeakingAvatar, { portraitSrc } from './SpeakingAvatar.jsx';
 import TappableMessage from './TappableMessage.jsx';
 import WaveformVisualizer from '../shared/WaveformVisualizer.jsx';
-import { STARTERS } from './ConversationScenarios.js';
-
-function sceneForCat(cat) {
-  const SCENE_FOR_CAT = {
-    'Errands':     '/images/scenes/zagreb.webp',
-    'Out & About': '/images/scenes/dubrovnik-hero.webp',
-    'Social':      '/images/scenes/croatian-food.webp',
-    'Practical':   '/images/scenes/zagreb.webp',
-    'Heritage':    '/images/scenes/dalmatian-coast.webp',
-    'Work & Travel':'/images/scenes/plitvice.webp',
-  };
-  return SCENE_FOR_CAT[cat] || '/images/scenes/dubrovnik-hero.webp';
-}
+import { STARTERS, sceneForCat } from './ConversationScenarios.js';
 
 export default function AIConversationChat({
   scenario,
@@ -189,6 +177,12 @@ export default function AIConversationChat({
                 >
                   {!isUser ? <TappableMessage text={m.content} onWordClick={onWordClick} /> : m.content}
                   {!isUser && <span style={{ fontSize: "var(--text-xs)", opacity: .4, marginLeft: 5 }} aria-hidden="true">🔊</span>}
+                  {!isUser && m.gloss && m.scaffolding >= 1 && (
+                    <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid var(--card-b)",
+                      fontSize: "var(--text-xs)", color: "var(--subtext)", lineHeight: 1.5, fontStyle: "italic" }}>
+                      {m.gloss}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -198,8 +192,8 @@ export default function AIConversationChat({
                   padding: "8px 14px", fontSize: "var(--text-sm)" }}>
                   <span style={{ color: "var(--success)", fontWeight: 800 }}>✏️ Better: </span>
                   <span style={{ color: "var(--success)", fontWeight: 900 }}>{correction.corrected}</span>
-                  {correction.note && (
-                    <div style={{ color: "var(--success)", opacity: .75, marginTop: 2 }}>{correction.note}</div>
+                  {(correction.explanation || correction.note) && (
+                    <div style={{ color: "var(--success)", opacity: .75, marginTop: 2 }}>{correction.explanation || correction.note}</div>
                   )}
                   {correction.echo && (
                     <div style={{ color: "var(--success)", opacity: .85, marginTop: 6, paddingTop: 6,

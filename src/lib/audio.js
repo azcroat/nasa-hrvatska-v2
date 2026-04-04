@@ -132,6 +132,14 @@ export async function speakAzure(text, slow) {
     const a = new Audio(); a.volume = 1.0; _currentAudio = a;
     a.src = url; a.load();
     await a.play();
+    // Wait until audio finishes, stops, or errors — not just until playback starts.
+    // This makes speak() resolve when audio ends, enabling accurate speaking animation.
+    await new Promise(resolve => {
+      a.addEventListener('ended', resolve, { once: true });
+      a.addEventListener('error', resolve, { once: true });
+      a.addEventListener('pause', resolve, { once: true });
+      a.addEventListener('abort', resolve, { once: true });
+    });
     return true;
   } catch (e) {
     console.error('[TTS] error:', e);
@@ -140,13 +148,16 @@ export async function speakAzure(text, slow) {
 }
 
 export function speakSynth(text, rate) {
-  if (!window.speechSynthesis) return;
+  if (!window.speechSynthesis) return Promise.resolve();
   stopAudio();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'hr-HR'; u.rate = rate; u.pitch = 1.0; u.volume = 1.0;
-  const best = getBestVoice(); if (best) u.voice = best;
-  u.onerror = () => { window.dispatchEvent(new CustomEvent('nh:tts-failed')); };
-  window.speechSynthesis.speak(u);
+  return new Promise(resolve => {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'hr-HR'; u.rate = rate; u.pitch = 1.0; u.volume = 1.0;
+    const best = getBestVoice(); if (best) u.voice = best;
+    u.onerror = () => { window.dispatchEvent(new CustomEvent('nh:tts-failed')); resolve(); };
+    u.onend = resolve;
+    window.speechSynthesis.speak(u);
+  });
 }
 
 // Preprocess text before TTS.
@@ -199,7 +210,7 @@ export async function speak(text) {
   if (!ok) {
     // Fall back to browser speech synthesis (works in Chrome even when TTS API fails)
     if (window.speechSynthesis) {
-      speakSynth(t, 0.85);
+      await speakSynth(t, 0.85); // await so speak() resolves only when audio ends
       return 'synth';
     }
     window.dispatchEvent(new CustomEvent('nh:tts-failed'));
@@ -214,7 +225,7 @@ export async function speakSlow(text) {
   const ok = await speakAzure(t, true).catch(() => false);
   if (!ok) {
     if (window.speechSynthesis) {
-      speakSynth(t, 0.65);
+      await speakSynth(t, 0.65); // await so speakSlow() resolves only when audio ends
       return 'synth';
     }
     window.dispatchEvent(new CustomEvent('nh:tts-failed'));

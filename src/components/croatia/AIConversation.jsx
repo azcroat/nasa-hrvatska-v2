@@ -5,7 +5,7 @@ import { useStats } from '../../context/StatsContext.jsx';
 import { markPracticed } from '../../hooks/useNotifications.js';
 import { markQuest } from '../../lib/quests.js';
 import { logError, getErrorsForAPI } from '../../lib/learnerErrors.js';
-import { SCENARIOS, deriveWeakAreas, deriveMastered } from './ConversationScenarios.js';
+import { SCENARIOS, deriveWeakAreas, sceneForCat } from './ConversationScenarios.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 import AIConversationHeader from './AIConversationHeader.jsx';
 import AIConversationWriteSetup from './AIConversationWriteSetup.jsx';
@@ -34,16 +34,28 @@ const WRITE_PROMPTS = [
   { id:"w_news",      level:"C2", icon:"📰", title:"News Article",            hr:"Novinarski članak",     prompt:"Write a short news article in Croatian (10+ sentences) about a fictional event in a Croatian city. Use journalistic style." },
 ];
 
-const SCENE_FOR_CAT = {
-  'Errands':     '/images/scenes/zagreb.webp',
-  'Out & About': '/images/scenes/dubrovnik-hero.webp',
-  'Social':      '/images/scenes/croatian-food.webp',
-  'Practical':   '/images/scenes/zagreb.webp',
-  'Heritage':    '/images/scenes/dalmatian-coast.webp',
-  'Work & Travel':'/images/scenes/plitvice.webp',
+// ── Topic mapping: scenario → /api/conversation VALID_TOPICS ─────────────────
+const TOPIC_FOR_SCENARIO_ID = {
+  cafe: 'at_the_cafe', market: 'at_the_market', bakery: 'at_the_market',
+  grocery: 'at_the_market', restaurant: 'food', konoba: 'food',
+  familydinner: 'food', icecream: 'food', directions: 'directions',
+  taxi: 'travel', hotel: 'travel', bus: 'travel', tourist: 'travel',
+  beach: 'travel', vacation: 'travel',
+  neighbor: 'daily_life', party: 'daily_life', birthday: 'daily_life',
+  museum: 'culture', culture: 'culture', heritage: 'culture', wedding: 'culture',
+  hairdresser: 'daily_life', pharmacy: 'daily_life', postoffice: 'daily_life',
+  clothes: 'daily_life', petrol: 'daily_life', simcard: 'work',
+  job: 'work', startup: 'work', bizmeeting: 'work', realestate: 'work',
+  newsinterview: 'culture', philosophy: 'culture',
+  sport: 'sport', weather: 'weather',
 };
-function sceneForCat(cat) {
-  return SCENE_FOR_CAT[cat] || '/images/scenes/dubrovnik-hero.webp';
+const TOPIC_FOR_CAT = {
+  'Errands': 'daily_life', 'Out & About': 'travel', 'Social': 'daily_life',
+  'Practical': 'daily_life', 'Heritage': 'culture', 'Work & Travel': 'work',
+  'Professional': 'work',
+};
+function topicForScenario(s) {
+  return TOPIC_FOR_SCENARIO_ID[s?.id] || TOPIC_FOR_CAT[s?.cat] || 'free';
 }
 
 export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWords }) {
@@ -58,9 +70,12 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   const [phase,      setPhase]      = useState("setup");
   const [scenario,   setScenario]   = useState(/** @type {any} */(null));
   const [level,      setLevel]      = useState(() => {
-    const diffMap = { beginner: 'A1', intermediate: 'B1', advanced: 'B2' };
-    return diffMap[appSt?.diff] || 'B1';
+    // Map user's difficulty setting to CEFR — full range A1–B2
+    const diffMap = { beginner: 'A1', elementary: 'A2', intermediate: 'B1', 'upper-intermediate': 'B2', advanced: 'B2' };
+    const cefr = appSt?.diff && diffMap[appSt.diff] ? diffMap[appSt.diff] : (appSt?.diff || 'B1');
+    return ['A1','A2','B1','B2'].includes(cefr) ? cefr : 'B1';
   });
+  const [turnCount,  setTurnCount]  = useState(0);
   const [messages,   setMessages]   = useState(/** @type {any[]} */([]));
   const [input,      setInput]      = useState("");
   const [loading,    setLoading]    = useState(false);
@@ -84,7 +99,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   const [customSceneImg,     _setCustomSceneImg]     = useState(null);
   const [customSceneLoading, _setCustomSceneLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const speakTimerRef = useRef(/** @type {ReturnType<typeof setTimeout> | null} */(null));
+  const speakGenRef = useRef(0); // generation counter — prevents stale animation clear
+  const pendingVoiceTextRef = useRef(''); // accumulates voice transcript between onresult events
   const [savedWords, setSavedWords] = useState(new Set());
   const translationCacheRef = useRef({});
 
@@ -122,16 +138,82 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     return () => document.removeEventListener("pointerdown", dismiss);
   }, [tooltip]);
 
-  function speakWithAnim(text) {
+  // ── Speaking animation — tied to actual audio end, not a timer estimate ──────
+  async function speakWithAnim(text) {
     if (!text) return;
+    const myGen = ++speakGenRef.current;
     setIsSpeaking(true);
-    if (speakTimerRef.current) clearTimeout(speakTimerRef.current);
-    const dur = Math.min(12000, Math.max(1500, text.length * 80));
-    speakTimerRef.current = setTimeout(() => setIsSpeaking(false), dur);
-    speak(text);
+    try {
+      await speak(text);
+    } finally {
+      // Only clear if we're still the current speaker (no newer speakWithAnim fired)
+      if (isMountedRef.current && speakGenRef.current === myGen) {
+        setIsSpeaking(false);
+      }
+    }
   }
 
-  // ── Core API caller ──────────────────────────────────────────────────────────
+  // ── Streaming conversation caller — uses /api/conversation (Maja persona) ───
+  async function callMaja(msgs, topic, turn) {
+    const learnerErrors = getErrorsForAPI(6);
+    const body = {
+      messages: msgs,
+      level,
+      topic,
+      turnCount: turn,
+      mistakePatterns: learnerErrors.map(e => ({ pattern: e?.pattern || String(e), count: 1 })),
+      learnerErrors,
+      isHeritage: !!(stats?.heritage),
+    };
+    let res;
+    try {
+      res = await apiFetch('/api/conversation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+    } catch (netErr) {
+      if (netErr.name === 'AbortError') throw new Error('Request timed out — please try again.');
+      throw new Error('Network error — check your connection. (' + netErr.message + ')');
+    }
+    if (!res.ok) {
+      let errData;
+      try { errData = await res.json(); } catch { errData = {}; }
+      if (res.status === 401) throw new Error('setup_error:Please sign in to use the AI conversation feature.');
+      if (res.status === 429) {
+        const resetTime = errData.resetAt ? new Date(errData.resetAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'midnight UTC';
+        throw new Error(`You've reached today's AI conversation limit. Your quota resets at ${resetTime}. Come back tomorrow!`);
+      }
+      if (errData.error?.includes('AI_KEY_MISSING') || errData.error?.includes('ANTHROPIC_API_KEY')) {
+        throw new Error('setup_error:The AI service is not yet configured. The ANTHROPIC_API_KEY needs to be set in Cloudflare Pages → Settings → Environment Variables.');
+      }
+      throw new Error(errData.error || `Server error ${res.status}`);
+    }
+    // Read SSE stream — only the final `done` event carries the result
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let result = null;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const raw = line.slice(6).trim();
+        let parsed;
+        try { parsed = JSON.parse(raw); } catch { continue; }
+        if (parsed.error === 'timeout') throw new Error('The AI took too long to respond. Please try again.');
+        if (parsed.type === 'done' && parsed.result) result = parsed.result;
+      }
+    }
+    if (!result || !result.croatian) throw new Error('The AI returned an empty response. Please try again.');
+    return result;
+  }
+
+  // ── Legacy caller — used for non-conversation endpoints (hints, eval, write) ─
   async function callAI(msgs, params, mode = "convo") {
     let res, data;
     try {
@@ -141,12 +223,10 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
         body: JSON.stringify({ messages: msgs, mode, params, learnerErrors: getErrorsForAPI(6) }),
       });
     } catch (netErr) {
-      if (netErr.name === "AbortError") throw new Error("Request timed out — the AI took too long to respond. Please try again.");
+      if (netErr.name === "AbortError") throw new Error("Request timed out — please try again.");
       throw new Error("Network error — check your connection. (" + netErr.message + ")");
     }
-    try {
-      data = await res.json();
-    } catch {
+    try { data = await res.json(); } catch {
       throw new Error("Unexpected server response (status " + res.status + "). Please try again.");
     }
     if (!res.ok || data.error) {
@@ -160,9 +240,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       }
       throw new Error(msg);
     }
-    if (!data.text || !data.text.trim()) {
-      throw new Error("The AI returned an empty response. Please try again.");
-    }
+    if (!data.text || !data.text.trim()) throw new Error("The AI returned an empty response. Please try again.");
     return data.text;
   }
 
@@ -180,6 +258,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     setChatError("");
     setMessages([]);
     setCorrections({});
+    setTurnCount(0);
     setNpcVideoUrl(null);
     setLoading(true);
 
@@ -190,20 +269,24 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       const portraitKey = PORTRAIT_MAP[scenario.id] || 'young-woman';
       apiFetch(`/api/npc-video?portrait=${encodeURIComponent(portraitKey)}`)
         .then(r => r.ok ? r.json() : null)
-        .then(data => { if (data?.ok && data.videoUrl) setNpcVideoUrl(data.videoUrl); })
+        .then(d => { if (d?.ok && d.videoUrl) setNpcVideoUrl(d.videoUrl); })
         .catch(() => {})
         .finally(() => setNpcVideoLoading(false));
     }
+
     const weak_areas = deriveWeakAreas(stats?.ct || []);
-    const topics_mastered = deriveMastered(stats?.ct || []);
     setWeakAreasForSession(weak_areas);
-    const convoParams = { level, aiName: scenario.aiName, aiRole: scenario.aiRole, context: scenario.context, weak_areas, topics_mastered };
+    const topic = topicForScenario(scenario);
+
     try {
-      const opener = await callAI(
+      const result = await callMaja(
         [{ role: "user", content: "Pozdrav! Možemo li početi?" }],
-        convoParams
+        topic,
+        0
       );
-      setMessages([{ role: "assistant", content: opener }]);
+      setTurnCount(1);
+      setMessages([{ role: "assistant", content: result.croatian, gloss: result.english_gloss, scaffolding: result.scaffolding_level, emotion: result.emotion }]);
+      if (!muted) speakWithAnim(result.croatian);
     } catch (e) {
       const msg = e.message || "";
       setChatError(msg.startsWith("setup_error:") ? msg.slice(12) : msg);
@@ -212,28 +295,53 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     setTimeout(() => inputRef.current?.focus(), 200);
   }
 
-  // ── Send a message ───────────────────────────────────────────────────────────
-  async function sendMessage() {
-    if (!input.trim() || loading) return;
+  // ── Core send — accepts explicit text so voice auto-submit bypasses state lag ─
+  async function sendMessageCore(userText) {
+    if (!userText.trim() || loading) return;
     setSendError("");
-    const userText = input.trim();
-    const userMsgIndex = messages.length;
+    const userMsgIndex = messages.length; // index of the user message being added
     const userMsg = { role: "user", content: userText };
-    const next = [...messages, userMsg];
-    setMessages(next);
+    // Build context: exclude hint messages (they're UI-only, not conversation turns)
+    const contextMsgs = messages.filter(m => m.role !== "hint").map(m => ({ role: m.role, content: m.content }));
+    const next = [...contextMsgs, userMsg];
+    setMessages(prev => [...prev.filter(m => m.role !== "hint"), userMsg]);
     setInput("");
     setLoading(true);
+
+    const topic = topicForScenario(scenario);
     try {
-      const weak_areas = deriveWeakAreas(stats?.ct || []);
-      const topics_mastered = deriveMastered(stats?.ct || []);
-      const reply = await callAI(next, { level, aiName: scenario.aiName, aiRole: scenario.aiRole, context: scenario.context, weak_areas, topics_mastered }, "adaptive_convo");
-      setMessages(prev => [...prev, { role: "assistant", content: reply }]);
-      if (!muted) speakWithAnim(reply);
-      const looksEnglish = userText.length < 4 || (
-        !/[čćšžđČĆŠŽĐ]/.test(userText) &&
-        /\b(the|is|are|was|were|have|has|can|will|my|your|i|we|you)\b/i.test(userText)
-      );
-      if (!looksEnglish) checkCorrection(userText, userMsgIndex);
+      // callMaja uses the streaming /api/conversation endpoint — full Maja persona,
+      // CEFR-calibrated rules, scaffolding, correction, session arc. All in one call.
+      const result = await callMaja(next, topic, turnCount);
+      setTurnCount(prev => prev + 1);
+
+      const assistantMsg = {
+        role: "assistant",
+        content: result.croatian,
+        gloss: result.english_gloss,
+        scaffolding: result.scaffolding_level,
+        emotion: result.emotion,
+      };
+      setMessages(prev => [...prev, assistantMsg]);
+
+      // Corrections come embedded in the streaming response — no separate API call needed
+      if (result.correction?.corrected && isMountedRef.current) {
+        setCorrections(prev => ({ ...prev, [userMsgIndex]: result.correction }));
+        if (result.correction.corrected !== userText) {
+          logError(
+            result.errorPatterns?.[0] || 'conversation_grammar',
+            'grammar',
+            { wrong: userText, correct: result.correction.corrected, source: 'conversation' }
+          );
+        }
+      }
+
+      if (!muted) speakWithAnim(result.croatian);
+
+      // Session naturally ended — auto-trigger evaluation after Maja's closing message
+      if (result.is_session_end) {
+        setTimeout(endAndEvaluate, 3000);
+      }
     } catch (e) {
       setInput(userText);
       setSendError(e.message || "Send failed — please try again.");
@@ -241,27 +349,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     setLoading(false);
   }
 
-  async function checkCorrection(userText, msgIndex) {
-    try {
-      const raw = await callAI(
-        [{ role: "user", content: userText }],
-        {},
-        "correct"
-      );
-      const result = parseJSON(raw);
-      if (result && result.corrected && isMountedRef.current) {
-        setCorrections(prev => ({ ...prev, [msgIndex]: result }));
-        if (result.corrected !== userText) {
-          logError(
-            result.errorPatterns?.[0] || 'conversation_grammar',
-            'grammar',
-            { wrong: userText, correct: result.corrected, source: 'conversation' }
-          );
-        }
-      }
-    } catch {
-      // non-critical
-    }
+  function sendMessage() {
+    sendMessageCore(input.trim());
   }
 
   async function translateWord(word) {
@@ -272,7 +361,10 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       setTooltip({ word: clean, loading: false, ...cached, saved: savedWords.has(clean) });
       return;
     }
-    if (Object.keys(translationCacheRef.current).length >= 150) translationCacheRef.current = {};
+    // Evict oldest 50 entries when cache is full (LRU-style) rather than wiping all 150
+    if (Object.keys(translationCacheRef.current).length >= 150) {
+      Object.keys(translationCacheRef.current).slice(0, 50).forEach(k => delete translationCacheRef.current[k]);
+    }
     setTooltip({ word: clean, loading: true, translation: null, note: null, saved: savedWords.has(clean) });
     try {
       const raw = await callAI([{ role: "user", content: clean }], {}, "translate");
@@ -310,21 +402,43 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     if (!SR) { alert("Voice input is not supported in this browser. Try Chrome on Android or desktop."); return; }
     if (listening) {
       recognitionRef.current?.stop();
-      setListening(false);
+      // onend will handle auto-submit
       return;
     }
+    pendingVoiceTextRef.current = '';
     const r = new SR();
     r.lang = "hr-HR";
-    r.continuous = false;
-    r.interimResults = false;
+    r.continuous = true;      // keep listening until user taps stop
+    r.interimResults = true;  // show live transcript in input box
     r.onstart = () => setListening(true);
     r.onresult = e => {
-      const transcript = e.results?.[0]?.[0]?.transcript;
-      if (!transcript) return;
-      setInput(prev => (prev ? prev + " " + transcript : transcript));
+      let finalChunk = '';
+      let interimChunk = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) finalChunk += t;
+        else interimChunk += t;
+      }
+      if (finalChunk) {
+        pendingVoiceTextRef.current = (pendingVoiceTextRef.current + ' ' + finalChunk).trim();
+        setInput(pendingVoiceTextRef.current);
+      } else if (interimChunk) {
+        // Show interim transcription so user sees live feedback
+        setInput((pendingVoiceTextRef.current + ' ' + interimChunk).trim());
+      }
     };
-    r.onerror = () => setListening(false);
-    r.onend   = () => setListening(false);
+    r.onerror = () => { setListening(false); };
+    r.onend = () => {
+      setListening(false);
+      const text = pendingVoiceTextRef.current.trim();
+      pendingVoiceTextRef.current = '';
+      // Auto-submit if speech produced text — eliminates the extra tap
+      // sendMessageCore has its own loading guard so this is safe to call unconditionally
+      if (text) {
+        setInput('');
+        sendMessageCore(text);
+      }
+    };
     r.start();
     recognitionRef.current = r;
   }
@@ -348,13 +462,18 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   async function retryOpener() {
     setChatError("");
     setMessages([]);
+    setTurnCount(0);
     setLoading(true);
+    const topic = topicForScenario(scenario);
     try {
-      const opener = await callAI(
+      const result = await callMaja(
         [{ role: "user", content: "Pozdrav! Možemo li početi?" }],
-        { level, aiName: scenario.aiName, aiRole: scenario.aiRole, context: scenario.context }
+        topic,
+        0
       );
-      setMessages([{ role: "assistant", content: opener }]);
+      setTurnCount(1);
+      setMessages([{ role: "assistant", content: result.croatian, gloss: result.english_gloss, scaffolding: result.scaffolding_level, emotion: result.emotion }]);
+      if (!muted) speakWithAnim(result.croatian);
     } catch (e) {
       const msg = e.message || "";
       setChatError(msg.startsWith("setup_error:") ? msg.slice(12) : msg);
@@ -439,7 +558,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   function resetConvo() {
     setPhase("setup"); setMessages([]); setEvaluation(null);
     setEvalError(""); setScenario(null); setChatError(""); setSendError("");
-    setCorrections({}); setTooltip(null); setConvoVocab([]);
+    setCorrections({}); setTooltip(null); setConvoVocab([]); setTurnCount(0);
   }
 
   function resetWrite() {
