@@ -392,6 +392,7 @@ export default function LiveTutorScreen({ goBack, award }) {
       audioEl.play().catch(() => {}); // Start early — browser buffers while we feed chunks
 
       const sourceBuffer = mediaSource.addSourceBuffer('audio/mpeg');
+      if (!res.body) throw new Error('TTS response has no body');
       const reader = res.body.getReader();
 
       const appendChunk = (chunk) => new Promise((resolve, reject) => {
@@ -407,10 +408,14 @@ export default function LiveTutorScreen({ goBack, award }) {
         }
       });
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        await appendChunk(value);
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          await appendChunk(value);
+        }
+      } finally {
+        try { reader.cancel(); } catch { /* ignore */ }
       }
 
       // Only wait for updateend if a buffer operation is still in progress —
