@@ -103,7 +103,9 @@ export default function DailyPlanCard(/** @type {any} */ { level: _level, goal: 
   const { setScr, sCurEx } = useContext(AppContext);
   const [phase, setPhase] = useState('idle');
   const [plan, setPlan]   = useState(null);
-  const [streak, setStreak] = useState(0);
+  // Derive streak from the prop passed by HomeTab (which uses useMemo(() => getStreak(), [st]))
+  // so it stays in sync when updateStreak() fires after award(). Local state was stale.
+  const streak = typeof _streak === 'object' ? (_streak?.count ?? 0) : (_streak ?? 0);
   const [done, setDone]   = useState(() => getTodayDone());
 
   const collectPayload = useCallback(() => {
@@ -187,8 +189,6 @@ export default function DailyPlanCard(/** @type {any} */ { level: _level, goal: 
   }, []);
 
   useEffect(() => {
-    const streakObj = getStreak();
-    setStreak(typeof streakObj === 'object' ? (streakObj.count ?? 0) : (streakObj ?? 0));
     const cached = loadCachedPlan();
     if (cached) { setPlan(cached); setPhase('ready'); }
     else { fetchPlan(); }
