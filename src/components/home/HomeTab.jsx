@@ -196,13 +196,17 @@ export default function HomeTab({
     }
     return result;
   }
-  const [campaignQuestsDone, setCampaignQuestsDone] = useState(() => _readCampaignQuestsDone(activeCampaign));
+  // campaignQuestsDone is derived directly from localStorage on every render.
+  // This eliminates every race condition: no stale React state, no dependency on
+  // when Firebase restoration finishes or when event listeners are attached.
+  // Any render — from any cause — always reads the current localStorage value.
+  const campaignQuestsDone = _readCampaignQuestsDone(activeCampaign);
 
-  // Re-sync from localStorage when the user navigates back (window focus / visibility change)
-  // OR when any component signals a campaign quest was completed via a custom event.
-  // The custom event covers same-tab navigation where focus/visibilitychange never fire.
+  // _forceQuestRender exists solely to trigger a re-render when quest state changes.
+  // The actual data is read above from localStorage — not from this state.
+  const [, _forceQuestRender] = useState(0);
   useEffect(() => {
-    const resync = () => setCampaignQuestsDone(_readCampaignQuestsDone(activeCampaign));
+    const resync = () => _forceQuestRender(t => t + 1);
     window.addEventListener('focus', resync);
     document.addEventListener('visibilitychange', resync);
     window.addEventListener('nh-campaign-quest-done', resync);
@@ -211,12 +215,12 @@ export default function HomeTab({
       document.removeEventListener('visibilitychange', resync);
       window.removeEventListener('nh-campaign-quest-done', resync);
     };
-  }, [activeCampaign]);
+  }, []);
 
   function markCampaignQuestDone(questId) {
     if (!activeCampaign) return;
     try { localStorage.setItem(`nh_cq_${activeCampaign.id}_${questId}`, '1'); } catch (_) {}
-    setCampaignQuestsDone(prev => ({ ...prev, [questId]: true }));
+    _forceQuestRender(t => t + 1);
   }
 
   const longAbsence = useMemo(() => {
