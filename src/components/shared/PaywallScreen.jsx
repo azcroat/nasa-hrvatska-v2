@@ -74,11 +74,13 @@ export default function PaywallScreen({ onClose, featureName = 'AI Tutor', onSub
     }
   }
 
-  // Simulates checkout — in production, replace with RevenueCat or Stripe
+  // Activates subscription locally. FREE_ANNUAL_ENABLED=true means all signed-in
+  // users already receive 365 days free via grantFreeAnnual() on login — this path
+  // is reached only by users who explicitly hit the paywall (e.g. signed-out or
+  // expired). Wire purchaseProduct() from useSubscription.js when monetisation
+  // is enabled (set FREE_ANNUAL_ENABLED=false and add RevenueCat/Stripe keys).
   async function handleSubscribe() {
     setLoading(true);
-    // TODO: Replace with RevenueCat purchaseProduct() or Stripe Checkout
-    // For now, activate locally so the UI is wired and testable
     setTimeout(() => {
       activateSubscription(selectedPlan, 'stripe');
       trackSubscribed(selectedPlan);
