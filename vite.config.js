@@ -51,7 +51,7 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
-        cacheId: 'nasa-hrvatska-v15',
+        cacheId: 'nasa-hrvatska-v16',
         // No navigateFallback — Workbox's NavigationRoute + navigateFallback intercepts ALL
         // navigation requests and serves the cached fallback immediately, even when online.
         // The NetworkFirst handler below already manages navigation with a 10s timeout and
