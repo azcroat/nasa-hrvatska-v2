@@ -25,6 +25,7 @@ export function portraitSrc(scenarioId) {
 // Falls back to static portrait otherwise.
 export default function SpeakingAvatar({ src, name, size = 38, isSpeaking = false, videoUrl = null, style: extraStyle = undefined }) {
   const [imgErr, setImgErr] = React.useState(false);
+  const [videoErr, setVideoErr] = React.useState(false);
   const [videoEnded, setVideoEnded] = React.useState(false);
   const videoRef = React.useRef(null);
 
@@ -37,7 +38,7 @@ export default function SpeakingAvatar({ src, name, size = 38, isSpeaking = fals
     }
   }, [isSpeaking, videoUrl, videoEnded]);
 
-  const showVideo = videoUrl && isSpeaking && !videoEnded;
+  const showVideo = videoUrl && isSpeaking && !videoEnded && !videoErr;
   const ring = isSpeaking
     ? `0 0 0 2.5px #0e7490, 0 0 0 5px rgba(14,116,144,.25), 0 0 16px rgba(14,116,144,.35)`
     : `0 0 0 2px rgba(14,116,144,.25)`;
@@ -59,6 +60,7 @@ export default function SpeakingAvatar({ src, name, size = 38, isSpeaking = fals
           muted={false}
           playsInline
           onEnded={() => setVideoEnded(true)}
+          onError={() => setVideoErr(true)}
           style={{
             position: 'absolute',
             width: '100%', height: '100%',
