@@ -24,7 +24,7 @@ import * as _cultural from './cultural.js';
 import * as _exercises from './exercises.js';
 import * as _scenarios from './scenarios.js';
 // ═══ RE-EXPORTS FROM DOMAIN MODULES ═══
-const { V, TOP100, BOJE, ALPHA, ZNAM, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, TECH_VOC, BUREAUCRATIC } = _vocab;
+const { V, TOP100, BOJE, ALPHA, ZNAM, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, TECH_VOC, BUREAUCRATIC, V_B2 } = _vocab;
 const { PADEZI, PADEZI_FULL, GRAM, CONJ, MODAL, TENSES, ASPECT, ASPECT_PAIRS, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, PHONOLOGY, PITCH_ACCENT } = _grammar;
 const { HISTORY, EVENTS, PROVERBS, KINGS, HIST_FACTS, REGIONS, MAPPLACES, MEDIA, POPCULTURE, DIALECTS, SHADOWING, CROATIAN_CITIES } = _cultural;
 const { PLACE, READ, UNJUMBLE, IDIOMS, PREPS, LISTEN, NUMTIME, NUMCOUNT, FALSEFR, VOCATIVE, PREPDRILL, DECL, BRZALICE, DIMWORDS, WORDFORM, COLORQUIRK, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, POSSESS, ADJOPPOSITES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP } = _exercises;
@@ -40,12 +40,12 @@ Object.keys(TOP100).forEach(function(k){V[k]=TOP100[k];});
 // ─── LEARN_PATH vocabulary aliases ────────────────────────────────────────────
 // Several LEARN_PATH lesson topics use short keys that don't match TOP100 keys.
 // Map them to the closest existing vocabulary set so launchPathItem never crashes.
-V["journalism"]  = V["media & journalism"]  || [];   // lp68
-V["philosophy"]  = V["philosophy & ethics"] || [];   // lp67
-V["politics"]    = V["civic"]               || [];   // lp58 — civic = government/law/politics
-V["law"]         = V["civic"]               || [];   // lp69 — civic includes legal terms
-V["arts"]        = V["culture"]             || [];   // lp59 — culture = klapa/tamburica/dance/art
-V["literature"]  = V["academic language"]   || [];   // lp64 — academic language = scholarly/literary
+V["journalism"]  = (V_B2 && V_B2["media & journalism"])  || [];  // lp68
+V["philosophy"]  = (V_B2 && V_B2["philosophy & ethics"]) || [];  // lp67
+V["literature"]  = (V_B2 && V_B2["academic language"])   || [];  // lp64
+V["politics"]    = V["civic"]  || [];   // lp58 — civic = government/law/politics
+V["law"]         = V["civic"]  || [];   // lp69 — civic includes legal/government terms
+V["arts"]        = V["culture"] || [];  // lp59 — culture = klapa/tamburica/dance/art
 // ── end LEARN_PATH aliases ────────────────────────────────────────────────────
 // ═══ CROATIAN HISTORY — DOMOVINSKI RAT ═══
 // ═══ CROATIAN EVENTS CALENDAR ═══
