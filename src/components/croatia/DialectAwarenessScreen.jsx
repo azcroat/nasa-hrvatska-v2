@@ -121,6 +121,51 @@ const QUIZ = [
     options: ['Štokavian', 'Čakavian', 'Kajkavian', 'None'],
     ans: 1,
   },
+  {
+    q: 'In Čakavian, "mliko" means what in standard Croatian?',
+    options: ['meso (meat)', 'mlijeko (milk)', 'mlado (young)', 'malo (little)'],
+    ans: 1,
+  },
+  {
+    q: 'The first Croatian literary works were written in which dialect?',
+    options: ['Štokavian', 'Kajkavian', 'Čakavian', 'Latin script Štokavian'],
+    ans: 2,
+  },
+  {
+    q: 'In Kajkavian, how do you say "house" (standard: kuća)?',
+    options: ['kuća', 'hiža', 'ča', 'dom'],
+    ans: 1,
+  },
+  {
+    q: '"Gren doma" is Čakavian for which standard phrase?',
+    options: ['I am going to school', 'I am going home', 'I am going to the shop', 'Where are you going?'],
+    ans: 1,
+  },
+  {
+    q: 'Which famous Croatian was from the Kajkavian-speaking Zagorje region?',
+    options: ['Ruđer Bošković', 'Marko Marulić', 'Josip Broz Tito', 'Ivan Meštrović'],
+    ans: 2,
+  },
+  {
+    q: 'Approximately what percentage of Croatian speakers use Štokavian?',
+    options: ['~50%', '~70%', '~85%', '~95%'],
+    ans: 2,
+  },
+  {
+    q: 'Which islands are famous for Čakavian speech?',
+    options: ['Krk and Rab', 'Hvar, Brač, and Vis', 'Dugi Otok and Molat', 'Pag and Vir'],
+    ans: 1,
+  },
+  {
+    q: '"Kaj delaš?" in Kajkavian is equivalent to which standard Croatian phrase?',
+    options: ['Gdje ideš?', 'Što radiš?', 'Kako si?', 'Tko si ti?'],
+    ans: 1,
+  },
+  {
+    q: 'Kajkavian has many loanwords from which languages due to Central European influence?',
+    options: ['Italian and Spanish', 'Turkish and Arabic', 'German and Hungarian', 'French and English'],
+    ans: 2,
+  },
 ];
 
 const LS_KEY = 'nh_dialect_quiz_done';

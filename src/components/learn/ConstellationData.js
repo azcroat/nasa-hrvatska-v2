@@ -95,11 +95,19 @@ export const QUIZ = [
   { q: 'Zdravo, ___! (Hello, [friend name]!) — Which case?', answer: 'vokativ', options: ['vokativ', 'nominativ', 'dativ', 'lokativ'] },
   { q: 'U ___. (In the city) — Which case?', answer: 'lokativ', options: ['lokativ', 'akuzativ', 'dativ', 'instrumental'] },
   { q: 'Pišem ___. (I write with a pencil) — Which case?', answer: 'instrumental', options: ['instrumental', 'lokativ', 'genitiv', 'nominativ'] },
+  { q: 'Nema ___. (There is no water) — Which case is "water" in?', answer: 'genitiv', options: ['genitiv', 'nominativ', 'akuzativ', 'dativ'] },
+  { q: 'Idem s ___. (I go with a friend) — Which case?', answer: 'instrumental', options: ['instrumental', 'akuzativ', 'lokativ', 'dativ'] },
+  { q: 'Govorim o ___. (I speak about Croatia) — Which case?', answer: 'lokativ', options: ['lokativ', 'genitiv', 'akuzativ', 'dativ'] },
+  { q: 'Mama! (Calling out to Mum) — Which case?', answer: 'vokativ', options: ['vokativ', 'nominativ', 'akuzativ', 'dativ'] },
+  { q: 'Čitam ___. (I read a book) — Which case is "book" in?', answer: 'akuzativ', options: ['akuzativ', 'nominativ', 'genitiv', 'lokativ'] },
+  { q: 'Dolazim iz ___. (I come from Zagreb) — Which case?', answer: 'genitiv', options: ['genitiv', 'lokativ', 'dativ', 'instrumental'] },
+  { q: 'Pišem pismo ___. (I write a letter to my sister) — Which case is "sister" in?', answer: 'dativ', options: ['dativ', 'akuzativ', 'genitiv', 'instrumental'] },
+  { q: 'Ana radi. (Ana works) — Which case is "Ana" in?', answer: 'nominativ', options: ['nominativ', 'akuzativ', 'vokativ', 'dativ'] },
 ];
 
 export function getDoneMessage(score) {
-  if (score === 7) return 'Perfect! You know all 7 cases!';
-  if (score >= 5) return 'Great work! Almost there!';
-  if (score >= 3) return 'Good start — keep practising!';
+  if (score === QUIZ.length) return 'Perfect! You know all 7 cases!';
+  if (score >= Math.ceil(QUIZ.length * 0.7)) return 'Great work! Almost there!';
+  if (score >= Math.ceil(QUIZ.length * 0.4)) return 'Good start — keep practising!';
   return 'Keep exploring the cases and try again!';
 }
