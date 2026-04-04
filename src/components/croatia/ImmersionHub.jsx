@@ -80,16 +80,6 @@ export default function ImmersionHub({ goBack, setScr }) {
         <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:26,color:'#164e63',fontWeight:800}}>Immersion Hub</h2>
         <p style={{color:'#78716c',fontSize:14,marginTop:4}}>Your structured path from first words to native fluency</p>
       </div>
-      {/* Song Lyrics CTA */}
-      <button onClick={()=>setScr('lyrics')} style={{width:'100%',marginBottom:20,background:'linear-gradient(135deg,#7c3aed,#4f46e5)',color:'#fff',border:'none',borderRadius:16,padding:'16px 20px',cursor:'pointer',textAlign:'left',display:'flex',alignItems:'center',gap:14}}>
-        <span style={{fontSize:36}}>🎵</span>
-        <div>
-          <div style={{fontSize:15,fontWeight:900}}>Song Lyrics Mode</div>
-          <div style={{fontSize:12,opacity:.85}}>Learn Croatian through songs — fill in the missing words</div>
-        </div>
-        <span style={{marginLeft:'auto',fontSize:20}}>→</span>
-      </button>
-
       {/* Tab bar */}
       <div style={{display:'flex',gap:6,marginBottom:20,background:'rgba(14,116,144,.06)',borderRadius:14,padding:4}}>
         {tabs.map(t => (

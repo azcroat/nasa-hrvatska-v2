@@ -727,14 +727,6 @@ export default function HomeTab({
                   <div style={{ fontSize: 10, color: 'rgba(255,255,255,.7)', textAlign: 'left', lineHeight: 1.4 }}>4 accents, 4 lessons</div>
                 </div>
               </button>
-              {/* Songs & Lyrics */}
-              <button onClick={() => setScr('lyrics')} style={{ border: 'none', cursor: 'pointer', padding: 0, borderRadius: 16, overflow: 'hidden', background: 'linear-gradient(135deg,#831843,#9d174d)', boxShadow: '0 4px 16px rgba(157,23,77,.3)' }}>
-                <div style={{ padding: '14px 12px' }}>
-                  <div style={{ fontSize: 28, marginBottom: 6 }}>🎶</div>
-                  <div style={{ fontSize: 13, fontWeight: 900, color: '#fff', marginBottom: 2, textAlign: 'left' }}>Songs & Lyrics</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,.7)', textAlign: 'left', lineHeight: 1.4 }}>Klapa · Folk · Pop</div>
-                </div>
-              </button>
             </div>
             {/* Heritage Track — full width */}
             <button onClick={() => setScr('heritage_path')} style={{ width: '100%', border: 'none', cursor: 'pointer', padding: 0, borderRadius: 16, overflow: 'hidden', background: 'linear-gradient(135deg,#7c2d12,#9a3412)', boxShadow: '0 4px 16px rgba(124,45,18,.3)', marginTop: 10 }}>

@@ -141,7 +141,6 @@ export default function PracticeTab({
       { icon:'🌊', title:'Immersion Hub',       desc:'Full Croatian immersion',         color:'rgba(14,116,144,.08)', border:'rgba(14,116,144,.25)', fn:()=>{setScr("immersion");sCurEx("immersion");} },
       { icon:'🤖', title:'AI Conversation',     desc:'Chat in Croatian',                color:'rgba(124,58,237,.08)', border:'rgba(124,58,237,.25)', fn:()=>{setScr("aiconvo");sCurEx("aiconvo");} },
       { icon:'🧑‍🤝‍🧑', title:'Conversation Partners', desc:'Maja, Marko, Ana, Baka',         color:'rgba(245,158,11,.08)', border:'rgba(245,158,11,.25)', fn:()=>{setScr("personas");sCurEx("personas");} },
-      { icon:'🎵', title:'Song Lyrics',         desc:'Learn through music',             color:'rgba(234,88,12,.08)', border:'rgba(234,88,12,.25)', fn:()=>{setScr("lyrics");sCurEx("lyrics");} },
     ],
     fluent: [
       { icon:'🎓', title:'CEFR Test',           desc:'Check your level A1→B2',          color:'rgba(14,116,144,.08)', border:'rgba(14,116,144,.25)', fn:()=>{setScr("cefrtest");sCurEx("cefrtest");} },

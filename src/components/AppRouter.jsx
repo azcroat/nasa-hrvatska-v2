@@ -66,7 +66,6 @@ const HomeTab = lazyWithReload(() => import("./home/HomeTab.jsx"));
 const LearnTab = lazyWithReload(() => import("./learn/LearnTab.jsx"));
 const CroatiaTab = lazyWithReload(() => import("./croatia/CroatiaTab.jsx"));
 const ImmersionHub = lazyWithReload(() => import("./croatia/ImmersionHub.jsx"));
-const LyricsScreen = lazyWithReload(() => import("./croatia/LyricsScreen.jsx"));
 const AIConversation = lazyWithReload(() => import("./croatia/AIConversation.jsx"));
 const MajaScreen = lazyWithReload(() => import("./croatia/MajaScreen.jsx"));
 const PersonaScreen = lazyWithReload(() => import("./croatia/PersonaScreen.jsx"));
@@ -466,7 +465,6 @@ export default function AppRouter(props) {
       {currentScreen==="football"&&<ScreenErrorBoundary key="football" name="football"><HNLScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="croatiaathletes"&&<ScreenErrorBoundary key="croatiaathletes" name="croatiaathletes"><CroatiaAthletes goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="immersion"&&<ScreenErrorBoundary key="immersion" name="immersion"><ImmersionHub goBack={goBack} setScr={setScr} /></ScreenErrorBoundary>}
-      {currentScreen==="lyrics"&&<ScreenErrorBoundary key="lyrics" name="lyrics"><LyricsScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="aiconvo"&&<ScreenErrorBoundary key="aiconvo" name="aiconvo"><AIConversation goBack={goBack} setScr={setScr} sCurEx={sCurEx} setJWords={setJWords} /></ScreenErrorBoundary>}
       {currentScreen==="popculture"&&<ScreenErrorBoundary key="popculture" name="popculture"><PopCultureScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="basketball"&&<ScreenErrorBoundary key="basketball" name="basketball"><BasketballScreen goBack={goBack} /></ScreenErrorBoundary>}
