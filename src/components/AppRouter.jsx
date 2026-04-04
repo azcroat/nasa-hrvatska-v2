@@ -492,7 +492,7 @@ export default function AppRouter(props) {
       {// ═══ ANIMATED LESSON ═══
       currentScreen==="animlesson"&&animLesson&&<ScreenErrorBoundary key="animlesson" name="animlesson"><AnimatedLesson lesson={animLesson} goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="grammarreader"&&<ScreenErrorBoundary key="grammarreader" name="grammarreader"><GrammarReader goBack={goBack} /></ScreenErrorBoundary>}
-      {currentScreen==="falsefr"&&<ScreenErrorBoundary key="falsefr" name="falsefr"><FalseFriendsScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="falsefr"&&<ScreenErrorBoundary key="falsefr" name="falsefr"><FalseFriendsScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="prepdrill"&&<ScreenErrorBoundary key="prepdrill" name="prepdrill"><PrepDrill goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="declension"&&<ScreenErrorBoundary key="declension" name="declension"><DeclensionScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="brzalice"&&<ScreenErrorBoundary key="brzalice" name="brzalice"><BrzaliceScreen goBack={goBack} /></ScreenErrorBoundary>}

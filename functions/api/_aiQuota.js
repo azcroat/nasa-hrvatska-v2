@@ -8,10 +8,10 @@
  */
 
 // ── Plan limits ───────────────────────────────────────────────────────────────
-const FREE_ANNUAL_TURNS_PER_DAY = 50
+const FREE_ANNUAL_TURNS_PER_DAY = 100
 // eslint-disable-next-line no-unused-vars
-const _PAID_TURNS_PER_DAY        = 200 // reserved for future paid tier
-const ANON_IP_TURNS_PER_DAY     = 10
+const _PAID_TURNS_PER_DAY        = 300 // reserved for future paid tier
+const ANON_IP_TURNS_PER_DAY     = 15
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -49,17 +49,13 @@ function limitForUid(/* uid, source */) {
 export async function checkAIQuota(request, env, uid, cost = 1) {
   const kv      = env.PUSH_SUBSCRIPTIONS
   const resetAt = nextMidnightUTC()
-  const isProd  = env.ENVIRONMENT === 'production'
 
-  // KV unavailable: fail-closed in production (prevent unmetered AI spend),
-  // fail-open in development (allow local testing without KV binding).
+  // KV unavailable: fail-open in all environments — KV unavailability must never
+  // block all users from accessing AI features. Worst case is unmetered spend for
+  // a short window; blocking all users is a worse outcome.
   if (!kv) {
-    if (isProd) {
-      console.error('[AIQuota] PUSH_SUBSCRIPTIONS KV unavailable in production — denying request to prevent unmetered AI spend')
-      return { allowed: false, remaining: 0, resetAt }
-    }
-    console.warn('[AIQuota] PUSH_SUBSCRIPTIONS KV unavailable — allowing request in non-production environment')
-    return { allowed: true, remaining: 50, resetAt }
+    console.error('[AIQuota] PUSH_SUBSCRIPTIONS KV unavailable — allowing request (fail-open)')
+    return { allowed: true, remaining: FREE_ANNUAL_TURNS_PER_DAY, resetAt }
   }
 
   // Per-second burst check: max 3 requests per second per uid/IP
