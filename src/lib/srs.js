@@ -183,7 +183,12 @@ export function addWordToSRS(word) {
     if (sr[w]) return; // already tracked — don't disturb existing progress
     const s = _initS(3); // grade 3 = "good" first exposure
     const d = _initD(3);
-    const due = Date.now() + 86400000; // schedule review in 1 day
+    // Use FSRS-computed interval, not a hardcoded 1 day.
+    // _initS(3) = W[2] = 3.1262, so _nextInterval(3.1262) ≈ 3 days.
+    // Hardcoding 1 day was creating excessive review load and surfacing words
+    // sooner than FSRS predicts — incorrectly treating passive exposure as a full review.
+    const intv = _nextInterval(s);
+    const due = Date.now() + intv * 86400000;
     sr[w] = { s, d, r: 0, w: 0, l: 0, b: 1, due, nextDue: due };
     saveSR(sr);
   } catch (_) {}
@@ -252,7 +257,13 @@ export function getSRScore(word, correct, timeMs) {
     // ── Existing card — run through FSRS ────────────────────────────────────
     _migrate(card); // ensure no stale SM-2 fields
 
-    const lastScheduledMs = card.due - (card.interval || card.s || 1) * 86400000;
+    // Reconstruct the timestamp at which this card was last scheduled.
+    // card.due was set as: lastScheduleTime + _nextInterval(S_at_that_time) * 86400000.
+    // card.s is the stability AFTER the last review, which equals _nextInterval(s) when DR=0.9
+    // (since interval = S exactly at the desired retention level). Using _nextInterval(card.s)
+    // is more precise than card.s directly because it applies the same rounding that was
+    // used when computing card.due, reducing elapsed-days error from up to 0.5 days to 0.
+    const lastScheduledMs = card.due - _nextInterval(card.s || 1) * 86400000;
     const elapsedDays = Math.max(0, (now - lastScheduledMs) / 86400000);
     const R = _R(elapsedDays, card.s || 1);
     const D = card.d || 5;

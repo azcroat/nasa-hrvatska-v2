@@ -121,12 +121,15 @@ service cloud.firestore {
       allow update: if isOwner(userId)
         && request.resource.data.keys().hasAll(['name', 'xp', 'lc', 'streak', 'level', 'lastActive'])
         && request.resource.data.xp >= 0
+        && request.resource.data.xp <= 100000
         && request.resource.data.lc >= 0
+        && request.resource.data.lc <= 10000
         // level is always a number 1-6 (A1→1 … C2→6) after the CEFR mapping in fbSaveProgress.
-        // Accept int >= 1 OR string (belt-and-suspenders for legacy writes).
+        // Accept int in range 1-6, OR one of the canonical CEFR strings for legacy writes.
+        // Rejecting arbitrary strings closes a low-value injection vector.
         && (request.resource.data.level is int
-            ? request.resource.data.level >= 1
-            : request.resource.data.level is string);
+            ? (request.resource.data.level >= 1 && request.resource.data.level <= 6)
+            : request.resource.data.level in ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']);
       allow delete: if false;
     }
 

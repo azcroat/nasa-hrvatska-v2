@@ -189,16 +189,28 @@ function prepTTS(text) {
   return t;
 }
 
+// AbortController for in-flight preload fetches. Replaced on every new preload call.
+// Cancelling the previous preload when a new one starts prevents multiple simultaneous
+// best-effort fetches from accumulating and competing with active playback bandwidth.
+let _preloadAbort = null;
+
 // Fetch and cache TTS audio without playing it — eliminates first-tap delay
 // for words shown on screen before the user taps the speaker button.
 export async function preloadAudio(text) {
   if (!text) return;
+  // Never preload while a TTS fetch is already in flight for playback — playback
+  // has priority over preloading and must not share bandwidth with it.
+  if (_ttsAbort) return;
   const t = prepTTS(text);
   if (!t) return;
   const voicePref = getVoicePreference();
   const cacheKey = t + '|0|' + voicePref;
   if (_cacheGet(cacheKey)) return; // already cached
   if (!_ttsAllowed()) return; // client-side rate guard — preload is best-effort, skip if near limit
+  // Cancel any previously in-flight preload — only the latest is needed
+  if (_preloadAbort) { try { _preloadAbort.abort(); } catch {} }
+  _preloadAbort = new AbortController();
+  const signal = _preloadAbort.signal;
   try {
     const body = { text: t, slow: false };
     if (voicePref !== 'auto') body.voice = voicePref;
@@ -206,12 +218,15 @@ export async function preloadAudio(text) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
+      signal,
     });
     if (!r.ok) return;
     const blob = await r.blob();
     const url = URL.createObjectURL(blob);
     _cacheSet(cacheKey, url);
-  } catch { /* silently ignore — preload is best-effort */ }
+  } catch (e) {
+    if (e?.name !== 'AbortError') { /* silently ignore — preload is best-effort */ }
+  }
 }
 
 export async function speak(text) {

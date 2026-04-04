@@ -168,13 +168,10 @@ export function scheduleLocalReminder(streakDays = 0) {
   const lastHour = lastHourRaw !== null ? parseInt(lastHourRaw, 10) : NaN;
 
   if (!isNaN(lastHour) && lastHour >= 6 && lastHour <= 22) {
-    const _reminderHour = lastHour;
-    const _reminderMinute = 30; // 30 min before the hour they usually practice
-    // Actually: schedule reminder 30 minutes BEFORE lastHour
-    const adjustedHour = lastHour === 0 ? 0 : lastHour;
-    // Set to (lastHour - 1) hours and 30 minutes as "30 min before lastHour"
-    const beforeHour = adjustedHour > 0 ? adjustedHour - 1 : 0;
-    const beforeMin  = adjustedHour > 0 ? 30 : 0;
+    // Schedule reminder 30 minutes before the user's usual practice hour.
+    // e.g. practice at 19:00 → reminder fires at 18:30.
+    const beforeHour = lastHour > 0 ? lastHour - 1 : 0;
+    const beforeMin  = lastHour > 0 ? 30 : 0;
     target.setHours(beforeHour, beforeMin, 0, 0);
     // If that time is already past today, schedule for tomorrow at the same time
     if (now >= target) target.setDate(target.getDate() + 1);
