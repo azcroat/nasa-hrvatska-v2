@@ -30,27 +30,22 @@ export default function ProfileTab({ syncReady, onSyncNow, onOpenLeaderboard, on
       <ProfileHeader />
 
       {/* ── SUB-TAB PILL SELECTOR ── */}
-      <div style={{
-        display:'flex', gap:4,
-        background:'var(--bar-bg)', borderRadius:16, padding:'4px',
-        marginBottom:16,
-      }}>
+      <div className="seg-bar">
         {[
           { id:'stats',    label:'📊 Stats' },
           { id:'insights', label:'💡 Insights' },
           { id:'settings', label:'⚙️ Settings' },
         ].map(t => (
-          <button key={t.id} onClick={() => setPTab(t.id)} style={{
-            flex:1, padding:'10px 8px', borderRadius:12, border:'none',
-            background: ptab === t.id ? 'var(--card)' : 'transparent',
-            color: ptab === t.id ? 'var(--info)' : 'var(--subtext)',
-            fontWeight: ptab === t.id ? 800 : 600,
-            fontSize:13, cursor:'pointer',
-            transition:'all .2s cubic-bezier(.34,1.56,.64,1)',
-            boxShadow: ptab === t.id ? '0 2px 8px rgba(0,0,0,.1)' : 'none',
-            fontFamily:"'Outfit',sans-serif",
-            letterSpacing: ptab === t.id ? '.01em' : 0,
-          }}>{t.label}</button>
+          <button key={t.id} onClick={() => setPTab(t.id)}
+            className="seg-pill"
+            style={{
+              background: ptab === t.id ? 'var(--card)' : 'transparent',
+              color: ptab === t.id ? 'var(--info)' : 'var(--subtext)',
+              fontWeight: ptab === t.id ? 800 : 600,
+              boxShadow: ptab === t.id ? '0 2px 8px rgba(0,0,0,.1)' : 'none',
+              letterSpacing: ptab === t.id ? '.01em' : 0,
+            }}
+          >{t.label}</button>
         ))}
       </div>
 

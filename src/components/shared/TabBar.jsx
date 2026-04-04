@@ -96,14 +96,7 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
       className="nav-bar"
       role="navigation"
       aria-label="Main navigation"
-      style={{
-        position: 'relative',
-        background: 'rgba(255,255,255,0.92)',
-        backdropFilter: 'saturate(180%) blur(32px)',
-        WebkitBackdropFilter: 'saturate(180%) blur(32px)',
-        borderTop: '1px solid rgba(0,0,0,0.07)',
-        boxShadow: '0 -6px 32px rgba(0,0,0,0.08), 0 -1px 0 rgba(255,255,255,0.9) inset',
-      }}
+      style={{ position: 'relative' }}
     >
       {/* Sliding indicator — color follows active tab */}
       <div style={{
