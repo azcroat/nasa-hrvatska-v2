@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════
 import { initializeApp, getApps } from 'firebase/app';
 import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup, sendEmailVerification, deleteUser } from 'firebase/auth';
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, deleteDoc, collection, runTransaction, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, writeBatch, increment } from 'firebase/firestore';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, memoryLocalCache, getFirestore, doc as fsDoc, getDoc, setDoc, updateDoc, deleteField, deleteDoc, collection, runTransaction, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, writeBatch, increment } from 'firebase/firestore';
 import { getAnalytics, logEvent as _fbLogEvent, isSupported as analyticsIsSupported } from 'firebase/analytics';
 
 const FIREBASE_CONFIG = {
@@ -26,10 +26,14 @@ export function initFirebase(){
     // inMemoryPersistence intentionally excluded: it loses auth on page refresh, which would
     // cause logged-in users to appear signed out and lose progress sync on next load.
     _fbAuth=initializeAuth(app,{persistence:[indexedDBLocalPersistence,browserLocalPersistence,browserSessionPersistence]});
-    // persistentLocalCache with persistentMultipleTabManager enables Firestore offline write
-    // buffering AND multi-tab access without the "exclusive access" assertion error (b815).
-    // Without multipleTabManager, opening the app in two tabs throws on the second tab.
-    _fbDb=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})});
+    // Firestore cache init — three-tier fallback so a cache failure never blocks auth or sign-in.
+    // Tier 1: multi-tab persistent (requires BroadcastChannel + IndexedDB — fixes b815 error).
+    // Tier 2: single-tab persistent (IndexedDB only — for browsers without BroadcastChannel).
+    // Tier 3: memory cache (always works — no offline sync, but sign-in still functions).
+    try{_fbDb=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})});}
+    catch(e1){try{_fbDb=initializeFirestore(app,{localCache:persistentLocalCache()});}
+    catch(e2){try{_fbDb=initializeFirestore(app,{localCache:memoryLocalCache()});}
+    catch(e3){_fbDb=getFirestore(app);}}}
     _fbReady=true;
     // Analytics — async, fire-and-forget. Only enabled in production (requires measurementId).
     // analyticsIsSupported() checks for cookies + iframes blocked by ad blockers gracefully.
