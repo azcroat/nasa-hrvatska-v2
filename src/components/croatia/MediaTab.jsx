@@ -39,6 +39,40 @@ function getTodaysPicks(goal) {
   return rotated.slice(0, 3);
 }
 
+// ── Genre vocabulary (Lingopie-style: learn words through media context) ─────
+const GENRE_VOCAB = {
+  tv: [
+    { hr: 'vijesti', en: 'news' }, { hr: 'voditeljica', en: 'presenter (f)' },
+    { hr: 'emisija', en: 'show / programme' }, { hr: 'prilog', en: 'report / segment' },
+    { hr: 'prognoza', en: 'forecast' }, { hr: 'gledati', en: 'to watch' },
+  ],
+  music: [
+    { hr: 'pjesma', en: 'song' }, { hr: 'pjevač', en: 'singer (m)' },
+    { hr: 'glazba', en: 'music' }, { hr: 'stih', en: 'lyric / verse' },
+    { hr: 'klapa', en: 'Dalmatian a cappella group' }, { hr: 'ritam', en: 'rhythm' },
+  ],
+  film: [
+    { hr: 'film', en: 'film / movie' }, { hr: 'glumac', en: 'actor (m)' },
+    { hr: 'redatelj', en: 'director (m)' }, { hr: 'scena', en: 'scene' },
+    { hr: 'titl', en: 'subtitle' }, { hr: 'nagrade', en: 'awards' },
+  ],
+  sport: [
+    { hr: 'utakmica', en: 'match / game' }, { hr: 'gol', en: 'goal' },
+    { hr: 'igrač', en: 'player (m)' }, { hr: 'pobjednik', en: 'winner (m)' },
+    { hr: 'liga', en: 'league' }, { hr: 'navijač', en: 'fan / supporter' },
+  ],
+  podcast: [
+    { hr: 'epizoda', en: 'episode' }, { hr: 'domaćin', en: 'host (m)' },
+    { hr: 'gost', en: 'guest' }, { hr: 'razgovor', en: 'conversation' },
+    { hr: 'tema', en: 'topic / theme' }, { hr: 'slušati', en: 'to listen' },
+  ],
+  culture: [
+    { hr: 'kultura', en: 'culture' }, { hr: 'tradicija', en: 'tradition' },
+    { hr: 'baština', en: 'heritage' }, { hr: 'festival', en: 'festival' },
+    { hr: 'povijest', en: 'history' }, { hr: 'umjetnost', en: 'art' },
+  ],
+};
+
 // ── Category config ───────────────────────────────────────────────────────────
 const CAT_ORDER = ['tv', 'music', 'film', 'sport', 'podcast', 'culture'];
 const CAT_META = {
@@ -376,6 +410,22 @@ export default function MediaTab() {
               {userGoal && <span style={{ fontSize: 9, color: 'var(--subtext)', fontStyle: 'italic' }}>sorted for you</span>}
               <span style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 600, background: 'var(--bar-bg)', borderRadius: 8, padding: '2px 7px' }}>{items.length}</span>
             </div>
+
+            {/* Genre vocabulary strip (Lingopie-style) */}
+            {GENRE_VOCAB[cat] && (
+              <div style={{ display: 'flex', gap: 6, overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', paddingBottom: 8, marginBottom: 2 }}>
+                {GENRE_VOCAB[cat].map(({ hr, en }) => (
+                  <div key={hr} style={{
+                    flexShrink: 0, borderRadius: 20, padding: '4px 11px',
+                    background: `${meta.accent}12`, border: `1px solid ${meta.accent}30`,
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1,
+                  }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: meta.accent, fontStyle: 'italic' }}>{hr}</span>
+                    <span style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 600 }}>{en}</span>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Carousel row */}
             {!isExpanded ? (

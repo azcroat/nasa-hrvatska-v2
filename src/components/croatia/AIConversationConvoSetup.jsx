@@ -6,6 +6,21 @@ const LEVELS = ["A1","A2","B1","B2","C1","C2"];
 const CATS   = ["All","Errands","Out & About","Social","Practical","Culture","Professional"];
 const CAT_ICONS = { All:"🌐", Errands:"🛍️", "Out & About":"🌊", Social:"👨‍👩‍👧", Practical:"🏥", Culture:"🏛️", Professional:"💼" };
 
+const FREE_TALK_SCENARIO = {
+  id: '__freetalk__',
+  cat: 'Social',
+  icon: '💬',
+  title: 'Free Conversation',
+  hr: 'Slobodan razgovor',
+  desc: 'Open-ended — any topic, any direction',
+  levels: ['A1','A2','B1','B2','C1','C2'],
+  color: '#7c3aed',
+  bg: '#faf5ff',
+  aiName: 'Mate',
+  aiRole: 'friendly Croatian companion',
+  context: 'You are Mate, a warm and patient Croatian local. Have a natural open-ended conversation in Croatian with the learner. Start with a genuine greeting and let the topic flow wherever feels natural — daily life, Croatian culture, food, travel, hobbies. Adapt vocabulary and complexity to the learner\'s CEFR level.',
+};
+
 function sceneForCat(cat) {
   const SCENE_FOR_CAT = {
     'Errands':     '/images/scenes/zagreb.webp',
@@ -40,6 +55,39 @@ export default function AIConversationConvoSetup({
   return (
     <div className="scr-wrap">
       {Header}
+
+      {/* ── Free Talk quick-start ── */}
+      <div
+        onClick={() => setScenario(scenario?.id === '__freetalk__' ? null : FREE_TALK_SCENARIO)}
+        style={{
+          borderRadius: 18, padding: '14px 16px', marginBottom: 22, cursor: 'pointer',
+          background: scenario?.id === '__freetalk__'
+            ? 'linear-gradient(135deg,rgba(124,58,237,.18),rgba(109,40,217,.08))'
+            : 'var(--card)',
+          border: `2px solid ${scenario?.id === '__freetalk__' ? '#7c3aed' : 'var(--card-b)'}`,
+          boxShadow: scenario?.id === '__freetalk__' ? '0 6px 24px rgba(124,58,237,.2)' : '0 2px 8px rgba(0,0,0,.06)',
+          display: 'flex', alignItems: 'center', gap: 14, transition: 'all .2s',
+        }}
+      >
+        <div style={{
+          width: 48, height: 48, borderRadius: 14, flexShrink: 0,
+          background: 'linear-gradient(135deg,#7c3aed,#6d28d9)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
+          boxShadow: '0 4px 12px rgba(124,58,237,.35)',
+        }}>💬</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 14, fontWeight: 900, color: scenario?.id === '__freetalk__' ? '#7c3aed' : 'var(--heading)' }}>
+            Free Talk — No Script Needed
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2, fontWeight: 600 }}>
+            Open-ended conversation · Mate adapts to your level
+          </div>
+        </div>
+        {scenario?.id === '__freetalk__'
+          ? <div style={{ fontSize: 18, color: '#7c3aed', fontWeight: 900, flexShrink: 0 }}>✓</div>
+          : <div style={{ fontSize: 18, color: 'var(--subtext)', opacity: 0.4, flexShrink: 0 }}>›</div>
+        }
+      </div>
 
       <div className="sh">Your Level</div>
       <div style={{ display: "flex", gap: 8, marginBottom: 22, flexWrap: "wrap" }}>
@@ -311,6 +359,23 @@ export default function AIConversationConvoSetup({
       </button>
       <div style={{ fontSize: "var(--text-xs)", color: "var(--subtext)", textAlign: "center", marginTop: 10 }}>
         Powered by Claude AI · No conversation data stored
+      </div>
+
+      {/* ── Human tutor referral ── */}
+      <div style={{
+        marginTop: 20, borderRadius: 16, padding: '13px 16px',
+        background: 'var(--bar-bg)', border: '1px solid var(--card-b)',
+        display: 'flex', alignItems: 'center', gap: 12,
+      }}>
+        <div style={{ fontSize: 26, flexShrink: 0 }}>👨‍🏫</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', marginBottom: 2 }}>
+            Want a real Croatian tutor?
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--subtext)', lineHeight: 1.4 }}>
+            Find certified native tutors for live 1-on-1 lessons on Preply or iTalki — great for pronunciation and conversation fluency.
+          </div>
+        </div>
       </div>
     </div>
   );
