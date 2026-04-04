@@ -100,10 +100,26 @@ export async function fbSaveProgress(uid,data){
   const _cachedLvlRaw = _cachedP && _cachedP.level;
   const _cachedLvl = typeof _cachedLvlRaw === 'number' ? _cachedLvlRaw : (_CEFR_NUM[_cachedLvlRaw] || 1);
   const _bestLvl = Math.max(_lvl, _cachedLvl);
+  // Size guard: Firestore validProgressSize() rejects blobs > 200KB (204800 bytes).
+  // Each FSRS card is ~110 bytes; 1800+ cards can exceed the limit and silently block
+  // all sync writes. Prune by sorting cards soonest-due first and dropping the most
+  // distant/stable (already mastered) cards until the blob fits.
+  const _PROGRESS_LIMIT = 180000; // 180KB — safe margin under the 200KB Firestore rule
+  let _progressJson = JSON.stringify(data);
+  if (_progressJson.length > _PROGRESS_LIMIT && data.sr && typeof data.sr === 'object') {
+    const _srEntries = Object.entries(data.sr).sort(([,a],[,b]) => (a.due||0) - (b.due||0));
+    let _kept = _srEntries.length;
+    while (_kept > 50) {
+      _kept = Math.floor(_kept * 0.75);
+      _progressJson = JSON.stringify({ ...data, sr: Object.fromEntries(_srEntries.slice(0, _kept)) });
+      if (_progressJson.length <= _PROGRESS_LIMIT) break;
+    }
+    console.warn('[sync] SRS pruned to', _kept, 'cards to fit 200KB Firestore limit');
+  }
   const lbEntry={name:data.name||"",xp:_bestXP,lc:_bestLC,updated:_nowMs};
   const profileEntry={name:data.name||"",xp:_bestXP,lc:_bestLC,streak:_bestStrk,level:_bestLvl,lastActive:_nowMs};
   const userEntry = {
-    progress:         JSON.stringify(data),
+    progress:         _progressJson,
     updated:          serverTimestamp(),
     xp:               _bestXP,
     level:            _bestLvl,
