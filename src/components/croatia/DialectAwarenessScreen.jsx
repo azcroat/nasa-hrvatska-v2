@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
+import { useStats } from '../../context/StatsContext.tsx';
 import { H } from '../../data.jsx';
 
 // ─── Dialect Data ────────────────────────────────────────────────────────────
@@ -548,6 +549,7 @@ function DetailView({ dialect, onBack }) {
 }
 
 function QuizView({ onBack, award }) {
+  const { stats, setStats, writeDelta } = useStats();
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState([]); // array of booleans
   const [selected, setSelected] = useState(null); // selected option index for current q
@@ -575,6 +577,13 @@ function QuizView({ onBack, award }) {
       if (!alreadyDone) {
         localStorage.setItem(LS_KEY, '1');
         if (typeof award === 'function') award(score * 10);
+        if (!stats.vs?.includes('dialects')) {
+          setStats(prev => {
+            if (prev.vs?.includes('dialects')) return prev;
+            return { ...prev, lc: (prev.lc || 0) + 1, vs: [...(prev.vs || []), 'dialects'] };
+          });
+          if (writeDelta) writeDelta({ lc: 1, vs: ['dialects'] });
+        }
       }
       setDone(true);
     }
