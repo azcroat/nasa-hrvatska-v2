@@ -445,11 +445,27 @@ function App() {
     return () => clearTimeout(t);
   }, [_syncReady, authUser, authScreen, doSyncNow]);  
 
+  // Quest completion — write to Firebase immediately so cross-device sync is not
+  // delayed by the periodic autosave cycle. Without this, a user who closes the
+  // browser within 2s of completing a quest loses that completion on other devices.
+  // Gates on _syncReady: prevents writing before Firebase has delivered its first
+  // snapshot and merged it into localStorage (avoids stale-zero overwrites).
+  useEffect(() => {
+    const onQuestDone = () => {
+      if (!_syncReady || !authUser || authScreen !== 'app') return;
+      // 150ms: localStorage write is synchronous and already done before the event
+      // fires, but a small buffer lets any concurrent React state updates settle.
+      setTimeout(() => doSyncNow(), 150);
+    };
+    window.addEventListener('nh-campaign-quest-done', onQuestDone);
+    return () => window.removeEventListener('nh-campaign-quest-done', onQuestDone);
+  }, [_syncReady, authUser, authScreen, doSyncNow]);
+
   // Sync weekly XP to leaderboard on every XP change (fire-and-forget)
   useEffect(() => {
     if (!authUser || authScreen !== 'app' || stats.xp === 0) return;
     submitWeeklyXP(null, authUser.u, name, stats.xp).catch(() => {});
-  }, [stats.xp, authUser, authScreen, name]);  
+  }, [stats.xp, authUser, authScreen, name]);
 
   // Periodic Firebase sync every 5 minutes — catches XP from mini-games that don't trigger lesson sync
   useEffect(() => {
