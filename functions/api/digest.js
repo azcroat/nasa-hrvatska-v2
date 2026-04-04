@@ -36,8 +36,6 @@ export async function onRequestPost(ctx) {
   const isDev = ctx.env.ENVIRONMENT !== 'production';
   const hdrs = corsHeaders(isAllowedOrigin(origin, isDev) ? origin : 'https://nasahrvatska.com');
 
-  if (ctx.request.method === 'OPTIONS') return new Response(null, { headers: hdrs });
-
   if (!isAllowedOrigin(origin, isDev)) {
     return errJson('Forbidden', 403, hdrs);
   }
