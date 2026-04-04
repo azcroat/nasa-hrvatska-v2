@@ -496,7 +496,7 @@ export async function onRequestPost(context) {
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 600, // Conversation responses are short; cap to control cost
+        max_tokens: 900, // B2/C1 responses need more room for rich JSON with correction + gloss
         stream: true,
         system: systemPrompt,
         messages: anthropicMessages,

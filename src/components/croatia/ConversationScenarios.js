@@ -1,3 +1,17 @@
+// ── Scene backgrounds by scenario category ───────────────────────────────────
+export const SCENE_FOR_CAT = {
+  'Errands':      '/images/scenes/zagreb.webp',
+  'Out & About':  '/images/scenes/dubrovnik-hero.webp',
+  'Social':       '/images/scenes/croatian-food.webp',
+  'Practical':    '/images/scenes/zagreb.webp',
+  'Heritage':     '/images/scenes/dalmatian-coast.webp',
+  'Work & Travel':'/images/scenes/plitvice.webp',
+  'Professional': '/images/scenes/zagreb.webp',
+};
+export function sceneForCat(cat) {
+  return SCENE_FOR_CAT[cat] || '/images/scenes/dubrovnik-hero.webp';
+}
+
 // ── Conversation scenarios ───────────────────────────────────────────────────
 export const SCENARIOS = [
   // ── ERRANDS ────────────────────────────────────────────────────────────────
