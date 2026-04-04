@@ -190,24 +190,30 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       throw new Error(errData.error || `Server error ${res.status}`);
     }
     // Read SSE stream — only the final `done` event carries the result
+    if (!res.body) throw new Error('Server returned no response body. Please try again.');
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
     let result = null;
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || '';
-      for (const line of lines) {
-        if (!line.startsWith('data: ')) continue;
-        const raw = line.slice(6).trim();
-        let parsed;
-        try { parsed = JSON.parse(raw); } catch { continue; }
-        if (parsed.error === 'timeout') throw new Error('The AI took too long to respond. Please try again.');
-        if (parsed.type === 'done' && parsed.result) result = parsed.result;
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const raw = line.slice(6).trim();
+          let parsed;
+          try { parsed = JSON.parse(raw); } catch { continue; }
+          if (parsed.error === 'timeout') throw new Error('The AI took too long to respond. Please try again.');
+          if (parsed.type === 'done' && parsed.result) result = parsed.result;
+        }
       }
+    } finally {
+      // Always release the stream lock — prevents connection exhaustion on errors
+      try { reader.cancel(); } catch { /* ignore cancel errors */ }
     }
     if (!result || !result.croatian) throw new Error('The AI returned an empty response. Please try again.');
     return result;

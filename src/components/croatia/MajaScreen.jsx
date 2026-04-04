@@ -280,6 +280,7 @@ export default function MajaScreen() {
         clearTimeout(streamTimeout);
 
         if (!res.ok) throw new Error(`API ${res.status}`);
+        if (!res.body) throw new Error('Server returned no response body.');
 
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
@@ -290,30 +291,34 @@ export default function MajaScreen() {
         setConversation((prev) => [...prev, { role: 'maja', content: '', streaming: true }]);
         setPhase('thinking'); // keep thinking indicator while streaming starts
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n');
-          buffer = lines.pop(); // keep incomplete line in buffer
-          for (const line of lines) {
-            if (!line.startsWith('data: ')) continue;
-            const data = line.slice(6).trim();
-            if (data === '[DONE]') break;
-            try {
-              const parsed = JSON.parse(data);
-              if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
-                streamedText += parsed.delta.text;
-                setConversation((prev) =>
-                  prev.map((m, i) =>
-                    i === prev.length - 1 && m.streaming
-                      ? { ...m, content: streamedText }
-                      : m
-                  )
-                );
-              }
-            } catch { continue; }
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop(); // keep incomplete line in buffer
+            for (const line of lines) {
+              if (!line.startsWith('data: ')) continue;
+              const data = line.slice(6).trim();
+              if (data === '[DONE]') break;
+              try {
+                const parsed = JSON.parse(data);
+                if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+                  streamedText += parsed.delta.text;
+                  setConversation((prev) =>
+                    prev.map((m, i) =>
+                      i === prev.length - 1 && m.streaming
+                        ? { ...m, content: streamedText }
+                        : m
+                    )
+                  );
+                }
+              } catch { continue; }
+            }
           }
+        } finally {
+          try { reader.cancel(); } catch { /* ignore */ }
         }
 
         // Mark streaming complete — parse accumulated JSON reply from Maja
