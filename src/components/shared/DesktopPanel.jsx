@@ -67,14 +67,6 @@ export default function DesktopPanel() {
 
   return (
     <aside className="desktop-panel" aria-label="Progress sidebar">
-      {/* Streak ring */}
-      <div style={{
-        background: 'var(--card)', border: '1px solid var(--border)',
-        borderRadius: 16, padding: '20px 16px', marginBottom: 16, textAlign: 'center',
-      }}>
-        <StreakRing streak={streak} />
-      </div>
-
       {/* CEFR level badge */}
       <div style={{
         background: 'var(--card)', border: '1px solid var(--border)',
