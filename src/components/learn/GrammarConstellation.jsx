@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext.tsx';
 import { QUIZ } from './ConstellationData.js';
 import { ConstellationBackground } from './ConstellationPieces.jsx';
 import ConstellationExploreMode from './ConstellationExploreMode.jsx';
@@ -7,6 +8,7 @@ import ConstellationQuizMode from './ConstellationQuizMode.jsx';
 import ConstellationDoneMode from './ConstellationDoneMode.jsx';
 
 export default function GrammarConstellation({ goBack, award }) {
+  const { stats, setStats, writeDelta } = useStats();
   const [mode, setMode] = useState('explore');
   const [expandedCase, setExpandedCase] = useState(null);
   const [quizIdx, setQuizIdx] = useState(0);
@@ -50,6 +52,13 @@ export default function GrammarConstellation({ goBack, award }) {
         setAwardCalled(true);
         if (typeof award === 'function') award(fs * 10);
         markQuest('grammar');
+        if (!stats.vs?.includes('grammarmap')) {
+          setStats(prev => {
+            if (prev.vs?.includes('grammarmap')) return prev;
+            return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'grammarmap'] };
+          });
+          if (writeDelta) writeDelta({ gc: 1, vs: ['grammarmap'] });
+        }
       }
     }
   }

@@ -2,8 +2,10 @@ import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh, TENSES } from '../../data.jsx';
 import { rnd } from '../../lib/random.js';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext.tsx';
 
 export default function TensesScreen({ goBack, award }) {
+  const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [tnMode, setTnMode] = useState("learn");
   const [tnGender, setTnGender] = useState("m");
@@ -161,7 +163,7 @@ export default function TensesScreen({ goBack, award }) {
               <div style={{fontSize:64}}>{pct >= 80 ? "🏆" : pct >= 50 ? "👍" : "📚"}</div>
               <h2 style={{fontFamily:"'Playfair Display',serif",color:"#164e63"}}>Tense Quiz Complete!</h2>
               <div style={{fontSize:32,fontWeight:800,color:"#0e7490"}}>{tnS} / {total}</div>
-              <button className="b bp" style={{marginTop:16}} onClick={() => { if(finishFired.current)return; finishFired.current=true; markQuest('grammar'); if (typeof award === 'function') award(tnS * 5); goBack(); }}>🏠 Finish</button>
+              <button className="b bp" style={{marginTop:16}} onClick={() => { if(finishFired.current)return; finishFired.current=true; markQuest('grammar'); if (typeof award === 'function') award(tnS * 5); if (!stats.vs?.includes('tenses')) { setStats(prev => { if (prev.vs?.includes('tenses')) return prev; return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'tenses'] }; }); if (writeDelta) writeDelta({ gc: 1, vs: ['tenses'] }); } goBack(); }}>🏠 Finish</button>
             </div>
           );
         }

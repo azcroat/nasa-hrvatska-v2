@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { H, ALPHA, speak, sh } from '../../data.jsx';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext.tsx';
 
 // Build 10 quiz questions: hear a description → pick the letter
 function buildAlphaQuiz(alpha) {
@@ -18,7 +19,8 @@ function buildAlphaQuiz(alpha) {
   });
 }
 
-export default function AlphabetScreen({ goBack }) {
+export default function AlphabetScreen({ goBack, award }) {
+  const { stats, setStats, writeDelta } = useStats();
   const [mode, setMode] = useState('reference'); // 'reference' | 'quiz'
 
   // Quiz state
@@ -117,7 +119,17 @@ export default function AlphabetScreen({ goBack }) {
           </div>
           <div style={{display:"flex",gap:10}}>
             <button className="b bg" style={{flex:1}} onClick={()=>{ setMode('reference'); }}>📖 Review</button>
-            <button className="b bp" style={{flex:1}} onClick={goBack}>✓ Done</button>
+            <button className="b bp" style={{flex:1}} onClick={() => {
+              if (typeof award === 'function') award(20);
+              if (!stats.vs?.includes('alphabet')) {
+                setStats(prev => {
+                  if (prev.vs?.includes('alphabet')) return prev;
+                  return { ...prev, lc: (prev.lc || 0) + 1, vs: [...(prev.vs || []), 'alphabet'] };
+                });
+                if (writeDelta) writeDelta({ lc: 1, vs: ['alphabet'] });
+              }
+              goBack();
+            }}>✓ Done</button>
           </div>
         </div>
       </div>

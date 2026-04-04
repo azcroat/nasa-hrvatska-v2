@@ -3,6 +3,7 @@ import { Bar, speak, speakSlow, sh } from '../../data.jsx';
 import ScreenHeader from '../shared/ScreenHeader.jsx';
 import { markQuest } from '../../lib/quests.js';
 import { knightSpeak } from '../../lib/knightSpeak.js';
+import { useStats } from '../../context/StatsContext.tsx';
 
 const LISTENING_TIPS = [
   { mood: 'thinking',    text: 'Close your eyes and let the Croatian sounds wash over you. Meaning before words. 🎧' },
@@ -12,6 +13,7 @@ const LISTENING_TIPS = [
 ];
 
 export default function ListeningScreen({ questions, goBack, award }) {
+  const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const questFired = useRef(false);
   const [idx, setIdx] = useState(0);
@@ -43,6 +45,13 @@ export default function ListeningScreen({ questions, goBack, award }) {
           if(finishFired.current)return;
           finishFired.current=true;
           if (typeof award === 'function') award(score*4+10);
+          if (!stats.vs?.includes('listening')) {
+            setStats(prev => {
+              if (prev.vs?.includes('listening')) return prev;
+              return { ...prev, lc: (prev.lc || 0) + 1, vs: [...(prev.vs || []), 'listening'] };
+            });
+            if (writeDelta) writeDelta({ lc: 1, vs: ['listening'] });
+          }
           goBack();
         }}>Finish!</button>
       </div>
