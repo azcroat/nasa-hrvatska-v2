@@ -6,6 +6,7 @@ import { markPracticed } from '../../hooks/useNotifications.js';
 import { markQuest } from '../../lib/quests.js';
 import { logError, getErrorsForAPI } from '../../lib/learnerErrors.js';
 import { SCENARIOS, deriveWeakAreas, deriveMastered } from './ConversationScenarios.js';
+import { apiFetch } from '../../lib/apiFetch.js';
 import AIConversationHeader from './AIConversationHeader.jsx';
 import AIConversationWriteSetup from './AIConversationWriteSetup.jsx';
 import AIConversationWriteResult from './AIConversationWriteResult.jsx';
@@ -134,18 +135,11 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   async function callAI(msgs, params, mode = "convo") {
     let res, data;
     try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000);
-      try {
-        res = await fetch("/api/ai-chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: msgs, mode, params, learnerErrors: getErrorsForAPI(6) }),
-          signal: controller.signal,
-        });
-      } finally {
-        clearTimeout(timeout);
-      }
+      res = await apiFetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: msgs, mode, params, learnerErrors: getErrorsForAPI(6) }),
+      });
     } catch (netErr) {
       if (netErr.name === "AbortError") throw new Error("Request timed out — the AI took too long to respond. Please try again.");
       throw new Error("Network error — check your connection. (" + netErr.message + ")");
