@@ -217,6 +217,7 @@ export default function PracticeTab({
     { id:'ai_story',          label:'AI Story',            icon:'📖', desc:'Story built from your weak words',        category:'advanced', cefr:'A2+', duration:'~8 min',  action: () => { setScr('ai_story'); sCurEx('ai_story'); } },
     { id:'video_lesson',      label:'Video Lesson',        icon:'🎬', desc:'Watch a Croatian scene · follow the dialogue · answer questions', category:'advanced', cefr:'A2+', duration:'~12 min', action: startVideoLesson },
     { id:'grammar_diagnosis', label:'Grammar Blind Spots',  icon:'🔬', desc:'Weekly AI analysis of your weak points',  category:'advanced', cefr:'A1+', duration:'weekly',   action: startGrammarDiagnosis },
+    { id:'translate_drills', label:'Translate Production', icon:'✍️', desc:'English → Croatian — produce full sentences', category:'grammar', cefr:'A2', duration:'~10 min', action: () => { setScr('translate_drills'); sCurEx('translate_drills'); } },
     { id:'cefrtest',     label:'CEFR Test',            icon:'🎓', desc:'A1→B2 proficiency check',             category:'advanced', cefr:'A1+', duration:'~15 min', action: () => { setScr("cefrtest"); sCurEx("cefrtest"); } },
     // Slang (advanced)
     { id:'slang_classics',  label:'The Classics',      icon:'🔥', desc:'Foundation expletives — built on one root verb', category:'advanced', cefr:'B1+', duration:'~10 min', action: go('slang:classics') },

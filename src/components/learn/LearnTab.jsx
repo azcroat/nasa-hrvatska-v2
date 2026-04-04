@@ -123,6 +123,48 @@ export default function LearnTab({
         <div style={{fontSize:18, color:'#0369a1'}}>→</div>
       </button>
 
+      {/* ── ANIMATED LESSONS: PAST + FUTURE TENSE ─────────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+        <button
+          onClick={() => launchAnimLesson && launchAnimLesson('past-tense')}
+          style={{
+            display:'flex', flexDirection:'column', alignItems:'flex-start', gap:6,
+            padding:'14px 14px', borderRadius:16, border:'1.5px solid #bae6fd',
+            background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)',
+            cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+          }}
+        >
+          <div style={{
+            width:40, height:40, borderRadius:12, flexShrink:0,
+            background:'linear-gradient(135deg,#0369a1,#0c4a6e)',
+            display:'flex', alignItems:'center', justifyContent:'center', fontSize:20,
+          }}>⏮️</div>
+          <div>
+            <div style={{fontSize:13, fontWeight:800, color:'#0c4a6e'}}>Past Tense</div>
+            <div style={{fontSize:11, color:'#0369a1', marginTop:2, lineHeight:1.4}}>L-participle · gender endings · A2</div>
+          </div>
+        </button>
+        <button
+          onClick={() => launchAnimLesson && launchAnimLesson('future-tense')}
+          style={{
+            display:'flex', flexDirection:'column', alignItems:'flex-start', gap:6,
+            padding:'14px 14px', borderRadius:16, border:'1.5px solid #ddd6fe',
+            background:'linear-gradient(135deg,#faf5ff,#ede9fe)',
+            cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+          }}
+        >
+          <div style={{
+            width:40, height:40, borderRadius:12, flexShrink:0,
+            background:'linear-gradient(135deg,#7c3aed,#5b21b6)',
+            display:'flex', alignItems:'center', justifyContent:'center', fontSize:20,
+          }}>🚀</div>
+          <div>
+            <div style={{fontSize:13, fontWeight:800, color:'#4c1d95'}}>Future Tense</div>
+            <div style={{fontSize:11, color:'#7c3aed', marginTop:2, lineHeight:1.4}}>ću/ćeš/će · aspect · B1</div>
+          </div>
+        </button>
+      </div>
+
       {/* ── GRAMMAR TRACK ──────────────────────────────────────────── */}
       <button
         onClick={() => setScr('grammar_track')}

@@ -180,6 +180,7 @@ const ReviewScreen = lazyWithReload(() => import("./practice/ReviewScreen.jsx"))
 const WritingScreen = lazyWithReload(() => import("./practice/WritingScreen.jsx"));
 const ListeningPath = lazyWithReload(() => import("./practice/ListeningPath.jsx"));
 const AspectDrillScreen = lazyWithReload(() => import("./practice/AspectDrillScreen.jsx"));
+const TranslateDrillsScreen = lazyWithReload(() => import("./practice/TranslateDrillsScreen.jsx"));
 const CliticDrill = lazyWithReload(() => import("./practice/CliticDrill.jsx"));
 const SlangScreen = lazyWithReload(() => import("./practice/SlangScreen.jsx"));
 const NumbersCasesDrill = lazyWithReload(() => import("./practice/NumbersCasesDrill.jsx"));
@@ -563,6 +564,7 @@ export default function AppRouter(props) {
       {currentScreen==="writing"&&<ScreenErrorBoundary key="writing" name="writing"><WritingScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="listeningpath"&&<ScreenErrorBoundary key="listeningpath" name="listeningpath"><ListeningPath goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="aspectdrill"&&<ScreenErrorBoundary key="aspectdrill" name="aspectdrill"><AspectDrillScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="translate_drills"&&<ScreenErrorBoundary key="translate_drills" name="translate_drills"><TranslateDrillsScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="clitic"&&<ScreenErrorBoundary key="clitic" name="clitic"><CliticDrill goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="numcases"&&<ScreenErrorBoundary key="numcases" name="numcases"><NumbersCasesDrill goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="imperative"&&<ScreenErrorBoundary key="imperative" name="imperative"><ImperativeDrill goBack={goBack} award={award} /></ScreenErrorBoundary>}

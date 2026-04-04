@@ -250,7 +250,10 @@ export default function BrowseContentModal({
           <Section title="Interactive Media" icon="✨" count="4 tools" defaultOpen={true}>
             <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
               {[
-                ["🎬","Animated Lessons","Slide-by-slide grammar lessons with audio","animlesson_alphabet",() => { onClose(); launchAnimLesson && launchAnimLesson("alphabet"); }],
+                ["🎬","Animated Lessons: Alphabet","Phonetic rules, digraphs, and the rolled-R vowel","animlesson_alphabet",() => { onClose(); launchAnimLesson && launchAnimLesson("alphabet"); }],
+                ["⏮️","Animated Lessons: Past Tense","L-participle, gender endings, auxiliary system (A2)","animlesson_past",() => { onClose(); launchAnimLesson && launchAnimLesson("past-tense"); }],
+                ["🚀","Animated Lessons: Future Tense","ću/ćeš/će pattern, aspect in future, negation (B1)","animlesson_future",() => { onClose(); launchAnimLesson && launchAnimLesson("future-tense"); }],
+                ["🤝","Animated Lessons: Vi vs ti","Formal and informal address — when to use which","animlesson_vi_ti",() => { onClose(); launchAnimLesson && launchAnimLesson("vi-vs-ti"); }],
                 ["🔀","Case Transformer","Declension explorer — tap any noun across all 7 cases","casetransformer",() => { onClose(); setScr("casetransformer"); }],
                 ["🗺️","Vocabulary Scenes","Tap objects in real-life scenes to learn words","vocabscenes",() => { onClose(); setScr("vocabscenes"); }],
                 ["🔍","Grammar X-Ray","Tap any word in a text to see full grammatical analysis","grammarreader",() => { onClose(); setScr("grammarreader"); }],
