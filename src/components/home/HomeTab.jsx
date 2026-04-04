@@ -366,6 +366,7 @@ export default function HomeTab({
         sCurEx={sCurEx}
         onSyncNow={onSyncNow}
         wsMastered={ws.strong}
+        launchPathItem={launchPathItem}
       />
 
       {/* ── SUB-TAB PILL SELECTOR ── */}
