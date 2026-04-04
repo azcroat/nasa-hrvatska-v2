@@ -43,7 +43,7 @@ export function initFirebase(){
       }).catch(function(){});
     }
     return true;
-  }catch(e){console.error("Firebase init failed:",e);return false}
+  }catch(e){console.error("Firebase init failed:",e?.code||e?.message||'unknown');return false}
 }
 // Auto-init on module load
 initFirebase();

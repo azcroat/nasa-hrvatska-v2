@@ -34,8 +34,11 @@ service cloud.firestore {
     // Returns true if the authenticated user's email appears in a flat email list.
     // Family documents store memberEmails (string[]) alongside the full members array
     // so Firestore rules can enforce membership without iterating over maps.
+    // Comparison is case-insensitive — Firebase emails are lowercase-normalised but
+    // stored values may have been entered with mixed case by early users.
     function isFamilyMember(memberEmails) {
-      return request.auth.token.email in memberEmails;
+      return request.auth.token.email.lower() in memberEmails
+          || request.auth.token.email in memberEmails;
     }
 
     // ─── XP validation helpers ─────────────────────────────────────────────

@@ -135,7 +135,7 @@ export async function checkAIQuota(request, env, uid, cost = 1) {
   // ── Per-second burst check (max 3 requests / second / subject) ─────────────
   const burstSubject = uid
     ? `quota_burst:${uid}`
-    : `quota_burst:ip:${request.headers.get('cf-connecting-ip') || request.headers.get('x-forwarded-for') || 'unknown'}`;
+    : `quota_burst:ip:${request.headers.get('cf-connecting-ip') || 'unknown'}`;
   const secondKey = `${burstSubject}:${Math.floor(Date.now() / 1000)}`;
 
   try {
@@ -160,9 +160,7 @@ export async function checkAIQuota(request, env, uid, cost = 1) {
     quotaKey = `quota:${uid}:${today}`;
     limit    = limitForUid();
   } else {
-    const ip = request.headers.get('cf-connecting-ip')
-            || request.headers.get('x-forwarded-for')
-            || 'unknown';
+    const ip = request.headers.get('cf-connecting-ip') || 'unknown';
     quotaKey = `quota:ip:${ip}:${today}`;
     limit    = ANON_IP_TURNS_PER_DAY;
   }
@@ -179,9 +177,9 @@ export async function checkAIQuota(request, env, uid, cost = 1) {
     return { allowed: true, remaining: Math.max(0, limit - current - cost), resetAt };
   } catch (e) {
     // Both KV and Cache API failed — this is a genuine infrastructure error.
-    // Fail open only as the absolute last resort; log clearly so it surfaces.
-    console.error('[AIQuota] All storage backends failed — allowing request (last-resort fail-open):', e?.message);
-    return { allowed: true, remaining: 10, resetAt };
+    // Fail closed: deny the request rather than allow unbounded AI usage.
+    console.error('[AIQuota] All storage backends failed — rejecting request (fail-closed):', e?.message);
+    return { allowed: false, remaining: 0, resetAt };
   }
 }
 

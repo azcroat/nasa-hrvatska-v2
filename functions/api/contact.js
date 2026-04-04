@@ -155,7 +155,7 @@ export async function onRequestPost(context) {
         <div style="font-size:11px;font-weight:700;color:#166534;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Reply To</div>
         <div style="font-size:14px;color:#15803d;font-weight:700">${safeReplyEmail}</div>
       </div>
-      <a href="mailto:${safeReplyEmail}?subject=Re: [${ticketId}] ${safeSubject}"
+      <a href="mailto:${encodeURIComponent(replyEmail)}?subject=${encodeURIComponent(`Re: [${ticketId}] ${subject}`)}"
          style="background:#16a34a;color:#fff;text-decoration:none;border-radius:10px;padding:10px 20px;font-weight:700;font-size:13px">
         Reply ↗
       </a>

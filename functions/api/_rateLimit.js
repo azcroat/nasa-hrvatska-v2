@@ -45,9 +45,9 @@ function _fallbackCheck(key, limit) {
  * @returns {Promise<boolean>} true = allowed, false = rate limited
  */
 export async function checkRateLimit(request, limitPerMinute = 20) {
-  const ip = request.headers.get('cf-connecting-ip') ||
-             request.headers.get('x-forwarded-for') ||
-             'unknown';
+  // Use only the Cloudflare-injected header — x-forwarded-for is client-controllable
+  // and can be spoofed to bypass rate limits by cycling through fake IPs.
+  const ip = request.headers.get('cf-connecting-ip') || 'unknown';
   const path = new URL(request.url).pathname;
   const window = Math.floor(Date.now() / 60000); // 1-minute windows
   const key = `${path}/${encodeURIComponent(ip)}/${window}`;
