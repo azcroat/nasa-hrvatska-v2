@@ -68,7 +68,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/coverage-v8": "^4.0.18",
     "better-sqlite3": "^12.8.0",
-    "browserstack-node-sdk": "^1.50.9",
+    "browserstack-node-sdk": "^1.50.10",
     "eslint": "^9.39.4",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
