@@ -14,6 +14,7 @@ import AIConversationConvoSetup from './AIConversationConvoSetup.jsx';
 import AIConversationResult from './AIConversationResult.jsx';
 import AIConversationChat from './AIConversationChat.jsx';
 import AIWordTooltip from './AIWordTooltip.jsx';
+import { PORTRAIT_MAP } from './SpeakingAvatar.jsx';
 
 // ── Writing prompts ──────────────────────────────────────────────────────────
 const WRITE_PROMPTS = [
@@ -271,7 +272,6 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     if (npcVideoFiredRef.current !== scenario.id) {
       npcVideoFiredRef.current = scenario.id;
       setNpcVideoLoading(true);
-      const { PORTRAIT_MAP } = await import('./SpeakingAvatar.jsx');
       const portraitKey = PORTRAIT_MAP[scenario.id] || 'young-woman';
       apiFetch(`/api/npc-video?portrait=${encodeURIComponent(portraitKey)}`)
         .then(r => r.ok ? r.json() : null)
