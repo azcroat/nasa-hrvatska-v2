@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.tsx';
 import { H } from '../../data.jsx';
@@ -600,7 +600,25 @@ function QuizView({ onBack, award }) {
   const [selected, setSelected] = useState(null); // selected option index for current q
   const [done, setDone] = useState(false);
 
-  const q = QUIZ[idx];
+  // Shuffle question order and option order once per quiz attempt
+  const shuffledQuiz = useMemo(() => {
+    const arr = [...QUIZ];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr.map(q => {
+      const correctOpt = q.options[q.ans];
+      const opts = [...q.options];
+      for (let i = opts.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [opts[i], opts[j]] = [opts[j], opts[i]];
+      }
+      return { ...q, options: opts, ans: opts.indexOf(correctOpt) };
+    });
+  }, []);
+
+  const q = shuffledQuiz[idx];
   const isAnswered = selected !== null;
   const isCorrect = selected === q.ans;
 
@@ -611,7 +629,7 @@ function QuizView({ onBack, award }) {
 
   function handleNext() {
     const nextAnswers = [...answers, selected === q.ans];
-    if (idx + 1 < QUIZ.length) {
+    if (idx + 1 < shuffledQuiz.length) {
       setAnswers(nextAnswers);
       setIdx(idx + 1);
       setSelected(null);
@@ -644,7 +662,7 @@ function QuizView({ onBack, award }) {
   // Results screen
   if (done) {
     const score = answers.filter(Boolean).length;
-    const pct = Math.round((score / QUIZ.length) * 100);
+    const pct = Math.round((score / shuffledQuiz.length) * 100);
     const alreadyDone = localStorage.getItem(LS_KEY) === '1';
     return (
       <div>
@@ -670,7 +688,7 @@ function QuizView({ onBack, award }) {
               marginBottom: 4,
             }}
           >
-            {score} / {QUIZ.length}
+            {score} / {shuffledQuiz.length}
           </div>
           <div style={{ fontSize: 15, color: 'var(--subtext)', marginBottom: 14 }}>
             {pct >= 80
@@ -712,7 +730,7 @@ function QuizView({ onBack, award }) {
 
         {/* Per-question review */}
         <div style={{ marginBottom: 16 }}>
-          {QUIZ.map((question, i) => (
+          {shuffledQuiz.map((question, i) => (
             <div
               key={i}
               style={{
@@ -796,7 +814,7 @@ function QuizView({ onBack, award }) {
             marginBottom: 6,
           }}
         >
-          <span>Question {idx + 1} of {QUIZ.length}</span>
+          <span>Question {idx + 1} of {shuffledQuiz.length}</span>
           <span>{answers.filter(Boolean).length} correct so far</span>
         </div>
         <div
@@ -810,7 +828,7 @@ function QuizView({ onBack, award }) {
           <div
             style={{
               height: '100%',
-              width: `${((idx) / QUIZ.length) * 100}%`,
+              width: `${((idx) / shuffledQuiz.length) * 100}%`,
               background: '#2563eb',
               borderRadius: 3,
               transition: 'width 0.4s',
@@ -942,7 +960,7 @@ function QuizView({ onBack, award }) {
               fontFamily: "'Outfit', sans-serif",
             }}
           >
-            {idx + 1 < QUIZ.length ? 'Next →' : 'See Results'}
+            {idx + 1 < shuffledQuiz.length ? 'Next →' : 'See Results'}
           </button>
         </div>
       )}

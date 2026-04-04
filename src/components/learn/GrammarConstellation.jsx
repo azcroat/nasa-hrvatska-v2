@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext.tsx';
 import { QUIZ } from './ConstellationData.js';
+import { sh } from '../../data.jsx';
 import { ConstellationBackground } from './ConstellationPieces.jsx';
 import ConstellationExploreMode from './ConstellationExploreMode.jsx';
 import ConstellationQuizMode from './ConstellationQuizMode.jsx';
@@ -17,6 +18,9 @@ export default function GrammarConstellation({ goBack, award }) {
   const [answered, setAnswered] = useState(false);
   const [awardCalled, setAwardCalled] = useState(false);
   const [finalScore, setFinalScore] = useState(0);
+
+  // Shuffle question order once per session so users see different sequences on retake
+  const shuffledQuiz = useMemo(() => sh([...QUIZ]), []);
 
   function toggleCase(id) {
     setExpandedCase(prev => (prev === id ? null : id));
@@ -34,18 +38,18 @@ export default function GrammarConstellation({ goBack, award }) {
     if (answered) return;
     setSelected(opt);
     setAnswered(true);
-    if (opt === QUIZ[quizIdx].answer) {
+    if (opt === shuffledQuiz[quizIdx].answer) {
       setQuizScore(s => s + 1);
     }
   }
 
   function handleNext() {
-    if (quizIdx < QUIZ.length - 1) {
+    if (quizIdx < shuffledQuiz.length - 1) {
       setQuizIdx(i => i + 1);
       setSelected(null);
       setAnswered(false);
     } else {
-      const fs = quizScore + (selected === QUIZ[quizIdx].answer ? 1 : 0);
+      const fs = quizScore + (selected === shuffledQuiz[quizIdx].answer ? 1 : 0);
       setFinalScore(fs);
       setMode('done');
       if (!awardCalled) {
@@ -96,6 +100,8 @@ export default function GrammarConstellation({ goBack, award }) {
         {mode === 'quiz' && (
           <ConstellationQuizMode
             quizIdx={quizIdx}
+            quizTotal={shuffledQuiz.length}
+            shuffledQuiz={shuffledQuiz}
             quizScore={quizScore}
             selected={selected}
             answered={answered}

@@ -1,10 +1,12 @@
 // ── GrammarConstellation — Quiz mode ──────────────────────────
 import React, { useMemo } from 'react';
-import { CASES, QUIZ } from './ConstellationData.js';
+import { CASES } from './ConstellationData.js';
 import { sh } from '../../data.jsx';
 
 export default function ConstellationQuizMode({
   quizIdx,
+  quizTotal,
+  shuffledQuiz,
   quizScore,
   selected,
   answered,
@@ -12,7 +14,7 @@ export default function ConstellationQuizMode({
   onAnswer,
   onNext,
 }) {
-  const currentQ = QUIZ[quizIdx];
+  const currentQ = shuffledQuiz[quizIdx];
   const shuffledOptions = useMemo(() => sh([...currentQ.options]), [quizIdx]);  
 
   return (
@@ -43,7 +45,7 @@ export default function ConstellationQuizMode({
             Case Quiz
           </h1>
           <div style={{ color: '#64748b', fontSize: 13 }}>
-            Question {quizIdx + 1} of 7
+            Question {quizIdx + 1} of {quizTotal}
           </div>
         </div>
       </div>
@@ -61,7 +63,7 @@ export default function ConstellationQuizMode({
         <div
           style={{
             height: '100%',
-            width: `${((quizIdx) / 7) * 100}%`,
+            width: `${((quizIdx) / quizTotal) * 100}%`,
             background: 'linear-gradient(90deg, #6366f1, #8b5cf6)',
             borderRadius: 3,
             transition: 'width 0.3s ease',
@@ -215,7 +217,7 @@ export default function ConstellationQuizMode({
               cursor: 'pointer',
             }}
           >
-            {quizIdx < QUIZ.length - 1 ? 'Next →' : 'Finish'}
+            {quizIdx < quizTotal - 1 ? 'Next →' : 'Finish'}
           </button>
         </div>
       )}
