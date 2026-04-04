@@ -361,22 +361,6 @@ export default function AIConversationConvoSetup({
         Powered by Claude AI · No conversation data stored
       </div>
 
-      {/* ── Human tutor referral ── */}
-      <div style={{
-        marginTop: 20, borderRadius: 16, padding: '13px 16px',
-        background: 'var(--bar-bg)', border: '1px solid var(--card-b)',
-        display: 'flex', alignItems: 'center', gap: 12,
-      }}>
-        <div style={{ fontSize: 26, flexShrink: 0 }}>👨‍🏫</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', marginBottom: 2 }}>
-            Want a real Croatian tutor?
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--subtext)', lineHeight: 1.4 }}>
-            Find certified native tutors for live 1-on-1 lessons on Preply or iTalki — great for pronunciation and conversation fluency.
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
