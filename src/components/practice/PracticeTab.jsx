@@ -289,53 +289,22 @@ export default function PracticeTab({
 
   function ExerciseCard({ id, label, icon, desc, cefr, duration, action, category }) {
     const isPick = todaysPicks.includes(id);
+    const catColor = CATEGORY_COLORS[category] || 'var(--bar-bg)';
+    const cefrClass = cefr ? `cefr cefr-${cefr.toLowerCase().replace(/[^a-z]/g, '')}` : '';
     return (
       <button
         onClick={action}
-        style={{
-          display:'flex', alignItems:'center', gap:12, padding:14,
-          borderRadius:14,
-          background: isPick ? 'var(--info-bg, #f0f9ff)' : 'var(--card)',
-          border: isPick ? '1.5px solid var(--info-b, #bae6fd)' : '1px solid var(--card-b)',
-          cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
-          boxShadow: isPick ? '0 2px 8px rgba(14,116,144,.12)' : '0 1px 3px rgba(0,0,0,.06)',
-          borderLeft: `3px solid ${isPick ? 'var(--info)' : (CATEGORY_COLORS[category] || 'var(--bar-bg)')}`,
-          position:'relative',
-        }}
+        className={'exercise-card' + (isPick ? ' exercise-card--today' : '')}
+        style={{ borderLeftColor: isPick ? 'var(--info)' : catColor }}
       >
-        {isPick && (
-          <div style={{
-            position:'absolute', top:6, right:8,
-            fontSize:9, fontWeight:900, color:'var(--info)',
-            background:'var(--card)', border:'1px solid var(--info-b)',
-            borderRadius:6, padding:'1px 6px', letterSpacing:'.05em',
-            textTransform:'uppercase',
-          }}>⭐ Today</div>
-        )}
-        <div style={{
-          width:40, height:40, borderRadius:12,
-          background:'var(--bar-bg)', border:'1px solid var(--card-b)',
-          display:'flex', alignItems:'center', justifyContent:'center',
-          fontSize:20, flexShrink:0,
-        }}>
-          {icon}
-        </div>
+        {isPick && <div className="exercise-card-today-badge">⭐ Today</div>}
+        <div className="exercise-card-icon">{icon}</div>
         <div style={{ minWidth:0, flex:1 }}>
-          <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', lineHeight:1.2 }}>{label}</div>
-          <div style={{ fontSize:12, color:'var(--subtext)', marginTop:2, lineHeight:1.3 }}>{desc}</div>
-          <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginTop:4, alignItems:'center' }}>
-            {cefr && (
-              <span style={{
-                fontSize:10, fontWeight:800, padding:'2px 7px',
-                borderRadius:4,
-                background: CEFR_COLORS[cefr] || 'var(--info-bg, #f0f9ff)',
-                color: CEFR_TEXT[cefr] || 'var(--info, #0e7490)',
-                border:'1px solid var(--info-b, #bae6fd)',
-              }}>{cefr}</span>
-            )}
-            {duration && (
-              <span style={{ fontSize:10, color:'var(--subtext)', fontWeight:600 }}>⏱ {duration}</span>
-            )}
+          <div className="exercise-card-label">{label}</div>
+          <div className="exercise-card-desc">{desc}</div>
+          <div className="exercise-card-meta">
+            {cefr && <span className={cefrClass}>{cefr}</span>}
+            {duration && <span style={{ fontSize:10, color:'var(--subtext)', fontWeight:600 }}>⏱ {duration}</span>}
           </div>
         </div>
       </button>
@@ -412,7 +381,8 @@ export default function PracticeTab({
         <div style={{display:'flex', alignItems:'center', marginBottom:8}}>
           <span style={{fontSize:11, fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'.08em', flex:1}}>Daily Quests</span>
           <span style={{
-            fontSize:11, fontWeight:800, color: practiceQuestsDone.done === 4 ? 'var(--success)' : 'var(--info)',
+            fontSize:11, fontWeight:800,
+            color: practiceQuestsDone.done === 4 ? 'var(--success)' : 'var(--info)',
             background: practiceQuestsDone.done === 4 ? 'var(--success-bg)' : 'var(--info-bg)',
             border: `1px solid ${practiceQuestsDone.done === 4 ? 'var(--success-b)' : 'var(--info-b)'}`,
             borderRadius:20, padding:'2px 8px',
@@ -425,17 +395,11 @@ export default function PracticeTab({
             { key:'master',  icon:'🃏', label:'Words'   },
             { key:'reading', icon:'📖', label:'Read'    },
           ].map(q => (
-            <div key={q.key} style={{
-              flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:2,
-              padding:'6px 4px', borderRadius:10,
-              background: practiceQuestsDone[q.key] ? 'var(--success-bg)' : 'var(--bar-bg)',
-              border: `1.5px solid ${practiceQuestsDone[q.key] ? 'var(--success-b)' : 'var(--card-b)'}`,
-              transition:'all .2s',
-            }}>
-              <span style={{fontSize:16}}>{practiceQuestsDone[q.key] ? '✅' : q.icon}</span>
-              <span style={{fontSize:10, fontWeight:700, color: practiceQuestsDone[q.key] ? 'var(--success)' : 'var(--subtext)'}}>
-                {q.label}
-              </span>
+            <div key={q.key}
+              className={'quest-tile ' + (practiceQuestsDone[q.key] ? 'quest-tile--done' : 'quest-tile--pending')}
+            >
+              <span className="quest-tile-icon">{practiceQuestsDone[q.key] ? '✅' : q.icon}</span>
+              <span className="quest-tile-label">{q.label}</span>
             </div>
           ))}
         </div>
@@ -528,7 +492,7 @@ export default function PracticeTab({
           <div className="section-hdr-sub">3 exercises chosen for right now</div>
         </div>
       </div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:8, marginTop:4 }}>
+      <div className="todays-picks-grid">
         {EXERCISES.filter(e => todaysPicks.includes(e.id)).map(e => <ExerciseCard key={e.id} {...e} />)}
       </div>
 
@@ -554,36 +518,44 @@ export default function PracticeTab({
             <button
               onClick={() => setOpenCat(isOpen ? null : cat.id)}
               aria-expanded={isOpen}
+              className="cat-tile"
               style={{
-                width:'100%', display:'flex', alignItems:'center', gap:12,
-                padding:'14px 16px', borderRadius: isOpen ? '14px 14px 0 0' : 14,
+                borderRadius: isOpen ? '14px 14px 0 0' : 14,
                 background: isOpen ? cat.color : cat.bg,
                 border: `1.5px solid ${cat.border}`,
                 borderBottom: isOpen ? 'none' : `1.5px solid ${cat.border}`,
-                cursor:'pointer', fontFamily:"'Outfit',sans-serif",
-                transition:'all .15s',
               }}
             >
-              <div style={{
-                width:40, height:40, borderRadius:12, flexShrink:0,
-                background: isOpen ? 'rgba(255,255,255,.18)' : 'var(--card)',
-                border: `1px solid ${isOpen ? 'rgba(255,255,255,.3)' : cat.border}`,
-                display:'flex', alignItems:'center', justifyContent:'center', fontSize:20,
-              }}>{cat.emoji}</div>
+              <div
+                className="cat-tile-icon"
+                style={{
+                  background: isOpen ? 'rgba(255,255,255,.18)' : 'var(--card)',
+                  border: `1px solid ${isOpen ? 'rgba(255,255,255,.3)' : cat.border}`,
+                }}
+              >{cat.emoji}</div>
               <div style={{ flex:1, textAlign:'left' }}>
-                <div style={{ fontSize:15, fontWeight:800, color: isOpen ? '#fff' : 'var(--heading)', lineHeight:1.2 }}>{cat.label}</div>
-                <div style={{ fontSize:12, color: isOpen ? 'rgba(255,255,255,.75)' : 'var(--subtext)', marginTop:2 }}>{catExercises.length} exercises</div>
+                <div className="cat-tile-title" style={{ color: isOpen ? '#fff' : 'var(--heading)' }}>{cat.label}</div>
+                <div className="cat-tile-count" style={{ color: isOpen ? 'rgba(255,255,255,.75)' : 'var(--subtext)' }}>{catExercises.length} exercises</div>
               </div>
-              <div style={{ fontSize:18, color: isOpen ? 'rgba(255,255,255,.85)' : cat.color, fontWeight:300, transition:'transform .2s', transform: isOpen ? 'rotate(180deg)' : 'none' }}>▼</div>
+              <div
+                className={'cat-tile-chevron' + (isOpen ? ' cat-tile-chevron--open' : '')}
+                style={{ color: isOpen ? 'rgba(255,255,255,.85)' : cat.color }}
+              >▼</div>
             </button>
-            {/* Expanded exercise list */}
+            {/* Expanded exercise list with stagger animation */}
             {isOpen && (
-              <div style={{
-                border: `1.5px solid ${cat.border}`, borderTop:'none',
-                borderRadius:'0 0 14px 14px', overflow:'hidden',
-                background:'var(--card)',
-              }}>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, padding:10 }}>
+              <div
+                className="cat-panel"
+                style={{
+                  border: `1.5px solid ${cat.border}`, borderTop:'none',
+                  borderRadius:'0 0 14px 14px', overflow:'hidden',
+                  background:'var(--card)',
+                }}
+              >
+                <div
+                  className="exercise-grid-stagger"
+                  style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, padding:10 }}
+                >
                   {catExercises.map(e => <ExerciseCard key={e.id} {...e} />)}
                 </div>
               </div>
@@ -600,19 +572,24 @@ export default function PracticeTab({
           <div className="section-hdr-sub">Tap any to start instantly</div>
         </div>
       </div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:24 }}>
+      <div
+        className="anim-stagger-sm"
+        style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:24 }}
+      >
         {[
           [startQuiz,       "🎯","Quiz",        "Vocabulary","linear-gradient(155deg,#071828 0%,#0a3d52 60%,#0e7490 100%)"],
           [startFlashcards, "🃏","Flashcards",  "Spaced rep","linear-gradient(155deg,#120830 0%,#2d1260 60%,#7c3aed 100%)"],
-          [startMatch,      "🔗","Match Pairs", "Memory","linear-gradient(155deg,#041410 0%,#0d3820 60%,#16a34a 100%)"],
-          [startTyping,     "⌨️","Typing",      "Accuracy","linear-gradient(155deg,#1a0c00 0%,#3d1e00 60%,#d97706 100%)"],
-          [startListening,  "🎧","Listening",   "Train ear","linear-gradient(155deg,#1a0008 0%,#4a0015 60%,#D40030 100%)"],
-          [startSpeaking,   "🎤","Speaking",    "Pronunc.","linear-gradient(155deg,#031020 0%,#083050 60%,#0284c7 100%)"],
+          [startMatch,      "🔗","Match Pairs", "Memory",    "linear-gradient(155deg,#041410 0%,#0d3820 60%,#16a34a 100%)"],
+          [startTyping,     "⌨️","Typing",      "Accuracy",  "linear-gradient(155deg,#1a0c00 0%,#3d1e00 60%,#d97706 100%)"],
+          [startListening,  "🎧","Listening",   "Train ear", "linear-gradient(155deg,#1a0008 0%,#4a0015 60%,#D40030 100%)"],
+          [startSpeaking,   "🎤","Speaking",    "Pronunc.",  "linear-gradient(155deg,#031020 0%,#083050 60%,#0284c7 100%)"],
           [() => { setScr("wordsprint"); sCurEx("wordsprint"); },"⚡","Word Sprint","Speed","linear-gradient(155deg,#1a0e00 0%,#3d2200 60%,#f59e0b 100%)"],
         ].map((/** @type {any[]} */ [fn,icon,label,sub,bg], i) => (
-          <button key={i} className="tc practice-card-dark"
-            style={{ textAlign:"center", padding:"16px 10px", background:bg, minHeight:86, cursor:'pointer' }}
-            onClick={fn}>
+          <button key={i}
+            className="practice-card-dark"
+            style={{ textAlign:"center", padding:"16px 10px", background:bg }}
+            onClick={fn}
+          >
             <div className="pc-icon">{icon}</div>
             <div className="pc-label">{label}</div>
             <div className="pc-desc">{sub}</div>

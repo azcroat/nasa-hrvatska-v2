@@ -104,63 +104,43 @@ export default function LearnTab({
       {/* ── AI MICRO-LESSON CARD ──────────────────────────────────────── */}
       <button
         onClick={() => setScr('micro_lesson')}
+        className="feature-card"
         style={{
-          display:'flex', alignItems:'center', gap:14, width:'100%', marginBottom:20,
-          padding:'14px 16px', borderRadius:16, border:'1.5px solid #bae6fd',
-          background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)',
-          cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+          marginBottom: 20,
+          border: '1.5px solid #bae6fd',
+          background: 'linear-gradient(135deg,#f0f9ff,#e0f2fe)',
         }}
       >
-        <div style={{
-          width:44, height:44, borderRadius:12, flexShrink:0,
-          background:'linear-gradient(135deg,#0e7490,#0369a1)',
-          display:'flex', alignItems:'center', justifyContent:'center', fontSize:22,
-        }}>🎯</div>
-        <div style={{flex:1}}>
-          <div style={{fontSize:14, fontWeight:800, color:'#0c4a6e'}}>AI Micro-Lesson</div>
-          <div style={{fontSize:12, color:'#0369a1', marginTop:2}}>Personalized 5-min lesson from your weak words</div>
+        <div className="feature-card-icon" style={{ background: 'linear-gradient(135deg,#0e7490,#0369a1)' }}>🎯</div>
+        <div style={{ flex: 1 }}>
+          <div className="feature-card-title" style={{ color: '#0c4a6e' }}>AI Micro-Lesson</div>
+          <div className="feature-card-desc" style={{ color: '#0369a1' }}>Personalized 5-min lesson from your weak words</div>
         </div>
-        <div style={{fontSize:18, color:'#0369a1'}}>→</div>
+        <div style={{ fontSize: 18, color: '#0369a1' }}>→</div>
       </button>
 
       {/* ── ANIMATED LESSONS: PAST + FUTURE TENSE ─────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
         <button
           onClick={() => launchAnimLesson && launchAnimLesson('past-tense')}
-          style={{
-            display:'flex', flexDirection:'column', alignItems:'flex-start', gap:6,
-            padding:'14px 14px', borderRadius:16, border:'1.5px solid #bae6fd',
-            background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)',
-            cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
-          }}
+          className="feature-card feature-card--col"
+          style={{ border: '1.5px solid #bae6fd', background: 'linear-gradient(135deg,#f0f9ff,#e0f2fe)' }}
         >
-          <div style={{
-            width:40, height:40, borderRadius:12, flexShrink:0,
-            background:'linear-gradient(135deg,#0369a1,#0c4a6e)',
-            display:'flex', alignItems:'center', justifyContent:'center', fontSize:20,
-          }}>⏮️</div>
+          <div className="feature-card-icon" style={{ background: 'linear-gradient(135deg,#0369a1,#0c4a6e)' }}>⏮️</div>
           <div>
-            <div style={{fontSize:13, fontWeight:800, color:'#0c4a6e'}}>Past Tense</div>
-            <div style={{fontSize:11, color:'#0369a1', marginTop:2, lineHeight:1.4}}>L-participle · gender endings · A2</div>
+            <div className="feature-card-title" style={{ color: '#0c4a6e' }}>Past Tense</div>
+            <div className="feature-card-desc" style={{ color: '#0369a1' }}>L-participle · gender endings · A2</div>
           </div>
         </button>
         <button
           onClick={() => launchAnimLesson && launchAnimLesson('future-tense')}
-          style={{
-            display:'flex', flexDirection:'column', alignItems:'flex-start', gap:6,
-            padding:'14px 14px', borderRadius:16, border:'1.5px solid #ddd6fe',
-            background:'linear-gradient(135deg,#faf5ff,#ede9fe)',
-            cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
-          }}
+          className="feature-card feature-card--col"
+          style={{ border: '1.5px solid #ddd6fe', background: 'linear-gradient(135deg,#faf5ff,#ede9fe)' }}
         >
-          <div style={{
-            width:40, height:40, borderRadius:12, flexShrink:0,
-            background:'linear-gradient(135deg,#7c3aed,#5b21b6)',
-            display:'flex', alignItems:'center', justifyContent:'center', fontSize:20,
-          }}>🚀</div>
+          <div className="feature-card-icon" style={{ background: 'linear-gradient(135deg,#7c3aed,#5b21b6)' }}>🚀</div>
           <div>
-            <div style={{fontSize:13, fontWeight:800, color:'#4c1d95'}}>Future Tense</div>
-            <div style={{fontSize:11, color:'#7c3aed', marginTop:2, lineHeight:1.4}}>ću/ćeš/će · aspect · B1</div>
+            <div className="feature-card-title" style={{ color: '#4c1d95' }}>Future Tense</div>
+            <div className="feature-card-desc" style={{ color: '#7c3aed' }}>ću/ćeš/će · aspect · B1</div>
           </div>
         </button>
       </div>
@@ -168,63 +148,43 @@ export default function LearnTab({
       {/* ── GRAMMAR TRACK ──────────────────────────────────────────── */}
       <button
         onClick={() => setScr('grammar_track')}
+        className="feature-card"
         style={{
-          display:'flex', alignItems:'center', gap:14, width:'100%', marginBottom:12,
-          padding:'14px 16px', borderRadius:16, border:'1.5px solid #fde68a',
-          background:'linear-gradient(135deg,#fffbeb,#fef3c7)',
-          cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+          marginBottom: 12,
+          border: '1.5px solid #fde68a',
+          background: 'linear-gradient(135deg,#fffbeb,#fef3c7)',
         }}
       >
-        <div style={{
-          width:44, height:44, borderRadius:12, flexShrink:0,
-          background:'linear-gradient(135deg,#d97706,#92400e)',
-          display:'flex', alignItems:'center', justifyContent:'center', fontSize:22,
-        }}>⚙️</div>
-        <div style={{flex:1}}>
-          <div style={{fontSize:14, fontWeight:800, color:'#451a03'}}>Grammar Track A1→B2</div>
-          <div style={{fontSize:12, color:'#92400e', marginTop:2, lineHeight:1.4}}>Structured curriculum · cases, tenses, aspect &amp; more</div>
+        <div className="feature-card-icon" style={{ background: 'linear-gradient(135deg,#d97706,#92400e)' }}>⚙️</div>
+        <div style={{ flex: 1 }}>
+          <div className="feature-card-title" style={{ color: '#451a03' }}>Grammar Track A1→B2</div>
+          <div className="feature-card-desc" style={{ color: '#92400e' }}>Structured curriculum · cases, tenses, aspect &amp; more</div>
         </div>
-        <div style={{fontSize:18, color:'#d97706'}}>→</div>
+        <div style={{ fontSize: 18, color: '#d97706' }}>→</div>
       </button>
 
       {/* ── GRADED STORIES + PRONUNCIATION COURSE ───────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
         <button
           onClick={() => setScr('graded_input')}
-          style={{
-            display:'flex', flexDirection:'column', alignItems:'flex-start', gap:6,
-            padding:'14px 14px', borderRadius:16, border:'1.5px solid #bbf7d0',
-            background:'linear-gradient(135deg,#f0fdf4,#dcfce7)',
-            cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
-          }}
+          className="feature-card feature-card--col"
+          style={{ border: '1.5px solid #bbf7d0', background: 'linear-gradient(135deg,#f0fdf4,#dcfce7)' }}
         >
-          <div style={{
-            width:40, height:40, borderRadius:12, flexShrink:0,
-            background:'linear-gradient(135deg,#059669,#065f46)',
-            display:'flex', alignItems:'center', justifyContent:'center', fontSize:20,
-          }}>📖</div>
+          <div className="feature-card-icon" style={{ background: 'linear-gradient(135deg,#059669,#065f46)' }}>📖</div>
           <div>
-            <div style={{fontSize:13, fontWeight:800, color:'#065f46'}}>Graded Stories</div>
-            <div style={{fontSize:11, color:'#059669', marginTop:2, lineHeight:1.4}}>A1–B2 Croatian texts with audio & quiz</div>
+            <div className="feature-card-title" style={{ color: '#065f46' }}>Graded Stories</div>
+            <div className="feature-card-desc" style={{ color: '#059669' }}>A1–B2 Croatian texts with audio &amp; quiz</div>
           </div>
         </button>
         <button
           onClick={() => setScr('pronunciation_course')}
-          style={{
-            display:'flex', flexDirection:'column', alignItems:'flex-start', gap:6,
-            padding:'14px 14px', borderRadius:16, border:'1.5px solid #ddd6fe',
-            background:'linear-gradient(135deg,#faf5ff,#ede9fe)',
-            cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
-          }}
+          className="feature-card feature-card--col"
+          style={{ border: '1.5px solid #ddd6fe', background: 'linear-gradient(135deg,#faf5ff,#ede9fe)' }}
         >
-          <div style={{
-            width:40, height:40, borderRadius:12, flexShrink:0,
-            background:'linear-gradient(135deg,#7c3aed,#5b21b6)',
-            display:'flex', alignItems:'center', justifyContent:'center', fontSize:20,
-          }}>🗣️</div>
+          <div className="feature-card-icon" style={{ background: 'linear-gradient(135deg,#7c3aed,#5b21b6)' }}>🗣️</div>
           <div>
-            <div style={{fontSize:13, fontWeight:800, color:'#4c1d95'}}>Pronunciation</div>
-            <div style={{fontSize:11, color:'#7c3aed', marginTop:2, lineHeight:1.4}}>Master Č, Š, Ž, LJ, NJ & more</div>
+            <div className="feature-card-title" style={{ color: '#4c1d95' }}>Pronunciation</div>
+            <div className="feature-card-desc" style={{ color: '#7c3aed' }}>Master Č, Š, Ž, LJ, NJ &amp; more</div>
           </div>
         </button>
       </div>
@@ -233,34 +193,30 @@ export default function LearnTab({
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
         <button
           onClick={() => setScr('pitch_accent')}
+          className="feature-card feature-card--col"
           style={{
-            display:'flex', flexDirection:'column', alignItems:'flex-start', gap:6,
-            padding:'14px 14px', borderRadius:16, border:'none',
-            background:'linear-gradient(135deg,#4c1d95,#7c3aed)',
-            cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
-            boxShadow:'0 4px 14px rgba(124,58,237,.3)',
+            background: 'linear-gradient(135deg,#4c1d95,#7c3aed)',
+            boxShadow: '0 4px 14px rgba(124,58,237,.3)',
           }}
         >
           <div style={{ fontSize: 28 }}>🎵</div>
           <div>
-            <div style={{fontSize:13, fontWeight:900, color:'#fff'}}>Pitch Accent</div>
-            <div style={{fontSize:10, color:'rgba(255,255,255,.8)', marginTop:2, lineHeight:1.4}}>4 accents · What no other app teaches</div>
+            <div className="feature-card-title" style={{ color: '#fff' }}>Pitch Accent</div>
+            <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>4 accents · What no other app teaches</div>
           </div>
         </button>
         <button
           onClick={() => setScr('heritage_path')}
+          className="feature-card feature-card--col"
           style={{
-            display:'flex', flexDirection:'column', alignItems:'flex-start', gap:6,
-            padding:'14px 14px', borderRadius:16, border:'none',
-            background:'linear-gradient(135deg,#7c2d12,#c2410c)',
-            cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
-            boxShadow:'0 4px 14px rgba(194,65,12,.3)',
+            background: 'linear-gradient(135deg,#7c2d12,#c2410c)',
+            boxShadow: '0 4px 14px rgba(194,65,12,.3)',
           }}
         >
           <div style={{ fontSize: 28 }}>🧬</div>
           <div>
-            <div style={{fontSize:13, fontWeight:900, color:'#fff'}}>Heritage Path</div>
-            <div style={{fontSize:10, color:'rgba(255,255,255,.8)', marginTop:2, lineHeight:1.4}}>Grew up hearing Croatian? Start here.</div>
+            <div className="feature-card-title" style={{ color: '#fff' }}>Heritage Path</div>
+            <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>Grew up hearing Croatian? Start here.</div>
           </div>
         </button>
       </div>
@@ -269,34 +225,30 @@ export default function LearnTab({
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
         <button
           onClick={() => setScr('phoneme_practice')}
+          className="feature-card feature-card--col"
           style={{
-            display:'flex', flexDirection:'column', alignItems:'flex-start', gap:6,
-            padding:'14px 14px', borderRadius:16, border:'none',
-            background:'linear-gradient(135deg,#0e7490,#0891b2)',
-            cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
-            boxShadow:'0 4px 14px rgba(14,116,144,.3)',
+            background: 'linear-gradient(135deg,#0e7490,#0891b2)',
+            boxShadow: '0 4px 14px rgba(14,116,144,.3)',
           }}
         >
           <div style={{ fontSize: 28 }}>🔤</div>
           <div>
-            <div style={{fontSize:13, fontWeight:900, color:'#fff'}}>Phoneme Trainer</div>
-            <div style={{fontSize:10, color:'rgba(255,255,255,.8)', marginTop:2, lineHeight:1.4}}>Č vs Ć · Š Ž LJ NJ · Sound right</div>
+            <div className="feature-card-title" style={{ color: '#fff' }}>Phoneme Trainer</div>
+            <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>Č vs Ć · Š Ž LJ NJ · Sound right</div>
           </div>
         </button>
         <button
           onClick={() => setScr('heritage_mode')}
+          className="feature-card feature-card--col"
           style={{
-            display:'flex', flexDirection:'column', alignItems:'flex-start', gap:6,
-            padding:'14px 14px', borderRadius:16, border:'none',
-            background:'linear-gradient(135deg,#1e3a5f,#2563eb)',
-            cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
-            boxShadow:'0 4px 14px rgba(37,99,235,.3)',
+            background: 'linear-gradient(135deg,#1e3a5f,#2563eb)',
+            boxShadow: '0 4px 14px rgba(37,99,235,.3)',
           }}
         >
           <div style={{ fontSize: 28 }}>🌍</div>
           <div>
-            <div style={{fontSize:13, fontWeight:900, color:'#fff'}}>Heritage Mode</div>
-            <div style={{fontSize:10, color:'rgba(255,255,255,.8)', marginTop:2, lineHeight:1.4}}>Diaspora learner? Identify your gaps</div>
+            <div className="feature-card-title" style={{ color: '#fff' }}>Heritage Mode</div>
+            <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>Diaspora learner? Identify your gaps</div>
           </div>
         </button>
       </div>
@@ -304,41 +256,37 @@ export default function LearnTab({
       {/* ── PRACTICAL CROATIAN ──────────────────────────────────────────── */}
       <button
         onClick={() => setScr('practical_croatian')}
+        className="feature-card"
         style={{
-          display:'flex', alignItems:'center', gap:14,
-          padding:'14px 16px', borderRadius:16, border:'none',
-          background:'linear-gradient(135deg,#065f46,#059669)',
-          cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
-          boxShadow:'0 4px 14px rgba(5,150,105,.3)',
-          width:'100%', marginBottom:20,
+          background: 'linear-gradient(135deg,#065f46,#059669)',
+          boxShadow: '0 4px 14px rgba(5,150,105,.3)',
+          marginBottom: 20,
         }}
       >
-        <div style={{ fontSize: 32, flexShrink:0 }}>🗺️</div>
-        <div>
-          <div style={{fontSize:14, fontWeight:900, color:'#fff'}}>Practical Croatian</div>
-          <div style={{fontSize:11, color:'rgba(255,255,255,.8)', marginTop:2, lineHeight:1.4}}>Shop · Doctor · Immigration office · Family visit — 4 real scenarios</div>
+        <div style={{ fontSize: 32, flexShrink: 0 }}>🗺️</div>
+        <div style={{ flex: 1 }}>
+          <div className="feature-card-title" style={{ color: '#fff' }}>Practical Croatian</div>
+          <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>Shop · Doctor · Immigration office · Family visit — 4 real scenarios</div>
         </div>
-        <div style={{marginLeft:'auto', color:'rgba(255,255,255,.7)', fontSize:18}}>›</div>
+        <div style={{ marginLeft: 'auto', color: 'rgba(255,255,255,.7)', fontSize: 18 }}>›</div>
       </button>
 
       {/* ── TOP 500 WORDS ───────────────────────────────────────────────── */}
       <button
         onClick={() => setScr('frequency_track')}
+        className="feature-card"
         style={{
-          display:'flex', alignItems:'center', gap:14,
-          padding:'14px 16px', borderRadius:16, border:'none',
-          background:'linear-gradient(135deg,#1e3a5f,#0e7490)',
-          cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
-          boxShadow:'0 4px 14px rgba(14,116,144,.3)',
-          width:'100%', marginBottom:20,
+          background: 'linear-gradient(135deg,#1e3a5f,#0e7490)',
+          boxShadow: '0 4px 14px rgba(14,116,144,.3)',
+          marginBottom: 20,
         }}
       >
-        <div style={{ fontSize: 32, flexShrink:0 }}>📊</div>
-        <div>
-          <div style={{fontSize:14, fontWeight:900, color:'#fff'}}>Top 500 Croatian Words</div>
-          <div style={{fontSize:11, color:'rgba(255,255,255,.8)', marginTop:2, lineHeight:1.4}}>Master the words that make up 80% of everyday speech</div>
+        <div style={{ fontSize: 32, flexShrink: 0 }}>📊</div>
+        <div style={{ flex: 1 }}>
+          <div className="feature-card-title" style={{ color: '#fff' }}>Top 500 Croatian Words</div>
+          <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>Master the words that make up 80% of everyday speech</div>
         </div>
-        <div style={{marginLeft:'auto', color:'rgba(255,255,255,.7)', fontSize:18}}>›</div>
+        <div style={{ marginLeft: 'auto', color: 'rgba(255,255,255,.7)', fontSize: 18 }}>›</div>
       </button>
 
       {/* ── PATH WIDGET ─────────────────────────────────────────────────── */}
@@ -383,17 +331,13 @@ export default function LearnTab({
             <button
               key={item.cat}
               onClick={() => launchVocab(item.cat)}
-              style={{
-                flexShrink: 0, display: 'flex', alignItems: 'center', gap: 7,
-                padding: '9px 14px', borderRadius: 22,
-                background: item.bg, border: `1.5px solid ${item.border}`,
-                cursor: 'pointer', minHeight: 44, fontFamily: "'Outfit',sans-serif",
-              }}
+              className="vocab-pill"
+              style={{ background: item.bg, border: `1.5px solid ${item.border}` }}
             >
-              <span style={{fontSize: 16}}>{item.icon}</span>
+              <span style={{ fontSize: 16 }}>{item.icon}</span>
               <div style={{ textAlign: 'left' }}>
-                <div style={{fontSize: 12, fontWeight: 800, color: item.color, whiteSpace: 'nowrap'}}>{item.label}</div>
-                <div style={{fontSize: 10, color: 'var(--subtext)', whiteSpace: 'nowrap'}}>{(V[item.cat] || []).length} words</div>
+                <div className="vocab-pill-label" style={{ color: item.color }}>{item.label}</div>
+                <div className="vocab-pill-count">{(V[item.cat] || []).length} words</div>
               </div>
             </button>
           ))}
