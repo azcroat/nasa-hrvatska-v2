@@ -2566,3 +2566,690 @@ img, video, canvas, .skeleton, [class*="anim-"], [style*="animation"] {
     scrollbar-width:thin;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   WORLD-CLASS VISUAL SYSTEM — v3 Sprint
+   Complete design upgrade: typography, cards, interactions
+═══════════════════════════════════════════════════════════ */
+
+/* ── Missing design tokens ─────────────────────────────── */
+:root {
+  /* Button & interactive radius */
+  --radius-btn:   14px;
+  --radius-card:  16px;
+  --radius-pill:  22px;
+
+  /* Button shadows */
+  --shadow-btn-info:    0 4px 20px rgba(14,116,144,.3),  0 1px 0 rgba(255,255,255,.15) inset;
+  --shadow-btn-success: 0 4px 20px rgba(22,163,74,.3),   0 1px 0 rgba(255,255,255,.15) inset;
+  --shadow-btn-warning: 0 4px 20px rgba(217,119,6,.3),   0 1px 0 rgba(255,255,255,.15) inset;
+  --shadow-elevated:    0 8px 32px rgba(0,0,0,.14), 0 2px 8px rgba(0,0,0,.08);
+  --shadow-cta:         0 6px 28px rgba(14,116,144,.38), 0 2px 8px rgba(0,0,0,.1);
+  --shadow-glow-info:   0 0 0 4px rgba(14,116,144,.18);
+
+  /* Transition speeds */
+  --t-quick:  0.15s;
+  --t-std:    0.2s;
+  --t-smooth: 0.3s;
+  --t-slow:   0.5s;
+}
+
+/* ── Section header — premium typography upgrade ───────── */
+/* Playfair Display for visual hierarchy on all section titles */
+.section-hdr-title {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: var(--heading) !important;
+  line-height: 1.25 !important;
+  margin-bottom: 2px !important;
+  font-family: 'Playfair Display', serif !important;
+  letter-spacing: -0.01em !important;
+}
+.section-hdr-sub {
+  font-size: 11px !important;
+  color: var(--subtext) !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+  font-family: 'Outfit', sans-serif !important;
+}
+
+/* ── Exercise card — core practice unit ─────────────────── */
+/* Used in PracticeTab 50+ times, this class drives all of them */
+.exercise-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border-radius: var(--radius-btn);
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-sans);
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  transition:
+    transform var(--t-std) cubic-bezier(.34,1.56,.64,1),
+    box-shadow var(--t-std),
+    border-color var(--t-std);
+  position: relative;
+  width: 100%;
+  border-left-width: 3px;
+}
+.exercise-card:hover {
+  transform: translateY(-2px) scale(1.005);
+  box-shadow: 0 6px 20px rgba(14,116,144,.12), 0 2px 6px rgba(0,0,0,.05);
+  border-color: rgba(14,116,144,.25);
+}
+.exercise-card:active {
+  transform: translateY(0) scale(.99);
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+.exercise-card--today {
+  background: var(--info-bg, #f0f9ff);
+  border-color: var(--info-b, #bae6fd) !important;
+  box-shadow: 0 2px 8px rgba(14,116,144,.10);
+}
+.exercise-card--today:hover {
+  box-shadow: 0 6px 20px rgba(14,116,144,.18);
+}
+.exercise-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--bar-bg);
+  border: 1px solid var(--card-b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+  transition: transform var(--t-quick) ease;
+}
+.exercise-card:hover .exercise-card-icon {
+  transform: scale(1.08);
+}
+.exercise-card-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--heading);
+  line-height: 1.2;
+  font-family: var(--font-sans);
+}
+.exercise-card-desc {
+  font-size: 11px;
+  color: var(--subtext);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+.exercise-card-meta {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+  align-items: center;
+}
+.exercise-card-today-badge {
+  position: absolute;
+  top: 5px;
+  right: 7px;
+  font-size: 9px;
+  font-weight: 900;
+  color: var(--info);
+  background: var(--card);
+  border: 1px solid var(--info-b);
+  border-radius: 6px;
+  padding: 1px 6px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+/* ── Category accordion tile ───────────────────────────── */
+.cat-tile {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  border: none;
+  text-align: left;
+  transition:
+    transform var(--t-quick) ease,
+    filter var(--t-quick) ease;
+}
+.cat-tile:hover { filter: brightness(1.04); }
+.cat-tile:active { transform: scale(.99); }
+.cat-tile-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: transform var(--t-std) cubic-bezier(.34,1.56,.64,1);
+}
+.cat-tile:hover .cat-tile-icon { transform: scale(1.1) rotate(-3deg); }
+.cat-tile-title {
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.2;
+  font-family: 'Playfair Display', serif;
+}
+.cat-tile-count {
+  font-size: 11px;
+  margin-top: 2px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+}
+.cat-tile-chevron {
+  font-size: 16px;
+  font-weight: 300;
+  transition: transform var(--t-smooth) cubic-bezier(.4,0,.2,1);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.cat-tile-chevron--open { transform: rotate(180deg); }
+
+/* Category accordion panel */
+.cat-panel {
+  border-top: none;
+  overflow: hidden;
+  animation: panel-open var(--t-smooth) cubic-bezier(.4,0,.2,1) both;
+}
+@keyframes panel-open {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Practice card (dark game tiles) ─────────────────────── */
+.practice-card-dark {
+  border-radius: 18px !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 90px;
+  cursor: pointer;
+  border: none;
+  font-family: var(--font-sans);
+  transition:
+    transform var(--t-std) cubic-bezier(.34,1.56,.64,1),
+    box-shadow var(--t-std),
+    filter var(--t-std);
+  box-shadow: 0 4px 16px rgba(0,0,0,.22), 0 1px 0 rgba(255,255,255,.08) inset;
+}
+.practice-card-dark:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 32px rgba(0,0,0,.32), 0 1px 0 rgba(255,255,255,.1) inset;
+  filter: brightness(1.08);
+}
+.practice-card-dark:active {
+  transform: translateY(-1px) scale(.99);
+  box-shadow: 0 4px 12px rgba(0,0,0,.25);
+}
+.pc-icon { font-size: 28px; margin-bottom: 4px; }
+.pc-label { font-size: 13px; font-weight: 800; color: #fff; line-height: 1.2; }
+.pc-desc  { font-size: 10px; color: rgba(255,255,255,.65); margin-top: 2px; font-weight: 600; }
+
+/* ── Vocab quick-access pill ─────────────────────────────── */
+.vocab-pill {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  min-height: 44px;
+  font-family: var(--font-sans);
+  transition:
+    transform var(--t-quick) cubic-bezier(.34,1.56,.64,1),
+    box-shadow var(--t-quick),
+    filter var(--t-quick);
+}
+.vocab-pill:hover {
+  transform: translateY(-2px) scale(1.03);
+  filter: brightness(1.06);
+}
+.vocab-pill:active {
+  transform: translateY(0) scale(.98);
+}
+.vocab-pill-label {
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.vocab-pill-count {
+  font-size: 10px;
+  color: var(--subtext);
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+/* ── Feature card — premium CTA card ─────────────────────── */
+.feature-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius-card);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-sans);
+  border: none;
+  transition:
+    transform var(--t-std) cubic-bezier(.34,1.56,.64,1),
+    box-shadow var(--t-std),
+    filter var(--t-std);
+}
+.feature-card:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: var(--shadow-elevated);
+  filter: brightness(1.04);
+}
+.feature-card:active {
+  transform: translateY(-1px) scale(.99);
+}
+.feature-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+.feature-card-title {
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.2;
+  font-family: 'Playfair Display', serif;
+}
+.feature-card-desc {
+  font-size: 11px;
+  margin-top: 2px;
+  line-height: 1.4;
+  opacity: .85;
+  font-family: var(--font-sans);
+}
+
+/* ── Feature card column variant (2-col grids) ────────────── */
+.feature-card--col {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 14px;
+  width: auto;
+}
+.feature-card--col .feature-card-icon {
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+}
+.feature-card--col .feature-card-title {
+  font-size: 13px;
+}
+.feature-card--col .feature-card-desc {
+  font-size: 11px;
+}
+
+/* ── PathProgress hero card ─────────────────────────────── */
+/* Cinematic stage progress card at top of Home tab */
+.progress-hero {
+  border-radius: 0 0 28px 28px;
+  padding: 22px 20px 26px;
+  margin-bottom: 20px;
+  box-shadow: 0 12px 48px rgba(0,0,0,.22), 0 4px 12px rgba(0,0,0,.1);
+  position: relative;
+  overflow: hidden;
+}
+/* Decorative orbs */
+.progress-hero::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 160px;
+  height: 160px;
+  background: rgba(255,255,255,.07);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.progress-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -30px;
+  left: -30px;
+  width: 120px;
+  height: 120px;
+  background: rgba(0,0,0,.1);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.progress-hero-eyebrow {
+  font-size: 10px;
+  font-weight: 800;
+  color: rgba(255,255,255,.65);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  font-family: var(--font-sans);
+}
+.progress-hero-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+  line-height: 1.2;
+  margin-bottom: 4px;
+  font-family: 'Playfair Display', serif;
+  text-shadow: 0 2px 12px rgba(0,0,0,.2);
+}
+.progress-hero-subtitle {
+  font-size: 12px;
+  color: rgba(255,255,255,.65);
+  font-weight: 600;
+  margin-bottom: 14px;
+  font-family: var(--font-sans);
+}
+.progress-hero-bar-track {
+  background: rgba(255,255,255,.22);
+  border-radius: 6px;
+  height: 7px;
+  overflow: hidden;
+  margin-bottom: 7px;
+}
+.progress-hero-bar-fill {
+  height: 100%;
+  background: rgba(255,255,255,.9);
+  border-radius: 6px;
+  transition: width .8s cubic-bezier(.4,0,.2,1);
+  position: relative;
+  overflow: hidden;
+}
+.progress-hero-bar-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.4), transparent);
+  animation: shimmer 2s infinite;
+  background-size: 200% 100%;
+}
+.progress-hero-count {
+  font-size: 11px;
+  color: rgba(255,255,255,.65);
+  font-weight: 500;
+  margin-bottom: 12px;
+  font-family: var(--font-sans);
+}
+/* Stage dots row */
+.progress-hero-dots {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.progress-hero-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 900;
+  transition: background .3s, border .3s, transform .2s;
+}
+.progress-hero-dot--done {
+  background: rgba(255,255,255,.92);
+  border: 2px solid rgba(255,255,255,1);
+}
+.progress-hero-dot--active {
+  background: rgba(255,255,255,.3);
+  border: 2px solid rgba(255,255,255,.6);
+  animation: progress-dot-pulse 2s ease-in-out infinite;
+}
+.progress-hero-dot--empty {
+  background: rgba(255,255,255,.12);
+  border: 1.5px solid rgba(255,255,255,.25);
+}
+.progress-hero-dot-more {
+  height: 24px;
+  border-radius: 12px;
+  padding: 0 8px;
+  flex-shrink: 0;
+  background: rgba(255,255,255,.1);
+  display: flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,.6);
+}
+@keyframes progress-dot-pulse {
+  0%, 100% { transform: scale(1); background: rgba(255,255,255,.3); }
+  50% { transform: scale(1.15); background: rgba(255,255,255,.5); }
+}
+/* CTA button */
+.progress-hero-cta {
+  width: 100%;
+  height: 54px;
+  background: white;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: .01em;
+  box-shadow: 0 4px 24px rgba(0,0,0,.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition:
+    transform var(--t-quick) cubic-bezier(.34,1.56,.64,1),
+    box-shadow var(--t-quick);
+  position: relative;
+  overflow: hidden;
+}
+.progress-hero-cta::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.15), transparent);
+  pointer-events: none;
+}
+.progress-hero-cta:hover {
+  transform: translateY(-2px) scale(1.005);
+  box-shadow: 0 8px 32px rgba(0,0,0,.3);
+}
+.progress-hero-cta:active {
+  transform: translateY(0) scale(.98);
+  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+}
+.progress-hero-secondary {
+  width: 100%;
+  height: 44px;
+  background: rgba(255,255,255,.12);
+  border: 1.5px solid rgba(255,255,255,.28);
+  border-radius: 13px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background var(--t-quick), border-color var(--t-quick), transform var(--t-quick);
+  margin-top: 10px;
+}
+.progress-hero-secondary:hover {
+  background: rgba(255,255,255,.2);
+  border-color: rgba(255,255,255,.4);
+  transform: translateY(-1px);
+}
+
+/* ── Pill filter row ─────────────────────────────────────── */
+.pill-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 0 8px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 4px;
+}
+.pill-row::-webkit-scrollbar { display: none; }
+.pill-filter {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  border: 1.5px solid var(--card-b);
+  background: var(--card);
+  color: var(--subtext);
+  cursor: pointer;
+  transition:
+    background var(--t-quick),
+    border-color var(--t-quick),
+    color var(--t-quick),
+    transform var(--t-quick) cubic-bezier(.34,1.56,.64,1);
+  white-space: nowrap;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+}
+.pill-filter:hover {
+  border-color: var(--info-b);
+  color: var(--info);
+  background: var(--info-bg);
+  transform: translateY(-1px);
+}
+.pill-filter.active {
+  background: var(--info);
+  border-color: var(--info);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(14,116,144,.3);
+}
+
+/* ── Stagger grid for exercise cards ────────────────────── */
+/* Apply to the grid container when a category expands */
+.exercise-grid-stagger > *:nth-child(1)  { animation: spring-in .3s 0.00s ease both; }
+.exercise-grid-stagger > *:nth-child(2)  { animation: spring-in .3s 0.03s ease both; }
+.exercise-grid-stagger > *:nth-child(3)  { animation: spring-in .3s 0.06s ease both; }
+.exercise-grid-stagger > *:nth-child(4)  { animation: spring-in .3s 0.09s ease both; }
+.exercise-grid-stagger > *:nth-child(5)  { animation: spring-in .3s 0.12s ease both; }
+.exercise-grid-stagger > *:nth-child(6)  { animation: spring-in .3s 0.15s ease both; }
+.exercise-grid-stagger > *:nth-child(7)  { animation: spring-in .3s 0.18s ease both; }
+.exercise-grid-stagger > *:nth-child(8)  { animation: spring-in .3s 0.21s ease both; }
+.exercise-grid-stagger > *:nth-child(9)  { animation: spring-in .3s 0.24s ease both; }
+.exercise-grid-stagger > *:nth-child(10) { animation: spring-in .3s 0.27s ease both; }
+.exercise-grid-stagger > *:nth-child(n+11) { animation: spring-in .3s 0.30s ease both; }
+
+/* ── Dark mode: exercise-card border visibility ──────────── */
+.dark .exercise-card {
+  border-left-width: 3px;
+}
+.dark .exercise-card--today {
+  background: rgba(14,116,144,.08);
+  border-color: rgba(56,189,248,.35) !important;
+}
+
+/* ── Today's Picks grid ─────────────────────────────────── */
+.todays-picks-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 8px;
+  margin-top: 4px;
+}
+/* 3-item grid: 2 + 1 full-width */
+.todays-picks-grid > *:nth-child(3) {
+  grid-column: 1 / -1;
+}
+
+/* ── Quest tracker tiles ─────────────────────────────────── */
+.quest-tile {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 7px 4px;
+  border-radius: 11px;
+  transition: transform var(--t-quick) cubic-bezier(.34,1.56,.64,1), background var(--t-std), border-color var(--t-std);
+  cursor: default;
+}
+.quest-tile--done {
+  background: var(--success-bg);
+  border: 1.5px solid var(--success-b);
+}
+.quest-tile--done:hover {
+  transform: scale(1.04);
+}
+.quest-tile--pending {
+  background: var(--bar-bg);
+  border: 1.5px solid var(--card-b);
+}
+.quest-tile-icon { font-size: 17px; }
+.quest-tile-label { font-size: 10px; font-weight: 700; font-family: var(--font-sans); }
+.quest-tile--done .quest-tile-label { color: var(--success); }
+.quest-tile--pending .quest-tile-label { color: var(--subtext); }
+
+/* ── Milestone card (SRS review banner) ─────────────────── */
+.milestone-card {
+  border-radius: 18px;
+  overflow: hidden;
+  background: linear-gradient(155deg, #071828 0%, #0a3d52 60%, #0e7490 100%);
+  border: none;
+  box-shadow: 0 6px 24px rgba(14,116,144,.28), 0 2px 6px rgba(0,0,0,.12);
+  transition: transform var(--t-std) cubic-bezier(.34,1.56,.64,1), box-shadow var(--t-std);
+}
+.milestone-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(14,116,144,.35), 0 4px 12px rgba(0,0,0,.12);
+}
+.milestone-card:active { transform: translateY(-1px) scale(.99); }
+
+/* ── Gradient text utility ───────────────────────────────── */
+.text-gradient-info {
+  background: linear-gradient(135deg, var(--info), #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-gold {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-hr {
+  background: linear-gradient(135deg, var(--color-croatian), #f97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Reduced motion overrides ────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .exercise-grid-stagger > *,
+  .progress-hero-dot--active,
+  .cat-tile-icon,
+  .cat-tile-chevron,
+  .progress-hero-bar-fill::after { animation: none !important; transition-duration: .01ms !important; }
+}
+
+/* ── Dark mode token overrides ──────────────────────────── */
+.dark .progress-hero-cta { box-shadow: 0 4px 24px rgba(0,0,0,.4); }
+.dark .milestone-card    { background: linear-gradient(155deg,#0a1a28 0%,#0f2d40 60%,#0c5068 100%); }
+.dark .practice-card-dark { box-shadow: 0 4px 16px rgba(0,0,0,.4), 0 1px 0 rgba(255,255,255,.05) inset; }
