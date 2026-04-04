@@ -582,69 +582,6 @@ export default function HeroSection({
             </div>
           )}
 
-          {/* ── Next Lesson / Continue Learning CTAs ── */}
-          {(() => {
-            const nextItem = pathData?.nextItem;
-            const showResume = lastActivity && (!nextItem || lastActivity.ex !== nextItem.key);
-            return (
-              <div style={{ marginTop: 12, marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {/* Primary: Next Lesson from learn path */}
-                {nextItem && (
-                  <button
-                    onClick={() => launchPathItem ? launchPathItem(nextItem) : setScr(nextItem.key)}
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      width: '100%', padding: '14px 18px',
-                      background: 'linear-gradient(135deg, #16a34a, #15803d)',
-                      border: 'none', borderRadius: 14, cursor: 'pointer',
-                      boxShadow: '0 4px 16px rgba(22,163,74,0.35)',
-                    }}
-                  >
-                    <div style={{ textAlign: 'left' }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.75)', letterSpacing: '.06em', textTransform: 'uppercase' }}>Next Lesson</div>
-                      <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginTop: 1 }}>{nextItem.title}</div>
-                      {nextItem.levelTitle && (
-                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>{nextItem.levelTitle}</div>
-                      )}
-                    </div>
-                    <span style={{ fontSize: 24, color: '#fff' }}>▶</span>
-                  </button>
-                )}
-                {/* All lessons done */}
-                {!nextItem && (
-                  <div style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                    width: '100%', padding: '14px 18px',
-                    background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
-                    border: 'none', borderRadius: 14,
-                    boxShadow: '0 4px 16px rgba(124,58,237,0.35)',
-                  }}>
-                    <span style={{ fontSize: 18 }}>🏆</span>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Learn Path Complete — Majstor!</div>
-                  </div>
-                )}
-                {/* Secondary: Resume last exercise (when different from next lesson) */}
-                {showResume && (
-                  <button
-                    onClick={() => { setScr(lastActivity.ex); if (sCurEx) sCurEx(lastActivity.ex); }}
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      width: '100%', padding: '10px 16px',
-                      background: 'rgba(255,255,255,0.10)',
-                      border: '1px solid rgba(255,255,255,0.20)',
-                      borderRadius: 12, cursor: 'pointer',
-                    }}
-                  >
-                    <div style={{ textAlign: 'left' }}>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.55)', letterSpacing: '.06em', textTransform: 'uppercase' }}>Resume</div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.88)', marginTop: 1 }}>{lastActivity.label}</div>
-                    </div>
-                    <span style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)' }}>↩</span>
-                  </button>
-                )}
-              </div>
-            );
-          })()}
 
           {/* Level badge pill */}
           <div style={{display:'inline-flex',alignItems:'center',marginBottom:16}}>
