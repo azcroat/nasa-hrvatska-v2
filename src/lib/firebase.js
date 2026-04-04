@@ -326,7 +326,7 @@ export async function fbCreateFamily(familyName,creatorUid,creatorEmail,creatorN
   const fam={name:familyName,code:code,role:"admin"};saveLocalFamily(fam);
   return{ok:true,code:code,family:fam}}catch(e){return{ok:false,err:friendlyError(e.message)}}
 }
-export async function fbJoinFamily(code,uid,email,name){
+export async function fbJoinFamily(code,uid,email,name,weekXP){
   if(!_fbReady||!_fbDb)return{ok:false,err:"Firebase not configured."};
   let resultFam=/** @type {any} */ (null);let alreadyIn=false;
   try{
@@ -360,13 +360,13 @@ export async function fbJoinFamily(code,uid,email,name){
       getDoc(fsDoc(_fbDb,"leaderboard",jid)).then(function(lbs){
         const lbd=lbs.exists()?lbs.data():null;
         if(lbd&&(lbd.xp||0)>0){
-          updateDoc(fsDoc(_fbDb,"families",jcode),{["memberXP."+jid]:{xp:lbd.xp||0,lc:lbd.lc||0,name:lbd.name||name,updated:Date.now()}}).catch(function(){});
+          updateDoc(fsDoc(_fbDb,"families",jcode),{["memberXP."+jid]:{xp:lbd.xp||0,lc:lbd.lc||0,weekXP:weekXP||0,name:lbd.name||name,updated:Date.now()}}).catch(function(){});
         } else {
           // Also try /users/{id} in case leaderboard doc is missing
           getDoc(fsDoc(_fbDb,"users",jid)).then(function(us){
             const ud=us.exists()?us.data():null;
             if(ud&&(ud.xp||0)>0){
-              updateDoc(fsDoc(_fbDb,"families",jcode),{["memberXP."+jid]:{xp:ud.xp||0,lc:0,name:name||uid,updated:Date.now()}}).catch(function(){});
+              updateDoc(fsDoc(_fbDb,"families",jcode),{["memberXP."+jid]:{xp:ud.xp||0,lc:0,weekXP:weekXP||0,name:name||uid,updated:Date.now()}}).catch(function(){});
             }
           }).catch(function(){});
         }

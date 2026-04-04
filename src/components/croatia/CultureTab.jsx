@@ -284,7 +284,10 @@ export default function CultureTab({ sCurEx }) {
             const m = new Date().getMonth() + 1, d = new Date().getDate();
             const isEaster = (m === 3 && d >= 20) || (m === 4 && d <= 30);
             if (!isEaster) return null;
-            const done = localStorage.getItem('nh_uskrs_kviz_done') === '1';
+            const done = localStorage.getItem('nh_uskrs_kviz_done') === '1' ||
+              (localStorage.getItem('nh_cq_easter_uskrs_q1') === '1' &&
+               localStorage.getItem('nh_cq_easter_uskrs_q2') === '1' &&
+               localStorage.getItem('nh_cq_easter_uskrs_q3') === '1');
             if (done) return null;
             return (
               <div

@@ -98,7 +98,9 @@ function FamilyTab({ user }) {
   async function handleJoin() {
     if (!joinCode.trim()) return;
     setLoading(true); setError('');
-    const result = await fbJoinFamily(joinCode.trim(), uid, email, displayName);
+    const _wkd = new Date(); const _wkday = _wkd.getDay() || 7; _wkd.setDate(_wkd.getDate() + 4 - _wkday); const _wkyear = _wkd.getFullYear(); const _wknum = Math.ceil(((_wkd.getTime() - new Date(_wkyear,0,1).getTime()) / 86400000 + 1) / 7); const _wkKey = `${_wkyear}-W${String(_wknum).padStart(2,'0')}`;
+    const _joinWeekXP = parseInt(localStorage.getItem('nh_week_xp_' + _wkKey) || '0', 10);
+    const result = await fbJoinFamily(joinCode.trim(), uid, email, displayName, _joinWeekXP);
     if (result?.ok) {
       setFamily(result.family || { code: joinCode.trim().toUpperCase(), role: 'member' });
       fbGetFamilyMembers(joinCode.trim().toUpperCase()).then(setMembers).catch(() => {});
