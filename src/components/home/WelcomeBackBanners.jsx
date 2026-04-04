@@ -1,7 +1,7 @@
 import React from 'react';
 import CroatianKnight from '../shared/CroatianKnight';
 
-export default function WelcomeBackBanners({ comebackBonus, longAbsence, isNewUserWindow, daysSinceJoin }) {
+export default function WelcomeBackBanners({ comebackBonus, longAbsence }) {
   return (
     <>
       {comebackBonus && (
@@ -45,33 +45,6 @@ export default function WelcomeBackBanners({ comebackBonus, longAbsence, isNewUs
         </div>
       )}
 
-      {/* Day 2-10 retention nudge — shown when new user hasn't built habit yet */}
-      {isNewUserWindow && daysSinceJoin >= 1 && (
-        <div style={{
-          background: 'linear-gradient(135deg, #7c3aed, #4f46e5)',
-          borderRadius: 14, padding: '14px 16px', marginBottom: 12,
-          display: 'flex', alignItems: 'center', gap: 12,
-        }}>
-          <span style={{fontSize: 28}}>
-            {daysSinceJoin <= 3 ? '🌱' : daysSinceJoin <= 7 ? '🔥' : '⭐'}
-          </span>
-          <div style={{flex: 1}}>
-            <div style={{fontSize: 13, fontWeight: 800, color: '#fff'}}>
-              {daysSinceJoin === 1 ? 'Day 2 — Build the habit!' :
-               daysSinceJoin <= 3 ? `Day ${daysSinceJoin + 1} — You're just getting started` :
-               daysSinceJoin <= 7 ? `Day ${daysSinceJoin + 1} — Keep the momentum going` :
-               `Day ${daysSinceJoin + 1} — Almost at your first milestone!`}
-            </div>
-            <div style={{fontSize: 11, color: 'rgba(255,255,255,0.8)', marginTop: 2}}>
-              {daysSinceJoin <= 3
-                ? 'Learners who practice 3 days in a row are 5× more likely to reach fluency.'
-                : daysSinceJoin <= 7
-                ? 'One more week and Croatian will feel natural. Stay consistent.'
-                : 'Day 10 is the breakthrough point. You\'re almost there — don\'t stop now.'}
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
