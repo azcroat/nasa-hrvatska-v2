@@ -229,7 +229,7 @@ export default function WeeklyLeague({ authUser: au, name, stats, goBack }) {
 
   // ── Joined — full standings view ───────────────────────────────────────
   const members = data.members || [];
-  const amInTop10 = members.some(m => m.uid === au?.u || m.uid === (au?.uid));
+  const amInTop10 = members.some(m => m.uid === au?.u);
   const showMyRow = !amInTop10 && data.myMember;
 
   const xpToPromo = Math.max(0, (data.promotionXP || 0) - myWeekXP + 1);

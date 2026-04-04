@@ -36,7 +36,7 @@ async function fetchCardImage(word, meaning, cacheRef, signal) {
   } catch { return null; }
 }
 
-const STILL_LEARNING_MSG_DURATION = 1200;
+const STILL_LEARNING_MSG_DURATION = 2000;
 const XP_PER_KNOWN = 2;
 const XP_COMPLETION_BONUS = 5;
 const FLASH_RESUME_KEY = 'nh_flash_resume';

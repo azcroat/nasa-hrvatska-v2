@@ -6,6 +6,7 @@ import { getSR, saveSR, getDueReviews } from "./lib/srs.js";
 import { buildProgressSnapshot } from "./lib/progressSnapshot.js";
 import { localDateStr, weekKey } from "./lib/dateUtils.js";
 import { canRepairStreak, repairStreak } from "./lib/streak.js";
+import { cleanupStaleQuestKeys } from "./lib/quests.js";
 import { trackAppOpen } from "./lib/analytics.js";
 import { fbRegisterFriendCode } from "./lib/firebase.js";
 import { submitWeeklyXP } from "./lib/leaderboard.js";
@@ -337,7 +338,7 @@ function App() {
 
   // ── Effects ─────────────────────────────────────────────────────────────────
   // Track retention on every app load (D1/D7/D30 buckets in Firebase Analytics)
-  useEffect(() => { trackAppOpen(!!authUser); }, []);
+  useEffect(() => { trackAppOpen(!!authUser); cleanupStaleQuestKeys(); }, []);
 
   // Register friend code index once per session when auth is ready
   useEffect(() => {

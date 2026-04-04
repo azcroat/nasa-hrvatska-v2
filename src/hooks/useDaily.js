@@ -36,15 +36,15 @@ function loadDailyAnswered() {
         // Merge with main progress doc in case one source has more answers
         const main = loadFromMainDoc(k);
         if (main && Array.isArray(main.answered)) {
-          return p.answered.map((a, i) => a || main.answered[i] || false);
+          return p.answered.map((a, i) => !!(a || main.answered[i]));
         }
-        return p.answered;
+        return p.answered.map(a => !!a);
       }
     } catch (e) {}
   }
   // Fallback: main progress doc (written by auto-save on every dchlA change)
   const main = loadFromMainDoc(k);
-  if (main && Array.isArray(main.answered)) return main.answered;
+  if (main && Array.isArray(main.answered)) return main.answered.map(a => !!a);
   return [false, false, false];
 }
 

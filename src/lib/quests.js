@@ -9,6 +9,32 @@
  */
 import { localDateStr } from './dateUtils.js';
 
+/**
+ * Remove quest keys older than yesterday to prevent unbounded localStorage growth.
+ * Safe to call on every app session start.
+ */
+export function cleanupStaleQuestKeys() {
+  try {
+    const today = localDateStr();
+    const _d = new Date();
+    _d.setDate(_d.getDate() - 1);
+    const yesterday = _d.getFullYear() + '-'
+      + String(_d.getMonth() + 1).padStart(2, '0') + '-'
+      + String(_d.getDate()).padStart(2, '0');
+    const toRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key || !key.startsWith('nh_quest_')) continue;
+      // Key format: nh_quest_<id>_YYYY-MM-DD  or  nh_quest_<id>_count_YYYY-MM-DD
+      const datePart = key.slice(-10); // last 10 chars = YYYY-MM-DD
+      if (datePart !== today && datePart !== yesterday && /^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
+        toRemove.push(key);
+      }
+    }
+    toRemove.forEach(k => { try { localStorage.removeItem(k); } catch (_) {} });
+  } catch (_) {}
+}
+
 const TIER2_MAP = { speak: 'speak2', grammar: 'grammar2', master: 'master2', reading: 'reading2' };
 
 export function markQuest(id) {

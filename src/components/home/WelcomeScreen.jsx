@@ -355,10 +355,10 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, setPlacem
                 onClick={() => { setShowSpeakModal(false); startPlacement(); }}
                 style={{
                   background: 'none',
-                  border: '1px solid rgba(255,255,255,0.25)',
+                  border: '1px solid var(--card-b)',
                   borderRadius: 10,
                   padding: '12px 20px',
-                  color: 'rgba(255,255,255,0.7)',
+                  color: 'var(--subtext)',
                   fontSize: 'var(--text-sm)',
                   cursor: 'pointer',
                   marginTop: 8,
@@ -366,7 +366,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, setPlacem
                   fontFamily: 'inherit'
                 }}
               >
-                Skip
+                Skip speaking — continue to test
               </button>
             </div>
           </div>
@@ -561,10 +561,10 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, setPlacem
                 onClick={() => { setShowSpeakModal(false); startPlacement(); }}
                 style={{
                   background: 'none',
-                  border: '1px solid rgba(255,255,255,0.25)',
+                  border: '1px solid var(--card-b)',
                   borderRadius: 10,
                   padding: '12px 20px',
-                  color: 'rgba(255,255,255,0.7)',
+                  color: 'var(--subtext)',
                   fontSize: 'var(--text-sm)',
                   cursor: 'pointer',
                   marginTop: 8,
@@ -572,7 +572,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, setPlacem
                   fontFamily: 'inherit'
                 }}
               >
-                Skip
+                Skip speaking — continue to test
               </button>
             </div>
           </div>

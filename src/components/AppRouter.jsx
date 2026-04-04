@@ -334,7 +334,7 @@ export default function AppRouter(props) {
         style={{ height: "100%" }}
       >
       {currentScreen==="welcome" && <WelcomeScreen name={name} au={authUser} st={stats} setScr={setScr} setName={setName} setPlacementQ={setPlacementQ} setPlacementIdx={setPlacementIdx} setPlacementScore={setPlacementScore} setPlacementAnswers={setPlacementAnswers} setPlacementXp={setPlacementXp} />}
-      {currentScreen==="placement" && <PlacementTest onComplete={function(level){localStorage.setItem("placement_done","1");setStats(function(prev){return{...prev,ct:getPlacementCt(level),lc:Math.max(prev.lc,getPlacementCt(level).length)};});if(typeof award==='function')award(25);setShowFirstWords(true);setTab('learn');}} />}
+      {currentScreen==="placement" && <PlacementTest onComplete={function(level){localStorage.setItem("placement_done","1");setStats(function(prev){return{...prev,ct:getPlacementCt(level),lc:Math.max(prev.lc,getPlacementCt(level).length)};});if(typeof award==='function')award(25);setShowFirstWords(true);setTab('learn');}} onCancel={function(){setTab('learn');}} />}
       {// ═══ DASHBOARD ═══
       currentScreen==="dashboard"&&<div className="dash">
         <div style={{position:"relative",marginBottom:20}}>
@@ -616,7 +616,7 @@ export default function AppRouter(props) {
       {// ═══ GRAMMAR REFERENCE ═══
       currentScreen==="grammar-ref"&&<ScreenErrorBoundary key="grammar-ref" name="grammar-ref"><GrammarReference onClose={()=>setScr("dashboard")} /></ScreenErrorBoundary>}
       {// ═══ NEW PLACEMENT TEST (first-time users) ═══
-      currentScreen==="new-placement"&&<ScreenErrorBoundary key="new-placement" name="new-placement"><PlacementTest onComplete={function(level){localStorage.setItem("placement_done","1");setStats(function(prev){return{...prev,ct:getPlacementCt(level),lc:Math.max(prev.lc,getPlacementCt(level).length)};});if(typeof award==='function')award(25);setShowFirstWords(true);setTimeout(()=>setTab('learn'),300);}} /></ScreenErrorBoundary>}
+      currentScreen==="new-placement"&&<ScreenErrorBoundary key="new-placement" name="new-placement"><PlacementTest onComplete={function(level){localStorage.setItem("placement_done","1");setStats(function(prev){return{...prev,ct:getPlacementCt(level),lc:Math.max(prev.lc,getPlacementCt(level).length)};});if(typeof award==='function')award(25);setShowFirstWords(true);setTimeout(()=>setTab('learn'),300);}} onCancel={function(){setScr('dashboard');}} /></ScreenErrorBoundary>}
       {// ═══ VOCABULARY LESSON ═══
       currentScreen==="lesson"&&<ScreenErrorBoundary key="lesson" name="lesson"><LessonScreen
         lt={lt} li={li} lx={lx} ls={ls} lp={lp} la={la} lsl={lsl} qi={qi} icons={icons}

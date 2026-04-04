@@ -2,6 +2,24 @@ import React from 'react';
 import { getSR, getDueReviews, getMistakes } from '../../data.jsx';
 import { useApp } from '../../context/AppContext.jsx';
 
+function getNextReviewDue() {
+  try {
+    const sr = getSR();
+    const now = Date.now();
+    let soonest = Infinity;
+    for (const word in sr) {
+      const due = sr[word]?.due;
+      if (due && due > now && due < soonest) soonest = due;
+    }
+    if (!isFinite(soonest)) return null;
+    const diffMs = soonest - now;
+    const diffH = diffMs / 3600000;
+    if (diffH < 1) return `${Math.max(1, Math.round(diffMs / 60000))} min`;
+    if (diffH < 24) return `${Math.round(diffH)} hr`;
+    return `${Math.round(diffH / 24)} day${Math.round(diffH / 24) !== 1 ? 's' : ''}`;
+  } catch { return null; }
+}
+
 export default function ReviewTabContent() {
   const { setScr } = useApp();
 
@@ -18,11 +36,16 @@ export default function ReviewTabContent() {
       </div>
 
       {/* ── SRS REVIEW NUDGE ── */}
-      {due.length === 0 ? (
-        <div style={{fontSize:11, color:'var(--text-2)', fontStyle:'italic', textAlign:'center', padding:'4px 0'}}>
-          No reviews due — keep completing lessons to build your deck
-        </div>
-      ) : (() => {
+      {due.length === 0 ? (() => {
+        const nextDue = getNextReviewDue();
+        return (
+          <div style={{fontSize:12, color:'var(--subtext)', textAlign:'center', padding:'4px 0'}}>
+            {nextDue
+              ? `No reviews due right now — next batch ready in ${nextDue}`
+              : 'No reviews due — keep completing lessons to build your deck'}
+          </div>
+        );
+      })() : (() => {
         const sr = getSR(); const allR = Object.values(sr);
         const masteryPct = allR.length > 0
           ? Math.round(allR.reduce((s,v) => s + (v.r||0)/Math.max((v.r||0)+v.w,1), 0) / allR.length * 100)
@@ -50,6 +73,14 @@ export default function ReviewTabContent() {
               <div style={{ fontSize: 11, color: "var(--info)", fontWeight: 600, marginTop: 2, opacity: .75 }}>
                 Spaced Repetition · Tap to review now →
               </div>
+              {(() => {
+                const nextDue = getNextReviewDue();
+                return nextDue ? (
+                  <div style={{ fontSize: 10, color: 'var(--subtext)', marginTop: 2, fontStyle: 'italic' }}>
+                    Next batch due in {nextDue}
+                  </div>
+                ) : null;
+              })()}
             </div>
             <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
               <div style={{ fontSize: 20, fontWeight: 900, color: "var(--info)", lineHeight: 1 }}>{due.length}</div>
