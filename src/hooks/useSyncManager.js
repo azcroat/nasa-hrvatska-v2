@@ -164,12 +164,23 @@ export function useSyncManager({
     _lastMergedFbTs.current = 0;
     _mergeQueueRef.current = Promise.resolve();
 
+    // Push local progress to Firebase as soon as the watcher first connects.
+    // Without this, the first push waits up to 60s (the periodic timer), causing
+    // a stale-streak window when another device opens during that gap.
+    let _initialPushDone = false;
+
     const unsub = fbWatchProgress(uid, (fp, fpTs) => {
       if (setSyncReady) setSyncReady(true);
       // Reset fail counter — live connection confirmed
       _syncFailCount.current = 0;
       setSyncError(false);
       setSyncErrorCode('');
+      if (!_initialPushDone) {
+        _initialPushDone = true;
+        // Push current local state immediately so other devices see it within ~1s
+        // of this device connecting, rather than waiting for the 60s periodic timer.
+        setTimeout(() => doSyncNow(), 1000);
+      }
       if (!fp || fpTs === 0) return; // empty doc — nothing to merge
       enqueueSnapshot(fp, fpTs, uid);
     });
