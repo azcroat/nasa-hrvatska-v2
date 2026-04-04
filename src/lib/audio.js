@@ -7,6 +7,8 @@ let _au=false;let _voices=[];let _voicesLoaded=false;let _currentAudio=null;let 
 // Monotonically increasing generation counter — every speakAzure call gets a unique ID.
 // Checked after every await to abort playback if a newer speak() superseded this one.
 let _speakGen=0;
+// AbortController for the in-flight /api/tts fetch, cancelled by stopAudio().
+let _ttsAbort=null;
 
 // Client-side TTS rate guard: tracks requests in the last 60 seconds.
 // Mirrors the server limit (60/min) so rapid sequences shed locally before hitting the API.
@@ -53,6 +55,8 @@ export function getBestVoice(){
 }
 
 export function stopAudio(){
+  // Cancel any in-flight TTS fetch so stale audio doesn't play after stop
+  if(_ttsAbort){try{_ttsAbort.abort()}catch(e){}; _ttsAbort=null}
   if(_currentAudio){try{_currentAudio.pause();_currentAudio.currentTime=0}catch(e){}_currentAudio=null}
   if(window.speechSynthesis)window.speechSynthesis.cancel();
 }
@@ -75,11 +79,17 @@ export async function speakAzure(text, slow) {
       if (!_ttsAllowed()) return false; // client-side rate guard — shed before hitting server 429
       const body = { text, slow: !!slow };
       if (voicePref !== 'auto') body.voice = voicePref;
+      // AbortController: cancelled by stopAudio() or superseded by a newer speak()
+      _ttsAbort = new AbortController();
       const r = await fetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
+        signal: AbortSignal.any
+          ? AbortSignal.any([_ttsAbort.signal, AbortSignal.timeout(15000)])
+          : _ttsAbort.signal,
       });
+      _ttsAbort = null;
       if (_speakGen !== myGen) return false; // superseded while fetching
       if (!r.ok) {
         const rb = await r.text().catch(() => '');
@@ -135,6 +145,7 @@ export function speakSynth(text, rate) {
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'hr-HR'; u.rate = rate; u.pitch = 1.0; u.volume = 1.0;
   const best = getBestVoice(); if (best) u.voice = best;
+  u.onerror = () => { window.dispatchEvent(new CustomEvent('nh:tts-failed')); };
   window.speechSynthesis.speak(u);
 }
 

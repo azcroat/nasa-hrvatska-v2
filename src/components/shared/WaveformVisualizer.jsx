@@ -113,9 +113,20 @@ export default function WaveformVisualizer({ active, color = '#0e7490', height =
         const bw = W / bars - 2;
         for (let i = 0; i < bars; i++) {
           const h = (Math.sin((i / bars) * Math.PI * 2 + t) * 0.5 + 0.5) * H * 0.75 + 4;
+          const x = i * (bw + 2), y = (H - h) / 2, r = Math.min(3, bw / 2, h / 2);
           ctx.fillStyle = color + Math.floor(140 + i * 3).toString(16);
           ctx.beginPath();
-          ctx.roundRect((i * (bw + 2)), (H - h) / 2, bw, h, 3);
+          // Portable rounded-rect — ctx.roundRect() not supported in Safari <16
+          ctx.moveTo(x + r, y);
+          ctx.lineTo(x + bw - r, y);
+          ctx.arcTo(x + bw, y, x + bw, y + r, r);
+          ctx.lineTo(x + bw, y + h - r);
+          ctx.arcTo(x + bw, y + h, x + bw - r, y + h, r);
+          ctx.lineTo(x + r, y + h);
+          ctx.arcTo(x, y + h, x, y + h - r, r);
+          ctx.lineTo(x, y + r);
+          ctx.arcTo(x, y, x + r, y, r);
+          ctx.closePath();
           ctx.fill();
         }
         t += 0.12;
