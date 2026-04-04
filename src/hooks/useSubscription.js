@@ -46,8 +46,9 @@ function _save(sub) {
 }
 
 function _isInTrial(sub) {
-  if (!sub.trialUntil) return false;
-  return new Date(sub.trialUntil) > new Date();
+  if (!sub.trialUntil || typeof sub.trialUntil !== 'string') return false;
+  const d = new Date(sub.trialUntil);
+  return !isNaN(d.getTime()) && d > new Date();
 }
 
 function _isActivePaid(sub) {

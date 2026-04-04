@@ -453,10 +453,17 @@ export async function onRequestPost(context) {
     anthropicMessages.push({ role, content });
   }
 
-  // Must end with a user message
-  if (anthropicMessages.length === 0 || anthropicMessages[anthropicMessages.length - 1].role !== "user") {
+  // Must end with a user message with meaningful content
+  const lastMsg = anthropicMessages[anthropicMessages.length - 1];
+  if (anthropicMessages.length === 0 || lastMsg?.role !== "user") {
     return new Response(
       JSON.stringify({ error: "Last message must be from user" }),
+      { status: 400, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } }
+    );
+  }
+  if (!lastMsg.content || lastMsg.content.trim().length < 1) {
+    return new Response(
+      JSON.stringify({ error: "Message cannot be empty" }),
       { status: 400, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } }
     );
   }

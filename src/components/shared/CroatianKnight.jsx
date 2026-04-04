@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 
 /**
@@ -670,23 +670,15 @@ function Defs() {
 // ─── Main component ───────────────────────────────────────────────────────────
 const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'happy', variant, level = 1, className = '', style = {} }) {
   const variants = VARIANTS[mood] || VARIANTS.happy;
-  const [variantIdx] = useState(() =>
-    (variant !== undefined && variant >= 0 && variant < variants.length)
-      ? variant
-      : new Date().getHours() % variants.length
-  );
-  const [activeVarIdx, setActiveVarIdx] = useState(variantIdx);
-  const idleTimerRef = useRef(null);
 
-  useEffect(() => {
-    setActiveVarIdx(variantIdx);
-    clearInterval(idleTimerRef.current);
-    idleTimerRef.current = setInterval(
-      () => setActiveVarIdx(v => (v + 1) % variants.length),
-      8000 + Math.floor(Math.random() * 2000)
-    );
-    return () => clearInterval(idleTimerRef.current);
-  }, [mood, variants.length, variantIdx]);
+  // Variant is driven by the mood prop only — no auto-cycling.
+  // When a caller passes an explicit variant index, use it.
+  // Otherwise pick deterministically from the hour so the same user
+  // sees consistent animation within a session but variety across days.
+  const activeVarIdx = useMemo(() => {
+    if (variant !== undefined && variant >= 0 && variant < variants.length) return variant;
+    return new Date().getHours() % variants.length;
+  }, [mood, variant, variants.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const m = variants[Math.min(activeVarIdx, variants.length - 1)];
   const lvlCfg = getLevelConfig(level);
