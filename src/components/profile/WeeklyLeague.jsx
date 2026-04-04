@@ -234,7 +234,7 @@ export default function WeeklyLeague({ authUser: au, name, stats, goBack }) {
 
   const xpToPromo = Math.max(0, (data.promotionXP || 0) - myWeekXP + 1);
   const _safeFromDemotion = (data.demotionXP || 0) > myWeekXP
-    ? Math.max(0, myWeekXP - (data.demotionXP || 0))
+    ? Math.max(0, (data.demotionXP || 0) - myWeekXP)
     : null;
 
   return (

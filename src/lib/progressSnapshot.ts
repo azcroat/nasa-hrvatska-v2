@@ -32,7 +32,7 @@ function _bestDc(dchlA: boolean[], dchlSl: string[]) {
       if (Array.isArray(p.selected) && typeof p.selected[0] === 'string') localSel = p.selected;
     }
   } catch (_) {}
-  const bestAns = (dchlA || [false, false, false]).map((a, i) => a || localAns[i] || false);
+  const bestAns = (dchlA && dchlA.length > 0 ? dchlA : [false, false, false]).map((a, i) => a || localAns[i] || false);
   const bestSel = (dchlSl && dchlSl.some(s => s)) ? dchlSl : localSel;
   return { day: today, answered: bestAns, selected: bestSel };
 }

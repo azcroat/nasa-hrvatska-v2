@@ -72,7 +72,7 @@ function _unusedCulturePlaceholder() {
 // Signature preserved: srMark(word, correct) — timeMs defaults to 4000 ms
 // (treated as a "medium" response giving grade 4 when correct).
 function srMark(word, correct, timeMs) {
-  getSRScore(word, correct, timeMs != null ? timeMs : 4000);
+  return getSRScore(word, correct, timeMs != null ? timeMs : 4000);
 }
 // ═══ MISTAKE TRACKER ═══
 function getMistakes(){try{return JSON.parse(localStorage.getItem("uMistakes")||"[]");}catch{return[];}}

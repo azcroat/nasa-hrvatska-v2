@@ -45,7 +45,7 @@ export async function onRequestPost(context) {
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
   const isDev = env.ENVIRONMENT !== "production";
   if (!isAllowedOrigin(origin, isDev)) {
-    return new Response("Forbidden", { status: 403 });
+    return new Response(JSON.stringify({ ok: false, error: "Forbidden" }), { status: 403, headers: { ...CORS(origin), "Content-Type": "application/json" } });
   }
 
   const allowed = await checkRateLimit(request, 5);
