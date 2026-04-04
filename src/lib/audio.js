@@ -68,6 +68,8 @@ export function getBestVoice(){
 export function stopAudio(){
   // Cancel any in-flight TTS fetch so stale audio doesn't play after stop
   if(_ttsAbort){try{_ttsAbort.abort()}catch(e){}; _ttsAbort=null}
+  // Cancel any in-flight preload fetch — it would compete with the new TTS request
+  if(_preloadAbort){try{_preloadAbort.abort()}catch(e){}; _preloadAbort=null}
   if(_currentAudio){try{_currentAudio.pause();_currentAudio.currentTime=0}catch(e){}_currentAudio=null}
   if(window.speechSynthesis)window.speechSynthesis.cancel();
 }
@@ -209,8 +211,9 @@ export async function preloadAudio(text) {
   if (!_ttsAllowed()) return; // client-side rate guard — preload is best-effort, skip if near limit
   // Cancel any previously in-flight preload — only the latest is needed
   if (_preloadAbort) { try { _preloadAbort.abort(); } catch {} }
-  _preloadAbort = new AbortController();
-  const signal = _preloadAbort.signal;
+  const abortCtrl = new AbortController();
+  _preloadAbort = abortCtrl;
+  const signal = abortCtrl.signal;
   try {
     const body = { text: t, slow: false };
     if (voicePref !== 'auto') body.voice = voicePref;
@@ -226,6 +229,10 @@ export async function preloadAudio(text) {
     _cacheSet(cacheKey, url);
   } catch (e) {
     if (e?.name !== 'AbortError') { /* silently ignore — preload is best-effort */ }
+  } finally {
+    // Null the module-level ref only if it still points to this call's controller.
+    // If stopAudio() or a newer preload replaced it, leave their value intact.
+    if (_preloadAbort === abortCtrl) _preloadAbort = null;
   }
 }
 
