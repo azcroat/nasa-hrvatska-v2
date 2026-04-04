@@ -18,35 +18,45 @@ function isAllowedOrigin(origin, isDev) {
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/; // eslint-disable-line no-useless-escape
 
-export async function onRequestPost(ctx) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': 'https://nasahrvatska.com',
+function corsHeaders(origin) {
+  return {
+    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json',
   };
-  if (ctx.request.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
+}
 
+function errJson(msg, status, hdrs) {
+  return new Response(JSON.stringify({ ok: false, error: msg }), { status, headers: hdrs });
+}
+
+export async function onRequestPost(ctx) {
   const origin = ctx.request.headers.get('origin') || ctx.request.headers.get('referer') || '';
   const isDev = ctx.env.ENVIRONMENT !== 'production';
+  const hdrs = corsHeaders(isAllowedOrigin(origin, isDev) ? origin : 'https://nasahrvatska.com');
+
+  if (ctx.request.method === 'OPTIONS') return new Response(null, { headers: hdrs });
+
   if (!isAllowedOrigin(origin, isDev)) {
-    return new Response('Forbidden', { status: 403, headers: corsHeaders });
+    return errJson('Forbidden', 403, hdrs);
   }
 
   const allowed = await checkRateLimit(ctx.request, 5); // 5 per minute max
   if (!allowed) {
-    return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders });
+    return errJson('Rate limit exceeded', 429, hdrs);
   }
 
   const RESEND_KEY = ctx.env.RESEND_API_KEY;
-  if (!RESEND_KEY) return new Response(JSON.stringify({ ok: false, error: 'Service not configured' }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  if (!RESEND_KEY) return errJson('Service not configured', 503, hdrs);
 
   let body;
-  try { body = await ctx.request.json(); } catch { return new Response('bad request', { status: 400, headers: corsHeaders }); }
+  try { body = await ctx.request.json(); } catch { return errJson('Bad request', 400, hdrs); }
 
   const { email, name, xp, lessons, streakDays, wordsLearned } = body;
-  if (!email || !name) return new Response('missing fields', { status: 400, headers: corsHeaders });
+  if (!email || !name) return errJson('Missing required fields', 400, hdrs);
   if (!EMAIL_RE.test(email) || /[\r\n\t%]/.test(email)) {
-    return new Response(JSON.stringify({ ok: false, error: 'Invalid email address.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    return errJson('Invalid email address.', 400, hdrs);
   }
 
   function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
@@ -103,17 +113,14 @@ export async function onRequestPost(ctx) {
 
   const data = await res.json().catch(() => ({}));
   return new Response(JSON.stringify({ ok: res.ok, ...data }), {
-    status: res.ok ? 200 : 500,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    status: res.ok ? 200 : 502,
+    headers: hdrs,
   });
 }
 
-export async function onRequestOptions() {
+export async function onRequestOptions(ctx) {
+  const origin = ctx.request.headers.get('origin') || '';
   return new Response(null, {
-    headers: {
-      'Access-Control-Allow-Origin': 'https://nasahrvatska.com',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
+    headers: corsHeaders(origin || 'https://nasahrvatska.com'),
   });
 }

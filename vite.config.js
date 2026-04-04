@@ -96,7 +96,6 @@ export default defineConfig({
           if (id.includes('node_modules/firebase') || id.includes('node_modules/@firebase')) return 'vendor-firebase';
           if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) return 'vendor-react';
           if (id.includes('node_modules/@sentry')) return 'vendor-sentry';
-          if (id.includes('node_modules/posthog-js')) return 'vendor-posthog';
           if (id.includes('node_modules/dexie')) return 'vendor-dexie';
           // Large agent-generated data files — each in its own lazy chunk.
           if (id.includes('src/data/gradedStories')) return 'chunk-stories';

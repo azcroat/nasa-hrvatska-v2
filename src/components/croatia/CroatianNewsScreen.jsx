@@ -3,6 +3,7 @@ import { H } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { LEVEL_COLORS } from './MediaPlayerUtils.jsx';
 
 // ── Fallback articles shown when the live API is unavailable ─────────────────
 const FALLBACK_ARTICLES = [
@@ -63,10 +64,6 @@ const FALLBACK_ARTICLES = [
 ];
 
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'];
-
-const LEVEL_COLORS = {
-  A1: '#16a34a', A2: '#65a30d', B1: '#ca8a04', B2: '#b45309', C1: '#0e7490',
-};
 
 // ── Skeleton card for loading state ──────────────────────────────────────────
 function SkeletonCard() {

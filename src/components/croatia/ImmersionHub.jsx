@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { MEDIA } from '../../data.jsx';
+import { LEVEL_COLORS } from './MediaPlayerUtils.jsx';
 
 const LEVELS = ['A1','A2','B1','B2','C1','C2'];
-const LEVEL_COLORS = {A1:'#16a34a',A2:'#65a30d',B1:'#ca8a04',B2:'#b45309',C1:'#0e7490',C2:'#7c3aed'};
 const LEVEL_LABELS = {A1:'Beginner',A2:'Elementary',B1:'Intermediate',B2:'Upper-Int.',C1:'Advanced',C2:'Mastery'};
 
 const JOURNEY = [

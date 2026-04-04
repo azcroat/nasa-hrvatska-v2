@@ -143,7 +143,7 @@ export async function checkAIQuota(request, env, uid, cost = 1) {
     const burstCount = burstData?.count ?? 0;
     if (burstCount >= 3) {
       console.warn('[AIQuota] Burst limit exceeded for', burstSubject);
-      return { allowed: false, remaining: 0, resetIn: 1 };
+      return { allowed: false, remaining: 0, resetAt: nextMidnightUTC() };
     }
     await _write(kv, secondKey, { count: burstCount + 1 }, 5 /* 5-second TTL */);
   } catch (e) {
