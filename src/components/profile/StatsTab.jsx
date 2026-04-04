@@ -134,33 +134,99 @@ export default function StatsTab({ onShowPrestigeModal, onSyncNow }) {
         const wordsLearned = getWordsLearned();
         const cefrScore = (st.xp || 0) + ((st.lc || 0) * 15) + ((st.gc || 0) * 25);
         const progress = cefr.needed ? Math.min(100, Math.round((cefrScore / cefr.needed) * 100)) : 100;
+        // Derive which Learn Path stage matches the current CEFR level so both displays agree.
+        const CEFR_TO_STAGE_IDX = { 'A1': 0, 'A2': 1, 'B1': 2, 'B2': 3, 'C1': 4, 'C2': 4 };
+        const cefrStageIdx = CEFR_TO_STAGE_IDX[cefr.level] ?? 0;
         return (
-          <div style={{ background:'var(--card)', border:'1.5px solid var(--card-b)', borderRadius:18, padding:'18px', marginBottom:16 }}>
-            <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:12 }}>
-              <div style={{ width:52, height:52, borderRadius:14, background:cefr.color, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                <span style={{ fontSize:'var(--text-xl)', fontWeight:900, color:'var(--card)' }}>{cefr.level}</span>
+          <>
+            <div style={{ background:'var(--card)', border:'1.5px solid var(--card-b)', borderRadius:18, padding:'18px', marginBottom:16 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:12 }}>
+                <div style={{ width:52, height:52, borderRadius:14, background:cefr.color, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <span style={{ fontSize:'var(--text-xl)', fontWeight:900, color:'var(--card)' }}>{cefr.level}</span>
+                </div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:'var(--text-lg)', fontWeight:900, color:'var(--heading)' }}>CEFR Level: {cefr.level}</div>
+                  <div style={{ fontSize:'var(--text-sm)', color:'var(--subtext)', fontWeight:600 }}>{cefr.label}{prestigeLevel > 0 ? ` · ${'✦'.repeat(prestigeLevel)} Prestige` : ''}</div>
+                </div>
+                <div style={{ textAlign:'right' }}>
+                  <div style={{ fontSize:'var(--text-xl)', fontWeight:900, color:cefr.color }}>{wordsLearned}</div>
+                  <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:700 }}>words</div>
+                </div>
               </div>
-              <div style={{ flex:1 }}>
-                <div style={{ fontSize:'var(--text-lg)', fontWeight:900, color:'var(--heading)' }}>CEFR Level: {cefr.level}</div>
-                <div style={{ fontSize:'var(--text-sm)', color:'var(--subtext)', fontWeight:600 }}>{cefr.label}{prestigeLevel > 0 ? ` · ${'✦'.repeat(prestigeLevel)} Prestige` : ''}</div>
-              </div>
-              <div style={{ textAlign:'right' }}>
-                <div style={{ fontSize:'var(--text-xl)', fontWeight:900, color:cefr.color }}>{wordsLearned}</div>
-                <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', fontWeight:700 }}>words</div>
-              </div>
+              {cefr.needed && (
+                <div>
+                  <div style={{ display:'flex', justifyContent:'space-between', fontSize:'var(--text-xs)', color:'var(--subtext)', marginBottom:4, fontWeight:600 }}>
+                    <span>{cefr.level}</span><span>→ {cefr.next}</span>
+                  </div>
+                  <div style={{ height:8, borderRadius:4, background:'var(--bar-bg)', overflow:'hidden' }}>
+                    <div style={{ height:'100%', borderRadius:4, background:cefr.color, width:`${progress}%`, transition:'width .4s ease' }} />
+                  </div>
+                  <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:4, fontWeight:600 }}>{progress}% to {cefr.next}</div>
+                </div>
+              )}
             </div>
-            {cefr.needed && (
-              <div>
-                <div style={{ display:'flex', justifyContent:'space-between', fontSize:'var(--text-xs)', color:'var(--subtext)', marginBottom:4, fontWeight:600 }}>
-                  <span>{cefr.level}</span><span>→ {cefr.next}</span>
-                </div>
-                <div style={{ height:8, borderRadius:4, background:'var(--bar-bg)', overflow:'hidden' }}>
-                  <div style={{ height:'100%', borderRadius:4, background:cefr.color, width:`${progress}%`, transition:'width .4s ease' }} />
-                </div>
-                <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:4, fontWeight:600 }}>{progress}% to {cefr.next}</div>
+
+            {/* ── LEARN PATH STAGE OVERVIEW — driven by same CEFR level as above ── */}
+            <h3 className="sh" style={{marginTop:8}}>Learn Path</h3>
+            <div style={{ background:'var(--card)', border:'1.5px solid var(--card-b)', borderRadius:18, padding:'16px 18px', marginBottom:16 }}>
+              <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                {STAGE_NAMES_PROFILE.map((stageName, i) => {
+                  const isActive = i === cefrStageIdx;
+                  const isDone = i < cefrStageIdx;
+                  return (
+                    <div key={i} style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      opacity: i <= cefrStageIdx ? 1 : 0.45,
+                    }}>
+                      <span style={{ fontSize:'var(--text-lg)' }}>{isDone ? '✅' : isActive ? '▶️' : '⬜'}</span>
+                      <span style={{ fontSize: 'var(--text-sm)', fontWeight: isActive ? 800 : 600, color: isActive ? 'var(--heading)' : 'var(--subtext)' }}>
+                        Stage {i + 1}: {stageName}
+                      </span>
+                      <span style={{
+                        fontSize: 'var(--text-xs)', fontWeight: 800,
+                        background: isActive ? cefr.color : 'var(--info-bg)',
+                        color: isActive ? 'var(--card)' : 'var(--info)',
+                        borderRadius: 4, padding: '1px 4px', marginLeft: 6,
+                      }}>
+                        {STAGE_CEFR[i]}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-            )}
-          </div>
+
+              {/* Stage 6 teaser — show when user has reached Stage 5 (Hrvat / C1) */}
+              {cefrStageIdx >= 4 && (
+                <div style={{
+                  background: 'var(--info-bg)',
+                  border: '1.5px dashed var(--card-b)',
+                  borderRadius: 14, padding: '14px 16px', marginTop: 10, opacity: 0.75,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize:'var(--text-2xl)' }}>🔒</span>
+                    <div>
+                      <div style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--heading)' }}>
+                        Stage 6: Naš Čovjek
+                        <span style={{
+                          fontSize: 'var(--text-xs)', fontWeight: 800,
+                          background: 'var(--info-bg)', color: 'var(--info)',
+                          borderRadius: 4, padding: '1px 4px', marginLeft: 6,
+                        }}>
+                          {STAGE_CEFR[5]}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', marginTop: 2 }}>
+                        Advanced fluency — Shadowing, Pitch Accent, Bureaucratic Croatian, Formal Register
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ marginTop: 8, fontSize: 'var(--text-xs)', color: 'var(--subtext)', fontStyle: 'italic' }}>
+                    Complete Stage 5 to unlock. Coming soon.
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
         );
       })()}
 
@@ -188,66 +254,6 @@ export default function StatsTab({ onShowPrestigeModal, onSyncNow }) {
           )}
         </div>
       )}
-
-      {/* ── LEARN PATH STAGE OVERVIEW ── */}
-      <h3 className="sh" style={{marginTop:8}}>Learn Path</h3>
-      <div style={{ background:'var(--card)', border:'1.5px solid var(--card-b)', borderRadius:18, padding:'16px 18px', marginBottom:16 }}>
-        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-          {STAGE_NAMES_PROFILE.map((stageName, i) => {
-            const isActive = (st.lc || 0) >= STAGE_THRESHOLDS[i] && (i === STAGE_NAMES_PROFILE.length - 1 || (st.lc || 0) < STAGE_THRESHOLDS[i + 1]);
-            const isDone = i < STAGE_NAMES_PROFILE.length - 1 ? (st.lc || 0) >= STAGE_THRESHOLDS[i + 1] : (st.lc || 0) >= STAGE_THRESHOLDS[i];
-            return (
-              <div key={i} style={{
-                display: 'flex', alignItems: 'center', gap: 10,
-                opacity: (st.lc || 0) >= STAGE_THRESHOLDS[i] ? 1 : 0.45,
-              }}>
-                <span style={{ fontSize:'var(--text-lg)' }}>{isDone ? '✅' : isActive ? '▶️' : '⬜'}</span>
-                <span style={{ fontSize: 'var(--text-sm)', fontWeight: isActive ? 800 : 600, color: isActive ? 'var(--heading)' : 'var(--subtext)' }}>
-                  Stage {i + 1}: {stageName}
-                </span>
-                <span style={{
-                  fontSize: 'var(--text-xs)', fontWeight: 800,
-                  background: 'var(--info-bg)', color: 'var(--info)',
-                  borderRadius: 4, padding: '1px 4px', marginLeft: 6,
-                }}>
-                  {STAGE_CEFR[i]}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Stage 6 teaser — show when user has completed Stage 4 or is in Stage 5 */}
-        {(st.lc || 0) >= 20 && (
-          <div style={{
-            background: 'var(--info-bg)',
-            border: '1.5px dashed var(--card-b)',
-            borderRadius: 14, padding: '14px 16px', marginTop: 10, opacity: 0.75,
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize:'var(--text-2xl)' }}>🔒</span>
-              <div>
-                <div style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--heading)' }}>
-                  Stage 6: Naš Čovjek
-                  <span style={{
-                    fontSize: 'var(--text-xs)', fontWeight: 800,
-                    background: 'var(--info-bg)', color: 'var(--info)',
-                    borderRadius: 4, padding: '1px 4px', marginLeft: 6,
-                  }}>
-                    {STAGE_CEFR[5]}
-                  </span>
-                </div>
-                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', marginTop: 2 }}>
-                  Advanced fluency — Shadowing, Pitch Accent, Bureaucratic Croatian, Formal Register
-                </div>
-              </div>
-            </div>
-            <div style={{ marginTop: 8, fontSize: 'var(--text-xs)', color: 'var(--subtext)', fontStyle: 'italic' }}>
-              Complete Stage 5 to unlock. Coming soon.
-            </div>
-          </div>
-        )}
-      </div>
 
       {/* ── MY COLLECTION ── */}
       <h3 className="sh">My Collection</h3>

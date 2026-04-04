@@ -652,7 +652,7 @@ export default function Leaderboard({
               if (famCode.trim().length !== 6) { setFamErr("Code must be 6 characters."); return; }
               if (!au || !au.e) { setFamErr("You must be logged in."); return; }
               setFamLoading(true);
-              fbJoinFamily(famCode.trim(), au.u, au.e, name || au.d).then(r => {
+              fbJoinFamily(famCode.trim(), au.u, au.e, name || au.d, myWeekXP).then(r => {
                 setFamLoading(false);
                 if (r.ok) { setFamData(r.family); setFamTab("main"); setFamCode(""); setFamErr(""); }
                 else setFamErr(r.err);
