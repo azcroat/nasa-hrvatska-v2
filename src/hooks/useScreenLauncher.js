@@ -307,6 +307,11 @@ export function useScreenLauncher({
         }, 20000);
         lpDwellRef.current = { screen: item.go, statType: bhStat, timer };
       }
+      // For readlist: store the difficulty filter so ReadingList can narrow its view
+      if (item.go === 'readlist') {
+        if (item.filter) sessionStorage.setItem('nh_readlist_filter', JSON.stringify(item.filter));
+        else sessionStorage.removeItem('nh_readlist_filter');
+      }
       setScr(item.go); sCurEx(item.go);
     }
   }, [setScr, sCurEx, setStats, award, writeDelta, allCats, launchMcGame,
