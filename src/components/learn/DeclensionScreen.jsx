@@ -3,6 +3,7 @@ import { H, speak, sh } from '../../data.jsx';
 import { DECL } from '../../data.jsx';
 import { markQuest } from '../../lib/quests.js';
 import { addWordToSRS } from '../../lib/srs.js';
+import { useStats } from '../../context/StatsContext.tsx';
 
 // Build 14 case quiz questions: show a sentence context, pick the correct case form
 function buildDeclQuiz(nouns, caseNames) {
@@ -24,6 +25,7 @@ function buildDeclQuiz(nouns, caseNames) {
 }
 
 export default function DeclensionScreen({ goBack, award }) {
+  const { stats, setStats, writeDelta } = useStats();
   const [mode, setMode] = useState('reference'); // 'reference' | 'quiz'
   const [dcNoun, sDcNoun] = useState(0);
 
@@ -127,7 +129,16 @@ export default function DeclensionScreen({ goBack, award }) {
           <div style={{fontSize:22,fontWeight:900,color:"#d97706",marginBottom:24}}>+{score*4+10} XP</div>
           <div style={{display:"flex",gap:10}}>
             <button className="b bg" style={{flex:1}} onClick={()=>{ setMode('reference'); }}>📖 Review</button>
-            <button className="b bp" style={{flex:1}} onClick={goBack}>✓ Done</button>
+            <button className="b bp" style={{flex:1}} onClick={() => {
+              if (!stats.vs?.includes('declension')) {
+                setStats(prev => {
+                  if (prev.vs?.includes('declension')) return prev;
+                  return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'declension'] };
+                });
+                if (writeDelta) writeDelta({ gc: 1, vs: ['declension'] });
+              }
+              goBack();
+            }}>✓ Done</button>
           </div>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { H, Bar, sh, ASPECT_PAIRS } from '../../data.jsx';
 import AspectPhaseBar from './AspectPhaseBar.jsx';
 import AspectRuleCard from './AspectRuleCard.jsx';
 import AspectQuestionPanel from './AspectQuestionPanel.jsx';
+import { useStats } from '../../context/StatsContext.tsx';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // The 6 core aspect rules every Croatian learner MUST internalize.
@@ -118,6 +119,7 @@ function gapSentence(sentence, target, _wrong) {
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
 export default function AspectDrillScreen({ goBack, award }) {
+  const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
 
   const userLevel = typeof localStorage !== 'undefined' ? (localStorage.getItem('nh_level') || 'A1') : 'A1';
@@ -412,6 +414,14 @@ export default function AspectDrillScreen({ goBack, award }) {
               if (finishFired.current) return;
               finishFired.current = true;
               if (typeof award === 'function') award(score * 4 + 10);
+              // Grant gc credit so LearnPath ck(gc>=5) passes (replaces the 20s dwell timer)
+              if (!stats.vs?.includes('aspect')) {
+                setStats(prev => {
+                  if (prev.vs?.includes('aspect')) return prev;
+                  return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'aspect'] };
+                });
+                if (writeDelta) writeDelta({ gc: 1, vs: ['aspect'] });
+              }
               goBack();
             }}>Finish</button>
           </div>
