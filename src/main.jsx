@@ -1,6 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+
+// Polyfill Array.prototype.at() for Android WebView < Chrome 92
+if (!Array.prototype.at) {
+  Array.prototype.at = function(index) {
+    const i = index < 0 ? this.length + index : index;
+    return this[i];
+  };
+}
+if (!String.prototype.at) {
+  String.prototype.at = function(index) {
+    const i = index < 0 ? this.length + index : index;
+    return this[i];
+  };
+}
 import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 import './index.css';
 import App from './App.jsx';
