@@ -264,7 +264,7 @@ export default function HeroSection({
   comebackBonus, lastActivity, sCurEx, onSyncNow,
   wsMastered, launchPathItem,
 }) {
-  const { name, setScr } = useApp();
+  const { name } = useApp();
   const { level, stats: st, award, setStats } = useStats();
 
   const [freezes, setFreezes] = useState(getStreakFreezes);

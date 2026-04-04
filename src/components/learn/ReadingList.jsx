@@ -38,7 +38,6 @@ export default function ReadingList({ setScr, sRp, sRph, sRqi, sRsc, sRa, sRsl, 
     // Clear filter so returning from reading doesn't re-trigger this
     sessionStorage.removeItem('nh_readlist_filter');
     launchPassage(firstPassage, { sRp, sRph, sRqi, sRsc, sRa, sRsl, sHw, setScr, sCurEx });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Manual browse mode (launched directly from Practice/Learn tabs) ────────

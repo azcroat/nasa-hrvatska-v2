@@ -521,7 +521,7 @@ export async function onRequestPost(context) {
     if (!anthropicRes.ok) {
       const errText = await anthropicRes.text();
       return new Response(
-        JSON.stringify({ error: "AI service error", detail: errText.slice(0, 200) }),
+        JSON.stringify({ error: "AI service error", ...(isDev ? { detail: errText.slice(0, 200) } : {}) }),
         { status: 502, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } }
       );
     }

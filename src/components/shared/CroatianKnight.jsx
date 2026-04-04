@@ -678,7 +678,7 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
   const activeVarIdx = useMemo(() => {
     if (variant !== undefined && variant >= 0 && variant < variants.length) return variant;
     return new Date().getHours() % variants.length;
-  }, [mood, variant, variants.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [mood, variant, variants.length]);
 
   const m = variants[Math.min(activeVarIdx, variants.length - 1)];
   const lvlCfg = getLevelConfig(level);

@@ -134,15 +134,6 @@ export default function PracticeTab({
   const placementDone = !!localStorage.getItem('nh_placement_done');
   const isNewUser = lc === 0 && !placementDone;
   const userGoal = localStorage.getItem('nh_goal');
-  const goalSetDate = localStorage.getItem('nh_goal_set_date');
-  const daysSinceGoalSet = goalSetDate ? Math.floor((Date.now() - parseInt(goalSetDate)) / 86400000) : 0;
-  const showGoalReminder = userGoal && daysSinceGoalSet > 30 && !isNewUser;
-
-  const recommendations = [
-    { icon:'🃏', title:'Flashcards',  desc:'Spaced repetition review',  color:'rgba(124,58,237,.08)', border:'rgba(124,58,237,.25)', fn: startFlashcards },
-    { icon:'🔗', title:'Match Pairs', desc:'Quick memory game',          color:'rgba(22,163,74,.08)',  border:'rgba(22,163,74,.25)',  fn: startMatch },
-  ];
-
   // Goal-based recommendations — shown when nh_goal is set, giving the
   // personalisation we promised during onboarding
   const goalRecMap = {
@@ -265,18 +256,6 @@ export default function PracticeTab({
     advanced:  '#d97706',
   };
 
-  const CEFR_COLORS = {
-    'A1': 'rgba(22,163,74,.15)',  'A2': 'rgba(22,163,74,.15)',
-    'B1': 'rgba(217,119,6,.15)', 'B2': 'rgba(217,119,6,.15)',
-    'C1': 'rgba(124,58,237,.15)', 'C2': 'rgba(124,58,237,.15)',
-  };
-
-  const CEFR_TEXT = {
-    'A1': 'var(--success, #16a34a)', 'A2': 'var(--success, #16a34a)',
-    'B1': 'var(--warning, #d97706)', 'B2': 'var(--warning, #d97706)',
-    'C1': 'var(--purple,  #7c3aed)', 'C2': 'var(--purple,  #7c3aed)',
-  };
-
   // Today's Pick — show recently played first (max 2), then time-based defaults.
   // This means returning users see exercises they actually use, not static picks.
   const todaysPicks = useMemo(() => {
@@ -319,11 +298,6 @@ export default function PracticeTab({
       </button>
     );
   }
-
-  const culturalExtras = [
-    [() => { setScr("idioms"); sCurEx("idioms"); },  "🗣️", "Idioms",  "Phrases locals actually use", "rgba(234,88,12,.08)",  "rgba(234,88,12,.3)"],
-    [() => { setScr("events"); sCurEx("events"); },  "📅", "Events",  "Festivals & holidays",        "rgba(22,163,74,.08)",  "rgba(22,163,74,.3)"],
-  ];
 
   // Daily quest progress for Practice tab header
   const practiceQuestsDone = (() => {
