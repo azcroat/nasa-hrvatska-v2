@@ -77,5 +77,11 @@ export function buildProgressSnapshot({ uid, name, stats, dchlA, dchlSl, favs, j
     nh_journey: (() => { try { return JSON.parse(localStorage.getItem('nh_journey') || '[]'); } catch { return []; } })(),
     // Weekend warrior tracking — object { sat?: 'YYYY-MM-DD', sun?: 'YYYY-MM-DD' }
     nh_weekend_days: (() => { try { return JSON.parse(localStorage.getItem('nh_weekend_days') || '{}'); } catch { return {}; } })(),
+    // Seasonal / campaign quest completion flags — must sync so completed content
+    // is not shown as new on other devices. Additive: true is never overwritten by false.
+    nh_uskrs_kviz_done: localStorage.getItem('nh_uskrs_kviz_done') === '1',
+    nh_cq_easter_uskrs_q1: localStorage.getItem('nh_cq_easter_uskrs_q1') === '1',
+    nh_cq_easter_uskrs_q2: localStorage.getItem('nh_cq_easter_uskrs_q2') === '1',
+    nh_cq_easter_uskrs_q3: localStorage.getItem('nh_cq_easter_uskrs_q3') === '1',
   };
 }
