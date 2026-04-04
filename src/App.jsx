@@ -391,11 +391,27 @@ function App() {
   // Comeback bonus + weekly freeze recharge + pending join code
   useEffect(() => {
     if (authScreen !== 'app') return;
-    const lastSeen = localStorage.getItem('lastSeen'); const now = Date.now();
-    if (lastSeen && stats.xp > 0) { const diff = now - parseInt(lastSeen,10); if (diff > 86400000 && diff < 7*86400000) { setComebackBonus(true); setTimeout(() => setComebackBonus(false), 4000); } }
+    const lastSeen = localStorage.getItem('lastSeen');
+    const now = Date.now();
+
+    // Track all timeout IDs so they can be cancelled if authScreen changes
+    // again before the timeouts fire (e.g. rapid sign-out / sign-in).
+    const timers = [];
+
+    if (lastSeen && stats.xp > 0) {
+      const diff = now - parseInt(lastSeen, 10);
+      if (diff > 86400000 && diff < 7 * 86400000) {
+        setComebackBonus(true);
+        timers.push(setTimeout(() => setComebackBonus(false), 4000));
+      }
+    }
     localStorage.setItem('lastSeen', String(now));
+
     // Streak repair prompt — show when streak broke yesterday and user has enough XP
-    if (canRepairStreak() && stats.xp >= 100) { setTimeout(() => setShowStreakRepair(true), 1500); }
+    if (canRepairStreak() && stats.xp >= 100) {
+      timers.push(setTimeout(() => setShowStreakRepair(true), 1500));
+    }
+
     // Weekly freeze recharge — award a freeze token if the user earned XP last week
     try {
       const thisWeek = weekKey();
@@ -406,9 +422,20 @@ function App() {
         localStorage.setItem('nh_freeze_recharge_wk', thisWeek);
       }
     } catch {}
-    if (pendingJoinCode) { try{const u=new URL(window.location.href);u.searchParams.delete('join');window.history.replaceState({},'',u.pathname);}catch(_){} setFamCode(pendingJoinCode);setFamTab('join');setTimeout(()=>setScr('leaderboard'),600);setPendingJoinCode(null); }
+
+    if (pendingJoinCode) {
+      try { const u = new URL(window.location.href); u.searchParams.delete('join'); window.history.replaceState({}, '', u.pathname); } catch (_) {}
+      setFamCode(pendingJoinCode);
+      setFamTab('join');
+      timers.push(setTimeout(() => setScr('leaderboard'), 600));
+      setPendingJoinCode(null);
+    }
+
     checkNameDay(name);
     scheduleStreakReminder(stats.str || getStreak().count);
+
+    // Cancel pending timers if authScreen changes before they fire
+    return () => { timers.forEach(id => clearTimeout(id)); };
   }, [authScreen]);  
 
   // Session expiry guard

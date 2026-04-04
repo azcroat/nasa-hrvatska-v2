@@ -10,8 +10,8 @@
 //   - Push notifications unreliable (race between two SWs)
 // ═══════════════════════════════════════════════════════════════════════════
 
-import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
-import { registerRoute } from 'workbox-routing';
+import { precacheAndRoute, cleanupOutdatedCaches, matchPrecache } from 'workbox-precaching';
+import { registerRoute, NavigationRoute } from 'workbox-routing';
 import {
   NetworkFirst,
   StaleWhileRevalidate,
@@ -99,14 +99,34 @@ registerRoute(
   })
 );
 
-// 4. HTML navigation — NetworkFirst (10s timeout → cache fallback → offline.html).
+// 4. SPA navigation — three-level fallback:
+//    (a) network (10s timeout) → fresh content
+//    (b) runtime cache hit    → last-seen version
+//    (c) precached index.html → offline SPA shell (React Router handles route client-side)
+//
+//    This ensures the app is fully usable offline even on the very first offline visit,
+//    before the runtime cache has been warmed up from a previous online navigation.
+//
+//    NavigationRoute is used instead of a request-mode matcher so Workbox correctly
+//    applies same-origin navigation semantics. API routes are excluded via denylist
+//    so /api/* calls are never intercepted as page navigations.
 registerRoute(
-  ({ request }) => request.mode === 'navigate',
-  new NetworkFirst({
-    cacheName: `${CACHE_VER}-html`,
-    networkTimeoutSeconds: 10,
-    plugins: [new CacheableResponsePlugin({ statuses: [0, 200] })],
-  })
+  new NavigationRoute(
+    new NetworkFirst({
+      cacheName: `${CACHE_VER}-html`,
+      networkTimeoutSeconds: 10,
+      plugins: [
+        new CacheableResponsePlugin({ statuses: [0, 200] }),
+        {
+          // When both network AND runtime cache fail (e.g. offline with cold cache),
+          // serve the Workbox-precached index.html so the SPA shell always loads.
+          // React Router then handles the deep-link URL client-side without a server round-trip.
+          handlerDidError: async () => matchPrecache('index.html'),
+        },
+      ],
+    }),
+    { denylist: [/^\/api\//] } // never intercept API requests as page navigations
+  )
 );
 
 // 5. Audio assets — StaleWhileRevalidate with range-request support.

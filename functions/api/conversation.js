@@ -384,9 +384,16 @@ export async function onRequestPost(context) {
   }
 
   if (!ANTHROPIC_KEY) {
+    // Return AI_KEY_MISSING so the client's existing error check in callMaja()
+    // can surface a specific, actionable message to the developer/user rather
+    // than the opaque "Service not configured" that previously triggered no
+    // special handling and showed a generic toast.
     return new Response(
-      JSON.stringify({ error: "Service not configured" }),
-      { status: 500, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } }
+      JSON.stringify({
+        error: "AI_KEY_MISSING",
+        message: "ANTHROPIC_API_KEY is not set. Add it in Cloudflare Pages → Settings → Environment Variables.",
+      }),
+      { status: 503, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } }
     );
   }
 
