@@ -1,8 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { H, speak } from '../../data.jsx';
 import { FALSEFR } from '../../data.jsx';
 
-function FalseFriendsScreen({ goBack }) {
+function FalseFriendsScreen({ goBack, award }) {
+  const [completed, setCompleted] = useState(false);
+
+  function handleComplete() {
+    if (completed) return;
+    setCompleted(true);
+    if (award) award('lesson', 30);
+    goBack();
+  }
+
   return (
     <div className="scr-wrap">
 
@@ -17,6 +26,19 @@ function FalseFriendsScreen({ goBack }) {
           {f.ex&&<div style={{fontSize:12,color:"var(--subtext)",fontStyle:"italic",marginTop:2}}>{f.ex}</div>}
         </button>
       );})}
+
+      <button
+        onClick={handleComplete}
+        style={{
+          width:"100%", marginTop:16, padding:"14px 0",
+          background:"linear-gradient(135deg,#0e7490,#164e63)",
+          color:"white", border:"none", borderRadius:14,
+          fontSize:16, fontWeight:700, cursor:"pointer",
+        }}
+      >
+        {"Complete Lesson  +30 XP"}
+      </button>
+
     </div>
   );
 }

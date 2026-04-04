@@ -154,6 +154,10 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       if (msg.includes("AI_KEY_MISSING") || msg.includes("ANTHROPIC_API_KEY")) {
         throw new Error("setup_error:The AI service is not yet configured. The ANTHROPIC_API_KEY needs to be set in Cloudflare Pages → Settings → Environment Variables.");
       }
+      if (msg === "daily_quota_exceeded" || res.status === 429) {
+        const resetTime = data.resetAt ? new Date(data.resetAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'midnight UTC';
+        throw new Error(`You've reached today's AI conversation limit. Your quota resets at ${resetTime}. Come back tomorrow to continue practising!`);
+      }
       throw new Error(msg);
     }
     if (!data.text || !data.text.trim()) {
