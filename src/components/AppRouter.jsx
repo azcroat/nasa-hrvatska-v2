@@ -1,4 +1,4 @@
-import React, { lazy, useRef } from "react";
+import React, { lazy, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSwipeBack } from "../hooks/useSwipeBack.js";
 // Local Fisher-Yates shuffle — keeps chunk-data out of AppRouter's startup import.
@@ -248,6 +248,36 @@ const ListeningComprehensionScreen = lazyWithReload(() => import("./practice/Lis
 const TAB_ORDER = ['home', 'learn', 'practice', 'croatia', 'profile'];
 
 /**
+ * ScreenGuard — shown when a stateful exercise screen loads after a hard refresh
+ * and its required launch-time data is missing. Provides a clear path back rather
+ * than rendering an empty or broken exercise screen.
+ */
+function ScreenGuard({ goBack, label = 'exercise' }) {
+  return (
+    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'60vh', padding:32, textAlign:'center' }}>
+      <div style={{ fontSize:56, marginBottom:16 }}>🔄</div>
+      <h2 style={{ fontSize:20, fontWeight:800, color:'var(--heading)', marginBottom:8 }}>
+        Session refreshed
+      </h2>
+      <p style={{ fontSize:14, color:'var(--subtext)', marginBottom:28, maxWidth:280, lineHeight:1.5 }}>
+        This {label} needs to be started from the Practice tab — your previous session data couldn't be restored.
+      </p>
+      <button
+        onClick={goBack}
+        style={{
+          background:'var(--info)', color:'#fff', border:'none',
+          borderRadius:12, padding:'14px 32px',
+          fontSize:15, fontWeight:700, cursor:'pointer',
+          fontFamily:"'Outfit',sans-serif",
+        }}
+      >
+        Back to Practice
+      </button>
+    </div>
+  );
+}
+
+/**
  * AppRouter — renders the correct screen component for `currentScreen`.
  * All screen-level lazy imports live here; App.jsx just passes props and renders <AppRouter />.
  *
@@ -306,6 +336,19 @@ export default function AppRouter(props) {
   } = props;
 
   const _transKey = currentScreen === "dashboard" ? "dashboard-" + tab : currentScreen;
+
+  // ── Tab scroll-position save / restore ───────────────────────────────────
+  // Saves window.scrollY when the user leaves a tab, restores it when they return.
+  // This means a user who was halfway through the Practice exercise list gets
+  // placed back there after switching to Croatia tab and back.
+  const tabScrollRef = useRef({});
+  useEffect(() => {
+    const savedY = tabScrollRef.current[tab] || 0;
+    const id = requestAnimationFrame(() => { window.scrollTo({ top: savedY, behavior: 'instant' }); });
+    const saveScroll = () => { tabScrollRef.current[tab] = window.scrollY; };
+    window.addEventListener('scroll', saveScroll, { passive: true });
+    return () => { cancelAnimationFrame(id); window.removeEventListener('scroll', saveScroll); };
+  }, [tab]);
 
   // Tab directional transitions — computed synchronously during render so the
   // className is correct on the same frame the animation plays.
@@ -437,10 +480,11 @@ export default function AppRouter(props) {
       {currentScreen==="history"&&<ScreenErrorBoundary key="history" name="history"><CroatiaHistoryScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="events"&&<ScreenErrorBoundary key="events" name="events"><EventsCalendar goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="top100"&&<ScreenErrorBoundary key="top100" name="top100"><Top100Screen goBack={goBack} /></ScreenErrorBoundary>}
-      {// ═══ MULTIPLE CHOICE GAME ═══
-      currentScreen==="mcgame"&&<ScreenErrorBoundary key="mcgame" name="mcgame"><McGame
-        questions={mcInitQ} onComplete={mcGameComplete} goBack={goBack} award={award}
-      /></ScreenErrorBoundary>}
+      {// ═══ MULTIPLE CHOICE GAME — guard: requires mcInitQ from launch ═══
+      currentScreen==="mcgame"&&(mcInitQ?.length>0
+        ? <ScreenErrorBoundary key="mcgame" name="mcgame"><McGame questions={mcInitQ} onComplete={mcGameComplete} goBack={goBack} award={award} /></ScreenErrorBoundary>
+        : <ScreenGuard goBack={goBack} label="quiz" />
+      )}
       {currentScreen==="mcresult"&&<ScreenErrorBoundary key="mcresult" name="mcresult"><McResult questions={mcResultQ} score={mcResultScore} mistakes={mcMistakes} setScr={setScr} goBack={goBack} onNewGame={launchMcGame} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="padezi"&&<ScreenErrorBoundary key="padezi" name="padezi"><PadeziScreen goBack={goBack} award={award} setSt={setStats} /></ScreenErrorBoundary>}
       {currentScreen==="unjumble"&&<ScreenErrorBoundary key="unjumble" name="unjumble"><Unjumble goBack={goBack} award={award} /></ScreenErrorBoundary>}
@@ -448,8 +492,14 @@ export default function AppRouter(props) {
       {currentScreen==="privacy"&&<ScreenErrorBoundary key="privacy" name="privacy"><PrivacyScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="terms"&&<ScreenErrorBoundary key="terms" name="terms"><TermsOfService goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="admin"&&<ScreenErrorBoundary key="admin" name="admin"><AdminDashboard authUser={authUser} goBack={goBack} /></ScreenErrorBoundary>}
-      {currentScreen==="flashcards"&&<ScreenErrorBoundary key="flashcards" name="flashcards"><Flashcards pool={fcInitPool} goBack={goBack} award={award} /></ScreenErrorBoundary>}
-      {currentScreen==="listening"&&<ScreenErrorBoundary key="listening" name="listening"><ListeningScreen questions={lsInitQ} goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="flashcards"&&(fcInitPool?.length>0
+        ? <ScreenErrorBoundary key="flashcards" name="flashcards"><Flashcards pool={fcInitPool} goBack={goBack} award={award} /></ScreenErrorBoundary>
+        : <ScreenGuard goBack={goBack} label="flashcard session" />
+      )}
+      {currentScreen==="listening"&&(lsInitQ?.length>0
+        ? <ScreenErrorBoundary key="listening" name="listening"><ListeningScreen questions={lsInitQ} goBack={goBack} award={award} /></ScreenErrorBoundary>
+        : <ScreenGuard goBack={goBack} label="listening exercise" />
+      )}
       {currentScreen==="storyselect"&&<ScreenErrorBoundary key="storyselect" name="storyselect"><StoryScreens goBack={goBack} award={award} sCurEx={sCurEx} /></ScreenErrorBoundary>}
       {currentScreen==="numtime"&&<ScreenErrorBoundary key="numtime" name="numtime"><NumTime goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="proverbs"&&<ScreenErrorBoundary key="proverbs" name="proverbs"><ProverbsScreen goBack={goBack} /></ScreenErrorBoundary>}
@@ -554,7 +604,10 @@ export default function AppRouter(props) {
       {currentScreen==="conjdrill"&&<ScreenErrorBoundary key="conjdrill" name="conjdrill"><ConjugationDrill goBack={goBack} award={award} setSt={setStats} /></ScreenErrorBoundary>}
       {currentScreen==="znam"&&<ScreenErrorBoundary key="znam" name="znam"><ZnamGame goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="boje"&&<ScreenErrorBoundary key="boje" name="boje"><BojeGame goBack={goBack} award={award} /></ScreenErrorBoundary>}
-      {currentScreen==="match"&&<ScreenErrorBoundary key="match" name="match"><MatchGame initPool={matchInitPool} goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="match"&&(matchInitPool?.length>0
+        ? <ScreenErrorBoundary key="match" name="match"><MatchGame initPool={matchInitPool} goBack={goBack} award={award} /></ScreenErrorBoundary>
+        : <ScreenGuard goBack={goBack} label="match game" />
+      )}
       {currentScreen==="wordsprint"&&<ScreenErrorBoundary key="wordsprint" name="wordsprint"><WordSprint sh={_sh} award={award} goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="speaking"&&<ScreenErrorBoundary key="speaking" name="speaking"><SpeakingScreen sw={sw} si={si} sx={sx} sr={sr} ssc={ssc} sSr={sSr} sSx={sSx} sSw={sSw} sSsc={sSsc} goBack={goBack} award={award} setSt={setStats} /></ScreenErrorBoundary>}
       {currentScreen==="speaking_sprint"&&<ScreenErrorBoundary key="speaking_sprint" name="speaking_sprint"><SpeakingSprintScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}

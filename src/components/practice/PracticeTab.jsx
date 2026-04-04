@@ -1,7 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { H, V, LISTEN, getSR, getDueReviews } from '../../data.jsx';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
+
+// ── Recently-played tracking ─────────────────────────────────────────────────
+// Saved as a JSON array of exercise IDs in localStorage (max 6 entries, newest first).
+const RECENT_KEY = 'nh_recent_exercises';
+function getRecentExercises() {
+  try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch { return []; }
+}
+function recordRecentExercise(id) {
+  try {
+    const prev = getRecentExercises().filter(x => x !== id);
+    localStorage.setItem(RECENT_KEY, JSON.stringify([id, ...prev].slice(0, 6)));
+  } catch {}
+}
 
 // Q-4: PracticeTab now receives callbacks instead of raw App.jsx state setters.
 // Screens manage their own state; App.jsx only keeps state needed by screen props.
@@ -13,8 +26,8 @@ export default function PracticeTab({
   const { stats: st } = useStats();
   const lc = st?.lc ?? 0;
   const [weakMsg, setWeakMsg] = useState("");
-  const [pFilter, setPFilter] = useState('all');
-  const [showAll, setShowAll] = useState(false);
+  // openCat: which category tile is expanded in the browse grid ('grammar'|'vocab'|'practical'|'advanced'|null)
+  const [openCat, setOpenCat] = useState(null);
 
   const pool = () => allCats.flatMap(cc => V[cc]);
 
@@ -90,12 +103,14 @@ export default function PracticeTab({
     prepdrill: () => { setScr("prepdrill"); sCurEx("prepdrill"); },
     numtime:   () => { setScr("numtime"); sCurEx("numtime"); },
   };
-  const go = screen => {
+  const go = (screen, id) => {
+    const exerciseId = id || screen;
     if (screen.startsWith('slang:')) {
       const section = screen.slice(6);
-      return () => { localStorage.setItem('slangInitSection', section); setScr('slang'); sCurEx('slang'); };
+      return () => { recordRecentExercise(exerciseId); localStorage.setItem('slangInitSection', section); setScr('slang'); sCurEx('slang'); };
     }
-    return specialInit[screen] || (() => { setScr(screen); sCurEx(screen); });
+    const base = specialInit[screen] || (() => { setScr(screen); sCurEx(screen); });
+    return () => { recordRecentExercise(exerciseId); base(); };
   };
 
   // ── SMART RECOMMENDATIONS ─────────────────────────────────────────────
@@ -234,9 +249,6 @@ export default function PracticeTab({
     { id:'slang_art',       label:'Psovanje kao Kunst',icon:'🎨', desc:'Swearing elevated to an art form',              category:'advanced', cefr:'B2',  duration:'~10 min', action: go('slang:art') },
   ];
 
-  const visible = EXERCISES.filter(e => pFilter === 'all' || e.category === pFilter);
-  const _visibleCount = pFilter === 'all' ? EXERCISES.length : EXERCISES.filter(e => e.category === pFilter).length;
-
   const CATEGORY_COLORS = {
     grammar:   '#7c3aed',
     vocab:     '#0e7490',
@@ -256,13 +268,24 @@ export default function PracticeTab({
     'C1': 'var(--purple,  #7c3aed)', 'C2': 'var(--purple,  #7c3aed)',
   };
 
-  // Today's Pick — 3 exercise IDs chosen by time of day
-  const todaysPicks = (() => {
+  // Today's Pick — show recently played first (max 2), then time-based defaults.
+  // This means returning users see exercises they actually use, not static picks.
+  const todaysPicks = useMemo(() => {
+    const recent = getRecentExercises().slice(0, 2);
     const hr = new Date().getHours();
-    if (hr < 12) return ['znam', 'srsreview', 'genderdrill'];
-    if (hr < 18) return ['cloze', 'verbdrill', 'srsreview'];
-    return ['verbdrill', 'prepdrill', 'znam'];
-  })();
+    const defaults = hr < 12
+      ? ['znam', 'srsreview', 'genderdrill']
+      : hr < 18
+        ? ['cloze', 'verbdrill', 'srsreview']
+        : ['verbdrill', 'prepdrill', 'znam'];
+    // recent exercises first, then fill up to 3 with defaults (no duplicates)
+    const merged = [...recent];
+    for (const d of defaults) {
+      if (merged.length >= 3) break;
+      if (!merged.includes(d)) merged.push(d);
+    }
+    return merged.slice(0, 3);
+  }, []);
 
   function ExerciseCard({ id, label, icon, desc, cefr, duration, action, category }) {
     const isPick = todaysPicks.includes(id);
@@ -509,52 +532,65 @@ export default function PracticeTab({
         {EXERCISES.filter(e => todaysPicks.includes(e.id)).map(e => <ExerciseCard key={e.id} {...e} />)}
       </div>
 
-      {/* ── BROWSE ALL TOGGLE ────────────────────────────────────────────── */}
-      <button
-        onClick={() => setShowAll(s => !s)}
-        style={{
-          display:'flex', alignItems:'center', justifyContent:'space-between',
-          width:'100%', padding:'12px 16px', marginTop:12,
-          background:'var(--card)', border:'1px solid var(--card-b)',
-          borderRadius:12, cursor:'pointer',
-          fontSize:13, fontWeight:700, color:'var(--text)',
-          fontFamily:"'Outfit',sans-serif",
-        }}
-      >
-        <span>Browse All {EXERCISES.length} Exercises</span>
-        <span style={{fontSize:16, color:'var(--text-2)'}}>{showAll ? '▲' : '▼'}</span>
-      </button>
-
-      {showAll && (
-        <div className="pill-row" style={{ position:'sticky', top:0, zIndex:20, background:'var(--app-bg)', paddingTop:8, paddingBottom:8, borderBottom:'1px solid var(--card-b)' }}>
-          {[
-            { id:'all',       label:'All',        emoji:'✨' },
-            { id:'grammar',   label:'Grammar',    emoji:'📝' },
-            { id:'vocab',     label:'Vocabulary', emoji:'🇭🇷' },
-            { id:'practical', label:'Practical',  emoji:'🌍' },
-            { id:'advanced',  label:'Advanced',   emoji:'🎓' },
-          ].map(f => (
+      {/* ── BROWSE BY CATEGORY (always visible) ─────────────────────────── */}
+      <div className="section-hdr" style={{ marginTop:12 }}>
+        <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>📚</div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">Browse Exercises</div>
+          <div className="section-hdr-sub">{EXERCISES.length} exercises across 4 categories</div>
+        </div>
+      </div>
+      {[
+        { id:'grammar',   label:'Grammar',    emoji:'📝', color:'#7c3aed', bg:'rgba(124,58,237,.08)',  border:'rgba(124,58,237,.25)' },
+        { id:'vocab',     label:'Vocabulary', emoji:'🇭🇷', color:'#0e7490', bg:'rgba(14,116,144,.08)',  border:'rgba(14,116,144,.25)' },
+        { id:'practical', label:'Practical',  emoji:'🌍', color:'#059669', bg:'rgba(5,150,105,.08)',   border:'rgba(5,150,105,.25)'  },
+        { id:'advanced',  label:'Advanced',   emoji:'🎓', color:'#d97706', bg:'rgba(217,119,6,.08)',   border:'rgba(217,119,6,.25)'  },
+      ].map(cat => {
+        const catExercises = EXERCISES.filter(e => e.category === cat.id);
+        const isOpen = openCat === cat.id;
+        return (
+          <div key={cat.id} style={{ marginBottom:8 }}>
+            {/* Category tile header */}
             <button
-              key={f.id}
-              onClick={() => setPFilter(f.id)}
-              className={'pill-filter' + (pFilter === f.id ? ' active' : '')}
-              aria-label={'Filter by ' + f.label}
-              aria-pressed={pFilter === f.id}
+              onClick={() => setOpenCat(isOpen ? null : cat.id)}
+              aria-expanded={isOpen}
+              style={{
+                width:'100%', display:'flex', alignItems:'center', gap:12,
+                padding:'14px 16px', borderRadius: isOpen ? '14px 14px 0 0' : 14,
+                background: isOpen ? cat.color : cat.bg,
+                border: `1.5px solid ${cat.border}`,
+                borderBottom: isOpen ? 'none' : `1.5px solid ${cat.border}`,
+                cursor:'pointer', fontFamily:"'Outfit',sans-serif",
+                transition:'all .15s',
+              }}
             >
-              {f.emoji} {f.label}
+              <div style={{
+                width:40, height:40, borderRadius:12, flexShrink:0,
+                background: isOpen ? 'rgba(255,255,255,.18)' : 'var(--card)',
+                border: `1px solid ${isOpen ? 'rgba(255,255,255,.3)' : cat.border}`,
+                display:'flex', alignItems:'center', justifyContent:'center', fontSize:20,
+              }}>{cat.emoji}</div>
+              <div style={{ flex:1, textAlign:'left' }}>
+                <div style={{ fontSize:15, fontWeight:800, color: isOpen ? '#fff' : 'var(--heading)', lineHeight:1.2 }}>{cat.label}</div>
+                <div style={{ fontSize:12, color: isOpen ? 'rgba(255,255,255,.75)' : 'var(--subtext)', marginTop:2 }}>{catExercises.length} exercises</div>
+              </div>
+              <div style={{ fontSize:18, color: isOpen ? 'rgba(255,255,255,.85)' : cat.color, fontWeight:300, transition:'transform .2s', transform: isOpen ? 'rotate(180deg)' : 'none' }}>▼</div>
             </button>
-          ))}
-        </div>
-      )}
-
-      {showAll && (
-        <div>
-          {/* Flat 2-column exercise grid */}
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:24, marginTop:12 }}>
-            {visible.map(e => <ExerciseCard key={e.id} {...e} />)}
+            {/* Expanded exercise list */}
+            {isOpen && (
+              <div style={{
+                border: `1.5px solid ${cat.border}`, borderTop:'none',
+                borderRadius:'0 0 14px 14px', overflow:'hidden',
+                background:'var(--card)',
+              }}>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, padding:10 }}>
+                  {catExercises.map(e => <ExerciseCard key={e.id} {...e} />)}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        );
+      })}
 
       {/* ── QUICK GAMES ─────────────────────────────────────────────────── */}
       <div className="section-hdr">
