@@ -227,19 +227,16 @@ export default function DiscoverTab() {
       </div>
 
       {/* ── FEATURED STORY PREVIEW ── */}
-      <div
-        role="button"
-        tabIndex={0}
+      <button
         onClick={() => { const el = document.querySelector('[data-ctab="stories"]'); if (el) el.click(); }}
+        className="tc"
         style={{
           background: 'linear-gradient(135deg,var(--warning-bg,#fffbeb),rgba(251,191,36,.08))',
           border: '1.5px solid var(--warning-b,#fde68a)',
-          borderRadius: 16, padding: '16px 18px', marginBottom: 12, cursor: 'pointer',
-          boxShadow: 'var(--card-shadow)',
-          transition: 'transform .15s, box-shadow .15s',
+          padding: '16px 18px', marginBottom: 12,
+          display: 'block', width: '100%', textAlign: 'left',
+          fontFamily: "'Outfit',sans-serif",
         }}
-        onMouseEnter={e => { e.currentTarget.style.transform='translateY(-1px)'; e.currentTarget.style.boxShadow='0 6px 20px rgba(180,83,9,.15)'; }}
-        onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='var(--card-shadow)'; }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
           <span style={{ fontSize: 14 }}>💌</span>
@@ -254,7 +251,7 @@ export default function DiscoverTab() {
         <div style={{ fontSize: 12, color: 'var(--subtext)', lineHeight: 1.6, fontStyle: 'italic', borderLeft: '3px solid var(--warning-b,#fde68a)', paddingLeft: 12 }}>
           &ldquo;Drago moje unuče, kako si ti? Ovdje je lijepo proljetno vrijeme. Cvjetovi su procvjetali u vrtu...&rdquo;
         </div>
-      </div>
+      </button>
 
       {/* ── HRVOJE COMPANION — rotating contextual messages ── */}
       <div className="c" style={{
@@ -291,17 +288,11 @@ export default function DiscoverTab() {
       {/* ── DIALECT AWARENESS ── */}
       <button
         onClick={() => setScr('dialect_awareness')}
+        className="feature-card"
         style={{
-          width: '100%', border: 'none', cursor: 'pointer', padding: '16px 18px',
-          borderRadius: 18, overflow: 'hidden',
           background: 'linear-gradient(135deg,#1e3a5f,#2563eb)',
           boxShadow: '0 4px 20px rgba(37,99,235,.35)', marginBottom: 12,
-          display: 'flex', alignItems: 'center', gap: 16,
-          transition: 'transform .15s, box-shadow .15s',
-          fontFamily: "'Outfit',sans-serif",
         }}
-        onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 8px 28px rgba(37,99,235,.45)'; }}
-        onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='0 4px 20px rgba(37,99,235,.35)'; }}
       >
         <div style={{
           width: 50, height: 50, borderRadius: 14, flexShrink: 0,
@@ -310,8 +301,8 @@ export default function DiscoverTab() {
         }}>🗣️</div>
         <div style={{ flex: 1, textAlign: 'left' }}>
           <div style={{ fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,.6)', letterSpacing: '.12em', textTransform: 'uppercase', marginBottom: 4 }}>Linguistics · Culture</div>
-          <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', marginBottom: 3 }}>Croatian Dialect Explorer</div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,.72)', lineHeight: 1.4 }}>Što vs Ča vs Kaj — discover the three dialects and where they come from.</div>
+          <div className="feature-card-title" style={{ color: '#fff', marginBottom: 3 }}>Croatian Dialect Explorer</div>
+          <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.72)' }}>Što vs Ča vs Kaj — discover the three dialects and where they come from.</div>
         </div>
         <div style={{ fontSize: 20, color: 'rgba(255,255,255,.7)', fontWeight: 300 }}>›</div>
       </button>
@@ -319,17 +310,11 @@ export default function DiscoverTab() {
       {/* ── PHOTO VOCAB SCANNER ── */}
       <button
         onClick={() => setScr('photo_vocab')}
+        className="feature-card"
         style={{
-          width: '100%', border: 'none', cursor: 'pointer', padding: '16px 18px',
-          borderRadius: 18, overflow: 'hidden',
           background: 'linear-gradient(135deg,#164e63,#0e7490)',
           boxShadow: '0 4px 20px rgba(14,116,144,.35)',
-          display: 'flex', alignItems: 'center', gap: 16,
-          transition: 'transform .15s, box-shadow .15s',
-          fontFamily: "'Outfit',sans-serif",
         }}
-        onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 8px 28px rgba(14,116,144,.45)'; }}
-        onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='0 4px 20px rgba(14,116,144,.35)'; }}
       >
         <div style={{
           width: 50, height: 50, borderRadius: 14, flexShrink: 0,
@@ -338,8 +323,8 @@ export default function DiscoverTab() {
         }}>📷</div>
         <div style={{ flex: 1, textAlign: 'left' }}>
           <div style={{ fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,.6)', letterSpacing: '.12em', textTransform: 'uppercase', marginBottom: 4 }}>AI · Camera</div>
-          <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', marginBottom: 3 }}>Photo Vocabulary Scanner</div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,.72)', lineHeight: 1.4 }}>Point your camera at menus, signs or labels — learn the Croatian words instantly.</div>
+          <div className="feature-card-title" style={{ color: '#fff', marginBottom: 3 }}>Photo Vocabulary Scanner</div>
+          <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.72)' }}>Point your camera at menus, signs or labels — learn the Croatian words instantly.</div>
         </div>
         <div style={{ fontSize: 20, color: 'rgba(255,255,255,.7)', fontWeight: 300 }}>›</div>
       </button>
