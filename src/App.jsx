@@ -215,11 +215,39 @@ function App() {
       if (merged.sat || merged.sun) { try { localStorage.setItem('nh_weekend_days', JSON.stringify(merged)); } catch (_) {} }
     }
     // Seasonal/campaign quest completion — additive: once true on any device, true everywhere.
-    // Never overwrite true with false.
     if (fp.nh_uskrs_kviz_done === true) try { localStorage.setItem('nh_uskrs_kviz_done', '1'); } catch (_) {}
     if (fp.nh_cq_easter_uskrs_q1 === true) try { localStorage.setItem('nh_cq_easter_uskrs_q1', '1'); } catch (_) {}
     if (fp.nh_cq_easter_uskrs_q2 === true) try { localStorage.setItem('nh_cq_easter_uskrs_q2', '1'); } catch (_) {}
     if (fp.nh_cq_easter_uskrs_q3 === true) try { localStorage.setItem('nh_cq_easter_uskrs_q3', '1'); } catch (_) {}
+    // Game state — merge strategies: hearts (remote wins if newer), prestige (max), checkpoints (union),
+    // custom_words (dedup union), hearts_always_on (additive), saved_phrases (union), media_done (union),
+    // used_free_repair (additive).
+    if (fp.nh_hearts !== null && fp.nh_hearts !== undefined) {
+      try { const lH = JSON.parse(localStorage.getItem('nh_hearts') || 'null'); if (!lH || (fp.nh_hearts.lastRegen || 0) > (lH.lastRegen || 0)) { localStorage.setItem('nh_hearts', JSON.stringify(fp.nh_hearts)); } } catch (_) {}
+    }
+    if (fp.nh_prestige) {
+      const lPr = parseInt(localStorage.getItem('nh_prestige') || '0', 10);
+      try { localStorage.setItem('nh_prestige', String(Math.max(lPr, fp.nh_prestige))); } catch (_) {}
+    }
+    if (fp.nh_checkpoints && typeof fp.nh_checkpoints === 'object') {
+      let lCk = {}; try { lCk = JSON.parse(localStorage.getItem('nh_checkpoints') || '{}'); } catch (_) {}
+      try { localStorage.setItem('nh_checkpoints', JSON.stringify({ ...fp.nh_checkpoints, ...lCk })); } catch (_) {}
+    }
+    if (Array.isArray(fp.nh_custom_words) && fp.nh_custom_words.length > 0) {
+      let lCW = []; try { lCW = JSON.parse(localStorage.getItem('nh_custom_words') || '[]'); } catch (_) {}
+      const cwMap = new Map([...fp.nh_custom_words, ...lCW].map((w) => [w?.word || JSON.stringify(w), w]));
+      try { localStorage.setItem('nh_custom_words', JSON.stringify([...cwMap.values()])); } catch (_) {}
+    }
+    if (fp.nh_hearts_always_on === true) try { localStorage.setItem('nh_hearts_always_on', 'true'); } catch (_) {}
+    if (Array.isArray(fp.nh_saved_phrases) && fp.nh_saved_phrases.length > 0) {
+      let lSP = []; try { lSP = JSON.parse(localStorage.getItem('nh_saved_phrases') || '[]'); } catch (_) {}
+      try { localStorage.setItem('nh_saved_phrases', JSON.stringify([...new Set([...lSP, ...fp.nh_saved_phrases])])); } catch (_) {}
+    }
+    if (fp.nh_media_done && typeof fp.nh_media_done === 'object') {
+      let lMD = {}; try { lMD = JSON.parse(localStorage.getItem('nh_media_done') || '{}'); } catch (_) {}
+      try { localStorage.setItem('nh_media_done', JSON.stringify({ ...fp.nh_media_done, ...lMD })); } catch (_) {}
+    }
+    if (fp.nh_used_free_repair === true) try { localStorage.setItem('nh_used_free_repair', '1'); } catch (_) {}
   }, [setFavs, setJWords, sDchlA, sDchlSl, setOnboarded]);
 
   // Ref to break the useAuth TDZ cycle for doSyncNow and applyRemoteProgress
