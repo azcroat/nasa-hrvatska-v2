@@ -46,11 +46,20 @@ async function _getData() {
 import { trackStart, trackAbandon } from '../lib/learnerStyle.js';
 import { markExerciseDone } from './useAward.js';
 
-// Screens in LEARN_PATH that don't self-report completion — dwell ≥20s grants credit
+// Screens in LEARN_PATH that don't self-report completion — dwell ≥20s grants credit.
+// IMPORTANT: Any screen added here that ALSO has an explicit Finish/Done/Complete button
+// must ALSO call setStats+writeDelta in that button's handler (see FalseFriendsScreen,
+// AspectDrillScreen, etc. for the pattern). The dwell timer and button handler both check
+// stats.vs to prevent double-counting, so both paths are safe to have simultaneously.
 const BLACK_HOLE_SCREENS = {
   texting:'lc', roleplay:'lc', readlist:'lc', idioms:'lc', brzalice:'lc', wordform:'lc',
   diminutives:'lc', history:'lc', recipes:'lc', listeningpath:'lc', falsefr:'lc',
   dialects:'lc', aspect:'gc', declension:'gc',
+  // Safety-net entries for screens that also have explicit completion buttons.
+  // The button fires first; the dwell timer fires only if the user stays ≥20s without clicking.
+  listening:'lc', alphabet:'lc', techvoc:'lc', pitchaccent:'lc',
+  tenses:'gc', formalregister:'gc', conditional:'gc', impersonal:'gc',
+  padezifull:'gc', clitic:'gc', grammarmap:'gc', aspectdrill:'gc',
 };
 
 export function useScreenLauncher({

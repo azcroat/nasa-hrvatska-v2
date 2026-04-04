@@ -376,7 +376,7 @@ export default function AppRouter(props) {
                 key={r.hr+":"+r.type+":"+i}
                 className="sr-item"
                 role="option"
-                onClick={function(){setSrchOpen(false);setSrchQ("");setScr(r.go)}}>
+                onClick={function(){setSrchOpen(false);setSrchQ("");if(r.type==='vocab'&&r.cat){launchPathItem({go:'lesson',topic:r.cat});}else{setScr(r.go);}}}>
                 <div>
                   <div style={{fontSize:14,fontWeight:700,color:"var(--heading)"}}>{r.hr}</div>
                   <div style={{fontSize:12,color:"var(--subtext)",marginTop:1}}>{r.en}</div>
