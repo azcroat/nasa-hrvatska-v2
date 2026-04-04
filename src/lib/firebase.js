@@ -80,15 +80,25 @@ export async function fbSaveProgress(uid,data){
   const _CEFR_NUM = { A1:1, A2:2, B1:3, B2:4, C1:5, C2:6 };
   const _lvl = (typeof _lvlRaw === 'number' && _lvlRaw >= 1) ? _lvlRaw : (_CEFR_NUM[_lvlRaw] || 1);
   const _nowMs=Date.now();
-  const lbEntry={name:data.name||"",xp:_st.xp||0,lc:_st.lc||0,updated:_nowMs};
-  const profileEntry={name:data.name||"",xp:_st.xp||0,lc:_st.lc||0,streak:_strk,level:_lvl,lastActive:_nowMs};
+  // Cross-device race guard: fbApplyDelta may have committed higher xp/lc via atomic increment
+  // (e.g. from another device) before this periodic save runs. Always take the max of:
+  //   1. data being written (current local React state)
+  //   2. local cache (updated by _processSnapshot which already does Math.max with Firestore)
+  // This prevents validXpUpdate / validLbXpUpdate Firestore rules from rejecting writes where
+  // the server-side xp is already higher than what we're about to write.
+  const _cachedP = gP(id);
+  const _cachedSt = (_cachedP && (_cachedP.stats || _cachedP.st)) || {};
+  const _bestXP = Math.max(_st.xp || 0, _cachedSt.xp || 0);
+  const _bestLC = Math.max(_st.lc || 0, _cachedSt.lc || 0);
+  const lbEntry={name:data.name||"",xp:_bestXP,lc:_bestLC,updated:_nowMs};
+  const profileEntry={name:data.name||"",xp:_bestXP,lc:_bestLC,streak:_strk,level:_lvl,lastActive:_nowMs};
   const userEntry = {
     progress:         JSON.stringify(data),
     updated:          serverTimestamp(),
-    xp:               _st.xp || 0,
+    xp:               _bestXP,
     level:            _lvl,
     streak:           _strk,
-    lessonsCompleted: _st.lc || 0,
+    lessonsCompleted: _bestLC,
     lastActive:       serverTimestamp(),
   };
   // Family XP: fire-and-forget (different collection, can tolerate eventual consistency)

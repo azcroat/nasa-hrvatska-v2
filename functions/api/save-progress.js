@@ -69,9 +69,8 @@ export async function onRequestPost(context) {
   }
 
   // Validate data is a JSON string (progress blob)
-  let parsedData;
   try {
-    parsedData = JSON.parse(data);
+    JSON.parse(data);
   } catch {
     return new Response('Invalid data', { status: 400, headers: corsHeaders(origin) });
   }
@@ -80,13 +79,17 @@ export async function onRequestPost(context) {
   // Only updates `progress` and `updated` — leaves all other fields (leaderboard, family) intact.
   // The Firestore security rule allows each user to write their own /users/{docId} document.
   const docId = uid.replace(/[.#$/[\]]/g, '_');
+  // Only update progress blob + timestamp. Do NOT write top-level xp here:
+  // fbApplyDelta owns the authoritative xp field via atomic increments. If this beacon
+  // wrote a stale absolute xp value (local state may lag behind atomic deltas from another
+  // device), validXpUpdate in Firestore rules would reject the entire PATCH with 403.
+  // The progress blob already contains stats.xp; the overlay in fbWatchProgress/fbLoadProgress
+  // handles the Math.max merge when the snapshot is read back.
   const firestoreUrl = [
     `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}`,
     `/databases/(default)/documents/users/${docId}`,
-    `?updateMask.fieldPaths=progress&updateMask.fieldPaths=updated&updateMask.fieldPaths=xp`,
+    `?updateMask.fieldPaths=progress&updateMask.fieldPaths=updated`,
   ].join('');
-
-  const xp = ((parsedData.stats || parsedData.st || {}).xp) || 0;
 
   try {
     const res = await fetch(firestoreUrl, {
@@ -100,7 +103,6 @@ export async function onRequestPost(context) {
         fields: {
           progress: { stringValue: data },
           updated:  { integerValue: String(Date.now()) },
-          xp:       { integerValue: String(xp) },
         },
       }),
     });
