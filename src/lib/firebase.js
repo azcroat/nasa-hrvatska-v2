@@ -418,18 +418,48 @@ export function fbWatchFamilyMembers(code,callback){
   );
 }
 export async function fbLeaveFamily(code,email){
-  if(!_fbReady||!_fbDb)return{ok:false};
-  try{const leaveSnap=await getDoc(fsDoc(_fbDb,"families",code));
-  if(!leaveSnap.exists())return{ok:false};
-  const data=leaveSnap.data();const members=(data.members||[]).filter(function(m){return m.email!==email});
-  const memberEmails=(data.memberEmails||[]).filter(function(e){return e!==email});
+  if(!_fbReady||!_fbDb)return{ok:false,err:'Firebase not ready'};
   const id=email.replace(/[.#$/\[\]]/g,"_");
-  await setDoc(fsDoc(_fbDb,"families",code),{members:members,memberEmails:memberEmails},{merge:true});
-  // Delete memberXP entry so ghost data doesn't accumulate in the family doc
-  updateDoc(fsDoc(_fbDb,"families",code),{["memberXP."+id]:deleteField()}).catch(function(){});
-  await setDoc(fsDoc(_fbDb,"users",id),{familyCode:null},{merge:true});
-  localStorage.removeItem("uFamily");
-  return{ok:true}}catch(e){return{ok:false}}
+  // Helper: remove user from a specific family document
+  async function _removeMember(familyCode){
+    const snap=await getDoc(fsDoc(_fbDb,"families",familyCode));
+    if(!snap.exists())return false;
+    const data=snap.data();
+    const members=(data.members||[]).filter(function(m){return m.email!==email});
+    const memberEmails=(data.memberEmails||[]).filter(function(e){return e!==email});
+    await setDoc(fsDoc(_fbDb,"families",familyCode),{members:members,memberEmails:memberEmails},{merge:true});
+    updateDoc(fsDoc(_fbDb,"families",familyCode),{["memberXP."+id]:deleteField()}).catch(function(){});
+    return true;
+  }
+  try{
+    // First try the supplied code; if it fails or doesn't exist, fall back to
+    // whatever familyCode is stored on the user's Firestore document.
+    let leftCode=code;
+    let removed=false;
+    if(code){
+      try{ removed=await _removeMember(code); }catch(e){console.warn('[family] leave attempt with supplied code failed:',e?.code,e?.message);}
+    }
+    if(!removed){
+      // Fall back: read the actual familyCode from the user doc
+      const userSnap=await getDoc(fsDoc(_fbDb,"users",id));
+      const actualCode=userSnap.exists()?userSnap.data().familyCode:null;
+      if(actualCode&&actualCode!==code){
+        leftCode=actualCode;
+        try{ removed=await _removeMember(actualCode); }catch(e){console.warn('[family] leave fallback also failed:',e?.code,e?.message);}
+      }
+    }
+    // Always clear the familyCode on the user doc and local state, regardless of
+    // whether the family document update succeeded — this prevents being stuck.
+    await setDoc(fsDoc(_fbDb,"users",id),{familyCode:null},{merge:true});
+    localStorage.removeItem("uFamily");
+    if(!removed)console.warn('[family] fbLeaveFamily: could not remove from family doc for code',leftCode,'— user doc and local state cleared anyway');
+    return{ok:true};
+  }catch(e){
+    console.error('[family] fbLeaveFamily critical error:',e?.code,e?.message);
+    // Last resort: clear local state so the user is not stuck
+    localStorage.removeItem("uFamily");
+    return{ok:false,err:e?.message||'Could not leave family'};
+  }
 }
 export async function fbLoadUserFamily(email){
   if(!_fbReady||!_fbDb)return null;
