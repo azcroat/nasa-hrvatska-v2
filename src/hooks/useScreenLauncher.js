@@ -60,6 +60,8 @@ const BLACK_HOLE_SCREENS = {
   listening:'lc', alphabet:'lc', techvoc:'lc', pitchaccent:'lc',
   tenses:'gc', formalregister:'gc', conditional:'gc', impersonal:'gc',
   padezifull:'gc', clitic:'gc', grammarmap:'gc', aspectdrill:'gc',
+  // Additional informational screens added to ensure all LEARN_PATH entries award credit.
+  shadowing:'lc', proverbs:'lc', bureaucratic:'lc',
 };
 
 export function useScreenLauncher({
