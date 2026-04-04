@@ -230,6 +230,13 @@ function App() {
     if (fp.nh_cq_easter_uskrs_q1 === true) try { localStorage.setItem('nh_cq_easter_uskrs_q1', '1'); } catch (_) {}
     if (fp.nh_cq_easter_uskrs_q2 === true) try { localStorage.setItem('nh_cq_easter_uskrs_q2', '1'); } catch (_) {}
     if (fp.nh_cq_easter_uskrs_q3 === true) try { localStorage.setItem('nh_cq_easter_uskrs_q3', '1'); } catch (_) {}
+    // Signal HomeTab to re-read campaignQuestsDone from localStorage now that
+    // Firebase data has been restored. Without this, the initial React state
+    // (read before Firebase resolves) shows quests as incomplete even when the
+    // user completed them on another device/browser earlier.
+    if (fp.nh_cq_easter_uskrs_q1 === true || fp.nh_cq_easter_uskrs_q2 === true || fp.nh_cq_easter_uskrs_q3 === true) {
+      try { window.dispatchEvent(new CustomEvent('nh-campaign-quest-done')); } catch (_) {}
+    }
     // Game state — merge strategies: hearts (remote wins if newer), prestige (max), checkpoints (union),
     // custom_words (dedup union), hearts_always_on (additive), saved_phrases (union), media_done (union),
     // used_free_repair (additive).
