@@ -9,6 +9,29 @@
 
 import { localDateStr } from './dateUtils.js';
 
+// ── Notification timer tracking ───────────────────────────────────────────────
+// All scheduled notification timeouts are stored here so they can be cancelled
+// when the user signs out — prevents stale notifications firing after logout.
+const _notifTimers = new Set();
+
+/**
+ * Cancel all pending notification timers.
+ * Call this on sign-out to ensure no reminders fire for a signed-out user.
+ */
+export function cancelAllNotificationTimers() {
+  for (const id of _notifTimers) clearTimeout(id);
+  _notifTimers.clear();
+}
+
+function _scheduleTimeout(fn, delayMs) {
+  const id = setTimeout(() => {
+    _notifTimers.delete(id);
+    fn();
+  }, delayMs);
+  _notifTimers.add(id);
+  return id;
+}
+
 const NOTIF_KEY = 'nh_notifications_enabled';
 const SUB_KEY   = 'nh_push_subscription';
 
@@ -163,7 +186,7 @@ export function scheduleLocalReminder(streakDays = 0) {
 
   const msg = getGoalMessages(streakDays);
 
-  setTimeout(() => {
+  _scheduleTimeout(() => {
     if (isNotificationsEnabled() && Notification.permission === 'granted') {
       // @ts-ignore — renotify is a valid Notifications API option not yet in TS DOM lib
       new Notification(msg.title, /** @type {any} */ ({
@@ -230,7 +253,7 @@ export function scheduleReEngagementReminder() {
 
   try { localStorage.setItem('nh_reengagement_sent', String(Date.now())); } catch { }
 
-  setTimeout(() => {
+  _scheduleTimeout(() => {
     if (isNotificationsEnabled() && Notification.permission === 'granted') {
       // @ts-ignore — renotify is a valid Notifications API option not yet in TS DOM lib
       new Notification(title, /** @type {any} */ ({

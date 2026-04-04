@@ -513,7 +513,9 @@ function App() {
   }, [authUser]);
 
   // Push notifications + free annual grant + uidRef sync
-  useEffect(() => { if (!authUser) return; import('./lib/pushNotifications.js').then(({registerMessagingServiceWorker,registerPushWithServer}) => { registerMessagingServiceWorker().catch(()=>{}); if(typeof Notification!=='undefined'&&Notification.permission==='granted')registerPushWithServer({streak:getStreak().count,name:name||authUser.d||''}).catch(()=>{}); }); }, [authUser?.u]);  
+  // Push notifications: register subscription with server (single combined SW handles messaging).
+  // registerMessagingServiceWorker() removed — firebase-messaging-sw.js merged into sw.js.
+  useEffect(() => { if (!authUser) return; import('./lib/pushNotifications.js').then(({registerPushWithServer}) => { if(typeof Notification!=='undefined'&&Notification.permission==='granted')registerPushWithServer({streak:getStreak().count,name:name||authUser.d||''}).catch(()=>{}); }); }, [authUser?.u]);  
   useEffect(() => { if (authUser?.u) grantFreeAnnual(authUser.u); }, [authUser?.u]);  
 
   // Lesson resume persistence

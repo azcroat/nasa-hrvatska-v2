@@ -273,7 +273,13 @@ export async function fbLogin(email,password){
   if(!_fbReady||!_fbAuth)return{ok:false,err:"Firebase not configured."};
   try{const cred=await signInWithEmailAndPassword(_fbAuth,email,password);fbLogEvent('login',{method:'email'});return{ok:true,user:cred.user}}catch(e){return{ok:false,err:friendlyError(e.message)}}
 }
-export async function fbLogout(){if(_fbReady&&_fbAuth)try{await fbSignOut(_fbAuth)}catch(e){}}
+export async function fbLogout(){
+  if(_fbReady&&_fbAuth)try{await fbSignOut(_fbAuth)}catch(e){}
+  // Cancel any pending notification timers so they don't fire for a signed-out user.
+  import('./pushNotifications.js').then(({cancelAllNotificationTimers})=>{
+    try{cancelAllNotificationTimers()}catch(_){}
+  }).catch(()=>{});
+}
 export async function fbLoginGoogle(){
   if(!_fbReady||!_fbAuth)return{ok:false,err:"Firebase not configured."};
   try{

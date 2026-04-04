@@ -8,6 +8,12 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: null,
+      // injectManifest: single combined SW (Workbox + FCM + VAPID push).
+      // Eliminates the two-SW scope conflict that broke offline mode and caused
+      // unexpected reloads when firebase-messaging-sw.js competed with sw.js.
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
       includeAssets: ['icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'],
       manifest: {
         name: 'Naša Hrvatska — Our Croatia',
@@ -46,130 +52,29 @@ export default defineConfig({
           },
         ],
       },
-      workbox: {
-        navigationPreload: true,
-        skipWaiting: true,
-        clientsClaim: true,
-        cleanupOutdatedCaches: true,
-        cacheId: 'nasa-hrvatska-v16',
-        // No navigateFallback — Workbox's NavigationRoute + navigateFallback intercepts ALL
-        // navigation requests and serves the cached fallback immediately, even when online.
-        // The NetworkFirst handler below already manages navigation with a 10s timeout and
-        // proper cache fallback. offline.html is still precached and referenced there.
-        // Precache critical app-shell assets: index.html (required by NavigationRoute),
-        // CSS, fonts, favicon/manifest icons. JS chunks handled by runtimeCaching below.
-        globPatterns: ['index.html', '**/*.css', '**/*.woff2', '**/*.ico', '**/icon*.png', '**/apple-touch*.png', 'offline.html'],
-        globIgnores: ['**/chunk-data*.js', '**/chunk-vocabulary*.js', '**/chunk-grammar*.js', '**/chunk-exercises*.js', '**/chunk-lessons*.js', '**/chunk-scenarios*.js', '**/chunk-cultural*.js', '**/chunk-geo*.js', '**/splash/**', '**/screenshots/**'],
-        runtimeCaching: [
-          {
-            // Data chunks (vocab, stories, songs, pitch, daily content) — stale-while-revalidate.
-            // cacheWillUpdate plugin: reject any response with Content-Type: text/html
-            // (the Cloudflare /* /index.html 200 SPA fallback returns status 200 WITH
-            // text/html — so cacheableResponse: {statuses:[200]} alone is not enough).
-            urlPattern: /\/assets\/chunk-(data|vocabulary|grammar|exercises|lessons|scenarios|cultural|geo|stories|pitch-data|daily|songs)[^/]*\.js$/,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'nasa-hrvatska-v15-data',
-              expiration: { maxEntries: 3, maxAgeSeconds: 60 * 60 * 24 * 7 },
-              cacheableResponse: { statuses: [200] },
-              plugins: [
-                {
-                  cacheWillUpdate: async ({ response }) => {
-                    const ct = response && response.headers && response.headers.get('content-type');
-                    if (ct && ct.startsWith('text/html')) return null;
-                    return response;
-                  }
-                }
-              ]
-            }
-          },
-          {
-            // All JS chunks — stale-while-revalidate so app loads fast on repeat visits.
-            // IMPORTANT: Two plugins work together to handle stale-chunk crashes after deploy:
-            //
-            // 1. fetchDidSucceed — runs before the response is returned to the caller.
-            //    Throws "Failed to fetch" when Cloudflare returns the SPA fallback index.html
-            //    (text/html, status 200) for non-existent old-hash chunk URLs. This converts
-            //    a silent MIME-type crash into a proper fetch failure that lazyWithReload catches.
-            //
-            // 2. cacheWillUpdate — prevents the HTML response from ever entering the cache,
-            //    so future requests for the same (stale) hash also go to network.
-            urlPattern: /\.js$/,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'nasa-hrvatska-v15-js',
-              expiration: { maxEntries: 150, maxAgeSeconds: 30 * 24 * 60 * 60 },
-              cacheableResponse: { statuses: [200] },
-              plugins: [
-                {
-                  fetchDidSucceed: async ({ response }) => {
-                    const ct = response && response.headers && response.headers.get('content-type');
-                    if (ct && ct.startsWith('text/html')) {
-                      // Cloudflare SPA fallback returned HTML instead of JS.
-                      // Throw so the dynamic import rejects with "Failed to fetch",
-                      // which lazyWithReload catches and handles with a page reload.
-                      throw new Error('Failed to fetch');
-                    }
-                    return response;
-                  },
-                  cacheWillUpdate: async ({ response }) => {
-                    const ct = response && response.headers && response.headers.get('content-type');
-                    if (ct && ct.startsWith('text/html')) return null;
-                    return response;
-                  }
-                }
-              ]
-            }
-          },
-          {
-            // SVG/PNG/WebP/JPG images — long-lived CacheFirst (icons, flags, illustrations)
-            urlPattern: /\.(svg|png|webp|jpg|jpeg)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'nasa-hrvatska-v15-images',
-              expiration: { maxEntries: 100, maxAgeSeconds: 365 * 24 * 60 * 60 },
-              cacheableResponse: { statuses: [0, 200] }
-            }
-          },
-          {
-            // HTML navigation: always fetch fresh from network (10s timeout), fall back to cache
-            // offline. 10s (up from 3s) gives CDN enough time during high-traffic deploys.
-            urlPattern: ({ request }) => request.mode === 'navigate',
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'nasa-hrvatska-v15-html',
-              networkTimeoutSeconds: 10,
-              cacheableResponse: { statuses: [0, 200] }
-            }
-          },
-          {
-            urlPattern: /\/audio\/.*\.(mp3|ogg|wav)$/i,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'nasa-hrvatska-v15-audio',
-              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 },
-              rangeRequests: true,
-              cacheableResponse: { statuses: [0, 200, 206] }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'nasa-hrvatska-v15-fonts',
-              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
-              cacheableResponse: { statuses: [0, 200] }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/[a-z0-9-]+\.firebaseio\.com\/.*/i,
-            handler: 'NetworkOnly'
-          },
-          {
-            urlPattern: /^https:\/\/firestore\.googleapis\.com\/.*/i,
-            handler: 'NetworkOnly'
-          }
-        ]
+      injectManifest: {
+        // Precache app shell assets only. JS runtime caching is handled in src/sw.js.
+        // Large lazy-loaded data chunks excluded — they are runtime-cached in the SW.
+        globPatterns: [
+          'index.html',
+          '**/*.css',
+          '**/*.woff2',
+          '**/icon*.png',
+          '**/apple-touch*.png',
+          'offline.html',
+        ],
+        globIgnores: [
+          '**/chunk-data*.js',
+          '**/chunk-vocabulary*.js',
+          '**/chunk-grammar*.js',
+          '**/chunk-exercises*.js',
+          '**/chunk-lessons*.js',
+          '**/chunk-scenarios*.js',
+          '**/chunk-cultural*.js',
+          '**/chunk-geo*.js',
+          '**/splash/**',
+          '**/screenshots/**',
+        ],
       }
     })
   ],

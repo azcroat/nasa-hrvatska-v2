@@ -1,0 +1,252 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// Naša Hrvatska — Combined Service Worker
+// Merges: Workbox precaching/routing + Firebase Cloud Messaging + VAPID Web Push
+//
+// This is the SINGLE service worker for the entire app, eliminating the
+// previous conflict between sw.js (Vite PWA) and firebase-messaging-sw.js
+// competing for scope '/'. Two SWs at the same scope cause:
+//   - Unexpected page reloads (controllerchange fires for Firebase SW takeover)
+//   - Offline mode broken (Firebase SW has no fetch handler)
+//   - Push notifications unreliable (race between two SWs)
+// ═══════════════════════════════════════════════════════════════════════════
+
+import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
+import { registerRoute } from 'workbox-routing';
+import {
+  NetworkFirst,
+  StaleWhileRevalidate,
+  CacheFirst,
+  NetworkOnly,
+} from 'workbox-strategies';
+import { ExpirationPlugin } from 'workbox-expiration';
+import { CacheableResponsePlugin } from 'workbox-cacheable-response';
+import { RangeRequestsPlugin } from 'workbox-range-requests';
+import { initializeApp } from 'firebase/app';
+import { getMessaging, onBackgroundMessage } from 'firebase/messaging/sw';
+
+// ── Lifecycle ────────────────────────────────────────────────────────────────
+
+// Take control immediately on install/update — no waiting for old tabs to close.
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));
+
+// ── Workbox precache ─────────────────────────────────────────────────────────
+// vite-plugin-pwa injectManifest injects __WB_MANIFEST at build time.
+// Contains app shell: index.html, CSS, fonts, icons, offline.html.
+
+// eslint-disable-next-line no-underscore-dangle
+precacheAndRoute(self.__WB_MANIFEST || []);
+cleanupOutdatedCaches();
+
+// ── Runtime caching ──────────────────────────────────────────────────────────
+
+const CACHE_VER = 'nasa-hrvatska-v16';
+
+// 1. Data chunks (vocab, grammar, exercises, lessons, scenarios, cultural, geo,
+//    stories, pitch-data, daily, songs) — StaleWhileRevalidate.
+//    Plugin guards: reject HTML responses (Cloudflare SPA fallback confusion).
+registerRoute(
+  /\/assets\/chunk-(data|vocabulary|grammar|exercises|lessons|scenarios|cultural|geo|stories|pitch-data|daily|songs)[^/]*\.js$/,
+  new StaleWhileRevalidate({
+    cacheName: `${CACHE_VER}-data`,
+    plugins: [
+      new ExpirationPlugin({ maxEntries: 3, maxAgeSeconds: 60 * 60 * 24 * 7 }),
+      new CacheableResponsePlugin({ statuses: [200] }),
+      {
+        cacheWillUpdate: async ({ response }) => {
+          const ct = response?.headers?.get('content-type');
+          return ct?.startsWith('text/html') ? null : response;
+        },
+      },
+    ],
+  })
+);
+
+// 2. All other JS chunks — StaleWhileRevalidate.
+//    fetchDidSucceed: throw on HTML response so lazyWithReload catches MIME error.
+//    cacheWillUpdate: never store HTML in JS cache.
+registerRoute(
+  /\.js$/,
+  new StaleWhileRevalidate({
+    cacheName: `${CACHE_VER}-js`,
+    plugins: [
+      new ExpirationPlugin({ maxEntries: 150, maxAgeSeconds: 30 * 24 * 60 * 60 }),
+      new CacheableResponsePlugin({ statuses: [200] }),
+      {
+        fetchDidSucceed: async ({ response }) => {
+          const ct = response?.headers?.get('content-type');
+          if (ct?.startsWith('text/html')) throw new Error('Failed to fetch');
+          return response;
+        },
+        cacheWillUpdate: async ({ response }) => {
+          const ct = response?.headers?.get('content-type');
+          return ct?.startsWith('text/html') ? null : response;
+        },
+      },
+    ],
+  })
+);
+
+// 3. Images (SVG, PNG, WebP, JPG) — CacheFirst, 1-year TTL.
+registerRoute(
+  /\.(svg|png|webp|jpg|jpeg)$/,
+  new CacheFirst({
+    cacheName: `${CACHE_VER}-images`,
+    plugins: [
+      new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 365 * 24 * 60 * 60 }),
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+    ],
+  })
+);
+
+// 4. HTML navigation — NetworkFirst (10s timeout → cache fallback → offline.html).
+registerRoute(
+  ({ request }) => request.mode === 'navigate',
+  new NetworkFirst({
+    cacheName: `${CACHE_VER}-html`,
+    networkTimeoutSeconds: 10,
+    plugins: [new CacheableResponsePlugin({ statuses: [0, 200] })],
+  })
+);
+
+// 5. Audio assets — StaleWhileRevalidate with range-request support.
+registerRoute(
+  /\/audio\/.*\.(mp3|ogg|wav)$/i,
+  new StaleWhileRevalidate({
+    cacheName: `${CACHE_VER}-audio`,
+    plugins: [
+      new ExpirationPlugin({ maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 }),
+      new RangeRequestsPlugin(),
+      new CacheableResponsePlugin({ statuses: [0, 200, 206] }),
+    ],
+  })
+);
+
+// 6. Google Fonts — CacheFirst, 1-year TTL.
+registerRoute(
+  /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
+  new CacheFirst({
+    cacheName: `${CACHE_VER}-fonts`,
+    plugins: [
+      new ExpirationPlugin({ maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 }),
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+    ],
+  })
+);
+
+// 7. Firebase realtime / Firestore — always network, never cached.
+registerRoute(/^https:\/\/[a-z0-9-]+\.firebaseio\.com\/.*/i, new NetworkOnly());
+registerRoute(/^https:\/\/firestore\.googleapis\.com\/.*/i, new NetworkOnly());
+
+// ── Firebase Cloud Messaging ─────────────────────────────────────────────────
+// FCM background messages (app in background / closed tab).
+// NOTE: Firebase config is intentionally hardcoded here — service workers cannot
+// access Vite build-time env vars (import.meta.env). These are client-side keys
+// restricted to authorized domains in Firebase Console, the same values present
+// in src/lib/firebase.js.
+
+const _firebaseApp = initializeApp({
+  apiKey:            'AIzaSyCD4ul4KCILkufNMk5qCr-C5JiN9D7ogn0',
+  authDomain:        'ucimohrvatski-488f9.firebaseapp.com',
+  projectId:         'ucimohrvatski-488f9',
+  storageBucket:     'ucimohrvatski-488f9.firebasestorage.app',
+  messagingSenderId: '675614569794',
+  appId:             '1:675614569794:web:d19f7defeac55b0b4b04db',
+});
+
+const _messaging = getMessaging(_firebaseApp);
+
+onBackgroundMessage(_messaging, (payload) => {
+  const { title, body, icon } = payload.notification || {};
+  self.registration.showNotification(title || 'Naša Hrvatska', {
+    body:     body  || 'Time to practice your Croatian! 🇭🇷',
+    icon:     icon  || '/icons/icon-192x192.png',
+    badge:    '/icons/badge-72.png',
+    tag:      'nh-daily-reminder',
+    renotify: true,
+    data:     payload.data || {},
+    actions: [
+      { action: 'study',   title: '📚 Study Now' },
+      { action: 'dismiss', title: 'Later'         },
+    ],
+  });
+});
+
+// ── VAPID Web Push ───────────────────────────────────────────────────────────
+// Direct Web Push events signed with our own VAPID private key
+// (not routed through FCM). Fired when server calls /api/push-send.
+
+self.addEventListener('push', (event) => {
+  let data = { title: 'Naša Hrvatska', body: 'Time to practice your Croatian! 🇭🇷' };
+  try {
+    if (event.data) data = { ...data, ...event.data.json() };
+  } catch (_) {}
+  const notifData = Object.assign({ url: '/' }, data.data || {});
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body:     data.body,
+      icon:     data.icon  || '/icons/icon-192x192.png',
+      badge:    data.badge || '/icons/badge-72.png',
+      tag:      data.tag   || 'streak-reminder',
+      renotify: true,
+      data:     notifData,
+      actions:  data.actions || [
+        { action: 'study',   title: '📚 Study Now' },
+        { action: 'dismiss', title: 'Later'         },
+      ],
+    })
+  );
+});
+
+// ── Periodic Background Sync ─────────────────────────────────────────────────
+// Daily reminder without a push server (Chrome/Edge).
+// Rotates through 5 message pairs seeded by current day-of-epoch.
+
+const _PERIODIC_MESSAGES = [
+  { title: '🇭🇷 Naša Hrvatska',         body: 'Time to practice your Croatian today!' },
+  { title: '📚 Review time!',            body: "Your Croatian words are waiting — 5 minutes keeps the momentum going." },
+  { title: '🔥 Keep your streak alive!', body: "Dobar dan! Complete today's lesson to stay on track." },
+  { title: '🧠 Memory check!',           body: 'Croatian words fade without practice — a quick review locks them in.' },
+  { title: '⚡ Just 5 minutes!',         body: 'Quick quiz? Your future self will thank you. Hajde! 🇭🇷' },
+];
+
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag !== 'nh-daily-reminder') return;
+  const msg = _PERIODIC_MESSAGES[Math.floor(Date.now() / 86400000) % _PERIODIC_MESSAGES.length];
+  event.waitUntil(
+    self.registration.showNotification(msg.title, {
+      body:     msg.body,
+      icon:     '/icons/icon-192x192.png',
+      badge:    '/icons/badge-72.png',
+      tag:      'nh-daily-reminder',
+      renotify: true,
+      data:     { url: '/', action: 'open_lesson' },
+      actions: [
+        { action: 'study',   title: '📚 Study Now' },
+        { action: 'dismiss', title: 'Later'         },
+      ],
+    })
+  );
+});
+
+// ── Notification click ───────────────────────────────────────────────────────
+// 'study' / 'open' / default tap → navigate to app.
+// 'dismiss' → close only.
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  if (event.action === 'dismiss') return;
+  const url = event.notification.data?.url || '/';
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        for (const client of clientList) {
+          if (client.url.includes(self.location.origin) && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        return self.clients.openWindow(url);
+      })
+  );
+});
