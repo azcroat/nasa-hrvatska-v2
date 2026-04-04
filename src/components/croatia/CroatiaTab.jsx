@@ -68,13 +68,7 @@ export default function CroatiaTab({ sCurEx }) {
 
       {/* ── SUB-TAB PILL SELECTOR ── */}
       <style>{`@keyframes nh-new-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.7}}`}</style>
-      <div style={{
-        display:'flex', gap:6, overflowX:'auto', scrollbarWidth:'none',
-        position:'sticky', top:0, zIndex:10,
-        background:'var(--app-bg)', padding:'10px 0',
-        borderBottom:'1px solid var(--card-b)',
-        boxShadow:'0 2px 10px rgba(0,0,0,0.07)',
-      }}>
+      <div className="pill-row">
         {[
           { id:'discover', label:'🗓️ Discover' },
           { id:'culture',  label:'🏰 Culture' },
@@ -84,16 +78,16 @@ export default function CroatiaTab({ sCurEx }) {
           const isNew = (t.id === 'media' || t.id === 'stories') && !visited[t.id];
           const isActive = ctab === t.id;
           return (
-            <button key={t.id} data-ctab={t.id} onClick={() => changeTab(t.id)} style={{
-              position:'relative',
-              padding:'8px 18px', borderRadius:22, flexShrink:0,
-              border: isActive ? 'none' : '1px solid var(--card-b)',
-              background: isActive ? 'var(--info)' : 'var(--card)',
-              color: isActive ? '#fff' : 'var(--subtext)',
-              fontWeight:700, fontSize:13, cursor:'pointer', whiteSpace:'nowrap',
-              transition:'all 0.2s',
-              boxShadow: isActive ? '0 2px 8px rgba(14,116,144,.3)' : 'var(--card-shadow)',
-            }}>
+            <button key={t.id} data-ctab={t.id} onClick={() => changeTab(t.id)}
+              className="pill-btn"
+              style={{
+                border: isActive ? 'none' : '1px solid var(--card-b)',
+                background: isActive ? 'var(--info)' : 'var(--card)',
+                color: isActive ? '#fff' : 'var(--subtext)',
+                fontWeight: isActive ? 800 : 700,
+                boxShadow: isActive ? '0 2px 8px rgba(14,116,144,.3)' : 'var(--card-shadow)',
+              }}
+            >
               {t.label}
               {isNew && (
                 <span style={{
