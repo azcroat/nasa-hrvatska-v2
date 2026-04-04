@@ -10,15 +10,31 @@ const LEVEL_META = {
 };
 
 export default function ReadingList({ setScr, sRp, sRph, sRqi, sRsc, sRa, sRsl, sHw, sCurEx, goBack }) {
-  const entries = Object.entries(READ);
+  // Level filter set by learn-path items (e.g. "Read a Story" shows beginner only).
+  // When launched from the Learn tab directly, no filter is set and all levels show.
+  let levelFilter = null;
+  try {
+    const raw = sessionStorage.getItem('nh_readlist_filter');
+    if (raw) levelFilter = JSON.parse(raw);
+  } catch {}
+
+  const allEntries = Object.entries(READ);
+  const entries = levelFilter
+    ? allEntries.filter(([level]) => levelFilter.includes(level))
+    : allEntries;
   const totalPassages = entries.reduce((sum, [, passages]) => sum + passages.length, 0);
   const levelCount = entries.length;
+
+  // Build a subtitle that reflects what's being shown
+  const subtitle = levelFilter
+    ? entries.map(([l]) => LEVEL_META[l]?.badge || l.toUpperCase()).join(' · ') + ' passages'
+    : `${totalPassages} passages across ${levelCount} levels`;
 
   return (
     <div className="scr-wrap">
       {H("📖 Reading Passages", "", goBack)}
       <div style={{textAlign:"center",fontSize:13,color:"#78716c",marginBottom:16}}>
-        {totalPassages} passages across {levelCount} levels
+        {subtitle}
       </div>
       {entries.map(([level, passages]) => {
         const meta = LEVEL_META[level] || { badge: level.toUpperCase(), color: "#78716c" };
