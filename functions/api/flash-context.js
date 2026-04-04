@@ -65,11 +65,13 @@ const complexityNote = {
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
+export async function onRequestOptions({ request }) {
+  const origin = request.headers.get("origin") || "";
+  return new Response(null, { status: 204, headers: corsHeaders(origin) });
+}
+
 export async function onRequestPost({ request, env }) {
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
-
-  // OPTIONS preflight
-  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(origin) });
 
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
 
