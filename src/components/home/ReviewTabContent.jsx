@@ -2,6 +2,19 @@ import React from 'react';
 import { getSR, getDueReviews, getMistakes } from '../../data.jsx';
 import { useApp } from '../../context/AppContext.jsx';
 
+function getDeckStats() {
+  try {
+    const sr = getSR();
+    const allR = Object.values(sr);
+    if (allR.length === 0) return null;
+    const masteryPct = Math.round(
+      allR.reduce((s, v) => s + (v.r || 0) / Math.max((v.r || 0) + (v.w || 0), 1), 0) / allR.length * 100
+    );
+    const strongCount = allR.filter(v => v.r > 0 && v.w === 0).length;
+    return { total: allR.length, masteryPct, strongCount };
+  } catch { return null; }
+}
+
 function getNextReviewDue() {
   try {
     const sr = getSR();
@@ -34,6 +47,33 @@ export default function ReviewTabContent() {
         <div style={{width:3, height:20, background:'var(--lavender, #7c3aed)', borderRadius:2}}/>
         <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Review & Reinforce</span>
       </div>
+
+      {/* ── DECK STATS — always visible ── */}
+      {(() => {
+        const deck = getDeckStats();
+        if (!deck) return null;
+        return (
+          <div style={{
+            display: 'flex', gap: 8, marginBottom: 14,
+          }}>
+            {[
+              { label: 'In deck', value: deck.total, icon: '🃏' },
+              { label: 'Mastered', value: deck.strongCount, icon: '✦' },
+              { label: 'Mastery', value: deck.masteryPct + '%', icon: '📈' },
+            ].map(({ label, value, icon }) => (
+              <div key={label} style={{
+                flex: 1, borderRadius: 12, padding: '10px 8px', textAlign: 'center',
+                background: 'var(--card)', border: '1px solid var(--card-b)',
+                boxShadow: '0 2px 6px rgba(0,0,0,.04)',
+              }}>
+                <div style={{ fontSize: 18, marginBottom: 3 }}>{icon}</div>
+                <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--heading)', lineHeight: 1 }}>{value}</div>
+                <div style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 700, marginTop: 3, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>
+              </div>
+            ))}
+          </div>
+        );
+      })()}
 
       {/* ── SRS REVIEW NUDGE ── */}
       {due.length === 0 ? (() => {
