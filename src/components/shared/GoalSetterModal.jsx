@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 const GOALS = [
   { id: 'heritage', icon: '🇭🇷', label: 'Connect with my heritage', sub: 'Rediscover my Croatian roots' },
-  { id: 'fluency',  icon: '🗣️', label: 'Become fluent',            sub: 'Hold real conversations' },
+  { id: 'fluent',   icon: '🗣️', label: 'Become fluent',            sub: 'Hold real conversations' },
   { id: 'travel',   icon: '✈️', label: 'Travel to Croatia',         sub: 'Navigate & explore confidently' },
   { id: 'culture',  icon: '🎵', label: 'Explore Croatian culture',  sub: 'Music, history, traditions' },
 ];

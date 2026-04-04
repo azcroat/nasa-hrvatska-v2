@@ -532,7 +532,7 @@ export default function AppRouter(props) {
       {currentScreen==="genderdrill"&&<ScreenErrorBoundary key="genderdrill" name="genderdrill"><GenderDrillScreen goBack={goBack} award={award} setSt={setStats} /></ScreenErrorBoundary>}
       {currentScreen==="sentbuild"&&<ScreenErrorBoundary key="sentbuild" name="sentbuild"><SentenceBuilderScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="sentencetiles"&&<ScreenErrorBoundary key="sentencetiles" name="sentencetiles"><SentenceTileScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
-      {currentScreen==="verbdrill"&&<ScreenErrorBoundary key="verbdrill" name="verbdrill"><VerbDrillScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="verbdrill"&&<ScreenErrorBoundary key="verbdrill" name="verbdrill"><VerbDrillScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="tenseflip"&&<ScreenErrorBoundary key="tenseflip" name="tenseflip"><TenseFlipScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="riddles"&&<ScreenErrorBoundary key="riddles" name="riddles"><RiddlesScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="logicquiz"&&<ScreenErrorBoundary key="logicquiz" name="logicquiz"><LogicQuizScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
