@@ -2,41 +2,6 @@ import React, { useMemo } from 'react';
 import { useStats } from '../../context/StatsContext.jsx';
 import { useApp } from '../../context/AppContext.jsx';
 
-function StreakRing({ streak }) {
-  const MAX = 30;
-  const pct = Math.min(streak / MAX, 1);
-  const r = 28;
-  const circ = 2 * Math.PI * r;
-  const dash = circ * pct;
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-      <svg width={72} height={72} viewBox="0 0 72 72" aria-label={`${streak} day streak`}>
-        <circle cx={36} cy={36} r={r} fill="none" stroke="var(--bar-bg)" strokeWidth={6} />
-        <circle
-          cx={36} cy={36} r={r} fill="none"
-          stroke="url(#streakGrad)" strokeWidth={6}
-          strokeDasharray={`${dash} ${circ}`}
-          strokeLinecap="round"
-          transform="rotate(-90 36 36)"
-          style={{ transition: 'stroke-dasharray 0.6s ease' }}
-        />
-        <defs>
-          <linearGradient id="streakGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#f97316" />
-            <stop offset="100%" stopColor="#ef4444" />
-          </linearGradient>
-        </defs>
-        <text x={36} y={40} textAnchor="middle" fontSize={20} fontWeight={900} fill="var(--text)">
-          {streak}
-        </text>
-      </svg>
-      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--subtext)' }}>
-        {streak === 1 ? '1 day streak' : `${streak} day streak`}
-      </span>
-    </div>
-  );
-}
 
 const LEVEL_LABELS = { A1: 'Beginner', A2: 'Elementary', B1: 'Intermediate', B2: 'Upper-Intermediate', C1: 'Advanced' };
 
@@ -52,7 +17,6 @@ export default function DesktopPanel() {
   const { stats, level: numLevel } = useStats();
   const { setTab } = useApp();
 
-  const streak = stats?.streak ?? 0;
   const xp = stats?.xp ?? 0;
   const level = getCEFRStr(numLevel ?? 1);
 

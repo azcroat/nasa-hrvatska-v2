@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useEffect } from 'react';
 import { useStats } from '../../context/StatsContext.tsx';
-import { H, Bar, speak, sh } from '../../data.jsx';
+import { H, Bar, speak } from '../../data.jsx';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
 import { logError } from '../../lib/learnerErrors.js';

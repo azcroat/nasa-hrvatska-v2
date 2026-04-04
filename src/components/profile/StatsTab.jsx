@@ -25,7 +25,6 @@ function getWordsLearned() {
 
 const STAGE_CEFR = ['A1', 'A2', 'B1', 'B1+', 'B2+', 'C1'];
 const STAGE_NAMES_PROFILE = ['Survivor', 'Settler', 'Communicator', 'Explorer', 'Hrvat!'];
-const STAGE_THRESHOLDS = [0, 8, 16, 24, 32];
 
 export default function StatsTab({ onShowPrestigeModal, onSyncNow }) {
   const { favs, setScr } = useApp();
