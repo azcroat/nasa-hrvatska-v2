@@ -214,6 +214,12 @@ function App() {
       const merged = { ...fp.nh_weekend_days, ...lWD }; // local wins for shared keys (more recent)
       if (merged.sat || merged.sun) { try { localStorage.setItem('nh_weekend_days', JSON.stringify(merged)); } catch (_) {} }
     }
+    // Seasonal/campaign quest completion — additive: once true on any device, true everywhere.
+    // Never overwrite true with false.
+    if (fp.nh_uskrs_kviz_done === true) try { localStorage.setItem('nh_uskrs_kviz_done', '1'); } catch (_) {}
+    if (fp.nh_cq_easter_uskrs_q1 === true) try { localStorage.setItem('nh_cq_easter_uskrs_q1', '1'); } catch (_) {}
+    if (fp.nh_cq_easter_uskrs_q2 === true) try { localStorage.setItem('nh_cq_easter_uskrs_q2', '1'); } catch (_) {}
+    if (fp.nh_cq_easter_uskrs_q3 === true) try { localStorage.setItem('nh_cq_easter_uskrs_q3', '1'); } catch (_) {}
   }, [setFavs, setJWords, sDchlA, sDchlSl, setOnboarded]);
 
   // Ref to break the useAuth TDZ cycle for doSyncNow and applyRemoteProgress

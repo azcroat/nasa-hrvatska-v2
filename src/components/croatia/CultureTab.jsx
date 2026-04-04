@@ -279,11 +279,13 @@ export default function CultureTab({ sCurEx }) {
             <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'#db2777' }}>Phrase of the Day</div>
             <div style={{ fontSize:'var(--text-xs)', color:'#db2777', marginTop:2, opacity:.75 }}>Daily cultural expressions</div>
           </button>
-          {/* Only show during Easter season (March 20 - April 30) */}
+          {/* Only show during Easter season (March 20 - April 30) and only if not yet completed */}
           {(() => {
             const m = new Date().getMonth() + 1, d = new Date().getDate();
             const isEaster = (m === 3 && d >= 20) || (m === 4 && d <= 30);
             if (!isEaster) return null;
+            const done = localStorage.getItem('nh_uskrs_kviz_done') === '1';
+            if (done) return null;
             return (
               <div
                 onClick={() => setScr('easter')}
