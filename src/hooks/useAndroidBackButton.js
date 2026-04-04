@@ -37,6 +37,5 @@ export function useAndroidBackButton(canGoBack, goBack) {
 
     register();
     return () => { if (removeListener) removeListener(); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // goBack/canGoBack are stable refs — intentionally not in deps
+  }, []); // goBack/canGoBack are stable callback refs — intentionally excluded from deps
 }
