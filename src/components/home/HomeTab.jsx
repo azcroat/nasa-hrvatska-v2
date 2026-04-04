@@ -117,7 +117,19 @@ export default function HomeTab({
   const streak = useMemo(() => getStreak(), [st]);
    
   const lastActivity = useMemo(() => getLastActivity(), [st]);
-  const wod = useMemo(() => getWordOfDay(), []);
+  // Track the current calendar day — updates when the app regains visibility so
+  // word-of-day and phrase-of-day refresh automatically after midnight.
+  const [currentDayIdx, setCurrentDayIdx] = useState(() => Math.floor(Date.now() / 86400000));
+  useEffect(() => {
+    const checkDay = () => {
+      const newDay = Math.floor(Date.now() / 86400000);
+      setCurrentDayIdx(prev => (prev !== newDay ? newDay : prev));
+    };
+    document.addEventListener('visibilitychange', checkDay);
+    return () => document.removeEventListener('visibilitychange', checkDay);
+  }, []);
+
+  const wod = useMemo(() => getWordOfDay(), [currentDayIdx]);
 
   // Preload word-of-the-day audio on mount so first tap plays instantly
   useEffect(() => { if (wod?.[0]) preloadAudio(wod[0]); }, [wod]);
@@ -251,16 +263,14 @@ export default function HomeTab({
 
   // Daily rotating phrases — uses 365-entry curated pool so every day of the year is unique
   const phraseOfDay = useMemo(() => {
-    const dayIdx = Math.floor(Date.now() / 86400000);
     const pool = PHRASES_365?.length ? PHRASES_365 : PHRASE_OF_DAY_POOL;
-    return pool[dayIdx % pool.length];
-  }, []);
+    return pool[currentDayIdx % pool.length];
+  }, [currentDayIdx]);
 
   const todayPhrases = useMemo(() => {
-    const dayIdx = Math.floor(Date.now() / 86400000);
-    const start = (dayIdx * 4) % DAILY_PHRASES.length;
+    const start = (currentDayIdx * 4) % DAILY_PHRASES.length;
     return [0, 1, 2, 3].map(i => DAILY_PHRASES[(start + i) % DAILY_PHRASES.length]);
-  }, []);
+  }, [currentDayIdx]);
 
   return (
     <React.Fragment>
