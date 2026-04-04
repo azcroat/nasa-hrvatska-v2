@@ -28,7 +28,8 @@ function SVGBarChart({ data, color = '#0e7490', height = 80 }) {
  */
 const ProgressCharts = React.memo(/** @param {{ stats: any }} props */ function ProgressCharts({ stats }) {
   const history = useMemo(() => {
-    const raw = JSON.parse(localStorage.getItem('progress_history') || '[]');
+    let raw = [];
+    try { raw = JSON.parse(localStorage.getItem('progress_history') || '[]'); } catch (_) {}
     const today = new Date().toISOString().slice(0, 10);
     // Get last 30 days
     const days = [];

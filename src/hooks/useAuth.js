@@ -356,7 +356,8 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
     setAuthLoading(true);
     // Rate limit: max 3 registration attempts per 10 minutes
     const regKey = 'reg_attempts';
-    const regData = JSON.parse(localStorage.getItem(regKey) || '{"count":0,"since":0}');
+    let regData = { count: 0, since: 0 };
+    try { regData = JSON.parse(localStorage.getItem(regKey) || '{"count":0,"since":0}'); } catch (_) {}
     const now = Date.now();
     if (now - regData.since < 600000) {
       if (regData.count >= 3) {
@@ -395,7 +396,8 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
     setAuthLoading(true);
     // Rate limit: max 5 login attempts per 10 minutes
     const loginKey = 'login_attempts';
-    const loginData = JSON.parse(localStorage.getItem(loginKey) || '{"count":0,"since":0}');
+    let loginData = { count: 0, since: 0 };
+    try { loginData = JSON.parse(localStorage.getItem(loginKey) || '{"count":0,"since":0}'); } catch (_) {}
     const now = Date.now();
     if (now - loginData.since < 600000) {
       if (loginData.count >= 5) {

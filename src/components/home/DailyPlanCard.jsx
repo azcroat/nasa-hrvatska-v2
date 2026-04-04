@@ -116,7 +116,8 @@ export default function DailyPlanCard(/** @type {any} */ { level: _level, goal: 
       .sort((a, b) => (b[1].w / (b[1].r + 1)) - (a[1].w / (a[1].r + 1)))
       .slice(0, 8)
       .map(([w]) => w);
-    const majaMemory  = JSON.parse(localStorage.getItem('majaMemory') || '{}');
+    let majaMemory = {};
+    try { majaMemory = JSON.parse(localStorage.getItem('majaMemory') || '{}'); } catch (_) {}
     const majaPatterns = Array.isArray(majaMemory.mistakePatterns) ? majaMemory.mistakePatterns.slice(0, 10) : [];
     const goal   = localStorage.getItem('nh_goal') || 'fluent';
     const streak = getStreak();

@@ -89,14 +89,14 @@ export default function GrammarDiagnosisScreen({ goBack, award }) {
       }
     });
 
-    const majaMemory   = JSON.parse(localStorage.getItem('majaMemory')          || '{}');
+    let majaMemory = {};
+    try { majaMemory = JSON.parse(localStorage.getItem('majaMemory') || '{}'); } catch (_) {}
     const majaPatterns = Array.isArray(majaMemory.mistakePatterns)
       ? majaMemory.mistakePatterns.slice(0, 20)
       : [];
 
-    const writingMistakes = JSON.parse(
-      localStorage.getItem('nh_writing_mistakes') || '[]'
-    ).slice(0, 20);
+    let writingMistakes = [];
+    try { writingMistakes = JSON.parse(localStorage.getItem('nh_writing_mistakes') || '[]').slice(0, 20); } catch (_) {}
 
     try {
       const res = await apiFetch('/api/grammar-diagnosis', {
@@ -128,12 +128,12 @@ export default function GrammarDiagnosisScreen({ goBack, award }) {
   function getDataCounts() {
     const srData     = getSR();
     const srCount    = Object.keys(srData).length;
-    const majaMemory = JSON.parse(localStorage.getItem('majaMemory') || '{}');
+    let majaMemory = {};
+    try { majaMemory = JSON.parse(localStorage.getItem('majaMemory') || '{}'); } catch (_) {}
     const majaCount  = Array.isArray(majaMemory.mistakePatterns)
       ? majaMemory.mistakePatterns.length : 0;
-    const writingCount = JSON.parse(
-      localStorage.getItem('nh_writing_mistakes') || '[]'
-    ).length;
+    let writingCount = 0;
+    try { writingCount = JSON.parse(localStorage.getItem('nh_writing_mistakes') || '[]').length; } catch (_) {}
     return { srCount, majaCount, writingCount };
   }
 
