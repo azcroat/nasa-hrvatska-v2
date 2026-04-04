@@ -64,6 +64,18 @@ const BLACK_HOLE_SCREENS = {
   shadowing:'lc', proverbs:'lc', bureaucratic:'lc',
   // Grammar drill screens missing from original list — ck checks gc, so must award gc on dwell.
   conjdrill:'gc', padezi:'gc', modal:'gc',
+  // Grammar reference screens — users read/study without a quiz completion event.
+  grammarreader:'gc', colorquirk:'gc', negation:'gc', phonology:'lc',
+  // Vocabulary reference screens — browse without an explicit award call.
+  professions:'lc', bodydesc:'lc', clothes:'lc', countries:'lc', weather:'lc',
+  civic:'lc', top100:'lc', tivicompare:'lc', lifeevents:'lc',
+  // Cultural content screens — informational/educational, no quiz.
+  popculture:'lc', events:'lc', cityofday:'lc', kafic:'lc', kings:'lc',
+  // Practical life screens — reference material without completion events.
+  school:'lc', restaurant:'lc', emergency:'lc', crmap:'lc',
+  storyselect:'lc', foodorder:'lc', grocery:'lc', transport:'lc',
+  // Video content — viewing without explicit completion.
+  grammarvideos:'lc',
 };
 
 export function useScreenLauncher({
@@ -255,11 +267,10 @@ export function useScreenLauncher({
       const { V } = await _getData();
       const raw = V[item.topic];
       if (!raw || raw.length < 2) {
-        // Safety net: vocabulary missing or too small — award credit and mark complete
-        // so the user is never blocked on the path by a content gap.
-        award(15);
-        setStats(s => ({ ...s, lc: s.lc + 1, ct: [...new Set([...(s.ct || []), item.topic])] }));
-        if (writeDelta) writeDelta({ lc: 1, ct: [item.topic] });
+        // Vocabulary not available for this topic — do not award credit.
+        // The path item stays incomplete until real content is added.
+        // This should never fire for any current LEARN_PATH item; it is a
+        // safety guard against future content gaps only.
         return;
       }
       const items = _sh(raw);
