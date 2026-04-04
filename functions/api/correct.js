@@ -48,7 +48,7 @@ export async function onRequestPost(context) {
 
   const allowed = await checkRateLimit(request, 20);
   if (!allowed) {
-    return new Response('Rate limit exceeded', { status: 429, headers: CORS(origin) });
+    return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), { status: 429, headers: CORS(origin) });
   }
 
   if (!ANTHROPIC_KEY) {

@@ -66,7 +66,6 @@ export function getWeakTopics(threshold = 60) {
  * @returns {string} lesson ID from lessons.js
  */
 export function getRecommendedLesson(cefrLevel) {
-  const data = _load();
   const weak = getWeakTopics(65);
 
   // Map topic IDs to animated lesson IDs

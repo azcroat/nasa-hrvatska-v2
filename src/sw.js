@@ -34,7 +34,6 @@ self.addEventListener('activate', event => event.waitUntil(self.clients.claim())
 // vite-plugin-pwa injectManifest injects __WB_MANIFEST at build time.
 // Contains app shell: index.html, CSS, fonts, icons, offline.html.
 
-// eslint-disable-next-line no-underscore-dangle
 precacheAndRoute(self.__WB_MANIFEST || []);
 cleanupOutdatedCaches();
 

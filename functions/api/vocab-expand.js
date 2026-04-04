@@ -68,7 +68,7 @@ export async function onRequestPost({ request, env }) {
 
   const allowed = await checkRateLimit(request, 30);
   if (!allowed) {
-    return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), { status: 429, headers: corsHeaders(origin) });
   }
 
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
