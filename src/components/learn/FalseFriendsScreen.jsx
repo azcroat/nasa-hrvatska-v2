@@ -8,7 +8,7 @@ function FalseFriendsScreen({ goBack, award }) {
   function handleComplete() {
     if (completed) return;
     setCompleted(true);
-    if (award) award('lesson', 30);
+    if (award) award(30);
     goBack();
   }
 

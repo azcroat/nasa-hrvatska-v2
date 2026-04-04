@@ -159,7 +159,7 @@ function ArticleCard({ article, index, translating, tooltip, onWordTap, onAward,
     if (playing) return;
     setPlaying(true);
     try {
-      const res = await fetch('/api/tts', {
+      const res = await apiFetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: article.simplified_text, slow: false }),
@@ -364,7 +364,7 @@ export default function CroatianNewsScreen({ goBack, award }) {
     setError(null);
     setUsingFallback(false);
     try {
-      const res = await fetch(`/api/news?level=${level}`);
+      const res = await apiFetch(`/api/news?level=${level}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (data.articles && Array.isArray(data.articles) && data.articles.length > 0) {

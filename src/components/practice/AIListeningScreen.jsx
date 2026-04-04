@@ -3,6 +3,7 @@ import { H } from '../../data.jsx';
 import { markQuest } from '../../lib/quests.js';
 import { AIContentSkeleton, AIProgressBar } from '../shared/SkeletonLoader.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const TOPICS = [
   { key: 'cafe',       emoji: '☕',  hr: 'U kafiću',   en: 'At the Café' },
@@ -56,7 +57,7 @@ export default function AIListeningScreen({ goBack, award }) {
     setPhase('loading');
 
     try {
-      const res = await fetch('/api/listening', {
+      const res = await apiFetch('/api/listening', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic: selectedTopic, level, style }),
@@ -79,7 +80,7 @@ export default function AIListeningScreen({ goBack, award }) {
         fullText = data.narrator || '';
       }
 
-      const ttsRes = await fetch('/api/tts', {
+      const ttsRes = await apiFetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: fullText.trim(), slow: speed < 1 }),

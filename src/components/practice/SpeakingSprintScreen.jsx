@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { markQuest } from '../../lib/quests.js';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
 import { isSpeechRecognitionSupported } from '../../lib/platform.js';
+import { apiFetch } from '../../lib/apiFetch.js';
 import SprintSetupScreen from './SprintSetupScreen.jsx';
 import SprintCountdownScreen from './SprintCountdownScreen.jsx';
 import SprintSpeakingPhase from './SprintSpeakingPhase.jsx';
@@ -228,7 +229,7 @@ export default function SpeakingSprintScreen({ goBack, award }) {
       audioUrlRef.current = null;
     }
     try {
-      const res = await fetch('/api/tts', {
+      const res = await apiFetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text, slow: false }),

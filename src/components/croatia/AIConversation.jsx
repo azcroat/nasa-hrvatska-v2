@@ -188,7 +188,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       setNpcVideoLoading(true);
       const { PORTRAIT_MAP } = await import('./SpeakingAvatar.jsx');
       const portraitKey = PORTRAIT_MAP[scenario.id] || 'young-woman';
-      fetch(`/api/npc-video?portrait=${encodeURIComponent(portraitKey)}`)
+      apiFetch(`/api/npc-video?portrait=${encodeURIComponent(portraitKey)}`)
         .then(r => r.ok ? r.json() : null)
         .then(data => { if (data?.ok && data.videoUrl) setNpcVideoUrl(data.videoUrl); })
         .catch(() => {})
@@ -389,7 +389,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
 
       // Extract vocabulary the learner used or encountered — queue for SRS review
       try {
-        const syncRes = await fetch('/api/srs-sync', {
+        const syncRes = await apiFetch('/api/srs-sync', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ conversation: convoText, level }),

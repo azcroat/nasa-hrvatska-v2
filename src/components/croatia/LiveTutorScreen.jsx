@@ -509,7 +509,7 @@ export default function LiveTutorScreen({ goBack, award }) {
     const controller = new AbortController();
     const tid = setTimeout(() => controller.abort(), 15000); // 15s max
     try {
-      const res = await fetch('/api/stt', {
+      const res = await apiFetch('/api/stt', {
         method: 'POST',
         headers: { 'Content-Type': mimeType },
         body: blob,

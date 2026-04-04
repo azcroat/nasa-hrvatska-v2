@@ -5,6 +5,7 @@ import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
 import { rnd } from '../../lib/random.js';
 import { useStats } from '../../context/StatsContext.jsx';
 import { logError } from '../../lib/learnerErrors.js';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const PROMPTS = [
   // A2 — simple present, basic vocabulary
@@ -103,7 +104,7 @@ export default function WritingScreen({ goBack, award }) {
     setError("");
     setResult(null);
     try {
-      const res = await fetch("/api/correct", {
+      const res = await apiFetch("/api/correct", {
         method: "POST",
         headers: {"Content-Type":"application/json"},
         body: JSON.stringify({
@@ -157,7 +158,7 @@ export default function WritingScreen({ goBack, award }) {
   async function playTTS(ttsText) {
     setTtsLoading(true);
     try {
-      const res = await fetch("/api/tts", {
+      const res = await apiFetch("/api/tts", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ text: ttsText.slice(0, 400), slow: false }),

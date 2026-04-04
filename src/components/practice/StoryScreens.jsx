@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, speak, STORIES } from '../../data.jsx';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 // Fetch AI illustration for a story scene (watercolor style via FLUX)
 const sceneImgCache = {};
@@ -11,7 +12,7 @@ async function fetchSceneIllustration(storyTitle, sceneText, signal) {
     if (stored) { sceneImgCache[key] = stored; return stored; }
   } catch {}
   try {
-    const r = await fetch('/api/flux-generate', {
+    const r = await apiFetch('/api/flux-generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'scene', sceneText, storyTitle }),

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { speak } from '../../data.jsx';
 import VideoBackground from '../shared/VideoBackground.jsx';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 // Topic → Croatian scene video key for VideoBackground
 const TOPIC_SCENE = {
@@ -61,7 +62,7 @@ export default function VideoLessonScreen({ goBack, award }) {
     const cached = sessionStorage.getItem(storageKey);
     if (cached) { setSceneVideoUrl(cached); return; }
     const controller = new AbortController();
-    fetch(`/api/scene-video?scene=${sceneKey}`, { signal: controller.signal })
+    apiFetch(`/api/scene-video?scene=${sceneKey}`, { signal: controller.signal })
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data?.ok && data.url) {
@@ -78,7 +79,7 @@ export default function VideoLessonScreen({ goBack, award }) {
     setErrorMsg('');
     setPhase('loading');
     try {
-      const res = await fetch('/api/listening', {
+      const res = await apiFetch('/api/listening', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic: topic.key, level, style: 'dialogue' }),

@@ -494,7 +494,7 @@ export default function AppRouter(props) {
       {currentScreen==="grammarreader"&&<ScreenErrorBoundary key="grammarreader" name="grammarreader"><GrammarReader goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="falsefr"&&<ScreenErrorBoundary key="falsefr" name="falsefr"><FalseFriendsScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="prepdrill"&&<ScreenErrorBoundary key="prepdrill" name="prepdrill"><PrepDrill goBack={goBack} award={award} /></ScreenErrorBoundary>}
-      {currentScreen==="declension"&&<ScreenErrorBoundary key="declension" name="declension"><DeclensionScreen goBack={goBack} /></ScreenErrorBoundary>}
+      {currentScreen==="declension"&&<ScreenErrorBoundary key="declension" name="declension"><DeclensionScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="brzalice"&&<ScreenErrorBoundary key="brzalice" name="brzalice"><BrzaliceScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="dialects"&&<ScreenErrorBoundary key="dialects" name="dialects"><DialectsScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="diminutives"&&<ScreenErrorBoundary key="diminutives" name="diminutives"><DiminutivesScreen goBack={goBack} /></ScreenErrorBoundary>}

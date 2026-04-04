@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import AzureResultPanel from './AzureResultPanel.jsx';
 import WebSpeechResultPanel from './WebSpeechResultPanel.jsx';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 /**
  * @param {{ targetText: string, level?: string, onScore?: (r: {spoken: string, score: number}) => void }} props
@@ -231,7 +232,7 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
     const tid = setTimeout(() => controller.abort(), 12000); // 12s client timeout — server has 20s Azure timeout
 
     try {
-      const res = await fetch('/api/pronunciation-assess', {
+      const res = await apiFetch('/api/pronunciation-assess', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -288,7 +289,7 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
     const controller = new AbortController();
     const tid = setTimeout(() => controller.abort(), 12000); // 12s max
     try {
-      const res = await fetch('/api/pronunciation-coach', {
+      const res = await apiFetch('/api/pronunciation-coach', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ word: targetText, spoken, score, level }),

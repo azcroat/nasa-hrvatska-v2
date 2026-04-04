@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { H, speak, getMistakes } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import { markQuest } from '../../lib/quests.js';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 // Render a Croatian sentence with one word bolded in the brand teal
 function HighlightedSentence({ text, highlight }) {
@@ -112,7 +113,7 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
     const userLevel = level || 'A2';
 
     try {
-      const res = await fetch('/api/micro-lesson', {
+      const res = await apiFetch('/api/micro-lesson', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ weakWords: sorted, level: userLevel, goal }),

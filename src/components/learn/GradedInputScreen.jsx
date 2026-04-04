@@ -146,7 +146,7 @@ async function assessPronunciation(audioBlob, referenceText) {
   for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
   const base64 = btoa(binary);
 
-  const res = await fetch('/api/pronunciation-assess', {
+  const res = await apiFetch('/api/pronunciation-assess', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ audio: base64, text: referenceText, locale: 'hr-HR' }),

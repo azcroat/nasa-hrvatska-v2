@@ -1117,53 +1117,6 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
             />
           )}
 
-          {/* ═══════════════════════════════════════════════════
-              LEGO MOVIE PRINCIPLE 5: RED PLUME
-              Follow-through: plume animates with phase delay.
-              Mounted on helmet stud — sways behind head motion.
-              ═══════════════════════════════════════════════════ */}
-          <g style={{ animation: m.plume }}>
-            {/* Plume base socket — gold ring where quill meets stud */}
-            <ellipse cx="60" cy="-1" rx="4" ry="1.8"
-              fill="url(#lk-gd)" stroke={C.blk} strokeWidth="0.7" opacity="0.9"/>
-
-            {/* Main quill shaft */}
-            <path
-              d="M 60,-1 C 59,-12 56,-24 53,-36 C 51,-45 52,-52 56,-56 C 58,-58 60,-58 60,-58"
-              fill="none" stroke={C.plumeR} strokeWidth="2.4" strokeLinecap="round"
-              opacity="0.92"
-            />
-
-            {/* Right vane — feather barbs flowing right */}
-            <path
-              d="M 59,-8  C 64,-11 70,-12 72,-16"
-              fill="none" stroke={C.plumeP} strokeWidth="1.8" strokeLinecap="round" opacity="0.80"/>
-            <path
-              d="M 57,-16 C 63,-19 70,-20 72,-25"
-              fill="none" stroke={C.plumeP} strokeWidth="1.6" strokeLinecap="round" opacity="0.75"/>
-            <path
-              d="M 55,-24 C 61,-27 67,-29 68,-34"
-              fill="none" stroke={C.plumeP} strokeWidth="1.4" strokeLinecap="round" opacity="0.68"/>
-            <path
-              d="M 53,-32 C 58,-35 63,-37 63,-42"
-              fill="none" stroke={C.plumeP} strokeWidth="1.2" strokeLinecap="round" opacity="0.58"/>
-
-            {/* Left vane — feather barbs flowing left */}
-            <path
-              d="M 59,-8  C 54,-11 48,-12 46,-16"
-              fill="none" stroke={C.plumeR} strokeWidth="1.6" strokeLinecap="round" opacity="0.70"/>
-            <path
-              d="M 57,-16 C 52,-19 46,-21 44,-26"
-              fill="none" stroke={C.plumeR} strokeWidth="1.4" strokeLinecap="round" opacity="0.62"/>
-            <path
-              d="M 55,-24 C 51,-27 46,-30 45,-35"
-              fill="none" stroke={C.plumeR} strokeWidth="1.2" strokeLinecap="round" opacity="0.55"/>
-
-            {/* Plume tip */}
-            <circle cx="60" cy="-58" r="2.5"
-              fill={C.plumeP} stroke={C.plumeR} strokeWidth="0.8" opacity="0.88"/>
-          </g>
-
           {/* Level 76+: Gold shoulder accent bands */}
           {lvlCfg.goldBands && (
             <>
