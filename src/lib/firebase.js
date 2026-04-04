@@ -90,14 +90,24 @@ export async function fbSaveProgress(uid,data){
   const _cachedSt = (_cachedP && (_cachedP.stats || _cachedP.st)) || {};
   const _bestXP = Math.max(_st.xp || 0, _cachedSt.xp || 0);
   const _bestLC = Math.max(_st.lc || 0, _cachedSt.lc || 0);
+  // Also protect streak and level — another device's higher values must not regress.
+  // Streak: take max count; stale cached count can only be lower, never higher.
+  const _cachedStrk = (_cachedP && typeof _cachedP.streak?.count === 'number')
+    ? _cachedP.streak.count
+    : (_cachedSt.str || 0);
+  const _bestStrk = Math.max(_strk, _cachedStrk);
+  // Level: CEFR maps A1→1…C2→6; a higher number = higher proficiency — never regress.
+  const _cachedLvlRaw = _cachedP && _cachedP.level;
+  const _cachedLvl = typeof _cachedLvlRaw === 'number' ? _cachedLvlRaw : (_CEFR_NUM[_cachedLvlRaw] || 1);
+  const _bestLvl = Math.max(_lvl, _cachedLvl);
   const lbEntry={name:data.name||"",xp:_bestXP,lc:_bestLC,updated:_nowMs};
-  const profileEntry={name:data.name||"",xp:_bestXP,lc:_bestLC,streak:_strk,level:_lvl,lastActive:_nowMs};
+  const profileEntry={name:data.name||"",xp:_bestXP,lc:_bestLC,streak:_bestStrk,level:_bestLvl,lastActive:_nowMs};
   const userEntry = {
     progress:         JSON.stringify(data),
     updated:          serverTimestamp(),
     xp:               _bestXP,
-    level:            _lvl,
-    streak:           _strk,
+    level:            _bestLvl,
+    streak:           _bestStrk,
     lessonsCompleted: _bestLC,
     lastActive:       serverTimestamp(),
   };

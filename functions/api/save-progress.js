@@ -68,7 +68,12 @@ export async function onRequestPost(context) {
     return new Response('Forbidden', { status: 403, headers: corsHeaders(origin) });
   }
 
-  // Validate data is a JSON string (progress blob)
+  // Validate data is a JSON string (progress blob) and within Firestore size limit.
+  // validProgressSize() in Firestore rules rejects progress > 200KB — pre-check here
+  // so we return a clear 413 rather than silently failing with a Firestore 403.
+  if (typeof data !== 'string' || data.length > 204800) {
+    return new Response('Progress blob too large', { status: 413, headers: corsHeaders(origin) });
+  }
   try {
     JSON.parse(data);
   } catch {
