@@ -121,7 +121,7 @@ export async function onRequestPost({ request, env }) {
   try { body = await request.json(); }
   catch { return err(400, 'Invalid JSON', origin); }
 
-  const { audioBase64, referenceText, locale = 'hr-HR' } = body;
+  const { audioBase64, referenceText, locale = 'hr-HR', audioMimeType = 'audio/wav' } = body;
 
   if (typeof audioBase64 !== 'string' || !audioBase64) {
     return err(400, 'Missing audioBase64', origin);
@@ -149,6 +149,21 @@ export async function onRequestPost({ request, env }) {
     return err(400, 'Audio too large (max 8 MB)', origin);
   }
 
+  // Map the client's recorded MIME type to the Content-Type Azure accepts.
+  // Azure explicitly supports: audio/wav, audio/ogg;codecs=opus, audio/mpeg.
+  // Chrome MediaRecorder always produces audio/webm;codecs=opus (WAV is unsupported in Chrome).
+  // Sending 'audio/wav' when the audio is actually WebM caused Azure to misparse the binary
+  // and return a garbage-but-consistent score (~84%). We now use the real format.
+  const ALLOWED_MIME_TYPES = new Set([
+    'audio/wav', 'audio/pcm',
+    'audio/ogg', 'audio/ogg;codecs=opus', 'audio/ogg; codecs=opus',
+    'audio/webm', 'audio/webm;codecs=opus', 'audio/webm; codecs=opus',
+    'audio/mpeg', 'audio/mp4',
+  ]);
+  // Normalise: lowercase, strip extra whitespace
+  const normMime = String(audioMimeType).toLowerCase().replace(/\s+/g, ' ').trim();
+  const azureContentType = ALLOWED_MIME_TYPES.has(normMime) ? normMime : 'audio/wav';
+
   // Build the Pronunciation-Assessment header value.
   // Azure requires this as a base64-encoded JSON object.
   const assessmentConfig = {
@@ -168,7 +183,7 @@ export async function onRequestPost({ request, env }) {
       method: 'POST',
       headers: {
         'Ocp-Apim-Subscription-Key': AZURE_KEY,
-        'Content-Type':              'audio/wav',
+        'Content-Type':              azureContentType,
         'Accept':                    'application/json',
         'Pronunciation-Assessment':  assessmentHeader,
       },

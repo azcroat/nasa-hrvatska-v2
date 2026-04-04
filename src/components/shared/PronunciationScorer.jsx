@@ -160,9 +160,12 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
       return;
     }
 
-    // Prefer audio/wav; fall back to whatever the browser supports.
-    // Azure Pronunciation Assessment REST API accepts audio/wav and audio/ogg;codecs=opus.
-    const preferredMime = ['audio/wav', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus']
+    // Prefer audio/ogg;codecs=opus (Azure-supported), then audio/wav, then WebM fallback.
+    // Chrome does NOT support audio/wav or audio/ogg via MediaRecorder — it always uses WebM.
+    // We pass the actual mimeType to the server so it can set the correct Content-Type for Azure.
+    // Azure explicitly supports: audio/wav, audio/ogg;codecs=opus. WebM is sent as-is and Azure
+    // handles it in practice (same Opus codec, different container).
+    const preferredMime = ['audio/ogg;codecs=opus', 'audio/wav', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg']
       .find(t => MediaRecorder.isTypeSupported(t)) || '';
 
     let recorder;
@@ -196,7 +199,7 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
       const blob = new Blob(chunksRef.current, { type: mimeType });
       chunksRef.current = [];
       setState('processing');
-      await submitToAzure(blob);
+      await submitToAzure(blob, mimeType);
     };
 
     mediaRecRef.current = recorder;
@@ -210,7 +213,7 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
     }
   }
 
-  async function submitToAzure(blob) {
+  async function submitToAzure(blob, mimeType = 'audio/webm') {
     // Convert Blob → base64 using chunked approach (avoids O(n²) concatenation and apply stack overflow)
     let audioBase64;
     try {
@@ -239,6 +242,7 @@ export default function PronunciationScorer({ targetText, level = 'B1', onScore 
           audioBase64,
           referenceText: targetText,
           locale: 'hr-HR',
+          audioMimeType: mimeType, // passed so server uses correct Content-Type for Azure
         }),
         signal: controller.signal,
       });
