@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import SearchModal from './SearchModal';
 
 const TABS = [
-  { id: "home",     label: "Home" },
+  { id: "home",     label: "Today" },
   { id: "learn",    label: "Learn" },
   { id: "practice", label: "Practice" },
   { id: "croatia",  label: "Culture" },

@@ -1,33 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import DiscoverTab from './DiscoverTab.jsx';
 import CultureTab from './CultureTab.jsx';
 import MediaTab from './MediaTab.jsx';
 import StoriesTab from './StoriesTab.jsx';
 
-// ── CSS keyframe injection is handled in MediaPlayerUtils.jsx ─────────────────
+const ANCHORS = [
+  { id: 'section-discover', label: 'Discover', icon: '🗓️' },
+  { id: 'section-history',  label: 'History',  icon: '🏰' },
+  { id: 'section-life',     label: 'Life',      icon: '🏘️' },
+  { id: 'section-media',    label: 'Media',     icon: '🎵' },
+  { id: 'section-stories',  label: 'Stories',   icon: '📖' },
+];
 
-// Q-4: Removed dead state setters — target screens manage their own state.
 export default function CroatiaTab({ sCurEx }) {
-  const [ctab, setCTab] = useState(() => sessionStorage.getItem('nh_ctab') || 'discover');
+  const [activeAnchor, setActiveAnchor] = useState('section-discover');
+  const stripRef = useRef(null);
 
-  // Track first-visit per sub-tab so "New" badges dismiss after the user has been there
+  // Track first-visit for "New" badges on Media and Stories
   const [visited, setVisited] = useState(() => ({
     media:   !!localStorage.getItem('nh_visited_media'),
     stories: !!localStorage.getItem('nh_visited_stories'),
   }));
 
-  function changeTab(id) {
-    sessionStorage.setItem('nh_ctab', id);
-    setCTab(id);
-    if ((id === 'media' || id === 'stories') && !visited[id]) {
-      try { localStorage.setItem('nh_visited_' + id, '1'); } catch (_) {}
-      setVisited(v => ({ ...v, [id]: true }));
+  // IntersectionObserver — highlights the anchor corresponding to the most
+  // visible section as the user scrolls
+  useEffect(() => {
+    const els = ANCHORS.map(a => document.getElementById(a.id)).filter(Boolean);
+    if (!els.length) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible.length) setActiveAnchor(visible[0].target.id);
+      },
+      { threshold: [0.05, 0.2, 0.5], rootMargin: '-48px 0px -45% 0px' }
+    );
+    els.forEach(el => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+
+  const scrollTo = useCallback((anchorId) => {
+    if (anchorId === 'section-media' && !visited.media) {
+      try { localStorage.setItem('nh_visited_media', '1'); } catch (_) {}
+      setVisited(v => ({ ...v, media: true }));
     }
-  }
+    if (anchorId === 'section-stories' && !visited.stories) {
+      try { localStorage.setItem('nh_visited_stories', '1'); } catch (_) {}
+      setVisited(v => ({ ...v, stories: true }));
+    }
+    const el = document.getElementById(anchorId);
+    if (!el) return;
+    const stripH = (stripRef.current?.offsetHeight ?? 44) + 8;
+    const container = document.getElementById('main-content');
+    if (container) {
+      const top = el.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop - stripH;
+      container.scrollTo({ top, behavior: 'smooth' });
+    } else {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [visited]);
 
   return (
     <React.Fragment>
-      {/* ── TAB HERO — always visible ── */}
+      {/* ── TAB HERO ──────────────────────────────────────────────────────── */}
       <div className="tab-hero">
         <div className="tab-hero-stripe" />
         <div style={{position:'absolute',top:0,left:0,right:0,bottom:0,background:'linear-gradient(105deg,transparent 30%,rgba(255,255,255,.035) 50%,transparent 70%)',backgroundSize:'200% 100%',animation:'shimmer 8s linear infinite',pointerEvents:'none'}} />
@@ -66,35 +102,58 @@ export default function CroatiaTab({ sCurEx }) {
         </div>
       </div>
 
-      {/* ── SUB-TAB PILL SELECTOR ── */}
-      <style>{`@keyframes nh-new-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.7}}`}</style>
-      <div className="pill-row">
-        {[
-          { id:'discover', label:'🗓️ Discover' },
-          { id:'culture',  label:'🏰 Culture' },
-          { id:'media',    label:'🎵 Media' },
-          { id:'stories',  label:'📖 Stories' },
-        ].map(t => {
-          const isNew = (t.id === 'media' || t.id === 'stories') && !visited[t.id];
-          const isActive = ctab === t.id;
+      {/* ── SECTION ANCHOR STRIP ─────────────────────────────────────────── */}
+      <style>{`
+        .croatia-anchor-strip::-webkit-scrollbar { display: none; }
+        @keyframes nh-new-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.7}}
+      `}</style>
+      <div
+        ref={stripRef}
+        className="croatia-anchor-strip"
+        style={{
+          position:'sticky', top:0, zIndex:10,
+          background:'var(--bar-bg)',
+          borderBottom:'1px solid var(--card-b)',
+          backdropFilter:'blur(14px)',
+          WebkitBackdropFilter:'blur(14px)',
+          overflowX:'auto',
+          scrollbarWidth:'none',
+          display:'flex',
+          padding:'0 4px',
+          gap:0,
+        }}
+      >
+        {ANCHORS.map(a => {
+          const isActive = activeAnchor === a.id;
+          const isNew = (a.id === 'section-media' && !visited.media) ||
+                        (a.id === 'section-stories' && !visited.stories);
           return (
-            <button key={t.id} data-ctab={t.id} onClick={() => changeTab(t.id)}
-              className="pill-btn"
+            <button
+              key={a.id}
+              onClick={() => scrollTo(a.id)}
               style={{
-                border: isActive ? 'none' : '1px solid var(--card-b)',
-                background: isActive ? 'var(--info)' : 'var(--card)',
-                color: isActive ? '#fff' : 'var(--subtext)',
-                fontWeight: isActive ? 800 : 700,
-                boxShadow: isActive ? '0 2px 8px rgba(14,116,144,.3)' : 'var(--card-shadow)',
+                flexShrink:0,
+                padding:'10px 12px 8px',
+                background:'none',
+                border:'none',
+                cursor:'pointer',
+                fontFamily:"'Outfit',sans-serif",
+                fontSize:12,
+                fontWeight: isActive ? 800 : 600,
+                color: isActive ? 'var(--info)' : 'var(--subtext)',
+                borderBottom: isActive ? '2px solid var(--info)' : '2px solid transparent',
+                transition:'color .18s, border-color .18s',
+                whiteSpace:'nowrap',
+                position:'relative',
               }}
             >
-              {t.label}
+              {a.icon} {a.label}
               {isNew && (
                 <span style={{
-                  position:'absolute', top:2, right:4,
-                  width:8, height:8, borderRadius:'50%',
+                  position:'absolute', top:6, right:4,
+                  width:6, height:6, borderRadius:'50%',
                   background:'#ef4444',
-                  border:'1.5px solid var(--app-bg)',
+                  border:'1px solid var(--app-bg)',
                   animation:'nh-new-pulse 2s ease-in-out infinite',
                 }} />
               )}
@@ -103,15 +162,58 @@ export default function CroatiaTab({ sCurEx }) {
         })}
       </div>
 
-      {/* ── Tab content wrapper with fade transition ── */}
-      <div key={ctab} style={{animation:'nh-fade-in .28s ease both'}}>
+      {/* ── DISCOVER ─────────────────────────────────────────────────────── */}
+      <div id="section-discover">
+        <DiscoverTab />
+      </div>
 
-        {ctab === 'discover' && <DiscoverTab />}
-        {ctab === 'culture'  && <CultureTab sCurEx={sCurEx} />}
-        {ctab === 'media'    && <MediaTab />}
-        {ctab === 'stories'  && <StoriesTab />}
+      {/* ── HISTORY & LIFE — CultureTab renders both with in-page anchor IDs ── */}
+      <CultureTab sCurEx={sCurEx} />
 
-      </div>{/* end tab content fade wrapper */}
+      {/* ── MEDIA ─────────────────────────────────────────────────────────── */}
+      <div id="section-media">
+        <div style={{
+          display:'flex', alignItems:'center', gap:10,
+          padding:'20px 0 14px',
+          borderTop:'1.5px solid var(--card-b)',
+          marginTop:8,
+        }}>
+          <div style={{
+            width:40, height:40, borderRadius:12, flexShrink:0,
+            background:'linear-gradient(135deg,rgba(124,58,237,.15),rgba(91,33,182,.1))',
+            border:'1.5px solid rgba(124,58,237,.25)',
+            display:'flex', alignItems:'center', justifyContent:'center', fontSize:20,
+          }}>🎵</div>
+          <div>
+            <div style={{fontSize:17, fontWeight:900, color:'var(--heading)', lineHeight:1.1}}>Media</div>
+            <div style={{fontSize:12, color:'var(--subtext)', marginTop:2}}>TV, music, film, sport &amp; podcasts</div>
+          </div>
+        </div>
+        <MediaTab />
+      </div>
+
+      {/* ── STORIES ───────────────────────────────────────────────────────── */}
+      <div id="section-stories">
+        <div style={{
+          display:'flex', alignItems:'center', gap:10,
+          padding:'20px 0 14px',
+          borderTop:'1.5px solid var(--card-b)',
+          marginTop:8,
+        }}>
+          <div style={{
+            width:40, height:40, borderRadius:12, flexShrink:0,
+            background:'linear-gradient(135deg,rgba(22,163,74,.15),rgba(5,150,105,.1))',
+            border:'1.5px solid rgba(22,163,74,.25)',
+            display:'flex', alignItems:'center', justifyContent:'center', fontSize:20,
+          }}>📖</div>
+          <div>
+            <div style={{fontSize:17, fontWeight:900, color:'var(--heading)', lineHeight:1.1}}>Stories</div>
+            <div style={{fontSize:12, color:'var(--subtext)', marginTop:2}}>Letters from Baka Marija</div>
+          </div>
+        </div>
+        <StoriesTab />
+      </div>
+
     </React.Fragment>
   );
 }

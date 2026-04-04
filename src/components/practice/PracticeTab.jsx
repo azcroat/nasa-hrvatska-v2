@@ -28,6 +28,15 @@ export default function PracticeTab({
   const [weakMsg, setWeakMsg] = useState("");
   // openCat: which category tile is expanded in the browse grid ('grammar'|'vocab'|'practical'|'advanced'|null)
   const [openCat, setOpenCat] = useState(null);
+  // activeIntent: which intent panel is shown ('review'|'drill'|'challenge')
+  // Auto-selects 'review' if the user has SRS items due, otherwise defaults to 'drill'
+  const [activeIntent, setActiveIntent] = useState(() => {
+    try {
+      const sr = JSON.parse(localStorage.getItem('nh_sr') || '{}');
+      const now = Date.now();
+      return Object.values(sr).some(v => v.due && v.due <= now) ? 'review' : 'drill';
+    } catch { return 'drill'; }
+  });
 
   const pool = () => allCats.flatMap(cc => V[cc]);
 
@@ -329,52 +338,299 @@ export default function PracticeTab({
 
   return (
     <div>
-      {H("🎮 Practice", "Games, exercises & daily review")}
+      {H("🎮 Practice", "Choose your training mode")}
 
-      {/* ── QUICK START CTA ─────────────────────────────────────────────── */}
-      {!isNewUser ? (
-        <button
-          onClick={recommendations[0].fn}
-          style={{
-            width:'100%', display:'flex', alignItems:'center', gap:14,
-            padding:'14px 18px', borderRadius:18, marginBottom:8, border:'none', cursor:'pointer',
-            background:'linear-gradient(135deg,var(--info),#0c4a6e)',
-            boxShadow:'0 4px 20px rgba(14,116,144,.25)',
-            animation:'rise .4s ease', fontFamily:"'Outfit',sans-serif",
-          }}
-        >
-          <div style={{
-            width:44, height:44, borderRadius:14, flexShrink:0,
-            background:'rgba(255,255,255,.15)', border:'1.5px solid rgba(255,255,255,.3)',
-            display:'flex', alignItems:'center', justifyContent:'center', fontSize:22,
-          }}>{recommendations[0].icon}</div>
-          <div style={{flex:1, textAlign:'left'}}>
-            <div style={{fontSize:11, fontWeight:800, color:'rgba(255,255,255,.65)', textTransform:'uppercase', letterSpacing:'.1em', marginBottom:2}}>START NOW</div>
-            <div style={{fontSize:16, fontWeight:900, color:'white'}}>{recommendations[0].title}</div>
-            <div style={{fontSize:12, color:'rgba(255,255,255,.75)'}}>{recommendations[0].desc}</div>
-          </div>
-          <div style={{fontSize:22, color:'rgba(255,255,255,.8)', fontWeight:300}}>›</div>
-        </button>
-      ) : (
-        <div style={{
-          background:'linear-gradient(135deg,var(--info),#0c4a6e)',
-          borderRadius:18, padding:'18px 20px', marginBottom:8,
-          display:'flex', alignItems:'center', gap:14,
-          boxShadow:'0 4px 20px rgba(14,116,144,.25)',
-          animation:'rise .4s ease',
-        }}>
-          <div style={{fontSize:36}}>🎯</div>
-          <div style={{flex:1}}>
-            <div style={{fontSize:11, fontWeight:800, color:'rgba(255,255,255,.65)', textTransform:'uppercase', letterSpacing:'.1em', marginBottom:4}}>WELCOME</div>
-            <div style={{fontSize:15, fontWeight:900, color:'white', marginBottom:2}}>Ready to practice?</div>
-            <div style={{fontSize:12, color:'rgba(255,255,255,.7)'}}>Complete a lesson first to unlock recommendations</div>
-          </div>
-        </div>
-      )}
+      {/* ── INTENT TILES ─────────────────────────────────────────────────── */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, marginBottom:16 }}>
+        {[
+          { id:'review',    icon:'🔁', label:'Review',    color:'#0e7490', activeBg:'linear-gradient(135deg,#0e7490,#0c4a6e)', inactiveBg:'rgba(14,116,144,.08)',  inactiveBorder:'rgba(14,116,144,.25)',  badge: dueReviews.length > 0 ? dueReviews.length : null },
+          { id:'drill',     icon:'🎯', label:'Drill',     color:'#7c3aed', activeBg:'linear-gradient(135deg,#7c3aed,#5b21b6)', inactiveBg:'rgba(124,58,237,.08)', inactiveBorder:'rgba(124,58,237,.25)', badge: null },
+          { id:'challenge', icon:'⚡', label:'Challenge', color:'#d97706', activeBg:'linear-gradient(135deg,#d97706,#b45309)', inactiveBg:'rgba(217,119,6,.08)',   inactiveBorder:'rgba(217,119,6,.25)',  badge: null },
+        ].map(tile => {
+          const isActive = activeIntent === tile.id;
+          return (
+            <button
+              key={tile.id}
+              onClick={() => setActiveIntent(tile.id)}
+              style={{
+                display:'flex', flexDirection:'column', alignItems:'center',
+                padding:'14px 8px', borderRadius:16, cursor:'pointer',
+                background: isActive ? tile.activeBg : tile.inactiveBg,
+                border: isActive ? '2px solid transparent' : `1.5px solid ${tile.inactiveBorder}`,
+                position:'relative', fontFamily:"'Outfit',sans-serif",
+                boxShadow: isActive ? '0 4px 16px rgba(0,0,0,.18)' : 'none',
+                transform: isActive ? 'translateY(-2px)' : 'none',
+                transition:'all .18s ease',
+              }}
+            >
+              {tile.badge && (
+                <div style={{
+                  position:'absolute', top:6, right:8,
+                  background:'#ef4444', color:'#fff',
+                  fontSize:10, fontWeight:800,
+                  borderRadius:99, padding:'1px 5px', minWidth:16, textAlign:'center',
+                }}>{tile.badge}</div>
+              )}
+              <div style={{ fontSize:24, marginBottom:4 }}>{tile.icon}</div>
+              <div style={{
+                fontSize:11, fontWeight:800,
+                color: isActive ? '#fff' : tile.color,
+                textTransform:'uppercase', letterSpacing:'.06em',
+              }}>{tile.label}</div>
+            </button>
+          );
+        })}
+      </div>
 
-      {/* ── DAILY QUEST PROGRESS ────────────────────────────────────────── */}
+      {/* ── ANIMATED CONTENT PANEL ──────────────────────────────────────── */}
+      <div key={activeIntent} style={{ animation:'rise .22s ease both' }}>
+
+        {/* ── REVIEW PANEL ──────────────────────────────────────────────── */}
+        {activeIntent === 'review' && (
+          <div>
+            {dueReviews.length > 0 ? (
+              <button
+                onClick={startReview}
+                className="milestone-card"
+                style={{
+                  width:"100%", display:"flex", alignItems:"center", gap:14,
+                  padding:"16px 18px", marginBottom:12, border:"none", cursor:"pointer",
+                  fontFamily:"'Outfit',sans-serif", textAlign:'left',
+                }}
+              >
+                <div style={{
+                  width:46, height:46, borderRadius:14, flexShrink:0,
+                  background:"rgba(255,255,255,.18)", border:"2px solid rgba(255,255,255,.35)",
+                  display:"flex", alignItems:"center", justifyContent:"center", fontSize:24,
+                }}>📅</div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:11, fontWeight:800, color:"rgba(255,255,255,.65)", textTransform:'uppercase', letterSpacing:'.1em', marginBottom:2 }}>SRS REVIEW DUE</div>
+                  <div style={{ fontSize:16, fontWeight:900, color:"#fff" }}>{dueReviews.length} word{dueReviews.length !== 1 ? "s" : ""} waiting</div>
+                  <div style={{ fontSize:12, color:"rgba(255,255,255,.7)", marginTop:1 }}>Spaced repetition keeps words in long-term memory</div>
+                </div>
+                <div style={{ fontSize:22, color:"rgba(255,255,255,.85)", fontWeight:300 }}>›</div>
+              </button>
+            ) : (
+              <div className="tip-box-success" style={{ marginBottom:12, display:'flex', alignItems:'center', gap:10 }}>
+                <span style={{ fontSize:22 }}>✅</span>
+                <div>
+                  <div style={{ fontWeight:800, fontSize:14, color:'var(--success)' }}>All caught up!</div>
+                  <div style={{ fontSize:12, color:'var(--subtext)', marginTop:2 }}>No reviews due. Keep practicing to grow your queue.</div>
+                </div>
+              </div>
+            )}
+            {[
+              { icon:'🃏', label:'Flashcards',              desc:'Spaced repetition review',                 color:'rgba(124,58,237,.07)', border:'rgba(124,58,237,.25)', grad:'linear-gradient(135deg,#7c3aed,#5b21b6)', shadow:'rgba(124,58,237,.3)',  fn: startFlashcards },
+              { icon:'🎧', label:'Listening Comprehension', desc:'Read Croatian · choose the meaning · A1→B2', color:'rgba(14,116,144,.07)',  border:'rgba(14,116,144,.25)',  grad:'linear-gradient(135deg,#0e7490,#0c4a6e)', shadow:'rgba(14,116,144,.3)',   fn: () => { setScr('listening_comprehension'); sCurEx('listening_comprehension'); } },
+              { icon:'📖', label:'AI Story',                desc:'Story built from your weak words',           color:'rgba(5,150,105,.07)',   border:'rgba(5,150,105,.25)',   grad:'linear-gradient(135deg,#059669,#047857)', shadow:'rgba(5,150,105,.3)',    fn: () => { setScr('ai_story'); sCurEx('ai_story'); } },
+            ].map((r, i) => (
+              <button key={i} onClick={r.fn} className="tc" style={{
+                width:'100%', display:'flex', alignItems:'center', gap:14,
+                padding:'14px 18px', marginBottom:10,
+                border:`1.5px solid ${r.border}`, background:r.color,
+                cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+              }}>
+                <div style={{
+                  width:44, height:44, borderRadius:13, flexShrink:0,
+                  background:r.grad, display:'flex', alignItems:'center', justifyContent:'center', fontSize:22,
+                  boxShadow:`0 4px 12px ${r.shadow}`,
+                }}>{r.icon}</div>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:14, fontWeight:800, color:'var(--heading)'}}>{r.label}</div>
+                  <div style={{fontSize:12, color:'var(--subtext)', marginTop:1}}>{r.desc}</div>
+                </div>
+                <div style={{fontSize:18, fontWeight:300, opacity:.6, color:'var(--subtext)'}}>›</div>
+              </button>
+            ))}
+            {weakCount >= 3 && (
+              <button onClick={_startWeakWords} className="tc" style={{
+                width:'100%', display:'flex', alignItems:'center', gap:14,
+                padding:'14px 18px', marginBottom:10,
+                border:'1.5px solid rgba(239,68,68,.25)', background:'rgba(239,68,68,.07)',
+                cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+              }}>
+                <div style={{
+                  width:44, height:44, borderRadius:13, flexShrink:0,
+                  background:'linear-gradient(135deg,#dc2626,#991b1b)',
+                  display:'flex', alignItems:'center', justifyContent:'center', fontSize:22,
+                  boxShadow:'0 4px 12px rgba(220,38,38,.3)',
+                }}>🎯</div>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:14, fontWeight:800, color:'var(--heading)'}}>Weak Word Drill</div>
+                  <div style={{fontSize:12, color:'var(--subtext)', marginTop:1}}>{weakCount} words that need more practice</div>
+                </div>
+                <div style={{fontSize:18, fontWeight:300, opacity:.6, color:'var(--subtext)'}}>›</div>
+              </button>
+            )}
+            {weakMsg && (
+              <div className="empty-state" style={{ background:"#fffbeb", border:"1.5px solid #fde68a", borderRadius:16, marginBottom:12, position:"relative" }}>
+                <div className="es-icon">🧠</div>
+                <div className="es-title">Not enough weak words yet</div>
+                <div className="es-desc">{weakMsg}</div>
+                <button onClick={() => setWeakMsg("")} style={{ position:"absolute", top:10, right:12, background:"none", border:"none", cursor:"pointer", fontSize:18, color:"#92400e", lineHeight:1, opacity:.6 }} aria-label="Dismiss">×</button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── DRILL PANEL ─────────────────────────────────────────────────── */}
+        {activeIntent === 'drill' && (
+          <div>
+            <div className="section-hdr">
+              <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>⭐</div>
+              <div className="section-hdr-text">
+                <div className="section-hdr-title">Today's Pick</div>
+                <div className="section-hdr-sub">3 exercises chosen for right now</div>
+              </div>
+            </div>
+            <div className="todays-picks-grid" style={{ marginBottom:16 }}>
+              {EXERCISES.filter(e => todaysPicks.includes(e.id)).map(e => <ExerciseCard key={e.id} {...e} />)}
+            </div>
+            <div className="section-hdr">
+              <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>📚</div>
+              <div className="section-hdr-text">
+                <div className="section-hdr-title">Browse Exercises</div>
+                <div className="section-hdr-sub">{EXERCISES.length} exercises across 4 categories</div>
+              </div>
+            </div>
+            {[
+              { id:'grammar',   label:'Grammar',    emoji:'📝', color:'#7c3aed', bg:'rgba(124,58,237,.08)',  border:'rgba(124,58,237,.25)' },
+              { id:'vocab',     label:'Vocabulary', emoji:'🇭🇷', color:'#0e7490', bg:'rgba(14,116,144,.08)',  border:'rgba(14,116,144,.25)' },
+              { id:'practical', label:'Practical',  emoji:'🌍', color:'#059669', bg:'rgba(5,150,105,.08)',   border:'rgba(5,150,105,.25)'  },
+              { id:'advanced',  label:'Advanced',   emoji:'🎓', color:'#d97706', bg:'rgba(217,119,6,.08)',   border:'rgba(217,119,6,.25)'  },
+            ].map(cat => {
+              const catExercises = EXERCISES.filter(e => e.category === cat.id);
+              const isOpen = openCat === cat.id;
+              return (
+                <div key={cat.id} style={{ marginBottom:8 }}>
+                  <button
+                    onClick={() => setOpenCat(isOpen ? null : cat.id)}
+                    aria-expanded={isOpen}
+                    className="cat-tile"
+                    style={{
+                      borderRadius: isOpen ? '14px 14px 0 0' : 14,
+                      background: isOpen ? cat.color : cat.bg,
+                      border: `1.5px solid ${cat.border}`,
+                      borderBottom: isOpen ? 'none' : `1.5px solid ${cat.border}`,
+                    }}
+                  >
+                    <div className="cat-tile-icon" style={{
+                      background: isOpen ? 'rgba(255,255,255,.18)' : 'var(--card)',
+                      border: `1px solid ${isOpen ? 'rgba(255,255,255,.3)' : cat.border}`,
+                    }}>{cat.emoji}</div>
+                    <div style={{ flex:1, textAlign:'left' }}>
+                      <div className="cat-tile-title" style={{ color: isOpen ? '#fff' : 'var(--heading)' }}>{cat.label}</div>
+                      <div className="cat-tile-count" style={{ color: isOpen ? 'rgba(255,255,255,.75)' : 'var(--subtext)' }}>{catExercises.length} exercises</div>
+                    </div>
+                    <div className={'cat-tile-chevron' + (isOpen ? ' cat-tile-chevron--open' : '')} style={{ color: isOpen ? 'rgba(255,255,255,.85)' : cat.color }}>▼</div>
+                  </button>
+                  {isOpen && (
+                    <div className="cat-panel" style={{
+                      border: `1.5px solid ${cat.border}`, borderTop:'none',
+                      borderRadius:'0 0 14px 14px', overflow:'hidden', background:'var(--card)',
+                    }}>
+                      <div className="exercise-grid-stagger" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, padding:10 }}>
+                        {catExercises.map(e => <ExerciseCard key={e.id} {...e} />)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            {goalItems && !isNewUser && (
+              <div style={{ marginTop:16, marginBottom:8 }}>
+                <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
+                  <span style={{ fontSize:11, fontWeight:800, color:'var(--info)', textTransform:'uppercase', letterSpacing:'.08em' }}>🎯 For your goal</span>
+                  <span style={{
+                    fontSize:11, fontWeight:700, color:'var(--info)',
+                    background:'var(--info-bg)', border:'1px solid var(--info-b)',
+                    borderRadius:20, padding:'2px 10px',
+                  }}>{goalLabels[userGoal]}</span>
+                </div>
+                <div className="g3">
+                  {goalItems.map((r, i) => (
+                    <button key={i} className="tc" style={{ textAlign:"center", padding:"18px 10px", border:`1.5px solid ${r.border}`, background:r.color }} onClick={r.fn}>
+                      <div style={{ width:44, height:44, borderRadius:13, margin:'0 auto 8px', background:'var(--card)', border:`1px solid ${r.border}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:22 }}>{r.icon}</div>
+                      <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{r.title}</div>
+                      <div style={{ fontSize:10, color:"var(--subtext)", marginTop:4, lineHeight:1.3 }}>{r.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── CHALLENGE PANEL ─────────────────────────────────────────────── */}
+        {activeIntent === 'challenge' && (
+          <div>
+            <div className="section-hdr">
+              <div className="section-hdr-icon" style={{background:'rgba(245,158,11,.12)'}}>⚡</div>
+              <div className="section-hdr-text">
+                <div className="section-hdr-title">Quick Games</div>
+                <div className="section-hdr-sub">Tap any to start instantly</div>
+              </div>
+            </div>
+            <div className="anim-stagger-sm" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:20 }}>
+              {[
+                [startQuiz,       "🎯","Quiz",        "Vocabulary","linear-gradient(155deg,#071828 0%,#0a3d52 60%,#0e7490 100%)"],
+                [startFlashcards, "🃏","Flashcards",  "Spaced rep","linear-gradient(155deg,#120830 0%,#2d1260 60%,#7c3aed 100%)"],
+                [startMatch,      "🔗","Match Pairs", "Memory",    "linear-gradient(155deg,#041410 0%,#0d3820 60%,#16a34a 100%)"],
+                [startTyping,     "⌨️","Typing",      "Accuracy",  "linear-gradient(155deg,#1a0c00 0%,#3d1e00 60%,#d97706 100%)"],
+                [startListening,  "🎧","Listening",   "Train ear", "linear-gradient(155deg,#1a0008 0%,#4a0015 60%,#D40030 100%)"],
+                [startSpeaking,   "🎤","Speaking",    "Pronunc.",  "linear-gradient(155deg,#031020 0%,#083050 60%,#0284c7 100%)"],
+                [() => { setScr("wordsprint"); sCurEx("wordsprint"); },"⚡","Word Sprint","Speed","linear-gradient(155deg,#1a0e00 0%,#3d2200 60%,#f59e0b 100%)"],
+              ].map((/** @type {any[]} */ [fn,icon,label,sub,bg], i) => (
+                <button key={i} className="practice-card-dark" style={{ textAlign:"center", padding:"16px 10px", background:bg }} onClick={fn}>
+                  <div className="pc-icon">{icon}</div>
+                  <div className="pc-label">{label}</div>
+                  <div className="pc-desc">{sub}</div>
+                </button>
+              ))}
+            </div>
+            <div className="section-hdr">
+              <div className="section-hdr-icon" style={{background:'rgba(124,58,237,.12)'}}>🤖</div>
+              <div className="section-hdr-text">
+                <div className="section-hdr-title">AI Challenges</div>
+                <div className="section-hdr-sub">Adaptive difficulty · powered by AI</div>
+              </div>
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:16 }}>
+              {[
+                { icon:'🎧', label:'AI Listening',       desc:'AI-generated dialogues + comprehension',      color:'rgba(14,116,144,.08)',  border:'rgba(14,116,144,.25)',  fn: startAIListening },
+                { icon:'📖', label:'AI Story',            desc:'Story built from your weak words',             color:'rgba(5,150,105,.08)',   border:'rgba(5,150,105,.25)',   fn: () => { setScr('ai_story'); sCurEx('ai_story'); } },
+                { icon:'🎓', label:'CEFR Test',           desc:'A1→B2 proficiency check',                     color:'rgba(14,116,144,.08)',  border:'rgba(14,116,144,.25)',  fn: () => { setScr("cefrtest"); sCurEx("cefrtest"); } },
+                { icon:'🎬', label:'Video Lesson',        desc:'Watch · follow dialogue · answer questions',   color:'rgba(220,38,38,.08)',   border:'rgba(220,38,38,.25)',   fn: startVideoLesson },
+                { icon:'🔬', label:'Grammar Blind Spots', desc:'Weekly AI analysis of your weak points',       color:'rgba(124,58,237,.08)', border:'rgba(124,58,237,.25)',  fn: startGrammarDiagnosis },
+              ].map((r, i) => (
+                <button key={i} onClick={r.fn} className="tc" style={{
+                  display:'flex', alignItems:'center', gap:14,
+                  padding:'14px 18px', border:`1.5px solid ${r.border}`,
+                  background:r.color, cursor:'pointer', fontFamily:"'Outfit',sans-serif",
+                  textAlign:'left', width:'100%',
+                }}>
+                  <div style={{
+                    width:44, height:44, borderRadius:13, flexShrink:0,
+                    background:'var(--card)', border:`1.5px solid ${r.border}`,
+                    display:'flex', alignItems:'center', justifyContent:'center', fontSize:22,
+                    boxShadow:'0 2px 8px rgba(0,0,0,.06)',
+                  }}>{r.icon}</div>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontSize:14, fontWeight:800, color:'var(--heading)', marginBottom:2 }}>{r.label}</div>
+                    <div style={{ fontSize:12, color:'var(--subtext)', lineHeight:1.4 }}>{r.desc}</div>
+                  </div>
+                  <div style={{ fontSize:18, color:'var(--subtext)', opacity:.6, fontWeight:300 }}>›</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+      </div>
+
+      {/* ── DAILY QUESTS STRIP (always visible) ─────────────────────────── */}
       <div style={{
-        marginBottom:12, padding:'10px 14px',
+        marginTop:8, marginBottom:16, padding:'10px 14px',
         background:'var(--card)', border:'1px solid var(--card-b)', borderRadius:14,
         boxShadow:'var(--card-shadow)',
       }}>
@@ -395,9 +651,7 @@ export default function PracticeTab({
             { key:'master',  icon:'🃏', label:'Words'   },
             { key:'reading', icon:'📖', label:'Read'    },
           ].map(q => (
-            <div key={q.key}
-              className={'quest-tile ' + (practiceQuestsDone[q.key] ? 'quest-tile--done' : 'quest-tile--pending')}
-            >
+            <div key={q.key} className={'quest-tile ' + (practiceQuestsDone[q.key] ? 'quest-tile--done' : 'quest-tile--pending')}>
               <span className="quest-tile-icon">{practiceQuestsDone[q.key] ? '✅' : q.icon}</span>
               <span className="quest-tile-label">{q.label}</span>
             </div>
@@ -405,321 +659,7 @@ export default function PracticeTab({
         </div>
       </div>
 
-      {/* ── SRS DUE BANNER ──────────────────────────────────────────────── */}
-      {Object.keys(sr).length > 0 && dueReviews.length === 0 && (
-        <div className="tip-box-success" style={{ marginBottom:14, display:'flex', alignItems:'center', gap:10 }}>
-          <span style={{ fontSize: 22 }}>✅</span>
-          <div>
-            <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--success)' }}>
-              All caught up!
-            </div>
-            <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 2 }}>
-              No reviews due. Keep practicing to grow your vocabulary queue.
-            </div>
-          </div>
-        </div>
-      )}
-      {dueReviews.length > 0 && (
-        <button
-          onClick={startReview}
-          className="milestone-card"
-          style={{
-            width:"100%", display:"flex", alignItems:"center", gap:14,
-            padding:"16px 18px", marginBottom:16, border:"none", cursor:"pointer",
-            fontFamily:"'Outfit',sans-serif", textAlign:'left',
-          }}
-        >
-          <div style={{
-            width:46, height:46, borderRadius:14, flexShrink:0,
-            background:"rgba(255,255,255,.18)", border:"2px solid rgba(255,255,255,.35)",
-            display:"flex", alignItems:"center", justifyContent:"center", fontSize:24,
-          }}>📅</div>
-          <div style={{ flex:1 }}>
-            <div style={{ fontSize:11, fontWeight:800, color:"rgba(255,255,255,.65)", textTransform:'uppercase', letterSpacing:'.1em', marginBottom:2 }}>
-              SRS REVIEW DUE
-            </div>
-            <div style={{ fontSize:16, fontWeight:900, color:"#fff" }}>
-              {dueReviews.length} word{dueReviews.length !== 1 ? "s" : ""} waiting
-            </div>
-            <div style={{ fontSize:12, color:"rgba(255,255,255,.7)", marginTop:1 }}>
-              Tap to review — spaced repetition keeps words in memory
-            </div>
-          </div>
-          <div style={{ fontSize:22, color:"rgba(255,255,255,.85)", fontWeight:300 }}>›</div>
-        </button>
-      )}
-
-      {weakMsg && (
-        <div className="empty-state" style={{ background:"#fffbeb", border:"1.5px solid #fde68a", borderRadius:16, marginBottom:16, position:"relative" }}>
-          <div className="es-icon">🧠</div>
-          <div className="es-title">Not enough weak words yet</div>
-          <div className="es-desc">{weakMsg}</div>
-          <button onClick={() => setWeakMsg("")} style={{ position:"absolute", top:10, right:12, background:"none", border:"none", cursor:"pointer", fontSize:18, color:"#92400e", lineHeight:1, opacity:.6 }} aria-label="Dismiss">×</button>
-        </div>
-      )}
-
-      {/* ── LISTENING COMPREHENSION TRACK ───────────────────────────────── */}
-      <button
-        onClick={() => { setScr('listening_comprehension'); sCurEx('listening_comprehension'); }}
-        className="tc"
-        style={{
-          width:'100%', display:'flex', alignItems:'center', gap:14,
-          padding:'16px 18px', marginBottom:12,
-          border:'1.5px solid rgba(124,58,237,.25)',
-          background:'linear-gradient(135deg,rgba(124,58,237,.07),rgba(91,33,182,.04))',
-          cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
-        }}
-      >
-        <div style={{
-          width:48, height:48, borderRadius:14, flexShrink:0,
-          background:'linear-gradient(135deg,#7c3aed,#5b21b6)',
-          display:'flex', alignItems:'center', justifyContent:'center', fontSize:24,
-          boxShadow:'0 4px 12px rgba(124,58,237,.3)',
-        }}>🎧</div>
-        <div style={{flex:1}}>
-          <div style={{fontSize:11, fontWeight:800, color:'var(--lavender)', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:2}}>A1 → B2 Curriculum</div>
-          <div style={{fontSize:14, fontWeight:800, color:'var(--heading)'}}>Listening Comprehension</div>
-          <div style={{fontSize:12, color:'var(--subtext)', marginTop:1, lineHeight:1.4}}>Read Croatian · choose the meaning · track your progress</div>
-        </div>
-        <div style={{fontSize:18, color:'var(--lavender)', fontWeight:300}}>›</div>
-      </button>
-
-      {/* ── TODAY'S PICK ─────────────────────────────────────────────────── */}
-      <div className="section-hdr">
-        <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>⭐</div>
-        <div className="section-hdr-text">
-          <div className="section-hdr-title">Today's Pick</div>
-          <div className="section-hdr-sub">3 exercises chosen for right now</div>
-        </div>
-      </div>
-      <div className="todays-picks-grid">
-        {EXERCISES.filter(e => todaysPicks.includes(e.id)).map(e => <ExerciseCard key={e.id} {...e} />)}
-      </div>
-
-      {/* ── BROWSE BY CATEGORY (always visible) ─────────────────────────── */}
-      <div className="section-hdr" style={{ marginTop:12 }}>
-        <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>📚</div>
-        <div className="section-hdr-text">
-          <div className="section-hdr-title">Browse Exercises</div>
-          <div className="section-hdr-sub">{EXERCISES.length} exercises across 4 categories</div>
-        </div>
-      </div>
-      {[
-        { id:'grammar',   label:'Grammar',    emoji:'📝', color:'#7c3aed', bg:'rgba(124,58,237,.08)',  border:'rgba(124,58,237,.25)' },
-        { id:'vocab',     label:'Vocabulary', emoji:'🇭🇷', color:'#0e7490', bg:'rgba(14,116,144,.08)',  border:'rgba(14,116,144,.25)' },
-        { id:'practical', label:'Practical',  emoji:'🌍', color:'#059669', bg:'rgba(5,150,105,.08)',   border:'rgba(5,150,105,.25)'  },
-        { id:'advanced',  label:'Advanced',   emoji:'🎓', color:'#d97706', bg:'rgba(217,119,6,.08)',   border:'rgba(217,119,6,.25)'  },
-      ].map(cat => {
-        const catExercises = EXERCISES.filter(e => e.category === cat.id);
-        const isOpen = openCat === cat.id;
-        return (
-          <div key={cat.id} style={{ marginBottom:8 }}>
-            {/* Category tile header */}
-            <button
-              onClick={() => setOpenCat(isOpen ? null : cat.id)}
-              aria-expanded={isOpen}
-              className="cat-tile"
-              style={{
-                borderRadius: isOpen ? '14px 14px 0 0' : 14,
-                background: isOpen ? cat.color : cat.bg,
-                border: `1.5px solid ${cat.border}`,
-                borderBottom: isOpen ? 'none' : `1.5px solid ${cat.border}`,
-              }}
-            >
-              <div
-                className="cat-tile-icon"
-                style={{
-                  background: isOpen ? 'rgba(255,255,255,.18)' : 'var(--card)',
-                  border: `1px solid ${isOpen ? 'rgba(255,255,255,.3)' : cat.border}`,
-                }}
-              >{cat.emoji}</div>
-              <div style={{ flex:1, textAlign:'left' }}>
-                <div className="cat-tile-title" style={{ color: isOpen ? '#fff' : 'var(--heading)' }}>{cat.label}</div>
-                <div className="cat-tile-count" style={{ color: isOpen ? 'rgba(255,255,255,.75)' : 'var(--subtext)' }}>{catExercises.length} exercises</div>
-              </div>
-              <div
-                className={'cat-tile-chevron' + (isOpen ? ' cat-tile-chevron--open' : '')}
-                style={{ color: isOpen ? 'rgba(255,255,255,.85)' : cat.color }}
-              >▼</div>
-            </button>
-            {/* Expanded exercise list with stagger animation */}
-            {isOpen && (
-              <div
-                className="cat-panel"
-                style={{
-                  border: `1.5px solid ${cat.border}`, borderTop:'none',
-                  borderRadius:'0 0 14px 14px', overflow:'hidden',
-                  background:'var(--card)',
-                }}
-              >
-                <div
-                  className="exercise-grid-stagger"
-                  style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, padding:10 }}
-                >
-                  {catExercises.map(e => <ExerciseCard key={e.id} {...e} />)}
-                </div>
-              </div>
-            )}
-          </div>
-        );
-      })}
-
-      {/* ── QUICK GAMES ─────────────────────────────────────────────────── */}
-      <div className="section-hdr">
-        <div className="section-hdr-icon" style={{background:'rgba(245,158,11,.12)'}}>⚡</div>
-        <div className="section-hdr-text">
-          <div className="section-hdr-title">Quick Games</div>
-          <div className="section-hdr-sub">Tap any to start instantly</div>
-        </div>
-      </div>
-      <div
-        className="anim-stagger-sm"
-        style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:24 }}
-      >
-        {[
-          [startQuiz,       "🎯","Quiz",        "Vocabulary","linear-gradient(155deg,#071828 0%,#0a3d52 60%,#0e7490 100%)"],
-          [startFlashcards, "🃏","Flashcards",  "Spaced rep","linear-gradient(155deg,#120830 0%,#2d1260 60%,#7c3aed 100%)"],
-          [startMatch,      "🔗","Match Pairs", "Memory",    "linear-gradient(155deg,#041410 0%,#0d3820 60%,#16a34a 100%)"],
-          [startTyping,     "⌨️","Typing",      "Accuracy",  "linear-gradient(155deg,#1a0c00 0%,#3d1e00 60%,#d97706 100%)"],
-          [startListening,  "🎧","Listening",   "Train ear", "linear-gradient(155deg,#1a0008 0%,#4a0015 60%,#D40030 100%)"],
-          [startSpeaking,   "🎤","Speaking",    "Pronunc.",  "linear-gradient(155deg,#031020 0%,#083050 60%,#0284c7 100%)"],
-          [() => { setScr("wordsprint"); sCurEx("wordsprint"); },"⚡","Word Sprint","Speed","linear-gradient(155deg,#1a0e00 0%,#3d2200 60%,#f59e0b 100%)"],
-        ].map((/** @type {any[]} */ [fn,icon,label,sub,bg], i) => (
-          <button key={i}
-            className="practice-card-dark"
-            style={{ textAlign:"center", padding:"16px 10px", background:bg }}
-            onClick={fn}
-          >
-            <div className="pc-icon">{icon}</div>
-            <div className="pc-label">{label}</div>
-            <div className="pc-desc">{sub}</div>
-          </button>
-        ))}
-      </div>
-
-      {/* ── RECOMMENDED FOR YOU (moved below exercises) ──────────────────── */}
-      <div className="section-hdr">
-        <div className="section-hdr-icon" style={{background:'linear-gradient(135deg,rgba(245,158,11,.2),rgba(234,88,12,.15))'}}>✨</div>
-        <div className="section-hdr-text">
-          <div className="section-hdr-title">Recommended for You</div>
-          <div className="section-hdr-sub">Picked based on your progress today</div>
-        </div>
-      </div>
-      {isNewUser ? (
-        <div style={{ background:"var(--bar-bg)", border:"1.5px solid var(--card-b)", borderRadius:14, padding:"20px", marginBottom:24 }}>
-          <div style={{ textAlign: 'center', padding: '20px 16px 8px' }}>
-            <div style={{ fontSize: 40, marginBottom: 8 }}>🎯</div>
-            <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--heading)', marginBottom: 6 }}>
-              Ready to practice?
-            </div>
-            <div style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.6 }}>
-              Jump into a Quick Game above, or complete your first lesson in <strong>Learn</strong> to unlock personalized recommendations.
-            </div>
-          </div>
-          <button className="b bp" style={{ fontSize:14, padding:"12px 24px", width:'100%', marginTop:8 }} onClick={() => setScr("learnpath")}>
-            Go to Learning Path →
-          </button>
-        </div>
-      ) : (
-        <>
-          {goalItems && (
-            <div style={{ marginBottom:16 }}>
-              <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
-                <span style={{ fontSize:11, fontWeight:800, color:'var(--info)', textTransform:'uppercase', letterSpacing:'.08em' }}>🎯 For your goal</span>
-                <span style={{
-                  fontSize:11, fontWeight:700, color:'var(--info)',
-                  background:'var(--info-bg)', border:'1px solid var(--info-b)',
-                  borderRadius:20, padding:'2px 10px',
-                }}>{goalLabels[userGoal]}</span>
-              </div>
-              <div className="g3" style={{ marginBottom:16 }}>
-                {goalItems.map((r, i) => (
-                  <button key={i} className="tc"
-                    style={{ textAlign:"center", padding:"18px 10px", border:`1.5px solid ${r.border}`, background:r.color }}
-                    onClick={r.fn}>
-                    <div style={{
-                      width:44, height:44, borderRadius:13, margin:'0 auto 8px',
-                      background:'var(--card)', border:`1px solid ${r.border}`,
-                      display:'flex', alignItems:'center', justifyContent:'center', fontSize:22,
-                    }}>{r.icon}</div>
-                    <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:"var(--heading)", lineHeight:1.2 }}>{r.title}</div>
-                    <div style={{ fontSize:10, color:"var(--subtext)", marginTop:4, lineHeight:1.3 }}>{r.desc}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-          <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:24 }}>
-            {recommendations.map((r, i) => (
-              <button key={i} onClick={r.fn} className="tc" style={{
-                display:'flex', alignItems:'center', gap:14,
-                padding:'16px 18px', border:`1.5px solid ${r.border}`,
-                background:r.color, cursor:'pointer', fontFamily:"'Outfit',sans-serif",
-                textAlign:'left', width:'100%',
-              }}>
-                <div style={{
-                  width:50, height:50, borderRadius:14, flexShrink:0,
-                  background:'var(--card)', border:`1.5px solid ${r.border}`,
-                  display:'flex', alignItems:'center', justifyContent:'center', fontSize:26,
-                  boxShadow:'0 2px 8px rgba(0,0,0,.06)',
-                }}>{r.icon}</div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontSize:15, fontWeight:800, color:'var(--heading)', marginBottom:2 }}>{r.title}</div>
-                  <div style={{ fontSize:12, color:'var(--subtext)', lineHeight:1.4 }}>{r.desc}</div>
-                </div>
-                <div style={{ fontSize:20, color:'var(--subtext)', opacity:.6, fontWeight:300 }}>›</div>
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-      {showGoalReminder && (
-        <div style={{
-          background:'var(--bar-bg)', border:'1.5px solid var(--card-b)',
-          borderRadius:12, padding:'12px 14px', marginBottom:16,
-          display:'flex', alignItems:'center', gap:'var(--space-sm)',
-        }}>
-          <span style={{fontSize:18}}>🎯</span>
-          <div style={{flex:1}}>
-            <div style={{fontSize:'var(--text-sm)',fontWeight:700,color:'var(--heading)'}}>Still working toward your goal?</div>
-            <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',marginTop:2}}>Your goal is set to "{goalLabels[userGoal]}". Update it in Profile → Settings if needed.</div>
-          </div>
-        </div>
-      )}
-
-      {/* ── CULTURAL EXTRAS FOOTER ──────────────────────────────────────── */}
-      <div style={{ marginTop:8, marginBottom:16 }}>
-        <div className="section-hdr">
-          <div className="section-hdr-icon" style={{background:'rgba(124,58,237,.12)'}}>🇭🇷</div>
-          <div className="section-hdr-text">
-            <div className="section-hdr-title">Cultural Extras</div>
-            <div className="section-hdr-sub">Idioms & traditions locals actually use</div>
-          </div>
-        </div>
-        <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-          {culturalExtras.map((/** @type {any} */ [fn,icon,label,desc,bg,border], i) => (
-            <button key={i} onClick={fn} className="tc" style={{
-              display:'flex', alignItems:'center', gap:14,
-              padding:'16px 18px', border:`1.5px solid ${border}`,
-              background:bg, cursor:'pointer', fontFamily:"'Outfit',sans-serif",
-              textAlign:'left', width:'100%',
-            }}>
-              <div style={{
-                width:50, height:50, borderRadius:14, flexShrink:0,
-                background:'var(--card)', border:`1.5px solid ${border}`,
-                display:'flex', alignItems:'center', justifyContent:'center', fontSize:26,
-                boxShadow:'0 2px 8px rgba(0,0,0,.06)',
-              }}>{icon}</div>
-              <div style={{ flex:1, minWidth:0 }}>
-                <div style={{ fontSize:15, fontWeight:800, color:'var(--heading)', marginBottom:2 }}>{label}</div>
-                <div style={{ fontSize:12, color:'var(--subtext)', lineHeight:1.4 }}>{desc}</div>
-              </div>
-              <div style={{ fontSize:20, color:'var(--subtext)', opacity:.6, fontWeight:300 }}>›</div>
-            </button>
-          ))}
-        </div>
-      </div>
-
     </div>
   );
 }
+

@@ -12,6 +12,7 @@ export default function CultureTab({ sCurEx }) {
   return (
     <React.Fragment>
       {/* ── HISTORY & REGIONS ── */}
+      <div id="section-history" />
       <PhotoHero
         src={PHOTOS.adriatic}
         alt="Dalmatian coast"
@@ -87,6 +88,7 @@ export default function CultureTab({ sCurEx }) {
       </div>
 
       {/* ── NATURE & HERITAGE (Croatian Life) ── */}
+      <div id="section-life" />
       <PhotoHero
         src={PHOTOS.market}
         alt="Croatian market"
