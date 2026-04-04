@@ -553,6 +553,15 @@ export const CONDITIONAL = {
     {q:"Complete: 'Da imam auto, ___ odvesti te.'",a:"mogao bih",opts:["bih mogao","mogao bih","bi mogao","mogu bih"]},
     {q:"'We would go to the sea':",a:"Otišli bismo na more.",opts:["Otišli bih na more.","Otišli biste na more.","Otišli bismo na more.","Bi otišli na more."]},
     {q:"Where does bih/bi/bismo/biste usually sit in the sentence?",a:"After the first content word/phrase",opts:["At the very start","At the very end","After the first content word/phrase","Directly before the infinitive"]},
+    {q:"'I would like' (male speaker, polite order):",a:"Volio bih",opts:["Bih volio","Volio bih","Hoću","Mogu bih"]},
+    {q:"'She would come but she can't' — which form of 'bi'?",a:"bi (ona bi došla)",opts:["bih","bismo","biste","bi"]},
+    {q:"'If I were in Zagreb, I would see you.' — 'If' clause in Croatian:",a:"Da sam u Zagrebu",opts:["Ako sam u Zagrebu","Da sam u Zagrebu","Kad sam u Zagrebu","Jer sam u Zagrebu"]},
+    {q:"Conditional of 'ja' is:",a:"bih",opts:["bi","bih","bismo","biste"]},
+    {q:"'I would rather' — polite preference expression:",a:"Radije bih",opts:["Više hoću","Radije bih","Ja bih više","Htio bi radije"]},
+    {q:"'What would you like?' (server asking a customer):",a:"Što biste željeli?",opts:["Što hoćeš?","Što biste željeli?","Šta uzimate?","Što ti trebaš?"]},
+    {q:"'We could go together' — correct conditional:",a:"Mogli bismo ići zajedno.",opts:["Mogao bih ić zajedno.","Mogli bih ić zajedno.","Mogli bismo ići zajedno.","Bismo mogli zajedno."]},
+    {q:"Conditional of 'vi' (formal/plural) is:",a:"biste",opts:["bih","bi","bismo","biste"]},
+    {q:"'I could help' (male speaker):",a:"Mogao bih pomoći.",opts:["Bi mogao pomoći.","Mogao bih pomoći.","Mogu bih pomoći.","Bih mogao."]},
   ],
 };
 export const FORMAL_REGISTER = {
@@ -596,6 +605,15 @@ export const FORMAL_REGISTER = {
     {q:"Your neighbor offers 'možemo na ti?' This means:",a:"They want to use informal address",opts:["They want to be formal","They want to use informal address","They are annoyed","They want to leave"]},
     {q:"Formal email closer in Croatian:",a:"S poštovanjem,",opts:["Ciao!","Vidimo se!","S poštovanjem,","Tvoj/Tvoja,"]},
     {q:"'Can you (formal, singular) help me?':",a:"Možete li mi pomoći?",opts:["Možeš mi pomoći?","Možete li mi pomoći?","Vi možeš pomoći?","Hoćete mi pomoću?"]},
+    {q:"Formal opener in an email to an unknown woman:",a:"Poštovana gospođo,",opts:["Hej!","Draga gospođo,","Poštovana gospođo,","Zdravo!"]},
+    {q:"'Thank you (formal)' in an email:",a:"Zahvaljujem Vam na...",opts:["Hvala ti!","Zahvaljujem Vam na...","Fala lijepo","Bok, hvala"]},
+    {q:"Which verb form goes with Vi (formal singular)?",a:"ste (biti)",opts:["si (biti)","je (biti)","ste (biti)","sam (biti)"]},
+    {q:"How do you say 'your' when addressing someone formally?",a:"Vaš / Vaša / Vaše",opts:["tvoj / tvoja / tvoje","Vaš / Vaša / Vaše","njegov / njegova","njezin / njezina"]},
+    {q:"'Where are you from?' (formal):",a:"Odakle ste?",opts:["Odakle si?","Odakle ste?","Odakle je?","Gdje si?"]},
+    {q:"When writing a formal email, the word 'you' is written as:",a:"Vi (capital V)",opts:["vi (lowercase)","Vi (capital V)","ti","TI (all caps)"]},
+    {q:"'I am writing to you regarding...' (formal email opening line):",a:"Pišem Vam u vezi...",opts:["Pišem ti o...","Pišem Vam u vezi...","Ja pišem o...","Email je o..."]},
+    {q:"A doctor's office receptionist greets you. You should use:",a:"Vi",opts:["ti","Vi","Either","Depends on the day"]},
+    {q:"'What is your name?' asked to a new business contact:",a:"Kako se zovete?",opts:["Kako se zoveš?","Kako se zovete?","Što si ti?","Tvoje ime?"]},
   ],
 };
 export const IMPERSONAL = {
@@ -634,6 +652,15 @@ export const IMPERSONAL = {
     {q:"Complete: '___ da će kiša.' (They say it will rain.)",a:"Kaže se",opts:["Se kaže","Kaže se","Govori mi","Zna se"]},
     {q:"'Iznajmljuje se soba' means:",a:"Room for rent",opts:["Room for sale","Room available for free","Room for rent","Room occupied"]},
     {q:"Correct: 'Swimming is allowed here':",a:"Ovdje se može plivati.",opts:["Ovdje može plivati se.","Ovdje plivati može.","Ovdje se može plivati.","Plivati ovdje se može."]},
+    {q:"'Jede se dobro ovdje' means:",a:"One eats well here / The food is good here",opts:["I eat well here","Eating is bad here","One eats well here / The food is good here","Food is sold here"]},
+    {q:"'Vidi se da si umoran' means:",a:"One can see you are tired",opts:["You see yourself tired","You must look tired","One can see you are tired","Look, you are tired"]},
+    {q:"Which construction means 'It is known that...'?",a:"Zna se da...",opts:["Može se da...","Zna se da...","Treba mi da...","Kaže mi da..."]},
+    {q:"'Ide se na more' most naturally means:",a:"People go to the sea / One goes to the sea",opts:["I go to the sea","The sea goes away","People go to the sea / One goes to the sea","Going to the sea is forbidden"]},
+    {q:"On a parking sign: 'Ne smije se parkirati' means:",a:"No parking",opts:["Parking allowed","Free parking","No parking","Parking for residents"]},
+    {q:"'Čuje se muzika' means:",a:"Music can be heard",opts:["I can hear music","Music is playing loudly","Music can be heard","Listen to the music"]},
+    {q:"'Govori se da je dobar restoran' — 'govori se' is equivalent to:",a:"It is said / People say",opts:["He says","I say","It is said / People say","She talks about"]},
+    {q:"'Može se fotografirati' on a museum sign means:",a:"Photography is allowed",opts:["No photography","Photography is allowed","Please photograph","Photography is required"]},
+    {q:"What is special about impersonal constructions in Croatian?",a:"They use 3rd person singular with no named subject",opts:["They always use 'ja'","They require plural verbs","They use 3rd person singular with no named subject","They are only used in formal writing"]},
   ],
 };
 export const PHONOLOGY = {

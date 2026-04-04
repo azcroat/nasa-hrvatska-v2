@@ -424,7 +424,15 @@ export const COLORQUIRK = [
   {hr:"bijeli luk",en:"garlic",lit:"white onion/garlic",note:"Distinguished from regular luk (onion)"},
   {hr:"plavi čovjek",en:"a shy/timid person",lit:"blue person",note:"Describing someone who blushes easily"},
   {hr:"crna kronika",en:"crime news",lit:"black chronicle",note:"The crime/accident section of newspapers"},
-  {hr:"zlatna ribica",en:"goldfish",lit:"golden little fish",note:"Uses diminutive ribica"}
+  {hr:"zlatna ribica",en:"goldfish",lit:"golden little fish",note:"Uses diminutive ribica"},
+  {hr:"crvena linija",en:"red line / limit",lit:"red line",note:"Figurative boundary — 'to prijeći crvenu liniju' = to cross the line"},
+  {hr:"sivi vuk",en:"experienced/wily person",lit:"grey wolf",note:"'Star sivi vuk' = old grey wolf — a cunning veteran"},
+  {hr:"modrica",en:"bruise",lit:"from modar (dark blue/purple)",note:"Modrica comes from the old Slavic word for dark blue-purple"},
+  {hr:"plava zona",en:"paid parking zone",lit:"blue zone",note:"Croatian cities use plava zona signs for metered parking"},
+  {hr:"crna ovca",en:"black sheep (of the family)",lit:"black sheep",note:"Same figurative meaning as English"},
+  {hr:"bijeli medvjed",en:"polar bear",lit:"white bear",note:"Polar bear is literally 'white bear' in Croatian"},
+  {hr:"zeleno svjetlo",en:"green light / approval",lit:"green light",note:"Dobiti zeleno svjetlo = to get the go-ahead"},
+  {hr:"žuta karta",en:"yellow card (warning)",lit:"yellow card",note:"Used in football and figuratively for any warning"}
 ];
 export const RIDDLES = [
   {clue:"Imam četiri noge, ali ne mogu hodati. Ljudi sjede na meni.",answer:"stolica",en:"chair",opts:["stolica","stol","krevet","pod"]},
@@ -465,7 +473,14 @@ export const ORDQUIZ = [
   {q:"Obitelj Horvat živi na _____ katu. (2nd)",a:"drugom",opts:["drugom","drugi","drugog"]},
   {q:"Domagoj živi na _____ katu. (5th)",a:"petom",opts:["petom","peti","petog"]},
   {q:"Krešimir živi na _____ katu. (6th)",a:"šestom",opts:["šestom","šesti","šestog"]},
-  {q:"Tomislav živi na _____ katu. (11th)",a:"jedanaestom",opts:["jedanaestom","jedanaesti","jedanaestog"]}
+  {q:"Tomislav živi na _____ katu. (11th)",a:"jedanaestom",opts:["jedanaestom","jedanaesti","jedanaestog"]},
+  {q:"Ana živi na _____ katu. (3rd)",a:"trećem",opts:["trećem","treći","trećeg"]},
+  {q:"Stjepan živi na _____ katu. (7th)",a:"sedmom",opts:["sedmom","sedmi","sedmog"]},
+  {q:"Mirela živi na _____ katu. (4th)",a:"četvrtom",opts:["četvrtom","četvrti","četvrtog"]},
+  {q:"Luka živi na _____ katu. (8th)",a:"osmom",opts:["osmom","osmi","osmog"]},
+  {q:"Ivana živi na _____ katu. (10th)",a:"desetom",opts:["desetom","deseti","desetog"]},
+  {q:"Branimir živi na _____ katu. (12th)",a:"dvanaestom",opts:["dvanaestom","dvanaesti","dvanaestog"]},
+  {q:"Vesna živi na _____ katu. (13th)",a:"trinaestom",opts:["trinaestom","trinaesti","trinaestog"]}
 ];
 export const RELPRON = {
   intro:"koji (m), koja (f), koje (n) = which/that/who. Changes by case and gender.",
@@ -480,13 +495,30 @@ export const RELPRON = {
     {q:"To je škola o _____ pričam. (f, LOK)",a:"kojoj",opts:["koja","koju","kojoj"]},
     {q:"Ovo je dijete _____ plače. (n, NOM)",a:"koje",opts:["koji","koja","koje"]},
     {q:"Ovo je selo _____ je lijepo. (n, NOM)",a:"koje",opts:["koji","koja","koje"]},
-    {q:"To je more o _____ sanjam. (n, LOK)",a:"kojem",opts:["koji","kojoj","kojem"]}
+    {q:"To je more o _____ sanjam. (n, LOK)",a:"kojem",opts:["koji","kojoj","kojem"]},
+    {q:"Ovo je žena _____ pjevam svaki dan. (f, DAT)",a:"kojoj",opts:["koja","koju","kojoj"]},
+    {q:"To je prijatelj s _____ putujem. (m, INS — use: s kojim)",a:"kojim",opts:["kojeg","kojim","koji"]},
+    {q:"To je pismo _____ sam napisao. (n, AKU)",a:"koje",opts:["koji","koja","koje"]},
+    {q:"Ovo je restoran u _____ smo jeli. (m, LOK)",a:"kojem",opts:["koji","kojeg","kojem"]},
+    {q:"To je sestra _____ sam dao poklon. (f, DAT)",a:"kojoj",opts:["koja","koju","kojoj"]}
   ]
 };
 export const EMOGENDER = [
   {subj:"Ja sam danas...",gender:"m",pairs:[{m:"sretan",f:"sretna"},{m:"tužan",f:"tužna"},{m:"ljut",f:"ljuta"},{m:"veseo",f:"vesela"},{m:"zabrinut",f:"zabrinuta"},{m:"uplašen",f:"uplašena"},{m:"umoran",f:"umorna"}]},
   {subj:"Mama je danas...",gender:"f",pairs:[{m:"sretan",f:"sretna"},{m:"tužan",f:"tužna"},{m:"ljut",f:"ljuta"},{m:"veseo",f:"vesela"},{m:"zabrinut",f:"zabrinuta"},{m:"uplašen",f:"uplašena"},{m:"umoran",f:"umorna"}]},
-  {subj:"Tata je danas...",gender:"m",pairs:[{m:"sretan",f:"sretna"},{m:"tužan",f:"tužna"},{m:"ljut",f:"ljuta"},{m:"veseo",f:"vesela"},{m:"zabrinut",f:"zabrinuta"},{m:"uplašen",f:"uplašena"},{m:"umoran",f:"umorna"}]}
+  {subj:"Tata je danas...",gender:"m",pairs:[{m:"sretan",f:"sretna"},{m:"tužan",f:"tužna"},{m:"ljut",f:"ljuta"},{m:"veseo",f:"vesela"},{m:"zabrinut",f:"zabrinuta"},{m:"uplašen",f:"uplašena"},{m:"umoran",f:"umorna"}]},
+  {subj:"Sestra je danas...",gender:"f",pairs:[{m:"sretan",f:"sretna"},{m:"tužan",f:"tužna"},{m:"ljut",f:"ljuta"},{m:"veseo",f:"vesela"},{m:"zabrinut",f:"zabrinuta"},{m:"uplašen",f:"uplašena"},{m:"umoran",f:"umorna"}]},
+  {subj:"Brat je danas...",gender:"m",pairs:[{m:"sretan",f:"sretna"},{m:"tužan",f:"tužna"},{m:"ljut",f:"ljuta"},{m:"veseo",f:"vesela"},{m:"zabrinut",f:"zabrinuta"},{m:"uplašen",f:"uplašena"},{m:"umoran",f:"umorna"}]},
+  {subj:"Učiteljica je danas...",gender:"f",pairs:[{m:"sretan",f:"sretna"},{m:"tužan",f:"tužna"},{m:"ljut",f:"ljuta"},{m:"veseo",f:"vesela"},{m:"zabrinut",f:"zabrinuta"},{m:"uplašen",f:"uplašena"},{m:"umoran",f:"umorna"}]},
+  {subj:"Prijatelj je danas...",gender:"m",pairs:[{m:"sretan",f:"sretna"},{m:"tužan",f:"tužna"},{m:"ljut",f:"ljuta"},{m:"veseo",f:"vesela"},{m:"zabrinut",f:"zabrinuta"},{m:"uplašen",f:"uplašena"},{m:"umoran",f:"umorna"}]},
+  {subj:"Prijateljica je danas...",gender:"f",pairs:[{m:"sretan",f:"sretna"},{m:"tužan",f:"tužna"},{m:"ljut",f:"ljuta"},{m:"veseo",f:"vesela"},{m:"zabrinut",f:"zabrinuta"},{m:"uplašen",f:"uplašena"},{m:"umoran",f:"umorna"}]},
+  {subj:"Djed je danas...",gender:"m",pairs:[{m:"sretan",f:"sretna"},{m:"tužan",f:"tužna"},{m:"ljut",f:"ljuta"},{m:"veseo",f:"vesela"},{m:"zabrinut",f:"zabrinuta"},{m:"uplašen",f:"uplašena"},{m:"umoran",f:"umorna"}]},
+  {subj:"Baka je danas...",gender:"f",pairs:[{m:"sretan",f:"sretna"},{m:"tužan",f:"tužna"},{m:"ljut",f:"ljuta"},{m:"veseo",f:"vesela"},{m:"zabrinut",f:"zabrinuta"},{m:"uplašen",f:"uplašena"},{m:"umoran",f:"umorna"}]},
+  {subj:"Učenik je danas...",gender:"m",pairs:[{m:"sretan",f:"sretna"},{m:"tužan",f:"tužna"},{m:"ljut",f:"ljuta"},{m:"veseo",f:"vesela"},{m:"zabrinut",f:"zabrinuta"},{m:"uplašen",f:"uplašena"},{m:"umoran",f:"umorna"}]},
+  {subj:"Učenica je danas...",gender:"f",pairs:[{m:"sretan",f:"sretna"},{m:"tužan",f:"tužna"},{m:"ljut",f:"ljuta"},{m:"veseo",f:"vesela"},{m:"zabrinut",f:"zabrinuta"},{m:"uplašen",f:"uplašena"},{m:"umoran",f:"umorna"}]},
+  {subj:"Doktor je danas...",gender:"m",pairs:[{m:"sretan",f:"sretna"},{m:"tužan",f:"tužna"},{m:"ljut",f:"ljuta"},{m:"veseo",f:"vesela"},{m:"zabrinut",f:"zabrinuta"},{m:"uplašen",f:"uplašena"},{m:"umoran",f:"umorna"}]},
+  {subj:"Doktorica je danas...",gender:"f",pairs:[{m:"sretan",f:"sretna"},{m:"tužan",f:"tužna"},{m:"ljut",f:"ljuta"},{m:"veseo",f:"vesela"},{m:"zabrinut",f:"zabrinuta"},{m:"uplašen",f:"uplašena"},{m:"umoran",f:"umorna"}]},
+  {subj:"Konobar je danas...",gender:"m",pairs:[{m:"sretan",f:"sretna"},{m:"tužan",f:"tužna"},{m:"ljut",f:"ljuta"},{m:"veseo",f:"vesela"},{m:"zabrinut",f:"zabrinuta"},{m:"uplašen",f:"uplašena"},{m:"umoran",f:"umorna"}]}
 ];
 export const QWORDS = [
   {q:"_____ si ti?",en:"Who are you?",a:"Tko",opts:["Tko","Što","Gdje"]},
@@ -553,7 +585,14 @@ export const COLORAGREE = {
     {noun:"Računala",g:"n",en:"computers",color:"bijela",opts:["bijeli","bijele","bijela"]},
     {noun:"Satovi",g:"m",en:"clocks",color:"crni",opts:["crni","crne","crna"]},
     {noun:"Mačke",g:"f",en:"cats",color:"smeđe",opts:["smeđi","smeđe","smeđa"]},
-    {noun:"Cvjetovi",g:"m",en:"flowers",color:"žuti",opts:["žuti","žute","žuta"]}
+    {noun:"Cvjetovi",g:"m",en:"flowers",color:"žuti",opts:["žuti","žute","žuta"]},
+    {noun:"Jabuke",g:"f",en:"apples",color:"crvene",opts:["crveni","crvene","crvena"]},
+    {noun:"Mora",g:"n",en:"seas",color:"plava",opts:["plavi","plave","plava"]},
+    {noun:"Psi",g:"m",en:"dogs",color:"smeđi",opts:["smeđi","smeđe","smeđa"]},
+    {noun:"Sobe",g:"f",en:"rooms",color:"bijele",opts:["bijeli","bijele","bijela"]},
+    {noun:"Stabla",g:"n",en:"trees",color:"zelena",opts:["zeleni","zelene","zelena"]},
+    {noun:"Auti",g:"m",en:"cars",color:"crni",opts:["crni","crne","crna"]},
+    {noun:"Kuće",g:"f",en:"houses",color:"narančaste",opts:["narančasti","narančaste","narančasta"]}
   ]
 };
 export const SIBIL = {
@@ -569,7 +608,14 @@ export const SIBIL = {
     {q:"To je kao u _____. (bajka)",a:"bajci",opts:["bajci","bajki","bajkai"]},
     {q:"On živi u _____. (Rijeka)",a:"Rijeci",opts:["Rijeci","Rijeki","Rijeku"]},
     {q:"Pričam o _____. (knjiga)",a:"knjizi",opts:["knjizi","knjigi","knjigai"]},
-    {q:"Prsten je na _____. (ruka)",a:"ruci",opts:["ruci","ruki","rukai"]}
+    {q:"Prsten je na _____. (ruka)",a:"ruci",opts:["ruci","ruki","rukai"]},
+    {q:"Vidim je u _____. (tuga)",a:"tuzi",opts:["tuzi","tugi","tugai"]},
+    {q:"Ptica sjedi na _____. (grana)",a:"grani",opts:["grani","granaci","granici"]},
+    {q:"Mislim o _____. (duga)",a:"dugi",opts:["duzi","dugi","dugaci"]},
+    {q:"Plivam u _____. (rijeka)",a:"rijeci",opts:["rijeci","rijeki","rijeku"]},
+    {q:"Stojim na _____. (stijeka — stijeka=rock)",a:"stijeci",opts:["stijeci","stijeki","stijekai"]},
+    {q:"Igla je u _____. (vreća)",a:"vreći",opts:["vreći","vrećaci","vreće"]},
+    {q:"Govorim o _____. (muka)",a:"muci",opts:["muci","muki","mukai"]}
   ]
 };
 export const PROFGENDER = [
@@ -600,7 +646,14 @@ export const COMPQUIZ = [
   {q:"Mačka je _____ od slona. (small)",a:"manja",opts:["mala","manja","najmanja"]},
   {q:"Konj je _____ od puža. (fast)",a:"brži",opts:["brz","brži","najbrži"]},
   {q:"Mama je _____ od bake. (young)",a:"mlađa",opts:["mlada","mlađa","najmlađa"]},
-  {q:"Ovo je _____ haljina u trgovini! (most beautiful)",a:"najljepša",opts:["lijepa","ljepša","najljepša"]}
+  {q:"Ovo je _____ haljina u trgovini! (most beautiful)",a:"najljepša",opts:["lijepa","ljepša","najljepša"]},
+  {q:"Ivan je _____ od Petra. (old)",a:"stariji",opts:["star","stariji","najstariji"]},
+  {q:"Ovaj ruksak je _____ od onog. (cheap)",a:"jeftiniji",opts:["jeftin","jeftiniji","najjeftiniji"]},
+  {q:"Ana je _____ učenica u razredu. (smart — superlative)",a:"najpametnija",opts:["pametnija","pametna","najpametnija"]},
+  {q:"Ova soba je _____ od one. (bad)",a:"gora",opts:["loša","gora","najgora"]},
+  {q:"Lav je _____ od zeca. (strong)",a:"jači",opts:["jak","jači","najjači"]},
+  {q:"Ovaj sat je _____ od onog. (expensive)",a:"skuplji",opts:["skup","skuplji","najskuplji"]},
+  {q:"Pero je _____ od olovke. (light — use: lak→lakši)",a:"lakši",opts:["lak","lakši","najlakši"]}
 ];
 export const FUTURE = {
   intro:"Future = short form of htjeti + infinitive. Ja ću, ti ćeš, on/ona će, mi ćemo, vi ćete, oni/one će.",

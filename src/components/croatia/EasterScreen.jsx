@@ -111,6 +111,56 @@ const QUIZ_QUESTIONS = [
     correct: '500 years of unbroken tradition',
     opts: ['500 years of unbroken tradition', 'Only women participate', 'Held in Zagreb', 'Involves swimming in the sea'],
   },
+  {
+    q: 'What is an uskrsna košarica?',
+    correct: 'An Easter basket taken to church for blessing',
+    opts: ['An Easter basket taken to church for blessing', 'A basket of Easter eggs sold at market', 'A wicker Easter decoration', 'A basket of spring flowers'],
+  },
+  {
+    q: 'What food is described as "the Easter centerpiece" in Croatian tradition?',
+    correct: 'Šunka (ham)',
+    opts: ['Šunka (ham)', 'Janje (lamb)', 'Pogača (bread)', 'Hren (horseradish)'],
+  },
+  {
+    q: 'What does "hren" mean?',
+    correct: 'Horseradish',
+    opts: ['Horseradish', 'Ham', 'Bread', 'Garlic'],
+  },
+  {
+    q: 'The licitarsko srce (gingerbread heart) tradition is protected by which organisation?',
+    correct: 'UNESCO',
+    opts: ['UNESCO', 'European Union', 'Croatian Ministry of Culture', 'The Catholic Church'],
+  },
+  {
+    q: 'What is "Veliki tjedan"?',
+    correct: 'Holy Week (the week before Easter)',
+    opts: ['Holy Week (the week before Easter)', 'Easter Sunday itself', 'The week after Easter', 'Christmas week'],
+  },
+  {
+    q: 'What does "Veliki petak" mean?',
+    correct: 'Good Friday',
+    opts: ['Good Friday', 'Easter Saturday', 'Holy Thursday', 'Easter Monday'],
+  },
+  {
+    q: 'The Za Križen procession takes place on which island?',
+    correct: 'Hvar',
+    opts: ['Hvar', 'Brač', 'Vis', 'Korčula'],
+  },
+  {
+    q: 'What is a ražanj?',
+    correct: 'A spit roast',
+    opts: ['A spit roast', 'A type of bread', 'An Easter basket', 'A decorated egg'],
+  },
+  {
+    q: 'The word "Uskrs" (Easter) in Croatian comes from which verb?',
+    correct: 'uskrsnuti (to rise/resurrect)',
+    opts: ['uskrsnuti (to rise/resurrect)', 'uskratiti (to deny)', 'uskočiti (to jump in)', 'ustati (to stand up)'],
+  },
+  {
+    q: 'Where is Zagreb\'s famous Easter market held, known for licitarsko srce?',
+    correct: 'Dolac market',
+    opts: ['Dolac market', 'Ban Jelačić Square', 'Jarun lake', 'Maksimir park'],
+  },
 ];
 
 const ACCENT = '#16a34a';
