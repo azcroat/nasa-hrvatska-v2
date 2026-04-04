@@ -183,7 +183,7 @@ export default function MajaScreen() {
         audioUrlRef.current = null;
       }
 
-      const res = await fetch('/api/tts', {
+      const res = await apiFetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text, slow: false }),
@@ -271,7 +271,7 @@ export default function MajaScreen() {
         const abortCtrl = new AbortController();
         streamAbortRef.current = abortCtrl;
         const streamTimeout = setTimeout(() => abortCtrl.abort(), 30000); // 30s max
-        const res = await fetch('/api/maja', {
+        const res = await apiFetch('/api/maja', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...payload, stream: true }),

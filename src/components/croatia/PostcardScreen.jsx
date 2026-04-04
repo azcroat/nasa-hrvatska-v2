@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { H } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const CITIES = [
   { name: "Dubrovnik",      region: "Dalmatia",         photo: "/images/scenes/dubrovnik-ai.webp", color: "#7c3aed" },
@@ -217,7 +218,7 @@ export default function PostcardScreen({ goBack, award }) {
     setError("");
     setCorrection(null);
     try {
-      const res = await fetch("/api/ai-chat", {
+      const res = await apiFetch("/api/ai-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         signal: AbortSignal.timeout(25000),

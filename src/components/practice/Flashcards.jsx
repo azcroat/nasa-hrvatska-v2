@@ -9,6 +9,7 @@ import FlashcardEmptyState from './FlashcardEmptyState.jsx';
 import FlashcardCardFront from './FlashcardCardFront.jsx';
 import FlashcardCardBack from './FlashcardCardBack.jsx';
 import { knightSpeak } from '../../lib/knightSpeak.js';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 // Fetch AI-generated contextual image for a vocabulary word via FLUX
 async function fetchCardImage(word, meaning, cacheRef, signal) {
@@ -19,7 +20,7 @@ async function fetchCardImage(word, meaning, cacheRef, signal) {
     if (stored) { cacheRef.current[key] = stored; return stored; }
   } catch {}
   try {
-    const r = await fetch('/api/flux-generate', {
+    const r = await apiFetch('/api/flux-generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'vocab', word, meaning }),
@@ -142,7 +143,7 @@ export default function Flashcards({ pool, goBack, award }) {
     setAiError(false);
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 20000);
-    fetch('/api/flash-context', {
+    apiFetch('/api/flash-context', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ word, meaning, level }),

@@ -9,6 +9,7 @@ import DialogueResultsScreen from './DialogueResultsScreen.jsx';
 import DialogueGuidedMode from './DialogueGuidedMode.jsx';
 import DialogueAiMode from './DialogueAiMode.jsx';
 import { SCENARIOS } from './dialogueScenarios.js';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 // Normalize Croatian diacritics for lenient free-text comparison
 function normCro(s){return s.toLowerCase().replace(/[čć]/g,'c').replace(/š/g,'s').replace(/ž/g,'z').replace(/đ/g,'d').replace(/[^\w\s]/g,'').replace(/\s+/g,' ').trim();}
@@ -152,7 +153,7 @@ export default function DialogueSim({ award }) {
     const newHistory = [...aiHistory, { role: 'user', content: userMsg, id: Date.now() }];
     setAiHistory(newHistory);
     try {
-      const res = await fetch('/api/dialogue', {
+      const res = await apiFetch('/api/dialogue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

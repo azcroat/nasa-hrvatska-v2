@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import CroatianKnight from '../shared/CroatianKnight.jsx';
 import { speak } from '../../lib/audio.js';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 function getWeakWords() {
   try {
@@ -44,7 +45,7 @@ export default function AIStoryScreen({ goBack, award }) {
     const message = `Write a short Croatian story (4-6 sentences) using these words naturally: ${wordList.join(', ')}. Make it about life in Croatia — could be family, food, travel, daily life. Keep it at A2-B1 level. After the story, provide an English translation. Format your response as JSON: {"story": "Croatian text", "translation": "English text", "words_used": ["word1", "word2"]}`;
 
     try {
-      const res = await fetch('/api/maja', {
+      const res = await apiFetch('/api/maja', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

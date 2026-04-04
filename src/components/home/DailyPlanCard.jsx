@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { getSR, getStreak } from '../../data.jsx';
 import AppContext from '../../context/AppContext.jsx';
 import { getStyleContextForAPI } from '../../lib/learnerStyle.js';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -132,7 +133,7 @@ export default function DailyPlanCard(/** @type {any} */ { level: _level, goal: 
     setPhase('loading');
     try {
       const payload = collectPayload();
-      const res = await fetch('/api/daily-plan', {
+      const res = await apiFetch('/api/daily-plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...payload, stylePreferences: getStyleContextForAPI() }),
@@ -149,6 +150,41 @@ export default function DailyPlanCard(/** @type {any} */ { level: _level, goal: 
       setPhase('error');
     }
   }, [collectPayload]);
+
+  // When this component mounts (or remounts after SPA navigation back to home),
+  // check if the user was in the middle of a plan activity. If they returned
+  // without a page refresh, sessionStorage still has the pending index — mark done.
+  // Note: page refresh clears sessionStorage, so errored activities are NOT marked done.
+  useEffect(() => {
+    const pending = sessionStorage.getItem('nh_plan_pending_idx');
+    if (pending !== null) {
+      sessionStorage.removeItem('nh_plan_pending_idx');
+      const idx = parseInt(pending, 10);
+      if (!isNaN(idx)) {
+        markDone(idx);
+        setDone(getTodayDone());
+      }
+    }
+  }, []);
+
+  // Also catch the case where the user switches back to this browser tab
+  // without triggering a component remount (SPA stays mounted).
+  useEffect(() => {
+    function onVisible() {
+      if (document.visibilityState !== 'visible') return;
+      const pending = sessionStorage.getItem('nh_plan_pending_idx');
+      if (pending !== null) {
+        sessionStorage.removeItem('nh_plan_pending_idx');
+        const idx = parseInt(pending, 10);
+        if (!isNaN(idx)) {
+          markDone(idx);
+          setDone(getTodayDone());
+        }
+      }
+    }
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, []);
 
   useEffect(() => {
     const streakObj = getStreak();
@@ -258,8 +294,12 @@ export default function DailyPlanCard(/** @type {any} */ { level: _level, goal: 
               key={i}
               onClick={() => {
                 if (!screen || !setScr) return;
-                markDone(i);
-                setDone(getTodayDone());
+                // Store pending idx in sessionStorage — NOT localStorage.
+                // sessionStorage is cleared on page refresh, so if the target
+                // screen errors and the user refreshes, this activity is NOT
+                // wrongly marked done. It is only committed to localStorage
+                // when the user successfully returns to the home screen.
+                sessionStorage.setItem('nh_plan_pending_idx', i.toString());
                 if (sCurEx) sCurEx(act.id);
                 sessionStorage.setItem('nh_ex_start', Date.now().toString());
                 setScr(screen);

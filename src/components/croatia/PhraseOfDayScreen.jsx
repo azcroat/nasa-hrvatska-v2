@@ -301,7 +301,7 @@ export default function PhraseOfDayScreen({ goBack, award }) {
     if (playing || !phraseData) return;
     setPlaying(true);
     try {
-      const res = await fetch('/api/tts', {
+      const res = await apiFetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: phraseData.phrase, slow: false }),

@@ -7,6 +7,7 @@ import SpeakingPracticePanel from './SpeakingPracticePanel.jsx';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 import { useAndroidMicPermission } from '../../hooks/useAndroidMicPermission.js';
 import { isSpeechRecognitionSupported } from '../../lib/platform.js';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const SRSupported = isSpeechRecognitionSupported();
 
@@ -207,7 +208,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
     const tid = setTimeout(() => controller.abort(), 7000); // 7s max — never block UI
 
     try {
-      const res = await fetch("/api/pronunciation-coach", {
+      const res = await apiFetch("/api/pronunciation-coach", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ word: targetWord, spoken: transcript, score: 50, level: "B1" }),

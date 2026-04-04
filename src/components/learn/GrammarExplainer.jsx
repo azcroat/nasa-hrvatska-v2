@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { H } from "../../data.jsx";
 import { speak } from "../../lib/audio.js";
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const TOPICS = [
   { id:"gender",    icon:"🏷️", title:"Noun Gender",         level:"A1", desc:"Masculine, feminine & neuter" },
@@ -109,7 +110,7 @@ export default function GrammarExplainer({ goBack, award }) {
     setPhase("loading");
     setError(null);
     try {
-      const res = await fetch("/api/ai-chat", {
+      const res = await apiFetch("/api/ai-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -167,7 +168,7 @@ export default function GrammarExplainer({ goBack, award }) {
     setWritingResult(null);
     setWritingError(null);
     try {
-      const res = await fetch("/api/ai-chat", {
+      const res = await apiFetch("/api/ai-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

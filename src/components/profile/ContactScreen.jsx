@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const ISSUE_TYPES = [
   { id: "bug",     icon: "🐛", label: "Bug Report",      color: "#dc2626", bg: "#fef2f2", desc: "Something isn't working" },
@@ -41,7 +42,7 @@ export default function ContactScreen({ goBack, authUser, name, level, stats }) 
     }
     setError(""); setLoading(true);
     try {
-      const res = await fetch("/api/contact", {
+      const res = await apiFetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
