@@ -69,6 +69,7 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, setPlacem
     if (!name && au) setName(au.d);
     if (goal) {
       localStorage.setItem('nh_goal', goal);
+      localStorage.setItem('nh_goal_set', '1');
       localStorage.setItem('nh_goal_set_date', String(Date.now()));
     }
     if (dailyMin) localStorage.setItem('nh_daily_min', String(dailyMin));

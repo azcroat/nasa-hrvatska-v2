@@ -187,7 +187,7 @@ function App() {
     if (fp.weekXP !== undefined) { const wD=new Date();const wY=wD.getDay()||7;wD.setDate(wD.getDate()+4-wY);const wy=wD.getFullYear();const wn=Math.ceil(((wD.getTime()-new Date(wy,0,1).getTime())/86400000+1)/7);const wk=wy+'-W'+String(wn).padStart(2,'0');const lX=parseInt(localStorage.getItem('nh_week_xp_'+wk)||'0',10);localStorage.setItem('nh_week_xp_'+wk,String(Math.max(lX,fp.weekXP))); }
     // User settings — restore from Firebase so all devices share preferences
     if (fp.nh_level) localStorage.setItem('nh_level', fp.nh_level);
-    if (fp.nh_goal) localStorage.setItem('nh_goal', fp.nh_goal);
+    if (fp.nh_goal) { localStorage.setItem('nh_goal', fp.nh_goal); localStorage.setItem('nh_goal_set', '1'); }
     if (fp.nh_culture) localStorage.setItem('nh_culture', fp.nh_culture);
     if (fp.nh_placement_done) { localStorage.setItem('nh_placement_done', 'true'); localStorage.setItem('placement_done', 'true'); }
     if (fp.nh_grammar_track_done) localStorage.setItem('nh_grammar_track_done', 'true');
