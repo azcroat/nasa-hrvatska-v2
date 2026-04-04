@@ -422,6 +422,18 @@ export function getPrioritizedReviewQueue(pool) {
     }
   }
 
+  // Pre-shuffle so ties are broken randomly — JS sort is stable,
+  // so equal-priority items keep their shuffle order after sorting.
+  // Without this, words learned in sequence (e.g. January→December)
+  // would appear in the same order every session.
+  for (let i = overdue.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [overdue[i], overdue[j]] = [overdue[j], overdue[i]];
+  }
+  for (let i = dueToday.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [dueToday[i], dueToday[j]] = [dueToday[j], dueToday[i]];
+  }
   // Most overdue first; within dueToday lowest R first (hardest)
   overdue.sort((a, b) => b.daysOverdue - a.daysOverdue);
   dueToday.sort((a, b) => a.R - b.R);
