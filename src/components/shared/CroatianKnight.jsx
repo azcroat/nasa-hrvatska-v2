@@ -316,39 +316,41 @@ const KF = `
    LEGO MOVIE PRINCIPLE 5: SECONDARY PLUME MOTION
    Plume lags behind head with 0.15s phase delay
    Follow-through — keep moving after head stops
+   IMPORTANT: transform-origin is NOT animatable —
+   set it on the element style, not inside keyframes
 ═══════════════════════════════════════════════════ */
 @keyframes lk-plume-idle {
-  0%,100% { transform-origin: 60px 0px; transform: rotate(0deg) }
-  30%     { transform-origin: 60px 0px; transform: rotate(-4deg) }
-  70%     { transform-origin: 60px 0px; transform: rotate(2deg) }
+  0%,100% { transform: rotate(0deg) }
+  30%     { transform: rotate(-4deg) }
+  70%     { transform: rotate(2deg) }
 }
 @keyframes lk-plume-bounce {
-  0%,100% { transform-origin: 60px 0px; transform: rotate(0deg)    scaleY(1) }
-  22%     { transform-origin: 60px 0px; transform: rotate(-8deg)   scaleY(1.06) }
-  52%     { transform-origin: 60px 0px; transform: rotate(-12deg)  scaleY(1.10) }
-  70%     { transform-origin: 60px 0px; transform: rotate(5deg)    scaleY(0.94) }
-  88%     { transform-origin: 60px 0px; transform: rotate(-3deg)   scaleY(1.02) }
+  0%,100% { transform: rotate(0deg)   scaleY(1) }
+  22%     { transform: rotate(-8deg)  scaleY(1.06) }
+  52%     { transform: rotate(-12deg) scaleY(1.10) }
+  70%     { transform: rotate(5deg)   scaleY(0.94) }
+  88%     { transform: rotate(-3deg)  scaleY(1.02) }
 }
 @keyframes lk-plume-shake {
-  0%,100% { transform-origin: 60px 0px; transform: rotate(0deg) }
-  15%     { transform-origin: 60px 0px; transform: rotate(14deg) }
-  30%     { transform-origin: 60px 0px; transform: rotate(-14deg) }
-  45%     { transform-origin: 60px 0px; transform: rotate(10deg) }
-  60%     { transform-origin: 60px 0px; transform: rotate(-8deg) }
-  80%     { transform-origin: 60px 0px; transform: rotate(4deg) }
+  0%,100% { transform: rotate(0deg) }
+  15%     { transform: rotate(14deg) }
+  30%     { transform: rotate(-14deg) }
+  45%     { transform: rotate(10deg) }
+  60%     { transform: rotate(-8deg) }
+  80%     { transform: rotate(4deg) }
 }
 @keyframes lk-plume-march {
-  0%,50%,100% { transform-origin: 60px 0px; transform: rotate(0deg) }
-  25%         { transform-origin: 60px 0px; transform: rotate(-9deg) }
-  75%         { transform-origin: 60px 0px; transform: rotate(9deg) }
+  0%,50%,100% { transform: rotate(0deg) }
+  25%         { transform: rotate(-9deg) }
+  75%         { transform: rotate(9deg) }
 }
 @keyframes lk-plume-think {
-  0%,100% { transform-origin: 60px 0px; transform: rotate(0deg) }
-  50%     { transform-origin: 60px 0px; transform: rotate(14deg) }
+  0%,100% { transform: rotate(0deg) }
+  50%     { transform: rotate(14deg) }
 }
 @keyframes lk-plume-droop {
-  0%,100% { transform-origin: 60px 0px; transform: rotate(0deg) }
-  50%     { transform-origin: 60px 0px; transform: rotate(-14deg) translateX(-2px) }
+  0%,100% { transform: rotate(0deg) }
+  50%     { transform: rotate(-14deg) translateX(-2px) }
 }
 
 /* ═══════════════════════════════════════════════════
@@ -468,6 +470,25 @@ const KF = `
   30% { transform:translateY(-18px) translateX(6px)   rotate(120deg) scale(1.1);  opacity:1 }
   70% { transform:translateY(12px)  translateX(-4px)  rotate(280deg) scale(0.85); opacity:0.7 }
   100%{ transform:translateY(40px)  translateX(8px)   rotate(420deg) scale(0.6);  opacity:0 }
+}
+
+/* ─── Impact dust — puffs on landing squash (celebrating/victory) ── */
+@keyframes lk-dust {
+  0%   { transform: translate(0px,0px) scale(0);    opacity: 0 }
+  18%  { transform: translate(-8px,-3px) scale(1);  opacity: 0.52 }
+  100% { transform: translate(-18px,-5px) scale(0.4); opacity: 0 }
+}
+@keyframes lk-dust-r {
+  0%   { transform: translate(0px,0px) scale(0);    opacity: 0 }
+  18%  { transform: translate(8px,-3px) scale(1);   opacity: 0.52 }
+  100% { transform: translate(18px,-5px) scale(0.4); opacity: 0 }
+}
+
+/* ─── Sword sparkle — gleam on blade tip for combat/active moods ── */
+@keyframes lk-sparkle {
+  0%,65%,100% { opacity: 0;    transform: scale(0)    rotate(0deg) }
+  32%         { opacity: 0.95; transform: scale(1)    rotate(45deg) }
+  48%         { opacity: 0.55; transform: scale(0.65) rotate(90deg) }
 }
 
 /* ─── Level-based eye glow ── */
@@ -711,10 +732,8 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
     >
     {/* ── LEGO MOVIE PRINCIPLE 1: Stop-motion jitter wrapper ── */}
     {/* steps(1) snaps between positions — no smooth interpolation */}
-    <g style={isActive
-      ? { animation: 'lk-jitter 0.083s steps(1) infinite' }
-      : undefined
-    }>
+    {/* NOTE: must be a <div>, not <g> — <g> is SVG-only and invalid as HTML */}
+    <div style={{ display: 'inline-block', lineHeight: 0, ...(isActive ? { animation: 'lk-jitter 0.083s steps(1) infinite' } : {}) }}>
     <svg
       width={size}
       height={Math.round(size * 1.56)}
@@ -770,6 +789,16 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
             transformOrigin: '60px 188px',
           }}
         />
+
+        {/* Impact dust puffs — sync'd to landing squash on celebrating/victory */}
+        {(mood === 'celebrating' || mood === 'victory') && (
+          <>
+            <ellipse cx="30" cy="186" rx="7" ry="3.5" fill="rgba(180,200,220,0.50)"
+              style={{ animation: 'lk-dust 0.82s ease-out 0.68s infinite', transformOrigin: '30px 186px' }}/>
+            <ellipse cx="90" cy="186" rx="7" ry="3.5" fill="rgba(180,200,220,0.50)"
+              style={{ animation: 'lk-dust-r 0.82s ease-out 0.68s infinite', transformOrigin: '90px 186px' }}/>
+          </>
+        )}
 
         {/* ───────────── FEET ───────────── */}
         <rect rx="7" x="18" y="166" width="38" height="20"
@@ -947,6 +976,21 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
             fill="url(#lk-bl)" stroke={C.stl} strokeWidth="0.9"/>
           <line x1="103.5" y1="173" x2="103.5" y2="186"
             stroke="rgba(255,255,255,0.72)" strokeWidth="1.4"/>
+
+          {/* Sword blade gleam — star sparkle on tip for active/combat moods */}
+          {(mood === 'ready' || mood === 'marching' || mood === 'victory' || mood === 'celebrating') && (
+            <>
+              <path
+                d="M 103.5,178 L 104.4,182 L 108,182.8 L 104.4,183.6 L 103.5,187 L 102.6,183.6 L 99,182.8 L 102.6,182 Z"
+                fill="rgba(255,255,255,0.92)"
+                style={{ animation: 'lk-sparkle 2.2s ease-in-out 0.5s infinite', transformOrigin: '103.5px 182.8px' }}
+              />
+              <circle cx="103.5" cy="182.8" r="1.5"
+                fill="rgba(200,235,255,0.88)"
+                style={{ animation: 'lk-sparkle 2.2s ease-in-out 0.9s infinite', transformOrigin: '103.5px 182.8px' }}
+              />
+            </>
+          )}
         </g>
 
         {/* ───────────── NECK CONNECTOR ───────────── */}
@@ -966,6 +1010,32 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
             transformOrigin: '60px 62px',
           }}
         >
+          {/* ═══════════════════════════════════════════════════
+              LEGO MOVIE PRINCIPLE 5: PLUME — drawn behind helmet
+              Secondary animation pivots at the helmet stud (60,2).
+              transformOrigin on element — NOT inside @keyframes
+              (transform-origin is not a CSS-animatable property)
+              ═══════════════════════════════════════════════════ */}
+          <g style={{ animation: m.plume, transformOrigin: '60px 2px' }}>
+            {/* Plume body — back-swept feathered crest */}
+            <path
+              d="M 55,3 Q 44,-8 42,-28 Q 40,-50 54,-60 Q 64,-68 76,-54 Q 84,-40 78,-22 Q 74,-8 68,3 Z"
+              fill="url(#lk-plume)" stroke={C.plumeR} strokeWidth="1.4" opacity="0.94"
+            />
+            {/* Central spine / quill */}
+            <path d="M 60,3 Q 58,-18 60,-42 Q 62,-56 66,-58"
+              stroke={C.plumeP} strokeWidth="1.4" fill="none" strokeLinecap="round" opacity="0.68"/>
+            {/* Left feather ribs */}
+            <path d="M 56,2 Q 48,-12 50,-32"
+              stroke="rgba(255,96,128,0.45)" strokeWidth="1.1" fill="none" strokeLinecap="round"/>
+            {/* Right feather ribs */}
+            <path d="M 64,2 Q 72,-12 70,-32"
+              stroke="rgba(255,96,128,0.45)" strokeWidth="1.1" fill="none" strokeLinecap="round"/>
+            {/* Plastic sheen highlight */}
+            <path d="M 54,3 Q 48,-10 50,-32 Q 52,-50 56,-58"
+              stroke="rgba(255,255,255,0.38)" strokeWidth="1.6" fill="none" strokeLinecap="round"/>
+          </g>
+
           {/* LEGO head (classic yellow cylinder) */}
           <rect rx="11" x="38" y="6" width="44" height="50"
             fill="url(#lk-sk)" stroke={C.blk} strokeWidth="1.3"/>
@@ -1001,9 +1071,14 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
             <path d="M 47,40 Q 60,56 73,40"
               stroke={C.blk} strokeWidth="3.0" fill="none" strokeLinecap="round"/>
           )}
-          {(mood === 'neutral' || mood === 'ready' || mood === 'marching') && (
+          {mood === 'neutral' && (
             <line x1="51" y1="41" x2="69" y2="41"
               stroke={C.blk} strokeWidth="2.6" strokeLinecap="round"/>
+          )}
+          {(mood === 'ready' || mood === 'marching') && (
+            /* Determined smirk — slightly upturned corners for battle-ready look */
+            <path d="M 51,42 Q 60,46 69,42"
+              stroke={C.blk} strokeWidth="2.6" fill="none" strokeLinecap="round"/>
           )}
 
           {/* ─── LEGO CASTLE BUCKET VISOR HELMET ─── */}
@@ -1117,24 +1192,24 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
             />
           )}
 
-          {/* Level 76+: Gold shoulder accent bands */}
-          {lvlCfg.goldBands && (
-            <>
-              <rect rx="3" x="26" y="64" width="68" height="5" fill="url(#lk-gdV)" opacity="0.45"
-                style={{ animation: 'lk-sheen 2.5s ease-in-out infinite' }}/>
-              <rect rx="3" x="26" y="113" width="68" height="5" fill="url(#lk-gdV)" opacity="0.4"
-                style={{ animation: 'lk-sheen 3.0s ease-in-out .8s infinite' }}/>
-            </>
-          )}
-
         </g>
         {/* ── end head group ── */}
+
+        {/* Level 76+: Gold shoulder accent bands — on torso, not in head group */}
+        {lvlCfg.goldBands && (
+          <>
+            <rect rx="3" x="26" y="64" width="68" height="5" fill="url(#lk-gdV)" opacity="0.45"
+              style={{ animation: 'lk-sheen 2.5s ease-in-out infinite' }}/>
+            <rect rx="3" x="26" y="113" width="68" height="5" fill="url(#lk-gdV)" opacity="0.4"
+              style={{ animation: 'lk-sheen 3.0s ease-in-out .8s infinite' }}/>
+          </>
+        )}
 
       </g>
       {/* ── end main figure group ── */}
 
     </svg>
-    </g>
+    </div>
     {/* ── end jitter wrapper ── */}
     </motion.div>
   );
