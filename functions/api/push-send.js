@@ -111,7 +111,7 @@ export async function onRequestPost({ request, env }) {
 
   // CORS check (allow same-origin calls and cron secret callers with no origin)
   if (origin && !isAllowedOrigin(origin, isDev)) {
-    return new Response('Forbidden', { status: 403 });
+    return new Response(JSON.stringify({ error: 'forbidden' }), { status: 403, headers: corsHeaders(origin) });
   }
 
   // Rate-limit: generous since only trusted callers should reach here
@@ -126,7 +126,7 @@ export async function onRequestPost({ request, env }) {
   // Auth check
   const authorized = await isAuthorized(request, env);
   if (!authorized) {
-    return new Response('Unauthorized', { status: 401, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: corsHeaders(origin) });
   }
 
   if (!env.PUSH_SUBSCRIPTIONS) {

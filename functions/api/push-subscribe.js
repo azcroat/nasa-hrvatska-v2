@@ -31,7 +31,7 @@ export async function onRequestPost({ request, env }) {
   const isDev  = env.ENVIRONMENT !== 'production';
 
   if (!isAllowedOrigin(origin, isDev)) {
-    return new Response('Forbidden', { status: 403 });
+    return new Response(JSON.stringify({ error: 'forbidden' }), { status: 403, headers: corsHeaders(origin) });
   }
 
   const allowed = await checkRateLimit(request, 10); // 10/min — subscribe is rare
@@ -46,7 +46,7 @@ export async function onRequestPost({ request, env }) {
   const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
   const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
   if (FIREBASE_PROJECT_ID && !uid) {
-    return new Response('Unauthorized', { status: 401, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: corsHeaders(origin) });
   }
 
   if (!env.PUSH_SUBSCRIPTIONS) {
@@ -59,12 +59,12 @@ export async function onRequestPost({ request, env }) {
 
   const ct = request.headers.get('content-type') || '';
   if (!ct.includes('application/json')) {
-    return new Response('Invalid content type', { status: 400, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'invalid_content_type' }), { status: 400, headers: corsHeaders(origin) });
   }
 
   let body;
   try { body = await request.json(); }
-  catch { return new Response('Invalid JSON', { status: 400, headers: corsHeaders(origin) }); }
+  catch { return new Response(JSON.stringify({ error: 'invalid_json' }), { status: 400, headers: corsHeaders(origin) }); }
 
   const { subscription, streak = 0, name = '' } = body;
   if (!subscription?.endpoint) {

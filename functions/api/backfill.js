@@ -109,18 +109,18 @@ export async function onRequestPost(context) {
 
   // CORS — allow requests from the app and from curl (empty origin)
   if (origin && !isAllowedOrigin(origin, isDev)) {
-    return new Response('Forbidden', { status: 403, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'forbidden' }), { status: 403, headers: corsHeaders(origin) });
   }
 
   // Parse body
   let body;
   try { body = await request.json(); }
-  catch { return new Response('Invalid JSON', { status: 400 }); }
+  catch { return new Response(JSON.stringify({ error: 'invalid_json' }), { status: 400, headers: { 'Content-Type': 'application/json' } }); }
 
   // Auth — must supply the CRON_SECRET
   const CRON_SECRET = env.CRON_SECRET;
   if (!CRON_SECRET || body.secret !== CRON_SECRET) {
-    return new Response('Unauthorized', { status: 401 });
+    return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
   }
 
   // Config

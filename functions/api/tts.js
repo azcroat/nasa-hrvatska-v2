@@ -160,7 +160,7 @@ export async function onRequestPost(context) {
 
   const allowed = await checkRateLimit(request, 60);
   if (!allowed) {
-    return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), { status: 429, headers: corsHeaders(origin) });
   }
 
   const ELEVENLABS_KEY = env.ELEVENLABS_API_KEY;

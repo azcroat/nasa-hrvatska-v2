@@ -123,7 +123,7 @@ export async function onRequestGet(context) {
 
   const allowed = await checkRateLimit(request, 10);
   if (!allowed) {
-    return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), { status: 429, headers: corsHeaders(origin) });
   }
 
   if (!ANTHROPIC_KEY) return err(500, "AI_KEY_MISSING", origin);

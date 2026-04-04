@@ -107,7 +107,7 @@ export async function onRequestPost({ request, env }) {
 
   const allowed = await checkRateLimit(request, 20);
   if (!allowed) {
-    return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), { status: 429, headers: corsHeaders(origin) });
   }
 
   const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';

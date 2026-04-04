@@ -92,14 +92,14 @@ export async function onRequestPost({ request, env }) {
 
   const allowed = await checkRateLimit(request, 20);
   if (!allowed) {
-    return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), { status: 429, headers: corsHeaders(origin) });
   }
 
   // Auth required
   const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
   const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
   if (!uid) {
-    return new Response('Unauthorized', { status: 401, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: corsHeaders(origin) });
   }
 
   // Daily AI quota check (cost 1)

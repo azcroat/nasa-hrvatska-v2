@@ -97,7 +97,7 @@ export async function onRequestPost(context) {
 
   // Allow same-origin sendBeacon (no Origin header) or known origins
   if (origin && !isAllowedOrigin(origin, isDev)) {
-    return new Response('Forbidden', { status: 403, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'forbidden' }), { status: 403, headers: corsHeaders(origin) });
   }
 
   // 30 reports/min per IP — prevents log-flood abuse

@@ -304,17 +304,17 @@ export async function onRequestPost({ request, env }) {
   // Internal-only: require CRON_SECRET
   const secret = request.headers.get('x-cron-secret') || '';
   if (!env.CRON_SECRET || !timingSafeEqual(secret, env.CRON_SECRET)) {
-    return new Response('Unauthorized', { status: 401 });
+    return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
   }
 
   const ct = request.headers.get('content-type') || '';
   if (!ct.includes('application/json')) {
-    return new Response('Invalid content type', { status: 400 });
+    return new Response(JSON.stringify({ error: 'invalid_content_type' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   }
 
   let body;
   try { body = await request.json(); }
-  catch { return new Response('Invalid JSON', { status: 400 }); }
+  catch { return new Response(JSON.stringify({ error: 'invalid_json' }), { status: 400, headers: { 'Content-Type': 'application/json' } }); }
 
   const { subscription, streak = 0, name = '', daysSince = 0 } = body;
   if (!subscription?.endpoint) {
