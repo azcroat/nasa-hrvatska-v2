@@ -269,7 +269,9 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
           `${finalScore}/${questions.length} this time. Every wrong answer is a memory your brain is building. 📐`,
           300
         );
-        if (typeof award === 'function') award(finalScore * XP_PER_CORRECT + XP_COMPLETION_BONUS, true);
+        // Use unique questions cleared (not total correct incl. retries) for fair XP
+        const uniqueCleared = clearedIndicesRef.current.size;
+        if (typeof award === 'function') award(uniqueCleared * XP_PER_CORRECT + XP_COMPLETION_BONUS, true);
         onComplete(questions, finalScore);
       } else {
         setQTransition(true);

@@ -60,7 +60,7 @@ function calculatePlacement(levelCorrect) {
   return placed;
 }
 
-export default function PlacementTest({ onComplete }) {
+export default function PlacementTest({ onComplete, onCancel }) {
   const [showIntro, setShowIntro] = useState(true);
   const [qi, setQi] = useState(0);
   const [selected, setSelected] = useState(/** @type {number|null} */ (null));
@@ -244,6 +244,20 @@ export default function PlacementTest({ onComplete }) {
         }}>
           Level {q.level} — {LEVEL_NAMES[q.level]}
         </div>
+        {onCancel && (
+          <button
+            onClick={onCancel}
+            aria-label="Exit placement test"
+            style={{
+              background: 'none', border: '1px solid var(--card-b)',
+              borderRadius: 8, padding: '4px 10px',
+              fontSize: 12, color: 'var(--subtext)', cursor: 'pointer',
+              fontFamily: 'inherit', flexShrink: 0,
+            }}
+          >
+            ✕ Exit
+          </button>
+        )}
       </div>
       <div style={{
         fontSize: 10, color: 'rgba(255,255,255,0.5)',

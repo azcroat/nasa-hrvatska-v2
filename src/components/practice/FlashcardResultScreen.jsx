@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
 import CroatianKnight from '../shared/CroatianKnight';
 import { markPracticed } from '../../hooks/useNotifications.js';
+import { useApp } from '../../context/AppContext.jsx';
 
 export default function FlashcardResultScreen({ activePool, known, missed, onGoBack, onStudyMissed }) {
+  const { setScr } = useApp();
   // Mark practiced + campaign quest uskrs_q2 ("Practice family vocab") done on first flashcard completion
   useEffect(() => {
     markPracticed();
@@ -68,13 +70,21 @@ export default function FlashcardResultScreen({ activePool, known, missed, onGoB
         )}
       </div>
       <div style={{display:"flex",flexDirection:"column",gap:10,padding:"0 0 20px"}}>
+        {/* Primary CTA: always show next lesson path forward */}
+        <button
+          className="b bp"
+          style={{width:"100%"}}
+          onClick={() => setScr('learnpath')}
+        >
+          📚 Continue — Next Lesson →
+        </button>
         {missed.length > 0 && (
-          <button className="b bp" style={{width:"100%"}} onClick={() => onStudyMissed(missed)}>
+          <button className="b bg" style={{width:"100%"}} onClick={() => onStudyMissed(missed)}>
             📖 Study {missed.length} missed {missed.length === 1 ? "card" : "cards"} again
           </button>
         )}
-        <button className={missed.length > 0 ? "b bg" : "b bp"} style={{width:"100%"}} onClick={onGoBack}>
-          {missed.length === 0 ? "Continue →" : "← Done for now"}
+        <button className="b bg" style={{width:"100%",fontSize:'var(--text-sm)'}} onClick={onGoBack}>
+          ← Back
         </button>
       </div>
     </div>

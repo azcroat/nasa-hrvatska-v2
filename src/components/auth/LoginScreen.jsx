@@ -150,7 +150,7 @@ export default function LoginScreen({
                 textDecoration:'underline', textUnderlineOffset:3,
               }}
             >
-              Continue as Guest — save progress anytime
+              Continue as Guest — progress saved on this device only
             </button>
           </div>
         )}
