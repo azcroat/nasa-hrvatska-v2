@@ -40,13 +40,21 @@ function StreakRing({ streak }) {
 
 const LEVEL_LABELS = { A1: 'Beginner', A2: 'Elementary', B1: 'Intermediate', B2: 'Upper-Intermediate', C1: 'Advanced' };
 
+function getCEFRStr(numLevel) {
+  if (numLevel <= 2) return 'A1';
+  if (numLevel <= 4) return 'A2';
+  if (numLevel <= 6) return 'B1';
+  if (numLevel <= 8) return 'B2';
+  return 'C1';
+}
+
 export default function DesktopPanel() {
-  const { stats } = useStats();
+  const { stats, level: numLevel } = useStats();
   const { setTab } = useApp();
 
-  const streak = stats?.str ?? 0;
+  const streak = stats?.streak ?? 0;
   const xp = stats?.xp ?? 0;
-  const level = stats?.lv ?? 'A1';
+  const level = getCEFRStr(numLevel ?? 1);
 
   // Stub leaderboard — in a real app this would be a live Firestore query
   const leaderboard = useMemo(() => [
