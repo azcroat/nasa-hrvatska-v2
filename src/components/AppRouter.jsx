@@ -393,7 +393,7 @@ export default function AppRouter(props) {
           </div>}
         </div>
         {// ═══ TAB: HOME ═══
-        tab==="home"&&<div key="tab-home" className={tabSlideClass}><ScreenErrorBoundary name="HomeTab"><HomeTab
+        tab==="home"&&<div key="tab-home" className={tabSlideClass}><React.Suspense fallback={null}><ScreenErrorBoundary name="HomeTab"><HomeTab
           dchlA={dchlA} sDchlA={sDchlA} dchlSl={dchlSl} sDchlSl={sDchlSl}
           getWeekStats={getWeekStats}
           setTab={(id)=>{const VALID_TABS={home:1,learn:1,practice:1,croatia:1,profile:1};if(VALID_TABS[id])setTab(id);else setScr(id);}} sCurEx={sCurEx}
@@ -405,32 +405,32 @@ export default function AppRouter(props) {
           isNewUserWindow={isNewUserWindow}
           daysSinceJoin={daysSinceJoin}
           resumeLesson={resumeLesson}
-        /></ScreenErrorBoundary></div>}
+        /></ScreenErrorBoundary></React.Suspense></div>}
         {// ═══ TAB: LEARN ═══
-        tab==="learn"&&<div key="tab-learn" className={tabSlideClass}><ScreenErrorBoundary name="LearnTab"><LearnTab
+        tab==="learn"&&<div key="tab-learn" className={tabSlideClass}><React.Suspense fallback={null}><ScreenErrorBoundary name="LearnTab"><LearnTab
           allCats={allCats} icons={icons} sCurEx={sCurEx}
           sh={_sh} sLt={sLt} sLi={sLi} sLx={sLx} sLs={sLs} sLp={sLp} sLa={sLa} sLsl={sLsl}
           sGl={sGl} sGp={sGp} sGx={sGx} sGs={sGs} sGa={sGa} sGsl={sGsl}
           launchPathItem={launchPathItem}
           launchAnimLesson={launchAnimLesson}
-        /></ScreenErrorBoundary></div>}
+        /></ScreenErrorBoundary></React.Suspense></div>}
         {// ═══ TAB: PRACTICE ═══
-        tab==="practice"&&<div key="tab-practice" className={tabSlideClass}><ScreenErrorBoundary name="PracticeTab"><PracticeTab
+        tab==="practice"&&<div key="tab-practice" className={tabSlideClass}><React.Suspense fallback={null}><ScreenErrorBoundary name="PracticeTab"><PracticeTab
           allCats={allCats} sh={_sh} sCurEx={sCurEx}
           onLaunchQuiz={launchMcGame} onLaunchFlash={launchFlashcards}
           onLaunchListen={launchListening} onLaunchMatch={launchMatch}
           onLaunchSpeaking={launchSpeaking}
-        /></ScreenErrorBoundary></div>}
+        /></ScreenErrorBoundary></React.Suspense></div>}
         {// ═══ TAB: CROATIA ═══
-        tab==="croatia"&&<div key="tab-croatia" className={tabSlideClass}><ScreenErrorBoundary name="CroatiaTab"><CroatiaTab
+        tab==="croatia"&&<div key="tab-croatia" className={tabSlideClass}><React.Suspense fallback={null}><ScreenErrorBoundary name="CroatiaTab"><CroatiaTab
           sCurEx={sCurEx}
-        /></ScreenErrorBoundary></div>}
+        /></ScreenErrorBoundary></React.Suspense></div>}
         {// ═══ TAB: PROFILE ═══
-        tab==="profile"&&<div key="tab-profile" className={tabSlideClass}><ScreenErrorBoundary name="ProfileTab"><ProfileTab
+        tab==="profile"&&<div key="tab-profile" className={tabSlideClass}><React.Suspense fallback={null}><ScreenErrorBoundary name="ProfileTab"><ProfileTab
           syncReady={_syncReady} onSyncNow={doSyncNow}
           onOpenLeaderboard={() => setScr('leaderboard_weekly')}
           onOpenFriends={() => setScr('family_group')}
-        /></ScreenErrorBoundary></div>}
+        /></ScreenErrorBoundary></React.Suspense></div>}
       </div>}
       {currentScreen==="modal"&&<ScreenErrorBoundary key="modal" name="modal"><ModalScreen goBack={goBack} award={award} setSt={setStats} /></ScreenErrorBoundary>}
       {currentScreen==="history"&&<ScreenErrorBoundary key="history" name="history"><CroatiaHistoryScreen goBack={goBack} /></ScreenErrorBoundary>}

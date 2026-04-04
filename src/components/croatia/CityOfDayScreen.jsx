@@ -21,7 +21,7 @@ const CITY_PHOTOS = {
   // Murter — Kornati gateway island, Dalmatia (Šibenik-Knin county)
   murter:       'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=85&fit=crop&auto=format',
   trogir:       'https://images.unsplash.com/photo-1588354918778-9e9f05701f90?w=800&q=85&fit=crop&auto=format',
-  omis:         'https://images.unsplash.com/photo-1586351012937-aca69ef41261?w=800&q=85&fit=crop&auto=format',
+  omis:         'https://images.unsplash.com/photo-1698785820846-35f06c39ced7?w=800&q=85&fit=crop&auto=format',
   brac:         'https://images.unsplash.com/photo-1565116175827-965e73c9be0e?w=800&q=85&fit=crop&auto=format',
   vis:          'https://images.unsplash.com/photo-1601409434818-c2e87a98cac3?w=800&q=85&fit=crop&auto=format',
   // Istria & Kvarner

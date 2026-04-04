@@ -8,7 +8,7 @@ export default function ReadingScreen({
   sRph, sRqi, sRsc, sRa, sRsl, sHw,
   goBack, setScr, award, setSt,
 }) {
-  const { writeDelta } = useStats();
+  const { stats, writeDelta } = useStats();
   const resultFired = useRef(false);
   const [passageOpen, setPassageOpen] = useState(true);
 
@@ -96,11 +96,18 @@ export default function ReadingScreen({
             } else {
               if (resultFired.current) return;
               resultFired.current = true;
+              const readKey = 'reading_' + (rp.title || 'passage').replace(/\s+/g, '_');
+              const alreadyDone = stats.vs?.includes(readKey);
               if (typeof award === 'function') award(Math.round((rsc / rp.qs.length) * 35) + 10);
               markQuest('reading');
               if (rsc === rp.qs.length) markQuest('perfect');
-              setSt(s => ({...s, rc: s.rc+1}));
-              writeDelta({rc:1});
+              setSt(s => {
+                const done = s.vs?.includes(readKey);
+                if (done) return { ...s, rc: (s.rc || 0) + 1 };
+                return { ...s, rc: (s.rc || 0) + 1, lc: (s.lc || 0) + 1, vs: [...(s.vs || []), readKey] };
+              });
+              if (alreadyDone) writeDelta({ rc: 1 });
+              else writeDelta({ rc: 1, lc: 1, vs: [readKey] });
               sRph("result");
             }
           }}>{rqi < rp.qs.length-1 ? "Next →" : "Results"}</button>}

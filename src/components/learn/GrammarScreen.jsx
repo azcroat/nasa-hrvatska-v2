@@ -6,6 +6,18 @@ import { markQuest } from '../../lib/quests.js';
 import { logError } from '../../lib/learnerErrors.js';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 
+// Local Fisher-Yates shuffle with Math.random() — ensures different question
+// order every visit, unlike the date-seeded global sh() which produces the
+// same sequence all day (causes Grammar 1 and Grammar 2 to show identical order).
+function _shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 const GRAMMAR_ENTRY_TIPS = [
   { mood: 'thinking',    text: 'Read the rule first — understand the *why*, and the practice questions answer themselves. 📐' },
   { mood: 'ready',       text: 'Gramatika! Master this one pattern and dozens of sentences unlock instantly. ⚔️' },
@@ -49,9 +61,9 @@ export default function GrammarScreen({
    
   const shuffledQs = useMemo(() => {
     if (!gl?.qs?.length) return [];
-    return sh([...gl.qs]).map(q => {
+    return _shuffle(gl.qs).map(q => {
       const correctText = q.o[q.c];
-      const shuffledOpts = sh([...q.o]);
+      const shuffledOpts = _shuffle(q.o);
       return { ...q, o: shuffledOpts, c: shuffledOpts.indexOf(correctText) };
     });
   }, [gl]);

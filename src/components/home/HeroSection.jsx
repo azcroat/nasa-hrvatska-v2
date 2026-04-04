@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { lXP, nXP, earnFreeze, getStreakFreezes, LEVEL_NARRATIVE, speak } from '../../data.jsx';
-import { getDailyXP, DAILY_XP_GOAL, getXPBoost, activateXPBoost, XP_BOOST_COST } from '../../lib/appUtils.js';
+import { getDailyXP, DAILY_XP_GOAL, getXPBoost, activateXPBoost, canActivateXPBoost, XP_BOOST_COST } from '../../lib/appUtils.js';
 import { useTranslator } from '../../hooks/useTranslator.js';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
@@ -49,6 +49,18 @@ const QUICK_GRAMMAR = [
   { mood: 'thinking', text: 'Clitic pronouns always land in second position. "Volim te" — never "Te volim." Your brain resists at first. Repetition wins.' },
   { mood: 'thinking', text: '"Grad" is masculine, "zemlja" is feminine, "more" is neuter. Adjectives change form to match. The patterns click faster than you think.' },
   { mood: 'thinking', text: 'Infinitives end in -ti or -ći. "Ići" (go), "raditi" (work), "moći" (be able). These three roots unlock hundreds of verb forms.' },
+  { mood: 'thinking', text: 'Verb aspect in practice: "Pišem pismo" means I\'m in the middle of writing. "Napisao sam pismo" means I finished it. Two verbs, one action, different lens.' },
+  { mood: 'thinking', text: 'Croatian cases signal meaning, not word order. "Pas grize čovjeka" and "Čovjeka grize pas" both mean the dog bites the man — the endings tell you who does what.' },
+  { mood: 'thinking', text: 'The reflexive "se" turns many verbs into themselves: "zvati" (to call someone) vs "zvati se" (to call oneself, i.e. to be named). Your name: zovem se.' },
+  { mood: 'thinking', text: 'Future tense: "ću + infinitive." Ja ću raditi = I will work. Short forms: radit ću. Both correct — and both sound Croatian.' },
+  { mood: 'thinking', text: 'Negation in Croatian: "ne" + verb. "Ne govorim" (I don\'t speak). But with "nema" (there is no), the noun shifts to genitive: "Nema vremena." No time.' },
+  { mood: 'thinking', text: 'Conditional mood: "bih, bi, bi, bismo, biste, bi." Ja bih volio — I would like. Essential for polite requests. Softer than the imperative.' },
+  { mood: 'thinking', text: 'Diminutives abound in Croatian: "brat" (brother) → "bratić" (little brother / cousin). "Kuća" → "kućica". Warmth is built into the grammar.' },
+  { mood: 'thinking', text: 'The genitive of negation: when a verb is negated, its object shifts from accusative to genitive. "Vidim psa" → "Ne vidim psa." Watch the ending change.' },
+  { mood: 'thinking', text: '"Moći" (can/be able) is one of the most useful verbs. Mogu, možeš, može, možemo, možete, mogu. Learn this conjugation and open 100 sentences.' },
+  { mood: 'thinking', text: 'Adjective agreement: every adjective matches its noun in gender, case, and number. "Lijep grad" (masc.) vs "Lijepa žena" (fem.) vs "Lijepo more" (neut.).' },
+  { mood: 'thinking', text: 'Word order is flexible but the clitic rule is iron: the clitic cluster always lands after the first stressed unit. "Marko mu je dao knjigu" — not "Marko je mu dao."' },
+  { mood: 'thinking', text: 'Vocative case: used when calling or addressing. "Marko!" becomes "Marko!" but "prijatelj" becomes "prijatelju!" and "doktore!" Rules, but learnable ones.' },
 ];
 const QUICK_CULTURE = [
   { mood: 'happy', text: '"Cravat" comes from "Hrvat" — Croatian soldiers introduced the necktie to Europe in the 17th century. Croatia gave the world fashion.' },
@@ -56,6 +68,18 @@ const QUICK_CULTURE = [
   { mood: 'happy', text: 'Hvar gets 2,726 sunshine hours per year — more than Barcelona. The lavender fields bloom in June.' },
   { mood: 'happy', text: 'Nikola Tesla was born in Smiljan, Croatia. He rewired how the entire world uses electricity.' },
   { mood: 'happy', text: 'The Za Križen procession in Hvar has run every year for 500 years — torchlight, 8 villages, all night. One of Europe\'s oldest living traditions.' },
+  { mood: 'happy', text: 'Dalmatian dogs are named after Dalmatia. One coastal region gave a breed to the entire world. Small country, vast influence.' },
+  { mood: 'happy', text: 'Klapa — unaccompanied Dalmatian folk harmony — is UNESCO intangible heritage. It sounds like the sea, the stone, and 500 years of memory.' },
+  { mood: 'happy', text: 'The Croatian city of Dubrovnik was founded in the 7th century. It maintained independence for 450 years through diplomacy alone. Wit beat swords.' },
+  { mood: 'happy', text: 'Marco Polo was (probably) born on Korčula. The man who connected East and West may have spoken Croatian as his first language.' },
+  { mood: 'happy', text: 'The Baška Tablet (1100 AD) is one of the oldest inscriptions in Croatian Glagolitic script. Carved in stone — language outlasting empires.' },
+  { mood: 'happy', text: 'Rakija is the national spirit — lozovača (grape), šljivovica (plum), travarica (herb). To share rakija is to share trust.' },
+  { mood: 'happy', text: 'The Sinjska Alka — a jousting competition in Sinj — has run every August since 1715. It celebrates defeating the Ottomans. UNESCO heritage.' },
+  { mood: 'happy', text: 'Ivan Meštrović is considered Croatia\'s greatest sculptor. His work stands in the Vatican, in Washington D.C., and across the Croatian coast.' },
+  { mood: 'happy', text: 'The White Guard in Dubrovnik and Split — dressed identically so no opponent can know which family is which. Equality through uniform tradition.' },
+  { mood: 'happy', text: 'Croatia has 8 UNESCO World Heritage Sites — Diocletian\'s Palace, Dubrovnik\'s Old City, Plitvice, Šibenik cathedral, and more. Per capita, remarkable.' },
+  { mood: 'happy', text: 'The Adriatic coast has over 1,200 islands. Fewer than 50 are permanently inhabited. The rest are wilderness, pine, and sea.' },
+  { mood: 'happy', text: 'The word "dalmatinac" means someone with an unshakeable connection to the sea and stone. Not just geography — a state of soul.' },
 ];
 const QUICK_MOTIVATE = [
   { mood: 'encouraged', text: 'Polako, ali sigurno — slowly but surely. Every session compounds. You\'re not where you started.' },
@@ -63,6 +87,18 @@ const QUICK_MOTIVATE = [
   { mood: 'ready',      text: 'Janica Kostelić broke her leg twice and still won four Olympic golds. A setback doesn\'t end the story.' },
   { mood: 'happy',      text: '5 million Croatian speakers worldwide. With every session you get measurably closer to joining them.' },
   { mood: 'encouraged', text: 'Svaki dan po malo — a little every day. Fluency isn\'t a single moment. It\'s an accumulation. Today just added to yours.' },
+  { mood: 'victory',    text: 'Goran Ivanišević was ranked 125th in the world and got a wildcard into Wimbledon 2001. He won the whole thing. Show up anyway.' },
+  { mood: 'ready',      text: 'The hardest part of learning any language isn\'t grammar or vocabulary. It\'s the day you don\'t feel like showing up. That\'s today\'s test.' },
+  { mood: 'encouraged', text: 'Svaka čast — respect is earned. Every lesson you complete earns a little more. Keep going.' },
+  { mood: 'happy',      text: 'The Croatian word for practice is "vježba." You\'re doing it right now. Vježbaj svaki dan — practice every day.' },
+  { mood: 'victory',    text: 'Dražen Petrović became one of the best basketball players in history playing in Zagreb. Local roots, world-class results. Same principle applies here.' },
+  { mood: 'encouraged', text: 'Language learning has a long plateau and a sudden cliff. You\'re climbing. The cliff is closer than it looks.' },
+  { mood: 'ready',      text: '"Tko ne riskira, ne profitira." Who doesn\'t risk, doesn\'t gain. Speak imperfectly — that\'s how you get better.' },
+  { mood: 'happy',      text: 'Your first real conversation in Croatian will feel like lightning. Every word you learn today is one more in the bank for that moment.' },
+  { mood: 'encouraged', text: 'Marko Polo left Korčula and mapped the world. You\'re mapping a language. Both journeys start with a single step — or word.' },
+  { mood: 'victory',    text: 'The Croatian national team finished 2nd at the 2018 World Cup — population of 4 million. Punch above your weight. Learn the language.' },
+  { mood: 'ready',      text: 'Hajde! The word has no perfect English translation. It\'s forward momentum. Let\'s go. Come on. Now. That energy, every day.' },
+  { mood: 'encouraged', text: 'Repetition isn\'t failure. It\'s the technique. Every master of Croatian you\'ve ever heard reviewed the same words fifty times before they stuck.' },
 ];
 const CONTEXTUAL_POOL = [
   { mood: 'happy',      text: '"Cravat" — the necktie — comes from "Hrvat" (Croatian). You already gave the world something. Now take the language back.' },
@@ -105,7 +141,7 @@ function getDailyScene() {
   return HERO_SCENES[dayOfYear % HERO_SCENES.length];
 }
 
-function getKnightGreeting(st, streakCount, level) {
+function getKnightGreeting(st, streakCount, level, practicedToday = false) {
   const hour = new Date().getHours();
   const day  = new Date().getDay();
   const xp   = st?.xp || 0;
@@ -122,7 +158,8 @@ function getKnightGreeting(st, streakCount, level) {
     { mood: 'encouraged', text: 'Nema veze. Every serious learner has gaps. The difference is: they showed back up. Your Croatian is still in there.' },
     { mood: 'encouraged', text: 'Janica Kostelić broke her leg twice and still won four Olympic golds. Your streak broke. Come back and earn it again.' },
   ]);
-  if (hour >= 21 && streakCount > 0) return _pick([
+  // Only nag about streak expiry if the user hasn't already practiced today
+  if (hour >= 21 && streakCount > 0 && !practicedToday) return _pick([
     { mood: 'encouraged', text: `Pazi! Your streak expires at midnight. One lesson — even five minutes — keeps the fire alive. Don't let it die tonight.` },
     { mood: 'ready',      text: `One lesson before bed. That's all it takes. ${streakCount} days — too valuable to lose tonight.` },
   ]);
@@ -282,7 +319,7 @@ export default function HeroSection({
   const _mascot = getMascotMessage({ streak: streak.count, level, st, comebackBonus, allQuestsDone });
 
   // ── Knight speech state ───────────────────────────────────────────────────
-  const [greeting, setGreeting] = useState(() => getKnightGreeting(st, streak.count, level));
+  const [greeting, setGreeting] = useState(() => getKnightGreeting(st, streak.count, level, streak.last === today));
   const [showTranslate, setShowTranslate] = useState(false);
   const { tDir, setTDir, tIn, setTIn, tOut, setTOut, tL, doTr } = useTranslator();
   const poolIdxRef  = useRef(-1);
@@ -774,6 +811,11 @@ export default function HeroSection({
                 onClick={() => {
                   if (st.xp < XP_BOOST_COST) {
                     setBoostMsg(`Need ${XP_BOOST_COST} XP to activate boost`);
+                    setTimeout(() => setBoostMsg(''), 3000);
+                    return;
+                  }
+                  if (!canActivateXPBoost()) {
+                    setBoostMsg('Boost available once per 24 hours');
                     setTimeout(() => setBoostMsg(''), 3000);
                     return;
                   }

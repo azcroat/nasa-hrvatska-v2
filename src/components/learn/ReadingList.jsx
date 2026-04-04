@@ -42,7 +42,7 @@ export default function ReadingList({ setScr, sRp, sRph, sRqi, sRsc, sRa, sRsl, 
             </div>
             {passages.map((p, i) => (
               <div key={i} className="tc"
-                onClick={() => { sRp(p); sRph("read"); sRqi(0); sRsc(0); sRa(false); sRsl(-1); sHw(null); setScr("reading"); sCurEx("reading"); }}
+                onClick={() => { sRp(p); sRph("read"); sRqi(0); sRsc(0); sRa(false); sRsl(-1); sHw(null); setScr("reading"); sCurEx("reading_" + (p.title || 'passage').replace(/\s+/g, '_')); }}
                 style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 10 }}>
                 <div style={{ fontSize: 28 }}>📄</div>
                 <div>

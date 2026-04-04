@@ -117,6 +117,11 @@ export function useAward({ curEx, stats, setStats, writeDelta }: { curEx: string
 
     const _serverToday = await _getServerDateStr();
     const sr = updateStreak(_serverToday);
+    // Sync stats.streak so UI reflects the updated streak count immediately.
+    // The first setStats() call (above) reads getStreak() before updateStreak()
+    // runs, so stats.streak may be stale. This second call corrects it after
+    // updateStreak() has written the authoritative value to localStorage.
+    setStats((s: Stats) => ({ ...s, streak: sr.count }));
     const restoredCount = applyStreakEarnBack();
     if (restoredCount > 0) { setTimeout(() => { setStreakRestoredCount(restoredCount); setTimeout(() => setStreakRestoredCount(0), 5000); }, 1000); }
     else { const eb = getStreakEarnBack(); if (eb && eb.lc === 1) { setEarnBackPrompt({ prev: eb.prev }); setTimeout(() => setEarnBackPrompt(null), 8000); } }

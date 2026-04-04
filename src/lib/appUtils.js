@@ -84,9 +84,20 @@ export function getXPBoost() {
   return { active: false, expiresAt: 0, msRemaining: 0 };
 }
 
+export function canActivateXPBoost() {
+  try {
+    const last = parseInt(localStorage.getItem('nh_xp_boost_last_activated') || '0', 10);
+    return Date.now() - last >= 24 * 60 * 60 * 1000; // one activation per 24 hours
+  } catch { return true; }
+}
+
 export function activateXPBoost() {
-  const expires = Date.now() + XP_BOOST_DURATION_MS;
-  try { localStorage.setItem('nh_xp_boost_expires', String(expires)); } catch {}
+  const now = Date.now();
+  const expires = now + XP_BOOST_DURATION_MS;
+  try {
+    localStorage.setItem('nh_xp_boost_expires', String(expires));
+    localStorage.setItem('nh_xp_boost_last_activated', String(now));
+  } catch {}
   return expires;
 }
 
