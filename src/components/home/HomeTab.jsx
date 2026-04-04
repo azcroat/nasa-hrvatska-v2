@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { LEARN_PATH, getStreak, getDailyChallenge, speak, preloadAudio, DAILY_QUESTS, getActiveCampaign, getCityOfDay, incrementCulture, getDueReviews, getSR, getProverbOfDay, getHistFact } from '../../data.jsx';
+import { LEARN_PATH, getStreak, getDailyChallenge, speak, preloadAudio, DAILY_QUESTS, getActiveCampaign, getCityOfDay, incrementCulture, getDueReviews, getSR, getProverbOfDay, getHistFact, V } from '../../data.jsx';
 import { getWordOfDay } from '../../lib/wordOfDay.js';
 import { PHRASE_OF_DAY_POOL as PHRASES_365 } from '../../data/daily-content.js';
 import { weekKey, localDateStr } from '../../lib/dateUtils.js';
@@ -106,7 +106,7 @@ export default function HomeTab({
   daysSinceJoin = null,
   resumeLesson = null,
 }) {
-  const { setScr, doSignUp } = useApp();
+  const { setScr, doSignUp, launchSpeaking, launchFlashcards } = useApp();
   const { level, stats: st, award } = useStats();
   const dc = useMemo(() => getDailyChallenge(), []);
    
@@ -777,8 +777,17 @@ export default function HomeTab({
             questsDone={questsDone}
             allQuestsDone={allQuestsDone}
             onQuestStart={(questId, screen) => {
-              if (questId === 'grammar' || questId === 'grammar2') {
+              if (questId === 'speak' || questId === 'speak2') {
+                // launchSpeaking requires an items array — setScr('speaking') alone leaves sw=null → blank screen
+                const pool = (_allCats || []).flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
+                const items = _sh(pool).slice(0, 6);
+                launchSpeaking(items.length ? items : [['Dobar dan', 'Good day', 'DOH-bar dahn']]);
+              } else if (questId === 'grammar' || questId === 'grammar2') {
                 launchPathItem({ go: 'grammar' });
+              } else if (questId === 'perfect') {
+                // launchFlashcards requires an initialized pool — setScr('flashcards') alone shows empty state
+                const pool = (_allCats || []).flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
+                launchFlashcards(_sh(pool).slice(0, 20));
               } else {
                 setScr(screen);
               }
