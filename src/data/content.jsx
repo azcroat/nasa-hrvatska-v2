@@ -38,14 +38,13 @@ function sh(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(r
 // Make all TOP100 situational topics available as quizzable vocabulary
 Object.keys(TOP100).forEach(function(k){V[k]=TOP100[k];});
 // ─── LEARN_PATH vocabulary aliases ────────────────────────────────────────────
-// Several LEARN_PATH lesson topics use short keys that don't match TOP100 keys.
-// Map them to the closest existing vocabulary set so launchPathItem never crashes.
-V["journalism"]  = (V_B2 && V_B2["media & journalism"])  || [];  // lp68
-V["philosophy"]  = (V_B2 && V_B2["philosophy & ethics"]) || [];  // lp67
-V["literature"]  = (V_B2 && V_B2["academic language"])   || [];  // lp64
-V["politics"]    = V["civic"]  || [];   // lp58 — civic = government/law/politics
-V["law"]         = V["civic"]  || [];   // lp69 — civic includes legal/government terms
-V["arts"]        = V["culture"] || [];  // lp59 — culture = klapa/tamburica/dance/art
+// B2 topics use V_B2 vocabulary which is appropriate for that path level.
+// V["arts"] and V["law"] have dedicated vocabulary sets in vocabulary.js.
+// V["politics"] maps to civic — civic vocabulary IS political vocabulary.
+V["journalism"]  = (V_B2 && V_B2["media & journalism"])  || [];  // lp68 — B2 media vocabulary
+V["philosophy"]  = (V_B2 && V_B2["philosophy & ethics"]) || [];  // lp67 — B2 philosophy vocabulary
+V["literature"]  = (V_B2 && V_B2["academic language"])   || [];  // lp64 — B2 academic vocabulary
+V["politics"]    = V["civic"]  || [];   // lp58 — civic covers voting, parliament, government
 // ── end LEARN_PATH aliases ────────────────────────────────────────────────────
 // ═══ CROATIAN HISTORY — DOMOVINSKI RAT ═══
 // ═══ CROATIAN EVENTS CALENDAR ═══
