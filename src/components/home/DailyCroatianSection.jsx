@@ -16,7 +16,7 @@ const DAILY_SCENES = [
   { url: '/images/scenes/labin.webp',                                                                   label: 'Labin, Istra',           pos: 'center 50%' },
   { url: 'https://images.unsplash.com/photo-1602002418082-a4443e081dd1?w=1200&q=85&fit=crop&auto=format', label: 'Šibenik, Dalmacija', pos: 'center 45%' },
   { url: '/images/scenes/rabac.webp',                                                                   label: 'Rabac, Istra',           pos: 'center 55%' },
-  { url: 'https://images.unsplash.com/photo-1586351012937-aca69ef41261?w=1200&q=85&fit=crop&auto=format', label: 'Omiš, Dalmacija',    pos: 'center 50%' },
+  { url: 'https://images.unsplash.com/photo-1698785820846-35f06c39ced7?w=1200&q=85&fit=crop&auto=format', label: 'Omiš, Dalmacija',    pos: 'center 50%' },
   { url: 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=1200&q=85&fit=crop&auto=format', label: 'Dolac Tržnica, Zagreb', pos: 'center 40%' },
   { url: 'https://images.unsplash.com/photo-1565116175827-965e73c9be0e?w=1200&q=85&fit=crop&auto=format', label: 'Brač, Dalmacija',    pos: 'center 60%' },
   { url: '/images/scenes/dalmatian-coast.webp',                                                         label: 'Jadranska Obala',        pos: 'center 50%' },
