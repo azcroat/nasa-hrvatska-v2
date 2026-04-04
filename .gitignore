@@ -6,6 +6,8 @@ dist/
 playwright-report/
 test-results/
 .claude/
+!.claude/commands/
+!.claude/commands/*.md
 coverage/
 UsersjschrAppDataLocalGoogleChromeUser Data/
 
