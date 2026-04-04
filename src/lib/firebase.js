@@ -31,9 +31,9 @@ export function initFirebase(){
     // Tier 2: single-tab persistent (IndexedDB only — for browsers without BroadcastChannel).
     // Tier 3: memory cache (always works — no offline sync, but sign-in still functions).
     try{_fbDb=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})});}
-    catch(e1){try{_fbDb=initializeFirestore(app,{localCache:persistentLocalCache()});}
-    catch(e2){try{_fbDb=initializeFirestore(app,{localCache:memoryLocalCache()});}
-    catch(e3){_fbDb=getFirestore(app);}}}
+    catch(_e1){try{_fbDb=initializeFirestore(app,{localCache:persistentLocalCache()});}
+    catch(_e2){try{_fbDb=initializeFirestore(app,{localCache:memoryLocalCache()});}
+    catch(_e3){_fbDb=getFirestore(app);}}}
     _fbReady=true;
     // Analytics — async, fire-and-forget. Only enabled in production (requires measurementId).
     // analyticsIsSupported() checks for cookies + iframes blocked by ad blockers gracefully.

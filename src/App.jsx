@@ -177,6 +177,7 @@ function App() {
     const today = _d.getFullYear() + '-' + String(_d.getMonth() + 1).padStart(2, '0') + '-' + String(_d.getDate()).padStart(2, '0');
     const apSt = fp.stats || fp.st || {};
     if (fp.onboarded || fp.cp || apSt.xp > 0) { localStorage.setItem('onboarded', 'true'); setOnboarded(true); }
+    if (fp.name) setName(fp.name);
     if (fp.sr) { const lSR = getSR() || {}; const mSR = { ...lSR }; for (const w in fp.sr) { const r = fp.sr[w]; const l = mSR[w]; if (!l || (r.r||0) > (l.r||0) || (!l.r && (r.s||0) > (l.s||0))) mSR[w] = r; } saveSR(mSR); }
     if (fp.streak) { let lSt = { count:0,last:'' }; try { lSt = JSON.parse(localStorage.getItem('uStreak')||'{"count":0,"last":""}'); } catch (_) {} const _yd=new Date();_yd.setDate(_yd.getDate()-1);const yesterday=_yd.getFullYear()+'-'+String(_yd.getMonth()+1).padStart(2,'0')+'-'+String(_yd.getDate()).padStart(2,'0'); const fpLast=fp.streak.last||''; const fpStreakActive=fpLast===today||fpLast===yesterday; if(fpStreakActive&&(fp.streak.count||0)>(lSt.count||0)){localStorage.setItem('uStreak',JSON.stringify(fp.streak));} /* Expired Firebase streaks are never restored — prevents months-old streak appearing active */ }
     if (fp.freezes !== undefined) { const lF = parseInt(localStorage.getItem('uFreeze')||'0',10); localStorage.setItem('uFreeze', String(Math.max(lF, Math.max(0, parseInt(fp.freezes,10)||0)))); }
@@ -248,7 +249,7 @@ function App() {
       try { localStorage.setItem('nh_media_done', JSON.stringify({ ...fp.nh_media_done, ...lMD })); } catch (_) {}
     }
     if (fp.nh_used_free_repair === true) try { localStorage.setItem('nh_used_free_repair', '1'); } catch (_) {}
-  }, [setFavs, setJWords, sDchlA, sDchlSl, setOnboarded]);
+  }, [setFavs, setJWords, sDchlA, sDchlSl, setOnboarded, setName]);
 
   // Ref to break the useAuth TDZ cycle for doSyncNow and applyRemoteProgress
   const _syncNowRef = useRef(/** @type {(() => Promise<void>) | null} */(null));
