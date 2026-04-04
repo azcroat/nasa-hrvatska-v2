@@ -1,5 +1,5 @@
 import React from 'react';
-import { lXP, nXP } from '../../data.jsx';
+import { lXP, nXP } from '../../lib/appUtils.js';
 import CroatianKnight from '../shared/CroatianKnight';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
