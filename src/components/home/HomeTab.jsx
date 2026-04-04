@@ -636,7 +636,7 @@ export default function HomeTab({
                           {city.name}
                         </div>
                         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', marginTop: 1 }}>
-                          {city.region} · {city.vocab.length} words to learn
+                          {city.region}{Array.isArray(city.vocab) && city.vocab.length > 0 ? ` · ${city.vocab.length} words to learn` : ''}
                         </div>
                       </div>
                       <div style={{

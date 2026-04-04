@@ -77,11 +77,19 @@ export function buildProgressSnapshot({ uid, name, stats, dchlA, dchlSl, favs, j
     nh_journey: (() => { try { return JSON.parse(localStorage.getItem('nh_journey') || '[]'); } catch { return []; } })(),
     // Weekend warrior tracking — object { sat?: 'YYYY-MM-DD', sun?: 'YYYY-MM-DD' }
     nh_weekend_days: (() => { try { return JSON.parse(localStorage.getItem('nh_weekend_days') || '{}'); } catch { return {}; } })(),
-    // Seasonal / campaign quest completion flags — must sync so completed content
-    // is not shown as new on other devices. Additive: true is never overwritten by false.
+    // Seasonal / campaign quest completion flags — additive: true is never overwritten by false.
     nh_uskrs_kviz_done: localStorage.getItem('nh_uskrs_kviz_done') === '1',
     nh_cq_easter_uskrs_q1: localStorage.getItem('nh_cq_easter_uskrs_q1') === '1',
     nh_cq_easter_uskrs_q2: localStorage.getItem('nh_cq_easter_uskrs_q2') === '1',
     nh_cq_easter_uskrs_q3: localStorage.getItem('nh_cq_easter_uskrs_q3') === '1',
+    // Game state — sync so all devices share the same live/prestige/checkpoint status
+    nh_hearts: (() => { try { return JSON.parse(localStorage.getItem('nh_hearts') || 'null'); } catch { return null; } })(),
+    nh_prestige: parseInt(localStorage.getItem('nh_prestige') || '0', 10),
+    nh_checkpoints: (() => { try { return JSON.parse(localStorage.getItem('nh_checkpoints') || '{}'); } catch { return {}; } })(),
+    nh_custom_words: (() => { try { return JSON.parse(localStorage.getItem('nh_custom_words') || '[]'); } catch { return []; } })(),
+    nh_hearts_always_on: localStorage.getItem('nh_hearts_always_on') === 'true',
+    nh_saved_phrases: (() => { try { return JSON.parse(localStorage.getItem('nh_saved_phrases') || '[]'); } catch { return []; } })(),
+    nh_media_done: (() => { try { return JSON.parse(localStorage.getItem('nh_media_done') || '{}'); } catch { return {}; } })(),
+    nh_used_free_repair: localStorage.getItem('nh_used_free_repair') === '1',
   };
 }

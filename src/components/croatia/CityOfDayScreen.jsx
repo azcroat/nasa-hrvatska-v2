@@ -51,6 +51,13 @@ function CityOfDayScreen({ goBack }) {
   const _tomorrow = (function(){const d=new Date();d.setDate(d.getDate()+1);return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});})();
   const tabs = [{id:"overview",label:"Overview",icon:"📖"},{id:"history",label:"History",icon:"🏛️"},{id:"vocab",label:"Vocabulary",icon:"💬"},{id:"facts",label:"Fast Facts",icon:"⚡"}];
 
+  // Defensive guards — 36 of 365 cities are stubs missing vocab/facts/intro.
+  // Render safe fallbacks rather than crashing.
+  const safeVocab = Array.isArray(city.vocab) ? city.vocab : [];
+  const safeFacts = Array.isArray(city.facts) ? city.facts : [];
+  const safeIntro = city.intro || `${city.name} is a city in ${city.region || 'Croatia'}.`;
+  const safeHistory = city.history || '';
+  const safeDidYouKnow = city.didYouKnow || '';
   const cityKey = normKey(city.name);
   const photoUrl = CITY_PHOTOS[cityKey] || CITY_PHOTOS.default;
 
@@ -122,14 +129,14 @@ function CityOfDayScreen({ goBack }) {
       {tab==="overview" && (
         <div>
           <div style={{marginBottom:16,padding:"16px",background:city.color+"0e",borderRadius:14,borderLeft:"4px solid "+city.color,fontSize:14,lineHeight:1.8,color:"var(--heading)"}}>
-            {city.intro}
+            {safeIntro}
           </div>
           <div style={{marginBottom:16,padding:"14px 16px",background:"var(--card)",borderRadius:14,border:"1px solid rgba(0,0,0,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.05)"}}>
             <div style={{fontSize:11,fontWeight:800,color:"var(--subtext)",marginBottom:8,letterSpacing:"0.06em",textTransform:"uppercase"}}>At a glance</div>
             <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
               <span style={{background:city.color+"18",color:city.color,fontSize:12,fontWeight:700,padding:"5px 12px",borderRadius:20}}>📍 {city.region}</span>
-              <span style={{background:"var(--info-bg)",color:"var(--info)",fontSize:12,fontWeight:700,padding:"5px 12px",borderRadius:20}}>📚 {city.vocab.length} vocabulary words</span>
-              <span style={{background:"rgba(245,158,11,.1)",color:"var(--warning-dark, #b45309)",fontSize:12,fontWeight:700,padding:"5px 12px",borderRadius:20}}>🏛️ {city.facts.length} historical facts</span>
+              {safeVocab.length > 0 && <span style={{background:"var(--info-bg)",color:"var(--info)",fontSize:12,fontWeight:700,padding:"5px 12px",borderRadius:20}}>📚 {safeVocab.length} vocabulary words</span>}
+              {safeFacts.length > 0 && <span style={{background:"rgba(245,158,11,.1)",color:"var(--warning-dark, #b45309)",fontSize:12,fontWeight:700,padding:"5px 12px",borderRadius:20}}>🏛️ {safeFacts.length} historical facts</span>}
             </div>
           </div>
           <div style={{padding:"14px 16px",background:"linear-gradient(135deg,#f0f9ff,#e0f2fe)",borderRadius:14,borderLeft:"4px solid "+city.color}}>
@@ -141,13 +148,13 @@ function CityOfDayScreen({ goBack }) {
 
       {/* History */}
       {tab==="history" && (function(){
-        const half = Math.ceil(city.facts.length / 2);
-        const histFacts = city.facts.slice(0, half);
+        const half = Math.ceil(safeFacts.length / 2);
+        const histFacts = safeFacts.slice(0, half);
         return (
           <div>
-            <div style={{marginBottom:16,padding:"16px",background:"var(--card)",borderRadius:14,border:"1px solid rgba(0,0,0,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.05)",fontSize:14,lineHeight:1.8,color:"var(--subtext)"}}>
-              {city.history}
-            </div>
+            {safeHistory ? <div style={{marginBottom:16,padding:"16px",background:"var(--card)",borderRadius:14,border:"1px solid rgba(0,0,0,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.05)",fontSize:14,lineHeight:1.8,color:"var(--subtext)"}}>
+              {safeHistory}
+            </div> : null}
             <div style={{marginBottom:12,fontSize:13,fontWeight:800,color:"var(--info)"}}>
               🏛️ Key Historical Facts
             </div>
@@ -169,7 +176,8 @@ function CityOfDayScreen({ goBack }) {
           <div style={{marginBottom:12,padding:"10px 14px",background:city.color+"0e",borderRadius:10,fontSize:12,color:city.color,fontWeight:700}}>
             Words and phrases connected to {city.name} — tap to hear
           </div>
-          {city.vocab.map(function(v,vi){return (
+          {safeVocab.length === 0 && <div style={{color:'var(--subtext)',fontSize:14,padding:'20px 0',textAlign:'center'}}>Vocabulary coming soon for {city.name}.</div>}
+          {safeVocab.map(function(v,vi){return (
             <div key={vi} role="button" tabIndex={0} aria-label={`Play audio for ${v.hr}`} style={{marginBottom:10,background:"var(--card)",borderRadius:14,border:"1px solid rgba(0,0,0,.06)",overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,.05)",cursor:"pointer"}}
               onClick={function(){speak(v.hr)}} onKeyDown={function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();speak(v.hr);}}}>
               <div style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px"}}>
@@ -187,9 +195,9 @@ function CityOfDayScreen({ goBack }) {
 
       {/* Fast Facts */}
       {tab==="facts" && (function(){
-        const half = Math.ceil(city.facts.length / 2);
-        const fastFacts = city.facts.slice(half);
-        const allFacts = [city.didYouKnow].concat(fastFacts);
+        const half = Math.ceil(safeFacts.length / 2);
+        const fastFacts = safeFacts.slice(half);
+        const allFacts = [safeDidYouKnow].concat(fastFacts).filter(Boolean);
         return (
           <div>
             <div style={{fontSize:15,fontWeight:800,color:"var(--info)",marginBottom:14}}>💡 Did You Know?</div>

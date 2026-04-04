@@ -55,8 +55,8 @@ export const PHOTOS = {
   // Food: AI-generated Croatian food table (peka, prstaci, burek) — local, no CDN dependency
   food:      '/images/scenes/croatian-food.webp',
 
-  // Market: Dolac market Zagreb — fresh produce and heritage
-  market:    'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=1200&q=85&fit=crop&auto=format',
+  // Market: Zagreb city scene (local verified image)
+  market:    '/images/scenes/zagreb.webp',
 
   // Stone: Korčula old town stone walls — texture and history
   stone:     'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?w=1200&q=85&fit=crop&auto=format',
