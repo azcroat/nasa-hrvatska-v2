@@ -64,15 +64,8 @@ export default function CultureTab({ sCurEx }) {
             [()=>setScr("region_vinkovci"),"🏛️","Vinkovci","8,300 years of history","#78716c","history"],
           ].map((/** @type {any} */ [fn,icon,title,sub,color,type],i) => (
             <button key={i} onClick={fn}
-              style={{
-                display:'flex', alignItems:'center', gap:10, padding:'12px',
-                background:'var(--card)', border:`1.5px solid ${color}25`,
-                borderLeft:`3px solid ${color}`, borderRadius:12,
-                cursor:'pointer', fontFamily:"'Outfit',sans-serif", textAlign:'left',
-                transition:'transform .15s, box-shadow .15s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.transform='translateY(-1px)'; e.currentTarget.style.boxShadow=`0 4px 16px ${color}20`; }}
-              onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow=''; }}
+              className="exercise-card"
+              style={{ borderLeftColor: color, border: `1.5px solid ${color}25`, borderLeftWidth: 3 }}
             >
               <div style={{width:36,height:36,borderRadius:10,background:`${color}15`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}}>{icon}</div>
               <div style={{flex:1,minWidth:0}}>
@@ -127,15 +120,8 @@ export default function CultureTab({ sCurEx }) {
             [()=>setScr("gym"),"🏋️","At the Gym","Fitness vocabulary","#16a34a","language"],
           ].map((/** @type {any} */ [fn,icon,title,sub,color,type],i) => (
             <button key={i} onClick={fn}
-              style={{
-                display:'flex', alignItems:'center', gap:10, padding:'12px',
-                background:'var(--card)', border:`1.5px solid ${color}25`,
-                borderLeft:`3px solid ${color}`, borderRadius:12,
-                cursor:'pointer', fontFamily:"'Outfit',sans-serif", textAlign:'left',
-                transition:'transform .15s, box-shadow .15s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.transform='translateY(-1px)'; e.currentTarget.style.boxShadow=`0 4px 16px ${color}20`; }}
-              onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow=''; }}
+              className="exercise-card"
+              style={{ borderLeftColor: color, border: `1.5px solid ${color}25`, borderLeftWidth: 3 }}
             >
               <div style={{width:36,height:36,borderRadius:10,background:`${color}15`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}}>{icon}</div>
               <div style={{flex:1,minWidth:0}}>
