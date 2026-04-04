@@ -100,7 +100,7 @@ export async function onRequestPost(context) {
 
   let body;
   try { body = await request.json(); }
-  catch { return new Response("Bad request", { status: 400 }); }
+  catch { return new Response(JSON.stringify({ ok: false, error: 'Bad request' }), { status: 400, headers: { ...CORS(origin), 'Content-Type': 'application/json' } }); }
 
   const { type, subject, description, replyEmail: rawReplyEmail, userName, userLevel, userXp } = body;
 
