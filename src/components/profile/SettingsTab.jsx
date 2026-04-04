@@ -22,7 +22,7 @@ const GOAL_FOCUS = {
   travel:   { label:'Traveling to Croatia', icon:'✈️', color:'var(--success)', bg:'var(--success-bg)', border:'var(--success-b)',
     items:[{icon:'🍽️',label:'Restaurant',scr:'restaurant'},{icon:'🚗',label:'Transport',scr:'transport'},{icon:'🚨',label:'Emergency',scr:'emergency'}] },
   culture:  { label:'Croatian Culture', icon:'📖', color:'var(--lavender)', bg:'rgba(124,58,237,.1)', border:'rgba(124,58,237,.25)',
-    items:[{icon:'🌊',label:'Immersion',scr:'immersion'},{icon:'🤖',label:'AI Convo',scr:'aiconvo'},{icon:'🎵',label:'Song Lyrics',scr:'lyrics'}] },
+    items:[{icon:'🌊',label:'Immersion',scr:'immersion'},{icon:'🤖',label:'AI Convo',scr:'aiconvo'}] },
   fluent:   { label:'Becoming Fluent', icon:'🗣️', color:'var(--info)', bg:'var(--info-bg)', border:'var(--info-b)',
     items:[{icon:'🎓',label:'CEFR Test',scr:'cefrtest'},{icon:'💬',label:'Dialogue Sim',scr:'dialogue'},{icon:'🗣️',label:'Shadowing',scr:'shadowing'}] },
 };
