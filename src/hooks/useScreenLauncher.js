@@ -62,6 +62,8 @@ const BLACK_HOLE_SCREENS = {
   padezifull:'gc', clitic:'gc', grammarmap:'gc', aspectdrill:'gc',
   // Additional informational screens added to ensure all LEARN_PATH entries award credit.
   shadowing:'lc', proverbs:'lc', bureaucratic:'lc',
+  // Grammar drill screens missing from original list — ck checks gc, so must award gc on dwell.
+  conjdrill:'gc', padezi:'gc', modal:'gc',
 };
 
 export function useScreenLauncher({
@@ -251,7 +253,16 @@ export function useScreenLauncher({
     if (!item) return;
     if (item.go === 'lesson' && item.topic) {
       const { V } = await _getData();
-      const items = _sh(V[item.topic]);
+      const raw = V[item.topic];
+      if (!raw || raw.length < 2) {
+        // Safety net: vocabulary missing or too small — award credit and mark complete
+        // so the user is never blocked on the path by a content gap.
+        award(15);
+        setStats(s => ({ ...s, lc: s.lc + 1, ct: [...new Set([...(s.ct || []), item.topic])] }));
+        if (writeDelta) writeDelta({ lc: 1, ct: [item.topic] });
+        return;
+      }
+      const items = _sh(raw);
       // Return to the Learn tab. If launched from a category screen (not dashboard),
       // preserve that screen so the back button lands on the category, not the tab root.
       const returnScreen = (currentScreen && currentScreen !== 'dashboard') ? currentScreen : 'dashboard';
