@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data.jsx';
+import { useStats } from '../../context/StatsContext.tsx';
 
 import { rnd } from '../../lib/random.js';
 function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;}
@@ -30,6 +31,7 @@ const DATA = [
 ];
 
 export default function CliticDrill({ goBack, award }) {
+  const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [q] = useState(() => shLocal(DATA));
   const total = q.length;
@@ -49,7 +51,7 @@ export default function CliticDrill({ goBack, award }) {
 
   function next() {
     if (idx + 1 >= total) {
-      if (!finishFired.current) { finishFired.current = true; if (award) award(score * 5); }
+      if (!finishFired.current) { finishFired.current = true; if (award) award(score * 5); if (!stats.vs?.includes('clitic')) { setStats(prev => { if (prev.vs?.includes('clitic')) return prev; return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'clitic'] }; }); if (writeDelta) writeDelta({ gc: 1, vs: ['clitic'] }); } }
       setDone(true);
     } else {
       setIdx(i => i + 1);

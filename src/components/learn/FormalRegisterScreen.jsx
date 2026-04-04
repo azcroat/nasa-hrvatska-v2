@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { H, speak } from '../../data.jsx';
 import { FORMAL_REGISTER } from '../../data.jsx';
+import { useStats } from '../../context/StatsContext.tsx';
 
 function QuizBlock({ questions, award }) {
+  const { stats, setStats, writeDelta } = useStats();
   const [answers, setAnswers] = useState({});
   const [score, setScore] = useState(null);
 
@@ -14,6 +16,13 @@ function QuizBlock({ questions, award }) {
       const pts = Object.entries(updated).filter(([i, v]) => v === questions[i].a).length;
       setScore(pts);
       if (award) award(pts * 5);
+      if (!stats.vs?.includes('formalregister')) {
+        setStats(prev => {
+          if (prev.vs?.includes('formalregister')) return prev;
+          return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'formalregister'] };
+        });
+        if (writeDelta) writeDelta({ gc: 1, vs: ['formalregister'] });
+      }
     }
   }
 

@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh, PADEZI_FULL } from '../../data.jsx';
+import { useStats } from '../../context/StatsContext.tsx';
 
 export default function PadezifullScreen({ goBack, award }) {
+  const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [pfTab, sPfTab] = useState("sing");
   const [pfMode, sPfMode] = useState("learn");
@@ -127,7 +129,7 @@ export default function PadezifullScreen({ goBack, award }) {
             <div style={{textAlign:"center"}}>
               <div style={{fontSize:64}}>{pct >= 80 ? "🏆" : "📚"}</div>
               <h2>{pfS} / {total}</h2>
-              <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(pfS * 5); goBack(); }}>🏠 Finish</button>
+              <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(pfS * 5); if (!stats.vs?.includes('padezifull')) { setStats(prev => { if (prev.vs?.includes('padezifull')) return prev; return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'padezifull'] }; }); if (writeDelta) writeDelta({ gc: 1, vs: ['padezifull'] }); } goBack(); }}>🏠 Finish</button>
             </div>
           );
         }
