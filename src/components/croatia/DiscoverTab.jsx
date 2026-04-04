@@ -164,15 +164,19 @@ export default function DiscoverTab() {
   const [kMsgIdx, setKMsgIdx] = useState(0);
   const [kMsgVisible, setKMsgVisible] = useState(true);
   const kTimerRef = useRef(null);
+  const kFadeRef  = useRef(null);
   useEffect(() => {
     kTimerRef.current = setInterval(() => {
       setKMsgVisible(false);
-      setTimeout(() => {
+      kFadeRef.current = setTimeout(() => {
         setKMsgIdx(i => (i + 1) % KNIGHT_MESSAGES.length);
         setKMsgVisible(true);
       }, 350);
     }, 5500);
-    return () => clearInterval(kTimerRef.current);
+    return () => {
+      clearInterval(kTimerRef.current);
+      clearTimeout(kFadeRef.current);
+    };
   }, []);
    
   const kMsg = KNIGHT_MESSAGES[kMsgIdx];

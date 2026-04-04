@@ -5,7 +5,7 @@
 //
 // This hook is a no-op in browser and iOS — safe to call unconditionally.
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { isAndroid } from '../lib/platform.js';
 
 /**
@@ -13,6 +13,19 @@ import { isAndroid } from '../lib/platform.js';
  * @param {() => void}    goBack     — pops the current screen
  */
 export function useAndroidBackButton(canGoBack, goBack) {
+  // Refs hold the latest callback values so the Capacitor listener (registered once
+  // on mount) always calls the current version without needing to re-register.
+  // Previously the empty dep-array caused a stale closure: canGoBack/goBack captured
+  // the initial render values and never saw subsequent navigation state changes.
+  const canGoBackRef = useRef(canGoBack);
+  const goBackRef    = useRef(goBack);
+
+  // Keep refs current on every render — no re-registration needed.
+  useEffect(() => {
+    canGoBackRef.current = canGoBack;
+    goBackRef.current    = goBack;
+  });
+
   useEffect(() => {
     if (!isAndroid()) return;
 
@@ -22,8 +35,8 @@ export function useAndroidBackButton(canGoBack, goBack) {
       try {
         const { App } = await import('@capacitor/app');
         const handle = await App.addListener('backButton', ({ canGoBack: nativeCanGoBack }) => {
-          if (canGoBack()) {
-            goBack();
+          if (canGoBackRef.current()) {
+            goBackRef.current();
           } else if (!nativeCanGoBack) {
             // No more history — minimise the app (standard Android behaviour)
             App.minimizeApp();
@@ -37,5 +50,5 @@ export function useAndroidBackButton(canGoBack, goBack) {
 
     register();
     return () => { if (removeListener) removeListener(); };
-  }, []); // goBack/canGoBack are stable callback refs — intentionally excluded from deps
+  }, []); // Listener registered once — refs stay current via the effect above
 }

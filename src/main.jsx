@@ -259,6 +259,10 @@ if (!isNative() && 'serviceWorker' in navigator) {
   // It has nothing waiting to replace it, so controllerchange does not fire again.
   let refreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
+    // Guard: never reload when the Firebase messaging SW (legacy, now merged) takes
+    // controller — it has no fetch handler and would break offline mode. Only reload
+    // when our own combined sw.js takes control, which means a new version deployed.
+    if (navigator.serviceWorker.controller?.scriptURL?.includes('firebase-messaging-sw')) return;
     if (refreshing) return;
     refreshing = true;
     window.location.reload();

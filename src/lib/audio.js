@@ -31,7 +31,18 @@ function _cacheGet(key) {
   if (Date.now() > e.expires) { URL.revokeObjectURL(e.url); _ttsCache.delete(key); return null; }
   return e.url;
 }
+const _TTS_CACHE_MAX = 100;
 function _cacheSet(key, url) {
+  // Evict oldest entries when the cache is full to prevent unbounded memory growth.
+  // Entries are stored insertion-ordered in a Map, so the first N keys are oldest.
+  if (_ttsCache.size >= _TTS_CACHE_MAX) {
+    let evicted = 0;
+    for (const [k, v] of _ttsCache) {
+      URL.revokeObjectURL(v.url);
+      _ttsCache.delete(k);
+      if (++evicted >= 20) break; // evict 20 at once to amortise cost
+    }
+  }
   _ttsCache.set(key, { url, expires: Date.now() + 3_600_000 });
 }
 

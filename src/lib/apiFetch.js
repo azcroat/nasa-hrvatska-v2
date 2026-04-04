@@ -20,8 +20,14 @@ export async function apiFetch(url, options = {}) {
         'Authorization': `Bearer ${token}`,
       };
     }
-  } catch {
-    // If token fetch fails, send request without auth (rate limiting still protects)
+  } catch (tokenErr) {
+    // Token fetch failed — send request without auth header.
+    // The API will return 401/403 if the endpoint requires authentication.
+    // Dispatch a custom event so AuthGuard/ErrorBoundary can surface this to the user.
+    console.error('[apiFetch] Failed to get auth token:', tokenErr?.message);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('nh:auth-token-error', { detail: { url, error: tokenErr?.message } }));
+    }
   }
 
   // If caller supplies their own signal, respect it exactly — no retry wrapping
