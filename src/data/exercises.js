@@ -857,3 +857,49 @@ export const TENSEFLIP = [
   {prez:"Trčim u parku.",perf:"Trčao sam u parku.",neg:"Nisam trčao u parku."},
   {prez:"Sviram violinu.",perf:"Svirao sam violinu.",neg:"Nisam svirao violinu."},
   {prez:"Vozim auto.",perf:"Vozio sam auto.",neg:"Nisam vozio auto."}];
+
+// ─── Translation Production Drills ────────────────────────────────────────────
+// Format: { en, hr, opts, level }
+// en   = English prompt displayed to user (they must produce Croatian)
+// hr   = correct Croatian answer
+// opts = 4 options including correct answer (shuffled before display)
+// level= 'A2' | 'B1' | 'B2'
+//
+// Purpose: Force production (EN→HR) not just recognition (HR→EN).
+// This covers the exercise variety gap — learners must recall, not just identify.
+export const TRANSLATE_DRILLS = [
+  // ── A2: Present tense & essential phrases ─────────────────────────────────
+  { en:"I speak Croatian.", hr:"Govorim hrvatski.", opts:["Govorim hrvatski.","Govorim Hrvatska.","Govori hrvatsku.","Govorimo hrvatski."], level:"A2" },
+  { en:"She is reading a book.", hr:"Čita knjigu.", opts:["Čita knjigu.","Čita knjiga.","Čitam knjigu.","Ona čitati knjiga."], level:"A2" },
+  { en:"We are going to the market.", hr:"Idemo na tržnicu.", opts:["Idemo na tržnicu.","Idemo u tržnica.","Idu na tržnicu.","Ićemo na tržnicu."], level:"A2" },
+  { en:"Do you have a table for two?", hr:"Imate li stol za dvoje?", opts:["Imate li stol za dvoje?","Imate li stola za dvoje?","Imate li stolovi za dva?","Ima li stol za dvije?"], level:"A2" },
+  { en:"How much does this cost?", hr:"Koliko ovo košta?", opts:["Koliko ovo košta?","Koliko ovo koštati?","Koliko je ovo?","Koliko košta ova?"], level:"A2" },
+  { en:"I would like a coffee, please.", hr:"Jednu kavu, molim.", opts:["Jednu kavu, molim.","Jedan kava, molim.","Hoću kava, molim.","Jednu kave, molim."], level:"A2" },
+  { en:"Where is the train station?", hr:"Gdje je kolodvor?", opts:["Gdje je kolodvor?","Gdje su kolodvor?","Gdje je kolodvoru?","Gdje je stanica vlaka?"], level:"A2" },
+  { en:"My name is Ana.", hr:"Zovem se Ana.", opts:["Zovem se Ana.","Moje ime je Ana.","Ja sam Ana zove.","Zovem Ana."], level:"A2" },
+  { en:"I don't understand.", hr:"Ne razumijem.", opts:["Ne razumijem.","Nisam razumijem.","Ne razumijem se.","Nije razumijem."], level:"A2" },
+  { en:"Can you repeat, please?", hr:"Možete li ponoviti, molim?", opts:["Možete li ponoviti, molim?","Mogli bi ponoviti?","Može li ponoviti?","Možeš li ponovi, molim?"], level:"A2" },
+  // ── A2: Past tense production ──────────────────────────────────────────────
+  { en:"I went to Zagreb yesterday.", hr:"Jučer sam išao u Zagreb.", opts:["Jučer sam išao u Zagreb.","Jučer sam išla u Zagreb.","Jučer sam ići u Zagreb.","Jučer išao sam u Zagreb."], level:"A2" },
+  { en:"She ate all the pizza.", hr:"Pojela je svu pizzu.", opts:["Pojela je svu pizzu.","Jela je svom pizzom.","Pojeo je svu pizzu.","Jela je svom pizzu."], level:"A2" },
+  { en:"We were at home.", hr:"Bili smo kod kuće.", opts:["Bili smo kod kuće.","Bile smo kod kuće.","Bili smo na kući.","Bio smo kod kuće."], level:"A2" },
+  { en:"He didn't come to the meeting.", hr:"Nije došao na sastanak.", opts:["Nije došao na sastanak.","Nije doći na sastanak.","Nije dolazio na sastanku.","Nije dođao na sastanak."], level:"A2" },
+  // ── B1: Future tense production ────────────────────────────────────────────
+  { en:"I will go to the sea tomorrow.", hr:"Sutra ću ići na more.", opts:["Sutra ću ići na more.","Sutra idem na more.","Sutra ću ić na more.","Sutra ći idem na more."], level:"B1" },
+  { en:"What will you do this weekend?", hr:"Što ćeš raditi ovaj vikend?", opts:["Što ćeš raditi ovaj vikend?","Što ćete raditi ovaj vikend?","Što ću raditi ovaj vikend?","Što će raditi ovaj vikend?"], level:"B1" },
+  { en:"It will be beautiful.", hr:"Bit će lijepo.", opts:["Bit će lijepo.","Biti će lijepo.","Biće lijepo.","Bit ću lijepo."], level:"B1" },
+  { en:"We will not forget.", hr:"Nećemo zaboraviti.", opts:["Nećemo zaboraviti.","Neće zaboraviti.","Nismo zaboravili.","Ne ćemo zaboraviti."], level:"B1" },
+  { en:"Will he come to the party?", hr:"Hoće li doći na zabavu?", opts:["Hoće li doći na zabavu?","Hoće li dolaziti na zabavu?","Hoće li dođi na zabavu?","Hoće li doće na zabavu?"], level:"B1" },
+  // ── B1: Case usage production ──────────────────────────────────────────────
+  { en:"I'm going to the store.", hr:"Idem u dućan.", opts:["Idem u dućan.","Idem u dućanu.","Idem na dućan.","Idem dućan."], level:"B1" },
+  { en:"I live in Zagreb.", hr:"Živim u Zagrebu.", opts:["Živim u Zagrebu.","Živim u Zagreb.","Živim na Zagreb.","Živim Zagreb."], level:"B1" },
+  { en:"This is my friend's book.", hr:"Ovo je knjiga moje prijateljice.", opts:["Ovo je knjiga moje prijateljice.","Ovo je knjiga moja prijateljica.","Ovo je knjiga mojeg prijatelja.","Ovo je moja prijateljica knjiga."], level:"B1" },
+  { en:"I'm speaking with the doctor.", hr:"Govorim s liječnikom.", opts:["Govorim s liječnikom.","Govorim s liječnik.","Govorim s liječniku.","Govorim liječnika."], level:"B1" },
+  // ── B2: Complex structures ─────────────────────────────────────────────────
+  { en:"If I were you, I would go.", hr:"Da sam na tvome mjestu, otišao bih.", opts:["Da sam na tvome mjestu, otišao bih.","Da sam na tvom mjestom, otiđao bi.","Ako bih bio ti, idem.","Da si ja, otiđi."], level:"B2" },
+  { en:"He said that he would come.", hr:"Rekao je da će doći.", opts:["Rekao je da će doći.","Rekao je da bi dođi.","Rekao je što će doći.","Rekao je da je došao."], level:"B2" },
+  { en:"The book that I read was excellent.", hr:"Knjiga koju sam čitao bila je izvrsna.", opts:["Knjiga koju sam čitao bila je izvrsna.","Knjiga koja sam čitao je bila izvrsna.","Knjiga što sam čitao bila je izvrsna.","Knjiga kojeg sam čitao bila je izvrsna."], level:"B2" },
+  { en:"Despite the rain, we enjoyed ourselves.", hr:"Unatoč kiši, dobro smo se proveli.", opts:["Unatoč kiši, dobro smo se proveli.","Premda kiša, dobro smo prošli.","Usprkos kiše, dobro smo proveli.","Iako kiša, dobro smo se proveli."], level:"B2" },
+  { en:"The more you practice, the better you speak.", hr:"Što više vježbaš, to bolje govoriš.", opts:["Što više vježbaš, to bolje govoriš.","Više vježbaš, više bolje govoriš.","Čim više vježbaš, tim bolje govorit ćeš.","Koliko više vježbaš, toliko bolje govoriš."], level:"B2" },
+  { en:"I wish I had studied more.", hr:"Volio bih da sam više učio.", opts:["Volio bih da sam više učio.","Volio sam da više učim.","Htio bih sam više učio.","Volio bih biti više učio."], level:"B2" },
+];

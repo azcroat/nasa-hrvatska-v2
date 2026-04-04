@@ -920,4 +920,198 @@ export const LESSONS = [
       },
     ],
   },
+
+  // ─────────────────────────────────────────────────────────
+  // LESSON: Croatian Past Tense (A2)
+  // ─────────────────────────────────────────────────────────
+  {
+    id: "past-tense",
+    title: "Croatian Past Tense",
+    subtitle: "Talk about yesterday — the L-participle + auxiliary system",
+    icon: "⏮️",
+    level: "A2",
+    duration: "~6 min",
+    color: "#0369a1",
+    bg: "#f0f9ff",
+    slides: [
+      {
+        type: "intro",
+        title: "Croatian Past Tense",
+        body: "The Croatian past tense has two moving parts: (1) a past participle that changes based on the subject's gender, and (2) a short form of 'biti' (to be) as an auxiliary. The logic is consistent — once you learn the pattern, it applies to every verb. You cannot speak Croatian without this.",
+        icon: "⏮️",
+      },
+      {
+        type: "rule",
+        title: "The Two Parts: Participle + Auxiliary",
+        body: "Past tense = L-PARTICIPLE + AUXILIARY (sam/si/je/smo/ste/su). The L-participle is named for its masculine singular ending in '-o' or '-ao/-io'. The auxiliary 'je' is clitic — in standard word order the participle comes first: 'Radio sam' (I worked), not 'Sam radio'.",
+        highlight: "participle + sam/si/je/smo/ste/su",
+      },
+      {
+        type: "rule",
+        title: "Gender Endings of the L-Participle",
+        body: "The participle agrees with the SUBJECT in gender and number. Masculine singular: -o / -ao / -io (radio, išao, bio). Feminine singular: -la / -ala / -ila (radila, išla, bila). Masculine/mixed plural: -li (radili, išli, bili). All-female plural: -le (radile, išle, bile). The 'li' form is default for mixed or unknown groups.",
+        highlight: "-o (m.sg) · -la (f.sg) · -li (m.pl) · -le (f.pl)",
+      },
+      {
+        type: "table",
+        title: "'Raditi' (to work) — Full Past Tense",
+        headers: ["Person", "Masculine", "Feminine"],
+        rows: [
+          ["ja (I)", "radio sam", "radila sam"],
+          ["ti (you)", "radio si", "radila si"],
+          ["on (he)", "radio je", "—"],
+          ["ona (she)", "—", "radila je"],
+          ["mi (we)", "radili smo", "radile smo"],
+          ["vi (you pl.)", "radili ste", "radile ste"],
+          ["oni (they m.)", "radili su", "—"],
+          ["one (they f.)", "—", "radile su"],
+        ],
+      },
+      {
+        type: "example",
+        title: "Core Verbs — Past Tense",
+        items: [
+          { hr: "Išao sam u Zagreb.", en: "I (m) went to Zagreb.", note: "ići → išao (m) / išla (f) — irregular" },
+          { hr: "Jela je pizzu.", en: "She ate pizza.", note: "jesti → jeo (m) / jela (f)" },
+          { hr: "Bili smo kod kuće.", en: "We were at home.", note: "biti → bio/bila/bili/bile" },
+          { hr: "Govorili su hrvatski.", en: "They (m.) spoke Croatian.", note: "govoriti → govorio/govorila/govorili/govorile" },
+          { hr: "Mogla je doći.", en: "She was able to come.", note: "moći → mogao (m) / mogla (f) — irregular" },
+        ],
+      },
+      {
+        type: "rule",
+        title: "Negative Past: Nisam / Nije / Nisu",
+        body: "To negate the past tense, replace the positive auxiliary with its negative: nisam, nisi, nije, nismo, niste, nisu. The participle is unchanged. Standard word order: negative auxiliary AFTER the participle. 'Nisam radio' (I didn't work). 'Ona nije išla' (She didn't go). 'Nisu mogli doći' (They couldn't come).",
+        highlight: "nisam · nisi · nije · nismo · niste · nisu",
+      },
+      {
+        type: "rule",
+        title: "The Two Key Irregulars: ići and biti",
+        body: "'Ići' (to go): past participle išao (m.sg), išla (f.sg), išli (m.pl), išle (f.pl). The 'š' appears in the past but not in the infinitive — memorize it separately. 'Biti' (to be): bio (m.sg), bila (f.sg), bili (m.pl), bile (f.pl). These two verbs appear in almost every Croatian sentence — learn them first.",
+        highlight: "ići → išao/išla | biti → bio/bila",
+      },
+      {
+        type: "quiz",
+        q: "'She worked yesterday' — which is correct?",
+        options: ["Radila je jučer.", "Radio je jučer.", "Radili smo jučer.", "Radila sam jučer."],
+        correct: 0,
+        explanation: "The subject is 'she' (ona) — feminine singular. Participle: 'radila' (f.sg). Auxiliary: 'je' (3rd person singular). Standard word order: 'Radila je jučer.' Answer B uses the masculine 'radio', C is 'we worked', D is 'I (f.) worked'.",
+      },
+      {
+        type: "quiz",
+        q: "How do you say 'They (m.) didn't eat'?",
+        options: ["Nisu jeli.", "Nisu jele.", "Nisu jeo.", "Nisu jela."],
+        correct: 0,
+        explanation: "'Nisu' = 3rd person plural negative auxiliary. 'Jeli' = masculine/mixed plural L-participle of 'jesti' (to eat). Together: 'Nisu jeli.' — 'They (m./mixed) didn't eat.' 'Jele' would be all-female group. 'Jeo/jela' are singular forms.",
+      },
+      {
+        type: "summary",
+        title: "Past Tense — You've Got It!",
+        points: [
+          "Past tense = L-participle + short auxiliary (sam/si/je/smo/ste/su)",
+          "Masculine singular: -o / -ao / -io · Feminine singular: -la / -ala / -ila",
+          "Mixed/masculine plural: -li · All-female plural: -le",
+          "Negative: nisam/nisi/nije/nismo/niste/nisu — participle unchanged",
+          "Key irregulars: ići → išao/išla | biti → bio/bila | moći → mogao/mogla",
+          "Word order: 'Radio sam' (standard) — participle before auxiliary",
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────
+  // LESSON: Croatian Future Tense (B1)
+  // ─────────────────────────────────────────────────────────
+  {
+    id: "future-tense",
+    title: "Croatian Future Tense",
+    subtitle: "Plans and predictions — the ću/ćeš/će system",
+    icon: "🚀",
+    level: "B1",
+    duration: "~6 min",
+    color: "#7c3aed",
+    bg: "#f5f3ff",
+    slides: [
+      {
+        type: "intro",
+        title: "Croatian Future Tense",
+        body: "Croatian future tense is formed with a short set of auxiliaries (ću, ćeš, će, ćemo, ćete, će) combined with the infinitive. Unlike the past tense, gender plays NO role — the same form is used by men and women. This makes the future one of the simpler Croatian tenses to master.",
+        icon: "🚀",
+      },
+      {
+        type: "rule",
+        title: "Future = Infinitive Stem + ću/ćeš/će...",
+        body: "The short (enclitic) future form clips the infinitive: 'raditi' → 'radit ću' (I will work). The final vowel is dropped and the auxiliary is written as a separate word. The long form — 'ja ću raditi' — keeps the full infinitive and places the auxiliary first. Both forms are correct; the short form is more common in writing.",
+        highlight: "ću · ćeš · će · ćemo · ćete · će",
+      },
+      {
+        type: "table",
+        title: "Future Auxiliaries — Full Table",
+        headers: ["Person", "Auxiliary", "Short form (ići)", "Long form"],
+        rows: [
+          ["ja", "ću", "ić ću", "ja ću ići"],
+          ["ti", "ćeš", "ić ćeš", "ti ćeš ići"],
+          ["on / ona", "će", "ić će", "on/ona će ići"],
+          ["mi", "ćemo", "ić ćemo", "mi ćemo ići"],
+          ["vi", "ćete", "ić ćete", "vi ćete ići"],
+          ["oni / one", "će", "ić će", "oni/one će ići"],
+        ],
+      },
+      {
+        type: "rule",
+        title: "No Gender Difference — Ever",
+        body: "In the past tense, 'radio sam' (m.) vs 'radila sam' (f.) differ. In the future, 'radit ću' is identical for male and female speakers. A man says 'ić ću' and a woman says 'ić ću' — no change. This gender-neutrality applies to every verb in every person. Memorize the six auxiliaries and you're done.",
+        highlight: "No gender distinction in future tense",
+      },
+      {
+        type: "example",
+        title: "Future Tense — Real Sentences",
+        items: [
+          { hr: "Sutra ću ići na more.", en: "Tomorrow I will go to the sea.", note: "Short: ić ću | Long: ću ići" },
+          { hr: "Što ćeš raditi vikend?", en: "What will you do this weekend?", note: "Most common future question" },
+          { hr: "Bit će lijepo.", en: "It will be nice.", note: "biti → bit će — very high-frequency phrase" },
+          { hr: "Nećemo zaboraviti.", en: "We will not forget.", note: "Negative: nećemo (1st pl. neg. future)" },
+          { hr: "Hoće li doći?", en: "Will he/she come?", note: "Question: Hoće li + infinitive?" },
+        ],
+      },
+      {
+        type: "rule",
+        title: "Negative Future: Neću / Neće / Nećemo",
+        body: "Negative future replaces the positive auxiliary with: neću, nećeš, neće, nećemo, nećete, neće. The infinitive follows unchanged. 'Neću ići' (I will not go). 'Neće doći' (He/she will not come). 'Nećemo zaboraviti' (We will not forget). The negative form is one word — never separate.",
+        highlight: "neću · nećeš · neće · nećemo · nećete · neće",
+      },
+      {
+        type: "rule",
+        title: "Aspect Matters in the Future",
+        body: "Imperfective future describes an ongoing or habitual future action: 'Ću čitati' (I will be reading / I'll read — no defined endpoint). Perfective future describes a completed, bounded action: 'Ću pročitati' (I will have read / I'll finish reading). For promises and plans with a clear outcome, always use perfective. Imperfective future is for ongoing states or habits.",
+        highlight: "Perfective = completion · Imperfective = ongoing/habitual",
+      },
+      {
+        type: "quiz",
+        q: "'We will eat lunch' in Croatian?",
+        options: ["Ručat ćemo.", "Ručamo.", "Ručali smo.", "Ručaće."],
+        correct: 0,
+        explanation: "'Ručati' → short stem 'ručat' + 'ćemo' (1st person plural future). 'Ručamo' = we eat (present). 'Ručali smo' = we ate (past). 'Ručaće' = they will eat (3rd person plural). Answer: 'Ručat ćemo.'",
+      },
+      {
+        type: "quiz",
+        q: "'I will not come' — which is correct?",
+        options: ["Neću doći.", "Nisam došao.", "Neće doći.", "Ne dolazim."],
+        correct: 0,
+        explanation: "'Neću' = 1st person singular negative future auxiliary. 'Doći' = perfective infinitive (to come, as completed arrival). Together: 'Neću doći.' 'Nisam došao' = past negative. 'Neće doći' = he/she will not come. 'Ne dolazim' = I am not coming (present imperfective).",
+      },
+      {
+        type: "summary",
+        title: "Future Tense — Ready for Tomorrow!",
+        points: [
+          "Future = infinitive stem + ću/ćeš/će/ćemo/ćete/će",
+          "Short form (common): 'radit ću' · Long form: 'ja ću raditi' — both correct",
+          "No gender difference — 'bit ću' is the same for men and women",
+          "Question: Hoće li + infinitive? (Will...?)",
+          "Negative: neću/nećeš/neće/nećemo/nećete/neće + infinitive",
+          "Aspect matters: perfective = plan with clear end · imperfective = ongoing",
+        ],
+      },
+    ],
+  },
 ];
