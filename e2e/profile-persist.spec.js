@@ -83,11 +83,11 @@ test.describe('Progress persistence across sessions', () => {
     await page.waitForTimeout(300);
     await nav.getByRole('button', { name: 'Practice', exact: true }).click();
     await page.waitForTimeout(300);
-    await nav.getByRole('button', { name: 'Croatia', exact: true }).click();
+    await nav.getByRole('button', { name: 'Culture', exact: true }).click();
     await page.waitForTimeout(300);
-    await nav.getByRole('button', { name: 'Profile', exact: true }).click();
+    await nav.getByRole('button', { name: 'Me', exact: true }).click();
     await page.waitForTimeout(300);
-    await nav.getByRole('button', { name: 'Home', exact: true }).click();
+    await nav.getByRole('button', { name: 'Today', exact: true }).click();
     await page.waitForTimeout(300);
 
     // XP should still be correct after all tab switches
@@ -135,7 +135,7 @@ test.describe('Profile screen', () => {
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
     await page.getByRole('navigation', { name: 'Main navigation' })
-      .getByRole('button', { name: 'Profile', exact: true }).click();
+      .getByRole('button', { name: 'Me', exact: true }).click();
     await expect(page.getByText(/Profile|Account/i).first()).toBeVisible({ timeout: 5_000 });
   });
 

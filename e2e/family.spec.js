@@ -10,7 +10,7 @@ import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL } from './fixtures/seed-au
 
 async function goToLeaderboard(page) {
   await page.getByRole('navigation', { name: 'Main navigation' })
-    .getByRole('button', { name: 'Profile', exact: true }).click();
+    .getByRole('button', { name: 'Me', exact: true }).click();
   // Profile defaults to Stats subtab — Leaderboard button is in Learning Tools section
   await page.getByRole('button', { name: /Leaderboard/i }).click();
   await expect(page.getByText(/Family Leaderboard/i)).toBeVisible({ timeout: 5_000 });

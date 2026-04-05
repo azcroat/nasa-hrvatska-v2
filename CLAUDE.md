@@ -236,7 +236,7 @@ Before committing ANY change that touches a component, tab, screen, or navigatio
 | Any screen accessible from Practice tab | `practice.spec.js`, `offline.spec.js` |
 
 ### Nav tab names (never get these wrong):
-`Home` | `Learn` | `Practice` | `Croatia` | `Profile`
+`Today` | `Learn` | `Practice` | `Culture` | `Me`
 
 ### The rule in plain English:
 **You changed the UI. You own the tests. They ship together or not at all.**
