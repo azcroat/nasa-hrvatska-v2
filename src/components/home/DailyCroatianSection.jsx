@@ -1,28 +1,24 @@
 import React, { useState } from 'react';
 import { speak } from '../../data.jsx';
 
-// Daily rotating Croatian landmarks — verified Unsplash + local CC photos only
+// Daily rotating Croatian landmarks — 100% local webp, zero external dependencies.
+// Unsplash direct CDN links were removed: unauthenticated hotlinking is throttled
+// in production and caused intermittent blank images. All sources now served from
+// /public/images/scenes/ which is bundled with the app and always available.
 const DAILY_SCENES = [
-  { url: 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1200&q=85&fit=crop&auto=format', label: 'Rovinj, Istra',          pos: 'center 50%' },
-  { url: 'https://images.unsplash.com/photo-1559570704-fea2efaf9e79?w=1200&q=85&fit=crop&auto=format', label: 'Split, Dalmacija',       pos: 'center 40%' },
-  { url: '/images/scenes/plitvice.webp',                                                                label: 'Plitvička Jezera',       pos: 'center 50%' },
-  { url: 'https://images.unsplash.com/photo-1527515637462-cff94edd89b6?w=1200&q=85&fit=crop&auto=format', label: 'Hvar, Dalmacija',     pos: 'center 60%' },
-  { url: 'https://images.unsplash.com/photo-1587974928442-77dc3e0dba72?w=1200&q=85&fit=crop&auto=format', label: 'Zadar, Dalmacija',    pos: 'center 50%' },
-  { url: '/images/scenes/zagreb.webp',                                                                  label: 'Zagreb, Hrvatska',       pos: 'center 45%' },
-  { url: 'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?w=1200&q=85&fit=crop&auto=format', label: 'Korčula, Dalmacija', pos: 'center 55%' },
-  { url: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&q=85&fit=crop&auto=format', label: 'Pulska Arena, Istra',    pos: 'center 40%' },
-  { url: 'https://images.unsplash.com/photo-1555993539-1732b0258235?w=1200&q=85&fit=crop&auto=format', label: 'Dalmacija, Hrvatska',    pos: 'center 50%' },
-  { url: 'https://images.unsplash.com/photo-1588354918778-9e9f05701f90?w=1200&q=85&fit=crop&auto=format', label: 'Trogir, Dalmacija',  pos: 'center 50%' },
-  { url: '/images/scenes/labin.webp',                                                                   label: 'Labin, Istra',           pos: 'center 50%' },
-  { url: 'https://images.unsplash.com/photo-1602002418082-a4443e081dd1?w=1200&q=85&fit=crop&auto=format', label: 'Šibenik, Dalmacija', pos: 'center 45%' },
-  { url: '/images/scenes/rabac.webp',                                                                   label: 'Rabac, Istra',           pos: 'center 55%' },
-  { url: 'https://images.unsplash.com/photo-1698785820846-35f06c39ced7?w=1200&q=85&fit=crop&auto=format', label: 'Omiš, Dalmacija',    pos: 'center 50%' },
-  { url: '/images/scenes/zagreb.webp', label: 'Zagreb, Hrvatska', pos: 'center 50%' },
-  { url: 'https://images.unsplash.com/photo-1565116175827-965e73c9be0e?w=1200&q=85&fit=crop&auto=format', label: 'Brač, Dalmacija',    pos: 'center 60%' },
-  { url: '/images/scenes/dalmatian-coast.webp',                                                         label: 'Jadranska Obala',        pos: 'center 50%' },
-  { url: 'https://images.unsplash.com/photo-1548268770-66184a21657e?w=1200&q=85&fit=crop&auto=format', label: 'Varaždin, Hrvatska',    pos: 'center 45%' },
-  { url: 'https://images.unsplash.com/photo-1586161816003-bc944e3c7e27?w=1200&q=85&fit=crop&auto=format', label: 'Makarska, Dalmacija', pos: 'center 55%' },
-  { url: '/images/scenes/mostar.webp',                                                                  label: 'Mostar, Hercegovina',    pos: 'center 50%' },
+  { url: '/images/scenes/plitvice.webp',       label: 'Plitvička Jezera, Lika',    pos: 'center 50%' },
+  { url: '/images/scenes/dubrovnik-hero.webp', label: 'Dubrovnik, Dalmacija',       pos: 'center 40%' },
+  { url: '/images/scenes/labin.webp',          label: 'Labin, Istra',               pos: 'center 50%' },
+  { url: '/images/scenes/dalmatian-coast.webp',label: 'Jadranska Obala',            pos: 'center 50%' },
+  { url: '/images/scenes/zagreb.webp',         label: 'Zagreb, Hrvatska',           pos: 'center 45%' },
+  { url: '/images/scenes/mostar.webp',         label: 'Mostar, Hercegovina',        pos: 'center 50%' },
+  { url: '/images/scenes/rabac.webp',          label: 'Rabac, Istra',               pos: 'center 55%' },
+  { url: '/images/scenes/dalmatian-ai.webp',   label: 'Dalmacija, Hrvatska',        pos: 'center 50%' },
+  { url: '/images/scenes/dubrovnik-ai.webp',   label: 'Stari Grad, Dubrovnik',      pos: 'center 40%' },
+  { url: '/images/scenes/labin-real.webp',     label: 'Labin-Rabac, Istra',         pos: 'center 50%' },
+  { url: '/images/scenes/bibinje.webp',        label: 'Bibinje & Zadar, Dalmacija', pos: 'center 50%' },
+  { url: '/images/scenes/vinkovci.webp',       label: 'Vinkovci, Slavonija',        pos: 'center 50%' },
+  { url: '/images/scenes/croatian-food.webp',  label: 'Dalmatinska Kuhinja',        pos: 'center 55%' },
 ];
 
 function getDailyScene() {
