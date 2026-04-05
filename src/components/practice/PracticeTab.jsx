@@ -314,6 +314,19 @@ export default function PracticeTab({
     <div>
       {H("🎮 Practice", "Choose your training mode")}
 
+      {/* ── TODAY'S PICK — always visible, always first ──────────────────── */}
+      {/* Personalized picks lead the screen so returning users jump straight in */}
+      <div className="section-hdr" style={{ marginTop: 4 }}>
+        <div className="section-hdr-icon" style={{ background: 'rgba(99,102,241,.12)' }}>⭐</div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">Today's Pick</div>
+          <div className="section-hdr-sub">Chosen for right now — tap to start</div>
+        </div>
+      </div>
+      <div className="todays-picks-grid" style={{ marginBottom: 20 }}>
+        {EXERCISES.filter(e => todaysPicks.includes(e.id)).map(e => <ExerciseCard key={e.id} {...e} />)}
+      </div>
+
       {/* ── AI VOICE CONVERSATION — signature feature hero ───────────────── */}
       <button
         onClick={() => { recordRecentExercise('aiconvo'); setScr('aiconvo'); sCurEx('aiconvo'); }}
@@ -488,16 +501,6 @@ export default function PracticeTab({
         {/* ── DRILL PANEL ─────────────────────────────────────────────────── */}
         {activeIntent === 'drill' && (
           <div>
-            <div className="section-hdr">
-              <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>⭐</div>
-              <div className="section-hdr-text">
-                <div className="section-hdr-title">Today's Pick</div>
-                <div className="section-hdr-sub">3 exercises chosen for right now</div>
-              </div>
-            </div>
-            <div className="todays-picks-grid" style={{ marginBottom:16 }}>
-              {EXERCISES.filter(e => todaysPicks.includes(e.id)).map(e => <ExerciseCard key={e.id} {...e} />)}
-            </div>
             <div className="section-hdr">
               <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>📚</div>
               <div className="section-hdr-text">

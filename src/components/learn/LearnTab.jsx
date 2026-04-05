@@ -101,6 +101,49 @@ export default function LearnTab({
         </button>
       </div>
 
+      {/* ── CONTINUE LEARNING — jump straight to next item ───────────── */}
+      {/* Always the first interactive element so returning users tap once and go */}
+      {nextItem && (
+        <button
+          onClick={() => handleLaunchPathItem(nextItem)}
+          style={{
+            width: '100%', border: 'none', cursor: 'pointer', padding: 0,
+            borderRadius: 18, overflow: 'hidden', marginBottom: 16,
+            background: sc.bg,
+            boxShadow: '0 6px 24px rgba(0,0,0,.22)',
+            fontFamily: "'Outfit',sans-serif",
+          }}
+        >
+          <div style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{
+              width: 46, height: 46, borderRadius: 13, flexShrink: 0,
+              background: 'rgba(255,255,255,.18)', border: '1.5px solid rgba(255,255,255,.3)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
+            }}>{nextItem.icon || '📘'}</div>
+            <div style={{ flex: 1, textAlign: 'left' }}>
+              <div style={{ fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,.65)', letterSpacing: '.12em', textTransform: 'uppercase', marginBottom: 2 }}>
+                CONTINUE · {nextItem.stageTitle}
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', lineHeight: 1.2 }}>
+                {nextItem.name || nextItem.title || 'Next Lesson'}
+              </div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,.65)', marginTop: 2 }}>
+                {overallPct}% complete overall · Stage {overallPct < 100 ? stagePct : 100}% done
+              </div>
+            </div>
+            <div style={{
+              flexShrink: 0, background: 'rgba(255,255,255,.22)',
+              border: '1px solid rgba(255,255,255,.3)', borderRadius: 10,
+              padding: '6px 12px', fontSize: 12, fontWeight: 800, color: '#fff',
+            }}>Resume →</div>
+          </div>
+          {/* Progress bar */}
+          <div style={{ height: 3, background: 'rgba(0,0,0,.2)' }}>
+            <div style={{ height: '100%', background: 'rgba(255,255,255,.55)', width: `${stagePct}%`, transition: 'width .6s' }}/>
+          </div>
+        </button>
+      )}
+
       {/* ── AI MICRO-LESSON CARD ──────────────────────────────────────── */}
       <button
         onClick={() => setScr('micro_lesson')}
