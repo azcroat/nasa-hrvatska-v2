@@ -36,6 +36,7 @@ export default function LearnTab({
   const { stats: st } = useStats();
   const [showBrowse, setShowBrowse] = useState(false);
   const [pendingLesson, setPendingLesson] = useState(null);
+  const [showMoreContent, setShowMoreContent] = useState(false);
 
   // ── PATH PROGRESS ──────────────────────────────────────────────────────
   let totalDone = 0, totalItems = 0;
@@ -87,17 +88,17 @@ export default function LearnTab({
     <React.Fragment>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 900, color: 'var(--heading)' }}>🗺️ My Path</div>
+        {/* Grammar reference is a secondary action — text link keeps the primary CTA dominant */}
         <button
           onClick={() => setScr('grammar-ref')}
           style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '12px 18px', borderRadius: 10, border: 'none', cursor: 'pointer',
-            background: 'linear-gradient(135deg,var(--info),var(--heading))',
-            color: 'var(--card)', fontSize: 'var(--text-sm)', fontWeight: 700,
-            fontFamily: "'Outfit',sans-serif", minHeight: 44,
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: 'var(--info)', fontSize: 'var(--text-sm)', fontWeight: 700,
+            fontFamily: "'Outfit',sans-serif", padding: '8px 4px',
+            textDecoration: 'underline', textUnderlineOffset: 3,
           }}
         >
-          📖 Grammar
+          📖 Grammar reference
         </button>
       </div>
 
@@ -232,6 +233,26 @@ export default function LearnTab({
         </button>
       </div>
 
+      {/* ── BROWSE MORE — progressive disclosure ────────────────────── */}
+      {!showMoreContent && (
+        <button
+          onClick={() => setShowMoreContent(true)}
+          style={{
+            width: '100%', border: '1.5px dashed var(--card-b)', background: 'var(--card)',
+            borderRadius: 14, padding: '14px 20px', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            color: 'var(--subtext)', fontSize: 'var(--text-sm)', fontWeight: 700,
+            fontFamily: "'Outfit',sans-serif", marginBottom: 20,
+          }}
+        >
+          <span style={{ fontSize: 18 }}>✨</span>
+          Browse more learning content
+          <span style={{ fontSize: 14 }}>›</span>
+        </button>
+      )}
+
+      {/* ── PITCH ACCENT, HERITAGE, PHONEME, PRACTICAL, TOP500 ── hidden until "Browse More" ── */}
+      {showMoreContent && (<>
       {/* ── PITCH ACCENT + HERITAGE PATH ────────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
         <button
@@ -331,6 +352,7 @@ export default function LearnTab({
         </div>
         <div style={{ marginLeft: 'auto', color: 'rgba(255,255,255,.7)', fontSize: 18 }}>›</div>
       </button>
+      </>)}
 
       {/* ── PATH WIDGET ─────────────────────────────────────────────────── */}
       <LearnPathWidget

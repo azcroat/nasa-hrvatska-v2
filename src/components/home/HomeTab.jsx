@@ -135,8 +135,10 @@ export default function HomeTab({
   const activeCampaign = useMemo(() => getActiveCampaign(), [st.lc]);  
 
   // Goal-setter modal: show for new users who haven't set a goal yet
+  // Show goal modal for ANY user who hasn't set a goal yet — not just lc === 0.
+  // The lc check was wrong: post-placement users have lc > 0 but still need goal-setting.
   const [showGoalModal, setShowGoalModal] = useState(
-    () => st.lc === 0 && !localStorage.getItem('nh_goal_set')
+    () => !localStorage.getItem('nh_goal_set')
   );
 
   // Weekly recap modal — DuoLingo best practice: show weekly report on Monday mornings
@@ -283,7 +285,10 @@ export default function HomeTab({
 
       {/* ── WEEKLY RECAP MODAL (Monday mornings — DuoLingo best practice) ── */}
       {showWeeklyRecap && (
-        <WeeklyRecapModal onClose={() => { markRecapShown(); setShowWeeklyRecap(false); }} />
+        // markRecapShown() called immediately on display (not just close) so tab-switching
+        // doesn't re-show the modal before the user has a chance to close it.
+        <WeeklyRecapModal onClose={() => { markRecapShown(); setShowWeeklyRecap(false); }}
+          onMount={() => markRecapShown()} />
       )}
 
       {/* ── UNIT COMPLETE BANNER (fires once when user finishes a learning path level) ── */}
