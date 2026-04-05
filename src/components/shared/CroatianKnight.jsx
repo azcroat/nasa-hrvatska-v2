@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 /**
@@ -49,6 +49,7 @@ const MOOD_RIM = {
   sad:         'drop-shadow(0 0 7px rgba(220,38,38,.38))',
   confused:    null,
   neutral:     null,
+  glancing:    null,
 };
 
 // ─── Mood → eye slit color + animation ───────────────────────────────────────
@@ -60,10 +61,26 @@ const MOOD_EYE = {
   thinking:    { fill: '#A78BFA', anim: 'lk-eye-think 3.0s ease-in-out infinite',    op: 0.68 },
   ready:       { fill: '#93C5FD', anim: 'lk-eye-soft 2.5s ease-in-out infinite',     op: 0.70 },
   marching:    { fill: '#60A5FA', anim: 'lk-eye-march 0.92s ease-in-out infinite',   op: 0.72 },
-  sad:         { fill: '#FCA5A5', anim: 'lk-eye-sad 3.8s ease-in-out infinite',      op: 0.52 },
-  confused:    { fill: '#FDE68A', anim: 'lk-eye-confused 0.6s steps(1) infinite',    op: 0.60 },
-  neutral:     { fill: '#CBD5E1', anim: 'lk-eye-idle 4.5s ease-in-out infinite',     op: 0.42 },
+  sad:         { fill: '#FCA5A5', anim: 'lk-eye-sad 2.2s ease-in-out infinite',      op: 0.52 },
+  confused:    { fill: '#FDE68A', anim: 'lk-eye-confused 0.6s steps(1) infinite',   op: 0.60 },
+  neutral:     { fill: '#CBD5E1', anim: 'lk-eye-idle 2.2s ease-in-out infinite',    op: 0.48 },
+  glancing:    { fill: '#CBD5E1', anim: 'lk-eye-idle 2.2s ease-in-out infinite',    op: 0.50 },
 };
+
+// ─── Seasonal Croatian heritage decoration ────────────────────────────────────
+// Returns decoration metadata for key Croatian dates, null otherwise.
+function getSeasonalDecor() {
+  const now = new Date();
+  const m = now.getMonth() + 1; // 1-12
+  const d = now.getDate();
+  if (m === 5  && d === 30) return { key: 'statehood',    rim: 'drop-shadow(0 0 10px rgba(212,0,48,.7))',  badge: '🇭🇷', label: 'Dan državnosti' };
+  if (m === 6  && d === 25) return { key: 'independence', rim: 'drop-shadow(0 0 10px rgba(212,0,48,.7))',  badge: '🇭🇷', label: 'Dan neovisnosti' };
+  if (m === 8  && d === 5)  return { key: 'domovinski',   rim: 'drop-shadow(0 0 12px rgba(212,0,48,.85))', badge: '⚔️',  label: 'Dan pobjede' };
+  if (m === 12 && d === 6)  return { key: 'nikola',       rim: 'drop-shadow(0 0 10px rgba(212,164,0,.7))', badge: '🎁',  label: 'Sv. Nikola' };
+  if (m === 12 && (d === 24 || d === 25)) return { key: 'bozic', rim: 'drop-shadow(0 0 12px rgba(212,164,0,.8))', badge: '⭐', label: 'Sretan Božić' };
+  if (m === 1  && d === 1)  return { key: 'novagodina',  rim: 'drop-shadow(0 0 12px rgba(124,58,237,.75))', badge: '🎆', label: 'Nova Godina' };
+  return null;
+}
 
 // ─── Level-based visual evolution ────────────────────────────────────────────
 function getLevelConfig(level) {
@@ -508,6 +525,28 @@ const KF = `
 @keyframes lk-eye-legendary { 0%,100%{opacity:0.6; transform:scaleX(1)} 40%{opacity:1; transform:scaleX(1.03)} 80%{opacity:0.75} }
 @keyframes lk-crown         { 0%,100%{opacity:0.6} 50%{opacity:1} }
 @keyframes lk-aura          { 0%,100%{opacity:0.12} 50%{opacity:0.3} }
+
+/* ─── Attention-getter: curiosity glance left → right ── */
+@keyframes lk-hd-glance {
+  0%      { transform: rotate(0deg) }
+  12%     { transform: rotate(-16deg) }
+  30%     { transform: rotate(-10deg) }
+  48%     { transform: rotate(14deg) }
+  62%     { transform: rotate(10deg) }
+  78%     { transform: rotate(3deg) }
+  90%,100%{ transform: rotate(0deg) }
+}
+@keyframes lk-plume-glance {
+  0%,100% { transform: rotate(0deg) }
+  18%     { transform: rotate(12deg) }
+  48%     { transform: rotate(-10deg) }
+  72%     { transform: rotate(6deg) }
+}
+/* ─── Seasonal star for Božić / national days ── */
+@keyframes lk-star-pulse {
+  0%,100% { opacity: 0.80; transform: scale(1)    rotate(0deg) }
+  50%     { opacity: 1.00; transform: scale(1.18) rotate(18deg) }
+}
 `;
 
 // ─── Mood variants (body + armL + armR + head + plume + shadow) ───────────────
@@ -555,18 +594,23 @@ const VARIANTS = {
   sad: [
     { body: 'lk-droop 3.00s ease-in-out infinite', armL: 'lk-aL-droop 3.00s ease-in-out infinite', armR: 'lk-aR-droop 3.00s ease-in-out infinite',
       head: 'lk-hd-droop 3.00s ease-in-out infinite', plume: 'lk-plume-droop 3.00s 0.40s ease-in-out infinite', shadow: 'lk-shadow-idle 3.00s ease-in-out infinite' },
-    { body: 'lk-sway 4.00s ease-in-out infinite',  armL: 'lk-aL-droop 4.00s ease-in-out infinite', armR: 'lk-aR-droop 4.00s ease-in-out infinite',
-      head: 'lk-hd-droop 4.00s ease-in-out infinite', plume: 'lk-plume-droop 4.00s 0.50s ease-in-out infinite', shadow: 'lk-shadow-idle 4.00s ease-in-out infinite' },
+    { body: 'lk-sway 2.80s ease-in-out infinite',  armL: 'lk-aL-droop 2.80s ease-in-out infinite', armR: 'lk-aR-droop 2.80s ease-in-out infinite',
+      head: 'lk-hd-droop 2.80s ease-in-out infinite', plume: 'lk-plume-droop 2.80s 0.38s ease-in-out infinite', shadow: 'lk-shadow-idle 2.80s ease-in-out infinite' },
     { body: 'lk-stamp 3.50s ease-in-out infinite', armL: 'lk-aL-droop 3.50s ease-in-out infinite', armR: null,
       head: 'lk-hd-droop 3.50s ease-in-out infinite', plume: 'lk-plume-droop 3.50s 0.45s ease-in-out infinite', shadow: 'lk-shadow-stamp 3.50s ease-in-out infinite' },
   ],
   neutral: [
-    { body: 'lk-idle 4.00s ease-in-out infinite',  armL: null, armR: null,
-      head: 'lk-hd-bob 4.00s ease-in-out infinite', plume: 'lk-plume-idle 4.00s 0.50s ease-in-out infinite', shadow: 'lk-shadow-idle 4.00s ease-in-out infinite' },
-    { body: 'lk-sway 5.00s ease-in-out infinite',  armL: null, armR: null,
-      head: 'lk-hd-bob 5.00s ease-in-out infinite', plume: 'lk-plume-idle 5.00s 0.65s ease-in-out infinite', shadow: 'lk-shadow-idle 5.00s ease-in-out infinite' },
-    { body: 'lk-glide 4.50s ease-in-out infinite', armL: null, armR: null,
-      head: 'lk-hd-bob 4.50s ease-in-out infinite', plume: 'lk-plume-idle 4.50s 0.58s ease-in-out infinite', shadow: 'lk-shadow-idle 4.50s ease-in-out infinite' },
+    { body: 'lk-idle 2.20s ease-in-out infinite',  armL: null, armR: null,
+      head: 'lk-hd-bob 2.20s ease-in-out infinite', plume: 'lk-plume-idle 2.20s 0.30s ease-in-out infinite', shadow: 'lk-shadow-idle 2.20s ease-in-out infinite' },
+    { body: 'lk-sway 2.60s ease-in-out infinite',  armL: null, armR: null,
+      head: 'lk-hd-bob 2.60s ease-in-out infinite', plume: 'lk-plume-idle 2.60s 0.36s ease-in-out infinite', shadow: 'lk-shadow-idle 2.60s ease-in-out infinite' },
+    { body: 'lk-glide 2.40s ease-in-out infinite', armL: null, armR: null,
+      head: 'lk-hd-bob 2.40s ease-in-out infinite', plume: 'lk-plume-idle 2.40s 0.32s ease-in-out infinite', shadow: 'lk-shadow-idle 2.40s ease-in-out infinite' },
+  ],
+  // Special attention-getter — plays once then stops (iteration count 1)
+  glancing: [
+    { body: 'lk-idle 3.60s ease-in-out infinite', armL: null, armR: null,
+      head: 'lk-hd-glance 3.60s ease-in-out 1', plume: 'lk-plume-glance 3.60s 0.22s ease-in-out 1', shadow: 'lk-shadow-idle 3.60s ease-in-out infinite' },
   ],
   victory: [
     { body: 'lk-bounce 0.60s ease-in-out infinite', armL: 'lk-aL-up 0.60s ease-in-out infinite', armR: 'lk-aR-up 0.60s ease-in-out infinite',
@@ -698,24 +742,42 @@ function Defs() {
 const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'happy', variant, level = 1, className = '', style = {} }) {
   const variants = VARIANTS[mood] || VARIANTS.happy;
 
-  // Variant is driven by the mood prop only — no auto-cycling.
-  // When a caller passes an explicit variant index, use it.
-  // Otherwise pick deterministically from the hour so the same user
-  // sees consistent animation within a session but variety across days.
-  const activeVarIdx = useMemo(() => {
-    if (variant !== undefined && variant >= 0 && variant < variants.length) return variant;
-    return new Date().getHours() % variants.length;
-  }, [mood, variant, variants.length]);
+  // Auto-cycle variant every 5 minutes so the knight never looks frozen.
+  // Explicit variant prop bypasses cycling (e.g. onboarding, placement test).
+  const [autoVarIdx, setAutoVarIdx] = useState(() =>
+    variant !== undefined ? 0 : (new Date().getHours() % variants.length)
+  );
+
+  // Reset to a fresh variant whenever mood changes.
+  useEffect(() => {
+    if (variant !== undefined) return;
+    setAutoVarIdx(new Date().getHours() % variants.length);
+  }, [mood]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Cycle every 5 minutes when no explicit variant is locked in.
+  useEffect(() => {
+    if (variant !== undefined) return;
+    const id = setInterval(
+      () => setAutoVarIdx(prev => (prev + 1) % variants.length),
+      5 * 60 * 1000
+    );
+    return () => clearInterval(id);
+  }, [variant, variants.length]);
+
+  const activeVarIdx = variant !== undefined
+    ? Math.min(variant, variants.length - 1)
+    : autoVarIdx;
 
   const m = variants[Math.min(activeVarIdx, variants.length - 1)];
   const lvlCfg = getLevelConfig(level);
   const isCelebrating = mood === 'celebrating';
+  const seasonal = getSeasonalDecor();
   // Level-based sword blade gradient — steel → gold → legendary blue
   const swordGrad = level >= 76 ? 'url(#lk-bl-legendary)' : level >= 26 ? 'url(#lk-bl-gold)' : 'url(#lk-bl)';
   const eyeSlit = MOOD_EYE[mood] || MOOD_EYE.neutral;
 
-  // Is this an active (not calm idle) mood?
-  const isActive = !['neutral', 'sad', 'thinking'].includes(mood);
+  // Jitter applies to all moods — LEGO Movie principle 1 is always on.
+  // Previously only active moods got jitter; calm moods looked frozen without it.
 
   // Confetti for celebrating
   const confetti = isCelebrating ? [
@@ -735,7 +797,8 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
     ? { type: 'spring', stiffness: 520, damping: 16, mass: 0.7 }
     : { type: 'spring', stiffness: 380, damping: 22 };
 
-  const rimFilter = MOOD_RIM[mood];
+  // Seasonal rim takes priority over mood rim on special Croatian dates.
+  const rimFilter = (seasonal?.rim) || MOOD_RIM[mood];
 
   return (
     <motion.div
@@ -753,8 +816,9 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
     >
     {/* ── LEGO MOVIE PRINCIPLE 1: Stop-motion jitter wrapper ── */}
     {/* steps(1) snaps between positions — no smooth interpolation */}
+    {/* Applied to ALL moods — calm moods looked frozen without it */}
     {/* NOTE: must be a <div>, not <g> — <g> is SVG-only and invalid as HTML */}
-    <div style={{ display: 'inline-block', lineHeight: 0, ...(isActive ? { animation: 'lk-jitter 0.083s steps(1) infinite' } : {}) }}>
+    <div style={{ display: 'inline-block', lineHeight: 0, animation: 'lk-jitter 0.083s steps(1) infinite' }}>
     <svg
       width={size}
       height={Math.round(size * 1.56)}
@@ -779,6 +843,33 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
           }}
         />
       ))}
+
+      {/* ── Seasonal Croatian heritage decoration ── */}
+      {/* Appears above the plume on key Croatian national dates */}
+      {seasonal && (
+        <g style={{ transformOrigin: '80px -68px' }}>
+          {/* Five-pointed star */}
+          <path
+            d="M 80,-68 L 82,-62 L 88,-62 L 83,-58 L 85,-52 L 80,-56 L 75,-52 L 77,-58 L 72,-62 L 78,-62 Z"
+            fill={seasonal.key === 'bozic' || seasonal.key === 'nikola' ? C.gdHi : C.red}
+            stroke={seasonal.key === 'bozic' || seasonal.key === 'nikola' ? '#9A7200' : '#860015'}
+            strokeWidth="0.8"
+            style={{
+              animation: 'lk-star-pulse 1.8s ease-in-out infinite',
+              transformOrigin: '80px -60px',
+            }}
+          />
+          {/* Small checkerboard accent for national days */}
+          {(seasonal.key === 'statehood' || seasonal.key === 'independence' || seasonal.key === 'domovinski') && (
+            <>
+              <rect x="74" y="-50" width="4" height="4" fill={C.wht} opacity="0.9"/>
+              <rect x="78" y="-50" width="4" height="4" fill={C.red} opacity="0.9"/>
+              <rect x="74" y="-46" width="4" height="4" fill={C.red} opacity="0.9"/>
+              <rect x="78" y="-46" width="4" height="4" fill={C.wht} opacity="0.9"/>
+            </>
+          )}
+        </g>
+      )}
 
       {/* Level 100+: Legendary aura rings */}
       {lvlCfg.aura && (
@@ -862,10 +953,13 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
           fill="url(#lk-rd)" opacity="0.75"/>
 
         {/* ───────────── TORSO ───────────── */}
-        {/* Breathing: subtle scaleY on calm moods only; transform-origin at foot of torso */}
+        {/* Breathing: always-on baseline scaleY so the knight never looks frozen.
+             Excluded only from celebrating/victory — their high-energy bounce is
+             fast enough that breathing would be unnoticeable and potentially
+             conflict with the squash-stretch body animation. */}
         <rect rx="8" x="26" y="64" width="68" height="56"
           fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1.3"
-          style={['neutral','happy','ready','thinking'].includes(mood) ? {
+          style={!['celebrating','victory'].includes(mood) ? {
             animation: 'lk-breathe 3.8s ease-in-out infinite',
             transformOrigin: '60px 120px',
           } : undefined}

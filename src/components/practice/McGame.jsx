@@ -130,6 +130,10 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
       haptic.wrong();
       playWrong();
       if (q.hr) recordMistake(q.hr, q.en || q.correct || '', q.q || q.prompt || '', q.category || '');
+      // Knight reacts to wrong answers — first mistake is gentle curiosity; streak of 3+ escalates to focus cue
+      const nextWrongStreak = state.wrongStreak + 1;
+      if (nextWrongStreak === 1) knightSpeak('thinking', 'Nije točno — but your brain just noticed it. That\'s how memory forms. 📐');
+      else if (nextWrongStreak === 3) knightSpeak('encouraged', 'Tri greške zaredom — slow down and feel the pattern. It will click. 💪');
     }
     if (q.hr) srMark(q.hr, isCorrect);
 

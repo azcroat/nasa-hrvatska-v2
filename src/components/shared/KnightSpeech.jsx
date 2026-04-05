@@ -307,6 +307,9 @@ export default function KnightSpeech({
   const [animOut, setAnimOut]   = useState(false);
   const [greeting, setGreeting] = useState(() => getGreeting(st, streak, level));
   const [celebBurst, setCelebBurst] = useState(false);
+  // introMood: temporary mood override for the first-visit walk-in sequence.
+  // Runs through neutral → marching → celebrating → ready over ~3.2s.
+  const [introMood, setIntroMood] = useState(null);
   // ── Persistent pool state (survives reload, resets daily) ────────────────────
   const POOL_KEY = 'nh_knight_pool';
   function _loadPoolState() {
@@ -333,6 +336,25 @@ export default function KnightSpeech({
   const poolIdxRef              = useRef(_initPool.poolIdx);
   const lastPickRef             = useRef(_initPool.lastPick);
   const celebTimerRef           = useRef(null);
+
+  // ── First-visit walk-in intro sequence ───────────────────────────────────
+  // Plays once ever: knight walks in from offscreen (handled by wrapper motion.div
+  // below) and cycles through neutral → marching → celebrating → ready moods,
+  // creating an introduction moment before settling into the greeting.
+  useEffect(() => {
+    const introKey = 'nh_knight_intro_seq';
+    if (localStorage.getItem(introKey)) return; // already seen
+    if (!st || (st.lc || 0) > 0) return; // only for truly new users
+    localStorage.setItem(introKey, '1');
+    // Beat 1: knight arrives — neutral/marching
+    setIntroMood('marching');
+    const t1 = setTimeout(() => setIntroMood('celebrating'), 1200);
+    // Beat 3: celebrate sword raise
+    const t2 = setTimeout(() => setIntroMood('happy'), 2400);
+    // Beat 4: settle into ready stance, then hand off to greeting mood
+    const t3 = setTimeout(() => setIntroMood(null), 3400);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Show full once per day, then mini
   useEffect(() => {
@@ -405,17 +427,28 @@ export default function KnightSpeech({
 
   if (mode === 'hidden') return null;
 
-  const { mood, text } = greeting;
+  // introMood temporarily overrides greeting.mood during the walk-in sequence.
+  const { mood: greetingMood, text } = greeting;
+  const mood = introMood || greetingMood;
   const lc = st?.lc || 0;
   const isStreakRisk   = lc > 0 && streak === 0;
   const isEveningRisk  = lc > 0 && streak > 0 && new Date().getHours() >= 21;
   const showUrgency    = isStreakRisk || isEveningRisk;
   const accentColor    = MOOD_COLOR[mood] || MOOD_COLOR.happy;
 
-  // ── Mini mode — floating knigh button ─────────────────────────────────────
+  // ── Mini mode — floating knight button ────────────────────────────────────
   if (mode === 'mini') {
+    const hasSeenIntro = !!localStorage.getItem('nh_knight_intro_seq');
     return (
-      <div style={{ position: 'fixed', bottom: 68, left: 16, zIndex: 100, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <motion.div
+        initial={hasSeenIntro ? { scale: 0.7, opacity: 0 } : { x: -72, opacity: 0 }}
+        animate={{ x: 0, scale: 1, opacity: 1 }}
+        transition={hasSeenIntro
+          ? { type: 'spring', stiffness: 420, damping: 22 }
+          : { type: 'spring', stiffness: 260, damping: 18, delay: 0.15 }
+        }
+        style={{ position: 'fixed', bottom: 68, left: 16, zIndex: 100, display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+      >
       <button
         onClick={() => { setGreeting(getGreeting(st, streak, level)); setMode('full'); }}
         aria-label="Chat with Vitez Hrvoje, your Croatian coach"
@@ -474,7 +507,7 @@ export default function KnightSpeech({
       }}>
         {showUrgency ? '⚠️ Hrvoje' : 'Hrvoje'}
       </div>
-    </div>
+      </motion.div>
     );
   }
 

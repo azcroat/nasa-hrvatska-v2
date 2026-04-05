@@ -9,10 +9,12 @@
  *     knightSpeak()) and pops up a floating speech bubble above the button.
  *   • Also shows a bubble on tap with a rotating pool of motivational messages.
  */
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CroatianKnight from './CroatianKnight';
 import { useApp } from '../../context/AppContext.jsx';
+import { useStats } from '../../context/StatsContext.jsx';
+import { getStreak } from '../../data.jsx';
 
 // ── Mood → accent colour ──────────────────────────────────────────────────────
 const MOOD_COLOR = {
@@ -25,6 +27,68 @@ const MOOD_COLOR = {
   ready:       '#1d4ed8',
   neutral:     '#64748b',
 };
+
+// ── Screen → appropriate knight mood ─────────────────────────────────────────
+// Hrvoje picks up on context: quiz = ready/thinking, reading = happy, etc.
+const SCREEN_MOOD_MAP = {
+  // Learning
+  lesson:               'thinking',
+  grammar:              'thinking',
+  grammar_track:        'thinking',
+  padezi:               'thinking',
+  padezifull:           'thinking',
+  tenses:               'thinking',
+  aspect:               'thinking',
+  modal:                'thinking',
+  declension:           'thinking',
+  conditional:          'thinking',
+  impersonal:           'thinking',
+  clitic:               'thinking',
+  formalregister:       'thinking',
+  past_tense_lesson:    'thinking',
+  future_tense_lesson:  'thinking',
+  alphabet:             'thinking',
+  phonology:            'thinking',
+  // Practice
+  flashcards:           'thinking',
+  mcgame:               'ready',
+  mcresult:             'happy',
+  typing:               'ready',
+  listening:            'thinking',
+  speaking:             'ready',
+  review:               'encouraged',
+  wordsprint:           'marching',
+  cefrtest:             'ready',
+  dictation:            'thinking',
+  dialogue:             'ready',
+  shadowing:            'thinking',
+  adaptive_review:      'encouraged',
+  production_drill:     'ready',
+  listeningpath:        'thinking',
+  // Croatia / culture
+  storymode:            'happy',
+  readlist:             'happy',
+  reading:              'happy',
+  history:              'thinking',
+  immersion:            'happy',
+  roleplay:             'ready',
+  idioms:               'happy',
+  proverbs:             'happy',
+  advanced_vocab:       'happy',
+  // Path
+  learnpath:            'marching',
+  learnpath_widget:     'marching',
+};
+
+// ── Mood escalation based on current streak ───────────────────────────────────
+// Long streaks earn a more enthusiastic knight baseline.
+function getStreakMood(count) {
+  if (count >= 30) return 'celebrating';
+  if (count >= 14) return 'victory';
+  if (count >= 7)  return 'marching';
+  if (count >= 3)  return 'happy';
+  return null;
+}
 
 // ── Messages shown when user taps the mini button ────────────────────────────
 const TAP_POOL = [
@@ -77,10 +141,20 @@ let _tapIdx = 0; // persists across re-renders; rotates through TAP_POOL
 
 export default function KnightCompanion() {
   const { currentScreen } = useApp();
-  const [bubble, setBubble]       = useState(null); // { mood, text }
+  const { stats } = useStats();
+  const [bubble, setBubble]         = useState(null); // { mood, text }
   const [showBubble, setShowBubble] = useState(false);
   const [celebBurst, setCelebBurst] = useState(false);
-  const timerRef = useRef(null);
+  // glancing: temporarily override mood for attention-getter animation
+  const [glancing, setGlancing]     = useState(false);
+  // introPlayed: first-time walk-in from left
+  const [introPlayed, setIntroPlayed] = useState(
+    () => !!localStorage.getItem('nh_companion_intro')
+  );
+  const timerRef      = useRef(null);
+  const idleTimerRef  = useRef(null);
+  const glanceTimerRef = useRef(null);
+  const lastActivityRef = useRef(Date.now());
 
   // Hide on screens where KnightSpeech in HomeTab is active
   const isHome = !currentScreen
@@ -89,7 +163,19 @@ export default function KnightCompanion() {
     || currentScreen === 'placement'
     || currentScreen === 'new-placement';
 
-  // Listen for knight:speak events dispatched by screens
+  // ── Screen-aware mood ─────────────────────────────────────────────────────
+  const screenMood = SCREEN_MOOD_MAP[currentScreen] || null;
+
+  // ── Streak-based mood escalation ──────────────────────────────────────────
+  const streakCount = getStreak()?.count || 0;
+  const streakMood = getStreakMood(streakCount);
+
+  // Final mood priority: glancing > bubble mood > screen mood > streak mood > 'ready'
+  const displayMood = glancing
+    ? 'glancing'
+    : bubble?.mood || screenMood || streakMood || 'ready';
+
+  // ── Listen for knight:speak events dispatched by screens ─────────────────
   useEffect(() => {
     const handler = (e) => {
       const d = e.detail || {};
@@ -114,9 +200,46 @@ export default function KnightCompanion() {
     return () => window.removeEventListener('knight:celebrate', onCelebrate);
   }, []);
 
+  // ── Attention-getter: after 30s of inactivity, do a curiosity glance ─────
+  const resetIdleTimer = useCallback(() => {
+    lastActivityRef.current = Date.now();
+    clearTimeout(idleTimerRef.current);
+    idleTimerRef.current = setTimeout(() => {
+      // Don't interrupt an active bubble or celebration
+      if (!showBubble) {
+        setGlancing(true);
+        clearTimeout(glanceTimerRef.current);
+        // Glance animation runs once (~3.6s), then reset
+        glanceTimerRef.current = setTimeout(() => setGlancing(false), 3800);
+      }
+    }, 30_000);
+  }, [showBubble]);
+
+  useEffect(() => {
+    const events = ['mousemove', 'touchstart', 'keydown', 'scroll', 'click'];
+    events.forEach(ev => window.addEventListener(ev, resetIdleTimer, { passive: true }));
+    resetIdleTimer(); // start the timer on mount
+    return () => {
+      events.forEach(ev => window.removeEventListener(ev, resetIdleTimer));
+      clearTimeout(idleTimerRef.current);
+      clearTimeout(glanceTimerRef.current);
+    };
+  }, [resetIdleTimer]);
+
+  // ── First-time walk-in intro animation ───────────────────────────────────
+  useEffect(() => {
+    if (introPlayed || isHome) return;
+    // Short delay so the component has fully mounted before animating
+    const t = setTimeout(() => {
+      localStorage.setItem('nh_companion_intro', '1');
+      setIntroPlayed(true);
+    }, 50);
+    return () => clearTimeout(t);
+  }, [introPlayed, isHome]);
+
   if (isHome) return null;
 
-  const accentColor = bubble ? (MOOD_COLOR[bubble.mood] || MOOD_COLOR.happy) : MOOD_COLOR.happy;
+  const accentColor = MOOD_COLOR[displayMood] || MOOD_COLOR.ready;
 
   const handleTap = () => {
     const msg = TAP_POOL[_tapIdx % TAP_POOL.length];
@@ -124,7 +247,10 @@ export default function KnightCompanion() {
     setBubble(msg);
     setShowBubble(true);
     clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setShowBubble(false), 3800);
+    timerRef.current = setTimeout(() => {
+      setShowBubble(false);
+      setBubble(null);
+    }, 3800);
   };
 
   return (
@@ -194,11 +320,20 @@ export default function KnightCompanion() {
         )}
       </AnimatePresence>
 
-      {/* ── Mini knight button ── */}
-      <button
+      {/* ── Mini knight button — walk-in intro on first appearance ── */}
+      <motion.button
         onClick={handleTap}
         aria-label="Chat with Vitez Hrvoje, your Croatian coach"
         title="Vitez Hrvoje — tap for a message"
+        // First-time: slide in from the left with a bounce; thereafter just spring-in.
+        initial={introPlayed ? { scale: 0.6, opacity: 0 } : { x: -80, opacity: 0, scale: 0.8 }}
+        animate={{ x: 0, scale: 1, opacity: 1 }}
+        transition={introPlayed
+          ? { type: 'spring', stiffness: 420, damping: 22 }
+          : { type: 'spring', stiffness: 280, damping: 18, delay: 0.2 }
+        }
+        whileHover={{ scale: 1.13 }}
+        whileTap={{ scale: 0.93 }}
         style={{
           position: 'fixed', bottom: 80, left: 16,
           width: 60, height: 60, borderRadius: '50%',
@@ -208,15 +343,15 @@ export default function KnightCompanion() {
           cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           padding: 0, zIndex: 100,
-          animation: 'spring-in .35s cubic-bezier(0.34,1.56,0.64,1) both',
-          transition: 'transform .15s ease, box-shadow .15s ease',
+          // Pulse ring on streak milestones to draw attention
+          outline: streakMood === 'celebrating' ? `2px solid ${accentColor}` : 'none',
+          outlineOffset: 3,
+          transition: 'border-color .3s ease, box-shadow .3s ease',
         }}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.13)'; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
       >
-        <CroatianKnight size={42} mood={bubble?.mood || 'ready'} variant={0} />
+        <CroatianKnight size={42} mood={displayMood} />
         <CelebrationBurst active={celebBurst} />
-      </button>
+      </motion.button>
     </>
   );
 }
