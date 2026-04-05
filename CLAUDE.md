@@ -736,6 +736,67 @@ Present designs sequentially, compare in prose, then **give a strong recommendat
 
 ---
 
+### producthunt
+**Trigger:** User mentions Product Hunt, PH, or product launches — wants posts, topics, users, or collections from the platform.
+
+**Requires:** `PRODUCTHUNT_ACCESS_TOKEN` env var (get from producthunt.com/v2/oauth/applications).
+
+**Commands (run from skill directory):**
+```bash
+# Posts
+python3 scripts/get_post.py chatgpt              # by slug
+python3 scripts/get_posts.py --limit 20          # today's featured
+python3 scripts/get_posts.py --topic ai --limit 10
+python3 scripts/get_posts.py --after 2026-01-01
+python3 scripts/get_post_comments.py POST_ID --limit 20
+
+# Topics
+python3 scripts/get_topic.py artificial-intelligence
+python3 scripts/get_topics.py --query "AI" --limit 20
+
+# Users
+python3 scripts/get_user.py rrhoover
+python3 scripts/get_user_posts.py rrhoover --limit 20
+
+# Collections
+python3 scripts/get_collections.py --featured --limit 20
+```
+
+**API:** GraphQL at `https://api.producthunt.com/v2/api/graphql`. Rate limit: 6250 complexity points / 15 min.
+
+---
+
+### reddit
+**Trigger:** User mentions Reddit, a subreddit, or r/ links — wants posts, comments, subreddit info, or user profiles.
+
+**No API key required** — uses public JSON API (append `.json` to any Reddit URL).
+
+**Commands (run from skill directory):**
+```bash
+# Subreddit posts
+python3 scripts/get_posts.py python --limit 20
+python3 scripts/get_posts.py python --sort top --time week
+
+# Search
+python3 scripts/search_posts.py "AI agent" --limit 20
+python3 scripts/search_posts.py "MCP server" --subreddit ClaudeAI --limit 10
+
+# Subreddit info
+python3 scripts/get_subreddit.py ClaudeAI
+
+# Post + comments
+python3 scripts/get_post.py abc123 --comments 50
+
+# User profile
+python3 scripts/get_user.py spez --posts 10
+```
+
+**Sort options:** `hot` (default) | `new` | `top` (+ time: hour/day/week/month/year/all) | `rising` | `controversial`
+
+**Rate limit:** 100 requests/minute.
+
+---
+
 ### write-a-skill
 **Trigger:** User wants to create, write, or build a new skill / agent skill file.
 
