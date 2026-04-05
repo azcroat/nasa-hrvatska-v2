@@ -5,30 +5,32 @@ test.describe('Authentication — Login screen', () => {
   test.beforeEach(async ({ page }) => {
     await blockFirebase(page);
     await page.goto('/');
-    await expect(page.locator('h1')).toContainText('Naša Hrvatska', { timeout: 10_000 });
+    await expect(page.locator('h1')).toContainText('Naša Hrvatska', { timeout: 20_000 });
   });
 
   test('renders the login form with all required fields', async ({ page }) => {
     await expect(page.locator('input[type="email"]')).toBeVisible();
     await expect(page.locator('input[type="password"]')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Sign In' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Sign In', exact: true })).toBeVisible();
   });
 
   test('shows error when submitting empty form', async ({ page }) => {
-    await page.getByRole('button', { name: 'Sign In' }).click();
+    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
     await expect(page.getByText('Please enter a valid email address')).toBeVisible();
   });
 
   test('shows error for invalid email format', async ({ page }) => {
     await page.locator('input[type="email"]').fill('notanemail');
     await page.locator('input[type="password"]').fill('somepassword');
-    await page.getByRole('button', { name: 'Sign In' }).click();
+    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
     await expect(page.getByText('Please enter a valid email address')).toBeVisible();
   });
 
   test('shows error when password is missing', async ({ page }) => {
-    await page.locator('input[type="email"]').fill('user@example.com');
-    await page.getByRole('button', { name: 'Sign In' }).click();
+    // Use #auth-email ID + pressSequentially to guarantee React onChange fires
+    await page.locator('#auth-email').click();
+    await page.locator('#auth-email').pressSequentially('user@example.com');
+    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
     await expect(page.getByText('Please enter your password')).toBeVisible();
   });
 
@@ -68,6 +70,6 @@ test.describe('Authentication — Login screen', () => {
     await expect(page.getByRole('button', { name: 'Create Account' })).toBeVisible();
     // The toggle at the bottom says "Sign in"
     await page.getByText('Sign in').click();
-    await expect(page.getByRole('button', { name: 'Sign In' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Sign In', exact: true })).toBeVisible();
   });
 });

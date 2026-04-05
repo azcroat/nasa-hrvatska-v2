@@ -4,11 +4,11 @@ import CroatianGrb from './CroatianGrb.jsx';
 import CroatianKnight from './CroatianKnight.jsx';
 
 const TABS = [
-  { id:"home",     label:"Home" },
+  { id:"home",     label:"Today" },
   { id:"learn",    label:"Learn" },
   { id:"practice", label:"Practice" },
-  { id:"croatia",  label:"Croatia" },
-  { id:"profile",  label:"Profile" },
+  { id:"croatia",  label:"Culture" },
+  { id:"profile",  label:"Me" },
 ];
 
 function NavIcon({ id, active }) {
@@ -104,7 +104,7 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
   const _isDark = darkMode;
 
   return (
-    <aside className="sidebar" aria-label="Sidebar navigation">
+    <nav className="sidebar" aria-label="Main navigation">
       {/* Brand */}
       <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid var(--nav-b)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -226,7 +226,7 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
       <nav style={{ padding: '8px 12px', flex: 1 }}>
         {TABS.map(t => (
           <button key={t.id} className={'sb-btn' + (tab === t.id ? ' active' : '')}
-            onClick={() => { setTab(t.id); setScr('dashboard'); }}
+            onClick={() => { setScr('dashboard'); setTab(t.id); }}
             aria-current={tab === t.id ? 'page' : undefined}>
             <span style={{ display:'flex', alignItems:'center', color: tab === t.id ? (t.id === 'croatia' ? '#D40030' : '#0e7490') : 'var(--nav-lbl)', flexShrink:0 }}>
               <NavIcon id={t.id} active={tab === t.id} />
@@ -280,6 +280,6 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
           </button>
         )}
       </div>
-    </aside>
+    </nav>
   );
 }

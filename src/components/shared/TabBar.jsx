@@ -124,7 +124,7 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
                 if (t.id === 'croatia') {
                   localStorage.setItem('nh_croatia_last_visit', new Date().toISOString().slice(0, 10));
                 }
-                setTab(t.id); setScr("dashboard");
+                setScr("dashboard"); setTab(t.id);
               }}
               aria-current={isActive ? "page" : undefined}
               aria-label={t.label}

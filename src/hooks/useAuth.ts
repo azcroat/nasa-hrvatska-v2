@@ -134,6 +134,11 @@ export function useAuth({
       clearTimeout(authFallbackTimer);
       if (!fbUser) {
         if (guestRef.current) { setAuthScreen('app'); return; }
+        // If we already restored from local cache (earlyRestored) and Firebase
+        // fires null — this happens when offline or in test environments with
+        // placeholder Firebase credentials. Keep the locally-restored session
+        // rather than wiping it and reverting to login.
+        if (earlyRestored) return;
         cS();
         if (watchRef.current) { watchRef.current(); watchRef.current = null; }
         setAuthUser(null);

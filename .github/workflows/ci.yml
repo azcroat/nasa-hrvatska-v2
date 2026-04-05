@@ -125,10 +125,8 @@ jobs:
     name: E2E Tests (Cross-Browser)
     runs-on: ubuntu-latest
     needs: quality
-    # E2E tests require live Firebase auth — cannot run in CI with placeholder credentials.
-    # Run manually: npx playwright test (against localhost) or playwright.smoke.config.js (against prod).
-    # Disabled in CI to keep the pipeline green; re-enable once seed-auth fixtures are wired in CI.
-    if: false
+    # Tests use seedAuth (localStorage injection) + blockFirebase (network abort) fixtures.
+    # No live Firebase credentials needed — the app runs in fully hermetic mode.
     steps:
       - uses: actions/checkout@v4
 
