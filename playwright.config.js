@@ -3,10 +3,12 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   testIgnore: [
-    '**/smoke.spec.js',          // uses playwright.smoke.config.js (production URL)
-    '**/*-audit.spec.js',        // audit specs run manually against production (not in CI)
-    '**/heavy-user-*.spec.js',   // 60-day heavy user spec — 20+ min, production only
-    '**/live-login.spec.js',     // requires production credentials
+    '**/smoke.spec.js',              // uses playwright.smoke.config.js (production URL)
+    '**/*-audit.spec.js',            // audit specs run manually against production (not in CI)
+    '**/heavy-user-*.spec.js',       // 60-day heavy user spec — 20+ min, production only
+    '**/live-login.spec.js',         // requires production credentials
+    '**/sync-live-proof.spec.js',    // hits nasahrvatska.com directly — 20+ min, production only
+    '**/production-auth-flow.spec.js', // production URL test — run manually only
   ],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
