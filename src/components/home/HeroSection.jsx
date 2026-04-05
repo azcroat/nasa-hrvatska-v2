@@ -251,12 +251,24 @@ function getMascotMessage({ streak, level, st, comebackBonus, allQuestsDone }) {
   return msgs[new Date().getDay() % msgs.length];
 }
 
-function getCEFR(lvl) {
-  if (lvl <= 2) return { current: 'A1', next: 'A2', pctInLevel: Math.round(((lvl - 1) / 2) * 100) };
-  if (lvl <= 4) return { current: 'A2', next: 'B1', pctInLevel: Math.round(((lvl - 3) / 2) * 100) };
-  if (lvl <= 6) return { current: 'B1', next: 'B2', pctInLevel: Math.round(((lvl - 5) / 2) * 100) };
-  if (lvl <= 8) return { current: 'B2', next: 'C1', pctInLevel: Math.round(((lvl - 7) / 2) * 100) };
-  return { current: 'C1', next: 'C2', pctInLevel: Math.min(Math.round(((lvl - 9) / 2) * 100), 100) };
+// CEFR derived from the same formula as StatsTab so both screens always agree.
+// Thresholds: A1<300, A2<1200, B1<3500, B2<8000, C1<18000 (total = xp + lc*15 + gc*25)
+function getCEFR(xp, lc, gc) {
+  const total = (xp || 0) + ((lc || 0) * 15) + ((gc || 0) * 25);
+  const BANDS = [
+    { current: 'A1', next: 'A2',  threshold: 300   },
+    { current: 'A2', next: 'B1',  threshold: 1200  },
+    { current: 'B1', next: 'B2',  threshold: 3500  },
+    { current: 'B2', next: 'C1',  threshold: 8000  },
+    { current: 'C1', next: 'C2',  threshold: 18000 },
+  ];
+  for (let i = 0; i < BANDS.length; i++) {
+    if (total < BANDS[i].threshold) {
+      const prev = i === 0 ? 0 : BANDS[i - 1].threshold;
+      return { current: BANDS[i].current, next: BANDS[i].next, pctInLevel: Math.min(Math.round(((total - prev) / (BANDS[i].threshold - prev)) * 100), 99) };
+    }
+  }
+  return { current: 'C1', next: 'C2', pctInLevel: Math.min(Math.round(((total - 8000) / 10000) * 100), 100) };
 }
 
 export default function HeroSection({
@@ -300,7 +312,7 @@ export default function HeroSection({
   const xpCur = st.xp - lXP(level);
   const xpNeeded = nXP(level) - lXP(level);
   const xpPct = Math.min(Math.round((xpCur / xpNeeded) * 100), 100);
-  const cefr = getCEFR(level);
+  const cefr = getCEFR(st.xp, st.lc, st.gc);
   const dailyXP = getDailyXP();
 
   const activePalette = LEVEL_PALETTE[(pathData.activeLv.level - 1) % LEVEL_PALETTE.length];

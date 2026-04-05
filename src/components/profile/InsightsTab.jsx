@@ -260,13 +260,6 @@ export default function InsightsTab({ onOpenLeaderboard, onOpenFriends }) {
             <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",marginTop:1}}>{(st.badges||[]).length} earned</div>
           </div>
         </button>
-        <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}} onClick={() => setScr("leaderboard")}>
-          <div style={{width:44,height:44,borderRadius:13,background:"var(--success-bg)",border:"1px solid var(--success-b)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:'var(--text-xl)',flexShrink:0}}>🏅</div>
-          <div style={{textAlign:"left",minWidth:0}}>
-            <div style={{fontSize:'var(--text-sm)',fontWeight:800,color:"var(--heading)"}}>Leaderboard</div>
-            <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",marginTop:1}}>View rankings</div>
-          </div>
-        </button>
         <button className="tc" style={{gridColumn:"1/-1",display:"flex",alignItems:"center",gap:14,padding:"16px"}} onClick={() => setScr("certificate")}>
           <div style={{width:44,height:44,borderRadius:13,background:"var(--info-bg)",border:"1px solid var(--info-b)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:'var(--text-xl)',flexShrink:0}}>📜</div>
           <div style={{flex:1,textAlign:"left"}}>
@@ -275,15 +268,6 @@ export default function InsightsTab({ onOpenLeaderboard, onOpenFriends }) {
           </div>
           <div style={{fontSize:'var(--text-xl)',color:"var(--subtext)",opacity:.8}}>›</div>
         </button>
-        {onOpenLeaderboard && (
-          <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}} onClick={onOpenLeaderboard}>
-            <div style={{width:44,height:44,borderRadius:13,background:"rgba(167,139,250,.12)",border:"1px solid rgba(167,139,250,.3)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:'var(--text-xl)',flexShrink:0}}>👑</div>
-            <div style={{textAlign:"left",minWidth:0}}>
-              <div style={{fontSize:'var(--text-sm)',fontWeight:800,color:"var(--heading)"}}>Weekly Leaderboard</div>
-              <div style={{fontSize:'var(--text-xs)',color:"var(--subtext)",marginTop:1}}>Top learners this week</div>
-            </div>
-          </button>
-        )}
         {onOpenFriends && (
           <button className="tc" style={{display:"flex",alignItems:"center",gap:12,padding:"16px"}} onClick={onOpenFriends}>
             <div style={{width:44,height:44,borderRadius:13,background:"rgba(74,222,128,.12)",border:"1px solid rgba(74,222,128,.3)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:'var(--text-xl)',flexShrink:0}}>👥</div>

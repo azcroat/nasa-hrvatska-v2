@@ -717,15 +717,43 @@ export default function HomeTab({
               <div style={{ width: 3, height: 20, background: '#7c3aed', borderRadius: 2 }} />
               <span style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--heading)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Immerse Yourself</span>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-              {/* AI Conversation */}
-              <button onClick={() => setScr('aiconvo')} style={{ border: 'none', cursor: 'pointer', padding: 0, borderRadius: 16, overflow: 'hidden', background: 'linear-gradient(135deg,#1e1b4b,#3730a3)', boxShadow: '0 4px 16px rgba(55,48,163,.3)' }}>
-                <div style={{ padding: '14px 12px' }}>
-                  <div style={{ fontSize: 28, marginBottom: 6 }}>🤖</div>
-                  <div style={{ fontSize: 13, fontWeight: 900, color: '#fff', marginBottom: 2, textAlign: 'left' }}>AI Conversation</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,.7)', textAlign: 'left', lineHeight: 1.4 }}>47 real-life scenarios</div>
+            {/* AI Voice Conversation — featured full-width hero card */}
+            <button
+              onClick={() => setScr('aiconvo')}
+              style={{
+                width: '100%', border: 'none', cursor: 'pointer', padding: 0,
+                borderRadius: 18, overflow: 'hidden',
+                background: 'linear-gradient(135deg,#0f0c29,#1a1654,#3730a3)',
+                boxShadow: '0 6px 24px rgba(55,48,163,.4)',
+                marginBottom: 10,
+              }}
+            >
+              <div style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div style={{
+                  width: 56, height: 56, borderRadius: 16, flexShrink: 0,
+                  background: 'rgba(255,255,255,.12)', border: '1.5px solid rgba(255,255,255,.25)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30,
+                }}>🎙️</div>
+                <div style={{ flex: 1, textAlign: 'left' }}>
+                  <div style={{ fontSize: 9, fontWeight: 900, color: 'rgba(165,180,252,.9)', letterSpacing: '.12em', textTransform: 'uppercase', marginBottom: 4 }}>
+                    SIGNATURE FEATURE
+                  </div>
+                  <div style={{ fontSize: 17, fontWeight: 900, color: '#fff', lineHeight: 1.2, marginBottom: 4 }}>
+                    AI Voice Conversation
+                  </div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,.7)', lineHeight: 1.45 }}>
+                    Speak Croatian with Mate — 47 real-life scenarios · instant AI feedback
+                  </div>
                 </div>
-              </button>
+                <div style={{
+                  flexShrink: 0, background: 'rgba(255,255,255,.18)',
+                  border: '1px solid rgba(255,255,255,.3)',
+                  borderRadius: 10, padding: '6px 12px',
+                  fontSize: 12, fontWeight: 800, color: '#fff',
+                }}>Start →</div>
+              </div>
+            </button>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
               {/* Graded Stories */}
               <button onClick={() => setScr('graded_input')} style={{ border: 'none', cursor: 'pointer', padding: 0, borderRadius: 16, overflow: 'hidden', background: 'linear-gradient(135deg,#065f46,#047857)', boxShadow: '0 4px 16px rgba(6,95,70,.3)' }}>
                 <div style={{ padding: '14px 12px' }}>
@@ -812,46 +840,6 @@ export default function HomeTab({
             todayPhrases={todayPhrases}
           />
 
-          {/* ── SOCIAL PROOF — streak society widget (DuoLingo best practice) ── */}
-          {(() => {
-            const learnerCount = '14,800+';
-            const activeToday = (() => {
-              try {
-                const base = 420;
-                const seed = Math.floor(Date.now() / 3600000) % 80;
-                return base + seed;
-              } catch { return 450; }
-            })();
-            return (
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 14,
-                background: 'var(--card)', border: '1px solid var(--card-b)',
-                borderRadius: 16, padding: '14px 18px', marginBottom: 16,
-              }}>
-                <div style={{
-                  width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-                  background: 'linear-gradient(135deg,#0e7490,#164e63)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
-                }}>🇭🇷</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', lineHeight: 1.3 }}>
-                    Join {learnerCount} Croatian learners
-                  </div>
-                  <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 3 }}>
-                    <span style={{ color: 'var(--success)', fontWeight: 700 }}>●</span>
-                    {' '}{activeToday} learners active today
-                  </div>
-                </div>
-                <div style={{
-                  background: 'var(--success-bg)', borderRadius: 10, padding: '4px 10px',
-                  fontSize: 11, fontWeight: 800, color: 'var(--success)',
-                  border: '1px solid var(--success-b)',
-                }}>
-                  Active
-                </div>
-              </div>
-            );
-          })()}
 
         </React.Fragment>
       )}
