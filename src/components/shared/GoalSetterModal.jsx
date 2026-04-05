@@ -53,14 +53,21 @@ export default function GoalSetterModal({ onComplete }) {
   const canNext = cur.selected !== null;
 
   const handleNext = () => {
-    if (step < 2) {
-      setStep(s => s + 1);
+    if (step === 0) {
+      // Persist goal immediately so re-visiting HomeTab never re-shows the modal
+      try {
+        localStorage.setItem('nh_goal', goal);
+        localStorage.setItem('nh_goal_set', '1');
+      } catch (_) {}
+      setStep(1);
+    } else if (step === 1) {
+      try { localStorage.setItem('nh_daily_goal_xp', String(xp)); } catch (_) {}
+      setStep(2);
     } else {
-      // Save to localStorage
-      localStorage.setItem('nh_goal', goal);
-      localStorage.setItem('nh_daily_goal_xp', String(xp));
-      localStorage.setItem('nh_connection', connection);
-      localStorage.setItem('nh_goal_set', '1');
+      // Final step — save remaining fields and close
+      try {
+        localStorage.setItem('nh_connection', connection);
+      } catch (_) {}
       onComplete({ goal, xp, connection });
     }
   };
