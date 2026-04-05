@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { LEARN_PATH, getStreak, getDailyChallenge, speak, preloadAudio, DAILY_QUESTS, getActiveCampaign, getCityOfDay, incrementCulture, getDueReviews, getSR, getProverbOfDay, getHistFact, V } from '../../data.jsx';
+import { LEARN_PATH, getStreak, getDailyChallenge, speak, preloadAudio, DAILY_QUESTS, getActiveCampaign, getDueReviews, getSR, V } from '../../data.jsx';
 import { getWordOfDay } from '../../lib/wordOfDay.js';
 import { PHRASE_OF_DAY_POOL as PHRASES_365 } from '../../data/daily-content.js';
 import { weekKey, localDateStr } from '../../lib/dateUtils.js';
@@ -14,15 +14,12 @@ function getLastActivity() {
   const label = safeGetItem('nh_last_ex_label');
   return ex && label ? { ex, label } : null;
 }
-import DailyPlanCard from './DailyPlanCard.jsx';
-import AdaptiveInsightsCard from '../profile/AdaptiveInsightsCard.jsx';
 import HeroSection from './HeroSection.jsx';
 import PathProgressCard from './PathProgressCard.jsx';
 import QuestTracker from './QuestTracker.jsx';
 import ReviewTabContent from './ReviewTabContent.jsx';
 import CampaignBanner from './CampaignBanner.jsx';
 import DailyCroatianSection from './DailyCroatianSection.jsx';
-import AITutorCard from './AITutorCard.jsx';
 import ProgressTabContent from './ProgressTabContent.jsx';
 import WelcomeBackBanners from './WelcomeBackBanners.jsx';
 import GoalSetterModal from '../shared/GoalSetterModal.jsx';
@@ -373,8 +370,14 @@ export default function HomeTab({
         launchPathItem={launchPathItem}
       />
 
+      {/* ── DAILY CROATIAN PHRASES — always visible, above sub-tabs ── */}
+      {/* Landmark photo + 4 tappable phrases = the #1 daily habit trigger.      */}
+      {/* Lives above the sub-tab selector so it's the first interactive element */}
+      {/* users see on every app open, regardless of which sub-tab they used last.*/}
+      <DailyCroatianSection todayPhrases={todayPhrases} />
+
       {/* ── SUB-TAB PILL SELECTOR ── */}
-      <div style={{ display:'flex', gap:8, padding:'20px 0 4px', borderBottom:'1px solid var(--bar-bg)', marginBottom:16 }}>
+      <div style={{ display:'flex', gap:8, padding:'4px 0 4px', borderBottom:'1px solid var(--bar-bg)', marginBottom:16 }}>
         {[
           { id:'today',    label:'⚡ Today' },
           { id:'progress', label:'📈 Progress' },
@@ -396,7 +399,30 @@ export default function HomeTab({
       {htab === 'today' && (
         <React.Fragment>
 
-          {/* ── SRS DUE REVIEWS — session-entry banner ── */}
+          {/* ── DAILY QUESTS — first thing: what to accomplish today ── */}
+          <QuestTracker
+            questsDone={questsDone}
+            allQuestsDone={allQuestsDone}
+            onQuestStart={(questId, screen) => {
+              if (questId === 'speak' || questId === 'speak2') {
+                const pool = (_allCats || []).flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
+                const items = _sh(pool).slice(0, 6);
+                launchSpeaking(items.length ? items : [['Dobar dan', 'Good day', 'DOH-bar dahn']]);
+              } else if (questId === 'grammar' || questId === 'grammar2') {
+                launchPathItem({ go: 'grammar' });
+              } else if (questId === 'perfect') {
+                const pool = (_allCats || []).flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
+                launchFlashcards(_sh(pool).slice(0, 20));
+              } else {
+                setScr(screen);
+              }
+            }}
+          />
+
+          {/* ── SPEED CHALLENGE — daily timed vocabulary quiz ── */}
+          <SpeedChallenge />
+
+          {/* ── SRS DUE REVIEWS — shown after quick wins so user has momentum ── */}
           {(() => {
             const due = getDueReviews();
             if (!due.length) return null;
@@ -420,7 +446,6 @@ export default function HomeTab({
                   boxShadow: '0 4px 20px rgba(14,116,144,.18)',
                   border: '1.5px solid rgba(14,116,144,.2)',
                 }}>
-                  {/* ── Gradient header ── */}
                   <div style={{
                     background: 'linear-gradient(135deg, #0c4a6e 0%, #0e7490 60%, #0891b2 100%)',
                     padding: '14px 18px',
@@ -455,28 +480,16 @@ export default function HomeTab({
                         onClick={(e) => { e.stopPropagation(); sessionStorage.setItem(dismissKey, '1'); const banner = e.currentTarget.closest('[data-srs-banner]'); if (banner) banner.style.display = 'none'; }}
                       >×</button>
                     </div>
-
-                    {/* Mastery progress bar */}
                     <div style={{ marginTop: 10 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                        <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,.6)' }}>
-                          Vocabulary mastery
-                        </span>
-                        <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,.8)' }}>
-                          {masteryPct}%
-                        </span>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,.6)' }}>Vocabulary mastery</span>
+                        <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,.8)' }}>{masteryPct}%</span>
                       </div>
                       <div style={{ height: 5, background: 'rgba(255,255,255,.2)', borderRadius: 3, overflow: 'hidden' }}>
-                        <div style={{
-                          height: '100%', width: masteryPct + '%',
-                          background: 'rgba(255,255,255,.75)',
-                          borderRadius: 3, transition: 'width .4s ease',
-                        }} />
+                        <div style={{ height: '100%', width: masteryPct + '%', background: 'rgba(255,255,255,.75)', borderRadius: 3, transition: 'width .4s ease' }} />
                       </div>
                     </div>
                   </div>
-
-                  {/* ── Card body ── */}
                   <div style={{ background: 'var(--card)', padding: '12px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                     <div style={{ fontSize: 12, color: 'var(--subtext)', fontWeight: 600, lineHeight: 1.4 }}>
                       Review now to lock words into long-term memory.
@@ -485,40 +498,21 @@ export default function HomeTab({
                       onClick={() => setScr('review')}
                       style={{
                         flexShrink: 0, background: '#0e7490', color: '#fff', border: 'none',
-                        borderRadius: 10, padding: '8px 18px',
-                        fontSize: 13, fontWeight: 800, cursor: 'pointer',
-                        fontFamily: "'Outfit', sans-serif",
+                        borderRadius: 10, padding: '8px 18px', fontSize: 13, fontWeight: 800,
+                        cursor: 'pointer', fontFamily: "'Outfit', sans-serif",
                         boxShadow: '0 3px 10px rgba(14,116,144,.35)',
                       }}
-                    >
-                      Review Now →
-                    </button>
+                    >Review Now →</button>
                   </div>
                 </div>
               </motion.div>
             );
           })()}
 
-          {/* Campaign banner */}
-          <CampaignBanner
-            activeCampaign={activeCampaign}
-            campaignDismissed={campaignDismissed}
-            setCampaignDismissed={setCampaignDismissed}
-            campaignQuestsDone={campaignQuestsDone}
-            setTab={setTab}
-            onQuestTap={(quest) => {
-              if (quest.screen === 'flashcards') {
-                markCampaignQuestDone(quest.id);
-                launchPathItem({ go: 'lesson', topic: quest.vocab || 'family' });
-              } else {
-                setScr(quest.screen);
-              }
-            }}
-          />
-
-          {/* ── DAILY DISCOVERY — Word of the Day + City of the Day merged banner ── */}
+          {/* ── DAILY DISCOVERY — Word of Day + Phrase of Day only ── */}
+          {/* Condensed from 5 rows (Word + Phrase + City + Proverb + Fact) to 2.    */}
+          {/* City of Day, Proverb, Did You Know removed to reduce scroll depth.       */}
           {(() => {
-            const city = getCityOfDay();
             return (
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.04 }}>
                 <div style={{
@@ -526,7 +520,7 @@ export default function HomeTab({
                   border: '1px solid var(--card-b)',
                   boxShadow: '0 4px 20px rgba(0,0,0,0.10)',
                 }}>
-                  {/* ── Header label ── */}
+                  {/* Header */}
                   <div style={{
                     background: 'linear-gradient(90deg, #0e7490, #0c4a6e)',
                     padding: '8px 16px',
@@ -579,6 +573,7 @@ export default function HomeTab({
                     background: 'var(--card)',
                     padding: '12px 16px',
                     borderTop: '1px solid var(--card-b)',
+                    borderRadius: '0 0 20px 20px',
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
                   }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -605,241 +600,62 @@ export default function HomeTab({
                     >🔊</button>
                   </div>
 
-                  {/* ── City of the Day section ── */}
-                  <button
-                    onClick={() => { incrementCulture('cityCnt'); if (award) award(3); setScr('cityofday'); }}
-                    aria-label={`City of the Day: ${city.name}`}
-                    style={{
-                      width: '100%', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left',
-                      display: 'block',
-                    }}
-                  >
-                    <div style={{
-                      background: `linear-gradient(135deg, ${city.color}ee 0%, ${city.color}bb 100%)`,
-                      padding: '12px 16px',
-                      display: 'flex', alignItems: 'center', gap: 12,
-                      position: 'relative', overflow: 'hidden',
-                    }}>
-                      <div style={{
-                        position: 'absolute', inset: 0, opacity: 0.06,
-                        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)',
-                        backgroundSize: '16px 16px', pointerEvents: 'none',
-                      }} />
-                      <div style={{
-                        width: 48, height: 48, borderRadius: 12, flexShrink: 0,
-                        background: 'rgba(0,0,0,0.18)', display: 'flex', alignItems: 'center',
-                        justifyContent: 'center', fontSize: 26, boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                        position: 'relative',
-                      }}>
-                        {city.icon}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
-                        <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 2 }}>
-                          City of the Day
-                        </div>
-                        <div style={{ fontSize: 18, fontWeight: 900, color: '#fff', fontFamily: "'Playfair Display',serif", lineHeight: 1.2 }}>
-                          {city.name}
-                        </div>
-                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', marginTop: 1 }}>
-                          {city.region}{Array.isArray(city.vocab) && city.vocab.length > 0 ? ` · ${city.vocab.length} words to learn` : ''}
-                        </div>
-                      </div>
-                      <div style={{
-                        flexShrink: 0, background: 'rgba(255,255,255,0.2)', borderRadius: 10,
-                        padding: '4px 10px', fontSize: 12, fontWeight: 700, color: '#fff',
-                        position: 'relative',
-                      }}>
-                        Explore →
-                      </div>
-                    </div>
-                  </button>
-
-                  {/* ── Proverb of the Day ── */}
-                  {(() => {
-                    const proverb = getProverbOfDay();
-                    return (
-                      <div style={{
-                        padding: '12px 16px',
-                        borderTop: '1px solid var(--card-b)',
-                        background: 'var(--card)',
-                        display: 'flex', alignItems: 'flex-start', gap: 12,
-                      }}>
-                        <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>📜</span>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 10, fontWeight: 900, color: '#b45309', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 4 }}>
-                            Proverb of the Day
-                          </div>
-                          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', lineHeight: 1.45, marginBottom: 3 }}>
-                            {proverb.hr}
-                          </div>
-                          <div style={{ fontSize: 11, color: 'var(--subtext)', fontStyle: 'italic', lineHeight: 1.4 }}>
-                            {proverb.en}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })()}
-
-                  {/* ── Did You Know? ── */}
-                  {(() => {
-                    const fact = getHistFact();
-                    return (
-                      <div style={{
-                        padding: '12px 16px',
-                        borderTop: '1px solid var(--card-b)',
-                        background: 'var(--card)',
-                        display: 'flex', alignItems: 'flex-start', gap: 12,
-                        borderRadius: '0 0 20px 20px',
-                      }}>
-                        <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>💡</span>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 10, fontWeight: 900, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 4 }}>
-                            Did You Know?
-                          </div>
-                          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', lineHeight: 1.45, marginBottom: 3 }}>
-                            {fact.hr}
-                          </div>
-                          <div style={{ fontSize: 11, color: 'var(--subtext)', fontStyle: 'italic', lineHeight: 1.4 }}>
-                            {fact.en}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })()}
                 </div>
               </motion.div>
             );
           })()}
 
-          {/* ── IMMERSE YOURSELF — 5 flagship feature cards ── */}
-          <div style={{ marginBottom: 20, marginTop: 20 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-              <div style={{ width: 3, height: 20, background: '#7c3aed', borderRadius: 2 }} />
-              <span style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--heading)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Immerse Yourself</span>
-            </div>
-            {/* AI Voice Conversation — featured full-width hero card */}
+          {/* ── WEAK WORDS — surface words needing most work ── */}
+          {st.lc >= 3 && <WeakWordsPanel setScr={setScr} />}
+
+          {/* ── AI PRACTICE — two flagship shortcuts ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
             <button
               onClick={() => setScr('aiconvo')}
               style={{
-                width: '100%', border: 'none', cursor: 'pointer', padding: 0,
-                borderRadius: 18, overflow: 'hidden',
-                background: 'linear-gradient(135deg,#0f0c29,#1a1654,#3730a3)',
-                boxShadow: '0 6px 24px rgba(55,48,163,.4)',
-                marginBottom: 10,
+                border: 'none', cursor: 'pointer', padding: 0, borderRadius: 16,
+                overflow: 'hidden', background: 'linear-gradient(135deg,#0f0c29,#3730a3)',
+                boxShadow: '0 4px 16px rgba(55,48,163,.35)',
               }}
             >
-              <div style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
-                <div style={{
-                  width: 56, height: 56, borderRadius: 16, flexShrink: 0,
-                  background: 'rgba(255,255,255,.12)', border: '1.5px solid rgba(255,255,255,.25)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30,
-                }}>🎙️</div>
-                <div style={{ flex: 1, textAlign: 'left' }}>
-                  <div style={{ fontSize: 9, fontWeight: 900, color: 'rgba(165,180,252,.9)', letterSpacing: '.12em', textTransform: 'uppercase', marginBottom: 4 }}>
-                    SIGNATURE FEATURE
-                  </div>
-                  <div style={{ fontSize: 17, fontWeight: 900, color: '#fff', lineHeight: 1.2, marginBottom: 4 }}>
-                    AI Voice Conversation
-                  </div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,.7)', lineHeight: 1.45 }}>
-                    Speak Croatian with Mate — 47 real-life scenarios · instant AI feedback
-                  </div>
-                </div>
-                <div style={{
-                  flexShrink: 0, background: 'rgba(255,255,255,.18)',
-                  border: '1px solid rgba(255,255,255,.3)',
-                  borderRadius: 10, padding: '6px 12px',
-                  fontSize: 12, fontWeight: 800, color: '#fff',
-                }}>Start →</div>
+              <div style={{ padding: '16px 12px' }}>
+                <div style={{ fontSize: 28, marginBottom: 6 }}>🎙️</div>
+                <div style={{ fontSize: 13, fontWeight: 900, color: '#fff', marginBottom: 2, textAlign: 'left' }}>AI Conversation</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,.7)', textAlign: 'left', lineHeight: 1.4 }}>47 scenarios · live feedback</div>
               </div>
             </button>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-              {/* Graded Stories */}
-              <button onClick={() => setScr('graded_input')} style={{ border: 'none', cursor: 'pointer', padding: 0, borderRadius: 16, overflow: 'hidden', background: 'linear-gradient(135deg,#065f46,#047857)', boxShadow: '0 4px 16px rgba(6,95,70,.3)' }}>
-                <div style={{ padding: '14px 12px' }}>
-                  <div style={{ fontSize: 28, marginBottom: 6 }}>📚</div>
-                  <div style={{ fontSize: 13, fontWeight: 900, color: '#fff', marginBottom: 2, textAlign: 'left' }}>Graded Stories</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,.7)', textAlign: 'left', lineHeight: 1.4 }}>A1 → B2 reading</div>
-                </div>
-              </button>
-              {/* Pitch Accent */}
-              <button onClick={() => setScr('pitch_accent')} style={{ border: 'none', cursor: 'pointer', padding: 0, borderRadius: 16, overflow: 'hidden', background: 'linear-gradient(135deg,#4c1d95,#7c3aed)', boxShadow: '0 4px 16px rgba(124,58,237,.3)' }}>
-                <div style={{ padding: '14px 12px' }}>
-                  <div style={{ fontSize: 28, marginBottom: 6 }}>🎵</div>
-                  <div style={{ fontSize: 13, fontWeight: 900, color: '#fff', marginBottom: 2, textAlign: 'left' }}>Pitch Accent</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,.7)', textAlign: 'left', lineHeight: 1.4 }}>4 accents, 4 lessons</div>
-                </div>
-              </button>
-            </div>
-            {/* Heritage Track — full width */}
-            <button onClick={() => setScr('heritage_path')} style={{ width: '100%', border: 'none', cursor: 'pointer', padding: 0, borderRadius: 16, overflow: 'hidden', background: 'linear-gradient(135deg,#7c2d12,#9a3412)', boxShadow: '0 4px 16px rgba(124,45,18,.3)', marginTop: 10 }}>
-              <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ fontSize: 32, flexShrink: 0 }}>🧬</div>
-                <div style={{ flex: 1, textAlign: 'left' }}>
-                  <div style={{ fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,.65)', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 2 }}>Heritage Speakers</div>
-                  <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', marginBottom: 2 }}>The Croatian You Already Know</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,.7)', lineHeight: 1.4 }}>Activate passive knowledge · Dialects · Family language</div>
-                </div>
-                <div style={{ fontSize: 18, color: 'rgba(255,255,255,.6)' }}>→</div>
+            <button
+              onClick={() => setScr('live_tutor')}
+              style={{
+                border: 'none', cursor: 'pointer', padding: 0, borderRadius: 16,
+                overflow: 'hidden', background: 'linear-gradient(135deg,#7f1d1d,#D4002D)',
+                boxShadow: '0 4px 16px rgba(212,0,45,.3)',
+              }}
+            >
+              <div style={{ padding: '16px 12px' }}>
+                <div style={{ fontSize: 28, marginBottom: 6 }}>🎤</div>
+                <div style={{ fontSize: 13, fontWeight: 900, color: '#fff', marginBottom: 2, textAlign: 'left' }}>Live AI Tutor</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,.7)', textAlign: 'left', lineHeight: 1.4 }}>Adapts to your level</div>
               </div>
             </button>
           </div>
 
-          {/* ── TODAY'S FOCUS HEADER ── */}
-          <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:12}}>
-            <div style={{width:3, height:20, background:'var(--info)', borderRadius:2}}/>
-            <span style={{fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)', letterSpacing:'0.08em', textTransform:'uppercase'}}>Today&apos;s Focus</span>
-          </div>
-
-          {/* ── AI DAILY PLAN ── */}
-          <DailyPlanCard level={level} goal={goal} streak={streak} setScr={setScr} />
-
-          {/* ── ADAPTIVE AI INSIGHTS ── */}
-          {authUser?.u && st.lc >= 2 && (
-            <AdaptiveInsightsCard
-              uid={authUser.u}
-              level={level}
-              lessonsCompleted={st.lc}
-              goToScreen={setScr}
-            />
-          )}
-
-          {/* ── AI LIVE TUTOR HERO CARD ── */}
-          <AITutorCard />
-
-          {/* ── DAILY QUESTS ── */}
-          <QuestTracker
-            questsDone={questsDone}
-            allQuestsDone={allQuestsDone}
-            onQuestStart={(questId, screen) => {
-              if (questId === 'speak' || questId === 'speak2') {
-                // launchSpeaking requires an items array — setScr('speaking') alone leaves sw=null → blank screen
-                const pool = (_allCats || []).flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
-                const items = _sh(pool).slice(0, 6);
-                launchSpeaking(items.length ? items : [['Dobar dan', 'Good day', 'DOH-bar dahn']]);
-              } else if (questId === 'grammar' || questId === 'grammar2') {
-                launchPathItem({ go: 'grammar' });
-              } else if (questId === 'perfect') {
-                // launchFlashcards requires an initialized pool — setScr('flashcards') alone shows empty state
-                const pool = (_allCats || []).flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
-                launchFlashcards(_sh(pool).slice(0, 20));
+          {/* ── CAMPAIGN BANNER — lowest priority, at bottom ── */}
+          <CampaignBanner
+            activeCampaign={activeCampaign}
+            campaignDismissed={campaignDismissed}
+            setCampaignDismissed={setCampaignDismissed}
+            campaignQuestsDone={campaignQuestsDone}
+            setTab={setTab}
+            onQuestTap={(quest) => {
+              if (quest.screen === 'flashcards') {
+                markCampaignQuestDone(quest.id);
+                launchPathItem({ go: 'lesson', topic: quest.vocab || 'family' });
               } else {
-                setScr(screen);
+                setScr(quest.screen);
               }
             }}
           />
-
-          {/* ── SPEED CHALLENGE — daily timed vocabulary quiz ── */}
-          <SpeedChallenge />
-
-          {/* ── WEAK WORDS — surface words needing most work (DuoLingo best practice) ── */}
-          {st.lc >= 3 && <WeakWordsPanel setScr={setScr} />}
-
-          {/* ── TODAY'S CROATIAN + QUICK TRANSLATE ── */}
-          <DailyCroatianSection
-            todayPhrases={todayPhrases}
-          />
-
 
         </React.Fragment>
       )}
