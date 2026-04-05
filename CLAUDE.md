@@ -597,6 +597,116 @@ Manage artifacts iteratively; never overwrite a draft without preserving the pre
 
 ---
 
+### write-a-skill
+**Trigger:** User wants to create, write, or build a new skill / agent skill file.
+
+**Process:**
+1. **Gather requirements** — domain, use cases, need for scripts or just instructions, reference materials
+2. **Draft the skill** — SKILL.md + additional reference files if >100 lines + utility scripts if deterministic operations needed
+3. **Review with user** — present draft, ask what's missing, iterate
+
+**Skill directory structure:**
+```
+skill-name/
+├── SKILL.md           # Main instructions (required, keep <100 lines)
+├── REFERENCE.md       # Detailed docs (if needed)
+├── EXAMPLES.md        # Usage examples (if needed)
+└── scripts/           # Utility scripts (if deterministic operations)
+```
+
+**Description field rules (critical — this is the ONLY thing the agent reads when selecting a skill):**
+- Max 1024 chars, written in third person
+- First sentence: what it does
+- Second sentence: "Use when [specific triggers]"
+- Good: "Extract text and tables from PDF files. Use when working with PDF files or user mentions forms or document extraction."
+- Bad: "Helps with documents." — too vague to distinguish from other skills
+
+**When to add scripts:** Deterministic operations (validation, formatting), same code would generate repeatedly, errors need explicit handling.
+
+**When to split files:** SKILL.md exceeds 100 lines, content has distinct domains, advanced features rarely needed.
+
+**Review checklist before finalizing:**
+- [ ] Description includes "Use when..." triggers
+- [ ] SKILL.md under 100 lines
+- [ ] No time-sensitive info hardcoded
+- [ ] Consistent terminology throughout
+- [ ] Concrete examples included
+- [ ] References stay one level deep
+
+---
+
+### devops-engineer
+**Trigger:** Setting up CI/CD pipelines, containerizing applications, managing infrastructure as code, deploying to Kubernetes, configuring cloud platforms, automating releases, or responding to production incidents. Keywords: Docker, Kubernetes, Terraform, GitHub Actions, GitOps, on-call, platform engineering.
+
+**Three operating perspectives:**
+- **Build Hat** — automating build, test, and packaging
+- **Deploy Hat** — orchestrating deployments across environments
+- **Ops Hat** — reliability, monitoring, and incident response
+
+**Core workflow:**
+1. **Assess** — understand application, environments, requirements
+2. **Design** — pipeline structure, deployment strategy
+3. **Implement** — IaC, Dockerfiles, CI/CD configs
+4. **Validate** — `terraform plan`, lint configs, unit/integration tests; confirm no destructive changes before proceeding
+5. **Deploy** — roll out with verification; smoke tests post-deployment
+6. **Monitor** — observability + alerts; confirm rollback procedure is ready before going live
+
+**MUST DO:**
+- Infrastructure as code always (never manual changes)
+- Health checks and readiness probes on all containers
+- Secrets in secret managers — never in env files or CI/CD variables
+- Container scanning in CI/CD
+- Document rollback procedure before every deploy
+- GitOps for Kubernetes (ArgoCD, Flux)
+
+**MUST NOT DO:**
+- Deploy to production without explicit approval
+- Store secrets in code
+- Skip staging environment testing
+- Use `latest` tag in production
+- Deploy on Fridays without monitoring in place
+
+**Applied to this project:** This project uses Cloudflare Pages (auto-deploys on `git push origin master`) with GitHub Actions CI (quality → test/e2e → build-deploy). Never change the CI pipeline without reading `.github/workflows/` first.
+
+**Output always includes:** CI/CD config, Dockerfile (if applicable), K8s/Terraform files, deployment verification steps, rollback procedure.
+
+**Minimal patterns:**
+```yaml
+# GitHub Actions minimal pattern
+name: CI
+on: { push: { branches: [main] } }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t myapp:${{ github.sha }} .
+      - run: docker run --rm myapp:${{ github.sha }} pytest
+      - uses: aquasecurity/trivy-action@master  # scan
+```
+```dockerfile
+# Dockerfile minimal pattern (multi-stage, non-root, healthcheck)
+FROM python:3.12-slim AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+FROM python:3.12-slim
+WORKDIR /app
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY . .
+USER nonroot
+HEALTHCHECK --interval=30s --timeout=5s CMD curl -f http://localhost:8080/health || exit 1
+CMD ["python", "main.py"]
+```
+```bash
+# Rollback pattern
+kubectl rollout undo deployment/myapp -n production
+kubectl rollout status deployment/myapp -n production
+```
+
+---
+
 ### prd-to-plan
 **Trigger:** User wants to break down a PRD into an implementation plan, create phases from a requirements doc, or mentions "tracer bullets" or "vertical slices."
 
