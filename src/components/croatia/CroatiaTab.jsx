@@ -52,51 +52,65 @@ export default function CroatiaTab({ sCurEx }) {
     const el = document.getElementById(anchorId);
     if (!el) return;
     const stripH = (stripRef.current?.offsetHeight ?? 44) + 8;
-    const container = document.getElementById('main-content');
-    if (container) {
-      const top = el.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop - stripH;
-      container.scrollTo({ top, behavior: 'smooth' });
-    } else {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    // Scroll the window — #main-content has no overflow-y so window is the scroll container
+    const top = el.getBoundingClientRect().top + window.pageYOffset - stripH;
+    window.scrollTo({ top, behavior: 'smooth' });
   }, [visited]);
 
   return (
     <React.Fragment>
       {/* ── TAB HERO ──────────────────────────────────────────────────────── */}
-      <div className="tab-hero">
-        <div className="tab-hero-stripe" />
-        <div style={{position:'absolute',top:0,left:0,right:0,bottom:0,background:'linear-gradient(105deg,transparent 30%,rgba(255,255,255,.035) 50%,transparent 70%)',backgroundSize:'200% 100%',animation:'shimmer 8s linear infinite',pointerEvents:'none'}} />
+      <div style={{
+        background:'linear-gradient(150deg,#8B0010 0%,#B80020 30%,#1a1a3e 65%,#003087 100%)',
+        borderRadius:20,overflow:'hidden',marginBottom:20,position:'relative',
+        boxShadow:'0 8px 40px rgba(0,0,0,.4)',
+      }}>
+        {/* Croatian red-white-blue stripe */}
+        <div style={{height:5,background:'linear-gradient(90deg,#D40030 0%,#D40030 33.3%,#ffffff 33.3%,#ffffff 66.6%,#003DA5 66.6%,#003DA5 100%)'}} />
+        {/* Light shimmer */}
+        <div style={{position:'absolute',top:0,left:0,right:0,bottom:0,background:'linear-gradient(105deg,transparent 30%,rgba(255,255,255,.04) 50%,transparent 70%)',backgroundSize:'200% 100%',animation:'shimmer 8s linear infinite',pointerEvents:'none'}} />
         <div className="tab-hero-body">
           <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
             <div style={{
               width:52,height:52,borderRadius:16,flexShrink:0,
-              background:'rgba(255,255,255,.1)',border:'1.5px solid rgba(255,255,255,.2)',
+              background:'rgba(255,255,255,.12)',border:'1.5px solid rgba(255,255,255,.25)',
               display:'flex',alignItems:'center',justifyContent:'center',fontSize:30,
-              boxShadow:'0 4px 16px rgba(0,0,0,.2)',
+              boxShadow:'0 4px 16px rgba(0,0,0,.3)',
             }}>🇭🇷</div>
             <div>
-              <div style={{fontSize:10,fontWeight:800,color:'rgba(255,255,255,.5)',letterSpacing:'.18em',textTransform:'uppercase',marginBottom:4}}>Life in Croatia</div>
-              <div style={{fontSize:27,fontWeight:900,color:'white',fontFamily:"'Playfair Display',serif",lineHeight:1.1,textShadow:'0 2px 20px rgba(0,0,0,.45)'}}>Naša Hrvatska</div>
+              <div style={{fontSize:10,fontWeight:800,color:'rgba(255,255,255,.55)',letterSpacing:'.18em',textTransform:'uppercase',marginBottom:4}}>Life in Croatia</div>
+              <div style={{fontSize:27,fontWeight:900,color:'white',fontFamily:"'Playfair Display',serif",lineHeight:1.1,textShadow:'0 2px 20px rgba(0,0,0,.5)'}}>Naša Hrvatska</div>
             </div>
           </div>
-          <div style={{fontSize:'var(--text-sm)',color:'rgba(255,255,255,.62)',lineHeight:1.5,fontWeight:500,marginBottom:14}}>
+          <div style={{fontSize:'var(--text-sm)',color:'rgba(255,255,255,.65)',lineHeight:1.5,fontWeight:500,marginBottom:16}}>
             Culture, history, daily life &amp; immersion
           </div>
+          {/* Clickable pills — scroll to the matching section */}
           <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
             {[
-              {label:'🏰 History', color:'rgba(194,65,12,.45)'},
-              {label:'🎵 Culture', color:'rgba(14,116,144,.45)'},
-              {label:'📰 Stories', color:'rgba(22,163,74,.35)'},
-              {label:'🌊 Immersion', color:'rgba(124,58,237,.35)'},
+              {label:'🏰 History',   anchor:'section-history',  bg:'rgba(212,0,48,.5)'},
+              {label:'🏘️ Life',       anchor:'section-life',    bg:'rgba(0,61,165,.5)'},
+              {label:'🎵 Media',     anchor:'section-media',   bg:'rgba(124,58,237,.45)'},
+              {label:'📖 Stories',   anchor:'section-stories', bg:'rgba(22,163,74,.4)'},
             ].map(t=>(
-              <span key={t.label} style={{
-                fontSize:11,fontWeight:700,color:'rgba(255,255,255,.75)',
-                background:t.color,
-                border:'1px solid rgba(255,255,255,.15)',
-                borderRadius:20,padding:'4px 12px',
-                backdropFilter:'blur(4px)',
-              }}>{t.label}</span>
+              <button
+                key={t.label}
+                onClick={() => scrollTo(t.anchor)}
+                style={{
+                  fontSize:11,fontWeight:700,color:'rgba(255,255,255,.9)',
+                  background:t.bg,
+                  border:'1px solid rgba(255,255,255,.2)',
+                  borderRadius:20,padding:'5px 13px',
+                  backdropFilter:'blur(4px)',
+                  cursor:'pointer',
+                  fontFamily:"'Outfit',sans-serif",
+                  transition:'background .15s,transform .1s',
+                  WebkitTapHighlightColor:'transparent',
+                }}
+                onPointerDown={e=>{e.currentTarget.style.transform='scale(0.95)';}}
+                onPointerUp={e=>{e.currentTarget.style.transform='';}}
+                onPointerLeave={e=>{e.currentTarget.style.transform='';}}
+              >{t.label}</button>
             ))}
           </div>
         </div>
