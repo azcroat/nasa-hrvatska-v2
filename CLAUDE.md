@@ -597,6 +597,145 @@ Manage artifacts iteratively; never overwrite a draft without preserving the pre
 
 ---
 
+### architecture-designer
+**Trigger:** Designing new system architecture, reviewing existing designs, making architectural decisions, creating ADRs, evaluating technology trade-offs, planning scalability. Keywords: architecture, system design, microservices, scalability, ADR, technical design, infrastructure.
+
+**Core workflow:**
+1. **Understand requirements** — functional, non-functional, and constraints. Verify full coverage before proceeding.
+2. **Identify patterns** — match requirements to architectural patterns (monolith vs microservices, event-driven, CQRS, etc.)
+3. **Design** — architecture with trade-offs explicitly documented; produce a diagram
+4. **Document** — write ADRs for all key decisions
+5. **Review** — validate with stakeholders; if review fails, return to step 3
+
+**MUST DO:**
+- Document all significant decisions with ADRs
+- Consider non-functional requirements explicitly (latency, availability, consistency, security)
+- Evaluate trade-offs, not just benefits
+- Plan for failure modes
+- Review with stakeholders before finalizing
+
+**MUST NOT DO:**
+- Over-engineer for hypothetical scale
+- Choose technology without evaluating alternatives
+- Skip security considerations
+- Design without understanding requirements
+
+**Output for every architecture task:**
+1. Requirements summary (functional + non-functional)
+2. High-level architecture diagram (Mermaid preferred)
+3. Key decisions with trade-offs (ADR format)
+4. Technology recommendations with rationale
+5. Risks and mitigation strategies
+
+**Mermaid diagram template:**
+```mermaid
+graph TD
+    Client["Client (Web/Mobile)"] --> Gateway["API Gateway"]
+    Gateway --> AuthSvc["Auth Service"]
+    Gateway --> OrderSvc["Order Service"]
+    OrderSvc --> DB[("Orders DB\n(PostgreSQL)")]
+    OrderSvc --> Queue["Message Queue"]
+    Queue --> NotifySvc["Notification Service"]
+```
+
+**ADR template:**
+```markdown
+# ADR-001: <Decision Title>
+## Status: Accepted
+## Context: <Why this decision was needed>
+## Decision: <What was decided>
+## Alternatives Considered: <Other options + why rejected>
+## Consequences:
+- Positive: ...
+- Negative: ...
+## Trade-offs: <What was prioritized over what>
+```
+
+---
+
+### code-reviewer
+**Trigger:** Reviewing pull requests, conducting code quality audits, identifying refactoring opportunities, checking for security vulnerabilities. Keywords: code review, PR review, review code, code quality.
+
+**Core workflow:**
+1. **Context** — read PR description, summarize intent in one sentence before proceeding. If you can't, ask for clarification.
+2. **Structure** — review architecture and design. Does it follow existing patterns? Are new abstractions justified?
+3. **Details** — code quality, security (OWASP Top 10), performance. Flag critical issues immediately, don't wait for the report.
+4. **Tests** — validate coverage and quality. Are edge cases covered? Do tests assert behavior, not implementation?
+5. **Feedback** — produce structured report.
+
+**Key patterns to catch:**
+
+N+1 queries:
+```python
+# BAD: query inside loop
+for user in users:
+    orders = Order.objects.filter(user=user)  # N+1 per user
+# GOOD: prefetch in bulk
+users = User.objects.prefetch_related('orders').all()
+```
+
+Magic numbers → named constants. SQL injection → parameterized queries. Hardcoded secrets → environment variables.
+
+**MUST DO:**
+- Summarize PR intent before reviewing
+- Specific, actionable feedback with code examples
+- Praise good patterns alongside issues
+- Prioritize: critical → major → minor
+- Check tests as thoroughly as code
+
+**MUST NOT DO:**
+- Nitpick style when linters are configured
+- Block on personal preferences
+- Be condescending; demand perfection
+- Review without understanding the "why"
+
+**Output report structure:**
+1. **Summary** — one-sentence intent + overall assessment
+2. **Critical issues** — must fix before merge (bugs, security, data loss)
+3. **Major issues** — should fix (performance, design, maintainability)
+4. **Minor issues** — nice to have (naming, readability)
+5. **Positive feedback** — specific good patterns
+6. **Questions for author**
+7. **Verdict** — Approve / Request Changes / Comment
+
+---
+
+### improve-codebase-architecture
+**Trigger:** User wants to improve architecture, find refactoring opportunities, consolidate tightly-coupled modules, or make the codebase more AI-navigable and testable.
+
+**Core principle (from "A Philosophy of Software Design"):** A **deep module** has a small interface hiding a large implementation. Deep modules are more testable, more AI-navigable — test at the boundary instead of inside.
+
+**5-step process:**
+
+**1. Explore organically** — use the Explore agent. Note friction points:
+- Understanding one concept requires bouncing between many small files?
+- Modules so shallow the interface is nearly as complex as the implementation?
+- Pure functions extracted for testability, but real bugs hide in how they're called?
+- Tightly-coupled modules creating integration risk at the seams?
+- Untested or hard-to-test areas?
+
+The friction IS the signal.
+
+**2. Present candidates** — numbered list of deepening opportunities, each showing: cluster (which modules), why coupled (shared types, call patterns), dependency category, test impact.
+
+Do NOT propose interfaces yet. Ask: "Which of these would you like to explore?"
+
+**3. Frame the problem space** — after user picks, write a user-facing explanation: constraints any new interface would need to satisfy, dependencies to rely on, rough illustrative code sketch (not a proposal — grounds the constraints). Show this to the user, then immediately proceed to step 4.
+
+**4. Design multiple interfaces in parallel** — spawn 3+ sub-agents simultaneously with different constraints:
+- Agent 1: "Minimize interface — aim for 1–3 entry points max"
+- Agent 2: "Maximize flexibility — support many use cases and extension"
+- Agent 3: "Optimize for the most common caller — make the default case trivial"
+- Agent 4: "Design around ports & adapters for cross-boundary dependencies"
+
+Each agent outputs: interface signature, usage example, what complexity it hides, dependency strategy, trade-offs.
+
+Present designs sequentially, compare in prose, then **give a strong recommendation** — which design is strongest and why. Be opinionated; the user wants a read, not a menu.
+
+**5. Create GitHub issue RFC** — after user picks an interface, create a refactor RFC issue with `gh issue create`. Do NOT ask user to review before creating — just create and share the URL.
+
+---
+
 ### write-a-skill
 **Trigger:** User wants to create, write, or build a new skill / agent skill file.
 
