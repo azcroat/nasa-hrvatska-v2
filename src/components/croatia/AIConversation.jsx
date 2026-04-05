@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { speak } from '../../data.jsx';
-import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { useStats } from '../../context/StatsContext.jsx';
-import { markPracticed } from '../../hooks/useNotifications.js';
+import { markPracticed } from '../../hooks/useNotifications';
+import { useConversationSession } from '../../hooks/useConversationSession';
+import { useWriteMode } from '../../hooks/useWriteMode';
 import { markQuest } from '../../lib/quests.js';
 import { logError, getErrorsForAPI } from '../../lib/learnerErrors.js';
 import { SCENARIOS, deriveWeakAreas, sceneForCat } from './ConversationScenarios.js';
@@ -64,59 +66,61 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   const stats = appSt;
   const isOnline = useOnlineStatus();
 
-  // ── Mode ────────────────────────────────────────────────────────────────────
-  const [appMode,    setAppMode]    = useState("convo");    // "convo" | "write"
+  // ── Mode & setup filters ────────────────────────────────────────────────────
+  const [appMode,    setAppMode]  = useState("convo");    // "convo" | "write"
+  const [activeCat,  setActiveCat]  = useState("All");
+  const [customText, setCustomText] = useState("");
+  const [showCustom, setShowCustom] = useState(false);
 
-  // ── Conversation state ──────────────────────────────────────────────────────
-  const [phase,      setPhase]      = useState("setup");
-  const [scenario,   setScenario]   = useState(/** @type {any} */(null));
-  const [level,      setLevel]      = useState(() => {
-    // Map user's difficulty setting to CEFR — full range A1–B2
+  // ── Conversation session state (22 vars → 1 hook) ───────────────────────────
+  const initialLevel = (() => {
     const diffMap = { beginner: 'A1', elementary: 'A2', intermediate: 'B1', 'upper-intermediate': 'B2', advanced: 'B2' };
     const cefr = appSt?.diff && diffMap[appSt.diff] ? diffMap[appSt.diff] : (appSt?.diff || 'B1');
     return ['A1','A2','B1','B2'].includes(cefr) ? cefr : 'B1';
-  });
-  const [turnCount,  setTurnCount]  = useState(0);
-  const [messages,   setMessages]   = useState(/** @type {any[]} */([]));
-  const [input,      setInput]      = useState("");
-  const [loading,    setLoading]    = useState(false);
-  const [chatError,  setChatError]  = useState("");
-  const [sendError,  setSendError]  = useState("");
-  const [evaluation, setEvaluation] = useState(null);
-  const [evalError,  setEvalError]  = useState("");
-  const [convoVocab, setConvoVocab] = useState([]);
-  const [weakAreasForSession, setWeakAreasForSession] = useState([]);
-  const [corrections, setCorrections] = useState({});
-  const [tooltip, setTooltip] = useState(null);
-  const [showStarters, setShowStarters] = useState(false);
-  const [listening, setListening] = useState(false);
-  const recognitionRef = useRef(null);
-  const evalXpFired = useRef(false);
-  const writeXpFired = useRef(false);
-  const [muted, setMuted] = useState(false);
-  const [npcVideoUrl,     setNpcVideoUrl]     = useState(null);
-  const [npcVideoLoading, setNpcVideoLoading] = useState(false);
-  const npcVideoFiredRef = useRef(null);
-  const [customSceneImg,     _setCustomSceneImg]     = useState(null);
-  const [customSceneLoading, _setCustomSceneLoading] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const speakGenRef = useRef(0); // generation counter — prevents stale animation clear
-  const pendingVoiceTextRef = useRef(''); // accumulates voice transcript between onresult events
-  const [savedWords, setSavedWords] = useState(new Set());
+  })();
+  const {
+    phase, setPhase,
+    scenario, setScenario,
+    level, setLevel,
+    turnCount, setTurnCount,
+    messages, setMessages,
+    input, setInput,
+    loading, setLoading,
+    chatError, setChatError,
+    sendError, setSendError,
+    evaluation, setEvaluation,
+    evalError, setEvalError,
+    convoVocab, setConvoVocab,
+    weakAreasForSession, setWeakAreasForSession,
+    corrections, setCorrections,
+    tooltip, setTooltip,
+    showStarters, setShowStarters,
+    listening, setListening,
+    muted, setMuted,
+    npcVideoUrl, setNpcVideoUrl,
+    npcVideoLoading, setNpcVideoLoading,
+    isSpeaking, setIsSpeaking,
+    savedWords, setSavedWords,
+  } = useConversationSession(initialLevel);
+
+  // ── Write mode state (6 vars → 1 hook) ─────────────────────────────────────
+  const {
+    writePrompt, setWritePrompt,
+    writeLevel, setWriteLevel,
+    writeText, setWriteText,
+    writePhase, setWritePhase,
+    writeEval, setWriteEval,
+    writeEvalError, setWriteEvalError,
+  } = useWriteMode("B1");
+
+  // ── Stable refs (not state — no re-render on change) ────────────────────────
+  const recognitionRef      = useRef(null);
+  const evalXpFired         = useRef(false);
+  const writeXpFired        = useRef(false);
+  const npcVideoFiredRef    = useRef(null);
+  const speakGenRef         = useRef(0); // prevents stale animation clear
+  const pendingVoiceTextRef = useRef(''); // accumulates voice transcript
   const translationCacheRef = useRef({});
-
-  // ── Free Write state ────────────────────────────────────────────────────────
-  const [writePrompt,    setWritePrompt]    = useState(null);
-  const [writeLevel,     setWriteLevel]     = useState("B1");
-  const [writeText,      setWriteText]      = useState("");
-  const [writePhase,     setWritePhase]     = useState("setup");
-  const [writeEval,      setWriteEval]      = useState(null);
-  const [writeEvalError, setWriteEvalError] = useState("");
-
-  // ── Setup filters ───────────────────────────────────────────────────────────
-  const [activeCat, setActiveCat] = useState("All");
-  const [customText,   setCustomText]   = useState("");
-  const [showCustom,   setShowCustom]   = useState(false);
 
   const messagesEndRef = useRef(/** @type {HTMLDivElement | null} */(null));
   const inputRef       = useRef(null);
@@ -724,8 +728,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       setCustomText={setCustomText}
       showCustom={showCustom}
       setShowCustom={setShowCustom}
-      customSceneImg={customSceneImg}
-      customSceneLoading={customSceneLoading}
+      customSceneImg={null}
+      customSceneLoading={false}
       isOnline={isOnline}
       onStart={startConversation}
     />

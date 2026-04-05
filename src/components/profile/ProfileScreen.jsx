@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Bar, lXP, nXP } from '../../data.jsx';
 import { fbDeleteAccount } from '../../lib/firebase.js';
-import { getSubscriptionStatus, cancelFreeAnnual } from '../../hooks/useSubscription.js';
+import { getSubscriptionStatus, cancelFreeAnnual } from '../../hooks/useSubscription';
 
 const AVATAR_EMOJIS = ['😊','😎','🤩','🧠','🎯','🦁','🐉','⚡','🌊','🏔️','🎨','🦅','🌟','🔥','💎','🇭🇷','⚔️','🏰','🎭','🌺'];
 

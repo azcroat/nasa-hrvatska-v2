@@ -8,7 +8,12 @@ export default defineConfig({
     setupFiles: ['./src/tests/setup.js'],
     globals: true,
     include: ['src/**/*.test.{js,jsx,ts,tsx}'],
-    exclude: ['e2e/**', 'node_modules/**'],
+    exclude: [
+      'e2e/**',
+      'node_modules/**',
+      // Firestore rules tests require the Firebase Emulator — run with: npm run test:rules
+      'src/tests/firestore-rules.test.js',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],

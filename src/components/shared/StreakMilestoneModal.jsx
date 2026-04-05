@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, memo } from 'react';
 import confetti from 'canvas-confetti';
-import { useHaptic } from '../../hooks/useHaptic.js';
+import { useHaptic } from '../../hooks/useHaptic';
 
 const MESSAGES = {
   7:   { emoji: '🔥', title: '7 Days Strong! 🔥', sub: "You've formed a habit. This is where it starts.", tip: 'Tip: Put your next practice time in your calendar right now.', color: '#f97316' },

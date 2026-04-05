@@ -1,4 +1,4 @@
-import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 
 export default function OfflineBanner() {
   const { isOnline, backOnline } = useOnlineStatus();

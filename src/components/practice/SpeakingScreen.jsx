@@ -5,7 +5,7 @@ import { markQuest } from '../../lib/quests.js';
 import SpeakingSummaryScreen from './SpeakingSummaryScreen.jsx';
 import SpeakingPracticePanel from './SpeakingPracticePanel.jsx';
 import { knightSpeak } from '../../lib/knightSpeak.js';
-import { useAndroidMicPermission } from '../../hooks/useAndroidMicPermission.js';
+import { useAndroidMicPermission } from '../../hooks/useAndroidMicPermission';
 import { isSpeechRecognitionSupported } from '../../lib/platform.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 

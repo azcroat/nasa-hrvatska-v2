@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, memo } from 'react';
 import confetti from 'canvas-confetti';
 import { rnd } from '../../lib/random.js';
-import { useHaptic } from '../../hooks/useHaptic.js';
+import { useHaptic } from '../../hooks/useHaptic';
 
 // ── CEFR mapping ──────────────────────────────────────────────────────────────
 // lvl() returns 1-10; map to CEFR bands + Croatian level name

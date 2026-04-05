@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, memo } from 'react';
 import confetti from 'canvas-confetti';
 import { rnd } from '../../lib/random.js';
-import { useHaptic } from '../../hooks/useHaptic.js';
+import { useHaptic } from '../../hooks/useHaptic';
 import CroatianKnight from './CroatianKnight.jsx';
 import { getDailyFact } from '../../lib/culturalFacts.js';
 

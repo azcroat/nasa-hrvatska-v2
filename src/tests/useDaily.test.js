@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useDaily } from '../hooks/useDaily.js';
+import { useDaily } from '../hooks/useDaily';
 
 function clearLS() { localStorage.clear(); }
 

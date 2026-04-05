@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { lXP, nXP, earnFreeze, getStreakFreezes, LEVEL_NARRATIVE, speak } from '../../data.jsx';
 import { getDailyXP, DAILY_XP_GOAL, getXPBoost, activateXPBoost, canActivateXPBoost, XP_BOOST_COST } from '../../lib/appUtils.js';
-import { useTranslator } from '../../hooks/useTranslator.js';
+import { useTranslator } from '../../hooks/useTranslator';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import CroatianGrb from '../shared/CroatianGrb.jsx';

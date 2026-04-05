@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getAudioContext } from '../../lib/audio.js';
 import { markQuest } from '../../lib/quests.js';
-import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import LiveTutorSetup from './LiveTutorSetup.jsx';
 import LiveTutorDebrief from './LiveTutorDebrief.jsx';
 import LiveTutorControls from './LiveTutorControls.jsx';

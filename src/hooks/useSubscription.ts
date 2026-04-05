@@ -31,27 +31,48 @@ const STORAGE_KEY = 'nh_subscription';
 // naturally expire and users will hit the paywall at their renewal date.
 export const FREE_ANNUAL_ENABLED = true;
 
+type SubscriptionPlan = 'free' | 'monthly' | 'yearly';
+type SubscriptionSource = 'trial' | 'stripe' | 'revenuecat' | 'promo' | 'free_annual' | null;
+
+interface Subscription {
+  plan: SubscriptionPlan;
+  expiresAt: string | null;
+  trialUntil: string | null;
+  source: SubscriptionSource;
+}
+
+export interface SubscriptionStatus {
+  isPremium: boolean;
+  inTrial: boolean;
+  isPaid: boolean;
+  isFreeAnnual: boolean;
+  plan: SubscriptionPlan;
+  daysLeft: number | null;
+  source: SubscriptionSource;
+  expiresAt: string | null;
+}
+
 // ── Internals ────────────────────────────────────────────────────────────────
-function _makeFreeSub() {
+function _makeFreeSub(): Subscription {
   return { plan: 'free', expiresAt: null, trialUntil: null, source: null };
 }
 
-function _load() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || _makeFreeSub(); }
+function _load(): Subscription {
+  try { return (JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') as Subscription) || _makeFreeSub(); }
   catch { return _makeFreeSub(); }
 }
 
-function _save(sub) {
+function _save(sub: Subscription): void {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(sub)); } catch {}
 }
 
-function _isInTrial(sub) {
+function _isInTrial(sub: Subscription): boolean {
   if (!sub.trialUntil || typeof sub.trialUntil !== 'string') return false;
   const d = new Date(sub.trialUntil);
   return !isNaN(d.getTime()) && d > new Date();
 }
 
-function _isActivePaid(sub) {
+function _isActivePaid(sub: Subscription): boolean {
   if (sub.plan === 'free') return false;
   if (!sub.expiresAt) return false;
   return new Date(sub.expiresAt) > new Date();
@@ -59,7 +80,7 @@ function _isActivePaid(sub) {
 
 // Source is considered "paid" only when the user went through a real payment flow.
 // free_annual / trial / promo are not paid sources.
-function _isPaidSource(source) {
+function _isPaidSource(source: SubscriptionSource): boolean {
   return source === 'stripe' || source === 'revenuecat';
 }
 
@@ -74,7 +95,7 @@ function _isPaidSource(source) {
  *
  * Call on every sign-in and also on app mount for returning users.
  */
-export function grantFreeAnnual(userId) {
+export function grantFreeAnnual(userId: string): void {
   if (!userId) return;
 
   const sub = _load();
@@ -106,10 +127,8 @@ export function grantFreeAnnual(userId) {
 /**
  * Activate a subscription after successful payment or RevenueCat entitlement.
  * Always takes precedence over free_annual.
- * @param {'monthly'|'yearly'} plan
- * @param {'stripe'|'revenuecat'|'promo'} source
  */
-export function activateSubscription(plan, source = 'stripe') {
+export function activateSubscription(plan: SubscriptionPlan, source: SubscriptionSource = 'stripe'): void {
   const now = new Date();
   const expiresAt = plan === 'yearly'
     ? new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000).toISOString()
@@ -121,10 +140,9 @@ export function activateSubscription(plan, source = 'stripe') {
 /**
  * Apply a promo / gift code.
  * HRVATSKA2026 → 30 days · DIASPORA → 90 days · TEACHER → 365 days
- * @returns {{ ok: boolean, message: string }}
  */
-export function redeemPromoCode(code) {
-  const PROMO_CODES = {
+export function redeemPromoCode(code: string): { ok: boolean; message: string } {
+  const PROMO_CODES: Record<string, { days: number; plan: SubscriptionPlan }> = {
     'HRVATSKA2026': { days: 30,  plan: 'monthly' },
     'DIASPORA':     { days: 90,  plan: 'yearly'  },
     'TEACHER':      { days: 365, plan: 'yearly'  },
@@ -142,7 +160,7 @@ export function redeemPromoCode(code) {
  * Cancel the free_annual subscription.
  * Paid subscriptions are not affected (use RevenueCat / Stripe portal for those).
  */
-export function cancelFreeAnnual(userId) {
+export function cancelFreeAnnual(userId: string): void {
   const sub = _load();
   if (sub.source !== 'free_annual') return; // nothing to cancel
   _save(_makeFreeSub());
@@ -153,14 +171,14 @@ export function cancelFreeAnnual(userId) {
   window.dispatchEvent(new CustomEvent('nh:subscription-changed'));
 }
 
-export function getSubscriptionStatus() {
+export function getSubscriptionStatus(): SubscriptionStatus {
   const sub = _load();
   const inTrial    = _isInTrial(sub);
   const isPaid     = _isActivePaid(sub) && _isPaidSource(sub.source);
   const isFreeAnnual = sub.source === 'free_annual' && _isActivePaid(sub);
   const isPremium  = inTrial || isPaid || isFreeAnnual || _isActivePaid(sub);
 
-  let daysLeft = null;
+  let daysLeft: number | null = null;
   if (sub.expiresAt && _isActivePaid(sub)) {
     daysLeft = Math.ceil((new Date(sub.expiresAt).getTime() - Date.now()) / 86400000);
   } else if (inTrial && sub.trialUntil) {
@@ -182,10 +200,10 @@ export function getSubscriptionStatus() {
 /**
  * Primary hook — call anywhere you need to gate premium features.
  */
-export function useSubscription() {
-  const [status, setStatus] = useState(getSubscriptionStatus);
+export function useSubscription(): SubscriptionStatus & { refresh: () => void } {
+  const [status, setStatus] = useState<SubscriptionStatus>(getSubscriptionStatus);
 
-  const refresh = useCallback(() => {
+  const refresh = useCallback((): void => {
     setStatus(getSubscriptionStatus());
   }, []);
 
@@ -203,7 +221,7 @@ export function useSubscription() {
 
 // ── Legacy alias (kept for backwards compat) ─────────────────────────────────
 /** @deprecated Use grantFreeAnnual instead */
-export function startTrial(userId) { grantFreeAnnual(userId); }
+export function startTrial(userId: string): void { grantFreeAnnual(userId); }
 
 /*
  * ── RevenueCat integration (uncomment when ready) ──────────────────────────

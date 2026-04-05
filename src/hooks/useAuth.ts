@@ -19,23 +19,54 @@ import {
   initFirebase, getLocalFamily, saveLocalFamily, fbSaveProgress,
 } from '../lib/firebase.js';
 import { updateStreak } from '../lib/appUtils.js';
+import type { AuthUser } from '../types/index.js';
 
-/**
- * @param {object} opts
- * @param {function} opts.onSignedIn   — ({ user, progress, isNew, isHydrate }) => void
- * @param {function} opts.onSignedOut  — () => void
- * @param {function} opts.applyRemoteProgress — (progress) => void
- * @param {function} opts.setFamData   — (fam|null) => void
- * @param {function} opts.setSyncReady — (bool) => void
- * @param {function} [opts.onBeforeSignOut] - async () => void, called before sign-out to flush pending sync
- */
-export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady, onBeforeSignOut }) {
+interface AuthCallbacks {
+  onSignedIn: (opts: { user: AuthUser; progress: unknown; isNew?: boolean; isHydrate?: boolean }) => void;
+  onSignedOut: () => void;
+  applyRemoteProgress: (progress: unknown) => void;
+  setFamData: (fam: unknown) => void;
+  setSyncReady: (ready: boolean) => void;
+  onBeforeSignOut?: () => Promise<void>;
+}
+
+export function useAuth({
+  onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady, onBeforeSignOut,
+}: AuthCallbacks): {
+  authScreen: string;
+  setAuthScreen: (s: string) => void;
+  authUser: AuthUser | null;
+  authEmail: string;
+  setAuthEmail: React.Dispatch<React.SetStateAction<string>>;
+  pw: string;
+  setPw: React.Dispatch<React.SetStateAction<string>>;
+  pc: string;
+  setPc: React.Dispatch<React.SetStateAction<string>>;
+  displayName: string;
+  setDisplayName: React.Dispatch<React.SetStateAction<string>>;
+  sp: boolean;
+  setSp2: React.Dispatch<React.SetStateAction<boolean>>;
+  rpEm: string;
+  setRpEm: React.Dispatch<React.SetStateAction<string>>;
+  authError: string;
+  setAuthError: React.Dispatch<React.SetStateAction<string>>;
+  authLoading: boolean;
+  emailUnverified: boolean;
+  setEmailUnverified: React.Dispatch<React.SetStateAction<boolean>>;
+  resendVerification: () => Promise<void>;
+  doReg: () => Promise<void>;
+  doLog: () => Promise<void>;
+  doOut: () => Promise<void>;
+  doReset: () => Promise<void>;
+  doGoogleLogin: () => Promise<void>;
+  doGuest: () => void;
+} {
   // Keep callbacks in a ref so the one-time mount effect never goes stale
-  const cb = useRef({ onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady, onBeforeSignOut });
+  const cb = useRef<AuthCallbacks>({ onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady, onBeforeSignOut });
   cb.current = { onSignedIn, onSignedOut, applyRemoteProgress, setFamData, setSyncReady, onBeforeSignOut };
 
   // Holds the Firestore onSnapshot unsubscribe fn — cleaned up on sign-out / unmount
-  const watchRef = useRef(null);
+  const watchRef = useRef<(() => void) | null>(null);
 
   // Set to true just before fbRegister so the auth listener treats the next user as a new account
   const isNewReg = useRef(false);
@@ -44,15 +75,13 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
   const guestRef = useRef(false);
 
   // Track authScreen in a ref so the auth listener (mounted once) can read the current value.
-  // Used to detect re-login after logout: if authScreen was 'login', _goPostAuth must fire
-  // even when earlyRestored=true from a prior session.
   const authScreenRef = useRef('loading');
 
   // ── Auth flow state ──────────────────────────────────────────────────────
   const [authScreen, _setAuthScreen] = useState('loading');
   // Wrap setAuthScreen so authScreenRef always mirrors the latest value
-  function setAuthScreen(s) { authScreenRef.current = s; _setAuthScreen(s); }
-  const [authUser, setAuthUser] = useState(/** @type {import('../types/index.js').AuthUser | null} */(null));
+  function setAuthScreen(s: string): void { authScreenRef.current = s; _setAuthScreen(s); }
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [authEmail, setAuthEmail] = useState('');
   const [pw, setPw] = useState('');
   const [pc, setPc] = useState('');
@@ -73,25 +102,17 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
   useEffect(() => {
     initFirebase();
 
-    // ── Early restore: show app immediately if we have a cached local session ──
-    // This prevents the loading spinner on returning devices.
-    // The auth listener will overwrite with Firebase data when it arrives.
-    const s = gS();
+    const s = gS() as { u?: string; d?: string } | null;
     let earlyRestored = false;
-    // Captures the localStorage savedAt BEFORE React autosave effects can bump it to
-    // Date.now(). The autosave effect fires after the first render (when authScreen
-    // becomes "app"), which happens before fbOnAuthStateChanged resolves its async
-    // fbLoadProgress call. Without this capture, lpTs = Date.now() and Firebase data
-    // from our last patch (fpTs = older timestamp) is incorrectly rejected.
     let _origLocalSavedAt = 0;
     let _origLocalFbUpdated = 0;
     if (s && s.u) {
-      const cached = gP(s.u);
+      const cached = gP(s.u) as Record<string, unknown> | null;
       if (cached) {
-        _origLocalSavedAt = cached.savedAt || 0;
-        _origLocalFbUpdated = cached._fbUpdated || 0;
+        _origLocalSavedAt = (cached.savedAt as number) || 0;
+        _origLocalFbUpdated = (cached._fbUpdated as number) || 0;
         earlyRestored = true;
-        const user = { u: s.u, d: s.d || s.u, e: s.u };
+        const user: AuthUser = { u: s.u, d: s.d || s.u, e: s.u };
         setAuthUser(user);
         touchSession(); updateStreak();
         const lf = getLocalFamily();
@@ -101,9 +122,6 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       }
     }
 
-    // Safety net: if Firebase never calls onAuthStateChanged (blocked SDK, network
-    // failure, init error), drop to the login screen after 8 seconds so the user
-    // is never stuck on an infinite loading spinner.
     let authFired = false;
     const authFallbackTimer = setTimeout(function() {
       if (!authFired && !earlyRestored) {
@@ -111,74 +129,56 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       }
     }, 8000);
 
-    const unsub = fbOnAuthStateChanged(function(fbUser) {
+    const unsub = fbOnAuthStateChanged(function(fbUser: Record<string, unknown> | null) {
       authFired = true;
       clearTimeout(authFallbackTimer);
       if (!fbUser) {
-        // Guest mode — user is browsing without auth, don't redirect to login
         if (guestRef.current) { setAuthScreen('app'); return; }
-        // Not signed in — clear stale session and go to login
         cS();
         if (watchRef.current) { watchRef.current(); watchRef.current = null; }
         setAuthUser(null);
         setAuthScreen('login');
         return;
       }
-      // Real sign-in — exit guest mode
       guestRef.current = false;
 
-      const k = fbUser.email || fbUser.uid;
-      const dn = fbUser.displayName || k;
-      const user = { u: k, d: dn, e: k };
+      const k = (fbUser.email as string) || (fbUser.uid as string);
+      const dn = (fbUser.displayName as string) || k;
+      const user: AuthUser = { u: k, d: dn, e: k };
       const isNew = isNewReg.current;
       isNewReg.current = false;
 
-      // Reset sync gate so hero always shows "Syncing…" while Firebase loads.
-      // Without this, _syncReady stays true from a previous session and the hero
-      // shows a lesson based on stale/empty stats immediately after re-login.
       cb.current.setSyncReady(false);
 
       setAuthUser(user);
       sS({ u: k, d: dn });
       touchSession(); updateStreak();
 
-      // ── New registration: preserve any offline progress earned before sign-up ──
       if (isNew) {
-        // A user may complete lessons offline before creating an account.
-        // Pass local progress (if any) so that work is not discarded.
         const offlineProgress = gP(k);
         cb.current.onSignedIn({ user, progress: offlineProgress, isNew: true });
         cb.current.setSyncReady(true);
         setAuthScreen('app');
-        // Immediately push offline progress to Firebase so other devices get it
         if (offlineProgress) {
           fbSaveProgress(k, offlineProgress).catch(function() {});
         }
-        // Show email verification banner for email/password registrations (Google is pre-verified)
-        if (fbUser && !fbUser.emailVerified && fbUser.providerData && fbUser.providerData[0] && fbUser.providerData[0].providerId !== 'google.com') {
+        if (fbUser && !(fbUser.emailVerified as boolean) && (fbUser.providerData as unknown[]) && (fbUser.providerData as Record<string, unknown>[])[0] && ((fbUser.providerData as Record<string, unknown>[])[0] as Record<string, unknown>).providerId !== 'google.com') {
           setEmailUnverified(true);
         }
         return;
       }
 
-      // ── Returning user: if early restore already showed the app, skip the
-      //    non-hydrate onSignedIn call (avoids double navigation via _goPostAuth).
-      //    Firebase data arrives via the isHydrate path below.
-      // ── Fresh device: early restore did nothing, so wait for Firebase before
-      //    showing the app — this prevents the hero from flashing "Basic Greetings".
-      const localP = gP(k);
+      const localP = gP(k) as Record<string, unknown> | null;
 
       if (!earlyRestored && localP) {
-        // Local data exists but wasn't used for early restore (e.g., key mismatch).
-        // Show app now and let Firebase update via isHydrate.
-        _origLocalSavedAt = localP.savedAt || 0;
-        _origLocalFbUpdated = localP._fbUpdated || 0;
+        _origLocalSavedAt = (localP.savedAt as number) || 0;
+        _origLocalFbUpdated = (localP._fbUpdated as number) || 0;
         earlyRestored = true;
         cb.current.onSignedIn({ user, progress: localP });
         setAuthScreen('app');
       }
 
-      fbLoadUserFamily(k).then(function(f) {
+      fbLoadUserFamily(k).then(function(f: unknown) {
         if (f) {
           saveLocalFamily(f);
           cb.current.setFamData(f);
@@ -186,13 +186,9 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
       });
 
       let syncReadyFired = false;
-      function fireSyncReady() {
+      function fireSyncReady(): void {
         if (!syncReadyFired) { syncReadyFired = true; cb.current.setSyncReady(true); }
       }
-      // Safety net: mark sync ready even if Firebase is slow.
-      // Fresh devices (no local cache) get a longer window so retries in fbLoadProgress
-      // have time to complete before the fallback fires with null progress.
-      // Returning devices already show cached data so 6s is fine.
       const freshDevice = !earlyRestored && !localP;
       const t = setTimeout(function() {
         const needsNavTimeout = !earlyRestored || authScreenRef.current === 'login' || authScreenRef.current === 'register' || authScreenRef.current === 'loading';
@@ -204,100 +200,81 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         fireSyncReady();
       }, freshDevice ? 14000 : 6000);
 
-      fbLoadProgress(k).then(function(fp) {
+      fbLoadProgress(k).then(function(fp: Record<string, unknown> | null) {
         clearTimeout(t);
 
-        const lp = gP(k);
-        // Support both current ("stats") and legacy ("st") key formats.
-        // Data saved before a prior rename uses "st"; newer saves use "stats".
-        const fpXP = (fp && ((fp.stats && fp.stats.xp) || (fp.st && fp.st.xp))) || 0;
-        const lpXP = (lp && ((lp.stats && lp.stats.xp) || (lp.st && lp.st.xp))) || 0;
+        const lp = gP(k) as Record<string, unknown> | null;
+        const _fpStat = fp ? ((fp.stats as Record<string, number>) || (fp.st as Record<string, number>) || {}) : {};
+        const _lpStat = lp ? ((lp.stats as Record<string, number>) || (lp.st as Record<string, number>) || {}) : {};
+        const fpXP: number = (_fpStat.xp as number) || 0;
+        const lpXP: number = (_lpStat.xp as number) || 0;
 
         if (fp) {
-          // Always merge Firebase + local additively — Math.max for counts, union for arrays.
-          // No timestamp gate: the old `remoteIsNewer` check (fpTs > lpTs) was unreliable
-          // because local savedAt gets bumped by autosave every 30s, making local appear
-          // "newer" than Firebase even when Firebase has data from a different device.
           _origLocalSavedAt = 0;
           _origLocalFbUpdated = 0;
-          const fpSt = (fp.stats || fp.st || {});
-          const lpSt = (lp && (lp.stats || lp.st)) || {};
+          const fpSt = (fp.stats || fp.st || {}) as Record<string, unknown>;
+          const lpSt = (lp && (lp.stats || lp.st)) as Record<string, unknown> || {};
           const mergedStats = {
             ...fpSt,
-            xp:  Math.max(lpSt.xp  || 0, fpSt.xp  || 0),
-            lc:  Math.max(lpSt.lc  || 0, fpSt.lc  || 0),
-            gc:  Math.max(lpSt.gc  || 0, fpSt.gc  || 0),
-            sp:  Math.max(lpSt.sp  || 0, fpSt.sp  || 0),
-            de:  Math.max(lpSt.de  || 0, fpSt.de  || 0),
-            rc:  Math.max(lpSt.rc  || 0, fpSt.rc  || 0),
-            str: Math.max(lpSt.str || 0, fpSt.str || 0),
-            pf:  Math.max(lpSt.pf  || 0, fpSt.pf  || 0),
-            mv:  Math.max(lpSt.mv  || 0, fpSt.mv  || 0),
-            hi:  Math.max(lpSt.hi  || 0, fpSt.hi  || 0),
-            ct:  [...new Set([...(lpSt.ct  || []), ...(fpSt.ct  || [])])],
-            vs:  [...new Set([...(lpSt.vs  || []), ...(fpSt.vs  || [])])],
-            badges: [...new Set([...(lpSt.badges || []), ...(fpSt.badges || [])])],
+            xp:  Math.max((lpSt.xp as number) || 0, (fpSt.xp as number) || 0),
+            lc:  Math.max((lpSt.lc as number) || 0, (fpSt.lc as number) || 0),
+            gc:  Math.max((lpSt.gc as number) || 0, (fpSt.gc as number) || 0),
+            sp:  Math.max((lpSt.sp as number) || 0, (fpSt.sp as number) || 0),
+            de:  Math.max((lpSt.de as number) || 0, (fpSt.de as number) || 0),
+            rc:  Math.max((lpSt.rc as number) || 0, (fpSt.rc as number) || 0),
+            str: Math.max((lpSt.str as number) || 0, (fpSt.str as number) || 0),
+            pf:  Math.max((lpSt.pf as number) || 0, (fpSt.pf as number) || 0),
+            mv:  Math.max((lpSt.mv as number) || 0, (fpSt.mv as number) || 0),
+            hi:  Math.max((lpSt.hi as number) || 0, (fpSt.hi as number) || 0),
+            ct:  [...new Set([...((lpSt.ct as string[]) || []), ...((fpSt.ct as string[]) || [])])],
+            vs:  [...new Set([...((lpSt.vs as string[]) || []), ...((fpSt.vs as string[]) || [])])],
+            badges: [...new Set([...((lpSt.badges as string[]) || []), ...((fpSt.badges as string[]) || [])])],
             diff: (function() {
-              const DO = { beginner: 0, intermediate: 1, advanced: 2 };
-              const lo = DO[lpSt.diff] !== undefined ? DO[lpSt.diff] : -1;
-              const fo = DO[fpSt.diff] !== undefined ? DO[fpSt.diff] : -1;
+              const DO: Record<string, number> = { beginner: 0, intermediate: 1, advanced: 2 };
+              const lo = DO[lpSt.diff as string] !== undefined ? DO[lpSt.diff as string] : -1;
+              const fo = DO[fpSt.diff as string] !== undefined ? DO[fpSt.diff as string] : -1;
               return lo >= fo ? (lpSt.diff || fpSt.diff) : (fpSt.diff || lpSt.diff);
             })(),
           };
-          lP(k, { ...fp, stats: mergedStats }); // cache locally with merged stats
+          lP(k, { ...fp, stats: mergedStats });
           cb.current.onSignedIn({ user, progress: { ...fp, stats: mergedStats }, isHydrate: true });
-          // Always apply remote progress (streak, SRS, favs, journal) — additive merge,
-          // safe to call regardless of which device is "newer".
           cb.current.applyRemoteProgress(fp);
-          // Recovery push: local has more XP than Firestore (e.g. offline session, failed write).
-          // CRITICAL: push the MERGED snapshot (not raw lp) so other devices receive the
-          // additive-max of local + remote. Pushing raw lp could overwrite Firebase's higher
-          // lc/gc/ct values from other devices with this device's lower stale values.
           if (lpXP > fpXP) {
             fbSaveProgress(k, { ...fp, stats: mergedStats }).catch(function() {});
           }
         } else {
           _origLocalSavedAt = 0;
           _origLocalFbUpdated = 0;
-          // No Firebase data but local has XP — push local so other devices get it
           if (lpXP > 0 && lp) {
             fbSaveProgress(k, lp).catch(function() {});
           }
         }
 
-        // Call onSignedIn (which triggers _goPostAuth navigation) if:
-        //  a) earlyRestored is false — first time showing the app on this load, OR
-        //  b) we came from 'login'/'register' screen — re-login after logout needs navigation
-        //     even when earlyRestored=true from a prior session in this page load.
         const needsNav = !earlyRestored || authScreenRef.current === 'login' || authScreenRef.current === 'register' || authScreenRef.current === 'loading';
         if (needsNav) {
           earlyRestored = true;
-          // Always merge local + remote so local progress is never discarded when
-          // Firebase has equal or older data (e.g. autosave to Firebase failed during
-          // the session, or the sign-out flush didn't complete before the read).
-          // Without this, fp || localP picks stale Firebase over fresh local data.
-          let navProgress = fp || localP;
+          let navProgress: unknown = fp || localP;
           if (fp && localP) {
-            const _fpSt = fp.stats || fp.st || {};
-            const _lpSt = localP.stats || localP.st || {};
+            const _fpSt = (fp.stats || fp.st || {}) as Record<string, unknown>;
+            const _lpSt = (localP.stats || localP.st || {}) as Record<string, unknown>;
             const _safeMerged = {
-              xp:  Math.max(_lpSt.xp  || 0, _fpSt.xp  || 0),
-              lc:  Math.max(_lpSt.lc  || 0, _fpSt.lc  || 0),
-              gc:  Math.max(_lpSt.gc  || 0, _fpSt.gc  || 0),
-              sp:  Math.max(_lpSt.sp  || 0, _fpSt.sp  || 0),
-              de:  Math.max(_lpSt.de  || 0, _fpSt.de  || 0),
-              rc:  Math.max(_lpSt.rc  || 0, _fpSt.rc  || 0),
-              str: Math.max(_lpSt.str || 0, _fpSt.str || 0),
-              pf:  Math.max(_lpSt.pf  || 0, _fpSt.pf  || 0),
-              mv:  Math.max(_lpSt.mv  || 0, _fpSt.mv  || 0),
-              hi:  Math.max(_lpSt.hi  || 0, _fpSt.hi  || 0),
-              ct:  [...new Set([...(_lpSt.ct  || []), ...(_fpSt.ct  || [])])],
-              vs:  [...new Set([...(_lpSt.vs  || []), ...(_fpSt.vs  || [])])],
-              badges: [...new Set([...(_lpSt.badges || []), ...(_fpSt.badges || [])])],
+              xp:  Math.max((_lpSt.xp as number) || 0, (_fpSt.xp as number) || 0),
+              lc:  Math.max((_lpSt.lc as number) || 0, (_fpSt.lc as number) || 0),
+              gc:  Math.max((_lpSt.gc as number) || 0, (_fpSt.gc as number) || 0),
+              sp:  Math.max((_lpSt.sp as number) || 0, (_fpSt.sp as number) || 0),
+              de:  Math.max((_lpSt.de as number) || 0, (_fpSt.de as number) || 0),
+              rc:  Math.max((_lpSt.rc as number) || 0, (_fpSt.rc as number) || 0),
+              str: Math.max((_lpSt.str as number) || 0, (_fpSt.str as number) || 0),
+              pf:  Math.max((_lpSt.pf as number) || 0, (_fpSt.pf as number) || 0),
+              mv:  Math.max((_lpSt.mv as number) || 0, (_fpSt.mv as number) || 0),
+              hi:  Math.max((_lpSt.hi as number) || 0, (_fpSt.hi as number) || 0),
+              ct:  [...new Set([...((_lpSt.ct as string[]) || []), ...((_fpSt.ct as string[]) || [])])],
+              vs:  [...new Set([...((_lpSt.vs as string[]) || []), ...((_fpSt.vs as string[]) || [])])],
+              badges: [...new Set([...((_lpSt.badges as string[]) || []), ...((_fpSt.badges as string[]) || [])])],
               diff: (function() {
-                const DO = { beginner: 0, intermediate: 1, advanced: 2 };
-                const lo = DO[_lpSt.diff] !== undefined ? DO[_lpSt.diff] : -1;
-                const fo = DO[_fpSt.diff] !== undefined ? DO[_fpSt.diff] : -1;
+                const DO: Record<string, number> = { beginner: 0, intermediate: 1, advanced: 2 };
+                const lo = DO[_lpSt.diff as string] !== undefined ? DO[_lpSt.diff as string] : -1;
+                const fo = DO[_fpSt.diff as string] !== undefined ? DO[_fpSt.diff as string] : -1;
                 return lo >= fo ? (_lpSt.diff || _fpSt.diff) : (_fpSt.diff || _lpSt.diff);
               })(),
             };
@@ -309,29 +286,17 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
 
         fireSyncReady();
 
-        // ── Family XP backfill ───────────────────────────────────────────────
-        // Fires AFTER progress is loaded so gP(k) is guaranteed to have real data.
-        // fbLoadUserFamily runs concurrently and is much faster (2 getDoc calls, no
-        // retry), so getLocalFamily() will have the family code by this point.
-        // This fixes children who show 0 XP because fbSaveProgress previously fired
-        // before localStorage had family data (race condition on fresh devices).
         (function() {
-          const famData = getLocalFamily();
-          const latestProgress = fp || gP(k);
-          const _lpSt = latestProgress && (latestProgress.stats || latestProgress.st);
-          if (famData && famData.code && _lpSt && _lpSt.xp > 0) {
-            fbSaveProgress(k, latestProgress).catch(function() {});
+          const famData = getLocalFamily() as Record<string, unknown> | null;
+          const latestProgress = (fp || gP(k)) as Record<string, unknown> | null;
+          const _lpSt = latestProgress && ((latestProgress.stats || latestProgress.st) as Record<string, unknown>);
+          if (famData && famData.code && _lpSt && (_lpSt.xp as number) > 0) {
+            fbSaveProgress(k, latestProgress as Record<string, unknown>).catch(function() {});
           }
         })();
 
-        // Real-time cross-device sync is owned entirely by the App.jsx
-        // fbWatchProgress useEffect. Starting a second listener here caused
-        // double-application of every snapshot (two setStats + two applyRemoteProgress
-        // calls per update) and a race where the two lP() writes interfered with
-        // each other. watchRef is still cleaned up on sign-out below.
       }).catch(function() {
         clearTimeout(t);
-        // Network error — show app with local data (or empty stats for fresh device)
         const needsNavCatch = !earlyRestored || authScreenRef.current === 'login' || authScreenRef.current === 'register' || authScreenRef.current === 'loading';
         if (needsNavCatch) {
           earlyRestored = true;
@@ -339,7 +304,6 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
         }
         setAuthScreen('app');
         fireSyncReady();
-        // App.jsx watcher will reconnect once authScreen becomes 'app'.
       });
     });
 
@@ -347,16 +311,15 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
   }, []);
 
   // ── Register ─────────────────────────────────────────────────────────────
-  async function doReg() {
+  async function doReg(): Promise<void> {
     setAuthError('');
     if (!authEmail.trim() || !isValidEmail(authEmail.trim())) { setAuthError('Please enter a valid email address.'); return; }
     if (!pw || pw.length < 6) { setAuthError('Password must be at least 6 characters.'); return; }
     if (pw !== pc) { setAuthError('Passwords do not match.'); return; }
     if (!displayName.trim()) { setAuthError('Please enter your display name.'); return; }
     setAuthLoading(true);
-    // Rate limit: max 3 registration attempts per 10 minutes
     const regKey = 'reg_attempts';
-    let regData = { count: 0, since: 0 };
+    let regData: { count: number; since: number } = { count: 0, since: 0 };
     try { regData = JSON.parse(localStorage.getItem(regKey) || '{"count":0,"since":0}'); } catch (_) {}
     const now = Date.now();
     if (now - regData.since < 600000) {
@@ -372,14 +335,13 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
     try {
       const k = authEmail.trim().toLowerCase();
       isNewReg.current = true;
-      const fb = await fbRegister(k, pw, displayName.trim());
+      const fb = await fbRegister(k, pw, displayName.trim()) as { ok: boolean; err?: string };
       if (!fb.ok) {
         isNewReg.current = false;
         setAuthError(fb.err || 'Registration failed. Please try again.');
         setAuthLoading(false);
         return;
       }
-      // Auth listener fires and handles the rest
       setAuthEmail(''); setPw(''); setPc(''); setDisplayName('');
     } catch (e) {
       isNewReg.current = false;
@@ -389,14 +351,13 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
   }
 
   // ── Login ─────────────────────────────────────────────────────────────────
-  async function doLog() {
+  async function doLog(): Promise<void> {
     setAuthError('');
     if (!authEmail.trim() || !isValidEmail(authEmail.trim())) { setAuthError('Please enter a valid email address.'); return; }
     if (!pw) { setAuthError('Please enter your password.'); return; }
     setAuthLoading(true);
-    // Rate limit: max 5 login attempts per 10 minutes
     const loginKey = 'login_attempts';
-    let loginData = { count: 0, since: 0 };
+    let loginData: { count: number; since: number } = { count: 0, since: 0 };
     try { loginData = JSON.parse(localStorage.getItem(loginKey) || '{"count":0,"since":0}'); } catch (_) {}
     const now = Date.now();
     if (now - loginData.since < 600000) {
@@ -411,11 +372,8 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
     }
     try {
       const k = authEmail.trim().toLowerCase();
-      const result = await fbLogin(k, pw);
+      const result = await fbLogin(k, pw) as { ok: boolean; err?: string };
       if (result.ok) {
-        // Credentials confirmed — switch to loading screen immediately so the
-        // user sees progress rather than the login form snapping back idle
-        // while the auth listener + fbLoadProgress run in the background.
         setAuthEmail(''); setPw('');
         setAuthScreen('loading');
       } else {
@@ -428,7 +386,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
   }
 
   // ── Reset password ────────────────────────────────────────────────────────
-  async function doReset() {
+  async function doReset(): Promise<void> {
     setAuthError('');
     if (!rpEm.trim() || !isValidEmail(rpEm.trim())) { setAuthError('Please enter your email address.'); return; }
     setAuthLoading(true);
@@ -444,13 +402,12 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
   }
 
   // ── Google Sign-In ────────────────────────────────────────────────────────
-  async function doGoogleLogin() {
+  async function doGoogleLogin(): Promise<void> {
     setAuthError('');
     setAuthLoading(true);
     try {
-      const result = await fbLoginGoogle();
+      const result = await fbLoginGoogle() as { ok: boolean; err?: string };
       if (result.ok) {
-        // Auth listener (fbOnAuthStateChanged) handles the rest — same path as doLog
         setAuthScreen('loading');
       } else if (result.err) {
         setAuthError(result.err);
@@ -462,7 +419,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
   }
 
   // ── Resend verification email ─────────────────────────────────────────────
-  async function resendVerification() {
+  async function resendVerification(): Promise<void> {
     try {
       const { getAuth } = await import('firebase/auth');
       const { sendEmailVerification } = await import('firebase/auth');
@@ -472,17 +429,12 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
   }
 
   // ── Sign out ──────────────────────────────────────────────────────────────
-  async function doOut() {
-    // Flush latest progress to Firestore BEFORE revoking the auth token.
-    // This guarantees the user's final state is saved even if the periodic save
-    // hadn't fired yet. Auth token is still valid at this point so the write succeeds.
+  async function doOut(): Promise<void> {
     if (cb.current.onBeforeSignOut) {
       try {
-        // Cap the pre-signout sync at 3 seconds so a slow/hanging Firebase write
-        // (network error, quota exhaustion) never blocks the user from signing out.
         await Promise.race([
           cb.current.onBeforeSignOut(),
-          new Promise(resolve => setTimeout(resolve, 3000)),
+          new Promise<void>(resolve => setTimeout(resolve, 3000)),
         ]);
       } catch {}
     }
@@ -493,7 +445,7 @@ export function useAuth({ onSignedIn, onSignedOut, applyRemoteProgress, setFamDa
   }
 
   // ── Guest mode ────────────────────────────────────────────────────────────
-  function doGuest() {
+  function doGuest(): void {
     guestRef.current = true;
     touchSession();
     updateStreak();

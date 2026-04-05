@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { H, Bar, Spk, srMark, getSR, sh, V } from '../../data.jsx';
 import { getPrioritizedReviewQueue } from '../../lib/srs.js';
-import { useHaptic } from '../../hooks/useHaptic.js';
-import { markPracticed } from '../../hooks/useNotifications.js';
+import { useHaptic } from '../../hooks/useHaptic';
+import { markPracticed } from '../../hooks/useNotifications';
 import { markQuest } from '../../lib/quests.js';
 import { logError } from '../../lib/learnerErrors.js';
 import { playFanfare as _playFanfare } from '../../lib/soundSettings.js';

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useStats } from '../../context/StatsContext.jsx';
-import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getAudioContext } from '../../lib/audio.js';
 import { STORY_CITIES, GOAL_META } from './StoryModeData.js';

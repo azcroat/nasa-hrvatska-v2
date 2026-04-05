@@ -1,8 +1,13 @@
 // Haptic feedback via the Vibration API (free, browser-native, zero KB)
 // Works on Android Chrome/Firefox. No-ops silently on iOS/desktop.
 
-export function useHaptic() {
-  function buzz(pattern) {
+export function useHaptic(): {
+  correct: () => void;
+  wrong: () => void;
+  tap: () => void;
+  award: () => void;
+} {
+  function buzz(pattern: number | number[]): void {
     if ('vibrate' in navigator) {
       try { navigator.vibrate(pattern); } catch (_) {}
     }

@@ -4,7 +4,7 @@ import {
   getErrorLog,
   getWeakAreas,
   clearErrorLog,
-} from '../hooks/useErrorTracking.js';
+} from '../hooks/useErrorTracking';
 
 function clearLS() { localStorage.clear(); }
 const KEY = (uid) => `nh_errors_${uid}`;

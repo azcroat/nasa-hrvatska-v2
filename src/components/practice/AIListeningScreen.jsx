@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { H } from '../../data.jsx';
 import { markQuest } from '../../lib/quests.js';
 import { AIContentSkeleton, AIProgressBar } from '../shared/SkeletonLoader.jsx';
-import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
 
 const TOPICS = [

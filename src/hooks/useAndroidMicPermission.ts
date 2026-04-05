@@ -1,4 +1,4 @@
-// useAndroidMicPermission.js
+// useAndroidMicPermission.ts
 // Shows an in-app microphone rationale on Android before the system dialog fires.
 //
 // On the first mic request on Android, the system dialog appears with no context.
@@ -16,13 +16,17 @@ const RATIONALE_KEY = 'nh_mic_rationale_shown';
 
 /**
  * Returns:
- *   needsRationale {boolean} — true when on Android and rationale has not yet been shown
- *   dismissRationale {function} — call this when the user taps "Got it" on your rationale UI
- *   micGranted {boolean|null} — null=unknown, true=granted, false=denied/prompt
+ *   needsRationale — true when on Android and rationale has not yet been shown
+ *   dismissRationale — call this when the user taps "Got it" on your rationale UI
+ *   micGranted — null=unknown, true=granted, false=denied/prompt
  */
-export function useAndroidMicPermission() {
+export function useAndroidMicPermission(): {
+  needsRationale: boolean;
+  dismissRationale: () => void;
+  micGranted: boolean | null;
+} {
   const [needsRationale, setNeedsRationale] = useState(false);
-  const [micGranted, setMicGranted] = useState(null);
+  const [micGranted, setMicGranted] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (!isAndroid()) return; // no rationale needed on browser/iOS
@@ -33,7 +37,7 @@ export function useAndroidMicPermission() {
     // Check current mic permission state
     if (typeof navigator.permissions?.query === 'function') {
       navigator.permissions
-        .query({ name: 'microphone' })
+        .query({ name: 'microphone' as PermissionName })
         .then((result) => {
           if (result.state === 'granted') {
             // Already granted — no rationale or dialog needed
@@ -56,7 +60,7 @@ export function useAndroidMicPermission() {
     }
   }, []);
 
-  function dismissRationale() {
+  function dismissRationale(): void {
     localStorage.setItem(RATIONALE_KEY, '1');
     setNeedsRationale(false);
   }

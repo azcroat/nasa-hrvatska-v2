@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { H } from '../../data.jsx';
 import { AIProgressBar } from '../shared/SkeletonLoader.jsx';
-import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { rnd } from '../../lib/random.js';
 import { useStats } from '../../context/StatsContext.jsx';
 import { logError } from '../../lib/learnerErrors.js';

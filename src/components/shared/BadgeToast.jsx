@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useHaptic } from '../../hooks/useHaptic.js';
+import { useHaptic } from '../../hooks/useHaptic';
 import BadgeArtwork from './BadgeArtwork.jsx';
 
 function BadgeToast({ show, badge }) {
