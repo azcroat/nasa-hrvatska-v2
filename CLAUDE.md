@@ -211,6 +211,38 @@ Separate Cloudflare Worker (`nasa-hrvatska-scheduler`) runs daily at 9am UTC for
 
 ---
 
+## MANDATORY: E2E Spec Audit Before Every Commit
+
+**This rule exists because hours were wasted on CI failures caused by UI changes that were not reflected in E2E specs.**
+
+Before committing ANY change that touches a component, tab, screen, or navigation element, you MUST:
+
+1. **Identify every spec file in `e2e/` that references the modified area** — search by component name, tab name, button label, or screen text.
+2. **Read each identified spec file in full.**
+3. **Verify every `getByText`, `getByRole`, `getByPlaceholder`, and `expect` assertion still matches the current UI.**
+4. **Update any stale assertions in the same commit as the UI change** — never in a separate follow-up commit.
+
+### Spec-to-component mapping (always check these pairs):
+
+| If you change... | Check these spec files |
+|---|---|
+| HomeTab / HeroSection / QuestTracker | `home.spec.js`, `daily-challenge-sync.spec.js`, `profile-persist.spec.js` |
+| LearnTab / LearnPathWidget / vocab pills | `learn.spec.js`, `lesson-complete.spec.js`, `navigation.spec.js` |
+| PracticeTab / intent tiles / game panels | `practice.spec.js`, `offline.spec.js` |
+| CultureTab / CroatiaTab | `croatia.spec.js`, `navigation.spec.js` |
+| StatsTab / Leaderboard / ProfileTab | `family.spec.js`, `profile-persist.spec.js` |
+| TabBar / navigation labels | `navigation.spec.js`, `daily-challenge-sync.spec.js`, `croatia.spec.js`, `offline.spec.js` |
+| LoginScreen / auth flow | `auth.spec.js`, `accessibility.spec.js` |
+| Any screen accessible from Practice tab | `practice.spec.js`, `offline.spec.js` |
+
+### Nav tab names (never get these wrong):
+`Home` | `Learn` | `Practice` | `Croatia` | `Profile`
+
+### The rule in plain English:
+**You changed the UI. You own the tests. They ship together or not at all.**
+
+---
+
 ## NEVER DO (hard rules from production incidents)
 
 1. **Never recommend clearing localStorage or unregistering the service worker** as a fix. This destroys user progress. The only safe SW fix is DevTools → Application → Service Workers → Unregister (manual user action).
