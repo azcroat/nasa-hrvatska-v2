@@ -1387,6 +1387,201 @@ python3 scripts/get_user.py spez --posts 10
 
 ---
 
+### cpp-pro
+**Trigger:** Writing, optimizing, or debugging C++ — modern C++20/23 features, template metaprogramming, SIMD, memory management, CMake, performance bottlenecks, concurrency.
+
+**5-step workflow:**
+1. **Analyze** — review build system, compiler flags, performance requirements
+2. **Design with concepts** — type-safe interfaces using C++20 concepts
+3. **Implement zero-cost** — RAII, constexpr, zero-overhead abstractions
+4. **Verify** — AddressSanitizer + UndefinedBehaviorSanitizer; fix ALL memory/UB errors before proceeding
+5. **Benchmark** — profile with real workloads; apply targeted optimizations (SIMD, cache layout, move semantics); re-measure
+
+**MUST DO:** C++ Core Guidelines. Concepts for template constraints. RAII universally. `-Wall -Wextra -Wpedantic`. `std::unique_ptr`/`std::shared_ptr`. const-correct code.
+
+**MUST NOT DO:** Raw `new`/`delete`. Ignore compiler warnings. C-style casts (use `static_cast`). `using namespace std` in headers. Skip move semantics for expensive types.
+
+**Key patterns:**
+```cpp
+// C++20 concept
+template<typename T>
+concept Numeric = std::integral<T> || std::floating_point<T>;
+
+template<Numeric T>
+T clamp(T value, T lo, T hi) { return std::clamp(value, lo, hi); }
+
+// RAII resource wrapper
+class FileHandle {
+public:
+    explicit FileHandle(const char* path) : handle_(std::fopen(path, "r")) {
+        if (!handle_) throw std::runtime_error("Cannot open file");
+    }
+    ~FileHandle() { if (handle_) std::fclose(handle_); }
+    FileHandle(const FileHandle&) = delete;
+    FileHandle(FileHandle&& o) noexcept : handle_(std::exchange(o.handle_, nullptr)) {}
+    std::FILE* get() const noexcept { return handle_; }
+private:
+    std::FILE* handle_;
+};
+
+// Smart pointers
+auto buffer = std::make_unique<std::array<std::byte, 4096>>();
+auto config = std::make_shared<Config>(parseArgs(argc, argv));
+```
+
+**Output always includes:** header (interfaces + templates), implementation file (if needed), CMakeLists.txt updates, test file, design + performance notes.
+
+---
+
+### dotnet-core-expert
+**Trigger:** Building .NET 8 apps with minimal APIs, clean architecture, cloud-native microservices, Entity Framework Core, CQRS with MediatR, JWT auth, AOT compilation.
+
+**5-step workflow:**
+1. **Analyze** — architecture pattern, data models, API design
+2. **Design** — clean architecture layers with proper separation
+3. **Implement** — run `dotnet build` to verify compilation; fix before proceeding
+4. **Secure** — authentication, authorization, security best practices
+5. **Test** — xUnit + integration tests; run `dotnet test`; verify endpoints with curl/REST client
+
+**MUST DO:** .NET 8 + C# 12 features. Nullable reference types (`<Nullable>enable</Nullable>`). `async/await` for all I/O (`ToListAsync()`). Dependency injection. Record types for DTOs. OpenAPI/Swagger. `WebApplicationFactory<Program>` for integration tests.
+
+**MUST NOT DO:** Synchronous I/O. Expose entities directly in API responses. Skip input validation. Legacy .NET Framework patterns. Mix concerns across layers.
+
+**Minimal patterns:**
+```csharp
+// Minimal API endpoint
+app.MapGet("/users/{id}", async (int id, ISender sender, CancellationToken ct) =>
+{
+    var result = await sender.Send(new GetUserQuery(id), ct);
+    return result is null ? Results.NotFound() : Results.Ok(result);
+}).WithName("GetUser").Produces<UserDto>().ProducesProblem(404);
+
+// MediatR query handler
+public record GetUserQuery(int Id) : IRequest<UserDto?>;
+public sealed class GetUserQueryHandler : IRequestHandler<GetUserQuery, UserDto?> {
+    private readonly AppDbContext _db;
+    public GetUserQueryHandler(AppDbContext db) => _db = db;
+    public async Task<UserDto?> Handle(GetUserQuery request, CancellationToken ct) =>
+        await _db.Users.AsNoTracking().Where(u => u.Id == request.Id)
+            .Select(u => new UserDto(u.Id, u.Name)).FirstOrDefaultAsync(ct);
+}
+
+// DTO record types
+public record UserDto(int Id, string Name);
+public record CreateUserRequest(string Name, string Email);
+```
+
+**Output always includes:** project structure, domain models + DTOs, API endpoints/services, DbContext + migrations (if needed), architectural decision notes.
+
+---
+
+### database-optimizer
+**Trigger:** Investigating slow queries, analyzing execution plans, optimizing database performance. Keywords: slow query, EXPLAIN ANALYZE, index optimization, query tuning, PostgreSQL, MySQL, lock contention.
+
+**5-step workflow:**
+1. **Analyze** — capture baseline metrics; run `EXPLAIN (ANALYZE, BUFFERS)` before any changes
+2. **Identify bottlenecks** — inefficient queries, missing indexes, config issues
+3. **Design solutions** — index strategies, query rewrites, schema improvements
+4. **Implement** — apply incrementally with monitoring; validate each change before the next
+5. **Validate** — re-run `EXPLAIN ANALYZE`, compare costs, measure wall-clock improvement, document
+
+⚠️ Always test in non-production first. Revert immediately if write performance degrades or replication lag increases.
+
+**MUST DO:** Baseline `EXPLAIN (ANALYZE, BUFFERS)` before every optimization. Measure before and after every change. `CREATE INDEX CONCURRENTLY` (PostgreSQL). Run `ANALYZE` after bulk changes.
+
+**MUST NOT DO:** Optimize without a baseline. Create redundant indexes. Make multiple changes simultaneously. Ignore write amplification. Neglect VACUUM/statistics.
+
+**Key patterns:**
+
+Find slow queries (PostgreSQL):
+```sql
+SELECT query, calls, round(mean_exec_time::numeric, 2) AS mean_ms, rows
+FROM pg_stat_statements ORDER BY mean_exec_time DESC LIMIT 20;
+```
+
+Capture execution plan:
+```sql
+EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
+SELECT o.id, c.name FROM orders o
+JOIN customers c ON c.id = o.customer_id
+WHERE o.status = 'pending' AND o.created_at > now() - interval '7 days';
+```
+
+EXPLAIN patterns to spot:
+
+| Pattern | Symptom | Remedy |
+|---|---|---|
+| `Seq Scan` on large table | No filter selectivity | Add B-tree index on filter column |
+| `Nested Loop` with large outer | Exponential rows | Consider Hash Join; index inner join key |
+| `rows=1` but actual=50000 | Stale statistics | Run `ANALYZE <table>` |
+| `Buffers: hit=10 read=90000` | Low cache hit | Increase `shared_buffers`; add covering index |
+| `Sort Method: external merge` | Spilling to disk | Increase `work_mem` |
+
+Covering index:
+```sql
+CREATE INDEX CONCURRENTLY idx_orders_covering
+    ON orders (status, created_at) INCLUDE (customer_id, total_amount);
+```
+
+**Output always includes:** performance analysis with baseline metrics, bottlenecks with EXPLAIN evidence, optimization SQL/config, validation queries, monitoring recommendations.
+
+---
+
+### setup-pre-commit
+**Trigger:** User wants to add pre-commit hooks, set up Husky, configure lint-staged, or add commit-time formatting/typechecking/testing.
+
+**What this sets up:** Husky pre-commit hook + lint-staged with Prettier on staged files + typecheck + test scripts.
+
+**8-step workflow:**
+1. **Detect package manager** — `package-lock.json` → npm, `pnpm-lock.yaml` → pnpm, `yarn.lock` → yarn, `bun.lockb` → bun; default npm
+2. **Install** `husky lint-staged prettier` as devDependencies
+3. **Init Husky** — `npx husky init` (creates `.husky/`, adds `prepare: "husky"` to package.json)
+4. **Create `.husky/pre-commit`** (no shebang needed for Husky v9+):
+   ```
+   npx lint-staged
+   npm run typecheck   # omit if no typecheck script
+   npm run test        # omit if no test script
+   ```
+5. **Create `.lintstagedrc`:**
+   ```json
+   { "*": "prettier --ignore-unknown --write" }
+   ```
+6. **Create `.prettierrc`** (only if missing):
+   ```json
+   { "useTabs": false, "tabWidth": 2, "printWidth": 80, "singleQuote": false,
+     "trailingComma": "es5", "semi": true, "arrowParens": "always" }
+   ```
+7. **Verify:** `.husky/pre-commit` exists and is executable; `.lintstagedrc` exists; `prepare` in package.json is `"husky"`; run `npx lint-staged` to confirm
+8. **Commit** all changed/created files — runs through new hooks as smoke test
+
+---
+
+### archive
+**Trigger:** Completing a significant task (deploy, migration, major feature), resolving a tricky bug, or when user says "archive this."
+
+**Also: consult archives before** debugging infrastructure, deploying, or repeating a multi-step process that may have been done before.
+
+**Search:** `grep -ri "keyword" .archive/`  
+**Index:** `.archive/MEMORY.md`
+
+**Archive workflow:**
+1. Read `.archive/MEMORY.md` — check for related existing archives
+2. Create `.archive/YYYY-MM-DD/` directory if needed
+3. Write markdown file with YAML frontmatter (`tags`, `category`, optional `related`)
+4. Update `.archive/MEMORY.md` — one-line entry under the right category
+5. If related archives exist, add `related` field in frontmatter
+
+**Categories:** infrastructure | release | debugging | feature | design
+
+**Rules:**
+- `.archive/` must be in `.gitignore` — local-only notes, never committed
+- Keep entries concise but reproducible
+- Focus on problems, fixes, and exact commands
+- Always update MEMORY.md after creating an archive
+- Use descriptive filenames (`cloudwatch-logging.md` not `session.md`)
+
+---
+
 ### grill-me
 **Trigger:** User wants to stress-test a plan, get grilled on their design, or mentions "grill me."
 
