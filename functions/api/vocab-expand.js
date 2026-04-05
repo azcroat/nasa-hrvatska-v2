@@ -4,6 +4,8 @@
 // Used for inline vocab expansion in the vocabulary journal.
 
 import { checkRateLimit } from './_rateLimit.js';
+import { getFirebaseUid } from './_verifyToken.js';
+import { checkAIQuota } from './_aiQuota.js';
 
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-4-6";
@@ -71,6 +73,19 @@ export async function onRequestPost({ request, env }) {
   const allowed = await checkRateLimit(request, 30);
   if (!allowed) {
     return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), { status: 429, headers: corsHeaders(origin) });
+  }
+
+  // Auth — optional (guests use IP-based quota; authenticated users get named quota)
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
+
+  // Daily AI quota (cost 1 — lightweight Claude Haiku call)
+  const quota = await checkAIQuota(request, env, uid, 1);
+  if (!quota.allowed) {
+    return new Response(
+      JSON.stringify({ error: 'daily_quota_exceeded', message: 'Daily AI limit reached. Resets at midnight UTC.', resetAt: quota.resetAt }),
+      { status: 429, headers: corsHeaders(origin) }
+    );
   }
 
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
