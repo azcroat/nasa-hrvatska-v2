@@ -570,6 +570,56 @@ Manage artifacts iteratively; never overwrite a draft without preserving the pre
 
 ---
 
+### prd-to-plan
+**Trigger:** User wants to break down a PRD into an implementation plan, create phases from a requirements doc, or mentions "tracer bullets" or "vertical slices."
+
+**Core principle:** Break a PRD into tracer bullet phases — thin vertical slices that cut through ALL integration layers end-to-end, not horizontal slices of one layer. Output is a Markdown file in `./plans/`.
+
+**5-step workflow:**
+
+**1. Confirm PRD is in context** — if not, ask user to paste it or point to the file.
+
+**2. Explore the codebase** — understand current architecture, existing patterns, and integration layers before designing phases.
+
+**3. Identify durable architectural decisions** (go in plan header):
+- Route structures / URL patterns
+- Database schema shape
+- Key data models
+- Authentication / authorization approach
+- Third-party service boundaries
+
+**4. Draft vertical slices** — each phase must:
+- Cut through ALL layers end-to-end (schema → API → UI → tests)
+- Be demoable or verifiable on its own
+- NOT include specific file/function names likely to change
+- DO include durable decisions: route paths, schema shapes, data model names
+
+Prefer many thin slices over few thick ones.
+
+**5. Quiz the user** — present phases as numbered list with title + user stories covered. Ask if granularity is right (too coarse / too fine), whether any phases should merge or split. Iterate until approved.
+
+**6. Write the plan file** — create `./plans/<feature-name>.md` using this structure:
+
+```markdown
+# Plan: <Feature Name>
+> Source PRD: <identifier>
+
+## Architectural decisions
+- **Routes**: ...
+- **Schema**: ...
+- **Key models**: ...
+
+---
+## Phase 1: <Title>
+**User stories**: <list>
+### What to build
+[End-to-end behavior description — not layer-by-layer]
+### Acceptance criteria
+- [ ] ...
+```
+
+---
+
 ### git-guardrails-claude-code
 **Trigger:** User wants to prevent destructive git operations, add git safety hooks to Claude Code, or block `git push`/`reset`/`clean` from executing automatically.
 
