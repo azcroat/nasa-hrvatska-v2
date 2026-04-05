@@ -2109,3 +2109,179 @@ Trigger → Action → Variable Reward → Investment → (loads next Trigger)
 
 ---
 
+### xlsx
+**Trigger:** User wants to read, edit, create, or manipulate `.xlsx`, `.xlsm`, `.csv`, or `.tsv` files.
+
+**Critical rules:**
+- ALWAYS use Excel formulas (not Python-calculated hardcoded values)
+- Run `python scripts/recalc.py output.xlsx` after any formula work
+- Zero formula errors policy: no `#REF!`, `#DIV/0!`, `#VALUE!`, `#N/A`, `#NAME?`
+- Financial color coding: Blue = hardcoded inputs, Black = formulas, Green = cross-sheet links, Red = external links, Yellow bg = key assumptions
+- Number formats: `$#,##0` currency, `0.0%` percentages, `0.0x` multiples, parentheses for negatives
+
+**Libraries:** `pandas` (data analysis/bulk ops), `openpyxl` (formulas/formatting)
+
+---
+
+### plugin-structure
+**Trigger:** User asks to create a Claude Code plugin, scaffold a plugin, understand plugin directory layout, or configure `plugin.json`.
+
+**Canonical directory layout:**
+```
+.claude-plugin/
+  plugin.json          # manifest (name, version, description, author)
+  commands/            # slash commands (.md files)
+  agents/              # subagents (.md files)
+  skills/              # SKILL.md files in subdirectories
+  hooks/               # hook definitions
+  .mcp.json            # MCP server config
+  scripts/             # helper scripts
+```
+
+**Key rules:**
+- Use `${CLAUDE_PLUGIN_ROOT}` for all path references (portability)
+- All filenames: `kebab-case`
+- Auto-discovery: Claude finds components by scanning standard directories
+- Three patterns: minimal (skills only), full-featured (all components), skill-focused
+
+---
+
+### skill-development
+**Trigger:** User wants to create a skill for Claude Code, write a new SKILL.md, improve a skill description, or organize skill content.
+
+**SKILL.md anatomy:**
+```yaml
+---
+name: skill-name
+description: "Use this skill when [trigger]. Covers [key capabilities]."
+---
+# Skill content here
+```
+
+**3-level progressive disclosure:** Metadata (100 words) → SKILL.md body (<5k words) → bundled resources (unlimited)
+
+**6-step creation:** Draft → create test prompts → run Claude with skill → draft evals → evaluate → rewrite → repeat
+
+**Description writing rules:** Imperative/infinitive form; third-person; include explicit trigger conditions; 20–60 words optimal
+
+---
+
+### hook-development
+**Trigger:** User asks to create a Claude Code hook, add a PreToolUse/PostToolUse/Stop hook, validate tool use, or set up event-driven automation.
+
+**9 hook event types:** `PreToolUse`, `PostToolUse`, `Stop`, `SubagentStop`, `SessionStart`, `SessionEnd`, `UserPromptSubmit`, `PreCompact`, `Notification`
+
+**Hook format (hooks.json):**
+```json
+{ "event": "PreToolUse", "matcher": "Bash", "action": "path/to/hook.sh" }
+```
+
+**Output format:** JSON with `permissionDecision` (`allow`/`block`/`ask`), `systemMessage`, `continue`
+
+**Exit codes:** 0 = success, 2 = blocking (prevents tool use)
+
+**Security:** Always validate input, sanitize paths, quote variables. Hooks load at session start — restart to apply changes.
+
+---
+
+### agent-development
+**Trigger:** User asks to create a Claude Code agent/subagent, write agent frontmatter, design autonomous agent behavior, or set up multi-agent workflows.
+
+**Agent frontmatter:**
+```yaml
+---
+name: agent-name
+description: "What this agent does. Use PROACTIVELY when [trigger conditions]. Examples: [example1], [example2]."
+model: opus|sonnet|haiku|inherit
+color: blue|green|red|yellow|purple|orange|pink|cyan
+tools: Read, Grep, Glob   # optional restriction
+---
+```
+
+**Model selection:** `opus` = critical/architecture decisions; `sonnet` = complex balanced; `haiku` = fast lightweight ops; `inherit` = uses current model
+
+**Three-tier strategy (wshobson/agents):** Opus 4.6 (critical), Sonnet (balanced), Haiku (fast)
+
+**System prompt template:** Role → Constraints → Output Format → Examples
+
+---
+
+### command-development
+**Trigger:** User asks to create a slash command for Claude Code, define command arguments, or configure custom commands.
+
+**Command frontmatter:**
+```yaml
+---
+description: What this command does
+allowed-tools: Read, Write, Bash
+argument-hint: <path> [--flag]
+model: sonnet
+---
+```
+
+**Argument access:** `$ARGUMENTS` (full string), `$1`/`$2` (positional), `@filename` (file reference)
+
+**Namespacing:** Commands in subdirectories become `/subdirectory:command`
+
+**Integration:** Commands can call agents, skills, and hooks. Use `${CLAUDE_PLUGIN_ROOT}` for portability.
+
+---
+
+### mcp-integration
+**Trigger:** User asks to add an MCP server to a plugin, configure Model Context Protocol, or integrate external services via MCP.
+
+**Config location:** `.mcp.json` in plugin root OR inline in `plugin.json`
+
+**Server types:** `stdio` (subprocess), `SSE` (HTTP streaming), `HTTP` (stateless), `WebSocket`
+
+**MCP tool naming:** `mcp__plugin_<name>_<server>__<tool>`
+
+**Key rule:** Use `${CLAUDE_PLUGIN_ROOT}` for stdio server paths. OAuth and token-based auth supported.
+
+---
+
+### wshobson-agents-catalog
+**Trigger:** User asks for multi-agent orchestration, any of the 147 skill domains below, or installing the wshobson/agents plugin marketplace.
+
+**Install:** `/plugin marketplace add wshobson/agents`
+
+**147 skills across 75 plugins — domain catalog:**
+
+| Domain | Skills |
+|---|---|
+| Python Dev | async-python-patterns, python-testing-patterns, python-packaging, python-performance-optimization, uv-package-manager |
+| JavaScript/TS | typescript-advanced-types, nodejs-backend-patterns, javascript-testing-patterns, modern-javascript-patterns |
+| LLM/AI | langchain-architecture, prompt-engineering-patterns, rag-implementation, llm-evaluation, embedding-strategies, similarity-search-patterns, vector-index-tuning, hybrid-search-implementation |
+| Backend | api-design-principles, architecture-patterns, microservices-patterns, workflow-orchestration-patterns, cqrs-implementation, saga-orchestration, event-store-design |
+| Frontend | nextjs-app-router-patterns, react-native-architecture, react-state-management, tailwind-design-system |
+| Kubernetes | k8s-manifest-generator, helm-chart-scaffolding, gitops-workflow, k8s-security-policies |
+| Cloud | terraform-module-library, multi-cloud-architecture, cost-optimization, istio-traffic-management, mtls-configuration |
+| CI/CD | deployment-pipeline-design, github-actions-templates, gitlab-ci-patterns, secrets-management |
+| Security | sast-configuration, stride-analysis-patterns, attack-tree-construction, threat-mitigation-mapping |
+| Observability | prometheus-configuration, grafana-dashboards, distributed-tracing, slo-implementation |
+| Data Eng | spark-optimization, dbt-transformation-patterns, airflow-dag-patterns, data-quality-frameworks |
+| Developer | git-advanced-workflows, sql-optimization-patterns, e2e-testing-patterns, auth-implementation-patterns, debugging-strategies, monorepo-management |
+| Systems | rust-async-patterns, go-concurrency-patterns, memory-safety-patterns |
+| Web3 | defi-protocol-templates, nft-standards, solidity-security, web3-testing |
+| Payments | stripe-integration, paypal-integration, pci-compliance, billing-automation |
+| Docs | openapi-spec-generation, changelog-automation, architecture-decision-records |
+| Accessibility | wcag-audit-patterns, screen-reader-testing |
+| Analytics | kpi-dashboard-design, data-storytelling, backtesting-frameworks, risk-metrics-calculation |
+| Incident | postmortem-writing, incident-runbook-templates, on-call-handoff-patterns |
+| Agent Teams | multi-reviewer-patterns, parallel-debugging, parallel-feature-development, task-coordination-strategies |
+
+---
+
+### sleek-design-mobile-apps
+**Trigger:** User wants to design a mobile app using Sleek, create screens, build UI via AI-powered design tool. **Requires `SLEEK_API_KEY` env var and Sleek Pro account.**
+
+**Base URL:** `https://sleek.design` — Auth: `Authorization: Bearer $SLEEK_API_KEY`
+
+**Workflow:** Create project → send chat message (async) → poll run status → screenshot result → fetch component HTML → implement in React Native/SwiftUI
+
+**Key API endpoints:** `POST /api/v1/projects`, `POST /api/v1/projects/:id/chat/messages`, `GET /api/v1/projects/:id/chat/runs/:runId`, `POST /api/v1/screenshots`
+
+**Rules:** Always screenshot after every run (`background: "transparent"`); poll at 2s backing off to 5s; 5-minute timeout; one active run per project.
+
+---
+
