@@ -797,6 +797,57 @@ python3 scripts/get_user.py spez --posts 10
 
 ---
 
+### write-a-prd
+**Trigger:** User wants to write a PRD, create a product requirements document, or plan a new feature.
+
+**5-step process (skip steps if unnecessary):**
+
+**1. Get the problem description** — ask for a long, detailed description of the problem and any potential solution ideas.
+
+**2. Explore the repo** — verify user's assertions, understand current codebase state before interviewing.
+
+**3. Interview relentlessly** — walk down every branch of the design tree. Resolve dependencies between decisions one-by-one. Don't stop until you have a shared understanding of every aspect of the plan.
+
+**4. Sketch major modules** — identify modules to build or modify. Actively look for opportunities to extract **deep modules**: small, stable interfaces hiding large implementations, testable in isolation. Check with user that modules match expectations. Ask which modules they want tests written for.
+
+**5. Write and submit the PRD as a GitHub issue** using this template:
+
+```markdown
+## Problem Statement
+[The problem from the user's perspective]
+
+## Solution
+[The solution from the user's perspective]
+
+## User Stories
+[LONG numbered list — cover ALL aspects. Format:]
+1. As a <actor>, I want <feature>, so that <benefit>
+
+## Implementation Decisions
+- Modules to build/modify
+- Interfaces to change
+- Architectural decisions
+- Schema changes
+- API contracts
+- Specific interactions
+[No file paths or code snippets — they go stale]
+
+## Testing Decisions
+- What makes a good test (test external behavior, not implementation details)
+- Which modules will be tested
+- Prior art (similar tests already in the codebase)
+
+## Out of Scope
+[What is explicitly not included in this PRD]
+
+## Further Notes
+[Anything else relevant]
+```
+
+Submit with: `gh issue create --title "<feature name>" --body "<prd content>"`
+
+---
+
 ### write-a-skill
 **Trigger:** User wants to create, write, or build a new skill / agent skill file.
 
