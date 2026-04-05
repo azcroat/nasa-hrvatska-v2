@@ -2271,3 +2271,264 @@ model: sonnet
 
 ---
 
+### jeffallan-skills-catalog
+**Trigger:** User asks for any of the 66 skill domains below, or installs `jeffallan/claude-skills` plugin.
+
+**Install:** `/plugin marketplace add jeffallan/claude-skills`
+
+**66 skills across 12 domains:**
+
+| Domain | Skills |
+|---|---|
+| Architecture | architecture-designer, api-designer, graphql-architect, microservices-architect |
+| Quality | code-reviewer, security-reviewer, test-master, debugging-wizard, fullstack-guardian |
+| Frontend | angular-architect, flutter-expert, javascript-pro |
+| Backend | fastapi-expert, django-expert, golang-pro, kotlin-specialist, java-architect, cpp-pro, csharp-developer, dotnet-core-expert |
+| Infrastructure | devops-engineer, kubernetes-specialist, cloud-architect |
+| Data | database-optimizer |
+| CLI/Systems | cli-developer, embedded-systems |
+| Docs | code-documenter |
+| AI/ML | fine-tuning-expert |
+| Features | feature-forge |
+| Testing | test-master |
+| Security | security-reviewer |
+
+---
+
+### feature-forge
+**Trigger:** User needs to write a feature spec, requirements document, user stories, or acceptance criteria. Phrases: "spec out this feature", "write requirements for", "user stories for", "EARS requirements".
+
+**Dual-perspective specialist:** Product Manager (user value, business objectives, success metrics) + Developer (technical feasibility, security, performance, edge cases).
+
+**Workflow:** Discovery → Structured interview (both perspectives) → EARS-format functional requirements → Acceptance criteria → Implementation checklist.
+
+**MUST:** Conduct interview before writing specs; use EARS syntax for all functional requirements; include non-functional requirements; provide testable acceptance criteria.
+
+**MUST NOT:** Write specs without interviewing; skip non-functional requirements.
+
+---
+
+### fullstack-guardian
+**Trigger:** User needs to build a REST API with UI components, implement CRUD, create microservices, handle real-time features, or make technology selections — with security baked in.
+
+**Three simultaneous perspectives:** Frontend (UX, state), Backend (API design, auth), Security (OWASP Top 10, input validation).
+
+**Core principle:** Validate input on BOTH client and server. Never trust client-side validation alone.
+
+**MUST NOT:** Skip security review; trust only client-side validation; hardcode credentials.
+
+---
+
+### security-reviewer
+**Trigger:** User asks for security review, vulnerability scan, SAST analysis, penetration test prep, security audit, or compliance review. Phrases: "audit this code for security", "check for vulnerabilities", "security scan".
+
+**Workflow:** Scope/map attack surface → Automated tool scans (semgrep, bandit, gitleaks, npm audit, trivy) → Manual review (auth, input handling, crypto) → CVSS severity classification → Structured report.
+
+**Output:** Executive summary + findings table with severity + detailed findings with remediation + prioritized recommendations.
+
+**MUST:** Confirm authorization before proceeding; assign CVSS ratings; limit to proof-of-concept only.
+
+---
+
+### test-master
+**Trigger:** User needs test files written, mocking strategies, coverage analysis, test architecture design, or test plans. Covers functional, performance, and security testing.
+
+**Workflow:** Define scope → Test strategy → Implement tests → Execute/diagnose failures → Report with severity ratings.
+
+**MUST:** Test both success and failure scenarios; mock external dependencies; write self-documenting test descriptions; assert specific measurable outcomes; integrate into CI/CD.
+
+**MUST NOT:** Use production data; create order-dependent tests; allow persistent flaky tests; test private implementation instead of observable behavior.
+
+---
+
+### orchestra-research-skills-catalog
+**Trigger:** User works with AI/ML research, LLM fine-tuning, inference serving, mechanistic interpretability, distributed training, or AI safety. Install: `npx @orchestra-research/ai-research-skills`.
+
+**87 skills across 22 categories:**
+
+| Category | Key Skills |
+|---|---|
+| Autonomous Research | autoresearch (dual-loop orchestration framework) |
+| Model Architecture | litgpt, mamba, nanogpt, rwkv, torchtitan |
+| Tokenization | huggingface-tokenizers, sentencepiece |
+| Fine-Tuning | axolotl, llama-factory, peft, unsloth |
+| Mechanistic Interpretability | nnsight, pyvene, saelens, transformer-lens |
+| Data Processing | nemo-curator, ray-data |
+| Post-Training | grpo-rl-training, openrlhf, simpo, trl-fine-tuning, verl |
+| Safety & Alignment | constitutional-ai, llamaguard, nemo-guardrails, prompt-guard |
+| Distributed Training | accelerate, deepspeed, megatron-core, pytorch-fsdp2, pytorch-lightning, ray-train |
+| Infrastructure | lambda-labs, modal, skypilot |
+| Optimization | awq, bitsandbytes, flash-attention, gguf, gptq, hqq |
+| Evaluation | bigcode-evaluation-harness, lm-evaluation-harness, nemo-evaluator |
+| Inference Serving | llama-cpp, sglang, tensorrt-llm, vllm |
+| MLOps | mlflow, swanlab, tensorboard, weights-and-biases |
+
+**autoresearch skill:** Dual-loop architecture (rapid inner-loop experiments + periodic outer-loop reflection). Workspace: `research-state.yaml`, `literature/`, `src/`, `experiments/`, `paper/`. Requires Claude Code's `/loop 20m` for agent continuity.
+
+**vllm skill:** PagedAttention + continuous batching for production LLM APIs. Use when 100+ req/sec, OpenAI-compatible endpoints, limited GPU memory. Hardware: 7B-13B → 1x A100; 70B+ → 4x A100 with tensor parallelism.
+
+**axolotl skill:** LLM fine-tuning with YAML configs. Supports 100+ models, LoRA/QLoRA, DPO/KTO/ORPO/GRPO, multimodal. Key: `save_compressed: true` saves ~40% disk space.
+
+---
+
+### remotion
+**Trigger:** User works with Remotion (React-based video creation), creates programmatic video, animates React components, generates video from code.
+
+**Domains:** Media handling (images/video/audio/fonts), animation & timing, 3D via Three.js, chart visualizations, Lottie animations, audio visualization (spectrum bars/waveforms), ElevenLabs AI voiceovers, TailwindCSS integration, transparent video rendering, Zod-parametrized compositions.
+
+**Key utilities:** Mediabunny (metadata/frame extraction), FFmpeg (trimming/silence detection).
+
+---
+
+### instagram-automation
+**Trigger:** User wants to automate Instagram posting, scheduling, or engagement using ComposioHQ tools with Claude.
+
+**Source:** ComposioHQ/awesome-claude-skills instagram-automation skill.
+
+**Workflow:** Authenticate with Instagram via Composio OAuth → Use Composio tools to schedule posts, upload media, manage comments, track engagement → Orchestrate with Claude as the AI backbone for caption writing, hashtag strategy, content scheduling decisions.
+
+**Key Composio tools:** `INSTAGRAM_CREATE_PHOTO_POST`, `INSTAGRAM_CREATE_VIDEO_POST`, `INSTAGRAM_GET_MEDIA_INSIGHTS`, `INSTAGRAM_REPLY_TO_COMMENT`
+
+**Requirements:** Composio account + Instagram Business/Creator account. Auth via `composio add instagram`.
+
+---
+
+### marketingskills-catalog
+**Trigger:** User needs marketing copy, CRO, SEO, pricing, ads, email sequences, content strategy, or any of the 34 skills below. Install: `npx skills add coreyhaines31/marketingskills`.
+
+**Pre-requisite:** All skills read `.agents/product-marketing-context.md` first. Create it with the `product-marketing-context` skill.
+
+**34 skills across marketing domains:**
+
+| Domain | Skills |
+|---|---|
+| Copy & Content | copywriting, copy-editing, content-strategy, social-content, cold-email, email-sequence |
+| CRO | page-cro, signup-flow-cro, onboarding-cro, paywall-upgrade-cro, popup-cro, form-cro |
+| SEO | ai-seo, seo-audit, programmatic-seo, schema-markup, site-architecture |
+| Paid & Ads | paid-ads, ad-creative |
+| Strategy | pricing-strategy, launch-strategy, marketing-strategy, competitor-alternatives, free-tool-strategy, referral-program, lead-magnets, marketing-psychology, marketing-ideas |
+| Analytics | analytics-tracking, ab-test-setup |
+| Sales | sales-enablement, revops |
+| Product | product-marketing-context, customer-research, churn-prevention |
+
+---
+
+### copywriting
+**Trigger:** User needs marketing copy for any page — homepage, landing page, pricing, feature pages, about pages. Phrases: "write copy for", "improve this copy", "rewrite this page", "hero section copy", "value proposition", "tagline", "CTA copy".
+
+**Five principles:** Clarity Over Cleverness; Benefits Over Features; Specificity Over Vagueness; Customer Language Over Company Language; One Idea Per Section.
+
+**Above-the-fold formula:** Headline: `{Achieve outcome} without {pain point}` → Subheadline (1-2 sentences) → CTA with action verb.
+
+**CTA rule:** NEVER use "Submit" or "Learn More". Use "Start Free Trial", "Get the Complete Checklist", etc.
+
+**Pre-writing:** Gather page purpose, audience, product/offer, traffic sources before drafting.
+
+---
+
+### page-cro
+**Trigger:** User wants to increase conversions on any marketing page — homepage, landing page, pricing, feature page, blog post.
+
+**Priority order:** Value proposition clarity → Headline effectiveness → CTA optimization → Visual hierarchy → Trust signals → Objection handling → Friction reduction.
+
+**Deliverables:** Quick Wins (low-effort, immediate impact) + High-Impact Changes + A/B test hypotheses + Copy alternatives with rationale.
+
+---
+
+### seo-audit
+**Trigger:** User wants to audit, review, or diagnose SEO issues on their site.
+
+**Priority order:** Crawlability → Technical foundations → On-page optimization → Content quality → Authority signals.
+
+**Core Web Vitals targets:** LCP <2.5s, INP <200ms, CLS <0.1.
+
+**Title/meta:** Title tags 50-60 chars; meta descriptions 150-160 chars.
+
+**Critical note:** Schema markup cannot be detected via web fetching (JS-injected). Always test at Google Rich Results Test.
+
+---
+
+### pricing-strategy
+**Trigger:** User needs help with pricing decisions, tier packaging, or monetization strategy.
+
+**Three axes:** Packaging (what's included) → Pricing Metric (per user/usage/flat fee) → Price Points (dollar amounts).
+
+**Value-Based Pricing:** Price between next-best-alternative and perceived value. Cost-to-serve is baseline only.
+
+**Good-Better-Best:** Good (entry/core) → Better (full features, anchor price, recommended) → Best (everything advanced, 2-3x Better price).
+
+**Signs to raise prices:** Prospects don't flinch; conversion >40%; monthly churn <3%; significant value added since last pricing.
+
+---
+
+### taste-design-catalog
+**Trigger:** User wants premium UI/UX, wants to redesign/upgrade existing UI, needs Awwwards-quality frontend, or asks about Stitch (Google) design files. Install: `npx skills add Leonxlnx/taste-skill`.
+
+**7 skills:**
+
+| Skill | Use When |
+|---|---|
+| taste-skill (design-taste-frontend) | Starting a new premium UI from scratch |
+| redesign-skill | Upgrading existing website/app to premium quality |
+| soft-skill | "$150k agency-level" cinematic motion, haptic depth |
+| output-skill | Enforcing full output — no truncated code, no placeholder comments |
+| minimalist-skill | Editorial minimalism, warm monochrome, bento-grid |
+| brutalist-skill | Swiss typographic/tactical telemetry dashboards |
+| stitch-skill | Generating `DESIGN.md` files for Google Stitch |
+
+**taste-skill core rules:** Emojis BANNED (use Phosphor/Radix icons); `min-h-[100dvh]` not `h-screen`; CSS Grid over flexbox %; animations via `transform`/`opacity` only; max 1 accent color <80% saturation; Inter font BANNED.
+
+**redesign-skill audit covers:** Typography (font swap is highest ROI), Color (pure black → off-black), Layout (3-column → asymmetric grid), Interactivity (add hover/active states), Content (remove AI clichés: "Elevate", "Seamless", "Unleash").
+
+**output-skill rules:** ZERO placeholder comments (`// ...`, `// implement here`, `// continue pattern`). All deliverables complete. Count requested items before responding. Stop at clean breakpoint rather than compress.
+
+---
+
+### bencium-ux-catalog
+**Trigger:** User needs systematic UX design, design audit, typography rules, or any of the 13 bencium skills. Install: `npx skills add bencium/bencium-marketplace`.
+
+**13 skills:**
+
+| Skill | Use When |
+|---|---|
+| bencium-controlled-ux-designer | Enterprise/regulated UI — ALWAYS ASK before design decisions, WCAG 2.1 AA |
+| bencium-innovative-ux-designer | Creative/experimental UX with more latitude |
+| bencium-impact-designer | Impact-driven product design |
+| design-audit | Visual UI/UX audits → phased implementation plan; never touches functionality |
+| typography | Screen typography rules from Practical Typography (Butterick) |
+| relationship-design | Relationship/interaction pattern design |
+| adaptive-communication | Communication systems that adapt to context |
+| negentropy-lens | Systems thinking / reducing complexity |
+| bencium-aeo | Answer Engine Optimization |
+| bencium-code-conventions | Code style and convention enforcement |
+| renaissance-architecture | Cross-disciplinary architectural thinking |
+| human-architect-mindset | Human-centered system design |
+| vanity-engineering-review | Reviewing over-engineered solutions |
+
+**bencium-controlled-ux-designer key rules:** shadcn v4 + Tailwind + `@phosphor-icons/react` + `sonner` for toasts. Touch targets min 44×44px. Animations <300ms, functional purpose only. ALWAYS ASK before implementing design decisions.
+
+**design-audit 14 dimensions:** Visual hierarchy, spacing rhythm, typography clarity, color strategy, alignment, component consistency, iconography, motion, empty/loading/error states, dark mode, density, responsive. Produces 3-phase implementation plan with approval gates.
+
+**typography skill:** Curly quotes, proper dashes (hyphen/en/em), one ellipsis char. Line length 45-90 chars (`max-width: 65ch`). Line spacing 120-145%. Scale font 15-25px. `clamp()` for fluid scaling.
+
+---
+
+### ui-refactor
+**Trigger:** User wants to systematically improve UI quality, refactor an interface, fix visual hierarchy, spacing, or apply Refactoring UI principles. Phrases: `/ui-refactor`, "refactor this UI", "improve visual hierarchy".
+
+**Source:** LovroPodobnik/refactoring-ui-skill (based on Refactoring UI by Adam Wathan & Steve Schoger).
+
+**Four-phase workflow:**
+1. Core functionality first — no decoration yet
+2. Low-fidelity grayscale wireframe — solve layout before visual polish
+3. Build reusable systems: spacing scale (4/8/12/16/24/32/48/64px), type scale (12/14/16/18/20/24/30/36px), HSL colors
+4. Apply visual hierarchy and polish
+
+**Rules:** No arbitrary spacing values. Visual hierarchy through weight and color, not just size. HSL colors with proper saturation curves and hue rotation for shades.
+
+**Slash commands available:** `/ui-refactor`, `/fix-hierarchy`, `/fix-typography`, `/fix-layout`, `/fix-colors`
+
+**References:** `hierarchy.md`, `layout-spacing.md`, `typography.md`, `color.md`, `depth-and-polish.md`
+
+---
+
