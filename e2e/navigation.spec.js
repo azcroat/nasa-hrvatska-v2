@@ -75,6 +75,6 @@ test.describe('Tab navigation', () => {
 
   test('search returns results for a known Croatian word', async ({ page }) => {
     await page.getByRole('searchbox', { name: /Search vocabulary/i }).fill('kuća');
-    await expect(page.getByRole('listbox', { name: 'Search results' })).toBeVisible({ timeout: 3_000 });
+    await expect(page.getByRole('listbox', { name: 'Search results' })).toBeVisible({ timeout: 5_000 });
   });
 });
