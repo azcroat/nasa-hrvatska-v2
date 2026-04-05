@@ -103,11 +103,13 @@ export default function ReadingScreen({
               if (rsc === rp.qs.length) markQuest('perfect');
               setSt(s => {
                 const done = s.vs?.includes(readKey);
-                if (done) return { ...s, rc: (s.rc || 0) + 1 };
-                return { ...s, rc: (s.rc || 0) + 1, lc: (s.lc || 0) + 1, vs: [...(s.vs || []), readKey] };
+                const hasReadlist = s.vs?.includes('readlist');
+                const newKeys = [...(done ? [] : [readKey]), ...(hasReadlist ? [] : ['readlist'])];
+                if (done && hasReadlist) return { ...s, rc: (s.rc || 0) + 1 };
+                return { ...s, rc: (s.rc || 0) + 1, lc: (s.lc || 0) + (done ? 0 : 1), vs: [...(s.vs || []), ...newKeys] };
               });
               if (alreadyDone) writeDelta({ rc: 1 });
-              else writeDelta({ rc: 1, lc: 1, vs: [readKey] });
+              else writeDelta({ rc: 1, lc: 1, vs: [readKey, 'readlist'] });
               sRph("result");
             }
           }}>{rqi < rp.qs.length-1 ? "Next →" : "Results"}</button>}
