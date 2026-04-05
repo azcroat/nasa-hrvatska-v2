@@ -243,6 +243,51 @@ Before committing ANY change that touches a component, tab, screen, or navigatio
 
 ---
 
+## Git Workflow — Non-Negotiable
+
+1. **Push immediately after every commit.** `git push origin master` is part of the commit action, not optional. Cloudflare Pages only deploys on push — a commit without a push is invisible to the user and does nothing.
+2. **Never amend published commits.** Create a new commit instead.
+3. **Never force-push to master.** Cloudflare deployment history can be corrupted.
+4. **Never skip hooks** (`--no-verify`). Fix the underlying issue instead.
+
+---
+
+## CI/CD Pipeline Structure
+
+```
+quality (lint + typecheck)
+    ↓
+test (Vitest unit)   ←→   e2e (Playwright, 15-min timeout, 2 workers, 1 retry)
+    ↓                         ↓
+build-deploy (waits for quality + test, NOT e2e)
+```
+
+- Build-deploy does NOT wait for E2E. A green deploy does not mean E2E passed.
+- E2E timeout is 15 minutes total. Each test has a 30s timeout + 1 retry = 60s max per test. 15 stale/hanging tests fills the budget exactly.
+- **Tests are a production gate. Never relax CI timeouts, skip tests, or weaken assertions to make CI green.**
+
+---
+
+## This Is a Production App With Real Users
+
+- Real users have real progress stored in localStorage and Firestore. Changes affect them immediately on deploy.
+- Be conservative. Read the relevant components before modifying anything.
+- Do not add features, refactor, or "improve" things beyond what was asked.
+- **Never add fake/hardcoded data** — no fake learner counts ("14,800+ learners"), no fake leaderboard entries (fake names with fabricated XP), no hardcoded "active users today" numbers. All displayed data must be real.
+- **Never add referral cards, links, or buttons to competing apps** — Duolingo, Babbel, iTalki, Preply, Lingopie, or any similar service. Implement features natively instead.
+
+---
+
+## Verification Standard
+
+Before committing any change:
+- Read the actual source files affected — never assume structure from memory.
+- Verify the change is correct end-to-end. If it touches CI, check the pipeline.
+- If uncertain about correctness, ask before committing — not after breaking CI.
+- Do not use an apology as a substitute for the verification that should have happened upfront.
+
+---
+
 ## NEVER DO (hard rules from production incidents)
 
 1. **Never recommend clearing localStorage or unregistering the service worker** as a fix. This destroys user progress. The only safe SW fix is DevTools → Application → Service Workers → Unregister (manual user action).
@@ -253,6 +298,15 @@ Before committing ANY change that touches a component, tab, screen, or navigatio
 6. **Never add a screen to LEARN_PATH without also adding it to BLACK_HOLE_SCREENS** (if it's an informational screen without a built-in quiz).
 7. **Never call `fbSaveProgress` directly from a component** — always use the sync manager's `doSyncNow()` or the auto-save effect.
 8. **Never force-push to master** — Cloudflare deploys are triggered by push; force-pushing can corrupt the deployment history.
+9. **Never recommend clearing localStorage, clearing site data, or any DevTools action that touches localStorage.** This destroys user progress. The ONLY safe SW troubleshooting step is: DevTools → Application → Service Workers → Unregister → Reload.
+10. **Never write data to Firestore on behalf of a user without their explicit instruction and a verified data source.** Fabricating or estimating user data and writing it to production is unauthorized.
+11. **Never regress these sync architecture guarantees** (established 2026-03-18, see project_nasa_hrvatska_sync_audit.md in memory):
+    - The `!syncReady` hero gate — never add `lc===0 || xp===0` conditions back
+    - The persistence fallback chain in `initFirebase()` — never revert to `.catch(()=>{})` on `browserLocalPersistence`
+    - The immediate `fetchIfNewer()` call on polling mount — never remove it
+    - The `_unloadRef.current` fields (favs, jWords) — never strip from unload ref
+12. **The sw-migration.js cache prefix must remain a prefix match** (`nasa-hrvatska-v.`), never a hardcoded version number. Hardcoding caused ALL caches to wipe on every deploy.
+13. **Firestore sync runs every 2 minutes** for signed-in users (not just on tab close). Never revert this to beforeunload-only.
 
 ---
 
