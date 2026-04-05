@@ -3,6 +3,7 @@ import { markQuest } from '../../lib/quests.js';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { isSpeechRecognitionSupported } from '../../lib/platform.js';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { getVoicePreference } from '../../lib/soundSettings.js';
 import SprintSetupScreen from './SprintSetupScreen.jsx';
 import SprintCountdownScreen from './SprintCountdownScreen.jsx';
 import SprintSpeakingPhase from './SprintSpeakingPhase.jsx';
@@ -232,7 +233,7 @@ export default function SpeakingSprintScreen({ goBack, award }) {
       const res = await apiFetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, slow: false }),
+        body: JSON.stringify({ text, slow: false, voice: getVoicePreference() }),
       });
       if (!res.ok) throw new Error(`TTS ${res.status}`);
       const blob = await res.blob();

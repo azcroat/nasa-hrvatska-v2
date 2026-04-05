@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getAudioContext } from '../../lib/audio.js';
+import { getVoicePreference } from '../../lib/soundSettings.js';
 import { markQuest } from '../../lib/quests.js';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import LiveTutorSetup from './LiveTutorSetup.jsx';
@@ -360,7 +361,7 @@ export default function LiveTutorScreen({ goBack, award }) {
       const res = await apiFetch("/api/tts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, slow: false, stream: true }),
+        body: JSON.stringify({ text, slow: false, stream: true, voice: getVoicePreference() }),
       });
       if (!res.ok) throw new Error('tts_failed');
 
@@ -439,7 +440,7 @@ export default function LiveTutorScreen({ goBack, award }) {
         const res2 = await apiFetch("/api/tts", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text, slow: false }),
+          body: JSON.stringify({ text, slow: false, voice: getVoicePreference() }),
         });
         if (res2.ok) {
           const blob = await res2.blob();

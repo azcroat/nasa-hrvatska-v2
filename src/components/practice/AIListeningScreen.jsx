@@ -4,6 +4,7 @@ import { markQuest } from '../../lib/quests.js';
 import { AIContentSkeleton, AIProgressBar } from '../shared/SkeletonLoader.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { getVoicePreference } from '../../lib/soundSettings.js';
 
 const TOPICS = [
   { key: 'cafe',       emoji: '☕',  hr: 'U kafiću',   en: 'At the Café' },
@@ -83,7 +84,7 @@ export default function AIListeningScreen({ goBack, award }) {
       const ttsRes = await apiFetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: fullText.trim(), slow: speed < 1 }),
+        body: JSON.stringify({ text: fullText.trim(), slow: speed < 1, voice: getVoicePreference() }),
         signal: AbortSignal.timeout(20000),
       });
       if (!mountedRef.current) return;

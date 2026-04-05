@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { speak } from '../../data.jsx';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { getVoicePreference } from '../../lib/soundSettings.js';
 import { GRADED_STORIES } from '../../data/gradedStories.js';
 import { markQuest } from '../../lib/quests.js';
 
@@ -43,7 +44,7 @@ async function playTTS(text, audioRef) {
 
   // Try the app's TTS API first, fall back to Web Speech
   try {
-    const res = await apiFetch('/api/tts', { method: 'POST', body: JSON.stringify({ text, voice: 'hr-HR-GabrijelaNeural' }) });
+    const res = await apiFetch('/api/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, voice: getVoicePreference() }) });
     if (res?.audioUrl) {
       const a = new Audio(res.audioUrl);
       audioRef.current = a;

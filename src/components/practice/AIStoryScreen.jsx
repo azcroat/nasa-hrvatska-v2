@@ -56,7 +56,17 @@ export default function AIStoryScreen({ goBack, award }) {
         }),
         signal: AbortSignal.timeout(25000),
       });
-      if (!res.ok) throw new Error(`API error ${res.status}`);
+      if (!res.ok) {
+        let errBody = {};
+        try { errBody = await res.json(); } catch { /* ignore */ }
+        if (res.status === 401) throw new Error('Sign in to generate AI stories. Tap the Profile tab to create a free account.');
+        if (res.status === 429) {
+          const t = errBody.resetAt ? new Date(errBody.resetAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'midnight UTC';
+          throw new Error(`Daily AI story limit reached. Quota resets at ${t} — come back tomorrow!`);
+        }
+        if (res.status >= 500) throw new Error('AI story service is temporarily unavailable. Please try again in a moment.');
+        throw new Error(errBody.error || `Request failed (${res.status})`);
+      }
       const data = await res.json();
       const replyText = data.reply || data.message || data.text || JSON.stringify(data);
 
