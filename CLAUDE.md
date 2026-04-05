@@ -570,6 +570,57 @@ Manage artifacts iteratively; never overwrite a draft without preserving the pre
 
 ---
 
+### git-guardrails-claude-code
+**Trigger:** User wants to prevent destructive git operations, add git safety hooks to Claude Code, or block `git push`/`reset`/`clean` from executing automatically.
+
+**What this skill does:** Sets up a `PreToolUse` hook that intercepts and blocks dangerous git commands before Claude executes them.
+
+**Commands blocked by default:**
+- `git push` (all variants including `--force`)
+- `git reset --hard`
+- `git clean -f` / `git clean -fd`
+- `git branch -D`
+- `git checkout .` / `git restore .`
+
+**Setup workflow:**
+
+**Step 1 — Ask scope:** Project-only (`.claude/settings.json`) or all projects (`~/.claude/settings.json`)?
+
+**Step 2 — Place the hook script:**
+- Project: `.claude/hooks/block-dangerous-git.sh`
+- Global: `~/.claude/hooks/block-dangerous-git.sh`
+- Make executable: `chmod +x <path>`
+
+**Step 3 — Add to settings file:**
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-dangerous-git.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+For global scope, use `~/.claude/hooks/block-dangerous-git.sh` as the command path. If the settings file already exists, **merge** into the existing `hooks.PreToolUse` array — never overwrite other settings.
+
+**Step 4 — Ask about customization:** Offer to add or remove patterns from the blocked list.
+
+**Step 5 — Verify:**
+```bash
+echo '{"tool_input":{"command":"git push origin main"}}' | <path-to-script>
+# Should exit code 2 and print BLOCKED message to stderr
+```
+
+---
+
 ### design-an-interface
 **Trigger:** User wants to design an API, explore interface options, compare module shapes, or mentions "design it twice." Apply whenever the question is about *the shape* of a module's interface — not implementation.
 
