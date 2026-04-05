@@ -56,7 +56,7 @@ jobs:
           firebase emulators:exec \
             --only firestore \
             --project nasa-hrvatska-test \
-            "npx vitest run src/tests/firestore-rules.test.js"
+            "npx vitest run --exclude '' src/tests/firestore-rules.test.js"
         env:
           CI: true
           # Tell @firebase/rules-unit-testing to connect to the local emulator

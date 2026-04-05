@@ -104,7 +104,7 @@ export async function fbSaveProgress(uid: string, data: Record<string, unknown>)
   }
   // Exclude SRS from the progress blob (it now lives in srs/{id})
   const { sr: _sr, ...dataWithoutSRS } = data;
-  let _progressJson = JSON.stringify(dataWithoutSRS);
+  const _progressJson = JSON.stringify(dataWithoutSRS);
   const lbEntry = { name: (data.name as string) || '', xp: _bestXP, lc: _bestLC, updated: _nowMs };
   const profileEntry = { name: (data.name as string) || '', xp: _bestXP, lc: _bestLC, streak: _bestStrk, level: _bestLvl, lastActive: _nowMs };
   const userEntry = {
