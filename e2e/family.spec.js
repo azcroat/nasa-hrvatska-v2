@@ -34,8 +34,8 @@ test.describe('Family Leaderboard', () => {
   test('leaderboard tabs render (main, create, join)', async ({ page }) => {
     await goToLeaderboard(page);
     await expect(page.getByText(/Leaderboard/i).first()).toBeVisible({ timeout: 3_000 });
-    await expect(page.getByText(/Create Family/i)).toBeVisible({ timeout: 3_000 });
-    await expect(page.getByText(/Join Family/i)).toBeVisible({ timeout: 3_000 });
+    await expect(page.getByRole('button', { name: /Create Family/i }).first()).toBeVisible({ timeout: 3_000 });
+    await expect(page.getByRole('button', { name: /Join Family/i }).first()).toBeVisible({ timeout: 3_000 });
   });
 
   test('no family state shows empty state with Create/Join prompts', async ({ page }) => {
@@ -47,35 +47,35 @@ test.describe('Family Leaderboard', () => {
 
   test('Create Family tab shows family name input', async ({ page }) => {
     await goToLeaderboard(page);
-    await page.getByText('➕ Create Family').click();
+    await page.getByRole('button', { name: '➕ Create Family' }).first().click();
     await expect(page.getByPlaceholder(/Horvat Family|family name/i)).toBeVisible({ timeout: 3_000 });
   });
 
   test('Create Family validates empty name', async ({ page }) => {
     await goToLeaderboard(page);
-    await page.getByText('➕ Create Family').click();
+    await page.getByRole('button', { name: '➕ Create Family' }).first().click();
     // Click create without entering a name
-    await page.getByText(/Create Family Group/i).click();
+    await page.getByRole('button', { name: /Create Family Group/i }).click();
     await expect(page.getByText(/Please enter a family name/i)).toBeVisible({ timeout: 3_000 });
   });
 
   test('Join Family tab shows code input', async ({ page }) => {
     await goToLeaderboard(page);
-    await page.getByText('🔗 Join Family').click();
+    await page.getByRole('button', { name: '🔗 Join Family' }).first().click();
     await expect(page.getByPlaceholder(/AB3X7K/i)).toBeVisible({ timeout: 3_000 });
   });
 
   test('Join Family validates code length', async ({ page }) => {
     await goToLeaderboard(page);
-    await page.getByText('🔗 Join Family').click();
+    await page.getByRole('button', { name: '🔗 Join Family' }).first().click();
     await page.getByPlaceholder(/AB3X7K/i).fill('ABC');
-    await page.getByText(/Join Family/i).last().click();
+    await page.getByRole('button', { name: /Join Family/i }).last().click();
     await expect(page.getByText(/6 characters/i)).toBeVisible({ timeout: 3_000 });
   });
 
   test('Join Family code input uppercases automatically', async ({ page }) => {
     await goToLeaderboard(page);
-    await page.getByText('🔗 Join Family').click();
+    await page.getByRole('button', { name: '🔗 Join Family' }).first().click();
     const input = page.getByPlaceholder(/AB3X7K/i);
     await input.fill('ab3x7k');
     const value = await input.inputValue();
@@ -112,8 +112,8 @@ test.describe('Family leaderboard with seeded family data', () => {
     await goToLeaderboard(page);
 
     // Should show the family name and code
-    await expect(page.getByText('The Test Family')).toBeVisible({ timeout: 5_000 });
-    await expect(page.getByText('TST123')).toBeVisible({ timeout: 3_000 });
+    await expect(page.getByText(/The Test Family/i).first()).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText(/TST123/).first()).toBeVisible({ timeout: 5_000 });
   });
 
   test('shows Share Invite Link button for family admin', async ({ page }) => {
