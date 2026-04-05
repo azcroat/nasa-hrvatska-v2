@@ -28,7 +28,33 @@ import { getMessaging, onBackgroundMessage } from 'firebase/messaging/sw';
 
 // Take control immediately on install/update — no waiting for old tabs to close.
 self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    (async () => {
+      // Snapshot existing clients BEFORE claim() — these are tabs running old code.
+      const existingClients = await self.clients.matchAll({ type: 'window' });
+      const isUpdate = existingClients.length > 0;
+
+      // Take control of all open tabs immediately.
+      await self.clients.claim();
+
+      // After claiming, if this is a genuine update (not first install),
+      // tell every tab to reload so they pick up new assets.
+      // Loop-safe: after reload the new SW is already active — activate will
+      // not fire again for those pages, so no second SW_UPDATED message is sent.
+      if (isUpdate) {
+        const clients = await self.clients.matchAll({ type: 'window' });
+        clients.forEach(c => c.postMessage({ type: 'SW_UPDATED' }));
+      }
+    })()
+  );
+});
+
+// Allow the app to trigger activation of a waiting SW (Path 3 in main.jsx).
+self.addEventListener('message', event => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+});
 
 // ── Workbox precache ─────────────────────────────────────────────────────────
 // vite-plugin-pwa injectManifest injects __WB_MANIFEST at build time.
@@ -39,7 +65,7 @@ cleanupOutdatedCaches();
 
 // ── Runtime caching ──────────────────────────────────────────────────────────
 
-const CACHE_VER = 'nasa-hrvatska-v16';
+const CACHE_VER = 'nasa-hrvatska-v17';
 
 // 1. Data chunks (vocab, grammar, exercises, lessons, scenarios, cultural, geo,
 //    stories, pitch-data, daily, songs) — StaleWhileRevalidate.

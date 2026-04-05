@@ -239,8 +239,6 @@ window.onunhandledrejection = function (event) {
 // rejection that pollutes Sentry. Web browsers get the full PWA experience.
 if (!isNative() && 'serviceWorker' in navigator) {
   // Remove legacy sessionStorage keys that previously blocked SW updates after 3 reloads.
-  // Any user whose counter reached the limit was permanently stuck on an old version.
-  // These keys are no longer used — delete them so affected users get the update now.
   try {
     sessionStorage.removeItem('sw-reloaded-at');
     sessionStorage.removeItem('sw-reload-count');
@@ -248,33 +246,40 @@ if (!isNative() && 'serviceWorker' in navigator) {
 
   registerSW({ immediate: true });
 
-  // When a new SW takes over (after any deployment), reload immediately so users
-  // always see the latest version without any manual intervention.
-  //
-  // Loop-prevention: `refreshing` is a plain boolean scoped to this page load.
-  // It resets to false on every fresh page load — no sessionStorage, no counters
-  // that persist across app restarts and silently block future updates.
-  //
-  // Why this is loop-safe: after the reload, the NEW SW is already in control.
-  // It has nothing waiting to replace it, so controllerchange does not fire again.
+  // Single reload guard — resets to false on every fresh page load.
   let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    // Guard: never reload when the Firebase messaging SW (legacy, now merged) takes
-    // controller — it has no fetch handler and would break offline mode. Only reload
-    // when our own combined sw.js takes control, which means a new version deployed.
-    if (navigator.serviceWorker.controller?.scriptURL?.includes('firebase-messaging-sw')) return;
-    if (refreshing) return;
-    refreshing = true;
-    window.location.reload();
+  const doReload = () => { if (!refreshing) { refreshing = true; window.location.reload(); } };
+
+  // Path 1 — SW sends SW_UPDATED after activate+claim (handles updates that happen
+  // while the tab is open OR while it was backgrounded).
+  // Only reload if this page had a controller when it loaded — that means a new SW
+  // took over an existing session (genuine update). First installs have no prior
+  // controller and need no reload.
+  const hadControllerAtLoad = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('message', event => {
+    if (event.data?.type === 'SW_UPDATED' && hadControllerAtLoad) doReload();
   });
 
-  // On every page load: check whether a new SW is already waiting (installed but
-  // not yet activated). This handles the case where skipWaiting fired before this
-  // page's JS loaded — without this check those users would stay on the old version
-  // until they happened to open the app again.
+  // Path 2 — controllerchange (backup path; fires when a new SW activates via
+  // skipWaiting while this tab is open and the listener was already registered).
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (navigator.serviceWorker.controller?.scriptURL?.includes('firebase-messaging-sw')) return;
+    doReload();
+  });
+
+  // Path 3 — on every page load, proactively fetch and activate any new SW.
+  // Handles the case where a new SW was waiting before this page loaded:
+  // reg.waiting exists → send SKIP_WAITING → controllerchange fires → reload.
   navigator.serviceWorker.ready.then(reg => {
-    // Proactively fetch the latest SW from the network (non-blocking)
     reg.update().catch(() => {});
+    if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+    reg.addEventListener('updatefound', () => {
+      const sw = reg.installing;
+      if (!sw) return;
+      sw.addEventListener('statechange', () => {
+        if (sw.state === 'installed') reg.waiting?.postMessage({ type: 'SKIP_WAITING' });
+      });
+    });
   });
 }
 
