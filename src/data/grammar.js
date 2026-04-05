@@ -479,7 +479,15 @@ export const ASPECT = {
     {q:"\u0027Dolazim svaki dan\u0027 uses which aspect?",a:"Imperfective (repeated)",al:["Perfective (one-time)","Neither","Conditional"]},
     {q:"Perfective of \u0027piti\u0027?",a:"popiti",al:["pijem","pijati","napiti"]},
     {q:"In present tense, you normally use:",a:"Imperfective verbs",al:["Perfective verbs","Either one","Neither"]},
-    {q:"Imperfective of \u0027kupiti\u0027?",a:"kupovati",al:["kupiti","nakupiti","pokupiti"]}
+    {q:"Imperfective of \u0027kupiti\u0027?",a:"kupovati",al:["kupiti","nakupiti","pokupiti"]},
+    {q:"\u0027U\u010dim hrvatski\u0027 vs \u0027Nau\u010dio sam lekciju\u0027 \u2014 the second is:",a:"Perfective (lesson finished)",al:["Imperfective (ongoing)","Future tense","Conditional"]},
+    {q:"Which pair is correctly matched? (impf \u2192 perf)",a:"gledati \u2192 pogledati",al:["gledati \u2192 nagle\u0107i","u\u010diti \u2192 u\u010dati","pisati \u2192 opisati"]},
+    {q:"\u0027Svaki ve\u010der gledam vijesti\u0027 \u2014 the verb \u0027gledam\u0027 is:",a:"Imperfective (habitual)",al:["Perfective (completed)","Future","Neither"]},
+    {q:"To say you finished writing the letter, use:",a:"Napisao/la sam pismo.",al:["\u010citam pismo.","Pi\u0161em pismo.","Pisao/la sam."]},
+    {q:"The perfective of \u0027dolaziti\u0027 is:",a:"do\u0107i",al:["dolazovati","pri\u0107i","dolaziti pf"]},
+    {q:"Aspect is about:",a:"The speaker\u0027s viewpoint of the action",al:["Whether the action is past or future","How long the action lasted","Who performed the action"]},
+    {q:"\u0027Dao sam mu poklon\u0027 \u2014 which verb pair?",a:"davati (impf) / dati (perf)",al:["dati (impf) / davati (perf)","dati (impf) / d\u0101ti (perf)","davati (perf) / dati (impf)"]},
+    {q:"After frequency adverbs (svaki dan, uvijek, \u010desto), use:",a:"Imperfective",al:["Perfective","Either","Only infinitive"]}
   ]
 };
 export const ASPECT_PAIRS = [

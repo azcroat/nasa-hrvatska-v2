@@ -532,7 +532,13 @@ export const QWORDS = [
   {q:"_____ je pas?",en:"What kind of dog? (m)",a:"Kakav",opts:["Kakav","Kakva","Kakvo"]},
   {q:"_____ je kuća?",en:"What kind of house? (f)",a:"Kakva",opts:["Kakav","Kakva","Kakvo"]},
   {q:"_____ je selo?",en:"What kind of village? (n)",a:"Kakvo",opts:["Kakav","Kakva","Kakvo"]},
-  {q:"_____ ideš?",en:"Where are you going?",a:"Kamo",opts:["Kamo","Gdje","Odakle"]}
+  {q:"_____ ideš?",en:"Where are you going? (motion)",a:"Kamo",opts:["Kamo","Gdje","Odakle"]},
+  {q:"_____ dolaziš?",en:"Where are you coming from?",a:"Odakle",opts:["Kamo","Gdje","Odakle"]},
+  {q:"_____ knjiga je ovo? (whose — f noun)",a:"Čija",opts:["Čiji","Čija","Čije"]},
+  {q:"_____ dijete je ovo? (whose — n noun)",a:"Čije",opts:["Čiji","Čija","Čije"]},
+  {q:"'Kamo' vs 'Gdje': 'Gdje si?' means?",en:"Asking location (not motion)",a:"Where are you? (location)",opts:["Where are you going? (motion)","Where are you? (location)","Where are you from?"]},
+  {q:"_____ košta? (How much does it cost?)",a:"Koliko",opts:["Kako","Koliko","Što"]},
+  {q:"_____ puta ideš na more? (How many times?)",a:"Koliko",opts:["Kako","Koliko","Zašto"]}
 ];
 export const NEGATION = [
   {pos:"Kuham ručak.",neg:"Ne kuham ručak.",en:"I cook lunch. / I don't cook lunch."},
@@ -668,7 +674,17 @@ export const FUTURE = {
     {q:"Sutra _____ padati kiša. (will)",a:"će",opts:["ću","ćeš","će"]},
     {q:"Ja _____ pisati zadaću. (will)",a:"ću",opts:["ću","ćeš","će"]},
     {q:"Mi _____ jesti pizzu. (will)",a:"ćemo",opts:["ćemo","ćete","će"]},
-    {q:"Ti _____ čitati knjigu. (will)",a:"ćeš",opts:["ću","ćeš","će"]}
+    {q:"Ti _____ čitati knjigu. (will)",a:"ćeš",opts:["ću","ćeš","će"]},
+    {q:"Ana _____ pjevati na koncertu. (will)",a:"će",opts:["ću","ćeš","će"]},
+    {q:"Vi _____ naučiti sve padeže. (will)",a:"ćete",opts:["ćemo","ćete","će"]},
+    {q:"Oni _____ doći sutra. (will)",a:"će",opts:["ću","ćeš","će"]},
+    {q:"Ja _____ spavati cijeli dan. (will)",a:"ću",opts:["ću","ćeš","će"]},
+    {q:"Mi _____ gledati film večeras. (will)",a:"ćemo",opts:["ćemo","ćete","će"]},
+    {q:"'I will not go' — negative future (ja): _____ ići.",a:"Neću",opts:["Neću","Nećeš","Neće"]},
+    {q:"'She will not eat' — negative future (ona): _____ jesti.",a:"Neće",opts:["Neću","Nećeš","Neće"]},
+    {q:"'We will not come' — negative future (mi): _____ doći.",a:"Nećemo",opts:["Nećemo","Nećete","Neće"]},
+    {q:"Short future: 'Čitat _____ sutra.' (ja — short form)",a:"ću",opts:["ću","ćeš","će"]},
+    {q:"Which is the correct short future for 'Ona će čitati'?",a:"Čitat će.",opts:["Čitat će.","Čitati će.","Čitat ću."]}
   ]
 };
 export const POSSESS = {
