@@ -448,14 +448,272 @@ Skills are specialized instruction sets that define how to handle specific task 
 ---
 
 ### pdf
-**Trigger:** Reading, extracting from, or creating PDF files.
+**Trigger:** User wants to do anything with PDF files — read, extract text/tables, merge, split, rotate, watermark, create, fill forms, encrypt/decrypt, extract images, or OCR scanned PDFs. If user mentions a `.pdf` file or asks to produce one, apply this skill.
 
-**Rules:**
-- **Read/extract:** Use `pdfplumber` (text + table extraction with layout awareness), `pypdf` (merge/split/rotate/encrypt)
-- **OCR:** `pytesseract` + `pdf2image` for scanned documents
-- **Create:** `reportlab` for programmatic PDF generation
-- **Critical:** Never use Unicode subscript chars (₀₁₂₃) in reportlab — use `<sub>`/`<super>` XML tags inside Paragraph objects
-- CLI tools available: `pdftotext`, `qpdf`, `pdftk`
+**Library selection:**
+
+| Task | Tool |
+|---|---|
+| Merge / split / rotate / encrypt | `pypdf` |
+| Text + table extraction (layout-aware) | `pdfplumber` |
+| Create PDFs programmatically | `reportlab` |
+| OCR scanned PDFs | `pytesseract` + `pdf2image` |
+| Command-line merge/split/rotate | `qpdf` or `pdftk` |
+| Fill PDF forms | See FORMS.md |
+
+**Quick start:**
+```python
+from pypdf import PdfReader, PdfWriter
+
+reader = PdfReader("document.pdf")
+text = "".join(page.extract_text() for page in reader.pages)
+```
+
+**Merge:**
+```python
+writer = PdfWriter()
+for f in ["doc1.pdf", "doc2.pdf"]:
+    for page in PdfReader(f).pages:
+        writer.add_page(page)
+with open("merged.pdf", "wb") as out:
+    writer.write(out)
+```
+
+**Extract tables → Excel:**
+```python
+import pdfplumber, pandas as pd
+with pdfplumber.open("doc.pdf") as pdf:
+    tables = [t for page in pdf.pages for t in page.extract_tables() if t]
+pd.concat([pd.DataFrame(t[1:], columns=t[0]) for t in tables]).to_excel("out.xlsx")
+```
+
+**Create PDF (reportlab):**
+```python
+from reportlab.platypus import SimpleDocTemplate, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
+doc = SimpleDocTemplate("report.pdf")
+styles = getSampleStyleSheet()
+doc.build([Paragraph("Title", styles['Title']), Paragraph("Body text.", styles['Normal'])])
+```
+
+**CRITICAL — subscripts/superscripts in reportlab:**
+Never use Unicode subscript chars (₀₁₂₃, ⁰¹²³) — built-in fonts render them as solid black boxes. Use XML tags inside `Paragraph` objects instead:
+```python
+Paragraph("H<sub>2</sub>O and x<super>2</super>", styles['Normal'])
+```
+
+**OCR scanned PDFs:**
+```python
+import pytesseract
+from pdf2image import convert_from_path
+images = convert_from_path('scanned.pdf')
+text = "\n\n".join(f"Page {i+1}:\n{pytesseract.image_to_string(img)}" for i, img in enumerate(images))
+```
+
+**Watermark:**
+```python
+watermark = PdfReader("watermark.pdf").pages[0]
+for page in PdfReader("doc.pdf").pages:
+    page.merge_page(watermark); writer.add_page(page)
+```
+
+**Encrypt:**
+```python
+writer.encrypt("userpassword", "ownerpassword")
+```
+
+**CLI tools:**
+```bash
+qpdf --empty --pages file1.pdf file2.pdf -- merged.pdf   # merge
+qpdf input.pdf --pages . 1-5 -- out.pdf                  # split
+pdftotext -layout input.pdf output.txt                    # extract text
+pdfimages -j input.pdf prefix                             # extract images
+```
+
+---
+
+### embedded-systems
+**Trigger:** Firmware for microcontrollers, RTOS applications, power optimization, real-time systems. Keywords: STM32, ESP32, FreeRTOS, bare-metal, interrupt, DMA, real-time.
+
+**Core workflow:**
+1. **Analyze constraints** — MCU specs, memory limits, timing requirements, power budget
+2. **Design** — task structure, interrupts, peripherals, memory layout
+3. **Implement** — HAL, peripheral drivers, RTOS integration
+4. **Validate** — compile with `-Wall -Werror`, static analysis (`cppcheck`), verify register bit-fields against datasheet
+5. **Optimize** — minimize code size, RAM, power
+6. **Test** — logic analyzer / oscilloscope timing, `uxTaskGetStackHighWaterMark()`, ISR latency, no missed deadlines under worst-case load
+
+**MUST DO:** `volatile` on hardware registers and ISR-shared variables. Short ISRs (read hardware, set flag, exit — defer work to tasks). Watchdog timer. Document flash/RAM/power usage. Handle all error conditions.
+
+**MUST NOT DO:** Blocking operations in ISRs. Dynamic memory allocation without bounds. Skip critical section protection. Floating-point without checking hardware FPU support. Hardcode hardware-specific values.
+
+**Minimal ISR pattern:**
+```c
+static volatile uint8_t g_flag = 0, g_byte = 0;
+
+void USART2_IRQHandler(void) {
+    if (USART2->SR & USART_SR_RXNE) {
+        g_byte = (uint8_t)(USART2->DR & 0xFF);
+        g_flag = 1;
+    }
+}
+void process_uart(void) {
+    if (g_flag) {
+        __disable_irq();
+        uint8_t b = g_byte; g_flag = 0;
+        __enable_irq();
+        handle_byte(b);
+    }
+}
+```
+
+**FreeRTOS task skeleton:**
+```c
+static void vSensorTask(void *pvParameters) {
+    TickType_t xLast = xTaskGetTickCount();
+    for (;;) {
+        uint16_t raw = adc_read_channel(ADC_CH0);
+        xQueueSend(xSensorQueue, &raw, 0);
+        configASSERT(uxTaskGetStackHighWaterMark(NULL) > 32);
+        vTaskDelayUntil(&xLast, pdMS_TO_TICKS(10));
+    }
+}
+```
+
+**Output always includes:** hardware init code, driver/ISR implementation, application code (RTOS tasks or main loop), resource usage summary (flash/RAM/power), timing and optimization notes.
+
+---
+
+### fastapi-expert
+**Trigger:** Building REST APIs with FastAPI, Pydantic V2 validation, async SQLAlchemy, JWT authentication, WebSocket endpoints, or OpenAPI documentation in Python.
+
+**Core workflow:** requirements → Pydantic schemas → async endpoints with dependency injection → auth/rate limiting → async tests. After each endpoint group: run `pytest` and verify `/docs` matches intended API surface.
+
+**MUST DO:**
+- Type hints everywhere (FastAPI requires them)
+- Pydantic V2 syntax: `field_validator`, `model_validator`, `model_config`
+- `Annotated` pattern for dependency injection
+- `async/await` for all I/O
+- `X | None` instead of `Optional[X]`
+- Proper HTTP status codes
+
+**MUST NOT DO:**
+- Synchronous database operations
+- Pydantic V1 syntax (`@validator`, `class Config`)
+- Plain-text passwords
+- Hardcoded config values
+
+**Minimal pattern:**
+```python
+# schemas.py
+from pydantic import BaseModel, EmailStr, field_validator, model_config
+
+class UserCreate(BaseModel):
+    model_config = model_config(str_strip_whitespace=True)
+    email: EmailStr
+    password: str
+
+    @field_validator("password")
+    @classmethod
+    def password_strength(cls, v: str) -> str:
+        if len(v) < 8: raise ValueError("Min 8 chars")
+        return v
+
+class UserResponse(BaseModel):
+    model_config = model_config(from_attributes=True)
+    id: int
+    email: EmailStr
+```
+
+```python
+# router
+from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Annotated
+
+router = APIRouter(prefix="/users", tags=["users"])
+DbDep = Annotated[AsyncSession, Depends(get_db)]
+
+@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+async def create_user(payload: UserCreate, db: DbDep) -> UserResponse:
+    if await crud.get_user_by_email(db, payload.email):
+        raise HTTPException(status.HTTP_409_CONFLICT, "Email already registered")
+    return await crud.create_user(db, payload)
+```
+
+```python
+# JWT auth
+from jose import JWTError, jwt
+from fastapi.security import OAuth2PasswordBearer
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> str:
+    try:
+        data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        if not (sub := data.get("sub")): raise ValueError
+        return sub
+    except (JWTError, ValueError):
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid credentials")
+
+CurrentUser = Annotated[str, Depends(get_current_user)]
+```
+
+**Output always includes:** schema file, endpoint router, CRUD operations (if DB), key decision notes.
+
+---
+
+### cloud-architect
+**Trigger:** Designing cloud architectures, planning migrations, optimizing multi-cloud deployments, Well-Architected Framework reviews, cost optimization, disaster recovery, landing zones. Keywords: AWS, Azure, GCP, cloud migration, serverless architecture.
+
+**6-step workflow:**
+1. **Discovery** — current state, requirements, constraints, compliance
+2. **Design** — services, topology, data architecture; confirm every component has redundancy and no SPOFs
+3. **Security** — zero-trust, identity federation, encryption at rest and in transit
+4. **Cost Model** — right-size, reserved capacity, auto-scaling
+5. **Migration** — 6Rs framework, migration waves; validate VPC peering/connectivity before cutover
+6. **Operate** — monitoring, automation, continuous optimization
+
+**MUST DO:** HA (99.9%+). Security by design. IaC (Terraform/CloudFormation). Cost allocation tags. DR with defined RTO/RPO. Multi-region for critical workloads. Document architectural decisions.
+
+**MUST NOT DO:** Credentials in code. Skip encryption. Single points of failure. Overly complex architectures. Skip DR testing.
+
+**Key patterns:**
+
+Least-privilege IAM (Terraform):
+```hcl
+resource "aws_iam_role_policy" "app" {
+  role = aws_iam_role.app.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{ Effect = "Allow", Action = ["s3:GetObject", "s3:PutObject"],
+      Resource = "${aws_s3_bucket.app.arn}/*" }]
+  })
+}
+```
+
+VPC + auto-scaling:
+```hcl
+resource "aws_autoscaling_group" "app" {
+  desired_capacity = 2; min_size = 1; max_size = 10
+  vpc_zone_identifier = aws_subnet.private[*].id
+  # ... target tracking policy at 60% CPU
+}
+```
+
+Cost analysis:
+```bash
+aws ce get-cost-and-usage --time-period Start=...,End=... \
+  --granularity MONTHLY --metrics UnblendedCost \
+  --group-by Type=DIMENSION,Key=SERVICE --output table
+```
+
+**Connectivity validation before migration cutover:**
+```bash
+aws ec2 describe-vpc-peering-connections --filters "Name=status-code,Values=active"
+aws elbv2 describe-target-health --target-group-arn arn:aws:...
+```
+
+**Output always includes:** architecture diagram (Mermaid), service selection rationale, security architecture, cost estimation + optimization strategy, deployment approach + rollback plan.
 
 ---
 
