@@ -44,7 +44,7 @@ test.describe('Practice tab', () => {
   test.describe('Flashcards', () => {
     test('launches flashcard screen', async ({ page }) => {
       await page.getByText('Flashcards').click();
-      await expect(page.getByText(/Tap card to flip/i)).toBeVisible({ timeout: 5_000 });
+      await expect(page.getByText(/tap to see English|\d+ \/ \d+/i)).toBeVisible({ timeout: 5_000 });
     });
 
     test('shows card index and a Croatian word', async ({ page }) => {
