@@ -324,18 +324,44 @@ export default function CultureTab({ sCurEx }) {
           </div>
           <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'#D4002D', flexShrink:0 }}>→</div>
         </button>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-          <button onClick={() => setScr("aiconvo")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(99,102,241,.3)', background:'rgba(99,102,241,.07)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
-            <div style={{ fontSize:26, marginBottom:6 }}>🤖</div>
-            <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)' }}>AI Conversations</div>
-            <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:2 }}>50 scenarios · all levels</div>
-          </button>
-          <button onClick={() => setScr("immersion")} style={{ padding:'14px 12px', borderRadius:14, border:'1.5px solid rgba(14,116,144,.3)', background:'rgba(14,116,144,.06)', cursor:'pointer', textAlign:'center', fontFamily:"'Outfit',sans-serif" }}>
-            <div style={{ fontSize:26, marginBottom:6 }}>🌊</div>
+        {/* AI Voice Conversation — prominent featured card */}
+        <button
+          onClick={() => setScr("aiconvo")}
+          style={{
+            width:'100%', border:'none', cursor:'pointer', padding:0,
+            borderRadius:16, overflow:'hidden',
+            background:'linear-gradient(135deg,#0f0c29,#1a1654,#3730a3)',
+            boxShadow:'0 4px 18px rgba(55,48,163,.35)',
+            marginBottom:10, fontFamily:"'Outfit',sans-serif",
+          }}
+        >
+          <div style={{ padding:'14px 16px', display:'flex', alignItems:'center', gap:14 }}>
+            <div style={{
+              width:46, height:46, borderRadius:13, flexShrink:0,
+              background:'rgba(255,255,255,.12)', border:'1.5px solid rgba(255,255,255,.25)',
+              display:'flex', alignItems:'center', justifyContent:'center', fontSize:24,
+            }}>🎙️</div>
+            <div style={{ flex:1, textAlign:'left' }}>
+              <div style={{ fontSize:9, fontWeight:900, color:'rgba(165,180,252,.9)', letterSpacing:'.12em', textTransform:'uppercase', marginBottom:2 }}>SIGNATURE FEATURE</div>
+              <div style={{ fontSize:14, fontWeight:900, color:'#fff', lineHeight:1.2, marginBottom:2 }}>AI Voice Conversation</div>
+              <div style={{ fontSize:10, color:'rgba(255,255,255,.7)', lineHeight:1.4 }}>47 real-life scenarios · speak Croatian now</div>
+            </div>
+            <div style={{
+              flexShrink:0, background:'rgba(255,255,255,.18)',
+              border:'1px solid rgba(255,255,255,.3)',
+              borderRadius:9, padding:'5px 11px',
+              fontSize:11, fontWeight:800, color:'#fff',
+            }}>Start →</div>
+          </div>
+        </button>
+        <button onClick={() => setScr("immersion")} style={{ width:'100%', padding:'13px 14px', borderRadius:14, border:'1.5px solid rgba(14,116,144,.3)', background:'rgba(14,116,144,.06)', cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif", display:'flex', alignItems:'center', gap:12 }}>
+          <span style={{ fontSize:22 }}>🌊</span>
+          <div style={{ flex:1 }}>
             <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--info)' }}>Immersion Hub</div>
-            <div style={{ fontSize:'var(--text-xs)', color:'var(--info)', marginTop:2, opacity:.75 }}>A1 → C2 pathway</div>
-          </button>
-        </div>
+            <div style={{ fontSize:'var(--text-xs)', color:'var(--info)', opacity:.75 }}>A1 → C2 pathway</div>
+          </div>
+          <span style={{ fontSize:14, color:'var(--info)', opacity:.6 }}>→</span>
+        </button>
       </div>
 
       {/* ── LANGUAGE & CULTURE ── */}

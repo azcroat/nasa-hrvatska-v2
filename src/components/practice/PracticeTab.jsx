@@ -314,6 +314,44 @@ export default function PracticeTab({
     <div>
       {H("🎮 Practice", "Choose your training mode")}
 
+      {/* ── AI VOICE CONVERSATION — signature feature hero ───────────────── */}
+      <button
+        onClick={() => { recordRecentExercise('aiconvo'); setScr('aiconvo'); sCurEx('aiconvo'); }}
+        style={{
+          width: '100%', border: 'none', cursor: 'pointer', padding: 0,
+          borderRadius: 18, overflow: 'hidden',
+          background: 'linear-gradient(135deg,#0f0c29,#1a1654,#3730a3)',
+          boxShadow: '0 6px 24px rgba(55,48,163,.4)',
+          marginBottom: 16,
+          fontFamily: "'Outfit',sans-serif",
+        }}
+      >
+        <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{
+            width: 52, height: 52, borderRadius: 15, flexShrink: 0,
+            background: 'rgba(255,255,255,.12)', border: '1.5px solid rgba(255,255,255,.25)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28,
+          }}>🎙️</div>
+          <div style={{ flex: 1, textAlign: 'left' }}>
+            <div style={{ fontSize: 9, fontWeight: 900, color: 'rgba(165,180,252,.9)', letterSpacing: '.12em', textTransform: 'uppercase', marginBottom: 3 }}>
+              SIGNATURE FEATURE
+            </div>
+            <div style={{ fontSize: 16, fontWeight: 900, color: '#fff', lineHeight: 1.2, marginBottom: 3 }}>
+              AI Voice Conversation
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,.7)', lineHeight: 1.4 }}>
+              Speak Croatian with Mate · 47 scenarios · real-time AI feedback
+            </div>
+          </div>
+          <div style={{
+            flexShrink: 0, background: 'rgba(255,255,255,.18)',
+            border: '1px solid rgba(255,255,255,.3)',
+            borderRadius: 10, padding: '6px 12px',
+            fontSize: 12, fontWeight: 800, color: '#fff',
+          }}>Start →</div>
+        </div>
+      </button>
+
       {/* ── INTENT TILES ─────────────────────────────────────────────────── */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, marginBottom:16 }}>
         {[
