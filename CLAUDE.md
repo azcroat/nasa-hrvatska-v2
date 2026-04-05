@@ -570,6 +570,48 @@ Manage artifacts iteratively; never overwrite a draft without preserving the pre
 
 ---
 
+### design-an-interface
+**Trigger:** User wants to design an API, explore interface options, compare module shapes, or mentions "design it twice." Apply whenever the question is about *the shape* of a module's interface — not implementation.
+
+**Core principle (from "A Philosophy of Software Design"):** Your first idea is unlikely to be the best. Generate multiple radically different designs, then compare them.
+
+**5-step workflow:**
+
+**1. Gather requirements first**
+- What problem does this module solve?
+- Who are the callers? (other modules, external users, tests)
+- What are the key operations?
+- What should be hidden inside vs exposed?
+
+**2. Generate 3+ parallel designs** — each with a different constraint:
+- Agent 1: "Minimize method count — aim for 1–3 methods max"
+- Agent 2: "Maximize flexibility — support many use cases"
+- Agent 3: "Optimize for the most common case"
+- Agent 4: "Take inspiration from [specific paradigm/library]"
+
+Each design must produce: interface signature, usage example, what it hides internally, and trade-offs.
+
+**3. Present designs** sequentially — let the user absorb each before showing the next.
+
+**4. Compare on:**
+- **Interface simplicity** — fewer methods, simpler params
+- **General-purpose vs specialized** — flexibility vs focus
+- **Implementation efficiency** — does the shape allow efficient internals?
+- **Depth** — small interface hiding significant complexity = deep module (good); large interface over thin implementation = shallow module (avoid)
+- **Ease of correct use** vs ease of misuse
+
+Compare in prose, not tables. Highlight where designs diverge most.
+
+**5. Synthesize** — the best design often combines insights from multiple options. Ask which design best fits the primary use case and whether any elements from other designs are worth incorporating.
+
+**Anti-patterns:**
+- Never let designs be too similar — enforce radical difference
+- Never skip the comparison step — contrast is the whole value
+- Never implement — this skill is about interface shape only
+- Never evaluate based on implementation effort
+
+---
+
 ### debugging-wizard
 **Trigger:** Investigating errors, analyzing stack traces, finding root causes of unexpected behavior, troubleshooting crashes, log analysis, or any "not working / bug / exception / crash" request.
 
