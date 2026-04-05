@@ -202,7 +202,7 @@ export default function LearnTab({
         <div className="feature-card-icon" style={{ background: 'linear-gradient(135deg,#d97706,#92400e)' }}>⚙️</div>
         <div style={{ flex: 1 }}>
           <div className="feature-card-title" style={{ color: '#451a03' }}>Grammar Track A1→B2</div>
-          <div className="feature-card-desc" style={{ color: '#92400e' }}>Structured curriculum · cases, tenses, aspect &amp; more</div>
+          <div className="feature-card-desc" style={{ color: '#92400e' }}>40 units · cases, tenses, aspect &amp; more · alternative to Learn Path</div>
         </div>
         <div style={{ fontSize: 18, color: '#d97706' }}>→</div>
       </button>
@@ -247,6 +247,7 @@ export default function LearnTab({
         >
           <span style={{ fontSize: 18 }}>✨</span>
           Browse more learning content
+          <span style={{ fontSize: 12, opacity: .6 }}>(7 more topics)</span>
           <span style={{ fontSize: 14 }}>›</span>
         </button>
       )}
@@ -352,6 +353,22 @@ export default function LearnTab({
         </div>
         <div style={{ marginLeft: 'auto', color: 'rgba(255,255,255,.7)', fontSize: 18 }}>›</div>
       </button>
+
+      {/* ── B2 UNLOCK BANNER — shown only when user reaches B2 ──────────── */}
+      {cefrLevel === 'B2' && (
+        <div style={{
+          background: 'linear-gradient(135deg,rgba(124,58,237,.12),rgba(91,33,182,.08))',
+          border: '1.5px solid rgba(124,58,237,.35)', borderRadius: 14,
+          padding: '12px 16px', marginBottom: 12,
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <span style={{ fontSize: 22 }}>🎓</span>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 800, color: '#5b21b6' }}>Advanced vocabulary unlocked!</div>
+            <div style={{ fontSize: 11, color: '#7c3aed', marginTop: 2 }}>You have reached B2 level. Explore 146 new words across politics, tech, environment &amp; idioms below.</div>
+          </div>
+        </div>
+      )}
 
       {/* ── B2+ ADVANCED VOCABULARY ─────────────────────────────────────── */}
       <button
