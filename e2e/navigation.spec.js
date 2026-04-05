@@ -53,7 +53,7 @@ test.describe('Tab navigation', () => {
     await clickTab(page, 'Me');
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
     await expect(nav.getByRole('button', { name: 'Me', exact: true })).toHaveClass(/active/);
-    await expect(page.getByText('Test Učenik')).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('Test Učenik').first()).toBeVisible({ timeout: 5_000 });
   });
 
   test('tab switches correctly update active state', async ({ page }) => {

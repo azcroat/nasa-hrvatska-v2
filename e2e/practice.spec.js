@@ -58,14 +58,15 @@ test.describe('Practice tab', () => {
       await expect(page.getByText(/tap to see English/i)).toBeVisible({ timeout: 5_000 });
       // Click the card to flip
       await page.locator('.fc-card').click();
-      await expect(page.getByText(/Know it|Don't know/i)).toBeVisible({ timeout: 3_000 });
+      await expect(page.getByText(/Know it|Don't know/i).first()).toBeVisible({ timeout: 3_000 });
     });
   });
 
   test.describe('Quiz (Multiple Choice)', () => {
     test('launches multiple choice game', async ({ page }) => {
       await page.getByText('Quiz').click();
-      await expect(page.getByText(/Multiple Choice/i)).toBeVisible({ timeout: 5_000 });
+      // McGame renders a question counter and the question prompt
+      await expect(page.getByText(/What does this mean/i)).toBeVisible({ timeout: 5_000 });
     });
 
     test('shows a Croatian word and answer options', async ({ page }) => {
@@ -79,8 +80,8 @@ test.describe('Practice tab', () => {
       await expect(page.getByText(/What does this mean/i)).toBeVisible({ timeout: 5_000 });
       // Click the first answer option (class "ob")
       await page.locator('button.ob').first().click();
-      // Should show Next/Score feedback
-      await expect(page.locator('button.b.bp').filter({ hasText: /Next|Result/i })).toBeVisible({ timeout: 3_000 });
+      // Should show Next/Got it/See Results button depending on answer correctness
+      await expect(page.locator('button.b.bp').filter({ hasText: /Next|Got it|See Results/i })).toBeVisible({ timeout: 3_000 });
     });
   });
 
