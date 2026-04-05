@@ -233,6 +233,7 @@ const AdminDashboard = lazyWithReload(() => import("./admin/AdminDashboard.jsx")
 const TermsOfService = lazyWithReload(() => import("./shared/TermsOfService.jsx"));
 const GradedInputScreen = lazyWithReload(() => import("./learn/GradedInputScreen.jsx"));
 const PronunciationCourse = lazyWithReload(() => import("./learn/PronunciationCourse.jsx"));
+const AdvancedVocabScreen = lazyWithReload(() => import("./learn/AdvancedVocabScreen.jsx"));
 const PitchAccentMastery = lazyWithReload(() => import("./learn/PitchAccentMastery.jsx"));
 const HeritagePathScreen = lazyWithReload(() => import("./croatia/HeritagePathScreen.jsx"));
 const DialectAwarenessScreen = lazyWithReload(() => import("./croatia/DialectAwarenessScreen.jsx"));
@@ -656,6 +657,7 @@ export default function AppRouter(props) {
       {currentScreen==="cloze"&&<ScreenErrorBoundary key="cloze" name="cloze"><ClozeEngine goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="graded_input"&&<ScreenErrorBoundary key="graded_input" name="graded_input"><GradedInputScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="pronunciation_course"&&<ScreenErrorBoundary key="pronunciation_course" name="pronunciation_course"><PronunciationCourse goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="advanced_vocab"&&<ScreenErrorBoundary key="advanced_vocab" name="advanced_vocab"><AdvancedVocabScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="pronunciation_assess"&&<ScreenErrorBoundary key="pronunciation_assess" name="pronunciation_assess"><PronunciationAssessScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="pitch_accent"&&<ScreenErrorBoundary key="pitch_accent" name="pitch_accent"><PitchAccentMastery goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="heritage_path"&&<ScreenErrorBoundary key="heritage_path" name="heritage_path"><HeritagePathScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}

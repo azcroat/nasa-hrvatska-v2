@@ -352,6 +352,26 @@ export default function LearnTab({
         </div>
         <div style={{ marginLeft: 'auto', color: 'rgba(255,255,255,.7)', fontSize: 18 }}>›</div>
       </button>
+
+      {/* ── B2+ ADVANCED VOCABULARY ─────────────────────────────────────── */}
+      <button
+        onClick={() => setScr('advanced_vocab')}
+        className="feature-card"
+        style={{
+          background: 'linear-gradient(135deg, #7c3aed, #5b21b6)',
+          boxShadow: '0 4px 14px rgba(124,58,237,.35)',
+          marginBottom: 20,
+          color: 'white',
+          border: 'none',
+        }}
+      >
+        <div style={{ fontSize: 32, flexShrink: 0 }}>🎓</div>
+        <div style={{ flex: 1 }}>
+          <div className="feature-card-title" style={{ color: '#fff' }}>B2+ Vocabulary</div>
+          <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>Advanced themes: politics, tech, environment, idioms</div>
+        </div>
+        <div style={{ marginLeft: 'auto', color: 'rgba(255,255,255,.7)', fontSize: 18 }}>›</div>
+      </button>
       </>)}
 
       {/* ── PATH WIDGET ─────────────────────────────────────────────────── */}
