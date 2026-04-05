@@ -237,6 +237,17 @@ const KF = `
 }
 
 /* ═══════════════════════════════════════════════════
+   TORSO BREATHING — subtle scaleY cycle on the torso
+   Only plays on calm moods (neutral/happy/ready/thinking).
+   transform-origin pinned to bottom of torso so feet stay grounded.
+═══════════════════════════════════════════════════ */
+@keyframes lk-breathe {
+  0%, 100% { transform: scaleY(1.000) }
+  45%      { transform: scaleY(1.022) }
+  55%      { transform: scaleY(1.022) }
+}
+
+/* ═══════════════════════════════════════════════════
    LEGO MOVIE PRINCIPLE 3: HEAD INDEPENDENT MOTION
    Head group pivots at neck (cx 60, cy 62)
 ═══════════════════════════════════════════════════ */
@@ -640,12 +651,28 @@ function Defs() {
         <stop offset="100%" stopColor="#A07020"/>
       </linearGradient>
 
-      {/* Sword blade */}
+      {/* Sword blade — Steel (default) */}
       <linearGradient id="lk-bl" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop offset="0%"   stopColor="#6A8898"/>
         <stop offset="38%"  stopColor="#E2EEF6"/>
         <stop offset="52%"  stopColor="#FFFFFF"/>
         <stop offset="100%" stopColor="#6A8898"/>
+      </linearGradient>
+
+      {/* Sword blade — Gold tier (Lv26+) */}
+      <linearGradient id="lk-bl-gold" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%"   stopColor="#9A7200"/>
+        <stop offset="38%"  stopColor="#FFE87C"/>
+        <stop offset="52%"  stopColor="#FFFACD"/>
+        <stop offset="100%" stopColor="#9A7200"/>
+      </linearGradient>
+
+      {/* Sword blade — Legendary tier (Lv76+) */}
+      <linearGradient id="lk-bl-legendary" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%"   stopColor="#1e3a8a"/>
+        <stop offset="35%"  stopColor="#60a5fa"/>
+        <stop offset="52%"  stopColor="#e0f2fe"/>
+        <stop offset="100%" stopColor="#1e3a8a"/>
       </linearGradient>
 
       {/* Shield white */}
@@ -683,6 +710,8 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
   const m = variants[Math.min(activeVarIdx, variants.length - 1)];
   const lvlCfg = getLevelConfig(level);
   const isCelebrating = mood === 'celebrating';
+  // Level-based sword blade gradient — steel → gold → legendary blue
+  const swordGrad = level >= 76 ? 'url(#lk-bl-legendary)' : level >= 26 ? 'url(#lk-bl-gold)' : 'url(#lk-bl)';
   const eyeSlit = MOOD_EYE[mood] || MOOD_EYE.neutral;
 
   // Is this an active (not calm idle) mood?
@@ -833,8 +862,14 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
           fill="url(#lk-rd)" opacity="0.75"/>
 
         {/* ───────────── TORSO ───────────── */}
+        {/* Breathing: subtle scaleY on calm moods only; transform-origin at foot of torso */}
         <rect rx="8" x="26" y="64" width="68" height="56"
-          fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1.3"/>
+          fill="url(#lk-ar)" stroke={C.blk} strokeWidth="1.3"
+          style={['neutral','happy','ready','thinking'].includes(mood) ? {
+            animation: 'lk-breathe 3.8s ease-in-out infinite',
+            transformOrigin: '60px 120px',
+          } : undefined}
+        />
         <rect rx="3" x="56" y="70" width="8" height="42"
           fill={C.arHi} stroke={C.arSh} strokeWidth="0.6" opacity="0.5"/>
 
@@ -963,9 +998,9 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
           <circle cx="116" cy="167.5" r="3.5"
             fill="url(#lk-gd)" stroke={C.blk} strokeWidth="0.9"/>
           <path d="M 100.5,171 L 100.5,181 L 103.5,190 L 106.5,181 L 106.5,171 Z"
-            fill="url(#lk-bl)" stroke={C.stl} strokeWidth="0.9"/>
+            fill={swordGrad} stroke={C.stl} strokeWidth="0.9"/>
           <rect rx="0.5" x="101" y="171" width="5" height="19"
-            fill="url(#lk-bl)" stroke={C.stl} strokeWidth="0.9"/>
+            fill={swordGrad} stroke={C.stl} strokeWidth="0.9"/>
           <line x1="103.5" y1="173" x2="103.5" y2="186"
             stroke="rgba(255,255,255,0.72)" strokeWidth="1.4"/>
 
