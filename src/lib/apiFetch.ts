@@ -9,7 +9,7 @@ import { getAuth } from 'firebase/auth';
  * not aborts) with exponential backoff — but only when the caller has NOT
  * provided their own AbortSignal (to respect caller-controlled timeouts).
  */
-export async function apiFetch(url, options = {}) {
+export async function apiFetch(url: string, options: RequestInit = {}): Promise<Response> {
   try {
     const auth = getAuth();
     const user = auth.currentUser;
@@ -20,13 +20,11 @@ export async function apiFetch(url, options = {}) {
         'Authorization': `Bearer ${token}`,
       };
     }
-  } catch (tokenErr) {
-    // Token fetch failed — send request without auth header.
-    // The API will return 401/403 if the endpoint requires authentication.
-    // Dispatch a custom event so AuthGuard/ErrorBoundary can surface this to the user.
-    console.error('[apiFetch] Failed to get auth token:', tokenErr?.message);
+  } catch (tokenErr: unknown) {
+    const err = tokenErr as Error | undefined;
+    console.error('[apiFetch] Failed to get auth token:', err?.message);
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('nh:auth-token-error', { detail: { url, error: tokenErr?.message } }));
+      window.dispatchEvent(new CustomEvent('nh:auth-token-error', { detail: { url, error: err?.message } }));
     }
   }
 
@@ -44,14 +42,14 @@ export async function apiFetch(url, options = {}) {
       const response = await fetch(url, { ...options, signal: controller.signal });
       clearTimeout(timeoutId);
       return response;
-    } catch (err) {
+    } catch (err: unknown) {
       clearTimeout(timeoutId);
       const isNetworkError = err instanceof TypeError;
-      const isAbort = err?.name === 'AbortError';
-      // Don't retry user-aborts or our own 30 s timeout, and don't retry past the limit
+      const isAbort = (err as Error)?.name === 'AbortError';
       if (isAbort || !isNetworkError || attempt === MAX_RETRIES) throw err;
-      // Exponential backoff: 500 ms, 1000 ms
       await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 500));
     }
   }
+  // Should never reach here — loop either returns or throws
+  throw new Error('apiFetch: max retries exceeded');
 }

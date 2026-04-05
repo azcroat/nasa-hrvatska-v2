@@ -1,8 +1,17 @@
-// frequency500.js — 500 most common Croatian words ranked by corpus frequency
+// frequency500.ts — 500 most common Croatian words ranked by corpus frequency
 // Each entry: { rank, hr, en, pos }
 // POS: 'conj' | 'prep' | 'pron' | 'verb' | 'noun' | 'adj' | 'adv' | 'det' | 'num' | 'part' | 'interj'
 
-export const FREQUENCY_500 = [
+export type PartOfSpeech = 'conj' | 'prep' | 'pron' | 'verb' | 'noun' | 'adj' | 'adv' | 'det' | 'num' | 'part' | 'interj';
+
+export interface FrequencyEntry {
+  rank: number;
+  hr: string;
+  en: string;
+  pos: PartOfSpeech;
+}
+
+export const FREQUENCY_500: FrequencyEntry[] = [
   { rank:   1, hr: 'i',          en: 'and',               pos: 'conj' },
   { rank:   2, hr: 'je',         en: 'is',                pos: 'verb' },
   { rank:   3, hr: 'u',          en: 'in / into',         pos: 'prep' },
@@ -505,11 +514,11 @@ export const FREQUENCY_500 = [
   { rank: 500, hr: 'zaključak',  en: 'conclusion',        pos: 'noun' },
 ];
 
-export function getFrequencyWords() {
+export function getFrequencyWords(): FrequencyEntry[] {
   return FREQUENCY_500;
 }
 
-export function getLearnedFrequencyWords() {
+export function getLearnedFrequencyWords(): number[] {
   try {
     return JSON.parse(localStorage.getItem('nh_freq_learned') || '[]');
   } catch {
@@ -517,7 +526,7 @@ export function getLearnedFrequencyWords() {
   }
 }
 
-export function markFrequencyWordLearned(rank) {
+export function markFrequencyWordLearned(rank: number): void {
   try {
     const learned = getLearnedFrequencyWords();
     if (!learned.includes(rank)) {

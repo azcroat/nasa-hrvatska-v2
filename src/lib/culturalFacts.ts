@@ -1,4 +1,9 @@
-export const CULTURAL_FACTS = [
+interface CulturalFact {
+  emoji: string;
+  fact: string;
+}
+
+export const CULTURAL_FACTS: CulturalFact[] = [
   { emoji: '🏖️', fact: 'Croatia has over 1,200 islands — more than any country in the Mediterranean.' },
   { emoji: '🎨', fact: 'The necktie (kravata) was invented by Croatian soldiers in the 17th century — "cravat" comes from "Croat".' },
   { emoji: '⚽', fact: 'Croatia finished 2nd at the 2018 World Cup with a squad smaller than most club teams.' },
@@ -21,7 +26,7 @@ export const CULTURAL_FACTS = [
   { emoji: '🎪', fact: 'Croatian lace-making (čipkarstvo) from Lepoglava and Pag is also on UNESCO\'s Intangible Cultural Heritage list.' },
 ];
 
-export function getDailyFact() {
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 1)) / 86400000);
+export function getDailyFact(): CulturalFact {
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 1).getTime()) / 86400000);
   return CULTURAL_FACTS[dayOfYear % CULTURAL_FACTS.length];
 }

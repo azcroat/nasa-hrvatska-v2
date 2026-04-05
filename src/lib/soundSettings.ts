@@ -1,5 +1,5 @@
-// soundSettings.js — persists user sound and haptic preferences
-const SOUND_KEY = 'nh_sound_enabled';
+// soundSettings.ts — persists user sound and haptic preferences
+const SOUND_KEY  = 'nh_sound_enabled';
 const HAPTIC_KEY = 'nh_haptic_enabled';
 const VOICE_KEY  = 'nh_voice_pref';
 
@@ -7,14 +7,15 @@ const VOICE_KEY  = 'nh_voice_pref';
 //   'gabrijela' — Azure hr-HR-GabrijelaNeural (native Croatian, phonemically accurate) [DEFAULT]
 //   'charlotte' — ElevenLabs Charlotte (natural/modern, slight non-native accent on Croatian)
 //   'auto'      — legacy: Azure for Croatian diacritics, Charlotte otherwise
-export function getVoicePreference() {
+export function getVoicePreference(): string {
   try {
     const v = localStorage.getItem(VOICE_KEY);
     // 'charlotte' is an explicit opt-in; everything else (including 'auto' and unset) → gabrijela
     return v === 'charlotte' ? 'charlotte' : 'gabrijela';
   } catch { return 'gabrijela'; }
 }
-export function setVoicePreference(val) {
+
+export function setVoicePreference(val: string): void {
   try {
     if (val === 'charlotte') {
       localStorage.setItem(VOICE_KEY, val);
@@ -25,36 +26,52 @@ export function setVoicePreference(val) {
   } catch {}
 }
 
-export function isSoundEnabled() {
+export function isSoundEnabled(): boolean {
   try {
     const v = localStorage.getItem(SOUND_KEY);
     return v === null ? true : v === 'true';
   } catch { return true; }
 }
 
-export function setSoundEnabled(val) {
+export function setSoundEnabled(val: boolean): void {
   try { localStorage.setItem(SOUND_KEY, String(val)); } catch {}
 }
 
-export function isHapticEnabled() {
+export function isHapticEnabled(): boolean {
   try {
     const v = localStorage.getItem(HAPTIC_KEY);
     return v === null ? true : v === 'true';
   } catch { return true; }
 }
 
-export function setHapticEnabled(val) {
+export function setHapticEnabled(val: boolean): void {
   try { localStorage.setItem(HAPTIC_KEY, String(val)); } catch {}
 }
 
-let _audioCtx = null;
-function getAudioCtx() {
-  if (!_audioCtx || _audioCtx.state === 'closed') _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+interface AudioWindow {
+  webkitAudioContext?: typeof AudioContext;
+}
+
+let _audioCtx: AudioContext | null = null;
+
+function getAudioCtx(): AudioContext {
+  if (!_audioCtx || _audioCtx.state === 'closed') {
+    const AudioCtx = window.AudioContext || (window as unknown as AudioWindow).webkitAudioContext!;
+    _audioCtx = new AudioCtx();
+  }
   return _audioCtx;
 }
 
+interface PlayToneOptions {
+  freq?: number;
+  type?: OscillatorType;
+  duration?: number;
+  gain?: number;
+  rampTo?: number;
+}
+
 // Play a synthesized tone if sound is enabled
-export function playTone({ freq = 440, type = 'sine', duration = 0.3, gain = 0.18, rampTo = undefined } = {}) {
+export function playTone({ freq = 440, type = 'sine' as OscillatorType, duration = 0.3, gain = 0.18, rampTo }: PlayToneOptions = {}): void {
   if (!isSoundEnabled()) return;
   try {
     const ctx = getAudioCtx();
@@ -62,7 +79,6 @@ export function playTone({ freq = 440, type = 'sine', duration = 0.3, gain = 0.1
     const gainNode = ctx.createGain();
     osc.connect(gainNode);
     gainNode.connect(ctx.destination);
-    // @ts-ignore — type is a valid OscillatorType string (sine/square/sawtooth/triangle)
     osc.type = type;
     osc.frequency.setValueAtTime(freq, ctx.currentTime);
     if (rampTo) osc.frequency.exponentialRampToValueAtTime(rampTo, ctx.currentTime + duration);
@@ -70,19 +86,19 @@ export function playTone({ freq = 440, type = 'sine', duration = 0.3, gain = 0.1
     gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + duration);
-  } catch (e) { /* audio not supported */ }
+  } catch (_) { /* audio not supported */ }
 }
 
-export function playCorrect() {
+export function playCorrect(): void {
   playTone({ freq: 880, rampTo: 1100, duration: 0.35, gain: 0.15 });
 }
 
-export function playWrong() {
+export function playWrong(): void {
   playTone({ freq: 220, type: 'sawtooth', rampTo: 150, duration: 0.3, gain: 0.12 });
 }
 
 // Three-note ascending fanfare — lesson / review completion
-export function playFanfare() {
+export function playFanfare(): void {
   if (!isSoundEnabled()) return;
   try {
     const ctx = getAudioCtx();
@@ -104,7 +120,7 @@ export function playFanfare() {
 }
 
 // Five-note ascending scale — badge / level-up reward
-export function playLevelUp() {
+export function playLevelUp(): void {
   if (!isSoundEnabled()) return;
   try {
     const ctx = getAudioCtx();
@@ -126,7 +142,7 @@ export function playLevelUp() {
 }
 
 // Bright double-ding — streak continuation or correct streak
-export function playStreak() {
+export function playStreak(): void {
   if (!isSoundEnabled()) return;
   try {
     const ctx = getAudioCtx();
@@ -145,7 +161,7 @@ export function playStreak() {
   } catch (_) {}
 }
 
-export function haptic(pattern) {
+export function haptic(pattern: number | number[]): void {
   if (!isHapticEnabled()) return;
-  try { navigator.vibrate?.(pattern); } catch (e) {}
+  try { navigator.vibrate?.(pattern); } catch (_) {}
 }

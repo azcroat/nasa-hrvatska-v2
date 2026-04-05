@@ -4,12 +4,8 @@
  *
  * KnightCompanion (global, in App.jsx) listens for this event and
  * pops up a floating speech bubble above the mini knight button.
- *
- * Usage:
- *   import { knightSpeak } from '../../lib/knightSpeak.js';
- *   knightSpeak('victory', 'Savršeno! Perfect score! 🌟');
  */
-export function knightSpeak(mood, text, delay = 0) {
+export function knightSpeak(mood: string, text: string, delay = 0): void {
   const fire = () => {
     if (typeof window === 'undefined') return;
     window.dispatchEvent(new CustomEvent('knight:speak', { detail: { mood, text } }));
