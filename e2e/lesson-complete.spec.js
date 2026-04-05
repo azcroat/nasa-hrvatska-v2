@@ -18,16 +18,16 @@ test.describe('Full lesson completion flow', () => {
     // Navigate to Learn tab
     await page.getByRole('navigation', { name: 'Main navigation' })
       .getByRole('button', { name: 'Learn', exact: true }).click();
-    await expect(page.getByText(/📚 Vocabulary/)).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('🗺️ My Path')).toBeVisible({ timeout: 5_000 });
   });
 
   test('lesson screen opens from vocabulary category', async ({ page }) => {
-    await page.locator('button.tc').filter({ hasText: /\d+ words/ }).first().click();
+    await page.locator('button.vocab-pill').first().click();
     await expect(page.getByText('Quiz Me! →')).toBeVisible({ timeout: 5_000 });
   });
 
   test('lesson shows word cards before quiz mode', async ({ page }) => {
-    await page.locator('button.tc').filter({ hasText: /\d+ words/ }).first().click();
+    await page.locator('button.vocab-pill').first().click();
     await expect(page.getByText('Quiz Me! →')).toBeVisible({ timeout: 5_000 });
     // Should show the learn card content — at least one Croatian word visible
     const card = page.locator('.lc, [class*="lesson"], [class*="card"]').first();
@@ -35,7 +35,7 @@ test.describe('Full lesson completion flow', () => {
   });
 
   test('clicking Quiz Me! transitions to quiz mode', async ({ page }) => {
-    await page.locator('button.tc').filter({ hasText: /\d+ words/ }).first().click();
+    await page.locator('button.vocab-pill').first().click();
     await expect(page.getByText('Quiz Me! →')).toBeVisible({ timeout: 5_000 });
     await page.getByText('Quiz Me! →').click();
     // Quiz mode shows "What does this mean?" or similar prompt
@@ -43,7 +43,7 @@ test.describe('Full lesson completion flow', () => {
   });
 
   test('answering a quiz question shows feedback', async ({ page }) => {
-    await page.locator('button.tc').filter({ hasText: /\d+ words/ }).first().click();
+    await page.locator('button.vocab-pill').first().click();
     await page.getByText('Quiz Me! →').click();
     await expect(page.getByText(/What does|Which means|Translate/i)).toBeVisible({ timeout: 5_000 });
     // Click the first answer option
@@ -54,7 +54,7 @@ test.describe('Full lesson completion flow', () => {
   });
 
   test('completing quiz shows results screen', async ({ page }) => {
-    await page.locator('button.tc').filter({ hasText: /\d+ words/ }).first().click();
+    await page.locator('button.vocab-pill').first().click();
     await page.getByText('Quiz Me! →').click();
     await expect(page.getByText(/What does|Which means|Translate/i)).toBeVisible({ timeout: 5_000 });
 
@@ -84,7 +84,7 @@ test.describe('Full lesson completion flow', () => {
   });
 
   test('XP is saved to localStorage after completing a quiz', async ({ page }) => {
-    await page.locator('button.tc').filter({ hasText: /\d+ words/ }).first().click();
+    await page.locator('button.vocab-pill').first().click();
     await page.getByText('Quiz Me! →').click();
     await expect(page.getByText(/What does|Which means|Translate/i)).toBeVisible({ timeout: 5_000 });
 
@@ -128,7 +128,7 @@ test.describe('Full lesson completion flow', () => {
       catch { return 0; }
     }, TEST_EMAIL);
 
-    await page.locator('button.tc').filter({ hasText: /\d+ words/ }).first().click();
+    await page.locator('button.vocab-pill').first().click();
     await page.getByText('Quiz Me! →').click();
     await expect(page.getByText(/What does|Which means|Translate/i)).toBeVisible({ timeout: 5_000 });
 
@@ -152,7 +152,7 @@ test.describe('Full lesson completion flow', () => {
   });
 
   test('rapid clicks on See Results only award XP once (double-award guard)', async ({ page }) => {
-    await page.locator('button.tc').filter({ hasText: /\d+ words/ }).first().click();
+    await page.locator('button.vocab-pill').first().click();
     await page.getByText('Quiz Me! →').click();
     await expect(page.getByText(/What does|Which means|Translate/i)).toBeVisible({ timeout: 5_000 });
 

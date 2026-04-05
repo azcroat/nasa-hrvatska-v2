@@ -32,7 +32,7 @@ test.describe('Tab navigation', () => {
     await clickTab(page, 'Learn');
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
     await expect(nav.getByRole('button', { name: 'Learn', exact: true })).toHaveClass(/active/);
-    await expect(page.getByText(/📚 Vocabulary/)).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('🗺️ My Path')).toBeVisible({ timeout: 5_000 });
   });
 
   test('navigates to Practice tab and shows practice options', async ({ page }) => {
