@@ -67,7 +67,7 @@ export function useAward({ curEx, stats, setStats, writeDelta }: { curEx: string
       const n = { ...s, xp: Math.max(0, (s.xp || 0) + totalAmt), streak: (getStreak() || { count: 0 }).count };
       // streak will be updated by updateStreak() below — keep n.streak consistent
       const badges = Array.isArray(s.badges) ? s.badges : [];
-      const nb = BADGES.filter((b: { id: string; r: (s: Stats) => boolean }) => {
+      const nb = (BADGES as unknown as Array<{ id: string; r: (s: Stats) => boolean }>).filter((b) => {
         if (badges.includes(b.id)) return false;
         try { return b.r(n); } catch { return false; }
       });

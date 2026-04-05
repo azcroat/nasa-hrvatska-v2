@@ -17,6 +17,7 @@ import {
   fbLogin, fbRegister, fbLogout, fbLoginGoogle, fbResetPassword,
   fbLoadProgress, fbLoadUserFamily, fbOnAuthStateChanged,
   initFirebase, getLocalFamily, saveLocalFamily, fbSaveProgress,
+  type FamilyData,
 } from '../lib/firebase.js';
 import { updateStreak } from '../lib/appUtils.js';
 import type { AuthUser } from '../types/index.js';
@@ -129,7 +130,7 @@ export function useAuth({
       }
     }, 8000);
 
-    const unsub = fbOnAuthStateChanged(function(fbUser: Record<string, unknown> | null) {
+    const unsub = fbOnAuthStateChanged(function(fbUser) {
       authFired = true;
       clearTimeout(authFallbackTimer);
       if (!fbUser) {
@@ -165,9 +166,9 @@ export function useAuth({
         cb.current.setSyncReady(true);
         setAuthScreen('app');
         if (offlineProgress) {
-          fbSaveProgress(k, offlineProgress).catch(function() {});
+          fbSaveProgress(k, offlineProgress as Record<string, unknown>).catch(function() {});
         }
-        if (fbUser && !(fbUser.emailVerified as boolean) && (fbUser.providerData as unknown[]) && (fbUser.providerData as Record<string, unknown>[])[0] && ((fbUser.providerData as Record<string, unknown>[])[0] as Record<string, unknown>).providerId !== 'google.com') {
+        if (fbUser && !fbUser.emailVerified && fbUser.providerData?.length && fbUser.providerData[0]?.providerId !== 'google.com') {
           setEmailUnverified(true);
         }
         return;
@@ -185,7 +186,7 @@ export function useAuth({
 
       fbLoadUserFamily(k).then(function(f: unknown) {
         if (f) {
-          saveLocalFamily(f);
+          saveLocalFamily(f as FamilyData);
           cb.current.setFamData(f);
         }
       });
