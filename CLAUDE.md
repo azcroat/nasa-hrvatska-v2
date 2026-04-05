@@ -342,3 +342,293 @@ git push origin master
 | PostHog | Product analytics | `VITE_POSTHOG_KEY` |
 | Resend | Transactional email | `RESEND_API_KEY` |
 | Deepgram | Speech-to-text | `DEEPGRAM_API_KEY` |
+
+---
+
+## Anthropic Skills Reference
+
+Skills are specialized instruction sets that define how to handle specific task types. When a task matches a skill's domain, apply its rules exactly — they override generic defaults.
+
+---
+
+### skill-creator
+**Trigger:** User asks you to create or design a new skill / SKILL.md file.
+
+**Rules:**
+- Every skill has YAML frontmatter (`name`, `description`) followed by a markdown body
+- Body must define: trigger conditions, workflow steps, output format, critical constraints
+- Test the skill by mentally executing it against 3 realistic user prompts before finalizing
+- Skills are platform-aware — note if behavior differs between Claude.ai, API, and Claude Code
+
+---
+
+### frontend-design
+**Trigger:** Building any UI, component, or visual feature — including in this app.
+
+**Rules:**
+- Commit to a bold, specific aesthetic direction — no generic "clean modern" cop-outs
+- Choose unique, distinctive fonts; avoid Inter, Roboto, and purple gradient defaults
+- Use a dominant hue + sharp accent; cohesive palette over variety
+- Staggered reveal animations on load; prefer asymmetric/grid-breaking layouts over centered stacks
+- **Explicitly avoid:** generic AI aesthetics, purple gradients, Inter font overuse, cookie-cutter card grids
+- Production-grade code only — no placeholder lorem ipsum, no TODO stubs shipped
+
+**Applied to this project:** The app uses its own design system (CSS classes like `exercise-card`, `vocab-pill`, `fc-card`, `ob`, `b bp`). Match existing conventions; don't introduce Tailwind or shadcn unless explicitly asked.
+
+---
+
+### webapp-testing
+**Trigger:** Writing or debugging Playwright E2E tests, or any automated browser testing task.
+
+**Rules:**
+- Decision tree: static HTML → inspect directly; dynamic app → start dev server first
+- Always use `page.waitForLoadState('networkidle')` or explicit role/text waits before assertions — never fixed `waitForTimeout` except as last resort
+- Selector priority: `getByRole` (accessibility) → `getByText` → CSS class → ID
+- `getByRole('button', { name: 'X', exact: true })` requires the accessible name to be EXACTLY "X" — if the button has emoji or extra text in its label, use `exact: false` (default) or regex
+- Close/restore browser context between tests; never share state across test boundaries
+- Screenshot on failure for debugging; use `--headed` mode when selector hunting
+
+**Applied to this project:** See the MANDATORY E2E Spec Audit section above. This project's E2E suite is at `e2e/` using Playwright with `@playwright/test`. Fixtures are in `e2e/fixtures/seed-auth.js`.
+
+---
+
+### claude-api
+**Trigger:** Building or modifying any feature that calls the Anthropic API (AI Tutor, story generation, explanations in `functions/api/`).
+
+**Rules:**
+- **Default model:** `claude-opus-4-6` (most capable; use this unless cost is a hard constraint)
+- **Thinking:** Use `{type: "adaptive"}` for complex reasoning tasks
+- **Streaming:** Default for any response >500 tokens or latency-sensitive UX
+- **Never** set `budget_tokens` on Opus 4.6 or Sonnet 4.6 — it's not supported
+- Detect language from project files (this project uses JavaScript/TypeScript)
+- Surface decision: single call → workflow → agent (escalate only when simpler won't work)
+
+**Applied to this project:** API calls live in `functions/api/ai-chat.js` (AI Tutor) and related endpoints. API key is `ANTHROPIC_API_KEY` in Cloudflare env vars — never in source code.
+
+---
+
+### xlsx
+**Trigger:** Creating, editing, or analyzing any `.xlsx`, `.xlsm`, `.csv`, or `.tsv` file (investment models, financial data).
+
+**Rules:**
+- Zero formula errors permitted: no `#REF!`, `#DIV/0!`, `#VALUE!`, `#N/A`, `#NAME?`
+- Color coding standard: **blue** = inputs, **black** = formulas, **green** = internal links, **red** = external links, **yellow** = key assumptions
+- Never hardcode a value that should be a formula — always cell-reference formulas
+- Tool choice: pandas for analysis/data manipulation; openpyxl for formulas + formatting
+- **Mandatory final step:** Run `python scripts/recalc.py output.xlsx` to calculate all formulas before delivering
+- Deliverable is always a spreadsheet file — never HTML, Word, or a script
+
+---
+
+### pdf
+**Trigger:** Reading, extracting from, or creating PDF files.
+
+**Rules:**
+- **Read/extract:** Use `pdfplumber` (text + table extraction with layout awareness), `pypdf` (merge/split/rotate/encrypt)
+- **OCR:** `pytesseract` + `pdf2image` for scanned documents
+- **Create:** `reportlab` for programmatic PDF generation
+- **Critical:** Never use Unicode subscript chars (₀₁₂₃) in reportlab — use `<sub>`/`<super>` XML tags inside Paragraph objects
+- CLI tools available: `pdftotext`, `qpdf`, `pdftk`
+
+---
+
+### pptx
+**Trigger:** Creating, reading, editing, or combining `.pptx` PowerPoint files.
+
+**Rules:**
+- **Read:** `python -m markitdown` or unpack to XML
+- **Create:** PptxGenJS (JavaScript) or python-pptx
+- **Edit:** unpack → manipulate XML → repack
+- Design standards: 60–70% dominant color, dark title / light content contrast, one visual motif, varied layouts, 0.5" margins, 36–44pt titles / 14–16pt body
+- QA checklist: check overlaps, text overflow, alignment, contrast, placeholder remnants before delivering
+- No accent lines under titles; no wall-of-text slides
+
+---
+
+### docx
+**Trigger:** Creating, editing, or reading `.docx` Word documents.
+
+**Rules:**
+- **Read:** pandoc or XML unpacking
+- **Create/edit:** docx-js (JavaScript) or python-docx
+- Always set page size explicitly: US Letter = 12240×15840 DXA; A4 = 11906×16838 DXA
+- Use `WidthType.DXA` for table widths — never PERCENTAGE
+- Never use unicode bullet characters — use `LevelFormat.BULLET`
+- Smart quotes via XML entities (`&#x201C;` `&#x201D;` `&#x2018;` `&#x2019;`)
+- `PageBreak` must nest inside a `Paragraph` object — never standalone
+
+---
+
+### mcp-builder
+**Trigger:** Building a Model Context Protocol (MCP) server.
+
+**Four-phase workflow:**
+1. **Research & Planning** — study MCP spec at `modelcontextprotocol.io`, choose TypeScript (recommended) or Python, plan tool coverage
+2. **Implementation** — project structure, API client/auth/error utilities, tool schemas with Zod (TS) or Pydantic (Python), include `outputSchema`/`structuredContent`, add annotations (`readOnlyHint`, `destructiveHint`)
+3. **Review & Test** — DRY/type coverage, test with MCP Inspector (`npx @modelcontextprotocol/inspector`)
+4. **Evaluations** — write 10 complex realistic questions to verify tool coverage
+
+**Stack:** TypeScript + Streamable HTTP (stateless JSON) for remote servers; stdio for local tools.
+
+---
+
+### web-artifacts-builder
+**Trigger:** Building complex self-contained HTML artifacts for Claude.ai.
+
+**Stack:** React + TypeScript (Vite), Tailwind CSS 3.4.1, shadcn/ui (40+ components), Parcel bundling.
+
+**Workflow:**
+1. `scripts/init-artifact.sh <project-name>` — scaffold
+2. Edit source files
+3. `scripts/bundle-artifact.sh` — creates self-contained `bundle.html`
+4. Present bundle to user
+
+**Design rules:** Avoid centered layouts, purple gradients, uniform rounded corners, Inter font. Apply `frontend-design` skill rules.
+
+---
+
+### canvas-design
+**Trigger:** Creating visual artwork, design compositions, or museum-quality visual outputs.
+
+**Two-stage process:**
+1. Write a design philosophy document (4–6 paragraphs: form, space, color, composition)
+2. Express the philosophy as a visual output (`.pdf` or `.png`) — 90% visual, 10% text
+
+Output is museum-quality. Minimal text, no overlapping elements, iterative polish. Both deliverables are separate downloadable files.
+
+---
+
+### algorithmic-art
+**Trigger:** Generating computational/generative art using p5.js.
+
+**Two-phase workflow:**
+1. Develop a computational aesthetic philosophy (4–6 paragraphs)
+2. Express it as a p5.js generative art HTML artifact
+
+**Fixed elements:** Anthropic branding (Poppins/Lora fonts), sidebar with Seed/Parameters/Colors/Actions, seed navigation. Canvas is 1200×1200px. Fully self-contained HTML. Seed-based reproducibility (Art Blocks pattern). "Beauty lives in the process."
+
+---
+
+### theme-factory
+**Trigger:** User wants to apply a visual theme to an artifact or interface, or explore color/font combinations.
+
+**10 preset themes:** Ocean Depths, Forest Dawn, Midnight Galaxy, Desert Sunset, Arctic Frost, Urban Concrete, Tropical Bloom, Vintage Paper, Neon Cyberpunk, Mountain Mist.
+
+**Workflow:** View showcase → select theme → confirm → apply consistently (hex palette + font pairings from themes directory). Custom themes also supported.
+
+---
+
+### brand-guidelines
+**Trigger:** Any work using Anthropic brand assets, colors, or typography.
+
+**Anthropic official palette:**
+- Dark: `#141413`
+- Light: `#faf9f5`
+- Orange: `#d97757`
+- Blue: `#6a9bcc`
+- Green: `#788c5d`
+
+**Typography:** Headings → Poppins (Arial fallback); Body → Lora (Georgia fallback). Accent colors for non-text shapes only.
+
+---
+
+### doc-coauthoring
+**Trigger:** Collaboratively writing, refining, or structuring documents with the user.
+
+**Three-stage workflow:**
+1. **Context Gathering** — understand audience, purpose, tone, length constraints
+2. **Refinement & Structure** — outline → draft → iterate with user feedback
+3. **Reader Testing** — review from target reader's perspective before finalizing
+
+Manage artifacts iteratively; never overwrite a draft without preserving the previous version in the conversation.
+
+---
+
+### internal-comms
+**Trigger:** Writing internal company communications (status updates, newsletters, incident reports, FAQs).
+
+**Format types:**
+- **3P updates:** Progress / Plans / Problems (bullet structure)
+- **Company newsletters:** Section headers, key highlights, action items
+- **FAQ responses:** Q&A pairs, concise and scannable
+- **Status/leadership updates:** Executive summary first, detail below
+- **Incident reports:** Timeline, impact, root cause, resolution, prevention
+
+**Workflow:** Identify communication type → load matching format guideline → follow structure. If type is ambiguous, ask for clarification.
+
+---
+
+### slack-gif-creator
+**Trigger:** Creating animated GIFs for Slack (emoji reactions or message GIFs).
+
+**Specs:**
+- Emoji GIFs: 128×128px, <3s duration
+- Message GIFs: 480×480px
+- Frame rate: 10–30 FPS, 48–128 color palette
+
+**Utilities:** GIFBuilder (assemble/optimize), Validators (`validate_gif`, `is_slack_ready`), Easing Functions (`ease_out`, `bounce_out`, `elastic_out`). Animation types: shake, pulse, bounce, rotation, fade, slide, zoom, particle burst. Uses PIL primitives only.
+
+---
+
+### performance-optimization
+**Trigger:** User asks you to review, audit, or optimize code for performance.
+
+**Analyze all of these areas:**
+
+**Database & Data Access**
+- N+1 query problems and missing eager loading
+- Missing database indexes on frequently queried columns
+- Inefficient joins or subqueries
+- Missing pagination on large result sets
+- Absent query result caching
+- Connection pooling issues
+
+**Algorithm Efficiency**
+- O(n²) or worse time complexity when better exists
+- Nested loops that could be optimized
+- Redundant calculations or repeated work
+- Inefficient data structure choices
+- Missing memoization or dynamic programming
+
+**Memory Management**
+- Memory leaks or retained references
+- Loading entire datasets when streaming is possible
+- Excessive object instantiation in loops
+- Large data structures kept in memory unnecessarily
+
+**Async & Concurrency**
+- Blocking I/O that should be async
+- Sequential operations that could run in parallel
+- Missing `Promise.all()` or concurrent execution patterns
+- Synchronous file operations
+
+**Network & I/O**
+- Excessive API calls (missing request batching)
+- No response caching strategy
+- Large payloads without compression
+- Missing CDN usage for static assets
+
+**Frontend Performance**
+- Render-blocking JavaScript or CSS
+- Missing code splitting or lazy loading
+- Unoptimized images or assets
+- Excessive DOM manipulations or reflows
+- Missing virtualization for long lists
+- No debouncing/throttling on expensive operations
+
+**Caching**
+- Missing HTTP caching headers
+- No application-level caching layer
+- Absent memoization for pure functions
+- Static assets without cache busting
+
+**Output format for each issue:**
+1. **Issue** — describe the performance problem
+2. **Location** — file/function/line numbers
+3. **Impact** — severity (Critical/High/Medium/Low) + expected degradation
+4. **Current Complexity** — time/space complexity where applicable
+5. **Recommendation** — specific optimization strategy
+6. **Code Example** — optimized version
+7. **Expected Improvement** — quantify gains if measurable
+
+If code is well-optimized: confirm status, list properly implemented best practices, note minor improvements possible.
