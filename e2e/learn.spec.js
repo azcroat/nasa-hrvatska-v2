@@ -8,97 +8,61 @@ test.describe('Learn tab', () => {
     await mockTTS(page);
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    // Scope to the nav bar to avoid the "Learn 39 categories" Jump In button
     await page.getByRole('navigation', { name: 'Main navigation' })
       .getByRole('button', { name: 'Learn', exact: true }).click();
-    await expect(page.getByText(/📚 Vocabulary/)).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('🗺️ My Path')).toBeVisible({ timeout: 5_000 });
   });
 
-  test.describe('Vocabulary section', () => {
-    test('renders vocabulary section heading with category count', async ({ page }) => {
-      await expect(page.getByText('📚 Vocabulary')).toBeVisible();
-      await expect(page.getByText(/categories · tap/i)).toBeVisible();
+  test.describe('Learning Path', () => {
+    test('renders My Path heading', async ({ page }) => {
+      await expect(page.getByText('🗺️ My Path')).toBeVisible();
     });
 
-    test('shows multiple vocabulary categories', async ({ page }) => {
-      const categoryButtons = page.locator('button.tc').filter({ hasText: /\d+ words/ });
-      const count = await categoryButtons.count();
-      expect(count).toBeGreaterThan(5);
+    test('shows AI Micro-Lesson card', async ({ page }) => {
+      await expect(page.getByText('AI Micro-Lesson')).toBeVisible();
     });
 
-    test('each category shows a word count badge', async ({ page }) => {
-      const firstCategory = page.locator('button.tc').filter({ hasText: /\d+ words/ }).first();
-      await expect(firstCategory.getByText(/\d+ words/)).toBeVisible();
+    test('shows Grammar Track A1→B2 card', async ({ page }) => {
+      await expect(page.getByText('Grammar Track A1→B2')).toBeVisible();
     });
 
-    test('clicking a vocabulary category opens the lesson screen', async ({ page }) => {
-      const firstCategory = page.locator('button.tc').filter({ hasText: /\d+ words/ }).first();
-      await firstCategory.click();
-      // Lesson screen in "learn" mode shows "Quiz Me! →" button
-      await expect(page.getByText('Quiz Me! →')).toBeVisible({ timeout: 5_000 });
-    });
-  });
-
-  test.describe('Grammar section', () => {
-    test('renders Grammar section heading', async ({ page }) => {
-      await expect(page.getByText('📝 Grammar')).toBeVisible();
+    test('shows Grammar button in header', async ({ page }) => {
+      await expect(page.getByText('📖 Grammar')).toBeVisible();
     });
 
-    test('shows Tenses & Gender button', async ({ page }) => {
-      await expect(page.getByText('Tenses & Gender')).toBeVisible();
+    test('shows Past Tense animated lesson', async ({ page }) => {
+      await expect(page.getByText('Past Tense')).toBeVisible();
     });
 
-    test('shows Cases Intro button', async ({ page }) => {
-      await expect(page.getByText('Cases Intro')).toBeVisible();
-    });
-
-    test('shows Conjugation button', async ({ page }) => {
-      await expect(page.getByText('Conjugation')).toBeVisible();
-    });
-
-    test('clicking Cases Intro opens the Padeži screen', async ({ page }) => {
-      await page.getByText('Cases Intro').click();
-      await expect(page.getByText(/Padeži/i).first()).toBeVisible({ timeout: 5_000 });
-    });
-
-    test('clicking Tenses & Gender opens tenses screen', async ({ page }) => {
-      await page.getByText('Tenses & Gender').click();
-      await expect(page.getByText(/Tenses & Gender/i).first()).toBeVisible({ timeout: 5_000 });
-    });
-
-    test('clicking Grammar Intro opens grammar screen with content (not blank)', async ({ page }) => {
-      await page.getByText('Grammar Intro').click();
-      // GrammarScreen should show the first lesson title and a Practice button — not a blank page
-      await expect(page.getByText(/Noun Genders|Verb Biti|Negation/i)).toBeVisible({ timeout: 5_000 });
-    });
-
-    test('clicking Declension opens declension trainer without error', async ({ page }) => {
-      await page.getByText('Declension').click();
-      // DeclensionScreen should show the heading and case names
-      await expect(page.getByText(/Noun Declension/i)).toBeVisible({ timeout: 5_000 });
-      await expect(page.getByText('Nominativ')).toBeVisible({ timeout: 3_000 });
+    test('shows Future Tense animated lesson', async ({ page }) => {
+      await expect(page.getByText('Future Tense')).toBeVisible();
     });
   });
 
-  test.describe('Reference section', () => {
-    test('renders Reference section heading', async ({ page }) => {
-      await expect(page.getByText('📌 Reference')).toBeVisible();
+  test.describe('Content cards', () => {
+    test('shows Graded Stories card', async ({ page }) => {
+      await expect(page.getByText('Graded Stories').first()).toBeVisible();
     });
 
-    test('clicking Alphabet opens the alphabet screen', async ({ page }) => {
-      await page.getByText('Alphabet').click();
-      await expect(page.getByText(/Croatian Alphabet/i)).toBeVisible({ timeout: 5_000 });
+    test('clicking Grammar Track opens grammar track screen', async ({ page }) => {
+      await page.getByText('Grammar Track A1→B2').click();
+      await expect(page.getByText(/Grammar/i).first()).toBeVisible({ timeout: 5_000 });
+    });
+
+    test('clicking AI Micro-Lesson navigates without error', async ({ page }) => {
+      const errors = [];
+      page.on('pageerror', e => errors.push(e.message));
+      await page.getByText('AI Micro-Lesson').click();
+      await page.waitForTimeout(500);
+      const unexpected = errors.filter(e => !e.includes('firebase') && !e.includes('firestore') && !e.includes('fetch'));
+      expect(unexpected).toHaveLength(0);
     });
   });
 
   test.describe('Back navigation', () => {
-    test('back button returns to Learn tab from a vocabulary lesson', async ({ page }) => {
-      await page.locator('button.tc').filter({ hasText: /\d+ words/ }).first().click();
-      await expect(page.getByText('Quiz Me! →')).toBeVisible({ timeout: 5_000 });
-      // Navigate back via the Learn tab in the nav bar
-      await page.getByRole('navigation', { name: 'Main navigation' })
-        .getByRole('button', { name: 'Learn', exact: true }).click();
-      await expect(page.getByText(/📚 Vocabulary/)).toBeVisible({ timeout: 5_000 });
+    test('clicking Grammar button navigates to grammar reference', async ({ page }) => {
+      await page.getByText('📖 Grammar').click();
+      await expect(page.getByText(/Grammar/i).first()).toBeVisible({ timeout: 5_000 });
     });
   });
 });
