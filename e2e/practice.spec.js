@@ -36,7 +36,8 @@ test.describe('Practice tab', () => {
     });
 
     test('shows Review panel with Flashcards option', async ({ page }) => {
-      await page.getByRole('button', { name: 'Review' }).click();
+      // Use the intent-tile row's Review button (exact label match to avoid Today's Pick cards containing "Review")
+      await page.getByRole('button', { name: /^🔁\s*Review$/i }).click();
       await expect(page.getByText('Flashcards')).toBeVisible({ timeout: 3_000 });
     });
   });
