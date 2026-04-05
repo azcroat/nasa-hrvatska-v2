@@ -2004,3 +2004,108 @@ dlv debug ./cmd/server           # break main.go:55 | continue | print var
 7. **Expected Improvement** — quantify gains if measurable
 
 If code is well-optimized: confirm status, list properly implemented best practices, note minor improvements possible.
+
+---
+
+### hooked-ux
+**Trigger:** User mentions "users aren't coming back", "engagement loops", "habit formation", "push notifications", "variable rewards", or asks about retention mechanics.
+
+**Framework: The Hook Model** — four-phase process connecting user's problem to solution frequently enough to form a habit.
+
+```
+Trigger → Action → Variable Reward → Investment → (loads next Trigger)
+```
+
+**The Four Phases:**
+1. **Trigger** — External (push, email, buttons) early on; goal is Internal (emotions, routines). Map product to a specific negative emotion it resolves. Never exploit vulnerable emotional states.
+2. **Action** — B = MAP (Behavior = Motivation + Ability + Prompt). Reducing friction beats increasing motivation. Six simplicity factors: time, money, physical effort, brain cycles, social deviance, non-routine.
+3. **Variable Reward** — Three types: Tribe (social validation), Hunt (resources/info), Self (personal mastery). Variability sustains engagement; predictability kills it. If users feel worse after engaging = extractive.
+4. **Investment** — Time, data, effort, social capital, money that improves the product for next use. Investment comes AFTER reward, never before. Each investment loads the next trigger.
+
+**Habit Zone:** High perceived value + High frequency = Habit Zone.
+
+**Manipulation Matrix:**
+- Maker uses + Improves life = **Facilitator** (ethical goal)
+- Maker uses + Doesn't improve = **Entertainer**
+- Maker doesn't use + Improves life = **Peddler**
+- Maker doesn't use + Doesn't improve = **Dealer** (unethical)
+
+**Onboarding audit:** First action obvious? Core action < 60s? Immediate feedback? Variable element? Investment after reward? Investment small but meaningful? Investment loads next trigger?
+
+---
+
+### design-sprint
+**Trigger:** User wants to validate a product idea, run a design sprint, prototype quickly, or mentions "5-day sprint", "Jake Knapp", "design thinking structured process".
+
+**Framework: 5-Day Google Ventures Design Sprint**
+
+- **Monday (Map):** Long-term goal → "How Might We" notes → map the challenge → pick a target
+- **Tuesday (Sketch):** Lightning demos (competitive research) → 4-step sketch: notes, ideas, crazy 8s, solution sketch
+- **Wednesday (Decide):** Art museum critique → heat map voting → straw poll → supervote → storyboard (15 frames)
+- **Thursday (Prototype):** Divide & conquer — assign roles: Makers (2-3), Stitcher, Writer, Asset Collector, Interviewer
+- **Friday (Test):** 5 user interviews (30-60 min each). 5 users = enough to spot patterns. Observer notes on sticky notes.
+
+**Scoring 0-10:** Rate sprint fidelity; provide specific improvements to reach 10/10.
+
+**Variations:** 4-Day (compress Mon+Tue), Remote (Miro/Figma, async sketching), Multi-Sprint (when one sprint isn't enough).
+
+**Common mistake:** Skipping user research before the sprint (mapping phase). Skipping real user interviews on Friday. Making the prototype too polished (Goldilocks fidelity: believable but fast to build).
+
+---
+
+### ux-heuristics
+**Trigger:** User asks for a UX/UI review, usability audit, heuristic evaluation, or mentions "don't make me think", "Nielsen heuristics", "usability problems".
+
+**Core principle:** Don't Make Me Think (Steve Krug). Scoring goal: 10/10.
+
+**Krug's 3 Laws + Trunk Test:**
+1. Don't make me think — every ? = cognitive friction
+2. Clicks don't matter; confidence per click does
+3. Get rid of half the words (then half again)
+4. **Trunk Test:** Can a blindfolded user answer: What site is this? What page? Major sections? Options here? Where am I? How to search?
+
+**Nielsen's 10 Heuristics:**
+1. Visibility of system status
+2. Match between system and real world
+3. User control and freedom
+4. Consistency and standards
+5. Error prevention
+6. Recognition over recall
+7. Flexibility and efficiency of use
+8. Aesthetic and minimalist design
+9. Help users recognize, diagnose, and recover from errors
+10. Help and documentation
+
+**Severity scale:** 0 = not a problem; 1 = cosmetic; 2 = minor; 3 = major; 4 = catastrophic.
+
+**Common mistakes:** Asking for registration before value is shown; error messages that blame users; no undo; inconsistent labels for same action; search that requires exact spelling.
+
+---
+
+### ios-development
+**Trigger:** User asks about iOS app development, Swift/SwiftUI patterns, HIG compliance, App Store submission, or any Apple platform development.
+
+**Core skill set (rshankras/claude-code-apple-skills):**
+
+**Architecture:** MVVM + Clean Architecture. Separate View/ViewModel/Model. Protocol-based services for testability. `@Observable` (iOS 17+) or `ObservableObject`.
+
+**SwiftUI patterns:** Use `NavigationStack` (not `NavigationView`). `TabView` with `.tabViewStyle(.automatic)`. Prefer `@State`/`@Binding` over global state. `task {}` modifier for async work.
+
+**HIG compliance:** Dynamic Type support required. VoiceOver labels on all interactive elements. Minimum 44pt touch targets. Respect `@Environment(\.colorScheme)` for dark mode.
+
+**Generators available (52+ components):** onboarding-generator, paywall-generator, auth-flow, networking-layer, push-notifications, deep-linking, streak-tracker, subscription-lifecycle, settings-screen, test-generator, widget-generator, live-activity-generator, offline-queue, and 40+ more. When user asks to build any of these, generate production-ready Swift code.
+
+**Apple Intelligence (iOS 26+ / macOS 26+):** Foundation Models — on-device LLM via `LanguageModelSession`. Max 4,096 token context. Use `@Generable` for structured output. Always check availability + provide fallback. Privacy-first: never send data off-device via Foundation Models.
+
+**Liquid Glass (iOS 26+ / macOS 26+):** `.glassEffect()` SwiftUI modifier. Morphing transitions via `MorphingSymbolEffect`. Only for iOS 26+ — always gate with `#available`.
+
+**Security:** Keychain for secrets (never UserDefaults). Face ID/Touch ID via `LAContext`. Certificate pinning for sensitive APIs. App Transport Security (ATS) always on.
+
+**Monetization:** StoreKit 2 for subscriptions. Freemium + subscription is standard. 30% Apple cut (15% Small Business). Free trial: 7 days (utility) / 14 days (productivity) / 30 days (complex apps).
+
+**Pre-release checklist:** Privacy Manifest (iOS 17+), code signing, bundle ID, Privacy Nutrition Label, App Review Guidelines §3, no private APIs.
+
+**watchOS:** `NavigationStack` + `TabView(.verticalPage)`. Watch Connectivity via `WCSession`. WidgetKit complications: `accessoryCircular`, `accessoryRectangular`, `accessoryCorner`, `accessoryInline`.
+
+---
+
