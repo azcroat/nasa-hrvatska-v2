@@ -570,6 +570,53 @@ Manage artifacts iteratively; never overwrite a draft without preserving the pre
 
 ---
 
+### debugging-wizard
+**Trigger:** Investigating errors, analyzing stack traces, finding root causes of unexpected behavior, troubleshooting crashes, log analysis, or any "not working / bug / exception / crash" request.
+
+**Core workflow (always in this order):**
+1. **Reproduce** — establish consistent reproduction steps before touching code
+2. **Isolate** — narrow to smallest failing case
+3. **Hypothesize & test** — one theory at a time; verify or disprove before moving on
+4. **Fix** — implement and verify solution
+5. **Prevent** — add regression test / safeguard
+
+**MUST DO:**
+- Gather complete error messages and stack traces before forming hypotheses
+- Test one hypothesis at a time — never make multiple changes simultaneously
+- Remove all debug code (`console.log`, `debugger`, `pdb.set_trace()`) before committing
+
+**MUST NOT DO:**
+- Guess without testing
+- Assume cause without evidence
+- Debug in production without safeguards
+- Leave debug statements in committed code
+
+**Key debugging commands:**
+```bash
+# Python
+python -m pdb script.py          # b 42 | n | s | p var | bt
+
+# JavaScript (Node)
+node --inspect-brk script.js     # attach Chrome DevTools at chrome://inspect
+
+# Git bisect (regression hunting)
+git bisect start
+git bisect bad                   # current commit broken
+git bisect good v1.2.0           # last known good
+# test midpoint → git bisect good/bad → repeat → git bisect reset
+
+# Go
+dlv debug ./cmd/server           # break main.go:55 | continue | print var
+```
+
+**Output format for every bug investigation:**
+1. **Root Cause** — what specifically caused the issue
+2. **Evidence** — stack trace, log line, or failing test that proves it
+3. **Fix** — exact code change
+4. **Prevention** — regression test or safeguard to add
+
+---
+
 ### performance-optimization
 **Trigger:** User asks you to review, audit, or optimize code for performance.
 
