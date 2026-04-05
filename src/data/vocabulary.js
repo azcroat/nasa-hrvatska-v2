@@ -219,7 +219,7 @@ export const COUNTRIES = {
     { country:"Portugal", en:"Portugal", adj_m:"portugalski", adj_f:"portugalska", adj_n:"portugalsko", dem_m:"Portugálac", dem_f:"Portugalka", flag:"🇵🇹" },
     { country:"Engleska / UK", en:"England / UK", adj_m:"engleski", adj_f:"engleska", adj_n:"englesko", dem_m:"Englez", dem_f:"Engleskinja", flag:"🇬🇧", note:"UK = Ujedinjeno Kraljevstvo" },
     { country:"Amerika (SAD)", en:"USA", adj_m:"američki", adj_f:"američka", adj_n:"američko", dem_m:"Amerikanac", dem_f:"Amerikanka", flag:"🇺🇸", note:"SAD = Sjedinjene Američke Države" },
-    { country:"Kanada", en:"Canada", adj_m:"kanadski", adj_f:"kanadska", adj_n:"kanadsko", dem_m:"Kanaðanin", dem_f:"Kanađanka", flag:"🇨🇦" },
+    { country:"Kanada", en:"Canada", adj_m:"kanadski", adj_f:"kanadska", adj_n:"kanadsko", dem_m:"Kanađanin", dem_f:"Kanađanka", flag:"🇨🇦" },
     { country:"Australija", en:"Australia", adj_m:"australski", adj_f:"australska", adj_n:"australsko", dem_m:"Australijanac", dem_f:"Australijanka", flag:"🇦🇺" },
     { country:"Rusija", en:"Russia", adj_m:"ruski", adj_f:"ruska", adj_n:"rusko", dem_m:"Rus", dem_f:"Ruskinja", flag:"🇷🇺" },
     { country:"Poljska", en:"Poland", adj_m:"poljski", adj_f:"poljska", adj_n:"poljsko", dem_m:"Poljak", dem_f:"Poljakinja", flag:"🇵🇱" },
