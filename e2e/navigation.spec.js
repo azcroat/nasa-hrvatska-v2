@@ -18,14 +18,14 @@ test.describe('Tab navigation', () => {
 
   test('renders all 5 navigation tabs', async ({ page }) => {
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
-    for (const label of ['Home', 'Learn', 'Practice', 'Croatia', 'Profile']) {
+    for (const label of ['Today', 'Learn', 'Practice', 'Culture', 'Me']) {
       await expect(nav.getByRole('button', { name: label, exact: true })).toBeVisible();
     }
   });
 
   test('Home tab is active by default', async ({ page }) => {
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
-    await expect(nav.getByRole('button', { name: 'Home', exact: true })).toHaveClass(/active/);
+    await expect(nav.getByRole('button', { name: 'Today', exact: true })).toHaveClass(/active/);
   });
 
   test('navigates to Learn tab and shows vocabulary section', async ({ page }) => {
@@ -42,17 +42,17 @@ test.describe('Tab navigation', () => {
     await expect(page.getByRole('heading', { name: /Practice/i })).toBeVisible({ timeout: 5_000 });
   });
 
-  test('navigates to Croatia tab and shows History & Regions heading', async ({ page }) => {
-    await clickTab(page, 'Croatia');
+  test('navigates to Culture tab and shows History & Regions heading', async ({ page }) => {
+    await clickTab(page, 'Culture');
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
-    await expect(nav.getByRole('button', { name: 'Croatia', exact: true })).toHaveClass(/active/);
+    await expect(nav.getByRole('button', { name: 'Culture', exact: true })).toHaveClass(/active/);
     await expect(page.getByRole('heading', { name: /History.*Regions/i })).toBeVisible({ timeout: 5_000 });
   });
 
-  test('navigates to Profile tab and shows user name', async ({ page }) => {
-    await clickTab(page, 'Profile');
+  test('navigates to Me tab and shows user name', async ({ page }) => {
+    await clickTab(page, 'Me');
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
-    await expect(nav.getByRole('button', { name: 'Profile', exact: true })).toHaveClass(/active/);
+    await expect(nav.getByRole('button', { name: 'Me', exact: true })).toHaveClass(/active/);
     await expect(page.getByText('Test Učenik')).toBeVisible({ timeout: 5_000 });
   });
 
@@ -61,10 +61,10 @@ test.describe('Tab navigation', () => {
 
     await clickTab(page, 'Learn');
     await expect(nav.getByRole('button', { name: 'Learn', exact: true })).toHaveClass(/active/);
-    await expect(nav.getByRole('button', { name: 'Home', exact: true })).not.toHaveClass(/active/);
+    await expect(nav.getByRole('button', { name: 'Today', exact: true })).not.toHaveClass(/active/);
 
-    await clickTab(page, 'Home');
-    await expect(nav.getByRole('button', { name: 'Home', exact: true })).toHaveClass(/active/);
+    await clickTab(page, 'Today');
+    await expect(nav.getByRole('button', { name: 'Today', exact: true })).toHaveClass(/active/);
     await expect(nav.getByRole('button', { name: 'Learn', exact: true })).not.toHaveClass(/active/);
   });
 
