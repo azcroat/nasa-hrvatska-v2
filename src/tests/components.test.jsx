@@ -2,8 +2,23 @@
  * components.test.jsx — render tests for shared and practice components.
  */
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import React from 'react';
+
+// ── Mock apiFetch ─────────────────────────────────────────────────────────────
+// DailyPlanCard fires apiFetch('/api/daily-plan') in a useEffect on mount.
+// Without this mock the call is made but never resolves in jsdom, causing React
+// to dispatch a state update (setPhase) outside act() — which produces the
+// "Should be wrapped in act()" console warning.
+// We return a non-ok response so the card goes to its error state synchronously
+// within the act() boundary that surrounds render().
+vi.mock('../lib/apiFetch', () => ({
+  apiFetch: vi.fn(() => Promise.resolve({
+    ok: false,
+    status: 503,
+    json: () => Promise.resolve({}),
+  })),
+}));
 
 // ── Mock Firebase ─────────────────────────────────────────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
@@ -193,25 +208,29 @@ const mockStatsValue = {
 };
 
 describe('HomeTab smoke render', () => {
-  it('renders without crashing', () => {
-    render(
-      <AppContext.Provider value={mockContextValue}>
-        <StatsProvider value={mockStatsValue}>
-          <HomeTab
-            getWeekStats={() => ({ lessons: 0, grammar: 0, streak: 0, weak: 0, strong: 0 })}
-            sh={arr => arr}
-            allCats={[]}
-            dchlA={[null, null, null]}
-            sDchlA={vi.fn()}
-            dchlSl={[null, null, null]}
-            sDchlSl={vi.fn()}
-            setTab={vi.fn()}
-            sCurEx={vi.fn()}
-            launchPathItem={vi.fn()}
-          />
-        </StatsProvider>
-      </AppContext.Provider>
-    );
+  it('renders without crashing', async () => {
+    // Wrap in act(async) so the DailyPlanCard useEffect (apiFetch → setPhase)
+    // settles within the act() boundary and does not produce a console warning.
+    await act(async () => {
+      render(
+        <AppContext.Provider value={mockContextValue}>
+          <StatsProvider value={mockStatsValue}>
+            <HomeTab
+              getWeekStats={() => ({ lessons: 0, grammar: 0, streak: 0, weak: 0, strong: 0 })}
+              sh={arr => arr}
+              allCats={[]}
+              dchlA={[null, null, null]}
+              sDchlA={vi.fn()}
+              dchlSl={[null, null, null]}
+              sDchlSl={vi.fn()}
+              setTab={vi.fn()}
+              sCurEx={vi.fn()}
+              launchPathItem={vi.fn()}
+            />
+          </StatsProvider>
+        </AppContext.Provider>
+      );
+    });
   });
 });
 

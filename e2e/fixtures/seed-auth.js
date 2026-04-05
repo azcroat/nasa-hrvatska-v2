@@ -30,6 +30,8 @@ export function seedAuth(page) {
     }));
     // Pre-set a streak so streak count shows as 5
     localStorage.setItem('uStreak', JSON.stringify({ count: 5, last: today }));
+    // Dismiss cookie consent dialog so it doesn't block test interactions
+    localStorage.setItem('cookie_consent_v1', 'accepted');
   }, {
     email: TEST_EMAIL,
     name: TEST_NAME,
