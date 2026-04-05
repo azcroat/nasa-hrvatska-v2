@@ -307,8 +307,31 @@ export default function KnightSpeech({
   const [animOut, setAnimOut]   = useState(false);
   const [greeting, setGreeting] = useState(() => getGreeting(st, streak, level));
   const [celebBurst, setCelebBurst] = useState(false);
-  const poolIdxRef              = useRef(-1);
-  const lastPickRef             = useRef({ grammar: -1, culture: -1, motivate: -1 });
+  // ── Persistent pool state (survives reload, resets daily) ────────────────────
+  const POOL_KEY = 'nh_knight_pool';
+  function _loadPoolState() {
+    try {
+      const raw = localStorage.getItem(POOL_KEY);
+      if (!raw) return { poolIdx: -1, lastPick: { grammar: -1, culture: -1, motivate: -1 } };
+      const parsed = JSON.parse(raw);
+      const today = new Date().toISOString().slice(0, 10);
+      if (parsed.date !== today) return { poolIdx: -1, lastPick: { grammar: -1, culture: -1, motivate: -1 } };
+      return { poolIdx: parsed.poolIdx ?? -1, lastPick: parsed.lastPick ?? { grammar: -1, culture: -1, motivate: -1 } };
+    } catch { return { poolIdx: -1, lastPick: { grammar: -1, culture: -1, motivate: -1 } }; }
+  }
+  function _savePoolState(idx, lp) {
+    try {
+      localStorage.setItem(POOL_KEY, JSON.stringify({
+        date: new Date().toISOString().slice(0, 10),
+        poolIdx: idx,
+        lastPick: lp,
+      }));
+    } catch {}
+  }
+
+  const _initPool = _loadPoolState();
+  const poolIdxRef              = useRef(_initPool.poolIdx);
+  const lastPickRef             = useRef(_initPool.lastPick);
   const celebTimerRef           = useRef(null);
 
   // Show full once per day, then mini
@@ -369,6 +392,7 @@ export default function KnightSpeech({
     do { idx = Math.floor(Math.random() * pool.length); }
     while (idx === lastPickRef.current[category] && pool.length > 1);
     lastPickRef.current[category] = idx;
+    _savePoolState(poolIdxRef.current, lastPickRef.current);
     return pool[idx];
   }
 
@@ -376,6 +400,7 @@ export default function KnightSpeech({
   const cycleBubble = () => {
     poolIdxRef.current = (poolIdxRef.current + 1) % CONTEXTUAL_POOL.length;
     setGreeting(CONTEXTUAL_POOL[poolIdxRef.current]);
+    _savePoolState(poolIdxRef.current, lastPickRef.current);
   };
 
   if (mode === 'hidden') return null;
