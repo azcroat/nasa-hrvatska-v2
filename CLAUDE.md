@@ -736,6 +736,47 @@ Present designs sequentially, compare in prose, then **give a strong recommendat
 
 ---
 
+### twitter
+**Trigger:** User mentions Twitter, X, or tweets — wants user profiles, tweets, replies, followers, communities, spaces, or trends.
+
+**Requires:** `TWITTERAPI_API_KEY` env var (via twitterapi.io, ~$0.15–0.18/1k requests).
+
+**Commands (run from skill directory):**
+```bash
+# Users
+python3 scripts/get_user_info.py USERNAME
+python3 scripts/get_user_tweets.py USERNAME --limit 20
+python3 scripts/get_followers.py USERNAME --limit 100
+python3 scripts/get_following.py USERNAME --limit 100
+python3 scripts/check_relationship.py USER1 USER2
+python3 scripts/search_users.py "query" --limit 20
+
+# Tweets
+python3 scripts/get_tweet.py TWEET_ID
+python3 scripts/search_tweets.py "query" --type Latest --limit 20
+python3 scripts/get_tweet_replies.py TWEET_ID --limit 20
+python3 scripts/get_tweet_thread.py TWEET_ID
+
+# Communities
+python3 scripts/get_community_tweets.py COMMUNITY_ID --limit 20
+python3 scripts/search_community_tweets.py "query" --limit 20
+
+# Trends
+python3 scripts/get_trends.py --woeid 1   # Worldwide
+```
+
+**Search query syntax:**
+```
+"AI agent"                          # basic
+"from:elonmusk"                     # from user
+"AI since:2024-01-01"               # date range
+"AI -filter:retweets"               # exclude RTs
+"AI filter:media"                   # with media
+"AI min_faves:1000"                 # min engagement
+```
+
+---
+
 ### producthunt
 **Trigger:** User mentions Product Hunt, PH, or product launches — wants posts, topics, users, or collections from the platform.
 
