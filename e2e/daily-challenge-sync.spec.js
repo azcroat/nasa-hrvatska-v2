@@ -17,11 +17,11 @@ test.describe('Home screen — authenticated', () => {
 
   test('navigation bar renders all five tabs', async ({ page }) => {
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
-    await expect(nav.getByRole('button', { name: 'Today', exact: true })).toBeVisible();
+    await expect(nav.getByRole('button', { name: 'Home', exact: true })).toBeVisible();
     await expect(nav.getByRole('button', { name: 'Learn', exact: true })).toBeVisible();
     await expect(nav.getByRole('button', { name: 'Practice', exact: true })).toBeVisible();
-    await expect(nav.getByRole('button', { name: 'Culture', exact: true })).toBeVisible();
-    await expect(nav.getByRole('button', { name: 'Me', exact: true })).toBeVisible();
+    await expect(nav.getByRole('button', { name: 'Croatia', exact: true })).toBeVisible();
+    await expect(nav.getByRole('button', { name: 'Profile', exact: true })).toBeVisible();
   });
 
   test('home tab shows Daily Quests section', async ({ page }) => {

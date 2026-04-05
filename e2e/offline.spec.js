@@ -80,7 +80,7 @@ test.describe('Offline mode (PWA / service worker)', () => {
 
     // Switch to Practice tab — should work offline
     await nav.getByRole('button', { name: 'Practice', exact: true }).click();
-    await expect(page.getByText(/Flashcards/i)).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('AI Voice Conversation')).toBeVisible({ timeout: 5_000 });
   });
 
   test('practice games (Flashcards) work offline with cached vocabulary', async ({ page }) => {
@@ -102,6 +102,8 @@ test.describe('Offline mode (PWA / service worker)', () => {
 
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
     await nav.getByRole('button', { name: 'Practice', exact: true }).click();
+    // Switch to Challenge panel where game buttons are
+    await page.getByRole('button', { name: 'Challenge' }).click();
     await page.getByText('Flashcards').click();
     // Vocabulary data is bundled in JS — flashcards should work offline
     await expect(page.getByText(/Tap card to flip/i)).toBeVisible({ timeout: 8_000 });

@@ -11,12 +11,16 @@ test.describe('Practice tab', () => {
     // Scope to nav bar to avoid the "Practice" Jump In button on home tab
     await page.getByRole('navigation', { name: 'Main navigation' })
       .getByRole('button', { name: 'Practice', exact: true }).click();
+    // Wait for intent tiles to confirm Practice tab is loaded (no exact: tiles have emoji in accessible name)
+    await expect(page.getByRole('button', { name: 'Challenge' })).toBeVisible({ timeout: 5_000 });
+    // Switch to Challenge panel so game buttons are visible
+    await page.getByRole('button', { name: 'Challenge' }).click();
     await expect(page.getByText('Flashcards')).toBeVisible({ timeout: 5_000 });
   });
 
   test.describe('Practice tab layout', () => {
     test('renders the Quick Games heading', async ({ page }) => {
-      await expect(page.getByText('⚡ Quick Games')).toBeVisible();
+      await expect(page.getByText('Quick Games')).toBeVisible();
     });
 
     test('shows core game buttons', async ({ page }) => {
@@ -26,13 +30,14 @@ test.describe('Practice tab', () => {
       await expect(page.getByText('Typing')).toBeVisible();
     });
 
-    test('shows Exercises section', async ({ page }) => {
-      await expect(page.getByText('📝 Grammar Drills')).toBeVisible();
+    test('shows Exercises section in Drill panel', async ({ page }) => {
+      await page.getByRole('button', { name: 'Drill' }).click();
+      await expect(page.getByText('Browse Exercises')).toBeVisible({ timeout: 3_000 });
     });
 
-    test('shows Review section with Weak Words', async ({ page }) => {
-      await expect(page.getByText('🧠 Review')).toBeVisible();
-      await expect(page.getByText('Weak Words')).toBeVisible();
+    test('shows Review panel with Flashcards option', async ({ page }) => {
+      await page.getByRole('button', { name: 'Review' }).click();
+      await expect(page.getByText('Flashcards')).toBeVisible({ timeout: 3_000 });
     });
   });
 
