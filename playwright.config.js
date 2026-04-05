@@ -9,6 +9,7 @@ export default defineConfig({
     '**/live-login.spec.js',         // requires production credentials
     '**/sync-live-proof.spec.js',    // hits nasahrvatska.com directly — 20+ min, production only
     '**/production-auth-flow.spec.js', // production URL test — run manually only
+    '**/offline.spec.js',              // requires pre-cached service worker — run against production build only
   ],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,

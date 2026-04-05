@@ -2109,20 +2109,6 @@ Trigger → Action → Variable Reward → Investment → (loads next Trigger)
 
 ---
 
-### xlsx
-**Trigger:** User wants to read, edit, create, or manipulate `.xlsx`, `.xlsm`, `.csv`, or `.tsv` files.
-
-**Critical rules:**
-- ALWAYS use Excel formulas (not Python-calculated hardcoded values)
-- Run `python scripts/recalc.py output.xlsx` after any formula work
-- Zero formula errors policy: no `#REF!`, `#DIV/0!`, `#VALUE!`, `#N/A`, `#NAME?`
-- Financial color coding: Blue = hardcoded inputs, Black = formulas, Green = cross-sheet links, Red = external links, Yellow bg = key assumptions
-- Number formats: `$#,##0` currency, `0.0%` percentages, `0.0x` multiples, parentheses for negatives
-
-**Libraries:** `pandas` (data analysis/bulk ops), `openpyxl` (formulas/formatting)
-
----
-
 ### plugin-structure
 **Trigger:** User asks to create a Claude Code plugin, scaffold a plugin, understand plugin directory layout, or configure `plugin.json`.
 
