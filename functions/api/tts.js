@@ -243,8 +243,17 @@ export async function onRequestPost(context) {
       }
     }
 
-    // 2. Try ElevenLabs (primary when charlotte preference, or fallback otherwise)
-    if (!buffer && ELEVENLABS_KEY && (useElPrimary || !useAzurePrimary || !buffer)) {
+    // 2. Try ElevenLabs
+    // When clientVoice='gabrijela' (native Croatian requested) and the only ElevenLabs voice
+    // available is Charlotte (English/Swedish-trained), do NOT silently downgrade — return 503
+    // so the client falls back to browser's Web Speech API which may have a Croatian voice.
+    // If a custom Croatian ElevenLabs voice is configured (VOICE_ID !== EL_DEFAULT_VOICE),
+    // it's always safe to use.
+    const elAllowed = useElPrimary
+      || !useAzurePrimary
+      || VOICE_ID !== EL_DEFAULT_VOICE;
+
+    if (!buffer && ELEVENLABS_KEY && elAllowed) {
       try {
         buffer = await tryElevenLabs(text, slow, ELEVENLABS_KEY, VOICE_ID);
       } catch {
@@ -252,7 +261,7 @@ export async function onRequestPost(context) {
       }
     }
 
-    // 3. Final fallback: Azure for any remaining failures
+    // 3. Final fallback: Azure for any remaining failures (e.g. charlotte preference, Azure unavailable earlier)
     if (!buffer && AZURE_KEY && !useAzurePrimary) {
       try {
         buffer = await tryAzure(text, slow, AZURE_KEY, PRIMARY_REGION);

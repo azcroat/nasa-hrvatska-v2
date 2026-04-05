@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { speak } from '../../data.jsx';
 
 // Daily rotating Croatian landmarks — verified Unsplash + local CC photos only
@@ -34,6 +34,7 @@ function getDailyScene() {
 
 export default function DailyCroatianSection({ todayPhrases }) {
   const scene = getDailyScene();
+  const [imgFailed, setImgFailed] = useState(false);
 
   return (
     <>
@@ -42,7 +43,10 @@ export default function DailyCroatianSection({ todayPhrases }) {
         borderRadius:18, marginBottom:12, maxWidth:'100%',
         height:160, overflow:'hidden', position:'relative',
         boxShadow:'0 4px 24px rgba(0,0,0,.18)',
+        // Gradient fallback visible when image fails to load
+        background:'linear-gradient(150deg,#8B0010 0%,#B80020 30%,#1a1a3e 65%,#003087 100%)',
       }}>
+        {!imgFailed && (
         <img
           src={scene.url}
           alt={scene.label}
@@ -51,8 +55,10 @@ export default function DailyCroatianSection({ todayPhrases }) {
             objectPosition: scene.pos,
             filter:'brightness(1.05) saturate(1.1)',
           }}
-          loading="lazy"
+          loading="eager"
+          onError={() => setImgFailed(true)}
         />
+        )}
         {/* Animated shimmer overlay — golden hour light sweep */}
         <div style={{
           position:'absolute', inset:0,

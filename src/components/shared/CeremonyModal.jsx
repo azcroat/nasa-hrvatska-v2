@@ -137,15 +137,34 @@ function CeremonyModal({ type, stats, name, onClose }) {
   const lc = stats?.lc || 0;
   const streak = stats?.str || 0;
 
-  // Generate shareable text
-  const shareText = `${cfg.emoji} ${cfg.title} — ${cfg.titleHr}\n\nI've been learning Croatian with Naša Hrvatska!\n${lc} lessons · ${xp} XP · ${streak}-day streak\n\nNaša Hrvatska 🇭🇷`;
+  const APP_URL = 'https://nasahrvatska.com';
+  const shareText = `${cfg.emoji} ${cfg.title} — ${cfg.titleHr}\n\nI've been learning Croatian with Naša Hrvatska!\n${lc} lessons · ${xp} XP · ${streak}-day streak\n\n${APP_URL}`;
+  const shareTextShort = `${cfg.emoji} ${cfg.title} — learning Croatian with Naša Hrvatska! ${lc} lessons · ${xp} XP · ${streak}-day streak`;
+
+  function openInNewTab(url) {
+    window.open(url, '_blank', 'noopener,noreferrer,width=600,height=480');
+  }
+
+  function shareTwitter() {
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTextShort)}&url=${encodeURIComponent(APP_URL)}`;
+    openInNewTab(url);
+  }
+
+  function shareFacebook() {
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(APP_URL)}&quote=${encodeURIComponent(shareTextShort)}`;
+    openInNewTab(url);
+  }
+
+  function shareLinkedIn() {
+    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(APP_URL)}`;
+    openInNewTab(url);
+  }
 
   function handleShare() {
     if (navigator.share) {
-      navigator.share({ title: 'Naša Hrvatska', text: shareText }).catch(() => {});
+      navigator.share({ title: 'Naša Hrvatska', text: shareText, url: APP_URL }).catch(() => {});
     } else {
-      navigator.clipboard.writeText(shareText).then(() => setShowShare(true));
-      setTimeout(() => setShowShare(false), 2000);
+      navigator.clipboard?.writeText(shareText).then(() => { setShowShare(true); setTimeout(() => setShowShare(false), 2000); }).catch(() => {});
     }
   }
 
@@ -220,18 +239,45 @@ function CeremonyModal({ type, stats, name, onClose }) {
 
             {/* Shareable card message */}
             {showShare && (
-              <div style={{ background:'var(--success-bg)', border:`1.5px solid var(--success-b)`, borderRadius:12, padding:'10px', marginBottom:16, fontSize:'var(--text-sm)', color:'var(--success)', fontWeight:600 }}>
+              <div style={{ background:'var(--success-bg)', border:`1.5px solid var(--success-b)`, borderRadius:12, padding:'10px', marginBottom:12, fontSize:'var(--text-sm)', color:'var(--success)', fontWeight:600 }}>
                 ✓ Copied to clipboard!
               </div>
             )}
 
-            <button
-              onClick={handleShare}
-              className="b bp"
-              style={{ width:'100%', marginBottom:10 }}
-            >
-              📱 Share this moment
-            </button>
+            {/* Share this moment — social platform buttons */}
+            <div style={{ marginBottom:10 }}>
+              <div style={{ fontSize:12, fontWeight:700, color:'var(--subtext)', textAlign:'center', marginBottom:8, letterSpacing:'.04em', textTransform:'uppercase' }}>
+                Share this moment
+              </div>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:7, marginBottom:7 }}>
+                <button
+                  onClick={shareTwitter}
+                  style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'9px 0', borderRadius:10, border:'none', background:'#000', color:'#fff', fontWeight:700, fontSize:13, cursor:'pointer', fontFamily:"'Outfit',sans-serif" }}
+                >
+                  𝕏 Twitter / X
+                </button>
+                <button
+                  onClick={shareFacebook}
+                  style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'9px 0', borderRadius:10, border:'none', background:'#1877F2', color:'#fff', fontWeight:700, fontSize:13, cursor:'pointer', fontFamily:"'Outfit',sans-serif" }}
+                >
+                  f Facebook
+                </button>
+              </div>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:7, marginBottom:7 }}>
+                <button
+                  onClick={shareLinkedIn}
+                  style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'9px 0', borderRadius:10, border:'none', background:'#0A66C2', color:'#fff', fontWeight:700, fontSize:13, cursor:'pointer', fontFamily:"'Outfit',sans-serif" }}
+                >
+                  in LinkedIn
+                </button>
+                <button
+                  onClick={handleShare}
+                  style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'9px 0', borderRadius:10, border:'1.5px solid var(--card-b)', background:'var(--card)', color:'var(--heading)', fontWeight:700, fontSize:13, cursor:'pointer', fontFamily:"'Outfit',sans-serif" }}
+                >
+                  📋 Copy text
+                </button>
+              </div>
+            </div>
             <button
               onClick={onClose}
               className="b bg"
