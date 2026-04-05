@@ -15,8 +15,9 @@ const PAGES = [
 for (const { name, path } of PAGES) {
   test(`${name} page has no critical axe violations`, async ({ page }) => {
     await page.goto(path);
-    // Wait for React to hydrate
+    // Wait for React to hydrate and for any post-auth navigate() calls to settle
     await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(300);
 
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
@@ -47,6 +48,7 @@ for (const { name, path } of PAGES) {
 test('Tab key reaches all nav links on Home', async ({ page }) => {
   await page.goto('/');
   await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(300);
 
   // Press Tab up to 20 times and collect focused elements
   const focusedTags = new Set();
@@ -64,6 +66,7 @@ test('Tab key reaches all nav links on Home', async ({ page }) => {
 test('Home page passes color contrast checks', async ({ page }) => {
   await page.goto('/');
   await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(300);
 
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2aa'])

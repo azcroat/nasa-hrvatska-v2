@@ -10,6 +10,7 @@ export default defineConfig({
     '**/sync-live-proof.spec.js',    // hits nasahrvatska.com directly — 20+ min, production only
     '**/production-auth-flow.spec.js', // production URL test — run manually only
     '**/offline.spec.js',              // requires pre-cached service worker — run against production build only
+    '**/cross-device-sync.spec.js',   // uses live Firebase credentials — run manually against production only
   ],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,

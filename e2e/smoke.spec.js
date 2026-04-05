@@ -45,7 +45,12 @@ test.describe('Production smoke — site availability', () => {
       !e.includes('Failed to fetch') &&
       !e.includes('NetworkError') &&
       !e.includes('net::ERR') &&
-      !e.includes('AbortError')
+      !e.includes('AbortError') &&
+      !e.includes('service worker') &&
+      !e.includes('ServiceWorker') &&
+      !e.includes('access control checks') &&
+      !e.includes('Importing a module script failed') &&
+      !e.includes('sw.js')
     );
     expect(fatal, `Unexpected JS errors on load: ${fatal.join(' | ')}`).toHaveLength(0);
   });

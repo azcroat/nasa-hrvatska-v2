@@ -8,7 +8,10 @@ import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL } from './fixtures/seed-au
 
 const INITIAL_XP = 250;
 
+// Run serially — quiz interactions are CPU-heavy (30 question iterations × 600ms each).
+// Parallel workers cause resource contention that pushes total time past the 30s timeout.
 test.describe('Full lesson completion flow', () => {
+  test.describe.configure({ mode: 'serial' });
   test.beforeEach(async ({ page }) => {
     await seedAuth(page);
     await blockFirebase(page);
@@ -54,6 +57,7 @@ test.describe('Full lesson completion flow', () => {
   });
 
   test('completing quiz shows results screen', async ({ page }) => {
+    test.slow(); // quiz completion can take up to 25s — triple the default 30s timeout
     await page.locator('button.vocab-pill').first().click();
     await page.getByRole('button', { name: /Quiz Me/i }).click();
     await expect(page.getByText(/Question \d+ of \d+/i)).toBeVisible({ timeout: 5_000 });
@@ -87,6 +91,7 @@ test.describe('Full lesson completion flow', () => {
   });
 
   test('XP is saved to localStorage after completing a quiz', async ({ page }) => {
+    test.slow();
     await page.locator('button.vocab-pill').first().click();
     await page.getByRole('button', { name: /Quiz Me/i }).click();
     await expect(page.getByText(/Question \d+ of \d+/i)).toBeVisible({ timeout: 5_000 });
@@ -130,6 +135,7 @@ test.describe('Full lesson completion flow', () => {
   });
 
   test('lesson count increments in localStorage after completing a lesson', async ({ page }) => {
+    test.slow();
     // Capture initial lesson count — handle both {st} and {stats} formats
     const before = await page.evaluate((email) => {
       try {
@@ -172,10 +178,12 @@ test.describe('Full lesson completion flow', () => {
     for (let i = 0; i < 30; i++) {
       const resultBtn = page.locator('button').filter({ hasText: /See Results|Results/i });
       if (await resultBtn.isVisible()) {
-        // Rapid triple-click — should only award XP once
+        // Rapid triple-click — should only award XP once.
+        // After the first click the screen transitions and the button disappears,
+        // so subsequent clicks use a short timeout and silently no-op if gone.
         await resultBtn.click();
-        await resultBtn.click();
-        await resultBtn.click();
+        await resultBtn.click({ timeout: 500 }).catch(() => {});
+        await resultBtn.click({ timeout: 500 }).catch(() => {});
         break;
       }
       const nextBtn = page.locator('button').filter({ hasText: /Next/i });
