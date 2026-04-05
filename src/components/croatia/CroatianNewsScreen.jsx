@@ -3,6 +3,7 @@ import { H } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { getVoicePreference } from '../../lib/soundSettings.js';
 import { LEVEL_COLORS } from './MediaPlayerUtils.jsx';
 
 // ── Fallback articles shown when the live API is unavailable ─────────────────
@@ -159,7 +160,7 @@ function ArticleCard({ article, index, translating, tooltip, onWordTap, onAward,
       const res = await apiFetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: article.simplified_text, slow: false }),
+        body: JSON.stringify({ text: article.simplified_text, slow: false, voice: getVoicePreference() }),
       });
       if (!res.ok) throw new Error('TTS failed');
       const blob = await res.blob();

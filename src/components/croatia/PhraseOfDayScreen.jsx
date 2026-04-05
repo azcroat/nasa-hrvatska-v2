@@ -3,6 +3,7 @@ import { H } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { getVoicePreference } from '../../lib/soundSettings.js';
 
 // ── Category definitions ──────────────────────────────────────────────────────
 const CATEGORIES = [
@@ -304,7 +305,7 @@ export default function PhraseOfDayScreen({ goBack, award }) {
       const res = await apiFetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: phraseData.phrase, slow: false }),
+        body: JSON.stringify({ text: phraseData.phrase, slow: false, voice: getVoicePreference() }),
       });
       if (!res.ok) throw new Error('TTS failed');
       const blob = await res.blob();

@@ -70,7 +70,6 @@ export default function CollocationsGame({ goBack, award }) {
       <Bar v={idx + 1} mx={total} />
       <div className="c" style={{marginTop:16}}>
         <div style={{fontSize:18,fontWeight:600}}>{q.q}</div>
-        <div style={{fontSize:13,color:"#78716c",marginTop:4}}>{q.en}</div>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:16}}>
         {q.opts.map((o, oi) => (
@@ -95,7 +94,8 @@ export default function CollocationsGame({ goBack, award }) {
       </div>
       {answered && (
         <div style={{background:"#f0f9ff",borderRadius:12,padding:"12px 16px",marginTop:12,border:"1.5px solid #bae6fd"}}>
-          <div style={{fontSize:12,fontWeight:800,color:"#0369a1",marginBottom:4}}>💡 Tip</div>
+          <div style={{fontSize:13,fontWeight:800,color:"#0369a1",marginBottom:2}}>✅ {q.en}</div>
+          <div style={{fontSize:12,fontWeight:800,color:"#0369a1",marginBottom:4,marginTop:8}}>💡 Tip</div>
           <div style={{fontSize:13,color:"#075985"}}>{q.tip}</div>
         </div>
       )}

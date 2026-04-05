@@ -7,6 +7,7 @@ import React, {
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext.jsx';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { getVoicePreference } from '../../lib/soundSettings.js';
 import MajaOrb from './MajaOrb.jsx';
 import ConversationBubble from './ConversationBubble.jsx';
 import DebriefScreen from './MajaDebrief.jsx';
@@ -186,7 +187,7 @@ export default function MajaScreen() {
       const res = await apiFetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, slow: false }),
+        body: JSON.stringify({ text, slow: false, voice: getVoicePreference() }),
       });
 
       if (!res.ok) throw new Error(`TTS ${res.status}`);

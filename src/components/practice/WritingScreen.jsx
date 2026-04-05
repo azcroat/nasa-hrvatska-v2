@@ -6,6 +6,7 @@ import { rnd } from '../../lib/random.js';
 import { useStats } from '../../context/StatsContext.jsx';
 import { logError } from '../../lib/learnerErrors.js';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { getVoicePreference } from '../../lib/soundSettings.js';
 
 const PROMPTS = [
   // A2 — simple present, basic vocabulary
@@ -161,7 +162,7 @@ export default function WritingScreen({ goBack, award }) {
       const res = await apiFetch("/api/tts", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ text: ttsText.slice(0, 400), slow: false }),
+        body: JSON.stringify({ text: ttsText.slice(0, 400), slow: false, voice: getVoicePreference() }),
       });
       if (!res.ok) return;
       const blob = await res.blob();

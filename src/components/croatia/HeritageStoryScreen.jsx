@@ -3,6 +3,7 @@ import { H } from '../../data.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getAudioContext } from '../../lib/audio.js';
+import { getVoicePreference } from '../../lib/soundSettings.js';
 
 // ── Region data ───────────────────────────────────────────────────────────────
 const REGIONS = [
@@ -29,7 +30,7 @@ async function playTTS(text) {
   const res = await apiFetch('/api/tts', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, slow: false }),
+    body: JSON.stringify({ text, slow: false, voice: getVoicePreference() }),
   });
   if (!res.ok) throw new Error('TTS failed');
   const blob = await res.blob();
