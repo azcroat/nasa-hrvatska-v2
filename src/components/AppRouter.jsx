@@ -244,6 +244,8 @@ const FrequencyTrackScreen = lazyWithReload(() => import("./learn/FrequencyTrack
 const GrammarTrackScreen = lazyWithReload(() => import("./learn/GrammarTrackScreen.jsx"));
 const ListeningComprehensionScreen = lazyWithReload(() => import("./practice/ListeningComprehensionScreen.jsx"));
 const PronunciationAssessScreen = lazyWithReload(() => import("./practice/PronunciationAssessScreen.jsx"));
+const ProductionDrillScreen = lazyWithReload(() => import("./practice/ProductionDrillScreen.jsx"));
+const AdaptiveReviewScreen = lazyWithReload(() => import("./practice/AdaptiveReviewScreen.jsx"));
 const PastTenseLessonScreen = lazyWithReload(() => import("./learn/PastTenseLessonScreen.jsx"));
 const FutureTenseLessonScreen = lazyWithReload(() => import("./learn/FutureTenseLessonScreen.jsx"));
 
@@ -663,6 +665,8 @@ export default function AppRouter(props) {
       {currentScreen==="future_tense_lesson"&&<ScreenErrorBoundary key="future_tense_lesson" name="future_tense_lesson"><FutureTenseLessonScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="advanced_vocab"&&<ScreenErrorBoundary key="advanced_vocab" name="advanced_vocab"><AdvancedVocabScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="pronunciation_assess"&&<ScreenErrorBoundary key="pronunciation_assess" name="pronunciation_assess"><PronunciationAssessScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="production_drill"&&<ScreenErrorBoundary key="production_drill" name="production_drill"><ProductionDrillScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="adaptive_review"&&<ScreenErrorBoundary key="adaptive_review" name="adaptive_review"><AdaptiveReviewScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="pitch_accent"&&<ScreenErrorBoundary key="pitch_accent" name="pitch_accent"><PitchAccentMastery goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="heritage_path"&&<ScreenErrorBoundary key="heritage_path" name="heritage_path"><HeritagePathScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="dialect_awareness"&&<ScreenErrorBoundary key="dialect_awareness" name="dialect_awareness"><DialectAwarenessScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
