@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { H } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
-import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
 
 // ── Category definitions ──────────────────────────────────────────────────────

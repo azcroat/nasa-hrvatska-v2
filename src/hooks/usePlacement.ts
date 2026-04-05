@@ -6,20 +6,32 @@
  */
 import { useState } from 'react';
 
-export function usePlacement() {
+export function usePlacement(): {
+  placementIdx: number;
+  setPlacementIdx: React.Dispatch<React.SetStateAction<number>>;
+  placementScore: number;
+  setPlacementScore: React.Dispatch<React.SetStateAction<number>>;
+  placementAnswers: boolean;
+  setPlacementAnswers: React.Dispatch<React.SetStateAction<boolean>>;
+  placementXp: number;
+  setPlacementXp: React.Dispatch<React.SetStateAction<number>>;
+  placementQ: unknown[];
+  setPlacementQ: React.Dispatch<React.SetStateAction<unknown[]>>;
+  getPlacementCt: (level: number) => Promise<string[]>;
+} {
   const [placementIdx, setPlacementIdx] = useState(0);
   const [placementScore, setPlacementScore] = useState(0);
   const [placementAnswers, setPlacementAnswers] = useState(false);
   const [placementXp, setPlacementXp] = useState(-1);
-  const [placementQ, setPlacementQ] = useState([]);
+  const [placementQ, setPlacementQ] = useState<unknown[]>([]);
 
   // LEARN_PATH is only needed when placement completes — lazy import keeps it out of startup bundle.
-  async function getPlacementCt(level) {
+  async function getPlacementCt(level: number): Promise<string[]> {
     const { LEARN_PATH } = await import('../data.jsx');
-    const ct = [];
+    const ct: string[] = [];
     const targets = [0, 0, 5, 10, 15, 20];
     const max = targets[level] || 0;
-    for (const lv of LEARN_PATH) {
+    for (const lv of LEARN_PATH as { items: { topic?: string }[] }[]) {
       for (const it of lv.items) {
         if (it.topic && ct.length < max) ct.push(it.topic);
       }

@@ -6,7 +6,7 @@ import { PHRASE_OF_DAY_POOL as PHRASES_365 } from '../../data/daily-content.js';
 import { weekKey, localDateStr } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
-import { safeGetItem } from '../../hooks/useLocalStorage.js';
+import { safeGetItem } from '../../hooks/useLocalStorage';
 
 // Read last activity saved by App.jsx when exercises are launched
 function getLastActivity() {

@@ -3,7 +3,7 @@ import { useStats } from '../../context/StatsContext.tsx';
 import { H, Bar, speak, srMark, sh, shuffleArr, V, ASPECT_PAIRS, CROATIAN_CITIES } from '../../data.jsx';
 import { playCorrect, playWrong, haptic, playFanfare } from '../../lib/soundSettings.js';
 import { markQuest } from '../../lib/quests.js';
-import { markPracticed } from '../../hooks/useNotifications.js';
+import { markPracticed } from '../../hooks/useNotifications';
 import CroatianKnight from '../shared/CroatianKnight';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 import { CelebrationScene } from '../illustrations';

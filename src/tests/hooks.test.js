@@ -40,12 +40,12 @@ vi.mock('../data.jsx', () => ({
   ],
 }));
 
-import { usePreferences } from '../hooks/usePreferences.js';
-import { useSearch } from '../hooks/useSearch.js';
-import { useFamily } from '../hooks/useFamily.js';
-import { useJournal } from '../hooks/useJournal.js';
-import { useDaily } from '../hooks/useDaily.js';
-import { useTranslator } from '../hooks/useTranslator.js';
+import { usePreferences } from '../hooks/usePreferences';
+import { useSearch } from '../hooks/useSearch';
+import { useFamily } from '../hooks/useFamily';
+import { useJournal } from '../hooks/useJournal';
+import { useDaily } from '../hooks/useDaily';
+import { useTranslator } from '../hooks/useTranslator';
 
 function clearLS() { localStorage.clear(); }
 

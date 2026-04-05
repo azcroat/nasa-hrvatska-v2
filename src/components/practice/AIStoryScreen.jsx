@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import CroatianKnight from '../shared/CroatianKnight.jsx';
 import { speak } from '../../lib/audio.js';
-import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
 
 function getWeakWords() {

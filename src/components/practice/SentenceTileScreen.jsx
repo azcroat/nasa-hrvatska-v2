@@ -11,7 +11,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { H, Bar } from '../../data.jsx';
 import { SENTBUILD } from '../../data.jsx';
-import { useHaptic } from '../../hooks/useHaptic.js';
+import { useHaptic } from '../../hooks/useHaptic';
 import { playCorrect, playWrong } from '../../lib/soundSettings.js';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 

@@ -4,14 +4,23 @@
  */
 import { useState, useRef } from 'react';
 
-export function useTranslator() {
+export function useTranslator(): {
+  tDir: string;
+  setTDir: React.Dispatch<React.SetStateAction<string>>;
+  tIn: string;
+  setTIn: React.Dispatch<React.SetStateAction<string>>;
+  tOut: string;
+  setTOut: React.Dispatch<React.SetStateAction<string>>;
+  tL: boolean;
+  doTr: () => Promise<void>;
+} {
   const [tDir, setTDir] = useState('en-hr');   // translation direction
   const [tIn, setTIn] = useState('');           // input text
   const [tOut, setTOut] = useState('');         // translated output
   const [tL, setTL] = useState(false);          // loading flag
-  const abortRef = useRef(null);
+  const abortRef = useRef<AbortController | null>(null);
 
-  async function doTr() {
+  async function doTr(): Promise<void> {
     const t = tIn.trim();
     if (!t) return;
     abortRef.current?.abort();
@@ -26,7 +35,7 @@ export function useTranslator() {
         body: JSON.stringify({ text: t, from, to }),
         signal: controller.signal,
       });
-      const d = await r.json();
+      const d = await r.json() as { translation?: string; error?: string };
       if (d.translation) {
         setTOut(d.translation);
       } else if (d.error === 'rate_limit' || r.status === 429) {
@@ -35,7 +44,8 @@ export function useTranslator() {
         setTOut('Translation unavailable. Try translate.google.com');
       }
     } catch (e) {
-      if (e.name === 'AbortError') return;
+      const err = e as Error;
+      if (err.name === 'AbortError') return;
       setTOut('Translation unavailable. Try translate.google.com');
     }
     setTL(false);

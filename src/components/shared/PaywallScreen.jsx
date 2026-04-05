@@ -11,7 +11,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { redeemPromoCode, activateSubscription } from '../../hooks/useSubscription.js';
+import { redeemPromoCode, activateSubscription } from '../../hooks/useSubscription';
 import { trackPaywallShown, trackSubscribed } from '../../lib/analytics.js';
 
 // ── Feature list ──────────────────────────────────────────────────────────────

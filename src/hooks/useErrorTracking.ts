@@ -14,21 +14,35 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 
+export type ErrorType = 'case_error' | 'aspect_error' | 'vocab_miss' | 'gender_error' | 'pronunciation';
+
+export interface ErrorEntry {
+  type: string;
+  context: string;
+  ts: string;
+}
+
+export interface WeakArea {
+  type: string;
+  count: number;
+  lastSeen: string;
+}
+
 // ── Constants ────────────────────────────────────────────────────────────────
-const STORAGE_KEY = (uid) => `nh_errors_${uid}`;
+const STORAGE_KEY = (uid: string): string => `nh_errors_${uid}`;
 const MAX_ENTRIES = 200;
 const RECENT_LIMIT = 50;
 
 // ── Internal helpers ─────────────────────────────────────────────────────────
-function _load(uid) {
+function _load(uid: string): ErrorEntry[] {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY(uid)) || '[]') || [];
+    return (JSON.parse(localStorage.getItem(STORAGE_KEY(uid)) || '[]') as ErrorEntry[]) || [];
   } catch {
     return [];
   }
 }
 
-function _save(uid, entries) {
+function _save(uid: string, entries: ErrorEntry[]): void {
   try {
     localStorage.setItem(STORAGE_KEY(uid), JSON.stringify(entries));
   } catch {}
@@ -38,15 +52,12 @@ function _save(uid, entries) {
 
 /**
  * Record a new error entry for a user.
- * @param {string} uid
- * @param {'case_error'|'aspect_error'|'vocab_miss'|'gender_error'|'pronunciation'} type
- * @param {string} [context] - optional extra info (e.g. the word, the sentence)
  */
-export function recordError(uid, type, context = '') {
+export function recordError(uid: string, type: string, context: string = ''): void {
   if (!uid || !type) return;
   try {
     const entries = _load(uid);
-    const entry = { type, context, ts: new Date().toISOString() };
+    const entry: ErrorEntry = { type, context, ts: new Date().toISOString() };
     const updated = [entry, ...entries].slice(0, MAX_ENTRIES);
     _save(uid, updated);
     // Notify any active hooks
@@ -56,10 +67,8 @@ export function recordError(uid, type, context = '') {
 
 /**
  * Returns the last RECENT_LIMIT (50) error entries, newest first.
- * @param {string} uid
- * @returns {{ type: string, context: string, ts: string }[]}
  */
-export function getErrorLog(uid) {
+export function getErrorLog(uid: string): ErrorEntry[] {
   if (!uid) return [];
   try {
     return _load(uid).slice(0, RECENT_LIMIT);
@@ -70,16 +79,14 @@ export function getErrorLog(uid) {
 
 /**
  * Aggregate errors by type and return sorted by count descending.
- * @param {string} uid
- * @returns {{ type: string, count: number, lastSeen: string }[]}
  */
-export function getWeakAreas(uid) {
+export function getWeakAreas(uid: string): WeakArea[] {
   if (!uid) return [];
   try {
     const entries = _load(uid);
     if (entries.length === 0) return [];
 
-    const map = {};
+    const map: Record<string, WeakArea> = {};
     for (const entry of entries) {
       if (!map[entry.type]) {
         map[entry.type] = { type: entry.type, count: 0, lastSeen: entry.ts };
@@ -97,9 +104,8 @@ export function getWeakAreas(uid) {
 
 /**
  * Wipe all error data for a user.
- * @param {string} uid
  */
-export function clearErrorLog(uid) {
+export function clearErrorLog(uid: string): void {
   if (!uid) return;
   try {
     localStorage.removeItem(STORAGE_KEY(uid));
@@ -112,16 +118,18 @@ export function clearErrorLog(uid) {
 /**
  * React hook that subscribes to error log changes for a given uid.
  * Returns live errorCount, memoized weakAreas, and a bound recordError helper.
- *
- * @param {string} uid
- * @returns {{ errorCount: number, weakAreas: { type: string, count: number, lastSeen: string }[], recordError: (type: string, context?: string) => void }}
  */
-export function useErrorTracking(uid) {
+export function useErrorTracking(uid: string): {
+  errorCount: number;
+  weakAreas: WeakArea[];
+  recordError: (type: string, context?: string) => void;
+} {
   const [tick, setTick] = useState(0);
 
   // Re-render when an error is recorded
-  const handleErrorRecorded = useCallback((e) => {
-    if (!e.detail || e.detail.uid === uid) {
+  const handleErrorRecorded = useCallback((e: Event): void => {
+    const ce = e as CustomEvent<{ uid?: string }>;
+    if (!ce.detail || ce.detail.uid === uid) {
       setTick(t => t + 1);
     }
   }, [uid]);
@@ -136,15 +144,15 @@ export function useErrorTracking(uid) {
   const errorCount = useMemo(() => {
     if (!uid) return 0;
     try { return _load(uid).length; } catch { return 0; }
-     
+
   }, [uid, tick]);
 
   const weakAreas = useMemo(() => {
     return getWeakAreas(uid);
-     
+
   }, [uid, tick]);
 
-  const boundRecordError = useCallback((type, context = '') => {
+  const boundRecordError = useCallback((type: string, context: string = ''): void => {
     recordError(uid, type, context);
   }, [uid]);
 

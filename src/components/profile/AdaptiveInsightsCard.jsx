@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '../../lib/apiFetch.js';
-import { getErrorLog } from '../../hooks/useErrorTracking.js';
+import { getErrorLog } from '../../hooks/useErrorTracking';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const BRAND_TEAL = '#0e7490';

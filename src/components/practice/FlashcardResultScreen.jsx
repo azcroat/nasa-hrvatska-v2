@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import CroatianKnight from '../shared/CroatianKnight';
-import { markPracticed } from '../../hooks/useNotifications.js';
+import { markPracticed } from '../../hooks/useNotifications';
 import { useApp } from '../../context/AppContext.jsx';
 
 export default function FlashcardResultScreen({ activePool, known, missed, onGoBack, onStudyMissed }) {

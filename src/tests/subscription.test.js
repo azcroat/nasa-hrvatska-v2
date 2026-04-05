@@ -6,7 +6,7 @@ import {
   redeemPromoCode,
   cancelFreeAnnual,
   FREE_ANNUAL_ENABLED,
-} from '../hooks/useSubscription.js';
+} from '../hooks/useSubscription';
 
 function clearLS() { localStorage.clear(); }
 

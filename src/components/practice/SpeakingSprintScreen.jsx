@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { markQuest } from '../../lib/quests.js';
-import { useOnlineStatus } from '../../hooks/useOnlineStatus.js';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { isSpeechRecognitionSupported } from '../../lib/platform.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 import SprintSetupScreen from './SprintSetupScreen.jsx';

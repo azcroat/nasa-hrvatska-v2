@@ -263,17 +263,6 @@ export function scheduleReEngagementReminder() {
   }, 5000);
 }
 
-// Register the service worker (same file handles both FCM background messages
-// and direct Web Push events).
-export async function registerMessagingServiceWorker() {
-  if (!('serviceWorker' in navigator)) return null;
-  try {
-    return navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
-  } catch (e) {
-    console.warn('Service worker registration failed:', e.message);
-    return null;
-  }
-}
 
 // KV registration timestamp key — shared by subscribeToPush and registerPushWithServer
 const _REG_TS_KEY = 'nh_push_reg_ts';

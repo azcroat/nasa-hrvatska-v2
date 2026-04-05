@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { rnd } from '../lib/random.js';
 
 // Croatian name days (imendan) — month-day → [names]
-const NAME_DAYS = {
+const NAME_DAYS: Record<string, string[]> = {
   '01-01':['Ana','Ivan'],'01-07':['Stjepan'],'01-17':['Anton'],'01-20':['Sebastijan'],
   '02-03':['Blaž'],'02-05':['Agata'],'02-14':['Valentin'],'02-22':['Petar'],
   '03-08':['Ivana'],'03-17':['Patricija'],'03-19':['Josip'],'03-25':['Marija'],
@@ -24,12 +24,12 @@ const NAME_DAYS = {
 const LAST_PRACTICE_KEY = 'nh_last_practice';
 const REMINDER_DISMISSED_KEY = 'nh_reminder_dismissed_today';
 
-export function markPracticed() {
+export function markPracticed(): void {
   localStorage.setItem(LAST_PRACTICE_KEY, Date.now().toString());
   localStorage.setItem('nh_last_practice_time', new Date().getHours().toString());
 }
 
-export function checkNameDay(userName) {
+export function checkNameDay(userName: string): void {
   if (!userName || !('Notification' in window) || Notification.permission !== 'granted') return;
   const today = new Date();
   const key = String(today.getMonth() + 1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
@@ -49,7 +49,7 @@ export function checkNameDay(userName) {
 
 // Optional userId param: pass the Firebase UID so server-push subscriptions are
 // stored under the right KV key. Falls back to anonymous registration if omitted.
-export function useNotifications({ userId = '' } = {}) {
+export function useNotifications({ userId = '' }: { userId?: string } = {}): void {
   useEffect(() => {
     if (!('Notification' in window)) return undefined;
 
@@ -70,7 +70,7 @@ export function useNotifications({ userId = '' } = {}) {
       import('../lib/pushNotifications.js').then(({ subscribeToPush, registerPushWithServer }) => {
         // subscribeToPush handles permission + PushManager subscription + server registration
         // in one call. Fall back to the legacy registerPushWithServer if something fails.
-        subscribeToPush(userId).catch(() => registerPushWithServer().catch(() => {}));
+        (subscribeToPush as unknown as (uid: string) => Promise<void>)(userId).catch(() => (registerPushWithServer as unknown as () => Promise<void>)().catch(() => {}));
       });
       return undefined;
     } else if (Notification.permission === 'default') {
@@ -82,22 +82,22 @@ export function useNotifications({ userId = '' } = {}) {
           localStorage.setItem(REMINDER_DISMISSED_KEY, todayStr);
           // Register with server now that permission is granted
           import('../lib/pushNotifications.js').then(({ subscribeToPush, registerPushWithServer }) => {
-            subscribeToPush(userId).catch(() => registerPushWithServer().catch(() => {}));
+            (subscribeToPush as unknown as (uid: string) => Promise<void>)(userId).catch(() => (registerPushWithServer as unknown as () => Promise<void>)().catch(() => {}));
           });
         }
       }, 8000);
       return () => clearTimeout(t);
     }
     return undefined;
-   
+
   }, [userId]);
 }
 
 // Stores the setTimeout ID for the 8 PM streak reminder so it can be cleared
 // when the user completes a lesson.
-let _streakReminderTimer = null;
+let _streakReminderTimer: ReturnType<typeof setTimeout> | null = null;
 
-export function scheduleStreakReminder(streakDays) {
+export function scheduleStreakReminder(streakDays: number): void {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   // Clear any previously scheduled reminder
   if (_streakReminderTimer !== null) { clearTimeout(_streakReminderTimer); _streakReminderTimer = null; }
@@ -123,7 +123,7 @@ export function scheduleStreakReminder(streakDays) {
     // Pull user name for personalization
     let firstName = '';
     try {
-      const profile = JSON.parse(localStorage.getItem('nh_profile') || '{}');
+      const profile = JSON.parse(localStorage.getItem('nh_profile') || '{}') as { name?: string; displayName?: string };
       firstName = (profile.name || profile.displayName || '').split(' ')[0].trim();
     } catch (_) {}
     const nameTag = firstName ? `, ${firstName}` : '';
@@ -144,21 +144,21 @@ export function scheduleStreakReminder(streakDays) {
       `Quick session? ~5 minutes. Streak stays alive 🔥`,
     ];
     try {
-      new Notification(pickVariant(titleVariants, 'nh_8pm_title_idx'), {
+      new Notification(pickVariant(titleVariants, 'nh_8pm_title_idx'), ({
         body:   pickVariant(bodyVariants, 'nh_8pm_body_idx'),
         icon:   '/icons/icon-192x192.png',
         badge:  '/icons/badge-72.png',
         tag:    'streak-reminder',
         renotify: true,
         data:   { url: '/', action: 'open_lesson' },
-      });
+      }) as unknown as NotificationOptions);
     } catch (_) {}
   }, delay);
 }
 
 // ── Rotation helper — cycles through an array without immediate repeats ──────
 // Stores the last-used index in localStorage under `storageKey`.
-function pickVariant(arr, storageKey) {
+function pickVariant<T>(arr: T[], storageKey: string): T {
   if (arr.length === 1) return arr[0];
   let last = -1;
   try { last = parseInt(localStorage.getItem(storageKey) || '-1', 10); } catch (_) {}
@@ -169,33 +169,45 @@ function pickVariant(arr, storageKey) {
   return arr[next];
 }
 
+interface NotificationMessage {
+  title: string;
+  body: string;
+}
+
+interface SRCard {
+  r?: number;
+  ts?: number;
+  due?: number | string;
+  nextDue?: number | string;
+}
+
 // ── Build a personalized notification from the user's actual learning state ──
-function buildPersonalizedMessage() {
+function buildPersonalizedMessage(): NotificationMessage {
   try {
     // Pull user name
     let userName = '';
     try {
-      const profile = JSON.parse(localStorage.getItem('nh_profile') || '{}');
+      const profile = JSON.parse(localStorage.getItem('nh_profile') || '{}') as { name?: string; displayName?: string };
       userName = (profile.name || profile.displayName || '').split(' ')[0].trim();
     } catch (_) {}
     const nameTag = userName ? `, ${userName}` : '';
     const namePrefix = userName ? `${userName}, ` : '';
 
     // Pull SRS vocab — find words the user recently learned
-    const sr = JSON.parse(localStorage.getItem('nh_sr') || '{}');
+    const sr = JSON.parse(localStorage.getItem('nh_sr') || '{}') as Record<string, SRCard>;
     const srWords = Object.entries(sr);
     const recentWord = srWords
-      .filter(([, v]) => v && v.r > 0)
-      .sort((a, b) => (b[1].ts || 0) - (a[1].ts || 0))[0];
+      .filter(([, v]) => v && v.r && v.r > 0)
+      .sort((a, b) => ((b[1].ts || 0) as number) - ((a[1].ts || 0) as number))[0];
 
     // Pull streak
-    const streakData = JSON.parse(localStorage.getItem('nh_streak') || '{}');
+    const streakData = JSON.parse(localStorage.getItem('nh_streak') || '{}') as { count?: number; days?: number };
     const streakCount = streakData.count || streakData.days || 0;
 
     // Pull SRS due count
     const dueCount = srWords.filter(([, v]) => {
       if (!v || !v.due) return false;
-      return new Date(v.due) <= new Date();
+      return new Date(v.due as string) <= new Date();
     }).length;
 
     // Pull lesson count for context
@@ -203,7 +215,7 @@ function buildPersonalizedMessage() {
     let lessonsCompleted = 0;
     if (progressKeys.length) {
       try {
-        const p = JSON.parse(localStorage.getItem(progressKeys[0]) || '{}');
+        const p = JSON.parse(localStorage.getItem(progressKeys[0]) || '{}') as { stats?: { lc?: number }; st?: { lc?: number } };
         lessonsCompleted = (p.stats || p.st || {}).lc || 0;
       } catch (_) {}
     }
@@ -242,7 +254,7 @@ function buildPersonalizedMessage() {
     // ── Messages for a specific recently-studied word ────────────────────────
     if (recentWord) {
       const [word] = recentWord;
-      const wordVariants = [
+      const wordVariants: NotificationMessage[] = [
         { title: `🇭🇷 Vježbaj danas${nameTag}!`,       body: `Remember "${word}"? Use it in a sentence today to lock it in. ✨` },
         { title: `Naša Hrvatska${nameTag}`,              body: `"${word}" — can you use it today? One sentence keeps it sharp.` },
         { title: `📚 Time to reinforce${nameTag}`,       body: `You learned "${word}" recently. Review now before it fades!` },
@@ -252,7 +264,7 @@ function buildPersonalizedMessage() {
 
     // ── Streak-aware messages (no words due) ─────────────────────────────────
     if (streakCount >= 3) {
-      const streakVariants = [
+      const streakVariants: NotificationMessage[] = [
         { title: `🔥 ${streakCount}-day streak${nameTag}!`,    body: `Keep the momentum going — just 5 minutes of Croatian today.` },
         { title: `⭐ ${namePrefix}${streakCount} days strong!`, body: `Even 5 minutes of Croatian today keeps your brain sharp.` },
         { title: `🇭🇷 ${streakCount} days and counting${nameTag}`, body: `Dobar dan! Time for today's Croatian lesson.` },
@@ -272,7 +284,7 @@ function buildPersonalizedMessage() {
   } catch (_) {}
 
   // ── Fallback generic messages (10 variants, rotated) ────────────────────────
-  const fallbacks = [
+  const fallbacks: NotificationMessage[] = [
     { title: 'Naša Hrvatska',       body: "Your Croatian is waiting. 5 minutes keeps the momentum alive. 🇭🇷" },
     { title: 'Vježbaj danas!',       body: "A little Croatian every day adds up fast. Continue your journey! ✨" },
     { title: 'Naša Hrvatska',        body: "Your review queue has words waiting. Come back and keep learning! 📚" },
@@ -287,7 +299,7 @@ function buildPersonalizedMessage() {
   return pickVariant(fallbacks, 'nh_notif_fallback_idx');
 }
 
-function showReminder() {
+function showReminder(): void {
   const msg = buildPersonalizedMessage();
   try {
     new Notification(msg.title, {

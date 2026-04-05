@@ -6,9 +6,25 @@
  * the returned values into its render and context.
  */
 import { useState, useEffect } from 'react';
+import type { MutableRefObject } from 'react';
 import { fbToggleFavorite } from '../lib/firebase.js';
 
-export function usePreferences(uidRef) {
+export interface FavItem {
+  hr?: string;
+  en?: string;
+  name?: string;
+  type?: string;
+  go?: string;
+}
+
+export function usePreferences(uidRef?: MutableRefObject<string | null | undefined>): {
+  darkMode: boolean;
+  setDarkMode: (val: boolean) => void;
+  favs: FavItem[];
+  setFavs: React.Dispatch<React.SetStateAction<FavItem[]>>;
+  toggleFav: (item: FavItem) => void;
+  isFav: (key: string) => boolean;
+} {
   const [darkMode, setDarkMode] = useState(() => {
     const stored = localStorage.getItem('darkMode');
     // If the user has never set a preference, auto-detect from system
@@ -23,7 +39,7 @@ export function usePreferences(uidRef) {
   useEffect(() => {
     const mq = window.matchMedia?.('(prefers-color-scheme: dark)');
     if (!mq) return undefined;
-    const handler = (e) => {
+    const handler = (e: MediaQueryListEvent): void => {
       if (localStorage.getItem('nh_dm_explicit') !== '1') {
         setDarkMode(e.matches);
       }
@@ -38,7 +54,7 @@ export function usePreferences(uidRef) {
   }, [darkMode]);
 
   // Wrap setDarkMode to record that the user explicitly made a choice
-  const setDarkModeExplicit = (val) => {
+  const setDarkModeExplicit = (val: boolean): void => {
     localStorage.setItem('nh_dm_explicit', '1');
     setDarkMode(val);
   };
@@ -55,12 +71,12 @@ export function usePreferences(uidRef) {
     document.documentElement.classList.toggle('reduce-motion', rm);
   }, []);
 
-  const [favs, setFavs] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('uFavs') || '[]'); }
+  const [favs, setFavs] = useState<FavItem[]>(() => {
+    try { return JSON.parse(localStorage.getItem('uFavs') || '[]') as FavItem[]; }
     catch { return []; }
   });
 
-  function toggleFav(item) {
+  function toggleFav(item: FavItem): void {
     const key = item.hr || item.name;
     const exists = favs.some(f => (f.hr || f.name) === key);
     const next = exists
@@ -73,7 +89,7 @@ export function usePreferences(uidRef) {
     if (uid) fbToggleFavorite(uid, next).catch(() => {});
   }
 
-  function isFav(key) {
+  function isFav(key: string): boolean {
     return favs.some(f => (f.hr || f.name) === key);
   }
 
