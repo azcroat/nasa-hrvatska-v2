@@ -11,8 +11,9 @@ import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL } from './fixtures/seed-au
 async function goToLeaderboard(page) {
   await page.getByRole('navigation', { name: 'Main navigation' })
     .getByRole('button', { name: 'Profile', exact: true }).click();
-  // Find and click the Leaderboard button
-  await page.getByText(/Leaderboard/i).first().click();
+  // Profile defaults to Stats subtab — Leaderboard button is there
+  await expect(page.getByText('🏆')).toBeVisible({ timeout: 5_000 });
+  await page.getByText('Leaderboard').first().click();
   await expect(page.getByText(/Family Leaderboard/i)).toBeVisible({ timeout: 5_000 });
 }
 

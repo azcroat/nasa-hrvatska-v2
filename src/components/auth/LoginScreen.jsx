@@ -145,7 +145,7 @@ export default function LoginScreen({
               onClick={doGuest}
               style={{
                 background:'none', border:'none', cursor:'pointer',
-                fontSize:'var(--text-sm)', color:'#6b7280', fontWeight:600,
+                fontSize:'var(--text-sm)', color:'#4b5563', fontWeight:600,
                 fontFamily:"'Outfit',sans-serif", padding:'8px 16px',
                 textDecoration:'underline', textUnderlineOffset:3,
               }}

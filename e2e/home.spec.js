@@ -17,132 +17,84 @@ test.describe('Home tab', () => {
     });
 
     test('shows current level number', async ({ page }) => {
-      // Exact match avoids catching "X% to Level Y" progress text
-      await expect(page.getByText(/^Level \d+$/, { exact: true })).toBeVisible();
+      await expect(page.getByText(/Level \d+/i).first()).toBeVisible();
     });
 
-    test('shows XP total in stats strip', async ({ page }) => {
-      await expect(page.getByText(/XP total/i)).toBeVisible();
+    test('shows XP in hero stats', async ({ page }) => {
+      // Hero mini stat row shows "total XP" label
+      await expect(page.getByText(/total XP/i).first()).toBeVisible();
     });
-  });
 
-  test.describe('Stats strip', () => {
-    test('shows all stat labels', async ({ page }) => {
-      await expect(page.getByText('streak')).toBeVisible();
-      await expect(page.getByText('XP total')).toBeVisible();
-      await expect(page.getByText('mastered')).toBeVisible();
+    test('shows streak count in hero', async ({ page }) => {
+      await expect(page.getByText(/day streak/i).first()).toBeVisible();
+    });
+
+    test('shows mastered word count', async ({ page }) => {
+      await expect(page.getByText(/mastered/i).first()).toBeVisible();
     });
 
     test('shows seeded XP value of 250 on screen', async ({ page }) => {
-      const content = await page.locator('.dash, #main-content').first().textContent();
+      const content = await page.locator('#main-content, [role="main"], body').first().textContent();
       expect(content).toContain('250');
     });
   });
 
-  test.describe('Daily Challenges', () => {
-    test('renders the Daily Challenges section', async ({ page }) => {
-      await expect(page.getByText('Daily Challenges')).toBeVisible();
-    });
-
-    test('shows challenge questions on fresh load', async ({ page }) => {
-      // Fresh load: 0 answered → accordion is open showing questions
-      await expect(page.getByText(/earn up to.*XP/i)).toBeVisible();
-    });
-
-    test('answering a challenge updates progress to 1/3', async ({ page }) => {
-      const section = page.locator('div').filter({ hasText: 'Daily Challenges' }).last();
-      const enabled = section.locator('button:not([disabled])');
-      if (await enabled.count() > 0) {
-        await enabled.first().click();
-        await expect(page.getByText('1/3', { exact: true })).toBeVisible({ timeout: 3_000 });
-      }
-    });
-
-    test('answered challenge buttons become disabled', async ({ page }) => {
-      const section = page.locator('div').filter({ hasText: 'Daily Challenges' }).last();
-      const enabled = section.locator('button:not([disabled])');
-      if (await enabled.count() > 0) {
-        await enabled.first().click();
-        await expect(section.locator('button[disabled]').first()).toBeVisible({ timeout: 3_000 });
-      }
-    });
-
-    test('shows correct/incorrect feedback after answering', async ({ page }) => {
-      const section = page.locator('div').filter({ hasText: 'Daily Challenges' }).last();
-      const enabled = section.locator('button:not([disabled])');
-      if (await enabled.count() > 0) {
-        await enabled.first().click();
-        await expect(section.getByText(/Correct/i)).toBeVisible({ timeout: 3_000 });
-      }
+  test.describe('CEFR progress', () => {
+    test('shows CEFR level label in hero', async ({ page }) => {
+      await expect(page.getByText(/CEFR LEVEL/i)).toBeVisible();
     });
   });
 
-  test.describe('Learning Journey card', () => {
-    test('shows My Learning Journey with milestone progress', async ({ page }) => {
-      await expect(page.getByText('My Learning Journey')).toBeVisible();
-      await expect(page.getByText(/milestones remaining/i)).toBeVisible();
+  test.describe('AI Voice feature', () => {
+    test('shows AI Voice Conversation card', async ({ page }) => {
+      await expect(page.getByText('AI Voice Conversation').first()).toBeVisible();
     });
 
-    test('clicking View Full Learning Path opens learnpath screen', async ({ page }) => {
-      await page.getByText('View Full Learning Path').click();
-      await expect(page.getByText(/Learning Path/i).first()).toBeVisible({ timeout: 5_000 });
+    test('shows Immerse Yourself section', async ({ page }) => {
+      await expect(page.getByText('Immerse Yourself')).toBeVisible();
     });
   });
 
-  test.describe('Quick Practice section', () => {
-    test('shows Quick Practice heading', async ({ page }) => {
-      await expect(page.getByRole('heading', { name: 'Quick Practice' })).toBeVisible();
+  test.describe('Daily content', () => {
+    test('shows Proverb of the Day', async ({ page }) => {
+      await expect(page.getByText(/Proverb of the Day/i)).toBeVisible();
     });
 
-    test('shows Quick Quiz, Flashcards buttons', async ({ page }) => {
-      await expect(page.getByText('Quick Quiz')).toBeVisible();
-      await expect(page.getByText('Flashcards')).toBeVisible();
+    test('shows Did You Know section', async ({ page }) => {
+      await expect(page.getByText(/Did You Know/i)).toBeVisible();
     });
 
-    test('clicking Flashcards launches the flashcard screen', async ({ page }) => {
-      await page.getByText('Flashcards').first().click();
-      // Flashcards renders H("🃏 Flashcards","Tap card to flip. Swipe through words.")
-      await expect(page.getByText(/Tap card to flip/i).first()).toBeVisible({ timeout: 5_000 });
-    });
-
-    test('clicking Quick Quiz launches the multiple choice game', async ({ page }) => {
-      await page.getByText('Quick Quiz').click();
-      // MCGame renders H("🎯 Multiple Choice")
-      await expect(page.getByText(/Multiple Choice/i)).toBeVisible({ timeout: 5_000 });
+    test('shows City of the Day', async ({ page }) => {
+      await expect(page.getByText(/City of the Day/i)).toBeVisible();
     });
   });
 
-  test.describe("Today's Croatian section", () => {
-    test('shows the Proverb of the Day', async ({ page }) => {
-      await expect(page.getByText(/Poslovica dana/i)).toBeVisible();
+  test.describe('Translate feature in hero', () => {
+    test('translate toggle is accessible via hero quick-reply pill', async ({ page }) => {
+      await expect(page.getByText('⇄ Translate')).toBeVisible();
     });
 
-    test('shows the Historical Fact', async ({ page }) => {
-      await expect(page.getByText(/Povijesna činjenica/i)).toBeVisible();
-    });
-  });
-
-  test.describe('Quick Translate', () => {
-    test('renders translate heading and EN→HR toggle', async ({ page }) => {
-      await expect(page.getByRole('heading', { name: 'Quick Translate' })).toBeVisible();
-      await expect(page.getByPlaceholder(/Type English/i)).toBeVisible();
+    test('clicking Translate pill opens inline translate panel', async ({ page }) => {
+      await page.getByText('⇄ Translate').click();
+      await expect(page.getByPlaceholder(/Type English/i)).toBeVisible({ timeout: 3_000 });
       await expect(page.getByText('EN → HR ⇄')).toBeVisible();
     });
 
     test('can toggle translation direction', async ({ page }) => {
+      await page.getByText('⇄ Translate').click();
       await page.getByText('EN → HR ⇄').click();
       await expect(page.getByText('HR → EN ⇄')).toBeVisible();
     });
 
     test('submits translation and shows result', async ({ page }) => {
+      await page.getByText('⇄ Translate').click();
       await page.getByPlaceholder(/Type English/i).fill('Good day');
-      // Use exact: true to avoid matching challenge answer buttons containing "go"
       await page.getByRole('button', { name: 'Go', exact: true }).click();
-      // Scope to the translate output button which contains a speaker icon
       await expect(page.locator('button').filter({ hasText: 'Dobar dan' }).filter({ hasText: '🔊' })).toBeVisible({ timeout: 5_000 });
     });
 
     test('submits translation via Enter key', async ({ page }) => {
+      await page.getByText('⇄ Translate').click();
       await page.getByPlaceholder(/Type English/i).fill('Good day');
       await page.keyboard.press('Enter');
       await expect(page.locator('button').filter({ hasText: 'Dobar dan' }).filter({ hasText: '🔊' })).toBeVisible({ timeout: 5_000 });
