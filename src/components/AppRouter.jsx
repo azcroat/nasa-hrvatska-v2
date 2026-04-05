@@ -242,6 +242,7 @@ const PracticalCroatianScreen = lazyWithReload(() => import("./learn/PracticalCr
 const FrequencyTrackScreen = lazyWithReload(() => import("./learn/FrequencyTrackScreen.jsx"));
 const GrammarTrackScreen = lazyWithReload(() => import("./learn/GrammarTrackScreen.jsx"));
 const ListeningComprehensionScreen = lazyWithReload(() => import("./practice/ListeningComprehensionScreen.jsx"));
+const PronunciationAssessScreen = lazyWithReload(() => import("./practice/PronunciationAssessScreen.jsx"));
 
 // Tab order used for slide direction. Defined at module scope so it's not
 // recreated on every render.
@@ -655,6 +656,7 @@ export default function AppRouter(props) {
       {currentScreen==="cloze"&&<ScreenErrorBoundary key="cloze" name="cloze"><ClozeEngine goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="graded_input"&&<ScreenErrorBoundary key="graded_input" name="graded_input"><GradedInputScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="pronunciation_course"&&<ScreenErrorBoundary key="pronunciation_course" name="pronunciation_course"><PronunciationCourse goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="pronunciation_assess"&&<ScreenErrorBoundary key="pronunciation_assess" name="pronunciation_assess"><PronunciationAssessScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="pitch_accent"&&<ScreenErrorBoundary key="pitch_accent" name="pitch_accent"><PitchAccentMastery goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="heritage_path"&&<ScreenErrorBoundary key="heritage_path" name="heritage_path"><HeritagePathScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="dialect_awareness"&&<ScreenErrorBoundary key="dialect_awareness" name="dialect_awareness"><DialectAwarenessScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
