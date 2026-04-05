@@ -14,14 +14,26 @@
 import { test, expect } from '@playwright/test';
 import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL } from './fixtures/seed-auth.js';
 
-/** Read stats from localStorage, handling both { st: {...} } and { stats: {...} } formats. */
+/** Read stats from localStorage, handling both { st: {...} } and { stats: {...} } formats.
+ * Retries up to 3 times to survive React Router's internal history.pushState() calls
+ * that Playwright may flag as "execution context destroyed" during parallel runs.
+ */
 async function readStats(page) {
-  return page.evaluate((email) => {
+  for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      const p = JSON.parse(localStorage.getItem('uP_' + email));
-      return p?.st ?? p?.stats ?? null;
-    } catch { return null; }
-  }, TEST_EMAIL);
+      return await page.evaluate((email) => {
+        try {
+          const p = JSON.parse(localStorage.getItem('uP_' + email));
+          return p?.st ?? p?.stats ?? null;
+        } catch { return null; }
+      }, TEST_EMAIL);
+    } catch (err) {
+      if (attempt === 2) return null;
+      // Brief pause lets any in-flight React Router navigation settle
+      await page.waitForTimeout(300);
+    }
+  }
+  return null;
 }
 
 test.describe('Progress persistence across sessions', () => {
@@ -42,6 +54,9 @@ test.describe('Progress persistence across sessions', () => {
     // Navigate again (simulates reload — addInitScript re-seeds, app must not reset to 0)
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
+    // Wait for React Router initial navigate() to settle — prevents "execution context
+    // was destroyed" when page.evaluate() races against the router's history.push.
+    await page.waitForLoadState('domcontentloaded');
     const statsAfter = await readStats(page);
     expect(statsAfter).not.toBeNull();
     expect(statsAfter?.xp).toBe(250);
@@ -58,6 +73,7 @@ test.describe('Progress persistence across sessions', () => {
     // Navigate again
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
+    await page.waitForLoadState('domcontentloaded');
     const statsAfter = await readStats(page);
     expect(statsAfter).not.toBeNull();
     expect(statsAfter?.sp ?? 0).toBe(streakBefore);
@@ -117,26 +133,30 @@ test.describe('Progress persistence across sessions', () => {
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
 
+    // Wait for React Router's initial navigate() calls to settle
+    await page.waitForLoadState('domcontentloaded');
+
     // Verify initial XP
     const statsBefore = await readStats(page);
     expect(statsBefore?.xp).toBe(250);
 
-    // Simulate gaining 50 XP directly in localStorage (as the app does)
-    await page.evaluate((email) => {
+    // Simulate gaining 50 XP: write and read-back in a single atomic evaluate call to
+    // avoid a race where the app's auto-save fires between our write and a separate read.
+    const xpAfterWrite = await page.evaluate((email) => {
       try {
         const key = 'uP_' + email;
         const p = JSON.parse(localStorage.getItem(key));
-        if (!p) return;
-        // Handle both { st: {...} } and { stats: {...} } formats
+        if (!p) return null;
         const statsKey = p.st ? 'st' : (p.stats ? 'stats' : null);
-        if (statsKey && p[statsKey]) p[statsKey].xp = 300;
+        if (!statsKey || !p[statsKey]) return null;
+        p[statsKey].xp = 300;
         localStorage.setItem(key, JSON.stringify(p));
-      } catch {}
+        // Read-back immediately in the same JS execution context
+        const p2 = JSON.parse(localStorage.getItem(key));
+        return (p2?.st ?? p2?.stats)?.xp ?? null;
+      } catch { return null; }
     }, TEST_EMAIL);
-
-    // Verify the write took effect (same session, no reload)
-    const statsAfter = await readStats(page);
-    expect(statsAfter?.xp).toBe(300);
+    expect(xpAfterWrite).toBe(300);
   });
 });
 

@@ -74,7 +74,14 @@ test.describe('Tab navigation', () => {
   });
 
   test('search returns results for a known Croatian word', async ({ page }) => {
+    // Wait for the app's post-auth navigate('/') call (from _goPostAuth/setScr('dashboard'))
+    // to complete before interacting. This prevents "execution context destroyed" when
+    // Playwright detects React Router's history.pushState during evaluate/locator checks.
+    await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {});
     await page.getByRole('searchbox', { name: /Search vocabulary/i }).fill('kuća');
+    // doSearch debounces 200ms then lazily imports the search index chunk.
+    // Give both enough time before expecting the results listbox.
+    await page.waitForTimeout(600);
     await expect(page.getByRole('listbox', { name: 'Search results' })).toBeVisible({ timeout: 5_000 });
   });
 });
