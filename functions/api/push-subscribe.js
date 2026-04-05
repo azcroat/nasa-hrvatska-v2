@@ -7,6 +7,8 @@ import { checkRateLimit } from './_rateLimit.js';
 import { getFirebaseUid } from './_verifyToken.js';
 
 function isAllowedOrigin(origin, isDev) {
+  // Empty origin: PWA standalone mode (iOS/Android) and Capacitor. Auth is enforced via Firebase token.
+  if (!origin) return true;
   try {
     const h = new URL(origin).hostname;
     if (isDev && h === 'localhost') return true;

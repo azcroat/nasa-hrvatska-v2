@@ -32,6 +32,8 @@ function sanitizeCategory(cat) {
 }
 
 function isAllowedOrigin(origin, isDev) {
+  // Empty origin: PWA standalone mode (iOS/Android) and Capacitor. Auth is enforced via Firebase token.
+  if (!origin) return true;
   try {
     const hostname = new URL(origin).hostname;
     if (isDev && hostname === "localhost") return true;
