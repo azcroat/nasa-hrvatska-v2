@@ -50,22 +50,22 @@ test.describe('Home tab', () => {
       await expect(page.getByText('AI Voice Conversation').first()).toBeVisible();
     });
 
-    test('shows Immerse Yourself section', async ({ page }) => {
-      await expect(page.getByText('Immerse Yourself')).toBeVisible();
+    test('shows Daily Discovery section', async ({ page }) => {
+      await expect(page.getByText(/Daily Discovery/i)).toBeVisible();
     });
   });
 
   test.describe('Daily content', () => {
-    test('shows Proverb of the Day', async ({ page }) => {
-      await expect(page.getByText(/Proverb of the Day/i)).toBeVisible();
+    test('shows Phrase of the Day', async ({ page }) => {
+      await expect(page.getByText(/Phrase of the Day/i)).toBeVisible();
     });
 
-    test('shows Did You Know section', async ({ page }) => {
-      await expect(page.getByText(/Did You Know/i)).toBeVisible();
+    test('shows AI Conversation card', async ({ page }) => {
+      await expect(page.getByText(/AI Conversation/i).first()).toBeVisible();
     });
 
-    test('shows City of the Day', async ({ page }) => {
-      await expect(page.getByText(/City of the Day/i)).toBeVisible();
+    test('shows Live AI Tutor card', async ({ page }) => {
+      await expect(page.getByText(/Live AI Tutor/i)).toBeVisible();
     });
   });
 
