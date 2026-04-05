@@ -166,7 +166,7 @@ export default function LearnTab({
       {/* ── ANIMATED LESSONS: PAST + FUTURE TENSE ─────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
         <button
-          onClick={() => launchAnimLesson && launchAnimLesson('past-tense')}
+          onClick={() => setScr('past_tense_lesson')}
           className="feature-card feature-card--col"
           style={{ border: '1.5px solid #bae6fd', background: 'linear-gradient(135deg,#f0f9ff,#e0f2fe)' }}
         >
@@ -177,7 +177,7 @@ export default function LearnTab({
           </div>
         </button>
         <button
-          onClick={() => launchAnimLesson && launchAnimLesson('future-tense')}
+          onClick={() => setScr('future_tense_lesson')}
           className="feature-card feature-card--col"
           style={{ border: '1.5px solid #ddd6fe', background: 'linear-gradient(135deg,#faf5ff,#ede9fe)' }}
         >

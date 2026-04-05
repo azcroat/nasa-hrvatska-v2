@@ -35,6 +35,8 @@ const LEVELS = [
       { id: 'profgender',  icon: '👨‍⚖️', title: 'Job Gender Forms',    desc: 'Učitelj vs učiteljica — M/F professions',          screen: 'profgender',   qs: 16 },
       { id: 'unjumble',    icon: '🧩',  title: 'Word Order Drill',     desc: 'Rearrange jumbled Croatian sentences',               screen: 'unjumble',     qs: 20 },
       { id: 'prepdrill',   icon: '📍',  title: 'Prepositions',         desc: 'U, na, od, do, za, s, iz — which case?',            screen: 'prepdrill',    qs: 20 },
+      { id: 'past_tense_lesson', icon: '⏮️', title: 'Past Tense',    desc: 'L-participle + auxiliary — how to talk about the past', screen: 'past_tense_lesson',    qs: 12 },
+      { id: 'future_tense_lesson', icon: '🚀', title: 'Future Tense Full', desc: 'Future I, Future II (budem), and negative future',       screen: 'future_tense_lesson',  qs: 12 },
     ],
   },
   {

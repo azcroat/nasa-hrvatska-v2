@@ -244,6 +244,8 @@ const FrequencyTrackScreen = lazyWithReload(() => import("./learn/FrequencyTrack
 const GrammarTrackScreen = lazyWithReload(() => import("./learn/GrammarTrackScreen.jsx"));
 const ListeningComprehensionScreen = lazyWithReload(() => import("./practice/ListeningComprehensionScreen.jsx"));
 const PronunciationAssessScreen = lazyWithReload(() => import("./practice/PronunciationAssessScreen.jsx"));
+const PastTenseLessonScreen = lazyWithReload(() => import("./learn/PastTenseLessonScreen.jsx"));
+const FutureTenseLessonScreen = lazyWithReload(() => import("./learn/FutureTenseLessonScreen.jsx"));
 
 // Tab order used for slide direction. Defined at module scope so it's not
 // recreated on every render.
@@ -657,6 +659,8 @@ export default function AppRouter(props) {
       {currentScreen==="cloze"&&<ScreenErrorBoundary key="cloze" name="cloze"><ClozeEngine goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="graded_input"&&<ScreenErrorBoundary key="graded_input" name="graded_input"><GradedInputScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="pronunciation_course"&&<ScreenErrorBoundary key="pronunciation_course" name="pronunciation_course"><PronunciationCourse goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="past_tense_lesson"&&<ScreenErrorBoundary key="past_tense_lesson" name="past_tense_lesson"><PastTenseLessonScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="future_tense_lesson"&&<ScreenErrorBoundary key="future_tense_lesson" name="future_tense_lesson"><FutureTenseLessonScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="advanced_vocab"&&<ScreenErrorBoundary key="advanced_vocab" name="advanced_vocab"><AdvancedVocabScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="pronunciation_assess"&&<ScreenErrorBoundary key="pronunciation_assess" name="pronunciation_assess"><PronunciationAssessScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="pitch_accent"&&<ScreenErrorBoundary key="pitch_accent" name="pitch_accent"><PitchAccentMastery goBack={goBack} award={award} /></ScreenErrorBoundary>}
