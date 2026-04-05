@@ -229,8 +229,8 @@ export default function PracticeTab({
     { id:'dictation',    label:'Dictation',            icon:'🎧', desc:'Listen and type Croatian',            category:'advanced', cefr:'B1',  duration:'~10 min', action: () => { setScr("dictation"); sCurEx("dictation"); } },
     { id:'proncontrast',      label:'Sound Contrast',       icon:'🔤', desc:'č/ć, š/ž, đ/dž mastery',                    category:'advanced', cefr:'A2+', duration:'~8 min',  action: () => { setScr("proncontrast"); sCurEx("proncontrast"); } },
     { id:'pronunciation_assess', label:'Pronunciation Test', icon:'🎙️', desc:'CEFR-graded pronunciation assessment & grade', category:'advanced', cefr:'A1+', duration:'~5 min',  action: () => { setScr("pronunciation_assess"); sCurEx("pronunciation_assess"); } },
-    { id: 'production_drill', label: 'Production Drill', icon: '✍️', desc: 'Transform, translate, build sentences — active output practice', category: 'advanced', cefr: 'A2+', duration: '~12 min', action: () => { setScr('production_drill'); sCurEx('production_drill'); } },
-    { id: 'adaptive_review',  label: 'Smart Review',    icon: '🧠', desc: 'Personalized session built from your weak spots',            category: 'advanced', cefr: 'A1+', duration: '~10 min', action: () => { setScr('adaptive_review');  sCurEx('adaptive_review');  } },
+    { id: 'production_drill', label: 'Production Drill ✨', icon: '✍️', desc: 'Transform, translate, build sentences — active output practice', category: 'advanced', cefr: 'A2+', duration: '~12 min', action: () => { setScr('production_drill'); sCurEx('production_drill'); } },
+    { id: 'adaptive_review',  label: 'Smart Review ✨',   icon: '🧠', desc: 'Personalized session built from your weak spots — AI-powered', category: 'advanced', cefr: 'A1+', duration: '~10 min', action: () => { setScr('adaptive_review');  sCurEx('adaptive_review');  } },
     { id:'ai_listening',      label:'AI Listening',        icon:'🎧', desc:'AI-generated dialogues + comprehension',  category:'advanced', cefr:'A2+', duration:'~10 min', action: startAIListening },
     { id:'ai_story',          label:'AI Story',            icon:'📖', desc:'Story built from your weak words',        category:'advanced', cefr:'A2+', duration:'~8 min',  action: () => { setScr('ai_story'); sCurEx('ai_story'); } },
     { id:'video_lesson',      label:'Video Lesson',        icon:'🎬', desc:'Watch a Croatian scene · follow the dialogue · answer questions', category:'advanced', cefr:'A2+', duration:'~12 min', action: startVideoLesson },
@@ -498,12 +498,65 @@ export default function PracticeTab({
                 <button onClick={() => setWeakMsg("")} style={{ position:"absolute", top:10, right:12, background:"none", border:"none", cursor:"pointer", fontSize:18, color:"#92400e", lineHeight:1, opacity:.6 }} aria-label="Dismiss">×</button>
               </div>
             )}
+            {/* ── SMART REVIEW — featured at bottom of review panel ───── */}
+            <button
+              onClick={() => { setScr('adaptive_review'); sCurEx('adaptive_review'); }}
+              className="tc"
+              style={{
+                width:'100%', display:'flex', alignItems:'center', gap:14,
+                padding:'14px 18px', marginBottom:10,
+                border:'1.5px solid rgba(16,185,129,.3)',
+                background:'linear-gradient(135deg,rgba(16,185,129,.08),rgba(5,150,105,.04))',
+                cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif",
+              }}
+            >
+              <div style={{
+                width:44, height:44, borderRadius:13, flexShrink:0,
+                background:'linear-gradient(135deg,#059669,#047857)',
+                display:'flex', alignItems:'center', justifyContent:'center', fontSize:22,
+                boxShadow:'0 4px 12px rgba(5,150,105,.3)',
+              }}>🧠</div>
+              <div style={{flex:1}}>
+                <div style={{display:'flex', alignItems:'center', gap:6}}>
+                  <div style={{fontSize:14, fontWeight:800, color:'var(--heading)'}}>Smart Review</div>
+                  <span style={{fontSize:9, fontWeight:900, letterSpacing:'.05em', background:'linear-gradient(135deg,#059669,#047857)', color:'#fff', borderRadius:5, padding:'2px 6px'}}>AI</span>
+                </div>
+                <div style={{fontSize:12, color:'var(--subtext)', marginTop:1}}>Personalized session from your weak spots, mistakes &amp; overdue cards</div>
+              </div>
+              <div style={{fontSize:18, fontWeight:300, opacity:.6, color:'var(--subtext)'}}>›</div>
+            </button>
           </div>
         )}
 
         {/* ── DRILL PANEL ─────────────────────────────────────────────────── */}
         {activeIntent === 'drill' && (
           <div>
+            {/* ── PRODUCTION DRILL — featured hero ───────────────────────── */}
+            <button
+              onClick={() => { setScr('production_drill'); sCurEx('production_drill'); }}
+              style={{
+                width:'100%', display:'flex', alignItems:'center', gap:14,
+                padding:'16px 18px', marginBottom:12, border:'none', cursor:'pointer',
+                borderRadius:16, background:'linear-gradient(135deg,#7c3aed,#5b21b6)',
+                boxShadow:'0 6px 20px rgba(124,58,237,.35)', textAlign:'left',
+                fontFamily:"'Outfit',sans-serif",
+              }}
+            >
+              <div style={{
+                width:48, height:48, borderRadius:14, flexShrink:0,
+                background:'rgba(255,255,255,.18)', border:'2px solid rgba(255,255,255,.35)',
+                display:'flex', alignItems:'center', justifyContent:'center', fontSize:26,
+              }}>✍️</div>
+              <div style={{flex:1}}>
+                <div style={{display:'flex', alignItems:'center', gap:7, marginBottom:2}}>
+                  <div style={{fontSize:16, fontWeight:900, color:'#fff'}}>Production Drill</div>
+                  <span style={{fontSize:9, fontWeight:900, letterSpacing:'.05em', background:'rgba(255,255,255,.25)', color:'#fff', borderRadius:5, padding:'2px 7px'}}>NEW</span>
+                </div>
+                <div style={{fontSize:12, color:'rgba(255,255,255,.8)'}}>Transform · Translate · Build sentences · Correct errors</div>
+                <div style={{fontSize:11, color:'rgba(255,255,255,.6)', marginTop:2}}>Step from passive recognition to real fluency</div>
+              </div>
+              <div style={{fontSize:22, color:'rgba(255,255,255,.8)', fontWeight:300}}>›</div>
+            </button>
             <div className="section-hdr">
               <div className="section-hdr-icon" style={{background:'rgba(99,102,241,.12)'}}>📚</div>
               <div className="section-hdr-text">

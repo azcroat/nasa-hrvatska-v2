@@ -5,11 +5,11 @@ import MediaTab from './MediaTab.jsx';
 import StoriesTab from './StoriesTab.jsx';
 
 const ANCHORS = [
-  { id: 'section-discover', label: 'Discover', icon: '🗓️' },
-  { id: 'section-history',  label: 'History',  icon: '🏰' },
-  { id: 'section-life',     label: 'Life',      icon: '🏘️' },
-  { id: 'section-media',    label: 'Media',     icon: '🎵' },
-  { id: 'section-stories',  label: 'Stories',   icon: '📖' },
+  { id: 'section-discover', label: 'Discover', icon: '🗓️', cefr: null },
+  { id: 'section-history',  label: 'History',  icon: '🏰', cefr: 'A2+' },
+  { id: 'section-life',     label: 'Life',      icon: '🏘️', cefr: 'A1+' },
+  { id: 'section-media',    label: 'Media',     icon: '🎵', cefr: 'A2–B1' },
+  { id: 'section-stories',  label: 'Stories',   icon: '📖', cefr: 'A1–B2' },
 ];
 
 export default function CroatiaTab({ sCurEx }) {
@@ -161,7 +161,16 @@ export default function CroatiaTab({ sCurEx }) {
                 position:'relative',
               }}
             >
-              {a.icon} {a.label}
+              <span>{a.icon} {a.label}</span>
+              {a.cefr && (
+                <span style={{
+                  display:'block', fontSize:9, fontWeight:700, letterSpacing:'.03em',
+                  color: isActive ? 'var(--info)' : 'var(--subtext)', opacity: isActive ? .9 : .6,
+                  marginTop:1,
+                }}>
+                  {a.cefr}
+                </span>
+              )}
               {isNew && (
                 <span style={{
                   position:'absolute', top:6, right:4,
