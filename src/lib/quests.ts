@@ -7,13 +7,13 @@
  * the corresponding tier-2 quest is automatically marked as well.
  * e.g. markQuest('speak') called twice → 'speak2' also marked.
  */
-import { localDateStr } from './dateUtils.js';
+import { localDateStr } from './dateUtils';
 
 /**
  * Remove quest keys older than yesterday to prevent unbounded localStorage growth.
  * Safe to call on every app session start.
  */
-export function cleanupStaleQuestKeys() {
+export function cleanupStaleQuestKeys(): void {
   try {
     const today = localDateStr();
     const _d = new Date();
@@ -21,7 +21,7 @@ export function cleanupStaleQuestKeys() {
     const yesterday = _d.getFullYear() + '-'
       + String(_d.getMonth() + 1).padStart(2, '0') + '-'
       + String(_d.getDate()).padStart(2, '0');
-    const toRemove = [];
+    const toRemove: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (!key || !key.startsWith('nh_quest_')) continue;
@@ -35,9 +35,14 @@ export function cleanupStaleQuestKeys() {
   } catch (_) {}
 }
 
-const TIER2_MAP = { speak: 'speak2', grammar: 'grammar2', master: 'master2', reading: 'reading2' };
+const TIER2_MAP: Record<string, string> = {
+  speak: 'speak2',
+  grammar: 'grammar2',
+  master: 'master2',
+  reading: 'reading2',
+};
 
-export function markQuest(id) {
+export function markQuest(id: string): void {
   try {
     const d = localDateStr();
     localStorage.setItem('nh_quest_' + id + '_' + d, '1');

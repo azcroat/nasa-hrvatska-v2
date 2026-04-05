@@ -1,30 +1,53 @@
 /**
- * appUtils.js — lightweight app-level utilities with no content-data dependencies.
+ * appUtils.ts — lightweight app-level utilities with no content-data dependencies.
  *
  * Extracted from src/data/content.jsx so hooks can import these small helpers
  * without pulling in the entire 749 KB content bundle at startup.
  *
- * Allowed deps: src/lib/dateUtils.js only. No data/* imports.
+ * Allowed deps: src/lib/dateUtils only. No data/* imports.
  */
-import { localDateStr } from './dateUtils.js';
+import type { CSSProperties } from 'react';
+import { localDateStr } from './dateUtils';
 
 // ─── Daily XP goal ───────────────────────────────────────────────────────────
 export const DAILY_XP_GOAL = 50;
-export function getDailyXP() {
+export function getDailyXP(): number {
   try { return parseInt(localStorage.getItem('nh_daily_xp_' + localDateStr()) || '0', 10); } catch { return 0; }
 }
 
 // ─── XP / Level ──────────────────────────────────────────────────────────────
-export function lvl(x) {
+export function lvl(x: number): number {
   const t = [0, 50, 150, 300, 500, 800, 1200, 1800, 2500, 3500];
   for (let i = t.length - 1; i >= 0; i--) if (x >= t[i]) return i + 1;
   return 1;
 }
-export function lXP(l) { return [0, 0, 50, 150, 300, 500, 800, 1200, 1800, 2500, 3500][l] ?? 3500; }
-export function nXP(l) { return [0, 50, 150, 300, 500, 800, 1200, 1800, 2500, 3500, 5000][l] ?? 5000; }
+export function lXP(l: number): number { return [0, 0, 50, 150, 300, 500, 800, 1200, 1800, 2500, 3500][l] ?? 3500; }
+export function nXP(l: number): number { return [0, 50, 150, 300, 500, 800, 1200, 1800, 2500, 3500, 5000][l] ?? 5000; }
 
 // ─── Seasonal campaigns ───────────────────────────────────────────────────────
-export const SEASONAL_CAMPAIGNS = [
+interface SeasonalQuest {
+  id: string;
+  label: string;
+  desc: string;
+  xp: number;
+  screen: string;
+}
+
+interface SeasonalCampaign {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  bg: string;
+  border: string;
+  start: [number, number];
+  end: [number, number];
+  multiplier: number;
+  blurb: string;
+  quests: SeasonalQuest[];
+}
+
+export const SEASONAL_CAMPAIGNS: SeasonalCampaign[] = [
   { id: 'easter', name: 'Uskrs u Hrvatskoj', icon: '🥚', color: '#16a34a', bg: '#f0fdf4', border: '#86efac',
     start: [3, 20], end: [4, 30], multiplier: 1.5,
     blurb: 'Learn Easter traditions — pisanice, lamb, holiday greetings',
@@ -59,7 +82,7 @@ export const SEASONAL_CAMPAIGNS = [
     ] },
 ];
 
-export function getActiveCampaign() {
+export function getActiveCampaign(): SeasonalCampaign | null {
   const now = new Date();
   const m = now.getMonth() + 1, d = now.getDate();
   return SEASONAL_CAMPAIGNS.find(c => {
@@ -73,10 +96,10 @@ export function getActiveCampaign() {
 
 // ─── XP Boost ────────────────────────────────────────────────────────────────
 export const XP_BOOST_COST = 100;
-export const XP_BOOST_DURATION_MS = 30 * 60 * 1000; // 30 minutes
+export const XP_BOOST_DURATION_MS = 30 * 60 * 1000;
 export const XP_BOOST_MULTIPLIER = 2;
 
-export function getXPBoost() {
+export function getXPBoost(): { active: boolean; expiresAt: number; msRemaining: number } {
   try {
     const exp = parseInt(localStorage.getItem('nh_xp_boost_expires') || '0', 10);
     if (exp > Date.now()) return { active: true, expiresAt: exp, msRemaining: exp - Date.now() };
@@ -84,14 +107,14 @@ export function getXPBoost() {
   return { active: false, expiresAt: 0, msRemaining: 0 };
 }
 
-export function canActivateXPBoost() {
+export function canActivateXPBoost(): boolean {
   try {
     const last = parseInt(localStorage.getItem('nh_xp_boost_last_activated') || '0', 10);
-    return Date.now() - last >= 24 * 60 * 60 * 1000; // one activation per 24 hours
+    return Date.now() - last >= 24 * 60 * 60 * 1000;
   } catch { return true; }
 }
 
-export function activateXPBoost() {
+export function activateXPBoost(): number {
   const now = Date.now();
   const expires = now + XP_BOOST_DURATION_MS;
   try {
@@ -101,11 +124,10 @@ export function activateXPBoost() {
   return expires;
 }
 
-export function lXPgain(xp) {
+export function lXPgain(xp: number): number {
   let result = xp;
   const campaign = getActiveCampaign();
   if (campaign && campaign.multiplier && campaign.multiplier > 1) result = Math.round(result * campaign.multiplier);
-  // XP Boost — only applied to positive awards, never amplifies costs
   if (xp > 0) {
     try {
       const boostExp = parseInt(localStorage.getItem('nh_xp_boost_expires') || '0', 10);
@@ -116,31 +138,36 @@ export function lXPgain(xp) {
 }
 
 // ─── Streak & freeze ─────────────────────────────────────────────────────────
-export function getStreak() {
+interface StreakData {
+  count: number;
+  last: string;
+  frozeOn?: string;
+}
+
+export function getStreak(): StreakData {
   try { return JSON.parse(localStorage.getItem('uStreak') || '{"count":0,"last":""}'); } catch { return { count: 0, last: '' }; }
 }
-export function getStreakFreezes() {
+export function getStreakFreezes(): number {
   try { return parseInt(localStorage.getItem('uFreeze') || '0', 10); } catch { return 0; }
 }
-export function earnFreeze() {
+export function earnFreeze(): void {
   const f = getStreakFreezes(); localStorage.setItem('uFreeze', String(Math.min(f + 1, 2)));
 }
-export function spendFreeze() {
+export function spendFreeze(): boolean {
   const f = getStreakFreezes(); if (f <= 0) return false; localStorage.setItem('uFreeze', String(f - 1)); return true;
 }
 
 const STREAK_MILESTONES = [7, 14, 21, 30, 50, 100, 365];
 
-export function updateStreak(todayOverride) {
+export function updateStreak(todayOverride?: string): StreakData & { milestone: number | null; freezeUsed?: boolean } {
   const s = getStreak(); const today = todayOverride || localDateStr();
   if (s.last === today) {
     try { const eb = JSON.parse(localStorage.getItem('nh_earn_back') || 'null'); if (eb && eb.date === today) { eb.lc = (eb.lc || 1) + 1; localStorage.setItem('nh_earn_back', JSON.stringify(eb)); } } catch {}
     return { ...s, milestone: null };
   }
-  // Derive yesterday from the authoritative today string (DST-safe: parse as local midnight then subtract one day)
   const yd = new Date(today + 'T00:00:00'); yd.setDate(yd.getDate() - 1);
   const yesterday = yd.getFullYear() + '-' + String(yd.getMonth() + 1).padStart(2, '0') + '-' + String(yd.getDate()).padStart(2, '0');
-  let milestone = null; let freezeUsed = false;
+  let milestone: number | null = null; let freezeUsed = false;
   if (s.last === yesterday) { s.count++; s.last = today; if (STREAK_MILESTONES.includes(s.count)) milestone = s.count; }
   else if (s.last !== today) {
     if (spendFreeze()) { s.last = today; s.frozeOn = today; freezeUsed = true; }
@@ -155,10 +182,16 @@ export function updateStreak(todayOverride) {
   return { ...s, milestone, freezeUsed };
 }
 
-export function getStreakEarnBack() {
+interface EarnBackData {
+  prev: number;
+  date: string;
+  lc: number;
+}
+
+export function getStreakEarnBack(): EarnBackData | null {
   try { const eb = JSON.parse(localStorage.getItem('nh_earn_back') || 'null'); if (!eb) return null; if (eb.date !== localDateStr()) return null; return eb; } catch { return null; }
 }
-export function applyStreakEarnBack() {
+export function applyStreakEarnBack(): number {
   const eb = getStreakEarnBack(); if (!eb || eb.lc < 2) return 0;
   const s = getStreak(); s.count = eb.prev; localStorage.setItem('uStreak', JSON.stringify(s));
   try { localStorage.removeItem('nh_earn_back'); } catch {}
@@ -166,16 +199,24 @@ export function applyStreakEarnBack() {
 }
 
 // ─── Culture stats ────────────────────────────────────────────────────────────
-export function getCultureStats() {
+export function getCultureStats(): Record<string, number> {
   try { return JSON.parse(localStorage.getItem('nh_culture') || '{}'); } catch { return {}; }
 }
-export function incrementCulture(key) {
+export function incrementCulture(key: string): number {
   const c = getCultureStats(); c[key] = (c[key] || 0) + 1;
   localStorage.setItem('nh_culture', JSON.stringify(c)); return c[key];
 }
 
 // ─── Badges ───────────────────────────────────────────────────────────────────
-export const BADGES = [
+interface Badge {
+  id: string;
+  n: string;
+  i: string;
+  d: string;
+  r: (s: Record<string, number>) => boolean;
+}
+
+export const BADGES: Badge[] = [
   { id: 'first',  n: 'First Steps',    i: '🌱', d: 'Complete 1 lesson',         r: s => s.lc >= 1 },
   { id: 'x100',   n: 'Rising Star',    i: '⭐', d: 'Earn 100 XP',               r: s => s.xp >= 100 },
   { id: 'x500',   n: 'Scholar',        i: '📚', d: 'Earn 500 XP',               r: s => s.xp >= 500 },
@@ -237,27 +278,34 @@ export const BADGES = [
 ];
 
 // ─── Journey milestones ───────────────────────────────────────────────────────
-export function recordJourneyMilestone(type, meta) {
+interface JourneyEntry {
+  type: string;
+  date: string;
+  allowRepeat?: boolean;
+  [key: string]: unknown;
+}
+
+export function recordJourneyMilestone(type: string, meta?: Record<string, unknown>): void {
   try {
-    const existing = JSON.parse(localStorage.getItem('nh_journey') || '[]');
+    const existing: JourneyEntry[] = JSON.parse(localStorage.getItem('nh_journey') || '[]');
     const allowRepeat = meta && meta.allowRepeat;
     if (!allowRepeat && existing.some(m => m.type === type)) return;
     existing.push(Object.assign({ type, date: new Date().toISOString() }, meta || {}));
     localStorage.setItem('nh_journey', JSON.stringify(existing.slice(-200)));
   } catch (_) {}
 }
-export function getJourneyMilestones() {
+export function getJourneyMilestones(): JourneyEntry[] {
   try { return JSON.parse(localStorage.getItem('nh_journey') || '[]'); } catch (_) { return []; }
 }
 
 // ─── Theme objects (inline CSS for the root div) ──────────────────────────────
-export const BG_LIGHT = /** @type {import('react').CSSProperties} */ ({
+export const BG_LIGHT: CSSProperties = {
   minHeight: '100vh',
   background: 'radial-gradient(ellipse 100% 55% at 60% -10%, rgba(14,116,144,.09) 0%, transparent 60%), radial-gradient(ellipse 70% 45% at 0% 100%, rgba(212,0,48,.05) 0%, transparent 55%), radial-gradient(ellipse 60% 40% at 100% 50%, rgba(0,61,165,.04) 0%, transparent 50%), #eef2f7',
   color: '#1c1917', fontFamily: "'Outfit',sans-serif", position: 'relative', overflowX: 'hidden',
-});
-export const BG_DARK = /** @type {import('react').CSSProperties} */ ({
+};
+export const BG_DARK: CSSProperties = {
   minHeight: '100vh',
   background: 'radial-gradient(ellipse 100% 55% at 50% -10%, rgba(14,116,144,.18) 0%, transparent 55%), radial-gradient(ellipse 60% 40% at 100% 100%, rgba(212,0,48,.1) 0%, transparent 50%), linear-gradient(170deg,#080f1e 0%,#0d1b35 40%,#101828 70%,#0c1520 100%)',
   color: '#e2e8f0', fontFamily: "'Outfit',sans-serif", position: 'relative', overflowX: 'hidden',
-});
+};

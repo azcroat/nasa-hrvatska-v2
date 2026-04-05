@@ -1,26 +1,18 @@
 /**
- * analytics.js — centralized Firebase Analytics event tracking.
+ * analytics.ts — centralized Firebase Analytics event tracking.
  *
  * All functions are safe no-ops when Firebase Analytics is unavailable
  * (ad blockers, private browsing without consent, missing measurementId).
- *
- * D1/D7/D30 retention: nh_install_date is set on first app load and never
- * reset, even across sign-outs. This gives true retention from first touch.
  *
  * GDPR: events are suppressed when the user has not accepted analytics
  * cookies. Consent is stored in localStorage under 'cookie_consent_v1'.
  * Only the value 'accepted' enables analytics; 'essential' (or missing)
  * means the user declined analytics — no events fire.
  */
-import { fbLogEvent } from './firebase.js';
-import { localDateStr } from './dateUtils.js';
+import { fbLogEvent } from './firebase';
+import { localDateStr } from './dateUtils';
 
-/**
- * Returns true only when the user has explicitly accepted analytics cookies.
- * Defaults to false (opt-in, not opt-out) so new users are never tracked
- * before they see and respond to the consent banner.
- */
-function isAnalyticsConsented() {
+function isAnalyticsConsented(): boolean {
   try {
     return localStorage.getItem('cookie_consent_v1') === 'accepted';
   } catch {
@@ -28,23 +20,14 @@ function isAnalyticsConsented() {
   }
 }
 
-/**
- * Consent-gated wrapper around fbLogEvent.
- * Drop-in replacement — all track* functions call this instead of fbLogEvent directly.
- */
-function safeLog(eventName, params) {
+function safeLog(eventName: string, params?: Record<string, unknown>): void {
   if (!isAnalyticsConsented()) return;
   fbLogEvent(eventName, params || {});
 }
 
-/**
- * PostHog funnel analytics — fires only when PostHog is loaded and user consented.
- * Uses window.__posthog set by main.jsx after posthog.init().
- * Safe to call before init — events queue until PostHog is ready.
- */
-function phCapture(eventName, props) {
+function phCapture(eventName: string, props?: Record<string, unknown>): void {
   try {
-    const ph = /** @type {any} */ (window).__posthog;
+    const ph = (window as unknown as Record<string, unknown>).__posthog as { capture?: (name: string, props?: unknown) => void } | undefined;
     if (ph && typeof ph.capture === 'function') {
       ph.capture(eventName, props || {});
     }
@@ -53,7 +36,7 @@ function phCapture(eventName, props) {
 
 const INSTALL_KEY = 'nh_install_date';
 
-function getInstallDate() {
+function getInstallDate(): string {
   let d = localStorage.getItem(INSTALL_KEY);
   if (!d) {
     d = localDateStr();
@@ -62,15 +45,15 @@ function getInstallDate() {
   return d;
 }
 
-export function getDaysSinceInstall() {
+export function getDaysSinceInstall(): number {
   try {
     const install = new Date(getInstallDate());
     const now = new Date();
-    return Math.floor((now - install) / 86400000);
+    return Math.floor((now.getTime() - install.getTime()) / 86400000);
   } catch { return 0; }
 }
 
-function retentionBucket(days) {
+function retentionBucket(days: number): string {
   if (days === 0) return 'd0';
   if (days === 1) return 'd1';
   if (days <= 3) return 'd2_3';
@@ -84,8 +67,7 @@ function retentionBucket(days) {
   return 'd60_plus';
 }
 
-/** Fire on every app open. Provides D1/D7/D14/D30 retention buckets in Analytics. */
-export function trackAppOpen(isSignedIn) {
+export function trackAppOpen(isSignedIn: boolean): void {
   const days = getDaysSinceInstall();
   safeLog('app_open', {
     days_since_install: days,
@@ -99,8 +81,12 @@ export function trackAppOpen(isSignedIn) {
   });
 }
 
-/** Fire when a lesson (celebrate=true) completes and XP is awarded. */
-export function trackLessonComplete({ xpEarned, streak, lessonType = 'vocab', lessonId = '' }) {
+export function trackLessonComplete({ xpEarned, streak, lessonType = 'vocab', lessonId = '' }: {
+  xpEarned: number;
+  streak: number;
+  lessonType?: string;
+  lessonId?: string;
+}): void {
   safeLog('lesson_complete', {
     xp_earned: xpEarned,
     streak,
@@ -116,68 +102,57 @@ export function trackLessonComplete({ xpEarned, streak, lessonType = 'vocab', le
   });
 }
 
-/** Fire when any non-lesson exercise completes. */
-export function trackExerciseComplete({ exerciseType, xpEarned }) {
+export function trackExerciseComplete({ exerciseType, xpEarned }: { exerciseType: string; xpEarned: number }): void {
   safeLog('exercise_complete', {
     exercise_type: exerciseType,
     xp_earned: xpEarned,
   });
 }
 
-/** Fire when the user's level increases. */
-export function trackLevelUp({ newLevel, totalXP }) {
+export function trackLevelUp({ newLevel, totalXP }: { newLevel: number; totalXP: number }): void {
   safeLog('level_up', { new_level: newLevel, total_xp: totalXP });
 }
 
-/** Fire once per badge unlock. */
-export function trackBadgeEarned(badgeId) {
+export function trackBadgeEarned(badgeId: string): void {
   safeLog('badge_earned', { badge_id: badgeId });
 }
 
-/** Fire on streak milestones (7, 14, 30, etc). */
-export function trackStreakMilestone(days) {
+export function trackStreakMilestone(days: number): void {
   safeLog('streak_milestone', { days });
   phCapture('streak_milestone', { days });
 }
 
-/** Fire when the streak counter resets to 0. */
-export function trackStreakBroken(previousStreak) {
+export function trackStreakBroken(previousStreak: number): void {
   safeLog('streak_broken', { previous_streak: previousStreak });
   phCapture('streak_broken', { previous_streak: previousStreak });
 }
 
-/** Fire on new account registration. */
-export function trackSignUp(method = 'email') {
+export function trackSignUp(method = 'email'): void {
   safeLog('sign_up', { method });
   phCapture('sign_up', { method, days_since_install: getDaysSinceInstall() });
 }
 
-/** Fire on successful sign-in. */
-export function trackLogin(method = 'email') {
+export function trackLogin(method = 'email'): void {
   safeLog('login', { method });
   phCapture('login', { method });
 }
 
-/** Fire when the paywall is displayed. */
-export function trackPaywallShown(featureName) {
+export function trackPaywallShown(featureName: string): void {
   safeLog('paywall_shown', { feature: featureName || 'unknown' });
   phCapture('paywall_shown', { feature: featureName || 'unknown' });
 }
 
-/** Fire when the user completes a purchase / activates a subscription. */
-export function trackSubscribed(plan = 'premium') {
+export function trackSubscribed(plan = 'premium'): void {
   safeLog('purchase', { item_name: plan });
   phCapture('subscribed', { plan, days_since_install: getDaysSinceInstall() });
 }
 
-/** Fire when the onboarding tour is completed or dismissed. */
-export function trackOnboardingComplete() {
+export function trackOnboardingComplete(): void {
   safeLog('tutorial_complete', {});
   phCapture('onboarding_complete', { days_since_install: getDaysSinceInstall() });
 }
 
-/** Fire when the daily challenge 3-question set is finished. */
-export function trackDailyChallengeComplete({ score, total }) {
+export function trackDailyChallengeComplete({ score, total }: { score: number; total: number }): void {
   safeLog('daily_challenge_complete', {
     score,
     total,
@@ -185,8 +160,7 @@ export function trackDailyChallengeComplete({ score, total }) {
   });
 }
 
-/** Fire after a spaced-repetition review session. */
-export function trackSRReview({ correct, total }) {
+export function trackSRReview({ correct, total }: { correct: number; total: number }): void {
   if (!total) return;
   safeLog('sr_review_complete', {
     correct,
@@ -195,12 +169,10 @@ export function trackSRReview({ correct, total }) {
   });
 }
 
-/** Fire when the user successfully adds a friend. */
-export function trackFriendAdded() {
+export function trackFriendAdded(): void {
   safeLog('friend_added', {});
 }
 
-/** Fire when the user joins or creates a family group. */
-export function trackFamilyJoined() {
+export function trackFamilyJoined(): void {
   safeLog('family_joined', {});
 }

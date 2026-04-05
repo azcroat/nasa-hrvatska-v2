@@ -4,25 +4,14 @@
  * Authentication passwords are handled by Firebase Auth (server-side, bcrypt).
  * This module provides PBKDF2 for any locally-hashed sensitive data
  * (e.g. offline PIN, local account tokens).
- *
- * Backward-compatibility strategy:
- *   On login: try PBKDF2 first. If no match, try SHA-256 (legacy).
- *   On SHA-256 match: migrate silently — save PBKDF2 hash, return success.
- *   On registration: PBKDF2 only.
- *
- * Note: SHA-256 was removed from the auth flow in a prior security migration
- * (all auth now goes through Firebase). PBKDF2 is available here for any
- * future local-data protection needs.
  */
 
 const SALT = 'nasa-hrvatska-salt-v1';
 
 /**
  * Hash a password using PBKDF2 (100k iterations, SHA-256, 256-bit output).
- * @param {string} password
- * @returns {Promise<string>} hex string
  */
-export async function hashPassword(password) {
+export async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
@@ -44,10 +33,8 @@ export async function hashPassword(password) {
 
 /**
  * Legacy SHA-256 hash (used only for migration detection).
- * @param {string} password
- * @returns {Promise<string>} hex string
  */
-async function hashPasswordSHA256(password) {
+async function hashPasswordSHA256(password: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
@@ -59,21 +46,17 @@ async function hashPasswordSHA256(password) {
 /**
  * Verify a password against a stored hash.
  * Tries PBKDF2 first; if that fails, tries SHA-256 (legacy migration).
- *
- * @param {string} password   — plaintext input
- * @param {string} storedHash — hex hash from storage
- * @param {function} [onMigrate] - called with the new PBKDF2 hash if migration happens
- * @returns {Promise<boolean>}
  */
-export async function verifyPassword(password, storedHash, onMigrate) {
-  // Try PBKDF2 first
+export async function verifyPassword(
+  password: string,
+  storedHash: string,
+  onMigrate?: (newHash: string) => void
+): Promise<boolean> {
   const pbkdf2Hash = await hashPassword(password);
   if (pbkdf2Hash === storedHash) return true;
 
-  // Try legacy SHA-256
   const sha256Hash = await hashPasswordSHA256(password);
   if (sha256Hash === storedHash) {
-    // Migrate: replace stored hash with PBKDF2
     if (typeof onMigrate === 'function') {
       onMigrate(pbkdf2Hash);
     }

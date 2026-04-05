@@ -1,29 +1,16 @@
-// pushNotifications.js — Web Push Notifications
-// Uses the Web Push API directly with a generated VAPID key pair.
-// No Firebase Console setup required.
-//
-// To send server-side pushes, use the `web-push` npm package with:
-//   VAPID_PUBLIC_KEY  = (see VAPID_PUBLIC_KEY constant below)
-//   VAPID_PRIVATE_KEY = (stored in Cloudflare env var VAPID_PRIVATE_KEY)
-//   Contact email     = mailto:jschreiner75@gmail.com
+// pushNotifications.ts — Web Push Notifications
 
-import { localDateStr } from './dateUtils.js';
+import { localDateStr } from './dateUtils';
 
 // ── Notification timer tracking ───────────────────────────────────────────────
-// All scheduled notification timeouts are stored here so they can be cancelled
-// when the user signs out — prevents stale notifications firing after logout.
-const _notifTimers = new Set();
+const _notifTimers = new Set<ReturnType<typeof setTimeout>>();
 
-/**
- * Cancel all pending notification timers.
- * Call this on sign-out to ensure no reminders fire for a signed-out user.
- */
-export function cancelAllNotificationTimers() {
+export function cancelAllNotificationTimers(): void {
   for (const id of _notifTimers) clearTimeout(id);
   _notifTimers.clear();
 }
 
-function _scheduleTimeout(fn, delayMs) {
+function _scheduleTimeout(fn: () => void, delayMs: number): ReturnType<typeof setTimeout> {
   const id = setTimeout(() => {
     _notifTimers.delete(id);
     fn();
@@ -35,38 +22,32 @@ function _scheduleTimeout(fn, delayMs) {
 const NOTIF_KEY = 'nh_notifications_enabled';
 const SUB_KEY   = 'nh_push_subscription';
 
-// ECDH P-256 VAPID key pair generated for this project.
-// Public key is safe to include in client code.
-// Private key is stored as Cloudflare Pages env var VAPID_PRIVATE_KEY.
 export const VAPID_PUBLIC_KEY =
   'BAFN-xEz0NYzDK8Pn9cdKTuTFYNd_cpQQxM_nKRVwz65tzBB--dPawvo59OPkoUlh8GuvIjd1phITqLmJFpnirc';
 
-function urlBase64ToUint8Array(b64) {
+function urlBase64ToUint8Array(b64: string): Uint8Array {
   const padding = '='.repeat((4 - (b64.length % 4)) % 4);
   const base64  = (b64 + padding).replace(/-/g, '+').replace(/_/g, '/');
   const raw     = atob(base64);
   return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
 }
 
-export function isNotificationsEnabled() {
+export function isNotificationsEnabled(): boolean {
   try { return localStorage.getItem(NOTIF_KEY) === 'true'; } catch { return false; }
 }
 
-export function setNotificationsEnabled(val) {
-  try { localStorage.setItem(NOTIF_KEY, String(val)); } catch { }
+export function setNotificationsEnabled(val: boolean): void {
+  try { localStorage.setItem(NOTIF_KEY, String(val)); } catch {}
 }
 
-export async function requestNotificationPermission() {
+export async function requestNotificationPermission(): Promise<NotificationPermission | 'unsupported'> {
   if (!('Notification' in window)) return 'unsupported';
   if (Notification.permission === 'granted') return 'granted';
   if (Notification.permission === 'denied') return 'denied';
   return Notification.requestPermission();
 }
 
-// Register for Web Push using our generated VAPID key.
-// Stores the subscription in localStorage for server-side access.
-// Also registers Periodic Background Sync for daily reminders (Chrome/Edge).
-export async function initPushNotifications() {
+export async function initPushNotifications(): Promise<{ subscription: PushSubscription | null }> {
   try {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
       return { subscription: null };
@@ -74,7 +55,6 @@ export async function initPushNotifications() {
 
     const registration = await navigator.serviceWorker.ready;
 
-    // Reuse existing subscription if it already exists
     let subscription = await registration.pushManager.getSubscription();
 
     if (!subscription) {
@@ -84,34 +64,36 @@ export async function initPushNotifications() {
       });
     }
 
-    try { localStorage.setItem(SUB_KEY, JSON.stringify(subscription.toJSON())); } catch { }
+    try { localStorage.setItem(SUB_KEY, JSON.stringify(subscription.toJSON())); } catch {}
 
-    // Register Periodic Background Sync for daily reminders (no server needed)
     if ('periodicSync' in registration) {
       try {
         // @ts-ignore — Periodic Background Sync API not yet in TS DOM lib
         await registration.periodicSync.register('nh-daily-reminder', {
           minInterval: 24 * 60 * 60 * 1000,
         });
-      } catch (_) { /* permission not granted or API unavailable */ }
+      } catch (_) {}
     }
 
-    // Fire re-engagement reminder if user has been absent
     scheduleReEngagementReminder();
 
     return { subscription };
-  } catch (e) {
-    console.warn('Push notifications not available:', e.message);
+  } catch (e: unknown) {
+    console.warn('Push notifications not available:', (e as Error).message);
     return { subscription: null };
   }
 }
 
-export function getPushSubscription() {
+export function getPushSubscription(): unknown {
   try { const raw = localStorage.getItem(SUB_KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }
 }
 
-// Goal-specific reminder message pools
-const GOAL_MESSAGES = {
+interface GoalMessage {
+  title: string;
+  body: string;
+}
+
+const GOAL_MESSAGES: Record<string, GoalMessage[]> = {
   heritage: [
     { title: "🇭🇷 Your heritage is calling!",          body: "Take 5 minutes to honor your roots today." },
     { title: "Tvoji preci bi bili ponosni",             body: "Practice today — your ancestors would be proud!" },
@@ -139,44 +121,36 @@ const GOAL_MESSAGES = {
   ],
 };
 
-const DEFAULT_MESSAGES = [
+const DEFAULT_MESSAGES: GoalMessage[] = [
   { title: "🔥 Don't break your streak!",   body: "Come practice and protect your streak." },
   { title: "🇭🇷 Croatian practice time!",   body: "Just 5 minutes keeps your skills sharp." },
   { title: "⚡ Keep it going!",              body: "Your Croatian skills are waiting for you." },
 ];
 
-function getGoalMessages(streakDays) {
+function getGoalMessages(streakDays: number): GoalMessage {
   try { const goal = localStorage.getItem('nh_goal') || ''; const pool = GOAL_MESSAGES[goal] || DEFAULT_MESSAGES; return pool[streakDays % pool.length]; } catch { return DEFAULT_MESSAGES[0]; }
 }
 
-// Schedule a local notification using smart timing and goal-aware messaging.
-// Checks nh_last_practice_time (hour as string) to schedule 30 min before that hour.
-// Falls back to 7pm. If that time is already past today, schedules for tomorrow.
-export function scheduleLocalReminder(streakDays = 0) {
+export function scheduleLocalReminder(streakDays = 0): void {
   if (!isNotificationsEnabled()) return;
   if (Notification.permission !== 'granted') return;
 
-  let lastPractice = null; try { lastPractice = localStorage.getItem('nh_last_practice_date'); } catch { }
+  let lastPractice: string | null = null; try { lastPractice = localStorage.getItem('nh_last_practice_date'); } catch {}
   const today = localDateStr();
   if (lastPractice === today) return;
 
   const now = new Date();
   const target = new Date();
 
-  // Smart timing: use last practice hour if valid (6–22), schedule 30 min before
-  let lastHourRaw = null; try { lastHourRaw = localStorage.getItem('nh_last_practice_time'); } catch { }
+  let lastHourRaw: string | null = null; try { lastHourRaw = localStorage.getItem('nh_last_practice_time'); } catch {}
   const lastHour = lastHourRaw !== null ? parseInt(lastHourRaw, 10) : NaN;
 
   if (!isNaN(lastHour) && lastHour >= 6 && lastHour <= 22) {
-    // Schedule reminder 30 minutes before the user's usual practice hour.
-    // e.g. practice at 19:00 → reminder fires at 18:30.
     const beforeHour = lastHour > 0 ? lastHour - 1 : 0;
     const beforeMin  = lastHour > 0 ? 30 : 0;
     target.setHours(beforeHour, beforeMin, 0, 0);
-    // If that time is already past today, schedule for tomorrow at the same time
     if (now >= target) target.setDate(target.getDate() + 1);
   } else {
-    // Default: 7pm
     target.setHours(19, 0, 0, 0);
     if (now >= target) target.setDate(target.getDate() + 1);
   }
@@ -185,21 +159,20 @@ export function scheduleLocalReminder(streakDays = 0) {
 
   _scheduleTimeout(() => {
     if (isNotificationsEnabled() && Notification.permission === 'granted') {
-      // @ts-ignore — renotify is a valid Notifications API option not yet in TS DOM lib
-      new Notification(msg.title, /** @type {any} */ ({
+      // @ts-ignore — renotify is valid
+      new Notification(msg.title, {
         body:     msg.body,
         icon:     '/icons/icon-192x192.png',
         tag:      'nh-daily-reminder',
         renotify: true,
-      }));
+      });
     }
   }, target.getTime() - now.getTime());
 }
 
-// Goal-specific call-to-action suffix for re-engagement messages
-function getGoalCTA() {
-  let goal = ''; try { goal = localStorage.getItem('nh_goal') || ''; } catch { }
-  const ctas = {
+function getGoalCTA(): string {
+  let goal = ''; try { goal = localStorage.getItem('nh_goal') || ''; } catch {}
+  const ctas: Record<string, string> = {
     heritage: ' Honor your roots — 5 minutes today! 🇭🇷',
     family:   ' Do it for the people you love 💙',
     travel:   " Your trip's success starts now ✈️",
@@ -209,71 +182,58 @@ function getGoalCTA() {
   return ctas[goal] || ' Open the app and get back on track!';
 }
 
-// Schedule a re-engagement notification if the user has been absent.
-// - 3+ days absent: immediate notification (5s delay) with miss message
-// - 7+ days absent: adds +50 XP bonus copy to the message
-// - Fires at most once per 48 hours (tracked via nh_reengagement_sent)
-export function scheduleReEngagementReminder() {
+export function scheduleReEngagementReminder(): void {
   if (!isNotificationsEnabled()) return;
   if (Notification.permission !== 'granted') return;
 
-  // Rate-limit: only once per 48 hours
-  let sentRaw = null; try { sentRaw = localStorage.getItem('nh_reengagement_sent'); } catch { }
+  let sentRaw: string | null = null; try { sentRaw = localStorage.getItem('nh_reengagement_sent'); } catch {}
   if (sentRaw) {
     const sentAt = parseInt(sentRaw, 10);
     if (Date.now() - sentAt < 48 * 60 * 60 * 1000) return;
   }
 
-  let lastSeenRaw = null; try { lastSeenRaw = localStorage.getItem('nh_last_seen'); } catch { }
+  let lastSeenRaw: string | null = null; try { lastSeenRaw = localStorage.getItem('nh_last_seen'); } catch {}
   if (!lastSeenRaw) return;
 
   const lastSeen = parseInt(lastSeenRaw, 10);
   const diffMs   = Date.now() - lastSeen;
-  const threeDays   = 3  * 24 * 60 * 60 * 1000;
-  const sevenDays   = 7  * 24 * 60 * 60 * 1000;
-  const fourteenDays= 14 * 24 * 60 * 60 * 1000;
+  const threeDays    = 3  * 24 * 60 * 60 * 1000;
+  const sevenDays    = 7  * 24 * 60 * 60 * 1000;
+  const fourteenDays = 14 * 24 * 60 * 60 * 1000;
 
   if (diffMs < threeDays) return;
 
-  let title = "We miss you! 💙";
-  let body  = "Your Croatian is waiting — just 5 minutes to get back on track.";
+  let title = 'We miss you! 💙';
+  let body  = 'Your Croatian is waiting — just 5 minutes to get back on track.';
   body += getGoalCTA();
 
   if (diffMs >= fourteenDays) {
-    title = "Your progress is safe 🇭🇷";
+    title = 'Your progress is safe 🇭🇷';
     body  = "It's been 2 weeks, but your Croatian is preserved and ready. "
-          + "Come back today — complete 2 lessons and restore your streak! +100 XP waiting.";
+          + 'Come back today — complete 2 lessons and restore your streak! +100 XP waiting.';
     body += getGoalCTA();
   } else if (diffMs >= sevenDays) {
-    body += " +50 XP bonus when you return today!";
+    body += ' +50 XP bonus when you return today!';
   }
 
-  try { localStorage.setItem('nh_reengagement_sent', String(Date.now())); } catch { }
+  try { localStorage.setItem('nh_reengagement_sent', String(Date.now())); } catch {}
 
   _scheduleTimeout(() => {
     if (isNotificationsEnabled() && Notification.permission === 'granted') {
-      // @ts-ignore — renotify is a valid Notifications API option not yet in TS DOM lib
-      new Notification(title, /** @type {any} */ ({
+      // @ts-ignore — renotify is valid
+      new Notification(title, {
         body,
         icon:     '/icons/icon-192x192.png',
         tag:      'nh-reengagement',
         renotify: true,
-      }));
+      });
     }
   }, 5000);
 }
 
-
-// KV registration timestamp key — shared by subscribeToPush and registerPushWithServer
 const _REG_TS_KEY = 'nh_push_reg_ts';
 
-// ── subscribeToPush(userId) ───────────────────────────────────────────────────
-// High-level helper: request permission → subscribe to PushManager → register
-// subscription with the server. Safe to call multiple times (guarded by 85-day
-// localStorage timestamp via registerPushWithServer).
-//
-// userId: Firebase UID (string). If omitted, falls back to anonymous registration.
-export async function subscribeToPush(userId = '') {
+export async function subscribeToPush(userId = ''): Promise<{ ok: boolean; reason?: string }> {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
     return { ok: false, reason: 'unsupported' };
   }
@@ -285,14 +245,12 @@ export async function subscribeToPush(userId = '') {
   if (!subscription) return { ok: false, reason: 'subscription_failed' };
 
   try {
-    const { apiFetch } = await import('./apiFetch.js');
+    const { apiFetch } = await import('./apiFetch');
     const res = await apiFetch('/api/push-subscribe', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         subscription: subscription.toJSON ? subscription.toJSON() : subscription,
-        // Pass userId so the server can store it under the right KV key when
-        // the Firebase auth token isn't available (e.g. anonymous users).
         userId: String(userId || '').slice(0, 64),
       }),
     });
@@ -301,23 +259,16 @@ export async function subscribeToPush(userId = '') {
       return { ok: true };
     }
     return { ok: false, reason: `server_${res.status}` };
-  } catch (e) {
-    console.warn('[Push] subscribeToPush failed:', e.message);
-    return { ok: false, reason: e.message };
+  } catch (e: unknown) {
+    console.warn('[Push] subscribeToPush failed:', (e as Error).message);
+    return { ok: false, reason: (e as Error).message };
   }
 }
 
-// ── sendTestPush(userId) ──────────────────────────────────────────────────────
-// Debugging helper: triggers a server-side Web Push to the current user.
-// Requires CRON_SECRET to be set server-side; this client call will be rejected
-// without it — use from Cloudflare dashboard or a trusted backend context.
-//
-// In dev, you can test by calling this from the browser console after subscribing:
-//   import('/src/lib/pushNotifications.js').then(m => m.sendTestPush('YOUR_UID'))
-export async function sendTestPush(userId = '') {
+export async function sendTestPush(userId = ''): Promise<unknown> {
   if (!userId) { console.warn('[Push] sendTestPush: userId required'); return { ok: false }; }
   try {
-    const { apiFetch } = await import('./apiFetch.js');
+    const { apiFetch } = await import('./apiFetch');
     const res = await apiFetch('/api/push-send', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -331,34 +282,26 @@ export async function sendTestPush(userId = '') {
     const data = await res.json().catch(() => ({}));
     console.warn('[Push] sendTestPush result:', data);
     return data;
-  } catch (e) {
-    console.warn('[Push] sendTestPush error:', e.message);
-    return { ok: false, error: e.message };
+  } catch (e: unknown) {
+    console.warn('[Push] sendTestPush error:', (e as Error).message);
+    return { ok: false, error: (e as Error).message };
   }
 }
 
-// ── Server-side push subscription registration ────────────────────────────────
-// Registers the browser push subscription in Cloudflare KV via /api/push-subscribe.
-// Called after notification permission is granted + user is authenticated.
-// Guards with localStorage timestamp so we re-register at most every 85 days
-// (KV subscriptions expire after 90 days).
-export async function registerPushWithServer({ streak = 0, name = '' } = {}) {
-  // Skip if not supported
+export async function registerPushWithServer({ streak = 0, name = '' } = {}): Promise<{ ok: boolean; cached?: boolean }> {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) return { ok: false };
   if (Notification.permission !== 'granted') return { ok: false };
 
-  // Guard: re-register only if >85 days have passed (or never registered)
   try {
     const ts = parseInt(localStorage.getItem(_REG_TS_KEY) || '0', 10);
     if (ts && Date.now() - ts < 85 * 24 * 60 * 60 * 1000) return { ok: true, cached: true };
   } catch {}
 
-  // Create/retrieve the push subscription
   const { subscription } = await initPushNotifications();
   if (!subscription) return { ok: false };
 
   try {
-    const { apiFetch } = await import('./apiFetch.js');
+    const { apiFetch } = await import('./apiFetch');
     const res = await apiFetch('/api/push-subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -373,8 +316,8 @@ export async function registerPushWithServer({ streak = 0, name = '' } = {}) {
       return { ok: true };
     }
     return { ok: false };
-  } catch (e) {
-    console.warn('[Push] Server registration failed:', e.message);
+  } catch (e: unknown) {
+    console.warn('[Push] Server registration failed:', (e as Error).message);
     return { ok: false };
   }
 }

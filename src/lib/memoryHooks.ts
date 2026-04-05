@@ -1,9 +1,7 @@
 /**
  * Memory hooks — etymological connections and mnemonics for Croatian words.
- * Helps English speakers remember vocabulary by connecting to familiar roots.
- * Keys are the Croatian word (lowercase, no diacritics for easy lookup).
  */
-const MEMORY_HOOKS = {
+const MEMORY_HOOKS: Record<string, string> = {
   // Body & health
   'glava':    '💡 Like "glave" — imagine a head glowing',
   'ruka':     '💡 "Ruka" sounds like "ruler" — a tool you hold in your hand',
@@ -69,18 +67,15 @@ const MEMORY_HOOKS = {
 
 /**
  * Get memory hook for a Croatian word.
- * Normalizes diacritics for lookup.
- * @param {string} hrWord - Croatian word
- * @returns {string|null} Memory hook or null if not available
  */
-export function getMemoryHook(hrWord) {
+export function getMemoryHook(hrWord: string): string | null {
   if (!hrWord) return null;
   const key = hrWord.toLowerCase()
     .replace(/[čć]/g, 'c')
     .replace(/š/g, 's')
     .replace(/ž/g, 'z')
     .replace(/đ/g, 'd')
-    .split(/[,\/\s]/)[0]  // take first word if compound
+    .split(/[,/\s]/)[0]
     .replace(/[^a-z]/g, '');
   return MEMORY_HOOKS[key] || null;
 }

@@ -1,22 +1,31 @@
 /**
- * streakFreeze.js — Streak freeze / streak protection system.
+ * streakFreeze.ts — Streak freeze / streak protection system.
  *
  * Costs 50 XP to buy. Max 2 stored. Auto-applies when a streak would break
  * due to exactly one missed day (the day before yesterday).
  *
  * Uses the same 'uStreak' localStorage key ({ count, last }) that the core
- * streak utilities in streak.js and data.jsx use.
+ * streak utilities in streak.ts and data.jsx use.
  */
 
-const FREEZE_KEY = 'nh_streak_freezes';
+const FREEZE_KEY  = 'nh_streak_freezes';
 const FREEZE_COST = 50; // XP cost to purchase one freeze
 
-export function getFreezesStored() {
+export function getFreezesStored(): number {
   try { return Math.min(2, parseInt(localStorage.getItem(FREEZE_KEY) || '0', 10)); }
   catch { return 0; }
 }
 
-export function purchaseFreeze(currentXP, setStats) {
+interface PurchaseResult {
+  ok: boolean;
+  reason?: string;
+  stored?: number;
+}
+
+export function purchaseFreeze(
+  currentXP: number,
+  setStats: (fn: (prev: Record<string, number>) => Record<string, number>) => void
+): PurchaseResult {
   const stored = getFreezesStored();
   if (stored >= 2) return { ok: false, reason: 'Already have maximum 2 freezes stored' };
   if (currentXP < FREEZE_COST) return { ok: false, reason: `Need ${FREEZE_COST} XP — you have ${currentXP}` };
@@ -27,16 +36,27 @@ export function purchaseFreeze(currentXP, setStats) {
   return { ok: true, stored: stored + 1 };
 }
 
+interface StreakData {
+  count: number;
+  last: string;
+}
+
+interface FreezeResult {
+  applied: boolean;
+  streakData: StreakData;
+  freezesRemaining?: number;
+}
+
 /**
  * Call this when checking whether a streak should break.
  * streakData = { count, last } where last is 'YYYY-MM-DD'.
  * Returns { applied: boolean, streakData, freezesRemaining? }.
  */
-export function applyFreezeIfNeeded(streakData) {
+export function applyFreezeIfNeeded(streakData: StreakData): FreezeResult {
   if (!streakData?.count || streakData.count === 0) return { applied: false, streakData };
 
   // DST-safe date arithmetic using setDate
-  function _dateStr(offsetDays) {
+  function _dateStr(offsetDays: number): string {
     const d = new Date();
     if (offsetDays) d.setDate(d.getDate() + offsetDays);
     return d.getFullYear() + '-' +
@@ -44,8 +64,8 @@ export function applyFreezeIfNeeded(streakData) {
       String(d.getDate()).padStart(2, '0');
   }
 
-  const today = _dateStr(0);
-  const yesterday = _dateStr(-1);
+  const today             = _dateStr(0);
+  const yesterday         = _dateStr(-1);
   const dayBeforeYesterday = _dateStr(-2);
 
   // Streak is active — no freeze needed

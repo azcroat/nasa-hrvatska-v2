@@ -29,25 +29,47 @@ const W = [
 const DESIRED_RETENTION = 0.90; // 90 % target recall
 const LS_KEY = 'nh_sr';
 
+// ─── Card type ────────────────────────────────────────────────────────────────
+interface SRCard {
+  s: number;
+  d: number;
+  r: number;
+  w: number;
+  l: number;
+  b: number;
+  due: number;
+  nextDue: number;
+  // Legacy SM-2 fields (present before migration)
+  ease?: number;
+  interval?: number;
+  ef?: number;
+  iv?: number;
+  rep?: number;
+  reps?: number;
+  t?: number;
+}
+
+type SRMap = Record<string, SRCard>;
+
 // ─── Core FSRS math ──────────────────────────────────────────────────────────
 
 /** Retrievability: probability of recall after t days with stability S */
-function _R(t, S) {
+function _R(t: number, S: number): number {
   return Math.pow(DESIRED_RETENTION, t / S);
 }
 
 /** Initial stability for a new card (grade 1–4, where 4 = easy) */
-function _initS(grade) {
+function _initS(grade: number): number {
   return Math.max(W[grade - 1], 0.1);
 }
 
 /** Initial difficulty (1–10 scale, higher = harder) */
-function _initD(grade) {
+function _initD(grade: number): number {
   return Math.min(Math.max(W[4] - Math.exp(W[5] * (grade - 1)) + 1, 1), 10);
 }
 
 /** Stability after a successful review (grade ≥ 3) */
-function _nextS_recall(D, S, R) {
+function _nextS_recall(D: number, S: number, R: number): number {
   return S * (
     Math.exp(W[8]) *
     (11 - D) *
@@ -58,7 +80,7 @@ function _nextS_recall(D, S, R) {
 }
 
 /** Stability after forgetting (grade < 3) */
-function _nextS_forget(D, S, R) {
+function _nextS_forget(D: number, S: number, R: number): number {
   return (
     W[11] *
     Math.pow(D, -W[12]) *
@@ -68,12 +90,12 @@ function _nextS_forget(D, S, R) {
 }
 
 /** Update difficulty after a review */
-function _nextD(D, grade) {
+function _nextD(D: number, grade: number): number {
   return Math.min(Math.max(D - W[6] * (grade - 3), 1), 10);
 }
 
 /** Optimal next interval in days from stability (capped at 365 days) */
-function _nextInterval(S) {
+function _nextInterval(S: number): number {
   return Math.min(365, Math.max(1, Math.round(S * Math.log(DESIRED_RETENTION) / Math.log(0.9))));
 }
 
@@ -83,45 +105,37 @@ function _nextInterval(S) {
 //   2 = wrong + slow           → wrong but some recall
 //   3 = correct + slow (>8 s)  → correct with difficulty
 //   4 = correct, any speed ≤8s → good / easy
-function _gradeFromResult(correct, timeMs) {
+function _gradeFromResult(correct: boolean, timeMs: number): number {
   if (!correct) return timeMs < 5000 ? 1 : 2;
   return timeMs > 8000 ? 3 : 4;
 }
 
 // ─── Migration from SM-2 card format ─────────────────────────────────────────
-// If a card still has the old 'ease' / 'ef' / 'interval' / 'iv' fields,
-// convert it in-place to FSRS format. Safe to call on every read.
-function _migrate(card) {
-  // Support both SM-2 field names used historically in this codebase:
-  //   ease / interval  (from the original srs.js sm2() helper)
-  //   ef   / iv        (from the data.jsx srMark() implementation)
-  const easeVal    = card.ease !== undefined ? card.ease    : card.ef;
+function _migrate(card: SRCard): SRCard {
+  const easeVal     = card.ease     !== undefined ? card.ease     : card.ef;
   const intervalVal = card.interval !== undefined ? card.interval : card.iv;
 
   if (easeVal !== undefined || intervalVal !== undefined) {
     const ease = Math.min(Math.max(easeVal !== undefined ? easeVal : 2.5, 1.3), 2.5);
     const iv   = intervalVal !== undefined ? intervalVal : 1;
 
-    // Map ease 1.3–2.5 → difficulty 10–1  (linear)
     card.s = Math.max(iv, 0.1);
     card.d = Math.round(10 - (ease - 1.3) * 3.7);
     card.d = Math.min(Math.max(card.d, 1), 10);
     card.l = card.l || 0;
 
-    // Reconstruct due timestamp from last-seen time + interval
     if (!card.due) {
       const lastSeen = card.t || Date.now();
       card.due = lastSeen + iv * 86400000;
     }
     card.nextDue = card.due;
 
-    // Remove SM-2 fields
     delete card.ease;
     delete card.interval;
     delete card.ef;
     delete card.iv;
-    delete card.rep;   // SM-2 rep counter (replaced by r)
-    delete card.t;     // last-seen timestamp (baked into due)
+    delete card.rep;
+    delete card.t;
   }
   return card;
 }
@@ -129,26 +143,21 @@ function _migrate(card) {
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 /** Read the full SRS map from localStorage. Migrates legacy cards on the fly. */
-export function getSR() {
-  let data;
+export function getSR(): SRMap {
+  let data: SRMap;
   try {
-    data = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+    data = JSON.parse(localStorage.getItem(LS_KEY) || '{}') as SRMap;
   } catch {
     return {};
   }
-  // One-time migration: copy data stored under the old 'uSR' key (used by the
-  // previous SM-2 implementation in data.jsx) into 'nh_sr' so no user data
-  // is lost when upgrading. Only runs when 'nh_sr' is empty.
   if (Object.keys(data).length === 0) {
     try {
-      const legacy = JSON.parse(localStorage.getItem('uSR') || '{}');
+      const legacy = JSON.parse(localStorage.getItem('uSR') || '{}') as SRMap;
       if (Object.keys(legacy).length > 0) {
         data = legacy;
-        // The SM-2 fields will be migrated to FSRS in the loop below.
       }
     } catch (_) {}
   }
-  // Migrate any SM-2 cards found; write back only if something changed
   let dirty = false;
   for (const word in data) {
     const before = JSON.stringify(data[word]);
@@ -160,7 +169,7 @@ export function getSR() {
 }
 
 /** Persist the SRS map to localStorage. */
-export function saveSR(data) {
+export function saveSR(data: SRMap): void {
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(data));
   } catch (_) {}
@@ -168,27 +177,18 @@ export function saveSR(data) {
 
 /**
  * Silently add a word to SRS as a brand-new card if it isn't already tracked.
- * Called when a user demonstrates knowledge of a word during exercises —
- * schedules it for review in 1 day without marking it as reviewed yet.
- * No-op if the word is already in SRS.
- *
- * @param {string} word — Croatian word or infinitive to seed
  */
-export function addWordToSRS(word) {
+export function addWordToSRS(word: string): void {
   if (!word || typeof word !== 'string') return;
   const w = word.trim();
   if (!w) return;
   try {
     const sr = getSR();
-    if (sr[w]) return; // already tracked — don't disturb existing progress
-    const s = _initS(3); // grade 3 = "good" first exposure
-    const d = _initD(3);
-    // Use FSRS-computed interval, not a hardcoded 1 day.
-    // _initS(3) = W[2] = 3.1262, so _nextInterval(3.1262) ≈ 3 days.
-    // Hardcoding 1 day was creating excessive review load and surfacing words
-    // sooner than FSRS predicts — incorrectly treating passive exposure as a full review.
+    if (sr[w]) return;
+    const s    = _initS(3);
+    const d    = _initD(3);
     const intv = _nextInterval(s);
-    const due = Date.now() + intv * 86400000;
+    const due  = Date.now() + intv * 86400000;
     sr[w] = { s, d, r: 0, w: 0, l: 0, b: 1, due, nextDue: due };
     saveSR(sr);
   } catch (_) {}
@@ -196,24 +196,19 @@ export function addWordToSRS(word) {
 
 /**
  * Return an array of Croatian word strings that are due for review right now.
- * Matches the signature used by data.jsx getDueReviews().
  */
-export function getDueReviews() {
+export function getDueReviews(): string[] {
   const sr  = getSR();
   const now = Date.now();
-  const due = [];
+  const due: string[] = [];
   for (const word in sr) {
     const card = sr[word];
-    // Primary: FSRS due timestamp
     if (card.due != null) {
       if (card.due <= now) due.push(word);
     } else {
-      // Fallback for any card that somehow lacks a due field
       due.push(word);
     }
   }
-  // Shuffle so due words appear in a different order each session,
-  // preventing the same first word appearing repeatedly.
   for (let i = due.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [due[i], due[j]] = [due[j], due[i]];
@@ -222,23 +217,16 @@ export function getDueReviews() {
 }
 
 /**
- * Record a review result for a word using FSRS-4.5, save, and return the
- * updated card. This is the primary entry point for scoring a review.
- *
- * @param {string}  word    — Croatian word being reviewed
- * @param {boolean} correct — whether the user answered correctly
- * @param {number}  timeMs  — response time in milliseconds
- * @returns {object} updated card
+ * Record a review result for a word using FSRS-4.5, save, and return the updated card.
  */
-export function getSRScore(word, correct, timeMs) {
-  const sr   = getSR();
-  const now  = Date.now();
+export function getSRScore(word: string, correct: boolean, timeMs: number): SRCard {
+  const sr    = getSR();
+  const now   = Date.now();
   const grade = _gradeFromResult(correct, timeMs || 0);
 
   let card = sr[word];
 
   if (!card) {
-    // ── Brand-new card ──────────────────────────────────────────────────────
     const s    = _initS(grade);
     const d    = _initD(grade);
     const intv = _nextInterval(s);
@@ -254,28 +242,19 @@ export function getSRScore(word, correct, timeMs) {
       nextDue: due,
     };
   } else {
-    // ── Existing card — run through FSRS ────────────────────────────────────
-    _migrate(card); // ensure no stale SM-2 fields
+    _migrate(card);
 
-    // Reconstruct the timestamp at which this card was last scheduled.
-    // card.due was set as: lastScheduleTime + _nextInterval(S_at_that_time) * 86400000.
-    // card.s is the stability AFTER the last review, which equals _nextInterval(s) when DR=0.9
-    // (since interval = S exactly at the desired retention level). Using _nextInterval(card.s)
-    // is more precise than card.s directly because it applies the same rounding that was
-    // used when computing card.due, reducing elapsed-days error from up to 0.5 days to 0.
     const lastScheduledMs = card.due - _nextInterval(card.s || 1) * 86400000;
     const elapsedDays = Math.max(0, (now - lastScheduledMs) / 86400000);
     const R = _R(elapsedDays, card.s || 1);
     const D = card.d || 5;
     const S = card.s || 1;
 
-    let newS, newD;
+    let newS: number, newD: number;
     if (grade >= 3) {
-      // Recall
       newS = _nextS_recall(D, S, R);
       newD = _nextD(D, grade);
     } else {
-      // Lapse
       newS = _nextS_forget(D, S, R);
       newD = _nextD(D, grade);
       card.l = (card.l || 0) + 1;
@@ -287,12 +266,12 @@ export function getSRScore(word, correct, timeMs) {
     const intv = _nextInterval(newS);
     const due  = now + intv * 86400000;
 
-    card.s      = newS;
-    card.d      = newD;
-    card.r      = (card.r || 0) + (correct ? 1 : 0);
-    card.w      = (card.w || 0) + (correct ? 0 : 1);
-    card.b      = Math.min(Math.max((card.b || 0) + (correct ? 1 : -2), 0), 5);
-    card.due    = due;
+    card.s       = newS;
+    card.d       = newD;
+    card.r       = (card.r || 0) + (correct ? 1 : 0);
+    card.w       = (card.w || 0) + (correct ? 0 : 1);
+    card.b       = Math.min(Math.max((card.b || 0) + (correct ? 1 : -2), 0), 5);
+    card.due     = due;
     card.nextDue = due;
   }
 
@@ -302,42 +281,30 @@ export function getSRScore(word, correct, timeMs) {
 }
 
 // ─── Legacy / compatibility exports ──────────────────────────────────────────
-// The functions below were exported by the original SM-2 srs.js.
-// Nothing in the current codebase imports them, but they are preserved as
-// thin wrappers / stubs so any future import won't crash.
 
 /**
  * @deprecated Use getSRScore() instead.
  * SM-2-compatible wrapper — runs one FSRS update and returns a card-like object.
  */
-export function sm2(card, quality) {
-  // Map SM-2 quality 0–5 → correct bool + synthetic timeMs
+export function sm2(card: SRCard | null, quality: number): SRCard & { ease: number; interval: number; reps: number; nextReview: number; lastQuality: number } {
   const correct = quality >= 3;
   const timeMs  = quality === 5 ? 1000 : quality === 4 ? 3000 : quality === 3 ? 9000 : quality === 1 ? 3000 : 8000;
-  // Build a temporary word key for the internal update
-  const _tmp = '__sm2_compat__';
-  const sr   = getSR();
-  sr[_tmp]   = card || {};
-  const orig = saveSR; // eslint-disable-line no-unused-vars
-  // Operate directly on a cloned card without touching global storage
-  const grade = _gradeFromResult(correct, timeMs);
-  const now   = Date.now();
+  const grade   = _gradeFromResult(correct, timeMs);
+  const now     = Date.now();
   if (!card || card.s === undefined) {
-    const s   = _initS(grade);
-    const d   = _initD(grade);
+    const s    = _initS(grade);
+    const d    = _initD(grade);
     const intv = _nextInterval(s);
     return { s, d, r: correct ? 1 : 0, w: correct ? 0 : 1, l: 0, b: 1,
              due: now + intv * 86400000, nextDue: now + intv * 86400000,
-             // SM-2 compat fields so callers that read ease/interval don't crash:
              ease: 2.5, interval: intv, reps: 1, nextReview: now + intv * 86400000, lastQuality: quality };
   }
-  // Compute actual elapsed days since this card was last scheduled
   const elapsedDays = card.due && card.interval
     ? Math.max(0, (now - (card.due - card.interval * 86400000)) / 86400000)
     : 0;
-  const R  = _R(elapsedDays, card.s || 1);
-  const D  = card.d || 5;
-  const S  = card.s || 1;
+  const R    = _R(elapsedDays, card.s || 1);
+  const D    = card.d || 5;
+  const S    = card.s || 1;
   const newS = grade >= 3 ? _nextS_recall(D, S, R) : _nextS_forget(D, S, R);
   const newD = _nextD(D, grade);
   const intv = _nextInterval(Math.max(newS, 0.1));
@@ -352,15 +319,24 @@ export function sm2(card, quality) {
   };
 }
 
+interface VocabEntry {
+  id?: string;
+  [key: string]: unknown;
+}
+
+interface DueCardEntry extends VocabEntry {
+  _card: SRCard;
+}
+
 /**
  * @deprecated Use getDueReviews() instead.
- * Returns due + fresh cards from a provided srMap / allCards array.
  */
-export function getDueCards(srMap, allCards, maxNew = 10, maxReview = 20) {
+export function getDueCards(srMap: SRMap, allCards: VocabEntry[], maxNew = 10, maxReview = 20): (VocabEntry | DueCardEntry)[] {
   const now = Date.now();
-  const due = [], fresh = [];
+  const due: DueCardEntry[] = [];
+  const fresh: VocabEntry[] = [];
   for (const c of allCards) {
-    const card = srMap[c.id];
+    const card = c.id ? srMap[c.id as string] : undefined;
     if (!card) {
       fresh.push(c);
     } else {
@@ -372,11 +348,16 @@ export function getDueCards(srMap, allCards, maxNew = 10, maxReview = 20) {
   return [...due.slice(0, maxReview), ...fresh.slice(0, maxNew)];
 }
 
+interface SRStats {
+  due: number;
+  learning: number;
+  mastered: number;
+}
+
 /**
  * @deprecated
- * Returns { due, learning, mastered } counts from a provided srMap.
  */
-export function getSRStats(srMap) {
+export function getSRStats(srMap: SRMap): SRStats {
   const now = Date.now();
   let due = 0, learning = 0, mastered = 0;
   for (const id in srMap) {
@@ -395,48 +376,32 @@ export function getSRStats(srMap) {
 
 /**
  * Return a prioritized review queue from the vocabulary pool.
- *
- * Ordering rules (world-class SRS standard):
- *   1. Overdue cards (due > 1 day ago) — most overdue first
- *   2. Cards due today — lowest retrievability R first (hardest to recall)
- *   3. New words (never reviewed) — padded in if queue < 10, up to 5 words
- *
- * @param {Array} pool — flat array of vocabulary entries, e.g. Object.values(V).flat()
- * @returns {Array} ordered vocabulary entries ready for review
  */
-export function getPrioritizedReviewQueue(pool) {
+export function getPrioritizedReviewQueue(pool: unknown[][]): unknown[][] {
   const sr  = getSR();
   const now = Date.now();
 
-  // Scope to words that exist in the current pool — prevents words from
-  // other categories consuming priority slots that then get discarded.
-  const poolWords = new Set(pool.map(w => w[0]));
+  const poolWords = new Set(pool.map(w => w[0] as string));
 
-  const overdue  = [];
-  const dueToday = [];
+  const overdue:  { word: string; state: SRCard; daysOverdue: number }[] = [];
+  const dueToday: { word: string; state: SRCard; R: number }[] = [];
 
   for (const [word, state] of Object.entries(sr)) {
-    if (!poolWords.has(word)) continue; // only consider words in current category pool
-    if (!state.due) continue;           // skip corrupted entries (handled as new words below)
-    const dueMs      = state.due;
+    if (!poolWords.has(word)) continue;
+    if (!state.due) continue;
+    const dueMs       = state.due;
     const daysOverdue = (now - dueMs) / 86400000;
 
     if (daysOverdue > 1) {
-      // Overdue: past due by more than 1 day
       overdue.push({ word, state, daysOverdue });
     } else if (dueMs <= now) {
-      // Due today (or within the last day): rank by retrievability
       const S = state.s || 1;
       const t = Math.max(0, daysOverdue);
-      const R = Math.pow(DESIRED_RETENTION, t / S); // lower = harder
+      const R = Math.pow(DESIRED_RETENTION, t / S);
       dueToday.push({ word, state, R });
     }
   }
 
-  // Pre-shuffle so ties are broken randomly — JS sort is stable,
-  // so equal-priority items keep their shuffle order after sorting.
-  // Without this, words learned in sequence (e.g. January→December)
-  // would appear in the same order every session.
   for (let i = overdue.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [overdue[i], overdue[j]] = [overdue[j], overdue[i]];
@@ -445,7 +410,6 @@ export function getPrioritizedReviewQueue(pool) {
     const j = Math.floor(Math.random() * (i + 1));
     [dueToday[i], dueToday[j]] = [dueToday[j], dueToday[i]];
   }
-  // Most overdue first; within dueToday lowest R first (hardest)
   overdue.sort((a, b) => b.daysOverdue - a.daysOverdue);
   dueToday.sort((a, b) => a.R - b.R);
 
@@ -453,16 +417,12 @@ export function getPrioritizedReviewQueue(pool) {
 
   if (!pool || !pool.length) return [];
 
-  // Map to vocabulary entries (pool entries are arrays where index 0 = Croatian word)
-  const poolMap = new Map(pool.map(w => [w[0], w]));
+  const poolMap = new Map(pool.map(w => [w[0] as string, w]));
   const result = prioritized
     .map(({ word }) => poolMap.get(word))
-    .filter(Boolean)
+    .filter((w): w is unknown[] => Boolean(w))
     .slice(0, 20);
 
-  // Pad with new words if queue is thin.
-  // Only words with a valid `due` field are "seen" — corrupted entries
-  // (missing due) are treated as unseen so they re-enter the new-word queue.
   if (result.length < 10 && pool) {
     const seenWords = new Set(
       Object.entries(sr)
@@ -470,7 +430,7 @@ export function getPrioritizedReviewQueue(pool) {
         .map(([w]) => w)
     );
     const newWords = pool
-      .filter(w => !seenWords.has(w[0]))
+      .filter(w => !seenWords.has(w[0] as string))
       .slice(0, Math.min(5, 10 - result.length));
     result.push(...newWords);
   }
@@ -480,9 +440,8 @@ export function getPrioritizedReviewQueue(pool) {
 
 /**
  * @deprecated Use _gradeFromResult() logic directly or getSRScore().
- * Maps { correct, timeMs } → SM-2-style quality 0–5.
  */
-export function srQualityFromResult(correct, timeMs) {
+export function srQualityFromResult(correct: boolean, timeMs: number): number {
   if (!correct) return timeMs < 5000 ? 1 : 0;
   if (timeMs < 2000) return 5;
   if (timeMs < 4000) return 4;

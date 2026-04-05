@@ -1,8 +1,13 @@
-// aspectPairs.js — Croatian verb aspect pairs
+// aspectPairs.ts — Croatian verb aspect pairs
 // Format: { imperfective: { pair: perfective, rule: string }, ... }
 // Rule: use imperfective for ongoing/repeated actions, perfective for completed single events
 
-export const ASPECT_PAIRS = {
+interface AspectPairEntry {
+  pair: string | null;
+  rule: string;
+}
+
+export const ASPECT_PAIRS: Record<string, AspectPairEntry> = {
   // Core verbs every learner needs
   'pisati': { pair: 'napisati', rule: 'ongoing writing vs. finished writing something' },
   'čitati': { pair: 'pročitati', rule: 'reading (activity) vs. reading (finishing something)' },
@@ -47,8 +52,15 @@ export const ASPECT_PAIRS = {
   'zaboravljati': { pair: 'zaboraviti', rule: 'forgetting (habit) vs. to forget (one instance)' },
 };
 
+interface AspectInfo {
+  imperfective: string;
+  pair: string | null;
+  rule: string;
+  isPerfective?: boolean;
+}
+
 // Get aspect info for a Croatian word (checks if it's a known verb)
-export function getAspectInfo(hrWord) {
+export function getAspectInfo(hrWord: string): AspectInfo | null {
   if (!hrWord) return null;
   const lower = hrWord.toLowerCase();
   if (ASPECT_PAIRS[lower]) return { imperfective: lower, ...ASPECT_PAIRS[lower] };

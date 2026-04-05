@@ -1,13 +1,9 @@
-// src/lib/appData.js
+// src/lib/appData.ts
 // Public data module — re-exports Croatian language data from data.jsx.
 // Import from here when a component only needs data (not utility functions).
 //
 // This module is mapped to the same 'chunk-data' Vite chunk as data.jsx
 // (see vite.config.js manualChunks), so no bundle-size regression occurs.
-//
-// Future: as data.jsx is split into focused sub-modules, update these
-// re-exports to point to the new source files. Component imports from
-// appData.js will then automatically benefit from the split with no changes.
 
 export {
   // Vocabulary & situational content

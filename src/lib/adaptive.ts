@@ -15,17 +15,27 @@
 
 const KEY = 'topic_accuracy';
 
-function _load() {
+interface TopicData {
+  attempts: number;
+  correct: number;
+  lastAttempt: number;
+}
+
+interface TopicMap {
+  [topicId: string]: TopicData;
+}
+
+function _load(): TopicMap {
   try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { return {}; }
 }
 
-function _save(data) {
+function _save(data: TopicMap): void {
   try { localStorage.setItem(KEY, JSON.stringify(data)); } catch {}
 }
 
 // ─── Core tracking ──────────────────────────────────────────────────────────
 
-export function recordTopicResult(topicId, correct) {
+export function recordTopicResult(topicId: string, correct: boolean): void {
   const data = _load();
   const curr = data[topicId] || { attempts: 0, correct: 0, lastAttempt: 0 };
   data[topicId] = {
@@ -36,22 +46,21 @@ export function recordTopicResult(topicId, correct) {
   _save(data);
 }
 
-export function getTopicAccuracy(topicId) {
+export function getTopicAccuracy(topicId: string): { accuracy: number; attempts: number } | null {
   const data = _load();
   const t = data[topicId];
   if (!t || t.attempts === 0) return null;
   return { accuracy: Math.round((t.correct / t.attempts) * 100), attempts: t.attempts };
 }
 
-export function getWeakTopics(threshold = 60) {
+export function getWeakTopics(threshold = 60): Array<{ id: string; accuracy: number; attempts: number }> {
   const data = _load();
   return Object.entries(data)
-    .filter(([, v]) => /** @type {any} */ (v).attempts >= 3 &&
-      (/** @type {any} */ (v).correct / /** @type {any} */ (v).attempts * 100) < threshold)
+    .filter(([, v]) => v.attempts >= 3 && (v.correct / v.attempts * 100) < threshold)
     .map(([id, v]) => ({
       id,
-      accuracy: Math.round(/** @type {any} */ (v).correct / /** @type {any} */ (v).attempts * 100),
-      attempts: /** @type {any} */ (v).attempts,
+      accuracy: Math.round(v.correct / v.attempts * 100),
+      attempts: v.attempts,
     }))
     .sort((a, b) => a.accuracy - b.accuracy);
 }
@@ -61,16 +70,13 @@ export function getWeakTopics(threshold = 60) {
 /**
  * Returns the recommended next animated lesson ID based on what the learner
  * has attempted and where their gaps are. Falls back to a level-appropriate default.
- *
- * @param {string} cefrLevel - 'A1'|'A2'|'B1'|'B2'|'C1'
- * @returns {string} lesson ID from lessons.js
  */
-export function getRecommendedLesson(cefrLevel) {
+export function getRecommendedLesson(cefrLevel: string): string {
   const weak = getWeakTopics(65);
 
   // Map topic IDs to animated lesson IDs
-  const TOPIC_TO_LESSON = {
-    grammar:   'past-tense',   // grammar weakness → reinforce past tense first
+  const TOPIC_TO_LESSON: Record<string, string> = {
+    grammar:   'past-tense',
     past:      'past-tense',
     tenses:    'past-tense',
     future:    'future-tense',
@@ -78,15 +84,13 @@ export function getRecommendedLesson(cefrLevel) {
     alphabet:  'alphabet',
   };
 
-  // If learner has specific weak topics, recommend the corresponding lesson
   for (const { id } of weak) {
     for (const [topic, lesson] of Object.entries(TOPIC_TO_LESSON)) {
       if (id.toLowerCase().includes(topic)) return lesson;
     }
   }
 
-  // Level-appropriate defaults when no clear weakness
-  const LEVEL_DEFAULT = {
+  const LEVEL_DEFAULT: Record<string, string> = {
     A1: 'alphabet',
     A2: 'past-tense',
     B1: 'future-tense',
@@ -98,18 +102,14 @@ export function getRecommendedLesson(cefrLevel) {
 
 /**
  * Returns recommended exercise difficulty based on rolling accuracy across all topics.
- * Uses a 70% threshold: above = ready to advance, below = stay or drop.
- *
- * @returns {'beginner'|'intermediate'|'advanced'}
  */
-export function getDifficultyRecommendation() {
+export function getDifficultyRecommendation(): 'beginner' | 'intermediate' | 'advanced' {
   const data = _load();
   const entries = Object.values(data);
-  if (entries.length < 5) return 'beginner'; // not enough data
+  if (entries.length < 5) return 'beginner';
 
   const avg = entries.reduce((sum, v) => {
-    const vt = /** @type {any} */ (v);
-    return sum + (vt.attempts > 0 ? vt.correct / vt.attempts : 0);
+    return sum + (v.attempts > 0 ? v.correct / v.attempts : 0);
   }, 0) / entries.length;
 
   const avgPct = avg * 100;
@@ -120,34 +120,30 @@ export function getDifficultyRecommendation() {
 
 /**
  * Returns true if a topic needs urgent remedial review.
- * Criteria: ≥5 attempts AND accuracy below 50% — the learner is struggling badly.
- *
- * @param {string} topicId
- * @returns {boolean}
  */
-export function shouldTriggerRemedial(topicId) {
+export function shouldTriggerRemedial(topicId: string): boolean {
   const data = _load();
   const t = data[topicId];
   if (!t || t.attempts < 5) return false;
   return (t.correct / t.attempts) < 0.50;
 }
 
+interface PathItem {
+  id: string;
+  label: string;
+  reason: string;
+  urgent: boolean;
+}
+
 /**
- * Returns a prioritized, personalized learning path as an ordered array of
- * { id, label, reason } objects. Designed to surface the most urgent gaps first.
- *
- * @param {string} cefrLevel
- * @param {{ diff?: string }} [stats]
- * @returns {Array<{id:string, label:string, reason:string, urgent:boolean}>}
+ * Returns a prioritized, personalized learning path.
  */
-export function getPersonalizedPath(cefrLevel, stats) {
+export function getPersonalizedPath(cefrLevel: string, stats?: { diff?: string }): PathItem[] {
   const weak = getWeakTopics(65);
   const critical = getWeakTopics(50);
 
-  /** @type {Array<{id:string, label:string, reason:string, urgent:boolean}>} */
-  const path = [];
+  const path: PathItem[] = [];
 
-  // Critical remedial items first (accuracy < 50%, ≥3 attempts)
   for (const { id, accuracy } of critical) {
     path.push({
       id,
@@ -157,7 +153,6 @@ export function getPersonalizedPath(cefrLevel, stats) {
     });
   }
 
-  // Weak items (50–64%, ≥3 attempts)
   for (const { id, accuracy } of weak.filter(w => !critical.find(c => c.id === w.id))) {
     path.push({
       id,
@@ -167,9 +162,8 @@ export function getPersonalizedPath(cefrLevel, stats) {
     });
   }
 
-  // Level-appropriate next steps if no clear weaknesses
   if (path.length === 0) {
-    const NEXT = {
+    const NEXT: Record<string, PathItem[]> = {
       A1: [{ id: 'grammar', label: 'Basic Grammar', reason: 'Next step for A1 learners', urgent: false }],
       A2: [{ id: 'past-tense', label: 'Past Tense', reason: 'Core A2 milestone', urgent: false }],
       B1: [
