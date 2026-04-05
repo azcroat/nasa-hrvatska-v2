@@ -2,6 +2,8 @@
 // Fetches real Croatian news and simplifies it to the user's CEFR level
 
 import { checkRateLimit } from './_rateLimit.js';
+import { getFirebaseUid } from './_verifyToken.js';
+import { checkAIQuota } from './_aiQuota.js';
 
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-4-6";
@@ -160,6 +162,15 @@ export async function onRequestGet(context) {
       source: "curated",
       timestamp: Date.now(),
     }, origin);
+  }
+
+  // Quota check before calling Claude 4× (one per article)
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
+  const quota = await checkAIQuota(request, env, uid, 4);
+  if (!quota.allowed) {
+    // Serve curated fallback when daily limit reached — better than an error
+    return ok({ articles: FALLBACK_ARTICLES.map(a => ({ ...a, level })), source: 'curated', timestamp: Date.now() }, origin);
   }
 
   // Simplify top 4 articles in parallel

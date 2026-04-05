@@ -25,9 +25,9 @@ export async function onRequestPost(context) {
   const origin = request.headers.get('origin') || request.headers.get('referer') || '';
   const isDev = env.ENVIRONMENT !== 'production';
 
-  // CORS guard — require a valid Origin from the allowlist.
-  // Empty Origin is rejected (fail-secure); the Firebase token check is a second gate.
-  if (!origin || !isAllowedOrigin(origin, isDev)) {
+  // CORS guard — allow empty Origin (PWA home-screen app, iOS sendBeacon in standalone mode).
+  // Firebase token in the request body is the security boundary.
+  if (origin && !isAllowedOrigin(origin, isDev)) {
     return new Response(JSON.stringify({ error: 'forbidden' }), { status: 403, headers: corsHeaders(origin) });
   }
 

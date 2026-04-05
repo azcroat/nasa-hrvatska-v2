@@ -2,6 +2,8 @@
 // Uses Anthropic Claude to correct Croatian writing and provide feedback
 
 import { checkRateLimit } from './_rateLimit.js';
+import { getFirebaseUid } from './_verifyToken.js';
+import { checkAIQuota } from './_aiQuota.js';
 
 function sanitizeParam(value, maxLen = 200) {
   return String(value || '')
@@ -53,19 +55,21 @@ export async function onRequestPost(context) {
     return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), { status: 429, headers: CORS(origin) });
   }
 
+  // Auth — optional (guests use IP-based quota)
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
+
+  // Daily AI quota (cost 1 — short correction call)
+  const quota = await checkAIQuota(request, env, uid, 1);
+  if (!quota.allowed) {
+    return new Response(
+      JSON.stringify({ error: 'daily_quota_exceeded', message: 'Daily AI limit reached. Resets at midnight UTC.', resetAt: quota.resetAt }),
+      { status: 429, headers: CORS(origin) }
+    );
+  }
+
   if (!ANTHROPIC_KEY) {
-    return new Response(JSON.stringify({
-      corrected_text: "",
-      score: 50,
-      level_demonstrated: "AI correction unavailable",
-      changes: [],
-      strengths: [],
-      improvements: [],
-      encouragement: "Keep writing in Croatian — practice makes perfect!"
-    }), {
-      status: 200,
-      headers: CORS(origin),
-    });
+    return new Response(JSON.stringify({ error: 'Service not configured' }), { status: 503, headers: CORS(origin) });
   }
 
   try {
