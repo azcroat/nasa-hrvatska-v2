@@ -69,11 +69,12 @@ test.describe('Tab navigation', () => {
   });
 
   test('search bar is visible on the dashboard', async ({ page }) => {
-    await expect(page.getByRole('searchbox')).toBeVisible();
+    // The app has multiple searchboxes (main search + learn tab search); target the main one
+    await expect(page.getByRole('searchbox', { name: /Search vocabulary/i })).toBeVisible();
   });
 
   test('search returns results for a known Croatian word', async ({ page }) => {
-    await page.getByRole('searchbox').fill('kuća');
+    await page.getByRole('searchbox', { name: /Search vocabulary/i }).fill('kuća');
     await expect(page.getByRole('listbox', { name: 'Search results' })).toBeVisible({ timeout: 3_000 });
   });
 });

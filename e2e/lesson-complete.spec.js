@@ -29,23 +29,23 @@ test.describe('Full lesson completion flow', () => {
   test('lesson shows word cards before quiz mode', async ({ page }) => {
     await page.locator('button.vocab-pill').first().click();
     await expect(page.getByText('Quiz Me! →')).toBeVisible({ timeout: 5_000 });
-    // Should show the learn card content — at least one Croatian word visible
-    const card = page.locator('.lc, [class*="lesson"], [class*="card"]').first();
+    // Lesson word cards are div[role="button"] with pronunciation aria-label
+    const card = page.locator('[role="button"][aria-label*="pronunciation"]').first();
     await expect(card).toBeVisible({ timeout: 3_000 });
   });
 
   test('clicking Quiz Me! transitions to quiz mode', async ({ page }) => {
     await page.locator('button.vocab-pill').first().click();
     await expect(page.getByText('Quiz Me! →')).toBeVisible({ timeout: 5_000 });
-    await page.getByText('Quiz Me! →').click();
-    // Quiz mode shows "What does this mean?" or similar prompt
-    await expect(page.getByText(/What does|Which means|Translate/i)).toBeVisible({ timeout: 5_000 });
+    await page.getByRole('button', { name: /Quiz Me/i }).click();
+    // Quiz mode shows question counter "X / N" confirming quiz is active
+    await expect(page.getByText(/Question \d+ of \d+/i)).toBeVisible({ timeout: 5_000 });
   });
 
   test('answering a quiz question shows feedback', async ({ page }) => {
     await page.locator('button.vocab-pill').first().click();
-    await page.getByText('Quiz Me! →').click();
-    await expect(page.getByText(/What does|Which means|Translate/i)).toBeVisible({ timeout: 5_000 });
+    await page.getByRole('button', { name: /Quiz Me/i }).click();
+    await expect(page.getByText(/Question \d+ of \d+/i)).toBeVisible({ timeout: 5_000 });
     // Click the first answer option
     await page.locator('button.ob').first().click();
     // Feedback or next button should appear
@@ -55,8 +55,8 @@ test.describe('Full lesson completion flow', () => {
 
   test('completing quiz shows results screen', async ({ page }) => {
     await page.locator('button.vocab-pill').first().click();
-    await page.getByText('Quiz Me! →').click();
-    await expect(page.getByText(/What does|Which means|Translate/i)).toBeVisible({ timeout: 5_000 });
+    await page.getByRole('button', { name: /Quiz Me/i }).click();
+    await expect(page.getByText(/Question \d+ of \d+/i)).toBeVisible({ timeout: 5_000 });
 
     // Answer all questions by clicking first option then Next until results appear
     for (let i = 0; i < 20; i++) {
@@ -85,8 +85,8 @@ test.describe('Full lesson completion flow', () => {
 
   test('XP is saved to localStorage after completing a quiz', async ({ page }) => {
     await page.locator('button.vocab-pill').first().click();
-    await page.getByText('Quiz Me! →').click();
-    await expect(page.getByText(/What does|Which means|Translate/i)).toBeVisible({ timeout: 5_000 });
+    await page.getByRole('button', { name: /Quiz Me/i }).click();
+    await expect(page.getByText(/Question \d+ of \d+/i)).toBeVisible({ timeout: 5_000 });
 
     // Answer all questions
     for (let i = 0; i < 20; i++) {
@@ -129,8 +129,8 @@ test.describe('Full lesson completion flow', () => {
     }, TEST_EMAIL);
 
     await page.locator('button.vocab-pill').first().click();
-    await page.getByText('Quiz Me! →').click();
-    await expect(page.getByText(/What does|Which means|Translate/i)).toBeVisible({ timeout: 5_000 });
+    await page.getByRole('button', { name: /Quiz Me/i }).click();
+    await expect(page.getByText(/Question \d+ of \d+/i)).toBeVisible({ timeout: 5_000 });
 
     for (let i = 0; i < 20; i++) {
       const resultBtn = page.locator('button').filter({ hasText: /See Results|Results/i });
@@ -153,8 +153,8 @@ test.describe('Full lesson completion flow', () => {
 
   test('rapid clicks on See Results only award XP once (double-award guard)', async ({ page }) => {
     await page.locator('button.vocab-pill').first().click();
-    await page.getByText('Quiz Me! →').click();
-    await expect(page.getByText(/What does|Which means|Translate/i)).toBeVisible({ timeout: 5_000 });
+    await page.getByRole('button', { name: /Quiz Me/i }).click();
+    await expect(page.getByText(/Question \d+ of \d+/i)).toBeVisible({ timeout: 5_000 });
 
     for (let i = 0; i < 20; i++) {
       const resultBtn = page.locator('button').filter({ hasText: /See Results|Results/i });
