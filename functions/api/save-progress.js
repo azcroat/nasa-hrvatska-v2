@@ -13,6 +13,7 @@
 import { checkRateLimit } from './_rateLimit.js';
 import { getFirebaseUid } from './_verifyToken.js';
 import { corsHeaders, isAllowedOrigin } from './_helpers.js';
+import { toDocId } from './_docId.js';
 
 export async function onRequestOptions({ request }) {
   const origin = request.headers.get('origin') || '';
@@ -83,7 +84,7 @@ export async function onRequestPost(context) {
   // Write to Firestore via REST API using the user's own ID token.
   // Only updates `progress` and `updated` — leaves all other fields (leaderboard, family) intact.
   // The Firestore security rule allows each user to write their own /users/{docId} document.
-  const docId = uid.replace(/[.#$/[\]]/g, '_');
+  const docId = toDocId(uid);
   // Only update progress blob + timestamp. Do NOT write top-level xp here:
   // fbApplyDelta owns the authoritative xp field via atomic increments. If this beacon
   // wrote a stale absolute xp value (local state may lag behind atomic deltas from another

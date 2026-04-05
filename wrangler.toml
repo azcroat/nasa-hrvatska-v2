@@ -31,8 +31,19 @@ crons = ["0 9 * * *"]    # 9am UTC daily — streak reminder push
 binding    = "PUSH_SUBSCRIPTIONS"
 id         = "4652e2388967424db09395a2be0aad81"
 
+# ── D1 database binding (AI quota — globally consistent) ─────────────────────
+# Create with: wrangler d1 create nasa-hrvatska-quota
+# Then replace REPLACE_WITH_D1_DATABASE_ID below with the returned database_id.
+# Run schema: wrangler d1 execute nasa-hrvatska-quota --file=migrations/0001_quota_schema.sql
+[[d1_databases]]
+binding     = "AI_QUOTA_DB"
+database_name = "nasa-hrvatska-quota"
+database_id   = "REPLACE_WITH_D1_DATABASE_ID"
+
 # ── Environment variables (placeholders) ─────────────────────────────────────
 # Set actual values in Cloudflare dashboard — never commit secrets here
+# NOTE: AI_QUOTA_DB (D1) must also be bound in Cloudflare Pages → Settings → Environment Variables
+#       for Pages Functions to access it alongside this scheduled worker binding.
 [vars]
 ENVIRONMENT = "production"
 
