@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { LEARN_PATH, getStreak, getDailyChallenge, speak, preloadAudio, DAILY_QUESTS, getActiveCampaign, getDueReviews, getSR, V } from '../../data.jsx';
 import { getWordOfDay } from '../../lib/wordOfDay.js';
 import { PHRASE_OF_DAY_POOL as PHRASES_365 } from '../../data/daily-content.js';
@@ -382,26 +382,29 @@ export default function HomeTab({
       <DailyCroatianSection todayPhrases={todayPhrases} />
 
       {/* ── SUB-TAB PILL SELECTOR ── */}
-      <div style={{ display:'flex', gap:8, padding:'4px 0 4px', borderBottom:'1px solid var(--bar-bg)', marginBottom:16 }}>
+      <div className="sub-tab-row">
         {[
           { id:'today',    label:'⚡ Today' },
           { id:'progress', label:'📈 Progress' },
           { id:'review',   label:'🔄 Review' },
         ].map(t => (
-          <button key={t.id} onClick={() => setHTab(t.id)} style={{
-            flex:1, padding:'8px 4px', borderRadius:20, border:'none',
-            background: htab === t.id ? 'var(--info)' : 'var(--bar-bg)',
-            color: htab === t.id ? '#fff' : 'var(--subtext)',
-            fontWeight:700, fontSize:13, cursor:'pointer',
-            transition:'background 0.2s',
-          }}>{t.label}</button>
+          <button
+            key={t.id}
+            onClick={() => setHTab(t.id)}
+            className={`sub-tab-pill${htab === t.id ? ' sub-tab--active' : ''}`}
+          >{t.label}</button>
         ))}
       </div>
 
       {/* ══════════════════════════════════════════
-          ⚡ TODAY TAB
+          TAB CONTENT — AnimatePresence fades between panels
       ══════════════════════════════════════════ */}
+      <AnimatePresence mode="wait">
       {htab === 'today' && (
+        <motion.div key="today"
+          initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0 }} transition={{ duration: 0.18, ease: 'easeOut' }}
+        >
         <React.Fragment>
 
           {/* ── DAILY QUESTS — first thing: what to accomplish today ── */}
@@ -663,27 +666,41 @@ export default function HomeTab({
           />
 
         </React.Fragment>
+        </motion.div>
       )}
 
       {/* ══════════════════════════════════════════
           📈 PROGRESS TAB
       ══════════════════════════════════════════ */}
       {htab === 'progress' && (
-        <ProgressTabContent
-          streak={streak}
-          st={st}
-          ws={ws}
-          weekXP={weekXP}
-          nudgeDismissed={nudgeDismissed}
-          setNudgeDismissed={setNudgeDismissed}
-          setScr={setScr}
-        />
+        <motion.div key="progress"
+          initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0 }} transition={{ duration: 0.18, ease: 'easeOut' }}
+        >
+          <ProgressTabContent
+            streak={streak}
+            st={st}
+            ws={ws}
+            weekXP={weekXP}
+            nudgeDismissed={nudgeDismissed}
+            setNudgeDismissed={setNudgeDismissed}
+            setScr={setScr}
+          />
+        </motion.div>
       )}
 
       {/* ══════════════════════════════════════════
           🔄 REVIEW TAB
       ══════════════════════════════════════════ */}
-      {htab === 'review' && <ReviewTabContent />}
+      {htab === 'review' && (
+        <motion.div key="review"
+          initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0 }} transition={{ duration: 0.18, ease: 'easeOut' }}
+        >
+          <ReviewTabContent />
+        </motion.div>
+      )}
+      </AnimatePresence>
 
     </React.Fragment>
   );

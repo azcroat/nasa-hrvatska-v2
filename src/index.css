@@ -149,6 +149,17 @@ html{
   /* Warning text (WCAG-compliant on warning-bg) */
   --warning-text: #92400e;
 
+  /* ── Motion / animation speed scale ────────────────────────────── */
+  --motion-instant: 0.08s;
+  --motion-fast:    0.15s;
+  --motion-base:    0.25s;
+  --motion-slow:    0.4s;
+  --motion-spring:  cubic-bezier(.34,1.56,.64,1);
+  --motion-ease:    cubic-bezier(.4,0,.2,1);
+
+  /* ── Min tap target ──────────────────────────────────────────── */
+  --tap-min: 44px;
+
   /* ── Z-index scale (never use magic numbers) ───────────────────── */
   --z-base:       1;
   --z-above:      10;
@@ -1739,6 +1750,119 @@ img, video, canvas, .skeleton, [class*="anim-"], [style*="animation"] {
 /* ── prefers-reduced-motion: disable smooth theme transition ── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SUB-TAB PILL NAVIGATION
+   Reusable for HomeTab, PracticeTab, InsightsTab pill rows.
+   Meets 44px min tap target. Controlled by .sub-tab--active.
+═══════════════════════════════════════════════════════════ */
+.sub-tab-row {
+  display: flex;
+  gap: var(--space-sm);
+  padding: 4px 0;
+  border-bottom: 1px solid var(--bar-bg);
+  margin-bottom: var(--space-lg);
+}
+.sub-tab-pill {
+  flex: 1;
+  min-height: var(--tap-min);
+  padding: 10px var(--space-sm);
+  border-radius: var(--radius-full);
+  border: none;
+  background: var(--bar-bg);
+  color: var(--subtext);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--motion-ease),
+              color var(--motion-fast) var(--motion-ease),
+              transform var(--motion-instant) ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.sub-tab-pill:active { transform: scale(0.95); }
+.sub-tab-pill.sub-tab--active {
+  background: var(--info);
+  color: #fff;
+}
+.sub-tab-pill:focus-visible {
+  outline: 3px solid var(--info);
+  outline-offset: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HORIZONTAL SCROLL WITH FADE-EDGE HINT
+   Apply .scroll-fade-wrap to the container; it clips overflow
+   and shows a gradient fade on the trailing edge to hint scroll.
+═══════════════════════════════════════════════════════════ */
+.scroll-fade-wrap {
+  position: relative;
+}
+.scroll-fade-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 6px;
+  width: 40px;
+  pointer-events: none;
+  background: linear-gradient(to left, var(--app-bg) 0%, transparent 100%);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DISMISS / CLOSE BUTTON
+   Small text-style dismiss link — consistent across modals,
+   banners, etc.
+═══════════════════════════════════════════════════════════ */
+.dismiss-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--subtext);
+  font-size: var(--text-sm);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  padding: var(--space-sm) var(--space-md);
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: color var(--motion-fast) var(--motion-ease),
+              background var(--motion-fast) var(--motion-ease);
+}
+.dismiss-btn:hover { background: var(--bar-bg); color: var(--heading); }
+.dismiss-btn:active { transform: scale(0.97); }
+
+/* ═══════════════════════════════════════════════════════════
+   GRID UTILITIES — standardized gaps
+═══════════════════════════════════════════════════════════ */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg); }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); }
+@media (max-width: 380px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE FINE-TUNING — small phones (< 380px)
+   Cards, buttons, and grid gaps scale down slightly so nothing
+   overflows or gets squashed on very small screens.
+═══════════════════════════════════════════════════════════ */
+@media (max-width: 380px) {
+  .c   { padding: 14px 12px; }
+  .tc  { padding: 12px 10px; }
+  .b   { padding: 12px 14px; font-size: var(--text-base); }
+  .bp, .bs, .bw { padding: 12px 14px; }
+  .g2  { gap: var(--space-sm); }
+  .g3  { gap: var(--space-sm); }
+  /* Reduce hero heading on tiny screens */
+  .hero-heading { font-size: var(--text-xl) !important; }
+  /* Tab nav label size */
+  .nav-label { font-size: 9px !important; }
 }
 
 /* ── Top loading progress bar ────────────────────────────────── */

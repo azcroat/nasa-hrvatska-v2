@@ -32,6 +32,10 @@ export function seedAuth(page) {
     localStorage.setItem('uStreak', JSON.stringify({ count: 5, last: today }));
     // Dismiss cookie consent dialog so it doesn't block test interactions
     localStorage.setItem('cookie_consent_v1', 'accepted');
+    // Mark goal as set so the GoalSetterModal never blocks tests
+    localStorage.setItem('nh_goal_set', '1');
+    // Mark weekly recap as shown so WeeklyRecapModal never blocks tests
+    localStorage.setItem('nh_weekly_recap_shown_' + new Date().toISOString().slice(0, 10).replace(/-/g, '').slice(0, 8), '1');
   }, {
     email: TEST_EMAIL,
     name: TEST_NAME,
