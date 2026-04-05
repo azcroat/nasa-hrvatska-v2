@@ -516,7 +516,16 @@ const SVOJMOJ = {
     {q:"We love _____ city. (our own)",a:"svoj",opts:["naš","njihov","svoj"],note:"Subject 'we' → svoj"},
     {q:"Are you doing _____ homework? (your own)",a:"svoj",opts:["tvoj","njegov","svoj"],note:"Subject 'you' → svoj"},
     {q:"They packed _____ bags. (their own)",a:"svoje",opts:["njihove","naše","svoje"],note:"Subject 'they' → svoje"},
-    {q:"I left _____ phone at home. (my own)",a:"svoj",opts:["moj","tvoj","svoj"],note:"Subject 'I' → svoj"}
+    {q:"I left _____ phone at home. (my own)",a:"svoj",opts:["moj","tvoj","svoj"],note:"Subject 'I' → svoj"},
+    {q:"Ivan pije _____ kavu. (his own coffee)",a:"svoju",opts:["njegovu","tvoju","svoju"],note:"Ivan is the subject, so his own coffee = svoju (acc, fem)"},
+    {q:"Ana voli _____ posao. (her own job)",a:"svoj",opts:["njezin","moj","svoj"],note:"Ana is the subject, posao is masc → svoj"},
+    {q:"Djeca čuvaju _____ igračke. (their own toys)",a:"svoje",opts:["njihove","naše","svoje"],note:"Djeca are the subject → svoje (neuter pl = svoje)"},
+    {q:"Uzeo je _____ kaput i otišao. (his own coat)",a:"svoj",opts:["njegov","moj","svoj"],note:"He (subject) took HIS OWN coat — 'njegov' would mean someone else's"},
+    {q:"Zaboravila sam _____ ključeve. (my own keys)",a:"svoje",opts:["moje","tvoje","svoje"],note:"I (subject) forgot MY OWN keys — use svoje"},
+    {q:"Volim _____ obitelj. (my own family)",a:"svoju",opts:["moju","njezinu","svoju"],note:"I am the subject — use svoju (acc, fem)"},
+    {q:"Ona ne voli _____ brata. (her own brother — correct Croatian)",a:"svog",opts:["njezin","svog","mog"],note:"She (subject) doesn't like HER OWN brother → svog (gen/acc masc)"},
+    {q:"'Uzeo je njegov auto' means:",a:"He took SOMEONE ELSE'S car",opts:["He took his own car","He took SOMEONE ELSE'S car","He bought a car"],note:"'Njegov' refers to a different person's possession"},
+    {q:"When should you use MOJE instead of SVOJE?",a:"When referring to someone else's item from your perspective",opts:["Never — always use svoje","When referring to someone else's item from your perspective","When the subject is 'ja'"],note:"Moj/tvoj/njegov are for possession not linked to the sentence subject"}
   ]
 };
 // ═══ BASKETBALL PRACTICE ═══
