@@ -3,9 +3,23 @@
  * Verifies that XP, lesson counts, streaks, and stats survive page reloads,
  * tab switches, and simulated multi-session usage. This is the category of
  * bugs that caused the most user pain ("my progress disappeared").
+ *
+ * NOTE: The app saves progress as { stats: {...} } (progressSnapshot format).
+ * The seed uses { st: {...} }. After first load, the app overwrites with stats format.
+ * All localStorage reads use `p?.st ?? p?.stats` to handle both.
  */
 import { test, expect } from '@playwright/test';
 import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL } from './fixtures/seed-auth.js';
+
+/** Read stats from localStorage, handling both { st: {...} } and { stats: {...} } formats. */
+async function readStats(page) {
+  return page.evaluate((email) => {
+    try {
+      const p = JSON.parse(localStorage.getItem('uP_' + email));
+      return p?.st ?? p?.stats ?? null;
+    } catch { return null; }
+  }, TEST_EMAIL);
+}
 
 test.describe('Progress persistence across sessions', () => {
   test.beforeEach(async ({ page }) => {
@@ -17,55 +31,47 @@ test.describe('Progress persistence across sessions', () => {
   test('XP value persists across page reload', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    // Verify initial XP of 250 is in localStorage (displayed in multiple places)
-    const xpBefore = await page.evaluate((email) => {
-      try { return JSON.parse(localStorage.getItem('uP_' + email))?.st?.xp ?? null; }
-      catch { return null; }
-    }, TEST_EMAIL);
-    expect(xpBefore).toBe(250);
+    // Verify initial XP of 250 is in localStorage
+    const statsBefore = await readStats(page);
+    expect(statsBefore).not.toBeNull();
+    expect(statsBefore?.xp).toBe(250);
 
     // Reload the page (simulates closing and reopening)
     await seedAuth(page);
     await blockFirebase(page);
     await page.reload();
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
+    await page.waitForLoadState('networkidle');
     // XP should still be 250 — not reset to 0
-    const xpAfter = await page.evaluate((email) => {
-      try { return JSON.parse(localStorage.getItem('uP_' + email))?.st?.xp ?? null; }
-      catch { return null; }
-    }, TEST_EMAIL);
-    expect(xpAfter).toBe(250);
+    const statsAfter = await readStats(page);
+    expect(statsAfter).not.toBeNull();
+    expect(statsAfter?.xp).toBe(250);
   });
 
   test('streak count persists across page reload', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    // Verify streak via localStorage (displayed alongside many other numbers on screen)
-    const streakBefore = await page.evaluate((email) => {
-      try { return JSON.parse(localStorage.getItem('uP_' + email))?.st?.sp ?? null; }
-      catch { return null; }
-    }, TEST_EMAIL);
+    // Verify streak via localStorage
+    const statsBefore = await readStats(page);
+    expect(statsBefore).not.toBeNull();
+    const streakBefore = statsBefore?.sp ?? 0;
     expect(streakBefore).toBeGreaterThanOrEqual(0);
 
     await seedAuth(page);
     await blockFirebase(page);
     await page.reload();
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    const streakAfter = await page.evaluate((email) => {
-      try { return JSON.parse(localStorage.getItem('uP_' + email))?.st?.sp ?? null; }
-      catch { return null; }
-    }, TEST_EMAIL);
-    expect(streakAfter).toBe(streakBefore);
+    await page.waitForLoadState('networkidle');
+    const statsAfter = await readStats(page);
+    expect(statsAfter).not.toBeNull();
+    expect(statsAfter?.sp ?? 0).toBe(streakBefore);
   });
 
   test('seeded stats are not reset to zero on app load', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
 
-    const stats = await page.evaluate((email) => {
-      try { return JSON.parse(localStorage.getItem('uP_' + email))?.st ?? null; }
-      catch { return null; }
-    }, TEST_EMAIL);
+    const stats = await readStats(page);
 
     expect(stats).not.toBeNull();
     if (!stats) return;
@@ -78,10 +84,7 @@ test.describe('Progress persistence across sessions', () => {
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
 
-    const stats = await page.evaluate((email) => {
-      try { return JSON.parse(localStorage.getItem('uP_' + email))?.st ?? null; }
-      catch { return null; }
-    }, TEST_EMAIL);
+    const stats = await readStats(page);
 
     expect(stats).not.toBeNull();
     if (!stats) return;
@@ -110,7 +113,7 @@ test.describe('Progress persistence across sessions', () => {
     await page.waitForTimeout(300);
 
     // XP should still be correct after all tab switches
-    await expect(page.getByText('250')).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('250').first()).toBeVisible({ timeout: 5_000 });
   });
 
   test('simulated XP gain persists after reload', async ({ page }) => {
@@ -122,8 +125,11 @@ test.describe('Progress persistence across sessions', () => {
       try {
         const key = 'uP_' + email;
         const p = JSON.parse(localStorage.getItem(key));
-        p.st.xp = 300;
-        p.st.lc = 11;
+        // Handle both { st: {...} } and { stats: {...} } formats
+        const statsKey = p.st ? 'st' : 'stats';
+        if (!p[statsKey]) p[statsKey] = {};
+        p[statsKey].xp = 300;
+        p[statsKey].lc = 11;
         localStorage.setItem(key, JSON.stringify(p));
       } catch {}
     }, TEST_EMAIL);
@@ -131,18 +137,15 @@ test.describe('Progress persistence across sessions', () => {
     await seedAuth(page); // Re-seed session (keep login valid)
     await blockFirebase(page);
 
-    await page.evaluate(() => { /* Force a reload via navigation */ });
     await page.reload();
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
+    await page.waitForLoadState('networkidle');
 
-    const stats = await page.evaluate((email) => {
-      try { return JSON.parse(localStorage.getItem('uP_' + email))?.st; }
-      catch { return null; }
-    }, TEST_EMAIL);
+    const stats = await readStats(page);
 
     // Should be 300 (our written value), NOT 250 (the seed value)
-    expect(stats.xp).toBe(300);
-    expect(stats.lc).toBe(11);
+    expect(stats?.xp).toBe(300);
+    expect(stats?.lc).toBe(11);
   });
 });
 
