@@ -17,6 +17,7 @@ import {
   type Firestore,
 } from 'firebase/firestore';
 import { getAnalytics, logEvent as _fbLogEvent, isSupported as analyticsIsSupported } from 'firebase/analytics';
+import { toDocId } from './userKey.js';
 
 const FIREBASE_CONFIG = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -76,7 +77,7 @@ export function isValidEmail(e: string): boolean { return /^[^\s@]+@[^\s@]+\.[^\
 // ═══ FIREBASE SYNC ═══
 export async function fbSaveProgress(uid: string, data: Record<string, unknown>): Promise<{ ok: boolean; err?: string; code?: string }> {
   if (!_fbReady || !_fbDb) return { ok: true };
-  const id = uid.replace(/[.#$/[\]]/g, '_');
+  const id = toDocId(uid);
   const _st = (data.stats || data.st || {}) as Record<string, unknown>;
   const _strk = (data.streak && typeof (data.streak as Record<string, unknown>).count === 'number')
     ? (data.streak as Record<string, number>).count
@@ -96,18 +97,14 @@ export async function fbSaveProgress(uid: string, data: Record<string, unknown>)
   const _cachedLvlRaw = _cachedP && _cachedP.level;
   const _cachedLvl = typeof _cachedLvlRaw === 'number' ? _cachedLvlRaw : (_CEFR_NUM[_cachedLvlRaw as string] || 1);
   const _bestLvl = Math.max(_lvl, _cachedLvl);
-  const _PROGRESS_LIMIT = 180000;
-  let _progressJson = JSON.stringify(data);
-  if (_progressJson.length > _PROGRESS_LIMIT && data.sr && typeof data.sr === 'object') {
-    const _srEntries = Object.entries(data.sr as Record<string, Record<string, number>>).sort(([, a], [, b]) => (a.due || 0) - (b.due || 0));
-    let _kept = _srEntries.length;
-    while (_kept > 50) {
-      _kept = Math.floor(_kept * 0.75);
-      _progressJson = JSON.stringify({ ...data, sr: Object.fromEntries(_srEntries.slice(0, _kept)) });
-      if (_progressJson.length <= _PROGRESS_LIMIT) break;
-    }
-    console.warn('[sync] SRS pruned to', _kept, 'cards to fit 200KB Firestore limit');
+  // Save SRS data separately to avoid the 200KB progress blob limit.
+  // Fire-and-forget — SRS sync failure is non-critical (localStorage is authoritative).
+  if (data.sr && typeof data.sr === 'object') {
+    fbSaveSRS(uid, data.sr as Record<string, unknown>).catch(() => {});
   }
+  // Exclude SRS from the progress blob (it now lives in srs/{id})
+  const { sr: _sr, ...dataWithoutSRS } = data;
+  let _progressJson = JSON.stringify(dataWithoutSRS);
   const lbEntry = { name: (data.name as string) || '', xp: _bestXP, lc: _bestLC, updated: _nowMs };
   const profileEntry = { name: (data.name as string) || '', xp: _bestXP, lc: _bestLC, streak: _bestStrk, level: _bestLvl, lastActive: _nowMs };
   const userEntry = {
@@ -151,7 +148,7 @@ export async function fbApplyDelta(uid: string, delta: Record<string, unknown>):
   if (!_fbReady || !_fbDb || !uid || !delta) return;
   const _NUMERIC = ['xp', 'lc', 'gc', 'sp', 'de', 'rc', 'pf', 'mv', 'hi'];
   const _ARRAYS = ['ct', 'vs', 'badges'];
-  const id = uid.replace(/[.#$/[\]]/g, '_');
+  const id = toDocId(uid);
   const update: Record<string, unknown> = {};
   let hasUpdate = false;
   for (const k of _NUMERIC) {
@@ -190,7 +187,7 @@ export async function fbApplyDelta(uid: string, delta: Record<string, unknown>):
 
 export async function fbLoadProgress(uid: string): Promise<Record<string, unknown> | null> {
   if (!_fbReady || !_fbDb) return null;
-  const id = uid.replace(/[.#$/[\]]/g, '_');
+  const id = toDocId(uid);
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       const snap = await getDoc(fsDoc(_fbDb, 'users', id));
@@ -220,6 +217,18 @@ export async function fbLoadProgress(uid: string): Promise<Record<string, unknow
               badges: [...new Set([...((_bs.badges as string[]) || []), ...((_as.badges as string[]) || [])])],
             };
           }
+          // Load SRS from its dedicated document and merge back (non-blocking if it fails)
+          try {
+            const srsSnap = await getDoc(fsDoc(_fbDb, 'srs', id));
+            if (srsSnap.exists()) {
+              const srsData = srsSnap.data() as { cards?: Record<string, unknown> };
+              if (srsData.cards && Object.keys(srsData.cards).length > 0) {
+                p.sr = srsData.cards;
+              }
+            }
+          } catch (srsErr) {
+            console.warn('[srs] Could not load SRS from subcollection:', (srsErr as { code?: string })?.code);
+          }
           return p;
         }
       }
@@ -232,13 +241,41 @@ export async function fbLoadProgress(uid: string): Promise<Record<string, unknow
   return null;
 }
 
+/** Save SRS card state to a dedicated Firestore document (avoids the 200KB progress blob limit). */
+export async function fbSaveSRS(uid: string, srData: Record<string, unknown>): Promise<void> {
+  if (!_fbReady || !_fbDb || !srData || Object.keys(srData).length === 0) return;
+  const id = toDocId(uid);
+  try {
+    await setDoc(fsDoc(_fbDb, 'srs', id), { cards: srData, updated: serverTimestamp() }, { merge: false });
+  } catch (e: unknown) {
+    console.warn('[srs] fbSaveSRS failed:', (e as { code?: string })?.code);
+  }
+}
+
+/** Load SRS card state from its dedicated Firestore document. */
+export async function fbLoadSRS(uid: string): Promise<Record<string, unknown> | null> {
+  if (!_fbReady || !_fbDb) return null;
+  const id = toDocId(uid);
+  try {
+    const snap = await getDoc(fsDoc(_fbDb, 'srs', id));
+    if (snap.exists()) {
+      const data = snap.data() as { cards?: Record<string, unknown> };
+      return data.cards || null;
+    }
+    return null;
+  } catch (e: unknown) {
+    console.warn('[srs] fbLoadSRS failed:', (e as { code?: string })?.code);
+    return null;
+  }
+}
+
 export async function fbRegister(email: string, password: string, displayName: string): Promise<{ ok: boolean; err?: string; user?: User }> {
   if (!_fbReady || !_fbAuth) return { ok: false, err: 'Firebase not configured. Account created locally only.' };
   try {
     const cred = await createUserWithEmailAndPassword(_fbAuth, email, password);
     try { await updateProfile(cred.user, { displayName }); } catch (pe) { console.warn('Profile update failed:', pe); }
     try { await sendEmailVerification(cred.user); } catch (ve) { console.warn('Email verification send failed:', ve); }
-    try { const id = email.replace(/[.#$/[\]]/g, '_'); await setDoc(fsDoc(_fbDb!, 'users', id), { displayName, email, created: Date.now() }, { merge: true }); } catch (fe) { console.warn('Firestore profile write failed:', fe); }
+    try { const id = toDocId(email); await setDoc(fsDoc(_fbDb!, 'users', id), { displayName, email, created: Date.now() }, { merge: true }); } catch (fe) { console.warn('Firestore profile write failed:', fe); }
     fbLogEvent('sign_up', { method: 'email' });
     return { ok: true, user: cred.user };
   } catch (e: unknown) { return { ok: false, err: friendlyError((e as Error).message) }; }
@@ -324,7 +361,7 @@ export async function fbCreateFamily(familyName: string, creatorUid: string, cre
     try { const existing = await getDoc(fsDoc(_fbDb, 'families', code)); if (existing.exists()) code = generateFamilyCode(); } catch (e) {}
     try { await setDoc(fsDoc(_fbDb, 'families', code), { name: familyName, code, created: Date.now(), members: [{ uid: creatorUid, email: creatorEmail, name: creatorName, role: 'admin', joined: Date.now() }], memberEmails: [creatorEmail] }); }
     catch (fe) { console.warn('Family write failed:', fe); return { ok: false, err: 'Could not create family. Check Firebase permissions.' }; }
-    try { const id = creatorUid.replace(/[.#$/[\]]/g, '_'); await setDoc(fsDoc(_fbDb, 'users', id), { familyCode: code }, { merge: true }); } catch (ue) { console.warn('User family link failed:', ue); }
+    try { const id = toDocId(creatorUid); await setDoc(fsDoc(_fbDb, 'users', id), { familyCode: code }, { merge: true }); } catch (ue) { console.warn('User family link failed:', ue); }
     const fam: FamilyData = { name: familyName, code, role: 'admin' }; saveLocalFamily(fam);
     return { ok: true, code, family: fam };
   } catch (e: unknown) { return { ok: false, err: friendlyError((e as Error).message) }; }
@@ -354,11 +391,11 @@ export async function fbJoinFamily(code: string, uid: string, email: string, nam
     if (!resultFam) return { ok: false, err: 'Could not join family. Please try again.' };
     saveLocalFamily(resultFam);
     if (!alreadyIn) {
-      const id = uid.replace(/[.#$/[\]]/g, '_');
+      const id = toDocId(uid);
       await setDoc(fsDoc(_fbDb, 'users', id), { familyCode: code.toUpperCase() }, { merge: true });
     }
     (function () {
-      const jid = uid.replace(/[.#$/[\]]/g, '_');
+      const jid = toDocId(uid);
       const jcode = (resultFam as FamilyData).code;
       getDoc(fsDoc(_fbDb!, 'leaderboard', jid)).then(function (lbs) {
         const lbd = lbs.exists() ? lbs.data() as Record<string, unknown> : null;
@@ -402,8 +439,8 @@ export async function fbGetFamilyMembers(code: string): Promise<FamilyMember[]> 
     const memberXP = (data.memberXP as Record<string, Record<string, unknown>>) || {};
     return members.map(function (m) {
       const mm = m as Record<string, string | number>;
-      const uidId = (String(mm.uid || '')).replace(/[.#$/[\]]/g, '_');
-      const emailId = (String(mm.email || '')).replace(/[.#$/[\]]/g, '_');
+      const uidId = toDocId(String(mm.uid || ''));
+      const emailId = toDocId(String(mm.email || ''));
       const xpData = (uidId && memberXP[uidId]) || (emailId && memberXP[emailId]) || {};
       return { name: (xpData.name as string) || String(mm.name), email: String(mm.email || ''), role: String(mm.role), xp: (xpData.xp as number) || 0, lc: (xpData.lc as number) || 0, weekXP: (xpData.weekXP as number) || 0, joined: Number(mm.joined) };
     }).sort(function (a, b) { return b.xp - a.xp; });
@@ -421,8 +458,8 @@ export function fbWatchFamilyMembers(code: string, callback: (members: FamilyMem
       const memberXP = (data.memberXP as Record<string, Record<string, unknown>>) || {};
       const results = members.map(function (m) {
         const mm = m as Record<string, string | number>;
-        const uidId = (String(mm.uid || '')).replace(/[.#$/[\]]/g, '_');
-        const emailId = (String(mm.email || '')).replace(/[.#$/[\]]/g, '_');
+        const uidId = toDocId(String(mm.uid || ''));
+        const emailId = toDocId(String(mm.email || ''));
         const xpData = (uidId && memberXP[uidId]) || (emailId && memberXP[emailId]) || {};
         return { name: (xpData.name as string) || String(mm.name), email: String(mm.email || ''), role: String(mm.role), xp: (xpData.xp as number) || 0, lc: (xpData.lc as number) || 0, weekXP: (xpData.weekXP as number) || 0, joined: Number(mm.joined) };
       });
@@ -434,7 +471,7 @@ export function fbWatchFamilyMembers(code: string, callback: (members: FamilyMem
 
 export async function fbLeaveFamily(code: string, email: string): Promise<{ ok: boolean; err?: string }> {
   if (!_fbReady || !_fbDb) return { ok: false, err: 'Firebase not ready' };
-  const id = email.replace(/[.#$/[\]]/g, '_');
+  const id = toDocId(email);
   async function _removeMember(familyCode: string): Promise<boolean> {
     const snap = await getDoc(fsDoc(_fbDb!, 'families', familyCode));
     if (!snap.exists()) return false;
@@ -468,7 +505,7 @@ export async function fbLeaveFamily(code: string, email: string): Promise<{ ok: 
 export async function fbLoadUserFamily(email: string): Promise<FamilyData | null> {
   if (!_fbReady || !_fbDb) return null;
   try {
-    const id = email.replace(/[.#$/[\]]/g, '_');
+    const id = toDocId(email);
     const userSnap2 = await getDoc(fsDoc(_fbDb, 'users', id));
     if (!userSnap2.exists() || !(userSnap2.data() as Record<string, unknown>).familyCode) return null;
     const code = (userSnap2.data() as Record<string, unknown>).familyCode as string;
@@ -489,11 +526,12 @@ export function fbOnAuthStateChanged(cb: (user: User | null) => void): () => voi
 export async function fbDeleteAccount(userId: string): Promise<{ ok: boolean; err?: string }> {
   if (!_fbReady) return { ok: false, err: 'Firebase not ready.' };
   try {
-    const id = userId.replace(/[.#$/[\]]/g, '_');
+    const id = toDocId(userId);
     await Promise.allSettled([
       deleteDoc(fsDoc(_fbDb!, 'users', id)),
       deleteDoc(fsDoc(_fbDb!, 'leaderboard', id)),
       deleteDoc(fsDoc(_fbDb!, 'profiles', id)),
+      deleteDoc(fsDoc(_fbDb!, 'srs', id)),
     ]);
     if (_fbAuth && _fbAuth.currentUser) await deleteUser(_fbAuth.currentUser);
     return { ok: true };
@@ -502,7 +540,7 @@ export async function fbDeleteAccount(userId: string): Promise<{ ok: boolean; er
 
 export async function fbExportUserData(uid: string): Promise<Record<string, unknown>> {
   try {
-    const id = uid.replace(/[.#$/[\]]/g, '_');
+    const id = toDocId(uid);
     const [userDoc, lbDoc, profileDoc] = await Promise.all([
       getDoc(fsDoc(_fbDb!, 'users', id)),
       getDoc(fsDoc(_fbDb!, 'leaderboard', id)),
@@ -540,7 +578,7 @@ export async function fbExportUserData(uid: string): Promise<Record<string, unkn
 
 export function fbWatchProgress(uid: string, callback: (progress: Record<string, unknown>, updatedAt: number) => void): () => void {
   if (!_fbReady || !_fbDb) return () => {};
-  const id = uid.replace(/[.#$/[\]]/g, '_');
+  const id = toDocId(uid);
   return onSnapshot(
     fsDoc(_fbDb, 'users', id),
     function (snap) {
@@ -589,7 +627,7 @@ export function fbWatchProgress(uid: string, callback: (progress: Record<string,
 
 export async function fbToggleFavorite(uid: string, favsList: unknown[]): Promise<void> {
   if (!_fbReady || !_fbDb || !uid) return;
-  const id = uid.replace(/[.#$/[\]]/g, '_');
+  const id = toDocId(uid);
   try { await setDoc(fsDoc(_fbDb, 'users', id), { favs_live: JSON.stringify(favsList), favs_live_ts: serverTimestamp() }, { merge: true }); }
   catch (e) { console.warn('fbToggleFavorite error:', e); }
 }
@@ -630,7 +668,7 @@ export function getFriendCode(uid: string): string {
 
 export async function fbRegisterFriendCode(uid: string, displayName: string): Promise<void> {
   if (!_fbReady || !_fbDb || !uid) return;
-  const safeUid = uid.replace(/[.#$/[\]]/g, '_');
+  const safeUid = toDocId(uid);
   const code = getFriendCode(safeUid);
   try {
     await setDoc(fsDoc(_fbDb, 'friendCodes', code), { uid: safeUid, name: displayName || 'Learner', updated: Date.now() }, { merge: true });
@@ -639,7 +677,7 @@ export async function fbRegisterFriendCode(uid: string, displayName: string): Pr
 
 export async function fbAddFriend(myUid: string, myName: string, theirCode: string): Promise<{ ok: boolean; err?: string; friend?: Record<string, unknown> }> {
   if (!_fbReady || !_fbDb) return { ok: false, err: 'Not connected.' };
-  const safeMyUid = myUid.replace(/[.#$/[\]]/g, '_');
+  const safeMyUid = toDocId(myUid);
   const cleanCode = (theirCode || '').toUpperCase().trim();
   if (!cleanCode) return { ok: false, err: 'Enter a friend code.' };
   try {
@@ -657,7 +695,7 @@ export async function fbAddFriend(myUid: string, myName: string, theirCode: stri
 
 export async function fbGetFriends(myUid: string): Promise<Record<string, unknown>[]> {
   if (!_fbReady || !_fbDb || !myUid) return [];
-  const safeMyUid = myUid.replace(/[.#$/[\]]/g, '_');
+  const safeMyUid = toDocId(myUid);
   try {
     const snap = await getDoc(fsDoc(_fbDb, 'users', safeMyUid));
     if (!snap.exists()) return [];
@@ -670,7 +708,7 @@ export async function fbGetFriends(myUid: string): Promise<Record<string, unknow
 
 export async function fbRemoveFriend(myUid: string, theirUid: string): Promise<void> {
   if (!_fbReady || !_fbDb || !myUid || !theirUid) return;
-  const safeMyUid = myUid.replace(/[.#$/[\]]/g, '_');
+  const safeMyUid = toDocId(myUid);
   try {
     await updateDoc(fsDoc(_fbDb, 'users', safeMyUid), { friendUids: arrayRemove(theirUid) });
     await updateDoc(fsDoc(_fbDb, 'users', theirUid), { friendUids: arrayRemove(safeMyUid) });

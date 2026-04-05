@@ -1,196 +1,193 @@
 /**
- * Per-user daily AI usage quota.
+ * Per-user daily AI usage quota — D1 primary, KV fallback.
  *
- * Primary storage: Cloudflare KV (PUSH_SUBSCRIPTIONS namespace, globally consistent).
- * Fallback storage: Cloudflare Cache API (always available, no bindings required,
- *   but per-datacenter — a user hitting a different Cloudflare PoP gets a fresh window).
+ * D1 (SQLite at the edge) gives globally consistent atomic increments,
+ * eliminating the per-datacenter Cache API bypass in the previous version.
  *
- * The Cache API fallback means all 17 AI endpoints have real quota enforcement even
- * when the KV namespace is not yet bound in the Cloudflare Pages dashboard.
- * This converts the previous fail-open (zero enforcement) into per-datacenter enforcement.
+ * Binding name:   AI_QUOTA_DB  (D1 database — bind in Cloudflare dashboard)
+ * Fallback:       PUSH_SUBSCRIPTIONS (KV) — used if D1 not bound
  *
- * Key format (KV and Cache API):  quota:{uid}:{YYYY-MM-DD}
- * Key format (IP fallback):       quota:ip:{ip}:{YYYY-MM-DD}
- * Burst key:                       quota_burst:{uid}:{unix-second}
- * KV TTL: 172800 s (48 h) — covers timezone edge cases
- * Cache TTL: seconds until next UTC midnight (key expires with its quota window)
+ * Key format (KV fallback):   quota:{uid}:{YYYY-MM-DD}
+ * Burst key (KV fallback):    quota_burst:{uid}:{unix-second}
+ * D1 table:                   ai_quota(subject, turns, window_date)
+ *                             ai_burst(subject, count, window_second)
  */
 
-// ── Plan limits ───────────────────────────────────────────────────────────────
 const FREE_ANNUAL_TURNS_PER_DAY = 100;
 // eslint-disable-next-line no-unused-vars
 const _PAID_TURNS_PER_DAY       = 300; // reserved for future paid tier
 const ANON_IP_TURNS_PER_DAY    = 15;
 
-// ── Time helpers ──────────────────────────────────────────────────────────────
-
-/** Return today's date string in UTC: "YYYY-MM-DD" */
 function todayUTC() {
   return new Date().toISOString().slice(0, 10);
 }
 
-/** ISO timestamp for the next UTC midnight — the quota reset point */
 function nextMidnightUTC() {
   const now  = new Date();
   const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
   return next.toISOString();
 }
 
-/**
- * Seconds remaining until next UTC midnight.
- * Minimum 60 — prevents a zero-TTL edge case in the final seconds of the day.
- */
 function secondsUntilMidnight() {
   const now  = new Date();
   const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
   return Math.max(60, Math.floor((next.getTime() - now.getTime()) / 1000));
 }
 
-/** Resolve the per-day limit for a uid based on JWT source claim (future-proofing). */
-function limitForUid(/* uid, source */) {
-  // All users currently treated as free_annual.
-  // When source is available from JWT claims, branch here:
-  //   if (source === 'stripe' || source === 'revenuecat') return PAID_TURNS_PER_DAY
+function limitForUid() {
   return FREE_ANNUAL_TURNS_PER_DAY;
 }
 
-// ── Cache API helpers (fallback storage) ─────────────────────────────────────
-// Uses the same internal URL trick as _rateLimit.js to avoid the Cache API requiring
-// real HTTP responses — Cloudflare's Cache API accepts any URL with cache.put().
+// ── D1 helpers (primary storage) ─────────────────────────────────────────────
 
-const _CACHE_PREFIX = 'https://quota.internal/v1/';
-
-async function _cacheGet(subject) {
+async function _d1CheckBurst(db, subject) {
+  if (!db) return false;
+  const nowSecond = Math.floor(Date.now() / 1000);
   try {
-    const cache = caches.default;
-    const req   = new Request(_CACHE_PREFIX + subject, { method: 'GET' });
-    const res   = await cache.match(req);
-    if (!res) return null;
-    return JSON.parse(await res.text());
-  } catch {
+    // Upsert: reset count if window_second changed (new second), else increment
+    const result = await db.prepare(`
+      INSERT INTO ai_burst (subject, count, window_second) VALUES (?1, 1, ?2)
+      ON CONFLICT(subject) DO UPDATE SET
+        count = CASE WHEN window_second = ?2 THEN count + 1 ELSE 1 END,
+        window_second = ?2
+      RETURNING count
+    `).bind(subject, nowSecond).first();
+    return (result?.count ?? 1) > 3;
+  } catch (e) {
+    console.warn('[AIQuota] D1 burst check failed:', e?.message);
+    return false; // fail-open for burst (secondary guard only)
+  }
+}
+
+async function _d1CheckAndIncrement(db, subject, today, cost, limit) {
+  if (!db) return null;
+  try {
+    // Upsert row; if date changed, reset turns to cost (start of new window)
+    const upsert = await db.prepare(`
+      INSERT INTO ai_quota (subject, turns, window_date) VALUES (?1, ?2, ?3)
+      ON CONFLICT(subject) DO UPDATE SET
+        turns = CASE WHEN window_date = ?3 THEN turns + ?2 ELSE ?2 END,
+        window_date = ?3
+      RETURNING turns, window_date
+    `).bind(subject, cost, today).first();
+
+    if (!upsert) throw new Error('D1 upsert returned no rows');
+
+    const currentTurns = upsert.turns;
+
+    if (currentTurns > limit) {
+      // Over-incremented — roll back the cost to leave an accurate count
+      await db.prepare(`
+        UPDATE ai_quota SET turns = turns - ?1
+        WHERE subject = ?2 AND window_date = ?3
+      `).bind(cost, subject, today).run();
+      return { allowed: false, turns: currentTurns - cost };
+    }
+
+    return { allowed: true, turns: currentTurns };
+  } catch (e) {
+    console.warn('[AIQuota] D1 check failed:', e?.message);
+    return null; // signal caller to fall back to KV
+  }
+}
+
+async function _d1GetStatus(db, subject, today) {
+  if (!db) return null;
+  try {
+    const row = await db.prepare(
+      'SELECT turns, window_date FROM ai_quota WHERE subject = ?1'
+    ).bind(subject).first();
+    if (!row || row.window_date !== today) return { turns: 0 };
+    return { turns: row.turns };
+  } catch (e) {
+    console.warn('[AIQuota] D1 status check failed:', e?.message);
     return null;
   }
 }
 
-async function _cachePut(subject, data, ttlSeconds) {
-  try {
-    const cache = caches.default;
-    const req   = new Request(_CACHE_PREFIX + subject, { method: 'GET' });
-    await cache.put(req, new Response(JSON.stringify(data), {
-      headers: { 'Cache-Control': `max-age=${ttlSeconds}` },
-    }));
-  } catch { /* ignore cache write failures — quota is a guardrail, not a hard gate */ }
+// ── KV helpers (fallback storage) ────────────────────────────────────────────
+
+async function _kvRead(kv, key) {
+  if (!kv) return null;
+  try { const raw = await kv.get(key); return raw ? JSON.parse(raw) : null; }
+  catch { return null; }
 }
 
-// ── Unified read / write helpers ──────────────────────────────────────────────
-// These abstract over KV vs Cache API so the quota logic reads identically
-// regardless of which storage backend is active.
-
-async function _read(kv, subject) {
-  if (kv) {
-    try {
-      const raw = await kv.get(subject);
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return _cacheGet(subject);
-    }
-  }
-  return _cacheGet(subject);
-}
-
-async function _write(kv, subject, data, ttlSeconds) {
-  if (kv) {
-    try {
-      await kv.put(subject, JSON.stringify(data), { expirationTtl: ttlSeconds });
-      return;
-    } catch {
-      // KV write failed — fall through to Cache API
-    }
-  }
-  await _cachePut(subject, data, ttlSeconds);
+async function _kvWrite(kv, key, data, ttlSeconds) {
+  if (!kv) return;
+  try { await kv.put(key, JSON.stringify(data), { expirationTtl: ttlSeconds }); }
+  catch (e) { console.warn('[AIQuota] KV write failed:', e?.message); }
 }
 
 // ── Core quota functions ──────────────────────────────────────────────────────
 
-/**
- * Check (and increment) the daily AI quota for a user.
- *
- * @param {Request}     request  - Incoming CF request (used for IP fallback)
- * @param {object}      env      - CF env (PUSH_SUBSCRIPTIONS KV binding, if configured)
- * @param {string|null} uid      - Firebase uid; null = anonymous IP-based quota
- * @param {number}      cost     - Quota units this call costs (default 1)
- * @returns {Promise<{ allowed: boolean, remaining: number, resetAt: string }>}
- */
 export async function checkAIQuota(request, env, uid, cost = 1) {
-  const kv      = env.PUSH_SUBSCRIPTIONS || null; // may be undefined if not bound
+  const db      = env.AI_QUOTA_DB    || null;
+  const kv      = env.PUSH_SUBSCRIPTIONS || null;
   const resetAt = nextMidnightUTC();
-  const dailyTtl = secondsUntilMidnight();
+  const today   = todayUTC();
 
-  if (!kv) {
-    // Log once per request so ops can see KV is not configured and bind it.
-    // This is NOT fail-open: Cache API enforcement is now active.
-    console.warn('[AIQuota] PUSH_SUBSCRIPTIONS KV not bound — using Cache API fallback (per-datacenter enforcement)');
+  if (!db && !kv) {
+    console.warn('[AIQuota] Neither AI_QUOTA_DB nor PUSH_SUBSCRIPTIONS bound — rejecting (fail-closed)');
+    return { allowed: false, remaining: 0, resetAt };
   }
 
-  // ── Per-second burst check (max 3 requests / second / subject) ─────────────
+  // ── Burst check ───────────────────────────────────────────────────────────
   const burstSubject = uid
-    ? `quota_burst:${uid}`
-    : `quota_burst:ip:${request.headers.get('cf-connecting-ip') || 'unknown'}`;
-  const secondKey = `${burstSubject}:${Math.floor(Date.now() / 1000)}`;
+    ? `burst:${uid}`
+    : `burst:ip:${request.headers.get('cf-connecting-ip') || 'unknown'}`;
 
-  try {
-    const burstData  = await _read(kv, secondKey);
-    const burstCount = burstData?.count ?? 0;
-    if (burstCount >= 3) {
-      console.warn('[AIQuota] Burst limit exceeded for', burstSubject);
-      return { allowed: false, remaining: 0, resetAt: nextMidnightUTC() };
+  if (db) {
+    const burstExceeded = await _d1CheckBurst(db, burstSubject);
+    if (burstExceeded) {
+      console.warn('[AIQuota] Burst limit exceeded (D1):', burstSubject);
+      return { allowed: false, remaining: 0, resetAt };
     }
-    await _write(kv, secondKey, { count: burstCount + 1 }, 5 /* 5-second TTL */);
-  } catch (e) {
-    // Burst check failed — log but allow the request (burst is a secondary guard)
-    console.warn('[AIQuota] Burst check error — allowing request:', e?.message);
-  }
-
-  // ── Daily quota window ─────────────────────────────────────────────────────
-  const today = todayUTC();
-  let quotaKey;
-  let limit;
-
-  if (uid) {
-    quotaKey = `quota:${uid}:${today}`;
-    limit    = limitForUid();
   } else {
-    const ip = request.headers.get('cf-connecting-ip') || 'unknown';
-    quotaKey = `quota:ip:${ip}:${today}`;
-    limit    = ANON_IP_TURNS_PER_DAY;
+    // KV burst fallback
+    const secondKey = `quota_burst:${burstSubject}:${Math.floor(Date.now() / 1000)}`;
+    const burstData = await _kvRead(kv, secondKey);
+    if ((burstData?.count ?? 0) >= 3) {
+      return { allowed: false, remaining: 0, resetAt };
+    }
+    await _kvWrite(kv, secondKey, { count: (burstData?.count ?? 0) + 1 }, 5);
   }
 
-  try {
-    const data    = await _read(kv, quotaKey);
-    const current = data?.turns ?? 0;
+  // ── Daily quota ───────────────────────────────────────────────────────────
+  const quotaSubject = uid
+    ? `quota:${uid}`
+    : `quota:ip:${request.headers.get('cf-connecting-ip') || 'unknown'}`;
+  const limit = uid ? limitForUid() : ANON_IP_TURNS_PER_DAY;
 
+  // Try D1 first
+  if (db) {
+    const d1Result = await _d1CheckAndIncrement(db, quotaSubject, today, cost, limit);
+    if (d1Result !== null) {
+      const remaining = Math.max(0, limit - d1Result.turns);
+      return { allowed: d1Result.allowed, remaining, resetAt };
+    }
+    // D1 failed — fall through to KV
+    console.warn('[AIQuota] D1 failed, falling back to KV');
+  }
+
+  // KV fallback
+  const kvKey = uid ? `quota:${uid}:${today}` : `quota:ip:${request.headers.get('cf-connecting-ip') || 'unknown'}:${today}`;
+  try {
+    const data    = await _kvRead(kv, kvKey);
+    const current = data?.turns ?? 0;
     if (current + cost > limit) {
       return { allowed: false, remaining: Math.max(0, limit - current), resetAt };
     }
-
-    await _write(kv, quotaKey, { turns: current + cost }, dailyTtl);
+    await _kvWrite(kv, kvKey, { turns: current + cost }, secondsUntilMidnight());
     return { allowed: true, remaining: Math.max(0, limit - current - cost), resetAt };
   } catch (e) {
-    // Both KV and Cache API failed — this is a genuine infrastructure error.
-    // Fail closed: deny the request rather than allow unbounded AI usage.
-    console.error('[AIQuota] All storage backends failed — rejecting request (fail-closed):', e?.message);
+    console.error('[AIQuota] All storage backends failed — rejecting (fail-closed):', e?.message);
     return { allowed: false, remaining: 0, resetAt };
   }
 }
 
-/**
- * Read current quota usage without incrementing.
- *
- * @param {object}      env  - CF env
- * @param {string|null} uid  - Firebase uid
- * @returns {Promise<{ used: number, limit: number, remaining: number, resetAt: string }>}
- */
 export async function getQuotaStatus(env, uid) {
+  const db      = env.AI_QUOTA_DB    || null;
   const kv      = env.PUSH_SUBSCRIPTIONS || null;
   const resetAt = nextMidnightUTC();
   const today   = todayUTC();
@@ -198,10 +195,20 @@ export async function getQuotaStatus(env, uid) {
 
   if (!uid) return { used: 0, limit, remaining: limit, resetAt };
 
-  const quotaKey = `quota:${uid}:${today}`;
+  const quotaSubject = `quota:${uid}`;
 
+  if (db) {
+    const status = await _d1GetStatus(db, quotaSubject, today);
+    if (status !== null) {
+      const used = status.turns;
+      return { used, limit, remaining: Math.max(0, limit - used), resetAt };
+    }
+  }
+
+  // KV fallback
+  const kvKey = `quota:${uid}:${today}`;
   try {
-    const data = await _read(kv, quotaKey);
+    const data = await _kvRead(kv, kvKey);
     const used = data?.turns ?? 0;
     return { used, limit, remaining: Math.max(0, limit - used), resetAt };
   } catch (e) {

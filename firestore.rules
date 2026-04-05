@@ -218,6 +218,12 @@ service cloud.firestore {
         && validLbLcUpdate();
     }
 
+    // ─── SRS (Spaced Repetition) — separate collection to avoid 200KB blob limit ─
+    // Owner-only read/write; no size cap (SRS data is compact JSON, ~10-50KB).
+    match /srs/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
     // ─── Deny everything else ─────────────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;
