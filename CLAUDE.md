@@ -363,15 +363,42 @@ Skills are specialized instruction sets that define how to handle specific task 
 ---
 
 ### frontend-design
-**Trigger:** Building any UI, component, or visual feature — including in this app.
+**Trigger:** User asks to build web components, pages, artifacts, posters, or applications — websites, landing pages, dashboards, React components, HTML/CSS layouts, or any styling/beautifying of web UI.
 
-**Rules:**
-- Commit to a bold, specific aesthetic direction — no generic "clean modern" cop-outs
-- Choose unique, distinctive fonts; avoid Inter, Roboto, and purple gradient defaults
-- Use a dominant hue + sharp accent; cohesive palette over variety
-- Staggered reveal animations on load; prefer asymmetric/grid-breaking layouts over centered stacks
-- **Explicitly avoid:** generic AI aesthetics, purple gradients, Inter font overuse, cookie-cutter card grids
-- Production-grade code only — no placeholder lorem ipsum, no TODO stubs shipped
+**Before coding — commit to a BOLD aesthetic direction:**
+- **Purpose:** What problem does this interface solve? Who uses it?
+- **Tone:** Pick an extreme — brutally minimal, maximalist chaos, retro-futuristic, organic/natural, luxury/refined, playful/toy-like, editorial/magazine, brutalist/raw, art deco/geometric, soft/pastel, industrial/utilitarian, etc.
+- **Differentiation:** What makes this UNFORGETTABLE? What's the one thing someone will remember?
+
+**Typography:**
+- Choose fonts that are beautiful, unique, and interesting — avoid Arial, Inter, Roboto, system fonts
+- Pair a distinctive display font with a refined body font
+- Unexpected, characterful font choices only
+
+**Color & Theme:**
+- Commit to a cohesive aesthetic via CSS variables
+- Dominant colors with sharp accents outperform timid, evenly-distributed palettes
+
+**Motion:**
+- CSS-only animations for HTML; Motion library for React when available
+- One well-orchestrated page load with staggered reveals (`animation-delay`) > scattered micro-interactions
+- Scroll-triggering and hover states that surprise
+
+**Spatial Composition:**
+- Unexpected layouts — asymmetry, overlap, diagonal flow, grid-breaking elements
+- Generous negative space OR controlled density — not generic centered stacks
+
+**Backgrounds & Atmosphere:**
+- Gradient meshes, noise textures, geometric patterns, layered transparencies, dramatic shadows, decorative borders, grain overlays — choose what fits the aesthetic
+
+**NEVER:**
+- Inter, Roboto, Arial, or system fonts as the primary typeface
+- Purple gradients on white backgrounds
+- Predictable centered layouts, uniform rounded corners
+- Cookie-cutter card grids that lack context-specific character
+- Never converge on common choices (Space Grotesk, etc.) — no design should look like another
+
+**Match code complexity to the vision:** Maximalist needs elaborate animations; minimalist needs restraint and precision in spacing/typography. Execute the vision well.
 
 **Applied to this project:** The app uses its own design system (CSS classes like `exercise-card`, `vocab-pill`, `fc-card`, `ob`, `b bp`). Match existing conventions; don't introduce Tailwind or shadcn unless explicitly asked.
 
