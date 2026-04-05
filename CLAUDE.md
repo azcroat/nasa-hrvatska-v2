@@ -797,6 +797,15 @@ python3 scripts/get_user.py spez --posts 10
 
 ---
 
+### grill-me
+**Trigger:** User wants to stress-test a plan, get grilled on their design, or mentions "grill me."
+
+**Behavior:** Interview the user relentlessly about every aspect of the plan until reaching a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one.
+
+If a question can be answered by exploring the codebase, explore the codebase instead of asking the user.
+
+---
+
 ### write-a-prd
 **Trigger:** User wants to write a PRD, create a product requirements document, or plan a new feature.
 
