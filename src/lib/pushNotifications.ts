@@ -60,7 +60,7 @@ export async function initPushNotifications(): Promise<{ subscription: PushSubsc
     if (!subscription) {
       subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
       });
     }
 
@@ -68,7 +68,7 @@ export async function initPushNotifications(): Promise<{ subscription: PushSubsc
 
     if ('periodicSync' in registration) {
       try {
-        // @ts-ignore — Periodic Background Sync API not yet in TS DOM lib
+        // @ts-expect-error — Periodic Background Sync API not yet in TS DOM lib
         await registration.periodicSync.register('nh-daily-reminder', {
           minInterval: 24 * 60 * 60 * 1000,
         });
@@ -159,11 +159,11 @@ export function scheduleLocalReminder(streakDays = 0): void {
 
   _scheduleTimeout(() => {
     if (isNotificationsEnabled() && Notification.permission === 'granted') {
-      // @ts-ignore — renotify is valid
       new Notification(msg.title, {
         body:     msg.body,
         icon:     '/icons/icon-192x192.png',
         tag:      'nh-daily-reminder',
+        // @ts-expect-error — renotify is valid but missing from TS DOM lib
         renotify: true,
       });
     }
@@ -220,11 +220,11 @@ export function scheduleReEngagementReminder(): void {
 
   _scheduleTimeout(() => {
     if (isNotificationsEnabled() && Notification.permission === 'granted') {
-      // @ts-ignore — renotify is valid
       new Notification(title, {
         body,
         icon:     '/icons/icon-192x192.png',
         tag:      'nh-reengagement',
+        // @ts-expect-error — renotify is valid but missing from TS DOM lib
         renotify: true,
       });
     }

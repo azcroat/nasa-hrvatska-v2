@@ -40,7 +40,7 @@ function _bestDc(dchlA: boolean[], dchlSl: string[]) {
 export function buildProgressSnapshot({ uid, name, stats, dchlA, dchlSl, favs, jWords }: ProgressSnapshotParams) {
   const dc = _bestDc(dchlA, dchlSl);
   const weekXP = parseInt(localStorage.getItem('nh_week_xp_' + _weekKey()) || '0', 10);
-  const fbUpdated = (() => { try { const p = gP(uid); return (p && p._fbUpdated) || 0; } catch { return 0; } })();
+  const fbUpdated = (() => { try { const p = gP(uid) as Record<string, unknown> | null; return (p && (p._fbUpdated as number)) || 0; } catch { return 0; } })();
   const cooldown = (() => { try { return JSON.parse(localStorage.getItem('xpCooldown') || '{}'); } catch { return {}; } })();
 
   return {

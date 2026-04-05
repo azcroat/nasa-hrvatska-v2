@@ -302,7 +302,7 @@ export function friendlyError(msg: string): string {
 }
 
 // ═══ FAMILY GROUP SYSTEM ═══
-interface FamilyData {
+export interface FamilyData {
   name: string;
   code: string;
   role: string;
@@ -359,7 +359,7 @@ export async function fbJoinFamily(code: string, uid: string, email: string, nam
     }
     (function () {
       const jid = uid.replace(/[.#$/[\]]/g, '_');
-      const jcode = resultFam!.code;
+      const jcode = (resultFam as FamilyData).code;
       getDoc(fsDoc(_fbDb!, 'leaderboard', jid)).then(function (lbs) {
         const lbd = lbs.exists() ? lbs.data() as Record<string, unknown> : null;
         if (lbd && ((lbd.xp as number) || 0) > 0) {
@@ -664,7 +664,7 @@ export async function fbGetFriends(myUid: string): Promise<Record<string, unknow
     const friendUids = ((snap.data() as Record<string, unknown>).friendUids as string[]) || [];
     if (!friendUids.length) return [];
     const profiles = await Promise.all(friendUids.map(uid => getDoc(fsDoc(_fbDb!, 'profiles', uid))));
-    return profiles.filter(s => s.exists()).map(s => ({ uid: s.id, ...s.data() })).sort((a, b) => ((b.xp as number) || 0) - ((a.xp as number) || 0));
+    return profiles.filter(s => s.exists()).map(s => ({ uid: s.id, ...s.data() } as Record<string, unknown>)).sort((a, b) => ((b.xp as number) || 0) - ((a.xp as number) || 0));
   } catch (e) { console.warn('fbGetFriends error:', e); return []; }
 }
 
