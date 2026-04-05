@@ -377,6 +377,7 @@ export default function LearnTab({
         <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 8 }}>
           Quick Vocab — Tap to start
         </div>
+        <div className="scroll-fade-wrap">
         <div style={{
           display: 'flex', gap: 8, overflowX: 'auto', padding: '0 0 6px',
           scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch',
@@ -407,6 +408,7 @@ export default function LearnTab({
             </button>
           ))}
         </div>
+        </div>{/* end scroll-fade-wrap */}
       </div>
 
       {/* ── GOAL-BASED STAGE 1 FOCUS ────────────────────────────────── */}
