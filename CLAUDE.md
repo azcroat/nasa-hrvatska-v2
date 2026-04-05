@@ -718,15 +718,306 @@ aws elbv2 describe-target-health --target-group-arn arn:aws:...
 ---
 
 ### pptx
-**Trigger:** Creating, reading, editing, or combining `.pptx` PowerPoint files.
+**Trigger:** Any `.pptx` file as input, output, or both — creating decks, reading/parsing/extracting, editing, combining, splitting. Also triggers on: "deck", "slides", "presentation", or any `.pptx` filename, regardless of what the content will be used for.
 
-**Rules:**
-- **Read:** `python -m markitdown` or unpack to XML
-- **Create:** PptxGenJS (JavaScript) or python-pptx
-- **Edit:** unpack → manipulate XML → repack
-- Design standards: 60–70% dominant color, dark title / light content contrast, one visual motif, varied layouts, 0.5" margins, 36–44pt titles / 14–16pt body
-- QA checklist: check overlaps, text overflow, alignment, contrast, placeholder remnants before delivering
-- No accent lines under titles; no wall-of-text slides
+**Quick reference:**
+| Task | How |
+|---|---|
+| Read/extract text | `python -m markitdown presentation.pptx` |
+| Visual overview | `python scripts/thumbnail.py presentation.pptx` |
+| Raw XML | `python scripts/office/unpack.py presentation.pptx unpacked/` |
+| Edit existing | Analyze → unpack → edit content → pack |
+| Create from scratch | PptxGenJS (see pptxgenjs.md) |
+
+**Design rules — don't create boring slides:**
+- **Color dominance:** one color at 60–70% visual weight + 1–2 supporting + one sharp accent; never equal weight
+- **Structure:** dark title/conclusion slides, light content slides ("sandwich") — or commit to dark throughout
+- **Visual motif:** pick ONE distinctive element (rounded frames, icons in colored circles, thick borders) and repeat across every slide
+- **Every slide needs a visual element** — image, chart, icon, shape; no text-only slides
+- **Layout variety:** two-column, icon+text rows, 2×2 grid, half-bleed image — never same layout twice
+- **Typography:** 36–44pt titles, 14–16pt body; pair a display font with a clean body font; avoid Arial as primary
+- **Spacing:** 0.5" minimum margins, 0.3–0.5" between blocks; leave breathing room
+
+**NEVER:**
+- Accent lines under titles (hallmark of AI-generated slides — use whitespace instead)
+- Center body text (left-align paragraphs/lists; center titles only)
+- Repeat the same layout across slides
+- Text-only slides
+- Low-contrast elements (both icons AND text must contrast against background)
+- Default to blue when content calls for specific color
+
+**Color palettes (pick one that fits the topic):**
+
+| Theme | Primary | Secondary | Accent |
+|---|---|---|---|
+| Midnight Executive | `1E2761` | `CADCFC` | `FFFFFF` |
+| Coral Energy | `F96167` | `F9E795` | `2F3C7E` |
+| Warm Terracotta | `B85042` | `E7E8D1` | `A7BEAE` |
+| Charcoal Minimal | `36454F` | `F2F2F2` | `212121` |
+| Cherry Bold | `990011` | `FCF6F5` | `2F3C7E` |
+
+**QA (required — assume there are problems):**
+```bash
+# Content check
+python -m markitdown output.pptx
+# Check for leftover placeholders
+python -m markitdown output.pptx | grep -iE "xxxx|lorem|ipsum|this.*(page|slide).*layout"
+```
+
+Visual QA: convert to images, then inspect with a sub-agent (fresh eyes catch what you miss):
+```bash
+python scripts/office/soffice.py --headless --convert-to pdf output.pptx
+pdftoppm -jpeg -r 150 output.pdf slide
+```
+
+**Verification loop:** Generate → convert to images → inspect → list issues → fix → re-verify affected slides → repeat until clean pass.
+
+**Dependencies:** `pip install "markitdown[pptx]" Pillow`, `npm install -g pptxgenjs`, LibreOffice (`soffice`), Poppler (`pdftoppm`).
+
+---
+
+### cli-developer
+**Trigger:** Building CLI tools, parsing arguments, interactive prompts, shell completions, progress bars/spinners, cross-platform terminal apps. Keywords: commander, click, typer, cobra, shell completion, argparse.
+
+**Core workflow:**
+1. **Analyze UX** — list all commands and expected `--help` output before writing code
+2. **Design** — subcommands, flags, arguments, config; confirm flag naming consistency
+3. **Implement** — run `<cli> --help` and `<cli> --version` after wiring up commands
+4. **Polish** — completions, help text, error messages, progress indicators; verify TTY detection
+5. **Test** — cross-platform smoke tests; benchmark startup (target: <50ms)
+
+**MUST DO:** `--help` and `--version` flags. SIGINT (Ctrl+C) graceful handling. Both interactive and non-interactive modes. Shell completions (all frameworks have built-in generators). Validate input early. Consistent flag naming.
+
+**MUST NOT DO:**
+- Print logs to stdout when piped — use stderr
+- Use colors when not a TTY:
+  ```js  // Node: process.stdout.isTTY
+  // Python: sys.stdout.isatty()
+  // Go: term.IsTerminal(int(os.Stdout.Fd()))
+  ```
+- Block on synchronous I/O — use async/stream
+- Break existing command signatures (treat renames as breaking changes)
+- Require interactive input in CI — provide non-interactive fallbacks via flags or env vars
+- Hardcode paths — use `os.homedir()` / `Path.home()` / `os.UserHomeDir()`
+
+**Node.js minimal pattern (commander):**
+```js
+#!/usr/bin/env node
+const { program } = require('commander');
+program.name('mytool').description('Example CLI').version('1.0.0');
+program.command('greet <name>').description('Greet a user')
+  .option('-l, --loud', 'uppercase the greeting')
+  .action((name, opts) => {
+    const msg = `Hello, ${name}!`;
+    console.log(opts.loud ? msg.toUpperCase() : msg);
+  });
+program.parse();
+```
+
+**Output always includes:** command structure, config handling (files/env/flags), core implementation with error handling, shell completion scripts, UX decision notes.
+
+---
+
+### code-documenter
+**Trigger:** Adding docstrings to functions/classes, creating API documentation, building doc sites, writing tutorials or user guides. Keywords: documentation, docstrings, OpenAPI, Swagger, JSDoc, API docs, tutorials.
+
+**6-step workflow:**
+1. **Discover** — ask for format preference and exclusions
+2. **Detect** — identify language and framework
+3. **Analyze** — find undocumented code
+4. **Document** — apply consistent format
+5. **Validate** — test all code examples compile/run:
+   - Python: `python -m doctest file.py` or `pytest --doctest-modules`
+   - TypeScript: `tsc --noEmit`
+   - OpenAPI: `npx @redocly/cli lint openapi.yaml`
+   - Fix failures before proceeding
+6. **Report** — generate coverage summary
+
+**Format examples:**
+
+Google-style Python:
+```python
+def fetch_user(user_id: int, active_only: bool = True) -> dict:
+    """Fetch a single user record by ID.
+
+    Args:
+        user_id: Unique identifier for the user.
+        active_only: When True, raise an error for inactive users.
+
+    Returns:
+        A dict containing user fields (id, name, email, created_at).
+
+    Raises:
+        ValueError: If user_id is not a positive integer.
+        UserNotFoundError: If no matching user exists.
+    """
+```
+
+JSDoc (TypeScript):
+```typescript
+/**
+ * Fetches a paginated list of products.
+ * @param {string} categoryId - Category to filter by.
+ * @param {number} [page=1] - Page number (1-indexed).
+ * @returns {Promise<ProductPage>} Resolves to a page of products.
+ * @throws {NotFoundError} If category does not exist.
+ * @example
+ * const page = await fetchProducts('electronics', 2);
+ */
+```
+
+**Output:** documented files + coverage report; or OpenAPI spec + portal config; or doc site config + content + build instructions.
+
+---
+
+### fine-tuning-expert
+**Trigger:** Fine-tuning LLMs, training custom models, adapting foundation models. Keywords: LoRA, QLoRA, PEFT, adapter tuning, instruction tuning, RLHF, DPO, LLM training, custom model.
+
+**5-step workflow:**
+1. **Dataset prep** — validate and format; run `python validate_dataset.py --input data.jsonl` — fix all errors before proceeding
+2. **Method selection** — LoRA for most tasks; QLoRA (4-bit) when GPU memory constrained; full fine-tune only for small models
+3. **Training** — configure hyperparameters, monitor loss curves; validation loss must decrease (plateau/increase = overfitting)
+4. **Evaluation** — perplexity, task-specific metrics (BLEU/ROUGE), latency; benchmark against base model
+5. **Deployment** — merge adapter weights, quantize, measure inference throughput before serving
+
+**MUST DO:** Validate dataset quality first. Use PEFT for >7B models. Document all hyperparameters. Version datasets and checkpoints. Always include learning rate warmup.
+
+**MUST NOT DO:** Skip data validation. Overfit on small datasets (use dropout, weight decay, early stopping). Merge incompatible adapters. Deploy without held-out evaluation and latency benchmark.
+
+**Minimal LoRA pattern:**
+```python
+from peft import LoraConfig, get_peft_model, TaskType
+
+lora_config = LoraConfig(
+    task_type=TaskType.CAUSAL_LM,
+    r=16,           # rank; higher = more capacity
+    lora_alpha=32,  # typically 2× rank
+    target_modules=["q_proj", "v_proj"],
+    lora_dropout=0.05, bias="none",
+)
+model = get_peft_model(model, lora_config)
+model.print_trainable_parameters()  # should be ~0.1–1% of total params
+```
+
+**QLoRA (4-bit, memory-constrained):**
+```python
+from transformers import BitsAndBytesConfig
+bnb_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4",
+    bnb_4bit_compute_dtype=torch.bfloat16, bnb_4bit_use_double_quant=True)
+```
+
+**Merge for deployment:**
+```python
+merged = PeftModel.from_pretrained(base, "./lora-adapter").merge_and_unload()
+merged.save_pretrained("./merged-model")
+```
+
+**Output always includes:** dataset prep script with validation, full training config (TrainingArguments + LoraConfig, commented), evaluation script with metrics + latency, rationale for PEFT method/rank/learning rate choices.
+
+---
+
+### api-designer
+**Trigger:** Designing REST or GraphQL APIs, creating OpenAPI specs, planning API architecture, resource modeling, versioning, pagination, error handling standards.
+
+**6-step workflow:**
+1. **Analyze domain** — business requirements, data models, client needs
+2. **Model resources** — identify resources, relationships, operations; sketch entity diagram before writing any spec
+3. **Design endpoints** — URI patterns, HTTP methods, request/response schemas
+4. **Specify contract** — create OpenAPI 3.1 spec; validate: `npx @redocly/cli lint openapi.yaml`
+5. **Mock and verify** — spin up mock server: `npx @stoplight/prism-cli mock openapi.yaml`
+6. **Plan evolution** — versioning, deprecation, backward-compatibility strategy
+
+**MUST DO:** Resource-oriented URIs. `snake_case` or `camelCase` — pick one, apply everywhere. RFC 7807 error responses. Pagination on all collection endpoints. Version APIs with deprecation policy. Rate limiting documentation.
+
+**MUST NOT DO:** Verbs in URIs (`/getUser` → `/users/{id}`). Inconsistent response structures. Skip error code documentation. Create breaking changes without migration path.
+
+**OpenAPI 3.1 starter:**
+```yaml
+openapi: "3.1.0"
+info: { title: Example API, version: "1.0.0" }
+paths:
+  /users:
+    get:
+      summary: List users
+      operationId: listUsers
+      parameters:
+        - { name: cursor, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, default: 20, maximum: 100 } }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data: { type: array, items: { $ref: "#/components/schemas/User" } }
+                  pagination: { $ref: "#/components/schemas/CursorPage" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+```
+
+**RFC 7807 error format:**
+```json
+{
+  "type": "https://api.example.com/errors/validation-error",
+  "title": "Validation Error",
+  "status": 422,
+  "detail": "The 'email' field must be a valid email address.",
+  "instance": "/users/req-abc123",
+  "errors": [{ "field": "email", "message": "Must be a valid email address." }]
+}
+```
+Always use `Content-Type: application/problem+json`. `type` must be a stable documented URI.
+
+**Output checklist:** resource model + relationships, endpoint specs, OpenAPI 3.1 YAML, auth/authz flows, error catalog (all 4xx/5xx), pagination/filtering patterns, versioning strategy, `redocly lint` passes.
+
+---
+
+### angular-architect
+**Trigger:** Building Angular 17+ apps with standalone components or signals, NgRx state, RxJS patterns, performance tuning, Angular enterprise testing.
+
+**Core workflow:** requirements → standalone component design → OnPush + signals → NgRx store (verify with Redux DevTools) → `ng build --configuration production` (check bundle size) → tests >85% coverage.
+
+**MUST DO:** Standalone components (Angular 17+ default). Signals for reactive state. `ChangeDetectionStrategy.OnPush`. Strict TypeScript. `takeUntilDestroyed` or `async` pipe — no manual unsubscribes. `trackBy` in `*ngFor`. Angular style guide.
+
+**MUST NOT DO:** NgModule-based components (unless compatibility required). `any` type without justification. Mutate NgRx state directly. Skip accessibility attributes. Expose sensitive data client-side.
+
+**Standalone component + signals:**
+```typescript
+@Component({
+  selector: 'app-user-card', standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule],
+  template: `<h2>{{ fullName() }}</h2><button (click)="onSelect()">Select</button>`,
+})
+export class UserCardComponent {
+  firstName = input.required<string>();
+  lastName = input.required<string>();
+  selected = output<string>();
+  fullName = computed(() => `${this.firstName()} ${this.lastName()}`);
+  onSelect() { this.selected.emit(this.fullName()); }
+}
+```
+
+**RxJS subscription management:**
+```typescript
+private destroyRef = inject(DestroyRef);
+ngOnInit() {
+  this.userService.getUsers()
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({ next: users => { /* handle */ }, error: err => console.error(err) });
+}
+```
+
+**NgRx pattern:**
+```typescript
+// Actions
+export const loadUsers = createAction('[Users] Load Users');
+export const loadUsersSuccess = createAction('[Users] Load Users Success', props<{ users: User[] }>());
+// Reducer: on(loadUsers, s => ({...s, loading: true})), on(loadUsersSuccess, (s, {users}) => ({...s, users, loading: false}))
+// Selector: createSelector(createFeatureSelector('users'), s => s.users)
+```
+
+**Output always includes:** component file (standalone), service file (if business logic), NgRx files (if state), test file (>85% coverage), architectural decision notes.
 
 ---
 
