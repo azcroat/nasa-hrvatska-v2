@@ -35,6 +35,9 @@ export function sanitizeLevel(level, valid = ["A1","A2","B1","B2","C1","C2"]) {
 }
 
 export function isAllowedOrigin(origin, isDev) {
+  // Empty origin is allowed: this occurs in PWA standalone mode (iOS/Android home screen)
+  // and Capacitor native apps. Firebase token auth provides the security boundary.
+  if (!origin) return true;
   try {
     const hostname = new URL(origin).hostname;
     if (isDev && hostname === "localhost") return true;

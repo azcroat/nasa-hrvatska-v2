@@ -477,7 +477,11 @@ export default function MajaScreen() {
         }),
       });
 
-      if (!res.ok) throw new Error(`API ${res.status}`);
+      if (!res.ok) {
+        const e = new Error(`API ${res.status}`);
+        e._status = res.status;
+        throw e;
+      }
       const data = await res.json();
 
       const majaMsg = {
@@ -500,12 +504,16 @@ export default function MajaScreen() {
       if (phaseRef.current === 'maja-speaking') {
         startListening();
       }
-    } catch {
-      setErrorMsg('Nije moguće spojiti se s Majom. Provjeri internet vezu.');
+    } catch (e) {
+      let msg = 'Nije moguće spojiti se s Majom. Provjeri internet vezu.';
+      if (e?._status === 401) msg = 'Sesija je istekla. Odjavi se i prijavi ponovo.';
+      else if (e?._status === 429) msg = 'Prekoračen dnevni limit AI razgovora. Pokušaj sutra.';
+      else if (e?._status >= 500) msg = 'Serverska greška. Pokušaj za nekoliko minuta.';
+      setErrorMsg(msg);
       setPhase('error');
       setSessionActive(false);
     }
-   
+
   }, [level, name, playTTS, startListening]);
 
   // ── end session ────────────────────────────
