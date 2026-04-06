@@ -654,7 +654,7 @@ export default function AppRouter(props) {
       {currentScreen==="ai_story"&&<ScreenErrorBoundary key="ai_story" name="ai_story"><AIStoryScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="video_lesson"&&<ScreenErrorBoundary key="video_lesson" name="video_lesson"><VideoLessonScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="grammar_diagnosis"&&<ScreenErrorBoundary key="grammar_diagnosis" name="grammar_diagnosis"><GrammarDiagnosisScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
-      {currentScreen==="micro_lesson"&&<ScreenErrorBoundary key="micro_lesson" name="micro_lesson"><MicroLessonScreen goBack={goBack} award={award} goFlashcards={()=>{launchFlashcards([]);}} /></ScreenErrorBoundary>}
+      {currentScreen==="micro_lesson"&&<ScreenErrorBoundary key="micro_lesson" name="micro_lesson"><MicroLessonScreen goBack={goBack} award={award} goFlashcards={()=>{ setTab('practice'); setScr('dashboard'); }} /></ScreenErrorBoundary>}
       {currentScreen==="heritage"&&<ScreenErrorBoundary key="heritage" name="heritage"><HeritageStoryScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="croatianews"&&<ScreenErrorBoundary key="croatianews" name="croatianews"><CroatianNewsScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="phraseofday"&&<ScreenErrorBoundary key="phraseofday" name="phraseofday"><PhraseOfDayScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
