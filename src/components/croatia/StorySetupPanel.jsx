@@ -60,7 +60,7 @@ export default function StorySetupPanel({
               {goalMeta.tip}
             </div>
             <div style={{ fontSize: 12, color: '#15803d', marginTop: 4 }}>
-              Recommended: {goalMeta.cities.join(', ')}
+              Recommended: {goalMeta.cities?.join(', ') || 'Multiple cities'}
             </div>
           </div>
         </div>

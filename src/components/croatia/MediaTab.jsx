@@ -135,10 +135,10 @@ function CarouselCard({ m, onOpen, goalTag }) {
       </div>
       <div style={{ padding: '8px 9px 10px', flex: 1 }}>
         <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--heading)', lineHeight: 1.25, marginBottom: 3 }}>
-          {m.name.length > 28 ? m.name.slice(0, 26) + '…' : m.name}
+          {(m.name||'').length > 28 ? (m.name||'').slice(0, 26) + '…' : m.name}
         </div>
         <div style={{ fontSize: 9, color: 'var(--subtext)', lineHeight: 1.35 }}>
-          {m.desc.length > 52 ? m.desc.slice(0, 50) + '…' : m.desc}
+          {(m.desc||'').length > 52 ? (m.desc||'').slice(0, 50) + '…' : m.desc}
         </div>
       </div>
     </button>
@@ -178,10 +178,10 @@ function PickCard({ m, onOpen, isTop }) {
       </div>
       <div style={{ padding: '7px 9px 9px', flex: 1 }}>
         <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--heading)', lineHeight: 1.25, marginBottom: 2 }}>
-          {m.name.length > 22 ? m.name.slice(0, 20) + '…' : m.name}
+          {(m.name||'').length > 22 ? (m.name||'').slice(0, 20) + '…' : m.name}
         </div>
         <div style={{ fontSize: 9, color: 'var(--subtext)', lineHeight: 1.3 }}>
-          {m.desc.length > 40 ? m.desc.slice(0, 38) + '…' : m.desc}
+          {(m.desc||'').length > 40 ? (m.desc||'').slice(0, 38) + '…' : m.desc}
         </div>
       </div>
     </button>
@@ -216,7 +216,7 @@ function GridCard({ m, onOpen }) {
       <div style={{ padding: '9px 11px 11px', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--heading)', lineHeight: 1.3, marginBottom: 3 }}>{m.name}</div>
         <div style={{ fontSize: 10, color: 'var(--subtext)', lineHeight: 1.4, flex: 1 }}>
-          {m.desc.length > 55 ? m.desc.slice(0, 52) + '…' : m.desc}
+          {(m.desc||'').length > 55 ? (m.desc||'').slice(0, 52) + '…' : m.desc}
         </div>
       </div>
     </button>
