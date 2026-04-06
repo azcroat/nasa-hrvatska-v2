@@ -11,6 +11,15 @@ import FlashcardCardBack from './FlashcardCardBack.jsx';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 
+const MAX_CACHE_ENTRIES = 20;
+function evictCache(cacheRef) {
+  const keys = Object.keys(cacheRef.current);
+  if (keys.length > MAX_CACHE_ENTRIES) {
+    // Drop oldest half when limit exceeded
+    keys.slice(0, Math.floor(MAX_CACHE_ENTRIES / 2)).forEach(k => { delete cacheRef.current[k]; });
+  }
+}
+
 // Fetch AI-generated contextual image for a vocabulary word via FLUX
 async function fetchCardImage(word, meaning, cacheRef, signal) {
   const key = `img:${word}`;
@@ -29,6 +38,7 @@ async function fetchCardImage(word, meaning, cacheRef, signal) {
     if (!r.ok) return null;
     const { imageUrl } = await r.json();
     if (imageUrl) {
+      evictCache(cacheRef);
       cacheRef.current[key] = imageUrl;
       try { sessionStorage.setItem(`nh_fc_img_${word}`, imageUrl); } catch {}
     }
@@ -154,6 +164,7 @@ export default function Flashcards({ pool, goBack, award }) {
         clearTimeout(timeoutId);
         if (!mountedRef.current) return;
         const sentence = { hr: data.hr, en: data.en, note: data.note || null };
+        evictCache(aiCacheRef);
         aiCacheRef.current[word] = sentence;
         setAiSentence(sentence);
         setAiLoading(false);

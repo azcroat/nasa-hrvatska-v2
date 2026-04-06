@@ -83,6 +83,7 @@ export default function SpeedChallenge({ onXP }) {
     return localStorage.getItem(LS_KEY_PLAYED) === today;
   }, [phase]);
 
+  const [noVocab, setNoVocab] = useState(false);
   const pool = useRef([]);
   const questions = useRef([]);
   const allVocab = useRef([]);
@@ -90,7 +91,7 @@ export default function SpeedChallenge({ onXP }) {
   const start = useCallback(() => {
     pool.current = buildQuestionPool();
     allVocab.current = pool.current;
-    if (pool.current.length < 4) return;
+    if (pool.current.length < 4) { setNoVocab(true); return; }
     questions.current = pool.current.slice(0, QUESTIONS_PER_GAME).map(t => buildQuestion(t, allVocab.current));
     setPhase('playing');
     setTimeLeft(DURATION);
@@ -211,7 +212,12 @@ export default function SpeedChallenge({ onXP }) {
             </button>
           )}
         </div>
-        {playedToday && (
+        {noVocab && (
+          <div style={{ marginTop: 10, padding: '8px 12px', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.25)', borderRadius: 10, fontSize: 12, color: '#b91c1c', fontWeight: 600 }}>
+            Complete a few vocabulary lessons first to unlock Speed Challenge!
+          </div>
+        )}
+        {playedToday && !noVocab && (
           <div style={{ marginTop: 10, display: 'flex', gap: 8, alignItems: 'center' }}>
             <span style={{ fontSize: 12, color: 'var(--subtext)' }}>Come back tomorrow for a new challenge!</span>
             <button onClick={start} style={{ background: 'none', border: '1px solid var(--card-b)', borderRadius: 8, padding: '4px 10px', fontSize: 11, fontWeight: 600, color: 'var(--subtext)', cursor: 'pointer' }}>
