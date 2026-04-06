@@ -3438,3 +3438,10 @@ img, video, canvas, .skeleton, [class*="anim-"], [style*="animation"] {
 }
 .pill-btn:hover { transform: translateY(-1px) scale(1.03); filter: brightness(1.04); }
 .pill-btn:active { transform: translateY(0) scale(.97); }
+
+/* ── Knight journey city pulse ring ─────────────────────────────────────── */
+@keyframes nh-pulse-ring {
+  0%   { opacity: 0.6; transform: scale(1); }
+  50%  { opacity: 0.2; transform: scale(1.15); }
+  100% { opacity: 0.6; transform: scale(1); }
+}
