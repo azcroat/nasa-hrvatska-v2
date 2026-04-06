@@ -8,6 +8,7 @@ import { logError } from '../../lib/learnerErrors.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { markQuest } from '../../lib/quests.js';
+import { addWordToSRS } from '../../lib/srs.js';
 
 const PROMPTS = [
   // A2 — simple present, basic vocabulary
@@ -119,16 +120,21 @@ export default function WritingScreen({ goBack, award }) {
       if (!res.ok) throw new Error("API error " + res.status);
       const data = await res.json();
       setResult(data);
-      // After receiving evaluation result with mistakes array
-      if (data.mistakes && Array.isArray(data.mistakes)) {
-        data.mistakes.forEach(mistake => {
-          logError(
-            mistake.type || 'writing_error',
-            mistake.type?.includes('grammar') ? 'grammar' : 'vocabulary',
-            { wrong: mistake.original, correct: mistake.corrected, source: 'writing' }
-          );
-        });
-      }
+      // Log mistakes and add single-word corrections to SRS queue
+      const corrections = data.changes || data.mistakes || [];
+      corrections.forEach(ch => {
+        const orig = ch.original || '';
+        const corr = (ch.corrected || '').trim();
+        logError(
+          ch.type || ch.note || 'writing_error',
+          (ch.type || '').includes('grammar') ? 'grammar' : 'vocabulary',
+          { wrong: orig, correct: corr, source: 'writing' }
+        );
+        // Single-word corrections → queue for spaced repetition
+        if (corr && !corr.includes(' ') && corr.length >= 2 && corr.length <= 30) {
+          addWordToSRS(corr);
+        }
+      });
     } catch (e) {
       setError(!isOnline ? "No connection — please reconnect to use AI feedback." : "Could not connect to AI correction service. Check your connection.");
     }

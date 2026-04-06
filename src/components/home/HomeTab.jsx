@@ -36,6 +36,7 @@ import SpeedChallenge from './SpeedChallenge.jsx';
 import WeeklyRecapModal, { shouldShowWeeklyRecap, markRecapShown } from './WeeklyRecapModal.jsx';
 import WeakWordsPanel from './WeakWordsPanel.jsx';
 import UnitCompleteBanner from './UnitCompleteBanner.jsx';
+import AdaptiveInsightsCard from '../profile/AdaptiveInsightsCard.jsx';
 // DalmatianCoast SVG replaced with real AI/CC photography
 // import { DalmatianCoast } from '../illustrations';
 
@@ -455,6 +456,17 @@ export default function HomeTab({
 
           {/* ── SPEED CHALLENGE — daily timed vocabulary quiz ── */}
           <SpeedChallenge />
+
+          {/* ── AI DAILY INSIGHTS — personalized focus based on error patterns ── */}
+          {/* Only shown for signed-in users with enough data for meaningful analysis. */}
+          {authUser && st.lc >= 3 && (
+            <AdaptiveInsightsCard
+              uid={authUser.uid}
+              level={level}
+              lessonsCompleted={st.lc}
+              goToScreen={setScr}
+            />
+          )}
 
           {/* ── SRS DUE REVIEWS — shown after quick wins so user has momentum ── */}
           {(() => {
