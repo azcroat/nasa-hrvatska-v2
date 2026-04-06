@@ -125,17 +125,64 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
 
 // ── Google Cloud TTS (second native Croatian fallback) ────────────────────────
 // hr-HR-Wavenet-B: native Croatian neural voice, phonemically accurate (same tier as Azure GabrijelaNeural).
-// REST API — no SDK needed. Requires GOOGLE_TTS_KEY env var in Cloudflare.
-// Docs: https://cloud.google.com/text-to-speech/docs/reference/rest/v1/text/synthesize
-async function tryGoogle(text, slow, apiKey) {
+// Uses the Firebase service account JSON already stored in FIREBASE_SERVICE_ACCOUNT_JSON —
+// no separate GOOGLE_TTS_KEY needed. The service account has Editor role on the GCP project
+// which includes permission to call Cloud Text-to-Speech.
+// One-time setup: enable the API at https://console.cloud.google.com/apis/library/texttospeech.googleapis.com?project=ucimohrvatski-488f9
+async function _getGoogleAccessToken(serviceAccountJson) {
+  const sa = JSON.parse(serviceAccountJson);
+  // Import RSA private key using Web Crypto API (available natively in Cloudflare Workers)
+  const pemBody = sa.private_key
+    .replace(/-----BEGIN PRIVATE KEY-----/g, '')
+    .replace(/-----END PRIVATE KEY-----/g, '')
+    .replace(/\s/g, '');
+  const keyBuffer = Uint8Array.from(atob(pemBody), c => c.charCodeAt(0));
+  const privateKey = await crypto.subtle.importKey(
+    'pkcs8', keyBuffer,
+    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+    false, ['sign']
+  );
+  // Build JWT for service account auth
+  const now = Math.floor(Date.now() / 1000);
+  const b64url = s => btoa(s).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+  const header = b64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
+  const payload = b64url(JSON.stringify({
+    iss: sa.client_email,
+    scope: 'https://www.googleapis.com/auth/cloud-platform',
+    aud: 'https://oauth2.googleapis.com/token',
+    exp: now + 3600,
+    iat: now,
+  }));
+  const sigInput = new TextEncoder().encode(`${header}.${payload}`);
+  const sigBuffer = await crypto.subtle.sign({ name: 'RSASSA-PKCS1-v1_5' }, privateKey, sigInput);
+  const sig = b64url(String.fromCharCode(...new Uint8Array(sigBuffer)));
+  const jwt = `${header}.${payload}.${sig}`;
+  const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
+  });
+  if (!tokenRes.ok) return null;
+  const { access_token } = await tokenRes.json();
+  return access_token || null;
+}
+
+async function tryGoogle(text, slow, serviceAccountJson) {
+  let accessToken;
+  try {
+    accessToken = await _getGoogleAccessToken(serviceAccountJson);
+    if (!accessToken) return null;
+  } catch {
+    return null;
+  }
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000);
   try {
     const res = await fetch(
-      `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,
+      'https://texttospeech.googleapis.com/v1/text:synthesize',
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${accessToken}` },
         body: JSON.stringify({
           input: { text },
           voice: { languageCode: "hr-HR", name: "hr-HR-Wavenet-B", ssmlGender: "FEMALE" },
@@ -207,11 +254,13 @@ export async function onRequestPost(context) {
 
   const ELEVENLABS_KEY = env.ELEVENLABS_API_KEY;
   const AZURE_KEY = env.AZURE_TTS_KEY;
-  const GOOGLE_TTS_KEY = env.GOOGLE_TTS_KEY;
+  // Google TTS uses the Firebase service account already present in Cloudflare — no separate key needed.
+  // Falls back to a dedicated GOOGLE_TTS_KEY if set (for projects with a different SA or no Firebase).
+  const GOOGLE_SA_JSON = env.FIREBASE_SERVICE_ACCOUNT_JSON || env.GOOGLE_TTS_KEY || null;
   const PRIMARY_REGION = env.AZURE_TTS_REGION || "eastus";
   const VOICE_ID = env.ELEVENLABS_VOICE_ID || EL_DEFAULT_VOICE;
 
-  if (!ELEVENLABS_KEY && !AZURE_KEY && !GOOGLE_TTS_KEY) {
+  if (!ELEVENLABS_KEY && !AZURE_KEY && !GOOGLE_SA_JSON) {
     return new Response("TTS not configured", { status: 500, headers: corsHeaders(origin) });
   }
 
@@ -316,10 +365,11 @@ export async function onRequestPost(context) {
     }
 
     // 4. Google Cloud TTS — native Croatian hr-HR-Wavenet-B (same phoneme accuracy tier as Azure).
-    //    Activates when all other providers have failed. Requires GOOGLE_TTS_KEY env var.
-    if (!buffer && GOOGLE_TTS_KEY) {
+    //    Uses FIREBASE_SERVICE_ACCOUNT_JSON already in Cloudflare — no separate key required.
+    //    One-time activation: enable Cloud TTS API at Google Cloud Console for project ucimohrvatski-488f9.
+    if (!buffer && GOOGLE_SA_JSON) {
       try {
-        buffer = await tryGoogle(text, slow, GOOGLE_TTS_KEY);
+        buffer = await tryGoogle(text, slow, GOOGLE_SA_JSON);
       } catch {
         // fall through
       }
