@@ -18,6 +18,10 @@ export default function CampaignBanner({ activeCampaign, campaignDismissed, setC
   // Derive gradient from campaign color (supports hex colors)
   const baseColor = activeCampaign.color || '#16a34a';
 
+  // Only 'easter' has a dedicated screen; other campaigns fall back to their first quest screen
+  const CAMPAIGN_SCREENS = { easter: 'easter' };
+  const ctaScreen = CAMPAIGN_SCREENS[activeCampaign.id] || activeCampaign.quests?.[0]?.screen || 'dashboard';
+
   return (
     <div style={{
       borderRadius: 18,
@@ -165,7 +169,7 @@ export default function CampaignBanner({ activeCampaign, campaignDismissed, setC
 
         {/* CTA button */}
         <button
-          onClick={() => setScr && setScr(activeCampaign.id)}
+          onClick={() => setScr && setScr(ctaScreen)}
           style={{
             width: '100%', padding: '11px 16px',
             background: `linear-gradient(135deg, ${baseColor} 0%, ${baseColor}cc 100%)`,
