@@ -114,9 +114,11 @@ export default defineConfig({
           // data.jsx (root vocabulary file) + content.jsx stay in chunk-data (~700 KB).
           // src/data.jsx alone is ~700 KB and cannot be split without a major refactor.
           if (id.includes('src/data') || id.includes('src/lib/appData')) return 'chunk-data';
-          // Context and hooks — break circular deps between croatia/practice/learn chunks
+          // Context — break circular deps between croatia/practice/learn chunks
           if (id.includes('src/context')) return 'chunk-context';
-          if (id.includes('src/hooks')) return 'chunk-hooks';
+          // NOTE: src/hooks intentionally has NO manual chunk — previous chunk-hooks caused
+          // a chunk-data ↔ chunk-hooks circular dependency (TDZ crash at runtime). Hooks are
+          // now pulled into their respective lazy screen chunks by Rollup's default behavior.
           // Individual screen files (croatia/, practice/, profile/, learn/) are NOT matched here.
           // They fall through to Rollup's default — each lazy-loaded screen becomes its own chunk.
         }

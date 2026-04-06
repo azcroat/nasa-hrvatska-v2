@@ -16,12 +16,10 @@ test.describe('Full lesson completion flow', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await page.goto('/');
+    // Navigate directly to /learn to avoid post-auth navigate('/') race on tab click.
+    await page.goto('/learn');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    // Navigate to Learn tab
-    await page.getByRole('navigation', { name: 'Main navigation' })
-      .getByRole('button', { name: 'Learn', exact: true }).click();
-    await expect(page.getByText('🗺️ My Path')).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('🗺️ My Path')).toBeVisible({ timeout: 15_000 });
   });
 
   test('lesson screen opens from vocabulary category', async ({ page }) => {

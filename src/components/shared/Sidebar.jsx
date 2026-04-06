@@ -226,7 +226,7 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
       <nav style={{ padding: '8px 12px', flex: 1 }}>
         {TABS.map(t => (
           <button key={t.id} className={'sb-btn' + (tab === t.id ? ' active' : '')}
-            onClick={() => { setScr('dashboard'); setTab(t.id); }}
+            onClick={() => { setTab(t.id); }}
             aria-current={tab === t.id ? 'page' : undefined}>
             <span style={{ display:'flex', alignItems:'center', color: tab === t.id ? (t.id === 'croatia' ? '#D40030' : '#0e7490') : 'var(--nav-lbl)', flexShrink:0 }}>
               <NavIcon id={t.id} active={tab === t.id} />

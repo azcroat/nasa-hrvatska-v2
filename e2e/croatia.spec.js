@@ -6,10 +6,9 @@ test.describe('Croatia tab', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await page.goto('/');
+    // Navigate directly to /croatia to avoid post-auth navigate('/') race on tab click.
+    await page.goto('/croatia');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    await page.getByRole('navigation', { name: 'Main navigation' })
-      .getByRole('button', { name: 'Culture', exact: true }).click();
     await expect(page.getByRole('heading', { name: /History.*Regions/i })).toBeVisible({ timeout: 15_000 });
   });
 

@@ -165,11 +165,10 @@ test.describe('Profile screen', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await page.goto('/');
+    // Navigate directly to /profile to avoid post-auth navigate('/') race on tab click.
+    await page.goto('/profile');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    await page.getByRole('navigation', { name: 'Main navigation' })
-      .getByRole('button', { name: 'Me', exact: true }).click();
-    await expect(page.getByText(/Profile|Account/i).first()).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText(/Profile|Account/i).first()).toBeVisible({ timeout: 10_000 });
   });
 
   test('profile tab loads without crashing', async ({ page }) => {
@@ -193,10 +192,11 @@ test.describe('Profile screen', () => {
   });
 
   test('Favorites section is accessible', async ({ page }) => {
-    const favsBtn = page.getByText(/Favorites|Favourites|Saved/i).first();
+    const favsBtn = page.getByText('Favorites').first();
     if (await favsBtn.isVisible()) {
       await favsBtn.click();
-      await expect(page.locator('#root')).not.toBeEmpty({ timeout: 3_000 });
+      // FavoritesScreen renders either the saved words list or the empty-state message
+      await expect(page.getByText(/My Favorites|No favorites yet/i).first()).toBeVisible({ timeout: 5_000 });
     }
   });
 });

@@ -161,7 +161,11 @@ function App() {
   const { dchlA, sDchlA, dchlSl, sDchlSl } = useDaily();
   const { famData, setFamData, famMembers, setFamMembers, famLoading, setFamLoading, famName, setFamName, famCode, setFamCode, famErr, setFamErr, famTab, setFamTab } = useFamily();
   const [tab, _setTab] = useState(() => PATH_TO_TAB[window.location.pathname] || 'home');
-  const setTab = useCallback((t) => { _setTab(t); navigate(TAB_PATHS[t] || '/', { replace: false }); }, [navigate]);
+  // setTab: switch tab + navigate + reset to dashboard. Called directly from TabBar/Sidebar
+  // buttons, so we reset currentScreen here instead of via setScr('dashboard') to avoid
+  // the spurious navigate('/') that setScr would emit (which briefly resets tab back to
+  // 'home' via the location useEffect before the real tab path is committed).
+  const setTab = useCallback((t) => { _setTab(t); _setCurrentScreen('dashboard'); navigate(TAB_PATHS[t] || '/', { replace: false }); }, [navigate]);
   const { jWords, setJWords, jIn: _jIn, setJIn: _setJIn, jEn: _jEn, setJEn: _setJEn } = useJournal();
   const _uidRef = useRef(/** @type {string | null} */(null));
   const { darkMode, setDarkMode, favs, setFavs, toggleFav, isFav } = usePreferences(_uidRef);
@@ -534,7 +538,11 @@ function App() {
     const ip = _initialPath.current; _initialPath.current = '/';
     const tbp = {'/learn':'learn','/practice':'practice','/croatia':'croatia','/profile':'profile'};
     if (tbp[ip]) { _setTab(tbp[ip]); _setCurrentScreen('dashboard'); return; }
-    setScr('dashboard');
+    // Only update state — do NOT call setScr('dashboard') here because that would
+    // call navigate('/') which can race with a user clicking a tab immediately after
+    // auth resolves (e.g. Playwright clicks Practice right as the effect fires).
+    // The URL is already '/' on initial load so no navigation is needed.
+    _setCurrentScreen('dashboard');
   }
   const _initialPath = useRef(window.location.pathname);
   const getWeekStats = useCallback(() => { const sr=getSR(); const weak=Object.values(sr).filter(v=>v.w>v.r).length; const strong=Object.values(sr).filter(v=>v.r>v.w).length; return{lessons:stats.lc,grammar:stats.gc,streak:getStreak().count,weak,strong}; }, [stats]);

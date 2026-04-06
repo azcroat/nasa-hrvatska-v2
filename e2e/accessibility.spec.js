@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { blockFirebase } from './fixtures/seed-auth.js';
 
 // ─── Accessibility tests using axe-core (WCAG 2.1 AA) ──────────────────────
 // These run against the production build (npm run build → npm run preview).
@@ -14,10 +15,12 @@ const PAGES = [
 
 for (const { name, path } of PAGES) {
   test(`${name} page has no critical axe violations`, async ({ page }) => {
+    // Block Firebase so network requests don't prevent domcontentloaded from resolving
+    await blockFirebase(page);
     await page.goto(path);
-    // Wait for React to hydrate and for any post-auth navigate() calls to settle
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(300);
+    // domcontentloaded is reliable here — networkidle can hang waiting for Firebase connections
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(500);
 
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
@@ -46,9 +49,12 @@ for (const { name, path } of PAGES) {
 
 // ─── Focus management — keyboard navigation smoke test ─────────────────────
 test('Tab key reaches all nav links on Home', async ({ page }) => {
+  // Block Firebase so networkidle resolves quickly (Firebase long-polling prevents it otherwise)
+  await blockFirebase(page);
   await page.goto('/');
-  await page.waitForLoadState('networkidle');
-  await page.waitForTimeout(300);
+  // domcontentloaded is reliable here — networkidle can hang waiting for Firebase
+  await page.waitForLoadState('domcontentloaded');
+  await page.waitForTimeout(500);
 
   // Press Tab up to 20 times and collect focused elements
   const focusedTags = new Set();
@@ -64,9 +70,10 @@ test('Tab key reaches all nav links on Home', async ({ page }) => {
 
 // ─── Color contrast quick check via axe ────────────────────────────────────
 test('Home page passes color contrast checks', async ({ page }) => {
+  await blockFirebase(page);
   await page.goto('/');
-  await page.waitForLoadState('networkidle');
-  await page.waitForTimeout(300);
+  await page.waitForLoadState('domcontentloaded');
+  await page.waitForTimeout(500);
 
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2aa'])
