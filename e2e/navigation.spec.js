@@ -18,7 +18,7 @@ test.describe('Tab navigation', () => {
 
   test('renders all 5 navigation tabs', async ({ page }) => {
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
-    for (const label of ['Today', 'Learn', 'Practice', 'Culture', 'Me']) {
+    for (const label of ['Today', 'Learn', 'Practice', 'Croatia', 'Me']) {
       await expect(nav.getByRole('button', { name: label, exact: true })).toBeVisible();
     }
   });
@@ -43,9 +43,9 @@ test.describe('Tab navigation', () => {
   });
 
   test('navigates to Culture tab and shows History & Regions heading', async ({ page }) => {
-    await clickTab(page, 'Culture');
+    await clickTab(page, 'Croatia');
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
-    await expect(nav.getByRole('button', { name: 'Culture', exact: true })).toHaveClass(/active/);
+    await expect(nav.getByRole('button', { name: 'Croatia', exact: true })).toHaveClass(/active/);
     await expect(page.getByRole('heading', { name: /History.*Regions/i })).toBeVisible({ timeout: 5_000 });
   });
 

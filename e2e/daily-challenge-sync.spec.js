@@ -20,7 +20,7 @@ test.describe('Home screen — authenticated', () => {
     await expect(nav.getByRole('button', { name: 'Today', exact: true })).toBeVisible();
     await expect(nav.getByRole('button', { name: 'Learn', exact: true })).toBeVisible();
     await expect(nav.getByRole('button', { name: 'Practice', exact: true })).toBeVisible();
-    await expect(nav.getByRole('button', { name: 'Culture', exact: true })).toBeVisible();
+    await expect(nav.getByRole('button', { name: 'Croatia', exact: true })).toBeVisible();
     await expect(nav.getByRole('button', { name: 'Me', exact: true })).toBeVisible();
   });
 

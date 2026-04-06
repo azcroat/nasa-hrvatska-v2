@@ -46,9 +46,9 @@ test.describe('Croatia tab', () => {
       await btn.scrollIntoViewIfNeeded();
       await btn.click();
       await expect(page.getByText('Timeline').first()).toBeVisible({ timeout: 5_000 });
-      // Navigate back via the Culture tab in the nav bar
+      // Navigate back via the Croatia tab in the nav bar
       await page.getByRole('navigation', { name: 'Main navigation' })
-        .getByRole('button', { name: 'Culture', exact: true }).click();
+        .getByRole('button', { name: 'Croatia', exact: true }).click();
       await expect(page.getByRole('heading', { name: /History.*Regions/i })).toBeVisible({ timeout: 10_000 });
     });
 
