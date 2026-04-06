@@ -78,8 +78,9 @@ export function repairStreak(currentXP: number): RepairResult {
   if (!canRepairStreak()) {
     return { ok: false, reason: 'Cannot repair streak at this time.' };
   }
-  if (currentXP < XP_COST_REPAIR) {
-    return { ok: false, reason: `Need ${XP_COST_REPAIR} XP to repair your streak.` };
+  const cost = getRepairCost();
+  if (currentXP < cost) {
+    return { ok: false, reason: `Need ${cost} XP to repair your streak.` };
   }
 
   try {
@@ -111,7 +112,7 @@ export function repairStreak(currentXP: number): RepairResult {
     // Clear earn-back token (already consumed)
     try { localStorage.removeItem('nh_earn_back'); } catch {}
 
-    return { ok: true, xpCost: XP_COST_REPAIR, restoredCount };
+    return { ok: true, xpCost: cost, restoredCount };
   } catch (e: unknown) {
     return { ok: false, reason: 'Repair failed: ' + (e as Error).message };
   }
