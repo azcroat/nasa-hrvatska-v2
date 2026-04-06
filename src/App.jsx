@@ -4,6 +4,7 @@ import { BG_LIGHT, BG_DARK, lvl, getStreak, earnFreeze, recordJourneyMilestone }
 import { touchSession, isSessionExpired, fbApplyDelta } from "./lib/firebase.js";
 import { getSR, saveSR, getDueReviews } from "./lib/srs.js";
 import { buildProgressSnapshot } from "./lib/progressSnapshot.js";
+import { applyRemoteProgress as _applyRemoteProgressLib } from "./lib/applyRemoteProgress.js";
 import { localDateStr, weekKey } from "./lib/dateUtils.js";
 import { canRepairStreak, repairStreak } from "./lib/streak.js";
 import { cleanupStaleQuestKeys } from "./lib/quests.js";
@@ -180,92 +181,10 @@ function App() {
   const { award, comebackBonus, setComebackBonus, showCelebration, setShowCelebration, celebXP, setCelebXP: _setCelebXP, streakMilestone, setStreakMilestone, ceremonyType, setCeremonyType, levelUpData, setLevelUpData, freezeUsedToast, setFreezeUsedToast: _setFreezeUsedToast, earnBackPrompt, setEarnBackPrompt: _setEarnBackPrompt, streakRestoredCount, setStreakRestoredCount, ttsFailedToast, setTtsFailedToast, showXP, xpA, nB, sB } = useAward({ curEx, stats, setStats, writeDelta });
 
   // ── applyRemoteProgress: merge Firestore snapshot into local state ──────────
-  // Defined before useAuth so it can be passed to onSignedIn.
+  // Delegates to the extracted lib function (src/lib/applyRemoteProgress.ts),
+  // which owns all merge logic and is independently testable.
   const applyRemoteProgress = useCallback((fp) => {
-    if (!fp) return;
-    const _d = new Date();
-    const today = _d.getFullYear() + '-' + String(_d.getMonth() + 1).padStart(2, '0') + '-' + String(_d.getDate()).padStart(2, '0');
-    const apSt = fp.stats || fp.st || {};
-    if (fp.onboarded || fp.cp || apSt.xp > 0) { localStorage.setItem('onboarded', 'true'); setOnboarded(true); }
-    if (fp.name) setName(fp.name);
-    if (fp.sr) { const lSR = getSR() || {}; const mSR = { ...lSR }; for (const w in fp.sr) { const r = fp.sr[w]; const l = mSR[w]; if (!l || (r.r||0) > (l.r||0) || (!l.r && (r.s||0) > (l.s||0))) mSR[w] = r; } saveSR(mSR); }
-    if (fp.streak) { let lSt = { count:0,last:'' }; try { lSt = JSON.parse(localStorage.getItem('uStreak')||'{"count":0,"last":""}'); } catch (_) {} const _yd=new Date();_yd.setDate(_yd.getDate()-1);const yesterday=_yd.getFullYear()+'-'+String(_yd.getMonth()+1).padStart(2,'0')+'-'+String(_yd.getDate()).padStart(2,'0'); const fpLast=fp.streak.last||''; const fpStreakActive=fpLast===today||fpLast===yesterday; if(fpStreakActive&&(fp.streak.count||0)>(lSt.count||0)){localStorage.setItem('uStreak',JSON.stringify(fp.streak));} /* Expired Firebase streaks are never restored — prevents months-old streak appearing active */ }
-    if (fp.freezes !== undefined) { const lF = parseInt(localStorage.getItem('uFreeze')||'0',10); localStorage.setItem('uFreeze', String(Math.max(lF, Math.max(0, parseInt(fp.freezes,10)||0)))); }
-    if (fp.favs) { let lFv = []; try { lFv = JSON.parse(localStorage.getItem('uFavs')||'[]'); } catch (_) {} const favMap = new Map(); [...lFv, ...fp.favs].forEach(f => { if (f && f.hr) favMap.set(f.hr, f); }); const mFv = [...favMap.values()]; try { localStorage.setItem('uFavs', JSON.stringify(mFv)); } catch (e) { if (e && e.name === 'QuotaExceededError') { console.warn('[sync] localStorage quota exceeded — some progress may not persist locally'); } } setFavs(mFv); }
-    if (fp.journal) { let lJ = []; try { lJ = JSON.parse(localStorage.getItem('uJournal')||'[]'); } catch (_) {} const jM = new Map(); lJ.forEach(e => { if (e?.word) jM.set(e.word, e); }); fp.journal.forEach(e => { if (e?.word) jM.set(e.word, e); }); const mJ = Array.from(jM.values()); try { localStorage.setItem('uJournal', JSON.stringify(mJ)); } catch (e) { if (e && e.name === 'QuotaExceededError') { console.warn('[sync] localStorage quota exceeded — some progress may not persist locally'); } } setJWords(mJ); }
-    if (fp.dc?.day === today) { const ans = fp.dc.answered||[false,false,false]; const sel = Array.isArray(fp.dc.selected)&&typeof fp.dc.selected[0]==='string'?fp.dc.selected:['','','']; let lA=[false,false,false]; try { const ld=JSON.parse(localStorage.getItem('dcDay3')||'{}'); if(ld.day===today) lA=ld.answered||lA; } catch(_){} const mA=ans.map((a,i)=>a||lA[i]||false); sDchlA(mA); sDchlSl(sel); localStorage.setItem('dcDay3',JSON.stringify({day:today,answered:mA,selected:sel})); }
-    if (fp.cooldown) { let cd={}; try{cd=JSON.parse(localStorage.getItem('xpCooldown')||'{}');}catch(_){} for(const k in fp.cooldown){if(fp.cooldown[k]===today)cd[k]=fp.cooldown[k];} localStorage.setItem('xpCooldown',JSON.stringify(cd)); }
-    if (fp.weekXP !== undefined) { const wD=new Date();const wY=wD.getDay()||7;wD.setDate(wD.getDate()+4-wY);const wy=wD.getFullYear();const wn=Math.ceil(((wD.getTime()-new Date(wy,0,1).getTime())/86400000+1)/7);const wk=wy+'-W'+String(wn).padStart(2,'0');const lX=parseInt(localStorage.getItem('nh_week_xp_'+wk)||'0',10);localStorage.setItem('nh_week_xp_'+wk,String(Math.max(lX,fp.weekXP))); }
-    // User settings — restore from Firebase so all devices share preferences
-    if (fp.nh_level) localStorage.setItem('nh_level', fp.nh_level);
-    if (fp.nh_goal) { localStorage.setItem('nh_goal', fp.nh_goal); localStorage.setItem('nh_goal_set', '1'); }
-    if (fp.nh_culture) localStorage.setItem('nh_culture', fp.nh_culture);
-    if (fp.nh_placement_done) { localStorage.setItem('nh_placement_done', 'true'); localStorage.setItem('placement_done', 'true'); }
-    if (fp.nh_grammar_track_done) localStorage.setItem('nh_grammar_track_done', 'true');
-    // UI/accessibility preferences — restore cross-device.
-    // Three-state values (null | 'true' | 'false'): only write when remote is non-null
-    // so a device that never set a preference keeps its system-default behaviour.
-    if (fp.darkMode !== null && fp.darkMode !== undefined) localStorage.setItem('darkMode', fp.darkMode);
-    if (fp.nh_dm_explicit) localStorage.setItem('nh_dm_explicit', '1');
-    if (fp.nh_sound_enabled !== null && fp.nh_sound_enabled !== undefined) localStorage.setItem('nh_sound_enabled', fp.nh_sound_enabled);
-    if (fp.nh_haptic_enabled !== null && fp.nh_haptic_enabled !== undefined) localStorage.setItem('nh_haptic_enabled', fp.nh_haptic_enabled);
-    if (fp.nh_voice_pref) localStorage.setItem('nh_voice_pref', fp.nh_voice_pref);
-    if (fp.nh_font_size && fp.nh_font_size !== 'medium') localStorage.setItem('nh_font_size', fp.nh_font_size);
-    if (fp.nh_reduce_motion === true) localStorage.setItem('nh_reduce_motion', 'true');
-    // Journey milestones — additive union: never discard history from either device
-    if (Array.isArray(fp.nh_journey) && fp.nh_journey.length > 0) {
-      let lJ = []; try { lJ = JSON.parse(localStorage.getItem('nh_journey') || '[]'); } catch (_) {}
-      const seen = new Set(lJ.map(m => m.type + '|' + m.date));
-      const incoming = fp.nh_journey.filter(m => m && m.type && m.date && !seen.has(m.type + '|' + m.date));
-      if (incoming.length) { try { localStorage.setItem('nh_journey', JSON.stringify([...lJ, ...incoming].slice(-200))); } catch (_) {} }
-    }
-    // Weekend activity — merge sat/sun independently so cross-device weekend earns badge correctly
-    if (fp.nh_weekend_days && typeof fp.nh_weekend_days === 'object') {
-      let lWD = {}; try { lWD = JSON.parse(localStorage.getItem('nh_weekend_days') || '{}'); } catch (_) {}
-      const merged = { ...fp.nh_weekend_days, ...lWD }; // local wins for shared keys (more recent)
-      if (merged.sat || merged.sun) { try { localStorage.setItem('nh_weekend_days', JSON.stringify(merged)); } catch (_) {} }
-    }
-    // Seasonal/campaign quest completion — additive: once true on any device, true everywhere.
-    if (fp.nh_uskrs_kviz_done === true) try { localStorage.setItem('nh_uskrs_kviz_done', '1'); } catch (_) {}
-    if (fp.nh_cq_easter_uskrs_q1 === true) try { localStorage.setItem('nh_cq_easter_uskrs_q1', '1'); } catch (_) {}
-    if (fp.nh_cq_easter_uskrs_q2 === true) try { localStorage.setItem('nh_cq_easter_uskrs_q2', '1'); } catch (_) {}
-    if (fp.nh_cq_easter_uskrs_q3 === true) try { localStorage.setItem('nh_cq_easter_uskrs_q3', '1'); } catch (_) {}
-    // Signal HomeTab to re-read campaignQuestsDone from localStorage now that
-    // Firebase data has been restored. Without this, the initial React state
-    // (read before Firebase resolves) shows quests as incomplete even when the
-    // user completed them on another device/browser earlier.
-    if (fp.nh_cq_easter_uskrs_q1 === true || fp.nh_cq_easter_uskrs_q2 === true || fp.nh_cq_easter_uskrs_q3 === true) {
-      try { window.dispatchEvent(new CustomEvent('nh-campaign-quest-done')); } catch (_) {}
-    }
-    // Game state — merge strategies: hearts (remote wins if newer), prestige (max), checkpoints (union),
-    // custom_words (dedup union), hearts_always_on (additive), saved_phrases (union), media_done (union),
-    // used_free_repair (additive).
-    if (fp.nh_hearts !== null && fp.nh_hearts !== undefined) {
-      try { const lH = JSON.parse(localStorage.getItem('nh_hearts') || 'null'); if (!lH || (fp.nh_hearts.lastRegen || 0) > (lH.lastRegen || 0)) { localStorage.setItem('nh_hearts', JSON.stringify(fp.nh_hearts)); } } catch (_) {}
-    }
-    if (fp.nh_prestige) {
-      const lPr = parseInt(localStorage.getItem('nh_prestige') || '0', 10);
-      try { localStorage.setItem('nh_prestige', String(Math.max(lPr, fp.nh_prestige))); } catch (_) {}
-    }
-    if (fp.nh_checkpoints && typeof fp.nh_checkpoints === 'object') {
-      let lCk = {}; try { lCk = JSON.parse(localStorage.getItem('nh_checkpoints') || '{}'); } catch (_) {}
-      try { localStorage.setItem('nh_checkpoints', JSON.stringify({ ...fp.nh_checkpoints, ...lCk })); } catch (_) {}
-    }
-    if (Array.isArray(fp.nh_custom_words) && fp.nh_custom_words.length > 0) {
-      let lCW = []; try { lCW = JSON.parse(localStorage.getItem('nh_custom_words') || '[]'); } catch (_) {}
-      const cwMap = new Map([...fp.nh_custom_words, ...lCW].map((w) => [w?.word || JSON.stringify(w), w]));
-      try { localStorage.setItem('nh_custom_words', JSON.stringify([...cwMap.values()])); } catch (_) {}
-    }
-    if (fp.nh_hearts_always_on === true) try { localStorage.setItem('nh_hearts_always_on', 'true'); } catch (_) {}
-    if (Array.isArray(fp.nh_saved_phrases) && fp.nh_saved_phrases.length > 0) {
-      let lSP = []; try { lSP = JSON.parse(localStorage.getItem('nh_saved_phrases') || '[]'); } catch (_) {}
-      try { localStorage.setItem('nh_saved_phrases', JSON.stringify([...new Set([...lSP, ...fp.nh_saved_phrases])])); } catch (_) {}
-    }
-    if (fp.nh_media_done && typeof fp.nh_media_done === 'object') {
-      let lMD = {}; try { lMD = JSON.parse(localStorage.getItem('nh_media_done') || '{}'); } catch (_) {}
-      try { localStorage.setItem('nh_media_done', JSON.stringify({ ...fp.nh_media_done, ...lMD })); } catch (_) {}
-    }
-    if (fp.nh_used_free_repair === true) try { localStorage.setItem('nh_used_free_repair', '1'); } catch (_) {}
+    _applyRemoteProgressLib(fp, { setFavs, setJWords, sDchlA, sDchlSl, setOnboarded, setName });
   }, [setFavs, setJWords, sDchlA, sDchlSl, setOnboarded, setName]);
 
   // Ref to break the useAuth TDZ cycle for doSyncNow and applyRemoteProgress
