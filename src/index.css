@@ -1788,6 +1788,8 @@ img, video, canvas, .skeleton, [class*="anim-"], [style*="animation"] {
 .sub-tab-pill.sub-tab--active {
   background: var(--info);
   color: #fff;
+  box-shadow: 0 4px 14px rgba(14,116,144,.32);
+  font-size: 13px;
 }
 .sub-tab-pill:focus-visible {
   outline: 3px solid var(--info);
@@ -3056,9 +3058,9 @@ img, video, canvas, .skeleton, [class*="anim-"], [style*="animation"] {
   pointer-events: none;
 }
 .progress-hero-eyebrow {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
-  color: rgba(255,255,255,.65);
+  color: rgba(255,255,255,.75);
   letter-spacing: .14em;
   text-transform: uppercase;
   margin-bottom: 6px;
@@ -3074,8 +3076,8 @@ img, video, canvas, .skeleton, [class*="anim-"], [style*="animation"] {
   text-shadow: 0 2px 12px rgba(0,0,0,.2);
 }
 .progress-hero-subtitle {
-  font-size: 12px;
-  color: rgba(255,255,255,.65);
+  font-size: 13px;
+  color: rgba(255,255,255,.72);
   font-weight: 600;
   margin-bottom: 14px;
   font-family: var(--font-sans);
@@ -3104,9 +3106,9 @@ img, video, canvas, .skeleton, [class*="anim-"], [style*="animation"] {
   background-size: 200% 100%;
 }
 .progress-hero-count {
-  font-size: 11px;
-  color: rgba(255,255,255,.65);
-  font-weight: 500;
+  font-size: 12px;
+  color: rgba(255,255,255,.75);
+  font-weight: 600;
   margin-bottom: 12px;
   font-family: var(--font-sans);
 }
@@ -3118,14 +3120,14 @@ img, video, canvas, .skeleton, [class*="anim-"], [style*="animation"] {
   margin-bottom: 18px;
 }
 .progress-hero-dot {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 900;
   transition: background .3s, border .3s, transform .2s;
 }

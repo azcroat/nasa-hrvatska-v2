@@ -93,6 +93,8 @@ const LEVEL_PALETTE = [
   { grad: "linear-gradient(135deg,#1e3a8a,#1d4ed8)", light: "#dbeafe", text: "#1e3a8a", border: "#93c5fd" },
   { grad: "linear-gradient(135deg,#4c1d95,#6d28d9)", light: "#ede9fe", text: "#4c1d95", border: "#c4b5fd" },
   { grad: "linear-gradient(135deg,#7f1d1d,#dc2626)", light: "#fee2e2", text: "#7f1d1d", border: "#fca5a5" },
+  { grad: "linear-gradient(135deg,#134e4a,#0d9488)", light: "#ccfbf1", text: "#134e4a", border: "#5eead4" },  // Virtuoz — deep teal
+  { grad: "linear-gradient(135deg,#1e1b4b,#3730a3)", light: "#e0e7ff", text: "#1e1b4b", border: "#a5b4fc" },  // Majstor — indigo
 ];
 
 function getWeekXP() {
@@ -168,6 +170,11 @@ export default function HomeTab({
       master2:      q('master2'),
       reading:      q('reading'),
       reading2:     q('reading2'),
+      culture:      q('culture'),
+      culture2:     q('culture2'),
+      vocab:        q('vocab'),
+      vocab2:       q('vocab2'),
+      write:        q('write'),
       streak:       hasStreak,
       streak_alive: hasStreak,
       perfect:      q('perfect'),
@@ -435,6 +442,8 @@ export default function HomeTab({
                 launchSpeaking(items.length ? items : [['Dobar dan', 'Good day', 'DOH-bar dahn']]);
               } else if (questId === 'grammar' || questId === 'grammar2') {
                 launchPathItem({ go: 'grammar' });
+              } else if (questId === 'vocab' || questId === 'vocab2') {
+                launchPathItem({ go: 'lesson' });
               } else if (questId === 'perfect') {
                 const pool = (_allCats || []).flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
                 launchFlashcards(_sh(pool).slice(0, 20));
