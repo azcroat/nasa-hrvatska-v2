@@ -27,6 +27,7 @@ export default defineConfig({
         'src/lib/firebase.js',
         'src/hooks/useAuth.js',
         'src/hooks/useSyncManager.js',
+        'src/hooks/useConversationMemory.js',   // Firestore subcollection reads/writes
         // Browser-only APIs — untestable in jsdom without heavy mocking
         'src/lib/audio.js',
         'src/lib/crypto.js',
@@ -36,6 +37,7 @@ export default defineConfig({
         'src/hooks/useNotifications.js',
         'src/hooks/useOnlineStatus.js',
         'src/hooks/useHaptic.js',
+        'src/hooks/useWhisperSTT.js',           // MediaRecorder + AudioContext + SpeechRecognition
         // Pure React state (useState only, no business logic to assert)
         'src/hooks/useAppScreenState.js',
         // Trivial context wrapper (no business logic)
