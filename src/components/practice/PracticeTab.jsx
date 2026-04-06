@@ -668,6 +668,7 @@ export default function PracticeTab({
             </div>
             <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:16 }}>
               {[
+                { icon:'📷', label:'Photo Vocab Scanner', desc:'Photograph anything · get Croatian words for what you see', color:'rgba(220,38,38,.08)', border:'rgba(220,38,38,.25)', fn: () => { setScr('photo_vocab'); sCurEx('photo_vocab'); } },
                 { icon:'🎧', label:'AI Listening',       desc:'AI-generated dialogues + comprehension',      color:'rgba(14,116,144,.08)',  border:'rgba(14,116,144,.25)',  fn: startAIListening },
                 { icon:'📖', label:'AI Story',            desc:'Story built from your weak words',             color:'rgba(5,150,105,.08)',   border:'rgba(5,150,105,.25)',   fn: () => { setScr('ai_story'); sCurEx('ai_story'); } },
                 { icon:'🎓', label:'CEFR Test',           desc:'A1→B2 proficiency check',                     color:'rgba(14,116,144,.08)',  border:'rgba(14,116,144,.25)',  fn: () => { setScr("cefrtest"); sCurEx("cefrtest"); } },

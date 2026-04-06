@@ -5,6 +5,7 @@ import { useHaptic } from '../../hooks/useHaptic';
 import { markPracticed } from '../../hooks/useNotifications';
 import { markQuest } from '../../lib/quests.js';
 import { logError } from '../../lib/learnerErrors.js';
+import { apiFetch } from '../../lib/apiFetch.js';
 import { playFanfare as _playFanfare } from '../../lib/soundSettings.js';
 import CroatianKnight from '../shared/CroatianKnight.jsx';
 import { knightSpeak } from '../../lib/knightSpeak.js';
@@ -24,6 +25,7 @@ export default function ReviewScreen({ goBack, award, allCats }) {
   const [selected, setSelected] = useState(-1);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
+  const [aiExplain, setAiExplain] = useState(null); // null | 'loading' | {explanation,rule,tip,example}
 
   // Knight reacts when the review session ends
   useEffect(() => {
@@ -64,6 +66,7 @@ export default function ReviewScreen({ goBack, award, allCats }) {
       const { answered: ans, idx: i, questions: qs } = stateRef.current;
       if (e.key === ' ' || e.key === 'Enter') {
         if (ans) {
+          setAiExplain(null);
           if (i < qs.length - 1) { setIdx(n => n + 1); setAnswered(false); setSelected(-1); }
           else setDone(true);
         }
@@ -205,7 +208,23 @@ export default function ReviewScreen({ goBack, award, allCats }) {
               setSelected(i);
               setAnswered(true);
               const ok = opt === q.correct;
-              if (ok) { setScore(s => s + 1); haptic.correct(); } else { haptic.wrong(); logError(q.word[0], 'vocabulary', { wrong: opt, correct: q.correct, source: 'srs_review' }); }
+              if (ok) {
+                setScore(s => s + 1);
+                haptic.correct();
+                setAiExplain(null);
+              } else {
+                haptic.wrong();
+                logError(q.word[0], 'vocabulary', { wrong: opt, correct: q.correct, source: 'srs_review' });
+                // Fetch AI explanation for wrong answers (fire-and-forget, non-blocking)
+                setAiExplain('loading');
+                apiFetch('/api/explain-error', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ wrong: opt, correct: q.correct, context: q.word[0], type: 'flashcard', level: 'B1' }),
+                }).then(r => r.ok ? r.json() : null)
+                  .then(d => { setAiExplain(d?.explanation ? d : null); })
+                  .catch(() => { setAiExplain(null); });
+              }
               srMark(q.word[0], ok);
             }}>
               <span style={{opacity:.4,fontSize:11,marginRight:6}}>{i+1}</span>{opt}
@@ -213,24 +232,73 @@ export default function ReviewScreen({ goBack, award, allCats }) {
           );
         })}
         {answered && selected !== -1 && q.opts[selected] !== q.correct && (
-          <div style={{
-            background:'var(--info-bg)', border:'1.5px solid var(--info-b)',
-            borderRadius:14, padding:'14px 16px', marginTop:14, marginBottom:4,
-            animation:'spring-in .3s ease',
-          }}>
-            <div style={{fontSize:11, fontWeight:800, color:'var(--info)', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:8}}>
-              ✓ The answer was
+          <>
+            <div style={{
+              background:'var(--info-bg)', border:'1.5px solid var(--info-b)',
+              borderRadius:14, padding:'14px 16px', marginTop:14, marginBottom:4,
+              animation:'spring-in .3s ease',
+            }}>
+              <div style={{fontSize:11, fontWeight:800, color:'var(--info)', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:8}}>
+                ✓ The answer was
+              </div>
+              <div style={{fontSize:22, fontWeight:900, color:'var(--success)', fontFamily:"'Playfair Display',serif", marginBottom:6}}>
+                {q.correct}
+              </div>
+              {q.word[2] && (
+                <div style={{fontSize:12, color:'var(--subtext)', lineHeight:1.5, marginBottom:8}}>
+                  {q.word[2]}
+                </div>
+              )}
+              <Spk text={q.word[0]} label="Tip: hear it again" />
             </div>
-            <div style={{fontSize:22, fontWeight:900, color:'var(--success)', fontFamily:"'Playfair Display',serif", marginBottom:6}}>
-              {q.correct}
-            </div>
-            {q.word[2] && (
-              <div style={{fontSize:12, color:'var(--subtext)', lineHeight:1.5, marginBottom:8}}>
-                {q.word[2]}
+            {/* AI grammar explanation */}
+            {aiExplain === 'loading' && (
+              <div style={{
+                display:'flex', alignItems:'center', gap:8,
+                padding:'10px 14px', borderRadius:12, marginTop:8,
+                background:'var(--bar-bg)', border:'1px solid var(--card-b)',
+                fontSize:12, color:'var(--subtext)', fontWeight:600,
+                animation:'fadeIn .3s ease',
+              }}>
+                <span style={{animation:'pulse 1.5s ease-in-out infinite'}}>🤖</span>
+                <span>Getting AI explanation…</span>
               </div>
             )}
-            <Spk text={q.word[0]} label="Tip: hear it again" />
-          </div>
+            {aiExplain && aiExplain !== 'loading' && (
+              <div style={{
+                background:'linear-gradient(135deg,rgba(124,58,237,.06),rgba(124,58,237,.03))',
+                border:'1.5px solid rgba(124,58,237,.22)',
+                borderRadius:14, padding:'14px 16px', marginTop:8,
+                animation:'spring-in .3s ease .1s both',
+              }}>
+                <div style={{
+                  display:'flex', alignItems:'center', gap:6, marginBottom:8,
+                  fontSize:11, fontWeight:800, color:'#7c3aed',
+                  textTransform:'uppercase', letterSpacing:'.08em',
+                }}>
+                  <span>🤖</span>
+                  <span>AI Explanation · {aiExplain.rule}</span>
+                </div>
+                <div style={{fontSize:13, color:'var(--heading)', lineHeight:1.6, marginBottom:aiExplain.tip ? 8 : 0}}>
+                  {aiExplain.explanation}
+                </div>
+                {aiExplain.tip && (
+                  <div style={{
+                    fontSize:12, color:'var(--subtext)', fontStyle:'italic',
+                    padding:'6px 10px', borderRadius:8, marginTop:4,
+                    background:'rgba(124,58,237,.06)', borderLeft:'3px solid rgba(124,58,237,.4)',
+                  }}>
+                    💡 {aiExplain.tip}
+                  </div>
+                )}
+                {aiExplain.example && (
+                  <div style={{fontSize:12, color:'#7c3aed', fontWeight:700, marginTop:6}}>
+                    e.g. {aiExplain.example}
+                  </div>
+                )}
+              </div>
+            )}
+          </>
         )}
         {answered && selected !== -1 && q.opts[selected] === q.correct && (
           <div style={{background:'var(--success-bg)', border:'1.5px solid var(--success-b)', borderRadius:12, padding:'10px 14px', marginTop:12, display:'flex', alignItems:'center', gap:8, animation:'spring-in .3s ease'}}>
@@ -240,6 +308,7 @@ export default function ReviewScreen({ goBack, award, allCats }) {
         )}
         {answered && (
           <button className="b bp" style={{width:"100%",marginTop:16}} onClick={() => {
+            setAiExplain(null);
             if (idx < questions.length - 1) { setIdx(i => i + 1); setAnswered(false); setSelected(-1); }
             else setDone(true);
           }}>

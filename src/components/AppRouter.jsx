@@ -5,6 +5,7 @@ import { useSwipeBack } from "../hooks/useSwipeBack.js";
 // Screens that need data (V, GRAM, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS) import it directly.
 function _sh(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
 import ScreenErrorBoundary from "./shared/ScreenErrorBoundary.jsx";
+import { addWordToSRS } from '../lib/srs.js';
 const WelcomeScreen = lazyWithReload(() => import("./home/WelcomeScreen.jsx"));
 const PlacementTest = lazyWithReload(() => import("../components/auth/PlacementTest.jsx"));
 const PaywallScreen = lazyWithReload(() => import("./shared/PaywallScreen.jsx"));
@@ -650,7 +651,7 @@ export default function AppRouter(props) {
       {currentScreen==="personas"&&<ScreenErrorBoundary key="personas" name="personas"><PersonaScreen goBack={goBack} setScr={setScr} /></ScreenErrorBoundary>}
       {currentScreen==="maja"&&<ScreenErrorBoundary key="maja" name="maja">{isPremium?<MajaScreen goBack={goBack} award={award} />:<PaywallScreen featureName="Maja AI Tutor" onClose={goBack} onSubscribed={()=>{refreshSub();}} />}</ScreenErrorBoundary>}
       {currentScreen==="live_tutor"&&<ScreenErrorBoundary key="live_tutor" name="live_tutor">{isPremium?<LiveTutorScreen goBack={goBack} award={award} />:<PaywallScreen featureName="Live Tutor" onClose={goBack} onSubscribed={()=>{refreshSub();}} />}</ScreenErrorBoundary>}
-      {currentScreen==="photo_vocab"&&<ScreenErrorBoundary key="photo_vocab" name="photo_vocab"><PhotoVocabScanner goBack={goBack} level={level} onSaveWords={(words)=>{words.forEach(w=>{if(w.hr&&w.en)setJWords(prev=>[...(prev||[]),{hr:w.hr,en:w.en}]);});}} /></ScreenErrorBoundary>}
+      {currentScreen==="photo_vocab"&&<ScreenErrorBoundary key="photo_vocab" name="photo_vocab"><PhotoVocabScanner goBack={goBack} level={level} onSaveWords={(words)=>{words.forEach(w=>{if(w.hr&&w.en){setJWords(prev=>[...(prev||[]),{hr:w.hr,en:w.en}]);addWordToSRS(w.hr);}});}} /></ScreenErrorBoundary>}
       {currentScreen==="ai_listening"&&<ScreenErrorBoundary key="ai_listening" name="ai_listening"><AIListeningScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="ai_story"&&<ScreenErrorBoundary key="ai_story" name="ai_story"><AIStoryScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="video_lesson"&&<ScreenErrorBoundary key="video_lesson" name="video_lesson"><VideoLessonScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
