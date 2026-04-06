@@ -709,8 +709,33 @@ export default function HomeTab({
               if (quest.screen === 'flashcards') {
                 markCampaignQuestDone(quest.id);
                 launchPathItem({ go: 'lesson', topic: quest.vocab || 'family' });
+              } else if (quest.screen === 'lesson') {
+                // Lesson screen requires initialized state — launch via launchPathItem
+                launchPathItem({ go: 'lesson', topic: quest.vocab || 'family' });
+              } else if (quest.screen === 'mcgame') {
+                // McGame requires initialized questions — launch via launchPathItem
+                launchPathItem({ go: 'mcgame' });
+              } else if (quest.screen === 'speaking') {
+                // Speaking requires initialized items — build pool and launch
+                const pool = (_allCats || []).flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
+                const items = _sh(pool).slice(0, 6);
+                launchSpeaking(items.length ? items : [['Dobar dan', 'Good day', 'DOH-bar dahn']]);
               } else {
                 setScr(quest.screen);
+              }
+            }}
+            onCtaTap={(screen) => {
+              // CTA "Start Campaign" uses the same safe-launch logic as quest items
+              if (screen === 'lesson') {
+                launchPathItem({ go: 'lesson', topic: 'family' });
+              } else if (screen === 'mcgame') {
+                launchPathItem({ go: 'mcgame' });
+              } else if (screen === 'speaking') {
+                const pool = (_allCats || []).flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
+                const items = _sh(pool).slice(0, 6);
+                launchSpeaking(items.length ? items : [['Dobar dan', 'Good day', 'DOH-bar dahn']]);
+              } else {
+                setScr(screen);
               }
             }}
           />

@@ -1,89 +1,27 @@
 // Cloudflare Pages Function — TTS Proxy
-// ElevenLabs (primary, no content filtering, native Croatian quality)
-// Azure (fallback)
+// Azure hr-HR-GabrijelaNeural (primary) → Google hr-HR-Wavenet-B (backup)
+// Client falls back to Web Speech API when this endpoint returns 503.
 
 import { checkRateLimit } from './_rateLimit.js';
 
-// ── ElevenLabs ────────────────────────────────────────────────────────────────
-// eleven_flash_v2_5: 32-language model, ~75ms latency, 50% cheaper than v2, full Croatian support.
-// Voice: "Charlotte" (EL_DEFAULT_VOICE) — clear, neutral European female voice, English/Swedish-trained.
-// Charlotte approximates Croatian phonemes — ć/č and đ/dž are handled incorrectly for native speakers.
-// For Croatian text, Azure hr-HR-GabrijelaNeural is used when Charlotte is the active voice, as it is
-// a phonemically accurate native Croatian neural voice.
-// To use a Croatian ElevenLabs voice instead, set ELEVENLABS_VOICE_ID env var in Cloudflare — when a
-// custom voice ID is configured, the operator's choice is trusted and ElevenLabs remains primary.
-const EL_DEFAULT_VOICE = "XB0fDUnXU5powFXDhCwa"; // Charlotte (English/Swedish-trained)
-
-async function tryElevenLabs(text, slow, apiKey, voiceId, stream = false) {
-  // Only force language_code='hr' when the text contains Croatian-specific diacritics (č,ć,š,ž,đ).
-  // For ASCII-only text (English loanwords in Gen Z section, šatrovački without diacritics, etc.)
-  // the multilingual model auto-detects correctly — forcing 'hr' on English words like
-  // "Bussin" or "No cap" makes Charlotte apply Croatian phoneme rules to English, producing
-  // unnatural pronunciation ("noh tsap" instead of "no cap").
-  // Force Croatian when diacritics are present OR when common Croatian ASCII words appear.
-  // Short Croatian sentences without diacritics (e.g. "Tko si ti?", "Kako si danas?",
-  // "Kakav je pas?") were being auto-detected as the wrong language, causing poor quality.
-  const hasCroatianChars = /[čćšžđČĆŠŽĐ]/.test(text) ||
-    /\b(tko|gdje|kad|kako|kamo|kakav|kakva|kakvo|čiji|koliko|zašto|odakle|dokle|koji|koja|koje|sam|si|smo|ste|jest|jesi|jesu|nisam|nisi|nije|nismo|niste|nisu|imam|imaš|ima|imamo|imate|imaju|idem|ideš|ide|idemo|idete|idu|da|ne|bok|hvala|molim|dobar|dobra|dobro|dan|jutro|večer|uskrs|uskrsna|uskrsne|uskrsni|uskrsno|pisanica|pisanice|janje|janjetina|hren|sunka|blagoslov|blagoslovi|procesija|procesije|svetkovina|svetkovine|tjedan|tjedna|petak|nedjelja|nedjelje|proljetni|utorak|srijeda|subota|slavlje|slavljenje|cestitam|cestitamo|cestitati|tradicija|tradicije|tradicionalni|obiteljski|obiteljska|obiteljsko|obitelji|obred|obredi|misa|crkveni|crkva|krizma|korizma|post|postiti|molitva|molitve|hrana|jelo|jela|stol|blagovanje|blaguje|proslava|proslave|proslaviti|vjera|vjere|vjernik|crkvi|svecano|svecana|svecani|blagdan|blagdani|narod|naroda|kultura|kulture|kulturni|povijest|povijesti|povjesni|domovina|domovine|domovinski|sloboda|slobode|nada|nade|ljubav|ljubavi|radost|radosti|mir|mira|sretan|sretna|sretno|veseo|vesela|veselo|srce|srca|zemlja|zemlje|grad|grada|more|mora|otok|otoka|planina|planine|rijeka|rijeke|ucenje|uciti|ucim|ucis|uci|ucimo|ucite|uce|jezik|jezika|razgovor|razgovora|govoriti|govorim|govori|govorimo|razumjeti|razumijem|razumije|pisati|pisem|pise|pisemo|citati|citat|citam|cita|citamo|putovanje|putovati|putujem|putuje|prijatelj|prijatelji|prijatelja|baka|dida|tata|mama|sestra|brat|stric|teta|ujak|unuk|unuka|posjet|posjeta|posjetiti|slavonija|dalmacija|zagreb|split|dubrovnik|zadar|rijeka|osijek|varazdin|pula|sibenik|trogir|hvar|vis|brac|korcula|krk|rab|lika|istra|slavonski|dalmatinski|primorski|licko|zagorski|kulen|sarma|pasticada|buzara|prstaci|brudet|peka|soparnik|fritule|krostule|kroasan|makovnjaca|orehnjaca|kruh|vino|rakija|medica|travarica|kava|kafe|sir|prsut|kobasica|salata|juha|riba|zubatac|lubin|spar|tuna|skusa|kozice|hobotnica|lignje|skampi|kamenice|punjene|paprike|lonac|grah|gulas|specijalitet|restoran|konoba|kavana|caffe|bar|pekara|trznica|tvornica|bolnica|skola|fakultet|sveuciliste|knjiznica|muzej|kazaliste|kino|stadion|luka|kolodvor|aerodrom|hotel|hostel|apartman|kuca|stan|vila|dvorac|tvrdjava|most|cesta|ulica|trg|park|plaza|sumska)\b/i.test(text);
-
-  const body = {
-    text,
-    model_id: "eleven_flash_v2_5",
-    ...(hasCroatianChars && { language_code: "hr" }), // Force Croatian when Croatian patterns detected
-    voice_settings: {
-      stability: 1.0,             // Max stability — fully neutral, no emotional variation.
-                                  // At 0.88 the model "performs" loaded phrases (e.g. "Jebem ti mater"
-                                  // gets screeched/shouted). 1.0 locks in flat, educational delivery.
-      similarity_boost: 0.80,     // Slightly closer to Charlotte's neutral base (was 0.75)
-      style: 0.0,                 // No style exaggeration — clean delivery
-      use_speaker_boost: true,
-    },
-    speed: slow ? 0.68 : 0.88,   // 0.88 = clear measured pace; 0.68 = study mode
-  };
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000);
-  try {
-    const res = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
-      {
-        method: "POST",
-        headers: {
-          "xi-api-key": apiKey,
-          "Content-Type": "application/json",
-          Accept: "audio/mpeg",
-        },
-        body: JSON.stringify(body),
-        signal: controller.signal,
-      }
-    );
-    if (!res.ok) return null;
-    if (stream) return res; // Return Response so body can be piped directly
-    return res.arrayBuffer();
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
-// ── Azure (fallback) ──────────────────────────────────────────────────────────
-// IPA phoneme map kept for reference — Azure hr-HR does NOT support IPA
-// so these tags are stripped out. Azure remains as a network fallback only.
+// ── Azure TTS ─────────────────────────────────────────────────────────────────
+// hr-HR-GabrijelaNeural: native Croatian Neural voice.
+// Phonemically accurate for all Croatian diacritics (č, ć, š, ž, đ) and pitch accent.
+// Prosody rate: -8% normal, -25% slow mode (study pace).
+// Regional failover: tries each region in order until one succeeds.
 async function tryAzure(text, slow, azureKey, primaryRegion) {
-  // Use GabrijelaNeural for both — consistent female voice. SreckoNeural was used
-  // for slow but caused jarring gender switch mid-lesson. Prosody handles speed.
-  const voice = "hr-HR-GabrijelaNeural";
+  const voice = 'hr-HR-GabrijelaNeural';
   const safeText = text.replace(
     /[<>&"']/g,
-     
-    (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&apos;" }[c])
+    (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' }[c])
   );
 
   const ssml = slow
     ? `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}"><prosody rate="-25%">${safeText}</prosody></voice></speak>`
     : `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}"><prosody rate="-8%">${safeText}</prosody></voice></speak>`;
 
-  const regions = [primaryRegion, "eastus", "eastus2", "westeurope", "northeurope", "westus2"].filter(
-    (r, i, a) => a.indexOf(r) === i
+  const regions = [primaryRegion, 'eastus', 'eastus2', 'westeurope', 'northeurope', 'westus2'].filter(
+    (r, i, a) => r && a.indexOf(r) === i
   );
 
   for (const region of regions) {
@@ -92,7 +30,11 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
     try {
       const tokenRes = await fetch(
         `https://${region}.api.cognitive.microsoft.com/sts/v1.0/issueToken`,
-        { method: "POST", headers: { "Ocp-Apim-Subscription-Key": azureKey, "Content-Length": "0" }, signal: controller.signal }
+        {
+          method: 'POST',
+          headers: { 'Ocp-Apim-Subscription-Key': azureKey, 'Content-Length': '0' },
+          signal: controller.signal,
+        }
       );
       if (!tokenRes.ok) continue;
       const token = await tokenRes.text();
@@ -100,12 +42,12 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
       const response = await fetch(
         `https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`,
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            Authorization: "Bearer " + token,
-            "Content-Type": "application/ssml+xml",
-            "X-Microsoft-OutputFormat": "audio-24khz-160kbitrate-mono-mp3",
-            "User-Agent": "NasaHrvatska/1.0",
+            Authorization: 'Bearer ' + token,
+            'Content-Type': 'application/ssml+xml',
+            'X-Microsoft-OutputFormat': 'audio-24khz-160kbitrate-mono-mp3',
+            'User-Agent': 'NasaHrvatska/1.0',
           },
           body: ssml,
           signal: controller.signal,
@@ -113,7 +55,7 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
       );
 
       if (response.ok) return response.arrayBuffer();
-      if (response.status !== 400) break;
+      if (response.status !== 400) break; // 400 = bad SSML, no point retrying other regions
     } catch {
       // Timeout or network error — try next region
     } finally {
@@ -123,29 +65,28 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
   return null;
 }
 
-// ── Google Cloud TTS (second native Croatian fallback) ────────────────────────
-// hr-HR-Wavenet-B: native Croatian neural voice, phonemically accurate (same tier as Azure GabrijelaNeural).
-// Uses the Firebase service account JSON already stored in FIREBASE_SERVICE_ACCOUNT_JSON —
-// no separate GOOGLE_TTS_KEY needed. The service account has Editor role on the GCP project
-// which includes permission to call Cloud Text-to-Speech.
-// One-time setup: enable the API at https://console.cloud.google.com/apis/library/texttospeech.googleapis.com?project=ucimohrvatski-488f9
+// ── Google Cloud TTS ──────────────────────────────────────────────────────────
+// hr-HR-Wavenet-B: native Croatian Neural voice (same phoneme quality tier as Azure).
+// Uses the Firebase service account already stored in FIREBASE_SERVICE_ACCOUNT_JSON.
+// One-time setup: enable the Cloud Text-to-Speech API at:
+//   https://console.cloud.google.com/apis/library/texttospeech.googleapis.com
 async function _getGoogleAccessToken(serviceAccountJson) {
   const sa = JSON.parse(serviceAccountJson);
-  // Import RSA private key using Web Crypto API (available natively in Cloudflare Workers)
   const pemBody = sa.private_key
     .replace(/-----BEGIN PRIVATE KEY-----/g, '')
     .replace(/-----END PRIVATE KEY-----/g, '')
     .replace(/\s/g, '');
-  const keyBuffer = Uint8Array.from(atob(pemBody), c => c.charCodeAt(0));
+  const keyBuffer = Uint8Array.from(atob(pemBody), (c) => c.charCodeAt(0));
   const privateKey = await crypto.subtle.importKey(
-    'pkcs8', keyBuffer,
+    'pkcs8',
+    keyBuffer,
     { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-    false, ['sign']
+    false,
+    ['sign']
   );
-  // Build JWT for service account auth
   const now = Math.floor(Date.now() / 1000);
-  const b64url = s => btoa(s).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-  const header = b64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
+  const b64url = (s) => btoa(s).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+  const header  = b64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
   const payload = b64url(JSON.stringify({
     iss: sa.client_email,
     scope: 'https://www.googleapis.com/auth/cloud-platform',
@@ -181,13 +122,16 @@ async function tryGoogle(text, slow, serviceAccountJson) {
     const res = await fetch(
       'https://texttospeech.googleapis.com/v1/text:synthesize',
       {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${accessToken}` },
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
         body: JSON.stringify({
           input: { text },
-          voice: { languageCode: "hr-HR", name: "hr-HR-Wavenet-B", ssmlGender: "FEMALE" },
+          voice: { languageCode: 'hr-HR', name: 'hr-HR-Wavenet-B', ssmlGender: 'FEMALE' },
           audioConfig: {
-            audioEncoding: "MP3",
+            audioEncoding: 'MP3',
             speakingRate: slow ? 0.70 : 0.90,
             pitch: 0,
           },
@@ -210,30 +154,31 @@ async function tryGoogle(text, slow, serviceAccountJson) {
   }
 }
 
+// ── CORS ──────────────────────────────────────────────────────────────────────
 function isAllowedOrigin(origin, isDev) {
-  // Empty origin: PWA standalone mode (iOS/Android) and Capacitor. Auth is enforced via Firebase token.
-  if (!origin) return true;
+  if (!origin) return true; // PWA standalone mode and Capacitor
   try {
     const hostname = new URL(origin).hostname;
-    if (isDev && hostname === "localhost") return true;
-    return hostname === "nasahrvatska.com"
-      || hostname.endsWith(".nasahrvatska.com")
-      || hostname === "nasa-hrvatska-v2.pages.dev"
-      || hostname.endsWith(".nasa-hrvatska-v2.pages.dev");
+    if (isDev && hostname === 'localhost') return true;
+    return (
+      hostname === 'nasahrvatska.com' ||
+      hostname.endsWith('.nasahrvatska.com') ||
+      hostname === 'nasa-hrvatska-v2.pages.dev' ||
+      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
+    );
   } catch { return false; }
 }
 
-// ── CORS ─────────────────────────────────────────────────────────────────────
 function corsHeaders(origin) {
   return {
-    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
   };
 }
 
 export async function onRequestOptions({ request }) {
-  const origin = request.headers.get("origin") || "";
+  const origin = request.headers.get('origin') || '';
   return new Response(null, { status: 204, headers: corsHeaders(origin) });
 }
 
@@ -241,65 +186,46 @@ export async function onRequestOptions({ request }) {
 export async function onRequestPost(context) {
   const { request, env } = context;
 
-  const origin = request.headers.get("origin") || request.headers.get("referer") || "";
-  const isDev = env.ENVIRONMENT !== "production";
+  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
+  const isDev = env.ENVIRONMENT !== 'production';
   if (!isAllowedOrigin(origin, isDev)) {
-    return new Response("Forbidden", { status: 403, headers: corsHeaders(origin) });
+    return new Response('Forbidden', { status: 403, headers: corsHeaders(origin) });
   }
 
   const allowed = await checkRateLimit(request, 60);
   if (!allowed) {
-    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), { status: 429, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), {
+      status: 429,
+      headers: corsHeaders(origin),
+    });
   }
 
-  const ELEVENLABS_KEY = env.ELEVENLABS_API_KEY;
-  const AZURE_KEY = env.AZURE_TTS_KEY;
-  // Google TTS uses the Firebase service account already present in Cloudflare — no separate key needed.
-  // Falls back to a dedicated GOOGLE_TTS_KEY if set (for projects with a different SA or no Firebase).
+  const AZURE_KEY   = env.AZURE_TTS_KEY;
+  const PRIMARY_REGION = env.AZURE_TTS_REGION || 'eastus';
+  // Google TTS uses the Firebase service account already in Cloudflare — no separate key required.
   const GOOGLE_SA_JSON = env.FIREBASE_SERVICE_ACCOUNT_JSON || env.GOOGLE_TTS_KEY || null;
-  const PRIMARY_REGION = env.AZURE_TTS_REGION || "eastus";
-  const VOICE_ID = env.ELEVENLABS_VOICE_ID || EL_DEFAULT_VOICE;
 
-  if (!ELEVENLABS_KEY && !AZURE_KEY && !GOOGLE_SA_JSON) {
-    return new Response("TTS not configured", { status: 500, headers: corsHeaders(origin) });
+  if (!AZURE_KEY && !GOOGLE_SA_JSON) {
+    return new Response('TTS not configured', { status: 503, headers: corsHeaders(origin) });
   }
 
   try {
     const ct = request.headers.get('content-type') || '';
     if (!ct.includes('application/json')) {
-      return new Response("Invalid content type", { status: 400, headers: corsHeaders(origin) });
+      return new Response('Invalid content type', { status: 400, headers: corsHeaders(origin) });
     }
     const body = await request.json();
     const text = body.text;
-    const slow = body.slow === true; // explicit boolean check
-    const wantStream = body.stream === true;
-    // Client voice preference: 'gabrijela' | 'charlotte' | (absent = auto)
-    const clientVoice = ['gabrijela', 'charlotte'].includes(body.voice) ? body.voice : 'auto';
+    const slow = body.slow === true;
+
     if (typeof text !== 'string' || !text.trim() || text.length > 500) {
-      return new Response("Invalid text", { status: 400, headers: corsHeaders(origin) });
+      return new Response('Invalid text', { status: 400, headers: corsHeaders(origin) });
     }
 
-    // Streaming path — pipe ElevenLabs response body directly to client (~75ms to first byte)
-    // Azure does not support streaming mode.
-    if (wantStream && ELEVENLABS_KEY) {
-      const elevenLabsRes = await tryElevenLabs(text, slow, ELEVENLABS_KEY, VOICE_ID, true);
-      if (elevenLabsRes && elevenLabsRes.ok) {
-        return new Response(elevenLabsRes.body, {
-          status: 200,
-          headers: {
-            'Content-Type': 'audio/mpeg',
-            'Transfer-Encoding': 'chunked',
-            ...corsHeaders(origin),
-          },
-        });
-      }
-      // If ElevenLabs streaming failed, fall through to buffered path
-    }
-
-    // Check Cloudflare edge cache first (POST responses aren't auto-cached)
+    // ── Edge cache (POST responses aren't auto-cached by Cloudflare) ──────────
     const cacheKey = new Request(
-      `https://tts-cache.internal/v1/${encodeURIComponent(text.slice(0, 400))}?slow=${slow}&voice=${clientVoice}`,
-      { method: "GET" }
+      `https://tts-cache.internal/v2/${encodeURIComponent(text.slice(0, 400))}?slow=${slow}`,
+      { method: 'GET' }
     );
     let edgeCache;
     try {
@@ -307,92 +233,42 @@ export async function onRequestPost(context) {
       const cached = await edgeCache.match(cacheKey);
       if (cached) return cached;
     } catch {
-      edgeCache = null; // Cache API unavailable — proceed without caching
+      edgeCache = null;
     }
 
     let buffer = null;
 
-    // Determine if text is Croatian
-    const hasCroatianChars = /[čćšžđČĆŠŽĐ]/.test(text) ||
-      /\b(tko|gdje|kad|kako|kamo|kakav|kakva|kakvo|čiji|koliko|zašto|odakle|dokle|koji|koja|koje|sam|si|smo|ste|jest|jesi|jesu|nisam|nisi|nije|nismo|niste|nisu|imam|imaš|ima|imamo|imate|imaju|idem|ideš|ide|idemo|idete|idu|da|ne|bok|hvala|molim|dobar|dobra|dobro|dan|jutro|večer|uskrs|uskrsna|uskrsne|uskrsni|uskrsno|pisanica|pisanice|janje|janjetina|hren|sunka|blagoslov|blagoslovi|procesija|procesije|svetkovina|svetkovine|tjedan|tjedna|petak|nedjelja|nedjelje|proljetni|utorak|srijeda|subota|slavlje|slavljenje|cestitam|cestitamo|cestitati|tradicija|tradicije|tradicionalni|obiteljski|obiteljska|obiteljsko|obitelji|obred|obredi|misa|crkveni|crkva|krizma|korizma|post|postiti|molitva|molitve|hrana|jelo|jela|stol|blagovanje|blaguje|proslava|proslave|proslaviti|vjera|vjere|vjernik|crkvi|svecano|svecana|svecani|blagdan|blagdani|narod|naroda|kultura|kulture|kulturni|povijest|povijesti|povjesni|domovina|domovine|domovinski|sloboda|slobode|nada|nade|ljubav|ljubavi|radost|radosti|mir|mira|sretan|sretna|sretno|veseo|vesela|veselo|srce|srca|zemlja|zemlje|grad|grada|more|mora|otok|otoka|planina|planine|rijeka|rijeke|ucenje|uciti|ucim|ucis|uci|ucimo|ucite|uce|jezik|jezika|razgovor|razgovora|govoriti|govorim|govori|govorimo|razumjeti|razumijem|razumije|pisati|pisem|pise|pisemo|citati|citat|citam|cita|citamo|putovanje|putovati|putujem|putuje|prijatelj|prijatelji|prijatelja|baka|dida|tata|mama|sestra|brat|stric|teta|ujak|unuk|unuka|posjet|posjeta|posjetiti|slavonija|dalmacija|zagreb|split|dubrovnik|zadar|rijeka|osijek|varazdin|pula|sibenik|trogir|hvar|vis|brac|korcula|krk|rab|lika|istra|slavonski|dalmatinski|primorski|licko|zagorski|kulen|sarma|pasticada|buzara|prstaci|brudet|peka|soparnik|fritule|krostule|kroasan|makovnjaca|orehnjaca|kruh|vino|rakija|medica|travarica|kava|kafe|sir|prsut|kobasica|salata|juha|riba|zubatac|lubin|spar|tuna|skusa|kozice|hobotnica|lignje|skampi|kamenice|punjene|paprike|lonac|grah|gulas|specijalitet|restoran|konoba|kavana|caffe|bar|pekara|trznica|tvornica|bolnica|skola|fakultet|sveuciliste|knjiznica|muzej|kazaliste|kino|stadion|luka|kolodvor|aerodrom|hotel|hostel|apartman|kuca|stan|vila|dvorac|tvrdjava|most|cesta|ulica|trg|park|plaza|sumska)\b/i.test(text);
-
-    // Voice routing:
-    //   clientVoice='gabrijela' → Azure GabrijelaNeural (native Croatian, strict — no Charlotte fallback)
-    //   clientVoice='charlotte' → ElevenLabs Charlotte (natural English-trained)
-    //   clientVoice='auto'      → Azure primary for Croatian text; Charlotte-with-hr fallback if Azure fails
-    //                             (Charlotte is imperfect on some Croatian phonemes but far better than silence)
-    const useAzurePrimary =
-      clientVoice === 'gabrijela' ||
-      (clientVoice === 'auto' && hasCroatianChars && VOICE_ID === EL_DEFAULT_VOICE);
-
-    const useElPrimary = clientVoice === 'charlotte';
-
-    if (useAzurePrimary && AZURE_KEY) {
-      // 1. Try Azure first (native Croatian phonemes)
-      try {
-        buffer = await tryAzure(text, slow, AZURE_KEY, PRIMARY_REGION);
-      } catch {
-        // fall through to ElevenLabs
-      }
+    // ── 1. Azure hr-HR-GabrijelaNeural (primary) ──────────────────────────────
+    if (AZURE_KEY) {
+      try { buffer = await tryAzure(text, slow, AZURE_KEY, PRIMARY_REGION); } catch { /* fall through */ }
     }
 
-    // 2. Try ElevenLabs
-    // gabrijela mode: never fall back to Charlotte — return 503 so the client can use
-    // browser Web Speech (which may have a genuine Croatian voice installed).
-    // auto mode: allow Charlotte-with-forced-hr as last resort — imperfect phonemes
-    // are better than silence; hasCroatianChars already triggers language_code:'hr' in tryElevenLabs.
-    // Custom Croatian voice (VOICE_ID !== EL_DEFAULT_VOICE): always allowed.
-    const elAllowed = useElPrimary
-      || !useAzurePrimary
-      || VOICE_ID !== EL_DEFAULT_VOICE
-      || clientVoice === 'auto'; // auto: Charlotte+hr > silence
-
-    if (!buffer && ELEVENLABS_KEY && elAllowed) {
-      try {
-        buffer = await tryElevenLabs(text, slow, ELEVENLABS_KEY, VOICE_ID);
-      } catch {
-        // network error — fall through
-      }
-    }
-
-    // 3. Azure final fallback (for charlotte preference or when Azure wasn't tried yet)
-    if (!buffer && AZURE_KEY && !useAzurePrimary) {
-      try {
-        buffer = await tryAzure(text, slow, AZURE_KEY, PRIMARY_REGION);
-      } catch {
-        // fall through
-      }
-    }
-
-    // 4. Google Cloud TTS — native Croatian hr-HR-Wavenet-B (same phoneme accuracy tier as Azure).
-    //    Uses FIREBASE_SERVICE_ACCOUNT_JSON already in Cloudflare — no separate key required.
-    //    One-time activation: enable Cloud TTS API at Google Cloud Console for project ucimohrvatski-488f9.
+    // ── 2. Google hr-HR-Wavenet-B (backup) ───────────────────────────────────
     if (!buffer && GOOGLE_SA_JSON) {
-      try {
-        buffer = await tryGoogle(text, slow, GOOGLE_SA_JSON);
-      } catch {
-        // fall through
-      }
+      try { buffer = await tryGoogle(text, slow, GOOGLE_SA_JSON); } catch { /* fall through */ }
     }
 
-    if (buffer) {
-      const ttsResponse = new Response(buffer, {
-        status: 200,
-        headers: {
-          "Content-Type": "audio/mpeg",
-          "Cache-Control": "public, max-age=86400",
-          ...corsHeaders(origin),
-        },
-      });
-      // Store in edge cache asynchronously (don't block response)
-      if (edgeCache) {
-        try { edgeCache.put(cacheKey, ttsResponse.clone()); } catch { /* ignore */ }
-      }
-      return ttsResponse;
+    // ── 503 → client falls back to Web Speech API ────────────────────────────
+    if (!buffer) {
+      return new Response('TTS unavailable', { status: 503, headers: corsHeaders(origin) });
     }
 
-    return new Response("TTS unavailable", { status: 503, headers: corsHeaders(origin) });
+    const ttsResponse = new Response(buffer, {
+      status: 200,
+      headers: {
+        'Content-Type': 'audio/mpeg',
+        'Cache-Control': 'public, max-age=86400',
+        ...corsHeaders(origin),
+      },
+    });
+
+    // Store in Cloudflare edge cache asynchronously (non-blocking)
+    if (edgeCache) {
+      try { edgeCache.put(cacheKey, ttsResponse.clone()); } catch { /* ignore */ }
+    }
+
+    return ttsResponse;
   } catch {
-    return new Response("TTS proxy error", { status: 500, headers: corsHeaders(origin) });
+    return new Response('TTS proxy error', { status: 500, headers: corsHeaders(origin) });
   }
 }

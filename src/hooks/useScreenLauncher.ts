@@ -163,8 +163,14 @@ export function useScreenLauncher({
       const r = JSON.parse(localStorage.getItem('nh_lesson_resume') || 'null') as { topic?: string } | null;
       if (!r || !r.topic) return;
       const { V } = await _getData() as { V: Record<string, VocabWord[]> };
-      if (!V[r.topic]) return;
-      const items = _sh(V[r.topic]);
+      const vocabPool = V[r.topic];
+      if (!vocabPool || vocabPool.length < 2) {
+        // Stale resume token referencing an unknown topic — clear it and go to learn path
+        try { localStorage.removeItem('nh_lesson_resume'); } catch (_) {}
+        setScr('learnpath');
+        return;
+      }
+      const items = _sh(vocabPool);
       returnContextRef.current = { tab: 'learn', screen: 'dashboard' };
       sLt(r.topic); sLi(items); sLx(0); sLs(0); sLp('learn'); sLa(false); sLsl(-1); sQi([]);
       sCurEx('vocab_' + r.topic);
@@ -364,6 +370,13 @@ export function useScreenLauncher({
       if (item.go === 'readlist') {
         if (item.filter) sessionStorage.setItem('nh_readlist_filter', JSON.stringify(item.filter));
         else sessionStorage.removeItem('nh_readlist_filter');
+      }
+      // 'dashboard' is a milestone marker (e.g. "200 XP!"), not a navigable screen.
+      // setScr('dashboard') → navigate('/') is a no-op when already on the home tab.
+      if (item.go === 'dashboard') {
+        setScr('learnpath');
+        sCurEx('learnpath');
+        return;
       }
       if (item.go) { setScr(item.go); sCurEx(item.go); }
     }
