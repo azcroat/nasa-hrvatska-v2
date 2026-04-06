@@ -227,9 +227,10 @@ export async function onRequestPost(context) {
       /\b(tko|gdje|kad|kako|kamo|kakav|kakva|kakvo|čiji|koliko|zašto|odakle|dokle|koji|koja|koje|sam|si|smo|ste|jest|jesi|jesu|nisam|nisi|nije|nismo|niste|nisu|imam|imaš|ima|imamo|imate|imaju|idem|ideš|ide|idemo|idete|idu|da|ne|bok|hvala|molim|dobar|dobra|dobro|dan|jutro|večer|uskrs|uskrsna|uskrsne|uskrsni|uskrsno|pisanica|pisanice|janje|janjetina|hren|sunka|blagoslov|blagoslovi|procesija|procesije|svetkovina|svetkovine|tjedan|tjedna|petak|nedjelja|nedjelje|proljetni|utorak|srijeda|subota|slavlje|slavljenje|cestitam|cestitamo|cestitati|tradicija|tradicije|tradicionalni|obiteljski|obiteljska|obiteljsko|obitelji|obred|obredi|misa|crkveni|crkva|krizma|korizma|post|postiti|molitva|molitve|hrana|jelo|jela|stol|blagovanje|blaguje|proslava|proslave|proslaviti|vjera|vjere|vjernik|crkvi|svecano|svecana|svecani|blagdan|blagdani|narod|naroda|kultura|kulture|kulturni|povijest|povijesti|povjesni|domovina|domovine|domovinski|sloboda|slobode|nada|nade|ljubav|ljubavi|radost|radosti|mir|mira|sretan|sretna|sretno|veseo|vesela|veselo|srce|srca|zemlja|zemlje|grad|grada|more|mora|otok|otoka|planina|planine|rijeka|rijeke|ucenje|uciti|ucim|ucis|uci|ucimo|ucite|uce|jezik|jezika|razgovor|razgovora|govoriti|govorim|govori|govorimo|razumjeti|razumijem|razumije|pisati|pisem|pise|pisemo|citati|citat|citam|cita|citamo|putovanje|putovati|putujem|putuje|prijatelj|prijatelji|prijatelja|baka|dida|tata|mama|sestra|brat|stric|teta|ujak|unuk|unuka|posjet|posjeta|posjetiti|slavonija|dalmacija|zagreb|split|dubrovnik|zadar|rijeka|osijek|varazdin|pula|sibenik|trogir|hvar|vis|brac|korcula|krk|rab|lika|istra|slavonski|dalmatinski|primorski|licko|zagorski|kulen|sarma|pasticada|buzara|prstaci|brudet|peka|soparnik|fritule|krostule|kroasan|makovnjaca|orehnjaca|kruh|vino|rakija|medica|travarica|kava|kafe|sir|prsut|kobasica|salata|juha|riba|zubatac|lubin|spar|tuna|skusa|kozice|hobotnica|lignje|skampi|kamenice|punjene|paprike|lonac|grah|gulas|specijalitet|restoran|konoba|kavana|caffe|bar|pekara|trznica|tvornica|bolnica|skola|fakultet|sveuciliste|knjiznica|muzej|kazaliste|kino|stadion|luka|kolodvor|aerodrom|hotel|hostel|apartman|kuca|stan|vila|dvorac|tvrdjava|most|cesta|ulica|trg|park|plaza|sumska)\b/i.test(text);
 
     // Voice routing:
-    //   clientVoice='gabrijela' → Azure GabrijelaNeural always (native Croatian)
-    //   clientVoice='charlotte' → ElevenLabs Charlotte always (natural English-trained)
-    //   clientVoice='auto'      → Azure for Croatian text, Charlotte otherwise
+    //   clientVoice='gabrijela' → Azure GabrijelaNeural (native Croatian, strict — no Charlotte fallback)
+    //   clientVoice='charlotte' → ElevenLabs Charlotte (natural English-trained)
+    //   clientVoice='auto'      → Azure primary for Croatian text; Charlotte-with-hr fallback if Azure fails
+    //                             (Charlotte is imperfect on some Croatian phonemes but far better than silence)
     const useAzurePrimary =
       clientVoice === 'gabrijela' ||
       (clientVoice === 'auto' && hasCroatianChars && VOICE_ID === EL_DEFAULT_VOICE);
@@ -246,14 +247,15 @@ export async function onRequestPost(context) {
     }
 
     // 2. Try ElevenLabs
-    // When clientVoice='gabrijela' (native Croatian requested) and the only ElevenLabs voice
-    // available is Charlotte (English/Swedish-trained), do NOT silently downgrade — return 503
-    // so the client falls back to browser's Web Speech API which may have a Croatian voice.
-    // If a custom Croatian ElevenLabs voice is configured (VOICE_ID !== EL_DEFAULT_VOICE),
-    // it's always safe to use.
+    // gabrijela mode: never fall back to Charlotte — return 503 so the client can use
+    // browser Web Speech (which may have a genuine Croatian voice installed).
+    // auto mode: allow Charlotte-with-forced-hr as last resort — imperfect phonemes
+    // are better than silence; hasCroatianChars already triggers language_code:'hr' in tryElevenLabs.
+    // Custom Croatian voice (VOICE_ID !== EL_DEFAULT_VOICE): always allowed.
     const elAllowed = useElPrimary
       || !useAzurePrimary
-      || VOICE_ID !== EL_DEFAULT_VOICE;
+      || VOICE_ID !== EL_DEFAULT_VOICE
+      || clientVoice === 'auto'; // auto: Charlotte+hr > silence
 
     if (!buffer && ELEVENLABS_KEY && elAllowed) {
       try {
