@@ -356,7 +356,7 @@ export default function PersonaScreen({ goBack, setScr }) {
           transition: 'background 0.2s, box-shadow 0.2s',
         }}
       >
-        {selected ? `Počni razgovor s ${selectedPersona.name.split(' ')[0]} →` : 'Odaberi sugovornika'}
+        {selected ? `Počni razgovor s ${selectedPersona?.name?.split(' ')?.[0] || 'AI tutorima'} →` : 'Odaberi sugovornika'}
       </button>
 
       {/* ── Info note ── */}

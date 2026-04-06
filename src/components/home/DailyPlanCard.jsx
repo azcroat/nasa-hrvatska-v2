@@ -26,7 +26,7 @@ const ACTIVITY_SCREENS = {
   live_tutor:        'live_tutor',
   writing:           'writing',
   grammar_diagnosis: 'grammar_diagnosis',
-  dialogue:          'maja',
+  dialogue:          'dialogue',
   shadowing:         'shadowing',
   aspectdrill:       'aspectdrill',
 };
