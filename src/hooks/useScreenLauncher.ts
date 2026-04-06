@@ -301,13 +301,14 @@ export function useScreenLauncher({
     if (item.go === 'lesson' && item.topic) {
       const { V } = await _getData() as { V: Record<string, VocabWord[]> };
       const raw = V[item.topic];
-      if (!raw || raw.length < 2) {
-        return;
-      }
-      const items = _sh(raw);
+      // Fall back to global pool when topic vocabulary is missing or too small — never silent-fail
+      const pool = (raw && raw.length >= 2) ? raw
+        : allCats.flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
+      if (pool.length < 2) return;
+      const items = _sh(pool);
       const returnScreen = (currentScreen && currentScreen !== 'dashboard') ? currentScreen : 'dashboard';
       returnContextRef.current = { tab: 'learn', screen: returnScreen };
-      sLt(item.topic); sLi(items); sLx(0); sLs(0); sLp('learn'); sLa(false); sLsl(-1);
+      sLt(item.topic); sLi(items); sLx(0); sLs(0); sLp('learn'); sLa(false); sLsl(-1); sQi([]);
       sessionStorage.setItem('nh_ex_start', Date.now().toString());
       trackStart('flashcards');
       setScr('lesson'); sCurEx('vocab_' + item.topic);
@@ -366,8 +367,8 @@ export function useScreenLauncher({
       }
       if (item.go) { setScr(item.go); sCurEx(item.go); }
     }
-  }, [setScr, sCurEx, setStats, award, writeDelta, allCats, launchMcGame,
-      sLt, sLi, sLx, sLs, sLp, sLa, sLsl, sGl, sGp, sGx, sGs, sGa, sGsl]);
+  }, [setScr, sCurEx, setStats, award, writeDelta, allCats, launchMcGame, currentScreen,
+      sLt, sLi, sLx, sLs, sLp, sLa, sLsl, sQi, sGl, sGp, sGx, sGs, sGa, sGsl]);
 
   const goBack = useCallback((): void => {
     if (curEx) markExerciseDone(curEx);
