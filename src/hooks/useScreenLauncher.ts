@@ -52,6 +52,7 @@ const BLACK_HOLE_SCREENS: Record<string, string> = {
   padezifull:'gc', clitic:'gc', grammarmap:'gc', aspectdrill:'gc',
   shadowing:'lc', proverbs:'lc', bureaucratic:'lc',
   conjdrill:'gc', padezi:'gc', modal:'gc',
+  past_tense_lesson:'gc', future_tense_lesson:'gc', reflexive:'gc', svojmoj:'gc',
   grammarreader:'gc', colorquirk:'gc', negation:'gc', phonology:'lc',
   professions:'lc', bodydesc:'lc', clothes:'lc', countries:'lc', weather:'lc',
   civic:'lc', top100:'lc', tivicompare:'lc', lifeevents:'lc',
