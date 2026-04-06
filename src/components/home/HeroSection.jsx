@@ -253,7 +253,7 @@ function getMascotMessage({ streak, level, st, comebackBonus, allQuestsDone, pra
     { mood: 'thinking',    text: "Croatian has 7 cases — let's master them together!", sub: 'Your ancestors spoke this language' },
     { mood: 'happy',       text: 'Your ancestors spoke this language. Carry it forward! 💙', sub: null },
     { mood: 'celebrating', text: 'Language is the soul of culture!',                  sub: 'Naša Hrvatska čeka! 🌟' },
-    { mood: 'marching',    text: "Ima li tko tko voli učiti? Ja volim! Let's go! 🎉", sub: null },
+    { mood: 'marching',    text: "Ima li tko voli učiti? Ja volim! Let's go! 🎉", sub: null },
     { mood: 'thinking',    text: 'Small steps every day — you\'re building something beautiful 🏛️', sub: null },
     { mood: 'happy',       text: 'Naša Hrvatska čeka! Croatia is waiting for you! 🇭🇷', sub: null },
   ];
