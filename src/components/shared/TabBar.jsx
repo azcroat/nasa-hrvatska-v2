@@ -56,7 +56,7 @@ function NavIcon({ id, active }) {
 const TAB_SUBTITLES = {
   learn:    'Lessons',
   practice: 'Drills',
-  croatia:  'Croatia',
+  croatia:  'Culture',
 };
 
 export default function TabBar({ tab, setTab, setScr, badges }) {
