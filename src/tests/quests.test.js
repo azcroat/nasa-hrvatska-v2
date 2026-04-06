@@ -68,12 +68,12 @@ describe('quests — daily quest tracking', () => {
     expect(localStorage.getItem('nh_quest_reading2_' + d)).toBe('1');
   });
 
-  it('no tier-2 promotion for quests not in TIER2_MAP', () => {
+  it('culture tier-2 promotion after second completion', () => {
     const d = todayKey();
     markQuest('culture');
     markQuest('culture');
-    // 'culture' is not in TIER2_MAP → no promotion
-    expect(localStorage.getItem('nh_quest_culture2_' + d)).toBeNull();
+    // 'culture' IS in TIER2_MAP → culture2 promoted on second completion
+    expect(localStorage.getItem('nh_quest_culture2_' + d)).toBe('1');
   });
 
   it('stores date key in YYYY-MM-DD format', () => {
