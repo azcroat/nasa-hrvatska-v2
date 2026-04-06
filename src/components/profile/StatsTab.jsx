@@ -124,9 +124,6 @@ export default function StatsTab({ onShowPrestigeModal, onSyncNow }) {
         </div>
       )}
 
-      {/* ── XP ACTIVITY CALENDAR (second instance) ── */}
-      <XPActivityCalendar st={st} />
-
       {/* ── CEFR ESTIMATE ── */}
       {(() => {
         const cefr = getCEFR(st.xp || 0, st.lc || 0, st.gc || 0);

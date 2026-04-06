@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo, useCallback } from 'react';
-import { fbDeleteAccount, fbLeaveFamily, getLocalFamily } from '../../data.jsx';
+import { fbDeleteAccount, fbLeaveFamily, getLocalFamily, V, sh } from '../../data.jsx';
 import { fbExportUserData } from '../../lib/firebase.js';
 import { isSoundEnabled, setSoundEnabled, isHapticEnabled, setHapticEnabled, getVoicePreference, setVoicePreference } from '../../lib/soundSettings.js';
 import { useApp } from '../../context/AppContext.jsx';
@@ -18,7 +18,7 @@ const GOAL_FOCUS = {
   heritage: { label:'Heritage & Roots', icon:'🇭🇷', color:'var(--warning)', bg:'var(--warning-bg)', border:'var(--warning-b)',
     items:[{icon:'🏛️',label:'Croatian History',scr:'history'},{icon:'🌟',label:'Proverbs',scr:'proverbs'},{icon:'📖',label:'Reading',scr:'readlist'}] },
   family:   { label:'Speaking with Family', icon:'👨‍👩‍👧', color:'var(--info)', bg:'var(--info-bg)', border:'var(--info-b)',
-    items:[{icon:'🃏',label:'Family Words',scr:'flashcards'},{icon:'🎤',label:'Speaking',scr:'speaking'},{icon:'💬',label:'Dialogue Sim',scr:'dialogue'}] },
+    items:[{icon:'🃏',label:'Family Words',scr:'flashcards',launch:'flashcards_family'},{icon:'🎤',label:'Speaking',scr:'speaking',launch:'speaking_family'},{icon:'💬',label:'Dialogue Sim',scr:'dialogue'}] },
   travel:   { label:'Traveling to Croatia', icon:'✈️', color:'var(--success)', bg:'var(--success-bg)', border:'var(--success-b)',
     items:[{icon:'🍽️',label:'Restaurant',scr:'restaurant'},{icon:'🚗',label:'Transport',scr:'transport'},{icon:'🚨',label:'Emergency',scr:'emergency'}] },
   culture:  { label:'Croatian Culture', icon:'📖', color:'var(--lavender)', bg:'rgba(124,58,237,.1)', border:'rgba(124,58,237,.25)',
@@ -28,7 +28,7 @@ const GOAL_FOCUS = {
 };
 
 export default function SettingsTab({ syncReady, onSyncNow }) {
-  const { au, darkMode, setDarkMode, setScr, doOut, name, st, favs, jWords } = useApp();
+  const { au, darkMode, setDarkMode, setScr, doOut, name, st, favs, jWords, launchFlashcards, launchSpeaking } = useApp();
   const { stats: statsCtx, setStats } = useStats();
 
   const [freezesStored, setFreezesStored] = useState(() => getFreezesStored());
@@ -196,15 +196,30 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
               </div>
             </div>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, marginBottom:20 }}>
-              {gf.items.map(it => (
+              {gf.items.map(it => {
+                function handleGoalItem() {
+                  if (it.launch === 'flashcards_family') {
+                    const pool = sh([...(V['family'] || [])]).slice(0, 20);
+                    if (pool.length > 0 && launchFlashcards) launchFlashcards(pool);
+                    else setScr('review');
+                  } else if (it.launch === 'speaking_family') {
+                    const pool = sh([...(V['family'] || [])]).slice(0, 6);
+                    if (pool.length > 0 && launchSpeaking) launchSpeaking(pool);
+                    else setScr('speaking_sprint');
+                  } else {
+                    setScr(it.scr);
+                  }
+                }
+                return (
                 <button key={it.scr}
-                  onClick={() => setScr(it.scr)}
+                  onClick={handleGoalItem}
                   className="tc"
                   style={{ background:gf.bg, border:`1.5px solid ${gf.border}`, padding:'14px 8px', textAlign:'center', cursor:'pointer', fontFamily:"'Outfit',sans-serif" }}>
                   <div style={{ fontSize:'var(--text-xl)', marginBottom:4 }}>{it.icon}</div>
                   <div style={{ fontSize:'var(--text-xs)', fontWeight:700, color:gf.color, lineHeight:1.2 }}>{it.label}</div>
                 </button>
-              ))}
+                );
+              })}
             </div>
           </React.Fragment>
         );
