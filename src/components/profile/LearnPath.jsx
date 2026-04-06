@@ -26,15 +26,17 @@ function getDecayedTopics() {
 }
 
 const LEVEL_COLORS = [
-  { bg:'linear-gradient(135deg,#16a34a,#15803d)', text:'#fff', glow:'rgba(22,163,74,.4)', light:'#f0fdf4', border:'#86efac' },
-  { bg:'linear-gradient(135deg,#0e7490,#164e63)', text:'#fff', glow:'rgba(14,116,144,.4)', light:'#f0f9ff', border:'#7dd3fc' },
-  { bg:'linear-gradient(135deg,#7c3aed,#6d28d9)', text:'#fff', glow:'rgba(124,58,237,.4)', light:'#faf5ff', border:'#c4b5fd' },
-  { bg:'linear-gradient(135deg,#d97706,#b45309)', text:'#fff', glow:'rgba(217,119,6,.4)',  light:'#fffbeb', border:'#fcd34d' },
-  { bg:'linear-gradient(135deg,#e11d48,#be123c)', text:'#fff', glow:'rgba(225,29,72,.4)',  light:'#fff1f2', border:'#fca5a5' },
+  { bg:'linear-gradient(135deg,#16a34a,#15803d)', text:'#fff', glow:'rgba(22,163,74,.4)',  light:'#f0fdf4', border:'#86efac' }, // L1 – green
+  { bg:'linear-gradient(135deg,#0e7490,#164e63)', text:'#fff', glow:'rgba(14,116,144,.4)', light:'#f0f9ff', border:'#7dd3fc' }, // L2 – teal
+  { bg:'linear-gradient(135deg,#7c3aed,#6d28d9)', text:'#fff', glow:'rgba(124,58,237,.4)', light:'#faf5ff', border:'#c4b5fd' }, // L3 – purple
+  { bg:'linear-gradient(135deg,#d97706,#b45309)', text:'#fff', glow:'rgba(217,119,6,.4)',  light:'#fffbeb', border:'#fcd34d' }, // L4 – amber
+  { bg:'linear-gradient(135deg,#e11d48,#be123c)', text:'#fff', glow:'rgba(225,29,72,.4)',  light:'#fff1f2', border:'#fca5a5' }, // L5 – red
+  { bg:'linear-gradient(135deg,#4f46e5,#4338ca)', text:'#fff', glow:'rgba(79,70,229,.4)',  light:'#eef2ff', border:'#a5b4fc' }, // L6 – indigo
+  { bg:'linear-gradient(135deg,#b45309,#78350f)', text:'#fff', glow:'rgba(180,83,9,.4)',   light:'#fef3c7', border:'#fde68a' }, // L7 – dark gold
 ];
 
-const LEVEL_EMOJIS = ['🌱','🌿','🌳','🌲','🏔️'];
-const STAGE_NAMES = ['Survivor','Settler','Communicator','Explorer','Hrvat!'];
+const LEVEL_EMOJIS = ['🌱','🌿','🌳','🌲','🏔️','⭐','🏆'];
+const STAGE_NAMES = ['Survivor','Settler','Communicator','Explorer','Hrvat','Virtuoz','Majstor'];
 
 // Returns a Set of level indices whose checkpoint has been passed
 function getPassedCheckpoints() {
