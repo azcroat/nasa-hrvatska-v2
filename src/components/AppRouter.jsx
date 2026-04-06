@@ -186,6 +186,7 @@ const SlangScreen = lazyWithReload(() => import("./practice/SlangScreen.jsx"));
 const NumbersCasesDrill = lazyWithReload(() => import("./practice/NumbersCasesDrill.jsx"));
 const ImperativeDrill = lazyWithReload(() => import("./practice/ImperativeDrill.jsx"));
 const NegationGenDrill = lazyWithReload(() => import("./practice/NegationGenDrill.jsx"));
+const VocativeScreen = lazyWithReload(() => import("./practice/VocativeScreen.jsx"));
 const CollocationsGame = lazyWithReload(() => import("./practice/CollocationsGame.jsx"));
 const WordFamilies = lazyWithReload(() => import("./practice/WordFamilies.jsx"));
 const DictationScreen = lazyWithReload(() => import("./practice/DictationScreen.jsx"));
@@ -668,6 +669,7 @@ export default function AppRouter(props) {
       {currentScreen==="production_drill"&&<ScreenErrorBoundary key="production_drill" name="production_drill"><ProductionDrillScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="adaptive_review"&&<ScreenErrorBoundary key="adaptive_review" name="adaptive_review"><AdaptiveReviewScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="pitch_accent"&&<ScreenErrorBoundary key="pitch_accent" name="pitch_accent"><PitchAccentMastery goBack={goBack} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="vocative"&&<ScreenErrorBoundary key="vocative" name="vocative"><VocativeScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="heritage_path"&&<ScreenErrorBoundary key="heritage_path" name="heritage_path"><HeritagePathScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="dialect_awareness"&&<ScreenErrorBoundary key="dialect_awareness" name="dialect_awareness"><DialectAwarenessScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="heritage_mode"&&<ScreenErrorBoundary key="heritage_mode" name="heritage_mode"><HeritageModeScreen goBack={goBack} award={award} /></ScreenErrorBoundary>}
