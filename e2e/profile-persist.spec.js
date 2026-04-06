@@ -118,7 +118,7 @@ test.describe('Progress persistence across sessions', () => {
     await page.waitForTimeout(300);
     await nav.getByRole('button', { name: 'Practice', exact: true }).click();
     await page.waitForTimeout(300);
-    await nav.getByRole('button', { name: 'Culture', exact: true }).click();
+    await nav.getByRole('button', { name: 'Croatia', exact: true }).click();
     await page.waitForTimeout(300);
     await nav.getByRole('button', { name: 'Me', exact: true }).click();
     await page.waitForTimeout(300);
