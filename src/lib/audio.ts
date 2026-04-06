@@ -85,6 +85,7 @@ export function stopAudio(): void {
 }
 
 export async function speakAzure(text: string, slow?: boolean): Promise<boolean> {
+  if (!text || !text.trim()) return false;
   stopAudio();
   const myGen = ++_speakGen;
   const voicePref = getVoicePreference();

@@ -99,7 +99,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
     if (recordingURLRef.current) { URL.revokeObjectURL(recordingURLRef.current); recordingURLRef.current = null; }
   }; }, []);
 
-  if (!sw) return null;
+  if (!sw || !sw[0]) return null;
 
   // Reset per-word score when word changes (called on Next)
   function advanceWord() {
