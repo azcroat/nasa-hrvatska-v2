@@ -10,7 +10,7 @@ function RoleplayScreen({ goBack }) {
   return (
     <div className="scr-wrap">
 
-      {H("🎭 Conversation Role-Play","Practice real-life dialogues")}
+      {H("🎭 Conversation Role-Play","Practice real-life dialogues", goBack)}
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:16}}>
         {ROLEPLAY.map(function(rp,i){return (
           <button key={i} className={"b "+(rpIdx===i?"bp":"bg")} style={{fontSize:12}}

@@ -7,7 +7,7 @@ function Top100Screen({ goBack }) {
   return (
     <div className="scr-wrap">
 
-      {H("💯 Top 100 Words","Essential words for real-world situations")}
+      {H("💯 Top 100 Words","Essential words for real-world situations", goBack)}
       {!t1k?<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
         {Object.keys(TOP100).map(function(k){return (
           <button key={k} className="tc" style={{textAlign:"center"}} onClick={function(){sT1k(k)}}>

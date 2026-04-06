@@ -77,10 +77,10 @@ const TOPIC_TO_SCREEN = {
   instrumental: "prepdrill",
   vocative: "padezi",
   aspect: "aspect",
-  clitics: "clitics",
+  clitics: "clitic",
   conditional: "conditional",
   impersonal: "impersonal",
-  pitch: "pitch",
+  pitch: "pitchaccent",
 };
 
 const LEVELS = ["A1", "A2", "B1", "B2", "C1"];

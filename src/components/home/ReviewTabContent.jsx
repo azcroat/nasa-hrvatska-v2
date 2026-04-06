@@ -88,7 +88,7 @@ export default function ReviewTabContent() {
       })() : (() => {
         const sr = getSR(); const allR = Object.values(sr);
         const masteryPct = allR.length > 0
-          ? Math.round(allR.reduce((s,v) => s + (v.r||0)/Math.max((v.r||0)+v.w,1), 0) / allR.length * 100)
+          ? Math.round(allR.reduce((s,v) => s + (v.r||0)/Math.max((v.r||0)+(v.w||0),1), 0) / allR.length * 100)
           : 0;
         return (
           <div

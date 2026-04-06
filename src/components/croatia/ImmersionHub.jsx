@@ -46,7 +46,7 @@ const TIPS = [
   {icon:'🧠',title:'Comprehensible Input (i+1)',tip:"Find content where you understand about 70-80% — not too easy, not too hard. That 20% you don't understand is where growth happens. Easy Croatian videos are ideal."},
   {icon:'📝',title:'One Sentence Diary',tip:"Every night, write one sentence in Croatian about your day. Even 'Danas sam radio u uredu.' This forces you to actively produce what you've been passively absorbing."},
   {icon:'🎵',title:'Find Your Song',tip:"Pick one Croatian song you love. Look up every word. Listen to it 50 times. You'll own those words forever. Try Oliver Dragojević's 'Cesarica' or Thompson's 'Lijepa li si'."},
-  {icon:'👥',title:'Find a Native Speaker',tip:"HelloTalk or Tandem apps let you chat with Croatians who want to learn your language. Even 15 min/week of real conversation accelerates everything else."},
+  {icon:'👥',title:'Practice Real Conversations',tip:"Use the AI Conversation Partner in this app to practice real Croatian dialogues. Even 15 min/week of active speaking accelerates everything else."},
   {icon:'🔤',title:'Read Aloud',tip:"When you read Croatian text — news, labels, anything — say it out loud. Reading activates the eye. Speaking activates the mouth, ear, and brain simultaneously."},
 ];
 
