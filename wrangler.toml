@@ -13,6 +13,25 @@
 #      PAGES_URL           — https://nasahrvatska.com
 # 4. Deploy once: wrangler deploy
 #    (Cloudflare then runs the cron automatically — no further manual steps)
+#
+# ── Pages Functions KV bindings (managed automatically by CI) ────────────────
+# The following KV namespaces are bound to the Pages project (not this Worker).
+# They are provisioned and bound automatically on each deploy via:
+#   node scripts/setup-cf-resources.mjs
+# or manually:
+#   npm run setup:cf
+#
+# Pages KV bindings (production + preview):
+#   NH_CLANS  (title: nasa-hrvatska-clans)   — Study clan cohort data
+#
+# Pages env vars required (set in Dashboard → Pages → Settings → Env Vars):
+#   FIREBASE_PROJECT_ID   — Firebase project ID for token verification
+#   ANTHROPIC_API_KEY     — Claude API (AI features)
+#   AZURE_TTS_KEY         — Azure Text-to-Speech
+#   AZURE_TTS_REGION      — Azure TTS region (e.g. westeurope)
+#   VAPID_PRIVATE_KEY     — Web push signing
+#   VAPID_PUBLIC_KEY      — Web push public key
+#   CRON_SECRET           — Shared with scheduled worker above
 
 name                  = "nasa-hrvatska-scheduler"
 main                  = "functions/scheduled.js"

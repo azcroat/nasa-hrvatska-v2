@@ -84,9 +84,9 @@ export async function onRequestGet({ request, env }) {
 export async function onRequestPost({ request, env }) {
   const origin = request.headers.get('origin') || '';
 
-  // Rate limit by IP
-  const limited = await checkRateLimit(request, env, 'clan', 30, 60);
-  if (limited) return err(429, 'Rate limit exceeded', origin);
+  // Rate limit by IP — checkRateLimit returns true=allowed, false=rate-limited
+  const allowed = await checkRateLimit(request, 30);
+  if (!allowed) return err(429, 'Rate limit exceeded', origin);
 
   const kv = env.NH_CLANS;
   if (!kv) return err(503, 'Clan service unavailable', origin);
@@ -97,10 +97,11 @@ export async function onRequestPost({ request, env }) {
   const { action, clanId, uid, displayName, name, xp } = body || {};
   if (!action || !uid) return err(400, 'action and uid required', origin);
 
-  // Verify Firebase token if provided
+  // Verify Firebase token if provided — getFirebaseUid takes (request, projectId)
   const authHeader = request.headers.get('authorization') || '';
   if (authHeader.startsWith('Bearer ')) {
-    const verified = await getFirebaseUid(authHeader.slice(7), env).catch(() => null);
+    const projectId = env?.FIREBASE_PROJECT_ID || '';
+    const verified = await getFirebaseUid(request, projectId).catch(() => null);
     if (!verified || verified !== uid) return err(401, 'Unauthorized', origin);
   }
 

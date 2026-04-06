@@ -25,6 +25,7 @@
     "prepare": "husky",
     "test:live": "npx playwright test --config playwright.stealth.config.js",
     "screenshots": "npx playwright test --config playwright.stealth.config.js e2e/screenshots.spec.js",
+    "setup:cf": "node scripts/setup-cf-resources.mjs",
     "verify:firestore": "node scripts/verify-firestore.mjs",
     "test:rules": "firebase emulators:exec --only firestore \"vitest run src/tests/firestore-rules.test.js\"",
     "cap:sync": "npm run build && npx cap sync",
