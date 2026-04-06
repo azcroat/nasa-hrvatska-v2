@@ -20,7 +20,8 @@ export function seedAuth(page) {
       cp: true,
       st: {
         xp: 250, lc: 10, gc: 5, sp: 3, de: 2,
-        rc: 1, al: 1, mv: 0, hi: 0, rs: 0, ct: 0,
+        rc: 1, al: 1, mv: 0, hi: 0, rs: [], ct: ['greetings','numbers','restaurant','transport','family'],
+        vs: ['listening','alphabet','tenses','grammar'],
         badges: [],
       },
       sr: {},
