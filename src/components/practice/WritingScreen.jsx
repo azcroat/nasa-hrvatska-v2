@@ -7,6 +7,7 @@ import { useStats } from '../../context/StatsContext.jsx';
 import { logError } from '../../lib/learnerErrors.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
+import { markQuest } from '../../lib/quests.js';
 
 const PROMPTS = [
   // A2 — simple present, basic vocabulary
@@ -406,7 +407,7 @@ export default function WritingScreen({ goBack, award }) {
             </div>
           )}
 
-          <button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{if(finishFired.current)return;finishFired.current=true;if(typeof award==='function')award(result.score>0?Math.round(result.score/10)+5:5);setText("");setResult(null);}}>
+          <button className="b bp" style={{width:"100%",marginTop:16}} onClick={()=>{if(finishFired.current)return;finishFired.current=true;markQuest('write');if(typeof award==='function')award(result.score>0?Math.round(result.score/10)+5:5);setText("");setResult(null);}}>
             ✨ New Prompt
           </button>
         </div>

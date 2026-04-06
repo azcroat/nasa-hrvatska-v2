@@ -40,6 +40,8 @@ const TIER2_MAP: Record<string, string> = {
   grammar: 'grammar2',
   master: 'master2',
   reading: 'reading2',
+  culture: 'culture2',
+  vocab: 'vocab2',
 };
 
 export function markQuest(id: string): void {
