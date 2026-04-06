@@ -123,6 +123,46 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
   return null;
 }
 
+// ── Google Cloud TTS (second native Croatian fallback) ────────────────────────
+// hr-HR-Wavenet-B: native Croatian neural voice, phonemically accurate (same tier as Azure GabrijelaNeural).
+// REST API — no SDK needed. Requires GOOGLE_TTS_KEY env var in Cloudflare.
+// Docs: https://cloud.google.com/text-to-speech/docs/reference/rest/v1/text/synthesize
+async function tryGoogle(text, slow, apiKey) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    const res = await fetch(
+      `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          input: { text },
+          voice: { languageCode: "hr-HR", name: "hr-HR-Wavenet-B", ssmlGender: "FEMALE" },
+          audioConfig: {
+            audioEncoding: "MP3",
+            speakingRate: slow ? 0.70 : 0.90,
+            pitch: 0,
+          },
+        }),
+        signal: controller.signal,
+      }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.audioContent) return null;
+    // audioContent is base64-encoded MP3 — decode to ArrayBuffer
+    const binary = atob(data.audioContent);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes.buffer;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 function isAllowedOrigin(origin, isDev) {
   // Empty origin: PWA standalone mode (iOS/Android) and Capacitor. Auth is enforced via Firebase token.
   if (!origin) return true;
@@ -167,10 +207,11 @@ export async function onRequestPost(context) {
 
   const ELEVENLABS_KEY = env.ELEVENLABS_API_KEY;
   const AZURE_KEY = env.AZURE_TTS_KEY;
+  const GOOGLE_TTS_KEY = env.GOOGLE_TTS_KEY;
   const PRIMARY_REGION = env.AZURE_TTS_REGION || "eastus";
   const VOICE_ID = env.ELEVENLABS_VOICE_ID || EL_DEFAULT_VOICE;
 
-  if (!ELEVENLABS_KEY && !AZURE_KEY) {
+  if (!ELEVENLABS_KEY && !AZURE_KEY && !GOOGLE_TTS_KEY) {
     return new Response("TTS not configured", { status: 500, headers: corsHeaders(origin) });
   }
 
@@ -265,10 +306,20 @@ export async function onRequestPost(context) {
       }
     }
 
-    // 3. Final fallback: Azure for any remaining failures (e.g. charlotte preference, Azure unavailable earlier)
+    // 3. Azure final fallback (for charlotte preference or when Azure wasn't tried yet)
     if (!buffer && AZURE_KEY && !useAzurePrimary) {
       try {
         buffer = await tryAzure(text, slow, AZURE_KEY, PRIMARY_REGION);
+      } catch {
+        // fall through
+      }
+    }
+
+    // 4. Google Cloud TTS — native Croatian hr-HR-Wavenet-B (same phoneme accuracy tier as Azure).
+    //    Activates when all other providers have failed. Requires GOOGLE_TTS_KEY env var.
+    if (!buffer && GOOGLE_TTS_KEY) {
+      try {
+        buffer = await tryGoogle(text, slow, GOOGLE_TTS_KEY);
       } catch {
         // fall through
       }
