@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LEARN_PATH, getStreak, getDailyChallenge, speak, preloadAudio, DAILY_QUESTS, getActiveCampaign, getDueReviews, getSR, V } from '../../data.jsx';
 import { getWordOfDay } from '../../lib/wordOfDay.js';
+import { addWordToSRS } from '../../lib/srs.js';
 import { PHRASE_OF_DAY_POOL as PHRASES_365 } from '../../data/daily-content.js';
 import { weekKey, localDateStr } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext.jsx';
@@ -37,6 +38,8 @@ import WeeklyRecapModal, { shouldShowWeeklyRecap, markRecapShown } from './Weekl
 import WeakWordsPanel from './WeakWordsPanel.jsx';
 import UnitCompleteBanner from './UnitCompleteBanner.jsx';
 import AdaptiveInsightsCard from '../profile/AdaptiveInsightsCard.jsx';
+import DailyListeningCard from './DailyListeningCard.jsx';
+import ClanCard from './ClanCard.jsx';
 // DalmatianCoast SVG replaced with real AI/CC photography
 // import { DalmatianCoast } from '../illustrations';
 
@@ -203,6 +206,10 @@ export default function HomeTab({
   const [_dcOpen, _setDcOpen] = useState(doneCount === 0); void _dcOpen; void _setDcOpen;
   const [campaignDismissed, setCampaignDismissed] = useState(false);
   const [nudgeDismissed, setNudgeDismissed] = useState(false);
+  const [wodSRSAdded, setWodSRSAdded] = useState(false);
+  const [anchorDismissed, setAnchorDismissed] = useState(() => {
+    try { return localStorage.getItem('nh_anchor_dismissed_' + new Date().toISOString().slice(0,10)) === '1'; } catch { return false; }
+  });
 
   function _readCampaignQuestsDone(campaign) {
     if (!campaign?.quests?.length) return {};
@@ -432,6 +439,74 @@ export default function HomeTab({
         >
         <React.Fragment>
 
+          {/* ── TODAY'S MISSION — one bold primary CTA when day is fresh ── */}
+          {!allQuestsDone && !anchorDismissed && (() => {
+            // Find the highest-XP incomplete tier-1 quest
+            const incomplete = DAILY_QUESTS.filter(q => q.tier === 1 && !questsDone[q.id]);
+            const mission = incomplete.sort((a, b) => b.xp - a.xp)[0];
+            if (!mission) return null;
+            const missionActions = {
+              speak:    { label: 'Start Speaking →', action: () => { const pool = (_allCats||[]).flatMap(t=>V[t]||[]).filter(w=>w&&w[0]&&w[1]); launchSpeaking(_sh(pool).slice(0,6)); } },
+              grammar:  { label: 'Open Grammar →', action: () => launchPathItem({ go: 'grammar' }) },
+              master:   { label: 'Review Words →', action: () => setScr('srs-review') },
+              reading:  { label: 'Read Now →', action: () => setScr('readinglist') },
+              culture:  { label: 'Explore Culture →', action: () => setScr('croatia') },
+              vocab:    { label: 'Learn Vocab →', action: () => launchPathItem({ go: 'lesson' }) },
+              write:    { label: 'Write Something →', action: () => setScr('writing') },
+              streak:   { label: 'Start Practicing →', action: () => launchPathItem({ go: 'lesson' }) },
+              streak_alive: { label: 'Keep Streak →', action: () => launchPathItem({ go: 'lesson' }) },
+            };
+            const act = missionActions[mission.id] || { label: 'Start →', action: () => {} };
+            return (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                style={{ marginBottom: 12 }}
+              >
+                <div style={{
+                  background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #3730a3 100%)',
+                  borderRadius: 18, padding: '16px 18px',
+                  boxShadow: '0 8px 28px rgba(55,48,163,0.35)',
+                  border: '1px solid rgba(129,140,248,0.2)',
+                  position: 'relative', overflow: 'hidden',
+                }}>
+                  {/* Subtle glow */}
+                  <div style={{ position:'absolute', top:-30, right:-20, width:100, height:100, background:'radial-gradient(circle, rgba(165,180,252,0.15) 0%, transparent 70%)', pointerEvents:'none' }} />
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+                    <div style={{ fontSize:11, fontWeight:900, color:'rgba(199,210,254,0.8)', textTransform:'uppercase', letterSpacing:'.1em' }}>
+                      ⚡ Today's Mission
+                    </div>
+                    <button
+                      onClick={() => { localStorage.setItem('nh_anchor_dismissed_' + new Date().toISOString().slice(0,10), '1'); setAnchorDismissed(true); }}
+                      aria-label="Dismiss"
+                      style={{ background:'none', border:'none', color:'rgba(199,210,254,0.5)', fontSize:16, cursor:'pointer', padding:'0 2px', lineHeight:1 }}
+                    >×</button>
+                  </div>
+                  <div style={{ fontSize:20, fontWeight:900, color:'#e0e7ff', marginBottom:4, lineHeight:1.2 }}>
+                    {mission.icon} {mission.name}
+                  </div>
+                  <div style={{ fontSize:13, color:'rgba(199,210,254,0.7)', marginBottom:14 }}>
+                    {mission.desc} · <span style={{ color:'#a5b4fc', fontWeight:700 }}>+{mission.xp} XP</span>
+                  </div>
+                  <button
+                    onClick={act.action}
+                    style={{
+                      width:'100%', height:44,
+                      background:'linear-gradient(135deg, #6366f1, #818cf8)',
+                      border:'none', borderRadius:12,
+                      fontSize:14, fontWeight:800, color:'#fff',
+                      cursor:'pointer', letterSpacing:'.01em',
+                      boxShadow:'0 4px 14px rgba(99,102,241,0.5)',
+                      fontFamily:"'Outfit',sans-serif",
+                    }}
+                  >{act.label}</button>
+                </div>
+              </motion.div>
+            );
+          })()}
+
           {/* ── DAILY QUESTS — first thing: what to accomplish today ── */}
           <QuestTracker
             questsDone={questsDone}
@@ -601,16 +676,32 @@ export default function HomeTab({
                         )}
                         <div style={{ fontSize: 13, color: 'var(--subtext)', marginTop: 3 }}>{wod[1]}</div>
                       </div>
-                      <button
-                        onClick={() => speak(wod[0])}
-                        aria-label="Hear pronunciation"
-                        style={{
-                          background: 'linear-gradient(135deg,#0e7490,#0c4a6e)',
-                          border: 'none', borderRadius: '50%', width: 48, height: 48, fontSize: 20,
-                          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          flexShrink: 0, boxShadow: '0 2px 10px rgba(14,116,144,0.35)',
-                        }}
-                      >🔊</button>
+                      <div style={{ display:'flex', flexDirection:'column', gap:6, flexShrink:0 }}>
+                        <button
+                          onClick={() => speak(wod[0])}
+                          aria-label="Hear pronunciation"
+                          style={{
+                            background: 'linear-gradient(135deg,#0e7490,#0c4a6e)',
+                            border: 'none', borderRadius: '50%', width: 44, height: 44, fontSize: 18,
+                            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            boxShadow: '0 2px 10px rgba(14,116,144,0.35)',
+                          }}
+                        >🔊</button>
+                        <button
+                          onClick={() => { if (!wodSRSAdded) { try { addWordToSRS(wod[0]); } catch {} setWodSRSAdded(true); } }}
+                          aria-label={wodSRSAdded ? 'Added to review queue' : 'Add to spaced repetition review'}
+                          title={wodSRSAdded ? 'In your review queue' : 'Add to SRS review queue'}
+                          style={{
+                            background: wodSRSAdded ? 'rgba(22,163,74,0.12)' : 'rgba(14,116,144,0.1)',
+                            border: wodSRSAdded ? '1.5px solid #16a34a' : '1.5px solid rgba(14,116,144,0.3)',
+                            borderRadius: 10, width: 44, height: 28, fontSize: 11,
+                            cursor: wodSRSAdded ? 'default' : 'pointer',
+                            color: wodSRSAdded ? '#16a34a' : '#0e7490',
+                            fontWeight: 800, fontFamily:"'Outfit',sans-serif",
+                            transition: 'all .2s ease',
+                          }}
+                        >{wodSRSAdded ? '✓ SRS' : '+ SRS'}</button>
+                      </div>
                     </div>
                   )}
 
@@ -651,8 +742,18 @@ export default function HomeTab({
             );
           })()}
 
+          {/* ── DAILY LISTENING — comprehensible input at user's CEFR level ── */}
+          {authUser && st.lc >= 2 && (
+            <DailyListeningCard level={level} award={award} />
+          )}
+
           {/* ── WEAK WORDS — surface words needing most work ── */}
           {st.lc >= 3 && <WeakWordsPanel setScr={setScr} />}
+
+          {/* ── STUDY CLAN — 5-person cohort with weekly XP goal ── */}
+          {authUser && (
+            <ClanCard uid={authUser.uid} displayName={authUser.displayName || authUser.email?.split('@')[0] || 'Učenik'} />
+          )}
 
           {/* ── GRAMMAR TRACK PROGRESS NUDGE ────────────────────────────── */}
           {(() => {

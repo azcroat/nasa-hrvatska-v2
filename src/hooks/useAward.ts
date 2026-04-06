@@ -16,7 +16,42 @@ import {
   trackBadgeEarned, trackStreakMilestone,
 } from '../lib/analytics.js';
 import { localDateStr as _localDateStr, weekKey as _weekKey, getServerDateStr as _getServerDateStr } from '../lib/dateUtils.js';
+import { knightSpeak } from '../lib/knightSpeak.js';
 import type { Stats } from '../types/index.js';
+
+// ── Badge-specific knight speeches ────────────────────────────────────────────
+const BADGE_SPEECHES: Record<string, { mood: string; text: string }> = {
+  first:      { mood: 'celebrating', text: 'Prva lekcija! You\'ve taken the hardest step — beginning. 🌱' },
+  x100:       { mood: 'celebrating', text: '100 XP! The journey to fluency starts here. Svaka čast! ⭐' },
+  x500:       { mood: 'celebrating', text: '500 XP! You\'re building something real. Nastavi! 📚' },
+  x1k:        { mood: 'celebrating', text: 'Tisuću XP! A thousand points of Croatian locked in your brain. 🏆' },
+  x2k:        { mood: 'celebrating', text: 'Dva tisuće XP! You\'re thinking in Croatian now. Odlično! 🎓' },
+  x5k:        { mood: 'celebrating', text: '5,000 XP — Champion status! Croatia itself would applaud. 🥇' },
+  x10k:       { mood: 'celebrating', text: '10,000 XP! You are a legend among language learners. 👑' },
+  ded:        { mood: 'encouraging', text: 'Pet lekcija! Dedication is the real teacher. 🔥' },
+  lc20:       { mood: 'celebrating', text: '20 lessons! You\'ve committed. Croatia can feel it. 🚀' },
+  lc50:       { mood: 'celebrating', text: '50 lessons — Marathoner! Govorite li hrvatski? Almost... 🏃' },
+  lc100:      { mood: 'celebrating', text: '100 lessons! Sto lekcija! You could write a book. 💯' },
+  perf:       { mood: 'celebrating', text: 'Savršeno! A perfect score. Your attention is your superpower. 💎' },
+  str3:       { mood: 'encouraging', text: 'Tri dana! Habit loops are forming in your mind. Keep going! 🔥' },
+  str7:       { mood: 'celebrating', text: 'Tjedan dana! Week Warrior! Seven days of showing up. 📅' },
+  str30:      { mood: 'celebrating', text: '30 days — UNSTOPPABLE! Trideset dana! You\'ve changed yourself. ⚡' },
+  str100:     { mood: 'celebrating', text: '100 days! Sto dana! You are a Century Streak legend. 🏆' },
+  spk:        { mood: 'celebrating', text: 'Glas Hrvatske! You spoke Croatian out loud. That\'s courage. 🎤' },
+  srs10:      { mood: 'encouraging', text: 'Deset riječi u SRS! Your spaced-repetition deck is growing. 📖' },
+  srs50:      { mood: 'celebrating', text: 'Pedeset SRS words mastered! Your vocabulary is real now. 🌍' },
+  amb:        { mood: 'celebrating', text: 'Kulturni ambasador! You\'ve explored Croatian media. Bravo! 🇭🇷' },
+};
+
+// ── Level-up knight speeches ──────────────────────────────────────────────────
+const LEVEL_SPEECHES: Record<number, { mood: string; text: string }> = {
+  2: { mood: 'celebrating', text: 'Level 2 — Početnik! You\'ve moved beyond zero. Every word is a victory. 🌱' },
+  3: { mood: 'celebrating', text: 'Level 3 — Osnovni! The grammar is clicking. You can feel the pattern. 📚' },
+  4: { mood: 'celebrating', text: 'Level 4 — Srednji! Halfway to fluency. Zadar welcomes you. ⭐' },
+  5: { mood: 'celebrating', text: 'Level 5 — Napredni! You\'re speaking Croatian that Croatians respect. 💪' },
+  6: { mood: 'celebrating', text: 'Level 6 — Stručnjak! Dubrovnik is your city now. Sjajno! 🏆' },
+  7: { mood: 'celebrating', text: 'Level 7 — MAJSTOR! Complete mastery. Croatia is your second home. 👑' },
+};
 
 // Module-level guard: comeback bonus fires at most once per app session
 // (mirrors _comebackUsedThisSession in App.jsx — must stay in sync if moved)
@@ -97,19 +132,34 @@ export function useAward({ curEx, stats, setStats, writeDelta }: { curEx: string
 
     // Schedule UI side effects AFTER the state update, outside the updater
     if (_pendingBadge) {
-      const badge = _pendingBadge;
+      const badge = _pendingBadge as { id: string };
       setTimeout(() => { setNB(badge); setSB(true); setTimeout(() => setSB(false), 3000); }, 600);
-      // Notify knight mascot — expands from mini and shows badge reaction
-      setTimeout(() => { window.dispatchEvent(new CustomEvent('knight:badge')); }, 1200);
+      // Knight mascot: badge-specific speech if available, fallback to generic badge event
+      setTimeout(() => {
+        const speech = BADGE_SPEECHES[badge.id];
+        if (speech) {
+          knightSpeak(speech.mood, speech.text);
+        } else {
+          window.dispatchEvent(new CustomEvent('knight:badge'));
+        }
+      }, 1200);
     }
     if (_pendingLevelUp != null) {
-      setTimeout(() => { setLevelUpData({ level: _pendingLevelUp as number }); }, 900);
+      const newLvl = _pendingLevelUp as number;
+      setTimeout(() => { setLevelUpData({ level: newLvl }); }, 900);
+      // Knight celebrates with level-specific speech
+      const lvlSpeech = LEVEL_SPEECHES[newLvl];
+      if (lvlSpeech) {
+        setTimeout(() => knightSpeak(lvlSpeech.mood, lvlSpeech.text), 1500);
+      } else {
+        setTimeout(() => knightSpeak('celebrating', `Čestitam! Level ${newLvl} unlocked! 🎉`), 1500);
+      }
     }
     setTimeout(() => setShowXP(false), 1500);
     if (celebrate && totalAmt > 0) { setCelebXP(totalAmt); setTimeout(() => setShowCelebration(true), 400); }
 
     // Notify the knight mascot on significant XP awards so it expands from mini-mode
-    if (totalAmt >= 20) {
+    if (totalAmt >= 20 && _pendingBadge == null && _pendingLevelUp == null) {
       window.dispatchEvent(new CustomEvent('knight:celebrate', {
         detail: { mood: 'celebrating', text: `Sjajno! +${totalAmt} XP! 🎉` },
       }));
@@ -129,6 +179,18 @@ export function useAward({ curEx, stats, setStats, writeDelta }: { curEx: string
       setTimeout(() => setStreakMilestone(sr.milestone), 800);
       trackStreakMilestone(sr.milestone);
       recordJourneyMilestone('streak_' + sr.milestone, { count: sr.milestone, allowRepeat: false });
+      // Knight milestone speeches keyed by day count
+      const streakSpeeches: Record<number, { mood: string; text: string }> = {
+        7:   { mood: 'celebrating', text: 'Sedam dana! A full week — the habit is real! 📅' },
+        14:  { mood: 'celebrating', text: 'Dva tjedna! Your brain is rewiring for Croatian. Keep it up! 💪' },
+        21:  { mood: 'celebrating', text: '21 days — Three weeks! Science says it\'s a habit now. Bravo! 🔥' },
+        30:  { mood: 'celebrating', text: 'Trideset dana! 30 days of showing up. You\'re unstoppable! ⚡' },
+        50:  { mood: 'celebrating', text: 'Pedeset dana! 50 days of Croatian mastery in progress. 🏆' },
+        100: { mood: 'celebrating', text: 'STO DANA! 100 days! You have changed your life. Legenda! 👑' },
+        365: { mood: 'celebrating', text: 'Godišnjica! One full year! You ARE Croatian now. 🇭🇷' },
+      };
+      const ms = streakSpeeches[sr.milestone as number];
+      if (ms) setTimeout(() => knightSpeak(ms.mood, ms.text), 1800);
     }
     if (sr.count >= 30 && !localStorage.getItem('nh_ceremony_streak_30')) { localStorage.setItem('nh_ceremony_streak_30', '1'); setCeremonyType('streak_30'); }
     if (sr.count >= 50 && !localStorage.getItem('nh_ceremony_streak_50')) { localStorage.setItem('nh_ceremony_streak_50', '1'); setCeremonyType('streak_50'); }

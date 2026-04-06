@@ -407,6 +407,24 @@ function App() {
     return () => window.removeEventListener('nh-campaign-quest-done', onQuestDone);
   }, [_syncReady, authUser, authScreen, doSyncNow]);
 
+  // Immersion streak XP — award 5 XP when user engages with media on a new day
+  useEffect(() => {
+    const onImmersionDay = (e) => {
+      if (authScreen !== 'app') return;
+      award(5);
+      const count = e?.detail?.count ?? 0;
+      // Knight milestone speeches for immersion streaks
+      const immersionMilestones = { 3: 'Tri dana uranjanja! 3 days of Croatian media — your ear is training! 🎵', 5: 'Pet dana! 5 immersion days. Your brain is adapting to real Croatian! 📺', 7: 'Sedam dana! A week of daily Croatian media. Nevjerojatno! 🇭🇷', 14: '14 immersion days! Two weeks of living in Croatian culture. Odlično! 🌊', 30: '30 immersion days! Your listening is now native-level exposed! 🏆' };
+      if (immersionMilestones[count]) {
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('knight:speak', { detail: { mood: 'celebrating', text: immersionMilestones[count] } }));
+        }, 800);
+      }
+    };
+    window.addEventListener('nh:immersion-new-day', onImmersionDay);
+    return () => window.removeEventListener('nh:immersion-new-day', onImmersionDay);
+  }, [authScreen, award]);
+
   // Sync weekly XP to leaderboard on every XP change (fire-and-forget)
   useEffect(() => {
     if (!authUser || authScreen !== 'app' || stats.xp === 0) return;

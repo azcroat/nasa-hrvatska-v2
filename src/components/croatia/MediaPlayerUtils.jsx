@@ -20,7 +20,14 @@ export function getImmersionDays() {
 export function markImmersionToday() {
   const today = new Date().toISOString().slice(0,10);
   const days = getImmersionDays();
-  if (!days.includes(today)) { days.push(today); localStorage.setItem('nh_immersion_days', JSON.stringify(days)); }
+  if (!days.includes(today)) {
+    days.push(today);
+    localStorage.setItem('nh_immersion_days', JSON.stringify(days));
+    // Notify App to award immersion XP and trigger knight speech
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('nh:immersion-new-day', { detail: { count: days.length } }));
+    }
+  }
 }
 export function getWeekDots() {
   const days = getImmersionDays();
