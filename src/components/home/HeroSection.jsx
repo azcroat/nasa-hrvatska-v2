@@ -14,6 +14,8 @@ const LEVEL_PALETTE = [
   { grad: 'linear-gradient(135deg,#1e3a8a,#1d4ed8)', light: '#dbeafe', text: '#1e3a8a', border: '#93c5fd' },
   { grad: 'linear-gradient(135deg,#4c1d95,#6d28d9)', light: '#ede9fe', text: '#4c1d95', border: '#c4b5fd' },
   { grad: 'linear-gradient(135deg,#7f1d1d,#dc2626)', light: '#fee2e2', text: '#7f1d1d', border: '#fca5a5' },
+  { grad: 'linear-gradient(135deg,#134e4a,#0d9488)', light: '#ccfbf1', text: '#134e4a', border: '#5eead4' },
+  { grad: 'linear-gradient(135deg,#1e1b4b,#3730a3)', light: '#e0e7ff', text: '#1e1b4b', border: '#a5b4fc' },
 ];
 
 // ─── Knight speech helpers (merged from KnightSpeech) ────────────────────────
