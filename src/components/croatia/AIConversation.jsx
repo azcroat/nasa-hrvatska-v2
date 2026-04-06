@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { speak } from '../../data.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { useStats } from '../../context/StatsContext.jsx';
+import { useApp } from '../../context/AppContext.jsx';
 import { markPracticed } from '../../hooks/useNotifications';
 import { useConversationSession } from '../../hooks/useConversationSession';
 import { useWriteMode } from '../../hooks/useWriteMode';
@@ -63,6 +64,7 @@ function topicForScenario(s) {
 
 export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWords }) {
   const { award, stats: appSt } = useStats();
+  const { name: userName } = useApp();
   const stats = appSt;
   const isOnline = useOnlineStatus();
 
@@ -115,6 +117,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
 
   // ── Stable refs (not state — no re-render on change) ────────────────────────
   const recognitionRef      = useRef(null);
+  const messagesRef         = useRef(messages); // always-current ref for async callbacks
+  useEffect(() => { messagesRef.current = messages; }, [messages]);
   const evalXpFired         = useRef(false);
   const writeXpFired        = useRef(false);
   const npcVideoFiredRef    = useRef(null);
@@ -166,6 +170,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       level,
       topic,
       turnCount: turn,
+      userName: userName || '',
       mistakePatterns: learnerErrors.map(e => ({ pattern: e?.pattern || String(e), count: 1 })),
       learnerErrors,
       isHeritage: !!(stats?.heritage),
@@ -186,8 +191,11 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       try { errData = await res.json(); } catch { errData = {}; }
       if (res.status === 401) throw new Error('setup_error:Please sign in to use the AI conversation feature.');
       if (res.status === 429) {
+        if (errData.error === 'rate_limit_exceeded') {
+          throw new Error("You're sending messages too quickly. Please wait a moment and try again.");
+        }
         const resetTime = errData.resetAt ? new Date(errData.resetAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'midnight UTC';
-        throw new Error(`You've reached today's AI conversation limit. Your quota resets at ${resetTime}. Come back tomorrow!`);
+        throw new Error(`You've reached today's AI conversation limit. Your quota resets at ${resetTime}.`);
       }
       if (errData.error?.includes('AI_KEY_MISSING') || errData.error?.includes('ANTHROPIC_API_KEY')) {
         throw new Error('setup_error:The AI service is not yet configured. The ANTHROPIC_API_KEY needs to be set in Cloudflare Pages → Settings → Environment Variables.');
@@ -437,7 +445,13 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
         setInput((pendingVoiceTextRef.current + ' ' + interimChunk).trim());
       }
     };
-    r.onerror = () => { setListening(false); };
+    r.onerror = (e) => {
+      setListening(false);
+      // 'no-speech' is normal (user was quiet) — only surface real errors
+      if (e.error && e.error !== 'no-speech') {
+        setSendError('Voice input error — please try again or type your message.');
+      }
+    };
     r.onend = () => {
       setListening(false);
       const text = pendingVoiceTextRef.current.trim();
@@ -492,10 +506,13 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   }
 
   async function endAndEvaluate() {
-    const userMsgs = messages.filter(m => m.role === "user");
-    if (userMsgs.length < 2) { alert("Have at least 2 exchanges before evaluating!"); return; }
+    // Use messagesRef.current so that auto-triggered evaluations (via setTimeout)
+    // always see the latest messages rather than a stale closure snapshot.
+    const currentMessages = messagesRef.current;
+    const userMsgs = currentMessages.filter(m => m.role === "user");
+    if (userMsgs.length < 2) { setSendError("Have at least 2 exchanges before evaluating!"); return; }
     setPhase("evaluating");
-    const convoText = messages
+    const convoText = currentMessages
       .filter(m => m.role !== "hint")
       .map(m => `${m.role === "user" ? "LEARNER" : "AI (" + scenario.aiName + ")"}: ${m.content}`)
       .join("\n\n");
