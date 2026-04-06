@@ -29,7 +29,8 @@ const AppContext = createContext(/** @type {any} */ (null));
  *   Daily         : dchlA, sDchlA, dchlSl, sDchlSl
  *   Launchers     : resumeLesson, launchPathItem, launchAnimLesson,
  *                   launchMcGame, mcGameComplete, launchFlashcards,
- *                   launchListening, launchMatch, launchSpeaking
+ *                   launchListening, launchMatch, launchSpeaking,
+ *                   launchLegendary, launchCheckpoint
  *   Sync          : _syncReady, doSyncNow
  *   Misc          : icons, allCats, getWeekStats,
  *                   isNewUserWindow, daysSinceJoin, comebackBonus, weeklyXP
