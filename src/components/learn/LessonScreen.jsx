@@ -432,7 +432,7 @@ export default function LessonScreen({
               borderRadius:10, fontSize:13, color:'var(--subtext)', lineHeight:1.6
             }}>
               💡 <strong style={{color:'var(--heading)'}}>Tip:</strong>{' '}
-              {qi?.[lx]?.hint || qi?.[lx]?.explanation || (qi[lx].direction === 'en-cr' ? `"${qi[lx][1]}" translates to "${qi[lx][0]}" in Croatian.` : 'Review this word — it will come up again in spaced repetition.')}
+              {qi?.[lx]?.hint || qi?.[lx]?.explanation || (qi?.[lx] ? (qi[lx].direction === 'en-cr' ? `"${qi[lx][1]}" translates to "${qi[lx][0]}" in Croatian.` : 'Review this word — it will come up again in spaced repetition.') : 'Review this word — it will come up again in spaced repetition.')}
             </div>
           )}
 
