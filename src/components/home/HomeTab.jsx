@@ -233,18 +233,26 @@ export default function HomeTab({
 
   const pathData = useMemo(() => {
     let totalDone = 0, totalItems = 0;
-    let activeLv = null, activeLvDone = 0, nextItem = null;
+    let activeLv = null, activeLvDone = 0, activeLvItemDone = null, nextItem = null;
     for (const lv of LEARN_PATH) {
       let lvd = 0;
-      for (const it of lv.items) {
+      const itemDone = lv.items.map(it => {
         totalItems++;
-        if (it.ck(st)) { totalDone++; lvd++; }
+        const done = it.ck(st);
+        if (done) { totalDone++; lvd++; }
         else if (!nextItem) nextItem = { ...it, levelTitle: lv.title };
+        return done;
+      });
+      if (!activeLv && lvd < lv.items.length) {
+        activeLv = lv; activeLvDone = lvd; activeLvItemDone = itemDone;
       }
-      if (!activeLv && lvd < lv.items.length) { activeLv = lv; activeLvDone = lvd; }
     }
-    if (!activeLv) { activeLv = LEARN_PATH[LEARN_PATH.length - 1]; activeLvDone = activeLv.items.length; }
-    return { totalDone, totalItems, pct: Math.round(totalDone / totalItems * 100), activeLv, activeLvDone, nextItem };
+    if (!activeLv) {
+      activeLv = LEARN_PATH[LEARN_PATH.length - 1];
+      activeLvDone = activeLv.items.length;
+      activeLvItemDone = activeLv.items.map(() => true);
+    }
+    return { totalDone, totalItems, pct: Math.round(totalDone / totalItems * 100), activeLv, activeLvDone, activeLvItemDone, nextItem };
   }, [st]);
 
   const activePalette = LEVEL_PALETTE[(pathData.activeLv.level - 1) % LEVEL_PALETTE.length];

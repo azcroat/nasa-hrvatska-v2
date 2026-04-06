@@ -57,23 +57,27 @@ export default function PathProgressCard({
           {/* Stage dots — Zeigarnik effect */}
           {pathData.activeLv.items.length > 0 && (
             <div className="progress-hero-dots">
-              {pathData.activeLv.items.slice(0, 14).map((item, i) => {
-                const done = i < pathData.activeLvDone;
-                const isNext = i === pathData.activeLvDone;
-                return (
-                  <div
-                    key={i}
-                    className={
-                      'progress-hero-dot ' +
-                      (done ? 'progress-hero-dot--done' : isNext ? 'progress-hero-dot--active' : 'progress-hero-dot--empty')
-                    }
-                    style={{ color: done ? activePalette.text : 'rgba(255,255,255,.45)' }}
-                    title={item.name}
-                  >
-                    {done ? '✓' : ''}
-                  </div>
-                );
-              })}
+              {(() => {
+                const itemDone = pathData.activeLvItemDone;
+                const nextIdx = itemDone ? itemDone.findIndex(d => !d) : pathData.activeLvDone;
+                return pathData.activeLv.items.slice(0, 14).map((item, i) => {
+                  const done = itemDone ? itemDone[i] : i < pathData.activeLvDone;
+                  const isNext = i === nextIdx;
+                  return (
+                    <div
+                      key={i}
+                      className={
+                        'progress-hero-dot ' +
+                        (done ? 'progress-hero-dot--done' : isNext ? 'progress-hero-dot--active' : 'progress-hero-dot--empty')
+                      }
+                      style={{ color: done ? activePalette.text : 'rgba(255,255,255,.45)' }}
+                      title={item.name}
+                    >
+                      {done ? '✓' : ''}
+                    </div>
+                  );
+                });
+              })()}
               {pathData.activeLv.items.length > 14 && (
                 <div className="progress-hero-dot-more">
                   +{pathData.activeLv.items.length - 14}
