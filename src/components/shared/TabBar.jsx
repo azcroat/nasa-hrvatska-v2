@@ -5,7 +5,7 @@ const TABS = [
   { id: "home",     label: "Today" },
   { id: "learn",    label: "Learn" },
   { id: "practice", label: "Practice" },
-  { id: "croatia",  label: "Culture" },
+  { id: "croatia",  label: "Croatia" },
   { id: "profile",  label: "Me" },
 ];
 
@@ -56,7 +56,7 @@ function NavIcon({ id, active }) {
 const TAB_SUBTITLES = {
   learn:    'Lessons',
   practice: 'Drills',
-  croatia:  'Culture',
+  croatia:  'Croatia',
 };
 
 export default function TabBar({ tab, setTab, setScr, badges }) {

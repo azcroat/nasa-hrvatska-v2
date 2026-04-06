@@ -40,6 +40,7 @@ import UnitCompleteBanner from './UnitCompleteBanner.jsx';
 import AdaptiveInsightsCard from '../profile/AdaptiveInsightsCard.jsx';
 import DailyListeningCard from './DailyListeningCard.jsx';
 import ClanCard from './ClanCard.jsx';
+import StreakMilestoneToast, { checkAndMarkMilestone } from '../shared/StreakMilestoneToast.jsx';
 // DalmatianCoast SVG replaced with real AI/CC photography
 // import { DalmatianCoast } from '../illustrations';
 
@@ -160,6 +161,14 @@ export default function HomeTab({
   const [showWeeklyRecap, setShowWeeklyRecap] = useState(() => shouldShowWeeklyRecap());
 
   const [htab, setHTab] = useState('today');
+
+  // Streak milestone celebration — fires once per milestone level
+  const [streakMilestone, setStreakMilestone] = useState(null);
+  useEffect(() => {
+    if (streak.count > 0 && checkAndMarkMilestone(streak.count)) {
+      setStreakMilestone(streak.count);
+    }
+  }, [streak.count]);
 
   const questsDone = useMemo(() => {
     const d = localDateStr();
@@ -321,6 +330,14 @@ export default function HomeTab({
         // doesn't re-show the modal before the user has a chance to close it.
         <WeeklyRecapModal onClose={() => { markRecapShown(); setShowWeeklyRecap(false); }}
           onMount={() => markRecapShown()} />
+      )}
+
+      {/* ── STREAK MILESTONE CELEBRATION ── */}
+      {streakMilestone && (
+        <StreakMilestoneToast
+          streakCount={streakMilestone}
+          onDismiss={() => setStreakMilestone(null)}
+        />
       )}
 
       {/* ── UNIT COMPLETE BANNER (fires once when user finishes a learning path level) ── */}

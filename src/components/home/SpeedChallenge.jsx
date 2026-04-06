@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useStats } from '../../context/StatsContext.jsx';
 import { getSR, getSRScore } from '../../lib/srs.js';
 import { V } from '../../data.jsx';
+import { playCorrect, playWrong, haptic } from '../../lib/soundSettings.js';
 
 const DURATION = 60; // seconds
 const XP_CORRECT = 3;
@@ -132,6 +133,7 @@ export default function SpeedChallenge({ onXP }) {
     try { getSRScore(q.target.hr, correct, responseMs); } catch (_) {}
 
     if (correct) {
+      playCorrect(); haptic(30);
       const xp = XP_CORRECT + (responseMs < 3000 ? XP_FAST_BONUS : 0);
       setScore(s => s + 1);
       setStreak(s => {
@@ -142,6 +144,7 @@ export default function SpeedChallenge({ onXP }) {
       setTotalEarned(e => e + xp);
       if (award) award(xp, xp >= 5);
     } else {
+      playWrong(); haptic([20, 15, 20]);
       setStreak(0);
     }
 
