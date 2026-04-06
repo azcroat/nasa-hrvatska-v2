@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { H } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
@@ -216,7 +216,12 @@ export default function PhraseOfDayScreen({ goBack, award }) {
   const [error, setError] = useState(null);
   const [playing, setPlaying] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [showComingSoon, setShowComingSoon] = useState(false);
+  const [showPracticeChat, setShowPracticeChat] = useState(false);
+  const [chatHistory, setChatHistory] = useState([]); // {role:'maja'|'user', content:string}
+  const [chatInput, setChatInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const chatEndRef = useRef(null);
+  const chatInputRef = useRef(null);
 
   // Track award (hear it + cultural note read)
   const [heardIt, setHeardIt] = useState(false);
@@ -336,6 +341,76 @@ export default function PhraseOfDayScreen({ goBack, award }) {
     if (!readCultural) {
       setReadCultural(true);
       checkAward(heardIt, true);
+    }
+  }
+
+  // ── Inline phrase practice chat ───────────────────────────────────────────
+  async function openPracticeChat() {
+    if (!phraseData) return;
+    setShowPracticeChat(p => {
+      if (p) return false; // toggle off
+      return true;
+    });
+    if (showPracticeChat) return;
+    // Reset chat and kick off first turn from Maja
+    setChatHistory([]);
+    setChatInput('');
+    setChatLoading(true);
+    try {
+      const res = await apiFetch('/api/maja', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: `Hajde, vježbajmo frazu: "${phraseData.phrase}" (${phraseData.translation}). Koristi je prirodno u razgovoru sa mnom.`,
+          history: [],
+          session: { count: 0, nextTopic: `Practice phrase: ${phraseData.phrase}` },
+          userLevel: userLevel || 'B1',
+          isSessionStart: false,
+          persona: 'teacher',
+        }),
+      });
+      if (!res.ok) throw new Error('api_error');
+      const data = await res.json();
+      const reply = data.reply || 'Bok! Hajde vježbati!';
+      setChatHistory([{ role: 'maja', content: reply }]);
+    } catch {
+      setChatHistory([{ role: 'maja', content: `Hajde vježbati! Pokušaj upotrijebiti frazu: "${phraseData.phrase}" u rečenici.` }]);
+    } finally {
+      setChatLoading(false);
+      setTimeout(() => chatInputRef.current?.focus(), 100);
+    }
+  }
+
+  async function sendChatMessage() {
+    const msg = chatInput.trim();
+    if (!msg || chatLoading) return;
+    const newHistory = [...chatHistory, { role: 'user', content: msg }];
+    setChatHistory(newHistory);
+    setChatInput('');
+    setChatLoading(true);
+    setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+    try {
+      const res = await apiFetch('/api/maja', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: msg,
+          history: newHistory.slice(0, -1), // history without the just-added user msg
+          session: { count: 1 },
+          userLevel: userLevel || 'B1',
+          isSessionStart: false,
+          persona: 'teacher',
+        }),
+      });
+      if (!res.ok) throw new Error('api_error');
+      const data = await res.json();
+      const reply = data.reply || 'Bravo! Nastavi!';
+      setChatHistory(h => [...h, { role: 'maja', content: reply }]);
+    } catch {
+      setChatHistory(h => [...h, { role: 'maja', content: 'Oprosti, nešto je pošlo po krivu. Pokušaj opet!' }]);
+    } finally {
+      setChatLoading(false);
+      setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
     }
   }
 
@@ -640,26 +715,103 @@ export default function PhraseOfDayScreen({ goBack, award }) {
             </div>
           )}
 
-          {/* Practice It button */}
+          {/* Practice It — inline Maja chat */}
           <div style={{ marginBottom: 20 }}>
             <button
-              onClick={() => setShowComingSoon(v => !v)}
+              onClick={openPracticeChat}
               style={{
                 width: '100%', padding: '14px', borderRadius: 14, border: `1.5px solid ${color}44`,
-                background: `${color}0d`, color,
+                background: showPracticeChat ? `${color}22` : `${color}0d`, color,
                 fontFamily: "'Outfit',sans-serif", fontSize: 14, fontWeight: 800,
                 cursor: 'pointer', transition: 'all .2s',
               }}
             >
-              💬 Practice It
+              💬 {showPracticeChat ? 'Close Practice' : 'Practice It with Maja'}
             </button>
-            {showComingSoon && (
+
+            {showPracticeChat && (
               <div style={{
-                marginTop: 8, padding: '10px 14px', borderRadius: 10,
-                background: 'var(--info-bg)', border: '1px solid var(--info-b)',
-                fontSize: 12, color: 'var(--info)', fontWeight: 600, textAlign: 'center',
+                marginTop: 8, borderRadius: 14, overflow: 'hidden',
+                border: `1.5px solid ${color}33`,
+                background: 'var(--card)',
               }}>
-                🚧 Coming soon — AI conversation practice tied to this phrase
+                {/* Chat header */}
+                <div style={{
+                  padding: '10px 14px', background: `${color}11`,
+                  borderBottom: `1px solid ${color}22`,
+                  fontSize: 12, fontWeight: 700, color,
+                  display: 'flex', alignItems: 'center', gap: 6,
+                }}>
+                  <span>🤖</span>
+                  <span>Maja · Practice: "{phraseData.phrase}"</span>
+                </div>
+
+                {/* Messages */}
+                <div style={{
+                  maxHeight: 280, overflowY: 'auto', padding: '12px 12px 4px',
+                  display: 'flex', flexDirection: 'column', gap: 8,
+                }}>
+                  {chatHistory.map((msg, i) => (
+                    <div key={i} style={{
+                      display: 'flex',
+                      justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                    }}>
+                      <div style={{
+                        maxWidth: '82%', padding: '8px 12px', borderRadius: 12,
+                        fontSize: 13, lineHeight: 1.55, fontWeight: 500,
+                        background: msg.role === 'user' ? color : 'var(--bar-bg)',
+                        color: msg.role === 'user' ? '#fff' : 'var(--heading)',
+                        borderBottomRightRadius: msg.role === 'user' ? 3 : 12,
+                        borderBottomLeftRadius: msg.role === 'maja' ? 3 : 12,
+                      }}>
+                        {msg.content}
+                      </div>
+                    </div>
+                  ))}
+                  {chatLoading && (
+                    <div style={{ display: 'flex', gap: 4, padding: '4px 0 8px' }}>
+                      {[0,1,2].map(i => (
+                        <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: color, opacity: 0.5, animation: `dot-bounce 1.2s ease-in-out ${i*0.15}s infinite` }} />
+                      ))}
+                    </div>
+                  )}
+                  <div ref={chatEndRef} />
+                </div>
+
+                {/* Input row */}
+                <div style={{
+                  padding: '8px 10px', borderTop: `1px solid ${color}22`,
+                  display: 'flex', gap: 6, alignItems: 'center',
+                }}>
+                  <input
+                    ref={chatInputRef}
+                    value={chatInput}
+                    onChange={e => setChatInput(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); } }}
+                    placeholder="Odgovori Maji…"
+                    style={{
+                      flex: 1, padding: '9px 12px', borderRadius: 10, fontSize: 13,
+                      border: `1.5px solid ${color}33`, background: 'var(--bar-bg)',
+                      color: 'var(--heading)', fontFamily: "'Outfit',sans-serif",
+                      outline: 'none',
+                    }}
+                    disabled={chatLoading}
+                  />
+                  <button
+                    onClick={sendChatMessage}
+                    disabled={chatLoading || !chatInput.trim()}
+                    style={{
+                      padding: '9px 14px', borderRadius: 10, border: 'none',
+                      background: chatInput.trim() ? color : 'var(--bar-bg)',
+                      color: chatInput.trim() ? '#fff' : 'var(--subtext)',
+                      fontFamily: "'Outfit',sans-serif", fontSize: 13, fontWeight: 800,
+                      cursor: chatInput.trim() ? 'pointer' : 'default',
+                      transition: 'background .15s, color .15s',
+                    }}
+                  >
+                    →
+                  </button>
+                </div>
               </div>
             )}
           </div>
