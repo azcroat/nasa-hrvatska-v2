@@ -222,7 +222,10 @@ export async function speak(text: string): Promise<string> {
   const t = prepTTS(text);
   const ok = await speakAzure(t, false).catch(() => false);
   if (!ok) {
-    if (window.speechSynthesis) {
+    // Only use Web Speech fallback when a Croatian/South-Slavic voice is available.
+    // Playing English TTS for Croatian text actively teaches wrong pronunciation — never acceptable.
+    const hasCroatianVoice = window.speechSynthesis && getBestVoice();
+    if (hasCroatianVoice) {
       await speakSynth(t, 0.85);
       return 'synth';
     }
@@ -237,7 +240,9 @@ export async function speakSlow(text: string): Promise<string> {
   const t = prepTTS(text);
   const ok = await speakAzure(t, true).catch(() => false);
   if (!ok) {
-    if (window.speechSynthesis) {
+    // Same guard: only fall back to Web Speech when a Croatian voice is confirmed available.
+    const hasCroatianVoice = window.speechSynthesis && getBestVoice();
+    if (hasCroatianVoice) {
       await speakSynth(t, 0.65);
       return 'synth';
     }
