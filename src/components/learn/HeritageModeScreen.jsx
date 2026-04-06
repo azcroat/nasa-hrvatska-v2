@@ -591,7 +591,7 @@ export default function HeritageModeScreen({ goBack, award }) {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <button
-              onClick={() => setScr('lessons')}
+              onClick={() => setScr('learnpath')}
               style={{ padding: '14px', borderRadius: 12, border: 'none', cursor: 'pointer', background: 'var(--info)', color: '#fff', fontWeight: 800, fontSize: 14, fontFamily: "'Outfit',sans-serif" }}
             >
               Start Lessons →
