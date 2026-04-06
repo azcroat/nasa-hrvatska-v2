@@ -216,8 +216,8 @@ export default function StatsTab({ onShowPrestigeModal, onSyncNow }) {
                       </div>
                     </div>
                   </div>
-                  <div style={{ marginTop: 8, fontSize: 'var(--text-xs)', color: 'var(--subtext)', fontStyle: 'italic' }}>
-                    Complete Stage 5 to unlock. Coming soon.
+                  <div style={{ marginTop: 8, fontSize: 'var(--text-xs)', color: 'var(--subtext)' }}>
+                    Advanced content available now in Practice → Shadowing, Pitch Accent, and Formal Register drills.
                   </div>
                 </div>
               )}
