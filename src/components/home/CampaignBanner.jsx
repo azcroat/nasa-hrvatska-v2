@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext.jsx';
 
-export default function CampaignBanner({ activeCampaign, campaignDismissed, setCampaignDismissed, campaignQuestsDone, setTab, onQuestTap }) {
+export default function CampaignBanner({ activeCampaign, campaignDismissed, setCampaignDismissed, campaignQuestsDone, setTab, onQuestTap, onCtaTap }) {
   const { setScr } = useApp();
 
   if (!activeCampaign || campaignDismissed || localStorage.getItem('nh_campaign_dismissed_' + activeCampaign.id) === '1') {
@@ -169,7 +169,7 @@ export default function CampaignBanner({ activeCampaign, campaignDismissed, setC
 
         {/* CTA button */}
         <button
-          onClick={() => setScr && setScr(ctaScreen)}
+          onClick={() => { if (onCtaTap) onCtaTap(ctaScreen); else if (setScr) setScr(ctaScreen); }}
           style={{
             width: '100%', padding: '11px 16px',
             background: `linear-gradient(135deg, ${baseColor} 0%, ${baseColor}cc 100%)`,
