@@ -201,12 +201,17 @@ export function getDueReviews(): string[] {
   const sr  = getSR();
   const now = Date.now();
   const due: string[] = [];
+  // Cards with no due date are legitimately new (never reviewed) and should be
+  // shown, but we cap them at 15 per session to prevent queue flooding if a
+  // user imports a large word list or legacy SM-2 data wasn't fully migrated.
+  let newCardBudget = 15;
   for (const word in sr) {
     const card = sr[word];
     if (card.due != null) {
       if (card.due <= now) due.push(word);
-    } else {
+    } else if (newCardBudget > 0) {
       due.push(word);
+      newCardBudget--;
     }
   }
   for (let i = due.length - 1; i > 0; i--) {

@@ -112,6 +112,7 @@ export default function LessonScreen({
           awardFn(Math.round(p * 30) + 5 + perfectBonus, p >= 0.7);
           markPracticed();
           markQuest('grammar');
+          markQuest('vocab');
           if (p === 1) markQuest('perfect');
           setSt(s => ({ ...s, lc: s.lc + 1, pf: p === 1 ? s.pf + 1 : s.pf, rs: [...s.rs, String(Math.round(p * 100))], ct: [...new Set([...s.ct, lt])] }));
           writeDelta({ lc: 1, ...(p === 1 ? { pf: 1 } : {}), ct: [lt] });
@@ -448,6 +449,7 @@ export default function LessonScreen({
                 awardFn(Math.round(p * 30) + 5 + perfectBonus, p >= 0.7);
                 markPracticed();
                 markQuest('grammar');
+                markQuest('vocab');
                 if (p === 1) markQuest('perfect');
                 setSt(s => ({ ...s, lc: s.lc + 1, pf: p === 1 ? s.pf + 1 : s.pf, rs: [...s.rs, String(Math.round(p * 100))], ct: [...new Set([...s.ct, lt])] }));
           writeDelta({ lc: 1, ...(p === 1 ? { pf: 1 } : {}), ct: [lt] });
