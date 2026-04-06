@@ -364,7 +364,11 @@ export async function onRequestPost(context) {
   const allowed = await checkRateLimit(request, SESSION_RATE_LIMIT_PER_MINUTE);
   if (!allowed) {
     return new Response(
-      JSON.stringify({ error: "Too many requests. Conversation is limited to 3 sessions per hour." }),
+      JSON.stringify({
+        error: "rate_limit_exceeded",
+        message: "Too many requests. Please wait a moment before sending another message.",
+        resetAt: new Date(Date.now() + 60000).toISOString(),
+      }),
       { status: 429, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } }
     );
   }
@@ -432,10 +436,28 @@ export async function onRequestPost(context) {
   const maxTurns = (safeLevel && MAX_TURNS_BY_LEVEL[safeLevel]) || MAX_TURNS_PER_SESSION;
   const safeTurnCount = sanitizeTurnCount(turnCount);
   if (safeTurnCount >= maxTurns) {
-    return new Response(
-      JSON.stringify({ error: "Session limit reached", session_end: true }),
-      { status: 200, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } }
-    );
+    // Return proper SSE so the client stream reader can parse the session-end result.
+    // A plain JSON/200 response was previously returned here, but the client reads
+    // this endpoint as SSE — it only processes `data: {...}` lines and would throw
+    // "The AI returned an empty response" when receiving a JSON body directly.
+    const closingResult = {
+      croatian: "Hvala za razgovor! Sjajno si napredovao. Do sljedećeg puta!",
+      english_gloss: "Thanks for the conversation! You made great progress. Until next time!",
+      correction: null,
+      scaffolding_level: 0,
+      emotion: "happy",
+      is_session_end: true,
+      errorPatterns: [],
+    };
+    const ssePayload = `data: ${JSON.stringify({ type: "done", result: closingResult })}\n\n`;
+    return new Response(ssePayload, {
+      status: 200,
+      headers: {
+        ...corsHeaders(origin),
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+      },
+    });
   }
 
   // Validate messages
@@ -555,6 +577,48 @@ export async function onRequestPost(context) {
 
     const write = (chunk) => writer.write(encoder.encode(chunk));
 
+    // ── Helper: process one decoded line from the Anthropic SSE stream ────────
+    async function processLine(line) {
+      if (!line.startsWith("data: ")) return;
+      const data = line.slice(6).trim();
+      if (data === "[DONE]") return;
+
+      let parsed;
+      try { parsed = JSON.parse(data); } catch { return; }
+
+      // Anthropic SSE event types we care about
+      if (parsed.type === "content_block_delta" && parsed.delta?.type === "text_delta") {
+        const text = parsed.delta.text || "";
+        fullText += text;
+        // Forward delta to client for fast perceived response
+        await write(`data: ${JSON.stringify({ type: "delta", text })}\n\n`);
+      }
+
+      // message_stop = end of generation
+      if (parsed.type === "message_stop") {
+        // Parse the full accumulated JSON response from Maja
+        let result = null;
+        try {
+          // Strip any markdown code fences if model adds them despite instructions
+          const cleaned = fullText
+            .replace(/^```json\s*/i, "")
+            .replace(/```\s*$/, "")
+            .trim();
+          result = JSON.parse(cleaned);
+        } catch {
+          // JSON parse failure — return a graceful fallback
+          result = fallbackResponse(safeTurnCount, maxTurns);
+        }
+
+        // Enforce is_session_end based on server-side turn count (not model's choice)
+        if (safeTurnCount >= maxTurns - 1) {
+          result.is_session_end = true;
+        }
+
+        await write(`data: ${JSON.stringify({ type: "done", result })}\n\n`);
+      }
+    }
+
     try {
       while (true) {
         const { done, value } = await reader.read();
@@ -565,44 +629,15 @@ export async function onRequestPost(context) {
         buffer = lines.pop() || ""; // keep incomplete line in buffer
 
         for (const line of lines) {
-          if (!line.startsWith("data: ")) continue;
-          const data = line.slice(6).trim();
-          if (data === "[DONE]") continue;
+          await processLine(line);
+        }
+      }
 
-          let parsed;
-          try { parsed = JSON.parse(data); } catch { continue; }
-
-          // Anthropic SSE event types we care about
-          if (parsed.type === "content_block_delta" && parsed.delta?.type === "text_delta") {
-            const text = parsed.delta.text || "";
-            fullText += text;
-            // Forward delta to client for fast perceived response
-            await write(`data: ${JSON.stringify({ type: "delta", text })}\n\n`);
-          }
-
-          // message_stop = end of generation
-          if (parsed.type === "message_stop") {
-            // Parse the full accumulated JSON response from Maja
-            let result = null;
-            try {
-              // Strip any markdown code fences if model adds them despite instructions
-              const cleaned = fullText
-                .replace(/^```json\s*/i, "")
-                .replace(/```\s*$/, "")
-                .trim();
-              result = JSON.parse(cleaned);
-            } catch {
-              // JSON parse failure — return a graceful fallback
-              result = fallbackResponse(safeTurnCount, maxTurns);
-            }
-
-            // Enforce is_session_end based on server-side turn count (not model's choice)
-            if (safeTurnCount >= maxTurns - 1) {
-              result.is_session_end = true;
-            }
-
-            await write(`data: ${JSON.stringify({ type: "done", result })}\n\n`);
-          }
+      // Flush any remaining buffered data that didn't end with a newline.
+      // This guards against truncated final SSE events on slow or abruptly-closed streams.
+      if (buffer.trim()) {
+        for (const line of buffer.split("\n")) {
+          await processLine(line);
         }
       }
     } catch (streamErr) {

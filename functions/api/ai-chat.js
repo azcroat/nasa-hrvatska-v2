@@ -49,6 +49,7 @@ function corsHeaders(origin) {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Cache-Control": "no-cache",
   };
 }
@@ -528,7 +529,7 @@ export async function onRequestPost(context) {
     );
   }
 
-  if (!ANTHROPIC_KEY) return err(500, "Service not configured", origin);
+  if (!ANTHROPIC_KEY) return err(503, "AI_KEY_MISSING", origin);
 
   const ct = request.headers.get('content-type') || '';
   if (!ct.includes('application/json')) return err(400, "Invalid content type", origin);
