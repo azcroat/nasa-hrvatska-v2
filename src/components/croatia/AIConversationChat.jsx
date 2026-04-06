@@ -31,6 +31,7 @@ export default function AIConversationChat({
   inputRef,
   onSend,
   onSendError,
+  onInterrupt,
   onToggleVoice,
   onHint,
   onRetryOpener,
@@ -79,7 +80,23 @@ export default function AIConversationChat({
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: "var(--text-base)", fontWeight: 800, color: "#fff", lineHeight: 1.2 }}>{scenario.aiName}</div>
           <div style={{ fontSize: "var(--text-xs)", color: "rgba(255,255,255,0.72)" }}>
-            {isSpeaking ? <span style={{color:"#67e8f9",fontWeight:700}}>● Speaking Croatian…</span> : `${scenario.title} · Level ${level}`}
+            {isSpeaking
+              ? (
+                <button
+                  onClick={onInterrupt}
+                  title="Tap to interrupt Maja"
+                  style={{
+                    background: "none", border: "none", padding: 0, cursor: "pointer",
+                    fontFamily: "'Outfit',sans-serif", fontSize: "var(--text-xs)",
+                    color: "#67e8f9", fontWeight: 700,
+                    animation: "pulse 1.2s ease-in-out infinite",
+                  }}
+                >
+                  ● Speaking Croatian… ✋ tap to interrupt
+                </button>
+              )
+              : `${scenario.title} · Level ${level}`
+            }
           </div>
         </div>
         <button
@@ -269,6 +286,32 @@ export default function AIConversationChat({
           </div>
         ) : (
           <>
+            {/* Interrupt banner — only visible while Maja is speaking */}
+            {isSpeaking && (
+              <button
+                onClick={onInterrupt}
+                style={{
+                  width: "100%", marginBottom: 8,
+                  padding: "11px 16px", borderRadius: 12,
+                  border: "1.5px solid var(--error-b)",
+                  background: "var(--error-bg)",
+                  color: "var(--error)", fontWeight: 700,
+                  fontSize: "var(--text-sm)", cursor: "pointer",
+                  fontFamily: "'Outfit',sans-serif",
+                  display: "flex", alignItems: "center",
+                  justifyContent: "center", gap: 8,
+                  animation: "pulse 1.5s ease-in-out infinite",
+                  lineHeight: 1.3,
+                }}
+              >
+                <span style={{ fontSize: 18 }}>✋</span>
+                Interrupt Maja
+                <span style={{ opacity: .65, fontWeight: 500, fontSize: "var(--text-xs)" }}>
+                  — tap to stop &amp; type
+                </span>
+              </button>
+            )}
+
             {listening && (
               <div style={{ marginBottom: 8 }}>
                 <WaveformVisualizer active={listening} color="#0e7490" height={44} />

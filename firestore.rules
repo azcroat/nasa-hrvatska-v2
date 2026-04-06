@@ -224,6 +224,24 @@ service cloud.firestore {
       allow read, write: if isOwner(userId);
     }
 
+    // ─── Conversation memory — Maja's per-user session summaries ──────────────
+    // Written by useConversationMemory after each AI Conversation session.
+    // Schema: { ts(number), level(string), scenario(string), score(int 0–100),
+    //           struggles(string[]), vocab(string[]), turns(int) }
+    // Injected into Maja's system prompt at session start for personalised responses.
+    match /users/{userId}/conversationMemory/{docId} {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId)
+        && request.resource.data.keys().hasAll(['ts', 'level', 'score', 'turns'])
+        && request.resource.data.ts   is number
+        && request.resource.data.score is int
+        && request.resource.data.score >= 0
+        && request.resource.data.score <= 100
+        && request.resource.data.turns is int
+        && request.resource.data.turns >= 0;
+      allow delete: if false;
+    }
+
     // ─── Deny everything else ─────────────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;
