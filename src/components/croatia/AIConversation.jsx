@@ -12,6 +12,7 @@ import { markQuest } from '../../lib/quests.js';
 import { logError, getErrorsForAPI } from '../../lib/learnerErrors.js';
 import { SCENARIOS, deriveWeakAreas, sceneForCat } from './ConversationScenarios.js';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { stopAudio } from '../../lib/audio.ts';
 import AIConversationHeader from './AIConversationHeader.jsx';
 import AIConversationWriteSetup from './AIConversationWriteSetup.jsx';
 import AIConversationWriteResult from './AIConversationWriteResult.jsx';
@@ -185,6 +186,15 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
         setIsSpeaking(false);
       }
     }
+  }
+
+  // ── Manual interrupt — stops TTS immediately and opens the input ─────────────
+  function handleInterrupt() {
+    stopAudio();
+    setIsSpeaking(false);
+    // Bump speakGenRef so speakWithAnim's finally block doesn't re-set isSpeaking
+    speakGenRef.current++;
+    setTimeout(() => inputRef.current?.focus(), 50);
   }
 
   // ── Streaming conversation caller — uses /api/conversation (Maja persona) ───
@@ -834,6 +844,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
         inputRef={inputRef}
         onSend={sendMessage}
         onSendError={() => setSendError("")}
+        onInterrupt={handleInterrupt}
         onToggleVoice={toggleVoice}
         onHint={requestHint}
         onRetryOpener={retryOpener}
