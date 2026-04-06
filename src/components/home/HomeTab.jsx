@@ -8,11 +8,20 @@ import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import { safeGetItem } from '../../hooks/useLocalStorage';
 
+// Screens that require launch-time initialization — direct navigation to them
+// without proper state setup produces a blank ScreenGuard or empty screen.
+// Vocab lessons use curEx 'vocab_topicname' (not a real screen ID) and are
+// covered by the dedicated "Resume lesson" button in PathProgressCard.
+const _NO_DIRECT_RESUME = new Set(['vocab_', 'mcgame', 'flashcards', 'listening', 'match', 'speaking', 'lesson']);
+
 // Read last activity saved by App.jsx when exercises are launched
 function getLastActivity() {
   const ex = safeGetItem('nh_last_ex');
   const label = safeGetItem('nh_last_ex_label');
-  return ex && label ? { ex, label } : null;
+  if (!ex || !label) return null;
+  // Skip exercises that can't be navigated to directly without init data
+  if (ex.startsWith('vocab_') || _NO_DIRECT_RESUME.has(ex)) return null;
+  return { ex, label };
 }
 import HeroSection from './HeroSection.jsx';
 import PathProgressCard from './PathProgressCard.jsx';
