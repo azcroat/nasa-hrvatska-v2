@@ -212,12 +212,12 @@ function QuickReplyBanner({ label, onClick }) {
   );
 }
 
-function getMascotMessage({ streak, level, st, comebackBonus, allQuestsDone }) {
+function getMascotMessage({ streak, level, st, comebackBonus, allQuestsDone, practicedToday }) {
   const h = new Date().getHours();
   const lc = st?.lc || 0;
 
   if (lc === 0) return {
-    mood: 'happy',
+    mood: 'ready',
     text: 'Dobrodošli! Ready to start your Croatian journey?',
     sub: 'Your first lesson awaits 🇭🇷',
   };
@@ -227,26 +227,33 @@ function getMascotMessage({ streak, level, st, comebackBonus, allQuestsDone }) {
     sub: 'Your Croatian is still here waiting for you 💪',
   };
   if (allQuestsDone) return {
-    mood: 'celebrating',
+    mood: 'victory',
     text: 'Sve misije završene! All quests done today!',
     sub: "You're a Croatian champion today 🏆",
+  };
+  // Streak at risk: late evening + active streak + not yet practiced today
+  if (h >= 21 && streak > 0 && !practicedToday) return {
+    mood: 'sad',
+    text: `Pazi! Your ${streak}-day streak expires at midnight.`,
+    sub: 'One lesson — even 5 minutes — saves it 🕯️',
   };
   if (streak >= 100) return { mood: 'celebrating', text: `${streak}-day streak! Legendarno! 🔥`, sub: 'You are an inspiration.' };
   if (streak >= 30)  return { mood: 'celebrating', text: `${streak} dana zaredom — unstoppable! 🔥`, sub: 'True dedication to the language 🇭🇷' };
   if (streak >= 14)  return { mood: 'celebrating', text: `${streak}-day streak — keep the fire burning! 🔥`, sub: 'Sjajno ide!' };
-  if (streak >= 7)   return { mood: 'encouraged',  text: `${streak} days in a row — the habit is forming! 💪`, sub: 'Bravo, hajde dalje!' };
+  if (streak >= 7)   return { mood: 'happy',       text: `${streak} days in a row — the habit is forming! 💪`, sub: 'Bravo, hajde dalje!' };
   if (streak >= 3)   return { mood: 'encouraged',  text: `${streak}-day streak — don't break the chain! 🔥`, sub: 'Svaki dan si bolji!' };
   if (level >= 10)   return { mood: 'celebrating', text: `Level ${level} — advanced learner! 🎓`, sub: 'Napredak je vidljiv!' };
   if (level >= 5)    return { mood: 'happy',       text: `Level ${level} — halfway to fluency! 🌟`, sub: "Keep pushing, you've got this!" };
-  if (level >= 3)    return { mood: 'happy',       text: `Level ${level} — real momentum building!`, sub: 'Odlično!' };
-  if (h < 12)  return { mood: 'happy',    text: 'Morning practice is the best practice!', sub: 'Ready for today? Hajde! ☀️' };
+  if (level >= 3)    return { mood: 'encouraged',  text: `Level ${level} — real momentum building!`, sub: 'Odlično!' };
+  if (h < 9)   return { mood: 'ready',    text: 'Dobro jutro! Morning sessions build the fastest fluency.', sub: 'Hajde! ☀️' };
+  if (h < 12)  return { mood: 'happy',    text: 'Morning practice is the best practice!', sub: 'Ready for today? 🇭🇷' };
   if (h >= 20) return { mood: 'thinking', text: 'Evening session — great way to end the day!', sub: 'Even 5 minutes counts 💪' };
   const msgs = [
     { mood: 'happy',       text: 'Every word you learn brings Croatia closer!',       sub: 'Hajde! 🇭🇷' },
     { mood: 'thinking',    text: "Croatian has 7 cases — let's master them together!", sub: 'Your ancestors spoke this language' },
     { mood: 'happy',       text: 'Your ancestors spoke this language. Carry it forward! 💙', sub: null },
     { mood: 'celebrating', text: 'Language is the soul of culture!',                  sub: 'Naša Hrvatska čeka! 🌟' },
-    { mood: 'happy',       text: "Ima li tko tko voli učiti? Ja volim! Let's go! 🎉", sub: null },
+    { mood: 'marching',    text: "Ima li tko tko voli učiti? Ja volim! Let's go! 🎉", sub: null },
     { mood: 'thinking',    text: 'Small steps every day — you\'re building something beautiful 🏛️', sub: null },
     { mood: 'happy',       text: 'Naša Hrvatska čeka! Croatia is waiting for you! 🇭🇷', sub: null },
   ];
@@ -330,7 +337,7 @@ export default function HeroSection({
     return 'Dobra večer';
   };
 
-  const _mascot = getMascotMessage({ streak: streak.count, level, st, comebackBonus, allQuestsDone });
+  const _mascot = getMascotMessage({ streak: streak.count, level, st, comebackBonus, allQuestsDone, practicedToday: streak.last === today });
 
   // ── Knight speech state ───────────────────────────────────────────────────
   const [greeting, setGreeting] = useState(() => getKnightGreeting(st, streak.count, level, streak.last === today));

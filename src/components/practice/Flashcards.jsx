@@ -9,6 +9,7 @@ import FlashcardEmptyState from './FlashcardEmptyState.jsx';
 import FlashcardCardFront from './FlashcardCardFront.jsx';
 import FlashcardCardBack from './FlashcardCardBack.jsx';
 import { knightSpeak } from '../../lib/knightSpeak.js';
+import { playCorrect, playWrong, haptic } from '../../lib/soundSettings.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 
 const MAX_CACHE_ENTRIES = 20;
@@ -291,6 +292,7 @@ export default function Flashcards({ pool, goBack, award }) {
 
   function handleStillLearning() {
     srMark(activePool[idx][0], false); // "Still Learning" = wrong for SRS scheduling
+    playWrong(); haptic([30, 20, 30]);
     setWrongAnim(true);
     setTimeout(() => { if (mountedRef.current) setWrongAnim(false); }, 400);
     setShowStillLearning(true);
@@ -307,6 +309,7 @@ export default function Flashcards({ pool, goBack, award }) {
   }
 
   function handleKnown() {
+    playCorrect(); haptic(40);
     setSparkPos({ x: 50, y: 50 });
     setTimeout(() => { if (mountedRef.current) setSparkPos(null); }, 700);
     srMark(activePool[idx][0], true); // "Know It" = correct for SRS scheduling
