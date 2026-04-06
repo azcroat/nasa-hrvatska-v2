@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use
 import { useNavigate, useLocation } from "react-router-dom";
 import { BG_LIGHT, BG_DARK, lvl, getStreak, earnFreeze, recordJourneyMilestone } from "./lib/appUtils.js";
 import { touchSession, isSessionExpired, fbApplyDelta } from "./lib/firebase.js";
-import { getSR, saveSR, getDueReviews } from "./lib/srs.js";
+import { getSR, getDueReviews } from "./lib/srs.js";
 import { buildProgressSnapshot } from "./lib/progressSnapshot.js";
 import { applyRemoteProgress as _applyRemoteProgressLib } from "./lib/applyRemoteProgress.js";
 import { localDateStr, weekKey } from "./lib/dateUtils.js";
