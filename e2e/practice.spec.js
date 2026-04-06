@@ -2,20 +2,20 @@ import { test, expect } from '@playwright/test';
 import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
 
 test.describe('Practice tab', () => {
+  test.describe.configure({ timeout: 60_000 });
   test.beforeEach(async ({ page }) => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await page.goto('/');
+    // Navigate directly to /practice to avoid the post-auth navigate('/') race that
+    // caused Playwright's click() to wait forever for navigation to finish.
+    await page.goto('/practice');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    // Scope to nav bar to avoid the "Practice" Jump In button on home tab
-    await page.getByRole('navigation', { name: 'Main navigation' })
-      .getByRole('button', { name: 'Practice', exact: true }).click();
-    // Wait for intent tiles to confirm Practice tab is loaded (no exact: tiles have emoji in accessible name)
-    await expect(page.getByRole('button', { name: 'Challenge' })).toBeVisible({ timeout: 5_000 });
+    // Wait for intent tiles to confirm Practice tab is loaded
+    await expect(page.getByRole('button', { name: 'Challenge' })).toBeVisible({ timeout: 10_000 });
     // Switch to Challenge panel so game buttons are visible
     await page.getByRole('button', { name: 'Challenge' }).click();
-    await expect(page.getByText('Flashcards')).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('Flashcards')).toBeVisible({ timeout: 10_000 });
   });
 
   test.describe('Practice tab layout', () => {

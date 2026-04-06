@@ -9,8 +9,6 @@ import { test, expect } from '@playwright/test';
 import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL } from './fixtures/seed-auth.js';
 
 async function goToLeaderboard(page) {
-  await page.getByRole('navigation', { name: 'Main navigation' })
-    .getByRole('button', { name: 'Me', exact: true }).click();
   // Profile defaults to Stats subtab — Leaderboard button is in Learning Tools section
   await page.getByRole('button', { name: /Leaderboard/i }).click();
   await expect(page.getByText(/Family Leaderboard/i)).toBeVisible({ timeout: 5_000 });
@@ -21,8 +19,10 @@ test.describe('Family Leaderboard', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await page.goto('/');
+    // Navigate directly to /profile to avoid post-auth navigate('/') race on tab click.
+    await page.goto('/profile');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('button', { name: /Leaderboard/i })).toBeVisible({ timeout: 10_000 });
   });
 
   test('leaderboard screen opens without "must be logged in" error', async ({ page }) => {
@@ -107,8 +107,9 @@ test.describe('Family leaderboard with seeded family data', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await page.goto('/');
+    await page.goto('/profile');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('button', { name: /Leaderboard/i })).toBeVisible({ timeout: 10_000 });
     await goToLeaderboard(page);
 
     // Should show the family name and code
@@ -127,8 +128,9 @@ test.describe('Family leaderboard with seeded family data', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await page.goto('/');
+    await page.goto('/profile');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('button', { name: /Leaderboard/i })).toBeVisible({ timeout: 10_000 });
     await goToLeaderboard(page);
 
     await expect(page.getByText(/Share Invite Link/i)).toBeVisible({ timeout: 5_000 });
@@ -145,8 +147,9 @@ test.describe('Family leaderboard with seeded family data', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await page.goto('/');
+    await page.goto('/profile');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('button', { name: /Leaderboard/i })).toBeVisible({ timeout: 10_000 });
     await goToLeaderboard(page);
 
     await expect(page.getByText(/Leave Family/i)).toBeVisible({ timeout: 5_000 });
