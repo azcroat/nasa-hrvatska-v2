@@ -1,0 +1,54 @@
+# .dev.vars.example — Cloudflare Pages Functions local development variables
+#
+# Copy to .dev.vars (never commit that file) and fill in real values.
+# Used by `wrangler pages dev` for local function testing.
+#
+# .dev.vars is already in .gitignore — NEVER commit real secrets.
+#
+# Usage:
+#   cp .dev.vars.example .dev.vars
+#   # Edit .dev.vars with real values
+#   wrangler pages dev dist  # serves both frontend and functions locally
+
+# ── Firebase ─────────────────────────────────────────────────────────────────
+FIREBASE_PROJECT_ID=your-firebase-project-id
+# Only needed for /api/backfill — full service account JSON (escape newlines → \n)
+# FIREBASE_SERVICE_ACCOUNT_JSON={"type":"service_account",...}
+
+# ── AI APIs ──────────────────────────────────────────────────────────────────
+ANTHROPIC_API_KEY=sk-ant-api03-...
+# OPENAI_API_KEY=sk-...
+# REPLICATE_API_KEY=r8_...
+
+# ── Azure Cognitive Services ─────────────────────────────────────────────────
+AZURE_TTS_KEY=your-azure-tts-key
+AZURE_TTS_REGION=westeurope
+# AZURE_SPEECH_KEY=your-azure-speech-key
+# AZURE_SPEECH_REGION=westeurope
+
+# ── Push Notifications ────────────────────────────────────────────────────────
+VAPID_PRIVATE_KEY=your-vapid-private-key
+VAPID_PUBLIC_KEY=your-vapid-public-key
+# Generate with: node scripts/get-vapid.mjs
+
+# ── Cron Authentication ───────────────────────────────────────────────────────
+CRON_SECRET=any-random-secret-string-32-chars-min
+
+# ── Other APIs (optional — features degrade gracefully without these) ─────────
+# PEXELS_API_KEY=your-pexels-key
+# DEEPGRAM_API_KEY=your-deepgram-key
+# GOOGLE_TTS_KEY=your-google-tts-key
+# SENTRY_DSN=https://...@sentry.io/...
+# RESEND_API_KEY=re_...
+# MYMEMORY_EMAIL=your-email@example.com
+
+# ── Environment ───────────────────────────────────────────────────────────────
+ENVIRONMENT=development
+
+# ── KV Namespace IDs (wrangler pages dev uses these to mock KV) ───────────────
+# These are the real namespace IDs from your Cloudflare account.
+# Run `wrangler kv:namespace list` to find them.
+# Format: binding=<namespace-id>
+# Example: NH_CLANS=abc123...
+# Note: wrangler pages dev requires --kv flags, not .dev.vars, for KV bindings.
+# See: https://developers.cloudflare.com/pages/functions/bindings/
