@@ -422,13 +422,13 @@ function App() {
 
   // Self-healing: reconstruct ct from LEARN_PATH if lost (lazy-import keeps chunk-data off startup)
   useEffect(() => {
-    if (!authUser || authScreen !== 'app' || stats.lc === 0 || stats.ct.length > 0) return;
+    if (!authUser || authScreen !== 'app' || stats.lc === 0 || (stats.ct?.length ?? 0) > 0) return;
     import('./data.jsx').then(({ LEARN_PATH }) => {
       const recovered = [];
       for (const lv of LEARN_PATH) { for (const it of lv.items) { if (it.topic && recovered.length < stats.lc) recovered.push(it.topic); } }
       if (recovered.length > 0) setStats(prev => ({ ...prev, ct: [...new Set([...prev.ct,...recovered])] }));
     });
-  }, [authScreen, authUser, stats.lc, stats.ct.length]);  
+  }, [authScreen, authUser, stats.lc, stats.ct]);
 
   // Show new-placement for brand-new zero-progress users.
   // CRITICAL: gate on _syncReady so we never redirect before Firebase data has loaded.
