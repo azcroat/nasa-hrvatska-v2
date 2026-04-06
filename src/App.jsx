@@ -250,7 +250,7 @@ function App() {
 
   // ── Screen launchers ────────────────────────────────────────────────────────
   const allCats = ALL_CATS;
-  const { resumeLesson, launchAnimLesson, launchMcGame, mcGameComplete, launchFlashcards, launchListening, launchMatch, launchSpeaking, launchPathItem, goBack } = useScreenLauncher({
+  const { resumeLesson, launchAnimLesson, launchMcGame, mcGameComplete, launchFlashcards, launchListening, launchMatch, launchSpeaking, launchPathItem, launchLegendary, launchCheckpoint, goBack } = useScreenLauncher({
     setScr, navigate, curEx, sCurEx, currentScreen,
     setStats, award, writeDelta,
     allCats,
@@ -554,6 +554,7 @@ function App() {
     // Screen launchers
     resumeLesson, launchPathItem, launchAnimLesson,
     launchMcGame, mcGameComplete, launchFlashcards, launchListening, launchMatch, launchSpeaking,
+    launchLegendary, launchCheckpoint,
     // Sync
     _syncReady, doSyncNow,
     // Misc
@@ -575,6 +576,7 @@ function App() {
     dchlA, sDchlA, dchlSl, sDchlSl,
     resumeLesson, launchPathItem, launchAnimLesson,
     launchMcGame, mcGameComplete, launchFlashcards, launchListening, launchMatch, launchSpeaking,
+    launchLegendary, launchCheckpoint,
     _syncReady, doSyncNow,
     allCats, getWeekStats,
     isNewUserWindow, daysSinceJoin, comebackBonus,
