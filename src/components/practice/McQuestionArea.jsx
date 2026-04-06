@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Spk } from '../../data.jsx';
 
-const LABELS = ['A', 'B', 'C', 'D'];
+const LABELS = ['A', 'B', 'C', 'D', 'E'];
 
 // ── DuoLingo-style grammar hint engine ───────────────────────────────────────
 // Returns a specific grammar explanation based on the question's Croatian word

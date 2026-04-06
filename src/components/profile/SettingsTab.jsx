@@ -28,7 +28,7 @@ const GOAL_FOCUS = {
 };
 
 export default function SettingsTab({ syncReady, onSyncNow }) {
-  const { au, darkMode, setDarkMode, setScr, doOut, name, st, favs, jWords, launchFlashcards, launchSpeaking } = useApp();
+  const { au, darkMode, setDarkMode, setScr, doOut, name, favs, jWords, launchFlashcards, launchSpeaking } = useApp();
   const { stats: statsCtx, setStats } = useStats();
 
   const [freezesStored, setFreezesStored] = useState(() => getFreezesStored());
@@ -131,7 +131,7 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
         data = await fbExportUserData(uid);
         data.inMemory = {
           profile: { name, email: au?.e },
-          stats: st,
+          stats: statsCtx,
           favs,
           journal: jWords,
         };
@@ -141,7 +141,7 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
           note: 'Signed-out export — no Firestore data included.',
           inMemory: {
             profile: { name },
-            stats: st,
+            stats: statsCtx,
             favs,
             journal: jWords,
           },
