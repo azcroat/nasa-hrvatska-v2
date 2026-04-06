@@ -127,7 +127,7 @@ function estimateAbility(messages) {
 
 // ── System prompt builder ──────────────────────────────────────────────────────
 
-function buildConversationSystemPrompt({ level, topic, turnCount, maxTurns, userName, mistakePatterns, abilityShift, learnerErrors, isHeritage }) {
+function buildConversationSystemPrompt({ level, topic, turnCount, maxTurns, userName, mistakePatterns, abilityShift, learnerErrors, isHeritage, memoryContext }) {
 
   const safeLevel = sanitizeLevel(level);
   const sessionMax = maxTurns || MAX_TURNS_BY_LEVEL[safeLevel] || MAX_TURNS_PER_SESSION;
@@ -150,6 +150,14 @@ function buildConversationSystemPrompt({ level, topic, turnCount, maxTurns, user
   const safeErrors = Array.isArray(learnerErrors) ? learnerErrors : [];
   const errorContext = safeErrors.length > 0
     ? `\n\nLEARNER'S KNOWN WEAK AREAS: ${safeErrors.slice(0, 5).map(e => sanitizeParam(String(e?.pattern || ''), 60)).filter(Boolean).join(', ')}. Naturally work in practice of these patterns.`
+    : '';
+
+  // ── Persistent memory from past sessions ──
+  // memoryContext is pre-formatted by the client (useConversationMemory hook) and
+  // sanitized server-side before reaching here.  Inject it as a named block so the
+  // model can reference it without treating it as user-controlled conversation content.
+  const memoryNote = memoryContext
+    ? `\n\n${memoryContext}`
     : '';
 
   // ── CEFR-calibrated language rules ──
@@ -337,7 +345,7 @@ FIELD RULES:
 - level_demonstrated: your assessment of what CEFR level the learner's message demonstrates: "A1"|"A2"|"B1"|"B2"
 - is_session_end: boolean. True ONLY on the final closing turn.
 - recast_word: string | null. If you did an implicit recast, name the word/form you corrected (e.g. "instrumental case"). Null otherwise.
-- errorPatterns: array of strings. Grammar/vocabulary patterns you explicitly corrected THIS turn (e.g. ["accusative_case", "verb_conjugation"]). Empty array [] if no explicit correction was made.${adaptiveNote}${errorContext}${heritageNote}`;
+- errorPatterns: array of strings. Grammar/vocabulary patterns you explicitly corrected THIS turn (e.g. ["accusative_case", "verb_conjugation"]). Empty array [] if no explicit correction was made.${adaptiveNote}${errorContext}${memoryNote}${heritageNote}`;
 }
 
 // ── CORS ───────────────────────────────────────────────────────────────────────
@@ -429,6 +437,7 @@ export async function onRequestPost(context) {
     mistakePatterns, // optional Array<{ pattern: string, count: number }>
     learnerErrors,   // optional Array<{ pattern: string }> — unified error ledger from frontend
     isHeritage,      // optional boolean — diaspora/heritage Croatian speaker
+    memoryContext,   // optional string — formatted past-session summary from useConversationMemory
   } = body;
 
   // Validate turn count — hard cap enforced server-side, level-adjusted
@@ -495,6 +504,11 @@ export async function onRequestPost(context) {
   // Estimate learner ability from sanitized message history
   const abilityShift = estimateAbility(anthropicMessages);
 
+  // Sanitize the client-provided memory context (max 1500 chars)
+  const safeMemoryContext = memoryContext && typeof memoryContext === 'string'
+    ? sanitizeParam(memoryContext, 1500)
+    : null;
+
   // Build system prompt
   const systemPrompt = buildConversationSystemPrompt({
     level: sanitizeLevel(level),
@@ -506,6 +520,7 @@ export async function onRequestPost(context) {
     abilityShift,
     learnerErrors,
     isHeritage: isHeritage === true,
+    memoryContext: safeMemoryContext,
   });
 
   // ── Stream from Anthropic API ──────────────────────────────────────────────

@@ -1,14 +1,11 @@
-// Cloudflare Pages Function — Deepgram STT Proxy
-// POST /api/stt
-// Body: raw audio binary (audio/webm, audio/ogg, audio/wav)
-// Returns: { transcript, confidence }
+// Cloudflare Pages Function — Whisper STT Proxy
+// POST raw audio bytes → OpenAI Whisper API (model whisper-1, language hr)
+// Returns { text: string }
+// 503 when OPENAI_API_KEY is not set — client falls back to Web Speech API
 
 import { checkRateLimit } from './_rateLimit.js';
 
-const DEEPGRAM_URL = 'https://api.deepgram.com/v1/listen';
-
 function isAllowedOrigin(origin, isDev) {
-  // Empty origin: PWA standalone mode (iOS/Android) and Capacitor. Auth is enforced via Firebase token.
   if (!origin) return true;
   try {
     const hostname = new URL(origin).hostname;
@@ -35,93 +32,114 @@ export async function onRequestOptions({ request }) {
 
 export async function onRequestPost(context) {
   const { request, env } = context;
+
   const origin = request.headers.get('origin') || request.headers.get('referer') || '';
   const isDev = env.ENVIRONMENT !== 'production';
 
   if (!isAllowedOrigin(origin, isDev)) {
-    return new Response(JSON.stringify({ error: 'forbidden' }), { status: 403, headers: corsHeaders(origin) });
+    return new Response('Forbidden', { status: 403, headers: corsHeaders(origin) });
   }
 
-  const allowed = await checkRateLimit(request, 20);
+  const OPENAI_KEY = env.OPENAI_API_KEY;
+  if (!OPENAI_KEY) {
+    // 503 is the agreed signal for the client to fall back to Web Speech API silently
+    return new Response(
+      JSON.stringify({ error: 'stt_not_configured' }),
+      { status: 503, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // Rate limit: 30 requests/minute — generous given each VAD capture is ~2–4 s of audio
+  const allowed = await checkRateLimit(request, 30);
   if (!allowed) {
-    return new Response(JSON.stringify({ error: 'rate_limit' }), { status: 429, headers: corsHeaders(origin) });
-  }
-
-  const DEEPGRAM_KEY = env.DEEPGRAM_API_KEY;
-  if (!DEEPGRAM_KEY) {
-    // Graceful fallback: if no Deepgram key configured, return empty transcript
-    // Frontend falls back to Web Speech API
-    return new Response(JSON.stringify({ transcript: '', confidence: 0, fallback: true }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
-    });
+    return new Response(
+      JSON.stringify({ error: 'rate_limit_exceeded' }),
+      { status: 429, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } }
+    );
   }
 
   try {
+    // Client sends raw audio bytes; Content-Type identifies the container format.
+    // MediaRecorder produces audio/webm on Chrome/Edge, audio/ogg on Firefox, audio/mp4 on Safari.
+    const ct = request.headers.get('content-type') || 'audio/webm';
+    if (!ct.startsWith('audio/')) {
+      return new Response(
+        JSON.stringify({ error: 'Expected audio/* Content-Type' }),
+        { status: 400, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } }
+      );
+    }
+
     const audioBuffer = await request.arrayBuffer();
-    if (!audioBuffer || audioBuffer.byteLength === 0) {
-      return new Response(JSON.stringify({ error: 'empty_audio' }), { status: 400, headers: corsHeaders(origin) });
+
+    if (!audioBuffer.byteLength) {
+      return new Response(
+        JSON.stringify({ error: 'Empty audio body' }),
+        { status: 400, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } }
+      );
     }
-    if (audioBuffer.byteLength > 10 * 1024 * 1024) { // 10MB max
-      return new Response(JSON.stringify({ error: 'audio_too_large' }), { status: 400, headers: corsHeaders(origin) });
+    // Guard: OpenAI Whisper limit is 25 MB; we enforce 20 MB to leave headroom
+    if (audioBuffer.byteLength > 20 * 1024 * 1024) {
+      return new Response(
+        JSON.stringify({ error: 'Audio too large (max 20 MB)' }),
+        { status: 413, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } }
+      );
     }
 
-    const contentType = request.headers.get('content-type') || 'audio/webm';
+    // Map MIME type to a file extension Whisper accepts
+    const ext = ct.includes('ogg')         ? 'ogg'
+              : ct.includes('mp4') || ct.includes('m4a') ? 'mp4'
+              : ct.includes('wav')         ? 'wav'
+              : 'webm';                    // Chrome / Edge default
 
-    // Deepgram query params — optimized for Croatian conversational speech
-    const params = new URLSearchParams({
-      model: 'nova-3',           // Best accuracy model
-      language: 'hr',            // Croatian
-      smart_format: 'true',      // Capitalize sentences, add punctuation
-      punctuate: 'true',
-      utterances: 'false',
-      diarize: 'false',
+    // Build multipart/form-data for the OpenAI Whisper API
+    const form = new FormData();
+    form.append('file', new Blob([audioBuffer], { type: ct }), `speech.${ext}`);
+    form.append('model', 'whisper-1');
+    // Explicit language code gives Whisper ~15–20 % accuracy lift for Croatian
+    // compared with auto-detect (which confuses hr with bs/sr/sl).
+    form.append('language', 'hr');
+    // Prompt seeds the decoder with high-frequency Croatian vocabulary and all
+    // five diacritics (č, ć, š, ž, đ).  Whisper uses this as a soft prior —
+    // it won't force these words, but it biases toward correct spellings.
+    form.append('prompt',
+      'Razgovor na standardnom hrvatskom jeziku. ' +
+      'Uobičajene fraze: hvala lijepa, molim, dobar dan, kako ste, ' +
+      'gdje je, koliko košta, ne razumijem, možete li ponoviti, ' +
+      'govorim malo hrvatski, razumijem, da, ne, možda.'
+    );
+
+    const whisperRes = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${OPENAI_KEY}` },
+      body: form,
+      signal: AbortSignal.timeout(20000), // Whisper is normally <3 s; 20 s is generous
     });
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
-
-    let dgRes;
-    try {
-      dgRes = await fetch(`${DEEPGRAM_URL}?${params}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Token ${DEEPGRAM_KEY}`,
-          'Content-Type': contentType,
-        },
-        body: audioBuffer,
-        signal: controller.signal,
-      });
-    } finally {
-      clearTimeout(timeout);
+    if (!whisperRes.ok) {
+      const errBody = await whisperRes.text().catch(() => '');
+      console.error('[STT] Whisper error', whisperRes.status, errBody.slice(0, 200));
+      return new Response(
+        JSON.stringify({ error: 'Transcription service error', status: whisperRes.status }),
+        { status: 502, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } }
+      );
     }
 
-    if (!dgRes.ok) {
-      const errText = await dgRes.text().catch(() => '');
-      console.error(`Deepgram error ${dgRes.status}: ${errText.slice(0, 200)}`);
-      return new Response(JSON.stringify({ error: 'stt_error', transcript: '' }), {
-        status: 502,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
-      });
-    }
+    const result = await whisperRes.json();
+    const text = (result.text || '').trim();
 
-    const data = await dgRes.json();
-
-    // Extract transcript from Deepgram response structure
-    const alternative = data?.results?.channels?.[0]?.alternatives?.[0];
-    const transcript = alternative?.transcript || '';
-    const confidence = alternative?.confidence ?? 0;
-    const words = alternative?.words || [];
-
-    return new Response(JSON.stringify({ transcript: transcript.trim(), confidence, words }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
-    });
+    return new Response(
+      JSON.stringify({ text }),
+      { status: 200, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } }
+    );
 
   } catch (e) {
-    if (e.name === 'AbortError') {
-      return new Response(JSON.stringify({ error: 'timeout', transcript: '' }), { status: 504, headers: corsHeaders(origin) });
-    }
-    return new Response(JSON.stringify({ error: 'server_error', transcript: '' }), { status: 500, headers: corsHeaders(origin) });
+    const isTimeout = e?.name === 'TimeoutError' || e?.name === 'AbortError';
+    return new Response(
+      JSON.stringify({ error: isTimeout ? 'Transcription timed out — please try again' : 'STT proxy error' }),
+      {
+        status: isTimeout ? 504 : 500,
+        headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+      }
+    );
   }
 }

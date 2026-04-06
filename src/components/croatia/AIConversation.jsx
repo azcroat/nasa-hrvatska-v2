@@ -3,6 +3,8 @@ import { speak } from '../../data.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { useStats } from '../../context/StatsContext.jsx';
 import { useApp } from '../../context/AppContext.jsx';
+import useWhisperSTT from '../../hooks/useWhisperSTT.js';
+import useConversationMemory from '../../hooks/useConversationMemory.js';
 import { markPracticed } from '../../hooks/useNotifications';
 import { useConversationSession } from '../../hooks/useConversationSession';
 import { useWriteMode } from '../../hooks/useWriteMode';
@@ -64,7 +66,7 @@ function topicForScenario(s) {
 
 export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWords }) {
   const { award, stats: appSt } = useStats();
-  const { name: userName } = useApp();
+  const { name: userName, au } = useApp();
   const stats = appSt;
   const isOnline = useOnlineStatus();
 
@@ -119,8 +121,31 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   const recognitionRef      = useRef(null);
   const messagesRef         = useRef(messages); // always-current ref for async callbacks
   useEffect(() => { messagesRef.current = messages; }, [messages]);
+  const memorySummaryRef    = useRef(null); // cached memory summary for this session
   const evalXpFired         = useRef(false);
   const writeXpFired        = useRef(false);
+
+  // ── Whisper STT + VAD ───────────────────────────────────────────────────────
+  const stt = useWhisperSTT({
+    isSpeaking,
+    onResult: (text) => {
+      // Auto-submit voice transcription — mirrors the old r.onend handler
+      setInput('');
+      sendMessageCore(text);
+    },
+    onInterrupt: () => {
+      // User spoke while Maja was talking — clear the speaking animation
+      setIsSpeaking(false);
+    },
+    onError: (msg) => {
+      setSendError(msg);
+    },
+  });
+  // Keep the session hook's `listening` state in sync so sub-components work unchanged
+  useEffect(() => { setListening(stt.isListening); }, [stt.isListening, setListening]);
+
+  // ── Persistent conversation memory ─────────────────────────────────────────
+  const { loadMemories, saveMemory } = useConversationMemory();
   const npcVideoFiredRef    = useRef(null);
   const speakGenRef         = useRef(0); // prevents stale animation clear
   const pendingVoiceTextRef = useRef(''); // accumulates voice transcript
@@ -163,7 +188,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   }
 
   // ── Streaming conversation caller — uses /api/conversation (Maja persona) ───
-  async function callMaja(msgs, topic, turn) {
+  async function callMaja(msgs, topic, turn, memoryContext) {
     const learnerErrors = getErrorsForAPI(6);
     const body = {
       messages: msgs,
@@ -171,6 +196,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       topic,
       turnCount: turn,
       userName: userName || '',
+      ...(memoryContext ? { memoryContext } : {}),
       mistakePatterns: learnerErrors.map(e => ({ pattern: e?.pattern || String(e), count: 1 })),
       learnerErrors,
       isHeritage: !!(stats?.heritage),
@@ -296,11 +322,23 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     setWeakAreasForSession(weak_areas);
     const topic = topicForScenario(scenario);
 
+    // Load past-session memory so Maja can greet the learner personally and
+    // reference previous work.  Non-blocking: proceed without memory if it fails.
+    if (au?.uid) {
+      try {
+        const { summary } = await loadMemories(au.uid);
+        memorySummaryRef.current = summary || null;
+      } catch { memorySummaryRef.current = null; }
+    } else {
+      memorySummaryRef.current = null;
+    }
+
     try {
       const result = await callMaja(
         [{ role: "user", content: "Pozdrav! Možemo li početi?" }],
         topic,
-        0
+        0,
+        memorySummaryRef.current
       );
       setTurnCount(1);
       setMessages([{ role: "assistant", content: result.croatian, gloss: result.english_gloss, scaffolding: result.scaffolding_level, emotion: result.emotion }]);
@@ -330,7 +368,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     try {
       // callMaja uses the streaming /api/conversation endpoint — full Maja persona,
       // CEFR-calibrated rules, scaffolding, correction, session arc. All in one call.
-      const result = await callMaja(next, topic, turnCount);
+      const result = await callMaja(next, topic, turnCount, memorySummaryRef.current);
       setTurnCount(prev => prev + 1);
 
       const assistantMsg = {
@@ -416,55 +454,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   }
 
   function toggleVoice() {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) { alert("Voice input is not supported in this browser. Try Chrome on Android or desktop."); return; }
-    if (listening) {
-      recognitionRef.current?.stop();
-      // onend will handle auto-submit
-      return;
-    }
-    pendingVoiceTextRef.current = '';
-    const r = new SR();
-    r.lang = "hr-HR";
-    r.continuous = true;      // keep listening until user taps stop
-    r.interimResults = true;  // show live transcript in input box
-    r.onstart = () => setListening(true);
-    r.onresult = e => {
-      let finalChunk = '';
-      let interimChunk = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        const t = e.results[i][0].transcript;
-        if (e.results[i].isFinal) finalChunk += t;
-        else interimChunk += t;
-      }
-      if (finalChunk) {
-        pendingVoiceTextRef.current = (pendingVoiceTextRef.current + ' ' + finalChunk).trim();
-        setInput(pendingVoiceTextRef.current);
-      } else if (interimChunk) {
-        // Show interim transcription so user sees live feedback
-        setInput((pendingVoiceTextRef.current + ' ' + interimChunk).trim());
-      }
-    };
-    r.onerror = (e) => {
-      setListening(false);
-      // 'no-speech' is normal (user was quiet) — only surface real errors
-      if (e.error && e.error !== 'no-speech') {
-        setSendError('Voice input error — please try again or type your message.');
-      }
-    };
-    r.onend = () => {
-      setListening(false);
-      const text = pendingVoiceTextRef.current.trim();
-      pendingVoiceTextRef.current = '';
-      // Auto-submit if speech produced text — eliminates the extra tap
-      // sendMessageCore has its own loading guard so this is safe to call unconditionally
-      if (text) {
-        setInput('');
-        sendMessageCore(text);
-      }
-    };
-    r.start();
-    recognitionRef.current = r;
+    stt.toggle();
   }
 
   async function requestHint() {
@@ -493,7 +483,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       const result = await callMaja(
         [{ role: "user", content: "Pozdrav! Možemo li početi?" }],
         topic,
-        0
+        0,
+        memorySummaryRef.current
       );
       setTurnCount(1);
       setMessages([{ role: "assistant", content: result.croatian, gloss: result.english_gloss, scaffolding: result.scaffolding_level, emotion: result.emotion }]);
@@ -534,6 +525,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       }
 
       // Extract vocabulary the learner used or encountered — queue for SRS review
+      let vocabForMemory = [];
       try {
         const syncRes = await apiFetch('/api/srs-sync', {
           method: 'POST',
@@ -544,9 +536,24 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
           const syncData = await syncRes.json();
           if (Array.isArray(syncData.vocabulary) && syncData.vocabulary.length > 0) {
             setConvoVocab(syncData.vocabulary.slice(0, 8));
+            vocabForMemory = syncData.vocabulary.slice(0, 6)
+              .map(v => v.hr || v.word || '')
+              .filter(Boolean);
           }
         }
       } catch (_) {}
+
+      // Persist this session to Firestore so Maja remembers it next time
+      if (au?.uid && ev) {
+        saveMemory(au.uid, {
+          level,
+          scenario: scenario?.title,
+          score: ev.score ?? 0,
+          struggles: (ev.mistakes || []).slice(0, 4).map(m => m.type || 'grammar').filter(Boolean),
+          vocab: vocabForMemory,
+          turns: turnCount,
+        });
+      }
 
       setPhase("result");
     } catch (e) {
@@ -608,7 +615,10 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     WRITE_PROMPTS.filter(p => p.level === writeLevel),
     [writeLevel]
   );
-  const hasSpeechAPI = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+  // Show the mic button if any voice input method is available:
+  // Whisper+VAD (MediaRecorder) OR Web Speech API fallback
+  const hasVoiceSupport = !!(navigator.mediaDevices?.getUserMedia && typeof MediaRecorder !== 'undefined')
+    || !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
   const Header = (
     <AIConversationHeader
@@ -817,7 +827,9 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
         setShowStarters={setShowStarters}
         userCount={userCount}
         isOnline={isOnline}
-        hasSpeechAPI={hasSpeechAPI}
+        hasSpeechAPI={hasVoiceSupport}
+        isVoiceProcessing={stt.isProcessing}
+        vadLevel={stt.vadLevel}
         messagesEndRef={messagesEndRef}
         inputRef={inputRef}
         onSend={sendMessage}

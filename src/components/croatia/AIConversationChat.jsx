@@ -25,6 +25,8 @@ export default function AIConversationChat({
   userCount,
   isOnline,
   hasSpeechAPI,
+  isVoiceProcessing,
+  vadLevel,
   messagesEndRef,
   inputRef,
   onSend,
@@ -297,7 +299,12 @@ export default function AIConversationChat({
                 value={input}
                 onChange={e => { setInput(e.target.value); if (sendError) onSendError(); }}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSend(); } }}
-                placeholder={isOnline ? "Piši na hrvatskom…" : "Offline — reconnect to continue…"}
+                placeholder={
+                  isVoiceProcessing ? "Transcribing…"
+                  : !isOnline ? "Offline — reconnect to continue…"
+                  : listening ? "Listening — speak in Croatian…"
+                  : "Piši na hrvatskom…"
+                }
                 disabled={loading || !isOnline || (chatError && messages.length === 0)}
                 style={{ flex: 1, padding: "11px 14px", fontSize: 15, borderRadius: 12,
                   border: `1.5px solid ${sendError ? "var(--error-b)" : "var(--card-b)"}`,
@@ -307,15 +314,19 @@ export default function AIConversationChat({
               {hasSpeechAPI && (
                 <button
                   onClick={onToggleVoice}
-                  disabled={loading || !isOnline}
-                  title={listening ? "Stop listening" : "Speak in Croatian (hr-HR)"}
+                  disabled={loading || !isOnline || isVoiceProcessing}
+                  title={
+                    isVoiceProcessing ? "Transcribing speech…"
+                    : listening ? "Stop listening (auto-sends on silence)"
+                    : "Speak in Croatian — VAD auto-detects when you stop"
+                  }
                   style={{ width: 44, height: 44, borderRadius: 12, flexShrink: 0, fontSize: 18, cursor: "pointer",
-                    border: `2px solid ${listening ? "var(--error)" : "var(--card-b)"}`,
-                    background: listening ? "var(--error-bg)" : "var(--card)",
-                    color: listening ? "var(--error)" : "var(--subtext)",
-                    animation: listening ? "pulse 1s ease-in-out infinite" : "none",
+                    border: `2px solid ${isVoiceProcessing ? "var(--info)" : listening ? "var(--error)" : "var(--card-b)"}`,
+                    background: isVoiceProcessing ? "var(--info-bg)" : listening ? "var(--error-bg)" : "var(--card)",
+                    color: isVoiceProcessing ? "var(--info)" : listening ? "var(--error)" : "var(--subtext)",
+                    animation: (listening || isVoiceProcessing) ? "pulse 1s ease-in-out infinite" : "none",
                     transition: "all .15s" }}>
-                  🎤
+                  {isVoiceProcessing ? "⏳" : "🎤"}
                 </button>
               )}
               <button
