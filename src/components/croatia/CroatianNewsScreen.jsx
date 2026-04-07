@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { H } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
@@ -331,6 +331,9 @@ export default function CroatianNewsScreen({ goBack, award }) {
   const { level: userLevel } = useStats();
   const isOnline = useOnlineStatus();
 
+  const mountedRef = useRef(true);
+  useEffect(() => () => { mountedRef.current = false; }, []);
+
   const defaultLevel = LEVELS.includes(userLevel) ? userLevel : 'B1';
   const [selectedLevel, setSelectedLevel] = useState(defaultLevel);
   const [articles, setArticles] = useState([]);
@@ -402,15 +405,17 @@ export default function CroatianNewsScreen({ goBack, award }) {
           params: {},
         }),
       });
+      if (!mountedRef.current) return;
       const data = await res.json();
       const parsed = JSON.parse(data.text);
+      if (!mountedRef.current) return;
       setTooltip({ articleId, wordIndex, word, translation: parsed.translation, note: parsed.note });
       markEngaged(articleId);
-      setTimeout(() => setTooltip(null), 3000);
+      setTimeout(() => { if (mountedRef.current) setTooltip(null); }, 3000);
     } catch {
       // silently fail — just clear spinner
     } finally {
-      setTranslating(null);
+      if (mountedRef.current) setTranslating(null);
     }
   }
 

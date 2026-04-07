@@ -94,10 +94,10 @@ export default function VideoLessonScreen({ goBack, award }) {
       const flat = [];
       if (data.speakers) {
         // Interleave lines from both speakers in order
-        const maxLines = Math.max(...data.speakers.map(s => s.lines.length));
+        const maxLines = Math.max(...data.speakers.map(s => s.lines?.length ?? 0));
         for (let i = 0; i < maxLines; i++) {
           for (const spk of data.speakers) {
-            if (i < spk.lines.length) flat.push({ speaker: spk.name, text: spk.lines[i] });
+            if (Array.isArray(spk.lines) && i < spk.lines.length) flat.push({ speaker: spk.name, text: spk.lines[i] });
           }
         }
       } else if (data.narrator) {
@@ -159,7 +159,8 @@ export default function VideoLessonScreen({ goBack, award }) {
 
   function answerQuestion(optIdx) {
     if (!content) return;
-    const q = content.questions[qIndex];
+    const q = content.questions?.[qIndex];
+    if (!q) return;
     const correct = optIdx === q.correct;
     const newAnswers = [...answers, { optIdx, correct }];
     setAnswers(newAnswers);

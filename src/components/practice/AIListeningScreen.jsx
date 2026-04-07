@@ -73,6 +73,7 @@ export default function AIListeningScreen({ goBack, award }) {
       let fullText = '';
       if (style === 'dialogue' && data.speakers) {
         data.speakers.forEach(spk => {
+          if (!Array.isArray(spk.lines)) return;
           spk.lines.forEach(line => {
             fullText += `${spk.name}: ${line}\n\n`;
           });
@@ -154,6 +155,7 @@ export default function AIListeningScreen({ goBack, award }) {
   // ── Questions ─────────────────────────────────────────────────────────────
   function selectAnswer(optionIndex) {
     if (answers[qIndex] !== undefined) return;
+    if (!content?.questions?.[qIndex]) return;
     const correct = content.questions[qIndex].correct;
     const isRight = optionIndex === correct;
     setAnswers(prev => { const a = [...prev]; a[qIndex] = optionIndex; return a; });
@@ -202,7 +204,7 @@ export default function AIListeningScreen({ goBack, award }) {
   function buildTranscript() {
     if (!content) return '';
     if (style === 'dialogue' && content.speakers) {
-      return content.speakers.map(spk => spk.lines.map(l => `${spk.name}: ${l}`).join('\n')).join('\n\n');
+      return content.speakers.map(spk => (spk.lines || []).map(l => `${spk.name}: ${l}`).join('\n')).join('\n\n');
     }
     return content.narrator || '';
   }
