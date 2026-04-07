@@ -91,7 +91,9 @@ test.describe('Auth edge cases', () => {
     await blockFirebase(page);
     await mockTTS(page);
 
-    await page.reload({ waitUntil: 'domcontentloaded', timeout: 15_000 });
+    // The SW may intercept the reload and cause a frame-detach error; catch and
+    // let the subsequent nav assertion confirm the page is back in a good state.
+    await page.reload({ waitUntil: 'domcontentloaded', timeout: 15_000 }).catch(() => {});
 
     await expect(nav).toBeVisible({ timeout: 15_000 });
 

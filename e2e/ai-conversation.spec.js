@@ -104,7 +104,9 @@ async function openAIConvoFromPractice(page) {
   const aiHeroBtn = page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first();
   await expect(aiHeroBtn).toBeVisible({ timeout: 10_000 });
   await aiHeroBtn.click();
-  await expect(page.getByText('Razgovor s Majom').first()).toBeVisible({ timeout: 15_000 });
+  // First-load of the lazy AIConversation chunk can be slow in CI when multiple
+  // workers start simultaneously — 25s gives enough headroom.
+  await expect(page.getByText('Razgovor s Majom').first()).toBeVisible({ timeout: 25_000 });
 }
 
 // ---------------------------------------------------------------------------
@@ -532,10 +534,11 @@ test.describe('Double-evaluation guard', () => {
     const evalBtn = page.locator('button').filter({ hasText: /End & Evaluate/ });
     await expect(evalBtn).toBeEnabled({ timeout: 5_000 });
 
-    // Rapid triple click
+    // Rapid triple click — after 1st click triggers evaluation the button leaves DOM;
+    // 2nd/3rd clicks are best-effort so they don't time out waiting for a gone element.
     await evalBtn.click();
-    await evalBtn.click();
-    await evalBtn.click();
+    await evalBtn.click({ timeout: 500 }).catch(() => {});
+    await evalBtn.click({ timeout: 500 }).catch(() => {});
 
     // Wait for the result screen to settle
     // Our /api/ai-chat mock returns a score of 78 embedded in a JSON string

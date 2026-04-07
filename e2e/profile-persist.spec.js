@@ -51,8 +51,10 @@ test.describe('Progress persistence across sessions', () => {
     expect(statsBefore).not.toBeNull();
     expect(statsBefore?.xp).toBe(250);
 
-    // Navigate again (simulates reload — addInitScript re-seeds, app must not reset to 0)
-    await page.goto('/');
+    // Navigate again (simulates reload — addInitScript re-seeds, app must not reset to 0).
+    // Catch "interrupted by another navigation" — the SPA may push its own history entry
+    // during boot; the subsequent nav assertion confirms the page settled.
+    await page.goto('/').catch(() => {});
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
     // Wait for React Router initial navigate() to settle — prevents "execution context
     // was destroyed" when page.evaluate() races against the router's history.push.
