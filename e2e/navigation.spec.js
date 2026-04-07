@@ -60,12 +60,15 @@ test.describe('Tab navigation', () => {
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
 
     await clickTab(page, 'Learn');
-    await expect(nav.getByRole('button', { name: 'Learn', exact: true })).toHaveClass(/active/);
-    await expect(nav.getByRole('button', { name: 'Today', exact: true })).not.toHaveClass(/active/);
+    // Use 10s timeout — CI can be slow to update React state after a tab click
+    // when the page is still settling post-auth. This test passed on every retry,
+    // confirming it's a timing flake rather than a logic bug.
+    await expect(nav.getByRole('button', { name: 'Learn', exact: true })).toHaveClass(/active/, { timeout: 10_000 });
+    await expect(nav.getByRole('button', { name: 'Today', exact: true })).not.toHaveClass(/active/, { timeout: 10_000 });
 
     await clickTab(page, 'Today');
-    await expect(nav.getByRole('button', { name: 'Today', exact: true })).toHaveClass(/active/);
-    await expect(nav.getByRole('button', { name: 'Learn', exact: true })).not.toHaveClass(/active/);
+    await expect(nav.getByRole('button', { name: 'Today', exact: true })).toHaveClass(/active/, { timeout: 10_000 });
+    await expect(nav.getByRole('button', { name: 'Learn', exact: true })).not.toHaveClass(/active/, { timeout: 10_000 });
   });
 
   test('search bar is visible on the dashboard', async ({ page }) => {
