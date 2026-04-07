@@ -53,22 +53,22 @@ function SpotifyCard({ pl, openId, setOpenId }) {
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'white' }}>{pl.name}</span>
+            <span style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--heading)' }}>{pl.name}</span>
             <span style={{
-              background: 'rgba(30,215,96,.18)', color: '#1ed760',
+              background: '#1ed760', color: '#000',
               fontSize: 9, fontWeight: 800, padding: '2px 7px',
               borderRadius: 20, border: '1px solid rgba(30,215,96,.3)',
               letterSpacing: '0.04em', flexShrink: 0,
             }}>{pl.tag}</span>
           </div>
-          <div style={{ fontSize: 'var(--text-xs)', color: 'rgba(255,255,255,.5)', lineHeight: 1.4 }}>{pl.desc}</div>
+          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', lineHeight: 1.4 }}>{pl.desc}</div>
         </div>
         <div style={{
           width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
           background: isOpen ? 'rgba(30,215,96,.2)' : 'rgba(255,255,255,.07)',
           border: `1px solid ${isOpen ? 'rgba(30,215,96,.4)' : 'rgba(255,255,255,.12)'}`,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: isOpen ? '#1ed760' : 'rgba(255,255,255,.4)',
+          color: 'var(--subtext)',
           fontSize: 14, transition: 'all .2s',
           transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
         }}>⌄</div>
@@ -90,7 +90,7 @@ function SpotifyCard({ pl, openId, setOpenId }) {
             background: 'rgba(30,215,96,.06)',
             borderTop: '1px solid rgba(30,215,96,.15)',
           }}>
-            <span style={{ fontSize: 'var(--text-xs)', color: 'rgba(255,255,255,.4)' }}>Not loading? Open directly in Spotify.</span>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)' }}>Not loading? Open directly in Spotify.</span>
             <a
               href={`https://open.spotify.com/playlist/${pl.id}`}
               target="_blank"
@@ -122,7 +122,7 @@ export default function SpotifySection() {
         <div key={key}>
           <div style={{
             fontSize: 'var(--text-xs)', fontWeight: 900,
-            color: 'rgba(255,255,255,.5)',
+            color: 'var(--subtext)',
             letterSpacing: '.12em', textTransform: 'uppercase',
             marginBottom: 8, marginTop: key === 'icons' ? 0 : 16,
             display: 'flex', alignItems: 'center', gap: 6,
