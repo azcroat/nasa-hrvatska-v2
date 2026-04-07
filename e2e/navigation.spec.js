@@ -72,8 +72,8 @@ test.describe('Tab navigation', () => {
   });
 
   test('search bar is visible on the dashboard', async ({ page }) => {
-    // The app has multiple searchboxes (main search + learn tab search); target the main one
-    await expect(page.getByRole('searchbox', { name: /Search vocabulary/i })).toBeVisible();
+    // The app search input uses role="combobox" (supports aria-expanded/aria-controls/aria-autocomplete)
+    await expect(page.getByRole('combobox', { name: /Search vocabulary/i })).toBeVisible();
   });
 
   test('search returns results for a known Croatian word', async ({ page }) => {
@@ -81,7 +81,7 @@ test.describe('Tab navigation', () => {
     // to complete before interacting. This prevents "execution context destroyed" when
     // Playwright detects React Router's history.pushState during evaluate/locator checks.
     await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {});
-    await page.getByRole('searchbox', { name: /Search vocabulary/i }).fill('kuća');
+    await page.getByRole('combobox', { name: /Search vocabulary/i }).fill('kuća');
     // doSearch debounces 200ms then lazily imports the search index chunk.
     // Give both enough time before expecting the results listbox.
     await page.waitForTimeout(600);
