@@ -739,7 +739,7 @@ export default function HomeTab({
                       </div>
                       <div style={{ fontSize: 13, color: 'var(--subtext)', marginTop: 3 }}>{phraseOfDay.en}</div>
                       {phraseOfDay.note && (
-                        <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2, fontStyle: 'italic', opacity: 0.75 }}>{phraseOfDay.note}</div>
+                        <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2, fontStyle: 'italic' }}>{phraseOfDay.note}</div>
                       )}
                     </div>
                     <button
