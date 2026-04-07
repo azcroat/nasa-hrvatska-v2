@@ -9,17 +9,24 @@ const ISSUE_TYPES = [
   { id: "other",   icon: "💬", label: "Other",            color: "#7c3aed", bg: "#faf5ff", desc: "Anything else" },
 ];
 
-// Simple client-side rate limit: max 3 tickets per hour
-function checkRateLimit() {
+// Client-side rate limit: max 3 successful tickets per hour.
+// Only call recordSubmit() AFTER the API confirms ok:true.
+function isRateLimited() {
   try {
     const raw = JSON.parse(localStorage.getItem("contactSubmits") || "[]");
     const cutoff = Date.now() - 60 * 60 * 1000;
     const recent = raw.filter(t => t > cutoff);
-    if (recent.length >= 3) return false;
+    return recent.length >= 3;
+  } catch { return false; }
+}
+function recordSubmit() {
+  try {
+    const raw = JSON.parse(localStorage.getItem("contactSubmits") || "[]");
+    const cutoff = Date.now() - 60 * 60 * 1000;
+    const recent = raw.filter(t => t > cutoff);
     recent.push(Date.now());
     localStorage.setItem("contactSubmits", JSON.stringify(recent));
-    return true;
-  } catch { return true; }
+  } catch { /* ignore */ }
 }
 
 export default function ContactScreen({ goBack, authUser, name, level, stats }) {
@@ -29,14 +36,18 @@ export default function ContactScreen({ goBack, authUser, name, level, stats }) 
   const [replyEmail,  setReplyEmail]  = useState(authUser?.e || "");
   const [loading,     setLoading]     = useState(false);
   const [error,       setError]       = useState("");
-  const [ticketId,    setTicketId]    = useState(null);
+  // On success, store both the ticket ID and the confirmed reply email from the server.
+  const [ticket,      setTicket]      = useState(null); // { id, replyEmail }
+  const [copied,      setCopied]      = useState(false);
 
   const selected = ISSUE_TYPES.find(t => t.id === type);
-  const canSubmit = type && subject.trim() && description.trim().length >= 10 && !loading;
+  const descTrimLen = description.trim().length;
+  const descTooShort = descTrimLen > 0 && descTrimLen < 10;
+  const canSubmit = type && subject.trim() && descTrimLen >= 10 && !loading;
 
   async function submit() {
     if (!canSubmit) return;
-    if (!checkRateLimit()) {
+    if (isRateLimited()) {
       setError("You've submitted 3 tickets this hour. Please wait a bit before sending another.");
       return;
     }
@@ -54,8 +65,18 @@ export default function ContactScreen({ goBack, authUser, name, level, stats }) 
         }),
       });
       const data = await res.json().catch(() => ({}));
-      if (data.ok) { setTicketId(data.ticketId || "SENT"); }
-      else setError(data.error || "Could not send. Please try again.");
+      if (data.ok) {
+        // Record the slot only after the server confirms receipt.
+        recordSubmit();
+        setTicket({
+          id: data.ticketId || "SENT",
+          // Server may override the reply email with the verified auth email.
+          // Use the confirmed email from the response so the success screen is accurate.
+          replyEmail: data.replyEmail ?? replyEmail.trim() ?? null,
+        });
+      } else {
+        setError(data.error || "Could not send. Please try again.");
+      }
     } catch {
       setError("Network error — check your connection and try again.");
     } finally {
@@ -63,20 +84,39 @@ export default function ContactScreen({ goBack, authUser, name, level, stats }) 
     }
   }
 
+  function copyTicketId() {
+    if (!ticket?.id) return;
+    navigator.clipboard.writeText(ticket.id).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {/* clipboard unavailable */});
+  }
+
   // ── Success state ────────────────────────────────────────────────────────────
-  if (ticketId) return (
+  if (ticket) return (
     <div className="scr-wrap" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh", textAlign: "center", padding: "32px 24px" }}>
       <div style={{ fontSize: 64, marginBottom: 16 }}>✅</div>
       <h2 style={{ color: "#0f172a", fontWeight: 900, marginBottom: 8 }}>Ticket Submitted!</h2>
-      <div style={{ fontSize: 14, color: "#64748b", marginBottom: 6 }}>
+      <div style={{ fontSize: 14, color: "#64748b", marginBottom: 12 }}>
         Your report has been sent to the administrator.
       </div>
-      <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 28, fontFamily: "monospace", letterSpacing: ".1em" }}>
-        Ticket #{ticketId}
+
+      {/* Ticket ID with copy button */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24, background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, padding: "10px 18px" }}>
+        <span style={{ fontSize: 12, color: "#94a3b8", fontFamily: "monospace", letterSpacing: ".1em" }}>
+          Ticket #{ticket.id}
+        </span>
+        <button
+          onClick={copyTicketId}
+          aria-label="Copy ticket ID"
+          style={{ background: "none", border: "none", cursor: "pointer", fontSize: 16, padding: "2px 4px", color: copied ? "#16a34a" : "#64748b" }}>
+          {copied ? "✓" : "⎘"}
+        </button>
       </div>
-      {replyEmail && (
+
+      {ticket.replyEmail && (
         <div style={{ fontSize: 13, color: "#64748b", marginBottom: 28, background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 10, padding: "10px 20px" }}>
-          We'll reply to <strong>{replyEmail}</strong> if we need more info.
+          We'll reply to <strong>{ticket.replyEmail}</strong> if we need more info.
         </div>
       )}
       <button className="b bp" onClick={goBack} style={{ minWidth: 160 }}>← Back to Profile</button>
@@ -141,10 +181,16 @@ export default function ContactScreen({ goBack, authUser, name, level, stats }) 
           onChange={e => { setDescription(e.target.value.slice(0, 2000)); setError(""); }}
           rows={6}
           style={{ width: "100%", boxSizing: "border-box", resize: "vertical",
-            border: "1.5px solid #e2e8f0", borderRadius: 12, padding: "12px 14px",
+            border: `1.5px solid ${description.length > 1800 ? "#f59e0b" : descTooShort ? "#fca5a5" : "#e2e8f0"}`,
+            borderRadius: 12, padding: "12px 14px",
             fontSize: 14, lineHeight: 1.6, outline: "none", fontFamily: "'Outfit', sans-serif" }}
         />
-        <div style={{ fontSize: 11, color: description.length > 1800 ? "#f59e0b" : "#94a3b8", textAlign: "right", marginTop: 4 }}>{description.length}/2000</div>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
+          {descTooShort
+            ? <span style={{ fontSize: 11, color: "#dc2626" }}>At least 10 characters required</span>
+            : <span />}
+          <span style={{ fontSize: 11, color: description.length > 1800 ? "#f59e0b" : "#94a3b8" }}>{description.length}/2000</span>
+        </div>
       </div>
 
       {/* Reply email */}

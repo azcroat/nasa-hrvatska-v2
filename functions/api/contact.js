@@ -9,7 +9,9 @@ function CORS(origin) {
   return {
     "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    // Include Authorization so apiFetch's Bearer token passes CORS preflight
+    // in dev (localhost:4173 → wrangler:8788) and cross-origin preview deploys.
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
 }
 
@@ -96,8 +98,9 @@ export async function onRequestPost(context) {
   }
 
   if (!RESEND_KEY) {
-    return new Response(JSON.stringify({ ok: false, error: "Contact not configured." }),
-      { status: 200, headers: { ...CORS(origin), "Content-Type": "application/json" } });
+    console.error("RESEND_API_KEY environment variable is not configured");
+    return new Response(JSON.stringify({ ok: false, error: "Contact service is temporarily unavailable." }),
+      { status: 503, headers: { ...CORS(origin), "Content-Type": "application/json" } });
   }
 
   let body;
@@ -126,6 +129,10 @@ export async function onRequestPost(context) {
 
   if (!type || !subject || !description) {
     return new Response(JSON.stringify({ ok: false, error: "Missing required fields." }),
+      { status: 400, headers: { ...CORS(origin), "Content-Type": "application/json" } });
+  }
+  if (description.trim().length < 10) {
+    return new Response(JSON.stringify({ ok: false, error: "Description must be at least 10 characters." }),
       { status: 400, headers: { ...CORS(origin), "Content-Type": "application/json" } });
   }
   if (subject.length > 120 || description.length > 2000) {
@@ -221,9 +228,14 @@ export async function onRequestPost(context) {
       signal: AbortSignal.timeout(10000),
     });
 
-    const data = await res.json().catch(() => ({}));
-    return new Response(JSON.stringify({ ok: res.ok, ticketId, ...data }),
-      { status: res.ok ? 200 : 500, headers: { ...CORS(origin), "Content-Type": "application/json" } });
+    await res.json().catch(() => ({})); // consume body; we don't forward Resend's internals
+    return new Response(JSON.stringify({
+      ok: res.ok,
+      ticketId,
+      // Return the actual reply email used (may differ from what the user typed
+      // if the server overrode it with the verified Firebase auth email).
+      replyEmail: replyEmail || null,
+    }), { status: res.ok ? 200 : 500, headers: { ...CORS(origin), "Content-Type": "application/json" } });
   } catch (e) {
     return new Response(JSON.stringify({ ok: false, error: e.message }),
       { status: 502, headers: { ...CORS(origin), "Content-Type": "application/json" } });
