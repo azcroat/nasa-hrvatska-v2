@@ -139,8 +139,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright browsers (Chrome only for CI speed)
-        run: npx playwright install --with-deps chromium
+      - name: Install Playwright browsers (Chrome, Firefox, WebKit)
+        run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Build for E2E (with placeholder Firebase config)
         run: npm run build
@@ -153,8 +153,8 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID || '1:000000000000:web:placeholder' }}
           VITE_SENTRY_DSN: ""
 
-      - name: Run E2E tests (Chrome only — WebKit/Firefox tested locally)
-        run: npx playwright test --project="Desktop Chrome"
+      - name: Run E2E tests (Chrome, Firefox, WebKit)
+        run: npx playwright test --project="Desktop Chrome" --project="Desktop Firefox" --project="Desktop Safari (WebKit)"
         env:
           CI: true
 

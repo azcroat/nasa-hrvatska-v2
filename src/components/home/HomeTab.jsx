@@ -465,7 +465,7 @@ export default function HomeTab({
             const missionActions = {
               speak:    { label: 'Start Speaking →', action: () => { const pool = (_allCats||[]).flatMap(t=>V[t]||[]).filter(w=>w&&w[0]&&w[1]); launchSpeaking(_sh(pool).slice(0,6)); } },
               grammar:  { label: 'Open Grammar →', action: () => launchPathItem({ go: 'grammar' }) },
-              master:   { label: 'Review Words →', action: () => setScr('srs-review') },
+              master:   { label: 'Review Words →', action: () => setScr('review') },
               reading:  { label: 'Read Now →', action: () => setScr('readinglist') },
               culture:  { label: 'Explore Culture →', action: () => setScr('croatia') },
               vocab:    { label: 'Learn Vocab →', action: () => launchPathItem({ go: 'lesson' }) },
