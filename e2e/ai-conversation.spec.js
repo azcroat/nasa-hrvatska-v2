@@ -21,10 +21,13 @@ import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
 // ---------------------------------------------------------------------------
 // SSE response body — a complete single-event stream that signals a finished
 // conversation immediately. The component reads this via ReadableStream.
+// Format: {"type":"done","result":{...}} — callMaja checks parsed.type === 'done'
+// and reads parsed.result. The result must have a non-empty `croatian` field or
+// callMaja throws "The AI returned an empty response".
 // ---------------------------------------------------------------------------
 const SSE_DONE_BODY =
-  'data: {"done":true,"croatian":"Zdravo! Kako si?","english":"Hello! How are you?",' +
-  '"feedback":"Good job!","corrections":[],"vocab":[]}\n\n';
+  'data: {"type":"done","result":{"croatian":"Zdravo! Kako si?","english_gloss":"Hello! How are you?",' +
+  '"scaffolding_level":1,"emotion":"happy","correction":null,"is_session_end":false}}\n\n';
 
 // ---------------------------------------------------------------------------
 // Helper — mock all API routes used by AIConversation
@@ -301,9 +304,9 @@ test.describe('Write mode', () => {
     await submitBtn.click();
 
     // After submission: evaluating → result. The result screen shows score info.
-    // AIConversationWriteResult renders either feedback or an error.
-    // With our mock returning score:85, feedback:"Good work" should appear.
-    await expect(page.getByText(/Good work|Marking your writing|feedback/i)).toBeVisible({ timeout: 10_000 });
+    // AIConversationWriteResult renders "Writing Score" heading plus strengths/improvements.
+    // Our /api/ai-chat mock returns score:78 and strengths:["Good vocabulary"].
+    await expect(page.getByText(/Writing Score|Good vocabulary/i).first()).toBeVisible({ timeout: 10_000 });
   });
 });
 
