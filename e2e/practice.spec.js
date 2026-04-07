@@ -93,7 +93,7 @@ test.describe('Practice tab structure', () => {
   });
 
   test('AI Voice Conversation hero button is visible', async ({ page }) => {
-    await expect(page.getByText('AI Voice Conversation')).toBeVisible();
+    await expect(page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first()).toBeVisible();
   });
 
   test('Drill panel shows Browse Exercises section and four category tiles', async ({ page }) => {
@@ -131,7 +131,7 @@ test.describe('Practice tab structure', () => {
   });
 
   test('Challenge panel shows Quick Games and AI Challenges sections', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await expect(page.getByText('Quick Games')).toBeVisible({ timeout: 5_000 });
     await expect(page.getByText('AI Challenges')).toBeVisible({ timeout: 5_000 });
   });
@@ -166,18 +166,18 @@ test.describe('ClozeEngine — Sentence Cloze', () => {
 
   test('Sentence Cloze card is visible inside Grammar category', async ({ page }) => {
     await openCategory(page, 'Grammar');
-    await expect(page.locator('button.exercise-card').filter({ hasText: 'Sentence Cloze' })).toBeVisible({ timeout: 5_000 });
+    await expect(page.locator('button.exercise-card').filter({ hasText: 'Sentence Cloze' }).first()).toBeVisible({ timeout: 5_000 });
   });
 
   test('clicking Sentence Cloze opens the ClozeEngine screen', async ({ page }) => {
     await openCategory(page, 'Grammar');
-    await page.locator('button.exercise-card').filter({ hasText: 'Sentence Cloze' }).click();
+    await page.locator('button.exercise-card').filter({ hasText: 'Sentence Cloze' }).first().click();
     await expect(page.getByText('🧩 Sentence Cloze')).toBeVisible({ timeout: 8_000 });
   });
 
   test('ClozeEngine renders a sentence card with a blank (_____)', async ({ page }) => {
     await openCategory(page, 'Grammar');
-    await page.locator('button.exercise-card').filter({ hasText: 'Sentence Cloze' }).click();
+    await page.locator('button.exercise-card').filter({ hasText: 'Sentence Cloze' }).first().click();
     await expect(page.getByText('🧩 Sentence Cloze')).toBeVisible({ timeout: 8_000 });
     // The blank is rendered as the literal string "_____"
     await expect(page.getByText('_____')).toBeVisible({ timeout: 5_000 });
@@ -185,14 +185,14 @@ test.describe('ClozeEngine — Sentence Cloze', () => {
 
   test('progress counter shows "1 / 12"', async ({ page }) => {
     await openCategory(page, 'Grammar');
-    await page.locator('button.exercise-card').filter({ hasText: 'Sentence Cloze' }).click();
+    await page.locator('button.exercise-card').filter({ hasText: 'Sentence Cloze' }).first().click();
     await expect(page.getByText('🧩 Sentence Cloze')).toBeVisible({ timeout: 8_000 });
     await expect(page.getByText('1 / 12')).toBeVisible({ timeout: 5_000 });
   });
 
   test('four answer buttons are shown in a 2x2 grid', async ({ page }) => {
     await openCategory(page, 'Grammar');
-    await page.locator('button.exercise-card').filter({ hasText: 'Sentence Cloze' }).click();
+    await page.locator('button.exercise-card').filter({ hasText: 'Sentence Cloze' }).first().click();
     await expect(page.getByText('🧩 Sentence Cloze')).toBeVisible({ timeout: 8_000 });
     // Wait for options — they are plain buttons inside the options grid
     // The grid uses gridTemplateColumns: "1fr 1fr"
@@ -208,7 +208,7 @@ test.describe('ClozeEngine — Sentence Cloze', () => {
 
   test('selecting a correct answer shows "✓ Correct!" feedback', async ({ page }) => {
     await openCategory(page, 'Grammar');
-    await page.locator('button.exercise-card').filter({ hasText: 'Sentence Cloze' }).click();
+    await page.locator('button.exercise-card').filter({ hasText: 'Sentence Cloze' }).first().click();
     await expect(page.getByText('🧩 Sentence Cloze')).toBeVisible({ timeout: 8_000 });
     await expect(page.getByText('_____')).toBeVisible({ timeout: 5_000 });
 
@@ -225,7 +225,7 @@ test.describe('ClozeEngine — Sentence Cloze', () => {
 
   test('selecting a wrong answer shows "✗ The answer was …" feedback', async ({ page }) => {
     await openCategory(page, 'Grammar');
-    await page.locator('button.exercise-card').filter({ hasText: 'Sentence Cloze' }).click();
+    await page.locator('button.exercise-card').filter({ hasText: 'Sentence Cloze' }).first().click();
     await expect(page.getByText('🧩 Sentence Cloze')).toBeVisible({ timeout: 8_000 });
     await expect(page.getByText('_____')).toBeVisible({ timeout: 5_000 });
 
@@ -253,7 +253,7 @@ test.describe('ClozeEngine — Sentence Cloze', () => {
 
   test('wrong answer shows "Why is … correct?" AI explain button', async ({ page }) => {
     await openCategory(page, 'Grammar');
-    await page.locator('button.exercise-card').filter({ hasText: 'Sentence Cloze' }).click();
+    await page.locator('button.exercise-card').filter({ hasText: 'Sentence Cloze' }).first().click();
     await expect(page.getByText('🧩 Sentence Cloze')).toBeVisible({ timeout: 8_000 });
     await expect(page.getByText('_____')).toBeVisible({ timeout: 5_000 });
 
@@ -278,7 +278,7 @@ test.describe('ClozeEngine — Sentence Cloze', () => {
 
   test('Next → button advances to question 2 after answering', async ({ page }) => {
     await openCategory(page, 'Grammar');
-    await page.locator('button.exercise-card').filter({ hasText: 'Sentence Cloze' }).click();
+    await page.locator('button.exercise-card').filter({ hasText: 'Sentence Cloze' }).first().click();
     await expect(page.getByText('🧩 Sentence Cloze')).toBeVisible({ timeout: 8_000 });
     await expect(page.getByText('1 / 12')).toBeVisible({ timeout: 5_000 });
 
@@ -408,19 +408,19 @@ test.describe('AIListeningScreen', () => {
   });
 
   test('AI Listening button is visible in Challenge panel → AI Challenges', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await expect(page.getByText('AI Challenges')).toBeVisible({ timeout: 5_000 });
     await expect(page.locator('button.tc').filter({ hasText: 'AI Listening' })).toBeVisible({ timeout: 5_000 });
   });
 
   test('clicking AI Listening opens the setup screen with heading "🎧 AI Listening"', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'AI Listening' }).click();
     await expect(page.getByText('🎧 AI Listening')).toBeVisible({ timeout: 8_000 });
   });
 
   test('setup screen shows a Level badge', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'AI Listening' }).click();
     await expect(page.getByText('🎧 AI Listening')).toBeVisible({ timeout: 8_000 });
     // Level badge shows the current CEFR level followed by "Level"
@@ -428,7 +428,7 @@ test.describe('AIListeningScreen', () => {
   });
 
   test('all 10 topic buttons are visible', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'AI Listening' }).click();
     await expect(page.getByText('🎧 AI Listening')).toBeVisible({ timeout: 8_000 });
 
@@ -439,7 +439,7 @@ test.describe('AIListeningScreen', () => {
   });
 
   test('Generate → button is disabled before selecting a topic', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'AI Listening' }).click();
     await expect(page.getByText('🎧 AI Listening')).toBeVisible({ timeout: 8_000 });
     const generateBtn = page.locator('button.b.bp').filter({ hasText: /Generate →/ });
@@ -447,7 +447,7 @@ test.describe('AIListeningScreen', () => {
   });
 
   test('selecting a topic enables the Generate → button', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'AI Listening' }).click();
     await expect(page.getByText('🎧 AI Listening')).toBeVisible({ timeout: 8_000 });
 
@@ -458,7 +458,7 @@ test.describe('AIListeningScreen', () => {
   });
 
   test('clicking Generate → transitions to the listening phase showing content title', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'AI Listening' }).click();
     await expect(page.getByText('🎧 AI Listening')).toBeVisible({ timeout: 8_000 });
 
@@ -470,7 +470,7 @@ test.describe('AIListeningScreen', () => {
   });
 
   test('listening phase shows Play/Pause audio control button', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'AI Listening' }).click();
     await expect(page.getByText('🎧 AI Listening')).toBeVisible({ timeout: 8_000 });
 
@@ -483,7 +483,7 @@ test.describe('AIListeningScreen', () => {
   });
 
   test('listening phase has Show Transcript / Hide Transcript toggle', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'AI Listening' }).click();
     await expect(page.getByText('🎧 AI Listening')).toBeVisible({ timeout: 8_000 });
 
@@ -494,7 +494,7 @@ test.describe('AIListeningScreen', () => {
   });
 
   test('listening phase shows vocab section with the mock vocabulary', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'AI Listening' }).click();
     await expect(page.getByText('🎧 AI Listening')).toBeVisible({ timeout: 8_000 });
 
@@ -506,7 +506,7 @@ test.describe('AIListeningScreen', () => {
   });
 
   test('"I\'m Ready — Take the Quiz →" button appears after the ready timer (readyVisible)', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'AI Listening' }).click();
     await expect(page.getByText('🎧 AI Listening')).toBeVisible({ timeout: 8_000 });
 
@@ -543,26 +543,26 @@ test.describe('VideoLessonScreen', () => {
   });
 
   test('Video Lesson button is visible in Challenge panel → AI Challenges', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await expect(page.getByText('AI Challenges')).toBeVisible({ timeout: 5_000 });
     await expect(page.locator('button.tc').filter({ hasText: 'Video Lesson' })).toBeVisible({ timeout: 5_000 });
   });
 
   test('clicking Video Lesson opens the setup screen with "🎬 Video Lesson"', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'Video Lesson' }).click();
     await expect(page.getByText('🎬 Video Lesson')).toBeVisible({ timeout: 8_000 });
   });
 
   test('setup screen shows "Choose a Topic" section', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'Video Lesson' }).click();
     await expect(page.getByText('🎬 Video Lesson')).toBeVisible({ timeout: 8_000 });
     await expect(page.getByText('Choose a Topic')).toBeVisible({ timeout: 5_000 });
   });
 
   test('setup screen shows "Difficulty Level" selector with A1–C2 buttons', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'Video Lesson' }).click();
     await expect(page.getByText('🎬 Video Lesson')).toBeVisible({ timeout: 8_000 });
     await expect(page.getByText('Difficulty Level')).toBeVisible({ timeout: 5_000 });
@@ -572,7 +572,7 @@ test.describe('VideoLessonScreen', () => {
   });
 
   test('Start button is disabled when no topic is selected (shows "Select a topic above")', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'Video Lesson' }).click();
     await expect(page.getByText('🎬 Video Lesson')).toBeVisible({ timeout: 8_000 });
     await expect(page.getByText('Select a topic above')).toBeVisible({ timeout: 5_000 });
@@ -582,7 +582,7 @@ test.describe('VideoLessonScreen', () => {
   });
 
   test('selecting a topic changes the Start button to "▶ Start Lesson — {topic.hr}"', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'Video Lesson' }).click();
     await expect(page.getByText('🎬 Video Lesson')).toBeVisible({ timeout: 8_000 });
 
@@ -593,7 +593,7 @@ test.describe('VideoLessonScreen', () => {
   });
 
   test('selecting a topic enables the Start button', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'Video Lesson' }).click();
     await expect(page.getByText('🎬 Video Lesson')).toBeVisible({ timeout: 8_000 });
     await page.locator('button').filter({ hasText: 'U kafiću' }).first().click();
@@ -601,7 +601,7 @@ test.describe('VideoLessonScreen', () => {
   });
 
   test('generating shows the playing phase with "▶ Play Dialogue" button', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'Video Lesson' }).click();
     await expect(page.getByText('🎬 Video Lesson')).toBeVisible({ timeout: 8_000 });
     await page.locator('button').filter({ hasText: 'U kafiću' }).first().click();
@@ -612,7 +612,7 @@ test.describe('VideoLessonScreen', () => {
   });
 
   test('playing phase shows "📝 Transcript" toggle', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'Video Lesson' }).click();
     await expect(page.getByText('🎬 Video Lesson')).toBeVisible({ timeout: 8_000 });
     await page.locator('button').filter({ hasText: 'U kafiću' }).first().click();
@@ -622,7 +622,7 @@ test.describe('VideoLessonScreen', () => {
   });
 
   test('playing phase shows "Skip to Questions →" button', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'Video Lesson' }).click();
     await expect(page.getByText('🎬 Video Lesson')).toBeVisible({ timeout: 8_000 });
     await page.locator('button').filter({ hasText: 'U kafiću' }).first().click();
@@ -632,7 +632,7 @@ test.describe('VideoLessonScreen', () => {
   });
 
   test('clicking "Skip to Questions →" transitions to quiz phase with "Comprehension Check"', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Challenge$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'Video Lesson' }).click();
     await expect(page.getByText('🎬 Video Lesson')).toBeVisible({ timeout: 8_000 });
     await page.locator('button').filter({ hasText: 'U kafiću' }).first().click();

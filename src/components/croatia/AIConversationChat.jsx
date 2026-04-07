@@ -373,6 +373,7 @@ export default function AIConversationChat({
                 </button>
               )}
               <button
+                aria-label="Send"
                 onClick={onSend}
                 disabled={loading || !input.trim() || !isOnline}
                 style={{ width: 44, height: 44, borderRadius: 12, border: "none", flexShrink: 0, fontSize: 18,

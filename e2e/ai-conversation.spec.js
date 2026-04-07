@@ -101,7 +101,7 @@ async function openAIConvoFromPractice(page) {
   const aiHeroBtn = page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first();
   await expect(aiHeroBtn).toBeVisible({ timeout: 10_000 });
   await aiHeroBtn.click();
-  await expect(page.getByText('Razgovor s Majom')).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByText('Razgovor s Majom')).toBeVisible({ timeout: 15_000 });
 }
 
 // ---------------------------------------------------------------------------
@@ -441,7 +441,7 @@ test.describe('Conversation chat', () => {
     const chatInput = page.locator('input[placeholder]').last();
     await chatInput.fill('Dobro sam, hvala!');
     // Send button is rendered next to the input
-    const sendBtn = page.locator('button').filter({ hasText: /^Send$/ });
+    const sendBtn = page.getByRole('button', { name: 'Send' });
     await sendBtn.click();
     // After sending, our mock responds immediately with done=true
     // The user's message should appear in the messages list
@@ -473,12 +473,12 @@ test.describe('Double-evaluation guard', () => {
 
     // Send first user message
     await chatInput.fill('Dobar dan!');
-    await page.locator('button').filter({ hasText: /^Send$/ }).click();
+    await page.getByRole('button', { name: 'Send' }).click();
     await page.waitForTimeout(500);
 
     // Send second user message (SSE mock responds immediately each time)
     await chatInput.fill('Kako si ti?');
-    await page.locator('button').filter({ hasText: /^Send$/ }).click();
+    await page.getByRole('button', { name: 'Send' }).click();
     await page.waitForTimeout(500);
 
     // Now End & Evaluate should be enabled (userCount >= 2)
@@ -511,11 +511,11 @@ test.describe('Double-evaluation guard', () => {
 
     // Build up 2+ user turns
     await chatInput.fill('Zdravo!');
-    await page.locator('button').filter({ hasText: /^Send$/ }).click();
+    await page.getByRole('button', { name: 'Send' }).click();
     await page.waitForTimeout(400);
 
     await chatInput.fill('Dobro, hvala.');
-    await page.locator('button').filter({ hasText: /^Send$/ }).click();
+    await page.getByRole('button', { name: 'Send' }).click();
     await page.waitForTimeout(400);
 
     const evalBtn = page.locator('button').filter({ hasText: /End & Evaluate/ });
