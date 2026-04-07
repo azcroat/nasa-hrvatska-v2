@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { lXP, nXP, earnFreeze, getStreakFreezes, LEVEL_NARRATIVE, speak } from '../../data.jsx';
 import { getDailyXP, DAILY_XP_GOAL, getXPBoost, activateXPBoost, canActivateXPBoost, XP_BOOST_COST } from '../../lib/appUtils.js';
 import { useTranslator } from '../../hooks/useTranslator';
@@ -438,14 +438,13 @@ export default function HeroSection({
           </div>
 
           {/* ── Knight mascot hero — interactive speech bubble ──────── */}
-          <motion.div
-            key={greeting.mood}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
-            style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 10 }}
-          >
-            {/* Knight — primary communicator */}
+          {/* The row is a plain div so the knight stays mounted continuously.
+              Previously key={greeting.mood} was on the whole row, causing the
+              knight to unmount+remount (replaying its entry animation) every
+              time the user cycled messages — visually "stuck / loading". */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 10 }}>
+            {/* Knight — stable mount; mood prop updates the animation variant
+                without remounting, so the knight is never frozen during message cycles */}
             <motion.div
               initial={{ scale: 0.75, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -455,61 +454,71 @@ export default function HeroSection({
               <CroatianKnight size={92} mood={greeting.mood} />
             </motion.div>
 
-            {/* Interactive speech bubble — tap to cycle messages */}
-            <div style={{ flex: 1, position: 'relative' }}>
-              {/* left-pointing triangle toward knight */}
-              <div style={{
-                position: 'absolute', left: -9, top: 18,
-                width: 0, height: 0,
-                borderTop: '8px solid transparent',
-                borderBottom: '8px solid transparent',
-                borderRight: '8px solid rgba(255,255,255,0.18)',
-              }} />
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={cycleBubble}
-                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') cycleBubble(); }}
-                title="Tap to hear something new"
-                style={{
-                  background: 'rgba(255,255,255,0.14)',
-                  backdropFilter: 'blur(14px)',
-                  WebkitBackdropFilter: 'blur(14px)',
-                  borderRadius: '4px 16px 16px 16px',
-                  padding: '12px 14px 10px',
-                  border: '1px solid rgba(255,255,255,0.22)',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
-                  cursor: 'pointer',
-                  transition: 'background .15s ease',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.20)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; }}
+            {/* Interactive speech bubble — AnimatePresence scoped to the bubble only,
+                so text transitions are smooth without disturbing the knight */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={greeting.mood + '\x00' + greeting.text.slice(0, 40)}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.22, ease: 'easeOut' }}
+                style={{ flex: 1, position: 'relative' }}
               >
+                {/* left-pointing triangle toward knight */}
                 <div style={{
-                  fontSize: 10, fontWeight: 800, letterSpacing: '.1em',
-                  textTransform: 'uppercase', color: 'rgba(200,152,10,0.95)',
-                  marginBottom: 5,
-                }}>
-                  {greetingByTime()}, {name || 'Učenik'}!
+                  position: 'absolute', left: -9, top: 18,
+                  width: 0, height: 0,
+                  borderTop: '8px solid transparent',
+                  borderBottom: '8px solid transparent',
+                  borderRight: '8px solid rgba(255,255,255,0.18)',
+                }} />
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={cycleBubble}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') cycleBubble(); }}
+                  title="Tap to hear something new"
+                  style={{
+                    background: 'rgba(255,255,255,0.14)',
+                    backdropFilter: 'blur(14px)',
+                    WebkitBackdropFilter: 'blur(14px)',
+                    borderRadius: '4px 16px 16px 16px',
+                    padding: '12px 14px 10px',
+                    border: '1px solid rgba(255,255,255,0.22)',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+                    cursor: 'pointer',
+                    transition: 'background .15s ease',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.20)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; }}
+                >
+                  <div style={{
+                    fontSize: 10, fontWeight: 800, letterSpacing: '.1em',
+                    textTransform: 'uppercase', color: 'rgba(200,152,10,0.95)',
+                    marginBottom: 5,
+                  }}>
+                    {greetingByTime()}, {name || 'Učenik'}!
+                  </div>
+                  <div style={{
+                    fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.95)',
+                    lineHeight: 1.5,
+                  }}>
+                    <TypewriterText text={greeting.text} />
+                  </div>
+                  <div style={{
+                    display: 'flex', justifyContent: 'flex-end', alignItems: 'center',
+                    gap: 3, marginTop: 6,
+                  }}>
+                    <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.38)', fontWeight: 600, letterSpacing: '.04em' }}>
+                      tap for more
+                    </span>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.38)' }}>↺</span>
+                  </div>
                 </div>
-                <div style={{
-                  fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.95)',
-                  lineHeight: 1.5,
-                }}>
-                  <TypewriterText text={greeting.text} />
-                </div>
-                <div style={{
-                  display: 'flex', justifyContent: 'flex-end', alignItems: 'center',
-                  gap: 3, marginTop: 6,
-                }}>
-                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.38)', fontWeight: 600, letterSpacing: '.04em' }}>
-                    tap for more
-                  </span>
-                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.38)' }}>↺</span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
           {/* Quick-reply pills — Culture / Grammar / Krenimo / Translate */}
           <div style={{
