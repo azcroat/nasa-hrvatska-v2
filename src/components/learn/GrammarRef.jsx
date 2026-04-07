@@ -88,8 +88,8 @@ export function DialectsScreen({ goBack }) {
     <div className="scr-wrap">
       
       {H("🗺️ Regional Dialects","Štokavski, Kajkavski, Čakavski",goBack)}
-      {DIALECTS.info.map(function(d,i){return (
-        <div key={i} className="c" style={{marginBottom:12,borderLeft:"4px solid "+["#0e7490","#7c3aed","#dc2626"][i]}}>
+      {DIALECTS.types.map(function(d,i){return (
+        <div key={i} className="c" style={{marginBottom:12,borderLeft:"4px solid "+d.color}}>
           <div style={{fontSize:16,fontWeight:800}}>{d.name}</div>
           <div style={{fontSize:13,color:"#78716c",marginTop:4}}>{d.region}</div>
           <div style={{fontSize:13,marginTop:4}}>{d.desc}</div>
@@ -101,12 +101,12 @@ export function DialectsScreen({ goBack }) {
           <tr>{["English","Što","Kaj","Ča"].map(function(h,i){return (<th key={i} style={{padding:"8px",borderBottom:"2px solid #e7e5e4",textAlign:"left"}}>{h}</th>);})}</tr>
         </thead>
         <tbody>
-          {DIALECTS.compare.map(function(r,i){return (
+          {DIALECTS.examples.map(function(r,i){return (
             <tr key={i} style={{borderBottom:"1px solid #f3f4f6"}}>
               <td style={{padding:"8px",color:"#78716c"}}>{r.en}</td>
-              <td style={{padding:"8px",fontWeight:600}}>{r.sto}</td>
+              <td style={{padding:"8px",fontWeight:600}}>{r.std}</td>
               <td style={{padding:"8px",fontWeight:600}}>{r.kaj}</td>
-              <td style={{padding:"8px",fontWeight:600}}>{r.ca}</td>
+              <td style={{padding:"8px",fontWeight:600}}>{r.cak}</td>
             </tr>
           );})}
         </tbody>
