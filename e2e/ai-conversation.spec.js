@@ -495,10 +495,11 @@ test.describe('Double-evaluation guard', () => {
     const evalBtn = page.locator('button').filter({ hasText: /End & Evaluate/ });
     await expect(evalBtn).toBeEnabled({ timeout: 5_000 });
 
-    // Click rapidly 3 times
+    // Click rapidly 3 times — after the 1st click triggers evaluation the button
+    // may disappear (phase changes to "evaluating"), so 2nd/3rd clicks are best-effort.
     await evalBtn.click();
-    await evalBtn.click();
-    await evalBtn.click();
+    await evalBtn.click({ timeout: 500 }).catch(() => {});
+    await evalBtn.click({ timeout: 500 }).catch(() => {});
 
     // The evaluating/result phase should appear exactly once.
     // We verify this by checking either the "Analysing…" spinner or the result screen,

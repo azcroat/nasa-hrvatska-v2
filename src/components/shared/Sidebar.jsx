@@ -104,7 +104,7 @@ export default function Sidebar({ tab, setTab, setScr, name, level, st, darkMode
   const _isDark = darkMode;
 
   return (
-    <nav className="sidebar" aria-label="Main navigation">
+    <nav className="sidebar" aria-label="Sidebar navigation">
       {/* Brand */}
       <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid var(--nav-b)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
