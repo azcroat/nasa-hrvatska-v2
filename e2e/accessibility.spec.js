@@ -18,8 +18,13 @@ for (const { name, path } of PAGES) {
     // Block Firebase so network requests don't prevent domcontentloaded from resolving
     await blockFirebase(page);
     await page.goto(path);
-    // domcontentloaded is reliable here — networkidle can hang waiting for Firebase connections
-    await page.waitForLoadState('domcontentloaded');
+    // On the first load in a fresh browser context, the service worker installs,
+    // activates (skipWaiting), claims clients (clients.claim()), and fires
+    // controllerchange → main.jsx calls window.location.reload(). This reload
+    // destroys axe's execution context if it starts before the reload completes.
+    // Fix: wait for a second 'load' event (the post-SW-reload load) with a short
+    // timeout — if no reload happens the catch is a no-op and we proceed normally.
+    await page.waitForEvent('load', { timeout: 6_000 }).catch(() => {});
     await page.waitForTimeout(500);
 
     const results = await new AxeBuilder({ page })
@@ -52,8 +57,8 @@ test('Tab key reaches all nav links on Home', async ({ page }) => {
   // Block Firebase so networkidle resolves quickly (Firebase long-polling prevents it otherwise)
   await blockFirebase(page);
   await page.goto('/');
-  // domcontentloaded is reliable here — networkidle can hang waiting for Firebase
-  await page.waitForLoadState('domcontentloaded');
+  // Wait for potential SW-triggered reload before interacting (see loop above for details)
+  await page.waitForEvent('load', { timeout: 6_000 }).catch(() => {});
   await page.waitForTimeout(500);
 
   // Press Tab up to 20 times and collect focused elements
@@ -72,7 +77,8 @@ test('Tab key reaches all nav links on Home', async ({ page }) => {
 test('Home page passes color contrast checks', async ({ page }) => {
   await blockFirebase(page);
   await page.goto('/');
-  await page.waitForLoadState('domcontentloaded');
+  // Wait for potential SW-triggered reload before running axe
+  await page.waitForEvent('load', { timeout: 6_000 }).catch(() => {});
   await page.waitForTimeout(500);
 
   const results = await new AxeBuilder({ page })
