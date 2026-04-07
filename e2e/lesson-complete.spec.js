@@ -134,6 +134,9 @@ test.describe('Full lesson completion flow', () => {
 
   test('lesson count increments in localStorage after completing a lesson', async ({ page }) => {
     test.slow();
+    // Absorb any pending load event (SW-triggered reload or app-internal redirect after auth)
+    // before calling page.evaluate — otherwise "Execution context was destroyed" crashes the test.
+    await page.waitForEvent('load', { timeout: 6_000 }).catch(() => {});
     // Capture initial lesson count — handle both {st} and {stats} formats
     const before = await page.evaluate((email) => {
       try {
