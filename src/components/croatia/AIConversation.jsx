@@ -152,11 +152,22 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   const pendingVoiceTextRef = useRef(''); // accumulates voice transcript
   const translationCacheRef = useRef({});
 
-  const messagesEndRef = useRef(/** @type {HTMLDivElement | null} */(null));
-  const inputRef       = useRef(null);
-  const writeTextRef   = useRef(null);
-  const isMountedRef   = useRef(true);
-  useEffect(() => { return () => { isMountedRef.current = false; }; }, []);
+  const messagesEndRef   = useRef(/** @type {HTMLDivElement | null} */(null));
+  const inputRef         = useRef(null);
+  const writeTextRef     = useRef(null);
+  const isMountedRef     = useRef(true);
+  const majaAbortRef     = useRef(null); // AbortController for the active /api/conversation stream
+  useEffect(() => { return () => {
+    isMountedRef.current = false;
+    // Cancel any in-flight /api/conversation SSE stream when component unmounts
+    majaAbortRef.current?.abort();
+  }; }, []);
+
+  // Safety net: if phase==="chat" but scenario was lost (edge case / state race),
+  // reset to setup without calling setState during render (which causes React crashes).
+  useEffect(() => {
+    if (phase === 'chat' && !scenario) setPhase('setup');
+  }, [phase, scenario, setPhase]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -211,12 +222,18 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       learnerErrors,
       isHeritage: !!(stats?.heritage),
     };
+    // Cancel any previous in-flight stream before starting a new one
+    majaAbortRef.current?.abort();
+    const ctrl = new AbortController();
+    majaAbortRef.current = ctrl;
+
     let res;
     try {
       res = await apiFetch('/api/conversation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
+        signal: ctrl.signal,
       });
     } catch (netErr) {
       if (netErr.name === 'AbortError') throw new Error('Request timed out — please try again.');
@@ -507,6 +524,10 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   }
 
   async function endAndEvaluate() {
+    // Guard: skip if already evaluating or showing result (handles race between manual button
+    // and auto-triggered setTimeout when is_session_end fires at the same time).
+    const currentPhase = phase;
+    if (currentPhase === "evaluating" || currentPhase === "result") return;
     // Use messagesRef.current so that auto-triggered evaluations (via setTimeout)
     // always see the latest messages rather than a stale closure snapshot.
     const currentMessages = messagesRef.current;
@@ -814,7 +835,9 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   );
 
   // ── CONVERSATION — CHAT ──────────────────────────────────────────────────────
-  if (!scenario) { setPhase("setup"); return null; }
+  // If scenario is null here the useEffect above will flip phase to "setup" on next tick.
+  // Do NOT call setPhase() during render — it causes "Too many re-renders" crashes.
+  if (!scenario) return null;
   return (
     <>
       <AIConversationChat
