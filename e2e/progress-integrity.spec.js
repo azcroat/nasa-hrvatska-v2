@@ -27,7 +27,7 @@ test.describe('Progress integrity', () => {
 
     // The hero section shows "X day streak" — the number 5 must appear in body text
     const bodyText = await page.locator('body').textContent({ timeout: 5_000 });
-    expect(bodyText).toMatch(/\b5\b/);
+    expect(bodyText).toMatch(/(?<!\d)5(?!\d)/);
 
     // Look for streak-related label text as a sanity check
     await expect(page.getByText(/day streak/i).first()).toBeVisible({ timeout: 5_000 });
@@ -168,7 +168,7 @@ test.describe('Progress integrity', () => {
 
     // Streak text must still be present after reload
     const bodyText = await page.locator('body').textContent({ timeout: 5_000 });
-    expect(bodyText).toMatch(/\b5\b/);
+    expect(bodyText).toMatch(/(?<!\d)5(?!\d)/);
   });
 
   // ── 7. XP in localStorage is a non-negative integer ──────────────────────
