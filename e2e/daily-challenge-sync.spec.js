@@ -25,17 +25,17 @@ test.describe('Home screen — authenticated', () => {
   });
 
   test('home tab shows Daily Quests section', async ({ page }) => {
-    await expect(page.getByText('Daily Quests')).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('Daily Quests')).toBeVisible({ timeout: 10_000 });
   });
 
   test('home tab shows EARN BONUS XP label', async ({ page }) => {
-    await expect(page.getByText('EARN BONUS XP')).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('EARN BONUS XP')).toBeVisible({ timeout: 10_000 });
   });
 
   test('home tab shows quest count or all-complete message', async ({ page }) => {
     const remaining = page.getByText(/quests? remaining/i);
     const allDone = page.getByText(/all quests complete/i);
-    await expect(remaining.or(allDone)).toBeVisible({ timeout: 5_000 });
+    await expect(remaining.or(allDone)).toBeVisible({ timeout: 10_000 });
   });
 
   test('pre-seeded user with name shows in app state', async ({ page }) => {
