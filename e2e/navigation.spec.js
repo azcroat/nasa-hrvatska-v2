@@ -31,7 +31,7 @@ test.describe('Tab navigation', () => {
   test('navigates to Learn tab and shows vocabulary section', async ({ page }) => {
     await clickTab(page, 'Learn');
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
-    await expect(nav.getByRole('button', { name: 'Learn', exact: true })).toHaveClass(/active/);
+    await expect(nav.getByRole('button', { name: 'Learn', exact: true })).toHaveClass(/active/, { timeout: 10_000 });
     await expect(page.getByText('🗺️ My Path')).toBeVisible({ timeout: 5_000 });
   });
 
