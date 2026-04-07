@@ -210,7 +210,16 @@ jobs:
 
       - name: Deploy to Cloudflare Pages
         if: github.event_name == 'push'
-        run: npx --yes wrangler@3 pages deploy dist --project-name=nasa-hrvatska-v2 --branch=master
+        # Pass --commit-message explicitly (subject line only, stripped of non-ASCII) to avoid
+        # Cloudflare API error "Invalid commit message, it must be a valid UTF-8 string" [8000111]
+        # triggered when wrangler reads the full commit body containing → / — characters.
+        run: |
+          COMMIT_MSG=$(git log -1 --format='%s' | LC_ALL=C tr -cd '[:print:]' | cut -c1-200)
+          npx --yes wrangler@3 pages deploy dist \
+            --project-name=nasa-hrvatska-v2 \
+            --branch=master \
+            --commit-dirty=true \
+            --commit-message="$COMMIT_MSG"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
