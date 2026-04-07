@@ -37,9 +37,10 @@ test.describe('Tab navigation', () => {
 
   test('navigates to Practice tab and shows practice options', async ({ page }) => {
     await clickTab(page, 'Practice');
+    // Wait for the heading first — confirms the tab content has rendered before checking nav state
+    await expect(page.getByRole('heading', { name: /Practice/i })).toBeVisible({ timeout: 10_000 });
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
-    await expect(nav.getByRole('button', { name: 'Practice', exact: true })).toHaveClass(/active/);
-    await expect(page.getByRole('heading', { name: /Practice/i })).toBeVisible({ timeout: 5_000 });
+    await expect(nav.getByRole('button', { name: 'Practice', exact: true })).toHaveClass(/active/, { timeout: 5_000 });
   });
 
   test('navigates to Culture tab and shows History & Regions heading', async ({ page }) => {

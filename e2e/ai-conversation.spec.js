@@ -128,15 +128,9 @@ async function startFreeTalkConversation(page) {
   await freeTalkCard.click();
   await page.waitForTimeout(300);
 
-  // After selecting Free Talk, the "Start Conversation" button should appear
-  // The ConvoSetup's onStart prop is called via the "Start Conversation" button in the header
-  // Actually: the start is triggered by a button at the bottom of setup with text matching
-  // "Start Conversation" or similar. Look at the actual rendered content:
-  // AIConversationConvoSetup renders the start button only when scenario is set AND there
-  // is a visible Start button. In the actual component this is in the parent AIConversation
-  // which calls onStart from a "Start Conversation" button that appears when scenario is set.
-  // Based on reading the source — the Start button is shown when scenario !== null.
-  const startBtn = page.locator('button').filter({ hasText: /Start Conversation/ });
+  // After selecting Free Talk, the start button changes label from "Select a scenario above"
+  // to "Start — Free Conversation (B1)" (from AIConversationConvoSetup line 358).
+  const startBtn = page.locator('button').filter({ hasText: /Start —/ });
   await expect(startBtn).toBeVisible({ timeout: 5_000 });
   await startBtn.click();
 
@@ -208,7 +202,7 @@ test.describe('Mode selection', () => {
 
   test('default mode is conversation — scenario grid is visible', async ({ page }) => {
     // ConvoSetup renders the scenario grid and level selector under the header
-    await expect(page.getByText('Your Level')).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('Your Level', { exact: true })).toBeVisible({ timeout: 5_000 });
   });
 
   test('switching to Write mode shows write-mode intro text', async ({ page }) => {
@@ -225,7 +219,7 @@ test.describe('Mode selection', () => {
 
     // Switch back to conversation
     await page.locator('button').filter({ hasText: /💬 Razgovor/ }).click();
-    await expect(page.getByText('Your Level')).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('Your Level', { exact: true })).toBeVisible({ timeout: 5_000 });
   });
 });
 
@@ -246,14 +240,14 @@ test.describe('Write mode', () => {
   });
 
   test('write mode shows a level selector (B1 and others)', async ({ page }) => {
-    // AIConversationWriteSetup renders a level filter with B1/A1/A2/etc buttons
-    await expect(page.getByText('B1')).toBeVisible({ timeout: 5_000 });
+    // AIConversationWriteSetup renders a level filter; find the B1 button specifically
+    await expect(page.locator('button').filter({ hasText: /^B1$/ }).first()).toBeVisible({ timeout: 5_000 });
   });
 
   test('write mode shows a list of writing prompts', async ({ page }) => {
     // WRITE_PROMPTS is filtered to current level; default is B1 → shows B1 prompts
-    // "Last Weekend" is a B1 prompt
-    await expect(page.getByText('Last Weekend')).toBeVisible({ timeout: 5_000 });
+    // "Last Weekend" is a B1 prompt (exact: true avoids matching the description text)
+    await expect(page.getByText('Last Weekend', { exact: true })).toBeVisible({ timeout: 5_000 });
   });
 
   test('the "Introduce Yourself" prompt is available at A1 level', async ({ page }) => {
@@ -263,19 +257,20 @@ test.describe('Write mode', () => {
   });
 
   test('selecting a prompt enables the "Start Writing" button', async ({ page }) => {
-    // The start button is inside AIConversationWriteSetup; it is disabled until writePrompt is set
-    const startBtn = page.locator('button').filter({ hasText: /Start Writing/ });
-    // Initially disabled
-    await expect(startBtn).toBeDisabled({ timeout: 3_000 });
+    // AIConversationWriteSetup start button shows "Select a prompt above" when no prompt is
+    // selected (disabled), then changes to "Start Writing — {title}" when a prompt is chosen.
+    const startBtnInitial = page.locator('button').filter({ hasText: /Select a prompt above/ });
+    await expect(startBtnInitial).toBeDisabled({ timeout: 3_000 });
 
     // Select "Last Weekend" (a B1 prompt that should be in the default list)
-    await page.getByText('Last Weekend').click();
-    await expect(startBtn).toBeEnabled({ timeout: 3_000 });
+    await page.getByText('Last Weekend', { exact: true }).click();
+    // Button text now contains "Start Writing" and is enabled
+    await expect(page.locator('button').filter({ hasText: /Start Writing/ })).toBeEnabled({ timeout: 3_000 });
   });
 
   test('clicking Start Writing shows a textarea for writing', async ({ page }) => {
     // Select a B1 prompt
-    await page.getByText('Last Weekend').click();
+    await page.getByText('Last Weekend', { exact: true }).click();
     await page.locator('button').filter({ hasText: /Start Writing/ }).click();
 
     // Writing phase renders a textarea
@@ -283,7 +278,7 @@ test.describe('Write mode', () => {
   });
 
   test('writing phase shows the prompt text and a Submit button', async ({ page }) => {
-    await page.getByText('Last Weekend').click();
+    await page.getByText('Last Weekend', { exact: true }).click();
     await page.locator('button').filter({ hasText: /Start Writing/ }).click();
 
     await expect(page.locator('textarea')).toBeVisible({ timeout: 8_000 });
@@ -294,7 +289,7 @@ test.describe('Write mode', () => {
   });
 
   test('typing in the textarea and submitting calls /api/correct and shows result', async ({ page }) => {
-    await page.getByText('Last Weekend').click();
+    await page.getByText('Last Weekend', { exact: true }).click();
     await page.locator('button').filter({ hasText: /Start Writing/ }).click();
     await expect(page.locator('textarea')).toBeVisible({ timeout: 8_000 });
 
@@ -327,8 +322,8 @@ test.describe('Conversation mode setup', () => {
 
   test('scenario grid is visible with multiple scenario cards', async ({ page }) => {
     // filteredScenarios renders as div[onClick] cards with scenario title text
-    // Café At the Café scenario always exists
-    await expect(page.getByText('At the Café')).toBeVisible({ timeout: 5_000 });
+    // Café At a Café scenario always exists
+    await expect(page.getByText('At a Café')).toBeVisible({ timeout: 5_000 });
   });
 
   test('Free Talk quick-start card is always visible', async ({ page }) => {
@@ -364,25 +359,25 @@ test.describe('Conversation mode setup', () => {
     await page.waitForTimeout(200);
     // Then switch back to All
     await page.locator('button').filter({ hasText: /^🌐 All$/ }).click();
-    // At the Café should be visible again
-    await expect(page.getByText('At the Café')).toBeVisible({ timeout: 5_000 });
+    // At a Café should be visible again
+    await expect(page.getByText('At a Café')).toBeVisible({ timeout: 5_000 });
   });
 
   test('selecting Free Talk enables the Start Conversation button', async ({ page }) => {
     const freeTalk = page.locator('div').filter({ hasText: /Free Talk — No Script Needed/ }).first();
     await freeTalk.click();
-    await expect(page.locator('button').filter({ hasText: /Start Conversation/ })).toBeVisible({ timeout: 5_000 });
-    await expect(page.locator('button').filter({ hasText: /Start Conversation/ })).toBeEnabled({ timeout: 3_000 });
+    await expect(page.locator('button').filter({ hasText: /Start —/ })).toBeVisible({ timeout: 5_000 });
+    await expect(page.locator('button').filter({ hasText: /Start —/ })).toBeEnabled({ timeout: 3_000 });
   });
 
   test('selecting a regular scenario shows the level selector and Start button', async ({ page }) => {
-    // Click the "At the Café" scenario card
-    const cafeCard = page.locator('div').filter({ hasText: /At the Café/ }).first();
+    // Click the "At a Café" scenario card
+    const cafeCard = page.locator('div').filter({ hasText: /At a Café/ }).first();
     await cafeCard.scrollIntoViewIfNeeded();
     await cafeCard.click();
     await page.waitForTimeout(300);
     // Start Conversation button should now appear
-    await expect(page.locator('button').filter({ hasText: /Start Conversation/ })).toBeVisible({ timeout: 5_000 });
+    await expect(page.locator('button').filter({ hasText: /Start —/ })).toBeVisible({ timeout: 5_000 });
   });
 });
 

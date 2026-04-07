@@ -38,8 +38,10 @@ const MOCK_LISTENING_RESPONSE = {
 // ---------------------------------------------------------------------------
 
 async function openCategory(page, categoryLabel) {
-  // Switch to the Drill intent panel if not already active
-  const drillBtn = page.locator('button').filter({ hasText: /^Drill$/ });
+  // Switch to the Drill intent panel if not already active.
+  // The Drill tile button's textContent is "🎯Drill" (icon div + label div concatenated),
+  // so we target via the inner label div that has exact text "Drill".
+  const drillBtn = page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Drill$/ }) });
   if (await drillBtn.isVisible({ timeout: 2_000 })) await drillBtn.click();
   const catBtn = page.locator('button.cat-tile').filter({ hasText: categoryLabel });
   await catBtn.scrollIntoViewIfNeeded();
@@ -55,8 +57,8 @@ async function gotoPractice(page) {
   await page.goto('/practice');
   // Wait for the nav bar as a proxy that the app shell has hydrated
   await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-  // Confirm the Practice tab content is present via the intent tiles
-  await expect(page.locator('button').filter({ hasText: /^Drill$/ })).toBeVisible({ timeout: 10_000 });
+  // Confirm the Practice tab content is present via the page heading
+  await expect(page.getByText('🎮 Practice')).toBeVisible({ timeout: 10_000 });
 }
 
 // ===========================================================================
@@ -83,9 +85,11 @@ test.describe('Practice tab structure', () => {
   });
 
   test('renders the three intent tiles: Review, Drill, Challenge', async ({ page }) => {
-    await expect(page.locator('button').filter({ hasText: /^Review$/ })).toBeVisible();
-    await expect(page.locator('button').filter({ hasText: /^Drill$/ })).toBeVisible();
-    await expect(page.locator('button').filter({ hasText: /^Challenge$/ })).toBeVisible();
+    // Each intent tile button has the label text in a child div (separate from the icon div).
+    // Use structural filter to match the inner label div with exact text.
+    await expect(page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Review$/ }) })).toBeVisible();
+    await expect(page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Drill$/ }) })).toBeVisible();
+    await expect(page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) })).toBeVisible();
   });
 
   test('AI Voice Conversation hero button is visible', async ({ page }) => {
@@ -93,7 +97,7 @@ test.describe('Practice tab structure', () => {
   });
 
   test('Drill panel shows Browse Exercises section and four category tiles', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Drill$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Drill$/ }) }).click();
     await expect(page.getByText('Browse Exercises')).toBeVisible({ timeout: 5_000 });
     for (const label of ['Grammar', 'Vocabulary', 'Practical', 'Advanced']) {
       await expect(page.locator('button.cat-tile').filter({ hasText: label })).toBeVisible();
@@ -101,7 +105,7 @@ test.describe('Practice tab structure', () => {
   });
 
   test('Grammar category tile expands on click and collapses again', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Drill$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Drill$/ }) }).click();
     const grammarTile = page.locator('button.cat-tile').filter({ hasText: 'Grammar' });
     await grammarTile.scrollIntoViewIfNeeded();
     // Should be collapsed initially
@@ -118,7 +122,7 @@ test.describe('Practice tab structure', () => {
   });
 
   test('Advanced category tile expands and shows exercise cards', async ({ page }) => {
-    await page.locator('button').filter({ hasText: /^Drill$/ }).click();
+    await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Drill$/ }) }).click();
     const advTile = page.locator('button.cat-tile').filter({ hasText: 'Advanced' });
     await advTile.scrollIntoViewIfNeeded();
     await advTile.click();
