@@ -639,11 +639,11 @@ const VARIANTS = {
 };
 
 // ─── SVG gradient + filter defs ──────────────────────────────────────────────
+// NOTE: KF keyframes are no longer injected here — they're injected into <head>
+// by CroatianKnight's useEffect so they reliably apply to HTML elements too.
 function Defs() {
   return (
     <defs>
-      <style>{KF}</style>
-
       {/* Armor — LEGO plastic with sheen */}
       <linearGradient id="lk-ar" x1="15%" y1="0%" x2="85%" y2="100%">
         <stop offset="0%"   stopColor={C.arHi}/>
@@ -741,6 +741,22 @@ function Defs() {
 // ─── Main component ───────────────────────────────────────────────────────────
 const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'happy', variant, level = 1, className = '', style = {} }) {
   const variants = VARIANTS[mood] || VARIANTS.happy;
+
+  // Inject CSS keyframes into <head> exactly once across all instances.
+  //
+  // WHY not <style> inside SVG <defs>:
+  //   The jitter animation is applied to a <div> (HTML element). CSS @keyframes
+  //   defined inside an inline SVG <style> element are unreliable for HTML elements
+  //   in some browsers — the cascade may treat them as SVG-scoped. Injecting into
+  //   <head> guarantees the keyframes are globally available for both HTML divs and
+  //   SVG <g> elements.
+  useEffect(() => {
+    if (document.getElementById('lk-keyframes')) return;
+    const s = document.createElement('style');
+    s.id = 'lk-keyframes';
+    s.textContent = KF;
+    document.head.appendChild(s);
+  }, []);
 
   // Auto-cycle variant every 5 minutes so the knight never looks frozen.
   // Explicit variant prop bypasses cycling (e.g. onboarding, placement test).
