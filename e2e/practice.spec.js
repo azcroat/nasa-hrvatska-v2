@@ -229,22 +229,21 @@ test.describe('ClozeEngine — Sentence Cloze', () => {
     await expect(page.getByText('🧩 Sentence Cloze')).toBeVisible({ timeout: 8_000 });
     await expect(page.getByText('_____')).toBeVisible({ timeout: 5_000 });
 
-    // To reliably get a wrong answer, try all options until a "✗" feedback appears
-    const optButtons = page.locator('div[style*="grid-template-columns: 1fr 1fr"] button');
-    const count = await optButtons.count();
-    for (let i = 0; i < count; i++) {
-      // Re-query each time because options may re-mount between navigations
-      const btn = page.locator('div[style*="grid-template-columns: 1fr 1fr"] button').nth(i);
+    // To reliably get a wrong answer, iterate across multiple questions.
+    // With 4 options per question (exactly 1 correct), probability of 12
+    // consecutive correct picks is (1/4)^12 ≈ negligible.
+    for (let i = 0; i < 12; i++) {
+      // Re-query each time because options re-mount when the question changes
+      const btn = page.locator('div[style*="grid-template-columns: 1fr 1fr"] button').nth(i % 4);
       if (!(await btn.isVisible({ timeout: 1_000 }).catch(() => false))) break;
       await btn.click();
       const isWrong = await page.getByText(/✗ The answer was/).isVisible({ timeout: 1_000 }).catch(() => false);
       if (isWrong) break;
-      // If it was correct, advance to next question and try again
+      // Was correct — advance to next question without breaking the outer loop
       const nextBtn = page.locator('button.b.bp').filter({ hasText: /Next →/ });
       if (await nextBtn.isVisible({ timeout: 800 }).catch(() => false)) {
         await nextBtn.click();
-        await page.waitForTimeout(200);
-        break; // Wrong-answer path will be tested on next iteration at top of test
+        await page.waitForTimeout(300);
       }
     }
 
