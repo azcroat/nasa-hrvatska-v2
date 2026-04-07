@@ -423,8 +423,9 @@ test.describe('AIListeningScreen', () => {
     await page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) }).click();
     await page.locator('button.tc').filter({ hasText: 'AI Listening' }).click();
     await expect(page.getByText('🎧 AI Listening')).toBeVisible({ timeout: 8_000 });
-    // Level badge shows the current CEFR level followed by "Level"
-    await expect(page.getByText(/Level/, { exact: false })).toBeVisible({ timeout: 3_000 });
+    // Level badge shows the current CEFR level followed by "Level" — e.g. "B1 Level"
+    // Use anchored regex to match the badge element exactly and avoid strict-mode violations
+    await expect(page.getByText(/^[A-C][12] Level$/)).toBeVisible({ timeout: 3_000 });
   });
 
   test('all 10 topic buttons are visible', async ({ page }) => {
@@ -683,7 +684,8 @@ test.describe('SpeedChallenge — Home tab', () => {
   test('clicking "Play →" starts the game and shows a countdown timer', async ({ page }) => {
     await page.locator('button').filter({ hasText: /^Play →$/ }).click();
     // Playing phase: shows a timer value like "60s", "59s", etc.
-    await expect(page.getByText(/\d+s/)).toBeVisible({ timeout: 5_000 });
+    // Use anchored regex so only the timer element (textContent = "60s") matches, not parent containers
+    await expect(page.getByText(/^\d+s$/)).toBeVisible({ timeout: 5_000 });
   });
 
   test('clicking "Play →" shows the first question (a Croatian word prompt)', async ({ page }) => {
@@ -697,6 +699,6 @@ test.describe('SpeedChallenge — Home tab', () => {
 
   test('playing phase shows the score counter "⚡ 0"', async ({ page }) => {
     await page.locator('button').filter({ hasText: /^Play →$/ }).click();
-    await expect(page.getByText('⚡ 0')).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('⚡ 0').first()).toBeVisible({ timeout: 5_000 });
   });
 });

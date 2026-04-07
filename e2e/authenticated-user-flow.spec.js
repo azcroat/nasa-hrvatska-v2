@@ -38,7 +38,7 @@ test.describe('Authenticated user flow', () => {
 
   test('all 5 tabs are visible and tappable after sign-in', async ({ page }) => {
     await signIn(page);
-    const tabs = ['Home', 'Learn', 'Practice', 'Croatia', 'Me'];
+    const tabs = ['Today', 'Learn', 'Practice', 'Croatia', 'Me'];
     for (const tab of tabs) {
       const tabEl = page.getByRole('button', { name: new RegExp(tab, 'i') })
         .or(page.getByText(new RegExp(`^${tab}$`, 'i')));
@@ -194,7 +194,7 @@ test.describe('Authenticated user flow', () => {
 
     await signIn(page);
     // Visit every main tab
-    for (const tab of ['Learn', 'Practice', 'Croatia', 'Me', 'Home']) {
+    for (const tab of ['Learn', 'Practice', 'Croatia', 'Me', 'Today']) {
       await page.getByText(new RegExp(`^${tab}$`, 'i')).first().click();
       await page.waitForTimeout(1500);
     }

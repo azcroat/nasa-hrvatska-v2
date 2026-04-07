@@ -101,7 +101,7 @@ async function openAIConvoFromPractice(page) {
   const aiHeroBtn = page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first();
   await expect(aiHeroBtn).toBeVisible({ timeout: 10_000 });
   await aiHeroBtn.click();
-  await expect(page.getByText('Razgovor s Majom')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText('Razgovor s Majom').first()).toBeVisible({ timeout: 15_000 });
 }
 
 // ---------------------------------------------------------------------------
@@ -114,7 +114,7 @@ async function openAIConvoFromCroatia(page) {
   const aiConvoBtn = page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first();
   await aiConvoBtn.scrollIntoViewIfNeeded();
   await aiConvoBtn.click();
-  await expect(page.getByText('Razgovor s Majom')).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByText('Razgovor s Majom').first()).toBeVisible({ timeout: 10_000 });
 }
 
 // ---------------------------------------------------------------------------
@@ -163,7 +163,7 @@ test.describe('Navigation — AI Conversations from Croatia tab', () => {
     await btn.scrollIntoViewIfNeeded();
     await btn.click();
     // AIConversationHeader renders "Razgovor s Majom" in the hero
-    await expect(page.getByText('Razgovor s Majom')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText('Razgovor s Majom').first()).toBeVisible({ timeout: 10_000 });
   });
 
   test('AIConversation screen shows "Native Croatian speaker · All levels" subtitle', async ({ page }) => {
@@ -175,7 +175,7 @@ test.describe('Navigation — AI Conversations from Croatia tab', () => {
     await page.goto('/practice');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
     await page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first().click();
-    await expect(page.getByText('Razgovor s Majom')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText('Razgovor s Majom').first()).toBeVisible({ timeout: 10_000 });
   });
 });
 
@@ -323,11 +323,11 @@ test.describe('Conversation mode setup', () => {
   test('scenario grid is visible with multiple scenario cards', async ({ page }) => {
     // filteredScenarios renders as div[onClick] cards with scenario title text
     // Café At a Café scenario always exists
-    await expect(page.getByText('At a Café')).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('At a Café').first()).toBeVisible({ timeout: 5_000 });
   });
 
   test('Free Talk quick-start card is always visible', async ({ page }) => {
-    await expect(page.getByText('Free Talk — No Script Needed')).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('Free Talk — No Script Needed').first()).toBeVisible({ timeout: 5_000 });
   });
 
   test('level selector shows A1, A2, B1, B2 level buttons', async ({ page }) => {
@@ -360,7 +360,7 @@ test.describe('Conversation mode setup', () => {
     // Then switch back to All
     await page.locator('button').filter({ hasText: /^🌐 All$/ }).click();
     // At a Café should be visible again
-    await expect(page.getByText('At a Café')).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('At a Café').first()).toBeVisible({ timeout: 5_000 });
   });
 
   test('selecting Free Talk enables the Start Conversation button', async ({ page }) => {
@@ -403,7 +403,7 @@ test.describe('Conversation chat', () => {
   test('chat header shows the AI name (Mate)', async ({ page }) => {
     await startFreeTalkConversation(page);
     // The Free Talk scenario uses "Mate" as aiName
-    await expect(page.getByText('Mate')).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText('Mate').first()).toBeVisible({ timeout: 8_000 });
   });
 
   test('chat shows the level badge', async ({ page }) => {
@@ -436,12 +436,14 @@ test.describe('Conversation chat', () => {
 
   test('typing in the chat input and clicking Send triggers a conversation turn', async ({ page }) => {
     await startFreeTalkConversation(page);
-    // Find the text input in the chat overlay
-    // AIConversationChat renders an input via inputRef — look for an input or contenteditable
-    const chatInput = page.locator('input[placeholder]').last();
-    await chatInput.fill('Dobro sam, hvala!');
-    // Send button is rendered next to the input
+    // Wait for loading to complete — the input is disabled while the initial SSE is in flight.
+    // Use the exact placeholder so we target the chat input specifically.
+    const chatInput = page.locator('input[placeholder="Piši na hrvatskom…"]');
+    await expect(chatInput).toBeEnabled({ timeout: 8_000 });
+    // pressSequentially fires real key events which reliably trigger React onChange
+    await chatInput.pressSequentially('Dobro sam, hvala!');
     const sendBtn = page.getByRole('button', { name: 'Send' });
+    await expect(sendBtn).toBeEnabled({ timeout: 3_000 });
     await sendBtn.click();
     // After sending, our mock responds immediately with done=true
     // The user's message should appear in the messages list
@@ -469,15 +471,20 @@ test.describe('Double-evaluation guard', () => {
 
     // Inject at least 2 user messages into React state so the "End & Evaluate"
     // button becomes enabled. We do this by sending real messages via the UI.
-    const chatInput = page.locator('input[placeholder]').last();
+    // Use the exact placeholder and wait for enabled so we don't fill while loading.
+    const chatInput = page.locator('input[placeholder="Piši na hrvatskom…"]');
+    await expect(chatInput).toBeEnabled({ timeout: 8_000 });
 
     // Send first user message
-    await chatInput.fill('Dobar dan!');
+    await chatInput.pressSequentially('Dobar dan!');
+    await expect(page.getByRole('button', { name: 'Send' })).toBeEnabled({ timeout: 3_000 });
     await page.getByRole('button', { name: 'Send' }).click();
     await page.waitForTimeout(500);
 
     // Send second user message (SSE mock responds immediately each time)
-    await chatInput.fill('Kako si ti?');
+    await expect(chatInput).toBeEnabled({ timeout: 5_000 });
+    await chatInput.pressSequentially('Kako si ti?');
+    await expect(page.getByRole('button', { name: 'Send' })).toBeEnabled({ timeout: 3_000 });
     await page.getByRole('button', { name: 'Send' }).click();
     await page.waitForTimeout(500);
 
