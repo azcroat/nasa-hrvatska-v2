@@ -79,9 +79,9 @@ test.describe('Croatia tab', () => {
     });
 
     test('shows at least one card', async ({ page }) => {
-      // Croatian Life cards use the exercise-card class
+      // Croatian Life cards use the exercise-card class — use retrying assertion
       const cards = page.locator('button.exercise-card').filter({ hasText: /.{4,}/ });
-      expect(await cards.count()).toBeGreaterThan(0);
+      await expect(cards.first()).toBeVisible({ timeout: 10_000 });
     });
   });
 
@@ -91,9 +91,9 @@ test.describe('Croatia tab', () => {
     });
 
     test('shows at least one card', async ({ page }) => {
-      // Language & Culture uses .tc class cards
+      // Language & Culture uses .tc class cards — use retrying assertion
       const cards = page.locator('button.tc').filter({ hasText: /.{4,}/ });
-      expect(await cards.count()).toBeGreaterThan(0);
+      await expect(cards.first()).toBeVisible({ timeout: 10_000 });
     });
   });
 });

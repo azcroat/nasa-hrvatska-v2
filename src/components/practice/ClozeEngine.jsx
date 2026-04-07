@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { H, speak, stopAudio, srMark } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import { markQuest } from '../../lib/quests.js';
@@ -58,6 +58,8 @@ function shuffle(arr) {
 
 export default function ClozeEngine({ goBack, award }) {
   const { level } = useStats();
+  const mountedRef = useRef(true);
+  useEffect(() => () => { mountedRef.current = false; }, []);
   const questions = useMemo(() => shuffle(SENTENCE_BANK).slice(0, 12), []);
   const [qi, setQi] = useState(0);
   const [selected, setSelected] = useState(null);
@@ -78,11 +80,12 @@ export default function ClozeEngine({ goBack, award }) {
         body: JSON.stringify({ wrong, correct, context, type: 'cloze', level: level || 'B1' }),
         signal: AbortSignal.timeout(20000),
       });
+      if (!mountedRef.current) return;
       if (!res.ok) throw new Error('API error');
       const data = await res.json();
-      setAiExplain(data);
+      if (mountedRef.current) setAiExplain(data);
     } catch {
-      setAiExplain({ explanation: 'Could not load explanation. Check your connection.', rule: '', tip: '', example: '' });
+      if (mountedRef.current) setAiExplain({ explanation: 'Could not load explanation. Check your connection.', rule: '', tip: '', example: '' });
     }
   }, [level]);
 

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { H, Bar, speak } from '../../data.jsx';
 import { markQuest } from '../../lib/quests.js';
 import { rnd } from '../../lib/random.js';
@@ -43,6 +43,8 @@ function stripDiacritics(s) {
 
 export default function DictationScreen({ goBack, award }) {
   const finishFired = useRef(false);
+  const mountedRef = useRef(true);
+  useEffect(() => () => { mountedRef.current = false; }, []);
   const [qs] = useState(() => shLocal(DATA));
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
@@ -62,11 +64,12 @@ export default function DictationScreen({ goBack, award }) {
         body: JSON.stringify({ wrong, correct: correctText, type: 'dictation', level: level || 'A2' }),
         signal: AbortSignal.timeout(20000),
       });
+      if (!mountedRef.current) return;
       if (!res.ok) throw new Error('API error');
       const data = await res.json();
-      setAiExplain(data);
+      if (mountedRef.current) setAiExplain(data);
     } catch {
-      setAiExplain({ explanation: 'Could not load explanation.', rule: '', tip: '', example: '' });
+      if (mountedRef.current) setAiExplain({ explanation: 'Could not load explanation.', rule: '', tip: '', example: '' });
     }
   }, []);
 
