@@ -172,16 +172,15 @@ export default function StatsTab({ onShowPrestigeModal, onSyncNow }) {
                   return (
                     <div key={i} style={{
                       display: 'flex', alignItems: 'center', gap: 10,
-                      opacity: i <= cefrStageIdx ? 1 : 0.45,
                     }}>
-                      <span style={{ fontSize:'var(--text-lg)' }}>{isDone ? '✅' : isActive ? '▶️' : '⬜'}</span>
+                      <span style={{ fontSize:'var(--text-lg)', opacity: i > cefrStageIdx ? 0.35 : 1 }}>{isDone ? '✅' : isActive ? '▶️' : '⬜'}</span>
                       <span style={{ fontSize: 'var(--text-sm)', fontWeight: isActive ? 800 : 600, color: isActive ? 'var(--heading)' : 'var(--subtext)' }}>
                         Stage {i + 1}: {stageName}
                       </span>
                       <span style={{
                         fontSize: 'var(--text-xs)', fontWeight: 800,
-                        background: isActive ? cefr.color : 'var(--info-bg)',
-                        color: isActive ? 'var(--card)' : 'var(--info)',
+                        background: isActive ? (cefr.level === 'A1' || cefr.level === 'A2' ? 'var(--warning-dark,#92400e)' : cefr.level === 'B2' ? '#14532d' : cefr.color) : 'var(--info-bg)',
+                        color: isActive ? '#fff' : 'var(--info)',
                         borderRadius: 4, padding: '1px 4px', marginLeft: 6,
                       }}>
                         {STAGE_CEFR[i]}

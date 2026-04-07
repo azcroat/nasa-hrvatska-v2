@@ -137,8 +137,8 @@ export default function CultureTab({ sCurEx }) {
                               type === 'reading' ? 'rgba(22,163,74,0.1)' :
                               type === 'history' ? 'rgba(124,58,237,0.1)' : 'rgba(217,119,6,0.1)',
                   color: type === 'interactive' ? 'var(--info)' :
-                         type === 'reading' ? 'var(--forest, #16a34a)' :
-                         type === 'history' ? 'var(--lavender, #7c3aed)' : 'var(--harvest, #d97706)',
+                         type === 'reading' ? '#14532d' :
+                         type === 'history' ? 'var(--lavender, #7c3aed)' : '#78350f',
                 }}>
                   {type}
                 </span>

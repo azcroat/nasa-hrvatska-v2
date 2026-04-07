@@ -394,6 +394,7 @@ export default function AppRouter(props) {
             <span style={{position:"absolute",left:14,top:"50%",transform:"translateY(-50%)",fontSize:16,pointerEvents:"none",opacity:.4}} aria-hidden="true">🔍</span>
             <input
               type="search"
+              role="combobox"
               id="app-search"
               value={srchQ}
               onChange={function(e){setSrchQ(e.target.value);doSearch(e.target.value);setSrchOpen(true)}}

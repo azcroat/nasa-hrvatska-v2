@@ -8,22 +8,22 @@ const TIER2_MAP_LOCAL = {
 };
 
 const QUEST_COLORS = {
-  speak:        { bg:'var(--lavender,#7c3aed)',   shadow:'rgba(124,58,237,.35)',  border:'rgba(124,58,237,.22)' },
-  speak2:       { bg:'var(--lavender,#7c3aed)',   shadow:'rgba(124,58,237,.35)',  border:'rgba(124,58,237,.22)' },
-  grammar:      { bg:'var(--harvest,#d97706)',    shadow:'rgba(217,119,6,.35)',   border:'rgba(217,119,6,.22)'  },
-  grammar2:     { bg:'var(--harvest,#d97706)',    shadow:'rgba(217,119,6,.35)',   border:'rgba(217,119,6,.22)'  },
-  master:       { bg:'var(--accent,#0e7490)',     shadow:'rgba(14,116,144,.35)',  border:'rgba(14,116,144,.22)' },
-  master2:      { bg:'var(--accent,#0e7490)',     shadow:'rgba(14,116,144,.35)',  border:'rgba(14,116,144,.22)' },
-  reading:      { bg:'var(--forest,#16a34a)',     shadow:'rgba(22,163,74,.35)',   border:'rgba(22,163,74,.22)'  },
-  reading2:     { bg:'var(--forest,#16a34a)',     shadow:'rgba(22,163,74,.35)',   border:'rgba(22,163,74,.22)'  },
-  culture:      { bg:'var(--terracotta,#c2410c)', shadow:'rgba(194,65,12,.35)',   border:'rgba(194,65,12,.22)'  },
-  culture2:     { bg:'var(--terracotta,#c2410c)', shadow:'rgba(194,65,12,.35)',   border:'rgba(194,65,12,.22)'  },
-  vocab:        { bg:'var(--adriatic,#0284c7)',   shadow:'rgba(2,132,199,.35)',   border:'rgba(2,132,199,.22)'  },
-  vocab2:       { bg:'var(--adriatic,#0284c7)',   shadow:'rgba(2,132,199,.35)',   border:'rgba(2,132,199,.22)'  },
-  write:        { bg:'#7c3aed',                  shadow:'rgba(124,58,237,.35)',  border:'rgba(124,58,237,.22)' },
-  streak:       { bg:'var(--terracotta,#c2410c)', shadow:'rgba(194,65,12,.35)',   border:'rgba(194,65,12,.22)'  },
-  streak_alive: { bg:'var(--terracotta,#c2410c)', shadow:'rgba(194,65,12,.35)',   border:'rgba(194,65,12,.22)'  },
-  perfect:      { bg:'var(--medal-gold,#f59e0b)', shadow:'rgba(245,158,11,.35)',  border:'rgba(245,158,11,.22)' },
+  speak:        { bg:'var(--lavender,#7c3aed)',   text:'#fff',     shadow:'rgba(124,58,237,.35)',  border:'rgba(124,58,237,.22)' },
+  speak2:       { bg:'var(--lavender,#7c3aed)',   text:'#fff',     shadow:'rgba(124,58,237,.35)',  border:'rgba(124,58,237,.22)' },
+  grammar:      { bg:'var(--warning-dark,#92400e)', text:'#fff',   shadow:'rgba(146,64,14,.35)',   border:'rgba(146,64,14,.22)'  },
+  grammar2:     { bg:'var(--warning-dark,#92400e)', text:'#fff',   shadow:'rgba(146,64,14,.35)',   border:'rgba(146,64,14,.22)'  },
+  master:       { bg:'var(--accent,#0e7490)',     text:'#fff',     shadow:'rgba(14,116,144,.35)',  border:'rgba(14,116,144,.22)' },
+  master2:      { bg:'var(--accent,#0e7490)',     text:'#fff',     shadow:'rgba(14,116,144,.35)',  border:'rgba(14,116,144,.22)' },
+  reading:      { bg:'#14532d',                  text:'#fff',     shadow:'rgba(20,83,45,.35)',    border:'rgba(20,83,45,.22)'   },
+  reading2:     { bg:'#14532d',                  text:'#fff',     shadow:'rgba(20,83,45,.35)',    border:'rgba(20,83,45,.22)'   },
+  culture:      { bg:'var(--terracotta,#c2410c)', text:'#fff',    shadow:'rgba(194,65,12,.35)',   border:'rgba(194,65,12,.22)'  },
+  culture2:     { bg:'var(--terracotta,#c2410c)', text:'#fff',    shadow:'rgba(194,65,12,.35)',   border:'rgba(194,65,12,.22)'  },
+  vocab:        { bg:'var(--adriatic,#0284c7)',   text:'#fff',     shadow:'rgba(2,132,199,.35)',   border:'rgba(2,132,199,.22)'  },
+  vocab2:       { bg:'var(--adriatic,#0284c7)',   text:'#fff',     shadow:'rgba(2,132,199,.35)',   border:'rgba(2,132,199,.22)'  },
+  write:        { bg:'#7c3aed',                  text:'#fff',     shadow:'rgba(124,58,237,.35)',  border:'rgba(124,58,237,.22)' },
+  streak:       { bg:'var(--terracotta,#c2410c)', text:'#fff',    shadow:'rgba(194,65,12,.35)',   border:'rgba(194,65,12,.22)'  },
+  streak_alive: { bg:'var(--terracotta,#c2410c)', text:'#fff',    shadow:'rgba(194,65,12,.35)',   border:'rgba(194,65,12,.22)'  },
+  perfect:      { bg:'#78350f',                  text:'#fff',     shadow:'rgba(120,53,15,.35)',   border:'rgba(120,53,15,.22)'  },
 };
 
 const QUEST_SCREEN_MAP = {
@@ -171,7 +171,7 @@ export default function QuestTracker({ questsDone, allQuestsDone, onQuestStart }
               {isUpgraded && !done && (
                 <div style={{
                   position: 'absolute', top: -6, right: 8,
-                  background: qc.bg, color: '#fff',
+                  background: qc.bg, color: qc.text,
                   fontSize: 9, fontWeight: 900, padding: '2px 6px',
                   borderRadius: 8, letterSpacing: '.04em',
                   boxShadow: `0 2px 8px ${qc.shadow}`,
@@ -207,7 +207,7 @@ export default function QuestTracker({ questsDone, allQuestsDone, onQuestStart }
                     onClick={() => onQuestStart(q.id, QUEST_SCREEN_MAP[q.id] || 'learnpath')}
                     style={{
                       marginTop: 'auto', fontSize: 11, fontWeight: 800,
-                      color: '#fff', background: qc.bg, border: 'none',
+                      color: qc.text, background: qc.bg, border: 'none',
                       borderRadius: 'var(--radius-sm)', padding: '7px 16px', cursor: 'pointer',
                       lineHeight: 1.4, boxShadow: `0 3px 12px ${qc.shadow}`,
                       fontFamily: 'var(--font-sans)',

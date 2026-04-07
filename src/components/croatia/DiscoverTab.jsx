@@ -244,10 +244,10 @@ export default function DiscoverTab() {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
           <span style={{ fontSize: 14 }}>💌</span>
-          <span style={{ fontSize: 10, fontWeight: 900, color: 'var(--warning,#b45309)', textTransform: 'uppercase', letterSpacing: '.1em' }}>Letters from Baka</span>
+          <span style={{ fontSize: 10, fontWeight: 900, color: 'var(--warning-dark,#92400e)', textTransform: 'uppercase', letterSpacing: '.1em' }}>Letters from Baka</span>
           <span style={{
             marginLeft: 'auto', fontSize: 10, fontWeight: 700,
-            color: 'var(--warning,#b45309)', background: 'var(--warning-bg,#fffbeb)',
+            color: 'var(--warning-dark,#92400e)', background: 'var(--warning-bg,#fffbeb)',
             border: '1px solid var(--warning-b,#fde68a)', borderRadius: 20, padding: '2px 8px',
           }}>Stories tab →</span>
         </div>

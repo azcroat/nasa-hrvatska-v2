@@ -247,7 +247,7 @@ export default function LearnTab({
         >
           <span style={{ fontSize: 18 }}>✨</span>
           Browse more learning content
-          <span style={{ fontSize: 12, opacity: .6 }}>(7 more topics)</span>
+          <span style={{ fontSize: 12, color: 'var(--subtext)' }}>(7 more topics)</span>
           <span style={{ fontSize: 14 }}>›</span>
         </button>
       )}
@@ -580,8 +580,9 @@ export default function LearnTab({
             >ℹ</span>
           </div>
           <span style={{
-            fontSize:'var(--text-sm)', fontWeight:900, color:'var(--card)',
-            background: cefrLevel === 'B2' ? 'var(--success)' : cefrLevel === 'B1' ? 'var(--info)' : cefrLevel === 'A2' ? 'var(--warning)' : 'var(--subtext)',
+            fontSize:'var(--text-sm)', fontWeight:900,
+            color: cefrLevel === 'B2' ? '#fff' : cefrLevel === 'B1' ? '#fff' : cefrLevel === 'A2' ? '#fff' : '#fff',
+            background: cefrLevel === 'B2' ? '#14532d' : cefrLevel === 'B1' ? 'var(--info)' : cefrLevel === 'A2' ? 'var(--warning-dark,#92400e)' : 'var(--subtext)',
             borderRadius:8, padding:'2px 9px',
           }}>{cefrLevel}</span>
         </div>
@@ -602,7 +603,7 @@ export default function LearnTab({
         </div>
         <div style={{ display:'flex', justifyContent:'space-between' }}>
           {['A1','A2','B1','B2','C1'].map(l => (
-            <div key={l} style={{ fontSize:'var(--text-xs)', fontWeight:700, color: cefrLevel === l ? 'var(--heading)' : 'var(--subtext)', opacity: cefrLevel === l ? 1 : 0.5 }}>{l}</div>
+            <div key={l} style={{ fontSize:'var(--text-xs)', fontWeight:700, color: cefrLevel === l ? 'var(--heading)' : 'var(--subtext)' }}>{l}</div>
           ))}
         </div>
       </div>
