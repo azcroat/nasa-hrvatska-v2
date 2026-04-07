@@ -153,8 +153,21 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID || '1:000000000000:web:placeholder' }}
           VITE_SENTRY_DSN: ""
 
-      - name: Run E2E tests (Chrome, Firefox, WebKit)
-        run: npx playwright test --project="Desktop Chrome" --project="Desktop Firefox" --project="Desktop Safari (WebKit)"
+      - name: Run E2E tests — Chrome (full suite)
+        run: npx playwright test --project="Desktop Chrome"
+        env:
+          CI: true
+
+      - name: Run E2E tests — Firefox + WebKit (smoke only)
+        # Targeted subset to verify cross-browser compat without exceeding 45-min budget.
+        # Full suite × 3 engines ≈ 60 min; smoke-only keeps Firefox+WebKit under 10 min.
+        run: |
+          npx playwright test \
+            --project="Desktop Firefox" \
+            --project="Desktop Safari (WebKit)" \
+            e2e/navigation.spec.js \
+            e2e/auth-edge-cases.spec.js \
+            e2e/error-boundary.spec.js
         env:
           CI: true
 
