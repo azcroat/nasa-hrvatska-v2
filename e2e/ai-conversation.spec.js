@@ -97,9 +97,10 @@ async function gotoCroatia(page) {
 async function openAIConvoFromPractice(page) {
   await page.goto('/practice');
   await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-  await expect(page.locator('button').filter({ hasText: /Drill/ })).toBeVisible({ timeout: 10_000 });
-  // Click the hero button for AI Voice Conversation
-  await page.locator('button').filter({ hasText: 'AI Voice Conversation' }).click();
+  // Wait for the hero AI Voice Conversation button — confirms Practice tab fully rendered
+  const aiHeroBtn = page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first();
+  await expect(aiHeroBtn).toBeVisible({ timeout: 10_000 });
+  await aiHeroBtn.click();
   await expect(page.getByText('Razgovor s Majom')).toBeVisible({ timeout: 10_000 });
 }
 
@@ -179,8 +180,7 @@ test.describe('Navigation — AI Conversations from Croatia tab', () => {
   test('back navigation from Practice hero button also opens AIConversation', async ({ page }) => {
     await page.goto('/practice');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    await expect(page.locator('button').filter({ hasText: /Drill/ })).toBeVisible({ timeout: 10_000 });
-    await page.locator('button').filter({ hasText: 'AI Voice Conversation' }).click();
+    await page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first().click();
     await expect(page.getByText('Razgovor s Majom')).toBeVisible({ timeout: 10_000 });
   });
 });
