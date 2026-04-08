@@ -143,8 +143,12 @@ export default function ClozeEngine({ goBack, award }) {
 
   function renderSentenceWithBlank() {
     if (!q) return null;
-    const parts = q.sentence.split(q.blank);
-    if (parts.length < 2) return <span>{q.sentence}</span>;
+    // Replace only the FIRST occurrence of the blank word so sentences where the
+    // target word appears more than once still render the full sentence correctly.
+    const idx = q.sentence.indexOf(q.blank);
+    if (idx === -1) return <span>{q.sentence}</span>;
+    const before = q.sentence.slice(0, idx);
+    const after = q.sentence.slice(idx + q.blank.length);
     const blankDisplay = isAnswered ? (
       <span style={{
         padding: '2px 10px', borderRadius: 8, fontWeight: 900,
@@ -158,7 +162,7 @@ export default function ClozeEngine({ goBack, award }) {
         margin: '0 4px', textAlign: 'center', color: '#0e7490', fontWeight: 700,
       }}>_____</span>
     );
-    return <>{parts[0]}{blankDisplay}{parts[1]}</>;
+    return <>{before}{blankDisplay}{after}</>;
   }
 
   if (done) {
