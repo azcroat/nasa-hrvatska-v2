@@ -40,53 +40,111 @@ interface SeasonalCampaign {
   color: string;
   bg: string;
   border: string;
+  /** Static window used by fixed-date campaigns (same every year). */
   start: [number, number];
   end: [number, number];
+  /** Optional override: returns the correct window for a given year.
+   *  Used by moveable feasts (Easter). When present, start/end are ignored. */
+  dynamicWindow?: (year: number) => { start: [number, number]; end: [number, number] };
   multiplier: number;
   blurb: string;
   quests: SeasonalQuest[];
 }
 
+/**
+ * Meeus/Jones/Butcher algorithm — returns the month (1-based) and day of
+ * Easter Sunday for any Gregorian year.
+ *
+ * 2026 → April 5   (display window: March 29 – April 6)
+ * 2027 → March 28  (display window: March 21 – March 29)
+ * 2028 → April 16  (display window: April 9  – April 17)
+ */
+function easterSunday(year: number): { month: number; day: number } {
+  const a = year % 19;
+  const b = Math.floor(year / 100);
+  const c = year % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31);
+  const day = ((h + l - 7 * m + 114) % 31) + 1;
+  return { month, day };
+}
+
 export const SEASONAL_CAMPAIGNS: SeasonalCampaign[] = [
-  { id: 'easter', name: 'Uskrs u Hrvatskoj', icon: '🥚', color: '#16a34a', bg: '#f0fdf4', border: '#86efac',
-    start: [3, 20], end: [4, 7], multiplier: 1.5,
+  {
+    id: 'easter', name: 'Uskrs u Hrvatskoj', icon: '🥚', color: '#16a34a',
+    bg: '#f0fdf4', border: '#86efac', start: [3, 29], end: [4, 6], multiplier: 1.5,
     blurb: 'Learn Easter traditions — pisanice, lamb, holiday greetings',
+    /**
+     * Show from Palm Sunday (Easter − 7 days) through Easter Monday (Easter + 1 day).
+     * Recalculated every year so no manual update is ever needed.
+     */
+    dynamicWindow: (year) => {
+      const { month: em, day: ed } = easterSunday(year);
+      const easterDate = new Date(year, em - 1, ed);
+      const palmSunday  = new Date(easterDate.getTime() - 7 * 86_400_000);
+      const easterMonday = new Date(easterDate.getTime() + 86_400_000);
+      return {
+        start: [palmSunday.getMonth() + 1,  palmSunday.getDate()]  as [number, number],
+        end:   [easterMonday.getMonth() + 1, easterMonday.getDate()] as [number, number],
+      };
+    },
     quests: [
-      { id: 'uskrs_q1', label: 'Learn 5 Easter words', desc: 'Browse the Easter vocabulary', xp: 30, screen: 'easter' },
-      { id: 'uskrs_q2', label: 'Practice family vocab', desc: 'Family flashcards', xp: 25, screen: 'flashcards' },
-      { id: 'uskrs_q3', label: 'Easter challenge', desc: 'Score 80%+ on any quiz', xp: 50, screen: 'mcgame' },
-    ] },
-  { id: 'midsummer', name: 'Ivanjdan', icon: '🔥', color: '#ea580c', bg: '#fff7ed', border: '#fed7aa',
-    start: [6, 20], end: [6, 28], multiplier: 1.5,
+      { id: 'uskrs_q1', label: 'Learn 5 Easter words',  desc: 'Browse the Easter vocabulary',    xp: 30, screen: 'easter' },
+      { id: 'uskrs_q2', label: 'Practice family vocab', desc: 'Family flashcards',                xp: 25, screen: 'flashcards' },
+      { id: 'uskrs_q3', label: 'Easter challenge',      desc: 'Score 80%+ on any quiz',           xp: 50, screen: 'mcgame' },
+    ],
+  },
+  {
+    // Ivanjdan — St. John's Eve (June 23/24), fixed every year
+    id: 'midsummer', name: 'Ivanjdan', icon: '🔥', color: '#ea580c',
+    bg: '#fff7ed', border: '#fed7aa', start: [6, 20], end: [6, 25], multiplier: 1.5,
     blurb: 'Celebrate Midsummer with bonfire traditions and Croatian folklore',
     quests: [
-      { id: 'ivanjdan_q1', label: 'Learn bonfire words', desc: 'Complete the culture lesson', xp: 30, screen: 'lesson' },
-      { id: 'ivanjdan_q2', label: 'Explore Croatian folklore', desc: 'Read a Croatian story', xp: 25, screen: 'readlist' },
-      { id: 'ivanjdan_q3', label: 'Midsummer quiz', desc: 'Score 80%+ on any quiz', xp: 50, screen: 'mcgame' },
-    ] },
-  { id: 'domovina', name: 'Dan domovine', icon: '🇭🇷', color: '#b61800', bg: '#fff1f0', border: '#fca5a5',
-    start: [7, 25], end: [8, 10], multiplier: 2.0,
+      { id: 'ivanjdan_q1', label: 'Learn bonfire words',     desc: 'Complete the culture lesson',  xp: 30, screen: 'lesson' },
+      { id: 'ivanjdan_q2', label: 'Explore Croatian folklore', desc: 'Read a Croatian story',      xp: 25, screen: 'readlist' },
+      { id: 'ivanjdan_q3', label: 'Midsummer quiz',          desc: 'Score 80%+ on any quiz',       xp: 50, screen: 'mcgame' },
+    ],
+  },
+  {
+    // Dan državnosti July 25 + Dan pobjede (Operation Storm) August 5, fixed every year
+    id: 'domovina', name: 'Dan domovine', icon: '🇭🇷', color: '#b61800',
+    bg: '#fff1f0', border: '#fca5a5', start: [7, 25], end: [8, 6], multiplier: 2.0,
     blurb: "Honor Croatia's liberation — learn history, heroes, and homeland pride",
     quests: [
-      { id: 'domovina_q1', label: 'Learn 5 history words', desc: 'Complete the Domovinski Rat lesson', xp: 40, screen: 'history' },
-      { id: 'domovina_q2', label: 'Read about Operation Storm', desc: 'Complete a history reading passage', xp: 35, screen: 'readlist' },
-      { id: 'domovina_q3', label: 'Homeland pride quiz', desc: 'Score 80%+ on the history quiz', xp: 60, screen: 'mcgame' },
-    ] },
-  { id: 'bozic', name: 'Božić', icon: '🎄', color: '#0e7490', bg: '#f0f9ff', border: '#bae6fd',
-    start: [12, 1], end: [12, 31], multiplier: 2.0,
+      { id: 'domovina_q1', label: 'Learn 5 history words',    desc: 'Complete the Domovinski Rat lesson',      xp: 40, screen: 'history' },
+      { id: 'domovina_q2', label: 'Read about Operation Storm', desc: 'Complete a history reading passage',    xp: 35, screen: 'readlist' },
+      { id: 'domovina_q3', label: 'Homeland pride quiz',      desc: 'Score 80%+ on the history quiz',          xp: 60, screen: 'mcgame' },
+    ],
+  },
+  {
+    // Božić — Advent through Christmas, fixed every year
+    id: 'bozic', name: 'Božić', icon: '🎄', color: '#0e7490',
+    bg: '#f0f9ff', border: '#bae6fd', start: [12, 1], end: [12, 31], multiplier: 2.0,
     blurb: 'Croatian Christmas — fritule, pokloni, carols, and family traditions',
     quests: [
-      { id: 'bozic_q1', label: 'Learn Christmas vocab', desc: 'Complete the greetings lesson', xp: 30, screen: 'lesson' },
-      { id: 'bozic_q2', label: 'Practice holiday phrases', desc: 'Complete a speaking exercise', xp: 25, screen: 'speaking' },
-      { id: 'bozic_q3', label: 'Christmas challenge', desc: 'Score 80%+ on any quiz', xp: 50, screen: 'mcgame' },
-    ] },
+      { id: 'bozic_q1', label: 'Learn Christmas vocab',   desc: 'Complete the greetings lesson',    xp: 30, screen: 'lesson' },
+      { id: 'bozic_q2', label: 'Practice holiday phrases', desc: 'Complete a speaking exercise',    xp: 25, screen: 'speaking' },
+      { id: 'bozic_q3', label: 'Christmas challenge',     desc: 'Score 80%+ on any quiz',           xp: 50, screen: 'mcgame' },
+    ],
+  },
 ];
 
 export function getActiveCampaign(): SeasonalCampaign | null {
   const now = new Date();
+  const year = now.getFullYear();
   const m = now.getMonth() + 1, d = now.getDate();
+
   return SEASONAL_CAMPAIGNS.find(c => {
-    const [sm, sd] = c.start, [em, ed] = c.end;
+    const win = c.dynamicWindow ? c.dynamicWindow(year) : { start: c.start, end: c.end };
+    const [sm, sd] = win.start, [em, ed] = win.end;
     if (sm === em) return m === sm && d >= sd && d <= ed;
     if (m === sm) return d >= sd;
     if (m === em) return d <= ed;
