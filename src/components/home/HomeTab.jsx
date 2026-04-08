@@ -26,20 +26,14 @@ function getLastActivity() {
 }
 import HeroSection from './HeroSection.jsx';
 import PathProgressCard from './PathProgressCard.jsx';
-import QuestTracker from './QuestTracker.jsx';
 import ReviewTabContent from './ReviewTabContent.jsx';
 import CampaignBanner from './CampaignBanner.jsx';
 import DailyCroatianSection from './DailyCroatianSection.jsx';
 import ProgressTabContent from './ProgressTabContent.jsx';
 import WelcomeBackBanners from './WelcomeBackBanners.jsx';
 import GoalSetterModal from '../shared/GoalSetterModal.jsx';
-import SpeedChallenge from './SpeedChallenge.jsx';
 import WeeklyRecapModal, { shouldShowWeeklyRecap, markRecapShown } from './WeeklyRecapModal.jsx';
-import WeakWordsPanel from './WeakWordsPanel.jsx';
 import UnitCompleteBanner from './UnitCompleteBanner.jsx';
-import AdaptiveInsightsCard from '../profile/AdaptiveInsightsCard.jsx';
-import DailyListeningCard from './DailyListeningCard.jsx';
-import ClanCard from './ClanCard.jsx';
 import StreakMilestoneToast, { checkAndMarkMilestone } from '../shared/StreakMilestoneToast.jsx';
 // DalmatianCoast SVG replaced with real AI/CC photography
 // import { DalmatianCoast } from '../illustrations';
