@@ -6,7 +6,7 @@ import { getSR, getDueReviews } from "./lib/srs.js";
 import { buildProgressSnapshot } from "./lib/progressSnapshot.js";
 import { applyRemoteProgress as _applyRemoteProgressLib } from "./lib/applyRemoteProgress.js";
 import { localDateStr, weekKey } from "./lib/dateUtils.js";
-import { canRepairStreak, repairStreak } from "./lib/streak.js";
+import { repairStreak } from "./lib/streak.js";
 import { cleanupStaleQuestKeys } from "./lib/quests.js";
 import { trackAppOpen } from "./lib/analytics.js";
 import { fbRegisterFriendCode } from "./lib/firebase.js";

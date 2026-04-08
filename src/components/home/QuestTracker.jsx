@@ -58,7 +58,6 @@ function buildVisibleQuests(questsDone) {
     if (q.tier === 1 && tier2Id) {
       // Paired quest: show tier-2 when tier-1 done, else show tier-1
       const tier1Done = questsDone[q.id];
-      const tier2Done = questsDone[tier2Id];
       const tier2Quest = DAILY_QUESTS.find(x => x.id === tier2Id);
 
       if (tier1Done && tier2Quest) {

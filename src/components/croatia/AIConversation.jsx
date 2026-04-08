@@ -119,7 +119,6 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   } = useWriteMode("B1");
 
   // ── Stable refs (not state — no re-render on change) ────────────────────────
-  const recognitionRef      = useRef(null);
   const messagesRef         = useRef(messages); // always-current ref for async callbacks
   useEffect(() => { messagesRef.current = messages; }, [messages]);
   const memorySummaryRef    = useRef(null); // cached memory summary for this session
@@ -149,7 +148,6 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   const { loadMemories, saveMemory } = useConversationMemory();
   const npcVideoFiredRef    = useRef(null);
   const speakGenRef         = useRef(0); // prevents stale animation clear
-  const pendingVoiceTextRef = useRef(''); // accumulates voice transcript
   const translationCacheRef = useRef({});
 
   const messagesEndRef   = useRef(/** @type {HTMLDivElement | null} */(null));
