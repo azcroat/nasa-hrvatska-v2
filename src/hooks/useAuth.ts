@@ -447,7 +447,11 @@ export function useAuth({
     }
     guestRef.current = false;
     if (watchRef.current) { watchRef.current(); watchRef.current = null; }
-    fbLogout(); cS(); setAuthUser(null); setAuthScreen('login');
+    fbLogout(); cS();
+    // Clear all per-user state so a different user on the same device starts clean
+    ['nh_lesson_resume', 'nh_checkpoints', 'login_attempts'].forEach(k => localStorage.removeItem(k));
+    ['nh_ex_start', 'nh_checkpoint_level', 'nh_readlist_filter'].forEach(k => sessionStorage.removeItem(k));
+    setAuthUser(null); setAuthScreen('login');
     cb.current.onSignedOut();
   }
 
