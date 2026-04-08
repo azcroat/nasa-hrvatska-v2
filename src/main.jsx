@@ -233,6 +233,30 @@ window.onunhandledrejection = function (event) {
   reportError(reason ?? new Error('Unhandled rejection'), 'unhandledrejection');
 };
 
+// ─── App version check — independent of SW ────────────────────────────────
+// Fetches /version.json from the network (no-store) on every page load.
+// If the deployed version differs from what this session loaded, reload once.
+// This guarantees all users see new deploys even when SW cache is stuck.
+(function checkAppVersion() {
+  try {
+    fetch('/version.json', { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data || !data.v) return;
+        const key = 'nh_app_ver';
+        const stored = sessionStorage.getItem(key);
+        const next = String(data.v);
+        if (stored && stored !== next) {
+          sessionStorage.setItem(key, next);
+          window.location.reload();
+        } else {
+          sessionStorage.setItem(key, next);
+        }
+      })
+      .catch(() => {});
+  } catch (_) {}
+})();
+
 // ─── Service Worker registration ──────────────────────────────────────────
 // Skip entirely inside Capacitor Android/iOS — WebView does not support SW
 // registration from https://localhost/ and the attempt throws an unhandled
