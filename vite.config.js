@@ -1,8 +1,19 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import fs from 'fs';
+
+// Auto-generated on every build/dev-server start — never bump manually.
+// Becomes CACHE_VER in sw.js and the value in /version.json.
+// Every deploy gets a unique ID → old SW caches are purged automatically.
+const BUILD_ID = Date.now().toString();
+fs.writeFileSync('./public/version.json', JSON.stringify({ v: BUILD_ID }) + '\n');
 
 export default defineConfig({
+  // Inject BUILD_ID so sw.js can use it as CACHE_VER without any manual bumping.
+  define: {
+    __BUILD_ID__: JSON.stringify(BUILD_ID),
+  },
   plugins: [
     react(),
     VitePWA({
