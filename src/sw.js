@@ -65,7 +65,7 @@ cleanupOutdatedCaches();
 
 // ── Runtime caching ──────────────────────────────────────────────────────────
 
-const CACHE_VER = 'nasa-hrvatska-v17';
+const CACHE_VER = 'nasa-hrvatska-v18';
 
 // 1. Data chunks (vocab, grammar, exercises, lessons, scenarios, cultural, geo,
 //    stories, pitch-data, daily, songs) — StaleWhileRevalidate.
