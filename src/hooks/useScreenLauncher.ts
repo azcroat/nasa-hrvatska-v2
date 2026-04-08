@@ -339,6 +339,17 @@ export function useScreenLauncher({
       sessionStorage.setItem('nh_ex_start', Date.now().toString());
       trackStart('listening');
       setScr('listening');
+    } else if (item.go === 'speaking') {
+      const { V } = await _getData() as { V: Record<string, VocabWord[]> };
+      const pool = allCats.flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
+      const items = _sh(pool).slice(0, 6);
+      if (items.length === 0) return;
+      returnContextRef.current = { tab: 'learn', screen: 'learnpath' };
+      sSi(items); sSx(0); sSw(items[0]); sSr(null); sSsc(0);
+      sCurEx('speaking');
+      sessionStorage.setItem('nh_ex_start', Date.now().toString());
+      trackStart('speaking');
+      setScr('speaking');
     } else if (item.go === 'mcgame') {
       const { V } = await _getData() as { V: Record<string, VocabWord[]> };
       const pool = allCats.flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
