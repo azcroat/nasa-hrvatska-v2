@@ -367,7 +367,7 @@ export function useAuth({
     try { loginData = JSON.parse(localStorage.getItem(loginKey) || '{"count":0,"since":0}'); } catch (_) {}
     const now = Date.now();
     if (now - loginData.since < 600000) {
-      if (loginData.count >= 5) {
+      if (loginData.count >= 10) {
         setAuthError('Too many sign-in attempts. Please wait 10 minutes.');
         setAuthLoading(false);
         return;
@@ -380,6 +380,7 @@ export function useAuth({
       const k = authEmail.trim().toLowerCase();
       const result = await fbLogin(k, pw) as { ok: boolean; err?: string };
       if (result.ok) {
+        localStorage.removeItem(loginKey);
         setAuthEmail(''); setPw('');
         setAuthScreen('loading');
       } else {
