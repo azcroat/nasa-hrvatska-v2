@@ -6,8 +6,9 @@ import { apiFetch } from '../../lib/apiFetch.js';
 // ── Dexie (IndexedDB) — unlimited offline storage, syncs seamlessly ──────────
 const db = /** @type {any} */ (new Dexie('NasaHrvatska'));
 db.version(1).stores({ journal: '++id,date' });
-// v2 — adds examples column (nullable JSON array of {hr,en,note})
-db.version(2).stores({ journal: '++id,date,examples' });
+// v2 — adds examples column (nullable JSON array of {hr,en,note}).
+// upgrade() preserves all existing rows; new column defaults to undefined.
+db.version(2).stores({ journal: '++id,date,examples' }).upgrade(() => {});
 
 // Migrate existing localStorage words on first load
 async function migrateFromLocalStorage() {

@@ -330,11 +330,6 @@ function App() {
     }
     localStorage.setItem('lastSeen', String(now));
 
-    // Streak repair prompt — show when streak broke yesterday and user has enough XP
-    if (canRepairStreak() && stats.xp >= 100) {
-      timers.push(setTimeout(() => setShowStreakRepair(true), 1500));
-    }
-
     // Weekly freeze recharge — award a freeze token if the user earned XP last week
     try {
       const thisWeek = weekKey();
@@ -362,9 +357,17 @@ function App() {
   }, [authScreen]);  
 
   // Session expiry guard
-  useEffect(() => { if (authScreen !== 'app') return undefined; const iv = setInterval(() => { if (isSessionExpired()) doOut(); }, 5*60*1000); return () => clearInterval(iv); }, [authScreen]);  
+  useEffect(() => { if (authScreen !== 'app') return undefined; const iv = setInterval(() => { if (isSessionExpired()) doOut(); }, 5*60*1000); return () => clearInterval(iv); }, [authScreen]);
   // Touch session on user interaction
   useEffect(() => { if (authScreen !== 'app') return undefined; const h = () => touchSession(); window.addEventListener('click',h); window.addEventListener('touchstart',h); window.addEventListener('keydown',h); return () => { window.removeEventListener('click',h); window.removeEventListener('touchstart',h); window.removeEventListener('keydown',h); }; }, [authScreen]);
+  // Email verification banner — auto-dismiss after 8 s; show at most once per session
+  useEffect(() => {
+    if (!emailUnverified) return undefined;
+    if (sessionStorage.getItem('nh_ev_shown')) { setEmailUnverified(false); return undefined; }
+    sessionStorage.setItem('nh_ev_shown', '1');
+    const t = setTimeout(() => setEmailUnverified(false), 8000);
+    return () => clearTimeout(t);
+  }, [emailUnverified, setEmailUnverified]);
 
   // Auto-save to localStorage on every state change (Firebase handled by useSyncManager)
   useEffect(() => {

@@ -96,13 +96,21 @@ export function AppToasts({
         </div>
       )}
 
-      {/* Subscription renewal reminder */}
-      {!isFreeAnnual && daysLeft != null && daysLeft <= 3 && (
-        <div style={{position:'fixed',top:60,left:0,right:0,zIndex:890,background:'linear-gradient(135deg,#164e63,#0e7490)',color:'#fff',padding:'8px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',fontSize:12,fontWeight:700}}>
-          <span>Premium: {daysLeft}d left</span>
-          <button onClick={() => setShowPaywall(true)} style={{background:'#fff',color:'#0e7490',border:'none',borderRadius:20,padding:'4px 12px',fontSize:11,fontWeight:800,cursor:'pointer'}}>Renew</button>
-        </div>
-      )}
+      {/* Subscription renewal reminder — dismissible with 24 h snooze */}
+      {!isFreeAnnual && daysLeft != null && daysLeft <= 3 && (() => {
+        const snoozeKey = 'nh_renewal_snoozed';
+        const snoozedUntil = parseInt(localStorage.getItem(snoozeKey) || '0', 10);
+        if (Date.now() < snoozedUntil) return null;
+        return (
+          <div style={{position:'fixed',top:60,left:0,right:0,zIndex:890,background:'linear-gradient(135deg,#164e63,#0e7490)',color:'#fff',padding:'8px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,fontSize:12,fontWeight:700}}>
+            <span>Premium: {daysLeft}d left</span>
+            <div style={{display:'flex',alignItems:'center',gap:6}}>
+              <button onClick={() => setShowPaywall(true)} style={{background:'#fff',color:'#0e7490',border:'none',borderRadius:20,padding:'4px 12px',fontSize:11,fontWeight:800,cursor:'pointer'}}>Renew</button>
+              <button onClick={() => { localStorage.setItem(snoozeKey, String(Date.now() + 86400000)); }} aria-label="Dismiss for 24 hours" style={{background:'rgba(255,255,255,.2)',border:'none',color:'#fff',borderRadius:'50%',width:24,height:24,fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',lineHeight:1,flexShrink:0}}>×</button>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Email verification banner */}
       {emailUnverified && (
@@ -152,7 +160,7 @@ export function AppToasts({
             <div style={{fontSize:30,flexShrink:0,lineHeight:1}}>⚠️</div>
             <div style={{flex:1,minWidth:0}}>
               <div style={{fontSize:15,fontWeight:900,marginBottom:4,lineHeight:1.2}}>Progress not saving to cloud</div>
-              <div style={{fontSize:12,opacity:.9,lineHeight:1.5,fontWeight:500}}>Your progress is saved locally but cannot reach the cloud right now. Check your connection. Do not clear browser data until this is resolved.{syncErrorCode ? <span style={{display:'block',marginTop:4,fontFamily:'monospace',fontSize:10,opacity:.7}}>{syncErrorCode}</span> : null}</div>
+              <div style={{fontSize:12,opacity:.9,lineHeight:1.5,fontWeight:500}}>Your progress is saved on this device. Check your connection — cloud sync will resume automatically when you&apos;re back online.</div>
             </div>
             <button onClick={() => setSyncError(false)} aria-label="Dismiss" style={{background:'rgba(255,255,255,.2)',border:'none',color:'#fff',borderRadius:10,width:44,height:44,fontSize:18,cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',lineHeight:1}}>✕</button>
           </div>
