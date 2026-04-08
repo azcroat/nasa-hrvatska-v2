@@ -580,7 +580,7 @@ export default function AppRouter(props) {
       {currentScreen==="recipes"&&<ScreenErrorBoundary key="recipes" name="recipes"><RecipesScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="roleplay"&&<ScreenErrorBoundary key="roleplay" name="roleplay"><RoleplayScreen goBack={goBack} /></ScreenErrorBoundary>}
       {currentScreen==="journal"&&<ScreenErrorBoundary key="journal" name="journal"><VocabJournal goBack={goBack} /></ScreenErrorBoundary>}
-      {currentScreen==="learnpath"&&<ScreenErrorBoundary key="learnpath" name="learnpath"><LearnPath st={stats} setScr={setScr} goBack={goBack} onLaunchLegendary={launchLegendary} onLaunchCheckpoint={launchCheckpoint} /></ScreenErrorBoundary>}
+      {currentScreen==="learnpath"&&<ScreenErrorBoundary key="learnpath" name="learnpath"><LearnPath st={stats} setScr={setScr} goBack={goBack} onLaunchItem={launchPathItem} onLaunchLegendary={launchLegendary} onLaunchCheckpoint={launchCheckpoint} /></ScreenErrorBoundary>}
       {// ═══ FAVORITES ═══
       currentScreen==="favorites"&&<ScreenErrorBoundary key="favorites" name="favorites"><FavoritesScreen
         favs={favs} toggleFav={toggleFav} setScr={setScr} goBack={goBack}

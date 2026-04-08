@@ -44,7 +44,7 @@ function getPassedCheckpoints() {
   catch { return new Set(); }
 }
 
-export default function LearnPath({ st, setScr, goBack, onLaunchLegendary, onLaunchCheckpoint }) {
+export default function LearnPath({ st, setScr, goBack, onLaunchItem, onLaunchLegendary, onLaunchCheckpoint }) {
   const activeRef = useRef(null);
   const [hovered, setHovered] = useState(null);
   const decayedTopics = useMemo(() => getDecayedTopics(), []);
@@ -127,6 +127,36 @@ export default function LearnPath({ st, setScr, goBack, onLaunchLegendary, onLau
           </div>
         </div>
       </div>
+
+      {/* ── NEXT LESSON CTA — the ONE button the user always taps ──────── */}
+      {activeLevel >= 0 && activeItem >= 0 && onLaunchItem && (
+        <button
+          onClick={() => onLaunchItem(LEARN_PATH[activeLevel].items[activeItem])}
+          style={{
+            width: '100%', marginBottom: 24,
+            padding: '18px 24px',
+            background: 'linear-gradient(135deg,#0e7490,#0284c7)',
+            border: 'none', borderRadius: 20, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            boxShadow: '0 6px 24px rgba(14,116,144,.4)',
+            animation: 'nodeGlow 2s ease-in-out infinite',
+            fontFamily: "'Outfit',sans-serif",
+          }}
+        >
+          <div style={{ textAlign: 'left' }}>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,.75)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 4 }}>
+              Next Lesson
+            </div>
+            <div style={{ fontSize: 18, fontWeight: 900, color: '#fff', lineHeight: 1.2 }}>
+              {LEARN_PATH[activeLevel].items[activeItem].name}
+            </div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 3 }}>
+              Stage {LEARN_PATH[activeLevel].level}: {LEARN_PATH[activeLevel].title}
+            </div>
+          </div>
+          <div style={{ fontSize: 32, color: '#fff', flexShrink: 0 }}>▶</div>
+        </button>
+      )}
 
       {/* ── THE WINDING PATH ────────────────────────────────────────────── */}
       {LEARN_PATH.map((lv, li) => {
@@ -237,7 +267,7 @@ export default function LearnPath({ st, setScr, goBack, onLaunchLegendary, onLau
                           maxWidth: '85%',
                         }}>
                           <button
-                            onClick={() => { if (!isDone && isActive) setScr(it.go); else if (isDone) setScr(it.go); }}
+                            onClick={() => { if (onLaunchItem && (isActive || isDone)) onLaunchItem(it); }}
                             disabled={!isDone && !isActive}
                             onMouseEnter={() => setHovered(`${li}-${ii}`)}
                             onMouseLeave={() => setHovered(null)}

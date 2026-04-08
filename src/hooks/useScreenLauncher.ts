@@ -324,6 +324,8 @@ export function useScreenLauncher({
       const { GRAM } = await _getData() as { GRAM: { beginner: unknown[] } };
       sGl(GRAM.beginner[0]); sGp('learn'); sGx(0); sGs(0); sGa(false); sGsl(-1);
       sessionStorage.setItem('nh_ex_start', Date.now().toString());
+      const returnScreen = (currentScreen && currentScreen !== 'dashboard') ? currentScreen : 'learnpath';
+      returnContextRef.current = { tab: 'learn', screen: returnScreen };
       trackStart('grammar');
       setScr('grammar'); sCurEx('grammar');
     } else if (item.go === 'mcgame') {
@@ -339,6 +341,10 @@ export function useScreenLauncher({
       launchMcGame(qs);
     } else {
       sessionStorage.setItem('nh_ex_start', Date.now().toString());
+      // Always return to learnpath after completing any path item (black hole or direct screen).
+      // This means the user only ever needs to click "Done" or "Back" — they land back on the path.
+      const returnScreen = (currentScreen && currentScreen !== 'dashboard') ? currentScreen : 'learnpath';
+      returnContextRef.current = { tab: 'learn', screen: returnScreen };
       const typeMap: Record<string, string> = {
         review: 'srs_review', shadowing: 'shadowing', writing: 'writing',
         listening: 'listening', speaking: 'speaking', speaking_sprint: 'speaking',
