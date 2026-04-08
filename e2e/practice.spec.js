@@ -137,7 +137,8 @@ test.describe('Practice tab structure', () => {
   });
 
   test('Daily Quests strip is always visible', async ({ page }) => {
-    await expect(page.getByText('Daily Quests')).toBeVisible();
+    // QuestTracker renders at the top of Practice tab
+    await expect(page.getByText('Daily Quests')).toBeVisible({ timeout: 10_000 });
   });
 });
 
@@ -647,11 +648,12 @@ test.describe('VideoLessonScreen', () => {
 });
 
 // ===========================================================================
-// 6. SpeedChallenge — Home tab
+// 6. SpeedChallenge — Practice tab
 //    serial mode because tests mutate the nh_speed_challenge_played localStorage key
+//    Note: SpeedChallenge moved from Home tab to Practice tab
 // ===========================================================================
 
-test.describe('SpeedChallenge — Home tab', () => {
+test.describe('SpeedChallenge — Practice tab', () => {
   test.describe.configure({ mode: 'serial' });
 
   test.beforeEach(async ({ page }) => {
@@ -662,9 +664,8 @@ test.describe('SpeedChallenge — Home tab', () => {
     await page.addInitScript(() => {
       localStorage.removeItem('nh_speed_challenge_played');
     });
-    await page.goto('/');
-    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    // Wait for the Home tab content to render
+    await gotoPractice(page);
+    // Wait for SpeedChallenge to render (it's below QuestTracker on Practice tab)
     await expect(page.getByText('Speed Challenge')).toBeVisible({ timeout: 10_000 });
   });
 
