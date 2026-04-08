@@ -72,8 +72,8 @@ test.describe('Progress persistence across sessions', () => {
     const streakBefore = statsBefore?.sp ?? 0;
     expect(streakBefore).toBeGreaterThanOrEqual(0);
 
-    // Navigate again
-    await page.goto('/');
+    // Navigate again — catch SPA-internal navigation race same as above
+    await page.goto('/').catch(() => {});
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
     await page.waitForLoadState('domcontentloaded');
     const statsAfter = await readStats(page);
