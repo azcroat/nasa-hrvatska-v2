@@ -473,6 +473,7 @@ export default function AppRouter(props) {
           onLaunchQuiz={launchMcGame} onLaunchFlash={launchFlashcards}
           onLaunchListen={launchListening} onLaunchMatch={launchMatch}
           onLaunchSpeaking={launchSpeaking} award={award}
+          launchPathItem={launchPathItem}
         /></ScreenErrorBoundary></React.Suspense></div>}
         {// ═══ TAB: CROATIA ═══
         tab==="croatia"&&<div key="tab-croatia" className={tabSlideClass}><React.Suspense fallback={null}><ScreenErrorBoundary name="CroatiaTab"><CroatiaTab
