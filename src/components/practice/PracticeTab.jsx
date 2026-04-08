@@ -1,9 +1,13 @@
 import React, { useState, useMemo } from 'react';
-import { H, V, LISTEN, getSR, getDueReviews, lvl } from '../../data.jsx';
+import { H, V, LISTEN, getSR, getDueReviews, lvl, DAILY_QUESTS, getStreak } from '../../data.jsx';
+import { localDateStr } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import DailyListeningCard from '../home/DailyListeningCard.jsx';
 import WeakWordsPanel from '../home/WeakWordsPanel.jsx';
+import QuestTracker from '../home/QuestTracker.jsx';
+import SpeedChallenge from '../home/SpeedChallenge.jsx';
+import AdaptiveInsightsCard from '../profile/AdaptiveInsightsCard.jsx';
 
 // ── Recently-played tracking ─────────────────────────────────────────────────
 // Saved as a JSON array of exercise IDs in localStorage (max 6 entries, newest first).
@@ -23,11 +27,31 @@ function recordRecentExercise(id) {
 export default function PracticeTab({
   allCats, sh, sCurEx,
   onLaunchQuiz, onLaunchFlash, onLaunchListen, onLaunchMatch, onLaunchSpeaking,
-  award,
+  award, launchPathItem,
 }) {
-  const { setScr } = useApp();
+  const { setScr, authUser } = useApp();
   const { stats: st } = useStats();
   const lc = st?.lc ?? 0;
+
+  // Compute quest completion from localStorage — same logic as HomeTab
+  const streak = useMemo(() => getStreak(), [lc]);
+  const questsDone = useMemo(() => {
+    const d = localDateStr();
+    const q = (id) => localStorage.getItem('nh_quest_' + id + '_' + d) === '1';
+    const hasStreak = streak.count > 0;
+    return {
+      speak: q('speak'), speak2: q('speak2'),
+      grammar: q('grammar'), grammar2: q('grammar2'),
+      master: q('master'), master2: q('master2'),
+      reading: q('reading'), reading2: q('reading2'),
+      culture: q('culture'), culture2: q('culture2'),
+      vocab: q('vocab'), vocab2: q('vocab2'),
+      write: q('write'),
+      streak: hasStreak, streak_alive: hasStreak,
+      perfect: q('perfect'),
+    };
+  }, [streak]);
+  const allQuestsDone = Object.values(questsDone).every(Boolean);
   const [weakMsg, setWeakMsg] = useState("");
   // openCat: which category tile is expanded in the browse grid ('grammar'|'vocab'|'practical'|'advanced'|null)
   const [openCat, setOpenCat] = useState(null);
@@ -319,6 +343,41 @@ export default function PracticeTab({
   return (
     <div>
       {H("🎮 Practice", "Choose your training mode")}
+
+      {/* ── DAILY QUESTS — moved here from Today tab ── */}
+      <QuestTracker
+        questsDone={questsDone}
+        allQuestsDone={allQuestsDone}
+        onQuestStart={(questId, screen) => {
+          if (questId === 'speak' || questId === 'speak2') {
+            const pool = allCats.flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
+            const items = sh(pool).slice(0, 6);
+            onLaunchSpeaking(items.length ? items : [['Dobar dan', 'Good day', 'DOH-bar dahn']]);
+          } else if (questId === 'grammar' || questId === 'grammar2') {
+            if (launchPathItem) launchPathItem({ go: 'grammar' }); else setScr('grammar');
+          } else if (questId === 'vocab' || questId === 'vocab2') {
+            if (launchPathItem) launchPathItem({ go: 'lesson' }); else setScr('learnpath');
+          } else if (questId === 'perfect') {
+            const pool = allCats.flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
+            onLaunchFlash(sh(pool).slice(0, 20));
+          } else {
+            setScr(screen);
+          }
+        }}
+      />
+
+      {/* ── SPEED CHALLENGE — daily timed vocabulary quiz ── */}
+      <SpeedChallenge />
+
+      {/* ── AI DAILY INSIGHTS — personalized focus based on error patterns ── */}
+      {authUser && lc >= 3 && (
+        <AdaptiveInsightsCard
+          uid={authUser.uid}
+          level={st?.xp ? (st.xp >= 3000 ? 'B2' : st.xp >= 1500 ? 'B1' : st.xp >= 600 ? 'A2' : 'A1') : 'A1'}
+          lessonsCompleted={lc}
+          goToScreen={setScr}
+        />
+      )}
 
       {/* ── TODAY'S PICK — always visible, always first ──────────────────── */}
       {/* Personalized picks lead the screen so returning users jump straight in */}
