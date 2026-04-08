@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════
 import { initializeApp, getApps } from 'firebase/app';
 import {
-  initializeAuth, indexedDBLocalPersistence, browserLocalPersistence,
+  initializeAuth, getAuth, indexedDBLocalPersistence, browserLocalPersistence,
   browserSessionPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword,
   signOut as fbSignOut, sendPasswordResetEmail, onAuthStateChanged, updateProfile,
   GoogleAuthProvider, signInWithPopup, sendEmailVerification, deleteUser,
@@ -36,9 +36,18 @@ let _fbAnalytics: ReturnType<typeof getAnalytics> | null = null;
 
 export function initFirebase(): boolean {
   if (_fbReady) return false;
+  if (!FIREBASE_CONFIG.apiKey) {
+    console.error('Firebase: VITE_FIREBASE_API_KEY is missing. Auth will not work.');
+    return false;
+  }
   try {
     const app = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
-    _fbAuth = initializeAuth(app, { persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence] });
+    try {
+      _fbAuth = initializeAuth(app, { persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence] });
+    } catch (_authErr) {
+      // auth/already-initialized — app was already set up, just retrieve the existing instance
+      _fbAuth = getAuth(app);
+    }
     try { _fbDb = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) }); }
     catch (_e1) { try { _fbDb = initializeFirestore(app, { localCache: persistentLocalCache() }); }
     catch (_e2) { try { _fbDb = initializeFirestore(app, { localCache: memoryLocalCache() }); }

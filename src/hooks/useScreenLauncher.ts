@@ -296,6 +296,7 @@ export function useScreenLauncher({
   }, [setScr, sCurEx, setMatchInitPool, tab, currentScreen]);
 
   const launchSpeaking = useCallback((items: unknown[]): void => {
+    if (!items || items.length === 0) return;
     returnContextRef.current = { tab: tab || 'practice', screen: currentScreen || 'dashboard' };
     sSi(items); sSx(0); sSw(items[0]); sSr(null); sSsc(0);
     sCurEx('speaking');
