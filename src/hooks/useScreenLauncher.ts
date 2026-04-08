@@ -328,6 +328,16 @@ export function useScreenLauncher({
       returnContextRef.current = { tab: 'learn', screen: returnScreen };
       trackStart('grammar');
       setScr('grammar'); sCurEx('grammar');
+    } else if (item.go === 'listening') {
+      const { LISTEN } = await _getData() as { LISTEN: unknown[] };
+      const pool = Array.isArray(LISTEN) ? _sh(LISTEN).slice(0, 10) : [];
+      if (pool.length === 0) return;
+      returnContextRef.current = { tab: 'learn', screen: 'learnpath' };
+      setLsInitQ(pool);
+      sCurEx('listening');
+      sessionStorage.setItem('nh_ex_start', Date.now().toString());
+      trackStart('listening');
+      setScr('listening');
     } else if (item.go === 'mcgame') {
       const { V } = await _getData() as { V: Record<string, VocabWord[]> };
       const pool = allCats.flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
@@ -389,7 +399,7 @@ export function useScreenLauncher({
       if (item.go) { setScr(item.go); sCurEx(item.go); }
     }
   }, [setScr, sCurEx, setStats, award, writeDelta, allCats, launchMcGame, currentScreen,
-      sLt, sLi, sLx, sLs, sLp, sLa, sLsl, sQi, sGl, sGp, sGx, sGs, sGa, sGsl]);
+      sLt, sLi, sLx, sLs, sLp, sLa, sLsl, sQi, sGl, sGp, sGx, sGs, sGa, sGsl, setLsInitQ]);
 
   const goBack = useCallback((): void => {
     if (curEx) markExerciseDone(curEx);
