@@ -494,7 +494,10 @@ export default function AppRouter(props) {
         ? <ScreenErrorBoundary key="mcgame" name="mcgame"><McGame questions={mcInitQ} onComplete={mcGameComplete} goBack={goBack} award={award} /></ScreenErrorBoundary>
         : <ScreenGuard goBack={goBack} label="quiz" />
       )}
-      {currentScreen==="mcresult"&&<ScreenErrorBoundary key="mcresult" name="mcresult"><McResult questions={mcResultQ} score={mcResultScore} mistakes={mcMistakes} setScr={setScr} goBack={goBack} onNewGame={launchMcGame} award={award} /></ScreenErrorBoundary>}
+      {currentScreen==="mcresult"&&(mcResultQ?.length>0
+        ? <ScreenErrorBoundary key="mcresult" name="mcresult"><McResult questions={mcResultQ} score={mcResultScore} mistakes={mcMistakes} setScr={setScr} goBack={goBack} onNewGame={launchMcGame} award={award} /></ScreenErrorBoundary>
+        : <ScreenGuard goBack={goBack} label="quiz result" />
+      )}
       {currentScreen==="padezi"&&<ScreenErrorBoundary key="padezi" name="padezi"><PadeziScreen goBack={goBack} award={award} setSt={setStats} /></ScreenErrorBoundary>}
       {currentScreen==="unjumble"&&<ScreenErrorBoundary key="unjumble" name="unjumble"><Unjumble goBack={goBack} award={award} /></ScreenErrorBoundary>}
       {currentScreen==="idioms"&&<ScreenErrorBoundary key="idioms" name="idioms"><IdiomsScreen goBack={goBack} /></ScreenErrorBoundary>}
