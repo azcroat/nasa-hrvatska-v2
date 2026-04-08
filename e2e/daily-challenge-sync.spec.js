@@ -24,15 +24,24 @@ test.describe('Home screen — authenticated', () => {
     await expect(nav.getByRole('button', { name: 'Me', exact: true })).toBeVisible();
   });
 
-  test('home tab shows Daily Quests section', async ({ page }) => {
+  test('Practice tab shows Daily Quests section', async ({ page }) => {
+    // QuestTracker moved from Home tab to Practice tab
+    await page.getByRole('navigation', { name: 'Main navigation' })
+      .getByRole('button', { name: 'Practice', exact: true }).click();
     await expect(page.getByText('Daily Quests')).toBeVisible({ timeout: 10_000 });
   });
 
-  test('home tab shows EARN BONUS XP label', async ({ page }) => {
+  test('Practice tab shows EARN BONUS XP label', async ({ page }) => {
+    // QuestTracker moved from Home tab to Practice tab
+    await page.getByRole('navigation', { name: 'Main navigation' })
+      .getByRole('button', { name: 'Practice', exact: true }).click();
     await expect(page.getByText('EARN BONUS XP')).toBeVisible({ timeout: 10_000 });
   });
 
-  test('home tab shows quest count or all-complete message', async ({ page }) => {
+  test('Practice tab shows quest count or all-complete message', async ({ page }) => {
+    // QuestTracker moved from Home tab to Practice tab
+    await page.getByRole('navigation', { name: 'Main navigation' })
+      .getByRole('button', { name: 'Practice', exact: true }).click();
     const remaining = page.getByText(/quests? remaining/i);
     const allDone = page.getByText(/all quests complete/i);
     await expect(remaining.or(allDone)).toBeVisible({ timeout: 10_000 });
