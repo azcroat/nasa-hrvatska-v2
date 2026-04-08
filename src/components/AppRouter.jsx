@@ -472,7 +472,7 @@ export default function AppRouter(props) {
           allCats={allCats} sh={_sh} sCurEx={sCurEx}
           onLaunchQuiz={launchMcGame} onLaunchFlash={launchFlashcards}
           onLaunchListen={launchListening} onLaunchMatch={launchMatch}
-          onLaunchSpeaking={launchSpeaking}
+          onLaunchSpeaking={launchSpeaking} award={award}
         /></ScreenErrorBoundary></React.Suspense></div>}
         {// ═══ TAB: CROATIA ═══
         tab==="croatia"&&<div key="tab-croatia" className={tabSlideClass}><React.Suspense fallback={null}><ScreenErrorBoundary name="CroatiaTab"><CroatiaTab

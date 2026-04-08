@@ -1,7 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { H, V, LISTEN, getSR, getDueReviews } from '../../data.jsx';
+import { H, V, LISTEN, getSR, getDueReviews, lvl } from '../../data.jsx';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
+import DailyListeningCard from '../home/DailyListeningCard.jsx';
+import WeakWordsPanel from '../home/WeakWordsPanel.jsx';
 
 // ── Recently-played tracking ─────────────────────────────────────────────────
 // Saved as a JSON array of exercise IDs in localStorage (max 6 entries, newest first).
@@ -21,6 +23,7 @@ function recordRecentExercise(id) {
 export default function PracticeTab({
   allCats, sh, sCurEx,
   onLaunchQuiz, onLaunchFlash, onLaunchListen, onLaunchMatch, onLaunchSpeaking,
+  award,
 }) {
   const { setScr } = useApp();
   const { stats: st } = useStats();
@@ -367,6 +370,14 @@ export default function PracticeTab({
           }}>Start →</div>
         </div>
       </button>
+
+      {/* ── DAILY LISTENING — comprehensible input at user's CEFR level ── */}
+      {lc >= 2 && (
+        <DailyListeningCard level={lvl(st?.xp || 0)} award={award || (() => {})} />
+      )}
+
+      {/* ── WEAK WORDS — surface vocabulary needing most practice ─────── */}
+      {lc >= 3 && <WeakWordsPanel setScr={setScr} />}
 
       {/* ── INTENT TILES ─────────────────────────────────────────────────── */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, marginBottom:16 }}>
