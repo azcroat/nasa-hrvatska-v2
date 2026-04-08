@@ -158,7 +158,7 @@ export default function HomeTab({
   );
 
   // Weekly recap modal — DuoLingo best practice: show weekly report on Monday mornings
-  const [showWeeklyRecap, setShowWeeklyRecap] = useState(() => shouldShowWeeklyRecap());
+  const [showWeeklyRecap, setShowWeeklyRecap] = useState(false);
 
   const [htab, setHTab] = useState('today');
 

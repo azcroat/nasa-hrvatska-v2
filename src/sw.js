@@ -90,13 +90,16 @@ registerRoute(
   })
 );
 
-// 2. All other JS chunks — StaleWhileRevalidate.
+// 2. All other JS chunks — NetworkFirst (network, then cache fallback).
+//    Always fetches latest JS from network; cache only used when offline.
+//    This prevents stale JS being served immediately after a deploy.
 //    fetchDidSucceed: throw on HTML response so lazyWithReload catches MIME error.
 //    cacheWillUpdate: never store HTML in JS cache.
 registerRoute(
   /\.js$/,
-  new StaleWhileRevalidate({
+  new NetworkFirst({
     cacheName: `${CACHE_VER}-js`,
+    networkTimeoutSeconds: 10,
     plugins: [
       new ExpirationPlugin({ maxEntries: 150, maxAgeSeconds: 30 * 24 * 60 * 60 }),
       new CacheableResponsePlugin({ statuses: [200] }),

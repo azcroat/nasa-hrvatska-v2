@@ -76,7 +76,8 @@ if (import.meta.env.VITE_SENTRY_DSN) {
     Sentry.init({
       dsn: import.meta.env.VITE_SENTRY_DSN,
       environment: import.meta.env.MODE,
-      release: import.meta.env.VITE_APP_VERSION || '2.0.0',
+      // eslint-disable-next-line no-undef
+      release: typeof __BUILD_ID__ !== 'undefined' ? __BUILD_ID__ : import.meta.env.VITE_APP_VERSION,
       // Only send errors in production; silence in dev
       enabled: import.meta.env.PROD,
       tracesSampleRate: 0.1,
@@ -237,25 +238,29 @@ window.onunhandledrejection = function (event) {
 // Fetches /version.json from the network (no-store) on every page load.
 // If the deployed version differs from what this session loaded, reload once.
 // This guarantees all users see new deploys even when SW cache is stuck.
-(function checkAppVersion() {
+// Check /version.json (always from network) and reload if deployed version changed.
+// Runs on load AND every 5 minutes so open tabs stay current without any user action.
+const _VER_KEY = 'nh_app_ver';
+function _checkVersion(isPolling) {
   try {
     fetch('/version.json', { cache: 'no-store' })
       .then(r => r.ok ? r.json() : null)
       .then(data => {
-        if (!data || !data.v) return;
-        const key = 'nh_app_ver';
-        const stored = sessionStorage.getItem(key);
+        if (!data?.v) return;
         const next = String(data.v);
+        const stored = sessionStorage.getItem(_VER_KEY);
         if (stored && stored !== next) {
-          sessionStorage.setItem(key, next);
+          sessionStorage.setItem(_VER_KEY, next);
           window.location.reload();
-        } else {
-          sessionStorage.setItem(key, next);
+        } else if (!isPolling) {
+          sessionStorage.setItem(_VER_KEY, next);
         }
       })
       .catch(() => {});
   } catch (_) {}
-})();
+}
+_checkVersion(false);
+setInterval(() => _checkVersion(true), 5 * 60 * 1000);
 
 // ─── Service Worker registration ──────────────────────────────────────────
 // Skip entirely inside Capacitor Android/iOS — WebView does not support SW
