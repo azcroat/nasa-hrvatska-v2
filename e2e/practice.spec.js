@@ -137,8 +137,9 @@ test.describe('Practice tab structure', () => {
   });
 
   test('Daily Quests strip is always visible', async ({ page }) => {
-    // QuestTracker renders at the top of Practice tab
-    await expect(page.getByText('Daily Quests')).toBeVisible({ timeout: 10_000 });
+    // QuestTracker renders at the top of Practice tab; use first() to avoid strict-mode
+    // violation (parent container and inner div both contain 'Daily Quests' text)
+    await expect(page.getByText('Daily Quests').first()).toBeVisible({ timeout: 10_000 });
   });
 });
 
