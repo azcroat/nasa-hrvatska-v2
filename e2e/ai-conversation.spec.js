@@ -545,14 +545,10 @@ test.describe('Double-evaluation guard', () => {
     // AIConversationResult renders the evaluation; check that we don't see two result panels
     await page.waitForTimeout(2_000);
 
-    // The result should appear at most once — count result panel headings
-    // AIConversationResult renders with evalError or evaluation; look for the result container
-    const resultContainers = page.locator('[data-testid="eval-result"], div').filter({
-      hasText: /Sjajno|Good job|Great|Odlično|Congratulations|Review|Grade/i,
-    });
-    // We don't need to assert an exact count here — just that it's <= 1
-    // The key guard is that phase="evaluating"|"result" is not set twice
+    // AIConversationResult renders its root div with data-testid="eval-result".
+    // There must be exactly one such element — any duplicate means double evaluation occurred.
+    const resultContainers = page.locator('[data-testid="eval-result"]');
     const count = await resultContainers.count();
-    expect(count).toBeLessThanOrEqual(3); // generous upper bound — the UI is one panel
+    expect(count).toBeLessThanOrEqual(1); // only one result panel should ever render
   });
 });

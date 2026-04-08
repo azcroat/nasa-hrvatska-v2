@@ -40,7 +40,7 @@ export default function AIConversationResult({
   const scoreLabel = ev.score >= 80 ? "Excellent!" : ev.score >= 55 ? "Good Progress" : "Keep Practicing";
 
   return (
-    <div className="scr-wrap">
+    <div className="scr-wrap" data-testid="eval-result">
       <div style={{ background: "linear-gradient(145deg,#0c4a6e,#0e7490)", borderRadius: 22, padding: "24px 20px",
         marginBottom: 20, color: "white", textAlign: "center" }}>
         <div style={{ fontSize: 48, marginBottom: 6 }}>{scoreEmoji}</div>
