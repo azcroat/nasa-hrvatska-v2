@@ -32,7 +32,11 @@ function assertNoUnexpectedErrors(errors) {
       // catch any genuine rendering failure caused by a missing module.
       !e.message.includes('Importing a module script failed') &&
       // SPA internal navigation conflict — React Router throws when two navigations race
-      !e.message.includes('interrupted by another navigation'),
+      !e.message.includes('interrupted by another navigation') &&
+      // WebKit CI: SW registration on localhost is blocked in headless mode (access control).
+      // This does not affect real Safari usage; the SW loads fine on HTTPS production.
+      !e.message.includes('sw.js') &&
+      !e.message.includes('access control checks'),
   );
   expect(
     unexpected.map((e) => e.message),
