@@ -49,7 +49,7 @@ interface SeasonalCampaign {
 
 export const SEASONAL_CAMPAIGNS: SeasonalCampaign[] = [
   { id: 'easter', name: 'Uskrs u Hrvatskoj', icon: '🥚', color: '#16a34a', bg: '#f0fdf4', border: '#86efac',
-    start: [3, 20], end: [4, 30], multiplier: 1.5,
+    start: [3, 20], end: [4, 7], multiplier: 1.5,
     blurb: 'Learn Easter traditions — pisanice, lamb, holiday greetings',
     quests: [
       { id: 'uskrs_q1', label: 'Learn 5 Easter words', desc: 'Browse the Easter vocabulary', xp: 30, screen: 'easter' },
