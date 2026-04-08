@@ -4,8 +4,11 @@ import StatsTab from './StatsTab.jsx';
 import InsightsTab from './InsightsTab.jsx';
 import SettingsTab from './SettingsTab.jsx';
 import PrestigeModal from './PrestigeModal.jsx';
+import ClanCard from '../home/ClanCard.jsx';
+import { useApp } from '../../context/AppContext.jsx';
 
 export default function ProfileTab({ syncReady, onSyncNow, onOpenLeaderboard, onOpenFriends }) {
+  const { au: authUser } = useApp();
   const [ptab, setPTab] = useState('stats');
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
   const prestigeLevel = parseInt(localStorage.getItem('nh_prestige') || '0', 10);
@@ -51,10 +54,16 @@ export default function ProfileTab({ syncReady, onSyncNow, onOpenLeaderboard, on
 
       {/* ── STATS TAB ── */}
       {ptab === 'stats' && (
-        <StatsTab
-          onShowPrestigeModal={() => setShowPrestigeModal(true)}
-          onSyncNow={onSyncNow}
-        />
+        <>
+          <StatsTab
+            onShowPrestigeModal={() => setShowPrestigeModal(true)}
+            onSyncNow={onSyncNow}
+          />
+          {/* ── STUDY CLAN — moved from Today tab ── */}
+          {authUser && (
+            <ClanCard uid={authUser.uid} displayName={authUser.displayName || authUser.email?.split('@')[0] || 'Učenik'} />
+          )}
+        </>
       )}
 
       {/* ── INSIGHTS TAB ── */}

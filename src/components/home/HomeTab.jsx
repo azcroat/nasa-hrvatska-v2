@@ -759,53 +759,7 @@ export default function HomeTab({
             );
           })()}
 
-          {/* ── DAILY LISTENING — comprehensible input at user's CEFR level ── */}
-          {authUser && st.lc >= 2 && (
-            <DailyListeningCard level={level} award={award} />
-          )}
-
-          {/* ── WEAK WORDS — surface words needing most work ── */}
-          {st.lc >= 3 && <WeakWordsPanel setScr={setScr} />}
-
-          {/* ── STUDY CLAN — 5-person cohort with weekly XP goal ── */}
-          {authUser && (
-            <ClanCard uid={authUser.uid} displayName={authUser.displayName || authUser.email?.split('@')[0] || 'Učenik'} />
-          )}
-
-          {/* ── GRAMMAR TRACK PROGRESS NUDGE ────────────────────────────── */}
-          {(() => {
-            try {
-              const done = JSON.parse(safeGetItem('nh_grammar_track_done') || '[]');
-              const total = 40;
-              if (done.length === 0) return null;
-              const pct = Math.round(done.length / total * 100);
-              return (
-                <button
-                  onClick={() => setScr('grammar_track')}
-                  style={{
-                    width:'100%', display:'flex', alignItems:'center', gap:12,
-                    padding:'12px 16px', marginBottom:16, cursor:'pointer',
-                    border:'1.5px solid #fde68a', borderRadius:14, textAlign:'left',
-                    background:'linear-gradient(135deg,#fffbeb,#fef3c7)',
-                    fontFamily:"'Outfit',sans-serif",
-                  }}
-                >
-                  <div style={{fontSize:24}}>⚙️</div>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:13, fontWeight:800, color:'#451a03', marginBottom:3}}>
-                      Grammar Track — {done.length}/{total} units
-                    </div>
-                    <div style={{height:5, borderRadius:3, background:'rgba(217,119,6,.2)', overflow:'hidden'}}>
-                      <div style={{height:'100%', width:`${pct}%`, borderRadius:3, background:'linear-gradient(90deg,#d97706,#b45309)', transition:'width .4s'}} />
-                    </div>
-                  </div>
-                  <div style={{fontSize:13, fontWeight:800, color:'#d97706'}}>Continue →</div>
-                </button>
-              );
-            } catch { return null; }
-          })()}
-
-          {/* ── AI PRACTICE — two flagship shortcuts ── */}
+          {/* ── AI TOOLS — flagship shortcuts, right after Daily Discovery ── */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
             <button
               onClick={() => setScr('aiconvo')}
