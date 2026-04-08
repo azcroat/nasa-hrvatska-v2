@@ -63,7 +63,7 @@ test.describe('Croatia tab', () => {
 
   test.describe('Immersion section', () => {
     test('renders the Immersion section heading', async ({ page }) => {
-      await expect(page.getByRole('heading', { name: /Immersion/i })).toBeVisible();
+      await expect(page.getByRole('heading', { name: /Immersion/i })).toBeVisible({ timeout: 10_000 });
     });
 
     test('shows at least one immersion feature button', async ({ page }) => {

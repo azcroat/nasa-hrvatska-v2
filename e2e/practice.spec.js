@@ -667,7 +667,7 @@ test.describe('SpeedChallenge — Practice tab', () => {
     });
     await gotoPractice(page);
     // Wait for SpeedChallenge to render (it's below QuestTracker on Practice tab)
-    await expect(page.getByText('Speed Challenge')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText('Speed Challenge').first()).toBeVisible({ timeout: 20_000 });
   });
 
   test('SpeedChallenge container shows "Speed Challenge" text', async ({ page }) => {

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LEARN_PATH, getStreak, getDailyChallenge, speak, preloadAudio, DAILY_QUESTS, getActiveCampaign, getDueReviews, getSR, V } from '../../data.jsx';
+import { LEARN_PATH, getStreak, getDailyChallenge, speak, preloadAudio, DAILY_QUESTS, getActiveCampaign, V } from '../../data.jsx';
 import { getWordOfDay } from '../../lib/wordOfDay.js';
 import { addWordToSRS } from '../../lib/srs.js';
 import { PHRASE_OF_DAY_POOL as PHRASES_365 } from '../../data/daily-content.js';
@@ -32,7 +32,7 @@ import DailyCroatianSection from './DailyCroatianSection.jsx';
 import ProgressTabContent from './ProgressTabContent.jsx';
 import WelcomeBackBanners from './WelcomeBackBanners.jsx';
 import GoalSetterModal from '../shared/GoalSetterModal.jsx';
-import WeeklyRecapModal, { shouldShowWeeklyRecap, markRecapShown } from './WeeklyRecapModal.jsx';
+import WeeklyRecapModal, { markRecapShown } from './WeeklyRecapModal.jsx';
 import UnitCompleteBanner from './UnitCompleteBanner.jsx';
 import StreakMilestoneToast, { checkAndMarkMilestone } from '../shared/StreakMilestoneToast.jsx';
 // DalmatianCoast SVG replaced with real AI/CC photography
@@ -113,8 +113,8 @@ export default function HomeTab({
   daysSinceJoin = null,
   resumeLesson = null,
 }) {
-  const { setScr, doSignUp, launchSpeaking, launchFlashcards } = useApp();
-  const { level, stats: st, award } = useStats();
+  const { setScr, doSignUp, launchSpeaking } = useApp();
+  const { stats: st, award } = useStats();
   const dc = useMemo(() => getDailyChallenge(), []);
    
   const ws = useMemo(() => getWeekStats(), [st]);

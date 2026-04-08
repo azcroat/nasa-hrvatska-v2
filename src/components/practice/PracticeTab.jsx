@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { H, V, LISTEN, getSR, getDueReviews, lvl, DAILY_QUESTS, getStreak } from '../../data.jsx';
+import { H, V, LISTEN, getSR, getDueReviews, lvl, getStreak } from '../../data.jsx';
 import { localDateStr } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
