@@ -74,19 +74,8 @@ export function useNotifications({ userId = '' }: { userId?: string } = {}): voi
       });
       return undefined;
     } else if (Notification.permission === 'default') {
-      // Delay the permission prompt slightly so it doesn't fire on first load
-      const t = setTimeout(async () => {
-        const result = await Notification.requestPermission();
-        if (result === 'granted') {
-          showReminder();
-          localStorage.setItem(REMINDER_DISMISSED_KEY, todayStr);
-          // Register with server now that permission is granted
-          import('../lib/pushNotifications.js').then(({ subscribeToPush, registerPushWithServer }) => {
-            (subscribeToPush as unknown as (uid: string) => Promise<void>)(userId).catch(() => (registerPushWithServer as unknown as () => Promise<void>)().catch(() => {}));
-          });
-        }
-      }, 8000);
-      return () => clearTimeout(t);
+      // Never auto-prompt for notification permission.
+      // User enables push notifications explicitly via Settings.
     }
     return undefined;
 

@@ -159,25 +159,7 @@ export function AppToasts({
         </div>
       )}
 
-      {/* Cloud backup confirmed banner */}
-      {showBackupBanner && (
-        <div role="status" aria-live="polite" style={{position:'fixed',bottom:90,left:'50%',transform:'translateX(-50%)',zIndex:9600,width:'calc(100% - 32px)',maxWidth:420,background:'linear-gradient(135deg,#0e7490,#164e63)',color:'#fff',borderRadius:20,padding:'18px 20px',boxShadow:'0 8px 40px rgba(14,116,144,.45)',animation:'slideUp .4s cubic-bezier(.34,1.56,.64,1)'}}>
-          <div style={{display:'flex',alignItems:'flex-start',gap:14}}>
-            <div style={{fontSize:36,flexShrink:0,lineHeight:1}}>🛡️</div>
-            <div style={{flex:1,minWidth:0}}>
-              <div style={{fontSize:16,fontWeight:900,marginBottom:4,lineHeight:1.2}}>Your progress is now protected!</div>
-              <div style={{fontSize:13,opacity:.88,lineHeight:1.5,fontWeight:500}}>Everything you learn is now automatically backed up to the cloud. You will never lose your progress again — on any device, any browser, ever.</div>
-            </div>
-            <button onClick={() => { localStorage.setItem('fbBackupConfirmed','true'); setShowBackupBanner(false); }} aria-label="Dismiss" style={{background:'rgba(255,255,255,.2)',border:'none',color:'#fff',borderRadius:10,width:44,height:44,fontSize:18,cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',lineHeight:1}}>✕</button>
-          </div>
-          <div style={{marginTop:12,display:'flex',alignItems:'center',gap:8}}>
-            <div style={{flex:1,height:3,borderRadius:3,background:'rgba(255,255,255,.2)',overflow:'hidden'}}>
-              <div style={{height:'100%',width:'100%',background:'rgba(255,255,255,.7)',borderRadius:3,animation:'pulse 2s ease-in-out infinite'}}/>
-            </div>
-            <div style={{fontSize:11,opacity:.75,fontWeight:700,whiteSpace:'nowrap'}}>✓ Cloud sync active</div>
-          </div>
-        </div>
-      )}
+      {/* Cloud backup banner removed — sync is expected behavior, not a celebration */}
     </>
   );
 }
