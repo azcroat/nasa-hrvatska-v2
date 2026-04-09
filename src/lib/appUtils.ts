@@ -219,12 +219,12 @@ const STREAK_MILESTONES = [7, 14, 21, 30, 50, 100, 365];
 
 export function updateStreak(todayOverride?: string): StreakData & { milestone: number | null; freezeUsed?: boolean } {
   const s = getStreak(); const today = todayOverride || localDateStr();
-  if (s.last === today) {
-    try { const eb = JSON.parse(localStorage.getItem('nh_earn_back') || 'null'); if (eb && eb.date === today) { eb.lc = (eb.lc || 1) + 1; localStorage.setItem('nh_earn_back', JSON.stringify(eb)); } } catch {}
-    return { ...s, milestone: null };
-  }
   const yd = new Date(today + 'T00:00:00'); yd.setDate(yd.getDate() - 1);
   const yesterday = yd.getFullYear() + '-' + String(yd.getMonth() + 1).padStart(2, '0') + '-' + String(yd.getDate()).padStart(2, '0');
+  if (s.last === today) {
+    try { const eb = JSON.parse(localStorage.getItem('nh_earn_back') || 'null'); if (eb && (eb.date === today || eb.date === yesterday)) { eb.lc = (eb.lc || 1) + 1; localStorage.setItem('nh_earn_back', JSON.stringify(eb)); } } catch {}
+    return { ...s, milestone: null };
+  }
   let milestone: number | null = null; let freezeUsed = false;
   if (s.last === yesterday) { s.count++; s.last = today; if (STREAK_MILESTONES.includes(s.count)) milestone = s.count; }
   else if (s.last !== today) {
@@ -247,7 +247,13 @@ interface EarnBackData {
 }
 
 export function getStreakEarnBack(): EarnBackData | null {
-  try { const eb = JSON.parse(localStorage.getItem('nh_earn_back') || 'null'); if (!eb) return null; if (eb.date !== localDateStr()) return null; return eb; } catch { return null; }
+  try {
+    const eb = JSON.parse(localStorage.getItem('nh_earn_back') || 'null'); if (!eb) return null;
+    const t = localDateStr(); const _yd = new Date(t + 'T00:00:00'); _yd.setDate(_yd.getDate() - 1);
+    const yest = _yd.getFullYear() + '-' + String(_yd.getMonth() + 1).padStart(2, '0') + '-' + String(_yd.getDate()).padStart(2, '0');
+    if (eb.date !== t && eb.date !== yest) return null;
+    return eb;
+  } catch { return null; }
 }
 export function applyStreakEarnBack(): number {
   const eb = getStreakEarnBack(); if (!eb || eb.lc < 2) return 0;
