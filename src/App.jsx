@@ -257,7 +257,7 @@ function App() {
   const { resumeLesson, launchAnimLesson, launchMcGame, mcGameComplete, launchFlashcards, launchListening, launchMatch, launchSpeaking, launchPathItem, launchLegendary, launchCheckpoint, goBack } = useScreenLauncher({
     setScr, navigate, curEx, sCurEx, currentScreen,
     setStats, award, writeDelta,
-    allCats,
+    allCats, gc: stats.gc,
     tab, setTab,
     sLt, sLi, sLx, sLs, sLp, sLa, sLsl, sQi,
     sGl, sGp, sGx, sGs, sGa, sGsl,

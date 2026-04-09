@@ -151,7 +151,7 @@ export default function BrowseContentModal({
             </div>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:14 }}>
               {[
-                ["📜","Grammar Intro","a1",() => { sGl(GRAM.beginner[0]); sGp("learn"); sGx(0); sGs(0); sGa(false); sGsl(-1); setScr("grammar"); sCurEx("grammar"); }],
+                ["📜","Grammar Intro","a1",() => { const _all=[...(GRAM.beginner||[]),...(GRAM.intermediate||[]),...(GRAM.advanced||[])]; const _gc=(st&&st.gc)||0; sGl(_all.length>0?_all[_gc%_all.length]:GRAM.beginner[0]); sGp("learn"); sGx(0); sGs(0); sGa(false); sGsl(-1); setScr("grammar"); sCurEx("grammar"); }],
                 ["🔄","Tenses & Gender","a1",() => { setScr("tenses"); sCurEx("tenses"); }],
                 ["📝","Cases Intro","a2",() => { setScr("padezi"); sCurEx("padezi"); }],
                 ["🎨","Colors & Gender","a2",() => { setScr("boje"); sCurEx("boje"); }],
