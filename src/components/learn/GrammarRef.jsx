@@ -10,7 +10,7 @@ export function AspectScreen({ goBack }) {
       {ASPECT.pairs.map(function(p,i){return (
         <div key={i} className="c" style={{marginBottom:10}}>
           <div style={{display:"flex",justifyContent:"space-between"}}>
-            <button aria-label={`Play imperfective: ${p.imp}`} style={{fontWeight:700,color:"#dc2626",background:"none",border:"none",cursor:"pointer",fontFamily:"'Outfit',sans-serif",padding:0}} onClick={function(){speak(p.imp)}}>{p.imp}{" "}<span aria-hidden="true">🔊</span></button>
+            <button aria-label={`Play imperfective: ${p.impf}`} style={{fontWeight:700,color:"#dc2626",background:"none",border:"none",cursor:"pointer",fontFamily:"'Outfit',sans-serif",padding:0}} onClick={function(){speak(p.impf)}}>{p.impf}{" "}<span aria-hidden="true">🔊</span></button>
             <button aria-label={`Play perfective: ${p.perf}`} style={{fontWeight:700,color:"#16a34a",background:"none",border:"none",cursor:"pointer",fontFamily:"'Outfit',sans-serif",padding:0}} onClick={function(){speak(p.perf)}}>{p.perf}{" "}<span aria-hidden="true">🔊</span></button>
           </div>
           <div style={{fontSize:13,color:"#78716c"}}>{p.en}</div>
@@ -76,7 +76,7 @@ export function BrzaliceScreen({ goBack }) {
         <div key={i} className="c" style={{marginBottom:12}}>
           <button aria-label={`Play audio for ${b.hr}`} style={{fontSize:16,fontWeight:700,color:"var(--heading)",background:"none",border:"none",cursor:"pointer",fontFamily:"'Outfit',sans-serif",padding:0,textAlign:"left"}} onClick={function(){speak(b.hr)}}>{b.hr}{" "}<span aria-hidden="true">🔊</span></button>
           <div style={{fontSize:13,color:"#78716c",marginTop:4}}>{b.en}</div>
-          <div style={{fontSize:12,color:"#b45309",marginTop:2}}>{"Target: "}{b.target}</div>
+          <div style={{fontSize:12,color:"#b45309",marginTop:2}}>{"Target: "}{b.focus}</div>
         </div>
       );})}
     </div>
@@ -127,7 +127,7 @@ export function DiminutivesScreen({ goBack }) {
             <span style={{color:"#78716c"}}>{" → "}</span>
             <span style={{fontSize:15,fontWeight:700,color:"#16a34a"}}>{d.dim}{" "}<span aria-hidden="true">🔊</span></span>
           </div>
-          <div style={{fontSize:12,color:"var(--subtext)"}}>{d.suffix}</div>
+          <div style={{fontSize:12,color:"var(--subtext)"}}>{d.rule}</div>
         </button>
       );})}
     </div>
@@ -139,13 +139,23 @@ export function WordFormScreen({ goBack }) {
     <div className="scr-wrap">
       
       {H("🧩 Word Formation","How prefixes build Croatian vocabulary",goBack)}
-      {WORDFORM.bases.map(function(b,bi){return (
+      <div className="c" style={{marginBottom:16}}>
+        <div style={{fontSize:16,fontWeight:800,color:"#164e63",marginBottom:10}}>{"Base: "}{WORDFORM.base}</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+          {WORDFORM.prefixes.map(function(p,pi){return (
+            <button key={pi} aria-label={`Play audio for ${p.verb}`} style={{padding:"6px 0",fontSize:14,background:"none",border:"none",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif"}} onClick={function(){speak(p.verb)}}>
+              <span style={{fontWeight:700,color:"#0e7490"}}>{p.prefix}{p.verb}{" "}<span aria-hidden="true">🔊</span></span>{" — "}<span style={{color:"var(--subtext)",fontSize:12}}>{p.en}</span>
+            </button>
+          );})}
+        </div>
+      </div>
+      {WORDFORM.otherBases.map(function(b,bi){return (
         <div key={bi} className="c" style={{marginBottom:16}}>
-          <div style={{fontSize:16,fontWeight:800,color:"#164e63",marginBottom:10}}>{"Base: "}{b.verb}{" ("}{b.en})</div>
+          <div style={{fontSize:16,fontWeight:800,color:"#164e63",marginBottom:10}}>{"Base: "}{b.base}</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
-            {b.derived.map(function(d,di){return (
-              <button key={di} aria-label={`Play audio for ${d[0]}`} style={{padding:"6px 0",fontSize:14,background:"none",border:"none",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif"}} onClick={function(){speak(d[0])}}>
-                <span style={{fontWeight:700,color:"#0e7490"}}>{d[0]}{" "}<span aria-hidden="true">🔊</span></span>{" — "}<span style={{color:"var(--subtext)",fontSize:12}}>{d[1]}</span>
+            {b.pairs.map(function(p,pi){return (
+              <button key={pi} aria-label={`Play audio for ${p[0]}`} style={{padding:"6px 0",fontSize:14,background:"none",border:"none",cursor:"pointer",textAlign:"left",fontFamily:"'Outfit',sans-serif"}} onClick={function(){speak(p[0])}}>
+                <span style={{fontWeight:700,color:"#0e7490"}}>{p[0]}{" "}<span aria-hidden="true">🔊</span></span>{" — "}<span style={{color:"var(--subtext)",fontSize:12}}>{p[1]}</span>
               </button>
             );})}
           </div>
@@ -163,8 +173,8 @@ export function ColorQuirkScreen({ goBack }) {
       {COLORQUIRK.map(function(q,i){return (
         <button key={i} aria-label={`Play audio for ${q.hr}`} className="c" style={{marginBottom:10}} onClick={function(){speak(q.hr)}}>
           <div style={{fontSize:16,fontWeight:700,color:"var(--heading)"}}>{q.hr}{" "}<span aria-hidden="true">🔊</span></div>
-          <div style={{fontSize:14,color:"#0e7490",marginTop:2}}>{"Literal: "}{q.literal}</div>
-          <div style={{fontSize:14,fontWeight:600,color:"#16a34a",marginTop:2}}>{"Means: "}{q.means}</div>
+          <div style={{fontSize:14,color:"#0e7490",marginTop:2}}>{"Literal: "}{q.lit}</div>
+          <div style={{fontSize:14,fontWeight:600,color:"#16a34a",marginTop:2}}>{"Means: "}{q.en}</div>
         </button>
       );})}
     </div>

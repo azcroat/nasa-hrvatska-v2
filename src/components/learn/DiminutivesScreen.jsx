@@ -14,7 +14,7 @@ function DiminutivesScreen({ goBack }) {
             <span style={{color:"#78716c"}}>{" → "}</span>
             <span style={{fontSize:15,fontWeight:700,color:"#16a34a"}}>{d.dim}{" "}<span aria-hidden="true">🔊</span></span>
           </div>
-          <div style={{fontSize:12,color:"var(--subtext)"}}>{d.suffix}</div>
+          <div style={{fontSize:12,color:"var(--subtext)"}}>{d.rule}</div>
         </button>
       );})}
     </div>
