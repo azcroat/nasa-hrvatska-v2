@@ -3545,6 +3545,37 @@ body {
   }
 }
 
+/* ── Capacitor native: always use mobile layout regardless of screen width ── */
+/* The desktop sidebar uses backdrop-filter + fixed position + complex SVG animations
+   that don't render reliably in Android System WebView (HCL, Samsung tablets, etc.).
+   Bottom nav bar is the correct UX for native apps. */
+.capacitor-native .nav-bar { display: flex !important; }
+.capacitor-native .sidebar { display: none !important; }
+.capacitor-native .app-content { margin-left: 0 !important; }
+.capacitor-native .app-layout { display: block !important; }
+.capacitor-native .desktop-panel { display: none !important; }
+.capacitor-native .scr-wrap {
+  max-width: 100% !important;
+  padding: 20px 16px 92px !important;
+}
+
+/* ── Tablet scroll fix (Android WebView / HCL tablets) ── */
+/* Capacitor WebView on some Android tablets blocks momentum scrolling without these */
+@media (min-width: 600px) {
+  .scr-wrap {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+}
+
+/* Force scrollable containers to be touchable on all Android WebViews */
+.scr-wrap,
+[class*="scroll"],
+[class*="list"] {
+  touch-action: pan-y;
+}
+
 /* ── Reduce motion — respect user preference ── */
 @media (prefers-reduced-motion: reduce) {
   .streak-flame,

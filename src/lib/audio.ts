@@ -2,6 +2,11 @@
 // Audio Engine — Native Croatian Pronunciation
 // ═══════════════════════════════════════════════════════════
 import { getVoicePreference } from './soundSettings';
+import { isNative } from './platform';
+
+// In Capacitor native builds, relative URLs resolve to the bundled WebView server
+// (https://localhost), not to nasahrvatska.com — API calls must use the absolute URL.
+const _API_BASE = isNative() ? 'https://nasahrvatska.com' : '';
 
 let _au = false;
 let _voices: SpeechSynthesisVoice[] = [];
@@ -102,7 +107,7 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
       const body: Record<string, unknown> = { text, slow: !!slow };
       if (voicePref !== 'auto') body.voice = voicePref;
       _ttsAbort = new AbortController();
-      const r = await fetch('/api/tts', {
+      const r = await fetch(`${_API_BASE}/api/tts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

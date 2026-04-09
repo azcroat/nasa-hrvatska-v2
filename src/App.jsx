@@ -279,6 +279,18 @@ function App() {
   // Track retention on every app load (D1/D7/D30 buckets in Firebase Analytics)
   useEffect(() => { trackAppOpen(!!authUser); cleanupStaleQuestKeys(); }, []);
 
+  // Force mobile layout in Capacitor native — the desktop sidebar layout uses
+  // backdrop-filter + position:fixed + complex SVG animations that don't render
+  // reliably in Android System WebView on many tablets (HCL, Samsung, etc.).
+  // The bottom nav bar is the correct UX for native apps regardless of screen width.
+  useEffect(() => {
+    import('./lib/platform.js').then(({ isNative }) => {
+      if (isNative()) {
+        document.documentElement.classList.add('capacitor-native');
+      }
+    });
+  }, []);
+
   // Register friend code index once per session when auth is ready
   useEffect(() => {
     if (authUser?.u) fbRegisterFriendCode(authUser.u, authUser.d || name);

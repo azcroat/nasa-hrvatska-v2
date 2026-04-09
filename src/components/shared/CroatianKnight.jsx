@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
+// On Android WebView (Capacitor native), Framer Motion's entry animation can
+// stall leaving the element at opacity:0. Skip entry animation on native —
+// the knight appears immediately and CSS jitter animation still plays.
+const _isNative = typeof window !== 'undefined' &&
+  !!(window.Capacitor?.isNativePlatform?.());
+
 /**
  * CroatianKnight — LEGO Movie–quality minifigure mascot (v3)
  *
@@ -819,8 +825,15 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
   return (
     <motion.div
       className={className}
-      style={{ display: 'inline-block', lineHeight: 0, ...(rimFilter ? { filter: rimFilter } : {}), ...style }}
-      initial={{ scale: 0.6, opacity: 0, y: 8 }}
+      style={{
+        display: 'inline-block', lineHeight: 0,
+        // CSS fallback: if Framer Motion fails to animate (some Android WebViews),
+        // the element is still visible via the CSS animation below.
+        // Framer Motion will override these when it runs successfully.
+        opacity: 1, scale: 1,
+        ...(rimFilter ? { filter: rimFilter } : {}), ...style
+      }}
+      initial={_isNative ? false : { scale: 0.6, opacity: 0, y: 8 }}
       animate={isCelebrating
         ? { scale: [0.6, 1.22, 0.96, 1.06, 1], opacity: 1, y: 0 }
         : { scale: 1, opacity: 1, y: 0 }

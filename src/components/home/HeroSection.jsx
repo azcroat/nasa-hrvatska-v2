@@ -1,5 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// On Android WebView (Capacitor), Framer Motion entry animations can stall
+// leaving elements permanently at opacity:0. Skip entry animation on native.
+const _isNative = typeof window !== 'undefined' &&
+  !!(window.Capacitor?.isNativePlatform?.());
 import { lXP, nXP, earnFreeze, getStreakFreezes, LEVEL_NARRATIVE, speak } from '../../data.jsx';
 import { getDailyXP, DAILY_XP_GOAL, getXPBoost, activateXPBoost, canActivateXPBoost, XP_BOOST_COST } from '../../lib/appUtils.js';
 import { useTranslator } from '../../hooks/useTranslator';
@@ -370,7 +375,7 @@ export default function HeroSection({
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0 }}>
+    <motion.div initial={_isNative ? false : { opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0 }}>
       <div style={{
         background: `linear-gradient(160deg,rgba(6,14,30,0.91) 0%,rgba(10,35,72,0.82) 40%,rgba(12,56,104,0.77) 100%), url('/images/scenes/${heroScene.img}.webp') center ${heroScene.position} / cover no-repeat`,
         position: 'relative',
@@ -446,7 +451,7 @@ export default function HeroSection({
             {/* Knight — stable mount; mood prop updates the animation variant
                 without remounting, so the knight is never frozen during message cycles */}
             <motion.div
-              initial={{ scale: 0.75, opacity: 0 }}
+              initial={_isNative ? false : { scale: 0.75, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: 'spring', stiffness: 340, damping: 18, delay: 0.1 }}
               style={{ flexShrink: 0 }}
@@ -459,7 +464,7 @@ export default function HeroSection({
             <AnimatePresence mode="wait">
               <motion.div
                 key={greeting.mood + '\x00' + greeting.text.slice(0, 40)}
-                initial={{ opacity: 0, y: 8 }}
+                initial={_isNative ? false : { opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.22, ease: 'easeOut' }}

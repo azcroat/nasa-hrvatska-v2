@@ -6,6 +6,8 @@
  * to the /api/report-error Cloudflare Worker which logs to the dashboard.
  */
 
+const _nativeApiBase = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.() ? 'https://nasahrvatska.com' : '';
+
 export function reportError(error: unknown, context?: string): void {
   if (import.meta.env.DEV) {
     console.error('[reportError]', context, error);
@@ -22,11 +24,11 @@ export function reportError(error: unknown, context?: string): void {
     };
     if (navigator.sendBeacon) {
       navigator.sendBeacon(
-        '/api/report-error',
+        `${_nativeApiBase}/api/report-error`,
         new Blob([JSON.stringify(payload)], { type: 'application/json' })
       );
     } else {
-      fetch('/api/report-error', {
+      fetch(`${_nativeApiBase}/api/report-error`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
