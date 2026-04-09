@@ -20,7 +20,11 @@ export default function WebSpeechResultPanel({ result, coaching, onRetry, onGetC
           <div style={{ fontWeight: 800, fontSize: 15, color: scoreColor(result.score) }}>
             {scoreEmoji(result.score)} {scoreLabel(result.score)} {result.score}%
           </div>
-          <div style={{ fontSize: 12, color: 'var(--subtext)' }}>You said: "{result.spoken}"</div>
+          <div style={{ fontSize: 12, color: 'var(--subtext)' }}>
+            {result.recognizedViaTranslation
+              ? `Pronunciation recognized — browser matched the meaning ✓`
+              : `You said: "${result.spoken}"`}
+          </div>
         </div>
       </div>
 
