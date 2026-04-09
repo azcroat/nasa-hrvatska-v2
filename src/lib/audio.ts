@@ -122,7 +122,10 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
       _cacheSet(cacheKey, url);
     }
 
-    if (_iOS && _ctx) {
+    // Prefer AudioContext for all browsers — once unlocked by the first user gesture
+    // it bypasses Chrome/Safari autoplay restrictions and the "play interrupted by
+    // new load request" AbortError that Chrome throws when a.load() precedes a.play().
+    if (_ctx) {
       try {
         await _ctx.resume();
         if (_speakGen !== myGen) return false;
@@ -138,14 +141,18 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
         await new Promise<void>(resolve => { src.onended = () => resolve(); });
         return true;
       } catch (e) {
-        console.error('[TTS iOS] AudioContext fallback failed:', e);
+        console.error('[TTS AudioContext] failed:', e);
         if (_speakGen !== myGen) return false;
+        // Fall through to HTMLAudio fallback
       }
     }
 
+    // HTMLAudio fallback (first-ever click before AudioContext is initialised).
+    // Do NOT call a.load() — it triggers a second resource load that Chrome
+    // interrupts the pending play() with an AbortError.
     if (_speakGen !== myGen) return false;
     const a = new Audio(); a.volume = 1.0; _currentAudio = a;
-    a.src = url; a.load();
+    a.src = url;
     await a.play();
     await new Promise<void>(resolve => {
       a.addEventListener('ended', () => resolve(), { once: true });
