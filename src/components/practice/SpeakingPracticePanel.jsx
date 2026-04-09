@@ -97,7 +97,7 @@ export default function SpeakingPracticePanel({
       {/* Pronunciation scorer — handles speech recognition and scoring.
           When SRSupported, this is the ONLY speech button shown (no duplicate below). */}
       {SRSupported ? (
-        <PronunciationScorer targetText={sw[0]} onScore={onScore} />
+        <PronunciationScorer targetText={sw[0]} targetEnglish={sw[1]} onScore={onScore} />
       ) : (
         <div style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:8, padding:'10px 14px', background:'var(--bar-bg)', borderRadius:12, border:'1.5px solid var(--card-b)'}}>
           💡 Tap ✓ if you said it correctly
