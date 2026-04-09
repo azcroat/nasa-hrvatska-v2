@@ -3557,6 +3557,10 @@ body {
 .capacitor-native .scr-wrap {
   max-width: 100% !important;
   padding: 20px 16px 92px !important;
+  /* Prevent Android pull-to-refresh from reloading the WebView, which resets
+     the active tab back to Today. Users scrolling to the top were triggering
+     the native swipe-down refresh gesture. */
+  overscroll-behavior-y: none !important;
 }
 
 /* ── Tablet scroll fix (Android WebView / HCL tablets) ── */
@@ -3567,6 +3571,12 @@ body {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
   }
+}
+
+/* On native, block overscroll globally — pull-to-refresh reloads the WebView */
+.capacitor-native body,
+.capacitor-native #root {
+  overscroll-behavior: none;
 }
 
 /* Force scrollable containers to be touchable on all Android WebViews */
