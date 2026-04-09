@@ -62,6 +62,16 @@
   <script defer data-domain="nasahrvatska.com" src="https://plausible.io/js/plausible.js"></script>
 </head>
 <body>
+  <!-- Apply capacitor-native class synchronously before React mounts so CSS overrides
+       take effect from the very first paint. The useEffect in App.jsx is a backup. -->
+  <script>
+    try {
+      if (window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) {
+        document.documentElement.classList.add('capacitor-native');
+      }
+    } catch (e) {}
+  </script>
+
   <!-- Skip to main content for keyboard/screen reader users -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
 

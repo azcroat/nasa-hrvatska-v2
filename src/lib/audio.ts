@@ -219,7 +219,7 @@ export async function preloadAudio(text: string): Promise<void> {
   try {
     const body: Record<string, unknown> = { text: t, slow: false };
     if (voicePref !== 'auto') body.voice = voicePref;
-    const r = await fetch('/api/tts', {
+    const r = await fetch(`${_API_BASE}/api/tts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
