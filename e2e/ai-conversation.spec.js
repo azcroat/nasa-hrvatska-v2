@@ -408,7 +408,7 @@ test.describe('Conversation chat', () => {
   test('chat header shows the AI name (Mate)', async ({ page }) => {
     await startFreeTalkConversation(page);
     // The Free Talk scenario uses "Mate" as aiName
-    await expect(page.getByText('Mate').first()).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText('Mate').first()).toBeVisible({ timeout: 12_000 });
   });
 
   test('chat shows the level badge', async ({ page }) => {

@@ -23,7 +23,7 @@ test.describe('Authentication — Login screen', () => {
     await page.locator('input[type="email"]').fill('notanemail');
     await page.locator('input[type="password"]').fill('somepassword');
     await page.getByRole('button', { name: 'Sign In', exact: true }).click();
-    await expect(page.getByText('Please enter a valid email address')).toBeVisible();
+    await expect(page.getByText('Please enter a valid email address')).toBeVisible({ timeout: 3_000 });
   });
 
   test('shows error when password is missing', async ({ page }) => {
