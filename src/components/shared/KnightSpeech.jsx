@@ -181,7 +181,7 @@ function getGreeting(st, streakCount, level) {
   if (streakCount >= 30)  return { mood: 'celebrating', text: `Trideset dana — 30 days straight! Most people quit long before now. Croatia noticed. 🇭🇷` };
   if (streakCount >= 21)  return { mood: 'celebrating', text: `Tri tjedna — 21 days. Habit science says this is when it sticks. I can confirm: it's sticking. 🔥` };
   if (streakCount >= 14)  return { mood: 'happy',       text: `Dva tjedna! Two weeks of Croatian. You've learned more than most diaspora kids will ever try. 💙` };
-  if (streakCount >= 7)   return { mood: 'happy',       text: `${streakCount}-day streak — a full week. Your brain is forming real Croatian pathways now. Sjajno! 💪` };
+  if (streakCount >= 7)   return { mood: 'happy',       text: streakCount === 7 ? `7-day streak — a full week! Your brain is forming real Croatian pathways now. Sjajno! 💪` : `${streakCount}-day streak! Real Croatian pathways forming. Keep going strong. 💪` };
   if (streakCount >= 3)   return { mood: 'happy',       text: `${streakCount} days straight. Consistency beats intensity — you're proving it every day. Hajde! ⚔️` };
 
   if (xp >= 5000) return { mood: 'victory',     text: `${xp.toLocaleString()} XP! You've crossed into territory where Croatian conversations start happening by accident. 🗣️` };
@@ -374,9 +374,12 @@ export default function KnightSpeech({
       setAnimOut(false);
       setCelebBurst(false);
       requestAnimationFrame(() => setCelebBurst(true));
-      setMode('full');
-      clearTimeout(celebTimerRef.current);
-      celebTimerRef.current = setTimeout(() => setMode('mini'), 5500);
+      // Don't re-open if user already dismissed today
+      if (!localStorage.getItem(_todayKey(sessionKey))) {
+        setMode('full');
+        clearTimeout(celebTimerRef.current);
+        celebTimerRef.current = setTimeout(() => setMode('mini'), 5500);
+      }
     };
     const BADGE_REACTIONS = [
       { mood: 'celebrating', text: 'Čestitam! A new badge earned. Badges don\'t come easy — you put in the work. Svaka čast! 🏅' },
@@ -389,9 +392,12 @@ export default function KnightSpeech({
       setAnimOut(false);
       setCelebBurst(false);
       requestAnimationFrame(() => setCelebBurst(true));
-      setMode('full');
-      clearTimeout(celebTimerRef.current);
-      celebTimerRef.current = setTimeout(() => setMode('mini'), 6000);
+      // Don't re-open if user already dismissed today
+      if (!localStorage.getItem(_todayKey(sessionKey))) {
+        setMode('full');
+        clearTimeout(celebTimerRef.current);
+        celebTimerRef.current = setTimeout(() => setMode('mini'), 6000);
+      }
     };
     window.addEventListener('knight:celebrate', onCelebrate);
     window.addEventListener('knight:badge', onBadge);
