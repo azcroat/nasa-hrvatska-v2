@@ -23,6 +23,10 @@
 import { test, expect } from '@playwright/test';
 import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
 
+// Hard cap: every test in this file must finish within 12 seconds.
+// isVisible timeouts and waitForTimeout values are trimmed to match.
+test.setTimeout(12_000);
+
 // ── Speech Recognition mock factory ────────────────────────────────────────
 // Installed via page.addInitScript before the page loads.
 // window.__mockSR__ is read at start() time so each test can configure the
@@ -156,7 +160,7 @@ test.describe('SpeakingScreen structure', () => {
       }));
     });
     await page.goto('/');
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(300);
   });
 
   test('shows Pronunciation Practice heading', async ({ page }) => {
@@ -189,16 +193,16 @@ test.describe('Self-assessment path', () => {
   test('Speaking exercise shows "I Said It Correctly!" button when accessible', async ({ page }) => {
     // Look for speaking exercises on the Practice tab
     const speakBtn = page.getByRole('button', { name: /speaking|speak|pronunciation/i }).first();
-    if (await speakBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await speakBtn.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await speakBtn.click();
-      await page.waitForTimeout(800);
+      await page.waitForTimeout(200);
       const selfAssess = page.getByRole('button', { name: /I Said It Correctly/i });
-      if (await selfAssess.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      if (await selfAssess.isVisible({ timeout: 1_000 }).catch(() => false)) {
         await selfAssess.click();
         // After self-assess, sr becomes 'ok' — "Next →" or "Finish" should appear
         await expect(
           page.getByRole('button', { name: /Next|Finish/i }).first()
-        ).toBeVisible({ timeout: 3_000 });
+        ).toBeVisible({ timeout: 1_500 });
       }
     }
   });
@@ -224,13 +228,13 @@ test.describe('PronunciationScorer WebSpeech mode', () => {
     // Navigate to a speaking exercise that shows PronunciationScorer
     // Look in Practice tab for speaking category
     const catTile = page.locator('button.cat-tile').filter({ hasText: /speaking/i });
-    if (await catTile.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await catTile.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await catTile.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
       // PronunciationScorer renders "Test My Pronunciation" button
       await expect(
         page.getByRole('button', { name: /Test My Pronunciation/i }).first()
-      ).toBeVisible({ timeout: 5_000 });
+      ).toBeVisible({ timeout: 2_000 });
     }
   });
 
@@ -239,14 +243,14 @@ test.describe('PronunciationScorer WebSpeech mode', () => {
       window.__mockSR__ = { transcripts: ['dobar', 'dobro', 'dobi'], delay: 150 };
     });
     const catTile = page.locator('button.cat-tile').filter({ hasText: /speaking/i });
-    if (await catTile.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await catTile.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await catTile.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
       const pronBtn = page.getByRole('button', { name: /Test My Pronunciation/i }).first();
-      if (await pronBtn.isVisible({ timeout: 5_000 }).catch(() => false)) {
+      if (await pronBtn.isVisible({ timeout: 1_500 }).catch(() => false)) {
         await pronBtn.click();
         // Wait for scorer result
-        await page.waitForTimeout(1500);
+        await page.waitForTimeout(400);
         // Should show score or coaching panel, NOT a zero score
         const bodyText = await page.locator('body').textContent();
         // If we got a result, confirm it doesn't show 0% for what should be a match
@@ -313,20 +317,20 @@ test.describe('English-translation recognition (četiri → four bug fix)', () =
 
     // Navigate to Speaking category
     const catTile = page.locator('button.cat-tile').filter({ hasText: /speaking/i });
-    if (!await catTile.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (!await catTile.isVisible({ timeout: 1_000 }).catch(() => false)) {
       // Drill button to expand
       const drillBtn = page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Drill$/ }) });
-      if (await drillBtn.isVisible({ timeout: 2_000 }).catch(() => false)) await drillBtn.click();
+      if (await drillBtn.isVisible({ timeout: 800 }).catch(() => false)) await drillBtn.click();
     }
 
-    if (await catTile.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await catTile.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await catTile.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       const pronBtn = page.getByRole('button', { name: /Test My Pronunciation/i }).first();
-      if (await pronBtn.isVisible({ timeout: 5_000 }).catch(() => false)) {
+      if (await pronBtn.isVisible({ timeout: 1_500 }).catch(() => false)) {
         await pronBtn.click();
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(200);
 
         const bodyText = await page.locator('body').textContent();
 
@@ -378,13 +382,13 @@ test.describe('English-translation recognition (četiri → four bug fix)', () =
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
 
     const catTile = page.locator('button.cat-tile').filter({ hasText: /speaking/i });
-    if (await catTile.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await catTile.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await catTile.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
       const pronBtn = page.getByRole('button', { name: /Test My Pronunciation/i }).first();
-      if (await pronBtn.isVisible({ timeout: 5_000 }).catch(() => false)) {
+      if (await pronBtn.isVisible({ timeout: 1_500 }).catch(() => false)) {
         await pronBtn.click();
-        await page.waitForTimeout(2500);
+        await page.waitForTimeout(200);
         const bodyText = await page.locator('body').textContent();
         // When translation recognized, score should be 82% → not in "Try again" zone
         if (bodyText.includes('%')) {
@@ -433,13 +437,13 @@ test.describe('Microphone error handling', () => {
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
 
     const catTile = page.locator('button.cat-tile').filter({ hasText: /speaking/i });
-    if (await catTile.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await catTile.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await catTile.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
       const pronBtn = page.getByRole('button', { name: /Test My Pronunciation/i }).first();
-      if (await pronBtn.isVisible({ timeout: 5_000 }).catch(() => false)) {
+      if (await pronBtn.isVisible({ timeout: 1_500 }).catch(() => false)) {
         await pronBtn.click();
-        await page.waitForTimeout(1500);
+        await page.waitForTimeout(400);
         const bodyText = await page.locator('body').textContent();
         // Should show a user-friendly error, not a raw error code
         if (bodyText.toLowerCase().includes('permission') || bodyText.toLowerCase().includes('microphone') || bodyText.toLowerCase().includes('allow')) {
@@ -497,13 +501,13 @@ test.describe('Score badge thresholds', () => {
     await runWithScore(page, ['dobar', 'dobi'], 'dobar');
 
     const catTile = page.locator('button.cat-tile').filter({ hasText: /speaking/i });
-    if (await catTile.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await catTile.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await catTile.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
       const pronBtn = page.getByRole('button', { name: /Test My Pronunciation/i }).first();
-      if (await pronBtn.isVisible({ timeout: 5_000 }).catch(() => false)) {
+      if (await pronBtn.isVisible({ timeout: 1_500 }).catch(() => false)) {
         await pronBtn.click();
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(200);
         const unexpected = jsErrors.filter(e =>
           !e.includes('firebase') && !e.includes('firestore') &&
           !e.includes('fetch') && !e.includes('AbortError')
@@ -542,21 +546,21 @@ test.describe('Score badge thresholds', () => {
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
 
     const catTile = page.locator('button.cat-tile').filter({ hasText: /speaking/i });
-    if (await catTile.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await catTile.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await catTile.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
       const pronBtn = page.getByRole('button', { name: /Test My Pronunciation/i }).first();
-      if (await pronBtn.isVisible({ timeout: 5_000 }).catch(() => false)) {
+      if (await pronBtn.isVisible({ timeout: 1_500 }).catch(() => false)) {
         await pronBtn.click();
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(200);
         // After scoring, "Try Again" should appear
         const retryBtn = page.getByRole('button', { name: /🔄 Try Again/i }).first();
-        if (await retryBtn.isVisible({ timeout: 2_000 }).catch(() => false)) {
+        if (await retryBtn.isVisible({ timeout: 800 }).catch(() => false)) {
           await retryBtn.click();
           // After retry, scorer returns to idle — "Test My Pronunciation" re-appears
           await expect(
             page.getByRole('button', { name: /Test My Pronunciation/i }).first()
-          ).toBeVisible({ timeout: 3_000 });
+          ).toBeVisible({ timeout: 1_500 });
         }
       }
     }
@@ -599,12 +603,12 @@ test.describe('Listening screen', () => {
 
     // Navigate to the AI Challenges panel and click AI Listening
     const challengeBtn = page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Challenge$/ }) });
-    if (await challengeBtn.isVisible({ timeout: 2_000 }).catch(() => false)) await challengeBtn.click();
+    if (await challengeBtn.isVisible({ timeout: 800 }).catch(() => false)) await challengeBtn.click();
 
     const listenCard = page.getByText(/AI Listening|Listening Comprehension/i).first();
-    if (await listenCard.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await listenCard.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await listenCard.click();
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
       // Should show listening content or loading, not blank or error
       const body = await page.locator('body').textContent();
       expect(body.length).toBeGreaterThan(50);
@@ -623,15 +627,15 @@ test.describe('Listening screen', () => {
 
     // Open Advanced category in Drill panel
     const drillBtn = page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Drill$/ }) });
-    if (await drillBtn.isVisible({ timeout: 2_000 }).catch(() => false)) await drillBtn.click();
+    if (await drillBtn.isVisible({ timeout: 800 }).catch(() => false)) await drillBtn.click();
     const advCat = page.locator('button.cat-tile').filter({ hasText: /Advanced|Dictation/i });
-    if (await advCat.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await advCat.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await advCat.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
       const dictCard = page.getByText(/Dictation/i).first();
-      if (await dictCard.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      if (await dictCard.isVisible({ timeout: 1_000 }).catch(() => false)) {
         await dictCard.click();
-        await page.waitForTimeout(1500);
+        await page.waitForTimeout(400);
         const body = await page.locator('body').textContent();
         expect(body).not.toContain('Something went wrong');
       }
@@ -662,15 +666,15 @@ test.describe('Flashcards', () => {
     page.on('pageerror', e => jsErrors.push(e.message));
 
     const drillBtn = page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Drill$/ }) });
-    if (await drillBtn.isVisible({ timeout: 2_000 }).catch(() => false)) await drillBtn.click();
+    if (await drillBtn.isVisible({ timeout: 800 }).catch(() => false)) await drillBtn.click();
     const vocabCat = page.locator('button.cat-tile').filter({ hasText: /Vocabulary|Word|vocab/i }).first();
-    if (await vocabCat.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await vocabCat.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await vocabCat.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
       const flashCard = page.getByText(/Flashcard|Flash Card/i).first();
-      if (await flashCard.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      if (await flashCard.isVisible({ timeout: 1_000 }).catch(() => false)) {
         await flashCard.click();
-        await page.waitForTimeout(1500);
+        await page.waitForTimeout(400);
         const body = await page.locator('body').textContent();
         expect(body).not.toContain('Something went wrong');
       }
@@ -687,20 +691,20 @@ test.describe('Flashcards', () => {
     await page.route('/api/tts', route => { ttsRequested = true; route.fulfill({ body: Buffer.alloc(100), contentType: 'audio/mpeg' }); });
 
     const drillBtn = page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Drill$/ }) });
-    if (await drillBtn.isVisible({ timeout: 2_000 }).catch(() => false)) await drillBtn.click();
+    if (await drillBtn.isVisible({ timeout: 800 }).catch(() => false)) await drillBtn.click();
     const vocabCat = page.locator('button.cat-tile').filter({ hasText: /Vocabulary|Word|vocab/i }).first();
-    if (await vocabCat.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await vocabCat.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await vocabCat.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
       const flashCard = page.getByText(/Flashcard|Flash Card/i).first();
-      if (await flashCard.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      if (await flashCard.isVisible({ timeout: 1_000 }).catch(() => false)) {
         await flashCard.click();
-        await page.waitForTimeout(1500);
+        await page.waitForTimeout(400);
         // Click play button if present
         const playBtn = page.locator('button').filter({ hasText: /🔊|play|listen/i }).first();
-        if (await playBtn.isVisible({ timeout: 2_000 }).catch(() => false)) {
+        if (await playBtn.isVisible({ timeout: 800 }).catch(() => false)) {
           await playBtn.click();
-          await page.waitForTimeout(500);
+          await page.waitForTimeout(200);
           // TTS should have been requested
           expect(ttsRequested).toBe(true);
         }
@@ -727,20 +731,20 @@ test.describe('McGame (Multiple Choice quiz)', () => {
     page.on('pageerror', e => jsErrors.push(e.message));
 
     const drillBtn = page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Drill$/ }) });
-    if (await drillBtn.isVisible({ timeout: 2_000 }).catch(() => false)) await drillBtn.click();
+    if (await drillBtn.isVisible({ timeout: 800 }).catch(() => false)) await drillBtn.click();
     const vocabCat = page.locator('button.cat-tile').filter({ hasText: /Vocabulary|Word|vocab/i }).first();
-    if (await vocabCat.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await vocabCat.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await vocabCat.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
       const mcCard = page.getByText(/Quiz|Multiple Choice|Word Quiz/i).first();
-      if (await mcCard.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      if (await mcCard.isVisible({ timeout: 1_000 }).catch(() => false)) {
         await mcCard.click();
-        await page.waitForTimeout(1500);
+        await page.waitForTimeout(400);
         // If MC game loaded, click first option
         const optionBtn = page.locator('button').filter({ hasText: /^[A-Za-zčćžšđČĆŽŠĐ]/ }).first();
-        if (await optionBtn.isVisible({ timeout: 2_000 }).catch(() => false)) {
+        if (await optionBtn.isVisible({ timeout: 800 }).catch(() => false)) {
           await optionBtn.click();
-          await page.waitForTimeout(500);
+          await page.waitForTimeout(200);
           const body = await page.locator('body').textContent();
           expect(body).not.toContain('Something went wrong');
         }
@@ -762,15 +766,15 @@ test.describe('McGame (Multiple Choice quiz)', () => {
     });
 
     const drillBtn = page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Drill$/ }) });
-    if (await drillBtn.isVisible({ timeout: 2_000 }).catch(() => false)) await drillBtn.click();
+    if (await drillBtn.isVisible({ timeout: 800 }).catch(() => false)) await drillBtn.click();
     const vocabCat = page.locator('button.cat-tile').filter({ hasText: /Vocabulary|Word|vocab/i }).first();
-    if (await vocabCat.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await vocabCat.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await vocabCat.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
       const mcCard = page.getByText(/Quiz|Multiple Choice/i).first();
-      if (await mcCard.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      if (await mcCard.isVisible({ timeout: 1_000 }).catch(() => false)) {
         await mcCard.click();
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(300);
         const body = await page.locator('body').textContent();
         // Hearts should not show -1 or negative numbers
         expect(body).not.toMatch(/-\d+ ❤️/);
@@ -805,14 +809,14 @@ test.describe('Profile persistence', () => {
   });
 
   test('level badge visible', async ({ page }) => {
-    await expect(page.getByText(/Level|Lv\./i).first()).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText(/Level|Lv\./i).first()).toBeVisible({ timeout: 2_000 });
   });
 
   test('settings accessible from profile tab', async ({ page }) => {
     const settingsLink = page.getByRole('button', { name: /settings|⚙️/i }).first();
-    if (await settingsLink.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await settingsLink.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await settingsLink.click();
-      await page.waitForTimeout(800);
+      await page.waitForTimeout(200);
       const body = await page.locator('body').textContent();
       expect(body.toLowerCase()).toMatch(/settings|voice|theme|dark|notify/i);
     }
@@ -934,9 +938,9 @@ test.describe('Audio system', () => {
 
     // Click any speaker button to trigger TTS
     const spkBtn = page.locator('button').filter({ hasText: /🔊/ }).first();
-    if (await spkBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await spkBtn.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await spkBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
     }
 
     // Must NOT show "Audio Unavailable"
@@ -958,9 +962,9 @@ test.describe('Audio system', () => {
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
 
     const spkBtn = page.locator('button').filter({ hasText: /🔊/ }).first();
-    if (await spkBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await spkBtn.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await spkBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
       if (requestBody) {
         expect(requestBody).toHaveProperty('text');
         expect(typeof requestBody.text).toBe('string');
@@ -990,7 +994,7 @@ test.describe('LearnPath sequential flow', () => {
   test('path items render without crashing', async ({ page }) => {
     const jsErrors = [];
     page.on('pageerror', e => jsErrors.push(e.message));
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(400);
     const unexpected = jsErrors.filter(e =>
       !e.includes('firebase') && !e.includes('firestore') && !e.includes('fetch') && !e.includes('AbortError')
     );
@@ -999,9 +1003,9 @@ test.describe('LearnPath sequential flow', () => {
 
   test('clicking a path item navigates without blank screen', async ({ page }) => {
     const pathItems = page.locator('[data-path-item], .path-item, .lp-item').first();
-    if (await pathItems.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await pathItems.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await pathItems.click();
-      await page.waitForTimeout(1500);
+      await page.waitForTimeout(400);
       const body = await page.locator('body').textContent();
       expect(body.trim().length).toBeGreaterThan(50);
       expect(body).not.toContain('Something went wrong');
@@ -1022,7 +1026,7 @@ test.describe('LearnPath sequential flow', () => {
 
     // Listening item should NOT be locked
     const lockedListening = page.getByText(/Listening.*locked|locked.*Listening/i);
-    expect(await lockedListening.isVisible({ timeout: 2_000 }).catch(() => false)).toBe(false);
+    expect(await lockedListening.isVisible({ timeout: 800 }).catch(() => false)).toBe(false);
   });
 });
 
@@ -1088,9 +1092,9 @@ test.describe('Croatia tab', () => {
 
   test('Discover sub-tab accessible', async ({ page }) => {
     const discoverBtn = page.getByRole('button', { name: /Discover/i }).first();
-    if (await discoverBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await discoverBtn.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await discoverBtn.click();
-      await page.waitForTimeout(800);
+      await page.waitForTimeout(200);
       const body = await page.locator('body').textContent();
       expect(body.trim().length).toBeGreaterThan(50);
     }
@@ -1098,9 +1102,9 @@ test.describe('Croatia tab', () => {
 
   test('Culture sub-tab accessible', async ({ page }) => {
     const cultureBtn = page.getByRole('button', { name: /Culture/i }).first();
-    if (await cultureBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await cultureBtn.isVisible({ timeout: 1_000 }).catch(() => false)) {
       await cultureBtn.click();
-      await page.waitForTimeout(800);
+      await page.waitForTimeout(200);
       const body = await page.locator('body').textContent();
       expect(body.trim().length).toBeGreaterThan(50);
     }
@@ -1134,7 +1138,7 @@ test.describe('Offline resilience', () => {
 
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(200);
 
     // App must not white-screen — navigation must still render
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible();
