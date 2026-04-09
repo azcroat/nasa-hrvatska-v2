@@ -823,18 +823,13 @@ test.describe('Profile persistence', () => {
   });
 
   test('localStorage not cleared on profile tab visit', async ({ page }) => {
-    // Critical: visiting profile must NEVER wipe localStorage
-    const statsBefore = await page.evaluate(() => localStorage.getItem('nh_stats'));
-    await page.reload();
-    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    const statsAfter = await page.evaluate(() => localStorage.getItem('nh_stats'));
-    expect(statsAfter).not.toBeNull();
-    // XP must still be 250
-    if (statsBefore && statsAfter) {
-      const before = JSON.parse(statsBefore);
-      const after = JSON.parse(statsAfter);
-      expect(after.xp).toBeGreaterThanOrEqual(before.xp);
-    }
+    // Critical: visiting profile must NEVER wipe localStorage.
+    // beforeEach already navigated to /me — just verify stats are intact now.
+    // (page.reload() was removed: reload + evaluate races with navigation context destruction)
+    const statsJson = await page.evaluate(() => localStorage.getItem('nh_stats'));
+    expect(statsJson).not.toBeNull();
+    const stats = JSON.parse(statsJson || '{}');
+    expect(stats.xp).toBeGreaterThanOrEqual(250);
   });
 });
 
@@ -854,13 +849,18 @@ test.describe('Streak mechanics', () => {
     yesterday.setDate(yesterday.getDate() - 1);
     const yd = yesterday.toISOString().slice(0, 10);
 
-    await page.evaluate((ydStr) => {
+    // Use addInitScript (not evaluate) — page is still at about:blank here, so
+    // page.evaluate() throws SecurityError: localStorage access denied on about:blank.
+    // addInitScript registers a script that runs on the next page.goto() navigation.
+    await page.addInitScript((ydStr) => {
       // Simulate: had 15-day streak, broke yesterday
       const eb = { streak: 15, lc: 0, date: ydStr };
       localStorage.setItem('nh_earn_back', JSON.stringify(eb));
-      const stats = JSON.parse(localStorage.getItem('nh_stats') || '{}');
-      stats.streak = 0;  // streak broke
-      localStorage.setItem('nh_stats', JSON.stringify(stats));
+      try {
+        const stats = JSON.parse(localStorage.getItem('nh_stats') || '{}');
+        stats.streak = 0;  // streak broke
+        localStorage.setItem('nh_stats', JSON.stringify(stats));
+      } catch (_) {}
     }, yd);
 
     await page.goto('/');
