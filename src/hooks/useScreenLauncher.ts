@@ -87,6 +87,7 @@ interface ScreenLauncherParams {
   award: (amt: number) => void;
   writeDelta: (delta: StatsDelta & Record<string, unknown>) => void;
   allCats: string[];
+  gc: number;
   tab: string;
   setTab: (tab: string) => void;
   // Lesson setters
@@ -140,7 +141,7 @@ interface ScreenLauncherResult {
 
 export function useScreenLauncher({
   setScr, navigate, curEx, sCurEx, currentScreen,
-  setStats, award, writeDelta, allCats,
+  setStats, award, writeDelta, allCats, gc,
   tab, setTab,
   sLt, sLi, sLx, sLs, sLp, sLa, sLsl, sQi,
   sGl, sGp, sGx, sGs, sGa, sGsl,
@@ -322,8 +323,11 @@ export function useScreenLauncher({
       trackStart('flashcards');
       setScr('lesson'); sCurEx('vocab_' + item.topic);
     } else if (item.go === 'grammar') {
-      const { GRAM } = await _getData() as { GRAM: { beginner: unknown[] } };
-      sGl(GRAM.beginner[0]); sGp('learn'); sGx(0); sGs(0); sGa(false); sGsl(-1);
+      const { GRAM } = await _getData() as { GRAM: { beginner: unknown[]; intermediate: unknown[]; advanced: unknown[] } };
+      // Flatten all grammar lessons and cycle via gc so each quest visit advances to the next lesson
+      const allGramLessons = [...(GRAM.beginner || []), ...(GRAM.intermediate || []), ...(GRAM.advanced || [])];
+      const lesson = allGramLessons.length > 0 ? allGramLessons[gc % allGramLessons.length] : GRAM.beginner[0];
+      sGl(lesson); sGp('learn'); sGx(0); sGs(0); sGa(false); sGsl(-1);
       sessionStorage.setItem('nh_ex_start', Date.now().toString());
       const returnScreen = (currentScreen && currentScreen !== 'dashboard') ? currentScreen : 'learnpath';
       returnContextRef.current = { tab: 'learn', screen: returnScreen };
