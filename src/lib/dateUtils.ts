@@ -12,7 +12,8 @@ export async function getServerDateStr(): Promise<string> {
   try {
     const ctrl = new AbortController();
     const id = setTimeout(() => ctrl.abort(), 3000);
-    const res = await fetch('/api/server-time', { signal: ctrl.signal });
+    const apiBase = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.() ? 'https://nasahrvatska.com' : '';
+    const res = await fetch(`${apiBase}/api/server-time`, { signal: ctrl.signal });
     clearTimeout(id);
     if (!res.ok) throw new Error('non-ok');
     const { ts } = await res.json() as { ts: number };

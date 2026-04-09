@@ -2,10 +2,15 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import VideoBackground from '../shared/VideoBackground.jsx';
 
+// On Android WebView (Capacitor), Framer Motion entry animations can stall
+// leaving the element permanently at opacity:0. Skip entry animation on native.
+const _isNative = typeof window !== 'undefined' &&
+  !!(window.Capacitor?.isNativePlatform?.());
+
 const SCENE_POOL = [
   { key:'dubrovnik', img:'/images/scenes/dubrovnik-hero.webp',  city:'Dubrovnik',        label:'Adriatic Pearl' },
   { key:'dalmatian', img:'/images/scenes/dalmatian-coast.webp', city:'Dalmatian Coast',  label:'The Adriatic Sea' },
-  { key:'sibenik', img:'https://images.unsplash.com/photo-1602002418082-a4443e081dd1?w=800&q=85&fit=crop&auto=format', city:'\u0160ibenik', label:'City of St. James Cathedral' },
+  { key:'sibenik', img:'/images/scenes/dalmatian-ai.webp', city:'\u0160ibenik', label:'City of St. James Cathedral' },
   { key:'zagreb',    img:'/images/scenes/zagreb.webp',          city:'Zagreb',           label:'The Capital' },
   { key:'labin',     img:'/images/scenes/labin.webp',           city:'Labin, Istria',    label:'Medieval Hilltop Town' },
   { key:'mostar',    img:'/images/scenes/mostar.webp',          city:'Mostar',           label:'Stari Most Bridge' },
@@ -18,7 +23,7 @@ export default function CroatiaPostcard({ dailyCulture, dailyCultureLoading, tod
   const phrase = todayPhrases[0];
 
   return (
-    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.12 }}>
+    <motion.div initial={_isNative ? false : { opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.12 }}>
       <VideoBackground
         imageSrc={scene.img}
         overlay="linear-gradient(160deg,rgba(0,0,0,.68) 0%,rgba(0,0,0,.3) 60%,rgba(0,0,0,.58) 100%)"

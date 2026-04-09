@@ -1,5 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// On Android WebView (Capacitor), Framer Motion entry animations can stall
+// leaving elements permanently at opacity:0. Skip entry animation on native.
+const _isNative = typeof window !== 'undefined' &&
+  !!(window.Capacitor?.isNativePlatform?.());
 import { LEARN_PATH, getStreak, getDailyChallenge, speak, preloadAudio, DAILY_QUESTS, getActiveCampaign, V } from '../../data.jsx';
 import { getWordOfDay } from '../../lib/wordOfDay.js';
 import { addWordToSRS } from '../../lib/srs.js';
@@ -445,7 +450,7 @@ export default function HomeTab({
       <AnimatePresence mode="wait">
       {htab === 'today' && (
         <motion.div key="today"
-          initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+          initial={_isNative ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }} transition={{ duration: 0.18, ease: 'easeOut' }}
         >
         <React.Fragment>
@@ -470,7 +475,7 @@ export default function HomeTab({
             const act = missionActions[mission.id] || { label: 'Start →', action: () => {} };
             return (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
+                initial={_isNative ? false : { opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.25, ease: 'easeOut' }}
@@ -523,7 +528,7 @@ export default function HomeTab({
           {/* City of Day, Proverb, Did You Know removed to reduce scroll depth.       */}
           {(() => {
             return (
-              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.04 }}>
+              <motion.div initial={_isNative ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0.04 }}>
                 <div style={{
                   borderRadius: 20, overflow: 'hidden', marginBottom: 12,
                   border: '1px solid var(--card-b)',
@@ -713,7 +718,7 @@ export default function HomeTab({
       ══════════════════════════════════════════ */}
       {htab === 'progress' && (
         <motion.div key="progress"
-          initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+          initial={_isNative ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }} transition={{ duration: 0.18, ease: 'easeOut' }}
         >
           <ProgressTabContent
@@ -733,7 +738,7 @@ export default function HomeTab({
       ══════════════════════════════════════════ */}
       {htab === 'review' && (
         <motion.div key="review"
-          initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+          initial={_isNative ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }} transition={{ duration: 0.18, ease: 'easeOut' }}
         >
           <ReviewTabContent />
