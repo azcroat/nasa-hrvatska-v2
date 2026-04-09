@@ -25,7 +25,7 @@ function AspectScreen({ goBack }) {
       {ASPECT.pairs.map(function(p,i){return (
         <div key={i} className="c" style={{marginBottom:10}}>
           <div style={{display:"flex",justifyContent:"space-between"}}>
-            <button aria-label={`Play imperfective: ${p.imp}`} style={{fontWeight:700,color:"#dc2626",background:"none",border:"none",cursor:"pointer",fontFamily:"'Outfit',sans-serif",padding:0}} onClick={function(){speak(p.imp)}}>{p.imp}<span aria-hidden="true">{" 🔊"}</span></button>
+            <button aria-label={`Play imperfective: ${p.impf}`} style={{fontWeight:700,color:"#dc2626",background:"none",border:"none",cursor:"pointer",fontFamily:"'Outfit',sans-serif",padding:0}} onClick={function(){speak(p.impf)}}>{p.impf}<span aria-hidden="true">{" 🔊"}</span></button>
             <button aria-label={`Play perfective: ${p.perf}`} style={{fontWeight:700,color:"#16a34a",background:"none",border:"none",cursor:"pointer",fontFamily:"'Outfit',sans-serif",padding:0}} onClick={function(){speak(p.perf)}}>{p.perf}<span aria-hidden="true">{" 🔊"}</span></button>
           </div>
           <div style={{fontSize:13,color:"#78716c"}}>{p.en}</div>
