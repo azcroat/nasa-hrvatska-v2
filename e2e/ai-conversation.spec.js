@@ -105,8 +105,8 @@ async function openAIConvoFromPractice(page) {
   await expect(aiHeroBtn).toBeVisible({ timeout: 10_000 });
   await aiHeroBtn.click();
   // First-load of the lazy AIConversation chunk can be slow in CI when multiple
-  // workers start simultaneously — 25s gives enough headroom.
-  await expect(page.getByText('Razgovor s Majom').first()).toBeVisible({ timeout: 25_000 });
+  // workers start simultaneously — 40s gives enough headroom.
+  await expect(page.getByText('Razgovor s Majom').first()).toBeVisible({ timeout: 40_000 });
 }
 
 // ---------------------------------------------------------------------------

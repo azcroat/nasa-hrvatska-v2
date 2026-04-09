@@ -90,14 +90,14 @@ test.describe('Home tab', () => {
       await page.getByText('⇄ Translate').click();
       await page.getByPlaceholder(/Type English/i).fill('Good day');
       await page.getByRole('button', { name: 'Go', exact: true }).click();
-      await expect(page.locator('button').filter({ hasText: 'Dobar dan' }).filter({ hasText: '🔊' })).toBeVisible({ timeout: 5_000 });
+      await expect(page.locator('button').filter({ hasText: 'Dobar dan' }).filter({ hasText: '🔊' }).first()).toBeVisible({ timeout: 5_000 });
     });
 
     test('submits translation via Enter key', async ({ page }) => {
       await page.getByText('⇄ Translate').click();
       await page.getByPlaceholder(/Type English/i).fill('Good day');
       await page.keyboard.press('Enter');
-      await expect(page.locator('button').filter({ hasText: 'Dobar dan' }).filter({ hasText: '🔊' })).toBeVisible({ timeout: 5_000 });
+      await expect(page.locator('button').filter({ hasText: 'Dobar dan' }).filter({ hasText: '🔊' }).first()).toBeVisible({ timeout: 5_000 });
     });
   });
 });
