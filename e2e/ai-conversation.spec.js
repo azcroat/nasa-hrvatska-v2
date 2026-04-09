@@ -104,9 +104,8 @@ async function openAIConvoFromPractice(page) {
   const aiHeroBtn = page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first();
   await expect(aiHeroBtn).toBeVisible({ timeout: 10_000 });
   await aiHeroBtn.click();
-  // First-load of the lazy AIConversation chunk can be slow in CI when multiple
-  // workers start simultaneously — 40s gives enough headroom.
-  await expect(page.getByText('Razgovor s Majom').first()).toBeVisible({ timeout: 40_000 });
+  // First-load of the lazy AIConversation chunk can be slow in CI.
+  await expect(page.getByText('Razgovor s Majom').first()).toBeVisible({ timeout: 20_000 });
 }
 
 // ---------------------------------------------------------------------------

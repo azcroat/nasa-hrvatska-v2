@@ -20,8 +20,11 @@ test.describe('Authentication — Login screen', () => {
   });
 
   test('shows error for invalid email format', async ({ page }) => {
-    await page.locator('input[type="email"]').fill('notanemail');
-    await page.locator('input[type="password"]').fill('somepassword');
+    // Use pressSequentially so React onChange fires reliably in CI (fill() can miss it)
+    await page.locator('#auth-email').click();
+    await page.locator('#auth-email').pressSequentially('notanemail');
+    await page.locator('#auth-password').click();
+    await page.locator('#auth-password').pressSequentially('somepassword');
     await page.getByRole('button', { name: 'Sign In', exact: true }).click();
     await expect(page.getByText('Please enter a valid email address')).toBeVisible({ timeout: 3_000 });
   });
