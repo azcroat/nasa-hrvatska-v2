@@ -422,7 +422,7 @@ const LEARN_PATH = [
     {id:"lp55",name:"Impersonal: Mastery",diff:3,dur:"~15 min",ck:function(s){return s.gc>=8},go:"impersonal"},
     {id:"lp56",name:"Conditional: Mastery",diff:3,dur:"~15 min",ck:function(s){return s.gc>=8},go:"conditional"},
     {id:"lp57",name:"Word Formation: B2",diff:3,dur:"~15 min",ck:function(s){return s.lc>=38},go:"wordform"},
-    {id:"lp58",name:"Politics Vocabulary",diff:3,dur:"~15 min",ck:function(s){return (s.ct&&s.ct.includes("politics"))||s.lc>=38},go:"lesson",topic:"politics"},
+    {id:"lp58",name:"Politics Vocabulary",diff:3,dur:"~15 min",ck:function(s){return (s.ct&&s.ct.includes("civic"))||s.lc>=38},go:"lesson",topic:"civic"},
     {id:"lp59",name:"Arts & Culture",diff:3,dur:"~15 min",ck:function(s){return (s.ct&&s.ct.includes("arts"))||s.lc>=38},go:"lesson",topic:"arts"},
     {id:"lp61",name:"Croatian History",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&s.vs.includes('history'))||s.lc>=40},go:"history"},
     {id:"lp62",name:"Listening Mastery",diff:3,dur:"~20 min",ck:function(s){return s.lc>=40},go:"listeningpath"},
@@ -434,13 +434,13 @@ const LEARN_PATH = [
     // Mastery revisits — use xp/lc gates only (not vs keys) to avoid auto-completing
     // on the first time a screen was visited back in Levels 4-5.
     {id:"lp63",name:"Dialects: Deep Dive",diff:3,dur:"~20 min",ck:function(s){return s.lc>=45},go:"dialects"},
-    {id:"lp64",name:"Croatian Literature",diff:3,dur:"~20 min",ck:function(s){return (s.ct&&s.ct.includes("literature"))||s.lc>=45},go:"lesson",topic:"literature"},
+    {id:"lp64",name:"Croatian Literature",diff:3,dur:"~20 min",ck:function(s){return (s.ct&&s.ct.includes("academic writing"))||s.lc>=45},go:"lesson",topic:"academic writing"},
     {id:"lp65",name:"Proverbs Deep Dive",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&s.vs.includes('proverbs'))||s.lc>=45},go:"proverbs"},
     // Skill-gated: XP alone doesn't mean C1 fluency. These require demonstrated skill depth.
     // OR conditions preserve backward-compat for users who already crossed the XP threshold.
     {id:"lp66",name:"Idioms: Expert",diff:3,dur:"~20 min",ck:function(s){return s.xp>=2000||(s.lc>=40&&s.gc>=8)},go:"idioms"},
-    {id:"lp67",name:"Abstract Language",diff:3,dur:"~20 min",ck:function(s){return (s.ct&&s.ct.includes("philosophy"))||s.xp>=2000||s.gc>=8},go:"lesson",topic:"philosophy"},
-    {id:"lp68",name:"Media Language",diff:3,dur:"~20 min",ck:function(s){return (s.ct&&s.ct.includes("journalism"))||s.xp>=2000||s.gc>=8},go:"lesson",topic:"journalism"},
+    {id:"lp67",name:"Abstract Language",diff:3,dur:"~20 min",ck:function(s){return (s.ct&&s.ct.includes("abstract concepts"))||s.xp>=2000||s.gc>=8},go:"lesson",topic:"abstract concepts"},
+    {id:"lp68",name:"Media Language",diff:3,dur:"~20 min",ck:function(s){return (s.ct&&s.ct.includes("academic language"))||s.xp>=2000||s.gc>=8},go:"lesson",topic:"academic language"},
     {id:"lp69",name:"Legal Croatian",diff:3,dur:"~20 min",ck:function(s){return (s.ct&&s.ct.includes("law"))||s.xp>=2500||s.gc>=9},go:"lesson",topic:"law"},
     // Tongue twisters at C2 level requires phonological mastery first
     {id:"lp70",name:"Tongue Twisters: Expert",diff:3,dur:"~15 min",ck:function(s){return s.xp>=2500||(s.vs&&s.vs.includes('pitchaccent')&&s.lc>=42)},go:"brzalice"},
