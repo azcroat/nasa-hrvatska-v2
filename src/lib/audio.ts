@@ -94,6 +94,7 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
 
   try {
     let url: string;
+    let freshBlob: Blob | null = null; // retained to avoid re-fetching the blob URL
     if (cached) {
       url = cached;
     } else {
@@ -116,9 +117,9 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
         console.error('[TTS] HTTP ' + r.status + ' body:' + rb);
         return false;
       }
-      const blob = await r.blob();
+      freshBlob = await r.blob();
       if (_speakGen !== myGen) return false;
-      url = URL.createObjectURL(blob);
+      url = URL.createObjectURL(freshBlob);
       _cacheSet(cacheKey, url);
     }
 
@@ -129,7 +130,13 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
       try {
         await _ctx.resume();
         if (_speakGen !== myGen) return false;
-        const ab = await fetch(url).then(r2 => r2.arrayBuffer());
+        // freshBlob.arrayBuffer() reads the in-memory blob directly — no second
+        // network request and no CSP connect-src restriction on blob: URLs.
+        // For cached plays (freshBlob is null) we fetch the blob URL instead;
+        // blob: is explicitly listed in connect-src for exactly this case.
+        const ab = freshBlob
+          ? await freshBlob.arrayBuffer()
+          : await fetch(url).then(r2 => r2.arrayBuffer());
         if (_speakGen !== myGen) return false;
         const decoded = await _ctx.decodeAudioData(ab);
         if (_speakGen !== myGen) return false;
