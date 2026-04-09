@@ -14,8 +14,12 @@ test.describe('Production auth flow', () => {
 
   test('can navigate to registration from login', async ({ page }) => {
     await page.goto('/');
-    await page.getByText(/sign up|create account|register/i).first().click();
-    await expect(page.getByText(/create|register/i).first()).toBeVisible();
+    // Wait for Firebase auth to settle: Sign In submit button visible + enabled = stable state
+    await expect(page.getByRole('button', { name: 'Sign In', exact: true })).toBeVisible({ timeout: 25000 });
+    await expect(page.getByRole('button', { name: 'Sign In', exact: true })).toBeEnabled({ timeout: 5000 });
+    // The toggle button on the login screen reads "Create one" (not "sign up" or "register")
+    await page.getByText('Create one').click();
+    await expect(page.getByRole('button', { name: 'Create Account' })).toBeVisible({ timeout: 20000 });
   });
 
   test('invalid login shows error not crash', async ({ page }) => {
@@ -28,7 +32,8 @@ test.describe('Production auth flow', () => {
       await emailInput.fill('invalid@test.com');
       const passInput = page.getByPlaceholder(/password/i);
       await passInput.fill('wrongpassword');
-      await page.getByRole('button', { name: /sign in|log in|login/i }).click();
+      // Use exact: true to target the submit button, not "Sign in with Google"
+      await page.getByRole('button', { name: 'Sign In', exact: true }).click();
       // Wait for error message
       await page.waitForTimeout(3000);
       // Should show error, not crash
