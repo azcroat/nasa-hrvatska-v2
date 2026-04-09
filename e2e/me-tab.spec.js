@@ -152,13 +152,12 @@ test.describe('Me tab (Profile)', () => {
 
   // ── 10. Streak shows seeded value of 5 ───────────────────────────────────
   test('profile stats display the seeded streak count (5)', async ({ page }) => {
-    // StatsTab streak card value is the streak count from seedAuth (5)
-    // It appears as the numeric value "5" next to "Day Streak"
-    await expect(page.getByText('Day Streak').first()).toBeVisible({ timeout: 5_000 });
-
-    const bodyText = await page.locator('body').textContent({ timeout: 5_000 });
-    // The streak count "5" must appear somewhere in the stats section
-    expect(bodyText).toMatch(/\b5\b/);
+    // StatsTab renders each stat card with aria-label="${value} ${label}".
+    // The seeded streak is 5, so the element has aria-label="5 Day Streak".
+    // Using aria-label is more reliable than body.textContent() because the
+    // value div uses WebkitTextFillColor:transparent (CSS gradient clip) which
+    // can confuse regex word-boundary matching on concatenated text nodes.
+    await expect(page.locator('[aria-label="5 Day Streak"]')).toBeVisible({ timeout: 8_000 });
   });
 
   // ── 11. Seg-bar has all three pills ──────────────────────────────────────
