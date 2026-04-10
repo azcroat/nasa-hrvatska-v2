@@ -4,8 +4,9 @@ import VideoBackground from '../shared/VideoBackground.jsx';
 
 // On Android WebView (Capacitor), Framer Motion entry animations can stall
 // leaving the element permanently at opacity:0. Skip entry animation on native.
+// Use hostname === 'localhost' (reliable) not window.Capacitor (async bridge injection).
 const _isNative = typeof window !== 'undefined' &&
-  !!(window.Capacitor?.isNativePlatform?.());
+  window.location.hostname === 'localhost';
 
 const SCENE_POOL = [
   { key:'dubrovnik', img:'/images/scenes/dubrovnik-hero.webp',  city:'Dubrovnik',        label:'Adriatic Pearl' },

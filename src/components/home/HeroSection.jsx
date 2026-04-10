@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 // On Android WebView (Capacitor), Framer Motion entry animations can stall
 // leaving elements permanently at opacity:0. Skip entry animation on native.
+// Use hostname === 'localhost' (reliable) not window.Capacitor (async bridge injection).
 const _isNative = typeof window !== 'undefined' &&
-  !!(window.Capacitor?.isNativePlatform?.());
+  window.location.hostname === 'localhost';
 import { lXP, nXP, earnFreeze, getStreakFreezes, LEVEL_NARRATIVE, speak } from '../../data.jsx';
 import { getDailyXP, DAILY_XP_GOAL, getXPBoost, activateXPBoost, canActivateXPBoost, XP_BOOST_COST } from '../../lib/appUtils.js';
 import { useTranslator } from '../../hooks/useTranslator';
