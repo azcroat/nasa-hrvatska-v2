@@ -63,10 +63,14 @@
 </head>
 <body>
   <!-- Apply capacitor-native class synchronously before React mounts so CSS overrides
-       take effect from the very first paint. The useEffect in App.jsx is a backup. -->
+       take effect from the very first paint.
+       Detection uses window.location.hostname === 'localhost' — set by the OS
+       before any JS runs (Capacitor androidScheme:'https' → origin https://localhost).
+       This is 100% race-condition-free; window.Capacitor bridge injection is async
+       and unreliable at this point. -->
   <script>
     try {
-      if (window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) {
+      if (window.location.hostname === 'localhost') {
         document.documentElement.classList.add('capacitor-native');
       }
     } catch (e) {}

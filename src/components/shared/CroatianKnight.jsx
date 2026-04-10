@@ -4,8 +4,11 @@ import { motion } from 'framer-motion';
 // On Android WebView (Capacitor native), Framer Motion's entry animation can
 // stall leaving the element at opacity:0. Skip entry animation on native —
 // the knight appears immediately and CSS jitter animation still plays.
+// Use hostname === 'localhost' — this is set by the OS before any JS runs
+// (Capacitor androidScheme:'https' → origin https://localhost). Checking
+// window.Capacitor here races with bridge injection and is unreliable.
 const _isNative = typeof window !== 'undefined' &&
-  !!(window.Capacitor?.isNativePlatform?.());
+  window.location.hostname === 'localhost';
 
 /**
  * CroatianKnight — LEGO Movie–quality minifigure mascot (v3)
