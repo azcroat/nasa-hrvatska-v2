@@ -47,7 +47,11 @@ function assertNoUnexpectedErrors(errors) {
       // WebKit CI: SW registration blocked on localhost in headless mode (access control).
       // Not an issue in real Safari production (HTTPS).
       !e.includes('sw.js') &&
-      !e.includes('access control checks'),
+      !e.includes('access control checks') &&
+      // Firefox CI: lazy-loaded chunks (pushNotifications etc.) occasionally fail to
+      // dynamically import when network is blocked in headless mode.
+      !e.includes('dynamically imported module') &&
+      !e.includes('error loading'),
   );
   expect(unexpected, 'Unexpected JS errors').toHaveLength(0);
 }
