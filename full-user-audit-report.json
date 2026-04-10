@@ -1,5 +1,13 @@
 {
-  "bugs": [],
-  "total": 0,
+  "bugs": [
+    {
+      "severity": "HIGH",
+      "section": "Lesson/Quiz",
+      "what": "Quiz Me button never appeared",
+      "detail": "",
+      "ts": "2026-04-09T20:02:32.501Z"
+    }
+  ],
+  "total": 1,
   "shotCount": 1
 }
