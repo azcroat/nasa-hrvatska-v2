@@ -30,7 +30,6 @@
 /audio/*
   Cache-Control: public, max-age=31536000, immutable
 
-/api/*
-  Access-Control-Allow-Origin: https://nasahrvatska.com
-  X-Content-Type-Options: nosniff
-  Cache-Control: no-store, no-cache, must-revalidate
+# /api/* routes are handled by Cloudflare Pages Functions (functions/api/).
+# CORS headers are set dynamically by the Function to echo the request Origin.
+# Do NOT set static CORS headers here — they would override the Function's dynamic response.

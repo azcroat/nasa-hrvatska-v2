@@ -155,11 +155,15 @@ async function tryGoogle(text, slow, serviceAccountJson) {
 }
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
+// `localhost` is always allowed regardless of isDev — it is the Capacitor native
+// WebView origin (androidScheme: 'https' sets Origin: https://localhost).
+// External browsers cannot send Origin: https://localhost, so this is safe.
 function isAllowedOrigin(origin, isDev) {
-  if (!origin) return true; // PWA standalone mode and Capacitor
+  if (!origin) return true; // PWA standalone mode / no-origin requests
   try {
     const hostname = new URL(origin).hostname;
-    if (isDev && hostname === 'localhost') return true;
+    if (hostname === 'localhost') return true; // Capacitor native WebView (all envs)
+    if (isDev) return true; // dev server — allow all origins
     return (
       hostname === 'nasahrvatska.com' ||
       hostname.endsWith('.nasahrvatska.com') ||
@@ -170,10 +174,14 @@ function isAllowedOrigin(origin, isDev) {
 }
 
 function corsHeaders(origin) {
+  // Echo the request origin so the browser's CORS check passes for any allowed origin.
+  // Fall back to wildcard for null-origin / no-origin requests (PWA standalone).
+  const allowOrigin = origin || '*';
   return {
-    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
+    'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Vary': 'Origin',
   };
 }
 
