@@ -2,11 +2,13 @@
 // Audio Engine — Native Croatian Pronunciation
 // ═══════════════════════════════════════════════════════════
 import { getVoicePreference } from './soundSettings';
-import { isNative } from './platform';
+import { isNative, isAndroid } from './platform';
 
 // In Capacitor native builds, relative URLs resolve to the bundled WebView server
 // (https://localhost), not to nasahrvatska.com — API calls must use the absolute URL.
-const _API_BASE = isNative() ? 'https://nasahrvatska.com' : '';
+// Evaluated lazily (function, not const) to handle cases where Capacitor bridge
+// finishes injecting after module load.
+function _apiBase(): string { return isNative() ? 'https://nasahrvatska.com' : ''; }
 
 let _au = false;
 let _voices: SpeechSynthesisVoice[] = [];
@@ -107,7 +109,7 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
       const body: Record<string, unknown> = { text, slow: !!slow };
       if (voicePref !== 'auto') body.voice = voicePref;
       _ttsAbort = new AbortController();
-      const r = await fetch(`${_API_BASE}/api/tts`, {
+      const r = await fetch(`${_apiBase()}/api/tts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -128,10 +130,11 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
       _cacheSet(cacheKey, url);
     }
 
-    // Prefer AudioContext for all browsers — once unlocked by the first user gesture
-    // it bypasses Chrome/Safari autoplay restrictions and the "play interrupted by
-    // new load request" AbortError that Chrome throws when a.load() precedes a.play().
-    if (_ctx) {
+    // On Android WebView, AudioContext.decodeAudioData() is unreliable — prefer
+    // HTMLAudio which uses the native MediaPlayer and is fully supported.
+    // On other platforms, prefer AudioContext once unlocked by the first user gesture
+    // as it bypasses autoplay restrictions.
+    if (_ctx && !isAndroid()) {
       try {
         await _ctx.resume();
         if (_speakGen !== myGen) return false;
@@ -159,16 +162,21 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
       }
     }
 
-    // HTMLAudio fallback (first-ever click before AudioContext is initialised).
+    // HTMLAudio path — primary on Android WebView; fallback elsewhere.
     // Do NOT call a.load() — it triggers a second resource load that Chrome
     // interrupts the pending play() with an AbortError.
     if (_speakGen !== myGen) return false;
     const a = new Audio(); a.volume = 1.0; _currentAudio = a;
     a.src = url;
-    await a.play();
+    try {
+      await a.play();
+    } catch (playErr) {
+      console.error('[TTS HTMLAudio] play() failed:', playErr);
+      return false;
+    }
     await new Promise<void>(resolve => {
       a.addEventListener('ended', () => resolve(), { once: true });
-      a.addEventListener('error', () => resolve(), { once: true });
+      a.addEventListener('error', (ev) => { console.error('[TTS HTMLAudio] error event:', ev); resolve(); }, { once: true });
       a.addEventListener('pause', () => resolve(), { once: true });
       a.addEventListener('abort', () => resolve(), { once: true });
     });
@@ -219,7 +227,7 @@ export async function preloadAudio(text: string): Promise<void> {
   try {
     const body: Record<string, unknown> = { text: t, slow: false };
     if (voicePref !== 'auto') body.voice = voicePref;
-    const r = await fetch(`${_API_BASE}/api/tts`, {
+    const r = await fetch(`${_apiBase()}/api/tts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
