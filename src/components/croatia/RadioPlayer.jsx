@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { markImmersionToday } from './MediaPlayerUtils.jsx';
+import { API_BASE } from '../../lib/platform.ts';
 
 export default function RadioPlayer({ src, color, streamId, activeStream, setActiveStream }) {
   const isActive = activeStream === streamId;
@@ -46,7 +47,9 @@ export default function RadioPlayer({ src, color, streamId, activeStream, setAct
       setError(false);
       setBuffering(true);
       setActiveStream(streamId);
-      a.src = src;
+      // Prefix relative stream URLs with absolute base so native WebView
+      // resolves to nasahrvatska.com (not https://localhost)
+      a.src = src.startsWith('/') ? `${API_BASE}${src}` : src;
       a.play().catch(() => { setError(true); setBuffering(false); setActiveStream(null); });
       // mark immersion engagement
       markImmersionToday();

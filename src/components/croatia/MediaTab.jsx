@@ -4,7 +4,9 @@ import { useApp } from '../../context/AppContext.jsx';
 import SpotifySection from './SpotifySection.jsx';
 import ImmersionStreak from './ImmersionStreak.jsx';
 import RadioPlayer from './RadioPlayer.jsx';
+import MediaDetailDrawer from './MediaDetailDrawer.jsx';
 import { getGoalPersonalization, sortMediaForGoal, tagMediaForGoal } from './MediaPlayerUtils.jsx';
+import { openUrl } from '../../lib/platform.ts';
 
 // ── Persistent "recently used" tracking ──────────────────────────────────────
 function getRecentMedia() {
@@ -228,6 +230,7 @@ export default function MediaTab() {
   const [activeStream, setActiveStream] = useState(null);
   const [mediaFilter, setMediaFilter] = useState('foryou');
   const [expandedCats, setExpandedCats] = useState(new Set());
+  const [drawerItem, setDrawerItem] = useState(null);
   // Incremented when an item is opened, to refresh the "Continue" row
   const [recentVersion, setRecentVersion] = useState(0);
   const userGoal = getGoalPersonalization();
@@ -239,20 +242,29 @@ export default function MediaTab() {
       .slice(0, 5)
       .map(([name]) => MEDIA.find(m => m.name === name))
       .filter(Boolean);
-   
+
   }, [recentVersion]);
 
   const todaysPicks = useMemo(() => getTodaysPicks(userGoal), [userGoal]);
 
   const openItem = useCallback((m) => {
-    if (m.scr || m.web) {
+    // Track engagement
+    if (m.scr || m.web || m.ytId || m.stream) {
       incrementCulture('mediaCnt');
       if (award) award(3);
       markMediaUsed(m.name);
       setRecentVersion(v => v + 1);
     }
-    if (m.scr) setScr(m.scr);
-    else if (m.web) window.open(m.web, '_blank', 'noopener,noreferrer');
+
+    // Internal screen navigation (football vocab, pop culture, etc.)
+    if (m.scr) { setScr(m.scr); return; }
+
+    // Items with an embedded player (YouTube or radio stream) → open drawer
+    if (m.ytId || m.stream) { setDrawerItem(m); return; }
+
+    // External links → open in native browser via @capacitor/browser
+    // (Chrome Custom Tabs on Android, SFSafariViewController on iOS)
+    if (m.web) { openUrl(m.web); return; }
   }, [setScr, award]);
 
   function toggleExpand(cat) {
@@ -272,6 +284,16 @@ export default function MediaTab() {
 
   return (
     <React.Fragment>
+      {/* ─── Media detail drawer ──────────────────────── */}
+      {drawerItem && (
+        <MediaDetailDrawer
+          item={drawerItem}
+          onClose={() => setDrawerItem(null)}
+          activeStream={activeStream}
+          setActiveStream={setActiveStream}
+        />
+      )}
+
       {/* ─── Hero ─────────────────────────────────────── */}
       <div style={{
         background: 'linear-gradient(160deg,#060e1e 0%,#071830 50%,#0a2a50 100%)',
