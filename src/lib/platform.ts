@@ -10,18 +10,27 @@ interface CapacitorWindow {
 }
 
 export function isNative(): boolean {
-  return typeof window !== 'undefined' &&
-    !!((window as unknown as CapacitorWindow).Capacitor?.isNativePlatform?.());
+  if (typeof window === 'undefined') return false;
+  // Primary: hostname-based detection is synchronous and race-condition-free.
+  // Capacitor Android serves from https://localhost (no port).
+  // Dev/CI servers always have a port (e.g. localhost:4173).
+  if (window.location.hostname === 'localhost' && !window.location.port) return true;
+  // Fallback: Capacitor bridge API (may not be injected at module load time)
+  return !!((window as unknown as CapacitorWindow).Capacitor?.isNativePlatform?.());
 }
 
 export function isAndroid(): boolean {
-  return isNative() &&
-    (window as unknown as CapacitorWindow).Capacitor?.getPlatform?.() === 'android';
+  if (!isNative()) return false;
+  // Primary: user-agent is synchronous and always available
+  if (/android/i.test(navigator.userAgent)) return true;
+  // Fallback: Capacitor bridge
+  return (window as unknown as CapacitorWindow).Capacitor?.getPlatform?.() === 'android';
 }
 
 export function isIos(): boolean {
-  return isNative() &&
-    (window as unknown as CapacitorWindow).Capacitor?.getPlatform?.() === 'ios';
+  if (!isNative()) return false;
+  if (/ipad|iphone|ipod/i.test(navigator.userAgent)) return true;
+  return (window as unknown as CapacitorWindow).Capacitor?.getPlatform?.() === 'ios';
 }
 
 export function isSpeechRecognitionSupported(): boolean {
