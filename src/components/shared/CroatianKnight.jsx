@@ -7,8 +7,10 @@ import { motion } from 'framer-motion';
 // Use hostname === 'localhost' — this is set by the OS before any JS runs
 // (Capacitor androidScheme:'https' → origin https://localhost). Checking
 // window.Capacitor here races with bridge injection and is unreliable.
+// Capacitor Android: https://localhost with NO port.
+// Dev/CI server: http://localhost:PORT — always has a port number.
 const _isNative = typeof window !== 'undefined' &&
-  window.location.hostname === 'localhost';
+  window.location.hostname === 'localhost' && !window.location.port;
 
 /**
  * CroatianKnight — LEGO Movie–quality minifigure mascot (v3)
