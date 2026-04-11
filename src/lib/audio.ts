@@ -126,17 +126,14 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
       }
       freshBlob = await r.blob();
       if (_speakGen !== myGen) return false;
-      // On Android WebView, blob: URLs are unreliable — some versions refuse to play them.
-      // Convert to base64 data URL which Android's native MediaPlayer handles correctly.
-      if (isAndroid()) {
-        const reader = new FileReader();
-        url = await new Promise<string>(resolve => {
-          reader.onload = () => resolve(reader.result as string);
-          reader.readAsDataURL(freshBlob!);
-        });
-      } else {
-        url = URL.createObjectURL(freshBlob);
-      }
+      // Always use base64 data URLs — universally supported across all browsers and
+      // native WebView implementations (blob: URLs fail on some Android OEM builds).
+      // AudioContext path reads freshBlob.arrayBuffer() directly so is unaffected.
+      const reader = new FileReader();
+      url = await new Promise<string>(resolve => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsDataURL(freshBlob!);
+      });
       _cacheSet(cacheKey, url);
     }
 
@@ -245,16 +242,11 @@ export async function preloadAudio(text: string): Promise<void> {
     });
     if (!r.ok) return;
     const blob = await r.blob();
-    let url: string;
-    if (isAndroid()) {
-      const reader = new FileReader();
-      url = await new Promise<string>(resolve => {
-        reader.onload = () => resolve(reader.result as string);
-        reader.readAsDataURL(blob);
-      });
-    } else {
-      url = URL.createObjectURL(blob);
-    }
+    const preloadReader = new FileReader();
+    const url = await new Promise<string>(resolve => {
+      preloadReader.onload = () => resolve(preloadReader.result as string);
+      preloadReader.readAsDataURL(blob);
+    });
     _cacheSet(cacheKey, url);
   } catch (e: unknown) {
     if ((e as Error)?.name !== 'AbortError') { /* silently ignore — preload is best-effort */ }
