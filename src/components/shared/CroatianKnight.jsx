@@ -838,10 +838,10 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
         opacity: 1, scale: 1,
         ...(rimFilter ? { filter: rimFilter } : {}), ...style
       }}
-      initial={_isNative ? false : { scale: 0.6, opacity: 0, y: 8 }}
+      initial={_isNative ? false : { scale: 0.6, y: 8 }}
       animate={isCelebrating
-        ? { scale: [0.6, 1.22, 0.96, 1.06, 1], opacity: 1, y: 0 }
-        : { scale: 1, opacity: 1, y: 0 }
+        ? { scale: [0.6, 1.22, 0.96, 1.06, 1], y: 0 }
+        : { scale: 1, y: 0 }
       }
       transition={isCelebrating
         ? { duration: 0.55, ease: [0.22, 1.6, 0.36, 1], times: [0, 0.35, 0.55, 0.75, 1] }
