@@ -12,6 +12,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CroatianKnight from './CroatianKnight';
+// On Android WebView (Capacitor), Framer Motion entry animations with opacity:0
+// can stall permanently. Skip entry animation on native.
+const _isNative = typeof window !== 'undefined' &&
+  window.location.hostname === 'localhost' && !window.location.port;
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import { getStreak } from '../../data.jsx';
@@ -260,7 +264,7 @@ export default function KnightCompanion() {
         {showBubble && bubble && (
           <motion.div
             key="companion-bubble"
-            initial={{ opacity: 0, y: 10, scale: 0.9 }}
+            initial={_isNative ? false : { opacity: 0, y: 10, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 6, scale: 0.94 }}
             transition={{ type: 'spring', stiffness: 380, damping: 26 }}
@@ -326,7 +330,7 @@ export default function KnightCompanion() {
         aria-label="Chat with Vitez Hrvoje, your Croatian coach"
         title="Vitez Hrvoje — tap for a message"
         // First-time: slide in from the left with a bounce; thereafter just spring-in.
-        initial={introPlayed ? { scale: 0.6, opacity: 0 } : { x: -80, opacity: 0, scale: 0.8 }}
+        initial={_isNative ? false : (introPlayed ? { scale: 0.6, opacity: 0 } : { x: -80, opacity: 0, scale: 0.8 })}
         animate={{ x: 0, scale: 1, opacity: 1 }}
         transition={introPlayed
           ? { type: 'spring', stiffness: 420, damping: 22 }

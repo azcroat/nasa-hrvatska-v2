@@ -1,6 +1,11 @@
 import React, { lazy, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSwipeBack } from "../hooks/useSwipeBack.js";
+// On Android WebView (Capacitor), Framer Motion entry animations can stall
+// leaving elements permanently at opacity:0. Skip entry animation on native.
+// Capacitor Android: https://localhost with NO port. Dev server always has a port.
+const _isNative = typeof window !== 'undefined' &&
+  window.location.hostname === 'localhost' && !window.location.port;
 // Local Fisher-Yates shuffle — keeps chunk-data out of AppRouter's startup import.
 // Screens that need data (V, GRAM, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS) import it directly.
 function _sh(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
@@ -379,9 +384,9 @@ export default function AppRouter(props) {
     <AnimatePresence mode="wait">
       <motion.div
         key={_transKey}
-        initial={{ opacity: 0, y: 8 }}
+        initial={_isNative ? false : { opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -8 }}
+        exit={_isNative ? false : { opacity: 0, y: -8 }}
         transition={{ duration: 0.18, ease: "easeOut" }}
         style={{ height: "100%" }}
       >

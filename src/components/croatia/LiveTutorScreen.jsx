@@ -341,7 +341,8 @@ export default function LiveTutorScreen({ goBack, award }) {
         return;
       } catch { /* fall through to HTMLAudioElement */ }
     }
-    const url = URL.createObjectURL(blob);
+    // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
+    const url = await new Promise(resolve => { const r = new FileReader(); r.onload = () => resolve(r.result); r.readAsDataURL(blob); });
     const audio = new Audio(url);
     audioRef.current = audio;
     await new Promise(resolve => {
@@ -349,7 +350,6 @@ export default function LiveTutorScreen({ goBack, award }) {
       audio.onerror = resolve;
       audio.play().catch(resolve);
     });
-    URL.revokeObjectURL(url);
   };
 
   // ── TTS: streaming playback ────────────────

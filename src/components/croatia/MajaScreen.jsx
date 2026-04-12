@@ -180,7 +180,6 @@ export default function MajaScreen() {
         audioRef.current = null;
       }
       if (audioUrlRef.current) {
-        URL.revokeObjectURL(audioUrlRef.current);
         audioUrlRef.current = null;
       }
 
@@ -193,20 +192,19 @@ export default function MajaScreen() {
       if (!res.ok) throw new Error(`TTS ${res.status}`);
 
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
+      // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
+      const url = await new Promise(resolve => { const r = new FileReader(); r.onload = () => resolve(r.result); r.readAsDataURL(blob); });
       audioUrlRef.current = url;
       const audio = new Audio(url);
       audioRef.current = audio;
 
       return new Promise((resolve) => {
         audio.onended = () => {
-          URL.revokeObjectURL(url);
           audioUrlRef.current = null;
           audioRef.current = null;
           resolve();
         };
         audio.onerror = () => {
-          URL.revokeObjectURL(url);
           audioUrlRef.current = null;
           audioRef.current = null;
           resolve(); // continue even on error

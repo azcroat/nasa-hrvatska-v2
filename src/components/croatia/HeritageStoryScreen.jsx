@@ -34,15 +34,13 @@ async function playTTS(text) {
   });
   if (!res.ok) throw new Error('TTS failed');
   const blob = await res.blob();
-  const url = URL.createObjectURL(blob);
 
-  // iOS path: decode via AudioContext (activated on first touch via audio.js)
+  // iOS path: AudioContext — use blob.arrayBuffer() directly, no blob URL needed
   const ctx = _iosDevice ? getAudioContext() : null;
   if (ctx) {
     try {
       await ctx.resume();
-      const ab = await fetch(url).then(r => r.arrayBuffer());
-      URL.revokeObjectURL(url);
+      const ab = await blob.arrayBuffer();
       const decoded = await ctx.decodeAudioData(ab);
       const src = ctx.createBufferSource();
       src.buffer = decoded;
@@ -54,17 +52,14 @@ async function playTTS(text) {
         addEventListener(ev, fn) { if (ev === 'ended') src.onended = fn; },
       };
     } catch {
-      URL.revokeObjectURL(url);
       throw new Error('TTS playback failed');
     }
   }
 
-  // Non-iOS: await play() so rejections (autoplay blocked) propagate to handleTTS catch
+  // Non-iOS: use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
+  const url = await new Promise(resolve => { const r = new FileReader(); r.onload = () => resolve(r.result); r.readAsDataURL(blob); });
   const audio = new Audio(url);
-  const cleanup = () => URL.revokeObjectURL(url);
-  audio.addEventListener('ended', cleanup);
-  audio.addEventListener('error', cleanup);
-  try { await audio.play(); } catch { cleanup(); throw new Error('play() blocked'); }
+  try { await audio.play(); } catch { throw new Error('play() blocked'); }
   return audio;
 }
 
