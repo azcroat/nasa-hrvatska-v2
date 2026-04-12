@@ -415,38 +415,33 @@ const LEARN_PATH = [
     {id:"lp50",name:"Pitch Accent",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('pitchaccent'))||s.lc>=35},go:"pitchaccent"},
     {id:"lp51",name:"Shadowing",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('shadowing'))||s.lc>=35},go:"shadowing"},
     {id:"lp52",name:"Aspect Drill",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('aspectdrill'))||s.lc>=35},go:"aspectdrill"},
-    // Mastery revisits — intentionally use lc/gc gates (NOT vs keys) so the user must
-    // reach this level organically; the B1 twin already recorded the vs entry.
-    {id:"lp53",name:"Clitics: Mastery",diff:3,dur:"~15 min",ck:function(s){return s.lc>=36},go:"clitic"},
+    // Click-through gates: vs.includes(item.id) fires immediately when item is launched via the path.
+    // Count gates (lc/gc) remain as alternative conditions for users who earned them organically.
+    {id:"lp53",name:"Clitics: Mastery",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('lp53'))||s.lc>=36},go:"clitic"},
     {id:"lp54",name:"Grammar Constellation",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('grammarmap'))||s.gc>=7},go:"grammarmap"},
-    {id:"lp55",name:"Impersonal: Mastery",diff:3,dur:"~15 min",ck:function(s){return s.gc>=8},go:"impersonal"},
-    {id:"lp56",name:"Conditional: Mastery",diff:3,dur:"~15 min",ck:function(s){return s.gc>=8},go:"conditional"},
-    {id:"lp57",name:"Word Formation: B2",diff:3,dur:"~15 min",ck:function(s){return s.lc>=38},go:"wordform"},
-    {id:"lp58",name:"Politics Vocabulary",diff:3,dur:"~15 min",ck:function(s){return (s.ct&&s.ct.includes("civic"))||s.lc>=38},go:"lesson",topic:"civic"},
-    {id:"lp59",name:"Arts & Culture",diff:3,dur:"~15 min",ck:function(s){return (s.ct&&s.ct.includes("arts"))||s.lc>=38},go:"lesson",topic:"arts"},
-    {id:"lp61",name:"Croatian History",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&s.vs.includes('history'))||s.lc>=40},go:"history"},
-    {id:"lp62",name:"Listening Mastery",diff:3,dur:"~20 min",ck:function(s){return s.lc>=40},go:"listeningpath"},
-    // Skill-gated milestones: require demonstrated ability, not just XP accumulation
-    {id:"lp_speaking_b2",name:"Speaking Practice",diff:3,dur:"~20 min",cat:"speaking",icon:"🗣️",desc:"Train your spoken output — complete 3 speaking sessions to develop fluency beyond reading and writing",ck:function(s){return s.sp>=3},go:"speaking"},
+    {id:"lp55",name:"Impersonal: Mastery",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('lp55'))||s.gc>=8},go:"impersonal"},
+    {id:"lp56",name:"Conditional: Mastery",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('lp56'))||s.gc>=8},go:"conditional"},
+    {id:"lp57",name:"Word Formation: B2",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('lp57'))||s.lc>=38},go:"wordform"},
+    {id:"lp58",name:"Politics Vocabulary",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('lp58'))||(s.ct&&s.ct.includes("civic"))||s.lc>=38},go:"lesson",topic:"civic"},
+    {id:"lp59",name:"Arts & Culture",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('lp59'))||(s.ct&&s.ct.includes("arts"))||s.lc>=38},go:"lesson",topic:"arts"},
+    {id:"lp61",name:"Croatian History",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&(s.vs.includes('history')||s.vs.includes('lp61')))||s.lc>=40},go:"history"},
+    {id:"lp62",name:"Listening Mastery",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&s.vs.includes('lp62'))||s.lc>=40},go:"listeningpath"},
+    {id:"lp_speaking_b2",name:"Speaking Practice",diff:3,dur:"~20 min",cat:"speaking",icon:"🗣️",desc:"Train your spoken output — complete 3 speaking sessions to develop fluency beyond reading and writing",ck:function(s){return (s.vs&&s.vs.includes('lp_speaking_b2'))||s.sp>=3},go:"speaking"},
     {id:"lp_pronunciation_course",name:"Pronunciation Course",diff:3,dur:"~20 min",cat:"pronunciation",icon:"🎤",desc:"Systematic phoneme-by-phoneme training — eliminate your foreign accent at the source",ck:function(s){return (s.vs&&s.vs.includes('pronunciation_course'))||s.lc>=37},go:"pronunciation_course"}
   ]},
   {level:7,title:"Majstor",desc:"Year 1+",items:[
-    // Mastery revisits — use xp/lc gates only (not vs keys) to avoid auto-completing
-    // on the first time a screen was visited back in Levels 4-5.
-    {id:"lp63",name:"Dialects: Deep Dive",diff:3,dur:"~20 min",ck:function(s){return s.lc>=45},go:"dialects"},
-    {id:"lp64",name:"Croatian Literature",diff:3,dur:"~20 min",ck:function(s){return (s.ct&&s.ct.includes("academic writing"))||s.lc>=45},go:"lesson",topic:"academic writing"},
-    {id:"lp65",name:"Proverbs Deep Dive",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&s.vs.includes('proverbs'))||s.lc>=45},go:"proverbs"},
-    // Skill-gated: XP alone doesn't mean C1 fluency. These require demonstrated skill depth.
-    // OR conditions preserve backward-compat for users who already crossed the XP threshold.
-    {id:"lp66",name:"Idioms: Expert",diff:3,dur:"~20 min",ck:function(s){return s.xp>=2000||(s.lc>=40&&s.gc>=8)},go:"idioms"},
-    {id:"lp67",name:"Abstract Language",diff:3,dur:"~20 min",ck:function(s){return (s.ct&&s.ct.includes("abstract concepts"))||s.xp>=2000||s.gc>=8},go:"lesson",topic:"abstract concepts"},
-    {id:"lp68",name:"Media Language",diff:3,dur:"~20 min",ck:function(s){return (s.ct&&s.ct.includes("academic language"))||s.xp>=2000||s.gc>=8},go:"lesson",topic:"academic language"},
-    {id:"lp69",name:"Legal Croatian",diff:3,dur:"~20 min",ck:function(s){return (s.ct&&s.ct.includes("law"))||s.xp>=2500||s.gc>=9},go:"lesson",topic:"law"},
-    // Tongue twisters at C2 level requires phonological mastery first
-    {id:"lp70",name:"Tongue Twisters: Expert",diff:3,dur:"~15 min",ck:function(s){return s.xp>=2500||(s.vs&&s.vs.includes('pitchaccent')&&s.lc>=42)},go:"brzalice"},
-    // New skill-gated C1/C2 milestones
-    {id:"lp_speaking_c1",name:"Conversation: C1",diff:3,dur:"~25 min",cat:"speaking",icon:"🎯",desc:"Complete 10 speaking sessions — fluent speakers don't pause to translate in their head",ck:function(s){return s.sp>=10},go:"speaking"},
-    {id:"lp_pitch_mastery",name:"Pitch Accent Mastery",diff:3,dur:"~20 min",cat:"pronunciation",icon:"🔊",desc:"The final phonological frontier — 4 accent types, tonal distinctions, native-like rhythm",ck:function(s){return (s.vs&&s.vs.includes('pitch_accent'))||s.gc>=9},go:"pitch_accent"}
+    // Click-through gates: vs.includes(item.id) fires immediately when item is launched via the path.
+    // Count gates (lc/xp) remain as alternative conditions for users who earned them organically.
+    {id:"lp63",name:"Dialects: Deep Dive",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&s.vs.includes('lp63'))||s.lc>=45},go:"dialects"},
+    {id:"lp64",name:"Croatian Literature",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&s.vs.includes('lp64'))||(s.ct&&s.ct.includes("academic writing"))||s.lc>=45},go:"lesson",topic:"academic writing"},
+    {id:"lp65",name:"Proverbs Deep Dive",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&(s.vs.includes('proverbs')||s.vs.includes('lp65')))||s.lc>=45},go:"proverbs"},
+    {id:"lp66",name:"Idioms: Expert",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&s.vs.includes('lp66'))||s.xp>=2000||(s.lc>=40&&s.gc>=8)},go:"idioms"},
+    {id:"lp67",name:"Abstract Language",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&s.vs.includes('lp67'))||(s.ct&&s.ct.includes("abstract concepts"))||s.xp>=2000||s.gc>=8},go:"lesson",topic:"abstract concepts"},
+    {id:"lp68",name:"Media Language",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&s.vs.includes('lp68'))||(s.ct&&s.ct.includes("academic language"))||s.xp>=2000||s.gc>=8},go:"lesson",topic:"academic language"},
+    {id:"lp69",name:"Legal Croatian",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&s.vs.includes('lp69'))||(s.ct&&s.ct.includes("law"))||s.xp>=2500||s.gc>=9},go:"lesson",topic:"law"},
+    {id:"lp70",name:"Tongue Twisters: Expert",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&(s.vs.includes('lp70')||s.vs.includes('pitchaccent')))||s.xp>=2500},go:"brzalice"},
+    {id:"lp_speaking_c1",name:"Conversation: C1",diff:3,dur:"~25 min",cat:"speaking",icon:"🎯",desc:"Complete 10 speaking sessions — fluent speakers don't pause to translate in their head",ck:function(s){return (s.vs&&s.vs.includes('lp_speaking_c1'))||s.sp>=10},go:"speaking"},
+    {id:"lp_pitch_mastery",name:"Pitch Accent Mastery",diff:3,dur:"~20 min",cat:"pronunciation",icon:"🔊",desc:"The final phonological frontier — 4 accent types, tonal distinctions, native-like rhythm",ck:function(s){return (s.vs&&(s.vs.includes('lp_pitch_mastery')||s.vs.includes('pitch_accent')))||s.gc>=9},go:"pitch_accent"}
   ]}
 ];
 // ═══ REFLEXIVE VERBS ═══
