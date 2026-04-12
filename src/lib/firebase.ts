@@ -247,6 +247,10 @@ export async function fbLoadProgress(uid: string): Promise<Record<string, unknow
               ct: [...new Set([...((_bs.ct as string[]) || []), ...((_as.ct as string[]) || [])])],
               vs: [...new Set([...((_bs.vs as string[]) || []), ...((_as.vs as string[]) || [])])],
               badges: [...new Set([...((_bs.badges as string[]) || []), ...((_as.badges as string[]) || [])])],
+              // rs: ordered score history — keep the longer array (more entries = more complete)
+              rs: (((_bs.rs as string[]) || []).length >= ((_as.rs as string[]) || []).length
+                    ? (_bs.rs as string[]) || []
+                    : (_as.rs as string[]) || []),
             };
           }
           // Load SRS from its dedicated document and merge back (non-blocking if it fails)

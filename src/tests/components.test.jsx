@@ -103,57 +103,57 @@ describe('Flashcards', () => {
   const goBack = vi.fn();
   const award = vi.fn();
 
-  it('renders without crashing', () => {
-    render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+  it('renders without crashing', async () => {
+    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
   });
-  it('shows the first Croatian word', () => {
-    render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+  it('shows the first Croatian word', async () => {
+    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
     expect(screen.getByText('kuća')).toBeTruthy();
   });
-  it('shows card index counter', () => {
-    render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+  it('shows card index counter', async () => {
+    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
     expect(screen.getByText(`1 / ${SAMPLE_POOL.length}`)).toBeTruthy();
   });
-  it('flip buttons are not visible before card is flipped', () => {
-    render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+  it('flip buttons are not visible before card is flipped', async () => {
+    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
     expect(screen.queryByText(/How well did you know it/i)).toBeNull();
     expect(screen.queryByText(/Perfect/i)).toBeNull();
   });
-  it('shows flip buttons after clicking the card', () => {
-    render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+  it('shows flip buttons after clicking the card', async () => {
+    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
     const card = screen.getByRole('button', { name: /tap to see English/i });
-    fireEvent.click(card);
+    await act(async () => { fireEvent.click(card); });
     expect(screen.getByText(/How well did you know it/i)).toBeTruthy();
     expect(screen.getByText(/Perfect/i)).toBeTruthy();
   });
-  it('card has role="button" and tabIndex=0 for keyboard access', () => {
-    render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+  it('card has role="button" and tabIndex=0 for keyboard access', async () => {
+    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
     const card = screen.getByRole('button', { name: /tap to see English/i });
     expect(card.tabIndex).toBe(0);
   });
-  it('Enter key flips the card', () => {
-    render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+  it('Enter key flips the card', async () => {
+    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
     const card = screen.getByRole('button', { name: /tap to see English/i });
-    fireEvent.keyDown(card, { key: 'Enter' });
+    await act(async () => { fireEvent.keyDown(card, { key: 'Enter' }); });
     expect(screen.getByText(/How well did you know it/i)).toBeTruthy();
   });
-  it('Space key flips the card', () => {
-    render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+  it('Space key flips the card', async () => {
+    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
     const card = screen.getByRole('button', { name: /tap to see English/i });
-    fireEvent.keyDown(card, { key: ' ' });
+    await act(async () => { fireEvent.keyDown(card, { key: ' ' }); });
     expect(screen.getByText(/How well did you know it/i)).toBeTruthy();
   });
-  it('shows completion screen when pool is empty', () => {
-    render(<Flashcards pool={[]} goBack={goBack} award={award} />);
+  it('shows completion screen when pool is empty', async () => {
+    await act(async () => { render(<Flashcards pool={[]} goBack={goBack} award={award} />); });
     expect(screen.getByText(/All caught up/i)).toBeTruthy();
     expect(screen.getByText(/Continue/i)).toBeTruthy();
   });
-  it('shows phonetic hint when provided', () => {
-    render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+  it('shows phonetic hint when provided', async () => {
+    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
     expect(screen.getByText('/KOO-cha/')).toBeTruthy();
   });
-  it('progress bar is present', () => {
-    render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+  it('progress bar is present', async () => {
+    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
     expect(screen.getByTestId('progress-bar')).toBeTruthy();
   });
 });
