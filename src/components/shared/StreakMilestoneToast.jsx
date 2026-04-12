@@ -1,5 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+// On Android WebView (Capacitor), Framer Motion entry animations with opacity:0
+// can stall permanently. Skip entry animation on native.
+const _isNative = typeof window !== 'undefined' &&
+  window.location.hostname === 'localhost' && !window.location.port;
 import confetti from 'canvas-confetti';
 import { playStreak, playFanfare, playLevelUp } from '../../lib/soundSettings.js';
 
@@ -82,9 +86,9 @@ export default function StreakMilestoneToast({ streakCount, onDismiss }) {
     <AnimatePresence>
       <motion.div
         key="streak-milestone"
-        initial={{ opacity: 0, scale: 0.85, y: -30 }}
+        initial={_isNative ? false : { opacity: 0, scale: 0.85, y: -30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: -20 }}
+        exit={_isNative ? false : { opacity: 0, scale: 0.9, y: -20 }}
         transition={{ type: 'spring', stiffness: 320, damping: 24 }}
         style={{
           position: 'fixed',

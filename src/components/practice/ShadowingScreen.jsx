@@ -152,10 +152,11 @@ function useRecorder() {
       stream.getTracks().forEach(t => t.stop());
       streamRef.current = null;
       const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
-      if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
-      audioUrlRef.current = URL.createObjectURL(blob);
       setAudioBlob(blob);
-      setRecordingState('done');
+      // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
+      const reader = new FileReader();
+      reader.onload = () => { audioUrlRef.current = reader.result; setRecordingState('done'); };
+      reader.readAsDataURL(blob);
     };
 
     recorder.start();

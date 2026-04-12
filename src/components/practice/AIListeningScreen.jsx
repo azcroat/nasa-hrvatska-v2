@@ -93,7 +93,8 @@ export default function AIListeningScreen({ goBack, award }) {
         if (mountedRef.current) setAudioSource('unavailable');
       } else {
         const blob = await ttsRes.blob();
-        const url  = URL.createObjectURL(blob);
+        // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
+        const url = await new Promise(resolve => { const r = new FileReader(); r.onload = () => resolve(r.result); r.readAsDataURL(blob); });
         if (!mountedRef.current) { URL.revokeObjectURL(url); return; }
         setAudioUrl(url);
         setAudioSource('azure');

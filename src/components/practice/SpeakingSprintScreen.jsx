@@ -237,7 +237,8 @@ export default function SpeakingSprintScreen({ goBack, award }) {
       });
       if (!res.ok) throw new Error(`TTS ${res.status}`);
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
+      // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
+      const url = await new Promise(resolve => { const r = new FileReader(); r.onload = () => resolve(r.result); r.readAsDataURL(blob); });
       audioUrlRef.current = url;
       setAudioUrl(url);
       const audio = new Audio(url);

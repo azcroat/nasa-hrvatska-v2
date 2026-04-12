@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import CroatianKnight from './CroatianKnight';
+// On Android WebView (Capacitor), Framer Motion entry animations with opacity:0
+// can stall permanently. Skip entry animation on native.
+const _isNative = typeof window !== 'undefined' &&
+  window.location.hostname === 'localhost' && !window.location.port;
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
@@ -447,7 +451,7 @@ export default function KnightSpeech({
     const hasSeenIntro = !!localStorage.getItem('nh_knight_intro_seq');
     return (
       <motion.div
-        initial={hasSeenIntro ? { scale: 0.7, opacity: 0 } : { x: -72, opacity: 0 }}
+        initial={_isNative ? false : (hasSeenIntro ? { scale: 0.7, opacity: 0 } : { x: -72, opacity: 0 })}
         animate={{ x: 0, scale: 1, opacity: 1 }}
         transition={hasSeenIntro
           ? { type: 'spring', stiffness: 420, damping: 22 }
@@ -521,7 +525,7 @@ export default function KnightSpeech({
   return (
     <motion.div
       key="knight-full"
-      initial={{ opacity: 0, y: 14, scale: 0.96 }}
+      initial={_isNative ? false : { opacity: 0, y: 14, scale: 0.96 }}
       animate={{ opacity: animOut ? 0 : 1, y: animOut ? -8 : 0, scale: animOut ? 0.96 : 1 }}
       transition={{ type: 'spring', stiffness: 320, damping: 24 }}
       style={{

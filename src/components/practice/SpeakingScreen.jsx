@@ -369,14 +369,13 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
       };
       mediaRec.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: mediaRec.mimeType || 'audio/webm' });
-        // Revoke any previous recording URL before creating a new one
-        if (recordingURLRef.current) { URL.revokeObjectURL(recordingURLRef.current); }
-        const url = URL.createObjectURL(blob);
-        recordingURLRef.current = url;
-        setRecordingURL(url);
         setIsRecording(false);
         recordStreamRef.current = null;
         recordStream.getTracks().forEach(t => t.stop());
+        // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
+        const reader = new FileReader();
+        reader.onload = () => { recordingURLRef.current = reader.result; setRecordingURL(reader.result); };
+        reader.readAsDataURL(blob);
       };
 
       mediaRec.start();
