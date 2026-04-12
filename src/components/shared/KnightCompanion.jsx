@@ -17,7 +17,6 @@ import CroatianKnight from './CroatianKnight';
 const _isNative = typeof window !== 'undefined' &&
   window.location.hostname === 'localhost' && !window.location.port;
 import { useApp } from '../../context/AppContext.jsx';
-import { useStats } from '../../context/StatsContext.jsx';
 import { getStreak } from '../../data.jsx';
 
 // ── Mood → accent colour ──────────────────────────────────────────────────────
@@ -145,7 +144,6 @@ let _tapIdx = 0; // persists across re-renders; rotates through TAP_POOL
 
 export default function KnightCompanion() {
   const { currentScreen } = useApp();
-  const { stats } = useStats();
   const [bubble, setBubble]         = useState(null); // { mood, text }
   const [showBubble, setShowBubble] = useState(false);
   const [celebBurst, setCelebBurst] = useState(false);

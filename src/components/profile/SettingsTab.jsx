@@ -5,6 +5,7 @@ import { isSoundEnabled, setSoundEnabled, isHapticEnabled, setHapticEnabled, get
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.tsx';
 import { getFreezesStored, purchaseFreeze, FREEZE_COST_XP } from '../../lib/streakFreeze.js';
+import { isNative } from '../../lib/platform.ts';
 
 const GOALS = [
   { id: 'heritage', icon: '🇭🇷', label: 'My heritage & roots' },
@@ -122,6 +123,10 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
   }
 
   async function exportData() {
+    if (isNative()) {
+      alert('Data export is not available on the mobile app. Please use the web version at nasahrvatska.com to download your data.');
+      return;
+    }
     if (exporting) return;
     setExporting(true);
     try {
