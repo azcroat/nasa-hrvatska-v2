@@ -68,13 +68,13 @@ function uA(): void {
     s.buffer = b; s.connect(_ctx.destination); s.start(0); _ctx.resume();
   } catch (e) {}
   // Unlock HTMLAudio independently — required on Android WebView where AudioContext
-  // unlock does NOT propagate to the HTML5 Media pipeline.
-  // Playing a silent audio element during a user gesture "warms up" the pipeline so
-  // subsequent async play() calls succeed even after fetch() + FileReader await chains.
+  // unlock does NOT always propagate to the HTML5 Media pipeline.
+  // Must use volume = 1.0: some Android WebViews treat very low volume as "muted"
+  // and block the play() call under autoplay policy, preventing sticky activation.
   try {
     const silent = new Audio(_SILENT_WAV);
-    silent.volume = 0.001;
-    silent.play().then(() => silent.pause()).catch(() => {});
+    silent.volume = 1.0;
+    silent.play().then(() => { silent.pause(); silent.currentTime = 0; }).catch(() => {});
   } catch (e) {}
 }
 ['touchstart', 'click'].forEach(e => {
@@ -155,11 +155,10 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
       _cacheSet(cacheKey, url);
     }
 
-    // On Android WebView, AudioContext.decodeAudioData() is unreliable — prefer
-    // HTMLAudio which uses the native MediaPlayer and is fully supported.
-    // On other platforms, prefer AudioContext once unlocked by the first user gesture
-    // as it bypasses autoplay restrictions.
-    if (_ctx && !isAndroid()) {
+    // Try AudioContext first on ALL platforms — including Android.
+    // If decodeAudioData fails (older Android WebViews), we catch and fall through to HTMLAudio.
+    // AudioContext.createBufferSource() plays synchronously and bypasses autoplay restrictions.
+    if (_ctx) {
       try {
         await _ctx.resume();
         if (_speakGen !== myGen) return false;
