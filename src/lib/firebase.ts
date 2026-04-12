@@ -419,7 +419,7 @@ export async function fbJoinFamily(code: string, uid: string, email: string, nam
         resultFam = { name: data.name as string, code: code.toUpperCase(), role: existing ? (existing as Record<string, string>).role : 'member' };
         alreadyIn = true; return;
       }
-      const updatedMembers = [...members, { uid, email, name, role: 'member', joined: Date.now() }];
+      const updatedMembers = [...members, { uid, email, name: (name || "").trim().slice(0, 100), role: 'member', joined: Date.now() }];
       const updatedEmails = [...new Set([...memberEmails, email])];
       tx.set(famRef, { members: updatedMembers, memberEmails: updatedEmails }, { merge: true });
       resultFam = { name: data.name as string, code: code.toUpperCase(), role: 'member' };
@@ -679,8 +679,9 @@ export async function fbSaveReaction(familyCode: string, achievementKey: string,
     const safeKey = achievementKey.replace(/[^a-zA-Z0-9_]/g, '_');
     const safeReactor = (reactorEmail || reactorName || 'anon').replace(/[^a-zA-Z0-9_@.]/g, '_').slice(0, 40);
     const ref = fsDoc(_fbDb, 'families', familyCode, 'reactions', safeKey);
-    try { await updateDoc(ref, { [`reactors.${safeReactor}`]: { emoji, name: reactorName, updatedAt: Date.now() } }); }
-    catch (e) { await setDoc(ref, { reactors: { [safeReactor]: { emoji, name: reactorName, updatedAt: Date.now() } } }); }
+    const safeReactorName = (reactorName || "").trim().slice(0, 50);
+    try { await updateDoc(ref, { [`reactors.${safeReactor}`]: { emoji, name: safeReactorName, updatedAt: Date.now() } }); }
+    catch (e) { await setDoc(ref, { reactors: { [safeReactor]: { emoji, name: safeReactorName, updatedAt: Date.now() } } }); }
     return { ok: true };
   } catch (e) { console.warn('fbSaveReaction error:', e); return { ok: false }; }
 }
