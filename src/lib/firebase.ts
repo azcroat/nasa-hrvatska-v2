@@ -125,29 +125,52 @@ export async function fbSaveProgress(uid: string, data: Record<string, unknown>)
     lessonsCompleted: _bestLC,
     lastActive: serverTimestamp(),
   };
+  // Resolve family code up front so the family XP write can join the same batch.
+  // This eliminates the previous race condition where a fire-and-forget updateDoc
+  // could fail silently while the leaderboard batch succeeded, causing divergence.
   const localFam = getLocalFamily();
-  if (localFam && localFam.code) {
+  let _famCode: string | null = localFam?.code || null;
+  if (!_famCode && lbEntry.xp > 0) {
     try {
-      const famRef = fsDoc(_fbDb, 'families', localFam.code);
-      const _famWeekXP = typeof data.weekXP === 'number' ? data.weekXP : 0;
-      updateDoc(famRef, { ['memberXP.' + id]: { xp: lbEntry.xp, lc: lbEntry.lc, name: lbEntry.name, weekXP: _famWeekXP, updated: _nowMs } }).catch(function (e) { console.warn('Family XP sync failed:', e); });
-    } catch (e) { console.warn('Family XP sync error:', e); }
-  } else if (lbEntry.xp > 0) {
-    getDoc(fsDoc(_fbDb, 'users', id)).then(function (uSnap) {
-      const fc = uSnap.exists() ? (uSnap.data() as Record<string, unknown>).familyCode : null;
-      const _fbWeekXP2 = typeof data.weekXP === 'number' ? data.weekXP : 0;
-      if (fc) { updateDoc(fsDoc(_fbDb!, 'families', fc as string), { ['memberXP.' + id]: { xp: lbEntry.xp, lc: lbEntry.lc, name: lbEntry.name, weekXP: _fbWeekXP2, updated: _nowMs } }).catch(function () {}); }
-    }).catch(function () {});
+      const uSnap = await getDoc(fsDoc(_fbDb, 'users', id));
+      if (uSnap.exists()) {
+        const fc = (uSnap.data() as Record<string, unknown>).familyCode;
+        if (fc && typeof fc === 'string') _famCode = fc;
+      }
+    } catch {}
   }
+  const _famWeekXP = typeof data.weekXP === 'number' ? data.weekXP : 0;
+
   try {
     const batch = writeBatch(_fbDb);
     batch.set(fsDoc(_fbDb, 'users', id), userEntry, { merge: true });
     batch.set(fsDoc(_fbDb, 'leaderboard', id), lbEntry, { merge: true });
     batch.set(fsDoc(_fbDb, 'profiles', id), profileEntry, { merge: true });
+    // Include family XP in the same atomic batch — both succeed or both fail together.
+    if (_famCode) {
+      batch.update(fsDoc(_fbDb, 'families', _famCode), {
+        ['memberXP.' + id]: { xp: lbEntry.xp, lc: lbEntry.lc, name: lbEntry.name, weekXP: _famWeekXP, updated: _nowMs },
+      });
+    }
     await batch.commit();
     return { ok: true };
   } catch (e: unknown) {
     const err = e as { code?: string; message?: string };
+    // If the batch failed because the family document was deleted, retry without it.
+    // This keeps leaderboard/user/profile writes reliable even when a family is gone.
+    if (err?.code === 'not-found' && _famCode) {
+      try {
+        const retryBatch = writeBatch(_fbDb);
+        retryBatch.set(fsDoc(_fbDb, 'users', id), userEntry, { merge: true });
+        retryBatch.set(fsDoc(_fbDb, 'leaderboard', id), lbEntry, { merge: true });
+        retryBatch.set(fsDoc(_fbDb, 'profiles', id), profileEntry, { merge: true });
+        await retryBatch.commit();
+        return { ok: true };
+      } catch (e2: unknown) {
+        const err2 = e2 as { code?: string; message?: string };
+        console.error('FB save retry error:', err2?.code, err2?.message);
+      }
+    }
     console.error('FB save error:', err?.code, err?.message, e);
     return { ok: false, err: err?.message || 'Progress could not be saved. Check your connection.', code: err?.code };
   }
