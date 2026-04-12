@@ -58,6 +58,7 @@ export function useSyncManager({
   const [syncError, setSyncError] = useState(false);
   const [syncErrorCode, setSyncErrorCode] = useState('');
   const _syncFailCount = useRef(0);
+  const _isSavingRef   = useRef(false); // mutex: prevents concurrent doSyncNow calls
   const _watcherUnsubRef = useRef<(() => void) | null>(null);
   const _idTokenRef = useRef('');
 
@@ -107,6 +108,10 @@ export function useSyncManager({
       ct:    [...new Set([...((lpSt.ct as string[]) || []), ...((pSt.ct as string[]) || [])])],
       vs:    [...new Set([...((lpSt.vs as string[]) || []), ...((pSt.vs as string[]) || [])])],
       badges:[...new Set([...((lpSt.badges as string[]) || []), ...((pSt.badges as string[]) || [])])],
+      // rs: ordered score history — keep the longer array (more entries = more complete history)
+      rs:    (((lpSt.rs as string[]) || []).length >= ((pSt.rs as string[]) || []).length
+               ? (lpSt.rs as string[]) || []
+               : (pSt.rs as string[]) || []),
     };
 
     lP(uid, { ...fp, savedAt: fpTs || Date.now(), stats: mergedStats });
@@ -126,30 +131,36 @@ export function useSyncManager({
 
   // ─── doSyncNow ─────────────────────────────────────────────────────────────
   const doSyncNow = useCallback(async (): Promise<boolean> => {
-    const { authUser: u, stats: st, name: nm, authScreen: as_, favs: fv, jWords: jw, dchlA: da, dchlSl: dsl } = _unloadRef.current as {
-      authUser: AuthUser | null;
-      stats: Stats;
-      name: string;
-      authScreen: string;
-      favs: unknown[];
-      jWords: unknown[];
-      dchlA: boolean[];
-      dchlSl: string[];
-    };
-    if (!u || as_ !== 'app') return false;
-    const snap = buildProgressSnapshot({
-      uid: u.u, name: nm, stats: st, dchlA: da, dchlSl: dsl, favs: fv, jWords: jw,
-    });
+    if (_isSavingRef.current) return false; // concurrent save already in flight
+    _isSavingRef.current = true;
     try {
-      localStorage.setItem('uP_' + u.u, JSON.stringify(snap));
-    } catch (e) {
-      const err = e as Error & { name?: string };
-      if (err?.name === 'QuotaExceededError') {
-        console.warn('[sync] localStorage quota exceeded — some progress may not persist locally');
+      const { authUser: u, stats: st, name: nm, authScreen: as_, favs: fv, jWords: jw, dchlA: da, dchlSl: dsl } = _unloadRef.current as {
+        authUser: AuthUser | null;
+        stats: Stats;
+        name: string;
+        authScreen: string;
+        favs: unknown[];
+        jWords: unknown[];
+        dchlA: boolean[];
+        dchlSl: string[];
+      };
+      if (!u || as_ !== 'app') return false;
+      const snap = buildProgressSnapshot({
+        uid: u.u, name: nm, stats: st, dchlA: da, dchlSl: dsl, favs: fv, jWords: jw,
+      });
+      try {
+        localStorage.setItem('uP_' + u.u, JSON.stringify(snap));
+      } catch (e) {
+        const err = e as Error & { name?: string };
+        if (err?.name === 'QuotaExceededError') {
+          console.warn('[sync] localStorage quota exceeded — some progress may not persist locally');
+        }
       }
+      const result = await fbSaveProgress(u.u, snap).catch(() => ({ ok: false })) as { ok?: boolean };
+      return result && result.ok !== false;
+    } finally {
+      _isSavingRef.current = false;
     }
-    const result = await fbSaveProgress(u.u, snap).catch(() => ({ ok: false })) as { ok?: boolean };
-    return result && result.ok !== false;
   }, [authUser]);
 
   // Keep caller ref current so onBeforeSignOut always calls latest doSyncNow

@@ -65,20 +65,19 @@ export default function PracticeTab({
     } catch { return 'drill'; }
   });
 
-  const pool = () => allCats.flatMap(cc => V[cc]);
+  // Memoized so event handlers always get a stable array reference without
+  // recomputing the flatMap on every parent render.
+  const pool = useMemo(() => allCats.flatMap(cc => V[cc]), [allCats]);
 
   function startQuiz() {
-    const p = pool();
-    const items = sh(p).slice(0,20).map(w => { const wr=sh(p.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]); return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]}; });
+    const items = sh(pool).slice(0,20).map(w => { const wr=sh(pool.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]); return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]}; });
     onLaunchQuiz(items);
   }
   function startFlashcards() {
-    const p = pool();
-    onLaunchFlash(sh(p).slice(0,20));
+    onLaunchFlash(sh(pool).slice(0,20));
   }
   function startMatch() {
-    const p = pool();
-    const sel = sh(p).slice(0,6);
+    const sel = sh(pool).slice(0,6);
     const initPool = sh(sel.map((w,i)=>({id:"h"+i,t:w[0],p:i,tp:"hr"})).concat(sel.map((w,i)=>({id:"e"+i,t:w[1],p:i,tp:"en"}))));
     onLaunchMatch(initPool);
   }
@@ -89,18 +88,15 @@ export default function PracticeTab({
     onLaunchListen(sh(LISTEN).slice(0,8));
   }
   function startSpeaking() {
-    const p = pool();
-    const items = sh(p).slice(0,6);
-    onLaunchSpeaking(items);
+    onLaunchSpeaking(sh(pool).slice(0,6));
   }
   function _startWeakWords() {
     const d = getSR();
-    const p = pool();
     const weak = Object.entries(d).filter(e=>e[1].w>0).sort((a,b)=>(b[1].w/(b[1].r+1))-(a[1].w/(a[1].r+1)));
     if (weak.length < 3) { setWeakMsg("Words you miss 3+ times show up here for focused review. Make some mistakes — it's how you learn!"); return; }
-    const weakWords = weak.slice(0,15).map(e=>p.find(w=>w[0]===e[0])).filter(Boolean);
+    const weakWords = weak.slice(0,15).map(e=>pool.find(w=>w[0]===e[0])).filter(Boolean);
     if (weakWords.length < 3) { setWeakMsg("Not enough weak words yet — keep practicing!"); return; }
-    const items = weakWords.map(w => { const wr=sh(p.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]); return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]}; });
+    const items = weakWords.map(w => { const wr=sh(pool.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]); return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]}; });
     onLaunchQuiz(items);
   }
   function startReview() {

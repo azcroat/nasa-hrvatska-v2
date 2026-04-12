@@ -191,18 +191,19 @@ registerRoute(/^https:\/\/firestore\.googleapis\.com\/.*/i, new NetworkOnly());
 
 // ── Firebase Cloud Messaging ─────────────────────────────────────────────────
 // FCM background messages (app in background / closed tab).
-// NOTE: Firebase config is intentionally hardcoded here — service workers cannot
-// access Vite build-time env vars (import.meta.env). These are client-side keys
-// restricted to authorized domains in Firebase Console, the same values present
-// in src/lib/firebase.js.
+// Firebase config is loaded from Vite build-time env vars (import.meta.env).
+// This works because vite-plugin-pwa uses the injectManifest strategy, which
+// processes sw.js through Vite's Rollup pipeline — import.meta.env is available
+// just like in any other source file. Values must be set in .env / Cloudflare
+// Pages dashboard (same VITE_FIREBASE_* vars used by src/lib/firebase.ts).
 
 const _firebaseApp = initializeApp({
-  apiKey:            'AIzaSyCD4ul4KCILkufNMk5qCr-C5JiN9D7ogn0',
-  authDomain:        'ucimohrvatski-488f9.firebaseapp.com',
-  projectId:         'ucimohrvatski-488f9',
-  storageBucket:     'ucimohrvatski-488f9.firebasestorage.app',
-  messagingSenderId: '675614569794',
-  appId:             '1:675614569794:web:d19f7defeac55b0b4b04db',
+  apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId:             import.meta.env.VITE_FIREBASE_APP_ID,
 });
 
 const _messaging = getMessaging(_firebaseApp);

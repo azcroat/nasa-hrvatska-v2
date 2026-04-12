@@ -389,8 +389,12 @@ function App() {
     touchSession();
   }, [stats, currentScreen, name, authUser, authScreen, jWords, favs, dchlA, dchlSl]);  
 
-  // Sync to Firebase on lesson/grammar completion
-  useEffect(() => { if (!authUser || authScreen !== 'app' || stats.lc === 0) return; doSyncNow(); scheduleStreakReminder(getStreak().count); }, [stats.lc, stats.ct?.length, stats.gc, stats.sp]);  
+  // Sync to Firebase on lesson/grammar completion.
+  // _syncReady guard is critical: without it, a lesson completed before Firebase delivers
+  // its first snapshot would overwrite un-merged remote progress with local-only state.
+  // When _syncReady becomes true the post-sync write-back (line below) catches any
+  // lessons completed during the brief window before Firebase was ready.
+  useEffect(() => { if (!authUser || authScreen !== 'app' || stats.lc === 0 || !_syncReady) return; doSyncNow(); scheduleStreakReminder(getStreak().count); }, [stats.lc, stats.ct?.length, stats.gc, stats.sp, _syncReady]);
 
   // Post-sync write-back: after _syncReady fires (Firebase data loaded + merged into local state),
   // push the fully-merged snapshot back to Firebase so ALL devices see the best combined data.

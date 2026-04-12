@@ -81,8 +81,8 @@ if (import.meta.env.VITE_SENTRY_DSN) {
       // Only send errors in production; silence in dev
       enabled: import.meta.env.PROD,
       tracesSampleRate: 0.1,
-      replaysOnErrorSampleRate: 0,
-      integrations: [Sentry.browserTracingIntegration()],
+      replaysOnErrorSampleRate: 0.1, // capture replay for 10% of error sessions to aid sync debugging
+      integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
       // Scrub PII from error reports
       beforeSend(event) {
         if (event.request?.url) {
