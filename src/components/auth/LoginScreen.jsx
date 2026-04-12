@@ -23,7 +23,7 @@ export default function LoginScreen({
   const isR = authScreen === "register";
   const strength = isR ? pwStrength(pw) : 0;
   return (
-    <div style={{minHeight:'100vh',background:'var(--app-bg)',color:'var(--heading)',fontFamily:"'Outfit',sans-serif",position:'relative',overflowX:'hidden',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
+    <div style={{minHeight:'100vh',background:'var(--app-bg)',color:'var(--heading)',fontFamily:"'Outfit',sans-serif",position:'relative',overflowX:'hidden',overflowY:'auto',WebkitOverflowScrolling:'touch',display:'flex',alignItems:'center',justifyContent:'center',padding:'48px 24px',paddingBottom:'max(48px, env(safe-area-inset-bottom, 24px))'}}>
       <div style={{width:'100%',maxWidth:420,animation:'rise .5s',position:'relative',zIndex:1}}>
         {/* Hero — sits above the login card */}
         <div style={{
