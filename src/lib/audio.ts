@@ -53,14 +53,28 @@ function _cacheSet(key: string, url: string): void {
   _ttsCache.set(key, { url, expires: Date.now() + 3_600_000 });
 }
 
+// Shortest valid silent WAV (44 bytes) as a base64 data URL.
+// Used to unlock HTMLAudio on Android WebView during the first user gesture.
+const _SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+
 const _iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 function uA(): void {
   if (_au) return; _au = true;
+  // Unlock Web AudioContext (desktop / iOS primary path)
   try {
     _ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     const b = _ctx.createBuffer(1, 1, 22050);
     const s = _ctx.createBufferSource();
     s.buffer = b; s.connect(_ctx.destination); s.start(0); _ctx.resume();
+  } catch (e) {}
+  // Unlock HTMLAudio independently — required on Android WebView where AudioContext
+  // unlock does NOT propagate to the HTML5 Media pipeline.
+  // Playing a silent audio element during a user gesture "warms up" the pipeline so
+  // subsequent async play() calls succeed even after fetch() + FileReader await chains.
+  try {
+    const silent = new Audio(_SILENT_WAV);
+    silent.volume = 0.001;
+    silent.play().then(() => silent.pause()).catch(() => {});
   } catch (e) {}
 }
 ['touchstart', 'click'].forEach(e => {
@@ -93,6 +107,10 @@ export function stopAudio(): void {
 
 export async function speakAzure(text: string, slow?: boolean): Promise<boolean> {
   if (!text || !text.trim()) return false;
+  // Ensure audio pipeline is unlocked on THIS gesture call, not just on the first-ever touch.
+  // On Android WebView, user activation survives async operations only if audio was already
+  // unlocked via a prior synchronous play(). uA() is idempotent — safe to call every time.
+  uA();
   stopAudio();
   const myGen = ++_speakGen;
   const voicePref = getVoicePreference();

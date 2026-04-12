@@ -378,7 +378,7 @@ export default function HeroSection({
   };
 
   return (
-    <motion.div initial={_isNative ? false : { opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0 }}>
+    <motion.div initial={_isNative ? false : { y: 16 }} animate={{ y: 0 }} transition={{ duration: 0.3, ease: 'easeOut', delay: 0 }}>
       <div style={{
         background: `linear-gradient(160deg,rgba(6,14,30,0.91) 0%,rgba(10,35,72,0.82) 40%,rgba(12,56,104,0.77) 100%), url('/images/scenes/${heroScene.img}.webp') center ${heroScene.position} / cover no-repeat`,
         position: 'relative',
@@ -454,8 +454,8 @@ export default function HeroSection({
             {/* Knight — stable mount; mood prop updates the animation variant
                 without remounting, so the knight is never frozen during message cycles */}
             <motion.div
-              initial={_isNative ? false : { scale: 0.75, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
+              initial={_isNative ? false : { scale: 0.75 }}
+              animate={{ scale: 1 }}
               transition={{ type: 'spring', stiffness: 340, damping: 18, delay: 0.1 }}
               style={{ flexShrink: 0 }}
             >
