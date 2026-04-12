@@ -72,6 +72,7 @@ interface McQuestion {
 }
 
 interface LearnPathItem {
+  id?: string;
   go?: string;
   topic?: string;
   filter?: unknown;
@@ -308,6 +309,15 @@ export function useScreenLauncher({
 
   const launchPathItem = useCallback(async (item: LearnPathItem): Promise<void> => {
     if (!item) return;
+    // Record path item visit by id immediately — enables vs.includes(id) click-through gates in ck()
+    if (item.id) {
+      let alreadyTracked = false;
+      setStats(prev => {
+        if (prev.vs?.includes(item.id!)) { alreadyTracked = true; return prev; }
+        return { ...prev, vs: [...(prev.vs || []), item.id!] };
+      });
+      if (!alreadyTracked && writeDelta) writeDelta({ vs: [item.id!] });
+    }
     if (item.go === 'lesson' && item.topic) {
       const { V } = await _getData() as { V: Record<string, VocabWord[]> };
       const raw = V[item.topic];
