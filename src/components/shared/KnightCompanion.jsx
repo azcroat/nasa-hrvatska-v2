@@ -18,6 +18,7 @@ const _isNative = typeof window !== 'undefined' &&
   window.location.hostname === 'localhost' && !window.location.port;
 import { useApp } from '../../context/AppContext.jsx';
 import { getStreak } from '../../data.jsx';
+import { dbgInfo } from '../../lib/debugLog';
 
 // ── Mood → accent colour ──────────────────────────────────────────────────────
 const MOOD_COLOR = {
@@ -144,6 +145,18 @@ let _tapIdx = 0; // persists across re-renders; rotates through TAP_POOL
 
 export default function KnightCompanion() {
   const { currentScreen } = useApp();
+
+  // ── Debug: log on mount ───────────────────────────────────────────────────
+  useEffect(() => {
+    dbgInfo(
+      `[Knight] mounted | _isNative=${_isNative}` +
+      ` | hostname="${window.location.hostname}"` +
+      ` | port="${window.location.port}"` +
+      ` | screen="${currentScreen}"`
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [bubble, setBubble]         = useState(null); // { mood, text }
   const [showBubble, setShowBubble] = useState(false);
   const [celebBurst, setCelebBurst] = useState(false);
@@ -238,6 +251,9 @@ export default function KnightCompanion() {
     }, 50);
     return () => clearTimeout(t);
   }, [introPlayed, isHome]);
+
+  // ── Debug: log every render with current visibility decision ────────────
+  dbgInfo(`[Knight] render | screen="${currentScreen}" isHome=${isHome} displayMood="${displayMood}" introPlayed=${introPlayed}`);
 
   if (isHome) return null;
 
