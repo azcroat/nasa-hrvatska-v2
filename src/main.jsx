@@ -22,6 +22,17 @@ import { reportError } from './lib/errorReporter.js';
 import { isNative, isAndroid } from './lib/platform.js';
 import { registerSW } from 'virtual:pwa-register';
 
+// ─── Capacitor native: mark <html> for CSS animation overrides ────────────
+// Many CSS entrance animations start at opacity:0 with fill-mode:both.
+// On Android WebView, if the animation engine fails to start, fill-mode:backwards
+// freezes elements at opacity:0 — invisible and unclickable — with no JS error.
+// Adding .native-android to <html> lets a single CSS rule override all animation
+// durations to near-zero so every element immediately jumps to its visible end state.
+// Must run synchronously before React renders.
+if (isNative()) {
+  document.documentElement.classList.add('native-android');
+}
+
 // ─── Capacitor native plugin initialisation ────────────────────────────────
 // Runs only inside the Android / iOS shell; is a no-op in the browser.
 // StatusBar: transparent overlay so our gradient header fills edge-to-edge.

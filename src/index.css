@@ -1558,6 +1558,21 @@ button.c{font-family:'Outfit',sans-serif;width:100%;cursor:pointer;display:block
   .anim-children-fade > *{animation:none!important;opacity:1!important}
 }
 
+/* ── Android WebView / Capacitor native: bypass opacity-zero entrance animations ──
+   CSS animations starting at opacity:0 with fill-mode:both (the "backwards" fill)
+   can freeze permanently on Android WebView when the animation engine fails to
+   start, leaving elements invisible and unclickable — with zero JS errors.
+   Setting duration to near-zero causes every animation to immediately jump to its
+   100%-keyframe end state (opacity:1), so all elements are visible and tappable
+   regardless of whether the animation engine is healthy.
+   The .native-android class is added to <html> synchronously in main.jsx when
+   isNative() returns true (Capacitor: hostname=localhost, no port). */
+.native-android *{
+  animation-duration:0.001ms!important;
+  animation-delay:0ms!important;
+  animation-fill-mode:forwards!important;
+}
+
 /* ═══════════════════════════════════════════════════════════
    SCREEN TRANSITIONS
 ═══════════════════════════════════════════════════════════ */

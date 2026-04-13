@@ -779,7 +779,7 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
   useEffect(() => {
     if (variant !== undefined) return;
     setAutoVarIdx(new Date().getHours() % variants.length);
-  }, [mood]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [mood]);
 
   // Cycle every 5 minutes when no explicit variant is locked in.
   useEffect(() => {
@@ -827,26 +827,34 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
   // Seasonal rim takes priority over mood rim on special Croatian dates.
   const rimFilter = (seasonal?.rim) || MOOD_RIM[mood];
 
+  // On Android WebView/Capacitor, motion.div's CSS transform creates a Blink
+  // compositing layer that breaks SVG gradient url() fill references — the entire
+  // knight renders invisible over the white button background. CSS rimFilter
+  // (drop-shadow) conflicts with the SVG's own filter="url(#lk-drop)" for the
+  // same reason. Use a plain div wrapper on native: no transforms, no CSS filter,
+  // no compositing layer, just a visible element.
+  const MotionOrDiv = _isNative ? 'div' : motion.div;
+  const motionProps = _isNative ? {} : {
+    initial: { scale: 0.6, y: 8 },
+    animate: isCelebrating
+      ? { scale: [0.6, 1.22, 0.96, 1.06, 1], y: 0 }
+      : { scale: 1, y: 0 },
+    transition: isCelebrating
+      ? { duration: 0.55, ease: [0.22, 1.6, 0.36, 1], times: [0, 0.35, 0.55, 0.75, 1] }
+      : entryTransition,
+  };
+
   return (
-    <motion.div
+    <MotionOrDiv
       className={className}
       style={{
         display: 'inline-block', lineHeight: 0,
-        // CSS fallback: if Framer Motion fails to animate (some Android WebViews),
-        // the element is still visible via the CSS animation below.
-        // Framer Motion will override these when it runs successfully.
-        opacity: 1, scale: 1,
-        ...(rimFilter ? { filter: rimFilter } : {}), ...style
+        opacity: 1,
+        // CSS filter (rim glow) skipped on native — breaks SVG rendering on Android WebView
+        ...(!_isNative && rimFilter ? { filter: rimFilter } : {}),
+        ...style
       }}
-      initial={_isNative ? false : { scale: 0.6, y: 8 }}
-      animate={isCelebrating
-        ? { scale: [0.6, 1.22, 0.96, 1.06, 1], y: 0 }
-        : { scale: 1, y: 0 }
-      }
-      transition={isCelebrating
-        ? { duration: 0.55, ease: [0.22, 1.6, 0.36, 1], times: [0, 0.35, 0.55, 0.75, 1] }
-        : entryTransition
-      }
+      {...motionProps}
     >
     {/* ── LEGO MOVIE PRINCIPLE 1: Stop-motion jitter wrapper ── */}
     {/* steps(1) snaps between positions — no smooth interpolation */}
@@ -922,7 +930,7 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
           transformOrigin at foot level keeps figure grounded
           ═══════════════════════════════════════════════════ */}
       <g
-        filter="url(#lk-drop)"
+        filter={_isNative ? undefined : "url(#lk-drop)"}
         style={{ animation: m.body, transformOrigin: '60px 188px' }}
       >
 
@@ -1366,7 +1374,7 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
     </svg>
     </div>
     {/* ── end jitter wrapper ── */}
-    </motion.div>
+    </MotionOrDiv>
   );
 });
 
