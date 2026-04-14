@@ -65,6 +65,69 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
   return null;
 }
 
+// ── Microsoft Edge TTS ────────────────────────────────────────────────────────
+// hr-HR-GabrijelaNeural via Edge browser's speech synthesis endpoint.
+// Zero configuration required — no API key, no billing. Free and stable.
+// Uses outgoing WebSocket (supported in Cloudflare Workers).
+async function tryEdgeTTS(text, slow) {
+  const voice = 'hr-HR-GabrijelaNeural';
+  const rate = slow ? '-25%' : '-8%';
+  const safeText = text.replace(
+    /[<>&"']/g,
+    (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' }[c])
+  );
+  const ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='hr-HR'><voice name='${voice}'><prosody rate='${rate}'>${safeText}</prosody></voice></speak>`;
+  const TOKEN = '***REMOVED***';
+  const connId = crypto.randomUUID().replace(/-/g, '').toUpperCase();
+  const wsUrl = `wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1?trustedclienttoken=${TOKEN}&ConnectionId=${connId}`;
+
+  return new Promise((resolve, reject) => {
+    let ws;
+    const chunks = [];
+    try { ws = new WebSocket(wsUrl); } catch (e) { return reject(e); }
+
+    const timeout = setTimeout(() => {
+      try { ws.close(); } catch (closeErr) { void closeErr; }
+      reject(new Error('edge-tts timeout'));
+    }, 15000);
+
+    ws.addEventListener('open', () => {
+      const now = new Date().toISOString().replace(/Z$/, '000Z');
+      const reqId = crypto.randomUUID().replace(/-/g, '').toUpperCase();
+      ws.send(
+        `X-Timestamp:${now}\r\nContent-Type:application/json; charset=utf-8\r\nPath:speech.config\r\n\r\n` +
+        `{"context":{"synthesis":{"audio":{"metadataoptions":{"sentenceBoundaryEnabled":"false","wordBoundaryEnabled":"true"},"outputFormat":"audio-24khz-48kbitrate-mono-mp3"}}}}`
+      );
+      ws.send(
+        `X-RequestId:${reqId}\r\nContent-Type:application/ssml+xml\r\nX-Timestamp:${now}\r\nPath:ssml\r\n\r\n${ssml}`
+      );
+    });
+
+    ws.addEventListener('message', (event) => {
+      if (typeof event.data === 'string') {
+        if (event.data.includes('Path:turn.end')) {
+          clearTimeout(timeout);
+          ws.close();
+          if (chunks.length === 0) { reject(new Error('edge-tts no audio')); return; }
+          const totalLen = chunks.reduce((s, c) => s + c.byteLength, 0);
+          const merged = new Uint8Array(totalLen);
+          let offset = 0;
+          for (const chunk of chunks) { merged.set(new Uint8Array(chunk), offset); offset += chunk.byteLength; }
+          resolve(merged.buffer);
+        }
+      } else if (event.data instanceof ArrayBuffer) {
+        const view = new DataView(event.data);
+        const headerLen = view.getUint16(0);
+        const audioStart = 2 + headerLen;
+        if (event.data.byteLength > audioStart) chunks.push(event.data.slice(audioStart));
+      }
+    });
+
+    ws.addEventListener('error', (e) => { clearTimeout(timeout); reject(e); });
+    ws.addEventListener('close', () => { clearTimeout(timeout); });
+  });
+}
+
 // ── Google Cloud TTS ──────────────────────────────────────────────────────────
 // hr-HR-Wavenet-B: native Croatian Neural voice (same phoneme quality tier as Azure).
 // Uses the Firebase service account already stored in FIREBASE_SERVICE_ACCOUNT_JSON.
@@ -216,14 +279,9 @@ export async function onRequestPost(context) {
 
   // Diagnostic header — tells the client exactly which backends are available.
   // Visible in the debug overlay via the [TTS] log entries.
-  const diagBackends = [AZURE_KEY ? 'azure' : null, GOOGLE_SA_JSON ? 'google' : null].filter(Boolean).join(',') || 'none';
+  const diagBackends = [AZURE_KEY ? 'azure' : null, 'edge', GOOGLE_SA_JSON ? 'google' : null].filter(Boolean).join(',') || 'none';
 
-  if (!AZURE_KEY && !GOOGLE_SA_JSON) {
-    return new Response('TTS not configured — set AZURE_TTS_KEY or enable FIREBASE_SERVICE_ACCOUNT_JSON', {
-      status: 503,
-      headers: { ...corsHeaders(origin), 'X-TTS-Backends': diagBackends },
-    });
-  }
+  // Edge TTS is always available — no keys required. Skip the 503 guard.
 
   try {
     const ct = request.headers.get('content-type') || '';
@@ -259,7 +317,12 @@ export async function onRequestPost(context) {
       try { buffer = await tryAzure(text, slow, AZURE_KEY, PRIMARY_REGION); } catch { /* fall through */ }
     }
 
-    // ── 2. Google hr-HR-Wavenet-B (backup) ───────────────────────────────────
+    // ── 2. Microsoft Edge hr-HR-GabrijelaNeural (free fallback) ──────────────
+    if (!buffer) {
+      try { buffer = await tryEdgeTTS(text, slow); } catch { /* fall through */ }
+    }
+
+    // ── 3. Google hr-HR-Wavenet-B (backup) ───────────────────────────────────
     if (!buffer && GOOGLE_SA_JSON) {
       try { buffer = await tryGoogle(text, slow, GOOGLE_SA_JSON); } catch { /* fall through */ }
     }
@@ -268,6 +331,7 @@ export async function onRequestPost(context) {
     if (!buffer) {
       const whyFailed = [
         AZURE_KEY ? 'azure-failed' : 'azure-not-configured',
+        'edge-failed',
         GOOGLE_SA_JSON ? 'google-failed' : 'google-not-configured',
       ].join(',');
       return new Response(`TTS unavailable — ${whyFailed}`, {
