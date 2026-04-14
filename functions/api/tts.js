@@ -213,8 +213,15 @@ export async function onRequestPost(context) {
   // Google TTS uses the Firebase service account already in Cloudflare — no separate key required.
   const GOOGLE_SA_JSON = env.FIREBASE_SERVICE_ACCOUNT_JSON || env.GOOGLE_TTS_KEY || null;
 
+  // Diagnostic header — tells the client exactly which backends are available.
+  // Visible in the debug overlay via the [TTS] log entries.
+  const diagBackends = [AZURE_KEY ? 'azure' : null, GOOGLE_SA_JSON ? 'google' : null].filter(Boolean).join(',') || 'none';
+
   if (!AZURE_KEY && !GOOGLE_SA_JSON) {
-    return new Response('TTS not configured', { status: 503, headers: corsHeaders(origin) });
+    return new Response('TTS not configured — set AZURE_TTS_KEY or enable FIREBASE_SERVICE_ACCOUNT_JSON', {
+      status: 503,
+      headers: { ...corsHeaders(origin), 'X-TTS-Backends': diagBackends },
+    });
   }
 
   try {
@@ -258,7 +265,14 @@ export async function onRequestPost(context) {
 
     // ── 503 → client falls back to Web Speech API ────────────────────────────
     if (!buffer) {
-      return new Response('TTS unavailable', { status: 503, headers: corsHeaders(origin) });
+      const whyFailed = [
+        AZURE_KEY ? 'azure-failed' : 'azure-not-configured',
+        GOOGLE_SA_JSON ? 'google-failed' : 'google-not-configured',
+      ].join(',');
+      return new Response(`TTS unavailable — ${whyFailed}`, {
+        status: 503,
+        headers: { ...corsHeaders(origin), 'X-TTS-Backends': diagBackends },
+      });
     }
 
     const ttsResponse = new Response(buffer, {

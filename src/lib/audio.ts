@@ -158,10 +158,11 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
       });
       _ttsAbort = null;
       if (_speakGen !== myGen) { dbgWarn('[TTS] generation mismatch after fetch — aborting'); return false; }
-      dbgInfo(`[TTS] fetch response status=${r.status} ok=${r.ok}`);
+      const backends = r.headers.get('x-tts-backends') || 'unknown';
+      dbgInfo(`[TTS] fetch response status=${r.status} ok=${r.ok} backends=${backends}`);
       if (!r.ok) {
         const rb = await r.text().catch(() => '');
-        dbgError(`[TTS] HTTP ${r.status} — ${rb.slice(0, 200)}`);
+        dbgError(`[TTS] HTTP ${r.status} backends=${backends} — ${rb.slice(0, 200)}`);
         return false;
       }
       freshBlob = await r.blob();
