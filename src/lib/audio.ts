@@ -2,7 +2,8 @@
 // Audio Engine — Native Croatian Pronunciation
 // ═══════════════════════════════════════════════════════════
 import { getVoicePreference } from './soundSettings';
-import { isNative, isAndroid } from './platform';
+import { isNative } from './platform';
+import { dbgInfo, dbgWarn, dbgError } from './debugLog';
 
 // In Capacitor native builds, relative URLs resolve to the bundled WebView server
 // (https://localhost), not to nasahrvatska.com — API calls must use the absolute URL.
@@ -58,15 +59,23 @@ function _cacheSet(key: string, url: string): void {
 const _SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
 
 const _iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+dbgInfo(`[Audio] module loaded | isNative=${isNative()} | iOS=${_iOS} | UA="${navigator.userAgent.slice(0, 80)}"`);
+
 function uA(): void {
-  if (_au) return; _au = true;
+  if (_au) { dbgInfo('[Audio] uA() called — already unlocked, skip'); return; }
+  _au = true;
+  dbgInfo('[Audio] uA() — unlocking audio pipeline');
   // Unlock Web AudioContext (desktop / iOS primary path)
   try {
     _ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     const b = _ctx.createBuffer(1, 1, 22050);
     const s = _ctx.createBufferSource();
     s.buffer = b; s.connect(_ctx.destination); s.start(0); _ctx.resume();
-  } catch (e) {}
+    dbgInfo(`[Audio] AudioContext created — state="${_ctx.state}"`);
+  } catch (e) {
+    dbgError('[Audio] AudioContext creation FAILED:', e);
+  }
   // Unlock HTMLAudio independently — required on Android WebView where AudioContext
   // unlock does NOT always propagate to the HTML5 Media pipeline.
   // Must use volume = 1.0: some Android WebViews treat very low volume as "muted"
@@ -74,11 +83,19 @@ function uA(): void {
   try {
     const silent = new Audio(_SILENT_WAV);
     silent.volume = 1.0;
-    silent.play().then(() => { silent.pause(); silent.currentTime = 0; }).catch(() => {});
-  } catch (e) {}
+    silent.play()
+      .then(() => { dbgInfo('[Audio] HTMLAudio silent unlock succeeded'); silent.pause(); silent.currentTime = 0; })
+      .catch((e) => dbgError('[Audio] HTMLAudio silent unlock play() FAILED:', e));
+  } catch (e) {
+    dbgError('[Audio] HTMLAudio silent unlock NEW Audio() FAILED:', e);
+  }
 }
 ['touchstart', 'click'].forEach(e => {
-  document.addEventListener(e, function h() { uA(); document.removeEventListener(e, h); }, { passive: true, once: true });
+  document.addEventListener(e, function h() {
+    dbgInfo(`[Audio] first user gesture (${e}) — calling uA()`);
+    uA();
+    document.removeEventListener(e, h);
+  }, { passive: true, once: true });
 });
 
 export function loadVoices(): void {
@@ -107,6 +124,7 @@ export function stopAudio(): void {
 
 export async function speakAzure(text: string, slow?: boolean): Promise<boolean> {
   if (!text || !text.trim()) return false;
+  dbgInfo(`[TTS] speakAzure called | text="${text.slice(0,40)}" slow=${!!slow} isNative=${isNative()} apiBase="${_apiBase()}"`);
   // Ensure audio pipeline is unlocked on THIS gesture call, not just on the first-ever touch.
   // On Android WebView, user activation survives async operations only if audio was already
   // unlocked via a prior synchronous play(). uA() is idempotent — safe to call every time.
@@ -121,13 +139,16 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
     let url: string;
     let freshBlob: Blob | null = null; // retained to avoid re-fetching the blob URL
     if (cached) {
+      dbgInfo('[TTS] cache HIT — skipping fetch');
       url = cached;
     } else {
-      if (!_ttsAllowed()) return false;
+      if (!_ttsAllowed()) { dbgWarn('[TTS] rate limit — request blocked'); return false; }
+      const fetchUrl = `${_apiBase()}/api/tts`;
+      dbgInfo(`[TTS] fetching from ${fetchUrl}`);
       const body: Record<string, unknown> = { text, slow: !!slow };
       if (voicePref !== 'auto') body.voice = voicePref;
       _ttsAbort = new AbortController();
-      const r = await fetch(`${_apiBase()}/api/tts`, {
+      const r = await fetch(fetchUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -136,13 +157,15 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
           : _ttsAbort.signal,
       });
       _ttsAbort = null;
-      if (_speakGen !== myGen) return false;
+      if (_speakGen !== myGen) { dbgWarn('[TTS] generation mismatch after fetch — aborting'); return false; }
+      dbgInfo(`[TTS] fetch response status=${r.status} ok=${r.ok}`);
       if (!r.ok) {
         const rb = await r.text().catch(() => '');
-        console.error('[TTS] HTTP ' + r.status + ' body:' + rb);
+        dbgError(`[TTS] HTTP ${r.status} — ${rb.slice(0, 200)}`);
         return false;
       }
       freshBlob = await r.blob();
+      dbgInfo(`[TTS] blob received size=${freshBlob.size} type="${freshBlob.type}"`);
       if (_speakGen !== myGen) return false;
       // Always use base64 data URLs — universally supported across all browsers and
       // native WebView implementations (blob: URLs fail on some Android OEM builds).
@@ -152,6 +175,7 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
         reader.onload = () => resolve(reader.result as string);
         reader.readAsDataURL(freshBlob!);
       });
+      dbgInfo(`[TTS] data URL ready (length=${url.length})`);
       _cacheSet(cacheKey, url);
     }
 
@@ -159,8 +183,10 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
     // If decodeAudioData fails (older Android WebViews), we catch and fall through to HTMLAudio.
     // AudioContext.createBufferSource() plays synchronously and bypasses autoplay restrictions.
     if (_ctx) {
+      dbgInfo(`[TTS] trying AudioContext path — state="${_ctx.state}"`);
       try {
         await _ctx.resume();
+        dbgInfo(`[TTS] AudioContext resumed — state="${_ctx.state}"`);
         if (_speakGen !== myGen) return false;
         // freshBlob.arrayBuffer() reads the in-memory blob directly — no second
         // network request and no CSP connect-src restriction on blob: URLs.
@@ -177,36 +203,42 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
         src.connect(_ctx.destination);
         _currentAudio = { pause: () => { try { src.stop(); } catch {} }, currentTime: 0 };
         src.start(0);
+        dbgInfo('[TTS] AudioContext playback started');
         await new Promise<void>(resolve => { src.onended = () => resolve(); });
+        dbgInfo('[TTS] AudioContext playback ended — success');
         return true;
       } catch (e) {
-        console.error('[TTS AudioContext] failed:', e);
+        dbgError('[TTS] AudioContext path FAILED — falling through to HTMLAudio:', e);
         if (_speakGen !== myGen) return false;
         // Fall through to HTMLAudio fallback
       }
+    } else {
+      dbgWarn('[TTS] _ctx is null — AudioContext not available, going straight to HTMLAudio');
     }
 
     // HTMLAudio path — primary on Android WebView; fallback elsewhere.
     // Do NOT call a.load() — it triggers a second resource load that Chrome
     // interrupts the pending play() with an AbortError.
     if (_speakGen !== myGen) return false;
+    dbgInfo('[TTS] trying HTMLAudio path');
     const a = new Audio(); a.volume = 1.0; _currentAudio = a;
     a.src = url;
     try {
       await a.play();
+      dbgInfo('[TTS] HTMLAudio play() started');
     } catch (playErr) {
-      console.error('[TTS HTMLAudio] play() failed:', playErr);
+      dbgError('[TTS] HTMLAudio play() FAILED:', playErr);
       return false;
     }
     await new Promise<void>(resolve => {
-      a.addEventListener('ended', () => resolve(), { once: true });
-      a.addEventListener('error', (ev) => { console.error('[TTS HTMLAudio] error event:', ev); resolve(); }, { once: true });
+      a.addEventListener('ended', () => { dbgInfo('[TTS] HTMLAudio ended — success'); resolve(); }, { once: true });
+      a.addEventListener('error', (ev) => { dbgError('[TTS] HTMLAudio error event:', (ev as ErrorEvent).message || ev); resolve(); }, { once: true });
       a.addEventListener('pause', () => resolve(), { once: true });
       a.addEventListener('abort', () => resolve(), { once: true });
     });
     return true;
   } catch (e) {
-    console.error('[TTS] error:', e);
+    dbgError('[TTS] speakAzure unhandled error:', e);
     return false;
   }
 }
