@@ -860,7 +860,7 @@ const CroatianKnight = React.memo(function CroatianKnight({ size = 80, mood = 'h
     {/* steps(1) snaps between positions — no smooth interpolation */}
     {/* Applied to ALL moods — calm moods looked frozen without it */}
     {/* NOTE: must be a <div>, not <g> — <g> is SVG-only and invalid as HTML */}
-    <div style={{ display: 'inline-block', lineHeight: 0, animation: 'lk-jitter 0.083s steps(1) infinite' }}>
+    <div style={{ display: 'inline-block', lineHeight: 0, animation: _isNative ? undefined : 'lk-jitter 0.083s steps(1) infinite' }}>
     <svg
       width={size}
       height={Math.round(size * 1.56)}

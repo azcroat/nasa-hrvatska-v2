@@ -305,6 +305,26 @@ export async function preloadAudio(text: string): Promise<void> {
   }
 }
 
+// Wait up to 1.5 s for speechSynthesis voices to load (needed on Android WebView
+// where getVoices() returns [] on module load and populates asynchronously).
+async function _awaitVoices(): Promise<SpeechSynthesisVoice | null> {
+  if (!window.speechSynthesis) return null;
+  loadVoices();
+  const best = getBestVoice();
+  if (best) return best;
+  // Voices not ready yet — wait for the onvoiceschanged event (max 1.5 s)
+  return new Promise<SpeechSynthesisVoice | null>(resolve => {
+    const timer = setTimeout(() => { loadVoices(); resolve(getBestVoice()); }, 1500);
+    const prev = window.speechSynthesis.onvoiceschanged;
+    window.speechSynthesis.onvoiceschanged = () => {
+      clearTimeout(timer);
+      window.speechSynthesis.onvoiceschanged = prev ?? null;
+      loadVoices();
+      resolve(getBestVoice());
+    };
+  });
+}
+
 export async function speak(text: string): Promise<string> {
   if (!text) return 'none';
   const t = prepTTS(text);
@@ -312,8 +332,9 @@ export async function speak(text: string): Promise<string> {
   if (!ok) {
     // Only use Web Speech fallback when a Croatian/South-Slavic voice is available.
     // Playing English TTS for Croatian text actively teaches wrong pronunciation — never acceptable.
-    const hasCroatianVoice = window.speechSynthesis && getBestVoice();
-    if (hasCroatianVoice) {
+    // Wait for voices to load (Android WebView loads them asynchronously after startup).
+    const voice = await _awaitVoices();
+    if (window.speechSynthesis && voice) {
       await speakSynth(t, 0.85);
       return 'synth';
     }
@@ -329,8 +350,8 @@ export async function speakSlow(text: string): Promise<string> {
   const ok = await speakAzure(t, true).catch(() => false);
   if (!ok) {
     // Same guard: only fall back to Web Speech when a Croatian voice is confirmed available.
-    const hasCroatianVoice = window.speechSynthesis && getBestVoice();
-    if (hasCroatianVoice) {
+    const voice = await _awaitVoices();
+    if (window.speechSynthesis && voice) {
       await speakSynth(t, 0.65);
       return 'synth';
     }

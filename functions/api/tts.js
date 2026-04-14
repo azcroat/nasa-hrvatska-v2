@@ -210,7 +210,7 @@ export async function onRequestPost(context) {
   }
 
   const AZURE_KEY   = env.AZURE_TTS_KEY;
-  const PRIMARY_REGION = env.AZURE_TTS_REGION || 'eastus';
+  const PRIMARY_REGION = env.AZURE_TTS_REGION || 'westeurope';
   // Google TTS uses the Firebase service account already in Cloudflare — no separate key required.
   const GOOGLE_SA_JSON = env.FIREBASE_SERVICE_ACCOUNT_JSON || env.GOOGLE_TTS_KEY || null;
 
