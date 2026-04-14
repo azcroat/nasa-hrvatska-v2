@@ -181,6 +181,7 @@ function corsHeaders(origin) {
     'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Expose-Headers': 'X-TTS-Backends',
     'Vary': 'Origin',
   };
 }
