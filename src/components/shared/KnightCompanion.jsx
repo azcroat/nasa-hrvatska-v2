@@ -259,6 +259,21 @@ export default function KnightCompanion() {
 
   const accentColor = MOOD_COLOR[displayMood] || MOOD_COLOR.ready;
 
+  // On Android WebView, motion.button / motion.div with animate={{ scale, opacity }}
+  // applies CSS transforms that create a GPU compositing layer — the button and bubble
+  // become transparent/invisible. Same root cause as CroatianKnight.jsx SVG fix.
+  // Use plain HTML elements on native: no Framer Motion, no compositing layer.
+  const MotionBtn = _isNative ? 'button' : motion.button;
+  const btnMotionProps = _isNative ? {} : {
+    initial: introPlayed ? { scale: 0.6, opacity: 0 } : { x: -80, opacity: 0, scale: 0.8 },
+    animate: { x: 0, scale: 1, opacity: 1 },
+    transition: introPlayed
+      ? { type: 'spring', stiffness: 420, damping: 22 }
+      : { type: 'spring', stiffness: 280, damping: 18, delay: 0.2 },
+    whileHover: { scale: 1.13 },
+    whileTap: { scale: 0.93 },
+  };
+
   const handleTap = () => {
     const msg = TAP_POOL[_tapIdx % TAP_POOL.length];
     _tapIdx++;
@@ -280,7 +295,7 @@ export default function KnightCompanion() {
             key="companion-bubble"
             initial={_isNative ? false : { opacity: 0, y: 10, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 6, scale: 0.94 }}
+            exit={_isNative ? {} : { opacity: 0, y: 6, scale: 0.94 }}
             transition={{ type: 'spring', stiffness: 380, damping: 26 }}
             style={{
               position: 'fixed',
@@ -339,19 +354,11 @@ export default function KnightCompanion() {
       </AnimatePresence>
 
       {/* ── Mini knight button — walk-in intro on first appearance ── */}
-      <motion.button
+      <MotionBtn
         onClick={handleTap}
         aria-label="Chat with Vitez Hrvoje, your Croatian coach"
         title="Vitez Hrvoje — tap for a message"
-        // First-time: slide in from the left with a bounce; thereafter just spring-in.
-        initial={_isNative ? false : (introPlayed ? { scale: 0.6, opacity: 0 } : { x: -80, opacity: 0, scale: 0.8 })}
-        animate={{ x: 0, scale: 1, opacity: 1 }}
-        transition={introPlayed
-          ? { type: 'spring', stiffness: 420, damping: 22 }
-          : { type: 'spring', stiffness: 280, damping: 18, delay: 0.2 }
-        }
-        whileHover={{ scale: 1.13 }}
-        whileTap={{ scale: 0.93 }}
+        {...btnMotionProps}
         style={{
           position: 'fixed', bottom: 80, left: 16,
           width: 60, height: 60, borderRadius: '50%',
@@ -369,7 +376,7 @@ export default function KnightCompanion() {
       >
         <CroatianKnight size={42} mood={displayMood} />
         <CelebrationBurst active={celebBurst} />
-      </motion.button>
+      </MotionBtn>
     </>
   );
 }
