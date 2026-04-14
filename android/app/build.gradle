@@ -5,22 +5,33 @@ android {
     compileSdk = rootProject.ext.compileSdkVersion
 
     // ── Release signing ──────────────────────────────────────────────────────
-    // Reads credentials from environment variables — never hardcode credentials.
-    // Set these before running `./gradlew bundleRelease`:
+    // Local builds: credentials are loaded from android/keystore.properties
+    //   (gitignored — never committed). No env vars needed on the local machine.
+    //
+    // CI (GitHub Actions): keystore.properties is absent; falls back to env vars:
     //   KEYSTORE_PATH   — absolute path to nasa-hrvatska-release.jks
     //   KEYSTORE_PASS   — keystore password
     //   KEY_ALIAS       — key alias (default: nasa-hrvatska)
     //   KEY_PASS        — key password
     //
-    // In GitHub Actions, set these as repository Secrets (Settings → Secrets).
     // See ANDROID_BUILD.md for full instructions.
-    if (System.getenv("KEYSTORE_PATH")) {
+    def _kp = rootProject.file("keystore.properties")
+    def _ks = new Properties()
+    if (_kp.exists()) { _kp.withInputStream { _ks.load(it) } }
+
+    def _storePath = _ks['keystorePath'] ? rootProject.file(_ks['keystorePath']).absolutePath
+                                         : System.getenv("KEYSTORE_PATH")
+    def _storePass = _ks['keystorePassword'] ?: System.getenv("KEYSTORE_PASS") ?: ""
+    def _keyAlias  = _ks['keyAlias']         ?: System.getenv("KEY_ALIAS")      ?: "nasa-hrvatska"
+    def _keyPass   = _ks['keyPassword']      ?: System.getenv("KEY_PASS")       ?: ""
+
+    if (_storePath) {
         signingConfigs {
             release {
-                storeFile file(System.getenv("KEYSTORE_PATH"))
-                storePassword System.getenv("KEYSTORE_PASS") ?: ""
-                keyAlias System.getenv("KEY_ALIAS") ?: "nasa-hrvatska"
-                keyPassword System.getenv("KEY_PASS") ?: ""
+                storeFile file(_storePath)
+                storePassword _storePass
+                keyAlias _keyAlias
+                keyPassword _keyPass
             }
         }
     }
