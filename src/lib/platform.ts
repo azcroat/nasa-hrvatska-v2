@@ -64,5 +64,14 @@ export async function openUrl(url: string): Promise<void> {
 /**
  * Absolute API base for native — relative URLs resolve to https://localhost
  * inside Capacitor WebView, not nasahrvatska.com.
+ * Note: for TTS, prefer _ttsPost() in audio.ts which tries multiple endpoints.
  */
 export const API_BASE: string = isNative() ? 'https://nasahrvatska.com' : '';
+
+/**
+ * Ordered list of API base URLs to try for native builds.
+ * Falls back to nasa-hrvatska-v2.pages.dev if the custom domain is unreachable.
+ */
+export const NATIVE_API_ENDPOINTS: string[] = isNative()
+  ? ['https://nasahrvatska.com', 'https://nasa-hrvatska-v2.pages.dev']
+  : [''];
