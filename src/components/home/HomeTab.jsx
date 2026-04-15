@@ -673,10 +673,10 @@ export default function HomeTab({
 
           {/* ── ADAPTIVE FOCUS AREAS — personalised weak-topic radar ── */}
           {(() => {
-            const weakTopics = getWeakTopics(0.60);
+            const weakTopics = getWeakTopics(60);
             if (!weakTopics || weakTopics.length === 0) return null;
             const TOPIC_META = {
-              vocabulary:   { label: 'Vocabulary',    icon: '📚', action: () => launchPathItem({ go: 'lesson' }) },
+              vocabulary:   { label: 'Vocabulary',    icon: '📚', action: () => launchPathItem({ go: 'lesson', topic: 'family' }) },
               grammar:      { label: 'Grammar',        icon: '📝', action: () => launchPathItem({ go: 'grammar' }) },
               past_tense:   { label: 'Past Tense',     icon: '⏮️', action: () => setScr('past_tense_lesson') },
               future_tense: { label: 'Future Tense',   icon: '⏭️', action: () => setScr('future_tense_lesson') },
@@ -686,7 +686,7 @@ export default function HomeTab({
               speaking:     { label: 'Speaking',       icon: '🗣️', action: () => launchPathItem({ go: 'speaking' }) },
               production:   { label: 'Production',     icon: '✍️', action: () => setScr('production_drill') },
             };
-            const shown = weakTopics.slice(0, 3).map(id => ({ id, ...TOPIC_META[id] })).filter(t => t.label);
+            const shown = weakTopics.slice(0, 3).map(topic => ({ id: topic.id, ...TOPIC_META[topic.id] })).filter(t => t.label);
             if (shown.length === 0) return null;
             return (
               <motion.div
