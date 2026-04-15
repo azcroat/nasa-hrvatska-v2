@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import AzureResultPanel from './AzureResultPanel.jsx';
 import WebSpeechResultPanel from './WebSpeechResultPanel.jsx';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { isNative } from '../../lib/platform.js';
 
 /**
  * @param {{ targetText: string, targetEnglish?: string, level?: string, onScore?: (r: {spoken: string, score: number}) => void }} props
@@ -140,7 +141,9 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
     rec.onerror = (/** @type {any} */ e) => {
       const code = e?.error || '';
       const msg = code === 'not-allowed' || code === 'permission-denied'
-        ? 'Microphone permission denied. Please allow mic access in your browser settings.'
+        ? (isNative()
+            ? 'Microphone access denied. Open Settings → Apps → Naša Hrvatska → Permissions and enable Microphone.'
+            : 'Microphone permission denied. Please allow mic access in your browser settings.')
         : code === 'no-speech'
         ? 'No speech detected. Please speak louder and closer to the mic.'
         : code === 'audio-capture'
@@ -177,7 +180,9 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
       streamRef.current = stream;
     } catch (e) {
       const msg = (e?.name === 'NotAllowedError' || e?.name === 'PermissionDeniedError')
-        ? 'Microphone permission denied. Please allow mic access in your browser settings.'
+        ? (isNative()
+            ? 'Microphone access denied. Open Settings → Apps → Naša Hrvatska → Permissions and enable Microphone.'
+            : 'Microphone permission denied. Please allow mic access in your browser settings.')
         : 'Could not access microphone. Please check your device settings.';
       setSrErrorMsg(msg);
       return;

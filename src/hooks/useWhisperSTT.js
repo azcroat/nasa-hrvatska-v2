@@ -21,6 +21,7 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { apiFetch } from '../lib/apiFetch.js';
 import { stopAudio } from '../lib/audio.ts';
+import { isNative } from '../lib/platform.js';
 
 // ── VAD tuning constants ──────────────────────────────────────────────────────
 const SPEECH_THRESHOLD    = 0.015;  // RMS above this triggers speech detection
@@ -365,9 +366,9 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
 
     } catch (e) {
       if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
-        onErrorRef.current?.(
-          'Microphone access was denied. ' +
-          'Please allow microphone access in your browser settings and try again.'
+        onErrorRef.current?.(isNative()
+          ? 'Microphone access denied. Open Settings → Apps → Naša Hrvatska → Permissions and enable Microphone.'
+          : 'Microphone access was denied. Please allow microphone access in your browser settings and try again.'
         );
       } else {
         // MediaDevices not available (e.g. older iOS) — fall through to Web Speech
