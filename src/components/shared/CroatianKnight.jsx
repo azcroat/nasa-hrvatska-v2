@@ -330,8 +330,10 @@ const CroatianKnight = React.memo(function CroatianKnight({
         style={{ display: 'block', overflow: 'visible' }}
         aria-label={`Hrvoje, mascot — ${mood}`}
       >
+        {/* Style inside SVG — scoped to this element; does NOT pollute the HTML body
+            and is NOT matched by Playwright's getByText() selectors */}
+        <style>{ANIM_CSS}</style>
         <defs>
-          <style>{ANIM_CSS}</style>
           {hasAura && (
             <radialGradient id="kn-aura-g" cx="50%" cy="55%" r="50%">
               <stop offset="0%"   stopColor="#818CF8" stopOpacity="0.55" />
