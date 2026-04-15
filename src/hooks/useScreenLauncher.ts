@@ -457,7 +457,7 @@ export function useScreenLauncher({
     } else {
       navigate(-1);
     }
-  }, [curEx, sCurEx, setScr, setTab, navigate]);
+  }, [curEx, sCurEx, setScr, setTab, navigate, tab]);
 
   return {
     resumeLesson,
