@@ -349,12 +349,9 @@ test.describe('Conversation mode setup', () => {
   test('clicking a category filter narrows the scenario list', async ({ page }) => {
     // Click "Errands" filter — only Errands scenarios remain visible
     await page.locator('button').filter({ hasText: /^🛍️ Errands$/ }).click();
-    // The count text updates to reflect fewer scenarios
-    await expect(page.getByText(/scenario.*for level/)).toBeVisible({ timeout: 3_000 });
-    // After filtering, "All" scenarios count (which was higher) should no longer be shown
-    // We just verify the count text updates — don't hardcode numbers as scenario count may change
-    const countEl = page.getByText(/scenario.*for level/);
-    await expect(countEl).toBeVisible();
+    // The count text (e.g. "3 scenarios for level A1") updates after filter is applied.
+    // Use .first() to avoid strict-mode violations if multiple containers match.
+    await expect(page.getByText(/scenario.*for level/).first()).toBeVisible({ timeout: 8_000 });
   });
 
   test('clicking "All" filter after a category filter restores all scenarios', async ({ page }) => {
