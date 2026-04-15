@@ -16,6 +16,7 @@ import { weekKey, localDateStr } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import { safeGetItem } from '../../hooks/useLocalStorage';
+import { getWeakTopics } from '../../lib/adaptive.ts';
 
 // Screens that require launch-time initialization — direct navigation to them
 // without proper state setup produces a blank ScreenGuard or empty screen.
@@ -669,6 +670,80 @@ export default function HomeTab({
               </div>
             </button>
           </div>
+
+          {/* ── ADAPTIVE FOCUS AREAS — personalised weak-topic radar ── */}
+          {(() => {
+            const weakTopics = getWeakTopics(0.60);
+            if (!weakTopics || weakTopics.length === 0) return null;
+            const TOPIC_META = {
+              vocabulary:   { label: 'Vocabulary',    icon: '📚', action: () => launchPathItem({ go: 'lesson' }) },
+              grammar:      { label: 'Grammar',        icon: '📝', action: () => launchPathItem({ go: 'grammar' }) },
+              past_tense:   { label: 'Past Tense',     icon: '⏮️', action: () => setScr('past_tense_lesson') },
+              future_tense: { label: 'Future Tense',   icon: '⏭️', action: () => setScr('future_tense_lesson') },
+              cases:        { label: 'Cases (Padeži)', icon: '🔤', action: () => launchPathItem({ go: 'padezi' }) },
+              aspect:       { label: 'Verb Aspect',    icon: '⚡', action: () => launchPathItem({ go: 'aspect' }) },
+              listening:    { label: 'Listening',      icon: '🎧', action: () => launchPathItem({ go: 'listening' }) },
+              speaking:     { label: 'Speaking',       icon: '🗣️', action: () => launchPathItem({ go: 'speaking' }) },
+              production:   { label: 'Production',     icon: '✍️', action: () => setScr('production_drill') },
+            };
+            const shown = weakTopics.slice(0, 3).map(id => ({ id, ...TOPIC_META[id] })).filter(t => t.label);
+            if (shown.length === 0) return null;
+            return (
+              <motion.div
+                initial={_isNative ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut', delay: 0.08 }}
+                style={{ marginBottom: 12 }}
+              >
+                <div style={{
+                  background: 'var(--card)',
+                  borderRadius: 18,
+                  padding: '14px 16px',
+                  border: '1px solid var(--card-b)',
+                  boxShadow: '0 3px 14px rgba(0,0,0,0.07)',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+                    <span style={{ fontSize: 13 }}>🎯</span>
+                    <span style={{ fontSize: 11, fontWeight: 900, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '.08em' }}>
+                      Focus Areas
+                    </span>
+                    <span style={{ fontSize: 10, color: 'var(--subtext)', marginLeft: 4, fontStyle: 'italic' }}>
+                      · based on your recent sessions
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {shown.map(topic => (
+                      <button
+                        key={topic.id}
+                        onClick={topic.action}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 12,
+                          background: 'rgba(220,38,38,0.06)',
+                          border: '1px solid rgba(220,38,38,0.18)',
+                          borderRadius: 12,
+                          padding: '10px 14px',
+                          cursor: 'pointer',
+                          fontFamily: "'Outfit',sans-serif",
+                          textAlign: 'left', width: '100%',
+                        }}
+                      >
+                        <span style={{ fontSize: 20, flexShrink: 0 }}>{topic.icon}</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', lineHeight: 1.2 }}>
+                            {topic.label}
+                          </div>
+                          <div style={{ fontSize: 11, color: '#dc2626', fontWeight: 600, marginTop: 1 }}>
+                            Needs practice
+                          </div>
+                        </div>
+                        <span style={{ fontSize: 13, color: 'var(--subtext)', flexShrink: 0 }}>Practice →</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })()}
 
           {/* ── CAMPAIGN BANNER — lowest priority, at bottom ── */}
           <CampaignBanner
