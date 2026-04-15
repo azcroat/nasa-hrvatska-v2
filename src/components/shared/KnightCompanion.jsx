@@ -299,7 +299,7 @@ export default function KnightCompanion() {
             transition={{ type: 'spring', stiffness: 380, damping: 26 }}
             style={{
               position: 'fixed',
-              bottom: 'calc(142px + env(safe-area-inset-bottom, 0px))', // above mini button
+              bottom: 'calc(152px + env(safe-area-inset-bottom, 0px))', // above mini button (72px nav + 70px button + 10px gap)
               left: 14,
               zIndex: 101,
               maxWidth: 230,
@@ -360,8 +360,8 @@ export default function KnightCompanion() {
         title="Vitez Hrvoje — tap for a message"
         {...btnMotionProps}
         style={{
-          position: 'fixed', bottom: 'calc(72px + env(safe-area-inset-bottom, 0px))', left: 16,
-          width: 60, height: 60, borderRadius: '50%',
+          position: 'fixed', bottom: 'calc(72px + env(safe-area-inset-bottom, 0px))', left: 14,
+          width: 70, height: 70, borderRadius: '50%',
           background: 'var(--card)',
           border: `2.5px solid ${accentColor}55`,
           boxShadow: `0 4px 18px ${accentColor}28, 0 2px 6px rgba(0,0,0,.10)`,
@@ -374,7 +374,7 @@ export default function KnightCompanion() {
           transition: 'border-color .3s ease, box-shadow .3s ease',
         }}
       >
-        <CroatianKnight size={42} mood={displayMood} />
+        <CroatianKnight size={52} mood={displayMood} />
         <CelebrationBurst active={celebBurst} />
       </MotionBtn>
     </>
