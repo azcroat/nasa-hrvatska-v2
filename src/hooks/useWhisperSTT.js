@@ -367,7 +367,7 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
     } catch (e) {
       if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
         onErrorRef.current?.(isNative()
-          ? 'Microphone access denied. Open Settings → Apps → Naša Hrvatska → Permissions and enable Microphone.'
+          ? 'Microphone access denied. Go to Settings → Apps → Naša Hrvatska → Permissions, enable Microphone, then force-close and reopen the app.'
           : 'Microphone access was denied. Please allow microphone access in your browser settings and try again.'
         );
       } else {

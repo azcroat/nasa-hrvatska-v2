@@ -142,7 +142,7 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
       const code = e?.error || '';
       const msg = code === 'not-allowed' || code === 'permission-denied'
         ? (isNative()
-            ? 'Microphone access denied. Open Settings → Apps → Naša Hrvatska → Permissions and enable Microphone.'
+            ? 'Microphone access denied. Go to Settings → Apps → Naša Hrvatska → Permissions, enable Microphone, then force-close and reopen the app.'
             : 'Microphone permission denied. Please allow mic access in your browser settings.')
         : code === 'no-speech'
         ? 'No speech detected. Please speak louder and closer to the mic.'
@@ -181,7 +181,7 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
     } catch (e) {
       const msg = (e?.name === 'NotAllowedError' || e?.name === 'PermissionDeniedError')
         ? (isNative()
-            ? 'Microphone access denied. Open Settings → Apps → Naša Hrvatska → Permissions and enable Microphone.'
+            ? 'Microphone access denied. Go to Settings → Apps → Naša Hrvatska → Permissions, enable Microphone, then force-close and reopen the app.'
             : 'Microphone permission denied. Please allow mic access in your browser settings.')
         : 'Could not access microphone. Please check your device settings.';
       setSrErrorMsg(msg);

@@ -27,7 +27,7 @@ function srError(code) {
     case 'not-allowed':
     case 'permission-denied':
       return isNative()
-        ? 'Microphone access denied. Open Settings → Apps → Naša Hrvatska → Permissions and enable Microphone.'
+        ? 'Microphone access denied. Go to Settings → Apps → Naša Hrvatska → Permissions, enable Microphone, then force-close and reopen the app.'
         : 'Microphone permission denied. Please allow microphone access in your browser settings and try again.';
     case 'no-speech':
       return "No speech detected. Please speak louder and closer to the mic.";
@@ -348,7 +348,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
     } catch (e) {
       setRecResult('error');
       setRecMsg(isNative()
-        ? 'Microphone access denied. Open Settings → Apps → Naša Hrvatska → Permissions and enable Microphone.'
+        ? 'Microphone access denied. Go to Settings → Apps → Naša Hrvatska → Permissions, enable Microphone, then force-close and reopen the app.'
         : 'Microphone permission denied. Please allow microphone access in your browser settings and try again.');
       return;
     }

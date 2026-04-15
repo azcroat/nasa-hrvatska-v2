@@ -301,7 +301,7 @@ export default function KnightCompanion() {
               position: 'fixed',
               bottom: 'calc(152px + env(safe-area-inset-bottom, 0px))', // above mini button (72px nav + 70px button + 10px gap)
               left: 14,
-              zIndex: 101,
+              zIndex: 9501,
               maxWidth: 230,
               cursor: 'pointer',
             }}
@@ -367,7 +367,7 @@ export default function KnightCompanion() {
           boxShadow: `0 4px 18px ${accentColor}28, 0 2px 6px rgba(0,0,0,.10)`,
           cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: 0, zIndex: 100,
+          padding: 0, zIndex: 9500,
           // Pulse ring on streak milestones to draw attention
           outline: streakMood === 'celebrating' ? `2px solid ${accentColor}` : 'none',
           outlineOffset: 3,
