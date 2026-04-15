@@ -122,9 +122,6 @@ export default function AspectDrillScreen({ goBack, award }) {
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
 
-  const userLevel = typeof localStorage !== 'undefined' ? (localStorage.getItem('nh_level') || 'A1') : 'A1';
-  const aspectReady = ['B1','B2','C1','C2'].includes(userLevel);
-
   const [sessionMode, setSessionMode] = useState('drill');
 
   const [mistakeIds, setMistakeIds] = useState(() => {
@@ -318,28 +315,6 @@ export default function AspectDrillScreen({ goBack, award }) {
     } else {
       setDone(true);
     }
-  }
-
-  // ── Level gate ───────────────────────────────────────────────────────────
-  if (!aspectReady) {
-    return (
-      <div className="scr-wrap">
-        <style>{ASPECT_KEYFRAMES}</style>
-        {H('🔄 Verb Aspect Drill', 'Production Practice', goBack)}
-        <div className="c" style={{ padding: '24px 20px', marginTop: 16, textAlign: 'center' }}>
-          <div style={{ fontSize: 44, marginBottom: 12 }}>🔒</div>
-          <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 8 }}>Available at B1</div>
-          <p style={{ color: 'var(--subtext)', fontSize: 14, lineHeight: 1.6, margin: '0 0 16px' }}>
-            Aspect <em>production</em> is a B1 target. At {userLevel}, focus on <strong>recognizing</strong> aspect
-            pairs — you'll see them in the Verb Aspect lesson. Active drilling starts when you reach B1.
-          </p>
-          <p style={{ color: 'var(--subtext)', fontSize: 13, lineHeight: 1.55, margin: '0 0 20px', fontStyle: 'italic' }}>
-            "Imperfective before perfective — recognition before production." — Novak Milić (2010)
-          </p>
-          <button className="b bg" onClick={goBack}>Go back</button>
-        </div>
-      </div>
-    );
   }
 
   if (!allItems.length) return null;
