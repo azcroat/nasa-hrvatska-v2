@@ -299,7 +299,7 @@ export default function KnightCompanion() {
             transition={{ type: 'spring', stiffness: 380, damping: 26 }}
             style={{
               position: 'fixed',
-              bottom: 150,   // above mini button (80px tab bar + 60px button + 10px gap)
+              bottom: 'calc(142px + env(safe-area-inset-bottom, 0px))', // above mini button
               left: 14,
               zIndex: 101,
               maxWidth: 230,
@@ -360,7 +360,7 @@ export default function KnightCompanion() {
         title="Vitez Hrvoje — tap for a message"
         {...btnMotionProps}
         style={{
-          position: 'fixed', bottom: 80, left: 16,
+          position: 'fixed', bottom: 'calc(72px + env(safe-area-inset-bottom, 0px))', left: 16,
           width: 60, height: 60, borderRadius: '50%',
           background: 'var(--card)',
           border: `2.5px solid ${accentColor}55`,
