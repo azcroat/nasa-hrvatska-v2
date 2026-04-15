@@ -427,6 +427,7 @@ const LEARN_PATH = [
     {id:"lp61",name:"Croatian History",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&(s.vs.includes('history')||s.vs.includes('lp61')))||s.lc>=40},go:"history"},
     {id:"lp62",name:"Listening Mastery",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&s.vs.includes('lp62'))||s.lc>=40},go:"listeningpath"},
     {id:"lp_speaking_b2",name:"Speaking Practice",diff:3,dur:"~20 min",cat:"speaking",icon:"🗣️",desc:"Train your spoken output — complete 3 speaking sessions to develop fluency beyond reading and writing",ck:function(s){return (s.vs&&s.vs.includes('lp_speaking_b2'))||s.sp>=3},go:"speaking"},
+    {id:"lp_production_drill",name:"Production Drills",diff:3,dur:"~20 min",cat:"grammar",icon:"✍️",desc:"Move beyond recognition — transform sentences, translate to Croatian, build from word tiles, and fix real errors",ck:function(s){return (s.vs&&s.vs.includes('lp_production_drill'))||s.gc>=7||s.lc>=42},go:"production_drill"},
     {id:"lp_pronunciation_course",name:"Pronunciation Course",diff:3,dur:"~20 min",cat:"pronunciation",icon:"🎤",desc:"Systematic phoneme-by-phoneme training — eliminate your foreign accent at the source",ck:function(s){return (s.vs&&s.vs.includes('pronunciation_course'))||s.lc>=37},go:"pronunciation_course"}
   ]},
   {level:7,title:"Majstor",desc:"Year 1+",items:[

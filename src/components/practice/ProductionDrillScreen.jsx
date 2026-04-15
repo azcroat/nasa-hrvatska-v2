@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { speak, sh } from '../../data.jsx';
 import { markQuest } from '../../lib/quests.js';
+import { recordTopicResult } from '../../lib/adaptive.ts';
 
 // ─── TRANSFORM DATA ─────────────────────────────────────────────────────────
 const TRANSFORMS = [
@@ -135,6 +136,8 @@ function ModeTransform({ onDone, award }) {
   const item = TRANSFORMS[idx];
 
   function advance(correct) {
+    recordTopicResult('production', correct);
+    recordTopicResult('grammar', correct);
     if (correct) {
       setScore(s => s + 1);
       if (award) award(2);
@@ -204,6 +207,8 @@ function ModeTranslate({ onDone, award }) {
   const item = TRANSLATE_PROD[idx];
 
   function advance(correct) {
+    recordTopicResult('production', correct);
+    recordTopicResult('vocabulary', correct);
     if (correct) {
       setScore(s => s + 1);
       if (award) award(3);
@@ -294,7 +299,10 @@ function ModeBuild({ onDone, award }) {
     const answer = placed.map(t => t.w).join(' ');
     const cleanAnswer = answer.replace(/[?.!,]$/, '').trim();
     const cleanTarget = item.target.replace(/[?.!,]$/, '').trim();
-    if (cleanAnswer === cleanTarget) {
+    const correct = cleanAnswer === cleanTarget;
+    recordTopicResult('production', correct);
+    recordTopicResult('grammar', correct);
+    if (correct) {
       setFeedback('correct');
       setScore(s => s + 1);
       if (award) award(5);
@@ -407,6 +415,8 @@ function ModeErrorCorrect({ onDone, award }) {
     if (chosen !== null) return;
     setChosen(opt);
     const correct = opt === item.correct;
+    recordTopicResult('production', correct);
+    recordTopicResult('grammar', correct);
     if (correct) {
       setScore(s => s + 1);
       if (award) award(3);
