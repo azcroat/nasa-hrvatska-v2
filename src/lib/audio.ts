@@ -6,10 +6,56 @@ import { isNative } from './platform';
 import { dbgInfo, dbgWarn, dbgError } from './debugLog';
 
 // In Capacitor native builds, relative URLs resolve to the bundled WebView server
-// (https://localhost), not to nasahrvatska.com — API calls must use the absolute URL.
-// Evaluated lazily (function, not const) to handle cases where Capacitor bridge
-// finishes injecting after module load.
-function _apiBase(): string { return isNative() ? 'https://nasahrvatska.com' : ''; }
+// (https://localhost), not to the live domain. We try each endpoint in order and
+// use the first one that returns a successful response.
+// Two entries guard against the custom domain not being configured in Cloudflare Pages:
+//   1. nasahrvatska.com  — production custom domain (primary)
+//   2. nasa-hrvatska-v2.pages.dev — Cloudflare Pages default (always works)
+const _NATIVE_ENDPOINTS = [
+  'https://nasahrvatska.com',
+  'https://nasa-hrvatska-v2.pages.dev',
+];
+
+// Decode a data: URL to an ArrayBuffer without using fetch() — fetch(data:) is
+// unreliable on some Android WebView versions and may throw or return an empty body.
+function _dataUrlToArrayBuffer(dataUrl: string): ArrayBuffer {
+  const comma = dataUrl.indexOf(',');
+  const b64 = dataUrl.slice(comma + 1);
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes.buffer;
+}
+
+// POST to /api/tts, trying each native endpoint in sequence until one succeeds.
+// On web, a single relative URL is used (no fallback needed).
+async function _ttsPost(
+  body: Record<string, unknown>,
+  signal: AbortSignal,
+): Promise<Response | null> {
+  const endpoints = isNative() ? _NATIVE_ENDPOINTS : [''];
+  for (const base of endpoints) {
+    const url = `${base}/api/tts`;
+    try {
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal,
+      });
+      dbgInfo(`[TTS] _ttsPost endpoint="${url}" status=${r.status}`);
+      if (r.ok) return r;
+      // 4xx from server: bad request — don't retry other endpoints
+      if (r.status >= 400 && r.status < 500) return r;
+      // 5xx or other: try next endpoint
+    } catch (e: unknown) {
+      const name = (e as Error)?.name;
+      if (name === 'AbortError') throw e; // propagate abort immediately
+      dbgWarn(`[TTS] _ttsPost endpoint="${url}" network error: ${name} — trying next`);
+    }
+  }
+  return null; // all endpoints failed
+}
 
 let _au = false;
 let _voices: SpeechSynthesisVoice[] = [];
@@ -64,7 +110,7 @@ dbgInfo(`[Audio] module loaded | isNative=${isNative()} | iOS=${_iOS} | UA="${na
 
 function uA(): void {
   if (_au) { dbgInfo('[Audio] uA() called — already unlocked, skip'); return; }
-  _au = true;
+  _au = true; // optimistically set; reset below if silent play fails
   dbgInfo('[Audio] uA() — unlocking audio pipeline');
   // Unlock Web AudioContext (desktop / iOS primary path)
   try {
@@ -80,14 +126,23 @@ function uA(): void {
   // unlock does NOT always propagate to the HTML5 Media pipeline.
   // Must use volume = 1.0: some Android WebViews treat very low volume as "muted"
   // and block the play() call under autoplay policy, preventing sticky activation.
+  // CRITICAL: If play() fails, reset _au so the next user gesture retries the unlock.
+  // Without this, a failed first-touch locks out audio for the entire session.
   try {
     const silent = new Audio(_SILENT_WAV);
     silent.volume = 1.0;
     silent.play()
-      .then(() => { dbgInfo('[Audio] HTMLAudio silent unlock succeeded'); silent.pause(); silent.currentTime = 0; })
-      .catch((e) => dbgError('[Audio] HTMLAudio silent unlock play() FAILED:', e));
+      .then(() => {
+        dbgInfo('[Audio] HTMLAudio silent unlock succeeded — sticky activation established');
+        silent.pause(); silent.currentTime = 0;
+      })
+      .catch((e) => {
+        dbgError('[Audio] HTMLAudio silent unlock play() FAILED — resetting _au for retry:', e);
+        _au = false; // allow retry on next gesture
+      });
   } catch (e) {
-    dbgError('[Audio] HTMLAudio silent unlock NEW Audio() FAILED:', e);
+    dbgError('[Audio] HTMLAudio silent unlock NEW Audio() FAILED — resetting _au:', e);
+    _au = false;
   }
 }
 ['touchstart', 'click'].forEach(e => {
@@ -124,7 +179,7 @@ export function stopAudio(): void {
 
 export async function speakAzure(text: string, slow?: boolean): Promise<boolean> {
   if (!text || !text.trim()) return false;
-  dbgInfo(`[TTS] speakAzure called | text="${text.slice(0,40)}" slow=${!!slow} isNative=${isNative()} apiBase="${_apiBase()}"`);
+  dbgInfo(`[TTS] speakAzure called | text="${text.slice(0,40)}" slow=${!!slow} isNative=${isNative()}`);
   // Ensure audio pipeline is unlocked on THIS gesture call, not just on the first-ever touch.
   // On Android WebView, user activation survives async operations only if audio was already
   // unlocked via a prior synchronous play(). uA() is idempotent — safe to call every time.
@@ -137,40 +192,36 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
 
   try {
     let url: string;
-    let freshBlob: Blob | null = null; // retained to avoid re-fetching the blob URL
+    let freshBlob: Blob | null = null; // retained for in-memory arrayBuffer decode
     if (cached) {
       dbgInfo('[TTS] cache HIT — skipping fetch');
       url = cached;
     } else {
       if (!_ttsAllowed()) { dbgWarn('[TTS] rate limit — request blocked'); return false; }
-      const fetchUrl = `${_apiBase()}/api/tts`;
-      dbgInfo(`[TTS] fetching from ${fetchUrl}`);
       const body: Record<string, unknown> = { text, slow: !!slow };
       if (voicePref !== 'auto') body.voice = voicePref;
       _ttsAbort = new AbortController();
-      const r = await fetch(fetchUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-        signal: (AbortSignal as unknown as { any?: (signals: AbortSignal[]) => AbortSignal }).any
-          ? (AbortSignal as unknown as { any: (signals: AbortSignal[]) => AbortSignal }).any([_ttsAbort.signal, AbortSignal.timeout(15000)])
-          : _ttsAbort.signal,
-      });
+      // Use timeout-aware abort signal when supported; fall back to plain abort signal.
+      const timeoutSignal = (AbortSignal as unknown as { timeout?: (ms: number) => AbortSignal }).timeout?.(15000);
+      const abortSignal = timeoutSignal
+        ? ((AbortSignal as unknown as { any?: (s: AbortSignal[]) => AbortSignal }).any?.([_ttsAbort.signal, timeoutSignal]) ?? _ttsAbort.signal)
+        : _ttsAbort.signal;
+      const r = await _ttsPost(body, abortSignal);
       _ttsAbort = null;
       if (_speakGen !== myGen) { dbgWarn('[TTS] generation mismatch after fetch — aborting'); return false; }
-      const backends = r.headers.get('x-tts-backends') || 'unknown';
-      dbgInfo(`[TTS] fetch response status=${r.status} ok=${r.ok} backends=${backends}`);
-      if (!r.ok) {
-        const rb = await r.text().catch(() => '');
-        dbgError(`[TTS] HTTP ${r.status} backends=${backends} — ${rb.slice(0, 200)}`);
+      if (!r || !r.ok) {
+        const backends = r?.headers.get('x-tts-backends') || 'none';
+        const rb = r ? await r.text().catch(() => '') : 'no response (all endpoints failed)';
+        dbgError(`[TTS] HTTP ${r?.status ?? 'N/A'} backends=${backends} — ${rb.slice(0, 200)}`);
         return false;
       }
+      const backends = r.headers.get('x-tts-backends') || 'unknown';
       freshBlob = await r.blob();
-      dbgInfo(`[TTS] blob received size=${freshBlob.size} type="${freshBlob.type}"`);
+      dbgInfo(`[TTS] blob received size=${freshBlob.size} type="${freshBlob.type}" backends=${backends}`);
       if (_speakGen !== myGen) return false;
       // Always use base64 data URLs — universally supported across all browsers and
       // native WebView implementations (blob: URLs fail on some Android OEM builds).
-      // AudioContext path reads freshBlob.arrayBuffer() directly so is unaffected.
+      // AudioContext path uses freshBlob.arrayBuffer() directly for the fresh case.
       const reader = new FileReader();
       url = await new Promise<string>(resolve => {
         reader.onload = () => resolve(reader.result as string);
@@ -189,13 +240,13 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
         await _ctx.resume();
         dbgInfo(`[TTS] AudioContext resumed — state="${_ctx.state}"`);
         if (_speakGen !== myGen) return false;
-        // freshBlob.arrayBuffer() reads the in-memory blob directly — no second
-        // network request and no CSP connect-src restriction on blob: URLs.
-        // For cached plays (freshBlob is null) we fetch the blob URL instead;
-        // blob: is explicitly listed in connect-src for exactly this case.
+        // For fresh blobs: read arrayBuffer() directly from the in-memory Blob.
+        // For cached plays: decode the data: URL ourselves using atob() — do NOT use
+        // fetch(data: URL) because that API is unreliable on some Android WebView versions
+        // and may return an empty body or throw a TypeError.
         const ab = freshBlob
           ? await freshBlob.arrayBuffer()
-          : await fetch(url).then(r2 => r2.arrayBuffer());
+          : _dataUrlToArrayBuffer(url);
         if (_speakGen !== myGen) return false;
         const decoded = await _ctx.decodeAudioData(ab);
         if (_speakGen !== myGen) return false;
@@ -284,13 +335,8 @@ export async function preloadAudio(text: string): Promise<void> {
   try {
     const body: Record<string, unknown> = { text: t, slow: false };
     if (voicePref !== 'auto') body.voice = voicePref;
-    const r = await fetch(`${_apiBase()}/api/tts`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-      signal,
-    });
-    if (!r.ok) return;
+    const r = await _ttsPost(body, signal);
+    if (!r || !r.ok) return;
     const blob = await r.blob();
     const preloadReader = new FileReader();
     const url = await new Promise<string>(resolve => {
