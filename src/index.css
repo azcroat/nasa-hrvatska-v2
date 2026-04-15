@@ -953,6 +953,16 @@ input::placeholder,textarea::placeholder{color:#6b7280;font-weight:400} /* WCAG 
 .rt .w:hover{background:rgba(14,116,144,.12);color:#0e7490}
 
 /* ═══════════════════════════════════════════════════════════
+   MAIN CONTENT AREA — padding-bottom clears the fixed nav bar
+═══════════════════════════════════════════════════════════ */
+.app-content{
+  /* Reserve space at the bottom so the fixed nav bar never covers content.
+     72px covers the tallest nav bar layout; safe-area-inset-bottom handles
+     devices with gesture navigation (Android 10+, iPhone X+). */
+  padding-bottom:calc(72px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ═══════════════════════════════════════════════════════════
    BOTTOM NAV BAR
 ═══════════════════════════════════════════════════════════ */
 .nav-bar{
