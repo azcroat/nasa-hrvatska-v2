@@ -65,10 +65,42 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
   return null;
 }
 
+// ── Google Translate TTS ──────────────────────────────────────────────────────
+// Unofficial Google Translate speech endpoint — Croatian (hr), no API key.
+// Simple HTTP GET; returns audio/mpeg. Works reliably from Cloudflare Workers.
+// Capped at 200 chars — sufficient for all vocabulary words and short phrases.
+async function tryGoogleTranslateTTS(text, slow) {
+  const trimmed = text.slice(0, 200);
+  const url =
+    `https://translate.google.com/translate_tts` +
+    `?ie=UTF-8&q=${encodeURIComponent(trimmed)}&tl=hr&client=gtx` +
+    `&ttsspeed=${slow ? '0.3' : '1'}`;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  try {
+    const res = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 11; Tablet Build/RQ3A.210805.001) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36',
+        'Referer': 'https://translate.google.com/',
+        'Accept': 'audio/mpeg, audio/mp3, audio/*, */*',
+      },
+      signal: controller.signal,
+    });
+    if (!res.ok) return null;
+    const ct = res.headers.get('content-type') || '';
+    // Accept audio/mpeg, audio/mp3, or any binary response
+    if (!ct.includes('audio') && !ct.includes('mpeg') && !ct.includes('octet-stream')) return null;
+    return await res.arrayBuffer();
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 // ── Microsoft Edge TTS ────────────────────────────────────────────────────────
 // hr-HR-GabrijelaNeural via Edge browser's speech synthesis endpoint.
-// Zero configuration required — no API key, no billing. Free and stable.
-// Uses outgoing WebSocket (supported in Cloudflare Workers).
+// Kept as backup — WebSocket from Cloudflare Workers can be unreliable.
 async function tryEdgeTTS(text, slow) {
   const voice = 'hr-HR-GabrijelaNeural';
   const rate = slow ? '-25%' : '-8%';
@@ -89,7 +121,7 @@ async function tryEdgeTTS(text, slow) {
     const timeout = setTimeout(() => {
       try { ws.close(); } catch (closeErr) { void closeErr; }
       reject(new Error('edge-tts timeout'));
-    }, 15000);
+    }, 12000);
 
     ws.addEventListener('open', () => {
       const now = new Date().toISOString().replace(/Z$/, '000Z');
@@ -115,11 +147,27 @@ async function tryEdgeTTS(text, slow) {
           for (const chunk of chunks) { merged.set(new Uint8Array(chunk), offset); offset += chunk.byteLength; }
           resolve(merged.buffer);
         }
-      } else if (event.data instanceof ArrayBuffer) {
-        const view = new DataView(event.data);
+      } else {
+        // Binary frame — Cloudflare Workers deliver WebSocket binary as ArrayBuffer.
+        // Parse the 2-byte header to find where audio data starts.
+        let ab;
+        if (event.data instanceof ArrayBuffer) {
+          ab = event.data;
+        } else if (event.data && typeof event.data.arrayBuffer === 'function') {
+          // Fallback for Blob-like objects (shouldn't occur in Workers but guard anyway)
+          event.data.arrayBuffer().then(buf => {
+            const view = new DataView(buf);
+            const headerLen = view.getUint16(0);
+            const audioStart = 2 + headerLen;
+            if (buf.byteLength > audioStart) chunks.push(buf.slice(audioStart));
+          }).catch(() => {});
+          return;
+        }
+        if (!ab) return;
+        const view = new DataView(ab);
         const headerLen = view.getUint16(0);
         const audioStart = 2 + headerLen;
-        if (event.data.byteLength > audioStart) chunks.push(event.data.slice(audioStart));
+        if (ab.byteLength > audioStart) chunks.push(ab.slice(audioStart));
       }
     });
 
@@ -279,9 +327,7 @@ export async function onRequestPost(context) {
 
   // Diagnostic header — tells the client exactly which backends are available.
   // Visible in the debug overlay via the [TTS] log entries.
-  const diagBackends = [AZURE_KEY ? 'azure' : null, 'edge', GOOGLE_SA_JSON ? 'google' : null].filter(Boolean).join(',') || 'none';
-
-  // Edge TTS is always available — no keys required. Skip the 503 guard.
+  const diagBackends = [AZURE_KEY ? 'azure' : null, 'gtranslate', 'edge', GOOGLE_SA_JSON ? 'google' : null].filter(Boolean).join(',') || 'none';
 
   try {
     const ct = request.headers.get('content-type') || '';
@@ -317,12 +363,17 @@ export async function onRequestPost(context) {
       try { buffer = await tryAzure(text, slow, AZURE_KEY, PRIMARY_REGION); } catch { /* fall through */ }
     }
 
-    // ── 2. Microsoft Edge hr-HR-GabrijelaNeural (free fallback) ──────────────
+    // ── 2. Google Translate TTS hr (free, HTTP, no key required) ─────────────
+    if (!buffer) {
+      try { buffer = await tryGoogleTranslateTTS(text, slow); } catch { /* fall through */ }
+    }
+
+    // ── 3. Microsoft Edge hr-HR-GabrijelaNeural (WebSocket backup) ───────────
     if (!buffer) {
       try { buffer = await tryEdgeTTS(text, slow); } catch { /* fall through */ }
     }
 
-    // ── 3. Google hr-HR-Wavenet-B (backup) ───────────────────────────────────
+    // ── 4. Google hr-HR-Wavenet-B (backup if service account configured) ─────
     if (!buffer && GOOGLE_SA_JSON) {
       try { buffer = await tryGoogle(text, slow, GOOGLE_SA_JSON); } catch { /* fall through */ }
     }
@@ -331,6 +382,7 @@ export async function onRequestPost(context) {
     if (!buffer) {
       const whyFailed = [
         AZURE_KEY ? 'azure-failed' : 'azure-not-configured',
+        'gtranslate-failed',
         'edge-failed',
         GOOGLE_SA_JSON ? 'google-failed' : 'google-not-configured',
       ].join(',');
