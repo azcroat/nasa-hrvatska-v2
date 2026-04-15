@@ -151,7 +151,6 @@ export default function MediaDetailDrawer({
   if (!item) return null;
 
   const hasYT = !!item.ytId;
-  const hasStream = !!item.stream;
 
   function handleOverlayClick(e) {
     if (e.target === overlayRef.current) onClose();

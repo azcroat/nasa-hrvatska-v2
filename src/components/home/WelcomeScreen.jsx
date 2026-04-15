@@ -110,9 +110,6 @@ export default function WelcomeScreen({ name, au, st, setScr, setName, setPlacem
         <p style={{ color:'rgba(255,255,255,0.8)', fontSize:'var(--text-lg)', marginBottom:8 }}>
           Croatian for the diaspora — made with love 🇭🇷
         </p>
-        <div style={{fontSize:'var(--text-sm)', color:'rgba(255,255,255,0.6)', marginTop:6, fontWeight:500}}>
-          Trusted by 15,000+ diaspora learners worldwide
-        </div>
         {(name || au?.d) && (
           <p style={{ color:'rgba(255,255,255,0.7)', fontSize:'var(--text-md)', marginBottom:28 }}>
             Bog, <span style={{ color:'#FFE070', fontWeight:700 }}>{name || au?.d}</span>!

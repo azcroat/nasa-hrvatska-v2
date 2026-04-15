@@ -1,0 +1,89 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg-d" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#eef2f7"/>
+      <stop offset="100%" stop-color="#e2eaf3"/>
+    </linearGradient>
+    <linearGradient id="header-d" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0c4a6e"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+    <linearGradient id="sidebar-d" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="720" fill="url(#bg-d)"/>
+
+  <!-- Sidebar -->
+  <rect width="240" height="720" fill="url(#sidebar-d)"/>
+
+  <!-- Sidebar logo -->
+  <text x="24" y="56" font-family="'Playfair Display', Georgia, serif" font-size="20" font-weight="700" fill="white">Naša Hrvatska</text>
+  <text x="24" y="76" font-family="'Outfit', sans-serif" font-size="11" fill="rgba(255,255,255,0.5)">Learn Croatian</text>
+
+  <!-- Sidebar nav items -->
+  <rect x="12" y="100" width="216" height="44" rx="10" fill="rgba(14,116,144,0.3)"/>
+  <text x="44" y="128" font-family="'Outfit', sans-serif" font-size="14" font-weight="700" fill="white">🏠  Home</text>
+
+  <text x="44" y="174" font-family="'Outfit', sans-serif" font-size="14" font-weight="600" fill="rgba(255,255,255,0.6)">📚  Learn</text>
+  <text x="44" y="218" font-family="'Outfit', sans-serif" font-size="14" font-weight="600" fill="rgba(255,255,255,0.6)">⚡  Practice</text>
+  <text x="44" y="262" font-family="'Outfit', sans-serif" font-size="14" font-weight="600" fill="rgba(255,255,255,0.6)">🇭🇷  Culture</text>
+  <text x="44" y="306" font-family="'Outfit', sans-serif" font-size="14" font-weight="600" fill="rgba(255,255,255,0.6)">👤  Profile</text>
+
+  <!-- Main content area -->
+  <!-- Header -->
+  <rect x="240" y="0" width="1040" height="64" fill="rgba(255,255,255,0.9)"/>
+  <line x1="240" y1="64" x2="1280" y2="64" stroke="rgba(0,0,0,0.07)" stroke-width="1"/>
+  <text x="280" y="40" font-family="'Outfit', sans-serif" font-size="16" font-weight="800" fill="#1c1917">Good morning! 👋</text>
+
+  <!-- Three column layout -->
+  <!-- Column 1: Streak + Progress -->
+  <rect x="260" y="88" width="320" height="150" rx="20" fill="url(#header-d)"/>
+  <text x="284" y="122" font-family="'Outfit', sans-serif" font-size="24" font-weight="800" fill="white">🔥 12-day streak</text>
+  <text x="284" y="148" font-family="'Outfit', sans-serif" font-size="13" fill="rgba(255,255,255,0.8)">You're building a real habit!</text>
+  <rect x="284" y="162" width="240" height="8" rx="4" fill="rgba(255,255,255,0.2)"/>
+  <rect x="284" y="162" width="160" height="8" rx="4" fill="rgba(255,255,255,0.85)"/>
+  <text x="284" y="220" font-family="'Outfit', sans-serif" font-size="14" fill="rgba(255,255,255,0.7)">1,240 XP · Level 5</text>
+
+  <!-- Column 2: Today's lesson -->
+  <rect x="600" y="88" width="320" height="150" rx="20" fill="white"/>
+  <rect x="600" y="88" width="5" height="150" rx="2" fill="#0e7490"/>
+  <text x="624" y="130" font-family="'Outfit', sans-serif" font-size="16" font-weight="800" fill="#1c1917">👨‍👩‍👧‍👦 Family Vocab</text>
+  <text x="624" y="155" font-family="'Outfit', sans-serif" font-size="13" fill="#64748b">15 words · Learn phase</text>
+  <rect x="624" y="172" width="100" height="36" rx="10" fill="#0e7490"/>
+  <text x="674" y="196" font-family="'Outfit', sans-serif" font-size="13" font-weight="700" fill="white" text-anchor="middle">Start Lesson</text>
+
+  <!-- Column 3: SRS due -->
+  <rect x="940" y="88" width="300" height="150" rx="20" fill="#fef3c7"/>
+  <rect x="940" y="88" width="5" height="150" rx="2" fill="#f59e0b"/>
+  <text x="964" y="130" font-family="'Outfit', sans-serif" font-size="16" font-weight="800" fill="#92400e">📖 5 words due</text>
+  <text x="964" y="155" font-family="'Outfit', sans-serif" font-size="13" fill="#78716c">SRS review · ~5 minutes</text>
+  <rect x="964" y="172" width="90" height="36" rx="10" fill="#f59e0b"/>
+  <text x="1009" y="196" font-family="'Outfit', sans-serif" font-size="13" font-weight="700" fill="white" text-anchor="middle">Review Now</text>
+
+  <!-- Bottom row: word of day + phrase + daily challenge -->
+  <rect x="260" y="264" width="420" height="100" rx="16" fill="white"/>
+  <text x="284" y="296" font-family="'Outfit', sans-serif" font-size="11" font-weight="800" fill="#64748b" letter-spacing="1">WORD OF THE DAY</text>
+  <text x="284" y="330" font-family="'Playfair Display', Georgia, serif" font-size="32" font-weight="700" fill="#0e7490">kuća</text>
+  <text x="370" y="330" font-family="'Outfit', sans-serif" font-size="22" fill="#1c1917">— house</text>
+  <text x="284" y="354" font-family="'Outfit', sans-serif" font-size="12" fill="#64748b" font-style="italic">Moja kuća je lijepa.</text>
+
+  <rect x="700" y="264" width="320" height="100" rx="16" fill="#f0fdf4"/>
+  <text x="724" y="296" font-family="'Outfit', sans-serif" font-size="11" font-weight="800" fill="#64748b" letter-spacing="1">DAILY CHALLENGE</text>
+  <text x="724" y="322" font-family="'Outfit', sans-serif" font-size="15" font-weight="700" fill="#1c1917">3 questions • 2/3 done</text>
+  <rect x="724" y="336" width="240" height="8" rx="4" fill="#d1fae5"/>
+  <rect x="724" y="336" width="160" height="8" rx="4" fill="#16a34a"/>
+  <text x="724" y="358" font-family="'Outfit', sans-serif" font-size="12" fill="#15803d" font-weight="600">+15 XP earned today</text>
+
+  <rect x="1040" y="264" width="200" height="100" rx="16" fill="white"/>
+  <text x="1064" y="296" font-family="'Outfit', sans-serif" font-size="11" font-weight="800" fill="#64748b" letter-spacing="1">PHRASE TODAY</text>
+  <text x="1064" y="322" font-family="'Playfair Display', Georgia, serif" font-size="14" font-weight="600" fill="#0e7490">Jedna kava,</text>
+  <text x="1064" y="342" font-family="'Playfair Display', Georgia, serif" font-size="14" font-weight="600" fill="#0e7490">molim. ☕</text>
+  <text x="1064" y="358" font-family="'Outfit', sans-serif" font-size="11" fill="#64748b">One coffee, please.</text>
+
+  <!-- App branding bottom left -->
+  <text x="24" y="700" font-family="'Outfit', sans-serif" font-size="11" fill="rgba(255,255,255,0.3)">nasahrvatska.com</text>
+</svg>

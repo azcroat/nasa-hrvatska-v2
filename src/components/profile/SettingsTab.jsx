@@ -6,6 +6,8 @@ import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.tsx';
 import { getFreezesStored, purchaseFreeze, FREEZE_COST_XP } from '../../lib/streakFreeze.js';
 import { isNative } from '../../lib/platform.ts';
+import { speak, getAudioDebugState } from '../../lib/audio.ts';
+import { getEntries } from '../../lib/debugLog.ts';
 
 const GOALS = [
   { id: 'heritage', icon: '🇭🇷', label: 'My heritage & roots' },
@@ -34,6 +36,26 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
 
   const [freezesStored, setFreezesStored] = useState(() => getFreezesStored());
   const [freezeMsg, setFreezeMsg] = useState('');
+  const [audioTestStatus, setAudioTestStatus] = useState(null); // null | 'testing' | 'ok' | 'failed'
+  const [showAudioDebug, setShowAudioDebug] = useState(false);
+  const [audioDebugLines, setAudioDebugLines] = useState([]);
+
+  async function handleAudioTest() {
+    setAudioTestStatus('testing');
+    setShowAudioDebug(false);
+    try {
+      const result = await speak('Dobar dan');
+      setAudioTestStatus(result === 'failed' ? 'failed' : 'ok');
+    } catch {
+      setAudioTestStatus('failed');
+    }
+    // Capture last 15 TTS-related debug entries
+    const ttsLines = getEntries()
+      .filter(e => e.msg.includes('[TTS]') || e.msg.includes('[Audio]'))
+      .slice(-15);
+    setAudioDebugLines(ttsLines);
+    setShowAudioDebug(true);
+  }
 
   function handleBuyFreeze() {
     const result = purchaseFreeze(statsCtx.xp || 0, setStats);
@@ -281,6 +303,70 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
           <span style={{position:'absolute',top:3,left: soundOn ? 21 : 3,width:20,height:20,borderRadius:'50%',
             background:'white',transition:'left .2s',boxShadow:'0 1px 4px rgba(0,0,0,.2)'}} />
         </button>
+      </div>
+
+      {/* ── AUDIO TEST ── */}
+      <div style={{padding:'14px 0',borderBottom:'1px solid var(--card-b)'}}>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div>
+            <div style={{fontWeight:700,fontSize:'var(--text-sm)'}}>🎙️ Croatian Pronunciation</div>
+            <div style={{fontSize:'var(--text-xs)',color:'var(--subtext)',marginTop:2}}>
+              {audioTestStatus === null && 'Test if audio is working on this device'}
+              {audioTestStatus === 'testing' && 'Playing "Dobar dan"…'}
+              {audioTestStatus === 'ok' && '✓ Audio working'}
+              {audioTestStatus === 'failed' && '✗ Audio failed — see log below'}
+            </div>
+          </div>
+          <button
+            onClick={handleAudioTest}
+            disabled={audioTestStatus === 'testing'}
+            style={{
+              padding:'8px 14px',
+              borderRadius:20,
+              border:'none',
+              cursor: audioTestStatus === 'testing' ? 'default' : 'pointer',
+              background: audioTestStatus === 'ok' ? 'var(--success)' : audioTestStatus === 'failed' ? '#dc2626' : 'var(--info)',
+              color:'#fff',
+              fontWeight:700,
+              fontSize:'var(--text-xs)',
+              flexShrink:0,
+              opacity: audioTestStatus === 'testing' ? 0.6 : 1,
+            }}
+          >
+            {audioTestStatus === 'testing' ? '…' : 'Test Audio'}
+          </button>
+        </div>
+        {showAudioDebug && audioDebugLines.length > 0 && (
+          <div style={{
+            marginTop:10,
+            background:'#111',
+            borderRadius:8,
+            padding:'10px 12px',
+            fontFamily:'monospace',
+            fontSize:10,
+            color:'#ddd',
+            maxHeight:180,
+            overflowY:'auto',
+          }}>
+            <div style={{color:'#888',marginBottom:4,fontSize:9}}>
+              Audio Debug Log — {JSON.stringify(getAudioDebugState())}
+            </div>
+            {audioDebugLines.map((e,i) => (
+              <div key={i} style={{
+                color: e.level === 'error' ? '#f87171' : e.level === 'warn' ? '#fbbf24' : '#86efac',
+                lineHeight:1.5,
+                wordBreak:'break-all',
+              }}>
+                {new Date(e.t).toISOString().slice(11,23)} {e.msg}
+              </div>
+            ))}
+          </div>
+        )}
+        {showAudioDebug && audioDebugLines.length === 0 && (
+          <div style={{marginTop:6,fontSize:'var(--text-xs)',color:'var(--subtext)'}}>
+            No audio log entries yet. Try tapping Test Audio again.
+          </div>
+        )}
       </div>
 
       {/* Haptic toggle */}

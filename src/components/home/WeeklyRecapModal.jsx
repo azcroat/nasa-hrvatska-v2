@@ -35,7 +35,7 @@ export default function WeeklyRecapModal({ onClose, onMount }) {
   const { stats: st } = useStats();
   const streak = getStreak();
   // Mark as shown on first render so tab-switching before close doesn't re-trigger it
-  React.useEffect(() => { if (onMount) onMount(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  React.useEffect(() => { if (onMount) onMount(); }, []); // intentional: run once on mount only
   const prevXP = (() => {
     try { return parseInt(localStorage.getItem('nh_week_xp_' + prevWeekKey()) || '0', 10); } catch { return 0; }
   })();

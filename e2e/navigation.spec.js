@@ -72,7 +72,8 @@ test.describe('Tab navigation', () => {
   test('navigates to Me tab and shows user name', async ({ page }) => {
     await clickTab(page, 'Me');
     await page.waitForURL('/profile', { timeout: 20_000 });
-    await expect(page.getByText('Test Učenik').first()).toBeVisible({ timeout: 10_000 });
+    // 20s covers Mobile Chrome (Pixel 5) where name state resolves slowly after auth.
+    await expect(page.getByText('Test Učenik').first()).toBeVisible({ timeout: 20_000 });
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
     await expect(nav.getByRole('button', { name: 'Me', exact: true })).toHaveClass(/active/, { timeout: 10_000 });
   });
@@ -95,7 +96,8 @@ test.describe('Tab navigation', () => {
 
   test('search bar is visible on the dashboard', async ({ page }) => {
     // The app search input uses role="combobox" (supports aria-expanded/aria-controls/aria-autocomplete)
-    await expect(page.getByRole('combobox', { name: /Search vocabulary/i })).toBeVisible();
+    // 10s timeout allows for slower render on Firefox/WebKit under parallel load.
+    await expect(page.getByRole('combobox', { name: /Search vocabulary/i })).toBeVisible({ timeout: 10_000 });
   });
 
   test('search returns results for a known Croatian word', async ({ page }) => {
