@@ -358,7 +358,7 @@ export default function KnightSpeech({
     // Beat 4: settle into ready stance, then hand off to greeting mood
     const t3 = setTimeout(() => setIntroMood(null), 3400);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // intentional: intro animation runs once on mount only
 
   // Show full once per day, then mini
   useEffect(() => {

@@ -96,7 +96,6 @@ export default function TabBar({ tab, setTab, setScr, badges }) {
       className="nav-bar"
       role="navigation"
       aria-label="Main navigation"
-      style={{ position: 'relative' }}
     >
       {/* Sliding indicator — color follows active tab */}
       <div style={{

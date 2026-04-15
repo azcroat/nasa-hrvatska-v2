@@ -37,6 +37,8 @@ export function seedAuth(page) {
     localStorage.setItem('nh_goal_set', '1');
     // Mark weekly recap as shown so WeeklyRecapModal never blocks tests
     localStorage.setItem('nh_weekly_recap_shown_' + new Date().toISOString().slice(0, 10).replace(/-/g, '').slice(0, 8), '1');
+    // Ensure hero is always expanded so hero stats / translate pill are accessible
+    localStorage.setItem('nh_hero_expanded', '1');
   }, {
     email: TEST_EMAIL,
     name: TEST_NAME,

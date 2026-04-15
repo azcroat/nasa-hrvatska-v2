@@ -61,6 +61,12 @@ let _au = false;
 let _voices: SpeechSynthesisVoice[] = [];
 let _voicesLoaded = false;
 let _currentAudio: { pause: () => void; currentTime: number } | null = null;
+// Persistent HTMLAudio element — created once during uA() and reused for all TTS.
+// Android WebView enforces autoplay policy per-element on some OEM builds (Samsung,
+// HCL, Huawei). Unlocking a throw-away silent Audio element does NOT propagate sticky
+// activation to subsequent new Audio() instances. By keeping and reusing the same
+// element, we guarantee the activation transfer survives async network fetches.
+let _htmlAudio: HTMLAudioElement | null = null;
 let _ctx: AudioContext | null = null;
 let _speakGen = 0;
 let _ttsAbort: AbortController | null = null;
@@ -124,25 +130,30 @@ function uA(): void {
   }
   // Unlock HTMLAudio independently — required on Android WebView where AudioContext
   // unlock does NOT always propagate to the HTML5 Media pipeline.
+  // CRITICAL design: we create the PERSISTENT _htmlAudio element here and play a
+  // silent WAV to activate it. All subsequent TTS playback REUSES this same element
+  // (just changes .src). This works around the Android WebView per-element autoplay
+  // restriction where new Audio() instances don't inherit activation from prior plays.
   // Must use volume = 1.0: some Android WebViews treat very low volume as "muted"
-  // and block the play() call under autoplay policy, preventing sticky activation.
-  // CRITICAL: If play() fails, reset _au so the next user gesture retries the unlock.
-  // Without this, a failed first-touch locks out audio for the entire session.
+  // and block the play() call under autoplay policy.
   try {
-    const silent = new Audio(_SILENT_WAV);
-    silent.volume = 1.0;
-    silent.play()
+    _htmlAudio = new Audio(_SILENT_WAV);
+    _htmlAudio.volume = 1.0;
+    _htmlAudio.play()
       .then(() => {
-        dbgInfo('[Audio] HTMLAudio silent unlock succeeded — sticky activation established');
-        silent.pause(); silent.currentTime = 0;
+        dbgInfo('[Audio] HTMLAudio persistent element unlocked — sticky activation established');
+        _htmlAudio!.pause();
+        _htmlAudio!.currentTime = 0;
       })
       .catch((e) => {
-        dbgError('[Audio] HTMLAudio silent unlock play() FAILED — resetting _au for retry:', e);
-        _au = false; // allow retry on next gesture
+        dbgError('[Audio] HTMLAudio persistent unlock FAILED — resetting _au for retry:', e);
+        _au = false;
+        _htmlAudio = null;
       });
   } catch (e) {
-    dbgError('[Audio] HTMLAudio silent unlock NEW Audio() FAILED — resetting _au:', e);
+    dbgError('[Audio] HTMLAudio persistent new Audio() FAILED — resetting _au:', e);
     _au = false;
+    _htmlAudio = null;
   }
 }
 ['touchstart', 'click'].forEach(e => {
@@ -239,6 +250,11 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
       try {
         await _ctx.resume();
         dbgInfo(`[TTS] AudioContext resumed — state="${_ctx.state}"`);
+        // Some Android WebViews resume() returns without actually transitioning to "running".
+        // If state is still "suspended" or "interrupted", skip to HTMLAudio immediately.
+        if (_ctx.state !== 'running') {
+          throw new Error(`AudioContext not running after resume (state="${_ctx.state}")`);
+        }
         if (_speakGen !== myGen) return false;
         // For fresh blobs: read arrayBuffer() directly from the in-memory Blob.
         // For cached plays: decode the data: URL ourselves using atob() — do NOT use
@@ -272,8 +288,16 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
     // Do NOT call a.load() — it triggers a second resource load that Chrome
     // interrupts the pending play() with an AbortError.
     if (_speakGen !== myGen) return false;
-    dbgInfo('[TTS] trying HTMLAudio path');
-    const a = new Audio(); a.volume = 1.0; _currentAudio = a;
+    dbgInfo(`[TTS] trying HTMLAudio path — persistent=${_htmlAudio !== null}`);
+    // Reuse the persistent element unlocked in uA() to avoid the Android WebView
+    // per-element autoplay restriction. new Audio() instances don't inherit activation
+    // from prior unlocks on some OEM builds — only the exact same element stays activated.
+    const a: HTMLAudioElement = _htmlAudio ?? new Audio();
+    if (_htmlAudio) {
+      try { _htmlAudio.pause(); } catch {}
+      _htmlAudio.currentTime = 0;
+    }
+    a.volume = 1.0; _currentAudio = a;
     a.src = url;
     try {
       await a.play();
@@ -415,4 +439,16 @@ export function speakEN(text: string): void {
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'en-US'; u.rate = 0.9;
   window.speechSynthesis.speak(u);
+}
+
+/** Returns a snapshot of audio engine state — used by the in-app debug overlay. */
+export function getAudioDebugState(): Record<string, string | number | boolean> {
+  return {
+    unlocked: _au,
+    ctxState: _ctx?.state ?? 'null',
+    htmlAudioReady: _htmlAudio !== null && !_htmlAudio.error,
+    htmlAudioError: _htmlAudio?.error ? String(_htmlAudio.error.code) : 'none',
+    cacheSize: _ttsCache.size,
+    isNative: isNative(),
+  };
 }

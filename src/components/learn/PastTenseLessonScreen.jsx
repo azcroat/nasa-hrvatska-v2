@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh } from '../../data.jsx';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext.tsx';
+import { recordTopicResult } from '../../lib/adaptive.ts';
 
 // ── Paradigm data ─────────────────────────────────────────────────────────────
 const RADITI_PARADIGM = [
@@ -457,7 +458,10 @@ export default function PastTenseLessonScreen({ goBack, award }) {
                     if (answered) return;
                     setSelected(oi);
                     setAnswered(true);
-                    if (o === q.answer) setScore(s => s + 1);
+                    const correct = o === q.answer;
+                    if (correct) setScore(s => s + 1);
+                    recordTopicResult('past_tense', correct);
+                    recordTopicResult('grammar', correct);
                   }}
                 >
                   {o}

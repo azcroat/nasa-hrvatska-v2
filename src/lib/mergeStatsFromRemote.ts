@@ -34,6 +34,10 @@ export function mergeStatsFromRemote(prev: Stats, rawRemoteSt: unknown, ds: Stat
     ct: [...new Set([...(prev.ct || []), ...(remoteSt.ct || [])])],
     vs: [...new Set([...(prev.vs || []), ...(remoteSt.vs || [])])],
     badges: [...new Set([...(prev.badges || []), ...(remoteSt.badges || [])])],
+    // rs stores ordered lesson score strings (e.g. ["100","75","80"]) — not keyed,
+    // so Set-union would collapse duplicates and distort history. Keep the longer
+    // array; since rs only grows with each lesson completion, longer = more complete.
+    rs: ((prev.rs || []).length >= (remoteSt.rs || []).length ? prev.rs : remoteSt.rs) || [],
     lc: Math.max(prev.lc || 0, remoteSt.lc || 0),
     gc: Math.max(prev.gc || 0, remoteSt.gc || 0),
     sp: Math.max(prev.sp || 0, remoteSt.sp || 0),

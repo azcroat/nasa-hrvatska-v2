@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh } from '../../data.jsx';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext.tsx';
+import { recordTopicResult } from '../../lib/adaptive.ts';
 
 // ── Future I: ću + infinitive paradigm ────────────────────────────────────────
 const FUTURE1_PARADIGM = [
@@ -528,7 +529,10 @@ export default function FutureTenseLessonScreen({ goBack, award }) {
                     if (answered) return;
                     setSelected(oi);
                     setAnswered(true);
-                    if (o === q.answer) setScore(s => s + 1);
+                    const correct = o === q.answer;
+                    if (correct) setScore(s => s + 1);
+                    recordTopicResult('future_tense', correct);
+                    recordTopicResult('grammar', correct);
                   }}
                 >
                   {o}

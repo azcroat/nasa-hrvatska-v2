@@ -223,7 +223,7 @@ describe('validateListeningResponse — null guard coverage', () => {
   });
 
   it('reports error when questions array is empty', () => {
-    const { valid, errors } = validateListeningResponse({
+    const { valid } = validateListeningResponse({
       title: 'Test',
       en_summary: 'Summary',
       narrator: 'Narrator voice',
