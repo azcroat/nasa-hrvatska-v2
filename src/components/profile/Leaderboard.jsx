@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { H, fbGetFamilyMembers, fbWatchFamilyMembers, fbCreateFamily, fbJoinFamily, fbLeaveFamily } from '../../data.jsx';
 import { fbSaveReaction, fbWatchReactions } from '../../lib/firebase.js';
-import { getLeaderboard } from '../../lib/leaderboard.js';
+import { subscribeToLeaderboard } from '../../lib/leaderboard.js';
 import CroatianKnight from '../shared/CroatianKnight';
 import WeeklyLeague from './WeeklyLeague.jsx';
 
@@ -73,28 +73,42 @@ export default function Leaderboard({
   const [globalUsers, setGlobalUsers] = useState([]);
   const [globalLoading, setGlobalLoading] = useState(false);
   const [globalError, setGlobalError] = useState('');
-  const [hasMore, setHasMore] = useState(false);
+  const [hasMore] = useState(false);
+  const globalUnsubRef = useRef(null);
 
-  const loadGlobal = useCallback(async () => {
-    setGlobalLoading(true); setGlobalError('');
-    try {
-      // Use the same weekly-XP collection as the Global Weekly Leaderboard screen
-      // so XP numbers are consistent across all leaderboard views.
-      const entries = await getLeaderboard(null, 50);
-      setGlobalUsers(entries);
-      setHasMore(false);
-    } catch(e) {
-      setGlobalError('Could not load global leaderboard. Check your connection.');
-    }
-    setGlobalLoading(false);
-  }, []);
-
-  // Load global leaderboard when that tab is selected (reload each visit to keep weekly XP fresh)
+  // Real-time subscription using onSnapshot — bypasses Firestore offline cache on Android.
+  // getDocs() returns cached empty data on first load in Capacitor; onSnapshot always
+  // delivers a server snapshot shortly after the initial cache hit.
   useEffect(() => {
-    if (famTab === 'global' && !globalLoading) {
-      setGlobalUsers([]);
-      loadGlobal();
+    if (famTab !== 'global') {
+      // Unsubscribe when leaving the global tab
+      if (globalUnsubRef.current) { globalUnsubRef.current(); globalUnsubRef.current = null; }
+      return;
     }
+    setGlobalUsers([]);
+    setGlobalLoading(true);
+    setGlobalError('');
+
+    let settled = false;
+    globalUnsubRef.current = subscribeToLeaderboard(null, 50, (entries) => {
+      setGlobalUsers(entries);
+      setGlobalLoading(false);
+      setGlobalError('');
+      settled = true;
+    });
+
+    // Surface a connection error if nothing arrives within 8 seconds
+    const timeout = setTimeout(() => {
+      if (!settled) {
+        setGlobalLoading(false);
+        setGlobalError('Could not load global leaderboard. Check your connection.');
+      }
+    }, 8000);
+
+    return () => {
+      clearTimeout(timeout);
+      if (globalUnsubRef.current) { globalUnsubRef.current(); globalUnsubRef.current = null; }
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [famTab]);
 

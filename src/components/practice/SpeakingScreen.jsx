@@ -6,7 +6,7 @@ import SpeakingSummaryScreen from './SpeakingSummaryScreen.jsx';
 import SpeakingPracticePanel from './SpeakingPracticePanel.jsx';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 import { useAndroidMicPermission } from '../../hooks/useAndroidMicPermission';
-import { isSpeechRecognitionSupported } from '../../lib/platform.js';
+import { isSpeechRecognitionSupported, isNative } from '../../lib/platform.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 
 const SRSupported = isSpeechRecognitionSupported();
@@ -26,7 +26,9 @@ function srError(code) {
   switch (code) {
     case 'not-allowed':
     case 'permission-denied':
-      return 'Microphone permission denied. Please allow microphone access in your browser settings and try again.';
+      return isNative()
+        ? 'Microphone access denied. Open Settings → Apps → Naša Hrvatska → Permissions and enable Microphone.'
+        : 'Microphone permission denied. Please allow microphone access in your browser settings and try again.';
     case 'no-speech':
       return "No speech detected. Please speak louder and closer to the mic.";
     case 'audio-capture':
@@ -345,7 +347,9 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
       stream.getTracks().forEach(t => t.stop()); // permission check only - stop immediately
     } catch (e) {
       setRecResult('error');
-      setRecMsg('Microphone permission denied. Please allow microphone access in your browser settings and try again.');
+      setRecMsg(isNative()
+        ? 'Microphone access denied. Open Settings → Apps → Naša Hrvatska → Permissions and enable Microphone.'
+        : 'Microphone permission denied. Please allow microphone access in your browser settings and try again.');
       return;
     }
 

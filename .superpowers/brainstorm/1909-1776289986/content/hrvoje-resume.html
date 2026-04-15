@@ -1,0 +1,211 @@
+<h2>Vitez Hrvoje — Pick Your Direction</h2>
+<p class="subtitle">Two choices to make. Click to select, then tell me in the terminal.</p>
+
+<style>
+  .section-label {
+    font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+    color: #0e7490; margin: 28px 0 10px; padding-left: 2px;
+  }
+  .compare-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 14px;
+  }
+  .compare-card {
+    border: 2px solid rgba(255,255,255,.08);
+    border-radius: 14px;
+    padding: 16px 14px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s, transform .15s;
+    background: rgba(255,255,255,.02);
+  }
+  .compare-card:hover { transform: translateY(-2px); }
+  .compare-card.selected { border-color: #0e7490; background: rgba(14,116,144,.08); }
+  .compare-card h3 { margin: 10px 0 5px; font-size: 14px; }
+  .compare-card p  { margin: 0; font-size: 11.5px; opacity: .7; line-height: 1.5; }
+  .label-badge {
+    display: inline-block; font-size: 10px; font-weight: 800; padding: 2px 8px;
+    border-radius: 20px; margin-top: 7px; letter-spacing: .04em;
+  }
+  .badge-now    { background: rgba(100,116,139,.2); color: #94a3b8; }
+  .badge-good   { background: rgba(14,116,144,.15); color: #0e7490; }
+  .badge-best   { background: rgba(217,119,6,.15); color: #d97706; }
+  .dir-card {
+    border: 2px solid transparent;
+    border-radius: 14px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: border-color .2s, background .2s, transform .15s;
+    background: rgba(255,255,255,.03);
+    margin-bottom: 10px;
+  }
+  .dir-card:hover { transform: translateY(-2px); }
+  .dir-card.selected { border-color: #0e7490; background: rgba(14,116,144,.08); }
+  .dir-card h3 { margin: 0 0 5px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .dir-card p  { margin: 0; font-size: 12.5px; opacity: .8; line-height: 1.5; }
+  .dir-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+  .badge-blue   { background: rgba(14,116,144,.15); color: #0e7490; }
+  .badge-amber  { background: rgba(217,119,6,.15); color: #d97706; }
+  .badge-purple { background: rgba(124,58,237,.15); color: #7c3aed; }
+  .divider { border: none; border-top: 1px solid rgba(255,255,255,.07); margin: 24px 0 0; }
+</style>
+
+<!-- ── PART 1: ŠAHOVNICA ─────────────────────────────────────────── -->
+<div class="section-label">① Šahovnica on the Shield</div>
+<div class="compare-grid">
+
+  <div class="compare-card" data-choice="sahovnica-current" onclick="toggleSelect(this)">
+    <svg viewBox="0 0 60 60" width="80" height="80">
+      <circle cx="30" cy="30" r="24" fill="white" stroke="#1A1A2E" stroke-width="2"/>
+      <clipPath id="c1"><circle cx="30" cy="30" r="22"/></clipPath>
+      <g clip-path="url(#c1)">
+        <rect x="14" y="14" width="16" height="16" fill="#DC1C1C"/>
+        <rect x="30" y="14" width="16" height="16" fill="white"/>
+        <rect x="14" y="30" width="16" height="16" fill="white"/>
+        <rect x="30" y="30" width="16" height="16" fill="#DC1C1C"/>
+      </g>
+      <circle cx="30" cy="30" r="24" fill="none" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="30" cy="30" r="26" fill="none" stroke="#C0CDD8" stroke-width="2.5"/>
+    </svg>
+    <h3>Keep Current</h3>
+    <p>2×2 circle badge. Works, but reads as a game token not a coat of arms.</p>
+    <span class="label-badge badge-now">TODAY</span>
+  </div>
+
+  <div class="compare-card" data-choice="sahovnica-a" onclick="toggleSelect(this)">
+    <svg viewBox="0 0 60 72" width="80" height="96">
+      <path d="M 6,10 Q 6,4 30,4 Q 54,4 54,10 L 54,40 Q 54,58 30,68 Q 6,58 6,40 Z"
+        fill="white" stroke="#1A1A2E" stroke-width="2.2"/>
+      <clipPath id="c2">
+        <path d="M 7,10 Q 7,5 30,5 Q 53,5 53,10 L 53,40 Q 53,57 30,67 Q 7,57 7,40 Z"/>
+      </clipPath>
+      <g clip-path="url(#c2)">
+        <rect x="12" y="14" width="12" height="12" fill="#DC1C1C"/>
+        <rect x="24" y="14" width="12" height="12" fill="white"/>
+        <rect x="36" y="14" width="12" height="12" fill="#DC1C1C"/>
+        <rect x="12" y="26" width="12" height="12" fill="white"/>
+        <rect x="24" y="26" width="12" height="12" fill="#DC1C1C"/>
+        <rect x="36" y="26" width="12" height="12" fill="white"/>
+        <rect x="12" y="38" width="12" height="12" fill="#DC1C1C"/>
+        <rect x="24" y="38" width="12" height="12" fill="white"/>
+        <rect x="36" y="38" width="12" height="12" fill="#DC1C1C"/>
+      </g>
+      <path d="M 6,10 Q 6,4 30,4 Q 54,4 54,10 L 54,40 Q 54,58 30,68 Q 6,58 6,40 Z"
+        fill="none" stroke="#1A1A2E" stroke-width="2.2"/>
+      <path d="M 4,10 Q 4,2 30,2 Q 56,2 56,10 L 56,40 Q 56,60 30,70 Q 4,60 4,40 Z"
+        fill="none" stroke="#C0CDD8" stroke-width="2.5"/>
+    </svg>
+    <h3>A — Heraldic Shield</h3>
+    <p>Pointed shield + proper 3×3 šahovnica. Instantly reads as Croatian coat of arms.</p>
+    <span class="label-badge badge-good">GOOD</span>
+  </div>
+
+  <div class="compare-card" data-choice="sahovnica-b" onclick="toggleSelect(this)">
+    <svg viewBox="0 0 60 60" width="80" height="80">
+      <circle cx="30" cy="30" r="24" fill="white" stroke="#1A1A2E" stroke-width="2"/>
+      <clipPath id="c3"><circle cx="30" cy="30" r="22"/></clipPath>
+      <g clip-path="url(#c3)">
+        <rect x="14" y="14" width="16" height="16" fill="#DC1C1C"/>
+        <rect x="30" y="14" width="16" height="16" fill="white"/>
+        <rect x="14" y="30" width="16" height="16" fill="white"/>
+        <rect x="30" y="30" width="16" height="16" fill="#DC1C1C"/>
+      </g>
+      <circle cx="30" cy="30" r="24" fill="none" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="30" cy="30" r="26" fill="none" stroke="#C0CDD8" stroke-width="2.5"/>
+      <!-- Chest badge overlay -->
+      <rect x="21" y="21" width="18" height="18" rx="2.5" fill="white" stroke="#1A1A2E" stroke-width="1.2"/>
+      <clipPath id="c3b"><rect x="22" y="22" width="16" height="16" rx="1.5"/></clipPath>
+      <g clip-path="url(#c3b)">
+        <rect x="22" y="22" width="5.3" height="5.3" fill="#DC1C1C"/>
+        <rect x="27.3" y="22" width="5.3" height="5.3" fill="white"/>
+        <rect x="32.6" y="22" width="5.3" height="5.3" fill="#DC1C1C"/>
+        <rect x="22" y="27.3" width="5.3" height="5.3" fill="white"/>
+        <rect x="27.3" y="27.3" width="5.3" height="5.3" fill="#DC1C1C"/>
+        <rect x="32.6" y="27.3" width="5.3" height="5.3" fill="white"/>
+        <rect x="22" y="32.6" width="5.3" height="5.3" fill="#DC1C1C"/>
+        <rect x="27.3" y="32.6" width="5.3" height="5.3" fill="white"/>
+        <rect x="32.6" y="32.6" width="5.3" height="5.3" fill="#DC1C1C"/>
+      </g>
+      <rect x="19.5" y="19.5" width="21" height="21" rx="3.5" fill="none" stroke="#F5C230" stroke-width="1.5"/>
+    </svg>
+    <h3>B — Chest Badge</h3>
+    <p>Keep circle shield, add 3×3 šahovnica badge on chest. Visible at any size.</p>
+    <span class="label-badge badge-good">GOOD</span>
+  </div>
+
+  <div class="compare-card" data-choice="sahovnica-c" onclick="toggleSelect(this)">
+    <svg viewBox="0 0 60 72" width="80" height="96">
+      <!-- Heraldic shield -->
+      <path d="M 6,10 Q 6,4 30,4 Q 54,4 54,10 L 54,40 Q 54,58 30,68 Q 6,58 6,40 Z"
+        fill="white" stroke="#1A1A2E" stroke-width="2.2"/>
+      <clipPath id="c4">
+        <path d="M 7,10 Q 7,5 30,5 Q 53,5 53,10 L 53,40 Q 53,57 30,67 Q 7,57 7,40 Z"/>
+      </clipPath>
+      <g clip-path="url(#c4)">
+        <rect x="12" y="14" width="12" height="12" fill="#DC1C1C"/>
+        <rect x="24" y="14" width="12" height="12" fill="white"/>
+        <rect x="36" y="14" width="12" height="12" fill="#DC1C1C"/>
+        <rect x="12" y="26" width="12" height="12" fill="white"/>
+        <rect x="24" y="26" width="12" height="12" fill="#DC1C1C"/>
+        <rect x="36" y="26" width="12" height="12" fill="white"/>
+        <rect x="12" y="38" width="12" height="12" fill="#DC1C1C"/>
+        <rect x="24" y="38" width="12" height="12" fill="white"/>
+        <rect x="36" y="38" width="12" height="12" fill="#DC1C1C"/>
+      </g>
+      <path d="M 6,10 Q 6,4 30,4 Q 54,4 54,10 L 54,40 Q 54,58 30,68 Q 6,58 6,40 Z"
+        fill="none" stroke="#1A1A2E" stroke-width="2.2"/>
+      <path d="M 4,10 Q 4,2 30,2 Q 56,2 56,10 L 56,40 Q 56,60 30,70 Q 4,60 4,40 Z"
+        fill="none" stroke="#C0CDD8" stroke-width="2.5"/>
+      <!-- Chest badge on shield -->
+      <rect x="20" y="42" width="20" height="20" rx="2.5" fill="white" stroke="#1A1A2E" stroke-width="1.2"/>
+      <clipPath id="c4b"><rect x="21" y="43" width="18" height="18" rx="1.5"/></clipPath>
+      <g clip-path="url(#c4b)">
+        <rect x="21" y="43" width="6" height="6" fill="#DC1C1C"/>
+        <rect x="27" y="43" width="6" height="6" fill="white"/>
+        <rect x="33" y="43" width="6" height="6" fill="#DC1C1C"/>
+        <rect x="21" y="49" width="6" height="6" fill="white"/>
+        <rect x="27" y="49" width="6" height="6" fill="#DC1C1C"/>
+        <rect x="33" y="49" width="6" height="6" fill="white"/>
+        <rect x="21" y="55" width="6" height="6" fill="#DC1C1C"/>
+        <rect x="27" y="55" width="6" height="6" fill="white"/>
+        <rect x="33" y="55" width="6" height="6" fill="#DC1C1C"/>
+      </g>
+      <rect x="18.5" y="40.5" width="23" height="23" rx="3.5" fill="none" stroke="#F5C230" stroke-width="1.5"/>
+    </svg>
+    <h3>C — Both (My Pick)</h3>
+    <p>Heraldic shield shape + šahovnica fills the whole shield. Maximum Croatian identity.</p>
+    <span class="label-badge badge-best">EXPERT PICK</span>
+  </div>
+
+</div>
+
+<hr class="divider"/>
+
+<!-- ── PART 2: MASCOT DIRECTION ─────────────────────────────────── -->
+<div class="section-label">② Hrvoje's Personality Direction</div>
+
+<div class="dir-card" data-choice="direction-a" onclick="toggleSelect(this)">
+  <h3>⚡ A — More Emotions &amp; Reactions
+    <span class="dir-badge badge-blue">Evolutionary</span>
+  </h3>
+  <p>Keep the current design but add 6+ new moods — sweat drops when struggling, sparkles on streaks, tears of joy at milestones. Same small button, massively more alive. Zero layout risk.</p>
+</div>
+
+<div class="dir-card" data-choice="direction-b" onclick="toggleSelect(this)">
+  <h3>🏰 B — Bigger Presence
+    <span class="dir-badge badge-amber">Bold</span>
+  </h3>
+  <p>Hrvoje gets a banner-height hero section on Home (120–140px), slides in from the side when you answer a question, scales up at milestones. The button stays, but now Hrvoje commands key moments.</p>
+</div>
+
+<div class="dir-card" data-choice="direction-c" onclick="toggleSelect(this)">
+  <h3>🌊 C — Living Croatian World
+    <span class="dir-badge badge-purple">Ambitious</span>
+  </h3>
+  <p>Hrvoje lives in Croatia — the backdrop changes to match what you're learning: Dalmatian coast for sea vocab, Zagreb streets for city phrases, a medieval castle for grammar. Every screen is a postcard.</p>
+</div>
+
+<p style="margin-top:16px; font-size:12px; opacity:.55; text-align:center">
+  You can pick more than one direction — they layer together. Click all that appeal to you.
+</p>
