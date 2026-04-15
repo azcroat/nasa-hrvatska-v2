@@ -193,31 +193,70 @@ function Mouth({ type }) {
   }
 }
 
-/** Croatian šahovnica (checkerboard) shield. */
+/**
+ * Croatian šahovnica shield — heraldic pointed shape, authentic white-first 3×3 pattern.
+ * The real Croatian coat of arms always has white in the top-left cell.
+ */
 function Shield({ cx, cy, r = 13, goldTrim = false }) {
   const clipId = `kn-sh-${Math.round(cx)}-${Math.round(cy)}`;
-  const h = r * 0.65;
   const trim = goldTrim ? C.gold : C.silver;
+
+  // Heraldic shield: rounded top corners, straight sides, pointed bottom
+  const sp = [
+    `M ${cx - r},${cy - r + r * 0.22}`,
+    `Q ${cx - r},${cy - r} ${cx},${cy - r}`,
+    `Q ${cx + r},${cy - r} ${cx + r},${cy - r + r * 0.22}`,
+    `L ${cx + r},${cy + r * 0.30}`,
+    `Q ${cx + r},${cy + r * 1.28} ${cx},${cy + r * 1.46}`,
+    `Q ${cx - r},${cy + r * 1.28} ${cx - r},${cy + r * 0.30}`,
+    'Z',
+  ].join(' ');
+
+  // Trim path — 2px larger all around
+  const tp = [
+    `M ${cx - r - 2},${cy - r + r * 0.22}`,
+    `Q ${cx - r - 2},${cy - r - 2} ${cx},${cy - r - 2}`,
+    `Q ${cx + r + 2},${cy - r - 2} ${cx + r + 2},${cy - r + r * 0.22}`,
+    `L ${cx + r + 2},${cy + r * 0.30}`,
+    `Q ${cx + r + 2},${cy + r * 1.28 + 2} ${cx},${cy + r * 1.46 + 2}`,
+    `Q ${cx - r - 2},${cy + r * 1.28 + 2} ${cx - r - 2},${cy + r * 0.30}`,
+    'Z',
+  ].join(' ');
+
+  // 3×3 šahovnica, WHITE first (top-left = white) — matches Croatian coat of arms
+  const cs  = (r * 1.88) / 3;         // cell size
+  const gx  = cx - cs * 1.5;          // grid left
+  const gy  = cy - r + r * 0.06;      // grid top
+  const clr = [
+    [C.white, C.red,   C.white],
+    [C.red,   C.white, C.red  ],
+    [C.white, C.red,   C.white],
+  ];
+
   return (
     <g>
       <defs>
         <clipPath id={clipId}>
-          <circle cx={cx} cy={cy} r={r - 1.2} />
+          <path d={sp} />
         </clipPath>
       </defs>
-      {/* Base */}
-      <circle cx={cx} cy={cy} r={r} fill={C.white} stroke={C.outline} strokeWidth="1.6" />
-      {/* 2×2 šahovnica */}
+      <path d={sp} fill={C.white} stroke={C.outline} strokeWidth="1.6" />
       <g clipPath={`url(#${clipId})`}>
-        <rect x={cx - h} y={cy - h} width={h} height={h} fill={C.red}   />
-        <rect x={cx}     y={cy - h} width={h} height={h} fill={C.white} />
-        <rect x={cx - h} y={cy}     width={h} height={h} fill={C.white} />
-        <rect x={cx}     y={cy}     width={h} height={h} fill={C.red}   />
+        {clr.map((row, ri) =>
+          row.map((color, ci) => (
+            <rect
+              key={`${ri}-${ci}`}
+              x={gx + ci * cs}
+              y={gy + ri * cs}
+              width={cs + 0.4}
+              height={cs + 0.4}
+              fill={color}
+            />
+          ))
+        )}
       </g>
-      {/* Outline */}
-      <circle cx={cx} cy={cy} r={r}     fill="none" stroke={C.outline} strokeWidth="1.6" />
-      {/* Trim ring */}
-      <circle cx={cx} cy={cy} r={r + 2} fill="none" stroke={trim}      strokeWidth="2"   />
+      <path d={sp} fill="none" stroke={C.outline} strokeWidth="1.6" />
+      <path d={tp} fill="none" stroke={trim}      strokeWidth="2"   />
     </g>
   );
 }
@@ -418,6 +457,49 @@ const CroatianKnight = React.memo(function CroatianKnight({
                 stroke={C.gold} strokeWidth="1.5" />
             </>
           )}
+
+          {/* ══ BREASTPLATE ŠAHOVNICA BADGE — white-first 3×3 ══ */}
+          {(() => {
+            const bcs = 5.2;                    // cell size
+            const bx  = 50 - bcs * 1.5;        // badge left (centred on x=50)
+            const by  = bodyTop + 3.5;          // badge top
+            const bw  = bcs * 3;
+            const bColors = [
+              [C.white, C.red,   C.white],
+              [C.red,   C.white, C.red  ],
+              [C.white, C.red,   C.white],
+            ];
+            return (
+              <>
+                {/* Gold frame */}
+                <rect x={bx - 1.8} y={by - 1.8} width={bw + 3.6} height={bw + 3.6}
+                  rx={3} fill="none" stroke={C.gold} strokeWidth="1.4" />
+                {/* White base */}
+                <rect x={bx} y={by} width={bw} height={bw} rx={1.5} fill={C.white} />
+                {/* 3×3 šahovnica */}
+                <clipPath id="kn-bp-sh">
+                  <rect x={bx} y={by} width={bw} height={bw} rx={1.5} />
+                </clipPath>
+                <g clipPath="url(#kn-bp-sh)">
+                  {bColors.map((row, ri) =>
+                    row.map((color, ci) => (
+                      <rect
+                        key={`bp-${ri}-${ci}`}
+                        x={bx + ci * bcs}
+                        y={by + ri * bcs}
+                        width={bcs}
+                        height={bcs}
+                        fill={color}
+                      />
+                    ))
+                  )}
+                </g>
+                {/* Border */}
+                <rect x={bx} y={by} width={bw} height={bw}
+                  rx={1.5} fill="none" stroke={C.outline} strokeWidth="0.9" />
+              </>
+            );
+          })()}
 
           {/* ══ LEFT ARM + SHIELD ══ */}
           <g
