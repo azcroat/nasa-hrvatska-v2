@@ -161,7 +161,15 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
   }
 
   // ── User settings — restore from Firebase so all devices share preferences ─
-  if (fp.nh_level) localStorage.setItem('nh_level', fp.nh_level);
+  if (fp.nh_level) {
+    // MAX comparison: never let a stale lower level from one device overwrite a
+    // higher level earned on another device (e.g. Android A1 must not clobber Chrome B2).
+    const CEFR_NUM: Record<string, number> = { A1: 1, A2: 2, B1: 3, B2: 4, C1: 5, C2: 6 };
+    const localLevel = localStorage.getItem('nh_level') || '';
+    const remoteOrd = CEFR_NUM[fp.nh_level as string] || 0;
+    const localOrd  = CEFR_NUM[localLevel] || 0;
+    if (remoteOrd >= localOrd) localStorage.setItem('nh_level', fp.nh_level);
+  }
   if (fp.nh_goal) { localStorage.setItem('nh_goal', fp.nh_goal); localStorage.setItem('nh_goal_set', '1'); }
   if (fp.nh_culture) localStorage.setItem('nh_culture', fp.nh_culture);
   if (fp.nh_placement_done) { localStorage.setItem('nh_placement_done', 'true'); localStorage.setItem('placement_done', 'true'); }
