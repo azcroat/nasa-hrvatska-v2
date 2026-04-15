@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { H, fbGetFamilyMembers, fbWatchFamilyMembers, fbCreateFamily, fbJoinFamily, fbLeaveFamily } from '../../data.jsx';
 import { fbSaveReaction, fbWatchReactions } from '../../lib/firebase.js';
+import { getLeaderboard } from '../../lib/leaderboard.js';
 import CroatianKnight from '../shared/CroatianKnight';
 import WeeklyLeague from './WeeklyLeague.jsx';
 
@@ -68,44 +69,34 @@ export default function Leaderboard({
     teen:        { label: 'Teen',      emoji: '🧒', color: '#16a34a' },
   };
 
-  // ── Global leaderboard pagination ─────────────────────────────────────────
+  // ── Global leaderboard ───────────────────────────────────────────────────
   const [globalUsers, setGlobalUsers] = useState([]);
   const [globalLoading, setGlobalLoading] = useState(false);
   const [globalError, setGlobalError] = useState('');
-  const [lastDoc, setLastDoc] = useState(null);
   const [hasMore, setHasMore] = useState(false);
-  const PAGE_SIZE = 20;
 
-  const loadGlobal = useCallback(async (after) => {
+  const loadGlobal = useCallback(async () => {
     setGlobalLoading(true); setGlobalError('');
     try {
-      const { getFirestore, collection, getDocs, orderBy, query, limit, startAfter } = await import('firebase/firestore');
-      const db = getFirestore();
-      const col = collection(db, 'leaderboard');
-      const q = after
-        ? query(col, orderBy('xp', 'desc'), limit(PAGE_SIZE), startAfter(after))
-        : query(col, orderBy('xp', 'desc'), limit(PAGE_SIZE));
-      const snap = await getDocs(q);
-      const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      if (after) {
-        setGlobalUsers(prev => [...prev, ...docs]);
-      } else {
-        setGlobalUsers(docs);
-      }
-      setLastDoc(snap.docs[snap.docs.length - 1] || null);
-      setHasMore(snap.docs.length === PAGE_SIZE);
+      // Use the same weekly-XP collection as the Global Weekly Leaderboard screen
+      // so XP numbers are consistent across all leaderboard views.
+      const entries = await getLeaderboard(null, 50);
+      setGlobalUsers(entries);
+      setHasMore(false);
     } catch(e) {
       setGlobalError('Could not load global leaderboard. Check your connection.');
     }
     setGlobalLoading(false);
   }, []);
 
-  // Load global leaderboard when that tab is selected
+  // Load global leaderboard when that tab is selected (reload each visit to keep weekly XP fresh)
   useEffect(() => {
-    if (famTab === 'global' && globalUsers.length === 0 && !globalLoading) {
-      loadGlobal(null);
+    if (famTab === 'global' && !globalLoading) {
+      setGlobalUsers([]);
+      loadGlobal();
     }
-  }, [famTab]);  
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [famTab]);
 
   // Real-time listener — starts when user is in a family and on the main tab,
   // fires immediately with current data and then on every remote change.
@@ -516,17 +507,17 @@ export default function Leaderboard({
 
       {famTab === "global" && (
         <React.Fragment>
-          <div style={{fontSize:13,color:"var(--subtext)",marginBottom:12,fontWeight:600}}>Top learners globally (first 20 shown)</div>
+          <div style={{fontSize:13,color:"var(--subtext)",marginBottom:12,fontWeight:600}}>🏆 This week's top learners — same XP shown everywhere</div>
           {globalError && <div style={{color:"#dc2626",fontSize:13,marginBottom:12}}>{globalError}</div>}
           {globalUsers.length > 0 && (() => {
             const globalMaxXP = globalUsers[0]?.xp || 1;
-            return globalUsers.map((u, i) => {
-              const rank = i + 1;
-              const isMe = au && (u.id === au.u || u.email === au.e);
+            return globalUsers.map((u) => {
+              const rank = u.rank || 0;
+              const isMe = au && u.uid === au.u;
               const rankMedal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : null;
               const barColor = rank === 1 ? '#fbbf24' : rank === 2 ? '#94a3b8' : rank === 3 ? '#cd7c37' : 'var(--info)';
               return (
-                <div key={u.id} className="c" style={{
+                <div key={u.uid} className="c" style={{
                   display:"flex", alignItems:"center", gap:12, marginBottom:8, padding:"10px 16px",
                   background: isMe ? 'var(--info-bg)' : undefined,
                   border: isMe ? '1px solid var(--info-b, rgba(14,116,144,0.3))' : undefined,
@@ -540,10 +531,9 @@ export default function Leaderboard({
                   </div>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:14,fontWeight:700,color:"var(--heading)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                      {u.name||u.id}
-                      {isMe && <span style={{ fontSize:10, fontWeight:700, color:'var(--info)', background:'var(--info-bg)', borderRadius:6, padding:'2px 6px', marginLeft:6 }}>You</span>}
+                      {isMe ? '⚡ You' : (u.displayName || 'Learner')}
                     </div>
-                    <div style={{fontSize:11,color:"var(--subtext)"}}>{u.lc||0} lessons</div>
+                    <div style={{fontSize:11,color:"var(--subtext)"}}>This week</div>
                   </div>
                   <div style={{flexShrink:0, textAlign:'right'}}>
                     <div style={{fontSize:15,fontWeight:800,color:"#0e7490"}}>{(u.xp||0).toLocaleString()} XP</div>
@@ -579,11 +569,6 @@ export default function Leaderboard({
             </div>
           )}
           {globalLoading && <div style={{textAlign:"center",color:"var(--subtext)",padding:"16px"}}>⏳ Loading…</div>}
-          {hasMore && !globalLoading && (
-            <button className="b bg" style={{width:"100%",marginTop:12}} onClick={() => loadGlobal(lastDoc)}>
-              Load More
-            </button>
-          )}
         </React.Fragment>
       )}
 
