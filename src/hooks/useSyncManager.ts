@@ -193,7 +193,7 @@ export function useSyncManager({
         _initialPushDone = true;
         setTimeout(() => doSyncNow(), 1000);
       }
-      if (!fp || fpTs === 0) return;
+      if (!fp) return;
       enqueueSnapshot(fp, fpTs, uid);
     });
     _watcherUnsubRef.current = unsub;
