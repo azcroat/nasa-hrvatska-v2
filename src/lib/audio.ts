@@ -29,11 +29,78 @@ function _dataUrlToArrayBuffer(dataUrl: string): ArrayBuffer {
 
 // POST to /api/tts, trying each native endpoint in sequence until one succeeds.
 // On web, a single relative URL is used (no fallback needed).
+//
+// NATIVE PATH: uses CapacitorHttp (Android OkHttp) instead of WebView fetch().
+// On some Android tablets the WebView's fetch() fails silently — SSL cert chain
+// issues, WebView network policy, or OEM browser restrictions. CapacitorHttp
+// bypasses the WebView entirely and uses Android's own HTTP client + CA bundle.
 async function _ttsPost(
   body: Record<string, unknown>,
   signal: AbortSignal,
 ): Promise<Response | null> {
   const endpoints = isNative() ? _NATIVE_ENDPOINTS : [''];
+
+  if (isNative()) {
+    // Try CapacitorHttp (native Android HTTP — bypasses WebView fetch() failures)
+    type _CapHttp = { post: (o: Record<string, unknown>) => Promise<{ status: number; data: unknown; headers: Record<string, string> }> };
+    let capHttp: _CapHttp | null = null;
+    try {
+      // Dynamic import keeps @capacitor/core out of the web bundle's main chunk.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const capacitorModule = await import('@capacitor/core') as any;
+      capHttp = (capacitorModule.CapacitorHttp as _CapHttp) ?? null;
+      if (capHttp) dbgInfo('[TTS] CapacitorHttp available — using native HTTP');
+    } catch {
+      dbgWarn('[TTS] CapacitorHttp import failed — falling back to fetch()');
+    }
+
+    if (capHttp) {
+      for (const base of endpoints) {
+        const url = `${base}/api/tts`;
+        try {
+          dbgInfo(`[TTS] CapacitorHttp POST → "${url}"`);
+          const resp = await capHttp.post({
+            url,
+            headers: { 'Content-Type': 'application/json' },
+            data: body,
+            responseType: 'blob',
+          });
+          dbgInfo(`[TTS] CapacitorHttp status=${resp.status} data-type=${typeof resp.data}`);
+          if (resp.status >= 200 && resp.status < 300) {
+            const backends = resp.headers['x-tts-backends'] || resp.headers['X-TTS-Backends'] || 'capacitor';
+            // Native bridge returns binary blob as base64 string; convert to Blob
+            let blob: Blob;
+            if (resp.data instanceof Blob) {
+              blob = resp.data;
+            } else if (typeof resp.data === 'string' && resp.data.length > 0) {
+              const ab = _dataUrlToArrayBuffer(`data:audio/mpeg;base64,${resp.data}`);
+              blob = new Blob([ab], { type: 'audio/mpeg' });
+            } else {
+              dbgWarn(`[TTS] CapacitorHttp unexpected data type "${typeof resp.data}" len=${String(resp.data).length} — trying next`);
+              continue;
+            }
+            return new Response(blob, {
+              status: 200,
+              headers: new Headers({ 'Content-Type': 'audio/mpeg', 'X-TTS-Backends': backends }),
+            });
+          }
+          if (resp.status >= 400 && resp.status < 500) {
+            // 4xx — bad request, don't retry other endpoints
+            return new Response('', { status: resp.status, headers: new Headers({ 'X-TTS-Backends': resp.headers['x-tts-backends'] || '' }) });
+          }
+          // 5xx: try next endpoint
+        } catch (e: unknown) {
+          const err = e as Error;
+          dbgWarn(`[TTS] CapacitorHttp → "${url}" error: ${err?.name} — ${err?.message?.slice(0, 100)} — trying next`);
+        }
+      }
+      dbgWarn('[TTS] CapacitorHttp: all endpoints failed');
+      return null;
+    }
+    // CapacitorHttp unavailable — fall through to fetch()
+  }
+
+  // Web (and native fallback): standard fetch()
   for (const base of endpoints) {
     const url = `${base}/api/tts`;
     try {
@@ -43,15 +110,15 @@ async function _ttsPost(
         body: JSON.stringify(body),
         signal,
       });
-      dbgInfo(`[TTS] _ttsPost endpoint="${url}" status=${r.status}`);
+      dbgInfo(`[TTS] fetch POST → "${url}" status=${r.status}`);
       if (r.ok) return r;
       // 4xx from server: bad request — don't retry other endpoints
       if (r.status >= 400 && r.status < 500) return r;
       // 5xx or other: try next endpoint
     } catch (e: unknown) {
-      const name = (e as Error)?.name;
-      if (name === 'AbortError') throw e; // propagate abort immediately
-      dbgWarn(`[TTS] _ttsPost endpoint="${url}" network error: ${name} — trying next`);
+      const err = e as Error;
+      if (err?.name === 'AbortError') throw e; // propagate abort immediately
+      dbgWarn(`[TTS] fetch → "${url}" error: ${err?.name} — ${err?.message?.slice(0, 80)} — trying next`);
     }
   }
   return null; // all endpoints failed
