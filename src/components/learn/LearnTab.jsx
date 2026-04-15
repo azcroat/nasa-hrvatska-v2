@@ -66,6 +66,28 @@ export default function LearnTab({
   })();
   const cefrPct = { A1: 8, A2: 33, B1: 58, B2: 83 }[cefrLevel] || 8;
 
+  // Progress toward next CEFR level — shown when ≥50% of the way there
+  const cefrToNext = (() => {
+    if (!st) return null;
+    const { xp = 0, lc = 0, gc = 0 } = st;
+    if (cefrLevel === 'A1') {
+      const pct = Math.round(Math.min(((xp/100) + (lc/8) + (gc/2)) / 3 * 100, 99));
+      if (pct < 50) return null;
+      return { next: 'A2', pct, needs: [xp < 100 && `${100-xp} XP`, lc < 8 && `${8-lc} lessons`, gc < 2 && `${2-gc} grammar`].filter(Boolean) };
+    }
+    if (cefrLevel === 'A2') {
+      const pct = Math.round(Math.min(((xp/300) + (lc/15) + (gc/4)) / 3 * 100, 99));
+      if (pct < 50) return null;
+      return { next: 'B1', pct, needs: [xp < 300 && `${300-xp} XP`, lc < 15 && `${15-lc} lessons`, gc < 4 && `${4-gc} grammar`].filter(Boolean) };
+    }
+    if (cefrLevel === 'B1') {
+      const pct = Math.round(Math.min(((xp/700) + (lc/25) + (gc/6)) / 3 * 100, 99));
+      if (pct < 50) return null;
+      return { next: 'B2', pct, needs: [xp < 700 && `${700-xp} XP`, lc < 25 && `${25-lc} lessons`, gc < 6 && `${6-gc} grammar`].filter(Boolean) };
+    }
+    return null;
+  })();
+
   function launchVocab(t) {
     const items = sh(V[t] || []);
     if (!items.length) return;
@@ -566,6 +588,47 @@ export default function LearnTab({
         );
       })()}
 
+      {/* ── STAGE 4: B1+ EXPLORER PANEL — appears when user reaches Explorer stage ── */}
+      {currentStage?.level === 4 && (
+        <div style={{
+          background: 'linear-gradient(135deg,#fffbeb,#fef3c7)',
+          border: '1.5px solid #fde68a', borderRadius: 18,
+          padding: '16px 18px', marginBottom: 20,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+            <span style={{ fontSize: 26 }}>🗺️</span>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 900, color: '#78350f' }}>B1 Explorer — New content unlocked!</div>
+              <div style={{ fontSize: 12, color: '#92400e', marginTop: 2 }}>You've reached the intermediate tier. Explore what's available to you.</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', paddingBottom: 4 }}>
+            {[
+              { icon: '🎭', label: 'Aspect Drill', sub: 'Perfective vs imperfective', scr: 'aspectdrill', bg: 'linear-gradient(135deg,#7c3aed,#5b21b6)' },
+              { icon: '⚙️', label: 'Grammar Map', sub: 'Navigate all grammar', scr: 'grammarmap', bg: 'linear-gradient(135deg,#d97706,#92400e)' },
+              { icon: '📖', label: 'B1 Stories', sub: 'Graded reading + audio', scr: 'graded_input', bg: 'linear-gradient(135deg,#059669,#065f46)' },
+              { icon: '🗣️', label: 'Speaking', sub: 'Train spoken output', scr: 'speaking', bg: 'linear-gradient(135deg,#0e7490,#0369a1)' },
+              { icon: '✍️', label: 'Production', sub: 'Sentence drills', scr: 'production_drill', bg: 'linear-gradient(135deg,#dc2626,#991b1b)' },
+            ].map(item => (
+              <button
+                key={item.scr}
+                onClick={() => setScr(item.scr)}
+                style={{
+                  flexShrink: 0, width: 112, padding: '12px 10px', borderRadius: 14,
+                  border: 'none', cursor: 'pointer', textAlign: 'center',
+                  background: item.bg, fontFamily: "'Outfit',sans-serif",
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                }}
+              >
+                <span style={{ fontSize: 26 }}>{item.icon}</span>
+                <div style={{ fontSize: 12, fontWeight: 900, color: '#fff', lineHeight: 1.2 }}>{item.label}</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,.75)', lineHeight: 1.3 }}>{item.sub}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── CEFR FLUENCY TRACK ──────────────────────────────────────────── */}
       <div style={{
         background:'var(--card)', border:'1px solid var(--card-b)',
@@ -606,6 +669,30 @@ export default function LearnTab({
             <div key={l} style={{ fontSize:'var(--text-xs)', fontWeight:700, color: cefrLevel === l ? 'var(--heading)' : 'var(--subtext)' }}>{l}</div>
           ))}
         </div>
+        {/* Near-milestone teaser — shown when ≥50% toward next CEFR level */}
+        {cefrToNext && (
+          <div style={{
+            marginTop: 10, padding: '10px 12px', borderRadius: 10,
+            background: cefrToNext.next === 'B1' ? 'rgba(14,116,144,.08)' : cefrToNext.next === 'B2' ? 'rgba(5,150,105,.08)' : 'rgba(124,58,237,.08)',
+            border: cefrToNext.next === 'B1' ? '1px solid rgba(14,116,144,.25)' : cefrToNext.next === 'B2' ? '1px solid rgba(5,150,105,.25)' : '1px solid rgba(124,58,237,.25)',
+            display: 'flex', alignItems: 'center', gap: 10,
+          }}>
+            <span style={{ fontSize: 18, flexShrink: 0 }}>🎯</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, fontWeight: 900, color: 'var(--heading)', marginBottom: 4 }}>
+                {cefrToNext.pct}% toward {cefrToNext.next} — almost there!
+              </div>
+              <div style={{ height: 5, background: 'var(--bar-bg)', borderRadius: 4, overflow: 'hidden', marginBottom: 4 }}>
+                <div style={{ height: '100%', width: `${cefrToNext.pct}%`, borderRadius: 4, transition: 'width .6s', background: cefrToNext.next === 'B1' ? 'var(--info)' : cefrToNext.next === 'B2' ? 'var(--success)' : '#7c3aed' }} />
+              </div>
+              {cefrToNext.needs.length > 0 && (
+                <div style={{ fontSize: 11, color: 'var(--subtext)', fontWeight: 600 }}>
+                  Still need: {cefrToNext.needs.join(' · ')}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── BROWSE ALL CONTENT BUTTON ────────────────────────────────────── */}
