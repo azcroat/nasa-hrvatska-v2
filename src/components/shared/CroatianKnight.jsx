@@ -280,6 +280,19 @@ const CroatianKnight = React.memo(function CroatianKnight({
   const hasCrown  = level >= 51;
   const hasAura   = level >= 76;
 
+  // Inject keyframe CSS into <head> once (deduped by ID).
+  // NEVER use <style> inside the SVG — Playwright's getByText() traverses
+  // SVG <style> textContent and can match CSS strings as text content.
+  useEffect(() => {
+    const STYLE_ID = 'kn-anim-styles';
+    if (!document.getElementById(STYLE_ID)) {
+      const el = document.createElement('style');
+      el.id = STYLE_ID;
+      el.textContent = ANIM_CSS;
+      document.head.appendChild(el);
+    }
+  }, []);
+
   // Auto-blink (random interval: 2.5–6 s)
   const [blink, setBlink]       = useState(false);
   const blinkRef                = useRef(null);
@@ -330,9 +343,6 @@ const CroatianKnight = React.memo(function CroatianKnight({
         style={{ display: 'block', overflow: 'visible' }}
         aria-label={`Hrvoje, mascot — ${mood}`}
       >
-        {/* Style inside SVG — scoped to this element; does NOT pollute the HTML body
-            and is NOT matched by Playwright's getByText() selectors */}
-        <style>{ANIM_CSS}</style>
         <defs>
           {hasAura && (
             <radialGradient id="kn-aura-g" cx="50%" cy="55%" r="50%">

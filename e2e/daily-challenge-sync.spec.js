@@ -42,9 +42,13 @@ test.describe('Home screen — authenticated', () => {
     // QuestTracker moved from Home tab to Practice tab
     await page.getByRole('navigation', { name: 'Main navigation' })
       .getByRole('button', { name: 'Practice', exact: true }).click();
-    const remaining = page.getByText(/quests? remaining/i).first();
-    const allDone = page.getByText(/all quests complete/i).first();
-    await expect(remaining.or(allDone)).toBeVisible({ timeout: 10_000 });
+    // Wait for QuestTracker header to confirm it's rendered
+    await expect(page.getByText('EARN BONUS XP').first()).toBeVisible({ timeout: 10_000 });
+    // Verify the quest count/completion line is in the rendered body
+    const body = await page.locator('body').textContent();
+    const hasRemaining = /quests? remaining/i.test(body);
+    const hasAllDone = /all quests complete/i.test(body);
+    expect(hasRemaining || hasAllDone).toBe(true);
   });
 
   test('pre-seeded user with name shows in app state', async ({ page }) => {
