@@ -74,6 +74,7 @@ export function buildProgressSnapshot({ uid, name, stats, dchlA, dchlSl, favs, j
     nh_voice_pref: localStorage.getItem('nh_voice_pref'),
     nh_font_size: localStorage.getItem('nh_font_size') || 'medium',
     nh_reduce_motion: localStorage.getItem('nh_reduce_motion') === 'true',
+    nh_autotts: localStorage.getItem('nh_autotts') === 'true',
     // Journey milestones — additive union on merge; never truncated below 200 entries
     nh_journey: (() => { try { return JSON.parse(localStorage.getItem('nh_journey') || '[]'); } catch { return []; } })(),
     // Weekend warrior tracking — object { sat?: 'YYYY-MM-DD', sun?: 'YYYY-MM-DD' }
