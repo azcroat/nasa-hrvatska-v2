@@ -748,13 +748,13 @@ export default function HomeTab({
             const TOPIC_META = {
               vocabulary:   { label: 'Vocabulary',    icon: '📚', action: () => launchPathItem({ go: 'lesson', topic: 'family' }) },
               grammar:      { label: 'Grammar',        icon: '📝', action: () => launchPathItem({ go: 'grammar' }) },
-              past_tense:   { label: 'Past Tense',     icon: '⏮️', action: () => setScr('past_tense_lesson') },
-              future_tense: { label: 'Future Tense',   icon: '⏭️', action: () => setScr('future_tense_lesson') },
+              past_tense:   { label: 'Past Tense',     icon: '⏮️', action: () => launchPathItem({ go: 'past_tense_lesson' }) },
+              future_tense: { label: 'Future Tense',   icon: '⏭️', action: () => launchPathItem({ go: 'future_tense_lesson' }) },
               cases:        { label: 'Cases (Padeži)', icon: '🔤', action: () => launchPathItem({ go: 'padezi' }) },
               aspect:       { label: 'Verb Aspect',    icon: '⚡', action: () => launchPathItem({ go: 'aspect' }) },
               listening:    { label: 'Listening',      icon: '🎧', action: () => launchPathItem({ go: 'listening' }) },
               speaking:     { label: 'Speaking',       icon: '🗣️', action: () => launchPathItem({ go: 'speaking' }) },
-              production:   { label: 'Production',     icon: '✍️', action: () => setScr('production_drill') },
+              production:   { label: 'Production',     icon: '✍️', action: () => launchPathItem({ go: 'production_drill' }) },
             };
             const shown = weakTopics.slice(0, 3).map(topic => ({ id: topic.id, ...TOPIC_META[topic.id] })).filter(t => t.label);
             if (shown.length === 0) return null;
