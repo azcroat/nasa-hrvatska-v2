@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { H, Bar, Spk, speakSlow, SHADOWING } from '../../data.jsx';
 import PronunciationScorer from '../shared/PronunciationScorer.jsx';
+import { recordTopicResult } from '../../lib/adaptive.js';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -438,6 +439,7 @@ export default function ShadowingScreen({ goBack, award }) {
               🔁 Say Again
             </button>
             <button className="b bp" onClick={() => {
+              recordTopicResult('speaking', true);
               if (idx < items.length - 1) { setIdx(i => i + 1); advanceItem(); }
               else setDone(true);
             }}>
