@@ -6,11 +6,9 @@ import SpeakingSummaryScreen from './SpeakingSummaryScreen.jsx';
 import SpeakingPracticePanel from './SpeakingPracticePanel.jsx';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 import { useAndroidMicPermission } from '../../hooks/useAndroidMicPermission';
-import { isSpeechRecognitionSupported, isNative } from '../../lib/platform.js';
+import { isNative } from '../../lib/platform.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { recordTopicResult } from '../../lib/adaptive.js';
-
-const SRSupported = isSpeechRecognitionSupported();
 
 const SPEAKING_TIPS = [
   { mood: 'encouraging', text: 'Your accent doesn\'t need to be perfect — it needs to be understood. Speak boldly. 🎙️' },

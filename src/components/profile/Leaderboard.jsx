@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { H, fbGetFamilyMembers, fbWatchFamilyMembers, fbCreateFamily, fbJoinFamily, fbLeaveFamily } from '../../data.jsx';
 import { fbSaveReaction, fbWatchReactions } from '../../lib/firebase.js';
 import { subscribeToLeaderboard } from '../../lib/leaderboard.js';
@@ -73,7 +73,6 @@ export default function Leaderboard({
   const [globalUsers, setGlobalUsers] = useState([]);
   const [globalLoading, setGlobalLoading] = useState(false);
   const [globalError, setGlobalError] = useState('');
-  const [hasMore] = useState(false);
   const globalUnsubRef = useRef(null);
 
   // Real-time subscription using onSnapshot — bypasses Firestore offline cache on Android.
