@@ -84,6 +84,35 @@ export function isSessionExpired(): boolean { const s = gS() as { lastActive?: n
 export function isValidEmail(e: string): boolean { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
 
 // ═══ FIREBASE SYNC ═══
+
+/**
+ * Reconcile atomic stats.vs / stats.ct / stats.badges with the full arrays
+ * from the current progress snapshot. Uses arrayUnion (idempotent) so it is
+ * safe to call on every save. Fire-and-forget — failures are silently swallowed.
+ *
+ * Why this exists: writeDelta only fires for individual completions at the
+ * moment they happen. If the device was offline, or the user was in guest mode,
+ * writeDelta is skipped and stats.vs never receives those completions. When the
+ * progress blob is later overwritten by another device, the completions would
+ * disappear from the load-side union (blob.vs ∪ stats.vs). Reconciling on every
+ * fbSaveProgress call guarantees stats.vs is always a superset of the blob.
+ */
+function _reconcileAtomicStats(docId: string, st: Record<string, unknown>): void {
+  if (!_fbDb) return;
+  try {
+    const _rv  = (st.vs     as string[] | undefined)?.filter(s => typeof s === 'string') ?? [];
+    const _rc  = (st.ct     as string[] | undefined)?.filter(s => typeof s === 'string') ?? [];
+    const _rb  = (st.badges as string[] | undefined)?.filter(s => typeof s === 'string') ?? [];
+    const _rec: Record<string, unknown> = {};
+    if (_rv.length)  _rec['stats.vs']     = arrayUnion(..._rv);
+    if (_rc.length)  _rec['stats.ct']     = arrayUnion(..._rc);
+    if (_rb.length)  _rec['stats.badges'] = arrayUnion(..._rb);
+    if (Object.keys(_rec).length) {
+      updateDoc(fsDoc(_fbDb, 'users', docId), _rec).catch(() => {});
+    }
+  } catch (_) {}
+}
+
 export async function fbSaveProgress(uid: string, data: Record<string, unknown>): Promise<{ ok: boolean; err?: string; code?: string }> {
   if (!_fbReady || !_fbDb) return { ok: true };
   const id = toDocId(uid);
@@ -153,6 +182,13 @@ export async function fbSaveProgress(uid: string, data: Record<string, unknown>)
       });
     }
     await batch.commit();
+    // ── Atomic reconciliation ─────────────────────────────────────────────────
+    // Ensure stats.vs / stats.ct / stats.badges are a strict superset of the
+    // progress blob. This rescues completions that were done offline (when
+    // writeDelta was a no-op) before they can be lost by another device
+    // overwriting the progress blob. arrayUnion is idempotent — safe to call
+    // on every save. Fire-and-forget: non-critical since the main save succeeded.
+    _reconcileAtomicStats(id, _st);
     return { ok: true };
   } catch (e: unknown) {
     const err = e as { code?: string; message?: string };
@@ -165,6 +201,7 @@ export async function fbSaveProgress(uid: string, data: Record<string, unknown>)
         retryBatch.set(fsDoc(_fbDb, 'leaderboard', id), lbEntry, { merge: true });
         retryBatch.set(fsDoc(_fbDb, 'profiles', id), profileEntry, { merge: true });
         await retryBatch.commit();
+        _reconcileAtomicStats(id, _st);
         return { ok: true };
       } catch (e2: unknown) {
         const err2 = e2 as { code?: string; message?: string };

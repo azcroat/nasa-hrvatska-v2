@@ -247,13 +247,27 @@ export default function BrowseContentModal({
 
         {/* Interactive Media */}
         <div id="learn-section-interactive">
-          <Section title="Interactive Media" icon="✨" count="4 tools" defaultOpen={true}>
+          <Section title="Interactive Media" icon="✨" count="15 lessons + tools" defaultOpen={true}>
             <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
               {[
-                ["🎬","Animated Lessons: Alphabet","Phonetic rules, digraphs, and the rolled-R vowel","animlesson_alphabet",() => { onClose(); launchAnimLesson && launchAnimLesson("alphabet"); }],
-                ["⏮️","Animated Lessons: Past Tense","L-participle, gender endings, auxiliary system (A2)","animlesson_past",() => { onClose(); launchAnimLesson && launchAnimLesson("past-tense"); }],
-                ["🚀","Animated Lessons: Future Tense","ću/ćeš/će pattern, aspect in future, negation (B1)","animlesson_future",() => { onClose(); launchAnimLesson && launchAnimLesson("future-tense"); }],
-                ["🤝","Animated Lessons: Vi vs ti","Formal and informal address — when to use which","animlesson_vi_ti",() => { onClose(); launchAnimLesson && launchAnimLesson("vi-vs-ti"); }],
+                // ── Animated Grammar Lessons (22 total, A1→C1) ──────────────────────
+                ["🔤","Alphabet & Sounds","Phonetic rules, digraphs, Croatian diacritics — A1","animlesson_alphabet",() => { onClose(); launchAnimLesson && launchAnimLesson("alphabet"); }],
+                ["⚧️","Noun Gender","Masculine, feminine, neuter — identify by ending — A1","animlesson_gender",() => { onClose(); launchAnimLesson && launchAnimLesson("gender"); }],
+                ["⏮️","Past Tense","L-participle, gender endings, auxiliary system — A2","animlesson_past",() => { onClose(); launchAnimLesson && launchAnimLesson("past-tense"); }],
+                ["🚀","Future Tense","ću/ćeš/će pattern, aspect in future, negation — B1","animlesson_future",() => { onClose(); launchAnimLesson && launchAnimLesson("future-tense"); }],
+                ["🤝","Vi vs Ti","Formal and informal address — when to use which — A2","animlesson_vi_ti",() => { onClose(); launchAnimLesson && launchAnimLesson("vi-vs-ti"); }],
+                ["🎨","Adjective Agreement","Gender, case, number agreement for adjectives — A2","animlesson_adjagree",() => { onClose(); launchAnimLesson && launchAnimLesson("adjective-agreement"); }],
+                ["⚖️","Accusative in Depth","Animate/inanimate, direction vs location, time — A2","animlesson_acc",() => { onClose(); launchAnimLesson && launchAnimLesson("accusative-deep"); }],
+                ["🔄","Aspect — Imperfective","Ongoing, habitual, general truth — when to use it — B1","animlesson_aspect_impf",() => { onClose(); launchAnimLesson && launchAnimLesson("aspect-imperfective"); }],
+                ["✅","Aspect — Perfective","Completed events, narrative chains, results — B1","animlesson_aspect_pf",() => { onClose(); launchAnimLesson && launchAnimLesson("aspect-perfective"); }],
+                ["🚫","Aspect + Negation","Why negation and commands flip the aspect rule — B2","animlesson_aspect_neg",() => { onClose(); launchAnimLesson && launchAnimLesson("aspect-negation"); }],
+                ["📦","Genitive in Depth","Possession, nema, quantities, 8 key prepositions — B1","animlesson_gen",() => { onClose(); launchAnimLesson && launchAnimLesson("genitive-deep"); }],
+                ["📍","Dative & Locative","Shared endings, recipients, location prepositions — B1","animlesson_dat_loc",() => { onClose(); launchAnimLesson && launchAnimLesson("dative-locative"); }],
+                ["🛠️","Instrumental Case","Tools, means, accompaniment, s/sa + prepositions — B1","animlesson_instr",() => { onClose(); launchAnimLesson && launchAnimLesson("instrumental"); }],
+                ["🧬","Clitics: Mastery","Second-position rule, full internal order, double je — C1","animlesson_clitics_adv",() => { onClose(); launchAnimLesson && launchAnimLesson("clitics-advanced"); }],
+                ["📝","Verbal Nouns & Participles","Gerunds (-nje/-će), active/passive/adverbial forms — C1","animlesson_verbnoun",() => { onClose(); launchAnimLesson && launchAnimLesson("verbal-nouns"); }],
+                ["🎭","Idioms & Register","Ti/Vi shift, diminutives, discourse markers, proverbs — C1","animlesson_idioms",() => { onClose(); launchAnimLesson && launchAnimLesson("idioms-register"); }],
+                // ── Interactive Tools ───────────────────────────────────────────────
                 ["🔀","Case Transformer","Declension explorer — tap any noun across all 7 cases","casetransformer",() => { onClose(); setScr("casetransformer"); }],
                 ["🗺️","Vocabulary Scenes","Tap objects in real-life scenes to learn words","vocabscenes",() => { onClose(); setScr("vocabscenes"); }],
                 ["🔍","Grammar X-Ray","Tap any word in a text to see full grammatical analysis","grammarreader",() => { onClose(); setScr("grammarreader"); }],

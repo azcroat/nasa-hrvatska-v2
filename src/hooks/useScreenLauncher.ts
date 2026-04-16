@@ -76,6 +76,7 @@ interface LearnPathItem {
   go?: string;
   topic?: string;
   filter?: unknown;
+  lessonId?: string;
 }
 
 interface ScreenLauncherParams {
@@ -375,6 +376,14 @@ export function useScreenLauncher({
         return { hr: w[0], en: w[1], ph: w[2], opts: _sh([w[1]].concat(wr)), correct: w[1] };
       });
       launchMcGame(qs);
+    } else if (item.go === 'animlesson' && item.lessonId) {
+      const { LESSONS } = await import('../data/lessons.js') as { LESSONS: { id: string }[] };
+      const l = LESSONS.find(x => x.id === item.lessonId);
+      if (!l) return;
+      sessionStorage.setItem('nh_ex_start', Date.now().toString());
+      returnContextRef.current = { tab: 'learn', screen: 'learnpath' };
+      trackStart('grammar');
+      setAnimLesson(l); sCurEx('animlesson'); setScr('animlesson');
     } else {
       sessionStorage.setItem('nh_ex_start', Date.now().toString());
       // Always return to learnpath after completing any path item (black hole or direct screen).
@@ -425,7 +434,7 @@ export function useScreenLauncher({
       if (item.go) { setScr(item.go); sCurEx(item.go); }
     }
   }, [setScr, sCurEx, setStats, award, writeDelta, allCats, launchMcGame, currentScreen,
-      sLt, sLi, sLx, sLs, sLp, sLa, sLsl, sQi, sGl, sGp, sGx, sGs, sGa, sGsl, setLsInitQ]);
+      sLt, sLi, sLx, sLs, sLp, sLa, sLsl, sQi, sGl, sGp, sGx, sGs, sGa, sGsl, setLsInitQ, setAnimLesson]);
 
   const goBack = useCallback((): void => {
     if (curEx) markExerciseDone(curEx);
