@@ -8,6 +8,7 @@ import CroatianKnight from '../shared/CroatianKnight';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 import { CelebrationScene } from '../illustrations';
 import Flashcards from '../practice/Flashcards';
+import { recordTopicResult } from '../../lib/adaptive.js';
 
 const CONFETTI_COLORS = ['var(--info-light, #38bdf8)','var(--gold, #fbbf24)','var(--success-light, #4ade80)','var(--error-light, #f87171)','var(--lavender-light, #a78bfa)','#fb923c','#34d399','#e879f9'];
 
@@ -99,6 +100,7 @@ export default function LessonScreen({
         if (ok) { playCorrect(); haptic(40); sLs(s => s + 1); }
         else { playWrong(); haptic([40, 30, 40]); }
         srMark(qi[lx][0], ok);
+        recordTopicResult('vocabulary', ok);
       }
       if ((e.key === 'Enter' || e.key === ' ') && la) {
         e.preventDefault();
@@ -371,6 +373,7 @@ export default function LessonScreen({
                   if (ok) { playCorrect(); haptic(40); sLs(s => s + 1); }
                   else { playWrong(); haptic([40, 30, 40]); }
                   srMark(qi[lx][0], ok);
+                  recordTopicResult('vocabulary', ok);
                 }
               }}>
               <span style={{

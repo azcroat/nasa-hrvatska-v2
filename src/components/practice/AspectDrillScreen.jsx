@@ -4,6 +4,7 @@ import AspectPhaseBar from './AspectPhaseBar.jsx';
 import AspectRuleCard from './AspectRuleCard.jsx';
 import AspectQuestionPanel from './AspectQuestionPanel.jsx';
 import { useStats } from '../../context/StatsContext.tsx';
+import { recordTopicResult } from '../../lib/adaptive.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // The 6 core aspect rules every Croatian learner MUST internalize.
@@ -284,6 +285,7 @@ export default function AspectDrillScreen({ goBack, award }) {
       : question.type === 'compare'
         ? opt === 'pf'
         : opt === question.correct;
+    recordTopicResult('aspect', isCorrect);
     if (isCorrect) {
       setScore(s => s + 1);
       if (mistakeIds.has(item.en)) clearMistake(item.en);

@@ -4,6 +4,7 @@ import ScreenHeader from '../shared/ScreenHeader.jsx';
 import { markQuest } from '../../lib/quests.js';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 import { useStats } from '../../context/StatsContext.tsx';
+import { recordTopicResult } from '../../lib/adaptive.js';
 
 const LISTENING_TIPS = [
   { mood: 'thinking',    text: 'Close your eyes and let the Croatian sounds wash over you. Meaning before words. 🎧' },
@@ -67,7 +68,9 @@ export default function ListeningScreen({ questions, goBack, award }) {
     if (answered) return;
     setSelected(oi);
     setAnswered(true);
-    if (options[oi] === correct) setScore(s => s + 1);
+    const _correct = options[oi] === correct;
+    if (_correct) setScore(s => s + 1);
+    recordTopicResult('listening', _correct);
     // NOTE: auto-play removed — iOS Safari blocks speechSynthesis outside direct user gesture.
     // The "🔊 Listen again" button below lets users replay with a direct tap.
   }

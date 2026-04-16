@@ -8,6 +8,7 @@ import { knightSpeak } from '../../lib/knightSpeak.js';
 import { useAndroidMicPermission } from '../../hooks/useAndroidMicPermission';
 import { isSpeechRecognitionSupported, isNative } from '../../lib/platform.js';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { recordTopicResult } from '../../lib/adaptive.js';
 
 const SRSupported = isSpeechRecognitionSupported();
 
@@ -105,6 +106,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
 
   // Reset per-word score when word changes (called on Next)
   function advanceWord() {
+    recordTopicResult('speaking', sr === 'ok');
     setRecordingURL(null);
     setRecResult(null);
     setRecMsg('');
