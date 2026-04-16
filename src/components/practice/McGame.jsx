@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { srMark, recordMistake } from '../../data.jsx';
+import { recordTopicResult } from '../../lib/adaptive.js';
 import { useHaptic } from '../../hooks/useHaptic';
 import { playCorrect, playWrong } from '../../lib/soundSettings.js';
 import { getHearts, loseHeart } from '../../lib/lives.js';
@@ -150,6 +151,7 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
         .catch(() => { setAiExplain(null); });
     }
     if (q.hr) srMark(q.hr, isCorrect);
+    if (q.hr) recordTopicResult('vocabulary', isCorrect);
 
     // Persistent hearts: call loseHeart() before dispatch so reducer receives result
     const persistentHeartsAfter = (!isCorrect && isHeartsMode) ? loseHeart() : undefined;
