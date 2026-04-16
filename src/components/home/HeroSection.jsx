@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const _isNative = typeof window !== 'undefined' &&
   window.location.hostname === 'localhost' && !window.location.port;
 import { lXP, nXP, earnFreeze, getStreakFreezes, LEVEL_NARRATIVE, speak } from '../../data.jsx';
-import { getDailyXP, DAILY_XP_GOAL, getXPBoost, activateXPBoost, canActivateXPBoost, XP_BOOST_COST } from '../../lib/appUtils.js';
+import { getDailyXP, getDailyXPGoal, DAILY_XP_GOAL, getXPBoost, activateXPBoost, canActivateXPBoost, XP_BOOST_COST } from '../../lib/appUtils.js';
 import { useTranslator } from '../../hooks/useTranslator';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
@@ -331,6 +331,7 @@ export default function HeroSection({
   const xpPct = Math.min(Math.round((xpCur / xpNeeded) * 100), 100);
   const cefr = getCEFR(st.xp, st.lc, st.gc);
   const dailyXP = getDailyXP();
+  const dailyXPGoal = getDailyXPGoal();
 
   const activePalette = LEVEL_PALETTE[(pathData.activeLv.level - 1) % LEVEL_PALETTE.length];
   const heroScene = getDailyScene();
@@ -764,11 +765,11 @@ export default function HeroSection({
             ))}
           </div>
 
-          {/* ── DAILY XP GOAL — DuoLingo-style progress bar ── */}
+          {/* ── DAILY XP GOAL — DuoLingo-style progress bar (uses user's chosen commitment) ── */}
           {(() => {
-            const goalXP = Math.min(dailyXP, DAILY_XP_GOAL);
-            const goalPct = Math.min(Math.round((goalXP / DAILY_XP_GOAL) * 100), 100);
-            const goalDone = dailyXP >= DAILY_XP_GOAL;
+            const goalXP = Math.min(dailyXP, dailyXPGoal);
+            const goalPct = Math.min(Math.round((goalXP / dailyXPGoal) * 100), 100);
+            const goalDone = dailyXP >= dailyXPGoal;
             return (
               <div style={{
                 background: goalDone ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.07)',
@@ -785,7 +786,7 @@ export default function HeroSection({
                     </span>
                   </div>
                   <span style={{fontSize:12,fontWeight:900,color: goalDone ? 'rgba(134,239,172,0.95)' : 'rgba(255,255,255,0.9)',fontVariantNumeric:'tabular-nums'}}>
-                    {goalXP} / {DAILY_XP_GOAL} XP
+                    {goalXP} / {dailyXPGoal} XP
                   </span>
                 </div>
                 <div style={{height:6,background:'rgba(255,255,255,0.12)',borderRadius:6,overflow:'hidden'}}>
