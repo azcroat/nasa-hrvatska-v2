@@ -10,7 +10,17 @@ import type { CSSProperties } from 'react';
 import { localDateStr } from './dateUtils';
 
 // ─── Daily XP goal ───────────────────────────────────────────────────────────
+// Default goal — used when user hasn't completed onboarding
 export const DAILY_XP_GOAL = 50;
+
+/** Returns the user's chosen daily XP goal (from onboarding), defaulting to DAILY_XP_GOAL. */
+export function getDailyXPGoal(): number {
+  try {
+    const saved = parseInt(localStorage.getItem('nh_daily_goal_xp') || '0', 10);
+    return saved > 0 ? saved : DAILY_XP_GOAL;
+  } catch { return DAILY_XP_GOAL; }
+}
+
 export function getDailyXP(): number {
   try { return parseInt(localStorage.getItem('nh_daily_xp_' + localDateStr()) || '0', 10); } catch { return 0; }
 }

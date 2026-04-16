@@ -639,6 +639,76 @@ export default function HomeTab({
             );
           })()}
 
+          {/* ── GOAL-PERSONALIZED SHORTCUTS — based on user's chosen learning goal ── */}
+          {(() => {
+            const GOAL_PATHS = {
+              heritage: {
+                label: 'Heritage path',
+                color: '#dc2626',
+                items: [
+                  { icon: '📐', label: 'Croatian Grammar', sub: 'Cases & structures', action: () => launchPathItem({ go: 'grammar' }) },
+                  { icon: '📚', label: 'Vocabulary Lesson', sub: 'Build your roots vocab', action: () => launchPathItem({ go: 'lesson' }) },
+                  { icon: '🇭🇷', label: 'Croatian History', sub: 'Culture & tradition', action: () => setScr('croatia') },
+                ],
+              },
+              fluent: {
+                label: 'Fluency path',
+                color: '#0e7490',
+                items: [
+                  { icon: '📐', label: 'Grammar Drill', sub: 'Advance your structures', action: () => launchPathItem({ go: 'grammar' }) },
+                  { icon: '🎙️', label: 'AI Conversation', sub: 'Real-time dialogue', action: () => setScr('aiconvo') },
+                  { icon: '⌨️', label: 'Typing Practice', sub: 'Diacritics & spelling', action: () => { setScr('typing'); sCurEx('typing'); } },
+                ],
+              },
+              travel: {
+                label: 'Travel path',
+                color: '#7c3aed',
+                items: [
+                  { icon: '🏙️', label: 'City of the Day', sub: 'Explore Croatian cities', action: () => setScr('croatia') },
+                  { icon: '💬', label: 'Phrase Practice', sub: 'Essential travel phrases', action: () => launchPathItem({ go: 'lesson' }) },
+                  { icon: '🔄', label: 'Review Words', sub: 'Lock in your vocabulary', action: () => setScr('review') },
+                ],
+              },
+              culture: {
+                label: 'Culture path',
+                color: '#b45309',
+                items: [
+                  { icon: '🇭🇷', label: 'Cultural Spotlight', sub: 'History & traditions', action: () => setScr('croatia') },
+                  { icon: '📖', label: 'Graded Reading', sub: 'Croatian texts', action: () => setScr('readinglist') },
+                  { icon: '📚', label: 'Vocabulary Lesson', sub: 'Cultural vocabulary', action: () => launchPathItem({ go: 'lesson' }) },
+                ],
+              },
+            };
+            const path = GOAL_PATHS[userGoal] || GOAL_PATHS.fluent;
+            return (
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--subtext)', letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 8 }}>
+                  {path.label}
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {path.items.map((item, i) => (
+                    <button
+                      key={i}
+                      onClick={item.action}
+                      style={{
+                        flex: 1, cursor: 'pointer', padding: '10px 8px',
+                        borderRadius: 14, background: 'var(--card)',
+                        border: '1px solid var(--card-b)',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                        fontFamily: "'Outfit',sans-serif",
+                        display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4,
+                      }}
+                    >
+                      <span style={{ fontSize: 20, lineHeight: 1 }}>{item.icon}</span>
+                      <div style={{ fontSize: 11, fontWeight: 800, color: path.color, lineHeight: 1.2, textAlign: 'left' }}>{item.label}</div>
+                      <div style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 600, textAlign: 'left', lineHeight: 1.3 }}>{item.sub}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
           {/* ── AI TOOLS — flagship shortcuts, right after Daily Discovery ── */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
             <button
