@@ -106,7 +106,7 @@ export default function PadeziScreen({ goBack, award, setSt }) {
                 <button
                   key={oi}
                   className={"ob " + (czA ? (oi === ci ? "ok" : czSl === oi ? "no" : "") : "")}
-                  onClick={() => { if (!czA) { sCzSl(oi); sCzA(true); const correct=oi===ci; if (correct) { sCzS(s => s + 1); if (typeof award === 'function') award(4); } recordTopicResult('padezi',correct); } }}>
+                  onClick={() => { if (!czA) { sCzSl(oi); sCzA(true); const correct=oi===ci; if (correct) { sCzS(s => s + 1); if (typeof award === 'function') award(4); } recordTopicResult('cases',correct); } }}>
                   {o}
                 </button>
               ))}
