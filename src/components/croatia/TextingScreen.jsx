@@ -30,7 +30,7 @@ function TextingScreen({ goBack, award }) {
     setAnswered(true);
     const correct = i === questions[qi].c;
     if (correct) setScore(s => s + 1);
-    recordTopicResult('texting', correct);
+    recordTopicResult('vocabulary', correct);
   }
 
   function next() {
