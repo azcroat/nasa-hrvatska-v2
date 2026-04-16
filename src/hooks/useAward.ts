@@ -221,6 +221,14 @@ export function useAward({ curEx, stats, setStats, writeDelta }: { curEx: string
       if (_lsAType) {
         trackComplete(_lsAType, _lsDur);
         sessionStorage.removeItem('nh_ex_start');
+        // Write per-type daily session counts — read by DailyPlanCard to give the AI planner context
+        const _scTypeMap: Record<string, string> = { flashcards: 'flashcards', listening: 'listening', speaking: 'speaking', writing: 'writing' };
+        const _scType = _scTypeMap[_lsAType];
+        if (_scType) {
+          const _scKey = 'nh_session_' + _scType + '_' + _localDateStr();
+          try { localStorage.setItem(_scKey, String((parseInt(localStorage.getItem(_scKey) || '0', 10)) + 1)); } catch {}
+        }
+        try { localStorage.setItem('nh_last_active', String(Date.now())); } catch {}
         // Accumulate daily study time (minutes) for analytics chart
         if (_lsDur > 0) {
           const _dtKey = 'nh_daily_time_' + _localDateStr();
