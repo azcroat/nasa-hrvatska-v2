@@ -431,7 +431,7 @@ export function useScreenLauncher({
             if (bhStat === 'gc') delta.gc = 1;
             if (Object.keys(delta).length > 0) writeDelta(delta);
           }
-          award(15);
+          award(15, undefined, screenId);
         }, 20000);
         lpDwellRef.current = { screen: screenId, statType: bhStat, timer };
       }

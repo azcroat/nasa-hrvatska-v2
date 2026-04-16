@@ -37,7 +37,7 @@ export interface StatsContextValue {
   stats: Stats;
   setStats: (fn: ((prev: Stats) => Stats) | Stats) => void;
   dispatch: Dispatch<StatsAction>;
-  award: (amt: number, celebrate?: boolean) => void;
+  award: (amt: number, celebrate?: boolean, exerciseId?: string) => void;
   level: number;
   /** Fire an atomic Firestore increment for this delta — conflict-free across devices. */
   writeDelta: (delta: StatsDelta) => void;
