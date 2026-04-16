@@ -347,15 +347,15 @@ export default function CroatianNewsScreen({ goBack, award }) {
 
   // Track how many articles the user has engaged with for award
   const [engagedArticles, setEngagedArticles] = useState(new Set());
-  const [awardGiven, setAwardGiven] = useState(false);
+  const awardGiven = useRef(false);
 
   function markEngaged(articleIdx) {
     setEngagedArticles(prev => {
       const next = new Set(prev);
       next.add(articleIdx);
-      if (next.size >= 2 && !awardGiven) {
+      if (next.size >= 2 && !awardGiven.current) {
+        awardGiven.current = true;
         award && award(10);
-        setAwardGiven(true);
       }
       return next;
     });

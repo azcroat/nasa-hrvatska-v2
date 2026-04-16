@@ -226,12 +226,12 @@ export default function PhraseOfDayScreen({ goBack, award }) {
   // Track award (hear it + cultural note read)
   const [heardIt, setHeardIt] = useState(false);
   const [readCultural, setReadCultural] = useState(false);
-  const [awardGiven, setAwardGiven] = useState(false);
+  const awardGiven = useRef(false);
 
   function checkAward(heard, cultural) {
-    if (!awardGiven && (heard || cultural)) {
+    if (!awardGiven.current && (heard || cultural)) {
+      awardGiven.current = true;
       award && award(5);
-      setAwardGiven(true);
     }
   }
 
@@ -245,7 +245,7 @@ export default function PhraseOfDayScreen({ goBack, award }) {
     // Reset award state when loading new phrase
     setHeardIt(false);
     setReadCultural(false);
-    setAwardGiven(false);
+    awardGiven.current = false;
 
     if (!isOnline) {
       setPhraseData(SEED_PHRASES[category] || SEED_PHRASES.greeting);

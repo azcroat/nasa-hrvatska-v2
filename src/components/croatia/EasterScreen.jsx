@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { V, speak } from '../../data.jsx';
 import { markQuest } from '../../lib/quests.js';
 
@@ -187,7 +187,7 @@ export default function EasterScreen({ onBack, award }) {
   const [selected, setSelected] = useState(null);
   const [answers, setAnswers] = useState([]);
   const [quizDone, setQuizDone] = useState(kvizPermanentlyDone);
-  const [xpAwarded, setXpAwarded] = useState(kvizPermanentlyDone);
+  const xpAwarded = useRef(kvizPermanentlyDone);
 
   const easterVocab = V.easter || [];
 
@@ -220,7 +220,8 @@ export default function EasterScreen({ onBack, award }) {
     setTimeout(() => {
       if (qIdx + 1 >= shuffledQuestions.length) {
         setQuizDone(true);
-        if (!xpAwarded) {
+        if (!xpAwarded.current) {
+          xpAwarded.current = true;
           const correctCount = newAnswers.filter(Boolean).length;
           const xpEarned = correctCount * 10;
           markQuest('reading');
@@ -232,7 +233,6 @@ export default function EasterScreen({ onBack, award }) {
               window.dispatchEvent(new CustomEvent('nh-campaign-quest-done'));
             }
           } catch {}
-          setXpAwarded(true);
         }
       } else {
         setQIdx(qIdx + 1);
