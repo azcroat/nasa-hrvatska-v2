@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, V, sh, srMark, speak, getDueReviews } from '../../data.jsx';
 import CroatianKeyboard from '../shared/CroatianKeyboard.jsx';
+import { recordTopicResult } from '../../lib/adaptive.js';
 
 // ── Answer checking helpers ───────────────────────────────────────────────────
 
@@ -125,6 +126,7 @@ export default function TypingScreen({ goBack, award }) {
     const timeMs  = Math.max(500, Date.now() - startTsRef.current);
     const isCorrect = verdict === 'perfect' || verdict === 'diacritic' || verdict === 'close';
     srMark(tyW[0], isCorrect, timeMs);
+    recordTopicResult('typing', isCorrect);
     if (isCorrect) sTyS(s => s + 1);
     setResult(verdict);
     speak(tyW[0]);
@@ -187,13 +189,26 @@ export default function TypingScreen({ goBack, award }) {
 
       {/* Submit / Result */}
       {!result ? (
-        <button
-          className="b bp"
-          style={{ marginTop: 12, width: '100%' }}
-          onClick={submitAnswer}
-          disabled={!tyIn.trim()}>
-          Check Answer
-        </button>
+        <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+          <button
+            className="b"
+            style={{ flex: '0 0 auto', padding: '12px 16px', background: 'var(--bar-bg)', color: 'var(--subtext)', border: '1px solid var(--card-b)', borderRadius: 12, fontFamily: 'inherit', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+            onClick={() => {
+              srMark(tyW[0], false, 999999);
+              recordTopicResult('typing', false);
+              setResult('wrong');
+              speak(tyW[0]);
+            }}>
+            Skip
+          </button>
+          <button
+            className="b bp"
+            style={{ flex: 1 }}
+            onClick={submitAnswer}
+            disabled={!tyIn.trim()}>
+            Check Answer
+          </button>
+        </div>
       ) : (
         <div style={{
           marginTop: 14, padding: '14px 16px',
