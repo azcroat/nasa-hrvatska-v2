@@ -406,13 +406,16 @@ export function useScreenLauncher({
         // Immediately record screen ID in vs — satisfies ck() checks that use the screen name
         // (e.g. 'phonology', 'aspect', 'vocative') rather than the item.id click-through gate.
         // Without this, users who exit in <20s see the item stuck as incomplete.
+        // wasFirstVisit is captured by the closure and read 20s later (after React has rendered
+        // and run the updater). The immediate writeDelta fires unconditionally — arrayUnion is
+        // idempotent, so repeat writes are safe. This mirrors the click-through gate pattern.
         let wasFirstVisit = false;
         setStats(prev => {
           if (prev.vs?.includes(screenId)) return prev;
           wasFirstVisit = true;
           return { ...prev, vs: [...(prev.vs || []), screenId] };
         });
-        if (wasFirstVisit && writeDelta) writeDelta({ vs: [screenId] });
+        if (writeDelta) writeDelta({ vs: [screenId] });
         // After 20s of dwell time, award lc/gc progress credit and XP.
         // vs is already written above; the timer only handles the counter increment.
         const timer = setTimeout(() => {
