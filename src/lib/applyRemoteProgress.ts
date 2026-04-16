@@ -189,6 +189,7 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
   if (fp.nh_voice_pref) localStorage.setItem('nh_voice_pref', fp.nh_voice_pref);
   if (fp.nh_font_size && fp.nh_font_size !== 'medium') localStorage.setItem('nh_font_size', fp.nh_font_size);
   if (fp.nh_reduce_motion === true) localStorage.setItem('nh_reduce_motion', 'true');
+  if (fp.nh_autotts === true) localStorage.setItem('nh_autotts', 'true');
 
   // ── Journey milestones — additive union: never discard history ────────────
   if (Array.isArray(fp.nh_journey) && fp.nh_journey.length > 0) {
