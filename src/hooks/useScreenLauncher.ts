@@ -319,20 +319,21 @@ export function useScreenLauncher({
       });
       if (!alreadyTracked && writeDelta) writeDelta({ vs: [item.id!] });
     }
-    if (item.go === 'lesson' && item.topic) {
+    if (item.go === 'lesson') {
       const { V } = await _getData() as { V: Record<string, VocabWord[]> };
-      const raw = V[item.topic];
-      // Fall back to global pool when topic vocabulary is missing or too small — never silent-fail
+      const raw = item.topic ? V[item.topic] : undefined;
+      // Fall back to global pool when topic is missing or has too little vocabulary — never silent-fail
       const pool = (raw && raw.length >= 2) ? raw
         : allCats.flatMap(t => V[t] || []).filter(w => w && w[0] && w[1]);
       if (pool.length < 2) return;
       const items = _sh(pool);
+      const topic = item.topic || (allCats.length > 0 ? allCats[Math.floor(Math.random() * allCats.length)] : 'greetings');
       const returnScreen = (currentScreen && currentScreen !== 'dashboard') ? currentScreen : 'dashboard';
       returnContextRef.current = { tab: 'learn', screen: returnScreen };
-      sLt(item.topic); sLi(items); sLx(0); sLs(0); sLp('learn'); sLa(false); sLsl(-1); sQi([]);
+      sLt(topic); sLi(items); sLx(0); sLs(0); sLp('learn'); sLa(false); sLsl(-1); sQi([]);
       sessionStorage.setItem('nh_ex_start', Date.now().toString());
       trackStart('flashcards');
-      setScr('lesson'); sCurEx('vocab_' + item.topic);
+      setScr('lesson'); sCurEx('vocab_' + topic);
     } else if (item.go === 'grammar') {
       const { GRAM } = await _getData() as { GRAM: { beginner: unknown[]; intermediate: unknown[]; advanced: unknown[] } };
       // Flatten all grammar lessons and cycle via gc so each quest visit advances to the next lesson
