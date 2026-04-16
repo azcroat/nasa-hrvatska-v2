@@ -47,7 +47,7 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
   const [quizResults, setQuizResults] = useState({});
   const [score, setScore] = useState(0);
   const [_done, setDone] = useState(false);
-  const [autoTTS, setAutoTTS] = useState(() => LS_GET('nh_autotts', true));
+  const [autoTTS, setAutoTTS] = useState(() => LS_GET('nh_autotts', false));
   const [ttsAvailable] = useState(() => typeof window !== 'undefined');
   const [xpAwarded, setXpAwarded] = useState(false);
 
@@ -186,7 +186,7 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
     <div style={{
       fontFamily: "'Outfit', sans-serif",
       maxWidth: 600, margin: '0 auto',
-      padding: '0 0 80px',
+      padding: '0 0 calc(160px + env(safe-area-inset-bottom, 0px))',
     }}>
       {/* ── Header ── */}
       <div style={{
@@ -253,79 +253,86 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
         {renderSlide()}
       </div>
 
-      {/* ── Navigation ── */}
+      {/* ── Navigation — fixed above the app nav bar so it's always visible ── */}
+      {/* Lesson nav: position:fixed above app nav (≈60px) — never requires scrolling to reach */}
       <div style={{
-        display: 'flex', gap: 10, marginTop: 24, alignItems: 'center',
+        position: 'fixed',
+        bottom: 'calc(60px + env(safe-area-inset-bottom, 0px))',
+        left: 0, right: 0,
+        background: 'var(--app-bg)',
+        borderTop: '1px solid var(--card-b)',
+        padding: '10px 16px 8px',
+        zIndex: 10,
       }}>
-        {/* Prev */}
-        <button
-          onClick={goPrev}
-          disabled={slide === 0}
-          aria-label="Previous slide"
-          style={{
-            flex: 1, padding: '13px 16px',
-            borderRadius: 12, border: '1px solid var(--card-b)',
-            background: slide === 0 ? 'var(--bar-bg)' : 'var(--card)',
-            color: slide === 0 ? 'var(--subtext)' : 'var(--heading)',
-            cursor: slide === 0 ? 'not-allowed' : 'pointer',
-            fontFamily: 'inherit', fontSize: 'var(--text-base)',
-            fontWeight: 700, opacity: slide === 0 ? 0.4 : 1,
-            transition: 'all .15s',
-          }}
-        >
-          ← Prev
-        </button>
-
-        {/* Slide type indicator dots */}
-        <div style={{
-          display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0,
-        }}>
-          {slides.map((s, i) => (
-            <div
-              key={i}
+        <div style={{ maxWidth: 600, margin: '0 auto' }}>
+          {/* Quiz check reminder — inside fixed nav so it's always visible */}
+          {isQuiz && !quizRevealed && quizAnswers[slide] !== undefined && (
+            <div style={{
+              marginBottom: 8, padding: '7px 12px',
+              background: lesson.bg, borderRadius: 10,
+              border: '1px solid ' + lesson.color + '33',
+              fontSize: 'var(--text-xs)', color: lesson.color,
+              fontWeight: 700, textAlign: 'center',
+            }}>
+              Tap "Check Answer" before continuing
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            {/* Prev */}
+            <button
+              onClick={goPrev}
+              disabled={slide === 0}
+              aria-label="Previous slide"
               style={{
-                width: i === slide ? 16 : 6,
-                height: 6, borderRadius: 99,
-                background: i === slide ? lesson.color : (i < slide ? lesson.color + '66' : 'var(--bar-bg)'),
-                transition: 'all .25s ease',
+                flex: 1, padding: '13px 16px',
+                borderRadius: 12, border: '1px solid var(--card-b)',
+                background: slide === 0 ? 'var(--bar-bg)' : 'var(--card)',
+                color: slide === 0 ? 'var(--subtext)' : 'var(--heading)',
+                cursor: slide === 0 ? 'not-allowed' : 'pointer',
+                fontFamily: 'inherit', fontSize: 'var(--text-base)',
+                fontWeight: 700, opacity: slide === 0 ? 0.4 : 1,
+                transition: 'all .15s',
               }}
-            />
-          ))}
-        </div>
+            >
+              ← Prev
+            </button>
 
-        {/* Next */}
-        <button
-          onClick={goNext}
-          disabled={!canGoNext}
-          aria-label={isLastSlide ? 'Finish lesson' : 'Next slide'}
-          style={{
-            flex: 1, padding: '13px 16px',
-            borderRadius: 12, border: 'none',
-            background: canGoNext ? lesson.color : 'var(--bar-bg)',
-            color: canGoNext ? '#fff' : 'var(--subtext)',
-            cursor: canGoNext ? 'pointer' : 'not-allowed',
-            fontFamily: 'inherit', fontSize: 'var(--text-base)',
-            fontWeight: 800, transition: 'all .15s',
-            opacity: canGoNext ? 1 : 0.5,
-          }}
-        >
-          {isLastSlide ? 'Finish ✓' : 'Next →'}
-        </button>
+            {/* Slide type indicator dots */}
+            <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0 }}>
+              {slides.map((s, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: i === slide ? 16 : 6,
+                    height: 6, borderRadius: 99,
+                    background: i === slide ? lesson.color : (i < slide ? lesson.color + '66' : 'var(--bar-bg)'),
+                    transition: 'all .25s ease',
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Next */}
+            <button
+              onClick={goNext}
+              disabled={!canGoNext}
+              aria-label={isLastSlide ? 'Finish lesson' : 'Next slide'}
+              style={{
+                flex: 1, padding: '13px 16px',
+                borderRadius: 12, border: 'none',
+                background: canGoNext ? lesson.color : 'var(--bar-bg)',
+                color: canGoNext ? '#fff' : 'var(--subtext)',
+                cursor: canGoNext ? 'pointer' : 'not-allowed',
+                fontFamily: 'inherit', fontSize: 'var(--text-base)',
+                fontWeight: 800, transition: 'all .15s',
+                opacity: canGoNext ? 1 : 0.5,
+              }}
+            >
+              {isLastSlide ? 'Finish ✓' : 'Next →'}
+            </button>
+          </div>
+        </div>
       </div>
-
-      {/* ── Quiz: check reminder ── */}
-      {isQuiz && !quizRevealed && quizAnswers[slide] !== undefined && (
-        <div style={{
-          marginTop: 10, padding: '8px 12px',
-          background: lesson.bg, borderRadius: 10,
-          border: '1px solid ' + lesson.color + '33',
-          fontSize: 'var(--text-xs)', color: lesson.color,
-          fontWeight: 700, textAlign: 'center',
-          animation: 'slideIn .25s ease forwards',
-        }}>
-          Tap "Check Answer" before continuing
-        </div>
-      )}
     </div>
   );
 }
