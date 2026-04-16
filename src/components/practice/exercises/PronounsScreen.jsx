@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { H, speak, sh, shMemo } from '../../../data.jsx';
 import { PRONOUNCASE } from '../../../data.jsx';
 import { markQuest } from '../../../lib/quests.js';
+import { recordTopicResult } from '../../../lib/adaptive.js';
 
 function PronounsScreen({ goBack, award }) {
   const questions = shMemo("pc",PRONOUNCASE.quiz,10);
@@ -12,6 +13,7 @@ function PronounsScreen({ goBack, award }) {
   function handleAnswer(e, isCorrect, sentence) {
     e.target.style.background = isCorrect ? "#dcfce7" : "#fee2e2";
     e.target.style.borderColor = isCorrect ? "#16a34a" : "#dc2626";
+    recordTopicResult('grammar', isCorrect);
     if (isCorrect) { if (typeof award === 'function') award(3); speak(sentence); }
     if (e.target.closest && e.target.closest("div")) e.target.closest("div").style.pointerEvents = "none";
     if (isCorrect) correctRef.current++;

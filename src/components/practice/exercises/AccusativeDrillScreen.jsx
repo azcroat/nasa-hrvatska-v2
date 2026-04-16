@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { H, speak, shMemo } from '../../../data.jsx';
 import { AKUFOOD, AKUCLOTHES } from '../../../data.jsx';
 import { markQuest } from '../../../lib/quests.js';
+import { recordTopicResult } from '../../../lib/adaptive.js';
 
 function AccusativeDrillScreen({ goBack, award }) {
   const foodItems = shMemo("af",AKUFOOD);
@@ -15,6 +16,7 @@ function AccusativeDrillScreen({ goBack, award }) {
     e.target.style.background = "#dcfce7";
     e.target.style.borderColor = "#16a34a";
     speak(f.q.replace("_____", f.aku));
+    recordTopicResult('cases', true);
     if (typeof award === 'function') award(2);
     if (e.target.closest && e.target.closest("div")) e.target.closest("div").style.pointerEvents = "none";
     revealedRef.current++;

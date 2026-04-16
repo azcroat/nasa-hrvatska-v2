@@ -3,6 +3,7 @@ import { H, speak, sh, shMemo } from '../../../data.jsx';
 import { VERBDRILL, VBPERSONS } from '../../../data.jsx';
 import { markQuest } from '../../../lib/quests.js';
 import { addWordToSRS } from '../../../lib/srs.js';
+import { recordTopicResult } from '../../../lib/adaptive.js';
 
 // Generate 12 conjugation quiz questions from the verb list
 function buildQuiz(verbs) {
@@ -36,6 +37,7 @@ export default function VerbDrillScreen({ goBack, award }) {
     const isCorrect = opt === q.correct;
     setSelected(opt);
     setAnswered(true);
+    recordTopicResult('grammar', isCorrect);
     if (isCorrect) { setScore(s => s + 1); speak(opt); addWordToSRS(q.verb); }
   }
 

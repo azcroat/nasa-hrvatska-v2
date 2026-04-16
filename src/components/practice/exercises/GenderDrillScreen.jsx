@@ -3,6 +3,7 @@ import { useStats } from '../../../context/StatsContext.tsx';
 import { H, speak, sh } from '../../../data.jsx';
 import { GENDERDRILL } from '../../../data.jsx';
 import { markQuest } from '../../../lib/quests.js';
+import { recordTopicResult } from '../../../lib/adaptive.js';
 
 function GenderDrillScreen({ goBack, award, setSt }) {
   const { writeDelta } = useStats();
@@ -84,6 +85,7 @@ function GenderDrillScreen({ goBack, award, setSt }) {
                 style={{flex:1,padding:"10px 0",border:"2px solid "+gColor[g].bc,borderRadius:10,background:"white",fontSize:14,fontWeight:700,color:gColor[g].tc,cursor:"pointer"}}
                 onClick={() => {
                   const correct = g === words[selectedGenderIdx].g;
+                  recordTopicResult('grammar', correct);
                   setRevealedGenders(prev => ({...prev, [selectedGenderIdx]: {guess:g, correct}}));
                   setSelectedGenderIdx(null);
                   if (correct) { if (typeof award === 'function') award(3); }
@@ -149,6 +151,7 @@ function GenderDrillScreen({ goBack, award, setSt }) {
                     onClick={() => {
                       if (answered) return;
                       const correct = opt === p.p;
+                      recordTopicResult('grammar', correct);
                       setPluralAnswered(prev => ({...prev, [i]: {guess:opt, correct}}));
                       if (correct) { if (typeof award === 'function') award(4); speak(p.p); }
                     }}>
@@ -190,6 +193,7 @@ function GenderDrillScreen({ goBack, award, setSt }) {
                     onClick={() => {
                       if (answered) return;
                       const correct = o === a.adj;
+                      recordTopicResult('grammar', correct);
                       setAdjAnswered(prev => ({...prev, [i]: {guess:o, correct}}));
                       if (correct) { if (typeof award === 'function') award(3); speak(a.adj+" "+a.noun); }
                     }}>
