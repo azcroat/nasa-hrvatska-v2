@@ -61,6 +61,7 @@ const BLACK_HOLE_SCREENS: Record<string, string> = {
   school:'lc', restaurant:'lc', emergency:'lc', crmap:'lc',
   storyselect:'lc', foodorder:'lc', grocery:'lc', transport:'lc',
   grammarvideos:'lc',
+  production_drill:'gc',
 };
 
 interface McQuestion {
@@ -402,20 +403,30 @@ export function useScreenLauncher({
       if (bhStat && item.go) {
         if (lpDwellRef.current?.timer) clearTimeout(lpDwellRef.current.timer);
         const screenId = item.go;
+        // Immediately record screen ID in vs — satisfies ck() checks that use the screen name
+        // (e.g. 'phonology', 'aspect', 'vocative') rather than the item.id click-through gate.
+        // Without this, users who exit in <20s see the item stuck as incomplete.
+        let wasFirstVisit = false;
+        setStats(prev => {
+          if (prev.vs?.includes(screenId)) return prev;
+          wasFirstVisit = true;
+          return { ...prev, vs: [...(prev.vs || []), screenId] };
+        });
+        if (wasFirstVisit && writeDelta) writeDelta({ vs: [screenId] });
+        // After 20s of dwell time, award lc/gc progress credit and XP.
+        // vs is already written above; the timer only handles the counter increment.
         const timer = setTimeout(() => {
-          let alreadyVisited = false;
+          if (!wasFirstVisit) return; // repeat visit — counters already credited
           setStats(prev => {
-            if (prev.vs?.includes(screenId)) { alreadyVisited = true; return prev; }
-            const newVs = [...(prev.vs || []), screenId];
-            if (bhStat === 'lc') return { ...prev, lc: prev.lc + 1, vs: newVs };
-            if (bhStat === 'gc') return { ...prev, gc: prev.gc + 1, vs: newVs };
-            return { ...prev, vs: newVs };
+            if (bhStat === 'lc') return { ...prev, lc: prev.lc + 1 };
+            if (bhStat === 'gc') return { ...prev, gc: prev.gc + 1 };
+            return prev;
           });
-          if (!alreadyVisited && writeDelta) {
-            const delta: StatsDelta & Record<string, unknown> = { vs: [screenId] };
+          if (writeDelta) {
+            const delta: StatsDelta & Record<string, unknown> = {};
             if (bhStat === 'lc') delta.lc = 1;
             if (bhStat === 'gc') delta.gc = 1;
-            writeDelta(delta);
+            if (Object.keys(delta).length > 0) writeDelta(delta);
           }
           award(15);
         }, 20000);
