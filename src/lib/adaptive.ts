@@ -14,6 +14,10 @@
  */
 
 const KEY = 'topic_accuracy';
+// Topic data older than 30 days is considered stale and resets on next attempt.
+// This prevents old struggles from permanently marking a topic as "weak" after
+// the learner has had a long break and potentially improved through other means.
+const STALE_MS = 30 * 24 * 60 * 60 * 1000;
 
 interface TopicData {
   attempts: number;
@@ -38,9 +42,13 @@ function _save(data: TopicMap): void {
 export function recordTopicResult(topicId: string, correct: boolean): void {
   const data = _load();
   const curr = data[topicId] || { attempts: 0, correct: 0, lastAttempt: 0 };
+  // If last attempt was >30 days ago, start a fresh window so historical
+  // struggles don't permanently haunt the adaptive panel.
+  const isStale = curr.lastAttempt > 0 && (Date.now() - curr.lastAttempt) > STALE_MS;
+  const base = isStale ? { attempts: 0, correct: 0 } : curr;
   data[topicId] = {
-    attempts: curr.attempts + 1,
-    correct: curr.correct + (correct ? 1 : 0),
+    attempts: base.attempts + 1,
+    correct: base.correct + (correct ? 1 : 0),
     lastAttempt: Date.now(),
   };
   _save(data);
@@ -55,8 +63,13 @@ export function getTopicAccuracy(topicId: string): { accuracy: number; attempts:
 
 export function getWeakTopics(threshold = 60): Array<{ id: string; accuracy: number; attempts: number }> {
   const data = _load();
+  const now = Date.now();
   return Object.entries(data)
-    .filter(([, v]) => v.attempts >= 3 && (v.correct / v.attempts * 100) < threshold)
+    .filter(([, v]) =>
+      v.attempts >= 3 &&
+      (v.correct / v.attempts * 100) < threshold &&
+      (now - v.lastAttempt) < STALE_MS  // only surface recent data
+    )
     .map(([id, v]) => ({
       id,
       accuracy: Math.round(v.correct / v.attempts * 100),
