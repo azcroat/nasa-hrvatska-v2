@@ -336,7 +336,9 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   }
 
   async function startMic() {
-    if (!SRSupported) return;
+    // Guard: this legacy path requires Web Speech API — PronunciationScorer handles Android/MediaRecorder.
+    const hasSR = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+    if (!hasSR) return;
     setRecordingURL(null);
     setPronScore(null);
     chunksRef.current = [];

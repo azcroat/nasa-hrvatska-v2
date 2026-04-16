@@ -185,11 +185,14 @@ test.describe('Auth edge cases', () => {
   test('all 5 routes render without JS errors when session is seeded', async ({ page }) => {
     const errors = trackErrors(page);
 
+    // Set up once — addInitScript and page.route() handlers persist across navigations.
+    // Re-registering them inside the loop accumulates duplicate handlers which can cause
+    // WebKit to close the browser context from handler conflicts on later routes.
+    await seedAuth(page);
+    await blockFirebase(page);
+    await mockTTS(page);
+
     for (const route of ['/', '/learn', '/practice', '/croatia', '/profile']) {
-      // Re-apply init scripts before each navigation
-      await seedAuth(page);
-      await blockFirebase(page);
-      await mockTTS(page);
       // Catch SPA-internal navigation race: React Router may fire navigate('/') as the
       // test's goto() completes, causing "interrupted by another navigation" on WebKit.
       await page.goto(route).catch(() => {});

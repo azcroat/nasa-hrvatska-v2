@@ -3,7 +3,17 @@ import { Spk, speakSlow } from '../../data.jsx';
 import PronunciationScorer from '../shared/PronunciationScorer.jsx';
 import { AIProgressBar } from '../shared/SkeletonLoader.jsx';
 
-const SRSupported = typeof window !== 'undefined' && !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+// PronunciationScorer works via TWO paths:
+//   1. Web Speech API (Chrome/Edge/desktop) — window.SpeechRecognition
+//   2. Azure/MediaRecorder path (Android WebView) — getUserMedia + MediaRecorder → /api/pronunciation-assess
+// On Android WebView, window.SpeechRecognition is absent but MediaRecorder IS available.
+// Always render PronunciationScorer when EITHER path is available; it auto-selects the right path.
+const webSpeechSup = typeof window !== 'undefined' &&
+  !!(/** @type {any} */ (window).SpeechRecognition || /** @type {any} */ (window).webkitSpeechRecognition);
+const mediaRecSup = typeof window !== 'undefined' &&
+  typeof navigator !== 'undefined' &&
+  !!(navigator.mediaDevices && typeof MediaRecorder !== 'undefined');
+const scorerCanRun = webSpeechSup || mediaRecSup;
 
 // Score badge helpers — spec thresholds: 90+ excellent, 70+ good, 50+ keep practicing, <50 try again
 function scoreBadgeColor(s) {
@@ -94,9 +104,10 @@ export default function SpeakingPracticePanel({
         </button>
       </div>
 
-      {/* Pronunciation scorer — handles speech recognition and scoring.
-          When SRSupported, this is the ONLY speech button shown (no duplicate below). */}
-      {SRSupported ? (
+      {/* Pronunciation scorer — always shown when Web Speech OR MediaRecorder is available.
+          On Android WebView, it uses the Azure/MediaRecorder path automatically.
+          Only falls back to self-assessment tip when BOTH paths are absent. */}
+      {scorerCanRun ? (
         <PronunciationScorer targetText={sw[0]} targetEnglish={sw[1]} onScore={onScore} />
       ) : (
         <div style={{fontSize:'var(--text-sm)', color:'var(--subtext)', marginBottom:8, padding:'10px 14px', background:'var(--bar-bg)', borderRadius:12, border:'1.5px solid var(--card-b)'}}>
@@ -117,9 +128,9 @@ export default function SpeakingPracticePanel({
         </div>
       )}
 
-      {/* Legacy mic button + AI score panel — only shown when SpeechRecognition is NOT available
-          (PronunciationScorer already handles the mic when SRSupported is true) */}
-      {!SRSupported ? (
+      {/* Legacy mic button + AI score panel — only shown when BOTH Web Speech AND MediaRecorder
+          are absent (PronunciationScorer handles all cases where scorerCanRun is true) */}
+      {!scorerCanRun ? (
         <div style={{marginBottom:16, marginTop:16}}>
           <button
             onClick={listening ? onStopMic : onStartMic}
