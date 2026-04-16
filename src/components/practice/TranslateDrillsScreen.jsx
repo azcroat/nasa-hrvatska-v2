@@ -1,15 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { sh } from '../../data.jsx';
 import { TRANSLATE_DRILLS } from '../../data/exercises.js';
-import { useStats } from '../../context/StatsContext.tsx';
 import { recordTopicResult } from '../../lib/adaptive.js';
 
 const CEFR_COLORS = { A2: '#16a34a', B1: '#d97706', B2: '#7c3aed' };
 const CEFR_BG    = { A2: 'rgba(22,163,74,.12)', B1: 'rgba(217,119,6,.12)', B2: 'rgba(124,58,237,.12)' };
 
 export default function TranslateDrillsScreen({ goBack, award }) {
-  const { addXP } = useStats();
-
   const drills = useMemo(() => sh([...TRANSLATE_DRILLS]), []);
   const [idx, setIdx]         = useState(0);
   const [chosen, setChosen]   = useState(null);   // option string user tapped
@@ -30,7 +27,7 @@ export default function TranslateDrillsScreen({ goBack, award }) {
   function next() {
     if (idx + 1 >= drills.length) {
       const xp = Math.round((score / drills.length) * 20);
-      if (xp > 0) { addXP(xp); award && award('translate_drills', xp); }
+      if (xp > 0 && typeof award === 'function') award(xp);
       setDone(true);
     } else {
       setChosen(null);

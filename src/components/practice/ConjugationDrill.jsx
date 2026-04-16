@@ -111,7 +111,7 @@ export default function ConjugationDrill({ goBack, award, setSt }) {
                 <button
                   key={oi}
                   className={"ob " + (cjA ? (oi === ci ? "ok" : cjSl === oi ? "no" : "") : "")}
-                  onClick={() => { if (!cjA) { sCjSl(oi); sCjA(true); const correct=oi===ci; if (correct) { sCjS(s => s + 1); if (typeof award === 'function') award(3); } recordTopicResult('conjugation',correct); } }}>
+                  onClick={() => { if (!cjA) { sCjSl(oi); sCjA(true); const correct=oi===ci; if (correct) { sCjS(s => s + 1); if (typeof award === 'function') award(3); } recordTopicResult('grammar',correct); } }}>
                   {q.person} {o}
                 </button>
               ))}
