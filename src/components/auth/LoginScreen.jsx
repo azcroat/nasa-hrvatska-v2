@@ -1,5 +1,14 @@
 import React from 'react';
 
+// On Android, scroll the focused input into view when the soft keyboard opens.
+// adjustResize resizes the viewport but WebView doesn't always reposition the
+// focused element — calling scrollIntoView on focus ensures the input is visible.
+function scrollIntoViewOnFocus(e) {
+  const el = e.target;
+  setTimeout(() => {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 300); // 300ms — keyboard animation completes before we scroll
+}
 
 function pwStrength(pw) {
   if (!pw) return 0;
@@ -22,9 +31,12 @@ export default function LoginScreen({
 }) {
   const isR = authScreen === "register";
   const strength = isR ? pwStrength(pw) : 0;
+  // Padding-based layout (NOT flex centering). Flex align-items:center with min-height:100vh
+  // breaks on Android WebView: adjustResize shrinks the viewport but the flex container
+  // doesn't reflow, hiding inputs behind the keyboard. Padding + overflow-y:auto fixes this.
   return (
-    <div style={{minHeight:'100vh',background:'var(--app-bg)',color:'var(--heading)',fontFamily:"'Outfit',sans-serif",position:'relative',overflowX:'hidden',overflowY:'auto',WebkitOverflowScrolling:'touch',display:'flex',alignItems:'center',justifyContent:'center',padding:'48px 24px',paddingBottom:'max(48px, env(safe-area-inset-bottom, 24px))'}}>
-      <div style={{width:'100%',maxWidth:420,animation:'rise .5s',position:'relative',zIndex:1}}>
+    <div style={{minHeight:'100vh',background:'var(--app-bg)',color:'var(--heading)',fontFamily:"'Outfit',sans-serif",position:'relative',overflowX:'hidden',overflowY:'auto',WebkitOverflowScrolling:'touch',paddingTop:'max(48px, env(safe-area-inset-top, 24px))',paddingLeft:24,paddingRight:24,paddingBottom:'max(80px, env(safe-area-inset-bottom, 48px))'}}>
+      <div style={{width:'100%',maxWidth:420,margin:'0 auto',animation:'rise .5s',position:'relative',zIndex:1}}>
         {/* Hero — sits above the login card */}
         <div style={{
           textAlign:'center', marginBottom:28, animation:'fade-up .6s ease',
@@ -88,10 +100,10 @@ export default function LoginScreen({
             <input id="auth-name" type="text" placeholder="Your name" value={displayName} onChange={e=>{setDisplayName(e.target.value);setAuthError("")}} style={{marginBottom:14}} />
           </React.Fragment>}
           <label htmlFor="auth-email" style={{fontSize:'var(--text-sm)',fontWeight:700,color:'var(--subtext)',display:'block',marginBottom:6}}>EMAIL ADDRESS</label>
-          <input id="auth-email" type="email" placeholder={isR?"Enter your email address":"Email address"} value={authEmail} onChange={e=>{setAuthEmail(e.target.value);setAuthError("")}} autoComplete="email" inputMode="email" autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{marginBottom:14}} />
+          <input id="auth-email" type="email" placeholder={isR?"Enter your email address":"Email address"} value={authEmail} onChange={e=>{setAuthEmail(e.target.value);setAuthError("")}} onFocus={scrollIntoViewOnFocus} autoComplete="email" inputMode="email" autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{marginBottom:14}} />
           <label htmlFor="auth-password" style={{fontSize:'var(--text-sm)',fontWeight:700,color:'var(--subtext)',display:'block',marginBottom:6}}>PASSWORD</label>
           <div style={{position:'relative'}}>
-            <input id="auth-password" type={sp?"text":"password"} placeholder={isR?"Create password (6+ characters)":"Enter your password"} value={pw} onChange={e=>{setPw(e.target.value);setAuthError("")}} onKeyDown={e=>{if(e.key==="Enter"&&!isR)doLog()}} autoComplete={isR?"new-password":"current-password"} autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{marginBottom:0,paddingRight:44,width:'100%',boxSizing:'border-box'}} />
+            <input id="auth-password" type={sp?"text":"password"} placeholder={isR?"Create password (6+ characters)":"Enter your password"} value={pw} onChange={e=>{setPw(e.target.value);setAuthError("")}} onKeyDown={e=>{if(e.key==="Enter"&&!isR)doLog()}} onFocus={scrollIntoViewOnFocus} autoComplete={isR?"new-password":"current-password"} autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{marginBottom:0,paddingRight:44,width:'100%',boxSizing:'border-box'}} />
             <button type="button" aria-label={sp?"Hide password":"Show password"} onClick={()=>setSp2(!sp)} style={{position:'absolute',right:12,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',padding:4,color:'var(--subtext)',lineHeight:1}}>
               {sp ? (
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
@@ -114,7 +126,7 @@ export default function LoginScreen({
           {isR && !pw && <div style={{marginBottom:14}} />}
           {isR && <React.Fragment>
             <label htmlFor="auth-confirm" style={{fontSize:'var(--text-sm)',fontWeight:700,color:'var(--subtext)',display:'block',marginBottom:6}}>CONFIRM PASSWORD</label>
-            <input id="auth-confirm" type="password" placeholder="Confirm your password" value={pc} onChange={e=>{setPc(e.target.value);setAuthError("")}} autoComplete="new-password" autoCapitalize="none" autoCorrect="off" spellCheck="false" onKeyDown={e=>{if(e.key==="Enter")doReg()}} style={{marginBottom:16}} />
+            <input id="auth-confirm" type="password" placeholder="Confirm your password" value={pc} onChange={e=>{setPc(e.target.value);setAuthError("")}} onFocus={scrollIntoViewOnFocus} autoComplete="new-password" autoCapitalize="none" autoCorrect="off" spellCheck="false" onKeyDown={e=>{if(e.key==="Enter")doReg()}} style={{marginBottom:16}} />
           </React.Fragment>}
           {!isR && <div style={{textAlign:'right',marginBottom:12}}>
             <button type="button" style={{fontSize:'var(--text-sm)',color:'var(--info)',cursor:'pointer',fontWeight:600,background:'none',border:'none',padding:0,fontFamily:'inherit'}} onClick={()=>{setAuthScreen("reset");setAuthError("");setRpEm(authEmail||"")}}>Forgot password?</button>

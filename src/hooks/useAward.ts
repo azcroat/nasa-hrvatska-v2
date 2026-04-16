@@ -221,6 +221,12 @@ export function useAward({ curEx, stats, setStats, writeDelta }: { curEx: string
       if (_lsAType) {
         trackComplete(_lsAType, _lsDur);
         sessionStorage.removeItem('nh_ex_start');
+        // Accumulate daily study time (minutes) for analytics chart
+        if (_lsDur > 0) {
+          const _dtKey = 'nh_daily_time_' + _localDateStr();
+          const _addMins = Math.max(1, Math.round(_lsDur / 60000));
+          localStorage.setItem(_dtKey, String((parseInt(localStorage.getItem(_dtKey) || '0', 10)) + _addMins));
+        }
         if (celebrate) {
           trackLessonComplete({ xpEarned: totalAmt, streak: getStreak().count, lessonType: _lsAType, lessonId: curEx });
         } else {

@@ -1,40 +1,142 @@
-import React, { useState, useRef } from 'react';
-import { H, Bar, V, sh, srMark, speak } from '../../data.jsx';
+import React, { useState, useRef, useEffect } from 'react';
+import { H, Bar, V, sh, srMark, speak, getDueReviews } from '../../data.jsx';
 import CroatianKeyboard from '../shared/CroatianKeyboard.jsx';
+
+// ── Answer checking helpers ───────────────────────────────────────────────────
+
+/** Normalize diacritics for fuzzy matching (č→c, ć→c, š→s, ž→z, đ→d) */
+function normalize(s) {
+  return s.trim().toLowerCase()
+    .replace(/[čć]/g, 'c')
+    .replace(/[šś]/g, 's')
+    .replace(/[žź]/g, 'z')
+    .replace(/đ/g, 'd');
+}
+
+/** Levenshtein edit distance between two strings */
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = [];
+  for (let i = 0; i <= m; i++) {
+    dp[i] = [i];
+    for (let j = 1; j <= n; j++) dp[i][j] = i === 0 ? j : 0;
+  }
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] = a[i - 1] === b[j - 1]
+        ? dp[i - 1][j - 1]
+        : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+    }
+  }
+  return dp[m][n];
+}
+
+/**
+ * Check a typed answer against the target.
+ * Returns 'perfect' | 'diacritic' | 'close' | 'wrong'
+ */
+function checkAnswer(input, target) {
+  const inp = input.trim().toLowerCase();
+  const tgt = target.trim().toLowerCase();
+  if (inp === tgt) return 'perfect';
+  const normInp = normalize(inp);
+  const normTgt = normalize(tgt);
+  if (normInp === normTgt) return 'diacritic';
+  const dist = levenshtein(normInp, normTgt);
+  const maxLen = Math.max(normInp.length, normTgt.length);
+  if (dist <= 1 && maxLen >= 3) return 'close';
+  return 'wrong';
+}
+
+// ── Pool builder ──────────────────────────────────────────────────────────────
+
+/** Build a 15-word pool. Due SRS words come first, then fresh shuffled words. */
+function buildPool() {
+  const allWords = Object.values(V).flat();
+  try {
+    const dueSet = new Set(getDueReviews());
+    const dueWords = allWords.filter(w => dueSet.has(w[0]));
+    const otherWords = allWords.filter(w => !dueSet.has(w[0]));
+    const pool = [...sh(dueWords), ...sh(otherWords)].slice(0, 15);
+    return pool.length >= 5 ? pool : sh(allWords).slice(0, 15);
+  } catch {
+    return sh(allWords).slice(0, 15);
+  }
+}
+
+// ── Result UI helpers ─────────────────────────────────────────────────────────
+
+const RESULT_CONFIG = {
+  perfect:  { color: '#16a34a', bg: 'rgba(22,163,74,0.08)',  border: 'rgba(22,163,74,0.3)',  icon: '✅', label: 'Perfect!' },
+  diacritic:{ color: '#d97706', bg: 'rgba(217,119,6,0.08)', border: 'rgba(217,119,6,0.3)',  icon: '🔤', label: 'Close — check diacritics' },
+  close:    { color: '#2563eb', bg: 'rgba(37,99,235,0.08)',  border: 'rgba(37,99,235,0.3)',  icon: '💡', label: 'Almost — 1 typo' },
+  wrong:    { color: '#dc2626', bg: 'rgba(220,38,38,0.08)',  border: 'rgba(220,38,38,0.3)',  icon: '❌', label: 'Not quite' },
+};
+
+// ── Component ─────────────────────────────────────────────────────────────────
 
 export default function TypingScreen({ goBack, award }) {
   const finishFired = useRef(false);
-  const inputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
-  const [tyPoolData] = useState(() => {
-    const allWords = Object.values(V).flat();
-    const items = sh(allWords).slice(0, 10);
-    return [items, items[0]];
-  });
-  const [tyPool, firstWord] = tyPoolData;
+  const inputRef    = useRef(/** @type {HTMLInputElement|null} */ (null));
+  const startTsRef  = useRef(0); // tracks when current word was presented
+
+  const [tyPool] = useState(() => buildPool());
   const [tyI, sTyI] = useState(0);
-  const [tyS, sTyS] = useState(0);
-  const [tyIn, sTyIn] = useState("");
-  const [tyA, sTyA] = useState(false);
-  const [tyW, sTyW] = useState(firstWord);
+  const [tyS, sTyS] = useState(0); // correct count (perfect + close accepted)
+  const [tyIn, sTyIn] = useState('');
+  const [result, setResult] = useState(/** @type {null|'perfect'|'diacritic'|'close'|'wrong'} */ (null));
 
-  if (!tyPool.length || !tyW) return null;
+  // Record when word is presented
+  useEffect(() => { startTsRef.current = Date.now(); }, [tyI]);
 
+  if (!tyPool.length) return null;
+
+  const tyW = tyPool[tyI];
+
+  // ── Finished screen ──────────────────────────────────────────────────────────
   if (tyI >= tyPool.length) {
+    const xp = tyS * 5;
     return (
       <div className="scr-wrap">
-        
-        {H("⌨️ Typing Practice","Type Croatian words with special characters", goBack)}
-        <div style={{textAlign:"center"}}>
-          <div style={{fontSize:64}}>{tyS >= tyPool.length * 0.8 ? "🏆" : "📚"}</div>
-          <h2>{tyS} / {tyPool.length}</h2>
-          <div style={{fontSize:24,fontWeight:900,color:"#d97706",margin:"8px 0 16px"}}>+{tyS * 5} XP</div>
-          <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(tyS * 5); goBack(); }}>🏠 Done</button>
+        {H('⌨️ Typing Practice', 'Type Croatian words with special characters', goBack)}
+        <div style={{ textAlign: 'center', paddingTop: 32 }}>
+          <div style={{ fontSize: 64 }}>{tyS >= tyPool.length * 0.8 ? '🏆' : '📚'}</div>
+          <h2 style={{ margin: '12px 0 4px', color: 'var(--heading)' }}>{tyS} / {tyPool.length}</h2>
+          <div style={{ fontSize: 22, fontWeight: 900, color: '#d97706', marginBottom: 20 }}>+{xp} XP</div>
+          <button
+            className="b bp"
+            onClick={() => {
+              if (finishFired.current) return;
+              finishFired.current = true;
+              if (typeof award === 'function') award(xp);
+              goBack();
+            }}>
+            🏠 Done
+          </button>
         </div>
       </div>
     );
   }
 
-  const isCorrect = tyIn.trim().toLowerCase() === tyW[0].toLowerCase();
+  // ── Check answer ─────────────────────────────────────────────────────────────
+  function submitAnswer() {
+    if (result) return; // already answered
+    const verdict = checkAnswer(tyIn, tyW[0]);
+    const timeMs  = Math.max(500, Date.now() - startTsRef.current);
+    const isCorrect = verdict === 'perfect' || verdict === 'diacritic' || verdict === 'close';
+    srMark(tyW[0], isCorrect, timeMs);
+    if (isCorrect) sTyS(s => s + 1);
+    setResult(verdict);
+    speak(tyW[0]);
+  }
+
+  function nextWord() {
+    const next = tyI + 1;
+    sTyI(next);
+    setResult(null);
+    sTyIn('');
+    setTimeout(() => inputRef.current?.focus(), 50);
+  }
 
   function insertChar(char) {
     const el = inputRef.current;
@@ -45,40 +147,79 @@ export default function TypingScreen({ goBack, award }) {
     setTimeout(() => { el.focus(); el.setSelectionRange(start + 1, start + 1); }, 0);
   }
 
+  const cfg = result ? RESULT_CONFIG[result] : null;
+
   return (
     <div className="scr-wrap">
-      
-      {H("⌨️ Typing Practice","Type Croatian words with special characters", goBack)}
+      {H('⌨️ Typing Practice', 'Type Croatian words with special characters', goBack)}
       <Bar v={tyI + 1} mx={tyPool.length} />
-      <div className="c" style={{textAlign:"center",marginTop:16}}>
-        <div style={{fontSize:13,color:"#78716c"}}>Type this word in Croatian:</div>
-        <div style={{fontSize:24,fontWeight:800,color:"#164e63",marginTop:8}}>{tyW[1]}</div>
+
+      {/* Word prompt */}
+      <div className="c" style={{ textAlign: 'center', marginTop: 16, padding: '16px 20px' }}>
+        <div style={{ fontSize: 13, color: 'var(--subtext)', fontWeight: 600, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          Type this word in Croatian:
+        </div>
+        <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--heading)', fontFamily: "'Playfair Display',serif" }}>
+          {tyW[1]}
+        </div>
       </div>
+
+      {/* Input */}
       <input
         ref={inputRef}
         type="text"
         value={tyIn}
-        onChange={e => sTyIn(e.target.value)}
-        onKeyDown={e => { if (e.key === "Enter" && !tyA) { sTyA(true); srMark(tyW[0], isCorrect); if (isCorrect) sTyS(tyS + 1); speak(tyW[0]); } }}
-        placeholder="Type Croatian..."
-        style={{marginTop:16,textAlign:"center",fontSize:18}} />
+        onChange={e => { if (!result) sTyIn(e.target.value); }}
+        onKeyDown={e => { if (e.key === 'Enter') { if (!result) submitAnswer(); else nextWord(); } }}
+        placeholder="Type Croatian…"
+        disabled={!!result}
+        style={{
+          marginTop: 14, textAlign: 'center', fontSize: 20, fontWeight: 700,
+          background: result ? (cfg.bg) : undefined,
+          borderColor: result ? cfg.border : undefined,
+          color: result ? cfg.color : undefined,
+          transition: 'all .2s',
+        }}
+      />
+
+      {/* Croatian keyboard */}
       <CroatianKeyboard onChar={insertChar} />
-      {tyA && (
-        <div style={{textAlign:"center",marginTop:16}}>
-          <div style={{fontSize:18,fontWeight:700,color:isCorrect?"#16a34a":"#dc2626"}}>
-            {isCorrect ? "✅ Correct!" : "❌ " + tyW[0]}
+
+      {/* Submit / Result */}
+      {!result ? (
+        <button
+          className="b bp"
+          style={{ marginTop: 12, width: '100%' }}
+          onClick={submitAnswer}
+          disabled={!tyIn.trim()}>
+          Check Answer
+        </button>
+      ) : (
+        <div style={{
+          marginTop: 14, padding: '14px 16px',
+          background: cfg.bg, border: `1px solid ${cfg.border}`,
+          borderRadius: 14, textAlign: 'center',
+        }}>
+          <div style={{ fontSize: 18, fontWeight: 800, color: cfg.color, marginBottom: 6 }}>
+            {cfg.icon} {cfg.label}
           </div>
-          <button
-            className="b bp"
-            style={{marginTop:12}}
-            onClick={() => {
-              const next = tyI + 1;
-              sTyI(next);
-              sTyA(false);
-              sTyIn("");
-              if (next < tyPool.length) sTyW(tyPool[next]);
-            }}>
-            Next →
+          {result !== 'perfect' && (
+            <div style={{ fontSize: 16, color: 'var(--heading)', fontWeight: 700, marginBottom: 4 }}>
+              Correct: <span style={{ color: cfg.color, fontFamily: "'Playfair Display',serif" }}>{tyW[0]}</span>
+            </div>
+          )}
+          {result === 'diacritic' && (
+            <div style={{ fontSize: 13, color: 'var(--subtext)' }}>
+              Your answer was accepted — practice the special characters for full marks
+            </div>
+          )}
+          {result === 'close' && (
+            <div style={{ fontSize: 13, color: 'var(--subtext)' }}>
+              Your answer was accepted — you were just one character off
+            </div>
+          )}
+          <button className="b bp" style={{ marginTop: 12 }} onClick={nextWord}>
+            {tyI + 1 < tyPool.length ? 'Next →' : 'See Results'}
           </button>
         </div>
       )}

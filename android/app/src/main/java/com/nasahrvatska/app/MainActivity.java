@@ -10,10 +10,8 @@ import android.webkit.JsResult;
 import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
-import android.webkit.WebStorage;
 import android.webkit.WebView;
 import android.net.Uri;
-import android.content.Intent;
 import androidx.core.content.ContextCompat;
 import com.getcapacitor.BridgeActivity;
 
@@ -23,34 +21,30 @@ import com.getcapacitor.BridgeActivity;
  * Android system-level RECORD_AUDIO permission has already been granted
  * by the user.
  *
- * Two-layer fix for the microphone permission cache problem:
- *
- * Layer 1 — WebStorage.deleteAllData() on every launch:
+ * Fix for the microphone permission cache problem:
  *   Android WebView caches its own per-origin permission state for https://localhost.
  *   If the user previously denied the in-app dialog, the WebView keeps a "denied" entry
  *   and never fires onPermissionRequest again — even after the user enables the permission
- *   in Android Settings. Clearing WebStorage on startup wipes that stale cache entry.
+ *   in Android Settings.
  *
- * Layer 2 — WebChromeClient.onPermissionRequest override:
- *   When the permission cache is clear (or on first install), onPermissionRequest fires.
- *   We grant it immediately if RECORD_AUDIO is already held at the OS level, bypassing
- *   the WebView's internal dialog which the user already answered via the rationale screen.
+ *   Our WebChromeClient override intercepts every onPermissionRequest call and grants
+ *   microphone access immediately when RECORD_AUDIO is already held at the OS level.
+ *   This bypasses the WebView's internal dialog (which the user already answered) and
+ *   avoids any stale cached denial state.
  *
  * All other WebChromeClient callbacks (console messages, geolocation, file chooser,
  * JS alerts) are delegated to the original Capacitor client so no existing functionality
  * is lost.
+ *
+ * NOTE: WebStorage.deleteAllData() was intentionally NOT used here — it would wipe all
+ * localStorage and IndexedDB (user progress, Firebase auth tokens, app state) on every
+ * launch. The WebChromeClient grant-on-permission approach is the correct targeted fix.
  */
 public class MainActivity extends BridgeActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // ── Layer 1: Clear WebView permission cache ──────────────────────────
-        // Forces Android WebView to re-evaluate getUserMedia permissions on this launch.
-        // Safe to call on every startup — only clears the WebView's internal origin DB,
-        // not user data. This is idempotent.
-        WebStorage.getInstance().deleteAllData();
 
         WebView webView = getBridge().getWebView();
         if (webView == null) return;
