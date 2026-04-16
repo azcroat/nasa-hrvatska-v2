@@ -2,6 +2,7 @@ import React, { useState, useRef, useMemo } from 'react';
 import { H, speak, sh, shMemo } from '../../../data.jsx';
 import { NEGATION } from '../../../data.jsx';
 import { markQuest } from '../../../lib/quests.js';
+import { recordTopicResult } from '../../../lib/adaptive.js';
 
 const NEGATION_QUIZ = [
   {q:"Ne ___ ručak. (kuhati — ja)",a:"kuham",opts:["kuham","kuhaš","kuha","kuhamo"]},
@@ -37,6 +38,7 @@ function NegationScreen({ goBack, award }) {
     if (answers[qi] !== undefined) return;
     setAnswers(prev => ({ ...prev, [qi]: opt }));
     const isCorrect = opt === shuffledQuiz[qi].a;
+    recordTopicResult('grammar', isCorrect);
     if (isCorrect) {
       if (typeof award === 'function') award(3);
       speak(opt);

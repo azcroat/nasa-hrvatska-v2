@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { H, speak, shMemo } from '../../../data.jsx';
 import { TENSEFLIP } from '../../../data.jsx';
 import { markQuest } from '../../../lib/quests.js';
+import { recordTopicResult } from '../../../lib/adaptive.js';
 
 function TenseFlipScreen({ goBack, award }) {
   const items = shMemo("tf",TENSEFLIP,10);
@@ -11,6 +12,7 @@ function TenseFlipScreen({ goBack, award }) {
 
   function handleReveal(e, spoken) {
     speak(spoken);
+    recordTopicResult('past_tense', true);
     if (typeof award === 'function') award(3);
     if (e.target.closest && e.target.closest("div")) e.target.closest("div").style.pointerEvents = "none";
     revealedRef.current++;
