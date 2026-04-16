@@ -172,6 +172,11 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
   }
   if (fp.nh_goal) { localStorage.setItem('nh_goal', fp.nh_goal); localStorage.setItem('nh_goal_set', '1'); }
   if (fp.nh_culture) localStorage.setItem('nh_culture', fp.nh_culture);
+  if (fp.nh_daily_goal_xp > 0) {
+    const lDgx = parseInt(localStorage.getItem('nh_daily_goal_xp') || '0', 10);
+    // Remote wins when it has a value and local has none; otherwise keep local (most recent edit)
+    if (!lDgx) localStorage.setItem('nh_daily_goal_xp', String(fp.nh_daily_goal_xp));
+  }
   if (fp.nh_placement_done) { localStorage.setItem('nh_placement_done', 'true'); localStorage.setItem('placement_done', 'true'); }
   if (fp.nh_grammar_track_done) localStorage.setItem('nh_grammar_track_done', 'true');
 

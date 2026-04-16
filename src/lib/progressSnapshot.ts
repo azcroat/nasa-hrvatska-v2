@@ -64,6 +64,7 @@ export function buildProgressSnapshot({ uid, name, stats, dchlA, dchlSl, favs, j
     nh_culture: localStorage.getItem('nh_culture') || '',
     nh_placement_done: localStorage.getItem('nh_placement_done') === 'true' || localStorage.getItem('placement_done') === 'true',
     nh_grammar_track_done: localStorage.getItem('nh_grammar_track_done') === 'true',
+    nh_daily_goal_xp: parseInt(localStorage.getItem('nh_daily_goal_xp') || '0', 10) || 0,
     // UI / accessibility preferences — null means "never explicitly set; use system default"
     // Storing the raw string (null | 'true' | 'false') preserves the three-state semantic.
     darkMode: localStorage.getItem('darkMode'),
