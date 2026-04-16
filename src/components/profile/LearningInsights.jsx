@@ -5,25 +5,21 @@ function getSRData() {
   try { return JSON.parse(localStorage.getItem('nh_sr') || '{}'); } catch { return {}; }
 }
 
-// Helper to get last 7 days of XP
-function getWeeklyXP() {
+// Helper to get last 7 days of XP and study time from real daily keys
+function getDailyActivity() {
   const result = [];
   const now = new Date();
   for (let i = 6; i >= 0; i--) {
     const d = new Date(now);
     d.setDate(d.getDate() - i);
-    const day = d.getDay() || 7;
-    const copy = new Date(d);
-    copy.setDate(copy.getDate() + 4 - day);
-    const year = copy.getFullYear();
-    const week = Math.ceil(((copy.getTime() - new Date(year, 0, 1).getTime()) / 86400000 + 1) / 7);
-    const weekKey = `${year}-W${String(week).padStart(2, '0')}`;
-    // We only have weekly totals, so spread across the week for display
-    const weekXP = parseInt(localStorage.getItem(`nh_week_xp_${weekKey}`) || '0');
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const xp   = parseInt(localStorage.getItem(`nh_daily_xp_${key}`)   || '0', 10);
+    const mins = parseInt(localStorage.getItem(`nh_daily_time_${key}`)  || '0', 10);
     result.push({
       label: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()],
-      xp: i === 0 ? Math.round(weekXP * 0.2) : Math.round(weekXP / 7), // rough estimate
-      date: d.toDateString(),
+      xp,
+      mins,
+      isToday: i === 0,
     });
   }
   return result;
@@ -70,7 +66,7 @@ function getJourney() {
 export default function LearningInsights({ st }) {
   // Not memoised — these read localStorage so they must re-run when st changes to stay current
   const vocab = analyzeVocab();
-  const weeklyXP = getWeeklyXP();
+  const dailyActivity = getDailyActivity();
   const _journey = getJourney().slice(-5).reverse(); // last 5 milestones
 
   const streak = st?.ss || 0;
@@ -78,7 +74,8 @@ export default function LearningInsights({ st }) {
   const lessonsCompleted = st?.lc || 0;
   const perfectScores = st?.pf || 0;
 
-  const maxXP = Math.max(...weeklyXP.map(d => d.xp), 1);
+  const maxXP   = Math.max(...dailyActivity.map(d => d.xp), 1);
+  const totalMinsThisWeek = dailyActivity.reduce((s, d) => s + d.mins, 0);
 
   return (
     <div style={{ marginBottom: 8 }}>
@@ -116,7 +113,7 @@ export default function LearningInsights({ st }) {
         ))}
       </div>
 
-      {/* XP Sparkline (last 7 days estimate) */}
+      {/* XP + Time Sparkline (last 7 days — real daily data) */}
       <div style={{
         background: 'var(--card)',
         borderRadius: 12,
@@ -124,20 +121,34 @@ export default function LearningInsights({ st }) {
         marginBottom: 10,
         border: '1px solid var(--card-b)',
       }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--subtext)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-          7-Day Activity
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+            7-Day Activity
+          </div>
+          {totalMinsThisWeek > 0 && (
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--info)' }}>
+              ⏱ {totalMinsThisWeek}m this week
+            </div>
+          )}
         </div>
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 48 }}>
-          {weeklyXP.map((day, i) => (
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 56 }}>
+          {dailyActivity.map((day, i) => (
             <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+              {day.xp > 0 && (
+                <div style={{ fontSize: 8, color: 'var(--subtext)', fontWeight: 700, lineHeight: 1 }}>
+                  {day.xp}
+                </div>
+              )}
               <div style={{
                 width: '100%',
                 height: Math.max(4, Math.round((day.xp / maxXP) * 40)),
-                background: i === 6 ? 'var(--info)' : 'var(--bar-bg, rgba(14,116,144,0.2))',
+                background: day.isToday ? 'var(--info)' : (day.xp > 0 ? 'var(--info-b, rgba(14,116,144,0.45))' : 'var(--bar-bg, rgba(14,116,144,0.15))'),
                 borderRadius: 3,
                 transition: 'height 0.4s ease',
               }} />
-              <div style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 600 }}>{day.label}</div>
+              <div style={{ fontSize: 9, color: day.isToday ? 'var(--info)' : 'var(--subtext)', fontWeight: day.isToday ? 800 : 600 }}>
+                {day.label}
+              </div>
             </div>
           ))}
         </div>
@@ -219,6 +230,7 @@ export default function LearningInsights({ st }) {
           { label: 'Perfect scores', value: perfectScores, icon: '💎' },
           { label: 'Current streak', value: `${streak} days`, icon: '🔥' },
           { label: 'Total XP earned', value: totalXP.toLocaleString(), icon: '⭐' },
+          { label: 'Studied this week', value: totalMinsThisWeek > 0 ? `${totalMinsThisWeek} min` : '—', icon: '⏱' },
         ].map(item => (
           <div key={item.label} style={{
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
