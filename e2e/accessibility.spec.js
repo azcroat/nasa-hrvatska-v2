@@ -124,6 +124,18 @@ test.describe('Accessibility — WCAG 2.1 AA (authenticated routes)', () => {
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
       timeout: 15_000,
     });
+    // Wait for quest cards to finish rendering (they animate in with CSS transitions).
+    // Without this, axe may scan the QuestTracker "Start →" button while a CSS
+    // variable is not yet resolved, producing a spurious contrast false-positive.
+    await page.waitForFunction(
+      () => document.body.textContent?.includes('Daily Quests'),
+      { timeout: 10_000 },
+    ).catch(() => {});
+    // Let CSS animations (anim-children-fade) fully complete before axe scans.
+    await page.waitForFunction(
+      () => document.getAnimations().every(a => a.playState !== 'running'),
+      { timeout: 5_000 },
+    ).catch(() => {});
     await waitForSettle(page);
 
     const violations = await runAxe(page, 'Practice /practice');
