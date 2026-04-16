@@ -82,10 +82,11 @@ export function useAward({ curEx, stats, setStats, writeDelta }: { curEx: string
   const [nB, setNB] = useState<unknown>(null);
   const [sB, setSB] = useState(false);
 
-  const award = useCallback(async (amt: number, celebrate?: boolean) => {
+  const award = useCallback(async (amt: number, celebrate?: boolean, exerciseId?: string) => {
     if (!Number.isFinite(amt) || amt === 0) return;
-    if (curEx && !canEarnXP(curEx)) { setXpA(0); setShowXP(false); return; }
-    if (curEx) markExerciseDone(curEx);
+    const _effectiveEx = exerciseId ?? curEx;
+    if (_effectiveEx && !canEarnXP(_effectiveEx)) { setXpA(0); setShowXP(false); return; }
+    if (_effectiveEx) markExerciseDone(_effectiveEx);
     let totalAmt = lXPgain(amt);
     const _today = _localDateStr();
     if (comebackBonus && amt > 0 && !_awardComebackUsed && !localStorage.getItem('nh_comeback_used_' + _today)) {
