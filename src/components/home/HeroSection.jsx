@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const _isNative = typeof window !== 'undefined' &&
   window.location.hostname === 'localhost' && !window.location.port;
 import { lXP, nXP, earnFreeze, getStreakFreezes, LEVEL_NARRATIVE, speak } from '../../data.jsx';
-import { getDailyXP, getDailyXPGoal, DAILY_XP_GOAL, getXPBoost, activateXPBoost, canActivateXPBoost, XP_BOOST_COST } from '../../lib/appUtils.js';
+import { getDailyXP, getDailyXPGoal, getXPBoost, activateXPBoost, canActivateXPBoost, XP_BOOST_COST } from '../../lib/appUtils.js';
 import { useTranslator } from '../../hooks/useTranslator';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
