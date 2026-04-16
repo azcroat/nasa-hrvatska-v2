@@ -3,6 +3,7 @@ import { H, Bar, speak } from '../../data.jsx';
 import { markQuest } from '../../lib/quests.js';
 import { rnd } from '../../lib/random.js';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { recordTopicResult } from '../../lib/adaptive.js';
 function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;}
 
 const DATA = [
@@ -107,6 +108,7 @@ export default function DictationScreen({ goBack, award }) {
     setCorrect(isExact || isClose);
     setCloseMatch(isClose);
     setChecked(true);
+    recordTopicResult('listening', isExact || isClose);
     if (isExact || isClose) setScore(s => s + 1);
   }
 

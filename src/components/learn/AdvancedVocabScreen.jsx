@@ -58,7 +58,7 @@ export default function AdvancedVocabScreen({ goBack, award }) {
       if (next.has(word)) next.delete(word);
       else {
         next.add(word);
-        if (award) award(5, 'vocab');
+        if (award) award(5);
       }
       saveLearned(next);
       return next;
