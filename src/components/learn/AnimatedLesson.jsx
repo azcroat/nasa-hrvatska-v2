@@ -51,7 +51,7 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
   const [ttsAvailable] = useState(() => typeof window !== 'undefined');
   const [xpAwarded, setXpAwarded] = useState(false);
 
-  const slides = lesson.slides;
+  const slides = lesson?.slides || [];
   const totalSlides = slides.length;
   const currentSlide = slides[slide];
 
@@ -64,7 +64,7 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
 
   // Auto-TTS on slide change
   useEffect(() => {
-    if (!autoTTS || !ttsAvailable) return undefined;
+    if (!autoTTS || !ttsAvailable || !currentSlide) return undefined;
     if (currentSlide.type === 'example' && currentSlide.items && currentSlide.items.length > 0) {
       const timer = setTimeout(() => {
         speak(currentSlide.items[0].hr);
@@ -72,11 +72,12 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
       return () => clearTimeout(timer);
     }
     return undefined;
-   
+
   }, [slide]);
 
   // Award XP when summary slide reached
   useEffect(() => {
+    if (!currentSlide) return;
     if (currentSlide.type === 'summary' && !xpAwarded) {
       setXpAwarded(true);
       if (typeof award === 'function') {
@@ -84,7 +85,7 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
         markQuest('grammar');
       }
     }
-   
+
   }, [slide]);
 
   function handleToggleTTS() {
@@ -120,6 +121,9 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
   function goPrev() {
     if (slide > 0) setSlide(s => s - 1);
   }
+
+  // Guard: if lesson or slides are missing (e.g. state cleared before screen unmounted), bail gracefully
+  if (!lesson || !currentSlide) return null;
 
   // Can we go next? For quiz slides, require answer checked before advancing
   const isQuiz = currentSlide.type === 'quiz';
