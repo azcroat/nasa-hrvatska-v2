@@ -87,7 +87,7 @@ interface ScreenLauncherParams {
   sCurEx: (ex: string) => void;
   currentScreen: string;
   setStats: (fn: (prev: Stats) => Stats) => void;
-  award: (amt: number) => void;
+  award: (amt: number, celebrate?: boolean, exerciseId?: string) => void;
   writeDelta: (delta: StatsDelta & Record<string, unknown>) => void;
   allCats: string[];
   gc: number;
