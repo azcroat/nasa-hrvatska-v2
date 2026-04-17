@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, VOCATIVE } from '../../data.jsx';
 import { speak } from '../../lib/audio.js';
+import { markQuest } from '../../lib/quests.js';
 
 // Shuffle helper
 function sh(a) { const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]} return b; }
@@ -247,6 +248,7 @@ export default function VocativeScreen({ goBack, award }) {
               if (finishFired.current) return;
               finishFired.current = true;
               if (typeof award === 'function') award(xpEarned);
+              markQuest('grammar');
               goBack();
             }}
           >

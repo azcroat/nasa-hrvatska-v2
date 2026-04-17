@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data.jsx';
+import { markQuest } from '../../lib/quests.js';
 
 import { rnd } from '../../lib/random.js';
 function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;}
@@ -47,7 +48,7 @@ export default function WordFamilies({ goBack, award }) {
           <div style={{fontSize:64}}>{score >= total * 0.8 ? "🏆" : "📚"}</div>
           <h2>{score} / {total}</h2>
           <div style={{fontSize:24,fontWeight:900,color:"#d97706",margin:"8px 0 16px"}}>+{score * 5} XP</div>
-          <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(score * 5); goBack(); }} style={{width:"100%",marginTop:16}}>🏠 Done</button>
+          <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(score * 5); markQuest('vocab'); goBack(); }} style={{width:"100%",marginTop:16}}>🏠 Done</button>
         </div>
       </div>
     );

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { H } from '../../data.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
+import { markQuest } from '../../lib/quests.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getAudioContext } from '../../lib/audio.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
@@ -233,6 +234,7 @@ export default function HeritageStoryScreen({ goBack, award }) {
     if (readParts.current.size >= 3 && !awardFired.current) {
       awardFired.current = true;
       if (typeof award === 'function') award(20);
+      markQuest('culture');
     }
   }, [award]);
 

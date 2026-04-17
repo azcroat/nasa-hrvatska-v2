@@ -6,6 +6,7 @@ import React, {
 } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext.jsx';
+import { markQuest } from '../../lib/quests.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import MajaOrb from './MajaOrb.jsx';
@@ -611,6 +612,7 @@ export default function MajaScreen() {
     if (debrief && !debriefXpFired.current) {
       debriefXpFired.current = true;
       if (typeof award === 'function') award(debrief.xpEarned ?? 30);
+      markQuest('culture');
     }
     goBack();
   }, [debrief, award, goBack]);

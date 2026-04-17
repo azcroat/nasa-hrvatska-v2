@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useStats } from '../../context/StatsContext.jsx';
+import { markQuest } from '../../lib/quests.js';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getAudioContext } from '../../lib/audio.js';
@@ -112,6 +113,7 @@ export default function StoryModeScreen({ goBack, award }) {
       if (scrollTop + clientHeight >= scrollHeight - 80 && tappedWordsRef.current >= 5 && !awardFired.current) {
         awardFired.current = true;
         if (typeof award === 'function') award(15);
+        markQuest('reading');
       }
     };
     el.addEventListener('scroll', check, { passive: true });

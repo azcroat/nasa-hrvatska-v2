@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { H } from '../../data.jsx';
+import { markQuest } from '../../lib/quests.js';
 
 const CHAPTERS = [
   {
@@ -298,6 +299,7 @@ export default function BakaSummer({ goBack, award }) {
   useEffect(() => {
     if (chaptersDone.size === 16 && !bonusAwarded) {
       if (typeof award === 'function') award(100);
+      markQuest('culture');
       localStorage.setItem('nh_baka_done_bonus', '1');
       setBonusAwarded(true);
     }
@@ -315,6 +317,7 @@ export default function BakaSummer({ goBack, award }) {
     setChaptersDone(updated);
     localStorage.setItem('nh_baka_done', JSON.stringify([...updated]));
     if (typeof award === 'function') award(20);
+    markQuest('culture');
     if (chapter < 15) {
       const next = chapter + 1;
       setChapter(next);

@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useStats } from '../../context/StatsContext.tsx';
+import { markQuest } from '../../lib/quests.js';
 import { H, speak } from '../../data.jsx';
 import { KINGS } from '../../data.jsx';
 
@@ -95,7 +96,7 @@ export default function KingsScreen({ goBack, award, setSt }) {
           );})}
         </div>
         <button className="b bp" style={{width:"100%",marginTop:20}}
-          onClick={function(){if(finishFired.current)return;finishFired.current=true;setSt(function(s){return Object.assign({},s,{hi:(s.hi||0)+1})});writeDelta({hi:1});if(typeof award==='function')award(25);goBack()}}>
+          onClick={function(){if(finishFired.current)return;finishFired.current=true;setSt(function(s){return Object.assign({},s,{hi:(s.hi||0)+1})});writeDelta({hi:1});if(typeof award==='function')award(25);markQuest('culture');goBack()}}>
           ✅ Mark as Read (+25 XP)
         </button>
       </React.Fragment>}
