@@ -18,44 +18,53 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'lcov'],
       include: [
-        'src/lib/**/*.{js,jsx}',
-        'src/hooks/**/*.{js,jsx}',
-        'src/context/**/*.{js,jsx}',
+        // Include both JS and TS variants — lib/hooks/context files were progressively
+        // migrated to .ts/.tsx in prior sessions; new files use .ts by default.
+        'src/lib/**/*.{js,jsx,ts,tsx}',
+        'src/hooks/**/*.{js,jsx,ts,tsx}',
+        'src/context/**/*.{js,jsx,ts,tsx}',
       ],
       exclude: [
         // Firebase integration — requires live Firestore/Auth (covered by E2E)
-        'src/lib/firebase.js',
-        'src/hooks/useAuth.js',
-        'src/hooks/useSyncManager.js',
+        'src/lib/firebase.ts',
+        'src/hooks/useAuth.ts',
+        'src/hooks/useSyncManager.ts',
         'src/hooks/useConversationMemory.js',   // Firestore subcollection reads/writes
         // Browser-only APIs — untestable in jsdom without heavy mocking
-        'src/lib/audio.js',
-        'src/lib/crypto.js',
-        'src/lib/pushNotifications.js',
-        'src/lib/photos.js',
-        'src/lib/haptic.js',
-        'src/hooks/useNotifications.js',
-        'src/hooks/useOnlineStatus.js',
-        'src/hooks/useHaptic.js',
+        'src/lib/audio.ts',
+        'src/lib/crypto.ts',
+        'src/lib/pushNotifications.ts',
+        'src/lib/photos.ts',
+        'src/lib/haptic.ts',
+        'src/hooks/useNotifications.ts',
+        'src/hooks/useOnlineStatus.ts',
+        'src/hooks/useHaptic.ts',
         'src/hooks/useWhisperSTT.js',           // MediaRecorder + AudioContext + SpeechRecognition
         // Pure React state (useState only, no business logic to assert)
-        'src/hooks/useAppScreenState.js',
+        'src/hooks/useAppScreenState.ts',
         // Trivial context wrapper (no business logic)
-        'src/context/StatsContext.jsx',
+        'src/context/StatsContext.tsx',
         // Barrel re-exports only
-        'src/lib/appData.js',
+        'src/lib/appData.ts',
+        // Firebase Analytics — external SDK, requires live Firebase; no-op when unavailable
+        'src/lib/analytics.ts',
+        // Pure data files — no executable logic to assert (constants, word lists, verb pairs)
+        'src/lib/frequency500.ts',
+        'src/lib/aspectPairs.ts',
+        'src/lib/constants/**',
         'src/tests/**',
         'dist/**',
       ],
       thresholds: {
-        // Thresholds match actual measured coverage with a ~4% regression buffer.
-        // statements/branches lowered to 49 after quiz data expansion added uncovered
-        // data files (src/data/) that shift the baseline down slightly.
-        // lines/functions lowered to 51 after cleanupStaleQuestKeys added (2026-04-04).
+        // Thresholds recalibrated after TypeScript migration (2026-04-17):
+        // - Coverage include patterns updated to .ts/.tsx (all lib/hooks/context files)
+        // - Pure data files and external-SDK files excluded from coverage scope
+        // - Values measured at 54%/52%/64%/57%; buffer leaves 4-5% below measured.
+        // Raise these as component tests (Item 2) are added.
         statements: 49,
-        branches: 49,
-        functions: 51,
-        lines: 51,
+        branches: 47,
+        functions: 59,
+        lines: 52,
       },
     },
   },
