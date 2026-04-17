@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, V, sh, srMark, speak, getDueReviews } from '../../data.jsx';
 import CroatianKeyboard from '../shared/CroatianKeyboard.jsx';
 import { recordTopicResult } from '../../lib/adaptive.js';
+import { markQuest } from '../../lib/quests.js';
 
 // ── Answer checking helpers ───────────────────────────────────────────────────
 
@@ -110,6 +111,7 @@ export default function TypingScreen({ goBack, award }) {
               if (finishFired.current) return;
               finishFired.current = true;
               if (typeof award === 'function') award(xp);
+              markQuest('vocab');
               goBack();
             }}>
             🏠 Done
