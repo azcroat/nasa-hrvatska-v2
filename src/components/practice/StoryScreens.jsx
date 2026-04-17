@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, speak, STORIES } from '../../data.jsx';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { markQuest } from '../../lib/quests.js';
 
 // Fetch AI illustration for a story scene (watercolor style via FLUX)
 const sceneImgCache = {};
@@ -98,7 +99,7 @@ export default function StoryScreens({ goBack, award, sCurEx }) {
           <button
             className="b bp"
             style={{marginTop:16}}
-            onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(15); sStSt(null); }}>
+            onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(15); markQuest('reading'); sStSt(null); }}>
             Back to Stories
           </button>
         </div>
@@ -200,7 +201,7 @@ export default function StoryScreens({ goBack, award, sCurEx }) {
             <button
               className="b bp"
               style={{width:"100%",marginTop:20}}
-              onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(15); sStSt(null); }}>
+              onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(15); markQuest('reading'); sStSt(null); }}>
               ✅ Story Complete!
             </button>
           )}

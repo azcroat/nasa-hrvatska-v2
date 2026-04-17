@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.tsx';
 import { H } from '../../data.jsx';
+import { markQuest } from '../../lib/quests.js';
 
 // ─── Dialect Data ────────────────────────────────────────────────────────────
 
@@ -640,6 +641,7 @@ function QuizView({ onBack, award }) {
       if (!alreadyDone) {
         localStorage.setItem(LS_KEY, '1');
         if (typeof award === 'function') award(score * 10);
+        markQuest('culture');
         if (!stats.vs?.includes('dialects')) {
           setStats(prev => {
             if (prev.vs?.includes('dialects')) return prev;

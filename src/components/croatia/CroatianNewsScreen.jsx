@@ -3,6 +3,7 @@ import { H } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { markQuest } from '../../lib/quests.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { LEVEL_COLORS } from './MediaPlayerUtils.jsx';
 
@@ -356,6 +357,7 @@ export default function CroatianNewsScreen({ goBack, award }) {
       if (next.size >= 2 && !awardGiven.current) {
         awardGiven.current = true;
         award && award(10);
+        markQuest('reading');
       }
       return next;
     });

@@ -8,6 +8,7 @@
 import React, { useState, useCallback } from 'react';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { speak } from '../../lib/audio.js';
+import { markQuest } from '../../lib/quests.js';
 
 const XP_REWARD = 15;
 const TOPICS = ['cafe', 'market', 'family', 'travel', 'weather', 'sports', 'work', 'weekend', 'restaurant', 'city'];
@@ -71,6 +72,7 @@ export default function DailyListeningCard({ level, award }) {
     // Award XP proportional to score
     const xp = Math.round(XP_REWARD * (0.5 + (correct / Math.max(data.questions.length, 1)) * 0.5));
     if (award) award(xp);
+    markQuest('speak');
     try { localStorage.setItem(completedKey, '1'); } catch {}
     setTimeout(() => setPhase('done'), 400);
   }, [data, answers, award, completedKey]);
