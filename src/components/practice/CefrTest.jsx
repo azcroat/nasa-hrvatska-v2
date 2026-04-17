@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data.jsx';
-
+import { markQuest } from '../../lib/quests.js';
 import { rnd } from '../../lib/random.js';
 function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b;}
 
@@ -171,6 +171,7 @@ export default function CefrTest({ award }) {
         finishFired.current = true;
         const finalScore = score + (selected === activeQuestions[qIdx].answer ? 1 : 0);
         if (award) award(finalScore * 7);
+        markQuest('grammar');
       }
       setDone(true);
     } else {
