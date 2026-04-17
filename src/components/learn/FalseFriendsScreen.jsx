@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
 import { H, speak } from '../../data.jsx';
 import { FALSEFR } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.tsx';
 
 function FalseFriendsScreen({ goBack, award }) {
   const { stats, setStats, writeDelta } = useStats();
-  const [completed, setCompleted] = useState(false);
+  const completed = useRef(false);
 
   function handleComplete() {
-    if (completed) return;
-    setCompleted(true);
+    if (completed.current) return;
+    completed.current = true;
     if (award) award(30);
     // Replicate what the 20s dwell timer would do — grant LC credit so
     // the LearnPath ck(s.lc>=20) check can pass without waiting for dwell.

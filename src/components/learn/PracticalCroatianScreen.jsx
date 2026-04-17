@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
 import { H } from '../../data.jsx';
 
@@ -471,6 +471,7 @@ function LearnView({ scenario, onStartQuiz, onBack }) {
 
 function QuizView({ scenario, onBack }) {
   const { award } = useApp();
+  const awardFired = useRef(false);
   const [qIdx, setQIdx] = useState(0);
   const [selected, setSelected] = useState(null);
   const [answers, setAnswers] = useState([]);
@@ -488,7 +489,7 @@ function QuizView({ scenario, onBack }) {
     const updated = [...answers, selected];
     if (qIdx + 1 >= questions.length) {
       const correct = updated.filter((a, i) => a === questions[i].ans).length;
-      if (typeof award === 'function') award(correct * 5);
+      if (!awardFired.current) { awardFired.current = true; if (typeof award === 'function') award(correct * 5); }
       setAnswers(updated);
       setDone(true);
     } else {
