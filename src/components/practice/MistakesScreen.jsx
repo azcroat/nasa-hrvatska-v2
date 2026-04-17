@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { H, getMistakes, clearMistake, clearAllMistakes, speak } from '../../data.jsx';
+import { markQuest } from '../../lib/quests.js';
 
 // ── Flip card ──────────────────────────────────────────────────────────────────
 function FlipCard({ mistake, onGotIt, onStudyAgain }) {
@@ -128,7 +129,7 @@ export default function MistakesScreen({ goBack, award }) {
     setMastered(newMastered);
     if (reviewIdx + 1 >= reviewDeck.length) {
       // Session complete
-      if (award && newMastered > 0) award(newMastered * 5, newMastered >= 3);
+      if (award && newMastered > 0) { award(newMastered * 5, newMastered >= 3); markQuest('master'); }
       setMode('done');
     } else {
       setReviewIdx(i => i + 1);

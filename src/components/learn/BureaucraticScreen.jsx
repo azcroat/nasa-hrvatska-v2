@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { H, speak } from '../../data.jsx';
 import { BUREAUCRATIC } from '../../data.jsx';
+import { markQuest } from '../../lib/quests.js';
 
 function QuizBlock({ questions, award }) {
   const [answers, setAnswers] = useState({});
@@ -13,7 +14,7 @@ function QuizBlock({ questions, award }) {
     if (Object.keys(updated).length === questions.length) {
       const pts = Object.entries(updated).filter(([i, v]) => v === questions[i].a).length;
       setScore(pts);
-      if (award) award(pts * 5);
+      if (award) { award(pts * 5); markQuest('grammar'); }
     }
   }
 

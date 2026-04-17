@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { H } from "../../data.jsx";
 import { speak } from "../../lib/audio.js";
 import { apiFetch } from '../../lib/apiFetch.js';
+import { markQuest } from '../../lib/quests.js';
 
 const TOPICS = [
   { id:"gender",    icon:"🏷️", title:"Noun Gender",         level:"A1", desc:"Masculine, feminine & neuter" },
@@ -142,6 +143,7 @@ export default function GrammarExplainer({ goBack, award }) {
     if (!xpAwarded.current && typeof award === 'function') {
       xpAwarded.current = true;
       award(20);
+      markQuest('grammar');
       setPhase("done");
       setTimeout(() => setPhase("lesson"), 1800);
     }
