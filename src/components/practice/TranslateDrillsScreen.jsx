@@ -20,7 +20,7 @@ export default function TranslateDrillsScreen({ goBack, award }) {
     if (chosen) return;
     setChosen(opt);
     const correct = opt === drill.hr;
-    recordTopicResult('translate_' + drill.level.toLowerCase(), correct);
+    recordTopicResult('vocabulary', correct);
     if (correct) setScore(s => s + 1);
   }
 
