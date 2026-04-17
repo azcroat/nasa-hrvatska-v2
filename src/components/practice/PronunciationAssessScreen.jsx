@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import PronunciationScorer from '../shared/PronunciationScorer.jsx';
@@ -118,7 +118,7 @@ export default function PronunciationAssessScreen({ goBack, award }) {
 
   const [step, setStep]       = useState(0); // 0 = intro, 1..n = phrase n-1, n+1 = results
   const [scores, setScores]   = useState({}); // phraseIdx → score
-  const [xpAwarded, setXpAwarded] = useState(false);
+  const xpAwarded = useRef(false);
 
   const totalPhrases = phrases.length;
   const currentIdx   = step - 1; // 0-based
@@ -139,17 +139,17 @@ export default function PronunciationAssessScreen({ goBack, award }) {
   }, []);
 
   const handleFinish = useCallback(() => {
-    if (!xpAwarded && typeof award === 'function' && completedCount > 0) {
-      setXpAwarded(true);
+    if (!xpAwarded.current && typeof award === 'function' && completedCount > 0) {
+      xpAwarded.current = true;
       award(20 + Math.round(avgScore / 5)); // 20–40 XP based on quality
     }
     setStep(totalPhrases + 1);
-  }, [award, xpAwarded, completedCount, avgScore, totalPhrases]);
+  }, [award, completedCount, avgScore, totalPhrases]);
 
   const handleRestart = useCallback(() => {
     setScores({});
     setStep(0);
-    setXpAwarded(false);
+    xpAwarded.current = false;
   }, []);
 
   // ── Intro screen ─────────────────────────────────────────────────────────

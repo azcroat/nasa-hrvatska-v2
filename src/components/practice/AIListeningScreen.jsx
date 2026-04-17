@@ -33,7 +33,7 @@ export default function AIListeningScreen({ goBack, award }) {
   const [qIndex, setQIndex]             = useState(0);
   const [answers, setAnswers]           = useState([]);
   const [score, setScore]               = useState(0);
-  const [xpAwarded, setXpAwarded]       = useState(false);
+  const xpAwarded = useRef(false);
   const [readyVisible, setReadyVisible] = useState(false);
   const [errorMsg, setErrorMsg]         = useState('');
   const [audioSource, setAudioSource]   = useState('loading');
@@ -172,16 +172,15 @@ export default function AIListeningScreen({ goBack, award }) {
     setPhase('results');
   }
 
-  // Award XP exactly once on results mount.
-  // All consumed values in deps — xpAwarded guard prevents double-award on re-runs.
+  // Award XP exactly once when results phase is entered.
   useEffect(() => {
-    if (phase === 'results' && !xpAwarded) {
+    if (phase === 'results' && !xpAwarded.current) {
+      xpAwarded.current = true;
       const xp = 10 + score * 5;
       if (typeof award === 'function') award(xp);
       markQuest('speak');
-      setXpAwarded(true);
     }
-  }, [phase, xpAwarded, score, award]);
+  }, [phase, score, award]);
 
   function resetToSetup() {
     if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
@@ -196,7 +195,7 @@ export default function AIListeningScreen({ goBack, award }) {
     setQIndex(0);
     setAnswers([]);
     setScore(0);
-    setXpAwarded(false);
+    xpAwarded.current = false;
     setReadyVisible(false);
     setAudioSource('loading');
   }
