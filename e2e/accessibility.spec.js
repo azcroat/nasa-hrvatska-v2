@@ -121,8 +121,13 @@ test.describe('Accessibility — WCAG 2.1 AA (authenticated routes)', () => {
     test.slow();
 
     await page.goto('/practice');
+    // PracticeTab is lazy-loaded. The SW may trigger a reload during which the
+    // React app re-initialises and must re-fetch the PracticeTab chunk. Wait
+    // for the page to fully settle after any SW-triggered reload before asserting
+    // navigation visibility — this absorbs up to an additional 15 s of load time.
+    await page.waitForLoadState('domcontentloaded', { timeout: 15_000 }).catch(() => {});
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
-      timeout: 15_000,
+      timeout: 30_000,
     });
     // Wait for quest cards to finish rendering (they animate in with CSS transitions).
     // Without this, axe may scan the QuestTracker "Start →" button while a CSS
