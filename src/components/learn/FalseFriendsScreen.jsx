@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { H, speak } from '../../data.jsx';
 import { FALSEFR } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.tsx';
+import { markQuest } from '../../lib/quests.js';
 
 function FalseFriendsScreen({ goBack, award }) {
   const { stats, setStats, writeDelta } = useStats();
@@ -11,6 +12,7 @@ function FalseFriendsScreen({ goBack, award }) {
     if (completed.current) return;
     completed.current = true;
     if (award) award(30);
+    markQuest('vocab');
     // Replicate what the 20s dwell timer would do — grant LC credit so
     // the LearnPath ck(s.lc>=20) check can pass without waiting for dwell.
     if (!stats.vs?.includes('falsefr')) {

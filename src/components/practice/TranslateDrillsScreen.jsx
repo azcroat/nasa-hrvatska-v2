@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { sh } from '../../data.jsx';
 import { TRANSLATE_DRILLS } from '../../data/exercises.js';
 import { recordTopicResult } from '../../lib/adaptive.js';
+import { markQuest } from '../../lib/quests.js';
 
 const CEFR_COLORS = { A2: '#16a34a', B1: '#d97706', B2: '#7c3aed' };
 const CEFR_BG    = { A2: 'rgba(22,163,74,.12)', B1: 'rgba(217,119,6,.12)', B2: 'rgba(124,58,237,.12)' };
@@ -28,6 +29,7 @@ export default function TranslateDrillsScreen({ goBack, award }) {
     if (idx + 1 >= drills.length) {
       const xp = Math.round((score / drills.length) * 20);
       if (xp > 0 && typeof award === 'function') award(xp);
+      markQuest('vocab');
       setDone(true);
     } else {
       setChosen(null);
