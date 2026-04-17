@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { H, Bar, Spk, speakSlow, SHADOWING } from '../../data.jsx';
 import PronunciationScorer from '../shared/PronunciationScorer.jsx';
 import { recordTopicResult } from '../../lib/adaptive.js';
+import { markQuest } from '../../lib/quests.js';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -350,7 +351,7 @@ export default function ShadowingScreen({ goBack, award }) {
           </div>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 24 }}>
             <button className="b bg" onClick={() => { setIdx(0); setSaid(false); setPlays(0); setDone(false); setReps(0); resetRecorder(); setShowWaveform(false); }}>Retry</button>
-            <button className="b bp" onClick={() => { if (finishFired.current) return; finishFired.current = true; if (typeof award === 'function') award(items.length * 3 + 5); goBack(); }}>Finish</button>
+            <button className="b bp" onClick={() => { if (finishFired.current) return; finishFired.current = true; if (typeof award === 'function') award(items.length * 3 + 5); markQuest('speak'); goBack(); }}>Finish</button>
           </div>
         </div>
       </div>
