@@ -38,7 +38,7 @@ export default function VideoLessonScreen({ goBack, award }) {
   const [qIndex, setQIndex]             = useState(0);
   const [answers, setAnswers]           = useState([]);
   const [score, setScore]               = useState(0);
-  const [xpAwarded, setXpAwarded]       = useState(false);
+  const xpAwarded = useRef(false);
   const [errorMsg, setErrorMsg]         = useState('');
 
   const mountedRef    = useRef(true);
@@ -171,10 +171,10 @@ export default function VideoLessonScreen({ goBack, award }) {
       const finalScore = newAnswers.filter(a => a.correct).length;
       setScore(finalScore);
       setPhase('result');
-      if (!xpAwarded && award) {
+      if (!xpAwarded.current && award) {
+        xpAwarded.current = true;
         const xp = finalScore >= content.questions.length ? 30 : finalScore > 0 ? 15 : 5;
         award(xp);
-        setXpAwarded(true);
       }
     }
   }
@@ -483,7 +483,7 @@ export default function VideoLessonScreen({ goBack, award }) {
 
         <div style={{ display: 'flex', gap: 10 }}>
           <button
-            onClick={() => { setPhase('setup'); setContent(null); setLines([]); setAnswers([]); setScore(0); setQIndex(0); setXpAwarded(false); }}
+            onClick={() => { xpAwarded.current = false; setPhase('setup'); setContent(null); setLines([]); setAnswers([]); setScore(0); setQIndex(0); }}
             style={{
               flex: 1, padding: '13px', borderRadius: 12, border: '1px solid var(--card-b)',
               background: 'none', cursor: 'pointer', fontFamily: "'Outfit',sans-serif",

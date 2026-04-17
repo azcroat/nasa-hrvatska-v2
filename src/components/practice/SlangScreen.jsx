@@ -4,7 +4,7 @@
  * Sub-components: SlangAgeGate, SlangEntryCard, SlangQuizPanel
  * Data: slangData.js
  */
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { sh } from '../../data.jsx';
 import { SECTIONS } from './slangData.js';
 import { markQuest } from '../../lib/quests.js';
@@ -20,7 +20,7 @@ export default function SlangScreen({ goBack, award }) {
     return 'classics';
   });
   const [expanded, setExpanded] = useState(null);
-  const [xpAwarded, setXpAwarded] = useState(false);
+  const xpAwarded = useRef(false);
   const [searchQ, setSearchQ] = useState('');
   const [searching, setSearching] = useState(false);
 
@@ -36,12 +36,12 @@ export default function SlangScreen({ goBack, award }) {
   const [quizSelected, setQuizSelected] = useState(null);
   const [quizScore, setQuizScore] = useState(0);
   const [quizDone, setQuizDone] = useState(false);
-  const [quizXpGiven, setQuizXpGiven] = useState(false);
+  const quizXpGiven = useRef(false);
 
   function handleUnlock() {
     localStorage.setItem('slangAgeConfirmed', 'true');
     setGated(false);
-    if (award && !xpAwarded) { award(15); setXpAwarded(true); }
+    if (award && !xpAwarded.current) { xpAwarded.current = true; award(15); }
   }
 
   function switchSection(id) {
@@ -74,7 +74,7 @@ export default function SlangScreen({ goBack, award }) {
     setQuizSelected(null);
     setQuizScore(0);
     setQuizDone(false);
-    setQuizXpGiven(false);
+    quizXpGiven.current = false;
     setQuizMode(true);
   }
 
@@ -96,7 +96,7 @@ export default function SlangScreen({ goBack, award }) {
   function finishQuiz() {
     const xp = quizScore * 3;
     markQuest('speak');
-    if (award && !quizXpGiven && xp > 0) { award(xp); setQuizXpGiven(true); }
+    if (award && !quizXpGiven.current && xp > 0) { quizXpGiven.current = true; award(xp); }
   }
 
   // ── Age Gate ──────────────────────────────────────────────────────────────
