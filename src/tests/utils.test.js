@@ -41,7 +41,7 @@ import {
   generateFamilyCode, friendlyError,
   getSR, saveSR, srMark, getStreak, updateStreak,
   getProverbOfDay, getDailyChallenge, shMemo,
-} from '../data.jsx';
+} from '../data';
 
 // ── localStorage helpers ─────────────────────────────────────────────────────
 function clearLS() { localStorage.clear(); }

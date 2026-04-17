@@ -33,7 +33,7 @@ vi.mock('firebase/firestore', () => ({
   query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
 }));
 // Mock data.jsx so useSearch's dynamic import resolves with a minimal search index
-vi.mock('../data.jsx', () => ({
+vi.mock('../data', () => ({
   buildSearchIndex: () => [
     { hr: 'kuća', en: 'house', type: 'vocab', go: 'lesson' },
     { hr: 'auto', en: 'car', type: 'vocab', go: 'lesson' },
