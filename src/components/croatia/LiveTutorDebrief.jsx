@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 
 export default function LiveTutorDebrief({
   goBack,
@@ -8,6 +8,7 @@ export default function LiveTutorDebrief({
   award,
   onPracticeAgain,
 }) {
+  const awardFired = useRef(false);
   const fmtDur = (s) => `${Math.floor(s / 60)}m ${s % 60}s`;
   const xpEarned = debrief.xpEarned ?? 30;
 
@@ -69,7 +70,7 @@ export default function LiveTutorDebrief({
 
         {/* CTA */}
         <button
-          onClick={() => { if (award) award(xpEarned); goBack(); }}
+          onClick={() => { if (!awardFired.current) { awardFired.current = true; if (award) award(xpEarned); } goBack(); }}
           style={{ width: '100%', height: 52, borderRadius: 12, background: '#D4002D', color: '#fff', border: 'none', fontSize: 16, fontWeight: 800, cursor: 'pointer' }}
         >
           +{xpEarned} XP · Back to App

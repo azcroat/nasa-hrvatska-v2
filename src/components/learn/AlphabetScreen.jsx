@@ -32,6 +32,7 @@ export default function AlphabetScreen({ goBack, award }) {
   const [quizDone, setQuizDone] = useState(false);
   const [learnedCount, setLearnedCount] = useState(0);
   const learnedRef = useRef(new Set());
+  const awardFired = useRef(false);
 
   function markLearned(letter) {
     if (!learnedRef.current.has(letter)) {
@@ -120,7 +121,7 @@ export default function AlphabetScreen({ goBack, award }) {
           <div style={{display:"flex",gap:10}}>
             <button className="b bg" style={{flex:1}} onClick={()=>{ setMode('reference'); }}>📖 Review</button>
             <button className="b bp" style={{flex:1}} onClick={() => {
-              if (typeof award === 'function') award(20);
+              if (!awardFired.current) { awardFired.current = true; if (typeof award === 'function') award(20); }
               if (!stats.vs?.includes('alphabet')) {
                 setStats(prev => {
                   if (prev.vs?.includes('alphabet')) return prev;
