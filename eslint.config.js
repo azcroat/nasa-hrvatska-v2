@@ -127,6 +127,18 @@ export default [
       }],
       // Allow .js extensions in imports (Vite resolves .ts transparently)
       '@typescript-eslint/consistent-type-imports': ['warn', { prefer: 'type-imports', fixStyle: 'inline-type-imports' }],
+      // Migration: @ts-nocheck marks files with pre-existing type violations being
+      // progressively fixed. Banning it during migration would force 2000+ type fixes
+      // before any TypeScript coverage is possible. Remove this override once all
+      // @ts-nocheck markers have been resolved.
+      '@typescript-eslint/ban-ts-comment': 'off',
+      // The following rules were already off for .jsx files and must stay off for .tsx
+      // during migration — same code patterns exist throughout (React && expr, escapes, etc.)
+      '@typescript-eslint/no-unused-expressions': 'off',
+      'no-useless-escape': 'off',
+      'prefer-const': 'off',
+      'no-var': 'off',
+      'no-empty': 'off',
     },
   },
   // React hooks plugin for TypeScript files (mirrors .js/.jsx block above)
