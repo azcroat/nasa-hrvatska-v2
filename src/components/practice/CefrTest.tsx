@@ -170,8 +170,7 @@ export default function CefrTest({ award }) {
     if (nextIdx >= total) {
       if (!finishFired.current) {
         finishFired.current = true;
-        const finalScore = score + (selected === activeQuestions[qIdx].answer ? 1 : 0);
-        if (award) award(finalScore * 7);
+        if (award) award(score * 7);
         markQuest('grammar');
       }
       setDone(true);

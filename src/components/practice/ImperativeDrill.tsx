@@ -7,7 +7,7 @@ function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.fl
 
 const DATA = [
   { q:"'Speak!' (informal, govoriti)", opts:["Govori!","Govorite!","Govoriti!","Govoriš!"], answer:"Govori!", en:"Speak! (to one person)", tip:"govoriti → stem 'govor' + i → 'govori'" },
-  { q:"'Don't run!' (informal, trčati)", opts:["Nemoj trčati!","Ne trčaj!","Nemoj trčati!","Ne trčaj!"], answer:"Nemoj trčati!", en:"Don't run!", tip:"Negative imperative: nemoj + infinitive is the standard form" },
+  { q:"'Don't run!' (informal, trčati)", opts:["Nemoj trčati!","Trčaj!","Trčiti moraš!","Trčiš se!"], answer:"Nemoj trčati!", en:"Don't run!", tip:"Negative imperative: nemoj + infinitive is the standard form" },
   { q:"'Come here!' (plural/formal, doći)", opts:["Dođite ovamo!","Dođi ovamo!","Dolazite ovamo!","Dođemo ovamo!"], answer:"Dođite ovamo!", en:"Come here! (to a group)", tip:"doći → irregular: dođi (sg) / dođite (pl/formal)" },
   { q:"'Eat!' (informal, jesti)", opts:["Jedi!","Jedite!","Jesti!","Jedeš!"], answer:"Jedi!", en:"Eat! (to one person)", tip:"jesti → stem 'jed' + i → 'jedi'" },
   { q:"'Write your name!' (plural, pisati)", opts:["Napišite svoje ime!","Napiši svoje ime!","Pisajte svoje ime!","Pisajući svoje ime!"], answer:"Napišite svoje ime!", en:"Write your name! (to a group)", tip:"pisati (perfective: napisati) → napišite for plural" },
@@ -20,11 +20,11 @@ const DATA = [
   { q:"'Wait!' (plural/formal, čekati)", opts:["Čekajte!","Čekaj!","Čekate!","Čekajući!"], answer:"Čekajte!", en:"Wait! (formal/plural)", tip:"čekati → čekaj (sg) / čekajte (pl)" },
   { q:"'Look at this!' (informal, pogledati)", opts:["Pogledaj ovo!","Pogledajte ovo!","Gleda ovo!","Gledaj ovo!"], answer:"Pogledaj ovo!", en:"Look at this! (to one person)", tip:"pogledati (pf) → stem 'pogleda' + j → 'pogledaj'" },
   { q:"'Travel safely!' (plural, putovati)", opts:["Putujte sigurno!","Putuj sigurno!","Putujući sigurno!","Putovajte sigurno!"], answer:"Putujte sigurno!", en:"Travel safely! (to a group)", tip:"putovati → putuj (sg) / putujte (pl)" },
-  { q:"'Don't forget!' (informal, zaboraviti)", opts:["Nemoj zaboraviti!","Ne zaboravi!","Zaboraviš ne!","Nemoj zaboraviti!"], answer:"Nemoj zaboraviti!", en:"Don't forget!", tip:"Negative imperative with 'nemoj' + infinitive" },
+  { q:"'Don't forget!' (informal, zaboraviti)", opts:["Nemoj zaboraviti!","Ne zaboravi!","Zaboraviš ne!","Ne zaboravljaj!"], answer:"Nemoj zaboraviti!", en:"Don't forget!", tip:"Negative imperative with 'nemoj' + infinitive" },
   { q:"'Sit down!' (informal, sjesti)", opts:["Sjedni!","Sjednite!","Sjediš!","Sjedi!"], answer:"Sjedni!", en:"Sit down! (to one person)", tip:"sjesti → irregular: sjedni (sg) / sjednite (pl)" },
   { q:"'Help me!' (informal, pomoći)", opts:["Pomozi mi!","Pomozite mi!","Pomaži mi!","Pomogni mi!"], answer:"Pomozi mi!", en:"Help me! (to one person)", tip:"pomoći → irregular: pomozi (sg) / pomozite (pl)" },
   { q:"'Please be careful!' (plural, biti pažljiv)", opts:["Budite pažljivi!","Budi pažljiv!","Budite pažljiv!","Pažljivi!"], answer:"Budite pažljivi!", en:"Please be careful! (to a group)", tip:"biti → budite (pl formal). Adjective agrees: pažljivi (pl)" },
-  { q:"'Call me!' (informal, nazvati)", opts:["Nazovi me!","Nazvite me!","Nazovite me!","Nazovi me!"], answer:"Nazovi me!", en:"Call me! (to one person)", tip:"nazvati (pf) → nazovi (sg) / nazovite (pl)" },
+  { q:"'Call me!' (informal, nazvati)", opts:["Nazovi me!","Nazvite me!","Nazovite me!","Nazovim me!"], answer:"Nazovi me!", en:"Call me! (to one person)", tip:"nazvati (pf) → nazovi (sg) / nazovite (pl)" },
   { q:"'Hurry up!' (informal, požuriti)", opts:["Požuri!","Požurite!","Žuri se!","Požuruj!"], answer:"Požuri!", en:"Hurry up! (to one person)", tip:"požuriti → stem 'požuri' + i → 'požuri'" },
   { q:"'Learn Croatian!' (informal, učiti)", opts:["Uči hrvatski!","Učite hrvatski!","Učiš hrvatski!","Učenje hrvatskog!"], answer:"Uči hrvatski!", en:"Learn Croatian! (to one person)", tip:"učiti → stem 'uč' + i → 'uči'" },
   { q:"'Don't be late!' (formal/plural, kasniti)", opts:["Nemojte kasniti!","Nemoj kasniti!","Ne kasnite!","Ne kasni!"], answer:"Nemojte kasniti!", en:"Don't be late! (formal/plural)", tip:"Plural negative: nemojte + infinitive" },
