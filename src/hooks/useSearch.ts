@@ -17,7 +17,7 @@ export interface SearchResult {
 let _cachedIndex: SearchResult[] | null = null;
 async function getCachedIndex(): Promise<SearchResult[]> {
   if (!_cachedIndex) {
-    const { buildSearchIndex } = await import('../data.jsx');
+    const { buildSearchIndex } = await import('../data');
     _cachedIndex = (buildSearchIndex as () => SearchResult[])();
   }
   return _cachedIndex;

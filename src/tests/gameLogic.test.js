@@ -52,7 +52,7 @@ import {
   lXPgain,
   lvl,
   BADGES,
-} from '../data.jsx';
+} from '../data';
 
 // ── localStorage helper ───────────────────────────────────────────────────────
 function clearLS() { localStorage.clear(); }

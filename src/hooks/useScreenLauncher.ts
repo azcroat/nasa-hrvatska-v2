@@ -38,7 +38,7 @@ function _buildAdaptivePool(pool: VocabWord[]): VocabWord[] {
 
 let _dataCache: Record<string, unknown> | null = null;
 async function _getData(): Promise<Record<string, unknown>> {
-  if (!_dataCache) _dataCache = await import('../data.jsx') as Record<string, unknown>;
+  if (!_dataCache) _dataCache = await import('../data') as Record<string, unknown>;
   return _dataCache;
 }
 

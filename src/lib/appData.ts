@@ -118,4 +118,4 @@ export {
   // Theme colors
   BG_LIGHT,
   BG_DARK,
-} from '../data.jsx';
+} from '../data';
