@@ -7,13 +7,13 @@ function shLocal(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.fl
 
 const DATA = [
   { q:"___ auto (2)", opts:["dva auta","dva auto","dva auti","dva automobila"], answer:"dva auta", en:"2 cars", tip:"2/3/4 + Genitive singular: 'auto' → 'auta'" },
-  { q:"___ kuća (5)", opts:["pet kuća","pet kući","pet kuće","pet kuće"], answer:"pet kuća", en:"5 houses", tip:"5+ requires Genitive plural: 'kuća' (the genitive plural of 'kuća')" },
+  { q:"___ kuća (5)", opts:["pet kuća","pet kući","pet kuće","pet kućama"], answer:"pet kuća", en:"5 houses", tip:"5+ requires Genitive plural: 'kuća' (the genitive plural of 'kuća')" },
   { q:"___ dijete (3)", opts:["tri djece","tri djeteta","tri djeci","tri dijete"], answer:"tri djeteta", en:"3 children", tip:"3 + Genitive singular of 'dijete' = 'djeteta' (irregular noun)" },
   { q:"___ žena (1)", opts:["jedna žena","jedan žena","jedna žene","jedno žena"], answer:"jedna žena", en:"1 woman", tip:"1 uses Nominative singular. 'žena' is feminine → 'jedna'" },
   { q:"___ knjiga (11)", opts:["jedanaest knjiga","jedanaest knjige","jedanaest knjizi","jedanaest knjigā"], answer:"jedanaest knjiga", en:"11 books", tip:"11-19 ALWAYS use Genitive plural, regardless of the -1 rule" },
   { q:"___ pas (4)", opts:["četiri psa","četiri psi","četiri pas","četiri pasa"], answer:"četiri psa", en:"4 dogs", tip:"4 + Genitive singular: 'pas' → 'psa'" },
   { q:"___ sat (21)", opts:["dvadeset i jedan sat","dvadeset i jedan sata","dvadeset i jednog sata","dvadeset i jedna sata"], answer:"dvadeset i jedan sat", en:"21 hours", tip:"21 follows the rule for 1: Nominative singular" },
-  { q:"___ mačka (6)", opts:["šest mačaka","šest mačke","šest mački","šest mačaka"], answer:"šest mačaka", en:"6 cats", tip:"6+ Genitive plural: 'mačka' → 'mačaka'" },
+  { q:"___ mačka (6)", opts:["šest mačaka","šest mačke","šest mački","šest mačkama"], answer:"šest mačaka", en:"6 cats", tip:"6+ Genitive plural: 'mačka' → 'mačaka'" },
   { q:"___ student (2)", opts:["dva studenta","dva studenti","dva studenata","dva student"], answer:"dva studenta", en:"2 students", tip:"2/3/4 + Genitive singular: 'student' → 'studenta'" },
   { q:"___ grad (100)", opts:["sto gradova","sto grad","sto grada","sto gradu"], answer:"sto gradova", en:"100 cities", tip:"100 = Genitive plural: 'grad' → 'gradova'" },
   { q:"___ djevojka (3)", opts:["tri djevojke","tri djevojaka","tri djevojka","tri djevojki"], answer:"tri djevojke", en:"3 girls", tip:"3 + Genitive singular: 'djevojka' → 'djevojke'" },
@@ -24,10 +24,10 @@ const DATA = [
   { q:"___ stan (7)", opts:["sedam stanova","sedam stana","sedam stani","sedam stan"], answer:"sedam stanova", en:"7 apartments", tip:"7+ Genitive plural: 'stan' → 'stanova'" },
   { q:"___ sat (2)", opts:["dva sata","dva sat","dvije sata","dva sati"], answer:"dva sata", en:"2 hours", tip:"2 + Genitive singular: 'sat' → 'sata'" },
   { q:"___ čovjek (5)", opts:["pet ljudi","pet čovjeka","pet čovjeci","pet čovjekā"], answer:"pet ljudi", en:"5 people", tip:"'čovjek' has suppletive plural 'ljudi' — gen pl is 'ljudi'" },
-  { q:"___ automobil (4)", opts:["četiri automobila","četiri automobile","četiri automobili","četiri automobila"], answer:"četiri automobila", en:"4 cars", tip:"4 + Genitive singular: 'automobil' → 'automobila'" },
+  { q:"___ automobil (4)", opts:["četiri automobila","četiri automobile","četiri automobili","četiri automobilima"], answer:"četiri automobila", en:"4 cars", tip:"4 + Genitive singular: 'automobil' → 'automobila'" },
   { q:"___ zemlja (13)", opts:["trinaest zemalja","trinaest zemlja","trinaest zemlje","trinaest zemljama"], answer:"trinaest zemalja", en:"13 countries", tip:"13 = Genitive plural. 'zemlja' → gen pl 'zemalja'" },
   { q:"___ dijete (4)", opts:["četiri djeteta","četiri djece","četiri djetetu","četiri dijete"], answer:"četiri djeteta", en:"4 children", tip:"4 + Genitive singular: 'dijete' → 'djeteta'" },
-  { q:"___ prijatelj (22)", opts:["dvadeset i dva prijatelja","dvadeset i dva prijatelja","dvadeset i dva prijatelji","dvadeset i dva prijatelju"], answer:"dvadeset i dva prijatelja", en:"22 friends", tip:"22 = follows rule for 2: Genitive singular 'prijatelja'" },
+  { q:"___ prijatelj (22)", opts:["dvadeset i dva prijatelja","dvadeset i dva prijatelima","dvadeset i dva prijatelji","dvadeset i dva prijatelju"], answer:"dvadeset i dva prijatelja", en:"22 friends", tip:"22 = follows rule for 2: Genitive singular 'prijatelja'" },
   { q:"___ muškarac (3)", opts:["tri muškarca","tri muškaraca","tri muškarci","tri muškarac"], answer:"tri muškarca", en:"3 men", tip:"3 + Genitive singular: 'muškarac' → 'muškarca'" },
   { q:"___ godina (30)", opts:["trideset godina","trideset godine","trideset godini","trideset godinu"], answer:"trideset godina", en:"30 years", tip:"30 = Genitive plural: 'godina' → 'godina' (same form, zero plural)" },
 ];
