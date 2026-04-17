@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Bar, srMark } from '../../data.jsx';
+import { markQuest } from '../../lib/quests.js';
 import ScreenHeader from '../shared/ScreenHeader.jsx';
 import confetti from 'canvas-confetti';
 import { speak } from '../../lib/audio.js';
@@ -232,6 +233,7 @@ export default function Flashcards({ pool, goBack, award }) {
     finishFired.current = true;
     try { sessionStorage.removeItem(FLASH_RESUME_KEY); } catch { /* ignore */ }
     if (typeof award === 'function') award(finalKnown * XP_PER_KNOWN + XP_COMPLETION_BONUS);
+    markQuest('vocab');
     knightSpeak(
       finalKnown === activePool.length ? 'victory' : finalKnown >= activePool.length * 0.7 ? 'celebrating' : 'encouraged',
       finalKnown === activePool.length

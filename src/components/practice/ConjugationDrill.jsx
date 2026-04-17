@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useStats } from '../../context/StatsContext.tsx';
 import { H, Bar, speak, sh, CONJ } from '../../data.jsx';
 import { recordTopicResult } from '../../lib/adaptive.js';
+import { markQuest } from '../../lib/quests.js';
 
 export default function ConjugationDrill({ goBack, award, setSt }) {
   const { writeDelta } = useStats();
@@ -85,7 +86,7 @@ export default function ConjugationDrill({ goBack, award, setSt }) {
               <div style={{fontSize:32,fontWeight:800,color:"#0e7490"}}>{cjS} / {total}</div>
               <div style={{display:"flex",gap:10,justifyContent:"center",marginTop:16}}>
                 <button className="b bg" onClick={() => sCjMode("menu")}>📋 Menu</button>
-                <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(cjS * 2 + 10); setSt(s => ({...s, gc: s.gc + 1})); writeDelta({gc:1}); goBack(); }}>🏠 Finish!</button>
+                <button className="b bp" onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(cjS * 2 + 10); markQuest('grammar'); setSt(s => ({...s, gc: s.gc + 1})); writeDelta({gc:1}); goBack(); }}>🏠 Finish!</button>
               </div>
             </div>
           );
