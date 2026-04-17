@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext.tsx';
 import { QUIZ } from './ConstellationData.js';
@@ -16,7 +16,7 @@ export default function GrammarConstellation({ goBack, award }) {
   const [quizScore, setQuizScore] = useState(0);
   const [selected, setSelected] = useState(null);
   const [answered, setAnswered] = useState(false);
-  const [awardCalled, setAwardCalled] = useState(false);
+  const awardCalled = useRef(false);
   const [finalScore, setFinalScore] = useState(0);
 
   // Shuffle question order once per session so users see different sequences on retake
@@ -52,8 +52,8 @@ export default function GrammarConstellation({ goBack, award }) {
       const fs = quizScore + (selected === shuffledQuiz[quizIdx].answer ? 1 : 0);
       setFinalScore(fs);
       setMode('done');
-      if (!awardCalled) {
-        setAwardCalled(true);
+      if (!awardCalled.current) {
+        awardCalled.current = true;
         if (typeof award === 'function') award(fs * 10);
         markQuest('grammar');
         if (!stats.vs?.includes('grammarmap')) {
