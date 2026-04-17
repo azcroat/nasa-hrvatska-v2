@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, Spk, PITCH_ACCENT } from '../../data.jsx';
 import { useStats } from '../../context/StatsContext.tsx';
+import { markQuest } from '../../lib/quests.js';
 
 const ACCENT_TYPES = [
   {id:"kratkosilazni", label:"Short Falling", symbol:"◌̀", color:"#ef4444", desc:"Pitch drops on a short vowel"},
@@ -44,7 +45,7 @@ export default function PitchAccentScreen({ goBack, award }) {
           </div>
           <div style={{display:"flex",gap:12,justifyContent:"center",marginTop:24}}>
             <button className="b bg" onClick={()=>{setIdx(0);setAnswered(false);setSelected(null);setScore(0);setDone(false);}}>Retry</button>
-            <button className="b bp" onClick={()=>{if(finishFired.current)return;finishFired.current=true;if(typeof award==='function')award(score*5+5);if(!stats.vs?.includes('pitchaccent')){setStats(prev=>{if(prev.vs?.includes('pitchaccent'))return prev;return{...prev,lc:(prev.lc||0)+1,vs:[...(prev.vs||[]),'pitchaccent']};});if(writeDelta)writeDelta({lc:1,vs:['pitchaccent']});}goBack();}}>Finish</button>
+            <button className="b bp" onClick={()=>{if(finishFired.current)return;finishFired.current=true;if(typeof award==='function')award(score*5+5);markQuest('grammar');if(!stats.vs?.includes('pitchaccent')){setStats(prev=>{if(prev.vs?.includes('pitchaccent'))return prev;return{...prev,lc:(prev.lc||0)+1,vs:[...(prev.vs||[]),'pitchaccent']};});if(writeDelta)writeDelta({lc:1,vs:['pitchaccent']});}goBack();}}>Finish</button>
           </div>
         </div>
       </div>

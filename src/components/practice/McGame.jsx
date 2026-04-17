@@ -10,6 +10,7 @@ import McQuestionArea from './McQuestionArea.jsx';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 import { useMcGameReducer } from '../../hooks/useMcGameReducer';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { markQuest } from '../../lib/quests.js';
 
 const XP_PER_CORRECT = 3;
 const XP_COMPLETION_BONUS = 5;
@@ -221,6 +222,7 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
 
         const uniqueCleared = clearedIndices.current.size;
         if (typeof award === 'function') award(uniqueCleared * XP_PER_CORRECT + XP_COMPLETION_BONUS, true);
+        markQuest('vocab');
         onComplete(questions, finalScore);
         return; // don't advance — let onComplete unmount
       }

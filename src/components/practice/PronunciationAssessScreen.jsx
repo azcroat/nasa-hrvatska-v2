@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext.jsx';
 import { useStats } from '../../context/StatsContext.jsx';
 import PronunciationScorer from '../shared/PronunciationScorer.jsx';
 import { scoreColor, scoreEmoji, scoreLabel } from '../shared/pronunciationUtils.js';
+import { markQuest } from '../../lib/quests.js';
 
 // ── Assessment phrase banks per CEFR level ──────────────────────────────────
 const PHRASES = {
@@ -142,6 +143,7 @@ export default function PronunciationAssessScreen({ goBack, award }) {
     if (!xpAwarded.current && typeof award === 'function' && completedCount > 0) {
       xpAwarded.current = true;
       award(20 + Math.round(avgScore / 5)); // 20–40 XP based on quality
+      markQuest('speak');
     }
     setStep(totalPhrases + 1);
   }, [award, completedCount, avgScore, totalPhrases]);

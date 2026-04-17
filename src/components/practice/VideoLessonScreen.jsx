@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { speak } from '../../data.jsx';
 import VideoBackground from '../shared/VideoBackground.jsx';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { markQuest } from '../../lib/quests.js';
 
 // Topic → Croatian scene video key for VideoBackground
 const TOPIC_SCENE = {
@@ -175,6 +176,7 @@ export default function VideoLessonScreen({ goBack, award }) {
         xpAwarded.current = true;
         const xp = finalScore >= content.questions.length ? 30 : finalScore > 0 ? 15 : 5;
         award(xp);
+        markQuest('speak');
       }
     }
   }

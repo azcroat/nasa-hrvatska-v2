@@ -11,6 +11,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { H, Bar } from '../../data.jsx';
 import { SENTBUILD } from '../../data.jsx';
+import { markQuest } from '../../lib/quests.js';
 import { useHaptic } from '../../hooks/useHaptic';
 import { playCorrect, playWrong } from '../../lib/soundSettings.js';
 import { knightSpeak } from '../../lib/knightSpeak.js';
@@ -112,6 +113,7 @@ export default function SentenceTileScreen({ goBack, award }) {
     const nextIdx = idx + 1;
     if (nextIdx >= questions.length) {
       if (typeof award === 'function') award(score * 4 + 5, true);
+      markQuest('grammar');
       knightSpeak(
         score >= questions.length * 0.8 ? 'victory' : 'encouraging',
         score >= questions.length * 0.8
