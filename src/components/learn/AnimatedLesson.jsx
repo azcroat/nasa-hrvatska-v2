@@ -4,7 +4,7 @@
 // built entirely in React with animations and live TTS.
 // ═══════════════════════════════════════════════════════════
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { speak } from '../../lib/audio.js';
 import { markQuest } from '../../lib/quests.js';
 import {
@@ -49,7 +49,7 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
   const [_done, setDone] = useState(false);
   const [autoTTS, setAutoTTS] = useState(() => LS_GET('nh_autotts', false));
   const [ttsAvailable] = useState(() => typeof window !== 'undefined');
-  const [xpAwarded, setXpAwarded] = useState(false);
+  const xpAwarded = useRef(false);
 
   const slides = lesson?.slides || [];
   const totalSlides = slides.length;
@@ -78,8 +78,8 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
   // Award XP when summary slide reached
   useEffect(() => {
     if (!currentSlide) return;
-    if (currentSlide.type === 'summary' && !xpAwarded) {
-      setXpAwarded(true);
+    if (currentSlide.type === 'summary' && !xpAwarded.current) {
+      xpAwarded.current = true;
       if (typeof award === 'function') {
         award(25);
         markQuest('grammar');
@@ -173,7 +173,7 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
             lesson={lesson}
             score={score}
             quizTotal={quizTotal}
-            xpAwarded={xpAwarded}
+            xpAwarded={xpAwarded.current}
           />
         );
 

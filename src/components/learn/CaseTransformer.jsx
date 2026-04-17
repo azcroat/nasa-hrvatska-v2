@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { NOUN_LIBRARY, CASE_INFO, declineNoun } from './CaseTransformerData.js';
 import { markQuest } from '../../lib/quests.js';
 import CaseTransformerPicker from './CaseTransformerPicker.jsx';
@@ -19,6 +19,7 @@ export default function CaseTransformer({ goBack, award }) {
   const [quizChosen, setQuizChosen]       = useState(null);
   const [quizDone, setQuizDone]           = useState(false);
   const [xpAwarded, setXpAwarded]         = useState(false);
+  const xpAwardedRef                       = useRef(false); // synchronous guard against double-award
 
   // Filtered noun list
   const filteredNouns = useMemo(() => {
@@ -78,6 +79,7 @@ export default function CaseTransformer({ goBack, award }) {
     setQuizChosen(null);
     setQuizDone(false);
     setXpAwarded(false);
+    xpAwardedRef.current = false;
     setPhase("quiz");
   }
 
@@ -94,10 +96,11 @@ export default function CaseTransformer({ goBack, award }) {
       setQuizChosen(null);
     } else {
       setQuizDone(true);
-      if (!xpAwarded && typeof award === 'function') {
+      if (!xpAwardedRef.current && typeof award === 'function') {
+        xpAwardedRef.current = true;
+        setXpAwarded(true);
         markQuest('grammar');
         award(10);
-        setXpAwarded(true);
       }
     }
   }

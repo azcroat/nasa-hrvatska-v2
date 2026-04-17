@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { H } from "../../data.jsx";
 import { speak } from "../../lib/audio.js";
 import { apiFetch } from '../../lib/apiFetch.js';
@@ -95,7 +95,7 @@ export default function GrammarExplainer({ goBack, award }) {
   const [lesson, setLesson] = useState(null);
   const [quizAnswers, setQuizAnswers] = useState([]);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
-  const [xpAwarded, setXpAwarded] = useState(false);
+  const xpAwarded = useRef(false);
   const [error, setError] = useState(null);
 
   // Writing practice state
@@ -125,7 +125,7 @@ export default function GrammarExplainer({ goBack, award }) {
       setLesson(data);
       setQuizAnswers(new Array((data.quiz || []).length).fill(null));
       setQuizSubmitted(false);
-      setXpAwarded(false);
+      xpAwarded.current = false;
       setWritingText("");
       setWritingResult(null);
       setWritingError(null);
@@ -139,9 +139,9 @@ export default function GrammarExplainer({ goBack, award }) {
 
   function handleQuizSubmit() {
     setQuizSubmitted(true);
-    if (!xpAwarded && typeof award === 'function') {
+    if (!xpAwarded.current && typeof award === 'function') {
+      xpAwarded.current = true;
       award(20);
-      setXpAwarded(true);
       setPhase("done");
       setTimeout(() => setPhase("lesson"), 1800);
     }
@@ -153,7 +153,7 @@ export default function GrammarExplainer({ goBack, award }) {
     setSelectedTopic(null);
     setQuizAnswers([]);
     setQuizSubmitted(false);
-    setXpAwarded(false);
+    xpAwarded.current = false;
     setError(null);
     setWritingText("");
     setWritingResult(null);
