@@ -5,6 +5,7 @@ import AspectRuleCard from './AspectRuleCard.jsx';
 import AspectQuestionPanel from './AspectQuestionPanel.jsx';
 import { useStats } from '../../context/StatsContext.tsx';
 import { recordTopicResult } from '../../lib/adaptive.js';
+import { markQuest } from '../../lib/quests.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // The 6 core aspect rules every Croatian learner MUST internalize.
@@ -391,6 +392,7 @@ export default function AspectDrillScreen({ goBack, award }) {
               if (finishFired.current) return;
               finishFired.current = true;
               if (typeof award === 'function') award(score * 4 + 10);
+              markQuest('grammar');
               // Grant gc credit so LearnPath ck(gc>=5) passes (replaces the 20s dwell timer)
               if (!stats.vs?.includes('aspect')) {
                 setStats(prev => {

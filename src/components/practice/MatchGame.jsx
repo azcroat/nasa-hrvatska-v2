@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { H, srMark } from '../../data.jsx';
 import { knightSpeak } from '../../lib/knightSpeak.js';
+import { markQuest } from '../../lib/quests.js';
 
 // Q-4: State moved into component — App.jsx no longer owns mp/mm/msl/gph/gsc.
 // PracticeTab passes initPool (the shuffled card array) as the only init prop.
@@ -50,7 +51,7 @@ export default function MatchGame({ initPool, goBack, award }) {
                   const hrWord = f.tp === 'hr' ? f.t : c.t;
                   srMark(hrWord, true);
                   sMm(m => [...m, c.p]); sGsc(s => s + 1); sMsl([]);
-                  if (mm.length + 1 === mp.length / 2) setTimeout(() => { if (typeof award === 'function') award(20); sGph("done"); knightSpeak('celebrating', 'Sve upareno! You just matched every word. Neural pathways reinforced. 🧠⚔️', 800); }, 500);
+                  if (mm.length + 1 === mp.length / 2) setTimeout(() => { if (typeof award === 'function') award(20); markQuest('vocab'); sGph("done"); knightSpeak('celebrating', 'Sve upareno! You just matched every word. Neural pathways reinforced. 🧠⚔️', 800); }, 500);
                 } else {
                   const hrWord = f.tp === 'hr' ? f.t : (c.tp === 'hr' ? c.t : null);
                   if (hrWord) srMark(hrWord, false);
@@ -68,7 +69,7 @@ export default function MatchGame({ initPool, goBack, award }) {
                     const hrWord = f.tp === 'hr' ? f.t : c.t;
                     srMark(hrWord, true);
                     sMm(m => [...m, c.p]); sGsc(s => s + 1); sMsl([]);
-                    if (mm.length + 1 === mp.length / 2) setTimeout(() => { if (typeof award === 'function') award(20); sGph("done"); knightSpeak('celebrating', 'Sve upareno! You just matched every word. Neural pathways reinforced. 🧠⚔️', 800); }, 500);
+                    if (mm.length + 1 === mp.length / 2) setTimeout(() => { if (typeof award === 'function') award(20); markQuest('vocab'); sGph("done"); knightSpeak('celebrating', 'Sve upareno! You just matched every word. Neural pathways reinforced. 🧠⚔️', 800); }, 500);
                   } else {
                     const hrWord = f.tp === 'hr' ? f.t : (c.tp === 'hr' ? c.t : null);
                     if (hrWord) srMark(hrWord, false);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { H, Bar, V, srMark, speak } from '../../data.jsx';
 import { rnd } from '../../lib/random.js';
+import { markQuest } from '../../lib/quests.js';
 
 const TimerDisplay = React.memo(/** @param {{ timeLeft: number, color: string }} props */ function TimerDisplay({ timeLeft, color }) {
   return (
@@ -131,7 +132,7 @@ export default function WordSprint({ sh, award, goBack }) {
   }
 
   useEffect(() => {
-    if (phase === 'result' && score > 0) { if (typeof award === 'function') award(Math.min(score * 2, 50)); }
+    if (phase === 'result' && score > 0) { if (typeof award === 'function') award(Math.min(score * 2, 50)); markQuest('vocab'); }
   }, [phase]);  
 
   const toggleCat = (c) =>
