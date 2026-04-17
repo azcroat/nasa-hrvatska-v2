@@ -7,23 +7,26 @@ const TIER2_MAP_LOCAL = {
   reading: 'reading2', culture: 'culture2', vocab: 'vocab2',
 };
 
+// All bg values are hardcoded hex — no CSS variable references — so dark-mode
+// overrides (e.g. --lavender → #a78bfa, --warning-dark → #fbbf24) cannot flip
+// these to low-contrast colours and cause WCAG AA failures in CI or dark mode.
 const QUEST_COLORS = {
-  speak:        { bg:'var(--lavender,#7c3aed)',   text:'#fff',     shadow:'rgba(124,58,237,.35)',  border:'rgba(124,58,237,.22)' },
-  speak2:       { bg:'var(--lavender,#7c3aed)',   text:'#fff',     shadow:'rgba(124,58,237,.35)',  border:'rgba(124,58,237,.22)' },
-  grammar:      { bg:'var(--warning-dark,#92400e)', text:'#fff',   shadow:'rgba(146,64,14,.35)',   border:'rgba(146,64,14,.22)'  },
-  grammar2:     { bg:'var(--warning-dark,#92400e)', text:'#fff',   shadow:'rgba(146,64,14,.35)',   border:'rgba(146,64,14,.22)'  },
-  master:       { bg:'var(--accent,#0e7490)',     text:'#fff',     shadow:'rgba(14,116,144,.35)',  border:'rgba(14,116,144,.22)' },
-  master2:      { bg:'var(--accent,#0e7490)',     text:'#fff',     shadow:'rgba(14,116,144,.35)',  border:'rgba(14,116,144,.22)' },
-  reading:      { bg:'#14532d',                  text:'#fff',     shadow:'rgba(20,83,45,.35)',    border:'rgba(20,83,45,.22)'   },
-  reading2:     { bg:'#14532d',                  text:'#fff',     shadow:'rgba(20,83,45,.35)',    border:'rgba(20,83,45,.22)'   },
-  culture:      { bg:'var(--terracotta,#c2410c)', text:'#fff',    shadow:'rgba(194,65,12,.35)',   border:'rgba(194,65,12,.22)'  },
-  culture2:     { bg:'var(--terracotta,#c2410c)', text:'#fff',    shadow:'rgba(194,65,12,.35)',   border:'rgba(194,65,12,.22)'  },
-  vocab:        { bg:'#075985',                    text:'#fff',     shadow:'rgba(7,89,133,.35)',    border:'rgba(7,89,133,.22)'   },
-  vocab2:       { bg:'#075985',                    text:'#fff',     shadow:'rgba(7,89,133,.35)',    border:'rgba(7,89,133,.22)'   },
-  write:        { bg:'#7c3aed',                  text:'#fff',     shadow:'rgba(124,58,237,.35)',  border:'rgba(124,58,237,.22)' },
-  streak:       { bg:'var(--terracotta,#c2410c)', text:'#fff',    shadow:'rgba(194,65,12,.35)',   border:'rgba(194,65,12,.22)'  },
-  streak_alive: { bg:'var(--terracotta,#c2410c)', text:'#fff',    shadow:'rgba(194,65,12,.35)',   border:'rgba(194,65,12,.22)'  },
-  perfect:      { bg:'#78350f',                  text:'#fff',     shadow:'rgba(120,53,15,.35)',   border:'rgba(120,53,15,.22)'  },
+  speak:        { bg:'#7c3aed', text:'#fff',     shadow:'rgba(124,58,237,.35)',  border:'rgba(124,58,237,.22)' },
+  speak2:       { bg:'#7c3aed', text:'#fff',     shadow:'rgba(124,58,237,.35)',  border:'rgba(124,58,237,.22)' },
+  grammar:      { bg:'#92400e', text:'#fff',     shadow:'rgba(146,64,14,.35)',   border:'rgba(146,64,14,.22)'  },
+  grammar2:     { bg:'#92400e', text:'#fff',     shadow:'rgba(146,64,14,.35)',   border:'rgba(146,64,14,.22)'  },
+  master:       { bg:'#0e7490', text:'#fff',     shadow:'rgba(14,116,144,.35)',  border:'rgba(14,116,144,.22)' },
+  master2:      { bg:'#0e7490', text:'#fff',     shadow:'rgba(14,116,144,.35)',  border:'rgba(14,116,144,.22)' },
+  reading:      { bg:'#14532d', text:'#fff',     shadow:'rgba(20,83,45,.35)',    border:'rgba(20,83,45,.22)'   },
+  reading2:     { bg:'#14532d', text:'#fff',     shadow:'rgba(20,83,45,.35)',    border:'rgba(20,83,45,.22)'   },
+  culture:      { bg:'#c2410c', text:'#fff',     shadow:'rgba(194,65,12,.35)',   border:'rgba(194,65,12,.22)'  },
+  culture2:     { bg:'#c2410c', text:'#fff',     shadow:'rgba(194,65,12,.35)',   border:'rgba(194,65,12,.22)'  },
+  vocab:        { bg:'#075985', text:'#fff',     shadow:'rgba(7,89,133,.35)',    border:'rgba(7,89,133,.22)'   },
+  vocab2:       { bg:'#075985', text:'#fff',     shadow:'rgba(7,89,133,.35)',    border:'rgba(7,89,133,.22)'   },
+  write:        { bg:'#7c3aed', text:'#fff',     shadow:'rgba(124,58,237,.35)',  border:'rgba(124,58,237,.22)' },
+  streak:       { bg:'#c2410c', text:'#fff',     shadow:'rgba(194,65,12,.35)',   border:'rgba(194,65,12,.22)'  },
+  streak_alive: { bg:'#c2410c', text:'#fff',     shadow:'rgba(194,65,12,.35)',   border:'rgba(194,65,12,.22)'  },
+  perfect:      { bg:'#78350f', text:'#fff',     shadow:'rgba(120,53,15,.35)',   border:'rgba(120,53,15,.22)'  },
 };
 
 const QUEST_SCREEN_MAP = {
