@@ -23,6 +23,9 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'on-first-retry',
+    // Force light mode so dark-mode CSS variable overrides never produce
+    // low-contrast quest button colours that fail WCAG AA axe scans
+    colorScheme: 'light',
   },
   projects: [
     // ── Desktop browsers ────────────────────────────────────────────────────
