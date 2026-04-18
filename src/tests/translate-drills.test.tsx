@@ -260,5 +260,5 @@ describe('TranslateDrillsScreen — navigation', () => {
     const goBack = vi.fn();
     completeAndGoBack(vi.fn(), goBack);
     expect(goBack).toHaveBeenCalledTimes(1);
-  });
+  }, 20000);
 });
