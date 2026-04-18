@@ -684,6 +684,10 @@ export function fbWatchProgress(uid: string, callback: (progress: Record<string,
             ct: [...new Set([...((_bs.ct as string[]) || []), ...((_as.ct as string[]) || [])])],
             vs: [...new Set([...((_bs.vs as string[]) || []), ...((_as.vs as string[]) || [])])],
             badges: [...new Set([...((_bs.badges as string[]) || []), ...((_as.badges as string[]) || [])])],
+            // rs: score history — keep the longer array (more entries = more complete history)
+            rs: (((_bs.rs as string[]) || []).length >= ((_as.rs as string[]) || []).length
+              ? (_bs.rs as string[]) || []
+              : (_as.rs as string[]) || []),
           };
         }
         if (_wd.favs_live) {

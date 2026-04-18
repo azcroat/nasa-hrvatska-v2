@@ -15,6 +15,7 @@
  *   - Checkpoints: union (local wins on conflict)
  *   - Quest flags: additive (once true, always true)
  *   - Settings: only written when non-null/undefined
+ *   - weekXP: Math.max per-week guard; cross-week stale snapshots rejected
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { applyRemoteProgress } from '../lib/applyRemoteProgress.js';
@@ -359,5 +360,77 @@ describe('applyRemoteProgress — daily challenge', () => {
       }
     }, setters);
     expect(setters.sDchlA).not.toHaveBeenCalled();
+  });
+});
+
+// ── weekXP — critical sync invariant ─────────────────────────────────────────
+// applyRemoteProgress must use weekKey() from dateUtils (UTC-based), not a
+// local-time isoWeekKey(). This ensures it writes to the same localStorage key
+// as useAward.ts and progressSnapshot.ts, both of which use weekKey().
+
+describe('applyRemoteProgress — weekXP merge', () => {
+  beforeEach(clearLS);
+  afterEach(clearLS);
+
+  /** Returns the UTC-based week key that useAward and progressSnapshot use. */
+  function currentWeekKey(): string {
+    const d = new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+    return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+  }
+
+  it('writes weekXP to the UTC-based week key', () => {
+    const wk = currentWeekKey();
+    const setters = makeSetters();
+    applyRemoteProgress({ weekXP: 250, weekXPKey: wk }, setters);
+    const stored = parseInt(localStorage.getItem('nh_week_xp_' + wk) || '0', 10);
+    expect(stored).toBe(250);
+  });
+
+  it('takes Math.max when remote weekXP > local', () => {
+    const wk = currentWeekKey();
+    localStorage.setItem('nh_week_xp_' + wk, '100');
+    const setters = makeSetters();
+    applyRemoteProgress({ weekXP: 400, weekXPKey: wk }, setters);
+    expect(localStorage.getItem('nh_week_xp_' + wk)).toBe('400');
+  });
+
+  it('keeps local weekXP when local > remote', () => {
+    const wk = currentWeekKey();
+    localStorage.setItem('nh_week_xp_' + wk, '500');
+    const setters = makeSetters();
+    applyRemoteProgress({ weekXP: 200, weekXPKey: wk }, setters);
+    expect(localStorage.getItem('nh_week_xp_' + wk)).toBe('500');
+  });
+
+  it('cross-week guard: rejects weekXP when weekXPKey is from a different week', () => {
+    const wk = currentWeekKey();
+    const setters = makeSetters();
+    // Snapshot is from last week — must not contaminate current week counter
+    applyRemoteProgress({ weekXP: 999, weekXPKey: '2020-W01' }, setters);
+    const stored = localStorage.getItem('nh_week_xp_' + wk);
+    // Either null (never written) or '0' — never 999
+    expect(parseInt(stored || '0', 10)).not.toBe(999);
+  });
+
+  it('missing weekXPKey (legacy snapshot) applies unconditionally', () => {
+    const wk = currentWeekKey();
+    localStorage.setItem('nh_week_xp_' + wk, '50');
+    const setters = makeSetters();
+    // Legacy snapshot has no weekXPKey field
+    applyRemoteProgress({ weekXP: 300 }, setters);
+    // Math.max(50, 300) = 300 applied
+    expect(localStorage.getItem('nh_week_xp_' + wk)).toBe('300');
+  });
+
+  it('does not crash when weekXP is 0', () => {
+    const wk = currentWeekKey();
+    const setters = makeSetters();
+    applyRemoteProgress({ weekXP: 0, weekXPKey: wk }, setters);
+    // 0 applied — localStorage should have '0'
+    expect(localStorage.getItem('nh_week_xp_' + wk)).toBe('0');
   });
 });

@@ -16,6 +16,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   gP, lP, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbGetIdToken,
 } from '../lib/firebase.js';
+import { toDocId } from '../lib/userKey.js';
 import { buildProgressSnapshot } from '../lib/progressSnapshot.js';
 import { mergeStatsFromRemote } from '../lib/mergeStatsFromRemote.js';
 import type { Stats, AuthUser } from '../types/index.js';
@@ -89,7 +90,7 @@ export function useSyncManager({
     if (fpTs > 0 && fpTs === _lastMergedFbTs.current) return;
     if (fpTs > 0) _lastMergedFbTs.current = fpTs;
 
-    const lp = gP(uid) as Record<string, unknown> | null;
+    const lp = gP(toDocId(uid)) as Record<string, unknown> | null;
     const pSt = (fp.stats || fp.st || {}) as Record<string, unknown>;
     const lpSt = lp ? ((lp.stats || lp.st || {}) as Record<string, unknown>) : {};
 
@@ -114,7 +115,7 @@ export function useSyncManager({
                : (pSt.rs as string[]) || []),
     };
 
-    lP(uid, { ...fp, savedAt: fpTs || Date.now(), stats: mergedStats });
+    lP(toDocId(uid), { ...fp, savedAt: fpTs || Date.now(), stats: mergedStats });
 
     _setStatsRef.current(prev => mergeStatsFromRemote(prev, pSt as Partial<Stats>, _dsRef.current));
     if (fp.name) _setNameRef.current(fp.name as string);

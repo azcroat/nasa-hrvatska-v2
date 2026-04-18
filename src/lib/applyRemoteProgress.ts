@@ -17,6 +17,7 @@
  */
 
 import { getSR, saveSR } from './srs.js';
+import { weekKey as _weekKey } from './dateUtils.js';
 
 export interface RemoteProgressSetters {
   setFavs: (favs: unknown[]) => void;
@@ -36,15 +37,6 @@ function yesterdayStr(): string {
   const d = new Date();
   d.setDate(d.getDate() - 1);
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
-
-function isoWeekKey(): string {
-  const d = new Date();
-  const dayOfWeek = d.getDay() || 7;
-  d.setDate(d.getDate() + 4 - dayOfWeek);
-  const year = d.getFullYear();
-  const weekNum = Math.ceil(((d.getTime() - new Date(year, 0, 1).getTime()) / 86400000 + 1) / 7);
-  return year + '-W' + String(weekNum).padStart(2, '0');
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -159,7 +151,7 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
   // fp.weekXPKey (added 2026-04-17) is 'YYYY-WNN'; if absent (legacy snapshot),
   // apply unconditionally (same old behaviour — safe since weekXP rolled over).
   if (fp.weekXP !== undefined) {
-    const wk = isoWeekKey();
+    const wk = _weekKey();
     if (!fp.weekXPKey || fp.weekXPKey === wk) {
       const lX = parseInt(localStorage.getItem('nh_week_xp_' + wk) || '0', 10);
       localStorage.setItem('nh_week_xp_' + wk, String(Math.max(lX, fp.weekXP)));
