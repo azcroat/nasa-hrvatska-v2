@@ -129,14 +129,23 @@ test.describe('Accessibility — WCAG 2.1 AA (authenticated routes)', () => {
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
       timeout: 30_000,
     });
-    // Wait for quest cards to finish rendering (they animate in with CSS transitions).
-    // Without this, axe may scan the QuestTracker "Start →" button while a CSS
-    // variable is not yet resolved, producing a spurious contrast false-positive.
+    // Wait for quest cards to finish rendering (they animate in via anim-children-fade).
+    // QuestTracker quest cards use fade-up (opacity:0→1) with up to 700ms staggered delay.
+    // Race condition: getAnimations() polled immediately after 'Daily Quests' appears may
+    // see an empty animation list (cards not yet registered) and proceed to axe too early,
+    // causing the "Start →" button to be scanned at opacity:0 → spurious contrast failure.
+    // Fix: wait for 'Daily Quests' text, then wait for at least one "Start →" button to be
+    // fully visible (Playwright `visible` state = opacity > 0 + rendered dimensions > 0),
+    // which guarantees the fade-up animation for that card has completed.
     await page.waitForFunction(
       () => document.body.textContent?.includes('Daily Quests'),
       { timeout: 10_000 },
     ).catch(() => {});
-    // Let CSS animations (anim-children-fade) fully complete before axe scans.
+    // Wait for the first quest "Start →" button to be truly visible (opacity 1, not animating).
+    await page.getByRole('button', { name: 'Start →' }).first().waitFor({
+      state: 'visible', timeout: 5_000,
+    }).catch(() => {});
+    // Then wait for all remaining CSS animations to finish (covers any still-fading cards).
     await page.waitForFunction(
       () => document.getAnimations().every(a => a.playState !== 'running'),
       { timeout: 5_000 },
