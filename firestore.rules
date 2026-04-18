@@ -120,7 +120,17 @@ service cloud.firestore {
     // Schema: { name, xp, lc, streak, level, lastActive }
     match /profiles/{userId} {
       allow read: if isAuthenticated();
-      allow create: if isOwner(userId);
+      // CREATE: enforce same shape + XP/lc bounds as UPDATE.
+      // level validation mirrors UPDATE (int 1-6 or CEFR string for legacy writes).
+      allow create: if isOwner(userId)
+        && request.resource.data.keys().hasAll(['name', 'xp', 'lc', 'streak', 'level', 'lastActive'])
+        && request.resource.data.xp >= 0
+        && request.resource.data.xp <= 100000
+        && request.resource.data.lc >= 0
+        && request.resource.data.lc <= 10000
+        && (request.resource.data.level is int
+            ? (request.resource.data.level >= 1 && request.resource.data.level <= 6)
+            : request.resource.data.level in ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']);
       allow update: if isOwner(userId)
         && request.resource.data.keys().hasAll(['name', 'xp', 'lc', 'streak', 'level', 'lastActive'])
         && request.resource.data.xp >= 0
@@ -152,13 +162,20 @@ service cloud.firestore {
 
     // ─── Leaderboard ──────────────────────────────────────────────────────
     // Split into create/update so resource.data (old doc) is only accessed on UPDATE.
-    // XP and lc increments are capped per write to prevent leaderboard stuffing.
+    // Schema: { name(string), xp(int), lc(int), updated(number/ms) }
+    // hasAll enforced on both create and update to prevent incomplete documents.
+    // name is string guards against null injection; updated is number guards against
+    // serverTimestamp injection (which would bypass XP monotonicity ordering).
     match /leaderboard/{userId} {
       allow read: if isAuthenticated();
       allow create: if isOwner(userId)
+        && request.resource.data.keys().hasAll(['name', 'xp', 'lc', 'updated'])
+        && request.resource.data.name is string
+        && request.resource.data.updated is number
         && validLbXpCreate()
         && validLbLcCreate();
       allow update: if isOwner(userId)
+        && request.resource.data.keys().hasAll(['name', 'xp', 'lc', 'updated'])
         && validLbXpUpdate()
         && validLbLcUpdate();
     }
@@ -211,18 +228,29 @@ service cloud.firestore {
     // Schema: { uid, displayName, xp, updatedAt } — no lc field (XP-only weekly ranking).
     // validLbLcCreate/Update deliberately excluded: submitWeeklyXP never writes lc,
     // and including the check caused all weekly leaderboard writes to fail (lc was null).
+    // uid == userId enforces that the uid field matches the document path segment,
+    // preventing a user from writing another user's uid into their own entry.
     match /leaderboard/{weekKey}/entries/{userId} {
       allow read: if isAuthenticated();
       allow create: if isOwner(userId)
+        && request.resource.data.keys().hasAll(['uid', 'displayName', 'xp', 'updatedAt'])
+        && request.resource.data.uid == userId
         && validLbXpCreate();
       allow update: if isOwner(userId)
+        && request.resource.data.keys().hasAll(['uid', 'displayName', 'xp', 'updatedAt'])
+        && request.resource.data.uid == userId
         && validLbXpUpdate();
     }
 
     // ─── SRS (Spaced Repetition) — separate collection to avoid 200KB blob limit ─
     // Owner-only read/write; no size cap (SRS data is compact JSON, ~10-50KB).
+    // Schema: { cards(map), updated(timestamp) } — written by fbSaveSRS with merge:false.
+    // delete is allowed separately (without shape check) for fbDeleteAccount cleanup.
     match /srs/{userId} {
-      allow read, write: if isOwner(userId);
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId)
+        && request.resource.data.keys().hasAll(['cards', 'updated']);
+      allow delete: if isOwner(userId);
     }
 
     // ─── Conversation memory — Maja's per-user session summaries ──────────────

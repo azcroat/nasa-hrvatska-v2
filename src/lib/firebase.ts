@@ -113,6 +113,51 @@ function _reconcileAtomicStats(docId: string, st: Record<string, unknown>): void
   } catch (_) {}
 }
 
+// ─── Retry infrastructure ──────────────────────────────────────────────────
+// Transient Firestore error codes that are safe to retry. All other codes
+// (permission-denied, not-found, unauthenticated, invalid-argument, etc.)
+// are non-transient and are thrown immediately after a single attempt.
+const _RETRYABLE_CODES = new Set([
+  'unavailable',         // Service temporarily unavailable (most common)
+  'deadline-exceeded',   // Operation timed out
+  'internal',            // Unexpected server error
+  'resource-exhausted',  // Quota/rate-limit; short wait often sufficient
+]);
+
+/**
+ * Retry an async operation with exponential backoff for transient Firestore errors.
+ * Non-retryable errors are re-thrown immediately. Each retry and terminal failure
+ * is recorded via Firebase Analytics (sync_retry / sync_error events) for
+ * server-side observability without exposing PII.
+ *
+ * Delays (base ±30% jitter): 600 ms → 1.2 s → 2.4 s
+ */
+async function _withRetry<T>(
+  fn: () => Promise<T>,
+  label: string,
+  maxAttempts = 3,
+): Promise<T> {
+  let lastErr: unknown;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (e: unknown) {
+      lastErr = e;
+      const code = (e as { code?: string })?.code ?? 'unknown';
+      if (!_RETRYABLE_CODES.has(code) || attempt === maxAttempts - 1) {
+        fbLogEvent('sync_error', { fn: label, code, attempt });
+        throw e;
+      }
+      const baseMs = 600 * Math.pow(2, attempt);                            // 600 → 1200 → 2400
+      const delayMs = Math.round(baseMs * (0.7 + 0.6 * Math.random()));    // ±30% jitter
+      fbLogEvent('sync_retry', { fn: label, code, attempt, delay_ms: delayMs });
+      console.warn(`[sync] ${label} attempt ${attempt + 1}/${maxAttempts} failed (${code}), retrying in ${delayMs}ms`);
+      await new Promise<void>(r => setTimeout(r, delayMs));
+    }
+  }
+  throw lastErr; // unreachable — satisfies TypeScript
+}
+
 export async function fbSaveProgress(uid: string, data: Record<string, unknown>): Promise<{ ok: boolean; err?: string; code?: string }> {
   if (!_fbReady || !_fbDb) return { ok: true };
   const id = toDocId(uid);
@@ -145,18 +190,23 @@ export async function fbSaveProgress(uid: string, data: Record<string, unknown>)
   const _progressJson = JSON.stringify(dataWithoutSRS);
   const lbEntry = { name: (data.name as string) || '', xp: _bestXP, lc: _bestLC, updated: _nowMs };
   const profileEntry = { name: (data.name as string) || '', xp: _bestXP, lc: _bestLC, streak: _bestStrk, level: _bestLvl, lastActive: _nowMs };
-  // Note: xp is intentionally excluded from userEntry.
-  // fbApplyDelta owns the top-level xp field via atomic increments (increment(v)).
-  // Writing an absolute xp value here causes permission-denied when another device's
-  // fbApplyDelta has already raised Firestore xp above _bestXP, failing the entire
-  // batch and losing the progress blob write. The monotonic validXpUpdate() rule
-  // passes when xp is absent (request.resource.data.get('xp', oldXp) = oldXp → oldXp >= oldXp).
+  // Note: xp and lessonsCompleted are intentionally excluded from userEntry.
+  // fbApplyDelta owns both top-level fields via atomic increments (increment(v)).
+  // Writing absolute values here would race with another device's fbApplyDelta:
+  //   - If device B has already incremented Firestore xp/lessonsCompleted above
+  //     _bestXP/_bestLC, writing the local snapshot regresses the Firestore value.
+  //   - For xp: the monotonic validXpUpdate() rule would also cause permission-denied,
+  //     failing the entire batch and losing the progress blob write.
+  //   - For lessonsCompleted: no rule enforces monotonicity, so the regression is
+  //     silent — Firestore accepts the lower value without error.
+  // fbApplyDelta's increment() is idempotent-safe: if fbApplyDelta was skipped
+  // (offline/guest), stats.lc in the progress blob is the authoritative fallback
+  // loaded by fbLoadProgress via the Math.max merge at read time.
   const userEntry = {
     progress: _progressJson,
     updated: serverTimestamp(),
     level: _bestLvl,
     streak: _bestStrk,
-    lessonsCompleted: _bestLC,
     lastActive: serverTimestamp(),
   };
   // Resolve family code up front so the family XP write can join the same batch.
@@ -175,18 +225,23 @@ export async function fbSaveProgress(uid: string, data: Record<string, unknown>)
   }
   const _famWeekXP = typeof data.weekXP === 'number' ? data.weekXP : 0;
 
+  // ── WriteBatch is recreated on each attempt — the SDK batch object is not
+  // guaranteed to be re-committable after a failed commit, so we build a fresh
+  // batch inside the _withRetry closure to make each attempt fully independent.
   try {
-    const batch = writeBatch(_fbDb);
-    batch.set(fsDoc(_fbDb, 'users', id), userEntry, { merge: true });
-    batch.set(fsDoc(_fbDb, 'leaderboard', id), lbEntry, { merge: true });
-    batch.set(fsDoc(_fbDb, 'profiles', id), profileEntry, { merge: true });
-    // Include family XP in the same atomic batch — both succeed or both fail together.
-    if (_famCode) {
-      batch.update(fsDoc(_fbDb, 'families', _famCode), {
-        ['memberXP.' + id]: { xp: lbEntry.xp, lc: lbEntry.lc, name: lbEntry.name, weekXP: _famWeekXP, updated: _nowMs },
-      });
-    }
-    await batch.commit();
+    await _withRetry(async () => {
+      const b = writeBatch(_fbDb!);
+      b.set(fsDoc(_fbDb!, 'users', id), userEntry, { merge: true });
+      b.set(fsDoc(_fbDb!, 'leaderboard', id), lbEntry, { merge: true });
+      b.set(fsDoc(_fbDb!, 'profiles', id), profileEntry, { merge: true });
+      // Include family XP in the same atomic batch — both succeed or both fail together.
+      if (_famCode) {
+        b.update(fsDoc(_fbDb!, 'families', _famCode), {
+          ['memberXP.' + id]: { xp: lbEntry.xp, lc: lbEntry.lc, name: lbEntry.name, weekXP: _famWeekXP, updated: _nowMs },
+        });
+      }
+      await b.commit();
+    }, 'fbSaveProgress');
     // ── Atomic reconciliation ─────────────────────────────────────────────────
     // Ensure stats.vs / stats.ct / stats.badges are a strict superset of the
     // progress blob. This rescues completions that were done offline (when
@@ -199,21 +254,24 @@ export async function fbSaveProgress(uid: string, data: Record<string, unknown>)
     const err = e as { code?: string; message?: string };
     // If the batch failed because the family document was deleted, retry without it.
     // This keeps leaderboard/user/profile writes reliable even when a family is gone.
+    // _withRetry already handled transient errors; this catch only sees non-retryable codes.
     if (err?.code === 'not-found' && _famCode) {
       try {
-        const retryBatch = writeBatch(_fbDb);
-        retryBatch.set(fsDoc(_fbDb, 'users', id), userEntry, { merge: true });
-        retryBatch.set(fsDoc(_fbDb, 'leaderboard', id), lbEntry, { merge: true });
-        retryBatch.set(fsDoc(_fbDb, 'profiles', id), profileEntry, { merge: true });
-        await retryBatch.commit();
+        await _withRetry(async () => {
+          const b2 = writeBatch(_fbDb!);
+          b2.set(fsDoc(_fbDb!, 'users', id), userEntry, { merge: true });
+          b2.set(fsDoc(_fbDb!, 'leaderboard', id), lbEntry, { merge: true });
+          b2.set(fsDoc(_fbDb!, 'profiles', id), profileEntry, { merge: true });
+          await b2.commit();
+        }, 'fbSaveProgress_nofam');
         _reconcileAtomicStats(id, _st);
         return { ok: true };
       } catch (e2: unknown) {
         const err2 = e2 as { code?: string; message?: string };
-        console.error('FB save retry error:', err2?.code, err2?.message);
+        console.error('[sync] fbSaveProgress no-fam retry failed:', err2?.code, err2?.message);
       }
     }
-    console.error('FB save error:', err?.code, err?.message, e);
+    console.error('[sync] fbSaveProgress failed:', err?.code, err?.message);
     return { ok: false, err: err?.message || 'Progress could not be saved. Check your connection.', code: err?.code };
   }
 }
@@ -243,80 +301,78 @@ export async function fbApplyDelta(uid: string, delta: Record<string, unknown>):
   }
   if (!hasUpdate) return;
   try {
-    await updateDoc(fsDoc(_fbDb, 'users', id), update);
+    await _withRetry(() => updateDoc(fsDoc(_fbDb!, 'users', id), update), 'fbApplyDelta');
   } catch (e: unknown) {
     const err = e as { code?: string; message?: string };
     if (err?.code === 'not-found') {
+      // User doc doesn't exist yet — seed it with the stats payload (no increment needed).
       try {
         const seed: Record<string, unknown> = {};
         for (const k of _NUMERIC) { if (typeof delta[k] === 'number' && (delta[k] as number) > 0) seed[k] = delta[k]; }
         for (const k of _ARRAYS) { if (Array.isArray(delta[k]) && (delta[k] as unknown[]).length > 0) seed[k] = delta[k]; }
-        await setDoc(fsDoc(_fbDb, 'users', id), { stats: seed }, { merge: true });
+        await setDoc(fsDoc(_fbDb!, 'users', id), { stats: seed }, { merge: true });
       } catch (e2: unknown) { console.warn('[sync] fbApplyDelta setDoc fallback failed:', (e2 as { code?: string })?.code); }
-    } else {
-      console.warn('[sync] fbApplyDelta failed:', err?.code, err?.message);
     }
+    // Transient errors are already logged + retried by _withRetry; no additional log needed.
   }
 }
 
 export async function fbLoadProgress(uid: string): Promise<Record<string, unknown> | null> {
   if (!_fbReady || !_fbDb) return null;
   const id = toDocId(uid);
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      const snap = await getDoc(fsDoc(_fbDb, 'users', id));
-      if (snap.exists()) {
-        const _sd = snap.data({ serverTimestamps: 'estimate' }) as Record<string, unknown>;
-        if (_sd.progress) {
-          let p: Record<string, unknown>;
-          try { p = JSON.parse(_sd.progress as string); } catch (pe) { console.warn('fbLoadProgress: corrupted progress JSON', pe); return null; }
-          const _upd = _sd.updated as { toMillis?: () => number } | number | null;
-          if (_upd) p._fbUpdated = typeof _upd === 'object' && _upd.toMillis ? _upd.toMillis() : Number(_upd);
-          if (_sd.stats) {
-            const _as = _sd.stats as Record<string, unknown>;
-            const _bs = (p.stats || p.st || {}) as Record<string, unknown>;
-            p.stats = {
-              ..._bs, ..._as,
-              xp: Math.max((_bs.xp as number) || 0, (_as.xp as number) || 0),
-              lc: Math.max((_bs.lc as number) || 0, (_as.lc as number) || 0),
-              gc: Math.max((_bs.gc as number) || 0, (_as.gc as number) || 0),
-              sp: Math.max((_bs.sp as number) || 0, (_as.sp as number) || 0),
-              de: Math.max((_bs.de as number) || 0, (_as.de as number) || 0),
-              rc: Math.max((_bs.rc as number) || 0, (_as.rc as number) || 0),
-              pf: Math.max((_bs.pf as number) || 0, (_as.pf as number) || 0),
-              mv: Math.max((_bs.mv as number) || 0, (_as.mv as number) || 0),
-              hi: Math.max((_bs.hi as number) || 0, (_as.hi as number) || 0),
-              ct: [...new Set([...((_bs.ct as string[]) || []), ...((_as.ct as string[]) || [])])],
-              vs: [...new Set([...((_bs.vs as string[]) || []), ...((_as.vs as string[]) || [])])],
-              badges: [...new Set([...((_bs.badges as string[]) || []), ...((_as.badges as string[]) || [])])],
-              // rs: ordered score history — keep the longer array (more entries = more complete)
-              rs: (((_bs.rs as string[]) || []).length >= ((_as.rs as string[]) || []).length
-                    ? (_bs.rs as string[]) || []
-                    : (_as.rs as string[]) || []),
-            };
-          }
-          // Load SRS from its dedicated document and merge back (non-blocking if it fails)
-          try {
-            const srsSnap = await getDoc(fsDoc(_fbDb, 'srs', id));
-            if (srsSnap.exists()) {
-              const srsData = srsSnap.data() as { cards?: Record<string, unknown> };
-              if (srsData.cards && Object.keys(srsData.cards).length > 0) {
-                p.sr = srsData.cards;
-              }
-            }
-          } catch (srsErr) {
-            console.warn('[srs] Could not load SRS from subcollection:', (srsErr as { code?: string })?.code);
-          }
-          return p;
-        }
-      }
-      return null;
-    } catch (e) {
-      console.warn(`fbLoadProgress attempt ${attempt + 1}/3 failed:`, e);
-      if (attempt < 2) await new Promise(r => setTimeout(r, 2000));
-    }
+  // Use _withRetry for the Firestore read — retries only on transient errors (unavailable,
+  // deadline-exceeded, etc.), not on permission-denied or not-found. The old fixed-2s loop
+  // would retry even non-transient errors uselessly; _withRetry fails fast on those.
+  let snap: Awaited<ReturnType<typeof getDoc>>;
+  try {
+    snap = await _withRetry(() => getDoc(fsDoc(_fbDb!, 'users', id)), 'fbLoadProgress');
+  } catch (e) {
+    console.warn('[sync] fbLoadProgress failed:', (e as { code?: string })?.code);
+    return null;
   }
-  return null;
+  if (!snap.exists()) return null;
+  const _sd = snap.data({ serverTimestamps: 'estimate' }) as Record<string, unknown>;
+  if (!_sd.progress) return null;
+  let p: Record<string, unknown>;
+  try { p = JSON.parse(_sd.progress as string); } catch (pe) { console.warn('fbLoadProgress: corrupted progress JSON', pe); return null; }
+  const _upd = _sd.updated as { toMillis?: () => number } | number | null;
+  if (_upd) p._fbUpdated = typeof _upd === 'object' && _upd.toMillis ? _upd.toMillis() : Number(_upd);
+  if (_sd.stats) {
+    const _as = _sd.stats as Record<string, unknown>;
+    const _bs = (p.stats || p.st || {}) as Record<string, unknown>;
+    p.stats = {
+      ..._bs, ..._as,
+      xp: Math.max((_bs.xp as number) || 0, (_as.xp as number) || 0),
+      lc: Math.max((_bs.lc as number) || 0, (_as.lc as number) || 0),
+      gc: Math.max((_bs.gc as number) || 0, (_as.gc as number) || 0),
+      sp: Math.max((_bs.sp as number) || 0, (_as.sp as number) || 0),
+      de: Math.max((_bs.de as number) || 0, (_as.de as number) || 0),
+      rc: Math.max((_bs.rc as number) || 0, (_as.rc as number) || 0),
+      pf: Math.max((_bs.pf as number) || 0, (_as.pf as number) || 0),
+      mv: Math.max((_bs.mv as number) || 0, (_as.mv as number) || 0),
+      hi: Math.max((_bs.hi as number) || 0, (_as.hi as number) || 0),
+      ct: [...new Set([...((_bs.ct as string[]) || []), ...((_as.ct as string[]) || [])])],
+      vs: [...new Set([...((_bs.vs as string[]) || []), ...((_as.vs as string[]) || [])])],
+      badges: [...new Set([...((_bs.badges as string[]) || []), ...((_as.badges as string[]) || [])])],
+      // rs: ordered score history — keep the longer array (more entries = more complete)
+      rs: (((_bs.rs as string[]) || []).length >= ((_as.rs as string[]) || []).length
+            ? (_bs.rs as string[]) || []
+            : (_as.rs as string[]) || []),
+    };
+  }
+  // Load SRS from its dedicated document and merge back (non-blocking if it fails)
+  try {
+    const srsSnap = await getDoc(fsDoc(_fbDb, 'srs', id));
+    if (srsSnap.exists()) {
+      const srsData = srsSnap.data() as { cards?: Record<string, unknown> };
+      if (srsData.cards && Object.keys(srsData.cards).length > 0) {
+        p.sr = srsData.cards;
+      }
+    }
+  } catch (srsErr) {
+    console.warn('[srs] Could not load SRS from subcollection:', (srsErr as { code?: string })?.code);
+  }
+  return p;
 }
 
 /** Save SRS card state to a dedicated Firestore document (avoids the 200KB progress blob limit). */
@@ -324,8 +380,12 @@ export async function fbSaveSRS(uid: string, srData: Record<string, unknown>): P
   if (!_fbReady || !_fbDb || !srData || Object.keys(srData).length === 0) return;
   const id = toDocId(uid);
   try {
-    await setDoc(fsDoc(_fbDb, 'srs', id), { cards: srData, updated: serverTimestamp() }, { merge: false });
+    await _withRetry(
+      () => setDoc(fsDoc(_fbDb!, 'srs', id), { cards: srData, updated: serverTimestamp() }, { merge: false }),
+      'fbSaveSRS',
+    );
   } catch (e: unknown) {
+    // Transient errors logged by _withRetry; log non-transient codes here for local debugging.
     console.warn('[srs] fbSaveSRS failed:', (e as { code?: string })?.code);
   }
 }

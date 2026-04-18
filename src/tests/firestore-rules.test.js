@@ -9,10 +9,11 @@
  *
  * What this covers:
  *  /users/{userId}          — owner read/write, XP monotonic increase, 100k cap, progress size cap
- *  /profiles/{userId}       — any-auth read, owner write, field validation, CEFR level check
+ *  /profiles/{userId}       — any-auth read, owner create+update (hasAll shape), CEFR level check
  *  /friendCodes/{code}      — any-auth read, owner-mapped create/update
- *  /leaderboard/{userId}    — any-auth read, owner write, XP/lc caps
- *  /leaderboard/{w}/entries — same rules as top-level leaderboard
+ *  /leaderboard/{userId}    — any-auth read, owner write, hasAll({name,xp,lc,updated}), XP/lc caps
+ *  /leaderboard/{w}/entries — hasAll({uid,displayName,xp,updatedAt}), uid==docId integrity, XP cap
+ *  /srs/{userId}            — owner-only read/write, hasAll({cards,updated}), delete for cleanup
  *  /families/{code}         — member checks, size limits, immutable code/created
  *  /families/{code}/reactions — family-member-only read/write
  *  Deny-all catch-all       — arbitrary paths must be rejected
@@ -235,6 +236,20 @@ describe('/profiles/{userId}', () => {
       db.doc(`profiles/${uid}`).update({ ...validProfile, xp: 200 })
     );
   });
+
+  it('owner can create profile with all required fields', async () => {
+    // Use a different uid so the beforeEach seed doc does not exist yet
+    const freshUid = 'profuser_new';
+    const freshDb = authed(freshUid, 'profnew@test.com').firestore();
+    await assertSucceeds(freshDb.doc(`profiles/${freshUid}`).set(validProfile));
+  });
+
+  it('create fails when required fields are missing (no streak)', async () => {
+    const freshUid = 'profuser_bad';
+    const freshDb = authed(freshUid, 'profbad@test.com').firestore();
+    const { streak: _omit, ...noStreak } = validProfile;
+    await assertFails(freshDb.doc(`profiles/${freshUid}`).set(noStreak));
+  });
 });
 
 // ── /friendCodes/{code} ───────────────────────────────────────────────────────
@@ -277,44 +292,161 @@ describe('/friendCodes/{code}', () => {
 describe('/leaderboard/{userId}', () => {
   const uid = 'lb_user';
   const email = 'lb@test.com';
+  // Full schema: { name(string), xp(int), lc(int), updated(number/ms) }
+  const validEntry = { name: 'LB User', xp: 500, lc: 10, updated: 1700000000000 };
 
   it('any authenticated user can read leaderboard', async () => {
     await testEnv.withSecurityRulesDisabled(async ctx => {
-      await ctx.firestore().doc(`leaderboard/${uid}`).set({ xp: 100, lc: 5 });
+      await ctx.firestore().doc(`leaderboard/${uid}`).set({ name: 'LB User', xp: 100, lc: 5, updated: 1700000000000 });
     });
     const db = authed('reader', 'reader@test.com').firestore();
     await assertSucceeds(db.doc(`leaderboard/${uid}`).get());
   });
 
-  it('owner can create entry with valid XP', async () => {
+  it('owner can create entry with all required fields', async () => {
     const db = authed(uid, email).firestore();
-    await assertSucceeds(db.doc(`leaderboard/${uid}`).set({ xp: 500, lc: 10 }));
+    await assertSucceeds(db.doc(`leaderboard/${uid}`).set(validEntry));
   });
 
-  it('owner can increase XP', async () => {
+  it('create fails when required fields are missing (no name or updated)', async () => {
+    const db = authed(uid, email).firestore();
+    await assertFails(db.doc(`leaderboard/${uid}`).set({ xp: 500, lc: 10 }));
+  });
+
+  it('owner can increase XP (with full schema)', async () => {
     await testEnv.withSecurityRulesDisabled(async ctx => {
-      await ctx.firestore().doc(`leaderboard/${uid}`).set({ xp: 100, lc: 5 });
+      await ctx.firestore().doc(`leaderboard/${uid}`).set({ name: 'LB User', xp: 100, lc: 5, updated: 1700000000000 });
     });
     const db = authed(uid, email).firestore();
-    await assertSucceeds(db.doc(`leaderboard/${uid}`).update({ xp: 500, lc: 5 }));
+    await assertSucceeds(db.doc(`leaderboard/${uid}`).update({ name: 'LB User', xp: 500, lc: 5, updated: 1700000001000 }));
   });
 
   it('owner cannot decrease XP', async () => {
     await testEnv.withSecurityRulesDisabled(async ctx => {
-      await ctx.firestore().doc(`leaderboard/${uid}`).set({ xp: 500, lc: 5 });
+      await ctx.firestore().doc(`leaderboard/${uid}`).set({ name: 'LB User', xp: 500, lc: 5, updated: 1700000000000 });
     });
     const db = authed(uid, email).firestore();
-    await assertFails(db.doc(`leaderboard/${uid}`).update({ xp: 100, lc: 5 }));
+    await assertFails(db.doc(`leaderboard/${uid}`).update({ name: 'LB User', xp: 100, lc: 5, updated: 1700000001000 }));
   });
 
   it('XP above 100,000 is rejected on create', async () => {
     const db = authed(uid, email).firestore();
-    await assertFails(db.doc(`leaderboard/${uid}`).set({ xp: 100001, lc: 0 }));
+    await assertFails(db.doc(`leaderboard/${uid}`).set({ name: 'LB User', xp: 100001, lc: 0, updated: 1700000000000 }));
   });
 
   it('non-owner cannot write to leaderboard', async () => {
     const db = authed('intruder', 'i@test.com').firestore();
-    await assertFails(db.doc(`leaderboard/${uid}`).set({ xp: 0, lc: 0 }));
+    await assertFails(db.doc(`leaderboard/${uid}`).set(validEntry));
+  });
+});
+
+// ── /leaderboard/{weekKey}/entries/{userId} ───────────────────────────────────
+
+describe('/leaderboard/{weekKey}/entries/{userId}', () => {
+  const uid = 'weekly_user';
+  const email = 'weekly@test.com';
+  const weekKey = '2026-W16';
+  // Full schema: { uid, displayName, xp, updatedAt }
+  const validWeeklyEntry = { uid, displayName: 'Weekly User', xp: 300, updatedAt: 1700000000000 };
+
+  it('any authenticated user can read weekly leaderboard', async () => {
+    await testEnv.withSecurityRulesDisabled(async ctx => {
+      await ctx.firestore().doc(`leaderboard/${weekKey}/entries/${uid}`).set(validWeeklyEntry);
+    });
+    const db = authed('reader', 'reader@test.com').firestore();
+    await assertSucceeds(db.doc(`leaderboard/${weekKey}/entries/${uid}`).get());
+  });
+
+  it('owner can create weekly entry with correct uid field', async () => {
+    const db = authed(uid, email).firestore();
+    await assertSucceeds(db.doc(`leaderboard/${weekKey}/entries/${uid}`).set(validWeeklyEntry));
+  });
+
+  it('create fails when uid field does not match document ID', async () => {
+    const db = authed(uid, email).firestore();
+    const badEntry = { ...validWeeklyEntry, uid: 'other_user' };
+    await assertFails(db.doc(`leaderboard/${weekKey}/entries/${uid}`).set(badEntry));
+  });
+
+  it('create fails when required fields are missing (no displayName)', async () => {
+    const db = authed(uid, email).firestore();
+    await assertFails(db.doc(`leaderboard/${weekKey}/entries/${uid}`).set({ uid, xp: 300, updatedAt: 1700000000000 }));
+  });
+
+  it('owner can increase weekly XP', async () => {
+    await testEnv.withSecurityRulesDisabled(async ctx => {
+      await ctx.firestore().doc(`leaderboard/${weekKey}/entries/${uid}`).set(validWeeklyEntry);
+    });
+    const db = authed(uid, email).firestore();
+    await assertSucceeds(
+      db.doc(`leaderboard/${weekKey}/entries/${uid}`).update({ uid, displayName: 'Weekly User', xp: 600, updatedAt: 1700000001000 }),
+    );
+  });
+
+  it('weekly XP above 100,000 is rejected', async () => {
+    const db = authed(uid, email).firestore();
+    await assertFails(db.doc(`leaderboard/${weekKey}/entries/${uid}`).set({ uid, displayName: 'Weekly User', xp: 100001, updatedAt: 1700000000000 }));
+  });
+
+  it('non-owner cannot write weekly entry', async () => {
+    const db = authed('intruder', 'i@test.com').firestore();
+    await assertFails(db.doc(`leaderboard/${weekKey}/entries/${uid}`).set(validWeeklyEntry));
+  });
+});
+
+// ── /srs/{userId} ─────────────────────────────────────────────────────────────
+
+describe('/srs/{userId}', () => {
+  const uid = 'srs_user';
+  const email = 'srs@test.com';
+  // Schema: { cards(map), updated(timestamp) } — written by fbSaveSRS with merge:false
+  const validSrs = { cards: { 'pisati|to write': { d: 1700000000000, e: 2.5, i: 1 } }, updated: new Date() };
+
+  it('owner can read their SRS data', async () => {
+    await testEnv.withSecurityRulesDisabled(async ctx => {
+      await ctx.firestore().doc(`srs/${uid}`).set(validSrs);
+    });
+    const db = authed(uid, email).firestore();
+    await assertSucceeds(db.doc(`srs/${uid}`).get());
+  });
+
+  it('non-owner cannot read SRS data', async () => {
+    await testEnv.withSecurityRulesDisabled(async ctx => {
+      await ctx.firestore().doc(`srs/${uid}`).set(validSrs);
+    });
+    const db = authed('intruder', 'i@test.com').firestore();
+    await assertFails(db.doc(`srs/${uid}`).get());
+  });
+
+  it('owner can write SRS data with { cards, updated }', async () => {
+    const db = authed(uid, email).firestore();
+    await assertSucceeds(db.doc(`srs/${uid}`).set(validSrs));
+  });
+
+  it('write fails when required fields are missing (no updated)', async () => {
+    const db = authed(uid, email).firestore();
+    await assertFails(db.doc(`srs/${uid}`).set({ cards: validSrs.cards }));
+  });
+
+  it('write fails when required fields are missing (no cards)', async () => {
+    const db = authed(uid, email).firestore();
+    await assertFails(db.doc(`srs/${uid}`).set({ updated: new Date() }));
+  });
+
+  it('owner can delete their SRS data (for account deletion)', async () => {
+    await testEnv.withSecurityRulesDisabled(async ctx => {
+      await ctx.firestore().doc(`srs/${uid}`).set(validSrs);
+    });
+    const db = authed(uid, email).firestore();
+    await assertSucceeds(db.doc(`srs/${uid}`).delete());
+  });
+
+  it('non-owner cannot delete SRS data', async () => {
+    await testEnv.withSecurityRulesDisabled(async ctx => {
+      await ctx.firestore().doc(`srs/${uid}`).set(validSrs);
+    });
+    const db = authed('intruder', 'i@test.com').firestore();
+    await assertFails(db.doc(`srs/${uid}`).delete());
   });
 });
 
