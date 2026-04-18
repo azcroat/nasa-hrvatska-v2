@@ -154,10 +154,16 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
   }
 
   // ── Weekly XP — Math.max with stored value ────────────────────────────────
+  // Guard: only apply if the snapshot is from the current week.
+  // Old snapshots (saved last week) must not contaminate this week's XP counter:
+  // fp.weekXPKey (added 2026-04-17) is 'YYYY-WNN'; if absent (legacy snapshot),
+  // apply unconditionally (same old behaviour — safe since weekXP rolled over).
   if (fp.weekXP !== undefined) {
     const wk = isoWeekKey();
-    const lX = parseInt(localStorage.getItem('nh_week_xp_' + wk) || '0', 10);
-    localStorage.setItem('nh_week_xp_' + wk, String(Math.max(lX, fp.weekXP)));
+    if (!fp.weekXPKey || fp.weekXPKey === wk) {
+      const lX = parseInt(localStorage.getItem('nh_week_xp_' + wk) || '0', 10);
+      localStorage.setItem('nh_week_xp_' + wk, String(Math.max(lX, fp.weekXP)));
+    }
   }
 
   // ── User settings — restore from Firebase so all devices share preferences ─

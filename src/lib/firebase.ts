@@ -145,10 +145,15 @@ export async function fbSaveProgress(uid: string, data: Record<string, unknown>)
   const _progressJson = JSON.stringify(dataWithoutSRS);
   const lbEntry = { name: (data.name as string) || '', xp: _bestXP, lc: _bestLC, updated: _nowMs };
   const profileEntry = { name: (data.name as string) || '', xp: _bestXP, lc: _bestLC, streak: _bestStrk, level: _bestLvl, lastActive: _nowMs };
+  // Note: xp is intentionally excluded from userEntry.
+  // fbApplyDelta owns the top-level xp field via atomic increments (increment(v)).
+  // Writing an absolute xp value here causes permission-denied when another device's
+  // fbApplyDelta has already raised Firestore xp above _bestXP, failing the entire
+  // batch and losing the progress blob write. The monotonic validXpUpdate() rule
+  // passes when xp is absent (request.resource.data.get('xp', oldXp) = oldXp → oldXp >= oldXp).
   const userEntry = {
     progress: _progressJson,
     updated: serverTimestamp(),
-    xp: _bestXP,
     level: _bestLvl,
     streak: _bestStrk,
     lessonsCompleted: _bestLC,
