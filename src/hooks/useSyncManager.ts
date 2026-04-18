@@ -90,7 +90,10 @@ export function useSyncManager({
     if (fpTs > 0 && fpTs === _lastMergedFbTs.current) return;
     if (fpTs > 0) _lastMergedFbTs.current = fpTs;
 
-    const lp = gP(toDocId(uid)) as Record<string, unknown> | null;
+    // Use the raw uid (email) key — same key used by useAuth.ts (gP(s.u)) and
+    // doSyncNow() (localStorage.setItem('uP_' + u.u, ...)) so all three paths
+    // read and write the same localStorage entry.
+    const lp = gP(uid) as Record<string, unknown> | null;
     const pSt = (fp.stats || fp.st || {}) as Record<string, unknown>;
     const lpSt = lp ? ((lp.stats || lp.st || {}) as Record<string, unknown>) : {};
 
@@ -115,7 +118,7 @@ export function useSyncManager({
                : (pSt.rs as string[]) || []),
     };
 
-    lP(toDocId(uid), { ...fp, savedAt: fpTs || Date.now(), stats: mergedStats });
+    lP(uid, { ...fp, savedAt: fpTs || Date.now(), stats: mergedStats });
 
     _setStatsRef.current(prev => mergeStatsFromRemote(prev, pSt as Partial<Stats>, _dsRef.current));
     if (fp.name) _setNameRef.current(fp.name as string);
@@ -192,7 +195,21 @@ export function useSyncManager({
       setSyncErrorCode('');
       if (!_initialPushDone) {
         _initialPushDone = true;
-        setTimeout(() => doSyncNow(), 1000);
+        // Guard: only push local data if it is STRICTLY NEWER than what Firebase just
+        // delivered. The Firestore SDK fires onSnapshot from its IndexedDB cache before
+        // the server responds — that cached snapshot can be stale (from the last session
+        // on THIS device). If we blindly push 1 s later we can overwrite fresher progress
+        // that another device (e.g. Mobile) already saved to Firebase.
+        // Only push when the local savedAt timestamp post-dates the Firebase _fbUpdated
+        // timestamp, which means the user accumulated real progress offline on this device.
+        const localSnap = gP(uid) as { savedAt?: number } | null;
+        const localSavedAt = (localSnap?.savedAt) || 0;
+        if (localSavedAt > (fpTs || 0)) {
+          // Local progress is genuinely newer — push it so offline work is not lost.
+          setTimeout(() => doSyncNow(), 500);
+        }
+        // Otherwise: Firebase is equal or newer. No push needed on startup.
+        // The 60 s periodic sync + pagehide handler will pick up any new activity.
       }
       if (!fp) return;
       enqueueSnapshot(fp, fpTs, uid);

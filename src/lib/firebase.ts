@@ -741,6 +741,10 @@ export function fbWatchProgress(uid: string, callback: (progress: Record<string,
             pf: Math.max((_bs.pf as number) || 0, (_as.pf as number) || 0),
             mv: Math.max((_bs.mv as number) || 0, (_as.mv as number) || 0),
             hi: Math.max((_bs.hi as number) || 0, (_as.hi as number) || 0),
+            // str (streak count) is not written by fbApplyDelta, so it only lives in the
+            // progress blob. A stale blob overwrite (e.g. Desktop pushing xp=old data)
+            // would silently drop Mobile's streak. Math.max here prevents that regression.
+            str: Math.max((_bs.str as number) || 0, (_as.str as number) || 0),
             ct: [...new Set([...((_bs.ct as string[]) || []), ...((_as.ct as string[]) || [])])],
             vs: [...new Set([...((_bs.vs as string[]) || []), ...((_as.vs as string[]) || [])])],
             badges: [...new Set([...((_bs.badges as string[]) || []), ...((_as.badges as string[]) || [])])],
