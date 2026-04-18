@@ -130,26 +130,29 @@ test.describe('Accessibility — WCAG 2.1 AA (authenticated routes)', () => {
       timeout: 30_000,
     });
     // Wait for quest cards to finish rendering (they animate in via anim-children-fade).
-    // QuestTracker quest cards use fade-up (opacity:0→1) with up to 700ms staggered delay.
-    // Race condition: getAnimations() polled immediately after 'Daily Quests' appears may
-    // see an empty animation list (cards not yet registered) and proceed to axe too early,
-    // causing the "Start →" button to be scanned at opacity:0 → spurious contrast failure.
-    // Fix: wait for 'Daily Quests' text, then wait for at least one "Start →" button to be
-    // fully visible (Playwright `visible` state = opacity > 0 + rendered dimensions > 0),
-    // which guarantees the fade-up animation for that card has completed.
+    // QuestTracker quest cards use fade-up (opacity:0→1) with staggered delays up to 400ms.
+    // The longest card: 400ms delay + 300ms duration = 700ms total from render.
+    //
+    // WHY getAnimations() is unreliable here:
+    //   CSS animations with fill-mode:both report playState:'paused' (not 'running') during
+    //   their delay phase. A check for `!== 'running'` therefore passes immediately while
+    //   cards are still at opacity:0, causing axe to see invisible buttons and report a
+    //   spurious color-contrast violation.
+    //
+    // Fix: wait for 'Daily Quests' to appear, then wait for the first 'Start →' button to
+    // be visible (opacity > 0), then add an explicit 900ms wait that exceeds the longest
+    // possible animation (700ms) before running axe.
     await page.waitForFunction(
       () => document.body.textContent?.includes('Daily Quests'),
       { timeout: 10_000 },
     ).catch(() => {});
-    // Wait for the first quest "Start →" button to be truly visible (opacity 1, not animating).
+    // Wait for the first quest "Start →" button to be visible (its own animation done).
     await page.getByRole('button', { name: 'Start →' }).first().waitFor({
       state: 'visible', timeout: 5_000,
     }).catch(() => {});
-    // Then wait for all remaining CSS animations to finish (covers any still-fading cards).
-    await page.waitForFunction(
-      () => document.getAnimations().every(a => a.playState !== 'running'),
-      { timeout: 5_000 },
-    ).catch(() => {});
+    // Explicit 900ms wait covers the last card's full animation (700ms) with a 200ms margin.
+    // This is more reliable than getAnimations() which cannot detect delay-phase animations.
+    await page.waitForTimeout(900);
     await waitForSettle(page);
 
     const violations = await runAxe(page, 'Practice /practice');
