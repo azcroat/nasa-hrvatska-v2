@@ -58,6 +58,7 @@ export function buildProgressSnapshot({ uid, name, stats, dchlA, dchlSl, favs, j
     dc,
     cooldown,
     weekXP,
+    weekXPKey: _weekKey(), // 'YYYY-WNN' — used by applyRemoteProgress to reject stale cross-week values
     // User settings — must sync so all devices share the same preferences
     nh_level: localStorage.getItem('nh_level') || '',
     nh_goal: localStorage.getItem('nh_goal') || '',
