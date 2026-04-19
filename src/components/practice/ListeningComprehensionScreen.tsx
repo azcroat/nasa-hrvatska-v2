@@ -763,7 +763,8 @@ export default function ListeningComprehensionScreen({ goBack, award }) {
     const qs = shuffledQuestions;
     if (questionIdx + 1 >= qs.length) {
       setFinished(true);
-      const finalScore = score + (chosen === qs[questionIdx].en ? 1 : 0);
+      // `score` already includes the last answer (handleAnswer incremented it before Next was clickable).
+      const finalScore = score;
       const xp = Math.round((finalScore) / qs.length * 15) + 5;
       if (award) award(xp);
     } else {
