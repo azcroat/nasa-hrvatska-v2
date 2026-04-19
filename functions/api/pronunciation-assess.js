@@ -179,7 +179,8 @@ export async function onRequestPost({ request, env }) {
   // Call Azure Cognitive Services Pronunciation Assessment REST API.
   const azureUrl = `https://${AZURE_REGION}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=${safeLocale}&format=detailed`;
 
-  let azureRes, azureData;
+  // Block 1: fetch — catches network errors only
+  let azureRes;
   try {
     azureRes = await fetch(azureUrl, {
       method: 'POST',
@@ -192,15 +193,35 @@ export async function onRequestPost({ request, env }) {
       body: audioBytes,
       signal: AbortSignal.timeout(20000),
     });
-    azureData = await azureRes.json();
   } catch (fetchErr) {
     console.error('pronunciation-assess.js: Azure fetch error:', fetchErr?.message);
     return err(502, 'azure_unavailable', origin);
   }
 
+  // Block 2: read body — catches body-read failures
+  let rawBody;
+  try {
+    rawBody = await azureRes.text();
+  } catch (bodyErr) {
+    console.error('pronunciation-assess.js: failed to read response body:', bodyErr?.message);
+    return err(502, 'azure_unavailable', origin);
+  }
+
+  // Block 3: check res.ok
   if (!azureRes.ok) {
-    console.error('pronunciation-assess.js: Azure HTTP error:', azureRes.status, JSON.stringify(azureData).slice(0, 300));
+    let errMsg;
+    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* not JSON */ }
+    console.error('pronunciation-assess.js: Azure HTTP error:', azureRes.status, errMsg || rawBody.slice(0, 300));
     return err(502, 'azure_error', origin);
+  }
+
+  // Block 4: parse JSON
+  let azureData;
+  try {
+    azureData = JSON.parse(rawBody);
+  } catch {
+    console.error('pronunciation-assess.js: JSON parse failed:', rawBody.slice(0, 200));
+    return err(502, 'parse_failed', origin);
   }
 
   const parsed = parseAzureResponse(azureData);
