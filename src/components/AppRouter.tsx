@@ -446,9 +446,9 @@ export default function AppRouter(props) {
                 </span>
               </div>
             );})}
-            <div className="sr-close" onClick={function(){setSrchOpen(false)}}>
+            <button className="sr-close" onClick={function(){setSrchOpen(false)}} aria-label="Close search">
               Close
-            </div>
+            </button>
           </div>}
         </div>
         {// ═══ TAB: HOME ═══
