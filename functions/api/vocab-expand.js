@@ -140,7 +140,9 @@ export async function onRequestPost({ request, env }) {
     : `Croatian word: ${safeWord}`;
 
   // ── Call Anthropic ─────────────────────────────────────────────────────────
-  let res, data;
+
+  // Block 1: fetch — catches network errors only
+  let res;
   try {
     res = await fetch(ANTHROPIC_URL, {
       method: "POST",
@@ -157,14 +159,34 @@ export async function onRequestPost({ request, env }) {
         messages: [{ role: "user", content: userMessage }],
       }),
     });
-    data = await res.json();
   } catch (fetchErr) {
     console.error("vocab-expand.js: network error calling Anthropic:", fetchErr.message);
     return ok({ examples: [], cached: false }, origin);
   }
 
+  // Block 2: read body — catches body-read failures
+  let rawBody;
+  try {
+    rawBody = await res.text();
+  } catch (bodyErr) {
+    console.error("vocab-expand.js: failed to read response body:", bodyErr.message);
+    return ok({ examples: [], cached: false }, origin);
+  }
+
+  // Block 3: check res.ok
   if (!res.ok) {
-    console.error("vocab-expand.js: Anthropic API error", res.status, data?.error?.message);
+    let errMsg;
+    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* not JSON */ }
+    console.error("vocab-expand.js: Anthropic API error", res.status, errMsg);
+    return ok({ examples: [], cached: false }, origin);
+  }
+
+  // Block 4: parse JSON
+  let data;
+  try {
+    data = JSON.parse(rawBody);
+  } catch {
+    console.error("vocab-expand.js: JSON parse failed:", rawBody.slice(0, 200));
     return ok({ examples: [], cached: false }, origin);
   }
 

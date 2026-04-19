@@ -271,7 +271,8 @@ Return ONLY valid JSON (no markdown):
   ]
 }`;
 
-  let res, data;
+  // Block 1: fetch — catches network errors only
+  let res;
   try {
     res = await fetch(ANTHROPIC_URL, {
       method: "POST",
@@ -288,13 +289,36 @@ Return ONLY valid JSON (no markdown):
         messages: [{ role: "user", content: userMsg }],
       }),
     });
-    data = await res.json();
   } catch (fetchErr) {
     console.error("pronunciation-coach.js: network error:", fetchErr.message);
     return err(502, "Service temporarily unavailable", origin);
   }
 
-  if (!res.ok) return err(502, "AI service error", origin);
+  // Block 2: read body — catches body-read failures
+  let rawBody;
+  try {
+    rawBody = await res.text();
+  } catch (bodyErr) {
+    console.error("pronunciation-coach.js: failed to read response body:", bodyErr.message);
+    return err(502, "Service temporarily unavailable", origin);
+  }
+
+  // Block 3: check res.ok
+  if (!res.ok) {
+    let errMsg;
+    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* not JSON */ }
+    console.error("pronunciation-coach.js: API error", res.status, errMsg);
+    return err(res.status >= 500 ? 502 : res.status, isDev ? (errMsg || "API error: HTTP " + res.status) : "AI service error", origin);
+  }
+
+  // Block 4: parse JSON
+  let data;
+  try {
+    data = JSON.parse(rawBody);
+  } catch {
+    console.error("pronunciation-coach.js: JSON parse failed:", rawBody.slice(0, 200));
+    return err(502, "Invalid response from AI", origin);
+  }
 
   const raw = data?.content?.[0]?.text?.trim() || "";
   if (!raw) return err(502, "Empty response from AI", origin);
