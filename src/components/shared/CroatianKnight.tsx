@@ -14,7 +14,8 @@ import React, { useState, useEffect, useRef } from 'react';
 //
 // Props: { size, mood, variant, level, className, style }
 // Moods: happy, thinking, celebrating, victory, sad, encouraged,
-//        ready, marching, glancing, neutral
+//        ready, marching, glancing, neutral,
+//        oops, struggling, onfire, tearsofjoy, levelup, winking, proud, worried
 // Levels: 1-10 standard │ 11+ gold trim │ 26+ gold sword │ 51+ crown │ 76+ aura
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -59,6 +60,14 @@ const MOOD_GLOW = {
   sad:         'drop-shadow(0 0 6px rgba(220,38,38,.35))',
   glancing:    'drop-shadow(0 0 5px rgba(0,0,0,.18))',
   neutral:     'none',
+  oops:       'drop-shadow(0 0 8px rgba(239,68,68,.55))',
+  struggling: 'drop-shadow(0 0 6px rgba(148,163,184,.40))',
+  onfire:     'drop-shadow(0 0 12px rgba(251,191,36,.9)) drop-shadow(0 0 24px rgba(245,158,11,.5))',
+  tearsofjoy: 'drop-shadow(0 0 8px rgba(59,130,246,.55)) drop-shadow(0 0 18px rgba(99,102,241,.30))',
+  levelup:    'drop-shadow(0 0 10px rgba(245,194,48,.9)) drop-shadow(0 0 22px rgba(245,194,48,.5))',
+  winking:    'drop-shadow(0 0 5px rgba(27,79,216,.35))',
+  proud:      'drop-shadow(0 0 7px rgba(22,163,74,.50))',
+  worried:    'drop-shadow(0 0 5px rgba(100,116,139,.35))',
 };
 
 // ─── CSS keyframe animations ──────────────────────────────────────────────────
@@ -92,6 +101,14 @@ const ANIM_CSS = `
     0%   { opacity:1; transform: scale(1) translateY(0); }
     100% { opacity:0; transform: scale(1.6) translateY(-8px); }
   }
+  @keyframes kn-flicker {
+    0%, 100% { filter: drop-shadow(0 0 8px rgba(251,191,36,.8)) drop-shadow(0 0 20px rgba(245,158,11,.4)); }
+    50%       { filter: drop-shadow(0 0 20px rgba(251,191,36,1)) drop-shadow(0 0 38px rgba(245,158,11,.7)); }
+  }
+  @keyframes kn-levelup-ring {
+    0%   { transform: scale(1);   opacity: 0.85; }
+    100% { transform: scale(1.9); opacity: 0; }
+  }
 `;
 
 // ─── Mood table ───────────────────────────────────────────────────────────────
@@ -114,6 +131,14 @@ const MOOD = {
   marching:    { browL:  0, browLY:  0, browR:  0, browRY:  0, mouth:'smile_sm',   px:-2, py: 0, eScale:0.90         },
   glancing:    { browL:  0, browLY:  0, browR:  0, browRY:  0, mouth:'neutral',    px: 5, py: 0, eScale:0.95         },
   neutral:     { browL:  0, browLY:  0, browR:  0, browRY:  0, mouth:'neutral',    px: 0, py: 0, eScale:1.00         },
+  oops:       { browL: -8, browLY: -3, browR: -8, browRY: -3, mouth:'oops_o',     px: 0, py:-2, eScale:1.20         },
+  struggling: { browL:  6, browLY:  1, browR: -6, browRY:  1, mouth:'wavy',       px: 0, py: 2, eScale:0.45         },
+  onfire:     { browL:  8, browLY:  0, browR:  8, browRY:  0, mouth:'big_smile',   px: 0, py: 1, eScale:0.65         },
+  tearsofjoy: { browL: -4, browLY: -1, browR: -4, browRY: -1, mouth:'big_smile',   px: 0, py: 0, eScale:0.20         },
+  levelup:    { browL:-10, browLY: -4, browR:-10, browRY: -4, mouth:'victory',     px: 0, py:-1, eScale:1.00         },
+  winking:    { browL:  0, browLY:  0, browR:  0, browRY:  0, mouth:'smirk',       px:-1, py: 1, eScale:0.95, winkR:true },
+  proud:      { browL: -3, browLY: -1, browR: -3, browRY: -1, mouth:'happy',       px: 0, py: 0, eScale:0.75         },
+  worried:    { browL:  5, browLY:  1, browR: -5, browRY:  1, mouth:'frown_sm',    px:-2, py: 3, eScale:0.88         },
 };
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -188,6 +213,18 @@ function Mouth({ type }) {
       return <path d="M-6.5 0 L6.5 0" stroke={C.outline} strokeWidth="2.6" strokeLinecap="round" />;
     case 'hmm':
       return <path d="M-4 0 Q0 3 4 0" stroke={C.outline} strokeWidth="2.2" fill="none" strokeLinecap="round" />;
+    case 'oops_o':
+      // Small open oval — surprised
+      return <ellipse cx={0} cy={2} rx={4} ry={5.5} fill={C.mouth} stroke={C.outline} strokeWidth="2" />;
+    case 'wavy':
+      // Uncertain wavy line — struggling
+      return <path d="M-6 0 Q-3 -3 0 0 Q3 3 6 0" stroke={C.outline} strokeWidth="2.2" fill="none" strokeLinecap="round" />;
+    case 'smirk':
+      // Asymmetric smirk — winking
+      return <path d="M-4 1 Q0 5 6 -1" stroke={C.outline} strokeWidth="2.2" fill="none" strokeLinecap="round" />;
+    case 'frown_sm':
+      // Slight frown — worried
+      return <path d="M-5 3 Q0 -1 5 3" stroke={C.outline} strokeWidth="2.2" fill="none" strokeLinecap="round" />;
     case 'neutral':
     default:
       return <path d="M-5 0 L5 0" stroke={C.outline} strokeWidth="2" strokeLinecap="round" opacity="0.7" />;
@@ -348,7 +385,8 @@ const CroatianKnight = React.memo(function CroatianKnight({
   }, []);
 
   const eyeScaleY = (cfg.wink || blink) ? 0.0 : cfg.eScale;
-  const isWink    =  cfg.wink || blink;
+  const isWinkL   = cfg.wink || blink;
+  const isWinkR   = cfg.wink || (cfg as any).winkR || blink;
 
   // ─── Layout constants (viewBox 0 0 100 130) ────────────────────────────────
   // Head
@@ -373,6 +411,7 @@ const CroatianKnight = React.memo(function CroatianKnight({
         alignItems: 'center',
         justifyContent: 'center',
         filter: MOOD_GLOW[mood] || 'none',
+        animation: mood === 'onfire' ? 'kn-flicker 0.65s ease-in-out infinite' : undefined,
         ...style,
       }}
     >
@@ -644,12 +683,12 @@ const CroatianKnight = React.memo(function CroatianKnight({
           <Eye
             cx={ELX} cy={EY}
             pxOff={cfg.px} pyOff={cfg.py}
-            scaleY={eyeScaleY} wink={isWink}
+            scaleY={eyeScaleY} wink={isWinkL}
           />
           <Eye
             cx={ERX} cy={EY}
             pxOff={cfg.px} pyOff={cfg.py}
-            scaleY={eyeScaleY} wink={isWink}
+            scaleY={eyeScaleY} wink={isWinkR}
           />
 
           {/* ── Eyebrows ── */}
@@ -707,6 +746,60 @@ const CroatianKnight = React.memo(function CroatianKnight({
                 />
               </g>
             </>
+          )}
+
+          {/* ── Oops blush boost ── */}
+          {mood === 'oops' && (
+            <g>
+              <ellipse cx={HX - 21} cy={HY + 14} rx={9} ry={6.5} fill={C.blush} opacity="0.58" />
+              <ellipse cx={HX + 21} cy={HY + 14} rx={9} ry={6.5} fill={C.blush} opacity="0.58" />
+            </g>
+          )}
+
+          {/* ── Struggling sweat bead ── */}
+          {mood === 'struggling' && (
+            <g>
+              <ellipse cx={HX + 24} cy={HY - 12} rx={3} ry={4.5} fill="#7DD3FC" opacity="0.85" />
+              <ellipse cx={HX + 24} cy={HY - 13} rx={1.2} ry={1.2} fill={C.white} opacity="0.6" />
+            </g>
+          )}
+
+          {/* ── Tears of joy drops ── */}
+          {mood === 'tearsofjoy' && (
+            <g opacity="0.75">
+              <path d={`M ${ELX} ${EY + 13} Q ${ELX - 2} ${EY + 19} ${ELX} ${EY + 23} Q ${ELX + 2} ${EY + 19} ${ELX} ${EY + 13} Z`}
+                fill="#60A5FA" />
+              <path d={`M ${ERX} ${EY + 13} Q ${ERX - 2} ${EY + 19} ${ERX} ${EY + 23} Q ${ERX + 2} ${EY + 19} ${ERX} ${EY + 13} Z`}
+                fill="#60A5FA" />
+            </g>
+          )}
+
+          {/* ── Level-up gold ring ── */}
+          {mood === 'levelup' && (
+            <circle
+              cx={HX} cy={HY} r={HR + 6}
+              fill="none" stroke={C.gold} strokeWidth="3.5"
+              style={{ animation: 'kn-levelup-ring 0.9s ease-out infinite', transformOrigin: `${HX}px ${HY}px` }}
+            />
+          )}
+
+          {/* ── Level-up star pupils ── */}
+          {mood === 'levelup' && (
+            <g>
+              <polygon
+                points={`${ELX},${EY - 5} ${ELX + 1.5},${EY - 1.5} ${ELX + 5},${EY - 1.5} ${ELX + 2},${EY + 1} ${ELX + 3},${EY + 5} ${ELX},${EY + 2.5} ${ELX - 3},${EY + 5} ${ELX - 2},${EY + 1} ${ELX - 5},${EY - 1.5} ${ELX - 1.5},${EY - 1.5}`}
+                fill={C.goldLt} opacity="0.9"
+              />
+              <polygon
+                points={`${ERX},${EY - 5} ${ERX + 1.5},${EY - 1.5} ${ERX + 5},${EY - 1.5} ${ERX + 2},${EY + 1} ${ERX + 3},${EY + 5} ${ERX},${EY + 2.5} ${ERX - 3},${EY + 5} ${ERX - 2},${EY + 1} ${ERX - 5},${EY - 1.5} ${ERX - 1.5},${EY - 1.5}`}
+                fill={C.goldLt} opacity="0.9"
+              />
+            </g>
+          )}
+
+          {/* ── Worried sweat bead ── */}
+          {mood === 'worried' && (
+            <ellipse cx={HX + 25} cy={HY - 6} rx={2.5} ry={3.5} fill="#7DD3FC" opacity="0.78" />
           )}
 
         </g>
