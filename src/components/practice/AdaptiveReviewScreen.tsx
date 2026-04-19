@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { speak, getMistakes, recordMistake } from '../../data';
 import { getSR } from '../../lib/srs.ts';
 import { useStats } from '../../context/StatsContext.tsx';
@@ -197,6 +197,16 @@ export default function AdaptiveReviewScreen({ goBack, award }) {
     [sr, mistakes]
   );
 
+  // Guard: if sessionIdx runs past end of session (shouldn't happen in normal flow,
+  // but defensive), transition to results via effect — NOT during render.
+  useEffect(() => {
+    if (view === 'session' && session.length > 0 && sessionIdx >= session.length) {
+      markQuest('master');
+      if (award) award(correct * 2);
+      setView('results');
+    }
+  }, [view, sessionIdx, session.length, correct, award]);
+
   const overdueCount = Object.values(sr).filter(c => c.due && c.due <= Date.now() && c.w > 0).length;
   const topMissed = [...mistakes].sort((a, b) => b.count - a.count).slice(0, 3);
   const srsCount = session.filter(i => i.type === 'srs').length;
@@ -307,10 +317,7 @@ export default function AdaptiveReviewScreen({ goBack, award }) {
     const current = session[sessionIdx];
 
     if (!current) {
-      // Done — transition to results
-      markQuest('master');
-      if (award) award(correct * 2);
-      setView('results');
+      // Session ended — useEffect above handles the transition.
       return null;
     }
 
