@@ -170,15 +170,34 @@ Return ONLY valid JSON, no markdown.`;
         messages: [{ role: "user", content: userMessage }],
       }),
     });
-    data = await res.json();
   } catch (fetchErr) {
     console.error("flash-context.js: network error calling Anthropic:", fetchErr.message);
     return err(502, "Service temporarily unavailable", origin);
   }
 
+  // Read body as text first — non-2xx responses may return plain-text error
+  // messages (e.g. Anthropic 529 overloaded), and calling res.json() on those
+  // throws a parse error which falls into the catch above and hides the real status.
+  let rawBody;
+  try {
+    rawBody = await res.text();
+  } catch (bodyErr) {
+    console.error("flash-context.js: failed to read Anthropic response body:", bodyErr.message);
+    return err(502, "Service temporarily unavailable", origin);
+  }
+
   if (!res.ok) {
-    console.error("flash-context.js: Anthropic API error", res.status, data?.error?.message);
-    return err(res.status, isDev ? (data?.error?.message || "Anthropic API error: HTTP " + res.status) : "AI service error", origin);
+    let errMsg;
+    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* body not JSON */ }
+    console.error("flash-context.js: Anthropic API error", res.status, errMsg);
+    return err(res.status >= 500 ? 502 : res.status, isDev ? (errMsg || "Anthropic API error: HTTP " + res.status) : "AI service error", origin);
+  }
+
+  try {
+    data = JSON.parse(rawBody);
+  } catch {
+    console.error("flash-context.js: JSON parse failed on Anthropic response:", rawBody.slice(0, 200));
+    return err(502, "Invalid response from AI", origin);
   }
 
   const raw = data?.content?.[0]?.text?.trim() || "";

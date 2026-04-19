@@ -587,6 +587,7 @@ export async function onRequestPost(context) {
   // Process the stream asynchronously (do NOT await — we return the readable immediately)
   (async () => {
     let fullText = "";
+    let doneSent = false; // guard: emit fallback done event if message_stop never arrives
     const reader = anthropicStream.getReader();
     let buffer = "";
 
@@ -631,6 +632,7 @@ export async function onRequestPost(context) {
         }
 
         await write(`data: ${JSON.stringify({ type: "done", result })}\n\n`);
+        doneSent = true;
       }
     }
 
@@ -663,7 +665,24 @@ export async function onRequestPost(context) {
       } else {
         await write(`event: error\ndata: ${JSON.stringify({ error: "Stream interrupted" })}\n\n`);
       }
+      doneSent = true;
     } finally {
+      // If the Anthropic stream ended cleanly without a message_stop event
+      // (e.g. abrupt EOF on a network drop), the client would hang waiting for
+      // a "done" event that never arrives. Emit a fallback so the client can
+      // gracefully recover with whatever text was accumulated so far.
+      if (!doneSent) {
+        try {
+          let fallbackResult = fallbackResponse(safeTurnCount, maxTurns);
+          if (fullText) {
+            try {
+              const cleaned = fullText.replace(/^```json\s*/i, "").replace(/```\s*$/, "").trim();
+              fallbackResult = JSON.parse(cleaned);
+            } catch { /* use fallback as-is */ }
+          }
+          await write(`data: ${JSON.stringify({ type: "done", result: fallbackResult })}\n\n`);
+        } catch { /* writer already closed */ }
+      }
       try { await writer.close(); } catch { /* ignore */ }
     }
   })();

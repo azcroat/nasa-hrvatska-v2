@@ -25,15 +25,15 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
   );
 
   for (const region of regions) {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
     try {
+      // Use separate per-fetch timeouts so a slow token fetch does not eat into
+      // the time budget for the TTS synthesis fetch (shared controller bug).
       const tokenRes = await fetch(
         `https://${region}.api.cognitive.microsoft.com/sts/v1.0/issueToken`,
         {
           method: 'POST',
           headers: { 'Ocp-Apim-Subscription-Key': azureKey, 'Content-Length': '0' },
-          signal: controller.signal,
+          signal: AbortSignal.timeout(5000),
         }
       );
       if (!tokenRes.ok) continue;
@@ -50,7 +50,7 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
             'User-Agent': 'NasaHrvatska/1.0',
           },
           body: ssml,
-          signal: controller.signal,
+          signal: AbortSignal.timeout(8000),
         }
       );
 
@@ -58,8 +58,6 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
       if (response.status !== 400) break; // 400 = bad SSML, no point retrying other regions
     } catch {
       // Timeout or network error — try next region
-    } finally {
-      clearTimeout(timeout);
     }
   }
   return null;
