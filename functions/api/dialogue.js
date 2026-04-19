@@ -147,7 +147,8 @@ COACHING: [one coaching tip in English, max 80 chars, ONLY if there's a clear gr
   }
   messages.push({ role: "user", content: safeMsg });
 
-  let res, data;
+  // Block 1: fetch — catches network errors only
+  let res;
   try {
     res = await fetch(ANTHROPIC_URL, {
       method: "POST",
@@ -159,20 +160,40 @@ COACHING: [one coaching tip in English, max 80 chars, ONLY if there's a clear gr
       signal: AbortSignal.timeout(20000),
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: (/** @type {Record<string,number>} */ { A1: 200, A2: 200, B1: 320, B2: 400, C1: 400, C2: 400 })[safeLevel] || 280,  
+        max_tokens: (/** @type {Record<string,number>} */ { A1: 200, A2: 200, B1: 320, B2: 400, C1: 400, C2: 400 })[safeLevel] || 280,
         system: systemPrompt,
         messages,
       }),
     });
-    data = await res.json();
   } catch (fetchErr) {
     console.error("dialogue.js: network error:", fetchErr.message);
     return err(502, "Service temporarily unavailable", origin);
   }
 
+  // Block 2: read body — catches body-read failures
+  let rawBody;
+  try {
+    rawBody = await res.text();
+  } catch (bodyErr) {
+    console.error("dialogue.js: failed to read response body:", bodyErr.message);
+    return err(502, "Service temporarily unavailable", origin);
+  }
+
+  // Block 3: check res.ok — map errors to client-safe responses
   if (!res.ok) {
-    console.error("dialogue.js: Anthropic error", res.status);
-    return err(502, "AI service error", origin);
+    let errMsg;
+    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* not JSON */ }
+    console.error("dialogue.js: API error", res.status, errMsg);
+    return err(res.status >= 500 ? 502 : res.status, isDev ? (errMsg || "API error: HTTP " + res.status) : "AI service error", origin);
+  }
+
+  // Block 4: parse JSON — catches malformed responses
+  let data;
+  try {
+    data = JSON.parse(rawBody);
+  } catch {
+    console.error("dialogue.js: JSON parse failed:", rawBody.slice(0, 200));
+    return err(502, "Invalid response from AI", origin);
   }
 
   const raw = data?.content?.[0]?.text?.trim() || "";
