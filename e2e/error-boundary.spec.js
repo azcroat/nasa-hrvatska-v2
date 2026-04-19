@@ -58,9 +58,11 @@ function assertNoUnexpectedErrors(errors) {
 
 /** Assert the ScreenErrorBoundary alert is NOT present on the page. */
 async function assertNoBoundaryAlert(page) {
-  // Use a short timeout — if the boundary was going to fire it does so immediately
-  const alertVisible = await page.getByRole('alert').isVisible({ timeout: 2_000 }).catch(() => false);
-  expect(alertVisible, 'ScreenErrorBoundary should NOT be visible on a healthy render').toBe(false);
+  // Check via data-testid — specific to ScreenErrorBoundary only.
+  // Using getByRole('alert') was too broad: AppToasts sync error and OfflineBanner
+  // also use role="alert" and trigger false positives in WebKit when Firebase is blocked.
+  const boundaryVisible = await page.getByTestId('screen-error-boundary').isVisible({ timeout: 2_000 }).catch(() => false);
+  expect(boundaryVisible, 'ScreenErrorBoundary should NOT be visible on a healthy render').toBe(false);
 }
 
 // ── Setup ─────────────────────────────────────────────────────────────────────

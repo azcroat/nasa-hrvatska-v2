@@ -702,6 +702,9 @@ function App() {
                 setStats(s => ({ ...s, xp: Math.max(0, s.xp - (result.xpCost ?? 0)), str: result.restoredCount ?? s.str }));
                 setStreakRestoredCount(result.restoredCount ?? 0);
                 setTimeout(() => setStreakRestoredCount(0), 5000);
+                // Persist the XP deduction to Firebase: doSyncNow reads _unloadRef.current
+                // which is updated after the setStats re-render, so delay by 200ms.
+                setTimeout(() => doSyncNow(), 200);
               }
               setShowStreakRepair(false);
             }
