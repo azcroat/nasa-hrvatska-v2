@@ -136,7 +136,13 @@ Include 5-6 key vocabulary items. Keep facts accurate.`;
   }
 
   const raw = data.content?.[0]?.text || "";
-  const parsed = JSON.parse(raw);
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    console.error('news.js: simplifyArticle inner JSON parse failed:', raw.slice(0, 200));
+    return null;
+  }
   return { ...article, ...parsed, level: safeLevel };
 }
 
