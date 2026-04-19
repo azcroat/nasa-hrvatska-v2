@@ -456,7 +456,7 @@ export default function HomeTab({
       {htab === 'today' && (
         <motion.div key="today"
           initial={_isNative ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0 }} transition={{ duration: 0.18, ease: 'easeOut' }}
+          exit={_isNative ? false : { opacity: 0 }} transition={{ duration: 0.18, ease: 'easeOut' }}
         >
         <React.Fragment>
 
@@ -482,7 +482,7 @@ export default function HomeTab({
               <motion.div
                 initial={_isNative ? false : { opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
+                exit={_isNative ? { scale: 0.95 } : { opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.25, ease: 'easeOut' }}
                 style={{ marginBottom: 12 }}
               >
@@ -868,7 +868,7 @@ export default function HomeTab({
       {htab === 'progress' && (
         <motion.div key="progress"
           initial={_isNative ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0 }} transition={{ duration: 0.18, ease: 'easeOut' }}
+          exit={_isNative ? false : { opacity: 0 }} transition={{ duration: 0.18, ease: 'easeOut' }}
         >
           <ProgressTabContent
             streak={streak}
@@ -888,7 +888,7 @@ export default function HomeTab({
       {htab === 'review' && (
         <motion.div key="review"
           initial={_isNative ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0 }} transition={{ duration: 0.18, ease: 'easeOut' }}
+          exit={_isNative ? false : { opacity: 0 }} transition={{ duration: 0.18, ease: 'easeOut' }}
         >
           <ReviewTabContent />
         </motion.div>

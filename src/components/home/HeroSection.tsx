@@ -471,7 +471,7 @@ export default function HeroSection({
                 key={greeting.mood + '\x00' + greeting.text.slice(0, 40)}
                 initial={_isNative ? false : { opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
+                exit={_isNative ? { y: -4 } : { opacity: 0, y: -4 }}
                 transition={{ duration: 0.22, ease: 'easeOut' }}
                 style={{ flex: 1, position: 'relative' }}
               >
