@@ -196,7 +196,9 @@ LEARNER STYLE PROFILE (based on ${safeStyle.dataPoints} sessions):
     ` Return JSON: { greeting: 'short encouraging Croatian greeting to the user (5-10 words)', activities: [ { id: string (one of: srsreview=spaced-repetition card review, aiconvo=AI listening/conversation practice, live_tutor=AI speaking session with tutor Marija, writing=written composition practice, grammar_diagnosis=grammar gap analysis, dialogue=conversational dialogue with Maja, shadowing=pronunciation shadowing drill, aspectdrill=verb aspect perfective/imperfective drill), title: string, reason: string (why this specifically today, 1 sentence — be specific if addressing a persistent error), duration: number (minutes, 3-7), priority: 'high'|'medium' } ], motivational_note: 'one encouraging sentence about their progress', focus_topic: 'one grammar/vocab area to focus on today', theme: 'one sentence connecting all activities to a single grammar or vocab thread, e.g. Today\\'s thread: perfective aspect in past tense' } — exactly 3 activities totaling ~15 minutes.`;
 
   // ── Call Anthropic ──
-  let res, data;
+
+  // Block 1: fetch — catches network errors only
+  let res;
   try {
     res = await fetch(ANTHROPIC_URL, {
       method: "POST",
@@ -213,15 +215,35 @@ LEARNER STYLE PROFILE (based on ${safeStyle.dataPoints} sessions):
         messages: [{ role: "user", content: userMessage }],
       }),
     });
-    data = await res.json();
   } catch (fetchErr) {
     console.error("daily-plan.js: network error calling Anthropic:", fetchErr.message);
     return err(502, "Service temporarily unavailable", origin);
   }
 
+  // Block 2: read body — catches body-read failures
+  let rawBody;
+  try {
+    rawBody = await res.text();
+  } catch (bodyErr) {
+    console.error("daily-plan.js: failed to read response body:", bodyErr.message);
+    return err(502, "Service temporarily unavailable", origin);
+  }
+
+  // Block 3: check res.ok — map errors to client-safe responses
   if (!res.ok) {
-    console.error("daily-plan.js: Anthropic API error", res.status, data?.error?.message);
-    return err(res.status, isDev ? (data?.error?.message || "Anthropic API error: HTTP " + res.status) : "AI service error", origin);
+    let errMsg;
+    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* not JSON */ }
+    console.error("daily-plan.js: Anthropic API error", res.status, errMsg);
+    return err(res.status >= 500 ? 502 : res.status, isDev ? (errMsg || "Anthropic API error: HTTP " + res.status) : "AI service error", origin);
+  }
+
+  // Block 4: parse JSON — catches malformed responses
+  let data;
+  try {
+    data = JSON.parse(rawBody);
+  } catch {
+    console.error("daily-plan.js: JSON parse failed:", rawBody.slice(0, 200));
+    return err(502, "Invalid response from AI", origin);
   }
 
   const raw = data?.content?.[0]?.text?.trim() || "";
