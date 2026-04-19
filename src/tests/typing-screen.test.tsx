@@ -284,6 +284,24 @@ describe('TypingScreen — completion + award guard', () => {
   });
 });
 
+// ── Knight flash reactions ────────────────────────────────────────────────────
+
+describe('TypingScreen — knight flash reactions', () => {
+  it('dispatches knight:flash "oops" after a wrong answer', async () => {
+    const flashes: CustomEvent[] = [];
+    const handler = (e: Event) => flashes.push(e as CustomEvent);
+    window.addEventListener('knight:flash', handler);
+
+    renderTypingScreen();
+    typeAnswer('kruh'); // clearly wrong answer for 'zdravo'
+    fireEvent.click(screen.getByText('Check Answer'));
+
+    expect(flashes.some(e => e.detail?.mood === 'oops')).toBe(true);
+
+    window.removeEventListener('knight:flash', handler);
+  });
+});
+
 // ── Navigation ────────────────────────────────────────────────────────────────
 
 describe('TypingScreen — navigation', () => {

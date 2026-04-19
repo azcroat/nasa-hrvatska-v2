@@ -4,6 +4,7 @@ import { H, Bar, V, sh, srMark, speak, getDueReviews } from '../../data';
 import CroatianKeyboard from '../shared/CroatianKeyboard';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
+import { knightFlash, knightSpeak } from '../../lib/knightSpeak.js';
 
 // ── Answer checking helpers ───────────────────────────────────────────────────
 
@@ -79,9 +80,11 @@ const RESULT_CONFIG = {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function TypingScreen({ goBack, award }) {
-  const finishFired = useRef(false);
-  const inputRef    = useRef(/** @type {HTMLInputElement|null} */ (null));
-  const startTsRef  = useRef(0); // tracks when current word was presented
+  const finishFired      = useRef(false);
+  const inputRef         = useRef(/** @type {HTMLInputElement|null} */ (null));
+  const startTsRef       = useRef(0); // tracks when current word was presented
+  const consecCorrectRef = useRef(0);
+  const consecWrongRef   = useRef(0);
 
   const [tyPool] = useState(() => buildPool());
   const [tyI, sTyI] = useState(0);
@@ -111,6 +114,9 @@ export default function TypingScreen({ goBack, award }) {
             onClick={() => {
               if (finishFired.current) return;
               finishFired.current = true;
+              if (tyS / tyPool.length >= 0.9) {
+                knightSpeak('tearsofjoy', 'Savršeno! Sve napisano točno! ✍️');
+              }
               if (typeof award === 'function') award(xp);
               markQuest('vocab');
               goBack();
@@ -130,7 +136,20 @@ export default function TypingScreen({ goBack, award }) {
     const isCorrect = verdict === 'perfect' || verdict === 'diacritic' || verdict === 'close';
     srMark(tyW[0], isCorrect, timeMs);
     recordTopicResult('production', isCorrect);
-    if (isCorrect) sTyS(s => s + 1);
+    if (isCorrect) {
+      sTyS(s => s + 1);
+      consecWrongRef.current = 0;
+      consecCorrectRef.current += 1;
+      if (consecCorrectRef.current >= 3) {
+        knightFlash('onfire', 2000);
+      } else if (Math.random() < 0.2) {
+        knightFlash('winking', 1500);
+      }
+    } else {
+      consecCorrectRef.current = 0;
+      consecWrongRef.current += 1;
+      knightFlash(consecWrongRef.current >= 3 ? 'struggling' : 'oops', consecWrongRef.current >= 3 ? 2000 : 1500);
+    }
     setResult(verdict);
     speak(tyW[0]);
   }
