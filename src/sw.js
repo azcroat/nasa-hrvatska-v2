@@ -32,20 +32,23 @@ self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', event => {
   event.waitUntil(
     (async () => {
-      // Snapshot existing clients BEFORE claim() — these are tabs running old code.
-      const existingClients = await self.clients.matchAll({ type: 'window' });
-      const isUpdate = existingClients.length > 0;
+      // Snapshot existing client IDs BEFORE claim() — these are tabs running old code.
+      // After claim(), newly-controlled tabs also appear in matchAll(), so we must
+      // filter by pre-claim IDs to avoid sending SW_UPDATED to first-install tabs
+      // (which would trigger an unnecessary reload on a fresh page load).
+      const preClaimClients = await self.clients.matchAll({ type: 'window' });
+      const preClaimIds = new Set(preClaimClients.map(c => c.id));
 
       // Take control of all open tabs immediately.
       await self.clients.claim();
 
-      // After claiming, if this is a genuine update (not first install),
-      // tell every tab to reload so they pick up new assets.
+      // Only notify tabs that existed before this SW activated (genuine updates).
       // Loop-safe: after reload the new SW is already active — activate will
       // not fire again for those pages, so no second SW_UPDATED message is sent.
-      if (isUpdate) {
+      if (preClaimIds.size > 0) {
         const clients = await self.clients.matchAll({ type: 'window' });
-        clients.forEach(c => c.postMessage({ type: 'SW_UPDATED' }));
+        clients.filter(c => preClaimIds.has(c.id))
+               .forEach(c => c.postMessage({ type: 'SW_UPDATED' }));
       }
     })()
   );

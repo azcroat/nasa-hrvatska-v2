@@ -50,8 +50,10 @@ export async function onRequestPost(context) {
     let upstream;
     try {
       upstream = await fetch(url, { signal: controller.signal });
-    } finally {
       clearTimeout(timeout);
+    } catch (fetchErr) {
+      clearTimeout(timeout);
+      throw fetchErr; // re-throw so outer catch handles it cleanly
     }
 
     const data = await upstream.json();
