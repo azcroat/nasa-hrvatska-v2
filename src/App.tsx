@@ -455,7 +455,9 @@ function App() {
   useEffect(() => {
     if (!authUser || authScreen !== 'app' || stats.xp === 0) return;
     const weeklyXP = (() => { try { return parseInt(localStorage.getItem('nh_week_xp_' + weekKey()) || '0', 10); } catch { return 0; } })();
-    submitWeeklyXP(null, authUser.u, name, weeklyXP).catch(() => {});
+    submitWeeklyXP(null, authUser.u, name, weeklyXP).catch((err) => {
+      console.error('[App] submitWeeklyXP failed:', err);
+    });
   }, [stats.xp, authUser, authScreen, name]);
 
   // Periodic Firebase sync every 5 minutes — catches XP from mini-games that don't trigger lesson sync

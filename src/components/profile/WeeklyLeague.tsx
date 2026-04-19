@@ -142,8 +142,13 @@ export default function WeeklyLeague({ authUser: au, name, stats, goBack }) {
       if (res.ok) {
         const payload = await res.json();
         setData(payload);
+      } else {
+        const body = await res.json().catch(() => ({}));
+        setError(body.error || `Sync failed (${res.status})`);
       }
-    } catch {}
+    } catch {
+      setError('Could not sync XP. Check your connection.');
+    }
   }, [data, au, myWeekXP, name, weekKey]);
 
   const tier = data?.tier ? TIER_META[data.tier.id] || TIER_META.bronze : TIER_META.bronze;

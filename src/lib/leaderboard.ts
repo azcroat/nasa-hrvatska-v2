@@ -55,7 +55,10 @@ export async function getLeaderboard(db: Firestore | null, limitCount = 50): Pro
     const q = query(collection(_db, 'leaderboard', weekKey, 'entries'), orderBy('xp', 'desc'), limit(limitCount));
     const snap = await getDocs(q);
     return snap.docs.map((d, i) => ({ rank: i + 1, ...d.data() } as LeaderboardEntry));
-  } catch { return []; }
+  } catch (err) {
+    console.error('[leaderboard] getLeaderboard failed:', err);
+    return [];
+  }
 }
 
 export async function getMyRank(db: Firestore | null, uid: string): Promise<number | null> {
@@ -67,11 +70,14 @@ export async function getMyRank(db: Firestore | null, uid: string): Promise<numb
 
 /**
  * Subscribe to real-time leaderboard updates via Firestore onSnapshot.
+ * onError is called when the subscription fails (permission denied, network, etc.).
+ * onUpdate([]) is still called so callers can clear loading state.
  */
 export function subscribeToLeaderboard(
   db: Firestore | null,
   limitCount = 50,
-  onUpdate: (entries: LeaderboardEntry[]) => void
+  onUpdate: (entries: LeaderboardEntry[]) => void,
+  onError?: (err: Error) => void
 ): () => void {
   const _db = db || getDb();
   if (!_db) { onUpdate([]); return () => {}; }
@@ -88,11 +94,15 @@ export function subscribeToLeaderboard(
         const entries = snap.docs.map((d, i) => ({ rank: i + 1, ...d.data() } as LeaderboardEntry));
         onUpdate(entries);
       },
-      (_err) => {
+      (err) => {
+        console.error('[leaderboard] subscribeToLeaderboard error:', err);
+        onError?.(err);
         onUpdate([]);
       }
     );
-  } catch {
+  } catch (err) {
+    console.error('[leaderboard] subscribeToLeaderboard setup failed:', err);
+    onError?.(err instanceof Error ? err : new Error(String(err)));
     onUpdate([]);
     return () => {};
   }
