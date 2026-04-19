@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { H, Bar, V, srMark, speak } from '../../data';
 import { rnd } from '../../lib/random.js';
 import { markQuest } from '../../lib/quests.js';
+import { knightFlash, knightSpeak } from '../../lib/knightSpeak.js';
 
 const TimerDisplay = React.memo(/** @param {{ timeLeft: number, color: string }} props */ function TimerDisplay({ timeLeft, color }) {
   return (
@@ -58,6 +59,9 @@ export default function WordSprint({ sh, award, goBack }) {
   const timerRef = useRef(null);
   const feedbackRef = useRef(null);
   const pausedRef = useRef(false);
+  const consecCorrectRef = useRef(0);
+  const consecWrongRef   = useRef(0);
+  const worriedFiredRef  = useRef(false);
 
   const startGame = useCallback(() => {
     const cats = selectedCats.length > 0 ? selectedCats : catList.slice(0, 5);
@@ -72,6 +76,9 @@ export default function WordSprint({ sh, award, goBack }) {
     setQuestions(qs);
     setQi(0); setScore(0); setStreak(0); setBestStreak(0);
     setTimeLeft(ROUND_TIME); setChosen(null); setFeedback(null); setResults([]);
+    consecCorrectRef.current = 0;
+    consecWrongRef.current   = 0;
+    worriedFiredRef.current  = false;
     setPhase('playing');
   }, [selectedCats, sh, catList]);
 
@@ -88,6 +95,10 @@ export default function WordSprint({ sh, award, goBack }) {
       if (pausedRef.current) return; // paused during answer feedback
       setTimeLeft(t => {
         if (t <= 1) { clearInterval(timerRef.current); setPhase('result'); return 0; }
+        if (t === 6 && !worriedFiredRef.current) {
+          worriedFiredRef.current = true;
+          knightFlash('worried', 1500);
+        }
         return t - 1;
       });
     }, 1000);
@@ -121,20 +132,36 @@ export default function WordSprint({ sh, award, goBack }) {
     setFeedback(correct ? 'correct' : 'wrong');
     setResults(r => [...r, { q, chosen: opt, correct }]);
     if (correct) {
+      consecWrongRef.current = 0;
+      consecCorrectRef.current += 1;
       const newStreak = streak + 1;
       setStreak(newStreak);
       setBestStreak(b => Math.max(b, newStreak));
       const pts = newStreak >= 5 ? 3 : newStreak >= 3 ? 2 : 1;
       setScore(s => s + pts);
       if (newStreak % 5 === 0) { if (typeof award === 'function') award(15); }
+      if (consecCorrectRef.current >= 3) knightFlash('onfire', 2000);
+      else if (rnd() < 0.2) knightFlash('winking', 1500);
     } else {
+      consecCorrectRef.current = 0;
+      consecWrongRef.current += 1;
+      knightFlash(consecWrongRef.current >= 3 ? 'struggling' : 'oops', consecWrongRef.current >= 3 ? 2000 : 1500);
       setStreak(0);
     }
   }
 
   useEffect(() => {
     if (phase === 'result' && score > 0) { if (typeof award === 'function') award(Math.min(score * 2, 50)); markQuest('vocab'); }
-  }, [phase]);  
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase !== 'result') return;
+    const correctCount = results.filter(r => r.correct).length;
+    const pct = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
+    if (pct >= 90) {
+      knightSpeak('tearsofjoy', `${pct}% — Savršeno! Brzi si kao munja! ⚡`, 300);
+    }
+  }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggleCat = (c) =>
     setSelectedCats(prev =>
