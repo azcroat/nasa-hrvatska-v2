@@ -246,7 +246,8 @@ export async function onRequest(context) {
 
     const { xp = 0, name = 'Learner', weekKey = getCurrentWeekKey() } = body;
 
-    if (typeof xp !== 'number' || xp < 0 || xp > 100000) {
+    // 10,000 XP/week cap — 20 lessons/day at ~70 XP each × 7 days ≈ 9,800 max for a power user
+    if (typeof xp !== 'number' || xp < 0 || xp > 10000) {
       return err('Invalid xp value.', 400, origin);
     }
     if (typeof weekKey !== 'string' || !/^\d{4}-W\d{2}$/.test(weekKey)) {
