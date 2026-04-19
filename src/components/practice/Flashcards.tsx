@@ -86,6 +86,7 @@ export default function Flashcards({ pool, goBack, award }) {
   const lastSpokenRef = useRef(null);
   const consecCorrectRef = useRef(0); // consecutive correct answers (for onfire flash)
   const consecWrongRef   = useRef(0); // consecutive wrong answers (for struggling flash)
+  const advancingRef     = useRef(false); // guard against double-tap during card transition
   useEffect(() => () => { mountedRef.current = false; }, []);
 
   // Persist current card index so the user can resume mid-session
@@ -282,15 +283,18 @@ export default function Flashcards({ pool, goBack, award }) {
   }
 
   function advanceCard(direction, callback) {
+    if (advancingRef.current) return; // block rapid double-taps during transition
+    advancingRef.current = true;
     setExiting(direction);
     setTimeout(() => {
-      if (!mountedRef.current) return;
+      if (!mountedRef.current) { advancingRef.current = false; return; }
       setExiting(false);
       callback();
       setEntering(true);
       setTimeout(() => {
-        if (!mountedRef.current) return;
+        if (!mountedRef.current) { advancingRef.current = false; return; }
         setEntering(false);
+        advancingRef.current = false;
       }, 220);
     }, 180);
   }
