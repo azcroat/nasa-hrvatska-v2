@@ -63,8 +63,10 @@ Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
 
 The phrase should be practical and conversational. The cultural fact should be specific — not generic tourism copy. Make it feel like insider knowledge.`;
 
+  // Block 1: network errors only
+  let res;
   try {
-    const res = await fetch(ANTHROPIC_URL, {
+    res = await fetch(ANTHROPIC_URL, {
       method: 'POST',
       headers: {
         'x-api-key': ANTHROPIC_API_KEY,
@@ -78,42 +80,62 @@ The phrase should be practical and conversational. The cultural fact should be s
       }),
       signal: AbortSignal.timeout(20000),
     });
-
-    if (!res.ok) {
-      console.error(`[daily-culture] Anthropic ${res.status}`);
-      return err(502, 'AI unavailable', origin);
-    }
-
-    const data = await res.json();
-    const raw = data.content?.[0]?.text || '';
-
-    // Parse JSON — strip any accidental markdown fences
-    const jsonStr = raw.replace(/^```(?:json)?\s*/m, '').replace(/```\s*$/m, '').trim();
-    let parsed;
-    try {
-      parsed = JSON.parse(jsonStr);
-    } catch {
-      console.error('[daily-culture] JSON parse failed:', raw.slice(0, 200));
-      return err(502, 'Invalid AI response', origin);
-    }
-
-    // Attach location metadata
-    parsed.city = location.city;
-    parsed.region = location.region;
-    parsed.locationEmoji = location.emoji;
-    parsed.date = dateStr;
-
-    // Cache at edge for 6 hours — same content all day globally
-    return new Response(JSON.stringify(parsed), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=21600, s-maxage=21600',
-        ...corsHeaders(origin),
-      },
-    });
-  } catch (e) {
-    console.error('[daily-culture] error:', e.message);
-    return err(500, 'Server error', origin);
+  } catch (fetchErr) {
+    console.error('[daily-culture] network error calling Anthropic:', fetchErr.message);
+    return err(502, 'AI temporarily unavailable', origin);
   }
+
+  // Block 2: read body as text first — non-2xx responses may not be JSON
+  let rawBody;
+  try {
+    rawBody = await res.text();
+  } catch (bodyErr) {
+    console.error('[daily-culture] failed to read response body:', bodyErr.message);
+    return err(502, 'AI temporarily unavailable', origin);
+  }
+
+  // Block 3: check ok status
+  if (!res.ok) {
+    let errMsg;
+    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* body not JSON */ }
+    console.error(`[daily-culture] Anthropic ${res.status}`, errMsg);
+    return err(502, 'AI unavailable', origin);
+  }
+
+  // Block 4: parse Anthropic JSON envelope
+  let data;
+  try {
+    data = JSON.parse(rawBody);
+  } catch {
+    console.error('[daily-culture] JSON parse failed on Anthropic response:', rawBody.slice(0, 200));
+    return err(502, 'AI unavailable', origin);
+  }
+
+  const raw = data.content?.[0]?.text || '';
+
+  // Parse JSON — strip any accidental markdown fences
+  const jsonStr = raw.replace(/^```(?:json)?\s*/m, '').replace(/```\s*$/m, '').trim();
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonStr);
+  } catch {
+    console.error('[daily-culture] JSON parse failed:', raw.slice(0, 200));
+    return err(502, 'Invalid AI response', origin);
+  }
+
+  // Attach location metadata
+  parsed.city = location.city;
+  parsed.region = location.region;
+  parsed.locationEmoji = location.emoji;
+  parsed.date = dateStr;
+
+  // Cache at edge for 6 hours — same content all day globally
+  return new Response(JSON.stringify(parsed), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'public, max-age=21600, s-maxage=21600',
+      ...corsHeaders(origin),
+    },
+  });
 }

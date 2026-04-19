@@ -202,7 +202,22 @@ export async function onRequestPost(context) {
         });
       }
 
-      const data = await res.json();
+      // Read body as text first — separates body-read failures from JSON parse failures
+      let rawBody;
+      try {
+        rawBody = await res.text();
+      } catch (bodyErr) {
+        console.error('[conversational-tutor] failed to read response body:', bodyErr.message);
+        return new Response(JSON.stringify({ error: "server_error" }), { status: 502, headers: corsHeaders(origin) });
+      }
+
+      let data;
+      try {
+        data = JSON.parse(rawBody);
+      } catch {
+        console.error('[conversational-tutor] JSON parse failed:', rawBody.slice(0, 200));
+        return new Response(JSON.stringify({ error: "server_error" }), { status: 502, headers: corsHeaders(origin) });
+      }
       raw = data.content?.[0]?.text || "";
     } finally {
       clearTimeout(timeout);

@@ -72,22 +72,26 @@ export async function onRequestPost(context) {
     return new Response(JSON.stringify({ error: 'Service not configured' }), { status: 503, headers: CORS(origin) });
   }
 
-  try {
-    const ct = request.headers.get('content-type') || '';
-    if (!ct.includes('application/json')) {
-      return new Response(JSON.stringify({ error: "Invalid content type" }), { status: 400, headers: CORS(origin) });
-    }
-    const { prompt, text } = await request.json();
-    if (typeof text !== 'string' || !text.trim()) {
-      return new Response(JSON.stringify({ error: "Invalid input" }), { status: 400, headers: CORS(origin) });
-    }
-    if (text.length > 3000) {
-      return new Response(JSON.stringify({ error: "Text too long (max 3000 chars)" }), { status: 400, headers: CORS(origin) });
-    }
+  const ct = request.headers.get('content-type') || '';
+  if (!ct.includes('application/json')) {
+    return new Response(JSON.stringify({ error: "Invalid content type" }), { status: 400, headers: CORS(origin) });
+  }
 
-    const safePrompt = sanitizeParam(prompt, 300);
+  let reqBody;
+  try { reqBody = await request.json(); }
+  catch { return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400, headers: CORS(origin) }); }
 
-    const systemPrompt = `You are a Croatian language teacher. The student was asked to write about: "${safePrompt}".
+  const { prompt, text } = reqBody;
+  if (typeof text !== 'string' || !text.trim()) {
+    return new Response(JSON.stringify({ error: "Invalid input" }), { status: 400, headers: CORS(origin) });
+  }
+  if (text.length > 3000) {
+    return new Response(JSON.stringify({ error: "Text too long (max 3000 chars)" }), { status: 400, headers: CORS(origin) });
+  }
+
+  const safePrompt = sanitizeParam(prompt, 300);
+
+  const systemPrompt = `You are a Croatian language teacher. The student was asked to write about: "${safePrompt}".
 
 Analyze their Croatian text and respond with ONLY valid JSON (no markdown, no code blocks) in this exact format:
 {
@@ -110,7 +114,10 @@ Score 0-100 based on grammar accuracy, vocabulary, and natural expression.
 level_demonstrated: A1 (Beginner), A2 (Elementary), B1 (Intermediate), B2 (Upper-Intermediate), C1 (Advanced).
 List up to 5 most important changes. List 1-3 strengths and 1-2 improvements. Be encouraging and specific.`;
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+  // Block 1: network errors only
+  let response;
+  try {
+    response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "x-api-key": ANTHROPIC_KEY,
@@ -125,46 +132,60 @@ List up to 5 most important changes. List 1-3 strengths and 1-2 improvements. Be
         messages: [{ role: "user", content: text }],
       }),
     });
+  } catch (fetchErr) {
+    console.error('[correct] network error calling Anthropic:', fetchErr.message);
+    return new Response(JSON.stringify({ error: 'Service temporarily unavailable' }), { status: 502, headers: CORS(origin) });
+  }
 
-    if (!response.ok) {
-      throw new Error("Anthropic API error " + response.status);
-    }
+  // Block 2: read body as text first — non-2xx responses may not be JSON
+  let rawBody;
+  try {
+    rawBody = await response.text();
+  } catch (bodyErr) {
+    console.error('[correct] failed to read Anthropic response body:', bodyErr.message);
+    return new Response(JSON.stringify({ error: 'Service temporarily unavailable' }), { status: 502, headers: CORS(origin) });
+  }
 
-    const data = await response.json();
-    const rawText = data.content?.[0]?.text || "{}";
+  // Block 3: check ok status
+  if (!response.ok) {
+    let errMsg;
+    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* body not JSON */ }
+    console.error('[correct] Anthropic API error', response.status, errMsg);
+    return new Response(
+      JSON.stringify({ error: isDev ? (errMsg || 'Anthropic API error: HTTP ' + response.status) : 'AI service error' }),
+      { status: response.status >= 500 ? 502 : response.status, headers: CORS(origin) }
+    );
+  }
 
-    let result;
-    try {
-      result = JSON.parse(rawText);
-    } catch {
-      // If JSON parse fails, return a graceful fallback
-      result = {
-        corrected_text: text,
-        score: 60,
-        level_demonstrated: "Analysis complete",
-        changes: [],
-        strengths: [],
-        improvements: [],
-        encouragement: "Great effort writing in Croatian! Keep practicing every day."
-      };
-    }
-
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { ...CORS(origin), "Cache-Control": "no-store" },
-    });
+  // Block 4: parse Anthropic JSON envelope
+  let data;
+  try {
+    data = JSON.parse(rawBody);
   } catch {
-    return new Response(JSON.stringify({
-      corrected_text: "",
-      score: 0,
-      level_demonstrated: "Error",
+    console.error('[correct] JSON parse failed on Anthropic response:', rawBody.slice(0, 200));
+    return new Response(JSON.stringify({ error: 'Invalid response from AI' }), { status: 502, headers: CORS(origin) });
+  }
+
+  const rawText = data.content?.[0]?.text || "{}";
+
+  // Parse Claude's JSON payload — graceful fallback if malformed
+  let result;
+  try {
+    result = JSON.parse(rawText);
+  } catch {
+    result = {
+      corrected_text: text,
+      score: 60,
+      level_demonstrated: "Analysis complete",
       changes: [],
       strengths: [],
       improvements: [],
-      encouragement: "Keep writing — every sentence is progress!"
-    }), {
-      status: 200,
-      headers: CORS(origin),
-    });
+      encouragement: "Great effort writing in Croatian! Keep practicing every day."
+    };
   }
+
+  return new Response(JSON.stringify(result), {
+    status: 200,
+    headers: { ...CORS(origin), "Cache-Control": "no-store" },
+  });
 }
