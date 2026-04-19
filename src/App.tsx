@@ -76,10 +76,9 @@ function pruneStaleLocalStorage() {
     for (const k of keys) {
       if (/^nh_quest_.+_\d{4}-\d{2}-\d{2}$/.test(k) && !k.endsWith(today)) del.push(k);
       else if (/^nh_week_xp_/.test(k)) {
-        // Keep last 4 weeks
-        const kDate = k.replace('nh_week_xp_', '');
-        const fourWeeksAgo = new Date(); fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
-        if (kDate < fourWeeksAgo.toISOString().slice(0, 10).replace(/-\d{2}$/, '')) del.push(k);
+        // Keys are formatted as 'YYYY-WNN' (e.g. '2026-W17'). Only the current week's
+        // value is ever read; past weeks are unused. Delete anything that's not current week.
+        if (k.replace('nh_week_xp_', '') !== weekKey()) del.push(k);
       }
       else if (/^nh_comeback_used_\d{4}-\d{2}-\d{2}$/.test(k) && !k.endsWith(today)) del.push(k);
       else if (/^nh_pruned_\d{4}-\d{2}-\d{2}$/.test(k) && !k.endsWith(today)) del.push(k);
@@ -450,14 +449,21 @@ function App() {
     return () => window.removeEventListener('nh:immersion-new-day', onImmersionDay);
   }, [authScreen, award]);
 
-  // Sync weekly XP to the weekly leaderboard collection on every XP change.
-  // Use actual weekly XP (nh_week_xp_*) not total XP — LeaderboardScreen reads this collection.
+  // Sync weekly XP to the weekly leaderboard collection.
+  // Debounced: a new timer resets on every XP change; the Firestore write fires only after
+  // 15 s of inactivity (or at most one write per exercise session), preventing a write-storm
+  // when a user completes multiple exercises in quick succession.
+  const _weeklyXPTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (!authUser || authScreen !== 'app' || stats.xp === 0) return;
-    const weeklyXP = (() => { try { return parseInt(localStorage.getItem('nh_week_xp_' + weekKey()) || '0', 10); } catch { return 0; } })();
-    submitWeeklyXP(null, authUser.u, name, weeklyXP).catch((err) => {
-      console.error('[App] submitWeeklyXP failed:', err);
-    });
+    if (_weeklyXPTimerRef.current) clearTimeout(_weeklyXPTimerRef.current);
+    _weeklyXPTimerRef.current = setTimeout(() => {
+      const weeklyXP = (() => { try { return parseInt(localStorage.getItem('nh_week_xp_' + weekKey()) || '0', 10); } catch { return 0; } })();
+      submitWeeklyXP(null, authUser.u, name, weeklyXP).catch((err) => {
+        console.error('[App] submitWeeklyXP failed:', err);
+      });
+    }, 15000);
+    return () => { if (_weeklyXPTimerRef.current) clearTimeout(_weeklyXPTimerRef.current); };
   }, [stats.xp, authUser, authScreen, name]);
 
   // Periodic Firebase sync every 5 minutes — catches XP from mini-games that don't trigger lesson sync

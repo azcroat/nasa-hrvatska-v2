@@ -238,7 +238,14 @@ export function updateStreak(todayOverride?: string): StreakData & { milestone: 
   let milestone: number | null = null; let freezeUsed = false;
   if (s.last === yesterday) { s.count++; s.last = today; if (STREAK_MILESTONES.includes(s.count)) milestone = s.count; }
   else if (s.last !== today) {
-    if (spendFreeze()) { s.last = today; s.frozeOn = today; freezeUsed = true; }
+    // Only spend a freeze when exactly 1 day was missed (last practice was 2 calendar days ago).
+    // A freeze cannot bridge a 2+ day gap — the streak is already broken.
+    const _lastDate = s.last ? new Date(s.last + 'T00:00:00') : null;
+    const _todayDate = new Date(today + 'T00:00:00');
+    const _daysBetween = _lastDate
+      ? Math.round((_todayDate.getTime() - _lastDate.getTime()) / 86400000)
+      : 0;
+    if (_daysBetween === 2 && spendFreeze()) { s.last = today; s.frozeOn = today; freezeUsed = true; }
     else {
       if (s.count >= 2) { try { localStorage.setItem('nh_earn_back', JSON.stringify({ prev: s.count, date: today, lc: 1 })); } catch {} }
       const _prevCount = s.count;

@@ -16,7 +16,6 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   gP, lP, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbGetIdToken,
 } from '../lib/firebase.js';
-import { toDocId } from '../lib/userKey.js';
 import { buildProgressSnapshot } from '../lib/progressSnapshot.js';
 import { mergeStatsFromRemote } from '../lib/mergeStatsFromRemote.js';
 import type { Stats, AuthUser } from '../types/index.js';
@@ -165,7 +164,7 @@ export function useSyncManager({
     } finally {
       _isSavingRef.current = false;
     }
-  }, [authUser]);
+  }, []); // stable — all state is read from _unloadRef.current, no closure deps needed
 
   // Keep caller ref current so onBeforeSignOut always calls latest doSyncNow
   if (syncNowRef) syncNowRef.current = doSyncNow;
@@ -394,13 +393,20 @@ export function useSyncManager({
         if (pl.length < 60000) navigator.sendBeacon('/api/save-progress', new Blob([pl], { type: 'application/json' }));
       } catch (_) {}
     };
+    // Dedup guard: both pagehide and visibilitychange(hidden) fire together on tab close.
+    // Without this flag, two concurrent fbSaveProgress calls and two sendBeacon calls launch.
+    let _hideFired = false;
+    const _doHideSave = (u: AuthUser | null): void => {
+      if (_hideFired) return;
+      _hideFired = true;
+      saveSnapshot(true);
+      sendBeacon(u, (_unloadRef.current as Record<string, unknown>)._lastSaved);
+      // Reset after 200ms so a second genuine hide (e.g. re-focus then re-hide) works.
+      setTimeout(() => { _hideFired = false; }, 200);
+    };
     const onUnload = (): void => saveSnapshot(false);
     const onPageHide = (e: PageTransitionEvent): void => {
-      saveSnapshot(true);
-      sendBeacon(
-        (_unloadRef.current.authUser as AuthUser | null),
-        (_unloadRef.current as Record<string, unknown>)._lastSaved,
-      );
+      _doHideSave(_unloadRef.current.authUser as AuthUser | null);
       if (e.persisted && typeof _watcherUnsubRef.current === 'function') {
         _watcherUnsubRef.current();
         _watcherUnsubRef.current = null;
@@ -408,11 +414,7 @@ export function useSyncManager({
     };
     const onVisHide = (): void => {
       if (document.visibilityState !== 'hidden') return;
-      saveSnapshot(true);
-      sendBeacon(
-        (_unloadRef.current.authUser as AuthUser | null),
-        (_unloadRef.current as Record<string, unknown>)._lastSaved,
-      );
+      _doHideSave(_unloadRef.current.authUser as AuthUser | null);
     };
     window.addEventListener('beforeunload', onUnload);
     window.addEventListener('pagehide', onPageHide);

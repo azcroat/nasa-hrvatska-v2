@@ -17,8 +17,13 @@ export function sanitizeStats(raw: unknown): Partial<Stats> {
       s[k] = Math.floor(v);
     }
   }
-  // str (streak count) must be at least 1 — matches DS default
-  if (typeof s.str === 'number' && s.str < 1) s.str = 1;
+  // Badge-backing counters — pass through with same non-negative integer validation
+  for (const bk of ['srsTotal', 'mistakesMastered', 'readingDone', 'mediaVisits'] as const) {
+    const bv = r[bk];
+    if (typeof bv === 'number' && isFinite(bv) && bv >= 0) {
+      s[bk] = Math.floor(bv);
+    }
+  }
   // diff must be a known value
   if (typeof r.diff === 'string' && ALLOWED_DIFFS.has(r.diff)) {
     s.diff = r.diff as Stats['diff'];

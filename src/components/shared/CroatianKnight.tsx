@@ -235,8 +235,10 @@ function Mouth({ type }) {
  * Croatian šahovnica shield — heraldic pointed shape, authentic white-first 3×3 pattern.
  * The real Croatian coat of arms always has white in the top-left cell.
  */
-function Shield({ cx, cy, r = 13, goldTrim = false }) {
-  const clipId = `kn-sh-${Math.round(cx)}-${Math.round(cy)}`;
+function Shield({ cx, cy, r = 13, goldTrim = false, instanceId = 'def' }) {
+  // instanceId is passed from the parent to ensure clipPath IDs are unique per
+  // mounted instance — coordinate-derived IDs collide when two knights render at the same size.
+  const clipId = `kn-sh-${instanceId}`;
   const trim = goldTrim ? C.gold : C.silver;
 
   // Heraldic shield: rounded top corners, straight sides, pointed bottom
@@ -351,6 +353,10 @@ const CroatianKnight = React.memo(function CroatianKnight({
 }) {
   const cfg = MOOD[mood] || MOOD.happy;
 
+  // Stable instance ID — ensures clipPath IDs are unique across concurrent knight instances
+  // (CelebrationModal + KnightCompanion + any screen with multiple knights).
+  const _instanceId = useRef(`kn-${Math.random().toString(36).slice(2, 8)}`);
+
   // Level-gated visuals
   const goldTrim  = level >= 11;
   const goldSword = level >= 26;
@@ -373,15 +379,18 @@ const CroatianKnight = React.memo(function CroatianKnight({
   // Auto-blink (random interval: 2.5–6 s)
   const [blink, setBlink]       = useState(false);
   const blinkRef                = useRef(null);
+  const blinkInnerRef           = useRef(null);
   useEffect(() => {
     function schedule() {
       blinkRef.current = setTimeout(() => {
         setBlink(true);
-        setTimeout(() => { setBlink(false); schedule(); }, 130);
+        // Store the inner timer so it can be cancelled on unmount, preventing
+        // setState-after-unmount and runaway recursion in the cleanup path.
+        blinkInnerRef.current = setTimeout(() => { setBlink(false); schedule(); }, 130);
       }, 2500 + Math.random() * 3500);
     }
     schedule();
-    return () => clearTimeout(blinkRef.current);
+    return () => { clearTimeout(blinkRef.current); clearTimeout(blinkInnerRef.current); };
   }, []);
 
   const eyeScaleY = (cfg.wink || blink) ? 0.0 : cfg.eScale;
@@ -517,10 +526,10 @@ const CroatianKnight = React.memo(function CroatianKnight({
                 {/* White base */}
                 <rect x={bx} y={by} width={bw} height={bw} rx={1.5} fill={C.white} />
                 {/* 3×3 šahovnica */}
-                <clipPath id="kn-bp-sh">
+                <clipPath id={`kn-bp-sh-${_instanceId.current}`}>
                   <rect x={bx} y={by} width={bw} height={bw} rx={1.5} />
                 </clipPath>
-                <g clipPath="url(#kn-bp-sh)">
+                <g clipPath={`url(#kn-bp-sh-${_instanceId.current})`}>
                   {bColors.map((row, ri) =>
                     row.map((color, ci) => (
                       <rect
@@ -554,7 +563,7 @@ const CroatianKnight = React.memo(function CroatianKnight({
                  Q 12,${bodyTop + 19} 16,${bodyTop + 22} L 24,${bodyTop + 20}`}
               fill={C.blue} stroke={C.outline} strokeWidth="1.6"
             />
-            <Shield cx={13} cy={bodyTop + 26} r={13} goldTrim={goldTrim} />
+            <Shield cx={13} cy={bodyTop + 26} r={13} goldTrim={goldTrim} instanceId={_instanceId.current} />
           </g>
 
           {/* ══ RIGHT ARM + SWORD ══ */}

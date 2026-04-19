@@ -80,7 +80,7 @@ export function buildProgressSnapshot({ uid, name, stats, dchlA, dchlSl, favs, j
     nh_sound_enabled: localStorage.getItem('nh_sound_enabled'),
     nh_haptic_enabled: localStorage.getItem('nh_haptic_enabled'),
     nh_voice_pref: localStorage.getItem('nh_voice_pref'),
-    nh_font_size: localStorage.getItem('nh_font_size') || 'medium',
+    nh_font_size: localStorage.getItem('nh_font_size'),
     nh_reduce_motion: localStorage.getItem('nh_reduce_motion') === 'true',
     nh_autotts: localStorage.getItem('nh_autotts') === 'true',
     // Journey milestones — additive union on merge; never truncated below 200 entries

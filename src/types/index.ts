@@ -19,6 +19,13 @@ export interface Stats {
   vs: string[];
   rs: string[];
   badges: string[];
+  // Badge-backing counters — present on the stats object but outside the core type.
+  // Math.max merged in mergeStatsFromRemote so they survive multi-device sync.
+  srsTotal?: number;
+  mistakesMastered?: number;
+  readingDone?: number;
+  mediaVisits?: number;
+  streak?: number;
 }
 
 export interface AuthUser {

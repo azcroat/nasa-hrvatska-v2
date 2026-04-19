@@ -140,7 +140,11 @@ export default function HomeTab({
     return { ...s, count: Math.max(s.count || 0, st.str || 0) };
   }, [st]);
    
-  const lastActivity = useMemo(() => getLastActivity(), [st]);
+  // getLastActivity() reads nh_last_ex/nh_last_ex_label from localStorage.
+  // These only change when the user navigates to an exercise (at which point
+  // HomeTab unmounts). Reading on every stats change (every XP gain) is wasteful.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const lastActivity = useMemo(() => getLastActivity(), []);
   // Track the current calendar day — updates when the app regains visibility so
   // word-of-day and phrase-of-day refresh automatically after midnight.
   const [currentDayIdx, setCurrentDayIdx] = useState(() => Math.floor(Date.now() / 86400000));
@@ -204,7 +208,11 @@ export default function HomeTab({
       perfect:      q('perfect'),
     };
   }, [streak]);
-  const allQuestsDone = Object.values(questsDone).every(Boolean);
+  // Exclude streak/streak_alive from the "all done" check: new users (streak=0) would
+  // never qualify since they haven't built a streak yet, blocking the Daily Mastery bonus.
+  const allQuestsDone = Object.entries(questsDone)
+    .filter(([k]) => k !== 'streak' && k !== 'streak_alive')
+    .every(([, v]) => v);
   const _questXP = DAILY_QUESTS.filter(q => questsDone[q.id]).reduce((s,q) => s + q.xp, 0); void _questXP;
 
   // Award Daily Mastery +50 XP bonus the first time all quests are done today
@@ -228,7 +236,7 @@ export default function HomeTab({
   const [nudgeDismissed, setNudgeDismissed] = useState(false);
   const [wodSRSAdded, setWodSRSAdded] = useState(false);
   const [anchorDismissed, setAnchorDismissed] = useState(() => {
-    try { return localStorage.getItem('nh_anchor_dismissed_' + new Date().toISOString().slice(0,10)) === '1'; } catch { return false; }
+    try { return localStorage.getItem('nh_anchor_dismissed_' + localDateStr()) === '1'; } catch { return false; }
   });
 
   function _readCampaignQuestsDone(campaign) {
@@ -507,7 +515,7 @@ export default function HomeTab({
                       ⚡ Today's Mission
                     </div>
                     <button
-                      onClick={() => { localStorage.setItem('nh_anchor_dismissed_' + new Date().toISOString().slice(0,10), '1'); setAnchorDismissed(true); }}
+                      onClick={() => { localStorage.setItem('nh_anchor_dismissed_' + localDateStr(), '1'); setAnchorDismissed(true); }}
                       aria-label="Dismiss"
                       style={{ background:'none', border:'none', color:'rgba(199,210,254,0.5)', fontSize:16, cursor:'pointer', padding:'0 2px', lineHeight:1 }}
                     >×</button>
