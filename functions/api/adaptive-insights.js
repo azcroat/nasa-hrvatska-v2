@@ -185,7 +185,7 @@ export async function onRequestPost({ request, env }) {
     `Recent topics: ${safeRecentTopics.join(', ')}`;
 
   // ── Call Anthropic ─────────────────────────────────────────────────────────
-  let res, data;
+  let res;
   try {
     res = await fetch(ANTHROPIC_URL, {
       method: "POST",
@@ -202,14 +202,31 @@ export async function onRequestPost({ request, env }) {
         messages: [{ role: "user", content: userMessage }],
       }),
     });
-    data = await res.json();
   } catch (fetchErr) {
     console.error("adaptive-insights.js: network error calling Anthropic:", fetchErr.message);
     return staticFallback(origin);
   }
 
+  let rawBody;
+  try {
+    rawBody = await res.text();
+  } catch (bodyErr) {
+    console.error("adaptive-insights.js: failed to read response body:", bodyErr.message);
+    return staticFallback(origin);
+  }
+
   if (!res.ok) {
-    console.error("adaptive-insights.js: Anthropic API error", res.status, data?.error?.message);
+    let errMsg;
+    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* not JSON */ }
+    console.error("adaptive-insights.js: Anthropic API error", res.status, errMsg);
+    return staticFallback(origin);
+  }
+
+  let data;
+  try {
+    data = JSON.parse(rawBody);
+  } catch {
+    console.error("adaptive-insights.js: JSON parse failed:", rawBody.slice(0, 200));
     return staticFallback(origin);
   }
 
