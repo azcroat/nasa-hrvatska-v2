@@ -105,12 +105,12 @@ export default function ClozeEngine({ goBack, award }) {
       srMark(q.blank, true);
       speak(q.sentence);
       setFeedbackAnim('correct');
-      setTimeout(() => setFeedbackAnim(null), 500);
+      setTimeout(() => { if (mountedRef.current) setFeedbackAnim(null); }, 500);
     } else {
       srMark(q.blank, false);
       logError(q.blank, 'grammar', { wrong: opt, correct: q.blank, source: 'cloze_engine' });
       setFeedbackAnim('wrong');
-      setTimeout(() => setFeedbackAnim(null), 400);
+      setTimeout(() => { if (mountedRef.current) setFeedbackAnim(null); }, 400);
     }
   }
 

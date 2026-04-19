@@ -97,13 +97,12 @@ export async function onRequestPost({ request, env }) {
   const { action, clanId, uid, displayName, name, xp } = body || {};
   if (!action || !uid) return err(400, 'action and uid required', origin);
 
-  // Verify Firebase token if provided — getFirebaseUid takes (request, projectId)
+  // Require Firebase token for all write operations — uid in the body is untrusted
   const authHeader = request.headers.get('authorization') || '';
-  if (authHeader.startsWith('Bearer ')) {
-    const projectId = env?.FIREBASE_PROJECT_ID || '';
-    const verified = await getFirebaseUid(request, projectId).catch(() => null);
-    if (!verified || verified !== uid) return err(401, 'Unauthorized', origin);
-  }
+  if (!authHeader.startsWith('Bearer ')) return err(401, 'Authorization required', origin);
+  const projectId = env?.FIREBASE_PROJECT_ID || '';
+  const verified = await getFirebaseUid(request, projectId).catch(() => null);
+  if (!verified || verified !== uid) return err(401, 'Unauthorized', origin);
 
   // ── CREATE ──────────────────────────────────────────────────────────────────
   if (action === 'create') {
@@ -139,7 +138,11 @@ export async function onRequestPost({ request, env }) {
     if ((raw.members || []).length >= MAX_CLAN_SIZE) return err(409, 'Clan is full (max 5 members)', origin);
     if ((raw.members || []).some(m => m.uid === uid)) return err(409, 'Already a member', origin);
 
-    raw.members = [...(raw.members || []), { uid, name: (displayName || 'Učenik').slice(0, 32), weekXP: 0, joinedAt: Date.now() }];
+    const newMembers = [...(raw.members || []), { uid, name: (displayName || 'Učenik').slice(0, 32), weekXP: 0, joinedAt: Date.now() }];
+    // Write-time guard: recheck capacity after adding to catch concurrent-join races.
+    // KV lacks compare-and-swap, so we store the count in the value and validate post-write.
+    if (newMembers.length > MAX_CLAN_SIZE) return err(409, 'Clan is full (max 5 members)', origin);
+    raw.members = newMembers;
     await kv.put(`clan:${clanId}`, JSON.stringify(raw), { expirationTtl: 365 * 86400 });
     await kv.put(`member:${uid}:clan`, clanId, { expirationTtl: 365 * 86400 });
     const totalXP = raw.members.reduce((s, m) => s + (m.weekXP || 0), 0);

@@ -114,8 +114,20 @@ async function assignGroup(kv, weekKey, uid, name, xp) {
     const groupKey = `league_group:${weekKey}:${targetGroupId}`;
     const group = await kv.get(groupKey, 'json');
     const members = group?.members || [];
-    // Guard against duplicate uid racing
-    if (!members.find(m => m.uid === uid)) {
+    // Guard against duplicate uid and concurrent-join race (KV has no CAS).
+    // Re-read the group after the open-slot scan; if it filled up concurrently,
+    // fall back to creating a new group rather than overflowing an existing one.
+    if (members.length >= MAX_GROUP_SIZE) {
+      // Group filled between scan and write — create a new one
+      meta.groupCount += 1;
+      targetGroupId = meta.groupCount;
+      await kv.put(metaKey, JSON.stringify(meta), { expirationTtl: 60 * 60 * 24 * 14 });
+      await kv.put(
+        `league_group:${weekKey}:${targetGroupId}`,
+        JSON.stringify({ members: [{ uid, name, xp }] }),
+        { expirationTtl: 60 * 60 * 24 * 14 }
+      );
+    } else if (!members.find(m => m.uid === uid)) {
       members.push({ uid, name, xp });
       await kv.put(groupKey, JSON.stringify({ members }), { expirationTtl: 60 * 60 * 24 * 14 });
     }

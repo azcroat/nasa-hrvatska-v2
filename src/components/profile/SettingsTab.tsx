@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { fbDeleteAccount, fbLeaveFamily, getLocalFamily, V, sh } from '../../data';
 import { fbExportUserData } from '../../lib/firebase.js';
 import { isSoundEnabled, setSoundEnabled, isHapticEnabled, setHapticEnabled, getVoicePreference, setVoicePreference } from '../../lib/soundSettings.js';
