@@ -191,8 +191,10 @@ export async function onRequest(context) {
     return new Response(null, { status: 204, headers: corsHeaders(origin) });
   }
 
-  // Origin allowlist — reject requests from unlisted origins
-  if (!origin || !isAllowedOrigin(origin, isDev)) {
+  // Origin allowlist — reject requests from unlisted origins.
+  // Empty origin is allowed: PWA home-screen / Capacitor native apps never send an Origin header;
+  // their identity is verified via the Firebase JWT instead.
+  if (origin && !isAllowedOrigin(origin, isDev)) {
     return err('Forbidden', 403, origin);
   }
 
@@ -215,7 +217,13 @@ export async function onRequest(context) {
 
   // ── GET — fetch current standings ─────────────────────────────────────────
   if (request.method === 'GET') {
-    const weekKey = url.searchParams.get('week') || getCurrentWeekKey();
+    const _wkParam = url.searchParams.get('week');
+    // Validate weekKey format to prevent KV key injection via query string.
+    // Allow only YYYY-WNN format (current or historical); reject anything else.
+    if (_wkParam && !/^\d{4}-W\d{2}$/.test(_wkParam)) {
+      return err('Invalid weekKey.', 400, origin);
+    }
+    const weekKey = _wkParam || getCurrentWeekKey();
 
     const assignKey = `league:${weekKey}:${uid}`;
     const assignment = await kv.get(assignKey, 'json');

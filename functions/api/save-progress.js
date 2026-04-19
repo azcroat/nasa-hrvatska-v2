@@ -84,7 +84,9 @@ export async function onRequestPost(context) {
   // Write to Firestore via REST API using the user's own ID token.
   // Only updates `progress` and `updated` — leaves all other fields (leaderboard, family) intact.
   // The Firestore security rule allows each user to write their own /users/{docId} document.
-  const docId = toDocId(uid);
+  // Use verifiedUid (from the JWT) for the docId, not the body-provided uid, so that even if
+  // the body uid were somehow manipulated, the write target is always the authenticated user.
+  const docId = toDocId(verifiedUid);
   // Only update progress blob + timestamp. Do NOT write top-level xp here:
   // fbApplyDelta owns the authoritative xp field via atomic increments. If this beacon
   // wrote a stale absolute xp value (local state may lag behind atomic deltas from another

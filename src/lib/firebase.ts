@@ -165,7 +165,10 @@ export async function fbSaveProgress(uid: string, data: Record<string, unknown>)
   const _strk = (data.streak && typeof (data.streak as Record<string, unknown>).count === 'number')
     ? (data.streak as Record<string, number>).count
     : (typeof _st.str === 'number' ? _st.str : 0);
-  const _lvlRaw = data.level || (typeof localStorage !== 'undefined' ? (localStorage.getItem('nh_level') || 'A1') : 'A1');
+  // Prefer data.nh_level (present in buildProgressSnapshot output) over data.level,
+  // then fall back to localStorage (browser only). Avoids 'A1' regression in Worker context
+  // where localStorage is undefined and the beacon payload is used server-side.
+  const _lvlRaw = data.nh_level || data.level || (typeof localStorage !== 'undefined' ? (localStorage.getItem('nh_level') || 'A1') : 'A1');
   const _CEFR_NUM: Record<string, number> = { A1: 1, A2: 2, B1: 3, B2: 4, C1: 5, C2: 6 };
   const _lvl = (typeof _lvlRaw === 'number' && _lvlRaw >= 1) ? _lvlRaw : (_CEFR_NUM[_lvlRaw as string] || 1);
   const _nowMs = Date.now();
@@ -383,7 +386,7 @@ export async function fbSaveSRS(uid: string, srData: Record<string, unknown>): P
   const id = toDocId(uid);
   try {
     await _withRetry(
-      () => setDoc(fsDoc(_fbDb!, 'srs', id), { cards: srData, updated: serverTimestamp() }, { merge: false }),
+      () => setDoc(fsDoc(_fbDb!, 'srs', id), { cards: srData, updated: serverTimestamp() }, { merge: true }),
       'fbSaveSRS',
     );
   } catch (e: unknown) {

@@ -252,20 +252,27 @@ export default function KnightCompanion() {
     return () => window.removeEventListener('knight:celebrate', onCelebrate);
   }, []);
 
+  // showBubbleRef mirrors showBubble state so resetIdleTimer can read it
+  // without adding showBubble to its dependency array (which would cause the
+  // 5 global event listeners to be removed and re-added every time a bubble
+  // shows or hides — up to twice per interaction).
+  const showBubbleRef = useRef(showBubble);
+  useEffect(() => { showBubbleRef.current = showBubble; }, [showBubble]);
+
   // ── Attention-getter: after 30s of inactivity, do a curiosity glance ─────
   const resetIdleTimer = useCallback(() => {
     lastActivityRef.current = Date.now();
     clearTimeout(idleTimerRef.current);
     idleTimerRef.current = setTimeout(() => {
       // Don't interrupt an active bubble or celebration
-      if (!showBubble) {
+      if (!showBubbleRef.current) {
         setGlancing(true);
         clearTimeout(glanceTimerRef.current);
         // Glance animation runs once (~3.6s), then reset
         glanceTimerRef.current = setTimeout(() => setGlancing(false), 3800);
       }
     }, 30_000);
-  }, [showBubble]);
+  }, []); // stable — reads showBubble via ref, not closure
 
   useEffect(() => {
     const events = ['mousemove', 'touchstart', 'keydown', 'scroll', 'click'];

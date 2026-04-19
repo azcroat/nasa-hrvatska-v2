@@ -87,6 +87,9 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
   const [syncDone, setSyncDone] = useState(false);
   const [syncErr, setSyncErr] = useState(false);
   const doneTimerRef = useRef(null);
+  // Clear doneTimerRef on unmount to avoid setState-after-unmount when user syncs
+  // then navigates away within the 4-second feedback window.
+  useEffect(() => () => clearTimeout(doneTimerRef.current), []);
 
   // Push notification state
   const [notifPermission, setNotifPermission] = useState(() => {

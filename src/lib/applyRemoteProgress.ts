@@ -33,19 +33,12 @@ function todayStr(): string {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
-function yesterdayStr(): string {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): void {
   if (!fp) return;
 
   const { setFavs, setJWords, sDchlA, sDchlSl, setOnboarded, setName } = setters;
   const today = todayStr();
-  const yesterday = yesterdayStr();
 
   // ── Onboarding / name ─────────────────────────────────────────────────────
   const apSt = fp.stats || fp.st || {};
@@ -125,9 +118,12 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
     try { lJ = JSON.parse(localStorage.getItem('uJournal') || '[]'); } catch (_) {}
     const jM = new Map<string, unknown>();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    lJ.forEach((e: any) => { if (e?.word) jM.set(e.word, e); });
+    // Remote entries set first; local entries set second so local wins on conflict
+    // (preserves user notes/edits made on this device over older remote entries).
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     fp.journal.forEach((e: any) => { if (e?.word) jM.set(e.word, e); });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    lJ.forEach((e: any) => { if (e?.word) jM.set(e.word, e); });
     const mJ = Array.from(jM.values());
     try { localStorage.setItem('uJournal', JSON.stringify(mJ)); } catch (e: unknown) {
       if (e instanceof DOMException && e.name === 'QuotaExceededError') {
@@ -201,7 +197,9 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
   if (fp.nh_sound_enabled !== null && fp.nh_sound_enabled !== undefined) localStorage.setItem('nh_sound_enabled', fp.nh_sound_enabled);
   if (fp.nh_haptic_enabled !== null && fp.nh_haptic_enabled !== undefined) localStorage.setItem('nh_haptic_enabled', fp.nh_haptic_enabled);
   if (fp.nh_voice_pref) localStorage.setItem('nh_voice_pref', fp.nh_voice_pref);
-  if (fp.nh_font_size && fp.nh_font_size !== 'medium') localStorage.setItem('nh_font_size', fp.nh_font_size);
+  // nh_font_size: null means "never explicitly set on remote device" — skip write.
+  // Any non-null value (including 'medium') is an explicit user choice and should sync.
+  if (fp.nh_font_size !== null && fp.nh_font_size !== undefined) localStorage.setItem('nh_font_size', fp.nh_font_size);
   if (fp.nh_reduce_motion === true) localStorage.setItem('nh_reduce_motion', 'true');
   if (fp.nh_autotts === true) localStorage.setItem('nh_autotts', 'true');
 

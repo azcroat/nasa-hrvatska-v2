@@ -274,7 +274,7 @@ function isAllowedOrigin(origin, isDev) {
   try {
     const hostname = new URL(origin).hostname;
     if (hostname === 'localhost') return true; // Capacitor native WebView (all envs)
-    if (isDev) return true; // dev server — allow all origins
+    if (isDev && hostname === 'localhost') return true; // dev server only — never allow-all
     return (
       hostname === 'nasahrvatska.com' ||
       hostname.endsWith('.nasahrvatska.com') ||
@@ -307,7 +307,9 @@ export async function onRequestPost(context) {
   const { request, env } = context;
 
   const origin = request.headers.get('origin') || request.headers.get('referer') || '';
-  const isDev = env.ENVIRONMENT !== 'production';
+  // Default to production-safe mode when ENVIRONMENT is not set.
+  // Using !== 'production' would open all origins if the env var is misconfigured.
+  const isDev = env.ENVIRONMENT === 'development';
   if (!isAllowedOrigin(origin, isDev)) {
     return new Response('Forbidden', { status: 403, headers: corsHeaders(origin) });
   }

@@ -93,12 +93,13 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
 
     // canvas-confetti burst — performant canvas-based particles
     const end = Date.now() + 1800;
+    let confettiRaf: number;
     const frame = () => {
       confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 }, colors: CROATIAN_COLORS });
       confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 }, colors: CROATIAN_COLORS });
-      if (Date.now() < end) requestAnimationFrame(frame);
+      if (Date.now() < end) confettiRaf = requestAnimationFrame(frame);
     };
-    requestAnimationFrame(frame);
+    confettiRaf = requestAnimationFrame(frame);
 
     // Count up XP with eased requestAnimationFrame
     const target = xp || 0;
@@ -118,18 +119,22 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
 
     // Phases
     const t1 = setTimeout(() => setPhase('reveal'), 200);
-    // Extend auto-close to 7s to give time for difficulty rating interaction
+    // Extend auto-close to 7s to give time for difficulty rating interaction.
+    // Show momentum banner for 3s, then clear state before calling onClose so
+    // setShowMomentum(false) never fires on an unmounted component.
     const t2 = setTimeout(() => {
       setShowMomentum(true);
-      onClose();
+      setTimeout(() => {
+        setShowMomentum(false);
+        onClose();
+      }, 3000);
     }, 7000);
-    const t3 = setTimeout(() => setShowMomentum(false), 10000);
 
     return () => {
+      cancelAnimationFrame(confettiRaf);
       cancelAnimationFrame(rafId);
       clearTimeout(t1);
       clearTimeout(t2);
-      clearTimeout(t3);
     };
   }, [onClose, xp]);
 

@@ -243,7 +243,7 @@ export function useAward({ curEx, stats, setStats, writeDelta }: { curEx: string
         }
       }
     }
-  }, [curEx, comebackBonus, setStats, stats.lc]);
+  }, [curEx, comebackBonus, setStats, stats.lc, writeDelta]);
 
   return {
     award,

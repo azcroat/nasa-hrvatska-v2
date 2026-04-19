@@ -48,5 +48,12 @@ export function mergeStatsFromRemote(prev: Stats, rawRemoteSt: unknown, ds: Stat
     pf: Math.max(prev.pf || 0, remoteSt.pf || 0),
     mv: Math.max(prev.mv || 0, remoteSt.mv || 0),
     hi: Math.max(prev.hi || 0, remoteSt.hi || 0),
+    // Badge-backing counters — Math.max so they are never lost on multi-device sync.
+    // Without this, completing 50 SRS reviews on device A and syncing on device B
+    // would overwrite device B's badge progress with the remote blob's (possibly lower) value.
+    srsTotal: Math.max(prev.srsTotal || 0, remoteSt.srsTotal || 0),
+    mistakesMastered: Math.max(prev.mistakesMastered || 0, remoteSt.mistakesMastered || 0),
+    readingDone: Math.max(prev.readingDone || 0, remoteSt.readingDone || 0),
+    mediaVisits: Math.max(prev.mediaVisits || 0, remoteSt.mediaVisits || 0),
   };
 }
