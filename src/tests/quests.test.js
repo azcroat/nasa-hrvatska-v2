@@ -119,4 +119,27 @@ describe('quests — daily quest tracking', () => {
     expect(localStorage.getItem('nh_quest_speak2_' + d)).toBe('1');
     expect(localStorage.getItem('nh_quest_speak_count_' + d)).toBe('3');
   });
+
+  // ── knight:quest-done event ───────────────────────────────────────────────
+
+  it('dispatches knight:quest-done CustomEvent on every markQuest call', () => {
+    const fired = [];
+    const handler = (e) => fired.push(e.type);
+    window.addEventListener('knight:quest-done', handler);
+    markQuest('speak');
+    markQuest('grammar');
+    window.removeEventListener('knight:quest-done', handler);
+    expect(fired).toHaveLength(2);
+    expect(fired[0]).toBe('knight:quest-done');
+  });
+
+  it('knight:quest-done fires on second call (tier-2 promotion) too', () => {
+    let count = 0;
+    const handler = () => count++;
+    window.addEventListener('knight:quest-done', handler);
+    markQuest('speak'); // first call
+    markQuest('speak'); // second call (also promotes tier-2)
+    window.removeEventListener('knight:quest-done', handler);
+    expect(count).toBe(2);
+  });
 });
