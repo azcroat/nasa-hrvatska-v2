@@ -244,3 +244,78 @@ describe('McGame — navigation', () => {
     expect(props.goBack).toHaveBeenCalledTimes(1);
   });
 });
+
+// ── Knight flash reactions ────────────────────────────────────────────────────
+describe('McGame — knight flash reactions', () => {
+  // Helper: collect knight:flash events during a test without recursion.
+  // We listen via addEventListener (not by mocking dispatchEvent) to avoid
+  // the infinite-recursion trap when origDispatch re-enters the spy.
+  function collectFlashEvents(): { dispatched: CustomEvent[]; cleanup: () => void } {
+    const dispatched: CustomEvent[] = [];
+    const handler = (e: Event) => dispatched.push(e as CustomEvent);
+    window.addEventListener('knight:flash', handler);
+    return { dispatched, cleanup: () => window.removeEventListener('knight:flash', handler) };
+  }
+
+  it('dispatches knight:flash "oops" on wrong answer', async () => {
+    const { dispatched, cleanup } = collectFlashEvents();
+
+    renderGame();
+    // Click the first wrong option (opts[1] = 'wrong0a') — same as answerCurrent(false, 0)
+    fireEvent.click(screen.getByText('wrong0a'));
+
+    await waitFor(() => {
+      expect(dispatched.some(e => e.detail?.mood === 'oops')).toBe(true);
+    });
+
+    cleanup();
+  });
+
+  it('dispatches knight:flash "struggling" after 3 consecutive wrong answers', async () => {
+    const questions = makeQuestions(5);
+    const { dispatched, cleanup } = collectFlashEvents();
+
+    render(<McGame questions={questions} onComplete={vi.fn()} goBack={vi.fn()} award={vi.fn()} />);
+
+    // Wrong on q0 (wrongStreak → 1). RE_QUEUE moves q0 to end; q1 becomes current.
+    fireEvent.click(screen.getByText('wrong0a'));
+    fireEvent.click(screen.getByText(/Got it/i));
+    // Wrong on q1 (wrongStreak → 2). RE_QUEUE moves q1 to end; q2 becomes current.
+    await waitFor(() => screen.getByText('word1'));
+    fireEvent.click(screen.getByText('wrong1a'));
+    fireEvent.click(screen.getByText(/Got it/i));
+    // Wrong on q2 (wrongStreak → 3) — should fire "struggling"
+    await waitFor(() => screen.getByText('word2'));
+    fireEvent.click(screen.getByText('wrong2a'));
+
+    await waitFor(() => {
+      expect(dispatched.some(e => e.detail?.mood === 'struggling')).toBe(true);
+    });
+
+    cleanup();
+  });
+
+  it('dispatches knight:flash "onfire" after 3 consecutive correct answers', async () => {
+    const questions = makeQuestions(5);
+    const { dispatched, cleanup } = collectFlashEvents();
+
+    render(<McGame questions={questions} onComplete={vi.fn()} goBack={vi.fn()} award={vi.fn()} />);
+
+    // Correct q0 (streak → 1)
+    fireEvent.click(screen.getByText('answer0'));
+    fireEvent.click(screen.getByText(/Next/i));
+    // Correct q1 (streak → 2)
+    await waitFor(() => screen.getByText('word1'));
+    fireEvent.click(screen.getByText('answer1'));
+    fireEvent.click(screen.getByText(/Next/i));
+    // Correct q2 (streak → 3) — should fire "onfire"
+    await waitFor(() => screen.getByText('word2'));
+    fireEvent.click(screen.getByText('answer2'));
+
+    await waitFor(() => {
+      expect(dispatched.some(e => e.detail?.mood === 'onfire')).toBe(true);
+    });
+
+    cleanup();
+  });
+});
