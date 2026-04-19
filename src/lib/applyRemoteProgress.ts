@@ -69,16 +69,32 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
     saveSR(mSR);
   }
 
-  // ── Streak — only restore when Firebase streak is still active ────────────
-  if (fp.streak) {
-    let lSt = { count: 0, last: '' };
+  // ── Streak — Math.max merge: always take the higher count; most-recent last ─
+  // Rationale: mergeStatsFromRemote already does Math.max for stats.str (used by
+  // achievements and Firestore), but uStreak localStorage (used by getStreak() and
+  // buildProgressSnapshot) was only updated when the remote streak was "active" (last
+  // === today/yesterday). That gate caused divergence when two devices had different
+  // activity dates — one device's higher streak count was silently ignored on the other.
+  // Fix: always take Math.max of counts and the most-recent last date, matching the
+  // Math.max policy used for all other numeric stats.
+  if (fp.streak || (fp.stats as Record<string, unknown>)?.str) {
+    let lSt: { count: number; last: string } = { count: 0, last: '' };
     try { lSt = JSON.parse(localStorage.getItem('uStreak') || '{"count":0,"last":""}'); } catch (_) {}
-    const fpLast = fp.streak.last || '';
-    const fpStreakActive = fpLast === today || fpLast === yesterday;
-    if (fpStreakActive && (fp.streak.count || 0) > (lSt.count || 0)) {
-      localStorage.setItem('uStreak', JSON.stringify(fp.streak));
+    const remoteStreak = fp.streak as { count?: number; last?: string } | undefined;
+    // Also consult stats.str (set by mergeStatsFromRemote in _processSnapshot) as a
+    // source of truth — this ensures the streak count from the Firestore top-level
+    // stats field is also respected.
+    const fpCount = Math.max(
+      remoteStreak?.count || 0,
+      ((fp.stats as Record<string, unknown>)?.str as number) || 0
+    );
+    const fpLast = remoteStreak?.last || '';
+    const newCount = Math.max(lSt.count || 0, fpCount);
+    // Take the most-recent "last" date so we never backdate activity
+    const newLast = fpLast > (lSt.last || '') ? fpLast : (lSt.last || '');
+    if (newCount !== lSt.count || newLast !== lSt.last) {
+      localStorage.setItem('uStreak', JSON.stringify({ ...lSt, count: newCount, last: newLast }));
     }
-    // Expired Firebase streaks are never restored — prevents months-old streak appearing active
   }
 
   // ── Streak freeze tokens — Math.max ───────────────────────────────────────

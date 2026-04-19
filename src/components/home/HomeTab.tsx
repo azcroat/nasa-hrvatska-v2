@@ -131,7 +131,14 @@ export default function HomeTab({
    
   const weekXP = useMemo(() => getWeekXP(), [st]);
    
-  const streak = useMemo(() => getStreak(), [st]);
+  const streak = useMemo(() => {
+    const s = getStreak();
+    // st.str is always correctly Math.max-merged from Firestore via mergeStatsFromRemote.
+    // uStreak localStorage may lag behind (e.g. applyRemoteProgress hasn't fired yet, or
+    // the device just came online). Always display the maximum of both sources so the UI
+    // is never lower than what Firebase confirmed.
+    return { ...s, count: Math.max(s.count || 0, st.str || 0) };
+  }, [st]);
    
   const lastActivity = useMemo(() => getLastActivity(), [st]);
   // Track the current calendar day — updates when the app regains visibility so

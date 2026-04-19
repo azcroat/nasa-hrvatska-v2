@@ -42,10 +42,17 @@ export function buildProgressSnapshot({ uid, name, stats, dchlA, dchlSl, favs, j
   const weekXP = parseInt(localStorage.getItem('nh_week_xp_' + _weekKey()) || '0', 10);
   const fbUpdated = (() => { try { const p = gP(uid) as Record<string, unknown> | null; return (p && (p._fbUpdated as number)) || 0; } catch { return 0; } })();
   const cooldown = (() => { try { return JSON.parse(localStorage.getItem('xpCooldown') || '{}'); } catch { return {}; } })();
+  // Ensure stats.str is the maximum of React state and uStreak localStorage.
+  // React state may lag by one render cycle after mergeStatsFromRemote runs.
+  // Without this, a push immediately after a snapshot merge can write a stale
+  // lower str value to the progress blob, causing streak divergence across devices.
+  const _lsStreak = getStreak();
+  const _bestStr = Math.max((stats.str || 0), (_lsStreak.count || 0));
+  const _stats = _bestStr !== (stats.str || 0) ? { ...stats, str: _bestStr } : stats;
 
   return {
     name,
-    stats,
+    stats: _stats,
     cp: true,
     onboarded: localStorage.getItem('onboarded') === 'true',
     savedAt: Date.now(),
