@@ -315,7 +315,10 @@ function getDailyChallenge(){
     const dueWords=getDueReviews();
     if(dueWords.length>0){
       let srsQ=null;
-      const vCats=Object.values(V);
+      // Filter to only array-of-tuple categories — some V entries are arrays of
+      // objects ({hr,en}) which don't have numeric indices; calling .find() on
+      // them would throw TypeError and silently swallow the SRS review.
+      const vCats=Object.values(V).filter(function(c){return Array.isArray(c)&&c.length>0&&Array.isArray(c[0]);});
       for(let di=0;di<dueWords.length&&!srsQ;di++){
         const dueWord=dueWords[di];
         for(let ci=0;ci<vCats.length&&!srsQ;ci++){
