@@ -24,7 +24,7 @@
  *   - vi.useFakeTimers() used for quiz answer setTimeout (1100ms)
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 
 // ── Firebase mock ─────────────────────────────────────────────────────────────
@@ -82,7 +82,7 @@ import SlangScreen from '../components/practice/SlangScreen';
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const AGE_KEY = 'slangAgeConfirmed';
-const VISITED_KEY = 'slangVisited';
+const _VISITED_KEY = 'slangVisited';
 
 function renderScreen(overrides: Record<string, unknown> = {}) {
   const props = { goBack: vi.fn(), award: vi.fn(), ...overrides };

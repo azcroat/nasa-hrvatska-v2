@@ -100,7 +100,7 @@ function clickWrong() {
 }
 
 /** Click "Nazad na izbor" (back to mode selection from done screen). */
-function clickNazadNaIzbor() {
+function _clickNazadNaIzbor() {
   const btn = screen.getAllByRole('button').find(b => b.textContent?.includes('Nazad na izbor'));
   if (!btn) throw new Error('"Nazad na izbor" not found');
   fireEvent.click(btn);

@@ -59,7 +59,7 @@ const STORAGE_KEY = 'nh_custom_words';
 
 const WORD_A = { hr: 'kuća', en: 'house', phonetic: 'KOO-tsa', example: 'Moja kuća.', addedAt: 1000 };
 const WORD_B = { hr: 'pas', en: 'dog', phonetic: '', example: '', addedAt: 2000 };
-const WORD_C = { hr: 'mačka', en: 'cat', phonetic: '', example: '', addedAt: 3000 };
+const _WORD_C = { hr: 'mačka', en: 'cat', phonetic: '', example: '', addedAt: 3000 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 

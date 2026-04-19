@@ -171,13 +171,13 @@ describe('WordFamilies — completion + award guard', () => {
   });
 
   it('markQuest("vocab") is called on completion', () => {
-    const { award } = completeAllQuestions();
+    const { award: _award } = completeAllQuestions();
     fireEvent.click(screen.getByText('🏠 Done'));
     expect(mockMarkQuest).toHaveBeenCalledWith('vocab');
   });
 
   it('markQuest is called exactly once (not per answer)', () => {
-    const { award } = completeAllQuestions();
+    const { award: _award } = completeAllQuestions();
     fireEvent.click(screen.getByText('🏠 Done'));
     expect(mockMarkQuest).toHaveBeenCalledTimes(1);
   });

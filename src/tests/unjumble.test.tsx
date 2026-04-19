@@ -177,7 +177,7 @@ describe('Unjumble — completion + award guard', () => {
   }
 
   it('shows completion screen after finishing all questions', () => {
-    const { props } = renderUnjumble();
+    renderUnjumble();
     buildAnswer(['Ja', 'volim', 'Hrvatsku']);
     fireEvent.click(screen.getByText('Check ✅'));
     fireEvent.click(screen.getByText('Next →'));

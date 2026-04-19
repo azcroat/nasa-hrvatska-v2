@@ -22,7 +22,7 @@
  *   - CroatianKnight, useHaptic, knightSpeak, markPracticed mocked for isolation
  *   - Empty state tests use mockReturnValueOnce([]) to override default
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 

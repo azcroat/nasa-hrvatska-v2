@@ -16,7 +16,7 @@
  * DATA[0] = { q:"___ grešku (to make a mistake)", answer:"napraviti" }.
  * All 25 DATA entries have opts[0] === answer → score=25, award(125).
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 
@@ -204,7 +204,7 @@ describe('CollocationsGame — completion + award guard', () => {
       const nextBtn = container.querySelector('button.b.bp');
       if (nextBtn) fireEvent.click(nextBtn);
     }
-    const award = vi.fn();
+    const _award = vi.fn();
     // Manually re-render won't work here — the guard is in this specific component instance.
     // Test via the finishFired guard: award is a closure over the same ref.
     const doneBtn = container.querySelector('button.b.bp');
