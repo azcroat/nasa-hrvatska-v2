@@ -52,11 +52,17 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
   const haptic = useHaptic();
   const modalRef = useRef(null);
 
-  // Lock body scroll when modal is open
+  // Lock body scroll when modal is open; restore focus to trigger element on close
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
+    const triggerEl = document.activeElement;
+    return () => {
+      document.body.style.overflow = prev;
+      if (triggerEl && typeof (triggerEl as HTMLElement).focus === 'function') {
+        (triggerEl as HTMLElement).focus();
+      }
+    };
   }, []);
 
   // Focus trap
