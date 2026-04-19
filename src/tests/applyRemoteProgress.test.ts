@@ -178,7 +178,11 @@ describe('applyRemoteProgress — streak restore', () => {
     expect(stored.count).toBe(10);
   });
 
-  it('does NOT restore expired streak (3 days ago)', () => {
+  it('takes higher count from remote even when remote streak.last is old (Math.max policy)', () => {
+    // New behaviour: streak count is always Math.max'd regardless of whether the remote
+    // "last" date is recent. This prevents cross-device sync failures where Desktop's
+    // higher count (last = a few days ago) was silently ignored on Mobile.
+    // The "last" date remains the most-recent of the two (local today wins here).
     localStorage.setItem('uStreak', JSON.stringify({ count: 2, last: todayStr() }));
     const setters = makeSetters();
     const threeDaysAgo = new Date();
@@ -186,7 +190,8 @@ describe('applyRemoteProgress — streak restore', () => {
     const expiredDate = threeDaysAgo.toISOString().slice(0, 10);
     applyRemoteProgress({ streak: { count: 30, last: expiredDate } }, setters);
     const stored = JSON.parse(localStorage.getItem('uStreak') || '{}');
-    expect(stored.count).toBe(2); // local unchanged
+    expect(stored.count).toBe(30); // remote count wins (Math.max)
+    expect(stored.last).toBe(todayStr()); // local last wins (more recent)
   });
 
   it('does NOT restore lower streak over higher local streak', () => {

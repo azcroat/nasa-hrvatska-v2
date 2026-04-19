@@ -188,33 +188,63 @@ export function useSyncManager({
 
     let _initialPushDone = false;
 
-    const unsub = fbWatchProgress(uid, (fp: Record<string, unknown>, fpTs: number) => {
-      if (setSyncReady) setSyncReady(true);
-      _syncFailCount.current = 0;
-      setSyncError(false);
-      setSyncErrorCode('');
-      if (!_initialPushDone) {
-        _initialPushDone = true;
-        // Guard: only push local data if it is STRICTLY NEWER than what Firebase just
-        // delivered. The Firestore SDK fires onSnapshot from its IndexedDB cache before
-        // the server responds — that cached snapshot can be stale (from the last session
-        // on THIS device). If we blindly push 1 s later we can overwrite fresher progress
-        // that another device (e.g. Mobile) already saved to Firebase.
-        // Only push when the local savedAt timestamp post-dates the Firebase _fbUpdated
-        // timestamp, which means the user accumulated real progress offline on this device.
-        const localSnap = gP(uid) as { savedAt?: number } | null;
-        const localSavedAt = (localSnap?.savedAt) || 0;
-        if (localSavedAt > (fpTs || 0)) {
-          // Local progress is genuinely newer — push it so offline work is not lost.
-          setTimeout(() => doSyncNow(), 500);
-        }
-        // Otherwise: Firebase is equal or newer. No push needed on startup.
-        // The 60 s periodic sync + pagehide handler will pick up any new activity.
+    // Reconnect helper — called when the Firestore watcher errors (permissions,
+    // network drop, etc.). Exponential backoff: 5s, 10s, 20s, 40s, 60s cap.
+    let _reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    let _reconnectAttempts = 0;
+    const startWatcher = (): void => {
+      if (_watcherUnsubRef.current) {
+        try { _watcherUnsubRef.current(); } catch (_) {}
+        _watcherUnsubRef.current = null;
       }
-      if (!fp) return;
-      enqueueSnapshot(fp, fpTs, uid);
-    });
-    _watcherUnsubRef.current = unsub;
+      const unsub = fbWatchProgress(
+        uid,
+        (fp: Record<string, unknown>, fpTs: number) => {
+          _reconnectAttempts = 0; // reset on success
+          if (setSyncReady) setSyncReady(true);
+          _syncFailCount.current = 0;
+          setSyncError(false);
+          setSyncErrorCode('');
+          if (!_initialPushDone) {
+            _initialPushDone = true;
+            // Guard: only push local data if it is STRICTLY NEWER than what Firebase just
+            // delivered. The Firestore SDK fires onSnapshot from its IndexedDB cache before
+            // the server responds — that cached snapshot can be stale (from the last session
+            // on THIS device). If we blindly push 1 s later we can overwrite fresher progress
+            // that another device (e.g. Mobile) already saved to Firebase.
+            // Only push when the local savedAt timestamp post-dates the Firebase _fbUpdated
+            // timestamp, which means the user accumulated real progress offline on this device.
+            const localSnap = gP(uid) as { savedAt?: number } | null;
+            const localSavedAt = (localSnap?.savedAt) || 0;
+            if (localSavedAt > (fpTs || 0)) {
+              // Local progress is genuinely newer — push it so offline work is not lost.
+              // 800ms delay ensures applyRemoteProgress has run (microtask) before we build
+              // the progress snapshot, so getStreak() returns the Firebase-merged value.
+              setTimeout(() => doSyncNow(), 800);
+            }
+            // Otherwise: Firebase is equal or newer. No push needed on startup.
+            // The 60 s periodic sync + pagehide handler will pick up any new activity.
+          }
+          if (!fp) return;
+          enqueueSnapshot(fp, fpTs, uid);
+        },
+        (err: Error) => {
+          // Watcher errored — schedule a reconnect with exponential backoff
+          console.warn('[sync] Firestore watcher error — scheduling reconnect:', err?.message);
+          _syncFailCount.current++;
+          setSyncError(true);
+          setSyncErrorCode((err as { code?: string })?.code || 'WATCHER_ERROR');
+          _reconnectAttempts++;
+          const delay = Math.min(5000 * Math.pow(2, _reconnectAttempts - 1), 60000);
+          if (_reconnectTimer) clearTimeout(_reconnectTimer);
+          _reconnectTimer = setTimeout(() => {
+            startWatcher();
+          }, delay);
+        },
+      );
+      _watcherUnsubRef.current = unsub;
+    };
+    startWatcher();
 
     const fetchAndEnqueue = async (): Promise<void> => {
       try {
@@ -255,8 +285,11 @@ export function useSyncManager({
     window.addEventListener('pageshow', onPageShow);
     window.addEventListener('online', onOnline);
     return () => {
-      unsub();
-      _watcherUnsubRef.current = null;
+      if (_reconnectTimer) clearTimeout(_reconnectTimer);
+      if (_watcherUnsubRef.current) {
+        try { _watcherUnsubRef.current(); } catch (_) {}
+        _watcherUnsubRef.current = null;
+      }
       document.removeEventListener('visibilitychange', iosWakeUp);
       window.removeEventListener('pageshow', onPageShow);
       window.removeEventListener('online', onOnline);

@@ -169,7 +169,9 @@ export async function fbSaveProgress(uid: string, data: Record<string, unknown>)
   const _CEFR_NUM: Record<string, number> = { A1: 1, A2: 2, B1: 3, B2: 4, C1: 5, C2: 6 };
   const _lvl = (typeof _lvlRaw === 'number' && _lvlRaw >= 1) ? _lvlRaw : (_CEFR_NUM[_lvlRaw as string] || 1);
   const _nowMs = Date.now();
-  const _cachedP = gP(id) as Record<string, unknown> | null;
+  // useSyncManager and doSyncNow write with the raw uid key ('uP_' + uid).
+  // Try raw uid first, fall back to toDocId key for legacy snapshots.
+  const _cachedP = (gP(uid) || gP(id)) as Record<string, unknown> | null;
   const _cachedSt = (_cachedP && ((_cachedP.stats || _cachedP.st) as Record<string, unknown>)) || {};
   const _bestXP = Math.max((_st.xp as number) || 0, (_cachedSt.xp as number) || 0);
   const _bestLC = Math.max((_st.lc as number) || 0, (_cachedSt.lc as number) || 0);
@@ -714,7 +716,11 @@ export async function fbExportUserData(uid: string): Promise<Record<string, unkn
   } catch (err) { console.error('fbExportUserData failed:', err); throw err; }
 }
 
-export function fbWatchProgress(uid: string, callback: (progress: Record<string, unknown>, updatedAt: number) => void): () => void {
+export function fbWatchProgress(
+  uid: string,
+  callback: (progress: Record<string, unknown>, updatedAt: number) => void,
+  onError?: (err: Error) => void,
+): () => void {
   if (!_fbReady || !_fbDb) return () => {};
   const id = toDocId(uid);
   return onSnapshot(
@@ -767,7 +773,10 @@ export function fbWatchProgress(uid: string, callback: (progress: Record<string,
         callback(p, p._fbUpdated as number);
       } catch (e) { console.warn('fbWatchProgress parse error:', e); }
     },
-    function (err) { console.warn('fbWatchProgress error:', err); }
+    function (err) {
+      console.warn('fbWatchProgress error:', err);
+      if (onError) onError(err as Error);
+    },
   );
 }
 
