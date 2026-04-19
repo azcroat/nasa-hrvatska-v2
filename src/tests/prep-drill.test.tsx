@@ -17,7 +17,7 @@
  * PREPDRILL[0] = { sentence:"Živim ___ Zagrebu.", opts:["u","na","s","iz"], answer:"u", en:"I live in Zagreb." }.
  * All 15 PREPDRILL entries have opts[0] === answer → score=15, award(75).
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 

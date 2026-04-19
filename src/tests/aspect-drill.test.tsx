@@ -113,7 +113,7 @@ function renderAspectDrill(overrides = {}) {
 }
 
 /** Returns option buttons — filtering out navigation, control, and feedback buttons. */
-function getOptionButtons() {
+function _getOptionButtons() {
   return screen.queryAllByRole('button').filter(btn => {
     const t = btn.textContent ?? '';
     return !['Back', '← Back to Drill', '6 Rules', 'Mistakes only', 'Retry', 'Finish', 'Drill Mistakes'].some(k => t.includes(k))

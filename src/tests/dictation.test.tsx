@@ -21,7 +21,7 @@
  *
  * Completion: requires 20 question cycles — not tested here (E2E scope).
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 

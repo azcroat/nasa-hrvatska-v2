@@ -23,7 +23,7 @@
  *
  * PronunciationScorer is mocked to null (uses Web Speech API unavailable in jsdom).
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 

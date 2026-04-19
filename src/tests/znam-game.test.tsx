@@ -133,7 +133,7 @@ describe('ZnamGame — quiz mechanics', () => {
   });
 
   it('renders 4 option buttons in quiz mode', () => {
-    const { award } = enterQuizMode();
+    const { award: _award } = enterQuizMode();
     // Four Croatian option buttons should appear
     const opts = screen.getAllByRole('button').filter(b =>
       ['Zdravo', 'Dobar dan', 'Hvala', 'Doviđenja'].includes(b.textContent ?? '')

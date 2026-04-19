@@ -302,7 +302,7 @@ describe('VocativeScreen — done screen + award guard', () => {
 
 describe('VocativeScreen — navigation', () => {
   it('goBack is called when ✓ Done is clicked on completion screen', () => {
-    const { award, goBack } = completeAllQuestions();
+    const { award: _award, goBack } = completeAllQuestions();
     fireEvent.click(screen.getByText('✓ Done'));
     expect(goBack).toHaveBeenCalledTimes(1);
   });
