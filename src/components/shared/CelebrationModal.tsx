@@ -122,9 +122,13 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
     // Extend auto-close to 7s to give time for difficulty rating interaction.
     // Show momentum banner for 3s, then clear state before calling onClose so
     // setShowMomentum(false) never fires on an unmounted component.
+    // t3 is the inner timer created inside t2's callback — must be tracked so it
+    // can be cleared if the user manually closes the modal before t3 fires,
+    // preventing a double onClose() call and a setState-after-unmount warning.
+    let t3: ReturnType<typeof setTimeout>;
     const t2 = setTimeout(() => {
       setShowMomentum(true);
-      setTimeout(() => {
+      t3 = setTimeout(() => {
         setShowMomentum(false);
         onClose();
       }, 3000);
@@ -135,6 +139,7 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
       cancelAnimationFrame(rafId);
       clearTimeout(t1);
       clearTimeout(t2);
+      clearTimeout(t3);
     };
   }, [onClose, xp]);
 

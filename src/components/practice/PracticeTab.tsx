@@ -68,7 +68,7 @@ export default function PracticeTab({
 
   // Memoized so event handlers always get a stable array reference without
   // recomputing the flatMap on every parent render.
-  const pool = useMemo(() => allCats.flatMap(cc => V[cc]), [allCats]);
+  const pool = useMemo(() => allCats.flatMap(cc => V[cc] || []), [allCats]);
 
   function startQuiz() {
     const items = sh(pool).slice(0,20).map(w => { const wr=sh(pool.filter(x=>x[1]!==w[1])).slice(0,3).map(x=>x[1]); return{hr:w[0],en:w[1],ph:w[2],opts:sh([w[1]].concat(wr)),correct:w[1]}; });
