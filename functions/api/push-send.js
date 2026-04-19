@@ -17,7 +17,105 @@ import { checkRateLimit } from './_rateLimit.js';
 import { getFirebaseUid } from './_verifyToken.js';
 import { corsHeaders, isAllowedOrigin, ok, err } from './_helpers.js';
 
-// ── VAPID JWT + raw Web Push send (no npm dependency) ─────────────────────────
+// ── RFC 8291 payload encryption (ECDH + AES-128-GCM) ─────────────────────────
+// Web Push services require encrypted payloads when the subscription includes keys.
+// Two-stage HKDF derivation:
+//   Stage 1 — combine ECDH shared secret with auth secret into IKM
+//   Stage 2 — derive CEK (16 bytes) and nonce (12 bytes) from IKM using a random salt
+
+function b64uDecode(str) {
+  const b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+  const pad = b64.padEnd(b64.length + (4 - b64.length % 4) % 4, '=');
+  return Uint8Array.from(atob(pad), c => c.charCodeAt(0));
+}
+
+function concatBytes(...arrays) {
+  const total = arrays.reduce((n, a) => n + a.length, 0);
+  const out = new Uint8Array(total);
+  let off = 0;
+  for (const a of arrays) { out.set(a, off); off += a.length; }
+  return out;
+}
+
+async function encryptPayload(plaintextBytes, subscription) {
+  const uaPublicBytes  = b64uDecode(subscription.keys.p256dh);
+  const authSecret     = b64uDecode(subscription.keys.auth);
+
+  // Generate ephemeral P-256 key pair (Application Server)
+  const asKeyPair = await crypto.subtle.generateKey(
+    { name: 'ECDH', namedCurve: 'P-256' },
+    true,
+    ['deriveBits'],
+  );
+  const asPublicBytes = new Uint8Array(
+    await crypto.subtle.exportKey('raw', asKeyPair.publicKey),
+  );
+
+  // Import user-agent public key for ECDH
+  const uaPublicKey = await crypto.subtle.importKey(
+    'raw',
+    uaPublicBytes,
+    { name: 'ECDH', namedCurve: 'P-256' },
+    false,
+    [],
+  );
+
+  // ECDH shared secret (32 bytes)
+  const ecdhBits = await crypto.subtle.deriveBits(
+    { name: 'ECDH', public: uaPublicKey },
+    asKeyPair.privateKey,
+    256,
+  );
+  const ecdhSecret = new Uint8Array(ecdhBits);
+
+  // Stage 1: IKM = HKDF(salt=auth_secret, IKM=ecdh_secret,
+  //                     info="WebPush: info\x00" + uaPublic + asPublic, L=32)
+  const ikmMaterial = await crypto.subtle.importKey('raw', ecdhSecret, 'HKDF', false, ['deriveBits']);
+  const keyInfo = concatBytes(
+    new TextEncoder().encode('WebPush: info\x00'),
+    uaPublicBytes,
+    asPublicBytes,
+  );
+  const ikm = new Uint8Array(await crypto.subtle.deriveBits(
+    { name: 'HKDF', hash: 'SHA-256', salt: authSecret, info: keyInfo },
+    ikmMaterial,
+    256,
+  ));
+
+  // Stage 2: derive CEK and nonce from IKM using a random 16-byte salt
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const ikmKey = await crypto.subtle.importKey('raw', ikm, 'HKDF', false, ['deriveBits']);
+
+  const cek = new Uint8Array(await crypto.subtle.deriveBits(
+    { name: 'HKDF', hash: 'SHA-256', salt, info: new TextEncoder().encode('Content-Encoding: aes128gcm\x00\x01') },
+    ikmKey,
+    128,
+  ));
+  const nonce = new Uint8Array(await crypto.subtle.deriveBits(
+    { name: 'HKDF', hash: 'SHA-256', salt, info: new TextEncoder().encode('Content-Encoding: nonce\x00\x01') },
+    ikmKey,
+    96,
+  ));
+
+  // Encrypt: AES-128-GCM(plaintext + 0x02 padding delimiter)
+  const aesKey = await crypto.subtle.importKey('raw', cek, { name: 'AES-GCM' }, false, ['encrypt']);
+  const ciphertext = new Uint8Array(await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv: nonce },
+    aesKey,
+    concatBytes(plaintextBytes, new Uint8Array([0x02])), // 0x02 = last-record delimiter (RFC 8188)
+  ));
+
+  // Build aes128gcm content-coding header: salt(16) + rs(4, BE) + keyIDLen(1) + keyID(65)
+  const header = new Uint8Array(16 + 4 + 1 + 65);
+  header.set(salt, 0);
+  new DataView(header.buffer).setUint32(16, 4096, false); // record size
+  header[20] = 65;                                         // key ID length
+  header.set(asPublicBytes, 21);
+
+  return concatBytes(header, ciphertext);
+}
+
+// ── VAPID JWT + Web Push send ─────────────────────────────────────────────────
 async function sendWebPush(subscription, payload, env) {
   const VAPID_PRIVATE = env.VAPID_PRIVATE_KEY;
   const VAPID_PUBLIC  = env.VAPID_PUBLIC_KEY;
@@ -39,36 +137,50 @@ async function sendWebPush(subscription, payload, env) {
   const sigInput = `${jwtHeader}.${jwtPayload}`;
 
   // Import VAPID private key (PKCS8 DER, base64url-encoded)
-  const keyBytes = Uint8Array.from(
-    atob(VAPID_PRIVATE.replace(/-/g, '+').replace(/_/g, '/')),
-    c => c.charCodeAt(0)
-  );
+  const keyBytes = b64uDecode(VAPID_PRIVATE);
   const cryptoKey = await crypto.subtle.importKey(
     'pkcs8',
     keyBytes.buffer,
     { name: 'ECDSA', namedCurve: 'P-256' },
     false,
-    ['sign']
+    ['sign'],
   );
 
   const sigBytes = await crypto.subtle.sign(
     { name: 'ECDSA', hash: 'SHA-256' },
     cryptoKey,
-    new TextEncoder().encode(sigInput)
+    new TextEncoder().encode(sigInput),
   );
   const sig = btoa(String.fromCharCode(...new Uint8Array(sigBytes)))
     .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 
   const token = `${sigInput}.${sig}`;
 
+  // Encrypt payload when the subscription includes encryption keys (RFC 8291).
+  // All modern browser PushManager subscriptions include keys — unencrypted pushes
+  // are rejected with 400 by Chrome (FCM) and Firefox push services.
+  let body;
+  const pushHeaders = {
+    'Authorization': `vapid t=${token},k=${VAPID_PUBLIC}`,
+    'TTL': '86400',
+  };
+
+  if (subscription.keys?.p256dh && subscription.keys?.auth) {
+    const plaintextBytes = new TextEncoder().encode(JSON.stringify(payload));
+    body = await encryptPayload(plaintextBytes, subscription);
+    pushHeaders['Content-Type']     = 'application/octet-stream';
+    pushHeaders['Content-Encoding'] = 'aes128gcm';
+  } else {
+    // No encryption keys — send without a body so the service worker
+    // shows a generic notification on the push event.
+    body = null;
+    pushHeaders['Content-Length'] = '0';
+  }
+
   const res = await fetch(subscription.endpoint, {
     method: 'POST',
-    headers: {
-      'Authorization': `vapid t=${token},k=${VAPID_PUBLIC}`,
-      'Content-Type':  'application/json',
-      'TTL':           '86400',
-    },
-    body: JSON.stringify(payload),
+    headers: pushHeaders,
+    body,
     signal: AbortSignal.timeout(10000),
   });
 
