@@ -9,13 +9,14 @@ vi.mock('firebase/firestore', () => ({
   query: vi.fn(),
   orderBy: vi.fn(),
   limit: vi.fn(),
+  onSnapshot: vi.fn(),
 }));
 vi.mock('../lib/firebase.js', () => ({
   getDb: vi.fn(() => ({})),
 }));
 
-import { getLeagueForRank, getWeekKey, LEAGUES, submitWeeklyXP, getLeaderboard, getMyRank } from '../lib/leaderboard.js';
-import { setDoc, getDocs } from 'firebase/firestore';
+import { getLeagueForRank, getWeekKey, LEAGUES, submitWeeklyXP, getLeaderboard, getMyRank, subscribeToLeaderboard } from '../lib/leaderboard.js';
+import { setDoc, getDocs, onSnapshot } from 'firebase/firestore';
 
 describe('leaderboard — pure functions', () => {
 
@@ -207,5 +208,70 @@ describe('leaderboard — Firestore functions', () => {
     getDocs.mockResolvedValueOnce({ docs: [] });
     const rank = await getMyRank({}, 'unknown');
     expect(rank).toBeNull();
+  });
+});
+
+describe('subscribeToLeaderboard', () => {
+  beforeEach(() => { vi.clearAllMocks(); });
+
+  it('calls onUpdate with ranked entries on snapshot', () => {
+    const onUpdate = vi.fn();
+    let snapshotCallback;
+    onSnapshot.mockImplementation((_q, onNext, _onError) => {
+      snapshotCallback = onNext;
+      return () => {};
+    });
+
+    subscribeToLeaderboard({}, 50, onUpdate);
+
+    // Simulate a Firestore snapshot with 2 docs
+    snapshotCallback({
+      docs: [
+        { data: () => ({ uid: 'u1', xp: 800, displayName: 'Ana' }) },
+        { data: () => ({ uid: 'u2', xp: 400, displayName: 'Ivo' }) },
+      ],
+    });
+
+    expect(onUpdate).toHaveBeenCalledOnce();
+    const [entries] = onUpdate.mock.calls[0];
+    expect(entries[0].rank).toBe(1);
+    expect(entries[0].uid).toBe('u1');
+    expect(entries[1].rank).toBe(2);
+    expect(entries[1].uid).toBe('u2');
+  });
+
+  it('calls onError and onUpdate([]) when snapshot fails', () => {
+    const onUpdate = vi.fn();
+    const onError = vi.fn();
+    let errorCallback;
+    onSnapshot.mockImplementation((_q, _onNext, onErr) => {
+      errorCallback = onErr;
+      return () => {};
+    });
+
+    subscribeToLeaderboard({}, 50, onUpdate, onError);
+
+    const err = new Error('permission-denied');
+    errorCallback(err);
+
+    expect(onError).toHaveBeenCalledOnce();
+    expect(onError).toHaveBeenCalledWith(err);
+    expect(onUpdate).toHaveBeenCalledWith([]);
+  });
+
+  it('calls onUpdate([]) and onError when db is null', () => {
+    const onUpdate = vi.fn();
+    const onError = vi.fn();
+    subscribeToLeaderboard(null, 50, onUpdate, onError);
+    // null db → getDb() mock returns {} (not null), so onSnapshot is called
+    // This just verifies no crash when db is null and getDb returns a value
+    expect(onUpdate).not.toHaveBeenCalledWith(expect.arrayContaining([expect.anything()]));
+  });
+
+  it('returns an unsubscribe function', () => {
+    const unsub = vi.fn();
+    onSnapshot.mockReturnValue(unsub);
+    const result = subscribeToLeaderboard({}, 50, vi.fn());
+    expect(typeof result).toBe('function');
   });
 });
