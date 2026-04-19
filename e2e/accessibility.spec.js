@@ -259,10 +259,13 @@ test.describe('Accessibility — keyboard navigation', () => {
       timeout: 15_000,
     });
 
-    // Focus the seg-bar area and verify the pills are tab-stops
+    // Focus the seg-bar area and verify the pills are tab-stops.
+    // Use toBeFocused() instead of page.evaluate() — the latter throws
+    // "Execution context was destroyed" if any async re-render/SW update
+    // causes a navigation between focus() and evaluate().
     const firstPill = page.locator('.seg-bar .seg-pill').first();
+    await expect(firstPill).toBeVisible({ timeout: 5_000 });
     await firstPill.focus();
-    const tagName = await page.evaluate(() => document.activeElement?.tagName?.toLowerCase());
-    expect(tagName).toBe('button');
+    await expect(firstPill).toBeFocused();
   });
 });
