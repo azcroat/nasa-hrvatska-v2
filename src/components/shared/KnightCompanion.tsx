@@ -20,6 +20,7 @@ const _isNative = typeof window !== 'undefined' &&
 import { useApp } from '../../context/AppContext';
 import { getStreak } from '../../data';
 import { dbgInfo } from '../../lib/debugLog';
+import { knightSpeak } from '../../lib/knightSpeak';
 
 // ── Mood → accent colour ──────────────────────────────────────────────────────
 const MOOD_COLOR = {
@@ -31,6 +32,14 @@ const MOOD_COLOR = {
   encouraged:  '#16a34a',
   ready:       '#1d4ed8',
   neutral:     '#64748b',
+  oops:        '#dc2626',
+  struggling:  '#94a3b8',
+  onfire:      '#d97706',
+  tearsofjoy:  '#3b82f6',
+  levelup:     '#b45309',
+  winking:     '#1d4ed8',
+  proud:       '#16a34a',
+  worried:     '#64748b',
 };
 
 // ── Screen → appropriate knight mood ─────────────────────────────────────────
@@ -158,6 +167,8 @@ export default function KnightCompanion() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const [flashMood, setFlashMood]    = useState<string | null>(null);
+  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [bubble, setBubble]         = useState(null); // { mood, text }
   const [showBubble, setShowBubble] = useState(false);
   const [celebBurst, setCelebBurst] = useState(false);
@@ -186,10 +197,11 @@ export default function KnightCompanion() {
   const streakCount = getStreak()?.count || 0;
   const streakMood = getStreakMood(streakCount);
 
-  // Final mood priority: glancing > bubble mood > screen mood > streak mood > 'ready'
-  const displayMood = glancing
-    ? 'glancing'
-    : bubble?.mood || screenMood || streakMood || 'ready';
+  // Priority: flash (highest) > glancing > bubble mood > screen mood > streak > ready
+  const displayMood = flashMood
+    ?? (glancing
+      ? 'glancing'
+      : bubble?.mood || screenMood || streakMood || 'ready');
 
   // ── Listen for knight:speak events dispatched by screens ─────────────────
   useEffect(() => {
@@ -205,6 +217,30 @@ export default function KnightCompanion() {
       window.removeEventListener('knight:speak', handler);
       clearTimeout(timerRef.current);
     };
+  }, []);
+
+  // ── Silent face flash — knight:flash ─────────────────────────────────────
+  useEffect(() => {
+    const handle = (e: Event) => {
+      const { mood, durationMs } = (e as CustomEvent).detail;
+      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+      setFlashMood(mood);
+      flashTimerRef.current = setTimeout(() => setFlashMood(null), durationMs);
+    };
+    window.addEventListener('knight:flash', handle);
+    return () => {
+      window.removeEventListener('knight:flash', handle);
+      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+    };
+  }, []);
+
+  // ── Quest completion — proud milestone ───────────────────────────────────
+  useEffect(() => {
+    const handle = () => {
+      knightSpeak('proud', 'Ponosan sam na tebe! 🏅');
+    };
+    window.addEventListener('knight:quest-done', handle);
+    return () => window.removeEventListener('knight:quest-done', handle);
   }, []);
 
   useEffect(() => {
@@ -291,7 +327,7 @@ export default function KnightCompanion() {
     <>
       {/* ── Floating speech bubble ── */}
       <AnimatePresence>
-        {showBubble && bubble && (
+        {showBubble && bubble && !flashMood && (
           <motion.div
             key="companion-bubble"
             initial={_isNative ? false : { opacity: 0, y: 10, scale: 0.9 }}
