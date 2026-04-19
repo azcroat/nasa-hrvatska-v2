@@ -90,8 +90,10 @@ Include 5-6 key vocabulary items. Keep facts accurate.`;
 
   const userContent = `Title: ${String(article.title || '').slice(0, 200)}\nText: ${String(article.description || '').slice(0, 800)}`;
 
+  // Block 1: fetch
+  let res;
   try {
-    const res = await fetch(ANTHROPIC_URL, {
+    res = await fetch(ANTHROPIC_URL, {
       method: "POST",
       headers: { "x-api-key": anthropicKey, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
       signal: AbortSignal.timeout(20000),
@@ -102,14 +104,40 @@ Include 5-6 key vocabulary items. Keep facts accurate.`;
         messages: [{ role: "user", content: userContent }],
       }),
     });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const raw = data.content?.[0]?.text || "";
-    const parsed = JSON.parse(raw);
-    return { ...article, ...parsed, level: safeLevel };
-  } catch {
+  } catch (fetchErr) {
+    console.error('news.js: simplifyArticle network error:', fetchErr.message);
     return null;
   }
+
+  // Block 2: read body
+  let rawBody;
+  try {
+    rawBody = await res.text();
+  } catch (bodyErr) {
+    console.error('news.js: simplifyArticle failed to read Anthropic response body:', bodyErr.message);
+    return null;
+  }
+
+  // Block 3: check ok
+  if (!res.ok) {
+    let errMsg;
+    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* not JSON */ }
+    console.error('news.js: simplifyArticle Anthropic API error', res.status, errMsg);
+    return null;
+  }
+
+  // Block 4: parse JSON
+  let data;
+  try {
+    data = JSON.parse(rawBody);
+  } catch {
+    console.error('news.js: simplifyArticle JSON parse failed:', rawBody.slice(0, 200));
+    return null;
+  }
+
+  const raw = data.content?.[0]?.text || "";
+  const parsed = JSON.parse(raw);
+  return { ...article, ...parsed, level: safeLevel };
 }
 
 export async function onRequestOptions({ request }) {
