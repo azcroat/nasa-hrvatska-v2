@@ -30,6 +30,7 @@ export default class ScreenErrorBoundary extends React.Component {
       return (
         <div
           role="alert"
+          data-testid="screen-error-boundary"
           style={{
             padding: '40px 20px 48px',
             textAlign: 'center',
