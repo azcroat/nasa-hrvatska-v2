@@ -566,24 +566,28 @@ export async function onRequestPost(context) {
   if (mode === "explain") {
     const topic = sanitizeParam(params?.topic || "Croatian grammar", 80);
     const systemPrompt = buildExplainPrompt(params || {});
+    let explainRes;
     try {
-      const res = await fetch(ANTHROPIC_URL, {
+      explainRes = await fetch(ANTHROPIC_URL, {
         method: "POST",
         headers: { "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
         signal: AbortSignal.timeout(20000),
         body: JSON.stringify({ model: MODEL, max_tokens: 1200, system: systemPrompt, messages: [{ role: "user", content: `Explain: ${topic}` }] }),
       });
-      if (!res.ok) return err(res.status, "Upstream error", origin);
-      const data = await res.json();
-      const raw = data.content?.[0]?.text || "";
-      try {
-        const parsed = JSON.parse(raw);
-        return new Response(JSON.stringify(parsed), { status: 200, headers: corsHeaders(origin) });
-      } catch {
-        return err(500, "Generation failed", origin);
-      }
     } catch {
-      return err(500, "Request failed", origin);
+      return err(502, "Service temporarily unavailable", origin);
+    }
+    let explainBody;
+    try { explainBody = await explainRes.text(); } catch { return err(502, "Service temporarily unavailable", origin); }
+    if (!explainRes.ok) return err(explainRes.status >= 500 ? 502 : explainRes.status, "Upstream error", origin);
+    let explainData;
+    try { explainData = JSON.parse(explainBody); } catch { return err(500, "Generation failed", origin); }
+    const raw = explainData.content?.[0]?.text || "";
+    try {
+      const parsed = JSON.parse(raw);
+      return new Response(JSON.stringify(parsed), { status: 200, headers: corsHeaders(origin) });
+    } catch {
+      return err(500, "Generation failed", origin);
     }
   }
 
@@ -593,8 +597,9 @@ export async function onRequestPost(context) {
     const systemPrompt = buildSystemPrompt(mode, params);
     if (!systemPrompt) return err(400, "Unknown mode: " + mode, origin);
     const userContent = (messages && messages[0]?.content) ? String(messages[0].content).slice(0, 2000) : "Generate content";
+    let singleRes;
     try {
-      const res = await fetch(ANTHROPIC_URL, {
+      singleRes = await fetch(ANTHROPIC_URL, {
         method: "POST",
         headers: { "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
         signal: AbortSignal.timeout(20000),
@@ -605,19 +610,22 @@ export async function onRequestPost(context) {
           messages: [{ role: "user", content: userContent }],
         }),
       });
-      if (!res.ok) return err(res.status, "Upstream error", origin);
-      const data = await res.json();
-      const raw = data.content?.[0]?.text || "";
-      // Try to return parsed JSON for these structured modes
-      try {
-        const parsed = JSON.parse(raw);
-        return new Response(JSON.stringify({ ...parsed, _raw: raw, model: MODEL }), { status: 200, headers: corsHeaders(origin) });
-      } catch {
-        return ok({ text: raw, model: MODEL }, origin);
-      }
     } catch (fetchErr) {
       console.error("Network error calling Anthropic:", fetchErr.message);
       return err(502, "Service temporarily unavailable", origin);
+    }
+    let singleBody;
+    try { singleBody = await singleRes.text(); } catch { return err(502, "Service temporarily unavailable", origin); }
+    if (!singleRes.ok) return err(singleRes.status >= 500 ? 502 : singleRes.status, "Upstream error", origin);
+    let singleData;
+    try { singleData = JSON.parse(singleBody); } catch { return err(502, "Invalid response from AI", origin); }
+    const raw = singleData.content?.[0]?.text || "";
+    // Try to return parsed JSON for these structured modes
+    try {
+      const parsed = JSON.parse(raw);
+      return new Response(JSON.stringify({ ...parsed, _raw: raw, model: MODEL }), { status: 200, headers: corsHeaders(origin) });
+    } catch {
+      return ok({ text: raw, model: MODEL }, origin);
     }
   }
 
@@ -662,7 +670,7 @@ export async function onRequestPost(context) {
     messages: anthropicMsgs,
   };
 
-  let res, data;
+  let res;
   try {
     res = await fetch(ANTHROPIC_URL, {
       method: "POST",
@@ -674,16 +682,34 @@ export async function onRequestPost(context) {
       signal: AbortSignal.timeout(28000),
       body: JSON.stringify(payload),
     });
-    data = await res.json();
   } catch (fetchErr) {
     console.error("Network error calling Anthropic:", fetchErr.message);
     return err(502, "Service temporarily unavailable", origin);
   }
 
+  let rawBody;
+  try {
+    rawBody = await res.text();
+  } catch (bodyErr) {
+    console.error("ai-chat.js: failed to read response body:", bodyErr.message);
+    return err(502, "Service temporarily unavailable", origin);
+  }
+
   if (!res.ok) {
+    let errMsg;
+    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* not JSON */ }
+    console.error("ai-chat.js: Anthropic API error", res.status, errMsg);
     const isProduction = (env.ENVIRONMENT || 'production') !== 'development';
-    const clientMsg = isProduction ? 'AI service temporarily unavailable' : (data?.error?.message || ('Anthropic API error: HTTP ' + res.status));
-    return err(res.status, clientMsg, origin);
+    const clientMsg = isProduction ? 'AI service temporarily unavailable' : (errMsg || ('Anthropic API error: HTTP ' + res.status));
+    return err(res.status >= 500 ? 502 : res.status, clientMsg, origin);
+  }
+
+  let data;
+  try {
+    data = JSON.parse(rawBody);
+  } catch {
+    console.error("ai-chat.js: JSON parse failed:", rawBody.slice(0, 200));
+    return err(502, "Invalid response from AI", origin);
   }
 
   const text = data?.content?.[0]?.text?.trim() || "";
