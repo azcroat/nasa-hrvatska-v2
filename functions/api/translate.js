@@ -56,7 +56,35 @@ export async function onRequestPost(context) {
       throw fetchErr; // re-throw so outer catch handles it cleanly
     }
 
-    const data = await upstream.json();
+    // Read body as text first — non-2xx responses may return plain-text or HTML error
+    // pages, and calling upstream.json() on those throws a parse error that falls into
+    // the outer catch and hides the real HTTP status.
+    let rawBody;
+    try {
+      rawBody = await upstream.text();
+    } catch (bodyErr) {
+      console.error('[translate] failed to read upstream response body:', bodyErr.message);
+      return new Response(JSON.stringify({ error: 'server_error' }), {
+        status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+      });
+    }
+
+    if (!upstream.ok) {
+      console.error('[translate] upstream HTTP error', upstream.status, rawBody.slice(0, 200));
+      return new Response(JSON.stringify({ error: 'unavailable' }), {
+        status: 502, headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+      });
+    }
+
+    let data;
+    try {
+      data = JSON.parse(rawBody);
+    } catch {
+      console.error('[translate] JSON parse failed:', rawBody.slice(0, 200));
+      return new Response(JSON.stringify({ error: 'unavailable' }), {
+        status: 502, headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+      });
+    }
 
     if (data.responseStatus === 200 && data.responseData?.translatedText) {
       return new Response(JSON.stringify({ translation: data.responseData.translatedText }), {
