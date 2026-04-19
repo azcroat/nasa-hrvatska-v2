@@ -804,7 +804,9 @@ export async function onRequestPost(context) {
   }
 
   // ── Call Anthropic ──
-  let res, data;
+
+  // Block 1: fetch — catches network errors only
+  let res;
   try {
     res = await fetch(ANTHROPIC_URL, {
       method: "POST",
@@ -821,15 +823,35 @@ export async function onRequestPost(context) {
         messages: merged,
       }),
     });
-    data = await res.json();
   } catch (fetchErr) {
     console.error("maja.js: network error calling Anthropic:", fetchErr.message);
     return err(502, "Service temporarily unavailable", origin);
   }
 
+  // Block 2: read body — catches body-read failures
+  let rawBody;
+  try {
+    rawBody = await res.text();
+  } catch (bodyErr) {
+    console.error("maja.js: failed to read response body:", bodyErr.message);
+    return err(502, "Service temporarily unavailable", origin);
+  }
+
+  // Block 3: check res.ok — map errors to client-safe responses
   if (!res.ok) {
-    console.error("maja.js: Anthropic API error", res.status, data?.error?.message);
-    return err(res.status, isDev ? (data?.error?.message || "Anthropic API error: HTTP " + res.status) : "AI service error", origin);
+    let errMsg;
+    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* not JSON */ }
+    console.error("maja.js: Anthropic API error", res.status, errMsg);
+    return err(res.status >= 500 ? 502 : res.status, isDev ? (errMsg || "API error: HTTP " + res.status) : "AI service error", origin);
+  }
+
+  // Block 4: parse JSON — catches malformed responses
+  let data;
+  try {
+    data = JSON.parse(rawBody);
+  } catch {
+    console.error("maja.js: JSON parse failed:", rawBody.slice(0, 200));
+    return err(502, "Invalid response from AI", origin);
   }
 
   const raw = data?.content?.[0]?.text?.trim() || "";
