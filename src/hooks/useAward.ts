@@ -45,12 +45,12 @@ const BADGE_SPEECHES: Record<string, { mood: string; text: string }> = {
 
 // ── Level-up knight speeches ──────────────────────────────────────────────────
 const LEVEL_SPEECHES: Record<number, { mood: string; text: string }> = {
-  2: { mood: 'celebrating', text: 'Level 2 — Početnik! You\'ve moved beyond zero. Every word is a victory. 🌱' },
-  3: { mood: 'celebrating', text: 'Level 3 — Osnovni! The grammar is clicking. You can feel the pattern. 📚' },
-  4: { mood: 'celebrating', text: 'Level 4 — Srednji! Halfway to fluency. Zadar welcomes you. ⭐' },
-  5: { mood: 'celebrating', text: 'Level 5 — Napredni! You\'re speaking Croatian that Croatians respect. 💪' },
-  6: { mood: 'celebrating', text: 'Level 6 — Stručnjak! Dubrovnik is your city now. Sjajno! 🏆' },
-  7: { mood: 'celebrating', text: 'Level 7 — MAJSTOR! Complete mastery. Croatia is your second home. 👑' },
+  2: { mood: 'levelup', text: 'Level 2 — Početnik! You\'ve moved beyond zero. Every word is a victory. 🌱' },
+  3: { mood: 'levelup', text: 'Level 3 — Osnovni! The grammar is clicking. You can feel the pattern. 📚' },
+  4: { mood: 'levelup', text: 'Level 4 — Srednji! Halfway to fluency. Zadar welcomes you. ⭐' },
+  5: { mood: 'levelup', text: 'Level 5 — Napredni! You\'re speaking Croatian that Croatians respect. 💪' },
+  6: { mood: 'levelup', text: 'Level 6 — Stručnjak! Dubrovnik is your city now. Sjajno! 🏆' },
+  7: { mood: 'levelup', text: 'Level 7 — MAJSTOR! Complete mastery. Croatia is your second home. 👑' },
 };
 
 // Module-level guard: comeback bonus fires at most once per app session
@@ -153,7 +153,7 @@ export function useAward({ curEx, stats, setStats, writeDelta }: { curEx: string
       if (lvlSpeech) {
         setTimeout(() => knightSpeak(lvlSpeech.mood, lvlSpeech.text), 1500);
       } else {
-        setTimeout(() => knightSpeak('celebrating', `Čestitam! Level ${newLvl} unlocked! 🎉`), 1500);
+        setTimeout(() => knightSpeak('levelup', `Čestitam! Level ${newLvl} unlocked! 🎉`), 1500);
       }
     }
     setTimeout(() => setShowXP(false), 1500);

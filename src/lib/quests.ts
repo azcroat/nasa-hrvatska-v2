@@ -59,5 +59,10 @@ export function markQuest(id: string): void {
     if (tier2 && count >= 1) {
       localStorage.setItem('nh_quest_' + tier2 + '_' + d, '1');
     }
+
+    // Notify the knight mascot to show a proud reaction
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('knight:quest-done'));
+    }
   } catch (_) {}
 }

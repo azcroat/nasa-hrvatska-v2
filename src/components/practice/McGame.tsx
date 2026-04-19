@@ -219,15 +219,19 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
 
         const finalScore = state.score;
         const pct = Math.round((finalScore / questions.length) * 100);
-        knightSpeak(
-          pct >= 80 ? 'victory' : pct >= 50 ? 'celebrating' : 'encouraged',
-          pct >= 80
-            ? `${pct}% correct — that quiz didn't stand a chance! ⚔️`
-            : pct >= 50
-              ? `${finalScore}/${questions.length} — solid. Come back and the remaining ${questions.length - finalScore} will fall. 💪`
-              : `${finalScore}/${questions.length} this time. Every wrong answer is a memory your brain is building. 📐`,
-          300
-        );
+        if (pct >= 90) {
+          knightSpeak('tearsofjoy', `${pct}% — Savršeno! Nevjerojatno si dobar/a! 🌟`, 300);
+        } else {
+          knightSpeak(
+            pct >= 80 ? 'victory' : pct >= 50 ? 'celebrating' : 'encouraged',
+            pct >= 80
+              ? `${pct}% correct — that quiz didn't stand a chance! ⚔️`
+              : pct >= 50
+                ? `${finalScore}/${questions.length} — solid. Come back and the remaining ${questions.length - finalScore} will fall. 💪`
+                : `${finalScore}/${questions.length} this time. Every wrong answer is a memory your brain is building. 📐`,
+            300
+          );
+        }
 
         const uniqueCleared = clearedIndices.current.size;
         if (typeof award === 'function') award(uniqueCleared * XP_PER_CORRECT + XP_COMPLETION_BONUS, true);
