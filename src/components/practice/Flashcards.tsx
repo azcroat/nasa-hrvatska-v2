@@ -10,7 +10,7 @@ import FlashcardResultScreen from './FlashcardResultScreen';
 import FlashcardEmptyState from './FlashcardEmptyState';
 import FlashcardCardFront from './FlashcardCardFront';
 import FlashcardCardBack from './FlashcardCardBack';
-import { knightSpeak } from '../../lib/knightSpeak.js';
+import { knightSpeak, knightFlash } from '../../lib/knightSpeak.js';
 import { playCorrect, playWrong, haptic } from '../../lib/soundSettings.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 
@@ -84,6 +84,8 @@ export default function Flashcards({ pool, goBack, award }) {
   const touchStartY = useRef(null);
   const mountedRef = useRef(true);
   const lastSpokenRef = useRef(null);
+  const consecCorrectRef = useRef(0); // consecutive correct answers (for onfire flash)
+  const consecWrongRef   = useRef(0); // consecutive wrong answers (for struggling flash)
   useEffect(() => () => { mountedRef.current = false; }, []);
 
   // Persist current card index so the user can resume mid-session
@@ -296,6 +298,9 @@ export default function Flashcards({ pool, goBack, award }) {
   function handleStillLearning() {
     srMark(activePool[idx][0], false); // "Still Learning" = wrong for SRS scheduling
     playWrong(); haptic([30, 20, 30]);
+    consecCorrectRef.current = 0;
+    consecWrongRef.current += 1;
+    knightFlash(consecWrongRef.current >= 3 ? 'struggling' : 'oops', consecWrongRef.current >= 3 ? 2000 : 1500);
     setWrongAnim(true);
     setTimeout(() => { if (mountedRef.current) setWrongAnim(false); }, 400);
     setShowStillLearning(true);
@@ -316,6 +321,13 @@ export default function Flashcards({ pool, goBack, award }) {
     setSparkPos({ x: 50, y: 50 });
     setTimeout(() => { if (mountedRef.current) setSparkPos(null); }, 700);
     srMark(activePool[idx][0], true); // "Know It" = correct for SRS scheduling
+    consecWrongRef.current = 0;
+    consecCorrectRef.current += 1;
+    if (consecCorrectRef.current >= 3) {
+      knightFlash('onfire', 2000);
+    } else if (Math.random() < 0.2) {
+      knightFlash('winking', 1500);
+    }
     setCorrectAnim(true);
     setTimeout(() => { if (mountedRef.current) setCorrectAnim(false); }, 500);
     const newKnown = known + 1;
