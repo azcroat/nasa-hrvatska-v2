@@ -795,9 +795,12 @@ export async function onRequestPost(context) {
     }
 
     if (!streamRes.ok) {
-      const errData = await streamRes.json().catch(() => ({}));
-      console.error("maja.js: Anthropic streaming error", streamRes.status, errData?.error?.message);
-      return err(streamRes.status, errData?.error?.message || "Anthropic API error", origin);
+      // Read body as text first — non-2xx streaming responses may not be JSON
+      const errText = await streamRes.text().catch(() => "");
+      let errMsg;
+      try { errMsg = JSON.parse(errText)?.error?.message; } catch { /* body not JSON */ }
+      console.error("maja.js: Anthropic streaming error", streamRes.status, errMsg || errText.slice(0, 200));
+      return err(streamRes.status >= 500 ? 502 : streamRes.status, errMsg || "Anthropic API error", origin);
     }
 
     return new Response(streamRes.body, { status: 200, headers: corsStreamHeaders(origin) });
