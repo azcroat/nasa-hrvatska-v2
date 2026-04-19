@@ -152,15 +152,33 @@ export async function onRequestPost(context) {
         messages: [{ role: "user", content: userMessage }],
       }),
     });
-    data = await res.json();
   } catch (fetchErr) {
     console.error("srs-sync.js: network error calling Anthropic:", fetchErr.message);
     return err(502, "Service temporarily unavailable", origin);
   }
 
+  // Read body as text first — non-2xx responses may return plain-text error messages
+  // (e.g. Anthropic 529 overloaded). Calling res.json() on those throws and hides the status.
+  let rawBody;
+  try {
+    rawBody = await res.text();
+  } catch (bodyErr) {
+    console.error("srs-sync.js: failed to read Anthropic response body:", bodyErr.message);
+    return err(502, "Service temporarily unavailable", origin);
+  }
+
   if (!res.ok) {
-    console.error("srs-sync.js: Anthropic API error", res.status, data?.error?.message);
-    return err(res.status, isDev ? (data?.error?.message || "Anthropic API error: HTTP " + res.status) : "AI service error", origin);
+    let errMsg;
+    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* body not JSON */ }
+    console.error("srs-sync.js: Anthropic API error", res.status, errMsg);
+    return err(res.status >= 500 ? 502 : res.status, isDev ? (errMsg || "Anthropic API error: HTTP " + res.status) : "AI service error", origin);
+  }
+
+  try {
+    data = JSON.parse(rawBody);
+  } catch {
+    console.error("srs-sync.js: JSON parse failed on Anthropic response:", rawBody.slice(0, 200));
+    return err(502, "Invalid response from AI", origin);
   }
 
   const raw = data?.content?.[0]?.text?.trim() || "";
