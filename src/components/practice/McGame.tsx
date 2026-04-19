@@ -8,7 +8,7 @@ import { getHearts, loseHeart } from '../../lib/lives.js';
 import HeartsBar from '../shared/HeartsBar';
 import McGameOver from './McGameOver';
 import McQuestionArea from './McQuestionArea';
-import { knightSpeak } from '../../lib/knightSpeak.js';
+import { knightSpeak, knightFlash } from '../../lib/knightSpeak.js';
 import { useMcGameReducer } from '../../hooks/useMcGameReducer';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { markQuest } from '../../lib/quests.js';
@@ -133,6 +133,12 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
       if (nextStreak === 3)  knightSpeak('happy',       'Tri zaredom! Your Croatian memory is firing. 🔥');
       if (nextStreak === 5)  knightSpeak('celebrating', 'Pet zaredom! Unstoppable! This is what fluency feels like. ⚡');
       if (nextStreak === 10) knightSpeak('victory',     '10 in a row! Modrić scored less in the World Cup. 🌟');
+      // Knight flash — face reaction to correct answer
+      if (nextStreak >= 3) {
+        knightFlash('onfire', 2000);
+      } else if (Math.random() < 0.2) {
+        knightFlash('winking', 1500);
+      }
     } else {
       haptic.wrong();
       playWrong();
@@ -141,6 +147,8 @@ export default function McGame({ questions: rawQuestions, onComplete, goBack, aw
       const nextWrongStreak = state.wrongStreak + 1;
       if (nextWrongStreak === 1) knightSpeak('thinking', 'Nije točno — but your brain just noticed it. That\'s how memory forms. 📐');
       else if (nextWrongStreak === 3) knightSpeak('encouraged', 'Tri greške zaredom — slow down and feel the pattern. It will click. 💪');
+      // Knight flash — face reaction to wrong answer
+      knightFlash(nextWrongStreak >= 3 ? 'struggling' : 'oops', nextWrongStreak >= 3 ? 2000 : 1500);
       // Fetch AI explanation for this error (fire-and-forget, non-blocking)
       const wrongOpt = q.opts[i] || '';
       setAiExplain('loading');
