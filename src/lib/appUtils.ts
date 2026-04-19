@@ -249,7 +249,7 @@ export function updateStreak(todayOverride?: string): StreakData & { milestone: 
     else {
       if (s.count >= 2) { try { localStorage.setItem('nh_earn_back', JSON.stringify({ prev: s.count, date: today, lc: 1 })); } catch {} }
       const _prevCount = s.count;
-      [30, 50, 100].forEach(m => { if (_prevCount >= m) localStorage.removeItem('nh_ceremony_streak_' + m); });
+      [7, 14, 21, 30, 50, 60, 100, 365].forEach(m => { if (_prevCount >= m) localStorage.removeItem('nh_ceremony_streak_' + m); });
       s.count = 1; s.last = today;
     }
   }

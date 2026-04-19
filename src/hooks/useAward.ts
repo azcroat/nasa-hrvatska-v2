@@ -168,11 +168,40 @@ export function useAward({ curEx, stats, setStats, writeDelta }: { curEx: string
 
     const _serverToday = await _getServerDateStr();
     const sr = updateStreak(_serverToday);
-    // Sync stats.streak so UI reflects the updated streak count immediately.
-    // The first setStats() call (above) reads getStreak() before updateStreak()
-    // runs, so stats.streak may be stale. This second call corrects it after
-    // updateStreak() has written the authoritative value to localStorage.
-    setStats((s: Stats) => ({ ...s, streak: sr.count }));
+
+    // Second setStats: update streak count AND evaluate streak-specific badges.
+    // The first setStats() above evaluated ALL badges but read getStreak() BEFORE
+    // updateStreak() ran, so the streak value was the OLD count. Streak badges
+    // (str3, str7, str14, str21, str30, str60, str100) are re-evaluated here
+    // against the now-authoritative sr.count. Non-streak badges are already in
+    // s.badges and the filter prevents double-awarding.
+    const STREAK_BADGE_IDS = ['str3', 'str7', 'str14', 'str21', 'str30', 'str60', 'str100'];
+    let _pendingStreakBadge: unknown = null;
+    setStats((s: Stats) => {
+      const n = { ...s, streak: sr.count };
+      const badges = Array.isArray(n.badges) ? n.badges : [];
+      const newStreakBadges = (BADGES as unknown as Array<{ id: string; r: (s: Stats) => boolean }>).filter(b => {
+        if (!STREAK_BADGE_IDS.includes(b.id) || badges.includes(b.id)) return false;
+        try { return b.r(n); } catch { return false; }
+      });
+      if (newStreakBadges.length) {
+        n.badges = [...badges, ...newStreakBadges.map((b: { id: string }) => b.id)];
+        _pendingStreakBadge = newStreakBadges[0];
+        newStreakBadges.forEach((b: { id: string }) => trackBadgeEarned(b.id));
+      }
+      return n;
+    });
+    // Fire badge toast + knight speech for any newly earned streak badge
+    if (_pendingStreakBadge) {
+      const strBadge = _pendingStreakBadge as { id: string };
+      setTimeout(() => { setNB(strBadge); setSB(true); setTimeout(() => setSB(false), 3000); }, 600);
+      setTimeout(() => {
+        const speech = BADGE_SPEECHES[strBadge.id];
+        if (speech) knightSpeak(speech.mood, speech.text);
+        else window.dispatchEvent(new CustomEvent('knight:badge'));
+      }, 1200);
+      if (writeDelta) writeDelta({ badges: [strBadge.id] });
+    }
     const restoredCount = applyStreakEarnBack();
     if (restoredCount > 0) { setTimeout(() => { setStreakRestoredCount(restoredCount); setTimeout(() => setStreakRestoredCount(0), 5000); }, 1000); }
     else { const eb = getStreakEarnBack(); if (eb && eb.lc === 1) { setEarnBackPrompt({ prev: eb.prev }); setTimeout(() => setEarnBackPrompt(null), 8000); } }

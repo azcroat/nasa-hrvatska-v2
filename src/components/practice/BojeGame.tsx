@@ -15,7 +15,8 @@ export default function BojeGame({ goBack, award }) {
   function startQuiz() {
     finishFired.current = false;
     const q = sh(BOJE.quiz);
-    sBjQ(q); sBjIdx(0); sBjSc(0); sBjAns(false); sBjSel(-1); sBjOpts([]);
+    // Pre-compute opts for the first question so render never needs to schedule setState
+    sBjQ(q); sBjIdx(0); sBjSc(0); sBjAns(false); sBjSel(-1); sBjOpts(q.length ? getOpts(q[0]) : []);
   }
 
   function getOpts(q) {
@@ -105,12 +106,9 @@ export default function BojeGame({ goBack, award }) {
         const gLabel = q.g === "f" ? "feminine" : q.g === "n" ? "neuter" : q.g === "m" ? "masculine" : q.g === "fp" ? "feminine plural" : q.g === "np" ? "neuter plural" : "masculine plural";
         const gColor = q.g.includes("f") ? "#dc2626" : q.g.includes("n") ? "#2563eb" : "#16a34a";
 
-        // Initialize opts lazily if needed
         const opts = bjOpts.length > 0 ? bjOpts : null;
-        if (!opts) {
-          setTimeout(() => sBjOpts(getOpts(q)), 0);
-          return <div style={{textAlign:"center",padding:40}}>Loading...</div>;
-        }
+        // opts are pre-computed in startQuiz and on each Next click — should never be null here.
+        if (!opts) return null;
 
         return (
           <React.Fragment>

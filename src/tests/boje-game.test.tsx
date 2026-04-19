@@ -147,12 +147,11 @@ describe('BojeGame — learn screen', () => {
 // ── Quiz start ────────────────────────────────────────────────────────────────
 
 describe('BojeGame — quiz start', () => {
-  it('shows Loading... immediately before setTimeout fires', async () => {
+  it('does not show Loading... after Start Quiz → click — opts are pre-computed', async () => {
     renderBojeGame();
-    // Fire click without waiting for setTimeout
+    // opts are pre-computed in startQuiz() so Loading... is never shown
     fireEvent.click(screen.getByText('Start Quiz →'));
-    // Before setTimeout fires: Loading... is shown
-    expect(screen.getByText('Loading...')).toBeTruthy();
+    expect(screen.queryByText('Loading...')).toBeNull();
   });
 
   it('transitions to quiz mode and loads first question', async () => {

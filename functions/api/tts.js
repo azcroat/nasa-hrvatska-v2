@@ -101,7 +101,8 @@ async function tryGoogleTranslateTTS(text, slow) {
 // ── Microsoft Edge TTS ────────────────────────────────────────────────────────
 // hr-HR-GabrijelaNeural via Edge browser's speech synthesis endpoint.
 // Kept as backup — WebSocket from Cloudflare Workers can be unreliable.
-async function tryEdgeTTS(text, slow) {
+async function tryEdgeTTS(text, slow, edgeTtsToken) {
+  if (!edgeTtsToken) return null; // No token configured — skip this provider
   const voice = 'hr-HR-GabrijelaNeural';
   const rate = slow ? '-25%' : '-8%';
   const safeText = text.replace(
@@ -109,9 +110,8 @@ async function tryEdgeTTS(text, slow) {
     (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' }[c])
   );
   const ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='hr-HR'><voice name='${voice}'><prosody rate='${rate}'>${safeText}</prosody></voice></speak>`;
-  const TOKEN = '6A5AA1D4EAFF4E9FB37E23D68491D6F4';
   const connId = crypto.randomUUID().replace(/-/g, '').toUpperCase();
-  const wsUrl = `wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1?trustedclienttoken=${TOKEN}&ConnectionId=${connId}`;
+  const wsUrl = `wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1?trustedclienttoken=${edgeTtsToken}&ConnectionId=${connId}`;
 
   return new Promise((resolve, reject) => {
     let ws;
@@ -372,7 +372,7 @@ export async function onRequestPost(context) {
 
     // ── 3. Microsoft Edge hr-HR-GabrijelaNeural (WebSocket backup) ───────────
     if (!buffer) {
-      try { buffer = await tryEdgeTTS(text, slow); } catch { /* fall through */ }
+      try { buffer = await tryEdgeTTS(text, slow, env.EDGE_TTS_TOKEN || null); } catch { /* fall through */ }
     }
 
     // ── 4. Google hr-HR-Wavenet-B (backup if service account configured) ─────

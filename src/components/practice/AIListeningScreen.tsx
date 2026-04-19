@@ -49,7 +49,8 @@ export default function AIListeningScreen({ goBack, award }) {
     mountedRef.current = false;
     if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
   }, []);
-  useEffect(() => () => { if (audioUrl) URL.revokeObjectURL(audioUrl); }, [audioUrl]);
+  // audioUrl is always a data: URL (readAsDataURL) — data URLs cannot be revoked, only blob: URLs can.
+  // No cleanup needed for data URLs; they are GC'd normally.
   useEffect(() => () => { clearTimeout(readyTimer.current); }, []);
 
   // ── Generate content + TTS ────────────────────────────────────────────────
@@ -96,7 +97,7 @@ export default function AIListeningScreen({ goBack, award }) {
         const blob = await ttsRes.blob();
         // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
         const url = await new Promise(resolve => { const r = new FileReader(); r.onload = () => resolve(r.result); r.readAsDataURL(blob); });
-        if (!mountedRef.current) { URL.revokeObjectURL(url); return; }
+        if (!mountedRef.current) return; // data: URLs are GC'd normally — no revocation needed
         setAudioUrl(url);
         setAudioSource('azure');
       }
@@ -185,8 +186,7 @@ export default function AIListeningScreen({ goBack, award }) {
 
   function resetToSetup() {
     if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
-    if (audioUrl) URL.revokeObjectURL(audioUrl);
-    setAudioUrl(null);
+    setAudioUrl(null); // data: URLs need no explicit revocation
     setContent(null);
     setPhase('setup');
     setIsPlaying(false);
