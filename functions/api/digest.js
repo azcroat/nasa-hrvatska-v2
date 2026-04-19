@@ -99,21 +99,52 @@ export async function onRequestPost(ctx) {
       </div>
     </div>`;
 
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      from: 'Naša Hrvatska <hello@nasahrvatska.com>',
-      to: [email],
-      subject: `Your Croatian progress this week, ${safeName}! 🇭🇷`,
-      html,
-    }),
-    signal: AbortSignal.timeout(20000),
-  });
+  // Block 1: fetch — catches network errors only
+  let res;
+  try {
+    res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'Naša Hrvatska <hello@nasahrvatska.com>',
+        to: [email],
+        subject: `Your Croatian progress this week, ${safeName}! 🇭🇷`,
+        html,
+      }),
+      signal: AbortSignal.timeout(20000),
+    });
+  } catch (fetchErr) {
+    console.error('digest.js: network error:', fetchErr.message);
+    return errJson('Service temporarily unavailable', 502, hdrs);
+  }
 
-  const data = await res.json().catch(() => ({}));
-  return new Response(JSON.stringify({ ok: res.ok, ...data }), {
-    status: res.ok ? 200 : 502,
+  // Block 2: read body — catches body-read failures
+  let rawBody;
+  try {
+    rawBody = await res.text();
+  } catch (bodyErr) {
+    console.error('digest.js: failed to read response body:', bodyErr.message);
+    return errJson('Service temporarily unavailable', 502, hdrs);
+  }
+
+  // Block 3: check res.ok — map errors to client-safe responses
+  if (!res.ok) {
+    let errMsg;
+    try { errMsg = JSON.parse(rawBody)?.message; } catch { /* not JSON */ }
+    console.error('digest.js: Resend error', res.status, errMsg);
+    return errJson(errMsg || 'Email service error', 502, hdrs);
+  }
+
+  // Block 4: parse JSON — catches malformed responses
+  let data;
+  try {
+    data = JSON.parse(rawBody);
+  } catch {
+    console.error('digest.js: JSON parse failed:', rawBody.slice(0, 200));
+    data = {};
+  }
+  return new Response(JSON.stringify({ ok: true, ...data }), {
+    status: 200,
     headers: hdrs,
   });
 }
