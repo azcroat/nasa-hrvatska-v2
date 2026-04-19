@@ -95,6 +95,11 @@ export default function Leaderboard({
       setGlobalLoading(false);
       setGlobalError('');
       settled = true;
+    }, (err) => {
+      console.error('[Leaderboard] subscription error:', err);
+      setGlobalLoading(false);
+      setGlobalError('Could not load global leaderboard. Check your connection.');
+      settled = true;
     });
 
     // Surface a connection error if nothing arrives within 8 seconds

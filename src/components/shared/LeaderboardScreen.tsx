@@ -27,6 +27,7 @@ export default function LeaderboardScreen({ db, user, weekXP = 0, goBack }) {
   const [myRank, setMyRank] = useState(null);
   const [loading, setLoading] = useState(true);
   const [league, setLeague] = useState(LEAGUES[0]);
+  const [fetchError, setFetchError] = useState(false);
 
   // Rank trend state
   const [rankTrend, setRankTrend] = useState(null); // { delta, dir: 'up'|'down'|'same' }
@@ -45,6 +46,11 @@ export default function LeaderboardScreen({ db, user, weekXP = 0, goBack }) {
     const unsub = subscribeToLeaderboard(db, 50, (data) => {
       if (!mounted) return;
       setEntries(data);
+      setLoading(false);
+    }, (err) => {
+      if (!mounted) return;
+      console.error('[LeaderboardScreen] subscription error:', err);
+      setFetchError(true);
       setLoading(false);
     });
 
@@ -198,6 +204,11 @@ export default function LeaderboardScreen({ db, user, weekXP = 0, goBack }) {
       {/* Leaderboard list */}
       {loading ? (
         <div style={{ textAlign:'center', padding:40, color:'var(--subtext)' }}>Loading rankings…</div>
+      ) : fetchError ? (
+        <div style={{ textAlign:'center', padding:40 }}>
+          <div style={{ fontSize:40 }}>⚠️</div>
+          <p style={{ color:'var(--subtext)', marginTop:12 }}>Could not load rankings.<br/>Check your connection and try again.</p>
+        </div>
       ) : entries.length === 0 ? (
         <div style={{ textAlign:'center', padding:40 }}>
           <div style={{ fontSize:40 }}>🏆</div>
