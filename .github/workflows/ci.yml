@@ -45,6 +45,12 @@ jobs:
       - name: TypeScript check
         run: npm run typecheck
 
+      - name: Prettier format check
+        run: npx prettier --check "src/**/*.{ts,tsx,js,jsx}" "functions/**/*.js"
+
+      - name: Circular dependency check
+        run: npm run check:circular
+
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
