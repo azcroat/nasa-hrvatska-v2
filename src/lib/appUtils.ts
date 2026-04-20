@@ -479,8 +479,6 @@ interface BadgeStats {
   sp?: number;
   mv?: number;
   hi?: number;
-  sr?: number;
-  as?: number;
   srsTotal?: number;
   streak?: number;
   mistakesMastered?: number;
