@@ -56,15 +56,13 @@ export default defineConfig({
         'dist/**',
       ],
       thresholds: {
-        // Thresholds re-measured 2026-04-17 after adding 7 practice-screen test files
-        // (Item 2: unjumble, word-families, matchgame, znam-game, story-screens,
-        //  sentence-tile, typing-screen — 921 tests total).
-        // Measured: statements=47.4%, branches=46.83%, functions=57.08%, lines=50.74%.
-        // 1% buffer below measured; raise further as component tests continue.
-        statements: 46,
-        branches: 45,
-        functions: 56,
-        lines: 49,
+        // Coverage thresholds raised to 80% (2026-04-19, Task 1: Test Coverage Improvement Plan).
+        // Current coverage: statements=47.4%, branches=46.83%, functions=57.08%, lines=50.74%.
+        // Tests will fail until new component tests are added to meet this threshold.
+        statements: 80,
+        branches: 80,
+        functions: 80,
+        lines: 80,
       },
     },
   },
