@@ -86,8 +86,6 @@ export default [
       'prefer-const': 'off',        // Style preference — deferred
       'no-empty': 'off',            // Intentional empty catch blocks exist throughout
       'no-useless-escape': 'off',   // Escaped characters in Croatian data strings — harmless
-      // exhaustive-deps: ref pattern is used intentionally throughout (useCallback + ref)
-      'react-hooks/exhaustive-deps': 'off',
     },
   },
 
@@ -148,7 +146,7 @@ export default [
       'react-hooks': reactHooks,
     },
     rules: {
-      'react-hooks/exhaustive-deps': 'off',
+      'react-hooks/exhaustive-deps': 'warn',
       'no-empty': 'off',
     },
   },
