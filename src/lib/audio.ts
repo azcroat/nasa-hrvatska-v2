@@ -47,9 +47,10 @@ async function _ttsPost(
     let capHttp: _CapHttp | null = null;
     try {
       // Dynamic import keeps @capacitor/core out of the web bundle's main chunk.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const capacitorModule = (await import('@capacitor/core')) as any;
-      capHttp = (capacitorModule.CapacitorHttp as _CapHttp) ?? null;
+      const capacitorModule = (await import('@capacitor/core')) as unknown as {
+        CapacitorHttp?: _CapHttp;
+      };
+      capHttp = capacitorModule.CapacitorHttp ?? null;
       if (capHttp) dbgInfo('[TTS] CapacitorHttp available — using native HTTP');
     } catch {
       dbgWarn('[TTS] CapacitorHttp import failed — falling back to fetch()');
