@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { markQuest } from '../lib/quests.js';
+import { markQuest, cleanupStaleQuestKeys } from '../lib/quests.js';
 import { localDateStr } from '../lib/dateUtils.js';
 
 function clearLS() { localStorage.clear(); }
@@ -141,5 +141,53 @@ describe('quests — daily quest tracking', () => {
     markQuest('speak'); // second call (also promotes tier-2)
     window.removeEventListener('knight:quest-done', handler);
     expect(count).toBe(2);
+  });
+});
+
+// ── cleanupStaleQuestKeys ─────────────────────────────────────────────────────
+
+describe('cleanupStaleQuestKeys', () => {
+  beforeEach(() => localStorage.clear());
+  afterEach(() => { localStorage.clear(); vi.useRealTimers(); });
+
+  it('does not remove keys for today or yesterday', () => {
+    const today = localDateStr();
+    const yd = new Date();
+    yd.setDate(yd.getDate() - 1);
+    const yesterday = yd.getFullYear() + '-' +
+      String(yd.getMonth() + 1).padStart(2, '0') + '-' +
+      String(yd.getDate()).padStart(2, '0');
+
+    localStorage.setItem('nh_quest_speak_' + today, '1');
+    localStorage.setItem('nh_quest_grammar_' + yesterday, '1');
+    cleanupStaleQuestKeys();
+
+    expect(localStorage.getItem('nh_quest_speak_' + today)).toBe('1');
+    expect(localStorage.getItem('nh_quest_grammar_' + yesterday)).toBe('1');
+  });
+
+  it('removes keys older than yesterday', () => {
+    localStorage.setItem('nh_quest_speak_2020-01-01', '1');
+    localStorage.setItem('nh_quest_grammar_2021-06-15', '1');
+    cleanupStaleQuestKeys();
+    expect(localStorage.getItem('nh_quest_speak_2020-01-01')).toBeNull();
+    expect(localStorage.getItem('nh_quest_grammar_2021-06-15')).toBeNull();
+  });
+
+  it('does not remove non-quest keys', () => {
+    localStorage.setItem('uStreak', JSON.stringify({ count: 5 }));
+    localStorage.setItem('nh_quest_speak_2020-01-01', '1'); // stale quest
+    cleanupStaleQuestKeys();
+    expect(localStorage.getItem('uStreak')).not.toBeNull();
+  });
+
+  it('removes count keys that are stale', () => {
+    localStorage.setItem('nh_quest_speak_count_2020-01-01', '2');
+    cleanupStaleQuestKeys();
+    expect(localStorage.getItem('nh_quest_speak_count_2020-01-01')).toBeNull();
+  });
+
+  it('does not crash on empty localStorage', () => {
+    expect(() => cleanupStaleQuestKeys()).not.toThrow();
   });
 });

@@ -10,6 +10,12 @@ import {
   getStreakFreezes,
   earnFreeze,
   spendFreeze,
+  getCultureStats,
+  incrementCulture,
+  recordJourneyMilestone,
+  getJourneyMilestones,
+  getStreakEarnBack,
+  applyStreakEarnBack,
 } from '../lib/appUtils';
 
 beforeEach(() => localStorage.clear());
@@ -281,5 +287,139 @@ describe('spendFreeze', () => {
     earnFreeze();
     spendFreeze(); // now at 0
     expect(spendFreeze()).toBe(false);
+  });
+});
+
+// ─── getCultureStats + incrementCulture ──────────────────────────────────────
+
+describe('getCultureStats', () => {
+  it('returns empty object when nothing stored', () => {
+    expect(getCultureStats()).toEqual({});
+  });
+
+  it('returns stored culture stats object', () => {
+    localStorage.setItem('nh_culture', JSON.stringify({ bakaCnt: 3, cityCnt: 5 }));
+    expect(getCultureStats()).toEqual({ bakaCnt: 3, cityCnt: 5 });
+  });
+
+  it('returns empty object on corrupted JSON', () => {
+    localStorage.setItem('nh_culture', 'INVALID{{{');
+    expect(getCultureStats()).toEqual({});
+  });
+});
+
+describe('incrementCulture', () => {
+  it('increments a new key from 0 to 1', () => {
+    expect(incrementCulture('bakaCnt')).toBe(1);
+  });
+
+  it('increments an existing key', () => {
+    localStorage.setItem('nh_culture', JSON.stringify({ bakaCnt: 2 }));
+    expect(incrementCulture('bakaCnt')).toBe(3);
+  });
+
+  it('persists the update to localStorage', () => {
+    incrementCulture('cityCnt');
+    incrementCulture('cityCnt');
+    const stored = JSON.parse(localStorage.getItem('nh_culture') || '{}');
+    expect(stored.cityCnt).toBe(2);
+  });
+
+  it('multiple different keys are independent', () => {
+    incrementCulture('bakaCnt');
+    incrementCulture('mediaCnt');
+    const stats = getCultureStats();
+    expect(stats.bakaCnt).toBe(1);
+    expect(stats.mediaCnt).toBe(1);
+  });
+});
+
+// ─── recordJourneyMilestone + getJourneyMilestones ────────────────────────────
+
+describe('recordJourneyMilestone + getJourneyMilestones', () => {
+  it('records a new milestone', () => {
+    recordJourneyMilestone('first_lesson');
+    const milestones = getJourneyMilestones();
+    expect(milestones).toHaveLength(1);
+    expect(milestones[0].type).toBe('first_lesson');
+    expect(typeof milestones[0].date).toBe('string');
+  });
+
+  it('does not add duplicate non-repeatable milestone', () => {
+    recordJourneyMilestone('first_lesson');
+    recordJourneyMilestone('first_lesson');
+    expect(getJourneyMilestones()).toHaveLength(1);
+  });
+
+  it('allows repeatable milestones with allowRepeat=true', () => {
+    recordJourneyMilestone('daily_bonus', { allowRepeat: true });
+    recordJourneyMilestone('daily_bonus', { allowRepeat: true });
+    expect(getJourneyMilestones()).toHaveLength(2);
+  });
+
+  it('stores additional meta fields', () => {
+    recordJourneyMilestone('level_up', { level: 5 });
+    const milestones = getJourneyMilestones();
+    expect((milestones[0] as Record<string, unknown>).level).toBe(5);
+  });
+
+  it('getJourneyMilestones returns empty array when nothing stored', () => {
+    expect(getJourneyMilestones()).toEqual([]);
+  });
+
+  it('returns empty array on corrupted data', () => {
+    localStorage.setItem('nh_journey', 'INVALID{{{');
+    expect(getJourneyMilestones()).toEqual([]);
+  });
+});
+
+// ─── getStreakEarnBack + applyStreakEarnBack ───────────────────────────────────
+
+describe('getStreakEarnBack', () => {
+  it('returns null when nothing stored', () => {
+    expect(getStreakEarnBack()).toBeNull();
+  });
+
+  it('returns null when earn_back date is older than yesterday', () => {
+    localStorage.setItem('nh_earn_back', JSON.stringify({ prev: 10, date: '2020-01-01', lc: 2 }));
+    expect(getStreakEarnBack()).toBeNull();
+  });
+
+  it('returns the data when date is today', () => {
+    const today = new Date();
+    const todayStr = today.getFullYear() + '-' +
+      String(today.getMonth() + 1).padStart(2, '0') + '-' +
+      String(today.getDate()).padStart(2, '0');
+    localStorage.setItem('nh_earn_back', JSON.stringify({ prev: 5, date: todayStr, lc: 2 }));
+    const result = getStreakEarnBack();
+    expect(result).not.toBeNull();
+    expect(result!.prev).toBe(5);
+  });
+});
+
+describe('applyStreakEarnBack', () => {
+  it('returns 0 when no earn_back data stored', () => {
+    expect(applyStreakEarnBack()).toBe(0);
+  });
+
+  it('returns 0 when earn_back lc < 2', () => {
+    const today = new Date();
+    const todayStr = today.getFullYear() + '-' +
+      String(today.getMonth() + 1).padStart(2, '0') + '-' +
+      String(today.getDate()).padStart(2, '0');
+    localStorage.setItem('nh_earn_back', JSON.stringify({ prev: 10, date: todayStr, lc: 1 }));
+    expect(applyStreakEarnBack()).toBe(0);
+  });
+
+  it('applies the streak and returns the previous count', () => {
+    const today = new Date();
+    const todayStr = today.getFullYear() + '-' +
+      String(today.getMonth() + 1).padStart(2, '0') + '-' +
+      String(today.getDate()).padStart(2, '0');
+    localStorage.setItem('nh_earn_back', JSON.stringify({ prev: 15, date: todayStr, lc: 3 }));
+    const result = applyStreakEarnBack();
+    expect(result).toBe(15);
+    expect(getStreak().count).toBe(15);
+    expect(localStorage.getItem('nh_earn_back')).toBeNull();
   });
 });
