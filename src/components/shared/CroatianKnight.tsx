@@ -122,7 +122,19 @@ const ANIM_CSS = `
 // px/py  : pupil offset from eye centre
 // eScale : vertical eye scale (0 = closed line; 1 = fully open)
 // wink   : true → draw closed-eye line regardless of eScale
-const MOOD = {
+interface MoodCfg {
+  browL: number;
+  browLY: number;
+  browR: number;
+  browRY: number;
+  mouth: string;
+  px: number;
+  py: number;
+  eScale: number;
+  wink?: boolean;
+  winkR?: boolean;
+}
+const MOOD: Record<string, MoodCfg> = {
   happy: { browL: 0, browLY: 0, browR: 0, browRY: 0, mouth: 'happy', px: 0, py: 0, eScale: 1.0 },
   thinking: {
     browL: -3,
