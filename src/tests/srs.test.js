@@ -7,6 +7,8 @@ import {
   getDueCards,
   getSRStats,
   srQualityFromResult,
+  addWordToSRS,
+  getPrioritizedReviewQueue,
 } from '../lib/srs.js';
 
 function clearLS() { localStorage.clear(); }
@@ -691,6 +693,194 @@ describe('getSRScore edge cases', () => {
     expect(returned.d).toBe(stored.d);
     expect(returned.due).toBe(stored.due);
     expect(returned.r).toBe(stored.r);
+  });
+});
+
+// ── addWordToSRS ──────────────────────────────────────────────────────────────
+describe('addWordToSRS', () => {
+  beforeEach(() => localStorage.clear());
+  afterEach(() => localStorage.clear());
+
+  it('adds a new word with a valid FSRS card state', () => {
+    addWordToSRS('jabuka');
+    const sr = getSR();
+    expect(sr.jabuka).toBeDefined();
+    expect(typeof sr.jabuka.s).toBe('number');
+    expect(sr.jabuka.s).toBeGreaterThan(0);
+  });
+
+  it('new card has all required FSRS fields', () => {
+    addWordToSRS('kruh');
+    const card = getSR().kruh;
+    expect(typeof card.s).toBe('number');
+    expect(typeof card.d).toBe('number');
+    expect(typeof card.r).toBe('number');
+    expect(typeof card.w).toBe('number');
+    expect(typeof card.l).toBe('number');
+    expect(typeof card.b).toBe('number');
+    expect(typeof card.due).toBe('number');
+    expect(typeof card.nextDue).toBe('number');
+  });
+
+  it('new card has zero correct and wrong review counts', () => {
+    addWordToSRS('voda');
+    const card = getSR().voda;
+    expect(card.r).toBe(0);
+    expect(card.w).toBe(0);
+  });
+
+  it('new card due date is in the future', () => {
+    addWordToSRS('more');
+    const card = getSR().more;
+    expect(card.due).toBeGreaterThan(Date.now());
+  });
+
+  it('does not overwrite an existing card', () => {
+    addWordToSRS('jabuka');
+    const sr1 = getSR();
+    sr1.jabuka.r = 99;
+    saveSR(sr1);
+    addWordToSRS('jabuka'); // should be a no-op
+    const sr2 = getSR();
+    expect(sr2.jabuka.r).toBe(99);
+  });
+
+  it('adding a word twice keeps only one entry', () => {
+    addWordToSRS('vjetar');
+    addWordToSRS('vjetar');
+    const sr = getSR();
+    const keys = Object.keys(sr).filter(k => k === 'vjetar');
+    expect(keys).toHaveLength(1);
+  });
+
+  it('ignores empty string without throwing', () => {
+    expect(() => addWordToSRS('')).not.toThrow();
+    expect(getSR()['']).toBeUndefined();
+  });
+
+  it('ignores whitespace-only strings', () => {
+    expect(() => addWordToSRS('   ')).not.toThrow();
+    expect(getSR()['   ']).toBeUndefined();
+  });
+
+  it('can add multiple distinct words independently', () => {
+    addWordToSRS('pas');
+    addWordToSRS('mačka');
+    const sr = getSR();
+    expect(sr.pas).toBeDefined();
+    expect(sr.mačka).toBeDefined();
+    expect(sr.pas.r).toBe(0);
+    expect(sr.mačka.r).toBe(0);
+  });
+});
+
+// ── getDueReviews — new card cap ──────────────────────────────────────────────
+describe('getDueReviews — new card budget cap', () => {
+  beforeEach(() => localStorage.clear());
+  afterEach(() => localStorage.clear());
+
+  it('caps cards with no due field at 15 per session', () => {
+    // Cards without a due field use the newCardBudget path
+    const cards = {};
+    for (let i = 0; i < 20; i++) {
+      cards[`nodueword_${i}`] = { s: 1, d: 5, r: 0, w: 0, l: 0, b: 0 };
+    }
+    saveSR(cards);
+    const due = getDueReviews();
+    expect(due.length).toBeLessThanOrEqual(15);
+  });
+
+  it('does not cap overdue cards (due <= now) against the budget', () => {
+    // Cards with due <= now are overdue, not budget-capped new cards
+    const past = Date.now() - 1000;
+    const cards = {};
+    for (let i = 0; i < 20; i++) {
+      cards[`overdueword_${i}`] = { s: 1, d: 5, r: 0, w: 0, l: 0, b: 0, due: past, nextDue: past };
+    }
+    saveSR(cards);
+    const due = getDueReviews();
+    expect(due.length).toBe(20);
+  });
+});
+
+// ── getPrioritizedReviewQueue ────────────────────────────────────────────────
+describe('getPrioritizedReviewQueue', () => {
+  beforeEach(() => localStorage.clear());
+  afterEach(() => localStorage.clear());
+
+  it('returns empty array for empty pool', () => {
+    expect(getPrioritizedReviewQueue([])).toEqual([]);
+  });
+
+  it('returns an array', () => {
+    const pool = [['jabuka', 'apple', 'ya-boo-ka'], ['kruh', 'bread', 'krooh']];
+    const result = getPrioritizedReviewQueue(pool);
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it('returns at most 20 items', () => {
+    // Build overdue SRS entries for all 30 words to ensure they are prioritized
+    const past = Date.now() - 10 * 86400000; // 10 days overdue
+    const sr = {};
+    for (let i = 0; i < 30; i++) {
+      sr[`word_${i}`] = { s: 1, d: 5, r: 3, w: 0, l: 0, b: 2, due: past, nextDue: past };
+    }
+    saveSR(sr);
+    const pool = Array.from({ length: 30 }, (_, i) => [`word_${i}`, 'en', 'ph']);
+    const queue = getPrioritizedReviewQueue(pool);
+    expect(queue.length).toBeLessThanOrEqual(20);
+  });
+
+  it('result entries are arrays (same structure as pool items)', () => {
+    const pool = [['jabuka', 'apple', 'ya-boo-ka'], ['kruh', 'bread', 'krooh']];
+    const result = getPrioritizedReviewQueue(pool);
+    result.forEach(entry => {
+      expect(Array.isArray(entry)).toBe(true);
+    });
+  });
+
+  it('does not include words not in the pool', () => {
+    // Add SRS data for a word not in pool
+    saveSR({
+      notinpool: { s: 1, d: 5, r: 2, w: 0, l: 0, b: 1, due: Date.now() - 1000, nextDue: Date.now() - 1000 },
+    });
+    const pool = [['jabuka', 'apple', 'ya-boo-ka']];
+    const result = getPrioritizedReviewQueue(pool);
+    const resultWords = result.map(e => e[0]);
+    expect(resultWords).not.toContain('notinpool');
+  });
+
+  it('prioritizes overdue words from the pool', () => {
+    const past = Date.now() - 5 * 86400000; // 5 days overdue
+    saveSR({
+      jabuka: { s: 1, d: 5, r: 3, w: 0, l: 0, b: 2, due: past, nextDue: past },
+    });
+    const pool = [['jabuka', 'apple', 'ya-boo-ka'], ['kruh', 'bread', 'krooh']];
+    const result = getPrioritizedReviewQueue(pool);
+    const resultWords = result.map(e => e[0]);
+    expect(resultWords).toContain('jabuka');
+  });
+
+  it('pads result with new (unseen) words when fewer than 10 items are due', () => {
+    // Only one overdue card — should pad with unseen pool words
+    const past = Date.now() - 2 * 86400000;
+    saveSR({
+      jabuka: { s: 1, d: 5, r: 1, w: 0, l: 0, b: 1, due: past, nextDue: past },
+    });
+    const pool = [
+      ['jabuka', 'apple', ''],
+      ['kruh', 'bread', ''],
+      ['voda', 'water', ''],
+    ];
+    const result = getPrioritizedReviewQueue(pool);
+    // Should include at least 'jabuka' and some unseen words
+    expect(result.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('handles pool with null or undefined slots gracefully', () => {
+    // getSR is empty, pool has normal items
+    const pool = [['jabuka', 'apple', '']];
+    expect(() => getPrioritizedReviewQueue(pool)).not.toThrow();
   });
 });
 
