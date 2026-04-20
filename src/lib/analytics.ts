@@ -1,5 +1,5 @@
 /**
- * analytics.ts — centralized Firebase Analytics event tracking.
+ * analytics.ts — centralized Firebase Analytics + PostHog event tracking.
  *
  * All functions are safe no-ops when Firebase Analytics is unavailable
  * (ad blockers, private browsing without consent, missing measurementId).
@@ -9,6 +9,31 @@
  * Only the value 'accepted' enables analytics; 'essential' (or missing)
  * means the user declined analytics — no events fire.
  */
+
+/**
+ * initPostHog — initialise PostHog product analytics.
+ * Called from main.tsx on load (if consent already given) and from
+ * CookieConsent when the user clicks "Accept all".
+ * Dynamically imports posthog-js so the ~30 KB bundle is never parsed
+ * when VITE_POSTHOG_KEY is absent.
+ */
+export function initPostHog(): void {
+  if (import.meta.env.VITE_POSTHOG_KEY && import.meta.env.PROD) {
+    import('posthog-js').then(({ default: posthog }) => {
+      posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'identified_only',
+        capture_pageview: true,
+        capture_pageleave: true,
+        autocapture: false,       // manual events only — no accidental PII
+        disable_session_recording: true,
+        persistence: 'localStorage+cookie',
+      });
+      // Make posthog accessible for funnel analytics throughout the app
+      (window as Window & { __posthog?: typeof posthog }).__posthog = posthog;
+    });
+  }
+}
 import { fbLogEvent } from './firebase';
 import { localDateStr } from './dateUtils';
 

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { initPostHog } from '../../main';
+import { initPostHog } from '../../lib/analytics';
 
 const COOKIE_KEY = 'cookie_consent_v1';
 

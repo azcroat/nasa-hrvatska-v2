@@ -1,10 +1,5 @@
 import { mergeStatsFromRemote } from './mergeStatsFromRemote.js';
-import type { Stats } from '../types/index.js';
-
-export type StatsAction =
-  | { type: 'RESET'; payload: Stats }
-  | { type: 'MERGE_REMOTE'; payload: unknown; ds: Stats }
-  | { type: 'APPLY'; payload: (prev: Stats) => Stats };
+import type { Stats, StatsAction } from '../types/index.js';
 
 export function statsReducer(state: Stats, action: StatsAction): Stats {
   switch (action.type) {

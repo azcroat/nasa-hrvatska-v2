@@ -1,5 +1,4 @@
 import type { Dispatch } from 'react';
-import type { StatsAction } from '../lib/statsReducer';
 
 // Core stats shape — mirrors DS constant in App.jsx and sanitizeStats field list.
 export interface Stats {
@@ -27,6 +26,11 @@ export interface Stats {
   mediaVisits?: number;
   streak?: number;
 }
+
+export type StatsAction =
+  | { type: 'RESET'; payload: Stats }
+  | { type: 'MERGE_REMOTE'; payload: unknown; ds: Stats }
+  | { type: 'APPLY'; payload: (prev: Stats) => Stats };
 
 export interface AuthUser {
   u: string;

@@ -21,6 +21,7 @@ import './index.css';
 import App from './App';
 import { reportError } from './lib/errorReporter.js';
 import { isNative, isAndroid } from './lib/platform.js';
+import { initPostHog } from './lib/analytics';
 import { registerSW } from 'virtual:pwa-register';
 
 // ─── Capacitor native: mark <html> for CSS animation overrides ────────────
@@ -115,28 +116,6 @@ if (import.meta.env.VITE_SENTRY_DSN) {
       },
     });
   });
-}
-
-// ─── PostHog product analytics ─────────────────────────────────────────────
-// Set VITE_POSTHOG_KEY in Cloudflare Pages env vars. Free up to 1M events/mo.
-// Opt-in via env var AND requires explicit cookie consent — never fires without both.
-// Dynamically imported so the ~30KB PostHog bundle is never parsed when key is absent.
-export function initPostHog() {
-  if (import.meta.env.VITE_POSTHOG_KEY && import.meta.env.PROD) {
-    import('posthog-js').then(({ default: posthog }) => {
-      posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
-        api_host: 'https://us.i.posthog.com',
-        person_profiles: 'identified_only',
-        capture_pageview: true,
-        capture_pageleave: true,
-        autocapture: false,       // manual events only — no accidental PII
-        disable_session_recording: true,
-        persistence: 'localStorage+cookie',
-      });
-      // Make posthog accessible for funnel analytics throughout the app
-      window.__posthog = posthog;
-    });
-  }
 }
 
 // Only initialize PostHog if the user has already accepted analytics cookies
