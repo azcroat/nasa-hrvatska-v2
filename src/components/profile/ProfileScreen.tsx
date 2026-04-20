@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from 'react';
 import { Bar, lXP, nXP } from '../../data';
 import { fbDeleteAccount } from '../../lib/firebase.js';

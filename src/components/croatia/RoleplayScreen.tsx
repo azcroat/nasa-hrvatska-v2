@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
 import { ROLEPLAY } from '../../data';

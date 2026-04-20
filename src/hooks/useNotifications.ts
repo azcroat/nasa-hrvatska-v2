@@ -68,7 +68,7 @@ export function checkNameDay(userName: string): void {
   const key =
     String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
   const names = NAME_DAYS[key] || [];
-  const firstName = userName.split(' ')[0];
+  const firstName = userName.split(' ')[0]!;
   if (!names.some((n) => n.toLowerCase() === firstName.toLowerCase())) return;
   const dismissed = localStorage.getItem('nh_nameday_dismissed');
   if (dismissed === today.toDateString()) return;
@@ -133,7 +133,7 @@ export function scheduleStreakReminder(streakDays: number): void {
   let reminderHour = 20;
   try {
     const pref = localStorage.getItem('nh_reminder_time') || '20:00';
-    reminderHour = parseInt(pref.split(':')[0], 10);
+    reminderHour = parseInt(pref.split(':')[0]!, 10);
     if (!Number.isFinite(reminderHour) || reminderHour < 0 || reminderHour > 23) reminderHour = 20;
   } catch (_) {
     reminderHour = 20;
@@ -157,7 +157,7 @@ export function scheduleStreakReminder(streakDays: number): void {
         name?: string;
         displayName?: string;
       };
-      firstName = (profile.name || profile.displayName || '').split(' ')[0].trim();
+      firstName = (profile.name || profile.displayName || '').split(' ')[0]!.trim();
     } catch (_) {}
     const nameTag = firstName ? `, ${firstName}` : '';
     const days = streakDays || 1;
@@ -192,7 +192,7 @@ export function scheduleStreakReminder(streakDays: number): void {
 // ── Rotation helper — cycles through an array without immediate repeats ──────
 // Stores the last-used index in localStorage under `storageKey`.
 function pickVariant<T>(arr: T[], storageKey: string): T {
-  if (arr.length === 1) return arr[0];
+  if (arr.length === 1) return arr[0]!;
   let last = -1;
   try {
     last = parseInt(localStorage.getItem(storageKey) || '-1', 10);
@@ -203,7 +203,7 @@ function pickVariant<T>(arr: T[], storageKey: string): T {
   try {
     localStorage.setItem(storageKey, String(next));
   } catch (_) {}
-  return arr[next];
+  return arr[next]!;
 }
 
 interface NotificationMessage {
@@ -228,7 +228,7 @@ function buildPersonalizedMessage(): NotificationMessage {
         name?: string;
         displayName?: string;
       };
-      userName = (profile.name || profile.displayName || '').split(' ')[0].trim();
+      userName = (profile.name || profile.displayName || '').split(' ')[0]!.trim();
     } catch (_) {}
     const nameTag = userName ? `, ${userName}` : '';
     const namePrefix = userName ? `${userName}, ` : '';
@@ -258,7 +258,7 @@ function buildPersonalizedMessage(): NotificationMessage {
     let lessonsCompleted = 0;
     if (progressKeys.length) {
       try {
-        const p = JSON.parse(localStorage.getItem(progressKeys[0]) || '{}') as {
+        const p = JSON.parse(localStorage.getItem(progressKeys[0]!) || '{}') as {
           stats?: { lc?: number };
           st?: { lc?: number };
         };

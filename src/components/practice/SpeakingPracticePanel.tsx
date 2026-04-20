@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { Spk, speakSlow } from '../../data';
 import PronunciationScorer from '../shared/PronunciationScorer';

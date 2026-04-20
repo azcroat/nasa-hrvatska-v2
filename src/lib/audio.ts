@@ -154,7 +154,7 @@ let _ttsAbort: AbortController | null = null;
 const _ttsTimestamps: number[] = [];
 function _ttsAllowed(): boolean {
   const now = Date.now();
-  while (_ttsTimestamps.length && _ttsTimestamps[0] < now - 60000) _ttsTimestamps.shift();
+  while (_ttsTimestamps.length && _ttsTimestamps[0]! < now - 60000) _ttsTimestamps.shift();
   if (_ttsTimestamps.length >= 55) return false;
   _ttsTimestamps.push(now);
   return true;
@@ -281,11 +281,11 @@ export function getBestVoice(): SpeechSynthesisVoice | null {
   if (!_voicesLoaded) loadVoices();
   const v = _voices;
   const hr = v.filter((x) => x.lang.startsWith('hr'));
-  if (hr.length > 0) return hr.find((x) => !x.localService) || hr[0];
+  if (hr.length > 0) return hr.find((x) => !x.localService) ?? hr[0] ?? null;
   const bs = v.filter((x) => x.lang.startsWith('bs'));
-  if (bs.length > 0) return bs[0];
+  if (bs.length > 0) return bs[0] ?? null;
   const sr = v.filter((x) => x.lang.startsWith('sr'));
-  if (sr.length > 0) return sr[0];
+  if (sr.length > 0) return sr[0] ?? null;
   return null;
 }
 
@@ -506,7 +506,7 @@ function prepTTS(text: string): string {
   if (!text) return text;
   const t = text.trim();
   if (t.includes('/') && t.length > 4) {
-    return t.split('/')[0].trim();
+    return t.split('/')[0]!.trim();
   }
   return t;
 }

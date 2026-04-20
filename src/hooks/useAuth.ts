@@ -315,8 +315,8 @@ export function useAuth({
               ],
               diff: (function () {
                 const DO: Record<string, number> = { beginner: 0, intermediate: 1, advanced: 2 };
-                const lo = DO[lpSt.diff as string] !== undefined ? DO[lpSt.diff as string] : -1;
-                const fo = DO[fpSt.diff as string] !== undefined ? DO[fpSt.diff as string] : -1;
+                const lo = DO[lpSt.diff as string] !== undefined ? DO[lpSt.diff as string]! : -1;
+                const fo = DO[fpSt.diff as string] !== undefined ? DO[fpSt.diff as string]! : -1;
                 return lo >= fo ? lpSt.diff || fpSt.diff : fpSt.diff || lpSt.diff;
               })(),
             };
@@ -380,8 +380,10 @@ export function useAuth({
                 ],
                 diff: (function () {
                   const DO: Record<string, number> = { beginner: 0, intermediate: 1, advanced: 2 };
-                  const lo = DO[_lpSt.diff as string] !== undefined ? DO[_lpSt.diff as string] : -1;
-                  const fo = DO[_fpSt.diff as string] !== undefined ? DO[_fpSt.diff as string] : -1;
+                  const lo =
+                    DO[_lpSt.diff as string] !== undefined ? DO[_lpSt.diff as string]! : -1;
+                  const fo =
+                    DO[_fpSt.diff as string] !== undefined ? DO[_fpSt.diff as string]! : -1;
                   return lo >= fo ? _lpSt.diff || _fpSt.diff : _fpSt.diff || _lpSt.diff;
                 })(),
               };

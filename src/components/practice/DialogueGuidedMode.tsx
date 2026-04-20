@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import TipContent from './DialogueTipContent';
 import DialogueAvatar from './DialogueAvatar';

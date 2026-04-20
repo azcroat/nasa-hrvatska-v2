@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data';
 import { useStats } from '../../context/StatsContext.tsx';

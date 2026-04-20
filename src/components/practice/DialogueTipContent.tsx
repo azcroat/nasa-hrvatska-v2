@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 
 // Renders tip text, turning "📚 See: Topic Name" into a styled pill badge

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from 'react';
 import { PHONEME_GUIDES, PHONEME_HINTS, scoreColor } from './pronunciationUtils.js';
 import PhonemeGuideCard from './PhonemeGuideCard';

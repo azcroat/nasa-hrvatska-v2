@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 
 // ── TappableMessage — defined outside to prevent remount on every parent render ─

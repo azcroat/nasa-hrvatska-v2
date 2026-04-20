@@ -90,5 +90,5 @@ export function getDailyFact(): CulturalFact {
   const dayOfYear = Math.floor(
     (Date.now() - new Date(new Date().getFullYear(), 0, 1).getTime()) / 86400000,
   );
-  return CULTURAL_FACTS[dayOfYear % CULTURAL_FACTS.length];
+  return CULTURAL_FACTS[dayOfYear % CULTURAL_FACTS.length]!;
 }

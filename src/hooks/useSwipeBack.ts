@@ -14,7 +14,7 @@ export function useSwipeBack(goBack: () => void, enabled: boolean = true): void 
     if (!enabled) return;
 
     function onTouchStart(e: TouchEvent): void {
-      const t = e.touches[0];
+      const t = e.touches[0]!;
       startX.current = t.clientX;
       startY.current = t.clientY;
     }

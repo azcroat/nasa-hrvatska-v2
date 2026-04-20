@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { CT_STYLES } from './CaseTransformerData.js';
 

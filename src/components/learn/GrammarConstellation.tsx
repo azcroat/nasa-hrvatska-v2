@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useMemo, useRef } from 'react';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext.tsx';

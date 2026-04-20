@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 
 export default function McGameOver({ challengeMode, onTryAgain, onContinueAnyway, onBack }) {

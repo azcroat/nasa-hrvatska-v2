@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, Bar, sh, NUMTIME } from '../../data';
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useMemo } from 'react';
 import { sh } from '../../data';
 import { TRANSLATE_DRILLS } from '../../data/exercises.js';

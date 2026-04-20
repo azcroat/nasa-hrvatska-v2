@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { PHONEME_GUIDES } from './pronunciationUtils.js';
 

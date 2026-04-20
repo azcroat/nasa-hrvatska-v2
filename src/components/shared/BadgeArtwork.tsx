@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 
 // Badge shape categories mapped to actual badge IDs from data.jsx

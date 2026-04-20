@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import AspectTimeline from './AspectTimeline';
 import AspectRuleCard from './AspectRuleCard';

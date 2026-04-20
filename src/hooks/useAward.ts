@@ -397,7 +397,7 @@ export function useAward({
       const _stageGates = [5, 11, 22, 34, 45];
       for (let _si = 0; _si < _stageGates.length; _si++) {
         const _sk = 'nh_stage' + (_si + 1) + '_ceremony';
-        if (stats.lc >= _stageGates[_si] && !localStorage.getItem(_sk)) {
+        if (stats.lc >= _stageGates[_si]! && !localStorage.getItem(_sk)) {
           localStorage.setItem(_sk, '1');
           setTimeout(() => setCeremonyType('stage_' + (_si + 1)), 100);
           break;

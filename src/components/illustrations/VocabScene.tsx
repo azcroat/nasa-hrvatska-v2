@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import FoodScene from './FoodScene';
 import FamilyScene from './FamilyScene';

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { H, BADGES, getStreak, getSR } from '../../data';
 import BadgeArtwork from '../shared/BadgeArtwork';

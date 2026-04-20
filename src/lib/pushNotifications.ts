@@ -173,9 +173,9 @@ function getGoalMessages(streakDays: number): GoalMessage {
   try {
     const goal = localStorage.getItem('nh_goal') || '';
     const pool = GOAL_MESSAGES[goal] || DEFAULT_MESSAGES;
-    return pool[streakDays % pool.length];
+    return pool[streakDays % pool.length]!;
   } catch {
-    return DEFAULT_MESSAGES[0];
+    return DEFAULT_MESSAGES[0]!;
   }
 }
 

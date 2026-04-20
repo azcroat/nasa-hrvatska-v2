@@ -74,27 +74,29 @@ function _R(t: number, S: number): number {
 
 /** Initial stability for a new card (grade 1–4, where 4 = easy) */
 function _initS(grade: number): number {
-  return Math.max(W[grade - 1], 0.1);
+  return Math.max(W[grade - 1]!, 0.1);
 }
 
 /** Initial difficulty (1–10 scale, higher = harder) */
 function _initD(grade: number): number {
-  return Math.min(Math.max(W[4] - Math.exp(W[5] * (grade - 1)) + 1, 1), 10);
+  return Math.min(Math.max(W[4]! - Math.exp(W[5]! * (grade - 1)) + 1, 1), 10);
 }
 
 /** Stability after a successful review (grade ≥ 3) */
 function _nextS_recall(D: number, S: number, R: number): number {
-  return S * (Math.exp(W[8]) * (11 - D) * Math.pow(S, -W[9]) * (Math.exp(W[10] * (1 - R)) - 1) + 1);
+  return (
+    S * (Math.exp(W[8]!) * (11 - D) * Math.pow(S, -W[9]!) * (Math.exp(W[10]! * (1 - R)) - 1) + 1)
+  );
 }
 
 /** Stability after forgetting (grade < 3) */
 function _nextS_forget(D: number, S: number, R: number): number {
-  return W[11] * Math.pow(D, -W[12]) * (Math.pow(S + 1, W[13]) - 1) * Math.exp(W[14] * (1 - R));
+  return W[11]! * Math.pow(D, -W[12]!) * (Math.pow(S + 1, W[13]!) - 1) * Math.exp(W[14]! * (1 - R));
 }
 
 /** Update difficulty after a review */
 function _nextD(D: number, grade: number): number {
-  return Math.min(Math.max(D - W[6] * (grade - 3), 1), 10);
+  return Math.min(Math.max(D - W[6]! * (grade - 3), 1), 10);
 }
 
 /** Optimal next interval in days from stability (capped at 365 days) */
@@ -164,7 +166,7 @@ export function getSR(): SRMap {
   let dirty = false;
   for (const word in data) {
     const before = JSON.stringify(data[word]);
-    _migrate(data[word]);
+    _migrate(data[word]!);
     if (JSON.stringify(data[word]) !== before) dirty = true;
   }
   if (dirty) saveSR(data);
@@ -209,7 +211,7 @@ export function getDueReviews(): string[] {
   // user imports a large word list or legacy SM-2 data wasn't fully migrated.
   let newCardBudget = 15;
   for (const word in sr) {
-    const card = sr[word];
+    const card = sr[word]!;
     if (card.due != null) {
       if (card.due <= now) due.push(word);
     } else if (newCardBudget > 0) {
@@ -219,7 +221,7 @@ export function getDueReviews(): string[] {
   }
   for (let i = due.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [due[i], due[j]] = [due[j], due[i]];
+    [due[i], due[j]] = [due[j]!, due[i]!];
   }
   return due;
 }
@@ -412,7 +414,7 @@ export function getSRStats(srMap: SRMap): SRStats {
     learning = 0,
     mastered = 0;
   for (const id in srMap) {
-    const c = srMap[id];
+    const c = srMap[id]!;
     const dueTs = c.due || c.nextDue || 0;
     if (dueTs <= now) {
       due++;
@@ -455,11 +457,11 @@ export function getPrioritizedReviewQueue(pool: unknown[][]): unknown[][] {
 
   for (let i = overdue.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [overdue[i], overdue[j]] = [overdue[j], overdue[i]];
+    [overdue[i], overdue[j]] = [overdue[j]!, overdue[i]!];
   }
   for (let i = dueToday.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [dueToday[i], dueToday[j]] = [dueToday[j], dueToday[i]];
+    [dueToday[i], dueToday[j]] = [dueToday[j]!, dueToday[i]!];
   }
   overdue.sort((a, b) => b.daysOverdue - a.daysOverdue);
   dueToday.sort((a, b) => a.R - b.R);

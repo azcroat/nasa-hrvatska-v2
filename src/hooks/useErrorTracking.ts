@@ -96,9 +96,9 @@ export function getWeakAreas(uid: string): WeakArea[] {
       if (!map[entry.type]) {
         map[entry.type] = { type: entry.type, count: 0, lastSeen: entry.ts };
       }
-      map[entry.type].count += 1;
+      map[entry.type]!.count += 1;
       // entries are newest-first, so first occurrence of this type is most recent
-      map[entry.type].lastSeen = entry.ts;
+      map[entry.type]!.lastSeen = entry.ts;
     }
 
     return Object.values(map).sort((a, b) => b.count - a.count);
@@ -156,10 +156,12 @@ export function useErrorTracking(uid: string): {
     } catch {
       return 0;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uid, tick]);
 
   const weakAreas = useMemo(() => {
     return getWeakAreas(uid);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uid, tick]);
 
   const boundRecordError = useCallback(

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * MediaDetailDrawer — bottom-sheet player for media items.
  *

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from 'react';
 import { MEDIA } from '../../data';
 import { LEVEL_COLORS } from './MediaPlayerUtils';

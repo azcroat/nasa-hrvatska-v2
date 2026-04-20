@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { weekKey } from '../../lib/dateUtils.js';
 import { getStreak } from '../../lib/appUtils.js';
@@ -41,6 +42,7 @@ export default function WeeklyRecapModal({ onClose, onMount }) {
   // Mark as shown on first render so tab-switching before close doesn't re-trigger it
   React.useEffect(() => {
     if (onMount) onMount();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // intentional: run once on mount only
   const prevXP = (() => {
     try {

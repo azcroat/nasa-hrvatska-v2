@@ -96,7 +96,7 @@ export function getStylePreferences(): StylePreferences | null {
   > = {};
   for (const e of events) {
     if (!stats[e.type]) stats[e.type] = { starts: 0, completes: 0, abandons: 0, totalDur: 0 };
-    const s = stats[e.type];
+    const s = stats[e.type]!;
     if (e.action === 'start') s.starts++;
     else if (e.action === 'complete') {
       s.completes++;

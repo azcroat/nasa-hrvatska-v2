@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect } from 'react';
 import { useHaptic } from '../../hooks/useHaptic';
 import BadgeArtwork from './BadgeArtwork';
@@ -7,6 +8,7 @@ function BadgeToast({ show, badge }) {
   // Fire haptic only when a new badge is actually shown (badge.id changes).
   useEffect(() => {
     if (show && badge) haptic.award();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show, badge?.id]);
   return (
     <div

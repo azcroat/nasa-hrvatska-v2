@@ -16,10 +16,10 @@
     // JSX support
     "jsx": "react-jsx",
 
-    // Strict mode: off for initial adoption — too many red lines on
-    // legacy code. Enable these one by one as files are cleaned up.
-    "strict": false,
-    "noImplicitAny": false,
+    // Strict mode: enabled. Files with @ts-nocheck are unaffected — errors
+    // surface as @ts-nocheck is removed per batch in SP3 Tasks 4–14.
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
     "strictNullChecks": true,
 
     // Catch the class of bug that burned us: accessing undefined props

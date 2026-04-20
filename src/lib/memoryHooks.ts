@@ -76,7 +76,7 @@ export function getMemoryHook(hrWord: string): string | null {
     .replace(/š/g, 's')
     .replace(/ž/g, 'z')
     .replace(/đ/g, 'd')
-    .split(/[,/\s]/)[0]
+    .split(/[,/\s]/)[0]!
     .replace(/[^a-z]/g, '');
   return MEMORY_HOOKS[key] || null;
 }
